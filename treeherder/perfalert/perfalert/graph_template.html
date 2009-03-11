@@ -1,0 +1,53 @@
+<html>
+<head>
+    <script language="javascript" src="flot/jquery.js"></script>
+    <script language="javascript" src="flot/jquery.flot.js"></script>
+    <script language="javascript" src="%(graph_file)s"></script>
+    <title>%(title)s</title>
+</head>
+<body>
+    <h1>%(title)s</h1>
+    <div id="graph" style="width:1200;height:600px;"></div>
+    <div id="overview" style="width:1200;height:200;"></div>
+
+    <script type="text/javascript" language="javascript" id="source">
+        $(function () {
+            var options = {
+                xaxis: {ticks:5, mode: "time"},
+                lines: {show: true, lineWidth: 1, fill: false},
+                shadowSize: 0,
+                selection: {mode: "xy"}
+            };
+            var plot = $.plot($("#graph"), graph_data, options);
+            var overview = $.plot($("#overview"), graph_data, {
+                xaxis: {ticks:5, mode: "time"},
+                lines: {show: true, lineWidth: 1, fill: false},
+                shadowSize: 0,
+                selection: {mode: "xy"},
+                legend: {show: false}
+            });
+            $("#graph").bind("plotselected", function(event, ranges) {
+                // clamp the zooming to prevent eternal zoom
+                if (ranges.xaxis.to - ranges.xaxis.from < 0.00001)
+                    ranges.xaxis.to = ranges.xaxis.from + 0.00001;
+                if (ranges.yaxis.to - ranges.yaxis.from < 0.00001)
+                    ranges.yaxis.to = ranges.yaxis.from + 0.00001;
+                
+                // do the zooming
+                plot = $.plot($("#graph"), graph_data,
+                              $.extend(true, {}, options, {
+                                  xaxis: { min: ranges.xaxis.from, max: ranges.xaxis.to },
+                                  yaxis: { min: ranges.yaxis.from, max: ranges.yaxis.to }
+                              }));
+                
+                // don't fire event on the overview to prevent eternal loop
+                overview.setSelection(ranges, true);
+            });
+            $("#overview").bind("plotselected", function(event, ranges) {
+                plot.setSelection(ranges);
+            });
+        });
+
+    </script>
+</body>
+</html>
