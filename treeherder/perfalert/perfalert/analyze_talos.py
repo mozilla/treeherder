@@ -88,7 +88,7 @@ class PushLog(object):
     def getPushLog(cls, branch):
         #branch = {"1.9.2": "mozilla-central", "1.9.1": "releases/mozilla-1.9.1", "TraceMonkey": "tracemonkey"}.get(branch)
         #branch = {"mozilla-central": "mozilla-central", "mozilla-1.9.1": "releases/mozilla-1.9.1", "TraceMonkey": "tracemonkey"}.get(branch)
-        branch = {"Firefox": "mozilla-central", "Firefox3.1": "releases/mozilla-1.9.1", "TraceMonkey": "tracemonkey"}.get(branch)
+        branch = {"Firefox": "mozilla-central", "Firefox3.5": "releases/mozilla-1.9.1", "TraceMonkey": "tracemonkey"}.get(branch)
         if not branch:
             return None
         if branch in cls.pushlogs:
@@ -219,7 +219,7 @@ def make_chart_url(branch_id, test_id, machine_ids, d):
 def make_hg_url(branch, rev, good_rev=None):
     if branch == "Firefox":
         branch_path = "mozilla-central"
-    elif branch == "Firefox3.1":
+    elif branch == "Firefox3.5":
         branch_path = "releases/mozilla-1.9.1"
     else:
         raise ValueError("Unknown branch %s" % branch)
@@ -431,7 +431,7 @@ if __name__ == "__main__":
     options, args = parser.parse_args()
 
     if not options.branches:
-        options.branches = ['Firefox', 'Firefox3.1', 'TraceMonkey']
+        options.branches = ['Firefox', 'Firefox3.5', 'TraceMonkey']
 
     if options.output is None or options.output == "-":
         output = sys.stdout
