@@ -1,420 +1,684 @@
-import time, urllib, re
-import cPickle
+from __future__ import with_statement
+import time, urllib, re, os
 import logging as log
 import email.utils
-import simplejson
+import threading
+import xml.sax.saxutils
+import shutil
+try:
+    import simplejson as json
+except ImportError:
+    import json
 from smtplib import SMTP
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 from analyze import TalosAnalyzer, PerfDatum
-from graphsdb import db
 
-def getTestData(branch_id, os_id, test_id, start_date):
-    cursor = db.cursor()
-    sql = """SELECT
-        machine_id,
-        ref_build_id,
-        date_run,
-        average,
-        ref_changeset
-    FROM
-        test_runs INNER JOIN machines ON (machine_id = machines.id)
-            INNER JOIN builds ON (build_id = builds.id)
-    WHERE
-        test_id = %(test_id)s AND
-        os_id = %(os_id)s AND
-        branch_id = %(branch_id)s AND
-        date_run > %(start_date)s
-    """
-    cursor.execute(sql, locals())
-    data = []
-    for row in cursor:
-        machine_id, ref_build_id, date_run, average, ref_changeset = row
-        if average is None:
-            continue
-        t = date_run
-        d = PerfDatum(machine_id, date_run, average, ref_build_id, t, ref_changeset)
-        data.append(d)
-    return data
+def avg(l):
+    return sum(l) / float(len(l))
 
-def getTestSeries(branches, start_date, test_names):
-    # Find all the Branch/OS/Test combinations
-    branch_places = ",".join(["%s"] * len(branches))
-    test_places = ",".join(["%s"] * len(test_names))
-    sql = """SELECT DISTINCT 
-        branch_id,
-        branches.name AS branch_name,
-        os_id,
-        os_list.name AS os_name,
-        test_id,
-        tests.name AS test_name
-    FROM
-         test_runs INNER JOIN machines ON (machine_id = machines.id)
-            INNER JOIN builds ON (build_id = builds.id)
-            INNER JOIN branches ON (branch_id = branches.id)
-            INNER JOIN os_list ON (os_id = os_list.id)
-            INNER JOIN tests ON (test_id = tests.id)
-    WHERE
-        date_run > %%s AND
-        branches.name IN (%(branch_places)s)
-    """
-    if len(test_names) > 0:
-        sql += "AND tests.name IN (%(test_places)s)"
-    sql = sql % locals()
-
-    cursor = db.cursor()
-    args = [start_date] + branches + test_names
-    cursor.execute(sql, args)
-    return cursor.fetchall()
-
-def getMachinesForTest(branch_id, test_id, os_id):
-    sql = """SELECT DISTINCT
-        machine_id
-    FROM
-        test_runs INNER JOIN machines ON (machine_id = machines.id)
-            INNER JOIN tests ON (test_id = tests.id)
-            INNER JOIN builds ON (build_id = builds.id)
-    WHERE
-        branch_id = %(branch_id)s AND
-        test_id = %(test_id)s AND
-        os_id = %(os_id)s
-    """
-    cursor = db.cursor()
-    cursor.execute(sql, locals())
-    return [row[0] for row in cursor.fetchall()]
-
-class PushLog(object):
-    pushlogs = {}
-    @classmethod
-    def getPushLog(cls, branch):
-        #branch = {"1.9.2": "mozilla-central", "1.9.1": "releases/mozilla-1.9.1", "TraceMonkey": "tracemonkey"}.get(branch)
-        #branch = {"mozilla-central": "mozilla-central", "mozilla-1.9.1": "releases/mozilla-1.9.1", "TraceMonkey": "tracemonkey"}.get(branch)
-        branch = {"Firefox": "mozilla-central", "Firefox3.5": "releases/mozilla-1.9.1", "TraceMonkey": "tracemonkey"}.get(branch)
-        if not branch:
-            return None
-        if branch in cls.pushlogs:
-            return cls.pushlogs[branch]
-        else:
-            retval = cls(branch)
-            cls.pushlogs[branch] = retval
-            return retval
-
-    def __init__(self, branch):
-        self.branch = branch
-        try:
-            self.cache = cPickle.load(open("%s-pushlog.pck" % os.path.basename(branch)))
-        except:
-            self.cache = {}
-
-    def _updateCache(self, changesets):
-        if len(changesets) > 0:
-            log.debug("Fetching %i changesets", len(changesets))
-            for c in changesets:
-                data = simplejson.load(urllib.urlopen("http://hg.mozilla.org/%s/json-pushes?changeset=%s" % (self.branch, c)))
-                if isinstance(data, dict):
-                    for entry in data.values():
-                        for changeset in entry['changesets']:
-                            self.cache[changeset[:12]] = entry
-                    cPickle.dump(self.cache, open("%s-pushlog.pck" % os.path.basename(self.branch), "w"))
-                else:
-                    log.debug("Couldn't get push time for %s on branch %s", c, self.branch)
-                    self.cache[c[:12]] = None
-            log.debug("Done fetching changesets")
-
-            #changesets = ["changeset=%s" % c for c in changesets]
-            #data = simplejson.load(urllib.urlopen("http://hg.mozilla.org/%s/json-pushes?%s" % (self.branch, "&".join(changesets))))
-            #if isinstance(data, dict):
-                #for entry in data.values():
-                    #for changeset in entry['changesets']:
-                        #self.cache[changeset[:12]] = entry
-                #cPickle.dump(self.cache, open("%s-pushlog.pck" % os.path.basename(self.branch), "w"))
-
-    def getPushData(self, changesets):
-        changesets = [c.rstrip("+") for c in changesets]
-        to_query = set(changesets) - set(self.cache.keys())
-        self._updateCache(to_query)
-        return dict([(c, self.cache.get(c)) for c in changesets])
-
-def send_msg(subject, msg, addrs):
+def send_msg(fromaddr, subject, msg, addrs, html=None):
     s = SMTP()
     s.connect()
-    date = email.utils.formatdate()
-    for addr in addrs:
-        msg = """From: catlee@mozilla.com
-To: %(addr)s
-Date: %(date)s
-Subject: %(subject)s
 
-%(msg)s""" % locals()
-        s.sendmail("catlee@mozilla.com", [addr], msg)
+    for addr in addrs:
+        if html:
+            m = MIMEMultipart('alternative')
+            m.attach(MIMEText(msg))
+            m.attach(MIMEText(html, "html"))
+        else:
+            m = MIMEText(msg)
+        m['date'] = email.utils.formatdate()
+        m['to'] = addr
+        m['subject'] = subject
+
+        s.sendmail(fromaddr, [addr], m.as_string())
     s.quit()
 
+class AnalysisRunner:
+    def __init__(self, options, config):
+        self.options = options
+        self.config = config
 
-def create_subject(branch_name, branch_id, os_name, os_id, test_name, test_id, good, bad):
-    initial_value = good.value
-    new_value = bad.value
-    change = abs(new_value - initial_value) / float(initial_value)
-    bad_build_time = datetime.fromtimestamp(bad.timestamp).strftime("%Y-%m-%d %H:%M:%S")
-    good_build_time = datetime.fromtimestamp(good.timestamp).strftime("%Y-%m-%d %H:%M:%S")
-    if new_value > initial_value:
-        direction = "increase"
-        reason = "Regression"
-    else:
-        direction = "decrease"
-        reason = "Improvement"
-    return "Talos %(reason)s: %(test_name)s %(direction)s %(change).2f%% on %(os_name)s %(branch_name)s" % locals()
+        if not options.branches:
+            options.branches = [s for s in config.sections() if s != "main"]
 
-def create_msg(branch_name, branch_id, os_name, os_id, test_name, test_id, good, bad):
-    initial_value = good.value
-    new_value = bad.value
-    change = abs(new_value - initial_value) / float(initial_value)
-    bad_build_time = datetime.fromtimestamp(bad.timestamp).strftime("%Y-%m-%d %H:%M:%S")
-    good_build_time = datetime.fromtimestamp(good.timestamp).strftime("%Y-%m-%d %H:%M:%S")
-    if new_value > initial_value:
-        direction = "increase"
-        reason = "Regression"
-    else:
-        direction = "decrease"
-        reason = "Improvement"
+        if options.output is None or options.output == "-":
+            self.output = sys.stdout
+        else:
+            self.output = open(options.output, "w")
 
-    machine_ids = getMachinesForTest(branch_id, test_id, os_id)
+        log.basicConfig(level=options.verbosity, format="%(asctime)s %(message)s")
 
-    chart_url = make_chart_url(branch_id, test_id, machine_ids, bad)
-    if good.revision:
-        good_rev = "revision %s" % good.revision
-    else:
-        good_rev = "(unknown revision)"
+        self.loadWarningHistory()
+        self.loadPushDates()
 
-    if bad.revision:
-        bad_rev = "revision %s" % bad.revision
-    else:
-        bad_rev = "(unknown revision)"
+        self.all_data = []
+        self.fore_window = config.getint('main', 'fore_window')
+        self.back_window = config.getint('main', 'back_window')
+        self.threshold = config.getfloat('main', 'threshold')
+        self.machine_threshold = config.getfloat('main', 'machine_threshold')
+        self.machine_history_size = config.getint('main', 'machine_history_size')
 
-    if good.revision and bad.revision:
-        hg_url = "\n    " + make_hg_url(branch_name, bad.revision, good.revision)
-    else:
-        hg_url = ""
+        if config.get('main', 'method') == 'graphapi':
+            from analyze_graphapi import GraphAPISource
+            graph_url = config.get('main', 'base_graph_url')
+            self.source = GraphAPISource("%(graph_url)s/api" % locals())
+        else:
+            import analyze_db as source
+            self.source = source
 
-    bad_build_id = bad.buildid
-    good_build_id = good.buildid
+        self.lock = threading.RLock()
 
-    msg =  """\
+    def loadWarningHistory(self):
+        # Stop warning about stuff from a long time ago
+        fn = self.config.get('main', 'warning_history')
+        cutoff = self.options.start_time
+        try:
+            if not os.path.exists(fn):
+                self.warning_history = {}
+                return
+            self.warning_history = json.load(open(fn))
+            # Purge old warnings
+            for branch, oses in self.warning_history.items():
+                if branch in ('inactive_machines', 'bad_machines'):
+                    continue
+                for os_name, tests in oses.items():
+                    for test_name, values in tests.items():
+                        for d in values[:]:
+                            buildid, timestamp = d
+                            if timestamp < cutoff:
+                                log.debug("Removing warning %s since it's before cutoff (%s)", d, cutoff)
+                                values.remove(d)
+                            else:
+                                # Convert to tuples
+                                values.remove(d)
+                                values.append((buildid, timestamp))
+
+                        if not values:
+                            log.debug("Removing empty warning list %s %s %s", branch, os_name, test_name)
+                            del tests[test_name]
+                    if not tests:
+                        log.debug("Removing empty os list %s %s", branch, os_name)
+                        del oses[os_name]
+                if not oses:
+                    log.debug("Removing empty branch list %s", branch)
+                    del self.warning_history[branch]
+        except:
+            log.exception("Couldn't load warnings from %s", fn)
+            self.warning_history = {}
+
+    def saveWarningHistory(self):
+        fn = self.config.get('main', 'warning_history')
+        json.dump(self.warning_history, open(fn, "w"), indent=2, sort_keys=True)
+
+    def loadPushDates(self):
+        fn = self.config.get('main', 'pushdates')
+        try:
+            if not os.path.exists(fn):
+                self.pushdates = {}
+                return
+            self.pushdates = json.load(open(fn))
+        except:
+            log.exception("Couldn't load push dates from %s", fn)
+            self.pushdates = {}
+
+    def savePushDates(self):
+        fn = self.config.get('main', 'pushdates')
+        json.dump(self.pushdates, open(fn, "w"), indent=2, sort_keys=True)
+
+    def getPushDates(self, branch, changesets):
+        retval = {}
+        to_query = []
+        if branch not in self.pushdates:
+            with self.lock:
+                self.pushdates[branch] = {}
+        for c in changesets:
+            if c in self.pushdates[branch]:
+                retval[c] = self.pushdates[branch][c]
+            else:
+                to_query.append(c)
+
+        if len(to_query) > 0:
+            repo_path = self.config.get(branch, 'repo_path')
+            log.debug("Fetching %i changesets", len(to_query))
+            for i in range(0, len(to_query), 50):
+                chunk = to_query[i:i+50]
+                changesets = ["changeset=%s" % c for c in chunk]
+                base_url = self.config.get('main', 'base_hg_url')
+                url = "%s/%s/json-pushes?%s" % (base_url, repo_path, "&".join(changesets))
+                raw_data = urllib.urlopen(url).read()
+                try:
+                    data = json.loads(raw_data)
+                except:
+                    log.exception("Error parsing %s", raw_data)
+                    raise
+                with self.lock:
+                    if branch not in self.pushdates:
+                        self.pushdates[branch] = {}
+                    if isinstance(data, dict):
+                        for entry in data.values():
+                            for changeset in entry['changesets']:
+                                self.pushdates[branch][changeset[:12]] = entry['date']
+                                retval[changeset[:12]] = entry['date']
+
+        return retval
+
+    def updateTimes(self, branch, data):
+        # We want to fetch the changesets so we can order the data points by
+        # push time, rather than by test time
+        changesets = set(d.revision for d in data)
+
+        dates = self.getPushDates(branch, changesets)
+
+        for d in data:
+            rev = dates.get(d.revision, None)
+            if rev:
+                d.time = rev
+
+    def makeChartUrl(self, series, d=None):
+        test_params = []
+        machine_ids = self.source.getMachinesForTest(series)
+        for machine_id in machine_ids:
+            test_params.append(dict(test=series.test_id, branch=series.branch_id, machine=machine_id))
+        test_params = json.dumps(test_params, separators=(",",":"))
+        base_url = self.config.get('main', 'base_graph_url')
+        if d is not None:
+            start_time = d.timestamp - 24*3600
+            end_time = d.timestamp + 24*3600
+            return "%(base_url)s/graph.html#tests=%(test_params)s&sel=%(start_time)s,%(end_time)s" % locals()
+        else:
+            return "%(base_url)s/graph.html#tests=%(test_params)s" % locals()
+
+    def makeHgUrl(self, branch, good_rev, bad_rev):
+        base_url = self.config.get('main', 'base_hg_url')
+        repo_path = self.config.get(branch, 'repo_path')
+        if good_rev:
+            hg_url = "%(base_url)s/%(repo_path)s/pushloghtml?fromchange=%(good_rev)s&tochange=%(bad_rev)s" % locals()
+        else:
+            hg_url = "%(base_url)s/%(repo_path)s/rev/%(bad_rev)s" % locals()
+        return hg_url
+
+    def formatMessage(self, state, series, good, bad, html=False):
+        if state == "machine":
+            good = bad.last_other
+
+        branch_name = series.branch_name
+        test_name = series.test_name
+        os_name = series.os_name
+
+        initial_value = good.value
+        new_value = bad.value
+        change = 100.0 * abs(new_value - initial_value) / float(initial_value)
+        bad_build_time = datetime.fromtimestamp(bad.timestamp).strftime("%Y-%m-%d %H:%M:%S")
+        good_build_time = datetime.fromtimestamp(good.timestamp).strftime("%Y-%m-%d %H:%M:%S")
+        if new_value > initial_value:
+            direction = "increase"
+            reason = "Regression"
+        else:
+            direction = "decrease"
+            reason = "Improvement"
+
+        chart_url = self.makeChartUrl(series, bad)
+        if good.revision:
+            good_rev = "revision %s" % good.revision
+        else:
+            good_rev = "(unknown revision)"
+
+        if bad.revision:
+            bad_rev = "revision %s" % bad.revision
+        else:
+            bad_rev = "(unknown revision)"
+
+        if good.revision and bad.revision:
+            hg_url = "\n    " + self.makeHgUrl(branch_name, good.revision, bad.revision)
+        else:
+            hg_url = ""
+
+        bad_build_id = bad.buildid
+        good_build_id = good.buildid
+        bad_machine_name = self.source.getMachineName(bad.machine_id)
+        good_machine_name = self.source.getMachineName(good.machine_id)
+        good_run_number = good.run_number
+        bad_run_number = bad.run_number
+
+        if state == "machine":
+            reason = "Suspected machine issue (%s)" % bad_machine_name
+            if not html:
+                msg =  """\
 %(reason)s: %(test_name)s %(direction)s %(change).2f%% on %(os_name)s %(branch_name)s
     Previous results:
-        %(initial_value)s from build %(good_build_id)s of %(good_rev)s at %(good_build_time)s
+        %(initial_value)s from build %(good_build_id)s of %(good_rev)s at %(good_build_time)s on %(good_machine_name)s
     New results:
-        %(new_value)s from build %(bad_build_id)s of %(bad_rev)s at %(bad_build_time)s
+        %(new_value)s from build %(bad_build_id)s of %(bad_rev)s at %(bad_build_time)s on %(bad_machine_name)s
+    %(chart_url)s
+""" % locals()
+            else:
+                chart_url_encoded = xml.sax.saxutils.quoteattr(chart_url)
+                hg_url_encoded = xml.sax.saxutils.quoteattr(hg_url)
+                msg =  """\
+<p>%(reason)s: %(test_name)s <a href=%(chart_url_encoded)s>%(direction)s %(change).2f%%</a> on %(os_name)s %(branch_name)s</p>
+<p>Previous results: %(initial_value)s from build %(good_build_id)s of %(good_rev)s at %(good_build_time)s on %(good_machine_name)s</p>
+<p>New results: %(new_value)s from build %(bad_build_id)s of %(bad_rev)s at %(bad_build_time)s on %(bad_machine_name)s</p>
+
+<p>Suspected checkin range: <a href=%(hg_url_encoded)s>from %(good_rev)s to %(bad_rev)s</a></p>
+""" % locals()
+        else:
+            if not html:
+                msg =  """\
+%(reason)s: %(test_name)s %(direction)s %(change).2f%% on %(os_name)s %(branch_name)s
+    Previous results:
+        %(initial_value)s from build %(good_build_id)s of %(good_rev)s at %(good_build_time)s on %(good_machine_name)s run # %(good_run_number)s
+    New results:
+        %(new_value)s from build %(bad_build_id)s of %(bad_rev)s at %(bad_build_time)s on %(bad_machine_name)s run # %(bad_run_number)s
     %(chart_url)s%(hg_url)s
 """ % locals()
-    return msg
+            else:
+                chart_url_encoded = xml.sax.saxutils.quoteattr(chart_url)
+                hg_url_encoded = xml.sax.saxutils.quoteattr(hg_url)
+                msg =  """\
+<p>%(reason)s: %(test_name)s <a href=%(chart_url_encoded)s>%(direction)s %(change).2f%%</a> on %(os_name)s %(branch_name)s</p>
+<p>Previous results: %(initial_value)s from build %(good_build_id)s of %(good_rev)s at %(good_build_time)s on %(good_machine_name)s run # %(good_run_number)s</p>
+<p>New results: %(new_value)s from build %(bad_build_id)s of %(bad_rev)s at %(bad_build_time)s on %(bad_machine_name)s run # %(bad_run_number)s</p>
 
-def make_chart_url(branch_id, test_id, machine_ids, d):
-    test_params = []
-    for machine_id in machine_ids:
-        test_params.append(dict(test=test_id, branch=branch_id, machine=machine_id))
-    test_params = simplejson.dumps(test_params).replace(" ", "")
-    start_time = d.timestamp - 24*3600
-    end_time = d.timestamp + 24*3600
-    return "http://graphs-stage2.mozilla.org/graph.html#tests=%(test_params)s&sel=%(start_time)s,%(end_time)s" % locals()
+<p>Suspected checkin range: <a href=%(hg_url_encoded)s>from %(good_rev)s to %(bad_rev)s</a></p>
+""" % locals()
+        return msg
 
-def make_hg_url(branch, rev, good_rev=None):
-    if branch == "Firefox":
-        branch_path = "mozilla-central"
-    elif branch == "Firefox3.5":
-        branch_path = "releases/mozilla-1.9.1"
-    else:
-        raise ValueError("Unknown branch %s" % branch)
+    def formatHTMLMessage(self, state, series, good, bad):
+        return self.formatMessage(state, series, good, bad, html=True)
 
-    if good_rev:
-        hg_url = "http://hg.mozilla.org/%(branch_path)s/pushloghtml?fromchange=%(good_rev)s&tochange=%(rev)s" % locals()
-    else:
-        hg_url = "http://hg.mozilla.org/%(branch_path)s/rev/%(rev)s" % locals()
-    return hg_url
+    def formatSubject(self, state, series, good, bad):
+        if state == "machine":
+            good = bad.last_other
 
-def load_warning_history(fn, cutoff):
-    # Stop warning about stuff from a long time ago
-    try:
-        warning_history = cPickle.load(open(fn))
-        # Purge old warnings
-        for key, values in warning_history.items():
-            for d in values[:]:
-                buildid, timestamp = d
-                if timestamp < cutoff:
-                    values.remove(d)
-    except:
-        warning_history = {}
-    return warning_history
+        branch_name = series.branch_name
+        test_name = series.test_name
+        os_name = series.os_name
 
-def update_data_with_pushdate(data):
-    # We want to fetch the changesets so we can order the data points by
-    # push time, rather than by test time
-    changesets = set(d.revision for d in data)
+        initial_value = good.value
+        new_value = bad.value
+        change = 100.0 * abs(new_value - initial_value) / float(initial_value)
+        bad_build_time = datetime.fromtimestamp(bad.timestamp).strftime("%Y-%m-%d %H:%M:%S")
+        good_build_time = datetime.fromtimestamp(good.timestamp).strftime("%Y-%m-%d %H:%M:%S")
+        if new_value > initial_value:
+            direction = "increase"
+            reason = "Regression"
+        else:
+            direction = "decrease"
+            reason = "Improvement"
+        if state == "machine":
+            bad_machine_name = self.source.getMachineName(bad.machine_id)
+            good_machine_name = self.source.getMachineName(good.machine_id)
+            reason = "Suspected machine issue (%s)" % bad_machine_name
+        return "Talos %(reason)s: %(test_name)s %(direction)s %(change).2f%% on %(os_name)s %(branch_name)s" % locals()
 
-    pushlog = PushLog.getPushLog(branch_name)
-    if pushlog:
-        pushdata = pushlog.getPushData(changesets)
-        for d in data:
-            if d.revision in pushdata:
-                d.time = pushdata[d.revision]['date']
+    def printWarning(self, series, d, state, last_good):
+        if self.output:
+            with self.lock:
+                self.output.write(self.formatMessage(state, series, last_good, d))
+                self.output.write("\n")
+                self.output.flush()
 
-def primedgenerator(func):
-    def starter(*args, **kwargs):
-        f = func(*args, **kwargs)
-        f.next()
-        return f
-    return starter
+    def emailWarning(self, series, d, state, last_good):
+        addresses = []
+        if state == 'regression' and self.config.has_option('main', 'regression_emails'):
+            addresses.extend(self.config.get('main', 'regression_emails').split(","))
 
-def history_filter(gen, cutoff, old_warnings):
-    for d, state in gen:
-        if d.time < cutoff:
-            yield d, state, "skip"
-            continue
+        if state == 'machine' and self.config.has_option('main', 'machine_emails'):
+            addresses.extend(self.config.get('main', 'machine_emails').split(","))
 
-        if (d.buildid, d.timestamp) in old_warnings:
-            yield d, state, "skip"
-            continue
+        if addresses:
+            addresses = [a.strip() for a in addresses]
+            subject = self.formatSubject(state, series, last_good, d)
+            msg = self.formatMessage(state, series, last_good, d)
+            html = self.formatHTMLMessage(state, series, last_good, d)
+            send_msg(self.config.get('main', 'from_email'), subject, msg, addresses, html)
 
-        old_warnings.append((d.buildid, d.timestamp))
-        yield d, state, "ok"
+    def outputJson(self):
+        warnings = {}
+        for s, d, state, skip, last_good in self.all_data:
+            if state == "good" or last_good is None:
+                continue
 
-def lastgood_filter(gen):
-    last_good = None
-    for d, state, skip in gen:
-        if last_good is None:
+            if s.branch_name not in warnings:
+               warnings[s.branch_name] = {}
+            if s.os_name not in warnings[s.branch_name]:
+                warnings[s.branch_name][s.os_name] = {}
+            if s.test_name not in warnings[s.branch_name][s.os_name]:
+                warnings[s.branch_name][s.os_name][s.test_name] = []
+
+            warnings[s.branch_name][s.os_name][s.test_name].append(
+                dict(type=state,
+                    good=dict(
+                        build_id=last_good.buildid,
+                        machine_id=last_good.machine_id,
+                        timestamp=last_good.timestamp,
+                        time=last_good.time,
+                        revision=last_good.revision,
+                        value=last_good.value,
+                        ),
+                    bad=dict(
+                        build_id=d.buildid,
+                        machine_id=d.machine_id,
+                        timestamp=d.timestamp,
+                        time=d.time,
+                        revision=d.revision,
+                        value=d.value,
+                        )))
+        json_file = self.config.get('main', 'json')
+        if not os.path.exists(os.path.dirname(json_file)):
+            os.makedirs(os.path.dirname(json_file))
+        json.dump(warnings, open(json_file, "w"), sort_keys=True)
+
+    def outputDashboard(self):
+        data = {}
+        sevenDaysAgo = time.time() - 7*24*60*60
+        importantTests = [t.strip() for t in self.config.get('dashboard', 'tests').split(",")]
+        for s, d, state, skip, last_good in self.all_data:
+            if d.time < sevenDaysAgo:
+                continue
+
+            if s.test_name not in importantTests:
+                continue
+
+            if s.branch_name not in data:
+               data[s.branch_name] = {}
+
+            # We want to merge the Tp3 (Memset) and Tp3 (RSS) results together
+            # for the dashboard, since they're just different names for the
+            # same thing on different platforms
+            test_name = s.test_name
+            if test_name == "Tp3 (Memset)":
+                test_name = "Tp3 (RSS)"
+
+            if test_name not in data[s.branch_name]:
+                data[s.branch_name][test_name] = {'_testid': s.test_id}
+
+            if s.os_name not in data[s.branch_name][test_name]:
+                data[s.branch_name][test_name][s.os_name] = {
+                        '_platformid': s.os_id,
+                        '_graphURL':self.makeChartUrl(s)
+                        }
+
+            machine_name = self.source.getMachineName(d.machine_id)
+            if machine_name not in data[s.branch_name][test_name][s.os_name]:
+                data[s.branch_name][test_name][s.os_name][machine_name] = {
+                        'results': [],
+                        'stats': [],
+                        }
+
+            results = data[s.branch_name][test_name][s.os_name][machine_name]['results']
+            results.append(d.time)
+            results.append(d.value)
+            values = [results[i+1] for i in range(0, len(results), 2)]
+            data[s.branch_name][test_name][s.os_name][machine_name]['stats'] = [avg(values), max(values), min(values)]
+
+        dirname = self.config.get('main', 'dashboard_dir')
+        if not os.path.exists(dirname):
+            # Copy in the rest of html
+            shutil.copytree('html/dashboard', dirname)
+            shutil.copytree('html/flot', '%s/flot' % dirname)
+            shutil.copytree('html/jquery', '%s/jquery' % dirname)
+        filename = os.path.join(dirname, 'testdata.js')
+        fp = open(filename + ".tmp", "w")
+        now = time.asctime()
+        fp.write("// Generated at %s\n" % now)
+        fp.write("gFetchTime = ")
+        json.dump(now, fp, separators=(',',':'))
+        fp.write(";\n")
+        fp.write("var gData = ")
+        # Hackity hack
+        # Don't pretend we have double precision here
+        # 8 digits of precision is plenty
+        try:
+            json.encoder.FLOAT_REPR = lambda f: "%.8g" % f
+        except:
+            pass
+        json.dump(data, fp, separators=(',',':'), sort_keys=True)
+        try:
+            json.encoder.FLOAT_REPR = repr
+        except:
+            pass
+
+        fp.write(";\n")
+        fp.close()
+        os.rename(filename + ".tmp", filename)
+
+    def outputGraphs(self, series, series_data):
+        all_data = []
+        good_data = []
+        regressions = []
+        bad_machines = {}
+        graph_dir = self.config.get('main', 'graph_dir')
+        basename = "%s/%s-%s-%s" % (graph_dir,
+                series.branch_name, series.os_name, series.test_name)
+
+        for s, d, state, skip, last_good in series_data:
+            graph_point = (d.time * 1000, d.value)
+            all_data.append(graph_point)
             if state == "good":
+                good_data.append(graph_point)
+            elif state == "regression":
+                regressions.append(graph_point)
+            elif state == "machine":
+                bad_machines.setdefault(d.machine_id, []).append(graph_point)
+
+        log.debug("Creating graph %s", basename)
+
+        graphs = []
+        graphs.append({"label": "Value", "data": all_data})
+
+        graphs.append({"label": "Smooth Value", "data": good_data, "color": "green"})
+        graphs.append({"label": "Regressions", "color": "red", "data": regressions, "lines": {"show": False}, "points": {"show": True}})
+        for machine_id, points in bad_machines.items():
+            machine_name = self.source.getMachineName(machine_id)
+            graphs.append({"label": "Bad Machines (%s)" % machine_name, "data": points, "lines": {"show": False}, "points": {"show": True}})
+
+        graph_file = "%s.js" % basename
+        html_file = "%s.html" % basename
+        html_template = open("html/graph_template.html").read()
+
+        test_name = series.test_name
+        os_name = series.os_name
+        branch_name = series.branch_name
+
+        title = "Talos Regression Graph for %(test_name)s on %(os_name)s %(branch_name)s" % locals()
+
+        html = html_template % dict(graph_file = os.path.basename(graph_file),
+                title=title)
+        if not os.path.exists(graph_dir):
+            os.makedirs(graph_dir)
+            # Copy in the rest of the HTML as well
+            shutil.copytree('html/flot', '%s/flot' % graph_dir)
+
+        open(html_file, "w").write(html)
+        open(graph_file, "w").write("var graph_data = %s;" % json.dumps(graphs))
+
+    def findInactiveMachines(self):
+        machine_dates = {}
+        for s, d, state, skip, last_good in self.all_data:
+            if d.machine_id not in machine_dates:
+                machine_dates[d.machine_id] = d.time
+            else:
+                machine_dates[d.machine_id] = max(machine_dates[d.machine_id], d.time)
+
+        if "inactive_machines" not in self.warning_history:
+            self.warning_history['inactive_machines'] = {}
+
+        # Complain about anything that hasn't reported in 48 hours
+        cutoff = time.time() - 48*3600
+
+        addresses = []
+        if self.config.has_option('main', 'machine_emails'):
+            addresses.extend(self.config.get('main', 'machine_emails').split(","))
+
+        for machine_id, t in machine_dates.items():
+            if t < cutoff:
+                machine_name = self.source.getMachineName(machine_id)
+
+                # When did we last warn about this machine?
+                if self.warning_history['inactive_machines'].get(machine_name, 0) < time.time() - 7*24*3600:
+                    # If it was over a week ago, then send another warning
+                    self.warning_history['inactive_machines'][machine_name] = time.time()
+
+                    subject = "Inactive Talos machine: %s" % machine_name
+                    msg = "Talos machine %s hasn't reported any results since %s" % (machine_name, time.ctime(t))
+
+                    self.output.write(msg)
+                    self.output.write("\n")
+                    self.output.flush()
+
+                    if addresses:
+                        send_msg(self.config.get('main', 'from_email'), subject, msg, addresses)
+
+    def handleData(self, series, d, state, skip, last_good):
+        if not skip and state != "good" and not self.options.catchup and last_good is not None:
+            # Notify people of the warnings
+            self.printWarning(series, d, state, last_good)
+            self.emailWarning(series, d, state, last_good)
+
+    def handleSeries(self, s):
+        if self.config.has_option('os', s.os_name):
+            s.os_name = self.config.get('os', s.os_name)
+        log.info("Processing %s %s %s", s.branch_name, s.os_name, s.test_name)
+        # Get all the test data for all machines running this combination
+        data = self.source.getTestData(s, options.start_time)
+
+        self.updateTimes(s.branch_name, data)
+
+        a = TalosAnalyzer()
+        a.addData(data)
+
+        analysis_gen = a.analyze_t(self.back_window, self.fore_window,
+                self.threshold, self.machine_threshold,
+                self.machine_history_size)
+
+        with self.lock:
+            if s.branch_name not in self.warning_history:
+                self.warning_history[s.branch_name] = {}
+            if s.os_name not in self.warning_history[s.branch_name]:
+                self.warning_history[s.branch_name][s.os_name] = {}
+            if s.test_name not in self.warning_history[s.branch_name][s.os_name]:
+                self.warning_history[s.branch_name][s.os_name][s.test_name] = []
+            warnings = self.warning_history[s.branch_name][s.os_name][s.test_name]
+
+        last_good = None
+        last_err = None
+        last_err_good = None
+        #cutoff = self.options.start_time
+        cutoff = time.time() - 7*24*3600
+        series_data = []
+        for d, state in analysis_gen:
+            skip = False
+            if d.timestamp < cutoff:
+                continue
+
+            if state != "good":
+                # Skip warnings about regressions we've already
+                # warned people about
+                with self.lock:
+                    if (d.buildid, d.timestamp) in warnings:
+                        skip = True
+                    else:
+                        warnings.append((d.buildid, d.timestamp))
+                        if state == "machine":
+                            machine_name = self.source.getMachineName(d.machine_id)
+                            if 'bad_machines' not in self.warning_history:
+                                self.warning_history['bad_machines'] = {}
+                            # When did we last warn about this machine?
+                            if self.warning_history['bad_machines'].get(machine_name, 0) > time.time() - 7*24*3600:
+                                skip = True
+                            else:
+                                # If it was over a week ago, then send another warning
+                                self.warning_history['bad_machines'][machine_name] = time.time()
+
+                if not last_err:
+                    last_err = d
+                    last_err_good = last_good
+                elif last_err_good == last_good:
+                    skip = True
+
+            else:
+                last_err = None
                 last_good = d
 
-        yield d, state, skip, last_good
+            series_data.append((s, d, state, skip, last_good))
+            self.handleData(s, d, state, skip, last_good)
 
-        if state == "good":
-            last_good = d
-            continue
+        with self.lock:
+            self.all_data.extend(series_data)
 
-def redundant_filter(gen):
-    last_err = None
-    last_err_good = None
-    for d, state, skip, last_good in gen:
-        if state != "good":
-            if not last_err:
-                last_err = d
-            elif last_err_good == last_good:
-                # Skip it!
-                skip = "skip"
-        else:
-            last_err = None
+        if self.config.has_option('main', 'graph_dir'):
+            self.outputGraphs(s, series_data)
 
-        yield d, state, skip, last_good
-        last_err_good = last_good
+    def run(self):
+        series = self.source.getTestSeries(self.options.branches, self.options.start_time, self.options.tests)
+        self.done = False
+        def runner():
+            while not self.done:
+                try:
+                    with self.lock:
+                        if not series:
+                            break
+                        s = series.pop()
+                    self.handleSeries(s)
+                except KeyboardInterrupt:
+                    print "Exiting..."
+                    self.done = True
+                    break
 
-def send_data(gen, targets):
-    for d, state, skip, last_good in gen:
-        for t in targets:
-            t.send((d, state, skip, last_good))
+        threads = []
+        for i in range(4):
+            t = threading.Thread(target=runner)
+            t.start()
+            threads.append(t)
 
-    for t in targets:
-        t.close()
+        while not self.done:
+            try:
+                alldone = True
+                for t in threads:
+                    if t.isAlive():
+                        alldone = False
+                        break
+                if alldone:
+                    self.done = True
+                else:
+                    time.sleep(1)
+            except KeyboardInterrupt:
+                print "Exiting..."
+                self.done = True
+                    
+        for t in threads:
+            t.join()
 
-@primedgenerator
-def printer(output, **kwargs):
-    while True:
-        d, state, skip, last_good = yield()
-        if skip == "skip":
-            continue
+        if self.config.has_option('main', 'json'):
+            self.outputJson()
 
-        if state != "good":
-            output.write(create_msg(good=last_good, bad=d, **kwargs))
-            output.write("\n")
+        if self.config.has_option('main', 'dashboard_dir'):
+            self.outputDashboard()
 
-@primedgenerator
-def emailer(addresses, **kwargs):
-    while True:
-        d, state, skip, last_good = yield()
-        if skip == "skip" or state == "good":
-            continue
-
-        subject = create_subject(good=last_good, bad=d, **kwargs)
-        msg = create_msg(good=last_good, bad=d, **kwargs)
-        send_msg(subject, msg, addresses)
-
-@primedgenerator
-def warnings_accumulator(l, **kwargs):
-    while True:
-        d, state, skip, last_good = yield()
-        if state != "good":
-            l.append(dict(type=state,
-                good=dict(
-                    build_id=last_good.buildid,
-                    machine_id=last_good.machine_id,
-                    timestamp=last_good.timestamp,
-                    time=last_good.time,
-                    revision=last_good.revision,
-                    value=last_good.value,
-                    ),
-                bad=dict(
-                    build_id=d.buildid,
-                    machine_id=d.machine_id,
-                    timestamp=d.timestamp,
-                    time=d.time,
-                    revision=d.revision,
-                    value=d.value,
-                    )))
-
-@primedgenerator
-def grapher(basename, title):
-    all_data = []
-    good_data = []
-    regressions = []
-    bad_machines = {}
-
-    while True:
-        try:
-            d, state, skip, last_good = yield()
-        except GeneratorExit:
-            break
-        graph_point = (d.time * 1000, d.value)
-        all_data.append(graph_point)
-        if state == "good":
-            good_data.append(graph_point)
-        elif state == "regression":
-            regressions.append(graph_point)
-        elif state == "machine":
-            bad_machines.setdefault(d.machine_id, []).append(graph_point)
-
-    log.debug("Creating graph %s", basename)
-
-    graphs = []
-    graphs.append({"label": "Value", "data": all_data})
-
-    graphs.append({"label": "Smooth Value", "data": good_data, "color": "green"})
-    graphs.append({"label": "Regressions", "color": "red", "data": regressions, "lines": {"show": False}, "points": {"show": True}})
-    for machine_id, points in bad_machines.items():
-        graphs.append({"label": "Bad Machines (%s)" % machine_id, "data": points, "lines": {"show": False}, "points": {"show": True}})
-
-    graph_file = "%s.js" % basename
-    html_file = "%s.html" % basename
-    html_template = open("graph_template.html").read()
-
-    html = html_template % dict(graph_file = os.path.basename(graph_file), title = title)
-    open(html_file, "w").write(html)
-    open(graph_file, "w").write("var graph_data = %s;" % simplejson.dumps(graphs))
-    raise GeneratorExit
+        if not self.options.catchup:
+            self.findInactiveMachines()
 
 if __name__ == "__main__":
-    import os, urllib, sys
+    import sys
     from datetime import datetime
     from optparse import OptionParser
-
+    from ConfigParser import SafeConfigParser
 
     parser = OptionParser()
     parser.add_option("-b", "--branch", dest="branches", action="append")
     parser.add_option("-t", "--test", dest="tests", action="append")
-    parser.add_option("", "--start-time", dest="start_time", type="int", help="timestamp for when we start looking at data")
     parser.add_option("-o", "--output", dest="output", help="output file")
     parser.add_option("-q", "--quiet", dest="verbosity", action="store_const", const=log.WARN)
     parser.add_option("-v", "--verbose", dest="verbosity", action="store_const", const=log.DEBUG)
-    parser.add_option("-g", "--graph-dir", dest="graph_dir")
-    parser.add_option("-j", "--json", dest="json", help="enable json output", action="store_true")
-    parser.add_option("-e", "--email", dest="addresses", help="send notices to this email address", action="append")
-    parser.add_option("-w", "--warning_history", dest="warning_history", help="file to store warning history in")
+    parser.add_option("-e", "--email", dest="addresses", help="send regression notices to this email address", action="append")
+    parser.add_option("-m", "--machine-email", dest="machine_addresses", help="send machine notices to this email address", action="append")
+    parser.add_option("-c", "--config", dest="config", help="config file to read")
+    parser.add_option("", "--start-time", dest="start_time", type="int", help="timestamp for when we start looking at data")
+    parser.add_option("", "--catchup", dest="catchup", action="store_true", help="Don't output any warnings, just process data")
 
     parser.set_defaults(
             branches = [],
@@ -422,85 +686,31 @@ if __name__ == "__main__":
             start_time = time.time() - 30*24*3600,
             verbosity = log.INFO,
             output = None,
-            graph_dir = None,
-            json = False,
+            json = None,
             addresses = [],
-            warning_history = "warning_history.pck",
+            machine_addresses = [],
+            config = "analysis.cfg",
+            catchup = False,
             )
 
     options, args = parser.parse_args()
 
-    if not options.branches:
-        options.branches = ['Firefox', 'Firefox3.5', 'TraceMonkey']
+    config = SafeConfigParser()
+    config.add_section('main')
+    config.set('main', 'warning_history', 'warning_history.json')
+    config.set('main', 'pushdates', 'pushdates.json')
+    config.read([options.config])
 
-    if options.output is None or options.output == "-":
-        output = sys.stdout
-    else:
-        output = open(options.output, "w")
+    if options.addresses:
+        config.set('main', 'regression_emails', ",".join(option.addresses))
+    if options.machine_addresses:
+        config.set('main', 'machine_emails', ",".join(option.machine_addresses))
 
-    log.basicConfig(level=options.verbosity, format="%(asctime)s %(message)s")
-
-    # warning_history is a dictionary mapping (branch_name, os_name, test_name) to a list of
-    # (buildids,timestamp) entries that have been warned about.
-    warning_history = load_warning_history(options.warning_history, options.start_time)
-
-    all_warnings = []
-
-    for branch_id, branch_name, os_id, os_name, test_id, test_name in getTestSeries(options.branches, options.start_time, options.tests):
-        log.info("Processing %s %s %s", branch_name, os_name, test_name)
-        # Get all the test data for all machines running this combination
-        data = getTestData(branch_id, os_id, test_id, options.start_time)
-
-        update_data_with_pushdate(data)
-
-        a = TalosAnalyzer()
-        a.addData(data)
-
-        # Hard coded for now
-        fore_window = 5
-        back_window = 30
-        threshold = 9
-        machine_threshold = 12
-        machine_history_size = 4
-
-        analysis_gen = a.analyze_t(back_window, fore_window, threshold, machine_threshold, machine_history_size)
-
-        old_warnings = warning_history.setdefault( (branch_name, os_name, test_name), [])
-        analysis_gen = history_filter(analysis_gen, options.start_time, old_warnings)
-
-        analysis_gen = lastgood_filter(analysis_gen)
-        analysis_gen = redundant_filter(analysis_gen)
-
-        targets = []
-        if not options.json:
-            p = printer(output, branch_name=branch_name, branch_id=branch_id, os_name=os_name, os_id=os_id, test_name=test_name, test_id=test_id)
-            targets.append(p)
-        else:
-            for warnings in all_warnings:
-                if warnings['branch_name'] == branch_name and warnings['os_name'] == os_name and warnings['test_name'] == test_name:
-                    warnings = warnings['warnings']
-                    break
-            else:
-                warnings = []
-                all_warnings.append(dict(branch_name=branch_name, os_name=os_name, test_name=test_name, warnings=warnings))
-            w = warnings_accumulator(warnings)
-            targets.append(w)
-
-        if options.graph_dir:
-            graph_dir = options.graph_dir
-            if not os.path.exists(graph_dir):
-                os.makedirs(graph_dir)
-            g = grapher("%(graph_dir)s/%(branch_name)s-%(os_name)s-%(test_name)s" % locals(),
-                        "%(branch_name)s %(os_name)s %(test_name)s" % locals())
-            targets.append(g)
-
-        if options.addresses:
-            targets.append(emailer(options.addresses, branch_name=branch_name, branch_id=branch_id, os_name=os_name, os_id=os_id, test_name=test_name, test_id=test_id))
-
-        send_data(analysis_gen, targets)
-
-    if options.json:
-        simplejson.dump(all_warnings, output, indent=0)
-
-    cPickle.dump(warning_history, open(options.warning_history, "w"))
-
+    runner = AnalysisRunner(options, config)
+    try:
+        runner.run()
+    finally:
+        try:
+            runner.saveWarningHistory()
+        finally:
+            runner.savePushDates()

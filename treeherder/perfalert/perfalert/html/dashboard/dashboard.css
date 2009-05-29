@@ -1,0 +1,47 @@
+/* vim: set sw=2 ts=2 sts=2 tw=78 expandtab : */
+body {
+  font-family: sans-serif;
+}
+
+.testdiv {
+  border: solid 1px black;
+  -moz-border-radius: 10px;
+  margin-bottom: 10px;
+  text-align: center;
+  min-height: 300px;
+  padding-bottom: 10px;
+}
+
+.platformdivwrapper {
+  display: inline-block;
+;
+}
+
+.platformdiv {
+  width: 360px;
+  height: 240px;
+}
+
+h1 {
+  text-align : center;
+  font-size: 110%;
+}
+
+h2 {
+  font-size: 100%;
+  margin-bottom: 2px;
+}
+
+#footer > p {
+  text-align: center;
+  margin: 0;
+  font-size: smaller;
+}
+
+img {
+  border: none;
+}
+
+.title {
+  font-size: 150%;
+}

@@ -125,8 +125,14 @@ class TalosAnalyzer:
             else:
                 m_t = 0
 
-            di.t = t
             if abs(m_t) >= machine_threshold:
+                l = len(good_data)-1
+                while l >= 0:
+                    dl = good_data[l]
+                    if dl.machine_id != di.machine_id:
+                        di.last_other = dl
+                        break
+                    l -= 1
                 yield di, "machine"
             elif abs(t) <= threshold:
                 good_data.append(di)
