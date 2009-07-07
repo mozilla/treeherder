@@ -323,8 +323,12 @@ class AnalysisRunner:
 
     def emailWarning(self, series, d, state, last_good):
         addresses = []
-        if state == 'regression' and self.config.has_option('main', 'regression_emails'):
-            addresses.extend(self.config.get('main', 'regression_emails').split(","))
+        if state == 'regression':
+            branch = series.branch_name
+            if self.config.has_option(branch, 'regression_emails'):
+                addresses.extend(self.config.get(branch, 'regression_emails').split(","))
+            elif self.config.has_option('main', 'regression_emails'):
+                addresses.extend(self.config.get('main', 'regression_emails').split(","))
 
         if state == 'machine' and self.config.has_option('main', 'machine_emails'):
             addresses.extend(self.config.get('main', 'machine_emails').split(","))

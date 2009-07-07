@@ -75,10 +75,6 @@ class GraphAPISource:
             if "GFX" in test_name:
                 continue
 
-            # Skip talos-rev2 slaves
-            if "talos-rev2" in machine_name:
-                continue
-
             series = TestSeries(branch_id, branch_info['name'],
                            os_id, os_info['name'],
                            test_id, test_name)
