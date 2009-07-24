@@ -55,6 +55,8 @@ class AnalysisRunner:
         self.loadPushDates()
 
         self.all_data = []
+        self.processed_data = []
+
         self.fore_window = config.getint('main', 'fore_window')
         self.back_window = config.getint('main', 'back_window')
         self.threshold = config.getfloat('main', 'threshold')
@@ -342,7 +344,7 @@ class AnalysisRunner:
 
     def outputJson(self):
         warnings = {}
-        for s, d, state, skip, last_good in self.all_data:
+        for s, d, state, skip, last_good in self.processed_data:
             if state == "good" or last_good is None:
                 continue
 
@@ -380,8 +382,8 @@ class AnalysisRunner:
         data = {}
         sevenDaysAgo = time.time() - 7*24*60*60
         importantTests = [t.strip() for t in self.config.get('dashboard', 'tests').split(",")]
-        for s, d, state, skip, last_good in self.all_data:
-            if d.time < sevenDaysAgo:
+        for s, d in self.all_data:
+            if d.timestamp < sevenDaysAgo:
                 continue
 
             if s.test_name not in importantTests:
@@ -396,6 +398,8 @@ class AnalysisRunner:
             test_name = s.test_name
             if test_name == "Tp3 (Memset)":
                 test_name = "Tp3 (RSS)"
+            elif test_name == "Tp4 (Memset)":
+                test_name = "Tp4 (RSS)"
 
             if test_name not in data[s.branch_name]:
                 data[s.branch_name][test_name] = {'_testid': s.test_id}
@@ -414,7 +418,7 @@ class AnalysisRunner:
                         }
 
             results = data[s.branch_name][test_name][s.os_name][machine_name]['results']
-            results.append(d.time)
+            results.append(d.timestamp)
             results.append(d.value)
             values = [results[i+1] for i in range(0, len(results), 2)]
             data[s.branch_name][test_name][s.os_name][machine_name]['stats'] = [avg(values), max(values), min(values)]
@@ -502,7 +506,7 @@ class AnalysisRunner:
 
     def findInactiveMachines(self):
         machine_dates = {}
-        for s, d, state, skip, last_good in self.all_data:
+        for s, d, state, skip, last_good in self.processed_data:
             if d.machine_id not in machine_dates:
                 machine_dates[d.machine_id] = d.time
             else:
@@ -546,6 +550,22 @@ class AnalysisRunner:
     def handleSeries(self, s):
         if self.config.has_option('os', s.os_name):
             s.os_name = self.config.get('os', s.os_name)
+
+        # Check if we should skip this test
+        ignore_tests = []
+        if self.config.has_option('main', 'ignore_tests'):
+            for i in self.config.get('main', 'ignore_tests').split(','):
+                ignore_tests.append(i.strip())
+
+        if self.config.has_option(s.branch_name, 'ignore_tests'):
+            for i in self.config.get(s.branch_name, 'ignore_tests').split(','):
+                ignore_tests.append(i.strip())
+
+        for i in ignore_tests:
+            if re.search(i, s.test_name):
+                log.info("Skipping %s %s %s", s.branch_name, s.os_name, s.test_name)
+                return
+
         log.info("Processing %s %s %s", s.branch_name, s.os_name, s.test_name)
         # Get all the test data for all machines running this combination
         data = self.source.getTestData(s, options.start_time)
@@ -554,6 +574,9 @@ class AnalysisRunner:
 
         a = TalosAnalyzer()
         a.addData(data)
+
+        for d in data:
+            self.all_data.append((s, d))
 
         analysis_gen = a.analyze_t(self.back_window, self.fore_window,
                 self.threshold, self.machine_threshold,
@@ -612,12 +635,13 @@ class AnalysisRunner:
             self.handleData(s, d, state, skip, last_good)
 
         with self.lock:
-            self.all_data.extend(series_data)
+            self.processed_data.extend(series_data)
 
         if self.config.has_option('main', 'graph_dir'):
             self.outputGraphs(s, series_data)
 
     def run(self):
+        log.info("Fetching list of tests")
         series = self.source.getTestSeries(self.options.branches, self.options.start_time, self.options.tests)
         self.done = False
         def runner():
@@ -634,7 +658,7 @@ class AnalysisRunner:
                     break
 
         threads = []
-        for i in range(4):
+        for i in range(2):
             t = threading.Thread(target=runner)
             t.start()
             threads.append(t)
@@ -649,7 +673,7 @@ class AnalysisRunner:
                 if alldone:
                     self.done = True
                 else:
-                    time.sleep(1)
+                    time.sleep(5)
             except KeyboardInterrupt:
                 print "Exiting..."
                 self.done = True
