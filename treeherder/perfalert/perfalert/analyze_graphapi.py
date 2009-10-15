@@ -71,10 +71,6 @@ class GraphAPISource:
             if "Fast Cycle" in test_name:
                 continue
 
-            # Skip GFX
-            if "GFX" in test_name:
-                continue
-
             series = TestSeries(branch_id, branch_info['name'],
                            os_id, os_info['name'],
                            test_id, test_name)
