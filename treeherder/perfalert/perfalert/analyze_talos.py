@@ -381,7 +381,11 @@ class AnalysisRunner:
     def outputDashboard(self):
         data = {}
         sevenDaysAgo = time.time() - 7*24*60*60
-        importantTests = [t.strip() for t in self.config.get('dashboard', 'tests').split(",")]
+        importantTests = []
+        for t in re.split(r"(?<!\\),", self.config.get("dashboard", "tests")):
+            t = t.replace("\\,", ",").strip()
+            importantTests.append(t)
+
         for s, d in self.all_data:
             if d.timestamp < sevenDaysAgo:
                 continue
