@@ -36,6 +36,61 @@ def send_msg(fromaddr, subject, msg, addrs, html=None):
         s.sendmail(fromaddr, [addr], m.as_string())
     s.quit()
 
+class PushDater:
+    def __init__(self, filename, base_url):
+        self.filename = filename
+        self.base_url = base_url
+        self.lock = threading.RLock()
+        self.pushdates = {}
+
+    def loadPushDates(self):
+        try:
+            if not os.path.exists(self.filename):
+                self.pushdates = {}
+                return
+            self.pushdates = json.load(open(self.filename))
+        except:
+            log.exception("Couldn't load push dates from %s", self.filename)
+            self.pushdates = {}
+
+    def savePushDates(self):
+        json.dump(self.pushdates, open(self.filename, "w"), indent=2, sort_keys=True)
+
+    def getPushDates(self, branch, repo_path, changesets):
+        retval = {}
+        to_query = []
+        if branch not in self.pushdates:
+            with self.lock:
+                self.pushdates[branch] = {}
+        for c in changesets:
+            if c in self.pushdates[branch]:
+                retval[c] = self.pushdates[branch][c]
+            else:
+                to_query.append(c)
+
+        if len(to_query) > 0:
+            log.debug("Fetching %i changesets", len(to_query))
+            for i in range(0, len(to_query), 50):
+                chunk = to_query[i:i+50]
+                changesets = ["changeset=%s" % c for c in chunk]
+                base_url = self.base_url
+                url = "%s/%s/json-pushes?%s" % (base_url, repo_path, "&".join(changesets))
+                raw_data = urllib.urlopen(url).read()
+                try:
+                    data = json.loads(raw_data)
+                except:
+                    log.exception("Error parsing %s", raw_data)
+                    raise
+                with self.lock:
+                    if branch not in self.pushdates:
+                        self.pushdates[branch] = {}
+                    if isinstance(data, dict):
+                        for entry in data.values():
+                            for changeset in entry['changesets']:
+                                self.pushdates[branch][changeset[:12]] = entry['date']
+                                retval[changeset[:12]] = entry['date']
+        return retval
+
 class AnalysisRunner:
     def __init__(self, options, config):
         self.options = options
@@ -49,12 +104,14 @@ class AnalysisRunner:
         else:
             self.output = open(options.output, "w")
 
+        self.dater = PushDater(config.get('main', 'pushdates'), config.get('main', 'base_hg_url'))
+        self.dater.loadPushDates()
+
         log.basicConfig(level=options.verbosity, format="%(asctime)s %(message)s")
 
         self.loadWarningHistory()
-        self.loadPushDates()
 
-        self.all_data = []
+        self.dashboard_data = {}
         self.processed_data = []
 
         self.fore_window = config.getint('main', 'fore_window')
@@ -69,6 +126,7 @@ class AnalysisRunner:
             self.source = GraphAPISource("%(graph_url)s/api" % locals())
         else:
             import analyze_db as source
+            source.connect(config.get('main', 'dburl'))
             self.source = source
 
         self.lock = threading.RLock()
@@ -115,64 +173,12 @@ class AnalysisRunner:
         fn = self.config.get('main', 'warning_history')
         json.dump(self.warning_history, open(fn, "w"), indent=2, sort_keys=True)
 
-    def loadPushDates(self):
-        fn = self.config.get('main', 'pushdates')
-        try:
-            if not os.path.exists(fn):
-                self.pushdates = {}
-                return
-            self.pushdates = json.load(open(fn))
-        except:
-            log.exception("Couldn't load push dates from %s", fn)
-            self.pushdates = {}
-
-    def savePushDates(self):
-        fn = self.config.get('main', 'pushdates')
-        json.dump(self.pushdates, open(fn, "w"), indent=2, sort_keys=True)
-
-    def getPushDates(self, branch, changesets):
-        retval = {}
-        to_query = []
-        if branch not in self.pushdates:
-            with self.lock:
-                self.pushdates[branch] = {}
-        for c in changesets:
-            if c in self.pushdates[branch]:
-                retval[c] = self.pushdates[branch][c]
-            else:
-                to_query.append(c)
-
-        if len(to_query) > 0:
-            repo_path = self.config.get(branch, 'repo_path')
-            log.debug("Fetching %i changesets", len(to_query))
-            for i in range(0, len(to_query), 50):
-                chunk = to_query[i:i+50]
-                changesets = ["changeset=%s" % c for c in chunk]
-                base_url = self.config.get('main', 'base_hg_url')
-                url = "%s/%s/json-pushes?%s" % (base_url, repo_path, "&".join(changesets))
-                raw_data = urllib.urlopen(url).read()
-                try:
-                    data = json.loads(raw_data)
-                except:
-                    log.exception("Error parsing %s", raw_data)
-                    raise
-                with self.lock:
-                    if branch not in self.pushdates:
-                        self.pushdates[branch] = {}
-                    if isinstance(data, dict):
-                        for entry in data.values():
-                            for changeset in entry['changesets']:
-                                self.pushdates[branch][changeset[:12]] = entry['date']
-                                retval[changeset[:12]] = entry['date']
-
-        return retval
-
     def updateTimes(self, branch, data):
         # We want to fetch the changesets so we can order the data points by
         # push time, rather than by test time
         changesets = set(d.revision for d in data)
 
-        dates = self.getPushDates(branch, changesets)
+        dates = self.dater.getPushDates(branch, self.config.get(branch, 'repo_path'), changesets)
 
         for d in data:
             rev = dates.get(d.revision, None)
@@ -379,53 +385,7 @@ class AnalysisRunner:
         json.dump(warnings, open(json_file, "w"), sort_keys=True)
 
     def outputDashboard(self):
-        data = {}
-        sevenDaysAgo = time.time() - 7*24*60*60
-        importantTests = []
-        for t in re.split(r"(?<!\\),", self.config.get("dashboard", "tests")):
-            t = t.replace("\\,", ",").strip()
-            importantTests.append(t)
-
-        for s, d in self.all_data:
-            if d.timestamp < sevenDaysAgo:
-                continue
-
-            if s.test_name not in importantTests:
-                continue
-
-            if s.branch_name not in data:
-               data[s.branch_name] = {}
-
-            # We want to merge the Tp3 (Memset) and Tp3 (RSS) results together
-            # for the dashboard, since they're just different names for the
-            # same thing on different platforms
-            test_name = s.test_name
-            if test_name == "Tp3 (Memset)":
-                test_name = "Tp3 (RSS)"
-            elif test_name == "Tp4 (Memset)":
-                test_name = "Tp4 (RSS)"
-
-            if test_name not in data[s.branch_name]:
-                data[s.branch_name][test_name] = {'_testid': s.test_id}
-
-            if s.os_name not in data[s.branch_name][test_name]:
-                data[s.branch_name][test_name][s.os_name] = {
-                        '_platformid': s.os_id,
-                        '_graphURL':self.makeChartUrl(s)
-                        }
-
-            machine_name = self.source.getMachineName(d.machine_id)
-            if machine_name not in data[s.branch_name][test_name][s.os_name]:
-                data[s.branch_name][test_name][s.os_name][machine_name] = {
-                        'results': [],
-                        'stats': [],
-                        }
-
-            results = data[s.branch_name][test_name][s.os_name][machine_name]['results']
-            results.append(d.timestamp)
-            results.append(d.value)
-            values = [results[i+1] for i in range(0, len(results), 2)]
-            data[s.branch_name][test_name][s.os_name][machine_name]['stats'] = [avg(values), max(values), min(values)]
+        log.debug("Creating dashboard")
 
         dirname = self.config.get('main', 'dashboard_dir')
         if not os.path.exists(dirname):
@@ -448,7 +408,7 @@ class AnalysisRunner:
             json.encoder.FLOAT_REPR = lambda f: "%.8g" % f
         except:
             pass
-        json.dump(data, fp, separators=(',',':'), sort_keys=True)
+        json.dump(self.dashboard_data, fp, separators=(',',':'), sort_keys=True)
         try:
             json.encoder.FLOAT_REPR = repr
         except:
@@ -509,6 +469,7 @@ class AnalysisRunner:
         open(graph_file, "w").write("var graph_data = %s;" % json.dumps(graphs))
 
     def findInactiveMachines(self):
+        log.debug("Finding inactive machines...")
         machine_dates = {}
         for s, d, state, skip, last_good in self.processed_data:
             if d.machine_id not in machine_dates:
@@ -571,16 +532,55 @@ class AnalysisRunner:
                 return
 
         log.info("Processing %s %s %s", s.branch_name, s.os_name, s.test_name)
+
         # Get all the test data for all machines running this combination
         data = self.source.getTestData(s, options.start_time)
+
+        # Add it to our dashboard data
+        sevenDaysAgo = time.time() - 7*24*60*60
+        importantTests = []
+        for t in re.split(r"(?<!\\),", self.config.get("dashboard", "tests")):
+            t = t.replace("\\,", ",").strip()
+            importantTests.append(t)
+
+        if s.test_name in importantTests and len(data) > 0:
+            # We want to merge the Tp3 (Memset) and Tp3 (RSS) results together
+            # for the dashboard, since they're just different names for the
+            # same thing on different platforms
+            test_name = s.test_name
+            if test_name == "Tp3 (Memset)":
+                test_name = "Tp3 (RSS)"
+            elif test_name == "Tp4 (Memset)":
+                test_name = "Tp4 (RSS)"
+            self.dashboard_data.setdefault(s.branch_name, {})
+            self.dashboard_data[s.branch_name].setdefault(test_name, {'_testid': s.test_id})
+            self.dashboard_data[s.branch_name][test_name].setdefault(s.os_name, {'_platformid': s.os_id, '_graphURL': self.makeChartUrl(s)})
+            _d = self.dashboard_data[s.branch_name][test_name][s.os_name]
+
+            for d in data:
+                if d.timestamp < sevenDaysAgo:
+                    continue
+                machine_name = self.source.getMachineName(d.machine_id)
+                if machine_name not in _d:
+                    _d[machine_name] = {
+                            'results': [],
+                            'stats': [],
+                            }
+                results = _d[machine_name]['results']
+                results.append(d.timestamp)
+                results.append(d.value)
+
+            for machine_name in _d:
+                if machine_name.startswith("_"):
+                    continue
+                results = _d[machine_name]['results']
+                values = [results[i+1] for i in range(0, len(results), 2)]
+                _d[machine_name]['stats'] = [avg(values), max(values), min(values)]
 
         self.updateTimes(s.branch_name, data)
 
         a = TalosAnalyzer()
         a.addData(data)
-
-        for d in data:
-            self.all_data.append((s, d))
 
         analysis_gen = a.analyze_t(self.back_window, self.fore_window,
                 self.threshold, self.machine_threshold,
@@ -661,29 +661,32 @@ class AnalysisRunner:
                     self.done = True
                     break
 
-        threads = []
-        for i in range(2):
-            t = threading.Thread(target=runner)
-            t.start()
-            threads.append(t)
+        if False:
+            threads = []
+            for i in range(1):
+                t = threading.Thread(target=runner)
+                t.start()
+                threads.append(t)
 
-        while not self.done:
-            try:
-                alldone = True
-                for t in threads:
-                    if t.isAlive():
-                        alldone = False
-                        break
-                if alldone:
+            while not self.done:
+                try:
+                    alldone = True
+                    for t in threads:
+                        if t.isAlive():
+                            alldone = False
+                            break
+                    if alldone:
+                        self.done = True
+                    else:
+                        time.sleep(5)
+                except KeyboardInterrupt:
+                    print "Exiting..."
                     self.done = True
-                else:
-                    time.sleep(5)
-            except KeyboardInterrupt:
-                print "Exiting..."
-                self.done = True
-                    
-        for t in threads:
-            t.join()
+                        
+            for t in threads:
+                t.join()
+        else:
+            runner()
 
         if self.config.has_option('main', 'json'):
             self.outputJson()
@@ -745,4 +748,4 @@ if __name__ == "__main__":
         try:
             runner.saveWarningHistory()
         finally:
-            runner.savePushDates()
+            runner.dater.savePushDates()

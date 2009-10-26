@@ -1,93 +1,95 @@
-from graphsdb import db
+import sys
+import sqlalchemy as sa
+from sqlalchemy.ext.sqlsoup import SqlSoup
 
 from analyze import PerfDatum
+from analyze_graphapi import TestSeries
 
-def getTestData(branch_id, os_id, test_id, start_date):
-    cursor = db.cursor()
-    sql = """SELECT
-        machine_id,
-        ref_build_id,
-        date_run,
-        average,
-        ref_changeset
-    FROM
-        test_runs INNER JOIN machines ON (machine_id = machines.id)
-            INNER JOIN builds ON (build_id = builds.id)
-    WHERE
-        test_id = %(test_id)s AND
-        os_id = %(os_id)s AND
-        branch_id = %(branch_id)s AND
-        date_run > %(start_date)s AND
-        machines.name NOT LIKE '%%stage%%'
-    """
-    cursor.execute(sql, locals())
+db = None
+def connect(url):
+    global db
+    db = SqlSoup(url)
+
+def getTestData(series, start_time):
+    q = sa.select(
+        [db.test_runs.machine_id, db.builds.ref_build_id, db.test_runs.date_run, db.test_runs.average, db.builds.ref_changeset, db.test_runs.run_number, db.builds.branch_id],
+        sa.and_(
+        db.test_runs.test_id == series.test_id,
+        db.builds.branch_id == series.branch_id,
+        db.machines.os_id == series.os_id,
+        db.test_runs.machine_id == db.machines.id,
+        db.test_runs.build_id == db.builds.id,
+        db.test_runs.date_run > start_time,
+        sa.not_(db.machines.name.like("%stage%")),
+        ))
+
     data = []
-    for row in cursor:
-        machine_id, ref_build_id, date_run, average, ref_changeset = row
-        if average is None:
+    for row in q.execute():
+        if row.average is None:
             continue
-        t = date_run
-        d = PerfDatum(machine_id, date_run, average, ref_build_id, t, ref_changeset)
+        t = row.date_run
+        d = PerfDatum(row.machine_id, row.date_run, row.average, row.ref_build_id, t, row.ref_changeset)
+        d.run_number = row.run_number
         data.append(d)
     return data
 
 def getTestSeries(branches, start_date, test_names):
     # Find all the Branch/OS/Test combinations
-    branch_places = ",".join(["%s"] * len(branches))
-    test_places = ",".join(["%s"] * len(test_names))
-    sql = """SELECT DISTINCT 
-        branch_id,
-        branches.name AS branch_name,
-        os_id,
-        os_list.name AS os_name,
-        test_id,
-        tests.name AS test_name
-    FROM
-         test_runs INNER JOIN machines ON (machine_id = machines.id)
-            INNER JOIN builds ON (build_id = builds.id)
-            INNER JOIN branches ON (branch_id = branches.id)
-            INNER JOIN os_list ON (os_id = os_list.id)
-            INNER JOIN tests ON (test_id = tests.id)
-    WHERE
-        date_run > %%s AND
-        branches.name IN (%(branch_places)s) AND
-        machines.name NOT LIKE '%%%%stage%%%%'
-    """
     if len(test_names) > 0:
-        sql += "AND tests.name IN (%(test_places)s)"
-    sql = sql % locals()
+        test_clause = db.tests.pretty_name.in_(test_names)
+    else:
+        test_clause = True
+    q = sa.select(
+            [db.branches.id, db.branches.name, db.os_list.id, db.os_list.name, db.tests.id, db.tests.pretty_name],
+            sa.and_(
+                db.test_runs.machine_id == db.machines.id,
+                db.builds.id == db.test_runs.build_id,
+                db.os_list.id == db.machines.os_id,
+                db.tests.id == db.test_runs.test_id,
+                db.test_runs.date_run > start_date,
+                db.branches.name.in_(branches),
+                sa.not_(db.machines.name.like('%stage%')),
+                sa.not_(db.tests.pretty_name.like("%NoChrome%")),
+                sa.not_(db.tests.pretty_name.like("%Fast Cycle%")),
+                test_clause
+            ))
 
-    cursor = db.cursor()
-    args = [start_date] + branches + test_names
-    cursor.execute(sql, args)
-    return cursor.fetchall()
+    q = q.distinct()
 
-def getMachinesForTest(branch_id, test_id, os_id):
-    sql = """SELECT DISTINCT
-        machine_id
-    FROM
-        test_runs INNER JOIN machines ON (machine_id = machines.id)
-            INNER JOIN tests ON (test_id = tests.id)
-            INNER JOIN builds ON (build_id = builds.id)
-    WHERE
-        branch_id = %(branch_id)s AND
-        test_id = %(test_id)s AND
-        os_id = %(os_id)s AND
-        machines.name NOT LIKE '%%stage%%'
-    """
-    cursor = db.cursor()
-    cursor.execute(sql, locals())
-    return [row[0] for row in cursor.fetchall()]
+    retval = []
+    for row in q.execute():
+        retval.append(TestSeries(*row))
+    return retval
 
+_machines_cache = {}
+def getMachinesForTest(series):
+    key = (series.os_id, series.branch_id, series.test_id)
+    if key in _machines_cache:
+        return _machines_cache[key]
+
+    q = sa.select([db.machines.id], sa.and_(
+        db.test_runs.machine_id == db.machines.id,
+        db.builds.id == db.test_runs.build_id,
+        db.builds.branch_id == series.branch_id,
+        db.tests.id == db.test_runs.test_id,
+        db.tests.id == series.test_id,
+        db.machines.os_id == series.os_id,
+        sa.not_(db.machines.name.like('%stage%')),
+        )).distinct()
+    result = q.execute()
+
+    _machines_cache[key] = [row[0] for row in result.fetchall()]
+    return _machines_cache[key]
+
+_name_cache = {}
 def getMachineName(machine_id):
-    sql = """SELECT 
-        name
-    FROM
-        machines
-    WHERE
-        id = %(machine_id)s
-    """
-    cursor = db.cursor()
-    cursor.execute(sql, locals())
-    return cursor.fetchall()[0][0]
+    if machine_id in _name_cache:
+        return _name_cache[machine_id]
 
+    m = db.machines.filter_by(id=machine_id).one()
+    if m:
+        _name_cache[machine_id] = m.name
+        return m.name
+    else:
+        _name_cache[machine_id] = None
+        return None
