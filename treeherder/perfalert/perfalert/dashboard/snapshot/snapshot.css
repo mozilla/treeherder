@@ -1,0 +1,65 @@
+/* vim: set sw=2 ts=2 sts=2 tw=78 expandtab : */
+
+body {
+  font-family: sans-serif;
+}
+
+#tests {
+}
+
+.testdiv {
+  border: solid 1px black;
+  -moz-border-radius: 10px;
+  margin-bottom: 10px;
+  min-height: 300px;
+  padding-bottom: 10px;
+}
+
+h1 {
+  font-size: 110%;
+}
+
+h2 {
+  font-size: 100%;
+  margin-bottom: 2px;
+}
+
+#footer > p {
+  text-align: center;
+  margin: 0;
+  font-size: smaller;
+}
+
+img {
+  border: none;
+}
+
+.title {
+  font-size: 150%;
+}
+
+.testTable, .testTable td {
+  border-color: #600;
+  border-style: solid;
+}
+
+.testTable {
+  border-width: 0 0 1px 1px;
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+
+.testTable td {
+  margin: 0;
+  padding: 4px;
+  border-width: 1px 1px 0 0;
+  background-color: #FFC;
+}
+
+span.good {
+  background-color: #00FF00;
+}
+
+span.bad {
+  background-color: red;
+}

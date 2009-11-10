@@ -1,0 +1,31 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                      "http://www.w3.org/TR/html4/loose.dtd">
+
+<!--
+
+This is based on the same data as the Performance Dashboard.
+It should find a home with the snapshot both deploysed and in source control.
+
+http://hg.mozilla.org/graphs/analysis/html/snapshot
+
+-->
+<html>
+  <head>
+    <title>Perf Snapshot 1.0</title>
+    <meta http-equiv="refresh" content="300">
+    <link rel="stylesheet" href="snapshot.css" type="text/css" media="all"/>
+
+    <!-- Favicon courtesy of FAMFAMFAM silk - http://famfamfam.com/ -->
+    <link rel="shortcut icon" href="favicon.png"/>
+    <script type="application/javascript;version=1.8" src="snapshot.js"></script>
+    <script src="../testdata.js"></script>
+  </head>
+  <body onload="init();">
+    <h1 class="title" id="header">Performance Snapshot</h1>
+    <div id="tests">
+    </div>
+    <div id="footer">
+      <p id="fetchtimetext"></p>
+    </div>
+  </body>
+  </html>
