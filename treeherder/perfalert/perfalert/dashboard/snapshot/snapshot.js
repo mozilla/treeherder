@@ -13,6 +13,7 @@ const WEEK_THRESHOLD_BAD =   -0.02;
 function init() {
   
   var branches = ["Firefox3.5", "Firefox3.6", "Firefox", "TraceMonkey",
+                  "Electrolysis"
                   /*"Places", "mobile", "mobile-1.9.2", "mobile-tracemonkey"*/];
 
   var diffs = {"Firefox": "Firefox3.5",
