@@ -18,7 +18,7 @@ from analyze import TalosAnalyzer, PerfDatum
 def avg(l):
     return sum(l) / float(len(l))
 
-def send_msg(fromaddr, subject, msg, addrs, html=None):
+def send_msg(fromaddr, subject, msg, addrs, html=None, headers={}):
     s = SMTP()
     s.connect()
 
@@ -29,9 +29,11 @@ def send_msg(fromaddr, subject, msg, addrs, html=None):
             m.attach(MIMEText(html, "html"))
         else:
             m = MIMEText(msg)
-        m['date'] = email.utils.formatdate()
-        m['to'] = addr
-        m['subject'] = subject
+        m['Date'] = email.utils.formatdate()
+        m['To'] = addr
+        m['Subject'] = subject
+        for k,v in headers.items():
+            m[k] = v
 
         s.sendmail(fromaddr, [addr], m.as_string())
     s.quit()
@@ -346,7 +348,12 @@ class AnalysisRunner:
             subject = self.formatSubject(state, series, last_good, d)
             msg = self.formatMessage(state, series, last_good, d)
             html = self.formatHTMLMessage(state, series, last_good, d)
-            send_msg(self.config.get('main', 'from_email'), subject, msg, addresses, html)
+            if last_good.revision:
+                headers = {'In-Reply-To': '<talosbustage-%s>' % last_good.revision}
+                headers['References'] = headers['In-Reply-To']
+            else:
+                headers = {}
+            send_msg(self.config.get('main', 'from_email'), subject, msg, addresses, html, headers)
 
     def outputJson(self):
         warnings = {}
