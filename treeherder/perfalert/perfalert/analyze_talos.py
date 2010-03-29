@@ -12,6 +12,7 @@ except ImportError:
 from smtplib import SMTP
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import urllib
 
 from analyze import TalosAnalyzer, PerfDatum
 
@@ -193,6 +194,7 @@ class AnalysisRunner:
         for machine_id in machine_ids:
             test_params.append(dict(test=series.test_id, branch=series.branch_id, machine=machine_id))
         test_params = json.dumps(test_params, separators=(",",":"))
+        test_params = urllib.quote(test_params)
         base_url = self.config.get('main', 'base_graph_url')
         if d is not None:
             start_time = d.timestamp - 24*3600
