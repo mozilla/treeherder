@@ -212,6 +212,17 @@ class AnalysisRunner:
             hg_url = "%(base_url)s/%(repo_path)s/rev/%(bad_rev)s" % locals()
         return hg_url
 
+    def isTestReversed(self, test_name):
+        reversed_tests = []
+        if self.config.has_option('main', 'reverse_tests'):
+            for i in self.config.get('main', 'reverse_tests').split(','):
+                reversed_tests.append(i.strip())
+
+        for text_exp in reversed_tests:
+            if re.search(text_exp, test_name, re.I):
+                return True
+        return False
+
     def formatMessage(self, state, series, good, bad, html=False):
         if state == "machine":
             good = bad.last_other
@@ -225,12 +236,20 @@ class AnalysisRunner:
         change = 100.0 * abs(new_value - initial_value) / float(initial_value)
         bad_build_time = datetime.fromtimestamp(bad.timestamp).strftime("%Y-%m-%d %H:%M:%S")
         good_build_time = datetime.fromtimestamp(good.timestamp).strftime("%Y-%m-%d %H:%M:%S")
-        if new_value > initial_value:
-            direction = "increase"
-            reason = "Regression"
+        if self.isTestReversed(test_name):
+            if new_value > initial_value:
+                direction = "decrease"
+                reason = "Improvement"
+            else:
+                direction = "increase"
+                reason = "Regression"
         else:
-            direction = "decrease"
-            reason = "Improvement"
+            if new_value > initial_value:
+                direction = "increase"
+                reason = "Regression"
+            else:
+                direction = "decrease"
+                reason = "Improvement"
 
         chart_url = self.makeChartUrl(series, bad)
         if good.revision:
@@ -314,12 +333,20 @@ class AnalysisRunner:
         change = 100.0 * abs(new_value - initial_value) / float(initial_value)
         bad_build_time = datetime.fromtimestamp(bad.timestamp).strftime("%Y-%m-%d %H:%M:%S")
         good_build_time = datetime.fromtimestamp(good.timestamp).strftime("%Y-%m-%d %H:%M:%S")
-        if new_value > initial_value:
-            direction = "increase"
-            reason = "Regression"
+        if self.isTestReversed(test_name):
+            if new_value > initial_value:
+                direction = "decrease"
+                reason = "Improvement"
+            else:
+                direction = "increase"
+                reason = "Regression"
         else:
-            direction = "decrease"
-            reason = "Improvement"
+            if new_value > initial_value:
+                direction = "increase"
+                reason = "Regression"
+            else:
+                direction = "decrease"
+                reason = "Improvement"
         if state == "machine":
             bad_machine_name = self.source.getMachineName(bad.machine_id)
             good_machine_name = self.source.getMachineName(good.machine_id)
