@@ -16,6 +16,39 @@ import urllib
 
 from analyze import TalosAnalyzer, PerfDatum
 
+def shorten(url, login, apiKey, max_tries=10, sleep_time=30):
+    params = {
+            'login': login,
+            'apiKey': apiKey,
+            'longUrl': url,
+            }
+
+    params = urllib.urlencode(params)
+    api_url = "http://api.bit.ly/v3/shorten?%(params)s" % locals()
+
+    i = 0
+
+    while True:
+        i += 1
+        if i >= max_tries:
+            raise IOError("Too many retries")
+        data = json.load(urllib.urlopen(api_url))
+        if data['status_code'] == 200:
+            return data['data']['url']
+        elif data['status_code'] == 403:
+            # We're being rate limited
+            time.sleep(sleep_time)
+            continue
+        else:
+            raise ValueError("Unknown error: %s" % data)
+
+def safe_shorten(url, login, apiKey):
+    try:
+        return shorten(url, login, apiKey)
+    except:
+        log.exception("Unable to shorten url %s", url)
+        return url
+
 def avg(l):
     return sum(l) / float(len(l))
 
@@ -188,13 +221,19 @@ class AnalysisRunner:
             if rev:
                 d.time = rev
 
+    def shorten(self, url):
+        if self.config.has_option('main', 'bitly_login'):
+            login = self.config.get('main', 'bitly_login')
+            apiKey = self.config.get('main', 'bitly_apiKey')
+            return safe_shorten(url, login, apiKey)
+
     def makeChartUrl(self, series, d=None):
         test_params = []
         machine_ids = self.source.getMachinesForTest(series)
         for machine_id in machine_ids:
             test_params.append(dict(test=series.test_id, branch=series.branch_id, machine=machine_id))
         test_params = json.dumps(test_params, separators=(",",":"))
-        test_params = urllib.quote(test_params)
+        #test_params = urllib.quote(test_params)
         base_url = self.config.get('main', 'base_graph_url')
         if d is not None:
             start_time = d.timestamp - 24*3600
@@ -251,7 +290,7 @@ class AnalysisRunner:
                 direction = "decrease"
                 reason = "Improvement"
 
-        chart_url = self.makeChartUrl(series, bad)
+        chart_url = self.shorten(self.makeChartUrl(series, bad))
         if good.revision:
             good_rev = "revision %s" % good.revision
         else:
@@ -460,8 +499,9 @@ class AnalysisRunner:
         regressions = []
         bad_machines = {}
         graph_dir = self.config.get('main', 'graph_dir')
+        test_name = series.test_name.replace("/", "_")
         basename = "%s/%s-%s-%s" % (graph_dir,
-                series.branch_name, series.os_name, series.test_name)
+                series.branch_name, series.os_name, test_name)
 
         for s, d, state, skip, last_good in series_data:
             graph_point = (d.time * 1000, d.value)
