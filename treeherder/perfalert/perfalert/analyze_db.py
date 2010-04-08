@@ -10,6 +10,14 @@ def connect(url):
     global db
     db = SqlSoup(url)
 
+    global goodNameClause
+    goodNameClause = sa.or_(
+            db.machines.name.like('talos-r3%'),
+            db.machines.name.like('talos-rev2-tiger%'),
+            db.machines.name.like('maemo-n810-%'),
+            db.machines.name.like('n900-%'),
+            )
+
 def getTestData(series, start_time):
     q = sa.select(
         [db.test_runs.machine_id, db.builds.ref_build_id, db.test_runs.date_run, db.test_runs.average, db.builds.ref_changeset, db.test_runs.run_number, db.builds.branch_id],
@@ -20,7 +28,7 @@ def getTestData(series, start_time):
         db.test_runs.machine_id == db.machines.id,
         db.test_runs.build_id == db.builds.id,
         db.test_runs.date_run > start_time,
-        sa.or_(db.machines.name.like('talos-r3%'), db.machines.name.like('talos-rev2-tiger%')),
+        goodNameClause,
         sa.not_(db.machines.name.like("%stage%")),
         ))
 
@@ -49,7 +57,7 @@ def getTestSeries(branches, start_date, test_names):
                 db.tests.id == db.test_runs.test_id,
                 db.test_runs.date_run > start_date,
                 db.branches.name.in_(branches),
-                sa.or_(db.machines.name.like('talos-r3%'), db.machines.name.like('talos-rev2-tiger%')),
+                goodNameClause,
                 sa.not_(db.machines.name.like('%stage%')),
                 sa.not_(db.tests.pretty_name.like("%NoChrome%")),
                 sa.not_(db.tests.pretty_name.like("%Fast Cycle%")),
@@ -76,7 +84,7 @@ def getMachinesForTest(series):
         db.tests.id == db.test_runs.test_id,
         db.tests.id == series.test_id,
         db.machines.os_id == series.os_id,
-        sa.or_(db.machines.name.like('talos-r3%'), db.machines.name.like('talos-rev2-tiger%')),
+        goodNameClause,
         sa.not_(db.machines.name.like('%stage%')),
         )).distinct()
     result = q.execute()
