@@ -277,18 +277,18 @@ class AnalysisRunner:
         good_build_time = datetime.fromtimestamp(good.timestamp).strftime("%Y-%m-%d %H:%M:%S")
         if self.isTestReversed(test_name):
             if new_value > initial_value:
-                direction = "decrease"
                 reason = "Improvement"
             else:
-                direction = "increase"
                 reason = "Regression"
         else:
             if new_value > initial_value:
-                direction = "increase"
                 reason = "Regression"
             else:
-                direction = "decrease"
                 reason = "Improvement"
+        if new_value > initial_value:
+            direction = "increase"
+        else:
+            direction = "decrease"
 
         chart_url = self.shorten(self.makeChartUrl(series, bad))
         if good.revision:
@@ -374,18 +374,18 @@ class AnalysisRunner:
         good_build_time = datetime.fromtimestamp(good.timestamp).strftime("%Y-%m-%d %H:%M:%S")
         if self.isTestReversed(test_name):
             if new_value > initial_value:
-                direction = "decrease"
                 reason = "Improvement"
             else:
-                direction = "increase"
                 reason = "Regression"
         else:
             if new_value > initial_value:
-                direction = "increase"
                 reason = "Regression"
             else:
-                direction = "decrease"
                 reason = "Improvement"
+        if new_value > initial_value:
+            direction = "increase"
+        else:
+            direction = "decrease"
         if state == "machine":
             bad_machine_name = self.source.getMachineName(bad.machine_id)
             good_machine_name = self.source.getMachineName(good.machine_id)
