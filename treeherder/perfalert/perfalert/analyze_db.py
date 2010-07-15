@@ -11,12 +11,7 @@ def connect(url):
     db = SqlSoup(url)
 
     global goodNameClause
-    goodNameClause = sa.or_(
-            db.machines.name.like('talos-r3%'),
-            db.machines.name.like('talos-rev2-tiger%'),
-            db.machines.name.like('maemo-n810-%'),
-            db.machines.name.like('n900-%'),
-            )
+    goodNameClause = db.machines.is_active == 1
 
 def getTestData(series, start_time):
     q = sa.select(

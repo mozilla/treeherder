@@ -231,7 +231,8 @@ class AnalysisRunner:
         test_params = []
         machine_ids = self.source.getMachinesForTest(series)
         for machine_id in machine_ids:
-            test_params.append(dict(test=series.test_id, branch=series.branch_id, machine=machine_id))
+            test_params.append((series.test_id, series.branch_id, machine_id))
+
         test_params = json.dumps(test_params, separators=(",",":"))
         #test_params = urllib.quote(test_params)
         base_url = self.config.get('main', 'base_graph_url')
