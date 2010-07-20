@@ -318,7 +318,7 @@ class AnalysisRunner:
             reason = "Suspected machine issue (%s)" % bad_machine_name
             if not html:
                 msg =  """\
-%(reason)s: %(test_name)s %(direction)s %(change).2f%% on %(os_name)s %(branch_name)s
+%(reason)s: %(test_name)s %(direction)s %(change).3g%% on %(os_name)s %(branch_name)s
     Previous results:
         %(initial_value)s from build %(good_build_id)s of %(good_rev)s at %(good_build_time)s on %(good_machine_name)s
     New results:
@@ -329,7 +329,7 @@ class AnalysisRunner:
                 chart_url_encoded = xml.sax.saxutils.quoteattr(chart_url)
                 hg_url_encoded = xml.sax.saxutils.quoteattr(hg_url)
                 msg =  """\
-<p>%(reason)s: %(test_name)s <a href=%(chart_url_encoded)s>%(direction)s %(change).2f%%</a> on %(os_name)s %(branch_name)s</p>
+<p>%(reason)s: %(test_name)s <a href=%(chart_url_encoded)s>%(direction)s %(change).3g%%</a> on %(os_name)s %(branch_name)s</p>
 <p>Previous results: %(initial_value)s from build %(good_build_id)s of %(good_rev)s at %(good_build_time)s on %(good_machine_name)s</p>
 <p>New results: %(new_value)s from build %(bad_build_id)s of %(bad_rev)s at %(bad_build_time)s on %(bad_machine_name)s</p>
 
@@ -338,7 +338,7 @@ class AnalysisRunner:
         else:
             if not html:
                 msg =  """\
-%(reason)s: %(test_name)s %(direction)s %(change).2f%% on %(os_name)s %(branch_name)s
+%(reason)s: %(test_name)s %(direction)s %(change).3g%% on %(os_name)s %(branch_name)s
     Previous results:
         %(initial_value)s from build %(good_build_id)s of %(good_rev)s at %(good_build_time)s on %(good_machine_name)s run # %(good_run_number)s
     New results:
@@ -349,7 +349,7 @@ class AnalysisRunner:
                 chart_url_encoded = xml.sax.saxutils.quoteattr(chart_url)
                 hg_url_encoded = xml.sax.saxutils.quoteattr(hg_url)
                 msg =  """\
-<p>%(reason)s: %(test_name)s <a href=%(chart_url_encoded)s>%(direction)s %(change).2f%%</a> on %(os_name)s %(branch_name)s</p>
+<p>%(reason)s: %(test_name)s <a href=%(chart_url_encoded)s>%(direction)s %(change).3g%%</a> on %(os_name)s %(branch_name)s</p>
 <p>Previous results: %(initial_value)s from build %(good_build_id)s of %(good_rev)s at %(good_build_time)s on %(good_machine_name)s run # %(good_run_number)s</p>
 <p>New results: %(new_value)s from build %(bad_build_id)s of %(bad_rev)s at %(bad_build_time)s on %(bad_machine_name)s run # %(bad_run_number)s</p>
 
@@ -391,7 +391,7 @@ class AnalysisRunner:
             bad_machine_name = self.source.getMachineName(bad.machine_id)
             good_machine_name = self.source.getMachineName(good.machine_id)
             reason = "Suspected machine issue (%s)" % bad_machine_name
-        return "Talos %(reason)s: %(test_name)s %(direction)s %(change).2f%% on %(os_name)s %(branch_name)s" % locals()
+        return "Talos %(reason)s: %(test_name)s %(direction)s %(change).3g%% on %(os_name)s %(branch_name)s" % locals()
 
     def printWarning(self, series, d, state, last_good):
         if self.output:
