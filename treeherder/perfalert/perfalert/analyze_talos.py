@@ -1,5 +1,8 @@
 from __future__ import with_statement
-import time, urllib, re, os
+import time
+import urllib
+import re
+import os
 import logging as log
 import email.utils
 import threading
@@ -12,9 +15,8 @@ except ImportError:
 from smtplib import SMTP
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import urllib
+from analyze import TalosAnalyzer
 
-from analyze import TalosAnalyzer, PerfDatum
 
 def shorten(url, login, apiKey, max_tries=10, sleep_time=30):
     params = {
@@ -42,6 +44,7 @@ def shorten(url, login, apiKey, max_tries=10, sleep_time=30):
         else:
             raise ValueError("Unknown error: %s" % data)
 
+
 def safe_shorten(url, login, apiKey):
     try:
         return shorten(url, login, apiKey)
@@ -49,8 +52,10 @@ def safe_shorten(url, login, apiKey):
         log.exception("Unable to shorten url %s", url)
         return url
 
+
 def avg(l):
     return sum(l) / float(len(l))
+
 
 def send_msg(fromaddr, subject, msg, addrs, html=None, headers={}):
     s = SMTP()
@@ -71,6 +76,7 @@ def send_msg(fromaddr, subject, msg, addrs, html=None, headers={}):
 
         s.sendmail(fromaddr, [addr], m.as_string())
     s.quit()
+
 
 class PushDater:
     def __init__(self, filename, base_url):
@@ -107,7 +113,7 @@ class PushDater:
         if len(to_query) > 0:
             log.debug("Fetching %i changesets", len(to_query))
             for i in range(0, len(to_query), 50):
-                chunk = to_query[i:i+50]
+                chunk = to_query[i:i + 50]
                 changesets = ["changeset=%s" % c for c in chunk]
                 base_url = self.base_url
                 url = "%s/%s/json-pushes?%s" % (base_url, repo_path, "&".join(changesets))
@@ -126,6 +132,7 @@ class PushDater:
                                 self.pushdates[branch][changeset[:12]] = entry['date']
                                 retval[changeset[:12]] = entry['date']
         return retval
+
 
 class AnalysisRunner:
     def __init__(self, options, config):
@@ -233,12 +240,12 @@ class AnalysisRunner:
         for machine_id in machine_ids:
             test_params.append((series.test_id, series.branch_id, machine_id))
 
-        test_params = json.dumps(test_params, separators=(",",":"))
+        test_params = json.dumps(test_params, separators=(",", ":"))
         #test_params = urllib.quote(test_params)
         base_url = self.config.get('main', 'base_graph_url')
         if d is not None:
-            start_time = d.timestamp - 24*3600
-            end_time = d.timestamp + 24*3600
+            start_time = d.timestamp - 24 * 3600
+            end_time = d.timestamp + 24 * 3600
             return "%(base_url)s/graph.html#tests=%(test_params)s&sel=%(start_time)s,%(end_time)s" % locals()
         else:
             return "%(base_url)s/graph.html#tests=%(test_params)s" % locals()
@@ -317,7 +324,7 @@ class AnalysisRunner:
         if state == "machine":
             reason = "Suspected machine issue (%s)" % bad_machine_name
             if not html:
-                msg =  """\
+                msg = """\
 %(reason)s: %(test_name)s %(direction)s %(change).3g%% on %(os_name)s %(branch_name)s
     Previous results:
         %(initial_value)s from build %(good_build_id)s of %(good_rev)s at %(good_build_time)s on %(good_machine_name)s
@@ -328,7 +335,7 @@ class AnalysisRunner:
             else:
                 chart_url_encoded = xml.sax.saxutils.quoteattr(chart_url)
                 hg_url_encoded = xml.sax.saxutils.quoteattr(hg_url)
-                msg =  """\
+                msg = """\
 <p>%(reason)s: %(test_name)s <a href=%(chart_url_encoded)s>%(direction)s %(change).3g%%</a> on %(os_name)s %(branch_name)s</p>
 <p>Previous results: %(initial_value)s from build %(good_build_id)s of %(good_rev)s at %(good_build_time)s on %(good_machine_name)s</p>
 <p>New results: %(new_value)s from build %(bad_build_id)s of %(bad_rev)s at %(bad_build_time)s on %(bad_machine_name)s</p>
@@ -337,7 +344,7 @@ class AnalysisRunner:
 """ % locals()
         else:
             if not html:
-                msg =  """\
+                msg = """\
 %(reason)s: %(test_name)s %(direction)s %(change).3g%% on %(os_name)s %(branch_name)s
     Previous results:
         %(initial_value)s from build %(good_build_id)s of %(good_rev)s at %(good_build_time)s on %(good_machine_name)s run # %(good_run_number)s
@@ -431,7 +438,7 @@ class AnalysisRunner:
                 continue
 
             if s.branch_name not in warnings:
-               warnings[s.branch_name] = {}
+                warnings[s.branch_name] = {}
             if s.os_name not in warnings[s.branch_name]:
                 warnings[s.branch_name][s.os_name] = {}
             if s.test_name not in warnings[s.branch_name][s.os_name]:
@@ -474,7 +481,7 @@ class AnalysisRunner:
         now = time.asctime()
         fp.write("// Generated at %s\n" % now)
         fp.write("gFetchTime = ")
-        json.dump(now, fp, separators=(',',':'))
+        json.dump(now, fp, separators=(',', ':'))
         fp.write(";\n")
         fp.write("var gData = ")
         # Hackity hack
@@ -484,7 +491,7 @@ class AnalysisRunner:
             json.encoder.FLOAT_REPR = lambda f: "%.8g" % f
         except:
             pass
-        json.dump(self.dashboard_data, fp, separators=(',',':'), sort_keys=True)
+        json.dump(self.dashboard_data, fp, separators=(',', ':'), sort_keys=True)
         try:
             json.encoder.FLOAT_REPR = repr
         except:
@@ -535,8 +542,8 @@ class AnalysisRunner:
 
         title = "Talos Regression Graph for %(test_name)s on %(os_name)s %(branch_name)s" % locals()
 
-        html = html_template % dict(graph_file = os.path.basename(graph_file),
-                title=title)
+        html = html_template % dict(graph_file=os.path.basename(graph_file),
+                                    title=title)
         if not os.path.exists(graph_dir):
             os.makedirs(graph_dir)
             # Copy in the rest of the HTML as well
@@ -558,7 +565,7 @@ class AnalysisRunner:
             self.warning_history['inactive_machines'] = {}
 
         # Complain about anything that hasn't reported in 48 hours
-        cutoff = time.time() - 48*3600
+        cutoff = time.time() - 48 * 3600
 
         addresses = []
         if self.config.has_option('main', 'machine_emails'):
@@ -569,7 +576,7 @@ class AnalysisRunner:
                 machine_name = self.source.getMachineName(machine_id)
 
                 # When did we last warn about this machine?
-                if self.warning_history['inactive_machines'].get(machine_name, 0) < time.time() - 7*24*3600:
+                if self.warning_history['inactive_machines'].get(machine_name, 0) < time.time() - 7 * 24 * 3600:
                     # If it was over a week ago, then send another warning
                     self.warning_history['inactive_machines'][machine_name] = time.time()
 
@@ -614,7 +621,7 @@ class AnalysisRunner:
         data = self.source.getTestData(s, options.start_time)
 
         # Add it to our dashboard data
-        sevenDaysAgo = time.time() - 7*24*60*60
+        sevenDaysAgo = time.time() - 7 * 24 * 60 * 60
         importantTests = []
         for t in re.split(r"(?<!\\),", self.config.get("dashboard", "tests")):
             t = t.replace("\\,", ",").strip()
@@ -651,7 +658,7 @@ class AnalysisRunner:
                 if machine_name.startswith("_"):
                     continue
                 results = _d[machine_name]['results']
-                values = [results[i+1] for i in range(0, len(results), 2)]
+                values = [results[i + 1] for i in range(0, len(results), 2)]
                 _d[machine_name]['stats'] = [avg(values), max(values), min(values)]
 
         self.updateTimes(s.branch_name, data)
@@ -676,7 +683,7 @@ class AnalysisRunner:
         last_err = None
         last_err_good = None
         #cutoff = self.options.start_time
-        cutoff = time.time() - 7*24*3600
+        cutoff = time.time() - 7 * 24 * 3600
         series_data = []
         for d, state in analysis_gen:
             skip = False
@@ -696,7 +703,7 @@ class AnalysisRunner:
                             if 'bad_machines' not in self.warning_history:
                                 self.warning_history['bad_machines'] = {}
                             # When did we last warn about this machine?
-                            if self.warning_history['bad_machines'].get(machine_name, 0) > time.time() - 7*24*3600:
+                            if self.warning_history['bad_machines'].get(machine_name, 0) > time.time() - 7 * 24 * 3600:
                                 skip = True
                             else:
                                 # If it was over a week ago, then send another warning
@@ -725,6 +732,7 @@ class AnalysisRunner:
         log.info("Fetching list of tests")
         series = self.source.getTestSeries(self.options.branches, self.options.start_time, self.options.tests)
         self.done = False
+
         def runner():
             while not self.done:
                 try:
@@ -793,16 +801,16 @@ if __name__ == "__main__":
     parser.add_option("", "--catchup", dest="catchup", action="store_true", help="Don't output any warnings, just process data")
 
     parser.set_defaults(
-            branches = [],
-            tests = [],
-            start_time = time.time() - 30*24*3600,
-            verbosity = log.INFO,
-            output = None,
-            json = None,
-            addresses = [],
-            machine_addresses = [],
-            config = "analysis.cfg",
-            catchup = False,
+            branches=[],
+            tests=[],
+            start_time=time.time() - 30 * 24 * 3600,
+            verbosity=log.INFO,
+            output=None,
+            json=None,
+            addresses=[],
+            machine_addresses=[],
+            config="analysis.cfg",
+            catchup=False,
             )
 
     options, args = parser.parse_args()
@@ -814,9 +822,9 @@ if __name__ == "__main__":
     config.read([options.config])
 
     if options.addresses:
-        config.set('main', 'regression_emails', ",".join(option.addresses))
+        config.set('main', 'regression_emails', ",".join(options.addresses))
     if options.machine_addresses:
-        config.set('main', 'machine_emails', ",".join(option.machine_addresses))
+        config.set('main', 'machine_emails', ",".join(options.machine_addresses))
 
     runner = AnalysisRunner(options, config)
     try:

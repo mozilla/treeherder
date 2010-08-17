@@ -4,9 +4,9 @@ try:
 except ImportError:
     import json
 
-import urllib, os, sys
-
+import urllib
 from analyze import PerfDatum
+
 
 class TestSeries:
     def __init__(self, branch_id, branch_name, os_id, os_name, test_id, test_name):
@@ -22,6 +22,7 @@ class TestSeries:
 
     def __hash__(self):
         return hash((self.branch_id, self.os_id, self.test_id))
+
 
 class GraphAPISource:
     def __init__(self, baseurl):

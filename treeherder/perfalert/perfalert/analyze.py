@@ -1,5 +1,3 @@
-import csv, datetime, time, os
-
 def analyze(data):
     s = sum(data)
     n = len(data)
@@ -7,6 +5,7 @@ def analyze(data):
     variance = sum((d - avg) ** 2.0 for d in data) / n
     stddev = variance ** 0.5
     return {"sum": s, "avg": avg, "n": n, "stddev": stddev, "variance": variance}
+
 
 def calc_t(w1, w2):
     if len(w1) == 0 or len(w2) == 0:
@@ -19,6 +18,7 @@ def calc_t(w1, w2):
         return 0
 
     return (s2['avg'] - s1['avg']) / (((s1['variance'] / s1['n']) + (s2['variance'] / s2['n'])) ** 0.5)
+
 
 class PerfDatum:
     def __init__(self, machine_id, timestamp, value, buildid, time, revision=None):
@@ -38,7 +38,7 @@ class PerfDatum:
     def __cmp__(self, o):
         return cmp(
                 (self.time, self.timestamp),
-                (o.time, o.timestamp)
+                (o.time, o.timestamp),
                 )
 
     def __eq__(self, o):
@@ -55,6 +55,7 @@ class PerfDatum:
 
     def __str__(self):
         return "Build %s on %s %s %s %s" % (self.buildid, self.timestamp, self.time, self.value, self.machine_id)
+
 
 class TalosAnalyzer:
     def __init__(self):
@@ -86,12 +87,12 @@ class TalosAnalyzer:
             if (j, window, threshold) in self.zenPoints:
                 return self.zenPoints[(j, window, threshold)]
 
-            data = [d.value for d in self.data[j-window:j]]
+            data = [d.value for d in self.data[j - window:j]]
             stats = analyze(data)
             stddev = stats['stddev']
             avg = stats['avg']
             thresh = stddev * threshold
-            if any( (abs(d-avg) > thresh) for d in data ):
+            if any((abs(d - avg) > thresh) for d in data):
                 j -= 1
             else:
                 break
@@ -102,17 +103,18 @@ class TalosAnalyzer:
         # Use T-Tests
         # Analyze test data using T-Tests, comparing data[i-j:i] to data[i:i+k]
         good_data = []
-        for i in range(j, len(self.data)-k+1):
+        for i in range(j, len(self.data) - k + 1):
             di = self.data[i]
             jw = [d.value for d in good_data[-j:]]
-            kw = [d.value for d in self.data[i:i+k]]
+            kw = [d.value for d in self.data[i:i + k]]
 
             my_history = self.machine_history[di.machine_id]
             my_history_index = my_history.index(di)
-            my_data = [d.value for d in self.machine_history[di.machine_id][my_history_index-machine_history_size+1:my_history_index+1]]
+            my_data = [d.value for d in
+                       self.machine_history[di.machine_id][my_history_index - machine_history_size + 1:my_history_index + 1]]
             other_data = []
-            l = len(good_data)-1
-            while len(other_data) < k*2 and l > 0:
+            l = len(good_data) - 1
+            while len(other_data) < k * 2 and l > 0:
                 dl = good_data[l]
                 if dl.machine_id != di.machine_id:
                     other_data.insert(0, dl.value)
@@ -120,13 +122,13 @@ class TalosAnalyzer:
 
             t = calc_t(jw, kw)
 
-            if len(other_data) >= k*2 and len(my_data) >= machine_history_size:
+            if len(other_data) >= k * 2 and len(my_data) >= machine_history_size:
                 m_t = calc_t(other_data, my_data)
             else:
                 m_t = 0
 
             if abs(m_t) >= machine_threshold:
-                l = len(good_data)-1
+                l = len(good_data) - 1
                 while l >= 0:
                     dl = good_data[l]
                     if dl.machine_id != di.machine_id:
@@ -162,10 +164,10 @@ class TalosAnalyzer:
         bad_machine_threshold = 3
 
         machine_history = {}
-        for i in range(window+1, len(self.data)):
+        for i in range(window + 1, len(self.data)):
             di = self.data[i]
             j = self.findZen(i, window, threshold)
-            data = [d.value for d in self.data[j-window:j]]
+            data = [d.value for d in self.data[j - window:j]]
             stats = analyze(data)
             avg = stats['avg']
             stddev = stats['stddev']

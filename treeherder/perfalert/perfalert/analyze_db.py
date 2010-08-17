@@ -1,4 +1,3 @@
-import sys
 import sqlalchemy as sa
 from sqlalchemy.ext.sqlsoup import SqlSoup
 
@@ -6,12 +5,16 @@ from analyze import PerfDatum
 from analyze_graphapi import TestSeries
 
 db = None
+goodNameClause = None
+
+
 def connect(url):
     global db
     db = SqlSoup(url)
 
     global goodNameClause
     goodNameClause = db.machines.is_active == 1
+
 
 def getTestData(series, start_time):
     q = sa.select(
@@ -37,6 +40,7 @@ def getTestData(series, start_time):
         data.append(d)
     return data
 
+
 def getTestSeries(branches, start_date, test_names):
     # Find all the Branch/OS/Test combinations
     if len(test_names) > 0:
@@ -56,7 +60,7 @@ def getTestSeries(branches, start_date, test_names):
                 sa.not_(db.machines.name.like('%stage%')),
                 sa.not_(db.tests.pretty_name.like("%NoChrome%")),
                 sa.not_(db.tests.pretty_name.like("%Fast Cycle%")),
-                test_clause
+                test_clause,
             ))
 
     q = q.distinct()
@@ -66,7 +70,10 @@ def getTestSeries(branches, start_date, test_names):
         retval.append(TestSeries(*row))
     return retval
 
+
 _machines_cache = {}
+
+
 def getMachinesForTest(series):
     key = (series.os_id, series.branch_id, series.test_id)
     if key in _machines_cache:
@@ -87,7 +94,10 @@ def getMachinesForTest(series):
     _machines_cache[key] = [row[0] for row in result.fetchall()]
     return _machines_cache[key]
 
+
 _name_cache = {}
+
+
 def getMachineName(machine_id):
     if machine_id in _name_cache:
         return _name_cache[machine_id]
