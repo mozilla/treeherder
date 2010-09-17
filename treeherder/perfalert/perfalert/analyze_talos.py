@@ -1059,9 +1059,9 @@ if __name__ == "__main__":
     config.read([options.config])
 
     if options.addresses:
-        config.set('main', 'regression_emails', ",".join(option.addresses))
+        config.set('main', 'regression_emails', ",".join(options.addresses))
     if options.machine_addresses:
-        config.set('main', 'machine_emails', ",".join(option.machine_addresses))
+        config.set('main', 'machine_emails', ",".join(options.machine_addresses))
 
     vars = os.environ.copy()
     vars['sys_prefix'] = sys.prefix
