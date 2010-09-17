@@ -31,8 +31,11 @@ def bz_request(api, path, data=None, method=None, username=None, password=None):
     return json.loads(data)
 
 def bz_check_request(*args, **kw):
-    result = bz_request(*args, **kw)
-    assert not result.get('error'), result
+    try:
+        result = bz_request(*args, **kw)
+        assert not result.get('error'), result
+    except urllib2.HTTPError, e:
+        assert 200 <= e.code < 300, e
 
 def bz_get_bug(api, bug_num):
     try:
@@ -121,7 +124,7 @@ def bugs_from_comments(comments):
         bXXXXX
     """
     retval = []
-    m = re.search("b(?:ug(?:s)?)?\s*((?:\d+[, ]*)*)", comments, re.I)
+    m = re.search("b(?:ug(?:s)?)?\s*((?:\d+[, ]*)+)", comments, re.I)
     if m:
         for m in re.findall("\d+", m.group(1)):
             retval.append(int(m))
@@ -585,6 +588,7 @@ class AnalysisRunner:
         branch = series.branch_name
         test_name = series.test_name
         short_name = series.test_shortname
+        os_name = series.os_name
 
         # Don't comment for good things
         if self.isImprovement(test_name, good, bad):
@@ -633,7 +637,7 @@ class AnalysisRunner:
         for bug in bugs:
             log.debug("Bug %s is implicated", bug)
             message = """\
-A changeset from this bug was associated with a %(test_name)s regression. boo-urns :(
+A changeset from this bug was associated with a %(os_name)s %(test_name)s regression on %(branch)s. boo-urns :(
 
   Previous: avg %(initial_value).3f stddev %(initial_stddev).3f of %(history_n)i runs up to %(good_rev)s
   New     : avg %(new_value).3f stddev %(new_stddev).3f of %(forward_n)i runs since %(bad_rev)s
