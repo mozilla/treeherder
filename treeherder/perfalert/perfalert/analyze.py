@@ -1,5 +1,3 @@
-import csv, datetime, time, os
-
 def analyze(data):
     n = len(data)
     if n > 1:
@@ -19,6 +17,7 @@ def analyze(data):
             avg = data[0]
         variance = 0.0
     return {"avg": avg, "n": n, "variance": variance}
+
 
 def calc_t(w1, w2):
     if len(w1) == 0 or len(w2) == 0:
@@ -56,7 +55,7 @@ class PerfDatum(object):
     def __cmp__(self, o):
         return cmp(
                 (self.time, self.timestamp),
-                (o.time, o.timestamp)
+                (o.time, o.timestamp),
                 )
 
     def __eq__(self, o):
@@ -73,6 +72,7 @@ class PerfDatum(object):
 
     def __str__(self):
         return "Build %s on %s %s %s %s" % (self.buildid, self.timestamp, self.time, self.value, self.machine_id)
+
 
 class TalosAnalyzer:
     def __init__(self):
@@ -146,4 +146,3 @@ class TalosAnalyzer:
                 # adjust to the new baseline.
                 good_data.append(di)
                 yield di, "regression"
-
