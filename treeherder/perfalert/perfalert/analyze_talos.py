@@ -16,6 +16,7 @@ from smtplib import SMTP
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from analyze import TalosAnalyzer
+from string import Template
 
 
 def shorten(url, login, apiKey, max_tries=10, sleep_time=30):
@@ -767,7 +768,7 @@ class AnalysisRunner:
                 except KeyboardInterrupt:
                     print "Exiting..."
                     self.done = True
-                        
+
             for t in threads:
                 t.join()
         else:
@@ -825,6 +826,16 @@ if __name__ == "__main__":
         config.set('main', 'regression_emails', ",".join(options.addresses))
     if options.machine_addresses:
         config.set('main', 'machine_emails', ",".join(options.machine_addresses))
+
+    vars = os.environ.copy()
+    vars['sys_prefix'] = sys.prefix
+    vars['here'] = os.path.dirname(__file__)
+    for section in config.sections():
+        for option in config.options(section):
+            value = config.get(section, option)
+            if '$' in value:
+                value = Template(value).substitute(vars)
+                config.set(section, option, value)
 
     runner = AnalysisRunner(options, config)
     try:
