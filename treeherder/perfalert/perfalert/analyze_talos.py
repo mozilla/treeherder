@@ -1,20 +1,78 @@
-from __future__ import with_statement
-import time, urllib, re, os
+import time, urllib, urllib2, re, os, sys
 import logging as log
+import cPickle as pickle
+from datetime import datetime
 import email.utils
-import threading
-import xml.sax.saxutils
+from smtplib import SMTP
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 import shutil
 try:
     import simplejson as json
 except ImportError:
     import json
-from smtplib import SMTP
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-import urllib
 
-from analyze import TalosAnalyzer, PerfDatum
+from analyze import TalosAnalyzer
+
+def bz_request(api, path, data=None, method=None, username=None, password=None):
+    url = api + path
+    if data:
+        data = json.dumps(data)
+
+    if username and password:
+        url += "?username=%s&password=%s" % (username, password)
+
+    req = urllib2.Request(url, data, {'Accept': 'application/json', 'Content-Type': 'application/json'})
+    if method:
+        req.get_method = lambda: method
+
+    result = urllib2.urlopen(req)
+    data = result.read()
+    return json.loads(data)
+
+def bz_check_request(*args, **kw):
+    result = bz_request(*args, **kw)
+    assert not result.get('error'), result
+
+def bz_get_bug(api, bug_num):
+    try:
+        bug = bz_request(api, "/bug/%s" % bug_num)
+        return bug
+    except KeyboardInterrupt:
+        raise
+    except:
+        log.exception("Error fetching bug %s" % bug_num)
+        return None
+
+def bz_notify_bug(api, bug_num, message, whiteboard, username, password, retries=5):
+    for i in range(retries):
+        log.debug("Getting bug %s", bug_num)
+        bug = bz_request(api, "/bug/%s" % bug_num, username=username, password=password)
+
+        wb = bug.get('whiteboard', '')
+
+        if whiteboard not in wb:
+            bug['whiteboard'] = wb + whiteboard
+            if i == 0:
+                bug['last_change_time'] = "2009-09-09T16:31:18Z"
+
+            # Add the whiteboard
+            try:
+                log.debug("Adding whiteboard status to bug %s", bug_num)
+                bz_check_request(api, "/bug/%s" % bug_num, bug, "PUT", username=username, password=password)
+            except KeyboardInterrupt:
+                raise
+            except:
+                log.exception("Problem changing whiteboard, trying again")
+                continue
+
+        # Add the comment
+        log.debug("Adding comment to bug %s", bug_num)
+        bz_check_request(api, "/bug/%s/comment" % bug_num,
+                {"text": message, "is_private": False}, "POST",
+                username=username, password=password)
+        break
+
 
 def shorten(url, login, apiKey, max_tries=10, sleep_time=30):
     params = {
@@ -45,6 +103,8 @@ def shorten(url, login, apiKey, max_tries=10, sleep_time=30):
 def safe_shorten(url, login, apiKey):
     try:
         return shorten(url, login, apiKey)
+    except KeyboardInterrupt:
+        raise
     except:
         log.exception("Unable to shorten url %s", url)
         return url
@@ -52,17 +112,27 @@ def safe_shorten(url, login, apiKey):
 def avg(l):
     return sum(l) / float(len(l))
 
-def send_msg(fromaddr, subject, msg, addrs, html=None, headers={}):
+def bugs_from_comments(comments):
+    """Finds things that look like bugs in comments and returns as a list of bug numbers.
+
+    Supported formats:
+        Bug XXXXX
+        Bugs XXXXXX, YYYYY
+        bXXXXX
+    """
+    retval = []
+    m = re.search("b(?:ug(?:s)?)?\s*((?:\d+[, ]*)*)", comments, re.I)
+    if m:
+        for m in re.findall("\d+", m.group(1)):
+            retval.append(int(m))
+    return retval
+
+def send_msg(fromaddr, subject, msg, addrs, headers={}):
     s = SMTP()
     s.connect()
 
     for addr in addrs:
-        if html:
-            m = MIMEMultipart('alternative')
-            m.attach(MIMEText(msg))
-            m.attach(MIMEText(html, "html"))
-        else:
-            m = MIMEText(msg)
+        m = MIMEText(msg, "plain", "utf8")
         m['Date'] = email.utils.formatdate()
         m['To'] = addr
         m['Subject'] = subject
@@ -72,37 +142,56 @@ def send_msg(fromaddr, subject, msg, addrs, html=None, headers={}):
         s.sendmail(fromaddr, [addr], m.as_string())
     s.quit()
 
-class PushDater:
+class PushLog:
     def __init__(self, filename, base_url):
         self.filename = filename
         self.base_url = base_url
-        self.lock = threading.RLock()
-        self.pushdates = {}
+        self.pushes = {}
 
-    def loadPushDates(self):
+    def load(self):
         try:
             if not os.path.exists(self.filename):
-                self.pushdates = {}
+                self.pushes = {}
                 return
-            self.pushdates = json.load(open(self.filename))
+            self.pushes = json.load(open(self.filename))
         except:
             log.exception("Couldn't load push dates from %s", self.filename)
-            self.pushdates = {}
+            self.pushes = {}
 
-    def savePushDates(self):
-        json.dump(self.pushdates, open(self.filename, "w"), indent=2, sort_keys=True)
+    def save(self):
+        tmp = self.filename + ".tmp"
+        json.dump(self.pushes, open(tmp, "w"), indent=2, sort_keys=True)
+        os.rename(tmp, self.filename)
+
+    def _handleJson(self, branch, data):
+        if isinstance(data, dict):
+            for push in data.values():
+                pusher = push['user']
+                for change in push['changesets']:
+                    shortrev = change["node"][:12]
+                    self.pushes[branch][shortrev] = {
+                            "date": push['date'],
+                            "comments": change['desc'],
+                            "author": change['author'],
+                            "pusher": pusher,
+                            }
 
     def getPushDates(self, branch, repo_path, changesets):
-        retval = {}
         to_query = []
-        if branch not in self.pushdates:
-            with self.lock:
-                self.pushdates[branch] = {}
+        retval = {}
+        if branch not in self.pushes:
+            self.pushes[branch] = {}
+
         for c in changesets:
-            if c in self.pushdates[branch]:
-                retval[c] = self.pushdates[branch][c]
-            else:
+            # Pad with zeros to work around bug where revisions with leading
+            # zeros have it stripped
+            while len(c) < 12:
+                c = "0" + c
+            shortrev = c[:12]
+            if shortrev not in self.pushes[branch]:
                 to_query.append(c)
+            else:
+                retval[c] = self.pushes[branch][shortrev]['date']
 
         if len(to_query) > 0:
             log.debug("Fetching %i changesets", len(to_query))
@@ -110,22 +199,55 @@ class PushDater:
                 chunk = to_query[i:i+50]
                 changesets = ["changeset=%s" % c for c in chunk]
                 base_url = self.base_url
-                url = "%s/%s/json-pushes?%s" % (base_url, repo_path, "&".join(changesets))
+                url = "%s/%s/json-pushes?full=1&%s" % (base_url, repo_path, "&".join(changesets))
                 raw_data = urllib.urlopen(url).read()
                 try:
                     data = json.loads(raw_data)
+                    self._handleJson(branch, data)
                 except:
                     log.exception("Error parsing %s", raw_data)
                     raise
-                with self.lock:
-                    if branch not in self.pushdates:
-                        self.pushdates[branch] = {}
-                    if isinstance(data, dict):
-                        for entry in data.values():
-                            for changeset in entry['changesets']:
-                                self.pushdates[branch][changeset[:12]] = entry['date']
-                                retval[changeset[:12]] = entry['date']
+
+                for c in chunk:
+                    shortrev = c[:12]
+                    try:
+                        retval[c] = self.pushes[branch][shortrev]['date']
+                    except KeyError:
+                        log.debug("%s not found in push data", shortrev)
+                        continue
         return retval
+
+    def getPushRange(self, branch, repo_path, from_, to_):
+        key = "%s-%s" % (from_, to_)
+        if branch not in self.pushes:
+            self.pushes[branch] = {"ranges": {}}
+        elif "ranges" not in self.pushes[branch]:
+            self.pushes[branch]["ranges"] = {}
+        elif key in self.pushes[branch]["ranges"]:
+            return self.pushes[branch]["ranges"][key]
+
+        log.debug("Fetching changesets from %s to %s", from_, to_)
+        base_url = self.base_url
+        url = "%s/%s/json-pushes?full=1&fromchange=%s&tochange=%s" % (base_url, repo_path, from_, to_)
+        raw_data = urllib.urlopen(url).read()
+        try:
+            data = json.loads(raw_data)
+            self._handleJson(branch, data)
+            retval = []
+            pushes = data.items()
+            pushes.sort(key=lambda p:p[1]['date'])
+            for push_id, push in pushes:
+                for c in push['changesets']:
+                    retval.append(c['node'][:12])
+            self.pushes[branch]["ranges"][key] = retval
+            return retval
+        except:
+            log.exception("Error parsing %s", raw_data)
+            return []
+
+    def getChange(self, branch, rev):
+        shortrev = rev[:12]
+        return self.pushes[branch][rev]
 
 class AnalysisRunner:
     def __init__(self, options, config):
@@ -140,15 +262,15 @@ class AnalysisRunner:
         else:
             self.output = open(options.output, "w")
 
-        self.dater = PushDater(config.get('main', 'pushdates'), config.get('main', 'base_hg_url'))
-        self.dater.loadPushDates()
-
         log.basicConfig(level=options.verbosity, format="%(asctime)s %(message)s")
+
+        self.pushlog = PushLog(config.get('cache', 'pushlog'), config.get('main', 'base_hg_url'))
+        self.pushlog.load()
 
         self.loadWarningHistory()
 
         self.dashboard_data = {}
-        self.processed_data = []
+        self.bug_cache = {}
 
         self.fore_window = config.getint('main', 'fore_window')
         self.back_window = config.getint('main', 'back_window')
@@ -156,20 +278,17 @@ class AnalysisRunner:
         self.machine_threshold = config.getfloat('main', 'machine_threshold')
         self.machine_history_size = config.getint('main', 'machine_history_size')
 
-        if config.get('main', 'method') == 'graphapi':
-            from analyze_graphapi import GraphAPISource
-            graph_url = config.get('main', 'base_graph_url')
-            self.source = GraphAPISource("%(graph_url)s/api" % locals())
-        else:
-            import analyze_db as source
-            source.connect(config.get('main', 'dburl'))
-            self.source = source
+        # The id of the last test run we've looked at
+        self.last_run = 0
 
-        self.lock = threading.RLock()
+        import analyze_db as source
+        source.connect(config.get('main', 'dburl'))
+        self.source = source
 
     def loadWarningHistory(self):
         # Stop warning about stuff from a long time ago
-        fn = self.config.get('main', 'warning_history')
+        log.debug("Loading warning history")
+        fn = self.config.get('cache', 'warning_history')
         cutoff = self.options.start_time
         try:
             if not os.path.exists(fn):
@@ -206,15 +325,17 @@ class AnalysisRunner:
             self.warning_history = {}
 
     def saveWarningHistory(self):
-        fn = self.config.get('main', 'warning_history')
-        json.dump(self.warning_history, open(fn, "w"), indent=2, sort_keys=True)
+        fn = self.config.get('cache', 'warning_history')
+        tmp = fn + ".tmp"
+        json.dump(self.warning_history, open(tmp, "w"), indent=2, sort_keys=True)
+        os.rename(tmp, fn)
 
     def updateTimes(self, branch, data):
         # We want to fetch the changesets so we can order the data points by
         # push time, rather than by test time
         changesets = set(d.revision for d in data)
 
-        dates = self.dater.getPushDates(branch, self.config.get(branch, 'repo_path'), changesets)
+        dates = self.pushlog.getPushDates(branch, self.config.get(branch, 'repo_path'), changesets)
 
         for d in data:
             rev = dates.get(d.revision, None)
@@ -226,6 +347,8 @@ class AnalysisRunner:
             login = self.config.get('main', 'bitly_login')
             apiKey = self.config.get('main', 'bitly_apiKey')
             return safe_shorten(url, login, apiKey)
+        else:
+            return url
 
     def makeChartUrl(self, series, d=None):
         test_params = []
@@ -252,6 +375,19 @@ class AnalysisRunner:
             hg_url = "%(base_url)s/%(repo_path)s/rev/%(bad_rev)s" % locals()
         return hg_url
 
+    def makeBugUrl(self, bug_num):
+        return "http://bugzilla.mozilla.org/show_bug.cgi?id=%s" % bug_num
+
+    def getBug(self, bug_num):
+        if bug_num in self.bug_cache:
+            return self.bug_cache[bug_num]
+
+        if self.config.has_option('main', 'bz_api'):
+            bug = bz_get_bug(self.config.get('main', 'bz_api'), bug_num)
+            if bug:
+                self.bug_cache[bug_num] = bug
+                return bug
+
     def isTestReversed(self, test_name):
         reversed_tests = []
         if self.config.has_option('main', 'reverse_tests'):
@@ -263,7 +399,16 @@ class AnalysisRunner:
                 return True
         return False
 
-    def formatMessage(self, state, series, good, bad, html=False):
+    def isImprovement(self, test_name, old, new):
+        old_value = new.historical_stats['avg']
+        new_value = new.forward_stats['avg']
+
+        if self.isTestReversed(test_name):
+            return new_value > old_value
+        else:
+            return new_value < old_value
+
+    def formatMessage(self, state, series, good, bad):
         if state == "machine":
             good = bad.last_other
 
@@ -271,21 +416,24 @@ class AnalysisRunner:
         test_name = series.test_name
         os_name = series.os_name
 
-        initial_value = good.value
-        new_value = bad.value
+        initial_value = bad.historical_stats['avg']
+        initial_stddev = bad.historical_stats['variance'] ** 0.5
+        history_n = bad.historical_stats['n']
+
+        new_value = bad.forward_stats['avg']
+        new_stddev = bad.forward_stats['variance'] ** 0.5
+        forward_n = bad.forward_stats['n']
+
         change = 100.0 * abs(new_value - initial_value) / float(initial_value)
-        bad_build_time = datetime.fromtimestamp(bad.timestamp).strftime("%Y-%m-%d %H:%M:%S")
-        good_build_time = datetime.fromtimestamp(good.timestamp).strftime("%Y-%m-%d %H:%M:%S")
-        if self.isTestReversed(test_name):
-            if new_value > initial_value:
-                reason = "Improvement"
-            else:
-                reason = "Regression"
+        delta = (new_value - initial_value)
+
+        z_score = abs(delta / initial_stddev)
+
+        if self.isImprovement(test_name, good, bad):
+            reason = "Improvement!"
         else:
-            if new_value > initial_value:
-                reason = "Regression"
-            else:
-                reason = "Improvement"
+            reason = "Regression :("
+
         if new_value > initial_value:
             direction = "increase"
         else:
@@ -303,62 +451,90 @@ class AnalysisRunner:
             bad_rev = "(unknown revision)"
 
         if good.revision and bad.revision:
-            hg_url = "\n    " + self.makeHgUrl(branch_name, good.revision, bad.revision)
+            hg_url = self.makeHgUrl(branch_name, good.revision, bad.revision)
+            revisions = self.pushlog.getPushRange(branch_name,
+                    self.config.get(branch_name, 'repo_path'), from_=good.revision,
+                    to_=bad.revision)
         else:
             hg_url = ""
-
-        bad_build_id = bad.buildid
-        good_build_id = good.buildid
-        bad_machine_name = self.source.getMachineName(bad.machine_id)
-        good_machine_name = self.source.getMachineName(good.machine_id)
-        good_run_number = good.run_number
-        bad_run_number = bad.run_number
+            revisions = []
 
         if state == "machine":
+            bad_machine_name = self.source.getMachineName(bad.machine_id)
             reason = "Suspected machine issue (%s)" % bad_machine_name
-            if not html:
-                msg =  """\
+            msg =  """\
 %(reason)s: %(test_name)s %(direction)s %(change).3g%% on %(os_name)s %(branch_name)s
-    Previous results:
-        %(initial_value)s from build %(good_build_id)s of %(good_rev)s at %(good_build_time)s on %(good_machine_name)s
-    New results:
-        %(new_value)s from build %(bad_build_id)s of %(bad_rev)s at %(bad_build_time)s on %(bad_machine_name)s
-    %(chart_url)s
-""" % locals()
-            else:
-                chart_url_encoded = xml.sax.saxutils.quoteattr(chart_url)
-                hg_url_encoded = xml.sax.saxutils.quoteattr(hg_url)
-                msg =  """\
-<p>%(reason)s: %(test_name)s <a href=%(chart_url_encoded)s>%(direction)s %(change).3g%%</a> on %(os_name)s %(branch_name)s</p>
-<p>Previous results: %(initial_value)s from build %(good_build_id)s of %(good_rev)s at %(good_build_time)s on %(good_machine_name)s</p>
-<p>New results: %(new_value)s from build %(bad_build_id)s of %(bad_rev)s at %(bad_build_time)s on %(bad_machine_name)s</p>
-
-<p>Suspected checkin range: <a href=%(hg_url_encoded)s>from %(good_rev)s to %(bad_rev)s</a></p>
+    Previous: avg %(initial_value).3f stddev %(initial_stddev).3f
+    New     : avg %(new_value).3f stddev %(new_stddev).3f
+    Change  : %(delta)+.3f (%(change).3g%% / z=%(z_score).3f)
+    Graph   : %(chart_url)s
 """ % locals()
         else:
-            if not html:
-                msg =  """\
-%(reason)s: %(test_name)s %(direction)s %(change).3g%% on %(os_name)s %(branch_name)s
-    Previous results:
-        %(initial_value)s from build %(good_build_id)s of %(good_rev)s at %(good_build_time)s on %(good_machine_name)s run # %(good_run_number)s
-    New results:
-        %(new_value)s from build %(bad_build_id)s of %(bad_rev)s at %(bad_build_time)s on %(bad_machine_name)s run # %(bad_run_number)s
-    %(chart_url)s%(hg_url)s
-""" % locals()
-            else:
-                chart_url_encoded = xml.sax.saxutils.quoteattr(chart_url)
-                hg_url_encoded = xml.sax.saxutils.quoteattr(hg_url)
-                msg =  """\
-<p>%(reason)s: %(test_name)s <a href=%(chart_url_encoded)s>%(direction)s %(change).3g%%</a> on %(os_name)s %(branch_name)s</p>
-<p>Previous results: %(initial_value)s from build %(good_build_id)s of %(good_rev)s at %(good_build_time)s on %(good_machine_name)s run # %(good_run_number)s</p>
-<p>New results: %(new_value)s from build %(bad_build_id)s of %(bad_rev)s at %(bad_build_time)s on %(bad_machine_name)s run # %(bad_run_number)s</p>
+            header = "%(reason)s %(test_name)s %(direction)s %(change).3g%% on %(os_name)s %(branch_name)s" % locals()
+            dashes = "-" * len(header)
+            msg =  """\
+%(header)s
+%(dashes)s
+    Previous: avg %(initial_value).3f stddev %(initial_stddev).3f of %(history_n)i runs up to %(good_rev)s
+    New     : avg %(new_value).3f stddev %(new_stddev).3f of %(forward_n)i runs since %(bad_rev)s
+    Change  : %(delta)+.3f (%(change).3g%% / z=%(z_score).3f)
+    Graph   : %(chart_url)s
 
-<p>Suspected checkin range: <a href=%(hg_url_encoded)s>from %(good_rev)s to %(bad_rev)s</a></p>
 """ % locals()
+            if hg_url:
+                msg += "Changeset range: %(hg_url)s\n\n" % locals()
+
+            bugs = set()
+            # Fuzzy limit is slightly higher to prevent omitting just a small
+            # number of revisions
+            # e.g. if fuzzy limit is 5 higher than limit, then up to 5 extra
+            # revisions past the limit will be output.  If the number of
+            # revisions exceeds the fuzzy limit, then revision_limit will be
+            # used.
+            revision_limit = 15
+            revision_fuzzy_limit = 20
+            if len(revisions) < revision_fuzzy_limit:
+                revision_limit = revision_fuzzy_limit
+            if revisions:
+                msg += "Changesets:\n"
+                for i, rev in enumerate(revisions):
+                    url = self.makeHgUrl(branch_name, None, rev)
+                    changeset = self.pushlog.getChange(branch_name, rev)
+                    author = changeset['author'].encode("utf8")
+                    comments = changeset['comments'].encode("utf8")
+                    these_bugs = bugs_from_comments(comments)
+                    bugs.update(these_bugs)
+                    if i < revision_limit:
+                        msg += """\
+  * %(url)s
+    : %(author)s - %(comments)s
+""" % locals()
+                        for bug in these_bugs:
+                            bug_url = self.makeBugUrl(bug)
+                            msg += "    : %(bug_url)s\n" % locals()
+                        msg += "\n"
+                if len(revisions) > revision_limit:
+                    msg += "  * and %i more\n\n" % (len(revisions) - revision_limit)
+
+            bug_limit = 15
+            bug_fuzzy_limit = 20
+            bugs = list(bugs)
+            if len(bugs) < bug_fuzzy_limit:
+                bug_limit = bug_fuzzy_limit
+            if bugs:
+                msg += "Bugs:\n"
+                for bug_num in bugs[:bug_limit]:
+                    bug_url = self.makeBugUrl(bug_num)
+                    bug = self.getBug(bug_num)
+                    if bug:
+                        bug_desc = bug['summary'].encode("utf8")
+                        msg += "  * %(bug_url)s - %(bug_desc)s\n" % locals()
+                    else:
+                        msg += "  * %(bug_url)s\n" % locals()
+                if len(bugs) > bug_limit:
+                    msg += "  * and %i more\n" % (len(bugs) - bug_limit)
+
         return msg
-
-    def formatHTMLMessage(self, state, series, good, bad):
-        return self.formatMessage(state, series, good, bad, html=True)
 
     def formatSubject(self, state, series, good, bad):
         if state == "machine":
@@ -368,42 +544,118 @@ class AnalysisRunner:
         test_name = series.test_name
         os_name = series.os_name
 
-        initial_value = good.value
-        new_value = bad.value
+        initial_value = bad.historical_stats['avg']
+        new_value = bad.forward_stats['avg']
+
         change = 100.0 * abs(new_value - initial_value) / float(initial_value)
-        bad_build_time = datetime.fromtimestamp(bad.timestamp).strftime("%Y-%m-%d %H:%M:%S")
-        good_build_time = datetime.fromtimestamp(good.timestamp).strftime("%Y-%m-%d %H:%M:%S")
-        if self.isTestReversed(test_name):
-            if new_value > initial_value:
-                reason = "Improvement"
-            else:
-                reason = "Regression"
+
+        if self.isImprovement(test_name, good, bad):
+            reason = "Improvement!"
         else:
-            if new_value > initial_value:
-                reason = "Regression"
-            else:
-                reason = "Improvement"
+            reason = "Regression :("
+
         if new_value > initial_value:
             direction = "increase"
         else:
             direction = "decrease"
+
         if state == "machine":
             bad_machine_name = self.source.getMachineName(bad.machine_id)
             good_machine_name = self.source.getMachineName(good.machine_id)
             reason = "Suspected machine issue (%s)" % bad_machine_name
-        return "Talos %(reason)s: %(test_name)s %(direction)s %(change).3g%% on %(os_name)s %(branch_name)s" % locals()
+        return "Talos %(reason)s %(test_name)s %(direction)s %(change).3g%% on %(os_name)s %(branch_name)s" % locals()
 
     def printWarning(self, series, d, state, last_good):
         if self.output:
-            with self.lock:
-                self.output.write(self.formatMessage(state, series, last_good, d))
-                self.output.write("\n")
-                self.output.flush()
+            self.output.write(self.formatMessage(state, series, last_good, d))
+            self.output.write("\n")
+            self.output.flush()
+
+    def bugComment(self, series, bad, state, good):
+        # Ignore machine issues
+        if state != "regression":
+            log.debug("Ignoring non-regression event %s", state)
+            return
+
+        if not (good.revision and bad.revision):
+            # Can't find a range, so give up
+            log.info("No revision range for %s, not posting bug comment" % bad)
+            return
+
+        branch = series.branch_name
+        test_name = series.test_name
+        short_name = series.test_shortname
+
+        # Don't comment for good things
+        if self.isImprovement(test_name, good, bad):
+            log.debug("Not commenting on bug for improvement")
+            return
+
+        initial_value = bad.historical_stats['avg']
+        initial_stddev = bad.historical_stats['variance'] ** 0.5
+        history_n = bad.historical_stats['n']
+
+        new_value = bad.forward_stats['avg']
+        new_stddev = bad.forward_stats['variance'] ** 0.5
+        forward_n = bad.forward_stats['n']
+
+        change = 100.0 * (new_value - initial_value) / float(initial_value)
+        delta = (new_value - initial_value)
+        z_score = abs(delta / initial_stddev)
+
+        good_rev = good.revision
+        bad_rev = bad.revision
+
+        hg_url = self.makeHgUrl(branch, good_rev, bad_rev)
+
+        # Get all the changesets in the range
+        revisions = self.pushlog.getPushRange(branch,
+                self.config.get(branch, 'repo_path'), from_=good_rev,
+                to_=bad_rev)
+
+        whiteboard = self.config.get('main', 'bz_whiteboard') % locals()
+        username = self.config.get('main', 'bz_username')
+        password = self.config.get('main', 'bz_password')
+        api = self.config.get('main', 'bz_api')
+
+        graph = self.shorten(self.makeChartUrl(series, bad))
+
+        if self.config.has_option('main', 'bz_bug_override'):
+            bug_override = self.config.get('main', 'bz_bug_override')
+        else:
+            bug_override = None
+
+        bugs = set()
+        for rev in revisions:
+            c = self.pushlog.getChange(branch, rev)
+            bugs.update(bugs_from_comments(c['comments']))
+
+        for bug in bugs:
+            log.debug("Bug %s is implicated", bug)
+            message = """\
+A changeset from this bug was associated with a %(test_name)s regression. boo-urns :(
+
+  Previous: avg %(initial_value).3f stddev %(initial_stddev).3f of %(history_n)i runs up to %(good_rev)s
+  New     : avg %(new_value).3f stddev %(new_stddev).3f of %(forward_n)i runs since %(bad_rev)s
+  Change  : %(delta)+.3f (%(change).3g%% / z=%(z_score).3f)
+  Graph   : %(graph)s
+
+The regression occurred from changesets in the following range:
+%(hg_url)s
+
+The tag %(whiteboard)s has been added to the status whiteboard;
+please remove it only once you have confirmed this bug is not the cause
+of the regression.""" % locals()
+
+            notify_bug = bug_override or bug
+            log.info("Notifying bug %s" , notify_bug)
+
+            bz_notify_bug(api, notify_bug, message, whiteboard, username, password)
 
     def emailWarning(self, series, d, state, last_good):
         addresses = []
+        branch = series.branch_name
         if state == 'regression':
-            branch = series.branch_name
             if self.config.has_option(branch, 'regression_emails'):
                 addresses.extend(self.config.get(branch, 'regression_emails').split(","))
             elif self.config.has_option('main', 'regression_emails'):
@@ -412,53 +664,40 @@ class AnalysisRunner:
         if state == 'machine' and self.config.has_option('main', 'machine_emails'):
             addresses.extend(self.config.get('main', 'machine_emails').split(","))
 
+        if self.config.has_option('main', 'email_authors') and \
+                self.config.getboolean('main', 'email_authors') and \
+                state == 'regression' and \
+                not self.isImprovement(series.test_name, last_good, d):
+
+            for rev in self.pushlog.getPushRange(branch, self.config.get(branch, 'repo_path'), from_=last_good.revision,
+                    to_=d.revision):
+                c = self.pushlog.getChange(branch, rev)
+                author = email.utils.parseaddr(c['author'])
+                if author != ('', ''):
+                    author = email.utils.formataddr(author)
+                pusher = email.utils.parseaddr(c['pusher'])
+                if pusher != ('', ''):
+                    pusher = email.utils.formataddr(pusher)
+
+                if author not in addresses:
+                    log.debug("Adding author %s to recipients", author)
+                    addresses.append(author)
+
+                if pusher not in addresses:
+                    log.debug("Adding pusher %s to recipients", pusher)
+                    addresses.append(pusher)
+
+        log.debug("Mailing %s", addresses)
         if addresses:
             addresses = [a.strip() for a in addresses]
             subject = self.formatSubject(state, series, last_good, d)
             msg = self.formatMessage(state, series, last_good, d)
-            html = self.formatHTMLMessage(state, series, last_good, d)
             if last_good.revision:
                 headers = {'In-Reply-To': '<talosbustage-%s>' % last_good.revision}
                 headers['References'] = headers['In-Reply-To']
             else:
                 headers = {}
-            send_msg(self.config.get('main', 'from_email'), subject, msg, addresses, html, headers)
-
-    def outputJson(self):
-        warnings = {}
-        for s, d, state, skip, last_good in self.processed_data:
-            if state == "good" or last_good is None:
-                continue
-
-            if s.branch_name not in warnings:
-               warnings[s.branch_name] = {}
-            if s.os_name not in warnings[s.branch_name]:
-                warnings[s.branch_name][s.os_name] = {}
-            if s.test_name not in warnings[s.branch_name][s.os_name]:
-                warnings[s.branch_name][s.os_name][s.test_name] = []
-
-            warnings[s.branch_name][s.os_name][s.test_name].append(
-                dict(type=state,
-                    good=dict(
-                        build_id=last_good.buildid,
-                        machine_id=last_good.machine_id,
-                        timestamp=last_good.timestamp,
-                        time=last_good.time,
-                        revision=last_good.revision,
-                        value=last_good.value,
-                        ),
-                    bad=dict(
-                        build_id=d.buildid,
-                        machine_id=d.machine_id,
-                        timestamp=d.timestamp,
-                        time=d.time,
-                        revision=d.revision,
-                        value=d.value,
-                        )))
-        json_file = self.config.get('main', 'json')
-        if not os.path.exists(os.path.dirname(json_file)):
-            os.makedirs(os.path.dirname(json_file))
-        json.dump(warnings, open(json_file, "w"), sort_keys=True)
+            send_msg(self.config.get('main', 'from_email'), subject, msg, addresses, headers)
 
     def outputDashboard(self):
         log.debug("Creating dashboard")
@@ -547,47 +786,50 @@ class AnalysisRunner:
 
     def findInactiveMachines(self):
         log.debug("Finding inactive machines...")
-        machine_dates = {}
-        for s, d, state, skip, last_good in self.processed_data:
-            if d.machine_id not in machine_dates:
-                machine_dates[d.machine_id] = d.time
-            else:
-                machine_dates[d.machine_id] = max(machine_dates[d.machine_id], d.time)
 
         if "inactive_machines" not in self.warning_history:
             self.warning_history['inactive_machines'] = {}
 
-        # Complain about anything that hasn't reported in 48 hours
-        cutoff = time.time() - 48*3600
+        now = time.time()
+        # Look back 2 weeks to find machines that are active
+        initial_time = datetime.fromtimestamp(now - 14*24*3600)
+        # Complain about anything that hasn't reported in 3 days
+        cutoff = datetime.fromtimestamp(now - 3*24*3600)
+        end_time = datetime.fromtimestamp(now)
 
         addresses = []
         if self.config.has_option('main', 'machine_emails'):
             addresses.extend(self.config.get('main', 'machine_emails').split(","))
 
-        for machine_id, t in machine_dates.items():
-            if t < cutoff:
-                machine_name = self.source.getMachineName(machine_id)
+        for machine_name in self.source.getInactiveMachines(
+                self.config.get('main', 'statusdb'),
+                initial_time,
+                cutoff,
+                end_time):
 
-                # When did we last warn about this machine?
-                if self.warning_history['inactive_machines'].get(machine_name, 0) < time.time() - 7*24*3600:
-                    # If it was over a week ago, then send another warning
-                    self.warning_history['inactive_machines'][machine_name] = time.time()
+            # When did we last warn about this machine?
+            if self.warning_history['inactive_machines'].get(machine_name, 0) < time.time() - 7*24*3600:
+                # If it was over a week ago, then send another warning
+                self.warning_history['inactive_machines'][machine_name] = time.time()
 
-                    subject = "Inactive Talos machine: %s" % machine_name
-                    msg = "Talos machine %s hasn't reported any results since %s" % (machine_name, time.ctime(t))
+                subject = "Inactive machine: %s" % machine_name
+                msg = "Machine %s hasn't done any work since %s" % (
+                        machine_name, cutoff.strftime("%Y-%m-%d %H:%M:%S"))
 
-                    self.output.write(msg)
-                    self.output.write("\n")
-                    self.output.flush()
+                self.output.write(msg)
+                self.output.write("\n")
+                self.output.flush()
 
-                    if addresses:
-                        send_msg(self.config.get('main', 'from_email'), subject, msg, addresses)
+                if addresses:
+                    send_msg(self.config.get('main', 'from_email'), subject, msg, addresses)
 
     def handleData(self, series, d, state, skip, last_good):
         if not skip and state != "good" and not self.options.catchup and last_good is not None:
             # Notify people of the warnings
             self.printWarning(series, d, state, last_good)
             self.emailWarning(series, d, state, last_good)
+            if self.config.has_option('main', 'bz_username') and self.config.has_option('main', 'bz_api'):
+                self.bugComment(series, d, state, last_good)
 
     def handleSeries(self, s):
         if self.config.has_option('os', s.os_name):
@@ -597,21 +839,27 @@ class AnalysisRunner:
         ignore_tests = []
         if self.config.has_option('main', 'ignore_tests'):
             for i in self.config.get('main', 'ignore_tests').split(','):
-                ignore_tests.append(i.strip())
+                i = i.strip()
+                if i:
+                    ignore_tests.append(i)
 
         if self.config.has_option(s.branch_name, 'ignore_tests'):
             for i in self.config.get(s.branch_name, 'ignore_tests').split(','):
-                ignore_tests.append(i.strip())
+                i = i.strip()
+                if i:
+                    ignore_tests.append(i)
 
         for i in ignore_tests:
             if re.search(i, s.test_name):
-                log.info("Skipping %s %s %s", s.branch_name, s.os_name, s.test_name)
+                log.debug("Skipping %s %s %s", s.branch_name, s.os_name, s.test_name)
                 return
 
         log.info("Processing %s %s %s", s.branch_name, s.os_name, s.test_name)
 
         # Get all the test data for all machines running this combination
+        t = time.time()
         data = self.source.getTestData(s, options.start_time)
+        log.debug("%.2f to fetch data", time.time() - t)
 
         # Add it to our dashboard data
         sevenDaysAgo = time.time() - 7*24*60*60
@@ -619,6 +867,12 @@ class AnalysisRunner:
         for t in re.split(r"(?<!\\),", self.config.get("dashboard", "tests")):
             t = t.replace("\\,", ",").strip()
             importantTests.append(t)
+
+        if data:
+            m = max(d.testrun_id for d in data)
+            if self.last_run < m:
+                log.debug("Setting last_run to %s", m)
+                self.last_run = m
 
         if s.test_name in importantTests and len(data) > 0:
             # We want to merge the Tp3 (Memset) and Tp3 (RSS) results together
@@ -663,18 +917,18 @@ class AnalysisRunner:
                 self.threshold, self.machine_threshold,
                 self.machine_history_size)
 
-        with self.lock:
-            if s.branch_name not in self.warning_history:
-                self.warning_history[s.branch_name] = {}
-            if s.os_name not in self.warning_history[s.branch_name]:
-                self.warning_history[s.branch_name][s.os_name] = {}
-            if s.test_name not in self.warning_history[s.branch_name][s.os_name]:
-                self.warning_history[s.branch_name][s.os_name][s.test_name] = []
-            warnings = self.warning_history[s.branch_name][s.os_name][s.test_name]
+        if s.branch_name not in self.warning_history:
+            self.warning_history[s.branch_name] = {}
+        if s.os_name not in self.warning_history[s.branch_name]:
+            self.warning_history[s.branch_name][s.os_name] = {}
+        if s.test_name not in self.warning_history[s.branch_name][s.os_name]:
+            self.warning_history[s.branch_name][s.os_name][s.test_name] = []
+        warnings = self.warning_history[s.branch_name][s.os_name][s.test_name]
 
         last_good = None
         last_err = None
         last_err_good = None
+        # Uncomment this for debugging!
         #cutoff = self.options.start_time
         cutoff = time.time() - 7*24*3600
         series_data = []
@@ -686,21 +940,20 @@ class AnalysisRunner:
             if state != "good":
                 # Skip warnings about regressions we've already
                 # warned people about
-                with self.lock:
-                    if (d.buildid, d.timestamp) in warnings:
-                        skip = True
-                    else:
-                        warnings.append((d.buildid, d.timestamp))
-                        if state == "machine":
-                            machine_name = self.source.getMachineName(d.machine_id)
-                            if 'bad_machines' not in self.warning_history:
-                                self.warning_history['bad_machines'] = {}
-                            # When did we last warn about this machine?
-                            if self.warning_history['bad_machines'].get(machine_name, 0) > time.time() - 7*24*3600:
-                                skip = True
-                            else:
-                                # If it was over a week ago, then send another warning
-                                self.warning_history['bad_machines'][machine_name] = time.time()
+                if (d.buildid, d.timestamp) in warnings:
+                    skip = True
+                else:
+                    warnings.append((d.buildid, d.timestamp))
+                    if state == "machine":
+                        machine_name = self.source.getMachineName(d.machine_id)
+                        if 'bad_machines' not in self.warning_history:
+                            self.warning_history['bad_machines'] = {}
+                        # When did we last warn about this machine?
+                        if self.warning_history['bad_machines'].get(machine_name, 0) > time.time() - 7*24*3600:
+                            skip = True
+                        else:
+                            # If it was over a week ago, then send another warning
+                            self.warning_history['bad_machines'][machine_name] = time.time()
 
                 if not last_err:
                     last_err = d
@@ -715,58 +968,31 @@ class AnalysisRunner:
             series_data.append((s, d, state, skip, last_good))
             self.handleData(s, d, state, skip, last_good)
 
-        with self.lock:
-            self.processed_data.extend(series_data)
-
         if self.config.has_option('main', 'graph_dir'):
             self.outputGraphs(s, series_data)
 
+    def loadSeries(self):
+        start_time = self.options.start_time
+        if self.config.has_option('cache', 'last_run_file'):
+            try:
+                self.last_run = int(open(self.config.get('cache', 'last_run_file')).read())
+                log.debug("Using %s as our last_run", self.last_run)
+            except:
+                self.last_run = 0
+                log.debug("Could't load last run time, using %s as start time", start_time)
+        series = self.source.getTestSeries(self.options.branches, start_time, self.options.tests, self.last_run)
+        return series
+
     def run(self):
         log.info("Fetching list of tests")
-        series = self.source.getTestSeries(self.options.branches, self.options.start_time, self.options.tests)
+        series = self.loadSeries()
         self.done = False
-        def runner():
-            while not self.done:
-                try:
-                    with self.lock:
-                        if not series:
-                            break
-                        s = series.pop()
-                    self.handleSeries(s)
-                except KeyboardInterrupt:
-                    print "Exiting..."
-                    self.done = True
-                    break
 
-        if False:
-            threads = []
-            for i in range(1):
-                t = threading.Thread(target=runner)
-                t.start()
-                threads.append(t)
-
-            while not self.done:
-                try:
-                    alldone = True
-                    for t in threads:
-                        if t.isAlive():
-                            alldone = False
-                            break
-                    if alldone:
-                        self.done = True
-                    else:
-                        time.sleep(5)
-                except KeyboardInterrupt:
-                    print "Exiting..."
-                    self.done = True
-                        
-            for t in threads:
-                t.join()
-        else:
-            runner()
-
-        if self.config.has_option('main', 'json'):
-            self.outputJson()
+        while not self.done:
+            if not series:
+                break
+            s = series.pop()
+            self.handleSeries(s)
 
         if self.config.has_option('main', 'dashboard_dir'):
             self.outputDashboard()
@@ -774,11 +1000,27 @@ class AnalysisRunner:
         if not self.options.catchup:
             self.findInactiveMachines()
 
+    def save(self, errors=False):
+        try:
+            self.saveWarningHistory()
+        except:
+            log.exception("Error saving warning history")
+
+        try:
+            self.pushlog.save()
+        except:
+            log.exception("Error saving pushlog")
+
+        if not errors:
+            try:
+                if self.config.has_option('cache', 'last_run_file'):
+                    open(self.config.get('cache', 'last_run_file'), 'w').write("%i" % self.last_run)
+            except:
+                log.exception("Error saving last time")
+
 if __name__ == "__main__":
-    import sys
-    from datetime import datetime
     from optparse import OptionParser
-    from ConfigParser import SafeConfigParser
+    from ConfigParser import RawConfigParser
 
     parser = OptionParser()
     parser.add_option("-b", "--branch", dest="branches", action="append")
@@ -807,10 +1049,13 @@ if __name__ == "__main__":
 
     options, args = parser.parse_args()
 
-    config = SafeConfigParser()
+    config = RawConfigParser()
     config.add_section('main')
-    config.set('main', 'warning_history', 'warning_history.json')
-    config.set('main', 'pushdates', 'pushdates.json')
+    config.add_section('cache')
+    # Set some defaults
+    config.set('cache', 'warning_history', 'warning_history.json')
+    config.set('cache', 'pushlog', 'pushlog.json')
+    config.set('cache', 'last_run_file', 'lastrun.txt')
     config.read([options.config])
 
     if options.addresses:
@@ -821,8 +1066,7 @@ if __name__ == "__main__":
     runner = AnalysisRunner(options, config)
     try:
         runner.run()
-    finally:
-        try:
-            runner.saveWarningHistory()
-        finally:
-            runner.dater.savePushDates()
+        runner.save()
+    except:
+        runner.save(errors=True)
+        raise

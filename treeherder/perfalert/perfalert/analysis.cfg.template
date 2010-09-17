@@ -1,0 +1,110 @@
+[main]
+base_hg_url = http://hg.mozilla.org
+base_graph_url = http://graphs.mozilla.org
+
+# How to connect to the database
+dburl = mysql://graphserver@localhost/graphserver
+
+# How to connect to the status database
+statusdb = mysql://buildbot@localhost/buildbot
+
+# How many builds to look ahead
+fore_window = 5
+
+# How many builds to look behind
+back_window = 30
+
+# What t score is required to consider a change significant
+threshold = 9
+
+# What t score is required to consider a machine to be bad
+machine_threshold = 15
+
+# How much history to consider per machine
+machine_history_size = 5
+
+# Where to write graphs out to
+#graph_dir = /var/www/html/graphs
+
+# Where to write the dashboard to
+#dashboard_dir = /var/www/html/dashboard
+
+# Who should emails be sent from
+#from_email = nobody@cruncher.build.mozilla.org
+
+# Who should emails be sent to
+#regression_emails = 
+
+# Who should machine issues be sent to
+#machine_emails = 
+
+# List of tests to ignore
+ignore_tests = Nokia.*
+
+# List of tests where higher is better
+reverse_tests = Dromaeo.*
+
+# How to get short urls from bit.ly
+#bitly_login =
+#bitly_apiKey =
+
+# How to talk to bugzilla
+#bz_api = https://api-dev.bugzilla.mozilla.org/0.6.1
+#bz_whiteboard = [regression-suspect]
+#bz_username = 
+#bz_password = 
+# For testing, which bug to add comments to instead of the real thing
+#bz_bug_override = 11383
+
+[cache]
+# Where to store warning history
+warning_history = warning_history.json
+
+# Where to store our pushlog cache
+pushlog = pushlog.json
+
+# Where to store when we last ran
+last_run_file = lastrun.txt
+
+[dashboard]
+# Which tests to display on the dashboard
+tests = Tp3, Txul, Tp3 (RSS), Tp3 (Memset), Tp3 Shutdown, Ts Shutdown, Ts, SVG, Tp4, Tp4 (RSS), Tp4 (Memset), Tp4 Shutdown, Ts\, Cold, Ts Shutdown\, Cold
+
+[os]
+# Graph server OS to human friendly OS names
+WINNT 6.1 = Win7
+WINNT 6.0 = Vista
+WINNT 5.1 = XP
+MacOSX Darwin 8.8.1 = Tiger
+MacOSX Darwin 9.2.2 = Leopard
+Ubuntu 7.10 = Linux
+Ubuntu 9.04 (x64) = Linux x64
+Fedora 12 x64 - Constantine = Linux x64
+Fedora 12 - Constantine = Linux
+
+[Firefox]
+repo_path = mozilla-central
+
+[Firefox3.5]
+repo_path = releases/mozilla-1.9.1
+
+[Firefox3.6]
+repo_path = releases/mozilla-1.9.2
+
+[TraceMonkey]
+repo_path = tracemonkey
+
+[Places]
+repo_path = projects/places
+
+[Electrolysis]
+repo_path = projects/electrolysis
+
+[mobile]
+repo_path = mobile-browser
+
+[mobile-1.9.2]
+repo_path = releases/mobile-1.1
+
+[mobile-tracemonkey]
+repo_path = tracemonkey

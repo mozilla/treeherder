@@ -3,7 +3,27 @@ import sqlalchemy as sa
 from sqlalchemy.ext.sqlsoup import SqlSoup
 
 from analyze import PerfDatum
-from analyze_graphapi import TestSeries
+
+import logging as log
+
+class TestSeries:
+    def __init__(self, branch_id, branch_name, os_id, os_name, test_id, test_name, test_shortname):
+        self.branch_id = branch_id
+        self.branch_name = branch_name
+        self.os_id = os_id
+        self.os_name = os_name
+        self.test_id = test_id
+        self.test_name = test_name
+        self.test_shortname = test_shortname
+
+    def __eq__(self, o):
+        return (self.branch_id, self.os_id, self.test_id) == (o.branch_id, o.os_id, o.test_id)
+
+    def __hash__(self):
+        return hash((self.branch_id, self.os_id, self.test_id))
+
+    def __str__(self):
+        return "%s %s %s" % (self.branch_name, self.os_name, self.test_shortname)
 
 db = None
 def connect(url):
@@ -15,7 +35,10 @@ def connect(url):
 
 def getTestData(series, start_time):
     q = sa.select(
-        [db.test_runs.machine_id, db.builds.ref_build_id, db.test_runs.date_run, db.test_runs.average, db.builds.ref_changeset, db.test_runs.run_number, db.builds.branch_id],
+        [db.test_runs.id, db.test_runs.machine_id, db.builds.ref_build_id,
+            db.test_runs.date_run, db.test_runs.average,
+            db.builds.ref_changeset, db.test_runs.run_number,
+            db.builds.branch_id],
         sa.and_(
         db.test_runs.test_id == series.test_id,
         db.builds.branch_id == series.branch_id,
@@ -32,19 +55,19 @@ def getTestData(series, start_time):
         if row.average is None:
             continue
         t = row.date_run
-        d = PerfDatum(row.machine_id, row.date_run, row.average, row.ref_build_id, t, row.ref_changeset)
+        d = PerfDatum(row.id, row.machine_id, row.date_run, row.average, row.ref_build_id, t, row.ref_changeset)
         d.run_number = row.run_number
         data.append(d)
     return data
 
-def getTestSeries(branches, start_date, test_names):
+def getTestSeries(branches, start_date, test_names, last_run=None):
     # Find all the Branch/OS/Test combinations
     if len(test_names) > 0:
         test_clause = db.tests.pretty_name.in_(test_names)
     else:
         test_clause = True
     q = sa.select(
-            [db.branches.id, db.branches.name, db.os_list.id, db.os_list.name, db.tests.id, db.tests.pretty_name],
+            [db.branches.id.label('branch_id'), db.branches.name.label('branch_name'), db.os_list.id.label('os_id'), db.os_list.name.label('os_name'), db.tests.id.label('test_id'), db.tests.pretty_name, db.tests.name.label('test_name')],
             sa.and_(
                 db.test_runs.machine_id == db.machines.id,
                 db.builds.id == db.test_runs.build_id,
@@ -59,6 +82,8 @@ def getTestSeries(branches, start_date, test_names):
                 test_clause
             ))
 
+    if last_run:
+        q = q.where(db.test_runs.id > last_run)
     q = q.distinct()
 
     retval = []
@@ -99,3 +124,26 @@ def getMachineName(machine_id):
     else:
         _name_cache[machine_id] = None
         return None
+
+def getInactiveMachines(statusdb_url, initial_time, start_time, end_time):
+    """Returns a list of slave machines that have been active between
+    initial_time and end_time, but haven't been active between start_time and
+    end_time"""
+    db = SqlSoup(statusdb_url)
+
+    q = sa.select([db.slaves.id, db.slaves.name], sa.and_(
+        sa.not_(sa.exists(
+            sa.select([db.builds.slave_id], sa.and_(
+                db.builds.starttime >= start_time,
+                db.builds.endtime <= end_time,
+                db.builds.slave_id == db.slaves.id,
+                )))),
+        sa.exists(
+            sa.select([db.builds.slave_id], sa.and_(
+                db.builds.starttime >= initial_time,
+                db.builds.starttime <= end_time,
+                db.builds.slave_id == db.slaves.id,
+                )))
+        ))
+
+    return [row['name'] for row in q.execute()]

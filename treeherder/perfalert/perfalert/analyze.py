@@ -1,12 +1,24 @@
 import csv, datetime, time, os
 
 def analyze(data):
-    s = sum(data)
     n = len(data)
-    avg = s / float(n)
-    variance = sum((d - avg) ** 2.0 for d in data) / n
-    stddev = variance ** 0.5
-    return {"sum": s, "avg": avg, "n": n, "stddev": stddev, "variance": variance}
+    if n > 1:
+        m = data[0]
+        s = 0.0
+        for i in range(1, int(n)):
+            di = data[i]
+            m0 = m
+            m += (di-m0)/(i+1)
+            s += (di-m0) * (di - m)
+        variance = s / (n-1)
+        avg = m
+    else:
+        if n == 0:
+            avg = 0.0
+        else:
+            avg = data[0]
+        variance = 0.0
+    return {"avg": avg, "n": n, "variance": variance}
 
 def calc_t(w1, w2):
     if len(w1) == 0 or len(w2) == 0:
@@ -20,8 +32,14 @@ def calc_t(w1, w2):
 
     return (s2['avg'] - s1['avg']) / (((s1['variance'] / s1['n']) + (s2['variance'] / s2['n'])) ** 0.5)
 
-class PerfDatum:
-    def __init__(self, machine_id, timestamp, value, buildid, time, revision=None):
+class PerfDatum(object):
+    __slots__ = ('testrun_id', 'machine_id', 'timestamp', 'value', 'buildid',
+            'time', 'revision', 'run_number', 'last_other', 'historical_stats',
+            'forward_stats')
+    def __init__(self, testrun_id, machine_id, timestamp, value, buildid, time,
+            revision=None):
+        # Which test run was this
+        self.testrun_id = testrun_id
         # Which machine is this
         self.machine_id = machine_id
         # Talos timestamp
@@ -74,34 +92,11 @@ class TalosAnalyzer:
         for d in self.machine_history.values():
             d.sort()
 
-    def findZen(self, i, window, threshold):
-        """Find the point before i where we seem to be calm"""
-        if i < 0:
-            i += len(self.data)
-
-        # Find j < i such that data[j-window:j] are all within threshold (expressed as a multiplier of the avg(data[j-window:j])
-        # of avg(data[j-window:j])
-        j = i - 1
-        while j > window:
-            if (j, window, threshold) in self.zenPoints:
-                return self.zenPoints[(j, window, threshold)]
-
-            data = [d.value for d in self.data[j-window:j]]
-            stats = analyze(data)
-            stddev = stats['stddev']
-            avg = stats['avg']
-            thresh = stddev * threshold
-            if any( (abs(d-avg) > thresh) for d in data ):
-                j -= 1
-            else:
-                break
-        self.zenPoints[(i, window, threshold)] = j
-        return j
-
     def analyze_t(self, j, k, threshold, machine_threshold, machine_history_size):
         # Use T-Tests
         # Analyze test data using T-Tests, comparing data[i-j:i] to data[i:i+k]
         good_data = []
+
         for i in range(j, len(self.data)-k+1):
             di = self.data[i]
             jw = [d.value for d in good_data[-j:]]
@@ -118,7 +113,14 @@ class TalosAnalyzer:
                     other_data.insert(0, dl.value)
                 l -= 1
 
-            t = calc_t(jw, kw)
+            di.historical_stats = analyze(jw)
+            di.forward_stats = analyze(kw)
+
+            if len(jw) >= j:
+                t = calc_t(jw, kw)
+            else:
+                # Assume it's ok, we don't have enough data
+                t = 0
 
             if len(other_data) >= k*2 and len(my_data) >= machine_history_size:
                 m_t = calc_t(other_data, my_data)
@@ -133,70 +135,15 @@ class TalosAnalyzer:
                         di.last_other = dl
                         break
                     l -= 1
+                # We think this machine is bad, so don't add its data to the
+                # set of good data
                 yield di, "machine"
             elif abs(t) <= threshold:
                 good_data.append(di)
                 yield di, "good"
             else:
-                #print di, t, di.revision, di.value
-                # TODO: nice juicy comment explaining why we do this
+                # By including the data point as part of the "good" data, we slowly
+                # adjust to the new baseline.
                 good_data.append(di)
                 yield di, "regression"
 
-    def analyze(self, window, threshold):
-        """Analyzes all the data with the given window and threshold.
-
-        Yields an annotated data series of 2-tuples:
-            PerfDatum, State
-
-        where State is one of:
-            "good"       - this is good datum
-            "spike"      - not enough data to make a determination about this datum
-            "regression" - this looks like a code regression
-            "machine"    - this looks like something wrong with a particular machine
-        """
-        bad_count = 0
-        bad_threshold = 3
-        bad_direction = 0
-
-        bad_machine_threshold = 3
-
-        machine_history = {}
-        for i in range(window+1, len(self.data)):
-            di = self.data[i]
-            j = self.findZen(i, window, threshold)
-            data = [d.value for d in self.data[j-window:j]]
-            stats = analyze(data)
-            avg = stats['avg']
-            stddev = stats['stddev']
-            thresh = stddev * threshold
-            machine_history.setdefault(di.machine_id, [])
-            if abs(di.value - avg) <= thresh:
-                yield di, "good"
-                bad_count = 0
-                bad_direction = 0
-                machine_history[di.machine_id].append((di, True))
-                machine_history[di.machine_id] = machine_history[di.machine_id][-bad_machine_threshold:]
-            else:
-                machine_history[di.machine_id].append((di, False))
-                machine_history[di.machine_id] = machine_history[di.machine_id][-bad_machine_threshold:]
-                v = di.value - avg
-                if v > 0:
-                    if bad_direction == 1:
-                        bad_count += 1
-                    else:
-                        bad_count = 1
-                        bad_direction = 1
-                else:
-                    if bad_direction == -1:
-                        bad_count += 1
-                    else:
-                        bad_count = 1
-                        bad_direction = -1
-
-                if bad_count >= bad_threshold:
-                    yield di, "regression"
-                elif all(not good for (item, good) in machine_history[di.machine_id][-bad_machine_threshold:]):
-                    yield di, "machine"
-                else:
-                    yield di, "spike"
