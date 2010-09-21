@@ -124,7 +124,7 @@ def bugs_from_comments(comments):
         bXXXXX
     """
     retval = []
-    m = re.search("b(?:ug(?:s)?)?\s*((?:\d+[, ]*)+)", comments, re.I)
+    m = re.search(r"\bb(?:ug(?:s)?)?\s*((?:\d+[, ]*)+)", comments, re.I)
     if m:
         for m in re.findall("\d+", m.group(1)):
             retval.append(int(m))
