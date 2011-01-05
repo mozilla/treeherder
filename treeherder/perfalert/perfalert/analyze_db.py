@@ -1,4 +1,3 @@
-import sys
 import sqlalchemy as sa
 from sqlalchemy.ext.sqlsoup import SqlSoup
 
@@ -26,12 +25,16 @@ class TestSeries:
         return "%s %s %s" % (self.branch_name, self.os_name, self.test_shortname)
 
 db = None
+goodNameClause = None
+
+
 def connect(url):
     global db
     db = SqlSoup(url)
 
     global goodNameClause
     goodNameClause = db.machines.is_active == 1
+
 
 def getTestData(series, start_time):
     q = sa.select(
@@ -79,7 +82,7 @@ def getTestSeries(branches, start_date, test_names, last_run=None):
                 sa.not_(db.machines.name.like('%stage%')),
                 sa.not_(db.tests.pretty_name.like("%NoChrome%")),
                 sa.not_(db.tests.pretty_name.like("%Fast Cycle%")),
-                test_clause
+                test_clause,
             ))
 
     if last_run:
@@ -91,7 +94,10 @@ def getTestSeries(branches, start_date, test_names, last_run=None):
         retval.append(TestSeries(*row))
     return retval
 
+
 _machines_cache = {}
+
+
 def getMachinesForTest(series):
     key = (series.os_id, series.branch_id, series.test_id)
     if key in _machines_cache:
@@ -112,7 +118,10 @@ def getMachinesForTest(series):
     _machines_cache[key] = [row[0] for row in result.fetchall()]
     return _machines_cache[key]
 
+
 _name_cache = {}
+
+
 def getMachineName(machine_id):
     if machine_id in _name_cache:
         return _name_cache[machine_id]

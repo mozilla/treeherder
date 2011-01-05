@@ -1100,9 +1100,19 @@ if __name__ == "__main__":
     config.read([options.config])
 
     if options.addresses:
-        config.set('main', 'regression_emails', ",".join(option.addresses))
+        config.set('main', 'regression_emails', ",".join(options.addresses))
     if options.machine_addresses:
-        config.set('main', 'machine_emails', ",".join(option.machine_addresses))
+        config.set('main', 'machine_emails', ",".join(options.machine_addresses))
+
+    vars = os.environ.copy()
+    vars['sys_prefix'] = sys.prefix
+    vars['here'] = os.path.dirname(__file__)
+    for section in config.sections():
+        for option in config.options(section):
+            value = config.get(section, option)
+            if '$' in value:
+                value = Template(value).substitute(vars)
+                config.set(section, option, value)
 
     runner = AnalysisRunner(options, config)
     try:
