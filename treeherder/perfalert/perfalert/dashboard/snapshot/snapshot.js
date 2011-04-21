@@ -3,28 +3,35 @@
 // Threshold for where we want to highlight notably good
 // or bad results relative to the current stable branch.
 const BRANCH_THRESHOLD_GOOD =  0.02;
-const BRANCH_THRESHOLD_BAD =   -0.02;
+const BRANCH_THRESHOLD_BAD =   0.02;
 
 // Threshold for where we want to highlight notably good
 // or bad results relative to the previous week's results.
 const WEEK_THRESHOLD_GOOD =  0.02;
-const WEEK_THRESHOLD_BAD =   -0.02;
+const WEEK_THRESHOLD_BAD =   0.02;
+
+const CURRENT_BRANCH = "Firefox3.5";
 
 function init() {
   
-  var branches = ["Firefox3.5", "Firefox3.6", "Firefox", "TraceMonkey",
-                  "Electrolysis"
-                  /*"Places", "mobile", "mobile-1.9.2", "mobile-tracemonkey"*/];
-
   var diffs = {"Firefox": "Firefox3.5",
                "Firefox3.6": "Firefox3.5",
-               "mobile": "mobile-1.9.2"};
+               "mobile-tracemonkey": "mobile"};
 
-  var tests = ["SVG", "Tp4", "Tp4 (RSS)", "Tp4 Shutdown", "Ts",
-               "Ts Shutdown", "Ts Shutdown, Cold", "Ts, Cold", "Txul"];
-  
-  var OSes = ["Leopard", "Linux", "Vista", "XP"];
+  var branches = [];
+  var tests = [];
+  var OSes = [];
 
+  for (var branch in gData) {
+    if (branches.indexOf(branch) == -1) branches.push(branch);
+    for (var test in gData[branch]) {
+      if (tests.indexOf(test) == -1) tests.push(test);
+      for (var OS in gData[branch][test]) {
+        if (OS == "_testid") continue;
+        if (OSes.indexOf(OS) == -1) OSes.push(OS);
+      }
+    }
+  }
 
   // build tables
   var testEl = document.getElementById("tests");
@@ -41,44 +48,59 @@ function init() {
       m += "<tr>";
       m += "<td>" + aOS + "</td>";
       branches.forEach(function(aBranch) {
+
         try {
           var s = getSummary(aBranch, aOS, aTest);
 
           m += "<td>" +
-            "median: " + s.median +
-            " <br> deviation: " + s.deviation +
-            " <br> mean: " + s.mean;
+            "Median: <span class='rightval'>" + s.median + "</span>" +
+            "<br>Deviation: <span class='rightval'>" + s.deviation + "</span>" +
+            "<br>Mean: <span class='rightval'>" + s.mean + "</span>";
 
           // weekly diff 
-          if (s.weekDifferenceMean != null) {
+          if (s.weekDifferenceMean != undefined) {
             var cellStyle= "";
-            // difference from last week within the level of noise?
-            // TODO: should probably figure out a reasonable way to determine
-            // the intersection with last week's std deviation.
-            var isWithinNoise = s.deviation/s.mean > Math.abs(s.weekDifferenceMean);
-            if (!isWithinNoise && s.weekDifferenceMean > WEEK_THRESHOLD_GOOD) {
-              cellStyle = " class='good'";
+            // TODO: fix the difference from last week within the level of noise
+            //var isWithinNoise = s.deviation/s.mean > Math.abs(s.weekDifferenceMean);
+            var isWithinNoise = true;
+
+            m += " <br>From last week:&nbsp;";
+            if (!isWithinNoise) {
+              m += "<span class='rightval'>too noisy</span>";
             }
-            else if (!isWithinNoise && s.weekDifferenceMean < WEEK_THRESHOLD_BAD) {
-              cellStyle = " class='bad'";
+            else {
+              var resultClass = "";
+              if (isWithinNoise && s.weekDifferenceMean >= WEEK_THRESHOLD_GOOD) {
+                resultClass = "good";
+              }
+              else if (isWithinNoise && s.weekDifferenceMean <= -WEEK_THRESHOLD_BAD) {
+                resultClass = "bad";
+              }
+              m += "<span class='rightval " + resultClass + "'>" + Math.floor(s.weekDifferenceMean * 100) + "%</span>";
             }
-            m += " <br> <span " + cellStyle + ">from last week: " + Math.floor(s.weekDifferenceMean * 100) + "%</span>";
           }
 
           // branch diff
-          if (s.fx35DifferenceMean) {
+          if (s.fxcurrentDifferenceMean != undefined) {
             var cellStyle= "";
-            // difference from the stable branch within the level of noise?
-            // TODO: should probably figure out a reasonable way to determine
-            // the intersection with the stable branch's std deviation.
-            var isWithinNoise = s.deviation/s.mean > Math.abs(s.fx35DifferenceMean);
-            if (!isWithinNoise && s.fx35DifferenceMean > BRANCH_THRESHOLD_GOOD) {
-              cellStyle = " class='good'";
+            // TODO: fix the difference from stable branch within the level of noise
+            //var isWithinNoise = s.deviation/s.mean > Math.abs(s.fxcurrentDifferenceMean);
+            var isWithinNoise = true;
+
+            m += " <br>From " + CURRENT_BRANCH + ":&nbsp;";
+            if (!isWithinNoise) {
+              m += "<span class='rightval'>too noisy</span>";
             }
-            else if (!isWithinNoise && s.fx35DifferenceMean < BRANCH_THRESHOLD_BAD) {
-              cellStyle = " class='bad'";
+            else {
+              var resultClass = "";
+              if (s.fxcurrentDifferenceMean >= BRANCH_THRESHOLD_GOOD) {
+                resultClass = "good";
+              }
+              else if (s.fxcurrentDifferenceMean <= -BRANCH_THRESHOLD_BAD) {
+                resultClass = "bad";
+              }
+              m += "<span class='rightval " + resultClass + "'>" + Math.floor(s.fxcurrentDifferenceMean * 100) + "%</span>";
             }
-            m += " <br> <span " + cellStyle + ">from 3.5: " + Math.floor(s.fx35DifferenceMean * 100) + "%</span>";
           }
 
           m += "</td>";
@@ -115,7 +137,7 @@ function init() {
  *   variance: 5678,
  *   deviation: 5678,
  *   weekDifference: 0.24
- *   fx35Difference: 0.24
+ *   fxcurrentDifference: 0.24
  * }
  *
  * Branches: Firefox, Firefox3.5, Firefox3.6, Places
@@ -156,9 +178,9 @@ function getSummary(aBranch, aOS, aTest) {
   es.weekDifferenceMean = Math.round(((bs.mean - es.mean)/bs.mean) * 100)/100;
   //document.write(es.weekDifferenceMean + "<br>");
 
-  if (aBranch != "Firefox3.5") {
-    var fx35s = getSummary("Firefox3.5", aOS, aTest);
-    es.fx35DifferenceMean = Math.round(((fx35s.mean - es.mean)/fx35s.mean)*100)/100;
+  if (aBranch != CURRENT_BRANCH) {
+    var currentSummary = getSummary(CURRENT_BRANCH, aOS, aTest);
+    es.fxcurrentDifferenceMean = Math.round(((currentSummary.mean - es.mean)/currentSummary.mean)*100)/100;
   }
   return es;
 }
@@ -171,30 +193,34 @@ function getStatistics(a) {
   var r = {
     median:   0,
     mean:     0,
-    deviance: 0,
-    deviance: 0
+    deviation: 0,
+    variance: 0
   };
 
-  a.sort();
+  if (a.length > 1) {
+    a.sort();
 
-  // median
-  var mid = Math.floor(a.length / 2);
-  r.median = Math.floor(((a.length % 2) != 0) ?
-    a[mid] : (a[mid - 1] + a[mid]) / 2);
+    // median
+    var mid = Math.floor(a.length / 2);
+    r.median = Math.floor(((a.length % 2) != 0) ?
+      a[mid] : (a[mid - 1] + a[mid]) / 2);
 
-  // mean
-  r.mean = Math.floor(a.reduce(function(total, val) {
-    return total += val;
-  })/a.length);
+    // mean
+    r.mean = Math.floor(a.reduce(function(total, val) {
+      return total += val;
+    })/a.length);
 
-  // variance
-  r.variance = Math.floor(a.reduce(function(total, val) {
-    var diff = val - r.mean;
-    return total += diff * diff;
-  })/a.length);
+    // variance
+    r.variance = Math.floor(a.reduce(function(total, val) {
+      var diff = val - r.mean;
+      return total += diff * diff;
+    })/a.length);
 
-  // standard deviation
-  r.deviation = Math.floor(Math.sqrt(r.variance));
+    // standard deviation
+    r.deviation = a.length == 1 ? 0 : Math.floor(Math.sqrt(r.variance));
+  }
+  else
+    r.median = a[0];
 
   return r;
 }
