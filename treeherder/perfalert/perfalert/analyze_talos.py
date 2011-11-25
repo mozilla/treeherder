@@ -367,17 +367,13 @@ class AnalysisRunner:
             return url
 
     def makeChartUrl(self, series, d=None):
-        test_params = []
-        machine_ids = self.source.getMachinesForTest(series)
-        for machine_id in machine_ids:
-            test_params.append((series.test_id, series.branch_id, machine_id))
-
+        test_params = [(series.test_id, series.branch_id, series.os_id)]
         test_params = json.dumps(test_params, separators=(",",":"))
         #test_params = urllib.quote(test_params)
         base_url = self.config.get('main', 'base_graph_url')
         if d is not None:
-            start_time = d.timestamp - 24*3600
-            end_time = d.timestamp + 24*3600
+            start_time = (d.timestamp - 24*3600) * 1000
+            end_time = (d.timestamp + 24*3600) * 1000
             return "%(base_url)s/graph.html#tests=%(test_params)s&sel=%(start_time)s,%(end_time)s" % locals()
         else:
             return "%(base_url)s/graph.html#tests=%(test_params)s" % locals()
