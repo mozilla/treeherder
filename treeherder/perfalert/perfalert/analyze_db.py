@@ -80,7 +80,7 @@ def getTestSeries(branches, start_date, test_names, last_run=None):
                 db.branches.name.in_(branches),
                 goodNameClause,
                 sa.not_(db.machines.name.like('%stage%')),
-                sa.not_(db.tests.pretty_name.like("%NoChrome%")),
+                sa.or_(db.branches.name.startswith('mobile'), sa.not_(db.tests.pretty_name.like("%NoChrome%"))),
                 sa.not_(db.tests.pretty_name.like("%Fast Cycle%")),
                 test_clause,
             ))

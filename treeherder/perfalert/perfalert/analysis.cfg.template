@@ -101,7 +101,7 @@ repo_path = projects/places
 repo_path = projects/electrolysis
 
 [mobile]
-repo_path = mobile-browser
+repo_path = mozilla-central
 
 [mobile-1.9.2]
 repo_path = releases/mobile-1.1
