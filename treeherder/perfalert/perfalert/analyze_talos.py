@@ -147,8 +147,11 @@ def send_msg(fromaddr, subject, msg, addrs, headers={}):
     s = SMTP()
     s.connect()
 
+    # Convert to ascii
+    msg = msg.encode('ascii', 'replace')
+
     for addr in addrs:
-        m = MIMEText(msg, "plain", "utf8")
+        m = MIMEText(msg, "plain", "ascii")
         m['Date'] = email.utils.formatdate()
         m['To'] = addr
         m['Subject'] = subject
@@ -367,17 +370,13 @@ class AnalysisRunner:
             return url
 
     def makeChartUrl(self, series, d=None):
-        test_params = []
-        machine_ids = self.source.getMachinesForTest(series)
-        for machine_id in machine_ids:
-            test_params.append((series.test_id, series.branch_id, machine_id))
-
+        test_params = [(series.test_id, series.branch_id, series.os_id)]
         test_params = json.dumps(test_params, separators=(",",":"))
         #test_params = urllib.quote(test_params)
         base_url = self.config.get('main', 'base_graph_url')
         if d is not None:
-            start_time = d.timestamp - 24*3600
-            end_time = d.timestamp + 24*3600
+            start_time = (d.timestamp - 24*3600) * 1000
+            end_time = (d.timestamp + 24*3600) * 1000
             return "%(base_url)s/graph.html#tests=%(test_params)s&sel=%(start_time)s,%(end_time)s" % locals()
         else:
             return "%(base_url)s/graph.html#tests=%(test_params)s" % locals()
@@ -827,45 +826,6 @@ of the regression.""" % locals()
         open(html_file, "w").write(html)
         open(graph_file, "w").write("var graph_data = %s;" % json.dumps(graphs))
 
-    def findInactiveMachines(self):
-        log.debug("Finding inactive machines...")
-
-        if "inactive_machines" not in self.warning_history:
-            self.warning_history['inactive_machines'] = {}
-
-        now = time.time()
-        # Look back 2 weeks to find machines that are active
-        initial_time = datetime.fromtimestamp(now - 14*24*3600)
-        # Complain about anything that hasn't reported in 3 days
-        cutoff = datetime.fromtimestamp(now - 3*24*3600)
-        end_time = datetime.fromtimestamp(now)
-
-        addresses = []
-        if self.config.has_option('main', 'machine_emails'):
-            addresses.extend(self.config.get('main', 'machine_emails').split(","))
-
-        for machine_name in self.source.getInactiveMachines(
-                self.config.get('main', 'statusdb'),
-                initial_time,
-                cutoff,
-                end_time):
-
-            # When did we last warn about this machine?
-            if self.warning_history['inactive_machines'].get(machine_name, 0) < time.time() - 7*24*3600:
-                # If it was over a week ago, then send another warning
-                self.warning_history['inactive_machines'][machine_name] = time.time()
-
-                subject = "Inactive machine: %s" % machine_name
-                msg = "Machine %s hasn't done any work since %s" % (
-                        machine_name, cutoff.strftime("%Y-%m-%d %H:%M:%S"))
-
-                self.output.write(msg)
-                self.output.write("\n")
-                self.output.flush()
-
-                if addresses:
-                    send_msg(self.config.get('main', 'from_email'), subject, msg, addresses)
-
     def handleData(self, series, d, state, skip, last_good):
         if not skip and state != "good" and not self.options.catchup and last_good is not None:
             # Notify people of the warnings
@@ -874,6 +834,56 @@ of the regression.""" % locals()
             if self.config.has_option('main', 'bz_username') and self.config.has_option('main', 'bz_api'):
                 if self.config.has_option(series.branch_name, 'enable_bug_comments') and self.config.getboolean(series.branch_name, 'enable_bug_comments'):
                     self.bugComment(series, d, state, last_good)
+
+    def handleDashboardSeries(self, s):
+        # Add it to our dashboard data
+        sevenDaysAgo = time.time() - 7*24*60*60
+        importantTests = []
+        for t in re.split(r"(?<!\\),", self.config.get("dashboard", "tests")):
+            t = t.replace("\\,", ",").strip()
+            importantTests.append(t)
+
+        if s.test_name not in importantTests:
+            return
+
+        data = self.source.getTestData(s, sevenDaysAgo)
+        if len(data) == 0:
+            return
+
+        log.info("Creating dashboard data for %s %s %s", s.branch_name, s.os_name, s.test_name)
+
+        # We want to merge the Tp3 (Memset) and Tp3 (RSS) results together
+        # for the dashboard, since they're just different names for the
+        # same thing on different platforms
+        test_name = s.test_name
+        if test_name == "Tp3 (Memset)":
+            test_name = "Tp3 (RSS)"
+        elif test_name == "Tp4 (Memset)":
+            test_name = "Tp4 (RSS)"
+        self.dashboard_data.setdefault(s.branch_name, {})
+        self.dashboard_data[s.branch_name].setdefault(test_name, {'_testid': s.test_id})
+        self.dashboard_data[s.branch_name][test_name].setdefault(s.os_name, {'_platformid': s.os_id, '_graphURL': self.makeChartUrl(s)})
+        _d = self.dashboard_data[s.branch_name][test_name][s.os_name]
+
+        for d in data:
+            if d.timestamp < sevenDaysAgo:
+                continue
+            machine_name = self.source.getMachineName(d.machine_id)
+            if machine_name not in _d:
+                _d[machine_name] = {
+                        'results': [],
+                        'stats': [],
+                        }
+            results = _d[machine_name]['results']
+            results.append(d.timestamp)
+            results.append(d.value)
+
+        for machine_name in _d:
+            if machine_name.startswith("_"):
+                continue
+            results = _d[machine_name]['results']
+            values = [results[i+1] for i in range(0, len(results), 2)]
+            _d[machine_name]['stats'] = [avg(values), max(values), min(values)]
 
     def handleSeries(self, s):
         if self.config.has_option('os', s.os_name):
@@ -905,52 +915,11 @@ of the regression.""" % locals()
         data = self.source.getTestData(s, options.start_time)
         log.debug("%.2f to fetch data", time.time() - t)
 
-        # Add it to our dashboard data
-        sevenDaysAgo = time.time() - 7*24*60*60
-        importantTests = []
-        for t in re.split(r"(?<!\\),", self.config.get("dashboard", "tests")):
-            t = t.replace("\\,", ",").strip()
-            importantTests.append(t)
-
         if data:
             m = max(d.testrun_id for d in data)
             if self.last_run < m:
                 log.debug("Setting last_run to %s", m)
                 self.last_run = m
-
-        if s.test_name in importantTests and len(data) > 0:
-            # We want to merge the Tp3 (Memset) and Tp3 (RSS) results together
-            # for the dashboard, since they're just different names for the
-            # same thing on different platforms
-            test_name = s.test_name
-            if test_name == "Tp3 (Memset)":
-                test_name = "Tp3 (RSS)"
-            elif test_name == "Tp4 (Memset)":
-                test_name = "Tp4 (RSS)"
-            self.dashboard_data.setdefault(s.branch_name, {})
-            self.dashboard_data[s.branch_name].setdefault(test_name, {'_testid': s.test_id})
-            self.dashboard_data[s.branch_name][test_name].setdefault(s.os_name, {'_platformid': s.os_id, '_graphURL': self.makeChartUrl(s)})
-            _d = self.dashboard_data[s.branch_name][test_name][s.os_name]
-
-            for d in data:
-                if d.timestamp < sevenDaysAgo:
-                    continue
-                machine_name = self.source.getMachineName(d.machine_id)
-                if machine_name not in _d:
-                    _d[machine_name] = {
-                            'results': [],
-                            'stats': [],
-                            }
-                results = _d[machine_name]['results']
-                results.append(d.timestamp)
-                results.append(d.value)
-
-            for machine_name in _d:
-                if machine_name.startswith("_"):
-                    continue
-                results = _d[machine_name]['results']
-                values = [results[i+1] for i in range(0, len(results), 2)]
-                _d[machine_name]['stats'] = [avg(values), max(values), min(values)]
 
         self.updateTimes(s.branch_name, data)
 
@@ -1027,6 +996,16 @@ of the regression.""" % locals()
         series = self.source.getTestSeries(self.options.branches, start_time, self.options.tests, self.last_run)
         return series
 
+    def loadDashboardSeries(self):
+        start_time = self.options.start_time
+        importantTests = []
+        for t in re.split(r"(?<!\\),", self.config.get("dashboard", "tests")):
+            t = t.replace("\\,", ",").strip()
+            importantTests.append(t)
+        #importantTests = []
+        series = self.source.getTestSeries(self.options.branches, start_time, importantTests, 0)
+        return series
+
     def run(self):
         log.info("Fetching list of tests")
         series = self.loadSeries()
@@ -1039,10 +1018,14 @@ of the regression.""" % locals()
             self.handleSeries(s)
 
         if self.config.has_option('main', 'dashboard_dir'):
+            log.info("Getting dashboard data")
+            dashboard_series = self.loadDashboardSeries()
+            while not self.done:
+                if not dashboard_series:
+                    break
+                s = dashboard_series.pop()
+                self.handleDashboardSeries(s)
             self.outputDashboard()
-
-        if not self.options.catchup:
-            self.findInactiveMachines()
 
     def save(self, errors=False):
         try:
