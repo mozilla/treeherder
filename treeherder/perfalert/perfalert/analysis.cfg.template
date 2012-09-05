@@ -38,11 +38,15 @@ machine_history_size = 5
 # Who should machine issues be sent to
 #machine_emails = 
 
+# Maximum number of authors to mail. If there are more than this, don't email
+# any of them. Set to 0 to disable emailing authors
+max_email_authors = 5
+
 # List of tests to ignore
 ignore_tests = Nokia.*
 
 # List of tests where higher is better
-reverse_tests = Dromaeo.*
+reverse_tests = Dromaeo.*, V8 version 7.*
 
 # How to get short urls from bit.ly
 #bitly_login =

@@ -706,10 +706,13 @@ of the regression.""" % locals()
         if state == 'machine' and self.config.has_option('main', 'machine_emails'):
             addresses.extend(self.config.get('main', 'machine_emails').split(","))
 
-        if self.config.has_option('main', 'email_authors') and \
-                self.config.getboolean('main', 'email_authors') and \
+        if self.config.has_option('main', 'max_email_authors') and \
+                self.config.getint('main', 'max_email_authors') > 0 and \
                 state == 'regression' and \
                 not self.isImprovement(series.test_name, last_good, d):
+
+            max_email_authors = self.config.getint('main', 'max_email_authors')
+            author_addresses = []
 
             for rev in self.pushlog.getPushRange(branch, self.config.get(branch, 'repo_path'), from_=last_good.revision,
                     to_=d.revision):
@@ -721,13 +724,19 @@ of the regression.""" % locals()
                 if pusher != ('', ''):
                     pusher = email.utils.formataddr(pusher)
 
-                if author not in addresses:
+                if author not in author_addresses:
                     log.debug("Adding author %s to recipients", author)
-                    addresses.append(author)
+                    author_addresses.append(author)
 
-                if pusher not in addresses:
+                if pusher not in author_addresses:
                     log.debug("Adding pusher %s to recipients", pusher)
-                    addresses.append(pusher)
+                    author_addresses.append(pusher)
+
+            if len(author_addresses) <= max_email_authors:
+                log.debug("Adding author/pusher emails to recipients")
+                addresses.extend(author_addresses)
+            else:
+                log.info("Not adding author/pusher emails to recipients - too many authors (%i)" ,len(author_addresses))
 
         log.debug("Mailing %s", addresses)
         if addresses:
