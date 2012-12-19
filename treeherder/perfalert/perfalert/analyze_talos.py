@@ -697,6 +697,15 @@ of the regression.""" % locals()
     def emailWarning(self, series, d, state, last_good):
         addresses = []
         branch = series.branch_name
+
+        # Don't email if the percentage change is under the threshold
+        initial_value = d.historical_stats['avg']
+        new_value = d.forward_stats['avg']
+        if self.config.has_option('main', 'percentage_threshold') and initial_value != 0:
+            change = 100.0 * abs(new_value - initial_value) / float(initial_value)
+            if change < self.config.getfloat('main', 'percentage_threshold'):
+                return
+
         if state == 'regression':
             if self.config.has_option(branch, 'regression_emails'):
                 addresses.extend(self.config.get(branch, 'regression_emails').split(","))

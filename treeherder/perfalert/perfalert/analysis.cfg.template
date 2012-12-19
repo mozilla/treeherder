@@ -17,6 +17,9 @@ back_window = 30
 # What t score is required to consider a change significant
 threshold = 9
 
+# What percentage difference is required to consider a change significant
+percentage_threshold = 2
+
 # What t score is required to consider a machine to be bad
 machine_threshold = 15
 
