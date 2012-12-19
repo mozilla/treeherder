@@ -452,9 +452,9 @@ class AnalysisRunner:
             z_score = 0.0
 
         if self.isImprovement(test_name, good, bad):
-            reason = "Improvement!"
+            reason = "Improvement"
         else:
-            reason = "Regression :("
+            reason = "Regression"
 
         if new_value > initial_value:
             direction = "increase"
@@ -485,14 +485,14 @@ class AnalysisRunner:
             bad_machine_name = self.source.getMachineName(bad.machine_id)
             reason = "Suspected machine issue (%s)" % bad_machine_name
             msg =  """\
-%(reason)s: %(test_name)s %(direction)s %(change).3g%% on %(os_name)s %(branch_name)s
+%(reason)s: %(branch_name)s - %(test_name)s - %(os_name)s - %(change).3g%% %(direction)s
     Previous: avg %(initial_value).3f stddev %(initial_stddev).3f
     New     : avg %(new_value).3f stddev %(new_stddev).3f
     Change  : %(delta)+.3f (%(change).3g%% / z=%(z_score).3f)
     Graph   : %(chart_url)s
 """ % locals()
         else:
-            header = "%(reason)s %(test_name)s %(direction)s %(change).3g%% on %(os_name)s %(branch_name)s" % locals()
+            header = "%(reason)s: %(branch_name)s - %(test_name)s - %(os_name)s - %(change).3g%% %(direction)s" % locals()
             dashes = "-" * len(header)
             msg =  """\
 %(header)s
@@ -575,20 +575,15 @@ class AnalysisRunner:
             change = 0.0
 
         if self.isImprovement(test_name, good, bad):
-            reason = "Improvement!"
+            reason = "(Improvement)"
         else:
-            reason = "Regression :("
-
-        if new_value > initial_value:
-            direction = "increase"
-        else:
-            direction = "decrease"
+            reason = "<Regression>"
 
         if state == "machine":
             bad_machine_name = self.source.getMachineName(bad.machine_id)
             good_machine_name = self.source.getMachineName(good.machine_id)
             reason = "Suspected machine issue (%s)" % bad_machine_name
-        return "Talos %(reason)s %(test_name)s %(direction)s %(change).3g%% on %(os_name)s %(branch_name)s" % locals()
+        return "%(reason)s %(branch_name)s - %(test_name)s - %(os_name)s - %(change).3g%%" % locals()
 
     def printWarning(self, series, d, state, last_good):
         if self.output:
