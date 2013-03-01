@@ -1,0 +1,2 @@
+#!/bin/bash
+/home/vagrant/venv/bin/gunicorn webapp.wsgi:application --workers=2 --bind=0.0.0.0:8000
