@@ -1,0 +1,139 @@
+{
+  "description": "Module for Apache configuration",
+  "summary": "Puppet module for Apache",
+  "types": [
+    {
+      "providers": [
+        {
+          "doc": "Manage Apache 2 modules on Debian and Ubuntu\n\nRequired binaries: `a2enmod`, `a2dismod`.  Default for `operatingsystem` == `debian, ubuntu`.",
+          "name": "a2mod"
+        },
+        {
+          "doc": "Manage Apache 2 modules on Gentoo\n\nDefault for `operatingsystem` == `gentoo`.",
+          "name": "gentoo"
+        },
+        {
+          "doc": "Dummy provider for A2mod.\n\n    Fake nil resources when there is no crontab binary available. Allows\n    puppetd to run on a bootstrapped machine before a Cron package has been\n    installed. Workaround for: http://projects.puppetlabs.com/issues/2384\n    ",
+          "name": "modfix"
+        },
+        {
+          "doc": "Manage Apache 2 modules on RedHat family OSs\n\nDefault for `osfamily` == `redhat`.",
+          "name": "redhat"
+        }
+      ],
+      "properties": [
+        {
+          "doc": "The basic property that the resource should be in.  Valid values are `present`, `absent`.",
+          "name": "ensure"
+        }
+      ],
+      "doc": "Manage Apache 2 modules",
+      "name": "a2mod",
+      "parameters": [
+        {
+          "doc": "The name of the module to be managed",
+          "name": "name"
+        },
+        {
+          "doc": "The name of the .so library to be loaded",
+          "name": "lib"
+        },
+        {
+          "doc": "Module identifier string used by LoadModule. Default: module-name_module",
+          "name": "identifier"
+        }
+      ]
+    }
+  ],
+  "author": "puppetlabs",
+  "source": "git://github.com/puppetlabs/puppetlabs-apache.git",
+  "project_page": "https://github.com/puppetlabs/puppetlabs-apache",
+  "name": "puppetlabs-apache",
+  "checksums": {
+    "spec/classes/mod/wsgi_spec.rb": "7a05c23e66b027d4738ce1368f6d9f43",
+    "lib/puppet/provider/a2mod/a2mod.rb": "8b4836cfbcc980e60c30cc046bc77cd5",
+    "manifests/mod/perl.pp": "72195ad624f68e2c0009074d118bf8e4",
+    "manifests/mod/dav_fs.pp": "c6acce86fe14f75521dc8c2920ccedf7",
+    "spec/defines/vhost_spec.rb": "9a741b3cdb0bf1f7d4f5c849044e20dd",
+    "spec/classes/mod/ssl_spec.rb": "df737098c4bd03179e29d0c22a80a565",
+    "tests/init.pp": "4eac4a7ef68499854c54a78879e25535",
+    "spec/defines/mod_spec.rb": "e96ca54b19c0948310b333a6c3b0e384",
+    "templates/mod/userdir.conf.erb": "fd73fe59b6a5dcf16a5df9af91c187dd",
+    "manifests/mod/auth_basic.pp": "47ff846317d52d2161c6d09cac05f7f8",
+    "manifests/mod/passenger.pp": "0bb9e5d4a49b72e56b7a909da42c47bc",
+    "lib/puppet/type/a2mod.rb": "f230e4c3e6a111bc6dc79ab2287c9a29",
+    "manifests/mod/proxy_http.pp": "773d0fbb934440a24b3bc87517faa4d4",
+    "manifests/mod/php.pp": "6de0671e78c1411cc0713f80075ef61f",
+    "manifests/mod/auth_kerb.pp": "a7e4d1789f23528c7a19690340387a85",
+    "templates/vhost-redirect.conf.erb": "f12c8165c2e9a688402ec8484ef6c59c",
+    "templates/vhost-default.conf.erb": "680587f275662a31cdb486a309db8214",
+    "manifests/mod.pp": "f8e6c202844b424d4b4b730813f4c6d3",
+    "lib/puppet/provider/a2mod/gentoo.rb": "2492d446adbb68f678e86a75eb7ff3bd",
+    "templates/mod/php.conf.erb": "49e2d214790835c141fcaf6d74b5a96d",
+    "manifests/mod/dev.pp": "71234485e642f0e8cdd8774670d48b7f",
+    "spec/classes/mod/python_spec.rb": "99f05654c0b748ab18096c5cf4b74781",
+    "spec/classes/params_spec.rb": "41f4e90e9cbe23e5c81831248b2f3cd4",
+    "manifests/ssl.pp": "7f944d1c103a59ebd04d02e68af69f7a",
+    "spec/classes/mod/auth_kerb_spec.rb": "6b71ffa45b4a0a1476ee56c75c26e6db",
+    "templates/vhost-proxy.conf.erb": "3f6e23159809c4aa5a20b441d12a09ad",
+    "manifests/mod/ssl.pp": "2ffd543847785cd2f916f244f8742448",
+    "manifests/vhost.pp": "8d31a51ddbff60ffc03b79781957718f",
+    "tests/apache.pp": "819cf9116ffd349e6757e1926d11ca2f",
+    "tests/php.pp": "ce7bb9eef69d32b42a32ce32d9653625",
+    "tests/dev.pp": "4cf15c1fecea3ca86009f182b402c7ab",
+    "manifests/dev.pp": "c263f8db2a35361e9dfdef30477f8ee3",
+    "spec/spec.opts": "a600ded995d948e393fbe2320ba8e51c",
+    "CHANGELOG": "f65b75627c2a8c4f753193f914d2a1a9",
+    "manifests/params.pp": "df442b5ea6cd7ec31e7eca15ac6b6f87",
+    "Modulefile": "7e660c223c4e1e5ad9639bde687f4ece",
+    "manifests/init.pp": "8fac5acb69de49122fdbfcffacc08125",
+    "templates/test.vhost.erb": "31eb6a591acc699fe4e67a7cf367d0ab",
+    "spec/unit/provider/a2mod/gentoo_spec.rb": "24ad9db4f6ba0b4fc7ed77b509b4244c",
+    "manifests/mod/wsgi.pp": "90ef340ac19106fe801656091d3f9a4b",
+    "manifests/vhost/redirect.pp": "7fb0fe676efa6bbc7de653d0651235c1",
+    "manifests/mod/proxy.pp": "d789eec804b4e887858cde19429afc7d",
+    "files/httpd": "295f5e924afe6f752d29327e73fe6d0a",
+    "manifests/mod/fcgid.pp": "d03eb1add8f2cef603331dde96f1f7fd",
+    "Rakefile": "0254db5d3fc38c67a2c160d7296a24f8",
+    "LICENSE": "b3f8a01d8699078d82e8c3c992307517",
+    "templates/mod/proxy.conf.erb": "54cd35ef17c78c18f10be50eebb4142c",
+    "lib/puppet/provider/a2mod/redhat.rb": "90b9add30cf9acf2289a51d9f4c31bd7",
+    "spec/defines/vhost/proxy_spec.rb": "cd3e28ebba818b3966fcf6ed4053a357",
+    "spec/defines/vhost/redirect_spec.rb": "98f2a7022b7302a771d811e424454639",
+    "README.md": "9e8a84ba0cf502551d3b1c0e34320864",
+    "manifests/vhost/proxy.pp": "592f535ba5efabcdd8dbfbcf211f6f5b",
+    "spec/classes/dev_spec.rb": "64d66d5074a1d634d765db182bea5e43",
+    "manifests/mod/proxy_html.pp": "8cb51fa968a18d957274a2b68cca8216",
+    "lib/puppet/provider/a2mod/modfix.rb": "b689a1c83c9ccd8590399c67f3e588e5",
+    "spec/classes/python_spec.rb": "ce7b11e4fb4e7bfe5b5c18ded9d24897",
+    "manifests/mod/disk_cache.pp": "a6ce6b0d3393bff8287f6267dd49bc82",
+    "manifests/php.pp": "a4478838b4cf9b0525b04db150cf55b8",
+    "manifests/mod/dav.pp": "f0228b06b7101864f7c943b541e570d2",
+    "manifests/mod/python.pp": "344f7b359d801ee6942211726004fa93",
+    "manifests/proxy.pp": "54e7657920b580546f3bef3980f2fd03",
+    "spec/classes/apache_spec.rb": "10f2a7629c7e596864f5c0b3c2ece6cf",
+    "manifests/mod/default.pp": "8a2bc7a4312d60fd09ac4eadceab9330",
+    "manifests/mod/userdir.pp": "a7d01097caba2b3dcec7d6e96e0bf500",
+    "spec/spec_helper.rb": "0db89c9a486df193c0e40095422e19dc",
+    "spec/classes/ssl_spec.rb": "67c8ccf6b5055f50f40978b221873c88",
+    "manifests/python.pp": "2edb06e8119b67a5a62fb24fb280d3e5",
+    "spec/classes/php_spec.rb": "7c176dcb6cf35adce2d0ff3d17678f8a",
+    "templates/httpd.conf.erb": "63e07e1d3428ecc3da8e812eb2524978",
+    "manifests/mod/cache.pp": "51b4826a72090da8e463bc007695f05b",
+    "tests/vhost.pp": "4a97d258da130cad784249a6097fd0ac",
+    "manifests/mod/cgi.pp": "eba237e3f10511c02d8f27b99592103d",
+    "templates/mod/disk_cache.conf.erb": "bc2cb0003944e688d3137781f6a49997"
+  },
+  "dependencies": [
+    {
+      "version_requirement": ">= 0.0.4",
+      "name": "puppetlabs/firewall"
+    },
+    {
+      "version_requirement": ">= 2.2.1",
+      "name": "puppetlabs/stdlib"
+    }
+  ],
+  "license": "Apache 2.0",
+  "version": "0.5.0-rc1"
+}
