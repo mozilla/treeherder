@@ -1,0 +1,58 @@
+/****
+ * Data structure sample sent to object store
+ ****/
+ { 
+    sources: { 
+        gecko: "revision",
+        gaia: "revision",
+        mozharness: "revision,
+        ...
+        },
+            
+    jobs: [
+        {
+            job_guid:"",
+            name:"build | mochitest_one | ...",
+            product_name:"Firefox | Firefox OS | Thunderbird | ...",
+            state: "pending | running | completed | coalesced |  ...",
+            result: "success | warnings | failure | exception | retry | cancelled",
+            reason: "push | scheduled | self-serve | manual",
+            who: " gaia | scheduler name | username ",
+            submit_timestamp:"",
+            start_timestamp:"",
+            end_timestamp:"",
+            machine:"",    
+            build_platform:"",
+            machine_platform:"",
+    
+            option_collection: {
+                },
+
+            /* Not Indexed */    
+            log_references: [
+                { url:"",
+                  name:"" },
+                  ...
+                  ],
+                  
+            artifact:"{
+                type:" json | img | ...",
+                name:"",
+                log_urls:[
+                    ]
+                blob:""
+                }"
+            },
+        ...
+        ],
+
+    /****
+     * May not be present if there are no job_guid's coalesced. If present
+     * the job_guids present in jobs are where the jobs were coalesced to
+     ****/        
+    coalesced: [
+        "job_guid",
+        ...
+        ]
+}
+

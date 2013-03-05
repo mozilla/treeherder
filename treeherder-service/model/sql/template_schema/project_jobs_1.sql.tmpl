@@ -1,0 +1,230 @@
+/* This file contains {engine} markers that must be replaced
+   before it is sent to MySQL.
+*/
+
+--
+-- Host: localhost    Database: project_jobs_1
+-- ------------------------------------------------------
+-- Server version	5.6.10
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `bug_job_map`
+--
+
+DROP TABLE IF EXISTS `bug_job_map`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `bug_job_map` (
+  `job_id` bigint(20) unsigned NOT NULL,
+  `bug_id` int(10) unsigned NOT NULL,
+  `type` varchar(50) COLLATE utf8_bin NOT NULL,
+  `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
+  UNIQUE KEY `uni_job_id_bug_id` (`job_id`,`bug_id`),
+  KEY `idx_job_id` (`job_id`),
+  KEY `idx_bug_id` (`bug_id`),
+  KEY `idx_type` (`type`),
+  KEY `idx_active_status` (`active_status`),
+  CONSTRAINT `fk_bug_job` FOREIGN KEY (`job_id`) REFERENCES `job` (`id`)
+) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `job`
+--
+
+DROP TABLE IF EXISTS `job`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `job` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `job_guid` varchar(50) COLLATE utf8_bin NOT NULL,
+  `job_coalesced_to_guid` varchar(50) COLLATE utf8_bin DEFAULT NULL,
+  `result_set_id` bigint(20) unsigned NOT NULL,
+  `build_platform_id` int(10) unsigned NOT NULL,
+  `machine_platform_id` int(10) unsigned NOT NULL,
+  `machine_id` int(10) unsigned NOT NULL,
+  `option_collection_id` int(10) unsigned DEFAULT NULL,
+  `job_type_id` int(10) unsigned NOT NULL,
+  `product_id` int(10) unsigned NOT NULL,
+  `who` varchar(50) COLLATE utf8_bin NOT NULL,
+  `reason` varchar(25) COLLATE utf8_bin NOT NULL,
+  `result` varchar(25) COLLATE utf8_bin DEFAULT NULL,
+  `state` varchar(25) COLLATE utf8_bin NOT NULL,
+  `submit_timestamp` int(10) unsigned NOT NULL,
+  `start_timestamp` int(10) unsigned DEFAULT NULL,
+  `end_timestamp` int(10) unsigned DEFAULT NULL,
+  `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
+  PRIMARY KEY (`id`),
+  KEY `idx_job_guid` (`job_guid`),
+  KEY `idx_job_coalesced_to_guid` (`job_coalesced_to_guid`),
+  KEY `idx_result_set_id` (`result_set_id`),
+  KEY `idx_build_platform_id` (`build_platform_id`),
+  KEY `idx_machine_platform_id` (`machine_platform_id`),
+  KEY `idx_machine_id` (`machine_id`),
+  KEY `idx_option_collection_id` (`option_collection_id`),
+  KEY `idx_job_type_id` (`job_type_id`),
+  KEY `idx_product_id` (`product_id`),
+  KEY `idx_who` (`who`),
+  KEY `idx_reason` (`reason`),
+  KEY `idx_result` (`result`),
+  KEY `idx_state` (`state`),
+  KEY `idx_submit_timestamp` (`submit_timestamp`),
+  KEY `idx_start_timestamp` (`start_timestamp`),
+  KEY `idx_end_timestamp` (`end_timestamp`),
+  KEY `idx_active_status` (`active_status`),
+  CONSTRAINT `fk_result_set` FOREIGN KEY (`result_set_id`) REFERENCES `result_set` (`id`)
+) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `job_artifact`
+--
+
+DROP TABLE IF EXISTS `job_artifact`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `job_artifact` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `job_id` bigint(20) unsigned NOT NULL,
+  `name` varchar(50) COLLATE utf8_bin NOT NULL,
+  `type` varchar(50) COLLATE utf8_bin NOT NULL,
+  `blob` mediumblob NOT NULL,
+  `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
+  PRIMARY KEY (`id`),
+  KEY `idx_job_id` (`job_id`),
+  KEY `idx_name` (`name`),
+  KEY `idx_type` (`type`),
+  KEY `idx_active_status` (`active_status`),
+  CONSTRAINT `fk_job_artifact` FOREIGN KEY (`job_id`) REFERENCES `job` (`id`)
+) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `job_log_url`
+--
+
+DROP TABLE IF EXISTS `job_log_url`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `job_log_url` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `job_id` bigint(20) unsigned NOT NULL,
+  `name` varchar(50) COLLATE utf8_bin NOT NULL,
+  `url` varchar(255) COLLATE utf8_bin NOT NULL,
+  `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
+  PRIMARY KEY (`id`),
+  KEY `idx_job_id` (`job_id`),
+  KEY `idx_name` (`name`),
+  KEY `idx_active_status` (`active_status`),
+  CONSTRAINT `fk_job_log_url` FOREIGN KEY (`job_id`) REFERENCES `job` (`id`)
+) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `job_note`
+--
+
+DROP TABLE IF EXISTS `job_note`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `job_note` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `job_id` bigint(20) unsigned NOT NULL,
+  `failure_classification_id` int(10) unsigned DEFAULT NULL,
+  `who` varchar(50) COLLATE utf8_bin NOT NULL,
+  `note` mediumtext COLLATE utf8_bin,
+  `note_timestamp` int(10) unsigned NOT NULL,
+  `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
+  PRIMARY KEY (`id`),
+  KEY `idx_job_id` (`job_id`),
+  KEY `idx_failure_classification_id` (`failure_classification_id`),
+  KEY `idx_who` (`who`),
+  KEY `idx_note_timestamp` (`note_timestamp`),
+  KEY `idx_active_status` (`active_status`),
+  CONSTRAINT `fk_job_note` FOREIGN KEY (`job_id`) REFERENCES `job` (`id`)
+) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `result_set`
+--
+
+DROP TABLE IF EXISTS `result_set`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `result_set` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `revision_hash` varchar(50) COLLATE utf8_bin NOT NULL,
+  `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
+  PRIMARY KEY (`id`),
+  KEY `idx_revision_hash` (`revision_hash`),
+  KEY `idx_active_status` (`active_status`)
+) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `revision`
+--
+
+DROP TABLE IF EXISTS `revision`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `revision` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `revision` varchar(50) COLLATE utf8_bin NOT NULL,
+  `author` varchar(50) COLLATE utf8_bin NOT NULL,
+  `push_timestamp` int(11) unsigned NOT NULL,
+  `commit_timestamp` int(11) unsigned NOT NULL,
+  `repository_id` int(11) unsigned NOT NULL,
+  `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
+  PRIMARY KEY (`id`),
+  KEY `idx_revision` (`revision`),
+  KEY `idx_author` (`author`),
+  KEY `idx_push_timestamp` (`push_timestamp`),
+  KEY `idx_commit_timestamp` (`commit_timestamp`),
+  KEY `idx_repository_id` (`repository_id`)
+) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `revision_map`
+--
+
+DROP TABLE IF EXISTS `revision_map`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `revision_map` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `revision_id` bigint(20) unsigned NOT NULL,
+  `result_set_id` bigint(20) unsigned NOT NULL,
+  `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
+  PRIMARY KEY (`id`),
+  KEY `idx_revision_id` (`revision_id`),
+  KEY `idx_result_set_id` (`result_set_id`),
+  KEY `idx_active_status` (`active_status`),
+  CONSTRAINT `fk_revision_map` FOREIGN KEY (`revision_id`) REFERENCES `revision` (`id`),
+  CONSTRAINT `fk_revision_map_result_set` FOREIGN KEY (`result_set_id`) REFERENCES `result_set` (`id`)
+) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2013-02-27  8:54:01
