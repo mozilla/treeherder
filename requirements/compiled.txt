@@ -1,0 +1,4 @@
+# Dependencies with compiled extensions
+MySQL-python
+gunicorn==0.17.2
+django>=1.5,<1.6
