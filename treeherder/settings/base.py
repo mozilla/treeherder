@@ -72,6 +72,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'treeherder.webapp',
+    'south',
 ]
 
 # A sample logging configuration. The only tangible logging
