@@ -1,2 +1,2 @@
-Django==1.5
 oauth2==1.5.211
+South==0.7.6

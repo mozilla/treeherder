@@ -31,7 +31,8 @@ class python {
 
     exec { "pip-install-compiled":
         command => "/home/vagrant/venv/bin/pip install \
-        -r $PROJ_DIR/requirements/compiled.txt -r $PROJ_DIR/requirements/dev.txt",
+        -r $PROJ_DIR/requirements/compiled.txt -r $PROJ_DIR/requirements/dev.txt \
+        -r $PROJ_DIR/requirements/pure.txt",
         require => [
             Package['python-pip'],
             Exec['update-distribute'],
