@@ -3,6 +3,9 @@
 # C extensions
 *.so
 
+#vi files
+*.swp
+
 # Packages
 *.egg
 *.egg-info
@@ -35,6 +38,10 @@ nosetests.xml
 .pydevproject
 .DS_store
 .vagrant
+
 #local settings
 treeherder/settings/local.py
 htmlcov/
+
+#docs build directory
+docs/_build/
