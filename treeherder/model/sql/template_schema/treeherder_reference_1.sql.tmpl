@@ -40,7 +40,7 @@ CREATE TABLE `bugscache` (
   FULLTEXT KEY `idx_summary` (`summary`),
   FULLTEXT KEY `idx_crash_signature` (`crash_signature`),
   FULLTEXT KEY `idx_keywords` (`keywords`)
-) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
