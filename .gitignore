@@ -35,5 +35,9 @@ nosetests.xml
 .pydevproject
 .DS_store
 .vagrant
+
 #local settings
 treeherder/settings/local.py
+
+#docs build directory
+docs/_build/
