@@ -154,6 +154,10 @@ class Datasource(models.Model):
 
     class Meta:
         db_table = 'datasource'
+        unique_together = [
+            ["project", "dataset", "contenttype"],
+            ["host", "name"],
+        ]
 
     def __unicode__(self):
         return "{0} ({1})".format(
@@ -196,6 +200,7 @@ class OptionCollection(models.Model):
 
     class Meta:
         db_table = 'option_collection'
+        unique_together = ['id', 'option']
 
     def __unicode__(self):
         return "{0}".format(self.option)
