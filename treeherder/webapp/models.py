@@ -1,22 +1,19 @@
-# This is an auto-generated Django model module.
-# You'll have to do the following manually to clean this up:
-#     * Rearrange models' order
-#     * Make sure each model has one field with primary_key=True
-# Feel free to rename the models, but don't rename db_table values or field names.
-#
-# Also note: You'll have to insert the output of 'django-admin.py sqlcustom [appname]'
-# into your database.
 from __future__ import unicode_literals
-
 from django.db import models
+
 
 class Product(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=50L)
     description = models.TextField()
     active_status = models.CharField(max_length=7L, blank=True)
+
     class Meta:
         db_table = 'product'
+
+    def __unicode__(self):
+        return self.name
+
 
 class BuildPlatform(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -24,24 +21,40 @@ class BuildPlatform(models.Model):
     platform = models.CharField(max_length=25L)
     architecture = models.CharField(max_length=25L, blank=True)
     active_status = models.CharField(max_length=7L, blank=True)
+
     class Meta:
         db_table = 'build_platform'
+
+    def __unicode__(self):
+        return "{0} {1} {2}".format(
+            self.os_name, self.platform, self.architecture)
+
 
 class Option(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=50L)
     description = models.TextField()
     active_status = models.CharField(max_length=7L, blank=True)
+
     class Meta:
         db_table = 'option'
+
+    def __unicode__(self):
+        return self.name
+
 
 class RepositoryGroup(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=50L)
     description = models.TextField()
     active_status = models.CharField(max_length=7L, blank=True)
+
     class Meta:
         db_table = 'repository_group'
+
+    def __unicode__(self):
+        return self.name
+
 
 class Repository(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -54,8 +67,14 @@ class Repository(models.Model):
     description = models.TextField()
     purpose = models.CharField(max_length=50L)
     active_status = models.CharField(max_length=7L, blank=True)
+
     class Meta:
         db_table = 'repository'
+
+    def __unicode__(self):
+        return "{0} {1}".format(
+            self.name, self.repository_group)
+
 
 class MachinePlatform(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -63,8 +82,14 @@ class MachinePlatform(models.Model):
     platform = models.CharField(max_length=25L)
     architecture = models.CharField(max_length=25L, blank=True)
     active_status = models.CharField(max_length=7L, blank=True)
+
     class Meta:
         db_table = 'machine_platform'
+
+    def __unicode__(self):
+        return "{0} {1} {2}".format(
+            self.os_name, self.platform, self.architecture)
+
 
 class Bugscache(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -75,8 +100,13 @@ class Bugscache(models.Model):
     keywords = models.TextField(blank=True)
     os = models.CharField(max_length=64L, blank=True)
     modified = models.DateTimeField(null=True, blank=True)
+
     class Meta:
         db_table = 'bugscache'
+
+    def __unicode__(self):
+        return "{0}".format(self.id)
+
 
 class Machine(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -84,8 +114,13 @@ class Machine(models.Model):
     first_timestamp = models.IntegerField()
     last_timestamp = models.IntegerField()
     active_status = models.CharField(max_length=7L, blank=True)
+
     class Meta:
         db_table = 'machine'
+
+    def __unicode__(self):
+        return self.name
+
 
 class MachineNote(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -94,8 +129,14 @@ class MachineNote(models.Model):
     machine_timestamp = models.IntegerField()
     active_status = models.CharField(max_length=7L, blank=True)
     note = models.TextField(blank=True)
+
     class Meta:
         db_table = 'machine_note'
+
+    def __unicode__(self):
+        return "Note {0} on {1} by {2}".format(
+            self.id, self.machine, self.author)
+
 
 class Datasource(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -110,8 +151,14 @@ class Datasource(models.Model):
     oauth_consumer_secret = models.CharField(max_length=45L, blank=True)
     creation_date = models.DateTimeField()
     cron_batch = models.CharField(max_length=45L, blank=True)
+
     class Meta:
         db_table = 'datasource'
+
+    def __unicode__(self):
+        return "{0} ({1})".format(
+            self.name, self.project)
+
 
 class JobGroup(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -119,8 +166,14 @@ class JobGroup(models.Model):
     name = models.CharField(max_length=50L)
     description = models.TextField()
     active_status = models.CharField(max_length=7L, blank=True)
+
     class Meta:
         db_table = 'job_group'
+
+    def __unicode__(self):
+        return "{0} ({1})".format(
+            self.name, self.symbol)
+
 
 class RepositoryVersion(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -128,14 +181,25 @@ class RepositoryVersion(models.Model):
     version = models.CharField(max_length=50L)
     timestamp = models.IntegerField()
     active_status = models.CharField(max_length=7L, blank=True)
+
     class Meta:
         db_table = 'repository_version'
+
+    def __unicode__(self):
+        return "{0} version {1}".format(
+            self.repository, self.version)
+
 
 class OptionCollection(models.Model):
     id = models.IntegerField(primary_key=True)
     option = models.ForeignKey(Option)
+
     class Meta:
         db_table = 'option_collection'
+
+    def __unicode__(self):
+        return "{0}".format(self.option)
+
 
 class JobType(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -144,14 +208,23 @@ class JobType(models.Model):
     name = models.CharField(max_length=50L)
     description = models.TextField()
     active_status = models.CharField(max_length=7L, blank=True)
+
     class Meta:
         db_table = 'job_type'
+
+    def __unicode__(self):
+        return "{0} ({1})".format(
+            self.name, self.symbol)
+
 
 class FailureClassification(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=50L)
     description = models.TextField()
     active_status = models.CharField(max_length=7L, blank=True)
+
     class Meta:
         db_table = 'failure_classification'
 
+    def __unicode__(self):
+        return self.name

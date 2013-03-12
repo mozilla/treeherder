@@ -34,7 +34,7 @@ USE_L10N = True
 USE_TZ = False
 
 
-STATIC_ROOT = path("treeherder", "webapp", "static")
+STATIC_ROOT = path("webapp", "static")
 STATIC_URL = "/static/"
 # Additional locations of static files
 STATICFILES_DIRS = []
@@ -50,7 +50,7 @@ TEMPLATE_LOADERS = [
     "django.template.loaders.eggs.Loader",
 ]
 TEMPLATE_DIRS = [
-    path("treeherder", "webapp", "templates")
+    path("webapp", "templates")
 ]
 
 MIDDLEWARE_CLASSES = [
