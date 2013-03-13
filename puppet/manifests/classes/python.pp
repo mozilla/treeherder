@@ -40,4 +40,11 @@ class python {
         ],
         user => "vagrant",
     }
+
+    exec {"activate-venv-on-login":
+        unless => "cat /home/vagrant/.bashrc | grep 'source venv/bin/activate'",
+        command => "echo 'source venv/bin/activate' >> /home/vagrant/.bashrc",
+        require => Exec["create-virtualenv"],
+        user => vagrant
+    }
 }
