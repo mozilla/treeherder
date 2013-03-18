@@ -8,6 +8,15 @@ class mysql {
         ensure => installed;
     }
 
+    file{"/etc/mysql/my.cnf":
+        source => "$PROJ_DIR/puppet/files/mysql/my.cnf",
+        owner => "root", group => "root", mode => 0644,
+        notify => Service["mysql"],
+        require => [
+            Package['mysql-server']
+        ],
+    }
+
     service { "mysql":
         ensure => running,
         enable => true,
@@ -22,7 +31,7 @@ class mysql {
 
     exec { "grant-${name}-db":
         unless => "mysql -u${DB_USER} -p${DB_PASS} ${DB_NAME}",
-        command => "mysql -uroot -e \"grant all on ${DB_NAME}.* to ${DB_USER}@localhost identified by '${DB_PASS}';\"",
+        command => "mysql -uroot -e \"grant all on ${DB_NAME}.* to ${DB_USER}@'%' identified by '${DB_PASS}';\"",
         require => [Service["mysql"], Exec["create-${DB_NAME}-db"]]
     }
 }
