@@ -30,8 +30,12 @@ class mysql {
     }
 
     exec { "grant-${name}-db":
-        unless => "mysql -u${DB_USER} -p${DB_PASS} ${DB_NAME}",
-        command => "mysql -uroot -e \"grant all privileges on *.* to ${DB_USER}@'%' identified by '${DB_PASS}';\"",
+        unless => "mysql -u${DB_USER} -p${DB_PASS}",
+        command =>  "mysql -uroot -e \"
+         CREATE USER '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASS}';
+         CREATE USER '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASS}';
+         GRANT ALL PRIVILEGES ON *.* to '${DB_USER}'@'%';
+         GRANT ALL PRIVILEGES ON *.* to '${DB_USER}'@'localhost';\"",
         require => [Service["mysql"], Exec["create-${DB_NAME}-db"]]
     }
 }
