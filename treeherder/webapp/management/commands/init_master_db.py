@@ -10,6 +10,9 @@ class Command(BaseCommand):
     help = "Init master database and call syncdb"
 
     option_list = BaseCommand.option_list + (
+        make_option('--noinput', action='store_false', dest='interactive', default=True,
+            help='Tells Django to NOT prompt the user for input of any kind.'
+        ),
         make_option('--engine',
             action='store',
             dest='engine',
@@ -25,12 +28,17 @@ class Command(BaseCommand):
     )
 
     def handle(self, *args, **options):
-        confirm = input("""You have requested an init of the database.
+        interactive = options['interactive']
+        if interactive:
+            confirm = input("""You have requested an init of the database.
 This will IRREVERSIBLY DESTROY all data currently in the %r database,
 and return each table to the state it was in after syncdb.
 Are you sure you want to do this?
 
 Type 'yes' to continue, or 'no' to cancel: """ % connection.settings_dict['NAME'])
+        else:
+            confirm = 'yes'
+        
         if confirm == 'yes':
             for sql_file in ('treeherder.sql.tmpl',
                                  'treeherder_reference_1.sql.tmpl'):
