@@ -1,5 +1,8 @@
 import os
-
+from os.path import dirname
+from django.core.management import call_command
+import sys
+import pytest
 
 def pytest_sessionstart(session):
     """
@@ -8,10 +11,12 @@ Set up the test environment.
 Set DJANGO_SETTINGS_MODULE and sets up a test database.
 
 """
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "treeherder.settings.base")
-
+    sys.path.append(dirname(dirname(__file__)))
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "treeherder.settings")
     from django.conf import settings
     from django.test.simple import DjangoTestSuiteRunner
+    from treeherder.webapp.models import Datasource
+
     # we don't actually let Django run the tests, but we need to use some
     # methods of its runner for setup/teardown of dbs and some other things
     session.django_runner = DjangoTestSuiteRunner()
@@ -19,15 +24,21 @@ Set DJANGO_SETTINGS_MODULE and sets up a test database.
     session.django_runner.setup_test_environment()
     # support custom db prefix for tests for the main datazilla datasource
     # as well as for the testproj and testpushlog dbs
+    DB_USER = "myuser"
+    DB_PASS = "mypass"
+    settings.DATABASES["default"]["USER"] = DB_USER
+    settings.DATABASES["default"]["PASSWORD"] = DB_PASS
     prefix = getattr(settings, "TEST_DB_PREFIX", "")
     settings.DATABASES["default"]["TEST_NAME"] = "{0}test_treeherder".format(prefix)
     # this sets up a clean test-only database
     session.django_db_config = session.django_runner.setup_databases()
+    # init the datasource db
+    call_command("init_master_db", interactive=False)
 
 
 def pytest_sessionfinish(session):
     """Tear down the test environment, including databases."""
-    print("\n")
+    from treeherder.webapp.models import Datasource
 
     session.django_runner.teardown_databases(session.django_db_config)
     session.django_runner.teardown_test_environment()
@@ -55,11 +66,16 @@ def pytest_runtest_teardown(item):
     """
 Per-test teardown.
 
-Roll back the Django ORM transaction
+Roll back the Django ORM transaction and delete all the dbs created between tests
 
 """
     from django.test.testcases import restore_transaction_methods
     from django.db import transaction
+    from treeherder.webapp.models import Datasource
+
+    ds_list = Datasource.objects.all()
+    for ds in ds_list:
+        ds.delete()
 
     restore_transaction_methods()
     transaction.rollback()

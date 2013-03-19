@@ -1,5 +1,8 @@
 from __future__ import unicode_literals
 from django.db import models
+import uuid
+import subprocess
+from treeherder import path
 
 
 class Product(models.Model):
@@ -149,7 +152,7 @@ class Datasource(models.Model):
     type = models.CharField(max_length=25L)
     oauth_consumer_key = models.CharField(max_length=45L, blank=True)
     oauth_consumer_secret = models.CharField(max_length=45L, blank=True)
-    creation_date = models.DateTimeField()
+    creation_date = models.DateTimeField(auto_now_add=True)
     cron_batch = models.CharField(max_length=45L, blank=True)
 
     class Meta:
@@ -162,6 +165,153 @@ class Datasource(models.Model):
     def __unicode__(self):
         return "{0} ({1})".format(
             self.name, self.project)
+
+    def save(self, *args, **kwargs):
+        inserting = not self.pk
+        if inserting:
+            if not self.name:
+                self.name = "{0}_{1}_{2}".format(
+                    self.project,
+                    self.contenttype,
+                    self.dataset
+                )
+            if not self.type:
+                self.type = "mysql"
+
+            self.oauth_consumer_key = None
+            self.oauth_consumer_secret = None
+
+            if self.contenttype == 'objectstore':
+                self.oauth_consumer_key = uuid.uuid4()
+                self.oauth_consumer_secret = uuid.uuid4()
+
+        super(Datasource, self).save(*args, **kwargs)
+        if inserting:
+            self.create_db()
+
+    def create_db(self, schema_file=None):
+        """
+        Create the database for this source, using given SQL schema file.
+
+        If schema file is not given, defaults to
+        "template_schema/schema_<contenttype>.sql.tmpl".
+
+        Assumes that the database server at ``self.host`` is accessible, and
+        that ``DATABASE_USER`` (identified by
+        ``DATABASE_PASSWORD`` exists on it and has permissions to
+        create databases.
+        """
+        from django.conf import settings
+        import MySQLdb
+        DB_USER = settings.DATABASES["default"]["USER"]
+        DB_PASS = settings.DATABASES["default"]["PASSWORD"]
+        if self.type.lower().startswith("mysql-"):
+            engine = self.type[len("mysql-"):]
+        elif self.type.lower() == "mysql":
+            engine = "InnoDB"
+        else:
+            raise NotImplementedError(
+                "Currently only MySQL data source is supported.")
+
+        if schema_file is None:
+            schema_file = path(
+                "model",
+                "sql",
+                "template_schema",
+                "project_{0}_1.sql.tmpl".format(self.contenttype),
+            )
+
+        conn = MySQLdb.connect(
+            host=self.host,
+            user=DB_USER,
+            passwd=DB_PASS,
+        )
+        cur = conn.cursor()
+        cur.execute("CREATE DATABASE {0}".format(self.name))
+        conn.close()
+
+        # MySQLdb provides no way to execute an entire SQL file in bulk, so we
+        # have to shell out to the commandline client.
+        with open(schema_file) as f:
+            # set the engine to use
+            sql = f.read().format(engine=engine)
+
+        args = [
+            "mysql",
+            "--host={0}".format(self.host),
+            "--user={0}".format(DB_USER),
+        ]
+        if DB_PASS:
+            args.append(
+                "--password={0}".format(
+                    DB_PASS)
+            )
+        args.append(self.name)
+        proc = subprocess.Popen(
+            args,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        )
+        (output, _) = proc.communicate(sql)
+        if proc.returncode:
+            raise IOError(
+                "Unable to set up schema for datasource {0}: "
+                "mysql returned code {1}, output follows:\n\n{2}".format(
+                    self.key, proc.returncode, output
+                )
+            )
+
+    def delete_db(self):
+        from django.conf import settings
+        import MySQLdb
+        DB_USER = settings.DATABASES["default"]["USER"]
+        DB_PASS = settings.DATABASES["default"]["PASSWORD"]
+        conn = MySQLdb.connect(
+            host=self.host,
+            user=DB_USER,
+            passwd=DB_PASS,
+        )
+        cur = conn.cursor()
+        cur.execute("DROP DATABASE {0}".format(self.name))
+        conn.close()
+
+    def delete(self, *args, **kwargs):
+        self.delete_db()
+        super(Datasource, self).delete(*args, **kwargs)
+
+    def truncate(self, skip_list=None):
+        """
+        Truncate all tables in the db self refers to.
+        Skip_list is a list of table names to skip truncation.
+        """
+        from django.conf import settings
+        import MySQLdb
+
+        skip_list = set(skip_list or [])
+
+        DB_USER = settings.DATABASES["default"]["USER"]
+        DB_PASS = settings.DATABASES["default"]["PASSWORD"]
+
+        conn = MySQLdb.connect(
+            host=self.host,
+            user=DB_USER,
+            passwd=DB_PASS,
+            db=self.name,
+        )
+        cur = conn.cursor()
+        cur.execute("SET FOREIGN_KEY_CHECKS = 0")
+        cur.execute("SHOW TABLES")
+
+        for table, in cur.fetchall():
+            # if there is a skip_list, then skip any table with matching name
+            if table.lower() not in skip_list:
+                # needed to use backticks around table name, because if the
+                # table name is a keyword (like "option") then this will fail
+                cur.execute("TRUNCATE TABLE `{0}`".format(table))
+
+        cur.execute("SET FOREIGN_KEY_CHECKS = 1")
+        conn.close()
 
 
 class JobGroup(models.Model):
