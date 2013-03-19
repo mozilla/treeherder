@@ -2,6 +2,12 @@
  * Data structure sample sent to object store
  ****/
  { 
+    /**************
+     * The revisions in sources are combined and hashed to form a 
+     * result set guid stored in project_jobs_1.result_set.revision_hash.
+     * The revision_hash is used for associating job data asynchronously 
+     * with a single entry in project_jobs_1.result_set.
+     **************/
     sources: { 
         gecko: "revision",
         gaia: "revision",
@@ -11,30 +17,62 @@
             
     jobs: [
         {
+            #Stored in project_jobs_1.job.job_guid
             job_guid:"",
-            name:"build | mochitest_one | ...",
+
+            #Stored in treeherder_reference_1.job_type.name
+            name:"build | mochitest_one | ...", 
+
+            #Stored in treeherder_reference_1.product
             product_name:"Firefox | Firefox OS | Thunderbird | ...",
+
+            #Stored in project_jobs_1.job.state
             state: "pending | running | completed | coalesced |  ...",
+
+            #Stored in project_jobs_1.job.state
             result: "success | warnings | failure | exception | retry | cancelled",
+
+            #Stored in project_jobs_1.job.reason
             reason: "push | scheduled | self-serve | manual",
+
+            #Stored in project_jobs_1.job.who
             who: " gaia | scheduler name | username ",
+
+            #Stored in project_jobs_1.job.submit_timestamp
             submit_timestamp:"",
+
+            #Stored in project_jobs_1.job.start_timestamp
             start_timestamp:"",
+
+            #Stored in project_jobs_1.job.end_timestamp
             end_timestamp:"",
+
+            #Stored in treeherder_reference_1.machine.name
             machine:"",    
+
+            #Stored in treeherder_reference_1.build_platform
             build_platform:"",
+
+            #Stored in treeherder_reference_1.machine_platform
             machine_platform:"",
     
+            #Stored in treeherder_reference_1.option_collection and
+            #treeherder_reference_1.option
             option_collection: {
+
+                #Do we need to store option values somewhere?
+                name: value
+
                 },
 
-            /* Not Indexed */    
+            #Stored in project_jobs_1.job_log_url
             log_references: [
                 { url:"",
                   name:"" },
                   ...
                   ],
                   
+            #Stored project_jobs_1.job_artifact
             artifact:"{
                 type:" json | img | ...",
                 name:"",
@@ -47,9 +85,11 @@
         ],
 
     /****
-     * May not be present if there are no job_guid's coalesced. If present
-     * the job_guids present in jobs are where the jobs were coalesced to
-     ****/        
+     * May not be present if there are no job_guid's coalesced. If present,
+     * the job_guids present in jobs are where the jobs were coalesced to.
+     * The structures main job_guid would be stored in project_jobs_1.job.job_coalesced_to_guid
+     * for each entry job_guid in coalesced.
+     ****/
     coalesced: [
         "job_guid",
         ...

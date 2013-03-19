@@ -25,6 +25,31 @@
 DROP TABLE IF EXISTS `objectstore`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
+
+/**************************
+ * Table: objectstore
+ *
+ *  An object store for the incoming JSON structures described in
+ *  sample_data/job_data.json.sample. These structures are transfered to
+ *  project_jobs_1.sql.tmpl and treeherder_reference_1.sql.tmpl by a 
+ *  scheduled job.
+ *
+ * Population Method: dynamic from incoming data
+ *
+ * Example Data:
+ *
+ *  job_id - Referenced project_jobs_1.job.id
+ *  loaded_timestamp - Timestamp when the structure was first loaded.
+ *  processed_state - ready | loading | complete
+ *                  ready - Object ready for processing
+ *                  loading - Object in the process of loading
+ *                  complete - Object processing is complete.
+ *  error - N | Y, if yes there may be a error_msg
+ *  error_msg - Any error messages associated with processing the JSON into
+ *              the reference and project job schemas.
+ *  json_blob - The JSON blob.
+ *  worker_id - Identifier for worker process transfering the data.
+ **************************/
 CREATE TABLE `objectstore` (
   `id` bigint(11) unsigned NOT NULL AUTO_INCREMENT,
   `job_id` bigint(11) unsigned DEFAULT NULL,
