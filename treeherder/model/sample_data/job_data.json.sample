@@ -29,7 +29,7 @@
             #Stored in project_jobs_1.job.state
             state: "pending | running | completed | coalesced |  ...",
 
-            #Stored in project_jobs_1.job.state
+            #Stored in project_jobs_1.job.result
             result: "success | warnings | failure | exception | retry | cancelled",
 
             #Stored in project_jobs_1.job.reason
@@ -50,18 +50,24 @@
             #Stored in treeherder_reference_1.machine.name
             machine:"",    
 
-            #Stored in treeherder_reference_1.build_platform
-            build_platform:"",
+            #Stored in:
+            # treeherder_reference_1.build_platform.os_name,
+            # treeherder_reference_1.build_platform.platform, 
+            # treeherder_reference_1.build_platform.architecture, 
+            build_platform:{ os_name:"", platform:"", architecture:"" },
 
-            #Stored in treeherder_reference_1.machine_platform
-            machine_platform:"",
+            #Stored in:
+            # treeherder_reference_1.machine_platform.os_name,
+            # treeherder_reference_1.machine_platform.platform, 
+            # treeherder_reference_1.machine_platform.architecture, 
+            machine_platform:{ os_name:"", platform:"", architecture:"" },
     
             #Stored in treeherder_reference_1.option_collection and
             #treeherder_reference_1.option
             option_collection: {
 
                 #Do we need to store option values somewhere?
-                name: value
+                option_name: value, ...
 
                 },
 
@@ -86,7 +92,7 @@
 
     /****
      * May not be present if there are no job_guid's coalesced. If present,
-     * the job_guids present in jobs are where the jobs were coalesced to.
+     * the job_guids in jobs are where the jobs were coalesced to.
      * The structures main job_guid would be stored in project_jobs_1.job.job_coalesced_to_guid
      * for each entry job_guid in coalesced.
      ****/
