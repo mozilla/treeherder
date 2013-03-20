@@ -30,8 +30,8 @@ def objectstore_ds():
 def db_conn():
     return MySQLdb.connect(
         host="localhost",
-        user=settings.DATABASES['default']['USER'],
-        passwd=settings.DATABASES['default']['PASSWORD'],
+        user=settings.TREEHERDER_DATABASE_USER,
+        passwd=settings.TREEHERDER_DATABASE_PASSWORD,
     )
 
 

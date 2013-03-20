@@ -3,19 +3,14 @@ import os
 from treeherder import path
 # These settings can all be optionally set via env vars, or in local.py:
 
-DATABASES = {
-    "default": {
-        "ENGINE"   : "django.db.backends.mysql",
-        "NAME"     : os.environ.get("TREEHERDER_DB_NAME", ""),
-        "USER"     : os.environ.get("TREEHERDER_DB_USER", ""),
-        "PASSWORD" : os.environ.get("TREEHERDER_DB_PASS", ""),
-        "HOST"     : os.environ.get("TREEHERDER_DB_HOST", ""),
-        "PORT"     : os.environ.get("TREEHERDER_DB_PORT", ""),
-    }
-}
+TREEHERDER_DATABASE_NAME     = os.environ.get("TREEHERDER_DATABASE_NAME", "")
+TREEHERDER_DATABASE_USER     = os.environ.get("TREEHERDER_DATABASE_USER", "")
+TREEHERDER_DATABASE_PASSWORD = os.environ.get("TREEHERDER_DATABASE_PASSWORD", "")
+TREEHERDER_DATABASE_HOST     = os.environ.get("TREEHERDER_DATABASE_HOST", "localhost")
+TREEHERDER_DATABASE_PORT     = os.environ.get("TREEHERDER_DATABASE_PORT", "")
 
 DEBUG = os.environ.get("TREEHERDER_DEBUG", False)
-TEMPLATE_DEBUG = DEBUG
+
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = os.environ.get("TREEHERDER_DJANGO_SECRET_KEY", "my-secret-key")
@@ -75,6 +70,8 @@ INSTALLED_APPS = [
     'south',
 ]
 
+LOCAL_APPS = []
+
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
 # the site admins on every HTTP 500 error.
@@ -101,5 +98,27 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
+    }
+}
+
+LOCAL_LOGGING = {}
+
+try:
+    from .local import *
+except ImportError:
+    pass
+
+INSTALLED_APPS += LOCAL_APPS
+
+TEMPLATE_DEBUG = DEBUG
+
+DATABASES = {
+    "default": {
+        "ENGINE"   : "django.db.backends.mysql",
+        "NAME"     : TREEHERDER_DATABASE_NAME,
+        "USER"     : TREEHERDER_DATABASE_USER,
+        "PASSWORD" : TREEHERDER_DATABASE_PASSWORD,
+        "HOST"     : TREEHERDER_DATABASE_HOST,
+        "PORT"     : TREEHERDER_DATABASE_PORT,
     }
 }

@@ -4,6 +4,7 @@ from django.core.management import call_command
 import sys
 import pytest
 
+
 def pytest_sessionstart(session):
     """
 Set up the test environment.
@@ -24,10 +25,6 @@ Set DJANGO_SETTINGS_MODULE and sets up a test database.
     session.django_runner.setup_test_environment()
     # support custom db prefix for tests for the main datazilla datasource
     # as well as for the testproj and testpushlog dbs
-    DB_USER = "myuser"
-    DB_PASS = "mypass"
-    settings.DATABASES["default"]["USER"] = DB_USER
-    settings.DATABASES["default"]["PASSWORD"] = DB_PASS
     prefix = getattr(settings, "TEST_DB_PREFIX", "")
     settings.DATABASES["default"]["TEST_NAME"] = "{0}test_treeherder".format(prefix)
     # this sets up a clean test-only database

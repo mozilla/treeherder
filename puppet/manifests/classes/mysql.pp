@@ -29,7 +29,7 @@ class mysql {
         require => Service["mysql"],
     }
 
-    exec { "grant-${name}-db":
+    exec { "grant-${DB_USER}-db":
         unless => "mysql -u${DB_USER} -p${DB_PASS}",
         command =>  "mysql -uroot -e \"
          CREATE USER '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASS}';
