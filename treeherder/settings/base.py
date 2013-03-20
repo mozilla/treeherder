@@ -101,8 +101,6 @@ LOGGING = {
     }
 }
 
-LOCAL_LOGGING = {}
-
 try:
     from .local import *
 except ImportError:
