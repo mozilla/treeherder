@@ -25,6 +25,24 @@
 DROP TABLE IF EXISTS `bugscache`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
+
+/**************************
+ * Table: bugscache
+ *
+ * Holds bugzilla bugs associated with intermittent failures. 
+ *
+ * Population Method: scheduled job.
+ *
+ * Example Data:
+ *  
+ *  status - enum('NEW', 'ASSIGNED', 'REOPENED', 'RESOLVED', 'VERIFIED', 'CLOSED')
+ *  resolution - enum('', 'FIXED', 'INVALID', 'WONTFIX', 'LATER', 'REMIND', 'DUPLICATE', 'WORKSFORME')
+ *  summary - Summary of bug
+ *  crash_signature - Crash signature associated with bug
+ *  keywords - Keywords associated with bug
+ *  os - Operating system associated with the bug
+ *  modified - ?
+ **************************/
 CREATE TABLE `bugscache` (
   `id` int(10) unsigned NOT NULL,
   `status` varchar(64) COLLATE utf8_bin DEFAULT NULL,
@@ -50,6 +68,20 @@ CREATE TABLE `bugscache` (
 DROP TABLE IF EXISTS `build_platform`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
+
+/**************************
+ * Table: build_platform
+ *
+ * A list of build platforms associated with project test data.
+ *
+ * Population Method: dynamic from incoming data. 
+ *
+ * Example Data:
+ *
+ *  os_name -  linux | mac | win | Android | Firefox OS | ...
+ *  platform - fedora 12 | redhat 12 | 5.1.2600 | 6.1.7600 | OS X 10.7.2 | ...
+ *  architecture - x86 | x86_64 etc...
+ **************************/
 CREATE TABLE `build_platform` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `os_name` varchar(25) COLLATE utf8_bin NOT NULL,
@@ -71,6 +103,18 @@ CREATE TABLE `build_platform` (
 DROP TABLE IF EXISTS `failure_classification`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
+
+/**************************
+ * Table: failure_classification
+ *
+ * A list of failure classification names associated with project test data. 
+ *
+ * Population Method: manual by admin 
+ *
+ * Example Data:
+ *
+ *  name - broken | clobber-needed | infrastructure | intermittent | needs-filing | other | ... 
+ **************************/
 CREATE TABLE `failure_classification` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(50) COLLATE utf8_bin NOT NULL,
@@ -89,6 +133,19 @@ CREATE TABLE `failure_classification` (
 DROP TABLE IF EXISTS `job_group`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
+
+/**************************
+ * Table: job_group
+ *
+ * A list of job group descriptions associated with individual jobs.
+ *
+ * Population Method: manual by an admin
+ *
+ * Example Data:
+ *
+ *  symbol - B | M | R | T | ...
+ *  name - mochitest | build | reftest | ...
+ **************************/
 CREATE TABLE `job_group` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `symbol` char(10) COLLATE utf8_bin NOT NULL,
@@ -109,6 +166,25 @@ CREATE TABLE `job_group` (
 DROP TABLE IF EXISTS `job_type`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
+
+/**************************
+ * Table: job_type
+ *
+ * A list of job type information and a mapping of job type to 
+ * an associated job_group.
+ *
+ * Population Method: dynamic from incoming data
+ *
+ * Example Data:
+ *
+ *  job_group_id - References job_group.id
+ *
+ *  symbol - M (1 2 3 4 5 bc oth) | R (C J R) | T (c d o p s tp)
+ *           The outer letter represents the symbol for the job_group, the
+ *           letters in parenthesis represent the symbols for job_type entries.
+ *
+ *  name - mochitest-1 | mochitest-2 | tresize | tp5o | ...
+ **************************/
 CREATE TABLE `job_type` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `job_group_id` int(10) unsigned DEFAULT NULL,
@@ -132,6 +208,20 @@ CREATE TABLE `job_type` (
 DROP TABLE IF EXISTS `machine`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
+
+/**************************
+ * Table: machine
+ *
+ * A list of machine names associated with project test data.
+ *
+ * Population Method: dynamic from incoming data
+ *
+ * Example Data:
+ *
+ *  name - talos-r3-fed64-038 | talos-r3-leopard-034 | tegra-075.n | ...
+ *  first_timestamp - timestamp associated with machine's first data entry
+ *  last_timestamp - timestamp associated with machine's last data entry
+ **************************/
 CREATE TABLE `machine` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(50) COLLATE utf8_bin NOT NULL,
@@ -153,6 +243,21 @@ CREATE TABLE `machine` (
 DROP TABLE IF EXISTS `machine_note`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
+
+/**************************
+ * Table: machine_note
+ *
+ * A list of notes associated with particular machines. Notes can be set by a sheriff to record 
+ * a repeated pattern of failures.
+ *
+ * Population Method: manual by admin
+ *
+ * Example Data:
+ *
+ *  machine_id - References machine.id
+ *  author - The author associated with the note
+ *  machine_timestamp - timestamp associated with the note
+ **************************/
 CREATE TABLE `machine_note` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `machine_id` int(10) unsigned NOT NULL,
@@ -176,6 +281,20 @@ CREATE TABLE `machine_note` (
 DROP TABLE IF EXISTS `machine_platform`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
+
+/**************************
+ * Table: machine_platform
+ *
+ * A list of machine platforms associated with project test data.
+ *
+ * Population Method: dynamic from incoming data. 
+ *
+ * Example Data:
+ *
+ *  os_name -  linux | mac | win | Android | Firefox OS | ...
+ *  platform - fedora 12 | redhat 12 | 5.1.2600 | 6.1.7600 | OS X 10.7.2 | ...
+ *  architecture - x86 | x86_64 etc...
+ **************************/
 CREATE TABLE `machine_platform` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `os_name` varchar(25) COLLATE utf8_bin NOT NULL,
@@ -197,6 +316,20 @@ CREATE TABLE `machine_platform` (
 DROP TABLE IF EXISTS `option`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
+
+/**************************
+ * Table: option
+ *
+ * A list of option names associated with test data. May or may not
+ * be command line options associated with the build or test.
+ *
+ * Population Method: dynamic from incoming data, manual by admin
+ *
+ * Example Data:
+ *
+ *  name - PGO | Non-PGO | ...
+ *
+ **************************/
 CREATE TABLE `option` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(50) COLLATE utf8_bin NOT NULL,
@@ -215,11 +348,27 @@ CREATE TABLE `option` (
 DROP TABLE IF EXISTS `option_collection`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
+
+/**************************
+ * Table: option_collection
+ *
+ * Unique collections of options that are applied to test data.
+ *
+ * Population Method: dynamic from incoming data, manual by admin
+ *
+ * Example Data:
+ *
+ *  option_collection_id - Used to group collections of objects
+ *  option_id - References option.id
+ **************************/
 CREATE TABLE `option_collection` (
-  `id` int(10) unsigned NOT NULL,
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `option_collection_id` int(10) unsigned NOT NULL,
   `option_id` int(10) unsigned NOT NULL,
-  UNIQUE KEY `uni_option_collection` (`id`,`option_id`),
-  KEY `fk_option` (`option_id`),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uni_option_collection` (`option_collection_id`,`option_id`),
+  KEY `idx_option` (`option_id`),
+  KEY `idx_option_collection_id` (`option_collection_id`),
   CONSTRAINT `fk_option` FOREIGN KEY (`option_id`) REFERENCES `option` (`id`)
 ) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -231,6 +380,18 @@ CREATE TABLE `option_collection` (
 DROP TABLE IF EXISTS `product`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
+
+/**************************
+ * Table: product
+ *
+ * A list of unique product names associated with test data.
+ *
+ * Population Method: dynamic from incoming data, manual by admin
+ *
+ * Example Data:
+ *
+ *  name - Firefox | Fennec | Firefox OS | Thunderbird | Seamonkey | ...
+ **************************/
 CREATE TABLE `product` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(50) COLLATE utf8_bin NOT NULL,
@@ -249,6 +410,25 @@ CREATE TABLE `product` (
 DROP TABLE IF EXISTS `repository`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
+
+/**************************
+ * Table: repository
+ *
+ * A list of repositories reporting pushes and associated test data to treeherder.
+ *
+ * Population Method: manual by admin
+ *
+ * Example Data:
+ *
+ *  repository_group_id - References repository_group.id
+ *  name - mozilla-inbound | mozilla-release | gaia-master | gaia-v1-train | ...
+ *  type - hg | git | ...
+ *  url - https://hg.m.o | https://git.m.o | ...
+ *  branch - gecko | gaia | enGB | ...
+ *  project_name - ?
+ *  purpose - development (aka trunk) | try | release-stablization (train) | ...
+ *
+ **************************/
 CREATE TABLE `repository` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `repository_group_id` int(10) unsigned NOT NULL,
@@ -279,6 +459,18 @@ CREATE TABLE `repository` (
 DROP TABLE IF EXISTS `repository_group`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
+
+/**************************
+ * Table: repository_group
+ *
+ * List of repository group names.
+ *
+ * Population Method: manual by admin
+ * 
+ * Example Data:
+ *
+ *  name - train | development | ...
+ **************************/
 CREATE TABLE `repository_group` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(50) COLLATE utf8_bin NOT NULL,
@@ -297,16 +489,31 @@ CREATE TABLE `repository_group` (
 DROP TABLE IF EXISTS `repository_version`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
+
+/**************************
+ * Table: repository_version
+ *
+ * List of versions associated with repositories. Current version will have the
+ * most recent timestamp associated with it.
+ *
+ * Population Method: This information could possibly be pulled automatically. It also
+ *                    might be coming in dynamically with test data.
+ *
+ * Example Data:
+ *
+ *  repository_id - References repository.id
+ *  version - 20.0a1 | 21.0a2 | ...
+ **************************/
 CREATE TABLE `repository_version` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `repository_id` int(10) unsigned NOT NULL,
   `version` varchar(50) COLLATE utf8_bin NOT NULL,
-  `timestamp` int(10) unsigned NOT NULL,
+  `version_timestamp` int(10) unsigned NOT NULL,
   `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
   PRIMARY KEY (`id`),
   KEY `idx_repository_id` (`repository_id`),
   KEY `idx_version` (`version`),
-  KEY `idx_timestamp_id` (`timestamp`),
+  KEY `idx_version_timestamp_id` (`version_timestamp`),
   KEY `idx_active_status` (`active_status`),
   CONSTRAINT `fk_repository` FOREIGN KEY (`repository_id`) REFERENCES `repository` (`id`)
 ) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
