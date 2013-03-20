@@ -25,6 +25,21 @@
 DROP TABLE IF EXISTS `bug_job_map`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
+
+/**************************
+ * Table: bug_job_map
+ *
+ * Maps job_id's to related bug_ids. Mappings can be made manually through a UI or from
+ * doing lookups in the treeherder_reference_1.bugscache
+ *
+ * Population Method: scheduled job, manual by admin
+ *
+ * Example Data:
+ *
+ *  job_id - Referenced job.id
+ *  bug_id - References bugzilla bug id
+ *  type - parsing-suggestion (automatically generated) | annotation (manual assignment through UI)
+ **************************/
 CREATE TABLE `bug_job_map` (
   `job_id` bigint(20) unsigned NOT NULL,
   `bug_id` int(10) unsigned NOT NULL,
@@ -46,6 +61,36 @@ CREATE TABLE `bug_job_map` (
 DROP TABLE IF EXISTS `job`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
+
+/**************************
+ * Table: job
+ *
+ * The core job results table. Holds all build and test result data and associated
+ * data mappings.
+ *
+ * Population Method: dynamic from incoming data
+ *
+ * Example Data:
+ *
+ *  job_guid - A unique identifier of a job or any type. For buildbot generated data
+ *             the guid is a hash of associated request_ids and a timestamp.
+ *             
+ *  job_coalesced_to_guid - If present the job was coalesced to this job_guid
+ *  result_set_id - References result_set.id
+ *  build_platform_id - References treeherder_reference_1.build_platform.id
+ *  machine_platform_id - References treeherder_reference_1.machine_platform.id
+ *  machine_id - References treeherder_reference_1.machine.id
+ *  option_collection_id - References treeherder_reference_1.option_collection.option_collection_id
+ *  job_type_id - References treeherder_reference_1.job_type.id 
+ *  product_id - References treeherder_reference_1.product.id 
+ *  who - Description of who submitted the job: gaia | scheduler name | username
+ *  reason - Reason for the job: push | scheduled | self-serve | manual
+ *  result - Job outcome description: success | failure | ...
+ *  state - Current state of job: pending | running | completed | coalesced | ...
+ *  submit_timestamp - Time the job was submitted. 
+ *  start_timestamp - Time the job was started.
+ *  end_timestamp - Time the job completed.
+ **************************/
 CREATE TABLE `job` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `job_guid` varchar(50) COLLATE utf8_bin NOT NULL,
@@ -94,6 +139,22 @@ CREATE TABLE `job` (
 DROP TABLE IF EXISTS `job_artifact`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
+
+/**************************
+ * Table: job_artifact
+ *
+ *  Holds any kind of data associated with a job. Data can be structured in the
+ *  case of JSON data or raw binary in the case of an image.
+ *
+ * Population Method: dynamic from incoming data
+ *
+ * Example Data:
+ *
+ *  job_id - References job.id
+ *  name - Name of artifact data.
+ *  type - json | img | ... 
+ *  blob - Artifact data 
+ **************************/
 CREATE TABLE `job_artifact` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `job_id` bigint(20) unsigned NOT NULL,
@@ -117,6 +178,20 @@ CREATE TABLE `job_artifact` (
 DROP TABLE IF EXISTS `job_log_url`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
+
+/**************************
+ * Table: job_log_url
+ *
+ *  A URL to the log file associated with the job. 
+ *  
+ * Population Method: dynamic from incoming data
+ *
+ * Example Data:
+ *
+ *  job_id - References job.id
+ *  name - Name of log file
+ *  url - URL to log file
+ **************************/
 CREATE TABLE `job_log_url` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `job_id` bigint(20) unsigned NOT NULL,
@@ -138,6 +213,22 @@ CREATE TABLE `job_log_url` (
 DROP TABLE IF EXISTS `job_note`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
+
+/**************************
+ * Table: job_note
+ *
+ *  Notes associated with a job. Generated manually in the UI.
+ *  
+ * Population Method: manual by admin
+ *
+ * Example Data:
+ *
+ *  job_id - References job.id
+ *  failure_classification_id - References treeherder_reference_1.failure_classification.id
+ *  who - Author of the note
+ *  note - Notes associated with the job
+ *  note_timestamp - Timestamp associated with the note 
+ **************************/
 CREATE TABLE `job_note` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `job_id` bigint(20) unsigned NOT NULL,
@@ -163,6 +254,19 @@ CREATE TABLE `job_note` (
 DROP TABLE IF EXISTS `result_set`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
+
+/**************************
+ * Table: result_set
+ *
+ *  A result set is defined by a set of unique repository revisions. Result sets can
+ *  have any number of jobs associated with them.  
+ *  
+ * Population Method: dynamic from incoming data
+ *
+ * Example Data:
+ *
+ *  revision_hash - Hash of any number of revisions associated with the result set.
+ **************************/
 CREATE TABLE `result_set` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `revision_hash` varchar(50) COLLATE utf8_bin NOT NULL,
@@ -180,6 +284,23 @@ CREATE TABLE `result_set` (
 DROP TABLE IF EXISTS `revision`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
+
+/**************************
+ * Table: revision
+ *
+ *  List of revisions and their meta data associated with result sets. 
+ *  
+ * Population Method: dynamic from incoming data
+ *                   ( the meta data will have to come from external web services
+ *                     when the data is received )
+ *
+ * Example Data:
+ *
+ *  revision - The revision string associated with the repository
+ *  author - The author associated with the revision
+ *  push_timestamp - Timestamp associated with the push to the test system
+ *  commit_timestamp - Timestamp associated with the commit
+ **************************/
 CREATE TABLE `revision` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `revision` varchar(50) COLLATE utf8_bin NOT NULL,
@@ -204,6 +325,19 @@ CREATE TABLE `revision` (
 DROP TABLE IF EXISTS `revision_map`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
+
+/**************************
+ * Table: revision_map
+ *
+ *  Maps revisions to their associated result set.
+ *  
+ * Population Method: dynamic from incoming data
+ *
+ * Example Data:
+ *
+ *  revision_id - References revision.id
+ *  result_set_id - References result_set.id
+ **************************/
 CREATE TABLE `revision_map` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `revision_id` bigint(20) unsigned NOT NULL,
