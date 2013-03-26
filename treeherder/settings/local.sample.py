@@ -6,6 +6,9 @@ TREEHERDER_DATABASE_PASSWORD = os.environ.get("TREEHERDER_DATABASE_PASSWORD", ""
 TREEHERDER_DATABASE_HOST     = os.environ.get("TREEHERDER_DATABASE_HOST", "localhost")
 TREEHERDER_DATABASE_PORT     = os.environ.get("TREEHERDER_DATABASE_PORT", "")
 
+TREEHERDER_MEMCACHED = os.environ.get("TREEHERDER_MEMCACHED", "")
+TREEHERDER_MEMCACHED_KEY_PREFIX = os.environ.get("TREEHERDER_MEMCACHED_KEY_PREFIX", "treeherder")
+
 # Applications useful for development, e.g. debug_toolbar, django_extensions.
 # Always empty in production
 LOCAL_APPS = []

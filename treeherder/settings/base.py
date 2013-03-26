@@ -9,6 +9,8 @@ TREEHERDER_DATABASE_PASSWORD = os.environ.get("TREEHERDER_DATABASE_PASSWORD", ""
 TREEHERDER_DATABASE_HOST     = os.environ.get("TREEHERDER_DATABASE_HOST", "localhost")
 TREEHERDER_DATABASE_PORT     = os.environ.get("TREEHERDER_DATABASE_PORT", "")
 
+TREEHERDER_MEMCACHED = os.environ.get("TREEHERDER_MEMCACHED", "")
+TREEHERDER_MEMCACHED_KEY_PREFIX = os.environ.get("TREEHERDER_MEMCACHED_KEY_PREFIX", "treeherder")
 DEBUG = os.environ.get("TREEHERDER_DEBUG", False)
 
 
@@ -120,3 +122,15 @@ DATABASES = {
         "PORT"     : TREEHERDER_DATABASE_PORT,
     }
 }
+
+CACHES = {
+    "default": {
+        "BACKEND": "treeherder.cache.MemcachedCache",
+        "LOCATION": TREEHERDER_MEMCACHED,
+        "TIMEOUT": 0,
+        # bumping this is effectively equivalent to restarting memcached
+        "VERSION": 1,
+        }
+}
+
+KEY_PREFIX = TREEHERDER_MEMCACHED_KEY_PREFIX

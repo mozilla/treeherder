@@ -1,7 +1,7 @@
 import os
 from os.path import dirname
-from django.core.management import call_command
 import sys
+from django.core.management import call_command
 import pytest
 
 
@@ -17,6 +17,7 @@ Set DJANGO_SETTINGS_MODULE and sets up a test database.
     from django.conf import settings
     from django.test.simple import DjangoTestSuiteRunner
     from treeherder.webapp.models import Datasource
+    from django.core.cache import cache
 
     # we don't actually let Django run the tests, but we need to use some
     # methods of its runner for setup/teardown of dbs and some other things
@@ -31,6 +32,7 @@ Set DJANGO_SETTINGS_MODULE and sets up a test database.
     session.django_db_config = session.django_runner.setup_databases()
     # init the datasource db
     call_command("init_master_db", interactive=False)
+    cache.clear()
 
 
 def pytest_sessionfinish(session):
@@ -68,6 +70,7 @@ Roll back the Django ORM transaction and delete all the dbs created between test
 """
     from django.test.testcases import restore_transaction_methods
     from django.db import transaction
+    from django.core.cache import cache
     from treeherder.webapp.models import Datasource
 
     ds_list = Datasource.objects.all()
@@ -77,3 +80,4 @@ Roll back the Django ORM transaction and delete all the dbs created between test
     restore_transaction_methods()
     transaction.rollback()
     transaction.leave_transaction_management()
+    cache.clear()

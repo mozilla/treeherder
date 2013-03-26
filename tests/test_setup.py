@@ -2,6 +2,7 @@ import pytest
 from django.conf import settings
 from treeherder.webapp.models import Datasource
 import MySQLdb
+from django.core.cache import cache
 
 
 @pytest.fixture
@@ -42,3 +43,10 @@ def test_datasource_db_created(jobs_ds, db_conn):
     assert jobs_ds.name in [r[0] for r in rows], \
         "When a datasource is created, a new db should be created too"
     db_conn.close()
+
+
+def test_memcached_setup():
+    "Test memcached is properly setup"
+    cache.set('my_key', 'my_value')
+    cache.get('my_key', 'alternative')
+    assert cache.get('my_key') == 'my_value'
