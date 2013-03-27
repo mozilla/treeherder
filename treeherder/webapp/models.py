@@ -1,8 +1,15 @@
 from __future__ import unicode_literals
-from django.db import models
 import uuid
 import subprocess
+import os
+from django.core.cache import cache
+from django.db import models
 from treeherder import path
+
+# the cache key is specific to the database name we're pulling the data from
+SOURCES_CACHE_KEY = "treeherder-datasources"
+
+SQL_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
 class Product(models.Model):
@@ -141,6 +148,16 @@ class MachineNote(models.Model):
             self.id, self.machine, self.author)
 
 
+class DatasourceManager(models.Manager):
+    def cached(self):
+        """Return all datasources, caching the results."""
+        sources = cache.get(SOURCES_CACHE_KEY)
+        if not sources:
+            sources = list(self.all())
+            cache.set(SOURCES_CACHE_KEY, sources)
+        return sources
+
+
 class Datasource(models.Model):
     id = models.IntegerField(primary_key=True)
     project = models.CharField(max_length=25L)
@@ -150,10 +167,12 @@ class Datasource(models.Model):
     read_only_host = models.CharField(max_length=128L, blank=True)
     name = models.CharField(max_length=128L)
     type = models.CharField(max_length=25L)
-    oauth_consumer_key = models.CharField(max_length=45L, blank=True)
-    oauth_consumer_secret = models.CharField(max_length=45L, blank=True)
+    oauth_consumer_key = models.CharField(max_length=45L, blank=True, null=True)
+    oauth_consumer_secret = models.CharField(max_length=45L, blank=True, null=True)
     creation_date = models.DateTimeField(auto_now_add=True)
     cron_batch = models.CharField(max_length=45L, blank=True)
+
+    objects = DatasourceManager()
 
     class Meta:
         db_table = 'datasource'
@@ -162,13 +181,26 @@ class Datasource(models.Model):
             ["host", "name"],
         ]
 
+    @classmethod
+    def reset_cache(cls):
+        cache.delete(SOURCES_CACHE_KEY)
+        cls.objects.cached()
+
+    @property
+    def key(self):
+        """Unique key for a data source is the project, contenttype, dataset."""
+        return "{0} - {1} - {2}".format(
+            self.project, self.contenttype, self.dataset)
+
     def __unicode__(self):
-        return "{0} ({1})".format(
-            self.name, self.project)
+        """Unicode representation is the project's unique key."""
+        return unicode(self.key)
 
     def save(self, *args, **kwargs):
         inserting = not self.pk
-        if inserting:
+        # in case you want to add a new datasource and provide
+        # a pk, set force_insert=True when you save
+        if inserting or kwargs.get('force_insert',False):
             if not self.name:
                 self.name = "{0}_{1}_{2}".format(
                     self.project,
@@ -188,6 +220,50 @@ class Datasource(models.Model):
         super(Datasource, self).save(*args, **kwargs)
         if inserting:
             self.create_db()
+
+    def get_oauth_consumer_secret(self, key):
+        """
+        Return the oauth consumer secret if the key provided matches the
+        the consumer key.
+        """
+        oauth_consumer_secret = None
+        if self.oauth_consumer_key == key:
+            oauth_consumer_secret = self.oauth_consumer_secret
+        return oauth_consumer_secret
+
+    def dhub(self, procs_file_name):
+        """
+        Return a configured ``DataHub`` using the given SQL procs file.
+
+        """
+        data_source = {
+            self.key: {
+                # @@@ this should depend on self.type
+                # @@@ shouldn't have to specify this here and below
+                "hub": "MySQL",
+                "master_host": {
+                    "host": self.host,
+                    "user": settings.TREEHERDER_DATABASE_USER,
+                    "passwd": settings.TREEHERDER_DATABASE_PASSWORD,
+                    },
+                "default_db": self.name,
+                "procs": [
+                    os.path.join(SQL_PATH, procs_file_name),
+                    os.path.join(SQL_PATH, "generic.json"),
+                    ],
+                }
+            }
+
+        if self.read_only_host:
+            data_source[self.key]['read_host'] = {
+                "host": self.read_only_host,
+                "user": settings.TREEHERDER_RO_DATABASE_USER,
+                "passwd": settings.TREEHERDER_RO_DATABASE_PASSWORD,
+                }
+
+        BaseHub.add_data_source(data_source)
+        # @@@ the datahub class should depend on self.type
+        return MySQL(self.key)
 
     def create_db(self, schema_file=None):
         """
