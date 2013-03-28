@@ -30,6 +30,9 @@ Set DJANGO_SETTINGS_MODULE and sets up a test database.
     settings.DATABASES["default"]["TEST_NAME"] = "{0}test_treeherder".format(prefix)
     # this sets up a clean test-only database
     session.django_db_config = session.django_runner.setup_databases()
+
+    increment_cache_key_prefix()
+
     # init the datasource db
     call_command("init_master_db", interactive=False)
     cache.clear()
@@ -60,6 +63,8 @@ providing test isolation.
     transaction.managed(True)
     disable_transaction_methods()
 
+    increment_cache_key_prefix()
+
 
 def pytest_runtest_teardown(item):
     """
@@ -81,3 +86,16 @@ Roll back the Django ORM transaction and delete all the dbs created between test
     transaction.rollback()
     transaction.leave_transaction_management()
     cache.clear()
+
+
+def increment_cache_key_prefix():
+    """Increment a cache prefix to effectively clear the cache."""
+    from django.core.cache import cache
+    cache.key_prefix = ""
+    prefix_counter_cache_key = "treeherder-tests-key-prefix-counter"
+    try:
+        key_prefix_counter = cache.incr(prefix_counter_cache_key)
+    except ValueError:
+        key_prefix_counter = 0
+        cache.set(prefix_counter_cache_key, key_prefix_counter)
+    cache.key_prefix = "t{0}".format(key_prefix_counter)
