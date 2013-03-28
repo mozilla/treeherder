@@ -47,6 +47,6 @@ def test_datasource_db_created(jobs_ds, db_conn):
 
 def test_memcached_setup():
     "Test memcached is properly setup"
-    cache.set('my_key', 'my_value')
-    cache.get('my_key', 'alternative')
-    assert cache.get('my_key') == 'my_value'
+    k, v = 'my_key', 'my_value'
+    cache.set(k, v)
+    assert cache.get(k) == v
