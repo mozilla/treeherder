@@ -170,7 +170,6 @@ class Datasource(models.Model):
     oauth_consumer_key = models.CharField(max_length=45L, blank=True, null=True)
     oauth_consumer_secret = models.CharField(max_length=45L, blank=True, null=True)
     creation_date = models.DateTimeField(auto_now_add=True)
-    cron_batch = models.CharField(max_length=45L, blank=True)
 
     objects = DatasourceManager()
 

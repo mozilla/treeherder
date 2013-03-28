@@ -15,7 +15,6 @@ def create_datasource(model, **kwargs):
         "host": "localhost",
         "type": "MySQL-InnoDB",
         "creation_date": datetime.datetime.now(),
-        #"cron_batch": "small",
     }
 
     dataset_num += 1
