@@ -17,7 +17,6 @@ Set DJANGO_SETTINGS_MODULE and sets up a test database.
     from django.conf import settings
     from django.test.simple import DjangoTestSuiteRunner
     from treeherder.webapp.models import Datasource
-    from django.core.cache import cache
 
     # we don't actually let Django run the tests, but we need to use some
     # methods of its runner for setup/teardown of dbs and some other things
@@ -39,8 +38,6 @@ Set DJANGO_SETTINGS_MODULE and sets up a test database.
 
 def pytest_sessionfinish(session):
     """Tear down the test environment, including databases."""
-    from treeherder.webapp.models import Datasource
-
     session.django_runner.teardown_databases(session.django_db_config)
     session.django_runner.teardown_test_environment()
 
@@ -74,7 +71,6 @@ Roll back the Django ORM transaction and delete all the dbs created between test
 """
     from django.test.testcases import restore_transaction_methods
     from django.db import transaction
-    from django.core.cache import cache
     from treeherder.webapp.models import Datasource
 
     ds_list = Datasource.objects.all()
