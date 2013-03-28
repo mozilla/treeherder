@@ -35,7 +35,6 @@ Set DJANGO_SETTINGS_MODULE and sets up a test database.
 
     # init the datasource db
     call_command("init_master_db", interactive=False)
-    cache.clear()
 
 
 def pytest_sessionfinish(session):
@@ -85,7 +84,6 @@ Roll back the Django ORM transaction and delete all the dbs created between test
     restore_transaction_methods()
     transaction.rollback()
     transaction.leave_transaction_management()
-    cache.clear()
 
 
 def increment_cache_key_prefix():
