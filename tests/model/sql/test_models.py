@@ -53,7 +53,7 @@ def pytest_funcarg__DataSource(request):
     Gives a test access to the DataSource model class.
 
     """
-    from treeherder.webapp.models import Datasource
+    from treeherder.model.models import Datasource
     return Datasource
 
 

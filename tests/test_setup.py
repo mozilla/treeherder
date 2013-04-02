@@ -1,6 +1,6 @@
 import pytest
 from django.conf import settings
-from treeherder.webapp.models import Datasource
+from treeherder.model.models import Datasource
 import MySQLdb
 from django.core.cache import cache
 

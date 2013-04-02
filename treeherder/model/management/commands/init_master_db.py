@@ -57,6 +57,6 @@ Type 'yes' to continue, or 'no' to cancel: """ % connection.settings_dict['NAME'
             #flush all the apps not under south
             call_command("syncdb", interactive=False,)
             #fake the first migration because manually generated
-            call_command("migrate", 'webapp','0001',fake=True)
+            call_command("migrate", 'model','0001',fake=True)
             #safely apply all the other migrations
-            call_command("migrate", 'webapp')
+            call_command("migrate", 'model')

@@ -15,7 +15,7 @@ class Migration(SchemaMigration):
             ('description', self.gf('django.db.models.fields.TextField')()),
             ('active_status', self.gf('django.db.models.fields.CharField')(max_length=7L, blank=True)),
         ))
-        db.send_create_signal(u'webapp', ['Product'])
+        db.send_create_signal(u'model', ['Product'])
 
         # Adding model 'BuildPlatform'
         db.create_table(u'build_platform', (
@@ -25,7 +25,7 @@ class Migration(SchemaMigration):
             ('architecture', self.gf('django.db.models.fields.CharField')(max_length=25L, blank=True)),
             ('active_status', self.gf('django.db.models.fields.CharField')(max_length=7L, blank=True)),
         ))
-        db.send_create_signal(u'webapp', ['BuildPlatform'])
+        db.send_create_signal(u'model', ['BuildPlatform'])
 
         # Adding model 'Option'
         db.create_table(u'option', (
@@ -34,7 +34,7 @@ class Migration(SchemaMigration):
             ('description', self.gf('django.db.models.fields.TextField')()),
             ('active_status', self.gf('django.db.models.fields.CharField')(max_length=7L, blank=True)),
         ))
-        db.send_create_signal(u'webapp', ['Option'])
+        db.send_create_signal(u'model', ['Option'])
 
         # Adding model 'RepositoryGroup'
         db.create_table(u'repository_group', (
@@ -43,12 +43,12 @@ class Migration(SchemaMigration):
             ('description', self.gf('django.db.models.fields.TextField')()),
             ('active_status', self.gf('django.db.models.fields.CharField')(max_length=7L, blank=True)),
         ))
-        db.send_create_signal(u'webapp', ['RepositoryGroup'])
+        db.send_create_signal(u'model', ['RepositoryGroup'])
 
         # Adding model 'Repository'
         db.create_table(u'repository', (
             ('id', self.gf('django.db.models.fields.IntegerField')(primary_key=True)),
-            ('repository_group', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['webapp.RepositoryGroup'])),
+            ('repository_group', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['model.RepositoryGroup'])),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=50L)),
             ('type', self.gf('django.db.models.fields.CharField')(max_length=25L)),
             ('url', self.gf('django.db.models.fields.CharField')(max_length=255L)),
@@ -58,7 +58,7 @@ class Migration(SchemaMigration):
             ('purpose', self.gf('django.db.models.fields.CharField')(max_length=50L)),
             ('active_status', self.gf('django.db.models.fields.CharField')(max_length=7L, blank=True)),
         ))
-        db.send_create_signal(u'webapp', ['Repository'])
+        db.send_create_signal(u'model', ['Repository'])
 
         # Adding model 'MachinePlatform'
         db.create_table(u'machine_platform', (
@@ -68,7 +68,7 @@ class Migration(SchemaMigration):
             ('architecture', self.gf('django.db.models.fields.CharField')(max_length=25L, blank=True)),
             ('active_status', self.gf('django.db.models.fields.CharField')(max_length=7L, blank=True)),
         ))
-        db.send_create_signal(u'webapp', ['MachinePlatform'])
+        db.send_create_signal(u'model', ['MachinePlatform'])
 
         # Adding model 'Bugscache'
         db.create_table(u'bugscache', (
@@ -81,7 +81,7 @@ class Migration(SchemaMigration):
             ('os', self.gf('django.db.models.fields.CharField')(max_length=64L, blank=True)),
             ('modified', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
         ))
-        db.send_create_signal(u'webapp', ['Bugscache'])
+        db.send_create_signal(u'model', ['Bugscache'])
 
         # Adding model 'Machine'
         db.create_table(u'machine', (
@@ -91,18 +91,18 @@ class Migration(SchemaMigration):
             ('last_timestamp', self.gf('django.db.models.fields.IntegerField')()),
             ('active_status', self.gf('django.db.models.fields.CharField')(max_length=7L, blank=True)),
         ))
-        db.send_create_signal(u'webapp', ['Machine'])
+        db.send_create_signal(u'model', ['Machine'])
 
         # Adding model 'MachineNote'
         db.create_table(u'machine_note', (
             ('id', self.gf('django.db.models.fields.IntegerField')(primary_key=True)),
-            ('machine', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['webapp.Machine'])),
+            ('machine', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['model.Machine'])),
             ('author', self.gf('django.db.models.fields.CharField')(max_length=50L)),
             ('machine_timestamp', self.gf('django.db.models.fields.IntegerField')()),
             ('active_status', self.gf('django.db.models.fields.CharField')(max_length=7L, blank=True)),
             ('note', self.gf('django.db.models.fields.TextField')(blank=True)),
         ))
-        db.send_create_signal(u'webapp', ['MachineNote'])
+        db.send_create_signal(u'model', ['MachineNote'])
 
         # Adding model 'Datasource'
         db.create_table(u'datasource', (
@@ -119,7 +119,7 @@ class Migration(SchemaMigration):
             ('creation_date', self.gf('django.db.models.fields.DateTimeField')()),
             ('cron_batch', self.gf('django.db.models.fields.CharField')(max_length=45L, blank=True)),
         ))
-        db.send_create_signal(u'webapp', ['Datasource'])
+        db.send_create_signal(u'model', ['Datasource'])
 
         # Adding model 'JobGroup'
         db.create_table(u'job_group', (
@@ -129,35 +129,35 @@ class Migration(SchemaMigration):
             ('description', self.gf('django.db.models.fields.TextField')()),
             ('active_status', self.gf('django.db.models.fields.CharField')(max_length=7L, blank=True)),
         ))
-        db.send_create_signal(u'webapp', ['JobGroup'])
+        db.send_create_signal(u'model', ['JobGroup'])
 
         # Adding model 'RepositoryVersion'
         db.create_table(u'repository_version', (
             ('id', self.gf('django.db.models.fields.IntegerField')(primary_key=True)),
-            ('repository', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['webapp.Repository'])),
+            ('repository', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['model.Repository'])),
             ('version', self.gf('django.db.models.fields.CharField')(max_length=50L)),
             ('timestamp', self.gf('django.db.models.fields.IntegerField')()),
             ('active_status', self.gf('django.db.models.fields.CharField')(max_length=7L, blank=True)),
         ))
-        db.send_create_signal(u'webapp', ['RepositoryVersion'])
+        db.send_create_signal(u'model', ['RepositoryVersion'])
 
         # Adding model 'OptionCollection'
         db.create_table(u'option_collection', (
             ('id', self.gf('django.db.models.fields.IntegerField')(primary_key=True)),
-            ('option', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['webapp.Option'])),
+            ('option', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['model.Option'])),
         ))
-        db.send_create_signal(u'webapp', ['OptionCollection'])
+        db.send_create_signal(u'model', ['OptionCollection'])
 
         # Adding model 'JobType'
         db.create_table(u'job_type', (
             ('id', self.gf('django.db.models.fields.IntegerField')(primary_key=True)),
-            ('job_group', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['webapp.JobGroup'], null=True, blank=True)),
+            ('job_group', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['model.JobGroup'], null=True, blank=True)),
             ('symbol', self.gf('django.db.models.fields.CharField')(max_length=10L)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=50L)),
             ('description', self.gf('django.db.models.fields.TextField')()),
             ('active_status', self.gf('django.db.models.fields.CharField')(max_length=7L, blank=True)),
         ))
-        db.send_create_signal(u'webapp', ['JobType'])
+        db.send_create_signal(u'model', ['JobType'])
 
         # Adding model 'FailureClassification'
         db.create_table(u'failure_classification', (
@@ -166,7 +166,7 @@ class Migration(SchemaMigration):
             ('description', self.gf('django.db.models.fields.TextField')()),
             ('active_status', self.gf('django.db.models.fields.CharField')(max_length=7L, blank=True)),
         ))
-        db.send_create_signal(u'webapp', ['FailureClassification'])
+        db.send_create_signal(u'model', ['FailureClassification'])
 
 
     def backwards(self, orm):
@@ -217,7 +217,7 @@ class Migration(SchemaMigration):
 
 
     models = {
-        u'webapp.bugscache': {
+        u'model.bugscache': {
             'Meta': {'object_name': 'Bugscache', 'db_table': "u'bugscache'"},
             'crash_signature': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'id': ('django.db.models.fields.IntegerField', [], {'primary_key': 'True'}),
@@ -228,7 +228,7 @@ class Migration(SchemaMigration):
             'status': ('django.db.models.fields.CharField', [], {'max_length': '64L', 'blank': 'True'}),
             'summary': ('django.db.models.fields.CharField', [], {'max_length': '255L'})
         },
-        u'webapp.buildplatform': {
+        u'model.buildplatform': {
             'Meta': {'object_name': 'BuildPlatform', 'db_table': "u'build_platform'"},
             'active_status': ('django.db.models.fields.CharField', [], {'max_length': '7L', 'blank': 'True'}),
             'architecture': ('django.db.models.fields.CharField', [], {'max_length': '25L', 'blank': 'True'}),
@@ -236,7 +236,7 @@ class Migration(SchemaMigration):
             'os_name': ('django.db.models.fields.CharField', [], {'max_length': '25L'}),
             'platform': ('django.db.models.fields.CharField', [], {'max_length': '25L'})
         },
-        u'webapp.datasource': {
+        u'model.datasource': {
             'Meta': {'object_name': 'Datasource', 'db_table': "u'datasource'"},
             'contenttype': ('django.db.models.fields.CharField', [], {'max_length': '25L'}),
             'creation_date': ('django.db.models.fields.DateTimeField', [], {}),
@@ -251,14 +251,14 @@ class Migration(SchemaMigration):
             'read_only_host': ('django.db.models.fields.CharField', [], {'max_length': '128L', 'blank': 'True'}),
             'type': ('django.db.models.fields.CharField', [], {'max_length': '25L'})
         },
-        u'webapp.failureclassification': {
+        u'model.failureclassification': {
             'Meta': {'object_name': 'FailureClassification', 'db_table': "u'failure_classification'"},
             'active_status': ('django.db.models.fields.CharField', [], {'max_length': '7L', 'blank': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {}),
             'id': ('django.db.models.fields.IntegerField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50L'})
         },
-        u'webapp.jobgroup': {
+        u'model.jobgroup': {
             'Meta': {'object_name': 'JobGroup', 'db_table': "u'job_group'"},
             'active_status': ('django.db.models.fields.CharField', [], {'max_length': '7L', 'blank': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {}),
@@ -266,16 +266,16 @@ class Migration(SchemaMigration):
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50L'}),
             'symbol': ('django.db.models.fields.CharField', [], {'max_length': '10L'})
         },
-        u'webapp.jobtype': {
+        u'model.jobtype': {
             'Meta': {'object_name': 'JobType', 'db_table': "u'job_type'"},
             'active_status': ('django.db.models.fields.CharField', [], {'max_length': '7L', 'blank': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {}),
             'id': ('django.db.models.fields.IntegerField', [], {'primary_key': 'True'}),
-            'job_group': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['webapp.JobGroup']", 'null': 'True', 'blank': 'True'}),
+            'job_group': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['model.JobGroup']", 'null': 'True', 'blank': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50L'}),
             'symbol': ('django.db.models.fields.CharField', [], {'max_length': '10L'})
         },
-        u'webapp.machine': {
+        u'model.machine': {
             'Meta': {'object_name': 'Machine', 'db_table': "u'machine'"},
             'active_status': ('django.db.models.fields.CharField', [], {'max_length': '7L', 'blank': 'True'}),
             'first_timestamp': ('django.db.models.fields.IntegerField', [], {}),
@@ -283,16 +283,16 @@ class Migration(SchemaMigration):
             'last_timestamp': ('django.db.models.fields.IntegerField', [], {}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50L'})
         },
-        u'webapp.machinenote': {
+        u'model.machinenote': {
             'Meta': {'object_name': 'MachineNote', 'db_table': "u'machine_note'"},
             'active_status': ('django.db.models.fields.CharField', [], {'max_length': '7L', 'blank': 'True'}),
             'author': ('django.db.models.fields.CharField', [], {'max_length': '50L'}),
             'id': ('django.db.models.fields.IntegerField', [], {'primary_key': 'True'}),
-            'machine': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['webapp.Machine']"}),
+            'machine': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['model.Machine']"}),
             'machine_timestamp': ('django.db.models.fields.IntegerField', [], {}),
             'note': ('django.db.models.fields.TextField', [], {'blank': 'True'})
         },
-        u'webapp.machineplatform': {
+        u'model.machineplatform': {
             'Meta': {'object_name': 'MachinePlatform', 'db_table': "u'machine_platform'"},
             'active_status': ('django.db.models.fields.CharField', [], {'max_length': '7L', 'blank': 'True'}),
             'architecture': ('django.db.models.fields.CharField', [], {'max_length': '25L', 'blank': 'True'}),
@@ -300,26 +300,26 @@ class Migration(SchemaMigration):
             'os_name': ('django.db.models.fields.CharField', [], {'max_length': '25L'}),
             'platform': ('django.db.models.fields.CharField', [], {'max_length': '25L'})
         },
-        u'webapp.option': {
+        u'model.option': {
             'Meta': {'object_name': 'Option', 'db_table': "u'option'"},
             'active_status': ('django.db.models.fields.CharField', [], {'max_length': '7L', 'blank': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {}),
             'id': ('django.db.models.fields.IntegerField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50L'})
         },
-        u'webapp.optioncollection': {
+        u'model.optioncollection': {
             'Meta': {'object_name': 'OptionCollection', 'db_table': "u'option_collection'"},
             'id': ('django.db.models.fields.IntegerField', [], {'primary_key': 'True'}),
-            'option': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['webapp.Option']"})
+            'option': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['model.Option']"})
         },
-        u'webapp.product': {
+        u'model.product': {
             'Meta': {'object_name': 'Product', 'db_table': "u'product'"},
             'active_status': ('django.db.models.fields.CharField', [], {'max_length': '7L', 'blank': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {}),
             'id': ('django.db.models.fields.IntegerField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50L'})
         },
-        u'webapp.repository': {
+        u'model.repository': {
             'Meta': {'object_name': 'Repository', 'db_table': "u'repository'"},
             'active_status': ('django.db.models.fields.CharField', [], {'max_length': '7L', 'blank': 'True'}),
             'branch': ('django.db.models.fields.CharField', [], {'max_length': '50L', 'blank': 'True'}),
@@ -328,25 +328,25 @@ class Migration(SchemaMigration):
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50L'}),
             'project_name': ('django.db.models.fields.CharField', [], {'max_length': '25L', 'blank': 'True'}),
             'purpose': ('django.db.models.fields.CharField', [], {'max_length': '50L'}),
-            'repository_group': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['webapp.RepositoryGroup']"}),
+            'repository_group': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['model.RepositoryGroup']"}),
             'type': ('django.db.models.fields.CharField', [], {'max_length': '25L'}),
             'url': ('django.db.models.fields.CharField', [], {'max_length': '255L'})
         },
-        u'webapp.repositorygroup': {
+        u'model.repositorygroup': {
             'Meta': {'object_name': 'RepositoryGroup', 'db_table': "u'repository_group'"},
             'active_status': ('django.db.models.fields.CharField', [], {'max_length': '7L', 'blank': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {}),
             'id': ('django.db.models.fields.IntegerField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50L'})
         },
-        u'webapp.repositoryversion': {
+        u'model.repositoryversion': {
             'Meta': {'object_name': 'RepositoryVersion', 'db_table': "u'repository_version'"},
             'active_status': ('django.db.models.fields.CharField', [], {'max_length': '7L', 'blank': 'True'}),
             'id': ('django.db.models.fields.IntegerField', [], {'primary_key': 'True'}),
-            'repository': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['webapp.Repository']"}),
+            'repository': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['model.Repository']"}),
             'timestamp': ('django.db.models.fields.IntegerField', [], {}),
             'version': ('django.db.models.fields.CharField', [], {'max_length': '50L'})
         }
     }
 
-    complete_apps = ['webapp']
+    complete_apps = ['model']
