@@ -36,10 +36,12 @@ class python {
         require => [
             Package['python-pip'],
             Package['git'],
+            Package['python2.7-dev'],
             Exec['update-distribute'],
             Exec['create-virtualenv'],
         ],
         user => "vagrant",
+        logoutput => "on_failure",
     }
 
     exec {"activate-venv-on-login":
