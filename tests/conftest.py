@@ -16,8 +16,6 @@ Set DJANGO_SETTINGS_MODULE and sets up a test database.
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "treeherder.settings")
     from django.conf import settings
     from django.test.simple import DjangoTestSuiteRunner
-    from treeherder.model.models import Datasource
-    from django.core.cache import cache
 
     # we don't actually let Django run the tests, but we need to use some
     # methods of its runner for setup/teardown of dbs and some other things
