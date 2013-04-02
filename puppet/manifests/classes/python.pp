@@ -1,7 +1,7 @@
 # Install python and compiled modules for project
 class python {
     package {
-        ["python2.7-dev", "python2.7", "python-pip", "python-virtualenv"]:
+        ["python2.7-dev", "python2.7", "python-pip", "python-virtualenv", "git"]:
             ensure => installed;
     }
 
@@ -29,16 +29,19 @@ class python {
         require => Exec["create-virtualenv"],
     }
 
-    exec { "pip-install-compiled":
+    exec { "pip-install-requirements":
         command => "/home/vagrant/venv/bin/pip install \
         -r $PROJ_DIR/requirements/compiled.txt -r $PROJ_DIR/requirements/dev.txt \
         -r $PROJ_DIR/requirements/pure.txt",
         require => [
             Package['python-pip'],
+            Package['git'],
+            Package['python2.7-dev'],
             Exec['update-distribute'],
             Exec['create-virtualenv'],
         ],
         user => "vagrant",
+        logoutput => "on_failure",
     }
 
     exec {"activate-venv-on-login":

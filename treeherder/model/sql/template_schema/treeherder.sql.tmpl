@@ -80,7 +80,6 @@ CREATE TABLE `datasource` (
   `oauth_consumer_key` varchar(45) COLLATE utf8_bin DEFAULT NULL,
   `oauth_consumer_secret` varchar(45) COLLATE utf8_bin DEFAULT NULL,
   `creation_date` datetime NOT NULL,
-  `cron_batch` varchar(45) COLLATE utf8_bin DEFAULT 'small',
   PRIMARY KEY (`id`),
   UNIQUE KEY `project` (`project`,`dataset`,`contenttype`)
 ) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
