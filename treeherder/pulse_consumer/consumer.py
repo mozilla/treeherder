@@ -1,5 +1,6 @@
 import json
 import re
+import time
 import hashlib
 
 from multiprocessing import Process, Queue
@@ -28,7 +29,7 @@ PLATFORMS_BUILDERNAME = {
         'attributes': {
             'os': 'linux',
             'os_platform': 'gecko',
-            'arch': 'armv7a',
+            'arch': 'ARMv7',
             'vm': False
             }
         },
@@ -282,9 +283,8 @@ PLATFORMS_BUILDERNAME = {
 
         'attributes': {
             'os': 'android',
-            #not sure about this one
-            'os_platform': '?',
-            'arch': 'Armv6',
+            'os_platform': '2.2',
+            'arch': 'ARMv7',
             'vm': False
             }
         },
@@ -330,25 +330,6 @@ JOB_TYPE_BUILDERNAME = {
     'repack': [re.compile('.+ l10n .+')],
 }
 
-SOURCESTAMPS_BRANCH = {
-    'l10n-central': [re.compile('^l10n-central.*')],
-    'birch': [re.compile('^birch.+'), re.compile('^projects/birch.*')],
-    'cedar': [re.compile('^cedar.+'), re.compile('^projects/cedar.*')],
-    'electrolysis': [
-        re.compile('^electrolysis.*'),
-        re.compile('^projects/electrolysis.*')],
-    'jaegermonkey': [re.compile('^projects/jaegermonkey.*')],
-    'maple': [re.compile('^maple.*'), re.compile('^projects/maple.*')],
-    'mozilla-1.9.1': [re.compile('.*mozilla-1\.9\.1.*')],
-    'mozilla-1.9.2': [re.compile('.*mozilla-1\.9\.2.*')],
-    'mozilla-2.0': [re.compile('.*mozilla-2\.0.*')],
-    'mozilla-central': [re.compile('^mozilla-central.*')],
-    'places': [re.compile('^places.+'), re.compile('^projects/places.*')],
-    'nanojit-central': [re.compile('.*nanojit-central.*')],
-    'tracemonkey': [re.compile('^tracemonkey.*')],
-    'try': [re.compile('^try$'), re.compile('^tryserver.*')],
-}
-
 class PulseDataAdapter(object):
 
     def __init__(self, logdir='logs'):
@@ -385,7 +366,9 @@ class PulseDataAdapter(object):
                 '_meta': {
                     'processor':self.process_raw_data_dict,
                     'attr_table':[
-                            { 'attr':'routing_key', 'cb':self.get_routing_key_data }
+                            { 'attr':'routing_key',
+                              'cb':self.get_routing_key_data
+                                }
                         ]
                     },
                 'payload.build': {
@@ -413,7 +396,9 @@ class PulseDataAdapter(object):
                         { 'attr':'platform' },
                         { 'attr':'buildid' },
                         { 'attr':'log_url' },
-                        { 'attr':'buildername', 'cb':self.get_buildername_data },
+                        { 'attr':'buildername',
+                            'cb':self.get_buildername_data
+                            },
                         { 'attr':'slavename' },
                         { 'attr':'request_ids' },
                         { 'attr':'request_times' },
@@ -478,7 +463,7 @@ class PulseDataAdapter(object):
             #attributes being populated
             data = self.adapt_data(data)
 
-        print data
+            print data
 
         return data
 
@@ -632,7 +617,11 @@ class TreeherderDataAdapter(PulseDataAdapter):
 
         treeherder_data = {
             'sources': { },
-            'revision_hash': self.get_revision_hash([data['revision']]),
+            #Include branch so revision hash with the same revision is still
+            #unique across branches
+            'revision_hash': self.get_revision_hash(
+                [ data['revision'], data['branch'] ]
+                ),
             'jobs': []
             }
 
@@ -659,8 +648,8 @@ class TreeherderDataAdapter(PulseDataAdapter):
             'start_timestamp': data['buildid'],
 
             #where do we find this, is it when the routing key has
-            #'.finished' in it?
-            'end_timestamp': '',
+            #'.finished' in it? For now populate with time()
+            'end_timestamp': str( time.time() ).split('.')[0],
             'machine': data['slave'],
 
             'build_platform': {
@@ -761,7 +750,8 @@ class JobData(dict):
 
         return value
 
-tda = TreeherderDataAdapter(logdir='logs')
+
+tda = TreeherderDataAdapter()
 
 def got_message(raw_data, message):
 
