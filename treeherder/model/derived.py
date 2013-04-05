@@ -99,13 +99,13 @@ class JobsModel(object):
     def store_job_data(self, json_data, error=None):
         """Write the JSON to the objectstore to be queued for processing."""
 
-        date_loaded = utils.get_now_timestamp()
-        error_flag = "N" if error is None else "Y"
+        loaded_timestamp = utils.get_now_timestamp()
+        error = "N" if error is None else "Y"
         error_msg = error or ""
 
         self.sources[self.CT_OBJECTSTORE].dhub.execute(
             proc='objectstore.inserts.store_json',
-            placeholders=[date_loaded, json_data, error_flag, error_msg],
+            placeholders=[loaded_timestamp, json_data, error, error_msg],
             debug_show=self.DEBUG
         )
 
@@ -197,7 +197,8 @@ class JobsModel(object):
         machine_id = self._get_or_create_machine_id(data, os_id)
 
         # Insert build and test_run data.
-        build_id = self._get_or_create_build_id(data, product_id)
+        job_guid = self._get_or_create_build_id(data, product_id)
+
 
         test_run_id = self._set_test_run_data(
             data,
@@ -302,11 +303,11 @@ class JobsModel(object):
         return json_blobs
 
 
-    def mark_object_complete(self, object_id, test_run_id):
+    def mark_object_complete(self, object_id, job_id):
         """ Call to database to mark the task completed """
         self.sources[self.CT_OBJECTSTORE].dhub.execute(
             proc="objectstore.updates.mark_complete",
-            placeholders=[test_run_id, object_id],
+            placeholders=[job_id, object_id],
             debug_show=self.DEBUG
         )
 

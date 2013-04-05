@@ -2,9 +2,9 @@
     "inserts":{
         "store_json":{
 
-            "sql":"INSERT INTO  `objectstore` (`date_loaded`,
+            "sql":"INSERT INTO  `objectstore` (`date_timestamp`,
                                                `json_blob`,
-                                               `error_flag`,
+                                               `error`,
                                                `error_msg`)
                    VALUES       (?, ?, ?, ?)
                   ",
@@ -19,8 +19,8 @@
             "sql":"SELECT   `json_blob`, `id`
                    FROM     `objectstore`
                    WHERE    `worker_id` = CONNECTION_ID()
-                   AND      `processed_flag` = 'loading'
-                   AND      `error_flag` = 'N'",
+                   AND      `processed_state` = 'loading'
+                   AND      `error` = 'N'",
 
             "host":"master_host"
         },
@@ -29,8 +29,8 @@
 
             "sql":"SELECT   `json_blob`, `id`
                    FROM     `objectstore`
-                   WHERE    `processed_flag` = 'ready'
-                   AND      `error_flag` = 'N'
+                   WHERE    `processed_state` = 'ready'
+                   AND      `error` = 'N'
                    LIMIT ?",
 
             "host":"master_host"
@@ -40,18 +40,18 @@
 
             "sql":"SELECT   `json_blob`, `id`
                 FROM     `objectstore`
-                WHERE    `error_flag` = 'Y'
-                AND date_loaded BETWEEN ? AND ?",
+                WHERE    `error` = 'Y'
+                AND loaded_timestamp BETWEEN ? AND ?",
 
             "host":"read_host"
         },
 
         "get_error_metadata":{
 
-            "sql":"SELECT   `id`, test_run_id, date_loaded, processed_flag, error_msg, worker_id
+            "sql":"SELECT   `id`, job_id, loaded_timestamp, processed_state, error_msg, worker_id
                 FROM     `objectstore`
-                WHERE    `error_flag` = 'Y'
-                AND date_loaded BETWEEN ? AND ?",
+                WHERE    `error` = 'Y'
+                AND loaded_timestamp BETWEEN ? AND ?",
 
             "host":"read_host"
         },
@@ -60,10 +60,10 @@
 
             "sql":"SELECT json_blob,
                           error_msg,
-                          error_flag,
-                          processed_flag,
-                          date_loaded,
-                          test_run_id
+                          error,
+                          processed_state,
+                          loaded_timestamp,
+                          job_id
                    FROM `objectstore` WHERE `id` = ?",
 
             "host":"read_host"
@@ -71,9 +71,9 @@
 
         "get_json_blob_for_test_run":{
 
-            "sql":"SELECT json_blob, error_msg, error_flag
+            "sql":"SELECT json_blob, error_msg, error
                    FROM `objectstore`
-                   WHERE `test_run_id` IN (REP0)",
+                   WHERE `job_id` IN (REP0)",
 
             "host":"read_host"
         },
@@ -87,8 +87,8 @@
                     ELSE 'Other'
                 END) AS message, count(id) AS count
                 FROM `objectstore`
-                WHERE `error_flag` = 'Y'
-                AND date_loaded BETWEEN REP0 AND REP1
+                WHERE `error` = 'Y'
+                AND loaded_timestamp BETWEEN REP0 AND REP1
                 GROUP BY message",
 
             "host":"read_host"
@@ -100,10 +100,10 @@
         "mark_loading":{
 
             "sql":"UPDATE `objectstore`
-                   SET    `processed_flag` = 'loading',
+                   SET    `processed_state` = 'loading',
                           `worker_id` = CONNECTION_ID()
-                   WHERE  `processed_flag` = 'ready'
-                   AND    `error_flag` = 'N'
+                   WHERE  `processed_state` = 'ready'
+                   AND    `error` = 'N'
                    ORDER BY `id`
                    LIMIT ?
                   ",
@@ -115,8 +115,8 @@
         "mark_complete":{
 
             "sql":"UPDATE   `objectstore`
-                   SET      `processed_flag` = 'complete', `test_run_id` = ?
-                   WHERE    `processed_flag` = 'loading'
+                   SET      `processed_state` = 'complete', `job_id` = ?
+                   WHERE    `processed_state` = 'loading'
                    AND      `id` = ?
                    AND      `worker_id` = CONNECTION_ID()
                   ",
@@ -128,11 +128,11 @@
         "mark_error":{
 
             "sql":"UPDATE   `objectstore`
-                   SET      `processed_flag` = 'ready',
+                   SET      `processed_state` = 'ready',
                             `worker_id` = NULL,
-                            `error_flag` = 'Y',
+                            `error` = 'Y',
                             `error_msg` = ?
-                   WHERE    `processed_flag` = 'loading'
+                   WHERE    `processed_state` = 'loading'
                    AND      `id` = ?
                    AND      `worker_id` = CONNECTION_ID()
                   ",
