@@ -2,9 +2,10 @@ import json
 import re
 import time
 import hashlib
+import socket
 
+from django.conf import settings
 from multiprocessing import Process, Queue
-
 from mozillapulse import consumers
 
 ####
@@ -332,9 +333,11 @@ JOB_TYPE_BUILDERNAME = {
 
 class PulseDataAdapter(object):
 
-    def __init__(self, logdir='logs'):
+    def __init__(self, context='dataadapter', logdir='logs'):
 
         self.data = {}
+        self.logdir = logdir
+        self.context = context
 
         """
             data_attributes description
@@ -429,10 +432,35 @@ class PulseDataAdapter(object):
         #    r'[schedulers|tag|submitter|final_verification|fuzzer|source|repack|jetpack|finished]'
         #    )
 
-    def process_data(self, raw_data):
+        #set pulse consumer labels
+        app_label_base = 'pulse-{0}-consumer-{1}-{2}'
+
+        self.buildapp_label = app_label_base.format(
+            'build', self.context, socket.gethostname()
+            )
+
+        #initialize consumers
+        self.pulse = consumers.BuildConsumer(
+            applabel=self.buildapp_label
+            )
+
+        #configure consumers
+        self.pulse.configure(
+            topic=['#.finished', '#.log_uploaded'],
+            callback=self.process_data,
+            durable=settings.TREEHERDER_PULSE_DURABLE
+            )
+
+    def start(self):
+
+        self.pulse.listen()
+
+    def process_data(self, raw_data, message):
         """Process the raw data from the pulse stream using the
            processor and attributes specified in the data_attributes
            structure."""
+
+        message.ack()
 
         data = {}
 
@@ -513,7 +541,7 @@ class PulseDataAdapter(object):
         """Execute any required post processing steps and return the
            updated data structure. This is an interface function for 
            derived classes to use to adapt the data in different ways."""
-        return data
+        return JobData(data)
 
     def get_buildername_data(self, attr, value, data):
 
@@ -589,7 +617,8 @@ class PulseDataAdapter(object):
 class TreeherderDataAdapter(PulseDataAdapter):
 
     def __init__(self, logdir='logs'):
-        super(TreeherderDataAdapter, self).__init__()
+        super(TreeherderDataAdapter, self).__init__(
+            logdir=logdir, context='treeherder')
 
     def get_revision_hash(self, revisions):
 
@@ -752,17 +781,4 @@ class JobData(dict):
 
 
 tda = TreeherderDataAdapter()
-
-def got_message(raw_data, message):
-
-    message.ack()
-
-    data = tda.process_data(raw_data)
-
-build_pulse = consumers.BuildConsumer(applabel='jeads@mozilla.com|buildwatcher')
-build_pulse.configure(topic=['#.finished', '#.log_uploaded'], callback=got_message)
-build_pulse.listen()
-
-test_pulse = consumers.TestConsumer(applabel='jeads@mozilla.com|testwatcher')
-test_pulse.configure(topic='#', callback=got_message)
-test_pulse.listen()
+tda.start()

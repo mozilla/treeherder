@@ -1,5 +1,5 @@
 from django.contrib import admin
-from treeherder.webapp.models import *
+from treeherder.model.models import *
 
 admin.site.register(Product)
 admin.site.register(BuildPlatform)
