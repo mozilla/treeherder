@@ -135,7 +135,9 @@ class JobsModel(object):
 
     def load_job_data(self, data):
         """
-        Load JobData instance into jobs db, return test_run_id.
+        Load JobData instance into jobs db, return job_id.
+
+        @@@: should I return the job_guid instead?
 
         Example:
         {
@@ -186,35 +188,87 @@ class JobsModel(object):
 
         """
 
-        # Apply all platform specific hacks to account for mozilla
-        # production test environment problems
-        # self._adapt_production_data(data)
-
         # Get/Set reference info, all inserts use ON DUPLICATE KEY
-        test_id = self._get_or_create_test_id(data)
-        os_id = self._get_or_create_os_id(data)
+        build_platform_id = self._get_or_create_build_platform_id(data)
+        machine_platform_id = self._get_or_create_machine_platform_id(data)
+        machine_id = self._get_or_create_machine_id(data)
+        option_collection_id = self._get_or_create_option_collection_id(data)
+        job_type_id = self._get_or_create_job_type_id(data)
         product_id = self._get_or_create_product_id(data)
-        machine_id = self._get_or_create_machine_id(data, os_id)
 
-        # Insert build and test_run data.
-        job_guid = self._get_or_create_build_id(data, product_id)
+        # Insert job data.
+        result_set_id = self._set_result_set(data)
 
-
-        test_run_id = self._set_test_run_data(
+        job_id = self._set_job_data(
             data,
-            test_id,
-            build_id,
-            machine_id
+            result_set_id,
+            build_platform_id,
+            machine_platform_id,
+            machine_id,
+            option_collection_id,
+            job_type_id,
+            product_id,
         )
 
-        self._set_option_data(data, test_run_id)
-        self._set_test_values(data, test_id, test_run_id)
-        self._set_test_aux_data(data, test_id, test_run_id)
+        return job_id
 
-        # Make project specific changes
-        self._adapt_project_specific_data(data, test_run_id)
+
+    def _set_job_data(
+        self,
+        data,
+        result_set_id,
+        build_platform_id,
+        machine_platform_id,
+        machine_id,
+        option_collection_id,
+        job_type_id,
+        product_id,
+        ):
+        """Inserts job data into the db and returns test_run id."""
+
+        try:
+            run_date = int(data['testrun']['date'])
+        except ValueError:
+            raise JobDataError(
+                "Bad value: ['testrun']['date'] is not an integer.")
+
+        test_run_id = self._insert_data_and_get_id(
+            'set_test_run_data',
+            [
+                test_id,
+                build_id,
+                machine_id,
+                # denormalization; avoid join to build table to get revision
+                data['test_build']['revision'],
+                run_date,
+            ]
+        )
 
         return test_run_id
+
+
+    def _insert_data(self, statement, placeholders, executemany=False):
+        self.sources["perftest"].dhub.execute(
+            proc='perftest.inserts.' + statement,
+            debug_show=self.DEBUG,
+            placeholders=placeholders,
+            executemany=executemany,
+        )
+
+
+    def _insert_data_and_get_id(self, statement, placeholders):
+        """Execute given insert statement, returning inserted ID."""
+        self._insert_data(statement, placeholders)
+        return self._get_last_insert_id()
+
+
+    def _get_last_insert_id(self, source="perftest"):
+        """Return last-inserted ID."""
+        return self.sources[source].dhub.execute(
+            proc='generic.selects.get_last_insert_id',
+            debug_show=self.DEBUG,
+            return_type='iter',
+        ).get_column_data('id')
 
 
     def process_objects(self, loadlimit):
