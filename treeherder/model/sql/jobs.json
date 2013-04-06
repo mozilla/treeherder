@@ -30,16 +30,27 @@
         }
     },
     "inserts":{
-        "set_test_ref_data":{
+        "set_job_data":{
 
-            "sql":"INSERT INTO `test` (`name`, `version`)
-                SELECT ?, ?
-                FROM DUAL
-                WHERE NOT EXISTS (
-                    SELECT `name`, `version`
-                    FROM `test`
-                    WHERE `name` = ? AND `version` = ?
-                )",
+            "sql":"INSERT INTO `job` (
+                `job_guid`,
+                `job_coalesced_to_guid`,
+                `result_set_id`,
+                `build_platform_id`,
+                `machine_platform_id`,
+                `machine_id`,
+                `option_collection_id`,
+                `job_type_id`,
+                `product_id`,
+                `who`,
+                `reason`,
+                `result`,
+                `state`,
+                `submit_timestamp`,
+                `start_timestamp`,
+                `end_timestamp`,
+                `active_status`)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
 
           "host":"master_host"
         }

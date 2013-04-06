@@ -189,6 +189,9 @@ class JobsModel(object):
         """
 
         # Get/Set reference info, all inserts use ON DUPLICATE KEY
+
+        # @@@ tempted to coalesce these ids into a dict to pass to _set_job_data...
+
         build_platform_id = self._get_or_create_build_platform_id(data)
         machine_platform_id = self._get_or_create_machine_platform_id(data)
         machine_id = self._get_or_create_machine_id(data)
@@ -213,38 +216,55 @@ class JobsModel(object):
         return job_id
 
 
-    def _set_job_data(
-        self,
-        data,
-        result_set_id,
-        build_platform_id,
-        machine_platform_id,
-        machine_id,
-        option_collection_id,
-        job_type_id,
-        product_id,
-        ):
+    def _set_job_data(self, data, result_set_id, build_platform_id,
+                      machine_platform_id, machine_id, option_collection_id,
+                      job_type_id, product_id):
         """Inserts job data into the db and returns test_run id."""
 
+        # @@@  IN PROGRESS!  ALL WRONG!  RECORDED WITH DUBLY!
+
+
         try:
-            run_date = int(data['testrun']['date'])
+            job_guid = data["job_guid"]
+
+            # not sure about this one
+            job_coalesced_to_guid = ""
+
+            who = data["who"]
+            reason = data["reason"]
+            result = int(data["result"])
+            state = data["state"]
+            submit_timestamp = data["submit_timestamp"]
+            start_timestamp = data["start_timestamp"]
+            end_timestamp = data["end_timestamp"]
+
         except ValueError:
             raise JobDataError(
-                "Bad value: ['testrun']['date'] is not an integer.")
+                "Return meaningful error here; not this rubbish.")
 
-        test_run_id = self._insert_data_and_get_id(
-            'set_test_run_data',
+        job_id = self._insert_data_and_get_id(
+            'set_job_data',
             [
-                test_id,
-                build_id,
+                job_guid,
+                job_coalesced_to_guid,
+                result_set_id,
+                build_platform_id,
+                machine_platform_id,
                 machine_id,
-                # denormalization; avoid join to build table to get revision
-                data['test_build']['revision'],
-                run_date,
+                option_collection_id,
+                job_type_id,
+                product_id,
+                who,
+                reason,
+                result,
+                state,
+                submit_timestamp,
+                start_timestamp,
+                end_timestamp,
             ]
         )
 
-        return test_run_id
+        return job_id
 
 
     def _insert_data(self, statement, placeholders, executemany=False):
