@@ -1,12 +1,15 @@
 import json
 import re
 import time
+import sys
 import hashlib
 import socket
+import signal
 
 from django.conf import settings
 from multiprocessing import Process, Queue
 from mozillapulse import consumers
+from treeherder.pulse_consumer.daemon import Daemon
 
 ####
 #
@@ -333,11 +336,30 @@ JOB_TYPE_BUILDERNAME = {
 
 class PulseDataAdapter(object):
 
-    def __init__(self, context='dataadapter', logdir='logs'):
+    def __init__(
+        self, rawdata=None, outfile=None, durable=False,
+        context='dataadapter', logdir='logs'):
 
         self.data = {}
         self.logdir = logdir
         self.context = context
+        self.durable = durable
+        self.rawdata = rawdata
+
+        #Set the output stream to write to
+        self.outstream = None
+
+        if outfile:
+            if outfile == 'stdout':
+                outfile = sys.stdout
+            else:
+                outfile = open(outfile, 'w')
+
+            self.outstream = outfile
+
+        #Setup signal handler
+        signal.signal(signal.SIGINT, self.signal_handler)
+        signal.signal(signal.SIGTERM, self.signal_handler)
 
         """
             data_attributes description
@@ -448,12 +470,20 @@ class PulseDataAdapter(object):
         self.pulse.configure(
             topic=['#.finished', '#.log_uploaded'],
             callback=self.process_data,
-            durable=settings.TREEHERDER_PULSE_DURABLE
+            durable=self.durable
             )
 
     def start(self):
 
         self.pulse.listen()
+
+    def signal_handler(self, signal, frame):
+
+        #close outstream if we have one
+        if self.outstream:
+            self.outstream.close()
+
+        sys.exit(0)
 
     def process_data(self, raw_data, message):
         """Process the raw data from the pulse stream using the
@@ -491,7 +521,13 @@ class PulseDataAdapter(object):
             #attributes being populated
             data = self.adapt_data(data)
 
-            print data
+            if self.outstream:
+                self.outstream.write(str(data) + "\n")
+                self.outstream.flush()
+
+                if self.rawdata:
+                    self.outstream.write(str(raw_data) + "\n")
+                    self.outstream.flush()
 
         return data
 
@@ -616,9 +652,9 @@ class PulseDataAdapter(object):
 
 class TreeherderDataAdapter(PulseDataAdapter):
 
-    def __init__(self, logdir='logs'):
-        super(TreeherderDataAdapter, self).__init__(
-            logdir=logdir, context='treeherder')
+    def __init__(self, **kwargs):
+
+        super(TreeherderDataAdapter, self).__init__(**kwargs)
 
     def get_revision_hash(self, revisions):
 
@@ -779,6 +815,28 @@ class JobData(dict):
 
         return value
 
+class TreeherderPulseDaemon(Daemon):
 
-tda = TreeherderDataAdapter()
-tda.start()
+    def __init__(
+        self,
+        pidfile,
+        treeherder_data_adapter=TreeherderDataAdapter(
+            durable=False,
+            logdir='logs',
+            rawdata=False,
+            outfile=None
+            ),
+        stdin='/dev/null',
+        stdout='/dev/null',
+        stderr='/dev/null'):
+
+        self.tda = treeherder_data_adapter
+
+        super(TreeherderPulseDaemon, self).__init__(
+            pidfile, stdin='/dev/null', stdout='/dev/null',
+            stderr='/dev/null')
+
+    def run(self):
+
+        self.tda.start()
+
