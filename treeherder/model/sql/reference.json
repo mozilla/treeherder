@@ -1,0 +1,56 @@
+{
+    "inserts":{
+        "create_build_platform":{
+            "sql":"INSERT INTO `build_platform` (`os_name`, `platform`, `architecture`, `active_status`)
+                   VALUES (?, ?, ?, ?)",
+            "host":"master_host"
+        },
+
+        "create_job_type" : {
+            "sql":"INSERT INTO `job_type` (`job_group_id`, `symbol`, `name`, `description`,`active_status`)
+                   VALUES (?, ?, ?, ?, ?)",
+        },
+
+        "create_machine" : {
+            "sql":"INSERT INTO `machine` (`name`, `first_timestamp`, `last_timestamp`, `active_status`)
+                   VALUES (?, ?, ?, ?)",
+        },
+
+        "create_machine_platform":{
+            "sql":"INSERT INTO `machine_platform` (`os_name`, `platform`, `architecture`, `active_status`)
+                   VALUES (?, ?, ?, ?)",
+            "host":"master_host"
+        },
+
+        "create_option":{
+            "sql":"INSERT INTO `option` (`name`, `description`, `active_status`)
+                   VALUES (?, ?, ?)",
+            "host":"master_host"
+        },
+
+        "create_option_collection":{
+            "sql":"INSERT INTO `option_collection` (`option_collection_id`, `option_id`)
+                   VALUES (?, ?)",
+            "host":"master_host"
+        },
+
+        "create_product":{
+            "sql":"INSERT INTO `product` (`name`, `description`, `active_status`)
+                   VALUES (?, ?, ?)",
+            "host":"master_host"
+        },
+
+        "create_repository_version":{
+            "sql":"INSERT INTO `repository_version` (`repository_id`, `version`, `version_timestamp`, `active_status`)
+                   VALUES (?, ?, ?, ?)",
+            "host":"master_host"
+        },
+    },
+    "selects":{
+        "get_last_insert_id":{
+            "sql":"SELECT LAST_INSERT_ID() AS 'id'",
+            "host":"master_host"
+        }
+    }
+}
+
