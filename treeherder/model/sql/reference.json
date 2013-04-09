@@ -1,55 +1,149 @@
 {
     "inserts":{
         "create_build_platform":{
-            "sql":"INSERT INTO `build_platform` (`os_name`, `platform`, `architecture`, `active_status`)
-                   VALUES (?, ?, ?, ?)",
+            "sql": "INSERT INTO `build_platform` (`os_name`, `platform`, `architecture`, `active_status`)
+                    SELECT ?, ?, ?, ?
+                    FROM DUAL
+                    WHERE NOT EXISTS (
+                    SELECT `os_name`, `platform`, `architecture`
+                    FROM `build_platform`
+                    WHERE `os_name` = ? AND `platform` = ? AND `architecture` = ?
+                    )",
             "host":"master_host"
         },
 
         "create_job_type" : {
-            "sql":"INSERT INTO `job_type` (`job_group_id`, `symbol`, `name`, `description`,`active_status`)
-                   VALUES (?, ?, ?, ?, ?)",
+            "sql": "INSERT INTO `job_type` (`job_group_id`, `symbol`, `name`, `description`,`active_status`)
+                    SELECT ?, ?, ?, ?, ?
+                    FROM DUAL
+                    WHERE NOT EXISTS (
+                    SELECT `job_group_id`, `symbol`, `name`
+                    FROM job_type
+                    WHERE `job_group_id` = ? AND `symbol` = ? AND `name` = ?
+                    )",
+            "host":"master_host"
         },
 
         "create_machine" : {
-            "sql":"INSERT INTO `machine` (`name`, `first_timestamp`, `last_timestamp`, `active_status`)
-                   VALUES (?, ?, ?, ?)",
+            "sql": "INSERT INTO `machine` (`name`, `operating_system_id`, `date_added`)
+                    SELECT ?, ?, ?
+                    FROM DUAL
+                    WHERE NOT EXISTS (
+                    SELECT `name`
+                    FROM `machine`
+                    WHERE `name` = ?
+                    )",
+            "host":"master_host"
         },
 
         "create_machine_platform":{
-            "sql":"INSERT INTO `machine_platform` (`os_name`, `platform`, `architecture`, `active_status`)
-                   VALUES (?, ?, ?, ?)",
+            "sql": "INSERT INTO `machine_platform` (`os_name`, `platform`, `architecture`, `active_status`)
+                    SELECT ?, ?, ?, ?
+                    FROM DUAL
+                    WHERE NOT EXISTS (
+                    SELECT `os_name`, `platform`, `architecture`
+                    FROM `machine_platform`
+                    WEHRE `os_name` = ? AND platform` = ? AND architecture` = ?
+                    )",
             "host":"master_host"
         },
 
         "create_option":{
             "sql":"INSERT INTO `option` (`name`, `description`, `active_status`)
-                   VALUES (?, ?, ?)",
+                   SELECT ?, ?, ?, ?
+                    FROM DUAL
+                    WHERE NOT EXISTS (
+                    SELECT `name`
+                    FROM `option`
+                    WHERE `name` = ?
+                    )",
             "host":"master_host"
         },
 
         "create_option_collection":{
-            "sql":"INSERT INTO `option_collection` (`option_collection_id`, `option_id`)
-                   VALUES (?, ?)",
+            "sql": "INSERT INTO `option_collection` (`option_collection_id`, `option_id`)
+                    SELECT ?, ?
+                    FROM DUAL
+                    WHERE NOT EXISTS(
+                    SELECT `option_collection_id`, `option_id`
+                    FROM `option_collection`
+                    WHERE `option_collection_id` = ? AND `option_id` = ?
+                    )",
             "host":"master_host"
         },
 
         "create_product":{
-            "sql":"INSERT INTO `product` (`name`, `description`, `active_status`)
-                   VALUES (?, ?, ?)",
+            "sql": "INSERT INTO `product` (`name`, `description`, `active_status`)
+                    SELECT ?, ?, ?
+                    FROM DUAL
+                    WHERE NOT EXISTS (
+                    SELECT `name`
+                    FROM `product`
+                    WHERE `name = ?
+                    )",
             "host":"master_host"
         },
 
         "create_repository_version":{
-            "sql":"INSERT INTO `repository_version` (`repository_id`, `version`, `version_timestamp`, `active_status`)
-                   VALUES (?, ?, ?, ?)",
+            "sql": "INSERT INTO `repository_version` (`repository_id`, `version`, `version_timestamp`, `active_status`)
+                    SELECT ?, ?, ?, ?
+                    FROM DUAL
+                    WHERE NOT EXISTS(
+                    SELECT `repository_id`, `version`
+                    FROM `repository_version`
+                    WHERE `repository_id` = ? AND `version` = ?
+                    )",
             "host":"master_host"
         },
     },
     "selects":{
-        "get_last_insert_id":{
-            "sql":"SELECT LAST_INSERT_ID() AS 'id'",
-            "host":"master_host"
+        "get_build_platform_id":{
+            "sql": "SELECT `id`
+                    FROM `build_platform`
+                    WHERE `os_name` = ? AND `platform` = ? AND `architecture` = ?",
+            "host":"read_host"
+        },
+        "get_job_type_id":{
+            "sql": "SELECT `id`
+                    FROM `job_type`
+                    WHERE `job_group_id` = ? AND `symbol` = ? AND `name` = ?",
+            "host":"read_host"
+        },
+        "get_machine_id":{
+            "sql": "SELECT `id`
+                    FROM `machine`
+                    WHERE `name` = ?",
+            "host":"read_host"
+        },
+        "get_machine_platform_id":{
+            "sql": "SELECT `id`
+                    FROM `machine_platform`
+                    WHERE `os_name` = ? AND platform` = ? AND architecture` = ?",
+            "host":"read_host"
+        },
+        "get_option_id":{
+            "sql": "SELECT `id`
+                    FROM `option`
+                    WHERE `name` = ?",
+            "host":"read_host"
+        },
+        "get_option_collection_id":{
+            "sql": "SELECT `id`
+                    FROM `option_collection`
+                    WHERE `option_collection_id` = ? AND `option_id` = ?",
+            "host":"read_host"
+        },
+        "get_product_id":{
+            "sql": "SELECT `id`
+                    FROM `product`
+                    WHERE `name = ?",
+            "host":"read_host"
+        },
+        "get_repository_version_id":{
+            "sql": "SELECT `id`
+                    FROM `repository_version`
+                    WHERE `repository_id` = ? AND `version` = ?",
+            "host":"read_host"
         }
     }
 }
