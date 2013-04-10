@@ -3,22 +3,8 @@
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 def analyze(data):
     n = len(data)
-    if n > 1:
-        m = data[0]
-        s = 0.0
-        for i in range(1, int(n)):
-            di = data[i]
-            m0 = m
-            m += (di-m0)/(i+1)
-            s += (di-m0) * (di - m)
-        variance = s / (n-1)
-        avg = m
-    else:
-        if n == 0:
-            avg = 0.0
-        else:
-            avg = data[0]
-        variance = 0.0
+    avg = (sum(data) / n) if n > 0 else 0.0
+    variance = (sum(pow(d-avg, 2) for d in data) / (n-1)) if n > 1 else 0.0
     return {"avg": avg, "n": n, "variance": variance}
 
 
@@ -82,9 +68,6 @@ class TalosAnalyzer:
         # List of PerfDatum instances
         self.data = []
         self.machine_history = {}
-
-        # Cache of calm points
-        self.zenPoints = {}
 
     def addData(self, data):
         self.data.extend(data)
