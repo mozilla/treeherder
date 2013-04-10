@@ -14,11 +14,14 @@ def calc_t(w1, w2):
 
     s1 = analyze(w1)
     s2 = analyze(w2)
+    delta_s = s2['avg'] - s1['avg']
 
-    if s1['variance'] == 0 and s2['variance'] == 0:
+    if delta_s == 0:
         return 0
+    if s1['variance'] == 0 and s2['variance'] == 0:
+        return float('inf')
 
-    return (s2['avg'] - s1['avg']) / (((s1['variance'] / s1['n']) + (s2['variance'] / s2['n'])) ** 0.5)
+    return delta_s / (((s1['variance'] / s1['n']) + (s2['variance'] / s2['n'])) ** 0.5)
 
 class PerfDatum(object):
     __slots__ = ('testrun_id', 'machine_id', 'timestamp', 'value', 'buildid',

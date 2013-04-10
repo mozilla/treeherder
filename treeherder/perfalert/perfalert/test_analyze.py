@@ -15,6 +15,8 @@ class TestAnalyze(unittest.TestCase):
 
     def test_calc_t(self):
         self.assertEqual(calc_t([0.0, 0.0], [1.0, 2.0]), 3.0)
+        self.assertEqual(calc_t([0.0, 0.0], [0.0, 0.0]), 0.0)
+        self.assertEqual(calc_t([0.0, 0.0], [1.0, 1.0]), float('inf'))
 
 class TestTalosAnalyzer(unittest.TestCase):
     def get_data(self):
@@ -38,7 +40,7 @@ class TestTalosAnalyzer(unittest.TestCase):
             (5, 'good'),
             (6, 'regression'),
             (7, 'regression'),
-            (8, 'good'),
+            (8, 'regression'),
             (9, 'regression'),
             (10, 'regression'),
             (11, 'good')])
