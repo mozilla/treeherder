@@ -1,17 +1,45 @@
 from .base import TreeherderModelBase
 
 
-class RefDataModel(TreeherderModelBase):
+class RefDataManager(TreeherderModelBase):
     """Model for reference data"""
 
     CONTENT_TYPES = ['jobs']
 
-    def get_or_create_build_platform(os_name, platform, architecture,
-                                     defaults=None):
-        """create a new build_platform if not present"""
+    # TODO: discuss about methods dynamic generation
+    # def _get_generic(self, keys, proc):
+
+    #     id_iter = self.sources["jobs"].dhub.execute(
+    #         proc=proc,
+    #         placeholders=keys,
+    #         debug_show=self.DEBUG,
+    #         return_type='iter')
+
+    #     return id_iter.get_column_data('id')
+
+    # def _get_or_create_generic(self, keys, others, proc):
+
+    #     self.sources["jobs"].dhub.execute(
+    #         proc=proc,
+    #         placeholders=keys+others+keys,
+    #         debug_show=self.DEBUG)
+    #     return self._get_generic_id(keys, proc)
+
+    def get_build_platform_id(self, os_name, platform, architecture):
+
+        id_iter = self.sources["jobs"].dhub.execute(
+            proc='reference.selects.get_build_platform_id',
+            placeholders=[os_name, platform, architecture],
+            debug_show=self.DEBUG,
+            return_type='iter')
+
+        return id_iter.get_column_data('id')
+
+    def get_or_create_build_platform(self, os_name, platform, architecture,
+                                     active_status):
 
         self.sources["jobs"].dhub.execute(
-            proc='reference.inserts.set_product_ref_data',
+            proc='reference.inserts.create_build_platform',
             placeholders=[
                 os_name,
                 platform,
@@ -23,33 +51,193 @@ class RefDataModel(TreeherderModelBase):
             ],
             debug_show=self.DEBUG)
 
-        # Get the build_platform id
+        return self.get_build_platform_id(
+            os_name,
+            platform,
+            architecture)
+
+    def get_job_type_id(self, job_group_id, symbol, name):
+
         id_iter = self.sources["jobs"].dhub.execute(
-            proc='perftest.selects.get_build_platform_id',
-            placeholders=[os_name, platform, architecture],
+            proc='reference.selects.get_job_type_id',
+            placeholders=[job_group_id, symbol, name],
             debug_show=self.DEBUG,
-            return_type='iter'
-        )
+            return_type='iter')
 
         return id_iter.get_column_data('id')
 
-    def get_or_create_job_type():
-        pass
+    def get_or_create_job_type(self, job_group_id, symbol, name,
+                               description, active_status):
 
-    def get_or_create_machine():
-        pass
+        self.sources["jobs"].dhub.execute(
+            proc='reference.inserts.create_job_type',
+            placeholders=[
+                job_group_id,
+                symbol,
+                name,
+                description,
+                active_status,
+                job_group_id,
+                symbol,
+                name,
+            ],
+            debug_show=self.DEBUG)
 
-    def get_or_create_machine_platform():
-        pass
+        return self.get_job_type_id(job_group_id, symbol, name)
 
-    def get_or_create_option():
-        pass
+    def get_machine_id(self, name, operating_system_id):
 
-    def get_or_create_option_collection():
-        pass
+        id_iter = self.sources["jobs"].dhub.execute(
+            proc='reference.selects.get_machine_id',
+            placeholders=[name, operating_system_id],
+            debug_show=self.DEBUG,
+            return_type='iter')
 
-    def get_or_create_product():
-        pass
+        return id_iter.get_column_data('id')
 
-    def get_or_create_repository_version():
-        pass
+    def get_or_create_machine(self, name, operating_system_id, date_added):
+
+        self.sources["jobs"].dhub.execute(
+            proc='reference.inserts.create_machine',
+            placeholders=[
+                name,
+                operating_system_id,
+                date_added,
+                name
+            ],
+            debug_show=self.DEBUG)
+
+        return self.get_machine_id(name, operating_system_id)
+
+    def machine_platform_id(self, os_name, platform, architecture):
+
+        id_iter = self.sources["jobs"].dhub.execute(
+            proc='reference.selects.get_machine_platform_id',
+            placeholders=[os_name, platform, architecture],
+            debug_show=self.DEBUG,
+            return_type='iter')
+
+        return id_iter.get_column_data('id')
+
+    def get_or_create_machine_platform(self, os_name, platform,
+                                       architecture, active_status):
+
+        self.sources["jobs"].dhub.execute(
+            proc='reference.inserts.create_machine_platform',
+            placeholders=[
+                os_name,
+                platform,
+                architecture,
+                active_status,
+                os_name,
+                platform,
+                architecture,
+            ],
+            debug_show=self.DEBUG)
+
+        return self.get_machine_platform_id(
+            os_name,
+            platform,
+            architecture)
+
+    def get_option_id(self, name):
+
+        id_iter = self.sources["jobs"].dhub.execute(
+            proc='reference.selects.get_option_id',
+            placeholders=[name],
+            debug_show=self.DEBUG,
+            return_type='iter')
+
+        return id_iter.get_column_data('id')
+
+    def get_or_create_option(self, name, description, active_status):
+
+        self.sources["jobs"].dhub.execute(
+            proc='reference.inserts.create_option',
+            placeholders=[
+                name,
+                description,
+                active_status,
+                name
+            ],
+            debug_show=self.DEBUG)
+
+        return self.get_option_id(name)
+
+    def get_option_collection_id(self, option_collection_id, option_id):
+
+        id_iter = self.sources["jobs"].dhub.execute(
+            proc='reference.selects.get_option_collection_id',
+            placeholders=[option_collection_id, option_id],
+            debug_show=self.DEBUG,
+            return_type='iter')
+
+        return id_iter.get_column_data('id')
+
+    def get_or_create_option_collection(self, option_collection_id,
+                                        option_id):
+
+        self.sources["jobs"].dhub.execute(
+            proc='reference.inserts.create_option_collection',
+            placeholders=[
+                option_collection_id,
+                option_id,
+                option_collection_id,
+                option_id
+            ],
+            debug_show=self.DEBUG)
+
+        return self.get_option_collection_id(
+            option_collection_id,
+            option_id)
+
+    def get_product_id(self, name):
+
+        id_iter = self.sources["jobs"].dhub.execute(
+            proc='reference.selects.get_product_id',
+            placeholders=[name],
+            debug_show=self.DEBUG,
+            return_type='iter')
+
+        return id_iter.get_column_data('id')
+
+    def get_or_create_product(self, name, description, active_status):
+
+        self.sources["jobs"].dhub.execute(
+            proc='reference.inserts.create_product',
+            placeholders=[
+                name,
+                description,
+                active_status,
+                name
+            ],
+            debug_show=self.DEBUG)
+
+        return self.get_product_id(name)
+
+    def get_repository_version(self, repository_id, version):
+
+        id_iter = self.sources["jobs"].dhub.execute(
+            proc='reference.selects.get_repository_version_id',
+            placeholders=[name],
+            debug_show=self.DEBUG,
+            return_type='iter')
+
+        return id_iter.get_column_data('id')
+
+    def get_or_create_repository_version(self, repository_id, version,
+                                         version_timestamp, active_status):
+
+        self.sources["jobs"].dhub.execute(
+            proc='reference.inserts.create_repository_version',
+            placeholders=[
+                repository_id,
+                version,
+                version_timestamp,
+                active_status,
+                repository_id,
+                version
+            ],
+            debug_show=self.DEBUG)
+
+        return self.get_repository_version(repository_id, version)
