@@ -30,11 +30,16 @@ class TestTalosAnalyzer(unittest.TestCase):
 
         result = [(d.time, state) for d, state in a.analyze_t(5, 5, 2, 15, 5)]
         self.assertEqual(result, [
+            (0, 'good'),
+            (1, 'good'),
+            (2, 'good'),
+            (3, 'good'),
+            (4, 'good'),
             (5, 'good'),
-            (6, 'good'),
-            (7, 'good'),
+            (6, 'regression'),
+            (7, 'regression'),
             (8, 'good'),
-            (9, 'good'),
+            (9, 'regression'),
             (10, 'regression'),
             (11, 'good')])
 

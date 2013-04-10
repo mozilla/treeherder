@@ -83,7 +83,7 @@ class TalosAnalyzer:
         # Analyze test data using T-Tests, comparing data[i-j:i] to data[i:i+k]
         good_data = []
 
-        for i in range(j, len(self.data)-k+1):
+        for i in range(len(self.data)-k+1):
             di = self.data[i]
             jw = [d.value for d in good_data[-j:]]
             kw = [d.value for d in self.data[i:i+k]]
