@@ -4,11 +4,13 @@ import MySQLdb
 from warnings import filterwarnings, resetwarnings
 from django.conf import settings
 
-import models
-import utils
+from treeherder.model.models import Datasource
+from treeherder.model import utils
 
+from .refdata import RefDataManager
+from .base import TreeherderModelBase
 
-class JobsModel(object):
+class JobsModel(TreeherderModelBase):
     """
     Represent a job repository with objectstore
 
@@ -22,29 +24,6 @@ class JobsModel(object):
     CT_JOBS = "jobs"
     CT_OBJECTSTORE = "objectstore"
     CONTENT_TYPES = [CT_JOBS, CT_OBJECTSTORE]
-
-    def __init__(self, project):
-        self.project = project
-
-        self.sources = {}
-        for ct in self.CONTENT_TYPES:
-            self.sources[ct] = models.Datasource(project, ct)
-
-        self.DEBUG = settings.DEBUG
-
-
-    def __unicode__(self):
-        """Unicode representation is project name."""
-        return self.project
-
-
-    def disconnect(self):
-        """Iterate over and disconnect all data sources."""
-        for src in self.sources.itervalues():
-            src.disconnect()
-
-    def get_project_cache_key(self, str_data):
-        return "{0}_{1}".format(self.project, str_data)
 
 
     @classmethod
@@ -69,7 +48,7 @@ class JobsModel(object):
         types = types or {}
 
         for ct in cls.CONTENT_TYPES:
-            models.Datasource.create(
+            Datasource.create(
                 project,
                 ct,
                 host=hosts.get(ct),
@@ -191,16 +170,27 @@ class JobsModel(object):
         # Get/Set reference info, all inserts use ON DUPLICATE KEY
 
         # @@@ tempted to coalesce these ids into a dict to pass to _set_job_data...
+        rdm = RefDataManager(self.project)
 
-        build_platform_id = self._get_or_create_build_platform_id(data)
-        machine_platform_id = self._get_or_create_machine_platform_id(data)
-        machine_id = self._get_or_create_machine_id(data)
-        option_collection_id = self._get_or_create_option_collection_id(data)
-        job_type_id = self._get_or_create_job_type_id(data)
-        product_id = self._get_or_create_product_id(data)
+        build_platform_id = rdm.get_or_create_build_platform(
+            **data["jobs"]["build_platform"])
+        machine_platform_id = rdm.get_or_create_machine_platform(
+            **data["jobs"]["machine_platform"])
+        machine_id = rdm.get_or_create_machine(
+            data["machine"],
+        )
+        # @@@ need to straighten out with mdoglio
+        option_collection_id = rdm.get_or_create_option_collection(
+            data)
+
+        # @@@ need these fields in the job structure
+        job_type_id = rdm.get_or_create_job_type(data)
+        product_id = rdm.get_or_create_product(
+            data["jobs"]["product_name"],
+        )
 
         # Insert job data.
-        result_set_id = self._set_result_set(data)
+        result_set_id = self._set_result_set(data["revision_hash"])
 
         job_id = self._set_job_data(
             data,
@@ -211,18 +201,28 @@ class JobsModel(object):
             option_collection_id,
             job_type_id,
             product_id,
-            )
+        )
 
         return job_id
+
+
+    def _set_result_set(self, revision_hash):
+
+        job_id = self._insert_data_and_get_id(
+            'set_result_set',
+            [
+                revision_hash,
+            ]
+        )
+
+        return job_id
+
 
 
     def _set_job_data(self, data, result_set_id, build_platform_id,
                       machine_platform_id, machine_id, option_collection_id,
                       job_type_id, product_id):
         """Inserts job data into the db and returns test_run id."""
-
-        # @@@  IN PROGRESS!  ALL WRONG!  RECORDED WITH DUBLY!
-
 
         try:
             job_guid = data["job_guid"]

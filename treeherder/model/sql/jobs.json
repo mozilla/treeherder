@@ -53,6 +53,14 @@
             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
 
           "host":"master_host"
+        },
+        "set_result_set":{
+
+            "sql":"INSERT INTO `result_set` (
+                `revision_hash`)
+                VALUES (?)",
+
+            "host":"master_host"
         }
     },
     "selects":{
