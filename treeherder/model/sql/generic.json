@@ -1,0 +1,21 @@
+{
+    "selects":{
+        "get_last_insert_id":{
+
+            "sql":"SELECT LAST_INSERT_ID() AS `id`",
+
+            "host":"master_host"
+        },
+
+        "get_db_size":{
+            "sql":"SELECT table_schema as db_name,
+                round(sum( data_length + index_length ) / 1024 / 1024, 2) as size_mb
+                FROM information_schema.TABLES
+                WHERE TABLE_SCHEMA like ?
+                GROUP BY TABLE_SCHEMA
+                ",
+
+        "host":"read_host"
+        }
+    }
+}

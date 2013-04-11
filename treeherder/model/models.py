@@ -1,9 +1,13 @@
 from __future__ import unicode_literals
+
 import uuid
 import subprocess
 import os
+
+from django.conf import settings
 from django.core.cache import cache
 from django.db import models
+
 from treeherder import path
 
 # the cache key is specific to the database name we're pulling the data from

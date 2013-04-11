@@ -1,0 +1,73 @@
+{
+    "views":{
+        "test_runs":{
+
+            "sql":"SELECT tr.id AS 'test_run_id',
+                    tr.build_id,
+                    tr.revision,
+                    tr.date_run,
+                    b.processor,
+                    b.build_type,
+                    b.test_build_id,
+                    t.name AS 'Test Name',
+                    br.product,
+                    br.branch,
+                    br.version,
+                    m.name AS 'machine',
+                    m.cpu_speed,
+                    os.name AS 'OS',
+                    os.version AS 'OS Version'
+                FROM test_run AS tr
+                LEFT JOIN build AS b ON tr.build_id = b.id
+                LEFT JOIN test AS t ON tr.test_id = t.id
+                LEFT JOIN machine AS m ON tr.machine_id = m.id
+                LEFT JOIN operating_system AS os ON m.operating_system_id = os.id
+                LEFT JOIN product AS br ON b.product_id = br.id
+                ORDER BY tr.id DESC
+                LIMIT 1000",
+
+            "host":"read_host"
+        }
+    },
+    "inserts":{
+        "set_job_data":{
+
+            "sql":"INSERT INTO `job` (
+                `job_guid`,
+                `job_coalesced_to_guid`,
+                `result_set_id`,
+                `build_platform_id`,
+                `machine_platform_id`,
+                `machine_id`,
+                `option_collection_id`,
+                `job_type_id`,
+                `product_id`,
+                `who`,
+                `reason`,
+                `result`,
+                `state`,
+                `submit_timestamp`,
+                `start_timestamp`,
+                `end_timestamp`,
+                `active_status`)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+
+          "host":"master_host"
+        }
+    },
+    "selects":{
+
+        "get_application_log":{
+            "sql":"SELECT `revision`,
+                    `test_run_id`,
+                    `msg_type`,
+                    `msg`,
+                    `msg_date`
+                FROM `application_log`
+                WHERE `revision` = ?",
+
+            "host":"read_host"
+        },
+    }
+}
+

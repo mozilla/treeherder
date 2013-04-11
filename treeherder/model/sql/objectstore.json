@@ -1,0 +1,145 @@
+{
+    "inserts":{
+        "store_json":{
+
+            "sql":"INSERT INTO  `objectstore` (`date_timestamp`,
+                                               `json_blob`,
+                                               `error`,
+                                               `error_msg`)
+                   VALUES       (?, ?, ?, ?)
+                  ",
+
+            "host":"master_host"
+        }
+    },
+
+    "selects":{
+        "get_claimed":{
+
+            "sql":"SELECT   `json_blob`, `id`
+                   FROM     `objectstore`
+                   WHERE    `worker_id` = CONNECTION_ID()
+                   AND      `processed_state` = 'loading'
+                   AND      `error` = 'N'",
+
+            "host":"master_host"
+        },
+
+        "get_unprocessed":{
+
+            "sql":"SELECT   `json_blob`, `id`
+                   FROM     `objectstore`
+                   WHERE    `processed_state` = 'ready'
+                   AND      `error` = 'N'
+                   LIMIT ?",
+
+            "host":"master_host"
+        },
+
+        "get_all_errors":{
+
+            "sql":"SELECT   `json_blob`, `id`
+                FROM     `objectstore`
+                WHERE    `error` = 'Y'
+                AND loaded_timestamp BETWEEN ? AND ?",
+
+            "host":"read_host"
+        },
+
+        "get_error_metadata":{
+
+            "sql":"SELECT   `id`, job_id, loaded_timestamp, processed_state, error_msg, worker_id
+                FROM     `objectstore`
+                WHERE    `error` = 'Y'
+                AND loaded_timestamp BETWEEN ? AND ?",
+
+            "host":"read_host"
+        },
+
+        "get_json_blob":{
+
+            "sql":"SELECT json_blob,
+                          error_msg,
+                          error,
+                          processed_state,
+                          loaded_timestamp,
+                          job_id
+                   FROM `objectstore` WHERE `id` = ?",
+
+            "host":"read_host"
+        },
+
+        "get_json_blob_for_test_run":{
+
+            "sql":"SELECT json_blob, error_msg, error
+                   FROM `objectstore`
+                   WHERE `job_id` IN (REP0)",
+
+            "host":"read_host"
+        },
+
+        "get_error_counts":{
+
+            "sql":"SELECT
+                (CASE
+                    WHEN error_msg LIKE 'Malformed JSON%'
+                    THEN 'Malformed JSON'
+                    ELSE 'Other'
+                END) AS message, count(id) AS count
+                FROM `objectstore`
+                WHERE `error` = 'Y'
+                AND loaded_timestamp BETWEEN REP0 AND REP1
+                GROUP BY message",
+
+            "host":"read_host"
+        }
+
+    },
+
+    "updates":{
+        "mark_loading":{
+
+            "sql":"UPDATE `objectstore`
+                   SET    `processed_state` = 'loading',
+                          `worker_id` = CONNECTION_ID()
+                   WHERE  `processed_state` = 'ready'
+                   AND    `error` = 'N'
+                   ORDER BY `id`
+                   LIMIT ?
+                  ",
+
+            "host":"master_host"
+
+        },
+
+        "mark_complete":{
+
+            "sql":"UPDATE   `objectstore`
+                   SET      `processed_state` = 'complete', `job_id` = ?
+                   WHERE    `processed_state` = 'loading'
+                   AND      `id` = ?
+                   AND      `worker_id` = CONNECTION_ID()
+                  ",
+
+            "host":"master_host"
+
+        },
+
+        "mark_error":{
+
+            "sql":"UPDATE   `objectstore`
+                   SET      `processed_state` = 'ready',
+                            `worker_id` = NULL,
+                            `error` = 'Y',
+                            `error_msg` = ?
+                   WHERE    `processed_state` = 'loading'
+                   AND      `id` = ?
+                   AND      `worker_id` = CONNECTION_ID()
+                  ",
+
+            "host":"master_host"
+
+        }
+    }
+}
+
