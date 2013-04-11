@@ -25,7 +25,9 @@
         },
 
         "create_machine" : {
-            "sql": "INSERT INTO `machine` (`name`, `operating_system_id`, `date_added`)
+            "sql": "INSERT INTO `machine` (`name`, `first_timestamp`, `last_timestamp`, active_status`)
+
+            
                     SELECT ?, ?, ?
                     FROM DUAL
                     WHERE NOT EXISTS (
