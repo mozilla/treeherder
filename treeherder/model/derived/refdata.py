@@ -6,7 +6,7 @@ class RefDataManager(TreeherderModelBase):
 
     CONTENT_TYPES = ['jobs']
 
-    # TODO: discuss about methods dynamic generation
+    # TODO: discuss about dynamic methods generation
     # def _get_generic(self, keys, proc):
 
     #     id_iter = self.sources["jobs"].dhub.execute(
@@ -85,31 +85,32 @@ class RefDataManager(TreeherderModelBase):
 
         return self.get_job_type_id(job_group_id, symbol, name)
 
-    def get_machine_id(self, name, operating_system_id):
+    def get_machine_id(self, name):
 
         id_iter = self.sources["jobs"].dhub.execute(
             proc='reference.selects.get_machine_id',
-            placeholders=[name, operating_system_id],
+            placeholders=[name],
             debug_show=self.DEBUG,
             return_type='iter')
 
         return id_iter.get_column_data('id')
 
-    def get_or_create_machine(self, name, operating_system_id, date_added):
+    def get_or_create_machine(self, name, ):
 
         self.sources["jobs"].dhub.execute(
             proc='reference.inserts.create_machine',
             placeholders=[
                 name,
-                operating_system_id,
-                date_added,
+                first_timestamp,
+                last_timestamp,
+                active_status,
                 name
             ],
             debug_show=self.DEBUG)
 
-        return self.get_machine_id(name, operating_system_id)
+        return self.get_machine_id(name)
 
-    def machine_platform_id(self, os_name, platform, architecture):
+    def get_machine_platform_id(self, os_name, platform, architecture):
 
         id_iter = self.sources["jobs"].dhub.execute(
             proc='reference.selects.get_machine_platform_id',
