@@ -227,7 +227,7 @@ class JobsModel(object):
         try:
             job_guid = data["job_guid"]
 
-            # not sure about this one
+            # @@@ not sure about this one
             job_coalesced_to_guid = ""
 
             who = data["who"]
@@ -238,6 +238,7 @@ class JobsModel(object):
             start_timestamp = data["start_timestamp"]
             end_timestamp = data["end_timestamp"]
 
+        # @@@ need better error message here
         except ValueError:
             raise JobDataError(
                 "Return meaningful error here; not this rubbish.")
