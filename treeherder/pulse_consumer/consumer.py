@@ -522,11 +522,11 @@ class PulseDataAdapter(object):
             data = self.adapt_data(data)
 
             if self.outstream:
-                self.outstream.write(str(data) + "\n")
+                self.outstream.write(json.dumps(data) + "\n")
                 self.outstream.flush()
 
                 if self.rawdata:
-                    self.outstream.write(str(raw_data) + "\n")
+                    self.outstream.write(json.dumps(raw_data) + "\n")
                     self.outstream.flush()
 
         return data
