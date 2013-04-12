@@ -7,7 +7,6 @@ import socket
 import signal
 
 from django.conf import settings
-from multiprocessing import Process, Queue
 from mozillapulse import consumers
 from treeherder.pulse_consumer.daemon import Daemon
 
@@ -343,6 +342,10 @@ class PulseDataAdapter(object):
         context='dataadapter', logdir='logs'):
 
         self.data = {}
+
+        ####
+        #TODO: Put appropriate data in logdir
+        ####
         self.logdir = logdir
         self.context = context
         self.durable = durable
