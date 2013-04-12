@@ -8,20 +8,42 @@
      * The revision_hash is used for associating job data asynchronously 
      * with a single entry in project_jobs_1.result_set.
      **************/
-    sources: { 
-        gecko: "revision",
-        gaia: "revision",
-        mozharness: "revision,
-        ...
+    sources: [
+        {
+            repository:"gecko",
+            "revision":"",
+            "comments":"",
+            "push_timestamp":"",
+            "commit_timestamp":""
         },
-            
+        {
+            repository:"gaia",
+            "revision":"",
+            "comments":"",
+            "push_timestamp":"",
+            "commit_timestamp":""
+        },
+        {
+            repository:"mozharness",
+            "revision":"",
+            "comments":"",
+            "push_timestamp":"",
+            "commit_timestamp":""
+        },
+
+        ...
+
+        ],
+
+    revision_hash:"",
+
     jobs: [
         {
             #Stored in project_jobs_1.job.job_guid
             job_guid:"",
 
             #Stored in treeherder_reference_1.job_type.name
-            name:"build | mochitest_one | ...", 
+            name:"build | mochitest_one | ...",
 
             #Stored in treeherder_reference_1.product
             product_name:"Firefox | Firefox OS | Thunderbird | ...",
@@ -48,20 +70,20 @@
             end_timestamp:"",
 
             #Stored in treeherder_reference_1.machine.name
-            machine:"",    
+            machine:"",
 
             #Stored in:
             # treeherder_reference_1.build_platform.os_name,
-            # treeherder_reference_1.build_platform.platform, 
-            # treeherder_reference_1.build_platform.architecture, 
+            # treeherder_reference_1.build_platform.platform,
+            # treeherder_reference_1.build_platform.architecture,
             build_platform:{ os_name:"", platform:"", architecture:"" },
 
             #Stored in:
             # treeherder_reference_1.machine_platform.os_name,
-            # treeherder_reference_1.machine_platform.platform, 
-            # treeherder_reference_1.machine_platform.architecture, 
+            # treeherder_reference_1.machine_platform.platform,
+            # treeherder_reference_1.machine_platform.architecture,
             machine_platform:{ os_name:"", platform:"", architecture:"" },
-    
+
             #Stored in treeherder_reference_1.option_collection and
             #treeherder_reference_1.option
             option_collection: {
@@ -77,7 +99,7 @@
                   name:"" },
                   ...
                   ],
-                  
+
             #Stored project_jobs_1.job_artifact
             artifact:"{
                 type:" json | img | ...",

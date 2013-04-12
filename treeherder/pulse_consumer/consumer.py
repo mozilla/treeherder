@@ -410,6 +410,7 @@ class PulseDataAdapter(object):
                     'attr_table':[
                         { 'attr':'who' },
                         { 'attr':'when' },
+                        { 'attr':'comments' },
                         ]
                     },
                 'payload.build.properties': {
@@ -468,7 +469,15 @@ class PulseDataAdapter(object):
 
         #configure consumers
         self.pulse.configure(
-            topic=['#.finished', '#.log_uploaded'],
+            #####
+            #TODO: Register a specialized adapter for #.finished
+            #      to record the heartbeat of the push. This will
+            #      require adding the request_ids and request_times
+            #      to the .finished data structure.
+            #
+            #topic=['#.finished', '#.log_uploaded'],
+            #####
+            topic=['#.log_uploaded'],
             callback=self.process_data,
             durable=self.durable
             )
@@ -516,6 +525,7 @@ class PulseDataAdapter(object):
             #    missing_attributes, data, raw_data
             #    )
             pass
+
         else:
             #Carry out data processing that requires all of the
             #attributes being populated
@@ -559,7 +569,8 @@ class PulseDataAdapter(object):
                 attr = attr_data.get('attr', None)
                 attr_test = attr_data.get('attr_test', None)
 
-                if ( attr_test and (datum[0] in attr_test) ) or ( attr and (attr in datum[0]) ):
+                if ( attr_test and (datum[0] in attr_test) ) or \
+                    ( attr and (attr in datum[0]) ):
 
                     cb = attr_data.get('cb', None)
 
@@ -690,7 +701,22 @@ class TreeherderDataAdapter(PulseDataAdapter):
             'jobs': []
             }
 
-        treeherder_data['sources'][ data['branch'] ] = data['revision']
+        treeherder_data['sources'] = []
+
+        ####
+        #TODO: This is a temporary fix, this data will not be located
+        #      in the sourceStamp in the pulse stream. It will likely
+        #      be in other build properties but for now this will work.
+        #      Once the new properties are added they need to be incorporated
+        #      here.
+        ####
+        treeherder_data['sources'].append(
+            { 'repository':data['branch'],
+              'revision':data['revision'],
+              'push_timestamp':data['when'],
+              'commit_timestamp':data['when'],
+              'comments':data['comments'] }
+            )
 
         job = {
             'job_guid': self.get_job_guid(

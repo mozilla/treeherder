@@ -1,7 +1,6 @@
 from treeherder.pulse_consumer.consumer import PulseDataAdapter, TreeherderDataAdapter
 from ..sampledata import SampleData
 
-
 def test_process_data():
 
     sd = SampleData()
@@ -15,13 +14,15 @@ def test_process_data():
 
     msg = Message()
 
-    data = pda.process_data(sd.raw_pulse_data[0], msg)
+    for data in sd.raw_pulse_data:
 
-    missing_attributes = pda.required_attributes.difference(
-        set( data.keys() )
-        )
+        data = pda.process_data(data, msg)
 
-    assert set() == missing_attributes
+        missing_attributes = pda.required_attributes.difference(
+            set( data.keys() )
+            )
+
+        assert set() == missing_attributes
 
 class Message(object):
 
