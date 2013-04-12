@@ -60,36 +60,6 @@ def bz_get_bug_comments(api, bug_num):
         log.exception("Error fetching comments for bug %s" % bug_num)
         return None
 
-def bz_notify_bug(api, bug_num, message, whiteboard, username, password, retries=5):
-    for i in range(retries):
-        log.debug("Getting bug %s", bug_num)
-        bug = bz_request(api, "/bug/%s" % bug_num, username=username, password=password)
-
-        wb = bug.get('whiteboard', '')
-
-        if whiteboard not in wb:
-            bug['whiteboard'] = wb + whiteboard
-            if i == 0:
-                bug['last_change_time'] = "2009-09-09T16:31:18Z"
-
-            # Add the whiteboard
-            try:
-                log.debug("Adding whiteboard status to bug %s", bug_num)
-                bz_check_request(api, "/bug/%s" % bug_num, bug, "PUT", username=username, password=password)
-            except KeyboardInterrupt:
-                raise
-            except:
-                log.exception("Problem changing whiteboard, trying again")
-                continue
-
-        # Add the comment
-        log.debug("Adding comment to bug %s", bug_num)
-        bz_check_request(api, "/bug/%s/comment" % bug_num,
-                {"text": message, "is_private": False}, "POST",
-                username=username, password=password)
-        break
-
-
 def shorten(url, login, apiKey, max_tries=10, sleep_time=30):
     params = {
             'login': login,
@@ -522,8 +492,8 @@ class AnalysisRunner:
                 for i, rev in enumerate(revisions):
                     url = self.makeHgUrl(branch_name, None, rev)
                     changeset = self.pushlog.getChange(branch_name, rev)
-                    author = changeset['author'].encode("utf8")
-                    comments = changeset['comments'].encode("utf8")
+                    author = changeset['author'].encode("ascii", "replace")
+                    comments = changeset['comments'].encode("ascii", "replace")
                     these_bugs = bugs_from_comments(comments)
                     bugs.update(these_bugs)
                     if i < revision_limit:
@@ -549,7 +519,7 @@ class AnalysisRunner:
                     bug_url = self.makeBugUrl(bug_num)
                     bug = self.getBug(bug_num)
                     if bug:
-                        bug_desc = bug['summary'].encode("utf8")
+                        bug_desc = bug['summary'].encode("ascii", "replace")
                         msg += "  * %(bug_url)s - %(bug_desc)s\n" % locals()
                     else:
                         msg += "  * %(bug_url)s\n" % locals()
@@ -590,104 +560,6 @@ class AnalysisRunner:
             self.output.write(self.formatMessage(state, series, last_good, d))
             self.output.write("\n")
             self.output.flush()
-
-    def bugComment(self, series, bad, state, good):
-        # Ignore machine issues
-        if state != "regression":
-            log.debug("Ignoring non-regression event %s", state)
-            return
-
-        if not (good.revision and bad.revision):
-            # Can't find a range, so give up
-            log.info("No revision range for %s, not posting bug comment" % bad)
-            return
-
-        branch = series.branch_name
-        test_name = series.test_name
-        short_name = series.test_shortname
-        os_name = series.os_name
-
-        # Don't comment for good things
-        if self.isImprovement(test_name, good, bad):
-            log.debug("Not commenting on bug for improvement")
-            return
-
-        initial_value = bad.historical_stats['avg']
-        initial_stddev = bad.historical_stats['variance'] ** 0.5
-        history_n = bad.historical_stats['n']
-
-        new_value = bad.forward_stats['avg']
-        new_stddev = bad.forward_stats['variance'] ** 0.5
-        forward_n = bad.forward_stats['n']
-
-        if initial_value != 0:
-            change = 100.0 * (new_value - initial_value) / float(initial_value)
-        else:
-            change = 0.0
-
-        delta = (new_value - initial_value)
-        if initial_stddev:
-            z_score = abs(delta / initial_stddev)
-        else:
-            z_score = 0.0
-
-        good_rev = good.revision
-        bad_rev = bad.revision
-
-        hg_url = self.makeHgUrl(branch, good_rev, bad_rev)
-
-        # Get all the changesets in the range
-        revisions = self.pushlog.getPushRange(branch,
-                self.config.get(branch, 'repo_path'), from_=good_rev,
-                to_=bad_rev)
-
-        whiteboard = self.config.get('main', 'bz_whiteboard') % locals()
-        username = self.config.get('main', 'bz_username')
-        password = self.config.get('main', 'bz_password')
-        api = self.config.get('main', 'bz_api')
-
-        graph = self.shorten(self.makeChartUrl(series, bad))
-
-        if self.config.has_option('main', 'bz_bug_override'):
-            bug_override = self.config.get('main', 'bz_bug_override')
-        else:
-            bug_override = None
-
-        bugs = set()
-        for rev in revisions:
-            c = self.pushlog.getChange(branch, rev)
-            bugs.update(bugs_from_comments(c['comments']))
-
-        for bug in bugs:
-            log.debug("Bug %s is implicated", bug)
-            message = """\
-A changeset from this bug was associated with a %(os_name)s %(test_name)s regression on %(branch)s. boo-urns :(
-
-  Previous: avg %(initial_value).3f stddev %(initial_stddev).3f of %(history_n)i runs up to %(good_rev)s
-  New     : avg %(new_value).3f stddev %(new_stddev).3f of %(forward_n)i runs since %(bad_rev)s
-  Change  : %(delta)+.3f (%(change).3g%% / z=%(z_score).3f)
-  Graph   : %(graph)s
-
-The regression occurred from changesets in the following range:
-%(hg_url)s
-
-The tag %(whiteboard)s has been added to the status whiteboard;
-please remove it only once you have confirmed this bug is not the cause
-of the regression.""" % locals()
-
-            notify_bug = bug_override or bug
-
-            # Look to see if this bug was previously implicated for this
-            # regression
-            comments = bz_get_bug_comments(api, notify_bug)
-            for c in comments['comments']:
-                msg = c['text']
-                if whiteboard in msg and os_name in msg and branch in msg and hg_url in msg:
-                    log.info("Not notifying %s, it was implicated before", notify_bug)
-                    break
-            else:
-                log.info("Notifying bug %s", notify_bug)
-                bz_notify_bug(api, notify_bug, message, whiteboard, username, password)
 
     def emailWarning(self, series, d, state, last_good):
         addresses = []
@@ -732,17 +604,13 @@ of the regression.""" % locals()
                     log.debug("Adding author %s to recipients", author)
                     author_addresses.append(author)
 
-                if pusher not in author_addresses:
-                    log.debug("Adding pusher %s to recipients", pusher)
-                    author_addresses.append(pusher)
-
             if len(author_addresses) <= max_email_authors:
                 log.debug("Adding author/pusher emails to recipients")
                 addresses.extend(author_addresses)
             else:
                 log.info("Not adding author/pusher emails to recipients - too many authors (%i)" ,len(author_addresses))
 
-        log.debug("Mailing %s", addresses)
+        log.info("Mailing %s", addresses)
         if addresses:
             addresses = [a.strip() for a in addresses]
             subject = self.formatSubject(state, series, last_good, d)
@@ -844,9 +712,6 @@ of the regression.""" % locals()
             # Notify people of the warnings
             self.printWarning(series, d, state, last_good)
             self.emailWarning(series, d, state, last_good)
-            if self.config.has_option('main', 'bz_username') and self.config.has_option('main', 'bz_api'):
-                if self.config.has_option(series.branch_name, 'enable_bug_comments') and self.config.getboolean(series.branch_name, 'enable_bug_comments'):
-                    self.bugComment(series, d, state, last_good)
 
     def handleDashboardSeries(self, s):
         # Add it to our dashboard data

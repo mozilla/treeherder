@@ -3,6 +3,7 @@
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 import sqlalchemy as sa
 from sqlalchemy.ext.sqlsoup import SqlSoup
+from sqlalchemy.pool import SingletonThreadPool
 
 from analyze import PerfDatum
 
@@ -33,7 +34,8 @@ goodNameClause = None
 
 def connect(url):
     global db
-    db = SqlSoup(url)
+    engine = sa.create_engine(url, pool_recycle=30, echo_pool=True, poolclass=SingletonThreadPool)
+    db = SqlSoup(engine)
 
     global goodNameClause
     goodNameClause = db.machines.is_active == 1
@@ -53,7 +55,6 @@ def getTestData(series, start_time):
         db.test_runs.build_id == db.builds.id,
         db.test_runs.date_run > start_time,
         goodNameClause,
-        sa.not_(db.machines.name.like("%stage%")),
         ))
 
     data = []
@@ -82,7 +83,6 @@ def getTestSeries(branches, start_date, test_names, last_run=None):
                 db.test_runs.date_run > start_date,
                 db.branches.name.in_(branches),
                 goodNameClause,
-                sa.not_(db.machines.name.like('%stage%')),
                 sa.or_(db.branches.name.startswith('mobile'), sa.not_(db.tests.pretty_name.like("%NoChrome%"))),
                 sa.not_(db.tests.pretty_name.like("%Fast Cycle%")),
                 test_clause,
@@ -114,7 +114,6 @@ def getMachinesForTest(series):
         db.tests.id == series.test_id,
         db.machines.os_id == series.os_id,
         goodNameClause,
-        sa.not_(db.machines.name.like('%stage%')),
         )).distinct()
     result = q.execute()
 
