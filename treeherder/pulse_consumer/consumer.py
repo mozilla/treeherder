@@ -12,12 +12,14 @@ from mozillapulse import consumers
 from treeherder.pulse_consumer.daemon import Daemon
 
 ####
+#   The following variables were taken from util.py
 #
 #   PLATFORMS_BUILDERNAME, BUILD_TYPE_BUILDERNAME, JOB_TYPE_BUILDERNAME
-#   SOURCESTAMPS_BRANCH
 #
 #   http://mxr.mozilla.org/build/source/buildapi/buildapi/model/util.py
 #
+#   TODO: Once these attributes are available as build properties in the
+#         pulse stream these structures can be removed.
 ####
 PLATFORMS_BUILDERNAME = {
 
@@ -521,10 +523,14 @@ class PulseDataAdapter(object):
 
         if missing_attributes:
 
-            #raise PulseMissingAttributesError(
-            #    missing_attributes, data, raw_data
-            #    )
-            pass
+            ####
+            #TODO: We will need to develop a logging strategy here
+            #      not exactly sure what it should be. Need to get
+            #      more of the required data into the pulse stream.
+            ####
+            raise PulseMissingAttributesError(
+                missing_attributes, data, raw_data
+                )
 
         else:
             #Carry out data processing that requires all of the
@@ -652,14 +658,6 @@ class PulseDataAdapter(object):
                 raise PulseDataAttributeError(f, msg)
 
         return target_struct
-
-    def _process_platform_data(self, data):
-
-        if not data['platform']:
-            if data['stage_platform']:
-                data['platform'] = data['stage_platform']
-            else:
-                pass
 
 class TreeherderDataAdapter(PulseDataAdapter):
 
