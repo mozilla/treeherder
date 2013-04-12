@@ -9,10 +9,10 @@ dburl = mysql://graphserver@localhost/graphserver
 statusdb = mysql://buildbot@localhost/buildbot
 
 # How many builds to look ahead
-fore_window = 5
+fore_window = 12
 
 # How many builds to look behind
-back_window = 30
+back_window = 12
 
 # What t score is required to consider a change significant
 threshold = 9
