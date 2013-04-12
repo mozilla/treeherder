@@ -526,11 +526,16 @@ class PulseDataAdapter(object):
             ####
             #TODO: We will need to develop a logging strategy here
             #      not exactly sure what it should be. Need to get
-            #      more of the required data into the pulse stream.
-            ####
-            raise PulseMissingAttributesError(
-                missing_attributes, data, raw_data
-                )
+            #      more of the required data into the pulse stream
+            #      before we can determine what should be logged.
+            #      Will need to me mindful of where errors are raised
+            #      when running as a daemon since stderr is sent to
+            #      /dev/null, program will die silently in this conditional.
+            #
+            #raise PulseMissingAttributesError(
+            #    missing_attributes, data, raw_data
+            #    )
+            pass
 
         else:
             #Carry out data processing that requires all of the
