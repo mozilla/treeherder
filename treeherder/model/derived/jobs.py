@@ -119,51 +119,55 @@ class JobsModel(TreeherderModelBase):
         @@@: should I return the job_guid instead?
 
         Example:
-        {
-            'sources': {
-                u'mozilla-inbound': u'0a8bfba4d8e1'
-            },
-            'revision_hash': 'c62affca07712188082a1aa70ef5a7ce61aed501',
-            'jobs': [
-                {
-                    'build_platform': {
-                        'platform': 'WINNT5.1',
-                        'os_name': 'win',
-                        'architecture': 'x86',
-                        'vm': False
-                    },
-                    'submit_timestamp': 1365036568,
-                    'start_timestamp': u'20130403163448',
-                    'name': u'mochitest-5',
-                    'option_collection': {
-                        'debug': True
-                    },
-                    'log_references': [
-                        {
-                            'url': u'http: //ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-win32-debug/1365032088/mozilla-inbound_xp-debug_test-mochitest-5-bm46-tests1-windows-build114.txt.gz',
-                            'name': 'unittest'
-                        }
-                    ],
-                    'who': u'sendchange-unittest',
-                    'reason': u'scheduler',
-                    'artifact': {
-
-                    },
-                    'machine_platform': {
-                        'platform': 'WINNT5.1',
-                        'os_name': 'win',
-                        'architecture': 'x86',
-                        'vm': False
-                    },
-                    'machine': u'talos-r3-xp-088',
-                    'state': 'TODO',
-                    'result': 0,
-                    'job_guid': 'f3e3a9e6526881c39a3b2b6ff98510f213b3d4ed',
-                    'product_name': u'firefox',
-                    'end_timestamp': '1365038362'
-                }
-            ]
-        }
+            {
+                "sources": [
+                    {
+                        "commit_timestamp": 1365732271,
+                        "push_timestamp": 1365732271,
+                        "comments": "Bug 854583 - Use _pointer_ instead of _cursor_ for mouse lock, r=dolske, approval-aurora=gavin",
+                        "repository": "mozilla-aurora",
+                        "revision": "c91ee0e8a980"
+                    }
+                ],
+                "revision_hash": "24fd64b8251fac5cf60b54a915bffa7e51f636b5",
+                "jobs": [
+                    {
+                        "build_platform": {
+                            "platform": "Ubuntu VM 12.04",
+                            "os_name": "linux",
+                            "architecture": "x86_64",
+                            "vm": true
+                        },
+                        "submit_timestamp": 1365732271,
+                        "start_timestamp": "20130411165317",
+                        "name": "xpcshell",
+                        "option_collection": {
+                            "opt": true
+                        },
+                        "log_references": [
+                            {
+                                "url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-aurora-linux64-pgo/1365724397/mozilla-aurora_ubuntu64_vm_test_pgo-xpcshell-bm54-tests1-linux-build4.txt.gz",
+                                "name": "unittest"
+                            }
+                        ],
+                        "who": "sendchange-unittest",
+                        "reason": "scheduler",
+                        "artifact": {},
+                        "machine_platform": {
+                            "platform": "Ubuntu VM 12.04",
+                            "os_name": "linux",
+                            "architecture": "x86_64",
+                            "vm": true
+                        },
+                        "machine": "tst-linux64-ec2-314",
+                        "state": "TODO",
+                        "result": 0,
+                        "job_guid": "d19375ce775f0dc166de01daa5d2e8a73a8e8ebf",
+                        "product_name": "firefox",
+                        "end_timestamp": "1365733932"
+                    }
+                ]
+            }
 
         """
 
@@ -189,7 +193,6 @@ class JobsModel(TreeherderModelBase):
             data["jobs"]["product_name"],
         )
 
-        # Insert job data.
         result_set_id = self._set_result_set(data["revision_hash"])
 
         job_id = self._set_job_data(
