@@ -130,10 +130,18 @@
                     AND `active_status` = 'active'",
             "host":"read_host"
         },
+        "get_last_collection_id":{
+            "sql": "SELECT MAX(`collection_id`)
+                    FROM `option_collection`",
+            "host":"read_host"
+        },
         "get_option_collection_id":{
-            "sql": "SELECT `id`
-                    FROM `option_collection`
-                    WHERE `option_collection_id` = ? AND `option_id` = ?",
+            "sql": "SELECT `option_collection_id`
+                    FROM `option_collection` oc
+                    INNER JOIN `option` o on o.id = oc.option_id 
+                    GROUP BY `option_collection_id`
+                    HAVING 
+                        GROUP_CONCAT(o.name ORDER BY o.name ASC SEPARATOR ',') = ?",
             "host":"read_host"
         },
         "get_product_id":{

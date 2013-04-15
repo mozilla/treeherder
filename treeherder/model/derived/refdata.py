@@ -6,25 +6,6 @@ class RefDataManager(TreeherderModelBase):
 
     CONTENT_TYPES = ['jobs']
 
-    # TODO: discuss about dynamic methods generation
-    # def _get_generic(self, keys, proc):
-
-    #     id_iter = self.sources["jobs"].dhub.execute(
-    #         proc=proc,
-    #         placeholders=keys,
-    #         debug_show=self.DEBUG,
-    #         return_type='iter')
-
-    #     return id_iter.get_column_data('id')
-
-    # def _get_or_create_generic(self, keys, others, proc):
-
-    #     self.sources["jobs"].dhub.execute(
-    #         proc=proc,
-    #         placeholders=keys+others+keys,
-    #         debug_show=self.DEBUG)
-    #     return self._get_generic_id(keys, proc)
-
     def get_build_platform_id(self, os_name, platform, architecture):
 
         id_iter = self.sources["jobs"].dhub.execute(
@@ -140,32 +121,50 @@ class RefDataManager(TreeherderModelBase):
 
         return self.get_option_id(name)
 
-    def get_option_collection_id(self, option_collection_id, option_id):
+    def get_option_collection_id(self, options):
+        """returns an option_collection_id given a list of options"""
+        options = sorted(list(options))
 
         id_iter = self.sources["jobs"].dhub.execute(
             proc='reference.selects.get_option_collection_id',
-            placeholders=[option_collection_id, option_id],
+            placeholders=[','.join(options)],
             debug_show=self.DEBUG,
             return_type='iter')
 
         return id_iter.get_column_data('id')
 
-    def get_or_create_option_collection(self, option_collection_id,
-                                        option_id):
-
+    def get_last_collection_id(self):
         self.sources["jobs"].dhub.execute(
-            proc='reference.inserts.create_option_collection',
-            placeholders=[
-                option_collection_id,
-                option_id,
-                option_collection_id,
-                option_id
-            ],
+            proc='reference.selects.get_last_collection_id',
+            placeholders=[],
             debug_show=self.DEBUG)
 
-        return self.get_option_collection_id(
-            option_collection_id,
-            option_id)
+    def get_or_create_option_collection(self, options):
+
+        #check if this collection already exists
+        id = self.get_option_collection_id(options)
+        if not id:
+
+            #retrieve the last collection
+            option_collection_id = self.get_last_collection_id() + 1
+            for option in options:
+
+                #create an option if it doesn't exist
+                option_id = self.get_or_create_option(option,
+                                                      'description needed')
+
+                # create an entry in option_collection
+                self.sources["jobs"].dhub.execute(
+                    proc='reference.inserts.create_option_collection',
+                    placeholders=[
+                        option_collection_id,
+                        option_id,
+                        option_collection_id,
+                        option_id
+                    ],
+                    debug_show=self.DEBUG)
+            id = self.get_option_collection_id(options)
+        return id
 
     def get_product_id(self, name):
 
