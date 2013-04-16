@@ -12,6 +12,30 @@
             "host":"master_host"
         },
 
+        "create_job_group":{
+            "sql":"INSERT INTO `job_group` (`symbol`, `name`, `description`, `active_status`)
+                   SELECT 'fill me', ?, 'fill me', 'active'
+                    FROM DUAL
+                    WHERE NOT EXISTS (
+                    SELECT `name`
+                    FROM `job_group`
+                    WHERE `name` = ?
+                    )",
+            "host":"master_host"
+        },
+
+        "create_job_type":{
+            "sql":"INSERT INTO `job_type` (`job_group_id`, `symbol`, `name`, `description`, `active_status`)
+                   SELECT ?, 'fill me', ?, 'fill me', 'active'
+                    FROM DUAL
+                    WHERE NOT EXISTS (
+                    SELECT `name`
+                    FROM `job_type`
+                    WHERE `job_group_id` = ? and `name` = ?
+                    )",
+            "host":"master_host"
+        },
+
         "create_machine" : {
             "sql": "INSERT INTO `machine` (`name`, `first_timestamp`, `last_timestamp`, `active_status`)
                     SELECT ?, ?, ?, 'active'
@@ -39,7 +63,7 @@
 
         "create_option":{
             "sql":"INSERT INTO `option` (`name`, `description`, `active_status`)
-                   SELECT ?, ?, ?, 'active'
+                   SELECT ?, 'fill me', ?, 'active'
                     FROM DUAL
                     WHERE NOT EXISTS (
                     SELECT `name`
@@ -63,7 +87,7 @@
 
         "create_product":{
             "sql": "INSERT INTO `product` (`name`, `description`, `active_status`)
-                    SELECT ?, ?, 'active'
+                    SELECT ?, 'fill me', 'active'
                     FROM DUAL
                     WHERE NOT EXISTS (
                     SELECT `name`
@@ -96,12 +120,24 @@
                     AND `active_status` = 'active'",
             "host":"read_host"
         },
-        "get_job_type_id":{
+        "get_job_group_id":{
             "sql": "SELECT `id`
-                    FROM `job_type`
+                    FROM `job_group`
                     WHERE 
                         `name` = ?
                     AND `active_status` = 'active'",
+            "host":"read_host"
+        },
+        "get_job_type_id":{
+            "sql": "SELECT jt.`id`
+                    FROM `job_type` jt
+                    INNER JOIN `job_group` jg 
+                        ON jg.id = jt.job_group_id
+                    WHERE 
+                        jt.`name` = ? 
+                    AND jg.`name` = ?
+                    AND jt.`active_status` = 'active'
+                    AND jg.`active_status` = 'active'",
             "host":"read_host"
         },
         "get_machine_id":{

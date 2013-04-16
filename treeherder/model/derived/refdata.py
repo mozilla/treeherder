@@ -35,15 +35,51 @@ class RefDataManager(TreeherderModelBase):
             platform,
             architecture)
 
-    def get_job_type_id(self, name):
+    def get_job_group_id(self, name):
 
         id_iter = self.sources["jobs"].dhub.execute(
-            proc='reference.selects.get_job_type_id',
+            proc='reference.selects.get_job_group_id',
             placeholders=[name],
             debug_show=self.DEBUG,
             return_type='iter')
 
         return id_iter.get_column_data('id')
+
+    def get_or_create_job_group(self, name):
+
+        self.sources["jobs"].dhub.execute(
+            proc='reference.inserts.create_job_group',
+            placeholders=[
+                name,
+                name
+            ],
+            debug_show=self.DEBUG)
+
+        return self.get_job_group_id(name)
+
+    def get_job_type_id(self, name, group):
+
+        id_iter = self.sources["jobs"].dhub.execute(
+            proc='reference.selects.get_job_type_id',
+            placeholders=[name, group],
+            debug_show=self.DEBUG,
+            return_type='iter')
+
+        return id_iter.get_column_data('id')
+
+    def get_or_create_job_type(self, name, group):
+
+        self.sources["jobs"].dhub.execute(
+            proc='reference.inserts.create_job_type',
+            placeholders=[
+                name,
+                group,
+                name,
+                group
+            ],
+            debug_show=self.DEBUG)
+
+        return self.get_job_type_id(name)
 
     def get_machine_id(self, name):
 
