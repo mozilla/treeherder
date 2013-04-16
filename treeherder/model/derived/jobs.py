@@ -173,24 +173,29 @@ class JobsModel(TreeherderModelBase):
 
         # Get/Set reference info, all inserts use ON DUPLICATE KEY
 
-        # @@@ tempted to coalesce these ids into a dict to pass to _set_job_data...
         rdm = RefDataManager(self.project)
 
         build_platform_id = rdm.get_or_create_build_platform(
             **data["jobs"]["build_platform"])
         machine_platform_id = rdm.get_or_create_machine_platform(
             **data["jobs"]["machine_platform"])
+
         machine_id = rdm.get_or_create_machine(
             data["machine"],
+            timestamp=max([
+                data["start_timestamp"],
+                data["submit_timestamp"],
+                data["end_timestamp"],
+                ])
         )
-        # @@@ need to straighten out with mdoglio
         option_collection_id = rdm.get_or_create_option_collection(
-            data)
+            [k for k, v in data["option_collection"].items() if v],
+        )
 
-        # @@@ need these fields in the job structure
-        job_type_id = rdm.get_or_create_job_type(data)
+        job_type_id = rdm.get_or_create_job_type(data["name"])
         product_id = rdm.get_or_create_product(
             data["jobs"]["product_name"],
+            description=None  # @@@ remove this when api changes
         )
 
         result_set_id = self._set_result_set(data["revision_hash"])
