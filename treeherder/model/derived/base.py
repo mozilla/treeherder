@@ -5,7 +5,7 @@ access.
 """
 from django.conf import settings
 
-from treeherder.model.sql.datasource import SQLDataSource
+from treeherder.model.sql.sql_datasource import SQLDataSource
 
 
 class TreeherderModelBase(object):

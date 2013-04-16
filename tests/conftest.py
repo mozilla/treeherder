@@ -28,6 +28,8 @@ def pytest_sessionstart(session):
     settings.DATABASES["default"]["TEST_NAME"] = "{0}test_treeherder".format(prefix)
     # this sets up a clean test-only database
     session.django_db_config = session.django_runner.setup_databases()
+    # store the name of the test project based on user custom settings
+    session.project_name = "{0}testproj".format(prefix)
 
     increment_cache_key_prefix()
 
@@ -101,6 +103,6 @@ def pytest_funcarg__jm(request):
     """
     from treeherder.model.derived.jobs import JobsModel
 
-    jm = JobsModel(request._pyfuncitem.session.job_name)
+    jm = JobsModel(request._pyfuncitem.session.project_name)
 
     return jm
