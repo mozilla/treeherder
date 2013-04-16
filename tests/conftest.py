@@ -29,7 +29,7 @@ def pytest_sessionstart(session):
     # this sets up a clean test-only database
     session.django_db_config = session.django_runner.setup_databases()
     # store the name of the test project based on user custom settings
-    session.project_name = "{0}testproj".format(prefix)
+    session.project_name = "project"
 
     increment_cache_key_prefix()
 

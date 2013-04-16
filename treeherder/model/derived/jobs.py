@@ -92,7 +92,7 @@ class JobsModel(TreeherderModelBase):
         Retrieve JSON blobs from the objectstore.
 
         Does not claim rows for processing; should not be used for actually
-        processing JSON blobs into perftest schema.
+        processing JSON blobs into jobs schema.
 
         Used only by the `transfer_data` management command.
 
@@ -274,8 +274,8 @@ class JobsModel(TreeherderModelBase):
         return job_id
 
     def _insert_data(self, statement, placeholders, executemany=False):
-        self.sources["perftest"].dhub.execute(
-            proc='perftest.inserts.' + statement,
+        self.sources[self.CT_JOBS].dhub.execute(
+            proc='jobs.inserts.' + statement,
             debug_show=self.DEBUG,
             placeholders=placeholders,
             executemany=executemany,
@@ -286,7 +286,7 @@ class JobsModel(TreeherderModelBase):
         self._insert_data(statement, placeholders)
         return self._get_last_insert_id()
 
-    def _get_last_insert_id(self, source="perftest"):
+    def _get_last_insert_id(self, source=CT_JOBS):
         """Return last-inserted ID."""
         return self.sources[source].dhub.execute(
             proc='generic.selects.get_last_insert_id',

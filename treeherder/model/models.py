@@ -4,6 +4,8 @@ import uuid
 import subprocess
 import os
 
+from datasource.bases.BaseHub import BaseHub
+from datasource.hubs.MySQL import MySQL
 from django.conf import settings
 from django.core.cache import cache
 from django.db import models

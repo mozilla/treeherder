@@ -68,7 +68,7 @@ class SQLDataSource(object):
 
     def _get_datasource(self):
         candidate_sources = []
-        for source in DataSource.objects.cached():
+        for source in Datasource.objects.cached():
             if (source.project == self.project and
                     source.contenttype == self.contenttype):
                 candidate_sources.append(source)
@@ -93,7 +93,7 @@ class SQLDataSource(object):
         The database for the new dataset will be located on the same host.
 
         """
-        dataset = DataSource.objects.filter(
+        dataset = Datasource.objects.filter(
             project=self.project,
             contenttype=self.contenttype
         ).order_by("-dataset")[0].dataset + 1
@@ -159,7 +159,7 @@ class SQLDataSource(object):
             oauth_consumer_key = uuid.uuid4()
             oauth_consumer_secret = uuid.uuid4()
 
-        ds = DataSource.objects.create(
+        ds = Datasource.objects.create(
             host=host,
             project=project,
             contenttype=contenttype,
