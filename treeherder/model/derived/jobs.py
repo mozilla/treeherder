@@ -10,6 +10,7 @@ from treeherder.model import utils
 from .refdata import RefDataManager
 from .base import TreeherderModelBase
 
+
 class JobsModel(TreeherderModelBase):
     """
     Represent a job repository with objectstore
@@ -24,7 +25,6 @@ class JobsModel(TreeherderModelBase):
     CT_JOBS = "jobs"
     CT_OBJECTSTORE = "objectstore"
     CONTENT_TYPES = [CT_JOBS, CT_OBJECTSTORE]
-
 
     @classmethod
     def create(cls, project, hosts=None, types=None):
@@ -53,16 +53,14 @@ class JobsModel(TreeherderModelBase):
                 ct,
                 host=hosts.get(ct),
                 db_type=types.get(ct),
-                )
+            )
 
         return cls(project=project)
-
 
     def get_oauth_consumer_secret(self, key):
         ds = self.sources[self.CT_OBJECTSTORE].datasource
         secret = ds.get_oauth_consumer_secret(key)
         return secret
-
 
     def _get_last_insert_id(self, source=None):
         """Return last-inserted ID."""
@@ -72,8 +70,7 @@ class JobsModel(TreeherderModelBase):
             proc='generic.selects.get_last_insert_id',
             debug_show=self.DEBUG,
             return_type='iter',
-            ).get_column_data('id')
-
+        ).get_column_data('id')
 
     def store_job_data(self, json_data, error=None):
         """Write the JSON to the objectstore to be queued for processing."""
@@ -89,7 +86,6 @@ class JobsModel(TreeherderModelBase):
         )
 
         return self._get_last_insert_id()
-
 
     def retrieve_job_data(self, limit):
         """
@@ -111,7 +107,6 @@ class JobsModel(TreeherderModelBase):
 
         return json_blobs
 
-
     def load_job_data(self, data):
         """
         Load JobData instance into jobs db, return job_id.
@@ -124,7 +119,7 @@ class JobsModel(TreeherderModelBase):
                     {
                         "commit_timestamp": 1365732271,
                         "push_timestamp": 1365732271,
-                        "comments": "Bug 854583 - Use _pointer_ instead of _cursor_ for mouse lock, r=dolske, approval-aurora=gavin",
+                        "comments": "Bug 854583 - Use _pointer_ instead of...",
                         "repository": "mozilla-aurora",
                         "revision": "c91ee0e8a980"
                     }
@@ -146,7 +141,7 @@ class JobsModel(TreeherderModelBase):
                         },
                         "log_references": [
                             {
-                                "url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-aurora-linux64-pgo/1365724397/mozilla-aurora_ubuntu64_vm_test_pgo-xpcshell-bm54-tests1-linux-build4.txt.gz",
+                                "url": "http://ftp.mozilla.org/pub/...",
                                 "name": "unittest"
                             }
                         ],
@@ -177,6 +172,7 @@ class JobsModel(TreeherderModelBase):
 
         build_platform_id = rdm.get_or_create_build_platform(
             **data["jobs"]["build_platform"])
+
         machine_platform_id = rdm.get_or_create_machine_platform(
             **data["jobs"]["machine_platform"])
 
@@ -186,16 +182,21 @@ class JobsModel(TreeherderModelBase):
                 data["start_timestamp"],
                 data["submit_timestamp"],
                 data["end_timestamp"],
-                ])
+            ])
         )
+
         option_collection_id = rdm.get_or_create_option_collection(
             [k for k, v in data["option_collection"].items() if v],
         )
 
-        job_type_id = rdm.get_or_create_job_type(data["name"])
+        job_group, sep, job_name = data["name"].partition("-")
+
+        job_type_id = rdm.get_or_create_job_type(
+            job_name, job_group,
+        )
+
         product_id = rdm.get_or_create_product(
             data["jobs"]["product_name"],
-            description=None  # @@@ remove this when api changes
         )
 
         result_set_id = self._set_result_set(data["revision_hash"])
@@ -213,7 +214,6 @@ class JobsModel(TreeherderModelBase):
 
         return job_id
 
-
     def _set_result_set(self, revision_hash):
 
         job_id = self._insert_data_and_get_id(
@@ -224,8 +224,6 @@ class JobsModel(TreeherderModelBase):
         )
 
         return job_id
-
-
 
     def _set_job_data(self, data, result_set_id, build_platform_id,
                       machine_platform_id, machine_id, option_collection_id,
@@ -270,11 +268,10 @@ class JobsModel(TreeherderModelBase):
                 submit_timestamp,
                 start_timestamp,
                 end_timestamp,
-                ]
+            ]
         )
 
         return job_id
-
 
     def _insert_data(self, statement, placeholders, executemany=False):
         self.sources["perftest"].dhub.execute(
@@ -282,14 +279,12 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG,
             placeholders=placeholders,
             executemany=executemany,
-            )
-
+        )
 
     def _insert_data_and_get_id(self, statement, placeholders):
         """Execute given insert statement, returning inserted ID."""
         self._insert_data(statement, placeholders)
         return self._get_last_insert_id()
-
 
     def _get_last_insert_id(self, source="perftest"):
         """Return last-inserted ID."""
@@ -297,8 +292,7 @@ class JobsModel(TreeherderModelBase):
             proc='generic.selects.get_last_insert_id',
             debug_show=self.DEBUG,
             return_type='iter',
-            ).get_column_data('id')
-
+        ).get_column_data('id')
 
     def process_objects(self, loadlimit):
         """Processes JSON blobs from the objectstore into perftest schema."""
@@ -323,7 +317,6 @@ class JobsModel(TreeherderModelBase):
                 test_run_ids_loaded.append(test_run_id)
 
         return test_run_ids_loaded
-
 
     def claim_objects(self, limit):
         """
@@ -385,7 +378,6 @@ class JobsModel(TreeherderModelBase):
 
         return json_blobs
 
-
     def mark_object_complete(self, object_id, job_id):
         """ Call to database to mark the task completed """
         self.sources[self.CT_OBJECTSTORE].dhub.execute(
@@ -393,7 +385,6 @@ class JobsModel(TreeherderModelBase):
             placeholders=[job_id, object_id],
             debug_show=self.DEBUG
         )
-
 
     def mark_object_error(self, object_id, error):
         """ Call to database to mark the task completed """
@@ -423,7 +414,6 @@ class JobData(dict):
         self.context = context or []
         super(JobData, self).__init__(data)
 
-
     @classmethod
     def from_json(cls, json_blob):
         """Create ``JobData`` from a JSON string."""
@@ -433,7 +423,6 @@ class JobData(dict):
             raise JobDataError("Malformed JSON: {0}".format(e))
 
         return cls(data)
-
 
     def __getitem__(self, name):
         """Get a data value, raising ``JobDataError`` if missing."""
