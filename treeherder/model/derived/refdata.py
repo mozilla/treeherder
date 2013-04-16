@@ -144,13 +144,12 @@ class RefDataManager(TreeherderModelBase):
 
         return id_iter.get_column_data('id')
 
-    def get_or_create_option(self, name, description):
+    def get_or_create_option(self, name):
 
         self.sources["jobs"].dhub.execute(
             proc='reference.inserts.create_option',
             placeholders=[
                 name,
-                description,
                 name
             ],
             debug_show=self.DEBUG)
@@ -186,8 +185,7 @@ class RefDataManager(TreeherderModelBase):
             for option in options:
 
                 #create an option if it doesn't exist
-                option_id = self.get_or_create_option(option,
-                                                      'description needed')
+                option_id = self.get_or_create_option(option)
 
                 # create an entry in option_collection
                 self.sources["jobs"].dhub.execute(
@@ -212,13 +210,12 @@ class RefDataManager(TreeherderModelBase):
 
         return id_iter.get_column_data('id')
 
-    def get_or_create_product(self, name, description):
+    def get_or_create_product(self, name):
 
         self.sources["jobs"].dhub.execute(
             proc='reference.inserts.create_product',
             placeholders=[
                 name,
-                description,
                 name
             ],
             debug_show=self.DEBUG)
