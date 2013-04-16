@@ -1,17 +1,17 @@
 import os
 from os.path import dirname
 import sys
+
 from django.core.management import call_command
-import pytest
 
 
 def pytest_sessionstart(session):
     """
-Set up the test environment.
+    Set up the test environment.
 
-Set DJANGO_SETTINGS_MODULE and sets up a test database.
+    Set DJANGO_SETTINGS_MODULE and sets up a test database.
 
-"""
+    """
     sys.path.append(dirname(dirname(__file__)))
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "treeherder.settings")
     from django.conf import settings
@@ -43,14 +43,14 @@ def pytest_sessionfinish(session):
 
 def pytest_runtest_setup(item):
     """
-Per-test setup.
+    Per-test setup.
 
-Start a transaction and disable transaction methods for the duration of the
-test. The transaction will be rolled back after the test. This prevents any
-database changes made to Django ORM models from persisting between tests,
-providing test isolation.
+    Start a transaction and disable transaction methods for the duration of the
+    test. The transaction will be rolled back after the test. This prevents any
+    database changes made to Django ORM models from persisting between tests,
+    providing test isolation.
 
-"""
+    """
     from django.test.testcases import disable_transaction_methods
     from django.db import transaction
 
@@ -63,11 +63,11 @@ providing test isolation.
 
 def pytest_runtest_teardown(item):
     """
-Per-test teardown.
+    Per-test teardown.
 
-Roll back the Django ORM transaction and delete all the dbs created between tests
+    Roll back the Django ORM transaction and delete all the dbs created between tests
 
-"""
+    """
     from django.test.testcases import restore_transaction_methods
     from django.db import transaction
     from treeherder.model.models import Datasource
@@ -92,3 +92,15 @@ def increment_cache_key_prefix():
         key_prefix_counter = 0
         cache.set(prefix_counter_cache_key, key_prefix_counter)
     cache.key_prefix = "t{0}".format(key_prefix_counter)
+
+
+def pytest_funcarg__jm(request):
+    """
+    Give a test access to a JobsModel instance.
+
+    """
+    from treeherder.model.derived.jobs import JobsModel
+
+    jm = JobsModel(request._pyfuncitem.session.job_name)
+
+    return jm
