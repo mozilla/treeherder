@@ -92,3 +92,27 @@ def increment_cache_key_prefix():
         key_prefix_counter = 0
         cache.set(prefix_counter_cache_key, key_prefix_counter)
     cache.key_prefix = "t{0}".format(key_prefix_counter)
+
+
+@pytest.fixture(scope='session')
+def jobs_ds():
+    from django.conf import settings
+    from treeherder.model.models import Datasource
+    return Datasource.objects.create(
+        project=settings.DATABASES["default"]["TEST_NAME"],
+        dataset=1,
+        contenttype="jobs",
+        host="localhost",
+    )
+
+
+@pytest.fixture(scope='session')
+def objectstore_ds():
+    from django.conf import settings
+    from treeherder.model.models import Datasource
+    return Datasource.objects.create(
+        project=settings.DATABASES["default"]["TEST_NAME"],
+        dataset=1,
+        contenttype="objectstore",
+        host="localhost",
+    )
