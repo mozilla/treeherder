@@ -30,7 +30,7 @@ def test_build_platform_manager(refdata):
         'linux',
         'Fedora 12',
         'x86_64',)
-    print build_platform_id
+
     row_data = refdata.dhub.execute(
         proc="refdata_test.selects.test_build_platform_manager",
         placeholders=[build_platform_id]
@@ -39,3 +39,20 @@ def test_build_platform_manager(refdata):
     assert row_data["os_name"] == 'linux'
     assert row_data["platform"] == 'Fedora 12'
     assert row_data["architecture"] == 'x86_64'
+
+
+def test_job_group_manager(refdata):
+    # `name` = mygroup
+
+    job_group_id = refdata.get_or_create_job_group('mygroup')
+
+    row_data = refdata.dhub.execute(
+        proc="refdata_test.selects.test_job_group_manager",
+        placeholders=[job_group_id]
+    )[0]
+
+    assert row_data["symbol"] == 'fill me'
+    assert row_data["name"] == 'mygroup'
+    assert row_data["description"] == 'fill me'
+    assert row_data["active_status"] == 'active'
+
