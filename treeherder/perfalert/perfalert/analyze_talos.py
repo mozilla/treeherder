@@ -253,9 +253,6 @@ class AnalysisRunner:
 
         log.basicConfig(level=options.verbosity, format="%(asctime)s %(message)s")
 
-        self.pushlog = PushLog(config.get('cache', 'pushlog'), config.get('main', 'base_hg_url'))
-        self.pushlog.load()
-
         self.loadWarningHistory()
 
         self.dashboard_data = {}
@@ -269,10 +266,24 @@ class AnalysisRunner:
 
         # The id of the last test run we've looked at
         self.last_run = 0
+        self._source = None
+        self._pushlog = None
 
-        import analyze_db as source
-        source.connect(config.get('main', 'dburl'))
-        self.source = source
+    @property
+    def pushlog(self):
+        if not self._pushlog:
+            self._pushlog = PushLog(config.get('cache', 'pushlog'), config.get('main', 'base_hg_url'))
+            self._pushlog.load()
+        return self._pushlog
+
+
+    @property
+    def source(self):
+        if not self._source:
+            import analyze_db as source
+            source.connect(config.get('main', 'dburl'))
+            self._source = source
+        return self._source
 
     def loadWarningHistory(self):
         # Stop warning about stuff from a long time ago
@@ -666,7 +677,7 @@ class AnalysisRunner:
         basename = "%s/%s-%s-%s" % (graph_dir,
                 series.branch_name, series.os_name, test_name)
 
-        for s, d, state, skip, last_good in series_data:
+        for d, state, skip, last_good in series_data:
             graph_point = (d.time * 1000, d.value)
             all_data.append(graph_point)
             if state == "good":
@@ -816,6 +827,14 @@ class AnalysisRunner:
             self.warning_history[s.branch_name][s.os_name][s.test_name] = []
         warnings = self.warning_history[s.branch_name][s.os_name][s.test_name]
 
+        series_data = self.processSeries(analysis_gen, warnings)
+        for d, state, skip, last_good in series_data:
+            self.handleData(s, d, state, skip, last_good)
+
+        if self.config.has_option('main', 'graph_dir'):
+            self.outputGraphs(s, series_data)
+
+    def processSeries(self, analysis_gen, warnings):
         last_good = None
         last_err = None
         last_err_good = None
@@ -856,11 +875,10 @@ class AnalysisRunner:
                 last_err = None
                 last_good = d
 
-            series_data.append((s, d, state, skip, last_good))
-            self.handleData(s, d, state, skip, last_good)
+            series_data.append((d, state, skip, last_good))
 
-        if self.config.has_option('main', 'graph_dir'):
-            self.outputGraphs(s, series_data)
+        return series_data
+
 
     def loadSeries(self):
         start_time = self.options.start_time
@@ -923,9 +941,8 @@ class AnalysisRunner:
             except:
                 log.exception("Error saving last time")
 
-if __name__ == "__main__":
+def parse_options(args=None):
     from optparse import OptionParser
-    from ConfigParser import RawConfigParser
 
     parser = OptionParser()
     parser.add_option("-b", "--branch", dest="branches", action="append")
@@ -952,7 +969,10 @@ if __name__ == "__main__":
             catchup = False,
             )
 
-    options, args = parser.parse_args()
+    return parser.parse_args(args)
+
+def get_config(options):
+    from ConfigParser import RawConfigParser
 
     config = RawConfigParser()
     config.add_section('main')
@@ -967,6 +987,12 @@ if __name__ == "__main__":
         config.set('main', 'regression_emails', ",".join(options.addresses))
     if options.machine_addresses:
         config.set('main', 'machine_emails', ",".join(options.machine_addresses))
+
+    return config
+
+if __name__ == "__main__":
+    options, args = parse_options()
+    config = get_config(options)
 
     vars = os.environ.copy()
     vars['sys_prefix'] = sys.prefix
