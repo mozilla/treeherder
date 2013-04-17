@@ -8,8 +8,11 @@
                         `id` = ?",
             "host":"read_host"
         },
-        "show_tables":{
-            "sql": "SHOW TABLES",
+        "test_job_group_manager":{
+            "sql": "SELECT `symbol`, `name`, `description`, `active_status`
+                    FROM `job_group`
+                    WHERE 
+                        `id` = ?",
             "host":"read_host"
         }
     }
