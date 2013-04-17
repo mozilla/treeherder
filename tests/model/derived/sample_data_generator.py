@@ -60,7 +60,7 @@ def job_data(**kwargs):
         'result': kwargs.pop("result", 0),
 
         'job_guid': kwargs.pop(
-            "job_guid," 'f3e3a9e6526881c39a3b2b6ff98510f213b3d4ed'),
+            "job_guid", "f3e3a9e6526881c39a3b2b6ff98510f213b3d4ed"),
 
         'product_name': kwargs.pop("product_name", u'firefox'),
 

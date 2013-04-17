@@ -16,7 +16,7 @@ def test_disconnect(jm):
     # establish the connection to perftest.
     jm._get_last_insert_id()
     # establish the connection to objectstore
-    jm.retrieve_test_data(limit=1)
+    jm.retrieve_job_data(limit=1)
 
     jm.disconnect()
     for src in jm.sources.itervalues():
@@ -32,7 +32,7 @@ def test_claim_objects(jm):
     ]
 
     for blob in blobs:
-        jm.store_test_data(blob)
+        jm.store_job_data(blob)
 
     rows1 = jm.claim_objects(2)
 
@@ -58,7 +58,7 @@ def test_claim_objects(jm):
 
 def test_mark_object_complete(jm):
     """Marks claimed row complete and records run id."""
-    jm.store_test_data(job_json())
+    jm.store_job_data(job_json())
     row_id = jm.claim_objects(1)[0]["id"]
     test_run_id = 7 # any arbitrary number; no cross-db constraint checks
 
@@ -81,7 +81,7 @@ def test_process_objects(jm):
         ]
 
     for blob in blobs:
-        jm.store_test_data(blob)
+        jm.store_job_data(blob)
 
     # just process two rows
     jm.process_objects(2)
@@ -103,7 +103,7 @@ def test_process_objects(jm):
 
 
 def test_process_objects_invalid_json(jm):
-    jm.store_test_data("invalid json")
+    jm.store_job_data("invalid json")
     row_id = jm._get_last_insert_id("objectstore")
 
     jm.process_objects(1)
@@ -119,13 +119,13 @@ def test_process_objects_invalid_json(jm):
 
 
 def test_process_objects_unknown_error(jm, monkeypatch):
-    jm.store_test_data("{}")
+    jm.store_job_data("{}")
     row_id = jm._get_last_insert_id("objectstore")
 
     # force an unexpected error to occur
     def raise_error(*args, **kwargs):
         raise ValueError("Something blew up!")
-    monkeypatch.setattr(jm, "load_test_data", raise_error)
+    monkeypatch.setattr(jm, "load_job_data", raise_error)
 
     jm.process_objects(1)
 
