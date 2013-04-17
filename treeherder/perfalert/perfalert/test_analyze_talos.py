@@ -26,14 +26,14 @@ class TestAnalysisRunner(unittest.TestCase):
 
     def get_data(self):
         return [
-            (PerfDatum(0, 0, time() + 0, 0.0, 0, 0), 'good'),
-            (PerfDatum(1, 1, time() + 1, 0.0, 1, 1), 'good'),
-            (PerfDatum(2, 2, time() + 2, 0.0, 2, 2), 'good'),
-            (PerfDatum(3, 3, time() + 3, 0.0, 3, 3), 'good'),
-            (PerfDatum(4, 4, time() + 4, 1.0, 4, 4), 'regression'),
-            (PerfDatum(5, 5, time() + 5, 1.0, 5, 5), 'good'),
-            (PerfDatum(6, 6, time() + 6, 1.0, 6, 6), 'good'),
-            (PerfDatum(7, 7, time() + 7, 1.0, 7, 7), 'good'),
+            PerfDatum(0, 0, time() + 0, 0.0, 0, 0, state='good'),
+            PerfDatum(1, 1, time() + 1, 0.0, 1, 1, state='good'),
+            PerfDatum(2, 2, time() + 2, 0.0, 2, 2, state='good'),
+            PerfDatum(3, 3, time() + 3, 0.0, 3, 3, state='good'),
+            PerfDatum(4, 4, time() + 4, 1.0, 4, 4, state='regression'),
+            PerfDatum(5, 5, time() + 5, 1.0, 5, 5, state='good'),
+            PerfDatum(6, 6, time() + 6, 1.0, 6, 6, state='good'),
+            PerfDatum(7, 7, time() + 7, 1.0, 7, 7, state='good'),
         ]
 
     def test_processSeries(self):
@@ -44,12 +44,12 @@ class TestAnalysisRunner(unittest.TestCase):
         results = runner.processSeries(data, [])
         self.assertEqual(len(results), 8)
 
-        skipped = filter(lambda (d, state, skip, last_good): skip, results)
+        skipped = filter(lambda (d, skip, last_good): skip, results)
         self.assertEqual(len(skipped), 0)
 
-        self.assertEqual(results[3], (data[3][0], 'good', False, data[3][0]))
-        self.assertEqual(results[4], (data[4][0], 'regression', False, data[3][0]))
-        self.assertEqual(results[5], (data[5][0], 'good', False, data[5][0]))
+        self.assertEqual(results[3], (data[3], False, data[3]))
+        self.assertEqual(results[4], (data[4], False, data[3]))
+        self.assertEqual(results[5], (data[5], False, data[5]))
 
 
 if __name__ == '__main__':

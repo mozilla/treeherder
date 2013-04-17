@@ -677,14 +677,14 @@ class AnalysisRunner:
         basename = "%s/%s-%s-%s" % (graph_dir,
                 series.branch_name, series.os_name, test_name)
 
-        for d, state, skip, last_good in series_data:
+        for d, skip, last_good in series_data:
             graph_point = (d.time * 1000, d.value)
             all_data.append(graph_point)
-            if state == "good":
+            if d.state == "good":
                 good_data.append(graph_point)
-            elif state == "regression":
+            elif d.state == "regression":
                 regressions.append(graph_point)
-            elif state == "machine":
+            elif d.state == "machine":
                 bad_machines.setdefault(d.machine_id, []).append(graph_point)
 
         log.debug("Creating graph %s", basename)
@@ -828,33 +828,33 @@ class AnalysisRunner:
         warnings = self.warning_history[s.branch_name][s.os_name][s.test_name]
 
         series_data = self.processSeries(analysis_gen, warnings)
-        for d, state, skip, last_good in series_data:
-            self.handleData(s, d, state, skip, last_good)
+        for d, skip, last_good in series_data:
+            self.handleData(s, d, d.state, skip, last_good)
 
         if self.config.has_option('main', 'graph_dir'):
             self.outputGraphs(s, series_data)
 
     def processSeries(self, analysis_gen, warnings):
         last_good = None
-        last_err = None
-        last_err_good = None
         # Uncomment this for debugging!
         #cutoff = self.options.start_time
         cutoff = time.time() - 7*24*3600
         series_data = []
-        for d, state in analysis_gen:
+        for d in analysis_gen:
             skip = False
             if d.timestamp < cutoff:
                 continue
 
-            if state != "good":
+            if d.state == "good":
+                last_good = d
+            else:
                 # Skip warnings about regressions we've already
                 # warned people about
                 if (d.buildid, d.timestamp) in warnings:
                     skip = True
                 else:
                     warnings.append((d.buildid, d.timestamp))
-                    if state == "machine":
+                    if d.state == "machine":
                         machine_name = self.source.getMachineName(d.machine_id)
                         if 'bad_machines' not in self.warning_history:
                             self.warning_history['bad_machines'] = {}
@@ -865,17 +865,7 @@ class AnalysisRunner:
                             # If it was over a week ago, then send another warning
                             self.warning_history['bad_machines'][machine_name] = time.time()
 
-                if not last_err:
-                    last_err = d
-                    last_err_good = last_good
-                elif last_err_good == last_good:
-                    skip = True
-
-            else:
-                last_err = None
-                last_good = d
-
-            series_data.append((d, state, skip, last_good))
+            series_data.append((d, skip, last_good))
 
         return series_data
 

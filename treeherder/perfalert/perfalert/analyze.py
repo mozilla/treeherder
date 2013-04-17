@@ -26,9 +26,9 @@ def calc_t(w1, w2):
 class PerfDatum(object):
     __slots__ = ('testrun_id', 'machine_id', 'timestamp', 'value', 'buildid',
             'time', 'revision', 'run_number', 'last_other', 'historical_stats',
-            'forward_stats')
+            'forward_stats', 't', 'state')
     def __init__(self, testrun_id, machine_id, timestamp, value, buildid, time,
-            revision=None):
+            revision=None, state='good'):
         # Which test run was this
         self.testrun_id = testrun_id
         # Which machine is this
@@ -43,6 +43,10 @@ class PerfDatum(object):
         self.time = time
         # What revision this data is for
         self.revision = revision
+        # t-test score
+        self.t = 0
+        # Whether a machine issue or perf regression is found
+        self.state = state
 
     def __cmp__(self, o):
         return cmp(
@@ -86,7 +90,8 @@ class TalosAnalyzer:
         # Analyze test data using T-Tests, comparing data[i-j:i] to data[i:i+k]
         good_data = []
 
-        for i in range(len(self.data)-k+1):
+        num_points = len(self.data) - k + 1
+        for i in range(num_points):
             di = self.data[i]
             jw = [d.value for d in good_data[-j:]]
             kw = [d.value for d in self.data[i:i+k]]
@@ -106,10 +111,10 @@ class TalosAnalyzer:
             di.forward_stats = analyze(kw)
 
             if len(jw) >= j:
-                t = calc_t(jw, kw)
+                di.t = abs(calc_t(jw, kw))
             else:
                 # Assume it's ok, we don't have enough data
-                t = 0
+                di.t = 0
 
             if len(other_data) >= k*2 and len(my_data) >= machine_history_size:
                 m_t = calc_t(other_data, my_data)
@@ -126,12 +131,30 @@ class TalosAnalyzer:
                     l -= 1
                 # We think this machine is bad, so don't add its data to the
                 # set of good data
-                yield di, "machine"
-            elif abs(t) <= threshold:
-                good_data.append(di)
-                yield di, "good"
+                di.state = 'machine'
             else:
-                # By including the data point as part of the "good" data, we slowly
-                # adjust to the new baseline.
                 good_data.append(di)
-                yield di, "regression"
+
+        # Now that the t-test scores are calculated, go back through the data to
+        # find where regressions most likely happened.
+        for i in range(1, len(good_data) - 1):
+            di = good_data[i]
+            if di.t <= threshold:
+                continue
+
+            # Check the adjacent points
+            prev = good_data[i-1]
+            if prev.t > di.t:
+                continue
+            next = good_data[i+1]
+            if next.t > di.t:
+                continue
+
+            # This datapoint has a t value higher than the threshold and higher
+            # than either neighbor.  Mark it as the cause of a regression.
+            di.state = 'regression'
+
+        # Return all but the first and last points whose scores we calculated,
+        # since we can only produce a final decision for a point whose scores
+        # were compared to both of its neighbors.
+        return self.data[1:num_points-1]
