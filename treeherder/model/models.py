@@ -12,10 +12,11 @@ from django.db import models
 
 from treeherder import path
 
+
 # the cache key is specific to the database name we're pulling the data from
 SOURCES_CACHE_KEY = "treeherder-datasources"
 
-SQL_PATH = os.path.dirname(os.path.abspath(__file__))
+SQL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'sql')
 
 
 class Product(models.Model):
@@ -205,7 +206,7 @@ class Datasource(models.Model):
         inserting = not self.pk
         # in case you want to add a new datasource and provide
         # a pk, set force_insert=True when you save
-        if inserting or kwargs.get('force_insert',False):
+        if inserting or kwargs.get('force_insert', False):
             if not self.name:
                 self.name = "{0}_{1}_{2}".format(
                     self.project,
@@ -250,21 +251,21 @@ class Datasource(models.Model):
                     "host": self.host,
                     "user": settings.TREEHERDER_DATABASE_USER,
                     "passwd": settings.TREEHERDER_DATABASE_PASSWORD,
-                    },
+                },
                 "default_db": self.name,
                 "procs": [
                     os.path.join(SQL_PATH, procs_file_name),
                     os.path.join(SQL_PATH, "generic.json"),
-                    ],
-                }
+                ],
             }
+        }
 
         if self.read_only_host:
             data_source[self.key]['read_host'] = {
                 "host": self.read_only_host,
                 "user": settings.TREEHERDER_RO_DATABASE_USER,
                 "passwd": settings.TREEHERDER_RO_DATABASE_PASSWORD,
-                }
+            }
 
         BaseHub.add_data_source(data_source)
         # @@@ the datahub class should depend on self.type

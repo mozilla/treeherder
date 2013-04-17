@@ -107,7 +107,7 @@
                     WHERE `repository_id` = ? AND `version` = ?
                     )",
             "host":"master_host"
-        },
+        }
     },
     "selects":{
         "get_build_platform_id":{

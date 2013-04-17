@@ -1,14 +1,35 @@
+import os
+from django.conf import settings
+from datasource.bases.BaseHub import BaseHub
+from datasource.DataHub import DataHub
 from .base import TreeherderModelBase
 
 
-class RefDataManager(TreeherderModelBase):
+class RefDataManager(object):
     """Model for reference data"""
 
-    CONTENT_TYPES = ['jobs']
+    def __init__(self):
+        procs_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                  'sql', 'reference.json')
+        data_source = {
+            'reference': {
+                "hub": "MySQL",
+                "master_host": {
+                    "host": settings.DATABASES['default']['HOST'],
+                    "user": settings.DATABASES['default']['USER'],
+                    "passwd": settings.DATABASES['default']['PASSWORD']
+                },
+                "default_db": settings.DATABASES['default']['NAME'],
+                "procs": [procs_path]
+            }
+        }
+        BaseHub.add_data_source(data_source)
+        self.dhub = DataHub.get("reference")
+        self.DEBUG = settings.DEBUG
 
     def get_build_platform_id(self, os_name, platform, architecture):
 
-        id_iter = self.sources["jobs"].dhub.execute(
+        id_iter = self.dhub.execute(
             proc='reference.selects.get_build_platform_id',
             placeholders=[os_name, platform, architecture],
             debug_show=self.DEBUG,
@@ -18,7 +39,7 @@ class RefDataManager(TreeherderModelBase):
 
     def get_or_create_build_platform(self, os_name, platform, architecture):
 
-        self.sources["jobs"].dhub.execute(
+        self.dhub.execute(
             proc='reference.inserts.create_build_platform',
             placeholders=[
                 os_name,
@@ -37,7 +58,7 @@ class RefDataManager(TreeherderModelBase):
 
     def get_job_group_id(self, name):
 
-        id_iter = self.sources["jobs"].dhub.execute(
+        id_iter = self.dhub.execute(
             proc='reference.selects.get_job_group_id',
             placeholders=[name],
             debug_show=self.DEBUG,
@@ -47,7 +68,7 @@ class RefDataManager(TreeherderModelBase):
 
     def get_or_create_job_group(self, name):
 
-        self.sources["jobs"].dhub.execute(
+        self.dhub.execute(
             proc='reference.inserts.create_job_group',
             placeholders=[
                 name,
@@ -59,7 +80,7 @@ class RefDataManager(TreeherderModelBase):
 
     def get_job_type_id(self, name, group):
 
-        id_iter = self.sources["jobs"].dhub.execute(
+        id_iter = self.dhub.execute(
             proc='reference.selects.get_job_type_id',
             placeholders=[name, group],
             debug_show=self.DEBUG,
@@ -69,7 +90,7 @@ class RefDataManager(TreeherderModelBase):
 
     def get_or_create_job_type(self, name, group):
 
-        self.sources["jobs"].dhub.execute(
+        self.dhub.execute(
             proc='reference.inserts.create_job_type',
             placeholders=[
                 name,
@@ -83,7 +104,7 @@ class RefDataManager(TreeherderModelBase):
 
     def get_machine_id(self, name):
 
-        id_iter = self.sources["jobs"].dhub.execute(
+        id_iter = self.dhub.execute(
             proc='reference.selects.get_machine_id',
             placeholders=[name],
             debug_show=self.DEBUG,
@@ -92,7 +113,7 @@ class RefDataManager(TreeherderModelBase):
         return id_iter.get_column_data('id')
 
     def get_or_create_machine(self, name, timestamp):
-        self.sources["jobs"].dhub.execute(
+        self.dhub.execute(
             proc='reference.inserts.create_machine',
             placeholders=[
                 name,
@@ -106,7 +127,7 @@ class RefDataManager(TreeherderModelBase):
 
     def get_machine_platform_id(self, os_name, platform, architecture):
 
-        id_iter = self.sources["jobs"].dhub.execute(
+        id_iter = self.dhub.execute(
             proc='reference.selects.get_machine_platform_id',
             placeholders=[os_name, platform, architecture],
             debug_show=self.DEBUG,
@@ -117,7 +138,7 @@ class RefDataManager(TreeherderModelBase):
     def get_or_create_machine_platform(self, os_name, platform,
                                        architecture):
 
-        self.sources["jobs"].dhub.execute(
+        self.dhub.execute(
             proc='reference.inserts.create_machine_platform',
             placeholders=[
                 os_name,
@@ -136,7 +157,7 @@ class RefDataManager(TreeherderModelBase):
 
     def get_option_id(self, name):
 
-        id_iter = self.sources["jobs"].dhub.execute(
+        id_iter = self.dhub.execute(
             proc='reference.selects.get_option_id',
             placeholders=[name],
             debug_show=self.DEBUG,
@@ -146,7 +167,7 @@ class RefDataManager(TreeherderModelBase):
 
     def get_or_create_option(self, name):
 
-        self.sources["jobs"].dhub.execute(
+        self.dhub.execute(
             proc='reference.inserts.create_option',
             placeholders=[
                 name,
@@ -160,7 +181,7 @@ class RefDataManager(TreeherderModelBase):
         """returns an option_collection_id given a list of options"""
         options = sorted(list(options))
 
-        id_iter = self.sources["jobs"].dhub.execute(
+        id_iter = self.dhub.execute(
             proc='reference.selects.get_option_collection_id',
             placeholders=[','.join(options)],
             debug_show=self.DEBUG,
@@ -169,7 +190,7 @@ class RefDataManager(TreeherderModelBase):
         return id_iter.get_column_data('id')
 
     def get_last_collection_id(self):
-        self.sources["jobs"].dhub.execute(
+        self.dhub.execute(
             proc='reference.selects.get_last_collection_id',
             placeholders=[],
             debug_show=self.DEBUG)
@@ -188,7 +209,7 @@ class RefDataManager(TreeherderModelBase):
                 option_id = self.get_or_create_option(option)
 
                 # create an entry in option_collection
-                self.sources["jobs"].dhub.execute(
+                self.dhub.execute(
                     proc='reference.inserts.create_option_collection',
                     placeholders=[
                         option_collection_id,
@@ -202,7 +223,7 @@ class RefDataManager(TreeherderModelBase):
 
     def get_product_id(self, name):
 
-        id_iter = self.sources["jobs"].dhub.execute(
+        id_iter = self.dhub.execute(
             proc='reference.selects.get_product_id',
             placeholders=[name],
             debug_show=self.DEBUG,
@@ -212,7 +233,7 @@ class RefDataManager(TreeherderModelBase):
 
     def get_or_create_product(self, name):
 
-        self.sources["jobs"].dhub.execute(
+        self.dhub.execute(
             proc='reference.inserts.create_product',
             placeholders=[
                 name,
@@ -224,7 +245,7 @@ class RefDataManager(TreeherderModelBase):
 
     def get_repository_version(self, repository_id, version):
 
-        id_iter = self.sources["jobs"].dhub.execute(
+        id_iter = self.dhub.execute(
             proc='reference.selects.get_repository_version_id',
             placeholders=[name],
             debug_show=self.DEBUG,
@@ -235,7 +256,7 @@ class RefDataManager(TreeherderModelBase):
     def get_or_create_repository_version(self, repository_id, version,
                                          version_timestamp):
 
-        self.sources["jobs"].dhub.execute(
+        self.dhub.execute(
             proc='reference.inserts.create_repository_version',
             placeholders=[
                 repository_id,

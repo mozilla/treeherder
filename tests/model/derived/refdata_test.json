@@ -1,0 +1,17 @@
+{
+    "inserts":{},
+    "selects":{
+        "test_build_platform_manager":{
+            "sql": "SELECT `platform`, `os_name`, `architecture`
+                    FROM `build_platform`
+                    WHERE 
+                        `id` = ?",
+            "host":"read_host"
+        },
+        "show_tables":{
+            "sql": "SHOW TABLES",
+            "host":"read_host"
+        }
+    }
+}
+

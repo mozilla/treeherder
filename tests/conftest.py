@@ -1,6 +1,7 @@
 import os
 from os.path import dirname
 import sys
+import pytest
 
 from django.core.management import call_command
 
@@ -106,3 +107,26 @@ def pytest_funcarg__jm(request):
     jm = JobsModel(request._pyfuncitem.session.project_name)
 
     return jm
+
+@pytest.fixture(scope='session')
+def jobs_ds():
+    from django.conf import settings
+    from treeherder.model.models import Datasource
+    return Datasource.objects.create(
+        project=settings.DATABASES["default"]["TEST_NAME"],
+        dataset=1,
+        contenttype="jobs",
+        host="localhost",
+    )
+
+
+@pytest.fixture(scope='session')
+def objectstore_ds():
+    from django.conf import settings
+    from treeherder.model.models import Datasource
+    return Datasource.objects.create(
+        project=settings.DATABASES["default"]["TEST_NAME"],
+        dataset=1,
+        contenttype="objectstore",
+        host="localhost",
+    )
