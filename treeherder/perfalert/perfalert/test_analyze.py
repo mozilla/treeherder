@@ -2,6 +2,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 import unittest
+import json
+import os
+import sys
+
 from analyze import *
 
 class TestAnalyze(unittest.TestCase):
@@ -42,6 +46,34 @@ class TestTalosAnalyzer(unittest.TestCase):
             (8, 'regression'),
             (9, 'good'),
             (10, 'good')])
+
+    def test_json_files(self):
+        self.check_json('runs1.json', [1365019665])
+        self.check_json('runs2.json', [1358971894, 1365014104])
+        self.check_json('runs3.json', [1335293827, 1338839958])
+        self.check_json('runs4.json', [1364922838])
+        self.check_json('runs5.json', [])
+
+    def check_json(self, filename, expected_timestamps):
+        """Parse JSON produced by http://graphs.mozilla.org/api/test/runs"""
+        # Configuration for TalosAnalyzer
+        FORE_WINDOW = 12
+        BACK_WINDOW = 12
+        THRESHOLD = 9
+        MACHINE_THRESHOLD = 15
+        MACHINE_HISTORY_SIZE = 5
+
+        inputfile = open(os.path.join('test_data', filename))
+        payload = json.load(inputfile)
+        runs = payload['test_runs']
+        data = [PerfDatum(r[0], r[6], r[2], r[3], r[1][1], r[2], r[1][2]) for r in runs]
+
+        a = TalosAnalyzer()
+        a.addData(data)
+        results = a.analyze_t(BACK_WINDOW, FORE_WINDOW, THRESHOLD,
+                MACHINE_THRESHOLD, MACHINE_HISTORY_SIZE)
+        regression_timestamps = [d.timestamp for d in results if d.state == 'regression']
+        self.assertEqual(regression_timestamps, expected_timestamps)
 
 if __name__ == '__main__':
     unittest.main()
