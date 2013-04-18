@@ -8,12 +8,8 @@ from analyze_talos import *
 from ConfigParser import RawConfigParser
 from time import time
 
-TEST_CONFIG = """
-base_hg_url = http://example.com
-"""
-
 class TestAnalysisRunner(unittest.TestCase):
-    def get_config(self):
+    def create_runner(self):
         options, args = parse_options(['--start-time', '0'])
         config = get_config(options)
         config.set('main', 'fore_window', '5')
@@ -22,7 +18,9 @@ class TestAnalysisRunner(unittest.TestCase):
         config.set('main', 'percentage_threshold', '9')
         config.set('main', 'machine_threshold', '9')
         config.set('main', 'machine_history_size', '0')
-        return options, config
+        config.set('main', 'ignore_percentage_tests', 'LibXUL Memory.*')
+        config.set('main', 'reverse_tests', 'Dromaeo.*, V8 version 7.*')
+        return AnalysisRunner(options, config)
 
     def get_data(self):
         return [
@@ -37,8 +35,7 @@ class TestAnalysisRunner(unittest.TestCase):
         ]
 
     def test_processSeries(self):
-        options, config = self.get_config()
-        runner = AnalysisRunner(options, config)
+        runner = self.create_runner()
 
         data = self.get_data()
         results = runner.processSeries(data, [])
@@ -50,6 +47,51 @@ class TestAnalysisRunner(unittest.TestCase):
         self.assertEqual(results[3], (data[3], False, data[3]))
         self.assertEqual(results[4], (data[4], False, data[3]))
         self.assertEqual(results[5], (data[5], False, data[5]))
+
+    def test_isTestReversed(self):
+        runner = self.create_runner()
+
+        self.assertTrue(runner.isTestReversed('x Dromaeo'))
+        self.assertTrue(runner.isTestReversed('Dromaeo x'))
+        self.assertTrue(runner.isTestReversed('V8 version 7'))
+        self.assertTrue(runner.isTestReversed('V8 version 7.1'))
+
+        self.assertFalse(runner.isTestReversed('V8'))
+        self.assertFalse(runner.isTestReversed('some other test'))
+
+    def test_ignorePercentageForTest(self):
+        runner = self.create_runner()
+
+        self.assertTrue(runner.ignorePercentageForTest('LibXUL Memory during link'))
+        self.assertTrue(runner.ignorePercentageForTest('LibXUL Memory'))
+
+        self.assertFalse(runner.ignorePercentageForTest('LibXUL something else'))
+        self.assertFalse(runner.ignorePercentageForTest('V8'))
+
+    def test_shouldSendWarning(self):
+        runner = self.create_runner()
+        d = PerfDatum(0, 0, time() + 0, 0.0, 0, 0)
+        d.historical_stats = { 'avg': 100.0 }
+
+        # 1% increase
+        d.forward_stats = { 'avg': 101.0 }
+        self.assertFalse(runner.shouldSendWarning(d, 'some test'))
+
+        # 10% increase
+        d.forward_stats = { 'avg': 110.0 }
+        self.assertTrue(runner.shouldSendWarning(d, 'some test'))
+
+        # 1% decrease
+        d.forward_stats = { 'avg': 99.0 }
+        self.assertFalse(runner.shouldSendWarning(d, 'some test'))
+
+        # 10% decrease
+        d.forward_stats = { 'avg': 90.0 }
+        self.assertTrue(runner.shouldSendWarning(d, 'some test'))
+
+        # 1% increase, ignore percentage
+        d.forward_stats = { 'avg': 101.0 }
+        self.assertTrue(runner.shouldSendWarning(d, 'LibXUL Memory during link'))
 
 
 if __name__ == '__main__':

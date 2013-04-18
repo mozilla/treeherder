@@ -20,6 +20,9 @@ threshold = 9
 # What percentage difference is required to consider a change significant
 percentage_threshold = 2
 
+# Ignore percentage_threshold for these tests (comma-separated list of regexps)
+ignore_percentage_tests = LibXUL Memory during link
+
 # What t score is required to consider a machine to be bad
 machine_threshold = 15
 

@@ -384,13 +384,19 @@ class AnalysisRunner:
                 self.bug_cache[bug_num] = bug
                 return bug
 
-    def isTestReversed(self, test_name):
-        reversed_tests = []
-        if self.config.has_option('main', 'reverse_tests'):
-            for i in self.config.get('main', 'reverse_tests').split(','):
-                reversed_tests.append(i.strip())
+    def ignorePercentageForTest(self, test_name):
+        return self.testMatchesOption(test_name, 'ignore_percentage_tests')
 
-        for text_exp in reversed_tests:
+    def isTestReversed(self, test_name):
+        return self.testMatchesOption(test_name, 'reverse_tests')
+
+    def testMatchesOption(self, test_name, option):
+        patterns = []
+        if self.config.has_option('main', option):
+            for i in self.config.get('main', option).split(','):
+                patterns.append(i.strip())
+
+        for text_exp in patterns:
             if re.search(text_exp, test_name, re.I):
                 return True
         return False
@@ -572,17 +578,24 @@ class AnalysisRunner:
             self.output.write("\n")
             self.output.flush()
 
+    def shouldSendWarning(self, d, test_name):
+        # Don't email if the percentage change is under the threshold
+        initial_value = d.historical_stats['avg']
+        new_value = d.forward_stats['avg']
+        if self.config.has_option('main', 'percentage_threshold') and \
+                initial_value != 0 and \
+                not self.ignorePercentageForTest(test_name):
+            change = 100.0 * abs(new_value - initial_value) / float(initial_value)
+            if change < self.config.getfloat('main', 'percentage_threshold'):
+                return False
+        return True
+
     def emailWarning(self, series, d, state, last_good):
         addresses = []
         branch = series.branch_name
 
-        # Don't email if the percentage change is under the threshold
-        initial_value = d.historical_stats['avg']
-        new_value = d.forward_stats['avg']
-        if self.config.has_option('main', 'percentage_threshold') and initial_value != 0:
-            change = 100.0 * abs(new_value - initial_value) / float(initial_value)
-            if change < self.config.getfloat('main', 'percentage_threshold'):
-                return
+        if not self.shouldSendWarning(d, series.test_name):
+            return
 
         if state == 'regression':
             if self.config.has_option(branch, 'regression_emails'):
