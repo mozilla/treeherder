@@ -26,36 +26,36 @@ class JobsModel(TreeherderModelBase):
     CT_OBJECTSTORE = "objectstore"
     CONTENT_TYPES = [CT_JOBS, CT_OBJECTSTORE]
 
-    @classmethod
-    def create(cls, project, hosts=None, types=None):
-        """
-        Create all the datasource tables for this project.
-
-        ``hosts`` is an optional dictionary mapping contenttype names to the
-        database server host on which the database for that contenttype should
-        be created. Not all contenttypes need to be represented; any that
-        aren't will use the default (``TREEHERDER_DATABASE_HOST``).
-
-        ``types`` is an optional dictionary mapping contenttype names to the
-        type of database that should be created. For MySQL/MariaDB databases,
-        use "MySQL-Engine", where "Engine" could be "InnoDB", "Aria", etc. Not
-        all contenttypes need to be represented; any that aren't will use the
-        default (``MySQL-InnoDB``).
-
-
-        """
-        hosts = hosts or {}
-        types = types or {}
-
-        for ct in cls.CONTENT_TYPES:
-            Datasource.create(
-                project,
-                ct,
-                host=hosts.get(ct),
-                db_type=types.get(ct),
-            )
-
-        return cls(project=project)
+    # @classmethod
+    # def create(cls, project, hosts=None, types=None):
+    #     """
+    #     Create all the datasource tables for this project.
+    #
+    #     ``hosts`` is an optional dictionary mapping contenttype names to the
+    #     database server host on which the database for that contenttype should
+    #     be created. Not all contenttypes need to be represented; any that
+    #     aren't will use the default (``TREEHERDER_DATABASE_HOST``).
+    #
+    #     ``types`` is an optional dictionary mapping contenttype names to the
+    #     type of database that should be created. For MySQL/MariaDB databases,
+    #     use "MySQL-Engine", where "Engine" could be "InnoDB", "Aria", etc. Not
+    #     all contenttypes need to be represented; any that aren't will use the
+    #     default (``MySQL-InnoDB``).
+    #
+    #
+    #     """
+    #     hosts = hosts or {}
+    #     types = types or {}
+    #
+    #     for ct in cls.CONTENT_TYPES:
+    #         Datasource.create(
+    #             project,
+    #             ct,
+    #             host=hosts.get(ct),
+    #             db_type=types.get(ct),
+    #         )
+    #
+    #     return cls(project=project)
 
     def get_oauth_consumer_secret(self, key):
         ds = self.sources[self.CT_OBJECTSTORE].datasource
@@ -168,7 +168,7 @@ class JobsModel(TreeherderModelBase):
 
         # Get/Set reference info, all inserts use ON DUPLICATE KEY
 
-        rdm = RefDataManager(self.project)
+        rdm = RefDataManager()
 
         build_platform_id = rdm.get_or_create_build_platform(
             **data["jobs"]["build_platform"])

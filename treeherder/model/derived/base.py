@@ -11,6 +11,8 @@ from treeherder.model.sql.sql_datasource import SQLDataSource
 class TreeherderModelBase(object):
     """Base model class for all TreeHerder models"""
 
+    CONTENT_TYPES = []
+
     def __init__(self, project):
         self.project = project
 

@@ -46,7 +46,11 @@ class SQLDataSource(object):
     def datasource(self):
         """The DataSource model object backing this SQLDataSource."""
         if self._datasource is None:
-            self._datasource = self._get_datasource()
+            self._datasource = Datasource(
+                project=self.project,
+                contenttype=self.contenttype,
+            )
+            # self._datasource = self._get_datasource()
         return self._datasource
 
     @property

@@ -3,6 +3,7 @@ from os.path import dirname
 import sys
 import pytest
 
+from django.conf import settings
 from django.core.management import call_command
 
 
@@ -29,8 +30,6 @@ def pytest_sessionstart(session):
     settings.DATABASES["default"]["TEST_NAME"] = "{0}test_treeherder".format(prefix)
     # this sets up a clean test-only database
     session.django_db_config = session.django_runner.setup_databases()
-    # store the name of the test project based on user custom settings
-    session.project_name = "project"
 
     increment_cache_key_prefix()
 
@@ -68,7 +67,8 @@ def pytest_runtest_teardown(item):
     """
     Per-test teardown.
 
-    Roll back the Django ORM transaction and delete all the dbs created between tests
+    Roll back the Django ORM transaction and delete all the dbs created
+    between tests
 
     """
     from django.test.testcases import restore_transaction_methods
@@ -97,16 +97,13 @@ def increment_cache_key_prefix():
     cache.key_prefix = "t{0}".format(key_prefix_counter)
 
 
-def pytest_funcarg__jm(request):
-    """
-    Give a test access to a JobsModel instance.
-
-    """
+@pytest.fixture(scope="session")
+def jm():
+    """ Give a test access to a JobsModel instance. """
+    from django.conf import settings
     from treeherder.model.derived.jobs import JobsModel
+    return JobsModel(settings.DATABASES["default"]["TEST_NAME"])
 
-    jm = JobsModel(request._pyfuncitem.session.project_name)
-
-    return jm
 
 @pytest.fixture(scope='session')
 def jobs_ds():

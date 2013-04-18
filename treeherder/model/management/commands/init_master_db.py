@@ -42,8 +42,6 @@ Type 'yes' to continue, or 'no' to cancel: """ % connection.settings_dict['NAME'
         if confirm == 'yes':
             for sql_file in ('treeherder.sql.tmpl',
                              'treeherder_reference_1.sql.tmpl',
-                             'project_jobs_1.sql.tmpl',
-                             'project_objectstore_1.sql.tmpl',
                              ):
 
                 sql = open(os.path.join(options['template_path'], sql_file)).read()
