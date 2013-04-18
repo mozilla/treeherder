@@ -6,28 +6,6 @@ from django.core.cache import cache
 
 
 @pytest.fixture
-def jobs_ds():
-    prefix = getattr(settings, "TEST_DB_PREFIX", "")
-    return Datasource.objects.create(
-        project="{0}test_myproject".format(prefix),
-        dataset=1,
-        contenttype="jobs",
-        host="localhost",
-    )
-
-
-@pytest.fixture
-def objectstore_ds():
-    prefix = getattr(settings, "TEST_DB_PREFIX", "")
-    return Datasource.objects.create(
-        project="{0}test_myproject".format(prefix),
-        dataset=1,
-        contenttype="objectstore",
-        host="localhost",
-    )
-
-
-@pytest.fixture
 def db_conn():
     return MySQLdb.connect(
         host="localhost",

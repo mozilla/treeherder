@@ -1,0 +1,79 @@
+{
+    "inserts":{},
+    "selects":{
+        "test_build_platform":{
+            "sql": "SELECT `platform`, `os_name`, `architecture`, `active_status`
+                    FROM `build_platform`
+                    WHERE 
+                        `id` = ?",
+            "host":"read_host"
+        },
+        "test_job_group":{
+            "sql": "SELECT `symbol`, `name`, `description`, `active_status`
+                    FROM `job_group`
+                    WHERE 
+                        `id` = ?",
+            "host":"read_host"
+        },
+        "test_job_type":{
+            "sql": "SELECT
+                        jg.name AS 'group',
+                        jt.`symbol`,
+                        jt.`name`,
+                        jt.`description`,
+                        jt.`active_status`
+                    FROM `job_type` jt
+                    INNER JOIN `job_group` jg
+                        on jg.id = jt.job_group_id
+                    WHERE 
+                        jt.`id` = ?",
+            "host":"read_host"
+        },
+        "test_machine":{
+            "sql": "SELECT `name`, `first_timestamp`, `last_timestamp`, `active_status`
+                    FROM `machine`
+                    WHERE
+                        `id` = ?",
+            "host":"read_host"
+        },
+        "test_machine_platform":{
+            "sql": "SELECT `platform`, `os_name`, `architecture`, `active_status`
+                    FROM `machine_platform`
+                    WHERE 
+                        `id` = ?",
+            "host":"read_host"
+        },
+        "test_option":{
+            "sql": "SELECT `name`, `description`, `active_status`
+                    FROM `option`
+                    WHERE 
+                        `id` = ?",
+            "host":"read_host"
+        },
+        "test_option_collection":{
+            "sql": "SELECT o.`name`
+                    FROM `option` o
+                    INNER JOIN `option_collection` oc
+                        ON o.`id` = oc.`option_id`
+                    WHERE 
+                        oc.`id` = ?
+                    ORDER BY o.`name`",
+            "host":"read_host"
+        },
+        "test_product":{
+            "sql": "SELECT `name`, `description`, `active_status`
+                    FROM `product`
+                    WHERE 
+                        `id` = ?",
+            "host":"read_host"
+        },
+        "test_repository_version":{
+            "sql": "SELECT `repository_id`, `version`, `version_timestamp`, `active_status`
+                    FROM `repository_version`
+                    WHERE 
+                        `id` = ?",
+            "host":"read_host"
+        }
+    }
+}
+
