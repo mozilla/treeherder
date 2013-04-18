@@ -1,6 +1,7 @@
 import json
 import re
 import time
+import datetime
 import sys
 import hashlib
 import socket
@@ -336,6 +337,7 @@ JOB_TYPE_BUILDERNAME = {
 }
 
 class PulseDataAdapter(object):
+    """Base class for adapting the pulse stream to a consumable data structure"""
 
     def __init__(
         self, rawdata=None, outfile=None, durable=False,
@@ -406,6 +408,7 @@ class PulseDataAdapter(object):
                     'attr_table':[
                         { 'attr':'results' },
                         { 'attr':'slave' },
+                        { 'attr':'times', 'cb':self.get_times_data },
                         { 'attr':'blame' },
                         { 'attr':'reason' },
                         ]
@@ -488,10 +491,12 @@ class PulseDataAdapter(object):
             )
 
     def start(self):
+        """Start the pulse listener"""
 
         self.pulse.listen()
 
     def signal_handler(self, signal, frame):
+        """POSIX signal handler"""
 
         #close outstream if we have one
         if self.outstream:
@@ -605,6 +610,7 @@ class PulseDataAdapter(object):
         return JobData(data)
 
     def get_buildername_data(self, attr, value, data):
+        """Callback function for the buildername property in the pulse stream"""
 
         #set buildername
         data[attr] = value
@@ -620,7 +626,7 @@ class PulseDataAdapter(object):
 
                     break
 
-        #extend data with with build type attributes
+        #extend data with build type attributes
         for build_type in BUILD_TYPE_BUILDERNAME:
             for regex in BUILD_TYPE_BUILDERNAME[build_type]:
                 if regex.search(value):
@@ -642,8 +648,23 @@ class PulseDataAdapter(object):
 
         data['test_name'] = buildername_fields[ len( buildername_fields ) - 1 ]
 
-    def get_routing_key_data(self, attr, value, data):
+    def get_times_data(self, attr, value, data):
+        """Callback function for the build.times property in the pulse stream"""
 
+        data['times'] = {
+
+            'start_timestamp':time.mktime(
+                datetime.datetime.strptime(
+                    value[0], "%Y-%m-%dT%H:%M:%S+0000").timetuple()
+                    ),
+            'end_timestamp':time.mktime(
+                datetime.datetime.strptime(
+                    value[1], "%Y-%m-%dT%H:%M:%S+0000").timetuple()
+                    )
+            }
+
+    def get_routing_key_data(self, attr, value, data):
+        """Callback function for the routing_key property"""
         #set buildername
         data[attr] = value
 
@@ -668,12 +689,15 @@ class PulseDataAdapter(object):
         return target_struct
 
 class TreeherderDataAdapter(PulseDataAdapter):
+    """Data adapter class that converts the PulseDataAdapter
+       structure into the data structure accepted by treeherder."""
 
     def __init__(self, **kwargs):
 
         super(TreeherderDataAdapter, self).__init__(**kwargs)
 
     def get_revision_hash(self, revisions):
+        """Builds the revision hash for a set of revisions"""
 
         sh = hashlib.sha1()
         sh.update(
@@ -682,21 +706,17 @@ class TreeherderDataAdapter(PulseDataAdapter):
 
         return sh.hexdigest()
 
-    def get_job_guid(self, request_ids, request_times):
-
+    def get_job_guid(self, request_id, request_time):
+        """Converts a request_id and request_time into a guid"""
         sh = hashlib.sha1()
 
-        sh.update(
-            ''.join( map( lambda x: str(x), request_ids ) )
-            )
-        sh.update(
-            ''.join( map( lambda x: str(x), request_times ) )
-            )
+        sh.update( str( request_id ) )
+        sh.update( str( request_time ) )
 
         return sh.hexdigest()
 
     def adapt_data(self, data):
-
+        """Adapts the PulseDataAdapter into the treeherder input data structure"""
         treeherder_data = {
             'sources': { },
             #Include branch so revision hash with the same revision is still
@@ -724,9 +744,15 @@ class TreeherderDataAdapter(PulseDataAdapter):
               'comments':data['comments'] }
             )
 
+        request_id = data['request_ids'][0]
+
         job = {
             'job_guid': self.get_job_guid(
-                data['request_ids'], data['request_times']
+                #The keys in this dict are unicode but the values in
+                #request_ids are not, this explicit cast could cause
+                #problems if the data added to the pulse stream is
+                #modified
+                request_id, data['request_times'][ unicode(request_id) ]
                 ),
             'name':data['test_name'],
             'product_name':data['product'],
@@ -740,13 +766,14 @@ class TreeherderDataAdapter(PulseDataAdapter):
             #pulse stream, is who the way to go?
             'who':data['who'],
 
-            #Need to confirm 'when' is the correct pulse attribute
-            'submit_timestamp': data['when'],
-            'start_timestamp': data['buildid'],
+            #This assumes the 0 element in request_ids is the id for the
+            #job which is not always true if there are coalesced jobs. This will need
+            #to be updated when https://bugzilla.mozilla.org/show_bug.cgi?id=862633
+            #is resolved.
+            'submit_timestamp': data['request_times'][ unicode(request_id) ],
+            'start_timestamp': data['times']['start_timestamp'],
 
-            #where do we find this, is it when the routing key has
-            #'.finished' in it? For now populate with time()
-            'end_timestamp': str( time.time() ).split('.')[0],
+            'end_timestamp': str( int( time.time() ) ),
             'machine': data['slave'],
 
             'build_platform': {
@@ -781,6 +808,7 @@ class TreeherderDataAdapter(PulseDataAdapter):
         return JobData(treeherder_data)
 
 class PulseMessageError(Exception):
+    """Error base class for pulse messages"""
     def __init__(self, key, error):
         self.key = key
         self.error = error
@@ -790,7 +818,6 @@ class PulseMessageError(Exception):
 class PulseDataAttributeError(PulseMessageError): pass
 
 class PulseMissingAttributesError(PulseMessageError):
-
     def __init__(self, missing_attributes, data, raw_data):
 
         self.missing_attributes = missing_attributes
