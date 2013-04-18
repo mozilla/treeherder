@@ -56,14 +56,14 @@
                     WHERE NOT EXISTS (
                     SELECT `os_name`, `platform`, `architecture`
                     FROM `machine_platform`
-                    WEHRE `os_name` = ? AND platform` = ? AND architecture` = ?
+                    WHERE `os_name` = ? AND `platform` = ? AND `architecture` = ?
                     )",
             "host":"master_host"
         },
 
         "create_option":{
             "sql":"INSERT INTO `option` (`name`, `description`, `active_status`)
-                   SELECT ?, 'fill me', ?, 'active'
+                   SELECT ?, 'fill me', 'active'
                     FROM DUAL
                     WHERE NOT EXISTS (
                     SELECT `name`
@@ -92,7 +92,7 @@
                     WHERE NOT EXISTS (
                     SELECT `name`
                     FROM `product`
-                    WHERE `name = ?
+                    WHERE `name` = ?
                     )",
             "host":"master_host"
         },
@@ -166,8 +166,8 @@
                     AND `active_status` = 'active'",
             "host":"read_host"
         },
-        "get_last_collection_id":{
-            "sql": "SELECT MAX(`collection_id`)
+        "get_max_collection_id":{
+            "sql": "SELECT MAX(`option_collection_id`) as 'max_id'
                     FROM `option_collection`",
             "host":"read_host"
         },
@@ -184,7 +184,7 @@
             "sql": "SELECT `id`
                     FROM `product`
                     WHERE 
-                        `name = ?
+                        `name` = ?
                     AND `active_status` = 'active'",
             "host":"read_host"
         },
