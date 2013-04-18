@@ -1,9 +1,13 @@
-from treeherder.pulse_consumer.consumer import PulseDataAdapter, TreeherderDataAdapter
-from ..sampledata import SampleData
+import pytest
 
-def test_process_data():
+from treeherder.pulse_consumer.consumer import PulseDataAdapter
 
-    sd = SampleData()
+
+def test_process_data(sample_data):
+    """
+    Test the ability of PulseDataAdapter.process_data() to process the
+    raw data available in sample_data without missing any attributes.
+    """
 
     pda = PulseDataAdapter(
         durable=False,
@@ -14,7 +18,7 @@ def test_process_data():
 
     msg = Message()
 
-    for data in sd.raw_pulse_data:
+    for data in sample_data.raw_pulse_data:
 
         data = pda.process_data(data, msg)
 
@@ -25,7 +29,8 @@ def test_process_data():
         assert set() == missing_attributes
 
 class Message(object):
-
+    """Class that mimics the message object interface from
+       mozilla pulse"""
     def __init__(self):
         pass
 
