@@ -95,8 +95,10 @@
 
             #Stored in project_jobs_1.job_log_url
             log_references: [
-                { url:"",
-                  name:"" },
+                  { url:"http://ftp.mozilla.org/pub/mozilla.org/firefox/try-builds/mfowler@mozilla.com-64620dd73baa/try-macosx64-debug/try_snowleopard-debug_test-marionette-bm06-tests1-macosx-build1293.txt.gz",
+                    #associating a name with the log allows for different types of
+                    #processing to be applied to different types of logs
+                    name:"unittest" },
                   ...
                   ],
 

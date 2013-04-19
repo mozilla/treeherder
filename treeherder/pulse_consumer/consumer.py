@@ -795,9 +795,9 @@ class TreeherderDataAdapter(PulseDataAdapter):
                 },
             'log_references':[
                 { 'url':data['log_url'],
-                  #Do we need this?
-                  'name':data['jobtype']
-                    },
+                  #using the jobtype as a name for now, the name allows us
+                  #to have different log types with their own processing
+                  'name':data['jobtype'] },
                 ],
 
             'artifact':{}
