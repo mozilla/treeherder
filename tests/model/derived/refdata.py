@@ -165,3 +165,4 @@ def test_refdata_manager(refdata, params):
     # assert row[version] == 'v1'
     # assert row[version_timestamp] == 1366290144
     # assert row[active_status] == 'active'
+

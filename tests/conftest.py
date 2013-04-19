@@ -94,7 +94,7 @@ def increment_cache_key_prefix():
     cache.key_prefix = "t{0}".format(key_prefix_counter)
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture()
 def jobs_ds():
     from django.conf import settings
     from treeherder.model.models import Datasource
@@ -106,7 +106,7 @@ def jobs_ds():
     )
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture()
 def objectstore_ds():
     from django.conf import settings
     from treeherder.model.models import Datasource
