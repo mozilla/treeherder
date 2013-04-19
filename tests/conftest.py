@@ -92,3 +92,9 @@ def increment_cache_key_prefix():
         key_prefix_counter = 0
         cache.set(prefix_counter_cache_key, key_prefix_counter)
     cache.key_prefix = "t{0}".format(key_prefix_counter)
+
+@pytest.fixture(scope='session')
+def sample_data():
+    """Returns a SampleData() object"""
+    from sampledata import SampleData
+    return SampleData()

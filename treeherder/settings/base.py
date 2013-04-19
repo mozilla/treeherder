@@ -70,6 +70,7 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'treeherder.model',
     'treeherder.webapp',
+    'treeherder.pulse_consumer',
     'south',
 ]
 
