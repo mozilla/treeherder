@@ -26,6 +26,7 @@ class JobsModel(TreeherderModelBase):
     CT_OBJECTSTORE = "objectstore"
     CONTENT_TYPES = [CT_JOBS, CT_OBJECTSTORE]
 
+
     @classmethod
     def create(cls, project, hosts=None, types=None):
         """

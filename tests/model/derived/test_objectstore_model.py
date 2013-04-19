@@ -23,11 +23,11 @@ def xtest_disconnect(jm):
         assert src.dhub.connection["master_host"]["con_obj"].open is False
 
 
-def test_claim_objects(objectstore_ds, jobs_ds, jm):
+def test_claim_objects(jm):
     """``claim_objects`` claims & returns unclaimed rows up to a limit."""
 
-    os = objectstore_ds
-    j = jobs_ds
+    # os = objectstore_ds
+    # j = jobs_ds
 
     blobs = [
         job_json(testrun={"date": "1330454755"}),
@@ -60,7 +60,7 @@ def test_claim_objects(objectstore_ds, jobs_ds, jm):
     assert loading_rows == 3
 
 
-def test_mark_object_complete(jobs_ds, jm):
+def xtest_mark_object_complete(jm):
     """Marks claimed row complete and records run id."""
     jm.store_job_data(job_json())
     row_id = jm.claim_objects(1)[0]["id"]
@@ -75,7 +75,7 @@ def test_mark_object_complete(jobs_ds, jm):
     assert row_data["processed_flag"] == "complete"
 
 
-def xtest_process_objects(jobs_ds, jm):
+def xtest_process_objects(jm):
     """Claims and processes a chunk of unprocessed JSON test data blobs."""
     # Load some rows into the objectstore
     blobs = [
@@ -106,7 +106,7 @@ def xtest_process_objects(jobs_ds, jm):
     assert len(date_set) == 2
 
 
-def xtest_process_objects_invalid_json(jobs_ds, jm):
+def xtest_process_objects_invalid_json(jm):
     jm.store_job_data("invalid json")
     row_id = jm._get_last_insert_id("objectstore")
 
@@ -122,7 +122,7 @@ def xtest_process_objects_invalid_json(jobs_ds, jm):
     assert row_data['processed_flag'] == 'ready'
 
 
-def xtest_process_objects_unknown_error(jobs_ds, jm, monkeypatch):
+def xtest_process_objects_unknown_error(jm, monkeypatch):
     jm.store_job_data("{}")
     row_id = jm._get_last_insert_id("objectstore")
 

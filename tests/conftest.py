@@ -35,6 +35,8 @@ def pytest_sessionstart(session):
 
     # init the datasource db
     call_command("init_master_db", interactive=False)
+    # from treeherder.model.derived.jobs import JobsModel
+    # JobsModel.create(settings.DATABASES["default"]["TEST_NAME"])
 
 
 def pytest_sessionfinish(session):
@@ -102,8 +104,22 @@ def jm():
     """ Give a test access to a JobsModel instance. """
     from django.conf import settings
     from treeherder.model.derived.jobs import JobsModel
-    return JobsModel.create(settings.DATABASES["default"]["TEST_NAME"])
-    # return JobsModel(settings.DATABASES["default"]["TEST_NAME"])
+    # return JobsModel.create(settings.DATABASES["default"]["TEST_NAME"])
+    from treeherder.model.models import Datasource
+    Datasource.objects.create(
+        project=settings.DATABASES["default"]["TEST_NAME"],
+        dataset=1,
+        contenttype="jobs",
+        host=settings.DATABASES['default']['HOST'],
+    )
+    Datasource.objects.create(
+        project=settings.DATABASES["default"]["TEST_NAME"],
+        dataset=1,
+        contenttype="objectstore",
+        host=settings.DATABASES['default']['HOST'],
+    )
+    return JobsModel(settings.DATABASES["default"]["TEST_NAME"])
+
 
 @pytest.fixture(scope='session')
 def jobs_ds():
@@ -129,4 +145,3 @@ def objectstore_ds():
     )
 
 
-#ARE WE SURE LOCALHOST IS RIGHT HERE, FOR THE VAGRANT VM?
