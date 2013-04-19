@@ -102,8 +102,8 @@ def jm():
     """ Give a test access to a JobsModel instance. """
     from django.conf import settings
     from treeherder.model.derived.jobs import JobsModel
-    return JobsModel(settings.DATABASES["default"]["TEST_NAME"])
-
+    return JobsModel.create(settings.DATABASES["default"]["TEST_NAME"])
+    # return JobsModel(settings.DATABASES["default"]["TEST_NAME"])
 
 @pytest.fixture(scope='session')
 def jobs_ds():
@@ -113,7 +113,7 @@ def jobs_ds():
         project=settings.DATABASES["default"]["TEST_NAME"],
         dataset=1,
         contenttype="jobs",
-        host="localhost",
+        host=settings.DATABASES['default']['HOST'],
     )
 
 
@@ -125,5 +125,8 @@ def objectstore_ds():
         project=settings.DATABASES["default"]["TEST_NAME"],
         dataset=1,
         contenttype="objectstore",
-        host="localhost",
+        host=settings.DATABASES['default']['HOST'],
     )
+
+
+#ARE WE SURE LOCALHOST IS RIGHT HERE, FOR THE VAGRANT VM?

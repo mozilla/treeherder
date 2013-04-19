@@ -2,7 +2,7 @@
     "inserts":{
         "store_json":{
 
-            "sql":"INSERT INTO  `objectstore` (`date_timestamp`,
+            "sql":"INSERT INTO  `objectstore` (`loaded_timestamp`,
                                                `json_blob`,
                                                `error`,
                                                `error_msg`)

@@ -55,4 +55,3 @@ def test_job_group_manager(refdata):
     assert row_data["name"] == 'mygroup'
     assert row_data["description"] == 'fill me'
     assert row_data["active_status"] == 'active'
-

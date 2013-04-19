@@ -23,10 +23,11 @@ def xtest_disconnect(jm):
         assert src.dhub.connection["master_host"]["con_obj"].open is False
 
 
-def test_claim_objects(objectstore_ds, jm):
+def test_claim_objects(objectstore_ds, jobs_ds, jm):
     """``claim_objects`` claims & returns unclaimed rows up to a limit."""
 
-    # s = objectstore_ds
+    os = objectstore_ds
+    j = jobs_ds
 
     blobs = [
         job_json(testrun={"date": "1330454755"}),
@@ -59,7 +60,7 @@ def test_claim_objects(objectstore_ds, jm):
     assert loading_rows == 3
 
 
-def xtest_mark_object_complete(jobs_ds, jm):
+def test_mark_object_complete(jobs_ds, jm):
     """Marks claimed row complete and records run id."""
     jm.store_job_data(job_json())
     row_id = jm.claim_objects(1)[0]["id"]
@@ -81,7 +82,7 @@ def xtest_process_objects(jobs_ds, jm):
         job_json(testrun={"date": "1330454755"}),
         job_json(testrun={"date": "1330454756"}),
         job_json(testrun={"date": "1330454757"}),
-        ]
+    ]
 
     for blob in blobs:
         jm.store_job_data(blob)

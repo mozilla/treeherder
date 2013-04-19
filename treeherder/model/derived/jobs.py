@@ -26,47 +26,56 @@ class JobsModel(TreeherderModelBase):
     CT_OBJECTSTORE = "objectstore"
     CONTENT_TYPES = [CT_JOBS, CT_OBJECTSTORE]
 
-    # @classmethod
-    # def create(cls, project, hosts=None, types=None):
-    #     """
-    #     Create all the datasource tables for this project.
-    #
-    #     ``hosts`` is an optional dictionary mapping contenttype names to the
-    #     database server host on which the database for that contenttype should
-    #     be created. Not all contenttypes need to be represented; any that
-    #     aren't will use the default (``TREEHERDER_DATABASE_HOST``).
-    #
-    #     ``types`` is an optional dictionary mapping contenttype names to the
-    #     type of database that should be created. For MySQL/MariaDB databases,
-    #     use "MySQL-Engine", where "Engine" could be "InnoDB", "Aria", etc. Not
-    #     all contenttypes need to be represented; any that aren't will use the
-    #     default (``MySQL-InnoDB``).
-    #
-    #
-    #     """
-    #     hosts = hosts or {}
-    #     types = types or {}
-    #
-    #     for ct in cls.CONTENT_TYPES:
-    #         Datasource.create(
-    #             project,
-    #             ct,
-    #             host=hosts.get(ct),
-    #             db_type=types.get(ct),
-    #         )
-    #
-    #     return cls(project=project)
+    @classmethod
+    def create(cls, project, hosts=None, types=None):
+        """
+        Create all the datasource tables for this project.
+
+        ``hosts`` is an optional dictionary mapping contenttype names to the
+        database server host on which the database for that contenttype should
+        be created. Not all contenttypes need to be represented; any that
+        aren't will use the default (``TREEHERDER_DATABASE_HOST``).
+
+        ``types`` is an optional dictionary mapping contenttype names to the
+        type of database that should be created. For MySQL/MariaDB databases,
+        use "MySQL-Engine", where "Engine" could be "InnoDB", "Aria", etc. Not
+        all contenttypes need to be represented; any that aren't will use the
+        default (``MySQL-InnoDB``).
+
+
+        """
+        hosts = hosts or {}
+        types = types or {}
+
+        for ct in [cls.CT_JOBS, cls.CT_OBJECTSTORE]:
+            dataset = Datasource.get_latest_dataset(project, ct)
+            source = Datasource(
+                project=project,
+                contenttype=ct,
+                dataset=dataset or 1,
+            )
+            source.save()
+
+        return cls(project=project)
+
+    def get_jobs_dhub(self):
+        """Get the dhub for jobs"""
+        return self.get_dhub(self.CT_JOBS)
+
+    def get_os_dhub(self):
+        """Get the dhub for the objectstore"""
+        return self.get_dhub(self.CT_OBJECTSTORE)
 
     def get_oauth_consumer_secret(self, key):
-        ds = self.sources[self.CT_OBJECTSTORE].datasource
+        ds = self.get_datasource(self.CT_OBJECTSTORE)
         secret = ds.get_oauth_consumer_secret(key)
         return secret
 
-    def _get_last_insert_id(self, source=None):
+    def _get_last_insert_id(self, contenttype=None):
         """Return last-inserted ID."""
-        if not source:
-            source = self.CT_JOBS
-        return self.sources[source].dhub.execute(
+        if not contenttype:
+            contenttype = self.CT_JOBS
+        return self.get_dhub(contenttype).execute(
             proc='generic.selects.get_last_insert_id',
             debug_show=self.DEBUG,
             return_type='iter',
@@ -79,7 +88,7 @@ class JobsModel(TreeherderModelBase):
         error = "N" if error is None else "Y"
         error_msg = error or ""
 
-        self.sources[self.CT_OBJECTSTORE].dhub.execute(
+        self.get_os_dhub().execute(
             proc='objectstore.inserts.store_json',
             placeholders=[loaded_timestamp, json_data, error, error_msg],
             debug_show=self.DEBUG
@@ -98,7 +107,7 @@ class JobsModel(TreeherderModelBase):
 
         """
         proc = "objectstore.selects.get_unprocessed"
-        json_blobs = self.sources[self.CT_OBJECTSTORE].dhub.execute(
+        json_blobs = self.get_os_dhub().execute(
             proc=proc,
             placeholders=[limit],
             debug_show=self.DEBUG,
@@ -274,7 +283,7 @@ class JobsModel(TreeherderModelBase):
         return job_id
 
     def _insert_data(self, statement, placeholders, executemany=False):
-        self.sources[self.CT_JOBS].dhub.execute(
+        self.get_jobs_dhub().execute(
             proc='jobs.inserts.' + statement,
             debug_show=self.DEBUG,
             placeholders=placeholders,
@@ -288,7 +297,7 @@ class JobsModel(TreeherderModelBase):
 
     def _get_last_insert_id(self, source=CT_JOBS):
         """Return last-inserted ID."""
-        return self.sources[source].dhub.execute(
+        return self.get_dhub(source).execute(
             proc='generic.selects.get_last_insert_id',
             debug_show=self.DEBUG,
             return_type='iter',
@@ -360,17 +369,17 @@ class JobsModel(TreeherderModelBase):
         # Note: this claims rows for processing. Failure to call load_job_data
         # on this data will result in some json blobs being stuck in limbo
         # until another worker comes along with the same connection ID.
-        self.sources[self.CT_OBJECTSTORE].dhub.execute(
+        self.get_os_dhub().execute(
             proc=proc_mark,
             placeholders=[limit],
             debug_show=self.DEBUG,
-            )
+        )
 
         resetwarnings()
 
         # Return all JSON blobs claimed by this connection ID (could possibly
         # include orphaned rows from a previous run).
-        json_blobs = self.sources[self.CT_OBJECTSTORE].dhub.execute(
+        json_blobs = self.get_os_dhub().execute(
             proc=proc_get,
             debug_show=self.DEBUG,
             return_type='tuple'
@@ -380,7 +389,7 @@ class JobsModel(TreeherderModelBase):
 
     def mark_object_complete(self, object_id, job_id):
         """ Call to database to mark the task completed """
-        self.sources[self.CT_OBJECTSTORE].dhub.execute(
+        self.get_os_dhub().execute(
             proc="objectstore.updates.mark_complete",
             placeholders=[job_id, object_id],
             debug_show=self.DEBUG
@@ -388,7 +397,7 @@ class JobsModel(TreeherderModelBase):
 
     def mark_object_error(self, object_id, error):
         """ Call to database to mark the task completed """
-        self.sources[self.CT_OBJECTSTORE].dhub.execute(
+        self.get_os_dhub().execute(
             proc="objectstore.updates.mark_error",
             placeholders=[error, object_id],
             debug_show=self.DEBUG
