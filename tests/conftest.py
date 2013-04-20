@@ -7,7 +7,6 @@ import pytest
 from django.conf import settings
 from django.core.management import call_command
 
-
 def pytest_sessionstart(session):
     """
     Set up the test environment.
@@ -175,3 +174,9 @@ def objectstore_ds():
         contenttype="objectstore",
         host="localhost",
     )
+
+@pytest.fixture(scope='session')
+def sample_data():
+    """Returns a SampleData() object"""
+    from sampledata import SampleData
+    return SampleData()

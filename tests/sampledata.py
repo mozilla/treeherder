@@ -1,0 +1,30 @@
+import json
+import os
+
+class SampleData(object):
+
+    def __init__(self):
+
+        self.job_data_file = "{0}/sample_data/job_data.txt".format(
+            os.path.dirname(__file__)
+            )
+
+        self.raw_pulse_data_file = "{0}/sample_data/raw_pulse_data.txt".format(
+            os.path.dirname(__file__)
+            )
+
+        self.job_data = []
+        self.raw_pulse_data = []
+
+        self.initialize_data()
+
+    def initialize_data(self):
+
+        with open(self.job_data_file) as f:
+            for line in f.readlines():
+                self.job_data.append( json.loads( line.strip() ) )
+
+        with open(self.raw_pulse_data_file) as f:
+            for line in f.readlines():
+                line = str(line)
+                self.raw_pulse_data.append( json.loads( line.strip() ) )
