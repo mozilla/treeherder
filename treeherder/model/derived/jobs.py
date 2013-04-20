@@ -179,48 +179,50 @@ class JobsModel(TreeherderModelBase):
         # Get/Set reference info, all inserts use ON DUPLICATE KEY
 
         rdm = RefDataManager()
+        job_id = -1
+        for job in data["jobs"]:
 
-        build_platform_id = rdm.get_or_create_build_platform(
-            **data["jobs"]["build_platform"])
+            build_platform_id = rdm.get_or_create_build_platform(
+                job["build_platform"])
 
-        machine_platform_id = rdm.get_or_create_machine_platform(
-            **data["jobs"]["machine_platform"])
+            machine_platform_id = rdm.get_or_create_machine_platform(
+                job["machine_platform"])
 
-        machine_id = rdm.get_or_create_machine(
-            data["machine"],
-            timestamp=max([
-                data["start_timestamp"],
-                data["submit_timestamp"],
-                data["end_timestamp"],
-            ])
-        )
+            machine_id = rdm.get_or_create_machine(
+                job["machine"],
+                timestamp=max([
+                    job["start_timestamp"],
+                    job["submit_timestamp"],
+                    job["end_timestamp"],
+                ])
+            )
 
-        option_collection_id = rdm.get_or_create_option_collection(
-            [k for k, v in data["option_collection"].items() if v],
-        )
+            option_collection_id = rdm.get_or_create_option_collection(
+                [k for k, v in job["option_collection"].items() if v],
+            )
 
-        job_group, sep, job_name = data["name"].partition("-")
+            job_group, sep, job_name = job["name"].partition("-")
 
-        job_type_id = rdm.get_or_create_job_type(
-            job_name, job_group,
-        )
+            job_type_id = rdm.get_or_create_job_type(
+                job_name, job_group,
+            )
 
-        product_id = rdm.get_or_create_product(
-            data["jobs"]["product_name"],
-        )
+            product_id = rdm.get_or_create_product(
+                job["product_name"],
+            )
 
-        result_set_id = self._set_result_set(data["revision_hash"])
+            result_set_id = self._set_result_set(data["revision_hash"])
 
-        job_id = self._set_job_data(
-            data,
-            result_set_id,
-            build_platform_id,
-            machine_platform_id,
-            machine_id,
-            option_collection_id,
-            job_type_id,
-            product_id,
-        )
+            job_id = self._set_job_data(
+                data,
+                result_set_id,
+                build_platform_id,
+                machine_platform_id,
+                machine_id,
+                option_collection_id,
+                job_type_id,
+                product_id,
+            )
 
         return job_id
 
@@ -296,7 +298,7 @@ class JobsModel(TreeherderModelBase):
         self._insert_data(statement, placeholders)
         return self._get_last_insert_id()
 
-    def _get_last_insert_id(self, source=CT_JOBS):
+    def _get_last_insert_id(self, source="jobs"):
         """Return last-inserted ID."""
         return self.get_dhub(source).execute(
             proc='generic.selects.get_last_insert_id',
@@ -307,13 +309,13 @@ class JobsModel(TreeherderModelBase):
     def process_objects(self, loadlimit):
         """Processes JSON blobs from the objectstore into perftest schema."""
         rows = self.claim_objects(loadlimit)
-        test_run_ids_loaded = []
+        job_ids_loaded = []
 
         for row in rows:
             row_id = int(row['id'])
             try:
                 data = JobData.from_json(row['json_blob'])
-                test_run_id = self.load_job_data(data)
+                job_id = self.load_job_data(data)
             except JobDataError as e:
                 self.mark_object_error(row_id, str(e))
             except Exception as e:
@@ -323,10 +325,10 @@ class JobsModel(TreeherderModelBase):
                         e.__class__.__name__, unicode(e))
                 )
             else:
-                self.mark_object_complete(row_id, test_run_id)
-                test_run_ids_loaded.append(test_run_id)
+                self.mark_object_complete(row_id, job_id)
+                job_ids_loaded.append(job_id)
 
-        return test_run_ids_loaded
+        return job_ids_loaded
 
     def claim_objects(self, limit):
         """

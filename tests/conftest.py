@@ -35,8 +35,6 @@ def pytest_sessionstart(session):
 
     # init the datasource db
     call_command("init_master_db", interactive=False)
-    # from treeherder.model.derived.jobs import JobsModel
-    # JobsModel.create(settings.DATABASES["default"]["TEST_NAME"])
 
 
 def pytest_sessionfinish(session):
@@ -99,29 +97,62 @@ def increment_cache_key_prefix():
     cache.key_prefix = "t{0}".format(key_prefix_counter)
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture()
 def jm():
     """ Give a test access to a JobsModel instance. """
     from django.conf import settings
     from treeherder.model.derived.jobs import JobsModel
     # return JobsModel.create(settings.DATABASES["default"]["TEST_NAME"])
     from treeherder.model.models import Datasource
-    Datasource.objects.create(
+    jds = Datasource.objects.create(
         project=settings.DATABASES["default"]["TEST_NAME"],
         dataset=1,
         contenttype="jobs",
         host=settings.DATABASES['default']['HOST'],
     )
-    Datasource.objects.create(
+    objstore = Datasource.objects.create(
         project=settings.DATABASES["default"]["TEST_NAME"],
         dataset=1,
         contenttype="objectstore",
         host=settings.DATABASES['default']['HOST'],
     )
-    return JobsModel(settings.DATABASES["default"]["TEST_NAME"])
+    model = JobsModel(settings.DATABASES["default"]["TEST_NAME"])
+
+    # patch in additional test-only procs on the datasources
+    test_proc_file = os.path.join(
+        os.path.abspath(os.path.dirname(__file__)),
+        "objectstore_test.json",
+    )
+    add_test_procs_file(
+        model.get_dhub("objectstore"),
+        objstore.key,
+        "objectstore_test.json",
+    )
+    add_test_procs_file(
+        model.get_dhub("jobs"),
+        jds.key,
+        "jobs_test.json",
+    )
 
 
-@pytest.fixture(scope='session')
+
+    return model
+
+def add_test_procs_file(dhub, key, filename):
+    """Add an extra procs file in for testing purposes."""
+    test_proc_file = os.path.join(
+        os.path.abspath(os.path.dirname(__file__)),
+        filename,
+    )
+    del dhub.procs[key]
+    proclist = dhub.data_sources[key]["procs"]
+    if not test_proc_file in proclist:
+        proclist.append(test_proc_file)
+    dhub.data_sources[key]["procs"] = proclist
+    dhub.load_procs(key)
+
+
+@pytest.fixture()
 def jobs_ds():
     from django.conf import settings
     from treeherder.model.models import Datasource
@@ -133,7 +164,7 @@ def jobs_ds():
     )
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture()
 def objectstore_ds():
     from django.conf import settings
     from treeherder.model.models import Datasource
@@ -143,5 +174,3 @@ def objectstore_ds():
         contenttype="objectstore",
         host=settings.DATABASES['default']['HOST'],
     )
-
-

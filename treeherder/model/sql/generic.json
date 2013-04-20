@@ -15,7 +15,7 @@
                 GROUP BY TABLE_SCHEMA
                 ",
 
-        "host":"read_host"
+            "host":"read_host"
         }
     }
 }

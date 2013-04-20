@@ -30,46 +30,59 @@ def job_json(**kwargs):
 
 
 def job_data(**kwargs):
-    defaults = {
-        'build_platform': build_platform(**kwargs.pop("build_platform", {})),
+    jobs_obj = {
+        "sources": [
+            {
+                "commit_timestamp": 1365732271,
+                "push_timestamp": 1365732271,
+                "comments": "Bug 854583 - Use _pointer_ instead of...",
+                "repository": "mozilla-aurora",
+                "revision": "c91ee0e8a980"
+            }
+        ],
+        "revision_hash": "24fd64b8251fac5cf60b54a915bffa7e51f636b5",
+        "jobs": [{
 
-        'submit_timestamp': kwargs.pop("submit_timestamp", submit_timestamp()),
+            'build_platform': build_platform(**kwargs.pop("build_platform", {})),
 
-        'start_timestamp': kwargs.pop("start_timestamp", start_timestamp()),
+            'submit_timestamp': kwargs.pop("submit_timestamp", submit_timestamp()),
 
-        'name': kwargs.pop("name", u'mochitest-5'),
+            'start_timestamp': kwargs.pop("start_timestamp", start_timestamp()),
 
-        'option_collection': option_collection(
-            **kwargs.pop("build_platform", {})),
+            'name': kwargs.pop("name", u'mochitest-5'),
 
-        'log_references': log_references(kwargs.pop("log_references", [])),
+            'option_collection': option_collection(
+                **kwargs.pop("build_platform", {})),
 
-        'who': kwargs.pop("who", u'sendchange-unittest'),
+            'log_references': log_references(kwargs.pop("log_references", [])),
 
-        'reason': kwargs.pop("reason", u'scheduler'),
+            'who': kwargs.pop("who", u'sendchange-unittest'),
 
-        'artifact': kwargs.pop("artifact", {}),
+            'reason': kwargs.pop("reason", u'scheduler'),
 
-        'machine_platform': machine_platform(
-            **kwargs.pop("machine_platform", {})),
+            'artifact': kwargs.pop("artifact", {}),
 
-        'machine': kwargs.pop("machine", u'talos-r3-xp-088'),
+            'machine_platform': machine_platform(
+                **kwargs.pop("machine_platform", {})),
 
-        'state': kwargs.pop("state", 'TODO'),
+            'machine': kwargs.pop("machine", u'talos-r3-xp-088'),
 
-        'result': kwargs.pop("result", 0),
+            'state': kwargs.pop("state", 'TODO'),
 
-        'job_guid': kwargs.pop(
-            "job_guid", "f3e3a9e6526881c39a3b2b6ff98510f213b3d4ed"),
+            'result': kwargs.pop("result", 0),
 
-        'product_name': kwargs.pop("product_name", u'firefox'),
+            'job_guid': kwargs.pop(
+                "job_guid", "f3e3a9e6526881c39a3b2b6ff98510f213b3d4ed"),
 
-        'end_timestamp': kwargs.pop("end_timestamp", end_timestamp()),
+            'product_name': kwargs.pop("product_name", u'firefox'),
+
+            'end_timestamp': kwargs.pop("end_timestamp", end_timestamp()),
+        }]
     }
 
-    defaults.update(kwargs)
+    # defaults.update(kwargs)
 
-    return defaults
+    return jobs_obj
 
 
 def to_seconds(td):

@@ -26,14 +26,13 @@ def xtest_disconnect(jm):
 def test_claim_objects(jm):
     """``claim_objects`` claims & returns unclaimed rows up to a limit."""
 
-    # os = objectstore_ds
-    # j = jobs_ds
-
     blobs = [
         job_json(testrun={"date": "1330454755"}),
         job_json(testrun={"date": "1330454756"}),
         job_json(testrun={"date": "1330454757"}),
     ]
+    # import time
+    # time.sleep(30)
 
     for blob in blobs:
         jm.store_job_data(blob)
@@ -41,12 +40,12 @@ def test_claim_objects(jm):
     rows1 = jm.claim_objects(2)
 
     # a separate worker with a separate connection
-    from datazilla.model import PerformanceTestModel
-    dm2 = PerformanceTestModel(jm.project)
+    from treeherder.model.derived.jobs import JobsModel
+    jm2 = JobsModel(jm.project)
 
-    rows2 = dm2.claim_objects(2)
+    rows2 = jm2.claim_objects(2)
 
-    loading_rows = jm.sources["objectstore"].dhub.execute(
+    loading_rows = jm.get_dhub(jm.CT_OBJECTSTORE).execute(
         proc="objectstore_test.counts.loading")[0]["loading_count"]
 
     assert len(rows1) == 2
@@ -60,28 +59,28 @@ def test_claim_objects(jm):
     assert loading_rows == 3
 
 
-def xtest_mark_object_complete(jm):
+def test_mark_object_complete(jm):
     """Marks claimed row complete and records run id."""
     jm.store_job_data(job_json())
     row_id = jm.claim_objects(1)[0]["id"]
-    test_run_id = 7 # any arbitrary number; no cross-db constraint checks
+    job_id = 7  # any arbitrary number; no cross-db constraint checks
 
-    jm.mark_object_complete(row_id, test_run_id)
+    jm.mark_object_complete(row_id, job_id)
 
-    row_data = jm.sources["objectstore"].dhub.execute(
+    row_data = jm.get_dhub(jm.CT_OBJECTSTORE).execute(
         proc="objectstore_test.selects.row", placeholders=[row_id])[0]
 
-    assert row_data["test_run_id"] == test_run_id
-    assert row_data["processed_flag"] == "complete"
+    assert row_data["job_id"] == job_id
+    assert row_data["processed_state"] == "complete"
 
 
-def xtest_process_objects(jm):
+def test_process_objects(jm):
     """Claims and processes a chunk of unprocessed JSON test data blobs."""
     # Load some rows into the objectstore
     blobs = [
-        job_json(testrun={"date": "1330454755"}),
-        job_json(testrun={"date": "1330454756"}),
-        job_json(testrun={"date": "1330454757"}),
+        job_json(submit_timestamp="1330454755"),
+        job_json(submit_timestamp="1330454756"),
+        job_json(submit_timestamp="1330454757"),
     ]
 
     for blob in blobs:
@@ -90,15 +89,18 @@ def xtest_process_objects(jm):
     # just process two rows
     jm.process_objects(2)
 
-    test_run_rows = jm.sources["perftest"].dhub.execute(
-        proc="perftest_test.selects.test_runs")
-    date_set = set([r['date_run'] for r in test_run_rows])
+    test_run_rows = jm.get_dhub(jm.CT_JOBS).execute(
+        proc="jobs_test.selects.jobs")
+    date_set = set([r['submit_timestamp'] for r in test_run_rows])
     expected_dates = set([1330454755, 1330454756, 1330454757])
 
-    complete_count = jm.sources["objectstore"].dhub.execute(
+    complete_count = jm.get_dhub(jm.CT_OBJECTSTORE).execute(
         proc="objectstore_test.counts.complete")[0]["complete_count"]
-    loading_count = jm.sources["objectstore"].dhub.execute(
+    loading_count = jm.get_dhub(jm.CT_OBJECTSTORE).execute(
         proc="objectstore_test.counts.loading")[0]["loading_count"]
+
+    import time
+    time.sleep(60)
 
     assert complete_count == 2
     assert loading_count == 0
@@ -106,23 +108,23 @@ def xtest_process_objects(jm):
     assert len(date_set) == 2
 
 
-def xtest_process_objects_invalid_json(jm):
+def test_process_objects_invalid_json(jm):
     jm.store_job_data("invalid json")
     row_id = jm._get_last_insert_id("objectstore")
 
     jm.process_objects(1)
 
-    row_data = jm.sources["objectstore"].dhub.execute(
+    row_data = jm.get_dhub(jm.CT_OBJECTSTORE).execute(
         proc="objectstore_test.selects.row", placeholders=[row_id])[0]
 
     expected_error = "Malformed JSON: No JSON object could be decoded"
 
-    assert row_data['error_flag'] == 'Y'
+    assert row_data['error'] == 'Y'
     assert row_data['error_msg'] == expected_error
-    assert row_data['processed_flag'] == 'ready'
+    assert row_data['processed_state'] == 'ready'
 
 
-def xtest_process_objects_unknown_error(jm, monkeypatch):
+def test_process_objects_unknown_error(jm, monkeypatch):
     jm.store_job_data("{}")
     row_id = jm._get_last_insert_id("objectstore")
 
@@ -133,11 +135,11 @@ def xtest_process_objects_unknown_error(jm, monkeypatch):
 
     jm.process_objects(1)
 
-    row_data = jm.sources["objectstore"].dhub.execute(
+    row_data = jm.get_dhub(jm.CT_OBJECTSTORE).execute(
         proc="objectstore_test.selects.row", placeholders=[row_id])[0]
 
     expected_error_msg = "Unknown error: ValueError: Something blew up!"
 
-    assert row_data['error_flag'] == 'Y'
+    assert row_data['error'] == 'Y'
     assert row_data['error_msg'] == expected_error_msg
-    assert row_data['processed_flag'] == 'ready'
+    assert row_data['processed_state'] == 'ready'

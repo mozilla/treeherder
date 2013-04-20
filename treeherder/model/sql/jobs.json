@@ -1,6 +1,6 @@
 {
     "views":{
-        "test_runs":{
+        "get_jobs":{
 
             "sql":"SELECT tr.id AS 'test_run_id',
                     tr.build_id,
@@ -52,7 +52,7 @@
                 `active_status`)
             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
 
-          "host":"master_host"
+            "host":"master_host"
         },
         "set_result_set":{
 
@@ -75,7 +75,7 @@
                 WHERE `revision` = ?",
 
             "host":"read_host"
-        },
+        }
     }
 }
 

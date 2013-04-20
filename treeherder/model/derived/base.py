@@ -56,8 +56,7 @@ class TreeherderModelBase(object):
     def _get_datasource(self, contenttype):
         """Find the datasource for this contenttype in the cache."""
         candidate_sources = []
-        for source in Datasource.objects.all():
-            print(source)
+        for source in Datasource.objects.cached():
             if (source.project == self.project and
                     source.contenttype == contenttype):
                 candidate_sources.append(source)
