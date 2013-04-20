@@ -48,9 +48,8 @@
                 `state`,
                 `submit_timestamp`,
                 `start_timestamp`,
-                `end_timestamp`,
-                `active_status`)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                `end_timestamp`)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
 
             "host":"master_host"
         },

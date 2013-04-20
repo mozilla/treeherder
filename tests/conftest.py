@@ -1,6 +1,7 @@
 import os
 from os.path import dirname
 import sys
+from django.core.management import call_command
 import pytest
 
 from django.conf import settings
@@ -160,7 +161,7 @@ def jobs_ds():
         project=settings.DATABASES["default"]["TEST_NAME"],
         dataset=1,
         contenttype="jobs",
-        host=settings.DATABASES['default']['HOST'],
+        host="localhost",
     )
 
 
@@ -172,5 +173,5 @@ def objectstore_ds():
         project=settings.DATABASES["default"]["TEST_NAME"],
         dataset=1,
         contenttype="objectstore",
-        host=settings.DATABASES['default']['HOST'],
+        host="localhost",
     )

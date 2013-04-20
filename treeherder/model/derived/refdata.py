@@ -89,17 +89,19 @@ class RefDataManager(object):
 
     def get_or_create_job_type(self, name, group):
 
+        group_id = self.get_or_create_job_group(group)
+
         self.dhub.execute(
             proc='reference.inserts.create_job_type',
             placeholders=[
+                group_id,
                 name,
-                group,
-                name,
-                group
+                group_id,
+                name
             ],
             debug_show=self.DEBUG)
 
-        return self.get_job_type_id(name)
+        return self.get_job_type_id(name, group)
 
     def get_machine_id(self, name):
 
@@ -186,13 +188,17 @@ class RefDataManager(object):
             debug_show=self.DEBUG,
             return_type='iter')
 
-        return id_iter.get_column_data('id')
+        return id_iter.get_column_data('option_collection_id')
 
-    def get_last_collection_id(self):
-        self.dhub.execute(
-            proc='reference.selects.get_last_collection_id',
+    def get_max_collection_id(self):
+        """returns the max collection id available"""
+        max_id = self.dhub.execute(
+            proc='reference.selects.get_max_collection_id',
             placeholders=[],
-            debug_show=self.DEBUG)
+            debug_show=self.DEBUG,
+            return_type='tuple')
+
+        return max_id[0]['max_id'] or 0
 
     def get_or_create_option_collection(self, options):
 
@@ -201,7 +207,7 @@ class RefDataManager(object):
         if not id:
 
             #retrieve the last collection
-            option_collection_id = self.get_last_collection_id() + 1
+            option_collection_id = self.get_max_collection_id() + 1
             for option in options:
 
                 #create an option if it doesn't exist

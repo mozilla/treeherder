@@ -183,10 +183,16 @@ class JobsModel(TreeherderModelBase):
         for job in data["jobs"]:
 
             build_platform_id = rdm.get_or_create_build_platform(
-                job["build_platform"])
+                job["build_platform"]["os_name"],
+                job["build_platform"]["platform"],
+                job["build_platform"]["architecture"],
+                )
 
             machine_platform_id = rdm.get_or_create_machine_platform(
-                job["machine_platform"])
+                job["machine_platform"]["os_name"],
+                job["machine_platform"]["platform"],
+                job["machine_platform"]["architecture"],
+                )
 
             machine_id = rdm.get_or_create_machine(
                 job["machine"],
@@ -214,7 +220,7 @@ class JobsModel(TreeherderModelBase):
             result_set_id = self._set_result_set(data["revision_hash"])
 
             job_id = self._set_job_data(
-                data,
+                job,
                 result_set_id,
                 build_platform_id,
                 machine_platform_id,
@@ -257,7 +263,7 @@ class JobsModel(TreeherderModelBase):
             end_timestamp = data["end_timestamp"]
 
         # @@@ need better error message here
-        except ValueError:
+        except ValueError as e:
             raise JobDataError(
                 "Return meaningful error here; not this rubbish.")
 
