@@ -67,7 +67,14 @@ class JobsModel(TreeherderModelBase):
         """Get the dhub for the objectstore"""
         return self.get_dhub(self.CT_OBJECTSTORE)
 
+    ##################
+    #
+    # Objectstore functionality
+    #
+    ##################
+
     def get_oauth_consumer_secret(self, key):
+        """Consumer secret for oauth"""
         ds = self.get_datasource(self.CT_OBJECTSTORE)
         secret = ds.get_oauth_consumer_secret(key)
         return secret
@@ -157,7 +164,13 @@ class JobsModel(TreeherderModelBase):
                         ],
                         "who": "sendchange-unittest",
                         "reason": "scheduler",
-                        "artifact": {},
+                        artifact:{
+                            type:" json | img | ...",
+                            name:"",
+                            log_urls:[
+                                ]
+                            blob:""
+                        },
                         "machine_platform": {
                             "platform": "Ubuntu VM 12.04",
                             "os_name": "linux",
@@ -176,9 +189,11 @@ class JobsModel(TreeherderModelBase):
 
         """
 
+        # @@@ sources
+
         # Get/Set reference info, all inserts use ON DUPLICATE KEY
 
-        rdm = RefDataManager()
+        rdm = self.refdata_model
         job_id = -1
         for job in data["jobs"]:
 
@@ -186,13 +201,13 @@ class JobsModel(TreeherderModelBase):
                 job["build_platform"]["os_name"],
                 job["build_platform"]["platform"],
                 job["build_platform"]["architecture"],
-                )
+            )
 
             machine_platform_id = rdm.get_or_create_machine_platform(
                 job["machine_platform"]["os_name"],
                 job["machine_platform"]["platform"],
                 job["machine_platform"]["architecture"],
-                )
+            )
 
             machine_id = rdm.get_or_create_machine(
                 job["machine"],
@@ -230,28 +245,66 @@ class JobsModel(TreeherderModelBase):
                 product_id,
             )
 
+            for log_ref in job["log_references"]:
+                self._insert_job_log_url(
+                    job_id,
+                    log_ref["name"],
+                    log_ref["url"]
+                )
+
+            try:
+                artifact = job["artifact"]
+                self._insert_job_artifact(
+                    job_id,
+                    artifact["name"],
+                    artifact["type"],
+                    artifact["blob"],
+                )
+
+                for log_ref in artifact["log_urls"]:
+                    self._insert_job_log_url(
+                        job_id,
+                        log_ref["name"],
+                        log_ref["url"]
+                    )
+
+            except KeyError:
+                # it is ok to have an empty or missing artifact
+                pass
+
         return job_id
 
     def _set_result_set(self, revision_hash):
+        """Set result set revision hash"""
 
-        job_id = self._insert_data_and_get_id(
+        result_set_id = self._insert_data_and_get_id(
             'set_result_set',
             [
                 revision_hash,
             ]
         )
 
-        return job_id
+        return result_set_id
 
     def _set_job_data(self, data, result_set_id, build_platform_id,
                       machine_platform_id, machine_id, option_collection_id,
                       job_type_id, product_id):
-        """Inserts job data into the db and returns test_run id."""
+        """Inserts job data into the db and returns job id."""
 
         try:
             job_guid = data["job_guid"]
 
-            # @@@ not sure about this one
+            # @@@ jeads: not sure about job_coalesced_to_guid.
+            # According to the sample data, this could be:
+            #
+            #  coalesced: [
+            #     "job_guid",
+            #     ...
+            # ]
+            #
+            # I think I need an
+            # example of this in job_data.txt
+
             job_coalesced_to_guid = ""
 
             who = data["who"]
@@ -262,10 +315,9 @@ class JobsModel(TreeherderModelBase):
             start_timestamp = data["start_timestamp"]
             end_timestamp = data["end_timestamp"]
 
-        # @@@ need better error message here
         except ValueError as e:
-            raise JobDataError(
-                "Return meaningful error here; not this rubbish.")
+            e.__class__ = JobDataError
+            raise
 
         job_id = self._insert_data_and_get_id(
             'set_job_data',
@@ -291,7 +343,28 @@ class JobsModel(TreeherderModelBase):
 
         return job_id
 
+    def _insert_job_log_url(self, job_id, name, url):
+        """Insert job log data"""
+
+        self._insert_data(
+            'set_job_log_url',
+            [
+                job_id, name, url
+            ]
+        )
+
+    def _insert_job_artifact(self, job_id, name, artifact_type, blob):
+        """Insert job artifact """
+
+        self._insert_data(
+            'set_job_artifact',
+            [
+                job_id, name, artifact_type, blob
+            ]
+        )
+
     def _insert_data(self, statement, placeholders, executemany=False):
+        """Insert a set of data using the specified proc ``statement``."""
         self.get_jobs_dhub().execute(
             proc='jobs.inserts.' + statement,
             debug_show=self.DEBUG,
@@ -313,7 +386,7 @@ class JobsModel(TreeherderModelBase):
         ).get_column_data('id')
 
     def process_objects(self, loadlimit):
-        """Processes JSON blobs from the objectstore into perftest schema."""
+        """Processes JSON blobs from the objectstore into jobs schema."""
         rows = self.claim_objects(loadlimit)
         job_ids_loaded = []
 

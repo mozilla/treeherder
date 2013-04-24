@@ -6,7 +6,7 @@ access.
 from django.conf import settings
 
 from treeherder.model.models import Datasource
-
+from treeherder.model.derived.refdata import RefDataManager
 
 class TreeherderModelBase(object):
     """
@@ -21,6 +21,8 @@ class TreeherderModelBase(object):
         self.sources = {}
         self.dhubs = {}
         self.DEBUG = settings.DEBUG
+        self.refdata_model = RefDataManager()
+
 
     def __unicode__(self):
         """Unicode representation is project name."""
@@ -45,11 +47,6 @@ class TreeherderModelBase(object):
 
         if not contenttype in self.sources.keys():
             self.sources[contenttype] = self._get_datasource(contenttype)
-            # self.sources[contenttype] = Datasource.objects.get(
-            #     project = self.project,
-            #     contenttype = contenttype,
-            #     dataset = 1,
-            # )
 
         return self.sources[contenttype]
 

@@ -140,3 +140,29 @@ def test_process_objects_unknown_error(jm, monkeypatch):
     assert row_data['error'] == 'Y'
     assert row_data['error_msg'] == expected_error_msg
     assert row_data['processed_state'] == 'ready'
+
+
+def test_ingest_sample_data(jm, sample_data):
+    for blob in sample_data.job_data:
+        # print blob
+        jm.store_job_data(json.dumps(blob))
+
+    data_length = len(sample_data.job_data)
+
+    # process 10 rows at a time
+    remaining = data_length
+    while remaining:
+        jm.process_objects(10)
+        remaining -= 10
+
+    job_rows = jm.get_jobs_dhub().execute(
+        proc="jobs_test.selects.jobs")
+
+    complete_count = jm.get_os_dhub().execute(
+        proc="objectstore_test.counts.complete")[0]["complete_count"]
+    loading_count = jm.get_os_dhub().execute(
+        proc="objectstore_test.counts.loading")[0]["loading_count"]
+
+    assert complete_count == data_length
+    assert loading_count == 0
+    assert len(job_rows) == data_length

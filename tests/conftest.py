@@ -134,8 +134,6 @@ def jm():
         "jobs_test.json",
     )
 
-
-
     return model
 
 def add_test_procs_file(dhub, key, filename):
