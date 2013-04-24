@@ -1,8 +1,7 @@
-import pytest
 import json
 
 
-from .sample_data_generator import job_json, job_data, ref_data_json
+from .sample_data_generator import job_json
 
 
 def test_unicode(jm):
@@ -75,7 +74,7 @@ def test_mark_object_complete(jm):
 
 
 def test_process_objects(jm):
-    """Claims and processes a chunk of unprocessed JSON test data blobs."""
+    """Claims and processes a chunk of unprocessed JSON jobs data blobs."""
     # Load some rows into the objectstore
     blobs = [
         job_json(submit_timestamp="1330454755"),
@@ -106,6 +105,7 @@ def test_process_objects(jm):
 
 
 def test_process_objects_invalid_json(jm):
+    """process_objects fail for invalid json"""
     jm.store_job_data("invalid json")
     row_id = jm._get_last_insert_id("objectstore")
 
@@ -122,6 +122,7 @@ def test_process_objects_invalid_json(jm):
 
 
 def test_process_objects_unknown_error(jm, monkeypatch):
+    """process_objects fail for unknown reason"""
     jm.store_job_data("{}")
     row_id = jm._get_last_insert_id("objectstore")
 
@@ -143,6 +144,7 @@ def test_process_objects_unknown_error(jm, monkeypatch):
 
 
 def test_ingest_sample_data(jm, sample_data):
+    """Process all job structures in the job_data.txt file"""
     for blob in sample_data.job_data:
         # print blob
         jm.store_job_data(json.dumps(blob))

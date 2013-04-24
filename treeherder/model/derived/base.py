@@ -8,6 +8,7 @@ from django.conf import settings
 from treeherder.model.models import Datasource
 from treeherder.model.derived.refdata import RefDataManager
 
+
 class TreeherderModelBase(object):
     """
     Base model class for all derived models
@@ -22,7 +23,6 @@ class TreeherderModelBase(object):
         self.dhubs = {}
         self.DEBUG = settings.DEBUG
         self.refdata_model = RefDataManager()
-
 
     def __unicode__(self):
         """Unicode representation is project name."""
