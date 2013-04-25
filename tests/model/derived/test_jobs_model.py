@@ -30,9 +30,10 @@ def test_ingest_single_sample_job(jm, sample_data):
     jm.store_job_data(json.dumps(blob))
     job_id = jm.process_objects(1)[0]
 
-    job_dict = JobDictBuilder(jm, job_id).as_dict()
+    exp_job = clean_job_blob_dict(blob["jobs"][0])
+    act_job = JobDictBuilder(jm, job_id).as_dict()
 
-    assert blob["jobs"][0] == job_dict, diff_dict(blob["jobs"][0], job_dict)
+    assert exp_job == act_job, diff_dict(exp_job, act_job)
 
     # print json.dumps(blob, indent=4)
     # print json.dumps(job_dict, indent=4)
@@ -42,7 +43,27 @@ def test_ingest_single_sample_job(jm, sample_data):
     loading_count = jm.get_os_dhub().execute(
         proc="objectstore_test.counts.loading")[0]["loading_count"]
 
-    assert complete_count == 2
+    assert complete_count == 1
+    assert loading_count == 0
+
+
+def test_ingest_all_sample_jobs(jm, sample_data):
+    """Process all job structures in the job_data.txt file"""
+    for blob in sample_data.job_data:
+        jm.store_job_data(json.dumps(blob))
+        job_id = jm.process_objects(1)[0]
+
+        exp_job = clean_job_blob_dict(blob["jobs"][0])
+        act_job = JobDictBuilder(jm, job_id).as_dict()
+
+        assert exp_job == act_job, diff_dict(exp_job, act_job)
+
+    complete_count = jm.get_os_dhub().execute(
+        proc="objectstore_test.counts.complete")[0]["complete_count"]
+    loading_count = jm.get_os_dhub().execute(
+        proc="objectstore_test.counts.loading")[0]["loading_count"]
+
+    assert complete_count == len(sample_data.job_data)
     assert loading_count == 0
 
 
@@ -62,23 +83,99 @@ class JobDictBuilder(object):
 
         job["artifact"] = self._get_artifact()
         job["log_references"] = self._get_logs()
+
         job["option_collection"] = self._get_option_collection(
             job["option_collection_id"])
         del(job["option_collection_id"])
+
         job["machine_platform"] = self._get_machine_platform(
             job["machine_platform_id"])
         del(job["machine_platform_id"])
-        return self._unicode_keys(job)
 
-    def _get_option_collection(self, oc_id):
-        # need this in refdata model
-        #oc = self.jm.refdata_model.get_option_collection(oc_id)
-        return "NotImplementedYet"
+        job["build_platform"] = self._get_build_platform(
+            job["build_platform_id"])
+        del(job["build_platform_id"])
 
-    def _get_machine_platform(self, mp_id):
-        # need this in refdata model
-        #mp = self.jm.refdata_model.get_machine_platform(mp_id)
-        return "NotImplementedYet"
+        job["machine"] = self._get_machine(
+            job["machine_id"])
+        del(job["machine_id"])
+
+        job["product_name"] = self._get_product(
+            job["product_id"])
+        del(job["product_id"])
+
+        job["name"] = self._get_name(
+            job["job_type_id"])
+        del(job["job_type_id"])
+
+        del(job["id"])
+        del(job["active_status"])
+        del(job["result_set_id"])
+
+        if not job["job_coalesced_to_guid"]:
+            del(job["job_coalesced_to_guid"])
+
+        return unicode_keys(job)
+
+    def _get_option_collection(self, obj_id):
+        option_id = self.jm.refdata_model.get_row_by_id(
+            "option_collection",
+            obj_id,
+        ).get_column_data("option_id")
+        obj = self.jm.refdata_model.get_row_by_id(
+            "option",
+            option_id,
+        ).next()
+        return {unicode(obj["name"]): True}
+
+    def _get_machine_platform(self, obj_id):
+        obj = self.jm.refdata_model.get_row_by_id(
+            "machine_platform",
+            obj_id,
+        ).next()
+        del(obj["active_status"])
+        del(obj["id"])
+        return unicode_keys(obj)
+
+    def _get_build_platform(self, obj_id):
+        obj = self.jm.refdata_model.get_row_by_id(
+            "build_platform",
+            obj_id,
+        ).next()
+        del(obj["active_status"])
+        del(obj["id"])
+        return unicode_keys(obj)
+
+    def _get_machine(self, obj_id):
+        obj = self.jm.refdata_model.get_row_by_id(
+            "machine",
+            obj_id,
+        ).get_column_data("name")
+        return obj
+
+    def _get_product(self, obj_id):
+        obj = self.jm.refdata_model.get_row_by_id(
+            "product",
+            obj_id,
+        ).get_column_data("name")
+        return obj
+
+    def _get_name(self, obj_id):
+        job_type = self.jm.refdata_model.get_row_by_id(
+            "job_type",
+            obj_id,
+        ).next()
+        job_group = self.jm.refdata_model.get_row_by_id(
+            "job_group",
+            job_type["job_group_id"],
+        ).get_column_data("name")
+        if job_type["name"]:
+            return u"{0}-{1}".format(
+                job_group,
+                job_type["name"],
+            )
+        else:
+            return job_group
 
     def _get_logs(self):
         logs = self.jm.get_jobs_dhub().execute(
@@ -93,7 +190,7 @@ class JobDictBuilder(object):
             del(log["active_status"])
             del(log["id"])
             del(log["job_id"])
-            log_values.append(self._unicode_keys(log))
+            log_values.append(unicode_keys(log))
 
         return log_values
 
@@ -110,8 +207,29 @@ class JobDictBuilder(object):
             artifacts = artifacts.values()
         return artifacts
 
-    def _unicode_keys(self, d):
-        return dict([(unicode(k), v) for k, v in d.items()])
+
+def unicode_keys(d):
+    return dict([(unicode(k), v) for k, v in d.items()])
+
+
+def clean_job_blob_dict(job):
+    """Fix a few fields so they're easier to compare"""
+    job["start_timestamp"] = long(job["start_timestamp"])
+    job["submit_timestamp"] = long(job["submit_timestamp"])
+    job["end_timestamp"] = long(job["end_timestamp"])
+    job["result"] = unicode(job["result"])
+
+    # @@@ we don't keep track of VM'ness?
+    try:
+        del(job["machine_platform"]["vm"])
+    except KeyError:
+        pass  # oh, that's ok
+    try:
+        del(job["build_platform"]["vm"])
+    except KeyError:
+        pass  # oh, that's ok
+
+    return job
 
 
 def diff_dict(d1, d2):

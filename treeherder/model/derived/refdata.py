@@ -26,6 +26,18 @@ class RefDataManager(object):
         self.dhub = DataHub.get("reference")
         self.DEBUG = settings.DEBUG
 
+    def get_row_by_id(self, table_name, obj_id):
+        iter_obj = self.dhub.execute(
+            sql="SELECT * FROM `{0}` WHERE `id` = ?".format(table_name),
+            placeholders=[obj_id],
+            host_type="master_host", # @@@ for some reason ``read_host`` doesn't work here.  get a key error in datasource.
+            debug_show=self.DEBUG,
+            return_type='iter',
+        )
+
+        return iter_obj
+
+
     def get_build_platform_id(self, os_name, platform, architecture):
 
         id_iter = self.dhub.execute(
