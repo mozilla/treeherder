@@ -98,3 +98,26 @@ def sample_data():
     """Returns a SampleData() object"""
     from sampledata import SampleData
     return SampleData()
+
+@pytest.fixture()
+def jobs_ds():
+    from django.conf import settings
+    from treeherder.model.models import Datasource
+    return Datasource.objects.create(
+        project=settings.DATABASES["default"]["TEST_NAME"],
+        dataset=1,
+        contenttype="jobs",
+        host="localhost",
+    )
+
+
+@pytest.fixture()
+def objectstore_ds():
+    from django.conf import settings
+    from treeherder.model.models import Datasource
+    return Datasource.objects.create(
+        project=settings.DATABASES["default"]["TEST_NAME"],
+        dataset=1,
+        contenttype="objectstore",
+        host="localhost",
+    )
