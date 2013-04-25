@@ -50,12 +50,10 @@ class Migration(SchemaMigration):
             ('id', self.gf('django.db.models.fields.IntegerField')(primary_key=True)),
             ('repository_group', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['model.RepositoryGroup'])),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=50L)),
-            ('type', self.gf('django.db.models.fields.CharField')(max_length=25L)),
+            ('dvcs_type', self.gf('django.db.models.fields.CharField')(max_length=25L)),
             ('url', self.gf('django.db.models.fields.CharField')(max_length=255L)),
-            ('branch', self.gf('django.db.models.fields.CharField')(max_length=50L, blank=True)),
-            ('project_name', self.gf('django.db.models.fields.CharField')(max_length=25L, blank=True)),
+            ('codebase', self.gf('django.db.models.fields.CharField')(max_length=50L, blank=True)),
             ('description', self.gf('django.db.models.fields.TextField')()),
-            ('purpose', self.gf('django.db.models.fields.CharField')(max_length=50L)),
             ('active_status', self.gf('django.db.models.fields.CharField')(max_length=7L, blank=True)),
         ))
         db.send_create_signal(u'model', ['Repository'])
@@ -135,7 +133,7 @@ class Migration(SchemaMigration):
         db.create_table(u'repository_version', (
             ('id', self.gf('django.db.models.fields.IntegerField')(primary_key=True)),
             ('repository', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['model.Repository'])),
-            ('version', self.gf('django.db.models.fields.CharField')(max_length=50L)),
+            ('version_timestamp', self.gf('django.db.models.fields.CharField')(max_length=50L)),
             ('timestamp', self.gf('django.db.models.fields.IntegerField')()),
             ('active_status', self.gf('django.db.models.fields.CharField')(max_length=7L, blank=True)),
         ))
@@ -322,14 +320,12 @@ class Migration(SchemaMigration):
         u'model.repository': {
             'Meta': {'object_name': 'Repository', 'db_table': "u'repository'"},
             'active_status': ('django.db.models.fields.CharField', [], {'max_length': '7L', 'blank': 'True'}),
-            'branch': ('django.db.models.fields.CharField', [], {'max_length': '50L', 'blank': 'True'}),
+            'codebase': ('django.db.models.fields.CharField', [], {'max_length': '50L', 'blank': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {}),
             'id': ('django.db.models.fields.IntegerField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50L'}),
-            'project_name': ('django.db.models.fields.CharField', [], {'max_length': '25L', 'blank': 'True'}),
-            'purpose': ('django.db.models.fields.CharField', [], {'max_length': '50L'}),
             'repository_group': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['model.RepositoryGroup']"}),
-            'type': ('django.db.models.fields.CharField', [], {'max_length': '25L'}),
+            'dvcs_type': ('django.db.models.fields.CharField', [], {'max_length': '25L'}),
             'url': ('django.db.models.fields.CharField', [], {'max_length': '255L'})
         },
         u'model.repositorygroup': {
@@ -344,7 +340,7 @@ class Migration(SchemaMigration):
             'active_status': ('django.db.models.fields.CharField', [], {'max_length': '7L', 'blank': 'True'}),
             'id': ('django.db.models.fields.IntegerField', [], {'primary_key': 'True'}),
             'repository': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['model.Repository']"}),
-            'timestamp': ('django.db.models.fields.IntegerField', [], {}),
+            'version_timestamp': ('django.db.models.fields.IntegerField', [], {}),
             'version': ('django.db.models.fields.CharField', [], {'max_length': '50L'})
         }
     }

@@ -74,12 +74,10 @@ class Repository(models.Model):
     id = models.IntegerField(primary_key=True)
     repository_group = models.ForeignKey('RepositoryGroup')
     name = models.CharField(max_length=50L)
-    type = models.CharField(max_length=25L)
+    dvcs_type = models.CharField(max_length=25L)
     url = models.CharField(max_length=255L)
-    branch = models.CharField(max_length=50L, blank=True)
-    project_name = models.CharField(max_length=25L, blank=True)
+    codebase = models.CharField(max_length=50L, blank=True)
     description = models.TextField()
-    purpose = models.CharField(max_length=50L)
     active_status = models.CharField(max_length=7L, blank=True)
 
     class Meta:
@@ -412,7 +410,7 @@ class RepositoryVersion(models.Model):
     id = models.IntegerField(primary_key=True)
     repository = models.ForeignKey(Repository)
     version = models.CharField(max_length=50L)
-    timestamp = models.IntegerField()
+    version_timestamp = models.IntegerField()
     active_status = models.CharField(max_length=7L, blank=True)
 
     class Meta:
