@@ -7,6 +7,14 @@
         "jobs": {
             "sql": "SELECT * FROM `job`",
             "host": "master_host"
+        },
+        "job_artifacts": {
+            "sql": "SELECT * FROM `job_artifact` WHERE job_id = ?",
+            "host": "master_host"
+        },
+        "job_log_urls": {
+            "sql": "SELECT * FROM `job_log_url` WHERE job_id = ?",
+            "host": "master_host"
         }
     }
 }

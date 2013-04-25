@@ -58,7 +58,11 @@
 
     },
     "selects":{
+        "get_job":{
+            "sql":"SELECT * FROM `job` WHERE id = ?",
 
+            "host":"read_host"
+        }
     }
 }
 

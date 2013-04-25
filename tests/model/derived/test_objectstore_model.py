@@ -4,24 +4,6 @@ import json
 from .sample_data_generator import job_json
 
 
-def test_unicode(jm):
-    """Unicode representation of a ``JobModel`` is the project name."""
-    assert unicode(jm) == unicode(jm.project)
-
-
-def xtest_disconnect(jm):
-    """test that your model disconnects"""
-
-    # establish the connection to jobs.
-    jm._get_last_insert_id()
-    # establish the connection to objectstore
-    jm.retrieve_job_data(limit=1)
-
-    jm.disconnect()
-    for src in jm.sources.itervalues():
-        assert src.dhub.connection["master_host"]["con_obj"].open is False
-
-
 def test_claim_objects(jm):
     """``claim_objects`` claims & returns unclaimed rows up to a limit."""
 
@@ -143,7 +125,7 @@ def test_process_objects_unknown_error(jm, monkeypatch):
     assert row_data['processed_state'] == 'ready'
 
 
-def test_ingest_sample_data(jm, sample_data):
+def xtest_ingest_sample_data(jm, sample_data):
     """Process all job structures in the job_data.txt file"""
     for blob in sample_data.job_data:
         # print blob
@@ -159,6 +141,9 @@ def test_ingest_sample_data(jm, sample_data):
 
     job_rows = jm.get_jobs_dhub().execute(
         proc="jobs_test.selects.jobs")
+
+    import time
+    time.sleep(60)
 
     complete_count = jm.get_os_dhub().execute(
         proc="objectstore_test.counts.complete")[0]["complete_count"]
