@@ -53,6 +53,11 @@ class JobsModel(TreeherderModelBase):
         """Get the dhub for the objectstore"""
         return self.get_dhub(self.CT_OBJECTSTORE)
 
+    def disconnect(self):
+        """Iterate over and disconnect all data sources."""
+        self.get_os_dhub().disconnect()
+        self.get_jobs_dhub().disconnect()
+
     ##################
     #
     # Objectstore functionality

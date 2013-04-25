@@ -20,8 +20,8 @@ def test_disconnect(jm):
     jm.retrieve_job_data(limit=1)
 
     jm.disconnect()
-    for src in jm.sources.itervalues():
-        assert src.dhub.connection["master_host"]["con_obj"].open is False
+    assert not jm.get_os_dhub().connection["master_host"]["con_obj"].open
+    assert not jm.get_jobs_dhub().connection["master_host"]["con_obj"].open
 
 
 def test_ingest_single_sample_job(jm, sample_data):
