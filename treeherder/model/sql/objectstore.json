@@ -115,7 +115,9 @@
         "mark_complete":{
 
             "sql":"UPDATE   `objectstore`
-                   SET      `processed_state` = 'complete', `job_id` = ?
+                   SET      `processed_state` = 'complete',
+                            `job_id` = ?,
+                            `revision_hash` = ?
                    WHERE    `processed_state` = 'loading'
                    AND      `id` = ?
                    AND      `worker_id` = CONNECTION_ID()

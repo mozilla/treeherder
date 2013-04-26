@@ -1,20 +1,14 @@
 import json
-
+import pytest
 
 from .sample_data_generator import job_json
 
+slow = pytest.mark.slow
 
 def test_claim_objects(jm):
     """``claim_objects`` claims & returns unclaimed rows up to a limit."""
 
-    blobs = [
-        job_json(testrun={"date": "1330454755"}),
-        job_json(testrun={"date": "1330454756"}),
-        job_json(testrun={"date": "1330454757"}),
-    ]
-    # import time
-    # time.sleep(30)
-
+    blobs = [json.dumps(job) for job in sample_data.job_data[:3]]
     for blob in blobs:
         jm.store_job_data(blob)
 
@@ -45,13 +39,15 @@ def test_mark_object_complete(jm):
     jm.store_job_data(job_json())
     row_id = jm.claim_objects(1)[0]["id"]
     job_id = 7  # any arbitrary number; no cross-db constraint checks
+    revision_hash = "fakehash"
 
-    jm.mark_object_complete(row_id, job_id)
+    jm.mark_object_complete(row_id, job_id, revision_hash)
 
     row_data = jm.get_dhub(jm.CT_OBJECTSTORE).execute(
         proc="objectstore_test.selects.row", placeholders=[row_id])[0]
 
     assert row_data["job_id"] == job_id
+    assert row_data["revision_hash"] == revision_hash
     assert row_data["processed_state"] == "complete"
 
 
@@ -125,14 +121,14 @@ def test_process_objects_unknown_error(jm, monkeypatch):
     assert row_data['processed_state'] == 'ready'
 
 
+@slow
 def test_ingest_sample_data(jm, sample_data):
     """Process all job structures in the job_data.txt file"""
-    job_data = sample_data.job_data[:250]
-    for blob in job_data:
+    for blob in sample_data.job_data:
         # print blob
         jm.store_job_data(json.dumps(blob))
 
-    data_length = len(job_data)
+    data_length = len(sample_data.job_data)
 
     # process 10 rows at a time
     remaining = data_length
