@@ -1,7 +1,9 @@
 import json
 import difflib
 import pprint
+import pytest
 
+slow = pytest.mark.slow
 
 def test_unicode(jm):
     """Unicode representation of a ``JobModel`` is the project name."""
@@ -45,6 +47,7 @@ def test_ingest_single_sample_job(jm, sample_data):
     assert loading_count == 0
 
 
+@slow
 def test_ingest_all_sample_jobs(jm, sample_data):
     """
     Process each job structure in the job_data.txt file and verify.
@@ -53,7 +56,7 @@ def test_ingest_all_sample_jobs(jm, sample_data):
     everything was stored correctly.
 
     """
-    job_data = sample_data.job_data[:2]
+    job_data = sample_data.job_data
     for blob in job_data:
         jm.store_job_data(json.dumps(blob))
         jobs = jm.process_objects(1)
@@ -69,7 +72,6 @@ def test_ingest_all_sample_jobs(jm, sample_data):
         exp_src = clean_source_blob_dict(blob["sources"][0])
         act_src = SourceDictBuilder(jm, job_id).as_dict()
         assert exp_src == act_src, diff_dict(exp_src, act_src)
-
 
     complete_count = jm.get_os_dhub().execute(
         proc="objectstore_test.counts.complete")[0]["complete_count"]
@@ -93,7 +95,19 @@ class SourceDictBuilder(object):
             placeholders=[self.job_id],
             return_type="iter"
         ).next()
+
+        source["repository"] = self._get_repository(
+            source["repository_id"])
+        del(source["repository_id"])
+
         return unicode_keys(source)
+
+    def _get_repository(self, obj_id):
+        obj = self.jm.refdata_model.get_row_by_id(
+            "repository",
+            obj_id,
+        ).get_column_data("name")
+        return obj
 
 
 class JobDictBuilder(object):
