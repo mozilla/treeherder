@@ -125,10 +125,11 @@ def test_process_objects_unknown_error(jm, monkeypatch):
 
 def test_ingest_sample_data(jm, sample_data):
     """Process all job structures in the job_data.txt file"""
-    for blob in sample_data.job_data:
+    job_data = sample_data.job_data[:250]
+    for blob in job_data:
         jm.store_job_data(json.dumps(blob))
 
-    data_length = len(sample_data.job_data)
+    data_length = len(job_data)
 
     # process 10 rows at a time
     remaining = data_length
