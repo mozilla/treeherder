@@ -62,10 +62,6 @@ class JobsModel(TreeherderModelBase):
         """Return the job row for this ``job_id``"""
         return self.get_row_by_id(self.CT_JOBS, "job", job_id).next()
 
-    def get_revision(self, revision_id):
-        """Return the revision row for this ``revision_id``"""
-        return self.get_row_by_id(self.CT_JOBS, "revision", revision_id).next()
-
     ##################
     #
     # Objectstore functionality

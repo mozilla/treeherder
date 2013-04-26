@@ -125,7 +125,7 @@ def test_process_objects_unknown_error(jm, monkeypatch):
     assert row_data['processed_state'] == 'ready'
 
 
-def xtest_ingest_sample_data(jm, sample_data):
+def test_ingest_sample_data(jm, sample_data):
     """Process all job structures in the job_data.txt file"""
     job_data = sample_data.job_data[:250]
     for blob in job_data:
@@ -142,9 +142,6 @@ def xtest_ingest_sample_data(jm, sample_data):
 
     job_rows = jm.get_jobs_dhub().execute(
         proc="jobs_test.selects.jobs")
-
-    import time
-    time.sleep(60)
 
     complete_count = jm.get_os_dhub().execute(
         proc="objectstore_test.counts.complete")[0]["complete_count"]

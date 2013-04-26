@@ -15,6 +15,23 @@
         "job_log_urls": {
             "sql": "SELECT * FROM `job_log_url` WHERE job_id = ?",
             "host": "master_host"
+        },
+        "job_source": {
+            "sql": "SELECT rev.commit_timestamp,
+                           rev.push_timestamp,
+                           rev.comments,
+                           rev.repository_id,
+                           rev.revision
+                FROM `revision` as rev
+                LEFT JOIN `revision_map` as revmap
+                    ON rev.id = revmap.revision_id
+                LEFT JOIN `result_set` as res
+                    ON revmap.result_set_id = res.id
+                LEFT JOIN `job`
+                    ON job.result_set_id = res.id
+                WHERE job.id = ?
+                ",
+            "host": "master_host"
         }
     }
 }

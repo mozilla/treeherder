@@ -53,7 +53,7 @@ def test_ingest_all_sample_jobs(jm, sample_data):
     everything was stored correctly.
 
     """
-    job_data = sample_data.job_data[:250]
+    job_data = sample_data.job_data[:2]
     for blob in job_data:
         jm.store_job_data(json.dumps(blob))
         jobs = jm.process_objects(1)
@@ -68,6 +68,7 @@ def test_ingest_all_sample_jobs(jm, sample_data):
         # verify the source data
         exp_src = clean_source_blob_dict(blob["sources"][0])
         act_src = SourceDictBuilder(jm, job_id).as_dict()
+        assert exp_src == act_src, diff_dict(exp_src, act_src)
 
 
     complete_count = jm.get_os_dhub().execute(
@@ -87,7 +88,12 @@ class SourceDictBuilder(object):
         self.job_id = job_id
 
     def as_dict(self):
-        pass
+        source = self.jm.get_jobs_dhub().execute(
+            proc="jobs_test.selects.job_source",
+            placeholders=[self.job_id],
+            return_type="iter"
+        ).next()
+        return unicode_keys(source)
 
 
 class JobDictBuilder(object):
@@ -233,6 +239,8 @@ def unicode_keys(d):
 
 def clean_source_blob_dict(src):
     """Fix a few fields so they're easier to compare"""
+    src["commit_timestamp"] = long(src["commit_timestamp"])
+    src["push_timestamp"] = long(src["push_timestamp"])
     return src
 
 
