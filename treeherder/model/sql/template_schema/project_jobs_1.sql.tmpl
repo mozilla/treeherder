@@ -298,7 +298,7 @@ DROP TABLE IF EXISTS `revision`;
  *
  *  revision - The revision string associated with the repository
  *  author - The author associated with the revision
- *  comment - The comments associated with the revision
+ *  comments - The comments associated with the revision
  *  push_timestamp - Timestamp associated with the push to the test system
  *  commit_timestamp - Timestamp associated with the commit
  **************************/
@@ -306,7 +306,7 @@ CREATE TABLE `revision` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `revision` varchar(50) COLLATE utf8_bin NOT NULL,
   `author` varchar(50) COLLATE utf8_bin NOT NULL,
-  `comment` text DEFAULT NULL,
+  `comments` text DEFAULT NULL,
   `push_timestamp` int(11) unsigned NOT NULL,
   `commit_timestamp` int(11) unsigned NOT NULL,
   `repository_id` int(11) unsigned NOT NULL,

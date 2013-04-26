@@ -180,9 +180,15 @@ class JobsModel(TreeherderModelBase):
 
         """
 
-        # @@@ sources
+        result_set_id = self._set_result_set(data["revision_hash"])
 
-        # Get/Set reference info, all inserts use ON DUPLICATE KEY
+        # assert result_set_id > 0
+        # sources
+        for src in data["sources"]:
+            revision_id = self._insert_revision(src)
+            self._insert_revision_map(revision_id, result_set_id)
+
+        # set Job data
 
         rdm = self.refdata_model
         job_id = -1
@@ -222,8 +228,6 @@ class JobsModel(TreeherderModelBase):
             product_id = rdm.get_or_create_product(
                 job["product_name"],
             )
-
-            result_set_id = self._set_result_set(data["revision_hash"])
 
             job_id = self._set_job_data(
                 job,
@@ -276,6 +280,45 @@ class JobsModel(TreeherderModelBase):
         )
 
         return result_set_id
+
+    def _insert_revision(self, src):
+        """
+        Insert a source to the ``revision`` table
+
+        Example source:
+        {
+            "commit_timestamp": 1365732271,
+            "push_timestamp": 1365732271,
+            "comments": "Bug 854583 - Use _pointer_ instead of...",
+            "repository": "mozilla-aurora",
+            "revision": "c91ee0e8a980"
+        }
+
+        """
+        repository_id = self.refdata_model.get_repository_id(
+            src["repository"])
+
+        revision_id = self._insert_data_and_get_id(
+            'set_revision',
+            [
+                src["revision"],
+                "author?",
+                src["comments"],
+                src["push_timestamp"],
+                src["commit_timestamp"],
+                repository_id,
+            ]
+        )
+        return revision_id
+
+    def _insert_revision_map(self, revision_id, result_set_id):
+        self._insert_data(
+            'set_revision_map',
+            [
+                revision_id,
+                result_set_id
+            ]
+        )
 
     def _set_job_data(self, data, result_set_id, build_platform_id,
                       machine_platform_id, machine_id, option_collection_id,

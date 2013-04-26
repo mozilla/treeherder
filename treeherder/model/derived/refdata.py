@@ -264,6 +264,16 @@ class RefDataManager(object):
 
         id_iter = self.dhub.execute(
             proc='reference.selects.get_repository_version_id',
+            placeholders=[repository_id, version],
+            debug_show=self.DEBUG,
+            return_type='iter')
+
+        return id_iter.get_column_data('id')
+
+    def get_repository_id(self, name):
+
+        id_iter = self.dhub.execute(
+            proc='reference.selects.get_repository_id',
             placeholders=[name],
             debug_show=self.DEBUG,
             return_type='iter')
