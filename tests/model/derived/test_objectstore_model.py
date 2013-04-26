@@ -5,6 +5,7 @@ from .sample_data_generator import job_json
 
 slow = pytest.mark.slow
 
+
 def test_unicode(jm):
     """Unicode representation of a ``JobModel`` is the project name."""
     assert unicode(jm) == unicode(jm.project)
@@ -44,13 +45,15 @@ def test_mark_object_complete(jm):
     jm.store_job_data(job_json())
     row_id = jm.claim_objects(1)[0]["id"]
     job_id = 7  # any arbitrary number; no cross-db constraint checks
+    revision_hash = "fakehash"
 
-    jm.mark_object_complete(row_id, job_id)
+    jm.mark_object_complete(row_id, job_id, revision_hash)
 
     row_data = jm.get_dhub(jm.CT_OBJECTSTORE).execute(
         proc="objectstore_test.selects.row", placeholders=[row_id])[0]
 
     assert row_data["job_id"] == job_id
+    assert row_data["revision_hash"] == revision_hash
     assert row_data["processed_state"] == "complete"
 
 
@@ -68,6 +71,9 @@ def test_process_objects(jm):
 
     # just process two rows
     jm.process_objects(2)
+
+    import time
+    time.sleep(60)
 
     test_run_rows = jm.get_dhub(jm.CT_JOBS).execute(
         proc="jobs_test.selects.jobs")

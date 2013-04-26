@@ -179,7 +179,6 @@ class JobsModel(TreeherderModelBase):
         # Get/Set reference info
 
         rdm = self.refdata_model
-        job_id = -1
         job = data["jobs"]
 
         build_platform_id = rdm.get_or_create_build_platform(
@@ -380,6 +379,7 @@ class JobsModel(TreeherderModelBase):
             try:
                 data = JobData.from_json(row['json_blob'])
                 job_id = self.load_job_data(data)
+                revision_hash = data["revision_hash"]
             except JobDataError as e:
                 self.mark_object_error(row_id, str(e))
             except Exception as e:
@@ -389,7 +389,7 @@ class JobsModel(TreeherderModelBase):
                         e.__class__.__name__, unicode(e))
                 )
             else:
-                self.mark_object_complete(row_id, job_id)
+                self.mark_object_complete(row_id, job_id, revision_hash)
                 job_ids_loaded.append(job_id)
 
         return job_ids_loaded
@@ -425,9 +425,9 @@ class JobsModel(TreeherderModelBase):
         #
         # The mark_loading SQL statement does execute an UPDATE/LIMIT but now
         # implements an "ORDER BY id" clause making the UPDATE
-        # deterministic/safe.  I've been unsuccessfull capturing the specific
+        # deterministic/safe.  I've been unsuccessful capturing the specific
         # warning generated without redirecting program flow control.  To
-        # ressolve the problem in production, we're disabling MySQLdb.Warnings
+        # resolve the problem in production, we're disabling MySQLdb.Warnings
         # before executing mark_loading and then re-enabling warnings
         # immediately after.  If this bug is ever fixed in mysql this handling
         # should be removed. Holy Hackery! -Jeads
@@ -454,11 +454,11 @@ class JobsModel(TreeherderModelBase):
 
         return json_blobs
 
-    def mark_object_complete(self, object_id, job_id):
+    def mark_object_complete(self, object_id, job_id, revision_hash):
         """ Call to database to mark the task completed """
         self.get_os_dhub().execute(
             proc="objectstore.updates.mark_complete",
-            placeholders=[job_id, object_id],
+            placeholders=[job_id, revision_hash, object_id],
             debug_show=self.DEBUG
         )
 

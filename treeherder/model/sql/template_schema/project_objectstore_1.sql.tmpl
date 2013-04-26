@@ -31,7 +31,7 @@ DROP TABLE IF EXISTS `objectstore`;
  *
  *  An object store for the incoming JSON structures described in
  *  sample_data/job_data.json.sample. These structures are transfered to
- *  project_jobs_1.sql.tmpl and treeherder_reference_1.sql.tmpl by a 
+ *  project_jobs_1.sql.tmpl and treeherder_reference_1.sql.tmpl by a
  *  scheduled job.
  *
  * Population Method: dynamic from incoming data
@@ -39,6 +39,7 @@ DROP TABLE IF EXISTS `objectstore`;
  * Example Data:
  *
  *  job_id - Referenced project_jobs_1.job.id
+ *  revision_hash - Hash of any number of revisions associated with the result set.
  *  loaded_timestamp - Timestamp when the structure was first loaded.
  *  processed_state - ready | loading | complete
  *                  ready - Object ready for processing
@@ -53,6 +54,7 @@ DROP TABLE IF EXISTS `objectstore`;
 CREATE TABLE `objectstore` (
   `id` bigint(11) unsigned NOT NULL AUTO_INCREMENT,
   `job_id` bigint(11) unsigned DEFAULT NULL,
+  `revision_hash` varchar(50) COLLATE utf8_bin DEFAULT NULL,
   `loaded_timestamp` int(11) unsigned NOT NULL,
   `processed_state` enum('ready','loading','complete') COLLATE utf8_bin DEFAULT 'ready',
   `error` enum('N','Y') COLLATE utf8_bin DEFAULT 'N',
