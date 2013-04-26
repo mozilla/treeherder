@@ -96,6 +96,11 @@ def increment_cache_key_prefix():
         cache.set(prefix_counter_cache_key, key_prefix_counter)
     cache.key_prefix = "t{0}".format(key_prefix_counter)
 
+@pytest.fixture(scope='session')
+def sample_data():
+    """Returns a SampleData() object"""
+    from sampledata import SampleData
+    return SampleData()
 
 @pytest.fixture()
 def jm():
@@ -136,6 +141,7 @@ def jm():
 
     return model
 
+
 def add_test_procs_file(dhub, key, filename):
     """Add an extra procs file in for testing purposes."""
     test_proc_file = os.path.join(
@@ -172,9 +178,3 @@ def objectstore_ds():
         contenttype="objectstore",
         host="localhost",
     )
-
-@pytest.fixture(scope='session')
-def sample_data():
-    """Returns a SampleData() object"""
-    from sampledata import SampleData
-    return SampleData()
