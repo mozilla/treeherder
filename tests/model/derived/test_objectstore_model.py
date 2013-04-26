@@ -9,19 +9,6 @@ def test_unicode(jm):
     assert unicode(jm) == unicode(jm.project)
 
 
-def xtest_disconnect(jm):
-    """test that your model disconnects"""
-
-    # establish the connection to jobs.
-    jm._get_last_insert_id()
-    # establish the connection to objectstore
-    jm.retrieve_job_data(limit=1)
-
-    jm.disconnect()
-    for src in jm.sources.itervalues():
-        assert src.dhub.connection["master_host"]["con_obj"].open is False
-
-
 def test_claim_objects(jm, sample_data):
     """``claim_objects`` claims & returns unclaimed rows up to a limit."""
 
