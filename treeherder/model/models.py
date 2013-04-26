@@ -1,12 +1,16 @@
 from __future__ import unicode_literals
+
 import uuid
 import subprocess
 import os
-from django.core.cache import cache
-from django.db import models
-from django.conf import settings
+
 from datasource.bases.BaseHub import BaseHub
 from datasource.hubs.MySQL import MySQL
+from django.conf import settings
+from django.core.cache import cache
+from django.db import models
+from django.db.models import Max
+
 from treeherder import path
 
 
@@ -154,12 +158,25 @@ class MachineNote(models.Model):
 
 class DatasourceManager(models.Manager):
     def cached(self):
-        """Return all datasources, caching the results."""
+        """
+        Return all datasources, caching the results.
+
+        """
         sources = cache.get(SOURCES_CACHE_KEY)
         if not sources:
             sources = list(self.all())
             cache.set(SOURCES_CACHE_KEY, sources)
         return sources
+
+    def latest(self, project, contenttype):
+        """
+        @@@ TODO: this needs to use the cache, probably
+        """
+        ds = Datasource.get_latest_dataset(project, contenttype)
+        return self.get(
+            project=project,
+            contenttype=contenttype,
+            dataset=ds)
 
 
 class Datasource(models.Model):
@@ -189,6 +206,14 @@ class Datasource(models.Model):
         cache.delete(SOURCES_CACHE_KEY)
         cls.objects.cached()
 
+    @classmethod
+    def get_latest_dataset(cls, project, contenttype):
+        """get the latest dataset"""
+        return cls.objects.filter(
+            project=project,
+            contenttype=contenttype,
+        ).aggregate(Max("dataset"))["dataset__max"]
+
     @property
     def key(self):
         """Unique key for a data source is the project, contenttype, dataset."""
@@ -198,6 +223,31 @@ class Datasource(models.Model):
     def __unicode__(self):
         """Unicode representation is the project's unique key."""
         return unicode(self.key)
+
+    def create_next_dataset(self, schema_file=None):
+        """
+        Create and return the next dataset for this project/contenttype.
+
+        The database for the new dataset will be located on the same host.
+
+        """
+        dataset = Datasource.objects.filter(
+            project=self.project,
+            contenttype=self.contenttype
+        ).order_by("-dataset")[0].dataset + 1
+
+        # @@@ should we store the schema file name used for the previous
+        # dataset in the db and use the same one again automatically? or should
+        # we actually copy the schema of an existing dataset rather than using
+        # a schema file at all?
+        return Datasource.objects.create(
+            project=self.project,
+            contenttype=self.contenttype,
+            dataset=dataset,
+            host=self.datasource.host,
+            db_type=self.datasource.type,
+            schema_file=schema_file,
+        )
 
     def save(self, *args, **kwargs):
         inserting = not self.pk

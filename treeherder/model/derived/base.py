@@ -5,29 +5,69 @@ access.
 """
 from django.conf import settings
 
-from treeherder.model.sql.datasource import SQLDataSource
+from treeherder.model.models import Datasource
+from treeherder.model.derived.refdata import RefDataManager
 
 
 class TreeherderModelBase(object):
-    """Base model class for all TreeHerder models"""
+    """
+    Base model class for all derived models
+
+    """
 
     def __init__(self, project):
+        """Encapsulate the dataset access for this ``project`` """
+
         self.project = project
-
         self.sources = {}
-        for ct in self.CONTENT_TYPES:
-            self.sources[ct] = SQLDataSource(project, ct)
-
+        self.dhubs = {}
         self.DEBUG = settings.DEBUG
+        self.refdata_model = RefDataManager()
 
     def __unicode__(self):
         """Unicode representation is project name."""
         return self.project
 
-    def disconnect(self):
-        """Iterate over and disconnect all data sources."""
-        for src in self.sources.itervalues():
-            src.disconnect()
+    def get_dhub(self, contenttype, procs_file_name=None):
+        """
+        The configured datahub for the given contenttype
 
-    def get_project_cache_key(self, str_data):
-        return "{0}_{1}".format(self.project, str_data)
+        """
+        if not procs_file_name:
+            procs_file_name = "{0}.json".format(contenttype)
+
+        if not contenttype in self.dhubs.keys():
+            self.dhubs[contenttype] = self.get_datasource(
+                contenttype).dhub(procs_file_name)
+
+        return self.dhubs[contenttype]
+
+    def get_datasource(self, contenttype):
+        """The datasource for this contenttype of the project."""
+
+        if not contenttype in self.sources.keys():
+            self.sources[contenttype] = self._get_datasource(contenttype)
+
+        return self.sources[contenttype]
+
+    def _get_datasource(self, contenttype):
+        """Find the datasource for this contenttype in the cache."""
+        candidate_sources = []
+        for source in Datasource.objects.cached():
+            if (source.project == self.project and
+                    source.contenttype == contenttype):
+                candidate_sources.append(source)
+
+        if not candidate_sources:
+            raise DatasetNotFoundError(
+                "No dataset found for project %r, contenttype %r."
+                % (self.project, contenttype)
+            )
+
+        candidate_sources.sort(key=lambda s: s.dataset, reverse=True)
+
+        return candidate_sources[0]
+
+
+class DatasetNotFoundError(ValueError):
+    pass

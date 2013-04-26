@@ -2,7 +2,6 @@ import os
 from django.conf import settings
 from datasource.bases.BaseHub import BaseHub
 from datasource.DataHub import DataHub
-from .base import TreeherderModelBase
 
 
 class RefDataManager(object):

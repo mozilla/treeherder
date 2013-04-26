@@ -1,0 +1,28 @@
+{
+    "counts": {
+        "loading": {
+            "sql": "SELECT COUNT(`id`) AS loading_count
+                    FROM   `objectstore`
+                    WHERE  processed_state = 'loading'
+                   ",
+            "host": "master_host"
+        },
+        "complete": {
+            "sql": "SELECT COUNT(`id`) AS complete_count
+                    FROM   `objectstore`
+                    WHERE  processed_state = 'complete'
+                   ",
+            "host": "master_host"
+        }
+    },
+    "selects": {
+        "all": {
+            "sql": "SELECT * FROM `objectstore`",
+            "host": "master_host"
+        },
+        "row": {
+            "sql": "SELECT * FROM `objectstore` WHERE id = ?",
+            "host": "master_host"
+        }
+    }
+}
