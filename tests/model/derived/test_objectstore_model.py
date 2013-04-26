@@ -22,17 +22,10 @@ def xtest_disconnect(jm):
         assert src.dhub.connection["master_host"]["con_obj"].open is False
 
 
-def test_claim_objects(jm):
+def test_claim_objects(jm, sample_data):
     """``claim_objects`` claims & returns unclaimed rows up to a limit."""
 
-    blobs = [
-        job_json(testrun={"date": "1330454755"}),
-        job_json(testrun={"date": "1330454756"}),
-        job_json(testrun={"date": "1330454757"}),
-    ]
-    # import time
-    # time.sleep(30)
-
+    blobs = [json.dumps(job) for job in sample_data.job_data[:3]]
     for blob in blobs:
         jm.store_job_data(blob)
 
@@ -146,7 +139,6 @@ def test_process_objects_unknown_error(jm, monkeypatch):
 def test_ingest_sample_data(jm, sample_data):
     """Process all job structures in the job_data.txt file"""
     for blob in sample_data.job_data:
-        # print blob
         jm.store_job_data(json.dumps(blob))
 
     data_length = len(sample_data.job_data)
