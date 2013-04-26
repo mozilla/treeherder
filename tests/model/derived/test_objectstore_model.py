@@ -1,7 +1,9 @@
 import json
-
+import pytest
 
 from .sample_data_generator import job_json
+
+slow = pytest.mark.slow
 
 
 def test_unicode(jm):
@@ -9,30 +11,10 @@ def test_unicode(jm):
     assert unicode(jm) == unicode(jm.project)
 
 
-def xtest_disconnect(jm):
-    """test that your model disconnects"""
-
-    # establish the connection to jobs.
-    jm._get_last_insert_id()
-    # establish the connection to objectstore
-    jm.retrieve_job_data(limit=1)
-
-    jm.disconnect()
-    for src in jm.sources.itervalues():
-        assert src.dhub.connection["master_host"]["con_obj"].open is False
-
-
-def test_claim_objects(jm):
+def test_claim_objects(jm, sample_data):
     """``claim_objects`` claims & returns unclaimed rows up to a limit."""
 
-    blobs = [
-        job_json(testrun={"date": "1330454755"}),
-        job_json(testrun={"date": "1330454756"}),
-        job_json(testrun={"date": "1330454757"}),
-    ]
-    # import time
-    # time.sleep(30)
-
+    blobs = [json.dumps(job) for job in sample_data.job_data[:3]]
     for blob in blobs:
         jm.store_job_data(blob)
 
@@ -63,13 +45,15 @@ def test_mark_object_complete(jm):
     jm.store_job_data(job_json())
     row_id = jm.claim_objects(1)[0]["id"]
     job_id = 7  # any arbitrary number; no cross-db constraint checks
+    revision_hash = "fakehash"
 
-    jm.mark_object_complete(row_id, job_id)
+    jm.mark_object_complete(row_id, job_id, revision_hash)
 
     row_data = jm.get_dhub(jm.CT_OBJECTSTORE).execute(
         proc="objectstore_test.selects.row", placeholders=[row_id])[0]
 
     assert row_data["job_id"] == job_id
+    assert row_data["revision_hash"] == revision_hash
     assert row_data["processed_state"] == "complete"
 
 
@@ -143,15 +127,14 @@ def test_process_objects_unknown_error(jm, monkeypatch):
     assert row_data['processed_state'] == 'ready'
 
 
+@slow
 def test_ingest_sample_data(jm, sample_data):
     """Process all job structures in the job_data.txt file"""
-    print "start test_ingest_sample_data"
-    for blob in sample_data.job_data[:250]:
-        # print blob
+    job_data = sample_data.job_data
+    for blob in job_data:
         jm.store_job_data(json.dumps(blob))
 
-    #data_length = len(sample_data.job_data)
-    data_length = 250
+    data_length = len(job_data)
 
     # process 10 rows at a time
     remaining = data_length
@@ -166,8 +149,6 @@ def test_ingest_sample_data(jm, sample_data):
         proc="objectstore_test.counts.complete")[0]["complete_count"]
     loading_count = jm.get_os_dhub().execute(
         proc="objectstore_test.counts.loading")[0]["loading_count"]
-
-    print "start test_ingest_sample_data"
 
     assert complete_count == data_length
     assert loading_count == 0

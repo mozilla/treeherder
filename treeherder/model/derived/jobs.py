@@ -128,135 +128,135 @@ class JobsModel(TreeherderModelBase):
                     }
                 ],
                 "revision_hash": "24fd64b8251fac5cf60b54a915bffa7e51f636b5",
-                "jobs": [
-                    {
-                        "build_platform": {
-                            "platform": "Ubuntu VM 12.04",
-                            "os_name": "linux",
-                            "architecture": "x86_64",
-                            "vm": true
-                        },
-                        "submit_timestamp": 1365732271,
-                        "start_timestamp": "20130411165317",
-                        "name": "xpcshell",
-                        "option_collection": {
-                            "opt": true
-                        },
-                        "log_references": [
-                            {
-                                "url": "http://ftp.mozilla.org/pub/...",
-                                "name": "unittest"
-                            }
-                        ],
-                        "who": "sendchange-unittest",
-                        "reason": "scheduler",
-                        artifact:{
-                            type:" json | img | ...",
-                            name:"",
-                            log_urls:[
-                                ]
-                            blob:""
-                        },
-                        "machine_platform": {
-                            "platform": "Ubuntu VM 12.04",
-                            "os_name": "linux",
-                            "architecture": "x86_64",
-                            "vm": true
-                        },
-                        "machine": "tst-linux64-ec2-314",
-                        "state": "TODO",
-                        "result": 0,
-                        "job_guid": "d19375ce775f0dc166de01daa5d2e8a73a8e8ebf",
-                        "product_name": "firefox",
-                        "end_timestamp": "1365733932"
-                    }
-                ]
+                "job": {
+                    "build_platform": {
+                        "platform": "Ubuntu VM 12.04",
+                        "os_name": "linux",
+                        "architecture": "x86_64",
+                        "vm": true
+                    },
+                    "submit_timestamp": 1365732271,
+                    "start_timestamp": "20130411165317",
+                    "name": "xpcshell",
+                    "option_collection": {
+                        "opt": true
+                    },
+                    "log_references": [
+                        {
+                            "url": "http://ftp.mozilla.org/pub/...",
+                            "name": "unittest"
+                        }
+                    ],
+                    "who": "sendchange-unittest",
+                    "reason": "scheduler",
+                    artifact:{
+                        type:" json | img | ...",
+                        name:"",
+                        log_urls:[
+                            ]
+                        blob:""
+                    },
+                    "machine_platform": {
+                        "platform": "Ubuntu VM 12.04",
+                        "os_name": "linux",
+                        "architecture": "x86_64",
+                        "vm": true
+                    },
+                    "machine": "tst-linux64-ec2-314",
+                    "state": "TODO",
+                    "result": 0,
+                    "job_guid": "d19375ce775f0dc166de01daa5d2e8a73a8e8ebf",
+                    "product_name": "firefox",
+                    "end_timestamp": "1365733932"
+                }
+
             }
 
         """
 
         # @@@ sources
 
-        # Get/Set reference info, all inserts use ON DUPLICATE KEY
+        # Get/Set reference info
+
+        # set Job data
 
         rdm = self.refdata_model
-        job_id = -1
-        for job in data["jobs"]:
+        job = data["job"]
 
-            build_platform_id = rdm.get_or_create_build_platform(
-                job["build_platform"]["os_name"],
-                job["build_platform"]["platform"],
-                job["build_platform"]["architecture"],
+        build_platform_id = rdm.get_or_create_build_platform(
+            job["build_platform"]["os_name"],
+            job["build_platform"]["platform"],
+            job["build_platform"]["architecture"],
+        )
+
+        machine_platform_id = rdm.get_or_create_machine_platform(
+            job["machine_platform"]["os_name"],
+            job["machine_platform"]["platform"],
+            job["machine_platform"]["architecture"],
+        )
+
+        machine_id = rdm.get_or_create_machine(
+            job["machine"],
+            timestamp=max([
+                job["start_timestamp"],
+                job["submit_timestamp"],
+                job["end_timestamp"],
+            ])
+        )
+
+        option_collection_id = rdm.get_or_create_option_collection(
+            [k for k, v in job["option_collection"].items() if v],
+        )
+
+        job_group, sep, job_name = job["name"].partition("-")
+
+        job_type_id = rdm.get_or_create_job_type(
+            job_name, job_group,
+        )
+
+        product_id = rdm.get_or_create_product(
+            job["product_name"],
+        )
+
+        result_set_id = self._set_result_set(data["revision_hash"])
+
+        job_id = self._set_job_data(
+            job,
+            result_set_id,
+            build_platform_id,
+            machine_platform_id,
+            machine_id,
+            option_collection_id,
+            job_type_id,
+            product_id,
+        )
+
+        for log_ref in job["log_references"]:
+            self._insert_job_log_url(
+                job_id,
+                log_ref["name"],
+                log_ref["url"]
             )
 
-            machine_platform_id = rdm.get_or_create_machine_platform(
-                job["machine_platform"]["os_name"],
-                job["machine_platform"]["platform"],
-                job["machine_platform"]["architecture"],
+        try:
+            artifact = job["artifact"]
+            self._insert_job_artifact(
+                job_id,
+                artifact["name"],
+                artifact["type"],
+                artifact["blob"],
             )
 
-            machine_id = rdm.get_or_create_machine(
-                job["machine"],
-                timestamp=max([
-                    job["start_timestamp"],
-                    job["submit_timestamp"],
-                    job["end_timestamp"],
-                ])
-            )
-
-            option_collection_id = rdm.get_or_create_option_collection(
-                [k for k, v in job["option_collection"].items() if v],
-            )
-
-            job_group, sep, job_name = job["name"].partition("-")
-
-            job_type_id = rdm.get_or_create_job_type(
-                job_name, job_group,
-            )
-
-            product_id = rdm.get_or_create_product(
-                job["product_name"],
-            )
-
-            result_set_id = self._set_result_set(data["revision_hash"])
-
-            job_id = self._set_job_data(
-                job,
-                result_set_id,
-                build_platform_id,
-                machine_platform_id,
-                machine_id,
-                option_collection_id,
-                job_type_id,
-                product_id,
-            )
-
-            for log_ref in job["log_references"]:
+            for log_ref in artifact["log_urls"]:
                 self._insert_job_log_url(
                     job_id,
                     log_ref["name"],
                     log_ref["url"]
                 )
 
-            try:
-                artifact = job["artifact"]
-                self._insert_job_artifact(
-                    job_id,
-                    artifact["name"],
-                    artifact["type"],
-                    artifact["blob"],
-                )
-
-                for log_ref in artifact["log_urls"]:
-                    self._insert_job_log_url(
-                        job_id,
-                        log_ref["name"],
-                        log_ref["url"]
-                    )
-
-            except KeyError:
-                # it is ok to have an empty or missing artifact
-                pass
+        except (KeyError, JobDataError):
+            # it is ok to have an empty or missing artifact
+            pass
 
         return job_id
 
@@ -381,6 +381,7 @@ class JobsModel(TreeherderModelBase):
             try:
                 data = JobData.from_json(row['json_blob'])
                 job_id = self.load_job_data(data)
+                revision_hash = data["revision_hash"]
             except JobDataError as e:
                 self.mark_object_error(row_id, str(e))
             except Exception as e:
@@ -390,7 +391,7 @@ class JobsModel(TreeherderModelBase):
                         e.__class__.__name__, unicode(e))
                 )
             else:
-                self.mark_object_complete(row_id, job_id)
+                self.mark_object_complete(row_id, job_id, revision_hash)
                 job_ids_loaded.append(job_id)
 
         return job_ids_loaded
@@ -426,9 +427,9 @@ class JobsModel(TreeherderModelBase):
         #
         # The mark_loading SQL statement does execute an UPDATE/LIMIT but now
         # implements an "ORDER BY id" clause making the UPDATE
-        # deterministic/safe.  I've been unsuccessfull capturing the specific
+        # deterministic/safe.  I've been unsuccessful capturing the specific
         # warning generated without redirecting program flow control.  To
-        # ressolve the problem in production, we're disabling MySQLdb.Warnings
+        # resolve the problem in production, we're disabling MySQLdb.Warnings
         # before executing mark_loading and then re-enabling warnings
         # immediately after.  If this bug is ever fixed in mysql this handling
         # should be removed. Holy Hackery! -Jeads
@@ -455,11 +456,11 @@ class JobsModel(TreeherderModelBase):
 
         return json_blobs
 
-    def mark_object_complete(self, object_id, job_id):
+    def mark_object_complete(self, object_id, job_id, revision_hash):
         """ Call to database to mark the task completed """
         self.get_os_dhub().execute(
             proc="objectstore.updates.mark_complete",
-            placeholders=[job_id, object_id],
+            placeholders=[job_id, revision_hash, object_id],
             debug_show=self.DEBUG
         )
 

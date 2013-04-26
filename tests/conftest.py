@@ -4,8 +4,14 @@ import sys
 from django.core.management import call_command
 import pytest
 
-from django.conf import settings
-from django.core.management import call_command
+
+def pytest_addoption(parser):
+    parser.addoption(
+        "--runslow",
+        action="store_true",
+        help="run slow tests",
+    )
+
 
 def pytest_sessionstart(session):
     """
@@ -61,6 +67,9 @@ def pytest_runtest_setup(item):
     disable_transaction_methods()
 
     increment_cache_key_prefix()
+
+    if 'slow' in item.keywords and not item.config.getoption("--runslow"):
+        pytest.skip("need --runslow option to run")
 
 
 def pytest_runtest_teardown(item):
@@ -134,6 +143,7 @@ def jm():
     )
 
     return model
+
 
 def add_test_procs_file(dhub, key, filename):
     """Add an extra procs file in for testing purposes."""
