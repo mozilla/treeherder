@@ -177,7 +177,7 @@ class JobsModel(TreeherderModelBase):
 
         # @@@ sources
 
-        # Get/Set reference info, all inserts use ON DUPLICATE KEY
+        # Get/Set reference info
 
         rdm = self.refdata_model
         job_id = -1

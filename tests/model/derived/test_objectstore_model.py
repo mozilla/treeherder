@@ -1,8 +1,9 @@
 import json
-
+import pytest
 
 from .sample_data_generator import job_json
 
+slow = pytest.mark.slow
 
 def test_unicode(jm):
     """Unicode representation of a ``JobModel`` is the project name."""
@@ -123,9 +124,10 @@ def test_process_objects_unknown_error(jm, monkeypatch):
     assert row_data['processed_state'] == 'ready'
 
 
+@slow
 def test_ingest_sample_data(jm, sample_data):
     """Process all job structures in the job_data.txt file"""
-    job_data = sample_data.job_data[:250]
+    job_data = sample_data.job_data
     for blob in job_data:
         jm.store_job_data(json.dumps(blob))
 
