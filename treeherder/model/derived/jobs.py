@@ -58,6 +58,14 @@ class JobsModel(TreeherderModelBase):
         self.get_os_dhub().disconnect()
         self.get_jobs_dhub().disconnect()
 
+    def get_job(self, job_id):
+        """Return the job row for this ``job_id``"""
+        return self.get_row_by_id(self.CT_JOBS, "job", job_id).next()
+
+    def get_revision(self, revision_id):
+        """Return the revision row for this ``revision_id``"""
+        return self.get_row_by_id(self.CT_JOBS, "revision", revision_id).next()
+
     ##################
     #
     # Objectstore functionality
@@ -69,16 +77,6 @@ class JobsModel(TreeherderModelBase):
         ds = self.get_datasource(self.CT_OBJECTSTORE)
         secret = ds.get_oauth_consumer_secret(key)
         return secret
-
-    def _get_last_insert_id(self, contenttype=None):
-        """Return last-inserted ID."""
-        if not contenttype:
-            contenttype = self.CT_JOBS
-        return self.get_dhub(contenttype).execute(
-            proc='generic.selects.get_last_insert_id',
-            debug_show=self.DEBUG,
-            return_type='iter',
-        ).get_column_data('id')
 
     def store_job_data(self, json_data, error=None):
         """Write the JSON to the objectstore to be queued for processing."""
@@ -411,9 +409,9 @@ class JobsModel(TreeherderModelBase):
         self._insert_data(statement, placeholders)
         return self._get_last_insert_id()
 
-    def _get_last_insert_id(self, source="jobs"):
+    def _get_last_insert_id(self, contenttype="jobs"):
         """Return last-inserted ID."""
-        return self.get_dhub(source).execute(
+        return self.get_dhub(contenttype).execute(
             proc='generic.selects.get_last_insert_id',
             debug_show=self.DEBUG,
             return_type='iter',

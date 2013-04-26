@@ -8,7 +8,7 @@ def test_unicode(jm):
     assert unicode(jm) == unicode(jm.project)
 
 
-def xtest_disconnect(jm):
+def test_disconnect(jm):
     """test that your model disconnects"""
 
     # establish the connection to jobs.
@@ -53,39 +53,52 @@ def test_ingest_all_sample_jobs(jm, sample_data):
     everything was stored correctly.
 
     """
-    for blob in sample_data.job_data:
+    job_data = sample_data.job_data[:250]
+    for blob in job_data:
         jm.store_job_data(json.dumps(blob))
         jobs = jm.process_objects(1)
         assert len(jobs) == 1
         job_id = jobs[0]
 
+        # verify the job data
         exp_job = clean_job_blob_dict(blob["jobs"][0])
         act_job = JobDictBuilder(jm, job_id).as_dict()
-
         assert exp_job == act_job, diff_dict(exp_job, act_job)
+
+        # verify the source data
+        exp_src = clean_source_blob_dict(blob["sources"][0])
+        act_src = SourceDictBuilder(jm, job_id).as_dict()
+
 
     complete_count = jm.get_os_dhub().execute(
         proc="objectstore_test.counts.complete")[0]["complete_count"]
     loading_count = jm.get_os_dhub().execute(
         proc="objectstore_test.counts.loading")[0]["loading_count"]
 
-    assert complete_count == len(sample_data.job_data)
+    assert complete_count == len(job_data)
     assert loading_count == 0
 
 
-class JobDictBuilder(object):
+class SourceDictBuilder(object):
+    """Given a ``job_id``, rebuild the dictionary the source came from."""
 
     def __init__(self, jm, job_id):
         self.jm = jm
         self.job_id = job_id
 
     def as_dict(self):
-        job = self.jm.get_jobs_dhub().execute(
-            proc="jobs_test.selects.job",
-            placeholders=[self.job_id],
-            key_column="id",
-            return_type='dict',
-        )[self.job_id]
+        pass
+
+
+class JobDictBuilder(object):
+    """Given a ``job_id``, rebuild the dictionary the job came from."""
+
+    def __init__(self, jm, job_id):
+        self.jm = jm
+        self.job_id = job_id
+
+    def as_dict(self):
+        job = self.jm.get_job(self.job_id)
 
         job["artifact"] = self._get_artifact()
         job["log_references"] = self._get_logs()
@@ -216,6 +229,11 @@ class JobDictBuilder(object):
 
 def unicode_keys(d):
     return dict([(unicode(k), v) for k, v in d.items()])
+
+
+def clean_source_blob_dict(src):
+    """Fix a few fields so they're easier to compare"""
+    return src
 
 
 def clean_job_blob_dict(job):

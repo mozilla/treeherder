@@ -37,7 +37,6 @@ class RefDataManager(object):
 
         return iter_obj
 
-
     def get_build_platform_id(self, os_name, platform, architecture):
 
         id_iter = self.dhub.execute(
