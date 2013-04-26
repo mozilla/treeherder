@@ -41,7 +41,7 @@ def job_data(**kwargs):
             }
         ],
         "revision_hash": "24fd64b8251fac5cf60b54a915bffa7e51f636b5",
-        "jobs": [{
+        "job": {
 
             'build_platform': build_platform(**kwargs.pop("build_platform", {})),
 
@@ -77,7 +77,7 @@ def job_data(**kwargs):
             'product_name': kwargs.pop("product_name", u'firefox'),
 
             'end_timestamp': kwargs.pop("end_timestamp", end_timestamp()),
-        }]
+        }
     }
 
     # defaults.update(kwargs)
