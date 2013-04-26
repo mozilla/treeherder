@@ -23,40 +23,16 @@ def test_disconnect(jm):
     assert not jm.get_jobs_dhub().connection["master_host"]["con_obj"].open
 
 
-def test_ingest_single_sample_job(jm, sample_data):
-    """Process a single job structure in the job_data.txt file"""
-    blob = sample_data.job_data[0]
-    jm.store_job_data(json.dumps(blob))
-    jobs = jm.process_objects(1)
-    # import time
-    # time.sleep(30)
-    assert len(jobs) == 1
-    job_id = jobs[0]
-
-    exp_job = clean_job_blob_dict(blob["jobs"][0])
-    act_job = JobDictBuilder(jm, job_id).as_dict()
-
-    assert exp_job == act_job, diff_dict(exp_job, act_job)
-
-    complete_count = jm.get_os_dhub().execute(
-        proc="objectstore_test.counts.complete")[0]["complete_count"]
-    loading_count = jm.get_os_dhub().execute(
-        proc="objectstore_test.counts.loading")[0]["loading_count"]
-
-    assert complete_count == 1
-    assert loading_count == 0
-
-
-@slow
-def test_ingest_all_sample_jobs(jm, sample_data):
+def do_job_ingestion(jm, job_data):
     """
-    Process each job structure in the job_data.txt file and verify.
+    Test ingesting job blobs.  ``job_data`` maybe different sizes.
+
+    Process each job structure in the job_data and verify.
 
     This rebuilds the JSON blob (for the most part) and compares that
     everything was stored correctly.
 
     """
-    job_data = sample_data.job_data
     for blob in job_data:
         jm.store_job_data(json.dumps(blob))
         jobs = jm.process_objects(1)
@@ -64,7 +40,7 @@ def test_ingest_all_sample_jobs(jm, sample_data):
         job_id = jobs[0]
 
         # verify the job data
-        exp_job = clean_job_blob_dict(blob["jobs"][0])
+        exp_job = clean_job_blob_dict(blob["job"])
         act_job = JobDictBuilder(jm, job_id).as_dict()
         assert exp_job == act_job, diff_dict(exp_job, act_job)
 
@@ -80,6 +56,22 @@ def test_ingest_all_sample_jobs(jm, sample_data):
 
     assert complete_count == len(job_data)
     assert loading_count == 0
+
+
+def test_ingest_single_sample_job(jm, sample_data):
+    """Process a single job structure in the job_data.txt file"""
+    job_data = sample_data.job_data[:0]
+    do_job_ingestion(jm, job_data)
+
+
+@slow
+def test_ingest_all_sample_jobs(jm, sample_data):
+    """
+    Process each job structure in the job_data.txt file and verify.
+
+    """
+    job_data = sample_data.job_data
+    do_job_ingestion(jm, job_data)
 
 
 class SourceDictBuilder(object):
