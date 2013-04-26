@@ -147,22 +147,8 @@ def test_refdata_manager(refdata, params):
         for k, v in params['expected'][i].items():
             assert row[k] == v
 
-
-# some tests just don't fit into the standard layout
-# def test_repository_version_creation(refdata, repository_id):
-
-#     id = refdata.get_or_create_repository_version(
-#         repository_id,
-#         'v1',
-#         1366290144.07455)
-
-    # row_data = refdata.dhub.execute(
-    #     proc=params[refdata_test.selects.test_repository_version],
-    #     placeholders=[id]
-    # )[0]
-
-    # assert row[repository_id] == 1
-    # assert row[version] == 'v1'
-    # assert row[version_timestamp] == 1366290144
-    # assert row[active_status] == 'active'
+    assert row_data["symbol"] == 'fill me'
+    assert row_data["name"] == 'mygroup'
+    assert row_data["description"] == 'fill me'
+    assert row_data["active_status"] == 'active'
 

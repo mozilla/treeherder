@@ -46,7 +46,11 @@ class SQLDataSource(object):
     def datasource(self):
         """The DataSource model object backing this SQLDataSource."""
         if self._datasource is None:
-            self._datasource = self._get_datasource()
+            self._datasource = Datasource(
+                project=self.project,
+                contenttype=self.contenttype,
+            )
+            # self._datasource = self._get_datasource()
         return self._datasource
 
     @property
@@ -90,7 +94,7 @@ class SQLDataSource(object):
         The database for the new dataset will be located on the same host.
 
         """
-        dataset = DataSource.objects.filter(
+        dataset = Datasource.objects.filter(
             project=self.project,
             contenttype=self.contenttype
         ).order_by("-dataset")[0].dataset + 1
@@ -156,7 +160,7 @@ class SQLDataSource(object):
             oauth_consumer_key = uuid.uuid4()
             oauth_consumer_secret = uuid.uuid4()
 
-        ds = DataSource.objects.create(
+        ds = Datasource.objects.create(
             host=host,
             project=project,
             contenttype=contenttype,
