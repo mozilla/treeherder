@@ -72,9 +72,6 @@ def test_process_objects(jm):
     # just process two rows
     jm.process_objects(2)
 
-    import time
-    time.sleep(60)
-
     test_run_rows = jm.get_dhub(jm.CT_JOBS).execute(
         proc="jobs_test.selects.jobs")
     date_set = set([r['submit_timestamp'] for r in test_run_rows])

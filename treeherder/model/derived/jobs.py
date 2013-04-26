@@ -178,8 +178,10 @@ class JobsModel(TreeherderModelBase):
 
         # Get/Set reference info
 
+        # set Job data
+
         rdm = self.refdata_model
-        job = data["jobs"]
+        job = data["job"]
 
         build_platform_id = rdm.get_or_create_build_platform(
             job["build_platform"]["os_name"],
@@ -252,7 +254,7 @@ class JobsModel(TreeherderModelBase):
                     log_ref["url"]
                 )
 
-        except KeyError:
+        except (KeyError, JobDataError):
             # it is ok to have an empty or missing artifact
             pass
 
