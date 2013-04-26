@@ -128,49 +128,48 @@ class JobsModel(TreeherderModelBase):
                     }
                 ],
                 "revision_hash": "24fd64b8251fac5cf60b54a915bffa7e51f636b5",
-                "jobs": [
-                    {
-                        "build_platform": {
-                            "platform": "Ubuntu VM 12.04",
-                            "os_name": "linux",
-                            "architecture": "x86_64",
-                            "vm": true
-                        },
-                        "submit_timestamp": 1365732271,
-                        "start_timestamp": "20130411165317",
-                        "name": "xpcshell",
-                        "option_collection": {
-                            "opt": true
-                        },
-                        "log_references": [
-                            {
-                                "url": "http://ftp.mozilla.org/pub/...",
-                                "name": "unittest"
-                            }
-                        ],
-                        "who": "sendchange-unittest",
-                        "reason": "scheduler",
-                        artifact:{
-                            type:" json | img | ...",
-                            name:"",
-                            log_urls:[
-                                ]
-                            blob:""
-                        },
-                        "machine_platform": {
-                            "platform": "Ubuntu VM 12.04",
-                            "os_name": "linux",
-                            "architecture": "x86_64",
-                            "vm": true
-                        },
-                        "machine": "tst-linux64-ec2-314",
-                        "state": "TODO",
-                        "result": 0,
-                        "job_guid": "d19375ce775f0dc166de01daa5d2e8a73a8e8ebf",
-                        "product_name": "firefox",
-                        "end_timestamp": "1365733932"
-                    }
-                ]
+                "job": {
+                    "build_platform": {
+                        "platform": "Ubuntu VM 12.04",
+                        "os_name": "linux",
+                        "architecture": "x86_64",
+                        "vm": true
+                    },
+                    "submit_timestamp": 1365732271,
+                    "start_timestamp": "20130411165317",
+                    "name": "xpcshell",
+                    "option_collection": {
+                        "opt": true
+                    },
+                    "log_references": [
+                        {
+                            "url": "http://ftp.mozilla.org/pub/...",
+                            "name": "unittest"
+                        }
+                    ],
+                    "who": "sendchange-unittest",
+                    "reason": "scheduler",
+                    artifact:{
+                        type:" json | img | ...",
+                        name:"",
+                        log_urls:[
+                            ]
+                        blob:""
+                    },
+                    "machine_platform": {
+                        "platform": "Ubuntu VM 12.04",
+                        "os_name": "linux",
+                        "architecture": "x86_64",
+                        "vm": true
+                    },
+                    "machine": "tst-linux64-ec2-314",
+                    "state": "TODO",
+                    "result": 0,
+                    "job_guid": "d19375ce775f0dc166de01daa5d2e8a73a8e8ebf",
+                    "product_name": "firefox",
+                    "end_timestamp": "1365733932"
+                }
+
             }
 
         """
@@ -181,82 +180,82 @@ class JobsModel(TreeherderModelBase):
 
         rdm = self.refdata_model
         job_id = -1
-        for job in data["jobs"]:
+        job = data["jobs"]
 
-            build_platform_id = rdm.get_or_create_build_platform(
-                job["build_platform"]["os_name"],
-                job["build_platform"]["platform"],
-                job["build_platform"]["architecture"],
+        build_platform_id = rdm.get_or_create_build_platform(
+            job["build_platform"]["os_name"],
+            job["build_platform"]["platform"],
+            job["build_platform"]["architecture"],
+        )
+
+        machine_platform_id = rdm.get_or_create_machine_platform(
+            job["machine_platform"]["os_name"],
+            job["machine_platform"]["platform"],
+            job["machine_platform"]["architecture"],
+        )
+
+        machine_id = rdm.get_or_create_machine(
+            job["machine"],
+            timestamp=max([
+                job["start_timestamp"],
+                job["submit_timestamp"],
+                job["end_timestamp"],
+            ])
+        )
+
+        option_collection_id = rdm.get_or_create_option_collection(
+            [k for k, v in job["option_collection"].items() if v],
+        )
+
+        job_group, sep, job_name = job["name"].partition("-")
+
+        job_type_id = rdm.get_or_create_job_type(
+            job_name, job_group,
+        )
+
+        product_id = rdm.get_or_create_product(
+            job["product_name"],
+        )
+
+        result_set_id = self._set_result_set(data["revision_hash"])
+
+        job_id = self._set_job_data(
+            job,
+            result_set_id,
+            build_platform_id,
+            machine_platform_id,
+            machine_id,
+            option_collection_id,
+            job_type_id,
+            product_id,
+        )
+
+        for log_ref in job["log_references"]:
+            self._insert_job_log_url(
+                job_id,
+                log_ref["name"],
+                log_ref["url"]
             )
 
-            machine_platform_id = rdm.get_or_create_machine_platform(
-                job["machine_platform"]["os_name"],
-                job["machine_platform"]["platform"],
-                job["machine_platform"]["architecture"],
+        try:
+            artifact = job["artifact"]
+            self._insert_job_artifact(
+                job_id,
+                artifact["name"],
+                artifact["type"],
+                artifact["blob"],
             )
 
-            machine_id = rdm.get_or_create_machine(
-                job["machine"],
-                timestamp=max([
-                    job["start_timestamp"],
-                    job["submit_timestamp"],
-                    job["end_timestamp"],
-                ])
-            )
-
-            option_collection_id = rdm.get_or_create_option_collection(
-                [k for k, v in job["option_collection"].items() if v],
-            )
-
-            job_group, sep, job_name = job["name"].partition("-")
-
-            job_type_id = rdm.get_or_create_job_type(
-                job_name, job_group,
-            )
-
-            product_id = rdm.get_or_create_product(
-                job["product_name"],
-            )
-
-            result_set_id = self._set_result_set(data["revision_hash"])
-
-            job_id = self._set_job_data(
-                job,
-                result_set_id,
-                build_platform_id,
-                machine_platform_id,
-                machine_id,
-                option_collection_id,
-                job_type_id,
-                product_id,
-            )
-
-            for log_ref in job["log_references"]:
+            for log_ref in artifact["log_urls"]:
                 self._insert_job_log_url(
                     job_id,
                     log_ref["name"],
                     log_ref["url"]
                 )
 
-            try:
-                artifact = job["artifact"]
-                self._insert_job_artifact(
-                    job_id,
-                    artifact["name"],
-                    artifact["type"],
-                    artifact["blob"],
-                )
-
-                for log_ref in artifact["log_urls"]:
-                    self._insert_job_log_url(
-                        job_id,
-                        log_ref["name"],
-                        log_ref["url"]
-                    )
-
-            except KeyError:
-                # it is ok to have an empty or missing artifact
-                pass
+        except KeyError:
+            # it is ok to have an empty or missing artifact
+            pass
 
         return job_id
 
