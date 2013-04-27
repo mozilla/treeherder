@@ -45,9 +45,16 @@ def do_job_ingestion(jm, job_data):
         assert exp_job == act_job, diff_dict(exp_job, act_job)
 
         # verify the source data
-        exp_src = clean_source_blob_dict(blob["sources"][0])
-        act_src = SourceDictBuilder(jm, job_id).as_dict()
-        assert exp_src == act_src, diff_dict(exp_src, act_src)
+        try:
+            exp_src = clean_source_blob_dict(blob["sources"][0])
+
+            # import time
+            # time.sleep(120)
+            act_src = SourceDictBuilder(jm, job_id).as_dict()
+            assert exp_src == act_src, diff_dict(exp_src, act_src)
+        except StopIteration as e:
+            print json.dumps(act_job, indent=4)
+            assert False
 
     complete_count = jm.get_os_dhub().execute(
         proc="objectstore_test.counts.complete")[0]["complete_count"]
@@ -60,7 +67,7 @@ def do_job_ingestion(jm, job_data):
 
 def test_ingest_single_sample_job(jm, sample_data):
     """Process a single job structure in the job_data.txt file"""
-    job_data = sample_data.job_data[:0]
+    job_data = sample_data.job_data[:1]
     do_job_ingestion(jm, job_data)
 
 

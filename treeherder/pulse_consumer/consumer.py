@@ -724,7 +724,6 @@ class TreeherderDataAdapter(PulseDataAdapter):
             'revision_hash': self.get_revision_hash(
                 [ data['revision'], data['branch'] ]
                 ),
-            'jobs': []
             }
 
         treeherder_data['sources'] = []
@@ -803,7 +802,7 @@ class TreeherderDataAdapter(PulseDataAdapter):
             'artifact':{}
             }
 
-        treeherder_data['jobs'].append(job)
+        treeherder_data['job'] = job
 
         return JobData(treeherder_data)
 

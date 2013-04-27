@@ -175,12 +175,11 @@ class JobsModel(TreeherderModelBase):
 
         result_set_id = self._set_result_set(data["revision_hash"])
 
-        # assert result_set_id > 0
-        # sources
+        # set sources
+
         for src in data["sources"]:
             revision_id = self._insert_revision(src)
             self._insert_revision_map(revision_id, result_set_id)
-        # Get/Set reference info
 
         # set Job data
 
@@ -201,11 +200,7 @@ class JobsModel(TreeherderModelBase):
 
         machine_id = rdm.get_or_create_machine(
             job["machine"],
-            timestamp=max([
-                job["start_timestamp"],
-                job["submit_timestamp"],
-                job["end_timestamp"],
-            ])
+            timestamp=long(job["end_timestamp"]),
         )
 
         option_collection_id = rdm.get_or_create_option_collection(
@@ -221,8 +216,6 @@ class JobsModel(TreeherderModelBase):
         product_id = rdm.get_or_create_product(
             job["product_name"],
         )
-
-        result_set_id = self._set_result_set(data["revision_hash"])
 
         job_id = self._set_job_data(
             job,
@@ -299,8 +292,8 @@ class JobsModel(TreeherderModelBase):
                 src["revision"],
                 "author?",
                 src["comments"],
-                src["push_timestamp"],
-                src["commit_timestamp"],
+                long(src["push_timestamp"]),
+                long(src["commit_timestamp"]),
                 repository_id,
             ]
         )
@@ -340,9 +333,9 @@ class JobsModel(TreeherderModelBase):
             reason = data["reason"]
             result = int(data["result"])
             state = data["state"]
-            submit_timestamp = data["submit_timestamp"]
-            start_timestamp = data["start_timestamp"]
-            end_timestamp = data["end_timestamp"]
+            submit_timestamp = long(data["submit_timestamp"])
+            start_timestamp = long(data["start_timestamp"])
+            end_timestamp = long(data["end_timestamp"])
 
         except ValueError as e:
             e.__class__ = JobDataError

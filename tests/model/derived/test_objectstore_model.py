@@ -5,7 +5,7 @@ from .sample_data_generator import job_json
 
 slow = pytest.mark.slow
 
-def test_claim_objects(jm):
+def test_claim_objects(jm, sample_data):
     """``claim_objects`` claims & returns unclaimed rows up to a limit."""
 
     blobs = [json.dumps(job) for job in sample_data.job_data[:3]]
