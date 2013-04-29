@@ -1,0 +1,64 @@
+{
+    "views":{
+
+    },
+    "inserts":{
+        "set_job_data":{
+
+            "sql":"INSERT INTO `job` (
+                `job_guid`,
+                `job_coalesced_to_guid`,
+                `result_set_id`,
+                `build_platform_id`,
+                `machine_platform_id`,
+                `machine_id`,
+                `option_collection_id`,
+                `job_type_id`,
+                `product_id`,
+                `who`,
+                `reason`,
+                `result`,
+                `state`,
+                `submit_timestamp`,
+                `start_timestamp`,
+                `end_timestamp`)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+
+            "host":"master_host"
+        },
+        "set_result_set":{
+
+            "sql":"INSERT INTO `result_set` (
+                `revision_hash`)
+                VALUES (?)",
+
+            "host":"master_host"
+        },
+        "set_job_log_url":{
+
+            "sql":"INSERT INTO `job_log_url` (
+                `job_id`,
+                `name`,
+                `url`)
+            VALUES (?,?,?)",
+
+            "host":"master_host"
+        },
+        "set_job_artifact":{
+
+            "sql":"INSERT INTO `job_artifact` (
+                `job_id`,
+                `name`,
+                `type`,
+                `blob`)
+            VALUES (?,?,?)",
+
+            "host":"master_host"
+        }
+
+    },
+    "selects":{
+
+    }
+}
+

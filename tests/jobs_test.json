@@ -1,0 +1,12 @@
+{
+    "selects": {
+        "job": {
+            "sql": "SELECT * FROM `job` WHERE id = ?",
+            "host": "master_host"
+        },
+        "jobs": {
+            "sql": "SELECT * FROM `job`",
+            "host": "master_host"
+        }
+    }
+}
