@@ -62,7 +62,7 @@ test_params = [
         'input': ['mygroup'],
         'test_proc': 'refdata_test.selects.test_job_group',
         'expected': [{
-            'symbol': 'fill me',
+            'symbol': '?',
             'name': 'mygroup',
             'description': 'fill me',
             'active_status': 'active'
@@ -73,7 +73,7 @@ test_params = [
         'func': 'get_or_create_job_type',
         'test_proc': 'refdata_test.selects.test_job_type',
         'expected': [{
-            'symbol': 'fill me',
+            'symbol': '?',
             'name': 'myname',
             'group': 'mygroup',
             'description': 'fill me',
