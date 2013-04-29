@@ -143,6 +143,7 @@ class Migration(SchemaMigration):
         db.create_table(u'option_collection', (
             ('id', self.gf('django.db.models.fields.IntegerField')(primary_key=True)),
             ('option', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['model.Option'])),
+            ('option_collection_hash', self.gf('django.db.models.fields.CharField')(max_length=65L)),
         ))
         db.send_create_signal(u'model', ['OptionCollection'])
 
@@ -308,7 +309,8 @@ class Migration(SchemaMigration):
         u'model.optioncollection': {
             'Meta': {'object_name': 'OptionCollection', 'db_table': "u'option_collection'"},
             'id': ('django.db.models.fields.IntegerField', [], {'primary_key': 'True'}),
-            'option': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['model.Option']"})
+            'option': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['model.Option']"}),
+            'option_collection_hash': ('django.db.models.fields.related.CharField', [], {'max_length': '64L',})
         },
         u'model.product': {
             'Meta': {'object_name': 'Product', 'db_table': "u'product'"},

@@ -1,4 +1,5 @@
 import os
+from hashlib import sha1
 from django.conf import settings
 from datasource.bases.BaseHub import BaseHub
 from datasource.DataHub import DataHub
@@ -179,53 +180,36 @@ class RefDataManager(object):
 
         return self.get_option_id(name)
 
-    def get_option_collection_id(self, options):
-        """returns an option_collection_id given a list of options"""
+    def get_option_collection_hash(self, options):
+        """returns an option_collection_hash given a list of options"""
+
         options = sorted(list(options))
-
-        id_iter = self.dhub.execute(
-            proc='reference.selects.get_option_collection_id',
-            placeholders=[','.join(options)],
-            debug_show=self.DEBUG,
-            return_type='iter')
-
-        return id_iter.get_column_data('option_collection_id')
-
-    def get_max_collection_id(self):
-        """returns the max collection id available"""
-        max_id = self.dhub.execute(
-            proc='reference.selects.get_max_collection_id',
-            placeholders=[],
-            debug_show=self.DEBUG,
-            return_type='tuple')
-
-        return max_id[0]['max_id'] or 0
+        sha_hash = sha1()
+        # equivalent to loop over the options and call sha_hash.update()
+        sha_hash.update(''.join(options))
+        return sha_hash.hexdigest()
 
     def get_or_create_option_collection(self, options):
 
         #check if this collection already exists
-        id = self.get_option_collection_id(options)
-        if not id:
+        option_collection_hash = self.get_option_collection_hash(options)
+        print len(option_collection_hash)
+        for option in options:
 
-            #retrieve the last collection
-            option_collection_id = self.get_max_collection_id() + 1
-            for option in options:
+            #create an option if it doesn't exist
+            option_id = self.get_or_create_option(option)
 
-                #create an option if it doesn't exist
-                option_id = self.get_or_create_option(option)
-
-                # create an entry in option_collection
-                self.dhub.execute(
-                    proc='reference.inserts.create_option_collection',
-                    placeholders=[
-                        option_collection_id,
-                        option_id,
-                        option_collection_id,
-                        option_id
-                    ],
-                    debug_show=self.DEBUG)
-            id = self.get_option_collection_id(options)
-        return id
+            # create an entry in option_collection
+            self.dhub.execute(
+                proc='reference.inserts.create_option_collection',
+                placeholders=[
+                    option_collection_hash,
+                    option_id,
+                    option_collection_hash,
+                    option_id
+                ],
+                debug_show=self.DEBUG)
+        return option_collection_hash
 
     def get_product_id(self, name):
 

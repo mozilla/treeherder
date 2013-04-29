@@ -423,11 +423,12 @@ class RepositoryVersion(models.Model):
 
 class OptionCollection(models.Model):
     id = models.IntegerField(primary_key=True)
+    option_collection_hash = models.CharField(max_length=40L)
     option = models.ForeignKey(Option)
 
     class Meta:
         db_table = 'option_collection'
-        unique_together = ['id', 'option']
+        unique_together = ['option_collection_hash', 'option']
 
     def __unicode__(self):
         return "{0}".format(self.option)

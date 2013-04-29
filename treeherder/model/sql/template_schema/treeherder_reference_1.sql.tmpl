@@ -358,17 +358,17 @@ DROP TABLE IF EXISTS `option_collection`;
  *
  * Example Data:
  *
- *  option_collection_id - Used to group collections of objects
+ *  option_collection_hash - Used to group collections of objects
  *  option_id - References option.id
  **************************/
 CREATE TABLE `option_collection` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `option_collection_id` int(10) unsigned NOT NULL,
+  `option_collection_hash` varchar(40) COLLATE utf8_bin NOT NULL,
   `option_id` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uni_option_collection` (`option_collection_id`,`option_id`),
+  UNIQUE KEY `uni_option_collection` (`option_collection_hash`,`option_id`),
   KEY `idx_option` (`option_id`),
-  KEY `idx_option_collection_id` (`option_collection_id`),
+  KEY `idx_option_collection_hash` (`option_collection_hash`),
   CONSTRAINT `fk_option` FOREIGN KEY (`option_id`) REFERENCES `option` (`id`)
 ) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
