@@ -342,8 +342,8 @@ class JobsModel(TreeherderModelBase):
             end_timestamp = long(data["end_timestamp"])
 
         except ValueError as e:
-            e.__class__ = JobDataError
-            raise
+            raise JobDataError(e.message)
+
 
         job_id = self._insert_data_and_get_id(
             'set_job_data',
