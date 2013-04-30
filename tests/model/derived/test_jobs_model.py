@@ -329,15 +329,23 @@ def clean_job_blob_dict(job):
     job["end_timestamp"] = long(job["end_timestamp"])
     job["result"] = unicode(job["result"])
 
+    # move artifact logs to log_references area for comparison
+    try:
+        artlog = job["artifact"]["log_urls"]
+        job["log_references"].extend(artlog)
+        del(job["artifact"]["log_urls"])
+    except KeyError:
+        pass  # no problem
+
     # @@@ we don't keep track of VM'ness?
     try:
         del(job["machine_platform"]["vm"])
     except KeyError:
-        pass  # oh, that's ok
+        pass  # no problem
     try:
         del(job["build_platform"]["vm"])
     except KeyError:
-        pass  # oh, that's ok
+        pass  # no problem
 
     return job
 
