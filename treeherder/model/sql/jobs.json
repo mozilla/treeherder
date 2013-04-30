@@ -12,7 +12,7 @@
                 `build_platform_id`,
                 `machine_platform_id`,
                 `machine_id`,
-                `option_collection_id`,
+                `option_collection_hash`,
                 `job_type_id`,
                 `product_id`,
                 `who`,
@@ -74,7 +74,7 @@
                 `name`,
                 `type`,
                 `blob`)
-            VALUES (?,?,?)",
+            VALUES (?,?,?,?)",
 
             "host":"master_host"
         }

@@ -2,6 +2,8 @@ import json
 import difflib
 import pprint
 import pytest
+from treeherder.model.derived.base import DatasetNotFoundError
+from .sample_data_generator import job_data
 
 slow = pytest.mark.slow
 
@@ -23,6 +25,12 @@ def test_disconnect(jm):
     assert not jm.get_jobs_dhub().connection["master_host"]["con_obj"].open
 
 
+def test_bad_contenttype(jm):
+    """Test trying to get an invalid contenttype"""
+    with pytest.raises(DatasetNotFoundError):
+        jm.get_dhub("foo")
+
+
 def do_job_ingestion(jm, job_data):
     """
     Test ingesting job blobs.  ``job_data`` maybe different sizes.
@@ -39,22 +47,18 @@ def do_job_ingestion(jm, job_data):
         assert len(jobs) == 1
         job_id = jobs[0]
 
+        # import time
+        # time.sleep(60)
+
         # verify the job data
         exp_job = clean_job_blob_dict(blob["job"])
         act_job = JobDictBuilder(jm, job_id).as_dict()
         assert exp_job == act_job, diff_dict(exp_job, act_job)
 
         # verify the source data
-        try:
-            exp_src = clean_source_blob_dict(blob["sources"][0])
-
-            # import time
-            # time.sleep(120)
-            act_src = SourceDictBuilder(jm, job_id).as_dict()
-            assert exp_src == act_src, diff_dict(exp_src, act_src)
-        except StopIteration as e:
-            print json.dumps(act_job, indent=4)
-            assert False
+        exp_src = clean_source_blob_dict(blob["sources"][0])
+        act_src = SourceDictBuilder(jm, job_id).as_dict()
+        assert exp_src == act_src, diff_dict(exp_src, act_src)
 
     complete_count = jm.get_os_dhub().execute(
         proc="objectstore_test.counts.complete")[0]["complete_count"]
@@ -79,6 +83,44 @@ def test_ingest_all_sample_jobs(jm, sample_data):
     """
     job_data = sample_data.job_data
     do_job_ingestion(jm, job_data)
+
+
+def test_artifact_log_ingestion(jm):
+    """
+    Test ingesting an artifact with a log
+
+    artifact:{
+        type:" json | img | ...",
+        name:"",
+        log_urls:[
+            ]
+        blob:""
+    },
+    """
+    artifact = {
+        u"type": u"json",
+        u"name": u"arti-foo-ct",
+        u"log_urls": [
+            {
+                u"url": u"http://ftp.mozilla.org/arty-facto/...",
+                u"name": u"artifact_url"
+            }
+        ],
+        u"blob": ""
+    }
+    blob = job_data(artifact=artifact)
+    jm.store_job_data(json.dumps(blob))
+    job_ids = jm.process_objects(1)
+
+    assert get_objectstore_last_error(jm) == u"N"
+
+    # print json.dumps(blob, indent=4)
+
+    job_id = job_ids[0]
+
+    exp_job = clean_job_blob_dict(blob["job"])
+    act_job = JobDictBuilder(jm, job_id).as_dict()
+    assert exp_job == act_job, diff_dict(exp_job, act_job)
 
 
 class SourceDictBuilder(object):
@@ -123,8 +165,8 @@ class JobDictBuilder(object):
         job["log_references"] = self._get_logs()
 
         job["option_collection"] = self._get_option_collection(
-            job["option_collection_id"])
-        del(job["option_collection_id"])
+            job["option_collection_hash"])
+        del(job["option_collection_hash"])
 
         job["machine_platform"] = self._get_machine_platform(
             job["machine_platform_id"])
@@ -155,16 +197,20 @@ class JobDictBuilder(object):
 
         return unicode_keys(job)
 
-    def _get_option_collection(self, obj_id):
-        option_id = self.jm.refdata_model.get_row_by_id(
-            "option_collection",
-            obj_id,
-        ).get_column_data("option_id")
-        obj = self.jm.refdata_model.get_row_by_id(
-            "option",
-            option_id,
-        ).next()
-        return {unicode(obj["name"]): True}
+    def _get_option_collection(self, option_collection_hash):
+        """
+        Needs to work with hash.  Get row by id won't work anymore.
+        probably need to a new getter where it gets the option id
+        but the hash means there's possibly more than one option.
+        maybe I need mauro to make a splitter get method?
+        """
+        option_iter = self.jm.refdata_model.get_option_names(
+            option_collection_hash)
+        options = {}
+        for name_dict in option_iter:
+            options[name_dict["name"]] = True
+
+        return options
 
     def _get_machine_platform(self, obj_id):
         obj = self.jm.refdata_model.get_row_by_id(
@@ -233,17 +279,21 @@ class JobDictBuilder(object):
         return log_values
 
     def _get_artifact(self):
-        artifacts = self.jm.get_jobs_dhub().execute(
-            proc="jobs_test.selects.job_artifacts",
+        artifact = self.jm.get_jobs_dhub().execute(
+            proc="jobs_test.selects.job_artifact",
             placeholders=[self.job_id],
             key_column="id",
             return_type='dict',
         )
-        if not len(artifacts):
-            artifacts = {}
+        if not len(artifact):
+            artifact = {}
         else:
-            artifacts = artifacts.values()
-        return artifacts
+            artifact = artifact[self.job_id]
+            del(artifact["active_status"])
+            del(artifact["id"])
+            del(artifact["job_id"])
+
+        return unicode_keys(artifact)
 
 
 def unicode_keys(d):
@@ -283,3 +333,12 @@ def diff_dict(d1, d2):
        pprint.pformat(d1).splitlines(),
        pprint.pformat(d2).splitlines())))
     return diff
+
+
+def get_objectstore_last_error(jm):
+    row_id = jm._get_last_insert_id("objectstore")
+
+    row_data = jm.get_dhub(jm.CT_OBJECTSTORE).execute(
+        proc="objectstore_test.selects.row", placeholders=[row_id])[0]
+
+    return row_data['error_msg']

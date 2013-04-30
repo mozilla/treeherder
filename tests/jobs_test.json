@@ -8,7 +8,7 @@
             "sql": "SELECT * FROM `job`",
             "host": "master_host"
         },
-        "job_artifacts": {
+        "job_artifact": {
             "sql": "SELECT * FROM `job_artifact` WHERE job_id = ?",
             "host": "master_host"
         },

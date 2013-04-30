@@ -28,11 +28,14 @@ class JobsModel(TreeherderModelBase):
 
 
     @classmethod
-    def create(cls, project, hosts=None, types=None):
+    def create(cls, project, host=None):
         """
         Create all the datasource tables for this project.
 
         """
+
+        if not host:
+            host = settings.DATABASES['default']['HOST']
 
         for ct in [cls.CT_JOBS, cls.CT_OBJECTSTORE]:
             dataset = Datasource.get_latest_dataset(project, ct)
@@ -40,6 +43,7 @@ class JobsModel(TreeherderModelBase):
                 project=project,
                 contenttype=ct,
                 dataset=dataset or 1,
+                host=host,
             )
             source.save()
 
@@ -203,7 +207,7 @@ class JobsModel(TreeherderModelBase):
             timestamp=long(job["end_timestamp"]),
         )
 
-        option_collection_id = rdm.get_or_create_option_collection(
+        option_collection_hash = rdm.get_or_create_option_collection(
             [k for k, v in job["option_collection"].items() if v],
         )
 
@@ -223,7 +227,7 @@ class JobsModel(TreeherderModelBase):
             build_platform_id,
             machine_platform_id,
             machine_id,
-            option_collection_id,
+            option_collection_hash,
             job_type_id,
             product_id,
         )
@@ -309,7 +313,7 @@ class JobsModel(TreeherderModelBase):
         )
 
     def _set_job_data(self, data, result_set_id, build_platform_id,
-                      machine_platform_id, machine_id, option_collection_id,
+                      machine_platform_id, machine_id, option_collection_hash,
                       job_type_id, product_id):
         """Inserts job data into the db and returns job id."""
 
@@ -350,7 +354,7 @@ class JobsModel(TreeherderModelBase):
                 build_platform_id,
                 machine_platform_id,
                 machine_id,
-                option_collection_id,
+                option_collection_hash,
                 job_type_id,
                 product_id,
                 who,
@@ -414,6 +418,7 @@ class JobsModel(TreeherderModelBase):
 
         for row in rows:
             row_id = int(row['id'])
+            import traceback
             try:
                 data = JobData.from_json(row['json_blob'])
                 job_id = self.load_job_data(data)
@@ -421,6 +426,7 @@ class JobsModel(TreeherderModelBase):
             except JobDataError as e:
                 self.mark_object_error(row_id, str(e))
             except Exception as e:
+                print traceback.format_exc()
                 self.mark_object_error(
                     row_id,
                     u"Unknown error: {0}: {1}".format(

@@ -23,7 +23,7 @@ SQL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'sql')
 class Product(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=50L)
-    description = models.TextField()
+    description = models.TextField(blank=True, default='fill me')
     active_status = models.CharField(max_length=7L, blank=True)
 
     class Meta:
@@ -51,7 +51,7 @@ class BuildPlatform(models.Model):
 class Option(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=50L)
-    description = models.TextField()
+    description = models.TextField(blank=True, default='fill me')
     active_status = models.CharField(max_length=7L, blank=True)
 
     class Meta:
@@ -64,7 +64,7 @@ class Option(models.Model):
 class RepositoryGroup(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=50L)
-    description = models.TextField()
+    description = models.TextField(blank=True, default='fill me')
     active_status = models.CharField(max_length=7L, blank=True)
 
     class Meta:
@@ -81,7 +81,7 @@ class Repository(models.Model):
     dvcs_type = models.CharField(max_length=25L)
     url = models.CharField(max_length=255L)
     codebase = models.CharField(max_length=50L, blank=True)
-    description = models.TextField()
+    description = models.TextField(blank=True, default='fill me')
     active_status = models.CharField(max_length=7L, blank=True)
 
     class Meta:
@@ -443,9 +443,9 @@ class Datasource(models.Model):
 
 class JobGroup(models.Model):
     id = models.IntegerField(primary_key=True)
-    symbol = models.CharField(max_length=10L)
+    symbol = models.CharField(max_length=10L, default='?')
     name = models.CharField(max_length=50L)
-    description = models.TextField()
+    description = models.TextField(blank=True, default='fill me')
     active_status = models.CharField(max_length=7L, blank=True)
 
     class Meta:
@@ -473,11 +473,12 @@ class RepositoryVersion(models.Model):
 
 class OptionCollection(models.Model):
     id = models.IntegerField(primary_key=True)
+    option_collection_hash = models.CharField(max_length=40L)
     option = models.ForeignKey(Option)
 
     class Meta:
         db_table = 'option_collection'
-        unique_together = ['id', 'option']
+        unique_together = ['option_collection_hash', 'option']
 
     def __unicode__(self):
         return "{0}".format(self.option)
@@ -486,9 +487,9 @@ class OptionCollection(models.Model):
 class JobType(models.Model):
     id = models.IntegerField(primary_key=True)
     job_group = models.ForeignKey(JobGroup, null=True, blank=True)
-    symbol = models.CharField(max_length=10L)
+    symbol = models.CharField(max_length=10L, default='?')
     name = models.CharField(max_length=50L)
-    description = models.TextField()
+    description = models.TextField(blank=True, default='fill me')
     active_status = models.CharField(max_length=7L, blank=True)
 
     class Meta:
@@ -502,7 +503,7 @@ class JobType(models.Model):
 class FailureClassification(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=50L)
-    description = models.TextField()
+    description = models.TextField(blank=True, default='fill me')
     active_status = models.CharField(max_length=7L, blank=True)
 
     class Meta:
