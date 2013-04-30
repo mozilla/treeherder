@@ -33,7 +33,7 @@ class TreeherderModelBase(object):
         The configured datahub for the given contenttype
 
         """
-        if not procs_file_name:
+        if not procs_file_name:  # pragma: no cover
             procs_file_name = "{0}.json".format(contenttype)
 
         if not contenttype in self.dhubs.keys():
