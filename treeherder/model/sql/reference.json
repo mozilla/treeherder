@@ -1,8 +1,8 @@
 {
     "inserts":{
         "create_build_platform":{
-            "sql": "INSERT INTO `build_platform` (`os_name`, `platform`, `architecture`, `active_status`)
-                    SELECT ?, ?, ?, 'active'
+            "sql": "INSERT INTO `build_platform` (`os_name`, `platform`, `architecture`)
+                    SELECT ?, ?, ?
                     FROM DUAL
                     WHERE NOT EXISTS (
                     SELECT `os_name`, `platform`, `architecture`
@@ -13,8 +13,8 @@
         },
 
         "create_job_group":{
-            "sql":"INSERT INTO `job_group` (`symbol`, `name`, `description`, `active_status`)
-                   SELECT 'fill me', ?, 'fill me', 'active'
+            "sql":"INSERT INTO `job_group` (`name`, `description`)
+                   SELECT ?, 'fill me'
                     FROM DUAL
                     WHERE NOT EXISTS (
                     SELECT `name`
@@ -25,8 +25,8 @@
         },
 
         "create_job_type":{
-            "sql":"INSERT INTO `job_type` (`job_group_id`, `symbol`, `name`, `description`, `active_status`)
-                   SELECT ?, 'fill me', ?, 'fill me', 'active'
+            "sql":"INSERT INTO `job_type` (`job_group_id`, `name`, `description`)
+                   SELECT ?, ?, 'fill me'
                     FROM DUAL
                     WHERE NOT EXISTS (
                     SELECT `name`
@@ -37,8 +37,8 @@
         },
 
         "create_machine" : {
-            "sql": "INSERT INTO `machine` (`name`, `first_timestamp`, `last_timestamp`, `active_status`)
-                    SELECT ?, ?, ?, 'active'
+            "sql": "INSERT INTO `machine` (`name`, `first_timestamp`, `last_timestamp`)
+                    SELECT ?, ?, ?
                     FROM DUAL
                     WHERE NOT EXISTS (
                     SELECT `name`
@@ -50,8 +50,8 @@
         },
 
         "create_machine_platform":{
-            "sql": "INSERT INTO `machine_platform` (`os_name`, `platform`, `architecture`, `active_status`)
-                    SELECT ?, ?, ?, 'active'
+            "sql": "INSERT INTO `machine_platform` (`os_name`, `platform`, `architecture`)
+                    SELECT ?, ?, ?
                     FROM DUAL
                     WHERE NOT EXISTS (
                     SELECT `os_name`, `platform`, `architecture`
@@ -62,8 +62,8 @@
         },
 
         "create_option":{
-            "sql":"INSERT INTO `option` (`name`, `description`, `active_status`)
-                   SELECT ?, 'fill me', 'active'
+            "sql":"INSERT INTO `option` (`name`, `description`)
+                   SELECT ?, 'fill me'
                     FROM DUAL
                     WHERE NOT EXISTS (
                     SELECT `name`
@@ -74,20 +74,20 @@
         },
 
         "create_option_collection":{
-            "sql": "INSERT INTO `option_collection` (`option_collection_id`, `option_id`)
+            "sql": "INSERT INTO `option_collection` (`option_collection_hash`, `option_id`)
                     SELECT ?, ?
                     FROM DUAL
                     WHERE NOT EXISTS(
-                    SELECT `option_collection_id`, `option_id`
+                    SELECT `option_collection_hash`, `option_id`
                     FROM `option_collection`
-                    WHERE `option_collection_id` = ? AND `option_id` = ?
+                    WHERE `option_collection_hash` = ? AND `option_id` = ?
                     )",
             "host":"master_host"
         },
 
         "create_product":{
-            "sql": "INSERT INTO `product` (`name`, `description`, `active_status`)
-                    SELECT ?, 'fill me', 'active'
+            "sql": "INSERT INTO `product` (`name`, `description`)
+                    SELECT ?, 'fill me'
                     FROM DUAL
                     WHERE NOT EXISTS (
                     SELECT `name`
@@ -98,8 +98,8 @@
         },
 
         "create_repository_version":{
-            "sql": "INSERT INTO `repository_version` (`repository_id`, `version`, `version_timestamp`, `active_status`)
-                    SELECT ?, ?, ?, 'active'
+            "sql": "INSERT INTO `repository_version` (`repository_id`, `version`, `version_timestamp`)
+                    SELECT ?, ?, ?
                     FROM DUAL
                     WHERE NOT EXISTS(
                     SELECT `repository_id`, `version`
@@ -164,20 +164,6 @@
                     WHERE 
                         `name` = ?
                     AND `active_status` = 'active'",
-            "host":"read_host"
-        },
-        "get_max_collection_id":{
-            "sql": "SELECT MAX(`option_collection_id`) as 'max_id'
-                    FROM `option_collection`",
-            "host":"read_host"
-        },
-        "get_option_collection_id":{
-            "sql": "SELECT `option_collection_id`
-                    FROM `option_collection` oc
-                    INNER JOIN `option` o on o.id = oc.option_id 
-                    GROUP BY `option_collection_id`
-                    HAVING 
-                        GROUP_CONCAT(o.name ORDER BY o.name ASC SEPARATOR ',') = ?",
             "host":"read_host"
         },
         "get_product_id":{
