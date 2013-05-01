@@ -10,7 +10,7 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
         # Adding model 'Product'
         db.create_table(u'product', (
-            ('id', self.gf('django.db.models.fields.IntegerField')(primary_key=True)),
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=50L)),
             ('description', self.gf('django.db.models.fields.TextField')()),
             ('active_status', self.gf('django.db.models.fields.CharField')(max_length=7L, blank=True)),
@@ -19,7 +19,7 @@ class Migration(SchemaMigration):
 
         # Adding model 'BuildPlatform'
         db.create_table(u'build_platform', (
-            ('id', self.gf('django.db.models.fields.IntegerField')(primary_key=True)),
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('os_name', self.gf('django.db.models.fields.CharField')(max_length=25L)),
             ('platform', self.gf('django.db.models.fields.CharField')(max_length=25L)),
             ('architecture', self.gf('django.db.models.fields.CharField')(max_length=25L, blank=True)),
@@ -29,7 +29,7 @@ class Migration(SchemaMigration):
 
         # Adding model 'Option'
         db.create_table(u'option', (
-            ('id', self.gf('django.db.models.fields.IntegerField')(primary_key=True)),
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=50L)),
             ('description', self.gf('django.db.models.fields.TextField')()),
             ('active_status', self.gf('django.db.models.fields.CharField')(max_length=7L, blank=True)),
@@ -38,7 +38,7 @@ class Migration(SchemaMigration):
 
         # Adding model 'RepositoryGroup'
         db.create_table(u'repository_group', (
-            ('id', self.gf('django.db.models.fields.IntegerField')(primary_key=True)),
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=50L)),
             ('description', self.gf('django.db.models.fields.TextField')()),
             ('active_status', self.gf('django.db.models.fields.CharField')(max_length=7L, blank=True)),
@@ -47,7 +47,7 @@ class Migration(SchemaMigration):
 
         # Adding model 'Repository'
         db.create_table(u'repository', (
-            ('id', self.gf('django.db.models.fields.IntegerField')(primary_key=True)),
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('repository_group', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['model.RepositoryGroup'])),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=50L)),
             ('dvcs_type', self.gf('django.db.models.fields.CharField')(max_length=25L)),
@@ -60,7 +60,7 @@ class Migration(SchemaMigration):
 
         # Adding model 'MachinePlatform'
         db.create_table(u'machine_platform', (
-            ('id', self.gf('django.db.models.fields.IntegerField')(primary_key=True)),
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('os_name', self.gf('django.db.models.fields.CharField')(max_length=25L)),
             ('platform', self.gf('django.db.models.fields.CharField')(max_length=25L)),
             ('architecture', self.gf('django.db.models.fields.CharField')(max_length=25L, blank=True)),
@@ -70,7 +70,7 @@ class Migration(SchemaMigration):
 
         # Adding model 'Bugscache'
         db.create_table(u'bugscache', (
-            ('id', self.gf('django.db.models.fields.IntegerField')(primary_key=True)),
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('status', self.gf('django.db.models.fields.CharField')(max_length=64L, blank=True)),
             ('resolution', self.gf('django.db.models.fields.CharField')(max_length=64L, blank=True)),
             ('summary', self.gf('django.db.models.fields.CharField')(max_length=255L)),
@@ -83,7 +83,7 @@ class Migration(SchemaMigration):
 
         # Adding model 'Machine'
         db.create_table(u'machine', (
-            ('id', self.gf('django.db.models.fields.IntegerField')(primary_key=True)),
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=50L)),
             ('first_timestamp', self.gf('django.db.models.fields.IntegerField')()),
             ('last_timestamp', self.gf('django.db.models.fields.IntegerField')()),
@@ -93,7 +93,7 @@ class Migration(SchemaMigration):
 
         # Adding model 'MachineNote'
         db.create_table(u'machine_note', (
-            ('id', self.gf('django.db.models.fields.IntegerField')(primary_key=True)),
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('machine', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['model.Machine'])),
             ('author', self.gf('django.db.models.fields.CharField')(max_length=50L)),
             ('machine_timestamp', self.gf('django.db.models.fields.IntegerField')()),
@@ -104,7 +104,7 @@ class Migration(SchemaMigration):
 
         # Adding model 'Datasource'
         db.create_table(u'datasource', (
-            ('id', self.gf('django.db.models.fields.IntegerField')(primary_key=True)),
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('project', self.gf('django.db.models.fields.CharField')(max_length=25L)),
             ('contenttype', self.gf('django.db.models.fields.CharField')(max_length=25L)),
             ('dataset', self.gf('django.db.models.fields.IntegerField')()),
@@ -121,7 +121,7 @@ class Migration(SchemaMigration):
 
         # Adding model 'JobGroup'
         db.create_table(u'job_group', (
-            ('id', self.gf('django.db.models.fields.IntegerField')(primary_key=True)),
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('symbol', self.gf('django.db.models.fields.CharField')(max_length=10L)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=50L)),
             ('description', self.gf('django.db.models.fields.TextField')()),
@@ -131,17 +131,17 @@ class Migration(SchemaMigration):
 
         # Adding model 'RepositoryVersion'
         db.create_table(u'repository_version', (
-            ('id', self.gf('django.db.models.fields.IntegerField')(primary_key=True)),
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('repository', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['model.Repository'])),
-            ('version_timestamp', self.gf('django.db.models.fields.CharField')(max_length=50L)),
-            ('timestamp', self.gf('django.db.models.fields.IntegerField')()),
+            ('version', self.gf('django.db.models.fields.CharField')(max_length=50L)),
+            ('version_timestamp', self.gf('django.db.models.fields.IntegerField')()),
             ('active_status', self.gf('django.db.models.fields.CharField')(max_length=7L, blank=True)),
         ))
         db.send_create_signal(u'model', ['RepositoryVersion'])
 
         # Adding model 'OptionCollection'
         db.create_table(u'option_collection', (
-            ('id', self.gf('django.db.models.fields.IntegerField')(primary_key=True)),
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('option', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['model.Option'])),
             ('option_collection_hash', self.gf('django.db.models.fields.CharField')(max_length=40L)),
         ))
@@ -149,7 +149,7 @@ class Migration(SchemaMigration):
 
         # Adding model 'JobType'
         db.create_table(u'job_type', (
-            ('id', self.gf('django.db.models.fields.IntegerField')(primary_key=True)),
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('job_group', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['model.JobGroup'], null=True, blank=True)),
             ('symbol', self.gf('django.db.models.fields.CharField')(max_length=10L)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=50L)),
@@ -160,7 +160,7 @@ class Migration(SchemaMigration):
 
         # Adding model 'FailureClassification'
         db.create_table(u'failure_classification', (
-            ('id', self.gf('django.db.models.fields.IntegerField')(primary_key=True)),
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=50L)),
             ('description', self.gf('django.db.models.fields.TextField')()),
             ('active_status', self.gf('django.db.models.fields.CharField')(max_length=7L, blank=True)),
@@ -219,7 +219,7 @@ class Migration(SchemaMigration):
         u'model.bugscache': {
             'Meta': {'object_name': 'Bugscache', 'db_table': "u'bugscache'"},
             'crash_signature': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'id': ('django.db.models.fields.IntegerField', [], {'primary_key': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'keywords': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'modified': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'os': ('django.db.models.fields.CharField', [], {'max_length': '64L', 'blank': 'True'}),
@@ -231,7 +231,7 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'BuildPlatform', 'db_table': "u'build_platform'"},
             'active_status': ('django.db.models.fields.CharField', [], {'max_length': '7L', 'blank': 'True'}),
             'architecture': ('django.db.models.fields.CharField', [], {'max_length': '25L', 'blank': 'True'}),
-            'id': ('django.db.models.fields.IntegerField', [], {'primary_key': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'os_name': ('django.db.models.fields.CharField', [], {'max_length': '25L'}),
             'platform': ('django.db.models.fields.CharField', [], {'max_length': '25L'})
         },
@@ -242,7 +242,7 @@ class Migration(SchemaMigration):
             'cron_batch': ('django.db.models.fields.CharField', [], {'max_length': '45L', 'blank': 'True'}),
             'dataset': ('django.db.models.fields.IntegerField', [], {}),
             'host': ('django.db.models.fields.CharField', [], {'max_length': '128L'}),
-            'id': ('django.db.models.fields.IntegerField', [], {'primary_key': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '128L'}),
             'oauth_consumer_key': ('django.db.models.fields.CharField', [], {'max_length': '45L', 'blank': 'True'}),
             'oauth_consumer_secret': ('django.db.models.fields.CharField', [], {'max_length': '45L', 'blank': 'True'}),
@@ -254,14 +254,14 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'FailureClassification', 'db_table': "u'failure_classification'"},
             'active_status': ('django.db.models.fields.CharField', [], {'max_length': '7L', 'blank': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {}),
-            'id': ('django.db.models.fields.IntegerField', [], {'primary_key': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50L'})
         },
         u'model.jobgroup': {
             'Meta': {'object_name': 'JobGroup', 'db_table': "u'job_group'"},
             'active_status': ('django.db.models.fields.CharField', [], {'max_length': '7L', 'blank': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {}),
-            'id': ('django.db.models.fields.IntegerField', [], {'primary_key': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50L'}),
             'symbol': ('django.db.models.fields.CharField', [], {'max_length': '10L'})
         },
@@ -269,7 +269,7 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'JobType', 'db_table': "u'job_type'"},
             'active_status': ('django.db.models.fields.CharField', [], {'max_length': '7L', 'blank': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {}),
-            'id': ('django.db.models.fields.IntegerField', [], {'primary_key': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'job_group': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['model.JobGroup']", 'null': 'True', 'blank': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50L'}),
             'symbol': ('django.db.models.fields.CharField', [], {'max_length': '10L'})
@@ -278,7 +278,7 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'Machine', 'db_table': "u'machine'"},
             'active_status': ('django.db.models.fields.CharField', [], {'max_length': '7L', 'blank': 'True'}),
             'first_timestamp': ('django.db.models.fields.IntegerField', [], {}),
-            'id': ('django.db.models.fields.IntegerField', [], {'primary_key': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'last_timestamp': ('django.db.models.fields.IntegerField', [], {}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50L'})
         },
@@ -286,7 +286,7 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'MachineNote', 'db_table': "u'machine_note'"},
             'active_status': ('django.db.models.fields.CharField', [], {'max_length': '7L', 'blank': 'True'}),
             'author': ('django.db.models.fields.CharField', [], {'max_length': '50L'}),
-            'id': ('django.db.models.fields.IntegerField', [], {'primary_key': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'machine': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['model.Machine']"}),
             'machine_timestamp': ('django.db.models.fields.IntegerField', [], {}),
             'note': ('django.db.models.fields.TextField', [], {'blank': 'True'})
@@ -295,7 +295,7 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'MachinePlatform', 'db_table': "u'machine_platform'"},
             'active_status': ('django.db.models.fields.CharField', [], {'max_length': '7L', 'blank': 'True'}),
             'architecture': ('django.db.models.fields.CharField', [], {'max_length': '25L', 'blank': 'True'}),
-            'id': ('django.db.models.fields.IntegerField', [], {'primary_key': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'os_name': ('django.db.models.fields.CharField', [], {'max_length': '25L'}),
             'platform': ('django.db.models.fields.CharField', [], {'max_length': '25L'})
         },
@@ -303,20 +303,20 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'Option', 'db_table': "u'option'"},
             'active_status': ('django.db.models.fields.CharField', [], {'max_length': '7L', 'blank': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {}),
-            'id': ('django.db.models.fields.IntegerField', [], {'primary_key': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50L'})
         },
         u'model.optioncollection': {
             'Meta': {'object_name': 'OptionCollection', 'db_table': "u'option_collection'"},
-            'id': ('django.db.models.fields.IntegerField', [], {'primary_key': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'option': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['model.Option']"}),
-            'option_collection_hash': ('django.db.models.fields.related.CharField', [], {'max_length': '40L',})
+            'option_collection_hash': ('django.db.models.fields.CharField', [], {'max_length': '40L',})
         },
         u'model.product': {
             'Meta': {'object_name': 'Product', 'db_table': "u'product'"},
             'active_status': ('django.db.models.fields.CharField', [], {'max_length': '7L', 'blank': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {}),
-            'id': ('django.db.models.fields.IntegerField', [], {'primary_key': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50L'})
         },
         u'model.repository': {
@@ -324,7 +324,7 @@ class Migration(SchemaMigration):
             'active_status': ('django.db.models.fields.CharField', [], {'max_length': '7L', 'blank': 'True'}),
             'codebase': ('django.db.models.fields.CharField', [], {'max_length': '50L', 'blank': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {}),
-            'id': ('django.db.models.fields.IntegerField', [], {'primary_key': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50L'}),
             'repository_group': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['model.RepositoryGroup']"}),
             'dvcs_type': ('django.db.models.fields.CharField', [], {'max_length': '25L'}),
@@ -334,13 +334,13 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'RepositoryGroup', 'db_table': "u'repository_group'"},
             'active_status': ('django.db.models.fields.CharField', [], {'max_length': '7L', 'blank': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {}),
-            'id': ('django.db.models.fields.IntegerField', [], {'primary_key': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50L'})
         },
         u'model.repositoryversion': {
             'Meta': {'object_name': 'RepositoryVersion', 'db_table': "u'repository_version'"},
             'active_status': ('django.db.models.fields.CharField', [], {'max_length': '7L', 'blank': 'True'}),
-            'id': ('django.db.models.fields.IntegerField', [], {'primary_key': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'repository': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['model.Repository']"}),
             'version_timestamp': ('django.db.models.fields.IntegerField', [], {}),
             'version': ('django.db.models.fields.CharField', [], {'max_length': '50L'})
