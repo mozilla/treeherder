@@ -192,7 +192,6 @@ class RefDataManager(object):
 
         #check if this collection already exists
         option_collection_hash = self.get_option_collection_hash(options)
-        print len(option_collection_hash)
         for option in options:
 
             #create an option if it doesn't exist
