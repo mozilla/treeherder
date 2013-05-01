@@ -1,5 +1,7 @@
 import os
 from hashlib import sha1
+import time
+import urllib2
 from django.conf import settings
 from datasource.bases.BaseHub import BaseHub
 from datasource.DataHub import DataHub
@@ -192,7 +194,6 @@ class RefDataManager(object):
 
         #check if this collection already exists
         option_collection_hash = self.get_option_collection_hash(options)
-        print len(option_collection_hash)
         for option in options:
 
             #create an option if it doesn't exist
@@ -232,11 +233,12 @@ class RefDataManager(object):
 
         return self.get_product_id(name)
 
-    def get_repository_version(self, repository_id, version):
+    def get_repository_version_id(self, repository_id):
+        """get the latest version available for the given repository"""
 
         id_iter = self.dhub.execute(
             proc='reference.selects.get_repository_version_id',
-            placeholders=[name],
+            placeholders=[repository_id],
             debug_show=self.DEBUG,
             return_type='iter')
 
@@ -256,4 +258,57 @@ class RefDataManager(object):
             ],
             debug_show=self.DEBUG)
 
-        return self.get_repository_version(repository_id, version)
+        return self.get_repository_version_id(repository_id)
+
+    def update_repository_version(self, repository_id):
+        """update repository version with the latest information
+        avaliable. the only dvcs supported is hg"""
+
+        repository = self.get_repository_info(repository_id)
+
+        if repository['dvcs_type'] != 'hg':
+            raise NotImplementedError
+        else:
+            version = self.get_hg_repository_version(repository['url'])
+
+        timestamp_now = time.time()
+
+        # try to create a new repository version
+        self.get_or_create_repository_version(repository_id,
+                                              version, timestamp_now)
+
+        # update the version_timestamp
+        self.dhub.execute(
+            proc='reference.updates.update_version_timestamp',
+            placeholders=[
+                timestamp_now,
+                repository_id,
+                version
+            ],
+            debug_show=self.DEBUG)
+
+    def get_hg_repository_version(self, repo_url):
+        """retrieves the milestone.txt file used to indicate
+        the current milestone of a repo. the last line contains
+        the info needed"""
+
+        milestone_path = '/raw-file/default/config/milestone.txt'
+        version_url = "".join((repo_url, milestone_path))
+
+        response = urllib2.urlopen(version_url)
+        for line in response:
+            #go to the last line
+            pass
+        return line.strip()
+
+    def get_repository_info(self, repository_id):
+        """retrieves all the attributes of a repository"""
+
+        repo = self.dhub.execute(
+            proc='reference.selects.get_repository_info',
+            placeholders=[repository_id],
+            debug_show=self.DEBUG,
+            return_type='iter')
+        # retrieve the first elem from DataIterator
+        for r in repo:
+            return r
