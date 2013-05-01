@@ -19,12 +19,14 @@ SOURCES_CACHE_KEY = "treeherder-datasources"
 
 SQL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'sql')
 
+ACTIVE_STATUS_LIST = ['active', 'onhold', 'deleted']
+ACTIVE_STATUS_CHOICES = zip(ACTIVE_STATUS_LIST, ACTIVE_STATUS_LIST,)
 
 class Product(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50L)
     description = models.TextField(blank=True, default='fill me')
-    active_status = models.CharField(max_length=7L, blank=True)
+    active_status = models.CharField(max_length=7L, blank=True, default='active')
 
     class Meta:
         db_table = 'product'
@@ -34,11 +36,11 @@ class Product(models.Model):
 
 
 class BuildPlatform(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     os_name = models.CharField(max_length=25L)
     platform = models.CharField(max_length=25L)
     architecture = models.CharField(max_length=25L, blank=True)
-    active_status = models.CharField(max_length=7L, blank=True)
+    active_status = models.CharField(max_length=7L, blank=True, default='active')
 
     class Meta:
         db_table = 'build_platform'
@@ -49,10 +51,10 @@ class BuildPlatform(models.Model):
 
 
 class Option(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50L)
     description = models.TextField(blank=True, default='fill me')
-    active_status = models.CharField(max_length=7L, blank=True)
+    active_status = models.CharField(max_length=7L, blank=True, default='active')
 
     class Meta:
         db_table = 'option'
@@ -62,10 +64,10 @@ class Option(models.Model):
 
 
 class RepositoryGroup(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50L)
     description = models.TextField(blank=True, default='fill me')
-    active_status = models.CharField(max_length=7L, blank=True)
+    active_status = models.CharField(max_length=7L, blank=True, default='active')
 
     class Meta:
         db_table = 'repository_group'
@@ -75,14 +77,14 @@ class RepositoryGroup(models.Model):
 
 
 class Repository(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     repository_group = models.ForeignKey('RepositoryGroup')
     name = models.CharField(max_length=50L)
     dvcs_type = models.CharField(max_length=25L)
     url = models.CharField(max_length=255L)
     codebase = models.CharField(max_length=50L, blank=True)
     description = models.TextField(blank=True, default='fill me')
-    active_status = models.CharField(max_length=7L, blank=True)
+    active_status = models.CharField(max_length=7L, blank=True, default='active')
 
     class Meta:
         db_table = 'repository'
@@ -93,11 +95,11 @@ class Repository(models.Model):
 
 
 class MachinePlatform(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     os_name = models.CharField(max_length=25L)
     platform = models.CharField(max_length=25L)
     architecture = models.CharField(max_length=25L, blank=True)
-    active_status = models.CharField(max_length=7L, blank=True)
+    active_status = models.CharField(max_length=7L, blank=True, default='active')
 
     class Meta:
         db_table = 'machine_platform'
@@ -108,7 +110,7 @@ class MachinePlatform(models.Model):
 
 
 class Bugscache(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     status = models.CharField(max_length=64L, blank=True)
     resolution = models.CharField(max_length=64L, blank=True)
     summary = models.CharField(max_length=255L)
@@ -125,11 +127,11 @@ class Bugscache(models.Model):
 
 
 class Machine(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50L)
     first_timestamp = models.IntegerField()
     last_timestamp = models.IntegerField()
-    active_status = models.CharField(max_length=7L, blank=True)
+    active_status = models.CharField(max_length=7L, blank=True, default='active')
 
     class Meta:
         db_table = 'machine'
@@ -139,11 +141,11 @@ class Machine(models.Model):
 
 
 class MachineNote(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     machine = models.ForeignKey(Machine)
     author = models.CharField(max_length=50L)
     machine_timestamp = models.IntegerField()
-    active_status = models.CharField(max_length=7L, blank=True)
+    active_status = models.CharField(max_length=7L, blank=True, default='active')
     note = models.TextField(blank=True)
 
     class Meta:
@@ -178,7 +180,7 @@ class DatasourceManager(models.Manager):
 
 
 class Datasource(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     project = models.CharField(max_length=25L)
     contenttype = models.CharField(max_length=25L)
     dataset = models.IntegerField()
@@ -442,11 +444,11 @@ class Datasource(models.Model):
 
 
 class JobGroup(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     symbol = models.CharField(max_length=10L, default='?')
     name = models.CharField(max_length=50L)
     description = models.TextField(blank=True, default='fill me')
-    active_status = models.CharField(max_length=7L, blank=True)
+    active_status = models.CharField(max_length=7L, blank=True, default='active')
 
     class Meta:
         db_table = 'job_group'
@@ -457,22 +459,22 @@ class JobGroup(models.Model):
 
 
 class RepositoryVersion(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     repository = models.ForeignKey(Repository)
     version = models.CharField(max_length=50L)
     version_timestamp = models.IntegerField()
-    active_status = models.CharField(max_length=7L, blank=True)
+    active_status = models.CharField(max_length=7L, blank=True, default='active')
 
     class Meta:
         db_table = 'repository_version'
 
     def __unicode__(self):
-        return "{0} version {1}".format(
+        return "{0} version {1}".format (
             self.repository, self.version)
 
 
 class OptionCollection(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     option_collection_hash = models.CharField(max_length=40L)
     option = models.ForeignKey(Option)
 
@@ -485,12 +487,12 @@ class OptionCollection(models.Model):
 
 
 class JobType(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     job_group = models.ForeignKey(JobGroup, null=True, blank=True)
     symbol = models.CharField(max_length=10L, default='?')
     name = models.CharField(max_length=50L)
     description = models.TextField(blank=True, default='fill me')
-    active_status = models.CharField(max_length=7L, blank=True)
+    active_status = models.CharField(max_length=7L, blank=True, default='active')
 
     class Meta:
         db_table = 'job_type'
@@ -501,10 +503,10 @@ class JobType(models.Model):
 
 
 class FailureClassification(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50L)
     description = models.TextField(blank=True, default='fill me')
-    active_status = models.CharField(max_length=7L, blank=True)
+    active_status = models.CharField(max_length=7L, blank=True, default='active')
 
     class Meta:
         db_table = 'failure_classification'
