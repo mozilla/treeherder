@@ -191,7 +191,7 @@
                     WHERE 
                         `repository_id` = ?
                     AND `active_status` = 'active'
-                    ORDER BY `version_timestamp` DESC
+                    ORDER BY `id` DESC
                     LIMIT 0,1",
             "host":"read_host"
         },
