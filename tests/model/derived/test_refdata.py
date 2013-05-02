@@ -15,6 +15,8 @@ from treeherder.model.models import (RepositoryGroup,
 
 @pytest.fixture
 def mock_urllib():
+    """this mocks urllib to avoid hitting the network
+    when retrieving the hg version file"""
     mock = Mock()
     mock.return_value = (
         '#just comments',
@@ -254,7 +256,8 @@ def test_update_repo_version_unchanged(refdata, latest_version_repository, mock_
 
 
 def test_update_repo_version_command(refdata, old_version_repository, initial_data, mock_urllib):
-    """Test the django command extension update_repository_version"""
+    """Test the django command extension
+    update_repository_version without using filters"""
 
     repo_id, old_version = old_version_repository
 
@@ -262,4 +265,20 @@ def test_update_repo_version_command(refdata, old_version_repository, initial_da
 
     updated_version = refdata.get_repository_version_id(repo_id)
 
-    assert old_version != updated_version
+    assert old_version < updated_version
+
+
+def test_update_repo_version_command_with_filters(refdata, old_version_repository, initial_data, mock_urllib):
+    """Test the django command extension
+    update_repository_version using all the filters"""
+
+    repo_id, old_version = old_version_repository
+
+    call_command('update_repository_version',
+                 repo_name='mozilla-central',
+                 group_name='mygroup',
+                 codebase='gecko')
+
+    updated_version = refdata.get_repository_version_id(repo_id)
+
+    assert old_version < updated_version
