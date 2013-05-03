@@ -47,9 +47,6 @@ def do_job_ingestion(jm, job_data):
         assert len(jobs) == 1
         job_id = jobs[0]
 
-        # import time
-        # time.sleep(60)
-
         # verify the job data
         exp_job = clean_job_blob_dict(blob["job"])
         act_job = JobDictBuilder(jm, job_id).as_dict()
