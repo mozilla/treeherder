@@ -12,7 +12,7 @@
                 `build_platform_id`,
                 `machine_platform_id`,
                 `machine_id`,
-                `option_collection_id`,
+                `option_collection_hash`,
                 `job_type_id`,
                 `product_id`,
                 `who`,
@@ -22,15 +22,38 @@
                 `submit_timestamp`,
                 `start_timestamp`,
                 `end_timestamp`)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
 
             "host":"master_host"
         },
         "set_result_set":{
 
             "sql":"INSERT INTO `result_set` (
-                `revision_hash`)
+                `revision_hash`
+                )
                 VALUES (?)",
+
+            "host":"master_host"
+        },
+        "set_revision":{
+
+            "sql":"INSERT INTO `revision` (
+                `revision`,
+                `author`,
+                `comments`,
+                `push_timestamp`,
+                `commit_timestamp`,
+                `repository_id`)
+                VALUES (?,?,?,?,?,?)",
+
+            "host":"master_host"
+        },
+        "set_revision_map":{
+
+            "sql":"INSERT INTO `revision_map` (
+                `revision_id`,
+                `result_set_id`)
+                VALUES (?,?)",
 
             "host":"master_host"
         },
@@ -51,14 +74,18 @@
                 `name`,
                 `type`,
                 `blob`)
-            VALUES (?,?,?)",
+            VALUES (?,?,?,?)",
 
             "host":"master_host"
         }
 
     },
     "selects":{
+        "get_job":{
+            "sql":"SELECT * FROM `job` WHERE id = ?",
 
+            "host":"read_host"
+        }
     }
 }
 

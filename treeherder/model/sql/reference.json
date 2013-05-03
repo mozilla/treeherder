@@ -113,7 +113,7 @@
         "get_build_platform_id":{
             "sql": "SELECT `id`
                     FROM `build_platform`
-                    WHERE 
+                    WHERE
                         `os_name` = ?
                     AND `platform` = ?
                     AND `architecture` = ?
@@ -123,7 +123,7 @@
         "get_job_group_id":{
             "sql": "SELECT `id`
                     FROM `job_group`
-                    WHERE 
+                    WHERE
                         `name` = ?
                     AND `active_status` = 'active'",
             "host":"read_host"
@@ -131,10 +131,10 @@
         "get_job_type_id":{
             "sql": "SELECT jt.`id`
                     FROM `job_type` jt
-                    INNER JOIN `job_group` jg 
+                    INNER JOIN `job_group` jg
                         ON jg.id = jt.job_group_id
-                    WHERE 
-                        jt.`name` = ? 
+                    WHERE
+                        jt.`name` = ?
                     AND jg.`name` = ?
                     AND jt.`active_status` = 'active'
                     AND jg.`active_status` = 'active'",
@@ -143,7 +143,7 @@
         "get_machine_id":{
             "sql": "SELECT `id`
                     FROM `machine`
-                    WHERE 
+                    WHERE
                         `name` = ?
                     AND `active_status` = 'active'",
             "host":"read_host"
@@ -151,7 +151,7 @@
         "get_machine_platform_id":{
             "sql": "SELECT `id`
                     FROM `machine_platform`
-                    WHERE 
+                    WHERE
                         `os_name` = ?
                     AND `platform` = ?
                     AND `architecture` = ?
@@ -161,26 +161,59 @@
         "get_option_id":{
             "sql": "SELECT `id`
                     FROM `option`
-                    WHERE 
+                    WHERE
                         `name` = ?
                     AND `active_status` = 'active'",
+            "host":"read_host"
+        },
+        "get_max_collection_hash":{
+            "sql": "SELECT MAX(`option_collection_hash`) as 'max_id'
+                    FROM `option_collection`",
+            "host":"read_host"
+        },
+        "get_option_collection_hash":{
+            "sql": "SELECT `option_collection_hash`
+                    FROM `option_collection` oc
+                    INNER JOIN `option` o on o.id = oc.option_id
+                    GROUP BY `option_collection_hash`
+                    HAVING
+                        GROUP_CONCAT(o.name ORDER BY o.name ASC SEPARATOR ',') = ?",
+            "host":"read_host"
+        },
+        "get_option_names":{
+            "sql": "SELECT o.`name`
+                    FROM `option` o
+                    INNER JOIN `option_collection` oc
+                        on o.id = oc.option_id
+                    WHERE oc.option_collection_hash = ?",
             "host":"read_host"
         },
         "get_product_id":{
             "sql": "SELECT `id`
                     FROM `product`
-                    WHERE 
+                    WHERE
                         `name` = ?
                     AND `active_status` = 'active'",
+            "host":"read_host"
+        },
+        "get_repository_id":{
+            "sql": "SELECT `id`
+                    FROM `repository`
+                    WHERE `name` = ?",
             "host":"read_host"
         },
         "get_repository_version_id":{
             "sql": "SELECT `id`
                     FROM `repository_version`
-                    WHERE 
+                    WHERE
                         `repository_id` = ?
                     AND `version` = ?
                     AND `active_status` = 'active'",
+            "host":"read_host"
+        },
+        "get_row_by_id":{
+            "sql": "SELECT * FROM REP0
+                    WHERE `id` = ?",
             "host":"read_host"
         }
     }

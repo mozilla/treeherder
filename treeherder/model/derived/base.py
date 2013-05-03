@@ -33,7 +33,7 @@ class TreeherderModelBase(object):
         The configured datahub for the given contenttype
 
         """
-        if not procs_file_name:
+        if not procs_file_name:  # pragma: no cover
             procs_file_name = "{0}.json".format(contenttype)
 
         if not contenttype in self.dhubs.keys():
@@ -67,6 +67,18 @@ class TreeherderModelBase(object):
         candidate_sources.sort(key=lambda s: s.dataset, reverse=True)
 
         return candidate_sources[0]
+
+    def get_row_by_id(self, contenttype, table_name, obj_id):
+        """Given an ``id`` get the row for that item."""
+        iter_obj = self.get_dhub(contenttype).execute(
+            proc="generic.selects.get_row_by_id",
+            replace=[table_name],
+            placeholders=[obj_id],
+            debug_show=self.DEBUG,
+            return_type='iter',
+        )
+
+        return iter_obj
 
 
 class DatasetNotFoundError(ValueError):

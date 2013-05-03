@@ -74,20 +74,20 @@ DROP TABLE IF EXISTS `job`;
  *
  *  job_guid - A unique identifier of a job or any type. For buildbot generated data
  *             the guid is a hash of associated request_ids and a timestamp.
- *             
+ *
  *  job_coalesced_to_guid - If present the job was coalesced to this job_guid
  *  result_set_id - References result_set.id
  *  build_platform_id - References treeherder_reference_1.build_platform.id
  *  machine_platform_id - References treeherder_reference_1.machine_platform.id
  *  machine_id - References treeherder_reference_1.machine.id
  *  option_collection_hash - References treeherder_reference_1.option_collection.option_collection_hash
- *  job_type_id - References treeherder_reference_1.job_type.id 
- *  product_id - References treeherder_reference_1.product.id 
+ *  job_type_id - References treeherder_reference_1.job_type.id
+ *  product_id - References treeherder_reference_1.product.id
  *  who - Description of who submitted the job: gaia | scheduler name | username
  *  reason - Reason for the job: push | scheduled | self-serve | manual
  *  result - Job outcome description: success | failure | ...
  *  state - Current state of job: pending | running | completed | coalesced | ...
- *  submit_timestamp - Time the job was submitted. 
+ *  submit_timestamp - Time the job was submitted.
  *  start_timestamp - Time the job was started.
  *  end_timestamp - Time the job completed.
  **************************/
@@ -103,7 +103,7 @@ CREATE TABLE `job` (
   `job_type_id` int(10) unsigned NOT NULL,
   `product_id` int(10) unsigned NOT NULL,
   `who` varchar(50) COLLATE utf8_bin NOT NULL,
-  `reason` varchar(25) COLLATE utf8_bin NOT NULL,
+  `reason` varchar(125) COLLATE utf8_bin NOT NULL,
   `result` varchar(25) COLLATE utf8_bin DEFAULT NULL,
   `state` varchar(25) COLLATE utf8_bin NOT NULL,
   `submit_timestamp` int(10) unsigned NOT NULL,
@@ -152,8 +152,8 @@ DROP TABLE IF EXISTS `job_artifact`;
  *
  *  job_id - References job.id
  *  name - Name of artifact data.
- *  type - json | img | ... 
- *  blob - Artifact data 
+ *  type - json | img | ...
+ *  blob - Artifact data
  **************************/
 CREATE TABLE `job_artifact` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -182,8 +182,8 @@ DROP TABLE IF EXISTS `job_log_url`;
 /**************************
  * Table: job_log_url
  *
- *  A URL to the log file associated with the job. 
- *  
+ *  A URL to the log file associated with the job.
+ *
  * Population Method: dynamic from incoming data
  *
  * Example Data:
@@ -218,7 +218,7 @@ DROP TABLE IF EXISTS `job_note`;
  * Table: job_note
  *
  *  Notes associated with a job. Generated manually in the UI.
- *  
+ *
  * Population Method: manual by admin
  *
  * Example Data:
@@ -227,7 +227,7 @@ DROP TABLE IF EXISTS `job_note`;
  *  failure_classification_id - References treeherder_reference_1.failure_classification.id
  *  who - Author of the note
  *  note - Notes associated with the job
- *  note_timestamp - Timestamp associated with the note 
+ *  note_timestamp - Timestamp associated with the note
  **************************/
 CREATE TABLE `job_note` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -259,8 +259,8 @@ DROP TABLE IF EXISTS `result_set`;
  * Table: result_set
  *
  *  A result set is defined by a set of unique repository revisions. Result sets can
- *  have any number of jobs associated with them.  
- *  
+ *  have any number of jobs associated with them.
+ *
  * Population Method: dynamic from incoming data
  *
  * Example Data:
@@ -288,8 +288,8 @@ DROP TABLE IF EXISTS `revision`;
 /**************************
  * Table: revision
  *
- *  List of revisions and their meta data associated with result sets. 
- *  
+ *  List of revisions and their meta data associated with result sets.
+ *
  * Population Method: dynamic from incoming data
  *                   ( the meta data will have to come from external web services
  *                     when the data is received )
@@ -298,6 +298,7 @@ DROP TABLE IF EXISTS `revision`;
  *
  *  revision - The revision string associated with the repository
  *  author - The author associated with the revision
+ *  comments - The comments associated with the revision
  *  push_timestamp - Timestamp associated with the push to the test system
  *  commit_timestamp - Timestamp associated with the commit
  **************************/
@@ -305,6 +306,7 @@ CREATE TABLE `revision` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `revision` varchar(50) COLLATE utf8_bin NOT NULL,
   `author` varchar(50) COLLATE utf8_bin NOT NULL,
+  `comments` text DEFAULT NULL,
   `push_timestamp` int(11) unsigned NOT NULL,
   `commit_timestamp` int(11) unsigned NOT NULL,
   `repository_id` int(11) unsigned NOT NULL,
@@ -330,7 +332,7 @@ DROP TABLE IF EXISTS `revision_map`;
  * Table: revision_map
  *
  *  Maps revisions to their associated result set.
- *  
+ *
  * Population Method: dynamic from incoming data
  *
  * Example Data:

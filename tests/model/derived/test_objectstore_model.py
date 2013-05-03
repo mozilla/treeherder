@@ -5,12 +5,6 @@ from .sample_data_generator import job_json
 
 slow = pytest.mark.slow
 
-
-def test_unicode(jm):
-    """Unicode representation of a ``JobModel`` is the project name."""
-    assert unicode(jm) == unicode(jm.project)
-
-
 def test_claim_objects(jm, sample_data):
     """``claim_objects`` claims & returns unclaimed rows up to a limit."""
 
