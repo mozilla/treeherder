@@ -426,7 +426,6 @@ class JobsModel(TreeherderModelBase):
             except JobDataError as e:
                 self.mark_object_error(row_id, str(e))
             except Exception as e:
-                print traceback.format_exc()
                 self.mark_object_error(
                     row_id,
                     u"Unknown error: {0}: {1}".format(

@@ -16,6 +16,11 @@
                 ",
 
             "host":"read_host"
+        },
+        "get_row_by_id":{
+            "sql": "SELECT * FROM REP0
+                    WHERE `id` = ?",
+            "host":"read_host"
         }
     }
 }

@@ -111,8 +111,6 @@ def test_artifact_log_ingestion(jm):
 
     assert get_objectstore_last_error(jm) == u"N"
 
-    # print json.dumps(blob, indent=4)
-
     job_id = job_ids[0]
 
     exp_job = clean_job_blob_dict(blob["job"])
