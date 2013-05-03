@@ -1,0 +1,29 @@
+[
+{
+    "pk": 1, 
+    "model": "model.repositorygroup", 
+    "fields": {
+        "name": "development", 
+        "active_status": "active", 
+        "description": ""
+    }
+},
+{
+    "pk": 2, 
+    "model": "model.repositorygroup", 
+    "fields": {
+        "name": "release-stablization", 
+        "active_status": "active", 
+        "description": ""
+    }
+},
+{
+    "pk": 3, 
+    "model": "model.repositorygroup", 
+    "fields": {
+        "name": "try", 
+        "active_status": "active", 
+        "description": ""
+    }
+}
+]

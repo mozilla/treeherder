@@ -6,6 +6,7 @@ from django.db import connection
 from django.core.management import call_command
 from django.utils.six.moves import input
 
+
 class Command(BaseCommand):
     help = "Init master database and call syncdb"
 
@@ -58,6 +59,14 @@ Type 'yes' to continue, or 'no' to cancel: """ % connection.settings_dict['NAME'
             #flush all the apps not under south
             call_command("syncdb", interactive=False,)
             #fake the first migration because manually generated
-            call_command("migrate", 'model','0001',fake=True)
+            call_command("migrate", 'model', '0001', fake=True)
             #safely apply all the other migrations
             call_command("migrate", 'model')
+            #load initial fixtures for reference data
+            # the order of this list of fixtures is important
+            # to avoid integrity errors
+            call_command("loaddata",
+                         'repository_group',
+                         'repository',
+                         'job_group',
+                         'job_type')

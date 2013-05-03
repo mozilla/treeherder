@@ -56,7 +56,7 @@
                     INNER JOIN `option_collection` oc
                         ON o.`id` = oc.`option_id`
                     WHERE 
-                        oc.`id` = ?
+                        oc.`option_collection_hash` = ?
                     ORDER BY o.`name`",
             "host":"read_host"
         },

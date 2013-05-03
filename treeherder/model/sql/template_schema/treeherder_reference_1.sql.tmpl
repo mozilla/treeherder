@@ -118,7 +118,7 @@ DROP TABLE IF EXISTS `failure_classification`;
 CREATE TABLE `failure_classification` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(50) COLLATE utf8_bin NOT NULL,
-  `description` text COLLATE utf8_bin NOT NULL,
+  `description` text COLLATE utf8_bin,
   `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
   PRIMARY KEY (`id`),
   KEY `idx_name` (`name`),
@@ -148,9 +148,9 @@ DROP TABLE IF EXISTS `job_group`;
  **************************/
 CREATE TABLE `job_group` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `symbol` char(10) COLLATE utf8_bin NOT NULL,
+  `symbol` char(10) COLLATE utf8_bin DEFAULT '?',
   `name` varchar(50) COLLATE utf8_bin NOT NULL,
-  `description` text COLLATE utf8_bin NOT NULL,
+  `description` text COLLATE utf8_bin,
   `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
   PRIMARY KEY (`id`),
   KEY `idx_symbol` (`symbol`),
@@ -188,9 +188,9 @@ DROP TABLE IF EXISTS `job_type`;
 CREATE TABLE `job_type` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `job_group_id` int(10) unsigned DEFAULT NULL,
-  `symbol` char(10) COLLATE utf8_bin NOT NULL,
+  `symbol` char(10) COLLATE utf8_bin DEFAULT '?',
   `name` varchar(50) COLLATE utf8_bin NOT NULL,
-  `description` text COLLATE utf8_bin NOT NULL,
+  `description` text COLLATE utf8_bin,
   `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
   PRIMARY KEY (`id`),
   KEY `idx_symbol` (`symbol`),
@@ -333,7 +333,7 @@ DROP TABLE IF EXISTS `option`;
 CREATE TABLE `option` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(50) COLLATE utf8_bin NOT NULL,
-  `description` text COLLATE utf8_bin NOT NULL,
+  `description` text COLLATE utf8_bin,
   `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
   PRIMARY KEY (`id`),
   KEY `idx_name` (`name`),
@@ -358,17 +358,17 @@ DROP TABLE IF EXISTS `option_collection`;
  *
  * Example Data:
  *
- *  option_collection_id - Used to group collections of objects
+ *  option_collection_hash - Used to group collections of objects
  *  option_id - References option.id
  **************************/
 CREATE TABLE `option_collection` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `option_collection_id` int(10) unsigned NOT NULL,
+  `option_collection_hash` varchar(40) COLLATE utf8_bin NOT NULL,
   `option_id` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uni_option_collection` (`option_collection_id`,`option_id`),
+  UNIQUE KEY `uni_option_collection` (`option_collection_hash`,`option_id`),
   KEY `idx_option` (`option_id`),
-  KEY `idx_option_collection_id` (`option_collection_id`),
+  KEY `idx_option_collection_hash` (`option_collection_hash`),
   CONSTRAINT `fk_option` FOREIGN KEY (`option_id`) REFERENCES `option` (`id`)
 ) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -395,7 +395,7 @@ DROP TABLE IF EXISTS `product`;
 CREATE TABLE `product` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(50) COLLATE utf8_bin NOT NULL,
-  `description` text COLLATE utf8_bin NOT NULL,
+  `description` text COLLATE utf8_bin,
   `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
   PRIMARY KEY (`id`),
   KEY `idx_name` (`name`),
@@ -422,31 +422,25 @@ DROP TABLE IF EXISTS `repository`;
  *
  *  repository_group_id - References repository_group.id
  *  name - mozilla-inbound | mozilla-release | gaia-master | gaia-v1-train | ...
- *  type - hg | git | ...
+ *  dvcs_type - hg | git | ...
  *  url - https://hg.m.o | https://git.m.o | ...
- *  branch - gecko | gaia | enGB | ...
- *  project_name - ?
- *  purpose - development (aka trunk) | try | release-stablization (train) | ...
+ *  codebase - gecko | gaia | enGB | ...
  *
  **************************/
 CREATE TABLE `repository` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `repository_group_id` int(10) unsigned NOT NULL,
   `name` varchar(50) COLLATE utf8_bin NOT NULL,
-  `type` varchar(25) COLLATE utf8_bin NOT NULL,
+  `dvcs_type` varchar(25) COLLATE utf8_bin NOT NULL,
   `url` varchar(255) COLLATE utf8_bin NOT NULL,
-  `branch` varchar(50) COLLATE utf8_bin DEFAULT NULL,
-  `project_name` varchar(25) COLLATE utf8_bin DEFAULT NULL,
-  `description` text COLLATE utf8_bin NOT NULL,
-  `purpose` varchar(50) COLLATE utf8_bin NOT NULL,
+  `codebase` varchar(50) COLLATE utf8_bin DEFAULT NULL,
+  `description` text COLLATE utf8_bin,
   `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
   PRIMARY KEY (`id`),
   KEY `idx_repository_group_id` (`repository_group_id`),
   KEY `idx_name` (`name`),
-  KEY `idx_type` (`type`),
-  KEY `idx_branch` (`branch`),
-  KEY `idx_project_name` (`project_name`),
-  KEY `idx_purpose` (`purpose`),
+  KEY `idx_type` (`dvcs_type`),
+  KEY `idx_codebase` (`codebase`),
   KEY `idx_active_status` (`active_status`),
   CONSTRAINT `fk_repository_group` FOREIGN KEY (`repository_group_id`) REFERENCES `repository_group` (`id`)
 ) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
@@ -474,7 +468,7 @@ DROP TABLE IF EXISTS `repository_group`;
 CREATE TABLE `repository_group` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(50) COLLATE utf8_bin NOT NULL,
-  `description` text COLLATE utf8_bin NOT NULL,
+  `description` text COLLATE utf8_bin,
   `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
   PRIMARY KEY (`id`),
   KEY `idx_name` (`name`),
