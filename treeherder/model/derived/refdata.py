@@ -29,9 +29,9 @@ class RefDataManager(object):
 
     def get_row_by_id(self, table_name, obj_id):
         iter_obj = self.dhub.execute(
-            sql="SELECT * FROM `{0}` WHERE `id` = ?".format(table_name),
+            proc="reference.selects.get_row_by_id",
+            replace=[table_name],
             placeholders=[obj_id],
-            host_type="master_host", # @@@ for some reason ``read_host`` doesn't work here.  get a key error in datasource.
             debug_show=self.DEBUG,
             return_type='iter',
         )
