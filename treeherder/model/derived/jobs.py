@@ -179,16 +179,16 @@ class JobsModel(TreeherderModelBase):
 
         result_set_id = self._set_result_set(data["revision_hash"])
 
+        rdm = self.refdata_model
+        job = data["job"]
+
         # set sources
 
         for src in data["sources"]:
-            revision_id = self._insert_revision(src)
+            revision_id = self._insert_revision(src, job["who"])
             self._insert_revision_map(revision_id, result_set_id)
 
         # set Job data
-
-        rdm = self.refdata_model
-        job = data["job"]
 
         build_platform_id = rdm.get_or_create_build_platform(
             job["build_platform"]["os_name"],
@@ -273,7 +273,7 @@ class JobsModel(TreeherderModelBase):
 
         return result_set_id
 
-    def _insert_revision(self, src):
+    def _insert_revision(self, src, author):
         """
         Insert a source to the ``revision`` table
 
@@ -294,7 +294,7 @@ class JobsModel(TreeherderModelBase):
             'set_revision',
             [
                 src["revision"],
-                "author?",
+                author,
                 src["comments"],
                 long(src["push_timestamp"]),
                 long(src["commit_timestamp"]),

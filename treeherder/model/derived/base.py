@@ -71,7 +71,7 @@ class TreeherderModelBase(object):
     def get_row_by_id(self, contenttype, table_name, obj_id):
         """Given an ``id`` get the row for that item."""
         iter_obj = self.get_dhub(contenttype).execute(
-            proc="reference.selects.get_row_by_id",
+            proc="generic.selects.get_row_by_id",
             replace=[table_name],
             placeholders=[obj_id],
             debug_show=self.DEBUG,
