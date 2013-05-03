@@ -3,4 +3,4 @@ South==0.7.6
 python-memcached==1.48
 mozillapulse==0.61
 
-git+git://github.com/jeads/datasource@97ce9bb710
+git+git://github.com/jeads/datasource@143ac08d11

@@ -1,0 +1,10 @@
+[run]
+branch = True
+
+[report]
+omit =
+  */migrations/*
+  treeherder/webapp/wsgi.py
+  treeherder/settings/base.py
+  treeherder/settings/local.py
+  treeherder/settings/local.sample.py

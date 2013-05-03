@@ -28,11 +28,14 @@ class JobsModel(TreeherderModelBase):
 
 
     @classmethod
-    def create(cls, project, hosts=None, types=None):
+    def create(cls, project, host=None):
         """
         Create all the datasource tables for this project.
 
         """
+
+        if not host:
+            host = settings.DATABASES['default']['HOST']
 
         for ct in [cls.CT_JOBS, cls.CT_OBJECTSTORE]:
             dataset = Datasource.get_latest_dataset(project, ct)
@@ -40,6 +43,7 @@ class JobsModel(TreeherderModelBase):
                 project=project,
                 contenttype=ct,
                 dataset=dataset or 1,
+                host=host,
             )
             source.save()
 
@@ -53,6 +57,15 @@ class JobsModel(TreeherderModelBase):
         """Get the dhub for the objectstore"""
         return self.get_dhub(self.CT_OBJECTSTORE)
 
+    def disconnect(self):
+        """Iterate over and disconnect all data sources."""
+        self.get_os_dhub().disconnect()
+        self.get_jobs_dhub().disconnect()
+
+    def get_job(self, job_id):
+        """Return the job row for this ``job_id``"""
+        return self.get_row_by_id(self.CT_JOBS, "job", job_id).next()
+
     ##################
     #
     # Objectstore functionality
@@ -64,16 +77,6 @@ class JobsModel(TreeherderModelBase):
         ds = self.get_datasource(self.CT_OBJECTSTORE)
         secret = ds.get_oauth_consumer_secret(key)
         return secret
-
-    def _get_last_insert_id(self, contenttype=None):
-        """Return last-inserted ID."""
-        if not contenttype:
-            contenttype = self.CT_JOBS
-        return self.get_dhub(contenttype).execute(
-            proc='generic.selects.get_last_insert_id',
-            debug_show=self.DEBUG,
-            return_type='iter',
-        ).get_column_data('id')
 
     def store_job_data(self, json_data, error=None):
         """Write the JSON to the objectstore to be queued for processing."""
@@ -174,14 +177,18 @@ class JobsModel(TreeherderModelBase):
 
         """
 
-        # @@@ sources
-
-        # Get/Set reference info
-
-        # set Job data
+        result_set_id = self._set_result_set(data["revision_hash"])
 
         rdm = self.refdata_model
         job = data["job"]
+
+        # set sources
+
+        for src in data["sources"]:
+            revision_id = self._insert_revision(src, job["who"])
+            self._insert_revision_map(revision_id, result_set_id)
+
+        # set Job data
 
         build_platform_id = rdm.get_or_create_build_platform(
             job["build_platform"]["os_name"],
@@ -197,14 +204,10 @@ class JobsModel(TreeherderModelBase):
 
         machine_id = rdm.get_or_create_machine(
             job["machine"],
-            timestamp=max([
-                job["start_timestamp"],
-                job["submit_timestamp"],
-                job["end_timestamp"],
-            ])
+            timestamp=long(job["end_timestamp"]),
         )
 
-        option_collection_id = rdm.get_or_create_option_collection(
+        option_collection_hash = rdm.get_or_create_option_collection(
             [k for k, v in job["option_collection"].items() if v],
         )
 
@@ -218,15 +221,13 @@ class JobsModel(TreeherderModelBase):
             job["product_name"],
         )
 
-        result_set_id = self._set_result_set(data["revision_hash"])
-
         job_id = self._set_job_data(
             job,
             result_set_id,
             build_platform_id,
             machine_platform_id,
             machine_id,
-            option_collection_id,
+            option_collection_hash,
             job_type_id,
             product_id,
         )
@@ -272,8 +273,47 @@ class JobsModel(TreeherderModelBase):
 
         return result_set_id
 
+    def _insert_revision(self, src, author):
+        """
+        Insert a source to the ``revision`` table
+
+        Example source:
+        {
+            "commit_timestamp": 1365732271,
+            "push_timestamp": 1365732271,
+            "comments": "Bug 854583 - Use _pointer_ instead of...",
+            "repository": "mozilla-aurora",
+            "revision": "c91ee0e8a980"
+        }
+
+        """
+        repository_id = self.refdata_model.get_repository_id(
+            src["repository"])
+
+        revision_id = self._insert_data_and_get_id(
+            'set_revision',
+            [
+                src["revision"],
+                author,
+                src["comments"],
+                long(src["push_timestamp"]),
+                long(src["commit_timestamp"]),
+                repository_id,
+            ]
+        )
+        return revision_id
+
+    def _insert_revision_map(self, revision_id, result_set_id):
+        self._insert_data(
+            'set_revision_map',
+            [
+                revision_id,
+                result_set_id
+            ]
+        )
+
     def _set_job_data(self, data, result_set_id, build_platform_id,
-                      machine_platform_id, machine_id, option_collection_id,
+                      machine_platform_id, machine_id, option_collection_hash,
                       job_type_id, product_id):
         """Inserts job data into the db and returns job id."""
 
@@ -297,13 +337,13 @@ class JobsModel(TreeherderModelBase):
             reason = data["reason"]
             result = int(data["result"])
             state = data["state"]
-            submit_timestamp = data["submit_timestamp"]
-            start_timestamp = data["start_timestamp"]
-            end_timestamp = data["end_timestamp"]
+            submit_timestamp = long(data["submit_timestamp"])
+            start_timestamp = long(data["start_timestamp"])
+            end_timestamp = long(data["end_timestamp"])
 
         except ValueError as e:
-            e.__class__ = JobDataError
-            raise
+            raise JobDataError(e.message)
+
 
         job_id = self._insert_data_and_get_id(
             'set_job_data',
@@ -314,7 +354,7 @@ class JobsModel(TreeherderModelBase):
                 build_platform_id,
                 machine_platform_id,
                 machine_id,
-                option_collection_id,
+                option_collection_hash,
                 job_type_id,
                 product_id,
                 who,
@@ -363,9 +403,9 @@ class JobsModel(TreeherderModelBase):
         self._insert_data(statement, placeholders)
         return self._get_last_insert_id()
 
-    def _get_last_insert_id(self, source="jobs"):
+    def _get_last_insert_id(self, contenttype="jobs"):
         """Return last-inserted ID."""
-        return self.get_dhub(source).execute(
+        return self.get_dhub(contenttype).execute(
             proc='generic.selects.get_last_insert_id',
             debug_show=self.DEBUG,
             return_type='iter',
@@ -378,6 +418,7 @@ class JobsModel(TreeherderModelBase):
 
         for row in rows:
             row_id = int(row['id'])
+            import traceback
             try:
                 data = JobData.from_json(row['json_blob'])
                 job_id = self.load_job_data(data)
