@@ -15,7 +15,7 @@ fore_window = 12
 back_window = 12
 
 # What t score is required to consider a change significant
-threshold = 9
+threshold = 7
 
 # What percentage difference is required to consider a change significant
 percentage_threshold = 2

@@ -14,7 +14,7 @@ class TestAnalysisRunner(unittest.TestCase):
         config = get_config(options)
         config.set('main', 'fore_window', '5')
         config.set('main', 'back_window', '5')
-        config.set('main', 'threshold', '9')
+        config.set('main', 'threshold', '7')
         config.set('main', 'percentage_threshold', '9')
         config.set('main', 'machine_threshold', '9')
         config.set('main', 'machine_history_size', '0')

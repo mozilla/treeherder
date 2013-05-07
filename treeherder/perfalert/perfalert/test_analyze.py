@@ -49,17 +49,18 @@ class TestTalosAnalyzer(unittest.TestCase):
 
     def test_json_files(self):
         self.check_json('runs1.json', [1365019665])
-        self.check_json('runs2.json', [1358971894, 1365014104])
+        self.check_json('runs2.json', [1357692289, 1358971894, 1365014104])
         self.check_json('runs3.json', [1335293827, 1338839958])
         self.check_json('runs4.json', [1364922838])
         self.check_json('runs5.json', [])
+        self.check_json('a11y.json', [1366197637, 1367799757, 1367849900])
 
     def check_json(self, filename, expected_timestamps):
         """Parse JSON produced by http://graphs.mozilla.org/api/test/runs"""
         # Configuration for TalosAnalyzer
         FORE_WINDOW = 12
         BACK_WINDOW = 12
-        THRESHOLD = 9
+        THRESHOLD = 7
         MACHINE_THRESHOLD = 15
         MACHINE_HISTORY_SIZE = 5
 
