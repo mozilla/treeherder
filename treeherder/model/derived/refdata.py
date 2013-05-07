@@ -27,6 +27,17 @@ class RefDataManager(object):
         self.dhub = DataHub.get("reference")
         self.DEBUG = settings.DEBUG
 
+    def get_row_by_id(self, table_name, obj_id):
+        iter_obj = self.dhub.execute(
+            proc="reference.selects.get_row_by_id",
+            replace=[table_name],
+            placeholders=[obj_id],
+            debug_show=self.DEBUG,
+            return_type='iter',
+        )
+
+        return iter_obj
+
     def get_build_platform_id(self, os_name, platform, architecture):
 
         id_iter = self.dhub.execute(
@@ -192,7 +203,6 @@ class RefDataManager(object):
 
         #check if this collection already exists
         option_collection_hash = self.get_option_collection_hash(options)
-        print len(option_collection_hash)
         for option in options:
 
             #create an option if it doesn't exist
@@ -209,6 +219,17 @@ class RefDataManager(object):
                 ],
                 debug_show=self.DEBUG)
         return option_collection_hash
+
+    def get_option_names(self, option_collection_hash):
+        """Return the option names for an option_collection_hash."""
+
+        id_iter = self.dhub.execute(
+            proc='reference.selects.get_option_names',
+            placeholders=[option_collection_hash],
+            debug_show=self.DEBUG,
+            return_type='iter')
+
+        return id_iter
 
     def get_product_id(self, name):
 
@@ -236,6 +257,16 @@ class RefDataManager(object):
 
         id_iter = self.dhub.execute(
             proc='reference.selects.get_repository_version_id',
+            placeholders=[repository_id, version],
+            debug_show=self.DEBUG,
+            return_type='iter')
+
+        return id_iter.get_column_data('id')
+
+    def get_repository_id(self, name):
+
+        id_iter = self.dhub.execute(
+            proc='reference.selects.get_repository_id',
             placeholders=[name],
             debug_show=self.DEBUG,
             return_type='iter')
