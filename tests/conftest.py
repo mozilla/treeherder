@@ -101,35 +101,17 @@ def jm():
     """ Give a test access to a JobsModel instance. """
     from django.conf import settings
     from treeherder.model.derived.jobs import JobsModel
-    # return JobsModel.create(settings.DATABASES["default"]["TEST_NAME"])
-    from treeherder.model.models import Datasource
-    jds = Datasource.objects.create(
-        project=settings.DATABASES["default"]["TEST_NAME"],
-        dataset=1,
-        contenttype="jobs",
-        host=settings.DATABASES['default']['HOST'],
-    )
-    objstore = Datasource.objects.create(
-        project=settings.DATABASES["default"]["TEST_NAME"],
-        dataset=1,
-        contenttype="objectstore",
-        host=settings.DATABASES['default']['HOST'],
-    )
-    model = JobsModel(settings.DATABASES["default"]["TEST_NAME"])
+    model = JobsModel.create(settings.DATABASES["default"]["TEST_NAME"])
 
     # patch in additional test-only procs on the datasources
-    test_proc_file = os.path.join(
-        os.path.abspath(os.path.dirname(__file__)),
-        "objectstore_test.json",
-    )
     add_test_procs_file(
         model.get_dhub("objectstore"),
-        objstore.key,
+        model.get_datasource("objectstore").key,
         "objectstore_test.json",
     )
     add_test_procs_file(
         model.get_dhub("jobs"),
-        jds.key,
+        model.get_datasource("jobs").key,
         "jobs_test.json",
     )
 

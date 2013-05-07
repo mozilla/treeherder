@@ -29,6 +29,17 @@ class RefDataManager(object):
         self.dhub = DataHub.get("reference")
         self.DEBUG = settings.DEBUG
 
+    def get_row_by_id(self, table_name, obj_id):
+        iter_obj = self.dhub.execute(
+            proc="reference.selects.get_row_by_id",
+            replace=[table_name],
+            placeholders=[obj_id],
+            debug_show=self.DEBUG,
+            return_type='iter',
+        )
+
+        return iter_obj
+
     def get_build_platform_id(self, os_name, platform, architecture):
 
         id_iter = self.dhub.execute(
@@ -210,6 +221,17 @@ class RefDataManager(object):
                 ],
                 debug_show=self.DEBUG)
         return option_collection_hash
+
+    def get_option_names(self, option_collection_hash):
+        """Return the option names for an option_collection_hash."""
+
+        id_iter = self.dhub.execute(
+            proc='reference.selects.get_option_names',
+            placeholders=[option_collection_hash],
+            debug_show=self.DEBUG,
+            return_type='iter')
+
+        return id_iter
 
     def get_product_id(self, name):
 
