@@ -5,6 +5,7 @@ from .sample_data_generator import job_json
 
 slow = pytest.mark.slow
 
+
 def test_claim_objects(jm, sample_data):
     """``claim_objects`` claims & returns unclaimed rows up to a limit."""
 
@@ -51,7 +52,7 @@ def test_mark_object_complete(jm):
     assert row_data["processed_state"] == "complete"
 
 
-def test_process_objects(jm):
+def test_process_objects(jm, initial_data):
     """Claims and processes a chunk of unprocessed JSON jobs data blobs."""
     # Load some rows into the objectstore
     blobs = [
