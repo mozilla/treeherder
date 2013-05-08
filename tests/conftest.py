@@ -37,11 +37,6 @@ def pytest_sessionstart(session):
     # this sets up a clean test-only database
     session.django_db_config = session.django_runner.setup_databases()
 
-    increment_cache_key_prefix()
-
-    # init the datasource db
-    call_command("init_master_db", interactive=False)
-
 
 def pytest_sessionfinish(session):
     """Tear down the test environment, including databases."""
@@ -52,24 +47,18 @@ def pytest_sessionfinish(session):
 def pytest_runtest_setup(item):
     """
     Per-test setup.
-
-    Start a transaction and disable transaction methods for the duration of the
-    test. The transaction will be rolled back after the test. This prevents any
-    database changes made to Django ORM models from persisting between tests,
-    providing test isolation.
-
+    - Add an option to run those tests marked as 'slow'
+    - Provide cache isolation incrementing the cache key prefix
+    - Drop and recreate tables in the master db
     """
-    from django.test.testcases import disable_transaction_methods
-    from django.db import transaction
-
-    transaction.enter_transaction_management()
-    transaction.managed(True)
-    disable_transaction_methods()
-
-    increment_cache_key_prefix()
 
     if 'slow' in item.keywords and not item.config.getoption("--runslow"):
         pytest.skip("need --runslow option to run")
+
+    increment_cache_key_prefix()
+
+    # this should provide isolation between tests.
+    call_command("init_master_db", interactive=False, skip_fixtures=True)
 
 
 def pytest_runtest_teardown(item):
@@ -80,17 +69,11 @@ def pytest_runtest_teardown(item):
     between tests
 
     """
-    from django.test.testcases import restore_transaction_methods
-    from django.db import transaction
     from treeherder.model.models import Datasource
 
     ds_list = Datasource.objects.all()
     for ds in ds_list:
         ds.delete()
-
-    restore_transaction_methods()
-    transaction.rollback()
-    transaction.leave_transaction_management()
 
 
 def increment_cache_key_prefix():
@@ -104,6 +87,14 @@ def increment_cache_key_prefix():
         key_prefix_counter = 0
         cache.set(prefix_counter_cache_key, key_prefix_counter)
     cache.key_prefix = "t{0}".format(key_prefix_counter)
+
+
+@pytest.fixture()
+def initial_data():
+    from django.core.management import call_command
+
+    call_command('load_initial_data')
+
 
 @pytest.fixture()
 def jm():
@@ -140,6 +131,7 @@ def add_test_procs_file(dhub, key, filename):
     dhub.data_sources[key]["procs"] = proclist
     dhub.load_procs(key)
 
+
 @pytest.fixture()
 def jobs_ds():
     from django.conf import settings
@@ -162,6 +154,7 @@ def objectstore_ds():
         contenttype="objectstore",
         host="localhost",
     )
+
 
 @pytest.fixture(scope='session')
 def sample_data():
