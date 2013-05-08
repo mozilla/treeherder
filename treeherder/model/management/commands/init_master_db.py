@@ -26,6 +26,13 @@ class Command(BaseCommand):
             default='treeherder/model/sql/template_schema/',
             help='Directory containing the sql templates',
         ),
+        make_option('--skip-fixtures',
+            action='store_true',
+            dest='skip_fixtures',
+            default=False,
+            help='Tell this command to NOT load initial fixtures',
+        ),
+
     )
 
     def handle(self, *args, **options):
@@ -59,14 +66,11 @@ Type 'yes' to continue, or 'no' to cancel: """ % connection.settings_dict['NAME'
             #flush all the apps not under south
             call_command("syncdb", interactive=False,)
             #fake the first migration because manually generated
-            call_command("migrate", 'model', '0001', fake=True)
+            call_command("migrate", 'model', '0001_initial', fake=True)
             #safely apply all the other migrations
             call_command("migrate", 'model')
             #load initial fixtures for reference data
             # the order of this list of fixtures is important
             # to avoid integrity errors
-            call_command("loaddata",
-                         'repository_group',
-                         'repository',
-                         'job_group',
-                         'job_type')
+            if not options['skip_fixtures']:
+                call_command('load_initial_data')

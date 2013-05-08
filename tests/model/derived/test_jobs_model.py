@@ -66,14 +66,14 @@ def do_job_ingestion(jm, job_data):
     assert loading_count == 0
 
 
-def test_ingest_single_sample_job(jm, sample_data):
+def test_ingest_single_sample_job(jm, sample_data, initial_data):
     """Process a single job structure in the job_data.txt file"""
     job_data = sample_data.job_data[:1]
     do_job_ingestion(jm, job_data)
 
 
 @slow
-def test_ingest_all_sample_jobs(jm, sample_data):
+def test_ingest_all_sample_jobs(jm, sample_data, initial_data):
     """
     Process each job structure in the job_data.txt file and verify.
 
@@ -82,7 +82,7 @@ def test_ingest_all_sample_jobs(jm, sample_data):
     do_job_ingestion(jm, job_data)
 
 
-def test_artifact_log_ingestion(jm):
+def test_artifact_log_ingestion(jm, initial_data):
     """
     Test ingesting an artifact with a log
 
@@ -118,7 +118,7 @@ def test_artifact_log_ingestion(jm):
     assert exp_job == act_job, diff_dict(exp_job, act_job)
 
 
-def test_bad_date_value_ingestion(jm):
+def test_bad_date_value_ingestion(jm, initial_data):
     """
     Test ingesting an blob with bad date value
 
