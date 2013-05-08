@@ -67,6 +67,13 @@
                         `id` = ?",
             "host":"read_host"
         },
+        "test_repository_group":{
+            "sql": "SELECT `name`, `description`, `active_status`
+                    FROM `repository_group`
+                    WHERE 
+                        `id` = ?",
+            "host":"read_host"
+        },
         "test_repository_version":{
             "sql": "SELECT `repository_id`, `version`, `version_timestamp`, `active_status`
                     FROM `repository_version`
