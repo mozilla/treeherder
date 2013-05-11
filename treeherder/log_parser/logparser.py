@@ -25,26 +25,36 @@ class LogParseManager(object):
         """
         Inspect Job and return a list of logs that need parsing.
 
-        Returns a list of objects like:
-            {
-                "url": "http...",
-                "parser": MochitestParser,
-
-            }
+        Returns a list of ``LogParser`` child objects specific to the
+        type of log that needs parsing.
 
         """
 
-        # @@@ Todo: LookFigure out the type for each log
-        pass
+        log_list = []
 
-    def parse_logs(self, log_list):
+        # @@@ todo: implement this...
+
+        return log_list
+
+    def get_parsers(self):
+        # we always have a SummaryParser
+        parser_list = [SummaryParser()]
+
+        # @@@ todo: Figure out the type for the log
+        #parser_list.append(FooParser())
+        return parser_list
+
+    def parse_logs(self):
         """
         Walk the list of logs and parse each one, building the
         ``log-metadata`` object as we go.
         """
         logs = self.get_log_list()
+        parsers = self.get_parsers()
         for log in logs:
-            self.toc[log.name] = log.parse()
+            for line in log.readline():
+                for parser in parsers:
+                    parser.parse_line(line)
 
 
 class LogParserBase(object):
@@ -54,45 +64,39 @@ class LogParserBase(object):
     Given a log, parse it and generate a meta-data object as a
     Table of Contents for the log.
 
-    @@@ Child logs may also need parsing.
-
     """
 
-    def __init__(self, log_url, name):
+    def __init__(self):
         # the url of the log to be parsed
-        self.log_url = log_url
-        # @@@ should we get ``name`` from the splitter or parser instead
-        # of passing it in?
-        self.name = name
         self.metadata = {}
+        self.state = "started"
 
-    def process(self):
-        """
-        Main entry point to process this log: split it and parse it.
-        """
-        self.split()
-        self.parse()
+    def get_metadata(self):
+        """Return the metadata object"""
         return self.metadata
 
-    def split(self):
-        """
-        Split up the log to its parts.  Most won't need real parsing,
-        but there will be a "main" section that does.
+    def parse_line(self, line):
+        """Parse a single line of the log"""
+        raise NotImplementedError
 
-        call the log_splitter from swatinem
-        store the valuable parts in self.log_meta where appropriate
-
-        """
+    def finalize(self):
+        """Wrap-up of this parser, if needed."""
         pass
 
-    def parse(self):
-        """
-        Parse the log at this url and return the metadata object for
-        this one log.  A job may have several of these.
 
-        @@@ how do we handle if there's a log in a log?
+class SummaryParser(LogParserBase):
+    """
+    Gather summary information about this job.
 
-        Implemented by the child class.
+    This parser gathers the data that shows on the bottom panel of the main
+    TBPL page.
 
-        """
-        raise NotImplementedError("Need implementation for this parser class.")
+    Maintains its own state
+    """
+    def parseline(self, line):
+        """Parse a single line of the log"""
+        pass
+
+    def mark_complete(self):
+        """Do any wrap-up of this parse."""
+        pass
