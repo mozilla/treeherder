@@ -1,61 +1,67 @@
 
-import datetime
-import re
+class Splitter(object):
+    """
+    `start` and `end` should be tuples of type (regexp, mapping[, matching])
+    `regexp` is used to match the start end and of a step
+    `mapping` is a list corresponding to the capture groups in the regexp.
+    Each mapping can be
+        * a string, in which case a named attr will be added to the step
+        * a callback function taking (step, match)
+        * None, to skip that regexp group
+    `end` can also have a `matching`, which is a list that matches capture
+    groups from the end to capture groups from the start
+    """
+    def __init__(self, start, end):
+        self._start = start
+        self._end = end
 
-date_pattern = '(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d+)'
-re_start = re.compile('========= Started (.*?) \(results: \d+, elapsed: (?:\d+ mins, )?\d+ secs\) \(at ' + date_pattern + '\) =========')
-re_finish = re.compile('========= Finished (.*?) \(results: \d+, elapsed: (?:\d+ mins, )?\d+ secs\) \(at ' + date_pattern + '\) =========')
-re_property = re.compile('(\w*): (.*)')
-date_format = '%Y-%m-%d %H:%M:%S.%f'
+    def split(self, file):
+        """
+        `file` should be any iterable object/generator that yields lines
+        """
+        steps = [Step(0)]
+        step = steps[0]
+        startmatch = None
 
-def split(file):
-    log = Log()
-    properties_done = False
-    step = None
-    for line in file:
-        # collect the properties first
-        if not properties_done:
-            match = re_property.match(line)
-            if match is None:
-                properties_done = True
+        def apply_match(which, match):
+            # apply the mapping for the capture group
+            for i, mapping in enumerate(which[1]):
+                if mapping is None:
+                    continue
+                if type(mapping) == str:
+                    setattr(step, mapping, match.group(1 + i))
+                else: # must be a function
+                    mapping(step, match.group(1 + i))
+            if len(which) == 3:
+                # selected properties of the start and end match should be equal
+                for i, matching in enumerate(which[2]):
+                    if matching is not None:
+                        assert match.group(1 + i) == startmatch.group(matching)
+
+        for lineno, line in enumerate(file):
+            # look for a start marker
+            if startmatch is None:
+                match = self._start[0].match(line)
+                if match is not None:
+                    step = Step(lineno)
+                    steps.append(step)
+                    startmatch = match
+                    apply_match(self._start, match)
+            # check for the end marker
             else:
-                log.properties[match.group(1)] = match.group(2)
-            continue
-        # then look for a start marker:
-        if step is None:
-            match = re_start.match(line)
-            if match is not None:
-                start_time = datetime.datetime.strptime(match.group(2), date_format)
-                step = Step(match.group(1), start_time)
-                log.steps.append(step)
-        # check for the end marker, otherwise collect the log
-        else:
-            match = re_finish.match(line)
-            if match is None:
-                step.log.append(line)
-                continue
-            assert match.group(1) == step.name
-            end_time = datetime.datetime.strptime(match.group(2), date_format)
-            step.end_time = end_time
-            step = None
+                match = self._end[0].match(line)
+                if match is not None:
+                    apply_match(self._end, match)
+                    startmatch = None
+            step.lines.append(line)
 
-    return log
-
-class Log(object):
-    """
-    """
-
-    def __init__(self):
-        self.properties = {}
-        self.steps = []
+        return steps
 
 class Step(object):
     """
     """
 
-    def __init__(self, name, start_time):
-        self.name = name
-        self.start_time = start_time
-        self.end_time = None
-        self.log = []
+    def __init__(self, lineno):
+        self.lineno = lineno
+        self.lines = []
 
