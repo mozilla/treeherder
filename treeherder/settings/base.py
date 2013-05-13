@@ -1,6 +1,11 @@
 # Django settings for webapp project.
 import os
 from treeherder import path
+
+# needed to setup celery
+import djcelery
+djcelery.setup_loader()
+
 # These settings can all be optionally set via env vars, or in local.py:
 
 TREEHERDER_DATABASE_NAME     = os.environ.get("TREEHERDER_DATABASE_NAME", "")
@@ -12,6 +17,12 @@ TREEHERDER_DATABASE_PORT     = os.environ.get("TREEHERDER_DATABASE_PORT", "")
 TREEHERDER_MEMCACHED = os.environ.get("TREEHERDER_MEMCACHED", "")
 TREEHERDER_MEMCACHED_KEY_PREFIX = os.environ.get("TREEHERDER_MEMCACHED_KEY_PREFIX", "treeherder")
 DEBUG = os.environ.get("TREEHERDER_DEBUG", False)
+
+RABBITMQ_USER = os.environ.get("TREEHERDER_RABBITMQ_USER", "")
+RABBITMQ_PASSWORD = os.environ.get("TREEHERDER_RABBITMQ_PASSWORD", "")
+RABBITMQ_VHOST = os.environ.get("TREEHERDER_RABBITMQ_VHOST", "")
+RABBITMQ_HOST = os.environ.get("TREEHERDER_RABBITMQ_HOST", "")
+RABBITMQ_PORT = os.environ.get("TREEHERDER_RABBITMQ_PORT", "")
 
 
 # Make this unique, and don't share it with anybody.
@@ -72,6 +83,7 @@ INSTALLED_APPS = [
     'treeherder.webapp',
     'treeherder.pulse_consumer',
     'south',
+    'djcelery',
 ]
 
 LOCAL_APPS = []
@@ -105,6 +117,21 @@ LOGGING = {
     }
 }
 
+from kombu import Exchange, Queue
+
+CELERY_QUEUES = (
+    Queue('default', Exchange('default'), routing_key='default'),
+    # high priority queue for failed jobs.
+    Queue('high_priority', Exchange('log_parsing'), routing_key='log_parsing.failure'),
+    # low priority for successful jobs
+    Queue('low_priority', Exchange('log_parsing'), routing_key='log_parsing.success'),
+)
+# default value when no task routing info is specified
+CELERY_DEFAULT_QUEUE = 'default'
+CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'
+CELERY_DEFAULT_ROUTING_KEY = 'default'
+
+
 try:
     from .local import *
 except ImportError:
@@ -136,3 +163,12 @@ CACHES = {
 }
 
 KEY_PREFIX = TREEHERDER_MEMCACHED_KEY_PREFIX
+
+# celery broker setup
+BROKER_URL = 'amqp://{0}:{1}@{2}:{3}/{4}'.format(
+    RABBITMQ_USER,
+    RABBITMQ_PASSWORD,
+    RABBITMQ_HOST,
+    RABBITMQ_PORT,
+    RABBITMQ_VHOST
+)
