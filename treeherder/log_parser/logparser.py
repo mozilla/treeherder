@@ -1,4 +1,6 @@
-#import treeherder.log_splitter
+import urllib2
+import gzip
+from StringIO import StringIO
 
 
 class LogParseManager(object):
@@ -25,8 +27,7 @@ class LogParseManager(object):
         """
         Inspect Job and return a list of logs that need parsing.
 
-        Returns a list of ``LogParser`` child objects specific to the
-        type of log that needs parsing.
+        These will be url strings for each log over ftp.
 
         """
 
@@ -37,6 +38,11 @@ class LogParseManager(object):
         return log_list
 
     def get_parsers(self):
+        """
+        Returns a list of ``LogParser`` child objects specific to the
+        type of log that needs parsing.
+        """
+
         # we always have a SummaryParser
         parser_list = [SummaryParser()]
 
@@ -46,15 +52,27 @@ class LogParseManager(object):
 
     def parse_logs(self):
         """
-        Walk the list of logs and parse each one, building the
-        ``log-metadata`` object as we go.
+        Walk the list of logs and parse each one.
+
+        This downloads each gz file, uncompresses it, and runs each parser
+        against it, building the ``log-metadata`` object as we go.
+
         """
+
         logs = self.get_log_list()
         parsers = self.get_parsers()
+
         for log in logs:
-            for line in log.readline():
+            # each log url gets opened
+            handle = urllib2.urlopen(log)
+            gz_file = gzip.GzipFile(fileobj=handle)
+
+            for line in gz_file.readline():
+                # run each parser on each line of the log
                 for parser in parsers:
                     parser.parse_line(line)
+
+            gz_file.close()
 
 
 class LogParserBase(object):
