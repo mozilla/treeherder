@@ -3,6 +3,8 @@ import gzip
 import datetime
 import re
 
+from treeherder.model.derived.jobs import JobsModel
+
 
 class LogParseManager(object):
     """
@@ -19,24 +21,21 @@ class LogParseManager(object):
 
     """
 
-    def __init__(self, job_id):
+    def __init__(self, project, job_id):
         # the Table of Contents metadata object
         self.toc = {}
         self.job_id = job_id
+        self.project = project
+        self.jm = JobsModel(self.project)
 
-    def get_log_list(self):
+    def get_log_references(self):
         """
         Inspect Job and return a list of logs that need parsing.
 
         These will be url strings for each log over ftp.
 
         """
-
-        log_list = []
-
-        # @@@ todo: implement this...
-
-        return log_list
+        return self.jm.get_log_references(self.job_id)
 
     def get_parsers(self):
         """
@@ -55,9 +54,14 @@ class LogParseManager(object):
         # we always have a SummaryParser
         parser_list = [SummaryParser()]
 
-        # @@@ todo: Figure out the type for the log.
+        # @@@ todo: Figure out the type for the log based on the name
+        #           in the log_references?
         #parser_list.append(FooParser())
         return parser_list
+
+    def get_log_handle(self, url):
+        """Hook to get a handle to the log with this url"""
+        return urllib2.urlopen(url)
 
     def parse_logs(self):
         """
@@ -68,12 +72,12 @@ class LogParseManager(object):
 
         """
 
-        logs = self.get_log_list()
+        logs = self.get_log_references()
         parsers = self.get_parsers()
 
         for log in logs:
             # each log url gets opened
-            handle = urllib2.urlopen(log)
+            handle = self.get_log_handle(log["url"])
             gz_file = gzip.GzipFile(fileobj=handle)
 
             for line in gz_file.readline():
@@ -86,6 +90,8 @@ class LogParseManager(object):
                 parser.finalize()
 
             gz_file.close()
+            self.toc[log["name"]] = parser.metadata
+
 
 
 class LogParserBase(object):
@@ -126,18 +132,20 @@ class LogParserBase(object):
     #################
     # regex patterns for started and finished sections
     #################
-    pattern = ' (.*?) \(results: \d+, elapsed: (?:\d+ mins, )?\d+ secs\) \(at (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d+)\) ={9}'
-    re_start = re.compile('={9} Started' + pattern)
-    re_finish = re.compile('={9} Finished' + pattern)
-    re_property = re.compile('(\w*): (.*)')
-    date_format = '%Y-%m-%d %H:%M:%S.%f'
+    RE_HEADER_VALUE = re.compile('^(?P<key>[a-z]+): (?P<value>.*)$')
+    PATTERN = ' (.*?) \(results: \d+, elapsed: (?:\d+ mins, )?\d+ secs\) \(at (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d+)\) ={9}'
+    RE_START = re.compile('={9} Started' + PATTERN)
+    RE_FINISH = re.compile('={9} Finished' + PATTERN)
+    RE_PROPERTY = re.compile('(\w*): (.*)')
+    DATE_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
+    STARTED = b'========= Started'
 
     def __init__(self):
         self.metadata = {"header": {}}
         self.state = self.ST_HEADER
 
     def parsetime(self, match):
-        return datetime.datetime.strptime(match, self.date_format)
+        return datetime.datetime.strptime(match, self.DATE_FORMAT)
 
     def get_metadata(self):
         """Return the collected metadata object"""
@@ -157,13 +165,19 @@ class LogParserBase(object):
             revision: c80dc6ffe865
 
         """
-        header = line.split(": ", 1)
-        if len(header == 2):
-            self.metadata["header"][header[0]] = header[1]
+        print "parsing: {0}".format(line)
+        match = self.RE_HEADER_VALUE.match(line)
+        if match:
+            key, value = match.groups()
+            self.metadata["header"][key] = value
 
     def parse_line(self, line):
-        """Parse a single line of the log"""
-        if self.state == self.ST_HEADER:
+        """
+        Parse a single line of the log.
+
+        Parse the header until we hit a line with "started" in it.
+        """
+        if self.state == self.ST_HEADER and not line.startswith(self.STARTED):
             self.parse_header(line)
         else:
             self.parse_content(line)
@@ -193,7 +207,7 @@ class SummaryParser(LogParserBase):
 
     @@@ probably should go in a different file, too?
     """
-    def parseline(self, line):
+    def parse_content(self, line):
         """Parse a single line of the log"""
         pass
 

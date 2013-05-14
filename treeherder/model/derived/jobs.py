@@ -66,6 +66,25 @@ class JobsModel(TreeherderModelBase):
         """Return the job row for this ``job_id``"""
         return self.get_row_by_id(self.CT_JOBS, "job", job_id).next()
 
+    def get_log_references(self, job_id):
+        """Return the log references for the given ``job_id``."""
+        return self.get_jobs_dhub().execute(
+            proc="jobs.selects.get_log_references",
+            placeholders=[job_id],
+            debug_show=self.DEBUG,
+            return_type='iter',
+        )
+
+    def get_os_errors(self, starttime, endtime):
+        """Return all the errors from the objectstore in this range."""
+        return self.get_os_dhub().execute(
+            proc="objectstore.selects.get_error_metadata",
+            placeholders=[starttime, endtime],
+            debug_show=self.DEBUG,
+            return_type='dict',
+            key_column="job_id"
+        )
+
     ##################
     #
     # Objectstore functionality

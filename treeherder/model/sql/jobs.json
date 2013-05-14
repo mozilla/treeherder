@@ -85,6 +85,13 @@
             "sql":"SELECT * FROM `job` WHERE id = ?",
 
             "host":"read_host"
+        },
+        "get_log_references":{
+            "sql":"SELECT `name`, `url`
+                   FROM `job_log_url`
+                   WHERE job_id = ?",
+
+            "host":"read_host"
         }
     }
 }
