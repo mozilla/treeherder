@@ -80,7 +80,7 @@ class LogParseManager(object):
             handle = self.get_log_handle(log["url"])
             gz_file = gzip.GzipFile(fileobj=handle)
 
-            for line in gz_file.readline():
+            for line in gz_file:
                 # run each parser on each line of the log
                 for parser in parsers:
                     parser.parse_line(line)
@@ -177,8 +177,12 @@ class LogParserBase(object):
 
         Parse the header until we hit a line with "started" in it.
         """
-        if self.state == self.ST_HEADER and not line.startswith(self.STARTED):
-            self.parse_header(line)
+        if self.state == self.ST_HEADER:
+            if not line.startswith(self.STARTED):
+                self.parse_header(line)
+            else:
+                self.state = self.ST_STARTED
+                self.parse_content(line)
         else:
             self.parse_content(line)
 
