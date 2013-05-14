@@ -39,7 +39,7 @@ def do_job_ingestion(jm, job_data):
     return jobs
 
 
-def test_single_log_reference(jm, initial_data, monkeypatch):
+def test_single_log_header(jm, initial_data, monkeypatch):
     """Process a job with a single log reference."""
 
     def mock_log_handle(mockself, url):
@@ -57,7 +57,17 @@ def test_single_log_reference(jm, initial_data, monkeypatch):
 
     lpm = LogParseManager(jm.project, jobs[0])
     lpm.parse_logs()
-    assert lpm.toc == "foo"
+    act = lpm.toc["unittest"]["header"]
+    exp = {
+        "slave": "tst-linux32-ec2-137",
+        "buildid": "20130513091541",
+        "builder": "mozilla-central_ubuntu32_vm_test-crashtest-ipc",
+        "results": "success (0)",
+        "starttime": "1368466076.01",
+        "builduid": "acddb5f7043c4d5b9f66619f9433cab0",
+        "revision": "c80dc6ffe865"
+    }
+    assert act == exp, json.dumps(lpm.toc["unittest"]["header"], indent=4)
 
 
 def xtest_two_log_references(jm, initial_data):

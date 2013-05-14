@@ -215,6 +215,6 @@ class SummaryParser(LogParserBase):
         """Parse a single line of the log"""
         pass
 
-    def mark_complete(self):
-        """Do any wrap-up of this parse."""
+    def finalize(self):
+        """Do any wrap-up of this parser."""
         pass
