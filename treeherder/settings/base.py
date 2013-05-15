@@ -24,7 +24,6 @@ RABBITMQ_VHOST = os.environ.get("TREEHERDER_RABBITMQ_VHOST", "")
 RABBITMQ_HOST = os.environ.get("TREEHERDER_RABBITMQ_HOST", "")
 RABBITMQ_PORT = os.environ.get("TREEHERDER_RABBITMQ_PORT", "")
 
-
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = os.environ.get("TREEHERDER_DJANGO_SECRET_KEY", "my-secret-key")
 
@@ -121,11 +120,12 @@ from kombu import Exchange, Queue
 
 CELERY_QUEUES = (
     Queue('default', Exchange('default'), routing_key='default'),
-    # high priority queue for failed jobs.
-    Queue('high_priority', Exchange('log_parsing'), routing_key='log_parsing.failure'),
-    # low priority for successful jobs
-    Queue('low_priority', Exchange('log_parsing'), routing_key='log_parsing.success'),
+    # queue for failed jobs/logs
+    Queue('fail', Exchange('fail'), routing_key='*.fail'),
+    # queue for successful jobs/logs
+    Queue('success', Exchange('success'), routing_key='*.success'),
 )
+
 # default value when no task routing info is specified
 CELERY_DEFAULT_QUEUE = 'default'
 CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'

@@ -19,7 +19,6 @@ $RABBITMQ_VHOST = 'treeherder'
 $RABBITMQ_HOST = 'localhost'
 $RABBITMQ_PORT = '5672'
 
-
 Exec {
     path => "/usr/local/bin:/usr/bin:/usr/sbin:/sbin:/bin",
 }

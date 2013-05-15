@@ -38,6 +38,7 @@ def pytest_sessionstart(session):
     # this makes celery calls synchronous, useful for unit testing
     # TODO: discuss this
     settings.CELERY_ALWAYS_EAGER = True
+    settings.CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 
     # this sets up a clean test-only database
     session.django_db_config = session.django_runner.setup_databases()
