@@ -81,6 +81,7 @@ INSTALLED_APPS = [
     'treeherder.model',
     'treeherder.webapp',
     'treeherder.pulse_consumer',
+    'treeherder.log_parser'
     'south',
     'djcelery',
 ]
