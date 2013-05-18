@@ -211,10 +211,18 @@ class SummaryParser(LogParserBase):
 
     @@@ probably should go in a different file, too?
     """
+    RE_SCRAPE = re.compile('^TinderboxPrint: (.*)$');
+    def __init__(self):
+        LogParserBase.__init__(self)
+        self.scrape = []
+
     def parse_content(self, line):
         """Parse a single line of the log"""
-        pass
+        match = self.RE_SCRAPE.match(line)
+        if match:
+            self.scrape.append(match.group(1))
 
     def finalize(self):
         """Do any wrap-up of this parser."""
         pass
+

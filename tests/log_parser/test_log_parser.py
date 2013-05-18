@@ -1,7 +1,7 @@
 import json
 from ..sample_data_generator import job_json, job_data
 from ..sampledata import SampleData
-from treeherder.log_parser.logparser import LogParseManager
+from treeherder.log_parser.logparser import LogParseManager, SummaryParser
 from treeherder.model import utils
 
 
@@ -69,6 +69,19 @@ def test_single_log_header(jm, initial_data, monkeypatch):
     }
     assert act == exp, json.dumps(lpm.toc["unittest"]["header"], indent=4)
 
+def test_summary_parser():
+    parser = SummaryParser()
+    parser.state = parser.ST_STARTED
+    lines = [
+        'start',
+        'TinderboxPrint: foo',
+        'TinderboxPrint: bar',
+        'end'
+    ]
+    for line in lines:
+        parser.parse_line(line)
+
+    assert parser.scrape == ['foo', 'bar']
 
 def xtest_two_log_references(jm, initial_data):
     """Process a job two log references."""
