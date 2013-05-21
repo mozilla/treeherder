@@ -1,9 +1,10 @@
 import json
 from ..sample_data_generator import job_json, job_data
 from ..sampledata import SampleData
-from treeherder.log_parser.logparser import LogParseManager
+from treeherder.log_parser.logparserbase import LogParseManager
 from treeherder.model import utils
 
+import urllib2
 
 """
     will need tests with:
@@ -68,6 +69,29 @@ def test_single_log_header(jm, initial_data, monkeypatch):
         "revision": "c80dc6ffe865"
     }
     assert act == exp, json.dumps(lpm.toc["unittest"]["header"], indent=4)
+
+
+def test_download_logs(sample_data):
+    """
+    http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-central-win32/1367008984/mozilla-central_win8_test-dirtypaint-bm74-tests1-windows-build6.txt.gz
+    """
+    lognames = []
+    for job in sample_data.job_data:
+        logrefs = job["job"]["log_references"]
+        for log in logrefs:
+            lognames.append(log["name"])
+            url = log["url"]
+            try:
+                handle = urllib2.urlopen(url)
+                with open(url.rsplit("/", 1)[1], "wb") as out:
+                    while True:
+                        data = handle.read(1024)
+                        if len(data) == 0: break
+                        out.write(data)
+            except urllib2.HTTPError:
+                pass
+
+    assert set(lognames) == ""
 
 
 def xtest_two_log_references(jm, initial_data):
