@@ -10,8 +10,14 @@ class JobArtifactParser(LogParserBase):
 
     Maintains its own state.
 
-    @@@ probably should go in a different file, too?
     """
+    @property
+    def name(self):
+        try:
+            return self.artifact["header"]["builder"]
+        except KeyError:
+            return "Unknown Builder"
+
     def parse_content(self, line):
         """Parse a single line of the log"""
         pass

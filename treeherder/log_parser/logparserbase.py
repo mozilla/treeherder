@@ -49,15 +49,15 @@ class LogParserBase(object):
     STARTED = b'========= Started'
 
     def __init__(self):
-        self.metadata = {"header": {}}
+        self.artifact = {"header": {}}
         self.state = self.ST_HEADER
+
+    @property
+    def name(self):
+        raise NotImplementedError
 
     def parsetime(self, match):
         return datetime.datetime.strptime(match, self.DATE_FORMAT)
-
-    def get_metadata(self):
-        """Return the collected metadata object"""
-        return self.metadata
 
     def parse_header(self, line):
         """
@@ -77,7 +77,7 @@ class LogParserBase(object):
         match = self.RE_HEADER_VALUE.match(line)
         if match:
             key, value = match.groups()
-            self.metadata["header"][key] = value
+            self.artifact["header"][key] = value
 
     def parse_line(self, line):
         """
