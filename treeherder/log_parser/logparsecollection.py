@@ -25,11 +25,15 @@ class LogParseCollection(object):
         """
 
         # the results
-        self.artifacts = []
+        self.artifacts = {}
         self.url = url
         self.name = name
 
         if parsers:
+            # ensure that self.parsers is a list, even if a single parser was
+            # passed in
+            if not isinstance(parsers, list):
+                parsers = [parsers]
             self.parsers = parsers
         else:
             # use the defaults
@@ -63,6 +67,6 @@ class LogParseCollection(object):
         # let the parsers know we're done with all the lines
         for parser in self.parsers:
             parser.finalize()
-            self.artifacts.append({parser.name: parser.artifact})
+            self.artifacts[parser.name] = parser.artifact
 
         gz_file.close()
