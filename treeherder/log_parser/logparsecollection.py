@@ -16,18 +16,25 @@ class LogParseCollection(object):
 
     """
 
-    def __init__(self, url, name, parsers=None):
+    def __init__(self, url, name, job_type=None, parsers=None):
         """
             ``url`` - url of the log to be parsed
             ``name`` - name of the log to be parsed
+            ``job_type`` - The type of job this log is for.
             ``parsers`` - LogViewParser instances that should
                 be run against the log.
+            Must provide either ``parsers`` or ``job_type`` so that
+            default parsers can be created.
         """
+
+        if not parsers and not job_type:
+            raise ValueError("Must provide either ``job_type`` or ``parsers``")
 
         # the results
         self.artifacts = {}
         self.url = url
         self.name = name
+        self.job_type = job_type
 
         if parsers:
             # ensure that self.parsers is a list, even if a single parser was
@@ -38,8 +45,8 @@ class LogParseCollection(object):
         else:
             # use the defaults
             self.parsers = [
-                JobArtifactParser(),
-                LogViewerParser(),
+                JobArtifactParser(self.job_type),
+                LogViewerParser(self.job_type),
             ]
 
     def get_log_handle(self, url):

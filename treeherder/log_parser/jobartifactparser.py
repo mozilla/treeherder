@@ -14,8 +14,8 @@ class JobArtifactParser(LogParserBase):
     """
 
     RE_SCRAPE = re.compile('^TinderboxPrint: (.*)$');
-    def __init__(self):
-        LogParserBase.__init__(self)
+    def __init__(self, job_type):
+        super(LogParserBase, self).__init__(job_type)
         self.scrape = []
 
     @property
@@ -25,7 +25,7 @@ class JobArtifactParser(LogParserBase):
         except KeyError:
             return "Unknown Builder"
 
-    def parse_content(self, line):
+    def parse_content_line(self, line):
         """Parse a single line of the log"""
         match = self.RE_SCRAPE.match(line)
         if match:
