@@ -1,3 +1,5 @@
+import re
+
 from .logparserbase import LogParserBase
 
 
@@ -9,8 +11,13 @@ class JobArtifactParser(LogParserBase):
     TBPL page.
 
     Maintains its own state.
-
     """
+
+    RE_SCRAPE = re.compile('^TinderboxPrint: (.*)$');
+    def __init__(self, job_type):
+        super(JobArtifactParser, self).__init__(job_type)
+        self.scrape = []
+
     @property
     def name(self):
         try:
@@ -20,8 +27,11 @@ class JobArtifactParser(LogParserBase):
 
     def parse_content_line(self, line):
         """Parse a single line of the log"""
-        pass
+        match = self.RE_SCRAPE.match(line)
+        if match:
+            self.scrape.append(match.group(1))
 
     def finalize(self):
         """Do any wrap-up of this parser."""
         pass
+

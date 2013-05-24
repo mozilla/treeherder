@@ -7,7 +7,6 @@ from treeherder.log_parser.logviewparser import LogViewerParser
 from ..sample_data_generator import job_json, job_data
 from ..sampledata import SampleData
 
-
 import urllib2
 
 """
@@ -73,6 +72,21 @@ def test_single_log_header(jm, initial_data, monkeypatch):
         lpc.artifacts[jap.name]["header"],
         indent=4,
     )
+
+
+def test_artifact_parser():
+    parser = JobArtifactParser('type')
+    parser.state = parser.ST_STARTED
+    lines = [
+        'start',
+        'TinderboxPrint: foo',
+        'TinderboxPrint: bar',
+        'end'
+    ]
+    for line in lines:
+        parser.parse_line(line)
+
+    assert parser.scrape == ['foo', 'bar']
 
 
 def xtest_crashtest_log_view_parser(jm, initial_data, monkeypatch):
