@@ -15,7 +15,7 @@ class JobArtifactParser(LogParserBase):
 
     RE_SCRAPE = re.compile('^TinderboxPrint: (.*)$');
     def __init__(self, job_type):
-        super(LogParserBase, self).__init__(job_type)
+        super(JobArtifactParser, self).__init__(job_type)
         self.scrape = []
 
     @property

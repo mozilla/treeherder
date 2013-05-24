@@ -75,7 +75,7 @@ def test_single_log_header(jm, initial_data, monkeypatch):
 
 
 def test_artifact_parser():
-    parser = JobArtifactParser()
+    parser = JobArtifactParser('type')
     parser.state = parser.ST_STARTED
     lines = [
         'start',
