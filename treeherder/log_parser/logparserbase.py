@@ -48,9 +48,10 @@ class LogParserBase(object):
     DATE_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
     STARTED = b'========= Started'
 
-    def __init__(self):
+    def __init__(self, job_type):
         self.artifact = {"header": {}}
         self.state = self.ST_HEADER
+        self.job_type = job_type
 
     @property
     def name(self):
@@ -59,7 +60,7 @@ class LogParserBase(object):
     def parsetime(self, match):
         return datetime.datetime.strptime(match, self.DATE_FORMAT)
 
-    def parse_header(self, line):
+    def parse_header_line(self, line):
         """
         Parse out a value in the header
 
@@ -87,14 +88,14 @@ class LogParserBase(object):
         """
         if self.state == self.ST_HEADER:
             if not line.startswith(self.STARTED):
-                self.parse_header(line)
+                self.parse_header_line(line)
             else:
                 self.state = self.ST_STARTED
-                self.parse_content(line)
+                self.parse_content_line(line)
         else:
-            self.parse_content(line)
+            self.parse_content_line(line)
 
-    def parse_content(self, line):
+    def parse_content_line(self, line):
         """Child class implements to handle parsing of sections"""
         raise NotImplementedError
 

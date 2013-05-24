@@ -18,7 +18,7 @@ class JobArtifactParser(LogParserBase):
         except KeyError:
             return "Unknown Builder"
 
-    def parse_content(self, line):
+    def parse_content_line(self, line):
         """Parse a single line of the log"""
         pass
 
