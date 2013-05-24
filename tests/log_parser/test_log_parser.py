@@ -1,9 +1,12 @@
 import json
+
+from treeherder.model import utils
+from treeherder.log_parser.logparsecollection import LogParseCollection
+from treeherder.log_parser.jobartifactparser import JobArtifactParser
 from ..sample_data_generator import job_json, job_data
 from ..sampledata import SampleData
-from treeherder.log_parser.logparser import LogParseManager, SummaryParser
-from treeherder.model import utils
 
+import urllib2
 
 """
     will need tests with:
@@ -25,8 +28,8 @@ def do_job_ingestion(jm, job_data):
         jobs = jm.process_objects(1)
         assert len(jobs) == 1, "Blob:\n{0}\n\nError:\n{1}".format(
             blob,
-            jm.get_os_errors(starttime, utils.get_now_timestamp()
-        ))
+            jm.get_os_errors(starttime, utils.get_now_timestamp())
+        )
 
     complete_count = jm.get_os_dhub().execute(
         proc="objectstore_test.counts.complete")[0]["complete_count"]
@@ -46,18 +49,13 @@ def test_single_log_header(jm, initial_data, monkeypatch):
         """Opens the log as a file, rather than a url"""
         return open(SampleData().get_log_path(url))
 
-    monkeypatch.setattr(LogParseManager, 'get_log_handle', mock_log_handle)
+    monkeypatch.setattr(LogParseCollection, 'get_log_handle', mock_log_handle)
 
-    job_blobs = [job_data(log_references=[{
-        "name": "unittest",
-        "url": "mozilla-central_ubuntu32_vm_test-crashtest-ipc-bm67-tests1-linux-build18.txt.gz"
-    }])]
+    name = "unittest",
+    url = "mozilla-central_ubuntu32_vm_test-crashtest-ipc-bm67-tests1-linux-build18.txt.gz"
 
-    jobs = do_job_ingestion(jm, job_blobs)
-
-    lpm = LogParseManager(jm.project, jobs[0])
-    lpm.parse_logs()
-    act = lpm.toc["unittest"]["header"]
+    lpc = LogParseCollection(url, name, parsers=JobArtifactParser())
+    lpc.parse()
     exp = {
         "slave": "tst-linux32-ec2-137",
         "buildid": "20130513091541",
@@ -67,10 +65,15 @@ def test_single_log_header(jm, initial_data, monkeypatch):
         "builduid": "acddb5f7043c4d5b9f66619f9433cab0",
         "revision": "c80dc6ffe865"
     }
-    assert act == exp, json.dumps(lpm.toc["unittest"]["header"], indent=4)
+    act = lpc.artifacts[exp["builder"]]["header"]
+    assert act == exp, json.dumps(
+        lpc.artifacts[exp["builder"]]["header"],
+        indent=4,
+    )
 
-def test_summary_parser():
-    parser = SummaryParser()
+
+def test_artifact_parser():
+    parser = JobArtifactParser()
     parser.state = parser.ST_STARTED
     lines = [
         'start',
@@ -83,22 +86,28 @@ def test_summary_parser():
 
     assert parser.scrape == ['foo', 'bar']
 
-def xtest_two_log_references(jm, initial_data):
-    """Process a job two log references."""
 
-    job_blobs = [job_data(
-        log_references=[
-            {
-                "name": "unittest",
-                "url": "ftp://unittest.bar.com"
-            },
-            {
-                "name": "foo",
-                "url": "ftp://foo.bar.com"
-            }
+def xtest_download_logs(sample_data):
+    """
+    http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/
+    mozilla-central-win32/1367008984/
+    mozilla-central_win8_test-dirtypaint-bm74-tests1-windows-build6.txt.gz
+    """
+    lognames = []
+    for job in sample_data.job_data:
+        logrefs = job["job"]["log_references"]
+        for log in logrefs:
+            lognames.append(log["name"])
+            url = log["url"]
+            try:
+                handle = urllib2.urlopen(url)
+                with open(url.rsplit("/", 1)[1], "wb") as out:
+                    while True:
+                        data = handle.read(1024)
+                        if len(data) == 0:
+                            break
+                        out.write(data)
+            except urllib2.HTTPError:
+                pass
 
-    ])]
-
-    jobs = do_job_ingestion(jm, job_blobs)
-
-    lpm = LogParseManager(jm.project, jobs[0])
+    assert set(lognames) == ""
