@@ -11,7 +11,7 @@ from django.conf import settings
 from mozillapulse import consumers
 
 from .daemon import Daemon
-from .common import JobData
+from .common import (JobData, get_revision_hash, get_job_guid)
 from treeherder.etl import buildbot
 
 
@@ -354,32 +354,13 @@ class TreeherderPulseDataAdapter(PulseDataAdapter):
 
         super(TreeherderPulseDataAdapter, self).__init__(**kwargs)
 
-    def get_revision_hash(self, revisions):
-        """Builds the revision hash for a set of revisions"""
-
-        sh = hashlib.sha1()
-        sh.update(
-            ''.join(map(lambda x: str(x), revisions))
-        )
-
-        return sh.hexdigest()
-
-    def get_job_guid(self, request_id, request_time):
-        """Converts a request_id and request_time into a guid"""
-        sh = hashlib.sha1()
-
-        sh.update(str(request_id))
-        sh.update(str(request_time))
-
-        return sh.hexdigest()
-
     def adapt_data(self, data):
         """Adapts the PulseDataAdapter into the treeherder input data structure"""
         treeherder_data = {
             'sources': {},
             #Include branch so revision hash with the same revision is still
             #unique across branches
-            'revision_hash': self.get_revision_hash(
+            'revision_hash': get_revision_hash(
                 [data['revision'], data['branch']]
             ),
         }
@@ -404,12 +385,12 @@ class TreeherderPulseDataAdapter(PulseDataAdapter):
         request_id = data['request_ids'][0]
 
         job = {
-            'job_guid': self.get_job_guid(
+            'job_guid': get_job_guid(
                 #The keys in this dict are unicode but the values in
                 #request_ids are not, this explicit cast could cause
                 #problems if the data added to the pulse stream is
                 #modified
-                request_id, data['request_times'][ unicode(request_id)]
+                request_id, data['request_times'][unicode(request_id)]
             ),
             'name': data['test_name'],
             'product_name': data['product'],
@@ -427,7 +408,7 @@ class TreeherderPulseDataAdapter(PulseDataAdapter):
             #job which is not always true if there are coalesced jobs. This will need
             #to be updated when https://bugzilla.mozilla.org/show_bug.cgi?id=862633
             #is resolved.
-            'submit_timestamp': data['request_times'][ unicode(request_id) ],
+            'submit_timestamp': data['request_times'][unicode(request_id)],
             'start_timestamp': data['times']['start_timestamp'],
 
             'end_timestamp': str(int(time.time())),
@@ -438,27 +419,27 @@ class TreeherderPulseDataAdapter(PulseDataAdapter):
                 'platform': data['os_platform'],
                 'architecture': data['arch'],
                 'vm': data['vm']
-                },
+            },
             #where are we going to get this data from?
             'machine_platform': {
                 'os_name': data['os'],
                 'platform': data['os_platform'],
                 'architecture': data['arch'],
                 'vm': data['vm']
-                },
+            },
 
             'option_collection': {
-                data['buildtype']:True
-                },
-            'log_references': [
-                {'url': data['log_url'],
-                  #using the jobtype as a name for now, the name allows us
-                  #to have different log types with their own processing
-                  'name': data['jobtype'] },
-                ],
+                data['buildtype']: True
+            },
+            'log_references': [{
+                'url': data['log_url'],
+                #using the jobtype as a name for now, the name allows us
+                #to have different log types with their own processing
+                'name': data['jobtype']
+            }],
 
             'artifact': {}
-            }
+        }
 
         treeherder_data['job'] = job
 
@@ -467,11 +448,14 @@ class TreeherderPulseDataAdapter(PulseDataAdapter):
 
 class PulseMessageError(Exception):
     """Error base class for pulse messages"""
+
     def __init__(self, key, error):
         self.key = key
         self.error = error
+
     def __str__(self):
         return "%s, key: %s" % (self.error, self.key)
+
 
 class PulseDataAttributeError(PulseMessageError):
     pass
@@ -489,27 +473,22 @@ class PulseMissingAttributesError(PulseMessageError):
         msg = "The following attributes were not found: {0} in routing_key:{1}\nbuildername:{2}\n{3}\n{4}".format(
             ','.join(self.missing_attributes), self.data['routing_key'],
             self.data['buildername'], self.data, self.raw_data
-            )
+        )
 
         return msg
 
 
 class TreeherderPulseDaemon(Daemon):
 
-    def __init__(
-        self,
-        pidfile,
-        treeherder_data_adapter=TreeherderPulseDataAdapter(
+    def __init__(self, pidfile, treeherder_data_adapter=None
+                 stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
+
+        self.tda = treeherder_data_adapter or TreeherderPulseDataAdapter(
             durable=False,
             logdir='logs',
             rawdata=False,
             outfile=None
-            ),
-        stdin='/dev/null',
-        stdout='/dev/null',
-        stderr='/dev/null'):
-
-        self.tda = treeherder_data_adapter
+        ),
 
         super(TreeherderPulseDaemon, self).__init__(
             pidfile, stdin='/dev/null', stdout='/dev/null',
