@@ -48,14 +48,22 @@ class JobData(dict):
         return value
 
 
-def fetch_json_url(self, url):
-    """
-    Fetches a url pointing to a json file and return a dict
-    representing its content.
-    """
-    response = urllib2.urlopen(url)
-    if response.info().get('Content-Encoding') == 'gzip':
-        buf = StringIO(response.read())
-        f = gzip.GzipFile(fileobj=buf)
-        return f.read()
-    return json.loads(response.read())
+def get_revision_hash(revisions):
+    """Builds the revision hash for a set of revisions"""
+
+    sh = hashlib.sha1()
+    sh.update(
+        ''.join(map(lambda x: str(x), revisions))
+    )
+
+    return sh.hexdigest()
+
+
+def get_job_guid(request_id, request_time):
+    """Converts a request_id and request_time into a guid"""
+    sh = hashlib.sha1()
+
+    sh.update(str(request_id))
+    sh.update(str(request_time))
+
+    return sh.hexdigest()
