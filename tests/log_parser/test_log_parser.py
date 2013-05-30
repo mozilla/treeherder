@@ -101,7 +101,7 @@ def xtest_crashtest_log_view_parser(jm, initial_data, monkeypatch):
     )
 
 
-def xtest_mochitest_log_view_parser(jm, initial_data, monkeypatch):
+def test_mochitest_log_view_parser(jm, initial_data, monkeypatch):
     """Process a job with a single log reference."""
 
     def mock_log_handle(mockself, url):
@@ -113,7 +113,7 @@ def xtest_mochitest_log_view_parser(jm, initial_data, monkeypatch):
     name = "unittest",
     url = "birch_fedora_test-mochitest-browser-chrome-bm68-tests1-linux-build3.txt.gz"
 
-    parser = LogViewerParser("mochitest_one")
+    parser = LogViewerParser("mochitest")
     lpc = LogParseCollection(url, name, parsers=parser)
     lpc.parse()
     exp = {
@@ -125,6 +125,7 @@ def xtest_mochitest_log_view_parser(jm, initial_data, monkeypatch):
         lpc.artifacts[parser.name]["steps"],
         indent=4,
     )
+
 
 def xtest_download_logs(sample_data):
     """

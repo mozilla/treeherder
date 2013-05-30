@@ -66,43 +66,9 @@ class LogViewerParser(LogParserBase):
             })
             self.set_duration()
             self.add_line(line)
-            for sp in self.sub_parsers:
-                self.current_step["errors"].append(sp.errors)
-            self.sub_parsers = []
+            self.current_step["errors"].append(self.sub_parser.get_errors())
             self.current_step["error_count"] = len(self.current_step["errors"])
             return
-
-
-
-        """
-        Not sure about this:
-            so far the sub-parsers parse out all the pieces, not just the
-            one step.  I think I need to make the sub-parsers only act on the
-            step that has the actual mochitest, reftest or whatever.
-
-            so I may need to blend the SubParser and TestSuiteParser, unless
-            TestSuiteParser and BuildLogParser need to be very different.  They
-            may be the same except for the step we care about, in which case they
-            SHOULD be merged because all the logs with the one-step of importance
-            will be different.
-
-            so I need to:
-                * run the sub-parser only on the part or parts that it needs to. need a state for this?
-                    might need to pass the filename in to constructor of the subparser: "name": "'/tools/buildbot/bin/python scripts/scripts/desktop_unittest.py ...'",
-                * separate the logic out for only the step that counts
-                * fix naming of vars to match
-                * write to the artifact as it goes, not a bunch of values all over the place
-                * return the artifact in a getter
-
-        """
-
-
-
-
-
-
-
-
 
         if self.sub_parser:
             self.sub_parser.parse_content_line(line)
@@ -137,6 +103,11 @@ class LogViewerParser(LogParserBase):
         """Return the current step in the artifact"""
         return self.steps[self.stepnum]
 
+    def get_artifact(self):
+        """Returns the artifact, with any subparser data included"""
+        self.artifact.update({
+            "test result": self.sub_parser.get_artifact()
+        })
 
 
 class ErrorParser(object):

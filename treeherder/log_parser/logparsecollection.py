@@ -73,7 +73,6 @@ class LogParseCollection(object):
 
         # let the parsers know we're done with all the lines
         for parser in self.parsers:
-            parser.finalize()
-            self.artifacts[parser.name] = parser.artifact
+            self.artifacts[parser.name] = parser.get_artifact()
 
         gz_file.close()

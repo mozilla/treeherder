@@ -12,9 +12,6 @@ class LogParserBase(object):
     This class is called for each line of the log file, so it has no
     knowledge of the log file itself, as a whole.
 
-    Once finalize() is done, the generated metadata object should be
-    ready as a Table of Contents (of sorts) for the log.
-
     @@@ Question: This class presumes started/finished regex's based on
         buildbot results.  Do we need to support other types?
         If so, we will need to make the patterns more modular than this.
@@ -99,11 +96,12 @@ class LogParserBase(object):
         """Child class implements to handle parsing of sections"""
         raise NotImplementedError
 
-    def finalize(self):
+    def get_artifact(self):
         """
-        Wrap-up of this parser, if needed.
+        Return the job artifact.
 
+        A good place to update the artifact before returning it, if needed.
         This can be handy to get the "final duration" based on the
         last finished section.
         """
-        pass
+        return self.artifact

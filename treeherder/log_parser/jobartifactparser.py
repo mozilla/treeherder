@@ -21,7 +21,3 @@ class JobArtifactParser(LogParserBase):
     def parse_content_line(self, line):
         """Parse a single line of the log"""
         pass
-
-    def finalize(self):
-        """Do any wrap-up of this parser."""
-        pass

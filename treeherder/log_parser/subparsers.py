@@ -25,18 +25,23 @@ class SubParser(object):
 
     """
 
-    def __init__(self):
+    def __init__(self, job_type):
         self.artifact = {}
+        self.name = job_type
 
     def parse_content_line(self, line):
-        """Parse this line of content."""
+        """
+        Parse this line of content.
+
+        Implemented by the child class
+        """
         raise NotImplementedError
 
     @classmethod
     def create(cls, job_type):
         """Factory method to create a subparser for the ``job_type``"""
         parsers = {
-            # 'build': BuildLogParser,
+            'build': BuildLogParser,
             'mochitest': MochitestParser,
             'reftest': ReftestParser,
             'jsreftest': ReftestParser,
@@ -44,7 +49,14 @@ class SubParser(object):
             'xpcshell': XPCshellParser,
         }
 
-        return parsers[job_type]()
+        return parsers[job_type](job_type)
+
+    def get_errors(self):
+        """Return all the failures this subparser has encountered thus far."""
+        raise NotImplementedError
+
+    def get_artifact(self):
+        return self.artifact
 
 
 class TestSuiteLogParser(SubParser):
@@ -71,12 +83,13 @@ class TestSuiteLogParser(SubParser):
     stackTraceFrameRe = re.compile(r"^\s*(\d+)\s+(.+)")
 
     def __init__(self,
+                 job_type,
                  includePass=False,
                  builddate=None,
                  linenumber=0,
                  suitename=None,
                  ):
-        super(TestSuiteLogParser, self).__init__()
+        super(TestSuiteLogParser, self).__init__(job_type)
         self.elapsedTime = 0
         self.passed = None
         self.failed = None
@@ -171,7 +184,11 @@ class TestSuiteLogParser(SubParser):
         test = self.normalizeTestName(test)
         return test, reason
 
-    def result(self):
+    def get_errors(self):
+        """Return the list of failures collected"""
+        return self.testfailures
+
+    def get_artifact(self):
         """Collect test run data into a dict and return it. The dict has the
            following structure:
 
@@ -209,27 +226,25 @@ class TestSuiteLogParser(SubParser):
 
         """
 
-        result = {}
-
         if len(self.testpasses):
-            result.update({'passes': self.testpasses})
+            self.artifact.update({'passes': self.testpasses})
 
         if len(self.testfailures):
-            result.update({'failures': self.testfailures})
+            self.artifact.update({'failures': self.testfailures})
 
-        result.update({'testfailure_count': len(self.testfailures)})
+        self.artifact.update({'testfailure_count': len(self.testfailures)})
         if self.suitename:
-            result.update({'suitename': self.suitename})
+            self.artifact.update({'suitename': self.suitename})
         if self.elapsedTime:
-            result.update({'elapsedtime': self.elapsedTime})
+            self.artifact.update({'elapsedtime': self.elapsedTime})
         if self.passed is not None:
-            result.update({'passed': self.passed})
+            self.artifact.update({'passed': self.passed})
         if self.failed is not None:
-            result.update({'failed': self.failed})
+            self.artifact.update({'failed': self.failed})
         if self.todo is not None:
-            result.update({'todo': self.todo})
+            self.artifact.update({'todo': self.todo})
 
-        return result
+        return self.artifact
 
     def add_test_failure(self, test, thisfailure):
         appended = False
@@ -354,7 +369,7 @@ class TestSuiteLogParser(SubParser):
         # look for tinderbox end-of-testrun delimiters, and return if found
         for delimiter in self.endTestrunDelimiters:
             if delimiter in line:
-                return self.linenumber, self.result()
+                return self.linenumber, self.get_artifact()
 
         # look for tb errors that might appear in the log
         for error in self.testrunerrorstrings:
@@ -621,3 +636,7 @@ class ReftestParser(TestSuiteLogParser):
         if 'crashtest' in cmdline:
             return 'crashtest'
         return 'reftest'
+
+
+class BuildLogParser(SubParser):
+    pass
