@@ -33,7 +33,7 @@ class LogViewerParser(LogParserBase):
         super(LogViewerParser, self).__init__(job_type)
         self.stepnum = -1
         self.artifact["steps"] = []
-        self.sub_parser = SubParser.create(job_type)
+        self.sub_parser = ErrorParser()
 
     @property
     def name(self):
@@ -70,9 +70,6 @@ class LogViewerParser(LogParserBase):
             self.current_step["error_count"] = len(self.current_step["errors"])
             return
 
-        if self.sub_parser:
-            self.sub_parser.parse_content_line(line)
-
         # otherwise, just add the line to the content
         if self.state == self.ST_STARTED:
             self.add_line(line)
@@ -108,9 +105,13 @@ class LogViewerParser(LogParserBase):
         self.artifact.update({
             "test result": self.sub_parser.get_artifact()
         })
+        return self.artifact
 
 
 class ErrorParser(object):
+    """
+    Super simple parser to just find any line with an error or failure
+    """
 
     def __init__(self):
         self.RE_ERR = re.compile("FAIL|ERROR")
@@ -119,3 +120,6 @@ class ErrorParser(object):
     def parse_content_line(self, line):
         if self.RE_ERR.I(line):
             self.errors.append(line)
+
+    def get_artifact(self):
+        return self.errors

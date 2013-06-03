@@ -1,11 +1,5 @@
 # These parsers are specific to sections of a buildbot log.  They are specific
 # to the build or test type that the log section is about
-#
-# Contributor(s):
-#   Jonathan Griffin <jgriffin@mozilla.com>
-#   Jeff Hammel <jhammel@mozilla.com>
-#   Murali Nandigama <Murali.Nandigama@Gmail.COM>
-#   Cameron Dawson <cdawson@mozilla.com>
 
 import re
 
@@ -25,9 +19,20 @@ class SubParser(object):
 
     """
 
-    def __init__(self, job_type):
+    # this parser is done, no more need to parse lines
+    ST_PARSING = "parsing"
+    ST_PARSE_COMPLETE = "parse complete"
+
+    def __init__(self, job_type, step_name_match=None):
         self.artifact = {}
         self.name = job_type
+        # if this is set, this subparser will only run against a step
+        # with name containing this string
+        if step_name_match:
+            self.step_name_re = re.compile(step_name_match)
+
+        # current state of this SubParser
+        self.state = self.ST_PARSING
 
     def parse_content_line(self, line):
         """
@@ -36,6 +41,15 @@ class SubParser(object):
         Implemented by the child class
         """
         raise NotImplementedError
+
+    @property
+    def parse_complete(self):
+        """
+        Whether or not parsing is complete for this parser.
+
+        Indicates that we should stop parsing lines in this parser.
+        """
+        return self.state == self.ST_PARSE_COMPLETE
 
     @classmethod
     def create(cls, job_type):
@@ -56,14 +70,34 @@ class SubParser(object):
         raise NotImplementedError
 
     def get_artifact(self):
+        """By default, just return the artifact as-is."""
         return self.artifact
 
 
 class TestSuiteLogParser(SubParser):
-    """Base class for parsing test suite logs (e.g., mochitest, etc).
-    """
+    """Base class for parsing test suite logs (e.g., mochitest, etc)."""
 
-    # tinderbox end-of-testrun delimiters on Win+Linux, Mac
+    # if the ``parse_content_line`` is still waiting for the pertinent data
+    # to start.
+    ST_WAITING_FOR_DATA = "wait for data"
+    # data has started, we're reading lines we care about
+    ST_READING_DATA = "reading data"
+
+    # don't parse any data till we see this chunk start.
+    RE_DATA_START = re.compile(r"={9} Started (.*).py(.*)")
+    # 'TestFailed' expected log format is "result | test | optional text".
+    RE_TEST_FAILED = re.compile(
+        r".*?(TEST-UNEXPECTED-.*|PROCESS-CRASH) \| (.*)\|(.*)")
+    # elapsed time for test run
+    RE_ELAPSED_TIME = re.compile(r"elapsedTime=(\d+)")
+    # beginning of stack trace for crashed thread
+    RE_STACK = re.compile(r"^.*?Thread (\d+) \(crashed\)")
+    # beginning of a stack trace frame
+    RE_STACK_TRACE_FRAME = re.compile(r"^\s*(\d+)\s+(.+)")
+
+    # once we are in the ST_READING_DATA state, then read until
+    # we see this delimiter. tinderbox end-of-testrun delimiters on
+    # Win+Linux, Mac
     endTestrunDelimiters = ["======== Finished",
                             "=== Output ended ==="]
     # potential tinderbox errors
@@ -71,16 +105,6 @@ class TestSuiteLogParser(SubParser):
     testruntimeoutstrings = [
         'buildbot.slave.commands.TimeoutError: command timed out']
     extracrashstrings = ['has caught an Obj-C exception']
-
-    # 'TestFailed' expected log format is "result | test | optional text".
-    testfailedRe = re.compile(
-        r".*?(TEST-UNEXPECTED-.*|PROCESS-CRASH) \| (.*)\|(.*)")
-    # elapsed time for test run
-    elapsedTimeRe = re.compile(r"elapsedTime=(\d+)")
-    # beginning of stack trace for crashed thread
-    stackRe = re.compile(r"^.*?Thread (\d+) \(crashed\)")
-    # beginning of a stack trace frame
-    stackTraceFrameRe = re.compile(r"^\s*(\d+)\s+(.+)")
 
     def __init__(self,
                  job_type,
@@ -112,6 +136,10 @@ class TestSuiteLogParser(SubParser):
 
         # get the passTestRe from the child class impl
         self.passTestRe = self.get_passTestRe()
+
+        # start in the state of waiting to find the beginning of the data
+        # we care about.
+        self.state = self.ST_WAITING_FOR_DATA
 
     def get_passTestRe(self):
         """Regex for a passed test"""
@@ -261,13 +289,21 @@ class TestSuiteLogParser(SubParser):
         """Parse this line of content."""
 
         self.linenumber += 1
-        if not line:
+        if not line or self.parse_complete:
             return
 
         line = line.rstrip()
 
+        # if we are still waiting for data reading to start, check line
+        # to see if it signals the start
+        if self.waiting_for_data:
+            if self.RE_DATA_START.match(line):
+                self.state = self.ST_READING_DATA
+            else:
+                return
+
         # test to see if the line is a failure
-        m = self.testfailedRe.match(line)
+        m = self.RE_TEST_FAILED.match(line)
         if m:
             self.processingCrash = False
 
@@ -309,12 +345,12 @@ class TestSuiteLogParser(SubParser):
 
         # look for a stack trace if needed
         if self.processingCrash:
-            m = self.stackRe.match(line)
+            m = self.RE_STACK.match(line)
             if m:
                 self.processingStackTrace = True
                 # we assume that a stack trace ends with a blank line
             if self.processingStackTrace:
-                m = self.stackTraceFrameRe.match(line)
+                m = self.RE_STACK_TRACE_FRAME.match(line)
                 if line.rstrip() == '' or (m and int(m.group(1)) > 5):
                     self.processingStackTrace = False
                     self.processingCrash = False
@@ -346,8 +382,8 @@ class TestSuiteLogParser(SubParser):
             return
 
         # look for tinderbox elapsedTime
-        if not self.elapsedTime:
-            m = self.elapsedTimeRe.match(line)
+        if self.elapsedTime == 0:
+            m = self.RE_ELAPSED_TIME.match(line)
             if m:
                 self.elapsedTime = m.group(1)
                 return
@@ -369,7 +405,10 @@ class TestSuiteLogParser(SubParser):
         # look for tinderbox end-of-testrun delimiters, and return if found
         for delimiter in self.endTestrunDelimiters:
             if delimiter in line:
-                return self.linenumber, self.get_artifact()
+                self.state = self.ST_PARSE_COMPLETE
+                print "line number: " + str(self.linenumber)
+                print line
+                return
 
         # look for tb errors that might appear in the log
         for error in self.testrunerrorstrings:
@@ -392,6 +431,11 @@ class TestSuiteLogParser(SubParser):
                                       {'status': 'PROCESS-CRASH',
                                        'text': line.rstrip()})
 
+    @property
+    def waiting_for_data(self):
+        """Check if we are in the waiting for data state"""
+        return self.state == self.ST_WAITING_FOR_DATA
+
 
 class MochitestParser(TestSuiteLogParser):
     """
@@ -403,15 +447,15 @@ class MochitestParser(TestSuiteLogParser):
     """
 
     # number of passed tests
-    passedRe = re.compile(r".*?(INFO |\t)Passed:(\s+)(\d+)")
+    RE_PASSED = re.compile(r".*?(INFO |\t)Passed:(\s+)(\d+)")
     # number of failed tests
-    failedRe = re.compile(r".*?(INFO |\t)Failed:(\s+)(\d+)")
+    RE_FAILED = re.compile(r".*?(INFO |\t)Failed:(\s+)(\d+)")
     # number of todo tests
-    todoRe = re.compile(r".*?(INFO |\t)Todo:(\s+)(\d+)")
+    RE_TODO = re.compile(r".*?(INFO |\t)Todo:(\s+)(\d+)")
 
     # end of test case
-    endTestRe = re.compile(r"^.*?INFO .*?Test finished (.*?) in (\d+)ms")
-    endTestRe2 = re.compile(r"^.*?TEST-END \| (.*?) \| finished in (\d+)ms")
+    RE_END_TEST = re.compile(r"^.*?INFO .*?Test finished (.*?) in (\d+)ms")
+    RE_END_TEST2 = re.compile(r"^.*?TEST-END \| (.*?) \| finished in (\d+)ms")
 
     # command-line for mochitest-plain runs in tinderbox
     chunkRe = re.compile(r"^.*?--this-chunk=(\d)")
@@ -425,17 +469,17 @@ class MochitestParser(TestSuiteLogParser):
         return re.compile(r"^(.*?)TEST-START \| (.*)$")
 
     def getTodo(self, line):
-        m = self.todoRe.match(line)
+        m = self.RE_TODO.match(line)
         if m:
             return m.group(3)
 
     def getFailed(self, line):
-        m = self.failedRe.match(line)
+        m = self.RE_FAILED.match(line)
         if m:
             return m.group(3)
 
     def getPassed(self, line):
-        m = self.passedRe.match(line)
+        m = self.RE_PASSED.match(line)
         if m:
             return m.group(3)
 
@@ -460,13 +504,13 @@ class MochitestParser(TestSuiteLogParser):
         """
         duration = None
         endtestname = None
-        m = self.endTestRe.match(line)
+        m = self.RE_END_TEST.match(line)
         if m:
             # if the test that just finished is the last
             # test in our failed list, update it's duration.
             duration = m.group(2)
             endtestname = self.normalizeTestName(m.group(1))
-        m = self.endTestRe2.match(line)
+        m = self.RE_END_TEST2.match(line)
         if m:
             duration = m.group(2)
             endtestname = self.normalizeTestName(m.group(1))
@@ -498,9 +542,9 @@ class XPCshellParser(TestSuiteLogParser):
     parser XPCShell results
     """
     # number of passed tests
-    passedRe = re.compile(r".*?INFO \| Passed:(\s+)(\d+).*")
+    RE_PASSED = re.compile(r".*?INFO \| Passed:(\s+)(\d+).*")
     # number of failed tests
-    failedRe = re.compile(r".*?INFO \| Failed:(\s+)(\d+)")
+    RE_FAILED = re.compile(r".*?INFO \| Failed:(\s+)(\d+)")
 
     def get_passTestRe(self):
         """Regex for a passed test"""
@@ -511,12 +555,12 @@ class XPCshellParser(TestSuiteLogParser):
         return None
 
     def getPassed(self, line):
-        m = self.passedRe.match(line)
+        m = self.RE_PASSED.match(line)
         if m:
             return m.group(2)
 
     def getFailed(self, line):
-        m = self.failedRe.match(line)
+        m = self.RE_FAILED.match(line)
         if m:
             return m.group(2)
 
@@ -579,34 +623,32 @@ class ReftestParser(TestSuiteLogParser):
     """
 
     # number of passed tests
-    passedRe = re.compile(r".*?INFO \| Successful:(\s+)(\d+).*")
+    RE_PASSED = re.compile(r".*?INFO \| Successful:(\s+)(\d+).*")
     # number of failed tests
-    failedRe = re.compile(r".*?INFO \| Unexpected:(\s+)(\d+)")
+    RE_FAILED = re.compile(r".*?INFO \| Unexpected:(\s+)(\d+)")
     # number of todo tests
-    todoRe = re.compile(r".*?INFO \| Known problems:(\s+)(\d+)")
-
+    RE_TODO = re.compile(r".*?INFO \| Known problems:(\s+)(\d+)")
     # image data
-    imageRe = re.compile(r"^.*?IMAGE (\d+) \(.*?\): (.*)")
-
+    RE_IMAGE = re.compile(r"^.*?IMAGE (\d+) \(.*?\): (.*)")
     # end of test line
-    endTestRe = re.compile(r"^.*?REFTEST INFO \| Loading a blank page")
+    RE_END_TEST = re.compile(r"^.*?REFTEST INFO \| Loading a blank page")
 
     def get_passTestRe(self):
         """Regex for a passed test"""
         return re.compile(r"^(.*?)TEST-PASS \| (.*?) \|(.*)$")
 
     def getTodo(self, line):
-        m = self.todoRe.match(line)
+        m = self.RE_TODO.match(line)
         if m:
             return m.group(2)
 
     def getPassed(self, line):
-        m = self.passedRe.match(line)
+        m = self.RE_PASSED.match(line)
         if m:
             return m.group(2)
 
     def getFailed(self, line):
-        m = self.failedRe.match(line)
+        m = self.RE_FAILED.match(line)
         if m:
             return m.group(2)
 
@@ -615,7 +657,7 @@ class ReftestParser(TestSuiteLogParser):
 
         # look for reftest images if appropriate
         if self.testfailures:
-            m = self.imageRe.match(line)
+            m = self.RE_IMAGE.match(line)
             if m:
                 image = "image" + str(m.group(1)) + "linenumber"
                 data = m.group(2)
@@ -624,7 +666,7 @@ class ReftestParser(TestSuiteLogParser):
 
     def checkForTestFinish(self, line):
         """Returns True if this line marks the end of a test."""
-        m = self.endTestRe.match(line)
+        m = self.RE_END_TEST.match(line)
         if m:
             return True
         return False

@@ -1,4 +1,5 @@
 from .logparserbase import LogParserBase
+from .subparsers import SubParser
 
 
 class JobArtifactParser(LogParserBase):
@@ -11,6 +12,11 @@ class JobArtifactParser(LogParserBase):
     Maintains its own state.
 
     """
+
+    def __init__(self, job_type):
+        super(JobArtifactParser, self).__init__(job_type)
+        self.sub_parser = SubParser.create(job_type)
+
     @property
     def name(self):
         try:
@@ -20,4 +26,16 @@ class JobArtifactParser(LogParserBase):
 
     def parse_content_line(self, line):
         """Parse a single line of the log"""
-        pass
+        self.sub_parser.parse_content_line(line)
+
+    def get_artifact(self):
+        """
+        Return the job artifact with results from the SubParser
+        """
+        self.artifact[self.sub_parser.name] = self.sub_parser.get_artifact()
+        return self.artifact
+
+    @property
+    def parse_complete(self):
+        """Whether or not this parser should continue parsing or halt."""
+        return self.sub_parser.parse_complete

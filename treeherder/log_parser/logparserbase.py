@@ -33,6 +33,8 @@ class LogParserBase(object):
     ST_STARTED = "started"
     # after having finished any section
     ST_FINISHED = "finished"
+    # this parser is done, no more need to parse lines
+    ST_PARSE_COMPLETE = "parse complete"
 
     #################
     # regex patterns for started and finished sections
@@ -43,7 +45,6 @@ class LogParserBase(object):
     RE_FINISH = re.compile('={9} Finished' + PATTERN)
     RE_PROPERTY = re.compile('(\w*): (.*)')
     DATE_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
-    STARTED = b'========= Started'
 
     def __init__(self, job_type):
         self.artifact = {"header": {}}
@@ -71,7 +72,6 @@ class LogParserBase(object):
             revision: c80dc6ffe865
 
         """
-        print "parsing: {0}".format(line)
         match = self.RE_HEADER_VALUE.match(line)
         if match:
             key, value = match.groups()
@@ -84,7 +84,7 @@ class LogParserBase(object):
         Parse the header until we hit a line with "started" in it.
         """
         if self.state == self.ST_HEADER:
-            if not line.startswith(self.STARTED):
+            if not self.RE_START.match(line):
                 self.parse_header_line(line)
             else:
                 self.state = self.ST_STARTED
@@ -95,6 +95,11 @@ class LogParserBase(object):
     def parse_content_line(self, line):
         """Child class implements to handle parsing of sections"""
         raise NotImplementedError
+
+    @property
+    def parse_complete(self):
+        """Whether or not this parser is complete and should stop parsing."""
+        return self.state == self.ST_PARSE_COMPLETE
 
     def get_artifact(self):
         """
