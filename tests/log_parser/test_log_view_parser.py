@@ -2,9 +2,7 @@ import json
 
 from treeherder.model import utils
 from treeherder.log_parser.logparsecollection import LogParseCollection
-from treeherder.log_parser.jobartifactparser import JobArtifactParser
-from treeherder.log_parser.logviewparser import LogViewerParser
-from ..sample_data_generator import job_json, job_data
+from treeherder.log_parser.logviewparser import LogViewParser
 from ..sampledata import SampleData
 
 
@@ -56,7 +54,7 @@ def test_single_log_header(jm, initial_data, monkeypatch):
     name = "unittest",
     url = "mozilla-central_ubuntu32_vm_test-crashtest-ipc-bm67-tests1-linux-build18.txt.gz"
 
-    jap = JobArtifactParser("mochitest")
+    jap = LogViewParser("mochitest")
     lpc = LogParseCollection(url, name, parsers=jap)
     lpc.parse()
     exp = {
@@ -87,7 +85,7 @@ def xtest_crashtest_log_view_parser(jm, initial_data, monkeypatch):
     name = "unittest",
     url = "mozilla-central_ubuntu32_vm_test-crashtest-ipc-bm67-tests1-linux-build18.txt.gz"
 
-    parser = LogViewerParser("crashtest")
+    parser = LogViewParser("crashtest")
     lpc = LogParseCollection(url, name, parsers=parser)
     lpc.parse()
     exp = {
@@ -113,7 +111,7 @@ def xtest_mochitest_log_view_parser(jm, initial_data, monkeypatch):
     name = "unittest",
     url = "birch_fedora_test-mochitest-browser-chrome-bm68-tests1-linux-build3.txt.gz"
 
-    parser = LogViewerParser("mochitest")
+    parser = LogViewParser("mochitest")
     lpc = LogParseCollection(url, name, parsers=parser)
     lpc.parse()
     exp = {
@@ -126,32 +124,6 @@ def xtest_mochitest_log_view_parser(jm, initial_data, monkeypatch):
         act,
         indent=4,
     )
-
-
-def test_mochitest_job_artifact_parser(jm, initial_data, monkeypatch):
-    """Process a job with a single log reference."""
-
-    def mock_log_handle(mockself, url):
-        """Opens the log as a file, rather than a url"""
-        return open(SampleData().get_log_path(url))
-
-    monkeypatch.setattr(LogParseCollection, 'get_log_handle', mock_log_handle)
-
-    name = "unittest",
-    url = "birch_fedora_test-mochitest-browser-chrome-bm68-tests1-linux-build3.txt.gz"
-
-    parser = JobArtifactParser("mochitest")
-    lpc = LogParseCollection(url, name, parsers=parser)
-    lpc.parse()
-    exp = {
-    }
-    act = lpc.artifacts[parser.name]
-
-    assert act == exp, json.dumps(
-        act,
-        indent=4,
-    )
-
 
 
 def xtest_download_logs(sample_data):

@@ -2,10 +2,9 @@ from datetime import datetime
 import re
 
 from .logparserbase import LogParserBase
-from .subparsers import SubParser
 
 
-class LogViewerParser(LogParserBase):
+class LogViewParser(LogParserBase):
     """
     Makes the artifact for the log viewer.
 
@@ -30,8 +29,9 @@ class LogViewerParser(LogParserBase):
     """
 
     def __init__(self, job_type):
-        super(LogViewerParser, self).__init__(job_type)
+        super(LogViewParser, self).__init__(job_type)
         self.stepnum = -1
+        self.lineno = 0
         self.artifact["steps"] = []
         self.sub_parser = ErrorParser()
 
@@ -50,7 +50,7 @@ class LogViewerParser(LogParserBase):
             self.steps.append({
                 "name": match.group(1),
                 "started": match.group(2),
-                "content": line,
+                "started_linenumber": self.lineno,
                 "order": self.stepnum,
                 "errors": [],
             })
@@ -63,16 +63,15 @@ class LogViewerParser(LogParserBase):
 
             self.current_step.update({
                 "finished": match.group(2),
+                "finished_linenumber": self.lineno,
             })
             self.set_duration()
             self.add_line(line)
-            self.current_step["errors"].append(self.sub_parser.get_errors())
+            self.current_step["errors"].append(self.sub_parser.get_artifact())
             self.current_step["error_count"] = len(self.current_step["errors"])
             return
 
-        # otherwise, just add the line to the content
-        if self.state == self.ST_STARTED:
-            self.add_line(line)
+        self.lineno += 1
 
     def set_duration(self):
         """Sets duration for the step in seconds."""
@@ -114,7 +113,7 @@ class ErrorParser(object):
     """
 
     def __init__(self):
-        self.RE_ERR = re.compile("FAIL|ERROR")
+        self.RE_ERR = re.compile("(FAIL|ERROR)")
         self.errors = []
 
     def parse_content_line(self, line):

@@ -1,7 +1,7 @@
 import urllib2
 import gzip
 
-from .logviewparser import LogViewerParser
+from .logviewparser import LogViewParser
 from .jobartifactparser import JobArtifactParser
 
 
@@ -95,7 +95,7 @@ class LogParseCollection(object):
             # use the defaults
             self.parsers = [
                 JobArtifactParser(self.job_type),
-                LogViewerParser(self.job_type),
+                LogViewParser(self.job_type),
             ]
 
     def get_log_handle(self, url):
