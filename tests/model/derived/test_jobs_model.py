@@ -3,7 +3,7 @@ import difflib
 import pprint
 import pytest
 from treeherder.model.derived.base import DatasetNotFoundError
-from .sample_data_generator import job_data
+from tests.sample_data_generator import job_data
 
 slow = pytest.mark.slow
 
