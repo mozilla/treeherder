@@ -12,6 +12,9 @@ class SampleData(object):
         self.raw_pulse_data_file = "{0}/sample_data/raw_pulse_data.txt".format(
             os.path.dirname(__file__)
             )
+        self.logs_dir = "{0}/sample_data/logs".format(
+            os.path.dirname(__file__)
+            )
 
         self.job_data = []
         self.raw_pulse_data = []
@@ -28,3 +31,7 @@ class SampleData(object):
             for line in f.readlines():
                 line = str(line)
                 self.raw_pulse_data.append( json.loads( line.strip() ) )
+
+    def get_log_path(self, name):
+        """Returns the full path to a log file"""
+        return "{0}/{1}".format(self.logs_dir, name)
