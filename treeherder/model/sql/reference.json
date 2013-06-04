@@ -107,6 +107,17 @@
                     WHERE `repository_id` = ? AND `version` = ?
                     )",
             "host":"master_host"
+        },
+        "create_repository_group":{
+            "sql":"INSERT INTO `repository_group` (`name`, `description`)
+                   SELECT ?, 'fill me'
+                    FROM DUAL
+                    WHERE NOT EXISTS (
+                    SELECT `name`
+                    FROM `repository_group`
+                    WHERE `name` = ?
+                    )",
+            "host":"master_host"
         }
     },
     "selects":{
@@ -207,7 +218,24 @@
                     FROM `repository_version`
                     WHERE
                         `repository_id` = ?
-                    AND `version` = ?
+                    AND `active_status` = 'active'
+                    ORDER BY `id` DESC
+                    LIMIT 0,1",
+            "host":"read_host"
+        },
+        "get_repository_info":{
+            "sql": "SELECT *
+                    FROM `repository`
+                    WHERE 
+                        `id` = ?
+                    AND `active_status` = 'active'",
+            "host":"read_host"
+        },
+        "get_repository_group_id":{
+            "sql": "SELECT `id`
+                    FROM `repository_group`
+                    WHERE 
+                        `name` = ?
                     AND `active_status` = 'active'",
             "host":"read_host"
         },
@@ -215,6 +243,14 @@
             "sql": "SELECT * FROM REP0
                     WHERE `id` = ?",
             "host":"read_host"
+        }
+    },
+    "updates":{
+        "update_version_timestamp":{
+            "sql": "UPDATE `repository_version`
+                    SET `version_timestamp` = ?
+                    WHERE `repository_id` = ? AND `version` = ?",
+            "host":"master_host"
         }
     }
 }
