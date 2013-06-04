@@ -42,7 +42,7 @@ def do_job_ingestion(jm, job_data):
 
     """
     for blob in job_data:
-        jm.store_job_data(json.dumps(blob))
+        jm.store_job_data(json.dumps(blob), blob['job']['job_guid'])
         jobs = jm.process_objects(1)
         assert len(jobs) == 1
         job_id = jobs[0]
@@ -106,7 +106,7 @@ def test_artifact_log_ingestion(jm, initial_data):
         u"blob": ""
     }
     blob = job_data(artifact=artifact)
-    jm.store_job_data(json.dumps(blob))
+    jm.store_job_data(json.dumps(blob), blob['job']['job_guid'])
     job_ids = jm.process_objects(1)
 
     assert get_objectstore_last_error(jm) == u"N"
@@ -125,7 +125,7 @@ def test_bad_date_value_ingestion(jm, initial_data):
     """
 
     blob = job_data(start_timestamp="foo")
-    jm.store_job_data(json.dumps(blob))
+    jm.store_job_data(json.dumps(blob), blob['job']['job_guid'])
     job_ids = jm.process_objects(1)
 
     assert get_objectstore_last_error(
