@@ -255,6 +255,17 @@ class RefDataManager(object):
 
         return self.get_product_id(name)
 
+    def get_repository_id(self, name):
+        """get the id for the given repository"""
+
+        id_iter = self.dhub.execute(
+            proc='reference.selects.get_repository_id',
+            placeholders=[name],
+            debug_show=self.DEBUG,
+            return_type='iter')
+
+        return id_iter.get_column_data('id')
+
     def get_repository_version_id(self, repository_id):
         """get the latest version available for the given repository"""
 
