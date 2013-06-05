@@ -32,6 +32,10 @@
                 WHERE job.id = ?
                 ",
             "host": "master_host"
+        },
+        "row_by_guid": {
+            "sql": "SELECT * FROM `job` WHERE `job_guid` = ?",
+            "host": "master_host"
         }
     }
 }
