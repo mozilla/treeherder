@@ -42,6 +42,7 @@ class LogViewParser(LogParserBase):
     def parse_content_line(self, line):
         """Parse a single line of the log"""
 
+        # check if it's the start of a step
         match = self.RE_START.match(line)
         if match:
             self.state = self.ST_STARTED
@@ -56,6 +57,7 @@ class LogViewParser(LogParserBase):
 
             return
 
+        # check if it's the end of a step
         match = self.RE_FINISH.match(line)
         if match:
             self.state = self.ST_FINISHED
@@ -67,7 +69,13 @@ class LogViewParser(LogParserBase):
             })
             self.set_duration()
             self.current_step["error_count"] = len(self.current_step["errors"])
+
+            # reset the sub_parser for the next step
+            self.sub_parser = ErrorParser()
             return
+
+        # call the subparser to check for errors
+        self.sub_parser.parse_content_line(line)
 
     def set_duration(self):
         """Sets duration for the step in seconds."""
@@ -105,11 +113,12 @@ class ErrorParser(object):
     """
 
     def __init__(self):
-        self.RE_ERR = re.compile("(FAIL|ERROR)")
+        # self.RE_ERR = re.compile(".*?(UNEXPECTED-FAIL|UNEXPECTED-ERROR).*?")
+        self.RE_ERR = re.compile(r".*?(TEST-UNEXPECTED-.*|PROCESS-CRASH) \| (.*)\|(.*)")
         self.errors = []
 
     def parse_content_line(self, line):
-        if self.RE_ERR.I(line):
+        if self.RE_ERR.match(line):
             self.errors.append(line)
 
     def get_artifact(self):

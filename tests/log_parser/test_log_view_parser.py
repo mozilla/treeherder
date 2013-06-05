@@ -1,6 +1,3 @@
-import json
-
-from treeherder.model import utils
 from treeherder.log_parser.logparsecollection import LogParseCollection
 from treeherder.log_parser.logviewparser import LogViewParser
 from ..sampledata import SampleData
@@ -14,40 +11,6 @@ import urllib2
         multiple log references
         artifacts with logs
 """
-
-
-def do_job_ingestion(jm, job_data):
-    """
-    Ingest ``job_data`` which will be JSON job blobs.
-
-    setup code to test the log parser.
-    """
-    jobs = []
-    starttime = utils.get_now_timestamp()
-    for blob in job_data:
-        jm.store_job_data(json.dumps(blob))
-        jobs = jm.process_objects(1)
-        assert len(jobs) == 1, "Blob:\n{0}\n\nError:\n{1}".format(
-            blob,
-            jm.get_os_errors(starttime, utils.get_now_timestamp())
-        )
-
-    complete_count = jm.get_os_dhub().execute(
-        proc="objectstore_test.counts.complete")[0]["complete_count"]
-    loading_count = jm.get_os_dhub().execute(
-        proc="objectstore_test.counts.loading")[0]["loading_count"]
-
-    assert complete_count == len(job_data)
-    assert loading_count == 0
-
-    return jobs
-
-
-def load_exp(filename):
-    """Load in an expected result json and return as an obj."""
-    exp_str = open(SampleData().get_log_path(filename)).read()
-    exp_json = json.loads(exp_str)
-    return exp_json
 
 
 def test_single_log_header(jm, initial_data, monkeypatch):
@@ -88,19 +51,19 @@ def test_crashtest_passing(jm, initial_data, monkeypatch):
     monkeypatch.setattr(LogParseCollection, 'get_log_handle', mock_log_handle)
 
     name = "unittest",
-    url = "mozilla-central_ubuntu32_vm_test-crashtest-ipc-bm67-tests1-linux-build18.txt.gz"
-    exp_file = "mozilla-central_ubuntu32_vm_test-crashtest-ipc-bm67-tests1-linux-build18.logview.json"
+    url = "mozilla-central_fedora-b2g_test-crashtest-1-bm54-tests1-linux-build50.txt.gz"
+    exp_file = "mozilla-central_fedora-b2g_test-crashtest-1-bm54-tests1-linux-build50.logview.json"
 
     parser = LogViewParser("crashtest")
     lpc = LogParseCollection(url, name, parsers=parser)
     lpc.parse()
-    exp = load_exp(exp_file)
+    exp = test_utils.load_exp(exp_file)
     act = lpc.artifacts[parser.name]
 
     assert act == exp, test_utils.diff_dict(exp, act)
 
 
-def test_mochitest_passing(jm, initial_data, monkeypatch):
+def test_mochitest_pass(jm, initial_data, monkeypatch):
     """Process a job with a single log reference."""
 
     def mock_log_handle(mockself, url):
@@ -110,12 +73,33 @@ def test_mochitest_passing(jm, initial_data, monkeypatch):
     monkeypatch.setattr(LogParseCollection, 'get_log_handle', mock_log_handle)
 
     name = "unittest",
-    url = "birch_fedora_test-mochitest-browser-chrome-bm68-tests1-linux-build3.txt.gz"
-    exp_file = "birch_fedora_test-mochitest-browser-chrome-bm68-tests1-linux-build3.logview.json"
+    url = "mozilla-central_mountainlion_test-mochitest-2-bm77-tests1-macosx-build141.txt.gz"
+    exp_file = "mozilla-central_mountainlion_test-mochitest-2-bm77-tests1-macosx-build141.logview.json"
     parser = LogViewParser("mochitest")
     lpc = LogParseCollection(url, name, parsers=parser)
     lpc.parse()
-    exp = load_exp(exp_file)
+    exp = test_utils.load_exp(exp_file)
+    act = lpc.artifacts[parser.name]
+
+    assert act == exp, test_utils.diff_dict(exp, act)
+
+
+def test_mochitest_fail(jm, initial_data, monkeypatch):
+    """Process a job with a single log reference."""
+
+    def mock_log_handle(mockself, url):
+        """Opens the log as a file, rather than a url"""
+        return open(SampleData().get_log_path(url))
+
+    monkeypatch.setattr(LogParseCollection, 'get_log_handle', mock_log_handle)
+
+    name = "unittest",
+    url = "mozilla-central_win7-ix-debug_test-mochitest-1-bm72-tests1-windows-build12_fails.txt.gz"
+    exp_file = "mozilla-central_win7-ix-debug_test-mochitest-1-bm72-tests1-windows-build12_fails.logview.json"
+    parser = LogViewParser("mochitest")
+    lpc = LogParseCollection(url, name, parsers=parser)
+    lpc.parse()
+    exp = test_utils.load_exp(exp_file)
     act = lpc.artifacts[parser.name]
 
     assert act == exp, test_utils.diff_dict(exp, act)
