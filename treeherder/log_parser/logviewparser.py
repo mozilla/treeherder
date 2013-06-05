@@ -31,7 +31,6 @@ class LogViewParser(LogParserBase):
     def __init__(self, job_type):
         super(LogViewParser, self).__init__(job_type)
         self.stepnum = -1
-        self.lineno = 0
         self.artifact["steps"] = []
         self.sub_parser = ErrorParser()
 
@@ -64,14 +63,11 @@ class LogViewParser(LogParserBase):
             self.current_step.update({
                 "finished": match.group(2),
                 "finished_linenumber": self.lineno,
+                "errors": self.sub_parser.get_artifact(),
             })
             self.set_duration()
-            self.add_line(line)
-            self.current_step["errors"].append(self.sub_parser.get_artifact())
             self.current_step["error_count"] = len(self.current_step["errors"])
             return
-
-        self.lineno += 1
 
     def set_duration(self):
         """Sets duration for the step in seconds."""
@@ -84,10 +80,6 @@ class LogViewParser(LogParserBase):
     def add_error_line(self, line):
         """Add this line to the list of errors of the current step"""
         self.current_step["errors"].append(line)
-
-    def add_line(self, line):
-        """Add this line to the content of the current step"""
-        self.current_step["content"] += line
 
     @property
     def steps(self):

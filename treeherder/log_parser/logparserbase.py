@@ -50,6 +50,7 @@ class LogParserBase(object):
         self.artifact = {"header": {}}
         self.state = self.ST_HEADER
         self.job_type = job_type
+        self.lineno = 0
 
     @property
     def name(self):
@@ -91,6 +92,8 @@ class LogParserBase(object):
                 self.parse_content_line(line)
         else:
             self.parse_content_line(line)
+
+        self.lineno += 1
 
     def parse_content_line(self, line):
         """Child class implements to handle parsing of sections"""

@@ -1,11 +1,11 @@
 import json
-import difflib
-import pprint
 import pytest
 from treeherder.model.derived.base import DatasetNotFoundError
 from tests.sample_data_generator import job_data
+from tests import test_utils
 
 slow = pytest.mark.slow
+
 
 def test_unicode(jm):
     """Unicode representation of a ``JobModel`` is the project name."""
@@ -50,12 +50,12 @@ def do_job_ingestion(jm, job_data):
         # verify the job data
         exp_job = clean_job_blob_dict(blob["job"])
         act_job = JobDictBuilder(jm, job_id).as_dict()
-        assert exp_job == act_job, diff_dict(exp_job, act_job)
+        assert exp_job == act_job, test_utils.diff_dict(exp_job, act_job)
 
         # verify the source data
         exp_src = clean_source_blob_dict(blob["sources"][0])
         act_src = SourceDictBuilder(jm, job_id).as_dict()
-        assert exp_src == act_src, diff_dict(exp_src, act_src)
+        assert exp_src == act_src, test_utils.diff_dict(exp_src, act_src)
 
     complete_count = jm.get_os_dhub().execute(
         proc="objectstore_test.counts.complete")[0]["complete_count"]
@@ -115,7 +115,7 @@ def test_artifact_log_ingestion(jm, initial_data):
 
     exp_job = clean_job_blob_dict(blob["job"])
     act_job = JobDictBuilder(jm, job_id).as_dict()
-    assert exp_job == act_job, diff_dict(exp_job, act_job)
+    assert exp_job == act_job, test_utils.diff_dict(exp_job, act_job)
 
 
 def test_bad_date_value_ingestion(jm, initial_data):
@@ -343,14 +343,6 @@ def clean_job_blob_dict(job):
         pass  # no problem
 
     return job
-
-
-def diff_dict(d1, d2):
-    """Compare two dicts, the same way unittest.assertDictEqual does"""
-    diff = ('\n' + '\n'.join(difflib.ndiff(
-       pprint.pformat(d1).splitlines(),
-       pprint.pformat(d2).splitlines())))
-    return diff
 
 
 def get_objectstore_last_error(jm):

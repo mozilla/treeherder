@@ -4,6 +4,7 @@ from treeherder.model import utils
 from treeherder.log_parser.logparsecollection import LogParseCollection
 from treeherder.log_parser.logviewparser import LogViewParser
 from ..sampledata import SampleData
+from tests import test_utils
 
 
 import urllib2
@@ -42,6 +43,13 @@ def do_job_ingestion(jm, job_data):
     return jobs
 
 
+def load_exp(filename):
+    """Load in an expected result json and return as an obj."""
+    exp_str = open(SampleData().get_log_path(filename)).read()
+    exp_json = json.loads(exp_str)
+    return exp_json
+
+
 def test_single_log_header(jm, initial_data, monkeypatch):
     """Process a job with a single log reference."""
 
@@ -67,13 +75,10 @@ def test_single_log_header(jm, initial_data, monkeypatch):
         "revision": "c80dc6ffe865"
     }
     act = lpc.artifacts[jap.name]["header"]
-    assert act == exp, json.dumps(
-        lpc.artifacts[jap.name]["header"],
-        indent=4,
-    )
+    assert act == exp, test_utils.diff_dict(exp, act)
 
 
-def xtest_crashtest_log_view_parser(jm, initial_data, monkeypatch):
+def test_crashtest_passing(jm, initial_data, monkeypatch):
     """Process a job with a single log reference."""
 
     def mock_log_handle(mockself, url):
@@ -84,22 +89,18 @@ def xtest_crashtest_log_view_parser(jm, initial_data, monkeypatch):
 
     name = "unittest",
     url = "mozilla-central_ubuntu32_vm_test-crashtest-ipc-bm67-tests1-linux-build18.txt.gz"
+    exp_file = "mozilla-central_ubuntu32_vm_test-crashtest-ipc-bm67-tests1-linux-build18.logview.json"
 
     parser = LogViewParser("crashtest")
     lpc = LogParseCollection(url, name, parsers=parser)
     lpc.parse()
-    exp = {
-    }
-    act = lpc.artifacts[parser.name]["steps"]
-    for step in act:
-        del(step["content"])
-    assert act == exp, json.dumps(
-        lpc.artifacts[parser.name]["steps"],
-        indent=4,
-    )
+    exp = load_exp(exp_file)
+    act = lpc.artifacts[parser.name]
+
+    assert act == exp, test_utils.diff_dict(exp, act)
 
 
-def xtest_mochitest_log_view_parser(jm, initial_data, monkeypatch):
+def test_mochitest_passing(jm, initial_data, monkeypatch):
     """Process a job with a single log reference."""
 
     def mock_log_handle(mockself, url):
@@ -110,20 +111,14 @@ def xtest_mochitest_log_view_parser(jm, initial_data, monkeypatch):
 
     name = "unittest",
     url = "birch_fedora_test-mochitest-browser-chrome-bm68-tests1-linux-build3.txt.gz"
-
+    exp_file = "birch_fedora_test-mochitest-browser-chrome-bm68-tests1-linux-build3.logview.json"
     parser = LogViewParser("mochitest")
     lpc = LogParseCollection(url, name, parsers=parser)
     lpc.parse()
-    exp = {
-    }
+    exp = load_exp(exp_file)
     act = lpc.artifacts[parser.name]
-    for step in act["steps"]:
-        del(step["content"])
 
-    assert act == exp, json.dumps(
-        act,
-        indent=4,
-    )
+    assert act == exp, test_utils.diff_dict(exp, act)
 
 
 def xtest_download_logs(sample_data):
