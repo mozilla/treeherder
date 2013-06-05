@@ -38,7 +38,7 @@ DROP TABLE IF EXISTS `objectstore`;
  *
  * Example Data:
  *
- *  job_id - Referenced project_jobs_1.job.id
+ *  job_guid - Referenced project_jobs_1.job.guid
  *  revision_hash - Hash of any number of revisions associated with the result set.
  *  loaded_timestamp - Timestamp when the structure was first loaded.
  *  processed_state - ready | loading | complete
@@ -53,7 +53,7 @@ DROP TABLE IF EXISTS `objectstore`;
  **************************/
 CREATE TABLE `objectstore` (
   `id` bigint(11) unsigned NOT NULL AUTO_INCREMENT,
-  `job_id` bigint(11) unsigned DEFAULT NULL,
+  `job_guid` varchar(50) COLLATE utf8_bin NOT NULL,
   `revision_hash` varchar(50) COLLATE utf8_bin DEFAULT NULL,
   `loaded_timestamp` int(11) unsigned NOT NULL,
   `processed_state` enum('ready','loading','complete') COLLATE utf8_bin DEFAULT 'ready',
@@ -62,7 +62,7 @@ CREATE TABLE `objectstore` (
   `json_blob` mediumblob,
   `worker_id` int(11) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `idx_job_id` (`job_id`),
+  KEY `idx_job_id` (`job_guid`),
   KEY `idx_processed_state` (`processed_state`),
   KEY `idx_error` (`error`),
   KEY `idx_worker_id` (`worker_id`)
