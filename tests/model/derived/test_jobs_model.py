@@ -43,18 +43,16 @@ def do_job_ingestion(jm, job_data):
     """
     for blob in job_data:
         jm.store_job_data(json.dumps(blob), blob['job']['job_guid'])
-        jobs = jm.process_objects(1)
-        assert len(jobs) == 1
-        job_id = jobs[0]
+        jm.process_objects(1)
 
         # verify the job data
         exp_job = clean_job_blob_dict(blob["job"])
-        act_job = JobDictBuilder(jm, job_id).as_dict()
+        act_job = JobDictBuilder(jm, blob['job']['job_guid']).as_dict()
         assert exp_job == act_job, diff_dict(exp_job, act_job)
 
         # verify the source data
         exp_src = clean_source_blob_dict(blob["sources"][0])
-        act_src = SourceDictBuilder(jm, job_id).as_dict()
+        act_src = SourceDictBuilder(jm, blob['job']['job_guid']).as_dict()
         assert exp_src == act_src, diff_dict(exp_src, act_src)
 
     complete_count = jm.get_os_dhub().execute(
@@ -107,14 +105,12 @@ def test_artifact_log_ingestion(jm, initial_data):
     }
     blob = job_data(artifact=artifact)
     jm.store_job_data(json.dumps(blob), blob['job']['job_guid'])
-    job_ids = jm.process_objects(1)
+    jm.process_objects(1)
 
     assert get_objectstore_last_error(jm) == u"N"
 
-    job_id = job_ids[0]
-
     exp_job = clean_job_blob_dict(blob["job"])
-    act_job = JobDictBuilder(jm, job_id).as_dict()
+    act_job = JobDictBuilder(jm, blob['job']['job_guid']).as_dict()
     assert exp_job == act_job, diff_dict(exp_job, act_job)
 
 
@@ -136,9 +132,15 @@ def test_bad_date_value_ingestion(jm, initial_data):
 class SourceDictBuilder(object):
     """Given a ``job_id``, rebuild the dictionary the source came from."""
 
-    def __init__(self, jm, job_id):
+    def __init__(self, jm, job_guid):
         self.jm = jm
-        self.job_id = job_id
+        self.job_guid = job_guid
+        job_data =  self.jm.get_jobs_dhub().execute(
+            proc="jobs_test.selects.row_by_guid",
+            placeholders=[self.job_guid],
+            return_type="iter"
+        ).next()
+        self.job_id = job_data['id']
 
     def as_dict(self):
         source = self.jm.get_jobs_dhub().execute(
@@ -164,9 +166,15 @@ class SourceDictBuilder(object):
 class JobDictBuilder(object):
     """Given a ``job_id``, rebuild the dictionary the job came from."""
 
-    def __init__(self, jm, job_id):
+    def __init__(self, jm, job_guid):
         self.jm = jm
-        self.job_id = job_id
+        self.job_guid = job_guid
+        job_data =  self.jm.get_jobs_dhub().execute(
+            proc="jobs_test.selects.row_by_guid",
+            placeholders=[self.job_guid],
+            return_type="iter"
+        ).next()
+        self.job_id = job_data['id']
 
     def as_dict(self):
         job = self.jm.get_job(self.job_id)

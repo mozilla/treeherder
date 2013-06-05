@@ -88,12 +88,17 @@ class JobsModel(TreeherderModelBase):
         error = "N" if error is None else "Y"
         error_msg = error or ""
 
+        # this query inserts the object if its guid is not present,
+        # otherwise it does nothing
         self.get_os_dhub().execute(
             proc='objectstore.inserts.store_json',
             placeholders=[loaded_timestamp, job_guid, json_data, error, error_msg, job_guid],
             debug_show=self.DEBUG
         )
 
+        # this update is needed in case the object was already stored,
+        # otherwise it's redundant.
+        # TODO: find a way to do a conditional update
         self.get_os_dhub().execute(
             proc='objectstore.updates.update_json',
             placeholders=[loaded_timestamp, json_data, error, error_msg, job_guid],
@@ -265,8 +270,6 @@ class JobsModel(TreeherderModelBase):
             # it is ok to have an empty or missing artifact
             pass
 
-        return job_id
-
     def _set_result_set(self, revision_hash):
         """Set result set revision hash"""
 
@@ -420,14 +423,13 @@ class JobsModel(TreeherderModelBase):
     def process_objects(self, loadlimit):
         """Processes JSON blobs from the objectstore into jobs schema."""
         rows = self.claim_objects(loadlimit)
-        job_ids_loaded = []
 
         for row in rows:
             row_id = int(row['id'])
             import traceback
             try:
                 data = JobData.from_json(row['json_blob'])
-                job_id = self.load_job_data(data)
+                self.load_job_data(data)
                 revision_hash = data["revision_hash"]
             except JobDataError as e:
                 self.mark_object_error(row_id, str(e))
@@ -439,9 +441,6 @@ class JobsModel(TreeherderModelBase):
                 )
             else:
                 self.mark_object_complete(row_id, revision_hash)
-                job_ids_loaded.append(job_id)
-
-        return job_ids_loaded
 
     def claim_objects(self, limit):
         """
