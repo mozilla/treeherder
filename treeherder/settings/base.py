@@ -72,6 +72,7 @@ INSTALLED_APPS = [
     'treeherder.webapp',
     'treeherder.pulse_consumer',
     'south',
+    'rest_framework',
 ]
 
 LOCAL_APPS = []
