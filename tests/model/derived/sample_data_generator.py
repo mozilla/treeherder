@@ -26,7 +26,11 @@ def ref_data_json():
 
 
 def job_json(**kwargs):
-    return json.dumps(job_data(**kwargs))
+    """
+    return a tuple containing a job guid and its json data
+    """
+    data = job_data(**kwargs)
+    return json.dumps(data), data['job']['job_guid']
 
 
 def job_data(**kwargs):
