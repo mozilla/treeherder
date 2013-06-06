@@ -4,28 +4,19 @@ import re
 
 class BuildbotLogParserBase(object):
     """
-    Base class for all log parsers.
+    Base class for all Buildbot log parsers.
 
-    The child class will know how to parse a particular type of log and
-    will keep track of state for started, finished, failed, etc.
+    The child class will be designed to create a particular type of artifact.
 
     This class is called for each line of the log file, so it has no
-    knowledge of the log file itself, as a whole.
-
-    @@@ Question: This class presumes started/finished regex's based on
-        buildbot results.  Do we need to support other types?
-        If so, we will need to make the patterns more modular than this.
-        Or perhaps have a different base class for other types of parsers.
+    knowledge of the log file itself, as a whole.  It only, optionally, has
+    the url to the log file to add to its own artifact.
 
     """
 
     #################
     # state constants
     #################
-    # @@@ My thought here is that if/when the child class has sub states within
-    #     ``started`` (or other states) they could concatenate that state
-    #     string to it, thereby making it a sub-state.  You could check for
-    #     the greater ``started`` by using ``startswith`` on the state.
 
     # while still reading the initial header section
     ST_HEADER = 'header'
@@ -64,9 +55,11 @@ class BuildbotLogParserBase(object):
 
     @property
     def name(self):
+        """Return the name used to store this in the collection's artifact"""
         raise NotImplementedError
 
     def parsetime(self, match):
+        """Convert a string date into a datetime."""
         return datetime.datetime.strptime(match, self.DATE_FORMAT)
 
     def parse_header_line(self, line):
@@ -106,7 +99,7 @@ class BuildbotLogParserBase(object):
         self.lineno += 1
 
     def parse_content_line(self, line):
-        """Child class implements to handle parsing of sections"""
+        """Child class implements to handle parsing of non-header data"""
         raise NotImplementedError
 
     @property

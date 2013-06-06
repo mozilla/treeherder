@@ -8,9 +8,6 @@ class BuildbotLogViewParser(BuildbotLogParserBase):
     """
     Makes the artifact for the log viewer.
 
-    Store the resulting artifact in the DB gzipped.  Then the client
-    will uncompress in JS.
-
     The stored object for a log will be
         "steps": [
             {
@@ -21,7 +18,7 @@ class BuildbotLogViewParser(BuildbotLogParserBase):
                 "finished_linenumber": 10,
                 "finished": "2013-06-05 12:39:57.839226",
                 "error_count": 0,
-                "duration": 0.000699, # in minutes
+                "duration": 0.000699, # in seconds
                 "order": 0  # the order the process came in the log file
             },
             ...
@@ -30,6 +27,14 @@ class BuildbotLogViewParser(BuildbotLogParserBase):
     """
 
     def __init__(self, job_type, url=None):
+        """
+        Construct a ``BuildbotLogViewParser``
+
+        Keep track of the current step number, and step artifacts
+
+        Uses a simple ErrorParser to detect errors.  Error lines are added
+        to each step they come from.
+        """
         super(BuildbotLogViewParser, self).__init__(job_type, url)
         self.stepnum = -1
         self.artifact["steps"] = []
@@ -37,11 +42,11 @@ class BuildbotLogViewParser(BuildbotLogParserBase):
 
     @property
     def name(self):
-        """The name of this type of log"""
+        """The name of this type of log artifact"""
         return "Structured Log"
 
     def parse_content_line(self, line):
-        """Parse a single line of the log"""
+        """Parse a single non-header line of the log"""
 
         # check if it's the start of a step
         match = self.RE_START.match(line)
@@ -103,11 +108,12 @@ class ErrorParser(object):
     """
 
     def __init__(self):
-        # self.RE_ERR = re.compile(".*?(UNEXPECTED-FAIL|UNEXPECTED-ERROR).*?")
+        """A simple error detection sub-parser"""
         self.RE_ERR = re.compile(r".*?(TEST-UNEXPECTED-.*|PROCESS-CRASH) \| (.*)\|(.*)")
         self.errors = []
 
     def parse_content_line(self, line, lineno):
+        """Check a single line for an error.  Keeps track of the linenumber"""
         if self.RE_ERR.match(line):
             self.errors.append({
                 "linenumber": lineno,
@@ -115,4 +121,5 @@ class ErrorParser(object):
             })
 
     def get_artifact(self):
+        """Return the list of errors found, if any."""
         return self.errors

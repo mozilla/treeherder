@@ -9,17 +9,14 @@ class LogParseCollection(object):
     """
     Run a log through a collection of parsers to get artifacts.
 
-    If a log contains another type of log, this figures that out and
-    calls the sub-parsers as well.
-
-    Result: Returns a list of log artifacts
+    Result: Returns a list of log artifacts, one for each parser.
 
     Architecture
     ============
 
     LogParseCollection
     ------------------
-        * Holds one or more instances of ``LogParserBase``
+        * Holds one or more instances of ``BuildbotLogParserBase``
         * If ``job_type`` passed in, creates the parser instances
         * If ``parsers`` passed in, uses those as the parsers
         * Reads the log from the log handle/url and walks each line
@@ -27,14 +24,14 @@ class LogParseCollection(object):
         * Maintains no state
 
 
-    LogParserBase
+    BuildbotLogParserBase
     -------------
-        * Base class for all log parsers.
+        * Base class for all Buildbot log parsers.
         * Manages:
             * artifact
             * state
             * job_type
-            * sub_parser
+            * line number
         * Calls either ``parse_header_line`` or ``parse_content_line``
           depending on state
         * decides whether to call SubParser if in a step that matches
@@ -47,21 +44,8 @@ class LogParseCollection(object):
         * Manages:
             * artifact steps (===started and ===finished lines)
             * current step number and count
+            * sub_parser
         * Only SubParser here is an ErrorParser
-            * @@@ Not clear yet if this will use a SubParser other than
-                  a generic ErrorParser
-
-    JobArtifactParser
-    -----------------
-        * Parses out content for use in the TBPL summary view for a job
-        * Relies on its ``SubParser`` to extract most of the data
-
-    SubParser
-    ---------
-        * Parser for a specific step type of a LogParserBase instance
-        * only called on lines when in a step that has a name matching
-          it's ``step_name_match``
-
 
     """
 
@@ -104,7 +88,7 @@ class LogParseCollection(object):
         """
         Iterate over each line of the log, running each parser against it.
 
-        Stream the gzip file and run each parser against it,
+        Stream lines from the gzip file and run each parser against it,
         building the ``artifact`` as we go.
 
         """
