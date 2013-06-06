@@ -1,6 +1,6 @@
 from webtest import TestApp
 from treeherder.webapp import wsgi
-from tests.sample_data_generator import job_json
+from tests.sample_data_generator import job_data
 import pytest
 
 
@@ -14,4 +14,4 @@ def webapp():
 
 @pytest.fixture
 def job_sample():
-    return job_json()
+    return job_data()
