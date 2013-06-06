@@ -1,10 +1,10 @@
 from datetime import datetime
 import re
 
-from .logparserbase import LogParserBase
+from .logparserbase import BuildbotLogParserBase
 
 
-class LogViewParser(LogParserBase):
+class BuildbotLogViewParser(BuildbotLogParserBase):
     """
     Makes the artifact for the log viewer.
 
@@ -14,14 +14,15 @@ class LogViewParser(LogParserBase):
     The stored object for a log will be
         "steps": [
             {
-                "name": "unittest"  # the name of the process on start line
-                "order": 1          # the order the process came in the log file
                 "errors": [],
-                "error_count": 2,   # count of error lines
-                "duration": 23.5,   # in minutes
-                "started": "2013-05-13 10:27:56.012903",
-                "finished": "2013-05-13 10:27:56.013766",
-                "content": "text"
+                "name": "set props: master", # the name of the process on start line
+                "started": "2013-06-05 12:39:57.838527",
+                "started_linenumber": 8,
+                "finished_linenumber": 10,
+                "finished": "2013-06-05 12:39:57.839226",
+                "error_count": 0,
+                "duration": 0.000699, # in minutes
+                "order": 0  # the order the process came in the log file
             },
             ...
         ]
@@ -29,7 +30,7 @@ class LogViewParser(LogParserBase):
     """
 
     def __init__(self, job_type, url=None):
-        super(LogViewParser, self).__init__(job_type, url)
+        super(BuildbotLogViewParser, self).__init__(job_type, url)
         self.stepnum = -1
         self.artifact["steps"] = []
         self.sub_parser = ErrorParser()
@@ -84,10 +85,6 @@ class LogViewParser(LogParserBase):
         finish = datetime.strptime(self.current_step["finished"], f)
         delta = finish - start
         self.current_step["duration"] = delta.total_seconds()
-
-    def add_error_line(self, line):
-        """Add this line to the list of errors of the current step"""
-        self.current_step["errors"].append(line)
 
     @property
     def steps(self):

@@ -1,7 +1,7 @@
 import json
 
 from treeherder.log_parser.logparsecollection import LogParseCollection
-from treeherder.log_parser.logviewparser import LogViewParser
+from treeherder.log_parser.logviewparser import BuildbotLogViewParser
 
 from tests import test_utils
 from ..sampledata import SampleData
@@ -22,7 +22,7 @@ def do_test(job_type, log):
         SampleData().get_log_path("{0}.txt.gz".format(log)))
     exp = test_utils.load_exp("{0}.logview.json".format(log))
 
-    jap = LogViewParser(job_type, url)
+    jap = BuildbotLogViewParser(job_type, url)
     lpc = LogParseCollection(url, parsers=jap)
     lpc.parse()
     act = lpc.artifacts[jap.name]

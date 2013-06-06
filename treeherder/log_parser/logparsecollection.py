@@ -2,7 +2,7 @@ import urllib2
 import gzip
 import io
 
-from .logviewparser import LogViewParser
+from .logviewparser import BuildbotLogViewParser
 
 
 class LogParseCollection(object):
@@ -93,7 +93,7 @@ class LogParseCollection(object):
         else:
             # use the defaults
             self.parsers = [
-                LogViewParser(self.job_type, self.url),
+                BuildbotLogViewParser(self.job_type, self.url),
             ]
 
     def get_log_handle(self, url):

@@ -2,7 +2,7 @@ import datetime
 import re
 
 
-class LogParserBase(object):
+class BuildbotLogParserBase(object):
     """
     Base class for all log parsers.
 
