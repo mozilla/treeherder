@@ -1,11 +1,12 @@
 from django.core.urlresolvers import reverse
+import simplejson as json
 
 
-def test_job_ingestion(webapp, job_sample, initial_data):
+def test_job_ingestion(webapp, job_sample, initial_data, jm):
     resp = webapp.post_json(
-        reverse('job_ingestion_endpoint',
-                kwargs={'project': 'testproject', 'guid': 'myguid'}),
-        params=dict(data=job_sample)
+        reverse('objectstore-list',
+                kwargs={'project': jm.project}),
+        params=job_sample
     )
-    print resp
-    assert resp['status'] == 'well-formed JSON stored'
+    assert resp.status_int == 200
+    assert resp.json['message'] == 'well-formed JSON stored'
