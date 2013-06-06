@@ -1,5 +1,4 @@
 from django.core.urlresolvers import reverse
-import simplejson as json
 
 
 def test_job_ingestion(webapp, job_sample, initial_data, jm):
