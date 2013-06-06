@@ -99,13 +99,6 @@ class LogViewParser(LogParserBase):
         """Return the current step in the artifact"""
         return self.steps[self.stepnum]
 
-    def get_artifact(self):
-        """Returns the artifact, with any subparser data included"""
-        self.artifact.update({
-            "test result": self.sub_parser.get_artifact()
-        })
-        return self.artifact
-
 
 class ErrorParser(object):
     """
