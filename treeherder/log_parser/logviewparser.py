@@ -28,8 +28,8 @@ class LogViewParser(LogParserBase):
 
     """
 
-    def __init__(self, job_type):
-        super(LogViewParser, self).__init__(job_type)
+    def __init__(self, job_type, url=None):
+        super(LogViewParser, self).__init__(job_type, url)
         self.stepnum = -1
         self.artifact["steps"] = []
         self.sub_parser = ErrorParser()

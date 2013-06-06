@@ -1,8 +1,8 @@
 import urllib2
 import gzip
+import io
 
 from .logviewparser import LogViewParser
-from .jobartifactparser import JobArtifactParser
 
 
 class LogParseCollection(object):
@@ -65,24 +65,23 @@ class LogParseCollection(object):
 
     """
 
-    def __init__(self, url, name, job_type=None, parsers=None):
+    def __init__(self, url, job_type=None, parsers=None):
         """
-            ``url`` - url of the log to be parsed
-            ``name`` - name of the log to be parsed
-            ``job_type`` - The type of job this log is for.
-            ``parsers`` - LogViewParser instances that should
-                be run against the log.
-            Must provide either ``parsers`` or ``job_type`` so that
-            default parsers can be created.
+        ``url`` - url of the log to be parsed
+        ``job_type`` - The type of job this log is for.
+        ``parsers`` - LogViewParser instances that should
+            be run against the log.
+
+        Must provide either ``parsers`` or ``job_type`` so that
+        default parsers can be created.
         """
 
         if not parsers and not job_type:
             raise ValueError("Must provide either ``job_type`` or ``parsers``")
 
         # the results
-        self.artifacts = {}
         self.url = url
-        self.name = name
+        self.artifacts = {}
         self.job_type = job_type
 
         if parsers:
@@ -94,8 +93,7 @@ class LogParseCollection(object):
         else:
             # use the defaults
             self.parsers = [
-                JobArtifactParser(self.job_type),
-                LogViewParser(self.job_type),
+                LogViewParser(self.job_type, self.url),
             ]
 
     def get_log_handle(self, url):
@@ -104,25 +102,31 @@ class LogParseCollection(object):
 
     def parse(self):
         """
-        Parse the log against each parser.
+        Iterate over each line of the log, running each parser against it.
 
-        This downloads the gz file, uncompresses it, and runs each parser
-        against it, building the ``artifact`` as we go.
+        Stream the gzip file and run each parser against it,
+        building the ``artifact`` as we go.
 
         """
 
-        # each log url gets opened
         handle = self.get_log_handle(self.url)
-        gz_file = gzip.GzipFile(fileobj=handle)
+
+        # using BytesIO is a workaround.  Apparently this is fixed in
+        # Python 3.2, but not in the 2.x versions.  GzipFile wants the
+        # the methods seek() and tell(), which don't exist on a normal
+        # fileobj.
+        # interesting write-up here:
+        #     http://www.enricozini.org/2011/cazzeggio/python-gzip/
+        gz_file = gzip.GzipFile(fileobj=io.BytesIO(handle.read()))
 
         for line in gz_file:
-            # run each parser on each line of the log
+            # stop parsing if all parsers are done
             if not self.parse_complete:
-                # stop parsing if all parsers are done
+                # run each parser on each line of the log
                 for parser in self.parsers:
                     parser.parse_line(line)
 
-        # let the parsers know we're done with all the lines
+        # gather the artifacts from all parsers
         for parser in self.parsers:
             self.artifacts[parser.name] = parser.get_artifact()
 

@@ -46,8 +46,18 @@ class LogParserBase(object):
     RE_PROPERTY = re.compile('(\w*): (.*)')
     DATE_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
 
-    def __init__(self, job_type):
-        self.artifact = {"header": {}}
+    def __init__(self, job_type, url=None):
+        """
+        Create the LogParser
+
+        ``job_type`` - Something like "mochitest" or "reftest", etc.
+        ``url`` - The url this log comes from.  It's optional, but it gets
+                  added to the artifact.
+        """
+        self.artifact = {
+            "header": {},
+            "url": url
+        }
         self.state = self.ST_HEADER
         self.job_type = job_type
         self.lineno = 0
