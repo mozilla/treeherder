@@ -1,3 +1,5 @@
+import json
+
 from treeherder.log_parser.logparsecollection import LogParseCollection
 from treeherder.log_parser.logviewparser import LogViewParser
 from ..sampledata import SampleData
@@ -38,17 +40,8 @@ def test_single_log_header(jm, initial_data, monkeypatch):
     jap = LogViewParser("mochitest")
     lpc = LogParseCollection(url, name, parsers=jap)
     lpc.parse()
-    exp = {
-        "slave": "tst-linux32-ec2-137",
-        "buildid": "20130513091541",
-        "builder": "mozilla-central_ubuntu32_vm_test-crashtest-ipc",
-        "results": "success (0)",
-        "starttime": "1368466076.01",
-        "builduid": "acddb5f7043c4d5b9f66619f9433cab0",
-        "revision": "c80dc6ffe865"
-    }
     act = lpc.artifacts[jap.name]["header"]
-    assert act == exp, test_utils.diff_dict(exp, act)
+    assert act == exp["header"], test_utils.diff_dict(exp, act)
 
 
 def test_crashtest_passing(jm, initial_data, monkeypatch):
@@ -94,7 +87,7 @@ def test_mochitest_pass(jm, initial_data, monkeypatch):
     assert act == exp, test_utils.diff_dict(exp, act)
 
 
-def xtest_mochitest_fail(jm, initial_data, monkeypatch):
+def test_mochitest_fail(jm, initial_data, monkeypatch):
     """Process a job with a single log reference."""
 
     def mock_log_handle(mockself, url):
@@ -105,14 +98,15 @@ def xtest_mochitest_fail(jm, initial_data, monkeypatch):
 
     name = "unittest",
     url, exp = get_test_data(
-        "mozilla-central_win7-ix-debug_test-mochitest-1-bm72-tests1-windows-build12_fails"
+        "mozilla-esr17_xp_test_pgo-mochitest-browser-chrome-bm74-tests1-windows-build12"
     )
     parser = LogViewParser("mochitest")
     lpc = LogParseCollection(url, name, parsers=parser)
     lpc.parse()
     act = lpc.artifacts[parser.name]
 
-    assert act == exp, test_utils.diff_dict(exp, act)
+    # assert act == exp, test_utils.diff_dict(exp, act)
+    assert act == exp, json.dumps(act, indent=4)
 
 
 def xtest_download_logs(sample_data):

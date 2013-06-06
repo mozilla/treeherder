@@ -75,7 +75,7 @@ class LogViewParser(LogParserBase):
             return
 
         # call the subparser to check for errors
-        self.sub_parser.parse_content_line(line)
+        self.sub_parser.parse_content_line(line, self.lineno)
 
     def set_duration(self):
         """Sets duration for the step in seconds."""
@@ -110,9 +110,12 @@ class ErrorParser(object):
         self.RE_ERR = re.compile(r".*?(TEST-UNEXPECTED-.*|PROCESS-CRASH) \| (.*)\|(.*)")
         self.errors = []
 
-    def parse_content_line(self, line):
+    def parse_content_line(self, line, lineno):
         if self.RE_ERR.match(line):
-            self.errors.append(line)
+            self.errors.append({
+                "linenumber": lineno,
+                "line": line
+            })
 
     def get_artifact(self):
         return self.errors
