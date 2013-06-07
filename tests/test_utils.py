@@ -47,8 +47,14 @@ def do_job_ingestion(jm, job_data, verify_data=True):
 
 
 def load_exp(filename):
-    """Load in an expected result json and return as an obj."""
-    exp_str = open(SampleData().get_log_path(filename)).read()
+    """
+    Load in an expected result json and return as an obj.
+
+    If the file doesn't exist, it will be created, but the test will
+    fail, due to no content.  This is to make it easier during test
+    development.
+    """
+    exp_str = open(SampleData().get_log_path(filename), "a+").read()
     exp_json = json.loads(exp_str)
     return exp_json
 
