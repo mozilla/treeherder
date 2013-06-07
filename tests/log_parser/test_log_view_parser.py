@@ -57,6 +57,15 @@ def test_mochitest_fail(jm, initial_data):
     )
 
 
+def test_mochitest_process_crash(jm, initial_data):
+    """Test a mochitest log that has PROCESS-CRASH """
+
+    do_test(
+        "mochitest",
+        "mozilla-inbound_ubuntu64_vm-debug_test-mochitest-other-bm53-tests1-linux-build122"
+    )
+
+
 def test_jetpack_fail(jm, initial_data):
     """Process a job with a single log reference."""
 
