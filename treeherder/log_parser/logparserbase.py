@@ -56,7 +56,7 @@ class BuildbotLogParserBase(object):
     @property
     def name(self):
         """Return the name used to store this in the collection's artifact"""
-        raise NotImplementedError
+        raise NotImplementedError  # pragma nocover
 
     def parsetime(self, match):
         """Convert a string date into a datetime."""
@@ -100,7 +100,7 @@ class BuildbotLogParserBase(object):
 
     def parse_content_line(self, line):
         """Child class implements to handle parsing of non-header data"""
-        raise NotImplementedError
+        raise NotImplementedError  # pragma nocover
 
     @property
     def parse_complete(self):

@@ -85,9 +85,8 @@ class BuildbotLogViewParser(BuildbotLogParserBase):
 
     def set_duration(self):
         """Sets duration for the step in seconds."""
-        f = "%Y-%m-%d %H:%M:%S.%f"
-        start = datetime.strptime(self.current_step["started"], f)
-        finish = datetime.strptime(self.current_step["finished"], f)
+        start = self.parsetime(self.current_step["started"])
+        finish = self.parsetime(self.current_step["finished"])
         delta = finish - start
         self.current_step["duration"] = delta.total_seconds()
 
