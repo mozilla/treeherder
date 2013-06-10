@@ -1,4 +1,5 @@
 import json
+from datadiff import diff
 
 from treeherder.log_parser.logparsecollection import LogParseCollection
 from treeherder.log_parser.logviewparser import BuildbotLogViewParser
@@ -24,7 +25,7 @@ def do_test(job_type, log):
     lpc = LogParseCollection(url, parsers=jap)
     lpc.parse()
     act = lpc.artifacts[jap.name]
-    assert act == exp, test_utils.diff_dict(exp, act)
+    assert act == exp, diff(exp, act)
     # Use this assert when creating new tests and you want to get the actual
     # returned artifact:
     # assert act == exp, json.dumps(act, indent=4)

@@ -1,17 +1,7 @@
-import difflib
-import pprint
 import json
+from datadiff import diff
 
-from treeherder.model import utils
 from sampledata import SampleData
-
-
-def diff_dict(d1, d2):
-    """Compare two dicts, the same way unittest.assertDictEqual does"""
-    diff = ('\n' + '\n'.join(difflib.ndiff(
-            pprint.pformat(d1).splitlines(),
-            pprint.pformat(d2).splitlines())))
-    return diff
 
 
 def do_job_ingestion(jm, job_data, verify_data=True):
@@ -30,12 +20,12 @@ def do_job_ingestion(jm, job_data, verify_data=True):
             # verify the job data
             exp_job = clean_job_blob_dict(blob["job"])
             act_job = JobDictBuilder(jm, job_guid).as_dict()
-            assert exp_job == act_job, diff_dict(exp_job, act_job)
+            assert exp_job == act_job, diff(exp_job, act_job)
 
             # verify the source data
             exp_src = clean_source_blob_dict(blob["sources"][0])
             act_src = SourceDictBuilder(jm, job_guid).as_dict()
-            assert exp_src == act_src, diff_dict(exp_src, act_src)
+            assert exp_src == act_src, diff(exp_src, act_src)
 
     complete_count = jm.get_os_dhub().execute(
         proc="objectstore_test.counts.complete")[0]["complete_count"]

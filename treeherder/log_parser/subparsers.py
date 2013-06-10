@@ -34,6 +34,20 @@ class SubParser(object):
         # current state of this SubParser
         self.state = self.ST_PARSING
 
+    @classmethod
+    def create(cls, job_type):
+        """Factory method to create a subparser for the ``job_type``"""
+        parsers = {
+            'build': BuildLogParser,
+            'mochitest': MochitestParser,
+            'reftest': ReftestParser,
+            'jsreftest': ReftestParser,
+            'crashtest': ReftestParser,
+            'xpcshell': XPCshellParser,
+        }
+
+        return parsers[job_type](job_type)
+
     def parse_content_line(self, line):
         """
         Parse this line of content.
@@ -50,20 +64,6 @@ class SubParser(object):
         Indicates that we should stop parsing lines in this parser.
         """
         return self.state == self.ST_PARSE_COMPLETE
-
-    @classmethod
-    def create(cls, job_type):
-        """Factory method to create a subparser for the ``job_type``"""
-        parsers = {
-            'build': BuildLogParser,
-            'mochitest': MochitestParser,
-            'reftest': ReftestParser,
-            'jsreftest': ReftestParser,
-            'crashtest': ReftestParser,
-            'xpcshell': XPCshellParser,
-        }
-
-        return parsers[job_type](job_type)
 
     def get_errors(self):
         """Return all the failures this subparser has encountered thus far."""
@@ -682,3 +682,37 @@ class ReftestParser(TestSuiteLogParser):
 
 class BuildLogParser(SubParser):
     pass
+
+
+class TinderboxPrintSubParser(object):
+
+    RE_TINDERBOXPRINT = re.compile('^TinderboxPrint: (.*)$')
+
+    def __init__(self):
+        """Setup the artifact to hold the tinderbox print lines."""
+        self.artifact = []
+        self.name = "tinderbox_printlines"
+
+    def parse_content_line(self, line):
+        """Parse a single line of the log"""
+        match = self.RE_TINDERBOXPRINT.match(line)
+        if match:
+            self.artifact.append(match.group(1))
+
+    @property
+    def parse_complete(self):
+        """
+        Whether or not parsing is complete for this parser.
+
+        Indicates that we should stop parsing lines in this parser.
+
+        """
+        return False
+
+    def get_errors(self):
+        """Don't distinguish errors in the Tinderbox Prints."""
+        return None
+
+    def get_artifact(self):
+        """By default, just return the artifact as-is."""
+        return self.artifact
