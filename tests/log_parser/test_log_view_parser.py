@@ -6,8 +6,6 @@ from treeherder.log_parser.logviewparser import BuildbotLogViewParser
 from tests import test_utils
 from ..sampledata import SampleData
 
-import urllib2
-
 
 def do_test(job_type, log):
     """
@@ -26,8 +24,10 @@ def do_test(job_type, log):
     lpc = LogParseCollection(url, parsers=jap)
     lpc.parse()
     act = lpc.artifacts[jap.name]
-    # assert act == exp, test_utils.diff_dict(exp, act)
-    assert act == exp, json.dumps(act, indent=4)
+    assert act == exp, test_utils.diff_dict(exp, act)
+    # Use this assert when creating new tests and you want to get the actual
+    # returned artifact:
+    # assert act == exp, json.dumps(act, indent=4)
 
 
 def test_crashtest_passing(jm, initial_data):
