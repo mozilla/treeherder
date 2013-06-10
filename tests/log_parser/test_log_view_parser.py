@@ -9,7 +9,7 @@ from ..sampledata import SampleData
 
 def do_test(job_type, log):
     """
-    Test a single log with the ``LogViewParser``.
+    Test a single log.
 
     ``job_type`` - Something like "mochitest", "crashtest" or "reftest"
     ``log`` - the url prefix of the log to test.  Also searches for the
@@ -25,8 +25,8 @@ def do_test(job_type, log):
     lpc.parse()
     act = lpc.artifacts[jap.name]
     assert act == exp, test_utils.diff_dict(exp, act)
-
-    # if you want to gather results for a new test, use this
+    # Use this assert when creating new tests and you want to get the actual
+    # returned artifact:
     # assert act == exp, json.dumps(act, indent=4)
 
 
