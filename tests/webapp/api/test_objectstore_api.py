@@ -1,7 +1,7 @@
 from django.core.urlresolvers import reverse
 
 
-def test_job_ingestion(webapp, job_sample, initial_data, jm):
+def test_objectstore_create(webapp, job_sample, jm):
     """
     test posting data to the objectstore via webtest.
     extected result are:
@@ -26,3 +26,48 @@ def test_job_ingestion(webapp, job_sample, initial_data, jm):
     assert len(stored_objs) == 1
 
     assert stored_objs[0]['job_guid'] == job_sample["job"]["job_guid"]
+
+
+def test_objectstore_list(webapp, ten_jobs_stored, jm):
+    """
+    test retrieving a list of ten json blobs from the objectstore-list
+    endpoint.
+    """
+    resp = webapp.get(
+        reverse('objectstore-list',
+                kwargs={'project': jm.project})
+    )
+    assert resp.status_int == 200
+
+    assert isinstance(resp.json, list)
+
+    assert len(resp.json) == 10
+
+
+def test_objectstore_detail(webapp, ten_jobs_stored, jm):
+    """
+    test retrieving a single json blobs from the objectstore-detail
+    endpoint.
+    """
+    resp = webapp.get(
+        reverse('objectstore-detail',
+                kwargs={'project': jm.project, 'pk': 'myguid1'})
+    )
+    assert resp.status_int == 200
+
+    assert isinstance(resp.json, dict)
+
+    assert resp.json['job']['job_guid'] == 'myguid1'
+
+
+def test_objectstore_detail_not_found(webapp, jm):
+    """
+    test retrieving a HTTP 404 from the objectstore-detail
+    endpoint.
+    """
+    resp = webapp.get(
+        reverse('objectstore-detail',
+                kwargs={'project': jm.project, 'pk': 'myguid1'}),
+        expect_errors=True
+    )
+    assert resp.status_int == 404
