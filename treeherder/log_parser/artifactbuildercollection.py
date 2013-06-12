@@ -2,10 +2,10 @@ import urllib2
 import gzip
 import io
 
-from .logviewparser import BuildbotLogViewParser
+from .logviewartifactbuilder import BuildbotLogViewArtifactBuilder
 
 
-class LogParseCollection(object):
+class ArtifactBuilderCollection(object):
     """
     Run a log through a collection of parsers to get artifacts.
 
@@ -14,13 +14,13 @@ class LogParseCollection(object):
     Architecture
     ============
 
-    LogParseCollection
+    ArtifactBuilderCollection
     ------------------
         * Holds one or more instances of ``BuildbotLogParserBase``
-        * If ``job_type`` passed in, creates the parser instances
-        * If ``parsers`` passed in, uses those as the parsers
+        * If ``builders`` passed in, uses those as the artifact
+          builders, otherwise creates the default artifact builders.
         * Reads the log from the log handle/url and walks each line
-          calling into each parser with each line for handling
+          calling into each artifact builder with each line for handling
         * Maintains no state
 
 
@@ -77,7 +77,7 @@ class LogParseCollection(object):
         else:
             # use the defaults
             self.parsers = [
-                BuildbotLogViewParser(self.job_type, self.url),
+                BuildbotLogViewArtifactBuilder(self.job_type, self.url),
             ]
 
     def get_log_handle(self, url):

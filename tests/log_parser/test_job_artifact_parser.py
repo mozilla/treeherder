@@ -1,8 +1,8 @@
 import json
 from datadiff import diff
 
-from treeherder.log_parser.logparsecollection import LogParseCollection
-from treeherder.log_parser.jobartifactparser import BuildbotJobArtifactParser
+from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
+from treeherder.log_parser.jobartifactbuilder import BuildbotJobArtifactBuilder
 from ..sampledata import SampleData
 from tests import test_utils
 
@@ -20,8 +20,8 @@ def do_test(job_type, log):
         SampleData().get_log_path("{0}.txt.gz".format(log)))
     exp = test_utils.load_exp("{0}.logartifact.json".format(log))
 
-    jap = BuildbotJobArtifactParser(job_type, url)
-    lpc = LogParseCollection(url, parsers=jap)
+    jap = BuildbotJobArtifactBuilder(job_type, url)
+    lpc = ArtifactBuilderCollection(url, parsers=jap)
     lpc.parse()
     act = lpc.artifacts[jap.name]
     assert act == exp, diff(exp, act)

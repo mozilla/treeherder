@@ -1,8 +1,8 @@
-from .logparserbase import BuildbotLogParserBase
-from .subparsers import ErrorParser, TinderboxPrintParser
+from .artifactbuilderbase import  ArtifactBuilderBase
+from .parsers import ErrorParser, TinderboxPrintParser
 
 
-class BuildbotJobArtifactParser(BuildbotLogParserBase):
+class BuildbotJobArtifactBuilder(ArtifactBuilderBase):
     """
     Gather error and tinderbox print lines for this job.
 
@@ -12,7 +12,7 @@ class BuildbotJobArtifactParser(BuildbotLogParserBase):
     """
 
     def __init__(self, job_type, url):
-        super(BuildbotJobArtifactParser, self).__init__(job_type, url)
+        super(BuildbotJobArtifactBuilder, self).__init__(job_type, url)
         self.parsers = [
             ErrorParser(),
             TinderboxPrintParser(),

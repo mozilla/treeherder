@@ -1,7 +1,7 @@
 import re
 
 
-class BuildbotLogParserBase(object):
+class ArtifactBuilderBase(object):
     """
     Base class for all Buildbot log parsers.
 

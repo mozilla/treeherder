@@ -1,13 +1,13 @@
 import pytest
 
-from treeherder.log_parser.logparsecollection import LogParseCollection
-from treeherder.log_parser.logviewparser import BuildbotLogViewParser
+from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
+from treeherder.log_parser.logviewartifactbuilder import BuildbotLogViewArtifactBuilder
 
 
 def test_parsers_as_list():
     """test that passing in a list of parsers works"""
-    parser = BuildbotLogViewParser("mochitest")
-    lpc = LogParseCollection(
+    parser = BuildbotLogViewArtifactBuilder("mochitest")
+    lpc = ArtifactBuilderCollection(
         "foo-url",
         "mochitest",
         parsers=[parser]
@@ -17,8 +17,8 @@ def test_parsers_as_list():
 
 def test_parsers_as_single_still_list():
     """test that passing in a single parser becomes a list"""
-    parser = BuildbotLogViewParser("mochitest")
-    lpc = LogParseCollection(
+    parser = BuildbotLogViewArtifactBuilder("mochitest")
+    lpc = ArtifactBuilderCollection(
         "foo-url",
         "mochitest",
         parsers=parser
@@ -28,8 +28,8 @@ def test_parsers_as_single_still_list():
 
 def test_default_parsers():
     """test that passing in a job_type instead of a parser"""
-    parser = BuildbotLogViewParser("mochitest")
-    lpc = LogParseCollection(
+    parser = BuildbotLogViewArtifactBuilder("mochitest")
+    lpc = ArtifactBuilderCollection(
         "foo-url",
         "mochitest",
     )
@@ -42,7 +42,7 @@ def test_bad_values():
     """test that passing in a single parser becomes a list"""
 
     with pytest.raises(ValueError) as e:
-        lpc = LogParseCollection(
+        lpc = ArtifactBuilderCollection(
             "foo-url",
         )
 
