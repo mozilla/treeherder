@@ -1,15 +1,11 @@
-# These parsers are specific to sections of a buildbot log.  They are specific
-# to the build or test type that the log section is about
-
 import re
 import datetime
 
 
 class ParserBase(object):
     """
-    Base class for all subparsers.
+    Base class for all parsers.
 
-    Gives basic generic functionality functions.
     """
     def __init__(self, name):
         """Setup the artifact to hold the extracted data."""
@@ -24,6 +20,10 @@ class ParserBase(object):
     def get_artifact(self):
         """By default, just return the artifact as-is."""
         return self.artifact
+
+    def complete(self):
+        """Whether or not this parser is done and should stop parsing."""
+        return self.parse_complete
 
 
 class HeaderParser(ParserBase):

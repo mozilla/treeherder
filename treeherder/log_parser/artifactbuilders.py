@@ -1,4 +1,5 @@
-import re
+from .parsers import (ErrorParser, TinderboxPrintParser,
+                      HeaderParser, StepParser)
 
 
 class ArtifactBuilderBase(object):
@@ -41,7 +42,7 @@ class ArtifactBuilderBase(object):
         """
 
         for parser in self.parsers:
-            if not parser.parse_complete:
+            if not parser.complete:
                 parser.parse_line(line, self.lineno)
 
             # match = self.RE_FINISH.match(line)
@@ -64,9 +65,53 @@ class ArtifactBuilderBase(object):
             self.artifact[sp.name] = sp.get_artifact()
         return self.artifact
 
-    def parse_complete(self):
+    def complete(self):
         """Whether or not all parsers are complete for this artifact."""
         if len(self.parsers):
-            return all(x.parse_complete() for x in self.parsers)
+            return all(x.complete() for x in self.parsers)
         else:
             return False
+
+
+class BuildbotJobArtifactBuilder(ArtifactBuilderBase):
+    """
+    Gather error and tinderbox print lines for this job.
+
+    This parser gathers the data that shows on the bottom panel of the main
+    TBPL page.
+
+    """
+
+    def __init__(self, url):
+        """Construct a job artifact builder."""
+        super(BuildbotJobArtifactBuilder, self).__init__(url)
+        self.parsers = [
+            ErrorParser(),
+            TinderboxPrintParser(),
+        ]
+
+    @property
+    def name(self):
+        """Name that can be used to identify this type of artifact"""
+        try:
+            builder = self.artifact["builder"]
+        except KeyError:
+            builder = "Unknown Builder"
+        return "{0} Job Artifact".format(builder)
+
+
+class BuildbotLogViewArtifactBuilder(ArtifactBuilderBase):
+    """Makes the artifact for the log viewer."""
+
+    def __init__(self, job_type, url=None):
+        """Construct artifact builder for the log viewer"""
+        super(BuildbotLogViewArtifactBuilder, self).__init__(job_type, url)
+        self.sub_parsers = [
+            HeaderParser(),
+            StepParser()
+        ]
+
+    @property
+    def name(self):
+        """Name that can be used to identify this type of artifact"""
+        return "Structured Log"

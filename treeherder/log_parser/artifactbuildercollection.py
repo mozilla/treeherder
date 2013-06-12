@@ -2,21 +2,21 @@ import urllib2
 import gzip
 import io
 
-from .logviewartifactbuilder import BuildbotLogViewArtifactBuilder
+from .artifactbuilders import (BuildbotLogViewArtifactBuilder,
+                               BuildbotJobArtifactBuilder)
 
 
 class ArtifactBuilderCollection(object):
     """
-    Run a log through a collection of parsers to get artifacts.
+    Run a log through a collection of Artifact Builders to generate artifacts.
 
-    Result: Returns a list of log artifacts, one for each parser.
 
     Architecture
     ============
 
     ArtifactBuilderCollection
     ------------------
-        * Holds one or more instances of ``BuildbotLogParserBase``
+        * Holds one or more instances of ``ArtifactBuilderBase``
         * If ``builders`` passed in, uses those as the artifact
           builders, otherwise creates the default artifact builders.
         * Reads the log from the log handle/url and walks each line
@@ -24,60 +24,52 @@ class ArtifactBuilderCollection(object):
         * Maintains no state
 
 
-    BuildbotLogParserBase
+    ArtifactBuilderBase
     -------------
-        * Base class for all Buildbot log parsers.
+        * Base class for all artifact builders`.
         * Manages:
             * artifact
-            * state
             * job_type
             * line number
-        * Calls either ``parse_header_line`` or ``parse_content_line``
-          depending on state
-        * decides whether to call SubParser if in a step that matches
-          the SubParser ``step_name_match`` regex.
+            * parsers
+        * Passes lines into each ``Parser``
 
-
-    LogViewParser
+    BuildbotLogViewArtifactBuilder
     -------------
         * Parses out content for use in a visual Log Parser
-        * Manages:
-            * artifact steps (===started and ===finished lines)
-            * current step number and count
-            * sub_parser
-        * Only SubParser here is an ErrorParser
+        * Parsers:
+            * StepParser, which has its own ErrorParser
 
+    BuildbotJobArtifactBuilder
+    -------------
+        * Builds an artifact for the TBPL main UI panel
+        * Parsers:
+            * ErrorParser
+            * TinderboxPrintParser
     """
 
-    def __init__(self, url, job_type=None, parsers=None):
+    def __init__(self, url, builders=None):
         """
         ``url`` - url of the log to be parsed
-        ``job_type`` - The type of job this log is for.
-        ``parsers`` - LogViewParser instances that should
-            be run against the log.
+        ``builders`` - ArtifactBuilder instances to generate artifacts.
+                       In omitted, use defaults.
 
-        Must provide either ``parsers`` or ``job_type`` so that
-        default parsers can be created.
         """
 
-        if not parsers and not job_type:
-            raise ValueError("Must provide either ``job_type`` or ``parsers``")
-
-        # the results
         self.url = url
         self.artifacts = {}
-        self.job_type = job_type
 
-        if parsers:
-            # ensure that self.parsers is a list, even if a single parser was
+        if builders:
+            # ensure that self.builders is a list, even if a single parser was
             # passed in
-            if not isinstance(parsers, list):
-                parsers = [parsers]
-            self.parsers = parsers
+            if not isinstance(builders, list):
+                builders = [builders]
+            self.builders = builders
         else:
             # use the defaults
-            self.parsers = [
-                BuildbotLogViewArtifactBuilder(self.job_type, self.url),
+            self.builders = [
+                BuildbotLogViewArtifactBuilder(self.url),
+                BuildbotJobArtifactBuilder(self.url)
             ]
 
     def get_log_handle(self, url):
@@ -104,19 +96,19 @@ class ArtifactBuilderCollection(object):
         gz_file = gzip.GzipFile(fileobj=io.BytesIO(handle.read()))
 
         for line in gz_file:
-            # stop parsing if all parsers are done
-            if not self.parse_complete:
+            # stop parsing if all builders are done
+            if not self.complete:
                 # run each parser on each line of the log
-                for parser in self.parsers:
+                for parser in self.builders:
                     parser.parse_line(line)
 
-        # gather the artifacts from all parsers
-        for parser in self.parsers:
+        # gather the artifacts from all builders
+        for parser in self.builders:
             self.artifacts[parser.name] = parser.get_artifact()
 
         gz_file.close()
 
     @property
-    def parse_complete(self):
-        """Return true if all parsers are parse_complete."""
-        return all([x.parse_complete for x in self.parsers])
+    def complete(self):
+        """Return true if all builders are parse_complete."""
+        return all([x.complete for x in self.builders])
