@@ -29,7 +29,6 @@ class ArtifactBuilderCollection(object):
         * Base class for all artifact builders`.
         * Manages:
             * artifact
-            * job_type
             * line number
             * parsers
         * Passes lines into each ``Parser``

@@ -14,18 +14,16 @@ class ArtifactBuilderBase(object):
 
     """
 
-    def __init__(self, job_type, url=None):
+    def __init__(self, url=None):
         """
         Create the LogParser
 
-        ``job_type`` - Something like "mochitest" or "reftest", etc.
         ``url`` - The url this log comes from.  It's optional, but it gets
                   added to the artifact.
         """
         self.artifact = {
             "logurl": url
         }
-        self.job_type = job_type
         self.lineno = 0
         self.parsers = []
 
@@ -35,32 +33,16 @@ class ArtifactBuilderBase(object):
         raise NotImplementedError  # pragma nocover
 
     def parse_line(self, line):
-        """
-        Parse a single line of the log.
-
-        Parse the header until we hit a line with "started" in it.
-        """
+        """Parse a single line of the log."""
 
         for parser in self.parsers:
             if not parser.complete:
                 parser.parse_line(line, self.lineno)
 
-            # match = self.RE_FINISH.match(line)
-            # if match:
-            #     self.artifact["header"]["finishtime"] = self.parsetime(
-            #         match.group(2)).strftime("%s")
-            # self.parse_content_line(line)
-
         self.lineno += 1
 
     def get_artifact(self):
-        """
-        Return the job artifact.
-
-        A good place to update the artifact before returning it, if needed.
-        This can be handy to get the "final duration" based on the
-        last finished section.
-        """
+        """Return the job artifact built from all parsers."""
         for sp in self.parsers:
             self.artifact[sp.name] = sp.get_artifact()
         return self.artifact
@@ -101,11 +83,11 @@ class BuildbotJobArtifactBuilder(ArtifactBuilderBase):
 
 
 class BuildbotLogViewArtifactBuilder(ArtifactBuilderBase):
-    """Makes the artifact for the log viewer."""
+    """Makes the artifact for the structured log viewer."""
 
-    def __init__(self, job_type, url=None):
+    def __init__(self, url=None):
         """Construct artifact builder for the log viewer"""
-        super(BuildbotLogViewArtifactBuilder, self).__init__(job_type, url)
+        super(BuildbotLogViewArtifactBuilder, self).__init__(url)
         self.sub_parsers = [
             HeaderParser(),
             StepParser()
