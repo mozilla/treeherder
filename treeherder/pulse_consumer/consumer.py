@@ -430,16 +430,13 @@ class PulseDataAdapter(object):
                         { 'attr':'platform' },
                         { 'attr':'buildid' },
                         { 'attr':'log_url' },
+                        { 'attr':'build_url' },
                         { 'attr':'buildername',
                             'cb':self.get_buildername_data
                             },
                         { 'attr':'slavename' },
                         { 'attr':'request_ids' },
                         { 'attr':'request_times' },
-                        {
-                          'attr':'buildurl',
-                          'attr_test':['packageUrl', 'build_url', 'fileURL']
-                            },
                         ],
                     }
             }
@@ -774,6 +771,8 @@ class TreeherderDataAdapter(PulseDataAdapter):
 
             'end_timestamp': str( int( time.time() ) ),
             'machine': data['slave'],
+
+            'build_url':data['build_url'],
 
             'build_platform': {
                 'os_name': data['os'],
