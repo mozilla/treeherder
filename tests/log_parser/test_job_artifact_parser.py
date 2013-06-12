@@ -39,6 +39,24 @@ def test_crashtest_passing(jm, initial_data):
     )
 
 
+def test_build_failing(jm, initial_data):
+    """Process a job with a single log reference."""
+
+    do_test(
+        "build",
+        "mozilla-central-macosx64-debug-bm65-build1-build15"
+    )
+
+
+def xtest_mochitest_debug_passing(jm, initial_data):
+    """Process a job with a single log reference."""
+
+    do_test(
+        "mochitest",
+        "mozilla-central_mountainlion-debug_test-mochitest-2-bm80-tests1-macosx-build93"
+    )
+
+
 def xtest_mochitest_pass(jm, initial_data):
     """Process a job with a single log reference."""
 

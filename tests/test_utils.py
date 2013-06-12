@@ -44,9 +44,13 @@ def load_exp(filename):
     fail, due to no content.  This is to make it easier during test
     development.
     """
-    exp_str = open(SampleData().get_log_path(filename), "a+").read()
-    exp_json = json.loads(exp_str)
-    return exp_json
+    path = SampleData().get_log_path(filename)
+    exp_str = open(path, "a+").read()
+    try:
+        return json.loads(exp_str)
+    except ValueError:
+        # if it's not parse-able, return an empty dict
+        return {}
 
 
 class SourceDictBuilder(object):

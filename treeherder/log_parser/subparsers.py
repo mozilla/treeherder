@@ -681,7 +681,149 @@ class ReftestParser(TestSuiteLogParser):
 
 
 class BuildLogParser(SubParser):
-    pass
+
+    # parse logs from these trees
+    TREES_TO_WATCH = [
+        'mozilla-central',
+        'mozilla-inbound',
+        'build-system',
+        'fx-team',
+        'ionmonkey',
+        'profiling',
+        'services-central',
+        'mozilla-aurora',
+        'mozilla-beta',
+        'mozilla-b2g18',
+        'mozilla-esr17'
+    ]
+
+    RE_TIME = re.compile(
+        r'Started (.*) \(results: (.*?), elapsed: ((((\d+) hrs, '
+        r')*(\d+) mins, )*(\d+) secs)\)')
+    RE_FULLBUILD = re.compile(r'Creating directory build$')
+    RE_BUILDERNAME = re.compile(r'buildername: (.*)$')
+    RE_STARTTIME = re.compile(r"^starttime: (.*?)\.")
+    RE_TYPE = re.compile(
+        r'(%s)[-|_](.*?)(-debug|-o-debug)*(-(.*))*$' % '|'.join(
+            TREES_TO_WATCH))
+    RE_RESULTS = re.compile(r'results: (.*)$')
+    RE_LOGURL = re.compile(r'logurl: (.*)$')
+    RE_BUILDDIR = re.compile(r"builddir: '(.*?)'")
+    RE_CLOBBER = re.compile(r'(.*?):Clobbering...')
+    RE_PURGEDELETE = re.compile(r'^Deleting (.*)')
+
+    def __init__(self, job_type):
+        super(BuildLogParser, self).__init__(job_type)
+        self.linenumber = 0
+        self.laststep = None
+        self.starttime = None
+        self.steps = {}
+        self.platform = None
+        self.tree = None
+        self.buildtype = 'opt'
+        self.buildname = 'build'
+        self.success = None
+        self.buildername = None
+        self.logurl = None
+        self.clobbertype = None
+        self.builddir = None
+        self.clobbers = []
+
+    def parse_content_line(self, line):
+
+        self.linenumber += 1
+        if not line or self.parse_complete:
+            return
+
+        line = line.rstrip()
+
+        if not self.logurl:
+            match = self.RE_LOGURL.match(line)
+            if match:
+                self.logurl = match.group(1)
+                return
+
+        if not self.builddir:
+            match = self.RE_BUILDDIR.match(line)
+            if match:
+                self.builddir = match.group(1)
+                self.periodicre = re.compile(
+                    r'%s:More than 604800.0 seconds have passed since '
+                    r'our last clobber' % self.builddir)
+                return
+
+        if not self.buildername:
+            match = self.RE_BUILDERNAME.match(line)
+            if match:
+                self.buildername = match.group(1)
+                return
+
+        if self.success is None:
+            match = self.RE_RESULTS.match(line)
+            if match:
+                if 'success' in match.group(1):
+                    self.success = True
+                else:
+                    self.success = False
+                return
+
+        if not self.starttime:
+            match = self.RE_STARTTIME.search(line)
+            if match:
+                self.starttime = match.group(1)
+                return
+
+        match = self.RE_TIME.search(line)
+        if match:
+            step = match.group(1)
+            if 'hgtool.py' in step:
+                step = 'hgtool.py'
+            hrs = int(match.group(6)) if match.group(6) else 0
+            mins = int(match.group(7)) if match.group(7) else 0
+            secs = int(match.group(8)) if match.group(8) else 0
+            subtotal = float(hrs * 60) + mins + (float(secs) / 60)
+            self.laststep = step
+            if subtotal > 0.5 or 'update' in step or 'hgtool' in step:
+                self.steps[step] = '{0:1.2f}'.format(subtotal)
+
+        if self.laststep == 'compile' and self.RE_FULLBUILD.search(
+                line) and 'compile' in self.steps:
+            self.steps['compile_full'] = self.steps['compile']
+            del self.steps['compile']
+
+        if self.laststep == 'set props: purge_actual purge_target':
+            match = self.RE_PURGEDELETE.match(line)
+            if match:
+                self.clobbers.append(line)
+                if self.builddir and self.builddir in line:
+                    self.clobbertype = 'free space'
+
+        if self.laststep == 'checking clobber times' and self.builddir:
+            match = self.periodicre.match(line)
+            if match:
+                self.clobbertype = 'periodic'
+            match = self.RE_CLOBBER.match(line)
+            if match:
+                self.clobbers.append(line)
+
+        if 'compile_full' in self.steps and self.clobbertype is None:
+            self.clobbertype = 'unknown'
+
+        self.artifact = {
+            'buildername': self.buildername,
+            'starttime': self.starttime,
+            'platform': self.platform,
+            'tree': self.tree,
+            'success': self.success,
+            'buildtype': self.buildtype,
+            'buildname': self.buildname,
+            'steps': self.steps,
+            'logurl': self.logurl,
+            'total': '{0:1.2f}'.format(self.total),
+            'builddir': self.builddir,
+            'clobbertype': self.clobbertype,
+            'clobbers': self.clobbers,
+        }
 
 
 class TinderboxPrintSubParser(object):
@@ -716,3 +858,53 @@ class TinderboxPrintSubParser(object):
     def get_artifact(self):
         """By default, just return the artifact as-is."""
         return self.artifact
+
+
+class ErrorParser(object):
+    """
+    Super simple parser to just find any line with an error or failure
+    """
+
+    def __init__(self):
+        """A simple error detection sub-parser"""
+        self.RE_INFO = re.compile("/TEST-(?:INFO|PASS) /")
+        self.RE_ERR = re.compile(r".*?(TEST-UNEXPECTED-.*|PROCESS-CRASH) \| (.*)\|(.*)")
+        self.RE_ERR2 = re.compile((
+            "(/TEST-UNEXPECTED-(?:PASS|FAIL) /)"
+            "|(/^error: TEST FAILED/)"
+            "|(/^g?make(?:\[\d+\])?: \*\*\*/)"
+            "|(/fatal error/)"
+            "|(/PROCESS-CRASH/)"
+            "|(/Assertion failure:/)"
+            "|(/Assertion failed:/)"
+            "|(/###!!! ABORT:/)"
+            "|(/ error\([0-9]*\):/)"
+            "|(/ error R?C[0-9]*:/)"
+            "|(/^\d+:\d+:\d+[ ]+(?:ERROR|CRITICAL|FATAL) - /)"
+            "|(/^[A-Za-z]+Error:/)"
+            "|(/^BaseException:/)"
+            "|(/Automation Error:/)"
+            "|(/Remote Device Error:/)"
+            "|(/command timed out:/)"
+            "|(/^remoteFailed:/)"
+            "|(/^rm: cannot /)"
+            "|(/^abort:/)"
+            "|(/ERROR 503:/)"
+            "|(/wget: unable /)"
+            "|(/^Output exceeded \d+ bytes/)"
+            "|(/^The web-page 'stop build' button was pressed/)"
+        ))
+
+        self.errors = []
+
+    def parse_content_line(self, line, lineno):
+        """Check a single line for an error.  Keeps track of the linenumber"""
+        if self.RE_ERR2.match(line):
+            self.errors.append({
+                "linenumber": lineno,
+                "line": line
+            })
+
+    def get_artifact(self):
+        """Return the list of errors found, if any."""
+        return self.errors

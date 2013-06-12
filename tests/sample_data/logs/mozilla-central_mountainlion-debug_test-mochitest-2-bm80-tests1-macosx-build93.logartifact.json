@@ -1,0 +1,24 @@
+{
+    "url": "file:///home/vagrant/treeherder-service/tests/sample_data/logs/mozilla-central_mountainlion-debug_test-mochitest-2-bm80-tests1-macosx-build93.txt.gz",
+    "header": {
+        "slave": "talos-mtnlion-r5-061",
+        "buildid": "20130605115738",
+        "builder": "mozilla-central_mountainlion-debug_test-mochitest-2",
+        "results": "success (0)",
+        "starttime": "1370462264.16",
+        "builduid": "48d01a5d6b0c43d593f8d9e9f60857be",
+        "revision": "1658dc513572"
+    },
+    "mochitest": {
+        "elapsedtime": "883",
+        "failed": "0",
+        "todo": "18501",
+        "passed": "206414",
+        "testfailure_count": 0,
+        "elapsedtime": "25"
+    },
+    "tinderbox_printlines": [
+        "mozharness_revlink: http://hg.mozilla.org/build/mozharness/rev/c43ba6cb3db3"
+    ]
+}
+

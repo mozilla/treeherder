@@ -1,4 +1,5 @@
 import datetime
+import time
 import re
 
 
@@ -52,6 +53,10 @@ class BuildbotLogParserBase(object):
         self.state = self.ST_HEADER
         self.job_type = job_type
         self.lineno = 0
+        # the first start time
+        self.first_starttime = None
+        # the last finish time
+        self.last_finishtime = None
 
     @property
     def name(self):
@@ -88,12 +93,17 @@ class BuildbotLogParserBase(object):
         Parse the header until we hit a line with "started" in it.
         """
         if self.state == self.ST_HEADER:
-            if not self.RE_START.match(line):
+            match = self.RE_START.match(line)
+            if not match:
                 self.parse_header_line(line)
             else:
                 self.state = self.ST_STARTED
                 self.parse_content_line(line)
         else:
+            match = self.RE_FINISH.match(line)
+            if match:
+                self.artifact["header"]["finishtime"] = self.parsetime(
+                    match.group(2)).strftime("%s")
             self.parse_content_line(line)
 
         self.lineno += 1
