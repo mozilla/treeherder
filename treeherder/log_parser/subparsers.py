@@ -2,71 +2,23 @@
 # to the build or test type that the log section is about
 
 import re
+import datetime
 
 
-class SubParser(object):
+class ParserBase(object):
     """
-    A parser for specific sections of a log.
+    Base class for all subparsers.
 
-    The parent parser will decide which of these SubParsers to
-    run the log lines against by inspecting the name from the
-    ``Started`` line.
-
-    These will parse the log line by line, and maintain
-    their own status and their own result artifact.  When
-    completed, the artifact will be retrieved by the
-    top-level parser that called this.
-
+    Gives basic generic functionality functions.
     """
+    def __init__(self, name):
+        """Setup the artifact to hold the extracted data."""
+        self.artifact = []
+        self.name = name
+        self.parse_complete = False
 
-    # this parser is done, no more need to parse lines
-    ST_PARSING = "parsing"
-    ST_PARSE_COMPLETE = "parse complete"
-
-    def __init__(self, job_type, step_name_match=None):
-        self.artifact = {}
-        self.name = job_type
-        # if this is set, this subparser will only run against a step
-        # with name containing this string
-        if step_name_match:
-            self.step_name_re = re.compile(step_name_match)
-
-        # current state of this SubParser
-        self.state = self.ST_PARSING
-
-    @classmethod
-    def create(cls, job_type):
-        """Factory method to create a subparser for the ``job_type``"""
-        parsers = {
-            'build': BuildLogParser,
-            'mochitest': MochitestParser,
-            'reftest': ReftestParser,
-            'jsreftest': ReftestParser,
-            'crashtest': ReftestParser,
-            'xpcshell': XPCshellParser,
-        }
-
-        return parsers[job_type](job_type)
-
-    def parse_content_line(self, line):
-        """
-        Parse this line of content.
-
-        Implemented by the child class
-        """
-        raise NotImplementedError
-
-    @property
-    def parse_complete(self):
-        """
-        Whether or not parsing is complete for this parser.
-
-        Indicates that we should stop parsing lines in this parser.
-        """
-        return self.state == self.ST_PARSE_COMPLETE
-
-    def get_errors(self):
-        """Return all the failures this subparser has encountered thus far."""
+    def parse_line(self, line, lineno):
+        """Parse a single line of the log"""
         raise NotImplementedError
 
     def get_artifact(self):
@@ -74,837 +26,199 @@ class SubParser(object):
         return self.artifact
 
 
-class TestSuiteLogParser(SubParser):
-    """Base class for parsing test suite logs (e.g., mochitest, etc)."""
+class HeaderParser(ParserBase):
 
-    # if the ``parse_content_line`` is still waiting for the pertinent data
-    # to start.
-    ST_WAITING_FOR_DATA = "wait for data"
-    # data has started, we're reading lines we care about
-    ST_READING_DATA = "reading data"
+    RE_HEADER_VALUE = re.compile('^(?P<key>[a-z]+): (?P<value>.*)$')
+    RE_START = re.compile('={9} Started')
 
-    # don't parse any data till we see this chunk start.
-    RE_DATA_START = re.compile(r"={9} Started (.*).py(.*)")
-    # 'TestFailed' expected log format is "result | test | optional text".
-    RE_TEST_FAILED = re.compile(
-        r".*?(TEST-UNEXPECTED-.*|PROCESS-CRASH) \| (.*)\|(.*)")
-    # elapsed time for test run
-    RE_ELAPSED_TIME = re.compile(r"elapsedTime=(\d+)")
-    # beginning of stack trace for crashed thread
-    RE_STACK = re.compile(r"^.*?Thread (\d+) \(crashed\)")
-    # beginning of a stack trace frame
-    RE_STACK_TRACE_FRAME = re.compile(r"^\s*(\d+)\s+(.+)")
+    def __init__(self):
+        """Setup the artifact to hold the header lines."""
+        super(HeaderParser, self).__init__("header")
+        # for this parser, we actually want the artifact to be a dict instead
+        # of a list.
+        self.artifact = {}
 
-    # once we are in the ST_READING_DATA state, then read until
-    # we see this delimiter. tinderbox end-of-testrun delimiters on
-    # Win+Linux, Mac
-    endTestrunDelimiters = ["======== Finished",
-                            "=== Output ended ==="]
-    # potential tinderbox errors
-    testrunerrorstrings = ['remoteFailed:']
-    testruntimeoutstrings = [
-        'buildbot.slave.commands.TimeoutError: command timed out']
-    extracrashstrings = ['has caught an Obj-C exception']
-
-    def __init__(self,
-                 job_type,
-                 includePass=False,
-                 builddate=None,
-                 linenumber=0,
-                 suitename=None,
-                 ):
-        super(TestSuiteLogParser, self).__init__(job_type)
-        self.elapsedTime = 0
-        self.passed = None
-        self.failed = None
-        self.todo = None
-        self.lastError = None
-        self.testfailures = []
-        self.testpasses = []
-        self.lastFailedTest = None
-        self.suitename = suitename
-        self.includePass = includePass
-        self.lastPassedTest = None
-        self.builddate = builddate
-        self.linepos = 0
-        self.linenumber = linenumber
-
-        # states during parse
-        self.processingCrash = False
-        self.processingStackTrace = False
-        self.stackTrace = ""
-
-        # get the passTestRe from the child class impl
-        self.passTestRe = self.get_passTestRe()
-
-        # start in the state of waiting to find the beginning of the data
-        # we care about.
-        self.state = self.ST_WAITING_FOR_DATA
-
-    def get_passTestRe(self):
-        """Regex for a passed test"""
-        raise NotImplementedError
-
-    def getTodo(self, line):
-        raise NotImplementedError
-
-    def getFailed(self, line):
-        raise NotImplementedError
-
-    def getPassed(self, line):
-        raise NotImplementedError
-
-    def checkForTestFinish(self, line):
-        """Returns True if this line contains the test duration at the end
-        of a test.
+    def parse_line(self, line, lineno):
         """
-        raise NotImplementedError
+        Parse out a value in the header
 
-    def normalizeTestName(self, test):
-        """Normalize the test name"""
-
-        # For some generic errors, set the test name to 'Shutdown', which causes
-        # them to be promoted to testrun errors, instead of testcase errors.
-        if test == ('Main app process exited normally' or
-                    test == 'automationutils.processLeakLog()'):
-            return 'Shutdown'
-
-        # Make test names consistent
-        if test.find('\\') != -1:
-            test = test.replace('\\', '/')
-        if test.find('/') != -1:
-            ret = test.split('build/')
-            if len(ret) > 1:
-                test = ret[1]
-            else:
-                test = ret[0]
-
-        return test
-
-    def setLastFailedTest(self, test, text):
-        """Update self.lastFailedTest as appropriate"""
-        self.lastFailedTest = test
-
-    def processLine(self, line):
-        """Do any extra processing that's needed"""
-        pass
-
-    def normalizeTestNameAndReason(self, test, reason, text):
-        """Normalize the test name and reason"""
-
-        # assign TEST-LEAKED to leak errors
-        if (test == 'automationutils.processLeakLog()' and
-                text != 'missing output line for total leaks!'):
-            reason = 'TEST-LEAKED'
-
-        # assign TEST-TIMEOUT to timeout errors
-        if text and ('application timed out after' in text or 'Test timed out'
-                     in text or 'timed out waiting for' in text):
-            reason = 'TEST-TIMEOUT'
-
-        # for test errors that occur for 'automation.py' , change name
-        # to 'Shutdown' so that they are promoted to testrun errors not
-        # related to a specific test case
-        if test == 'automation.py':
-            test = 'Shutdown'
-
-        # normalize the test name
-        test = self.normalizeTestName(test)
-        return test, reason
-
-    def get_errors(self):
-        """Return the list of failures collected"""
-        return self.testfailures
-
-    def get_artifact(self):
-        """Collect test run data into a dict and return it. The dict has the
-           following structure:
-
-           passed: the number of passed tests.  For mochitest, this is the
-                   number of passed assertions, not test files
-           failed: the number of failed tests.
-           todo: the number of todo tests or known failures.
-
-           testfailures: a list of test errors that occurred during the test
-            run.
-                         Each item in the list is a dict with the following
-                         keys:
-             test: the name of the test
-             failures: a list of failures that occurred duing that test; each
-                       item is a dict with the following keys:
-               text: a description of the error
-               reason: one of TEST-UNEXPECTED-FAIL, TEST-TIMEOUT, TEST-LEAKED,
-                       TEST-UNEXPECTED-PASS, or PROCESS-CRASH
-               stacktrace: if the reason is PROCESS-CRASH, this may contain
-                           the stack trace of the crashed thread
-               imageN: for reftest, failures may include one or more image
-               keys,
-                       containing base64-encoded strings of the failing screen
-                       captures
-           testpasses: a list of strings representing tests that passed.
-           This is
-                       only generated if --include-pass was specified on the
-                       command-line.
-
-           The following keys only exist when this parser was called from the
-           tinderbox log parser:
-
-           suitename: e.g., 'mochitest-chrome'
-           elapsedtime: the duration of the test run in seconds
+        The header values in the log look like this:
+            builder: mozilla-central_ubuntu32_vm_test-crashtest-ipc
+            slave: tst-linux32-ec2-137
+            starttime: 1368466076.01
+            results: success (0)
+            buildid: 20130513091541
+            builduid: acddb5f7043c4d5b9f66619f9433cab0
+            revision: c80dc6ffe865
 
         """
-
-        if len(self.testpasses):
-            self.artifact.update({'passes': self.testpasses})
-
-        if len(self.testfailures):
-            self.artifact.update({'failures': self.testfailures})
-
-        self.artifact.update({'testfailure_count': len(self.testfailures)})
-        if self.suitename:
-            self.artifact.update({'suitename': self.suitename})
-        if self.elapsedTime:
-            self.artifact.update({'elapsedtime': self.elapsedTime})
-        if self.passed is not None:
-            self.artifact.update({'passed': self.passed})
-        if self.failed is not None:
-            self.artifact.update({'failed': self.failed})
-        if self.todo is not None:
-            self.artifact.update({'todo': self.todo})
-
-        return self.artifact
-
-    def add_test_failure(self, test, thisfailure):
-        appended = False
-        for failure in self.testfailures:
-            if failure['test'] == test:
-                failure['failures'].append(thisfailure)
-                appended = True
-                break
-        if not appended:
-            self.testfailures.append({'test': test,
-                                      'failures': [thisfailure]})
-
-    def parse_content_line(self, line):
-        """Parse this line of content."""
-
-        self.linenumber += 1
-        if not line or self.parse_complete:
+        if self.RE_START.match(line):
+            self.parse_complete = True
             return
 
-        line = line.rstrip()
-
-        # if we are still waiting for data reading to start, check line
-        # to see if it signals the start
-        if self.waiting_for_data:
-            if self.RE_DATA_START.match(line):
-                self.state = self.ST_READING_DATA
-            else:
-                return
-
-        # test to see if the line is a failure
-        m = self.RE_TEST_FAILED.match(line)
-        if m:
-            self.processingCrash = False
-
-            # reason for failure [TEST-UNEXPECTED-.* or PROCESS-CRASH]
-            reason = m.group(1).rstrip()
-
-            # name of the test
-            test = m.group(2).strip().rstrip() or "Shutdown"
-
-            # fail log text
-            text = m.group(3).strip() or None
-
-            test, reason = self.normalizeTestNameAndReason(test, reason,
-                                                           text)
-            thisfailure = {'status': reason}
-            if text:
-                thisfailure.update({'text': text})
-
-            # add the failure to the correct place in the self
-            # .testfailures list
-            self.add_test_failure(test, thisfailure)
-
-            # update the last failed test name
-            self.setLastFailedTest(test, text)
-
-            # if this failure was added to our list of passed tests,
-            # remove it
-            if test == self.lastPassedTest:
-                self.lastPassedTest = None
-                self.testpasses = self.testpasses[0:-1]
-
-            # a crash occurred, start looking for the stack trace
-            if 'PROCESS-CRASH' in reason:
-                self.processingCrash = True
-                self.processingStackTrace = False
-                self.stackTrace = ""
-
-            return
-
-        # look for a stack trace if needed
-        if self.processingCrash:
-            m = self.RE_STACK.match(line)
-            if m:
-                self.processingStackTrace = True
-                # we assume that a stack trace ends with a blank line
-            if self.processingStackTrace:
-                m = self.RE_STACK_TRACE_FRAME.match(line)
-                if line.rstrip() == '' or (m and int(m.group(1)) > 5):
-                    self.processingStackTrace = False
-                    self.processingCrash = False
-                    self.testfailures[-1]['failures'][-1].update(
-                        {'stacktrace': self.stackTrace})
-                    return
-            if self.processingStackTrace:
-                # add the current line to the stack trace
-                self.stackTrace += line + '\n'
-                return
-
-        # perform extra processing as needed
-        self.processLine(line)
-
-        if self.includePass:
-            m = self.passTestRe.match(line)
-            if m:
-                startTestName = self.normalizeTestName(m.group(2))
-                if startTestName != 'Shutdown':
-                    self.lastPassedTest = startTestName
-                    if (len(self.testpasses) == 0 or self.lastPassedTest !=
-                            self.testpasses[-1]['test']):
-                        self.testpasses.append(
-                            {'test': self.lastPassedTest})
-
-        # look for the 'test-finished' marker
-        if self.checkForTestFinish(line):
-            self.lastFailedTest = None
-            return
-
-        # look for tinderbox elapsedTime
-        if self.elapsedTime == 0:
-            m = self.RE_ELAPSED_TIME.match(line)
-            if m:
-                self.elapsedTime = m.group(1)
-                return
-
-        # look for passed/failed/todo numbers
-        if self.passed is None:
-            self.passed = self.getPassed(line)
-            if self.passed:
-                return
-        if self.failed is None:
-            self.failed = self.getFailed(line)
-            if self.failed:
-                return
-        if self.todo is None:
-            self.todo = self.getTodo(line)
-            if self.todo:
-                return
-
-        # look for tinderbox end-of-testrun delimiters, and return if found
-        for delimiter in self.endTestrunDelimiters:
-            if delimiter in line:
-                self.state = self.ST_PARSE_COMPLETE
-                print "line number: " + str(self.linenumber)
-                print line
-                return
-
-        # look for tb errors that might appear in the log
-        for error in self.testrunerrorstrings:
-            if error in line:
-                self.add_test_failure('Shutdown',
-                                      {'status': 'TEST-UNEXPECTED-FAIL',
-                                       'text': line.rstrip()})
-                return
-        for error in self.testruntimeoutstrings:
-            if error in line:
-                self.add_test_failure('Shutdown',
-                                      {'status': 'TEST-TIMEOUT',
-                                       'text': line.rstrip()})
-                return
-
-        # look for more strings that indicate a crash
-        for error in self.extracrashstrings:
-            if error in line:
-                self.add_test_failure('Shutdown',
-                                      {'status': 'PROCESS-CRASH',
-                                       'text': line.rstrip()})
-
-    @property
-    def waiting_for_data(self):
-        """Check if we are in the waiting for data state"""
-        return self.state == self.ST_WAITING_FOR_DATA
+        match = self.RE_HEADER_VALUE.match(line)
+        if match:
+            key, value = match.groups()
+            self.artifact[key] = value
 
 
-class MochitestParser(TestSuiteLogParser):
+class StepParser(ParserBase):
     """
-    applies to
-    - Mochitest-plain
-    - Mochitest-chrome
-    - Mochitest-browserchrome
-    - Mochitest-a11y
-    """
+    Parse out buildbot steps.
 
-    # number of passed tests
-    RE_PASSED = re.compile(r".*?(INFO |\t)Passed:(\s+)(\d+)")
-    # number of failed tests
-    RE_FAILED = re.compile(r".*?(INFO |\t)Failed:(\s+)(\d+)")
-    # number of todo tests
-    RE_TODO = re.compile(r".*?(INFO |\t)Todo:(\s+)(\d+)")
-
-    # end of test case
-    RE_END_TEST = re.compile(r"^.*?INFO .*?Test finished (.*?) in (\d+)ms")
-    RE_END_TEST2 = re.compile(r"^.*?TEST-END \| (.*?) \| finished in (\d+)ms")
-
-    # command-line for mochitest-plain runs in tinderbox
-    chunkRe = re.compile(r"^.*?--this-chunk=(\d)")
-
-    unexpectedException = 'INFO | runtests.py | Received unexpected exception'
-
-    def get_passTestRe(self):
-        """Regex for a passed test"""
-        # for mochitest, we assume that every TEST-START case passes, until
-        # we see otherwise
-        return re.compile(r"^(.*?)TEST-START \| (.*)$")
-
-    def getTodo(self, line):
-        m = self.RE_TODO.match(line)
-        if m:
-            return m.group(3)
-
-    def getFailed(self, line):
-        m = self.RE_FAILED.match(line)
-        if m:
-            return m.group(3)
-
-    def getPassed(self, line):
-        m = self.RE_PASSED.match(line)
-        if m:
-            return m.group(3)
-
-    def getTestSuiteName(self, cmdline):
-        """Returns the test suite name"""
-        if '--chrome' in cmdline:
-            return 'mochitest-chrome'
-        if '--browser-chrome' in cmdline:
-            return 'mochitest-browser-chrome'
-        if '--a11y' in cmdline:
-            return 'mochitest-a11y'
-        if '--setpref=dom.ipc.plugins' in cmdline:
-            return 'mochitest-ipcplugins'
-        m = self.chunkRe.match(cmdline)
-        if m:
-            return 'mochitest-plain-' + str(m.group(1))
-        return 'mochitest'
-
-    def checkForTestFinish(self, line):
-        """Returns True if this line contains the test duration at the end
-        of a test.
-        """
-        duration = None
-        endtestname = None
-        m = self.RE_END_TEST.match(line)
-        if m:
-            # if the test that just finished is the last
-            # test in our failed list, update it's duration.
-            duration = m.group(2)
-            endtestname = self.normalizeTestName(m.group(1))
-        m = self.RE_END_TEST2.match(line)
-        if m:
-            duration = m.group(2)
-            endtestname = self.normalizeTestName(m.group(1))
-
-        if duration:
-            # If a duration was found for this test, and this test is the
-            # current failing or passing test, update the test object with
-            # the duration.
-            if self.testfailures and self.testfailures[-1][
-                    'test'] == endtestname:
-                self.testfailures[-1].update({'duration': duration})
-            if self.testpasses and self.testpasses[-1]['test'] == endtestname:
-                self.testpasses[-1].update({'duration': duration})
-            return True
-
-        return False
-
-    def processLine(self, line):
-        if not line.startswith(self.unexpectedException):
-            return
-
-        self.add_test_failure('Shutdown',
-                              {'status': 'PROCESS-CRASH',
-                               'text': line.rstrip()})
-
-
-class XPCshellParser(TestSuiteLogParser):
-    """
-    parser XPCShell results
-    """
-    # number of passed tests
-    RE_PASSED = re.compile(r".*?INFO \| Passed:(\s+)(\d+).*")
-    # number of failed tests
-    RE_FAILED = re.compile(r".*?INFO \| Failed:(\s+)(\d+)")
-
-    def get_passTestRe(self):
-        """Regex for a passed test"""
-        return re.compile(
-            r"^(.*?)TEST-PASS \| (.*) \| test passed( \(time: (\d+))?")
-
-    def getTodo(self, line):
-        return None
-
-    def getPassed(self, line):
-        m = self.RE_PASSED.match(line)
-        if m:
-            return m.group(2)
-
-    def getFailed(self, line):
-        m = self.RE_FAILED.match(line)
-        if m:
-            return m.group(2)
-
-    def setLastFailedTest(self, test, text):
-        """Update self.lastFailedTest as appropriate"""
-        # xpcshell logging is a little different from the other harnesses,
-        # in that failure details often include TEST-UNEXPECTED-FAIL with a
-        # a test name of something that isn't the real test, e.g.,
-        # (xpcshell/head.js).
-        # However, the first TEST-UNEXPECTED-FAIL for a given test does have
-        # the correct name.  Therefore, we keep track of the first test name
-        # for a given failure, and all subsequent failures are assigned that
-        # same test name, until we see '  <<<<<<<' in the log, which indicates
-        # that output for a given failure is finished.
-        if text and 'see following log:' in text:
-            self.lastFailedTest = test
-
-    def checkForTestFinish(self, line):
-        """Returns True if this line marks the end of a test"""
-        # for xpcshell tests, the string '  <<<<<<<' marks the end of a
-        # failed test
-        if '  <<<<<<<' in line:
-            return True
-
-        duration = None
-        # for passing tests, look for TEST-PASS
-        m = self.passTestRe.match(line)
-        if not m:
-            return False
-
-        duration = m.group(4)
-        if duration:
-            endtestname = self.normalizeTestName(m.group(2))
-            if self.testpasses and self.testpasses[-1]['test'] == endtestname:
-                self.testpasses[-1].update({'duration': duration})
-
-        return True
-
-    def normalizeTestName(self, test):
-        """Normalize the test name"""
-        # If we're inside a test failure already, reset the test name to the
-        # existing failure's name.  This allows us to avoid having errors show
-        # up for things like (xpcshell/head.js), which aren't real tests.
-        if self.lastFailedTest is not None:
-            test = self.lastFailedTest
-
-        return TestSuiteLogParser.normalizeTestName(self, test)
-
-    def getTestSuiteName(self, cmdline):
-        """Returns the test suite name"""
-        return 'xpcshell'
-
-
-class ReftestParser(TestSuiteLogParser):
-    """
-    applies to
-    - Reftest
-    - Crashtest
-    - JSReftest
-    """
-
-    # number of passed tests
-    RE_PASSED = re.compile(r".*?INFO \| Successful:(\s+)(\d+).*")
-    # number of failed tests
-    RE_FAILED = re.compile(r".*?INFO \| Unexpected:(\s+)(\d+)")
-    # number of todo tests
-    RE_TODO = re.compile(r".*?INFO \| Known problems:(\s+)(\d+)")
-    # image data
-    RE_IMAGE = re.compile(r"^.*?IMAGE (\d+) \(.*?\): (.*)")
-    # end of test line
-    RE_END_TEST = re.compile(r"^.*?REFTEST INFO \| Loading a blank page")
-
-    def get_passTestRe(self):
-        """Regex for a passed test"""
-        return re.compile(r"^(.*?)TEST-PASS \| (.*?) \|(.*)$")
-
-    def getTodo(self, line):
-        m = self.RE_TODO.match(line)
-        if m:
-            return m.group(2)
-
-    def getPassed(self, line):
-        m = self.RE_PASSED.match(line)
-        if m:
-            return m.group(2)
-
-    def getFailed(self, line):
-        m = self.RE_FAILED.match(line)
-        if m:
-            return m.group(2)
-
-    def processLine(self, line):
-        """Do any extra processing that's needed"""
-
-        # look for reftest images if appropriate
-        if self.testfailures:
-            m = self.RE_IMAGE.match(line)
-            if m:
-                image = "image" + str(m.group(1)) + "linenumber"
-                data = m.group(2)
-                self.testfailures[-1]['failures'][-1].update(
-                    {image: self.linenumber})
-
-    def checkForTestFinish(self, line):
-        """Returns True if this line marks the end of a test."""
-        m = self.RE_END_TEST.match(line)
-        if m:
-            return True
-        return False
-
-    def getTestSuiteName(self, cmdline):
-        """Returns the test suite name"""
-        if 'jsreftest' in cmdline:
-            return 'jsreftest'
-        if 'crashtest' in cmdline:
-            return 'crashtest'
-        return 'reftest'
-
-
-class BuildLogParser(SubParser):
-
-    # parse logs from these trees
-    TREES_TO_WATCH = [
-        'mozilla-central',
-        'mozilla-inbound',
-        'build-system',
-        'fx-team',
-        'ionmonkey',
-        'profiling',
-        'services-central',
-        'mozilla-aurora',
-        'mozilla-beta',
-        'mozilla-b2g18',
-        'mozilla-esr17'
+    Step format:
+        "steps": [
+        {
+            "errors": [],
+            "name": "set props: master", # the name of the process on start line
+            "started": "2013-06-05 12:39:57.838527",
+            "started_linenumber": 8,
+            "finished_linenumber": 10,
+            "finished": "2013-06-05 12:39:57.839226",
+            "error_count": 0,
+            "duration": 0.000699, # in seconds
+            "order": 0  # the order the process came in the log file
+        },
+        ...
     ]
 
-    RE_TIME = re.compile(
-        r'Started (.*) \(results: (.*?), elapsed: ((((\d+) hrs, '
-        r')*(\d+) mins, )*(\d+) secs)\)')
-    RE_FULLBUILD = re.compile(r'Creating directory build$')
-    RE_BUILDERNAME = re.compile(r'buildername: (.*)$')
-    RE_STARTTIME = re.compile(r"^starttime: (.*?)\.")
-    RE_TYPE = re.compile(
-        r'(%s)[-|_](.*?)(-debug|-o-debug)*(-(.*))*$' % '|'.join(
-            TREES_TO_WATCH))
-    RE_RESULTS = re.compile(r'results: (.*)$')
-    RE_LOGURL = re.compile(r'logurl: (.*)$')
-    RE_BUILDDIR = re.compile(r"builddir: '(.*?)'")
-    RE_CLOBBER = re.compile(r'(.*?):Clobbering...')
-    RE_PURGEDELETE = re.compile(r'^Deleting (.*)')
+    """
 
-    def __init__(self, job_type):
-        super(BuildLogParser, self).__init__(job_type)
-        self.linenumber = 0
-        self.laststep = None
-        self.starttime = None
-        self.steps = {}
-        self.platform = None
-        self.tree = None
-        self.buildtype = 'opt'
-        self.buildname = 'build'
-        self.success = None
-        self.buildername = None
-        self.logurl = None
-        self.clobbertype = None
-        self.builddir = None
-        self.clobbers = []
+    # after having started any section
+    ST_STARTED = "started"
+    # after having finished any section
+    ST_FINISHED = "finished"
+    # date format in a step started/finished header
+    DATE_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
 
-    def parse_content_line(self, line):
+    PATTERN = (" (.*?) \(results: \d+, elapsed: (?:\d+ mins, )?\d+ secs\) "
+               "\(at (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d+)\) ={9}")
+    RE_START = re.compile('={9} Started' + PATTERN)
+    RE_FINISH = re.compile('={9} Finished' + PATTERN)
 
-        self.linenumber += 1
-        if not line or self.parse_complete:
+    def __init__(self):
+        """Setup the artifact to hold the header lines."""
+        super(StepParser, self).__init__("steps")
+        self.stepnum = -1
+        self.artifact = {
+            "steps": [],
+            "errors": []
+        }
+        self.sub_parser = ErrorParser()
+
+    def parse_line(self, line, lineno):
+        """Parse a single non-header line of the log"""
+
+        # check if it's the start of a step
+        match = self.RE_START.match(line)
+        if match:
+            self.state = self.ST_STARTED
+            self.stepnum += 1
+            self.steps.append({
+                "name": match.group(1),
+                "started": match.group(2),
+                "started_linenumber": lineno,
+                "order": self.stepnum,
+                "errors": [],
+            })
+
             return
 
-        line = line.rstrip()
-
-        if not self.logurl:
-            match = self.RE_LOGURL.match(line)
-            if match:
-                self.logurl = match.group(1)
-                return
-
-        if not self.builddir:
-            match = self.RE_BUILDDIR.match(line)
-            if match:
-                self.builddir = match.group(1)
-                self.periodicre = re.compile(
-                    r'%s:More than 604800.0 seconds have passed since '
-                    r'our last clobber' % self.builddir)
-                return
-
-        if not self.buildername:
-            match = self.RE_BUILDERNAME.match(line)
-            if match:
-                self.buildername = match.group(1)
-                return
-
-        if self.success is None:
-            match = self.RE_RESULTS.match(line)
-            if match:
-                if 'success' in match.group(1):
-                    self.success = True
-                else:
-                    self.success = False
-                return
-
-        if not self.starttime:
-            match = self.RE_STARTTIME.search(line)
-            if match:
-                self.starttime = match.group(1)
-                return
-
-        match = self.RE_TIME.search(line)
+        # check if it's the end of a step
+        match = self.RE_FINISH.match(line)
         if match:
-            step = match.group(1)
-            if 'hgtool.py' in step:
-                step = 'hgtool.py'
-            hrs = int(match.group(6)) if match.group(6) else 0
-            mins = int(match.group(7)) if match.group(7) else 0
-            secs = int(match.group(8)) if match.group(8) else 0
-            subtotal = float(hrs * 60) + mins + (float(secs) / 60)
-            self.laststep = step
-            if subtotal > 0.5 or 'update' in step or 'hgtool' in step:
-                self.steps[step] = '{0:1.2f}'.format(subtotal)
+            self.state = self.ST_FINISHED
 
-        if self.laststep == 'compile' and self.RE_FULLBUILD.search(
-                line) and 'compile' in self.steps:
-            self.steps['compile_full'] = self.steps['compile']
-            del self.steps['compile']
+            self.current_step.update({
+                "finished": match.group(2),
+                "finished_linenumber": lineno,
+                "errors": self.sub_parser.get_artifact(),
+            })
+            self.set_duration()
+            self.current_step["error_count"] = len(self.current_step["errors"])
 
-        if self.laststep == 'set props: purge_actual purge_target':
-            match = self.RE_PURGEDELETE.match(line)
-            if match:
-                self.clobbers.append(line)
-                if self.builddir and self.builddir in line:
-                    self.clobbertype = 'free space'
+            # reset the sub_parser for the next step
+            self.sub_parser = ErrorParser()
+            return
 
-        if self.laststep == 'checking clobber times' and self.builddir:
-            match = self.periodicre.match(line)
-            if match:
-                self.clobbertype = 'periodic'
-            match = self.RE_CLOBBER.match(line)
-            if match:
-                self.clobbers.append(line)
+        # call the subparser to check for errors
+        self.sub_parser.parse_line(line, lineno)
 
-        if 'compile_full' in self.steps and self.clobbertype is None:
-            self.clobbertype = 'unknown'
+    def parsetime(self, match):
+        """Convert a string date into a datetime."""
+        return datetime.datetime.strptime(match, self.DATE_FORMAT)
 
-        self.artifact = {
-            'buildername': self.buildername,
-            'starttime': self.starttime,
-            'platform': self.platform,
-            'tree': self.tree,
-            'success': self.success,
-            'buildtype': self.buildtype,
-            'buildname': self.buildname,
-            'steps': self.steps,
-            'logurl': self.logurl,
-            'total': '{0:1.2f}'.format(self.total),
-            'builddir': self.builddir,
-            'clobbertype': self.clobbertype,
-            'clobbers': self.clobbers,
-        }
+    def set_duration(self):
+        """Sets duration for the step in seconds."""
+        start = self.parsetime(self.current_step["started"])
+        finish = self.parsetime(self.current_step["finished"])
+        delta = finish - start
+        self.current_step["duration"] = delta.total_seconds()
+
+    @property
+    def steps(self):
+        """Return the list of steps in the artifact"""
+        return self.artifact["steps"]
+
+    @property
+    def current_step(self):
+        """Return the current step in the artifact"""
+        return self.steps[self.stepnum]
 
 
-class TinderboxPrintSubParser(object):
+class TinderboxPrintParser(ParserBase):
 
     RE_TINDERBOXPRINT = re.compile('^TinderboxPrint: (.*)$')
 
     def __init__(self):
         """Setup the artifact to hold the tinderbox print lines."""
-        self.artifact = []
-        self.name = "tinderbox_printlines"
+        super(TinderboxPrintParser, self).__init__("tinderbox_printlines")
 
-    def parse_content_line(self, line):
+    def parse_line(self, line, lineno):
         """Parse a single line of the log"""
         match = self.RE_TINDERBOXPRINT.match(line)
         if match:
             self.artifact.append(match.group(1))
 
-    @property
-    def parse_complete(self):
-        """
-        Whether or not parsing is complete for this parser.
 
-        Indicates that we should stop parsing lines in this parser.
+class ErrorParser(ParserBase):
+    """A generic error detection sub-parser"""
 
-        """
-        return False
-
-    def get_errors(self):
-        """Don't distinguish errors in the Tinderbox Prints."""
-        return None
-
-    def get_artifact(self):
-        """By default, just return the artifact as-is."""
-        return self.artifact
-
-
-class ErrorParser(object):
-    """
-    Super simple parser to just find any line with an error or failure
-    """
+    RE_INFO = re.compile("/TEST-(?:INFO|PASS) /")
+    RE_ERR = re.compile((
+        "(/TEST-UNEXPECTED-(?:PASS|FAIL) /)"
+        "|(/^error: TEST FAILED/)"
+        "|(/^g?make(?:\[\d+\])?: \*\*\*/)"
+        "|(/fatal error/)"
+        "|(/PROCESS-CRASH/)"
+        "|(/Assertion failure:/)"
+        "|(/Assertion failed:/)"
+        "|(/###!!! ABORT:/)"
+        "|(/ error\([0-9]*\):/)"
+        "|(/ error R?C[0-9]*:/)"
+        "|(/^\d+:\d+:\d+[ ]+(?:ERROR|CRITICAL|FATAL) - /)"
+        "|(/^[A-Za-z]+Error:/)"
+        "|(/^BaseException:/)"
+        "|(/Automation Error:/)"
+        "|(/Remote Device Error:/)"
+        "|(/command timed out:/)"
+        "|(/^remoteFailed:/)"
+        "|(/^rm: cannot /)"
+        "|(/^abort:/)"
+        "|(/ERROR 503:/)"
+        "|(/wget: unable /)"
+        "|(/^Output exceeded \d+ bytes/)"
+        "|(/^The web-page 'stop build' button was pressed/)"
+    ))
 
     def __init__(self):
         """A simple error detection sub-parser"""
-        self.RE_INFO = re.compile("/TEST-(?:INFO|PASS) /")
-        self.RE_ERR = re.compile(r".*?(TEST-UNEXPECTED-.*|PROCESS-CRASH) \| (.*)\|(.*)")
-        self.RE_ERR2 = re.compile((
-            "(/TEST-UNEXPECTED-(?:PASS|FAIL) /)"
-            "|(/^error: TEST FAILED/)"
-            "|(/^g?make(?:\[\d+\])?: \*\*\*/)"
-            "|(/fatal error/)"
-            "|(/PROCESS-CRASH/)"
-            "|(/Assertion failure:/)"
-            "|(/Assertion failed:/)"
-            "|(/###!!! ABORT:/)"
-            "|(/ error\([0-9]*\):/)"
-            "|(/ error R?C[0-9]*:/)"
-            "|(/^\d+:\d+:\d+[ ]+(?:ERROR|CRITICAL|FATAL) - /)"
-            "|(/^[A-Za-z]+Error:/)"
-            "|(/^BaseException:/)"
-            "|(/Automation Error:/)"
-            "|(/Remote Device Error:/)"
-            "|(/command timed out:/)"
-            "|(/^remoteFailed:/)"
-            "|(/^rm: cannot /)"
-            "|(/^abort:/)"
-            "|(/ERROR 503:/)"
-            "|(/wget: unable /)"
-            "|(/^Output exceeded \d+ bytes/)"
-            "|(/^The web-page 'stop build' button was pressed/)"
-        ))
+        super(ErrorParser, self).__init__("errors")
 
-        self.errors = []
-
-    def parse_content_line(self, line, lineno):
+    def parse_line(self, line, lineno):
         """Check a single line for an error.  Keeps track of the linenumber"""
-        if self.RE_ERR2.match(line):
-            self.errors.append({
+        if self.RE_ERR.match(line) and not self.RE_INFO.match(line):
+            self.artifact.append({
                 "linenumber": lineno,
                 "line": line
             })
-
-    def get_artifact(self):
-        """Return the list of errors found, if any."""
-        return self.errors

@@ -1,5 +1,3 @@
-import datetime
-import time
 import re
 
 
@@ -15,29 +13,6 @@ class BuildbotLogParserBase(object):
 
     """
 
-    #################
-    # state constants
-    #################
-
-    # while still reading the initial header section
-    ST_HEADER = 'header'
-    # after having started any section
-    ST_STARTED = "started"
-    # after having finished any section
-    ST_FINISHED = "finished"
-    # this parser is done, no more need to parse lines
-    ST_PARSE_COMPLETE = "parse complete"
-
-    #################
-    # regex patterns for started and finished sections
-    #################
-    RE_HEADER_VALUE = re.compile('^(?P<key>[a-z]+): (?P<value>.*)$')
-    PATTERN = ' (.*?) \(results: \d+, elapsed: (?:\d+ mins, )?\d+ secs\) \(at (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d+)\) ={9}'
-    RE_START = re.compile('={9} Started' + PATTERN)
-    RE_FINISH = re.compile('={9} Finished' + PATTERN)
-    RE_PROPERTY = re.compile('(\w*): (.*)')
-    DATE_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
-
     def __init__(self, job_type, url=None):
         """
         Create the LogParser
@@ -47,44 +22,16 @@ class BuildbotLogParserBase(object):
                   added to the artifact.
         """
         self.artifact = {
-            "header": {},
-            "url": url
+            "logurl": url
         }
-        self.state = self.ST_HEADER
         self.job_type = job_type
         self.lineno = 0
-        # the first start time
-        self.first_starttime = None
-        # the last finish time
-        self.last_finishtime = None
+        self.parsers = []
 
     @property
     def name(self):
         """Return the name used to store this in the collection's artifact"""
         raise NotImplementedError  # pragma nocover
-
-    def parsetime(self, match):
-        """Convert a string date into a datetime."""
-        return datetime.datetime.strptime(match, self.DATE_FORMAT)
-
-    def parse_header_line(self, line):
-        """
-        Parse out a value in the header
-
-        The header values in the log look like this:
-            builder: mozilla-central_ubuntu32_vm_test-crashtest-ipc
-            slave: tst-linux32-ec2-137
-            starttime: 1368466076.01
-            results: success (0)
-            buildid: 20130513091541
-            builduid: acddb5f7043c4d5b9f66619f9433cab0
-            revision: c80dc6ffe865
-
-        """
-        match = self.RE_HEADER_VALUE.match(line)
-        if match:
-            key, value = match.groups()
-            self.artifact["header"][key] = value
 
     def parse_line(self, line):
         """
@@ -92,30 +39,18 @@ class BuildbotLogParserBase(object):
 
         Parse the header until we hit a line with "started" in it.
         """
-        if self.state == self.ST_HEADER:
-            match = self.RE_START.match(line)
-            if not match:
-                self.parse_header_line(line)
-            else:
-                self.state = self.ST_STARTED
-                self.parse_content_line(line)
-        else:
-            match = self.RE_FINISH.match(line)
-            if match:
-                self.artifact["header"]["finishtime"] = self.parsetime(
-                    match.group(2)).strftime("%s")
-            self.parse_content_line(line)
+
+        for parser in self.parsers:
+            if not parser.parse_complete:
+                parser.parse_line(line, self.lineno)
+
+            # match = self.RE_FINISH.match(line)
+            # if match:
+            #     self.artifact["header"]["finishtime"] = self.parsetime(
+            #         match.group(2)).strftime("%s")
+            # self.parse_content_line(line)
 
         self.lineno += 1
-
-    def parse_content_line(self, line):
-        """Child class implements to handle parsing of non-header data"""
-        raise NotImplementedError  # pragma nocover
-
-    @property
-    def parse_complete(self):
-        """Whether or not this parser is complete and should stop parsing."""
-        return self.state == self.ST_PARSE_COMPLETE
 
     def get_artifact(self):
         """
@@ -125,4 +60,13 @@ class BuildbotLogParserBase(object):
         This can be handy to get the "final duration" based on the
         last finished section.
         """
+        for sp in self.parsers:
+            self.artifact[sp.name] = sp.get_artifact()
         return self.artifact
+
+    def parse_complete(self):
+        """Whether or not all parsers are complete for this artifact."""
+        if len(self.parsers):
+            return all(x.parse_complete() for x in self.parsers)
+        else:
+            return False
