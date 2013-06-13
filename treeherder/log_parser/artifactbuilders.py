@@ -47,10 +47,11 @@ class ArtifactBuilderBase(object):
             self.artifact[sp.name] = sp.get_artifact()
         return self.artifact
 
+    @property
     def complete(self):
         """Whether or not all parsers are complete for this artifact."""
         if len(self.parsers):
-            return all(x.complete() for x in self.parsers)
+            return all(x.complete for x in self.parsers)
         else:
             return False
 
@@ -88,7 +89,7 @@ class BuildbotLogViewArtifactBuilder(ArtifactBuilderBase):
     def __init__(self, url=None):
         """Construct artifact builder for the log viewer"""
         super(BuildbotLogViewArtifactBuilder, self).__init__(url)
-        self.sub_parsers = [
+        self.parsers = [
             HeaderParser(),
             StepParser()
         ]

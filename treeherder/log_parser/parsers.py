@@ -21,6 +21,7 @@ class ParserBase(object):
         """By default, just return the artifact as-is."""
         return self.artifact
 
+    @property
     def complete(self):
         """Whether or not this parser is done and should stop parsing."""
         return self.parse_complete
@@ -29,7 +30,7 @@ class ParserBase(object):
 class HeaderParser(ParserBase):
 
     RE_HEADER_VALUE = re.compile('^(?P<key>[a-z]+): (?P<value>.*)$')
-    RE_START = re.compile('={9} Started')
+    RE_START = re.compile("={9} Started (.*)$")
 
     def __init__(self):
         """Setup the artifact to hold the header lines."""
@@ -98,11 +99,11 @@ class StepParser(ParserBase):
 
     def __init__(self):
         """Setup the artifact to hold the header lines."""
-        super(StepParser, self).__init__("steps")
+        super(StepParser, self).__init__("step_data")
         self.stepnum = -1
         self.artifact = {
             "steps": [],
-            "errors": []
+            "all_errors": []
         }
         self.sub_parser = ErrorParser()
 
@@ -135,6 +136,8 @@ class StepParser(ParserBase):
                 "errors": self.sub_parser.get_artifact(),
             })
             self.set_duration()
+            # Append errors from current step to "all_errors" field
+            self.artifact["all_errors"].extend(self.sub_parser.get_artifact())
             self.current_step["error_count"] = len(self.current_step["errors"])
 
             # reset the sub_parser for the next step
@@ -168,7 +171,7 @@ class StepParser(ParserBase):
 
 class TinderboxPrintParser(ParserBase):
 
-    RE_TINDERBOXPRINT = re.compile('^TinderboxPrint: (.*)$')
+    RE_TINDERBOXPRINT = re.compile('.*?TinderboxPrint: (.*)$')
 
     def __init__(self):
         """Setup the artifact to hold the tinderbox print lines."""
@@ -184,31 +187,31 @@ class TinderboxPrintParser(ParserBase):
 class ErrorParser(ParserBase):
     """A generic error detection sub-parser"""
 
-    RE_INFO = re.compile("/TEST-(?:INFO|PASS) /")
+    RE_INFO = re.compile("TEST-(?:INFO|PASS) ")
     RE_ERR = re.compile((
-        "(/TEST-UNEXPECTED-(?:PASS|FAIL) /)"
-        "|(/^error: TEST FAILED/)"
-        "|(/^g?make(?:\[\d+\])?: \*\*\*/)"
-        "|(/fatal error/)"
-        "|(/PROCESS-CRASH/)"
-        "|(/Assertion failure:/)"
-        "|(/Assertion failed:/)"
-        "|(/###!!! ABORT:/)"
-        "|(/ error\([0-9]*\):/)"
-        "|(/ error R?C[0-9]*:/)"
-        "|(/^\d+:\d+:\d+[ ]+(?:ERROR|CRITICAL|FATAL) - /)"
-        "|(/^[A-Za-z]+Error:/)"
-        "|(/^BaseException:/)"
-        "|(/Automation Error:/)"
-        "|(/Remote Device Error:/)"
-        "|(/command timed out:/)"
-        "|(/^remoteFailed:/)"
-        "|(/^rm: cannot /)"
-        "|(/^abort:/)"
-        "|(/ERROR 503:/)"
-        "|(/wget: unable /)"
-        "|(/^Output exceeded \d+ bytes/)"
-        "|(/^The web-page 'stop build' button was pressed/)"
+        "TEST-UNEXPECTED-(?:PASS|FAIL) "
+        "|^error: TEST FAILED"
+        "|^g?make(?:\[\d+\])?: \*\*\*"
+        "|fatal error"
+        "|PROCESS-CRASH"
+        "|Assertion failure:"
+        "|Assertion failed:"
+        "|###!!! ABORT:"
+        "| error\([0-9]*\):"
+        "| error R?C[0-9]*:"
+        "|^\d+:\d+:\d+[ ]+(?:ERROR|CRITICAL|FATAL) - "
+        "|^[A-Za-z]+Error:"
+        "|^BaseException:"
+        "|Automation Error:"
+        "|Remote Device Error:"
+        "|command timed out:"
+        "|^remoteFailed:"
+        "|^rm: cannot "
+        "|^abort:"
+        "|ERROR 503:"
+        "|wget: unable "
+        "|^Output exceeded \d+ bytes"
+        "|^The web-page 'stop build' button was pressed"
     ))
 
     def __init__(self):
@@ -217,8 +220,8 @@ class ErrorParser(ParserBase):
 
     def parse_line(self, line, lineno):
         """Check a single line for an error.  Keeps track of the linenumber"""
-        if self.RE_ERR.match(line) and not self.RE_INFO.match(line):
+        if self.RE_ERR.search(line) and not self.RE_INFO.search(line):
             self.artifact.append({
                 "linenumber": lineno,
-                "line": line
+                "line": line.rstrip()
             })
