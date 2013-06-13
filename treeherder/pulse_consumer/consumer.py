@@ -775,6 +775,8 @@ class TreeherderDataAdapter(PulseDataAdapter):
             'end_timestamp': str( int( time.time() ) ),
             'machine': data['slave'],
 
+            'build_url':data['buildurl'],
+
             'build_platform': {
                 'os_name': data['os'],
                 'platform': data['os_platform'],

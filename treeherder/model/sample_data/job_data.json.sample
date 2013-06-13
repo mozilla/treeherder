@@ -72,6 +72,9 @@
             #Stored in treeherder_reference_1.machine.name
             machine:"",
 
+            #Stored in project_jobs_1.job_artifact, name=build_url
+            build_url:"",
+
             #Stored in:
             # treeherder_reference_1.build_platform.os_name,
             # treeherder_reference_1.build_platform.platform,
