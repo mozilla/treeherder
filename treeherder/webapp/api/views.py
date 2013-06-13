@@ -4,6 +4,7 @@ from django.http import Http404
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import exceptions
+from treeherder.model import models
 
 from treeherder.model.derived import JobsModel, DatasetNotFoundError
 
@@ -51,3 +52,72 @@ class ObjectstoreViewSet(viewsets.ViewSet):
         jm = JobsModel(project)
         objs = jm.get_json_blob_list(page, 10)
         return Response([json.loads(obj['json_blob']) for obj in objs])
+
+
+#####################
+# Refdata ViewSets
+#####################
+
+class ProductViewSet(viewsets.ModelViewSet):
+    """ViewSet for the refdata Product model"""
+    model = models.Product
+
+
+class BuildPlatformViewSet(viewsets.ModelViewSet):
+    """ViewSet for the refdata BuildPlatform model"""
+    model = models.BuildPlatform
+
+
+class OptionViewSet(viewsets.ModelViewSet):
+    """ViewSet for the refdata Option model"""
+    model = models.Option
+
+
+class JobGroupViewSet(viewsets.ModelViewSet):
+    """ViewSet for the refdata JobGroup model"""
+    model = models.JobGroup
+
+
+class RepositoryViewSet(viewsets.ModelViewSet):
+    """ViewSet for the refdata Repository model"""
+    model = models.Repository
+
+
+class MachinePlatformViewSet(viewsets.ModelViewSet):
+    """ViewSet for the refdata MachinePlatform model"""
+    model = models.MachinePlatform
+
+
+class BugscacheViewSet(viewsets.ModelViewSet):
+    """ViewSet for the refdata Bugscache model"""
+    model = models.Bugscache
+
+
+class MachineViewSet(viewsets.ModelViewSet):
+    """ViewSet for the refdata Machine model"""
+    model = models.Machine
+
+
+class MachineNoteViewSet(viewsets.ModelViewSet):
+    """ViewSet for the refdata MachineNote model"""
+    model = models.MachineNote
+
+
+class RepositoryVersionViewSet(viewsets.ModelViewSet):
+    """ViewSet for the refdata RepositoryVersion model"""
+    model = models.RepositoryVersion
+
+
+class OptionCollectionViewSet(viewsets.ModelViewSet):
+    """ViewSet for the refdata OptionCollection model"""
+    model = models.OptionCollection
+
+
+class JobTypeViewSet(viewsets.ModelViewSet):
+    """ViewSet for the refdata JobType model"""
+    model = models.JobType
+
+
+class FailureClassificationViewSet(viewsets.ModelViewSet):
+    """ViewSet for the refdata FailureClassification model"""
+    model = models.FailureClassification
