@@ -15,7 +15,7 @@ class ParserBase(object):
 
     def parse_line(self, line, lineno):
         """Parse a single line of the log"""
-        raise NotImplementedError
+        raise NotImplementedError  # pragma no cover
 
     def get_artifact(self):
         """By default, just return the artifact as-is."""

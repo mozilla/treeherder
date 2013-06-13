@@ -50,10 +50,7 @@ class ArtifactBuilderBase(object):
     @property
     def complete(self):
         """Whether or not all parsers are complete for this artifact."""
-        if len(self.parsers):
-            return all(x.complete for x in self.parsers)
-        else:
-            return False
+        return all(x.complete for x in self.parsers)
 
 
 class BuildbotJobArtifactBuilder(ArtifactBuilderBase):
