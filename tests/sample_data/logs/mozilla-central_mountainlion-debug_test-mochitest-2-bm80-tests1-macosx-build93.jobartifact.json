@@ -1,0 +1,8 @@
+{
+    "errors": [],
+    "tinderbox_printlines": [
+        "mozharness_revlink: http://hg.mozilla.org/build/mozharness/rev/c43ba6cb3db3",
+        "mochitest-plain2<br/>206414/0/18501"
+    ],
+    "logurl": "file:///home/vagrant/treeherder-service/tests/sample_data/logs/mozilla-central_mountainlion-debug_test-mochitest-2-bm80-tests1-macosx-build93.txt.gz"
+}

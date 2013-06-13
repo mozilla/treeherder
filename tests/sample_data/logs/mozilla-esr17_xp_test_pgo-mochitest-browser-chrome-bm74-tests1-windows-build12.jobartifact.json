@@ -1,0 +1,16 @@
+{
+    "errors": [
+        {
+            "line": "TEST-UNEXPECTED-FAIL | chrome://mochitests/content/browser/dom/tests/browser/browser_ConsoleAPITests.js | Exception thrown in CO_observe: TypeError: Components.utils.isXrayWrapper is not a function",
+            "linenumber": 26698
+        },
+        {
+            "line": "TEST-UNEXPECTED-FAIL | chrome://mochitests/content/browser/dom/tests/browser/browser_ConsoleAPITests.js | Test timed out",
+            "linenumber": 26705
+        }
+    ],
+    "tinderbox_printlines": [
+        "mochitest-browser-chrome<br/>31776/<em class=\"testfail\">2</em>/40"
+    ],
+    "logurl": "file:///home/vagrant/treeherder-service/tests/sample_data/logs/mozilla-esr17_xp_test_pgo-mochitest-browser-chrome-bm74-tests1-windows-build12.txt.gz"
+}
