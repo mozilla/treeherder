@@ -1,5 +1,4 @@
 {
-    "url": "file:///home/vagrant/treeherder-service/tests/sample_data/logs/mozilla-central_mountainlion_test-mochitest-2-bm77-tests1-macosx-build141.txt.gz",
     "header": {
         "slave": "talos-mtnlion-r5-080",
         "buildid": "20130605115738",
@@ -9,138 +8,142 @@
         "builduid": "48d01a5d6b0c43d593f8d9e9f60857be",
         "revision": "1658dc513572"
     },
-    "steps": [
-        {
-            "errors": [],
-            "name": "set props: master",
-            "started": "2013-06-05 12:55:02.793687",
-            "started_linenumber": 8,
-            "finished_linenumber": 10,
-            "finished": "2013-06-05 12:55:02.794485",
-            "error_count": 0,
-            "duration": 0.000798,
-            "order": 0
-        },
-        {
-            "errors": [],
-            "name": "set props: basedir",
-            "started": "2013-06-05 12:55:02.794985",
-            "started_linenumber": 12,
-            "finished_linenumber": 36,
-            "finished": "2013-06-05 12:55:03.579905",
-            "error_count": 0,
-            "duration": 0.78492,
-            "order": 1
-        },
-        {
-            "errors": [],
-            "name": "downloading to buildprops.json",
-            "started": "2013-06-05 12:55:03.580420",
-            "started_linenumber": 38,
-            "finished_linenumber": 39,
-            "finished": "2013-06-05 12:55:05.429410",
-            "error_count": 0,
-            "duration": 1.84899,
-            "order": 2
-        },
-        {
-            "errors": [],
-            "name": "'rm -rf ...'",
-            "started": "2013-06-05 12:55:05.429870",
-            "started_linenumber": 41,
-            "finished_linenumber": 63,
-            "finished": "2013-06-05 12:55:05.711713",
-            "error_count": 0,
-            "duration": 0.281843,
-            "order": 3
-        },
-        {
-            "errors": [],
-            "name": "'rm -rf ...'",
-            "started": "2013-06-05 12:55:05.712188",
-            "started_linenumber": 65,
-            "finished_linenumber": 87,
-            "finished": "2013-06-05 12:55:05.951055",
-            "error_count": 0,
-            "duration": 0.238867,
-            "order": 4
-        },
-        {
-            "errors": [],
-            "name": "'hg clone ...'",
-            "started": "2013-06-05 12:55:05.951563",
-            "started_linenumber": 89,
-            "finished_linenumber": 118,
-            "finished": "2013-06-05 12:55:08.587665",
-            "error_count": 0,
-            "duration": 2.636102,
-            "order": 5
-        },
-        {
-            "errors": [],
-            "name": "'hg update ...'",
-            "started": "2013-06-05 12:55:08.588162",
-            "started_linenumber": 120,
-            "finished_linenumber": 143,
-            "finished": "2013-06-05 12:55:09.070938",
-            "error_count": 0,
-            "duration": 0.482776,
-            "order": 6
-        },
-        {
-            "errors": [],
-            "name": "set props: script_repo_revision",
-            "started": "2013-06-05 12:55:09.071436",
-            "started_linenumber": 145,
-            "finished_linenumber": 169,
-            "finished": "2013-06-05 12:55:09.553968",
-            "error_count": 0,
-            "duration": 0.482532,
-            "order": 7
-        },
-        {
-            "errors": [],
-            "name": "tinderboxprint_script_revlink",
-            "started": "2013-06-05 12:55:09.554462",
-            "started_linenumber": 171,
-            "finished_linenumber": 173,
-            "finished": "2013-06-05 12:55:09.555053",
-            "error_count": 0,
-            "duration": 0.000591,
-            "order": 8
-        },
-        {
-            "errors": [],
-            "name": "'/tools/buildbot/bin/python scripts/scripts/desktop_unittest.py ...'",
-            "started": "2013-06-05 12:55:09.555542",
-            "started_linenumber": 175,
-            "finished_linenumber": 11552,
-            "finished": "2013-06-05 13:02:38.681825",
-            "error_count": 0,
-            "duration": 449.126283,
-            "order": 9
-        },
-        {
-            "errors": [],
-            "name": "set props: build_url",
-            "started": "2013-06-05 13:02:38.687346",
-            "started_linenumber": 11554,
-            "finished_linenumber": 11578,
-            "finished": "2013-06-05 13:02:38.876303",
-            "error_count": 0,
-            "duration": 0.188957,
-            "order": 10
-        },
-        {
-            "errors": [],
-            "name": "reboot slave lost",
-            "started": "2013-06-05 13:02:38.876850",
-            "started_linenumber": 11580,
-            "finished_linenumber": 11609,
-            "finished": "2013-06-05 13:03:00.115654",
-            "error_count": 0,
-            "duration": 21.238804,
-            "order": 11
-        }
-    ]
+    "step_data": {
+        "all_errors": [],
+        "steps": [
+            {
+                "errors": [],
+                "name": "set props: master",
+                "started": "2013-06-05 12:55:02.793687",
+                "started_linenumber": 8,
+                "finished_linenumber": 10,
+                "finished": "2013-06-05 12:55:02.794485",
+                "error_count": 0,
+                "duration": 0.000798,
+                "order": 0
+            },
+            {
+                "errors": [],
+                "name": "set props: basedir",
+                "started": "2013-06-05 12:55:02.794985",
+                "started_linenumber": 12,
+                "finished_linenumber": 36,
+                "finished": "2013-06-05 12:55:03.579905",
+                "error_count": 0,
+                "duration": 0.78492,
+                "order": 1
+            },
+            {
+                "errors": [],
+                "name": "downloading to buildprops.json",
+                "started": "2013-06-05 12:55:03.580420",
+                "started_linenumber": 38,
+                "finished_linenumber": 39,
+                "finished": "2013-06-05 12:55:05.429410",
+                "error_count": 0,
+                "duration": 1.84899,
+                "order": 2
+            },
+            {
+                "errors": [],
+                "name": "'rm -rf ...'",
+                "started": "2013-06-05 12:55:05.429870",
+                "started_linenumber": 41,
+                "finished_linenumber": 63,
+                "finished": "2013-06-05 12:55:05.711713",
+                "error_count": 0,
+                "duration": 0.281843,
+                "order": 3
+            },
+            {
+                "errors": [],
+                "name": "'rm -rf ...'",
+                "started": "2013-06-05 12:55:05.712188",
+                "started_linenumber": 65,
+                "finished_linenumber": 87,
+                "finished": "2013-06-05 12:55:05.951055",
+                "error_count": 0,
+                "duration": 0.238867,
+                "order": 4
+            },
+            {
+                "errors": [],
+                "name": "'hg clone ...'",
+                "started": "2013-06-05 12:55:05.951563",
+                "started_linenumber": 89,
+                "finished_linenumber": 118,
+                "finished": "2013-06-05 12:55:08.587665",
+                "error_count": 0,
+                "duration": 2.636102,
+                "order": 5
+            },
+            {
+                "errors": [],
+                "name": "'hg update ...'",
+                "started": "2013-06-05 12:55:08.588162",
+                "started_linenumber": 120,
+                "finished_linenumber": 143,
+                "finished": "2013-06-05 12:55:09.070938",
+                "error_count": 0,
+                "duration": 0.482776,
+                "order": 6
+            },
+            {
+                "errors": [],
+                "name": "set props: script_repo_revision",
+                "started": "2013-06-05 12:55:09.071436",
+                "started_linenumber": 145,
+                "finished_linenumber": 169,
+                "finished": "2013-06-05 12:55:09.553968",
+                "error_count": 0,
+                "duration": 0.482532,
+                "order": 7
+            },
+            {
+                "errors": [],
+                "name": "tinderboxprint_script_revlink",
+                "started": "2013-06-05 12:55:09.554462",
+                "started_linenumber": 171,
+                "finished_linenumber": 173,
+                "finished": "2013-06-05 12:55:09.555053",
+                "error_count": 0,
+                "duration": 0.000591,
+                "order": 8
+            },
+            {
+                "errors": [],
+                "name": "'/tools/buildbot/bin/python scripts/scripts/desktop_unittest.py ...'",
+                "started": "2013-06-05 12:55:09.555542",
+                "started_linenumber": 175,
+                "finished_linenumber": 11552,
+                "finished": "2013-06-05 13:02:38.681825",
+                "error_count": 0,
+                "duration": 449.126283,
+                "order": 9
+            },
+            {
+                "errors": [],
+                "name": "set props: build_url",
+                "started": "2013-06-05 13:02:38.687346",
+                "started_linenumber": 11554,
+                "finished_linenumber": 11578,
+                "finished": "2013-06-05 13:02:38.876303",
+                "error_count": 0,
+                "duration": 0.188957,
+                "order": 10
+            },
+            {
+                "errors": [],
+                "name": "reboot slave lost",
+                "started": "2013-06-05 13:02:38.876850",
+                "started_linenumber": 11580,
+                "finished_linenumber": 11609,
+                "finished": "2013-06-05 13:03:00.115654",
+                "error_count": 0,
+                "duration": 21.238804,
+                "order": 11
+            }
+        ]
+    },
+    "logurl": "file:///home/vagrant/treeherder-service/tests/sample_data/logs/mozilla-central_mountainlion_test-mochitest-2-bm77-tests1-macosx-build141.txt.gz"
 }
