@@ -26,7 +26,6 @@ class JobsModel(TreeherderModelBase):
     CT_OBJECTSTORE = "objectstore"
     CONTENT_TYPES = [CT_JOBS, CT_OBJECTSTORE]
 
-
     @classmethod
     def create(cls, project, host=None):
         """
@@ -97,7 +96,7 @@ class JobsModel(TreeherderModelBase):
         secret = ds.get_oauth_consumer_secret(key)
         return secret
 
-    def store_job_data(self, json_data, job_guid,  error=None):
+    def store_job_data(self, json_data, job_guid, error=None):
         """
         Write the JSON to the objectstore to be queued for processing.
         job_guid is needed in order to decide wether the object exists or not
@@ -111,7 +110,13 @@ class JobsModel(TreeherderModelBase):
         # otherwise it does nothing
         self.get_os_dhub().execute(
             proc='objectstore.inserts.store_json',
-            placeholders=[loaded_timestamp, job_guid, json_data, error, error_msg, job_guid],
+            placeholders=[
+                loaded_timestamp,
+                job_guid,
+                json_data,
+                error,
+                error_msg,
+                job_guid],
             debug_show=self.DEBUG
         )
 
@@ -143,7 +148,6 @@ class JobsModel(TreeherderModelBase):
         )
 
         return json_blobs
-
 
     def load_job_data(self, data):
         """
@@ -372,7 +376,6 @@ class JobsModel(TreeherderModelBase):
         except ValueError as e:
             raise JobDataError(e.message)
 
-
         job_id = self._insert_data_and_get_id(
             'set_job_data',
             [
@@ -536,6 +539,29 @@ class JobsModel(TreeherderModelBase):
             placeholders=[error, object_id],
             debug_show=self.DEBUG
         )
+
+    def get_json_blob_by_guid(self, guid):
+        """retrieves a json_blob given its guid"""
+        return self.get_os_dhub().execute(
+            proc="objectstore.selects.get_json_blob_by_guid",
+            placeholders=[guid],
+            debug_show=self.DEBUG
+        )
+
+    def get_json_blob_list(self, page, limit):
+        """
+        Retrieve JSON blobs from the objectstore.
+        Mainly used by the restful api to list the last blobs stored
+        """
+        proc = "objectstore.selects.get_json_blob_list"
+        json_blobs = self.get_os_dhub().execute(
+            proc=proc,
+            placeholders=[page, limit],
+            debug_show=self.DEBUG,
+            return_type='tuple'
+        )
+
+        return json_blobs
 
 
 class JobDataError(ValueError):
