@@ -11,7 +11,7 @@
                   FROM DUAL
                   WHERE NOT EXISTS (
                     SELECT `job_guid` from `objectstore`
-                    WHERE `job_guid` = ?  
+                    WHERE `job_guid` = ?
                   )",
             "host":"master_host"
         }
@@ -87,16 +87,16 @@
         },
 
         "get_json_blob_list":{
-          "sql":"SELECT json_blob,
-                        error_msg,
-                        error,
-                        processed_state,
-                        loaded_timestamp,
-                        job_guid
-                   FROM `objectstore`
-                   ORDER BY loaded_timestamp DESC
-                   LIMIT ?,?",
-          "host":"read_host"
+            "sql":"SELECT json_blob,
+                          error_msg,
+                          error,
+                          processed_state,
+                          loaded_timestamp,
+                          job_guid
+                     FROM `objectstore`
+                     ORDER BY loaded_timestamp DESC
+                     LIMIT ?,?",
+            "host":"read_host"
         },
 
         "get_json_blob_for_test_run":{

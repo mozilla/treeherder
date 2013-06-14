@@ -7,7 +7,6 @@ from django.conf import settings
 from treeherder.model.models import Datasource
 from treeherder.model import utils
 
-from .refdata import RefDataManager
 from .base import TreeherderModelBase
 
 
@@ -25,6 +24,7 @@ class JobsModel(TreeherderModelBase):
     CT_JOBS = "jobs"
     CT_OBJECTSTORE = "objectstore"
     CONTENT_TYPES = [CT_JOBS, CT_OBJECTSTORE]
+    STATES = ["pending", "running", "completed", "coalesced"]
 
     @classmethod
     def create(cls, project, host=None):
@@ -65,6 +65,29 @@ class JobsModel(TreeherderModelBase):
         """Return the job row for this ``job_id``"""
         return self.get_row_by_id(self.CT_JOBS, "job", job_id).next()
 
+    def get_job_list(self, page, limit):
+        """
+        Retrieve a list of jobs.
+        Mainly used by the restful api to list the jobs
+        """
+        proc = "jobs.selects.get_job_list"
+        json_blobs = self.get_jobs_dhub().execute(
+            proc=proc,
+            placeholders=[page, limit],
+            debug_show=self.DEBUG,
+            return_type='iter'
+        )
+
+        return json_blobs
+
+    def set_state(self, job_id, state):
+        """Update the state of an existing job"""
+        self.get_jobs_dhub().execute(
+            proc='jobs.updates.set_state',
+            placeholders=[state, job_id],
+            debug_show=self.DEBUG
+        )
+
     def get_log_references(self, job_id):
         """Return the log references for the given ``job_id``."""
         return self.get_jobs_dhub().execute(
@@ -73,6 +96,12 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG,
             return_type='iter',
         )
+
+    ##################
+    #
+    # Objectstore functionality
+    #
+    ##################
 
     def get_os_errors(self, starttime, endtime):
         """Return all the errors from the objectstore in this range."""
@@ -83,12 +112,6 @@ class JobsModel(TreeherderModelBase):
             return_type='dict',
             key_column="job_id"
         )
-
-    ##################
-    #
-    # Objectstore functionality
-    #
-    ##################
 
     def get_oauth_consumer_secret(self, key):
         """Consumer secret for oauth"""
@@ -448,7 +471,6 @@ class JobsModel(TreeherderModelBase):
 
         for row in rows:
             row_id = int(row['id'])
-            import traceback
             try:
                 data = JobData.from_json(row['json_blob'])
                 self.load_job_data(data)

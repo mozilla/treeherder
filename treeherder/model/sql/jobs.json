@@ -1,7 +1,4 @@
 {
-    "views":{
-
-    },
     "inserts":{
         "set_job_data":{
 
@@ -80,9 +77,25 @@
         }
 
     },
+
+    "updates": {
+        "set_state":{
+
+            "sql":"UPDATE `jobs`
+                SET    `state` = ?
+                WHERE  `job_id` = ?",
+
+                "host":"master_host"
+        }
+    },
     "selects":{
         "get_job":{
             "sql":"SELECT * FROM `job` WHERE id = ?",
+
+            "host":"read_host"
+        },
+        "get_job_list":{
+            "sql":"SELECT * FROM `job` LIMIT ?,?",
 
             "host":"read_host"
         },

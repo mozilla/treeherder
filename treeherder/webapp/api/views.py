@@ -4,6 +4,7 @@ from django.http import Http404
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import exceptions
+from rest_framework.decorators import action
 from treeherder.model import models
 
 from treeherder.model.derived import JobsModel, DatasetNotFoundError
@@ -30,7 +31,7 @@ class ObjectstoreViewSet(viewsets.ViewSet):
             jm.disconnect()
         except DatasetNotFoundError as e:
             return Response({"message": str(e)}, status=404)
-        except Exception as e:  ## pragma nocover
+        except Exception as e:  # pragma nocover
             return Response({"message": str(e)}, status=500)
 
         return Response({'message': 'well-formed JSON stored'})
@@ -54,6 +55,58 @@ class ObjectstoreViewSet(viewsets.ViewSet):
         jm = JobsModel(project)
         objs = jm.get_json_blob_list(page, 10)
         return Response([json.loads(obj['json_blob']) for obj in objs])
+
+
+class JobsViewSet(viewsets.ViewSet):
+    """
+    This view is responsible for the jobs endpoint.
+
+    """
+
+    def retrieve(self, request, project, pk=None):
+        """
+        GET method implementation for detail view
+        """
+        jm = JobsModel(project)
+        obj = jm.get_job(pk)
+        if obj:
+            return Response(json.loads(obj[0]['job']))
+        else:
+            raise Http404()
+
+    def list(self, request, project):
+        """
+        GET method implementation for list view
+        """
+        page = request.QUERY_PARAMS.get('page', 0)
+        jm = JobsModel(project)
+        objs = jm.get_job_list(page, 10)
+        return Response([json.loads(obj['job']) for obj in objs])
+
+    @action
+    def state(self, request, project, pk=None):
+        """
+        Change the status of a job.
+        """
+        state = request.QUERY_PARAMS.get('state', 0)
+        jm = JobsModel(project)
+
+        # check that this is valid
+        if state not in jm.STATES:
+            return Response(
+                {"message": ("{0} is not a valid state.  "
+                             "Must be one of: {1}".format(
+                                 state,
+                                 ", ".join(jm.STATES)
+                             ))},
+                status=400,
+            )
+
+        obj = jm.set_state(pk, state)
+        if obj:
+            return Response(json.loads(obj[0]['json_blob']))
+        else:
+            raise Http404()
 
 
 #####################
