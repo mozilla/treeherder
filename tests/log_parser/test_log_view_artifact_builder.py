@@ -12,7 +12,6 @@ def do_test(log):
     """
     Test a single log.
 
-    ``job_type`` - Something like "mochitest", "crashtest" or "reftest"
     ``log`` - the url prefix of the log to test.  Also searches for the
               result file with the same prefix.
     """
