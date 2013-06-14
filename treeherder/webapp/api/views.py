@@ -28,7 +28,9 @@ class ObjectstoreViewSet(viewsets.ViewSet):
                 request.DATA['job']['job_guid']
             )
             jm.disconnect()
-        except Exception as e:
+        except DatasetNotFoundError as e:
+            return Response({"message": str(e)}, status=404)
+        except Exception as e:  ## pragma nocover
             return Response({"message": str(e)}, status=500)
 
         return Response({'message': 'well-formed JSON stored'})
@@ -58,66 +60,66 @@ class ObjectstoreViewSet(viewsets.ViewSet):
 # Refdata ViewSets
 #####################
 
-class ProductViewSet(viewsets.ModelViewSet):
+class ProductViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for the refdata Product model"""
     model = models.Product
 
 
-class BuildPlatformViewSet(viewsets.ModelViewSet):
+class BuildPlatformViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for the refdata BuildPlatform model"""
     model = models.BuildPlatform
 
 
-class OptionViewSet(viewsets.ModelViewSet):
+class OptionViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for the refdata Option model"""
     model = models.Option
 
 
-class JobGroupViewSet(viewsets.ModelViewSet):
+class JobGroupViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for the refdata JobGroup model"""
     model = models.JobGroup
 
 
-class RepositoryViewSet(viewsets.ModelViewSet):
+class RepositoryViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for the refdata Repository model"""
     model = models.Repository
 
 
-class MachinePlatformViewSet(viewsets.ModelViewSet):
+class MachinePlatformViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for the refdata MachinePlatform model"""
     model = models.MachinePlatform
 
 
-class BugscacheViewSet(viewsets.ModelViewSet):
+class BugscacheViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for the refdata Bugscache model"""
     model = models.Bugscache
 
 
-class MachineViewSet(viewsets.ModelViewSet):
+class MachineViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for the refdata Machine model"""
     model = models.Machine
 
 
-class MachineNoteViewSet(viewsets.ModelViewSet):
+class MachineNoteViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for the refdata MachineNote model"""
     model = models.MachineNote
 
 
-class RepositoryVersionViewSet(viewsets.ModelViewSet):
+class RepositoryVersionViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for the refdata RepositoryVersion model"""
     model = models.RepositoryVersion
 
 
-class OptionCollectionViewSet(viewsets.ModelViewSet):
+class OptionCollectionViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for the refdata OptionCollection model"""
     model = models.OptionCollection
 
 
-class JobTypeViewSet(viewsets.ModelViewSet):
+class JobTypeViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for the refdata JobType model"""
     model = models.JobType
 
 
-class FailureClassificationViewSet(viewsets.ModelViewSet):
+class FailureClassificationViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for the refdata FailureClassification model"""
     model = models.FailureClassification

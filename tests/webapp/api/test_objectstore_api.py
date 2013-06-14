@@ -28,29 +28,6 @@ def test_objectstore_create(webapp, job_sample, jm):
     assert stored_objs[0]['job_guid'] == job_sample["job"]["job_guid"]
 
 
-def test_objectstore_create_bad_project(webapp, job_sample, jm):
-    """
-    test posting data to the objectstore via webtest.
-    extected result are:
-    - return code 200
-    - return message successful
-    - 1 job stored in the objectstore
-    """
-
-    url = reverse('objectstore-list',
-                  kwargs={'project': jm.project})
-    badurl = url.replace(jm.project, "badproject")
-    resp = webapp.post_json(
-        badurl,
-        params=job_sample,
-        status=500
-    )
-    assert resp.status_int == 500
-    assert resp.json['message'] == ("No dataset found for project "
-                                    "u'badproject', contenttype "
-                                    "'objectstore'.")
-
-
 def test_objectstore_list(webapp, ten_jobs_stored, jm):
     """
     test retrieving a list of ten json blobs from the objectstore-list
@@ -94,3 +71,25 @@ def test_objectstore_detail_not_found(webapp, jm):
         expect_errors=True
     )
     assert resp.status_int == 404
+
+
+def test_objectstore_create_bad_project(webapp, job_sample, jm):
+    """
+    test calling with bad project name.
+    extected result are:
+    - return code 404
+    - return message failed
+    """
+
+    url = reverse('objectstore-list',
+                  kwargs={'project': jm.project})
+    badurl = url.replace(jm.project, "badproject")
+    resp = webapp.post_json(
+        badurl,
+        params=job_sample,
+        status=404
+    )
+    assert resp.status_int == 404
+    assert resp.json['message'] == ("No dataset found for project "
+                                    "u'badproject', contenttype "
+                                    "'objectstore'.")
