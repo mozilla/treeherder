@@ -1,5 +1,4 @@
 {
-    "url": "file:///home/vagrant/treeherder-service/tests/sample_data/logs/mozilla-esr17_xp_test_pgo-mochitest-browser-chrome-bm74-tests1-windows-build12.txt.gz",
     "header": {
         "slave": "talos-r3-xp-085",
         "buildid": "20130605090546",
@@ -9,268 +8,281 @@
         "builduid": "11d37c0c73ec4f4aa16b29cbe6481a9f",
         "revision": "e2eecb449eeb"
     },
-    "steps": [
-        {
-            "errors": [],
-            "name": "set props: revision",
-            "started": "2013-06-05 12:51:48.767751",
-            "started_linenumber": 8,
-            "finished_linenumber": 10,
-            "finished": "2013-06-05 12:51:48.768393",
-            "error_count": 0,
-            "duration": 0.000642,
-            "order": 0
-        },
-        {
-            "errors": [],
-            "name": "set props: who",
-            "started": "2013-06-05 12:51:48.768881",
-            "started_linenumber": 12,
-            "finished_linenumber": 14,
-            "finished": "2013-06-05 12:51:48.769473",
-            "error_count": 0,
-            "duration": 0.000592,
-            "order": 1
-        },
-        {
-            "errors": [],
-            "name": "set props: basedir",
-            "started": "2013-06-05 12:51:48.769970",
-            "started_linenumber": 16,
-            "finished_linenumber": 62,
-            "finished": "2013-06-05 12:51:50.898723",
-            "error_count": 0,
-            "duration": 2.128753,
-            "order": 2
-        },
-        {
-            "errors": [],
-            "name": "set props: hashType",
-            "started": "2013-06-05 12:51:50.899244",
-            "started_linenumber": 64,
-            "finished_linenumber": 110,
-            "finished": "2013-06-05 12:51:51.050525",
-            "error_count": 0,
-            "duration": 0.151281,
-            "order": 3
-        },
-        {
-            "errors": [],
-            "name": "set props: builddir",
-            "started": "2013-06-05 12:51:51.051012",
-            "started_linenumber": 112,
-            "finished_linenumber": 158,
-            "finished": "2013-06-05 12:51:51.285053",
-            "error_count": 0,
-            "duration": 0.234041,
-            "order": 4
-        },
-        {
-            "errors": [],
-            "name": "clobber build tools",
-            "started": "2013-06-05 12:51:51.285559",
-            "started_linenumber": 160,
-            "finished_linenumber": 204,
-            "finished": "2013-06-05 12:52:04.344452",
-            "error_count": 0,
-            "duration": 13.058893,
-            "order": 5
-        },
-        {
-            "errors": [],
-            "name": "clone build tools",
-            "started": "2013-06-05 12:52:04.344949",
-            "started_linenumber": 206,
-            "finished_linenumber": 257,
-            "finished": "2013-06-05 12:52:27.906228",
-            "error_count": 0,
-            "duration": 23.561279,
-            "order": 6
-        },
-        {
-            "errors": [],
-            "name": "set props: toolsdir",
-            "started": "2013-06-05 12:52:27.906738",
-            "started_linenumber": 259,
-            "finished_linenumber": 305,
-            "finished": "2013-06-05 12:52:28.096555",
-            "error_count": 0,
-            "duration": 0.189817,
-            "order": 7
-        },
-        {
-            "errors": [],
-            "name": "set props: purge_actual purge_target",
-            "started": "2013-06-05 12:52:28.097052",
-            "started_linenumber": 307,
-            "finished_linenumber": 373,
-            "finished": "2013-06-05 12:52:28.689661",
-            "error_count": 0,
-            "duration": 0.592609,
-            "order": 8
-        },
-        {
-            "errors": [],
-            "name": "'rm -rf ...'",
-            "started": "2013-06-05 12:52:28.690156",
-            "started_linenumber": 375,
-            "finished_linenumber": 419,
-            "finished": "2013-06-05 12:53:56.014058",
-            "error_count": 0,
-            "duration": 87.323902,
-            "order": 9
-        },
-        {
-            "errors": [],
-            "name": "download",
-            "started": "2013-06-05 12:53:56.014651",
-            "started_linenumber": 421,
-            "finished_linenumber": 484,
-            "finished": "2013-06-05 12:54:02.983974",
-            "error_count": 0,
-            "duration": 6.969323,
-            "order": 10
-        },
-        {
-            "errors": [],
-            "name": "unpack",
-            "started": "2013-06-05 12:54:02.984470",
-            "started_linenumber": 486,
-            "finished_linenumber": 530,
-            "finished": "2013-06-05 12:54:06.858348",
-            "error_count": 0,
-            "duration": 3.873878,
-            "order": 11
-        },
-        {
-            "errors": [],
-            "name": "set props: exepath",
-            "started": "2013-06-05 12:54:06.858854",
-            "started_linenumber": 532,
-            "finished_linenumber": 534,
-            "finished": "2013-06-05 12:54:06.859521",
-            "error_count": 0,
-            "duration": 0.000667,
-            "order": 12
-        },
-        {
-            "errors": [],
-            "name": "set props: exedir",
-            "started": "2013-06-05 12:54:06.859991",
-            "started_linenumber": 536,
-            "finished_linenumber": 538,
-            "finished": "2013-06-05 12:54:06.860629",
-            "error_count": 0,
-            "duration": 0.000638,
-            "order": 13
-        },
-        {
-            "errors": [],
-            "name": "set props: toolsdir",
-            "started": "2013-06-05 12:54:06.861112",
-            "started_linenumber": 540,
-            "finished_linenumber": 586,
-            "finished": "2013-06-05 12:54:07.047366",
-            "error_count": 0,
-            "duration": 0.186254,
-            "order": 14
-        },
-        {
-            "errors": [],
-            "name": "set props: symbols_url",
-            "started": "2013-06-05 12:54:07.047887",
-            "started_linenumber": 588,
-            "finished_linenumber": 590,
-            "finished": "2013-06-05 12:54:07.048555",
-            "error_count": 0,
-            "duration": 0.000668,
-            "order": 15
-        },
-        {
-            "errors": [],
-            "name": "download",
-            "started": "2013-06-05 12:54:07.049041",
-            "started_linenumber": 592,
-            "finished_linenumber": 665,
-            "finished": "2013-06-05 12:54:22.389733",
-            "error_count": 0,
-            "duration": 15.340692,
-            "order": 16
-        },
-        {
-            "errors": [],
-            "name": "set props: buildid",
-            "started": "2013-06-05 12:54:22.390374",
-            "started_linenumber": 667,
-            "finished_linenumber": 714,
-            "finished": "2013-06-05 12:54:22.547237",
-            "error_count": 0,
-            "duration": 0.156863,
-            "order": 17
-        },
-        {
-            "errors": [],
-            "name": "'python.exe c:/talos-slave/test/tools/scripts/support/mouse_and_screen_resolution.py ...'",
-            "started": "2013-06-05 12:54:22.547836",
-            "started_linenumber": 716,
-            "finished_linenumber": 761,
-            "finished": "2013-06-05 12:54:23.359326",
-            "error_count": 0,
-            "duration": 0.81149,
-            "order": 18
-        },
-        {
-            "errors": [],
-            "name": "unpack tests",
-            "started": "2013-06-05 12:54:23.359896",
-            "started_linenumber": 763,
-            "finished_linenumber": 807,
-            "finished": "2013-06-05 12:54:55.231690",
-            "error_count": 0,
-            "duration": 31.871794,
-            "order": 19
-        },
-        {
-            "errors": [
-                {
-                    "line": "TEST-UNEXPECTED-FAIL | chrome://mochitests/content/browser/dom/tests/browser/browser_ConsoleAPITests.js | Exception thrown in CO_observe: TypeError: Components.utils.isXrayWrapper is not a function\r\n",
-                    "linenumber": 26698
-                },
-                {
-                    "line": "TEST-UNEXPECTED-FAIL | chrome://mochitests/content/browser/dom/tests/browser/browser_ConsoleAPITests.js | Test timed out\r\n",
-                    "linenumber": 26705
-                }
-            ],
-            "name": "'python mochitest/runtests.py ...' warnings",
-            "started": "2013-06-05 12:54:55.232364",
-            "started_linenumber": 809,
-            "finished_linenumber": 54423,
-            "finished": "2013-06-05 13:15:39.235146",
-            "error_count": 2,
-            "duration": 1244.002782,
-            "order": 20
-        },
-        {
-            "errors": [],
-            "name": "'rm -rf ...'",
-            "started": "2013-06-05 13:15:39.244545",
-            "started_linenumber": 54425,
-            "finished_linenumber": 54469,
-            "finished": "2013-06-05 13:16:04.014823",
-            "error_count": 0,
-            "duration": 24.770278,
-            "order": 21
-        },
-        {
-            "errors": [],
-            "name": "maybe rebooting slave lost",
-            "started": "2013-06-05 13:16:04.015405",
-            "started_linenumber": 54471,
-            "finished_linenumber": 54473,
-            "finished": "2013-06-05 13:16:04.963614",
-            "error_count": 0,
-            "duration": 0.948209,
-            "order": 22
-        }
-    ]
+    "step_data": {
+        "all_errors": [
+            {
+                "line": "TEST-UNEXPECTED-FAIL | chrome://mochitests/content/browser/dom/tests/browser/browser_ConsoleAPITests.js | Exception thrown in CO_observe: TypeError: Components.utils.isXrayWrapper is not a function",
+                "linenumber": 26698
+            },
+            {
+                "line": "TEST-UNEXPECTED-FAIL | chrome://mochitests/content/browser/dom/tests/browser/browser_ConsoleAPITests.js | Test timed out",
+                "linenumber": 26705
+            }
+        ],
+        "steps": [
+            {
+                "errors": [],
+                "name": "set props: revision",
+                "started": "2013-06-05 12:51:48.767751",
+                "started_linenumber": 8,
+                "finished_linenumber": 10,
+                "finished": "2013-06-05 12:51:48.768393",
+                "error_count": 0,
+                "duration": 0.000642,
+                "order": 0
+            },
+            {
+                "errors": [],
+                "name": "set props: who",
+                "started": "2013-06-05 12:51:48.768881",
+                "started_linenumber": 12,
+                "finished_linenumber": 14,
+                "finished": "2013-06-05 12:51:48.769473",
+                "error_count": 0,
+                "duration": 0.000592,
+                "order": 1
+            },
+            {
+                "errors": [],
+                "name": "set props: basedir",
+                "started": "2013-06-05 12:51:48.769970",
+                "started_linenumber": 16,
+                "finished_linenumber": 62,
+                "finished": "2013-06-05 12:51:50.898723",
+                "error_count": 0,
+                "duration": 2.128753,
+                "order": 2
+            },
+            {
+                "errors": [],
+                "name": "set props: hashType",
+                "started": "2013-06-05 12:51:50.899244",
+                "started_linenumber": 64,
+                "finished_linenumber": 110,
+                "finished": "2013-06-05 12:51:51.050525",
+                "error_count": 0,
+                "duration": 0.151281,
+                "order": 3
+            },
+            {
+                "errors": [],
+                "name": "set props: builddir",
+                "started": "2013-06-05 12:51:51.051012",
+                "started_linenumber": 112,
+                "finished_linenumber": 158,
+                "finished": "2013-06-05 12:51:51.285053",
+                "error_count": 0,
+                "duration": 0.234041,
+                "order": 4
+            },
+            {
+                "errors": [],
+                "name": "clobber build tools",
+                "started": "2013-06-05 12:51:51.285559",
+                "started_linenumber": 160,
+                "finished_linenumber": 204,
+                "finished": "2013-06-05 12:52:04.344452",
+                "error_count": 0,
+                "duration": 13.058893,
+                "order": 5
+            },
+            {
+                "errors": [],
+                "name": "clone build tools",
+                "started": "2013-06-05 12:52:04.344949",
+                "started_linenumber": 206,
+                "finished_linenumber": 257,
+                "finished": "2013-06-05 12:52:27.906228",
+                "error_count": 0,
+                "duration": 23.561279,
+                "order": 6
+            },
+            {
+                "errors": [],
+                "name": "set props: toolsdir",
+                "started": "2013-06-05 12:52:27.906738",
+                "started_linenumber": 259,
+                "finished_linenumber": 305,
+                "finished": "2013-06-05 12:52:28.096555",
+                "error_count": 0,
+                "duration": 0.189817,
+                "order": 7
+            },
+            {
+                "errors": [],
+                "name": "set props: purge_actual purge_target",
+                "started": "2013-06-05 12:52:28.097052",
+                "started_linenumber": 307,
+                "finished_linenumber": 373,
+                "finished": "2013-06-05 12:52:28.689661",
+                "error_count": 0,
+                "duration": 0.592609,
+                "order": 8
+            },
+            {
+                "errors": [],
+                "name": "'rm -rf ...'",
+                "started": "2013-06-05 12:52:28.690156",
+                "started_linenumber": 375,
+                "finished_linenumber": 419,
+                "finished": "2013-06-05 12:53:56.014058",
+                "error_count": 0,
+                "duration": 87.323902,
+                "order": 9
+            },
+            {
+                "errors": [],
+                "name": "download",
+                "started": "2013-06-05 12:53:56.014651",
+                "started_linenumber": 421,
+                "finished_linenumber": 484,
+                "finished": "2013-06-05 12:54:02.983974",
+                "error_count": 0,
+                "duration": 6.969323,
+                "order": 10
+            },
+            {
+                "errors": [],
+                "name": "unpack",
+                "started": "2013-06-05 12:54:02.984470",
+                "started_linenumber": 486,
+                "finished_linenumber": 530,
+                "finished": "2013-06-05 12:54:06.858348",
+                "error_count": 0,
+                "duration": 3.873878,
+                "order": 11
+            },
+            {
+                "errors": [],
+                "name": "set props: exepath",
+                "started": "2013-06-05 12:54:06.858854",
+                "started_linenumber": 532,
+                "finished_linenumber": 534,
+                "finished": "2013-06-05 12:54:06.859521",
+                "error_count": 0,
+                "duration": 0.000667,
+                "order": 12
+            },
+            {
+                "errors": [],
+                "name": "set props: exedir",
+                "started": "2013-06-05 12:54:06.859991",
+                "started_linenumber": 536,
+                "finished_linenumber": 538,
+                "finished": "2013-06-05 12:54:06.860629",
+                "error_count": 0,
+                "duration": 0.000638,
+                "order": 13
+            },
+            {
+                "errors": [],
+                "name": "set props: toolsdir",
+                "started": "2013-06-05 12:54:06.861112",
+                "started_linenumber": 540,
+                "finished_linenumber": 586,
+                "finished": "2013-06-05 12:54:07.047366",
+                "error_count": 0,
+                "duration": 0.186254,
+                "order": 14
+            },
+            {
+                "errors": [],
+                "name": "set props: symbols_url",
+                "started": "2013-06-05 12:54:07.047887",
+                "started_linenumber": 588,
+                "finished_linenumber": 590,
+                "finished": "2013-06-05 12:54:07.048555",
+                "error_count": 0,
+                "duration": 0.000668,
+                "order": 15
+            },
+            {
+                "errors": [],
+                "name": "download",
+                "started": "2013-06-05 12:54:07.049041",
+                "started_linenumber": 592,
+                "finished_linenumber": 665,
+                "finished": "2013-06-05 12:54:22.389733",
+                "error_count": 0,
+                "duration": 15.340692,
+                "order": 16
+            },
+            {
+                "errors": [],
+                "name": "set props: buildid",
+                "started": "2013-06-05 12:54:22.390374",
+                "started_linenumber": 667,
+                "finished_linenumber": 714,
+                "finished": "2013-06-05 12:54:22.547237",
+                "error_count": 0,
+                "duration": 0.156863,
+                "order": 17
+            },
+            {
+                "errors": [],
+                "name": "'python.exe c:/talos-slave/test/tools/scripts/support/mouse_and_screen_resolution.py ...'",
+                "started": "2013-06-05 12:54:22.547836",
+                "started_linenumber": 716,
+                "finished_linenumber": 761,
+                "finished": "2013-06-05 12:54:23.359326",
+                "error_count": 0,
+                "duration": 0.81149,
+                "order": 18
+            },
+            {
+                "errors": [],
+                "name": "unpack tests",
+                "started": "2013-06-05 12:54:23.359896",
+                "started_linenumber": 763,
+                "finished_linenumber": 807,
+                "finished": "2013-06-05 12:54:55.231690",
+                "error_count": 0,
+                "duration": 31.871794,
+                "order": 19
+            },
+            {
+                "errors": [
+                    {
+                        "line": "TEST-UNEXPECTED-FAIL | chrome://mochitests/content/browser/dom/tests/browser/browser_ConsoleAPITests.js | Exception thrown in CO_observe: TypeError: Components.utils.isXrayWrapper is not a function",
+                        "linenumber": 26698
+                    },
+                    {
+                        "line": "TEST-UNEXPECTED-FAIL | chrome://mochitests/content/browser/dom/tests/browser/browser_ConsoleAPITests.js | Test timed out",
+                        "linenumber": 26705
+                    }
+                ],
+                "name": "'python mochitest/runtests.py ...' warnings",
+                "started": "2013-06-05 12:54:55.232364",
+                "started_linenumber": 809,
+                "finished_linenumber": 54423,
+                "finished": "2013-06-05 13:15:39.235146",
+                "error_count": 2,
+                "duration": 1244.002782,
+                "order": 20
+            },
+            {
+                "errors": [],
+                "name": "'rm -rf ...'",
+                "started": "2013-06-05 13:15:39.244545",
+                "started_linenumber": 54425,
+                "finished_linenumber": 54469,
+                "finished": "2013-06-05 13:16:04.014823",
+                "error_count": 0,
+                "duration": 24.770278,
+                "order": 21
+            },
+            {
+                "errors": [],
+                "name": "maybe rebooting slave lost",
+                "started": "2013-06-05 13:16:04.015405",
+                "started_linenumber": 54471,
+                "finished_linenumber": 54473,
+                "finished": "2013-06-05 13:16:04.963614",
+                "error_count": 0,
+                "duration": 0.948209,
+                "order": 22
+            }
+        ]
+    },
+    "logurl": "file:///home/vagrant/treeherder-service/tests/sample_data/logs/mozilla-esr17_xp_test_pgo-mochitest-browser-chrome-bm74-tests1-windows-build12.txt.gz"
 }
