@@ -1,7 +1,7 @@
 from django.core.urlresolvers import reverse
 
 
-def test_update_state_success(webapp, ten_jobs_processed, jm):
+def xtest_update_state_success(webapp, ten_jobs_processed, jm):
     """
     test setting the status of a job via webtest.
     extected result are:
@@ -11,29 +11,39 @@ def test_update_state_success(webapp, ten_jobs_processed, jm):
     """
 
     joblist = jm.get_job_list(0, 1)
-    from treeherder.webapp.api.urls import project_bound_router
-    print list(joblist)
-    print project_bound_router.urls
+    # from treeherder.webapp.api.urls import project_bound_router
+    # # print list(joblist)
+    # for urlpattern in project_bound_router.urls:
+    #     print urlpattern
+
     job = joblist.next()
-    resp = webapp.post_json(
-        reverse('jobs-detail-state',
+
+    url = reverse('jobs-update-state',
                 kwargs={
                     'project': jm.project,
                     'pk': job["id"]
+                })
+
+    print url
+    resp = webapp.post(
+        reverse('jobs-update-state',
+                kwargs={
+                    'project': jm.project,
+                    'pk': job["id"],
                 }),
-        params=job
+        params={"state": "foo"},
     )
     assert resp.status_int == 200
     assert resp.json['message'] == 'well-formed JSON stored'
 
 
-def xtest_objectstore_list(webapp, ten_jobs_stored, jm):
+def test_job_list(webapp, ten_jobs_processed, jm):
     """
-    test retrieving a list of ten json blobs from the objectstore-list
+    test retrieving a list of ten json blobs from the jobs-list
     endpoint.
     """
     resp = webapp.get(
-        reverse('objectstore-list',
+        reverse('jobs-list',
                 kwargs={'project': jm.project})
     )
     assert resp.status_int == 200

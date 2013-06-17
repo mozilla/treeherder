@@ -11,7 +11,6 @@ project_bound_router.register(
     views.ObjectstoreViewSet,
     base_name='objectstore',
 )
-# job_router = routers.DefaultRouter()
 project_bound_router.register(
     r'jobs',
     views.JobsViewSet,
@@ -41,8 +40,6 @@ urlpatterns = patterns(
     '',
     url(r'^project/(?P<project>\w{0,50})/',
         include(project_bound_router.urls)),
-    # url(r'^project/(?P<project>\w{0,50})/(?P<method>\w{0,50})/',
-    #     include(job_router.urls)),
     url(r'^',
         include(default_router.urls)),
 )

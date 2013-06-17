@@ -83,8 +83,8 @@ class JobsViewSet(viewsets.ViewSet):
         objs = jm.get_job_list(page, 10)
         return Response([json.loads(obj['job']) for obj in objs])
 
-    @action
-    def state(self, request, project, pk=None):
+    @action(methods=["POST"])
+    def update_state(self, request, project, pk=None):
         """
         Change the status of a job.
         """
@@ -102,11 +102,18 @@ class JobsViewSet(viewsets.ViewSet):
                 status=400,
             )
 
-        obj = jm.set_state(pk, state)
-        if obj:
-            return Response(json.loads(obj[0]['json_blob']))
-        else:
-            raise Http404()
+        if not pk:
+            return Response({"message": "job id required"}, status=400)
+
+        try:
+            obj = jm.get_job(pk)
+        except:
+            raise Http404
+
+        try:
+            jm.set_state(pk, state)
+        except Exception as e:  # pragma nocover
+            return Response({"message": str(e)}, status=500)
 
 
 #####################
