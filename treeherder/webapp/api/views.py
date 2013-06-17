@@ -30,7 +30,7 @@ class ObjectstoreViewSet(viewsets.ViewSet):
             jm.disconnect()
         except DatasetNotFoundError as e:
             return Response({"message": str(e)}, status=404)
-        except Exception as e:  ## pragma nocover
+        except Exception as e:  # pragma nocover
             return Response({"message": str(e)}, status=500)
 
         return Response({'message': 'well-formed JSON stored'})
