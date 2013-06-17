@@ -4,7 +4,6 @@ import pytest
 from webtest.app import TestApp
 from treeherder.webapp.wsgi import application
 from treeherder.etl.buildapi import TreeherderBuildapiAdapter
-from treeherder.etl.common import (JobData, get_revision_hash, get_job_guid)
 
 
 @pytest.fixture
@@ -45,7 +44,7 @@ def mock_post_json_data():
         TreeherderBuildapiAdapter._post_json_data = old_func
 
 
-def test_transform_pending_jobs(jm, buildapi_pending_url, mock_post_json_data):
+def test_ingest_pending_jobs(jm, buildapi_pending_url, mock_post_json_data):
     """
     a new buildapi pending job creates a new obj in the objectstore
     """
@@ -58,7 +57,7 @@ def test_transform_pending_jobs(jm, buildapi_pending_url, mock_post_json_data):
     assert len(stored_obj) == 1
 
 
-def test_transform_running_jobs(jm, buildapi_running_url, mock_post_json_data):
+def test_ingest_running_jobs(jm, buildapi_running_url, mock_post_json_data):
     """
     a new buildapi running job creates a new obj in the objectstore
     """
