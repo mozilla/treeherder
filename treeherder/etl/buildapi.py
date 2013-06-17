@@ -1,26 +1,42 @@
+import logging
+import urllib2
+
+import simplejson as json
+from django.conf import settings
+from django.core.urlresolvers import reverse
+
 from treeherder.etl import buildbot
 from treeherder.etl.common import (get_revision_hash,
-                                   get_job_guid)
-import drest
+                                   get_job_guid,
+                                   JobData)
+
+
+logger = logging.getLogger(__file__)
+
 
 class TreeherderBuildapiAdapter(object):
-    """docstring for BuilApiConsumer"""
+    """
+    Extract the pending and running jobs from buildapi,
+    transform them in a treeherder-friendly format and
+    load the transformed data to the objectstore restful api
 
-    def process_pending_jobs():
+    """
+
+    def process_pending_jobs(self, buildapi_pending_url):
         """
         pulls pending jobs from buildapi, applies a transformation
         and post it to the restful api
         """
-        data = self.extract(settings.BUILDAPI_PENDING_URL)
+        data = self.extract(buildapi_pending_url)
         jobs = self.transform_pending_jobs(data)
         self.load(jobs)
 
-    def process_running_jobs():
+    def process_running_jobs(self, buildapi_running_url):
         """
         pulls running jobs from buildapi, applies a transformation
         and post it to the restful api
         """
-        data = self.extract(settings.BUILDAPI_RUNNING_URL)
+        data = self.extract(buildapi_running_url)
         jobs = self.transform_running_jobs(data)
         self.load(jobs)
 
@@ -41,12 +57,12 @@ class TreeherderBuildapiAdapter(object):
         transform the buildapi structure into something we can ingest via
         our restful api
         """
-        jobs = []
-        for branch, revisions in data['pending']:
-            for rev, jobs in revisions:
+        job_list = []
+        for branch, revisions in data['pending'].items():
+            for rev, jobs in revisions.items():
                 for job in jobs:
                     treeherder_data = {
-                        'sources': {},
+                        'sources': [],
                         #Include branch so revision hash with the same revision is still
                         #unique across branches
                         'revision_hash': get_revision_hash(
@@ -55,18 +71,14 @@ class TreeherderBuildapiAdapter(object):
                     }
                     treeherder_data['sources'].append({
                         'repository': branch,
-                        'revision': revision,
+                        'revision': rev,
                     })
 
                     platform_info = buildbot.extract_platform_info(job['buildername'])
 
                     job = {
-                        #This assumes the 0 element in request_ids is the id for the
-                        #job which is not always true if there are coalesced jobs. This will need
-                        #to be updated when https://bugzilla.mozilla.org/show_bug.cgi?id=862633
-                        #is resolved.
-                        'job_guid': get_job_guid(job['request_ids'][0], job['submitted_at']),
-                        'name': buildbot.get_test_name(job['buildername']),
+                        'job_guid': get_job_guid(job['id'], job['submitted_at']),
+                        'name': buildbot.extract_test_name(job['buildername']),
                         'state': 'pending',
                         'submit_timestamp': job['submitted_at'],
                         'build_platform': {
@@ -96,19 +108,92 @@ class TreeherderBuildapiAdapter(object):
                     }
                     treeherder_data['job'] = job
 
-                    jobs.append(JobData(treeherder_data))
-        return jobs
+                    job_list.append(JobData(treeherder_data))
+        return job_list
 
     def transform_running_jobs(self, data):
         """
-        TODO: write a transform method for runnign jobs. the output should have a shape similar
-        to transform_pending_jobs. Theoretically the only change should be the state value. 
+        transform the buildapi structure into something we can ingest via
+        our restful api
         """
-        pass
+        job_list = []
+        for branch, revisions in data['running'].items():
+            for rev, jobs in revisions.items():
+                for job in jobs:
+                    treeherder_data = {
+                        'sources': [],
+                        #Include branch so revision hash with the same revision is still
+                        #unique across branches
+                        'revision_hash': get_revision_hash(
+                            [rev, branch]
+                        ),
+                    }
+                    treeherder_data['sources'].append({
+                        'repository': branch,
+                        'revision': rev,
+                    })
+
+                    platform_info = buildbot.extract_platform_info(job['buildername'])
+
+                    job = {
+                        'job_guid': get_job_guid(
+                            job['request_ids'][0],
+                            job['submitted_at']
+                        ),
+                        'name': buildbot.extract_test_name(job['buildername']),
+                        'state': 'running',
+                        'submit_timestamp': job['submitted_at'],
+                        'build_platform': {
+                            'os_name': platform_info['os'],
+                            'platform': platform_info['os_platform'],
+                            'architecture': platform_info['arch'],
+                            'vm': platform_info['vm']
+                        },
+                        #where are we going to get this data from?
+                        'machine_platform': {
+                            'os_name': platform_info['os'],
+                            'platform': platform_info['os_platform'],
+                            'architecture': platform_info['arch'],
+                            'vm': platform_info['vm']
+                        },
+
+                        'option_collection': {
+                            # build_type contains an option name, eg. PGO
+                            buildbot.extract_build_type(job['buildername']): True
+                        },
+                        'log_references': [{
+                            'url': None,
+                            #using the jobtype as a name for now, the name allows us
+                            #to have different log types with their own processing
+                            'name': buildbot.extract_job_type(job['buildername'])
+                        }]
+                    }
+
+                    treeherder_data['job'] = job
+
+                    job_list.append(JobData(treeherder_data))
+        return job_list
 
     def load(self, jobs):
-        """
-        TODO: once we have a restful api set up, use drest to send post request with the
-        output of a transform function
-        """
-        pass
+        """post a list of jobs to the objectstore ingestion endpoint """
+
+        for job in jobs:
+            project = job['sources'][0]['repository']
+
+            # the creation endpoint is the same as the list one
+            endpoint = reverse('objectstore-list', kwargs={"project": project})
+
+            url = "{0}/{1}/".format(
+                settings.API_HOSTNAME.strip('/'),
+                endpoint.strip('/')
+            )
+            response = self._post_json_data(url, job)
+
+            if response.getcode() != 200:
+                message = json.loads(response.read())
+                logger.ERROR("Job loading failed: {0}".format(message['message']))
+
+    def _post_json_data(self, url, data):
+        req = urllib2.Request(url)
+        req.add_header('Content-Type', 'application/json')
+        return urllib2.urlopen(req, json.dumps(data))

@@ -77,7 +77,7 @@ class PulseDataAdapter(object):
                 'attr_table': [
                     {
                         'attr': 'routing_key',
-                        'cb':self.get_routing_key_data
+                        'cb': self.get_routing_key_data
                     }
                 ]
             },
@@ -86,7 +86,7 @@ class PulseDataAdapter(object):
                 'attr_table': [
                     {'attr': 'results'},
                     {'attr': 'slave'},
-                    {'attr': 'times', 'cb':self.get_times_data},
+                    {'attr': 'times', 'cb': self.get_times_data},
                     {'attr': 'blame'},
                     {'attr': 'reason'},
                 ]
@@ -108,7 +108,7 @@ class PulseDataAdapter(object):
                     {'attr': 'platform'},
                     {'attr': 'buildid'},
                     {'attr': 'log_url'},
-                    {'attr': 'buildername', 'cb':self.get_buildername_data},
+                    {'attr': 'buildername', 'cb': self.get_buildername_data},
                     {'attr': 'slavename'},
                     {'attr': 'request_ids'},
                     {'attr': 'request_times'},
@@ -414,6 +414,8 @@ class TreeherderPulseDataAdapter(PulseDataAdapter):
             'end_timestamp': str(int(time.time())),
             'machine': data['slave'],
 
+            'build_url': data['buildurl'],
+
             'build_platform': {
                 'os_name': data['os'],
                 'platform': data['os_platform'],
@@ -448,7 +450,6 @@ class TreeherderPulseDataAdapter(PulseDataAdapter):
 
 class PulseMessageError(Exception):
     """Error base class for pulse messages"""
-
     def __init__(self, key, error):
         self.key = key
         self.error = error
@@ -471,8 +472,11 @@ class PulseMissingAttributesError(PulseMessageError):
     def __str__(self):
 
         msg = "The following attributes were not found: {0} in routing_key:{1}\nbuildername:{2}\n{3}\n{4}".format(
-            ','.join(self.missing_attributes), self.data['routing_key'],
-            self.data['buildername'], self.data, self.raw_data
+            ','.join(self.missing_attributes),
+            self.data['routing_key'],
+            self.data['buildername'],
+            self.data,
+            self.raw_data
         )
 
         return msg
@@ -480,7 +484,7 @@ class PulseMissingAttributesError(PulseMessageError):
 
 class TreeherderPulseDaemon(Daemon):
 
-    def __init__(self, pidfile, treeherder_data_adapter=None
+    def __init__(self, pidfile, treeherder_data_adapter=None,
                  stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
 
         self.tda = treeherder_data_adapter or TreeherderPulseDataAdapter(
@@ -488,7 +492,7 @@ class TreeherderPulseDaemon(Daemon):
             logdir='logs',
             rawdata=False,
             outfile=None
-        ),
+        )
 
         super(TreeherderPulseDaemon, self).__init__(
             pidfile, stdin='/dev/null', stdout='/dev/null',

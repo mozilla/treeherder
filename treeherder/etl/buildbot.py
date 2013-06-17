@@ -19,7 +19,7 @@ PLATFORMS_BUILDERNAME = {
             re.compile('^b2g linux32_gecko .+', re.IGNORECASE),
             re.compile('^b2g_((?!(test|talos)).)+$', re.IGNORECASE),
             re.compile('^Android (?!(?:Tegra|Armv6 Tegra|no-ionmonkey Tegra 250|4.0 Panda)).+'),
-            re.compile('.*linux.*', re.IGNORECASE),
+            re.compile('.+linux.*', re.IGNORECASE),
         ],
 
         'attributes': {
@@ -34,7 +34,8 @@ PLATFORMS_BUILDERNAME = {
         'regexes': [
             re.compile('^Rev3 Fedora 12 .+'),
             re.compile('jetpack-.*-fedora(?!64)'),
-            re.compile('^b2g_.+(opt|debug) test.+', re.IGNORECASE)
+            re.compile('^b2g_.+(opt|debug) test.+', re.IGNORECASE),
+            re.compile('^Linux (?!x86-64).+'),
         ],
 
         'attributes': {
@@ -49,6 +50,7 @@ PLATFORMS_BUILDERNAME = {
         'regexes': [
             re.compile('Rev3 Fedora 12x64 .+'),
             re.compile('jetpack-.*-fedora64'),
+            re.compile('^Linux x86-64'),
         ],
 
         'attributes': {
@@ -160,7 +162,7 @@ PLATFORMS_BUILDERNAME = {
 
     'lion': {
         'regexes': [
-            re.compile('^OS X 10\.7.+'),
+            re.compile('^(TB )?OS X 10\.7.+'),
             re.compile('^Rev4 MacOSX Lion 10\.7.+'),
             re.compile('jetpack-.*-lion'),
         ],
@@ -191,6 +193,7 @@ PLATFORMS_BUILDERNAME = {
         'regexes': [
             re.compile('^Rev3 WINNT 5\.1 .+'),
             re.compile('jetpack-.*-xp'),
+            re.compile('^Windows XP 32-bit')
         ],
 
         'attributes': {
@@ -203,7 +206,7 @@ PLATFORMS_BUILDERNAME = {
 
     'win2k3': {
         'regexes': [
-            re.compile('^WINNT 5\.2 .+'),
+            re.compile('^(TB )?WINNT 5\.2 .+'),
             re.compile('.*win32.*'),
         ],
 
@@ -217,7 +220,7 @@ PLATFORMS_BUILDERNAME = {
 
     'win64': {
         'regexes': [
-            re.compile('^WINNT 6\.1 .+'),
+            re.compile('^(TB )?WINNT 6\.1 .+'),
             re.compile('.*win64.*'),
         ],
 
@@ -233,12 +236,13 @@ PLATFORMS_BUILDERNAME = {
         'regexes': [
             re.compile('^Rev3 WINNT 6\.1 '),
             re.compile('jetpack-.*-win7'),
+            re.compile('^Windows 7 32-bit'),
         ],
 
         'attributes': {
             'os': 'win',
             'os_platform': 'Rev3 WINNT 6.1',
-            'arch': 'x86_64',
+            'arch': 'x86',
             'vm': False
         }
     },
@@ -355,6 +359,7 @@ def extract_job_type(source_string):
         for regex in JOB_TYPE_BUILDERNAME[job_type]:
             if regex.search(source_string):
                 return job_type
+
 
 def extract_test_name(source_string):
     tokens = source_string.split()

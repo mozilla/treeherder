@@ -1,6 +1,8 @@
 import urllib2
 import gzip
 import StringIO
+import hashlib
+
 import simplejson as json
 
 
