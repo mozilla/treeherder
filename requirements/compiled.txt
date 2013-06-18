@@ -5,3 +5,4 @@ django>=1.5,<1.6
 Celery==3.0.17
 django-celery==3.0.17
 kombu==2.4.7
+simplejson==3.3.0

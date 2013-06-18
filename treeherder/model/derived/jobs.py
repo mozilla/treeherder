@@ -26,7 +26,6 @@ class JobsModel(TreeherderModelBase):
     CT_OBJECTSTORE = "objectstore"
     CONTENT_TYPES = [CT_JOBS, CT_OBJECTSTORE]
 
-
     @classmethod
     def create(cls, project, host=None):
         """
@@ -66,6 +65,25 @@ class JobsModel(TreeherderModelBase):
         """Return the job row for this ``job_id``"""
         return self.get_row_by_id(self.CT_JOBS, "job", job_id).next()
 
+    def get_log_references(self, job_id):
+        """Return the log references for the given ``job_id``."""
+        return self.get_jobs_dhub().execute(
+            proc="jobs.selects.get_log_references",
+            placeholders=[job_id],
+            debug_show=self.DEBUG,
+            return_type='iter',
+        )
+
+    def get_os_errors(self, starttime, endtime):
+        """Return all the errors from the objectstore in this range."""
+        return self.get_os_dhub().execute(
+            proc="objectstore.selects.get_error_metadata",
+            placeholders=[starttime, endtime],
+            debug_show=self.DEBUG,
+            return_type='dict',
+            key_column="job_id"
+        )
+
     ##################
     #
     # Objectstore functionality
@@ -78,20 +96,38 @@ class JobsModel(TreeherderModelBase):
         secret = ds.get_oauth_consumer_secret(key)
         return secret
 
-    def store_job_data(self, json_data, error=None):
-        """Write the JSON to the objectstore to be queued for processing."""
+    def store_job_data(self, json_data, job_guid, error=None):
+        """
+        Write the JSON to the objectstore to be queued for processing.
+        job_guid is needed in order to decide wether the object exists or not
+        """
 
         loaded_timestamp = utils.get_now_timestamp()
         error = "N" if error is None else "Y"
         error_msg = error or ""
 
+        # this query inserts the object if its guid is not present,
+        # otherwise it does nothing
         self.get_os_dhub().execute(
             proc='objectstore.inserts.store_json',
-            placeholders=[loaded_timestamp, json_data, error, error_msg],
+            placeholders=[
+                loaded_timestamp,
+                job_guid,
+                json_data,
+                error,
+                error_msg,
+                job_guid],
             debug_show=self.DEBUG
         )
 
-        return self._get_last_insert_id()
+        # this update is needed in case the object was already stored,
+        # otherwise it's redundant.
+        # TODO: find a way to do a conditional update
+        self.get_os_dhub().execute(
+            proc='objectstore.updates.update_json',
+            placeholders=[loaded_timestamp, json_data, error, error_msg, job_guid],
+            debug_show=self.DEBUG
+        )
 
     def retrieve_job_data(self, limit):
         """
@@ -116,8 +152,6 @@ class JobsModel(TreeherderModelBase):
     def load_job_data(self, data):
         """
         Load JobData instance into jobs db, return job_id.
-
-        @@@: should I return the job_guid instead?
 
         Example:
             {
@@ -259,8 +293,6 @@ class JobsModel(TreeherderModelBase):
             # it is ok to have an empty or missing artifact
             pass
 
-        return job_id
-
     def _set_result_set(self, revision_hash):
         """Set result set revision hash"""
 
@@ -344,7 +376,6 @@ class JobsModel(TreeherderModelBase):
         except ValueError as e:
             raise JobDataError(e.message)
 
-
         job_id = self._insert_data_and_get_id(
             'set_job_data',
             [
@@ -414,14 +445,13 @@ class JobsModel(TreeherderModelBase):
     def process_objects(self, loadlimit):
         """Processes JSON blobs from the objectstore into jobs schema."""
         rows = self.claim_objects(loadlimit)
-        job_ids_loaded = []
 
         for row in rows:
             row_id = int(row['id'])
             import traceback
             try:
                 data = JobData.from_json(row['json_blob'])
-                job_id = self.load_job_data(data)
+                self.load_job_data(data)
                 revision_hash = data["revision_hash"]
             except JobDataError as e:
                 self.mark_object_error(row_id, str(e))
@@ -432,10 +462,7 @@ class JobsModel(TreeherderModelBase):
                         e.__class__.__name__, unicode(e))
                 )
             else:
-                self.mark_object_complete(row_id, job_id, revision_hash)
-                job_ids_loaded.append(job_id)
-
-        return job_ids_loaded
+                self.mark_object_complete(row_id, revision_hash)
 
     def claim_objects(self, limit):
         """
@@ -497,11 +524,11 @@ class JobsModel(TreeherderModelBase):
 
         return json_blobs
 
-    def mark_object_complete(self, object_id, job_id, revision_hash):
+    def mark_object_complete(self, object_id, revision_hash):
         """ Call to database to mark the task completed """
         self.get_os_dhub().execute(
             proc="objectstore.updates.mark_complete",
-            placeholders=[job_id, revision_hash, object_id],
+            placeholders=[revision_hash, object_id],
             debug_show=self.DEBUG
         )
 
@@ -512,6 +539,29 @@ class JobsModel(TreeherderModelBase):
             placeholders=[error, object_id],
             debug_show=self.DEBUG
         )
+
+    def get_json_blob_by_guid(self, guid):
+        """retrieves a json_blob given its guid"""
+        return self.get_os_dhub().execute(
+            proc="objectstore.selects.get_json_blob_by_guid",
+            placeholders=[guid],
+            debug_show=self.DEBUG
+        )
+
+    def get_json_blob_list(self, page, limit):
+        """
+        Retrieve JSON blobs from the objectstore.
+        Mainly used by the restful api to list the last blobs stored
+        """
+        proc = "objectstore.selects.get_json_blob_list"
+        json_blobs = self.get_os_dhub().execute(
+            proc=proc,
+            placeholders=[page, limit],
+            debug_show=self.DEBUG,
+            return_type='tuple'
+        )
+
+        return json_blobs
 
 
 class JobDataError(ValueError):

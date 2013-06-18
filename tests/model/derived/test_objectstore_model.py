@@ -5,12 +5,13 @@ from .sample_data_generator import job_json
 
 slow = pytest.mark.slow
 
+
 def test_claim_objects(jm, sample_data):
     """``claim_objects`` claims & returns unclaimed rows up to a limit."""
 
-    blobs = [json.dumps(job) for job in sample_data.job_data[:3]]
-    for blob in blobs:
-        jm.store_job_data(blob)
+    blobs = dict((job['job']['job_guid'], json.dumps(job)) for job in sample_data.job_data[:3])
+    for job_guid, blob in blobs.items():
+        jm.store_job_data(blob, job_guid)
 
     rows1 = jm.claim_objects(2)
 
@@ -28,7 +29,7 @@ def test_claim_objects(jm, sample_data):
     assert len(rows2) == 1
 
     # all three blobs were fetched by one of the workers
-    assert set([r["json_blob"] for r in rows1 + rows2]) == set(blobs)
+    assert set([r["json_blob"] for r in rows1 + rows2]) == set(blobs.values())
 
     # the blobs are all marked as "loading" in the database
     assert loading_rows == 3
@@ -36,32 +37,31 @@ def test_claim_objects(jm, sample_data):
 
 def test_mark_object_complete(jm):
     """Marks claimed row complete and records run id."""
-    jm.store_job_data(job_json())
+    jm.store_job_data(*job_json())
     row_id = jm.claim_objects(1)[0]["id"]
-    job_id = 7  # any arbitrary number; no cross-db constraint checks
+
     revision_hash = "fakehash"
 
-    jm.mark_object_complete(row_id, job_id, revision_hash)
+    jm.mark_object_complete(row_id, revision_hash)
 
     row_data = jm.get_dhub(jm.CT_OBJECTSTORE).execute(
         proc="objectstore_test.selects.row", placeholders=[row_id])[0]
 
-    assert row_data["job_id"] == job_id
     assert row_data["revision_hash"] == revision_hash
     assert row_data["processed_state"] == "complete"
 
 
-def test_process_objects(jm):
+def test_process_objects(jm, initial_data):
     """Claims and processes a chunk of unprocessed JSON jobs data blobs."""
     # Load some rows into the objectstore
     blobs = [
-        job_json(submit_timestamp="1330454755"),
-        job_json(submit_timestamp="1330454756"),
-        job_json(submit_timestamp="1330454757"),
+        job_json(submit_timestamp="1330454755", job_guid="guid1"),
+        job_json(submit_timestamp="1330454756", job_guid="guid2"),
+        job_json(submit_timestamp="1330454757", job_guid="guid3"),
     ]
 
     for blob in blobs:
-        jm.store_job_data(blob)
+        jm.store_job_data(*blob)
 
     # just process two rows
     jm.process_objects(2)
@@ -84,7 +84,7 @@ def test_process_objects(jm):
 
 def test_process_objects_invalid_json(jm):
     """process_objects fail for invalid json"""
-    jm.store_job_data("invalid json")
+    jm.store_job_data("invalid json", "myguid")
     row_id = jm._get_last_insert_id("objectstore")
 
     jm.process_objects(1)
@@ -101,7 +101,7 @@ def test_process_objects_invalid_json(jm):
 
 def test_process_objects_unknown_error(jm, monkeypatch):
     """process_objects fail for unknown reason"""
-    jm.store_job_data("{}")
+    jm.store_job_data("{}", "myguid")
     row_id = jm._get_last_insert_id("objectstore")
 
     # force an unexpected error to occur
@@ -147,3 +147,29 @@ def test_ingest_sample_data(jm, sample_data):
     assert complete_count == data_length
     assert loading_count == 0
     assert len(job_rows) == data_length
+
+
+def test_objectstore_update_content(jm, sample_data):
+    """
+    Test updating an object of the objectstore.
+    """
+    original_obj = sample_data.job_data[0]
+    jm.store_job_data(json.dumps(original_obj), original_obj["job"]["job_guid"])
+
+    obj_updated = original_obj.copy()
+    obj_updated["job"]["state"] = "new_state"
+
+    jm.store_job_data(json.dumps(obj_updated), obj_updated["job"]["job_guid"])
+
+    stored_objs = jm.get_os_dhub().execute(
+        proc="objectstore_test.selects.row_by_guid",
+        placeholders=[obj_updated["job"]["job_guid"]]
+    )
+
+    # check that it didn't create a new object
+    assert len(stored_objs) == 1
+
+    stored_blob = json.loads(stored_objs[0]["json_blob"])
+
+    # check that the blob was updated
+    assert stored_blob["job"]["state"] == "new_state"

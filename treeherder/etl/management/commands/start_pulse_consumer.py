@@ -2,7 +2,8 @@ import os
 
 from optparse import make_option
 from django.core.management.base import BaseCommand
-from treeherder.pulse_consumer.consumer import TreeherderDataAdapter, TreeherderPulseDaemon
+from treeherder.etl.pulse import TreeherderDataAdapter, TreeherderPulseDaemon
+
 
 class Command(BaseCommand):
     """Management command to run mozilla pulse consumer."""
@@ -12,25 +13,25 @@ class Command(BaseCommand):
         "and test data events.\n\n"
         "Example: Write job data structures to stdout\n"
         "manage.py start_pulse_consumer --start --outfile 'stdout'"
-        )
+    )
 
     option_list = BaseCommand.option_list + (
 
         make_option('--start',
                     action='store_true',
                     dest='start',
-                    help="Start the daemon." ),
+                    help="Start the daemon."),
 
         make_option('--stop',
                     action='store_true',
                     dest='stop',
                     help=("Stop the daemon. If no pidfile is supplied "
-                          "pulse_consumer.pid is used." )),
+                          "pulse_consumer.pid is used.")),
 
         make_option('--restart',
                     action='store_true',
                     dest='restart',
-                    help="Restart the daemon." ),
+                    help="Restart the daemon."),
 
         make_option('--daemon',
                     action='store_true',
@@ -66,7 +67,7 @@ class Command(BaseCommand):
                     help=("Write treeherder json data to file specified in"
                           " outfile, quick way to test data structures. Use"
                           " the string stdout to write to standard output.")),
-            )
+    )
 
     def handle(self, *args, **options):
 
@@ -85,7 +86,7 @@ class Command(BaseCommand):
             logdir=logdir,
             rawdata=rawdata,
             outfile=outfile
-            )
+        )
 
         if start:
 
@@ -94,7 +95,7 @@ class Command(BaseCommand):
                 th_daemon = TreeherderPulseDaemon(
                     pidfile, treeherder_data_adapter=tda, stdin='/dev/null',
                     stdout='/dev/null', stderr='/dev/null'
-                    )
+                )
 
                 th_daemon.start()
 
@@ -108,10 +109,9 @@ class Command(BaseCommand):
             th_daemon = TreeherderPulseDaemon(
                 pidfile, treeherder_data_adapter=tda, stdin='/dev/null',
                 stdout='/dev/null', stderr='/dev/null'
-                )
+            )
 
             if restart:
                 th_daemon.restart()
             elif stop:
                 th_daemon.stop()
-

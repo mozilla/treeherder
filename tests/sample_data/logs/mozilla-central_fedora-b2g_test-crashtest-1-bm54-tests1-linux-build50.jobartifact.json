@@ -1,0 +1,8 @@
+{
+    "errors": [],
+    "tinderbox_printlines": [
+        "mozharness_revlink: http://hg.mozilla.org/build/mozharness/rev/c43ba6cb3db3",
+        "crashtest<br/>810/0/22"
+    ],
+    "logurl": "file:///home/vagrant/treeherder-service/tests/sample_data/logs/mozilla-central_fedora-b2g_test-crashtest-1-bm54-tests1-linux-build50.txt.gz"
+}

@@ -1,0 +1,149 @@
+{
+    "header": {
+        "slave": "talos-r3-fed-088",
+        "buildid": "20130605115738",
+        "builder": "mozilla-central_fedora-b2g_test-crashtest-1",
+        "results": "success (0)",
+        "starttime": "1370461197.84",
+        "builduid": "0356dff218744cf4b6ca832f12ec183f",
+        "revision": "1658dc513572"
+    },
+    "step_data": {
+        "all_errors": [],
+        "steps": [
+            {
+                "errors": [],
+                "name": "set props: master",
+                "started": "2013-06-05 12:39:57.838527",
+                "started_linenumber": 8,
+                "finished_linenumber": 10,
+                "finished": "2013-06-05 12:39:57.839226",
+                "error_count": 0,
+                "duration": 0.000699,
+                "order": 0
+            },
+            {
+                "errors": [],
+                "name": "set props: basedir",
+                "started": "2013-06-05 12:39:57.839702",
+                "started_linenumber": 12,
+                "finished_linenumber": 42,
+                "finished": "2013-06-05 12:39:58.346114",
+                "error_count": 0,
+                "duration": 0.506412,
+                "order": 1
+            },
+            {
+                "errors": [],
+                "name": "downloading to buildprops.json",
+                "started": "2013-06-05 12:39:58.346573",
+                "started_linenumber": 44,
+                "finished_linenumber": 45,
+                "finished": "2013-06-05 12:39:58.614586",
+                "error_count": 0,
+                "duration": 0.268013,
+                "order": 2
+            },
+            {
+                "errors": [],
+                "name": "'rm -rf ...'",
+                "started": "2013-06-05 12:39:58.615003",
+                "started_linenumber": 47,
+                "finished_linenumber": 75,
+                "finished": "2013-06-05 12:39:58.723069",
+                "error_count": 0,
+                "duration": 0.108066,
+                "order": 3
+            },
+            {
+                "errors": [],
+                "name": "'rm -rf ...'",
+                "started": "2013-06-05 12:39:58.723521",
+                "started_linenumber": 77,
+                "finished_linenumber": 105,
+                "finished": "2013-06-05 12:39:58.831972",
+                "error_count": 0,
+                "duration": 0.108451,
+                "order": 4
+            },
+            {
+                "errors": [],
+                "name": "'hg clone ...'",
+                "started": "2013-06-05 12:39:58.832419",
+                "started_linenumber": 107,
+                "finished_linenumber": 142,
+                "finished": "2013-06-05 12:40:01.114413",
+                "error_count": 0,
+                "duration": 2.281994,
+                "order": 5
+            },
+            {
+                "errors": [],
+                "name": "'hg update ...'",
+                "started": "2013-06-05 12:40:01.114870",
+                "started_linenumber": 144,
+                "finished_linenumber": 173,
+                "finished": "2013-06-05 12:40:01.335999",
+                "error_count": 0,
+                "duration": 0.221129,
+                "order": 6
+            },
+            {
+                "errors": [],
+                "name": "set props: script_repo_revision",
+                "started": "2013-06-05 12:40:01.336478",
+                "started_linenumber": 175,
+                "finished_linenumber": 205,
+                "finished": "2013-06-05 12:40:01.520234",
+                "error_count": 0,
+                "duration": 0.183756,
+                "order": 7
+            },
+            {
+                "errors": [],
+                "name": "tinderboxprint_script_revlink",
+                "started": "2013-06-05 12:40:01.520734",
+                "started_linenumber": 207,
+                "finished_linenumber": 209,
+                "finished": "2013-06-05 12:40:01.521320",
+                "error_count": 0,
+                "duration": 0.000586,
+                "order": 8
+            },
+            {
+                "errors": [],
+                "name": "'/tools/buildbot/bin/python scripts/scripts/b2g_emulator_unittest.py ...'",
+                "started": "2013-06-05 12:40:01.521797",
+                "started_linenumber": 211,
+                "finished_linenumber": 3369,
+                "finished": "2013-06-05 12:57:55.646752",
+                "error_count": 0,
+                "duration": 1074.124955,
+                "order": 9
+            },
+            {
+                "errors": [],
+                "name": "set props: build_url",
+                "started": "2013-06-05 12:57:55.659998",
+                "started_linenumber": 3371,
+                "finished_linenumber": 3401,
+                "finished": "2013-06-05 12:57:55.793402",
+                "error_count": 0,
+                "duration": 0.133404,
+                "order": 10
+            },
+            {
+                "errors": [],
+                "name": "reboot slave lost",
+                "started": "2013-06-05 12:57:55.793914",
+                "started_linenumber": 3403,
+                "finished_linenumber": 3433,
+                "finished": "2013-06-05 12:58:55.994641",
+                "error_count": 0,
+                "duration": 60.200727,
+                "order": 11
+            }
+        ]
+    },
+    "logurl": "file:///home/vagrant/treeherder-service/tests/sample_data/logs/mozilla-central_fedora-b2g_test-crashtest-1-bm54-tests1-linux-build50.txt.gz"
+}

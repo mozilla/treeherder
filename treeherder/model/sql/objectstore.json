@@ -3,12 +3,16 @@
         "store_json":{
 
             "sql":"INSERT INTO  `objectstore` (`loaded_timestamp`,
+                                               `job_guid`,
                                                `json_blob`,
                                                `error`,
                                                `error_msg`)
-                   VALUES       (?, ?, ?, ?)
-                  ",
-
+                  SELECT ?, ?, ?, ?, ?
+                  FROM DUAL
+                  WHERE NOT EXISTS (
+                    SELECT `job_guid` from `objectstore`
+                    WHERE `job_guid` = ?  
+                  )",
             "host":"master_host"
         }
     },
@@ -48,7 +52,7 @@
 
         "get_error_metadata":{
 
-            "sql":"SELECT   `id`, job_id, loaded_timestamp, processed_state, error_msg, worker_id
+            "sql":"SELECT   `id`, job_guid, loaded_timestamp, processed_state, error_msg, worker_id
                 FROM     `objectstore`
                 WHERE    `error` = 'Y'
                 AND loaded_timestamp BETWEEN ? AND ?",
@@ -63,17 +67,43 @@
                           error,
                           processed_state,
                           loaded_timestamp,
-                          job_id
+                          job_guid
                    FROM `objectstore` WHERE `id` = ?",
 
             "host":"read_host"
+        },
+
+        "get_json_blob_by_guid":{
+
+            "sql":"SELECT json_blob,
+                          error_msg,
+                          error,
+                          processed_state,
+                          loaded_timestamp,
+                          job_guid
+                   FROM `objectstore` WHERE `job_guid` = ?",
+
+            "host":"read_host"
+        },
+
+        "get_json_blob_list":{
+          "sql":"SELECT json_blob,
+                        error_msg,
+                        error,
+                        processed_state,
+                        loaded_timestamp,
+                        job_guid
+                   FROM `objectstore`
+                   ORDER BY loaded_timestamp DESC
+                   LIMIT ?,?",
+          "host":"read_host"
         },
 
         "get_json_blob_for_test_run":{
 
             "sql":"SELECT json_blob, error_msg, error
                    FROM `objectstore`
-                   WHERE `job_id` IN (REP0)",
+                   WHERE `job_guid` IN (REP0)",
 
             "host":"read_host"
         },
@@ -116,7 +146,6 @@
 
             "sql":"UPDATE   `objectstore`
                    SET      `processed_state` = 'complete',
-                            `job_id` = ?,
                             `revision_hash` = ?
                    WHERE    `processed_state` = 'loading'
                    AND      `id` = ?
@@ -141,6 +170,17 @@
 
             "host":"master_host"
 
+        },
+
+        "update_json":{
+
+            "sql":"UPDATE  `objectstore`
+                  SET `loaded_timestamp` = ?,
+                      `json_blob` = ?,
+                      `error` = ?,
+                      `error_msg` = ?
+                  WHERE `job_guid` = ?",
+            "host":"master_host"
         }
     }
 }

@@ -8,11 +8,11 @@ djcelery.setup_loader()
 
 # These settings can all be optionally set via env vars, or in local.py:
 
-TREEHERDER_DATABASE_NAME     = os.environ.get("TREEHERDER_DATABASE_NAME", "")
-TREEHERDER_DATABASE_USER     = os.environ.get("TREEHERDER_DATABASE_USER", "")
+TREEHERDER_DATABASE_NAME = os.environ.get("TREEHERDER_DATABASE_NAME", "")
+TREEHERDER_DATABASE_USER = os.environ.get("TREEHERDER_DATABASE_USER", "")
 TREEHERDER_DATABASE_PASSWORD = os.environ.get("TREEHERDER_DATABASE_PASSWORD", "")
-TREEHERDER_DATABASE_HOST     = os.environ.get("TREEHERDER_DATABASE_HOST", "localhost")
-TREEHERDER_DATABASE_PORT     = os.environ.get("TREEHERDER_DATABASE_PORT", "")
+TREEHERDER_DATABASE_HOST = os.environ.get("TREEHERDER_DATABASE_HOST", "localhost")
+TREEHERDER_DATABASE_PORT = os.environ.get("TREEHERDER_DATABASE_PORT", "")
 
 TREEHERDER_MEMCACHED = os.environ.get("TREEHERDER_MEMCACHED", "")
 TREEHERDER_MEMCACHED_KEY_PREFIX = os.environ.get("TREEHERDER_MEMCACHED_KEY_PREFIX", "treeherder")
@@ -27,7 +27,7 @@ RABBITMQ_PORT = os.environ.get("TREEHERDER_RABBITMQ_PORT", "")
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = os.environ.get("TREEHERDER_DJANGO_SECRET_KEY", "my-secret-key")
 
-ADMINS = []#TBD
+ADMINS = []  # TBD
 MANAGERS = ADMINS
 
 SITE_ID = 1
@@ -48,7 +48,7 @@ STATICFILES_DIRS = []
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
-#    "django.contrib.staticfiles.finders.DefaultStorageFinder",
+    #"django.contrib.staticfiles.finders.DefaultStorageFinder",
 ]
 
 TEMPLATE_LOADERS = [
@@ -78,12 +78,17 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
-    'treeherder.model',
-    'treeherder.webapp',
-    'treeherder.pulse_consumer',
-    'treeherder.log_parser'
+    # 3rd party apps
     'south',
     'djcelery',
+    'south',
+    'rest_framework',
+    # treeherder apps
+    'treeherder.model',
+    'treeherder.webapp',
+    'treeherder.log_parser'
+    'treeherder.etl',
+
 ]
 
 LOCAL_APPS = []
@@ -132,6 +137,14 @@ CELERY_DEFAULT_QUEUE = 'default'
 CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'
 CELERY_DEFAULT_ROUTING_KEY = 'default'
 
+# rest-framework settings
+REST_FRAMEWORK = {
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
+    )
+}
+
+API_HOSTNAME = "http://localhost"
 
 try:
     from .local import *
@@ -144,12 +157,12 @@ TEMPLATE_DEBUG = DEBUG
 
 DATABASES = {
     "default": {
-        "ENGINE"   : "django.db.backends.mysql",
-        "NAME"     : TREEHERDER_DATABASE_NAME,
-        "USER"     : TREEHERDER_DATABASE_USER,
-        "PASSWORD" : TREEHERDER_DATABASE_PASSWORD,
-        "HOST"     : TREEHERDER_DATABASE_HOST,
-        "PORT"     : TREEHERDER_DATABASE_PORT,
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": TREEHERDER_DATABASE_NAME,
+        "USER": TREEHERDER_DATABASE_USER,
+        "PASSWORD": TREEHERDER_DATABASE_PASSWORD,
+        "HOST": TREEHERDER_DATABASE_HOST,
+        "PORT": TREEHERDER_DATABASE_PORT,
     }
 }
 
@@ -160,7 +173,7 @@ CACHES = {
         "TIMEOUT": 0,
         # bumping this is effectively equivalent to restarting memcached
         "VERSION": 1,
-        }
+    }
 }
 
 KEY_PREFIX = TREEHERDER_MEMCACHED_KEY_PREFIX
