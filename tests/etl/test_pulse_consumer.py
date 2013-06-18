@@ -1,13 +1,13 @@
 import pytest
 
-from treeherder.pulse_consumer.consumer import PulseDataAdapter
+from treeherder.etl.pulse import PulseDataAdapter
 
 
 def test_process_data(sample_data):
     """
-    Test the ability of PulseDataAdapter.process_data() to process the
-    raw data available in sample_data without missing any attributes.
-    """
+Test the ability of PulseDataAdapter.process_data() to process the
+raw data available in sample_data without missing any attributes.
+"""
 
     pda = PulseDataAdapter(
         durable=False,
@@ -30,7 +30,7 @@ def test_process_data(sample_data):
 
 class Message(object):
     """Class that mimics the message object interface from
-       mozilla pulse"""
+mozilla pulse"""
     def __init__(self):
         pass
 
