@@ -86,7 +86,7 @@ INSTALLED_APPS = [
     # treeherder apps
     'treeherder.model',
     'treeherder.webapp',
-    'treeherder.log_parser'
+    'treeherder.log_parser',
     'treeherder.etl',
 
 ]
