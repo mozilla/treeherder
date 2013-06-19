@@ -63,7 +63,7 @@ class JobsModel(TreeherderModelBase):
 
     def get_job(self, job_id):
         """Return the job row for this ``job_id``"""
-        return self.get_row_by_id(self.CT_JOBS, "job", job_id).next()
+        return self.get_row_by_id(self.CT_JOBS, "job", job_id)
 
     def get_job_list(self, page, limit):
         """

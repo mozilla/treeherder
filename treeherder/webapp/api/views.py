@@ -1,7 +1,7 @@
 import simplejson as json
 
 from django.http import Http404
-from rest_framework import viewsets
+from rest_framework import viewsets, mixins
 from rest_framework.response import Response
 from rest_framework import exceptions
 from rest_framework.decorators import action
@@ -67,10 +67,19 @@ class JobsViewSet(viewsets.ViewSet):
         """
         GET method implementation for detail view
         """
-        jm = JobsModel(project)
-        obj = jm.get_job(pk)
+        try:
+            jm = JobsModel(project)
+            obj = jm.get_job(pk)
+        except DatasetNotFoundError as e:
+            return Response(
+                {"message": "No project with name {0}".format(project)},
+                status=404,
+            )
+        except Exception as e:  # pragma nocover
+            return Response({"message": str(e)}, status=500)
+
         if obj:
-            return Response(json.loads(obj[0]['job']))
+            return Response(obj)
         else:
             raise Http404()
 
@@ -78,12 +87,17 @@ class JobsViewSet(viewsets.ViewSet):
         """
         GET method implementation for list view
         """
-        page = request.QUERY_PARAMS.get('page', 0)
-        jm = JobsModel(project)
-        objs = jm.get_job_list(page, 10)
-        return Response([json.loads(obj['job']) for obj in objs])
+        try:
+            page = request.QUERY_PARAMS.get('page', 0)
+            jm = JobsModel(project)
+            objs = jm.get_job_list(page, 10)
+            return Response(objs)
+        except DatasetNotFoundError as e:
+            return Response({"message": str(e)}, status=404)
+        except Exception as e:  # pragma nocover
+            return Response({"message": str(e)}, status=500)
 
-    @action(methods=["POST"])
+    @action
     def update_state(self, request, project, pk=None):
         """
         Change the status of a job.

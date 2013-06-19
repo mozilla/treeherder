@@ -40,6 +40,9 @@ urlpatterns = patterns(
     '',
     url(r'^project/(?P<project>\w{0,50})/',
         include(project_bound_router.urls)),
+    url(r"^project/(?P<project>\w{0,50})/jobs/(?P<pk>[^/]+)/update_state/$",
+        views.JobsViewSet.update_state,
+        name="jobs-update-state"),
     url(r'^',
         include(default_router.urls)),
 )

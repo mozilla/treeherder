@@ -69,7 +69,10 @@ class TreeherderModelBase(object):
         return candidate_sources[0]
 
     def get_row_by_id(self, contenttype, table_name, obj_id):
-        """Given an ``id`` get the row for that item."""
+        """
+        Given an ``id`` get the row for that item.
+        Return none if not found
+        """
         iter_obj = self.get_dhub(contenttype).execute(
             proc="generic.selects.get_row_by_id",
             replace=[table_name],
@@ -78,7 +81,10 @@ class TreeherderModelBase(object):
             return_type='iter',
         )
 
-        return iter_obj
+        try:
+            return iter_obj.next()
+        except StopIteration:
+            return None
 
 
 class DatasetNotFoundError(ValueError):
