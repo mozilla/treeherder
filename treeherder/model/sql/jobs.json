@@ -81,9 +81,9 @@
     "updates": {
         "set_state":{
 
-            "sql":"UPDATE `jobs`
+            "sql":"UPDATE `job`
                 SET    `state` = ?
-                WHERE  `job_id` = ?",
+                WHERE  `id` = ?",
 
                 "host":"master_host"
         }

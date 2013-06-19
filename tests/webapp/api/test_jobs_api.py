@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse
 
 def test_update_state_success(webapp, ten_jobs_processed, jm):
     """
-    test setting the status of a job via webtest.
+    test setting the state of a job via webtest.
     extected result are:
     - return code 200
     - return message successful
@@ -13,27 +13,27 @@ def test_update_state_success(webapp, ten_jobs_processed, jm):
     """
 
     joblist = jm.get_job_list(0, 1)
-    # from treeherder.webapp.api.urls import project_bound_router
-    # for urlpattern in project_bound_router.urls:
-    #     print urlpattern
 
     job = joblist.next()
+    job_id = job["id"]
+    new_state = "pending"
 
     url = reverse("jobs-update-state",
                   kwargs={
                       "project": jm.project,
-                      "pk": job["id"]
+                      "pk": job_id
                   })
 
     print url
     resp = webapp.post(
         url,
         params={
-            "state": "pending",
+            "state": new_state,
         },
     )
     assert resp.status_int == 200
-    assert resp.json["message"] == "status updated"
+    assert resp.json["message"] == "state updated to 'pending'"
+    assert jm.get_job(job_id)["state"] == new_state
 
 
 def test_job_list(webapp, ten_jobs_processed, jm):

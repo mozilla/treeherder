@@ -98,7 +98,7 @@ class JobsViewSet(viewsets.ViewSet):
         except Exception as e:  # pragma nocover
             return Response({"message": str(e)}, status=500)
 
-    @action(methods=["post"])
+    @action()
     def update_state(self, request, project, pk=None):
         """
         Change the state of a job.
@@ -110,8 +110,8 @@ class JobsViewSet(viewsets.ViewSet):
         # check that this is valid
         if state not in jm.STATES:
             return Response(
-                {"message": ("{0} is not a valid state.  "
-                             "Must be one of: {1}".format(
+                {"message": ("'{0}' is not a valid state.  Must be "
+                             "one of: {1}".format(
                                  state,
                                  ", ".join(jm.STATES)
                              ))},
@@ -128,8 +128,11 @@ class JobsViewSet(viewsets.ViewSet):
 
         try:
             jm.set_state(pk, state)
+            jm.disconnect()
         except Exception as e:  # pragma nocover
             return Response({"message": str(e)}, status=500)
+
+        return Response({"message": "state updated to '{0}'".format(state)})
 
 
 #####################
