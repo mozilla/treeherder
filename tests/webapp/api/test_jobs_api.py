@@ -114,6 +114,18 @@ def test_job_list(webapp, ten_jobs_processed, jm):
         assert set(job.keys()) == set(exp_keys)
 
 
+def test_job_list_bad_project(webapp, ten_jobs_processed, jm):
+    """
+    test retrieving a single job from the jobs-detail
+    endpoint.
+    """
+    url = reverse("jobs-list",
+                  kwargs={"project": jm.project})
+    badurl = url.replace(jm.project, "badproject")
+
+    webapp.get(badurl, status=404)
+
+
 def test_job_detail(webapp, ten_jobs_processed, jm):
     """
     test retrieving a single job from the jobs-detail

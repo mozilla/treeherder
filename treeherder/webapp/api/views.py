@@ -1,11 +1,9 @@
-from django.views.decorators.csrf import csrf_exempt
 import simplejson as json
 
 from django.http import Http404
-from rest_framework import viewsets, mixins
+from rest_framework import viewsets
 from rest_framework.response import Response
-from rest_framework import exceptions
-from rest_framework.decorators import action, link
+from rest_framework.decorators import action
 from treeherder.model import models
 
 from treeherder.model.derived import JobsModel, DatasetNotFoundError
@@ -104,10 +102,9 @@ class JobsViewSet(viewsets.ViewSet):
         Change the state of a job.
         """
         state = request.DATA.get('state', None)
-        print request.DATA
         jm = JobsModel(project)
 
-        # check that this is valid
+        # check that this state is valid
         if state not in jm.STATES:
             return Response(
                 {"message": ("'{0}' is not a valid state.  Must be "
