@@ -1,10 +1,11 @@
+from django.views.decorators.csrf import csrf_exempt
 import simplejson as json
 
 from django.http import Http404
 from rest_framework import viewsets, mixins
 from rest_framework.response import Response
 from rest_framework import exceptions
-from rest_framework.decorators import action
+from rest_framework.decorators import action, link
 from treeherder.model import models
 
 from treeherder.model.derived import JobsModel, DatasetNotFoundError
@@ -97,12 +98,13 @@ class JobsViewSet(viewsets.ViewSet):
         except Exception as e:  # pragma nocover
             return Response({"message": str(e)}, status=500)
 
-    @action
+    @action(methods=["post"])
     def update_state(self, request, project, pk=None):
         """
-        Change the status of a job.
+        Change the state of a job.
         """
-        state = request.QUERY_PARAMS.get('state', 0)
+        state = request.DATA.get('state', None)
+        print request.DATA
         jm = JobsModel(project)
 
         # check that this is valid

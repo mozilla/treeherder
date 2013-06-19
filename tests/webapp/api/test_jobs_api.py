@@ -13,9 +13,9 @@ def test_update_state_success(webapp, ten_jobs_processed, jm):
     """
 
     joblist = jm.get_job_list(0, 1)
-    from treeherder.webapp.api.urls import project_bound_router
-    for urlpattern in project_bound_router.urls:
-        print urlpattern
+    # from treeherder.webapp.api.urls import project_bound_router
+    # for urlpattern in project_bound_router.urls:
+    #     print urlpattern
 
     job = joblist.next()
 
@@ -29,8 +29,7 @@ def test_update_state_success(webapp, ten_jobs_processed, jm):
     resp = webapp.post(
         url,
         params={
-            "state": "foo",
-            "DEBUG": "True"
+            "state": "pending",
         },
     )
     assert resp.status_int == 200
