@@ -13,27 +13,68 @@ def test_update_state_success(webapp, ten_jobs_processed, jm):
     """
 
     joblist = jm.get_job_list(0, 1)
-
     job = joblist.next()
+
     job_id = job["id"]
     new_state = "pending"
 
-    url = reverse("jobs-update-state",
-                  kwargs={
-                      "project": jm.project,
-                      "pk": job_id
-                  })
+    url = reverse("jobs-update-state", kwargs={
+        "project": jm.project,
+        "pk": job_id
+    })
 
-    print url
-    resp = webapp.post(
-        url,
-        params={
-            "state": new_state,
-        },
-    )
+    resp = webapp.post(url, params={"state": new_state})
+
     assert resp.status_int == 200
     assert resp.json["message"] == "state updated to 'pending'"
     assert jm.get_job(job_id)["state"] == new_state
+
+
+def test_update_state_invalid_state(webapp, ten_jobs_processed, jm):
+    """
+    test setting the state of a job via webtest with invalid state.
+    extected result are:
+    - return code 400
+    """
+
+    joblist = jm.get_job_list(0, 1)
+    job = joblist.next()
+
+    job_id = job["id"]
+    old_state = job["state"]
+    new_state = "chokey"
+
+    url = reverse("jobs-update-state", kwargs={
+        "project": jm.project,
+        "pk": job_id
+    })
+
+    resp = webapp.post(url, params={"state": new_state}, status=400)
+
+    assert resp.json["message"] == ("'{0}' is not a valid state.  Must be "
+                                    "one of: {1}".format(
+                                        new_state,
+                                        ", ".join(jm.STATES)
+                                    ))
+    assert jm.get_job(job_id)["state"] == old_state
+
+
+def test_update_state_invalid_job_id(webapp, ten_jobs_processed, jm):
+    """
+    test setting the state of a job via webtest with invalid job_id.
+    extected result are:
+    - return code 404
+    """
+
+    job_id = -32767
+    new_state = "pending"
+
+    url = reverse("jobs-update-state", kwargs={
+        "project": jm.project,
+        "pk": job_id
+    })
+
+    webapp.post(url, params={"state": new_state}, status=404)
 
 
 def test_job_list(webapp, ten_jobs_processed, jm):

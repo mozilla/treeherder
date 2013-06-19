@@ -118,12 +118,11 @@ class JobsViewSet(viewsets.ViewSet):
                 status=400,
             )
 
-        if not pk:
+        if not pk:  # pragma nocover
             return Response({"message": "job id required"}, status=400)
 
-        try:
-            obj = jm.get_job(pk)
-        except:
+        obj = jm.get_job(pk)
+        if not obj:
             raise Http404
 
         try:
