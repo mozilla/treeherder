@@ -116,8 +116,7 @@ def test_job_list(webapp, ten_jobs_processed, jm):
 
 def test_job_list_bad_project(webapp, ten_jobs_processed, jm):
     """
-    test retrieving a single job from the jobs-detail
-    endpoint.
+    test retrieving a job list with a bad project throws 404.
     """
     url = reverse("jobs-list",
                   kwargs={"project": jm.project})
