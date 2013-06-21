@@ -11,6 +11,11 @@ project_bound_router.register(
     views.ObjectstoreViewSet,
     base_name='objectstore',
 )
+project_bound_router.register(
+    r'jobs',
+    views.JobsViewSet,
+    base_name='jobs',
+)
 
 # this is the default router for plain restful endpoints
 
@@ -33,6 +38,8 @@ default_router.register(r'failureclassification', views.FailureClassificationVie
 
 urlpatterns = patterns(
     '',
-    url(r'^project/(?P<project>\w{0,50})/', include(project_bound_router.urls)),
-    url(r'^', include(default_router.urls)),
+    url(r'^project/(?P<project>\w{0,50})/',
+        include(project_bound_router.urls)),
+    url(r'^',
+        include(default_router.urls)),
 )
