@@ -73,8 +73,9 @@ class TreeherderModelBase(object):
         Given an ``id`` get the row for that item.
         Return none if not found
         """
+        proc = "generic.selects.get_row_by_id"
         iter_obj = self.get_dhub(contenttype).execute(
-            proc="generic.selects.get_row_by_id",
+            proc=proc,
             replace=[table_name],
             placeholders=[obj_id],
             debug_show=self.DEBUG,
@@ -84,8 +85,28 @@ class TreeherderModelBase(object):
         try:
             return iter_obj.next()
         except StopIteration:
-            return None
+            raise ObjectNotFoundException(
+                table_name,
+                id=obj_id,
+                contenttype=contenttype,
+                procedure=proc,
+            )
 
 
 class DatasetNotFoundError(ValueError):
     pass
+
+
+class ObjectNotFoundException(Exception):
+    """When querying for an object and it is not found """
+
+    def __init__(self, table, *args, **kwargs):
+        super(ObjectNotFoundException, self).__init__(args, kwargs)
+        self.table = table
+        self.extra_info = kwargs
+
+    def __unicode__(self):
+        return u"ObjectNotFoundException: For table '{0}': {1}".format(
+            self.table,
+            unicode(self.extra_info),
+            )

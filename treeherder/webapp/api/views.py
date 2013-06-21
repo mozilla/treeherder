@@ -6,7 +6,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from treeherder.model import models
 
-from treeherder.model.derived import JobsModel, DatasetNotFoundError
+from treeherder.model.derived import (JobsModel, DatasetNotFoundError,
+                                      ObjectNotFoundException)
 
 
 class ObjectstoreViewSet(viewsets.ViewSet):
@@ -74,13 +75,12 @@ class JobsViewSet(viewsets.ViewSet):
                 {"message": "No project with name {0}".format(project)},
                 status=404,
             )
+        except ObjectNotFoundException as e:
+            return Response({"message": unicode(e)}, status=404)
         except Exception as e:  # pragma nocover
-            return Response({"message": str(e)}, status=500)
+            return Response({"message": unicode(e)}, status=500)
 
-        if obj:
-            return Response(obj)
-        else:
-            raise Http404()
+        return Response(obj)
 
     def list(self, request, project):
         """
@@ -92,9 +92,9 @@ class JobsViewSet(viewsets.ViewSet):
             objs = jm.get_job_list(page, 10)
             return Response(objs)
         except DatasetNotFoundError as e:
-            return Response({"message": str(e)}, status=404)
+            return Response({"message": unicode(e)}, status=404)
         except Exception as e:  # pragma nocover
-            return Response({"message": str(e)}, status=500)
+            return Response({"message": unicode(e)}, status=500)
 
     @action()
     def update_state(self, request, project, pk=None):
@@ -118,15 +118,14 @@ class JobsViewSet(viewsets.ViewSet):
         if not pk:  # pragma nocover
             return Response({"message": "job id required"}, status=400)
 
-        obj = jm.get_job(pk)
-        if not obj:
-            raise Http404
-
         try:
+            jm.get_job(pk)
             jm.set_state(pk, state)
             jm.disconnect()
+        except ObjectNotFoundException as e:
+            return Response({"message": unicode(e)}, status=404)
         except Exception as e:  # pragma nocover
-            return Response({"message": str(e)}, status=500)
+            return Response({"message": unicode(e)}, status=500)
 
         return Response({"message": "state updated to '{0}'".format(state)})
 

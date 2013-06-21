@@ -161,8 +161,12 @@ def test_job_detail_not_found(webapp, jm):
     """
     resp = webapp.get(
         reverse("jobs-detail",
-                kwargs={"project": jm.project, "pk": 32767}),
+                kwargs={"project": jm.project, "pk": -32767}),
         expect_errors=True
     )
-    print resp
     assert resp.status_int == 404
+    assert resp.json == {
+        "message": ("ObjectNotFoundException: For table 'job':"
+                    " {'contenttype': 'jobs', 'id': u'-32767',"
+                    " 'procedure': 'generic.selects.get_row_by_id'}")
+    }
