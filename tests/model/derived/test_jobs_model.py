@@ -89,7 +89,7 @@ def test_bad_date_value_ingestion(jm, initial_data):
 
     blob = job_data(start_timestamp="foo")
     jm.store_job_data(json.dumps(blob), blob['job']['job_guid'])
-    job_ids = jm.process_objects(1)
+    jm.process_objects(1)
 
     assert get_objectstore_last_error(
         jm) == u"invalid literal for long() with base 10: 'foo'"
