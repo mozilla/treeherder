@@ -9,7 +9,9 @@ slow = pytest.mark.slow
 def test_claim_objects(jm, sample_data):
     """``claim_objects`` claims & returns unclaimed rows up to a limit."""
 
-    blobs = dict((job['job']['job_guid'], json.dumps(job)) for job in sample_data.job_data[:3])
+    blobs = dict((job['job']['job_guid'], json.dumps(job))
+                 for job in sample_data.job_data[:3])
+
     for job_guid, blob in blobs.items():
         jm.store_job_data(blob, job_guid)
 
@@ -122,18 +124,25 @@ def test_process_objects_unknown_error(jm, monkeypatch):
 
 
 @slow
-def test_ingest_sample_data(jm, sample_data):
+def test_ingest_sample_data(jm, sample_data, initial_data):
     """Process all job structures in the job_data.txt file"""
     job_data = sample_data.job_data
     for blob in job_data:
-        jm.store_job_data(json.dumps(blob))
+        jm.store_job_data(json.dumps(blob), blob['job']['job_guid'])
 
-    data_length = len(job_data)
+    # the number of objects stored is equivalent to
+    # the number of unique guids
+    data_length = len(set([blob['job']['job_guid']
+                          for blob in job_data]))
 
     # process 10 rows at a time
     remaining = data_length
-    while remaining:
-        jm.process_objects(10)
+
+    while remaining > 0:
+        # need to do this trick because process_objects is crashing if
+        # there are less items than expected
+        jm.process_objects(min(10, remaining))
+
         remaining -= 10
 
     job_rows = jm.get_jobs_dhub().execute(
