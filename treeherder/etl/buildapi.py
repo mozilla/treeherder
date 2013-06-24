@@ -3,18 +3,16 @@ import urllib2
 
 import simplejson as json
 from django.conf import settings
-from django.core.urlresolvers import reverse
 
-from treeherder.etl import buildbot
-from treeherder.etl.common import (get_revision_hash,
-                                   get_job_guid,
-                                   JobData)
+from . import buildbot
+from .common import (get_revision_hash, get_job_guid,
+                     JobData, TreeherderDataAdapter)
 
 
 logger = logging.getLogger(__file__)
 
 
-class TreeherderBuildapiAdapter(object):
+class TreeherderBuildapiAdapter(TreeherderDataAdapter):
     """
     Extract the pending and running jobs from buildapi,
     transform them in a treeherder-friendly format and
@@ -173,27 +171,3 @@ class TreeherderBuildapiAdapter(object):
 
                     job_list.append(JobData(treeherder_data))
         return job_list
-
-    def load(self, jobs):
-        """post a list of jobs to the objectstore ingestion endpoint """
-
-        for job in jobs:
-            project = job['sources'][0]['repository']
-
-            # the creation endpoint is the same as the list one
-            endpoint = reverse('objectstore-list', kwargs={"project": project})
-
-            url = "{0}/{1}/".format(
-                settings.API_HOSTNAME.strip('/'),
-                endpoint.strip('/')
-            )
-            response = self._post_json_data(url, job)
-
-            if response.getcode() != 200:
-                message = json.loads(response.read())
-                logger.ERROR("Job loading failed: {0}".format(message['message']))
-
-    def _post_json_data(self, url, data):
-        req = urllib2.Request(url)
-        req.add_header('Content-Type', 'application/json')
-        return urllib2.urlopen(req, json.dumps(data))

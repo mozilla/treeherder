@@ -13,6 +13,7 @@ from mozillapulse import consumers
 from .daemon import Daemon
 from .common import (JobData, get_revision_hash, get_job_guid)
 from treeherder.etl import buildbot
+from .common import TreeherderDataAdapter
 
 
 class PulseDataAdapter(object):
@@ -346,12 +347,13 @@ class PulseDataAdapter(object):
         return target_struct
 
 
-class TreeherderPulseDataAdapter(PulseDataAdapter):
+class TreeherderPulseDataAdapter(PulseDataAdapter, TreeherderDataAdapter):
     """Data adapter class that converts the PulseDataAdapter
        structure into the data structure accepted by treeherder."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, loaddata=False, **kwargs):
 
+        self.loaddata = loaddata
         super(TreeherderPulseDataAdapter, self).__init__(**kwargs)
 
     def adapt_data(self, data):
@@ -447,6 +449,18 @@ class TreeherderPulseDataAdapter(PulseDataAdapter):
 
         return JobData(treeherder_data)
 
+    def process_data(self, raw_data, message):
+        data = super(
+            TreeherderPulseDataAdapter,
+            self
+        ).process_data(raw_data, message)
+        
+        # load transformed data into the restful api
+        if data and self.loaddata:
+            self.load([data])
+
+        return data
+
 
 class PulseMessageError(Exception):
     """Error base class for pulse messages"""
@@ -488,6 +502,7 @@ class TreeherderPulseDaemon(Daemon):
                  stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
 
         self.tda = treeherder_data_adapter or TreeherderPulseDataAdapter(
+            loaddata=True,
             durable=False,
             logdir='logs',
             rawdata=False,

@@ -38,7 +38,7 @@ default_router.register(r'failureclassification', views.FailureClassificationVie
 
 urlpatterns = patterns(
     '',
-    url(r'^project/(?P<project>\w{0,50})/',
+    url(r'^project/(?P<project>[\w-]{0,50})/',
         include(project_bound_router.urls)),
     url(r'^',
         include(default_router.urls)),
