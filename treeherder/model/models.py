@@ -469,7 +469,7 @@ class RepositoryVersion(models.Model):
         db_table = 'repository_version'
 
     def __unicode__(self):
-        return "{0} version {1}".format (
+        return "{0} version {1}".format(
             self.repository, self.version)
 
 
