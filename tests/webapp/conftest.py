@@ -28,3 +28,9 @@ def ten_jobs_stored(jm):
             json.dumps(job_data(job_guid=guid)),
             guid
         )
+
+@pytest.fixture
+def ten_jobs_processed(initial_data, sample_data, jm):
+    """stores and processes list of ten job samples"""
+    ten_jobs_stored(jm)
+    jm.process_objects(10)

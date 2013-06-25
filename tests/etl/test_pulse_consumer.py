@@ -1,6 +1,6 @@
 import pytest
 
-from treeherder.etl.pulse import PulseDataAdapter
+from treeherder.etl.pulse import PulseDataAdapter, TreeherderPulseDataAdapter
 
 
 def test_process_data(sample_data):
@@ -14,7 +14,7 @@ raw data available in sample_data without missing any attributes.
         logdir='logs',
         rawdata=False,
         outfile=None
-        )
+    )
 
     msg = Message()
 
@@ -23,10 +23,11 @@ raw data available in sample_data without missing any attributes.
         data = pda.process_data(data, msg)
 
         missing_attributes = pda.required_attributes.difference(
-            set( data.keys() )
-            )
+            set(data.keys())
+        )
 
         assert set() == missing_attributes
+
 
 class Message(object):
     """Class that mimics the message object interface from
@@ -36,3 +37,30 @@ mozilla pulse"""
 
     def ack(self):
         pass
+
+
+def test_load_data(sample_data, jm, mock_post_json_data, initial_data):
+    """
+    Test the ability of TreeherderPulseDataAdapter to load its transformed
+    data through the restful api
+    """
+    tpda = TreeherderPulseDataAdapter(
+        loaddata=True,
+        durable=False,
+        logdir='logs',
+        rawdata=False,
+        outfile=None
+    )
+
+    msg = Message()
+
+    for data in sample_data.raw_pulse_data[:1]:
+        # change the branch (aka project) name on the raw data,
+        # so that we can use the dataset created by jm
+        data['payload']['build']['properties'][1][1] = jm.project
+        data = tpda.process_data(data, msg)
+
+    stored_obj = jm.get_os_dhub().execute(
+        proc="objectstore_test.selects.all")
+
+    assert len(stored_obj) == 1

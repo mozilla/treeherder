@@ -1,8 +1,6 @@
 import time
 import os
 import pytest
-from webtest.app import TestApp
-from treeherder.webapp.wsgi import application
 from treeherder.etl.buildapi import TreeherderBuildapiAdapter
 
 
@@ -26,22 +24,6 @@ def buildapi_running_url():
         "builds-running.js"
     )
     return "file://{0}".format(path)
-
-
-@pytest.fixture
-def mock_post_json_data():
-    """mock the urllib call replacing it with a webtest call"""
-    def _post_json_data(adapter, url, data):
-        response = TestApp(application).post_json(url, params=data)
-        response.getcode = lambda: response.status_int
-        return response
-
-    old_func = TreeherderBuildapiAdapter._post_json_data
-    TreeherderBuildapiAdapter._post_json_data = _post_json_data
-
-    # on tearDown, re-set the original function
-    def fin():
-        TreeherderBuildapiAdapter._post_json_data = old_func
 
 
 def test_ingest_pending_jobs(jm, buildapi_pending_url, mock_post_json_data):
