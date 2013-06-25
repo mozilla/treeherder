@@ -2,7 +2,6 @@ import pytest
 import simplejson as json
 
 from ..sampledata import SampleData
-from treeherder.log_parser import tasks
 from treeherder.model.derived import JobData
 
 
@@ -12,13 +11,11 @@ def job_with_local_log(jm, initial_data):
     sample_data = SampleData()
     url = "file://{0}".format(
         sample_data.get_log_path("{0}.txt.gz".format(log)))
+
     job = JobData(sample_data.job_data[0])
 
     # substitute the log url with a local url
-    job['job']['log_references'] = [{
-        "name": "unittest",
-        "url": url
-    }]
+    job['job']['log_references'][0]['url'] = url
     return job
 
 
