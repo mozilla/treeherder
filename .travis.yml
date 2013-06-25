@@ -5,7 +5,7 @@ python:
 env:
   global:
     - DB=mysql
-    - TREEHERDER_DATABASE_NAME='test_treeherder'
+    - TREEHERDER_DATABASE_NAME='treeherder'
     - TREEHERDER_DATABASE_USER='root'
     - TREEHERDER_DATABASE_PASSWORD=''
     - TREEHERDER_DATABASE_HOST='localhost'
