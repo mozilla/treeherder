@@ -16,6 +16,8 @@ env:
     - TREEHERDER_RABBITMQ_VHOST='/'
     - TREEHERDER_RABBITMQ_HOST='127.0.0.1'
     - TREEHERDER_RABBITMQ_PORT='5672'
+before_script:
+   - mysql -e 'create database treeherder;' 
 services:
   - rabbitmq
 install:
