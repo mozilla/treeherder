@@ -23,6 +23,13 @@ def do_test(log):
     lpc = ArtifactBuilderCollection(url, builders=builder)
     lpc.parse()
     act = lpc.artifacts[builder.name]
+    # we can't compare the "logurl" field, because it's a fully qualified url,
+    # so it will be different depending on the config it's run in.
+    assert "logurl" in act
+    del(act["logurl"])
+    # leaving the logurl in the exp files so they are a good example of the
+    # expected structure.
+    del(exp["logurl"])
     assert act == exp, diff(exp, act)
 
     # if you want to gather results for a new test, use this

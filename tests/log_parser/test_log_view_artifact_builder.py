@@ -27,6 +27,15 @@ def do_test(log):
     # assert act == exp, diff(exp, act)
     # Use this assert when creating new tests and you want to get the actual
     # returned artifact:
+
+    # we can't compare the "logurl" field, because it's a fully qualified url,
+    # so it will be different depending on the config it's run in.
+    assert "logurl" in act
+    del(act["logurl"])
+    # leaving the logurl in the exp files so they are a good example of the
+    # expected structure.
+    del(exp["logurl"])
+
     assert act == exp, json.dumps(act, indent=4)
 
 
