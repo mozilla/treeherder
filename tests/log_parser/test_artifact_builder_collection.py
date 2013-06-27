@@ -48,7 +48,6 @@ def test_all_builders_complete():
     exp = {
         "Structured Log": {
             "header": {},
-            "logurl": "file:///home/vagrant/treeherder-service/tests/sample_data/logs/mozilla-central_fedora-b2g_test-crashtest-1-bm54-tests1-linux-build50.txt.gz",
             "step_data": {
                 "all_errors": [],
                 "steps": []
@@ -56,9 +55,16 @@ def test_all_builders_complete():
         },
         "Unknown Builder Job Artifact": {
             "errors": [],
-            "logurl": "file:///home/vagrant/treeherder-service/tests/sample_data/logs/mozilla-central_fedora-b2g_test-crashtest-1-bm54-tests1-linux-build50.txt.gz",
             "tinderbox_printlines": []
         }
     }
+    act = lpc.artifacts
+
+    # we can't compare the "logurl" field, because it's a fully qualified url,
+    # so it will be different depending on the config it's run in.
+    assert "logurl" in act["Structured Log"]
+    assert "logurl" in act["Unknown Builder Job Artifact"]
+    del(act["Unknown Builder Job Artifact"]["logurl"])
+    del(act["Structured Log"]["logurl"])
 
     assert lpc.artifacts == exp

@@ -155,8 +155,11 @@ class StepParser(ParserBase):
         """Sets duration for the step in seconds."""
         start = self.parsetime(self.current_step["started"])
         finish = self.parsetime(self.current_step["finished"])
-        delta = finish - start
-        self.current_step["duration"] = delta.total_seconds()
+        td = finish - start
+        secs = (
+            td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6
+        ) / 10.0**6
+        self.current_step["duration"] = secs
 
     @property
     def steps(self):
