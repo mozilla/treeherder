@@ -1,7 +1,4 @@
 language: python
-branches:
-  only:
-    - master
 python:
   - "2.6"
   - "2.7"
@@ -29,3 +26,5 @@ install:
   - pip install -r requirements/pure.txt --use-mirrors
 script:
   - py.test tests/$* --cov-report term-missing --cov treeherder
+notifications:
+  email: false
