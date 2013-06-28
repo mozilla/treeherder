@@ -36,7 +36,6 @@ def pytest_sessionstart(session):
     settings.DATABASES["default"]["TEST_NAME"] = "{0}test_treeherder".format(prefix)
 
     # this makes celery calls synchronous, useful for unit testing
-    # TODO: discuss this
     settings.CELERY_ALWAYS_EAGER = True
     settings.CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 
