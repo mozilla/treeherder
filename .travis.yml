@@ -1,0 +1,30 @@
+language: python
+python:
+  - "2.6"
+  - "2.7"
+env:
+  global:
+    - DB=mysql
+    - TREEHERDER_DATABASE_NAME='treeherder'
+    - TREEHERDER_DATABASE_USER='root'
+    - TREEHERDER_DATABASE_PASSWORD=''
+    - TREEHERDER_DATABASE_HOST='localhost'
+    - TREEHERDER_MEMCACHED='127.0.0.1:11211'
+    - TREEHERDER_MEMCACHED_KEY_PREFIX='treeherder'
+    - TREEHERDER_RABBITMQ_USER='guest'
+    - TREEHERDER_RABBITMQ_PASSWORD='guest'
+    - TREEHERDER_RABBITMQ_VHOST='/'
+    - TREEHERDER_RABBITMQ_HOST='127.0.0.1'
+    - TREEHERDER_RABBITMQ_PORT='5672'
+before_script:
+   - mysql -e 'create database treeherder;' 
+services:
+  - rabbitmq
+install:
+  - pip install -r requirements/compiled.txt --use-mirrors
+  - pip install -r requirements/dev.txt --use-mirrors
+  - pip install -r requirements/pure.txt --use-mirrors
+script:
+  - py.test tests/$* --cov-report term-missing --cov treeherder
+notifications:
+  email: false
