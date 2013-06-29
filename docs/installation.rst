@@ -46,6 +46,14 @@ Installation
 
   all the request sent to your virtual machine (ip 192.168.33.10 by default) on port 80 will be proxied to port 8000 by apache.
 
+* For development you can use the django runserver instead of gunicorn:
+  
+  .. code-block:: bash
+     
+     (venv)vagrant@precise32:~/treeherder-service$ python manage.py runserver
+
+  this is more convenient because it automatically refreshes every time there's a change in the code.
+
 .. _project repo: https://github.com/mozilla/treeherder-service
 .. _Vagrant: http://downloads.vagrantup.com
 .. _Virtualbox: https://www.virtualbox.org
