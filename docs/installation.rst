@@ -50,6 +50,15 @@ Installation
   .. code-block:: bash
      (venv)vagrant@precise32:~/treeherder-service$ python manage.py celery worker
 
+* For development you can use the django runserver instead of gunicorn:
+  
+  .. code-block:: bash
+     
+     (venv)vagrant@precise32:~/treeherder-service$ python manage.py runserver
+
+  this is more convenient because it automatically refreshes every time there's a change in the code.
+
+
 .. _project repo: https://github.com/mozilla/treeherder-service
 .. _Vagrant: http://downloads.vagrantup.com
 .. _Virtualbox: https://www.virtualbox.org
