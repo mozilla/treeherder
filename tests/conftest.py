@@ -34,6 +34,11 @@ def pytest_sessionstart(session):
     # as well as for the testproj and testpushlog dbs
     prefix = getattr(settings, "TEST_DB_PREFIX", "")
     settings.DATABASES["default"]["TEST_NAME"] = "{0}test_treeherder".format(prefix)
+
+    # this makes celery calls synchronous, useful for unit testing
+    settings.CELERY_ALWAYS_EAGER = True
+    settings.CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
+
     # this sets up a clean test-only database
     session.django_db_config = session.django_runner.setup_databases()
 

@@ -3,6 +3,7 @@ from django.conf import settings
 from treeherder.model.models import Datasource
 import MySQLdb
 from django.core.cache import cache
+from celery import current_app
 
 
 @pytest.fixture
@@ -28,3 +29,15 @@ def test_memcached_setup():
     k, v = 'my_key', 'my_value'
     cache.set(k, v)
     assert cache.get(k) == v
+
+
+@current_app.task
+def add(x, y):
+    return x + y
+
+
+def test_celery_setup():
+    "Test celery executes a task properly"
+
+    result = add.delay(7, 3)
+    assert result.wait() == 10

@@ -68,7 +68,7 @@ Type 'yes' to continue, or 'no' to cancel: """ % connection.settings_dict['NAME'
             #fake the first migration because manually generated
             call_command("migrate", 'model', '0001_initial', fake=True)
             #safely apply all the other migrations
-            call_command("migrate", 'model')
+            call_command("migrate")
             #load initial fixtures for reference data
             # the order of this list of fixtures is important
             # to avoid integrity errors

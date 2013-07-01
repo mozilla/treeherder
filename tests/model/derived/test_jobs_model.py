@@ -31,7 +31,7 @@ def test_bad_contenttype(jm):
         jm.get_dhub("foo")
 
 
-def test_ingest_single_sample_job(jm, sample_data, initial_data):
+def test_ingest_single_sample_job(jm, sample_data, initial_data, mock_log_parser):
     """Process a single job structure in the job_data.txt file"""
     job_data = sample_data.job_data[:1]
     test_utils.do_job_ingestion(jm, job_data)
@@ -47,7 +47,7 @@ def test_ingest_all_sample_jobs(jm, sample_data, initial_data):
     test_utils.do_job_ingestion(jm, job_data)
 
 
-def test_artifact_log_ingestion(jm, initial_data):
+def test_artifact_log_ingestion(jm, initial_data, mock_log_parser):
     """
     Test ingesting an artifact with a log
 
