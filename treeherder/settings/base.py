@@ -1,6 +1,11 @@
 # Django settings for webapp project.
 import os
 from treeherder import path
+
+# needed to setup celery
+import djcelery
+djcelery.setup_loader()
+
 # These settings can all be optionally set via env vars, or in local.py:
 
 TREEHERDER_DATABASE_NAME = os.environ.get("TREEHERDER_DATABASE_NAME", "")
@@ -13,6 +18,11 @@ TREEHERDER_MEMCACHED = os.environ.get("TREEHERDER_MEMCACHED", "")
 TREEHERDER_MEMCACHED_KEY_PREFIX = os.environ.get("TREEHERDER_MEMCACHED_KEY_PREFIX", "treeherder")
 DEBUG = os.environ.get("TREEHERDER_DEBUG", False)
 
+RABBITMQ_USER = os.environ.get("TREEHERDER_RABBITMQ_USER", "")
+RABBITMQ_PASSWORD = os.environ.get("TREEHERDER_RABBITMQ_PASSWORD", "")
+RABBITMQ_VHOST = os.environ.get("TREEHERDER_RABBITMQ_VHOST", "")
+RABBITMQ_HOST = os.environ.get("TREEHERDER_RABBITMQ_HOST", "")
+RABBITMQ_PORT = os.environ.get("TREEHERDER_RABBITMQ_PORT", "")
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = os.environ.get("TREEHERDER_DJANGO_SECRET_KEY", "my-secret-key")
@@ -68,11 +78,17 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
-    'treeherder.model',
-    'treeherder.webapp',
-    'treeherder.etl',
+    # 3rd party apps
+    'south',
+    'djcelery',
     'south',
     'rest_framework',
+    # treeherder apps
+    'treeherder.model',
+    'treeherder.webapp',
+    'treeherder.log_parser',
+    'treeherder.etl',
+
 ]
 
 LOCAL_APPS = []
@@ -105,6 +121,21 @@ LOGGING = {
         },
     }
 }
+
+from kombu import Exchange, Queue
+
+CELERY_QUEUES = (
+    Queue('default', Exchange('default'), routing_key='default'),
+    # queue for failed jobs/logs
+    Queue('fail', Exchange('fail'), routing_key='*.fail'),
+    # queue for successful jobs/logs
+    Queue('success', Exchange('success'), routing_key='*.success'),
+)
+
+# default value when no task routing info is specified
+CELERY_DEFAULT_QUEUE = 'default'
+CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'
+CELERY_DEFAULT_ROUTING_KEY = 'default'
 
 # rest-framework settings
 REST_FRAMEWORK = {
@@ -146,3 +177,12 @@ CACHES = {
 }
 
 KEY_PREFIX = TREEHERDER_MEMCACHED_KEY_PREFIX
+
+# celery broker setup
+BROKER_URL = 'amqp://{0}:{1}@{2}:{3}/{4}'.format(
+    RABBITMQ_USER,
+    RABBITMQ_PASSWORD,
+    RABBITMQ_HOST,
+    RABBITMQ_PORT,
+    RABBITMQ_VHOST
+)

@@ -296,9 +296,15 @@ class JobsModel(TreeherderModelBase):
                 log_ref["url"]
             )
 
+        # importing here to avoid a dep loop
+        from treeherder.log_parser.tasks import parse_log
+
+        # send a parse-log task for this job
+        parse_log.delay(self.project, job_id)
+
         try:
             artifact = job["artifact"]
-            self._insert_job_artifact(
+            self.insert_job_artifact(
                 job_id,
                 artifact["name"],
                 artifact["type"],
@@ -433,7 +439,7 @@ class JobsModel(TreeherderModelBase):
             ]
         )
 
-    def _insert_job_artifact(self, job_id, name, artifact_type, blob):
+    def insert_job_artifact(self, job_id, name, artifact_type, blob):
         """Insert job artifact """
 
         self._insert_data(
@@ -474,6 +480,7 @@ class JobsModel(TreeherderModelBase):
             try:
                 data = JobData.from_json(row['json_blob'])
                 self.load_job_data(data)
+
                 revision_hash = data["revision_hash"]
             except JobDataError as e:
                 self.mark_object_error(row_id, str(e))

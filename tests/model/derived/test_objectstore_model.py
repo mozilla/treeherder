@@ -53,7 +53,7 @@ def test_mark_object_complete(jm):
     assert row_data["processed_state"] == "complete"
 
 
-def test_process_objects(jm, initial_data):
+def test_process_objects(jm, initial_data, mock_log_parser):
     """Claims and processes a chunk of unprocessed JSON jobs data blobs."""
     # Load some rows into the objectstore
     blobs = [
