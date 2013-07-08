@@ -2,7 +2,7 @@ import os
 
 from optparse import make_option
 from django.core.management.base import BaseCommand
-from treeherder.etl.pulse import TreeherderDataAdapter, TreeherderPulseDaemon
+from treeherder.etl.pulse import TreeherderPulseDataAdapter, TreeherderPulseDaemon
 
 
 class Command(BaseCommand):
@@ -81,7 +81,7 @@ class Command(BaseCommand):
         rawdata = options.get("rawdata")
         outfile = options.get("outfile")
 
-        tda = TreeherderDataAdapter(
+        tda = TreeherderPulseDataAdapter(
             durable=durable,
             logdir=logdir,
             rawdata=rawdata,
