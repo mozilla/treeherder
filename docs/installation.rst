@@ -19,12 +19,11 @@ Installation
      
      >vagrant ssh
 
-* Activate the python virtual environment and cd into the project directory:
+* A python virtual environment will be activated on login, all that is left to do is cd into the project directory:
 
   .. code-block:: bash
      
-     vagrant@precise32:~$ source venv/bin/activate
-     (venv)vagrant@precise32:~$ cd treeherder
+     (venv)vagrant@precise32:~$ cd treeherder-service
 
 * You can run the py.test suite with
   
