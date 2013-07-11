@@ -1,0 +1,28 @@
+<div ng-repeat="x in [1,2,3,4,5,6,7,8]" class="row-fluid">
+    <a class="btn btn-info" data-toggle="collapse" data-target="#push{{x}}">
+        {{push_sample.email}} - {{push_sample.timestamp}}
+    </a>
+    <ul id="push{{x}}" class="unstyled collapse">
+        <li ng-repeat="revision in push_sample.revisions">
+            <h5>{{revision.name}} - <a class="btn">{{revision.revision}}</a> <a class="btn">{{revision.bug_id}}</a></h5>
+            <small>{{revision.message}}</small>
+        </li>
+    </ul>
+    <table class="table table-condensed table-hover table-bordered">
+        <thead>
+            <tr>
+                <th></th>
+                <th ng-repeat="(grouper, group) in job_groups" colspan="{{group.length}}">{{grouper}}</th>
+            <tr>
+                <th>Platform</th>
+                <th ng-repeat="job_type in job_types">
+                    <span title="{{ job_type.jobtype__name }}">{{ job_type.jobtype__symbol }}</span>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="platform in platforms | filter:query"><th>{{platform}}</th><td ng-repeat="job_type in job_types"></td></tr>
+        </tbody>
+    </table>
+    
+</div>
