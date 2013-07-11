@@ -1,0 +1,30 @@
+{
+    "email": "mdoglio@mozilla.com",
+    "timestamp": "2013-07-01 10:32:37",
+    "revisions": [
+        {
+            "name": "Mauro Doglio",
+            "revision": "04d8c309fe72",
+            "bug_id": "12345678",
+            "message": "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+        },
+        {
+            "name": "Mauro Doglio",
+            "revision": "04d8c309fe72",
+            "bug_id": "12345678",
+            "message": "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+        },
+        {
+            "name": "Mauro Doglio",
+            "revision": "04d8c309fe72",
+            "bug_id": "12345678",
+            "message": "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+        },
+        {
+            "name": "Mauro Doglio",
+            "revision": "04d8c309fe72",
+            "bug_id": "12345678",
+            "message": "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+        }
+    ]
+}
