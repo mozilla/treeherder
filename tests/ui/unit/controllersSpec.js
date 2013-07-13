@@ -3,7 +3,7 @@
 /* jasmine specs for controllers go here */
 
 describe('controllers', function(){
-  beforeEach(module('treeherder.controllers'));
+  beforeEach(module('JobsCtrl'));
 
 
   it('should have job_types', inject(function() {

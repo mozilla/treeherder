@@ -1,6 +1,6 @@
 'use strict';
 
-var treeherder = angular.module('treeherder', ['ngResource','ui.bootstrap']);
+var treeherder = angular.module('treeherder', ['ngResource','ui.bootstrap', 'JobsCtrl']);
 
 treeherder.config(function($routeProvider) {
 
