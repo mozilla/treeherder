@@ -19,9 +19,9 @@ treeherder.controller('JobsCtrl',
             $scope.push_sample = data;
         });
 
-        // this is just to emulate the platform results
-        // the real objects will be something like this
         /*
+        this is just to emulate the platform results
+        the real objects will be something like this 
         {
             "platform": platform_name,
             jobs:[
@@ -36,9 +36,22 @@ treeherder.controller('JobsCtrl',
         
         }
         */    
-        $scope.platforms=["Ubuntu pto", "Ubuntu debug", "Win 7", "win XP", "OSX 10.7", "Android", "Fedora"]
+        $scope.platforms=["Ubuntu pto", "Ubuntu debug", "Win 7", "win XP", "OSX 10.7", "Android", "Fedora"];
 
+        /*manage the collapsed push sections*/
+        $scope.uncollapsed=[]
+        
+        $scope.isCollapsed = function(x){
+        	return $scope.uncollapsed.indexOf(x) < 0
+        }
 
+        $scope.toggleCollapse = function(x){
+        	if ($scope.isCollapsed(x)){
+        		$scope.uncollapsed.push(x);
+        	}else{
+        		delete $scope.uncollapsed[$scope.uncollapsed.indexOf(x)];
+        	}
+        }
 
 
     }
