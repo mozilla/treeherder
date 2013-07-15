@@ -1,8 +1,8 @@
 <div ng-repeat="x in [1,2,3,4,5,6,7,8]" class="row-fluid">
-    <a class="btn btn-info" data-toggle="collapse" data-target="#push{{x}}">
+    <a class="btn btn-info" ng-click="toggleCollapse(x)">
         {{push_sample.email}} - {{push_sample.timestamp}}
     </a>
-    <ul id="push{{x}}" class="unstyled collapse">
+    <ul class="unstyled" collapse="isCollapsed(x)">
         <li ng-repeat="revision in push_sample.revisions">
             <h5>{{revision.name}} - <a class="btn">{{revision.revision}}</a> <a class="btn">{{revision.bug_id}}</a></h5>
             <small>{{revision.message}}</small>
