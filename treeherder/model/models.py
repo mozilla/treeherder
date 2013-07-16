@@ -256,7 +256,7 @@ class Datasource(models.Model):
         if inserting or kwargs.get('force_insert', False):
             if not self.name:
                 self.name = "{0}_{1}_{2}".format(
-                    self.project,
+                    self.project.replace("-","_"),
                     self.contenttype,
                     self.dataset
                 )
