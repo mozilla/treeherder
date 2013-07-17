@@ -3,15 +3,36 @@
 /* jasmine specs for controllers go here */
 
 describe('controllers', function(){
-  beforeEach(module('JobsCtrl'));
+    var $httpBackend, $rootScope, createController;
 
+    beforeEach(module('treeherder'));
 
-  it('should have job_types', inject(function() {
-    var $scope = {};
-    var pc = $controller('JobsCtrl', { $scope: $scope });
-    expect($scope.job_types).size().toEqual(10);  }));
+    beforeEach(inject(function ($injector) {
 
-  it('should ....', inject(function() {
-    //spec body
-  }));
+        $httpBackend = $injector.get('$httpBackend');
+        $httpBackend.whenGET('resources/job_groups.json').respond(
+            jasmine.getJSONFixtures('job_groups.json')
+        );
+        $httpBackend.whenGET('resources/push_sample.json').respond(
+            jasmine.getJSONFixtures('push_sample.json')
+        );
+        $rootScope = $injector.get('$rootScope');
+        var $controller = $injector.get('$controller');
+
+        createController = function() {
+            return $controller('JobsCtrl', {'$scope': $rootScope});
+        };
+    }));
+
+    it('should have job_types', function() {
+        var ctrl = createController();
+        $httpBackend.flush();
+        expect($rootScope.job_types.length).toEqual(30);
+    });
+
+    it('should ....', inject(function() {
+        var ctrl = createController();
+
+        expect("me").toEqual("me");
+    }));
 });

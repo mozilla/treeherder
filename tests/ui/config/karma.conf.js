@@ -1,3 +1,5 @@
+frameworks = ['jasmine'];
+
 basePath = '../';
 
 files = [
@@ -5,10 +7,16 @@ files = [
   JASMINE_ADAPTER,
   'app/vendor/angular/angular.js',
   'app/vendor/angular/angular-*.js',
-  'app/js/*.js',
-  'app/js/controllers/*.js',
+  'app/vendor/*.js',
+  'app/js/**/*.js',
+  'app/js/controllers/**/*.js',
   'test/vendor/angular/angular-mocks.js',
-  'test/unit/*.js'
+  'test/vendor/jquery-2.0.3.js',
+  'test/vendor/jasmine-jquery.js',
+  'test/unit/**/*.js',
+
+  // fixtures
+  {pattern: 'app/resources/*.json', watched: true, served: true, included: false}
 ];
 
 autoWatch = true;

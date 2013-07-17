@@ -12,7 +12,6 @@ treeherder.controller('JobsCtrl',
                     $scope.job_types.push($scope.job_groups[group][job_type]);
                 }
             }
-
         });
 
         // get a push sample
