@@ -3,6 +3,7 @@
     <head>
         <title>Treeherder layout draft</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <!-- Bootstrap -->
         <link href="css/bootstrap.css" rel="stylesheet" media="screen">
         <link href="css/treeherder.css" rel="stylesheet" media="screen">
@@ -54,9 +55,9 @@
                     </ul>
                 </div>
                 
-                <div class="jobs_list span11">
+                <div class="jobs_list span11" ng-cloak>
                     <div class="alert alert-success">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</div>
-                    <ng-view></ng-view>
+                    <ng-view ></ng-view>
                     
                 </div>
             </div>
