@@ -1,0 +1,32 @@
+{"sources": [
+    {
+        "repository": "mozilla-inbound",
+        "revision": "a54df4462572"
+    }
+], "job": {
+    "build_platform": {
+        "platform": "2.2",
+        "os_name": "android",
+        "architecture": "ARMv7",
+        "vm": false
+    },
+    "submit_timestamp": 1370459521,
+    "state": "running",
+    "name": "xpcshell",
+    "option_collection": {
+        "opt": true
+    },
+    "log_references": [
+        {
+            "url": null,
+            "name": "unittest"
+        }
+    ],
+    "job_guid": "808f4f1372895eda5ecd65f2371ebe67a2a9af9b",
+    "machine_platform": {
+        "platform": "2.2",
+        "os_name": "android",
+        "architecture": "ARMv7",
+        "vm": false
+    }
+}, "revision_hash": "0686a4d3fa477cb0415c9ca590177e4b03919b64"}

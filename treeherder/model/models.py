@@ -260,6 +260,11 @@ class Datasource(models.Model):
                     self.contenttype,
                     self.dataset
                 )
+
+            # a database name cannot contain the dash character
+            if '-' in self.name:
+                self.name = self.name.replace('-','_')
+
             if not self.type:
                 self.type = "mysql"
 

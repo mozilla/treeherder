@@ -1,0 +1,43 @@
+{"sources": [
+    {
+        "commit_timestamp": 1370459461,
+        "push_timestamp": 1370459461,
+        "comments": "Backed out changeset fe9dcdf48551 (bug 879374) for mochitest-3 crashes.",
+        "repository": "mozilla-inbound",
+        "revision": "a54df4462572"
+    }
+], "job": {
+    "submit_timestamp": 1370459521,
+    "option_collection": {
+        "opt": true
+    },
+    "who": "sendchange-unittest",
+    "artifact": {},
+    "machine_platform": {
+        "platform": "2.2",
+        "os_name": "android",
+        "architecture": "ARMv7",
+        "vm": false
+    },
+    "reason": "scheduler",
+    "result": 0,
+    "job_guid": "808f4f1372895eda5ecd65f2371ebe67a2a9af9b",
+    "end_timestamp": "1370461182",
+    "build_platform": {
+        "platform": "2.2",
+        "os_name": "android",
+        "architecture": "ARMv7",
+        "vm": false
+    },
+    "start_timestamp": 1370484722.0,
+    "name": "xpcshell",
+    "log_references": [
+        {
+            "url": "http://ftp.mozilla.org/pub/mozilla.org/mobile/tinderbox-builds/mozilla-inbound-android/1370454517/mozilla-inbound_tegra_android_test-xpcshell-bm22-tests1-tegra-build690.txt.gz",
+            "name": "unittest"
+        }
+    ],
+    "machine": "tegra-132",
+    "state": "TODO",
+    "product_name": "mobile"
+}, "revision_hash": "0686a4d3fa477cb0415c9ca590177e4b03919b64"}
