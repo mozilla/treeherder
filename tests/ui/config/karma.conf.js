@@ -22,7 +22,7 @@ files = [
 autoWatch = false;
 singleRun = true;
 
-browsers = ['Chrome'];
+browsers = ['Firefox'];
 
 junitReporter = {
   outputFile: 'test_out/unit.xml',
