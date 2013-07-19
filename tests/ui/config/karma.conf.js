@@ -19,7 +19,8 @@ files = [
   {pattern: 'app/resources/*.json', watched: true, served: true, included: false}
 ];
 
-autoWatch = true;
+autoWatch = false;
+singleRun = true;
 
 browsers = ['Chrome'];
 
