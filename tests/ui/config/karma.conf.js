@@ -1,18 +1,28 @@
+frameworks = ['jasmine'];
+
 basePath = '../';
 
 files = [
   JASMINE,
   JASMINE_ADAPTER,
-  'app/lib/angular/angular.js',
-  'app/lib/angular/angular-*.js',
-  'test/lib/angular/angular-mocks.js',
+  'app/vendor/angular/angular.js',
+  'app/vendor/angular/angular-*.js',
+  'app/vendor/*.js',
   'app/js/**/*.js',
-  'test/unit/**/*.js'
+  'app/js/controllers/**/*.js',
+  'test/vendor/angular/angular-mocks.js',
+  'test/vendor/jquery-2.0.3.js',
+  'test/vendor/jasmine-jquery.js',
+  'test/unit/**/*.js',
+
+  // fixtures
+  {pattern: 'app/resources/*.json', watched: true, served: true, included: false}
 ];
 
-autoWatch = true;
+autoWatch = false;
+singleRun = true;
 
-browsers = ['Chrome'];
+browsers = ['Firefox'];
 
 junitReporter = {
   outputFile: 'test_out/unit.xml',
