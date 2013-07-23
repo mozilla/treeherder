@@ -19,7 +19,7 @@ def datasource_created():
             contenttype=contenttype,
             dataset=1,
             host='localhost',
-            name="{}test_mozilla_inbound_{}_1".format(
+            name="{0}test_mozilla_inbound_{1}_1".format(
                 prefix,
                 contenttype
             )
