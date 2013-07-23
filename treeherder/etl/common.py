@@ -8,6 +8,9 @@ import simplejson as json
 from django.core.urlresolvers import reverse
 from django.conf import settings
 
+import logging
+logging.basicConfig(filename="pulse_consumer.log", level=logging.DEBUG)
+logger = logging.getLogger()
 
 class JobDataError(ValueError):
     pass

@@ -137,6 +137,8 @@ CELERY_DEFAULT_QUEUE = 'default'
 CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'
 CELERY_DEFAULT_ROUTING_KEY = 'default'
 
+CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
+
 # rest-framework settings
 REST_FRAMEWORK = {
     'DEFAULT_PARSER_CLASSES': (

@@ -85,7 +85,8 @@ class Command(BaseCommand):
             durable=durable,
             logdir=logdir,
             rawdata=rawdata,
-            outfile=outfile
+            outfile=outfile,
+            loaddata=True
         )
 
         if start:
