@@ -1,4 +1,5 @@
 from django.core.urlresolvers import reverse
+from django.template import Context, Template
 import pytest
 from webtest.app import TestApp
 import simplejson as json
@@ -44,9 +45,13 @@ def running_jobs():
 @pytest.fixture
 def completed_jobs(sample_data):
     """returns a list of pulse completed jobs"""
-    return json.loads(open(
+    base_dir = os.path.dirname(__file__)
+    content  = open(
         os.path.join(os.path.dirname(__file__),"finished.json")
-    ).read())
+    ).read()
+    t = Template(content)
+    c = Context({"base_dir":base_dir})
+    return json.loads(t.render(c))
 
 
 @pytest.fixture

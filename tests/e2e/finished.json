@@ -33,11 +33,11 @@
     "name": "xpcshell",
     "log_references": [
         {
-            "url": "http://ftp.mozilla.org/pub/mozilla.org/mobile/tinderbox-builds/mozilla-inbound-android/1370454517/mozilla-inbound_tegra_android_test-xpcshell-bm22-tests1-tegra-build690.txt.gz",
+            "url": "file://{{base_dir}}/mozilla-inbound_panda_android_test-crashtest-bm43-tests1-panda-build591.txt.gz",
             "name": "unittest"
         }
     ],
     "machine": "tegra-132",
-    "state": "TODO",
+    "state": "finished",
     "product_name": "mobile"
 }, "revision_hash": "0686a4d3fa477cb0415c9ca590177e4b03919b64"}

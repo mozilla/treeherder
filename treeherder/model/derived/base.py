@@ -37,9 +37,9 @@ class TreeherderModelBase(object):
             procs_file_name = "{0}.json".format(contenttype)
 
         if not contenttype in self.dhubs.keys():
-            self.dhubs[contenttype] = self.get_datasource(
-                contenttype).dhub(procs_file_name)
+            datasource = self.get_datasource(contenttype)
 
+            self.dhubs[contenttype] = datasource.dhub(procs_file_name)
         return self.dhubs[contenttype]
 
     def get_datasource(self, contenttype):
@@ -91,6 +91,11 @@ class TreeherderModelBase(object):
                 contenttype=contenttype,
                 procedure=proc,
             )
+
+    def disconnect(self):
+        """Iterate over and disconnect all data sources."""
+        for src in self.sources.itervalues():
+            src.disconnect()
 
 
 class DatasetNotFoundError(ValueError):

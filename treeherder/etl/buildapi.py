@@ -2,7 +2,6 @@ import logging
 import urllib2
 
 import simplejson as json
-from django.conf import settings
 
 from . import buildbot
 from .common import (get_revision_hash, get_job_guid,
@@ -68,7 +67,8 @@ class TreeherderBuildapiAdapter(TreeherderDataAdapter):
                         ),
                     }
                     treeherder_data['sources'].append({
-                        'repository': branch,
+                        # repository name is always lowercase
+                        'repository': branch.lower(),
                         'revision': rev,
                     })
 
@@ -92,17 +92,13 @@ class TreeherderBuildapiAdapter(TreeherderDataAdapter):
                             'architecture': platform_info['arch'],
                             'vm': platform_info['vm']
                         },
+                        'who': 'unknown',
 
                         'option_collection': {
                             # build_type contains an option name, eg. PGO
                             buildbot.extract_build_type(job['buildername']): True
                         },
-                        'log_references': [{
-                            'url': None,
-                            #using the jobtype as a name for now, the name allows us
-                            #to have different log types with their own processing
-                            'name': buildbot.extract_job_type(job['buildername'])
-                        }]
+                        'log_references': []
                     }
                     treeherder_data['job'] = job
 
@@ -127,7 +123,8 @@ class TreeherderBuildapiAdapter(TreeherderDataAdapter):
                         ),
                     }
                     treeherder_data['sources'].append({
-                        'repository': branch,
+                        # repository name is always lowercase
+                        'repository': branch.lower(),
                         'revision': rev,
                     })
 
@@ -154,17 +151,13 @@ class TreeherderBuildapiAdapter(TreeherderDataAdapter):
                             'architecture': platform_info['arch'],
                             'vm': platform_info['vm']
                         },
+                        'who': 'unknown',
 
                         'option_collection': {
                             # build_type contains an option name, eg. PGO
                             buildbot.extract_build_type(job['buildername']): True
                         },
-                        'log_references': [{
-                            'url': None,
-                            #using the jobtype as a name for now, the name allows us
-                            #to have different log types with their own processing
-                            'name': buildbot.extract_job_type(job['buildername'])
-                        }]
+                        'log_references': []
                     }
 
                     treeherder_data['job'] = job

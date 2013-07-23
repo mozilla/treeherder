@@ -1,6 +1,17 @@
 import re
 
 
+RESULT_DICT = {
+    0: "success",
+    1: "testfailed",
+    2: "busted",
+    3: "skipped",
+    4: "exception",
+    5: "retry",
+    6: "usercancel"
+}
+
+
 ####
 #   The following variables were taken from util.py
 #
@@ -341,6 +352,14 @@ def extract_platform_info(source_string):
                     PLATFORMS_BUILDERNAME[platform_name]['attributes']
                 )
                 break
+    if not 'platform_name' in output:
+        output['platform_name'] = 'unknown'
+        output.update({
+            'os': 'unknown',
+            'os_platform': 'unknown',
+            'arch': 'unknown',
+            'vm': False
+        })
     return output
 
 

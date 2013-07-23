@@ -26,6 +26,16 @@ class JobsModel(TreeherderModelBase):
     CONTENT_TYPES = [CT_JOBS, CT_OBJECTSTORE]
     STATES = ["pending", "running", "completed", "coalesced"]
 
+    # this dict contains a matrix of state changes with the values defining
+    # if the change is allowed or not
+    STATE_CHANGES = {
+        'pending': {'coalesced': True, 'completed': True, 'running': True},
+        'running': {'coalesced': True, 'completed': True, 'pending': False},
+        'completed': {'coalesced': False, 'pending': False, 'running': False},
+        'coalesced': {'completed': False, 'pending': False, 'running': False}
+    }
+
+
     @classmethod
     def create(cls, project, host=None):
         """
@@ -64,6 +74,16 @@ class JobsModel(TreeherderModelBase):
     def get_job(self, job_id):
         """Return the job row for this ``job_id``"""
         return self.get_row_by_id(self.CT_JOBS, "job", job_id)
+
+    def get_job_id_by_guid(self, job_guid):
+        """Return the job id for this ``job_guid``"""
+        id_iter= self.get_jobs_dhub().execute(
+            proc="jobs.selects.get_job_id_by_guid",
+            placeholders=[job_guid],
+            debug_show=self.DEBUG,
+            return_type='iter'
+        )
+        return id_iter.get_column_data('id')
 
     def get_job_list(self, page, limit):
         """
@@ -233,7 +253,6 @@ class JobsModel(TreeherderModelBase):
             }
 
         """
-
         result_set_id = self._set_result_set(data["revision_hash"])
 
         rdm = self.refdata_model
@@ -259,10 +278,13 @@ class JobsModel(TreeherderModelBase):
             job["machine_platform"]["architecture"],
         )
 
-        machine_id = rdm.get_or_create_machine(
-            job["machine"],
-            timestamp=long(job["end_timestamp"]),
-        )
+        if "machine" in job:
+            machine_id = rdm.get_or_create_machine(
+                job["machine"],
+                timestamp=long(job["end_timestamp"]),
+            )
+        else:
+            machine_id = None
 
         option_collection_hash = rdm.get_or_create_option_collection(
             [k for k, v in job["option_collection"].items() if v],
@@ -274,9 +296,12 @@ class JobsModel(TreeherderModelBase):
             job_name, job_group,
         )
 
-        product_id = rdm.get_or_create_product(
-            job["product_name"],
-        )
+        if "product_name" in job:
+            product_id = rdm.get_or_create_product(
+                job["product_name"],
+            )
+        else:
+            product_id = None
 
         job_id = self._set_job_data(
             job,
@@ -356,9 +381,9 @@ class JobsModel(TreeherderModelBase):
             [
                 src["revision"],
                 author,
-                src["comments"],
-                long(src["push_timestamp"]),
-                long(src["commit_timestamp"]),
+                src.get("comments",""),
+                long(src.get("push_timestamp",0)),
+                long(src.get("commit_timestamp", 0)),
                 repository_id,
             ]
         )
@@ -394,19 +419,21 @@ class JobsModel(TreeherderModelBase):
 
             job_coalesced_to_guid = ""
 
-            who = data["who"]
-            reason = data["reason"]
-            result = int(data["result"])
+            # TODO: fix who and reason for pending/running jobs
+            who = data.get("who","unknown")
+            reason = data.get("reason","unknown")
+            result = data.get("result","unknown")
             state = data["state"]
             submit_timestamp = long(data["submit_timestamp"])
-            start_timestamp = long(data["start_timestamp"])
-            end_timestamp = long(data["end_timestamp"])
+            start_timestamp = long(data.get("start_timestamp",0)) or None
+            end_timestamp = long(data.get("end_timestamp",0)) or None
 
         except ValueError as e:
             raise JobDataError(e.message)
 
-        job_id = self._insert_data_and_get_id(
-            'set_job_data',
+        # try to insert a new row
+        self._insert_data(
+            'create_job_data',
             [
                 job_guid,
                 job_coalesced_to_guid,
@@ -424,10 +451,34 @@ class JobsModel(TreeherderModelBase):
                 submit_timestamp,
                 start_timestamp,
                 end_timestamp,
+                job_guid
+            ]
+        )
+
+        job_id = self.get_job_id_by_guid(job_guid)
+
+        self._update_data(
+            'update_job_data',
+            [
+                job_coalesced_to_guid,
+                result_set_id,
+                machine_id,
+                option_collection_hash,
+                job_type_id,
+                product_id,
+                who,
+                reason,
+                result,
+                state,
+                start_timestamp,
+                end_timestamp,
+                job_id
             ]
         )
 
         return job_id
+
+
 
     def _insert_job_log_url(self, job_id, name, url):
         """Insert job log data"""
@@ -458,6 +509,15 @@ class JobsModel(TreeherderModelBase):
             executemany=executemany,
         )
 
+    def _update_data(self, statement, placeholders):
+        """Update a set of data using the specified proc ``statement``."""
+        self.get_jobs_dhub().execute(
+            proc='jobs.updates.' + statement,
+            debug_show=self.DEBUG,
+            placeholders=placeholders,
+            executemany=False,
+        )
+
     def _insert_data_and_get_id(self, statement, placeholders):
         """Execute given insert statement, returning inserted ID."""
         self._insert_data(statement, placeholders)
@@ -471,7 +531,7 @@ class JobsModel(TreeherderModelBase):
             return_type='iter',
         ).get_column_data('id')
 
-    def process_objects(self, loadlimit):
+    def process_objects(self, loadlimit, raise_errors=False):
         """Processes JSON blobs from the objectstore into jobs schema."""
         rows = self.claim_objects(loadlimit)
 
@@ -484,12 +544,16 @@ class JobsModel(TreeherderModelBase):
                 revision_hash = data["revision_hash"]
             except JobDataError as e:
                 self.mark_object_error(row_id, str(e))
+                if raise_errors:
+                    raise e
             except Exception as e:
                 self.mark_object_error(
-                    row_id,
-                    u"Unknown error: {0}: {1}".format(
-                        e.__class__.__name__, unicode(e))
-                )
+                        row_id,
+                        u"Unknown error: {0}: {1}".format(
+                            e.__class__.__name__, unicode(e))
+                    )
+                if raise_errors:
+                    raise e
             else:
                 self.mark_object_complete(row_id, revision_hash)
 
