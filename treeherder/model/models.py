@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 import uuid
 import subprocess
 import os
+import MySQLdb
 
 from datasource.bases.BaseHub import BaseHub
 from datasource.hubs.MySQL import MySQL
@@ -10,6 +11,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.db import models
 from django.db.models import Max
+from warnings import filterwarnings, resetwarnings
 
 from treeherder import path
 
@@ -260,6 +262,11 @@ class Datasource(models.Model):
                     self.contenttype,
                     self.dataset
                 )
+
+            # a database name cannot contain the dash character
+            if '-' in self.name:
+                self.name = self.name.replace('-','_')
+
             if not self.type:
                 self.type = "mysql"
 
@@ -355,9 +362,11 @@ class Datasource(models.Model):
             user=DB_USER,
             passwd=DB_PASS,
         )
+        filterwarnings('ignore', category=MySQLdb.Warning)
         cur = conn.cursor()
-        cur.execute("CREATE DATABASE {0}".format(self.name))
+        cur.execute("CREATE DATABASE IF NOT EXISTS {0}".format(self.name))
         conn.close()
+        resetwarnings()
 
         # MySQLdb provides no way to execute an entire SQL file in bulk, so we
         # have to shell out to the commandline client.

@@ -1,6 +1,6 @@
 {
     "inserts":{
-        "set_job_data":{
+        "create_job_data":{
 
             "sql":"INSERT INTO `job` (
                 `job_guid`,
@@ -19,7 +19,13 @@
                 `submit_timestamp`,
                 `start_timestamp`,
                 `end_timestamp`)
-                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+
+                SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
+                FROM DUAL WHERE NOT EXISTS (
+                    SELECT `job_guid`
+                    FROM `job`
+                    WHERE `job_guid` = ?
+                )",
 
             "host":"master_host"
         },
@@ -86,6 +92,24 @@
                 WHERE  `id` = ?",
 
                 "host":"master_host"
+        },
+        "update_job_data":{
+            "sql":"UPDATE `job`
+                SET
+                `job_coalesced_to_guid` = ?,
+                `result_set_id` = ?,
+                `machine_id` = ?,
+                `option_collection_hash` = ?,
+                `job_type_id` = ?,
+                `product_id` = ?,
+                `who` = ?,
+                `reason` = ?,
+                `result` = ?,
+                `state` = ?,
+                `start_timestamp` = ?,
+                `end_timestamp` = ?
+                WHERE  `id` = ?",
+            "host":"master_host"
         }
     },
     "selects":{
@@ -105,6 +129,12 @@
                    WHERE job_id = ?",
 
             "host":"read_host"
+        },
+        "get_job_id_by_guid":{
+            "sql":"SELECT `id`
+                   FROM `job`
+                   WHERE `job_guid` = ?",
+            "host": "read_host"
         }
     }
 }

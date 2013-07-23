@@ -359,15 +359,13 @@ class TreeherderPulseDataAdapter(PulseDataAdapter, TreeherderDataAdapter):
     def adapt_data(self, data):
         """Adapts the PulseDataAdapter into the treeherder input data structure"""
         treeherder_data = {
-            'sources': {},
+            'sources': [],
             #Include branch so revision hash with the same revision is still
             #unique across branches
             'revision_hash': get_revision_hash(
                 [data['revision'], data['branch']]
-            ),
+            )
         }
-
-        treeherder_data['sources'] = []
 
         ####
         #TODO: This is a temporary fix, this data will not be located
@@ -385,7 +383,6 @@ class TreeherderPulseDataAdapter(PulseDataAdapter, TreeherderDataAdapter):
         })
 
         request_id = data['request_ids'][0]
-
         job = {
             'job_guid': get_job_guid(
                 #The keys in this dict are unicode but the values in
@@ -396,10 +393,10 @@ class TreeherderPulseDataAdapter(PulseDataAdapter, TreeherderDataAdapter):
             ),
             'name': data['test_name'],
             'product_name': data['product'],
-            'state': 'TODO',
+            'state': 'finished',
 
             #Do we need to map this to the strings in the sample structure?
-            'result': data['results'],
+            'result': buildbot.RESULT_DICT.get(int(data['results']),'unknown'),
             'reason': data['reason'],
 
             #There is both a who and blame that appear to be identical in the
@@ -454,7 +451,7 @@ class TreeherderPulseDataAdapter(PulseDataAdapter, TreeherderDataAdapter):
             TreeherderPulseDataAdapter,
             self
         ).process_data(raw_data, message)
-        
+
         # load transformed data into the restful api
         if data and self.loaddata:
             self.load([data])
