@@ -37,22 +37,34 @@ treeherder.controller('JobsCtrl',
         }
         */
         $scope.platforms=["Ubuntu pto", "Ubuntu debug", "Win 7", "win XP", "OSX 10.7", "Android", "Fedora"];
+    }
+);
 
-        /*manage the collapsed push sections*/
-        $scope.uncollapsed=[]
+treeherder.controller('PushCtrl',
+    function PushCtrl($scope) {
 
-        $scope.isCollapsed = function(x){
-        	return $scope.uncollapsed.indexOf(x) < 0
+        // whether or not push results are collapsed
+        $scope.isCollapsedResults = false;
+
+        $scope.isCollapsedRevisions = true;
+
+        // how to display the warning_level.  collapse green ones
+        switch(String($scope.push.warning_level))
+        {
+            case "orange":
+                $scope.pushResultBtn = "btn-warning";
+                $scope.icon = "icon-warning-sign";
+                break;
+            case "red":
+                $scope.pushResultBtn = "btn-danger";
+                $scope.icon = "icon-remove";
+                break;
+            default:
+                $scope.pushResultBtn = "btn-success";
+                $scope.icon = "icon-ok";
+                $scope.isCollapsedResults = true;
+                break;
         }
-
-        $scope.toggleCollapse = function(x){
-        	if ($scope.isCollapsed(x)){
-        		$scope.uncollapsed.push(x);
-        	}else{
-        		delete $scope.uncollapsed[$scope.uncollapsed.indexOf(x)];
-        	}
-        }
-
 
     }
 );
