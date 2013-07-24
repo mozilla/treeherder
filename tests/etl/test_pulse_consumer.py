@@ -1,6 +1,8 @@
 import pytest
 
-from treeherder.etl.pulse import PulseDataAdapter, TreeherderPulseDataAdapter
+from treeherder.etl.pulse import (PulseDataAdapter,
+                                  TreeherderPulseDataAdapter,
+                                  PulseMissingAttributesError)
 
 
 def test_process_data(sample_data):
@@ -64,3 +66,32 @@ def test_load_data(sample_data, jm, mock_post_json_data, initial_data):
         proc="objectstore_test.selects.all")
 
     assert len(stored_obj) == 1
+
+
+def test_load_data_missing_attribute(sample_data, jm, mock_post_json_data, initial_data):
+    """
+    Test that no objects is inserted in the object store if there is a missing attribute
+    """
+    tpda = TreeherderPulseDataAdapter(
+        loaddata=True,
+        durable=False,
+        logdir='logs',
+        rawdata=False,
+        outfile=None
+    )
+
+    msg = Message()
+
+    for data in sample_data.raw_pulse_data[:1]:
+        # change the branch (aka project) name on the raw data,
+        # so that we can use the dataset created by jm
+
+        # delete the buildid attribute
+        data['payload']['build']['properties'][4][0] = ""
+        data['payload']['build']['properties'][1][1] = jm.project
+        tpda.process_data(data, msg)
+
+    stored_obj = jm.get_os_dhub().execute(
+        proc="objectstore_test.selects.all")
+
+    assert len(stored_obj) == 0
