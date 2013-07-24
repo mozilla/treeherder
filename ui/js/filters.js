@@ -1,6 +1,18 @@
 'use strict';
 
 /* Filters */
+
+treeherder.filter('expandOrHide', function() {
+    // determine whether this is a label for a job group (like mochitest)
+    return function(input, isCollapsed) {
+        if (isCollapsed == true) {
+            return input + "expand";
+        } else {
+            return input + "hide";
+        }
+    };
+});
+
 treeherder.filter('typeClass', function() {
     // determine whether this is a label for a job group (like mochitest)
     return function(input) {

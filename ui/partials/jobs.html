@@ -5,7 +5,9 @@
 
     <a class="btn {{ pushResultBtn }}"
        ng-click="isCollapsedResults = !isCollapsedResults">
-           <i class="{{ icon }}"></i>
+           <i class="{{ icon }}"
+           popover="{{ 'click to ' | expandOrHide:isCollapsedResults }}"
+           popover-trigger="mouseenter"></i>
     </a>
     <a class="btn btn-info"
        ng-click="isCollapsedRevisions = !isCollapsedRevisions">
@@ -24,12 +26,14 @@
             <div class="span10">
                 <div ng-repeat="job in platform.jobs" class="btn-group">
                     <a class="btn-mini {{ job.type|typeClass }} {{ job.status|statusClass }}"
-                       title="{{ job.status }}">
+                       popover="{{ job.status }}"
+                       popover-trigger="mouseenter">
                        {{ job.symbol }}
                     </a>
                     <a class="btn-mini {{ subjob.type|typeClass }} {{ subjob.status|statusClass }}"
                        ng-repeat="subjob in job.jobs"
-                       title="{{ subjob.status }}">
+                       popover="{{ subjob.status }}"
+                       popover-trigger="mouseenter">
                        {{ subjob.symbol }}
                     </a>
                     </span>
