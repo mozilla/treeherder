@@ -1,13 +1,11 @@
 import json
-import re
 import time
 import datetime
 import sys
-import hashlib
 import socket
 import signal
+import logging
 
-from django.conf import settings
 from mozillapulse import consumers
 
 from .daemon import Daemon
@@ -217,23 +215,21 @@ class PulseDataAdapter(object):
             #      when running as a daemon since stderr is sent to
             #      /dev/null, program will die silently in this conditional.
             #
-            #raise PulseMissingAttributesError(
-            #    missing_attributes, data, raw_data
-            #    )
-            pass
+            raise PulseMissingAttributesError(
+               missing_attributes, data, raw_data
+            )
 
-        else:
-            #Carry out data processing that requires all of the
-            #attributes being populated
-            data = self.adapt_data(data)
+        #Carry out data processing that requires all of the
+        #attributes being populated
+        data = self.adapt_data(data)
 
-            if self.outstream:
-                self.outstream.write(json.dumps(data) + "\n")
+        if self.outstream:
+            self.outstream.write(json.dumps(data) + "\n")
+            self.outstream.flush()
+
+            if self.rawdata:
+                self.outstream.write(json.dumps(raw_data) + "\n")
                 self.outstream.flush()
-
-                if self.rawdata:
-                    self.outstream.write(json.dumps(raw_data) + "\n")
-                    self.outstream.flush()
 
         return data
 
@@ -355,6 +351,7 @@ class TreeherderPulseDataAdapter(PulseDataAdapter, TreeherderDataAdapter):
 
         self.loaddata = loaddata
         super(TreeherderPulseDataAdapter, self).__init__(**kwargs)
+        self.logger = logging.getLogger('pulse_data_adapter')
 
     def adapt_data(self, data):
         """Adapts the PulseDataAdapter into the treeherder input data structure"""
@@ -447,16 +444,18 @@ class TreeherderPulseDataAdapter(PulseDataAdapter, TreeherderDataAdapter):
         return JobData(treeherder_data)
 
     def process_data(self, raw_data, message):
-        data = super(
-            TreeherderPulseDataAdapter,
-            self
-        ).process_data(raw_data, message)
+        try:
+            data = super(
+                TreeherderPulseDataAdapter,
+                self
+            ).process_data(raw_data, message)
 
-        # load transformed data into the restful api
-        if data and self.loaddata:
-            self.load([data])
-
-        return data
+            # load transformed data into the restful api
+            if data and self.loaddata:
+                self.load([data])
+            return data
+        except PulseMissingAttributesError as e:
+            self.logger.error(e)
 
 
 class PulseMessageError(Exception):
