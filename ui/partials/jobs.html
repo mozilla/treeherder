@@ -19,7 +19,7 @@
     </ul>
     <div collapse="isCollapsedResults">
 
-        <div class="row-fluid" ng-repeat="platform in platforms">
+        <div class="row-fluid" ng-repeat="platform in platforms | filter:query">
             <div class="span2"><span>{{ platform.platform }}</span></div>
             <div class="span10">
                 <div ng-repeat="job in platform.jobs" class="btn-group">
