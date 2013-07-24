@@ -1,0 +1,78 @@
+.lv-header{
+    font-weight: bold;
+}
+
+body{
+    margin: 15px;
+    font: 0.75em 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+pre{
+    font: 1em 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.lv-accordion-holder{
+    margin-top: 25px;
+    width: 50%;
+    float: left;
+}
+
+#lv_logview_holder{
+    margin-top: 25px;
+    max-height: 500px;
+    overflow: auto;
+    overflow-x: hidden;
+    padding-left: 15px;
+}
+
+.lv-accordion{
+    background-color: rgba(51,204,51, 0.5);
+    border: 1.5px solid #33CC33;
+    margin-bottom: 5px;
+    cursor: default;
+}
+
+.lv-accordion:hover{
+    background-color: white;
+}
+
+.lv-error-display{
+    max-height: 500px;
+    overflow: auto;
+    margin-top: 2px;
+    background-color: white;
+    border-top: 1.5px solid #FF8040;
+}
+
+.lv-step-name{
+    display: inline;
+}
+
+.lv-orange-error{
+    border: 1.5px solid #FF8040;
+    background-color: rgba(255, 128, 64, 0.5);
+}
+
+.lv-align-right{
+    float: right;
+}
+
+.lv-header, .lv-align-left{
+    float: left;
+}
+
+.lv-clear{
+    clear: both;
+}
+
+.lv-highlight {
+    background-color: #E6E6E6;
+}
+
+.lv-logview-error{
+    font-weight:bold;
+}
+
+.lv-purple-font{
+    color: DarkViolet;
+}

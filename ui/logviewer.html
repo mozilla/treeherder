@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html ng-app="app">
+    <head>
+        <title> Log Viewer </title>
+        <link href="css/logviewer.css" rel="stylesheet" type="text/css">
+    </head>
+    <body>
+        <div ng-controller="Logviewer" ng-init="init()">
+            <div class="lv-header">
+                <div ng-repeat="(label, value) in jsonObj.header">{{label}}: {{value}}</div>
+            </div>
+            <div class="lv-clear"></div>
+            <div class="lv-accordion-holder">
+                <div ng-repeat="step in jsonObj.step_data.steps"
+                     ng-class="{'lv-orange-error': (step.error_count > 0)}"
+                     ng-click="displayLog(step)"
+                     class="lv-accordion">
+                    <div class="lv-step-name">{{step.order+1}}. {{step.name}}</div>
+                    <div ng-init="time=formatTime(step.duration)"
+                         ng-mouseover="time=displayTime(step.started, step.finished)"
+                         ng-mouseleave="time=formatTime(step.duration)"
+                        class="lv-align-right">{{time}}</div>
+                    <div class="lv-clear"></div>
+                    <div ng-switch on="(step.error_count > 0)">
+                        <div ng-switch-when="true" class="lv-error-display">
+                            <div ng-repeat="error in step.errors"
+                                 ng-mouseover="check=(step==displayedStep)"
+                                 ng-mouseleave="check=false"
+                                 ng-class="{'lv-highlight': check}"
+                                 ng-click="scrollTo(step, error.linenumber);
+                                          $event.stopPropagation()"
+                                class="lv-error-line">
+                                {{error.linenumber}}: {{error.line}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="lv_logview_holder">
+                <pre id="lv_logview"></pre>
+            </div>
+        </div>
+    <script src="vendor/angular/angular.js"></script>
+    <script src="js/logviewer.js"></script>
+    </body>
+</html>
