@@ -3,8 +3,12 @@
     ng-controller="PushCtrl"
     class="row-fluid">
 
-    <a class="btn {{ pushResultBtn }}" ng-click="isCollapsedResults = !isCollapsedResults"><i class="{{ icon }}"></i></a>
-    <a class="btn btn-info" ng-click="isCollapsedRevisions = !isCollapsedRevisions">
+    <a class="btn {{ pushResultBtn }}"
+       ng-click="isCollapsedResults = !isCollapsedResults">
+           <i class="{{ icon }}"></i>
+    </a>
+    <a class="btn btn-info"
+       ng-click="isCollapsedRevisions = !isCollapsedRevisions">
         {{push.email}} - {{push.timestamp}}
     </a>
     <ul class="unstyled" collapse="isCollapsedRevisions">
@@ -14,21 +18,23 @@
         </li>
     </ul>
     <div collapse="isCollapsedResults">
-        <table class="table table-condensed table-hover table-bordered" collapse="isCollapsedResults(x)">
-            <thead>
-                <tr>
-                    <th></th>
-                    <th ng-repeat="(grouper, group) in job_groups" colspan="{{group.length}}">{{grouper}}</th>
-                <tr>
-                    <th>Platform</th>
-                    <th ng-repeat="job_type in job_types">
-                        <span title="{{ job_type.jobtype__name }}">{{ job_type.jobtype__symbol }}</span>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="platform in platforms | filter:query"><th>{{platform}}</th><td ng-repeat="job_type in job_types"></td></tr>
-            </tbody>
-        </table>
+
+        <div class="row-fluid" ng-repeat="platform in platforms">
+            <div class="span2"><span>{{ platform.platform }}</span></div>
+            <div class="span10">
+                <div ng-repeat="job in platform.jobs" class="btn-group">
+                    <a class="btn-mini {{ job.type|typeClass }} {{ job.status|statusClass }}"
+                       title="{{ job.status }}">
+                       {{ job.symbol }}
+                    </a>
+                    <a class="btn-mini {{ subjob.type|typeClass }} {{ subjob.status|statusClass }}"
+                       ng-repeat="subjob in job.jobs"
+                       title="{{ subjob.status }}">
+                       {{ subjob.symbol }}
+                    </a>
+                    </span>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

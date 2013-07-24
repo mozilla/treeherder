@@ -1,0 +1,2986 @@
+[
+    {
+        "platform": "Fedora opt",
+        "jobs": [
+            {
+                "status": "retriggered",
+                "symbol": "B",
+                "id": 5
+            },
+            {
+                "status": "running",
+                "symbol": "Bg",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "Fedora pgo",
+        "jobs": [
+            {
+                "status": "running",
+                "symbol": "B",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "Fedora debug",
+        "jobs": [
+            {
+                "status": "fail",
+                "symbol": "B",
+                "id": 5
+            },
+            {
+                "status": "pending",
+                "symbol": "bc",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "Fedora64 opt",
+        "jobs": [
+            {
+                "status": "orange",
+                "symbol": "B",
+                "id": 5
+            },
+            {
+                "status": "fail",
+                "symbol": "Bg",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "Fedora64 pgo",
+        "jobs": [
+            {
+                "status": "pending",
+                "symbol": "B",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "Fedora64 debug",
+        "jobs": [
+            {
+                "status": "completed",
+                "symbol": "B",
+                "id": 5
+            },
+            {
+                "status": "orange",
+                "symbol": "r",
+                "id": 5
+            },
+            {
+                "status": "retriggered",
+                "symbol": "bc",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "Ubuntu opt",
+        "jobs": [
+            {
+                "jobs": [
+                    {
+                        "status": "retriggered",
+                        "symbol": "1",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "2",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "3",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "4",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "5",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "bc",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "oth",
+                        "id": 5
+                    }
+                ],
+                "symbol": "M",
+                "type": "group"
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "completed",
+                        "symbol": "C",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "Cipc",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "J",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "R",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "Ru",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "Ripc",
+                        "id": 5
+                    }
+                ],
+                "symbol": "R",
+                "type": "group"
+            },
+            {
+                "status": "completed",
+                "symbol": "X",
+                "id": 5
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "retriggered",
+                        "symbol": "c",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "d",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "o",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "p",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "s",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "tp",
+                        "id": 5
+                    }
+                ],
+                "symbol": "T",
+                "type": "group"
+            },
+            {
+                "status": "completed",
+                "symbol": "JP",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "Ubuntu pgo",
+        "jobs": [
+            {
+                "jobs": [
+                    {
+                        "status": "retriggered",
+                        "symbol": "1",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "2",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "3",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "4",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "5",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "bc",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "oth",
+                        "id": 5
+                    }
+                ],
+                "symbol": "M",
+                "type": "group"
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "running",
+                        "symbol": "C",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "Cipc",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "J",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "R",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "Ru",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "Ripc",
+                        "id": 5
+                    }
+                ],
+                "symbol": "R",
+                "type": "group"
+            },
+            {
+                "status": "retriggered",
+                "symbol": "X",
+                "id": 5
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "orange",
+                        "symbol": "c",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "d",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "o",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "p",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "s",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "tp",
+                        "id": 5
+                    }
+                ],
+                "symbol": "T",
+                "type": "group"
+            },
+            {
+                "status": "fail",
+                "symbol": "JP",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "Ubuntu debug",
+        "jobs": [
+            {
+                "jobs": [
+                    {
+                        "status": "completed",
+                        "symbol": "1",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "2",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "3",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "4",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "5",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "oth",
+                        "id": 5
+                    }
+                ],
+                "symbol": "M",
+                "type": "group"
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "pending",
+                        "symbol": "C",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "J",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "R",
+                        "id": 5
+                    }
+                ],
+                "symbol": "R",
+                "type": "group"
+            },
+            {
+                "status": "running",
+                "symbol": "Mn",
+                "id": 5
+            },
+            {
+                "status": "running",
+                "symbol": "X",
+                "id": 5
+            },
+            {
+                "status": "pending",
+                "symbol": "JP",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "Ubuntu64 opt",
+        "jobs": [
+            {
+                "jobs": [
+                    {
+                        "status": "orange",
+                        "symbol": "1",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "2",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "3",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "4",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "5",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "bc",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "oth",
+                        "id": 5
+                    }
+                ],
+                "symbol": "M",
+                "type": "group"
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "pending",
+                        "symbol": "C",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "J",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "R",
+                        "id": 5
+                    }
+                ],
+                "symbol": "R",
+                "type": "group"
+            },
+            {
+                "status": "fail",
+                "symbol": "X",
+                "id": 5
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "pending",
+                        "symbol": "c",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "d",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "o",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "p",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "s",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "tp",
+                        "id": 5
+                    }
+                ],
+                "symbol": "T",
+                "type": "group"
+            },
+            {
+                "status": "completed",
+                "symbol": "JP",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "Ubuntu64 pgo",
+        "jobs": [
+            {
+                "jobs": [
+                    {
+                        "status": "retriggered",
+                        "symbol": "1",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "2",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "3",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "4",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "5",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "bc",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "oth",
+                        "id": 5
+                    }
+                ],
+                "symbol": "M",
+                "type": "group"
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "orange",
+                        "symbol": "C",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "J",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "R",
+                        "id": 5
+                    }
+                ],
+                "symbol": "R",
+                "type": "group"
+            },
+            {
+                "status": "retriggered",
+                "symbol": "X",
+                "id": 5
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "retriggered",
+                        "symbol": "c",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "d",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "o",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "p",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "s",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "tp",
+                        "id": 5
+                    }
+                ],
+                "symbol": "T",
+                "type": "group"
+            },
+            {
+                "status": "completed",
+                "symbol": "JP",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "Ubuntu64 debug",
+        "jobs": [
+            {
+                "jobs": [
+                    {
+                        "status": "pending",
+                        "symbol": "1",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "2",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "3",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "4",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "5",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "oth",
+                        "id": 5
+                    }
+                ],
+                "symbol": "M",
+                "type": "group"
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "running",
+                        "symbol": "C",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "J",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "R",
+                        "id": 5
+                    }
+                ],
+                "symbol": "R",
+                "type": "group"
+            },
+            {
+                "status": "completed",
+                "symbol": "Mn",
+                "id": 5
+            },
+            {
+                "status": "running",
+                "symbol": "X",
+                "id": 5
+            },
+            {
+                "status": "pending",
+                "symbol": "JP",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "OS X 10.6 opt",
+        "jobs": [
+            {
+                "status": "retriggered",
+                "symbol": "Bg",
+                "id": 5
+            },
+            {
+                "status": "fail",
+                "symbol": "1",
+                "id": 5
+            },
+            {
+                "status": "running",
+                "symbol": "2",
+                "id": 5
+            },
+            {
+                "status": "retriggered",
+                "symbol": "3",
+                "id": 5
+            },
+            {
+                "status": "pending",
+                "symbol": "4",
+                "id": 5
+            },
+            {
+                "status": "running",
+                "symbol": "5",
+                "id": 5
+            },
+            {
+                "status": "completed",
+                "symbol": "bc",
+                "id": 5
+            },
+            {
+                "status": "orange",
+                "symbol": "oth",
+                "id": 5
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "orange",
+                        "symbol": "C",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "J",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "R",
+                        "id": 5
+                    }
+                ],
+                "symbol": "R",
+                "type": "group"
+            },
+            {
+                "status": "running",
+                "symbol": "X",
+                "id": 5
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "fail",
+                        "symbol": "c",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "d",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "o",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "p",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "s",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "tp",
+                        "id": 5
+                    }
+                ],
+                "symbol": "T",
+                "type": "group"
+            },
+            {
+                "status": "fail",
+                "symbol": "JP",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "OS X 10.6 debug",
+        "jobs": [
+            {
+                "jobs": [
+                    {
+                        "status": "retriggered",
+                        "symbol": "1",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "2",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "3",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "4",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "5",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "bc",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "oth",
+                        "id": 5
+                    }
+                ],
+                "symbol": "M",
+                "type": "group"
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "fail",
+                        "symbol": "C",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "C",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "J",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "R",
+                        "id": 5
+                    }
+                ],
+                "symbol": "R",
+                "type": "group"
+            },
+            {
+                "status": "orange",
+                "symbol": "Mn",
+                "id": 5
+            },
+            {
+                "status": "retriggered",
+                "symbol": "X",
+                "id": 5
+            },
+            {
+                "status": "orange",
+                "symbol": "JP",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "OS X 10.7 opt",
+        "jobs": [
+            {
+                "status": "fail",
+                "symbol": "B",
+                "id": 5
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "orange",
+                        "symbol": "1",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "2",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "3",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "4",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "5",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "bc",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "oth",
+                        "id": 5
+                    }
+                ],
+                "symbol": "M",
+                "type": "group"
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "completed",
+                        "symbol": "C",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "J",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "R",
+                        "id": 5
+                    }
+                ],
+                "symbol": "R",
+                "type": "group"
+            },
+            {
+                "status": "pending",
+                "symbol": "X",
+                "id": 5
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "fail",
+                        "symbol": "c",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "d",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "o",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "p",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "s",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "tp",
+                        "id": 5
+                    }
+                ],
+                "symbol": "T",
+                "type": "group"
+            },
+            {
+                "status": "pending",
+                "symbol": "JP",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "OS X 10.7 debug",
+        "jobs": [
+            {
+                "status": "fail",
+                "symbol": "B",
+                "id": 5
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "pending",
+                        "symbol": "1",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "2",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "3",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "4",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "5",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "bc",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "bc",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "oth",
+                        "id": 5
+                    }
+                ],
+                "symbol": "M",
+                "type": "group"
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "running",
+                        "symbol": "C",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "C",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "J",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "R",
+                        "id": 5
+                    }
+                ],
+                "symbol": "R",
+                "type": "group"
+            },
+            {
+                "status": "fail",
+                "symbol": "Mn",
+                "id": 5
+            },
+            {
+                "status": "retriggered",
+                "symbol": "X",
+                "id": 5
+            },
+            {
+                "status": "orange",
+                "symbol": "JP",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "OS X 10.8 opt",
+        "jobs": [
+            {
+                "jobs": [
+                    {
+                        "status": "pending",
+                        "symbol": "1",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "2",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "3",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "4",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "5",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "bc",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "oth",
+                        "id": 5
+                    }
+                ],
+                "symbol": "M",
+                "type": "group"
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "retriggered",
+                        "symbol": "C",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "J",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "R",
+                        "id": 5
+                    }
+                ],
+                "symbol": "R",
+                "type": "group"
+            },
+            {
+                "status": "orange",
+                "symbol": "X",
+                "id": 5
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "retriggered",
+                        "symbol": "c",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "d",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "o",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "p",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "s",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "tp",
+                        "id": 5
+                    }
+                ],
+                "symbol": "T",
+                "type": "group"
+            },
+            {
+                "status": "fail",
+                "symbol": "JP",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "OS X 10.8 debug",
+        "jobs": [
+            {
+                "jobs": [
+                    {
+                        "status": "fail",
+                        "symbol": "1",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "2",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "3",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "4",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "5",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "bc",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "oth",
+                        "id": 5
+                    }
+                ],
+                "symbol": "M",
+                "type": "group"
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "fail",
+                        "symbol": "C",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "J",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "R",
+                        "id": 5
+                    }
+                ],
+                "symbol": "R",
+                "type": "group"
+            },
+            {
+                "status": "running",
+                "symbol": "Mn",
+                "id": 5
+            },
+            {
+                "status": "completed",
+                "symbol": "X",
+                "id": 5
+            },
+            {
+                "status": "pending",
+                "symbol": "JP",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "WinXP opt",
+        "jobs": [
+            {
+                "jobs": [
+                    {
+                        "status": "retriggered",
+                        "symbol": "1",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "2",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "3",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "4",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "5",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "bc",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "oth",
+                        "id": 5
+                    }
+                ],
+                "symbol": "M",
+                "type": "group"
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "fail",
+                        "symbol": "C",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "J",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "R",
+                        "id": 5
+                    }
+                ],
+                "symbol": "R",
+                "type": "group"
+            },
+            {
+                "status": "orange",
+                "symbol": "X",
+                "id": 5
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "retriggered",
+                        "symbol": "c",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "o",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "p",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "s",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "tp",
+                        "id": 5
+                    }
+                ],
+                "symbol": "T",
+                "type": "group"
+            },
+            {
+                "status": "retriggered",
+                "symbol": "JP",
+                "id": 5
+            },
+            {
+                "status": "running",
+                "symbol": "JP",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "WinXP pgo",
+        "jobs": [
+            {
+                "jobs": [
+                    {
+                        "status": "retriggered",
+                        "symbol": "1",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "2",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "3",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "4",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "5",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "bc",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "oth",
+                        "id": 5
+                    }
+                ],
+                "symbol": "M",
+                "type": "group"
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "fail",
+                        "symbol": "C",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "J",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "R",
+                        "id": 5
+                    }
+                ],
+                "symbol": "R",
+                "type": "group"
+            },
+            {
+                "status": "retriggered",
+                "symbol": "X",
+                "id": 5
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "fail",
+                        "symbol": "c",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "o",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "p",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "s",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "tp",
+                        "id": 5
+                    }
+                ],
+                "symbol": "T",
+                "type": "group"
+            },
+            {
+                "status": "completed",
+                "symbol": "JP",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "WinXP debug",
+        "jobs": [
+            {
+                "jobs": [
+                    {
+                        "status": "retriggered",
+                        "symbol": "1",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "2",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "3",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "4",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "5",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "bc",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "oth",
+                        "id": 5
+                    }
+                ],
+                "symbol": "M",
+                "type": "group"
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "pending",
+                        "symbol": "C",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "J",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "R",
+                        "id": 5
+                    }
+                ],
+                "symbol": "R",
+                "type": "group"
+            },
+            {
+                "status": "completed",
+                "symbol": "X",
+                "id": 5
+            },
+            {
+                "status": "orange",
+                "symbol": "JP",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "Win7 opt",
+        "jobs": [
+            {
+                "status": "retriggered",
+                "symbol": "B",
+                "id": 5
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "completed",
+                        "symbol": "1",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "2",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "3",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "4",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "5",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "bc",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "oth",
+                        "id": 5
+                    }
+                ],
+                "symbol": "M",
+                "type": "group"
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "retriggered",
+                        "symbol": "C",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "J",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "R",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "Ru",
+                        "id": 5
+                    }
+                ],
+                "symbol": "R",
+                "type": "group"
+            },
+            {
+                "status": "running",
+                "symbol": "X",
+                "id": 5
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "retriggered",
+                        "symbol": "c",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "d",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "o",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "p",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "s",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "tp",
+                        "id": 5
+                    }
+                ],
+                "symbol": "T",
+                "type": "group"
+            },
+            {
+                "status": "completed",
+                "symbol": "JP",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "Win7 pgo",
+        "jobs": [
+            {
+                "status": "orange",
+                "symbol": "B",
+                "id": 5
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "pending",
+                        "symbol": "1",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "2",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "3",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "4",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "5",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "bc",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "oth",
+                        "id": 5
+                    }
+                ],
+                "symbol": "M",
+                "type": "group"
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "fail",
+                        "symbol": "C",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "J",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "R",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "Ru",
+                        "id": 5
+                    }
+                ],
+                "symbol": "R",
+                "type": "group"
+            },
+            {
+                "status": "orange",
+                "symbol": "X",
+                "id": 5
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "retriggered",
+                        "symbol": "c",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "d",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "o",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "p",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "s",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "tp",
+                        "id": 5
+                    }
+                ],
+                "symbol": "T",
+                "type": "group"
+            },
+            {
+                "status": "pending",
+                "symbol": "JP",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "Win7 debug",
+        "jobs": [
+            {
+                "status": "completed",
+                "symbol": "B",
+                "id": 5
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "retriggered",
+                        "symbol": "1",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "2",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "3",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "4",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "5",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "bc",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "oth",
+                        "id": 5
+                    }
+                ],
+                "symbol": "M",
+                "type": "group"
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "orange",
+                        "symbol": "C",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "J",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "R",
+                        "id": 5
+                    }
+                ],
+                "symbol": "R",
+                "type": "group"
+            },
+            {
+                "status": "running",
+                "symbol": "X",
+                "id": 5
+            },
+            {
+                "status": "orange",
+                "symbol": "JP",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "Win8 opt",
+        "jobs": [
+            {
+                "jobs": [
+                    {
+                        "status": "running",
+                        "symbol": "1",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "2",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "3",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "4",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "5",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "bc",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "mc",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "oth",
+                        "id": 5
+                    }
+                ],
+                "symbol": "M",
+                "type": "group"
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "pending",
+                        "symbol": "C",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "J",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "R",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "Ru",
+                        "id": 5
+                    }
+                ],
+                "symbol": "R",
+                "type": "group"
+            },
+            {
+                "status": "orange",
+                "symbol": "X",
+                "id": 5
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "orange",
+                        "symbol": "c",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "d",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "o",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "p",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "s",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "tp",
+                        "id": 5
+                    }
+                ],
+                "symbol": "T",
+                "type": "group"
+            },
+            {
+                "status": "pending",
+                "symbol": "JP",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "Win8 pgo",
+        "jobs": [
+            {
+                "jobs": [
+                    {
+                        "status": "orange",
+                        "symbol": "1",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "2",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "3",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "4",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "5",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "bc",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "mc",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "oth",
+                        "id": 5
+                    }
+                ],
+                "symbol": "M",
+                "type": "group"
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "fail",
+                        "symbol": "C",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "J",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "R",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "Ru",
+                        "id": 5
+                    }
+                ],
+                "symbol": "R",
+                "type": "group"
+            },
+            {
+                "status": "running",
+                "symbol": "X",
+                "id": 5
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "pending",
+                        "symbol": "c",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "d",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "o",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "p",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "s",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "tp",
+                        "id": 5
+                    }
+                ],
+                "symbol": "T",
+                "type": "group"
+            },
+            {
+                "status": "retriggered",
+                "symbol": "JP",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "Win8 debug",
+        "jobs": [
+            {
+                "jobs": [
+                    {
+                        "status": "pending",
+                        "symbol": "1",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "2",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "3",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "4",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "5",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "bc",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "oth",
+                        "id": 5
+                    }
+                ],
+                "symbol": "M",
+                "type": "group"
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "pending",
+                        "symbol": "C",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "J",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "R",
+                        "id": 5
+                    }
+                ],
+                "symbol": "R",
+                "type": "group"
+            },
+            {
+                "status": "pending",
+                "symbol": "X",
+                "id": 5
+            },
+            {
+                "status": "fail",
+                "symbol": "JP",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "Android 2.2 x86 opt",
+        "jobs": [
+            {
+                "status": "orange",
+                "symbol": "B",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "Android 2.2",
+        "jobs": []
+    },
+    {
+        "platform": "Armv6 opt",
+        "jobs": [
+            {
+                "status": "completed",
+                "symbol": "B",
+                "id": 5
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "fail",
+                        "symbol": "1",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "2",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "3",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "4",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "5",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "6",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "7",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "8",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "rc1",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "rc2",
+                        "id": 5
+                    }
+                ],
+                "symbol": "M",
+                "type": "group"
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "fail",
+                        "symbol": "C",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "J1",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "J2",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "J3",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "R1",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "R2",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "R3",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "R4",
+                        "id": 5
+                    }
+                ],
+                "symbol": "R",
+                "type": "group"
+            },
+            {
+                "status": "retriggered",
+                "symbol": "X",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "Android 2.2 NoIon opt",
+        "jobs": [
+            {
+                "status": "running",
+                "symbol": "B",
+                "id": 5
+            },
+            {
+                "status": "running",
+                "symbol": "J1",
+                "id": 5
+            },
+            {
+                "status": "orange",
+                "symbol": "J2",
+                "id": 5
+            },
+            {
+                "status": "running",
+                "symbol": "J3",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "Android 2.2 opt",
+        "jobs": [
+            {
+                "status": "retriggered",
+                "symbol": "B",
+                "id": 5
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "orange",
+                        "symbol": "1",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "2",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "3",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "4",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "5",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "6",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "7",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "8",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "rc1",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "rc2",
+                        "id": 5
+                    }
+                ],
+                "symbol": "M",
+                "type": "group"
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "fail",
+                        "symbol": "C",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "J1",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "J2",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "J3",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "R1",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "R2",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "R3",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "R4",
+                        "id": 5
+                    }
+                ],
+                "symbol": "R",
+                "type": "group"
+            },
+            {
+                "status": "pending",
+                "symbol": "X",
+                "id": 5
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "retriggered",
+                        "symbol": "rck2",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "rp",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "rpr",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "s",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "tpn",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "ts",
+                        "id": 5
+                    }
+                ],
+                "symbol": "T",
+                "type": "group"
+            }
+        ]
+    },
+    {
+        "platform": "Android 2.2 debug",
+        "jobs": [
+            {
+                "status": "fail",
+                "symbol": "B",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "Android 4.0 opt",
+        "jobs": [
+            {
+                "jobs": [
+                    {
+                        "status": "running",
+                        "symbol": "1",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "2",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "3",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "4",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "5",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "5",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "6",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "6",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "6",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "7",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "8",
+                        "id": 5
+                    }
+                ],
+                "symbol": "M",
+                "type": "group"
+            },
+            {
+                "status": "orange",
+                "symbol": "gl",
+                "id": 5
+            },
+            {
+                "status": "orange",
+                "symbol": "rc1",
+                "id": 5
+            },
+            {
+                "status": "retriggered",
+                "symbol": "rc2",
+                "id": 5
+            },
+            {
+                "status": "pending",
+                "symbol": "rc2",
+                "id": 5
+            },
+            {
+                "status": "completed",
+                "symbol": "rc2",
+                "id": 5
+            },
+            {
+                "status": "retriggered",
+                "symbol": "rc2",
+                "id": 5
+            },
+            {
+                "status": "fail",
+                "symbol": "rc2",
+                "id": 5
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "pending",
+                        "symbol": "C",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "J1",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "J2",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "J2",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "J3",
+                        "id": 5
+                    }
+                ],
+                "symbol": "R",
+                "type": "group"
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "fail",
+                        "symbol": "rck2",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "rp",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "rpr",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "s",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "tpn",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "ts",
+                        "id": 5
+                    }
+                ],
+                "symbol": "T",
+                "type": "group"
+            }
+        ]
+    },
+    {
+        "platform": "B2G Emu opt",
+        "jobs": [
+            {
+                "status": "fail",
+                "symbol": "Bi",
+                "id": 5
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "orange",
+                        "symbol": "R1",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "R10",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "R2",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "R3",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "R4",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "R5",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "R6",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "R7",
+                        "id": 5
+                    },
+                    {
+                        "status": "pending",
+                        "symbol": "R8",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "R9",
+                        "id": 5
+                    }
+                ],
+                "symbol": "R",
+                "type": "group"
+            },
+            {
+                "status": "orange",
+                "symbol": "Mn",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "B2G Emu debug",
+        "jobs": [
+            {
+                "status": "completed",
+                "symbol": "Bi",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "B2G Emu (VM) opt",
+        "jobs": [
+            {
+                "jobs": [
+                    {
+                        "status": "fail",
+                        "symbol": "1",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "2",
+                        "id": 5
+                    },
+                    {
+                        "status": "completed",
+                        "symbol": "3",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "4",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "5",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "6",
+                        "id": 5
+                    },
+                    {
+                        "status": "orange",
+                        "symbol": "7",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "8",
+                        "id": 5
+                    },
+                    {
+                        "status": "fail",
+                        "symbol": "9",
+                        "id": 5
+                    }
+                ],
+                "symbol": "M",
+                "type": "group"
+            },
+            {
+                "jobs": [
+                    {
+                        "status": "pending",
+                        "symbol": "C1",
+                        "id": 5
+                    },
+                    {
+                        "status": "retriggered",
+                        "symbol": "C2",
+                        "id": 5
+                    },
+                    {
+                        "status": "running",
+                        "symbol": "C3",
+                        "id": 5
+                    }
+                ],
+                "symbol": "R",
+                "type": "group"
+            },
+            {
+                "status": "fail",
+                "symbol": "X",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "B2G Panda opt",
+        "jobs": [
+            {
+                "status": "pending",
+                "symbol": "Bi",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "B2G Unagi opt",
+        "jobs": [
+            {
+                "status": "pending",
+                "symbol": "Bi",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "B2G Inari opt",
+        "jobs": [
+            {
+                "status": "orange",
+                "symbol": "Bi",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "B2G Hamachi opt",
+        "jobs": [
+            {
+                "status": "fail",
+                "symbol": "Bi",
+                "id": 5
+            }
+        ]
+    },
+    {
+        "platform": "B2G Leo opt",
+        "jobs": [
+            {
+                "status": "orange",
+                "symbol": "Bi",
+                "id": 5
+            },
+            {
+                "status": "fail",
+                "symbol": "BiM",
+                "id": 5
+            }
+        ]
+    }
+]

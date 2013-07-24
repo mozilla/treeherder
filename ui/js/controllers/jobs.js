@@ -19,24 +19,10 @@ treeherder.controller('JobsCtrl',
             $scope.push_sample = data;
         });
 
-        /*
-        this is just to emulate the platform results
-        the real objects will be something like this
-        {
-            "platform": platform_name,
-            jobs:[
-                {
-                    "id",
-                    "symbol":"",
-                    "description":"",
-                    "status": "pending|running|completed|retriggered, etc.."
-
-                }
-            ]
-
-        }
-        */
-        $scope.platforms=["Ubuntu pto", "Ubuntu debug", "Win 7", "win XP", "OSX 10.7", "Android", "Fedora"];
+        // get a push sample
+        $http.get('resources/results.json').success(function(data) {
+            $scope.platforms = data;
+        });
     }
 );
 
