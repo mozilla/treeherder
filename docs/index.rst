@@ -12,6 +12,7 @@ Contents:
    :maxdepth: 2
 
    installation
+   dataload
 
 
 Indices and tables
