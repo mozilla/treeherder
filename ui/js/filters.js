@@ -16,7 +16,7 @@ treeherder.filter('expandOrHide', function() {
 treeherder.filter('typeClass', function() {
     // determine whether this is a label for a job group (like mochitest)
     return function(input) {
-        if (input == "group") {
+        if (input.hasOwnProperty("jobs")) {
             return "btn disabled";
         }
     };

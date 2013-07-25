@@ -25,12 +25,12 @@
             <div class="span2"><span>{{ platform.platform }}</span></div>
             <div class="span10">
                 <div ng-repeat="job in platform.jobs" class="btn-group">
-                    <a class="btn-mini {{ job.type|typeClass }} {{ job.status|statusClass }}"
+                    <a class="btn-mini {{ job|typeClass }} {{ job.status|statusClass }}"
                        popover="{{ job.status }}"
                        popover-trigger="mouseenter">
                        {{ job.symbol }}
                     </a>
-                    <a class="btn-mini {{ subjob.type|typeClass }} {{ subjob.status|statusClass }}"
+                    <a class="btn-mini {{ subjob|typeClass }} {{ subjob.status|statusClass }}"
                        ng-repeat="subjob in job.jobs"
                        popover="{{ subjob.status }}"
                        popover-trigger="mouseenter">
