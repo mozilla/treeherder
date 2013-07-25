@@ -1,7 +1,7 @@
 Loading buildbot data
 =====================
 
-There are 2 source of data (by now) for treeherder: buildapi and pulse.
+There are 2 sources of data (for now) for treeherder: buildapi and pulse.
 Here are the steps needed to load data coming from both the sources.
 
 Buildapi
