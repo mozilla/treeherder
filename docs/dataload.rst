@@ -20,7 +20,7 @@ The information needed are:
 * enabled: true
 
 In the schedule section you can choose between a simple interval and a crontab-like definition.
-Choose the one the suits better your needings.
+Choose the one that best suits your needs.
 
 In the arguments section, insert the url of the buildapi service that you want to fetch:
 
