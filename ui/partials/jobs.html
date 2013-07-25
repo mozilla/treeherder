@@ -5,9 +5,8 @@
 
     <a class="btn {{ pushResultBtn }}"
        ng-click="isCollapsedResults = !isCollapsedResults">
-           <i class="{{ icon }}"
-           popover="{{ 'click to ' | expandOrHide:isCollapsedResults }}"
-           popover-trigger="mouseenter"></i>
+           <i class="{{ icon }}"></i>
+           {{ ' results' | showOrHide:isCollapsedResults }}
     </a>
     <a class="btn btn-info"
        ng-click="isCollapsedRevisions = !isCollapsedRevisions">

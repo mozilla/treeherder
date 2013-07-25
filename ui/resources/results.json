@@ -342,7 +342,7 @@
                 "jobs": [
                     {
                         "status": "pending",
-                        "symbol": "1*",
+                        "symbol": "1",
                         "id": 5
                     },
                     {
@@ -739,7 +739,7 @@
             },
             {
                 "status": "running",
-                "symbol": "bc*",
+                "symbol": "bc",
                 "id": 5
             },
             {
@@ -852,7 +852,7 @@
                     },
                     {
                         "status": "retriggered",
-                        "symbol": "oth*",
+                        "symbol": "oth",
                         "id": 5
                     }
                 ]
@@ -862,7 +862,7 @@
                 "jobs": [
                     {
                         "status": "completed",
-                        "symbol": "C*",
+                        "symbol": "C",
                         "id": 5
                     },
                     {
@@ -937,7 +937,7 @@
                     },
                     {
                         "status": "running",
-                        "symbol": "bc*",
+                        "symbol": "bc",
                         "id": 5
                     },
                     {
@@ -1052,7 +1052,7 @@
                     },
                     {
                         "status": "completed",
-                        "symbol": "bc*",
+                        "symbol": "bc",
                         "id": 5
                     },
                     {
@@ -1072,7 +1072,7 @@
                 "jobs": [
                     {
                         "status": "fail",
-                        "symbol": "C*",
+                        "symbol": "C",
                         "id": 5
                     },
                     {
@@ -1399,7 +1399,7 @@
             },
             {
                 "status": "pending",
-                "symbol": "JP*",
+                "symbol": "JP",
                 "id": 5
             },
             {
@@ -2396,7 +2396,7 @@
                     },
                     {
                         "status": "completed",
-                        "symbol": "2*",
+                        "symbol": "2",
                         "id": 5
                     },
                     {
@@ -2608,7 +2608,7 @@
             },
             {
                 "status": "orange",
-                "symbol": "rc1*",
+                "symbol": "rc1",
                 "id": 5
             },
             {
