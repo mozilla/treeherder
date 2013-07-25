@@ -49,7 +49,10 @@ Installation
 
   .. code-block:: bash
 
-     (venv)vagrant@precise32:~/treeherder-service$ python manage.py celery worker
+     (venv)vagrant@precise32:~/treeherder-service$ python manage.py celery worker -B
+
+  The "-B" option tells the celery worker to startup a beat service, so that periodic tasks can be executed.
+  You only need one worker with the beat service enabled. Multiple beat services will result in periodic tasks being executed multiple times
 
 * For development you can use the django runserver instead of gunicorn:
   
