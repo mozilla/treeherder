@@ -1,28 +1,43 @@
-<div ng-repeat="x in [1,2,3,4,5,6,7,8]" class="row-fluid">
-    <a class="btn btn-info" ng-click="toggleCollapse(x)">
-        {{push_sample.email}} - {{push_sample.timestamp}}
+<div
+    ng-repeat="push in push_sample.pushes"
+    ng-controller="PushCtrl"
+    class="row-fluid">
+
+    <a class="btn {{ pushResultBtn }}"
+       ng-click="isCollapsedResults = !isCollapsedResults">
+           <i class="{{ icon }}"></i>
+           {{ ' results' | showOrHide:isCollapsedResults }}
     </a>
-    <ul class="unstyled" collapse="isCollapsed(x)">
-        <li ng-repeat="revision in push_sample.revisions">
+    <a class="btn btn-info"
+       ng-click="isCollapsedRevisions = !isCollapsedRevisions">
+        {{push.email}} - {{push.timestamp}}
+    </a>
+    <ul class="unstyled" collapse="isCollapsedRevisions">
+        <li ng-repeat="revision in push.revisions">
             <h5>{{revision.name}} - <a class="btn">{{revision.revision}}</a> <a class="btn">{{revision.bug_id}}</a></h5>
             <small>{{revision.message}}</small>
         </li>
     </ul>
-    <table class="table table-condensed table-hover table-bordered">
-        <thead>
-            <tr>
-                <th></th>
-                <th ng-repeat="(grouper, group) in job_groups" colspan="{{group.length}}">{{grouper}}</th>
-            <tr>
-                <th>Platform</th>
-                <th ng-repeat="job_type in job_types">
-                    <span title="{{ job_type.jobtype__name }}">{{ job_type.jobtype__symbol }}</span>
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr ng-repeat="platform in platforms | filter:query"><th>{{platform}}</th><td ng-repeat="job_type in job_types"></td></tr>
-        </tbody>
-    </table>
-    
+    <div collapse="isCollapsedResults">
+
+        <div class="row-fluid" ng-repeat="platform in platforms | filter:query">
+            <div class="span2"><span>{{ platform.platform }}</span></div>
+            <div class="span10">
+                <div ng-repeat="job in platform.jobs" class="btn-group">
+                    <a class="btn-mini {{ job|typeClass }} {{ job.status|statusClass }}"
+                       popover="{{ job.status }}"
+                       popover-trigger="mouseenter">
+                       {{ job.symbol }}
+                    </a>
+                    <a class="btn-mini {{ subjob|typeClass }} {{ subjob.status|statusClass }}"
+                       ng-repeat="subjob in job.jobs"
+                       popover="{{ subjob.status }}"
+                       popover-trigger="mouseenter">
+                       {{ subjob.symbol }}
+                    </a>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
