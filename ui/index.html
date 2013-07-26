@@ -54,15 +54,15 @@
                         <li><a ng-class="{active: routeIs('/machines')}" href="#/machines">Machines</a></li>
                     </ul>
                 </div>
-                
+
                 <div class="jobs_list span11" ng-cloak>
-                    <div class="alert alert-success">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</div>
+                    <div class="alert alert-success">{{ status }}</div>
                     <ng-view ></ng-view>
-                    
+
                 </div>
             </div>
         </div>
-        
+
         <!-- modal window -->
         <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
             <div class="modal-header">

@@ -30,9 +30,9 @@ treeherder.filter('statusClass', function() {
             case "completed":
                 return "btn btn-success";
             case "fail":
-                return "btn btn-danger ";
+                return "btn btn-danger strong";
             case "orange":
-                return "btn btn-warning";
+                return "btn btn-warning strong";
             case "pending":
                 return "btn disabled"
             case "running":

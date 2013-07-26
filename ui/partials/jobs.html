@@ -1,3 +1,12 @@
+
+
+<div>
+    <div class="alert alert-success">{{ status }}</div>
+    <div>
+        <span class="label">{{ oldRev }}</span> --> <span class="label">{{ newRev }}</span>
+        <a class="btn" href="http://perf.snarkfest.net/compare-talos/index.html?oldRevs=c95a82a8c15f&newRev=8196c86355bc&submit=true">compare</a>
+    </div>
+</div>
 <div
     ng-repeat="push in push_sample.pushes"
     ng-controller="PushCtrl"
@@ -12,6 +21,20 @@
        ng-click="isCollapsedRevisions = !isCollapsedRevisions">
         {{push.email}} - {{push.timestamp}}
     </a>
+        <div class="btn-group">
+        <a class="btn dropdown-toggle btn-small" data-toggle="dropdown" href="#">
+            actions
+            <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+            <li><a href="https://tbpl.mozilla.org/mcmerge/?cset=8196c86355bc">m-mcMerge</a></li>
+            <li><a href="https://secure.pub.build.mozilla.org/buildapi/self-serve/mozilla-central/rev/8196c86355bc">BuildAPI</a></li>
+            <li><a href="">Changeset URL List</a></li>
+            <li><a href="">Compare</a></li>
+            <li><a href="">Cancel All Jobs</a></li>
+        </ul>
+    </div>
+
     <ul class="unstyled" collapse="isCollapsedRevisions">
         <li ng-repeat="revision in push.revisions">
             <h5>{{revision.name}} - <a class="btn">{{revision.revision}}</a> <a class="btn">{{revision.bug_id}}</a></h5>
@@ -20,19 +43,31 @@
     </ul>
     <div collapse="isCollapsedResults">
 
-        <div class="row-fluid" ng-repeat="platform in platforms | filter:query">
+        <div class="row-fluid" ng-repeat="platform in results[push.timestamp] | filter:query">
             <div class="span2"><span>{{ platform.platform }}</span></div>
             <div class="span10">
                 <div ng-repeat="job in platform.jobs" class="btn-group">
+                    <!--
+                        I would like this to be a partial for job and subjob.  But
+                        in order for subjobs to repeat, I need a span element to
+                        repeat on, and that makes the buttons not show as a group
+                        properly.
+                    -->
                     <a class="btn-mini {{ job|typeClass }} {{ job.status|statusClass }}"
                        popover="{{ job.status }}"
                        popover-trigger="mouseenter">
+                       <i class="icon-fire" ng-show="job.status=='fail' || job.status=='orange'"></i>
                        {{ job.symbol }}
                     </a>
                     <a class="btn-mini {{ subjob|typeClass }} {{ subjob.status|statusClass }}"
                        ng-repeat="subjob in job.jobs"
                        popover="{{ subjob.status }}"
                        popover-trigger="mouseenter">
+                       <!--
+                           We should conditionally remove the fire icon once they have
+                           starred it, most likely.
+                       -->
+                       <i class="icon-fire" ng-show="subjob.status=='fail' || subjob.status=='orange'"></i>
                        {{ subjob.symbol }}
                     </a>
                     </span>

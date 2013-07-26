@@ -14,24 +14,56 @@ treeherder.controller('JobsCtrl',
             }
         });
 
+        function storeDataForPush(push, idx) {
+            // store the results in scope for this push via ajax
+            // ``idx`` is just a hack for the static data loading from file.
+            var resourceUrl = 'resources/results' + idx + '.json';
+            console.log("fetching for " + push.timestamp + " from: " + resourceUrl);
+            $http.get(resourceUrl).success(
+                function(data) {
+                    console.log("storing for: " + push.timestamp);
+                    $scope.results[push.timestamp] = data;
+                }
+            );
+        }
+
+        $scope.results = {};
         // get a push sample
         $http.get('resources/push_sample.json').success(function(data) {
             $scope.push_sample = data;
+            for (var i = 0; i < data.pushes.length; i++) {
+                storeDataForPush(data.pushes[i], i+1);
+            }
         });
 
-        // get a push sample
-        $http.get('resources/results.json').success(function(data) {
-            $scope.platforms = data;
-        });
+        // compare push values
+        $scope.status = "everything is A-OK";
+        $scope.oldRev = "select push";
+        $scope.newRev = "select push";
+
+        $scope.compare = function() {
+            // compare two revisions in compare-talos
+            if ($scope.oldRev !== "select push" && $scope.newRev !== "select push") {
+                var compareurl = "http://perf.snarkfest.net/compare-talos/index.html?" +
+                    "oldRevs=" + $scope.oldRev +
+                    "&newRev=" + $scope.newRev +
+                    "8196c86355bc&submit=true";
+            } else {
+                // both revs must be set to compare, notify error.
+                $scope.status = "Both revisions must be set to compare";
+            }
+        };
+
     }
 );
 
 treeherder.controller('PushCtrl',
     function PushCtrl($scope) {
 
-        // whether or not push results are collapsed
+        // whether or not push results list is collapsed
         $scope.isCollapsedResults = false;
 
+        // whether or not revision list for a push is collapsed
         $scope.isCollapsedRevisions = true;
 
         // how to display the warning_level.  collapse green ones
