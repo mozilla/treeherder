@@ -21,20 +21,22 @@
        ng-click="isCollapsedRevisions = !isCollapsedRevisions">
         {{push.email}} - {{push.timestamp}}
     </a>
-        <div class="btn-group">
-        <a class="btn dropdown-toggle btn-small" data-toggle="dropdown" href="#">
-            actions
-            <span class="caret"></span>
-        </a>
-        <ul class="dropdown-menu">
-            <li><a href="https://tbpl.mozilla.org/mcmerge/?cset=8196c86355bc">m-mcMerge</a></li>
-            <li><a href="https://secure.pub.build.mozilla.org/buildapi/self-serve/mozilla-central/rev/8196c86355bc">BuildAPI</a></li>
-            <li><a href="">Changeset URL List</a></li>
-            <li><a href="">Compare</a></li>
-            <li><a href="">Cancel All Jobs</a></li>
-        </ul>
-    </div>
 
+    <span class="pushactions">
+        <span class="dropdown">
+            <a class="btn dropdown-toggle" data-hover="dropdown" data-delay="1000" href="#">
+                <i class="icon-cog"></i>
+                <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a target="_blank" href="https://tbpl.mozilla.org/mcmerge/?cset=8196c86355bc">m-mcMerge</a></li>
+                <li><a target="_blank" href="https://secure.pub.build.mozilla.org/buildapi/self-serve/mozilla-central/rev/8196c86355bc">BuildAPI</a></li>
+                <li><a target="_blank" href="">Changeset URL List</a></li>
+                <li><a href="">Compare</a></li>
+                <li><a href="">Cancel All Jobs</a></li>
+            </ul>
+        </span>
+    </span>
     <ul class="unstyled" collapse="isCollapsedRevisions">
         <li ng-repeat="revision in push.revisions">
             <h5>{{revision.name}} - <a class="btn">{{revision.revision}}</a> <a class="btn">{{revision.bug_id}}</a></h5>

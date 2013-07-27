@@ -9,6 +9,10 @@ treeherder.config(function($routeProvider) {
             controller: 'JobsCtrl',
             templateUrl: 'partials/jobs.html'
         }).
+        when('/jobs/:tree', {
+            controller: 'JobsCtrl',
+            templateUrl: 'partials/jobs.html'
+        }).
         when('/timeline', {
             controller: 'TimelineController',
             templateUrl: 'partials/timeline.html'

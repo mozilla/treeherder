@@ -1,7 +1,16 @@
 "use strict";
 
 treeherder.controller('JobsCtrl',
-    function JobsCtrl($scope, $http) {
+    function JobsCtrl($scope, $http, $rootScope, $location, $routeParams, $route) {
+
+        // set the default tree to mozilla-central if not specified
+        if ($routeParams.hasOwnProperty("tree") &&
+            $routeParams.tree !== "") {
+            $rootScope.tree = $routeParams.tree;
+        } else {
+            $rootScope.tree = "mozilla-central";
+        }
+
         // get the job groups
         $http.get('resources/job_groups.json').success(function(data) {
             $scope.job_groups = data;
