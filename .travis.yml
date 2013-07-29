@@ -25,6 +25,6 @@ install:
   - pip install -r requirements/dev.txt --use-mirrors
   - pip install -r requirements/pure.txt --use-mirrors
 script:
-  - py.test tests/$* --cov-report term-missing --cov treeherder
+  - py.test tests/$* --runslow --cov-report term-missing --cov treeherder
 notifications:
   email: false
