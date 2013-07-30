@@ -52,7 +52,7 @@ max_email_authors = 5
 ignore_tests = Nokia.*
 
 # List of tests where higher is better
-reverse_tests = Dromaeo.*, V8 version 7.*
+reverse_tests = Dromaeo.*, V8 version 7.*,Canvasmark.*
 
 # How to get short urls from bit.ly
 #bitly_login =
