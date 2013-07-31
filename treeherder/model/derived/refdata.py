@@ -29,6 +29,9 @@ class RefDataManager(object):
         self.dhub = DataHub.get("reference")
         self.DEBUG = settings.DEBUG
 
+    def disconnect(self):
+        self.dhub.disconnect()
+
     def get_row_by_id(self, table_name, obj_id):
         iter_obj = self.dhub.execute(
             proc="reference.selects.get_row_by_id",

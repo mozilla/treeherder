@@ -94,8 +94,10 @@ class TreeherderModelBase(object):
 
     def disconnect(self):
         """Iterate over and disconnect all data sources."""
-        for src in self.sources.itervalues():
-            src.disconnect()
+        self.refdata_model.disconnect()
+        for dhub in self.dhubs.itervalues():
+            dhub.disconnect()
+
 
 
 class DatasetNotFoundError(ValueError):

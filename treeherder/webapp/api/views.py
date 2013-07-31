@@ -22,17 +22,18 @@ class ObjectstoreViewSet(viewsets.ViewSet):
         """
         POST method implementation
         """
+        jm = JobsModel(project)
         try:
-            jm = JobsModel(project)
             jm.store_job_data(
                 json.dumps(request.DATA),
                 request.DATA['job']['job_guid']
             )
-            jm.disconnect()
         except DatasetNotFoundError as e:
             return Response({"message": str(e)}, status=404)
         except Exception as e:  # pragma nocover
             return Response({"message": str(e)}, status=500)
+        finally:
+            jm.disconnect()
 
         return Response({'message': 'well-formed JSON stored'})
 

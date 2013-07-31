@@ -13,4 +13,7 @@ def process_objects(limit=None):
     limit = limit or 100
     for ds in Datasource.objects.all():
         jm = JobsModel(ds.project)
-        jm.process_objects(limit)
+        try:
+            jm.process_objects(limit)
+        finally:
+            jm.disconnect()
