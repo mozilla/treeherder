@@ -31,10 +31,14 @@
         },
         "set_result_set":{
 
-            "sql":"INSERT INTO `result_set` (
-                `revision_hash`
-                )
-                VALUES (?)",
+            "sql":"INSERT INTO `result_set` (`revision_hash`)
+                SELECT ?
+                FROM DUAL
+                WHERE NOT EXISTS (
+                    SELECT `revision_hash`
+                    FROM `result_set`
+                    WHERE `revision_hash` = ?
+                )",
 
             "host":"master_host"
         },
@@ -134,6 +138,11 @@
             "sql":"SELECT `id`
                    FROM `job`
                    WHERE `job_guid` = ?",
+            "host": "read_host"
+        },
+        "get_result_set_id":{
+            "sql":"SELECT `id` FROM `result_set`
+                   WHERE `revision_hash` = ?",
             "host": "read_host"
         }
     }

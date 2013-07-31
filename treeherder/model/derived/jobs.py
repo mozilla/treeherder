@@ -112,6 +112,16 @@ class JobsModel(TreeherderModelBase):
             return_type='iter',
         )
 
+    def get_result_set_id(self, revision_hash):
+
+        id_iter = self.get_jobs_dhub().execute(
+            proc='jobs.selects.get_result_set_id',
+            placeholders=[revision_hash],
+            debug_show=self.DEBUG,
+            return_type='iter')
+
+        return id_iter.get_column_data('id')
+
     ##################
     #
     # Objectstore functionality
@@ -248,7 +258,7 @@ class JobsModel(TreeherderModelBase):
             }
 
         """
-        result_set_id = self._set_result_set(data["revision_hash"])
+        result_set_id = self._get_or_create_result_set(data["revision_hash"])
 
         rdm = self.refdata_model
         job = data["job"]
@@ -342,16 +352,20 @@ class JobsModel(TreeherderModelBase):
             # it is ok to have an empty or missing artifact
             pass
 
-    def _set_result_set(self, revision_hash):
-        """Set result set revision hash"""
+    def _get_or_create_result_set(self, revision_hash):
+        """
+        Set result set revision hash.
+        If it already exists, return the id for that ``revision_hash``.
+        """
 
-        result_set_id = self._insert_data_and_get_id(
+        self._insert_data(
             'set_result_set',
             [
                 revision_hash,
+                revision_hash,
             ]
         )
-
+        result_set_id = self.get_result_set_id(revision_hash)
         return result_set_id
 
     def _insert_revision(self, src, author):
