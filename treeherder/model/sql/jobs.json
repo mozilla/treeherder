@@ -140,6 +140,11 @@
                    WHERE `job_guid` = ?",
             "host": "read_host"
         },
+        "get_result_set_id":{
+            "sql":"SELECT `id` FROM `result_set`
+                   WHERE `revision_hash` = ?",
+            "host": "read_host"
+        },
         "get_push_result_list":{
             "sql":"SELECT rs.revision_hash,
                       rev.revision, rev.author, rev.push_timestamp, rev.repository_id, rev.comments,
@@ -152,11 +157,6 @@
                    LEFT JOIN job
                        ON rs.id = job.result_set_id
                    LIMIT ?,?",
-            "host": "read_host"
-        },
-        "get_result_set_id":{
-            "sql":"SELECT `id` FROM `result_set`
-                   WHERE `revision_hash` = ?",
             "host": "read_host"
         }
     }

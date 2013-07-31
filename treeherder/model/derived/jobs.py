@@ -112,6 +112,16 @@ class JobsModel(TreeherderModelBase):
             return_type='iter',
         )
 
+    def get_result_set_id(self, revision_hash):
+
+        id_iter = self.get_jobs_dhub().execute(
+            proc='jobs.selects.get_result_set_id',
+            placeholders=[revision_hash],
+            debug_show=self.DEBUG,
+            return_type='iter')
+
+        return id_iter.get_column_data('id')
+
     def get_push_result_list(self, page, limit):
         """
         Retrieve a list of pushes with associated revisions and jobs.
@@ -126,16 +136,6 @@ class JobsModel(TreeherderModelBase):
         )
 
         return push_dict
-
-    def get_result_set_id(self, revision_hash):
-
-        id_iter = self.get_jobs_dhub().execute(
-            proc='jobs.selects.get_result_set_id',
-            placeholders=[revision_hash],
-            debug_show=self.DEBUG,
-            return_type='iter')
-
-        return id_iter.get_column_data('id')
 
     ##################
     #
@@ -273,7 +273,7 @@ class JobsModel(TreeherderModelBase):
             }
 
         """
-        result_set_id = self._set_result_set(data["revision_hash"])
+        result_set_id = self._get_or_create_result_set(data["revision_hash"])
 
         rdm = self.refdata_model
         job = data["job"]
