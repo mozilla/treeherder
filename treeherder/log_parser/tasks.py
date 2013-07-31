@@ -32,3 +32,4 @@ def parse_log(project, job_id):
         # store the artifacts generated
         for name, artifact in artifact_builder_collection.artifacts.items():
             jm.insert_job_artifact(job_id, name, 'json', json.dumps(artifact))
+    jm.disconnect()
