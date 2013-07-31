@@ -266,13 +266,14 @@ DROP TABLE IF EXISTS `result_set`;
  * Example Data:
  *
  *  revision_hash - Hash of any number of revisions associated with the result set.
+ *                  Must be unique.
  **************************/
 CREATE TABLE `result_set` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `revision_hash` varchar(50) COLLATE utf8_bin NOT NULL,
   `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
   PRIMARY KEY (`id`),
-  KEY `idx_revision_hash` (`revision_hash`),
+  UNIQUE KEY `idx_revision_hash` (`revision_hash`),
   KEY `idx_active_status` (`active_status`)
 ) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
