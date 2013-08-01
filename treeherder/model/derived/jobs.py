@@ -113,7 +113,7 @@ class JobsModel(TreeherderModelBase):
         )
 
     def get_result_set_id(self, revision_hash):
-
+        """Return the ``result_set.id`` for the given ``revision_hash``"""
         id_iter = self.get_jobs_dhub().execute(
             proc='jobs.selects.get_result_set_id',
             placeholders=[revision_hash],
@@ -123,7 +123,7 @@ class JobsModel(TreeherderModelBase):
         return id_iter.get_column_data('id')
 
     def get_revision_id(self, revision):
-
+        """Return the ``revision.id`` for the given ``revision``"""
         id_iter = self.get_jobs_dhub().execute(
             proc='jobs.selects.get_revision_id',
             placeholders=[revision],
@@ -268,15 +268,15 @@ class JobsModel(TreeherderModelBase):
             }
 
         """
-        rdm = self.refdata_model
-        job = data["job"]
-
         # @@@ ``push_timestamp`` will come from a different location in the data structure
         #     in the future.  most likely at the top-level, rather than inside ``sources``
         result_set_id = self._get_or_create_result_set(
             data["revision_hash"],
             data["sources"][0].get("push_timestamp", 0),
         )
+
+        rdm = self.refdata_model
+        job = data["job"]
 
         # set sources
 
@@ -406,12 +406,11 @@ class JobsModel(TreeherderModelBase):
                 src["revision"],
                 author,
                 src.get("comments", ""),
-                repository_id,
                 long(src.get("commit_timestamp", 0)),
+                repository_id,
                 src["revision"],
             ]
         )
-
         return self.get_revision_id(src["revision"])
 
     def _insert_revision_map(self, revision_id, result_set_id):

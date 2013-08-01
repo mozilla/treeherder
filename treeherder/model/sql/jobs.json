@@ -48,8 +48,9 @@
                     `revision`,
                     `author`,
                     `comments`,
-                    `repository_id`,
-                    `commit_timestamp`)
+                    `commit_timestamp`,
+                    `repository_id`
+                    )
                 SELECT ?,?,?,?,?
                 FROM DUAL
                 WHERE NOT EXISTS (
