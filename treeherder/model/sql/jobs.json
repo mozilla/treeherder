@@ -31,11 +31,11 @@
         },
         "set_result_set":{
 
-            "sql":"INSERT INTO `result_set` (`revision_hash`)
-                SELECT ?
+            "sql":"INSERT INTO `result_set` (`revision_hash`,`push_timestamp`)
+                SELECT ?,?
                 FROM DUAL
                 WHERE NOT EXISTS (
-                    SELECT `revision_hash`
+                    SELECT `revision_hash`, `push_timestamp`
                     FROM `result_set`
                     WHERE `revision_hash` = ?
                 )",
@@ -45,13 +45,19 @@
         "set_revision":{
 
             "sql":"INSERT INTO `revision` (
-                `revision`,
-                `author`,
-                `comments`,
-                `push_timestamp`,
-                `commit_timestamp`,
-                `repository_id`)
-                VALUES (?,?,?,?,?,?)",
+                    `revision`,
+                    `author`,
+                    `comments`,
+                    `commit_timestamp`,
+                    `repository_id`
+                    )
+                SELECT ?,?,?,?,?
+                FROM DUAL
+                WHERE NOT EXISTS (
+                    SELECT `revision`
+                    FROM `revision`
+                    WHERE `revision` = ?
+                )",
 
             "host":"master_host"
         },
@@ -143,6 +149,11 @@
         "get_result_set_id":{
             "sql":"SELECT `id` FROM `result_set`
                    WHERE `revision_hash` = ?",
+            "host": "read_host"
+        },
+        "get_revision_id":{
+            "sql":"SELECT `id` FROM `revision`
+                   WHERE `revision` = ?",
             "host": "read_host"
         },
         "get_push_result_list":{
