@@ -1,11 +1,11 @@
 /****
  * Data structure sample sent to object store
  ****/
- { 
+ {
     /**************
-     * The revisions in sources are combined and hashed to form a 
+     * The revisions in sources are combined and hashed to form a
      * result set guid stored in project_jobs_1.result_set.revision_hash.
-     * The revision_hash is used for associating job data asynchronously 
+     * The revision_hash is used for associating job data asynchronously
      * with a single entry in project_jobs_1.result_set.
      **************/
     sources: [
@@ -37,85 +37,84 @@
 
     revision_hash:"",
 
-    jobs: [
-        {
-            #Stored in project_jobs_1.job.job_guid
-            job_guid:"",
+    job: {
+        #Stored in project_jobs_1.job.job_guid
+        job_guid:"",
 
-            #Stored in treeherder_reference_1.job_type.name
-            name:"build | mochitest_one | ...",
+        #Stored in treeherder_reference_1.job_type.name
+        name:"build | mochitest_one | ...",
 
-            #Stored in treeherder_reference_1.product
-            product_name:"Firefox | Firefox OS | Thunderbird | ...",
+        #Stored in treeherder_reference_1.product
+        product_name:"Firefox | Firefox OS | Thunderbird | ...",
 
-            #Stored in project_jobs_1.job.state
-            state: "pending | running | completed | coalesced |  ...",
+        #Stored in project_jobs_1.job.state
+        state: "pending | running | completed | coalesced |  ...",
 
-            #Stored in project_jobs_1.job.result
-            result: "success | warnings | failure | exception | retry | cancelled",
+        #Stored in project_jobs_1.job.result
+        result: "success | warnings | failure | exception | retry | cancelled",
 
-            #Stored in project_jobs_1.job.reason
-            reason: "push | scheduled | self-serve | manual",
+        #Stored in project_jobs_1.job.reason
+        reason: "push | scheduled | self-serve | manual",
 
-            #Stored in project_jobs_1.job.who
-            who: " gaia | scheduler name | username ",
+        #Stored in project_jobs_1.job.who
+        who: " gaia | scheduler name | username ",
 
-            #Stored in project_jobs_1.job.submit_timestamp
-            submit_timestamp:"",
+        #Stored in project_jobs_1.job.submit_timestamp
+        submit_timestamp:"",
 
-            #Stored in project_jobs_1.job.start_timestamp
-            start_timestamp:"",
+        #Stored in project_jobs_1.job.start_timestamp
+        start_timestamp:"",
 
-            #Stored in project_jobs_1.job.end_timestamp
-            end_timestamp:"",
+        #Stored in project_jobs_1.job.end_timestamp
+        end_timestamp:"",
 
-            #Stored in treeherder_reference_1.machine.name
-            machine:"",
+        #Stored in treeherder_reference_1.machine.name
+        machine:"",
 
-            #Stored in project_jobs_1.job_artifact, name=build_url
-            build_url:"",
+        #Stored in project_jobs_1.job_artifact, name=build_url
+        build_url:"",
 
-            #Stored in:
-            # treeherder_reference_1.build_platform.os_name,
-            # treeherder_reference_1.build_platform.platform,
-            # treeherder_reference_1.build_platform.architecture,
-            build_platform:{ os_name:"", platform:"", architecture:"" },
+        #Stored in:
+        # treeherder_reference_1.build_platform.os_name,
+        # treeherder_reference_1.build_platform.platform,
+        # treeherder_reference_1.build_platform.architecture,
+        build_platform:{ os_name:"", platform:"", architecture:"" },
 
-            #Stored in:
-            # treeherder_reference_1.machine_platform.os_name,
-            # treeherder_reference_1.machine_platform.platform,
-            # treeherder_reference_1.machine_platform.architecture,
-            machine_platform:{ os_name:"", platform:"", architecture:"" },
+        #Stored in:
+        # treeherder_reference_1.machine_platform.os_name,
+        # treeherder_reference_1.machine_platform.platform,
+        # treeherder_reference_1.machine_platform.architecture,
+        machine_platform:{ os_name:"", platform:"", architecture:"" },
 
-            #Stored in treeherder_reference_1.option_collection and
-            #treeherder_reference_1.option
-            option_collection: {
+        #Stored in treeherder_reference_1.option_collection and
+        #treeherder_reference_1.option
+        option_collection: {
 
-                #Do we need to store option values somewhere?
-                option_name: value, ...
+            #Do we need to store option values somewhere?
+            option_name: value, ...
 
-                },
-
-            #Stored in project_jobs_1.job_log_url
-            log_references: [
-                  { url:"http://ftp.mozilla.org/pub/mozilla.org/firefox/try-builds/mfowler@mozilla.com-64620dd73baa/try-macosx64-debug/try_snowleopard-debug_test-marionette-bm06-tests1-macosx-build1293.txt.gz",
-                    #associating a name with the log allows for different types of
-                    #processing to be applied to different types of logs
-                    name:"unittest" },
-                  ...
-                  ],
-
-            #Stored project_jobs_1.job_artifact
-            artifact:"{
-                type:" json | img | ...",
-                name:"",
-                log_urls:[
-                    ]
-                blob:""
-                }"
             },
-        ...
-        ],
+
+        #Stored in project_jobs_1.job_log_url
+        log_references: [
+              { url:"http://ftp.mozilla.org/pub/mozilla.org/firefox/try-builds/mfowler@mozilla.com-64620dd73baa/try-macosx64-debug/try_snowleopard-debug_test-marionette-bm06-tests1-macosx-build1293.txt.gz",
+                #associating a name with the log allows for different types of
+                #processing to be applied to different types of logs
+                name:"unittest" },
+              ...
+              ],
+
+        #Stored project_jobs_1.job_artifact
+        artifact:"{
+            type:" json | img | ...",
+            name:"",
+            log_urls:[
+                ]
+            blob:""
+            }"
+        }
+
+
 
     /****
      * May not be present if there are no job_guid's coalesced. If present,
