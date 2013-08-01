@@ -37,7 +37,7 @@
                 WHERE NOT EXISTS (
                     SELECT `revision_hash`, `push_timestamp`
                     FROM `result_set`
-                    WHERE `revision_hash` = ? AND `push_timestamp` = ?
+                    WHERE `revision_hash` = ?
                 )",
 
             "host":"master_host"
