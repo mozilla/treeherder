@@ -189,6 +189,7 @@ class ResultSetViewSet(viewsets.ViewSet):
                     "warning_level": self.get_warning_level(jobs),
                     "jobs": jobs
                 })
+            return Response(rs, headers={"Access-Control-Allow-Origin": "*"})
         except DatasetNotFoundError as e:
             return Response(
                 {"message": "No project with name {0}".format(project)},
@@ -198,8 +199,8 @@ class ResultSetViewSet(viewsets.ViewSet):
             return Response({"message": unicode(e)}, status=404)
         except Exception as e:  # pragma nocover
             return Response({"message": unicode(e)}, status=500)
-
-        return Response(rs)
+        finally:
+            jm.disconnect()
 
 #####################
 # Refdata ViewSets
