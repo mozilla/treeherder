@@ -62,22 +62,18 @@ treeherder.factory('thResults',
             // ``idx`` is just a hack for the static data loading from file.
 //            var resourceUrl = 'resources/results' + idx + '.json';
 
-            var jobUrl = thService.getUrl("/jobs/?result_set_id=" + result_set.id + "&format=json");
+            var jobUrl = thService.getUrl("/resultset/" + result_set.id + "/?format=json");
             console.log("fetching for " + result_set.id + " from: " + jobUrl);
             isLoadingResults = true;
             $http.get(jobUrl).success(
                 function(data) {
                     console.log("done fetching for: " + result_set.id);
-                    result_set.warning_level = getWarningLevel(data);
-                    isLoadingResults = false;
-
-                    // @@@ not sure about this.  we can get this in scope, but may
-                    // need this for re-fetching/updating?  perhaps a timer on a service
-                    // can do that within the push scope.
-//                    $rootScope.results[result_set.id] = data;
-
                     // this feels like the right way
-                    $scope.job_results = data;
+
+                    $scope.job_results = data["jobs"];
+                    result_set.warning_level = getWarningLevel($scope.job_results);
+
+                    isLoadingResults = false;
 
                     // whether or not push results list is collapsed
                     $scope.isCollapsedResults = result_set.warning_level !== "red";
@@ -101,7 +97,10 @@ treeherder.factory('thResults',
                             break;
                     }
                 }
-            );
+            ).error(
+                function(data, status, headers, config) {
+                    console.log(data)
+                });
         }
 
     };
