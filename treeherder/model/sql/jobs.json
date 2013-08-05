@@ -66,7 +66,13 @@
             "sql":"INSERT INTO `revision_map` (
                 `revision_id`,
                 `result_set_id`)
-                VALUES (?,?)",
+                SELECT ?,?
+                FROM DUAL
+                WHERE NOT EXISTS (
+                    SELECT `revision_id`, `result_set_id`
+                    FROM `revision`
+                    WHERE `revision` = ? AND `result_set_id` = ?
+                )",
 
             "host":"master_host"
         },
@@ -156,18 +162,46 @@
                    WHERE `revision` = ?",
             "host": "read_host"
         },
-        "get_push_result_list":{
-            "sql":"SELECT rs.revision_hash,
-                      rev.revision, rev.author, rev.push_timestamp, rev.repository_id, rev.comments,
-                      job.job_guid, job.build_platform_id, job.machine_platform_id, job.machine_id, job.job_type_id, job.who, job.result, job.state
-                       FROM result_set as rs
+        "get_result_set_list":{
+            "sql":"SELECT
+                      `rs`.`id`,
+                      `rs`.`revision_hash`,
+                      `rs`.`push_timestamp`,
+                      `rev`.`revision`,
+                      `rev`.`author`,
+                      `rev`.`repository_id`,
+                      `rev`.`comments`
+                   FROM result_set as rs
                    LEFT JOIN revision_map as rm
                        ON rs.id = rm.result_set_id
                    LEFT JOIN revision as rev
                        ON rm.revision_id = rev.id
-                   LEFT JOIN job
-                       ON rs.id = job.result_set_id
                    LIMIT ?,?",
+            "host": "read_host"
+        },
+        "get_job_list_by_result_set":{
+            "sql":"SELECT
+                    j.`job_guid`,
+                    j.`build_platform_id`,
+                    mp.`platform`,
+                    m.`name`,
+                    jt.`name`,
+                    jt.`symbol`,
+                    jt.`description`,
+                    j.`who`,
+                    j.`result_set_id`,
+                    j.`result`,
+                    j.`state`
+                  FROM `job` as j
+                  LEFT JOIN `treeherder`.`machine` as m
+                    ON j.`machine_id` = m.id
+                  LEFT JOIN `treeherder`.`machine_platform` as mp
+                    ON j.`machine_platform_id` = mp.id
+                  LEFT JOIN `treeherder`.`build_platform` as bp
+                    ON j.`build_platform_id` = bp.id
+                  LEFT JOIN `treeherder`.`job_type` as jt
+                    ON j.`job_type_id` = jt.id
+                  WHERE `result_set_id` = ?",
             "host": "read_host"
         }
     }

@@ -83,19 +83,56 @@ class JobsViewSet(viewsets.ViewSet):
 
         return Response(obj)
 
+    def get_warning_level(self, jobs):
+        job_states = set([x["result"] for x in jobs])
+        if "busted" in job_states:
+            return "red"
+        elif "orange" in job_states:
+            return "orange"
+        elif "pending" in job_states:
+            return "grey"
+        elif "running" in job_states:
+            return "grey"
+        else:
+            return "green"
+
     def list(self, request, project):
         """
         GET method implementation for list view
         """
         try:
-            page = request.QUERY_PARAMS.get('page', 0)
             jm = JobsModel(project)
-            objs = jm.get_job_list(page, 10)
-            return Response(objs)
+
+            if "result_set_id" in request.QUERY_PARAMS:
+                # @@@ todo: I'm thinking this should be a separate view entirely.  it has a totally different return shape
+                # or should this just supplant the other list return shape?  I don't know when we'd use the other one.
+                # this is all for the UI, after all.
+
+                # if result_set_id is passed, we don't use pagination
+                rsid = request.QUERY_PARAMS.get('result_set_id')
+                objs_ungrouped = jm.get_job_list_by_result_set(rsid)
+                # group these by their platforms for return
+                objs_sorted = sorted(objs_ungrouped, key=lambda x: x["platform"])
+                import itertools
+                objs = []
+                for k, g in itertools.groupby(objs_sorted, key=lambda x: x["platform"]):
+                    jobs = list(g)
+                    objs.append({
+                        "platform": k,
+                        "warning_level": self.get_warning_level(jobs),
+                        "jobs": jobs
+                    })
+            else:
+                page = request.QUERY_PARAMS.get('page', 0)
+                objs = jm.get_job_list(page, 10)
+
+            return Response(objs, headers={"Access-Control-Allow-Origin": "*"})
         except DatasetNotFoundError as e:
             return Response({"message": unicode(e)}, status=404)
         except Exception as e:  # pragma nocover
             return Response({"message": unicode(e)}, status=500)
+        finally:
+            jm.disconnect()
 
     @action()
     def update_state(self, request, project, pk=None):
@@ -131,96 +168,28 @@ class JobsViewSet(viewsets.ViewSet):
         return Response({"message": "state updated to '{0}'".format(state)})
 
 
-class PushViewSet(viewsets.ViewSet):
-    """GET a list of pushes with revisions and job results
+class ResultSetViewSet(viewsets.ViewSet):
+    """GET a list of ``result sets`` with revisions
 
-        Result sets are synonymous with Pushes in the Jobs Schema
-
-        returns something sort of like:
-
-        pushes: [
-            {
-                revisions: [
-                    ...
-                ],
-                platforms: [
-                    results...
-                ]
-            },
-            {...}
-        ]
-
+        ``result sets`` are synonymous with ``pushes`` in the ui
     """
-
-    def get_push_warning_level(self, jobs):
-        job_states = set([x["state"] for x in jobs])
-        if "fail" in job_states:
-            return "red"
-        elif "orange" in job_states:
-            return "orange"
-        elif "pending" or "running" in job_states:
-            return "grey"
-        else:
-            return "green"
 
     def list(self, request, project):
         """
-        GET method for list of pushes with results
+        GET method for list of result_sets with revisions
         """
         try:
             page = request.QUERY_PARAMS.get('page', 0)
             jm = JobsModel(project)
-            # objs = jm.get_push_result_list(page, 1000)
 
-            objs = sorted(
-                jm.get_push_result_list(page, 1000),
-                key=lambda x: x["revision_hash"]
-            )
-
-            import itertools
-            pushes = []
-            for k, g in itertools.groupby(objs,
-                                          key=lambda x: x["revision_hash"]):
-                jobs = list(g)
-                # extract data for the push
-                email = jobs[0]["who"]
-                timestamp = jobs[0]["push_timestamp"]
-
-                revisions = []
-                for rk, rg in itertools.groupby(jobs,
-                                                key=lambda y: y["revision"]):
-                    revs = list(rg)
-                    revisions.append({
-                        "name": revs[0]["author"],
-                        "revision": revs[0]["revision"],
-                        "repository": revs[0]["repository_id"],
-                        "message": revs[0]["comments"]
-                    })
-
-                # remove unwanted fields from the jobs
-                for job in jobs:
-                    del(job["revision_hash"])
-                    del(job["who"])
-                    del(job["revision"])
-                    del(job["repository_id"])
-
-                pushes.append({
-                    "revision_hash": k,
-                    "email": email,
-                    "timestamp": timestamp,
-                    "warning_level": self.get_push_warning_level(list(g)),
-                    "revisions": revisions,
-                    "jobs": jobs
-                })
-
-
-
-            return Response(pushes)
+            objs = jm.get_result_set_list(page, 1000)
+            return Response(objs, headers={"Access-Control-Allow-Origin": "*"})
         except DatasetNotFoundError as e:
             return Response({"message": unicode(e)}, status=404)
         except Exception as e:  # pragma nocover
             return Response({"message": unicode(e)}, status=500)
-
+        finally:
+            jm.disconnect()
 
 
 #####################

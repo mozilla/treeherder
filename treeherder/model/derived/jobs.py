@@ -132,12 +132,14 @@ class JobsModel(TreeherderModelBase):
 
         return id_iter.get_column_data('id')
 
-    def get_push_result_list(self, page, limit):
+    def get_result_set_list(self, page, limit):
         """
-        Retrieve a list of pushes with associated revisions and jobs.
+        Retrieve a list of ``result_sets`` (also known as ``pushes``)
+        with associated revisions.  No jobs
+
         Mainly used by the restful api to list the pushes in the UI
         """
-        proc = "jobs.selects.get_push_result_list"
+        proc = "jobs.selects.get_result_set_list"
         push_dict = self.get_jobs_dhub().execute(
             proc=proc,
             placeholders=[page, limit],
@@ -146,6 +148,22 @@ class JobsModel(TreeherderModelBase):
         )
 
         return push_dict
+
+    def get_job_list_by_result_set(self, result_set_id):
+        """
+        Retrieve a list of ``jobs`` with results.
+
+        Mainly used by the restful api to list the job results in the UI
+        """
+        proc = "jobs.selects.get_job_list_by_result_set"
+        job_dict = self.get_jobs_dhub().execute(
+            proc=proc,
+            placeholders=[result_set_id],
+            debug_show=self.DEBUG,
+            return_type='iter',
+        )
+
+        return job_dict
 
     ##################
     #
@@ -428,12 +446,19 @@ class JobsModel(TreeherderModelBase):
         )
         return self.get_revision_id(src["revision"])
 
-    def _insert_revision_map(self, revision_id, result_set_id):
+    def _get_or_create_revision_map(self, revision_id, result_set_id):
+        """
+        Create a mapping between revision and result_set.
+
+        Return: nothing
+        """
         self._insert_data(
             'set_revision_map',
             [
                 revision_id,
-                result_set_id
+                result_set_id,
+                revision_id,
+                result_set_id,
             ]
         )
 
