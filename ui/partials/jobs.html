@@ -1,14 +1,13 @@
 
 
-<div>
-    <div class="alert alert-success">{{ status }}</div>
-    <div>
-        <span class="label">{{ oldRev }}</span> --> <span class="label">{{ newRev }}</span>
+<div collapse="isCollapsedCompare">
+    <div class="well" >
+        <span class="label">{{ oldRev }}</span> <i class="icon-chevron-right"></i> <span class="label">{{ newRev }}</span>
         <a class="btn" href="http://perf.snarkfest.net/compare-talos/index.html?oldRevs=c95a82a8c15f&newRev=8196c86355bc&submit=true">compare</a>
     </div>
 </div>
 <div
-    ng-repeat="push in push_sample.pushes"
+    ng-repeat="push in result_sets"
     ng-controller="PushCtrl"
     class="row-fluid">
 
@@ -19,7 +18,7 @@
     </a>
     <a class="btn btn-info"
        ng-click="isCollapsedRevisions = !isCollapsedRevisions">
-        {{push.email}} - {{push.timestamp}}
+        {{push.author}} - {{push.push_timestamp}}
     </a>
 
     <span class="pushactions">
@@ -29,6 +28,8 @@
                 <b class="caret"></b>
             </a>
             <ul class="dropdown-menu">
+                <li class="disabled"><a>Push Actions</a></li>
+                <li class="divider"></li>
                 <li><a target="_blank" href="https://tbpl.mozilla.org/mcmerge/?cset=8196c86355bc">m-mcMerge</a></li>
                 <li><a target="_blank" href="https://secure.pub.build.mozilla.org/buildapi/self-serve/mozilla-central/rev/8196c86355bc">BuildAPI</a></li>
                 <li><a target="_blank" href="">Changeset URL List</a></li>
@@ -43,10 +44,16 @@
             <small>{{revision.message}}</small>
         </li>
     </ul>
+    <div collapse="!isLoadingResults">
+        <div class="progress progress-striped active">
+            <div class="bar" style="width: 100%;"></div>
+        </div>
+    </div>
     <div collapse="isCollapsedResults">
 
-        <div class="row-fluid" ng-repeat="platform in results[push.timestamp] | filter:query">
-            <div class="span2"><span>{{ platform.platform }}</span></div>
+        <div class="row-fluid"
+             ng-repeat="platform in job_results | filter:query">
+            <div class="span2"><span>{{ platform.platform }} - {{ platform.warning_level }}</span></div>
             <div class="span10">
                 <div ng-repeat="job in platform.jobs" class="btn-group">
                     <!--
@@ -55,13 +62,13 @@
                         repeat on, and that makes the buttons not show as a group
                         properly.
                     -->
-                    <a class="btn-mini {{ job|typeClass }} {{ job.status|statusClass }}"
+                    <a class="btn-mini {{ job|typeClass }} {{ job.result|resultClass }}"
                        popover="{{ job.status }}"
                        popover-trigger="mouseenter">
-                       <i class="icon-fire" ng-show="job.status=='fail' || job.status=='orange'"></i>
+                       <i class="icon-fire" ng-show="job.result=='fail' || job.result=='orange'"></i>
                        {{ job.symbol }}
                     </a>
-                    <a class="btn-mini {{ subjob|typeClass }} {{ subjob.status|statusClass }}"
+                    <a class="btn-mini {{ subjob|typeClass }} {{ subjob.result|resultClass }}"
                        ng-repeat="subjob in job.jobs"
                        popover="{{ subjob.status }}"
                        popover-trigger="mouseenter">
@@ -69,7 +76,7 @@
                            We should conditionally remove the fire icon once they have
                            starred it, most likely.
                        -->
-                       <i class="icon-fire" ng-show="subjob.status=='fail' || subjob.status=='orange'"></i>
+                       <i class="icon-fire" ng-show="subjob.result=='fail' || subjob.result=='orange'"></i>
                        {{ subjob.symbol }}
                     </a>
                     </span>
