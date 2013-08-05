@@ -179,7 +179,24 @@
                    LIMIT ?,?",
             "host": "read_host"
         },
-        "get_job_list_by_result_set":{
+        "get_result_set_by_id":{
+            "sql":"SELECT
+                      `rs`.`id`,
+                      `rs`.`revision_hash`,
+                      `rs`.`push_timestamp`,
+                      `rev`.`revision`,
+                      `rev`.`author`,
+                      `rev`.`repository_id`,
+                      `rev`.`comments`
+                   FROM result_set as rs
+                   LEFT JOIN revision_map as rm
+                       ON rs.id = rm.result_set_id
+                   LEFT JOIN revision as rev
+                       ON rm.revision_id = rev.id
+                   WHERE rs.id = ?",
+            "host": "read_host"
+        },
+        "get_result_set_job_list":{
             "sql":"SELECT
                     j.`job_guid`,
                     j.`build_platform_id`,

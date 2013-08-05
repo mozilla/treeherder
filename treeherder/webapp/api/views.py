@@ -83,48 +83,14 @@ class JobsViewSet(viewsets.ViewSet):
 
         return Response(obj)
 
-    def get_warning_level(self, jobs):
-        job_states = set([x["result"] for x in jobs])
-        if "busted" in job_states:
-            return "red"
-        elif "orange" in job_states:
-            return "orange"
-        elif "pending" in job_states:
-            return "grey"
-        elif "running" in job_states:
-            return "grey"
-        else:
-            return "green"
-
     def list(self, request, project):
         """
         GET method implementation for list view
         """
         try:
             jm = JobsModel(project)
-
-            if "result_set_id" in request.QUERY_PARAMS:
-                # @@@ todo: I'm thinking this should be a separate view entirely.  it has a totally different return shape
-                # or should this just supplant the other list return shape?  I don't know when we'd use the other one.
-                # this is all for the UI, after all.
-
-                # if result_set_id is passed, we don't use pagination
-                rsid = request.QUERY_PARAMS.get('result_set_id')
-                objs_ungrouped = jm.get_job_list_by_result_set(rsid)
-                # group these by their platforms for return
-                objs_sorted = sorted(objs_ungrouped, key=lambda x: x["platform"])
-                import itertools
-                objs = []
-                for k, g in itertools.groupby(objs_sorted, key=lambda x: x["platform"]):
-                    jobs = list(g)
-                    objs.append({
-                        "platform": k,
-                        "warning_level": self.get_warning_level(jobs),
-                        "jobs": jobs
-                    })
-            else:
-                page = request.QUERY_PARAMS.get('page', 0)
-                objs = jm.get_job_list(page, 10)
+            page = request.QUERY_PARAMS.get('page', 0)
+            objs = jm.get_job_list(page, 10)
 
             return Response(objs, headers={"Access-Control-Allow-Origin": "*"})
         except DatasetNotFoundError as e:
@@ -191,6 +157,49 @@ class ResultSetViewSet(viewsets.ViewSet):
         finally:
             jm.disconnect()
 
+    def get_warning_level(self, jobs):
+        job_states = set([x["result"] for x in jobs])
+        if "busted" in job_states:
+            return "red"
+        elif "orange" in job_states:
+            return "orange"
+        elif "pending" in job_states:
+            return "grey"
+        elif "running" in job_states:
+            return "grey"
+        else:
+            return "green"
+
+    def retrieve(self, request, project, pk=None):
+        """
+        GET method implementation for detail view
+        """
+        try:
+            jm = JobsModel(project)
+            rs = list(jm.get_result_set_by_id(pk))[0]
+            jobs_ungrouped = list(jm.get_result_set_job_list(pk))
+            # group these by their platforms for return
+            jobs_sorted = sorted(jobs_ungrouped, key=lambda x: x["platform"])
+            import itertools
+            rs["jobs"] = []
+            for k, g in itertools.groupby(jobs_sorted, key=lambda x: x["platform"]):
+                jobs = list(g)
+                rs["jobs"].append({
+                    "platform": k,
+                    "warning_level": self.get_warning_level(jobs),
+                    "jobs": jobs
+                })
+        except DatasetNotFoundError as e:
+            return Response(
+                {"message": "No project with name {0}".format(project)},
+                status=404,
+            )
+        except ObjectNotFoundException as e:
+            return Response({"message": unicode(e)}, status=404)
+        except Exception as e:  # pragma nocover
+            return Response({"message": unicode(e)}, status=500)
+
+        return Response(rs)
 
 #####################
 # Refdata ViewSets

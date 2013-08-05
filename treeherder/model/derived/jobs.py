@@ -149,13 +149,25 @@ class JobsModel(TreeherderModelBase):
 
         return push_dict
 
-    def get_job_list_by_result_set(self, result_set_id):
+    def get_result_set_job_list(self, result_set_id):
         """
         Retrieve a list of ``jobs`` with results.
 
         Mainly used by the restful api to list the job results in the UI
         """
-        proc = "jobs.selects.get_job_list_by_result_set"
+        proc = "jobs.selects.get_result_set_job_list"
+        push_dict = self.get_jobs_dhub().execute(
+            proc=proc,
+            placeholders=[result_set_id],
+            debug_show=self.DEBUG,
+            return_type='iter',
+        )
+
+        return push_dict
+
+    def get_result_set_by_id(self, result_set_id):
+        """Get a single result_set by ``id``."""
+        proc = "jobs.selects.get_result_set_by_id"
         job_dict = self.get_jobs_dhub().execute(
             proc=proc,
             placeholders=[result_set_id],
