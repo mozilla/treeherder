@@ -18,7 +18,7 @@
         },
         "job_source": {
             "sql": "SELECT rev.commit_timestamp,
-                           rev.push_timestamp,
+                           res.push_timestamp,
                            rev.comments,
                            rev.repository_id,
                            rev.revision

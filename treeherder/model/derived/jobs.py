@@ -112,6 +112,26 @@ class JobsModel(TreeherderModelBase):
             return_type='iter',
         )
 
+    def get_result_set_id(self, revision_hash):
+        """Return the ``result_set.id`` for the given ``revision_hash``"""
+        id_iter = self.get_jobs_dhub().execute(
+            proc='jobs.selects.get_result_set_id',
+            placeholders=[revision_hash],
+            debug_show=self.DEBUG,
+            return_type='iter')
+
+        return id_iter.get_column_data('id')
+
+    def get_revision_id(self, revision):
+        """Return the ``revision.id`` for the given ``revision``"""
+        id_iter = self.get_jobs_dhub().execute(
+            proc='jobs.selects.get_revision_id',
+            placeholders=[revision],
+            debug_show=self.DEBUG,
+            return_type='iter')
+
+        return id_iter.get_column_data('id')
+
     ##################
     #
     # Objectstore functionality
@@ -248,7 +268,12 @@ class JobsModel(TreeherderModelBase):
             }
 
         """
-        result_set_id = self._set_result_set(data["revision_hash"])
+        # @@@ ``push_timestamp`` will come from a different location in the data structure
+        #     in the future.  most likely at the top-level, rather than inside ``sources``
+        result_set_id = self._get_or_create_result_set(
+            data["revision_hash"],
+            data["sources"][0].get("push_timestamp", 0),
+        )
 
         rdm = self.refdata_model
         job = data["job"]
@@ -256,7 +281,7 @@ class JobsModel(TreeherderModelBase):
         # set sources
 
         for src in data["sources"]:
-            revision_id = self._insert_revision(src, job["who"])
+            revision_id = self._get_or_create_revision(src, job["who"])
             self._insert_revision_map(revision_id, result_set_id)
 
         # set Job data
@@ -342,26 +367,30 @@ class JobsModel(TreeherderModelBase):
             # it is ok to have an empty or missing artifact
             pass
 
-    def _set_result_set(self, revision_hash):
-        """Set result set revision hash"""
+    def _get_or_create_result_set(self, revision_hash, push_timestamp):
+        """
+        Set result set revision hash.
+        If it already exists, return the id for that ``revision_hash``.
+        """
 
-        result_set_id = self._insert_data_and_get_id(
+        self._insert_data(
             'set_result_set',
             [
                 revision_hash,
+                long(push_timestamp),
+                revision_hash,
             ]
         )
-
+        result_set_id = self.get_result_set_id(revision_hash)
         return result_set_id
 
-    def _insert_revision(self, src, author):
+    def _get_or_create_revision(self, src, author):
         """
         Insert a source to the ``revision`` table
 
         Example source:
         {
             "commit_timestamp": 1365732271,
-            "push_timestamp": 1365732271,
             "comments": "Bug 854583 - Use _pointer_ instead of...",
             "repository": "mozilla-aurora",
             "revision": "c91ee0e8a980"
@@ -371,18 +400,18 @@ class JobsModel(TreeherderModelBase):
         repository_id = self.refdata_model.get_repository_id(
             src["repository"])
 
-        revision_id = self._insert_data_and_get_id(
+        self._insert_data(
             'set_revision',
             [
                 src["revision"],
                 author,
-                src.get("comments",""),
-                long(src.get("push_timestamp",0)),
+                src.get("comments", ""),
                 long(src.get("commit_timestamp", 0)),
                 repository_id,
+                src["revision"],
             ]
         )
-        return revision_id
+        return self.get_revision_id(src["revision"])
 
     def _insert_revision_map(self, revision_id, result_set_id):
         self._insert_data(

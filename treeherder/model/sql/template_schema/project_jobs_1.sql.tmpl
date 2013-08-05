@@ -265,14 +265,16 @@ DROP TABLE IF EXISTS `result_set`;
  *
  * Example Data:
  *
- *  revision_hash - Hash of any number of revisions associated with the result set.
+ *  revision_hash - Hash of any number of revisions associated with the result set
  **************************/
 CREATE TABLE `result_set` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `revision_hash` varchar(50) COLLATE utf8_bin NOT NULL,
+  `push_timestamp` int(11) unsigned NOT NULL,
   `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
   PRIMARY KEY (`id`),
-  KEY `idx_revision_hash` (`revision_hash`),
+  UNIQUE KEY `idx_revision_hash` (`revision_hash`),
+  KEY `idx_push_timestamp` (`push_timestamp`),
   KEY `idx_active_status` (`active_status`)
 ) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -299,7 +301,6 @@ DROP TABLE IF EXISTS `revision`;
  *  revision - The revision string associated with the repository
  *  author - The author associated with the revision
  *  comments - The comments associated with the revision
- *  push_timestamp - Timestamp associated with the push to the test system
  *  commit_timestamp - Timestamp associated with the commit
  **************************/
 CREATE TABLE `revision` (
@@ -307,14 +308,12 @@ CREATE TABLE `revision` (
   `revision` varchar(50) COLLATE utf8_bin NOT NULL,
   `author` varchar(50) COLLATE utf8_bin NOT NULL,
   `comments` text DEFAULT NULL,
-  `push_timestamp` int(11) unsigned NOT NULL,
   `commit_timestamp` int(11) unsigned NOT NULL,
   `repository_id` int(11) unsigned NOT NULL,
   `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
   PRIMARY KEY (`id`),
-  KEY `idx_revision` (`revision`),
+  UNIQUE KEY `idx_revision` (`revision`),
   KEY `idx_author` (`author`),
-  KEY `idx_push_timestamp` (`push_timestamp`),
   KEY `idx_commit_timestamp` (`commit_timestamp`),
   KEY `idx_repository_id` (`repository_id`)
 ) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
