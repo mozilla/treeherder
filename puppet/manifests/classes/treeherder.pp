@@ -11,6 +11,6 @@ class treeherder {
     service{"memcached":
         ensure => running,
         enable => true,
-        require => Package['memcached'];
+        require => Package['memcached'],
     }
 }

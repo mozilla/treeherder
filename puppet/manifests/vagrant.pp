@@ -3,8 +3,11 @@
 #
 import "classes/*.pp"
 
-$PROJ_DIR = "/home/vagrant/treeherder-service"
-
+$APP_URL="local.treeherder.mozilla.org"
+$APP_USER="vagrant"
+$APP_GROUP="vagrant"
+$PROJ_DIR = "/home/${APP_USER}/treeherder-service"
+$VENV_DIR = "/home/${APP_USER}/venv"
 # You can make these less generic if you like, but these are box-specific
 # so it's not required.
 $DB_NAME = "treeherder"
@@ -43,11 +46,11 @@ export TREEHERDER_RABBITMQ_PORT='${RABBITMQ_PORT}'
 
 class dev {
     class {
-        init: before => Class[mysql];
-        mysql: before  => Class[python];
-        python: before => Class[apache];
-        apache: before => Class[treeherder];
-        treeherder: before => Class[rabbitmq];
+        init: before => Class["mysql"];
+        mysql: before  => Class["python"];
+        python: before => Class["apache"];
+        apache: before => Class["treeherder"];
+        treeherder: before => Class["rabbitmq"];
         rabbitmq:;
     }
 }

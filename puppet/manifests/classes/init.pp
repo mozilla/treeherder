@@ -4,7 +4,9 @@ class init {
         ensure => "present",
     }
 
-    exec { "update_apt":
-        command => "sudo apt-get update",
+    if $operatingsystem == 'Ubuntu'{
+      exec { "update_apt":
+          command => "sudo apt-get update"
+      }
     }
 }
