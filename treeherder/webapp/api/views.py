@@ -96,6 +96,8 @@ class JobsViewSet(viewsets.ViewSet):
             return Response({"message": unicode(e)}, status=404)
         except Exception as e:  # pragma nocover
             return Response({"message": unicode(e)}, status=500)
+        finally:
+            jm.disconnect()
 
     @action()
     def update_state(self, request, project, pk=None):
@@ -129,6 +131,82 @@ class JobsViewSet(viewsets.ViewSet):
             return Response({"message": unicode(e)}, status=500)
 
         return Response({"message": "state updated to '{0}'".format(state)})
+
+
+class ResultSetViewSet(viewsets.ViewSet):
+    """
+    View for ``resultset`` records
+
+    ``result sets`` are synonymous with ``pushes`` in the ui
+    """
+
+    def list(self, request, project):
+        """
+        GET method for list of ``resultset`` records with revisions
+        """
+        try:
+            page = request.QUERY_PARAMS.get('page', 0)
+            jm = JobsModel(project)
+
+            objs = jm.get_result_set_list(page, 1000)
+            return Response(objs)
+        except DatasetNotFoundError as e:
+            return Response({"message": unicode(e)}, status=404)
+        except Exception as e:  # pragma nocover
+            return Response({"message": unicode(e)}, status=500)
+        finally:
+            jm.disconnect()
+
+    def get_warning_level(self, jobs):
+        """
+        Return the most severe warning level for a list of jobs.
+
+        A color-based warning level based on the most severe
+        level in the list of jobs.
+        """
+        job_states = set([x["result"] for x in jobs])
+        if "busted" in job_states:
+            return "red"
+        elif "orange" in job_states:
+            return "orange"
+        elif "pending" in job_states:
+            return "grey"
+        elif "running" in job_states:
+            return "grey"
+        else:
+            return "green"
+
+    def retrieve(self, request, project, pk=None):
+        """
+        GET method implementation for detail view of ``resultset``
+        """
+        try:
+            jm = JobsModel(project)
+            rs = list(jm.get_result_set_by_id(pk))[0]
+            jobs_ungrouped = list(jm.get_result_set_job_list(pk))
+            # group these by their platforms for return
+            jobs_sorted = sorted(jobs_ungrouped, key=lambda x: x["platform"])
+            import itertools
+            rs["jobs"] = []
+            for k, g in itertools.groupby(jobs_sorted, key=lambda x: x["platform"]):
+                jobs = list(g)
+                rs["jobs"].append({
+                    "platform": k,
+                    "warning_level": self.get_warning_level(jobs),
+                    "jobs": jobs
+                })
+            return Response(rs)
+        except DatasetNotFoundError as e:
+            return Response(
+                {"message": "No project with name {0}".format(project)},
+                status=404,
+            )
+        except ObjectNotFoundException as e:
+            return Response({"message": unicode(e)}, status=404)
+        except Exception as e:  # pragma nocover
+            return Response({"message": unicode(e)}, status=500)
+        finally:
+            jm.disconnect()
 
 
 #####################
