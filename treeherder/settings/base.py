@@ -66,6 +66,7 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -83,6 +84,7 @@ INSTALLED_APPS = [
     'djcelery',
     'south',
     'rest_framework',
+    'corsheaders',
     # treeherder apps
     'treeherder.model',
     'treeherder.webapp',
@@ -147,6 +149,9 @@ REST_FRAMEWORK = {
 }
 
 API_HOSTNAME = "http://localhost"
+
+# this setting allows requests from any host
+CORS_ORIGIN_ALLOW_ALL = True
 
 try:
     from .local import *
