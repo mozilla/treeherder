@@ -146,9 +146,7 @@ def test_job_detail_bad_project(webapp, ten_jobs_processed, jm):
     test retrieving a single job from the jobs-detail
     endpoint.
     """
-    job = jm.get_job_list(0, 1)
-    print list(job)
-    job = job.next()
+    job = jm.get_job_list(0, 1).next()
     url = reverse("jobs-detail",
                   kwargs={"project": jm.project, "pk": job["id"]})
     badurl = url.replace(jm.project, "badproject")

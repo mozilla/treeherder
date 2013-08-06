@@ -150,7 +150,7 @@ class JobsModel(TreeherderModelBase):
 
     def get_result_set_job_list(self, result_set_id):
         """
-        Retrieve a list of ``jobs`` with results.
+        Retrieve a list of ``jobs`` and results for a result_set.
 
         Mainly used by the restful api to list the job results in the UI
         """
@@ -318,9 +318,8 @@ class JobsModel(TreeherderModelBase):
 
         """
         # @@@ ``push_timestamp`` will come from a different location in the
-        # data structure
-        #     in the future.  most likely at the top-level, rather than
-        # inside ``sources``
+        # data structure in the future.  most likely at the top-level,
+        # rather than inside ``sources``
         result_set_id = self._get_or_create_result_set(
             data["revision_hash"],
             data["sources"][0].get("push_timestamp", 0),

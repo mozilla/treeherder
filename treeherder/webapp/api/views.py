@@ -134,14 +134,15 @@ class JobsViewSet(viewsets.ViewSet):
 
 
 class ResultSetViewSet(viewsets.ViewSet):
-    """GET a list of ``result sets`` with revisions
+    """
+    View for ``resultset`` records
 
-        ``result sets`` are synonymous with ``pushes`` in the ui
+    ``result sets`` are synonymous with ``pushes`` in the ui
     """
 
     def list(self, request, project):
         """
-        GET method for list of result_sets with revisions
+        GET method for list of ``resultset`` records with revisions
         """
         try:
             page = request.QUERY_PARAMS.get('page', 0)
@@ -157,6 +158,12 @@ class ResultSetViewSet(viewsets.ViewSet):
             jm.disconnect()
 
     def get_warning_level(self, jobs):
+        """
+        Return the most severe warning level for a list of jobs.
+
+        A color-based warning level based on the most severe
+        level in the list of jobs.
+        """
         job_states = set([x["result"] for x in jobs])
         if "busted" in job_states:
             return "red"
@@ -171,7 +178,7 @@ class ResultSetViewSet(viewsets.ViewSet):
 
     def retrieve(self, request, project, pk=None):
         """
-        GET method implementation for detail view
+        GET method implementation for detail view of ``resultset``
         """
         try:
             jm = JobsModel(project)
