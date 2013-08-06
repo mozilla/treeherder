@@ -91,7 +91,7 @@ class JobsViewSet(viewsets.ViewSet):
             page = request.QUERY_PARAMS.get('page', 0)
             jm = JobsModel(project)
             objs = jm.get_job_list(page, 10)
-            return Response(objs, headers={"Access-Control-Allow-Origin": "*"})
+            return Response(objs)
         except DatasetNotFoundError as e:
             return Response({"message": unicode(e)}, status=404)
         except Exception as e:  # pragma nocover
@@ -149,7 +149,7 @@ class ResultSetViewSet(viewsets.ViewSet):
             jm = JobsModel(project)
 
             objs = jm.get_result_set_list(page, 1000)
-            return Response(objs, headers={"Access-Control-Allow-Origin": "*"})
+            return Response(objs)
         except DatasetNotFoundError as e:
             return Response({"message": unicode(e)}, status=404)
         except Exception as e:  # pragma nocover
@@ -195,7 +195,7 @@ class ResultSetViewSet(viewsets.ViewSet):
                     "warning_level": self.get_warning_level(jobs),
                     "jobs": jobs
                 })
-            return Response(rs, headers={"Access-Control-Allow-Origin": "*"})
+            return Response(rs)
         except DatasetNotFoundError as e:
             return Response(
                 {"message": "No project with name {0}".format(project)},
