@@ -16,6 +16,11 @@ project_bound_router.register(
     views.JobsViewSet,
     base_name='jobs',
 )
+project_bound_router.register(
+    r'resultset',
+    views.ResultSetViewSet,
+    base_name='resultset',
+)
 
 # this is the default router for plain restful endpoints
 
