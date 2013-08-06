@@ -35,7 +35,6 @@ class JobsModel(TreeherderModelBase):
         'coalesced': {'completed': False, 'pending': False, 'running': False}
     }
 
-
     @classmethod
     def create(cls, project, host=None):
         """
@@ -72,7 +71,7 @@ class JobsModel(TreeherderModelBase):
 
     def get_job_id_by_guid(self, job_guid):
         """Return the job id for this ``job_guid``"""
-        id_iter= self.get_jobs_dhub().execute(
+        id_iter = self.get_jobs_dhub().execute(
             proc="jobs.selects.get_job_id_by_guid",
             placeholders=[job_guid],
             debug_show=self.DEBUG,
@@ -228,7 +227,12 @@ class JobsModel(TreeherderModelBase):
         # TODO: find a way to do a conditional update
         self.get_os_dhub().execute(
             proc='objectstore.updates.update_json',
-            placeholders=[loaded_timestamp, json_data, error, error_msg, job_guid],
+            placeholders=[
+                loaded_timestamp,
+                json_data,
+                error,
+                error_msg,
+                job_guid],
             debug_show=self.DEBUG
         )
 
@@ -313,8 +317,10 @@ class JobsModel(TreeherderModelBase):
             }
 
         """
-        # @@@ ``push_timestamp`` will come from a different location in the data structure
-        #     in the future.  most likely at the top-level, rather than inside ``sources``
+        # @@@ ``push_timestamp`` will come from a different location in the
+        # data structure
+        #     in the future.  most likely at the top-level, rather than
+        # inside ``sources``
         result_set_id = self._get_or_create_result_set(
             data["revision_hash"],
             data["sources"][0].get("push_timestamp", 0),
@@ -327,7 +333,7 @@ class JobsModel(TreeherderModelBase):
 
         for src in data["sources"]:
             revision_id = self._get_or_create_revision(src, job["who"])
-            self._insert_revision_map(revision_id, result_set_id)
+            self._get_or_create_revision_map(revision_id, result_set_id)
 
         # set Job data
 
@@ -496,13 +502,13 @@ class JobsModel(TreeherderModelBase):
             job_coalesced_to_guid = ""
 
             # TODO: fix who and reason for pending/running jobs
-            who = data.get("who","unknown")
-            reason = data.get("reason","unknown")
-            result = data.get("result","unknown")
+            who = data.get("who", "unknown")
+            reason = data.get("reason", "unknown")
+            result = data.get("result", "unknown")
             state = data["state"]
             submit_timestamp = long(data["submit_timestamp"])
-            start_timestamp = long(data.get("start_timestamp",0)) or None
-            end_timestamp = long(data.get("end_timestamp",0)) or None
+            start_timestamp = long(data.get("start_timestamp", 0)) or None
+            end_timestamp = long(data.get("end_timestamp", 0)) or None
 
         except ValueError as e:
             raise JobDataError(e.message)
@@ -553,8 +559,6 @@ class JobsModel(TreeherderModelBase):
         )
 
         return job_id
-
-
 
     def _insert_job_log_url(self, job_id, name, url):
         """Insert job log data"""
@@ -624,10 +628,10 @@ class JobsModel(TreeherderModelBase):
                     raise e
             except Exception as e:
                 self.mark_object_error(
-                        row_id,
-                        u"Unknown error: {0}: {1}".format(
-                            e.__class__.__name__, unicode(e))
-                    )
+                    row_id,
+                    u"Unknown error: {0}: {1}".format(
+                        e.__class__.__name__, unicode(e))
+                )
                 if raise_errors:
                     raise e
             else:

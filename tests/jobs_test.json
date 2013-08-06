@@ -18,17 +18,17 @@
         },
         "job_source": {
             "sql": "SELECT rev.commit_timestamp,
-                           res.push_timestamp,
+                           rs.push_timestamp,
                            rev.comments,
                            rev.repository_id,
                            rev.revision
                 FROM `revision` as rev
-                LEFT JOIN `revision_map` as revmap
-                    ON rev.id = revmap.revision_id
-                LEFT JOIN `result_set` as res
-                    ON revmap.result_set_id = res.id
+                LEFT JOIN `revision_map` as rm
+                    ON rev.id = rm.revision_id
+                LEFT JOIN `result_set` as rs
+                    ON rm.result_set_id = rs.id
                 LEFT JOIN `job`
-                    ON job.result_set_id = res.id
+                    ON job.result_set_id = rs.id
                 WHERE job.id = ?
                 ",
             "host": "master_host"

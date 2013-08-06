@@ -3,7 +3,7 @@ import simplejson as json
 from django.http import Http404
 from rest_framework import viewsets
 from rest_framework.response import Response
-from rest_framework.decorators import action, link
+from rest_framework.decorators import action
 from treeherder.model import models
 
 from treeherder.model.derived import (JobsModel, DatasetNotFoundError,
@@ -88,10 +88,9 @@ class JobsViewSet(viewsets.ViewSet):
         GET method implementation for list view
         """
         try:
-            jm = JobsModel(project)
             page = request.QUERY_PARAMS.get('page', 0)
+            jm = JobsModel(project)
             objs = jm.get_job_list(page, 10)
-
             return Response(objs, headers={"Access-Control-Allow-Origin": "*"})
         except DatasetNotFoundError as e:
             return Response({"message": unicode(e)}, status=404)
@@ -201,6 +200,7 @@ class ResultSetViewSet(viewsets.ViewSet):
             return Response({"message": unicode(e)}, status=500)
         finally:
             jm.disconnect()
+
 
 #####################
 # Refdata ViewSets

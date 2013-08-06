@@ -65,13 +65,14 @@
 
             "sql":"INSERT INTO `revision_map` (
                 `revision_id`,
-                `result_set_id`)
+                `result_set_id`
+                )
                 SELECT ?,?
                 FROM DUAL
                 WHERE NOT EXISTS (
                     SELECT `revision_id`, `result_set_id`
-                    FROM `revision`
-                    WHERE `revision` = ? AND `result_set_id` = ?
+                    FROM `revision_map`
+                    WHERE `revision_id` = ? AND `result_set_id` = ?
                 )",
 
             "host":"master_host"
@@ -193,7 +194,7 @@
                        ON rs.id = rm.result_set_id
                    LEFT JOIN revision as rev
                        ON rm.revision_id = rev.id
-                   WHERE rs.id = ?",
+                   WHERE `rs`.`id` = ?",
             "host": "read_host"
         },
         "get_result_set_job_list":{
