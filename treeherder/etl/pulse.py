@@ -452,7 +452,12 @@ class TreeherderPulseDataAdapter(PulseDataAdapter, TreeherderDataAdapter):
 
             # load transformed data into the restful api
             if data and self.loaddata:
-                self.load([data])
+                try:
+                    self.load([data])
+                # in case of a missing repositories log the error
+                # but don't fail
+                except Exception as e:
+                    self.logger.error(e)
             return data
         except PulseMissingAttributesError as e:
             self.logger.error(e)
