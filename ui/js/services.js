@@ -57,10 +57,8 @@ treeherder.factory('thResults',
 
 
     return {
-        getResults: function(result_set, $rootScope, $scope) {
+        getResults: function(result_set, $scope) {
             // store the results in scope for this push via ajax
-            // ``idx`` is just a hack for the static data loading from file.
-//            var resourceUrl = 'resources/results' + idx + '.json';
 
             var jobUrl = thService.getUrl("/resultset/" + result_set.id + "/?format=json");
             console.log("fetching for " + result_set.id + " from: " + jobUrl);
@@ -70,7 +68,7 @@ treeherder.factory('thResults',
                     console.log("done fetching for: " + result_set.id);
                     // this feels like the right way
 
-                    $scope.job_results = data["jobs"];
+                    $scope.job_results = data["platforms"];
                     result_set.warning_level = getWarningLevel($scope.job_results);
 
                     isLoadingResults = false;

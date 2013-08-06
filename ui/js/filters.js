@@ -67,6 +67,7 @@ treeherder.filter('resultClass', function() {
                 return "btn disabled"
             case "running":
             case "retriggered":
+            case "retry":
                 return "btn";
             default:
                 return "btn btn-danger strong";

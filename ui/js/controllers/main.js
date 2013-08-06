@@ -3,7 +3,7 @@
 treeherder.controller('MainCtrl',
     function MainController($scope, $http, $route, $routeParams, $location){
         $scope.query="";
-        $scope.status = "everything's cool";
+        $scope.status = "condition green";
     }
 );
 
