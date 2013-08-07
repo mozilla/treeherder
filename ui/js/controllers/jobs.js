@@ -3,12 +3,12 @@
 treeherder.controller('JobsCtrl',
     function JobsCtrl($scope, $http, $rootScope, $location, $routeParams, thResultSets) {
 
-        // set the default tree to mozilla-central if not specified
-        if ($routeParams.hasOwnProperty("tree") &&
-            $routeParams.tree !== "") {
-            $rootScope.tree = $routeParams.tree;
+        // set the default repo to mozilla-central if not specified
+        if ($routeParams.hasOwnProperty("repo") &&
+            $routeParams.repo !== "") {
+            $rootScope.repo = $routeParams.repo;
         } else {
-            $rootScope.tree = "mozilla-inbound";
+            $rootScope.repo = "mozilla-inbound";
         }
 
         // get the job groups
