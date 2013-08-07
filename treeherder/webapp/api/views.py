@@ -146,9 +146,14 @@ class ResultSetViewSet(viewsets.ViewSet):
         """
         try:
             page = request.QUERY_PARAMS.get('page', 0)
+            pusher = request.QUERY_PARAMS.get('pusher', None)
+            kwargs = {}
+            if pusher:
+                kwargs["pusher"] = pusher
+
             jm = JobsModel(project)
 
-            objs = jm.get_result_set_list(page, 1000)
+            objs = jm.get_result_set_list(page, 1000, **kwargs)
             return Response(objs)
         except DatasetNotFoundError as e:
             return Response({"message": unicode(e)}, status=404)
@@ -163,13 +168,19 @@ class ResultSetViewSet(viewsets.ViewSet):
 
         A color-based warning level based on the most severe
         level in the list of jobs.
+
+        @@@ - This needs a better way.
         """
         job_states = set([x["result"] for x in jobs])
         if "busted" in job_states:
             return "red"
+        if "fail" in job_states:
+            return "red"
         elif "orange" in job_states:
             return "orange"
         elif "pending" in job_states:
+            return "grey"
+        elif "retry" in job_states:
             return "grey"
         elif "running" in job_states:
             return "grey"
@@ -180,21 +191,34 @@ class ResultSetViewSet(viewsets.ViewSet):
         """
         GET method implementation for detail view of ``resultset``
         """
+        job_name = request.QUERY_PARAMS.get('job_name', None)
+        kwargs = {}
+        if job_name:
+            kwargs["job_name"] = job_name
+
         try:
             jm = JobsModel(project)
             rs = list(jm.get_result_set_by_id(pk))[0]
-            jobs_ungrouped = list(jm.get_result_set_job_list(pk))
+            jobs_ungrouped = list(jm.get_result_set_job_list(pk, **kwargs))
             # group these by their platforms for return
             jobs_sorted = sorted(jobs_ungrouped, key=lambda x: x["platform"])
             import itertools
-            rs["jobs"] = []
+            rs["platforms"] = []
+            # job_groups by platform
             for k, g in itertools.groupby(jobs_sorted, key=lambda x: x["platform"]):
-                jobs = list(g)
-                rs["jobs"].append({
+                job_groups = sorted(list(g), key=lambda x: x["jg_symbol"])
+                platform = {
                     "platform": k,
-                    "warning_level": self.get_warning_level(jobs),
-                    "jobs": jobs
-                })
+                }
+                rs["platforms"].append(platform)
+                platform["groups"] = []
+                for jg_k, jg_g in itertools.groupby(job_groups, key=lambda x: x["jg_symbol"]):
+                    jobs = list(jg_g)
+                    platform["groups"].append({
+                        "symbol": jg_k,
+                        "warning_level": self.get_warning_level(jobs),
+                        "jobs": jobs
+                    })
             return Response(rs)
         except DatasetNotFoundError as e:
             return Response(
