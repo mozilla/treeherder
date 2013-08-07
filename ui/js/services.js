@@ -5,8 +5,11 @@ treeherder.factory('thService',
                    function($rootScope) {
     // todo: this belongs in the config
     return {
+        getRootUrl: function(uri) {
+            return "http://192.168.33.10/api" + uri;
+        },
         getUrl: function(uri) {
-            return "http://192.168.33.10/api/project/" + $rootScope.tree + uri;
+            return "http://192.168.33.10/api/project/" + $rootScope.repo + uri;
         }
     };
     return thService;
@@ -103,5 +106,21 @@ treeherder.factory('thResults',
                 });
         }
 
+    };
+}]);
+
+treeherder.factory('thRepos',
+                   ['$http', 'thService', '$rootScope',
+                   function($http, thService, $rootScope) {
+
+    // get the repositories (aka trees)
+    // sample: 'resources/menu.json'
+    return {
+        getRepos: function($rootScope) {
+            $http.get(thService.getRootUrl("/repository/?format=json")).
+                success(function(data) {
+                    $rootScope.repos = data;
+                });
+        }
     };
 }]);

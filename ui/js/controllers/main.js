@@ -1,18 +1,18 @@
 "use strict";
 
 treeherder.controller('MainCtrl',
-    function MainController($scope){
+    function MainController($scope) {
         $scope.query="";
         $scope.status = "condition green";
     }
 );
 
 
-treeherder.controller('DropDownMenuCtrl',
-    function DropDownMenuCtrl($scope, $http){
-        // get the menu items
-        $http.get('resources/menu.json').success(function(data) {
-            $scope.menu = data.menu;
-        });
+treeherder.controller('RepoDropDownCtrl',
+    function RepoDropDownCtrl($scope, $http, $location, thRepos) {
+        $scope.changeRepo = function(repo) {
+            $location.search({repo: repo});
+        };
+        thRepos.getRepos($scope);
     }
 );
