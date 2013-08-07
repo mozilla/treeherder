@@ -177,6 +177,7 @@
                        ON rs.id = rm.result_set_id
                    LEFT JOIN revision as rev
                        ON rm.revision_id = rev.id
+                   WHERE 1
                    REP0
                    LIMIT ?,?
                    ",
@@ -205,12 +206,12 @@
                     j.`build_platform_id`,
                     mp.`platform`,
                     m.`name` as machine_name,
-                    jt.`name` as jt_name,
-                    jt.`symbol` as jt_symbol,
-                    jt.`description` as jt_description,
-					jg.`name` as jg_name,
-                    jg.`symbol` as jg_symbol,
-                    jg.`description` as jg_description,
+                    jt.`name` as job_type_name,
+                    jt.`symbol` as job_type_symbol,
+                    jt.`description` as job_type_description,
+					jg.`name` as job_group_name,
+                    jg.`symbol` as job_group_symbol,
+                    jg.`description` as job_group_description,
                     j.`who`,
                     j.`result_set_id`,
                     j.`result`,

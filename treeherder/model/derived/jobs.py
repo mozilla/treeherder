@@ -139,8 +139,8 @@ class JobsModel(TreeherderModelBase):
         Mainly used by the restful api to list the pushes in the UI
         """
         repl = [""]
-        if "pusher" in kwargs:
-            repl = [" WHERE `rev`.`author` = '{0}'".format(kwargs["pusher"])]
+        if "author" in kwargs:
+            repl = [" AND `rev`.`author` = '{0}'".format(kwargs["author"])]
 
         proc = "jobs.selects.get_result_set_list"
         push_dict = self.get_jobs_dhub().execute(
@@ -160,8 +160,8 @@ class JobsModel(TreeherderModelBase):
         Mainly used by the restful api to list the job results in the UI
         """
         repl = [""]
-        if "job_name" in kwargs:
-            repl = [" AND jt.`name` = '{0}'".format(kwargs["job_name"])]
+        if "job_type_name" in kwargs:
+            repl = [" AND jt.`name` = '{0}'".format(kwargs["job_type_name"])]
 
         proc = "jobs.selects.get_result_set_job_list"
         push_dict = self.get_jobs_dhub().execute(

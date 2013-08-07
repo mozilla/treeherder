@@ -191,28 +191,28 @@ class ResultSetViewSet(viewsets.ViewSet):
         """
         GET method implementation for detail view of ``resultset``
         """
-        job_name = request.QUERY_PARAMS.get('job_name', None)
-        kwargs = {}
-        if job_name:
-            kwargs["job_name"] = job_name
+        filters = ["job_type_name"]
 
         try:
             jm = JobsModel(project)
             rs = list(jm.get_result_set_by_id(pk))[0]
-            jobs_ungrouped = list(jm.get_result_set_job_list(pk, **kwargs))
+            jobs_ungrouped = list(jm.get_result_set_job_list(
+                pk,
+                **dict((k, v) for k, v in request.QUERY_PARAMS.iteritems() if k in filters)
+                ))
             # group these by their platforms for return
             jobs_sorted = sorted(jobs_ungrouped, key=lambda x: x["platform"])
             import itertools
             rs["platforms"] = []
             # job_groups by platform
             for k, g in itertools.groupby(jobs_sorted, key=lambda x: x["platform"]):
-                job_groups = sorted(list(g), key=lambda x: x["jg_symbol"])
+                job_groups = sorted(list(g), key=lambda x: x["job_group_symbol"])
                 platform = {
                     "platform": k,
                 }
                 rs["platforms"].append(platform)
                 platform["groups"] = []
-                for jg_k, jg_g in itertools.groupby(job_groups, key=lambda x: x["jg_symbol"]):
+                for jg_k, jg_g in itertools.groupby(job_groups, key=lambda x: x["job_group_symbol"]):
                     jobs = list(jg_g)
                     platform["groups"].append({
                         "symbol": jg_k,
