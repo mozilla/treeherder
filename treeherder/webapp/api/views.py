@@ -144,11 +144,18 @@ class ResultSetViewSet(viewsets.ViewSet):
         """
         GET method for list of ``resultset`` records with revisions
         """
+
+        filters = ["author"]
+
         try:
             page = request.QUERY_PARAMS.get('page', 0)
             jm = JobsModel(project)
 
-            objs = jm.get_result_set_list(page, 1000)
+            objs = jm.get_result_set_list(
+                page,
+                1000,
+                **dict((k, v) for k, v in request.QUERY_PARAMS.iteritems() if k in filters)
+                )
             return Response(objs)
         except DatasetNotFoundError as e:
             return Response({"message": unicode(e)}, status=404)
@@ -157,19 +164,29 @@ class ResultSetViewSet(viewsets.ViewSet):
         finally:
             jm.disconnect()
 
-    def get_warning_level(self, jobs):
+    def get_warning_level(self, groups):
         """
         Return the most severe warning level for a list of jobs.
 
         A color-based warning level based on the most severe
         level in the list of jobs.
+
+        @@@ - This needs a better way.
         """
-        job_states = set([x["result"] for x in jobs])
+        job_states = []
+        for group in groups:
+            job_states.extend([job["result"] for job in group["jobs"]])
+
+        job_states = set(job_states)
         if "busted" in job_states:
+            return "red"
+        if "fail" in job_states:
             return "red"
         elif "orange" in job_states:
             return "orange"
         elif "pending" in job_states:
+            return "grey"
+        elif "retry" in job_states:
             return "grey"
         elif "running" in job_states:
             return "grey"
@@ -180,21 +197,35 @@ class ResultSetViewSet(viewsets.ViewSet):
         """
         GET method implementation for detail view of ``resultset``
         """
+        filters = ["job_type_name"]
+
         try:
             jm = JobsModel(project)
             rs = list(jm.get_result_set_by_id(pk))[0]
-            jobs_ungrouped = list(jm.get_result_set_job_list(pk))
+            jobs_ungrouped = list(jm.get_result_set_job_list(
+                pk,
+                **dict((k, v) for k, v in request.QUERY_PARAMS.iteritems() if k in filters)
+                ))
             # group these by their platforms for return
             jobs_sorted = sorted(jobs_ungrouped, key=lambda x: x["platform"])
             import itertools
-            rs["jobs"] = []
+            rs["platforms"] = []
+            # job_groups by platform
             for k, g in itertools.groupby(jobs_sorted, key=lambda x: x["platform"]):
-                jobs = list(g)
-                rs["jobs"].append({
-                    "platform": k,
-                    "warning_level": self.get_warning_level(jobs),
-                    "jobs": jobs
+                job_groups = sorted(list(g), key=lambda x: x["job_group_symbol"])
+                groups = []
+                for jg_k, jg_g in itertools.groupby(job_groups, key=lambda x: x["job_group_symbol"]):
+                    jobs = list(jg_g)
+                    groups.append({
+                        "symbol": jg_k,
+                        "jobs": jobs
+                    })
+                rs["platforms"].append({
+                    "name": k,
+                    "groups": groups,
+                    "warning_level": self.get_warning_level(groups)
                 })
+
             return Response(rs)
         except DatasetNotFoundError as e:
             return Response(

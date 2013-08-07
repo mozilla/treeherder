@@ -131,35 +131,45 @@ class JobsModel(TreeherderModelBase):
 
         return id_iter.get_column_data('id')
 
-    def get_result_set_list(self, page, limit):
+    def get_result_set_list(self, page, limit, **kwargs):
         """
         Retrieve a list of ``result_sets`` (also known as ``pushes``)
         with associated revisions.  No jobs
 
         Mainly used by the restful api to list the pushes in the UI
         """
+        repl = [""]
+        if "author" in kwargs:
+            repl = [" AND `rev`.`author` = '{0}'".format(kwargs["author"])]
+
         proc = "jobs.selects.get_result_set_list"
         push_dict = self.get_jobs_dhub().execute(
             proc=proc,
             placeholders=[page, limit],
             debug_show=self.DEBUG,
             return_type='iter',
+            replace=repl,
         )
 
         return push_dict
 
-    def get_result_set_job_list(self, result_set_id):
+    def get_result_set_job_list(self, result_set_id, **kwargs):
         """
         Retrieve a list of ``jobs`` and results for a result_set.
 
         Mainly used by the restful api to list the job results in the UI
         """
+        repl = [""]
+        if "job_type_name" in kwargs:
+            repl = [" AND jt.`name` = '{0}'".format(kwargs["job_type_name"])]
+
         proc = "jobs.selects.get_result_set_job_list"
         push_dict = self.get_jobs_dhub().execute(
             proc=proc,
             placeholders=[result_set_id],
             debug_show=self.DEBUG,
             return_type='iter',
+            replace=repl,
         )
 
         return push_dict

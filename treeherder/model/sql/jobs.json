@@ -177,7 +177,10 @@
                        ON rs.id = rm.result_set_id
                    LEFT JOIN revision as rev
                        ON rm.revision_id = rev.id
-                   LIMIT ?,?",
+                   WHERE 1
+                   REP0
+                   LIMIT ?,?
+                   ",
             "host": "read_host"
         },
         "get_result_set_by_id":{
@@ -202,10 +205,13 @@
                     j.`job_guid`,
                     j.`build_platform_id`,
                     mp.`platform`,
-                    m.`name`,
-                    jt.`name`,
-                    jt.`symbol`,
-                    jt.`description`,
+                    m.`name` as machine_name,
+                    jt.`name` as job_type_name,
+                    jt.`symbol` as job_type_symbol,
+                    jt.`description` as job_type_description,
+					jg.`name` as job_group_name,
+                    jg.`symbol` as job_group_symbol,
+                    jg.`description` as job_group_description,
                     j.`who`,
                     j.`result_set_id`,
                     j.`result`,
@@ -219,7 +225,11 @@
                     ON j.`build_platform_id` = bp.id
                   LEFT JOIN `treeherder`.`job_type` as jt
                     ON j.`job_type_id` = jt.id
-                  WHERE `result_set_id` = ?",
+				  LEFT JOIN `treeherder`.`job_group` as jg
+                    ON jt.`job_group_id` = jg.id
+                  WHERE `result_set_id` = ?
+                  REP0
+                  ",
             "host": "read_host"
         }
     }
