@@ -1,7 +1,7 @@
 "use strict";
 
 treeherder.controller('MainCtrl',
-    function MainController($scope, $http, $route, $routeParams, $location){
+    function MainController($scope){
         $scope.query="";
         $scope.status = "condition green";
     }
@@ -9,7 +9,7 @@ treeherder.controller('MainCtrl',
 
 
 treeherder.controller('DropDownMenuCtrl',
-    function DropDownMenuCtrl($scope, $http, $route){
+    function DropDownMenuCtrl($scope, $http){
         // get the menu items
         $http.get('resources/menu.json').success(function(data) {
             $scope.menu = data.menu;

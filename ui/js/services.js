@@ -21,9 +21,10 @@ treeherder.factory('thResultSets',
     // sample: 'resources/push_sample.json'
     return {
         getResultSets: function($rootScope) {
-            $http.get(thService.getUrl("/resultset/?format=json")).success(function(data) {
-                $rootScope.result_sets = data;
-            });
+            $http.get(thService.getUrl("/resultset/?format=json")).
+                success(function(data) {
+                    $rootScope.result_sets = data;
+                });
         }
     }
 }]);
@@ -59,7 +60,7 @@ treeherder.factory('thResults',
 
             var jobUrl = thService.getUrl("/resultset/" + result_set.id + "/?format=json");
             console.log("fetching for " + result_set.id + " from: " + jobUrl);
-            isLoadingResults = true;
+            $scope.isLoadingResults = true;
             $http.get(jobUrl).success(
                 function(data) {
                     console.log("done fetching for: " + result_set.id);
@@ -68,7 +69,7 @@ treeherder.factory('thResults',
                     $scope.job_results = data["platforms"];
                     result_set.warning_level = getWarningLevel($scope.job_results);
 
-                    isLoadingResults = false;
+                    $scope.isLoadingResults = false;
 
                     // whether or not push results list is collapsed
                     $scope.isCollapsedResults = result_set.warning_level !== "red";
