@@ -1,8 +1,9 @@
 "use strict";
 
 treeherder.controller('MainCtrl',
-    function MainController($scope, $http){
+    function MainController($scope){
         $scope.query="";
+        $scope.status = "condition green";
     }
 );
 

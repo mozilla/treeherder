@@ -3,6 +3,8 @@
         {
             "email": "cdawson@mozilla.com",
             "timestamp": "2013-08-10 10:32:37",
+            "repo": "https://hg.mozilla.org",
+            "tree": "mozilla-central",
             "warning_level": "green",
             "revisions": [
                 {
@@ -32,7 +34,9 @@
         },
         {
             "email": "cdawson@mozilla.com",
-            "timestamp": "2013-08-10 10:32:37",
+            "timestamp": "2013-08-11 10:32:37",
+            "repo": "https://hg.mozilla.org",
+            "tree": "mozilla-central",
             "warning_level": "green",
             "revisions": [
                 {
@@ -62,7 +66,9 @@
         },
         {
             "email": "mdoglio@mozilla.com",
-            "timestamp": "2013-07-01 10:32:37",
+            "timestamp": "2013-08-12 10:32:37",
+            "repo": "https://hg.mozilla.org",
+            "tree": "mozilla-central",
             "warning_level": "orange",
             "revisions": [
                 {
@@ -89,7 +95,9 @@
         },
         {
             "email": "cdawson@mozilla.com",
-            "timestamp": "2013-08-10 10:32:37",
+            "timestamp": "2013-08-13 10:32:37",
+            "repo": "https://hg.mozilla.org",
+            "tree": "mozilla-central",
             "warning_level": "red",
             "revisions": [
                 {

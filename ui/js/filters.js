@@ -22,22 +22,26 @@ treeherder.filter('typeClass', function() {
     };
 });
 
-treeherder.filter('statusClass', function() {
+treeherder.filter('resultClass', function() {
     // Add color to the button for this job
     return function(input) {
 
         switch(input) {
-            case "completed":
+            case "success":
                 return "btn btn-success";
+            case "busted":
             case "fail":
-                return "btn btn-danger ";
+                return "btn btn-danger strong";
             case "orange":
-                return "btn btn-warning";
+                return "btn btn-warning strong";
             case "pending":
                 return "btn disabled"
             case "running":
             case "retriggered":
+            case "retry":
                 return "btn";
+            default:
+                return "btn btn-danger strong";
         }
     };
 });

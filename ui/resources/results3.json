@@ -8,7 +8,7 @@
                 "id": 5
             },
             {
-                "status": "fail",
+                "status": "orange",
                 "symbol": "Bg",
                 "id": 5
             }
@@ -28,7 +28,7 @@
         "platform": "Fedora debug",
         "jobs": [
             {
-                "status": "fail",
+                "status": "orange",
                 "symbol": "B",
                 "id": 5
             },
@@ -48,7 +48,7 @@
                 "id": 5
             },
             {
-                "status": "fail",
+                "status": "orange",
                 "symbol": "Bg",
                 "id": 5
             }
@@ -68,7 +68,7 @@
         "platform": "Fedora64 debug",
         "jobs": [
             {
-                "status": "fail",
+                "status": "orange",
                 "symbol": "B",
                 "id": 5
             },
@@ -91,7 +91,7 @@
                 "symbol": "M",
                 "jobs": [
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "1",
                         "id": 5
                     },
@@ -111,7 +111,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "5",
                         "id": 5
                     },
@@ -141,7 +141,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "J",
                         "id": 5
                     },
@@ -151,7 +151,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "Ru",
                         "id": 5
                     },
@@ -186,7 +186,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "p",
                         "id": 5
                     },
@@ -221,7 +221,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "2",
                         "id": 5
                     },
@@ -236,7 +236,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "5",
                         "id": 5
                     },
@@ -316,7 +316,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "s",
                         "id": 5
                     },
@@ -356,12 +356,12 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "4",
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "5",
                         "id": 5
                     },
@@ -398,7 +398,7 @@
                 "id": 5
             },
             {
-                "status": "fail",
+                "status": "orange",
                 "symbol": "X",
                 "id": 5
             },
@@ -491,7 +491,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "o",
                         "id": 5
                     },
@@ -501,7 +501,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "s",
                         "id": 5
                     },
@@ -546,7 +546,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "5",
                         "id": 5
                     },
@@ -601,12 +601,12 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "o",
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "p",
                         "id": 5
                     },
@@ -623,7 +623,7 @@
                 ]
             },
             {
-                "status": "fail",
+                "status": "orange",
                 "symbol": "JP",
                 "id": 5
             }
@@ -651,7 +651,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "4",
                         "id": 5
                     },
@@ -681,7 +681,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "R",
                         "id": 5
                     }
@@ -796,7 +796,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "s",
                         "id": 5
                     },
@@ -821,12 +821,12 @@
                 "symbol": "M",
                 "jobs": [
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "1",
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "2",
                         "id": 5
                     },
@@ -846,7 +846,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "bc",
                         "id": 5
                     },
@@ -903,7 +903,7 @@
         "platform": "OS X 10.7 opt",
         "jobs": [
             {
-                "status": "fail",
+                "status": "orange",
                 "symbol": "B",
                 "id": 5
             },
@@ -931,7 +931,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "5",
                         "id": 5
                     },
@@ -941,7 +941,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "oth",
                         "id": 5
                     }
@@ -961,7 +961,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "R",
                         "id": 5
                     }
@@ -1036,12 +1036,12 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "3",
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "4",
                         "id": 5
                     },
@@ -1056,7 +1056,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "bc",
                         "id": 5
                     },
@@ -1071,7 +1071,7 @@
                 "symbol": "R",
                 "jobs": [
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "C",
                         "id": 5
                     },
@@ -1131,17 +1131,17 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "4",
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "5",
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "bc",
                         "id": 5
                     },
@@ -1166,7 +1166,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "R",
                         "id": 5
                     }
@@ -1191,7 +1191,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "o",
                         "id": 5
                     },
@@ -1288,7 +1288,7 @@
                 "id": 5
             },
             {
-                "status": "fail",
+                "status": "orange",
                 "symbol": "X",
                 "id": 5
             },
@@ -1391,7 +1391,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "tp",
                         "id": 5
                     }
@@ -1541,7 +1541,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "5",
                         "id": 5
                     },
@@ -1566,24 +1566,24 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "J",
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "R",
                         "id": 5
                     }
                 ]
             },
             {
-                "status": "fail",
+                "status": "orange",
                 "symbol": "X",
                 "id": 5
             },
             {
-                "status": "fail",
+                "status": "orange",
                 "symbol": "JP",
                 "id": 5
             }
@@ -1621,7 +1621,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "5",
                         "id": 5
                     },
@@ -1631,7 +1631,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "oth",
                         "id": 5
                     }
@@ -1696,7 +1696,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "tp",
                         "id": 5
                     }
@@ -1713,7 +1713,7 @@
         "platform": "Win7 pgo",
         "jobs": [
             {
-                "status": "fail",
+                "status": "orange",
                 "symbol": "B",
                 "id": 5
             },
@@ -1746,7 +1746,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "bc",
                         "id": 5
                     },
@@ -1761,7 +1761,7 @@
                 "symbol": "R",
                 "jobs": [
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "C",
                         "id": 5
                     },
@@ -1783,7 +1783,7 @@
                 ]
             },
             {
-                "status": "fail",
+                "status": "orange",
                 "symbol": "X",
                 "id": 5
             },
@@ -1811,7 +1811,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "s",
                         "id": 5
                     },
@@ -1823,7 +1823,7 @@
                 ]
             },
             {
-                "status": "fail",
+                "status": "orange",
                 "symbol": "JP",
                 "id": 5
             }
@@ -1891,7 +1891,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "R",
                         "id": 5
                     }
@@ -1996,7 +1996,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "d",
                         "id": 5
                     },
@@ -2011,7 +2011,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "s",
                         "id": 5
                     },
@@ -2071,7 +2071,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "oth",
                         "id": 5
                     }
@@ -2081,7 +2081,7 @@
                 "symbol": "R",
                 "jobs": [
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "C",
                         "id": 5
                     },
@@ -2161,7 +2161,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "2",
                         "id": 5
                     },
@@ -2171,12 +2171,12 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "4",
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "5",
                         "id": 5
                     },
@@ -2265,7 +2265,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "4",
                         "id": 5
                     },
@@ -2275,7 +2275,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "6",
                         "id": 5
                     },
@@ -2325,7 +2325,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "R1",
                         "id": 5
                     },
@@ -2372,7 +2372,7 @@
                 "id": 5
             },
             {
-                "status": "fail",
+                "status": "orange",
                 "symbol": "J3",
                 "id": 5
             }
@@ -2405,7 +2405,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "4",
                         "id": 5
                     },
@@ -2415,7 +2415,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "6",
                         "id": 5
                     },
@@ -2425,12 +2425,12 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "8",
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "rc1",
                         "id": 5
                     },
@@ -2445,12 +2445,12 @@
                 "symbol": "R",
                 "jobs": [
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "C",
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "J1",
                         "id": 5
                     },
@@ -2460,7 +2460,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "J3",
                         "id": 5
                     },
@@ -2470,12 +2470,12 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "R2",
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "R3",
                         "id": 5
                     },
@@ -2495,7 +2495,7 @@
                 "symbol": "T",
                 "jobs": [
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "rck2",
                         "id": 5
                     },
@@ -2575,7 +2575,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "6",
                         "id": 5
                     },
@@ -2805,7 +2805,7 @@
                         "id": 5
                     },
                     {
-                        "status": "fail",
+                        "status": "orange",
                         "symbol": "4",
                         "id": 5
                     },

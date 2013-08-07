@@ -18,6 +18,7 @@
                       Logged in as <a href="#" class="navbar-link">Username</a>
                     </p>
                     <form class="navbar-search pull-right">
+                        <span class="label label-success">{{ tree }}</span>
                         <span class="label label-success">0 unstarred</span>
                         <input type="text" ng-model="query" class="search-query" placeholder="Search">
                     </form>
@@ -33,7 +34,7 @@
                         <li class="dropdown" ng-controller="DropDownMenuCtrl">
                             <a href="" class="dropdown-toggle" data-toggle="dropdown">Trees<b class="caret"></b></a>
                                 <ul class="dropdown-menu">
-                                    <li ng-repeat="item in menu"><a href="{{item.url}}">{{item.name}}</a></li>
+                                    <li ng-repeat="item in menu"><a href="{{ location.url }}">{{item.name}}</a></li>
                                 </ul>
                             </li>
                         <li class="divider-vertical"></li>
@@ -54,15 +55,15 @@
                         <li><a ng-class="{active: routeIs('/machines')}" href="#/machines">Machines</a></li>
                     </ul>
                 </div>
-                
+
                 <div class="jobs_list span11" ng-cloak>
-                    <div class="alert alert-success">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</div>
+                    <div class="alert alert-success">{{ status }}</div>
                     <ng-view ></ng-view>
-                    
+
                 </div>
             </div>
         </div>
-        
+
         <!-- modal window -->
         <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
             <div class="modal-header">
