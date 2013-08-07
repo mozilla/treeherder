@@ -31,24 +31,6 @@ treeherder.controller('JobsCtrl',
         $rootScope.results = {};
         thResultSets.getResultSets($rootScope);
 
-        // compare push values
-        $scope.oldRev = null;
-        $scope.newRev = null;
-        $scope.isCollapsedCompare = ($scope.oldRev === null && $scope.newRev === null);
-
-        $scope.compare = function() {
-            // compare two revisions in compare-talos
-            if ($scope.oldRev !== "select push" && $scope.newRev !== "select push") {
-                var compareurl = "http://perf.snarkfest.net/compare-talos/index.html?" +
-                    "oldRevs=" + $scope.oldRev +
-                    "&newRev=" + $scope.newRev +
-                    "8196c86355bc&submit=true";
-            } else {
-                // both revs must be set to compare, notify error.
-                $scope.status = "Both revisions must be set to compare";
-            }
-        };
-
     }
 );
 
