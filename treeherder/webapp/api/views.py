@@ -164,7 +164,7 @@ class ResultSetViewSet(viewsets.ViewSet):
         finally:
             jm.disconnect()
 
-    def get_warning_level(self, jobs):
+    def get_warning_level(self, groups):
         """
         Return the most severe warning level for a list of jobs.
 
@@ -173,7 +173,11 @@ class ResultSetViewSet(viewsets.ViewSet):
 
         @@@ - This needs a better way.
         """
-        job_states = set([x["result"] for x in jobs])
+        job_states = []
+        for group in groups:
+            job_states.extend([job["result"] for job in group["jobs"]])
+
+        job_states = set(job_states)
         if "busted" in job_states:
             return "red"
         if "fail" in job_states:
@@ -209,18 +213,19 @@ class ResultSetViewSet(viewsets.ViewSet):
             # job_groups by platform
             for k, g in itertools.groupby(jobs_sorted, key=lambda x: x["platform"]):
                 job_groups = sorted(list(g), key=lambda x: x["job_group_symbol"])
-                platform = {
-                    "platform": k,
-                }
-                rs["platforms"].append(platform)
-                platform["groups"] = []
+                groups = []
                 for jg_k, jg_g in itertools.groupby(job_groups, key=lambda x: x["job_group_symbol"]):
                     jobs = list(jg_g)
-                    platform["groups"].append({
+                    groups.append({
                         "symbol": jg_k,
-                        "warning_level": self.get_warning_level(jobs),
                         "jobs": jobs
                     })
+                rs["platforms"].append({
+                    "name": k,
+                    "groups": groups,
+                    "warning_level": self.get_warning_level(groups)
+                })
+
             return Response(rs)
         except DatasetNotFoundError as e:
             return Response(
