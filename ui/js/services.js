@@ -3,6 +3,7 @@
 treeherder.factory('thService',
                    ['$rootScope',
                    function($rootScope) {
+    // todo: this belongs in the config
     return {
         getUrl: function(uri) {
             return "http://192.168.33.10/api/project/" + $rootScope.tree + uri;
@@ -32,12 +33,6 @@ treeherder.factory('thResults',
                    ['$http', 'thService', '$rootScope',
                    function($http, thService, $rootScope) {
     var getWarningLevel = function(results) {
-        var LEVELS = {
-            1: "green",
-            2: "grey",
-            3: "orange",
-            4: "red"
-        };
 
         var COLORS = {
             "green": 1,
@@ -51,7 +46,9 @@ treeherder.factory('thResults',
             var platform = results[i];
             level = Math.max(level, COLORS[platform.warning_level]);
         }
-        return LEVELS[level];
+        return Object.keys(COLORS).filter(function(key) {
+            return COLORS[key] === level
+        })[0];
     };
     var isLoadingResults = true;
 
@@ -87,6 +84,10 @@ treeherder.factory('thResults',
                         case "red":
                             $scope.pushResultBtn = "btn-danger";
                             $scope.icon = "icon-remove";
+                            break;
+                        case "grey":
+                            $scope.pushResultBtn = "";
+                            $scope.icon = "icon-time";
                             break;
                         default:
                             $scope.pushResultBtn = "btn-success";

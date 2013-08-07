@@ -22,35 +22,6 @@ treeherder.filter('typeClass', function() {
     };
 });
 
-// todo: does this belong in the controller or here in a filter?
-treeherder.filter('warning_level', function() {
-    // determine the warning level for the result set of the worst result in
-    // the platforms.
-    // input: a list of platforms
-    return function(input) {
-        var LEVELS = {
-            1: "green",
-            2: "grey",
-            3: "orange",
-            4: "red"
-        };
-
-        var COLORS = {
-            "green": 1,
-            "grey": 2,
-            "orange": 3,
-            "red": 4
-        };
-
-        var level = 0;
-        for (var i = 0; i < input.length; i++) {
-            var platform = input[i]
-            level = Math.max(level, COLORS[platform.warning_level])
-        }
-        return LEVELS[level];
-    };
-});
-
 treeherder.filter('resultClass', function() {
     // Add color to the button for this job
     return function(input) {

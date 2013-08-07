@@ -12,7 +12,7 @@ treeherder.controller('JobsCtrl',
         }
 
         // get the job groups
-        // todo: this should be a service too?
+        // todo: should this be a service too?
         $http.get('resources/job_groups.json').success(function(data) {
             $scope.job_groups = data;
             $scope.job_types = [];
