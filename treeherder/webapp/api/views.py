@@ -144,16 +144,18 @@ class ResultSetViewSet(viewsets.ViewSet):
         """
         GET method for list of ``resultset`` records with revisions
         """
+
+        filters = ["author"]
+
         try:
             page = request.QUERY_PARAMS.get('page', 0)
-            pusher = request.QUERY_PARAMS.get('pusher', None)
-            kwargs = {}
-            if pusher:
-                kwargs["pusher"] = pusher
-
             jm = JobsModel(project)
 
-            objs = jm.get_result_set_list(page, 1000, **kwargs)
+            objs = jm.get_result_set_list(
+                page,
+                1000,
+                **dict((k, v) for k, v in request.QUERY_PARAMS.iteritems() if k in filters)
+                )
             return Response(objs)
         except DatasetNotFoundError as e:
             return Response({"message": unicode(e)}, status=404)
