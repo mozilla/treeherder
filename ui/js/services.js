@@ -7,7 +7,7 @@ treeherder.factory('thService',
         getRootUrl: function(uri) {
             return thServiceDomain + "/api" + uri;
         },
-        getUrl: function(uri) {
+        getProjectUrl: function(uri) {
             return thServiceDomain + "/api/project/" + $rootScope.repo + uri;
         }
     };
@@ -23,15 +23,10 @@ treeherder.factory('thResultSets',
     // sample: 'resources/push_sample.json'
     return {
         getResultSets: function($rootScope) {
-            $http.get(thService.getUrl("/resultset/?format=json")).
+            $http.get(thService.getProjectUrl("/resultset/?format=json")).
                 success(function(data) {
                     $rootScope.result_sets = data;
-                }).
-                error(
-                    function(data, status, headers, config) {
-                        console.log("error: " + data + headers);
-                    });
-                ;
+                });
         }
     }
 }]);
@@ -65,7 +60,7 @@ treeherder.factory('thResults',
         getResults: function(result_set, $scope) {
             // store the results in scope for this push via ajax
 
-            var jobUrl = thService.getUrl("/resultset/" + result_set.id + "/?format=json");
+            var jobUrl = thService.getProjectUrl("/resultset/" + result_set.id + "/?format=json");
             console.log("fetching for " + result_set.id + " from: " + jobUrl);
             $scope.isLoadingResults = true;
             $http.get(jobUrl).
@@ -105,11 +100,7 @@ treeherder.factory('thResults',
                                 break;
                         }
                     }
-                ).
-                error(
-                    function(data, status, headers, config) {
-                        console.log("error: " + data + headers);
-                    });
+                );
         }
 
     };
@@ -126,11 +117,7 @@ treeherder.factory('thRepos',
             $http.get(thService.getRootUrl("/repository/?format=json")).
                 success(function(data) {
                     $rootScope.repos = data;
-                }).
-                error(
-                    function(data, status, headers, config) {
-                        console.log("error: " + data + headers);
-                    });
+                });
         }
     };
 }]);
