@@ -196,7 +196,7 @@
                    FROM result_set as rs
                    LEFT JOIN revision_map as rm
                        ON rs.id = rm.result_set_id
-                   LEFT JOIN revision as rev`
+                   LEFT JOIN revision as rev
                        ON rm.revision_id = rev.id
                    WHERE `rs`.`id` = ?",
             "host": "read_host"
