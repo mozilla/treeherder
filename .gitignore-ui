@@ -43,6 +43,7 @@ nosetests.xml
 #local settings
 treeherder/settings/local.py
 htmlcov/
+webapp/app/js/config/local.conf.js
 
 #docs build directory
 docs/_build/
