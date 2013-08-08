@@ -4,9 +4,11 @@ treeherder.factory('thService',
                    ['$rootScope', 'thServiceDomain',
                    function($rootScope, thServiceDomain) {
     return {
+        getRootUrl: function(uri) {
+            return thServiceDomain + "/api" + uri;
+        },
         getUrl: function(uri) {
-            return thServiceDomain + "/api/project/" + $rootScope.tree + uri;
-//            return "http://192.168.33.10/api/project/" + $rootScope.tree + uri;
+            return thServiceDomain + "/api/project/" + $rootScope.repo + uri;
         }
     };
     return thService;
@@ -24,7 +26,12 @@ treeherder.factory('thResultSets',
             $http.get(thService.getUrl("/resultset/?format=json")).
                 success(function(data) {
                     $rootScope.result_sets = data;
-                });
+                }).
+                error(
+                    function(data, status, headers, config) {
+                        console.log("error: " + data + headers);
+                    });
+                ;
         }
     }
 }]);
@@ -61,47 +68,69 @@ treeherder.factory('thResults',
             var jobUrl = thService.getUrl("/resultset/" + result_set.id + "/?format=json");
             console.log("fetching for " + result_set.id + " from: " + jobUrl);
             $scope.isLoadingResults = true;
-            $http.get(jobUrl).success(
-                function(data) {
-                    console.log("done fetching for: " + result_set.id);
-                    // this feels like the right way
+            $http.get(jobUrl).
+                success(
+                    function(data) {
+                        console.log("done fetching for: " + result_set.id);
+                        // this feels like the right way
 
-                    $scope.job_results = data["platforms"];
-                    console.log(data["platforms"]);
-                    result_set.warning_level = getWarningLevel($scope.job_results);
+                        $scope.job_results = data["platforms"];
+                        result_set.warning_level = getWarningLevel($scope.job_results);
 
-                    $scope.isLoadingResults = false;
+                        $scope.isLoadingResults = false;
 
-                    // whether or not push results list is collapsed
-                    $scope.isCollapsedResults = result_set.warning_level !== "red";
+                        // whether or not push results list is collapsed
+                        $scope.isCollapsedResults = result_set.warning_level !== "red";
 
-                    // how to display the warning_level.  collapse green ones
-                    switch(String(result_set.warning_level))
-                    {
-                        case "orange":
-                            $scope.pushResultBtn = "btn-warning";
-                            $scope.icon = "icon-warning-sign";
-                            break;
-                        case "red":
-                            $scope.pushResultBtn = "btn-danger";
-                            $scope.icon = "icon-remove";
-                            break;
-                        case "grey":
-                            $scope.pushResultBtn = "";
-                            $scope.icon = "icon-time";
-                            break;
-                        default:
-                            $scope.pushResultBtn = "btn-success";
-                            $scope.icon = "icon-ok";
-                            $scope.isCollapsedResults = true;
-                            break;
+                        // how to display the warning_level.  collapse green ones
+                        console.log($scope.push.warning_level);
+                        switch(String(result_set.warning_level))
+                        {
+                            case "orange":
+                                $scope.pushResultBtn = "btn-warning";
+                                $scope.icon = "icon-warning-sign";
+                                break;
+                            case "red":
+                                $scope.pushResultBtn = "btn-danger";
+                                $scope.icon = "icon-remove";
+                                break;
+                            case "grey":
+                                $scope.pushResultBtn = "";
+                                $scope.icon = "icon-time";
+                                break;
+                            default:
+                                $scope.pushResultBtn = "btn-success";
+                                $scope.icon = "icon-ok";
+                                $scope.isCollapsedResults = true;
+                                break;
+                        }
                     }
-                }
-            ).error(
-                function(data, status, headers, config) {
-                    console.log(data)
-                });
+                ).
+                error(
+                    function(data, status, headers, config) {
+                        console.log("error: " + data + headers);
+                    });
         }
 
+    };
+}]);
+
+treeherder.factory('thRepos',
+                   ['$http', 'thService', '$rootScope',
+                   function($http, thService, $rootScope) {
+
+    // get the repositories (aka trees)
+    // sample: 'resources/menu.json'
+    return {
+        getRepos: function($rootScope) {
+            $http.get(thService.getRootUrl("/repository/?format=json")).
+                success(function(data) {
+                    $rootScope.repos = data;
+                }).
+                error(
+                    function(data, status, headers, config) {
+                        console.log("error: " + data + headers);
+                    });
+        }
     };
 }]);

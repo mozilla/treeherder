@@ -18,23 +18,23 @@
                       Logged in as <a href="#" class="navbar-link">Username</a>
                     </p>
                     <form class="navbar-search pull-right">
-                        <span class="label label-success">{{ tree }}</span>
+                        <span class="label label-success">{{ repo }}</span>
                         <span class="label label-success">0 unstarred</span>
                         <input type="text" ng-model="query" class="search-query" placeholder="Search">
                     </form>
                     <!-- nav begin -->
                         <ul class="nav">
                         <li class="divider-vertical"></li>
-                        <li><a href="">Tree info</a></li>
+                        <li><a href="">Repo info</a></li>
                         <li class="divider-vertical"></li>
                         <li><a href="">Infrastructure</a></li>
                         <li class="divider-vertical"></li>
                         <li><a href="">Filters</a></li>
                         <li class="divider-vertical"></li>
-                        <li class="dropdown" ng-controller="DropDownMenuCtrl">
-                            <a href="" class="dropdown-toggle" data-toggle="dropdown">Trees<b class="caret"></b></a>
+                        <li class="dropdown" ng-controller="RepoDropDownCtrl">
+                            <a href="" class="dropdown-toggle" data-toggle="dropdown">Repos<b class="caret"></b></a>
                                 <ul class="dropdown-menu">
-                                    <li ng-repeat="item in menu"><a href="{{ location.url }}">{{item.name}}</a></li>
+                                    <li ng-repeat="item in repos"><a href="" ng-click="changeRepo(item.name)">{{item.name}}</a></li>
                                 </ul>
                             </li>
                         <li class="divider-vertical"></li>
