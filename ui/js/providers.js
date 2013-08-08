@@ -3,7 +3,7 @@ treeherder.provider('thServiceDomain', function() {
         if (window.thServiceDomain) {
             return window.thServiceDomain;
         } else {
-            return "http://dev.treeherder.mozilla.org";
+            return "";
         }
     };
 });
