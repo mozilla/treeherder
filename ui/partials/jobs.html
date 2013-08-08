@@ -54,7 +54,7 @@
                        {{ group.symbol }}
                     </a>
                         <a class="btn-mini {{ job|typeClass }} {{ job.result|resultClass }}"
-                           title="{{ job.job_group_symbol }} - {{ job.who }} - pl:{{ job.platform }} - rsid:{{ job.result_set_id }} - typename:{{ job.job_type_name }}"
+                           title="{{ job.job_type_name }}"
                            ng-repeat="job in group.jobs">
                            <!--
                                We should conditionally remove the fire icon once they have
