@@ -47,3 +47,20 @@ The unit tests run with [Karma](http://karma-runner.github.io/0.8/config/configu
 
     cd webapp
     ./scripts/test.sh
+
+
+Configuration
+-------------
+
+-------------
+
+You can either run the treeherder service locally, or use a remote server.
+This setting is specified in this file:
+
+    webapp/app/js/config/local.conf.js
+
+A sample copy of this file is located here:
+
+    webapp/app/js/config/sample.local.conf.js
+
+Copy the sample file to ``local.conf.js`` and make your custom settings.
