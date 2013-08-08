@@ -153,9 +153,9 @@ class ResultSetViewSet(viewsets.ViewSet):
 
             objs = jm.get_result_set_list(
                 page,
-                1000,
+                10,
                 **dict((k, v) for k, v in request.QUERY_PARAMS.iteritems() if k in filters)
-                )
+            )
             return Response(objs)
         except DatasetNotFoundError as e:
             return Response({"message": unicode(e)}, status=404)
