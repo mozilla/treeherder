@@ -1,12 +1,12 @@
 'use strict';
 
 treeherder.factory('thService',
-                   ['$rootScope',
-                   function($rootScope) {
-    // todo: this belongs in the config
+                   ['$rootScope', 'thServiceDomain',
+                   function($rootScope, thServiceDomain) {
     return {
         getUrl: function(uri) {
-            return "http://192.168.33.10/api/project/" + $rootScope.tree + uri;
+            return thServiceDomain + "/api/project/" + $rootScope.tree + uri;
+//            return "http://192.168.33.10/api/project/" + $rootScope.tree + uri;
         }
     };
     return thService;
@@ -67,6 +67,7 @@ treeherder.factory('thResults',
                     // this feels like the right way
 
                     $scope.job_results = data["platforms"];
+                    console.log(data["platforms"]);
                     result_set.warning_level = getWarningLevel($scope.job_results);
 
                     $scope.isLoadingResults = false;
@@ -75,7 +76,6 @@ treeherder.factory('thResults',
                     $scope.isCollapsedResults = result_set.warning_level !== "red";
 
                     // how to display the warning_level.  collapse green ones
-                    console.log($scope.push.warning_level);
                     switch(String(result_set.warning_level))
                     {
                         case "orange":
