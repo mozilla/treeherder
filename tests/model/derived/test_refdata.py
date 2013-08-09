@@ -100,13 +100,13 @@ test_params = [
         }]
     },
     {
-        'input': ['myname', 'mygroup'],
+        'input': ['myname'],
         'func': 'get_or_create_job_type',
         'test_proc': 'test_refdata.selects.test_job_type',
         'expected': [{
             'symbol': '?',
             'name': 'myname',
-            'group': 'mygroup',
+            'group': 'unknown',
             'description': 'fill me',
             'active_status': 'active'
         }]

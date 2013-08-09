@@ -370,10 +370,10 @@ class JobsModel(TreeherderModelBase):
             [k for k, v in job["option_collection"].items() if v],
         )
 
-        job_group, sep, job_name = job["name"].partition("-")
+        job_name = job["name"]
 
         job_type_id = rdm.get_or_create_job_type(
-            job_name, job_group,
+            job_name
         )
 
         if "product_name" in job:
