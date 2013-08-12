@@ -236,6 +236,15 @@ class RefDataManager(object):
 
         return id_iter
 
+    def get_all_option_collections(self):
+        return self.dhub.execute(
+            proc='reference.selects.get_all_option_collections',
+            debug_show=self.DEBUG,
+            return_type='iter'
+        )
+
+
+
     def get_product_id(self, name):
 
         id_iter = self.dhub.execute(

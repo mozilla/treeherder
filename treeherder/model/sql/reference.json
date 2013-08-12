@@ -243,6 +243,15 @@
             "sql": "SELECT * FROM REP0
                     WHERE `id` = ?",
             "host":"read_host"
+        },
+        "get_all_option_collections":{
+            "sql":"SELECT option_collection_hash,
+                        GROUP_CONCAT( name SEPARATOR ' ' ) as opt
+                   FROM `option_collection` oc
+                   INNER JOIN `option` o
+                        on o.id = oc.option_id
+                    GROUP BY option_collection_hash",
+            "host":"read_host"
         }
     },
     "updates":{
@@ -254,4 +263,3 @@
         }
     }
 }
-
