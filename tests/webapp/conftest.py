@@ -19,18 +19,27 @@ def job_sample():
 
 
 @pytest.fixture
-def ten_jobs_stored(jm):
-    """stores a list of ten job samples"""
-    guids = ['myguid%s' % x for x in range(1, 10 + 1)]
+def twenty_jobs_stored(jm):
+    """stores a list of twenty job samples"""
+    num_jobs = 11
+    guids = ['myguid%s' % x for x in range(1, num_jobs + 1)]
 
+    rh = 0
+    pt = 0
     for guid in guids:
+        job = job_data(job_guid=guid)
+        job["revision_hash"] = rh
+        job["sources"][0]["push_timestamp"] = pt
         jm.store_job_data(
-            json.dumps(job_data(job_guid=guid)),
+            json.dumps(job),
             guid
         )
+        pt += 1
+        rh += 1
+
 
 @pytest.fixture
-def ten_jobs_processed(initial_data, sample_data, jm):
-    """stores and processes list of ten job samples"""
-    ten_jobs_stored(jm)
-    jm.process_objects(10)
+def twenty_jobs_processed(initial_data, sample_data, jm):
+    """stores and processes list of twenty job samples"""
+    twenty_jobs_stored(jm)
+    jm.process_objects(20)
