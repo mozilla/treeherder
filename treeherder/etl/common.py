@@ -1,16 +1,7 @@
-import urllib2
-import gzip
-import StringIO
 import hashlib
 
 import simplejson as json
 
-from django.core.urlresolvers import reverse
-from django.conf import settings
-
-import logging
-logging.basicConfig(filename="pulse_consumer.log", level=logging.DEBUG)
-logger = logging.getLogger()
 
 class JobDataError(ValueError):
     pass
@@ -75,30 +66,3 @@ def get_job_guid(request_id, request_time):
     sh.update(str(request_time))
 
     return sh.hexdigest()
-
-
-class TreeherderDataAdapter(object):
-
-    def load(self, jobs):
-        """post a list of jobs to the objectstore ingestion endpoint """
-
-        for job in jobs:
-            project = job['sources'][0]['repository']
-
-            # the creation endpoint is the same as the list one
-            endpoint = reverse('objectstore-list', kwargs={"project": project})
-
-            url = "{0}/{1}/".format(
-                settings.API_HOSTNAME.strip('/'),
-                endpoint.strip('/')
-            )
-            response = self._post_json_data(url, job)
-
-            if response.getcode() != 200:
-                message = json.loads(response.read())
-                logger.ERROR("Job loading failed: {0}".format(message['message']))
-
-    def _post_json_data(self, url, data):
-        req = urllib2.Request(url)
-        req.add_header('Content-Type', 'application/json')
-        return urllib2.urlopen(req, json.dumps(data))

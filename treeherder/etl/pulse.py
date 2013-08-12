@@ -11,7 +11,7 @@ from mozillapulse import consumers
 from .daemon import Daemon
 from .common import (JobData, get_revision_hash, get_job_guid)
 from treeherder.etl import buildbot
-from .common import TreeherderDataAdapter
+from treeherder.etl.mixins import JobsLoaderMixin
 
 
 class PulseDataAdapter(object):
@@ -343,7 +343,7 @@ class PulseDataAdapter(object):
         return target_struct
 
 
-class TreeherderPulseDataAdapter(PulseDataAdapter, TreeherderDataAdapter):
+class TreeherderPulseDataAdapter(PulseDataAdapter, JobsLoaderMixin):
     """Data adapter class that converts the PulseDataAdapter
        structure into the data structure accepted by treeherder."""
 

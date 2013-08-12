@@ -150,6 +150,8 @@ REST_FRAMEWORK = {
 
 API_HOSTNAME = "http://localhost"
 
+BUILDAPI_PENDING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-pending.js"
+BUILDAPI_RUNNING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-running.js"
 # this setting allows requests from any host
 CORS_ORIGIN_ALLOW_ALL = True
 

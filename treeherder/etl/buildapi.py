@@ -1,55 +1,17 @@
+from django.conf import settings
 import logging
-import urllib2
-
-import simplejson as json
 
 from . import buildbot
-from .common import (get_revision_hash, get_job_guid,
-                     JobData, TreeherderDataAdapter)
+from .common import get_revision_hash, get_job_guid, JobData
+from .mixins import JsonExtractorMixin, JobsLoaderMixin
 
 
-logger = logging.getLogger(__file__)
+logger = logging.getLogger()
 
 
-class TreeherderBuildapiAdapter(TreeherderDataAdapter):
-    """
-    Extract the pending and running jobs from buildapi,
-    transform them in a treeherder-friendly format and
-    load the transformed data to the objectstore restful api
+class PendingTransformerMixin(object):
 
-    """
-
-    def process_pending_jobs(self, buildapi_pending_url):
-        """
-        pulls pending jobs from buildapi, applies a transformation
-        and post it to the restful api
-        """
-        data = self.extract(buildapi_pending_url)
-        jobs = self.transform_pending_jobs(data)
-        self.load(jobs)
-
-    def process_running_jobs(self, buildapi_running_url):
-        """
-        pulls running jobs from buildapi, applies a transformation
-        and post it to the restful api
-        """
-        data = self.extract(buildapi_running_url)
-        jobs = self.transform_running_jobs(data)
-        self.load(jobs)
-
-    def extract(self, url):
-        """
-        Fetches a url pointing to a json file and return a dict
-        representing its content.
-        """
-        response = urllib2.urlopen(url)
-        if response.info().get('Content-Encoding') == 'gzip':
-            buf = StringIO(response.read())
-            f = gzip.GzipFile(fileobj=buf)
-            return f.read()
-        return json.loads(response.read())
-
-    def transform_pending_jobs(self, data):
+    def transform(self, data):
         """
         transform the buildapi structure into something we can ingest via
         our restful api
@@ -105,7 +67,10 @@ class TreeherderBuildapiAdapter(TreeherderDataAdapter):
                     job_list.append(JobData(treeherder_data))
         return job_list
 
-    def transform_running_jobs(self, data):
+
+class RunningTransformerMixin(object):
+
+    def transform(self, data):
         """
         transform the buildapi structure into something we can ingest via
         our restful api
@@ -164,3 +129,25 @@ class TreeherderBuildapiAdapter(TreeherderDataAdapter):
 
                     job_list.append(JobData(treeherder_data))
         return job_list
+
+
+class PendingJobsProcess(JsonExtractorMixin,
+                         PendingTransformerMixin,
+                         JobsLoaderMixin):
+    def run(self):
+        self.load(
+            self.transform(
+                self.extract(settings.BUILDAPI_PENDING_URL)
+            )
+        )
+
+
+class RunningJobsProcess(JsonExtractorMixin,
+                         RunningTransformerMixin,
+                         JobsLoaderMixin):
+    def run(self):
+        self.load(
+            self.transform(
+                self.extract(settings.BUILDAPI_RUNNING_URL)
+            )
+        )

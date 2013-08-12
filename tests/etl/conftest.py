@@ -1,6 +1,6 @@
 import pytest
 from webtest.app import TestApp
-from treeherder.etl.common import TreeherderDataAdapter
+from treeherder.etl.mixins import JsonLoaderMixin
 from treeherder.webapp.wsgi import application
 
 
@@ -12,9 +12,9 @@ def mock_post_json_data():
         response.getcode = lambda: response.status_int
         return response
 
-    old_func = TreeherderDataAdapter._post_json_data
-    TreeherderDataAdapter._post_json_data = _post_json_data
+    old_func = JsonLoaderMixin.load
+    JsonLoaderMixin.load = _post_json_data
 
     # on tearDown, re-set the original function
     def fin():
-        TreeherderDataAdapter._post_json_data = old_func
+        JsonLoaderMixin._post_json_data = old_func
