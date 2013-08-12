@@ -1,651 +1,728 @@
 [
-{
-    "pk": 1, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "A", 
-        "job_group": 1, 
-        "name": "asan", 
-        "active_status": "active", 
-        "description": "AddressSanitizer Build"
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 1, 
+            "name": "build", 
+            "symbol": "B"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 1
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 2, 
+            "name": "mochitest-browser-chrome", 
+            "symbol": "bc"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 2
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 4, 
+            "name": "dromaeojs", 
+            "symbol": "d"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 3
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 3, 
+            "name": "reftest", 
+            "symbol": "R"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 4
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": null, 
+            "name": "marionette", 
+            "symbol": "Mn"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 5
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 3, 
+            "name": "reftest-3", 
+            "symbol": "R3"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 6
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 3, 
+            "name": "reftest-4", 
+            "symbol": "R4"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 7
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 3, 
+            "name": "reftest-6", 
+            "symbol": "R6"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 8
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 2, 
+            "name": "robocop-2", 
+            "symbol": "rc2"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 9
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 2, 
+            "name": "mochitest-3", 
+            "symbol": "3"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 10
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 2, 
+            "name": "mochitest-5", 
+            "symbol": "5"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 11
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 3, 
+            "name": "crashtest", 
+            "symbol": "C"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 12
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 2, 
+            "name": "mochitest-other", 
+            "symbol": "oth"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 13
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": null, 
+            "name": "jetpack", 
+            "symbol": "JP"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 14
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 2, 
+            "name": "mochitest-4", 
+            "symbol": "4"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 15
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 3, 
+            "name": "plain-reftest-1", 
+            "symbol": "R1"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 16
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 3, 
+            "name": "jsreftest", 
+            "symbol": "J"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 17
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 2, 
+            "name": "mochitest-2", 
+            "symbol": "2"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 18
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 3, 
+            "name": "jsreftest-2", 
+            "symbol": "J2"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 19
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 2, 
+            "name": "mochitest-1", 
+            "symbol": "1"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 20
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 3, 
+            "name": "plain-reftest-4", 
+            "symbol": "R4"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 21
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 4, 
+            "name": "other", 
+            "symbol": "o"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 22
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 4, 
+            "name": "svgr", 
+            "symbol": "s"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 23
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": null, 
+            "name": "xpcshell", 
+            "symbol": "X"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 24
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 3, 
+            "name": "reftest-1", 
+            "symbol": "R1"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 25
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 3, 
+            "name": "reftest-10", 
+            "symbol": "R10"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 26
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 3, 
+            "name": "reftest-9", 
+            "symbol": "R9"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 27
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 3, 
+            "name": "reftest-5", 
+            "symbol": "R5"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 28
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 3, 
+            "name": "jsreftest-1", 
+            "symbol": "J1"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 29
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 2, 
+            "name": "mochitest-8", 
+            "symbol": "8"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 30
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 2, 
+            "name": "mochitest-7", 
+            "symbol": "7"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 31
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 2, 
+            "name": "mochitest-9", 
+            "symbol": "9"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 32
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 2, 
+            "name": "mochitest-6", 
+            "symbol": "6"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 33
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 4, 
+            "name": "remote-trobocheck2", 
+            "symbol": "rck2"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 34
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 4, 
+            "name": "chromez", 
+            "symbol": "c"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 35
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 3, 
+            "name": "crashtest-1", 
+            "symbol": "C1"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 36
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 4, 
+            "name": "remote-ts", 
+            "symbol": "ts"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 37
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 4, 
+            "name": "dirtypaint", 
+            "symbol": "p"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 38
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 3, 
+            "name": "plain-reftest-3", 
+            "symbol": "R3"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 39
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 4, 
+            "name": "remote-trobopan", 
+            "symbol": "rp"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 40
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 4, 
+            "name": "remote-tp4m_nochrome", 
+            "symbol": "tpn"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 41
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 3, 
+            "name": "jsreftest-3", 
+            "symbol": "J3"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 42
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 2, 
+            "name": "mochitests-4/5", 
+            "symbol": "4"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 43
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 2, 
+            "name": "mochitests-5/5", 
+            "symbol": "5"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 44
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 2, 
+            "name": "mochitests-3/5", 
+            "symbol": "3"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 45
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 2, 
+            "name": "mochitests-2/5", 
+            "symbol": "2"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 46
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 2, 
+            "name": "mochitests-1/5", 
+            "symbol": "1"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 47
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": null, 
+            "name": "mozmill", 
+            "symbol": "Z"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 48
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 3, 
+            "name": "reftest-ipc", 
+            "symbol": "Ripc"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 49
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 2, 
+            "name": "mochitest-metro-chrome", 
+            "symbol": "mc"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 50
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 3, 
+            "name": "crashtest-ipc", 
+            "symbol": "Cipc"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 51
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 3, 
+            "name": "reftest-no-accel", 
+            "symbol": "Ru"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 52
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 2, 
+            "name": "robocop-1", 
+            "symbol": "rc1"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 53
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 2, 
+            "name": "mochitest-gl", 
+            "symbol": "gl"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 54
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 3, 
+            "name": "crashtest-3", 
+            "symbol": "C3"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 55
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 3, 
+            "name": "crashtest-2", 
+            "symbol": "C2"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 56
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 3, 
+            "name": "reftest-7", 
+            "symbol": "R7"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 57
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 3, 
+            "name": "plain-reftest-2", 
+            "symbol": "R2"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 58
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": null, 
+            "name": "marionette-webapi", 
+            "symbol": "Mn"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 59
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 3, 
+            "name": "reftest-8", 
+            "symbol": "R8"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 60
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 3, 
+            "name": "reftest-2", 
+            "symbol": "R2"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 61
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 4, 
+            "name": "tp5o", 
+            "symbol": "tp"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 62
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 4, 
+            "name": "remote-troboprovider", 
+            "symbol": "rpr"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 63
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 4, 
+            "name": "xperf", 
+            "symbol": "x"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 64
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": 4, 
+            "name": "remote-tsvg", 
+            "symbol": "s"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 65
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "fill me", 
+            "job_group": null, 
+            "name": "gaia-unit", 
+            "symbol": "G"
+        }, 
+        "model": "model.jobtype", 
+        "pk": 66
     }
-},
-{
-    "pk": 2, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "An", 
-        "job_group": 1, 
-        "name": "asan nightly", 
-        "active_status": "active", 
-        "description": "AddressSanitizer Nightly"
-    }
-},
-{
-    "pk": 3, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "BiB", 
-        "job_group": 1, 
-        "name": "b2g.*_stable_dep", 
-        "active_status": "active", 
-        "description": "B2G Beta Channel Device Image Build"
-    }
-},
-{
-    "pk": 4, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "NiB", 
-        "job_group": 1, 
-        "name": "b2g.*_stable_nightly", 
-        "active_status": "active", 
-        "description": "B2G Beta Channel Device Image Nightly"
-    }
-},
-{
-    "pk": 5, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "Bi", 
-        "job_group": 1, 
-        "name": "b2g.*_dep", 
-        "active_status": "active", 
-        "description": "B2G Device Image Build"
-    }
-},
-{
-    "pk": 6, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "Ni", 
-        "job_group": 1, 
-        "name": "b2g.*_nightly", 
-        "active_status": "active", 
-        "description": "B2G Device Image Nightly"
-    }
-},
-{
-    "pk": 7, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "Bg", 
-        "job_group": 1, 
-        "name": "b2g.*gecko build", 
-        "active_status": "active", 
-        "description": "B2G Gecko Build"
-    }
-},
-{
-    "pk": 8, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "Bg", 
-        "job_group": 1, 
-        "name": "b2g.*gecko-debug build", 
-        "active_status": "active", 
-        "description": "B2G Gecko Build"
-    }
-},
-{
-    "pk": 9, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "NgL", 
-        "job_group": 1, 
-        "name": "b2g.*gecko_localizer nightly", 
-        "active_status": "active", 
-        "description": "B2G Gecko Localizer Nightly"
-    }
-},
-{
-    "pk": 10, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "Ng", 
-        "job_group": 1, 
-        "name": "b2g.*gecko nightly", 
-        "active_status": "active", 
-        "description": "B2G Gecko Nightly"
-    }
-},
-{
-    "pk": 11, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "BiM", 
-        "job_group": 1, 
-        "name": "b2g.*_eng_dep", 
-        "active_status": "active", 
-        "description": "B2G Marionette-Enabled Device Image Build"
-    }
-},
-{
-    "pk": 12, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "NiM", 
-        "job_group": 1, 
-        "name": "b2g.*_eng_nightly", 
-        "active_status": "active", 
-        "description": "B2G Marionette-Enabled Device Image Nightly"
-    }
-},
-{
-    "pk": 13, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "B", 
-        "job_group": 1, 
-        "name": "build", 
-        "active_status": "active", 
-        "description": "Build"
-    }
-},
-{
-    "pk": 14, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "C", 
-        "job_group": 3, 
-        "name": "crashtest", 
-        "active_status": "active", 
-        "description": "Crashtest"
-    }
-},
-{
-    "pk": 15, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "Cipc", 
-        "job_group": 3, 
-        "name": "crashtest-ipc", 
-        "active_status": "active", 
-        "description": "Crashtest-IPC"
-    }
-},
-{
-    "pk": 16, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "Dxr", 
-        "job_group": 6, 
-        "name": "dxr", 
-        "active_status": "active", 
-        "description": "DXR Index Build"
-    }
-},
-{
-    "pk": 17, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "G", 
-        "job_group": 6, 
-        "name": "gaia-ui-test", 
-        "active_status": "active", 
-        "description": "Gaia UI Test"
-    }
-},
-{
-    "pk": 18, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "m-a", 
-        "job_group": 6, 
-        "name": "jetpack-mozilla-aurora", 
-        "active_status": "active", 
-        "description": "Jetpack mozilla-aurora"
-    }
-},
-{
-    "pk": 19, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "m-b", 
-        "job_group": 6, 
-        "name": "jetpack-mozilla-beta", 
-        "active_status": "active", 
-        "description": "Jetpack mozilla-beta"
-    }
-},
-{
-    "pk": 20, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "m-c", 
-        "job_group": 6, 
-        "name": "jetpack-mozilla-central", 
-        "active_status": "active", 
-        "description": "Jetpack mozilla-central"
-    }
-},
-{
-    "pk": 21, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "m-r", 
-        "job_group": 6, 
-        "name": "jetpack-mozilla-release", 
-        "active_status": "active", 
-        "description": "Jetpack mozilla-release"
-    }
-},
-{
-    "pk": 22, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "JP", 
-        "job_group": 6, 
-        "name": "jetpack", 
-        "active_status": "active", 
-        "description": "Jetpack SDK Test"
-    }
-},
-{
-    "pk": 23, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "J", 
-        "job_group": 3, 
-        "name": "jsreftest", 
-        "active_status": "active", 
-        "description": "JSReftest"
-    }
-},
-{
-    "pk": 24, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "Mn", 
-        "job_group": 6, 
-        "name": "marionette", 
-        "active_status": "active", 
-        "description": "Marionette"
-    }
-},
-{
-    "pk": 25, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "M", 
-        "job_group": 2, 
-        "name": "mochitest", 
-        "active_status": "active", 
-        "description": "Mochitest"
-    }
-},
-{
-    "pk": 26, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "bc", 
-        "job_group": 2, 
-        "name": "mochitest-browser-chrome", 
-        "active_status": "active", 
-        "description": "Mochitest Browser Chrome"
-    }
-},
-{
-    "pk": 27, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "oth", 
-        "job_group": 2, 
-        "name": "mochitest-other", 
-        "active_status": "active", 
-        "description": "Mochitest Other"
-    }
-},
-{
-    "pk": 28, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "Z", 
-        "job_group": 6, 
-        "name": "mozmill", 
-        "active_status": "active", 
-        "description": "Mozmill"
-    }
-},
-{
-    "pk": 29, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "N", 
-        "job_group": 1, 
-        "name": "nightly", 
-        "active_status": "active", 
-        "description": "Nightly"
-    }
-},
-{
-    "pk": 30, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "R", 
-        "job_group": 3, 
-        "name": "reftest", 
-        "active_status": "active", 
-        "description": "Reftest"
-    }
-},
-{
-    "pk": 31, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "Ru", 
-        "job_group": 3, 
-        "name": "reftest-no-accel", 
-        "active_status": "active", 
-        "description": "Reftest Unaccelerated"
-    }
-},
-{
-    "pk": 32, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "Ripc", 
-        "job_group": 3, 
-        "name": "reftest-ipc", 
-        "active_status": "active", 
-        "description": "Reftest-IPC"
-    }
-},
-{
-    "pk": 33, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "rc", 
-        "job_group": 2, 
-        "name": "robocop", 
-        "active_status": "active", 
-        "description": "Robocop"
-    }
-},
-{
-    "pk": 34, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "r", 
-        "job_group": 5, 
-        "name": "spidermonkey.*-rootanalysis", 
-        "active_status": "active", 
-        "description": "SpiderMonkey --enable-root-analysis Build"
-    }
-},
-{
-    "pk": 35, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "e", 
-        "job_group": 5, 
-        "name": "spidermonkey.*-warnaserr", 
-        "active_status": "active", 
-        "description": "SpiderMonkey --enable-sm-fail-on-warnings Build"
-    }
-},
-{
-    "pk": 36, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "d", 
-        "job_group": 5, 
-        "name": "spidermonkey.*-dtrace", 
-        "active_status": "active", 
-        "description": "SpiderMonkey DTrace Build"
-    }
-},
-{
-    "pk": 37, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "exr", 
-        "job_group": 5, 
-        "name": "spidermonkey.*-exactroot", 
-        "active_status": "active", 
-        "description": "SpiderMonkey Exact Rooting Shell Build"
-    }
-},
-{
-    "pk": 38, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "ggc", 
-        "job_group": 5, 
-        "name": "spidermonkey.*-generational", 
-        "active_status": "active", 
-        "description": "SpiderMonkey GGC Shell Build"
-    }
-},
-{
-    "pk": 39, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "c", 
-        "job_group": 4, 
-        "name": "talos chrome", 
-        "active_status": "active", 
-        "description": "Talos chrome"
-    }
-},
-{
-    "pk": 40, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "c", 
-        "job_group": 4, 
-        "name": "talos chromez", 
-        "active_status": "active", 
-        "description": "Talos chrome"
-    }
-},
-{
-    "pk": 41, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "dr", 
-        "job_group": 4, 
-        "name": "talos dromaeo", 
-        "active_status": "active", 
-        "description": "Talos dromaeo"
-    }
-},
-{
-    "pk": 42, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "d", 
-        "job_group": 4, 
-        "name": "talos dromaeojs", 
-        "active_status": "active", 
-        "description": "Talos dromaeojs"
-    }
-},
-{
-    "pk": 43, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "n", 
-        "job_group": 4, 
-        "name": "talos nochrome", 
-        "active_status": "active", 
-        "description": "Talos nochrome"
-    }
-},
-{
-    "pk": 44, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "o", 
-        "job_group": 4, 
-        "name": "talos other", 
-        "active_status": "active", 
-        "description": "Talos other"
-    }
-},
-{
-    "pk": 45, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "p", 
-        "job_group": 4, 
-        "name": "talos dirtypaint", 
-        "active_status": "active", 
-        "description": "Talos paint"
-    }
-},
-{
-    "pk": 46, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "rck", 
-        "job_group": 4, 
-        "name": "talos remote-trobocheck", 
-        "active_status": "active", 
-        "description": "Talos robocheck"
-    }
-},
-{
-    "pk": 47, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "rck2", 
-        "job_group": 4, 
-        "name": "talos remote-trobocheck2", 
-        "active_status": "active", 
-        "description": "Talos robocheck2"
-    }
-},
-{
-    "pk": 48, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "rp", 
-        "job_group": 4, 
-        "name": "talos remote-trobopan", 
-        "active_status": "active", 
-        "description": "Talos robopan"
-    }
-},
-{
-    "pk": 49, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "rpr", 
-        "job_group": 4, 
-        "name": "talos remote-troboprovider", 
-        "active_status": "active", 
-        "description": "Talos roboprovider"
-    }
-},
-{
-    "pk": 50, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "s", 
-        "job_group": 4, 
-        "name": "talos svgr", 
-        "active_status": "active", 
-        "description": "Talos svg"
-    }
-},
-{
-    "pk": 51, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "s", 
-        "job_group": 4, 
-        "name": "talos remote-tsvgr", 
-        "active_status": "active", 
-        "description": "Talos svg"
-    }
-},
-{
-    "pk": 52, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "tp", 
-        "job_group": 4, 
-        "name": "talos remote-tp4m", 
-        "active_status": "active", 
-        "description": "Talos tp"
-    }
-},
-{
-    "pk": 53, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "tp", 
-        "job_group": 4, 
-        "name": "talos tp", 
-        "active_status": "active", 
-        "description": "Talos tp"
-    }
-},
-{
-    "pk": 54, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "tpn", 
-        "job_group": 4, 
-        "name": "talos remote-tp4m_nochrome", 
-        "active_status": "active", 
-        "description": "Talos tp nochrome"
-    }
-},
-{
-    "pk": 55, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "ts", 
-        "job_group": 4, 
-        "name": "talos remote-ts", 
-        "active_status": "active", 
-        "description": "Talos ts"
-    }
-},
-{
-    "pk": 56, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "x", 
-        "job_group": 4, 
-        "name": "talos xperf", 
-        "active_status": "active", 
-        "description": "Talos xperf"
-    }
-},
-{
-    "pk": 57, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "V", 
-        "job_group": 1, 
-        "name": "valgrind", 
-        "active_status": "active", 
-        "description": "Valgrind Build"
-    }
-},
-{
-    "pk": 58, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "X", 
-        "job_group": 6, 
-        "name": "xpcshell", 
-        "active_status": "active", 
-        "description": "XPCShellTest"
-    }
-},
-{
-    "pk": 59, 
-    "model": "model.jobtype", 
-    "fields": {
-        "symbol": "Xr", 
-        "job_group": 1, 
-        "name": "xulrunner", 
-        "active_status": "active", 
-        "description": "XULRunner"
-    }
-}
 ]

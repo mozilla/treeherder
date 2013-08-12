@@ -1,62 +1,52 @@
 [
-{
-    "pk": 1, 
-    "model": "model.jobgroup", 
-    "fields": {
-        "symbol": "B", 
-        "name": "build", 
-        "active_status": "active", 
-        "description": ""
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "", 
+            "name": "build", 
+            "symbol": "B"
+        }, 
+        "model": "model.jobgroup", 
+        "pk": 1
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "", 
+            "name": "mochitest", 
+            "symbol": "M"
+        }, 
+        "model": "model.jobgroup", 
+        "pk": 2
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "", 
+            "name": "reftest", 
+            "symbol": "R"
+        }, 
+        "model": "model.jobgroup", 
+        "pk": 3
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "", 
+            "name": "talos", 
+            "symbol": "T"
+        }, 
+        "model": "model.jobgroup", 
+        "pk": 4
+    }, 
+    {
+        "fields": {
+            "active_status": "active", 
+            "description": "", 
+            "name": "spidermonkey", 
+            "symbol": "SM"
+        }, 
+        "model": "model.jobgroup", 
+        "pk": 5
     }
-},
-{
-    "pk": 2, 
-    "model": "model.jobgroup", 
-    "fields": {
-        "symbol": "M", 
-        "name": "mochitest", 
-        "active_status": "active", 
-        "description": ""
-    }
-},
-{
-    "pk": 3, 
-    "model": "model.jobgroup", 
-    "fields": {
-        "symbol": "R", 
-        "name": "reftest", 
-        "active_status": "active", 
-        "description": ""
-    }
-},
-{
-    "pk": 4, 
-    "model": "model.jobgroup", 
-    "fields": {
-        "symbol": "T", 
-        "name": "talos", 
-        "active_status": "active", 
-        "description": ""
-    }
-},
-{
-    "pk": 5, 
-    "model": "model.jobgroup", 
-    "fields": {
-        "symbol": "SM", 
-        "name": "spidermonkey", 
-        "active_status": "active", 
-        "description": ""
-    }
-},
-{
-    "pk": 6, 
-    "model": "model.jobgroup", 
-    "fields": {
-        "symbol": "?", 
-        "name": "unknown", 
-        "active_status": "active", 
-        "description": ""
-    }
-}
 ]

@@ -94,31 +94,27 @@ class RefDataManager(object):
 
         return self.get_job_group_id(name)
 
-    def get_job_type_id(self, name, group):
+    def get_job_type_id(self, name):
 
         id_iter = self.dhub.execute(
             proc='reference.selects.get_job_type_id',
-            placeholders=[name, group],
+            placeholders=[name],
             debug_show=self.DEBUG,
             return_type='iter')
 
         return id_iter.get_column_data('id')
 
-    def get_or_create_job_type(self, name, group):
-
-        group_id = self.get_or_create_job_group(group)
+    def get_or_create_job_type(self, name):
 
         self.dhub.execute(
             proc='reference.inserts.create_job_type',
             placeholders=[
-                group_id,
                 name,
-                group_id,
                 name
             ],
             debug_show=self.DEBUG)
 
-        return self.get_job_type_id(name, group)
+        return self.get_job_type_id(name)
 
     def get_machine_id(self, name):
 

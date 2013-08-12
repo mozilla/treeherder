@@ -191,17 +191,7 @@ class JobDictBuilder(object):
             "job_type",
             obj_id,
         ).next()
-        job_group = self.jm.refdata_model.get_row_by_id(
-            "job_group",
-            job_type["job_group_id"],
-        ).get_column_data("name")
-        if job_type["name"]:
-            return u"{0}-{1}".format(
-                job_group,
-                job_type["name"],
-            )
-        else:
-            return job_group
+        return job_type['name']
 
     def _get_logs(self):
         logs = self.jm.get_jobs_dhub().execute(
