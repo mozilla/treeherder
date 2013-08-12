@@ -25,13 +25,13 @@
         },
 
         "create_job_type":{
-            "sql":"INSERT INTO `job_type` (`job_group_id`, `name`, `description`)
-                   SELECT ?, ?, 'fill me'
+            "sql":"INSERT INTO `job_type` (`name`, `description`)
+                   SELECT ?, 'fill me'
                     FROM DUAL
                     WHERE NOT EXISTS (
                     SELECT `name`
                     FROM `job_type`
-                    WHERE `job_group_id` = ? and `name` = ?
+                    WHERE `name` = ?
                     )",
             "host":"master_host"
         },
@@ -142,13 +142,9 @@
         "get_job_type_id":{
             "sql": "SELECT jt.`id`
                     FROM `job_type` jt
-                    INNER JOIN `job_group` jg
-                        ON jg.id = jt.job_group_id
                     WHERE
                         jt.`name` = ?
-                    AND jg.`name` = ?
-                    AND jt.`active_status` = 'active'
-                    AND jg.`active_status` = 'active'",
+                    AND jt.`active_status` = 'active'",
             "host":"read_host"
         },
         "get_machine_id":{
