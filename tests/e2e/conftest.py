@@ -30,7 +30,7 @@ def datasource_created():
 def pending_jobs():
     """returns a list of buildapi pending jobs"""
     return json.loads(open(
-        os.path.join(os.path.dirname(__file__),"pending.json")
+        os.path.join(os.path.dirname(__file__), "pending.json")
     ).read())
 
 
@@ -38,7 +38,7 @@ def pending_jobs():
 def running_jobs():
     """returns a list of buildapi running jobs"""
     return json.loads(open(
-        os.path.join(os.path.dirname(__file__),"running.json")
+        os.path.join(os.path.dirname(__file__), "running.json")
     ).read())
 
 
@@ -47,7 +47,7 @@ def completed_jobs(sample_data):
     """returns a list of pulse completed jobs"""
     base_dir = os.path.dirname(__file__)
     content  = open(
-        os.path.join(os.path.dirname(__file__),"finished.json")
+        os.path.join(os.path.dirname(__file__), "finished.json")
     ).read()
     t = Template(content)
     c = Context({"base_dir":base_dir})
