@@ -32,6 +32,10 @@ class RefDataManager(object):
     def disconnect(self):
         self.dhub.disconnect()
 
+    def get_db_name(self):
+        """The name of the database holding the refdata tables"""
+        return self.dhub.conf["default_db"]
+
     def get_row_by_id(self, table_name, obj_id):
         iter_obj = self.dhub.execute(
             proc="reference.selects.get_row_by_id",

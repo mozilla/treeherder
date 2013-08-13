@@ -219,18 +219,18 @@
                     j.`result`,
                     j.`state`
                   FROM `job` as j
-                  LEFT JOIN `treeherder`.`machine` as m
+                  LEFT JOIN `REP0`.`machine` as m
                     ON j.`machine_id` = m.id
-                  LEFT JOIN `treeherder`.`machine_platform` as mp
+                  LEFT JOIN `REP0`.`machine_platform` as mp
                     ON j.`machine_platform_id` = mp.id
-                  LEFT JOIN `treeherder`.`build_platform` as bp
+                  LEFT JOIN `REP0`.`build_platform` as bp
                     ON j.`build_platform_id` = bp.id
-                  LEFT JOIN `treeherder`.`job_type` as jt
+                  LEFT JOIN `REP0`.`job_type` as jt
                     ON j.`job_type_id` = jt.id
-				  LEFT JOIN `treeherder`.`job_group` as jg
+				  LEFT JOIN `REP0`.`job_group` as jg
                     ON jt.`job_group_id` = jg.id
                   WHERE j.`result_set_id` = ?
-                  REP0
+                  REP1
                   ",
             "host": "read_host"
         }

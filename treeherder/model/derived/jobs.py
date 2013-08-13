@@ -159,9 +159,9 @@ class JobsModel(TreeherderModelBase):
 
         Mainly used by the restful api to list the job results in the UI
         """
-        repl = [""]
+        repl = [self.refdata_model.get_db_name()]
         if "job_type_name" in kwargs:
-            repl = [" AND jt.`name` = '{0}'".format(kwargs["job_type_name"])]
+            repl.append(" AND jt.`name` = '{0}'".format(kwargs["job_type_name"]))
 
         proc = "jobs.selects.get_result_set_job_list"
         push_dict = self.get_jobs_dhub().execute(
