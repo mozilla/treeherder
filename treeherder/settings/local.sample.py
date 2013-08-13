@@ -21,3 +21,8 @@ SECRET_KEY = os.environ.get("TREEHERDER_DJANGO_SECRET_KEY", "")
 # Make this unique so that if you execute the tests against a shared database,
 # you don't conflict with other people running the tests simultaneously.
 TEST_DB_PREFIX = ""
+
+SITE_URL = "http://dev.treeherder.mozilla.org"
+
+TREEHERDER_RO_DATABASE_USER     = os.environ.get("TREEHERDER_RO_DATABASE_USER", "TREEHERDER_DATABASE_USER")
+TREEHERDER_RO_DATABASE_PASSWORD = os.environ.get("TREEHERDER_RO_DATABASE_PASSWORD", "TREEHERDER_DATABASE_PASSWORD")

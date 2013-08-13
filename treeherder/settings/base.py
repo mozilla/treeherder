@@ -60,6 +60,11 @@ TEMPLATE_DIRS = [
     path("webapp", "templates")
 ]
 
+TEMPLATE_CONTEXT_PROCESSORS = (
+   'django.contrib.auth.context_processors.auth',
+   'django_browserid.context_processors.browserid'
+)
+
 MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -70,6 +75,25 @@ MIDDLEWARE_CLASSES = [
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+AUTHENTICATION_BACKENDS = (
+   'django_browserid.auth.BrowserIDBackend',
+   'django.contrib.auth.backends.ModelBackend'
+)
+
+# this tells browserid to not create users.
+# a user must be created first in the admin
+# and then can be recognized with persona login
+BROWSERID_CREATE_USER = False
+
+# Path to redirect to on successful login.
+LOGIN_REDIRECT_URL = '/'
+
+# Path to redirect to on unsuccessful login attempt.
+LOGIN_REDIRECT_URL_FAILURE = '/'
+
+# Path to redirect to on logout.
+LOGOUT_REDIRECT_URL = '/'
 
 INSTALLED_APPS = [
     'django.contrib.auth',
@@ -85,6 +109,7 @@ INSTALLED_APPS = [
     'south',
     'rest_framework',
     'corsheaders',
+    'django_browserid',
     # treeherder apps
     'treeherder.model',
     'treeherder.webapp',
@@ -148,7 +173,7 @@ REST_FRAMEWORK = {
     )
 }
 
-API_HOSTNAME = "http://localhost"
+SITE_URL = "http://local.treeherder.mozilla.org"
 
 # this setting allows requests from any host
 CORS_ORIGIN_ALLOW_ALL = True
@@ -193,3 +218,6 @@ BROKER_URL = 'amqp://{0}:{1}@{2}:{3}/{4}'.format(
     RABBITMQ_PORT,
     RABBITMQ_VHOST
 )
+
+API_HOSTNAME = SITE_URL
+ALLOWED_HOSTS = [SITE_URL]
