@@ -206,16 +206,16 @@ class ResultSetViewSet(viewsets.ViewSet):
             rs = list(jm.get_result_set_by_id(pk))[0]
             jobs_ungrouped = list(jm.get_result_set_job_list(
                 pk,
-                **dict((k, v) for k, v in request.QUERY_PARAMS.iteritems() if k in filters)
-                ))
+                **dict((k, v) for k, v in request.QUERY_PARAMS.iteritems() if k in filters))
+            )
 
             option_collections = dict((oc['option_collection_hash'], oc['opt'])
                                       for oc in jm.refdata_model.get_all_option_collections())
 
             # the main grouper for a result set is the combination of platform and options
-            platform_grouper = lambda x: " ".join(
-                [x["platform"],
-                option_collections[x["option_collection_hash"]]]
+            platform_grouper = lambda x: "{0} {1}".format(
+                x["platform"],
+                option_collections[x["option_collection_hash"]]
             )
 
             #itertools needs the elements to be sorted by the grouper

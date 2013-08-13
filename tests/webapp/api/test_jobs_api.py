@@ -172,7 +172,7 @@ def test_job_detail_not_found(webapp, jm):
     }
 
 
-def test_retrieve_result_set(webapp, ten_jobs_processed, jm):
+def test_retrieve_result_set(jm, webapp, ten_jobs_processed):
     resp = webapp.get(
         reverse("resultset-list",
                 kwargs={"project": jm.project})
@@ -181,7 +181,7 @@ def test_retrieve_result_set(webapp, ten_jobs_processed, jm):
     assert isinstance(resp.json, list)
 
 
-def test_retrieve_result_set_detail(webapp, ten_jobs_processed, jm):
+def test_retrieve_result_set_detail(jm, webapp, ten_jobs_processed):
     job = jm.get_job_list(0, 1).next()
     resp = webapp.get(
         reverse("resultset-detail",
