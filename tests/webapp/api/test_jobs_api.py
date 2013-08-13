@@ -170,3 +170,21 @@ def test_job_detail_not_found(webapp, jm):
                     " {'contenttype': 'jobs', 'id': u'-32767',"
                     " 'procedure': 'generic.selects.get_row_by_id'}")
     }
+
+
+def test_retrieve_result_set(jm, webapp, ten_jobs_processed):
+    resp = webapp.get(
+        reverse("resultset-list",
+                kwargs={"project": jm.project})
+    )
+    assert resp.status_int == 200
+    assert isinstance(resp.json, list)
+
+
+def test_retrieve_result_set_detail(jm, webapp, ten_jobs_processed):
+    job = jm.get_job_list(0, 1).next()
+    resp = webapp.get(
+        reverse("resultset-detail",
+                kwargs={"project": jm.project, "pk": job["id"]})
+    )
+    assert resp.status_int == 200
