@@ -32,6 +32,10 @@ class RefDataManager(object):
     def disconnect(self):
         self.dhub.disconnect()
 
+    def get_db_name(self):
+        """The name of the database holding the refdata tables"""
+        return self.dhub.conf["default_db"]
+
     def get_row_by_id(self, table_name, obj_id):
         iter_obj = self.dhub.execute(
             proc="reference.selects.get_row_by_id",
@@ -231,6 +235,15 @@ class RefDataManager(object):
             return_type='iter')
 
         return id_iter
+
+    def get_all_option_collections(self):
+        return self.dhub.execute(
+            proc='reference.selects.get_all_option_collections',
+            debug_show=self.DEBUG,
+            return_type='iter'
+        )
+
+
 
     def get_product_id(self, name):
 

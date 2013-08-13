@@ -1,4 +1,5 @@
 import simplejson as json
+import itertools
 
 from django.http import Http404
 from rest_framework import viewsets
@@ -199,23 +200,38 @@ class ResultSetViewSet(viewsets.ViewSet):
         """
         filters = ["job_type_name"]
 
+        jm = JobsModel(project)
+
         try:
-            jm = JobsModel(project)
             rs = list(jm.get_result_set_by_id(pk))[0]
             jobs_ungrouped = list(jm.get_result_set_job_list(
                 pk,
-                **dict((k, v) for k, v in request.QUERY_PARAMS.iteritems() if k in filters)
-                ))
-            # group these by their platforms for return
-            jobs_sorted = sorted(jobs_ungrouped, key=lambda x: x["platform"])
-            import itertools
+                **dict((k, v) for k, v in request.QUERY_PARAMS.iteritems() if k in filters))
+            )
+
+            option_collections = dict((oc['option_collection_hash'], oc['opt'])
+                                      for oc in jm.refdata_model.get_all_option_collections())
+
+            # the main grouper for a result set is the combination of platform and options
+            platform_grouper = lambda x: "{0} {1}".format(
+                x["platform"],
+                option_collections[x["option_collection_hash"]]
+            )
+
+            #itertools needs the elements to be sorted by the grouper
+            jobs_sorted = sorted(jobs_ungrouped, key=platform_grouper)
+
             rs["platforms"] = []
-            # job_groups by platform
-            for k, g in itertools.groupby(jobs_sorted, key=lambda x: x["platform"]):
-                job_groups = sorted(list(g), key=lambda x: x["job_group_symbol"])
+
+            # job_groups by platform and options
+            for k, g in itertools.groupby(jobs_sorted, key=platform_grouper):
+
+                job_group_grouper = lambda x: x["job_group_symbol"]
+                job_groups = sorted(list(g), key=job_group_grouper)
                 groups = []
-                for jg_k, jg_g in itertools.groupby(job_groups, key=lambda x: x["job_group_symbol"]):
-                    jobs = list(jg_g)
+                for jg_k, jg_g in itertools.groupby(job_groups, job_group_grouper):
+
+                    jobs = sorted(list(jg_g), key=lambda x: x['job_type_symbol'])
                     groups.append({
                         "symbol": jg_k,
                         "jobs": jobs
