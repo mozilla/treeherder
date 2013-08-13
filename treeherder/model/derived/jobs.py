@@ -155,7 +155,7 @@ class JobsModel(TreeherderModelBase):
             replace=repl,
         )
 
-        return self.as_list(iter_obj, "result_set", kwargs)
+        return self.as_list(iter_obj, "result_set", **kwargs)
 
     def get_result_set_job_list(self, result_set_id, **kwargs):
         """

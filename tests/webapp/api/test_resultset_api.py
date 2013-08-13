@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse
 xfail = pytest.mark.xfail
 
 
-def test_resultset_list(webapp, twenty_jobs_processed, jm):
+def test_resultset_list(webapp, eleven_jobs_processed, jm):
     """
     test retrieving a list of ten json blobs from the jobs-list
     endpoint.
@@ -32,12 +32,14 @@ def test_resultset_list(webapp, twenty_jobs_processed, jm):
         print set(exp_keys)
         assert set(job.keys()) == set(exp_keys)
 
-def test_resultset_detail(webapp, twenty_jobs_processed, jm):
+def test_resultset_detail(webapp, eleven_jobs_processed, jm):
     """
     test retrieving a single job from the jobs-detail
     endpoint.
     """
-    rs = jm.get_result_set_list(0, 1).next()
+    rs_list = jm.get_result_set_list(0, 1)
+    print(rs_list)
+    rs = rs_list[0]
 
     resp = webapp.get(
         reverse("resultset-detail",

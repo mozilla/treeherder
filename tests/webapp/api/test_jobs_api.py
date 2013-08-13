@@ -3,7 +3,7 @@ import json
 from django.core.urlresolvers import reverse
 
 
-def test_update_state_success(webapp, twenty_jobs_processed, jm):
+def test_update_state_success(webapp, eleven_jobs_processed, jm):
     """
     test setting the state of a job via webtest.
     extected result are:
@@ -30,7 +30,7 @@ def test_update_state_success(webapp, twenty_jobs_processed, jm):
     assert jm.get_job(job_id)["state"] == new_state
 
 
-def test_update_state_invalid_state(webapp, twenty_jobs_processed, jm):
+def test_update_state_invalid_state(webapp, eleven_jobs_processed, jm):
     """
     test setting the state of a job via webtest with invalid state.
     extected result are:
@@ -59,7 +59,7 @@ def test_update_state_invalid_state(webapp, twenty_jobs_processed, jm):
     assert jm.get_job(job_id)["state"] == old_state
 
 
-def test_update_state_invalid_job_id(webapp, twenty_jobs_processed, jm):
+def test_update_state_invalid_job_id(webapp, eleven_jobs_processed, jm):
     """
     test setting the state of a job via webtest with invalid job_id.
     extected result are:
@@ -77,7 +77,7 @@ def test_update_state_invalid_job_id(webapp, twenty_jobs_processed, jm):
     webapp.post(url, params={"state": new_state}, status=404)
 
 
-def test_job_list(webapp, twenty_jobs_processed, jm):
+def test_job_list(webapp, eleven_jobs_processed, jm):
     """
     test retrieving a list of ten json blobs from the jobs-list
     endpoint.
@@ -114,7 +114,7 @@ def test_job_list(webapp, twenty_jobs_processed, jm):
         assert set(job.keys()) == set(exp_keys)
 
 
-def test_job_list_bad_project(webapp, twenty_jobs_processed, jm):
+def test_job_list_bad_project(webapp, eleven_jobs_processed, jm):
     """
     test retrieving a job list with a bad project throws 404.
     """
@@ -125,7 +125,7 @@ def test_job_list_bad_project(webapp, twenty_jobs_processed, jm):
     webapp.get(badurl, status=404)
 
 
-def test_job_detail(webapp, twenty_jobs_processed, jm):
+def test_job_detail(webapp, eleven_jobs_processed, jm):
     """
     test retrieving a single job from the jobs-detail
     endpoint.
@@ -141,7 +141,7 @@ def test_job_detail(webapp, twenty_jobs_processed, jm):
     assert resp.json["id"] == job["id"]
 
 
-def test_job_detail_bad_project(webapp, twenty_jobs_processed, jm):
+def test_job_detail_bad_project(webapp, eleven_jobs_processed, jm):
     """
     test retrieving a single job from the jobs-detail
     endpoint.
