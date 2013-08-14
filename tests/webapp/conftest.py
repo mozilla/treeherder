@@ -20,7 +20,7 @@ def job_sample():
 
 @pytest.fixture
 def eleven_jobs_stored(jm):
-    """stores a list of twenty job samples"""
+    """stores a list of 11 job samples"""
     num_jobs = 11
     guids = ['myguid%s' % x for x in range(1, num_jobs + 1)]
 
@@ -40,6 +40,6 @@ def eleven_jobs_stored(jm):
 
 @pytest.fixture
 def eleven_jobs_processed(initial_data, sample_data, jm):
-    """stores and processes list of twenty job samples"""
+    """stores and processes list of 11 job samples"""
     eleven_jobs_stored(jm)
-    jm.process_objects(20)
+    jm.process_objects(11)

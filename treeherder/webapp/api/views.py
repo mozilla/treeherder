@@ -148,14 +148,15 @@ class ResultSetViewSet(viewsets.ViewSet):
 
         filters = ["author"]
 
+        jm = JobsModel(project)
         try:
             page = request.QUERY_PARAMS.get('page', 0)
-            jm = JobsModel(project)
 
             objs = jm.get_result_set_list(
                 page,
                 10,
-                **dict((k, v) for k, v in request.QUERY_PARAMS.iteritems() if k in filters)
+                **dict((k, v) for k, v in request.QUERY_PARAMS.iteritems()
+                       if k in filters)
             )
             return Response(objs)
         except DatasetNotFoundError as e:
@@ -203,16 +204,20 @@ class ResultSetViewSet(viewsets.ViewSet):
         jm = JobsModel(project)
 
         try:
-            rs = list(jm.get_result_set_by_id(pk))[0]
+            rs = jm.get_result_set_by_id(pk)
+            print rs
             jobs_ungrouped = list(jm.get_result_set_job_list(
                 pk,
-                **dict((k, v) for k, v in request.QUERY_PARAMS.iteritems() if k in filters))
-            )
+                **dict((k, v) for k, v in request.QUERY_PARAMS.iteritems()
+                       if k in filters)
+            ))
 
-            option_collections = dict((oc['option_collection_hash'], oc['opt'])
-                                      for oc in jm.refdata_model.get_all_option_collections())
+            option_collections = dict(
+                (oc['option_collection_hash'], oc['opt'])
+                for oc in jm.refdata_model.get_all_option_collections())
 
-            # the main grouper for a result set is the combination of platform and options
+            # the main grouper for a result set is the combination of
+            # platform and options
             platform_grouper = lambda x: "{0} {1}".format(
                 x["platform"],
                 option_collections[x["option_collection_hash"]]
@@ -229,9 +234,11 @@ class ResultSetViewSet(viewsets.ViewSet):
                 job_group_grouper = lambda x: x["job_group_symbol"]
                 job_groups = sorted(list(g), key=job_group_grouper)
                 groups = []
-                for jg_k, jg_g in itertools.groupby(job_groups, job_group_grouper):
+                for jg_k, jg_g in itertools.groupby(job_groups,
+                                                    job_group_grouper):
 
-                    jobs = sorted(list(jg_g), key=lambda x: x['job_type_symbol'])
+                    jobs = sorted(list(jg_g),
+                                  key=lambda x: x['job_type_symbol'])
                     groups.append({
                         "symbol": jg_k,
                         "jobs": jobs
@@ -251,6 +258,8 @@ class ResultSetViewSet(viewsets.ViewSet):
         except ObjectNotFoundException as e:
             return Response({"message": unicode(e)}, status=404)
         except Exception as e:  # pragma nocover
+            import traceback
+            traceback.print_exc()
             return Response({"message": unicode(e)}, status=500)
         finally:
             jm.disconnect()

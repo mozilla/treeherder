@@ -61,6 +61,12 @@ class JobsModel(TreeherderModelBase):
         """Get the dhub for jobs"""
         return self.get_dhub(self.CT_JOBS)
 
+    ##################
+    #
+    # Job schema data methods
+    #
+    ##################
+
     def get_os_dhub(self):
         """Get the dhub for the objectstore"""
         return self.get_dhub(self.CT_OBJECTSTORE)
@@ -77,7 +83,7 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG,
             return_type='iter'
         )
-        return self.as_single(id_iter, "jobs", job_guid=job_guid)
+        return id_iter.get_column_data('id')
 
     def get_job_list(self, page, limit):
         """
@@ -104,12 +110,13 @@ class JobsModel(TreeherderModelBase):
 
     def get_log_references(self, job_id):
         """Return the log references for the given ``job_id``."""
-        return self.get_jobs_dhub().execute(
+        iter_obj = self.get_jobs_dhub().execute(
             proc="jobs.selects.get_log_references",
             placeholders=[job_id],
             debug_show=self.DEBUG,
             return_type='iter',
         )
+        return self.as_list(iter_obj, "job_log_url", job_id=job_id)
 
     def get_result_set_id(self, revision_hash):
         """Return the ``result_set.id`` for the given ``revision_hash``"""
@@ -119,11 +126,7 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG,
             return_type='iter')
 
-        return self.as_single(
-            id_iter,
-            "result_set",
-            revision_hash=revision_hash,
-            )
+        return id_iter.get_column_data('id')
 
     def get_revision_id(self, revision):
         """Return the ``revision.id`` for the given ``revision``"""
@@ -133,7 +136,7 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG,
             return_type='iter')
 
-        return self.as_single(id_iter, "revision", revision=revision)
+        return id_iter.get_column_data('id')
 
     def get_result_set_list(self, page, limit, **kwargs):
         """
