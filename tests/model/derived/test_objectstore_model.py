@@ -78,10 +78,6 @@ def test_process_objects(jm, initial_data, mock_log_parser):
     loading_count = jm.get_dhub(jm.CT_OBJECTSTORE).execute(
         proc="objectstore_test.counts.loading")[0]["loading_count"]
 
-
-    import time
-    # time.sleep(60)
-
     assert complete_count == 2
     assert loading_count == 0
     assert date_set.issubset(expected_dates)

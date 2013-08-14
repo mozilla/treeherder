@@ -206,7 +206,6 @@ class ResultSetViewSet(viewsets.ViewSet):
 
         try:
             rs = jm.get_result_set_by_id(pk)
-            print rs
             jobs_ungrouped = list(jm.get_result_set_job_list(
                 pk,
                 **dict((k, v) for k, v in request.QUERY_PARAMS.iteritems()
@@ -256,8 +255,6 @@ class ResultSetViewSet(viewsets.ViewSet):
         except ObjectNotFoundException as e:
             return Response({"message": unicode(e)}, status=404)
         except Exception as e:  # pragma nocover
-            import traceback
-            traceback.print_exc()
             return Response({"message": unicode(e)}, status=500)
         finally:
             jm.disconnect()
