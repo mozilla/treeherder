@@ -3,7 +3,7 @@ import json
 from django.core.urlresolvers import reverse
 
 
-def test_update_state_success(webapp, ten_jobs_processed, jm):
+def test_update_state_success(webapp, eleven_jobs_processed, jm):
     """
     test setting the state of a job via webtest.
     extected result are:
@@ -12,9 +12,7 @@ def test_update_state_success(webapp, ten_jobs_processed, jm):
     - job status updated
     """
 
-    joblist = jm.get_job_list(0, 1)
-    job = joblist.next()
-
+    job = jm.get_job_list(0, 1)[0]
     job_id = job["id"]
     new_state = "pending"
 
@@ -30,16 +28,14 @@ def test_update_state_success(webapp, ten_jobs_processed, jm):
     assert jm.get_job(job_id)["state"] == new_state
 
 
-def test_update_state_invalid_state(webapp, ten_jobs_processed, jm):
+def test_update_state_invalid_state(webapp, eleven_jobs_processed, jm):
     """
     test setting the state of a job via webtest with invalid state.
     extected result are:
     - return code 400
     """
 
-    joblist = jm.get_job_list(0, 1)
-    job = joblist.next()
-
+    job = jm.get_job_list(0, 1)[0]
     job_id = job["id"]
     old_state = job["state"]
     new_state = "chokey"
@@ -59,7 +55,7 @@ def test_update_state_invalid_state(webapp, ten_jobs_processed, jm):
     assert jm.get_job(job_id)["state"] == old_state
 
 
-def test_update_state_invalid_job_id(webapp, ten_jobs_processed, jm):
+def test_update_state_invalid_job_id(webapp, eleven_jobs_processed, jm):
     """
     test setting the state of a job via webtest with invalid job_id.
     extected result are:
@@ -77,7 +73,7 @@ def test_update_state_invalid_job_id(webapp, ten_jobs_processed, jm):
     webapp.post(url, params={"state": new_state}, status=404)
 
 
-def test_job_list(webapp, ten_jobs_processed, jm):
+def test_job_list(webapp, eleven_jobs_processed, jm):
     """
     test retrieving a list of ten json blobs from the jobs-list
     endpoint.
@@ -114,7 +110,7 @@ def test_job_list(webapp, ten_jobs_processed, jm):
         assert set(job.keys()) == set(exp_keys)
 
 
-def test_job_list_bad_project(webapp, ten_jobs_processed, jm):
+def test_job_list_bad_project(webapp, eleven_jobs_processed, jm):
     """
     test retrieving a job list with a bad project throws 404.
     """
@@ -125,12 +121,12 @@ def test_job_list_bad_project(webapp, ten_jobs_processed, jm):
     webapp.get(badurl, status=404)
 
 
-def test_job_detail(webapp, ten_jobs_processed, jm):
+def test_job_detail(webapp, eleven_jobs_processed, jm):
     """
     test retrieving a single job from the jobs-detail
     endpoint.
     """
-    job = jm.get_job_list(0, 1).next()
+    job = jm.get_job_list(0, 1)[0]
 
     resp = webapp.get(
         reverse("jobs-detail",
@@ -141,12 +137,12 @@ def test_job_detail(webapp, ten_jobs_processed, jm):
     assert resp.json["id"] == job["id"]
 
 
-def test_job_detail_bad_project(webapp, ten_jobs_processed, jm):
+def test_job_detail_bad_project(webapp, eleven_jobs_processed, jm):
     """
     test retrieving a single job from the jobs-detail
     endpoint.
     """
-    job = jm.get_job_list(0, 1).next()
+    job = jm.get_job_list(0, 1)[0]
     url = reverse("jobs-detail",
                   kwargs={"project": jm.project, "pk": job["id"]})
     badurl = url.replace(jm.project, "badproject")
@@ -166,13 +162,12 @@ def test_job_detail_not_found(webapp, jm):
     )
     assert resp.status_int == 404
     assert resp.json == {
-        "message": ("ObjectNotFoundException: For table 'job':"
-                    " {'contenttype': 'jobs', 'id': u'-32767',"
-                    " 'procedure': 'generic.selects.get_row_by_id'}")
+        u"message": (u"ObjectNotFoundException: For table 'job':"
+                     u" {'id': u'-32767'}")
     }
 
 
-def test_retrieve_result_set(jm, webapp, ten_jobs_processed):
+def test_retrieve_result_set(jm, webapp, eleven_jobs_processed):
     resp = webapp.get(
         reverse("resultset-list",
                 kwargs={"project": jm.project})
@@ -181,8 +176,8 @@ def test_retrieve_result_set(jm, webapp, ten_jobs_processed):
     assert isinstance(resp.json, list)
 
 
-def test_retrieve_result_set_detail(jm, webapp, ten_jobs_processed):
-    job = jm.get_job_list(0, 1).next()
+def test_retrieve_result_set_detail(jm, webapp, eleven_jobs_processed):
+    job = jm.get_job_list(0, 1)[0]
     resp = webapp.get(
         reverse("resultset-detail",
                 kwargs={"project": jm.project, "pk": job["id"]})

@@ -42,5 +42,8 @@ nosetests.xml
 treeherder/settings/local.py
 htmlcov/
 
+#static files in deployment
+treeherder/webapp/static/
+
 #docs build directory
 docs/_build/

@@ -61,6 +61,12 @@ class JobsModel(TreeherderModelBase):
         """Get the dhub for jobs"""
         return self.get_dhub(self.CT_JOBS)
 
+    ##################
+    #
+    # Job schema data methods
+    #
+    ##################
+
     def get_os_dhub(self):
         """Get the dhub for the objectstore"""
         return self.get_dhub(self.CT_OBJECTSTORE)
@@ -85,14 +91,14 @@ class JobsModel(TreeherderModelBase):
         Mainly used by the restful api to list the jobs
         """
         proc = "jobs.selects.get_job_list"
-        json_blobs = self.get_jobs_dhub().execute(
+        iter_obj = self.get_jobs_dhub().execute(
             proc=proc,
             placeholders=[page, limit],
             debug_show=self.DEBUG,
             return_type='iter'
         )
 
-        return json_blobs
+        return self.as_list(iter_obj, "jobs")
 
     def set_state(self, job_id, state):
         """Update the state of an existing job"""
@@ -104,12 +110,13 @@ class JobsModel(TreeherderModelBase):
 
     def get_log_references(self, job_id):
         """Return the log references for the given ``job_id``."""
-        return self.get_jobs_dhub().execute(
+        iter_obj = self.get_jobs_dhub().execute(
             proc="jobs.selects.get_log_references",
             placeholders=[job_id],
             debug_show=self.DEBUG,
             return_type='iter',
         )
+        return self.as_list(iter_obj, "job_log_url", job_id=job_id)
 
     def get_result_set_id(self, revision_hash):
         """Return the ``result_set.id`` for the given ``revision_hash``"""
@@ -143,7 +150,7 @@ class JobsModel(TreeherderModelBase):
             repl = [" AND `rev`.`author` = '{0}'".format(kwargs["author"])]
 
         proc = "jobs.selects.get_result_set_list"
-        push_dict = self.get_jobs_dhub().execute(
+        iter_obj = self.get_jobs_dhub().execute(
             proc=proc,
             placeholders=[page, limit],
             debug_show=self.DEBUG,
@@ -151,7 +158,7 @@ class JobsModel(TreeherderModelBase):
             replace=repl,
         )
 
-        return push_dict
+        return self.as_list(iter_obj, "result_set", **kwargs)
 
     def get_result_set_job_list(self, result_set_id, **kwargs):
         """
@@ -164,7 +171,7 @@ class JobsModel(TreeherderModelBase):
             repl.append(" AND jt.`name` = '{0}'".format(kwargs["job_type_name"]))
 
         proc = "jobs.selects.get_result_set_job_list"
-        push_dict = self.get_jobs_dhub().execute(
+        iter_obj = self.get_jobs_dhub().execute(
             proc=proc,
             placeholders=[result_set_id],
             debug_show=self.DEBUG,
@@ -172,19 +179,19 @@ class JobsModel(TreeherderModelBase):
             replace=repl,
         )
 
-        return push_dict
+        return self.as_list(iter_obj, "jobs", result_set_id=result_set_id)
 
     def get_result_set_by_id(self, result_set_id):
         """Get a single result_set by ``id``."""
         proc = "jobs.selects.get_result_set_by_id"
-        job_dict = self.get_jobs_dhub().execute(
+        iter_obj = self.get_jobs_dhub().execute(
             proc=proc,
             placeholders=[result_set_id],
             debug_show=self.DEBUG,
             return_type='iter',
         )
 
-        return job_dict
+        return self.as_single(iter_obj, "result_set", id=result_set_id)
 
     ##################
     #

@@ -28,7 +28,7 @@ def test_objectstore_create(webapp, job_sample, jm):
     assert stored_objs[0]['job_guid'] == job_sample["job"]["job_guid"]
 
 
-def test_objectstore_list(webapp, ten_jobs_stored, jm):
+def test_objectstore_list(webapp, eleven_jobs_stored, jm):
     """
     test retrieving a list of ten json blobs from the objectstore-list
     endpoint.
@@ -44,7 +44,7 @@ def test_objectstore_list(webapp, ten_jobs_stored, jm):
     assert len(resp.json) == 10
 
 
-def test_objectstore_detail(webapp, ten_jobs_stored, jm):
+def test_objectstore_detail(webapp, eleven_jobs_stored, jm):
     """
     test retrieving a single json blobs from the objectstore-detail
     endpoint.
