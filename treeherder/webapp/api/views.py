@@ -166,7 +166,8 @@ class ResultSetViewSet(viewsets.ViewSet):
         finally:
             jm.disconnect()
 
-    def get_warning_level(self, groups):
+    @classmethod
+    def get_warning_level(cls, groups):
         """
         Return the most severe warning level for a list of jobs.
 
@@ -251,10 +252,7 @@ class ResultSetViewSet(viewsets.ViewSet):
 
             return Response(rs)
         except DatasetNotFoundError as e:
-            return Response(
-                {"message": "No project with name {0}".format(project)},
-                status=404,
-            )
+            return Response({"message": unicode(e)}, status=404)
         except ObjectNotFoundException as e:
             return Response({"message": unicode(e)}, status=404)
         except Exception as e:  # pragma nocover
