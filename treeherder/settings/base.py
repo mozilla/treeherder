@@ -180,6 +180,8 @@ BUILDAPI_RUNNING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson
 # this setting allows requests from any host
 CORS_ORIGIN_ALLOW_ALL = True
 
+ALLOWED_HOSTS = [".treeherder.mozilla.org"]
+
 try:
     from .local import *
 except ImportError:
@@ -222,4 +224,3 @@ BROKER_URL = 'amqp://{0}:{1}@{2}:{3}/{4}'.format(
 )
 
 API_HOSTNAME = SITE_URL
-ALLOWED_HOSTS = [SITE_URL]
