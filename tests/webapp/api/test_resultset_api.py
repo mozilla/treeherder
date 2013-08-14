@@ -30,8 +30,6 @@ def test_resultset_list(webapp, eleven_jobs_processed, jm):
         u'revision',
     ]
     for rs in rs_list:
-        print rs
-        print set(exp_keys)
         assert set(rs.keys()) == set(exp_keys)
 
 
