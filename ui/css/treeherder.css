@@ -1,3 +1,16 @@
 body{
   padding-top: 60px;
 }
+
+.pushactions span.dropdown:hover ul.dropdown-menu{
+    display: block;
+}
+
+.pushactions:after {
+  content: none;
+}
+
+.navbar .dropdown-menu {
+    max-height: 600px;
+    overflow: auto;
+}

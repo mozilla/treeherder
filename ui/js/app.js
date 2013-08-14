@@ -2,10 +2,14 @@
 
 var treeherder = angular.module('treeherder', ['ngResource','ui.bootstrap']);
 
-treeherder.config(function($routeProvider) {
+treeherder.config(function($routeProvider, $httpProvider) {
 
     $routeProvider.
         when('/jobs', {
+            controller: 'JobsCtrl',
+            templateUrl: 'partials/jobs.html'
+        }).
+        when('/jobs/:tree', {
             controller: 'JobsCtrl',
             templateUrl: 'partials/jobs.html'
         }).

@@ -1,0 +1,6 @@
+<a class="btn-mini {{ resjob|typeClass }} {{ resjob.status|statusClass }}"
+   popover="{{ resjob.status }}"
+   popover-trigger="mouseenter">
+   <i class="icon-fire" ng-show="resjob.status=='fail' || resjob.status=='orange'"></i>
+   {{ resjob.symbol }}
+</a>

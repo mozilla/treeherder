@@ -1,58 +1,45 @@
 "use strict";
 
 treeherder.controller('JobsCtrl',
-    function JobsCtrl($scope, $http) {
+    function JobsCtrl($scope, $http, $rootScope, $location, $routeParams, thResultSets) {
+
+        // set the default repo to mozilla-central if not specified
+        if ($routeParams.hasOwnProperty("repo") &&
+            $routeParams.repo !== "") {
+            $rootScope.repo = $routeParams.repo;
+        } else {
+            $rootScope.repo = "mozilla-inbound";
+        }
+
         // get the job groups
+        // todo: should this be a service too?
         $http.get('resources/job_groups.json').success(function(data) {
             $scope.job_groups = data;
             $scope.job_types = [];
             // extract the job_types from the job_groups and place them in scope
             for (var group in $scope.job_groups){
-                for(var job_type in $scope.job_groups[group]){
-                    $scope.job_types.push($scope.job_groups[group][job_type]);
+                if ($scope.job_groups.hasOwnProperty(group)) {
+                    for(var job_type in $scope.job_groups[group]){
+                        if ($scope.job_groups[group].hasOwnProperty(job_type)) {
+                            $scope.job_types.push($scope.job_groups[group][job_type]);
+                        }
+                    }
                 }
             }
         });
 
-        // get a push sample
-        $http.get('resources/push_sample.json').success(function(data) {
-            $scope.push_sample = data;
-        });
+        $rootScope.results = {};
+        thResultSets.getResultSets($rootScope);
 
-        /*
-        this is just to emulate the platform results
-        the real objects will be something like this
-        {
-            "platform": platform_name,
-            jobs:[
-                {
-                    "id",
-                    "symbol":"",
-                    "description":"",
-                    "status": "pending|running|completed|retriggered, etc.."
+    }
+);
 
-                }
-            ]
+treeherder.controller('PushCtrl',
+    function PushCtrl($scope, thResults) {
+        // whether or not revision list for a push is collapsed
+        $scope.isCollapsedRevisions = true;
 
-        }
-        */
-        $scope.platforms=["Ubuntu pto", "Ubuntu debug", "Win 7", "win XP", "OSX 10.7", "Android", "Fedora"];
-
-        /*manage the collapsed push sections*/
-        $scope.uncollapsed=[]
-
-        $scope.isCollapsed = function(x){
-        	return $scope.uncollapsed.indexOf(x) < 0
-        }
-
-        $scope.toggleCollapse = function(x){
-        	if ($scope.isCollapsed(x)){
-        		$scope.uncollapsed.push(x);
-        	}else{
-        		delete $scope.uncollapsed[$scope.uncollapsed.indexOf(x)];
-        	}
-        }
-
-
+        $scope.isCollapsedResults = true;
+        thResults.getResults($scope.push, $scope);
     }
 );
