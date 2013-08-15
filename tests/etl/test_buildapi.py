@@ -1,6 +1,6 @@
 import os
 import pytest
-from treeherder.etl.buildapi import PendingJobsProcess, RunningJobsProcess
+from treeherder.etl.buildapi import Builds4hJobsProcess, PendingJobsProcess, RunningJobsProcess
 from django.conf import settings
 
 
@@ -33,6 +33,31 @@ def mock_buildapi_running_url():
     def fin():
         settings.BUILDAPI_PENDING_URL = original_url
 
+@pytest.fixture
+def mock_buildapi_builds4h_url():
+    tests_folder = os.path.dirname(os.path.dirname(__file__))
+    path = os.path.join(
+        tests_folder,
+        "sample_data",
+        "builds-4h.js"
+    )
+    original_url = settings.BUILDAPI_BUILDS4H_URL
+    settings.BUILDAPI_BUILDS4H_URL = "file://{0}".format(path)
+    #on tearDown reset the original url
+    def fin():
+        settings.BUILDAPI_PENDING_URL = original_url
+
+def test_ingest_builds4h_jobs(jm, mock_buildapi_builds4h_url, mock_post_json_data):
+    """
+    a new buildapi pending job creates a new obj in the objectstore
+    """
+    etl_process = Builds4hJobsProcess()
+    etl_process.run()
+
+    stored_obj = jm.get_os_dhub().execute(
+    proc="objectstore_test.selects.all")
+
+    assert len(stored_obj) == 100
 
 def test_ingest_pending_jobs(jm, mock_buildapi_pending_url, mock_post_json_data):
     """
