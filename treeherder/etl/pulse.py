@@ -351,7 +351,7 @@ class TreeherderPulseDataAdapter(PulseDataAdapter, JobsLoaderMixin):
 
         self.loaddata = loaddata
         super(TreeherderPulseDataAdapter, self).__init__(**kwargs)
-        self.logger = logging.getLogger('pulse_data_adapter')
+        self.logger = logging.getLogger(__name__)
 
     def adapt_data(self, data):
         """Adapts the PulseDataAdapter into the treeherder input data structure"""

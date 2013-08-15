@@ -128,6 +128,11 @@ LOCAL_APPS = []
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+        },
+    },
     'filters': {
         'require_debug_false': {
             '()': 'django.utils.log.RequireDebugFalse'
@@ -138,7 +143,24 @@ LOGGING = {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
-        }
+        },
+        'logfile': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': 'treeherder.log',
+            'maxBytes': 1 * 1024 * 1024,
+            'backupCount': 2,
+            'formatter': 'standard',
+        },
+        'null': {
+            'level': 'DEBUG',
+            'class': 'logging.NullHandler',
+        },
+        'console':{
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard'
+        },
     },
     'loggers': {
         'django.request': {
@@ -146,6 +168,9 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
+        'treeherder.etl.pulse': {
+            'handlers': ['logfile']
+        }
     }
 }
 
