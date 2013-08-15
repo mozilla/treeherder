@@ -152,10 +152,6 @@ LOGGING = {
             'backupCount': 2,
             'formatter': 'standard',
         },
-        'null': {
-            'level': 'DEBUG',
-            'class': 'logging.NullHandler',
-        },
         'console':{
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
