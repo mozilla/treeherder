@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html ng-app="app">
+<html ng-app="treeherder">
     <head>
-        <title> Log Viewer </title>
+        <title>Treeherder Log Viewer </title>
         <link href="css/treeherder.css" rel="stylesheet" type="text/css">
         <link href="css/bootstrap.css" rel="stylesheet" media="screen">
     </head>
-    <body>
+    <body ng-controller="LogviewerCtrl">
         <div class="container-fluid">
-            <div ng-controller="Logviewer" ng-init="init()" class="row-fluid">
+            <div ng-init="init()" class="row-fluid">
                 <div class="span6">
                         <dl class="dl-horizontal">
                             <span ng-repeat="(label, value) in jsonObj.header">
@@ -54,6 +54,10 @@
             </div>
         </div>
     <script src="vendor/angular/angular.js"></script>
-    <script src="js/logviewer.js"></script>
+    <script src="vendor/angular/angular-resource.js"></script>
+    <script src="vendor/ui-bootstrap-tpls-0.4.0.js"></script>
+    <script src="js/config/local.conf.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/controllers/logviewer.js"></script>
     </body>
 </html>
