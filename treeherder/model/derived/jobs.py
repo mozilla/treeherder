@@ -118,6 +118,31 @@ class JobsModel(TreeherderModelBase):
         )
         return self.as_list(iter_obj, "job_log_url", job_id=job_id)
 
+    def get_job_artifact_references(self, job_id):
+        """
+        Return the job artifact references for the given ``job_id``.
+
+        This is everything about the artifact, but not the artifact blob
+        itself.
+        """
+        iter_obj = self.get_jobs_dhub().execute(
+            proc="jobs.selects.get_job_artifact_references",
+            placeholders=[job_id],
+            debug_show=self.DEBUG,
+            return_type='iter',
+        )
+        return self.as_list(iter_obj, "job_artifacts", job_id=job_id)
+
+    def get_job_artifact_blob(self, id):
+        """Return the job artifact blob by id."""
+        iter_obj = self.get_jobs_dhub().execute(
+            proc="jobs.selects.get_job_artifact_blob",
+            placeholders=[id],
+            debug_show=self.DEBUG,
+            return_type='iter',
+        )
+        return self.as_list(iter_obj, "job_artifacts", id=id)
+
     def get_result_set_id(self, revision_hash):
         """Return the ``result_set.id`` for the given ``revision_hash``"""
         id_iter = self.get_jobs_dhub().execute(

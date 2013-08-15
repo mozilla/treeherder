@@ -5,6 +5,7 @@ from django.http import Http404
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from rest_framework.reverse import reverse
 from treeherder.model import models
 
 from treeherder.model.derived import (JobsModel, DatasetNotFoundError,
@@ -59,19 +60,19 @@ class ObjectstoreViewSet(viewsets.ViewSet):
         return Response([json.loads(obj['json_blob']) for obj in objs])
 
 
-class JobsViewSet(viewsets.ViewSet):
+class ArtifactViewSet(viewsets.ViewSet):
     """
-    This view is responsible for the jobs endpoint.
-
+    This viewset is responsible for the artifact endpoint.
     """
 
     def retrieve(self, request, project, pk=None):
         """
-        GET method implementation for detail view
+        GET method implementation for an artifact blob
+
         """
         try:
             jm = JobsModel(project)
-            obj = jm.get_job(pk)
+            obj = jm.get_job_artifact_blob(pk)
         except DatasetNotFoundError as e:
             return Response(
                 {"message": "No project with name {0}".format(project)},
@@ -83,6 +84,46 @@ class JobsViewSet(viewsets.ViewSet):
             return Response({"message": unicode(e)}, status=500)
 
         return Response(obj)
+
+
+class JobsViewSet(viewsets.ViewSet):
+    """
+    This viewset is responsible for the jobs endpoint.
+
+    """
+
+    def retrieve(self, request, project, pk=None):
+        """
+        GET method implementation for detail view
+
+        Return a single job with log_references and
+        artifact names and links to the artifact blobs.
+        """
+        try:
+            jm = JobsModel(project)
+            job = jm.get_job(pk)
+            job["logs"] = jm.get_log_references(pk)
+
+            # make artifact ids into uris
+            artifact_refs = jm.get_job_artifact_references(pk)
+            job["artifacts"] = []
+            for art in artifact_refs:
+                ref = reverse("artifact-detail",
+                              kwargs={"project": jm.project, "pk": pk})
+                art["ref"] = ref
+                job["artifacts"].append(art)
+
+        except DatasetNotFoundError as e:
+            return Response(
+                {"message": "No project with name {0}".format(project)},
+                status=404,
+            )
+        except ObjectNotFoundException as e:
+            return Response({"message": unicode(e)}, status=404)
+        except Exception as e:  # pragma nocover
+            return Response({"message": unicode(e)}, status=500)
+
+        return Response(job)
 
     def list(self, request, project):
         """

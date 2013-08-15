@@ -147,6 +147,16 @@
 
             "host":"read_host"
         },
+        "get_job_artifact_by_id":{
+            "sql":"SELECT * from `job_artifact`
+                   WHERE `id` = ?",
+            "host": "read_host"
+        },
+        "get_job_artifact_references":{
+            "sql":"SELECT `id`, `name`, `type` from `job_artifact`
+                   WHERE `job_id` = ?",
+            "host": "read_host"
+        },
         "get_job_id_by_guid":{
             "sql":"SELECT `id`
                    FROM `job`
