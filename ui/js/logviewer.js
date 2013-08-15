@@ -6,9 +6,9 @@ function Logviewer($scope, $http, $timeout) {
 
     $scope.scrollTo = function(step, linenumber) {
         if($scope.displayedStep === step) {
-            var pos = document.getElementsByClassName("lv-line-"+linenumber)[0].offsetTop - 
-                         document.getElementById("lv_logview_holder").offsetTop;
-            document.getElementById("lv_logview_holder").scrollTop = pos;
+            var pos = document.getElementById("lv-line-"+linenumber).offsetTop -
+                         document.getElementById("lv-log-container").offsetTop;
+            document.getElementById("lv-log-container").scrollTop = pos;
         }
     };
 
@@ -34,8 +34,24 @@ function Logviewer($scope, $http, $timeout) {
         var end = step.finished_linenumber+1;
         var errors = step.errors;
         $http.get('resources/logs/mozilla-inbound_ubuntu64_vm-debug_test-mochitest-other-bm53-tests1-linux-build122.txt').success(function(data) {
-            data = data.split("\n");
-            insertText(data.slice(start, end), start, end, errors);
+            data = data.split("\n").slice(start, end);
+
+            $scope.log_text = [];
+            data.forEach(function(item) {
+                $scope.log_text.push({
+                    text: item,
+                    hasError: false
+                });
+            });
+            if(errors.length > 0) {
+                errors.forEach(function(err) {
+                    $scope.log_text[err.linenumber-start].hasError = true;
+                    $scope.log_text[err.linenumber-start].errLine = err.linenumber;
+
+                });
+            }
+            // works if we use no formatting and ng-bind in the html
+//            $scope.log_text = data.join("\n");
         });
     };
 
@@ -45,41 +61,5 @@ function Logviewer($scope, $http, $timeout) {
                 $scope.jsonObj = data;
             });
         });
-    }
-}
-
-function insertText(data, start, end, errors) {
-    var logviewer = document.getElementById("lv_logview");
-    logviewer.innerText = '';
-    var offset = start;
-    var startText = data.splice(0, 1);
-    var startDiv = document.createElement("div");
-    startDiv.className = "lv-purple-font";
-    startDiv.appendChild(document.createTextNode(startText[0]));
-    logviewer.appendChild(startDiv);
-    var endText = data.splice(-1, 1);
-    var endDiv = document.createElement("div");
-    endDiv.className = "lv-purple-font";
-    endDiv.appendChild(document.createTextNode(endText[0]));
-
-    if(errors.length > 0) {
-        errors.forEach(function(err) {
-            var tempData = data.splice(0, err.linenumber-offset-1);
-            var tempText = tempData.join("\n");
-            logviewer.appendChild(document.createTextNode(tempText));
-            var errData = data.splice(0, 1);
-            var errDiv = document.createElement("div");
-            errDiv.className = "lv-logview-error lv-line-"+err.linenumber;
-            errDiv.appendChild(document.createTextNode(errData[0]));
-            logviewer.appendChild(errDiv);
-            offset = err.linenumber;
-        });
-        var lastDiv = document.createTextNode(data.join("\n"));
-        logviewer.appendChild(lastDiv);
-    }
-    else {
-        logviewer.appendChild(document.createTextNode(data.join("\n")));
-    }
-    logviewer.appendChild(endDiv);
-    document.getElementById("lv_logview_holder").scrollTop = 0;
+    };
 }
