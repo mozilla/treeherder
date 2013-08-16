@@ -62,8 +62,6 @@ treeherder.controller('LogviewerCtrl',
                 success(function(data) {
                     data = data.split("\n").slice(start, end);
 
-                    $scope.log_html = $scope.insertText(data, start, end, errors);
-
                     $scope.log_text = [];
                     data.forEach(function(item) {
                         $scope.log_text.push({
@@ -95,16 +93,14 @@ treeherder.controller('LogviewerCtrl',
         };
 
         $scope.insertText = function(data, start, end, errors) {
-//            var logviewer = document.getElementById("lv_logview");
-//            logviewer.innerText = '';
+            var logviewer = document.getElementById("lv_logview");
+            logviewer.innerText = '';
             var offset = start;
             var startText = data.splice(0, 1);
             var startDiv = document.createElement("div");
-            var log_html = "";
-
             startDiv.className = "lv-purple-font";
             startDiv.appendChild(document.createTextNode(startText[0]));
-            log_html.appendChild(startDiv);
+            logviewer.appendChild(startDiv);
             var endText = data.splice(-1, 1);
             var endDiv = document.createElement("div");
             endDiv.className = "lv-purple-font";
@@ -114,21 +110,21 @@ treeherder.controller('LogviewerCtrl',
                 errors.forEach(function(err) {
                     var tempData = data.splice(0, err.linenumber-offset-1);
                     var tempText = tempData.join("\n");
-                    log_html.appendChild(document.createTextNode(tempText));
+                    logviewer.appendChild(document.createTextNode(tempText));
                     var errData = data.splice(0, 1);
                     var errDiv = document.createElement("div");
-                    errDiv.className = "label label-important lv-line-"+err.linenumber;
+                    errDiv.className = "label label-important lv-logview-error lv-line-"+err.linenumber;
                     errDiv.appendChild(document.createTextNode(errData[0]));
-                    log_html.appendChild(errDiv);
+                    logviewer.appendChild(errDiv);
                     offset = err.linenumber;
                 });
                 var lastDiv = document.createTextNode(data.join("\n"));
-                log_html.appendChild(lastDiv);
+                logviewer.appendChild(lastDiv);
             }
             else {
-                log_html += document.createTextNode(data.join("\n")).innerHTML;
+                logviewer.appendChild(document.createTextNode(data.join("\n")));
             }
-            log_html += endDiv;
+            logviewer.appendChild(endDiv);
             document.getElementById("lv_logview_holder").scrollTop = 0;
         }
     }
