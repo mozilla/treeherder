@@ -1,5 +1,18 @@
+'use strict';
+
 treeherder.controller('LogviewerCtrl',
-    function Logviewer($scope, $http, $timeout) {
+    function Logviewer($scope, $rootScope, $location, $routeParams, $http, $timeout, thArtifact) {
+
+        if ($location.$$search.hasOwnProperty("repo") &&
+            $location.$$search.repo !== "") {
+            $rootScope.repo = $location.$$search.repo;
+        }
+        if ($location.$$search.hasOwnProperty("id") &&
+            $location.$$search.id !== "") {
+            $scope.lvArtifactId= $location.$$search.id;
+        }
+
+
         $scope.jsonObj = {};
         $scope.displayedStep;
 
@@ -22,8 +35,8 @@ treeherder.controller('LogviewerCtrl',
             var s = Math.floor(sec%3600 % 60);
             var secStng = sec.toString();
             var ms = secStng.substr(secStng.indexOf(".")+1, 2);
-            return ((h > 0 ? h + "h " : "") + (m > 0 ? m + "m " : "")
-              + (s > 0 ? s + "s " : "") + (ms > 0 ? ms + "ms " : "00ms"));
+            return ((h > 0 ? h + "h " : "") + (m > 0 ? m + "m " : "") +
+                   (s > 0 ? s + "s " : "") + (ms > 0 ? ms + "ms " : "00ms"));
         };
 
         $scope.displayTime = function(started, finished) {
@@ -37,32 +50,86 @@ treeherder.controller('LogviewerCtrl',
             var start = step.started_linenumber;
             var end = step.finished_linenumber+1;
             var errors = step.errors;
-            $http.get('resources/logs/mozilla-inbound_ubuntu64_vm-debug_test-mochitest-other-bm53-tests1-linux-build122.txt').success(function(data) {
-                data = data.split("\n").slice(start, end);
 
-                $scope.log_text = [];
-                data.forEach(function(item) {
-                    $scope.log_text.push({
-                        text: item,
-                        hasError: false
+            // @@@  I think we should only fetch the log once and keep it
+            // in the scope.  Then we can slice that to the start/end and
+            // display the appropriate part.
+
+            // @@@ we should display some kind of "loading" indicator in the
+            // logs area in case the log is really large
+
+            $http.get($scope.logUrl).
+                success(function(data) {
+                    data = data.split("\n").slice(start, end);
+
+                    $scope.log_html = $scope.insertText(data, start, end, errors);
+
+                    $scope.log_text = [];
+                    data.forEach(function(item) {
+                        $scope.log_text.push({
+                            text: item,
+                            hasError: false
+                        });
                     });
+                    if(errors.length > 0) {
+                        errors.forEach(function(err) {
+                            $scope.log_text[err.linenumber-start].hasError = true;
+                            $scope.log_text[err.linenumber-start].errLine = err.linenumber;
+
+                        });
+                    }
+                }).
+                error(function(data, status, headers, config) {
+                    console.log("error" + data + status +headers + config);
                 });
-                if(errors.length > 0) {
-                    errors.forEach(function(err) {
-                        $scope.log_text[err.linenumber-start].hasError = true;
-                        $scope.log_text[err.linenumber-start].errLine = err.linenumber;
-
-                    });
-                }
-            });
         };
 
         $scope.init = function() {
-            $http.get('resources/logs/mozilla-inbound_ubuntu64_vm-debug_test-mochitest-other-bm53-tests1-linux-build122.logview.json').success(function(data) {
-                $timeout(function() {
-                    $scope.jsonObj = data;
+            thArtifact.getArtifact($scope.lvArtifactId).
+                success(function(data) {
+                    $scope.jsonObj = data.blob;
+                    $scope.logUrl = data.blob.logurl;
+                    console.log("logUrl: " + $scope.logUrl);
                 });
-            });
+
         };
+
+        $scope.insertText = function(data, start, end, errors) {
+//            var logviewer = document.getElementById("lv_logview");
+//            logviewer.innerText = '';
+            var offset = start;
+            var startText = data.splice(0, 1);
+            var startDiv = document.createElement("div");
+            var log_html = "";
+
+            startDiv.className = "lv-purple-font";
+            startDiv.appendChild(document.createTextNode(startText[0]));
+            log_html.appendChild(startDiv);
+            var endText = data.splice(-1, 1);
+            var endDiv = document.createElement("div");
+            endDiv.className = "lv-purple-font";
+            endDiv.appendChild(document.createTextNode(endText[0]));
+
+            if(errors.length > 0) {
+                errors.forEach(function(err) {
+                    var tempData = data.splice(0, err.linenumber-offset-1);
+                    var tempText = tempData.join("\n");
+                    log_html.appendChild(document.createTextNode(tempText));
+                    var errData = data.splice(0, 1);
+                    var errDiv = document.createElement("div");
+                    errDiv.className = "label label-important lv-line-"+err.linenumber;
+                    errDiv.appendChild(document.createTextNode(errData[0]));
+                    log_html.appendChild(errDiv);
+                    offset = err.linenumber;
+                });
+                var lastDiv = document.createTextNode(data.join("\n"));
+                log_html.appendChild(lastDiv);
+            }
+            else {
+                log_html += document.createTextNode(data.join("\n")).innerHTML;
+            }
+            log_html += endDiv;
+            document.getElementById("lv_logview_holder").scrollTop = 0;
+        }
     }
 );

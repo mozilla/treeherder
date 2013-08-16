@@ -12,7 +12,7 @@
     </a>
     <a class="btn btn-info"
        ng-click="isCollapsedRevisions = !isCollapsedRevisions">
-        {{push.author}} - {{push.push_timestamp}}
+        {{push.push_timestamp*1000|date:'medium'}} - {{push.author}}
     </a>
 
     <span class="pushactions">
@@ -55,7 +55,8 @@
                     </a>
                         <a class="btn-mini {{ job|typeClass }} {{ job.result|resultClass }}"
                            title="{{ job.job_type_name }}"
-                           ng-repeat="job in group.jobs">
+                           ng-repeat="job in group.jobs"
+                           ng-click="viewJob(job.resource_uri)">
                            <!--
                                We should conditionally remove the fire icon once they have
                                starred it, most likely.

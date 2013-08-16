@@ -28,18 +28,40 @@ treeherder.controller('JobsCtrl',
             }
         });
 
-        $rootScope.results = {};
-        thResultSets.getResultSets($rootScope);
+        thResultSets.getResultSets().
+            success(function(data) {
+                $rootScope.result_sets = data;
+            });
 
     }
 );
 
 treeherder.controller('PushCtrl',
-    function PushCtrl($scope, thResults) {
+    function PushCtrl($scope, $rootScope, $http, thResults, thServiceDomain) {
         // whether or not revision list for a push is collapsed
         $scope.isCollapsedRevisions = true;
 
         $scope.isCollapsedResults = true;
         thResults.getResults($scope.push, $scope);
+
+        $scope.viewJob = function(job_uri) {
+            console.log(job_uri);
+            $http.get(thServiceDomain + job_uri).
+                success(function(data) {
+                    console.log(data);
+                    $rootScope.selectedJob = data;
+                    data.artifacts.forEach(function(artifact) {
+                        if (artifact.name.contains("Job Artifact")) {
+                            $rootScope.jobArtifact=artifact;
+                            $http.get(thServiceDomain + artifact.resource_uri).
+                                success(function(data) {
+                                    $rootScope.jobPrintlines = data.blob.tinderbox_printlines;
+                                });
+                        } else if (artifact.name === "Structured Log") {
+                            $rootScope.lvArtifact=artifact;
+                        }
+                    });
+                });
+        };
     }
 );
