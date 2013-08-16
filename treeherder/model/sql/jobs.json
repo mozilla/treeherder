@@ -131,7 +131,11 @@
     },
     "selects":{
         "get_job":{
-            "sql":"SELECT * FROM `job` WHERE id = ?",
+            "sql":"SELECT j.*, m.name as machine_name
+                   FROM `job` as j
+                   LEFT JOIN `REP0`.`machine` as m
+                       ON j.`machine_id` = m.id
+                   WHERE j.id = ?",
 
             "host":"read_host"
         },
@@ -146,6 +150,16 @@
                    WHERE job_id = ?",
 
             "host":"read_host"
+        },
+        "get_job_artifact":{
+            "sql":"SELECT * from `job_artifact`
+                   WHERE `id` = ?",
+            "host": "read_host"
+        },
+        "get_job_artifact_references":{
+            "sql":"SELECT `id`, `name`, `type` from `job_artifact`
+                   WHERE `job_id` = ?",
+            "host": "read_host"
         },
         "get_job_id_by_guid":{
             "sql":"SELECT `id`
@@ -216,6 +230,7 @@
                     jg.`description` as job_group_description,
                     j.`who`,
                     j.`result_set_id`,
+                    j.`id` as job_id,
                     j.`result`,
                     j.`state`
                   FROM `job` as j
