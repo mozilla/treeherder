@@ -71,9 +71,17 @@ class JobsModel(TreeherderModelBase):
         """Get the dhub for the objectstore"""
         return self.get_dhub(self.CT_OBJECTSTORE)
 
-    def get_job(self, job_id):
+    def get_job(self, id):
         """Return the job row for this ``job_id``"""
-        return self.get_row_by_id(self.CT_JOBS, "job", job_id)
+        repl = [self.refdata_model.get_db_name()]
+        iter_obj = self.get_jobs_dhub().execute(
+            proc="jobs.selects.get_job",
+            placeholders=[id],
+            debug_show=self.DEBUG,
+            replace=repl,
+            return_type='iter',
+        )
+        return self.as_single(iter_obj, "jobs", id=id)
 
     def get_job_id_by_guid(self, job_guid):
         """Return the job id for this ``job_guid``"""
@@ -133,15 +141,15 @@ class JobsModel(TreeherderModelBase):
         )
         return self.as_list(iter_obj, "job_artifacts", job_id=job_id)
 
-    def get_job_artifact_blob(self, id):
+    def get_job_artifact(self, id):
         """Return the job artifact blob by id."""
         iter_obj = self.get_jobs_dhub().execute(
-            proc="jobs.selects.get_job_artifact_blob",
+            proc="jobs.selects.get_job_artifact",
             placeholders=[id],
             debug_show=self.DEBUG,
             return_type='iter',
         )
-        return self.as_list(iter_obj, "job_artifacts", id=id)
+        return self.as_single(iter_obj, "job_artifacts", id=id)
 
     def get_result_set_id(self, revision_hash):
         """Return the ``result_set.id`` for the given ``revision_hash``"""

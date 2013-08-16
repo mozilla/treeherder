@@ -22,6 +22,12 @@ project_bound_router.register(
     base_name='resultset',
 )
 
+project_bound_router.register(
+    r'artifact',
+    views.ArtifactViewSet,
+    base_name='artifact',
+)
+
 # this is the default router for plain restful endpoints
 
 # refdata endpoints:

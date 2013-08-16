@@ -72,7 +72,9 @@ class ArtifactViewSet(viewsets.ViewSet):
         """
         try:
             jm = JobsModel(project)
-            obj = jm.get_job_artifact_blob(pk)
+            obj = jm.get_job_artifact(pk)
+            if obj["type"] == "json":
+                obj["blob"] = json.loads(obj["blob"])
         except DatasetNotFoundError as e:
             return Response(
                 {"message": "No project with name {0}".format(project)},
@@ -109,8 +111,8 @@ class JobsViewSet(viewsets.ViewSet):
             job["artifacts"] = []
             for art in artifact_refs:
                 ref = reverse("artifact-detail",
-                              kwargs={"project": jm.project, "pk": pk})
-                art["ref"] = ref
+                              kwargs={"project": jm.project, "pk": art["id"]})
+                art["resource_uri"] = ref
                 job["artifacts"].append(art)
 
         except DatasetNotFoundError as e:
@@ -280,6 +282,12 @@ class ResultSetViewSet(viewsets.ViewSet):
 
                     jobs = sorted(list(jg_g),
                                   key=lambda x: x['job_type_symbol'])
+
+                    # build the uri ref for each job
+                    for job in jobs:
+                        job["resource_uri"] = reverse("jobs-detail",
+                            kwargs={"project": jm.project, "pk": job["job_id"]})
+
                     groups.append({
                         "symbol": jg_k,
                         "jobs": jobs
