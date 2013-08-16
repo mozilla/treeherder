@@ -81,7 +81,7 @@ class JobsModel(TreeherderModelBase):
             replace=repl,
             return_type='iter',
         )
-        return self.as_single(iter_obj, "jobs", id=id)
+        return self.as_single(iter_obj, "job", id=id)
 
     def get_job_id_by_guid(self, job_guid):
         """Return the job id for this ``job_guid``"""
@@ -106,7 +106,7 @@ class JobsModel(TreeherderModelBase):
             return_type='iter'
         )
 
-        return self.as_list(iter_obj, "jobs")
+        return self.as_list(iter_obj, "job")
 
     def set_state(self, job_id, state):
         """Update the state of an existing job"""
