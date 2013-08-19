@@ -6,6 +6,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.reverse import reverse
+from rest_framework.exceptions import APIException
 from treeherder.model import models
 
 from treeherder.model.derived import (JobsModel, DatasetNotFoundError,
@@ -304,7 +305,11 @@ class ResultSetViewSet(viewsets.ViewSet):
         except ObjectNotFoundException as e:
             return Response({"message": unicode(e)}, status=404)
         except Exception as e:  # pragma nocover
-            return Response({"message": unicode(e)}, status=500)
+            import traceback
+            return Response({
+                "message": unicode(e),
+                "traceback": traceback.format_exc(),
+            }, status=500)
         finally:
             jm.disconnect()
 

@@ -43,3 +43,17 @@ def eleven_jobs_processed(initial_data, sample_data, jm):
     """stores and processes list of 11 job samples"""
     eleven_jobs_stored(jm)
     jm.process_objects(11)
+
+@pytest.fixture
+def artifacts(jm, sample_data, eleven_jobs_processed):
+    """provide 11 jobs with job artifacts."""
+
+    jobs = jm.get_job_list(0, 10)
+
+    for job in jobs:
+        jm.insert_job_artifact(
+            job["id"],
+            "Foo Job Artifact",
+            "json",
+            json.dumps(sample_data.job_artifact)
+        )
