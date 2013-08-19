@@ -121,6 +121,7 @@ class JobDictBuilder(object):
         job["machine"] = self._get_machine(
             job["machine_id"])
         del(job["machine_id"])
+        del(job["machine_name"])
 
         job["product_name"] = self._get_product(
             job["product_id"])
