@@ -63,14 +63,17 @@
                 </div>
             </div>
         </div>
-        <div class="navbar-fixed-bottom">
+        <div class="navbar-fixed-bottom"
+             ng-show="selectedJob">
             <div class="navbar-inner">
                 <div class="container-fluid">
                     <div class="span5">
                         <div>Reason: {{ selectedJob.reason }}</div>
                         <div>Machine: {{ selectedJob.machine_name }}</div>
                         <div>Result: {{ selectedJob.result }}</div>
-                        <div><a target="_blank" href="/app/logviewer.html#?id={{ lvArtifact.id }}&repo={{ repo }}">View Structured Log</a></div>
+                        <div ng-show="lvArtifact">
+                            <a target="_blank" href="/app/logviewer.html#?id={{ lvArtifact.id }}&repo={{ repo }}">View Structured Log</a>
+                        </div>
                         <div ng-repeat="joblog in selectedJob.logs">
                             <a target="_blank" href="{{ joblog.url }}">Raw Log</a>
                         </div>

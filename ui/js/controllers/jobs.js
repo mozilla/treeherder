@@ -50,6 +50,9 @@ treeherder.controller('PushCtrl',
                 success(function(data) {
                     console.log(data);
                     $rootScope.selectedJob = data;
+                    $rootScope.lvArtifact = null;
+                    $rootScope.jobArtifact = null;
+
                     data.artifacts.forEach(function(artifact) {
                         if (artifact.name.contains("Job Artifact")) {
                             $rootScope.jobArtifact=artifact;
