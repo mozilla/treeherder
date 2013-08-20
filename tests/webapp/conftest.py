@@ -45,7 +45,7 @@ def eleven_jobs_processed(initial_data, sample_data, jm):
     jm.process_objects(11)
 
 @pytest.fixture
-def artifacts(jm, sample_data, eleven_jobs_processed):
+def sample_artifacts(jm, sample_data, eleven_jobs_processed):
     """provide 11 jobs with job artifacts."""
 
     jobs = jm.get_job_list(0, 10)

@@ -229,6 +229,8 @@ class ResultSetViewSet(viewsets.ViewSet):
             return "red"
         if "fail" in job_states:
             return "red"
+        elif "testfailed" in job_states:
+            return "red"
         elif "orange" in job_states:
             return "orange"
         elif "pending" in job_states:

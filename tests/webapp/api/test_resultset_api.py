@@ -112,6 +112,23 @@ def test_warning_levels_red_on_fail():
     assert ResultSetViewSet.get_warning_level(groups) == "red"
 
 
+def test_warning_levels_red_on_testfailed():
+    """Test result from each warning level"""
+    groups = [
+        {"jobs": [
+            {"result": "complete"},
+            {"result": "pending"},
+            {"result": "running"},
+        ]},
+        {"jobs": [
+            {"result": "retry"},
+            {"result": "orange"},
+            {"result": "testfailed"},
+        ]},
+    ]
+    assert ResultSetViewSet.get_warning_level(groups) == "red"
+
+
 def test_warning_levels_red_on_busted():
     """Test result from each warning level"""
     groups = [
