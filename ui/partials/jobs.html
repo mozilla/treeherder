@@ -49,8 +49,11 @@
              ng-repeat="platform in job_results | filter:query">
             <div class="span2"><span>{{ platform.name }}</span></div>
             <div class="span10">
-                <div ng-repeat="group in platform.groups" class="btn-group">
-                    <a class="btn-mini btn-info btn" title="{{ group.job_group_name }}">
+                <div ng-repeat="group in platform.groups"
+                     ng-class="{'btn-group': group.symbol}">
+                    <a ng-show="group.symbol"
+                       class="btn-mini btn-info btn"
+                       title="{{ group.job_group_name }}">
                        {{ group.symbol }}
                     </a>
                         <a class="btn-mini {{ job|typeClass }} {{ job.result|resultClass }}"
