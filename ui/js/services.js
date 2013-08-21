@@ -1,5 +1,6 @@
 'use strict';
 
+/* Services */
 treeherder.factory('thService',
                    ['$rootScope', 'thServiceDomain',
                    function($rootScope, thServiceDomain) {
@@ -15,23 +16,33 @@ treeherder.factory('thService',
 
 }]);
 
-treeherder.factory('thResultSets',
-                   ['$http', 'thService', 'thResults', '$rootScope',
-                   function($http, thService, thResults, $rootScope) {
+treeherder.factory('thArtifact',
+                   ['$http', 'thService',
+                   function($http, thService) {
 
     // get the pushes for this tree
     // sample: 'resources/push_sample.json'
     return {
-        getResultSets: function($rootScope) {
-            $http.get(thService.getProjectUrl("/resultset/?format=json")).
-                success(function(data) {
-                    $rootScope.result_sets = data;
-                });
+        getArtifact: function(id) {
+            return $http.get(thService.getProjectUrl(
+                "/artifact/" + id + "/?format=json"));
         }
     }
 }]);
 
-/* Services */
+treeherder.factory('thResultSets',
+                   ['$http', 'thService',
+                   function($http, thService) {
+
+    // get the pushes for this tree
+    // sample: 'resources/push_sample.json'
+    return {
+        getResultSets: function() {
+            return $http.get(thService.getProjectUrl("/resultset/?format=json"));
+        }
+    }
+}]);
+
 treeherder.factory('thResults',
                    ['$http', 'thService', '$rootScope',
                    function($http, thService, $rootScope) {
@@ -66,9 +77,6 @@ treeherder.factory('thResults',
             $http.get(jobUrl).
                 success(
                     function(data) {
-                        console.log("done fetching for: " + result_set.id);
-                        // this feels like the right way
-
                         $scope.job_results = data["platforms"];
                         result_set.warning_level = getWarningLevel($scope.job_results);
 
@@ -78,7 +86,6 @@ treeherder.factory('thResults',
                         $scope.isCollapsedResults = result_set.warning_level !== "red";
 
                         // how to display the warning_level.  collapse green ones
-                        console.log($scope.push.warning_level);
                         switch(String(result_set.warning_level))
                         {
                             case "orange":

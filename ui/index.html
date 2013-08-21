@@ -1,7 +1,7 @@
     <!DOCTYPE html>
     <html ng-app="treeherder">
     <head>
-        <title>Treeherder</title>
+        <title>Treeherder: {{ repo }}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
          <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <!-- Bootstrap -->
@@ -63,6 +63,32 @@
                 </div>
             </div>
         </div>
+        <div class="navbar-fixed-bottom"
+             ng-show="selectedJob">
+            <div class="navbar-inner">
+                <div class="container-fluid">
+                    <div class="span5">
+                        <div>Reason: {{ selectedJob.reason }}</div>
+                        <div>Machine: {{ selectedJob.machine_name }}</div>
+                        <div>Result: {{ selectedJob.result }}</div>
+                        <div ng-show="lvArtifact">
+                            <a target="_blank" href="/app/logviewer.html#?id={{ lvArtifact.id }}&repo={{ repo }}">View Structured Log</a>
+                        </div>
+                        <div ng-repeat="joblog in selectedJob.logs">
+                            <a target="_blank" href="{{ joblog.url }}">Raw Log</a>
+                        </div>
+                    </div>
+                    <ul class="span7" >
+                        <li ng-repeat="line in jobPrintlines">
+                            <div ng-bind-html-unsafe="line"></div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+
+
 
         <!-- modal window -->
         <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -84,6 +110,7 @@
         <script src="vendor/angular/angular.js"></script>
         <script src="vendor/angular/angular-resource.js"></script>
         <script src="vendor/ui-bootstrap-tpls-0.4.0.js"></script>
+        <script src="vendor/angular/angular-sanitize.min.js"></script>
         <script src="js/config/local.conf.js"></script>
         <script src="js/app.js"></script>
         <script src="js/services.js"></script>
