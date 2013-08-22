@@ -44,7 +44,7 @@ def test_resultset_list_bad_project(webapp, jm):
     )
 
     assert resp.status_int == 404
-    assert resp.json == {"message": "No dataset found for project u'foo', contenttype 'jobs'."}
+    assert resp.json == {"message": "No project with name foo"}
 
 
 def test_resultset_detail(webapp, eleven_jobs_processed, jm):
@@ -92,7 +92,7 @@ def test_result_set_detail_bad_project(webapp, jm):
         expect_errors=True
     )
     assert resp.status_int == 404
-    assert resp.json == {"message": "No dataset found for project u'foo', contenttype 'jobs'."}
+    assert resp.json == {"message": "No project with name foo"}
 
 
 def test_warning_levels_red_on_fail():
