@@ -121,7 +121,7 @@ def test_job_list_bad_project(webapp, eleven_jobs_processed, jm):
     webapp.get(badurl, status=404)
 
 
-def test_job_detail(webapp, eleven_jobs_processed, jm):
+def test_job_detail(webapp, eleven_jobs_processed, sample_artifacts, jm):
     """
     test retrieving a single job from the jobs-detail
     endpoint.
