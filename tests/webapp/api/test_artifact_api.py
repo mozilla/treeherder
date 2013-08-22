@@ -20,19 +20,17 @@ def test_artifact_detail(webapp, eleven_jobs_processed, sample_artifacts, jm):
                 kwargs={"project": jm.project, "pk": int(artifact["id"])})
     )
 
-    print json.dumps(resp.json.keys(), indent=4)
-
     assert resp.status_int == 200
     assert isinstance(resp.json, dict)
     assert resp.json["id"] == artifact["id"]
-    assert resp.json.keys() == [
+    assert set(resp.json.keys()) == set([
         "job_id",
         "active_status",
         "blob",
         "type",
         "id",
         "name"
-    ]
+    ])
 
 
 def test_artifact_detail_not_found(webapp, jm):
