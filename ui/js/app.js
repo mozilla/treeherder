@@ -1,6 +1,7 @@
 'use strict';
 
-var treeherder = angular.module('treeherder', ['ngResource','ui.bootstrap', 'treeherder.directives']);
+var treeherder = angular.module('treeherder',
+    ['ngResource','ui.bootstrap', 'ngSanitize', 'treeherder.directives']);
 
 treeherder.config(function($routeProvider, $httpProvider) {
 
