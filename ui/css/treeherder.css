@@ -34,4 +34,9 @@ body{
 .lv-log-line {
     width: 100%;
     float: left;
+    white-space: pre-line;
+}
+
+.lv-line-highlight {
+    background-color: LightGrey;
 }
