@@ -5,9 +5,10 @@
         <link href="css/treeherder.css" rel="stylesheet" type="text/css">
         <link href="css/bootstrap.css" rel="stylesheet" media="screen">
     </head>
-    <body ng-controller="LogviewerCtrl">
+    <body ng-controller="LogviewerCtrl" ng-init="init()">
+        <div process-log></div>
         <div class="container-fluid">
-            <div ng-init="init()" class="row-fluid">
+            <div class="row-fluid">
                 <div class="span6">
                         <dl class="dl-horizontal">
                             <span ng-repeat="(label, value) in jsonObj.header">
@@ -30,6 +31,7 @@
                                     <div ng-repeat="error in step.errors"
                                          ng-mouseover="check=(step==displayedStep)"
                                          ng-mouseleave="check=false"
+                                         ng-class="{'lv-line-highlight': check}"
                                          ng-click="scrollTo(step, error.linenumber);
                                                    $event.stopPropagation()"
                                          class="text-left pull-left lv-error-line">
@@ -48,7 +50,7 @@
                          ng-class="{'label label-important': (lv_line.hasError == true)}"
                          class="lv-log-line"
                          id="lv-line-{{ lv_line.errLine }}">
-                         {{ lv_line.text }}
+                         {{lv_line.text}}
                     </div>
                 </div>
             </div>
@@ -56,7 +58,7 @@
     <script src="vendor/angular/angular.js"></script>
     <script src="vendor/angular/angular-resource.js"></script>
     <script src="vendor/ui-bootstrap-tpls-0.4.0.js"></script>
-    <script src="js/config/local.conf.js"></script>
+    <script src="js/config/sample.local.conf.js"></script>
     <script src="js/app.js"></script>
     <script src="js/services.js"></script>
     <script src="js/providers.js"></script>
