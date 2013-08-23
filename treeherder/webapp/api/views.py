@@ -11,7 +11,7 @@ from treeherder.model.derived import (JobsModel, DatasetNotFoundError,
                                       ObjectNotFoundException)
 
 
-def use_jobs_model(project, model_func):
+def with_jobs(project, model_func):
     """
     Create a jobsmodel and pass it to the ``func``.
 
@@ -55,7 +55,7 @@ class ObjectstoreViewSet(viewsets.ViewSet):
             )
             return Response({'message': 'well-formed JSON stored'})
 
-        return use_jobs_model(project, model_func)
+        return with_jobs(project, model_func)
 
     def retrieve(self, request, project, pk=None):
         """
@@ -65,7 +65,7 @@ class ObjectstoreViewSet(viewsets.ViewSet):
             obj = jm.get_json_blob_by_guid(pk)
             return Response(json.loads(obj['json_blob']))
 
-        return use_jobs_model(project, model_func)
+        return with_jobs(project, model_func)
 
     def list(self, request, project):
         """
@@ -77,7 +77,7 @@ class ObjectstoreViewSet(viewsets.ViewSet):
             objs = jm.get_json_blob_list(page, 10)
             return Response([json.loads(obj['json_blob']) for obj in objs])
 
-        return use_jobs_model(project, model_func)
+        return with_jobs(project, model_func)
 
 
 class ArtifactViewSet(viewsets.ViewSet):
@@ -96,7 +96,7 @@ class ArtifactViewSet(viewsets.ViewSet):
                 obj["blob"] = json.loads(obj["blob"])
             return Response(obj)
 
-        return use_jobs_model(project, model_func)
+        return with_jobs(project, model_func)
 
 
 class JobsViewSet(viewsets.ViewSet):
@@ -127,7 +127,7 @@ class JobsViewSet(viewsets.ViewSet):
 
             return Response(job)
 
-        return use_jobs_model(project, model_func)
+        return with_jobs(project, model_func)
 
     def list(self, request, project):
         """
@@ -139,7 +139,7 @@ class JobsViewSet(viewsets.ViewSet):
             objs = jm.get_job_list(page, 10)
             return Response(objs)
 
-        return use_jobs_model(project, model_func)
+        return with_jobs(project, model_func)
 
     @action()
     def update_state(self, request, project, pk=None):
@@ -169,7 +169,7 @@ class JobsViewSet(viewsets.ViewSet):
 
             return Response({"message": "state updated to '{0}'".format(state)})
 
-        return use_jobs_model(project, model_func)
+        return with_jobs(project, model_func)
 
 
 class ResultSetViewSet(viewsets.ViewSet):
@@ -197,7 +197,7 @@ class ResultSetViewSet(viewsets.ViewSet):
             )
             return Response(objs)
 
-        return use_jobs_model(project, model_func)
+        return with_jobs(project, model_func)
 
     @classmethod
     def get_warning_level(cls, groups):
@@ -290,7 +290,7 @@ class ResultSetViewSet(viewsets.ViewSet):
 
             return Response(rs)
 
-        return use_jobs_model(project, model_func)
+        return with_jobs(project, model_func)
 
 
 #####################
