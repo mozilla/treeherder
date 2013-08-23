@@ -40,21 +40,39 @@ treeherder.controller('LogviewerCtrl',
 
             // @@@ we should display some kind of "loading" indicator in the
             // logs area in case the log is really large
-            $scope.log_text = $scope.full_log[step.order];
 
-            //so that all displayed steps are auto scrolled to top
-            $timeout(function() {
-                document.getElementById("lv-log-container").scrollTop = 0;
-            });
+            $http.get($scope.logUrl).
+                success(function(data) {
+                    data = data.split("\n").slice(start, end);
+
+                    $scope.log_text = [];
+                    data.forEach(function(item) {
+                        $scope.log_text.push({
+                            text: item,
+                            hasError: false
+                        });
+                    });
+                    if(errors.length > 0) {
+                        errors.forEach(function(err) {
+                            $scope.log_text[err.linenumber-start].hasError = true;
+                            $scope.log_text[err.linenumber-start].errLine = err.linenumber;
+
+                        });
+                    }
+                }).
+                error(function(data, status, headers, config) {
+                    console.log("error" + data + status +headers + config);
+                });
         };
 
         $scope.init = function() {
-            $http.get('resources/logs/mozilla-inbound_ubuntu64_vm-debug_test-mochitest-other-bm53-tests1-linux-build122.logview.json').success(function(data) {
-                $scope.jsonObj = data;
-            });
-            $http.get('resources/logs/mozilla-inbound_ubuntu64_vm-debug_test-mochitest-other-bm53-tests1-linux-build122.txt').success(function(data) {
-                $scope.logData = data.split("\n");
-            });
+            thArtifact.getArtifact($scope.lvArtifactId).
+                success(function(data) {
+                    $scope.jsonObj = data.blob;
+                    $scope.logUrl = data.blob.logurl;
+                    console.log("logUrl: " + $scope.logUrl);
+                });
+
         };
 
     }
