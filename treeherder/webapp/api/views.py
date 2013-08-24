@@ -1,6 +1,7 @@
 import simplejson as json
 import itertools
 
+from django.conf import settings
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -31,7 +32,12 @@ def with_jobs(project, model_func):
     except ObjectNotFoundException as e:
         return Response({"message": unicode(e)}, status=404)
     except Exception as e:  # pragma nocover
-        return Response({"message": unicode(e)}, status=500)
+        msg = {"message": unicode(e)}
+        if settings.DEBUG:
+            import traceback
+            msg["traceback"] = traceback.format_exc()
+
+        return Response(msg, status=500)
     finally:
         jm.disconnect()
 
@@ -273,6 +279,12 @@ class ResultSetViewSet(viewsets.ViewSet):
                     jobs = sorted(list(jg_g),
                                   key=lambda x: x['job_type_symbol'])
 
+                    groups.append({
+                        "symbol": jg_k,
+                        "name": jobs[0]["job_group_name"],
+                        "jobs": jobs
+                    })
+
                     # build the uri ref for each job
                     for job in jobs:
                         job["resource_uri"] = reverse("jobs-detail",
@@ -280,11 +292,6 @@ class ResultSetViewSet(viewsets.ViewSet):
                         del(job["job_group_name"])
                         del(job["job_group_symbol"])
 
-                    groups.append({
-                        "symbol": jg_k,
-                        "name": jobs[0]["job_group_name"],
-                        "jobs": jobs
-                    })
                 rs["platforms"].append({
                     "name": k,
                     "groups": groups,
