@@ -34,7 +34,12 @@ def with_jobs(model_func):
         except ObjectNotFoundException as e:
             return Response({"message": unicode(e)}, status=404)
         except Exception as e:  # pragma nocover
-            return Response({"message": unicode(e)}, status=500)
+            msg = {"message": unicode(e)}
+            if settings.DEBUG:
+                import traceback
+                msg["traceback"] = traceback.format_exc()
+
+            return Response(msg, status=500)
         finally:
             jm.disconnect()
 
