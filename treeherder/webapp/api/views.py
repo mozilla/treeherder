@@ -277,9 +277,12 @@ class ResultSetViewSet(viewsets.ViewSet):
                     for job in jobs:
                         job["resource_uri"] = reverse("jobs-detail",
                             kwargs={"project": jm.project, "pk": job["job_id"]})
+                        del(job["job_group_name"])
+                        del(job["job_group_symbol"])
 
                     groups.append({
                         "symbol": jg_k,
+                        "name": jobs[0]["job_group_name"],
                         "jobs": jobs
                     })
                 rs["platforms"].append({
