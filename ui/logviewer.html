@@ -6,18 +6,17 @@
         <link href="css/bootstrap.css" rel="stylesheet" media="screen">
     </head>
     <body ng-controller="LogviewerCtrl" ng-init="init()">
-        <div process-log></div>
         <div class="container-fluid">
             <div class="row-fluid">
                 <div class="span6">
                         <dl class="dl-horizontal">
-                            <span ng-repeat="(label, value) in jsonObj.header">
+                            <span ng-repeat="(label, value) in artifact.header">
                                 <dt class="label label-info">{{label}}</dt>
                                 <dd class="">{{value}}</dd>
                             </span>
                         </dl>
                     <div class="row-fluid" >
-                        <div ng-repeat="step in jsonObj.step_data.steps"
+                        <div ng-repeat="step in artifact.step_data.steps"
                              ng-class="{'btn-warning': (step.error_count > 0), 'btn-success': (step.error_count == 0)}"
                              ng-click="displayLog(step)"
                              class="btn btn-block clearfix">
@@ -45,8 +44,7 @@
                 </div>
                 <div class="span6 lv-log-container container well"
                      id="lv-log-container">
-                    <div ng-bind="log_html"></div>
-                    <div ng-repeat="lv_line in log_text"
+                    <div ng-repeat="lv_line in displayedStep.logPieces"
                          ng-class="{'label label-important': (lv_line.hasError == true)}"
                          class="lv-log-line"
                          id="lv-line-{{ lv_line.errLine }}">

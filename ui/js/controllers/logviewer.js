@@ -38,41 +38,52 @@ treeherder.controller('LogviewerCtrl',
         $scope.displayLog = function(step) {
             $scope.displayedStep = step;
 
-            // @@@ we should display some kind of "loading" indicator in the
-            // logs area in case the log is really large
+            //so that all displayed steps are auto scrolled to top
+            $timeout(function() {
+                document.getElementById("lv-log-container").scrollTop = 0;
+            });
+        };
 
-            $http.get($scope.logUrl).
-                success(function(data) {
-                    data = data.split("\n").slice(start, end);
+        $scope.sliceLog = function(data) {
+        // split the log into chunks.  Non-error sections are one large
+        // chunk separated by \n.  Each error gets its own chunk.
 
-                    $scope.log_text = [];
-                    data.forEach(function(item) {
-                        $scope.log_text.push({
-                            text: item,
+            $scope.artifact.step_data.steps.forEach(function(step) {
+                // slice up the raw log and add those pieces to the artifact step.
+                step.logPieces = [];
+                var offset = step.started_linenumber;
+                step.errors.forEach(function(err) {
+                    var end = err.linenumber;
+                    if (offset !== end) {
+                        step.logPieces.push({
+                            text: (data.slice(offset, end)).join('\n'),
                             hasError: false
                         });
-                    });
-                    if(errors.length > 0) {
-                        errors.forEach(function(err) {
-                            $scope.log_text[err.linenumber-start].hasError = true;
-                            $scope.log_text[err.linenumber-start].errLine = err.linenumber;
-
-                        });
                     }
-                }).
-                error(function(data, status, headers, config) {
-                    console.log("error" + data + status +headers + config);
+                    step.logPieces.push({
+                        text: data.slice(end, end+1),
+                        hasError: true,
+                        errLine: end
+                    });
+                    offset = end+1;
                 });
+                step.logPieces.push({
+                    text: (data.slice(offset, step.finished_linenumber+1)).join('\n'),
+                    hasError: false
+                });
+            });
         };
 
         $scope.init = function() {
             thArtifact.getArtifact($scope.lvArtifactId).
                 success(function(data) {
-                    $scope.jsonObj = data.blob;
-                    $scope.logUrl = data.blob.logurl;
-                    console.log("logUrl: " + $scope.logUrl);
+                    $scope.artifact = data.blob;
+                    $scope.logurl = data.blob.logurl;
+                    $http.get($scope.logurl).
+                        success(function(data) {
+                            $scope.sliceLog(data.split("\n"));
+                        });
                 });
-
         };
 
     }
