@@ -13,8 +13,6 @@ treeherder.controller('LogviewerCtrl',
         }
 
 
-        $scope.displayedStep;
-
         $scope.scrollTo = function(step, linenumber) {
             $location.hash('lv-line-'+linenumber);
             $anchorScroll();
@@ -43,6 +41,11 @@ treeherder.controller('LogviewerCtrl',
             // @@@ we should display some kind of "loading" indicator in the
             // logs area in case the log is really large
             $scope.log_text = $scope.full_log[step.order];
+
+            //so that all displayed steps are auto scrolled to top
+            $timeout(function() {
+                document.getElementById("lv-log-container").scrollTop = 0;
+            });
         };
 
         $scope.init = function() {
