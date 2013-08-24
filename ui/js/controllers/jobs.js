@@ -45,26 +45,43 @@ treeherder.controller('PushCtrl',
         thResults.getResults($scope.push, $scope);
 
         $scope.viewJob = function(job_uri) {
-            console.log(job_uri);
+            // view the job details in the lower job-details section
+
+            $rootScope.selectedJob = {};
             $http.get(thServiceDomain + job_uri).
                 success(function(data) {
-                    console.log(data);
-                    $rootScope.selectedJob = data;
-                    $rootScope.lvArtifact = null;
-                    $rootScope.jobArtifact = null;
+                    $rootScope.selectedJob.data = data;
 
                     data.artifacts.forEach(function(artifact) {
                         if (artifact.name.contains("Job Artifact")) {
-                            $rootScope.jobArtifact=artifact;
+                            $rootScope.selectedJob.jobArtifact=artifact;
                             $http.get(thServiceDomain + artifact.resource_uri).
                                 success(function(data) {
-                                    $rootScope.jobPrintlines = data.blob.tinderbox_printlines;
+                                    $rootScope.selectedJob.printlines = data.blob.tinderbox_printlines;
                                 });
                         } else if (artifact.name === "Structured Log") {
-                            $rootScope.lvArtifact=artifact;
+                            $rootScope.selectedJob.lvArtifact=artifact;
                         }
                     });
                 });
+        };
+
+        $scope.viewLog = function(job_uri) {
+            // open the logviewer for this job in a new window
+
+            $http.get(thServiceDomain + job_uri).
+                success(function(data) {
+                    if (data.hasOwnProperty("artifacts")) {
+                        data.artifacts.forEach(function(artifact) {
+                            if (artifact.name === "Structured Log") {
+                                window.open("/app/logviewer.html#?id=" + artifact.id + "&repo=" + $rootScope.repo);
+                            }
+                        });
+                    } else {
+                        console.log("Job had no artifacts: " + job_uri);
+                    }
+                });
+
         };
     }
 );

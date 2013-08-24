@@ -68,18 +68,21 @@
             <div class="navbar-inner">
                 <div class="container-fluid">
                     <div class="span5">
-                        <div>Reason: {{ selectedJob.reason }}</div>
-                        <div>Machine: {{ selectedJob.machine_name }}</div>
-                        <div>Result: {{ selectedJob.result }}</div>
-                        <div ng-show="lvArtifact">
-                            <a target="_blank" href="/app/logviewer.html#?id={{ lvArtifact.id }}&repo={{ repo }}">View Structured Log</a>
+                        <div>Reason: <span ng-bind="selectedJob.data.reason"></span></div>
+                        <div>Machine: <span ng-bind="selectedJob.data.machine_name"></span></div>
+                        <div>Result: <span ng-bind="selectedJob.data.result"></span></div>
+                        <div ng-show="selectedJob.lvArtifact">
+                            <a target="_blank" href="/app/logviewer.html#?id={{ jobDetails.lvArtifact.id }}&repo={{ repo }}">View Structured Log</a>
                         </div>
-                        <div ng-repeat="joblog in selectedJob.logs">
+                        <div ng-hide="selectedJob.lvArtifact">
+                            <em>View Structured Log (processing)</em>
+                        </div>
+                        <div ng-repeat="joblog in selectedJob.data.logs">
                             <a target="_blank" href="{{ joblog.url }}">Raw Log</a>
                         </div>
                     </div>
                     <ul class="span7" >
-                        <li ng-repeat="line in jobPrintlines">
+                        <li ng-repeat="line in selectedJob.printlines">
                             <div ng-bind-html-unsafe="line"></div>
                         </li>
                     </ul>
