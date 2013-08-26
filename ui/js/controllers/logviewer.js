@@ -49,12 +49,16 @@ treeherder.controller('LogviewerCtrl',
         };
 
         $scope.init = function() {
-            $http.get('resources/logs/mozilla-inbound_ubuntu64_vm-debug_test-mochitest-other-bm53-tests1-linux-build122.logview.json').success(function(data) {
-                $scope.jsonObj = data;
-            });
-            $http.get('resources/logs/mozilla-inbound_ubuntu64_vm-debug_test-mochitest-other-bm53-tests1-linux-build122.txt').success(function(data) {
-                $scope.logData = data.split("\n");
-            });
+            thArtifact.getArtifact($scope.lvArtifactId).
+                success(function(data) {
+                    $scope.jsonObj = data.blob;
+                    $scope.logurl = data.blob.logurl;
+                    console.log("logUrl: " + $scope.logurl);
+                    $http.get($scope.logurl).
+                        success(function(data) {
+                            $scope.logData = data.split("\n");
+                        });
+                });
         };
 
     }
