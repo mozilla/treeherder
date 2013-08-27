@@ -52,6 +52,15 @@ class TestAnalysisRunner(unittest.TestCase):
         self.assertFalse(runner.isTestReversed('V8'))
         self.assertFalse(runner.isTestReversed('some other test'))
 
+    def test_suppressWarningForSubject(self):
+        runner = self.create_runner()
+        s = runner.suppressWarningForSubject
+        self.assertTrue(s('Improvement: Fx-Team-Non-PGO - Ts, Paint - WINNT 6.1 (ix) - 96% decrease'))
+        self.assertTrue(s('Tp5 Optimized Responsiveness - WINNT 6.1 (ix)'))
+
+        self.assertFalse(s('<Regression> Ts, Paint - MacOSX 10.7 - 96% increase'))
+        self.assertFalse(s('Tp5 Optimized Responsiveness - WINNT 5.1 (ix)'))
+
     def test_ignorePercentageForTest(self):
         runner = self.create_runner()
 

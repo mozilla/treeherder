@@ -390,6 +390,9 @@ class AnalysisRunner:
     def isTestReversed(self, test_name):
         return self.testMatchesOption(test_name, 'reverse_tests')
 
+    def suppressWarningForSubject(self, subject):
+        return self.testMatchesOption(subject, 'suppress_email_subjects')
+
     def testMatchesOption(self, test_name, option):
         patterns = []
         if self.config.has_option('main', option):
@@ -637,6 +640,8 @@ class AnalysisRunner:
         if addresses:
             addresses = [a.strip() for a in addresses]
             subject = self.formatSubject(state, series, last_good, d)
+            if self.suppressWarningForSubject(subject):
+                return
             msg = self.formatMessage(state, series, last_good, d)
             if last_good.revision:
                 headers = {'In-Reply-To': '<talosbustage-%s>' % last_good.revision}
