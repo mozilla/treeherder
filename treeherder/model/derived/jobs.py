@@ -764,11 +764,13 @@ class JobsModel(TreeherderModelBase):
 
     def get_json_blob_by_guid(self, guid):
         """retrieves a json_blob given its guid"""
-        return self.get_os_dhub().execute(
+        iter_obj = self.get_os_dhub().execute(
             proc="objectstore.selects.get_json_blob_by_guid",
             placeholders=[guid],
-            debug_show=self.DEBUG
+            debug_show=self.DEBUG,
+            return_type='iter',
         )
+        return self.as_single(iter_obj, "objectstore", guid=guid)
 
     def get_json_blob_list(self, page, limit):
         """

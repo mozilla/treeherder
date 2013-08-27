@@ -90,6 +90,4 @@ def test_objectstore_create_bad_project(webapp, job_sample, jm):
         status=404
     )
     assert resp.status_int == 404
-    assert resp.json['message'] == ("No dataset found for project "
-                                    "u'badproject', contenttype "
-                                    "'objectstore'.")
+    assert resp.json['message'] == "No project with name badproject"
