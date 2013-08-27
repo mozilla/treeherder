@@ -11,7 +11,7 @@ from treeherder.model.derived import (JobsModel, DatasetNotFoundError,
                                       ObjectNotFoundException)
 
 
-def with_jobs(project, model_func):
+def with_jobs(model_func):
     """
     Create a jobsmodel and pass it to the ``func``.
 
@@ -19,21 +19,25 @@ def with_jobs(project, model_func):
 
     Catches exceptions
     """
-    try:
-        jm = JobsModel(project)
-        return model_func(jm)
+    def use_jobs_model(*args, **kwargs):
+        project = kwargs["project"]
+        try:
+            jm = JobsModel(project)
+            return model_func(*args, jm=jm, **kwargs)
 
-    except DatasetNotFoundError as e:
-        return Response(
-            {"message": "No project with name {0}".format(project)},
-            status=404,
-        )
-    except ObjectNotFoundException as e:
-        return Response({"message": unicode(e)}, status=404)
-    except Exception as e:  # pragma nocover
-        return Response({"message": unicode(e)}, status=500)
-    finally:
-        jm.disconnect()
+        except DatasetNotFoundError as e:
+            return Response(
+                {"message": "No project with name {0}".format(project)},
+                status=404,
+            )
+        except ObjectNotFoundException as e:
+            return Response({"message": unicode(e)}, status=404)
+        except Exception as e:  # pragma nocover
+            return Response({"message": unicode(e)}, status=500)
+        finally:
+            jm.disconnect()
+    use_jobs_model.__name__ = model_func.__name__
+    return use_jobs_model
 
 
 class ObjectstoreViewSet(viewsets.ViewSet):
@@ -44,59 +48,49 @@ class ObjectstoreViewSet(viewsets.ViewSet):
     a conditional create and then an update.
     """
 
-    def create(self, request, project):
+    @with_jobs
+    def create(self, request, project, jm):
         """
         POST method implementation
         """
-        def model_func(jm):
-            jm.store_job_data(
-                json.dumps(request.DATA),
-                request.DATA['job']['job_guid']
-            )
-            return Response({'message': 'well-formed JSON stored'})
+        jm.store_job_data(
+            json.dumps(request.DATA),
+            request.DATA['job']['job_guid']
+        )
+        return Response({'message': 'well-formed JSON stored'})
 
-        return with_jobs(project, model_func)
-
-    def retrieve(self, request, project, pk=None):
+    @with_jobs
+    def retrieve(self, request, project, jm, pk=None):
         """
         GET method implementation for detail view
         """
-        def model_func(jm):
-            obj = jm.get_json_blob_by_guid(pk)
-            return Response(json.loads(obj['json_blob']))
+        obj = jm.get_json_blob_by_guid(pk)
+        return Response(json.loads(obj['json_blob']))
 
-        return with_jobs(project, model_func)
-
-    def list(self, request, project):
+    @with_jobs
+    def list(self, request, project, jm):
         """
         GET method implementation for list view
         """
         page = int(request.QUERY_PARAMS.get('page', 0))
-
-        def model_func(jm):
-            objs = jm.get_json_blob_list(page, 10)
-            return Response([json.loads(obj['json_blob']) for obj in objs])
-
-        return with_jobs(project, model_func)
+        objs = jm.get_json_blob_list(page, 10)
+        return Response([json.loads(obj['json_blob']) for obj in objs])
 
 
 class ArtifactViewSet(viewsets.ViewSet):
     """
     This viewset is responsible for the artifact endpoint.
     """
-
-    def retrieve(self, request, project, pk=None):
+    @with_jobs
+    def retrieve(self, request, project, jm, pk=None):
         """
         GET method implementation for an artifact blob
 
         """
-        def model_func(jm):
-            obj = jm.get_job_artifact(pk)
-            if obj["type"] == "json":
-                obj["blob"] = json.loads(obj["blob"])
-            return Response(obj)
-
-        return with_jobs(project, model_func)
+        obj = jm.get_job_artifact(pk)
+        if obj["type"] == "json":
+            obj["blob"] = json.loads(obj["blob"])
+        return Response(obj)
 
 
 class JobsViewSet(viewsets.ViewSet):
@@ -104,72 +98,64 @@ class JobsViewSet(viewsets.ViewSet):
     This viewset is responsible for the jobs endpoint.
 
     """
-
-    def retrieve(self, request, project, pk=None):
+    @with_jobs
+    def retrieve(self, request, project, jm, pk=None):
         """
         GET method implementation for detail view
 
         Return a single job with log_references and
         artifact names and links to the artifact blobs.
         """
-        def model_func(jm):
-            job = jm.get_job(pk)
-            job["logs"] = jm.get_log_references(pk)
+        job = jm.get_job(pk)
+        job["logs"] = jm.get_log_references(pk)
 
-            # make artifact ids into uris
-            artifact_refs = jm.get_job_artifact_references(pk)
-            job["artifacts"] = []
-            for art in artifact_refs:
-                ref = reverse("artifact-detail",
-                              kwargs={"project": jm.project, "pk": art["id"]})
-                art["resource_uri"] = ref
-                job["artifacts"].append(art)
+        # make artifact ids into uris
+        artifact_refs = jm.get_job_artifact_references(pk)
+        job["artifacts"] = []
+        for art in artifact_refs:
+            ref = reverse("artifact-detail",
+                          kwargs={"project": jm.project, "pk": art["id"]})
+            art["resource_uri"] = ref
+            job["artifacts"].append(art)
 
-            return Response(job)
+        return Response(job)
 
-        return with_jobs(project, model_func)
-
-    def list(self, request, project):
+    @with_jobs
+    def list(self, request, project, jm):
         """
         GET method implementation for list view
         """
         page = request.QUERY_PARAMS.get('page', 0)
 
-        def model_func(jm):
-            objs = jm.get_job_list(page, 10)
-            return Response(objs)
-
-        return with_jobs(project, model_func)
+        objs = jm.get_job_list(page, 10)
+        return Response(objs)
 
     @action()
-    def update_state(self, request, project, pk=None):
+    @with_jobs
+    def update_state(self, request, project, jm, pk=None):
         """
         Change the state of a job.
         """
         state = request.DATA.get('state', None)
 
-        def model_func(jm):
+        # check that this state is valid
+        if state not in jm.STATES:
+            return Response(
+                {"message": ("'{0}' is not a valid state.  Must be "
+                             "one of: {1}".format(
+                                 state,
+                                 ", ".join(jm.STATES)
+                             ))},
+                status=400,
+            )
 
-            # check that this state is valid
-            if state not in jm.STATES:
-                return Response(
-                    {"message": ("'{0}' is not a valid state.  Must be "
-                                 "one of: {1}".format(
-                                     state,
-                                     ", ".join(jm.STATES)
-                                 ))},
-                    status=400,
-                )
+        if not pk:  # pragma nocover
+            return Response({"message": "job id required"}, status=400)
 
-            if not pk:  # pragma nocover
-                return Response({"message": "job id required"}, status=400)
+        jm.get_job(pk)
+        jm.set_state(pk, state)
 
-            jm.get_job(pk)
-            jm.set_state(pk, state)
-
-            return Response({"message": "state updated to '{0}'".format(state)})
-
-        return with_jobs(project, model_func)
+        return Response({"message": "state updated to '{0}'".format(state)})
 
 
 class ResultSetViewSet(viewsets.ViewSet):
@@ -179,7 +165,8 @@ class ResultSetViewSet(viewsets.ViewSet):
     ``result sets`` are synonymous with ``pushes`` in the ui
     """
 
-    def list(self, request, project):
+    @with_jobs
+    def list(self, request, project, jm):
         """
         GET method for list of ``resultset`` records with revisions
         """
@@ -188,16 +175,13 @@ class ResultSetViewSet(viewsets.ViewSet):
 
         page = request.QUERY_PARAMS.get('page', 0)
 
-        def model_func(jm):
-            objs = jm.get_result_set_list(
-                page,
-                10,
-                **dict((k, v) for k, v in request.QUERY_PARAMS.iteritems()
-                       if k in filters)
-            )
-            return Response(objs)
-
-        return with_jobs(project, model_func)
+        objs = jm.get_result_set_list(
+            page,
+            10,
+            **dict((k, v) for k, v in request.QUERY_PARAMS.iteritems()
+                   if k in filters)
+        )
+        return Response(objs)
 
     @classmethod
     def get_warning_level(cls, groups):
@@ -231,70 +215,68 @@ class ResultSetViewSet(viewsets.ViewSet):
         else:
             return "green"
 
-    def retrieve(self, request, project, pk=None):
+    @with_jobs
+    def retrieve(self, request, project, jm, pk=None):
         """
         GET method implementation for detail view of ``resultset``
         """
         filters = ["job_type_name"]
 
-        def model_func(jm):
-            rs = jm.get_result_set_by_id(pk)
-            jobs_ungrouped = list(jm.get_result_set_job_list(
-                pk,
-                **dict((k, v) for k, v in request.QUERY_PARAMS.iteritems()
-                       if k in filters)
-            ))
+        rs = jm.get_result_set_by_id(pk)
+        jobs_ungrouped = list(jm.get_result_set_job_list(
+            pk,
+            **dict((k, v) for k, v in request.QUERY_PARAMS.iteritems()
+                   if k in filters)
+        ))
 
-            option_collections = dict(
-                (oc['option_collection_hash'], oc['opt'])
-                for oc in jm.refdata_model.get_all_option_collections())
+        option_collections = dict(
+            (oc['option_collection_hash'], oc['opt'])
+            for oc in jm.refdata_model.get_all_option_collections())
 
-            # the main grouper for a result set is the combination of
-            # platform and options
-            platform_grouper = lambda x: "{0} {1}".format(
-                x["platform"],
-                option_collections[x["option_collection_hash"]]
-            )
+        # the main grouper for a result set is the combination of
+        # platform and options
+        platform_grouper = lambda x: "{0} {1}".format(
+            x["platform"],
+            option_collections[x["option_collection_hash"]]
+        )
 
-            #itertools needs the elements to be sorted by the grouper
-            jobs_sorted = sorted(jobs_ungrouped, key=platform_grouper)
+        #itertools needs the elements to be sorted by the grouper
+        jobs_sorted = sorted(jobs_ungrouped, key=platform_grouper)
 
-            rs["platforms"] = []
+        rs["platforms"] = []
 
-            # job_groups by platform and options
-            for k, g in itertools.groupby(jobs_sorted, key=platform_grouper):
+        # job_groups by platform and options
+        for k, g in itertools.groupby(jobs_sorted, key=platform_grouper):
 
-                job_group_grouper = lambda x: x["job_group_symbol"]
-                job_groups = sorted(list(g), key=job_group_grouper)
-                groups = []
-                for jg_k, jg_g in itertools.groupby(job_groups,
-                                                    job_group_grouper):
+            job_group_grouper = lambda x: x["job_group_symbol"]
+            job_groups = sorted(list(g), key=job_group_grouper)
+            groups = []
+            for jg_k, jg_g in itertools.groupby(job_groups,
+                                                job_group_grouper):
 
-                    jobs = sorted(list(jg_g),
-                                  key=lambda x: x['job_type_symbol'])
+                jobs = sorted(list(jg_g),
+                              key=lambda x: x['job_type_symbol'])
 
-                    groups.append({
-                        "symbol": jg_k,
-                        "name": jobs[0]["job_group_name"],
-                        "jobs": jobs
-                    })
-
-                    # build the uri ref for each job
-                    for job in jobs:
-                        job["resource_uri"] = reverse("jobs-detail",
-                            kwargs={"project": jm.project, "pk": job["job_id"]})
-                        del(job["job_group_name"])
-                        del(job["job_group_symbol"])
-
-                rs["platforms"].append({
-                    "name": k,
-                    "groups": groups,
-                    "warning_level": self.get_warning_level(groups)
+                groups.append({
+                    "symbol": jg_k,
+                    "name": jobs[0]["job_group_name"],
+                    "jobs": jobs
                 })
 
-            return Response(rs)
+                # build the uri ref for each job
+                for job in jobs:
+                    job["resource_uri"] = reverse("jobs-detail",
+                        kwargs={"project": jm.project, "pk": job["job_id"]})
+                    del(job["job_group_name"])
+                    del(job["job_group_symbol"])
 
-        return with_jobs(project, model_func)
+            rs["platforms"].append({
+                "name": k,
+                "groups": groups,
+                "warning_level": self.get_warning_level(groups)
+            })
+
+        return Response(rs)
 
 
 #####################
