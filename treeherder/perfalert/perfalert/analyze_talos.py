@@ -608,8 +608,7 @@ class AnalysisRunner:
 
         if self.config.has_option('main', 'max_email_authors') and \
                 self.config.getint('main', 'max_email_authors') > 0 and \
-                state == 'regression' and \
-                not self.isImprovement(series.test_name, last_good, d):
+                state == 'regression':
 
             max_email_authors = self.config.getint('main', 'max_email_authors')
             author_addresses = []
