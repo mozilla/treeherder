@@ -11,15 +11,8 @@ from time import time
 class TestAnalysisRunner(unittest.TestCase):
     def create_runner(self):
         options, args = parse_options(['--start-time', '0'])
+        options.config = 'analysis.cfg.template'
         config = get_config(options)
-        config.set('main', 'fore_window', '5')
-        config.set('main', 'back_window', '5')
-        config.set('main', 'threshold', '7')
-        config.set('main', 'percentage_threshold', '9')
-        config.set('main', 'machine_threshold', '9')
-        config.set('main', 'machine_history_size', '0')
-        config.set('main', 'ignore_percentage_tests', 'LibXUL Memory.*')
-        config.set('main', 'reverse_tests', 'Dromaeo.*, V8 version 7.*')
         return AnalysisRunner(options, config)
 
     def get_data(self):
@@ -63,7 +56,7 @@ class TestAnalysisRunner(unittest.TestCase):
         runner = self.create_runner()
 
         self.assertTrue(runner.ignorePercentageForTest('LibXUL Memory during link'))
-        self.assertTrue(runner.ignorePercentageForTest('LibXUL Memory'))
+        self.assertFalse(runner.ignorePercentageForTest('LibXUL Memory'))
 
         self.assertFalse(runner.ignorePercentageForTest('LibXUL something else'))
         self.assertFalse(runner.ignorePercentageForTest('V8'))
