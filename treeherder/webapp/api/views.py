@@ -273,6 +273,12 @@ class ResultSetViewSet(viewsets.ViewSet):
                     jobs = sorted(list(jg_g),
                                   key=lambda x: x['job_type_symbol'])
 
+                    groups.append({
+                        "symbol": jg_k,
+                        "name": jobs[0]["job_group_name"],
+                        "jobs": jobs
+                    })
+
                     # build the uri ref for each job
                     for job in jobs:
                         job["resource_uri"] = reverse("jobs-detail",
@@ -280,11 +286,6 @@ class ResultSetViewSet(viewsets.ViewSet):
                         del(job["job_group_name"])
                         del(job["job_group_symbol"])
 
-                    groups.append({
-                        "symbol": jg_k,
-                        "name": jobs[0]["job_group_name"],
-                        "jobs": jobs
-                    })
                 rs["platforms"].append({
                     "name": k,
                     "groups": groups,
