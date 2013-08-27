@@ -1,19 +1,52 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at http://mozilla.org/MPL/2.0/.
-def analyze(data):
+
+
+def analyze(data, weight_fn=None):
+    """Returns the average and sample variance (s**2) of a list of floats.
+
+    `weight_fn` is a function that takes a list index and a window width, and
+    returns a weight that is used to calculate a weighted average.  For example,
+    see `default_weights` or `linear_weights` below.  If no function is passed,
+    `default_weights` is used and the average will be uniformly weighted.
+    """
+    if weight_fn is None:
+        weight_fn = default_weights
+
     n = len(data)
-    avg = (sum(data) / n) if n > 0 else 0.0
-    variance = (sum(pow(d-avg, 2) for d in data) / (n-1)) if n > 1 else 0.0
-    return {"avg": avg, "n": n, "variance": variance}
+    weights = [weight_fn(i, n) for i in range(n)]
+    weighted_sum = sum(data[i] * weights[i] for i in range(n))
+    weighted_avg = weighted_sum / sum(weights) if n > 0 else 0.0
 
+    variance = (sum(pow(d-weighted_avg, 2) for d in data) / (n-1)) if n > 1 else 0.0
+    return {"avg": weighted_avg, "n": n, "variance": variance}
 
-def calc_t(w1, w2):
+def default_weights(i, n):
+    """A window function that weights all points uniformly."""
+    return 1.0
+
+def linear_weights(i, n):
+    """A window function that falls off arithmetically.
+
+    This is used to calculate a weighted moving average (WMA) that gives higher
+    weight to changes near the point being analyzed, and smooth out changes at
+    the opposite edge of the moving window.  See bug 879903 for details.
+    """
+    if i >= n:
+        return 0.0
+    return float(n - i) / float(n)
+
+def calc_t(w1, w2, weight_fn=None):
+    """Perform a Students t-test on the two lists of data.
+
+    See the analyze() function for a description of the `weight_fn` argument.
+    """
     if len(w1) == 0 or len(w2) == 0:
         return 0
 
-    s1 = analyze(w1)
-    s2 = analyze(w2)
+    s1 = analyze(w1, weight_fn)
+    s2 = analyze(w2, weight_fn)
     delta_s = s2['avg'] - s1['avg']
 
     if delta_s == 0:
@@ -96,6 +129,10 @@ class TalosAnalyzer:
             jw = [d.value for d in good_data[-j:]]
             kw = [d.value for d in self.data[i:i+k]]
 
+            # Reverse the backward data so that the current point is at the
+            # start of the window.
+            jw.reverse()
+
             my_history = self.machine_history[di.machine_id]
             my_history_index = my_history.index(di)
             my_data = [d.value for d in self.machine_history[di.machine_id][my_history_index-machine_history_size+1:my_history_index+1]]
@@ -111,13 +148,13 @@ class TalosAnalyzer:
             di.forward_stats = analyze(kw)
 
             if len(jw) >= j:
-                di.t = abs(calc_t(jw, kw))
+                di.t = abs(calc_t(jw, kw, linear_weights))
             else:
                 # Assume it's ok, we don't have enough data
                 di.t = 0
 
             if len(other_data) >= k*2 and len(my_data) >= machine_history_size:
-                m_t = calc_t(other_data, my_data)
+                m_t = calc_t(other_data, my_data, linear_weights)
             else:
                 m_t = 0
 

@@ -16,6 +16,14 @@ class TestAnalyze(unittest.TestCase):
             {"avg": 3.0, "n": 1, "variance": 0.0})
         self.assertEqual(analyze([1.0, 2.0, 3.0, 4.0]),
             {"avg": 2.5, "n": 4, "variance": 5.0/3.0})
+        self.assertEqual(analyze([1.0, 2.0, 3.0, 4.0], linear_weights),
+            {"avg": 2.0, "n": 4, "variance": 2.0})
+
+    def test_weights(self):
+        self.assertEqual([default_weights(i, 5) for i in range(5)],
+            [1.0, 1.0, 1.0, 1.0, 1.0])
+        self.assertEqual([linear_weights(i, 5) for i in range(5)],
+            [1.0, 0.8, 0.6, 0.4, 0.2])
 
     def test_calc_t(self):
         self.assertEqual(calc_t([0.0, 0.0], [1.0, 2.0]), 3.0)
@@ -53,7 +61,8 @@ class TestTalosAnalyzer(unittest.TestCase):
         self.check_json('runs3.json', [1335293827, 1338839958])
         self.check_json('runs4.json', [1364922838])
         self.check_json('runs5.json', [])
-        self.check_json('a11y.json', [1366197637, 1367799757, 1367849900])
+        self.check_json('a11y.json', [1366197637, 1367799757])
+        self.check_json('tp5rss.json', [1373413365, 1373424974])
 
     def check_json(self, filename, expected_timestamps):
         """Parse JSON produced by http://graphs.mozilla.org/api/test/runs"""
