@@ -36,7 +36,7 @@ def with_jobs(model_func):
             return Response({"message": unicode(e)}, status=500)
         finally:
             jm.disconnect()
-    use_jobs_model.__name__ = model_func.__name__
+
     return use_jobs_model
 
 
