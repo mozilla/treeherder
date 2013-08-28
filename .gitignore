@@ -23,6 +23,10 @@ lib64
 # Installer logs
 pip-log.txt
 
+# logs
+test.log
+treeherder*.log
+
 # Unit test / coverage reports
 .coverage
 .tox
