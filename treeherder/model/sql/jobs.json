@@ -237,7 +237,8 @@
                     j.`result_set_id`,
                     j.`id` as job_id,
                     j.`result`,
-                    j.`state`
+                    j.`state`,
+                    j.`reason`
                   FROM `job` as j
                   LEFT JOIN `REP0`.`machine` as m
                     ON j.`machine_id` = m.id
