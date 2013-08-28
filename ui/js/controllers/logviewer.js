@@ -1,7 +1,7 @@
 'use strict';
 
 treeherder.controller('LogviewerCtrl',
-    function Logviewer($scope, $rootScope, $location, $routeParams, $http, $timeout, thArtifact) {
+    function Logviewer($anchorScroll, $scope, $rootScope, $location, $routeParams, $http, $timeout, thArtifact) {
 
         if ($location.$$search.hasOwnProperty("repo") &&
             $location.$$search.repo !== "") {
@@ -13,19 +13,9 @@ treeherder.controller('LogviewerCtrl',
         }
 
 
-        $scope.jsonObj = {};
-        $scope.displayedStep;
-
-        // @@@ should this be a directive?
-        // @@@ making me re-think my request to not use jquery.  jquery would be better
-        // than getElementById.  Though seems like there must be a $scope way to
-        // do this?
         $scope.scrollTo = function(step, linenumber) {
-            if($scope.displayedStep === step) {
-                var pos = document.getElementById("lv-line-"+linenumber).offsetTop -
-                             document.getElementById("lv-log-container").offsetTop;
-                document.getElementById("lv-log-container").scrollTop = pos;
-            }
+            $location.hash('lv-line-'+linenumber);
+            $anchorScroll();
         };
 
         // @@@ it may be possible to do this with the angular date filter?
@@ -47,85 +37,54 @@ treeherder.controller('LogviewerCtrl',
 
         $scope.displayLog = function(step) {
             $scope.displayedStep = step;
-            var start = step.started_linenumber;
-            var end = step.finished_linenumber+1;
-            var errors = step.errors;
 
-            // @@@  I think we should only fetch the log once and keep it
-            // in the scope.  Then we can slice that to the start/end and
-            // display the appropriate part.
+            //so that all displayed steps are auto scrolled to top
+            $timeout(function() {
+                document.getElementById("lv-log-container").scrollTop = 0;
+            });
+        };
 
-            // @@@ we should display some kind of "loading" indicator in the
-            // logs area in case the log is really large
+        $scope.sliceLog = function(data) {
+        // split the log into chunks.  Non-error sections are one large
+        // chunk separated by \n.  Each error gets its own chunk.
 
-            $http.get($scope.logUrl).
-                success(function(data) {
-                    data = data.split("\n").slice(start, end);
-
-                    $scope.log_text = [];
-                    data.forEach(function(item) {
-                        $scope.log_text.push({
-                            text: item,
+            $scope.artifact.step_data.steps.forEach(function(step) {
+                // slice up the raw log and add those pieces to the artifact step.
+                step.logPieces = [];
+                var offset = step.started_linenumber;
+                step.errors.forEach(function(err) {
+                    var end = err.linenumber;
+                    if (offset !== end) {
+                        step.logPieces.push({
+                            text: (data.slice(offset, end)).join('\n'),
                             hasError: false
                         });
-                    });
-                    if(errors.length > 0) {
-                        errors.forEach(function(err) {
-                            $scope.log_text[err.linenumber-start].hasError = true;
-                            $scope.log_text[err.linenumber-start].errLine = err.linenumber;
-
-                        });
                     }
-                }).
-                error(function(data, status, headers, config) {
-                    console.log("error" + data + status +headers + config);
+                    step.logPieces.push({
+                        text: data.slice(end, end+1),
+                        hasError: true,
+                        errLine: end
+                    });
+                    offset = end+1;
                 });
+                step.logPieces.push({
+                    text: (data.slice(offset, step.finished_linenumber+1)).join('\n'),
+                    hasError: false
+                });
+            });
         };
 
         $scope.init = function() {
             thArtifact.getArtifact($scope.lvArtifactId).
                 success(function(data) {
-                    $scope.jsonObj = data.blob;
-                    $scope.logUrl = data.blob.logurl;
-                    console.log("logUrl: " + $scope.logUrl);
+                    $scope.artifact = data.blob;
+                    $scope.logurl = data.blob.logurl;
+                    $http.get($scope.logurl).
+                        success(function(data) {
+                            $scope.sliceLog(data.split("\n"));
+                        });
                 });
-
         };
 
-        $scope.insertText = function(data, start, end, errors) {
-            var logviewer = document.getElementById("lv_logview");
-            logviewer.innerText = '';
-            var offset = start;
-            var startText = data.splice(0, 1);
-            var startDiv = document.createElement("div");
-            startDiv.className = "lv-purple-font";
-            startDiv.appendChild(document.createTextNode(startText[0]));
-            logviewer.appendChild(startDiv);
-            var endText = data.splice(-1, 1);
-            var endDiv = document.createElement("div");
-            endDiv.className = "lv-purple-font";
-            endDiv.appendChild(document.createTextNode(endText[0]));
-
-            if(errors.length > 0) {
-                errors.forEach(function(err) {
-                    var tempData = data.splice(0, err.linenumber-offset-1);
-                    var tempText = tempData.join("\n");
-                    logviewer.appendChild(document.createTextNode(tempText));
-                    var errData = data.splice(0, 1);
-                    var errDiv = document.createElement("div");
-                    errDiv.className = "label label-important lv-logview-error lv-line-"+err.linenumber;
-                    errDiv.appendChild(document.createTextNode(errData[0]));
-                    logviewer.appendChild(errDiv);
-                    offset = err.linenumber;
-                });
-                var lastDiv = document.createTextNode(data.join("\n"));
-                logviewer.appendChild(lastDiv);
-            }
-            else {
-                logviewer.appendChild(document.createTextNode(data.join("\n")));
-            }
-            logviewer.appendChild(endDiv);
-            document.getElementById("lv_logview_holder").scrollTop = 0;
-        }
     }
 );

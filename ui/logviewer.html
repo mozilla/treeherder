@@ -5,18 +5,18 @@
         <link href="css/treeherder.css" rel="stylesheet" type="text/css">
         <link href="css/bootstrap.css" rel="stylesheet" media="screen">
     </head>
-    <body ng-controller="LogviewerCtrl">
+    <body ng-controller="LogviewerCtrl" ng-init="init()">
         <div class="container-fluid">
-            <div ng-init="init()" class="row-fluid">
+            <div class="row-fluid">
                 <div class="span6">
                         <dl class="dl-horizontal">
-                            <span ng-repeat="(label, value) in jsonObj.header">
+                            <span ng-repeat="(label, value) in artifact.header">
                                 <dt class="label label-info">{{label}}</dt>
                                 <dd class="">{{value}}</dd>
                             </span>
                         </dl>
                     <div class="row-fluid" >
-                        <div ng-repeat="step in jsonObj.step_data.steps"
+                        <div ng-repeat="step in artifact.step_data.steps"
                              ng-class="{'btn-warning': (step.error_count > 0), 'btn-success': (step.error_count == 0)}"
                              ng-click="displayLog(step)"
                              class="btn btn-block clearfix">
@@ -30,6 +30,7 @@
                                     <div ng-repeat="error in step.errors"
                                          ng-mouseover="check=(step==displayedStep)"
                                          ng-mouseleave="check=false"
+                                         ng-class="{'lv-line-highlight': check}"
                                          ng-click="scrollTo(step, error.linenumber);
                                                    $event.stopPropagation()"
                                          class="text-left pull-left lv-error-line">
@@ -43,8 +44,7 @@
                 </div>
                 <div class="span6 lv-log-container container well"
                      id="lv-log-container">
-                    <div ng-bind="log_html"></div>
-                    <div ng-repeat="lv_line in log_text"
+                    <div ng-repeat="lv_line in displayedStep.logPieces"
                          ng-class="{'label label-important': (lv_line.hasError == true)}"
                          class="lv-log-line"
                          id="lv-line-{{ lv_line.errLine }}">
@@ -66,7 +66,6 @@
     <script src="js/controllers/machines.js"></script>
     <script src="js/controllers/timeline.js"></script>
     <script src="js/filters.js"></script>
-    <script src="js/directives.js"></script>
     <script src="js/controllers/logviewer.js"></script>
     </body>
 </html>
