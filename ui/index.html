@@ -72,7 +72,7 @@
                         <div>Machine: <span ng-bind="selectedJob.data.machine_name"></span></div>
                         <div>Result: <span ng-bind="selectedJob.data.result"></span></div>
                         <div ng-show="selectedJob.lvArtifact">
-                            <a target="_blank" href="/app/logviewer.html#?id={{ jobDetails.lvArtifact.id }}&repo={{ repo }}">View Structured Log</a>
+                            <a target="_blank" href="{{ selectedJob.lvUrl }}">View Structured Log</a>
                         </div>
                         <div ng-hide="selectedJob.lvArtifact">
                             <em>View Structured Log (processing)</em>
@@ -82,7 +82,7 @@
                         </div>
                     </div>
                     <ul class="span7" >
-                        <li ng-repeat="line in selectedJob.printlines">
+                        <li ng-repeat="line in selectedJob.jobArtifact.blob.tinderbox_printlines">
                             <div ng-bind-html-unsafe="line"></div>
                         </li>
                     </ul>

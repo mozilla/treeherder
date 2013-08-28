@@ -37,7 +37,7 @@ treeherder.controller('JobsCtrl',
 );
 
 treeherder.controller('PushCtrl',
-    function PushCtrl($scope, $rootScope, $http, thResults, thServiceDomain) {
+    function PushCtrl($scope, $rootScope, $http, thResults, thUrl, thServiceDomain) {
         // whether or not revision list for a push is collapsed
         $scope.isCollapsedRevisions = true;
 
@@ -61,6 +61,7 @@ treeherder.controller('PushCtrl',
                                 });
                         } else if (artifact.name === "Structured Log") {
                             $rootScope.selectedJob.lvArtifact=artifact;
+                            $rootScope.selectedJob.lvUrl = thUrl.getLogViewerUrl(artifact.id);
                         }
                     });
                 });

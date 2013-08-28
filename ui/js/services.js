@@ -1,7 +1,7 @@
 'use strict';
 
 /* Services */
-treeherder.factory('thService',
+treeherder.factory('thUrl',
                    ['$rootScope', 'thServiceDomain',
                    function($rootScope, thServiceDomain) {
     return {
@@ -10,42 +10,45 @@ treeherder.factory('thService',
         },
         getProjectUrl: function(uri) {
             return thServiceDomain + "/api/project/" + $rootScope.repo + uri;
+        },
+        getLogViewerUrl: function(artifactId) {
+            return "/app/logviewer.html#?id=" + artifactId + "&repo=" + $rootScope.repo;
         }
     };
-    return thService;
+    return thUrl;
 
 }]);
 
 treeherder.factory('thArtifact',
-                   ['$http', 'thService',
-                   function($http, thService) {
+                   ['$http', 'thUrl',
+                   function($http, thUrl) {
 
     // get the pushes for this tree
     // sample: 'resources/push_sample.json'
     return {
         getArtifact: function(id) {
-            return $http.get(thService.getProjectUrl(
+            return $http.get(thUrl.getProjectUrl(
                 "/artifact/" + id + "/?format=json"));
         }
     }
 }]);
 
 treeherder.factory('thResultSets',
-                   ['$http', 'thService',
-                   function($http, thService) {
+                   ['$http', 'thUrl',
+                   function($http, thUrl) {
 
     // get the pushes for this tree
     // sample: 'resources/push_sample.json'
     return {
         getResultSets: function() {
-            return $http.get(thService.getProjectUrl("/resultset/?format=json"));
+            return $http.get(thUrl.getProjectUrl("/resultset/?format=json"));
         }
     }
 }]);
 
 treeherder.factory('thResults',
-                   ['$http', 'thService', '$rootScope',
-                   function($http, thService, $rootScope) {
+                   ['$http', 'thUrl', '$rootScope',
+                   function($http, thUrl, $rootScope) {
     var getWarningLevel = function(results) {
 
         var COLORS = {
@@ -71,7 +74,7 @@ treeherder.factory('thResults',
         getResults: function(result_set, $scope) {
             // store the results in scope for this push via ajax
 
-            var jobUrl = thService.getProjectUrl("/resultset/" + result_set.id + "/?format=json");
+            var jobUrl = thUrl.getProjectUrl("/resultset/" + result_set.id + "/?format=json");
             console.log("fetching for " + result_set.id + " from: " + jobUrl);
             $scope.isLoadingResults = true;
             $http.get(jobUrl).
@@ -114,14 +117,14 @@ treeherder.factory('thResults',
 }]);
 
 treeherder.factory('thRepos',
-                   ['$http', 'thService', '$rootScope',
-                   function($http, thService, $rootScope) {
+                   ['$http', 'thUrl', '$rootScope',
+                   function($http, thUrl, $rootScope) {
 
     // get the repositories (aka trees)
     // sample: 'resources/menu.json'
     return {
         getRepos: function($rootScope) {
-            $http.get(thService.getRootUrl("/repository/?format=json")).
+            $http.get(thUrl.getRootUrl("/repository/?format=json")).
                 success(function(data) {
                     $rootScope.repos = data;
                 });
