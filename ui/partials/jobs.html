@@ -59,7 +59,7 @@
                     <a class="btn-mini {{ job|typeClass }} {{ job.result|resultClass }}"
                        title="{{ job.job_type_name }}"
                        ng-repeat="job in group.jobs"
-                       ng-click="viewJob(job.resource_uri)"
+                       ng-click="viewJob(job)"
                        ng-right-click="viewLog(job.resource_uri)">
                        <!--
                            We should conditionally remove the fire icon once they have

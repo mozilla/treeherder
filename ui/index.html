@@ -67,18 +67,22 @@
              ng-show="selectedJob">
             <div class="navbar-inner">
                 <div class="container-fluid">
-                    <div class="span5">
-                        <div>Reason: <span ng-bind="selectedJob.data.reason"></span></div>
-                        <div>Machine: <span ng-bind="selectedJob.data.machine_name"></span></div>
-                        <div>Result: <span ng-bind="selectedJob.data.result"></span></div>
-                        <div ng-show="selectedJob.lvArtifact">
+                    <div class="span7">
+                        <dl class="dl-horizontal">
+                            <span ng-repeat="(label, value) in selectedJob.visibleFields">
+                                <dt class="label label-info">{{label}}</dt>
+                                <dd class="">{{value}}</dd>
+                            </span>
+                        </dl>
+                        <div ng-show="selectedJob.lvArtifact"
+                             class="btn">
                             <a target="_blank" href="{{ selectedJob.lvUrl }}">View Structured Log</a>
                         </div>
                         <div ng-hide="selectedJob.lvArtifact">
-                            <em>View Structured Log (processing)</em>
+                            <em>Processing Structured Log</em>
                         </div>
                         <div ng-repeat="joblog in selectedJob.data.logs">
-                            <a target="_blank" href="{{ joblog.url }}">Raw Log</a>
+                            <a target="_blank" href="{{ joblog.url }}">Raw Log: {{ joblog.url }}</a>
                         </div>
                     </div>
                     <ul class="span7" >
@@ -118,6 +122,7 @@
         <script src="js/app.js"></script>
         <script src="js/services.js"></script>
         <script src="js/providers.js"></script>
+        <script src="js/directives.js"></script>
         <script src="js/controllers/main.js"></script>
         <script src="js/controllers/jobs.js"></script>
         <script src="js/controllers/machines.js"></script>

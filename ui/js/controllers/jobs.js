@@ -44,20 +44,35 @@ treeherder.controller('PushCtrl',
         $scope.isCollapsedResults = true;
         thResults.getResults($scope.push, $scope);
 
-        $scope.viewJob = function(job_uri) {
+        $scope.viewJob = function(job) {
             // view the job details in the lower job-details section
 
-            $rootScope.selectedJob = {};
-            $http.get(thServiceDomain + job_uri).
+            $rootScope.selectedJob = job;
+            $http.get(thServiceDomain + job.resource_uri).
                 success(function(data) {
                     $rootScope.selectedJob.data = data;
+                    $rootScope.selectedJob.visibleFields = {
+                        "Reason": $rootScope.selectedJob.data.reason,
+                        "State": job.state,
+                        "Result": job.result,
+                        "Type Name": job.job_type_name,
+                        "Type Desc": job.job_type_description,
+                        "Who": job.who,
+                        "Job GUID": job.job_guid,
+                        "Machine Name": job.machine_name,
+                        "Machine Platform Arch": job.machine_platform_architecture,
+                        "Machine Platform OS": job.machine_platform_os,
+                        "Build Platform": job.build_platform,
+                        "Build Arch": job.build_architecture,
+                        "Build OS": job.build_os
+                    };
 
                     data.artifacts.forEach(function(artifact) {
                         if (artifact.name.contains("Job Artifact")) {
                             $rootScope.selectedJob.jobArtifact=artifact;
                             $http.get(thServiceDomain + artifact.resource_uri).
                                 success(function(data) {
-                                    $rootScope.selectedJob.printlines = data.blob.tinderbox_printlines;
+                                    $rootScope.selectedJob.jobArtifact = data;
                                 });
                         } else if (artifact.name === "Structured Log") {
                             $rootScope.selectedJob.lvArtifact=artifact;
