@@ -81,7 +81,7 @@
                         <div ng-hide="selectedJob.lvArtifact">
                             <em>Processing Structured Log</em>
                         </div>
-                        <div ng-repeat="joblog in selectedJob.data.logs">
+                        <div ng-repeat="joblog in selectedJob.logs">
                             <a target="_blank" href="{{ joblog.url }}">Raw Log: {{ joblog.url }}</a>
                         </div>
                     </div>
