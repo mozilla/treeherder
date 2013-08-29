@@ -37,7 +37,7 @@ treeherder.controller('JobsCtrl',
 );
 
 treeherder.controller('PushCtrl',
-    function PushCtrl($scope, $rootScope, $http, thResults, thUrl, thServiceDomain) {
+    function PushCtrl($scope, $rootScope, $http, $log, thResults, thUrl, thServiceDomain) {
         // whether or not revision list for a push is collapsed
         $scope.isCollapsedRevisions = true;
 
@@ -105,7 +105,7 @@ treeherder.controller('PushCtrl',
                             }
                         });
                     } else {
-                        console.log("Job had no artifacts: " + job_uri);
+                        $log.warn("Job had no artifacts: " + job_uri);
                     }
                 });
 

@@ -47,8 +47,8 @@ treeherder.factory('thResultSets',
 }]);
 
 treeherder.factory('thResults',
-                   ['$http', 'thUrl', '$rootScope',
-                   function($http, thUrl, $rootScope) {
+                   ['$http', 'thUrl', '$rootScope', '$log',
+                   function($http, thUrl, $rootScope, $log) {
     var getWarningLevel = function(results) {
 
         var COLORS = {
@@ -75,7 +75,7 @@ treeherder.factory('thResults',
             // store the results in scope for this push via ajax
 
             var jobUrl = thUrl.getProjectUrl("/resultset/" + result_set.id + "/?format=json");
-            console.log("fetching for " + result_set.id + " from: " + jobUrl);
+            $log.info("fetching for " + result_set.id + " from: " + jobUrl);
             $scope.isLoadingResults = true;
             $http.get(jobUrl).
                 success(
