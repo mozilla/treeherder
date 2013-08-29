@@ -1,22 +1,36 @@
-basePath = '../';
+module.exports = function (config) {
+    config.set({
+        frameworks: ['requirejs'],
 
-files = [
-  ANGULAR_SCENARIO,
-  ANGULAR_SCENARIO_ADAPTER,
-  'test/e2e/**/*.js'
-];
+        basePath: '../',
 
-autoWatch = false;
+        files: [
+            'app/vendor/angular/angular.js',
+            'app/vendor/angular/angular-*.js',
+            'app/vendor/*.js',
+            'app/js/**/*.js',
+            'app/js/controllers/**/*.js',
+            'test/vendor/angular/angular-mocks.js',
+            'test/vendor/jquery-2.0.3.js',
+            'test/vendor/jasmine-jquery.js',
+            'test/e2e/**/*.js',
 
-browsers = ['Chrome'];
+            // fixtures
+            {pattern: 'app/resources/*.json', watched: true, served: true, included: false}
+        ],
 
-singleRun = true;
+        autoWatch: false,
+        singleRun: true,
 
-proxies = {
-  '/': 'http://localhost:8000/'
-};
+        browsers: ['Firefox'],
 
-junitReporter = {
-  outputFile: 'test_out/e2e.xml',
-  suite: 'e2e'
+        proxies: {
+          '/': 'http://localhost:8000/'
+        },
+
+        junitReporter: {
+          outputFile: 'test_out/e2e.xml',
+          suite: 'e2e'
+        }
+    });
 };
