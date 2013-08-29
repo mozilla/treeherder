@@ -238,7 +238,10 @@
                     j.`id` as job_id,
                     j.`result`,
                     j.`state`,
-                    j.`reason`
+                    j.`reason`,
+                    j.`start_timestamp`,
+                    j.`end_timestamp`,
+                    j.`submit_timestamp`
                   FROM `job` as j
                   LEFT JOIN `REP0`.`machine` as m
                     ON j.`machine_id` = m.id
