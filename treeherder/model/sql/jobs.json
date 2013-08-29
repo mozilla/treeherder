@@ -220,7 +220,12 @@
                     j.`job_guid`,
                     j.`build_platform_id`,
                     j.`option_collection_hash`,
-                    mp.`platform`,
+                    mp.`platform` as platform,
+                    mp.`os_name` as machine_platform_os,
+                    mp.`architecture` as machine_platform_architecture,
+                    bp.`platform` as build_platform,
+                    bp.`os_name` as build_os,
+                    bp.`architecture` as build_architecture,
                     m.`name` as machine_name,
                     jt.`name` as job_type_name,
                     jt.`symbol` as job_type_symbol,
@@ -232,7 +237,11 @@
                     j.`result_set_id`,
                     j.`id` as job_id,
                     j.`result`,
-                    j.`state`
+                    j.`state`,
+                    j.`reason`,
+                    j.`start_timestamp`,
+                    j.`end_timestamp`,
+                    j.`submit_timestamp`
                   FROM `job` as j
                   LEFT JOIN `REP0`.`machine` as m
                     ON j.`machine_id` = m.id

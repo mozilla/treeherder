@@ -1,6 +1,7 @@
 import urllib2
 import gzip
 import io
+import logging
 
 from .artifactbuilders import (BuildbotLogViewArtifactBuilder,
                                BuildbotJobArtifactBuilder)
@@ -84,28 +85,34 @@ class ArtifactBuilderCollection(object):
 
         """
 
-        handle = self.get_log_handle(self.url)
+        try:
+            handle = self.get_log_handle(self.url)
 
-        # using BytesIO is a workaround.  Apparently this is fixed in
-        # Python 3.2, but not in the 2.x versions.  GzipFile wants the
-        # the methods seek() and tell(), which don't exist on a normal
-        # fileobj.
-        # interesting write-up here:
-        #     http://www.enricozini.org/2011/cazzeggio/python-gzip/
-        gz_file = gzip.GzipFile(fileobj=io.BytesIO(handle.read()))
+            # using BytesIO is a workaround.  Apparently this is fixed in
+            # Python 3.2, but not in the 2.x versions.  GzipFile wants the
+            # the methods seek() and tell(), which don't exist on a normal
+            # fileobj.
+            # interesting write-up here:
+            #     http://www.enricozini.org/2011/cazzeggio/python-gzip/
+            gz_file = gzip.GzipFile(fileobj=io.BytesIO(handle.read()))
 
-        for line in gz_file:
-            # stop parsing if all builders are done
-            if not self.complete:
-                # run each parser on each line of the log
-                for parser in self.builders:
-                    parser.parse_line(line)
+            for line in gz_file:
+                # stop parsing if all builders are done
+                if not self.complete:
+                    # run each parser on each line of the log
+                    for parser in self.builders:
+                        parser.parse_line(line)
 
-        # gather the artifacts from all builders
-        for parser in self.builders:
-            self.artifacts[parser.name] = parser.get_artifact()
-
-        gz_file.close()
+            # gather the artifacts from all builders
+            for parser in self.builders:
+                self.artifacts[parser.name] = parser.get_artifact()
+        except Exception as e:
+            logging.error(e.message)
+        finally:
+            if handle:
+                handle.close()
+            if gz_file:
+                gz_file.close()
 
     @property
     def complete(self):
