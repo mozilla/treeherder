@@ -1,0 +1,89 @@
+{
+
+    "repository_id": 2,
+    "revision_hash": "a91254227216fda2772c8d2c2cb772cbbadafc46",
+    "author": "gabadie@mozilla.com",
+    "comments": "bug 908662 - [WebGL 2.0] refactor WebIDL - r=jgilbert",
+    "platforms": [
+        {
+            "warning_level": "green",
+            "name": "OS X 10.6 opt",
+            "groups": [
+                {
+                    "symbol": "B",
+                    "jobs": [
+                        {
+                            "submit_timestamp": 1377290578,
+                            "machine_name": "bld-lion-r5-059",
+                            "job_type_description": "fill me",
+                            "result_set_id": 13,
+                            "result": "success",
+                            "machine_platform_architecture": "x86_64",
+                            "end_timestamp": 1377293713,
+                            "build_platform": "OS X 10.6",
+                            "machine_platform_os": "mac",
+                            "job_id": 120,
+                            "job_type_name": "build",
+                            "platform": "OS X 10.6",
+                            "state": "finished",
+                            "build_os": "mac",
+                            "who": "gabadie@mozilla.com",
+                            "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
+                            "job_type_symbol": "B",
+                            "reason": "scheduler",
+                            "job_group_description": "",
+                            "job_guid": "7022420dc230f3e6f2fa6c56fab30352994a30e5",
+                            "start_timestamp": 1377315800,
+                            "build_architecture": "x86_64",
+                            "build_platform_id": 4,
+                            "resource_uri": "/api/project/mozilla-inbound/jobs/120/"
+                        }
+                    ],
+                    "name": "build"
+                }
+            ]
+        },
+        {
+            "warning_level": "green",
+            "name": "gecko opt",
+            "groups": [
+                {
+                    "symbol": "B",
+                    "jobs": [
+                        {
+                            "submit_timestamp": 1377290578,
+                            "machine_name": "bld-linux64-ec2-101",
+                            "job_type_description": "fill me",
+                            "result_set_id": 13,
+                            "result": "success",
+                            "machine_platform_architecture": "ARMv7",
+                            "end_timestamp": 1377294006,
+                            "build_platform": "gecko",
+                            "machine_platform_os": "linux",
+                            "job_id": 216,
+                            "job_type_name": "build",
+                            "platform": "gecko",
+                            "state": "finished",
+                            "build_os": "linux",
+                            "who": "gabadie@mozilla.com",
+                            "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
+                            "job_type_symbol": "B",
+                            "reason": "scheduler",
+                            "job_group_description": "",
+                            "job_guid": "9734a09f61320f5216f6ecc753795d95d4a5d8e6",
+                            "start_timestamp": 1377315799,
+                            "build_architecture": "ARMv7",
+                            "build_platform_id": 10,
+                            "resource_uri": "/api/project/mozilla-inbound/jobs/216/"
+                        }
+                    ],
+                    "name": "build"
+                }
+            ]
+        }
+    ],
+    "push_timestamp": 1377290520,
+    "id": 13,
+    "revision": "b44c22c84132502664dcb52e2b1a737aa09e6fd0"
+
+}

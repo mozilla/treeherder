@@ -1,0 +1,51 @@
+{
+
+    "repository_id": 2,
+    "revision_hash": "25b6841ee6e4223e3a32011e324e2fba2cc96ae2",
+    "author": "sendchange",
+    "comments": "Bug 908724 - Avoid #including nsPresContext.h in nsIScrollableFrame.h_ r=mats",
+    "platforms": [
+        {
+            "warning_level": "green",
+            "name": "2.2 opt",
+            "groups": [
+                {
+                    "symbol": "T",
+                    "jobs": [
+                        {
+                            "submit_timestamp": 1377293098,
+                            "machine_name": "tegra-089",
+                            "job_type_description": "fill me",
+                            "result_set_id": 17,
+                            "result": "success",
+                            "machine_platform_architecture": "ARMv7",
+                            "end_timestamp": 1377294196,
+                            "build_platform": "2.2",
+                            "machine_platform_os": "android",
+                            "job_id": 271,
+                            "job_type_name": "remote-ts",
+                            "platform": "2.2",
+                            "state": "finished",
+                            "build_os": "android",
+                            "who": "sendchange",
+                            "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
+                            "job_type_symbol": "ts",
+                            "reason": "scheduler",
+                            "job_group_description": "",
+                            "job_guid": "d67e6c7fa903dd8ccec32c8f3a9566d2cfaf7d88",
+                            "start_timestamp": 1377318762,
+                            "build_architecture": "ARMv7",
+                            "build_platform_id": 1,
+                            "resource_uri": "/api/project/mozilla-inbound/jobs/271/"
+                        }
+                    ],
+                    "name": "talos"
+                }
+            ]
+        }
+    ],
+    "push_timestamp": 1377293081,
+    "id": 17,
+    "revision": "481ba42bbc8a"
+
+}

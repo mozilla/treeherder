@@ -1,0 +1,368 @@
+{
+    "build": [
+        {
+            "description": "", 
+            "jobtype__name": "asan", 
+            "jobtype__symbol": "A", 
+            "symbol": "B"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "asan nightly", 
+            "jobtype__symbol": "An", 
+            "symbol": "B"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "b2g.*_stable_dep", 
+            "jobtype__symbol": "BiB", 
+            "symbol": "B"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "b2g.*_stable_nightly", 
+            "jobtype__symbol": "NiB", 
+            "symbol": "B"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "b2g.*_dep", 
+            "jobtype__symbol": "Bi", 
+            "symbol": "B"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "b2g.*_nightly", 
+            "jobtype__symbol": "Ni", 
+            "symbol": "B"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "b2g.*gecko build", 
+            "jobtype__symbol": "Bg", 
+            "symbol": "B"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "b2g.*gecko-debug build", 
+            "jobtype__symbol": "Bg", 
+            "symbol": "B"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "b2g.*gecko_localizer nightly", 
+            "jobtype__symbol": "NgL", 
+            "symbol": "B"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "b2g.*gecko nightly", 
+            "jobtype__symbol": "Ng", 
+            "symbol": "B"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "b2g.*_eng_dep", 
+            "jobtype__symbol": "BiM", 
+            "symbol": "B"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "b2g.*_eng_nightly", 
+            "jobtype__symbol": "NiM", 
+            "symbol": "B"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "build", 
+            "jobtype__symbol": "B", 
+            "symbol": "B"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "nightly", 
+            "jobtype__symbol": "N", 
+            "symbol": "B"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "valgrind", 
+            "jobtype__symbol": "V", 
+            "symbol": "B"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "xulrunner", 
+            "jobtype__symbol": "Xr", 
+            "symbol": "B"
+        }
+    ], 
+    "mochitest": [
+        {
+            "description": "", 
+            "jobtype__name": "mochitest", 
+            "jobtype__symbol": "M", 
+            "symbol": "M"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "mochitest-browser-chrome", 
+            "jobtype__symbol": "bc", 
+            "symbol": "M"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "mochitest-other", 
+            "jobtype__symbol": "oth", 
+            "symbol": "M"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "robocop", 
+            "jobtype__symbol": "rc", 
+            "symbol": "M"
+        }
+    ], 
+    "reftest": [
+        {
+            "description": "", 
+            "jobtype__name": "crashtest", 
+            "jobtype__symbol": "C", 
+            "symbol": "R"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "crashtest-ipc", 
+            "jobtype__symbol": "Cipc", 
+            "symbol": "R"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "jsreftest", 
+            "jobtype__symbol": "J", 
+            "symbol": "R"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "reftest", 
+            "jobtype__symbol": "R", 
+            "symbol": "R"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "reftest-no-accel", 
+            "jobtype__symbol": "Ru", 
+            "symbol": "R"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "reftest-ipc", 
+            "jobtype__symbol": "Ripc", 
+            "symbol": "R"
+        }
+    ], 
+    "spidermonkey": [
+        {
+            "description": "", 
+            "jobtype__name": "spidermonkey.*-rootanalysis", 
+            "jobtype__symbol": "r", 
+            "symbol": "SM"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "spidermonkey.*-warnaserr", 
+            "jobtype__symbol": "e", 
+            "symbol": "SM"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "spidermonkey.*-dtrace", 
+            "jobtype__symbol": "d", 
+            "symbol": "SM"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "spidermonkey.*-exactroot", 
+            "jobtype__symbol": "exr", 
+            "symbol": "SM"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "spidermonkey.*-generational", 
+            "jobtype__symbol": "ggc", 
+            "symbol": "SM"
+        }
+    ], 
+    "talos": [
+        {
+            "description": "", 
+            "jobtype__name": "talos chrome", 
+            "jobtype__symbol": "c", 
+            "symbol": "T"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "talos chromez", 
+            "jobtype__symbol": "c", 
+            "symbol": "T"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "talos dromaeo", 
+            "jobtype__symbol": "dr", 
+            "symbol": "T"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "talos dromaeojs", 
+            "jobtype__symbol": "d", 
+            "symbol": "T"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "talos nochrome", 
+            "jobtype__symbol": "n", 
+            "symbol": "T"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "talos other", 
+            "jobtype__symbol": "o", 
+            "symbol": "T"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "talos dirtypaint", 
+            "jobtype__symbol": "p", 
+            "symbol": "T"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "talos remote-trobocheck", 
+            "jobtype__symbol": "rck", 
+            "symbol": "T"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "talos remote-trobocheck2", 
+            "jobtype__symbol": "rck2", 
+            "symbol": "T"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "talos remote-trobopan", 
+            "jobtype__symbol": "rp", 
+            "symbol": "T"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "talos remote-troboprovider", 
+            "jobtype__symbol": "rpr", 
+            "symbol": "T"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "talos svgr", 
+            "jobtype__symbol": "s", 
+            "symbol": "T"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "talos remote-tsvgr", 
+            "jobtype__symbol": "s", 
+            "symbol": "T"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "talos remote-tp4m", 
+            "jobtype__symbol": "tp", 
+            "symbol": "T"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "talos tp", 
+            "jobtype__symbol": "tp", 
+            "symbol": "T"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "talos remote-tp4m_nochrome", 
+            "jobtype__symbol": "tpn", 
+            "symbol": "T"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "talos remote-ts", 
+            "jobtype__symbol": "ts", 
+            "symbol": "T"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "talos xperf", 
+            "jobtype__symbol": "x", 
+            "symbol": "T"
+        }
+    ], 
+    "unknown": [
+        {
+            "description": "", 
+            "jobtype__name": "dxr", 
+            "jobtype__symbol": "Dxr", 
+            "symbol": "?"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "gaia-ui-test", 
+            "jobtype__symbol": "G", 
+            "symbol": "?"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "jetpack-mozilla-aurora", 
+            "jobtype__symbol": "m-a", 
+            "symbol": "?"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "jetpack-mozilla-beta", 
+            "jobtype__symbol": "m-b", 
+            "symbol": "?"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "jetpack-mozilla-central", 
+            "jobtype__symbol": "m-c", 
+            "symbol": "?"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "jetpack-mozilla-release", 
+            "jobtype__symbol": "m-r", 
+            "symbol": "?"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "jetpack", 
+            "jobtype__symbol": "JP", 
+            "symbol": "?"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "marionette", 
+            "jobtype__symbol": "Mn", 
+            "symbol": "?"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "mozmill", 
+            "jobtype__symbol": "Z", 
+            "symbol": "?"
+        }, 
+        {
+            "description": "", 
+            "jobtype__name": "xpcshell", 
+            "jobtype__symbol": "X", 
+            "symbol": "?"
+        }
+    ]
+}

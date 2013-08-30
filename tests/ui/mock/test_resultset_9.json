@@ -1,0 +1,115 @@
+{
+
+    "repository_id": 2,
+    "revision_hash": "a8517c8ae59f2ccc3046267c33ac678beab982a3",
+    "author": "jmaher@mozilla.com",
+    "comments": "Bug 908853 - update talos.json to include new TART test. r=avih",
+    "platforms": [
+        {
+            "warning_level": "green",
+            "name": "OS X 10.6 opt",
+            "groups": [
+                {
+                    "symbol": "B",
+                    "jobs": [
+                        {
+                            "submit_timestamp": 1377290458,
+                            "machine_name": "bld-lion-r5-067",
+                            "job_type_description": "fill me",
+                            "result_set_id": 9,
+                            "result": "success",
+                            "machine_platform_architecture": "x86_64",
+                            "end_timestamp": 1377294021,
+                            "build_platform": "OS X 10.6",
+                            "machine_platform_os": "mac",
+                            "job_id": 220,
+                            "job_type_name": "build",
+                            "platform": "OS X 10.6",
+                            "state": "finished",
+                            "build_os": "mac",
+                            "who": "jmaher@mozilla.com",
+                            "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
+                            "job_type_symbol": "B",
+                            "reason": "scheduler",
+                            "job_group_description": "",
+                            "job_guid": "69e32b68c369d8843ee22225bb925370f1a8cff2",
+                            "start_timestamp": 1377315674,
+                            "build_architecture": "x86_64",
+                            "build_platform_id": 4,
+                            "resource_uri": "/api/project/mozilla-inbound/jobs/220/"
+                        }
+                    ],
+                    "name": "build"
+                }
+            ]
+        },
+        {
+            "warning_level": "green",
+            "name": "gecko opt",
+            "groups": [
+                {
+                    "symbol": "B",
+                    "jobs": [
+                        {
+                            "submit_timestamp": 1377290459,
+                            "machine_name": "bld-centos6-hp-007",
+                            "job_type_description": "fill me",
+                            "result_set_id": 9,
+                            "result": "success",
+                            "machine_platform_architecture": "ARMv7",
+                            "end_timestamp": 1377293600,
+                            "build_platform": "gecko",
+                            "machine_platform_os": "linux",
+                            "job_id": 82,
+                            "job_type_name": "build",
+                            "platform": "gecko",
+                            "state": "finished",
+                            "build_os": "linux",
+                            "who": "jmaher@mozilla.com",
+                            "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
+                            "job_type_symbol": "B",
+                            "reason": "scheduler",
+                            "job_group_description": "",
+                            "job_guid": "f27cd8290fd669313caf2d7dbec5844be14645a7",
+                            "start_timestamp": 1377315677,
+                            "build_architecture": "ARMv7",
+                            "build_platform_id": 10,
+                            "resource_uri": "/api/project/mozilla-inbound/jobs/82/"
+                        },
+                        {
+                            "submit_timestamp": 1377290459,
+                            "machine_name": "bld-linux64-ec2-126",
+                            "job_type_description": "fill me",
+                            "result_set_id": 9,
+                            "result": "success",
+                            "machine_platform_architecture": "ARMv7",
+                            "end_timestamp": 1377293901,
+                            "build_platform": "gecko",
+                            "machine_platform_os": "linux",
+                            "job_id": 177,
+                            "job_type_name": "build",
+                            "platform": "gecko",
+                            "state": "finished",
+                            "build_os": "linux",
+                            "who": "jmaher@mozilla.com",
+                            "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
+                            "job_type_symbol": "B",
+                            "reason": "scheduler",
+                            "job_group_description": "",
+                            "job_guid": "22aec8191ebe586d936595f3c8b958732edf5799",
+                            "start_timestamp": 1377315678,
+                            "build_architecture": "ARMv7",
+                            "build_platform_id": 10,
+                            "resource_uri": "/api/project/mozilla-inbound/jobs/177/"
+                        }
+                    ],
+                    "name": "build"
+                }
+            ]
+        }
+    ],
+    "push_timestamp": 1377290428,
+    "id": 9,
+    "revision": "481ba42bbc8a148da9adcec919fcc7560e39464e"
+
+}

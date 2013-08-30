@@ -1,0 +1,165 @@
+{
+
+    "repository_id": 2,
+    "revision_hash": "9dd584cca791878d8060a5f17b3fa14cd277534a",
+    "author": "sendchange-unittest",
+    "comments": "",
+    "platforms": [
+        {
+            "warning_level": "green",
+            "name": "Rev3 WINNT 6.1 opt",
+            "groups": [
+                {
+                    "symbol": null,
+                    "jobs": [
+                        {
+                            "submit_timestamp": 1377293391,
+                            "machine_name": "t-w732-ix-113",
+                            "job_type_description": "fill me",
+                            "result_set_id": 11,
+                            "result": "success",
+                            "machine_platform_architecture": "x86",
+                            "end_timestamp": 1377294171,
+                            "build_platform": "Rev3 WINNT 6.1",
+                            "machine_platform_os": "win",
+                            "job_id": 263,
+                            "job_type_name": "jetpack",
+                            "platform": "Rev3 WINNT 6.1",
+                            "state": "finished",
+                            "build_os": "win",
+                            "who": "sendchange-unittest",
+                            "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
+                            "job_type_symbol": "JP",
+                            "reason": "scheduler",
+                            "job_group_description": null,
+                            "job_guid": "2be461e3564535ed7e0766a5906f5d29ae79fcd6",
+                            "start_timestamp": 1377318712,
+                            "build_architecture": "x86",
+                            "build_platform_id": 5,
+                            "resource_uri": "/api/project/mozilla-inbound/jobs/263/"
+                        }
+                    ],
+                    "name": null
+                }
+            ]
+        },
+        {
+            "warning_level": "green",
+            "name": "Ubuntu 12.04 opt",
+            "groups": [
+                {
+                    "symbol": null,
+                    "jobs": [
+                        {
+                            "submit_timestamp": 1377293451,
+                            "machine_name": "tst-linux32-ec2-061",
+                            "job_type_description": "fill me",
+                            "result_set_id": 11,
+                            "result": "success",
+                            "machine_platform_architecture": "x86",
+                            "end_timestamp": 1377294212,
+                            "build_platform": "Ubuntu 12.04",
+                            "machine_platform_os": "linux",
+                            "job_id": 280,
+                            "job_type_name": "jetpack",
+                            "platform": "Ubuntu 12.04",
+                            "state": "finished",
+                            "build_os": "linux",
+                            "who": "sendchange-unittest",
+                            "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
+                            "job_type_symbol": "JP",
+                            "reason": "scheduler",
+                            "job_group_description": null,
+                            "job_guid": "31d4ddb9f26e9517d85c3c07c71124a068dc5f02",
+                            "start_timestamp": 1377318682,
+                            "build_architecture": "x86",
+                            "build_platform_id": 3,
+                            "resource_uri": "/api/project/mozilla-inbound/jobs/280/"
+                        }
+                    ],
+                    "name": null
+                }
+            ]
+        },
+        {
+            "warning_level": "green",
+            "name": "Ubuntu VM 12.04 opt",
+            "groups": [
+                {
+                    "symbol": null,
+                    "jobs": [
+                        {
+                            "submit_timestamp": 1377292913,
+                            "machine_name": "tst-linux64-ec2-068",
+                            "job_type_description": "fill me",
+                            "result_set_id": 11,
+                            "result": "success",
+                            "machine_platform_architecture": "x86_64",
+                            "end_timestamp": 1377293637,
+                            "build_platform": "Ubuntu VM 12.04",
+                            "machine_platform_os": "linux",
+                            "job_id": 95,
+                            "job_type_name": "jetpack",
+                            "platform": "Ubuntu VM 12.04",
+                            "state": "finished",
+                            "build_os": "linux",
+                            "who": "sendchange-unittest",
+                            "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
+                            "job_type_symbol": "JP",
+                            "reason": "scheduler",
+                            "job_group_description": null,
+                            "job_guid": "4ced0b82eefa0fcba2db23e0adb2685924b56323",
+                            "start_timestamp": 1377318125,
+                            "build_architecture": "x86_64",
+                            "build_platform_id": 8,
+                            "resource_uri": "/api/project/mozilla-inbound/jobs/95/"
+                        }
+                    ],
+                    "name": null
+                }
+            ]
+        },
+        {
+            "warning_level": "green",
+            "name": "WINNT 5.1 opt",
+            "groups": [
+                {
+                    "symbol": null,
+                    "jobs": [
+                        {
+                            "submit_timestamp": 1377293390,
+                            "machine_name": "t-xp32-ix-115",
+                            "job_type_description": "fill me",
+                            "result_set_id": 11,
+                            "result": "success",
+                            "machine_platform_architecture": "x86",
+                            "end_timestamp": 1377293871,
+                            "build_platform": "WINNT 5.1",
+                            "machine_platform_os": "win",
+                            "job_id": 163,
+                            "job_type_name": "jetpack",
+                            "platform": "WINNT 5.1",
+                            "state": "finished",
+                            "build_os": "win",
+                            "who": "sendchange-unittest",
+                            "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
+                            "job_type_symbol": "JP",
+                            "reason": "scheduler",
+                            "job_group_description": null,
+                            "job_guid": "2967fc9e8c8bae06174d29501e63fbca6856f6fb",
+                            "start_timestamp": 1377318663,
+                            "build_architecture": "x86",
+                            "build_platform_id": 6,
+                            "resource_uri": "/api/project/mozilla-inbound/jobs/163/"
+                        }
+                    ],
+                    "name": null
+                }
+            ]
+        }
+    ],
+    "push_timestamp": 1377292891,
+    "id": 11,
+    "revision": "c619171e0070"
+
+}
