@@ -27,5 +27,9 @@ treeherder.config(function($routeProvider, $httpProvider) {
             controller: 'MachinesController',
             templateUrl: 'partials/machines.html'
         }).
+        when('/logviewer', {
+            controller: 'LogviewerCtrl',
+            templateUrl: 'logviewer.html'
+        }).
         otherwise({redirectTo: '/jobs'});
 });
