@@ -12,6 +12,7 @@ module.exports = function (config) {
           'app/js/controllers/**/*.js',
           'test/vendor/angular/angular-mocks.js',
           'test/vendor/jquery-2.0.3.js',
+          'test/vendor/jasmine.js',
           'test/vendor/jasmine-jquery.js',
           'test/unit/**/*.js',
 

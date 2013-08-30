@@ -31,6 +31,12 @@ describe('JobsCtrl', function(){
 
     }));
 
+    /*
+
+        Tests
+
+     */
+
     it('should have job_types', function() {
         $httpBackend.flush();
         expect(scope.job_types.length).toBe(59);
