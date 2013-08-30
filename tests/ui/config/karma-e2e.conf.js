@@ -1,6 +1,6 @@
 module.exports = function (config) {
     config.set({
-        frameworks: ['requirejs'],
+        frameworks: ['requirejs', 'jasmine'],
 
         basePath: '../',
 
@@ -16,17 +16,13 @@ module.exports = function (config) {
             'test/e2e/**/*.js',
 
             // fixtures
-            {pattern: 'app/resources/*.json', watched: true, served: true, included: false}
+          {pattern: 'test/mock/*.json', watched: true, served: true, included: false}
         ],
 
         autoWatch: false,
         singleRun: true,
 
         browsers: ['Firefox'],
-
-        proxies: {
-          '/': 'http://localhost:8000/'
-        },
 
         junitReporter: {
           outputFile: 'test_out/e2e.xml',
