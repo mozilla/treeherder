@@ -12,7 +12,7 @@ treeherder.factory('thUrl',
             return thServiceDomain + "/api/project/" + $rootScope.repo + uri;
         },
         getLogViewerUrl: function(artifactId) {
-            return "/app/logviewer.html#?id=" + artifactId + "&repo=" + $rootScope.repo;
+            return "logviewer.html#?id=" + artifactId + "&repo=" + $rootScope.repo;
         }
     };
     return thUrl;
