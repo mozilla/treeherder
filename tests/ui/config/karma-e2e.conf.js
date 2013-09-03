@@ -5,15 +5,6 @@ module.exports = function (config) {
         basePath: '../',
 
         files: [
-            'app/vendor/angular/angular.js',
-            'app/vendor/angular/angular-*.js',
-            'app/vendor/*.js',
-            'app/js/**/*.js',
-            'app/js/controllers/**/*.js',
-            'test/vendor/angular/angular-mocks.js',
-            'test/vendor/angular/angular-scenario.js',
-            'test/vendor/jquery-2.0.3.js',
-            'test/vendor/jasmine-jquery.js',
             'test/e2e/**/*.js',
 
             // fixtures
@@ -28,14 +19,14 @@ module.exports = function (config) {
         proxies: {
           '/': 'http://localhost:8000/'
         },
-        urlRoot: '/__e2e/',
+        urlRoot: '/',
         plugins : [
-//            'karma-junit-reporter',
+            'karma-junit-reporter',
             'karma-chrome-launcher',
             'karma-firefox-launcher',
             'karma-jasmine',
-//            'karma-ng-scenario'
-            ],
+            'karma-ng-scenario'
+        ],
         junitReporter: {
           outputFile: 'test_out/e2e.xml',
           suite: 'e2e'
