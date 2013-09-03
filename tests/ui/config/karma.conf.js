@@ -13,10 +13,10 @@ module.exports = function (config) {
             'test/vendor/angular/angular-mocks.js',
             'test/vendor/jquery-2.0.3.js',
             'test/vendor/jasmine-jquery.js',
-            'test/unit/**/*.js'
+            'test/unit/**/*.js',
 
             // fixtures
-//            {pattern: 'test/mock/*.json', watched: true, served: true, included: false}
+            {pattern: 'test/mock/*.json', watched: true, served: true, included: false}
         ],
 
         autoWatch: false,
