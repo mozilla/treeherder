@@ -1,0 +1,12 @@
+{
+  "name": "treeherder-ui",
+  "description": "The UI portion of Mozilla Treeherder",
+  "devDependencies": {
+        "phantomjs" : "*",
+        "karma" : "*",
+        "karma-junit-reporter" : "*",
+        "karma-coverage" : "*",
+        "karma-jasmine" : "*",
+        "karma-ng-scenario" : "*"
+    }
+}
