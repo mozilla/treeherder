@@ -69,10 +69,7 @@ def test_process_objects(jm, initial_data, mock_log_parser):
                  job_guid="guid3", revision_hash=rs['revision_hash']),
     ]
 
-    print rs['revision_hash']
-
     for blob in blobs:
-        print blob
         jm.store_job_data(*blob)
 
         # store a resultset as well
@@ -81,9 +78,6 @@ def test_process_objects(jm, initial_data, mock_log_parser):
             rs['push_timestamp'],
             rs['revisions']
         )
-
-
-
 
     # just process two rows
     jm.process_objects(2, raise_errors=True)
@@ -144,10 +138,18 @@ def test_process_objects_unknown_error(jm, monkeypatch):
 
 
 @slow
-def test_ingest_sample_data(jm, sample_data, initial_data):
+def test_ingest_sample_data(jm, sample_data, initial_data, mock_log_parser):
     """Process all job structures in the job_data.txt file"""
+
+    rs = result_set()
+    jm.store_result_set_data(
+        rs['revision_hash'],
+        rs['push_timestamp'],
+        rs['revisions']
+    )
     job_data = sample_data.job_data
     for blob in job_data:
+        blob['revision_hash'] = rs['revision_hash']
         jm.store_job_data(json.dumps(blob), blob['job']['job_guid'])
 
     # the number of objects stored is equivalent to
@@ -161,7 +163,7 @@ def test_ingest_sample_data(jm, sample_data, initial_data):
     while remaining > 0:
         # need to do this trick because process_objects is crashing if
         # there are less items than expected
-        jm.process_objects(min(10, remaining))
+        jm.process_objects(min(10, remaining), raise_errors=True)
 
         remaining -= 10
 
