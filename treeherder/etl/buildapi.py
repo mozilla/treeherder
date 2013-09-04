@@ -8,6 +8,7 @@ from .mixins import JsonExtractorMixin, JobsLoaderMixin
 
 logger = logging.getLogger()
 
+
 class Builds4hTransformerMixin(object):
 
     def find_job_guid(self, build):
@@ -36,11 +37,11 @@ class Builds4hTransformerMixin(object):
 
     def extract_option_info(self, source_string):
         output = {}
-        if (source_string.find('pgo-build') > 0):
+        if source_string.find('pgo-build') > 0:
             output = {
-            'option_name': 'pgo',
-            'value': True
-        }
+                'option_name': 'pgo',
+                'value': True
+            }
         else:
             output = {
                 'option_name': 'non-pgo',
@@ -117,6 +118,7 @@ class Builds4hTransformerMixin(object):
             job_list.append(JobData(treeherder_data))
 
         return job_list
+
 
 class PendingTransformerMixin(object):
 
@@ -239,6 +241,7 @@ class RunningTransformerMixin(object):
                     job_list.append(JobData(treeherder_data))
         return job_list
 
+
 class Builds4hJobsProcess(JsonExtractorMixin,
                           Builds4hTransformerMixin,
                           JobsLoaderMixin):
@@ -248,6 +251,7 @@ class Builds4hJobsProcess(JsonExtractorMixin,
                 self.extract(settings.BUILDAPI_BUILDS4H_URL)
             )
         )
+
 
 class PendingJobsProcess(JsonExtractorMixin,
                          PendingTransformerMixin,
