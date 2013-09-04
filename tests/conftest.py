@@ -1,4 +1,5 @@
 import os
+import simplejson as json
 from os.path import dirname
 import sys
 from django.core.management import call_command
@@ -120,6 +121,9 @@ def jm():
         "jobs_test.json",
     )
 
+    def fin():
+        model.disconnect()
+
     return model
 
 
@@ -166,3 +170,16 @@ def sample_data():
     """Returns a SampleData() object"""
     from sampledata import SampleData
     return SampleData()
+
+
+@pytest.fixture(scope='session')
+def test_base_dir():
+    return os.path.dirname(__file__)
+
+
+@pytest.fixture
+def sample_resultset(test_base_dir):
+    source_file = os.path.join(test_base_dir, "sample_data",
+                               "resultset_data.json")
+
+    return json.loads(open(source_file).read())

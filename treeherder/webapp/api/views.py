@@ -279,6 +279,28 @@ class ResultSetViewSet(viewsets.ViewSet):
         return Response(rs)
 
 
+    def create(self, request, project):
+        """
+        POST method implementation
+        """
+        jm = JobsModel(project)
+        try:
+            jm.store_result_set_data(
+                request.DATA["revision_hash"],
+                request.DATA["push_timestamp"],
+                request.DATA["revisions"]
+            )
+        except DatasetNotFoundError as e:
+            return Response({"message": str(e)}, status=404)
+        except Exception as e:  # pragma nocover
+            import traceback
+            traceback.print_exc()
+            return Response({"message": str(e)}, status=500)
+        finally:
+            jm.disconnect()
+
+        return Response({"message": "well-formed JSON stored"})
+
 #####################
 # Refdata ViewSets
 #####################

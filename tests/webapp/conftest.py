@@ -1,4 +1,5 @@
 import json
+import os
 from treeherder.webapp import wsgi
 from tests.sample_data_generator import job_data
 import pytest
@@ -19,7 +20,19 @@ def job_sample():
 
 
 @pytest.fixture
-def eleven_jobs_stored(jm):
+def pushlog_sample(test_base_dir):
+    resultset_file = os.path.join(
+        test_base_dir,
+        'sample_data',
+        'resultset_data.json',
+    )
+    data = None
+    with open(resultset_file) as f:
+        data = json.loads(f.read())
+    return data
+
+@pytest.fixture
+def eleven_jobs_stored(jm, initial_data):
     """stores a list of 11 job samples"""
     num_jobs = 11
     guids = ['myguid%s' % x for x in range(1, num_jobs + 1)]
@@ -27,9 +40,29 @@ def eleven_jobs_stored(jm):
     rh = 0
     pt = 0
     for guid in guids:
+        # this is to store the job resultset.
         job = job_data(job_guid=guid)
         job["revision_hash"] = rh
-        job["sources"][0]["push_timestamp"] = pt
+        del job["job"]["log_references"][0]
+
+        jm.store_result_set_data(
+            rh,
+            pt,
+            [{
+                "revision": "d62d628d5308f2b9ee81be755140d77f566bb4{0}".format(rh),
+                "files": [
+                    "file1",
+                    "file2",
+                    "file3"
+                ],
+                "author": "Mauro Doglio <mdoglio@mozilla.com>",
+                "branch": "default",
+                "comments":" Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                "repository": "mozilla-aurora",
+                "commit_timestamp": "1370459745"
+            }])
+
+        # now we can store the job data safely
         jm.store_job_data(
             json.dumps(job),
             guid
@@ -39,10 +72,9 @@ def eleven_jobs_stored(jm):
 
 
 @pytest.fixture
-def eleven_jobs_processed(initial_data, sample_data, jm):
+def eleven_jobs_processed(jm, eleven_jobs_stored):
     """stores and processes list of 11 job samples"""
-    eleven_jobs_stored(jm)
-    jm.process_objects(11)
+    jm.process_objects(11, raise_errors=True)
 
 @pytest.fixture
 def sample_artifacts(jm, sample_data, eleven_jobs_processed):
