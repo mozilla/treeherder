@@ -48,15 +48,16 @@
                     `revision`,
                     `author`,
                     `comments`,
+                    `files`,
                     `commit_timestamp`,
                     `repository_id`
                     )
-                SELECT ?,?,?,?,?
+                SELECT ?,?,?,?,?,?
                 FROM DUAL
                 WHERE NOT EXISTS (
                     SELECT `revision`
                     FROM `revision`
-                    WHERE `revision` = ?
+                    WHERE `revision` = ? AND `repository_id` = ?
                 )",
 
             "host":"master_host"
@@ -174,7 +175,14 @@
         },
         "get_revision_id":{
             "sql":"SELECT `id` FROM `revision`
-                   WHERE `revision` = ?",
+                   WHERE `revision` = ?
+                    AND `repository_id` = ?",
+            "host": "read_host"
+        },
+        "get_revision_map_id":{
+            "sql":"SELECT `id` FROM `revision_map`
+                   WHERE `revision_id` = ?
+                    AND `result_set_id` = ?",
             "host": "read_host"
         },
         "get_result_set_list":{
