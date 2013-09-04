@@ -1,9 +1,5 @@
-{"sources": [
-    {
-        "repository": "mozilla-inbound",
-        "revision": "a54df4462572"
-    }
-], "job": {
+{
+    "job": {
     "build_platform": {
         "platform": "2.2",
         "os_name": "android",

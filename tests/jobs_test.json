@@ -36,6 +36,22 @@
         "row_by_guid": {
             "sql": "SELECT * FROM `job` WHERE `job_guid` = ?",
             "host": "master_host"
+        },
+        "resultset_by_rev_hash": {
+            "sql": "SELECT * FROM `result_set` WHERE `revision_hash` = ?",
+            "host": "master_host"
+        },
+        "revisions": {
+            "sql": "SELECT * FROM `revision`",
+            "host": "master_host"
+        },
+        "revision_map": {
+            "sql": "SELECT * FROM `revision_map`",
+            "host": "master_host"
+        },
+        "result_set": {
+            "sql": "SELECT * FROM `result_set`",
+            "host": "master_host"
         }
     }
 }

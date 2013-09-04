@@ -8,25 +8,6 @@ import os
 
 
 @pytest.fixture
-def datasource_created():
-    """creates a new datasource for testing"""
-    from django.conf import settings
-    from treeherder.model.models import Datasource
-    prefix = getattr(settings, "TEST_DB_PREFIX", "")
-    for contenttype in ("objectstore","jobs"):
-        Datasource.objects.create(
-            project="mozilla-inbound",
-            contenttype=contenttype,
-            dataset=1,
-            host='localhost',
-            name="{0}test_mozilla_inbound_{1}_1".format(
-                prefix,
-                contenttype
-            )
-        )
-
-
-@pytest.fixture
 def pending_jobs():
     """returns a list of buildapi pending jobs"""
     return json.loads(open(
@@ -43,62 +24,71 @@ def running_jobs():
 
 
 @pytest.fixture
+def result_set_stored(jm, sample_resultset):
+
+    jm.store_result_set_data(
+        sample_resultset['revision_hash'],
+        sample_resultset['push_timestamp'],
+        sample_resultset['revisions']
+    )
+    return sample_resultset
+
+
+@pytest.fixture
 def completed_jobs(sample_data):
     """returns a list of pulse completed jobs"""
     base_dir = os.path.dirname(__file__)
-    content  = open(
+    content = open(
         os.path.join(os.path.dirname(__file__), "finished.json")
     ).read()
     t = Template(content)
-    c = Context({"base_dir":base_dir})
+    c = Context({"base_dir": base_dir})
     return json.loads(t.render(c))
 
 
 @pytest.fixture
-def pending_jobs_stored(pending_jobs):
+def pending_jobs_stored(jm, pending_jobs, result_set_stored):
     """
     stores a list of buildapi pending jobs into the objectstore
     using BuildApiTreeHerderAdapter
     """
-    project = pending_jobs['sources'][0]['repository']
-    url = reverse('objectstore-list', kwargs={"project": project})
+    pending_jobs['revision_hash'] = result_set_stored['revision_hash']
+    url = reverse('objectstore-list', kwargs={"project": jm.project})
     TestApp(application).post_json(url, params=pending_jobs)
 
 
 @pytest.fixture
-def running_jobs_stored(running_jobs):
+def running_jobs_stored(jm, running_jobs, result_set_stored):
     """
     stores a list of buildapi running jobs into the objectstore
     using BuildApiTreeHerderAdapter
     """
-    project = running_jobs['sources'][0]['repository']
-    url = reverse('objectstore-list', kwargs={"project": project})
+    running_jobs['revision_hash'] = result_set_stored['revision_hash']
+    url = reverse('objectstore-list', kwargs={"project": jm.project})
     TestApp(application).post_json(url, params=running_jobs)
 
 
 @pytest.fixture
-def completed_jobs_stored(completed_jobs):
-    project = completed_jobs['sources'][0]['repository']
-    url = reverse('objectstore-list', kwargs={"project": project})
+def completed_jobs_stored(jm, completed_jobs, result_set_stored):
+    """
+    stores a list of buildapi completed jobs into the objectstore
+    using BuildApiTreeHerderAdapter
+    """
+    completed_jobs['revision_hash'] = result_set_stored['revision_hash']
+    url = reverse('objectstore-list', kwargs={"project": jm.project})
     TestApp(application).post_json(url, params=completed_jobs)
 
 
 @pytest.fixture
-def jobs_model():
-    from treeherder.model.derived import JobsModel
-    return JobsModel('mozilla-inbound')
+def pending_jobs_loaded(jm, pending_jobs_stored):
+    jm.process_objects(1, raise_errors=True)
 
 
 @pytest.fixture
-def pending_jobs_loaded(pending_jobs_stored, jobs_model):
-    jobs_model.process_objects(1)
+def running_jobs_loaded(jm, running_jobs_stored):
+    jm.process_objects(1, raise_errors=True)
 
 
 @pytest.fixture
-def running_jobs_loaded(running_jobs_stored, jobs_model):
-    jobs_model.process_objects(1)
-
-
-@pytest.fixture
-def completed_jobs_loaded(completed_jobs_stored, jobs_model):
-    jobs_model.process_objects(1)
+def completed_jobs_loaded(jm, completed_jobs_stored):
+    jm.process_objects(1, raise_errors=True)
