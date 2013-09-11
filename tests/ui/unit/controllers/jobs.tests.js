@@ -64,11 +64,6 @@ describe('JobsCtrl', function(){
         expect(jobScope.result_sets.length).toBe(10);
     });
 
-    it('should ....', inject(function() {
-
-        expect("me").toEqual("me");
-    }));
-
     /*
         Tests PushCtrl
      */
