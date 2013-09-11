@@ -1,7 +1,8 @@
 "use strict";
 
 treeherder.controller('JobsCtrl',
-    function JobsCtrl($scope, $http, $rootScope, $location, $routeParams, thResultSets) {
+    function JobsCtrl($scope, $http, $rootScope, $routeParams, $log,
+                      thUrl, thResultSets) {
 
         // set the default repo to mozilla-central if not specified
         if ($routeParams.hasOwnProperty("repo") &&
@@ -30,14 +31,18 @@ treeherder.controller('JobsCtrl',
 
         thResultSets.getResultSets().
             success(function(data) {
-                $rootScope.result_sets = data;
+                $scope.result_sets = data;
+            }).
+            error(function(data, status, header, config) {
+                $scope.statusError("Error getting result sets and jobs from service");
             });
 
     }
 );
 
 treeherder.controller('PushCtrl',
-    function PushCtrl($scope, $rootScope, $http, thResults, thUrl, thServiceDomain) {
+    function PushCtrl($scope, $rootScope, $http, $resource, $log,
+                      thResults, thUrl, thServiceDomain) {
         // whether or not revision list for a push is collapsed
         $scope.isCollapsedRevisions = true;
 
@@ -52,7 +57,7 @@ treeherder.controller('PushCtrl',
             $rootScope.selectedJob = job;
 
             // fields that will show in the job detail panel
-            $rootScope.selectedJob.visibleFields = {
+            job.visibleFields = {
                 "Reason": job.reason,
                 "State": job.state,
                 "Result": job.result,
@@ -69,24 +74,23 @@ treeherder.controller('PushCtrl',
             };
             $http.get(thServiceDomain + job.resource_uri).
                 success(function(data) {
-                    $rootScope.selectedJob.logs = data.logs;
+                    job.logs = data.logs;
 
                     data.artifacts.forEach(function(artifact) {
                         if (artifact.name.contains("Job Artifact")) {
-                            // we don't return the blobs with job, just resource_uris
-                            // to them.  For the Job Artifact, we want that blob, so we
-                            // need to fetch the detail to get the blob which has the
+                            // we don't return the blobs with job, just
+                            // resource_uris to them.  For the Job Artifact,
+                            // we want that blob, so we need to fetch the
+                            // detail to get the blob which has the
                             // tinderbox_printlines, etc.
-                            $http.get(thServiceDomain + artifact.resource_uri).
-                                success(function(data) {
-                                    $rootScope.selectedJob.jobArtifact = data;
-                                });
+                            job.jobArtifact = $resource(
+                                thServiceDomain + artifact.resource_uri).get();
                         } else if (artifact.name === "Structured Log") {
-                            // for the structured log, we don't need the blob here, we
-                            // have everything we need in the artifact as is, so
-                            // just save it.
-                            $rootScope.selectedJob.lvArtifact=artifact;
-                            $rootScope.selectedJob.lvUrl = thUrl.getLogViewerUrl(artifact.id);
+                            // for the structured log, we don't need the blob
+                            // here, we have everything we need in the artifact
+                            // as is, so just save it.
+                            job.lvArtifact=artifact;
+                            job.lvUrl = thUrl.getLogViewerUrl(artifact.id);
                         }
                     });
                 });
@@ -105,7 +109,7 @@ treeherder.controller('PushCtrl',
                             }
                         });
                     } else {
-                        console.log("Job had no artifacts: " + job_uri);
+                        $log.warn("Job had no artifacts: " + job_uri);
                     }
                 });
 

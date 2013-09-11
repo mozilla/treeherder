@@ -1,9 +1,16 @@
 "use strict";
 
 treeherder.controller('MainCtrl',
-    function MainController($scope) {
+    function MainController($scope, $rootScope) {
         $scope.query="";
-        $scope.status = "condition green";
+        $scope.statusError = function(msg) {
+            $rootScope.statusMsg = msg;
+            $rootScope.statusColor = "red";
+        };
+        $scope.statusSuccess = function(msg) {
+            $rootScope.statusMsg = msg;
+            $rootScope.statusColor = "green";
+        };
     }
 );
 

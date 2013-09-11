@@ -28,7 +28,7 @@ treeherder.factory('thArtifact',
     return {
         getArtifact: function(id) {
             return $http.get(thUrl.getProjectUrl(
-                "/artifact/" + id + "/?format=json"));
+                "/artifact/" + id + "/"));
         }
     }
 }]);
@@ -37,18 +37,17 @@ treeherder.factory('thResultSets',
                    ['$http', 'thUrl',
                    function($http, thUrl) {
 
-    // get the pushes for this tree
-    // sample: 'resources/push_sample.json'
+    // get the resultsets for this repo
     return {
         getResultSets: function() {
-            return $http.get(thUrl.getProjectUrl("/resultset/?format=json"));
+            return $http.get(thUrl.getProjectUrl("/resultset/"));
         }
     }
 }]);
 
 treeherder.factory('thResults',
-                   ['$http', 'thUrl', '$rootScope',
-                   function($http, thUrl, $rootScope) {
+                   ['$http', 'thUrl', '$rootScope', '$log',
+                   function($http, thUrl, $rootScope, $log) {
     var getWarningLevel = function(results) {
 
         var COLORS = {
@@ -74,8 +73,7 @@ treeherder.factory('thResults',
         getResults: function(result_set, $scope) {
             // store the results in scope for this push via ajax
 
-            var jobUrl = thUrl.getProjectUrl("/resultset/" + result_set.id + "/?format=json");
-            console.log("fetching for " + result_set.id + " from: " + jobUrl);
+            var jobUrl = thUrl.getProjectUrl("/resultset/" + result_set.id + "/");
             $scope.isLoadingResults = true;
             $http.get(jobUrl).
                 success(
@@ -124,7 +122,7 @@ treeherder.factory('thRepos',
     // sample: 'resources/menu.json'
     return {
         getRepos: function($rootScope) {
-            $http.get(thUrl.getRootUrl("/repository/?format=json")).
+            $http.get(thUrl.getRootUrl("/repository/")).
                 success(function(data) {
                     $rootScope.repos = data;
                 });
