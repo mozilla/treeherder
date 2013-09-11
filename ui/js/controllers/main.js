@@ -11,6 +11,10 @@ treeherder.controller('MainCtrl',
             $rootScope.statusMsg = msg;
             $rootScope.statusColor = "green";
         };
+        $scope.clearJob = function() {
+            // setting the selectedJob to null hides the bottom panel
+            $rootScope.selectedJob = null;
+        }
     }
 );
 
