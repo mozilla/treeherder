@@ -70,6 +70,10 @@
              ng-show="selectedJob">
             <div class="navbar-inner">
                 <div class="container-fluid">
+                <button type="button"
+                        class="close pull-right"
+                        aria-hidden="true"
+                        ng-click="clearJob()">&times;</button>
                     <div class="span7">
                         <dl class="dl-horizontal">
                             <span ng-repeat="(label, value) in selectedJob.visibleFields">

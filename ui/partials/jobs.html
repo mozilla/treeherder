@@ -45,31 +45,33 @@
     </div>
     <div collapse="isCollapsedResults">
 
-        <div class="row-fluid"
-             ng-repeat="platform in job_results | filter:query">
-            <div class="span2"><span>{{ platform.name }}</span></div>
-            <div class="span10">
-                <div ng-repeat="group in platform.groups"
-                     ng-class="{'btn-group': group.symbol}">
-                    <a ng-show="group.symbol"
-                       class="btn-mini btn-info btn"
-                       title="{{ group.name }}">
-                       {{ group.symbol }}
-                    </a>
-                    <a class="btn-mini {{ job|typeClass }} {{ job.result|resultClass }}"
-                       title="{{ job|jobHover }}"
-                       ng-repeat="job in group.jobs"
-                       ng-click="viewJob(job)"
-                       ng-right-click="viewLog(job.resource_uri)">
-                       <!--
-                           We should conditionally remove the fire icon once they have
-                           starred it, most likely.
-                       -->
-                       <i class="icon-fire" ng-show="job.result=='testfailed' || job.result=='busted'"></i>
-                       {{ job.job_type_symbol }}
-                    </a>
-                </div>
-            </div>
-        </div>
+        <table class="table job-table table-hover">
+            <tr ng-repeat="platform in job_results | filter:query">
+                <td class="span2"><span>{{ platform.name }}</span></td>
+                <td class="span10">
+                    <div ng-repeat="group in platform.groups"
+                         ng-class="{'btn-group': group.symbol}">
+                        <a ng-show="group.symbol"
+                           class="btn-mini btn"
+                           title="{{ group.name }}">
+                           {{ group.symbol }}
+                        </a>
+                        <a class="{{ job|typeClass }} {{ job.result|resultClass }}"
+                           ng-class="{'btn-large selected-job': (selectedJob==job), 'btn-mini': (selectedJob!=job)}"
+                           title="{{ job|jobHover }}"
+                           ng-repeat="job in group.jobs"
+                           ng-click="viewJob(job)"
+                           ng-right-click="viewLog(job.resource_uri)">
+                           <!--
+                               We should conditionally remove the fire icon once they have
+                               starred it, most likely.
+                           -->
+                           <i class="icon-fire" ng-show="job.result=='testfailed' || job.result=='busted'"></i>
+                           {{ job.job_type_symbol }}
+                        </a>
+                    </div>
+                </td>
+            </tr>
+        </table>
     </div>
 </div>
