@@ -1,0 +1,82 @@
+{
+    "header": {
+        "slave": "talos-r3-xp-085\r", 
+        "buildid": "20130605090546\r", 
+        "builder": "dummy-error-log\r", 
+        "results": "warnings (1)\r", 
+        "starttime": "1370461908.77\r", 
+        "builduid": "11d37c0c73ec4f4aa16b29cbe6481a9f\r", 
+        "revision": "e2eecb449eeb\r"
+    }, 
+    "step_data": {
+        "all_errors": [
+            {
+                "line": "REFTEST TEST-UNEXPECTED-FAIL | file:///Users/cltbld/talos-slave/mozilla-central_snowleopard_test-reftest/build/reftest/tests/layout/reftests/image/background-image-zoom-1.html |", 
+                "linenumber": 34908
+            }
+        ], 
+        "steps": [
+            {
+                "errors": [], 
+                "name": "set props: revision", 
+                "started": "2013-06-05 12:51:48.767751", 
+                "started_linenumber": 8, 
+                "finished_linenumber": 10, 
+                "finished": "2013-06-05 12:51:48.768393", 
+                "error_count": 0, 
+                "duration": 0.000642, 
+                "order": 0
+            }, 
+            {
+                "errors": [], 
+                "name": "set props: who", 
+                "started": "2013-06-05 12:51:48.768881", 
+                "started_linenumber": 12, 
+                "finished_linenumber": 14, 
+                "finished": "2013-06-05 12:51:48.769473", 
+                "error_count": 0, 
+                "duration": 0.000592, 
+                "order": 1
+            }, 
+            {
+                "errors": [
+                    {
+                        "line": "REFTEST TEST-UNEXPECTED-FAIL | file:///Users/cltbld/talos-slave/mozilla-central_snowleopard_test-reftest/build/reftest/tests/layout/reftests/image/background-image-zoom-1.html |", 
+                        "linenumber": 34908
+                    }
+                ], 
+                "name": "'python mochitest/runtests.py ...' warnings", 
+                "started": "2013-06-05 12:54:55.232364", 
+                "started_linenumber": 16, 
+                "finished_linenumber": 42582, 
+                "finished": "2013-06-05 13:15:39.235146", 
+                "error_count": 1, 
+                "duration": 1244.002782, 
+                "order": 2
+            }, 
+            {
+                "errors": [], 
+                "name": "'rm -rf ...'", 
+                "started": "2013-06-05 13:15:39.244545", 
+                "started_linenumber": 42584, 
+                "finished_linenumber": 42628, 
+                "finished": "2013-06-05 13:16:04.014823", 
+                "error_count": 0, 
+                "duration": 24.770278, 
+                "order": 3
+            }, 
+            {
+                "errors": [], 
+                "name": "maybe rebooting slave lost", 
+                "started": "2013-06-05 13:16:04.015405", 
+                "started_linenumber": 42630, 
+                "finished_linenumber": 42632, 
+                "finished": "2013-06-05 13:16:04.963614", 
+                "error_count": 0, 
+                "duration": 0.948209, 
+                "order": 4
+            }
+        ]
+    }, 
+    "logurl": "file:///home/vagrant/treeherder-service/tests/sample_data/logs/reftest-opt-fail.txt.gz"
+}

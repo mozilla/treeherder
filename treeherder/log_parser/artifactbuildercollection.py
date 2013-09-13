@@ -85,6 +85,8 @@ class ArtifactBuilderCollection(object):
 
         """
 
+        handle = None
+        gz_file = None
         try:
             handle = self.get_log_handle(self.url)
 
@@ -97,24 +99,20 @@ class ArtifactBuilderCollection(object):
             gz_file = gzip.GzipFile(fileobj=io.BytesIO(handle.read()))
 
             for line in gz_file:
-                # stop parsing if all builders are done
-                if not self.complete:
-                    # run each parser on each line of the log
-                    for parser in self.builders:
-                        parser.parse_line(line)
+                # run each parser on each line of the log
+                for builder in self.builders:
+
+                    builder.parse_line(line)
 
             # gather the artifacts from all builders
-            for parser in self.builders:
-                self.artifacts[parser.name] = parser.get_artifact()
+            for builder in self.builders:
+                self.artifacts[builder.name] = builder.get_artifact()
         except Exception as e:
-            logging.error(e.message)
+            import traceback
+            print traceback.format_exc()
+            logging.error(e)
         finally:
             if handle:
                 handle.close()
             if gz_file:
                 gz_file.close()
-
-    @property
-    def complete(self):
-        """Return true if all builders are parse_complete."""
-        return all([x.complete for x in self.builders])
