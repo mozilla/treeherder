@@ -1,0 +1,4222 @@
+events: Ticks
+summary: 7430
+fi=/usr/lib/python2.7/urllib2.py
+fn=_open /usr/lib/python2.7/urllib2.py:410
+410 0
+cfn=_call_chain /usr/lib/python2.7/urllib2.py:370
+cfi=/usr/lib/python2.7/urllib2.py
+calls=2 370
+410 10
+cfn=get_type /usr/lib/python2.7/urllib2.py:250
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 250
+410 0
+
+fi=/usr/lib/python2.7/urllib.py
+fn=unwrap /usr/lib/python2.7/urllib.py:1054
+1054 0
+cfn=<method 'strip' of 'str' objects> ~:0
+cfi=~
+calls=1 0
+1054 0
+
+fi=/usr/lib/python2.7/io.py
+fn=RawIOBase /usr/lib/python2.7/io.py:81
+81 0
+
+fi=/home/vagrant/venv/lib/python2.7/genericpath.py
+fn=_splitext /home/vagrant/venv/lib/python2.7/genericpath.py:85
+85 0
+cfn=<method 'rfind' of 'str' objects> ~:0
+cfi=~
+calls=4 0
+85 0
+
+fi=/usr/lib/python2.7/logging/__init__.py
+fn=LoggerAdapter /usr/lib/python2.7/logging/__init__.py:1373
+1373 0
+
+fi=treeherder/log_parser/artifactbuildercollection.py
+fn=parse treeherder/log_parser/artifactbuildercollection.py:79
+79 324
+cfn=__init__ /usr/lib/python2.7/gzip.py:45
+cfi=/usr/lib/python2.7/gzip.py
+calls=1 45
+79 0
+cfn=get_log_handle treeherder/log_parser/artifactbuildercollection.py:75
+cfi=treeherder/log_parser/artifactbuildercollection.py
+calls=1 75
+79 11
+cfn=closed /usr/lib/python2.7/gzip.py:355
+cfi=/usr/lib/python2.7/gzip.py
+calls=1 355
+79 0
+cfn=close /usr/lib/python2.7/urllib.py:966
+cfi=/usr/lib/python2.7/urllib.py
+calls=1 966
+79 0
+cfn=<method 'read' of 'file' objects> ~:0
+cfi=~
+calls=1 0
+79 0
+cfn=get_artifact treeherder/log_parser/artifactbuilders.py:44
+cfi=treeherder/log_parser/artifactbuilders.py
+calls=1 44
+79 0
+cfn=close /usr/lib/python2.7/gzip.py:359
+cfi=/usr/lib/python2.7/gzip.py
+calls=1 359
+79 0
+cfn=name treeherder/log_parser/artifactbuilders.py:68
+cfi=treeherder/log_parser/artifactbuilders.py
+calls=1 68
+79 0
+cfn=parse_line treeherder/log_parser/artifactbuilders.py:35
+cfi=treeherder/log_parser/artifactbuilders.py
+calls=139799 35
+79 6326
+cfn=readline /usr/lib/python2.7/gzip.py:434
+cfi=/usr/lib/python2.7/gzip.py
+calls=139800 434
+79 725
+
+fi=/usr/lib/python2.7/bisect.py
+fn=<module> /usr/lib/python2.7/bisect.py:1
+1 0
+
+fi=treeherder/log_parser/parsers.py
+fn=parse_line treeherder/log_parser/parsers.py:226
+226 232
+cfn=<method 'search' of '_sre.SRE_Pattern' objects> ~:0
+cfi=~
+calls=139799 0
+226 4761
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=get_header /usr/lib/python2.7/urllib2.py:297
+297 0
+cfn=<method 'get' of 'dict' objects> ~:0
+cfi=~
+calls=2 0
+297 0
+
+fi=/usr/lib/python2.7/httplib.py
+fn=UnknownProtocol /usr/lib/python2.7/httplib.py:1209
+1209 0
+
+fi=~
+fn=<time.gmtime> ~:0
+0 0
+
+fi=/home/vagrant/venv/lib/python2.7/stat.py
+fn=S_IFMT /home/vagrant/venv/lib/python2.7/stat.py:24
+24 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=OpenerDirector /usr/lib/python2.7/urllib2.py:307
+307 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=__init__ /usr/lib/python2.7/urllib2.py:195
+195 0
+cfn=unwrap /usr/lib/python2.7/urllib.py:1054
+cfi=/usr/lib/python2.7/urllib.py
+calls=1 1054
+195 0
+cfn=request_host /usr/lib/python2.7/urllib2.py:177
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 177
+195 0
+cfn=<method 'items' of 'dict' objects> ~:0
+cfi=~
+calls=1 0
+195 0
+cfn=splittag /usr/lib/python2.7/urllib.py:1165
+cfi=/usr/lib/python2.7/urllib.py
+calls=1 1165
+195 0
+
+fi=~
+fn=<_hashlib.openssl_sha1> ~:0
+0 0
+
+fi=/usr/lib/python2.7/urlparse.py
+fn=_splitnetloc /usr/lib/python2.7/urlparse.py:152
+152 0
+cfn=<method 'find' of 'str' objects> ~:0
+cfi=~
+calls=3 0
+152 0
+cfn=<len> ~:0
+cfi=~
+calls=1 0
+152 0
+cfn=<min> ~:0
+cfi=~
+calls=1 0
+152 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=__lt__ /usr/lib/python2.7/urllib2.py:499
+499 0
+cfn=<hasattr> ~:0
+cfi=~
+calls=13 0
+499 0
+
+fi=/usr/lib/python2.7/httplib.py
+fn=HTTPException /usr/lib/python2.7/httplib.py:1198
+1198 0
+
+fi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+fn=parse /home/vagrant/venv/lib/python2.7/sre_parse.py:663
+663 0
+cfn=__init__ /home/vagrant/venv/lib/python2.7/sre_parse.py:67
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=18 67
+663 0
+cfn=_parse_sub /home/vagrant/venv/lib/python2.7/sre_parse.py:301
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=18 301
+663 8
+cfn=get /home/vagrant/venv/lib/python2.7/sre_parse.py:201
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=18 201
+663 0
+cfn=__init__ /home/vagrant/venv/lib/python2.7/sre_parse.py:178
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=18 178
+663 0
+
+fi=/usr/lib/python2.7/gzip.py
+fn=__init__ /usr/lib/python2.7/gzip.py:45
+45 0
+cfn=<hasattr> ~:0
+cfi=~
+calls=2 0
+45 0
+
+fi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+fn=__setitem__ /home/vagrant/venv/lib/python2.7/sre_parse.py:134
+134 0
+
+fi=/usr/lib/python2.7/threading.py
+fn=_set_daemon /usr/lib/python2.7/threading.py:774
+774 0
+
+fi=~
+fn=<_bisect.insort> ~:0
+0 0
+cfn=__lt__ /usr/lib/python2.7/urllib2.py:499
+cfi=/usr/lib/python2.7/urllib2.py
+calls=13 499
+0 0
+
+fi=/usr/lib/python2.7/urllib.py
+fn=__init__ /usr/lib/python2.7/urllib.py:948
+948 0
+cfn=<hasattr> ~:0
+cfi=~
+calls=4 0
+948 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=FTPHandler /usr/lib/python2.7/urllib2.py:1353
+1353 0
+
+fi=/home/vagrant/venv/lib/python2.7/_weakrefset.py
+fn=__contains__ /home/vagrant/venv/lib/python2.7/_weakrefset.py:68
+68 0
+
+fi=treeherder/log_parser/artifactbuildercollection.py
+fn=<module> treeherder/log_parser/artifactbuildercollection.py:1
+1 8
+cfn=<module> /usr/lib/python2.7/urllib2.py:76
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 76
+1 9
+cfn=<module> /usr/lib/python2.7/gzip.py:4
+cfi=/usr/lib/python2.7/gzip.py
+calls=1 4
+1 0
+cfn=ArtifactBuilderCollection treeherder/log_parser/artifactbuildercollection.py:10
+cfi=treeherder/log_parser/artifactbuildercollection.py
+calls=1 10
+1 0
+cfn=<module> treeherder/log_parser/artifactbuilders.py:1
+cfi=treeherder/log_parser/artifactbuilders.py
+calls=1 1
+1 17
+cfn=<module> /usr/lib/python2.7/logging/__init__.py:24
+cfi=/usr/lib/python2.7/logging/__init__.py
+calls=1 24
+1 1
+
+fi=/usr/lib/python2.7/urllib.py
+fn=unquote /usr/lib/python2.7/urllib.py:1202
+1202 0
+cfn=<method 'split' of 'str' objects> ~:0
+cfi=~
+calls=1 0
+1202 0
+cfn=<len> ~:0
+cfi=~
+calls=1 0
+1202 0
+
+fi=~
+fn=<method 'tell' of 'cStringIO.StringI' objects> ~:0
+0 0
+
+fi=/usr/lib/python2.7/logging/__init__.py
+fn=Manager /usr/lib/python2.7/logging/__init__.py:983
+983 0
+
+fi=/usr/lib/python2.7/urlparse.py
+fn=<genexpr> /usr/lib/python2.7/urlparse.py:315
+315 0
+cfn=<chr> ~:0
+cfi=~
+calls=484 0
+315 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=<module> /usr/lib/python2.7/urllib2.py:76
+76 0
+cfn=OpenerDirector /usr/lib/python2.7/urllib2.py:307
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 307
+76 0
+cfn=FTPHandler /usr/lib/python2.7/urllib2.py:1353
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 1353
+76 0
+cfn=HTTPDigestAuthHandler /usr/lib/python2.7/urllib2.py:1065
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 1065
+76 0
+cfn=HTTPSHandler /usr/lib/python2.7/urllib2.py:1212
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 1212
+76 0
+cfn=AbstractBasicAuthHandler /usr/lib/python2.7/urllib2.py:823
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 823
+76 0
+cfn=compile /home/vagrant/venv/lib/python2.7/re.py:188
+cfi=/home/vagrant/venv/lib/python2.7/re.py
+calls=1 188
+76 0
+cfn=HTTPRedirectHandler /usr/lib/python2.7/urllib2.py:529
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 529
+76 0
+cfn=FileHandler /usr/lib/python2.7/urllib2.py:1301
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 1301
+76 0
+cfn=ProxyHandler /usr/lib/python2.7/urllib2.py:706
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 706
+76 0
+cfn=Request /usr/lib/python2.7/urllib2.py:193
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 193
+76 0
+cfn=CacheFTPHandler /usr/lib/python2.7/urllib2.py:1413
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 1413
+76 0
+cfn=ProxyBasicAuthHandler /usr/lib/python2.7/urllib2.py:895
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 895
+76 0
+cfn=HTTPError /usr/lib/python2.7/urllib2.py:149
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 149
+76 0
+cfn=<hasattr> ~:0
+cfi=~
+calls=1 0
+76 0
+cfn=<module> /usr/lib/python2.7/hashlib.py:55
+cfi=/usr/lib/python2.7/hashlib.py
+calls=1 55
+76 0
+cfn=HTTPErrorProcessor /usr/lib/python2.7/urllib2.py:508
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 508
+76 0
+cfn=<module> /usr/lib/python2.7/base64.py:3
+cfi=/usr/lib/python2.7/base64.py
+calls=1 3
+76 0
+cfn=URLError /usr/lib/python2.7/urllib2.py:136
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 136
+76 0
+cfn=HTTPCookieProcessor /usr/lib/python2.7/urllib2.py:1219
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 1219
+76 0
+cfn=HTTPBasicAuthHandler /usr/lib/python2.7/urllib2.py:883
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 883
+76 0
+cfn=ProxyDigestAuthHandler /usr/lib/python2.7/urllib2.py:1083
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 1083
+76 0
+cfn=UnknownHandler /usr/lib/python2.7/urllib2.py:1237
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 1237
+76 0
+cfn=HTTPHandler /usr/lib/python2.7/urllib2.py:1204
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 1204
+76 0
+cfn=BaseHandler /usr/lib/python2.7/urllib2.py:489
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 489
+76 0
+cfn=AbstractDigestAuthHandler /usr/lib/python2.7/urllib2.py:925
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 925
+76 0
+cfn=HTTPDefaultErrorHandler /usr/lib/python2.7/urllib2.py:525
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 525
+76 0
+cfn=<module> /usr/lib/python2.7/urllib.py:23
+cfi=/usr/lib/python2.7/urllib.py
+calls=1 23
+76 0
+cfn=AbstractHTTPHandler /usr/lib/python2.7/urllib2.py:1095
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 1095
+76 0
+cfn=HTTPPasswordMgrWithDefaultRealm /usr/lib/python2.7/urllib2.py:813
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 813
+76 0
+cfn=HTTPPasswordMgr /usr/lib/python2.7/urllib2.py:749
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 749
+76 0
+cfn=<module> /usr/lib/python2.7/httplib.py:67
+cfi=/usr/lib/python2.7/httplib.py
+calls=1 67
+76 6
+
+fi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+fn=__init__ /home/vagrant/venv/lib/python2.7/sre_parse.py:67
+67 0
+
+fi=/usr/lib/python2.7/rfc822.py
+fn=__init__ /usr/lib/python2.7/rfc822.py:88
+88 0
+cfn=<method 'tell' of 'cStringIO.StringI' objects> ~:0
+cfi=~
+calls=3 0
+88 0
+cfn=readheaders /usr/lib/python2.7/rfc822.py:122
+cfi=/usr/lib/python2.7/rfc822.py
+calls=1 122
+88 0
+
+fi=/usr/lib/python2.7/logging/__init__.py
+fn=BufferingFormatter /usr/lib/python2.7/logging/__init__.py:494
+494 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=_call_chain /usr/lib/python2.7/urllib2.py:370
+370 0
+cfn=file_open /usr/lib/python2.7/urllib2.py:1303
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 1303
+370 10
+cfn=<getattr> ~:0
+cfi=~
+calls=1 0
+370 0
+cfn=<method 'get' of 'dict' objects> ~:0
+cfi=~
+calls=2 0
+370 0
+
+fi=/home/vagrant/venv/lib/python2.7/sre_compile.py
+fn=_optimize_charset /home/vagrant/venv/lib/python2.7/sre_compile.py:207
+207 0
+cfn=fixup /home/vagrant/venv/lib/python2.7/sre_compile.py:51
+cfi=/home/vagrant/venv/lib/python2.7/sre_compile.py
+calls=10 51
+207 0
+cfn=_identityfunction /home/vagrant/venv/lib/python2.7/sre_compile.py:24
+cfi=/home/vagrant/venv/lib/python2.7/sre_compile.py
+calls=54 24
+207 0
+cfn=<len> ~:0
+cfi=~
+calls=40 0
+207 0
+cfn=<range> ~:0
+cfi=~
+calls=6 0
+207 0
+cfn=<method 'append' of 'list' objects> ~:0
+cfi=~
+calls=69 0
+207 0
+cfn=_mk_bitmap /home/vagrant/venv/lib/python2.7/sre_compile.py:258
+cfi=/home/vagrant/venv/lib/python2.7/sre_compile.py
+calls=4 258
+207 0
+
+fi=/usr/lib/python2.7/threading.py
+fn=_is_owned /usr/lib/python2.7/threading.py:225
+225 0
+cfn=<method 'acquire' of 'thread.lock' objects> ~:0
+cfi=~
+calls=1 0
+225 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=HTTPDigestAuthHandler /usr/lib/python2.7/urllib2.py:1065
+1065 0
+
+fi=/usr/lib/python2.7/socket.py
+fn=_socketobject /usr/lib/python2.7/socket.py:179
+179 0
+
+fi=~
+fn=<method 'sort' of 'list' objects> ~:0
+0 0
+
+fi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+fn=checkgroup /home/vagrant/venv/lib/python2.7/sre_parse.py:85
+85 0
+
+fi=/usr/lib/python2.7/urlparse.py
+fn=ResultMixin /usr/lib/python2.7/urlparse.py:68
+68 0
+
+fi=~
+fn=<_sre.compile> ~:0
+0 0
+
+fi=/usr/lib/python2.7/email/__init__.py
+fn=LazyImporter /usr/lib/python2.7/email/__init__.py:74
+74 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=request_host /usr/lib/python2.7/urllib2.py:177
+177 0
+cfn=get_header /usr/lib/python2.7/urllib2.py:297
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 297
+177 0
+cfn=get_full_url /usr/lib/python2.7/urllib2.py:244
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 244
+177 0
+cfn=<method 'lower' of 'str' objects> ~:0
+cfi=~
+calls=1 0
+177 0
+cfn=urlparse /usr/lib/python2.7/urlparse.py:129
+cfi=/usr/lib/python2.7/urlparse.py
+calls=1 129
+177 0
+cfn=<method 'sub' of '_sre.SRE_Pattern' objects> ~:0
+cfi=~
+calls=1 0
+177 0
+
+fi=/usr/lib/python2.7/logging/__init__.py
+fn=_checkLevel /usr/lib/python2.7/logging/__init__.py:182
+182 0
+cfn=<isinstance> ~:0
+cfi=~
+calls=1 0
+182 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=HTTPSHandler /usr/lib/python2.7/urllib2.py:1212
+1212 0
+
+fi=treeherder/log_parser/parsers.py
+fn=ParserBase treeherder/log_parser/parsers.py:5
+5 0
+
+fi=/usr/lib/python2.7/collections.py
+fn=OrderedDict /usr/lib/python2.7/collections.py:25
+25 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=get_full_url /usr/lib/python2.7/urllib2.py:244
+244 0
+
+fi=/usr/lib/python2.7/httplib.py
+fn=LineAndFileWrapper /usr/lib/python2.7/httplib.py:1261
+1261 0
+
+fi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+fn=_parse_sub /home/vagrant/venv/lib/python2.7/sre_parse.py:301
+301 0
+cfn=_parse /home/vagrant/venv/lib/python2.7/sre_parse.py:379
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=73 379
+301 8
+cfn=<len> ~:0
+cfi=~
+calls=51 0
+301 0
+cfn=match /home/vagrant/venv/lib/python2.7/sre_parse.py:195
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=102 195
+301 0
+cfn=__len__ /home/vagrant/venv/lib/python2.7/sre_parse.py:126
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=8 126
+301 0
+cfn=append /home/vagrant/venv/lib/python2.7/sre_parse.py:138
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=4 138
+301 0
+cfn=<method 'append' of 'list' objects> ~:0
+cfi=~
+calls=73 0
+301 0
+cfn=__getitem__ /home/vagrant/venv/lib/python2.7/sre_parse.py:130
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=8 130
+301 0
+cfn=__init__ /home/vagrant/venv/lib/python2.7/sre_parse.py:90
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=4 90
+301 0
+
+fi=/usr/lib/python2.7/threading.py
+fn=_Event /usr/lib/python2.7/threading.py:366
+366 0
+
+fi=/usr/lib/python2.7/mimetypes.py
+fn=readfp /usr/lib/python2.7/mimetypes.py:205
+205 1
+cfn=<method 'readline' of 'file' objects> ~:0
+cfi=~
+calls=822 0
+205 0
+cfn=<method 'split' of 'str' objects> ~:0
+cfi=~
+calls=821 0
+205 0
+cfn=<len> ~:0
+cfi=~
+calls=821 0
+205 0
+cfn=<range> ~:0
+cfi=~
+calls=821 0
+205 0
+cfn=add_type /usr/lib/python2.7/mimetypes.py:78
+cfi=/usr/lib/python2.7/mimetypes.py
+calls=535 78
+205 0
+
+fi=/home/vagrant/venv/lib/python2.7/abc.py
+fn=__subclasscheck__ /home/vagrant/venv/lib/python2.7/abc.py:148
+148 0
+cfn=__contains__ /home/vagrant/venv/lib/python2.7/_weakrefset.py:68
+cfi=/home/vagrant/venv/lib/python2.7/_weakrefset.py
+calls=9 68
+148 0
+cfn=<method '__subclasses__' of 'type' objects> ~:0
+cfi=~
+calls=8 0
+148 0
+cfn=<method '__subclasshook__' of 'object' objects> ~:0
+cfi=~
+calls=8 0
+148 0
+cfn=__iter__ /home/vagrant/venv/lib/python2.7/_weakrefset.py:58
+cfi=/home/vagrant/venv/lib/python2.7/_weakrefset.py
+calls=19 58
+148 0
+cfn=add /home/vagrant/venv/lib/python2.7/_weakrefset.py:81
+cfi=/home/vagrant/venv/lib/python2.7/_weakrefset.py
+calls=8 81
+148 0
+cfn=<getattr> ~:0
+cfi=~
+calls=8 0
+148 0
+cfn=<issubclass> ~:0
+cfi=~
+calls=11 0
+148 0
+cfn=__init__ /home/vagrant/venv/lib/python2.7/_weakrefset.py:36
+cfi=/home/vagrant/venv/lib/python2.7/_weakrefset.py
+calls=7 36
+148 0
+
+fi=/usr/lib/python2.7/httplib.py
+fn=ImproperConnectionState /usr/lib/python2.7/httplib.py:1234
+1234 0
+
+fi=~
+fn=<method 'tell' of '_io.BytesIO' objects> ~:0
+0 0
+
+fi=~
+fn=<_hashlib.openssl_sha224> ~:0
+0 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=AbstractBasicAuthHandler /usr/lib/python2.7/urllib2.py:823
+823 0
+cfn=compile /home/vagrant/venv/lib/python2.7/re.py:188
+cfi=/home/vagrant/venv/lib/python2.7/re.py
+calls=1 188
+823 0
+
+fi=/usr/lib/python2.7/threading.py
+fn=_Timer /usr/lib/python2.7/threading.py:736
+736 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=__init__ /usr/lib/python2.7/urllib2.py:710
+710 0
+cfn=<method 'items' of 'dict' objects> ~:0
+cfi=~
+calls=1 0
+710 0
+cfn=<hasattr> ~:0
+cfi=~
+calls=1 0
+710 0
+cfn=getproxies_environment /usr/lib/python2.7/urllib.py:1341
+cfi=/usr/lib/python2.7/urllib.py
+calls=1 1341
+710 0
+
+fi=/usr/lib/python2.7/email/utils.py
+fn=<module> /usr/lib/python2.7/email/utils.py:5
+5 0
+cfn=compile /home/vagrant/venv/lib/python2.7/re.py:188
+cfi=/home/vagrant/venv/lib/python2.7/re.py
+calls=4 188
+5 4
+cfn=<module> /usr/lib/python2.7/email/_parseaddr.py:7
+cfi=/usr/lib/python2.7/email/_parseaddr.py
+calls=1 7
+5 0
+cfn=<module> /usr/lib/python2.7/email/encoders.py:5
+cfi=/usr/lib/python2.7/email/encoders.py
+calls=1 5
+5 0
+cfn=<module> /usr/lib/python2.7/quopri.py:3
+cfi=/usr/lib/python2.7/quopri.py
+calls=1 3
+5 0
+
+fi=/usr/lib/python2.7/logging/__init__.py
+fn=__init__ /usr/lib/python2.7/logging/__init__.py:988
+988 0
+
+fi=/home/vagrant/venv/lib/python2.7/_weakrefset.py
+fn=__enter__ /home/vagrant/venv/lib/python2.7/_weakrefset.py:20
+20 0
+cfn=<method 'add' of 'set' objects> ~:0
+cfi=~
+calls=8 0
+20 0
+
+fi=treeherder/log_parser/artifactbuilders.py
+fn=BuildbotLogViewArtifactBuilder treeherder/log_parser/artifactbuilders.py:78
+78 0
+
+fi=/usr/lib/python2.7/__future__.py
+fn=_Feature /usr/lib/python2.7/__future__.py:74
+74 0
+
+fi=/usr/lib/python2.7/mimetypes.py
+fn=<module> /usr/lib/python2.7/mimetypes.py:24
+24 0
+cfn=MimeTypes /usr/lib/python2.7/mimetypes.py:56
+cfi=/usr/lib/python2.7/mimetypes.py
+calls=1 56
+24 0
+cfn=_default_mime_types /usr/lib/python2.7/mimetypes.py:378
+cfi=/usr/lib/python2.7/mimetypes.py
+calls=1 378
+24 0
+
+fi=/usr/lib/python2.7/email/_parseaddr.py
+fn=AddressList /usr/lib/python2.7/email/_parseaddr.py:452
+452 0
+
+fi=~
+fn=<method 'acquire' of 'thread.lock' objects> ~:0
+0 0
+
+fi=/usr/lib/python2.7/threading.py
+fn=_set_ident /usr/lib/python2.7/threading.py:530
+530 0
+cfn=<thread.get_ident> ~:0
+cfi=~
+calls=1 0
+530 0
+
+fi=/usr/lib/python2.7/urllib.py
+fn=splithost /usr/lib/python2.7/urllib.py:1077
+1077 0
+cfn=compile /home/vagrant/venv/lib/python2.7/re.py:188
+cfi=/home/vagrant/venv/lib/python2.7/re.py
+calls=1 188
+1077 0
+cfn=<method 'group' of '_sre.SRE_Match' objects> ~:0
+cfi=~
+calls=2 0
+1077 0
+cfn=<method 'startswith' of 'str' objects> ~:0
+cfi=~
+calls=1 0
+1077 0
+cfn=<method 'match' of '_sre.SRE_Pattern' objects> ~:0
+cfi=~
+calls=1 0
+1077 0
+
+fi=~
+fn=<method 'setter' of 'property' objects> ~:0
+0 0
+
+fi=/home/vagrant/venv/lib/python2.7/warnings.py
+fn=__exit__ /home/vagrant/venv/lib/python2.7/warnings.py:355
+355 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=get_type /usr/lib/python2.7/urllib2.py:250
+250 0
+cfn=splittype /usr/lib/python2.7/urllib.py:1063
+cfi=/usr/lib/python2.7/urllib.py
+calls=1 1063
+250 0
+
+fi=/home/vagrant/venv/lib/python2.7/sre_compile.py
+fn=_simple /home/vagrant/venv/lib/python2.7/sre_compile.py:354
+354 0
+cfn=getwidth /home/vagrant/venv/lib/python2.7/sre_parse.py:140
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=64 140
+354 0
+cfn=__getitem__ /home/vagrant/venv/lib/python2.7/sre_parse.py:130
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=59 130
+354 0
+
+fi=/usr/lib/python2.7/threading.py
+fn=_Semaphore /usr/lib/python2.7/threading.py:303
+303 0
+
+fi=treeherder/log_parser/parsers.py
+fn=TinderboxPrintParser treeherder/log_parser/parsers.py:177
+177 0
+cfn=compile /home/vagrant/venv/lib/python2.7/re.py:188
+cfi=/home/vagrant/venv/lib/python2.7/re.py
+calls=1 188
+177 0
+
+fi=~
+fn=<chr> ~:0
+0 0
+
+fi=/usr/lib/python2.7/logging/__init__.py
+fn=Formatter /usr/lib/python2.7/logging/__init__.py:346
+346 0
+
+fi=~
+fn=<method '__subclasses__' of 'type' objects> ~:0
+0 0
+
+fi=/usr/lib/python2.7/threading.py
+fn=__init__ /usr/lib/python2.7/threading.py:105
+105 0
+cfn=<thread.allocate_lock> ~:0
+cfi=~
+calls=1 0
+105 0
+cfn=__init__ /usr/lib/python2.7/threading.py:57
+cfi=/usr/lib/python2.7/threading.py
+calls=1 57
+105 0
+
+fi=/home/vagrant/venv/lib/python2.7/re.py
+fn=compile /home/vagrant/venv/lib/python2.7/re.py:188
+188 0
+cfn=_compile /home/vagrant/venv/lib/python2.7/re.py:226
+cfi=/home/vagrant/venv/lib/python2.7/re.py
+calls=18 226
+188 14
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=HTTPRedirectHandler /usr/lib/python2.7/urllib2.py:529
+529 0
+
+fi=/usr/lib/python2.7/mimetools.py
+fn=Message /usr/lib/python2.7/mimetools.py:20
+20 0
+
+fi=~
+fn=<repr> ~:0
+0 0
+
+fi=/usr/lib/python2.7/__future__.py
+fn=__init__ /usr/lib/python2.7/__future__.py:75
+75 0
+
+fi=treeherder/log_parser/parsers.py
+fn=HeaderParser treeherder/log_parser/parsers.py:29
+29 0
+cfn=compile /home/vagrant/venv/lib/python2.7/re.py:188
+cfi=/home/vagrant/venv/lib/python2.7/re.py
+calls=2 188
+29 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=file_open /usr/lib/python2.7/urllib2.py:1303
+1303 0
+cfn=get_selector /usr/lib/python2.7/urllib2.py:264
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 264
+1303 0
+cfn=open_local_file /usr/lib/python2.7/urllib2.py:1325
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 1325
+1303 10
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=FileHandler /usr/lib/python2.7/urllib2.py:1301
+1301 0
+
+fi=treeherder/log_parser/artifactbuildercollection.py
+fn=get_log_handle treeherder/log_parser/artifactbuildercollection.py:75
+75 0
+cfn=urlopen /usr/lib/python2.7/urllib2.py:122
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 122
+75 11
+
+fi=/home/vagrant/venv/lib/python2.7/UserDict.py
+fn=items /home/vagrant/venv/lib/python2.7/UserDict.py:40
+40 0
+cfn=<method 'items' of 'dict' objects> ~:0
+cfi=~
+calls=1 0
+40 0
+
+fi=/usr/lib/python2.7/mimetypes.py
+fn=guess_type /usr/lib/python2.7/mimetypes.py:95
+95 0
+cfn=splittype /usr/lib/python2.7/urllib.py:1063
+cfi=/usr/lib/python2.7/urllib.py
+calls=1 1063
+95 0
+cfn=splitext /home/vagrant/venv/lib/python2.7/posixpath.py:95
+cfi=/home/vagrant/venv/lib/python2.7/posixpath.py
+calls=2 95
+95 0
+
+fi=/usr/lib/python2.7/httplib.py
+fn=HTTPMessage /usr/lib/python2.7/httplib.py:218
+218 0
+
+fi=/usr/lib/python2.7/gzip.py
+fn=<module> /usr/lib/python2.7/gzip.py:4
+4 0
+cfn=GzipFile /usr/lib/python2.7/gzip.py:36
+cfi=/usr/lib/python2.7/gzip.py
+calls=1 36
+4 0
+cfn=<module> /usr/lib/python2.7/io.py:34
+cfi=/usr/lib/python2.7/io.py
+calls=1 34
+4 0
+cfn=__new__ /home/vagrant/venv/lib/python2.7/abc.py:86
+cfi=/home/vagrant/venv/lib/python2.7/abc.py
+calls=1 86
+4 0
+
+fi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+fn=get /home/vagrant/venv/lib/python2.7/sre_parse.py:201
+201 1
+cfn=__next /home/vagrant/venv/lib/python2.7/sre_parse.py:182
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=1187 182
+201 2
+
+fi=/usr/lib/python2.7/rfc822.py
+fn=AddressList /usr/lib/python2.7/rfc822.py:770
+770 0
+
+fi=treeherder/log_parser/artifactbuilders.py
+fn=ArtifactBuilderBase treeherder/log_parser/artifactbuilders.py:5
+5 0
+
+fi=/usr/lib/python2.7/collections.py
+fn=namedtuple /usr/lib/python2.7/collections.py:237
+237 0
+cfn=<repr> ~:0
+cfi=~
+calls=2 0
+237 0
+cfn=<locals> ~:0
+cfi=~
+calls=2 0
+237 0
+cfn=<all> ~:0
+cfi=~
+calls=13 0
+237 0
+cfn=<method 'isdigit' of 'str' objects> ~:0
+cfi=~
+calls=13 0
+237 0
+cfn=<method 'join' of 'str' objects> ~:0
+cfi=~
+calls=2 0
+237 0
+cfn=<isinstance> ~:0
+cfi=~
+calls=2 0
+237 0
+cfn=<method 'add' of 'set' objects> ~:0
+cfi=~
+calls=11 0
+237 0
+cfn=<method 'startswith' of 'str' objects> ~:0
+cfi=~
+calls=11 0
+237 0
+cfn=<method 'split' of 'str' objects> ~:0
+cfi=~
+calls=2 0
+237 0
+cfn=<sys._getframe> ~:0
+cfi=~
+calls=2 0
+237 0
+cfn=<method 'replace' of 'str' objects> ~:0
+cfi=~
+calls=4 0
+237 0
+cfn=<map> ~:0
+cfi=~
+calls=2 0
+237 0
+cfn=<len> ~:0
+cfi=~
+calls=2 0
+237 0
+cfn=<module> <string>:1
+cfi=<string>
+calls=1 1
+237 0
+cfn=<method 'get' of 'dict' objects> ~:0
+cfi=~
+calls=2 0
+237 0
+cfn=<method '__contains__' of 'frozenset' objects> ~:0
+cfi=~
+calls=13 0
+237 0
+
+fi=/usr/lib/python2.7/gzip.py
+fn=closed /usr/lib/python2.7/gzip.py:355
+355 3
+
+fi=~
+fn=<method 'rfind' of 'str' objects> ~:0
+0 0
+
+fi=/home/vagrant/venv/lib/python2.7/sre_compile.py
+fn=_compile_charset /home/vagrant/venv/lib/python2.7/sre_compile.py:178
+178 0
+cfn=_optimize_charset /home/vagrant/venv/lib/python2.7/sre_compile.py:207
+cfi=/home/vagrant/venv/lib/python2.7/sre_compile.py
+calls=43 207
+178 0
+cfn=fixup /home/vagrant/venv/lib/python2.7/sre_compile.py:51
+cfi=/home/vagrant/venv/lib/python2.7/sre_compile.py
+calls=10 51
+178 0
+cfn=_identityfunction /home/vagrant/venv/lib/python2.7/sre_compile.py:24
+cfi=/home/vagrant/venv/lib/python2.7/sre_compile.py
+calls=16 24
+178 0
+cfn=<method 'extend' of 'list' objects> ~:0
+cfi=~
+calls=4 0
+178 0
+cfn=<method 'append' of 'list' objects> ~:0
+cfi=~
+calls=150 0
+178 0
+
+fi=~
+fn=<locals> ~:0
+0 0
+
+fi=~
+fn=<method 'format' of 'str' objects> ~:0
+0 0
+
+fi=treeherder/log_parser/parsers.py
+fn=__init__ treeherder/log_parser/parsers.py:181
+181 0
+cfn=__init__ treeherder/log_parser/parsers.py:10
+cfi=treeherder/log_parser/parsers.py
+calls=1 10
+181 0
+
+fi=/usr/lib/python2.7/mimetools.py
+fn=parseplist /usr/lib/python2.7/mimetools.py:50
+50 0
+
+fi=/usr/lib/python2.7/collections.py
+fn=Counter /usr/lib/python2.7/collections.py:356
+356 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=ProxyHandler /usr/lib/python2.7/urllib2.py:706
+706 0
+
+fi=~
+fn=<posix.urandom> ~:0
+0 0
+
+fi=~
+fn=<method 'isalnum' of 'str' objects> ~:0
+0 0
+
+fi=~
+fn=<setattr> ~:0
+0 0
+
+fi=treeherder/__init__.py
+fn=<module> treeherder/__init__.py:1
+1 0
+cfn=dirname /home/vagrant/venv/lib/python2.7/posixpath.py:118
+cfi=/home/vagrant/venv/lib/python2.7/posixpath.py
+calls=1 118
+1 0
+cfn=abspath /home/vagrant/venv/lib/python2.7/posixpath.py:341
+cfi=/home/vagrant/venv/lib/python2.7/posixpath.py
+calls=1 341
+1 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=Request /usr/lib/python2.7/urllib2.py:193
+193 0
+
+fi=<string>
+fn=SplitResult <string>:1
+1 0
+
+fi=/usr/lib/python2.7/random.py
+fn=seed /usr/lib/python2.7/random.py:100
+100 0
+cfn=<posix.urandom> ~:0
+cfi=~
+calls=1 0
+100 0
+cfn=<binascii.hexlify> ~:0
+cfi=~
+calls=1 0
+100 0
+cfn=<function seed at 0xb6fe7c6c> ~:0
+cfi=~
+calls=1 0
+100 0
+
+fi=~
+fn=<zip> ~:0
+0 0
+
+fi=/usr/lib/python2.7/httplib.py
+fn=HTTPSConnection /usr/lib/python2.7/httplib.py:1140
+1140 0
+
+fi=/usr/lib/python2.7/heapq.py
+fn=<module> /usr/lib/python2.7/heapq.py:31
+31 0
+cfn=<module> /usr/lib/python2.7/bisect.py:1
+cfi=/usr/lib/python2.7/bisect.py
+calls=1 1
+31 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=CacheFTPHandler /usr/lib/python2.7/urllib2.py:1413
+1413 0
+
+fi=~
+fn=<globals> ~:0
+0 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=ProxyBasicAuthHandler /usr/lib/python2.7/urllib2.py:895
+895 0
+
+fi=~
+fn=<method 'strip' of 'str' objects> ~:0
+0 0
+
+fi=~
+fn=<method 'group' of '_sre.SRE_Match' objects> ~:0
+0 0
+
+fi=~
+fn=<method 'seek' of '_io.BytesIO' objects> ~:0
+0 0
+
+fi=~
+fn=<method 'readline' of 'file' objects> ~:0
+0 0
+
+fi=treeherder/log_parser/__init__.py
+fn=<module> treeherder/log_parser/__init__.py:1
+1 0
+
+fi=/usr/lib/python2.7/logging/__init__.py
+fn=Filter /usr/lib/python2.7/logging/__init__.py:536
+536 0
+
+fi=/usr/lib/python2.7/atexit.py
+fn=register /usr/lib/python2.7/atexit.py:37
+37 0
+cfn=<method 'append' of 'list' objects> ~:0
+cfi=~
+calls=1 0
+37 0
+
+fi=/usr/lib/python2.7/logging/__init__.py
+fn=NullHandler /usr/lib/python2.7/logging/__init__.py:1660
+1660 0
+
+fi=/usr/lib/python2.7/threading.py
+fn=__init__ /usr/lib/python2.7/threading.py:767
+767 0
+cfn=_set_ident /usr/lib/python2.7/threading.py:530
+cfi=/usr/lib/python2.7/threading.py
+calls=1 530
+767 0
+cfn=set /usr/lib/python2.7/threading.py:384
+cfi=/usr/lib/python2.7/threading.py
+calls=1 384
+767 0
+cfn=__init__ /usr/lib/python2.7/threading.py:435
+cfi=/usr/lib/python2.7/threading.py
+calls=1 435
+767 0
+cfn=<thread.get_ident> ~:0
+cfi=~
+calls=1 0
+767 0
+
+fi=/usr/lib/python2.7/threading.py
+fn=__init__ /usr/lib/python2.7/threading.py:370
+370 0
+cfn=<thread.allocate_lock> ~:0
+cfi=~
+calls=1 0
+370 0
+cfn=Condition /usr/lib/python2.7/threading.py:180
+cfi=/usr/lib/python2.7/threading.py
+calls=1 180
+370 0
+cfn=__init__ /usr/lib/python2.7/threading.py:57
+cfi=/usr/lib/python2.7/threading.py
+calls=1 57
+370 0
+
+fi=/usr/lib/python2.7/logging/__init__.py
+fn=__init__ /usr/lib/python2.7/logging/__init__.py:390
+390 0
+
+fi=~
+fn=<method '__subclasshook__' of 'object' objects> ~:0
+0 0
+
+fi=/usr/lib/python2.7/threading.py
+fn=_Condition /usr/lib/python2.7/threading.py:183
+183 0
+
+fi=/home/vagrant/venv/lib/python2.7/warnings.py
+fn=__enter__ /home/vagrant/venv/lib/python2.7/warnings.py:339
+339 0
+
+fi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+fn=opengroup /home/vagrant/venv/lib/python2.7/sre_parse.py:72
+72 0
+cfn=<method 'get' of 'dict' objects> ~:0
+cfi=~
+calls=7 0
+72 0
+cfn=<method 'append' of 'list' objects> ~:0
+cfi=~
+calls=22 0
+72 0
+
+fi=~
+fn=<max> ~:0
+0 0
+
+fi=~
+fn=<all> ~:0
+0 0
+cfn=<genexpr> /usr/lib/python2.7/collections.py:277
+cfi=/usr/lib/python2.7/collections.py
+calls=99 277
+0 0
+
+fi=/usr/lib/python2.7/logging/__init__.py
+fn=RootLogger /usr/lib/python2.7/logging/__init__.py:1359
+1359 0
+
+fi=/home/vagrant/venv/lib/python2.7/posixpath.py
+fn=dirname /home/vagrant/venv/lib/python2.7/posixpath.py:118
+118 0
+cfn=<method 'rfind' of 'str' objects> ~:0
+cfi=~
+calls=1 0
+118 0
+cfn=<method 'rstrip' of 'str' objects> ~:0
+cfi=~
+calls=1 0
+118 0
+cfn=<len> ~:0
+cfi=~
+calls=1 0
+118 0
+
+fi=/usr/lib/python2.7/urllib.py
+fn=url2pathname /usr/lib/python2.7/urllib.py:52
+52 0
+cfn=unquote /usr/lib/python2.7/urllib.py:1202
+cfi=/usr/lib/python2.7/urllib.py
+calls=1 1202
+52 0
+
+fi=~
+fn=<method 'items' of 'dict' objects> ~:0
+0 0
+
+fi=/usr/lib/python2.7/threading.py
+fn=_DummyThread /usr/lib/python2.7/threading.py:805
+805 0
+
+fi=<string>
+fn=ParseResult <string>:1
+1 0
+
+fi=~
+fn=<method 'isdigit' of 'str' objects> ~:0
+0 0
+
+fi=~
+fn=<thread.allocate_lock> ~:0
+0 0
+
+fi=~
+fn=<math.exp> ~:0
+0 0
+
+fi=~
+fn=<method 'join' of 'str' objects> ~:0
+0 1
+cfn=<genexpr> /usr/lib/python2.7/collections.py:294
+cfi=/usr/lib/python2.7/collections.py
+calls=13 294
+0 0
+
+fi=/usr/lib/python2.7/threading.py
+fn=set /usr/lib/python2.7/threading.py:384
+384 0
+cfn=<method 'acquire' of 'thread.lock' objects> ~:0
+cfi=~
+calls=1 0
+384 0
+cfn=notifyAll /usr/lib/python2.7/threading.py:294
+cfi=/usr/lib/python2.7/threading.py
+calls=1 294
+384 0
+cfn=<method 'release' of 'thread.lock' objects> ~:0
+cfi=~
+calls=1 0
+384 0
+
+fi=/usr/lib/python2.7/urllib.py
+fn=close /usr/lib/python2.7/urllib.py:966
+966 0
+cfn=<method 'close' of 'file' objects> ~:0
+cfi=~
+calls=1 0
+966 0
+
+fi=/usr/lib/python2.7/random.py
+fn=Random /usr/lib/python2.7/random.py:72
+72 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=HTTPError /usr/lib/python2.7/urllib2.py:149
+149 0
+
+fi=/home/vagrant/venv/lib/python2.7/UserDict.py
+fn=__init__ /home/vagrant/venv/lib/python2.7/UserDict.py:4
+4 0
+cfn=<len> ~:0
+cfi=~
+calls=1 0
+4 0
+
+fi=/usr/lib/python2.7/gzip.py
+fn=read32 /usr/lib/python2.7/gzip.py:24
+24 0
+cfn=<method 'read' of '_io.BytesIO' objects> ~:0
+cfi=~
+calls=3 0
+24 0
+cfn=<_struct.unpack> ~:0
+cfi=~
+calls=3 0
+24 0
+
+fi=/usr/lib/python2.7/rfc822.py
+fn=isheader /usr/lib/python2.7/rfc822.py:197
+197 0
+cfn=<method 'find' of 'str' objects> ~:0
+cfi=~
+calls=3 0
+197 0
+cfn=<method 'lower' of 'str' objects> ~:0
+cfi=~
+calls=3 0
+197 0
+
+fi=/usr/lib/python2.7/urlparse.py
+fn=<module> /usr/lib/python2.7/urlparse.py:29
+29 0
+cfn=<genexpr> /usr/lib/python2.7/urlparse.py:315
+cfi=/usr/lib/python2.7/urlparse.py
+calls=485 315
+29 0
+cfn=ResultMixin /usr/lib/python2.7/urlparse.py:68
+cfi=/usr/lib/python2.7/urlparse.py
+calls=1 68
+29 0
+cfn=namedtuple /usr/lib/python2.7/collections.py:237
+cfi=/usr/lib/python2.7/collections.py
+calls=2 237
+29 0
+cfn=SplitResult /usr/lib/python2.7/urlparse.py:113
+cfi=/usr/lib/python2.7/urlparse.py
+calls=1 113
+29 0
+cfn=ParseResult /usr/lib/python2.7/urlparse.py:121
+cfi=/usr/lib/python2.7/urlparse.py
+calls=1 121
+29 0
+cfn=<module> /usr/lib/python2.7/collections.py:1
+cfi=/usr/lib/python2.7/collections.py
+calls=1 1
+29 0
+
+fi=/usr/lib/python2.7/urllib.py
+fn=addclosehook /usr/lib/python2.7/urllib.py:974
+974 0
+
+fi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+fn=isname /home/vagrant/venv/lib/python2.7/sre_parse.py:216
+216 0
+cfn=isident /home/vagrant/venv/lib/python2.7/sre_parse.py:210
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=34 210
+216 0
+
+fi=~
+fn=<posix.stat> ~:0
+0 0
+
+fi=/usr/lib/python2.7/tempfile.py
+fn=_TemporaryFileWrapper /usr/lib/python2.7/tempfile.py:364
+364 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=__init__ /usr/lib/python2.7/urllib2.py:1097
+1097 0
+
+fi=~
+fn=<built-in method __new__ of type object at 0x82af060> ~:0
+0 0
+
+fi=~
+fn=<hasattr> ~:0
+0 0
+
+fi=/usr/lib/python2.7/socket.py
+fn=_fileobject /usr/lib/python2.7/socket.py:235
+235 0
+
+fi=/home/vagrant/venv/lib/python2.7/_weakrefset.py
+fn=__exit__ /home/vagrant/venv/lib/python2.7/_weakrefset.py:26
+26 0
+cfn=_commit_removals /home/vagrant/venv/lib/python2.7/_weakrefset.py:52
+cfi=/home/vagrant/venv/lib/python2.7/_weakrefset.py
+calls=8 52
+26 0
+cfn=<method 'remove' of 'set' objects> ~:0
+cfi=~
+calls=8 0
+26 0
+
+fi=/usr/lib/python2.7/httplib.py
+fn=HTTPConnection /usr/lib/python2.7/httplib.py:669
+669 0
+
+fi=/usr/lib/python2.7/httplib.py
+fn=NotConnected /usr/lib/python2.7/httplib.py:1203
+1203 0
+
+fi=/usr/lib/python2.7/threading.py
+fn=__init__ /usr/lib/python2.7/threading.py:185
+185 0
+cfn=__init__ /usr/lib/python2.7/threading.py:57
+cfi=/usr/lib/python2.7/threading.py
+calls=2 57
+185 0
+
+fi=treeherder/log_parser/parsers.py
+fn=__init__ treeherder/log_parser/parsers.py:10
+10 0
+
+fi=/usr/lib/python2.7/gzip.py
+fn=_init_read /usr/lib/python2.7/gzip.py:178
+178 0
+cfn=<zlib.crc32> ~:0
+cfi=~
+calls=1 0
+178 0
+
+fi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+fn=_class_escape /home/vagrant/venv/lib/python2.7/sre_parse.py:225
+225 0
+cfn=<method 'get' of 'dict' objects> ~:0
+cfi=~
+calls=2 0
+225 0
+
+fi=/usr/lib/python2.7/mimetypes.py
+fn=read /usr/lib/python2.7/mimetypes.py:194
+194 0
+cfn=readfp /usr/lib/python2.7/mimetypes.py:205
+cfi=/usr/lib/python2.7/mimetypes.py
+calls=1 205
+194 3
+cfn=<open> ~:0
+cfi=~
+calls=1 0
+194 0
+
+fi=/usr/lib/python2.7/httplib.py
+fn=HTTPResponse /usr/lib/python2.7/httplib.py:325
+325 0
+
+fi=/home/vagrant/venv/lib/python2.7/sre_compile.py
+fn=fixup /home/vagrant/venv/lib/python2.7/sre_compile.py:51
+51 0
+cfn=<_sre.getlower> ~:0
+cfi=~
+calls=20 0
+51 0
+
+fi=/home/vagrant/venv/lib/python2.7/sre_compile.py
+fn=_identityfunction /home/vagrant/venv/lib/python2.7/sre_compile.py:24
+24 0
+
+fi=/usr/lib/python2.7/threading.py
+fn=_RLock /usr/lib/python2.7/threading.py:103
+103 0
+
+fi=/usr/lib/python2.7/logging/__init__.py
+fn=Filterer /usr/lib/python2.7/logging/__init__.py:573
+573 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=urlopen /usr/lib/python2.7/urllib2.py:122
+122 0
+cfn=open /usr/lib/python2.7/urllib2.py:382
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 382
+122 11
+cfn=build_opener /usr/lib/python2.7/urllib2.py:450
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 450
+122 0
+
+fi=/usr/lib/python2.7/urlparse.py
+fn=urlsplit /usr/lib/python2.7/urlparse.py:160
+160 0
+cfn=_splitnetloc /usr/lib/python2.7/urlparse.py:152
+cfi=/usr/lib/python2.7/urlparse.py
+calls=1 152
+160 0
+cfn=<method 'find' of 'str' objects> ~:0
+cfi=~
+calls=1 0
+160 0
+cfn=<method 'lower' of 'str' objects> ~:0
+cfi=~
+calls=1 0
+160 0
+cfn=<len> ~:0
+cfi=~
+calls=1 0
+160 0
+cfn=<method 'get' of 'dict' objects> ~:0
+cfi=~
+calls=1 0
+160 0
+
+fi=/home/vagrant/venv/lib/python2.7/sre_compile.py
+fn=_code /home/vagrant/venv/lib/python2.7/sre_compile.py:480
+480 0
+cfn=_compile_info /home/vagrant/venv/lib/python2.7/sre_compile.py:361
+cfi=/home/vagrant/venv/lib/python2.7/sre_compile.py
+calls=18 361
+480 1
+cfn=_compile /home/vagrant/venv/lib/python2.7/sre_compile.py:32
+cfi=/home/vagrant/venv/lib/python2.7/sre_compile.py
+calls=18 32
+480 3
+cfn=<method 'append' of 'list' objects> ~:0
+cfi=~
+calls=18 0
+480 0
+
+fi=~
+fn=<method 'rstrip' of 'str' objects> ~:0
+0 0
+
+fi=/usr/lib/python2.7/threading.py
+fn=Event /usr/lib/python2.7/threading.py:363
+363 0
+cfn=__init__ /usr/lib/python2.7/threading.py:370
+cfi=/usr/lib/python2.7/threading.py
+calls=1 370
+363 0
+
+fi=/usr/lib/python2.7/logging/__init__.py
+fn=LogRecord /usr/lib/python2.7/logging/__init__.py:230
+230 0
+
+fi=/usr/lib/python2.7/ssl.py
+fn=SSLSocket /usr/lib/python2.7/ssl.py:100
+100 0
+
+fi=/usr/lib/python2.7/httplib.py
+fn=LineTooLong /usr/lib/python2.7/httplib.py:1253
+1253 0
+
+fi=~
+fn=<method 'endswith' of 'str' objects> ~:0
+0 0
+
+fi=/usr/lib/python2.7/urlparse.py
+fn=SplitResult /usr/lib/python2.7/urlparse.py:113
+113 0
+
+fi=~
+fn=<method 'close' of 'file' objects> ~:0
+0 0
+
+fi=~
+fn=<isinstance> ~:0
+0 0
+
+fi=/usr/lib/python2.7/email/utils.py
+fn=formatdate /usr/lib/python2.7/email/utils.py:124
+124 0
+cfn=<time.gmtime> ~:0
+cfi=~
+calls=1 0
+124 0
+
+fi=/usr/lib/python2.7/hashlib.py
+fn=<module> /usr/lib/python2.7/hashlib.py:55
+55 0
+cfn=<globals> ~:0
+cfi=~
+calls=6 0
+55 0
+cfn=__get_openssl_constructor /usr/lib/python2.7/hashlib.py:94
+cfi=/usr/lib/python2.7/hashlib.py
+calls=6 94
+55 0
+
+fi=~
+fn=<zlib.decompressobj> ~:0
+0 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=HTTPErrorProcessor /usr/lib/python2.7/urllib2.py:508
+508 0
+
+fi=/home/vagrant/venv/lib/python2.7/os.py
+fn=_get_exports_list /home/vagrant/venv/lib/python2.7/os.py:35
+35 0
+cfn=<dir> ~:0
+cfi=~
+calls=1 0
+35 0
+
+fi=~
+fn=<method 'add' of 'set' objects> ~:0
+0 0
+
+fi=/home/vagrant/venv/lib/python2.7/sre_compile.py
+fn=_compile_info /home/vagrant/venv/lib/python2.7/sre_compile.py:361
+361 0
+cfn=_compile_charset /home/vagrant/venv/lib/python2.7/sre_compile.py:178
+cfi=/home/vagrant/venv/lib/python2.7/sre_compile.py
+calls=2 178
+361 0
+cfn=<len> ~:0
+cfi=~
+calls=67 0
+361 0
+cfn=getwidth /home/vagrant/venv/lib/python2.7/sre_parse.py:140
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=18 140
+361 0
+cfn=<method 'extend' of 'list' objects> ~:0
+cfi=~
+calls=6 0
+361 0
+cfn=__len__ /home/vagrant/venv/lib/python2.7/sre_parse.py:126
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=2 126
+361 0
+cfn=<method 'append' of 'list' objects> ~:0
+cfi=~
+calls=112 0
+361 0
+cfn=__getitem__ /home/vagrant/venv/lib/python2.7/sre_parse.py:130
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=3 130
+361 0
+
+fi=/usr/lib/python2.7/gzip.py
+fn=GzipFile /usr/lib/python2.7/gzip.py:36
+36 0
+
+fi=/usr/lib/python2.7/rfc822.py
+fn=Message /usr/lib/python2.7/rfc822.py:85
+85 0
+
+fi=~
+fn=<math.log> ~:0
+0 0
+
+fi=/home/vagrant/venv/lib/python2.7/warnings.py
+fn=filterwarnings /home/vagrant/venv/lib/python2.7/warnings.py:45
+45 0
+cfn=compile /home/vagrant/venv/lib/python2.7/re.py:188
+cfi=/home/vagrant/venv/lib/python2.7/re.py
+calls=2 188
+45 0
+cfn=<isinstance> ~:0
+cfi=~
+calls=4 0
+45 0
+cfn=<issubclass> ~:0
+cfi=~
+calls=1 0
+45 0
+cfn=<method 'insert' of 'list' objects> ~:0
+cfi=~
+calls=1 0
+45 0
+
+fi=/usr/lib/python2.7/base64.py
+fn=<module> /usr/lib/python2.7/base64.py:3
+3 0
+cfn=<method 'sort' of 'list' objects> ~:0
+cfi=~
+calls=1 0
+3 0
+cfn=<chr> ~:0
+cfi=~
+calls=256 0
+3 0
+cfn=<method 'items' of 'dict' objects> ~:0
+cfi=~
+calls=2 0
+3 0
+cfn=<range> ~:0
+cfi=~
+calls=1 0
+3 0
+
+fi=~
+fn=<method 'find' of 'str' objects> ~:0
+0 156
+
+fi=~
+fn=<method 'startswith' of 'str' objects> ~:0
+0 0
+
+fi=/usr/lib/python2.7/threading.py
+fn=_BoundedSemaphore /usr/lib/python2.7/threading.py:351
+351 0
+
+fi=/usr/lib/python2.7/urlparse.py
+fn=ParseResult /usr/lib/python2.7/urlparse.py:121
+121 0
+
+fi=/usr/lib/python2.7/urllib.py
+fn=addinfourl /usr/lib/python2.7/urllib.py:999
+999 0
+
+fi=/usr/lib/python2.7/httplib.py
+fn=InvalidURL /usr/lib/python2.7/httplib.py:1206
+1206 0
+
+fi=/usr/lib/python2.7/io.py
+fn=TextIOBase /usr/lib/python2.7/io.py:87
+87 0
+
+fi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+fn=_parse /home/vagrant/venv/lib/python2.7/sre_parse.py:379
+379 2
+cfn=__setitem__ /home/vagrant/venv/lib/python2.7/sre_parse.py:134
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=64 134
+379 0
+cfn=_parse_sub /home/vagrant/venv/lib/python2.7/sre_parse.py:301
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=29 301
+379 1
+cfn=get /home/vagrant/venv/lib/python2.7/sre_parse.py:201
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=1169 201
+379 4
+cfn=opengroup /home/vagrant/venv/lib/python2.7/sre_parse.py:72
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=22 72
+379 0
+cfn=isname /home/vagrant/venv/lib/python2.7/sre_parse.py:216
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=7 216
+379 0
+cfn=_class_escape /home/vagrant/venv/lib/python2.7/sre_parse.py:225
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=2 225
+379 0
+cfn=closegroup /home/vagrant/venv/lib/python2.7/sre_parse.py:83
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=22 83
+379 0
+cfn=<ord> ~:0
+cfi=~
+calls=588 0
+379 0
+cfn=<len> ~:0
+cfi=~
+calls=97 0
+379 0
+cfn=_escape /home/vagrant/venv/lib/python2.7/sre_parse.py:257
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=49 257
+379 0
+cfn=match /home/vagrant/venv/lib/python2.7/sre_parse.py:195
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=243 195
+379 0
+cfn=__len__ /home/vagrant/venv/lib/python2.7/sre_parse.py:126
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=192 126
+379 0
+cfn=append /home/vagrant/venv/lib/python2.7/sre_parse.py:138
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=673 138
+379 0
+cfn=<method 'append' of 'list' objects> ~:0
+cfi=~
+calls=47 0
+379 0
+cfn=__getitem__ /home/vagrant/venv/lib/python2.7/sre_parse.py:130
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=192 130
+379 0
+cfn=tell /home/vagrant/venv/lib/python2.7/sre_parse.py:205
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=17 205
+379 0
+cfn=__init__ /home/vagrant/venv/lib/python2.7/sre_parse.py:90
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=73 90
+379 0
+
+fi=~
+fn=<method 'split' of 'str' objects> ~:0
+0 0
+
+fi=/usr/lib/python2.7/rfc822.py
+fn=getheader /usr/lib/python2.7/rfc822.py:285
+285 0
+cfn=<method 'lower' of 'str' objects> ~:0
+cfi=~
+calls=2 0
+285 0
+cfn=<method 'get' of 'dict' objects> ~:0
+cfi=~
+calls=2 0
+285 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=open /usr/lib/python2.7/urllib2.py:382
+382 0
+cfn=_open /usr/lib/python2.7/urllib2.py:410
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 410
+382 10
+cfn=__init__ /usr/lib/python2.7/urllib2.py:195
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 195
+382 0
+cfn=get_type /usr/lib/python2.7/urllib2.py:250
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 250
+382 0
+cfn=<isinstance> ~:0
+cfi=~
+calls=1 0
+382 0
+cfn=<method 'get' of 'dict' objects> ~:0
+cfi=~
+calls=2 0
+382 0
+
+fi=treeherder/log_parser/artifactbuilders.py
+fn=__init__ treeherder/log_parser/artifactbuilders.py:17
+17 0
+
+fi=~
+fn=<_hashlib.openssl_sha256> ~:0
+0 0
+
+fi=/home/vagrant/venv/lib/python2.7/genericpath.py
+fn=isfile /home/vagrant/venv/lib/python2.7/genericpath.py:26
+26 0
+cfn=<posix.stat> ~:0
+cfi=~
+calls=9 0
+26 0
+cfn=S_ISREG /home/vagrant/venv/lib/python2.7/stat.py:49
+cfi=/home/vagrant/venv/lib/python2.7/stat.py
+calls=1 49
+26 0
+
+fi=/home/vagrant/venv/lib/python2.7/abc.py
+fn=<genexpr> /home/vagrant/venv/lib/python2.7/abc.py:89
+89 0
+cfn=<getattr> ~:0
+cfi=~
+calls=33 0
+89 0
+
+fi=~
+fn=<method 'read' of '_io.BytesIO' objects> ~:0
+0 2
+
+fi=treeherder/log_parser/artifactbuildercollection.py
+fn=ArtifactBuilderCollection treeherder/log_parser/artifactbuildercollection.py:10
+10 0
+
+fi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+fn=closegroup /home/vagrant/venv/lib/python2.7/sre_parse.py:83
+83 0
+cfn=<method 'remove' of 'list' objects> ~:0
+cfi=~
+calls=22 0
+83 0
+
+fi=/usr/lib/python2.7/urllib.py
+fn=FancyURLopener /usr/lib/python2.7/urllib.py:609
+609 0
+
+fi=/home/vagrant/venv/lib/python2.7/sre_compile.py
+fn=compile /home/vagrant/venv/lib/python2.7/sre_compile.py:495
+495 0
+cfn=parse /home/vagrant/venv/lib/python2.7/sre_parse.py:663
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=18 663
+495 9
+cfn=<_sre.compile> ~:0
+cfi=~
+calls=18 0
+495 0
+cfn=<method 'items' of 'dict' objects> ~:0
+cfi=~
+calls=18 0
+495 0
+cfn=_code /home/vagrant/venv/lib/python2.7/sre_compile.py:480
+cfi=/home/vagrant/venv/lib/python2.7/sre_compile.py
+calls=18 480
+495 4
+cfn=isstring /home/vagrant/venv/lib/python2.7/sre_compile.py:474
+cfi=/home/vagrant/venv/lib/python2.7/sre_compile.py
+calls=18 474
+495 0
+
+fi=/usr/lib/python2.7/urllib.py
+fn=ftpwrapper /usr/lib/python2.7/urllib.py:850
+850 0
+
+fi=~
+fn=<method 'read' of 'file' objects> ~:0
+0 0
+
+fi=/usr/lib/python2.7/collections.py
+fn=<module> /usr/lib/python2.7/collections.py:1
+1 0
+cfn=OrderedDict /usr/lib/python2.7/collections.py:25
+cfi=/usr/lib/python2.7/collections.py
+calls=1 25
+1 0
+cfn=Counter /usr/lib/python2.7/collections.py:356
+cfi=/usr/lib/python2.7/collections.py
+calls=1 356
+1 0
+cfn=<module> /usr/lib/python2.7/heapq.py:31
+cfi=/usr/lib/python2.7/heapq.py
+calls=1 31
+1 0
+cfn=<module> /usr/lib/python2.7/keyword.py:11
+cfi=/usr/lib/python2.7/keyword.py
+calls=1 11
+1 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=get_host /usr/lib/python2.7/urllib2.py:257
+257 0
+cfn=splithost /usr/lib/python2.7/urllib.py:1077
+cfi=/usr/lib/python2.7/urllib.py
+calls=1 1077
+257 0
+
+fi=/home/vagrant/venv/lib/python2.7/_weakrefset.py
+fn=__iter__ /home/vagrant/venv/lib/python2.7/_weakrefset.py:58
+58 0
+cfn=__enter__ /home/vagrant/venv/lib/python2.7/_weakrefset.py:20
+cfi=/home/vagrant/venv/lib/python2.7/_weakrefset.py
+calls=8 20
+58 0
+cfn=__exit__ /home/vagrant/venv/lib/python2.7/_weakrefset.py:26
+cfi=/home/vagrant/venv/lib/python2.7/_weakrefset.py
+calls=8 26
+58 0
+cfn=__init__ /home/vagrant/venv/lib/python2.7/_weakrefset.py:16
+cfi=/home/vagrant/venv/lib/python2.7/_weakrefset.py
+calls=8 16
+58 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=URLError /usr/lib/python2.7/urllib2.py:136
+136 0
+
+fi=/usr/lib/python2.7/threading.py
+fn=Condition /usr/lib/python2.7/threading.py:180
+180 0
+cfn=__init__ /usr/lib/python2.7/threading.py:185
+cfi=/usr/lib/python2.7/threading.py
+calls=2 185
+180 0
+
+fi=~
+fn=<sys._getframe> ~:0
+0 0
+
+fi=/usr/lib/python2.7/gzip.py
+fn=_read_eof /usr/lib/python2.7/gzip.py:331
+331 0
+cfn=<method 'seek' of '_io.BytesIO' objects> ~:0
+cfi=~
+calls=1 0
+331 0
+cfn=read32 /usr/lib/python2.7/gzip.py:24
+cfi=/usr/lib/python2.7/gzip.py
+calls=2 24
+331 0
+cfn=<method 'read' of '_io.BytesIO' objects> ~:0
+cfi=~
+calls=1 0
+331 0
+
+fi=/home/vagrant/venv/lib/python2.7/_weakrefset.py
+fn=_commit_removals /home/vagrant/venv/lib/python2.7/_weakrefset.py:52
+52 0
+
+fi=/usr/lib/python2.7/threading.py
+fn=__init__ /usr/lib/python2.7/threading.py:435
+435 0
+cfn=_set_daemon /usr/lib/python2.7/threading.py:774
+cfi=/usr/lib/python2.7/threading.py
+calls=1 774
+435 0
+cfn=<thread.allocate_lock> ~:0
+cfi=~
+calls=1 0
+435 0
+cfn=Event /usr/lib/python2.7/threading.py:363
+cfi=/usr/lib/python2.7/threading.py
+calls=1 363
+435 0
+cfn=Condition /usr/lib/python2.7/threading.py:180
+cfi=/usr/lib/python2.7/threading.py
+calls=1 180
+435 0
+cfn=__init__ /usr/lib/python2.7/threading.py:57
+cfi=/usr/lib/python2.7/threading.py
+calls=1 57
+435 0
+
+fi=/usr/lib/python2.7/httplib.py
+fn=IncompleteRead /usr/lib/python2.7/httplib.py:1220
+1220 0
+
+fi=/usr/lib/python2.7/logging/__init__.py
+fn=__init__ /usr/lib/python2.7/logging/__init__.py:1100
+1100 0
+cfn=_checkLevel /usr/lib/python2.7/logging/__init__.py:182
+cfi=/usr/lib/python2.7/logging/__init__.py
+calls=1 182
+1100 0
+cfn=__init__ /usr/lib/python2.7/logging/__init__.py:578
+cfi=/usr/lib/python2.7/logging/__init__.py
+calls=1 578
+1100 0
+
+fi=/usr/lib/python2.7/threading.py
+fn=notify /usr/lib/python2.7/threading.py:276
+276 0
+cfn=_is_owned /usr/lib/python2.7/threading.py:225
+cfi=/usr/lib/python2.7/threading.py
+calls=1 225
+276 0
+cfn=_note /usr/lib/python2.7/threading.py:62
+cfi=/usr/lib/python2.7/threading.py
+calls=1 62
+276 0
+
+fi=treeherder/log_parser/artifactbuilders.py
+fn=get_artifact treeherder/log_parser/artifactbuilders.py:44
+44 0
+cfn=get_artifact treeherder/log_parser/parsers.py:24
+cfi=treeherder/log_parser/parsers.py
+calls=2 24
+44 0
+
+fi=~
+fn=<method 'replace' of 'str' objects> ~:0
+0 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=HTTPCookieProcessor /usr/lib/python2.7/urllib2.py:1219
+1219 0
+
+fi=~
+fn=<ord> ~:0
+0 0
+
+fi=~
+fn=<thread.get_ident> ~:0
+0 0
+
+fi=/usr/lib/python2.7/urllib.py
+fn=splittype /usr/lib/python2.7/urllib.py:1063
+1063 0
+cfn=compile /home/vagrant/venv/lib/python2.7/re.py:188
+cfi=/home/vagrant/venv/lib/python2.7/re.py
+calls=1 188
+1063 0
+cfn=<method 'group' of '_sre.SRE_Match' objects> ~:0
+cfi=~
+calls=1 0
+1063 0
+cfn=<method 'lower' of 'str' objects> ~:0
+cfi=~
+calls=1 0
+1063 0
+cfn=<len> ~:0
+cfi=~
+calls=1 0
+1063 0
+cfn=<method 'match' of '_sre.SRE_Pattern' objects> ~:0
+cfi=~
+calls=2 0
+1063 0
+
+fi=/home/vagrant/venv/lib/python2.7/_weakrefset.py
+fn=add /home/vagrant/venv/lib/python2.7/_weakrefset.py:81
+81 0
+cfn=<method 'add' of 'set' objects> ~:0
+cfi=~
+calls=16 0
+81 0
+
+fi=/home/vagrant/venv/lib/python2.7/posixpath.py
+fn=abspath /home/vagrant/venv/lib/python2.7/posixpath.py:341
+341 0
+cfn=<isinstance> ~:0
+cfi=~
+calls=1 0
+341 0
+cfn=normpath /home/vagrant/venv/lib/python2.7/posixpath.py:312
+cfi=/home/vagrant/venv/lib/python2.7/posixpath.py
+calls=1 312
+341 0
+cfn=<posix.getcwd> ~:0
+cfi=~
+calls=1 0
+341 0
+cfn=isabs /home/vagrant/venv/lib/python2.7/posixpath.py:51
+cfi=/home/vagrant/venv/lib/python2.7/posixpath.py
+calls=1 51
+341 0
+cfn=join /home/vagrant/venv/lib/python2.7/posixpath.py:60
+cfi=/home/vagrant/venv/lib/python2.7/posixpath.py
+calls=1 60
+341 0
+
+fi=/home/vagrant/venv/lib/python2.7/_weakrefset.py
+fn=__init__ /home/vagrant/venv/lib/python2.7/_weakrefset.py:16
+16 0
+
+fi=/usr/lib/python2.7/httplib.py
+fn=HTTP /usr/lib/python2.7/httplib.py:1044
+1044 0
+
+fi=/usr/lib/python2.7/mimetools.py
+fn=parsetype /usr/lib/python2.7/mimetools.py:33
+33 0
+cfn=<method 'strip' of 'str' objects> ~:0
+cfi=~
+calls=2 0
+33 0
+cfn=<method 'join' of 'str' objects> ~:0
+cfi=~
+calls=2 0
+33 0
+cfn=<method 'split' of 'str' objects> ~:0
+cfi=~
+calls=1 0
+33 0
+cfn=<method 'lower' of 'str' objects> ~:0
+cfi=~
+calls=2 0
+33 0
+cfn=<len> ~:0
+cfi=~
+calls=1 0
+33 0
+cfn=<range> ~:0
+cfi=~
+calls=1 0
+33 0
+
+fi=~
+fn=<method 'setdefault' of 'dict' objects> ~:0
+0 0
+
+fi=/usr/lib/python2.7/traceback.py
+fn=<module> /usr/lib/python2.7/traceback.py:1
+1 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=add_parent /usr/lib/python2.7/urllib2.py:492
+492 0
+
+fi=/usr/lib/python2.7/random.py
+fn=WichmannHill /usr/lib/python2.7/random.py:651
+651 0
+
+fi=/usr/lib/python2.7/tempfile.py
+fn=<module> /usr/lib/python2.7/tempfile.py:18
+18 0
+cfn=<thread.allocate_lock> ~:0
+cfi=~
+calls=1 0
+18 0
+cfn=_TemporaryFileWrapper /usr/lib/python2.7/tempfile.py:364
+cfi=/usr/lib/python2.7/tempfile.py
+calls=1 364
+18 0
+cfn=<hasattr> ~:0
+cfi=~
+calls=5 0
+18 0
+cfn=SpooledTemporaryFile /usr/lib/python2.7/tempfile.py:493
+cfi=/usr/lib/python2.7/tempfile.py
+calls=1 493
+18 0
+cfn=<module> /usr/lib/python2.7/random.py:40
+cfi=/usr/lib/python2.7/random.py
+calls=1 40
+18 0
+cfn=_RandomNameSequence /usr/lib/python2.7/tempfile.py:107
+cfi=/usr/lib/python2.7/tempfile.py
+calls=1 107
+18 0
+
+fi=/usr/lib/python2.7/urllib.py
+fn=__init__ /usr/lib/python2.7/urllib.py:1002
+1002 0
+cfn=__init__ /usr/lib/python2.7/urllib.py:948
+cfi=/usr/lib/python2.7/urllib.py
+calls=1 948
+1002 0
+
+fi=~
+fn=<map> ~:0
+0 0
+
+fi=/usr/lib/python2.7/io.py
+fn=<module> /usr/lib/python2.7/io.py:34
+34 0
+cfn=RawIOBase /usr/lib/python2.7/io.py:81
+cfi=/usr/lib/python2.7/io.py
+calls=1 81
+34 0
+cfn=TextIOBase /usr/lib/python2.7/io.py:87
+cfi=/usr/lib/python2.7/io.py
+calls=1 87
+34 0
+cfn=IOBase /usr/lib/python2.7/io.py:78
+cfi=/usr/lib/python2.7/io.py
+calls=1 78
+34 0
+cfn=BufferedIOBase /usr/lib/python2.7/io.py:84
+cfi=/usr/lib/python2.7/io.py
+calls=1 84
+34 0
+cfn=register /home/vagrant/venv/lib/python2.7/abc.py:105
+cfi=/home/vagrant/venv/lib/python2.7/abc.py
+calls=8 105
+34 0
+cfn=__new__ /home/vagrant/venv/lib/python2.7/abc.py:86
+cfi=/home/vagrant/venv/lib/python2.7/abc.py
+calls=4 86
+34 0
+
+fi=/usr/lib/python2.7/weakref.py
+fn=__init__ /usr/lib/python2.7/weakref.py:47
+47 0
+cfn=__init__ /home/vagrant/venv/lib/python2.7/UserDict.py:4
+cfi=/home/vagrant/venv/lib/python2.7/UserDict.py
+calls=1 4
+47 0
+
+fi=/usr/lib/python2.7/tempfile.py
+fn=SpooledTemporaryFile /usr/lib/python2.7/tempfile.py:493
+493 0
+
+fi=treeherder/log_parser/artifactbuilders.py
+fn=BuildbotJobArtifactBuilder treeherder/log_parser/artifactbuilders.py:51
+51 0
+
+fi=/usr/lib/python2.7/io.py
+fn=IOBase /usr/lib/python2.7/io.py:78
+78 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=add_handler /usr/lib/python2.7/urllib2.py:319
+319 0
+cfn=<_bisect.insort> ~:0
+cfi=~
+calls=8 0
+319 0
+cfn=<hasattr> ~:0
+cfi=~
+calls=9 0
+319 0
+cfn=<method 'find' of 'str' objects> ~:0
+cfi=~
+calls=90 0
+319 0
+cfn=<method 'startswith' of 'str' objects> ~:0
+cfi=~
+calls=85 0
+319 0
+cfn=<method 'setdefault' of 'dict' objects> ~:0
+cfi=~
+calls=14 0
+319 0
+cfn=add_parent /usr/lib/python2.7/urllib2.py:492
+cfi=/usr/lib/python2.7/urllib2.py
+calls=8 492
+319 0
+cfn=<method 'get' of 'dict' objects> ~:0
+cfi=~
+calls=5 0
+319 0
+cfn=<method 'append' of 'list' objects> ~:0
+cfi=~
+calls=14 0
+319 0
+cfn=<dir> ~:0
+cfi=~
+calls=9 0
+319 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=__getattr__ /usr/lib/python2.7/urllib2.py:215
+215 0
+cfn=<hasattr> ~:0
+cfi=~
+calls=1 0
+215 0
+cfn=get_host /usr/lib/python2.7/urllib2.py:257
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 257
+215 0
+cfn=<getattr> ~:0
+cfi=~
+calls=2 0
+215 0
+
+fi=/usr/lib/python2.7/gzip.py
+fn=_add_read_data /usr/lib/python2.7/gzip.py:323
+323 13
+cfn=<len> ~:0
+cfi=~
+calls=3164 0
+323 2
+cfn=<zlib.crc32> ~:0
+cfi=~
+calls=1582 0
+323 38
+
+fi=/usr/lib/python2.7/mimetools.py
+fn=<module> /usr/lib/python2.7/mimetools.py:1
+1 0
+cfn=__exit__ /home/vagrant/venv/lib/python2.7/warnings.py:355
+cfi=/home/vagrant/venv/lib/python2.7/warnings.py
+calls=1 355
+1 0
+cfn=Message /usr/lib/python2.7/mimetools.py:20
+cfi=/usr/lib/python2.7/mimetools.py
+calls=1 20
+1 0
+cfn=__enter__ /home/vagrant/venv/lib/python2.7/warnings.py:339
+cfi=/home/vagrant/venv/lib/python2.7/warnings.py
+calls=1 339
+1 0
+cfn=<thread.allocate_lock> ~:0
+cfi=~
+calls=1 0
+1 0
+cfn=<module> /usr/lib/python2.7/tempfile.py:18
+cfi=/usr/lib/python2.7/tempfile.py
+calls=1 18
+1 0
+cfn=__init__ /home/vagrant/venv/lib/python2.7/warnings.py:318
+cfi=/home/vagrant/venv/lib/python2.7/warnings.py
+calls=1 318
+1 0
+cfn=warnpy3k /home/vagrant/venv/lib/python2.7/warnings.py:14
+cfi=/home/vagrant/venv/lib/python2.7/warnings.py
+calls=1 14
+1 0
+cfn=<module> /usr/lib/python2.7/rfc822.py:71
+cfi=/usr/lib/python2.7/rfc822.py
+calls=1 71
+1 0
+
+fi=treeherder/log_parser/parsers.py
+fn=parse_line treeherder/log_parser/parsers.py:185
+185 225
+cfn=<method 'group' of '_sre.SRE_Match' objects> ~:0
+cfi=~
+calls=2 0
+185 0
+cfn=<method 'match' of '_sre.SRE_Pattern' objects> ~:0
+cfi=~
+calls=139799 0
+185 681
+cfn=<method 'append' of 'list' objects> ~:0
+cfi=~
+calls=2 0
+185 0
+
+fi=treeherder/log_parser/artifactbuilders.py
+fn=<module> treeherder/log_parser/artifactbuilders.py:1
+1 5
+cfn=BuildbotLogViewArtifactBuilder treeherder/log_parser/artifactbuilders.py:78
+cfi=treeherder/log_parser/artifactbuilders.py
+calls=1 78
+1 0
+cfn=ArtifactBuilderBase treeherder/log_parser/artifactbuilders.py:5
+cfi=treeherder/log_parser/artifactbuilders.py
+calls=1 5
+1 0
+cfn=BuildbotJobArtifactBuilder treeherder/log_parser/artifactbuilders.py:51
+cfi=treeherder/log_parser/artifactbuilders.py
+calls=1 51
+1 0
+cfn=<module> treeherder/log_parser/parsers.py:1
+cfi=treeherder/log_parser/parsers.py
+calls=1 1
+1 11
+
+fi=/usr/lib/python2.7/httplib.py
+fn=CannotSendHeader /usr/lib/python2.7/httplib.py:1240
+1240 0
+
+fi=~
+fn=<_sre.getlower> ~:0
+0 0
+
+fi=/usr/lib/python2.7/rfc822.py
+fn=iscomment /usr/lib/python2.7/rfc822.py:219
+219 0
+
+fi=/usr/lib/python2.7/logging/__init__.py
+fn=<module> /usr/lib/python2.7/logging/__init__.py:24
+24 0
+cfn=LoggerAdapter /usr/lib/python2.7/logging/__init__.py:1373
+cfi=/usr/lib/python2.7/logging/__init__.py
+calls=1 1373
+24 0
+cfn=Manager /usr/lib/python2.7/logging/__init__.py:983
+cfi=/usr/lib/python2.7/logging/__init__.py
+calls=1 983
+24 0
+cfn=BufferingFormatter /usr/lib/python2.7/logging/__init__.py:494
+cfi=/usr/lib/python2.7/logging/__init__.py
+calls=1 494
+24 0
+cfn=__init__ /usr/lib/python2.7/logging/__init__.py:988
+cfi=/usr/lib/python2.7/logging/__init__.py
+calls=1 988
+24 0
+cfn=Formatter /usr/lib/python2.7/logging/__init__.py:346
+cfi=/usr/lib/python2.7/logging/__init__.py
+calls=1 346
+24 0
+cfn=Filter /usr/lib/python2.7/logging/__init__.py:536
+cfi=/usr/lib/python2.7/logging/__init__.py
+calls=1 536
+24 0
+cfn=register /usr/lib/python2.7/atexit.py:37
+cfi=/usr/lib/python2.7/atexit.py
+calls=1 37
+24 0
+cfn=NullHandler /usr/lib/python2.7/logging/__init__.py:1660
+cfi=/usr/lib/python2.7/logging/__init__.py
+calls=1 1660
+24 0
+cfn=__init__ /usr/lib/python2.7/logging/__init__.py:390
+cfi=/usr/lib/python2.7/logging/__init__.py
+calls=1 390
+24 0
+cfn=RootLogger /usr/lib/python2.7/logging/__init__.py:1359
+cfi=/usr/lib/python2.7/logging/__init__.py
+calls=1 1359
+24 0
+cfn=<hasattr> ~:0
+cfi=~
+calls=2 0
+24 0
+cfn=Filterer /usr/lib/python2.7/logging/__init__.py:573
+cfi=/usr/lib/python2.7/logging/__init__.py
+calls=1 573
+24 0
+cfn=LogRecord /usr/lib/python2.7/logging/__init__.py:230
+cfi=/usr/lib/python2.7/logging/__init__.py
+calls=1 230
+24 0
+cfn=<module> /usr/lib/python2.7/traceback.py:1
+cfi=/usr/lib/python2.7/traceback.py
+calls=1 1
+24 0
+cfn=__init__ /usr/lib/python2.7/weakref.py:47
+cfi=/usr/lib/python2.7/weakref.py
+calls=1 47
+24 0
+cfn=<method 'lower' of 'str' objects> ~:0
+cfi=~
+calls=1 0
+24 0
+cfn=PlaceHolder /usr/lib/python2.7/logging/__init__.py:936
+cfi=/usr/lib/python2.7/logging/__init__.py
+calls=1 936
+24 0
+cfn=<module> /usr/lib/python2.7/atexit.py:6
+cfi=/usr/lib/python2.7/atexit.py
+calls=1 6
+24 0
+cfn=normcase /home/vagrant/venv/lib/python2.7/posixpath.py:43
+cfi=/home/vagrant/venv/lib/python2.7/posixpath.py
+calls=1 43
+24 0
+cfn=<time.time> ~:0
+cfi=~
+calls=1 0
+24 0
+cfn=RLock /usr/lib/python2.7/threading.py:100
+cfi=/usr/lib/python2.7/threading.py
+calls=1 100
+24 0
+cfn=<module> /usr/lib/python2.7/threading.py:1
+cfi=/usr/lib/python2.7/threading.py
+calls=1 1
+24 0
+cfn=StreamHandler /usr/lib/python2.7/logging/__init__.py:809
+cfi=/usr/lib/python2.7/logging/__init__.py
+calls=1 809
+24 0
+cfn=Logger /usr/lib/python2.7/logging/__init__.py:1085
+cfi=/usr/lib/python2.7/logging/__init__.py
+calls=1 1085
+24 0
+cfn=FileHandler /usr/lib/python2.7/logging/__init__.py:876
+cfi=/usr/lib/python2.7/logging/__init__.py
+calls=1 876
+24 0
+cfn=Handler /usr/lib/python2.7/logging/__init__.py:645
+cfi=/usr/lib/python2.7/logging/__init__.py
+calls=1 645
+24 0
+cfn=__init__ /usr/lib/python2.7/logging/__init__.py:1365
+cfi=/usr/lib/python2.7/logging/__init__.py
+calls=1 1365
+24 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=HTTPBasicAuthHandler /usr/lib/python2.7/urllib2.py:883
+883 0
+
+fi=/usr/lib/python2.7/email/_parseaddr.py
+fn=AddrlistClass /usr/lib/python2.7/email/_parseaddr.py:172
+172 0
+
+fi=/usr/lib/python2.7/email/_parseaddr.py
+fn=<module> /usr/lib/python2.7/email/_parseaddr.py:7
+7 0
+cfn=AddressList /usr/lib/python2.7/email/_parseaddr.py:452
+cfi=/usr/lib/python2.7/email/_parseaddr.py
+calls=1 452
+7 0
+cfn=AddrlistClass /usr/lib/python2.7/email/_parseaddr.py:172
+cfi=/usr/lib/python2.7/email/_parseaddr.py
+calls=1 172
+7 0
+
+fi=/usr/lib/python2.7/collections.py
+fn=<genexpr> /usr/lib/python2.7/collections.py:277
+277 0
+cfn=<method 'isalnum' of 'str' objects> ~:0
+cfi=~
+calls=86 0
+277 0
+
+fi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+fn=__next /home/vagrant/venv/lib/python2.7/sre_parse.py:182
+182 2
+cfn=<len> ~:0
+cfi=~
+calls=2604 0
+182 1
+
+fi=/usr/lib/python2.7/rfc822.py
+fn=islast /usr/lib/python2.7/rfc822.py:209
+209 0
+
+fi=/usr/lib/python2.7/threading.py
+fn=notifyAll /usr/lib/python2.7/threading.py:294
+294 0
+cfn=notify /usr/lib/python2.7/threading.py:276
+cfi=/usr/lib/python2.7/threading.py
+calls=1 276
+294 0
+cfn=<len> ~:0
+cfi=~
+calls=1 0
+294 0
+
+fi=/usr/lib/python2.7/urllib.py
+fn=splittag /usr/lib/python2.7/urllib.py:1165
+1165 0
+cfn=compile /home/vagrant/venv/lib/python2.7/re.py:188
+cfi=/home/vagrant/venv/lib/python2.7/re.py
+calls=1 188
+1165 0
+cfn=<method 'match' of '_sre.SRE_Pattern' objects> ~:0
+cfi=~
+calls=1 0
+1165 0
+
+fi=/usr/lib/python2.7/io.py
+fn=BufferedIOBase /usr/lib/python2.7/io.py:84
+84 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=build_opener /usr/lib/python2.7/urllib2.py:450
+450 0
+cfn=__init__ /usr/lib/python2.7/urllib2.py:710
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 710
+450 0
+cfn=__init__ /usr/lib/python2.7/urllib2.py:1097
+cfi=/usr/lib/python2.7/urllib2.py
+calls=2 1097
+450 0
+cfn=<hasattr> ~:0
+cfi=~
+calls=1 0
+450 0
+cfn=add_handler /usr/lib/python2.7/urllib2.py:319
+cfi=/usr/lib/python2.7/urllib2.py
+calls=9 319
+450 0
+cfn=__init__ /usr/lib/python2.7/urllib2.py:308
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 308
+450 0
+cfn=<method 'append' of 'list' objects> ~:0
+cfi=~
+calls=1 0
+450 0
+
+fi=~
+fn=<getattr> ~:0
+0 0
+
+fi=/usr/lib/python2.7/socket.py
+fn=_closedsocket /usr/lib/python2.7/socket.py:167
+167 0
+
+fi=~
+fn=<method 'lower' of 'str' objects> ~:0
+0 0
+
+fi=/home/vagrant/venv/lib/python2.7/posixpath.py
+fn=normpath /home/vagrant/venv/lib/python2.7/posixpath.py:312
+312 0
+cfn=<method 'join' of 'str' objects> ~:0
+cfi=~
+calls=1 0
+312 0
+cfn=<isinstance> ~:0
+cfi=~
+calls=1 0
+312 0
+cfn=<method 'startswith' of 'str' objects> ~:0
+cfi=~
+calls=2 0
+312 0
+cfn=<method 'split' of 'str' objects> ~:0
+cfi=~
+calls=1 0
+312 0
+cfn=<method 'append' of 'list' objects> ~:0
+cfi=~
+calls=5 0
+312 0
+
+fi=/usr/lib/python2.7/hashlib.py
+fn=__get_openssl_constructor /usr/lib/python2.7/hashlib.py:94
+94 0
+cfn=<_hashlib.openssl_sha1> ~:0
+cfi=~
+calls=1 0
+94 0
+cfn=<_hashlib.openssl_sha224> ~:0
+cfi=~
+calls=1 0
+94 0
+cfn=<_hashlib.openssl_sha256> ~:0
+cfi=~
+calls=1 0
+94 0
+cfn=<getattr> ~:0
+cfi=~
+calls=6 0
+94 0
+cfn=<_hashlib.openssl_md5> ~:0
+cfi=~
+calls=1 0
+94 0
+cfn=<_hashlib.openssl_sha384> ~:0
+cfi=~
+calls=1 0
+94 0
+cfn=<_hashlib.openssl_sha512> ~:0
+cfi=~
+calls=1 0
+94 0
+
+fi=~
+fn=<method 'release' of 'thread.lock' objects> ~:0
+0 0
+
+fi=/usr/lib/python2.7/random.py
+fn=SystemRandom /usr/lib/python2.7/random.py:801
+801 0
+
+fi=/home/vagrant/venv/lib/python2.7/stat.py
+fn=S_ISREG /home/vagrant/venv/lib/python2.7/stat.py:49
+49 0
+cfn=S_IFMT /home/vagrant/venv/lib/python2.7/stat.py:24
+cfi=/home/vagrant/venv/lib/python2.7/stat.py
+calls=1 24
+49 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=get_selector /usr/lib/python2.7/urllib2.py:264
+264 0
+cfn=__getattr__ /usr/lib/python2.7/urllib2.py:215
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 215
+264 0
+
+fi=~
+fn=<method 'readline' of 'cStringIO.StringI' objects> ~:0
+0 0
+
+fi=/usr/lib/python2.7/urllib.py
+fn=ContentTooShortError /usr/lib/python2.7/urllib.py:109
+109 0
+
+fi=~
+fn=<len> ~:0
+0 8
+cfn=__len__ /home/vagrant/venv/lib/python2.7/sre_parse.py:126
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=69 126
+0 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=ProxyDigestAuthHandler /usr/lib/python2.7/urllib2.py:1083
+1083 0
+
+fi=/usr/lib/python2.7/gzip.py
+fn=close /usr/lib/python2.7/gzip.py:359
+359 0
+
+fi=treeherder/log_parser/artifactbuilders.py
+fn=name treeherder/log_parser/artifactbuilders.py:68
+68 0
+cfn=<method 'format' of 'str' objects> ~:0
+cfi=~
+calls=1 0
+68 0
+
+fi=~
+fn=<range> ~:0
+0 0
+
+fi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+fn=__init__ /home/vagrant/venv/lib/python2.7/sre_parse.py:178
+178 0
+cfn=__next /home/vagrant/venv/lib/python2.7/sre_parse.py:182
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=18 182
+178 0
+
+fi=/usr/lib/python2.7/logging/__init__.py
+fn=PlaceHolder /usr/lib/python2.7/logging/__init__.py:936
+936 0
+
+fi=/usr/lib/python2.7/urlparse.py
+fn=urlparse /usr/lib/python2.7/urlparse.py:129
+129 0
+cfn=urlsplit /usr/lib/python2.7/urlparse.py:160
+cfi=/usr/lib/python2.7/urlparse.py
+calls=1 160
+129 0
+cfn=__new__ <string>:8
+cfi=<string>
+calls=1 8
+129 0
+
+fi=/home/vagrant/venv/lib/python2.7/warnings.py
+fn=__init__ /home/vagrant/venv/lib/python2.7/warnings.py:318
+318 0
+
+fi=~
+fn=<posix.getcwd> ~:0
+0 0
+
+fi=/usr/lib/python2.7/atexit.py
+fn=<module> /usr/lib/python2.7/atexit.py:6
+6 0
+cfn=<hasattr> ~:0
+cfi=~
+calls=1 0
+6 0
+
+fi=/usr/lib/python2.7/httplib.py
+fn=CannotSendRequest /usr/lib/python2.7/httplib.py:1237
+1237 0
+
+fi=/home/vagrant/venv/lib/python2.7/sre_compile.py
+fn=isstring /home/vagrant/venv/lib/python2.7/sre_compile.py:474
+474 0
+cfn=<isinstance> ~:0
+cfi=~
+calls=36 0
+474 0
+
+fi=/home/vagrant/venv/lib/python2.7/posixpath.py
+fn=isabs /home/vagrant/venv/lib/python2.7/posixpath.py:51
+51 0
+cfn=<method 'startswith' of 'str' objects> ~:0
+cfi=~
+calls=1 0
+51 0
+
+fi=~
+fn=<method 'copy' of 'dict' objects> ~:0
+0 0
+
+fi=~
+fn=<math.sqrt> ~:0
+0 0
+
+fi=/usr/lib/python2.7/gzip.py
+fn=_check_closed /usr/lib/python2.7/gzip.py:145
+145 6
+cfn=closed /usr/lib/python2.7/gzip.py:355
+cfi=/usr/lib/python2.7/gzip.py
+calls=3024 355
+145 3
+
+fi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+fn=_escape /home/vagrant/venv/lib/python2.7/sre_parse.py:257
+257 0
+cfn=checkgroup /home/vagrant/venv/lib/python2.7/sre_parse.py:85
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=1 85
+257 0
+cfn=<ord> ~:0
+cfi=~
+calls=21 0
+257 0
+cfn=<len> ~:0
+cfi=~
+calls=21 0
+257 0
+cfn=<method 'get' of 'dict' objects> ~:0
+cfi=~
+calls=71 0
+257 0
+
+fi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+fn=match /home/vagrant/venv/lib/python2.7/sre_parse.py:195
+195 0
+cfn=__next /home/vagrant/venv/lib/python2.7/sre_parse.py:182
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=124 182
+195 0
+
+fi=/usr/lib/python2.7/keyword.py
+fn=<module> /usr/lib/python2.7/keyword.py:11
+11 0
+
+fi=/usr/lib/python2.7/email/mime/__init__.py
+fn=<module> /usr/lib/python2.7/email/mime/__init__.py:1
+1 0
+
+fi=/home/vagrant/venv/lib/python2.7/posixpath.py
+fn=normcase /home/vagrant/venv/lib/python2.7/posixpath.py:43
+43 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=UnknownHandler /usr/lib/python2.7/urllib2.py:1237
+1237 0
+
+fi=~
+fn=<time.time> ~:0
+0 0
+
+fi=/usr/lib/python2.7/random.py
+fn=__init__ /usr/lib/python2.7/random.py:91
+91 0
+cfn=seed /usr/lib/python2.7/random.py:100
+cfi=/usr/lib/python2.7/random.py
+calls=1 100
+91 0
+
+fi=~
+fn=<open> ~:0
+0 0
+
+fi=/usr/lib/python2.7/mimetypes.py
+fn=init /usr/lib/python2.7/mimetypes.py:348
+348 0
+cfn=read /usr/lib/python2.7/mimetypes.py:194
+cfi=/usr/lib/python2.7/mimetypes.py
+calls=1 194
+348 3
+cfn=isfile /home/vagrant/venv/lib/python2.7/genericpath.py:26
+cfi=/home/vagrant/venv/lib/python2.7/genericpath.py
+calls=9 26
+348 0
+cfn=__init__ /usr/lib/python2.7/mimetypes.py:64
+cfi=/usr/lib/python2.7/mimetypes.py
+calls=1 64
+348 0
+
+fi=/usr/lib/python2.7/httplib.py
+fn=ResponseNotReady /usr/lib/python2.7/httplib.py:1243
+1243 0
+
+fi=/usr/lib/python2.7/gzip.py
+fn=_unread /usr/lib/python2.7/gzip.py:269
+269 4
+cfn=<len> ~:0
+cfi=~
+calls=3022 0
+269 2
+
+fi=~
+fn=<issubclass> ~:0
+0 0
+cfn=__subclasscheck__ /home/vagrant/venv/lib/python2.7/abc.py:148
+cfi=/home/vagrant/venv/lib/python2.7/abc.py
+calls=8 148
+0 0
+
+fi=treeherder/log_parser/parsers.py
+fn=<module> treeherder/log_parser/parsers.py:1
+1 2
+cfn=ParserBase treeherder/log_parser/parsers.py:5
+cfi=treeherder/log_parser/parsers.py
+calls=1 5
+1 0
+cfn=TinderboxPrintParser treeherder/log_parser/parsers.py:177
+cfi=treeherder/log_parser/parsers.py
+calls=1 177
+1 0
+cfn=HeaderParser treeherder/log_parser/parsers.py:29
+cfi=treeherder/log_parser/parsers.py
+calls=1 29
+1 0
+cfn=StepParser treeherder/log_parser/parsers.py:64
+cfi=treeherder/log_parser/parsers.py
+calls=1 64
+1 2
+cfn=ErrorParser treeherder/log_parser/parsers.py:192
+cfi=treeherder/log_parser/parsers.py
+calls=1 192
+1 5
+
+fi=/usr/lib/python2.7/random.py
+fn=<module> /usr/lib/python2.7/random.py:40
+40 0
+cfn=<math.exp> ~:0
+cfi=~
+calls=1 0
+40 0
+cfn=Random /usr/lib/python2.7/random.py:72
+cfi=/usr/lib/python2.7/random.py
+calls=1 72
+40 0
+cfn=<math.log> ~:0
+cfi=~
+calls=2 0
+40 0
+cfn=WichmannHill /usr/lib/python2.7/random.py:651
+cfi=/usr/lib/python2.7/random.py
+calls=1 651
+40 0
+cfn=SystemRandom /usr/lib/python2.7/random.py:801
+cfi=/usr/lib/python2.7/random.py
+calls=1 801
+40 0
+cfn=<math.sqrt> ~:0
+cfi=~
+calls=1 0
+40 0
+cfn=__init__ /usr/lib/python2.7/random.py:91
+cfi=/usr/lib/python2.7/random.py
+calls=1 91
+40 0
+cfn=<module> /usr/lib/python2.7/__future__.py:48
+cfi=/usr/lib/python2.7/__future__.py
+calls=1 48
+40 0
+
+fi=~
+fn=<method 'remove' of 'set' objects> ~:0
+0 0
+
+fi=~
+fn=<_hashlib.openssl_md5> ~:0
+0 0
+
+fi=/usr/lib/python2.7/email/__init__.py
+fn=__init__ /usr/lib/python2.7/email/__init__.py:75
+75 0
+
+fi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+fn=getwidth /home/vagrant/venv/lib/python2.7/sre_parse.py:140
+140 0
+cfn=<max> ~:0
+cfi=~
+calls=30 0
+140 0
+cfn=getwidth /home/vagrant/venv/lib/python2.7/sre_parse.py:140
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=123 140
+140 0
+cfn=<min> ~:0
+cfi=~
+calls=312 0
+140 0
+
+fi=~
+fn=<binascii.hexlify> ~:0
+0 0
+
+fi=/usr/lib/python2.7/threading.py
+fn=RLock /usr/lib/python2.7/threading.py:100
+100 0
+cfn=__init__ /usr/lib/python2.7/threading.py:105
+cfi=/usr/lib/python2.7/threading.py
+calls=1 105
+100 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=HTTPHandler /usr/lib/python2.7/urllib2.py:1204
+1204 0
+
+fi=/usr/lib/python2.7/httplib.py
+fn=HTTPS /usr/lib/python2.7/httplib.py:1165
+1165 0
+
+fi=/usr/lib/python2.7/mimetools.py
+fn=__init__ /usr/lib/python2.7/mimetools.py:24
+24 0
+cfn=__init__ /usr/lib/python2.7/rfc822.py:88
+cfi=/usr/lib/python2.7/rfc822.py
+calls=1 88
+24 0
+cfn=parseplist /usr/lib/python2.7/mimetools.py:50
+cfi=/usr/lib/python2.7/mimetools.py
+calls=1 50
+24 0
+cfn=getheader /usr/lib/python2.7/rfc822.py:285
+cfi=/usr/lib/python2.7/rfc822.py
+calls=2 285
+24 0
+cfn=parsetype /usr/lib/python2.7/mimetools.py:33
+cfi=/usr/lib/python2.7/mimetools.py
+calls=1 33
+24 0
+
+fi=~
+fn=<method 'match' of '_sre.SRE_Pattern' objects> ~:0
+0 681
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=BaseHandler /usr/lib/python2.7/urllib2.py:489
+489 0
+
+fi=~
+fn=<method 'extend' of 'list' objects> ~:0
+0 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=AbstractDigestAuthHandler /usr/lib/python2.7/urllib2.py:925
+925 0
+
+fi=/usr/lib/python2.7/socket.py
+fn=<module> /usr/lib/python2.7/socket.py:45
+45 2
+cfn=_socketobject /usr/lib/python2.7/socket.py:179
+cfi=/usr/lib/python2.7/socket.py
+calls=1 179
+45 0
+cfn=<setattr> ~:0
+cfi=~
+calls=14 0
+45 0
+cfn=_fileobject /usr/lib/python2.7/socket.py:235
+cfi=/usr/lib/python2.7/socket.py
+calls=1 235
+45 0
+cfn=_get_exports_list /home/vagrant/venv/lib/python2.7/os.py:35
+cfi=/home/vagrant/venv/lib/python2.7/os.py
+calls=1 35
+45 0
+cfn=<method 'startswith' of 'str' objects> ~:0
+cfi=~
+calls=1 0
+45 0
+cfn=<getattr> ~:0
+cfi=~
+calls=16 0
+45 0
+cfn=_closedsocket /usr/lib/python2.7/socket.py:167
+cfi=/usr/lib/python2.7/socket.py
+calls=1 167
+45 0
+cfn=<method 'lower' of 'str' objects> ~:0
+cfi=~
+calls=1 0
+45 0
+cfn=<method 'extend' of 'list' objects> ~:0
+cfi=~
+calls=1 0
+45 0
+
+fi=/home/vagrant/venv/lib/python2.7/abc.py
+fn=register /home/vagrant/venv/lib/python2.7/abc.py:105
+105 0
+cfn=<isinstance> ~:0
+cfi=~
+calls=8 0
+105 0
+cfn=add /home/vagrant/venv/lib/python2.7/_weakrefset.py:81
+cfi=/home/vagrant/venv/lib/python2.7/_weakrefset.py
+calls=8 81
+105 0
+cfn=<issubclass> ~:0
+cfi=~
+calls=16 0
+105 0
+
+fi=/usr/lib/python2.7/email/encoders.py
+fn=<module> /usr/lib/python2.7/email/encoders.py:5
+5 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=HTTPDefaultErrorHandler /usr/lib/python2.7/urllib2.py:525
+525 0
+
+fi=/usr/lib/python2.7/threading.py
+fn=<module> /usr/lib/python2.7/threading.py:1
+1 0
+cfn=_Event /usr/lib/python2.7/threading.py:366
+cfi=/usr/lib/python2.7/threading.py
+calls=1 366
+1 0
+cfn=_Timer /usr/lib/python2.7/threading.py:736
+cfi=/usr/lib/python2.7/threading.py
+calls=1 736
+1 0
+cfn=_Semaphore /usr/lib/python2.7/threading.py:303
+cfi=/usr/lib/python2.7/threading.py
+calls=1 303
+1 0
+cfn=__init__ /usr/lib/python2.7/threading.py:767
+cfi=/usr/lib/python2.7/threading.py
+calls=1 767
+1 0
+cfn=_Condition /usr/lib/python2.7/threading.py:183
+cfi=/usr/lib/python2.7/threading.py
+calls=1 183
+1 0
+cfn=_DummyThread /usr/lib/python2.7/threading.py:805
+cfi=/usr/lib/python2.7/threading.py
+calls=1 805
+1 0
+cfn=<thread.allocate_lock> ~:0
+cfi=~
+calls=1 0
+1 0
+cfn=_RLock /usr/lib/python2.7/threading.py:103
+cfi=/usr/lib/python2.7/threading.py
+calls=1 103
+1 0
+cfn=filterwarnings /home/vagrant/venv/lib/python2.7/warnings.py:45
+cfi=/home/vagrant/venv/lib/python2.7/warnings.py
+calls=1 45
+1 0
+cfn=_BoundedSemaphore /usr/lib/python2.7/threading.py:351
+cfi=/usr/lib/python2.7/threading.py
+calls=1 351
+1 0
+cfn=Thread /usr/lib/python2.7/threading.py:423
+cfi=/usr/lib/python2.7/threading.py
+calls=1 423
+1 0
+cfn=_MainThread /usr/lib/python2.7/threading.py:765
+cfi=/usr/lib/python2.7/threading.py
+calls=1 765
+1 0
+cfn=_Verbose /usr/lib/python2.7/threading.py:55
+cfi=/usr/lib/python2.7/threading.py
+calls=1 55
+1 0
+
+fi=/home/vagrant/venv/lib/python2.7/posixpath.py
+fn=join /home/vagrant/venv/lib/python2.7/posixpath.py:60
+60 0
+cfn=<method 'endswith' of 'str' objects> ~:0
+cfi=~
+calls=1 0
+60 0
+cfn=<method 'startswith' of 'str' objects> ~:0
+cfi=~
+calls=1 0
+60 0
+
+fi=/usr/lib/python2.7/httplib.py
+fn=UnimplementedFileMode /usr/lib/python2.7/httplib.py:1217
+1217 0
+
+fi=~
+fn=<method 'search' of '_sre.SRE_Pattern' objects> ~:0
+0 4761
+
+fi=/usr/lib/python2.7/logging/__init__.py
+fn=StreamHandler /usr/lib/python2.7/logging/__init__.py:809
+809 0
+
+fi=<string>
+fn=<module> <string>:1
+1 0
+cfn=SplitResult <string>:1
+cfi=<string>
+calls=1 1
+1 0
+cfn=ParseResult <string>:1
+cfi=<string>
+calls=1 1
+1 0
+
+fi=/usr/lib/python2.7/urllib.py
+fn=<module> /usr/lib/python2.7/urllib.py:23
+23 0
+cfn=<method 'format' of 'str' objects> ~:0
+cfi=~
+calls=191 0
+23 0
+cfn=<zip> ~:0
+cfi=~
+calls=1 0
+23 0
+cfn=addclosehook /usr/lib/python2.7/urllib.py:974
+cfi=/usr/lib/python2.7/urllib.py
+calls=1 974
+23 0
+cfn=addinfourl /usr/lib/python2.7/urllib.py:999
+cfi=/usr/lib/python2.7/urllib.py
+calls=1 999
+23 0
+cfn=FancyURLopener /usr/lib/python2.7/urllib.py:609
+cfi=/usr/lib/python2.7/urllib.py
+calls=1 609
+23 0
+cfn=ftpwrapper /usr/lib/python2.7/urllib.py:850
+cfi=/usr/lib/python2.7/urllib.py
+calls=1 850
+23 0
+cfn=ContentTooShortError /usr/lib/python2.7/urllib.py:109
+cfi=/usr/lib/python2.7/urllib.py
+calls=1 109
+23 0
+cfn=addbase /usr/lib/python2.7/urllib.py:945
+cfi=/usr/lib/python2.7/urllib.py
+calls=1 945
+23 0
+cfn=URLopener /usr/lib/python2.7/urllib.py:115
+cfi=/usr/lib/python2.7/urllib.py
+calls=1 115
+23 0
+cfn=addinfo /usr/lib/python2.7/urllib.py:989
+cfi=/usr/lib/python2.7/urllib.py
+calls=1 989
+23 0
+cfn=<genexpr> /usr/lib/python2.7/urllib.py:1199
+cfi=/usr/lib/python2.7/urllib.py
+calls=485 1199
+23 0
+
+fi=/usr/lib/python2.7/urllib.py
+fn=addbase /usr/lib/python2.7/urllib.py:945
+945 0
+
+fi=~
+fn=<zlib.crc32> ~:0
+0 38
+
+fi=/usr/lib/python2.7/threading.py
+fn=Thread /usr/lib/python2.7/threading.py:423
+423 0
+cfn=<method 'setter' of 'property' objects> ~:0
+cfi=~
+calls=2 0
+423 0
+
+fi=treeherder/log_parser/artifactbuildercollection.py
+fn=__init__ treeherder/log_parser/artifactbuildercollection.py:51
+51 0
+cfn=<isinstance> ~:0
+cfi=~
+calls=1 0
+51 0
+
+fi=/usr/lib/python2.7/logging/__init__.py
+fn=Logger /usr/lib/python2.7/logging/__init__.py:1085
+1085 0
+
+fi=treeherder/log_parser/parsers.py
+fn=get_artifact treeherder/log_parser/parsers.py:24
+24 0
+
+fi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+fn=__len__ /home/vagrant/venv/lib/python2.7/sre_parse.py:126
+126 0
+cfn=<len> ~:0
+cfi=~
+calls=271 0
+126 0
+
+fi=~
+fn=<_hashlib.openssl_sha384> ~:0
+0 0
+
+fi=~
+fn=<cStringIO.StringIO> ~:0
+0 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=__init__ /usr/lib/python2.7/urllib2.py:308
+308 0
+
+fi=treeherder/log_parser/parsers.py
+fn=StepParser treeherder/log_parser/parsers.py:64
+64 0
+cfn=compile /home/vagrant/venv/lib/python2.7/re.py:188
+cfi=/home/vagrant/venv/lib/python2.7/re.py
+calls=2 188
+64 2
+
+fi=/home/vagrant/venv/lib/python2.7/_weakrefset.py
+fn=__init__ /home/vagrant/venv/lib/python2.7/_weakrefset.py:36
+36 0
+
+fi=/home/vagrant/venv/lib/python2.7/re.py
+fn=_compile /home/vagrant/venv/lib/python2.7/re.py:226
+226 0
+cfn=<isinstance> ~:0
+cfi=~
+calls=18 0
+226 0
+cfn=compile /home/vagrant/venv/lib/python2.7/sre_compile.py:495
+cfi=/home/vagrant/venv/lib/python2.7/sre_compile.py
+calls=18 495
+226 14
+cfn=<len> ~:0
+cfi=~
+calls=18 0
+226 0
+cfn=isstring /home/vagrant/venv/lib/python2.7/sre_compile.py:474
+cfi=/home/vagrant/venv/lib/python2.7/sre_compile.py
+calls=18 474
+226 0
+cfn=<method 'get' of 'dict' objects> ~:0
+cfi=~
+calls=18 0
+226 0
+
+fi=treeherder/log_parser/artifactbuilders.py
+fn=__init__ treeherder/log_parser/artifactbuilders.py:60
+60 0
+cfn=__init__ treeherder/log_parser/parsers.py:181
+cfi=treeherder/log_parser/parsers.py
+calls=1 181
+60 0
+cfn=__init__ treeherder/log_parser/artifactbuilders.py:17
+cfi=treeherder/log_parser/artifactbuilders.py
+calls=1 17
+60 0
+cfn=__init__ treeherder/log_parser/parsers.py:222
+cfi=treeherder/log_parser/parsers.py
+calls=1 222
+60 0
+
+fi=treeherder/log_parser/parsers.py
+fn=__init__ treeherder/log_parser/parsers.py:222
+222 0
+cfn=__init__ treeherder/log_parser/parsers.py:10
+cfi=treeherder/log_parser/parsers.py
+calls=1 10
+222 0
+
+fi=/home/vagrant/venv/lib/python2.7/posixpath.py
+fn=splitext /home/vagrant/venv/lib/python2.7/posixpath.py:95
+95 0
+cfn=_splitext /home/vagrant/venv/lib/python2.7/genericpath.py:85
+cfi=/home/vagrant/venv/lib/python2.7/genericpath.py
+calls=2 85
+95 0
+
+fi=/usr/lib/python2.7/mimetypes.py
+fn=guess_type /usr/lib/python2.7/mimetypes.py:275
+275 0
+cfn=guess_type /usr/lib/python2.7/mimetypes.py:95
+cfi=/usr/lib/python2.7/mimetypes.py
+calls=1 95
+275 0
+cfn=init /usr/lib/python2.7/mimetypes.py:348
+cfi=/usr/lib/python2.7/mimetypes.py
+calls=1 348
+275 3
+
+fi=/usr/lib/python2.7/threading.py
+fn=__init__ /usr/lib/python2.7/threading.py:57
+57 0
+
+fi=~
+fn=<_hashlib.openssl_sha512> ~:0
+0 0
+
+fi=~
+fn=<method 'get' of 'dict' objects> ~:0
+0 0
+
+fi=/home/vagrant/venv/lib/python2.7/sre_compile.py
+fn=_compile /home/vagrant/venv/lib/python2.7/sre_compile.py:32
+32 1
+cfn=_simple /home/vagrant/venv/lib/python2.7/sre_compile.py:354
+cfi=/home/vagrant/venv/lib/python2.7/sre_compile.py
+calls=64 354
+32 0
+cfn=_compile_charset /home/vagrant/venv/lib/python2.7/sre_compile.py:178
+cfi=/home/vagrant/venv/lib/python2.7/sre_compile.py
+calls=41 178
+32 0
+cfn=<_sre.getlower> ~:0
+cfi=~
+calls=26 0
+32 0
+cfn=<len> ~:0
+cfi=~
+calls=330 0
+32 0
+cfn=_compile /home/vagrant/venv/lib/python2.7/sre_compile.py:32
+cfi=/home/vagrant/venv/lib/python2.7/sre_compile.py
+calls=123 32
+32 3
+cfn=<method 'append' of 'list' objects> ~:0
+cfi=~
+calls=1810 0
+32 0
+cfn=__getitem__ /home/vagrant/venv/lib/python2.7/sre_parse.py:130
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=648 130
+32 0
+
+fi=<string>
+fn=__new__ <string>:8
+8 0
+cfn=<built-in method __new__ of type object at 0x82af060> ~:0
+cfi=~
+calls=2 0
+8 0
+
+fi=/usr/lib/python2.7/rfc822.py
+fn=readheaders /usr/lib/python2.7/rfc822.py:122
+122 0
+cfn=<method 'tell' of 'cStringIO.StringI' objects> ~:0
+cfi=~
+calls=4 0
+122 0
+cfn=<method 'strip' of 'str' objects> ~:0
+cfi=~
+calls=3 0
+122 0
+cfn=isheader /usr/lib/python2.7/rfc822.py:197
+cfi=/usr/lib/python2.7/rfc822.py
+calls=3 197
+122 0
+cfn=<hasattr> ~:0
+cfi=~
+calls=1 0
+122 0
+cfn=<method 'startswith' of 'str' objects> ~:0
+cfi=~
+calls=1 0
+122 0
+cfn=iscomment /usr/lib/python2.7/rfc822.py:219
+cfi=/usr/lib/python2.7/rfc822.py
+calls=3 219
+122 0
+cfn=islast /usr/lib/python2.7/rfc822.py:209
+cfi=/usr/lib/python2.7/rfc822.py
+calls=3 209
+122 0
+cfn=<method 'readline' of 'cStringIO.StringI' objects> ~:0
+cfi=~
+calls=4 0
+122 0
+cfn=<len> ~:0
+cfi=~
+calls=3 0
+122 0
+cfn=<method 'append' of 'list' objects> ~:0
+cfi=~
+calls=3 0
+122 0
+
+fi=~
+fn=<method 'remove' of 'list' objects> ~:0
+0 0
+
+fi=/usr/lib/python2.7/gzip.py
+fn=_read /usr/lib/python2.7/gzip.py:273
+273 8
+cfn=<method 'tell' of '_io.BytesIO' objects> ~:0
+cfi=~
+calls=4 0
+273 0
+cfn=<method 'seek' of '_io.BytesIO' objects> ~:0
+cfi=~
+calls=4 0
+273 0
+cfn=_init_read /usr/lib/python2.7/gzip.py:178
+cfi=/usr/lib/python2.7/gzip.py
+calls=1 178
+273 0
+cfn=<zlib.decompressobj> ~:0
+cfi=~
+calls=1 0
+273 0
+cfn=<method 'read' of '_io.BytesIO' objects> ~:0
+cfi=~
+calls=1582 0
+273 2
+cfn=_read_eof /usr/lib/python2.7/gzip.py:331
+cfi=/usr/lib/python2.7/gzip.py
+calls=1 331
+273 0
+cfn=_add_read_data /usr/lib/python2.7/gzip.py:323
+cfi=/usr/lib/python2.7/gzip.py
+calls=1582 323
+273 54
+cfn=<len> ~:0
+cfi=~
+calls=1 0
+273 0
+cfn=_read_gzip_header /usr/lib/python2.7/gzip.py:182
+cfi=/usr/lib/python2.7/gzip.py
+calls=1 182
+273 0
+cfn=<built-in method decompress> ~:0
+cfi=~
+calls=1582 0
+273 42
+
+fi=~
+fn=<method 'insert' of 'list' objects> ~:0
+0 0
+
+fi=/usr/lib/python2.7/httplib.py
+fn=UnknownTransferEncoding /usr/lib/python2.7/httplib.py:1214
+1214 0
+
+fi=/usr/lib/python2.7/urllib.py
+fn=URLopener /usr/lib/python2.7/urllib.py:115
+115 0
+
+fi=treeherder/log_parser/artifactbuilders.py
+fn=parse_line treeherder/log_parser/artifactbuilders.py:35
+35 425
+cfn=parse_line treeherder/log_parser/parsers.py:226
+cfi=treeherder/log_parser/parsers.py
+calls=139799 226
+35 4993
+cfn=parse_line treeherder/log_parser/parsers.py:185
+cfi=treeherder/log_parser/parsers.py
+calls=139799 185
+35 906
+
+fi=~
+fn=<min> ~:0
+0 3
+
+fi=/usr/lib/python2.7/gzip.py
+fn=readline /usr/lib/python2.7/gzip.py:434
+434 419
+cfn=<method 'join' of 'str' objects> ~:0
+cfi=~
+calls=1511 0
+434 1
+cfn=<method 'find' of 'str' objects> ~:0
+cfi=~
+calls=142824 0
+434 156
+cfn=<len> ~:0
+cfi=~
+calls=3027 0
+434 2
+cfn=_unread /usr/lib/python2.7/gzip.py:269
+cfi=/usr/lib/python2.7/gzip.py
+calls=1511 269
+434 6
+cfn=<min> ~:0
+cfi=~
+calls=2225 0
+434 2
+cfn=<method 'append' of 'list' objects> ~:0
+cfi=~
+calls=3024 0
+434 2
+cfn=read /usr/lib/python2.7/gzip.py:236
+cfi=/usr/lib/python2.7/gzip.py
+calls=3024 236
+434 134
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=AbstractHTTPHandler /usr/lib/python2.7/urllib2.py:1095
+1095 0
+
+fi=~
+fn=<method 'sub' of '_sre.SRE_Pattern' objects> ~:0
+0 0
+
+fi=/usr/lib/python2.7/httplib.py
+fn=BadStatusLine /usr/lib/python2.7/httplib.py:1246
+1246 0
+
+fi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+fn=append /home/vagrant/venv/lib/python2.7/sre_parse.py:138
+138 0
+cfn=<method 'append' of 'list' objects> ~:0
+cfi=~
+calls=677 0
+138 0
+
+fi=/home/vagrant/venv/lib/python2.7/abc.py
+fn=__new__ /home/vagrant/venv/lib/python2.7/abc.py:86
+86 0
+cfn=<method 'items' of 'dict' objects> ~:0
+cfi=~
+calls=5 0
+86 0
+cfn=<built-in method __new__ of type object at 0x82af060> ~:0
+cfi=~
+calls=5 0
+86 0
+cfn=<genexpr> /home/vagrant/venv/lib/python2.7/abc.py:89
+cfi=/home/vagrant/venv/lib/python2.7/abc.py
+calls=5 89
+86 0
+cfn=<getattr> ~:0
+cfi=~
+calls=8 0
+86 0
+cfn=__init__ /home/vagrant/venv/lib/python2.7/_weakrefset.py:36
+cfi=/home/vagrant/venv/lib/python2.7/_weakrefset.py
+calls=15 36
+86 0
+
+fi=~
+fn=<method '__contains__' of 'frozenset' objects> ~:0
+0 0
+
+fi=/usr/lib/python2.7/email/__init__.py
+fn=<module> /usr/lib/python2.7/email/__init__.py:5
+5 0
+cfn=LazyImporter /usr/lib/python2.7/email/__init__.py:74
+cfi=/usr/lib/python2.7/email/__init__.py
+calls=1 74
+5 0
+cfn=<setattr> ~:0
+cfi=~
+calls=26 0
+5 0
+cfn=<method 'lower' of 'str' objects> ~:0
+cfi=~
+calls=19 0
+5 0
+cfn=<module> /usr/lib/python2.7/email/mime/__init__.py:1
+cfi=/usr/lib/python2.7/email/mime/__init__.py
+calls=1 1
+5 0
+cfn=__init__ /usr/lib/python2.7/email/__init__.py:75
+cfi=/usr/lib/python2.7/email/__init__.py
+calls=19 75
+5 0
+
+fi=/usr/lib/python2.7/logging/__init__.py
+fn=__init__ /usr/lib/python2.7/logging/__init__.py:578
+578 0
+
+fi=/usr/lib/python2.7/mimetypes.py
+fn=MimeTypes /usr/lib/python2.7/mimetypes.py:56
+56 0
+
+fi=~
+fn=<method 'append' of 'list' objects> ~:0
+0 3
+
+fi=/usr/lib/python2.7/collections.py
+fn=<genexpr> /usr/lib/python2.7/collections.py:294
+294 0
+
+fi=/usr/lib/python2.7/mimetypes.py
+fn=add_type /usr/lib/python2.7/mimetypes.py:78
+78 0
+cfn=<method 'setdefault' of 'dict' objects> ~:0
+cfi=~
+calls=663 0
+78 0
+cfn=<method 'append' of 'list' objects> ~:0
+cfi=~
+calls=572 0
+78 0
+
+fi=/usr/lib/python2.7/threading.py
+fn=_MainThread /usr/lib/python2.7/threading.py:765
+765 0
+
+fi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+fn=isident /home/vagrant/venv/lib/python2.7/sre_parse.py:210
+210 0
+
+fi=/usr/lib/python2.7/urllib.py
+fn=addinfo /usr/lib/python2.7/urllib.py:989
+989 0
+
+fi=/usr/lib/python2.7/urllib.py
+fn=getproxies_environment /usr/lib/python2.7/urllib.py:1341
+1341 0
+cfn=items /home/vagrant/venv/lib/python2.7/UserDict.py:40
+cfi=/home/vagrant/venv/lib/python2.7/UserDict.py
+calls=1 40
+1341 0
+cfn=<method 'lower' of 'str' objects> ~:0
+cfi=~
+calls=34 0
+1341 0
+
+fi=~
+fn=<dir> ~:0
+0 0
+
+fi=/usr/lib/python2.7/mimetypes.py
+fn=_default_mime_types /usr/lib/python2.7/mimetypes.py:378
+378 0
+
+fi=/home/vagrant/venv/lib/python2.7/sre_compile.py
+fn=_mk_bitmap /home/vagrant/venv/lib/python2.7/sre_compile.py:258
+258 0
+cfn=<method 'append' of 'list' objects> ~:0
+cfi=~
+calls=32 0
+258 0
+
+fi=treeherder/log_parser/parsers.py
+fn=ErrorParser treeherder/log_parser/parsers.py:192
+192 0
+cfn=compile /home/vagrant/venv/lib/python2.7/re.py:188
+cfi=/home/vagrant/venv/lib/python2.7/re.py
+calls=2 188
+192 5
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=HTTPPasswordMgrWithDefaultRealm /usr/lib/python2.7/urllib2.py:813
+813 0
+
+fi=/usr/lib/python2.7/gzip.py
+fn=_read_gzip_header /usr/lib/python2.7/gzip.py:182
+182 0
+cfn=read32 /usr/lib/python2.7/gzip.py:24
+cfi=/usr/lib/python2.7/gzip.py
+calls=1 24
+182 0
+cfn=<method 'read' of '_io.BytesIO' objects> ~:0
+cfi=~
+calls=51 0
+182 0
+cfn=<ord> ~:0
+cfi=~
+calls=2 0
+182 0
+
+fi=/usr/lib/python2.7/gzip.py
+fn=read /usr/lib/python2.7/gzip.py:236
+236 15
+cfn=_check_closed /usr/lib/python2.7/gzip.py:145
+cfi=/usr/lib/python2.7/gzip.py
+calls=3024 145
+236 9
+cfn=_read /usr/lib/python2.7/gzip.py:273
+cfi=/usr/lib/python2.7/gzip.py
+calls=1583 273
+236 108
+cfn=<min> ~:0
+cfi=~
+calls=1582 0
+236 1
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=HTTPPasswordMgr /usr/lib/python2.7/urllib2.py:749
+749 0
+
+fi=/usr/lib/python2.7/logging/__init__.py
+fn=FileHandler /usr/lib/python2.7/logging/__init__.py:876
+876 0
+
+fi=~
+fn=<built-in method decompress> ~:0
+0 42
+
+fi=/usr/lib/python2.7/threading.py
+fn=_note /usr/lib/python2.7/threading.py:62
+62 0
+
+fi=/usr/lib/python2.7/mimetypes.py
+fn=__init__ /usr/lib/python2.7/mimetypes.py:64
+64 0
+cfn=<method 'items' of 'dict' objects> ~:0
+cfi=~
+calls=2 0
+64 0
+cfn=<method 'copy' of 'dict' objects> ~:0
+cfi=~
+calls=2 0
+64 0
+cfn=add_type /usr/lib/python2.7/mimetypes.py:78
+cfi=/usr/lib/python2.7/mimetypes.py
+calls=128 78
+64 0
+
+fi=/usr/lib/python2.7/ssl.py
+fn=<module> /usr/lib/python2.7/ssl.py:56
+56 0
+cfn=SSLSocket /usr/lib/python2.7/ssl.py:100
+cfi=/usr/lib/python2.7/ssl.py
+calls=1 100
+56 0
+
+fi=/usr/lib/python2.7/rfc822.py
+fn=AddrlistClass /usr/lib/python2.7/rfc822.py:496
+496 0
+
+fi=/home/vagrant/venv/lib/python2.7/warnings.py
+fn=warnpy3k /home/vagrant/venv/lib/python2.7/warnings.py:14
+14 0
+
+fi=/usr/lib/python2.7/urllib2.py
+fn=open_local_file /usr/lib/python2.7/urllib2.py:1325
+1325 0
+cfn=<module> /usr/lib/python2.7/email/utils.py:5
+cfi=/usr/lib/python2.7/email/utils.py
+calls=1 5
+1325 4
+cfn=<module> /usr/lib/python2.7/mimetypes.py:24
+cfi=/usr/lib/python2.7/mimetypes.py
+calls=1 24
+1325 0
+cfn=url2pathname /usr/lib/python2.7/urllib.py:52
+cfi=/usr/lib/python2.7/urllib.py
+calls=1 52
+1325 0
+cfn=<posix.stat> ~:0
+cfi=~
+calls=1 0
+1325 0
+cfn=formatdate /usr/lib/python2.7/email/utils.py:124
+cfi=/usr/lib/python2.7/email/utils.py
+calls=1 124
+1325 0
+cfn=get_host /usr/lib/python2.7/urllib2.py:257
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 257
+1325 0
+cfn=__init__ /usr/lib/python2.7/urllib.py:1002
+cfi=/usr/lib/python2.7/urllib.py
+calls=1 1002
+1325 0
+cfn=get_selector /usr/lib/python2.7/urllib2.py:264
+cfi=/usr/lib/python2.7/urllib2.py
+calls=1 264
+1325 0
+cfn=<open> ~:0
+cfi=~
+calls=1 0
+1325 0
+cfn=__init__ /usr/lib/python2.7/mimetools.py:24
+cfi=/usr/lib/python2.7/mimetools.py
+calls=1 24
+1325 0
+cfn=<cStringIO.StringIO> ~:0
+cfi=~
+calls=1 0
+1325 0
+cfn=guess_type /usr/lib/python2.7/mimetypes.py:275
+cfi=/usr/lib/python2.7/mimetypes.py
+calls=1 275
+1325 3
+cfn=<module> /usr/lib/python2.7/email/__init__.py:5
+cfi=/usr/lib/python2.7/email/__init__.py
+calls=1 5
+1325 0
+
+fi=/usr/lib/python2.7/tempfile.py
+fn=_RandomNameSequence /usr/lib/python2.7/tempfile.py:107
+107 0
+
+fi=/usr/lib/python2.7/logging/__init__.py
+fn=Handler /usr/lib/python2.7/logging/__init__.py:645
+645 0
+
+fi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+fn=__getitem__ /home/vagrant/venv/lib/python2.7/sre_parse.py:130
+130 0
+cfn=<isinstance> ~:0
+cfi=~
+calls=910 0
+130 0
+cfn=__init__ /home/vagrant/venv/lib/python2.7/sre_parse.py:90
+cfi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+calls=64 90
+130 0
+
+fi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+fn=tell /home/vagrant/venv/lib/python2.7/sre_parse.py:205
+205 0
+
+fi=~
+fn=<function seed at 0xb6fe7c6c> ~:0
+0 0
+
+fi=~
+fn=<_struct.unpack> ~:0
+0 0
+
+fi=/usr/lib/python2.7/rfc822.py
+fn=<module> /usr/lib/python2.7/rfc822.py:71
+71 0
+cfn=AddressList /usr/lib/python2.7/rfc822.py:770
+cfi=/usr/lib/python2.7/rfc822.py
+calls=1 770
+71 0
+cfn=Message /usr/lib/python2.7/rfc822.py:85
+cfi=/usr/lib/python2.7/rfc822.py
+calls=1 85
+71 0
+cfn=AddrlistClass /usr/lib/python2.7/rfc822.py:496
+cfi=/usr/lib/python2.7/rfc822.py
+calls=1 496
+71 0
+cfn=warnpy3k /home/vagrant/venv/lib/python2.7/warnings.py:14
+cfi=/home/vagrant/venv/lib/python2.7/warnings.py
+calls=1 14
+71 0
+
+fi=/usr/lib/python2.7/logging/__init__.py
+fn=__init__ /usr/lib/python2.7/logging/__init__.py:1365
+1365 0
+cfn=__init__ /usr/lib/python2.7/logging/__init__.py:1100
+cfi=/usr/lib/python2.7/logging/__init__.py
+calls=1 1100
+1365 0
+
+fi=profile.py
+fn=<module> profile.py:1
+1 3
+cfn=parse treeherder/log_parser/artifactbuildercollection.py:79
+cfi=treeherder/log_parser/artifactbuildercollection.py
+calls=1 79
+1 7389
+cfn=<module> treeherder/log_parser/artifactbuildercollection.py:1
+cfi=treeherder/log_parser/artifactbuildercollection.py
+calls=1 1
+1 37
+cfn=closed /usr/lib/python2.7/gzip.py:355
+cfi=/usr/lib/python2.7/gzip.py
+calls=1 355
+1 0
+cfn=<method 'format' of 'str' objects> ~:0
+cfi=~
+calls=1 0
+1 0
+cfn=<module> treeherder/__init__.py:1
+cfi=treeherder/__init__.py
+calls=1 1
+1 0
+cfn=<module> treeherder/log_parser/__init__.py:1
+cfi=treeherder/log_parser/__init__.py
+calls=1 1
+1 0
+cfn=__init__ treeherder/log_parser/artifactbuildercollection.py:51
+cfi=treeherder/log_parser/artifactbuildercollection.py
+calls=1 51
+1 0
+cfn=__init__ treeherder/log_parser/artifactbuilders.py:60
+cfi=treeherder/log_parser/artifactbuilders.py
+calls=1 60
+1 0
+
+fi=/usr/lib/python2.7/__future__.py
+fn=<module> /usr/lib/python2.7/__future__.py:48
+48 0
+cfn=_Feature /usr/lib/python2.7/__future__.py:74
+cfi=/usr/lib/python2.7/__future__.py
+calls=1 74
+48 0
+cfn=__init__ /usr/lib/python2.7/__future__.py:75
+cfi=/usr/lib/python2.7/__future__.py
+calls=7 75
+48 0
+
+fi=/home/vagrant/venv/lib/python2.7/sre_parse.py
+fn=__init__ /home/vagrant/venv/lib/python2.7/sre_parse.py:90
+90 0
+
+fi=/usr/lib/python2.7/quopri.py
+fn=<module> /usr/lib/python2.7/quopri.py:3
+3 0
+
+fi=~
+fn=<method 'disable' of '_lsprof.Profiler' objects> ~:0
+0 0
+
+fi=/usr/lib/python2.7/threading.py
+fn=_Verbose /usr/lib/python2.7/threading.py:55
+55 0
+
+fi=/usr/lib/python2.7/urllib.py
+fn=<genexpr> /usr/lib/python2.7/urllib.py:1199
+1199 0
+cfn=<chr> ~:0
+cfi=~
+calls=484 0
+1199 0
+
+fi=/usr/lib/python2.7/httplib.py
+fn=<module> /usr/lib/python2.7/httplib.py:67
+67 0
+cfn=UnknownProtocol /usr/lib/python2.7/httplib.py:1209
+cfi=/usr/lib/python2.7/httplib.py
+calls=1 1209
+67 0
+cfn=HTTPException /usr/lib/python2.7/httplib.py:1198
+cfi=/usr/lib/python2.7/httplib.py
+calls=1 1198
+67 0
+cfn=LineAndFileWrapper /usr/lib/python2.7/httplib.py:1261
+cfi=/usr/lib/python2.7/httplib.py
+calls=1 1261
+67 0
+cfn=ImproperConnectionState /usr/lib/python2.7/httplib.py:1234
+cfi=/usr/lib/python2.7/httplib.py
+calls=1 1234
+67 0
+cfn=__exit__ /home/vagrant/venv/lib/python2.7/warnings.py:355
+cfi=/home/vagrant/venv/lib/python2.7/warnings.py
+calls=1 355
+67 0
+cfn=HTTPMessage /usr/lib/python2.7/httplib.py:218
+cfi=/usr/lib/python2.7/httplib.py
+calls=1 218
+67 0
+cfn=HTTPSConnection /usr/lib/python2.7/httplib.py:1140
+cfi=/usr/lib/python2.7/httplib.py
+calls=1 1140
+67 0
+cfn=__enter__ /home/vagrant/venv/lib/python2.7/warnings.py:339
+cfi=/home/vagrant/venv/lib/python2.7/warnings.py
+calls=1 339
+67 0
+cfn=<module> /usr/lib/python2.7/urlparse.py:29
+cfi=/usr/lib/python2.7/urlparse.py
+calls=1 29
+67 2
+cfn=HTTPConnection /usr/lib/python2.7/httplib.py:669
+cfi=/usr/lib/python2.7/httplib.py
+calls=1 669
+67 0
+cfn=NotConnected /usr/lib/python2.7/httplib.py:1203
+cfi=/usr/lib/python2.7/httplib.py
+calls=1 1203
+67 0
+cfn=HTTPResponse /usr/lib/python2.7/httplib.py:325
+cfi=/usr/lib/python2.7/httplib.py
+calls=1 325
+67 0
+cfn=LineTooLong /usr/lib/python2.7/httplib.py:1253
+cfi=/usr/lib/python2.7/httplib.py
+calls=1 1253
+67 0
+cfn=InvalidURL /usr/lib/python2.7/httplib.py:1206
+cfi=/usr/lib/python2.7/httplib.py
+calls=1 1206
+67 0
+cfn=IncompleteRead /usr/lib/python2.7/httplib.py:1220
+cfi=/usr/lib/python2.7/httplib.py
+calls=1 1220
+67 0
+cfn=HTTP /usr/lib/python2.7/httplib.py:1044
+cfi=/usr/lib/python2.7/httplib.py
+calls=1 1044
+67 0
+cfn=<module> /usr/lib/python2.7/mimetools.py:1
+cfi=/usr/lib/python2.7/mimetools.py
+calls=1 1
+67 1
+cfn=CannotSendHeader /usr/lib/python2.7/httplib.py:1240
+cfi=/usr/lib/python2.7/httplib.py
+calls=1 1240
+67 0
+cfn=__init__ /home/vagrant/venv/lib/python2.7/warnings.py:318
+cfi=/home/vagrant/venv/lib/python2.7/warnings.py
+calls=1 318
+67 0
+cfn=CannotSendRequest /usr/lib/python2.7/httplib.py:1237
+cfi=/usr/lib/python2.7/httplib.py
+calls=1 1237
+67 0
+cfn=ResponseNotReady /usr/lib/python2.7/httplib.py:1243
+cfi=/usr/lib/python2.7/httplib.py
+calls=1 1243
+67 0
+cfn=HTTPS /usr/lib/python2.7/httplib.py:1165
+cfi=/usr/lib/python2.7/httplib.py
+calls=1 1165
+67 0
+cfn=<module> /usr/lib/python2.7/socket.py:45
+cfi=/usr/lib/python2.7/socket.py
+calls=1 45
+67 2
+cfn=UnimplementedFileMode /usr/lib/python2.7/httplib.py:1217
+cfi=/usr/lib/python2.7/httplib.py
+calls=1 1217
+67 0
+cfn=UnknownTransferEncoding /usr/lib/python2.7/httplib.py:1214
+cfi=/usr/lib/python2.7/httplib.py
+calls=1 1214
+67 0
+cfn=BadStatusLine /usr/lib/python2.7/httplib.py:1246
+cfi=/usr/lib/python2.7/httplib.py
+calls=1 1246
+67 0
+cfn=<method 'append' of 'list' objects> ~:0
+cfi=~
+calls=1 0
+67 0
+cfn=<module> /usr/lib/python2.7/ssl.py:56
+cfi=/usr/lib/python2.7/ssl.py
+calls=1 56
+67 0
+

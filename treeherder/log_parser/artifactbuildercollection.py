@@ -108,6 +108,8 @@ class ArtifactBuilderCollection(object):
             for builder in self.builders:
                 self.artifacts[builder.name] = builder.get_artifact()
         except Exception as e:
+            import traceback
+            print traceback.format_exc()
             logging.error(e)
         finally:
             if handle:

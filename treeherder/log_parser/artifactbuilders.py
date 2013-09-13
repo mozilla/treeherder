@@ -57,11 +57,10 @@ class BuildbotJobArtifactBuilder(ArtifactBuilderBase):
 
     """
 
-    def __init__(self, url):
+    def __init__(self, url=None):
         """Construct a job artifact builder."""
         super(BuildbotJobArtifactBuilder, self).__init__(url)
         self.parsers = [
-            ErrorParser(),
             TinderboxPrintParser(),
         ]
 

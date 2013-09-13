@@ -9,13 +9,13 @@ class ParserBase(object):
     """
     def __init__(self, name):
         """Setup the artifact to hold the extracted data."""
-        self.artifact = []
         self.name = name
-        self.complete = False
+        self.clear()
 
     def clear(self):
         """Reset this parser's values for another run."""
-        self.__init__(self.name)
+        self.artifact = []
+        self.complete = False
 
     def parse_line(self, line, lineno):
         """Parse a single line of the log"""
@@ -184,19 +184,35 @@ class TinderboxPrintParser(ParserBase):
 
     def parse_line(self, line, lineno):
         """Parse a single line of the log"""
-        match = self.RE_TINDERBOXPRINT.match(line)
-        if match:
-            self.artifact.append(match.group(1))
+        if "TinderboxPrint: " in line:
+            match = self.RE_TINDERBOXPRINT.match(line)
+            if match:
+                self.artifact.append(match.group(1))
 
 
 class ErrorParser(ParserBase):
     """A generic error detection sub-parser"""
 
-    RE_INFO = re.compile("TEST-(?:INFO|PASS) ")
-    RE_ERR = re.compile((
-        "TEST-UNEXPECTED-(?:PASS|FAIL) "
-        "|^error: TEST FAILED"
+    RE_INFO = re.compile((
+        "^\d+:\d+:\d+[ ]+(?:INFO)(?: -  )"
+        "(TEST-|INFO TEST-)(INFO|PASS|START|END) "
+    ))
+    RE_ERR_MATCH = re.compile((
+        "^error: TEST FAILED"
         "|^g?make(?:\[\d+\])?: \*\*\*"
+        "|^\d+:\d+:\d+[ ]+(?:ERROR|CRITICAL|FATAL) - "
+        "|^[A-Za-z]+Error:"
+        "|^BaseException:"
+        "|^remoteFailed:"
+        "|^rm: cannot "
+        "|^abort:"
+        "|^Output exceeded \d+ bytes"
+        "|^The web-page 'stop build' button was pressed"
+    ))
+
+    RE_ERR_SEARCH = re.compile((
+        "TEST-UNEXPECTED-(?:PASS|FAIL) "
+        "|TEST-TIMEOUT"
         "|fatal error"
         "|PROCESS-CRASH"
         "|Assertion failure:"
@@ -204,19 +220,11 @@ class ErrorParser(ParserBase):
         "|###!!! ABORT:"
         "| error\([0-9]*\):"
         "| error R?C[0-9]*:"
-        "|^\d+:\d+:\d+[ ]+(?:ERROR|CRITICAL|FATAL) - "
-        "|^[A-Za-z]+Error:"
-        "|^BaseException:"
         "|Automation Error:"
         "|Remote Device Error:"
         "|command timed out:"
-        "|^remoteFailed:"
-        "|^rm: cannot "
-        "|^abort:"
         "|ERROR 503:"
         "|wget: unable "
-        "|^Output exceeded \d+ bytes"
-        "|^The web-page 'stop build' button was pressed"
     ))
 
     def __init__(self):
@@ -225,8 +233,10 @@ class ErrorParser(ParserBase):
 
     def parse_line(self, line, lineno):
         """Check a single line for an error.  Keeps track of the linenumber"""
-        if self.RE_ERR.search(line) and not self.RE_INFO.search(line):
-            self.artifact.append({
-                "linenumber": lineno,
-                "line": line.rstrip()
-            })
+        if not self.RE_INFO.match(line):
+            if (self.RE_ERR_MATCH.match(line) or
+                    self.RE_ERR_SEARCH.search(line)):
+                self.artifact.append({
+                    "linenumber": lineno,
+                    "line": line.rstrip()
+                })
