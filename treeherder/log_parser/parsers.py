@@ -11,7 +11,11 @@ class ParserBase(object):
         """Setup the artifact to hold the extracted data."""
         self.artifact = []
         self.name = name
-        self.parse_complete = False
+        self.complete = False
+
+    def clear(self):
+        """Reset this parser's values for another run."""
+        self.__init__(self.name)
 
     def parse_line(self, line, lineno):
         """Parse a single line of the log"""
@@ -20,11 +24,6 @@ class ParserBase(object):
     def get_artifact(self):
         """By default, just return the artifact as-is."""
         return self.artifact
-
-    @property
-    def complete(self):
-        """Whether or not this parser is done and should stop parsing."""
-        return self.parse_complete
 
 
 class HeaderParser(ParserBase):
@@ -54,13 +53,12 @@ class HeaderParser(ParserBase):
 
         """
         if self.RE_START.match(line):
-            self.parse_complete = True
-            return
-
-        match = self.RE_HEADER_VALUE.match(line)
-        if match:
-            key, value = match.groups()
-            self.artifact[key] = value
+            self.complete = True
+        else:
+            match = self.RE_HEADER_VALUE.match(line)
+            if match:
+                key, value = match.groups()
+                self.artifact[key] = value
 
 
 class StepParser(ParserBase):
@@ -106,43 +104,47 @@ class StepParser(ParserBase):
             "all_errors": []
         }
         self.sub_parser = ErrorParser()
+        self.state = None
 
     def parse_line(self, line, lineno):
         """Parse a single non-header line of the log"""
 
         # check if it's the start of a step
-        match = self.RE_START.match(line)
-        if match:
-            self.state = self.ST_STARTED
-            self.stepnum += 1
-            self.steps.append({
-                "name": match.group(1),
-                "started": match.group(2),
-                "started_linenumber": lineno,
-                "order": self.stepnum,
-                "errors": [],
-            })
-
-            return
+        if not self.state == self.ST_STARTED:
+            match = self.RE_START.match(line)
+            if match:
+                self.state = self.ST_STARTED
+                self.stepnum += 1
+                self.steps.append({
+                    "name": match.group(1),
+                    "started": match.group(2),
+                    "started_linenumber": lineno,
+                    "order": self.stepnum,
+                    "errors": [],
+                })
+                return
 
         # check if it's the end of a step
-        match = self.RE_FINISH.match(line)
-        if match:
-            self.state = self.ST_FINISHED
+        if self.state == self.ST_STARTED:
+            match = self.RE_FINISH.match(line)
+            if match:
+                self.state = self.ST_FINISHED
 
-            self.current_step.update({
-                "finished": match.group(2),
-                "finished_linenumber": lineno,
-                "errors": self.sub_parser.get_artifact(),
-            })
-            self.set_duration()
-            # Append errors from current step to "all_errors" field
-            self.artifact["all_errors"].extend(self.sub_parser.get_artifact())
-            self.current_step["error_count"] = len(self.current_step["errors"])
+                self.current_step.update({
+                    "finished": match.group(2),
+                    "finished_linenumber": lineno,
+                    "errors": self.sub_parser.get_artifact(),
+                })
+                self.set_duration()
+                # Append errors from current step to "all_errors" field
+                self.artifact["all_errors"].extend(
+                    self.sub_parser.get_artifact())
+                self.current_step["error_count"] = len(
+                    self.current_step["errors"])
 
-            # reset the sub_parser for the next step
-            self.sub_parser = ErrorParser()
-            return
+                # reset the sub_parser for the next step
+                self.sub_parser.clear()
+                return
 
         # call the subparser to check for errors
         self.sub_parser.parse_line(line, lineno)
