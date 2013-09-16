@@ -1,6 +1,7 @@
 from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
 from treeherder.log_parser.artifactbuilders import BuildbotLogViewArtifactBuilder
 from ..sampledata import SampleData
+from datadiff import diff
 
 
 def test_builders_as_list():
@@ -42,7 +43,7 @@ def test_all_builders_complete():
     )
     for builder in lpc.builders:
         for parser in builder.parsers:
-            parser.parse_complete = True
+            parser.complete = True
 
     lpc.parse()
     exp = {
@@ -54,7 +55,6 @@ def test_all_builders_complete():
             }
         },
         "Unknown Builder Job Artifact": {
-            "errors": [],
             "tinderbox_printlines": []
         }
     }
@@ -67,4 +67,4 @@ def test_all_builders_complete():
     del(act["Unknown Builder Job Artifact"]["logurl"])
     del(act["Structured Log"]["logurl"])
 
-    assert lpc.artifacts == exp
+    assert exp == lpc.artifacts, diff(exp, lpc.artifacts)
