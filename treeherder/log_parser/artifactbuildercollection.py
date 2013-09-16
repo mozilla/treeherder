@@ -68,7 +68,10 @@ class ArtifactBuilderCollection(object):
         else:
             # use the defaults
             self.builders = [
-                BuildbotLogViewArtifactBuilder(self.url, check_errors),
+                BuildbotLogViewArtifactBuilder(
+                    url=self.url,
+                    check_errors=check_errors,
+                    ),
                 BuildbotJobArtifactBuilder(self.url)
             ]
 

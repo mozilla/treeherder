@@ -82,7 +82,7 @@ class BuildbotLogViewArtifactBuilder(ArtifactBuilderBase):
         super(BuildbotLogViewArtifactBuilder, self).__init__(url)
         self.parsers = [
             HeaderParser(),
-            StepParser(check_errors)
+            StepParser(check_errors=check_errors)
         ]
 
     @property
