@@ -24,17 +24,6 @@ def running_jobs():
 
 
 @pytest.fixture
-def result_set_stored(jm, sample_resultset):
-
-    jm.store_result_set_data(
-        sample_resultset['revision_hash'],
-        sample_resultset['push_timestamp'],
-        sample_resultset['revisions']
-    )
-    return sample_resultset
-
-
-@pytest.fixture
 def completed_jobs(sample_data):
     """returns a list of pulse completed jobs"""
     base_dir = os.path.dirname(__file__)

@@ -249,3 +249,19 @@ def test_resultset_create(webapp, pushlog_sample, jm, initial_data):
     assert len(stored_objs) == 1
 
     assert stored_objs[0]['revision_hash'] == pushlog_sample['revision_hash']
+
+
+def test_result_set_add_job(jm, initial_data, webapp, job_sample, pushlog_sample):
+
+    jm.store_result_set_data(pushlog_sample['revision_hash'],
+                             pushlog_sample['push_timestamp'],
+                             pushlog_sample['revisions'])
+
+    job_sample['revision_hash'] = pushlog_sample['revision_hash']
+    job_sample['job']['log_references'] = []
+    resp = webapp.post_json(
+        reverse("resultset-add-job",
+                kwargs={"project": jm.project, "pk": 1}),
+        params=job_sample
+    )
+    assert resp.status_int == 200

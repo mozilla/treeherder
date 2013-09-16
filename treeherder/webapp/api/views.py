@@ -171,7 +171,7 @@ class ResultSetViewSet(viewsets.ViewSet):
         GET method for list of ``resultset`` records with revisions
         """
 
-        filters = ["author"]
+        filters = ["author", "revision"]
 
         page = request.QUERY_PARAMS.get('page', 0)
 
@@ -278,12 +278,11 @@ class ResultSetViewSet(viewsets.ViewSet):
 
         return Response(rs)
 
-
-    def create(self, request, project):
+    @with_jobs
+    def create(self, request, project, jm):
         """
         POST method implementation
         """
-        jm = JobsModel(project)
         try:
             jm.store_result_set_data(
                 request.DATA["revision_hash"],
@@ -300,6 +299,23 @@ class ResultSetViewSet(viewsets.ViewSet):
             jm.disconnect()
 
         return Response({"message": "well-formed JSON stored"})
+
+    @action()
+    @with_jobs
+    def add_job(self, request, project, jm, pk=None):
+        """
+        This method adds a job to a given resultset.
+        The incoming data has the same structure as for
+        the objectstore ingestion.
+        """
+
+        job = request.DATA
+
+        jm.load_job_data(
+            job
+        )
+
+        return Response({'message': 'Job successfully updated'})
 
 #####################
 # Refdata ViewSets

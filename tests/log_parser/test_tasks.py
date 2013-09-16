@@ -32,7 +32,7 @@ def test_parse_log(jm, initial_data, job_with_local_log, sample_resultset):
     job = job_with_local_log
     job['revision_hash'] = sample_resultset['revision_hash']
     jm.store_job_data(json.dumps(job), job['job']['job_guid'])
-    jm.process_objects(1)
+    jm.process_objects(1, raise_errors=True)
 
     job_id = jm.get_jobs_dhub().execute(
         proc="jobs_test.selects.row_by_guid",

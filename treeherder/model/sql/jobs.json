@@ -107,7 +107,8 @@
 
             "sql":"UPDATE `job`
                 SET    `state` = ?
-                WHERE  `id` = ?",
+                WHERE  `id` = ?
+                AND `state` <> 'completed'",
 
                 "host":"master_host"
         },
@@ -126,7 +127,8 @@
                 `state` = ?,
                 `start_timestamp` = ?,
                 `end_timestamp` = ?
-                WHERE  `id` = ?",
+                WHERE  `id` = ?
+                AND `state` <> 'completed'",
             "host":"master_host"
         }
     },

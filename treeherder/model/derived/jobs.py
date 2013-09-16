@@ -84,13 +84,14 @@ class JobsModel(TreeherderModelBase):
 
     def get_job_id_by_guid(self, job_guid):
         """Return the job id for this ``job_guid``"""
-        id_iter = self.get_jobs_dhub().execute(
+        iter_obj = self.get_jobs_dhub().execute(
             proc="jobs.selects.get_job_id_by_guid",
             placeholders=[job_guid],
             debug_show=self.DEBUG,
             return_type='iter'
         )
-        return id_iter.get_column_data('id')
+        obj = self.as_single(iter_obj, "job", job_guid=job_guid)
+        return obj['id']
 
     def get_job_list(self, page, limit):
         """
@@ -193,8 +194,12 @@ class JobsModel(TreeherderModelBase):
         Mainly used by the restful api to list the pushes in the UI
         """
         repl = [""]
+
         if "author" in kwargs:
-            repl = [" AND `rev`.`author` = '{0}'".format(kwargs["author"])]
+            repl[0] += " AND `rev`.`author` = '{0}'".format(kwargs["author"])
+
+        if "revision" in kwargs and len(kwargs["revision"]) > 5:
+            repl[0] += " AND `rev`.`revision` = '{0}'".format(kwargs["revision"])
 
         proc = "jobs.selects.get_result_set_list"
         iter_obj = self.get_jobs_dhub().execute(
@@ -372,12 +377,11 @@ class JobsModel(TreeherderModelBase):
             }
 
         """
-
         result_set_id = self.get_result_set_id(data["revision_hash"])['id']
 
         rdm = self.refdata_model
-        job = data["job"]
 
+        job = data["job"]
         # set Job data
 
         build_platform_id = rdm.get_or_create_build_platform(
@@ -597,24 +601,32 @@ class JobsModel(TreeherderModelBase):
 
         job_id = self.get_job_id_by_guid(job_guid)
 
-        self._update_data(
-            'update_job_data',
-            [
-                job_coalesced_to_guid,
-                result_set_id,
-                machine_id,
-                option_collection_hash,
-                job_type_id,
-                product_id,
-                who,
-                reason,
-                result,
-                state,
-                start_timestamp,
-                end_timestamp,
-                job_id
-            ]
-        )
+        job_info = self.get_job(job_id)
+
+        # in this case do nothing
+        if state != 'pending':
+            # update state to running
+            if state == 'running' and job_info['state'] == 'pending':
+                pass
+            elif state == 'finished' and job_info['state'] != state:
+                self._update_data(
+                    'update_job_data',
+                    [
+                        job_coalesced_to_guid,
+                        result_set_id,
+                        machine_id,
+                        option_collection_hash,
+                        job_type_id,
+                        product_id,
+                        who,
+                        reason,
+                        result,
+                        state,
+                        start_timestamp,
+                        end_timestamp,
+                        job_id
+                    ]
+                )
 
         return job_id
 

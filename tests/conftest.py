@@ -183,3 +183,57 @@ def sample_resultset(test_base_dir):
                                "resultset_data.json")
 
     return json.loads(open(source_file).read())
+
+
+@pytest.fixture
+def test_repository():
+    from django.conf import settings
+    from treeherder.model.models import Repository
+
+    return Repository.objects.create(
+        dvcs_type = "hg",
+        name = settings.DATABASES["default"]["TEST_NAME"],
+        url = "https://hg.mozilla.org/mozilla-central",
+        active_status = "active",
+        codebase = "gecko",
+        repository_group_id = 1,
+        description = ""
+    )
+
+
+@pytest.fixture
+def mock_log_parser(monkeypatch):
+    from celery import task
+    from treeherder.log_parser import tasks
+
+    @task
+    def task_mock(*args, **kwargs):
+        pass
+
+    monkeypatch.setattr(tasks,
+                        'parse_log',
+                        task_mock)
+
+
+@pytest.fixture
+def result_set_stored(jm, initial_data, sample_resultset):
+
+    jm.store_result_set_data(
+        sample_resultset['revision_hash'],
+        sample_resultset['push_timestamp'],
+        sample_resultset['revisions']
+    )
+    return sample_resultset
+
+
+@pytest.fixture(scope='function')
+def mock_get_resultset(monkeypatch, result_set_stored):
+
+    from treeherder.etl import common
+
+    def _get_resultset(project, revision):
+        return {
+            'id': 1,
+            'revision_hash': result_set_stored['revision_hash']
+        }
+    monkeypatch.setattr(common, 'get_resultset', _get_resultset)

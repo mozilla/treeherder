@@ -42,10 +42,11 @@ def fetch_push_logs():
     this is supposed to be used as a periodic task
     to be run every minute
     """
-    for repo in RefDataManager.get_all_repository_info():
+    rdm = RefDataManager()
+    for repo in rdm.get_all_repository_info():
         if repo['dvcs_type'] == 'hg':
-            fetch_hg_push_log.delay(repo['name'], repo['url'])
-        elif repo['dvcs_type'] == 'hg':
+            fetch_hg_push_log.delay(repo['name'], repo['url']+'/json-pushes/?full=1')
+        elif repo['dvcs_type'] == 'git':
             fetch_git_push_log.delay(repo['name'], repo['url'])
 
 
@@ -55,7 +56,7 @@ def fetch_hg_push_log(repo_name, repo_url):
     Run a HgPushlog etl process
     """
     process = HgPushlogProcess()
-    process.run()
+    process.run(repo_url, repo_name)
 
 
 @task(name='fetch-git-push-logs')

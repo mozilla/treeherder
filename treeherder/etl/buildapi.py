@@ -2,8 +2,9 @@ from django.conf import settings
 import logging
 
 from . import buildbot
-from .common import get_revision_hash, get_job_guid, JobData
-from .mixins import JsonExtractorMixin, JobsLoaderMixin
+from treeherder.etl import common
+from treeherder.etl import buildbot
+from .mixins import JsonExtractorMixin, ObjectstoreLoaderMixin, JobsLoaderMixin
 
 
 logger = logging.getLogger()
@@ -30,10 +31,10 @@ class Builds4hTransformerMixin(object):
         request_time_dict = prop.get('request_times', '')
         if request_time_dict != '':
             request_time = request_time_dict[str(request_id)]
-            return get_job_guid(request_id, request_time)
+            return common.generate_job_guid(request_id, request_time)
         else:
             request_time = build['requesttime']
-            return get_job_guid(request_id, request_time)
+            return common.generate_job_guid(request_id, request_time)
 
     def extract_option_info(self, source_string):
         output = {}
@@ -49,24 +50,30 @@ class Builds4hTransformerMixin(object):
             }
         return output
 
+
     def transform(self, data):
         """
         transform the builds4h structure into something we can ingest via
         our restful api
         """
         job_list = []
+
         for build in data['builds']:
             prop = build['properties']
+            revision = prop.get('revision',
+                        prop.get('got_revision',
+                            prop.get('sourcestamp', None)))
+            if not revision:
+                continue
+            resultset = common.get_resultset(prop['branch'], prop['revision'])
+            if not resultset:
+                continue
+
             treeherder_data = {
-                'sources': [],
-                'revision_hash': get_revision_hash(
-                    [prop['revision'], prop['branch']]
-                ),
+                'revision_hash': resultset['revision_hash'],
+                'resultset_id': resultset['id'],
+                'project': prop['branch'],
             }
-            treeherder_data['sources'].append({
-                'repository': prop['branch'],
-                'revision': prop['revision'],
-            })
 
             platform_info = buildbot.extract_platform_info(prop['buildername'])
             option_info = self.extract_option_info(prop['buildername'])
@@ -76,7 +83,7 @@ class Builds4hTransformerMixin(object):
                 'name': prop['buildername'],
                 'product_name': prop['product'],
                 'state': 'completed',
-                'result': build['result'],
+                'result': buildbot.RESULT_DICT[build['result']],
                 'reason': build['reason'],
                 #scheduler, if 'who' property is not present
                 'who': prop.get('who', prop.get('scheduler', '')),
@@ -115,7 +122,7 @@ class Builds4hTransformerMixin(object):
             }
             treeherder_data['job'] = job
 
-            job_list.append(JobData(treeherder_data))
+            job_list.append(common.JobData(treeherder_data))
 
         return job_list
 
@@ -128,27 +135,22 @@ class PendingTransformerMixin(object):
         our restful api
         """
         job_list = []
-        for branch, revisions in data['pending'].items():
+        for project, revisions in data['pending'].items():
             for rev, jobs in revisions.items():
+                resultset = common.get_resultset(project, rev)
+                if not resultset:
+                    continue
                 for job in jobs:
                     treeherder_data = {
-                        'sources': [],
-                        #Include branch so revision hash with the same revision is still
-                        #unique across branches
-                        'revision_hash': get_revision_hash(
-                            [rev, branch]
-                        ),
+                        'revision_hash': resultset['revision_hash'],
+                        'resultset_id': resultset['id'],
+                        'project': project,
                     }
-                    treeherder_data['sources'].append({
-                        # repository name is always lowercase
-                        'repository': branch.lower(),
-                        'revision': rev,
-                    })
 
                     platform_info = buildbot.extract_platform_info(job['buildername'])
 
                     job = {
-                        'job_guid': get_job_guid(job['id'], job['submitted_at']),
+                        'job_guid': common.generate_job_guid(job['id'], job['submitted_at']),
                         'name': buildbot.extract_test_name(job['buildername']),
                         'state': 'pending',
                         'submit_timestamp': job['submitted_at'],
@@ -175,7 +177,7 @@ class PendingTransformerMixin(object):
                     }
                     treeherder_data['job'] = job
 
-                    job_list.append(JobData(treeherder_data))
+                    job_list.append(common.JobData(treeherder_data))
         return job_list
 
 
@@ -187,27 +189,23 @@ class RunningTransformerMixin(object):
         our restful api
         """
         job_list = []
-        for branch, revisions in data['running'].items():
+        for project, revisions in data['running'].items():
             for rev, jobs in revisions.items():
+                resultset = common.get_resultset(project, rev)
+                if not resultset:
+                    continue
+
                 for job in jobs:
                     treeherder_data = {
-                        'sources': [],
-                        #Include branch so revision hash with the same revision is still
-                        #unique across branches
-                        'revision_hash': get_revision_hash(
-                            [rev, branch]
-                        ),
+                        'revision_hash': resultset['revision_hash'],
+                        'resultset_id': resultset['id'],
+                        'project': project,
                     }
-                    treeherder_data['sources'].append({
-                        # repository name is always lowercase
-                        'repository': branch.lower(),
-                        'revision': rev,
-                    })
 
                     platform_info = buildbot.extract_platform_info(job['buildername'])
 
                     job = {
-                        'job_guid': get_job_guid(
+                        'job_guid': common.generate_job_guid(
                             job['request_ids'][0],
                             job['submitted_at']
                         ),
@@ -238,13 +236,13 @@ class RunningTransformerMixin(object):
 
                     treeherder_data['job'] = job
 
-                    job_list.append(JobData(treeherder_data))
+                    job_list.append(common.JobData(treeherder_data))
         return job_list
 
 
 class Builds4hJobsProcess(JsonExtractorMixin,
                           Builds4hTransformerMixin,
-                          JobsLoaderMixin):
+                          ObjectstoreLoaderMixin):
     def run(self):
         self.load(
             self.transform(
