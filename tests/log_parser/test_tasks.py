@@ -1,8 +1,10 @@
 import pytest
 import simplejson as json
+from mock import MagicMock
 
 from ..sampledata import SampleData
 from treeherder.model.derived import JobData
+from treeherder.log_parser.parsers import ErrorParser
 
 
 @pytest.fixture
@@ -12,20 +14,26 @@ def job_with_local_log(jm, initial_data):
     url = "file://{0}".format(
         sample_data.get_log_path("{0}.txt.gz".format(log)))
 
-    job = JobData(sample_data.job_data[0])
+    job = sample_data.job_data[0]
 
     # substitute the log url with a local url
     job['job']['log_references'][0]['url'] = url
+    # make this a successful job, so no error log processing
+    job['job']['result'] = "success"
     return job
 
 
-def test_parse_log(jm, initial_data, job_with_local_log):
+def test_parse_log(jm, initial_data, job_with_local_log, monkeypatch):
     """
     check that at least 2 job_artifacts get inserted when running
     a parse_log task
     """
 
+    mock_pl = MagicMock(name="parse_line")
+    monkeypatch.setattr(ErrorParser, 'parse_line', mock_pl)
+
     job = job_with_local_log
+
     jm.store_job_data(json.dumps(job), job['job']['job_guid'])
     jm.process_objects(1)
 
@@ -42,3 +50,5 @@ def test_parse_log(jm, initial_data, job_with_local_log):
     # we must have at least 2 artifacts: one for the log viewer and another one
     # for the job artifact panel
     assert len(job_artifacts) >= 2
+    # since this was a success job, should not call the ErrorParser
+    assert mock_pl.called is False

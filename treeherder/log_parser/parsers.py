@@ -95,7 +95,7 @@ class StepParser(ParserBase):
     RE_START = re.compile('={9} Started' + PATTERN)
     RE_FINISH = re.compile('={9} Finished' + PATTERN)
 
-    def __init__(self):
+    def __init__(self, check_errors=True):
         """Setup the artifact to hold the header lines."""
         super(StepParser, self).__init__("step_data")
         self.stepnum = -1
@@ -103,6 +103,11 @@ class StepParser(ParserBase):
             "steps": [],
             "all_errors": []
         }
+        self.check_errors = check_errors
+        # even if ``check_errors`` is false, we still want to instantiate
+        # the ErrorParser because we rely on the artifact to contain its
+        # results.  We will just skip calling it to parse.  Then it will create
+        # all the right empty fields we expect.
         self.sub_parser = ErrorParser()
         self.state = None
 
@@ -147,7 +152,8 @@ class StepParser(ParserBase):
                 return
 
         # call the subparser to check for errors
-        self.sub_parser.parse_line(line, lineno)
+        if self.check_errors:
+            self.sub_parser.parse_line(line, lineno)
 
     def parsetime(self, match):
         """Convert a string date into a datetime."""
