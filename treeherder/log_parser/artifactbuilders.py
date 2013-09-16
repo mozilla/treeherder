@@ -77,12 +77,12 @@ class BuildbotJobArtifactBuilder(ArtifactBuilderBase):
 class BuildbotLogViewArtifactBuilder(ArtifactBuilderBase):
     """Makes the artifact for the structured log viewer."""
 
-    def __init__(self, url=None):
+    def __init__(self, url=None, check_errors=True):
         """Construct artifact builder for the log viewer"""
         super(BuildbotLogViewArtifactBuilder, self).__init__(url)
         self.parsers = [
             HeaderParser(),
-            StepParser()
+            StepParser(check_errors)
         ]
 
     @property

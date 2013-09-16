@@ -48,7 +48,7 @@ class ArtifactBuilderCollection(object):
             * TinderboxPrintParser
     """
 
-    def __init__(self, url, builders=None):
+    def __init__(self, url, builders=None, check_errors=True):
         """
         ``url`` - url of the log to be parsed
         ``builders`` - ArtifactBuilder instances to generate artifacts.
@@ -68,7 +68,7 @@ class ArtifactBuilderCollection(object):
         else:
             # use the defaults
             self.builders = [
-                BuildbotLogViewArtifactBuilder(self.url),
+                BuildbotLogViewArtifactBuilder(self.url, check_errors),
                 BuildbotJobArtifactBuilder(self.url)
             ]
 

@@ -3,12 +3,13 @@ from datadiff import diff
 
 from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
 from treeherder.log_parser.artifactbuilders import BuildbotLogViewArtifactBuilder
+from treeherder.log_parser.parsers import ErrorParser
 
 from tests import test_utils
 from ..sampledata import SampleData
 
 
-def do_test(log):
+def do_test(log, check_errors=True):
     """
     Test a single log.
 
@@ -19,7 +20,7 @@ def do_test(log):
     url = "file://{0}".format(
         SampleData().get_log_path("{0}.txt.gz".format(log)))
 
-    builder = BuildbotLogViewArtifactBuilder(url)
+    builder = BuildbotLogViewArtifactBuilder(url, check_errors=check_errors)
     lpc = ArtifactBuilderCollection(url, builders=builder)
     lpc.parse()
     act = lpc.artifacts[builder.name]
@@ -212,3 +213,17 @@ def test_xpcshell_timeout(jm, initial_data):
     do_test(
         "xpcshell-timeout"
     )
+
+def test_check_errors_false(jm, initial_data, monkeypatch):
+    """ensure that parse_line is not called on the error parser."""
+
+    called = False
+    def mock_pl():
+        called = True
+    monkeypatch.setattr(ErrorParser, 'parse_line', mock_pl)
+
+    do_test(
+        "mozilla-central_mountainlion_test-mochitest-2-bm77-tests1-macosx-build141",
+        check_errors=False
+    )
+    assert called is False

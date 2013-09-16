@@ -33,8 +33,18 @@ def test_default_builders():
     assert len(lpc.builders) == 2
 
 
+def test_check_errors_false():
+    """test for passing case"""
+    abc = ArtifactBuilderCollection(
+        "foo-url",
+        check_errors=False
+    )
+
+    assert abc.builders[0].parsers[1].sub_parser.check_errors is False
+
+
 def test_all_builders_complete():
-    """test no builders"""
+    """test when parse.complete is true creates correct structure"""
     log = "mozilla-central_fedora-b2g_test-crashtest-1-bm54-tests1-linux-build50"
     url = "file://{0}".format(
         SampleData().get_log_path("{0}.txt.gz".format(log)))

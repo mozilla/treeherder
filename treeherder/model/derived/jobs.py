@@ -445,7 +445,8 @@ class JobsModel(TreeherderModelBase):
         from treeherder.log_parser.tasks import parse_log
 
         # send a parse-log task for this job
-        parse_log.delay(self.project, job_id)
+        check_errors = (job["result"] != "success")
+        parse_log.delay(self.project, job_id, check_errors=check_errors)
 
         try:
             artifact = job["artifact"]
