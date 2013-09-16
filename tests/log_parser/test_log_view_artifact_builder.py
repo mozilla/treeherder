@@ -1,5 +1,6 @@
 import json
 from datadiff import diff
+from mock import MagicMock
 
 from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
 from treeherder.log_parser.artifactbuilders import BuildbotLogViewArtifactBuilder
@@ -217,13 +218,22 @@ def test_xpcshell_timeout(jm, initial_data):
 def test_check_errors_false(jm, initial_data, monkeypatch):
     """ensure that parse_line is not called on the error parser."""
 
-    called = False
-    def mock_pl():
-        called = True
+    mock_pl = MagicMock(name="parse_line")
     monkeypatch.setattr(ErrorParser, 'parse_line', mock_pl)
 
     do_test(
         "mozilla-central_mountainlion_test-mochitest-2-bm77-tests1-macosx-build141",
         check_errors=False
     )
-    assert called is False
+    assert mock_pl.called is False
+
+def test_check_errors_true(jm, initial_data, monkeypatch):
+    """ensure that parse_line is called on the error parser."""
+
+    mock_pl = MagicMock(name="parse_line")
+    monkeypatch.setattr(ErrorParser, 'parse_line', mock_pl)
+
+    do_test(
+        "mozilla-central_mountainlion_test-mochitest-2-bm77-tests1-macosx-build141"
+    )
+    assert mock_pl.called is True

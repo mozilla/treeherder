@@ -40,7 +40,7 @@ def test_check_errors_false():
         check_errors=False
     )
 
-    assert abc.builders[0].parsers[1].sub_parser.check_errors is False
+    assert abc.builders[0].parsers[1].check_errors is False
 
 
 def test_all_builders_complete():

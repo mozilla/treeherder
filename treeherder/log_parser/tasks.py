@@ -28,7 +28,7 @@ def parse_log(project, job_id, check_errors=True):
         # parse a log given its url
         artifact_builder_collection = ArtifactBuilderCollection(
             log['url'],
-            check_errors,
+            check_errors=check_errors,
         )
         artifact_builder_collection.parse()
 
