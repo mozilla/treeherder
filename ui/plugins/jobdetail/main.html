@@ -1,0 +1,24 @@
+<div class="span7">
+    test thing there...
+    <dl class="dl-horizontal">
+        <span ng-repeat="(label, value) in selectedJob.visibleFields">
+            <dt class="label label-info">{{label}}</dt>
+            <dd class="">{{value}}</dd>
+        </span>
+    </dl>
+    <div ng-show="selectedJob.lvArtifact"
+         class="btn">
+        <a target="_blank" href="{{ selectedJob.lvUrl }}">View Structured Log</a>
+    </div>
+    <div ng-hide="selectedJob.lvArtifact">
+        <em>Processing Structured Log</em>
+    </div>
+    <div ng-repeat="joblog in selectedJob.logs">
+        <a target="_blank" href="{{ joblog.url }}">Raw Log: {{ joblog.url }}</a>
+    </div>
+</div>
+<ul class="span7" >
+    <li ng-repeat="line in selectedJob.jobArtifact.blob.tinderbox_printlines">
+        <div ng-bind-html-unsafe="line"></div>
+    </li>
+</ul>
