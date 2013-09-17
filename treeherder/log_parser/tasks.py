@@ -15,7 +15,7 @@ from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderColle
 
 
 @task(name='parse-log')
-def parse_log(project, job_id):
+def parse_log(project, job_id, check_errors=True):
     """
     Call ArtifactBuilderCollection on the given job.
     """
@@ -26,7 +26,10 @@ def parse_log(project, job_id):
     for log in log_references:
 
         # parse a log given its url
-        artifact_builder_collection = ArtifactBuilderCollection(log['url'])
+        artifact_builder_collection = ArtifactBuilderCollection(
+            log['url'],
+            check_errors=check_errors,
+        )
         artifact_builder_collection.parse()
 
         # store the artifacts generated
