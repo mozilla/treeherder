@@ -1,7 +1,8 @@
 "use strict";
 
 treeherder.controller('PluginCtrl',
-    function PluginCtrl($scope) {
+    function PluginCtrl($scope, $rootScope) {
+
         $scope.tabs = [
             {
                 title: "Jobs Detail",
@@ -10,16 +11,9 @@ treeherder.controller('PluginCtrl',
             },
             {
                 title: "Jobs Foo",
-                content: ""
+                content: "plugins/jobfoo/main.html"
             }
         ];
 
-        $scope.registerPlugin = function(pluginData) {
-            $scope.tabs.append(pluginData);
-        };
-
-        $scope.getJob = function() {
-            return $scope.selectedJob;
-        };
     }
 );

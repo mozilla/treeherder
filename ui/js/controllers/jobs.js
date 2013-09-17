@@ -45,55 +45,14 @@ treeherder.controller('PushCtrl',
                       thResults, thUrl, thServiceDomain) {
         // whether or not revision list for a push is collapsed
         $scope.isCollapsedRevisions = true;
-
         $scope.isCollapsedResults = true;
 
         // get the jobs list for the current resultset
         thResults.getResults($scope.push, $scope);
 
         $scope.viewJob = function(job) {
-            // view the job details in the lower job-details section
-
+            // set the selected job
             $rootScope.selectedJob = job;
-
-            // fields that will show in the job detail panel
-            job.visibleFields = {
-                "Reason": job.reason,
-                "State": job.state,
-                "Result": job.result,
-                "Type Name": job.job_type_name,
-                "Type Desc": job.job_type_description,
-                "Who": job.who,
-                "Job GUID": job.job_guid,
-                "Machine Name": job.machine_name,
-                "Machine Platform Arch": job.machine_platform_architecture,
-                "Machine Platform OS": job.machine_platform_os,
-                "Build Platform": job.build_platform,
-                "Build Arch": job.build_architecture,
-                "Build OS": job.build_os
-            };
-            $http.get(thServiceDomain + job.resource_uri).
-                success(function(data) {
-                    job.logs = data.logs;
-
-                    data.artifacts.forEach(function(artifact) {
-                        if (artifact.name.contains("Job Artifact")) {
-                            // we don't return the blobs with job, just
-                            // resource_uris to them.  For the Job Artifact,
-                            // we want that blob, so we need to fetch the
-                            // detail to get the blob which has the
-                            // tinderbox_printlines, etc.
-                            job.jobArtifact = $resource(
-                                thServiceDomain + artifact.resource_uri).get();
-                        } else if (artifact.name === "Structured Log") {
-                            // for the structured log, we don't need the blob
-                            // here, we have everything we need in the artifact
-                            // as is, so just save it.
-                            job.lvArtifact=artifact;
-                            job.lvUrl = thUrl.getLogViewerUrl(artifact.id);
-                        }
-                    });
-                });
         };
 
         $scope.viewLog = function(job_uri) {
