@@ -1,9 +1,22 @@
 <div ng-controller="JobDetailPluginCtrl">
     <div class="span7">
+        <div class="btn-group">
+            <button class="btn btn-mini"><i class="icon-star-empty"></i></button>
+            <button class="btn btn-mini dropdown-toggle" data-toggle="dropdown">
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li>fixed-by-backout</li>
+                <li>intermittent</li>
+                <li>infra</li>
+                <li>intermittent-needs-filing</li>
+            </ul>
+        </div>
+        <button class="btn btn-mini" title="add comment"><i class="icon-comment"></i></button>
         <dl class="dl-horizontal">
             <span ng-repeat="(label, value) in visibleFields">
                 <dt class="label label-info">{{label}}</dt>
-                <dd class="">{{value}}</dd>
+                <dd ng-bind-html-unsafe="value" target="_blank"></dd>
             </span>
         </dl>
         <div ng-show="lvArtifact"
