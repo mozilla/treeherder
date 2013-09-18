@@ -11,14 +11,9 @@ treeherder.controller('JobDetailPluginCtrl',
 
                 // fields that will show in the job detail panel
                 $scope.visibleFields = {
-                    "Reason": $scope.job.reason,
-                    "State": $scope.job.state,
                     "Result": $scope.job.result,
-                    "Type Name": $scope.job.job_type_name,
-                    "Type Desc": $scope.job.job_type_description,
-                    "Who": $scope.job.who,
                     "Job GUID": $scope.job.job_guid,
-                    "Machine Name": $scope.job.machine_name,
+                    "Machine Name": "<a href='https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name=" + $scope.job.machine_name + "'>" + $scope.job.machine_name + "</a>",
                     "Machine Platform Arch": $scope.job.machine_platform_architecture,
                     "Machine Platform OS": $scope.job.machine_platform_os,
                     "Build Platform": $scope.job.build_platform,
