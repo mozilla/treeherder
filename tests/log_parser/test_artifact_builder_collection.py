@@ -1,6 +1,7 @@
 from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
 from treeherder.log_parser.artifactbuilders import BuildbotLogViewArtifactBuilder
 from ..sampledata import SampleData
+from datadiff import diff
 
 
 def test_builders_as_list():
@@ -32,8 +33,18 @@ def test_default_builders():
     assert len(lpc.builders) == 2
 
 
+def test_check_errors_false():
+    """test for passing case"""
+    abc = ArtifactBuilderCollection(
+        "foo-url",
+        check_errors=False
+    )
+
+    assert abc.builders[0].parsers[1].check_errors is False
+
+
 def test_all_builders_complete():
-    """test no builders"""
+    """test when parse.complete is true creates correct structure"""
     log = "mozilla-central_fedora-b2g_test-crashtest-1-bm54-tests1-linux-build50"
     url = "file://{0}".format(
         SampleData().get_log_path("{0}.txt.gz".format(log)))
@@ -42,7 +53,7 @@ def test_all_builders_complete():
     )
     for builder in lpc.builders:
         for parser in builder.parsers:
-            parser.parse_complete = True
+            parser.complete = True
 
     lpc.parse()
     exp = {
@@ -54,7 +65,6 @@ def test_all_builders_complete():
             }
         },
         "Unknown Builder Job Artifact": {
-            "errors": [],
             "tinderbox_printlines": []
         }
     }
@@ -67,4 +77,4 @@ def test_all_builders_complete():
     del(act["Unknown Builder Job Artifact"]["logurl"])
     del(act["Structured Log"]["logurl"])
 
-    assert lpc.artifacts == exp
+    assert exp == lpc.artifacts, diff(exp, lpc.artifacts)

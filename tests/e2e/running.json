@@ -21,4 +21,7 @@
         "architecture": "ARMv7",
         "vm": false
     }
-}, "revision_hash": "0686a4d3fa477cb0415c9ca590177e4b03919b64"}
+},
+    "revision_hash": "0686a4d3fa477cb0415c9ca590177e4b03919b64",
+    "resultset_id": 1
+}

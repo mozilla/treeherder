@@ -378,7 +378,6 @@ class JobsModel(TreeherderModelBase):
 
         """
         result_set_id = self.get_result_set_id(data["revision_hash"])['id']
-
         rdm = self.refdata_model
 
         job = data["job"]
@@ -442,8 +441,11 @@ class JobsModel(TreeherderModelBase):
         # importing here to avoid a dep loop
         from treeherder.log_parser.tasks import parse_log
 
-        # send a parse-log task for this job
-        parse_log.delay(self.project, job_id)
+        if job["log_references"]:
+            # if we have a log to parse, we also have a result
+            # send a parse-log task for this job
+            check_errors = job["result"] != "success"
+            parse_log.delay(self.project, job_id, check_errors=check_errors)
 
         try:
             artifact = job["artifact"]
@@ -607,7 +609,7 @@ class JobsModel(TreeherderModelBase):
         if state != 'pending':
             # update state to running
             if state == 'running' and job_info['state'] == 'pending':
-                pass
+                self.set_state(job_id, 'running')
             elif state == 'finished' and job_info['state'] != state:
                 self._update_data(
                     'update_job_data',

@@ -1,14 +1,4 @@
 {
-    "errors": [
-        {
-            "line": "11:05:24  WARNING -  TEST-UNEXPECTED-FAIL | /tests/dom/browser-element/mochitest/test_browserElement_oop_Auth.html | Exited with code -20 during test run",
-            "linenumber": 2798
-        },
-        {
-            "line": "11:05:24    ERROR - Return code: 236",
-            "linenumber": 2803
-        }
-    ],
     "tinderbox_printlines": [
         "mozharness_revlink: http://hg.mozilla.org/build/mozharness/rev/97228ea173cb",
         "mochitest-plain2<br/><em class=\"testfail\">T-FAIL</em>"

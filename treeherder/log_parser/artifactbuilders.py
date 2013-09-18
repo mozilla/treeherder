@@ -47,11 +47,6 @@ class ArtifactBuilderBase(object):
             self.artifact[sp.name] = sp.get_artifact()
         return self.artifact
 
-    @property
-    def complete(self):
-        """Whether or not all parsers are complete for this artifact."""
-        return all(x.complete for x in self.parsers)
-
 
 class BuildbotJobArtifactBuilder(ArtifactBuilderBase):
     """
@@ -62,11 +57,10 @@ class BuildbotJobArtifactBuilder(ArtifactBuilderBase):
 
     """
 
-    def __init__(self, url):
+    def __init__(self, url=None):
         """Construct a job artifact builder."""
         super(BuildbotJobArtifactBuilder, self).__init__(url)
         self.parsers = [
-            ErrorParser(),
             TinderboxPrintParser(),
         ]
 
@@ -83,12 +77,12 @@ class BuildbotJobArtifactBuilder(ArtifactBuilderBase):
 class BuildbotLogViewArtifactBuilder(ArtifactBuilderBase):
     """Makes the artifact for the structured log viewer."""
 
-    def __init__(self, url=None):
+    def __init__(self, url=None, check_errors=True):
         """Construct artifact builder for the log viewer"""
         super(BuildbotLogViewArtifactBuilder, self).__init__(url)
         self.parsers = [
             HeaderParser(),
-            StepParser()
+            StepParser(check_errors=check_errors)
         ]
 
     @property

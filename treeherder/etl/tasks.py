@@ -44,10 +44,11 @@ def fetch_push_logs():
     """
     rdm = RefDataManager()
     for repo in rdm.get_all_repository_info():
-        if repo['dvcs_type'] == 'hg':
-            fetch_hg_push_log.delay(repo['name'], repo['url']+'/json-pushes/?full=1')
-        elif repo['dvcs_type'] == 'git':
-            fetch_git_push_log.delay(repo['name'], repo['url'])
+        if repo['url'] and repo['dvcs_type']:
+            if repo['dvcs_type'] == 'hg':
+                fetch_hg_push_log.delay(repo['name'], repo['url']+'/json-pushes/?full=1')
+            elif repo['dvcs_type'] == 'git':
+                fetch_git_push_log.delay(repo['name'], repo['url'])
 
 
 @task(name='fetch-hg-push-logs')

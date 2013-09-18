@@ -38,11 +38,12 @@ def completed_jobs(sample_data):
 @pytest.fixture
 def pending_jobs_stored(jm, pending_jobs, result_set_stored):
     """
-    stores a list of buildapi pending jobs into the objectstore
+    stores a list of buildapi pending jobs into the jobs store
     using BuildApiTreeHerderAdapter
     """
-    pending_jobs['revision_hash'] = result_set_stored['revision_hash']
-    url = reverse('objectstore-list', kwargs={"project": jm.project})
+    pending_jobs.update(result_set_stored)
+    url = reverse("resultset-add-job",
+                kwargs={"project": jm.project, "pk": pending_jobs['resultset_id']})
     TestApp(application).post_json(url, params=pending_jobs)
 
 
@@ -52,8 +53,9 @@ def running_jobs_stored(jm, running_jobs, result_set_stored):
     stores a list of buildapi running jobs into the objectstore
     using BuildApiTreeHerderAdapter
     """
-    running_jobs['revision_hash'] = result_set_stored['revision_hash']
-    url = reverse('objectstore-list', kwargs={"project": jm.project})
+    running_jobs.update(result_set_stored)
+    url = reverse("resultset-add-job",
+                kwargs={"project": jm.project, "pk": running_jobs['resultset_id']})
     TestApp(application).post_json(url, params=running_jobs)
 
 
@@ -66,16 +68,6 @@ def completed_jobs_stored(jm, completed_jobs, result_set_stored):
     completed_jobs['revision_hash'] = result_set_stored['revision_hash']
     url = reverse('objectstore-list', kwargs={"project": jm.project})
     TestApp(application).post_json(url, params=completed_jobs)
-
-
-@pytest.fixture
-def pending_jobs_loaded(jm, pending_jobs_stored):
-    jm.process_objects(1, raise_errors=True)
-
-
-@pytest.fixture
-def running_jobs_loaded(jm, running_jobs_stored):
-    jm.process_objects(1, raise_errors=True)
 
 
 @pytest.fixture

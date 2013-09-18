@@ -65,7 +65,7 @@ class Builds4hTransformerMixin(object):
                             prop.get('sourcestamp', None)))
             if not revision:
                 continue
-            resultset = common.get_resultset(prop['branch'], prop['revision'])
+            resultset = common.get_resultset(prop['branch'], revision)
             if not resultset:
                 continue
 
