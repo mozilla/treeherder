@@ -1,0 +1,7 @@
+<div ng-controller="PluginCtrl">
+    <tabset class="tabs-below">
+        <tab ng-repeat="tab in tabs" heading="{{ tab.title }}" active="tab.active" disabled="tab.disabled">
+            <ng-include src="tab.content"></ng-include>
+        </tab>
+    </tabset>
+</div>

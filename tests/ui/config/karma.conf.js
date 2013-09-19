@@ -10,6 +10,7 @@ module.exports = function (config) {
             'app/vendor/*.js',
             'app/js/**/*.js',
             'app/js/controllers/**/*.js',
+            'app/plugins/**/*.js',
             'test/vendor/angular/angular-mocks.js',
             'test/vendor/jquery-2.0.3.js',
             'test/vendor/jasmine-jquery.js',
