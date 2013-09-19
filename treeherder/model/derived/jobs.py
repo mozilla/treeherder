@@ -1,5 +1,6 @@
 import json
 import MySQLdb
+import datetime
 
 from warnings import filterwarnings, resetwarnings
 from django.conf import settings
@@ -150,6 +151,30 @@ class JobsModel(TreeherderModelBase):
             return_type='iter',
         )
         return self.as_single(iter_obj, "job_artifacts", id=id)
+
+    def get_notes_by_job(self, job_id):
+        """Return the job notes by job_id."""
+        iter_obj = self.get_jobs_dhub().execute(
+            proc="jobs.selects.get_notes_by_job_id",
+            placeholders=[job_id],
+            debug_show=self.DEBUG,
+            return_type='iter',
+        )
+        return self.as_list(iter_obj, "job_notes", job_id=job_id)
+
+    def insert_note(self, job_id, failure_classification_id, who, note):
+        """insert a new note for the job"""
+        self.get_jobs_dhub().execute(
+            proc='jobs.inserts.insert_note',
+            placeholders=[
+                job_id,
+                failure_classification_id,
+                who,
+                note,
+                datetime.datetime.now(),
+            ],
+            debug_show=self.DEBUG
+        )
 
     def get_result_set_id(self, revision_hash):
         """Return the ``result_set.id`` for the given ``revision_hash``"""
