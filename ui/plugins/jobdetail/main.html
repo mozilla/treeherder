@@ -13,22 +13,24 @@
             </ul>
         </div>
         <button class="btn btn-mini" title="add comment"><i class="icon-comment"></i></button>
+        <div class="btn-group">
+            <button class="btn btn-mini disabled">Log:</button>
+            <div class="btn btn-mini"
+                    ng-disabled="!lvArtifact">
+                <a target="_blank" href="{{ lvUrl }}">Structured</a>
+            </div>
+            <div class="btn btn-mini"
+                    ng-repeat="joblog in logs">
+                <a target="_blank" href="{{ joblog.url }}">Raw</a>
+            </div>
+        </div>
+
         <dl class="dl-horizontal">
             <span ng-repeat="(label, value) in visibleFields">
                 <dt class="label label-info">{{label}}</dt>
                 <dd ng-bind-html-unsafe="value" target="_blank"></dd>
             </span>
         </dl>
-        <div ng-show="lvArtifact"
-             class="btn">
-            <a target="_blank" href="{{ lvUrl }}">View Structured Log</a>
-        </div>
-        <div ng-hide="lvArtifact">
-            <em>Processing Structured Log</em>
-        </div>
-        <div ng-repeat="joblog in logs">
-            <a target="_blank" href="{{ joblog.url }}">Raw Log: {{ joblog.url }}</a>
-        </div>
     </div>
     <ul class="span7" >
         <li ng-repeat="line in jobArtifact.blob.tinderbox_printlines">
