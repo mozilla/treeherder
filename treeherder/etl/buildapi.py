@@ -61,8 +61,8 @@ class Builds4hTransformerMixin(object):
         for build in data['builds']:
             prop = build['properties']
             revision = prop.get('revision',
-                        prop.get('got_revision',
-                            prop.get('sourcestamp', None)))
+                            prop.get('got_revision',
+                                prop.get('sourcestamp', None)))
             if not revision:
                 continue
             resultset = common.get_resultset(prop['branch'], revision)
