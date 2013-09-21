@@ -42,7 +42,41 @@ treeherder.controller('JobDetailPluginCtrl',
                             }
                         });
                     });
+                $scope.comments = [
+                    {
+                        who: "spectre",
+                        date: 1379709198,
+                        note: "wazzon chokey?"
+                    },
+                    {
+                        who: "fucci ca pesta",
+                        date: 1379709198,
+                        note: "my eyes are burning"
+                    },
+                    {
+                        who: "camd",
+                        date:  1376122980,
+                        note: "happy birthday to me.  this is my day."
+                    }
+                ];
             }
         }, true);
+
+        $scope.addNote = function() {
+            $scope.noteJob = $scope.job;
+        };
+    }
+);
+
+treeherder.controller('JobNoteCtrl',
+    function JobNoteCtrl($scope) {
+        // bind to individual values in this scope, rather than a whole item.
+        // each scope item binds to part of noteJob.
+        // noteJob should probably be a copy?  or we won't change anything.
+        // just display values from it, maybe...
+
+            $scope.who = "camd";
+            $scope.note = "";
+            $scope.failure_classification_id = 2;
     }
 );

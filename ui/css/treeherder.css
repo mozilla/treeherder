@@ -42,6 +42,10 @@ body{
     background-color: LightGrey;
 }
 
+.result-set {
+    padding-bottom: 5px;
+}
+
 .job-table td {
     border-top: 0px;
     padding: 1px;
