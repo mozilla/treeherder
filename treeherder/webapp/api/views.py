@@ -99,6 +99,47 @@ class ArtifactViewSet(viewsets.ViewSet):
         return Response(obj)
 
 
+class NoteViewSet(viewsets.ViewSet):
+    """
+    This viewset is responsible for the note endpoint.
+    """
+    @with_jobs
+    def retrieve(self, request, project, jm, pk=None):
+        """
+        GET method implementation for an artifact blob
+
+        """
+        obj = jm.get_note(pk)
+        return Response(obj)
+
+    @with_jobs
+    def list(self, request, project, jm):
+        """
+        GET method implementation for list view
+        """
+        job_id = request.QUERY_PARAMS.get('job_id')
+
+        objs = jm.get_job_note_list(job_id=job_id)
+        return Response(objs)
+
+    @with_jobs
+    def create(self, request, project, jm):
+        """
+        POST method implementation
+        """
+        jm.insert_job_note(
+            request.DATA['job_id'],
+            request.DATA['failure_classification_id'],
+            request.DATA['who'],
+            request.DATA['note'],
+        )
+        return Response(
+            {'message': 'note stored for job {0}'.format(
+                request.DATA['job_id']
+            )}
+        )
+
+
 class JobsViewSet(viewsets.ViewSet):
     """
     This viewset is responsible for the jobs endpoint.

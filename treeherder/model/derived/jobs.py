@@ -152,17 +152,27 @@ class JobsModel(TreeherderModelBase):
         )
         return self.as_single(iter_obj, "job_artifacts", id=id)
 
-    def get_notes_by_job(self, job_id):
+    def get_job_note(self, id):
+        """Return the job note by id."""
+        iter_obj = self.get_jobs_dhub().execute(
+            proc="jobs.selects.get_job_note",
+            placeholders=[id],
+            debug_show=self.DEBUG,
+            return_type='iter',
+        )
+        return self.as_single(iter_obj, "job_note", id=id)
+
+    def get_job_note_list(self, job_id):
         """Return the job notes by job_id."""
         iter_obj = self.get_jobs_dhub().execute(
-            proc="jobs.selects.get_notes_by_job_id",
+            proc="jobs.selects.get_job_notes",
             placeholders=[job_id],
             debug_show=self.DEBUG,
             return_type='iter',
         )
         return self.as_list(iter_obj, "job_notes", job_id=job_id)
 
-    def insert_note(self, job_id, failure_classification_id, who, note):
+    def insert_job_note(self, job_id, failure_classification_id, who, note):
         """insert a new note for the job"""
         self.get_jobs_dhub().execute(
             proc='jobs.inserts.insert_note',
