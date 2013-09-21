@@ -176,7 +176,7 @@
                    WHERE `job_id` = ?",
             "host": "read_host"
         },
-        "get_job_note":{
+        "get_notes_by_job_id":{
             "sql":"SELECT * from `job_note`
                    WHERE `id` = ?",
             "host": "read_host"
