@@ -13,6 +13,7 @@ treeherder.controller('JobDetailPluginCtrl',
                 $scope.visibleFields = {
                     "Result": $scope.job.result,
                     "Job GUID": $scope.job.job_guid,
+                    // TODO: this needs to be a directive!!
                     "Machine Name": "<a href='https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name=" + $scope.job.machine_name + "'>" + $scope.job.machine_name + "</a>",
                     "Machine Platform Arch": $scope.job.machine_platform_architecture,
                     "Machine Platform OS": $scope.job.machine_platform_os,
@@ -80,3 +81,19 @@ treeherder.controller('JobNoteCtrl',
             $scope.failure_classification_id = 2;
     }
 );
+
+////////////////////////
+//
+//  Services
+//
+///////////////////////
+
+treeherder.factory('thJobNotes', function($http, thUrl) {
+    var jobNotes = {
+        apiPath: thUrl + "note/",
+        getAll: function() {
+            return $http.get(this.apiPath);
+        }
+    };
+    return jobNotes;
+});
