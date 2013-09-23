@@ -17,7 +17,6 @@ class JobsModel(TreeherderModelBase):
     content-types:
         jobs
         objectstore
-
     """
 
     # content types that every project will have
@@ -85,13 +84,14 @@ class JobsModel(TreeherderModelBase):
 
     def get_job_id_by_guid(self, job_guid):
         """Return the job id for this ``job_guid``"""
-        id_iter = self.get_jobs_dhub().execute(
+        iter_obj = self.get_jobs_dhub().execute(
             proc="jobs.selects.get_job_id_by_guid",
             placeholders=[job_guid],
             debug_show=self.DEBUG,
             return_type='iter'
         )
-        return id_iter.get_column_data('id')
+        obj = self.as_single(iter_obj, "job", job_guid=job_guid)
+        return obj['id']
 
     def get_job_list(self, page, limit):
         """
@@ -153,19 +153,34 @@ class JobsModel(TreeherderModelBase):
 
     def get_result_set_id(self, revision_hash):
         """Return the ``result_set.id`` for the given ``revision_hash``"""
-        id_iter = self.get_jobs_dhub().execute(
+        iter_obj = self.get_jobs_dhub().execute(
             proc='jobs.selects.get_result_set_id',
             placeholders=[revision_hash],
             debug_show=self.DEBUG,
             return_type='iter')
 
-        return id_iter.get_column_data('id')
+        return self.as_single(iter_obj, "result_set", revision_hash=revision_hash)
 
-    def get_revision_id(self, revision):
+    def get_revision_id(self, revision, repository_id):
         """Return the ``revision.id`` for the given ``revision``"""
-        id_iter = self.get_jobs_dhub().execute(
+        iter_obj = self.get_jobs_dhub().execute(
             proc='jobs.selects.get_revision_id',
-            placeholders=[revision],
+            placeholders=[revision, repository_id],
+            debug_show=self.DEBUG,
+            return_type='iter')
+
+        return self.as_single(iter_obj, "revision",
+                              revision_hash=revision,
+                              repository_id=repository_id)
+
+    def _get_revision_map_id(self, revision_id, result_set_id):
+        """
+        Return the ``revision_map.id``
+        for the given ``revision_id`` and ``result_set_id``
+        """
+        id_iter = self.get_jobs_dhub().execute(
+            proc='jobs.selects.get_revision_map_id',
+            placeholders=[revision_id, result_set_id],
             debug_show=self.DEBUG,
             return_type='iter')
 
@@ -179,8 +194,12 @@ class JobsModel(TreeherderModelBase):
         Mainly used by the restful api to list the pushes in the UI
         """
         repl = [""]
+
         if "author" in kwargs:
-            repl = [" AND `rev`.`author` = '{0}'".format(kwargs["author"])]
+            repl[0] += " AND `rev`.`author` = '{0}'".format(kwargs["author"])
+
+        if "revision" in kwargs and len(kwargs["revision"]) > 5:
+            repl[0] += " AND `rev`.`revision` = '{0}'".format(kwargs["revision"])
 
         proc = "jobs.selects.get_result_set_list"
         iter_obj = self.get_jobs_dhub().execute(
@@ -312,15 +331,6 @@ class JobsModel(TreeherderModelBase):
 
         Example:
             {
-                "sources": [
-                    {
-                        "commit_timestamp": 1365732271,
-                        "push_timestamp": 1365732271,
-                        "comments": "Bug 854583 - Use _pointer_ instead of...",
-                        "repository": "mozilla-aurora",
-                        "revision": "c91ee0e8a980"
-                    }
-                ],
                 "revision_hash": "24fd64b8251fac5cf60b54a915bffa7e51f636b5",
                 "job": {
                     "build_platform": {
@@ -367,23 +377,10 @@ class JobsModel(TreeherderModelBase):
             }
 
         """
-        # @@@ ``push_timestamp`` will come from a different location in the
-        # data structure in the future.  most likely at the top-level,
-        # rather than inside ``sources``
-        result_set_id = self._get_or_create_result_set(
-            data["revision_hash"],
-            data["sources"][0].get("push_timestamp", 0),
-        )
-
+        result_set_id = self.get_result_set_id(data["revision_hash"])['id']
         rdm = self.refdata_model
+
         job = data["job"]
-
-        # set sources
-
-        for src in data["sources"]:
-            revision_id = self._get_or_create_revision(src, job["who"])
-            self._get_or_create_revision_map(revision_id, result_set_id)
-
         # set Job data
 
         build_platform_id = rdm.get_or_create_build_platform(
@@ -444,9 +441,11 @@ class JobsModel(TreeherderModelBase):
         # importing here to avoid a dep loop
         from treeherder.log_parser.tasks import parse_log
 
-        # send a parse-log task for this job
-        check_errors = job["result"] != "success"
-        parse_log.delay(self.project, job_id, check_errors=check_errors)
+        if job["log_references"]:
+            # if we have a log to parse, we also have a result
+            # send a parse-log task for this job
+            check_errors = job["result"] != "success"
+            parse_log.delay(self.project, job_id, check_errors=check_errors)
 
         try:
             artifact = job["artifact"]
@@ -483,36 +482,49 @@ class JobsModel(TreeherderModelBase):
             ]
         )
         result_set_id = self.get_result_set_id(revision_hash)
-        return result_set_id
+        return result_set_id['id']
 
-    def _get_or_create_revision(self, src, author):
+    def _get_or_create_revision(self, params):
         """
         Insert a source to the ``revision`` table
 
-        Example source:
+        Example params:
         {
-            "commit_timestamp": 1365732271,
+            "commit_timestamp": 1365732271, # this is nullable
             "comments": "Bug 854583 - Use _pointer_ instead of...",
             "repository": "mozilla-aurora",
-            "revision": "c91ee0e8a980"
+            "revision": "c91ee0e8a980",
+            "files": [
+                "file1",
+                "file2"
+            ]
         }
 
         """
+
         repository_id = self.refdata_model.get_repository_id(
-            src["repository"])
+            params["repository"]
+        )
+
+        files = json.dumps(params['files'])
+
+        commit_timestamp = params.get("commit_timestamp", False) or 0
 
         self._insert_data(
             'set_revision',
             [
-                src["revision"],
-                author,
-                src.get("comments", ""),
-                long(src.get("commit_timestamp", 0)),
+                params["revision"],
+                params['author'],
+                params.get("comments", ""),
+                files,
+                long(commit_timestamp),
                 repository_id,
-                src["revision"],
+                params["revision"],
+                repository_id
             ]
         )
-        return self.get_revision_id(src["revision"])
+
+        return self.get_revision_id(params["revision"], repository_id)['id']
 
     def _get_or_create_revision_map(self, revision_id, result_set_id):
         """
@@ -529,6 +541,8 @@ class JobsModel(TreeherderModelBase):
                 result_set_id,
             ]
         )
+
+        return self._get_revision_map_id(revision_id, result_set_id)
 
     def _set_job_data(self, data, result_set_id, build_platform_id,
                       machine_platform_id, machine_id, option_collection_hash,
@@ -589,24 +603,32 @@ class JobsModel(TreeherderModelBase):
 
         job_id = self.get_job_id_by_guid(job_guid)
 
-        self._update_data(
-            'update_job_data',
-            [
-                job_coalesced_to_guid,
-                result_set_id,
-                machine_id,
-                option_collection_hash,
-                job_type_id,
-                product_id,
-                who,
-                reason,
-                result,
-                state,
-                start_timestamp,
-                end_timestamp,
-                job_id
-            ]
-        )
+        job_info = self.get_job(job_id)
+
+        # in this case do nothing
+        if state != 'pending':
+            # update state to running
+            if state == 'running' and job_info['state'] == 'pending':
+                self.set_state(job_id, 'running')
+            elif state == 'finished' and job_info['state'] != state:
+                self._update_data(
+                    'update_job_data',
+                    [
+                        job_coalesced_to_guid,
+                        result_set_id,
+                        machine_id,
+                        option_collection_hash,
+                        job_type_id,
+                        product_id,
+                        who,
+                        reason,
+                        result,
+                        state,
+                        start_timestamp,
+                        end_timestamp,
+                        job_id
+                    ]
+                )
 
         return job_id
 
@@ -670,7 +692,6 @@ class JobsModel(TreeherderModelBase):
             try:
                 data = JobData.from_json(row['json_blob'])
                 self.load_job_data(data)
-
                 revision_hash = data["revision_hash"]
             except JobDataError as e:
                 self.mark_object_error(row_id, str(e))
@@ -787,6 +808,16 @@ class JobsModel(TreeherderModelBase):
         )
 
         return json_blobs
+
+    def store_result_set_data(self, revision_hash, push_timestamp, revisions):
+        result_set_id = self._get_or_create_result_set(revision_hash, push_timestamp)
+        for rev in revisions:
+
+            rev_id = self._get_or_create_revision(
+                rev
+            )
+            # create a mapping between a result_set and its revisions
+            self._get_or_create_revision_map(rev_id, result_set_id)
 
 
 class JobDataError(ValueError):

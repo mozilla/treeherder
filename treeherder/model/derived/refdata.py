@@ -357,3 +357,9 @@ class RefDataManager(object):
         # retrieve the first elem from DataIterator
         for r in repo:
             return r
+
+    def get_all_repository_info(self):
+        return self.dhub.execute(
+            proc='reference.selects.get_all_repository_info',
+            debug_show=self.DEBUG,
+            return_type='iter')

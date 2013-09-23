@@ -23,19 +23,25 @@ def job_with_local_log(jm, initial_data):
     return job
 
 
-def test_parse_log(jm, initial_data, job_with_local_log, monkeypatch):
+def test_parse_log(jm, initial_data, job_with_local_log, sample_resultset, monkeypatch):
     """
     check that at least 2 job_artifacts get inserted when running
     a parse_log task
     """
 
+    jm.store_result_set_data(sample_resultset['revision_hash'],
+                            sample_resultset['push_timestamp'],
+                            sample_resultset['revisions'])
+
+    job = job_with_local_log
+    job['revision_hash'] = sample_resultset['revision_hash']
+
     mock_pl = MagicMock(name="parse_line")
     monkeypatch.setattr(ErrorParser, 'parse_line', mock_pl)
 
     job = job_with_local_log
-
     jm.store_job_data(json.dumps(job), job['job']['job_guid'])
-    jm.process_objects(1)
+    jm.process_objects(1, raise_errors=True)
 
     job_id = jm.get_jobs_dhub().execute(
         proc="jobs_test.selects.row_by_guid",
