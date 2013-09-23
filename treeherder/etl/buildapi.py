@@ -4,6 +4,7 @@ import logging
 from . import buildbot
 from treeherder.etl import common
 from treeherder.etl import buildbot
+from treeherder.model.models import Datasource
 from .mixins import JsonExtractorMixin, ObjectstoreLoaderMixin, JobsLoaderMixin
 
 
@@ -135,7 +136,11 @@ class PendingTransformerMixin(object):
         our restful api
         """
         job_list = []
+
+        projects = set(x.project for x in Datasource.objects.cached())
         for project, revisions in data['pending'].items():
+            if not project in projects:
+                continue
             for rev, jobs in revisions.items():
                 resultset = common.get_resultset(project, rev)
                 if not resultset:
@@ -189,7 +194,10 @@ class RunningTransformerMixin(object):
         our restful api
         """
         job_list = []
+        projects = set(x.project for x in Datasource.objects.cached())
         for project, revisions in data['running'].items():
+            if not project in projects:
+                continue
             for rev, jobs in revisions.items():
                 resultset = common.get_resultset(project, rev)
                 if not resultset:

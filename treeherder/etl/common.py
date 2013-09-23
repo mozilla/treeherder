@@ -95,7 +95,7 @@ def get_resultset(project, revision):
             cache.set(cache_key, cached_resultset, 60 * 60 * 12)
         else:
             return None
-    return
+    return cached_resultset
 
 
 def generate_revision_hash(revisions):

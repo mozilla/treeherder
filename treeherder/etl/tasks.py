@@ -1,7 +1,7 @@
 """
 This module contains
 """
-from celery import task
+from celery import task, group
 from .buildapi import (RunningJobsProcess,
                                      PendingJobsProcess,
                                      Builds4hJobsProcess)
@@ -43,12 +43,12 @@ def fetch_push_logs():
     to be run every minute
     """
     rdm = RefDataManager()
-    for repo in rdm.get_all_repository_info():
-        if repo['url'] and repo['dvcs_type']:
-            if repo['dvcs_type'] == 'hg':
-                fetch_hg_push_log.delay(repo['name'], repo['url']+'/json-pushes/?full=1')
-            elif repo['dvcs_type'] == 'git':
-                fetch_git_push_log.delay(repo['name'], repo['url'])
+    repos = filter(lambda x: x['url'], rdm.get_all_repository_info())
+    # create a group of subtasks and apply them
+    g = group(fetch_hg_push_log.si(repo['name'], repo['url'])
+                        for repo in repos if repo['dvcs_type'] == 'hg')
+    g()
+    # TODO: implement the git pushlog retrieval
 
 
 @task(name='fetch-hg-push-logs')
@@ -57,7 +57,7 @@ def fetch_hg_push_log(repo_name, repo_url):
     Run a HgPushlog etl process
     """
     process = HgPushlogProcess()
-    process.run(repo_url, repo_name)
+    process.run(repo_url+'/json-pushes/?full=1', repo_name)
 
 
 @task(name='fetch-git-push-logs')
