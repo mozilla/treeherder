@@ -1,8 +1,4 @@
-import pytest
-
-from treeherder.etl.pulse import (PulseDataAdapter,
-                                  TreeherderPulseDataAdapter,
-                                  PulseMissingAttributesError)
+from treeherder.etl.pulse import PulseDataAdapter, TreeherderPulseDataAdapter
 
 
 def test_process_data(sample_data):
@@ -41,7 +37,8 @@ mozilla pulse"""
         pass
 
 
-def test_load_data(sample_data, jm, mock_post_json_data, initial_data):
+def test_load_data(sample_data, jm, mock_post_json_data,
+                   initial_data, mock_get_resultset):
     """
     Test the ability of TreeherderPulseDataAdapter to load its transformed
     data through the restful api

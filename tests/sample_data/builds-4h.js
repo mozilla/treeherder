@@ -854,7 +854,7 @@
         "request_times": {
           "28006144": 1376503997
         },
-        "revision": null,
+        "revision": "15aaeae89597",
         "scheduler": "release-mozilla-release-win32_repack",
         "script_repo_revision": "97080c57a9ab",
         "slavebuilddir": "rel-m-rel-w32_rpk_3-0000000000",
@@ -901,7 +901,7 @@
         "request_times": {
           "28006143": 1376503997
         },
-        "revision": null,
+        "revision": "15aaeae89597",
         "scheduler": "release-mozilla-release-win32_repack",
         "script_repo_revision": "97080c57a9ab",
         "slavebuilddir": "rel-m-rel-w32_rpk_2-0000000000",
@@ -948,7 +948,7 @@
         "request_times": {
           "28006142": 1376503997
         },
-        "revision": null,
+        "revision": "15aaeae89597",
         "scheduler": "release-mozilla-release-win32_repack",
         "script_repo_revision": "97080c57a9ab",
         "slavebuilddir": "rel-m-rel-w32_rpk_1-0000000000",
@@ -995,7 +995,7 @@
         "request_times": {
           "28006147": 1376503997
         },
-        "revision": null,
+        "revision": "15aaeae89597",
         "scheduler": "release-mozilla-release-win32_repack",
         "script_repo_revision": "97080c57a9ab",
         "slavebuilddir": "rel-m-rel-w32_rpk_6-0000000000",
@@ -1042,7 +1042,7 @@
         "request_times": {
           "28006148": 1376503997
         },
-        "revision": null,
+        "revision": "15aaeae89597",
         "scheduler": "release-mozilla-release-win32_repack",
         "script_repo_revision": "97080c57a9ab",
         "slavebuilddir": "rel-m-rel-w32_rpk_7-0000000000",
@@ -1089,7 +1089,7 @@
         "request_times": {
           "28006146": 1376503997
         },
-        "revision": null,
+        "revision": "15aaeae89597",
         "scheduler": "release-mozilla-release-win32_repack",
         "script_repo_revision": "97080c57a9ab",
         "slavebuilddir": "rel-m-rel-w32_rpk_5-0000000000",
@@ -1136,7 +1136,7 @@
         "request_times": {
           "28006150": 1376503997
         },
-        "revision": null,
+        "revision": "15aaeae89597",
         "scheduler": "release-mozilla-release-win32_repack",
         "script_repo_revision": "97080c57a9ab",
         "slavebuilddir": "rel-m-rel-w32_rpk_9-0000000000",
@@ -1183,7 +1183,7 @@
         "request_times": {
           "28006149": 1376503997
         },
-        "revision": null,
+        "revision": "15aaeae89597",
         "scheduler": "release-mozilla-release-win32_repack",
         "script_repo_revision": "97080c57a9ab",
         "slavebuilddir": "rel-m-rel-w32_rpk_8-0000000000",
@@ -1230,7 +1230,7 @@
         "request_times": {
           "28006151": 1376503997
         },
-        "revision": null,
+        "revision": "15aaeae89597",
         "scheduler": "release-mozilla-release-win32_repack",
         "script_repo_revision": "97080c57a9ab",
         "slavebuilddir": "rel-m-rel-w32_rpk_10-000000000",
@@ -1277,7 +1277,7 @@
         "request_times": {
           "28006145": 1376503997
         },
-        "revision": null,
+        "revision": "15aaeae89597",
         "scheduler": "release-mozilla-release-win32_repack",
         "script_repo_revision": "97080c57a9ab",
         "slavebuilddir": "rel-m-rel-w32_rpk_4-0000000000",

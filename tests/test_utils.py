@@ -4,28 +4,32 @@ from datadiff import diff
 from sampledata import SampleData
 
 
-def do_job_ingestion(jm, job_data, verify_data=True):
+def do_job_ingestion(jm, job_data, sample_resultset, verify_data=True):
     """
     Ingest ``job_data`` which will be JSON job blobs.
 
     ``verify_data`` - whether or not to run the ingested jobs
                       through the verifier.
     """
+
+    jm.store_result_set_data(
+        sample_resultset['revision_hash'],
+        sample_resultset['push_timestamp'],
+        sample_resultset['revisions']
+    )
+
     for blob in job_data:
         job_guid = blob['job']['job_guid']
+        del blob['sources']
+        blob['revision_hash'] = sample_resultset['revision_hash']
         jm.store_job_data(json.dumps(blob), job_guid)
-        jm.process_objects(1)
+        jm.process_objects(1, raise_errors=True)
 
         if verify_data:
             # verify the job data
             exp_job = clean_job_blob_dict(blob["job"])
             act_job = JobDictBuilder(jm, job_guid).as_dict()
             assert exp_job == act_job, diff(exp_job, act_job)
-
-            # verify the source data
-            exp_src = clean_source_blob_dict(blob["sources"][0])
-            act_src = SourceDictBuilder(jm, job_guid).as_dict()
-            assert exp_src == act_src, diff(exp_src, act_src)
 
     complete_count = jm.get_os_dhub().execute(
         proc="objectstore_test.counts.complete")[0]["complete_count"]
@@ -67,6 +71,7 @@ class SourceDictBuilder(object):
         self.job_id = job_data['id']
 
     def as_dict(self):
+
         source = self.jm.get_jobs_dhub().execute(
             proc="jobs_test.selects.job_source",
             placeholders=[self.job_id],

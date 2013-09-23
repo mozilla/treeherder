@@ -2,6 +2,7 @@ import json
 import pytest
 
 from .sample_data_generator import job_json
+from tests.sample_data_generator import result_set
 
 slow = pytest.mark.slow
 
@@ -56,17 +57,30 @@ def test_mark_object_complete(jm):
 def test_process_objects(jm, initial_data, mock_log_parser):
     """Claims and processes a chunk of unprocessed JSON jobs data blobs."""
     # Load some rows into the objectstore
+
+    rs = result_set()
+
     blobs = [
-        job_json(submit_timestamp="1330454755", job_guid="guid1"),
-        job_json(submit_timestamp="1330454756", job_guid="guid2"),
-        job_json(submit_timestamp="1330454757", job_guid="guid3"),
+        job_json(submit_timestamp="1330454755",
+                 job_guid="guid1", revision_hash=rs['revision_hash']),
+        job_json(submit_timestamp="1330454756",
+                 job_guid="guid2", revision_hash=rs['revision_hash']),
+        job_json(submit_timestamp="1330454757",
+                 job_guid="guid3", revision_hash=rs['revision_hash']),
     ]
 
     for blob in blobs:
         jm.store_job_data(*blob)
 
+        # store a resultset as well
+        jm.store_result_set_data(
+            rs['revision_hash'],
+            rs['push_timestamp'],
+            rs['revisions']
+        )
+
     # just process two rows
-    jm.process_objects(2)
+    jm.process_objects(2, raise_errors=True)
 
     test_run_rows = jm.get_dhub(jm.CT_JOBS).execute(
         proc="jobs_test.selects.jobs")
@@ -124,10 +138,18 @@ def test_process_objects_unknown_error(jm, monkeypatch):
 
 
 @slow
-def test_ingest_sample_data(jm, sample_data, initial_data):
+def test_ingest_sample_data(jm, sample_data, initial_data, mock_log_parser):
     """Process all job structures in the job_data.txt file"""
+
+    rs = result_set()
+    jm.store_result_set_data(
+        rs['revision_hash'],
+        rs['push_timestamp'],
+        rs['revisions']
+    )
     job_data = sample_data.job_data
     for blob in job_data:
+        blob['revision_hash'] = rs['revision_hash']
         jm.store_job_data(json.dumps(blob), blob['job']['job_guid'])
 
     # the number of objects stored is equivalent to
@@ -141,7 +163,7 @@ def test_ingest_sample_data(jm, sample_data, initial_data):
     while remaining > 0:
         # need to do this trick because process_objects is crashing if
         # there are less items than expected
-        jm.process_objects(min(10, remaining))
+        jm.process_objects(min(10, remaining), raise_errors=True)
 
         remaining -= 10
 

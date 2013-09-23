@@ -1,4 +1,4 @@
-import json
+import time
 import pytest
 from django.core.urlresolvers import reverse
 from treeherder.webapp.api.views import ResultSetViewSet
@@ -47,11 +47,16 @@ def test_resultset_list_bad_project(webapp, jm):
     assert resp.json == {"message": "No project with name foo"}
 
 
-def test_resultset_detail(webapp, eleven_jobs_processed, jm):
+def test_resultset_detail(webapp, initial_data, pushlog_sample, jm):
     """
-    test retrieving a single job from the jobs-detail
+    test retrieving a resultset from the resultset-detail
     endpoint.
     """
+    jm.store_result_set_data(pushlog_sample['revision_hash'],
+                             pushlog_sample['push_timestamp'],
+                             pushlog_sample['revisions'])
+
+
     rs_list = jm.get_result_set_list(0, 10)
     rs = rs_list[0]
 
@@ -217,3 +222,46 @@ def test_warning_levels_green_on_complete():
         ]},
     ]
     assert ResultSetViewSet.get_warning_level(groups) == "green"
+
+
+def test_resultset_create(webapp, pushlog_sample, jm, initial_data):
+    """
+    test posting data to the resultset endpoint via webtest.
+    extected result are:
+    - return code 200
+    - return message successful
+    - 1 resultset stored in the jobs schema
+    """
+
+    resp = webapp.post_json(
+        reverse('resultset-list',
+                kwargs={'project': jm.project}),
+        params=pushlog_sample
+    )
+    assert resp.status_int == 200
+    assert resp.json['message'] == 'well-formed JSON stored'
+
+    stored_objs = jm.get_jobs_dhub().execute(
+        proc="jobs_test.selects.resultset_by_rev_hash",
+        placeholders=[pushlog_sample['revision_hash']]
+    )
+
+    assert len(stored_objs) == 1
+
+    assert stored_objs[0]['revision_hash'] == pushlog_sample['revision_hash']
+
+
+def test_result_set_add_job(jm, initial_data, webapp, job_sample, pushlog_sample):
+
+    jm.store_result_set_data(pushlog_sample['revision_hash'],
+                             pushlog_sample['push_timestamp'],
+                             pushlog_sample['revisions'])
+
+    job_sample['revision_hash'] = pushlog_sample['revision_hash']
+    job_sample['job']['log_references'] = []
+    resp = webapp.post_json(
+        reverse("resultset-add-job",
+                kwargs={"project": jm.project, "pk": 1}),
+        params=job_sample
+    )
+    assert resp.status_int == 200

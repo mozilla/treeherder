@@ -1,9 +1,5 @@
-{"sources": [
-    {
-        "repository": "mozilla-inbound",
-        "revision": "a54df4462572"
-    }
-], "job": {
+{
+    "job": {
     "build_platform": {
         "platform": "2.2",
         "os_name": "android",
@@ -25,4 +21,7 @@
         "architecture": "ARMv7",
         "vm": false
     }
-}, "revision_hash": "0686a4d3fa477cb0415c9ca590177e4b03919b64"}
+},
+    "revision_hash": "0686a4d3fa477cb0415c9ca590177e4b03919b64",
+    "resultset_id": 1
+}

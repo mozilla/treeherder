@@ -1,12 +1,5 @@
-{"sources": [
-    {
-        "commit_timestamp": 1370459461,
-        "push_timestamp": 1370459461,
-        "comments": "Backed out changeset fe9dcdf48551 (bug 879374) for mochitest-3 crashes.",
-        "repository": "mozilla-inbound",
-        "revision": "a54df4462572"
-    }
-], "job": {
+{
+    "job": {
     "submit_timestamp": 1370459521,
     "option_collection": {
         "opt": true

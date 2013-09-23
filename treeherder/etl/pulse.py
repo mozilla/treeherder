@@ -9,9 +9,10 @@ import logging
 from mozillapulse import consumers
 
 from .daemon import Daemon
-from .common import (JobData, get_revision_hash, get_job_guid)
+from treeherder.etl.common import JobData
+from treeherder.etl import common
 from treeherder.etl import buildbot
-from treeherder.etl.mixins import JobsLoaderMixin
+from treeherder.etl.mixins import ObjectstoreLoaderMixin
 
 
 class PulseDataAdapter(object):
@@ -343,7 +344,7 @@ class PulseDataAdapter(object):
         return target_struct
 
 
-class TreeherderPulseDataAdapter(PulseDataAdapter, JobsLoaderMixin):
+class TreeherderPulseDataAdapter(PulseDataAdapter, ObjectstoreLoaderMixin):
     """Data adapter class that converts the PulseDataAdapter
        structure into the data structure accepted by treeherder."""
 
@@ -355,15 +356,11 @@ class TreeherderPulseDataAdapter(PulseDataAdapter, JobsLoaderMixin):
 
     def adapt_data(self, data):
         """Adapts the PulseDataAdapter into the treeherder input data structure"""
-        treeherder_data = {
-            'sources': [],
-            #Include branch so revision hash with the same revision is still
-            #unique across branches
-            'revision_hash': get_revision_hash(
-                [data['revision'], data['branch']]
-            )
-        }
 
+        resultset = common.get_resultset(data['branch'], data['revision'])
+
+        treeherder_data = resultset or {}
+        treeherder_data['project'] = data['branch']
         ####
         #TODO: This is a temporary fix, this data will not be located
         #      in the sourceStamp in the pulse stream. It will likely
@@ -371,26 +368,20 @@ class TreeherderPulseDataAdapter(PulseDataAdapter, JobsLoaderMixin):
         #      Once the new properties are added they need to be incorporated
         #      here.
         ####
-        treeherder_data['sources'].append({
-            'repository': data['branch'],
-            'revision': data['revision'],
-            'push_timestamp': data['when'],
-            'commit_timestamp': data['when'],
-            'comments': data['comments']
-        })
 
         request_id = data['request_ids'][0]
         job = {
-            'job_guid': get_job_guid(
+            'job_guid': common.generate_job_guid(
                 #The keys in this dict are unicode but the values in
                 #request_ids are not, this explicit cast could cause
                 #problems if the data added to the pulse stream is
                 #modified
                 request_id, data['request_times'][unicode(request_id)]
             ),
+            'revision_hash': resultset['revision_hash'],
             'name': data['test_name'],
             'product_name': data['product'],
-            'state': 'finished',
+            'state': 'completed',
 
             #Do we need to map this to the strings in the sample structure?
             'result': buildbot.RESULT_DICT.get(int(data['results']),'unknown'),
@@ -460,6 +451,7 @@ class TreeherderPulseDataAdapter(PulseDataAdapter, JobsLoaderMixin):
                     self.logger.error(e)
             return data
         except PulseMissingAttributesError as e:
+
             self.logger.error(e)
 
 

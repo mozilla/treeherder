@@ -31,16 +31,8 @@ def job_json(**kwargs):
 
 def job_data(**kwargs):
     jobs_obj = {
-        "sources": [
-            {
-                "commit_timestamp": 1365732271,
-                "push_timestamp": 1365732271,
-                "comments": "Bug 854583 - Use _pointer_ instead of...",
-                "repository": "mozilla-aurora",
-                "revision": "c91ee0e8a980"
-            }
-        ],
-        "revision_hash": "24fd64b8251fac5cf60b54a915bffa7e51f636b5",
+        "revision_hash": kwargs.get("revision_hash",
+                                    "24fd64b8251fac5cf60b54a915bffa7e51f636b5"),
         "job": {
 
             u"build_platform": build_platform(**kwargs.pop("build_platform", {})),
@@ -167,4 +159,19 @@ def machine_platform(**kwargs):
 
     defaults.update(kwargs)
 
+    return defaults
+
+
+def result_set(**kwargs):
+    """
+    Return a sample result set, with default values.
+    """
+    source_file = os.path.join(
+        os.path.dirname(__file__),
+        "sample_data",
+        "resultset_data.json"
+    )
+
+    defaults = json.loads(open(source_file).read())
+    defaults.update(kwargs)
     return defaults

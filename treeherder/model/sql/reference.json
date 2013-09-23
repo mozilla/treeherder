@@ -227,6 +227,13 @@
                     AND `active_status` = 'active'",
             "host":"read_host"
         },
+        "get_all_repository_info":{
+            "sql": "SELECT *
+                    FROM `repository`
+                    WHERE
+                        `active_status` = 'active'",
+            "host":"read_host"
+        },
         "get_repository_group_id":{
             "sql": "SELECT `id`
                     FROM `repository_group`
