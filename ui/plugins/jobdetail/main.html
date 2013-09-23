@@ -2,8 +2,8 @@
     <div class="span7">
         <dl class="dl-horizontal">
             <span ng-repeat="(label, value) in visibleFields">
-                <dt class="label label-info">{{label}}</dt>
-                <dd class="">{{value}}</dd>
+                <dt class="label label-info"><span ng-bind="label"></span></dt>
+                <dd><span ng-bind="value"></span></dd>
             </span>
         </dl>
         <div ng-show="lvArtifact"

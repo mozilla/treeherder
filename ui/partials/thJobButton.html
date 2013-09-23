@@ -1,0 +1,12 @@
+<span class="btn {{ job.display.btnClass }}"
+   ng-class="{'btn-large selected-job': (selectedJob==job), 'btn-mini': (selectedJob!=job)}"
+   title="{{ hoverText }}"
+   ng-click="viewJob(job)"
+   ng-right-click="viewLog(job.resource_uri)">
+   <!--
+       We should conditionally remove the fire icon once they have
+       starred it, most likely.
+   -->
+   <i class="icon-fire" ng-show="job.display.onFire"></i>
+   {{ job.job_type_symbol }}
+</span>
