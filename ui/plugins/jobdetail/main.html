@@ -48,10 +48,10 @@
                         <accordion-heading ng-show="comments.length==0" >
                             No comments
                         </accordion-heading>
+                        <accordion-heading>
+                            {{ comments[0].date|date }} <span class="label label-info" ng-bind="comments[0].who"></span> said <em>"<span ng-bind="comments[0].note"></span>"</em>
+                        </accordion-heading>
                         <div ng-repeat="comment in comments">
-                            <accordion-heading ng-show="$index===0">
-                                {{ comment.date|date }} <span class="label label-info" ng-bind="comment.who"></span> said <em>"<span ng-bind="comment.note"></span>"</em>
-                            </accordion-heading>
                             <p ng-show="$index>0">
                                 {{ comment.date|date }} <span class="label label-info" ng-bind="comment.who"></span> said <em>"<span ng-bind="comment.note"></span>"</em>
                             </p>
