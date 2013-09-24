@@ -9,17 +9,17 @@ treeherder.controller('JobDetailPluginCtrl',
             if (newValue) {
                 $scope.job = newValue;
 
+                var undef = "---undefined---";
                 // fields that will show in the job detail panel
                 $scope.visibleFields = {
-                    "Result": $scope.job.result,
-                    "Job GUID": $scope.job.job_guid,
-                    // TODO: this needs to be a directive!!
+                    "Result": $scope.job.result || undef,
+                    "Job GUID": $scope.job.job_guid || undef,
                     "Machine Name": "<a href='https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name=" + $scope.job.machine_name + "'>" + $scope.job.machine_name + "</a>",
-                    "Machine Platform Arch": $scope.job.machine_platform_architecture,
-                    "Machine Platform OS": $scope.job.machine_platform_os,
-                    "Build Platform": $scope.job.build_platform,
-                    "Build Arch": $scope.job.build_architecture,
-                    "Build OS": $scope.job.build_os
+                    "Machine Platform Arch": $scope.job.machine_platform_architecture || undef,
+                    "Machine Platform OS": $scope.job.machine_platform_os || undef,
+                    "Build Platform": $scope.job.build_platform || undef,
+                    "Build Arch": $scope.job.build_architecture || undef,
+                    "Build OS": $scope.job.build_os || undef
                 };
                 $http.get(thServiceDomain + $scope.job.resource_uri).
                     success(function(data) {
