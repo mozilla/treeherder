@@ -40,13 +40,23 @@ treeherder.directive('thJobButton', function () {
                     };
                     break;
             }
+        } else {
+            switch(job.result) {
+                case "running":
+                    job.display.btnClass="";
+                    break
+            }
         }
 
     };
 
     var getHoverText = function(job) {
         var duration = Math.round((job.end_timestamp - job.submit_timestamp) / 60);
-        return job.job_type_name + " - " + job.result + " - " + duration + "mins";
+        var status = job.result;
+        if (job.state != "finished") {
+            status = job.state;
+        }
+        return job.job_type_name + " - " + status + " - " + duration + "mins";
     };
 
     return {
