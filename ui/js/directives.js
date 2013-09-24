@@ -55,7 +55,7 @@ treeherder.directive('thJobButton', function () {
             setJobDisplay(scope.job);
             scope.hoverText = getHoverText(scope.job);
         },
-        templateUrl: 'partials/thJob.html'
+        templateUrl: 'partials/thJobButton.html'
     };
 
 
