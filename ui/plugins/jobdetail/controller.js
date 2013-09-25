@@ -2,7 +2,7 @@
 
 treeherder.controller('JobDetailPluginCtrl',
     function JobDetailPluginCtrl($scope, $resource, $http,
-                                 thServiceDomain, thUrl) {
+                                 thServiceDomain, thUrl, thJobNotes) {
 
         $scope.$watch('selectedJob', function(newValue, oldValue) {
             // preferred way to get access to the selected job
@@ -14,6 +14,7 @@ treeherder.controller('JobDetailPluginCtrl',
                 $scope.visibleFields = {
                     "Result": $scope.job.result || undef,
                     "Job GUID": $scope.job.job_guid || undef,
+                    "Job ID": $scope.job.id || undef,
                     "Machine Name": "<a href='https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name=" + $scope.job.machine_name + "'>" + $scope.job.machine_name + "</a>",
                     "Machine Platform Arch": $scope.job.machine_platform_architecture || undef,
                     "Machine Platform OS": $scope.job.machine_platform_os || undef,
@@ -43,42 +44,49 @@ treeherder.controller('JobDetailPluginCtrl',
                             }
                         });
                     });
-                $scope.comments = [
-                    {
-                        who: "spectre",
-                        date: 1379709198,
-                        note: "wazzon chokey?"
-                    },
-                    {
-                        who: "fucci ca pesta",
-                        date: 1379709198,
-                        note: "my eyes are burning"
-                    },
-                    {
-                        who: "camd",
-                        date:  1376122980,
-                        note: "happy birthday to me.  this is my day."
-                    }
-                ];
+                    $scope.updateNotes();
             }
         }, true);
 
+        $scope.updateNotes = function() {
+            thJobNotes.getAll($scope.job.job_id).
+                success(function(data) {
+                    $scope.comments = data;
+                });
+        };
+
         $scope.addNote = function() {
-            $scope.noteJob = $scope.job;
+            $scope.newNote = {
+                who: "camd",
+                note: "",
+                failure_classification_id: 0,
+                job_id: $scope.job.job_id
+            };
+        };
+
+        $scope.clearNewNote = function() {
+            $scope.newNote = null;
         };
     }
 );
 
 treeherder.controller('JobNoteCtrl',
-    function JobNoteCtrl($scope) {
+    function JobNoteCtrl($scope, thJobNotes) {
         // bind to individual values in this scope, rather than a whole item.
         // each scope item binds to part of noteJob.
         // noteJob should probably be a copy?  or we won't change anything.
         // just display values from it, maybe...
 
-            $scope.who = "camd";
-            $scope.note = "";
-            $scope.failure_classification_id = 2;
+        $scope.saveNote = function() {
+            thJobNotes.create(
+                $scope.newNote.job_id,
+                $scope.newNote.note,
+                $scope.newNote.who,
+                $scope.newNote.failure_classification_id
+            );
+            $scope.updateNotes();
+            $scope.clearNewNote();
+        };
     }
 );
 
@@ -88,12 +96,22 @@ treeherder.controller('JobNoteCtrl',
 //
 ///////////////////////
 
-treeherder.factory('thJobNotes', function($http, thUrl) {
-    var jobNotes = {
-        apiPath: thUrl + "note/",
-        getAll: function() {
-            return $http.get(this.apiPath);
+treeherder.factory('thJobNotes',
+                   ['$http', 'thUrl',
+                   function($http, thUrl) {
+    return {
+        apiPath: thUrl.getProjectUrl("/note/"),
+        getAll: function(job_id) {
+            return $http.get(this.apiPath + "?job_id=" + job_id);
+        },
+        create: function(job_id, note, who, failure_classification_id) {
+            $http.post(this.apiPath, {
+                job_id: job_id,
+                note: note,
+                who: who,
+                failure_classification_id: failure_classification_id
+            });
         }
     };
-    return jobNotes;
-});
+}]);
+

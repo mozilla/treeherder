@@ -12,11 +12,3 @@ treeherder.filter('showOrHide', function() {
         }
     };
 });
-
-treeherder.filter('jobHover', function() {
-    // duration of job
-    return function(job) {
-        var duration = Math.round((job.end_timestamp - job.submit_timestamp) / 60);
-        return job.job_type_name + " - " + job.result + " - " + duration + "mins";
-    };
-});

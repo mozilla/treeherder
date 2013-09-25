@@ -1,75 +1,78 @@
 <div ng-controller="JobDetailPluginCtrl">
-    <div class="span7">
-        <div class="btn-group">
-            <button class="btn btn-mini">
-                <i class="icon-star-empty"></i>
-            </button>
-            <button class="btn btn-mini dropdown-toggle" data-toggle="dropdown">
-                <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu">
-                <li>fixed-by-backout</li>
-                <li>intermittent</li>
-                <li>infra</li>
-                <li>intermittent-needs-filing</li>
-            </ul>
-        </div>
-        <button class="btn btn-mini"
-                title="add comment"
-                ng-click="addNote()">
-            <i class="icon-comment"></i>
-        </button>
-        <div class="btn-group">
-            <button class="btn btn-mini disabled">Log:</button>
-            <div class="btn btn-mini"
-                 ng-disabled="!lvArtifact">
-                <a target="_blank" href="{{ lvUrl }}">Structured</a>
+    <div class="span12">
+        <div class="span7">
+            <div class="btn-group">
+                <button class="btn btn-mini">
+                    <i class="icon-star-empty"></i>
+                </button>
+                <button class="btn btn-mini dropdown-toggle" data-toggle="dropdown">
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li>fixed-by-backout</li>
+                    <li>intermittent</li>
+                    <li>infra</li>
+                    <li>intermittent-needs-filing</li>
+                </ul>
             </div>
-            <div class="btn btn-mini"
-                 ng-repeat="joblog in logs">
-                <a target="_blank" href="{{ joblog.url }}">Raw</a>
+            <button class="btn btn-mini"
+                    title="add comment"
+                    ng-click="addNote()">
+                <i class="icon-comment"></i>
+            </button>
+            <div class="btn-group">
+                <button class="btn btn-mini disabled">Log:</button>
+                <div class="btn btn-mini"
+                     ng-disabled="!lvArtifact">
+                    <a target="_blank" href="{{ lvUrl }}">Structured</a>
+                </div>
+                <div class="btn btn-mini"
+                     ng-repeat="joblog in logs">
+                    <a target="_blank" href="{{ joblog.url }}">Raw</a>
+                </div>
             </div>
-        </div>
 
-        <dl class="dl-horizontal">
-            <span ng-repeat="(label, value) in visibleFields">
-                <dt class="label label-info" ng-bind="label"> </dt>
-                <dd ng-bind-html-unsafe="value" target="_blank"> </dd>
-            </span>
-        </dl>
+            <dl class="dl-horizontal">
+                <span ng-repeat="(label, value) in visibleFields">
+                    <dt class="label label-info" ng-bind="label"> </dt>
+                    <dd ng-bind-html-unsafe="value" target="_blank"> </dd>
+                </span>
+            </dl>
+        </div>
+        <ul class="span7" >
+            <li ng-repeat="line in jobArtifact.blob.tinderbox_printlines">
+                <div ng-bind-html-unsafe="line"></div>
+            </li>
+        </ul>
+    </div>
+    <div class="span12">
         <dl class="dl-horizontal">
             <dt>
                 <i class="icon-plus-sign" ng-click="addNote()"></i>
                 <span class="label label-info">Comments</span>
             </dt>
             <dd>
-                <accordion>
+                <accordion ng-hide="comments.length==0">
                     <accordion-group>
-                        <accordion-heading ng-show="comments.length==0" >
-                            No comments
-                        </accordion-heading>
                         <accordion-heading>
-                            {{ comments[0].date|date }} <span class="label label-info" ng-bind="comments[0].who"></span> said <em>"<span ng-bind="comments[0].note"></span>"</em>
+                            {{ comments[0].note_timestamp*1000|date:'medium' }} <span class="label label-info" ng-bind="comments[0].who"></span> said <em>"<span ng-bind="comments[0].note"></span>"</em>
                         </accordion-heading>
                         <div ng-repeat="comment in comments">
                             <p ng-show="$index>0">
-                                {{ comment.date|date }} <span class="label label-info" ng-bind="comment.who"></span> said <em>"<span ng-bind="comment.note"></span>"</em>
+                                <span>{{ comment.note_timestamp*1000|date:'medium' }}</span> <span class="label label-info" ng-bind="comment.who"></span> said <em>"<span ng-bind="comment.note"></span>"</em>
                             </p>
                         </div>
                     </accordion-group>
                 </accordion>
+                <span ng-show="comments.length==0">No comments</span>
             </dd>
         </dl>
-        <div ng-show="noteJob">
-            <ng-form name="noteForm" class="form-inline" ng-controller="JobNoteCtrl">
-                <label>comment: </label><input ng-model="note.note" />
-                <button>save</button>
-            </ng-form>
+        <div ng-show="newNote">
+            <form ng-submit="saveNote()" class="form-inline" ng-controller="JobNoteCtrl">
+                <label>comment: </label> <input ng-model="newNote.note" autofocus="true"/>
+                <input class="btn btn-primary" type="submit" value="save">
+                <button class="btn" ng-click="clearNewNote()">cancel</button>
+            </form>
         </div>
     </div>
-    <ul class="span7" >
-        <li ng-repeat="line in jobArtifact.blob.tinderbox_printlines">
-            <div ng-bind-html-unsafe="line"></div>
-        </li>
-    </ul>
 </div>

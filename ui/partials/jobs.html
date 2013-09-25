@@ -49,18 +49,19 @@
             <tr ng-repeat="platform in job_results | filter:query">
                 <td class="span2"><span>{{ platform.name }}</span></td>
                 <td class="span10">
-                    <div ng-repeat="group in platform.groups">
+                    <span ng-repeat="group in platform.groups">
                         <span ng-show="group.symbol"
                            class="disabled"
                            title="{{ group.name }}">
                            {{ group.symbol }}(
                         </span>
-                        <th-job-button
-                            data-job="job"
-                            ng-repeat="job in group.jobs">
-                        </th-job-button>
+                        <span ng-class="{'btn-group': group.symbol}">
+                            <th-job-button
+                                ng-repeat="job in group.jobs">
+                            </th-job-button>
+                        </span>
                         <span ng-show="group.symbol">)</span>
-                    </div>
+                    </span>
                 </td>
             </tr>
         </table>
