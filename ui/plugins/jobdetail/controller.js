@@ -9,21 +9,22 @@ treeherder.controller('JobDetailPluginCtrl',
             if (newValue) {
                 $scope.job = newValue;
 
+                var undef = "---undefined---";
                 // fields that will show in the job detail panel
                 $scope.visibleFields = {
-                    "Reason": $scope.job.reason,
-                    "State": $scope.job.state,
-                    "Result": $scope.job.result,
-                    "Type Name": $scope.job.job_type_name,
-                    "Type Desc": $scope.job.job_type_description,
-                    "Who": $scope.job.who,
-                    "Job GUID": $scope.job.job_guid,
-                    "Machine Name": $scope.job.machine_name,
-                    "Machine Platform Arch": $scope.job.machine_platform_architecture,
-                    "Machine Platform OS": $scope.job.machine_platform_os,
-                    "Build Platform": $scope.job.build_platform,
-                    "Build Arch": $scope.job.build_architecture,
-                    "Build OS": $scope.job.build_os
+                    "Reason": $scope.job.reason || undef,
+                    "State": $scope.job.state || undef,
+                    "Result": $scope.job.result || undef,
+                    "Type Name": $scope.job.job_type_name || undef,
+                    "Type Desc": $scope.job.job_type_description || undef,
+                    "Who": $scope.job.who || undef,
+                    "Job GUID": $scope.job.job_guid || undef,
+                    "Machine Name": $scope.job.machine_name || undef,
+                    "Machine Platform Arch": $scope.job.machine_platform_architecture || undef,
+                    "Machine Platform OS": $scope.job.machine_platform_os || undef,
+                    "Build Platform": $scope.job.build_platform || undef,
+                    "Build Arch": $scope.job.build_architecture || undef,
+                    "Build OS": $scope.job.build_os || undef
                 };
                 $http.get(thServiceDomain + $scope.job.resource_uri).
                     success(function(data) {
