@@ -18,6 +18,7 @@ class JobsModel(TreeherderModelBase):
     content-types:
         jobs
         objectstore
+
     """
 
     # content types that every project will have
