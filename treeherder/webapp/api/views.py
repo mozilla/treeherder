@@ -109,7 +109,7 @@ class NoteViewSet(viewsets.ViewSet):
         GET method implementation for an artifact blob
 
         """
-        obj = jm.get_note(pk)
+        obj = jm.get_job_note(pk)
         return Response(obj)
 
     @with_jobs
@@ -220,7 +220,7 @@ class ResultSetViewSet(viewsets.ViewSet):
 
         filters = ["author", "revision"]
 
-        page = request.QUERY_PARAMS.get('page', 0)
+        page = int(request.QUERY_PARAMS.get('page', 0))
 
         objs = jm.get_result_set_list(
             page,

@@ -1,6 +1,6 @@
 import json
 import MySQLdb
-import datetime
+import time
 
 from warnings import filterwarnings, resetwarnings
 from django.conf import settings
@@ -181,7 +181,7 @@ class JobsModel(TreeherderModelBase):
                 failure_classification_id,
                 who,
                 note,
-                datetime.datetime.now(),
+                time.time(),
             ],
             debug_show=self.DEBUG
         )

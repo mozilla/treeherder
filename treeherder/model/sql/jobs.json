@@ -183,7 +183,9 @@
         },
         "get_job_notes":{
             "sql":"SELECT * from `job_note`
-                   WHERE `job_id` = ?",
+                   WHERE `job_id` = ?
+                   ORDER BY `note_timestamp` DESC
+                   ",
             "host": "read_host"
         },
         "get_job_id_by_guid":{
