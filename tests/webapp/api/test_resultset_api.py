@@ -47,15 +47,29 @@ def test_resultset_list_bad_project(webapp, jm):
     assert resp.json == {"message": "No project with name foo"}
 
 
-def test_resultset_detail(webapp, initial_data, pushlog_sample, jm):
+def test_resultset_list_no_jobs_no_results(webapp, initial_data,
+                                           pushlog_sample, jm):
     """
-    test retrieving a resultset from the resultset-detail
-    endpoint.
+    test retrieving a resultset list, when the resultset has no jobs.
+    should not show.
     """
     jm.store_result_set_data(pushlog_sample['revision_hash'],
                              pushlog_sample['push_timestamp'],
                              pushlog_sample['revisions'])
 
+    resp = webapp.get(
+        reverse("resultset-list",
+                kwargs={"project": jm.project})
+    )
+    assert resp.status_int == 200
+    assert len(resp.json) == 0
+
+
+def test_resultset_detail(webapp, eleven_jobs_processed, jm):
+    """
+    test retrieving a resultset from the resultset-detail
+    endpoint.
+    """
 
     rs_list = jm.get_result_set_list(0, 10)
     rs = rs_list[0]
