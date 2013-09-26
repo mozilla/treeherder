@@ -41,7 +41,7 @@ treeherder.controller('JobsCtrl',
 );
 
 treeherder.controller('PushCtrl',
-    function PushCtrl($scope, $rootScope, $http, $resource, $log,
+    function PushCtrl($scope, $rootScope, $http, $log,
                       thResults, thUrl, thServiceDomain) {
         // whether or not revision list for a push is collapsed
         $scope.isCollapsedRevisions = true;

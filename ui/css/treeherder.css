@@ -55,3 +55,7 @@ body{
     border-width: 5px;
     border-color: black;
 }
+
+.th-notes-accordion .accordion-toggle {
+    padding: 0px;
+}

@@ -70,3 +70,23 @@ treeherder.directive('thJobButton', function () {
 
 
 });
+
+
+// allow an input on a form to request focus when the value it sets in its
+// ``focus-me`` directive is true.  You can set ``focus-me="focusInput"`` and
+// when ``$scope.focusInput`` changes to true, it will request focus on
+// the element with this directive.
+treeherder.directive('focusMe', function($timeout) {
+  return {
+    link: function(scope, element, attrs) {
+      scope.$watch(attrs.focusMe, function(value) {
+        if(value === true) {
+          $timeout(function() {
+            element[0].focus();
+            scope[attrs.focusMe] = false;
+          }, 0);
+        }
+      });
+    }
+  };
+});

@@ -2,7 +2,7 @@
 
 treeherder.controller('JobDetailPluginCtrl',
     function JobDetailPluginCtrl($scope, $resource, $http,
-                                 thServiceDomain, thUrl, thJobNotes) {
+                                 thServiceDomain, thUrl, thJobNote) {
 
         $scope.$watch('selectedJob', function(newValue, oldValue) {
             // preferred way to get access to the selected job
@@ -27,7 +27,7 @@ treeherder.controller('JobDetailPluginCtrl',
                         $scope.logs = data.logs;
 
                         data.artifacts.forEach(function(artifact) {
-                            if (artifact.name.contains("Job Artifact")) {
+                            if (artifact.name.indexOf("Job Artifact") !== -1) {
                                 // we don't return the blobs with job, just
                                 // resource_uris to them.  For the Job Artifact,
                                 // we want that blob, so we need to fetch the
@@ -48,70 +48,56 @@ treeherder.controller('JobDetailPluginCtrl',
             }
         }, true);
 
+        var JobNote = thJobNote;
+
+        // load the list of existing notes (including possibly a new one just
+        // added).
         $scope.updateNotes = function() {
-            thJobNotes.getAll($scope.job.job_id).
-                success(function(data) {
-                    $scope.comments = data;
-                });
+            $scope.comments = JobNote.query({job_id: $scope.job.job_id});
         };
 
+        // open form to create a new note
         $scope.addNote = function() {
-            $scope.newNote = {
-                who: "camd",
+            $scope.newNote = new JobNote({
+                job_id: $scope.job.job_id,
                 note: "",
-                failure_classification_id: 0,
-                job_id: $scope.job.job_id
-            };
+                who: "camd",
+                failure_classification_id: 0
+            });
+            $scope.focusInput=true;
         };
 
+        // done adding a new note, so clear and hide the form
         $scope.clearNewNote = function() {
             $scope.newNote = null;
         };
-    }
-);
 
-treeherder.controller('JobNoteCtrl',
-    function JobNoteCtrl($scope, thJobNotes) {
-        // bind to individual values in this scope, rather than a whole item.
-        // each scope item binds to part of noteJob.
-        // noteJob should probably be a copy?  or we won't change anything.
-        // just display values from it, maybe...
-
+        // save the note and hide the form
         $scope.saveNote = function() {
-            thJobNotes.create(
-                $scope.newNote.job_id,
-                $scope.newNote.note,
-                $scope.newNote.who,
-                $scope.newNote.failure_classification_id
-            );
+            $scope.newNote.thSave();
             $scope.updateNotes();
             $scope.clearNewNote();
         };
     }
 );
 
-////////////////////////
-//
-//  Services
-//
-///////////////////////
+treeherder.factory('thJobNote', function($resource, $http, thUrl) {
+    var JobNote = $resource(thUrl.getProjectUrl("/note/"));
 
-treeherder.factory('thJobNotes',
-                   ['$http', 'thUrl',
-                   function($http, thUrl) {
-    return {
-        apiPath: thUrl.getProjectUrl("/note/"),
-        getAll: function(job_id) {
-            return $http.get(this.apiPath + "?job_id=" + job_id);
-        },
-        create: function(job_id, note, who, failure_classification_id) {
-            $http.post(this.apiPath, {
-                job_id: job_id,
-                note: note,
-                who: who,
-                failure_classification_id: failure_classification_id
-            });
-        }
+    // Workaround to the fact that $resource strips trailing slashes
+    // out of urls.  This causes a 301 redirect on POST because it does a
+    // preflight OPTIONS call.  Tastypie gives up on the POST after this
+    // and nothing happens.  So this alternative "thSave" command avoids
+    // that by using the trailing slash directly in a POST call.
+    // @@@ This may be fixed in later versions of Angular.  Or perhaps there's
+    // a better way?
+    JobNote.prototype.thSave = function() {
+        $http.post(thUrl.getProjectUrl("/note/"), {
+            job_id: this.job_id,
+            note: this.note,
+            who: this.who,
+            failure_classification_id: this.failure_classification_id
+        });
     };
-}]);
-
+    return JobNote;
+});
