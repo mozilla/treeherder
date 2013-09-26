@@ -93,7 +93,7 @@ class JobsModel(TreeherderModelBase):
         obj = self.as_single(iter_obj, "job", job_guid=job_guid)
         return obj['id']
 
-    def get_job_list(self, page, limit):
+    def get_job_list(self, offset, limit):
         """
         Retrieve a list of jobs.
         Mainly used by the restful api to list the jobs
@@ -101,7 +101,7 @@ class JobsModel(TreeherderModelBase):
         proc = "jobs.selects.get_job_list"
         iter_obj = self.get_jobs_dhub().execute(
             proc=proc,
-            placeholders=[page, limit],
+            placeholders=[offset, limit],
             debug_show=self.DEBUG,
             return_type='iter'
         )
@@ -186,7 +186,7 @@ class JobsModel(TreeherderModelBase):
 
         return id_iter.get_column_data('id')
 
-    def get_result_set_list(self, page, limit, **kwargs):
+    def get_result_set_list(self, offset, limit, **kwargs):
         """
         Retrieve a list of ``result_sets`` (also known as ``pushes``)
         with associated revisions.  No jobs
@@ -204,7 +204,7 @@ class JobsModel(TreeherderModelBase):
         proc = "jobs.selects.get_result_set_list"
         iter_obj = self.get_jobs_dhub().execute(
             proc=proc,
-            placeholders=[page, limit],
+            placeholders=[offset, limit],
             debug_show=self.DEBUG,
             return_type='iter',
             replace=repl,
@@ -794,7 +794,7 @@ class JobsModel(TreeherderModelBase):
         )
         return self.as_single(iter_obj, "objectstore", guid=guid)
 
-    def get_json_blob_list(self, page, limit):
+    def get_json_blob_list(self, offset, limit):
         """
         Retrieve JSON blobs from the objectstore.
         Mainly used by the restful api to list the last blobs stored
@@ -802,7 +802,7 @@ class JobsModel(TreeherderModelBase):
         proc = "objectstore.selects.get_json_blob_list"
         json_blobs = self.get_os_dhub().execute(
             proc=proc,
-            placeholders=[page, limit],
+            placeholders=[offset, limit],
             debug_show=self.DEBUG,
             return_type='tuple'
         )
