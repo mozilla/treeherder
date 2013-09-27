@@ -1,9 +1,10 @@
-from django.conf import settings
 import logging
+
+from django.conf import settings
+from django.core.cache import cache
 
 from . import buildbot
 from treeherder.etl import common
-from treeherder.etl import buildbot
 from treeherder.model.models import Datasource
 from .mixins import JsonExtractorMixin, ObjectstoreLoaderMixin, JobsLoaderMixin
 
@@ -37,20 +38,6 @@ class Builds4hTransformerMixin(object):
             request_time = build['requesttime']
             return common.generate_job_guid(request_id, request_time)
 
-    def extract_option_info(self, source_string):
-        output = {}
-        if source_string.find('pgo-build') > 0:
-            output = {
-                'option_name': 'pgo',
-                'value': True
-            }
-        else:
-            output = {
-                'option_name': 'non-pgo',
-                'value': False
-            }
-        return output
-
 
     def transform(self, data):
         """
@@ -58,15 +45,19 @@ class Builds4hTransformerMixin(object):
         our restful api
         """
         job_list = []
-
         for build in data['builds']:
+
             prop = build['properties']
             revision = prop.get('revision',
                             prop.get('got_revision',
                                 prop.get('sourcestamp', None)))
             if not revision:
                 continue
-            resultset = common.get_resultset(prop['branch'], revision)
+
+            try:
+                resultset = common.get_resultset(prop['branch'], revision[0:12])
+            except Exception:
+                resultset = None
             if not resultset:
                 continue
 
@@ -77,11 +68,19 @@ class Builds4hTransformerMixin(object):
             }
 
             platform_info = buildbot.extract_platform_info(prop['buildername'])
-            option_info = self.extract_option_info(prop['buildername'])
+            job_name = buildbot.extract_test_name(prop['buildername'])
+
+            if 'log_url' in prop:
+                log_reference = [{
+                    'url': prop['log_url'],
+                    'name': 'builds-4h'
+                }]
+            else:
+                log_reference = []
 
             job = {
                 'job_guid': self.find_job_guid(build),
-                'name': prop['buildername'],
+                'name': job_name,
                 'product_name': prop['product'],
                 'state': 'completed',
                 'result': buildbot.RESULT_DICT[build['result']],
@@ -91,7 +90,7 @@ class Builds4hTransformerMixin(object):
                 'submit_timestamp': build['requesttime'],
                 'start_timestamp': build['starttime'],
                 'end_timestamp': build['endtime'],
-                'machine': prop['slavename'],
+                'machine': prop.get('slavename', 'unknown'),
                 #build_url not present in all builds
                 'build_url': prop.get('build_url', ''),
                 #build_platform same as machine_platform
@@ -108,12 +107,9 @@ class Builds4hTransformerMixin(object):
                 },
                 #pgo or non-pgo dependent on buildername parsing
                 'option_collection': {
-                    option_info['option_name']: option_info['value']
+                    buildbot.extract_build_type(prop['buildername']): True
                 },
-                'log_references': [{
-                    'url': prop['log_url'],
-                    'name': 'builds-4h'
-                }],
+                'log_references': log_reference,
                 'artifact': {
                     'type': '',
                     'name': '',
@@ -121,8 +117,8 @@ class Builds4hTransformerMixin(object):
                     'blob': ''
                 }
             }
-            treeherder_data['job'] = job
 
+            treeherder_data['job'] = job
             job_list.append(common.JobData(treeherder_data))
 
         return job_list

@@ -43,11 +43,14 @@ def fetch_push_logs():
     to be run every minute
     """
     rdm = RefDataManager()
-    repos = filter(lambda x: x['url'], rdm.get_all_repository_info())
-    # create a group of subtasks and apply them
-    g = group(fetch_hg_push_log.si(repo['name'], repo['url'])
-                        for repo in repos if repo['dvcs_type'] == 'hg')
-    g()
+    try:
+        repos = filter(lambda x: x['url'], rdm.get_all_repository_info())
+        # create a group of subtasks and apply them
+        g = group(fetch_hg_push_log.si(repo['name'], repo['url'])
+                            for repo in repos if repo['dvcs_type'] == 'hg')
+        g()
+    finally:
+        rdm.disconnect()
     # TODO: implement the git pushlog retrieval
 
 
