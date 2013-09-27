@@ -2,7 +2,7 @@
 
 treeherder.controller('JobDetailPluginCtrl',
     function JobDetailPluginCtrl($scope, $resource, $http,
-                                 thServiceDomain, thUrl, thJobNote) {
+                                 thServiceDomain, thUrl, thJobNote, thStarTypes) {
 
         $scope.$watch('selectedJob', function(newValue, oldValue) {
             // preferred way to get access to the selected job
@@ -14,8 +14,6 @@ treeherder.controller('JobDetailPluginCtrl',
                 $scope.visibleFields = {
                     "Result": $scope.job.result || undef,
                     "Job GUID": $scope.job.job_guid || undef,
-                    "Job ID": $scope.job.id || undef,
-                    "Machine Name": "<a href='https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name=" + $scope.job.machine_name + "'>" + $scope.job.machine_name + "</a>",
                     "Machine Platform Arch": $scope.job.machine_platform_architecture || undef,
                     "Machine Platform OS": $scope.job.machine_platform_os || undef,
                     "Build Platform": $scope.job.build_platform || undef,
@@ -48,13 +46,21 @@ treeherder.controller('JobDetailPluginCtrl',
             }
         }, true);
 
+        $scope.starTypes = thStarTypes;
+        console.log("starTypes" + $scope.starTypes);
         var JobNote = thJobNote;
 
         // load the list of existing notes (including possibly a new one just
         // added).
         $scope.updateNotes = function() {
-            $scope.comments = JobNote.query({job_id: $scope.job.job_id});
+            $scope.notes = JobNote.query({job_id: $scope.job.job_id});
         };
+        // when notes comes in, then set the latest note for the job
+        $scope.$watch('notes', function(newValue, oldValue) {
+            if (newValue && newValue.length > 0) {
+                $scope.job.note=newValue[0];
+            }
+        });
 
         // open form to create a new note
         $scope.addNote = function() {
@@ -62,7 +68,7 @@ treeherder.controller('JobDetailPluginCtrl',
                 job_id: $scope.job.job_id,
                 note: "",
                 who: "camd",
-                failure_classification_id: 0
+                failure_classification_id: $scope.notes[0].failure_classification_id || 0
             });
             $scope.focusInput=true;
         };

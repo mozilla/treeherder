@@ -18,6 +18,7 @@ treeherder.directive('thJobButton', function () {
     // determines the right class/color for the button of the job
     var setJobDisplay = function(job) {
 
+        // the default is disabled
         job.display = {btnClass: "disabled"};
 
         if (job.state === "finished") {
@@ -44,7 +45,7 @@ treeherder.directive('thJobButton', function () {
             switch(job.result) {
                 case "running":
                     job.display.btnClass="";
-                    break
+                    break;
             }
         }
 
@@ -89,4 +90,25 @@ treeherder.directive('focusMe', function($timeout) {
       });
     }
   };
+});
+
+treeherder.directive('thStar', function ($parse, thStarTypes) {
+    return {
+        scope: {
+            starId: "="
+        },
+        link: function(scope, element, attrs) {
+            scope.$watch('starId', function(newVal) {
+                if (newVal) {
+                    scope.starType = thStarTypes[newVal];
+                    scope.badgeColorClass=scope.starType.star;
+                    scope.hoverText=scope.starType.name;
+                }
+            });
+        },
+        template: '<span class="label {{ badgeColorClass}}" ' +
+                        'title="{{ hoverText }}">' +
+                        '<i class="icon-star-empty"></i>' +
+                        '</span>'
+    };
 });

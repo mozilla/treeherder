@@ -9,9 +9,9 @@
            <i class="{{ icon }}"></i>
            {{ ' results' | showOrHide:isCollapsedResults }}
     </a>
-    <a class="span4 btn btn-info"
+    <a class="span4 text-left btn btn-info"
        ng-click="isCollapsedRevisions = !isCollapsedRevisions">
-        {{push.push_timestamp*1000|date:'medium'}} - {{push.author}}
+        <div class="text-left">{{push.push_timestamp*1000|date:'medium'}} - {{push.author}}</div>
     </a>
 
     <span class="span1 pushactions">
