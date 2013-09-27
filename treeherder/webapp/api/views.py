@@ -78,8 +78,8 @@ class ObjectstoreViewSet(viewsets.ViewSet):
         """
         GET method implementation for list view
         """
-        page = int(request.QUERY_PARAMS.get('page', 0))
-        objs = jm.get_json_blob_list(page, 10)
+        offset = int(request.QUERY_PARAMS.get('offset', 0))
+        objs = jm.get_json_blob_list(offset, 10)
         return Response([json.loads(obj['json_blob']) for obj in objs])
 
 
@@ -172,9 +172,9 @@ class JobsViewSet(viewsets.ViewSet):
         """
         GET method implementation for list view
         """
-        page = request.QUERY_PARAMS.get('page', 0)
+        offset = request.QUERY_PARAMS.get('offset', 0)
 
-        objs = jm.get_job_list(page, 10)
+        objs = jm.get_job_list(offset, 10)
         return Response(objs)
 
     @action()
@@ -220,10 +220,10 @@ class ResultSetViewSet(viewsets.ViewSet):
 
         filters = ["author", "revision"]
 
-        page = int(request.QUERY_PARAMS.get('page', 0))
+        offset = int(request.QUERY_PARAMS.get('offset', 0))
 
         objs = jm.get_result_set_list(
-            page,
+            offset,
             10,
             **dict((k, v) for k, v in request.QUERY_PARAMS.iteritems()
                    if k in filters)

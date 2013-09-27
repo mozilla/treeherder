@@ -212,7 +212,7 @@
             "host": "read_host"
         },
         "get_result_set_list":{
-            "sql":"SELECT
+            "sql":"SELECT DISTINCT
                       `rs`.`id`,
                       `rs`.`revision_hash`,
                       `rs`.`push_timestamp`,
@@ -221,11 +221,13 @@
                       `rev`.`repository_id`,
                       `rev`.`comments`
                    FROM result_set as rs
+                   LEFT JOIN job
+                       ON job.result_set_id = rs.id
                    INNER JOIN revision_map as rm
                        ON rs.id = rm.result_set_id
                    INNER JOIN revision as rev
                        ON rm.revision_id = rev.id
-                   WHERE 1
+                   WHERE job.id is not null
                    REP0
                    ORDER BY `rs`.`push_timestamp` DESC
                    LIMIT ?,?
