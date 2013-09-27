@@ -23,7 +23,7 @@
     ],
     "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
     "machine_name": "tegra-363",
-    "state": "finished",
+    "state": "completed",
     "who": "sendchange-unittest",
     "logs": [
         {
