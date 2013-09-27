@@ -20,7 +20,7 @@ treeherder.directive('thJobButton', function () {
 
         job.display = {btnClass: "disabled"};
 
-        if (job.state === "finished") {
+        if (job.state == "completed") {
             switch(job.result) {
                 case "success":
                     job.display.btnClass = "btn-success";
@@ -53,7 +53,7 @@ treeherder.directive('thJobButton', function () {
     var getHoverText = function(job) {
         var duration = Math.round((job.end_timestamp - job.submit_timestamp) / 60);
         var status = job.result;
-        if (job.state != "finished") {
+        if (job.state != "completed") {
             status = job.state;
         }
         return job.job_type_name + " - " + status + " - " + duration + "mins";

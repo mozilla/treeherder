@@ -52,7 +52,7 @@ describe('JobDetailPluginCtrl', function(){
         createJobDetailPluginCtrl();
         expect(jobDetailPluginScope.visibleFields).toEqual({
             'Reason' : 'scheduler',
-            'State' : 'finished',
+            'State' : 'completed',
             'Result' : 'success',
             'Type Name' : 'mochitest-5',
             'Type Desc' : 'fill me',
