@@ -3,7 +3,7 @@
 /* jasmine specs for controllers go here */
 
 describe('JobsCtrl', function(){
-    var $httpBackend, createJobsCtrl, createResultsetCtrl, jobScope, resultsetScope;
+    var $httpBackend, createJobsCtrl, createResultSetCtrl, jobScope, resultsetScope;
 
     beforeEach(module('treeherder'));
 
@@ -50,9 +50,9 @@ describe('JobsCtrl', function(){
         $controller('JobsCtrl', {'$scope': jobScope});
 
         resultsetScope = jobScope.$new();
-        createResultsetCtrl = function(push) {
-            resultsetScope.push = push;
-            var ctrl = $controller('ResultsetCtrl', {'$scope': resultsetScope});
+        createResultSetCtrl = function(resultset) {
+            resultsetScope.resultset = resultset;
+            var ctrl = $controller('ResultSetCtrl', {'$scope': resultsetScope});
             $httpBackend.flush();
             return  ctrl;
         };
@@ -73,36 +73,36 @@ describe('JobsCtrl', function(){
     });
 
     /*
-        Tests ResultsetCtrl
+        Tests ResultSetCtrl
      */
 
     it('should have 5 jobs in resultset 2', function() {
-        createResultsetCtrl(jobScope.result_sets[2]);
+        createResultSetCtrl(jobScope.result_sets[2]);
         expect(resultsetScope.job_results.length).toBe(5);
     });
 
     it('should default to revisions collapsed', function() {
-        createResultsetCtrl(jobScope.result_sets[2]);
+        createResultSetCtrl(jobScope.result_sets[2]);
         expect(resultsetScope.isCollapsedRevisions).toBe(true);
     });
 
     it('should default to results collapsed for set without failure', function() {
-        createResultsetCtrl(jobScope.result_sets[1]);
+        createResultSetCtrl(jobScope.result_sets[1]);
         expect(resultsetScope.isCollapsedResults).toBe(true);
     });
 
     it('should default to results not collapsed for set with failure', function() {
-        createResultsetCtrl(jobScope.result_sets[2]);
+        createResultSetCtrl(jobScope.result_sets[2]);
         expect(resultsetScope.isCollapsedResults).toBe(false);
     });
 
     it('should default to results not collapsed for set with failure', function() {
-        createResultsetCtrl(jobScope.result_sets[2]);
+        createResultSetCtrl(jobScope.result_sets[2]);
         expect(resultsetScope.isCollapsedResults).toBe(false);
     });
 
     it('should set the selectedJob in scope when calling viewJob()', function() {
-        var ResultsetCtrl = createResultsetCtrl(jobScope.result_sets[2]);
+        createResultSetCtrl(jobScope.result_sets[2]);
         var job = resultsetScope.job_results[0].groups[0].jobs[0];
         resultsetScope.viewJob(job);
         expect(resultsetScope.selectedJob).toBe(job);
