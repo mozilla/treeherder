@@ -23,8 +23,7 @@ treeherder.factory('thArtifact',
                    ['$http', 'thUrl',
                    function($http, thUrl) {
 
-    // get the pushes for this tree
-    // sample: 'resources/push_sample.json'
+    // get the artifacts for this tree
     return {
         getArtifact: function(id) {
             return $http.get(thUrl.getProjectUrl(
@@ -71,7 +70,7 @@ treeherder.factory('thResults',
 
     return {
         getResults: function(result_set, $scope) {
-            // store the results in scope for this push via ajax
+            // store the results in scope for this resultset via ajax
 
             var jobUrl = thUrl.getProjectUrl("/resultset/" + result_set.id + "/");
             $scope.isLoadingResults = true;
@@ -83,26 +82,26 @@ treeherder.factory('thResults',
 
                         $scope.isLoadingResults = false;
 
-                        // whether or not push results list is collapsed
+                        // whether or not resultset list is collapsed
                         $scope.isCollapsedResults = result_set.warning_level !== "red";
 
                         // how to display the warning_level.  collapse green ones
                         switch(String(result_set.warning_level))
                         {
                             case "orange":
-                                $scope.pushResultBtn = "btn-warning";
+                                $scope.resultsetStateBtn = "btn-warning";
                                 $scope.icon = "icon-warning-sign";
                                 break;
                             case "red":
-                                $scope.pushResultBtn = "btn-danger";
+                                $scope.resultsetStateBtn = "btn-danger";
                                 $scope.icon = "icon-remove";
                                 break;
                             case "grey":
-                                $scope.pushResultBtn = "";
+                                $scope.resultsetStateBtn = "";
                                 $scope.icon = "icon-time";
                                 break;
                             default:
-                                $scope.pushResultBtn = "btn-success";
+                                $scope.resultsetStateBtn = "btn-success";
                                 $scope.icon = "icon-ok";
                                 $scope.isCollapsedResults = true;
                                 break;

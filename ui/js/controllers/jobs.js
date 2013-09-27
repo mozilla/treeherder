@@ -40,15 +40,15 @@ treeherder.controller('JobsCtrl',
     }
 );
 
-treeherder.controller('PushCtrl',
-    function PushCtrl($scope, $rootScope, $http, $log,
+treeherder.controller('ResultSetCtrl',
+    function ResultSetCtrl($scope, $rootScope, $http, $log,
                       thResults, thUrl, thServiceDomain) {
-        // whether or not revision list for a push is collapsed
+        // whether or not revision list for a resultset is collapsed
         $scope.isCollapsedRevisions = true;
         $scope.isCollapsedResults = true;
 
         // get the jobs list for the current resultset
-        thResults.getResults($scope.push, $scope);
+        thResults.getResults($scope.resultset, $scope);
 
         $scope.viewJob = function(job) {
             // set the selected job

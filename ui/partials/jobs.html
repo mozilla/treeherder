@@ -1,27 +1,27 @@
 
 
-<div ng-repeat="push in result_sets"
-     ng-controller="PushCtrl"
+<div ng-repeat="resultset in result_sets"
+     ng-controller="ResultSetCtrl"
      class="result-set row-fluid">
 
-    <a class="span2 btn {{ pushResultBtn }}"
+    <a class="span2 btn {{ resultsetStateBtn }}"
        ng-click="isCollapsedResults = !isCollapsedResults">
            <i class="{{ icon }}"></i>
            {{ ' results' | showOrHide:isCollapsedResults }}
     </a>
     <a class="span4 text-left btn btn-info"
        ng-click="isCollapsedRevisions = !isCollapsedRevisions">
-        <div class="text-left">{{push.push_timestamp*1000|date:'medium'}} - {{push.author}}</div>
+        <div class="text-left">{{resultset.push_timestamp*1000|date:'medium'}} - {{resultset.author}}</div>
     </a>
 
-    <span class="span1 pushactions">
+    <span class="span1 resultsetactions">
         <span class="dropdown">
             <a class="btn dropdown-toggle" data-hover="dropdown" data-delay="1000" href="#">
                 <i class="icon-cog"></i>
                 <b class="caret"></b>
             </a>
             <ul class="dropdown-menu">
-                <li class="disabled"><a>Push Actions</a></li>
+                <li class="disabled"><a>Result Set Actions</a></li>
                 <li class="divider"></li>
                 <li><a target="_blank" href="https://tbpl.mozilla.org/mcmerge/?cset=8196c86355bc">m-mcMerge</a></li>
                 <li><a target="_blank" href="https://secure.pub.build.mozilla.org/buildapi/self-serve/mozilla-central/rev/8196c86355bc">BuildAPI</a></li>
@@ -38,7 +38,7 @@
 
     <div collapse="isCollapsedRevisions">
         <ul class="unstyled">
-            <li ng-repeat="revision in push.revisions">
+            <li ng-repeat="revision in resultset.revisions">
                 <h5>{{revision.name}} - <a class="btn">{{revision.revision}}</a> <a class="btn">{{revision.bug_id}}</a></h5>
                 <small>{{revision.message}}</small>
             </li>
