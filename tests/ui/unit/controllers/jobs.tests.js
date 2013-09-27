@@ -34,6 +34,14 @@ describe('JobsCtrl', function(){
             getJSONFixture('artifact_519.json')
         );
 
+        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/note?job_id=260').respond(
+            getJSONFixture('notes_job_260.json')
+        );
+
+        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/note/?job_id=260').respond(
+            getJSONFixture('notes_job_260.json')
+        );
+
         $httpBackend.whenGET('resources/job_groups.json').respond(
             getJSONFixture('job_groups.json')
         );

@@ -47,7 +47,6 @@ treeherder.controller('JobDetailPluginCtrl',
         }, true);
 
         $scope.starTypes = thStarTypes;
-        console.log("starTypes" + $scope.starTypes);
         var JobNote = thJobNote;
 
         // load the list of existing notes (including possibly a new one just
@@ -65,7 +64,7 @@ treeherder.controller('JobDetailPluginCtrl',
         // open form to create a new note
         $scope.addNote = function() {
             var fci = 0;
-            if ($scope.notes.length > 0) {
+            if ($scope.notes && $scope.notes.length > 0) {
                 fci = $scope.notes[0].failure_classification_id;
             }
             $scope.newNote = new JobNote({
