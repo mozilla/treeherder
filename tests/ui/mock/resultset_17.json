@@ -25,7 +25,7 @@
                             "job_id": 271,
                             "job_type_name": "remote-ts",
                             "platform": "2.2",
-                            "state": "finished",
+                            "state": "completed",
                             "build_os": "android",
                             "who": "sendchange",
                             "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
