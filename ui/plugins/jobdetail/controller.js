@@ -64,11 +64,15 @@ treeherder.controller('JobDetailPluginCtrl',
 
         // open form to create a new note
         $scope.addNote = function() {
+            var fci = 0;
+            if ($scope.notes.length > 0) {
+                fci = $scope.notes[0].failure_classification_id;
+            }
             $scope.newNote = new JobNote({
                 job_id: $scope.job.job_id,
                 note: "",
-                who: "camd",
-                failure_classification_id: $scope.notes[0].failure_classification_id || 0
+                who: $scope.username,
+                failure_classification_id: fci
             });
             $scope.focusInput=true;
         };

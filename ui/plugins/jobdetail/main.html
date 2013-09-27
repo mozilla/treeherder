@@ -57,13 +57,12 @@
         </dl>
         <div ng-show="newNote">
             <form ng-submit="saveNote()" class="form-inline">
-                <select ng-model="newNote.failure_classification_id" class="selectpicker">
+                <select ng-model="newNote.failure_classification_id">
                     <option ng-repeat="(value, star) in starTypes" value="{{value}}">{{star.name}}</option>
                 </select>
                 <input ng-model="newNote.note" focus-me="focusInput"/>
                 <input class="btn btn-primary" type="submit" value="save">
                 <a class="btn" ng-click="clearNewNote()">cancel</a>
-                <div>{{starTypes|json}}</div>
             </form>
         </div>
     </div>

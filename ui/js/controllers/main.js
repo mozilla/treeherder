@@ -14,7 +14,8 @@ treeherder.controller('MainCtrl',
         $scope.clearJob = function() {
             // setting the selectedJob to null hides the bottom panel
             $rootScope.selectedJob = null;
-        }
+        };
+        $scope.username = "User Foo";
     }
 );
 
