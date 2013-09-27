@@ -1,7 +1,6 @@
 import logging
 
 from django.conf import settings
-from django.core.cache import cache
 
 from . import buildbot
 from treeherder.etl import common
