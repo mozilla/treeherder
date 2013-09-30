@@ -166,7 +166,7 @@ class JobsModel(TreeherderModelBase):
     def get_job_note_list(self, job_id):
         """Return the job notes by job_id."""
         iter_obj = self.get_jobs_dhub().execute(
-            proc="jobs.selects.get_job_notes",
+            proc="jobs.selects.get_job_note_list",
             placeholders=[job_id],
             debug_show=self.DEBUG,
             return_type='iter',
