@@ -89,3 +89,18 @@ def sample_artifacts(jm, sample_data, eleven_jobs_processed):
             "json",
             json.dumps(sample_data.job_artifact)
         )
+
+@pytest.fixture
+def sample_notes(jm, sample_data, eleven_jobs_processed):
+    """provide 11 jobs with job notes."""
+
+    jobs = jm.get_job_list(0, 10)
+
+    for job in jobs:
+        for fcid in [0, 1]:
+            jm.insert_job_note(
+                job["id"],
+                fcid,
+                "kellyclarkson",
+                "you look like a man-o-lantern"
+            )
