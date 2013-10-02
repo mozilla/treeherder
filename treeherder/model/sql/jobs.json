@@ -98,6 +98,18 @@
             VALUES (?,?,?,?)",
 
             "host":"master_host"
+        },
+        "insert_note":{
+
+            "sql":"INSERT INTO `job_note` (
+                `job_id`,
+                `failure_classification_id`,
+                `who`,
+                `note`,
+                `note_timestamp`)
+            VALUES (?,?,?,?,?)",
+
+            "host":"master_host"
         }
 
     },
@@ -162,6 +174,18 @@
         "get_job_artifact_references":{
             "sql":"SELECT `id`, `name`, `type` from `job_artifact`
                    WHERE `job_id` = ?",
+            "host": "read_host"
+        },
+        "get_job_note":{
+            "sql":"SELECT * from `job_note`
+                   WHERE `id` = ?",
+            "host": "read_host"
+        },
+        "get_job_note_list":{
+            "sql":"SELECT * from `job_note`
+                   WHERE `job_id` = ?
+                   ORDER BY `note_timestamp` DESC
+                   ",
             "host": "read_host"
         },
         "get_job_id_by_guid":{

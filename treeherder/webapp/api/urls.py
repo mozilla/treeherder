@@ -28,6 +28,12 @@ project_bound_router.register(
     base_name='artifact',
 )
 
+project_bound_router.register(
+    r'note',
+    views.NoteViewSet,
+    base_name='note',
+)
+
 # this is the default router for plain restful endpoints
 
 # refdata endpoints:

@@ -1,5 +1,6 @@
 import json
 import MySQLdb
+import time
 
 from warnings import filterwarnings, resetwarnings
 from django.conf import settings
@@ -17,6 +18,7 @@ class JobsModel(TreeherderModelBase):
     content-types:
         jobs
         objectstore
+
     """
 
     # content types that every project will have
@@ -150,6 +152,40 @@ class JobsModel(TreeherderModelBase):
             return_type='iter',
         )
         return self.as_single(iter_obj, "job_artifacts", id=id)
+
+    def get_job_note(self, id):
+        """Return the job note by id."""
+        iter_obj = self.get_jobs_dhub().execute(
+            proc="jobs.selects.get_job_note",
+            placeholders=[id],
+            debug_show=self.DEBUG,
+            return_type='iter',
+        )
+        return self.as_single(iter_obj, "job_note", id=id)
+
+    def get_job_note_list(self, job_id):
+        """Return the job notes by job_id."""
+        iter_obj = self.get_jobs_dhub().execute(
+            proc="jobs.selects.get_job_note_list",
+            placeholders=[job_id],
+            debug_show=self.DEBUG,
+            return_type='iter',
+        )
+        return self.as_list(iter_obj, "job_notes", job_id=job_id)
+
+    def insert_job_note(self, job_id, failure_classification_id, who, note):
+        """insert a new note for the job"""
+        self.get_jobs_dhub().execute(
+            proc='jobs.inserts.insert_note',
+            placeholders=[
+                job_id,
+                failure_classification_id,
+                who,
+                note,
+                time.time(),
+            ],
+            debug_show=self.DEBUG
+        )
 
     def get_result_set_id(self, revision_hash):
         """Return the ``result_set.id`` for the given ``revision_hash``"""
