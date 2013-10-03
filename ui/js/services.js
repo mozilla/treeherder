@@ -39,7 +39,9 @@ treeherder.factory('thResultSets',
     // get the resultsets for this repo
     return {
         getResultSets: function() {
-            return $http.get(thUrl.getProjectUrl("/resultset/"));
+            return $http.get(thUrl.getProjectUrl("/resultset/"),
+                             {params: {exclude_empty: 1}}
+            );
         }
     }
 }]);
