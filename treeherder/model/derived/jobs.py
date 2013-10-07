@@ -237,6 +237,9 @@ class JobsModel(TreeherderModelBase):
         if "revision" in kwargs and len(kwargs["revision"]) > 5:
             repl[0] += " AND `rev`.`revision` = '{0}'".format(kwargs["revision"])
 
+        if "exclude_empty" in kwargs and int(kwargs["exclude_empty"]) == 1:
+            repl[0] += " AND job.id is not null"
+
         proc = "jobs.selects.get_result_set_list"
         iter_obj = self.get_jobs_dhub().execute(
             proc=proc,
