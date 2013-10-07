@@ -227,7 +227,7 @@
                        ON rs.id = rm.result_set_id
                    INNER JOIN revision as rev
                        ON rm.revision_id = rev.id
-                   WHERE job.id is not null
+                   WHERE 1
                    REP0
                    ORDER BY `rs`.`push_timestamp` DESC
                    LIMIT ?,?
