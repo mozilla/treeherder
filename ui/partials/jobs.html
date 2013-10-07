@@ -1,28 +1,27 @@
 
 
-<div
-    ng-repeat="push in result_sets"
-    ng-controller="PushCtrl"
-    class="result-set row-fluid">
+<div ng-repeat="resultset in result_sets"
+     ng-controller="ResultSetCtrl"
+     class="result-set row-fluid">
 
-    <a class="btn {{ pushResultBtn }}"
+    <a class="span2 btn {{ resultsetStateBtn }}"
        ng-click="isCollapsedResults = !isCollapsedResults">
            <i class="{{ icon }}"></i>
            {{ ' results' | showOrHide:isCollapsedResults }}
     </a>
-    <a class="btn btn-info"
+    <a class="span4 text-left btn btn-info"
        ng-click="isCollapsedRevisions = !isCollapsedRevisions">
-        {{push.push_timestamp*1000|date:'medium'}} - {{push.author}}
+        <div class="text-left">{{resultset.push_timestamp*1000|date:'medium'}} - {{resultset.author}}</div>
     </a>
 
-    <span class="pushactions">
+    <span class="span1 resultsetactions">
         <span class="dropdown">
             <a class="btn dropdown-toggle" data-hover="dropdown" data-delay="1000" href="#">
                 <i class="icon-cog"></i>
                 <b class="caret"></b>
             </a>
             <ul class="dropdown-menu">
-                <li class="disabled"><a>Push Actions</a></li>
+                <li class="disabled"><a>Result Set Actions</a></li>
                 <li class="divider"></li>
                 <li><a target="_blank" href="https://tbpl.mozilla.org/mcmerge/?cset=8196c86355bc">m-mcMerge</a></li>
                 <li><a target="_blank" href="https://secure.pub.build.mozilla.org/buildapi/self-serve/mozilla-central/rev/8196c86355bc">BuildAPI</a></li>
@@ -32,35 +31,37 @@
             </ul>
         </span>
     </span>
-    <ul class="unstyled" collapse="isCollapsedRevisions">
-        <li ng-repeat="revision in push.revisions">
-            <h5>{{revision.name}} - <a class="btn">{{revision.revision}}</a> <a class="btn">{{revision.bug_id}}</a></h5>
-            <small>{{revision.message}}</small>
-        </li>
-    </ul>
-    <div collapse="!isLoadingResults">
-        <div class="progress progress-striped active">
-            <div class="bar" style="width: 100%;"></div>
-        </div>
+    <div class="span1" ng-show="isLoadingResults">
+        <div class="progress progress-striped active"><progress percent="100"></progress></div>
+    </div>
+    <div class="clearfix"></div>
+
+    <div collapse="isCollapsedRevisions">
+        <ul class="unstyled">
+            <li ng-repeat="revision in resultset.revisions">
+                <h5>{{revision.name}} - <a class="btn">{{revision.revision}}</a> <a class="btn">{{revision.bug_id}}</a></h5>
+                <small>{{revision.message}}</small>
+            </li>
+        </ul>
     </div>
     <div collapse="isCollapsedResults">
-
         <table class="table job-table table-hover">
             <tr ng-repeat="platform in job_results | filter:query">
                 <td class="span2"><span>{{ platform.name }}</span></td>
                 <td class="span10">
-                    <div ng-repeat="group in platform.groups">
+                    <span ng-repeat="group in platform.groups">
                         <span ng-show="group.symbol"
                            class="disabled"
                            title="{{ group.name }}">
                            {{ group.symbol }}(
                         </span>
-                        <th-job-button
-                            data-job="job"
-                            ng-repeat="job in group.jobs">
-                        </th-job-button>
+                        <span ng-class="{'btn-group': group.symbol}">
+                            <th-job-button
+                                ng-repeat="job in group.jobs">
+                            </th-job-button>
+                        </span>
                         <span ng-show="group.symbol">)</span>
-                    </div>
+                    </span>
                 </td>
             </tr>
         </table>

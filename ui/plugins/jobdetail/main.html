@@ -1,25 +1,69 @@
 <div ng-controller="JobDetailPluginCtrl">
-    <div class="span7">
+    <div class="span12">
+        <div class="span7">
+            <button class="btn btn-mini"
+                    title="add note"
+                    ng-click="addNote()">
+                <i class="icon-comment"></i>
+            </button>
+            <div class="btn-group">
+                <button class="btn btn-mini disabled">Log:</button>
+                <div class="btn btn-mini"
+                     ng-disabled="!lvArtifact">
+                    <a target="_blank" href="{{ lvUrl }}">Structured</a>
+                </div>
+                <div class="btn btn-mini"
+                     ng-repeat="joblog in logs">
+                    <a target="_blank" href="{{ joblog.url }}">Raw</a>
+                </div>
+            </div>
+
+            <dl class="dl-horizontal">
+                <dt class="label label-info">Machine name</dt>
+                <dd><a href="https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name={{ $scope.job.machine_name }}">{{ job.machine_name }}</a></dd>
+                <span ng-repeat="(label, value) in visibleFields">
+                    <dt class="label label-info" ng-bind="label"> </dt>
+                    <dd ng-bind-html-unsafe="value" target="_blank"> </dd>
+                </span>
+            </dl>
+        </div>
+        <ul class="span7" >
+            <li ng-repeat="line in jobArtifact.blob.tinderbox_printlines">
+                <div ng-bind-html-unsafe="line"></div>
+            </li>
+        </ul>
+    </div>
+    <div class="span12">
         <dl class="dl-horizontal">
-            <span ng-repeat="(label, value) in visibleFields">
-                <dt class="label label-info"><span ng-bind="label"></span></dt>
-                <dd><span ng-bind="value"></span></dd>
-            </span>
+            <dt>
+                <i class="icon-plus" ng-click="addNote()" title="add note"></i>
+                <span class="label label-info">Notes</span>
+            </dt>
+            <dd class="th-notes-accordion">
+                <accordion ng-hide="notes.length==0">
+                    <accordion-group>
+                        <accordion-heading>
+                                <span th-star star-id="notes[0].failure_classification_id"></span> {{job.note.failure_classification_id}}{{ notes[0].note_timestamp*1000|date:'medium' }} <span class="label label-info" ng-bind="notes[0].who"></span> said <em>"<span ng-bind="notes[0].note"></span>"</em>
+                        </accordion-heading>
+                        <div ng-repeat="note in notes">
+                            <p ng-show="$index>0">
+                                <span th-star star-id="note.failure_classification_id"></span> <span> {{ note.note_timestamp*1000|date:'medium' }}</span> <span class="label label-info" ng-bind="note.who"></span> said <em>"<span ng-bind="note.note"></span>"</em>
+                            </p>
+                        </div>
+                    </accordion-group>
+                </accordion>
+                <span ng-show="notes.length==0">No notes</span>
+            </dd>
         </dl>
-        <div ng-show="lvArtifact"
-             class="btn">
-            <a target="_blank" href="{{ lvUrl }}">View Structured Log</a>
-        </div>
-        <div ng-hide="lvArtifact">
-            <em>Processing Structured Log</em>
-        </div>
-        <div ng-repeat="joblog in logs">
-            <a target="_blank" href="{{ joblog.url }}">Raw Log: {{ joblog.url }}</a>
+        <div ng-show="newNote">
+            <form ng-submit="saveNote()" class="form-inline">
+                <select ng-model="newNote.failure_classification_id">
+                    <option ng-repeat="(value, star) in starTypes" value="{{value}}">{{star.name}}</option>
+                </select>
+                <input ng-model="newNote.note" focus-me="focusInput"/>
+                <input class="btn btn-primary" type="submit" value="save">
+                <a class="btn" ng-click="clearNewNote()">cancel</a>
+            </form>
         </div>
     </div>
-    <ul class="span7" >
-        <li ng-repeat="line in jobArtifact.blob.tinderbox_printlines">
-            <div ng-bind-html-unsafe="line"></div>
-        </li>
-    </ul>
 </div>

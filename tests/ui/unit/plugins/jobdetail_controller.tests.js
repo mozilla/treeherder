@@ -32,8 +32,15 @@ describe('JobDetailPluginCtrl', function(){
             getJSONFixture('artifact_519.json')
         );
 
+        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/note?job_id=260').respond(
+            getJSONFixture('notes_job_260.json')
+        );
 
+        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/note/?job_id=260').respond(
+            getJSONFixture('notes_job_260.json')
+        );
 
+        $rootScope.repo = "mozilla-inbound";
         jobDetailPluginScope =  $rootScope.$new();
         createJobDetailPluginCtrl = function() {
             var ctrl = $controller('JobDetailPluginCtrl', {'$scope': jobDetailPluginScope});
@@ -51,14 +58,8 @@ describe('JobDetailPluginCtrl', function(){
     it('should set the visibleFields in the job when calling viewJob()', function() {
         createJobDetailPluginCtrl();
         expect(jobDetailPluginScope.visibleFields).toEqual({
-            'Reason' : 'scheduler',
-            'State' : 'completed',
             'Result' : 'success',
-            'Type Name' : 'mochitest-5',
-            'Type Desc' : 'fill me',
-            'Who' : 'sendchange-unittest',
             'Job GUID' : '19e993f5b0a717185083fb9eacb2d422b36d6bd1',
-            'Machine Name' : 'tegra-363',
             'Machine Platform Arch' : 'ARMv7',
             'Machine Platform OS' : 'android',
             'Build Platform' : '2.2',

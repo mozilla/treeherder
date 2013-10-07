@@ -18,6 +18,7 @@ treeherder.directive('thJobButton', function () {
     // determines the right class/color for the button of the job
     var setJobDisplay = function(job) {
 
+        // the default is disabled
         job.display = {btnClass: "disabled"};
 
         if (job.state == "completed") {
@@ -44,7 +45,7 @@ treeherder.directive('thJobButton', function () {
             switch(job.result) {
                 case "running":
                     job.display.btnClass="";
-                    break
+                    break;
             }
         }
 
@@ -69,4 +70,45 @@ treeherder.directive('thJobButton', function () {
     };
 
 
+});
+
+
+// allow an input on a form to request focus when the value it sets in its
+// ``focus-me`` directive is true.  You can set ``focus-me="focusInput"`` and
+// when ``$scope.focusInput`` changes to true, it will request focus on
+// the element with this directive.
+treeherder.directive('focusMe', function($timeout) {
+  return {
+    link: function(scope, element, attrs) {
+      scope.$watch(attrs.focusMe, function(value) {
+        if(value === true) {
+          $timeout(function() {
+            element[0].focus();
+            scope[attrs.focusMe] = false;
+          }, 0);
+        }
+      });
+    }
+  };
+});
+
+treeherder.directive('thStar', function ($parse, thStarTypes) {
+    return {
+        scope: {
+            starId: "="
+        },
+        link: function(scope, element, attrs) {
+            scope.$watch('starId', function(newVal) {
+                if (newVal) {
+                    scope.starType = thStarTypes[newVal];
+                    scope.badgeColorClass=scope.starType.star;
+                    scope.hoverText=scope.starType.name;
+                }
+            });
+        },
+        template: '<span class="label {{ badgeColorClass}}" ' +
+                        'title="{{ hoverText }}">' +
+                        '<i class="icon-star-empty"></i>' +
+                        '</span>'
+    };
 });

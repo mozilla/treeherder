@@ -3,7 +3,7 @@
 /* jasmine specs for controllers go here */
 
 describe('JobsCtrl', function(){
-    var $httpBackend, createJobsCtrl, createPushCtrl, jobScope, pushScope;
+    var $httpBackend, createJobsCtrl, createResultSetCtrl, jobScope, resultsetScope;
 
     beforeEach(module('treeherder'));
 
@@ -34,6 +34,14 @@ describe('JobsCtrl', function(){
             getJSONFixture('artifact_519.json')
         );
 
+        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/note?job_id=260').respond(
+            getJSONFixture('notes_job_260.json')
+        );
+
+        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/note/?job_id=260').respond(
+            getJSONFixture('notes_job_260.json')
+        );
+
         $httpBackend.whenGET('resources/job_groups.json').respond(
             getJSONFixture('job_groups.json')
         );
@@ -41,10 +49,10 @@ describe('JobsCtrl', function(){
         jobScope = $rootScope.$new();
         $controller('JobsCtrl', {'$scope': jobScope});
 
-        pushScope = jobScope.$new();
-        createPushCtrl = function(push) {
-            pushScope.push = push;
-            var ctrl = $controller('PushCtrl', {'$scope': pushScope});
+        resultsetScope = jobScope.$new();
+        createResultSetCtrl = function(resultset) {
+            resultsetScope.resultset = resultset;
+            var ctrl = $controller('ResultSetCtrl', {'$scope': resultsetScope});
             $httpBackend.flush();
             return  ctrl;
         };
@@ -65,39 +73,39 @@ describe('JobsCtrl', function(){
     });
 
     /*
-        Tests PushCtrl
+        Tests ResultSetCtrl
      */
 
     it('should have 5 jobs in resultset 2', function() {
-        createPushCtrl(jobScope.result_sets[2]);
-        expect(pushScope.job_results.length).toBe(5);
+        createResultSetCtrl(jobScope.result_sets[2]);
+        expect(resultsetScope.job_results.length).toBe(5);
     });
 
     it('should default to revisions collapsed', function() {
-        createPushCtrl(jobScope.result_sets[2]);
-        expect(pushScope.isCollapsedRevisions).toBe(true);
+        createResultSetCtrl(jobScope.result_sets[2]);
+        expect(resultsetScope.isCollapsedRevisions).toBe(true);
     });
 
     it('should default to results collapsed for set without failure', function() {
-        createPushCtrl(jobScope.result_sets[1]);
-        expect(pushScope.isCollapsedResults).toBe(true);
+        createResultSetCtrl(jobScope.result_sets[1]);
+        expect(resultsetScope.isCollapsedResults).toBe(true);
     });
 
     it('should default to results not collapsed for set with failure', function() {
-        createPushCtrl(jobScope.result_sets[2]);
-        expect(pushScope.isCollapsedResults).toBe(false);
+        createResultSetCtrl(jobScope.result_sets[2]);
+        expect(resultsetScope.isCollapsedResults).toBe(false);
     });
 
     it('should default to results not collapsed for set with failure', function() {
-        createPushCtrl(jobScope.result_sets[2]);
-        expect(pushScope.isCollapsedResults).toBe(false);
+        createResultSetCtrl(jobScope.result_sets[2]);
+        expect(resultsetScope.isCollapsedResults).toBe(false);
     });
 
     it('should set the selectedJob in scope when calling viewJob()', function() {
-        var pushCtrl = createPushCtrl(jobScope.result_sets[2]);
-        var job = pushScope.job_results[0].groups[0].jobs[0];
-        pushScope.viewJob(job);
-        expect(pushScope.selectedJob).toBe(job);
+        createResultSetCtrl(jobScope.result_sets[2]);
+        var job = resultsetScope.job_results[0].groups[0].jobs[0];
+        resultsetScope.viewJob(job);
+        expect(resultsetScope.selectedJob).toBe(job);
     });
 
 });
