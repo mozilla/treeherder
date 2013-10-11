@@ -146,9 +146,10 @@ def test_set_revision(jm, initial_data, revision_params):
         "files": '["file1", "file2"]',
         "active_status": "active",
         "id": row_id,
-        "repository_id": 3
+        "repository_id": 5 
 
     }
+
     assert row_data[0] == exp, diff(row_data[0], exp)
 
 
