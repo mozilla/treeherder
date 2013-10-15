@@ -19,7 +19,7 @@ def fetch_buildapi_pending():
 
 
 @task(name='fetch-buildapi-running')
-def fetch_buildapi_pending():
+def fetch_buildapi_running():
     """
     Fetches the buildapi running jobs api and load them to
     the objectstore ingestion endpoint

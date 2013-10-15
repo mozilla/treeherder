@@ -229,27 +229,108 @@ class JobsModel(TreeherderModelBase):
 
         Mainly used by the restful api to list the pushes in the UI
         """
-        repl = [""]
+        placeholders = []
+        replace_str = ""
 
         if "author" in kwargs:
-            repl[0] += " AND `rev`.`author` = '{0}'".format(kwargs["author"])
+            replace_str += " AND revision.author = %s"
+            placeholders.append(kwargs["author"])
 
         if "revision" in kwargs and len(kwargs["revision"]) > 5:
-            repl[0] += " AND `rev`.`revision` = '{0}'".format(kwargs["revision"])
+            replace_str += " AND revision.revision = %s"
+            placeholders.append(kwargs["revision"])
 
+        # If a push doesn't have jobs we can just
+        # message the user, it would save us a very expensive join
+        # with the jobs table.
+
+        #TODO: Remove if this is not necessary
         if "exclude_empty" in kwargs and int(kwargs["exclude_empty"]) == 1:
-            repl[0] += " AND job.id is not null"
+            replace_str += " AND job.id is not null"
 
+        placeholders.extend([offset, limit])
+
+        # Retrieve the filtered/limited list of result sets
         proc = "jobs.selects.get_result_set_list"
-        iter_obj = self.get_jobs_dhub().execute(
+        result_set_ids = self.get_jobs_dhub().execute(
             proc=proc,
-            placeholders=[offset, limit],
+            placeholders=placeholders,
             debug_show=self.DEBUG,
-            return_type='iter',
-            replace=repl,
+            replace=[replace_str]
         )
 
-        return self.as_list(iter_obj, "result_set", **kwargs)
+        aggregate_details = self.get_result_set_details(result_set_ids)
+        
+        # Construct the return dataset, include all revisions associated
+        # with each result_set in the revision_list attribute
+        return_list = []
+        for result in result_set_ids:
+
+            detail = aggregate_details[ result['id'] ][0]
+
+            return_list.append(
+                {
+                    "id":result['id'],
+                    "revision_hash":result['revision_hash'],
+                    "push_timestamp":result['push_timestamp'],
+                    "repository_id":detail['repository_id'],
+                    "revision":detail['revision'],
+                    "author":detail['author'],
+                    "comments":detail['comments'],
+                    "revision_list":aggregate_details[ result['id'] ]
+                    }
+                )
+                    
+        return self.as_list(return_list, "result_set", **kwargs)
+
+    def get_result_set_details(self, result_set_ids):
+        """
+        Retrieve all revisions associated with a set of ``result_set`` (also known as ``pushes``)
+        ids.
+
+        Mainly used by the restful api to list the pushes and their associated
+        revisions in the UI
+        """
+
+        if not result_set_ids:
+            # No result sets provided
+            return {}
+
+        # Generate a list of result_set_ids
+        ids = []
+        id_placeholders = []
+        for data in result_set_ids:
+            id_placeholders.append('%s')
+            ids.append(data['id'])
+        
+        where_in_clause = ','.join(id_placeholders)
+
+        # Retrieve revision details associated with each result_set_id
+        detail_proc = "jobs.selects.get_result_set_details"
+        result_set_details = self.get_jobs_dhub().execute(
+            proc=detail_proc,
+            placeholders=ids,
+            debug_show=self.DEBUG,
+            replace=[where_in_clause],
+        )
+
+        # Aggregate the revisions by result_set_id
+        aggregate_details = {}
+        for detail in result_set_details:
+
+            if detail['result_set_id'] not in aggregate_details:
+                aggregate_details[ detail['result_set_id'] ] = []
+
+            aggregate_details[ detail['result_set_id'] ].append(
+                {
+                    'revision':detail['revision'],
+                    'author':detail['author'],
+                    'repository_id':detail['repository_id'],
+                    'comments':detail['comments'],
+                    'commit_timestamp':detail['commit_timestamp']
+                })
+
+        return aggregate_details
 
     def get_result_set_job_list(self, result_set_id, **kwargs):
         """

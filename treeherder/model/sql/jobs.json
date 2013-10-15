@@ -213,25 +213,36 @@
         },
         "get_result_set_list":{
             "sql":"SELECT DISTINCT
-                      `rs`.`id`,
-                      `rs`.`revision_hash`,
-                      `rs`.`push_timestamp`,
-                      `rev`.`revision`,
-                      `rev`.`author`,
-                      `rev`.`repository_id`,
-                      `rev`.`comments`
-                   FROM result_set as rs
+                      rs.id,
+                      rs.revision_hash,
+                      rs.push_timestamp
+                   FROM result_set AS rs
                    LEFT JOIN job
-                       ON job.result_set_id = rs.id
-                   INNER JOIN revision_map as rm
-                       ON rs.id = rm.result_set_id
-                   INNER JOIN revision as rev
-                       ON rm.revision_id = rev.id
-                   WHERE 1
+                      ON job.result_set_id = rs.id
+                   INNER JOIN revision_map
+                      ON rs.id = revision_map.result_set_id
+                   INNER JOIN revision
+                      ON revision_map.revision_id = revision.id
+                   WHERE rs.active_status = 1
                    REP0
-                   ORDER BY `rs`.`push_timestamp` DESC
+                   ORDER BY rs.push_timestamp DESC
                    LIMIT ?,?
                    ",
+            "host": "read_host"
+        },
+        "get_result_set_details":{
+            "sql":"SELECT 
+                    rm.result_set_id,
+                    r.repository_id,
+                    r.revision,
+                    r.author,
+                    r.comments,
+                    r.commit_timestamp
+                   FROM revision_map AS rm
+                   LEFT JOIN revision AS r ON rm.revision_id = r.id
+                   WHERE r.active_status = 1 AND rm.result_set_id IN (REP0)
+                   ORDER BY r.id DESC",
+
             "host": "read_host"
         },
         "get_result_set_by_id":{
