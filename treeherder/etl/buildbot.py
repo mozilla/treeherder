@@ -26,11 +26,11 @@ PLATFORMS_BUILDERNAME = {
 
     'linux-mock': {
         'regexes': [
-            re.compile('^b2g .+_armv7a.+', re.IGNORECASE),
-            re.compile('^b2g linux32_gecko .+', re.IGNORECASE),
-            re.compile('^b2g_((?!(test|talos)).)+$', re.IGNORECASE),
-            re.compile('^Android (?!(?:Tegra|Armv6 Tegra|no-ionmonkey Tegra 250|4.0 Panda)).+'),
-            re.compile('.+linux.*', re.IGNORECASE),
+            re.compile('^b2g .+_armv7a.+',  re.IGNORECASE),
+            re.compile('^b2g linux32_gecko .+',  re.IGNORECASE),
+            re.compile('^b2g_((?!(test|talos)).)+$',  re.IGNORECASE),
+            re.compile('^Android (?!(?:2\.2 Tegra|2\.2 Armv6 Tegra|2\.2 no-ionmonkey Tegra|4\.0 Panda|4\.2 x86 Emulator)).+'),
+            re.compile('.*linux.*',  re.IGNORECASE),
         ],
 
         'attributes': {
@@ -45,8 +45,7 @@ PLATFORMS_BUILDERNAME = {
         'regexes': [
             re.compile('^Rev3 Fedora 12 .+'),
             re.compile('jetpack-.*-fedora(?!64)'),
-            re.compile('^b2g_.+(opt|debug) test.+', re.IGNORECASE),
-            re.compile('^Linux (?!x86-64).+'),
+            re.compile('^b2g_.+(opt|debug) test.+',  re.IGNORECASE)
         ],
 
         'attributes': {
@@ -61,7 +60,6 @@ PLATFORMS_BUILDERNAME = {
         'regexes': [
             re.compile('Rev3 Fedora 12x64 .+'),
             re.compile('jetpack-.*-fedora64'),
-            re.compile('^Linux x86-64'),
         ],
 
         'attributes': {
@@ -74,7 +72,7 @@ PLATFORMS_BUILDERNAME = {
 
     'ubuntu32_vm': {
         'regexes': [
-            re.compile('Ubuntu VM 12.04 (?!x64).+'),
+            re.compile('Ubuntu (ASAN )?VM 12.04 (?!x64).+'),
             re.compile('jetpack-.*-ubuntu32(?:_vm)?'),
         ],
 
@@ -88,7 +86,7 @@ PLATFORMS_BUILDERNAME = {
 
     'ubuntu64_vm': {
         'regexes': [
-            re.compile('Ubuntu VM 12.04 x64 .+'),
+            re.compile('Ubuntu (ASAN )?VM 12.04 x64 .+'),
             re.compile('jetpack-.*-ubuntu64(?:_vm)?'),
         ],
 
@@ -102,7 +100,7 @@ PLATFORMS_BUILDERNAME = {
 
     'ubuntu32_hw': {
         'regexes': [
-            re.compile('Ubuntu HW 12.04 (?!x64).+'),
+            re.compile('Ubuntu (ASAN )?HW 12.04 (?!x64).+'),
         ],
 
         'attributes': {
@@ -115,7 +113,8 @@ PLATFORMS_BUILDERNAME = {
 
     'ubuntu64_hw': {
         'regexes': [
-            re.compile('Ubuntu HW 12.04 x64 .+'),
+            re.compile('Ubuntu (ASAN )?HW 12.04 x64 .+'),
+            re.compile('^Android 4\.2 x86 Emulator .+'),
         ],
 
         'attributes': {
@@ -125,41 +124,11 @@ PLATFORMS_BUILDERNAME = {
             'vm': False
         }
     },
-
-    'leopard': {
-        'regexes': [
-            re.compile('^OS X 10\.5.+'),
-            re.compile('^Rev3 MacOSX Leopard 10\.5.+'),
-            re.compile('.*macosx(?!64).*'),
-            re.compile('jetpack-.*-leopard'),
-        ],
-
-        'attributes': {
-            'os': 'mac',
-            'os_platform': 'OS X 10.5',
-            'arch': 'x86',
-            'vm': False
-        }
-    },
-
     'snowleopard': {
         'regexes': [
             re.compile('^OS X 10\.6.+'),
-            re.compile('^Rev3 MacOSX Snow Leopard 10\.6.+'),
             re.compile('.*macosx64.*'),
             re.compile('jetpack-.*-snowleopard'),
-        ],
-
-        'attributes': {
-            'os': 'mac',
-            'os_platform': 'OS X 10.6',
-            'arch': 'x86_64',
-            'vm': False
-        }
-    },
-
-    'snowleopard-r4': {
-        'regexes': [
             re.compile('^Rev4 MacOSX Snow Leopard 10\.6.+'),
         ],
 
@@ -170,17 +139,16 @@ PLATFORMS_BUILDERNAME = {
             'vm': False
         }
     },
-
     'lion': {
         'regexes': [
-            re.compile('^(TB )?OS X 10\.7.+'),
+            re.compile('^OS X 10\.7.+'),
             re.compile('^Rev4 MacOSX Lion 10\.7.+'),
             re.compile('jetpack-.*-lion'),
         ],
 
         'attributes': {
             'os': 'mac',
-            'os_platform': 'OS X 10.6',
+            'os_platform': 'OS X 10.7',
             'arch': 'x86_64',
             'vm': False
         }
@@ -188,7 +156,7 @@ PLATFORMS_BUILDERNAME = {
 
     'mountainlion': {
         'regexes': [
-            re.compile('^Rev5 MacOSX Mountain Lion 10\.8+'),
+            re.compile('^Rev5 MacOSX Mountain Lion 10\.8.+'),
             re.compile('jetpack-.*-mountainlion'),
         ],
 
@@ -204,7 +172,20 @@ PLATFORMS_BUILDERNAME = {
         'regexes': [
             re.compile('^Rev3 WINNT 5\.1 .+'),
             re.compile('jetpack-.*-xp'),
-            re.compile('^Windows XP 32-bit')
+        ],
+
+        'attributes': {
+            'os': 'win',
+            'os_platform': 'WINNT 5.1',
+            'arch': 'x86',
+            'vm': False
+        }
+    },
+    #Not sure what properties are associated with -ix and how they
+    #differ from xp
+    'xp-ix': {
+        'regexes': [
+            re.compile('^Windows XP 32-bit'),
         ],
 
         'attributes': {
@@ -217,7 +198,7 @@ PLATFORMS_BUILDERNAME = {
 
     'win2k3': {
         'regexes': [
-            re.compile('^(TB )?WINNT 5\.2 .+'),
+            re.compile('^WINNT 5\.2 .+'),
             re.compile('.*win32.*'),
         ],
 
@@ -231,7 +212,7 @@ PLATFORMS_BUILDERNAME = {
 
     'win64': {
         'regexes': [
-            re.compile('^(TB )?WINNT 6\.1 .+'),
+            re.compile('^WINNT 6\.1 .+'),
             re.compile('.*win64.*'),
         ],
 
@@ -247,7 +228,20 @@ PLATFORMS_BUILDERNAME = {
         'regexes': [
             re.compile('^Rev3 WINNT 6\.1 '),
             re.compile('jetpack-.*-win7'),
-            re.compile('^Windows 7 32-bit'),
+        ],
+
+        'attributes': {
+            'os': 'win',
+            'os_platform': 'Rev3 WINNT 6.1',
+            'arch': 'x86',
+            'vm': False
+        }
+    },
+    #Not sure what properties are associated with -ix and how they
+    #differ from win7
+    'win7-ix': {
+        'regexes': [
+            re.compile('^Windows 7 32-bit '),
         ],
 
         'attributes': {
@@ -275,11 +269,12 @@ PLATFORMS_BUILDERNAME = {
     'win8': {
         'regexes': [
             re.compile('.*WINNT 6\.2 '),
+            re.compile('jetpack-.*-win8'),
         ],
 
         'attributes': {
             'os': 'win',
-            'os_platform': 'WINNT 6.3',
+            'os_platform': 'WINNT 6.2',
             'arch': 'x86_64',
             'vm': False
         }
@@ -287,9 +282,9 @@ PLATFORMS_BUILDERNAME = {
 
     'tegra': {
         'regexes': [
-            re.compile('^Android Tegra 250 .+'),
-            re.compile('^Android Armv6 Tegra 250 .+'),
-            re.compile('^Android no-ionmonkey Tegra 250 .+'),
+            re.compile('^Android 2\.2 Tegra .+'),
+            re.compile('^Android 2\.2 Armv6 Tegra .+'),
+            re.compile('^Android 2\.2 no-ionmonkey Tegra .+'),
         ],
 
         'attributes': {
@@ -302,7 +297,7 @@ PLATFORMS_BUILDERNAME = {
 
     'panda-android': {
         'regexes': [
-            re.compile('^Android 4.0 Panda .+'),
+            re.compile('^Android 4\.0 Panda .+'),
         ],
 
         'attributes': {

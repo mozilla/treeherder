@@ -20,7 +20,7 @@ def test_resultset_list(webapp, eleven_jobs_processed, jm):
     rs_list = resp.json
 
     assert len(rs_list) == 10
-    exp_keys = [
+    exp_keys = set([
         u'id',
         u'repository_id',
         u'push_timestamp',
@@ -28,9 +28,10 @@ def test_resultset_list(webapp, eleven_jobs_processed, jm):
         u'comments',
         u'revision_hash',
         u'revision',
-    ]
+        u'revision_list',
+    ])
     for rs in rs_list:
-        assert set(rs.keys()) == set(exp_keys)
+        assert set(rs.keys()) == exp_keys
 
 
 def test_resultset_list_bad_project(webapp, jm):
