@@ -223,7 +223,7 @@
                       ON rs.id = revision_map.result_set_id
                    INNER JOIN revision
                       ON revision_map.revision_id = revision.id
-                   WHERE rs.active_status = 1
+                   WHERE rs.active_status = 'active' 
                    REP0
                    ORDER BY rs.push_timestamp DESC
                    LIMIT ?,?
@@ -240,7 +240,7 @@
                     r.commit_timestamp
                    FROM revision_map AS rm
                    LEFT JOIN revision AS r ON rm.revision_id = r.id
-                   WHERE r.active_status = 1 AND rm.result_set_id IN (REP0)
+                   WHERE r.active_status = 'active' AND rm.result_set_id IN (REP0)
                    ORDER BY r.id DESC",
 
             "host": "read_host"
