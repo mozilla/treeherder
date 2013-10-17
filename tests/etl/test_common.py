@@ -20,5 +20,4 @@ def test_get_revision_hash_none(jm, mock_get_remote_content,
     project = settings.DATABASES["default"]["TEST_NAME"]
     revision = "fakerevision"
     resultset = common.get_resultset(project, revision)
-
     assert resultset == None
