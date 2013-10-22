@@ -1,5 +1,5 @@
 
-
+<div>
 <div ng-repeat="resultset in result_sets"
      ng-controller="ResultSetCtrl"
      class="result-set row-fluid">
@@ -66,4 +66,8 @@
             </tr>
         </table>
     </div>
+</div>
+<div ng-bind="offset"></div>
+<div class="btn" ng-click="setPage(1)">first</div>
+<pagination total-items="totalItems" page="currentPage"></pagination>
 </div>

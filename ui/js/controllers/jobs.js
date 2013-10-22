@@ -29,13 +29,27 @@ treeherder.controller('JobsCtrl',
             }
         });
 
-        thResultSets.getResultSets().
-            success(function(data) {
-                $scope.result_sets = data;
-            }).
-            error(function(data, status, header, config) {
-                $scope.statusError("Error getting result sets and jobs from service");
-            });
+        $scope.totalItems=100;
+        $scope.currentPage=1;
+        $scope.maxSize=10;
+        $scope.offset = 0;
+
+        $scope.setPage = function(pageNo) {
+            $scope.currentPage = pageNo;
+            $scope.offset = ($scope.currentPage - 1) * 10;
+
+
+            thResultSets.getResultSets($scope.offset).
+                success(function(data) {
+                    $scope.result_sets = data;
+                }).
+                error(function(data, status, header, config) {
+                    $scope.statusError("Error getting result sets and jobs from service");
+                });
+
+        };
+
+        $scope.setPage($scope.currentPage);
 
     }
 );

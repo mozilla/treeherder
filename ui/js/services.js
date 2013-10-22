@@ -38,9 +38,13 @@ treeherder.factory('thResultSets',
 
     // get the resultsets for this repo
     return {
-        getResultSets: function() {
+        getResultSets: function(offset=0) {
+//            offset = typeof offset == 'undefined'?  offset : 0;
             return $http.get(thUrl.getProjectUrl("/resultset/"),
-                             {params: {exclude_empty: 1}}
+                             {params: {
+                                exclude_empty: 1,
+                                offset: offset
+                             }}
             );
         }
     }
