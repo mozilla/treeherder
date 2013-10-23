@@ -38,12 +38,16 @@ treeherder.factory('thResultSets',
 
     // get the resultsets for this repo
     return {
-        getResultSets: function(offset=0) {
-//            offset = typeof offset == 'undefined'?  offset : 0;
+        getResultSets: function(offset=0, count=10) {
+            // the default notation above only works in some browsers (firefox)
+            offset = typeof offset == 'undefined'?  0: offset;
+            count = typeof count == 'undefined'?  10: count;
+
             return $http.get(thUrl.getProjectUrl("/resultset/"),
                              {params: {
                                 exclude_empty: 1,
-                                offset: offset
+                                offset: offset,
+                                count: count
                              }}
             );
         }

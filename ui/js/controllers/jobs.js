@@ -29,19 +29,15 @@ treeherder.controller('JobsCtrl',
             }
         });
 
-        $scope.totalItems=100;
-        $scope.currentPage=1;
-        $scope.maxSize=10;
         $scope.offset = 0;
+        $scope.result_sets = [];
 
-        $scope.setPage = function(pageNo) {
-            $scope.currentPage = pageNo;
-            $scope.offset = ($scope.currentPage - 1) * 10;
+        $scope.nextResultSets = function(count) {
 
-
-            thResultSets.getResultSets($scope.offset).
+            thResultSets.getResultSets($scope.offset, count).
                 success(function(data) {
-                    $scope.result_sets = data;
+                    $scope.offset += count;
+                    $scope.result_sets.push.apply($scope.result_sets, data);
                 }).
                 error(function(data, status, header, config) {
                     $scope.statusError("Error getting result sets and jobs from service");
@@ -49,7 +45,7 @@ treeherder.controller('JobsCtrl',
 
         };
 
-        $scope.setPage($scope.currentPage);
+        $scope.nextResultSets(10);
 
     }
 );
