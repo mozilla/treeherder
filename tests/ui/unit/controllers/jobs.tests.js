@@ -12,7 +12,7 @@ describe('JobsCtrl', function(){
         $httpBackend = $injector.get('$httpBackend');
         jasmine.getJSONFixtures().fixturesPath='base/test/mock';
 
-        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/resultset/?exclude_empty=1').respond(
+        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/resultset/?count=10&exclude_empty=1&offset=0').respond(
             getJSONFixture('resultset_list.json')
         );
 
