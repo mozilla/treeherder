@@ -1,5 +1,5 @@
 
-
+<div>
 <div ng-repeat="resultset in result_sets"
      ng-controller="ResultSetCtrl"
      class="result-set row-fluid">
@@ -55,7 +55,7 @@
                            title="{{ group.name }}">
                            {{ group.symbol }}(
                         </span>
-                        <span ng-class="{'btn-group': group.symbol}">
+                        <span>
                             <th-job-button
                                 ng-repeat="job in group.jobs">
                             </th-job-button>
@@ -65,5 +65,12 @@
                 </td>
             </tr>
         </table>
+    </div>
+</div>
+<div class="well">
+    get next: <div class="btn-group">
+        <div class="btn btn-small"
+             ng-click="nextResultSets(count)"
+             ng-repeat="count in [10, 20, 50, 100]">{{count}}</div>
     </div>
 </div>
