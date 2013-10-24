@@ -36,7 +36,7 @@
     </div>
     <div class="clearfix"></div>
 
-    <div collapse="isCollapsedRevisions">
+    <div ng-hide="isCollapsedRevisions">
         <ul class="unstyled">
             <li ng-repeat="revision in resultset.revisions">
                 <h5>{{revision.name}} - <a class="btn">{{revision.revision}}</a> <a class="btn">{{revision.bug_id}}</a></h5>
@@ -44,7 +44,7 @@
             </li>
         </ul>
     </div>
-    <div ng-hide="isCollapsedResults">
+    <div ng-class="{'hidden': (isCollapsedResults==true)}">
         <table class="table job-table table-hover">
             <tr ng-repeat="platform in job_results | filter:query">
                 <td class="span2"><span>{{ platform.name }}</span></td>
