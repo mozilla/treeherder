@@ -1,5 +1,5 @@
 <span class="job-btn {{ job.display.btnClass }}"
-      ng-class="{'btn-large selected-job': (selectedJob==job), 'btn-mini': (selectedJob!=job)}"
+      ng-class="{'job-btn-large selected-job': (selectedJob==job), 'job-btn-mini': (selectedJob!=job)}"
       title="{{ hoverText }}"
       ng-click="viewJob(job)"
       ng-right-click="viewLog(job.resource_uri)">
