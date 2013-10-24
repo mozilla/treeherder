@@ -1,6 +1,11 @@
-body{
+body {
   padding-top: 60px;
   padding-bottom: 500px;
+  min-width: 1000px;
+}
+
+.navbar {
+    min-width: 1000px;
 }
 
 .pushactions span.dropdown:hover ul.dropdown-menu{
@@ -47,15 +52,18 @@ body{
 }
 
 .job-table td {
-    border-top: 0px;
+    border-top: 0;
     padding: 1px;
 }
 
 .selected-job {
-    border-width: 5px;
-    border-color: black;
+    border: 5px solid black;
 }
 
 .th-notes-accordion .accordion-toggle {
-    padding: 0px;
+    padding: 0;
+}
+
+.show-jobs-button {
+    width: 85px;
 }
