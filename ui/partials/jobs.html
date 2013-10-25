@@ -4,14 +4,14 @@
      ng-controller="ResultSetCtrl"
      class="result-set row-fluid">
 
-    <a class="span2 btn {{ resultsetStateBtn }}"
+    <a class="btn {{ resultsetStateBtn }} show-jobs-button pull-left"
        ng-click="isCollapsedResults = !isCollapsedResults">
            <i class="{{ icon }}"></i>
-           {{ ' results' | showOrHide:isCollapsedResults }}
+           {{ ' jobs' | showOrHide:isCollapsedResults }}
     </a>
-    <a class="span4 text-left btn btn-info"
+    <a class="span7 text-left btn btn-info"
        ng-click="isCollapsedRevisions = !isCollapsedRevisions">
-        <div class="text-left">{{resultset.push_timestamp*1000|date:'medium'}} - {{resultset.author}}</div>
+        <div class="text-left">{{resultset.push_timestamp*1000|date:'medium'}} - {{resultset.author}} - {{resultset.revision}}</div>
     </a>
 
     <span class="span1 resultsetactions">
@@ -36,35 +36,36 @@
     </div>
     <div class="clearfix"></div>
 
-    <div collapse="isCollapsedRevisions">
-        <ul class="unstyled">
-            <li ng-repeat="revision in resultset.revisions">
-                <h5>{{revision.name}} - <a class="btn">{{revision.revision}}</a> <a class="btn">{{revision.bug_id}}</a></h5>
-                <small>{{revision.message}}</small>
-            </li>
-        </ul>
-    </div>
-    <div collapse="isCollapsedResults">
-        <table class="table job-table table-hover">
-            <tr ng-repeat="platform in job_results | filter:query">
-                <td class="span2"><span>{{ platform.name }}</span></td>
-                <td class="span10">
-                    <span ng-repeat="group in platform.groups">
-                        <span ng-show="group.symbol"
-                           class="disabled"
-                           title="{{ group.name }}">
-                           {{ group.symbol }}(
+    <div ng-hide="isCollapsedRevisions && isCollapsedResults"
+         class="row-fluid">
+        <span ng-hide="isCollapsedRevisions"
+              ng-class="{'span4': (isCollapsedResults==false)}">
+            <ul class="unstyled">
+                <li ng-repeat="revision in resultset.revision_list"
+                    class="revision">
+                    <span class="label">{{revision.revision}}</span> {{revision.author}} <span ng-show="revision.comment" class="italic">"{{revision.comments}}"</span>
+                </li>
+            </ul>
+        </span>
+        <span ng-hide="isCollapsedResults"
+              ng-class="{'span8': (isCollapsedRevisions==false)}">
+            <table class="table job-table table-hover">
+                <tr ng-repeat="platform in job_results | filter:query">
+                    <td class="span2 platform"><span>{{ platform.name }}</span></td>
+                    <td class="span10">
+                        <span ng-repeat="group in platform.groups">
+                            <span ng-show="group.symbol"
+                               class="disabled"
+                               title="{{ group.name }}">{{ group.symbol }}(</span>
+                            <span>
+                                <th-job-button ng-repeat="job in group.jobs"></th-job-button>
+                            </span>
+                            <span ng-show="group.symbol"> )</span>
                         </span>
-                        <span>
-                            <th-job-button
-                                ng-repeat="job in group.jobs">
-                            </th-job-button>
-                        </span>
-                        <span ng-show="group.symbol">)</span>
-                    </span>
-                </td>
-            </tr>
-        </table>
+                    </td>
+                </tr>
+            </table>
+        </span>
     </div>
 </div>
 <div class="well">

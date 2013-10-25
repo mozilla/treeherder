@@ -24,20 +24,20 @@ treeherder.directive('thJobButton', function () {
         if (job.state == "completed") {
             switch(job.result) {
                 case "success":
-                    job.display.btnClass = "btn-success";
+                    job.display.btnClass = "job-btn-success";
                     break;
                 case "busted":
                 case "fail":
                 case "testfailed":
                     job.display = {
                         onFire: true,
-                        btnClass: "btn-danger"
+                        btnClass: "job-btn-danger"
                     };
                     break;
                 case "orange":
                     job.display = {
                         onFire: true,
-                        btnClass: "btn-warning"
+                        btnClass: "job-btn-warning"
                     };
                     break;
             }

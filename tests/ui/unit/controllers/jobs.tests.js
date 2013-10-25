@@ -63,11 +63,6 @@ describe('JobsCtrl', function(){
         Tests JobsCtrl
      */
 
-    it('should have job_types', function() {
-        expect(jobScope.job_types.length).toBe(59);
-
-    });
-
     it('should have 10 resultsets', function() {
         expect(jobScope.result_sets.length).toBe(10);
     });

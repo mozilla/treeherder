@@ -1,6 +1,16 @@
-body{
+body {
   padding-top: 60px;
   padding-bottom: 500px;
+  min-width: 1000px;
+}
+
+.hidden {
+  display: none;
+  visibility: hidden;
+}
+
+.navbar {
+    min-width: 1000px;
 }
 
 .pushactions span.dropdown:hover ul.dropdown-menu{
@@ -46,16 +56,72 @@ body{
     padding-bottom: 5px;
 }
 
+.revision {
+    font-size: 10px;
+}
+
+.platform {
+    font-size: 11px;
+}
+
 .job-table td {
-    border-top: 0px;
+    border-top: 0;
     padding: 1px;
+    line-height: 12px;
+}
+
+.job-table tr {
+    line-height: 12px;
 }
 
 .selected-job {
-    border-width: 5px;
-    border-color: black;
+    border: 5px solid black;
 }
 
 .th-notes-accordion .accordion-toggle {
-    padding: 0px;
+    padding: 0;
+}
+
+.show-jobs-button {
+    width: 85px;
+}
+
+.job-btn {
+  display: inline-block;
+  margin: 0 -4px 0 0;
+  text-align: center;
+  cursor: pointer;
+  background-color: #f5f5f5;
+  border-color: #cccccc;
+  -webkit-border-radius: 3px;
+     -moz-border-radius: 3px;
+          border-radius: 3px;
+}
+
+.job-btn-success {
+  color: #ffffff;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  background-color: #5bb75b;
+  border-color: #3d7a3d;
+}
+
+.job-btn-danger {
+  color: #ffffff;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  background-color: #da4f49;
+  border-color: #8d403a;
+}
+
+.job-btn-mini {
+  padding: 3px;
+  font-size: 10px;
+  border-width: 1px;
+  border-style: solid;
+}
+
+.job-btn-large {
+  padding: 7px;
+  font-size: 17px;
+  border: 5px solid black;
+  z-index: -1;
 }
