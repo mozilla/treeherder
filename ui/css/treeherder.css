@@ -56,6 +56,14 @@ body {
     padding-bottom: 5px;
 }
 
+.revision {
+    font-size: 10px;
+}
+
+.platform {
+    font-size: 11px;
+}
+
 .job-table td {
     border-top: 0;
     padding: 1px;
