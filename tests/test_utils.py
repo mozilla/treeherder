@@ -12,11 +12,7 @@ def do_job_ingestion(jm, job_data, sample_resultset, verify_data=True):
                       through the verifier.
     """
 
-    jm.store_result_set_data(
-        sample_resultset['revision_hash'],
-        sample_resultset['push_timestamp'],
-        sample_resultset['revisions']
-    )
+    jm.store_result_set_data(sample_resultset)
 
     for blob in job_data:
         job_guid = blob['job']['job_guid']

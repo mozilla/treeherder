@@ -75,89 +75,130 @@ def latest_version_repository(repository_id):
                                                version_timestamp=time.time())
     return repository_id, version.id
 
-
+time_now = int( time.time() )
 test_params = [
     {
-        'func': 'get_or_create_build_platform',
-        'input': ['linux', 'Fedora 12', 'x86_64'],
-        'test_proc': 'test_refdata.selects.test_build_platform',
-        'expected': [{
-            'os_name': 'linux',
-            'platform': 'Fedora 12',
-            'architecture': 'x86_64',
-            'active_status': 'active'
-        }]
+        'func': 'get_or_create_build_platforms',
+
+        'input': [
+            ['linux', 'Fedora 12', 'x86_64'],
+            #Duplicate input to test aggregation
+            ['linux', 'Fedora 12', 'x86_64'],
+            ['linux', 'Fedora 13', 'x86_64'],
+            ['linux', 'Fedora 14', 'x86'],
+            ],
+
+        'expected': {
+            'linux-Fedora 12-x86_64':{
+                'id':1, 'os_name':'linux', 'platform': 'Fedora 12',
+                'architecture':'x86_64',
+                },
+            'linux-Fedora 13-x86_64':{
+                'id':2, 'os_name':'linux', 'platform': 'Fedora 13',
+                'architecture':'x86_64',
+                },
+            'linux-Fedora 14-x86':{
+                'id':3, 'os_name':'linux', 'platform': 'Fedora 14',
+                'architecture':'x86',
+                },
+        }
     },
     {
-        'func': 'get_or_create_job_group',
-        'input': ['mygroup'],
-        'test_proc': 'test_refdata.selects.test_job_group',
-        'expected': [{
-            'symbol': '?',
-            'name': 'mygroup',
-            'description': 'fill me',
-            'active_status': 'active'
-        }]
+        'func': 'get_or_create_job_groups',
+        'input': [
+            #Duplicate group to test aggregation
+            'mygroup1', 'mygroup2', 'mygroup3', 'mygroup4', 'mygroup4'
+            ],
+        'expected': {
+            'mygroup1':{'id':1, 'name':'mygroup1'},
+            'mygroup2':{'id':2, 'name':'mygroup2'},
+            'mygroup3':{'id':3, 'name':'mygroup3'},
+            'mygroup4':{'id':4, 'name':'mygroup4'},
+            }
     },
     {
-        'input': ['myname'],
-        'func': 'get_or_create_job_type',
-        'test_proc': 'test_refdata.selects.test_job_type',
-        'expected': [{
-            'symbol': '?',
-            'name': 'myname',
-            'group': 'unknown',
-            'description': 'fill me',
-            'active_status': 'active'
-        }]
+        'func': 'get_or_create_job_types',
+        #Duplicate type to test aggregation
+        'input': ['mytype1', 'mytype2', 'mytype3', 'mytype4', 'mytype4'],
+        'expected': {
+            'mytype1':{'id':1, 'name':'mytype1'},
+            'mytype2':{'id':2, 'name':'mytype2'},
+            'mytype3':{'id':3, 'name':'mytype3'},
+            'mytype4':{'id':4, 'name':'mytype4'},
+            }
     },
     {
-        'input': ['myname', 1366290144.07455],
-        'func': 'get_or_create_machine',
-        'test_proc': 'test_refdata.selects.test_machine',
-        'expected': [{
-            'name': 'myname',
-            'first_timestamp': 1366290144,
-            'last_timestamp': 1366290144,
-            'active_status': 'active'
-        }]
+        'func': 'get_or_create_machines',
+        'input': [
+            ['machine1', time_now],
+            ['machine2', time_now],
+            ['machine3', time_now],
+            ['machine4', time_now],
+            ['machine4', time_now]
+            ],
+        'expected': {
+            'machine1':{'id':1, 'name':'machine1'},
+            'machine2':{'id':2, 'name':'machine2'},
+            'machine3':{'id':3, 'name':'machine3'},
+            'machine4':{'id':4, 'name':'machine4'},
+            }
     },
     {
-        'func': 'get_or_create_machine_platform',
-        'input': ['linux', 'Fedora 12', 'x86_64'],
-        'test_proc': 'test_refdata.selects.test_machine_platform',
-        'expected': [{
-            'os_name': 'linux',
-            'platform': 'Fedora 12',
-            'architecture': 'x86_64',
-            'active_status': 'active'
-        }]
-    },
-    {
-        'func': 'get_or_create_option',
-        'input': ['myoption'],
-        'test_proc': 'test_refdata.selects.test_option',
-        'expected': [{
-            'name': 'myoption',
-            'description': 'fill me',
-            'active_status': 'active'
-        }]
+        'func': 'get_or_create_machine_platforms',
+
+        'input': [
+            ['linux', 'Fedora 12', 'x86_64'],
+            ['linux', 'Fedora 13', 'x86_64'],
+            ['linux', 'Fedora 14', 'x86'],
+            ],
+
+        'expected': {
+            'linux-Fedora 12-x86_64':{
+                'id':1, 'os_name':'linux', 'platform': 'Fedora 12',
+                'architecture':'x86_64',
+                },
+            'linux-Fedora 13-x86_64':{
+                'id':2, 'os_name':'linux', 'platform': 'Fedora 13',
+                'architecture':'x86_64',
+                },
+            'linux-Fedora 14-x86':{
+                'id':3, 'os_name':'linux', 'platform': 'Fedora 14',
+                'architecture':'x86',
+                },
+        }
     },
     {
         'func': 'get_or_create_option_collection',
-        'input': [['option1', 'option2']],
-        'test_proc': 'test_refdata.selects.test_option_collection',
-        'expected': [{'name': 'option1'}, {'name': 'option2'}]
+        'input': [
+            ['option1', 'option2'],
+            ['option3', 'option4', 'option5'],
+            ['option1', 'option2'],
+            ['option2', 'option5'],
+            ],
+        'expected': {
+            '14e81a0976d78ebd9e6a8c140dd31ce109393972': [
+                'option1', 'option2'
+                ],
+            '56b4b90c6b25d206a113dccdcd777311503ab672': [
+                'option3', 'option4', 'option5'
+                ],
+            '5ec4709b5c552e335f9570369d15cc62b5ef18b3': [
+                'option2', 'option5'
+                ]
+            }
     },
     {
-        'func': 'get_or_create_product',
-        'input': ['myproduct'],
-        'test_proc': 'test_refdata.selects.test_product',
-        'expected': [{
-            'name': 'myproduct',
-            'description': 'fill me',
-            'active_status': 'active'
-        }]
+
+        'func': 'get_or_create_products',
+        'input': [
+            'product1', 'product2', 'product3', 'product4', 'product4'
+            ],
+        'expected': {
+            'product1':{'id':1, 'name':'product1'},
+            'product2':{'id':2, 'name':'product2'},
+            'product3':{'id':3, 'name':'product3'},
+            'product4':{'id':4, 'name':'product4'},
+            }
     }
 
 ]
@@ -167,16 +208,8 @@ test_params = [
 def test_refdata_manager(refdata, params):
     """test get_or_create methods produce the right content"""
 
-    #call the right refdata method based on params
-    id = getattr(refdata, params['func'])(*params['input'])
-
-    row_data = refdata.dhub.execute(
-        proc=params["test_proc"],
-        placeholders=[id]
-    )
-    for i, row in enumerate(row_data):
-        for k, v in params['expected'][i].items():
-            assert row[k] == v
+    expected = getattr(refdata, params['func'])(params['input'])
+    assert expected == params['expected']
 
 
 # some tests don't fit into a standard layout :(

@@ -194,9 +194,16 @@
                    WHERE `job_guid` = ?",
             "host": "read_host"
         },
-        "get_result_set_id":{
-            "sql":"SELECT `id` FROM `result_set`
-                   WHERE `revision_hash` = ?",
+        "get_result_set_ids":{
+            "sql":"SELECT `id`, `revision_hash`
+                   FROM `result_set`
+                   WHERE `active_status` = 'active' AND `revision_hash` IN (REP0)",
+            "host": "read_host"
+        },
+        "get_revisions":{
+            "sql":"SELECT `id`, `revision` FROM `revision`
+                   WHERE `active_status` = 'active' AND `revision` IN (REP0)",
+
             "host": "read_host"
         },
         "get_revision_id":{
@@ -223,7 +230,7 @@
                       ON rs.id = revision_map.result_set_id
                    INNER JOIN revision
                       ON revision_map.revision_id = revision.id
-                   WHERE rs.active_status = 'active' 
+                   WHERE rs.active_status = 'active'
                    REP0
                    ORDER BY rs.push_timestamp DESC
                    LIMIT ?,?
@@ -231,7 +238,7 @@
             "host": "read_host"
         },
         "get_result_set_details":{
-            "sql":"SELECT 
+            "sql":"SELECT
                     rm.result_set_id,
                     r.repository_id,
                     r.revision,

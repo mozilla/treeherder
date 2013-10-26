@@ -276,9 +276,7 @@ class ResultSetViewSet(viewsets.ViewSet):
                    if k in filters)
         ))
 
-        option_collections = dict(
-            (oc['option_collection_hash'], oc['opt'])
-            for oc in jm.refdata_model.get_all_option_collections())
+        option_collections = jm.refdata_model.get_all_option_collections()
 
         # the main grouper for a result set is the combination of
         # platform and options
@@ -331,11 +329,7 @@ class ResultSetViewSet(viewsets.ViewSet):
         POST method implementation
         """
         try:
-            jm.store_result_set_data(
-                request.DATA["revision_hash"],
-                request.DATA["push_timestamp"],
-                request.DATA["revisions"]
-            )
+            jm.store_result_set_data( request.DATA )
         except DatasetNotFoundError as e:
             return Response({"message": str(e)}, status=404)
         except Exception as e:  # pragma nocover

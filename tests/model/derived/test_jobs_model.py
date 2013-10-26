@@ -124,13 +124,11 @@ def get_objectstore_last_error(jm):
 
     return row_data['error_msg']
 
-
 def test_set_revision(jm, initial_data, revision_params):
     """
     tests that a single revision is created
     by get_or_create_revision
     """
-
 
     row_id = jm._get_or_create_revision(revision_params)
     row_data = jm.get_dhub(jm.CT_JOBS).execute(

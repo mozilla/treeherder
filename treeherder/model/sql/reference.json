@@ -44,8 +44,7 @@
                     SELECT `name`
                     FROM `machine`
                     WHERE `name` = ?
-                    )
-                    ON DUPLICATE KEY UPDATE `last_timestamp` = VALUES(`last_timestamp`)",
+                    )",
             "host":"master_host"
         },
 
@@ -121,56 +120,44 @@
         }
     },
     "selects":{
-        "get_build_platform_id":{
-            "sql": "SELECT `id`
+        "get_build_platforms":{
+            "sql": "SELECT `id`, `os_name`, `platform`, `architecture`
                     FROM `build_platform`
-                    WHERE
-                        `os_name` = ?
-                    AND `platform` = ?
-                    AND `architecture` = ?
-                    AND `active_status` = 'active'",
-            "host":"read_host"
+                    WHERE `active_status` = 'active' AND (REP0)",
+            "host":"master_host"
         },
-        "get_job_group_id":{
-            "sql": "SELECT `id`
+        "get_job_groups":{
+            "sql": "SELECT `id`, `name`
                     FROM `job_group`
-                    WHERE
-                        `name` = ?
-                    AND `active_status` = 'active'",
-            "host":"read_host"
+                    WHERE `active_status` = 'active' AND `name` IN (REP0)",
+
+            "host":"master_host"
         },
-        "get_job_type_id":{
-            "sql": "SELECT jt.`id`
-                    FROM `job_type` jt
-                    WHERE
-                        jt.`name` = ?
-                    AND jt.`active_status` = 'active'",
-            "host":"read_host"
+        "get_job_types":{
+            "sql": "SELECT `id`, `name`
+                    FROM `job_type`
+                    WHERE `active_status` = 'active' AND `name` IN (REP0)",
+
+            "host":"master_host"
         },
-        "get_machine_id":{
-            "sql": "SELECT `id`
+        "get_machines":{
+            "sql": "SELECT `id`, `name`
                     FROM `machine`
-                    WHERE
-                        `name` = ?
-                    AND `active_status` = 'active'",
+                    WHERE `active_status` = 'active' AND `name` IN (REP0)",
+
             "host":"read_host"
         },
-        "get_machine_platform_id":{
-            "sql": "SELECT `id`
+        "get_machine_platforms":{
+            "sql": "SELECT `id`, `os_name`, `platform`, `architecture`
                     FROM `machine_platform`
-                    WHERE
-                        `os_name` = ?
-                    AND `platform` = ?
-                    AND `architecture` = ?
-                    AND `active_status` = 'active'",
-            "host":"read_host"
+                    WHERE `active_status` = 'active' AND (REP0)",
+            "host":"master_host"
         },
-        "get_option_id":{
-            "sql": "SELECT `id`
+        "get_options":{
+            "sql": "SELECT `id`, `name`
                     FROM `option`
-                    WHERE
-                        `name` = ?
-                    AND `active_status` = 'active'",
+                    WHERE `active_status` = 'active' AND `name` IN (REP0)",
+
             "host":"read_host"
         },
         "get_max_collection_hash":{
@@ -195,12 +182,11 @@
                     WHERE oc.option_collection_hash = ?",
             "host":"read_host"
         },
-        "get_product_id":{
-            "sql": "SELECT `id`
+        "get_products":{
+            "sql": "SELECT `id`, `name`
                     FROM `product`
-                    WHERE
-                        `name` = ?
-                    AND `active_status` = 'active'",
+                    WHERE `active_status` = 'active' AND `name` IN (REP0)",
+
             "host":"read_host"
         },
         "get_repository_id":{
@@ -253,7 +239,8 @@
                    FROM `option_collection` oc
                    INNER JOIN `option` o
                         on o.id = oc.option_id
-                    GROUP BY option_collection_hash",
+                    GROUP BY oc.option_collection_hash
+                   WHERE o.active_statue = 'active'",
             "host":"read_host"
         }
     },
@@ -262,6 +249,13 @@
             "sql": "UPDATE `repository_version`
                     SET `version_timestamp` = ?
                     WHERE `repository_id` = ? AND `version` = ?",
+            "host":"master_host"
+        },
+        "update_machine_timestamp":{
+            "sql": "UPDATE `machine`
+                    SET `last_timestamp` = ?
+                    WHERE `name` = ?",
+
             "host":"master_host"
         }
     }

@@ -103,19 +103,17 @@ class ResultSetsLoaderMixin(JsonLoaderMixin):
             }
         ]
         """
-        for result_set in result_sets:
+        endpoint = reverse('resultset-list', kwargs={"project": project})
 
-            endpoint = reverse('resultset-list', kwargs={"project": project})
-
-            url = "{0}/{1}/".format(
-                settings.API_HOSTNAME.strip('/'),
-                endpoint.strip('/')
+        url = "{0}/{1}/".format(
+            settings.API_HOSTNAME.strip('/'),
+            endpoint.strip('/')
             )
 
-            response = super(ResultSetsLoaderMixin, self).load(url, result_set)
+        response = super(ResultSetsLoaderMixin, self).load(url, result_sets)
 
-            if response.getcode() != 200:
-                message = json.loads(response.read())
-                logger.error("ResultSet loading failed: {0}".format(message['message']))
+        if response.getcode() != 200:
+            message = json.loads(response.read())
+            logger.error("ResultSet loading failed: {0}".format(message['message']))
 
 

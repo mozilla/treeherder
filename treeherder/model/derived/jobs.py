@@ -187,15 +187,31 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG
         )
 
-    def get_result_set_id(self, revision_hash):
-        """Return the ``result_set.id`` for the given ``revision_hash``"""
-        iter_obj = self.get_jobs_dhub().execute(
-            proc='jobs.selects.get_result_set_id',
-            placeholders=[revision_hash],
-            debug_show=self.DEBUG,
-            return_type='iter')
+    def get_result_set_ids(self, revision_hashes, where_in_list):
+        """Return the  a dictionary of revision_hash to id mappings given
+           a list of revision_hashes and a where_in_list.
 
-        return self.as_single(iter_obj, "result_set", revision_hash=revision_hash)
+            revision_hashes = [ revision_hash1, revision_hash2, ... ]
+            where_in_list = [ %s, %s, %s ... ]
+
+            returns:
+
+            {
+              revision_hash1:id1,
+              revision_hash2:id2,
+              ...
+                }
+            """
+        where_in_clause = ','.join(where_in_list)
+        print revision_hashes
+        print where_in_clause
+        return self.get_jobs_dhub().execute(
+            proc='jobs.selects.get_result_set_ids',
+            placeholders=revision_hashes,
+            replace=[where_in_list],
+            debug_show=self.DEBUG,
+            key_column='revision_hash',
+            return_type='dict')
 
     def get_revision_id(self, revision, repository_id):
         """Return the ``revision.id`` for the given ``revision``"""
@@ -445,56 +461,128 @@ class JobsModel(TreeherderModelBase):
 
         return json_blobs
 
-    def load_job_data(self, data):
+    def load_job_data(self, data, raise_errors=False):
         """
-        Load JobData instance into jobs db, return job_id.
+        Load JobData instancea into jobs db, returns job_ids and any
+        associated errors.
 
         Example:
+        [
             {
-                "revision_hash": "24fd64b8251fac5cf60b54a915bffa7e51f636b5",
-                "job": {
-                    "build_platform": {
-                        "platform": "Ubuntu VM 12.04",
-                        "os_name": "linux",
-                        "architecture": "x86_64",
-                        "vm": true
-                    },
-                    "submit_timestamp": 1365732271,
-                    "start_timestamp": "20130411165317",
-                    "name": "xpcshell",
-                    "option_collection": {
-                        "opt": true
-                    },
-                    "log_references": [
-                        {
-                            "url": "http://ftp.mozilla.org/pub/...",
-                            "name": "unittest"
-                        }
-                    ],
-                    "who": "sendchange-unittest",
-                    "reason": "scheduler",
-                    artifact:{
-                        type:" json | img | ...",
-                        name:"",
-                        log_urls:[
-                            ]
-                        blob:""
-                    },
-                    "machine_platform": {
-                        "platform": "Ubuntu VM 12.04",
-                        "os_name": "linux",
-                        "architecture": "x86_64",
-                        "vm": true
-                    },
-                    "machine": "tst-linux64-ec2-314",
-                    "state": "TODO",
-                    "result": 0,
-                    "job_guid": "d19375ce775f0dc166de01daa5d2e8a73a8e8ebf",
-                    "product_name": "firefox",
-                    "end_timestamp": "1365733932"
-                }
+                id: 1,
+                json_blob:
+                {
+                    "revision_hash": "24fd64b8251fac5cf60b54a915bffa7e51f636b5",
+                    "job": {
+                        "build_platform": {
+                            "platform": "Ubuntu VM 12.04",
+                            "os_name": "linux",
+                            "architecture": "x86_64",
+                            "vm": true
+                        },
+                        "submit_timestamp": 1365732271,
+                        "start_timestamp": "20130411165317",
+                        "name": "xpcshell",
+                        "option_collection": {
+                            "opt": true
+                        },
+                        "log_references": [
+                            {
+                                "url": "http://ftp.mozilla.org/pub/...",
+                                "name": "unittest"
+                            }
+                        ],
+                        "who": "sendchange-unittest",
+                        "reason": "scheduler",
+                        artifact:{
+                            type:" json | img | ...",
+                            name:"",
+                            log_urls:[
+                                ]
+                            blob:""
+                        },
+                        "machine_platform": {
+                            "platform": "Ubuntu VM 12.04",
+                            "os_name": "linux",
+                            "architecture": "x86_64",
+                            "vm": true
+                        },
+                        "machine": "tst-linux64-ec2-314",
+                        "state": "TODO",
+                        "result": 0,
+                        "job_guid": "d19375ce775f0dc166de01daa5d2e8a73a8e8ebf",
+                        "product_name": "firefox",
+                        "end_timestamp": "1365733932"
+                    }
 
-            }
+                }
+            },
+            ...
+        ]
+
+        """
+        revision_hashes = []
+        rh_where_in = []
+
+        for datum in data:
+
+            # Make sure we can deserialize the json object
+            # without raising an exception
+            try:
+                datum_obj = JobData.from_json(datum['json_blob'])
+                revision_hash = datum_obj['json_blob']['revision_hash']
+            except JobDataError as e:
+                self.mark_object_error(datum['id'], str(e))
+                if raise_errors:
+                    raise e
+            except Exception as e:
+                self.mark_object_error(
+                    datum['id'],
+                    u"Unknown error: {0}: {1}".format(
+                        e.__class__.__name__, unicode(e))
+                )
+                if raise_errors:
+                    raise e
+            else:
+                # json object can be sucessfully deserialized
+                revision_hashes.append(datum['revision_hash'])
+                rh_where_in.append('%s')
+
+                # Required, raise key error if it's not present
+                self.refdata.add_job_type(job["name"])
+
+                if "build_platform" in job:
+                    self.refdata_model.add_build_platform(
+                        job["build_platform"]["os_name"],
+                        job["build_platform"]["platform"],
+                        job["build_platform"]["architecture"]
+                        )
+
+                if "machine_platform" in job:
+                    self.refdata_model.add_machine_platform(
+                        job["machine_platform"]["os_name"],
+                        job["machine_platform"]["platform"],
+                        job["machine_platform"]["architecture"],
+                        )
+
+                if "option_collection" in job:
+                    self.refdata_model.add_option_collection(
+                        job["option_collection"]
+                        )
+
+                if "machine" in job:
+                    self.refdata_model.add_machine(
+                        job["machine"],
+                        timestamp=long(job["end_timestamp"])
+                        )
+
+                if "product_name" in job:
+                    self.refdata_model.add_product(job["product_name"])
+
+        self.refdata_model.set_all_reference_data()
+
+        #result_set_ids = self.get_result_set_ids(
+        #    revision_hashes, rh_where_in)
 
         """
         result_set_id = self.get_result_set_id(data["revision_hash"])['id']
@@ -586,7 +674,7 @@ class JobsModel(TreeherderModelBase):
         except (KeyError, JobDataError):
             # it is ok to have an empty or missing artifact
             pass
-
+        """
     def _get_or_create_result_set(self, revision_hash, push_timestamp):
         """
         Set result set revision hash.
@@ -807,6 +895,11 @@ class JobsModel(TreeherderModelBase):
         """Processes JSON blobs from the objectstore into jobs schema."""
         rows = self.claim_objects(loadlimit)
 
+        # TODO: Need a try/except here insuring we mark
+        #   any objects in a suspended state as errored
+        self.load_job_data(rows)
+
+        """
         for row in rows:
             row_id = int(row['id'])
             try:
@@ -827,6 +920,7 @@ class JobsModel(TreeherderModelBase):
                     raise e
             else:
                 self.mark_object_complete(row_id, revision_hash)
+        """
 
     def claim_objects(self, limit):
         """
@@ -929,16 +1023,169 @@ class JobsModel(TreeherderModelBase):
 
         return json_blobs
 
-    def store_result_set_data(self, revision_hash, push_timestamp, revisions):
-        result_set_id = self._get_or_create_result_set(revision_hash, push_timestamp)
-        for rev in revisions:
+    def store_result_set_data(self, result_sets):
+        """
+        Build single queries to add new result_sets, revisions, and
+        revision_map for a list of result_sets.
 
-            rev_id = self._get_or_create_revision(
-                rev
+        result_sets = [
+            {
+             "revision_hash": "8afdb7debc82a8b6e0d56449dfdf916c77a7bf80",
+             "push_timestamp": 1378293517,
+             "revisions": [
+                {
+                    "files": ["js/src/TraceLogging.h"],
+                    "comment": "Bug 911954 - Add forward declaration of JSScript to TraceLogging.h, r=h4writer",
+                    "repository": "test_treeherder",
+                    "author": "John Doe <jdoe@mozilla.com>",
+                    "branch": "default",
+                    "revision": "2c25d2bbbcd6"
+                    },
+                ...
+                ]
+                },
+            ...
+            ]
+
+        returns = {
+
+            }
+        """
+        # result_set data structures
+        revision_hash_placeholders = []
+        unique_revision_hashes = []
+        where_in_list = []
+
+        # revision data structures
+        repository_id_lookup = dict()
+        revision_placeholders = []
+        all_revisions = []
+        rev_where_in_list = []
+
+        # revision_map structures
+        revision_to_rhash_lookup = dict()
+
+        # TODO: Confirm whether we need to do a lookup in this loop in the
+        #   memcache to reduce query overhead
+        for result in result_sets:
+            revision_hash_placeholders.append(
+                [
+                    result['revision_hash'],
+                    result['push_timestamp'],
+                    result['revision_hash']
+                    ]
+                )
+            where_in_list.append('%s')
+            unique_revision_hashes.append(result['revision_hash'])
+
+            for rev_datum in result['revisions']:
+
+                # Retrieve the associated repository id just once
+                # and provide handling for multiple repositories
+                if rev_datum['repository'] not in repository_id_lookup:
+                    repository_id = self.refdata_model.get_repository_id(
+                        rev_datum['repository']
+                        )
+                    repository_id_lookup[ rev_datum['repository'] ] = repository_id
+
+                # We may not have a commit timestamp in the push data
+                commit_timestamp = rev_datum.get(
+                    'commit_timestamp', None
+                    )
+
+                # We may not have a comment in the push data
+                comment = rev_datum.get(
+                    'comment', None
+                    )
+
+                # Convert the file list to a comma delimited string
+                file_list = rev_datum.get(
+                    'files', []
+                    )
+                file_str = ','.join(file_list)
+
+                repository_id = repository_id_lookup[ rev_datum['repository'] ]
+                revision_placeholders.append(
+                    [ rev_datum['revision'],
+                      rev_datum['author'],
+                      comment,
+                      file_str,
+                      commit_timestamp,
+                      repository_id,
+                      rev_datum['revision'],
+                      repository_id ]
+                    )
+
+                all_revisions.append(rev_datum['revision'])
+                rev_where_in_list.append('%s')
+                revision_to_rhash_lookup[rev_datum['revision']] = result['revision_hash']
+
+        # Insert new result sets
+        self.get_jobs_dhub().execute(
+            proc='jobs.inserts.set_result_set',
+            placeholders=revision_hash_placeholders,
+            executemany=True,
+            debug_show=self.DEBUG
             )
-            # create a mapping between a result_set and its revisions
-            self._get_or_create_revision_map(rev_id, result_set_id)
 
+        # Retrieve new result set ids
+        where_in_clause = ','.join(where_in_list)
+        result_set_id_lookup = self.get_jobs_dhub().execute(
+            proc='jobs.selects.get_result_set_ids',
+            placeholders=unique_revision_hashes,
+            replace=[where_in_clause],
+            key_column='revision_hash',
+            return_type='dict',
+            debug_show=self.DEBUG
+            )
+
+        # Insert new revisions
+        self.get_jobs_dhub().execute(
+            proc='jobs.inserts.set_revision',
+            placeholders=revision_placeholders,
+            executemany=True,
+            debug_show=self.DEBUG
+            )
+
+        # Retrieve new revision ids
+        rev_where_in_clause = ','.join(rev_where_in_list)
+        select_proc = 'get_revision_ids'
+        revision_id_lookup = self.get_jobs_dhub().execute(
+            proc='jobs.selects.get_revisions',
+            placeholders=all_revisions,
+            replace=[rev_where_in_clause],
+            key_column='revision',
+            return_type='dict',
+            debug_show=self.DEBUG
+            )
+
+        # Build placeholders for revision_map
+        revision_map_placeholders = []
+        for revision in revision_id_lookup:
+
+            revision_hash = revision_to_rhash_lookup[revision]
+            revision_id = revision_id_lookup[revision]['id']
+            result_set_id = result_set_id_lookup[revision_hash]['id']
+
+            revision_map_placeholders.append(
+                [ revision_id,
+                  result_set_id,
+                  revision_id,
+                  result_set_id ]
+                )
+
+        # Insert new revision_map entries
+        self.get_jobs_dhub().execute(
+            proc='jobs.inserts.set_revision_map',
+            placeholders=revision_map_placeholders,
+            executemany=True,
+            debug_show=self.DEBUG
+            )
+
+        return {
+            'result_set_ids':result_set_id_lookup,
+            'revision_ids':revision_id_lookup
+            }
 
 class JobDataError(ValueError):
     pass

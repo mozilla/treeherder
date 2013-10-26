@@ -29,12 +29,10 @@ def test_parse_log(jm, initial_data, job_with_local_log, sample_resultset, monke
     a parse_log task
     """
 
-    jm.store_result_set_data(sample_resultset['revision_hash'],
-                            sample_resultset['push_timestamp'],
-                            sample_resultset['revisions'])
+    jm.store_result_set_data(sample_resultset)
 
     job = job_with_local_log
-    job['revision_hash'] = sample_resultset['revision_hash']
+    job['revision_hash'] = sample_resultset[0]['revision_hash']
 
     mock_pl = MagicMock(name="parse_line")
     monkeypatch.setattr(ErrorParser, 'parse_line', mock_pl)
