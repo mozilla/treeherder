@@ -26,32 +26,6 @@ body {
     overflow: auto;
 }
 
-.lv-line-no {
-    width: 3em;
-}
-
-.lv-error-line {
-    background-color: white;
-    color: #333333;
-    width: 100%;
-}
-
-.lv-log-container {
-    overflow-y: scroll;
-    overflow-x: auto;
-    height: 1000px;
-}
-
-.lv-log-line {
-    width: 100%;
-    float: left;
-    white-space: pre-line;
-}
-
-.lv-line-highlight {
-    background-color: LightGrey;
-}
-
 .result-set {
     padding-bottom: 5px;
 }
@@ -83,7 +57,7 @@ body {
 }
 
 .show-jobs-button {
-    width: 85px;
+    width: 100px;
 }
 
 .job-btn {
@@ -119,9 +93,39 @@ body {
   border-style: solid;
 }
 
-.job-btn-large {
+.job-btn-lg {
   padding: 7px;
   font-size: 17px;
   border: 5px solid black;
   z-index: -1;
 }
+
+
+/*Log Viewer*/
+
+.lv-line-no {
+    width: 3em;
+}
+
+.lv-error-line {
+    background-color: white;
+    color: #333333;
+    width: 100%;
+}
+
+.lv-log-container {
+    overflow-y: scroll;
+    overflow-x: auto;
+    height: 1000px;
+}
+
+.lv-log-line {
+    width: 100%;
+    float: left;
+    white-space: pre-line;
+}
+
+.lv-line-highlight {
+    background-color: LightGrey;
+}
+

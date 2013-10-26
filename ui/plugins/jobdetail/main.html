@@ -1,18 +1,18 @@
 <div ng-controller="JobDetailPluginCtrl">
     <div class="span12">
         <div class="span7">
-            <button class="btn btn-mini"
+            <button class="btn btn-default btn-xs"
                     title="add note"
                     ng-click="addNote()">
-                <i class="icon-comment"></i>
+                <i class="glyphicon glyphicon-comment"></i>
             </button>
             <div class="btn-group">
-                <button class="btn btn-mini disabled">Log:</button>
-                <div class="btn btn-mini"
+                <button class="btn btn-default btn-xs disabled">Log:</button>
+                <div class="btn btn-default btn-xs"
                      ng-disabled="!lvArtifact">
                     <a target="_blank" href="{{ lvUrl }}">Structured</a>
                 </div>
-                <div class="btn btn-mini"
+                <div class="btn btn-default btn-xs"
                      ng-repeat="joblog in logs">
                     <a target="_blank" href="{{ joblog.url }}">Raw</a>
                 </div>
@@ -36,7 +36,7 @@
     <div class="span12">
         <dl class="dl-horizontal">
             <dt>
-                <i class="icon-plus" ng-click="addNote()" title="add note"></i>
+                <i class="glyphicon glyphicon-plus" ng-click="addNote()" title="add note"></i>
                 <span class="label label-info">Notes</span>
             </dt>
             <dd class="th-notes-accordion">
@@ -62,7 +62,7 @@
                 </select>
                 <input ng-model="newNote.note" focus-me="focusInput"/>
                 <input class="btn btn-primary" type="submit" value="save">
-                <a class="btn" ng-click="clearNewNote()">cancel</a>
+                <a class="btn btn-default" ng-click="clearNewNote()">cancel</a>
             </form>
         </div>
     </div>

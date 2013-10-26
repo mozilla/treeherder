@@ -9,22 +9,12 @@
         <link href="css/treeherder.css" rel="stylesheet" media="screen">
     </head>
     <body ng-controller="MainCtrl">
-        <div class="navbar navbar-inverse navbar-fixed-top">
-            <div class="navbar-inner">
-                <div class="container-fluid">
-                  <a class="brand" href="#">Treeherder</a>
-                  <div class="nav-collapse collapse">
-                    <p class="navbar-text pull-right">
-                      Logged in as <a href="#" class="navbar-link">{{ username }}</a>
-                    </p>
-                    <form class="navbar-search pull-right">
-                        <span class="label label-info">{{ repo }}</span>
-                        <span class="label label-info">0 unstarred</span>
-                        <input type="text" ng-model="query" class="search-query" placeholder="Search">
-                    </form>
+        <nav class="navbar navbar-inverse navbar-fixed-top">
+                <div class="container">
+                  <a class="navbar-brand" href="#">Treeherder</a>
+                  <div class="navbar-collapse collapse">
                     <!-- nav begin -->
-                        <ul class="nav">
-                        <li class="divider-vertical"></li>
+                    <ul class="nav navbar-nav">
                         <li class="dropdown" ng-controller="RepoDropDownCtrl">
                             <a href="" class="dropdown-toggle" data-toggle="dropdown">Repos<b class="caret"></b></a>
                                 <ul class="dropdown-menu">
@@ -34,23 +24,31 @@
                         <li class="divider-vertical"></li>
                         <li><a href="">Help</a></li>
                     </ul>
-
+                    <span class="label label-info">{{ repo }}</span>
+                    <span class="label label-info">0 unstarred</span>
+                    <p class="navbar-text pull-right">
+                      Logged in as <a href="#" class="navbar-link">{{ username }}</a>
+                    </p>
+                    <form class="navbar-form navbar-left pull-right"
+                          role="search">
+                        <div class="form-group">
+                            <input type="text" ng-model="query" class="form-control" placeholder="Search">
+                        </div>
+                    </form>
                     <!-- nav end -->
                   </div>
                 </div>
-            </div>
-        </div>
-            <div class="container-fluid">
-            <div class="row-fluid">
-                <div class="span1">
-                    <ul class="nav nav-list">
-                        <li><a ng-class="{active: routeIs('/jobs')}" href="#/jobs">Jobs</a></li>
-                        <li><a ng-class="{active: routeIs('/timeline')}" href="#/timeline">Timeline</a></li>
-                        <li><a ng-class="{active: routeIs('/machines')}" href="#/machines">Machines</a></li>
+        </nav>
+            <div class="row">
+                <div class="col-md-1">
+                    <ul class="nav nav-pills nav-stacked">
+                        <li><a ng-class="{'active': (routeIs('jobs'))}" href="#/jobs">Jobs</a></li>
+                        <li><a ng-class="{'active': (routeIs('timeline'))}" href="#/timeline">Timeline</a></li>
+                        <li><a ng-class="{'active': (routeIs('machines'))}" href="#/machines">Machines</a></li>
                     </ul>
                 </div>
 
-                <div class="jobs_list span11" ng-cloak>
+                <div class="jobs_list col-md-11" ng-cloak>
                     <div class="alert"
                          ng-bind="statusMsg"
                          ng-show="statusMsg"
@@ -59,11 +57,9 @@
 
                 </div>
             </div>
-        </div>
-        <div class="navbar-fixed-bottom"
+        <div class="nav navbar navbar-fixed-bottom"
              ng-show="selectedJob">
-            <div class="navbar-inner">
-                <div class="container-fluid">
+                <div class="container">
                     <button type="button"
                             class="close pull-right"
                             aria-hidden="true"
@@ -71,30 +67,12 @@
 
                     <div ng-include src="'plugins/pluginpanel.html'"></div>
                 </div>
-            </div>
-        </div>
-
-
-        <!-- modal window -->
-        <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                <h3 id="myModalLabel">Modal header</h3>
-            </div>
-            <div class="modal-body">
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-            </div>
-            <div class="modal-footer">
-                <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-                <button class="btn btn-primary">Save changes</button>
-            </div>
         </div>
 
         <script src="vendor/angular/angular.js"></script>
         <script src="vendor/angular/angular-resource.js"></script>
         <script src="vendor/ui-bootstrap-tpls-0.6.0.js"></script>
+        <script src="vendor/bootstrap.js"></script>
         <script src="vendor/angular/angular-sanitize.min.js"></script>
         <script src="js/config/local.conf.js"></script>
         <script src="js/app.js"></script>

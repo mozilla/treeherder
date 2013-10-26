@@ -100,19 +100,19 @@ treeherder.factory('thResults',
                         {
                             case "orange":
                                 $scope.resultsetStateBtn = "btn-warning";
-                                $scope.icon = "icon-warning-sign";
+                                $scope.icon = "glyphicon glyphicon-warning-sign";
                                 break;
                             case "red":
                                 $scope.resultsetStateBtn = "btn-danger";
-                                $scope.icon = "icon-remove";
+                                $scope.icon = "glyphicon glyphicon-remove";
                                 break;
                             case "grey":
                                 $scope.resultsetStateBtn = "";
-                                $scope.icon = "icon-time";
+                                $scope.icon = "glyphicon glyphicon-time";
                                 break;
                             default:
                                 $scope.resultsetStateBtn = "btn-success";
-                                $scope.icon = "icon-ok";
+                                $scope.icon = "glyphicon glyphicon-ok";
                                 $scope.isCollapsedResults = true;
                                 break;
                         }

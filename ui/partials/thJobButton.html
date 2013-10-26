@@ -1,5 +1,5 @@
 <span class="job-btn {{ job.display.btnClass }}"
-      ng-class="{'job-btn-large selected-job': (selectedJob==job), 'job-btn-mini': (selectedJob!=job)}"
+      ng-class="{'job-btn-lg selected-job': (selectedJob==job), 'job-btn-mini': (selectedJob!=job)}"
       title="{{ hoverText }}"
       ng-click="viewJob(job)"
       ng-right-click="viewLog(job.resource_uri)">
@@ -7,6 +7,6 @@
           We should conditionally remove the fire icon once they have
           starred it, most likely.
       -->
-      <i class="icon-fire" ng-show="job.display.onFire"></i>
+      <i class="glyphicon glyphicon-fire" ng-show="job.display.onFire"></i>
       {{ job.job_type_symbol }}
 </span>

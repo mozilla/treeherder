@@ -6,16 +6,16 @@
         <link href="css/bootstrap.css" rel="stylesheet" media="screen">
     </head>
     <body ng-controller="LogviewerCtrl" ng-init="init()">
-        <div class="container-fluid">
-            <div class="row-fluid">
-                <div class="span6">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
                         <dl class="dl-horizontal">
                             <span ng-repeat="(label, value) in artifact.header">
                                 <dt class="label label-info">{{label}}</dt>
                                 <dd class="">{{value}}</dd>
                             </span>
                         </dl>
-                    <div class="row-fluid" >
+                    <div class="row" >
                         <div ng-repeat="step in artifact.step_data.steps"
                              ng-class="{'btn-warning': (step.error_count > 0), 'btn-success': (step.error_count == 0)}"
                              ng-click="displayLog(step)"
@@ -42,7 +42,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="span6 lv-log-container container well"
+                <div class="col-md-6 lv-log-container container well"
                      id="lv-log-container">
                     <div ng-repeat="lv_line in displayedStep.logPieces"
                          ng-class="{'label label-important': (lv_line.hasError == true)}"
