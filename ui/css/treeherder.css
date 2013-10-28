@@ -13,6 +13,10 @@ body {
     min-width: 1000px;
 }
 
+.th-action-button {
+    padding-left: 5px;
+}
+
 .pushactions span.dropdown:hover ul.dropdown-menu{
     display: block;
 }
@@ -28,6 +32,19 @@ body {
 
 .result-set {
     padding-bottom: 5px;
+    margin-left: 0;
+}
+
+.result-set .revision-list {
+    padding-left: 0;
+}
+
+.result-set .job-list {
+    padding-left: 0;
+}
+
+.revision-btn {
+    margin-left: 5px;
 }
 
 .revision {
@@ -36,16 +53,6 @@ body {
 
 .platform {
     font-size: 11px;
-}
-
-.job-table td {
-    border-top: 0;
-    padding: 1px;
-    line-height: 12px;
-}
-
-.job-table tr {
-    line-height: 12px;
 }
 
 .selected-job {

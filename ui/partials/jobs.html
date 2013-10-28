@@ -9,13 +9,13 @@
            <i class="{{ icon }}"></i>
            {{ ' jobs' | showOrHide:isCollapsedResults }}
     </a>
-    <a class="text-left btn btn-info"
+    <a class="text-left btn btn-info revision-btn"
        ng-click="isCollapsedRevisions = !isCollapsedRevisions"
        ng-class="{'col-md-7': (isLoadingResults), 'col-md-9': (isLoadingResults==false)}">
         <div class="text-left">{{resultset.push_timestamp*1000|date:'medium'}} - {{resultset.author}} - {{resultset.revision}}</div>
     </a>
 
-    <span class="col-md-1">
+    <span class="col-md-1 th-action-button">
         <span class="dropdown">
             <a class="btn btn-default dropdown-toggle" data-hover="dropdown" data-delay="1000" href="#">
                 <i class="glyphicon glyphicon-cog"></i>
@@ -37,19 +37,21 @@
     <div class="clearfix"></div>
 
     <div ng-hide="isCollapsedRevisions && isCollapsedResults"
-         class="row">
+         class="row result-set">
         <span ng-hide="isCollapsedRevisions"
-              ng-class="{'col-md-4': (isCollapsedResults==false)}">
-            <ul class="unstyled">
+              ng-class="{'col-md-4': (isCollapsedResults==false)}"
+              class="revision-list">
+            <ul class="list-unstyled">
                 <li ng-repeat="revision in resultset.revision_list"
                     class="revision">
-                    <span class="label">{{revision.revision}}</span> {{revision.author}} <span ng-show="revision.comment" class="italic">"{{revision.comments}}"</span>
+                    <span class="label label-default">{{revision.revision}}</span> {{revision.author}} <span ng-show="revision.comment" class="italic">"{{revision.comments}}"</span>
                 </li>
             </ul>
         </span>
         <span ng-hide="isCollapsedResults"
-              ng-class="{'col-md-8': (isCollapsedRevisions==false)}">
-            <table class="table job-table table-hover">
+              ng-class="{'col-md-8': (isCollapsedRevisions==false), 'col-md-12': (isCollapsedRevisions)}"
+              class="job-list">
+            <table class="table-hover">
                 <tr ng-repeat="platform in job_results | filter:query">
                     <td class="col-md-2 platform"><span>{{ platform.name }}</span></td>
                     <td class="col-md-10">
