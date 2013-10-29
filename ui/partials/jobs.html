@@ -2,20 +2,20 @@
 <div>
 <div ng-repeat="resultset in result_sets"
      ng-controller="ResultSetCtrl"
-     class="result-set row">
+     class="result-set">
 
-    <a class="btn {{ resultsetStateBtn }} show-jobs-button pull-left"
+    <a class="btn {{ resultsetStateBtn }} th-show-jobs-button pull-left"
        ng-click="isCollapsedResults = !isCollapsedResults">
            <i class="{{ icon }}"></i>
            {{ ' jobs' | showOrHide:isCollapsedResults }}
     </a>
-    <a class="text-left btn btn-info revision-btn"
+    <a class="text-left btn btn-info th-revision-btn"
        ng-click="isCollapsedRevisions = !isCollapsedRevisions"
-       ng-class="{'col-md-8': (isLoadingResults), 'col-md-9': (isLoadingResults==false)}">
+       >
         <div class="text-left">{{resultset.push_timestamp*1000|date:'medium'}} - {{resultset.author}} - {{resultset.revision}}</div>
     </a>
 
-    <span class="col-md-1 th-action-button">
+    <span class="th-action-button">
         <span class="dropdown">
             <a class="btn btn-default dropdown-toggle" data-hover="dropdown" data-delay="1000" href="#">
                 <i class="glyphicon glyphicon-cog"></i>
@@ -32,8 +32,9 @@
             </ul>
         </span>
     </span>
-    <div class="col-md-1 progress progress-striped active"
-         ng-show="isLoadingResults"><div class="bar" style="width: 100%"></div></div>
+    <span class="progress progress-striped active th-rs-loading"
+         ng-show="isLoadingResults"><div class="bar" style="width: 100%"></div>
+    </span>
     <div class="clearfix"></div>
 
     <div ng-hide="isCollapsedRevisions && isCollapsedResults"

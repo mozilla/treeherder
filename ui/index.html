@@ -41,24 +41,26 @@
             </div>
         </nav>
         <!-- nav end -->
-            <div class="row">
-                <div class="col-md-1">
-                    <ul class="nav nav-pills nav-stacked">
-                        <li><a ng-class="{'active': (routeIs('jobs'))}" href="#/jobs">Jobs</a></li>
-                        <li><a ng-class="{'active': (routeIs('timeline'))}" href="#/timeline">Timeline</a></li>
-                        <li><a ng-class="{'active': (routeIs('machines'))}" href="#/machines">Machines</a></li>
-                    </ul>
-                </div>
+        <div class="th-content">
+            <span class="th-nav">
+                <ul class="nav nav-pills nav-stacked">
+                    <li><a ng-class="{'active': (routeIs('jobs'))}" href="#/jobs">Jobs</a></li>
+                    <li><a ng-class="{'active': (routeIs('timeline'))}" href="#/timeline">Timeline</a></li>
+                    <li><a ng-class="{'active': (routeIs('machines'))}" href="#/machines">Machines</a></li>
+                </ul>
+            </span>
 
-                <div class="jobs_list col-md-11" ng-cloak>
-                    <div class="alert"
-                         ng-bind="statusMsg"
-                         ng-show="statusMsg"
-                         ng-class="{'alert-success': (statusColor=='green'), 'alert-error': (statusColor=='red')}"></div>
-                    <ng-view ></ng-view>
+            <span class="th-view-content" ng-cloak>
+                <div class="alert"
+                     ng-bind="statusMsg"
+                     ng-show="statusMsg"
+                     ng-class="{'alert-success': (statusColor=='green'), 'alert-error': (statusColor=='red')}"></div>
+                <ng-view ></ng-view>
 
-                </div>
-            </div>
+            </span>
+        </div>
+
+        <!-- Footer -->
         <div class="nav navbar navbar-default navbar-fixed-bottom"
              ng-show="selectedJob">
                 <div class="container">
