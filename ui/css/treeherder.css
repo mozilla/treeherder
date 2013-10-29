@@ -47,11 +47,19 @@ body {
 
 .th-action-button {
     padding-left: 5px;
-    width: 50;
+    width: 50px;
 }
 
 .th-rs-loading {
     width: 25px;
+}
+
+.th-action-button span.dropdown:hover ul.dropdown-menu{
+    display: block;
+}
+
+.th-action-button:after {
+  content: none;
 }
 
 .revision {
