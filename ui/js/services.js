@@ -107,7 +107,7 @@ treeherder.factory('thResults',
                                 $scope.icon = "glyphicon glyphicon-remove";
                                 break;
                             case "grey":
-                                $scope.resultsetStateBtn = "";
+                                $scope.resultsetStateBtn = "btn-default";
                                 $scope.icon = "glyphicon glyphicon-time";
                                 break;
                             default:

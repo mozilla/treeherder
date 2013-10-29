@@ -19,32 +19,32 @@ treeherder.directive('thJobButton', function () {
     var setJobDisplay = function(job) {
 
         // the default is disabled
-        job.display = {btnClass: "disabled"};
+        job.display = {btnClass: "btn-default"};
 
         if (job.state == "completed") {
             switch(job.result) {
                 case "success":
-                    job.display.btnClass = "job-btn-success";
+                    job.display.btnClass = "btn-success";
                     break;
                 case "busted":
                 case "fail":
                 case "testfailed":
                     job.display = {
                         onFire: true,
-                        btnClass: "job-btn-danger"
+                        btnClass: "btn-danger"
                     };
                     break;
                 case "orange":
                     job.display = {
                         onFire: true,
-                        btnClass: "job-btn-warning"
+                        btnClass: "btn-warning"
                     };
                     break;
             }
         } else {
             switch(job.result) {
                 case "running":
-                    job.display.btnClass="";
+                    job.display.btnClass="btn-default";
                     break;
             }
         }

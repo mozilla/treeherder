@@ -68,44 +68,44 @@ body {
 }
 
 .job-btn {
-  display: inline-block;
-  margin: 0 -4px 0 0;
-  text-align: center;
-  cursor: pointer;
-  background-color: #f5f5f5;
-  border-color: #cccccc;
-  -webkit-border-radius: 3px;
-     -moz-border-radius: 3px;
-          border-radius: 3px;
+  /*display: inline-block;*/
+  margin: 0 -2px 0 0;
+  /*text-align: center;*/
+  /*cursor: pointer;*/
+  /*background-color: #f5f5f5;*/
+  /*border-color: #cccccc;*/
+  /*-webkit-border-radius: 3px;*/
+     /*-moz-border-radius: 3px;*/
+          /*border-radius: 3px;*/
 }
 
-.job-btn-success {
-  color: #ffffff;
-  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
-  background-color: #5bb75b;
-  border-color: #3d7a3d;
-}
+/*.job-btn-success {*/
+  /*color: #ffffff;*/
+  /*text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);*/
+  /*background-color: #5bb75b;*/
+  /*border-color: #3d7a3d;*/
+/*}*/
 
-.job-btn-danger {
-  color: #ffffff;
-  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
-  background-color: #da4f49;
-  border-color: #8d403a;
-}
+/*.job-btn-danger {*/
+  /*color: #ffffff;*/
+  /*text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);*/
+  /*background-color: #da4f49;*/
+  /*border-color: #8d403a;*/
+/*}*/
 
-.job-btn-mini {
-  padding: 3px;
-  font-size: 10px;
-  border-width: 1px;
-  border-style: solid;
-}
+/*.job-btn-mini {*/
+  /*padding: 3px;*/
+  /*font-size: 10px;*/
+  /*border-width: 1px;*/
+  /*border-style: solid;*/
+/*}*/
 
-.job-btn-lg {
-  padding: 7px;
-  font-size: 17px;
-  border: 5px solid black;
-  z-index: -1;
-}
+/*.job-btn-lg {*/
+  /*padding: 7px;*/
+  /*font-size: 17px;*/
+  /*border: 5px solid black;*/
+  /*z-index: -1;*/
+/*}*/
 
 
 /*Log Viewer*/
