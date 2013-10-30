@@ -203,8 +203,7 @@ class JobsModel(TreeherderModelBase):
                 }
             """
         where_in_clause = ','.join(where_in_list)
-        print revision_hashes
-        print where_in_clause
+
         return self.get_jobs_dhub().execute(
             proc='jobs.selects.get_result_set_ids',
             placeholders=revision_hashes,
@@ -521,16 +520,23 @@ class JobsModel(TreeherderModelBase):
         ]
 
         """
-        revision_hashes = []
+
+        # Structures supporting revision_hash SQL
+        revision_hash_lookup = set()
+        unique_revision_hashes = []
         rh_where_in = []
 
-        for datum in data:
+        # Structures supporting job SQL
+        job_placeholders = []
+        jobs_where_in = []
 
+        for datum in data:
             # Make sure we can deserialize the json object
             # without raising an exception
             try:
-                datum_obj = JobData.from_json(datum['json_blob'])
-                revision_hash = datum_obj['json_blob']['revision_hash']
+                job_struct = JobData.from_json(datum['json_blob'])
+                revision_hash = job_struct['revision_hash']
+                job = job_struct['job']
             except JobDataError as e:
                 self.mark_object_error(datum['id'], str(e))
                 if raise_errors:
@@ -544,89 +550,133 @@ class JobsModel(TreeherderModelBase):
                 if raise_errors:
                     raise e
             else:
+
                 # json object can be sucessfully deserialized
-                revision_hashes.append(datum['revision_hash'])
-                rh_where_in.append('%s')
 
-                # Required, raise key error if it's not present
-                self.refdata.add_job_type(job["name"])
+                # Store revision_hash to support SQL construction
+                # for result_set entry
+                if revision_hash not in revision_hash_lookup:
+                    unique_revision_hashes.append(revision_hash)
+                    rh_where_in.append('%s')
 
-                if "build_platform" in job:
-                    self.refdata_model.add_build_platform(
-                        job["build_platform"]["os_name"],
-                        job["build_platform"]["platform"],
-                        job["build_platform"]["architecture"]
+                build_platform_key = self.refdata_model.add_build_platform(
+                    job.get('build_platform', {}).get('os_name', 'unkown'),
+                    job.get('build_platform', {}).get('platform', 'unkown'),
+                    job.get('build_platform', {}).get('architecture', 'unknown')
+                    )
+
+                machine_platform_key = self.refdata_model.add_machine_platform(
+                        job.get('machine_platform', {}).get('os_name', 'unknown'),
+                        job.get('machine_platform', {}).get('platform', 'unknown'),
+                        job.get('machine_platform', {}).get('architecture', 'unknown')
                         )
 
-                if "machine_platform" in job:
-                    self.refdata_model.add_machine_platform(
-                        job["machine_platform"]["os_name"],
-                        job["machine_platform"]["platform"],
-                        job["machine_platform"]["architecture"],
+                option_collection_hash = self.refdata_model.add_option_collection(
+                        job.get('option_collection', [])
                         )
 
-                if "option_collection" in job:
-                    self.refdata_model.add_option_collection(
-                        job["option_collection"]
+                machine = job.get('machine', 'unknown')
+                self.refdata_model.add_machine(
+                        machine,
+                        long(job.get("end_timestamp", time.time()))
                         )
 
-                if "machine" in job:
-                    self.refdata_model.add_machine(
-                        job["machine"],
-                        timestamp=long(job["end_timestamp"])
-                        )
+                job_type = job.get('name', 'unknown')
+                self.refdata_model.add_job_type(job_type)
 
-                if "product_name" in job:
-                    self.refdata_model.add_product(job["product_name"])
+                product = job.get('product_name', 'unknown')
+                self.refdata_model.add_product(product)
 
-        self.refdata_model.set_all_reference_data()
+                job_guid = job['job_guid']
+                job_placeholders.append([
+                    job_guid,
+                    None,                 # idx:1, job_coalesced_to_guid,
+                                          # TODO: How do find this value?
+                    revision_hash,        # idx:2, replace with result_set_id
+                    build_platform_key,   # idx:3, replace with build_platform_id
+                    machine_platform_key, # idx:4, replace with machine_platform_id
+                    machine,              # idx:5, replace with machine_id
+                    option_collection_hash,
+                    job_type,             # idx:7, replace with job_type_id
+                    product,              # idx:8, replace with product_id
+                    job.get('who', 'unknown'),
+                    job.get('reason', 'unknown'),
+                    job.get('result', 'unknown'),
+                    job.get('state', 'unknown'),
+                    long( job.get('submit_timestamp') ) or None,
+                    long( job.get('start_timestamp') ) or None,
+                    long( job.get('end_timestamp') ) or None,
+                    job_guid
+                    ])
 
-        #result_set_ids = self.get_result_set_ids(
-        #    revision_hashes, rh_where_in)
-
-        """
-        result_set_id = self.get_result_set_id(data["revision_hash"])['id']
-        rdm = self.refdata_model
-
-        job = data["job"]
-        # set Job data
-
-        build_platform_id = rdm.get_or_create_build_platform(
-            job["build_platform"]["os_name"],
-            job["build_platform"]["platform"],
-            job["build_platform"]["architecture"],
-        )
-
-        machine_platform_id = rdm.get_or_create_machine_platform(
-            job["machine_platform"]["os_name"],
-            job["machine_platform"]["platform"],
-            job["machine_platform"]["architecture"],
-        )
-
-        if "machine" in job:
-            machine_id = rdm.get_or_create_machine(
-                job["machine"],
-                timestamp=long(job["end_timestamp"]),
+        id_lookups = self.refdata_model.set_all_reference_data()
+        result_set_ids = self.get_result_set_ids(
+            unique_revision_hashes, rh_where_in
             )
-        else:
-            machine_id = None
 
-        option_collection_hash = rdm.get_or_create_option_collection(
-            [k for k, v in job["option_collection"].items() if v],
-        )
+        for index, job in enumerate(job_placeholders):
+            # Replace reference data with their ids
 
-        job_name = job["name"]
+            # replace revision_hash with id
+            job_placeholders[index][2] = result_set_ids[
+                job_placeholders[index][2]
+                ]['id']
 
+            # replace build_platform_key with id
+            job_placeholders[index][3] = id_lookups['build_platforms'][
+                job_placeholders[index][3]
+                ]['id']
+
+            # replace build_platform_key with id
+            job_placeholders[index][4] = id_lookups['machine_platforms'][
+                job_placeholders[index][4]
+                ]['id']
+
+            # replace machine with id
+            job_placeholders[index][5] = id_lookups['machines'][
+                job_placeholders[index][5]
+                ]['id']
+
+            # replace job_type with id
+            job_placeholders[index][7] = id_lookups['job_types'][
+                job_placeholders[index][7]
+                ]['id']
+
+            # replace product_type with id
+            job_placeholders[index][8] = id_lookups['products'][
+                job_placeholders[index][8]
+                ]['id']
+
+        # Store job data
+        self.get_jobs_dhub().execute(
+            proc='jobs.inserts.create_job_data',
+            debug_show=self.DEBUG,
+            placeholders=job_placeholders,
+            executemany=True )
+        """
+                job_placeholders.append([
+                job_guid,
+                job_coalesced_to_guid,
+                result_set_id,
+                build_platform_id,
+                machine_platform_id,
+                machine_id,
+                option_collection_hash,
+                job_type_id,
+                product_id,
+                who,
+                reason,
+                result,
+                state,
+                submit_timestamp,
+                start_timestamp,
+                end_timestamp,
+                job_guid
+
+                    ])
         job_type_id = rdm.get_or_create_job_type(
             job_name
         )
-
-        if "product_name" in job:
-            product_id = rdm.get_or_create_product(
-                job["product_name"],
-            )
-        else:
-            product_id = None
 
         job_id = self._set_job_data(
             job,
@@ -675,6 +725,7 @@ class JobsModel(TreeherderModelBase):
             # it is ok to have an empty or missing artifact
             pass
         """
+
     def _get_or_create_result_set(self, revision_hash, push_timestamp):
         """
         Set result set revision hash.

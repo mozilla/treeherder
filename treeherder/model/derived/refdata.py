@@ -101,7 +101,7 @@ class RefDataManager(object):
 
     def add_build_platform(self, os_name, platform, arch):
 
-        self.add_platform(
+        key = self.add_platform(
             os_name, platform, arch,
             self.build_platform_lookup,
             self.build_platform_placeholders,
@@ -109,15 +109,19 @@ class RefDataManager(object):
             self.build_where_filters
             )
 
-    def add_machine_platform(self, platform):
+        return key
 
-        self.add_platform(
+    def add_machine_platform(self, os_name, platform, arch):
+
+        key = self.add_platform(
             os_name, platform, arch,
             self.machine_platform_lookup,
             self.machine_platform_placeholders,
             self.machine_unique_platforms,
             self.machine_where_filters
             )
+
+        return key
 
     def add_job_group(self, group):
 
@@ -130,14 +134,14 @@ class RefDataManager(object):
 
         self.add_name(
             job_type, self.job_type_lookup, self.job_type_placeholders,
-            self.unique_job_type, self.job_type_where_in_list
+            self.unique_job_types, self.job_type_where_in_list
             )
 
     def add_product(self, product):
 
         self.add_name(
             product, self.product_lookup, self.product_placeholders,
-            self.unique_product, self.product_where_in_list
+            self.unique_products, self.product_where_in_list
             )
 
     def add_platform(
@@ -176,6 +180,8 @@ class RefDataManager(object):
                     os_name, platform, arch
                     )
                 )
+
+        return key
 
     def add_name(
         self, name, name_lookup, name_placeholders, unique_names,
@@ -246,6 +252,8 @@ class RefDataManager(object):
             # Build list of unique option collections
             self.oc_hash_lookup[option_collection_hash] = option_set
 
+        return option_collection_hash
+
     def process_build_platforms(self):
 
         insert_proc = 'reference.inserts.create_build_platform'
@@ -293,7 +301,7 @@ class RefDataManager(object):
             insert_proc, select_proc,
             self.job_type_where_in_list,
             self.job_type_placeholders,
-            self.unique_job_type
+            self.unique_job_types
             )
 
     def process_products(self):
@@ -305,10 +313,13 @@ class RefDataManager(object):
             insert_proc, select_proc,
             self.product_where_in_list,
             self.product_placeholders,
-            self.unique_product
+            self.unique_products
             )
 
     def process_machines(self):
+
+        if not self.machine_name_placeholders:
+            return {}
 
         # Convert WHERE filters to string
         where_in_clause = ",".join(self.machine_where_in_list)
@@ -387,18 +398,16 @@ class RefDataManager(object):
         self, insert_proc, select_proc, platform_lookup,
         platform_placeholders, unique_platforms, where_filters):
 
-        platform_lookup = {}
-
         if where_filters:
-
-            # Convert WHERE filters to string
-            where_in_clause = " OR ".join(where_filters)
 
             self.dhub.execute(
                 proc=insert_proc,
                 placeholders=platform_placeholders,
                 executemany=True,
                 debug_show=self.DEBUG)
+
+            # Convert WHERE filters to string
+            where_in_clause = " OR ".join(where_filters)
 
             # NOTE: This query is using master_host to insure we don't have a
             # race condition with INSERT into master and SELECT new ids from
@@ -422,6 +431,9 @@ class RefDataManager(object):
     def _process_names(
         self, insert_proc, select_proc, where_in_list, name_placeholders,
         unique_names):
+
+        if not name_placeholders:
+            return {}
 
         # Convert WHERE filters to string
         where_in_clause = ",".join(where_in_list)
