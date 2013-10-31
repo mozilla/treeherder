@@ -47,9 +47,8 @@ body {
 }
 
 .th-revision-btn {
-    margin-right: 5px;
-    margin-left: 5px;
-    width: calc(100% - 165px);
+    margin-left: 10px;
+    width: calc(100% - 170px);
 }
 
 .th-action-button {
