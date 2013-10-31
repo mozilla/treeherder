@@ -22,9 +22,11 @@ body {
 
 .th-content {
     display: inline-block;
-    overflow: auto;
-    min-width: 900px;
+    overflow: hidden;
+    min-width: 960px;
+    width: 100%;
     white-space: nowrap;
+    margin-right: 5px;
 }
 
 .th-nav {
@@ -35,6 +37,9 @@ body {
 
 .th-view-content {
     display: inline-block;
+    min-width: 860px;
+    width: 100%;
+    padding-right: 114px;
 }
 
 .th-show-jobs-button {
@@ -42,12 +47,15 @@ body {
 }
 
 .th-revision-btn {
+    margin-right: 5px;
     margin-left: 5px;
+    width: calc(100% - 165px);
 }
 
 .th-action-button {
-    padding-left: 5px;
+    margin-left: 5px;
     width: 50px;
+    float: right;
 }
 
 .th-rs-loading {
@@ -86,14 +94,24 @@ body {
 
 .result-set .job-list {
     padding-left: 0;
+    padding-right: 0;
 }
 
 .selected-job {
     border: 5px solid black;
 }
 
+.job-group {
+    margin: 0 -4px 0 3px;
+}
+
+.job-group-r-paren {
+    margin: 0 3px 0 3px;
+}
+
 .job-btn {
-  margin: 0 -2px 0 0;
+  margin: 0 -4px 0 0;
+  padding: 0 2px 0 2px;
 }
 
 .th-notes-accordion .accordion-toggle {
