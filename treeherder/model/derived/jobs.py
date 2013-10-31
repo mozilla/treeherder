@@ -520,7 +520,6 @@ class JobsModel(TreeherderModelBase):
         ]
 
         """
-
         # Structures supporting revision_hash SQL
         revision_hash_lookup = set()
         unique_revision_hashes = []
@@ -528,7 +527,11 @@ class JobsModel(TreeherderModelBase):
 
         # Structures supporting job SQL
         job_placeholders = []
-        jobs_where_in = []
+        log_placeholders = []
+        artifact_placeholders = []
+
+        # Structures supporting update of job data in SQL
+        update_placeholders = []
 
         for datum in data:
             # Make sure we can deserialize the json object
@@ -552,100 +555,230 @@ class JobsModel(TreeherderModelBase):
             else:
 
                 # json object can be sucessfully deserialized
-
-                # Store revision_hash to support SQL construction
-                # for result_set entry
-                if revision_hash not in revision_hash_lookup:
-                    unique_revision_hashes.append(revision_hash)
-                    rh_where_in.append('%s')
-
-                build_platform_key = self.refdata_model.add_build_platform(
-                    job.get('build_platform', {}).get('os_name', 'unkown'),
-                    job.get('build_platform', {}).get('platform', 'unkown'),
-                    job.get('build_platform', {}).get('architecture', 'unknown')
+                # load reference data
+                self._load_ref_and_job_data_structs(
+                    job,
+                    revision_hash,
+                    revision_hash_lookup,
+                    unique_revision_hashes,
+                    rh_where_in,
+                    job_placeholders,
+                    log_placeholders,
+                    artifact_placeholders
                     )
 
-                machine_platform_key = self.refdata_model.add_machine_platform(
-                        job.get('machine_platform', {}).get('os_name', 'unknown'),
-                        job.get('machine_platform', {}).get('platform', 'unknown'),
-                        job.get('machine_platform', {}).get('architecture', 'unknown')
-                        )
-
-                option_collection_hash = self.refdata_model.add_option_collection(
-                        job.get('option_collection', [])
-                        )
-
-                machine = job.get('machine', 'unknown')
-                self.refdata_model.add_machine(
-                        machine,
-                        long(job.get("end_timestamp", time.time()))
-                        )
-
-                job_type = job.get('name', 'unknown')
-                self.refdata_model.add_job_type(job_type)
-
-                product = job.get('product_name', 'unknown')
-                self.refdata_model.add_product(product)
-
-                job_guid = job['job_guid']
-                job_placeholders.append([
-                    job_guid,
-                    None,                 # idx:1, job_coalesced_to_guid,
-                                          # TODO: How do find this value?
-                    revision_hash,        # idx:2, replace with result_set_id
-                    build_platform_key,   # idx:3, replace with build_platform_id
-                    machine_platform_key, # idx:4, replace with machine_platform_id
-                    machine,              # idx:5, replace with machine_id
-                    option_collection_hash,
-                    job_type,             # idx:7, replace with job_type_id
-                    product,              # idx:8, replace with product_id
-                    job.get('who', 'unknown'),
-                    job.get('reason', 'unknown'),
-                    job.get('result', 'unknown'),
-                    job.get('state', 'unknown'),
-                    long( job.get('submit_timestamp') ) or None,
-                    long( job.get('start_timestamp') ) or None,
-                    long( job.get('end_timestamp') ) or None,
-                    job_guid
-                    ])
-
+        # Store all reference data and retrieve associated ids
         id_lookups = self.refdata_model.set_all_reference_data()
+
+        # Store all revision hashes and retrieve result_set_ids
         result_set_ids = self.get_result_set_ids(
             unique_revision_hashes, rh_where_in
             )
 
+        job_update_placeholders = []
+        job_guid_list = []
+        job_guid_where_in_list = []
+
         for index, job in enumerate(job_placeholders):
-            # Replace reference data with their ids
 
-            # replace revision_hash with id
-            job_placeholders[index][2] = result_set_ids[
-                job_placeholders[index][2]
-                ]['id']
+            # Replace reference data with there associated ids
+            self._set_data_ids(
+                index,
+                job_placeholders,
+                id_lookups,
+                job_guid_list,
+                job_guid_where_in_list,
+                job_update_placeholders,
+                result_set_ids
+                )
 
-            # replace build_platform_key with id
-            job_placeholders[index][3] = id_lookups['build_platforms'][
-                job_placeholders[index][3]
-                ]['id']
+        job_id_lookup = self._load_jobs(
+            job_placeholders, job_guid_where_in_list, job_guid_list
+            )
 
-            # replace build_platform_key with id
-            job_placeholders[index][4] = id_lookups['machine_platforms'][
-                job_placeholders[index][4]
-                ]['id']
+        # Need to iterate over log references separately since they could
+        # be a different length. Replace job_guid with id in log url
+        # placeholders
+        self._load_log_urls(log_placeholders, job_id_lookup)
 
-            # replace machine with id
-            job_placeholders[index][5] = id_lookups['machines'][
-                job_placeholders[index][5]
-                ]['id']
+        self._load_job_artifacts(artifact_placeholders, job_id_lookup)
 
-            # replace job_type with id
-            job_placeholders[index][7] = id_lookups['job_types'][
-                job_placeholders[index][7]
-                ]['id']
+        # in this case do nothing
+        """
+        if state != 'pending':
+            # update state to running
+            if state == 'running' and job_info['state'] == 'pending':
+                self.set_state(job_id, 'running')
+            elif state == 'finished' and job_info['state'] != state:
+                self._update_data(
+                    'update_job_data',
+                    [
+                        job_coalesced_to_guid,
+                        result_set_id,
+                        machine_id,
+                        option_collection_hash,
+                        job_type_id,
+                        product_id,
+                        who,
+                        reason,
+                        result,
+                        state,
+                        start_timestamp,
+                        end_timestamp,
+                        job_id
+                    ]
+                )
+        """
 
-            # replace product_type with id
-            job_placeholders[index][8] = id_lookups['products'][
-                job_placeholders[index][8]
-                ]['id']
+    def _load_ref_and_job_data_structs(
+        self, job, revision_hash, revision_hash_lookup,
+        unique_revision_hashes, rh_where_in, job_placeholders,
+        log_placeholders, artifact_placeholders
+        ):
+
+        # Store revision_hash to support SQL construction
+        # for result_set entry
+        if revision_hash not in revision_hash_lookup:
+            unique_revision_hashes.append(revision_hash)
+            rh_where_in.append('%s')
+
+        build_platform_key = self.refdata_model.add_build_platform(
+            job.get('build_platform', {}).get('os_name', 'unkown'),
+            job.get('build_platform', {}).get('platform', 'unkown'),
+            job.get('build_platform', {}).get('architecture', 'unknown')
+            )
+
+        machine_platform_key = self.refdata_model.add_machine_platform(
+            job.get('machine_platform', {}).get('os_name', 'unknown'),
+            job.get('machine_platform', {}).get('platform', 'unknown'),
+            job.get('machine_platform', {}).get('architecture', 'unknown')
+            )
+
+        option_collection_hash = self.refdata_model.add_option_collection(
+            job.get('option_collection', [])
+            )
+
+        machine = job.get('machine', 'unknown')
+        self.refdata_model.add_machine(
+            machine,
+            long(job.get("end_timestamp", time.time()))
+            )
+
+        job_type = job.get('name', 'unknown')
+        self.refdata_model.add_job_type(job_type)
+
+        product = job.get('product_name', 'unknown')
+        self.refdata_model.add_product(product)
+
+        job_guid = job['job_guid']
+        job_placeholders.append([
+            job_guid,
+            None,                   # idx:1, job_coalesced_to_guid,
+                                    # TODO: How do find this value?
+            revision_hash,          # idx:2, replace with result_set_id
+            build_platform_key,     # idx:3, replace with build_platform_id
+            machine_platform_key,   # idx:4, replace with machine_platform_id
+            machine,                # idx:5, replace with machine_id
+            option_collection_hash, # idx:6
+            job_type,               # idx:7, replace with job_type_id
+            product,                # idx:8, replace with product_id
+            job.get('who', 'unknown'),
+            job.get('reason', 'unknown'),
+            job.get('result', 'unknown'),  # idx:11
+            job.get('state', 'unknown'),
+            long( job.get('submit_timestamp') ) or None,
+            long( job.get('start_timestamp') ) or None,
+            long( job.get('end_timestamp') ) or None,
+            job_guid
+            ])
+
+        log_refs = job.get('log_references', [])
+        if log_refs:
+            for log in log_refs:
+                log_placeholders.append(
+                    [
+                        job_guid,
+                        log.get('name', 'unknown'),
+                        log.get('url', 'unknown')
+                        ] )
+
+        artifact = job.get('artifact', {})
+        if artifact:
+            name = artifact.get('name')
+            artifact_type = artifact.get('type')
+            blob = artifact.get('blob')
+
+            if name and artifact_type and blob:
+                artifact_placeholders.append(
+                    [job_guid, name, artifact_type, blob]
+                    )
+
+    def _set_data_ids(
+        self, index, job_placeholders, id_lookups, job_guid_list,
+        job_guid_where_in_list, job_update_placeholders, result_set_ids
+        ):
+
+        # Replace reference data with their ids
+        job_guid = job_placeholders[index][0]
+        job_coalesced_to_guid = job_placeholders[index][1]
+        revision_hash = job_placeholders[index][2]
+        build_platform_key = job_placeholders[index][3]
+        machine_platform_key = job_placeholders[index][4]
+        machine_name = job_placeholders[index][5]
+        option_collection_hash = job_placeholders[index][6]
+        job_type = job_placeholders[index][7]
+        product_type = job_placeholders[index][8]
+        who = job_placeholders[index][9]
+        reason = job_placeholders[index][10]
+        result = job_placeholders[index][11]
+        job_state = job_placeholders[index][12]
+        submit_timestamp = job_placeholders[index][13]
+        start_timestamp = job_placeholders[index][14]
+        end_timestamp = job_placeholders[index][15]
+
+        # Load job_placeholders
+
+        # replace revision_hash with id
+        job_placeholders[index][2] = result_set_ids[revision_hash]['id']
+
+        # replace build_platform_key with id
+        job_placeholders[index][3] = id_lookups['build_platforms'][build_platform_key]['id']
+
+        # replace machine_platform_key with id
+        job_placeholders[index][4] = id_lookups['machine_platforms'][machine_platform_key]['id']
+
+        # replace machine with id
+        job_placeholders[index][5] = id_lookups['machines'][machine_name]['id']
+
+        # replace job_type with id
+        job_placeholders[index][7] = id_lookups['job_types'][job_type]['id']
+
+        # replace product_type with id
+        job_placeholders[index][8] = id_lookups['products'][product_type]['id']
+
+        job_guid_list.append(job_guid)
+        job_guid_where_in_list.append('%s')
+
+        # Load job_update_placeholders
+        job_update_placeholders.append([
+            job_coalesced_to_guid,
+            result_set_ids[revision_hash]['id'],
+            id_lookups['machines'][machine_name]['id'],
+            option_collection_hash,
+            id_lookups['job_types'][job_type]['id'],
+            id_lookups['products'][product_type]['id'],
+            who,
+            reason,
+            result,
+            job_state,
+            start_timestamp,
+            end_timestamp,
+            job_guid
+            ] )
+
+    def _load_jobs(
+        self, job_placeholders, job_guid_where_in_list, job_guid_list
+        ):
 
         # Store job data
         self.get_jobs_dhub().execute(
@@ -653,78 +786,73 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG,
             placeholders=job_placeholders,
             executemany=True )
-        """
-                job_placeholders.append([
-                job_guid,
-                job_coalesced_to_guid,
-                result_set_id,
-                build_platform_id,
-                machine_platform_id,
-                machine_id,
-                option_collection_hash,
-                job_type_id,
-                product_id,
-                who,
-                reason,
-                result,
-                state,
-                submit_timestamp,
-                start_timestamp,
-                end_timestamp,
-                job_guid
 
-                    ])
-        job_type_id = rdm.get_or_create_job_type(
-            job_name
-        )
+        job_guid_where_in_clause = ",".join(job_guid_where_in_list)
 
-        job_id = self._set_job_data(
-            job,
-            result_set_id,
-            build_platform_id,
-            machine_platform_id,
-            machine_id,
-            option_collection_hash,
-            job_type_id,
-            product_id,
-        )
+        # Retrieve new job ids
+        job_id_lookup = self.get_jobs_dhub().execute(
+            proc='jobs.selects.get_job_ids_by_guids',
+            debug_show=self.DEBUG,
+            replace=[job_guid_where_in_clause],
+            placeholders=job_guid_list,
+            key_column='job_guid',
+            return_type='dict')
 
-        for log_ref in job["log_references"]:
-            self._insert_job_log_url(
-                job_id,
-                log_ref["name"],
-                log_ref["url"]
-            )
+        return job_id_lookup
 
-        # importing here to avoid a dep loop
-        from treeherder.log_parser.tasks import parse_log
+    def _load_log_urls(self, log_placeholders, job_id_lookup):
 
-        if job["log_references"]:
-            # if we have a log to parse, we also have a result
-            # send a parse-log task for this job
-            check_errors = job["result"] != "success"
-            parse_log.delay(self.project, job_id, check_errors=check_errors)
+        if log_placeholders:
 
-        try:
-            artifact = job["artifact"]
-            self.insert_job_artifact(
-                job_id,
-                artifact["name"],
-                artifact["type"],
-                artifact["blob"],
-            )
+            # importing here to avoid a dep loop
+            from treeherder.log_parser.tasks import parse_log
 
-            for log_ref in artifact["log_urls"]:
-                self._insert_job_log_url(
-                    job_id,
-                    log_ref["name"],
-                    log_ref["url"]
-                )
+            task_data = []
+            for index, log_ref in enumerate(log_placeholders):
 
-        except (KeyError, JobDataError):
-            # it is ok to have an empty or missing artifact
-            pass
-        """
+                job_guid = log_placeholders[ index ][0]
+                job_id = job_id_lookup[ job_guid ]['id']
+                result = job_id_lookup[ job_guid ]['result']
+
+                # Replace job_guid with id
+                log_placeholders[index][0] = job_id
+
+                task_data.append(
+                    { 'id':job_id, 'check_errors': result != "success" }
+                    )
+
+            # Store the log references
+            self.get_jobs_dhub().execute(
+                proc='jobs.inserts.set_job_log_url',
+                debug_show=self.DEBUG,
+                placeholders=log_placeholders,
+                executemany=True )
+
+            for task in task_data:
+                # if we have a log to parse, we also have a result
+                # send a parse-log task for this job
+
+                # TODO: Uncomment when we fix the code in treeherder.log_parser.tasks
+                pass
+                #parse_log.delay(
+                #    self.project, task['id'], check_errors=task['check_errors']
+                #    )
+
+    def _load_job_artifacts(self, artifact_placeholders, job_id_lookup):
+
+        # Replace job_guid with id in artifact placeholders
+        for index, artifact in enumerate(artifact_placeholders):
+            artifact_placeholders[index][0] = job_id_lookup[
+                artifact_placeholders[index][0]
+                ]['id']
+
+        if artifact_placeholders:
+            # Store the log references
+            self.get_jobs_dhub().execute(
+                proc='jobs.inserts.set_job_artifact',
+                debug_show=self.DEBUG,
+                placeholders=artifact_placeholders,
+                executemany=True )
 
     def _get_or_create_result_set(self, revision_hash, push_timestamp):
         """
