@@ -38,7 +38,7 @@ treeherder.factory('thResultSets',
 
     // get the resultsets for this repo
     return {
-        getResultSets: function(offset=0, count=10) {
+        getResultSets: function(offset, count) {
             // the default notation above only works in some browsers (firefox)
             offset = typeof offset == 'undefined'?  0: offset;
             count = typeof count == 'undefined'?  10: count;

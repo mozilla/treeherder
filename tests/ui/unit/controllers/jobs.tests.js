@@ -7,7 +7,7 @@ describe('JobsCtrl', function(){
 
     beforeEach(module('treeherder'));
 
-    beforeEach(inject(function ($injector, $rootScope, $controller) {
+    beforeEach(inject(function ($injector, $rootScope, $controller, thUrl) {
 
         $httpBackend = $injector.get('$httpBackend');
         jasmine.getJSONFixtures().fixturesPath='base/test/mock';
