@@ -7,12 +7,12 @@ module.exports = function (config) {
         files: [
             'app/vendor/angular/angular.js',
             'app/vendor/angular/angular-*.js',
+            'app/vendor/jquery-2.0.3.js',
             'app/vendor/*.js',
             'app/js/**/*.js',
             'app/js/controllers/**/*.js',
             'app/plugins/**/*.js',
             'test/vendor/angular/angular-mocks.js',
-            'test/vendor/jquery-2.0.3.js',
             'test/vendor/jasmine-jquery.js',
             'test/unit/**/*.js',
 
