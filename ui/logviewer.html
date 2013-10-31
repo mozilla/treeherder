@@ -34,7 +34,7 @@
                                          ng-click="scrollTo(step, error.linenumber);
                                                    $event.stopPropagation()"
                                          class="text-left pull-left lv-error-line">
-                                        <span class="label lv-line-no">{{error.linenumber}}</span>
+                                        <span class="label label-default lv-line-no">{{error.linenumber}}</span>
                                         <span>{{error.line}}</span>
                                     </div>
                                 </p>
@@ -45,7 +45,7 @@
                 <div class="col-md-6 lv-log-container container well"
                      id="lv-log-container">
                     <div ng-repeat="lv_line in displayedStep.logPieces"
-                         ng-class="{'label label-important': (lv_line.hasError == true)}"
+                         ng-class="{'text-danger': (lv_line.hasError == true)}"
                          class="lv-log-line"
                          id="lv-line-{{ lv_line.errLine }}">
                          {{ lv_line.text }}

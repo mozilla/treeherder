@@ -61,7 +61,7 @@ treeherder.controller('LogviewerCtrl',
                         });
                     }
                     step.logPieces.push({
-                        text: data.slice(end, end+1),
+                        text: data.slice(end, end+1)[0],
                         hasError: true,
                         errLine: end
                     });
@@ -75,6 +75,17 @@ treeherder.controller('LogviewerCtrl',
         };
 
         $scope.init = function() {
+//            To test with a static log when no log artifacts are available.
+//            $http.get('resources/logs/mozilla-inbound_ubuntu64_vm-debug_test-mochitest-other-bm53-tests1-linux-build122.logview.json').
+//                success(function(data) {
+//                    $scope.artifact = data;
+//                    $scope.logurl = data.logurl;
+//                    $http.get('resources/logs/mozilla-inbound_ubuntu64_vm-debug_test-mochitest-other-bm53-tests1-linux-build122.txt').
+//                        success(function(data) {
+//                            $scope.sliceLog(data.split("\n"));
+//                        });
+//                });
+
             thArtifact.getArtifact($scope.lvArtifactId).
                 success(function(data) {
                     $scope.artifact = data.blob;
