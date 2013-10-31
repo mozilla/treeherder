@@ -28,7 +28,7 @@ treeherder.controller('JobsCtrl',
 
         };
 
-        $scope.nextResultSets(3);
+        $scope.nextResultSets(10);
 
     }
 );
