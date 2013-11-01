@@ -2,25 +2,26 @@
 <div>
 <div ng-repeat="resultset in result_sets"
      ng-controller="ResultSetCtrl"
-     class="result-set row-fluid">
+     class="result-set">
 
-    <a class="btn {{ resultsetStateBtn }} show-jobs-button pull-left"
+    <a class="btn {{ resultsetStateBtn }} th-show-jobs-button pull-left"
        ng-click="isCollapsedResults = !isCollapsedResults">
            <i class="{{ icon }}"></i>
            {{ ' jobs' | showOrHide:isCollapsedResults }}
     </a>
-    <a class="span7 text-left btn btn-info"
-       ng-click="isCollapsedRevisions = !isCollapsedRevisions">
+    <a class="text-left btn btn-info th-revision-btn"
+       ng-click="isCollapsedRevisions = !isCollapsedRevisions"
+       >
         <div class="text-left">{{resultset.push_timestamp*1000|date:'medium'}} - {{resultset.author}} - {{resultset.revision}}</div>
     </a>
 
-    <span class="span1 resultsetactions">
+    <span class="th-action-button pull-right">
         <span class="dropdown">
-            <a class="btn dropdown-toggle" data-hover="dropdown" data-delay="1000" href="#">
-                <i class="icon-cog"></i>
+            <a class="btn btn-default dropdown-toggle" data-hover="dropdown" data-delay="1000" href="#">
+                <i class="glyphicon glyphicon-cog"></i>
                 <b class="caret"></b>
             </a>
-            <ul class="dropdown-menu">
+            <ul class="dropdown-menu pull-right">
                 <li class="disabled"><a>Result Set Actions</a></li>
                 <li class="divider"></li>
                 <li><a target="_blank" href="https://tbpl.mozilla.org/mcmerge/?cset=8196c86355bc">m-mcMerge</a></li>
@@ -31,36 +32,38 @@
             </ul>
         </span>
     </span>
-    <div class="span1" ng-show="isLoadingResults">
-        <div class="progress progress-striped active"><progress percent="100"></progress></div>
-    </div>
+    <span class="progress progress-striped active th-rs-loading"
+         ng-show="isLoadingResults"><div class="bar" style="width: 100%"></div>
+    </span>
     <div class="clearfix"></div>
 
     <div ng-hide="isCollapsedRevisions && isCollapsedResults"
-         class="row-fluid">
+         class="row result-set">
         <span ng-hide="isCollapsedRevisions"
-              ng-class="{'span4': (isCollapsedResults==false)}">
-            <ul class="unstyled">
+              ng-class="{'col-md-4': (isCollapsedResults==false)}"
+              class="revision-list">
+            <ul class="list-unstyled">
                 <li ng-repeat="revision in resultset.revision_list"
                     class="revision">
-                    <span class="label">{{revision.revision}}</span> {{revision.author}} <span ng-show="revision.comment" class="italic">"{{revision.comments}}"</span>
+                    <span class="label label-default">{{revision.revision}}</span> {{revision.author}} <span ng-show="revision.comment" class="italic">"{{revision.comments}}"</span>
                 </li>
             </ul>
         </span>
         <span ng-hide="isCollapsedResults"
-              ng-class="{'span8': (isCollapsedRevisions==false)}">
-            <table class="table job-table table-hover">
+              ng-class="{'col-md-8': (isCollapsedRevisions==false), 'col-md-12': (isCollapsedRevisions)}"
+              class="job-list">
+            <table class="table-hover">
                 <tr ng-repeat="platform in job_results | filter:query">
-                    <td class="span2 platform"><span>{{ platform.name }}</span></td>
-                    <td class="span10">
+                    <td class="col-md-2 platform"><span>{{ platform.name }}</span></td>
+                    <td class="col-md-10">
                         <span ng-repeat="group in platform.groups">
                             <span ng-show="group.symbol"
-                               class="disabled"
+                               class="disabled job-group"
                                title="{{ group.name }}">{{ group.symbol }}(</span>
                             <span>
-                                <th-job-button ng-repeat="job in group.jobs"></th-job-button>
+                                <th-job-button class="job-btn" ng-repeat="job in group.jobs"></th-job-button>
                             </span>
-                            <span ng-show="group.symbol"> )</span>
+                            <span ng-show="group.symbol" class="job-group-r-paren">)</span>
                         </span>
                     </td>
                 </tr>
@@ -70,7 +73,7 @@
 </div>
 <div class="well">
     get next: <div class="btn-group">
-        <div class="btn btn-small"
+        <div class="btn btn-default btn-sm"
              ng-click="nextResultSets(count)"
              ng-repeat="count in [10, 20, 50, 100]">{{count}}</div>
     </div>

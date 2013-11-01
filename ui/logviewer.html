@@ -6,16 +6,16 @@
         <link href="css/bootstrap.css" rel="stylesheet" media="screen">
     </head>
     <body ng-controller="LogviewerCtrl" ng-init="init()">
-        <div class="container-fluid">
-            <div class="row-fluid">
-                <div class="span6">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
                         <dl class="dl-horizontal">
                             <span ng-repeat="(label, value) in artifact.header">
                                 <dt class="label label-info">{{label}}</dt>
                                 <dd class="">{{value}}</dd>
                             </span>
                         </dl>
-                    <div class="row-fluid" >
+                    <div class="row" >
                         <div ng-repeat="step in artifact.step_data.steps"
                              ng-class="{'btn-warning': (step.error_count > 0), 'btn-success': (step.error_count == 0)}"
                              ng-click="displayLog(step)"
@@ -34,7 +34,7 @@
                                          ng-click="scrollTo(step, error.linenumber);
                                                    $event.stopPropagation()"
                                          class="text-left pull-left lv-error-line">
-                                        <span class="label lv-line-no">{{error.linenumber}}</span>
+                                        <span class="label label-default lv-line-no">{{error.linenumber}}</span>
                                         <span>{{error.line}}</span>
                                     </div>
                                 </p>
@@ -42,10 +42,10 @@
                         </div>
                     </div>
                 </div>
-                <div class="span6 lv-log-container container well"
+                <div class="col-md-6 lv-log-container container well"
                      id="lv-log-container">
                     <div ng-repeat="lv_line in displayedStep.logPieces"
-                         ng-class="{'label label-important': (lv_line.hasError == true)}"
+                         ng-class="{'text-danger': (lv_line.hasError == true)}"
                          class="lv-log-line"
                          id="lv-line-{{ lv_line.errLine }}">
                          {{ lv_line.text }}
@@ -55,7 +55,9 @@
         </div>
     <script src="vendor/angular/angular.js"></script>
     <script src="vendor/angular/angular-resource.js"></script>
-    <script src="vendor/ui-bootstrap-tpls-0.4.0.js"></script>
+    <script src="vendor/ui-bootstrap-tpls-0.6.0.js"></script>
+    <script src="vendor/jquery-2.0.3.js"></script>
+    <script src="vendor/bootstrap.js"></script>
     <script src="vendor/angular/angular-sanitize.min.js"></script>
     <script src="js/config/local.conf.js"></script>
     <script src="js/app.js"></script>

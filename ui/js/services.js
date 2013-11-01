@@ -38,7 +38,7 @@ treeherder.factory('thResultSets',
 
     // get the resultsets for this repo
     return {
-        getResultSets: function(offset=0, count=10) {
+        getResultSets: function(offset, count) {
             // the default notation above only works in some browsers (firefox)
             offset = typeof offset == 'undefined'?  0: offset;
             count = typeof count == 'undefined'?  10: count;
@@ -100,19 +100,19 @@ treeherder.factory('thResults',
                         {
                             case "orange":
                                 $scope.resultsetStateBtn = "btn-warning";
-                                $scope.icon = "icon-warning-sign";
+                                $scope.icon = "glyphicon glyphicon-warning-sign";
                                 break;
                             case "red":
                                 $scope.resultsetStateBtn = "btn-danger";
-                                $scope.icon = "icon-remove";
+                                $scope.icon = "glyphicon glyphicon-remove";
                                 break;
                             case "grey":
-                                $scope.resultsetStateBtn = "";
-                                $scope.icon = "icon-time";
+                                $scope.resultsetStateBtn = "btn-default";
+                                $scope.icon = "glyphicon glyphicon-time";
                                 break;
                             default:
                                 $scope.resultsetStateBtn = "btn-success";
-                                $scope.icon = "icon-ok";
+                                $scope.icon = "glyphicon glyphicon-ok";
                                 $scope.isCollapsedResults = true;
                                 break;
                         }
