@@ -58,10 +58,6 @@ body {
     float: right;
 }
 
-.th-action-menu {
-    overflow: auto;
-}
-
 .th-action-button span.dropdown:hover ul.dropdown-menu{
     display: block;
 }
@@ -71,7 +67,7 @@ body {
 }
 
 .th-rs-loading {
-    width: 40px;
+    width: 50px;
     display: inline-block;
     height: 35px;
     margin-bottom: -14px;
