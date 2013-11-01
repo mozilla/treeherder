@@ -4,6 +4,7 @@ body {
     min-width: 960px;
     width: auto !important;
     width: 960px;
+    height: 100%;
 }
 
 .hidden {
@@ -25,6 +26,7 @@ body {
     overflow: hidden;
     min-width: 960px;
     width: 100%;
+    height: 100%;
     white-space: nowrap;
     margin-right: 5px;
 }
@@ -40,6 +42,7 @@ body {
     min-width: 860px;
     width: 100%;
     padding-right: 114px;
+    height: 100%;
 }
 
 .th-show-jobs-button {
@@ -57,8 +60,8 @@ body {
     float: right;
 }
 
-.th-rs-loading {
-    width: 25px;
+.th-action-menu {
+    overflow: auto;
 }
 
 .th-action-button span.dropdown:hover ul.dropdown-menu{
@@ -67,6 +70,14 @@ body {
 
 .th-action-button:after {
   content: none;
+}
+
+.th-rs-loading {
+    width: 40px;
+    display: inline-block;
+    height: 35px;
+    margin-bottom: -14px;
+    margin-left: 5px;
 }
 
 .revision {
