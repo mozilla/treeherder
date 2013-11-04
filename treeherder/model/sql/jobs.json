@@ -83,7 +83,8 @@
             "sql":"INSERT INTO `job_log_url` (
                 `job_id`,
                 `name`,
-                `url`)
+                `url`
+                )
             VALUES (?,?,?)",
 
             "host":"master_host"
@@ -125,7 +126,8 @@
                 "host":"master_host"
         },
         "update_job_data":{
-            "sql":"UPDATE `job`
+            "sql":"
+                UPDATE `job`
                 SET
                 `job_coalesced_to_guid` = ?,
                 `result_set_id` = ?,
@@ -139,8 +141,9 @@
                 `state` = ?,
                 `start_timestamp` = ?,
                 `end_timestamp` = ?
-                WHERE  `id` = ?
-                AND `state` <> 'completed'",
+                WHERE ( ( ? = 'completed' AND `state` != 'completed') OR
+                        ( ? = 'running' AND `state` = 'pending' ) ) AND `id` = ?",
+
             "host":"master_host"
         }
     },
@@ -194,10 +197,22 @@
                    WHERE `job_guid` = ?",
             "host": "read_host"
         },
+        "get_job_ids_by_guids":{
+            "sql":"SELECT `id`, `job_guid`, `state`, `result`
+                   FROM `job`
+                   WHERE `active_status` = 'active' AND `job_guid` IN (REP0)",
+            "host": "read_host"
+        },
         "get_result_set_ids":{
             "sql":"SELECT `id`, `revision_hash`
                    FROM `result_set`
                    WHERE `active_status` = 'active' AND `revision_hash` IN (REP0)",
+            "host": "read_host"
+        },
+        "get_all_result_set_revision_hashes":{
+            "sql":"SELECT `revision_hash`
+                   FROM `result_set`
+                   WHERE `active_status` = 'active'",
             "host": "read_host"
         },
         "get_revisions":{
@@ -311,6 +326,18 @@
                   REP1
                   ",
             "host": "read_host"
+        },
+        "get_all_log_urls":{
+
+            "sql":"SELECT `url` FROM `job_log_url`",
+
+            "host":"read_host"
+        },
+        "get_all_artifacts":{
+
+            "sql":"SELECT `name`, `type`, `blob`  FROM `job_artifact`",
+
+            "host":"read_host"
         }
     }
 }

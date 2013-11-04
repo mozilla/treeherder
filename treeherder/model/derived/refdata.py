@@ -97,7 +97,60 @@ class RefDataManager(object):
             'option_collections':self.process_option_collections()
             }
 
+        self.reset_reference_data()
+
         return self.id_lookup
+
+    def reset_reference_data(self):
+
+        # reset build platforms
+        self.build_platform_lookup = {}
+        self.build_where_filters = []
+        self.build_platform_placeholders = []
+        self.build_unique_platforms = []
+
+        # reset machine platforms
+        self.machine_platform_lookup = {}
+        self.machine_where_filters = []
+        self.machine_platform_placeholders = []
+        self.machine_unique_platforms = []
+
+        # reset job groups
+        self.job_group_lookup = set()
+        self.job_group_where_in_list = []
+        self.job_group_placeholders = []
+        self.unique_job_groups = []
+
+        # reset job types
+        self.job_type_lookup = set()
+        self.job_type_where_in_list = []
+        self.job_type_placeholders = []
+        self.unique_job_types = []
+
+        # reset products
+        self.product_lookup = set()
+        self.product_where_in_list = []
+        self.product_placeholders = []
+        self.unique_products = []
+
+        # reset machines
+        self.machine_name_lookup = set()
+        self.machine_where_in_list = []
+        self.machine_name_placeholders = []
+        self.machine_unique_names = []
+        self.machine_timestamp_update_placeholders = []
+
+        # reset option collections
+        self.oc_hash_lookup = dict()
+        self.oc_where_in_list = []
+        self.oc_placeholders = []
+        self.oc_unique_collections = []
+
+        # reset options
+        self.o_lookup = set()
+        self.o_placeholders = []
+        self.o_unique_options = []
+        self.o_where_in_list = []
 
     def add_build_platform(self, os_name, platform, arch):
 
@@ -152,7 +205,7 @@ class RefDataManager(object):
         unique_platforms,
         where_filters):
 
-        key = self.get_platform_key(os_name, platform, arch)
+        key = RefDataManager.get_platform_key(os_name, platform, arch)
 
         if key not in platform_lookup:
 
@@ -386,6 +439,9 @@ class RefDataManager(object):
                     option_id_lookup[o]['id']
                     ])
 
+        if not self.oc_placeholders:
+            return {}
+
         self.dhub.execute(
             proc='reference.inserts.create_option_collection',
             placeholders=self.oc_placeholders,
@@ -420,7 +476,7 @@ class RefDataManager(object):
 
             for data in data_retrieved:
 
-                key = self.get_platform_key(
+                key = RefDataManager.get_platform_key(
                     data['os_name'], data['platform'], data['architecture']
                     )
 
@@ -529,8 +585,8 @@ class RefDataManager(object):
             where_filters
             )
 
-
-    def get_platform_key(self, os_name, platform, architecture):
+    @classmethod
+    def get_platform_key(cls, os_name, platform, architecture):
         return "{0}-{1}-{2}".format(os_name, platform, architecture)
 
     def get_or_create_job_groups(self, names):
@@ -634,6 +690,9 @@ class RefDataManager(object):
 
     def _get_or_create_options(
         self, option_placeholders, unique_options, where_in_clause):
+
+        if not option_placeholders:
+            return {}
 
         insert_proc = 'reference.inserts.create_option'
         select_proc='reference.selects.get_options'

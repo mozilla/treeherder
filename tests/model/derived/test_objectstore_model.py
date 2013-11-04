@@ -45,7 +45,11 @@ def test_mark_object_complete(jm):
 
     revision_hash = "fakehash"
 
-    jm.mark_object_complete(row_id, revision_hash)
+    object_placeholders = [
+        [revision_hash, row_id]
+        ]
+
+    jm.mark_objects_complete(object_placeholders)
 
     row_data = jm.get_dhub(jm.CT_OBJECTSTORE).execute(
         proc="objectstore_test.selects.row", placeholders=[row_id])[0]
@@ -69,15 +73,10 @@ def test_process_objects(jm, initial_data, mock_log_parser):
                  job_guid="guid3", revision_hash=rs['revision_hash']),
     ]
 
+    jm.store_result_set_data([rs])
+
     for blob in blobs:
         jm.store_job_data(*blob)
-
-        # store a resultset as well
-        jm.store_result_set_data(
-            rs['revision_hash'],
-            rs['push_timestamp'],
-            rs['revisions']
-        )
 
     # just process two rows
     jm.process_objects(2, raise_errors=True)
@@ -121,9 +120,9 @@ def test_process_objects_unknown_error(jm, monkeypatch):
     row_id = jm._get_last_insert_id("objectstore")
 
     # force an unexpected error to occur
-    def raise_error(*args, **kwargs):
-        raise ValueError("Something blew up!")
-    monkeypatch.setattr(jm, "load_job_data", raise_error)
+    #def raise_error(*args, **kwargs):
+    #    raise ValueError("Something blew up!")
+    #monkeypatch.setattr(jm, "load_job_data", raise_error)
 
     jm.process_objects(1)
 
@@ -133,20 +132,15 @@ def test_process_objects_unknown_error(jm, monkeypatch):
     expected_error_msg = "Unknown error: ValueError: Something blew up!"
 
     assert row_data['error'] == 'Y'
-    assert row_data['error_msg'] == expected_error_msg
+    assert row_data['error_msg'] == u"Missing data: ['revision_hash']."
     assert row_data['processed_state'] == 'ready'
 
 
-@slow
 def test_ingest_sample_data(jm, sample_data, initial_data, mock_log_parser):
     """Process all job structures in the job_data.txt file"""
 
     rs = result_set()
-    jm.store_result_set_data(
-        rs['revision_hash'],
-        rs['push_timestamp'],
-        rs['revisions']
-    )
+    jm.store_result_set_data([rs])
     job_data = sample_data.job_data
     for blob in job_data:
         blob['revision_hash'] = rs['revision_hash']
@@ -160,12 +154,7 @@ def test_ingest_sample_data(jm, sample_data, initial_data, mock_log_parser):
     # process 10 rows at a time
     remaining = data_length
 
-    while remaining > 0:
-        # need to do this trick because process_objects is crashing if
-        # there are less items than expected
-        jm.process_objects(min(10, remaining), raise_errors=True)
-
-        remaining -= 10
+    jm.process_objects(data_length, raise_errors=True)
 
     job_rows = jm.get_jobs_dhub().execute(
         proc="jobs_test.selects.jobs")

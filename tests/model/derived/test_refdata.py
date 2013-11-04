@@ -24,26 +24,6 @@ def mock_urllib():
     )
     urllib2.urlopen = mock
 
-
-@pytest.fixture()
-def refdata():
-    """returns a patched RefDataManager for testing purpose"""
-
-    import os
-    from treeherder.model.derived import RefDataManager
-    from tests.conftest import add_test_procs_file
-
-    refdata = RefDataManager()
-
-    proc_path = os.path.join(
-        os.path.abspath(os.path.dirname(__file__)),
-        'test_refdata.json'
-    )
-
-    add_test_procs_file(refdata.dhub, 'reference', proc_path)
-    return refdata
-
-
 @pytest.fixture
 def repository_id():
     repo_group = RepositoryGroup.objects.create(name='mygroup')

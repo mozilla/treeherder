@@ -4,15 +4,39 @@
         "test_build_platform":{
             "sql": "SELECT `platform`, `os_name`, `architecture`, `active_status`
                     FROM `build_platform`
-                    WHERE 
-                        `id` = ?",
+                    WHERE `id` = ?",
+            "host":"read_host"
+        },
+        "test_all_build_platforms":{
+            "sql": "SELECT `platform`, `os_name`, `architecture`, `active_status`
+                    FROM `build_platform`",
+            "host":"read_host"
+        },
+        "test_all_machine_platforms":{
+            "sql": "SELECT `platform`, `os_name`, `architecture`, `active_status`
+                    FROM `machine_platform`",
+            "host":"read_host"
+        },
+        "test_all_machines":{
+            "sql": "SELECT `name` FROM `machine`",
+            "host":"read_host"
+        },
+        "test_all_options":{
+            "sql": "SELECT `name` FROM `option`",
+            "host":"read_host"
+        },
+        "test_all_job_types":{
+            "sql": "SELECT `name` FROM `job_type`",
+            "host":"read_host"
+        },
+        "test_all_products":{
+            "sql": "SELECT `name` FROM `product`",
             "host":"read_host"
         },
         "test_job_group":{
             "sql": "SELECT `symbol`, `name`, `description`, `active_status`
                     FROM `job_group`
-                    WHERE 
-                        `id` = ?",
+                    WHERE `id` = ?",
             "host":"read_host"
         },
         "test_job_type":{
@@ -25,8 +49,7 @@
                     FROM `job_type` jt
                     INNER JOIN `job_group` jg
                         on jg.id = jt.job_group_id
-                    WHERE 
-                        jt.`id` = ?",
+                    WHERE jt.`id` = ?",
             "host":"read_host"
         },
         "test_machine":{

@@ -6,6 +6,7 @@ from warnings import filterwarnings, resetwarnings
 from django.conf import settings
 
 from treeherder.model.models import Datasource
+
 from treeherder.model import utils
 
 from .base import TreeherderModelBase
@@ -204,13 +205,18 @@ class JobsModel(TreeherderModelBase):
             """
         where_in_clause = ','.join(where_in_list)
 
-        return self.get_jobs_dhub().execute(
-            proc='jobs.selects.get_result_set_ids',
-            placeholders=revision_hashes,
-            replace=[where_in_list],
-            debug_show=self.DEBUG,
-            key_column='revision_hash',
-            return_type='dict')
+        result_set_id_lookup = {}
+
+        if revision_hashes:
+            result_set_id_lookup = self.get_jobs_dhub().execute(
+                proc='jobs.selects.get_result_set_ids',
+                placeholders=revision_hashes,
+                replace=[where_in_list],
+                debug_show=self.DEBUG,
+                key_column='revision_hash',
+                return_type='dict')
+
+        return result_set_id_lookup
 
     def get_revision_id(self, revision, repository_id):
         """Return the ``revision.id`` for the given ``revision``"""
@@ -520,6 +526,10 @@ class JobsModel(TreeherderModelBase):
         ]
 
         """
+        # Insure that we have job data to process
+        if not data:
+            return
+
         # Structures supporting revision_hash SQL
         revision_hash_lookup = set()
         unique_revision_hashes = []
@@ -532,6 +542,10 @@ class JobsModel(TreeherderModelBase):
 
         # Structures supporting update of job data in SQL
         update_placeholders = []
+
+        # List of json object ids and associated revision_hashes
+        # loaded. Used to mark the status complete.
+        object_placeholders = []
 
         for datum in data:
             # Make sure we can deserialize the json object
@@ -565,6 +579,10 @@ class JobsModel(TreeherderModelBase):
                     job_placeholders,
                     log_placeholders,
                     artifact_placeholders
+                    )
+
+                object_placeholders.append(
+                    [ revision_hash, datum['id'] ]
                     )
 
         # Store all reference data and retrieve associated ids
@@ -603,32 +621,18 @@ class JobsModel(TreeherderModelBase):
 
         self._load_job_artifacts(artifact_placeholders, job_id_lookup)
 
-        # in this case do nothing
-        """
-        if state != 'pending':
-            # update state to running
-            if state == 'running' and job_info['state'] == 'pending':
-                self.set_state(job_id, 'running')
-            elif state == 'finished' and job_info['state'] != state:
-                self._update_data(
-                    'update_job_data',
-                    [
-                        job_coalesced_to_guid,
-                        result_set_id,
-                        machine_id,
-                        option_collection_hash,
-                        job_type_id,
-                        product_id,
-                        who,
-                        reason,
-                        result,
-                        state,
-                        start_timestamp,
-                        end_timestamp,
-                        job_id
-                    ]
-                )
-        """
+        # If there is already a job_guid stored with pending/running status
+        # we need to update the information for the complete job
+        if job_update_placeholders:
+
+            self.get_jobs_dhub().execute(
+                proc='jobs.updates.update_job_data',
+                debug_show=self.DEBUG,
+                placeholders=job_update_placeholders,
+                executemany=True )
+
+        # Mark job status
+        self.mark_objects_complete(object_placeholders)
 
     def _load_ref_and_job_data_structs(
         self, job, revision_hash, revision_hash_lookup,
@@ -671,6 +675,8 @@ class JobsModel(TreeherderModelBase):
         self.refdata_model.add_product(product)
 
         job_guid = job['job_guid']
+        job_state = job.get('state', 'unknown')
+
         job_placeholders.append([
             job_guid,
             None,                   # idx:1, job_coalesced_to_guid,
@@ -686,9 +692,9 @@ class JobsModel(TreeherderModelBase):
             job.get('reason', 'unknown'),
             job.get('result', 'unknown'),  # idx:11
             job.get('state', 'unknown'),
-            long( job.get('submit_timestamp') ) or None,
-            long( job.get('start_timestamp') ) or None,
-            long( job.get('end_timestamp') ) or None,
+            self.get_number( job.get('submit_timestamp') ),
+            self.get_number( job.get('start_timestamp') ),
+            self.get_number( job.get('end_timestamp') ),
             job_guid
             ])
 
@@ -706,16 +712,23 @@ class JobsModel(TreeherderModelBase):
         if artifact:
             name = artifact.get('name')
             artifact_type = artifact.get('type')
-            blob = artifact.get('blob')
+            blob = json.dumps( artifact.get('blob') )
 
             if name and artifact_type and blob:
                 artifact_placeholders.append(
                     [job_guid, name, artifact_type, blob]
                     )
 
+    def get_number(self, s):
+        try:
+            return long(s)
+        except ValueError:
+            return 0
+
     def _set_data_ids(
-        self, index, job_placeholders, id_lookups, job_guid_list,
-        job_guid_where_in_list, job_update_placeholders, result_set_ids
+        self, index, job_placeholders, id_lookups,
+        job_guid_list, job_guid_where_in_list, job_update_placeholders,
+        result_set_ids
         ):
 
         # Replace reference data with their ids
@@ -760,25 +773,32 @@ class JobsModel(TreeherderModelBase):
         job_guid_where_in_list.append('%s')
 
         # Load job_update_placeholders
-        job_update_placeholders.append([
-            job_coalesced_to_guid,
-            result_set_ids[revision_hash]['id'],
-            id_lookups['machines'][machine_name]['id'],
-            option_collection_hash,
-            id_lookups['job_types'][job_type]['id'],
-            id_lookups['products'][product_type]['id'],
-            who,
-            reason,
-            result,
-            job_state,
-            start_timestamp,
-            end_timestamp,
-            job_guid
-            ] )
+        if job_state != 'pending':
+
+            job_update_placeholders.append([
+                job_coalesced_to_guid,
+                result_set_ids[revision_hash]['id'],
+                id_lookups['machines'][machine_name]['id'],
+                option_collection_hash,
+                id_lookups['job_types'][job_type]['id'],
+                id_lookups['products'][product_type]['id'],
+                who,
+                reason,
+                result,
+                job_state,
+                start_timestamp,
+                end_timestamp,
+                job_state,
+                job_state,
+                job_guid
+                ] )
 
     def _load_jobs(
         self, job_placeholders, job_guid_where_in_list, job_guid_list
         ):
+
+        if not job_placeholders:
+            return {}
 
         # Store job data
         self.get_jobs_dhub().execute(
@@ -854,214 +874,6 @@ class JobsModel(TreeherderModelBase):
                 placeholders=artifact_placeholders,
                 executemany=True )
 
-    def _get_or_create_result_set(self, revision_hash, push_timestamp):
-        """
-        Set result set revision hash.
-        If it already exists, return the id for that ``revision_hash``.
-        """
-
-        self._insert_data(
-            'set_result_set',
-            [
-                revision_hash,
-                long(push_timestamp),
-                revision_hash,
-            ]
-        )
-        result_set_id = self.get_result_set_id(revision_hash)
-        return result_set_id['id']
-
-    def _get_or_create_revision(self, params):
-        """
-        Insert a source to the ``revision`` table
-
-        Example params:
-        {
-            "commit_timestamp": 1365732271, # this is nullable
-            "comments": "Bug 854583 - Use _pointer_ instead of...",
-            "repository": "mozilla-aurora",
-            "revision": "c91ee0e8a980",
-            "files": [
-                "file1",
-                "file2"
-            ]
-        }
-
-        """
-
-        repository_id = self.refdata_model.get_repository_id(
-            params["repository"]
-        )
-
-        files = json.dumps(params['files'])
-
-        commit_timestamp = params.get("commit_timestamp", False) or 0
-
-        self._insert_data(
-            'set_revision',
-            [
-                params["revision"],
-                params['author'],
-                params.get("comments", ""),
-                files,
-                long(commit_timestamp),
-                repository_id,
-                params["revision"],
-                repository_id
-            ]
-        )
-
-        return self.get_revision_id(params["revision"], repository_id)['id']
-
-    def _get_or_create_revision_map(self, revision_id, result_set_id):
-        """
-        Create a mapping between revision and result_set.
-
-        Return: nothing
-        """
-        self._insert_data(
-            'set_revision_map',
-            [
-                revision_id,
-                result_set_id,
-                revision_id,
-                result_set_id,
-            ]
-        )
-
-        return self._get_revision_map_id(revision_id, result_set_id)
-
-    def _set_job_data(self, data, result_set_id, build_platform_id,
-                      machine_platform_id, machine_id, option_collection_hash,
-                      job_type_id, product_id):
-        """Inserts job data into the db and returns job id."""
-
-        try:
-            job_guid = data["job_guid"]
-
-            # @@@ jeads: not sure about job_coalesced_to_guid.
-            # According to the sample data, this could be:
-            #
-            #  coalesced: [
-            #     "job_guid",
-            #     ...
-            # ]
-            #
-            # I think I need an
-            # example of this in job_data.txt
-
-            job_coalesced_to_guid = ""
-
-            # TODO: fix who and reason for pending/running jobs
-            who = data.get("who", "unknown")
-            reason = data.get("reason", "unknown")
-            result = data.get("result", "unknown")
-            state = data["state"]
-            submit_timestamp = long(data["submit_timestamp"])
-            start_timestamp = long(data.get("start_timestamp", 0)) or None
-            end_timestamp = long(data.get("end_timestamp", 0)) or None
-
-        except ValueError as e:
-            raise JobDataError(e.message)
-
-        # try to insert a new row
-        self._insert_data(
-            'create_job_data',
-            [
-                job_guid,
-                job_coalesced_to_guid,
-                result_set_id,
-                build_platform_id,
-                machine_platform_id,
-                machine_id,
-                option_collection_hash,
-                job_type_id,
-                product_id,
-                who,
-                reason,
-                result,
-                state,
-                submit_timestamp,
-                start_timestamp,
-                end_timestamp,
-                job_guid
-            ]
-        )
-
-        job_id = self.get_job_id_by_guid(job_guid)
-
-        job_info = self.get_job(job_id)
-
-        # in this case do nothing
-        if state != 'pending':
-            # update state to running
-            if state == 'running' and job_info['state'] == 'pending':
-                self.set_state(job_id, 'running')
-            elif state == 'finished' and job_info['state'] != state:
-                self._update_data(
-                    'update_job_data',
-                    [
-                        job_coalesced_to_guid,
-                        result_set_id,
-                        machine_id,
-                        option_collection_hash,
-                        job_type_id,
-                        product_id,
-                        who,
-                        reason,
-                        result,
-                        state,
-                        start_timestamp,
-                        end_timestamp,
-                        job_id
-                    ]
-                )
-
-        return job_id
-
-    def _insert_job_log_url(self, job_id, name, url):
-        """Insert job log data"""
-
-        self._insert_data(
-            'set_job_log_url',
-            [
-                job_id, name, url
-            ]
-        )
-
-    def insert_job_artifact(self, job_id, name, artifact_type, blob):
-        """Insert job artifact """
-
-        self._insert_data(
-            'set_job_artifact',
-            [
-                job_id, name, artifact_type, blob
-            ]
-        )
-
-    def _insert_data(self, statement, placeholders, executemany=False):
-        """Insert a set of data using the specified proc ``statement``."""
-        self.get_jobs_dhub().execute(
-            proc='jobs.inserts.' + statement,
-            debug_show=self.DEBUG,
-            placeholders=placeholders,
-            executemany=executemany,
-        )
-
-    def _update_data(self, statement, placeholders):
-        """Update a set of data using the specified proc ``statement``."""
-        self.get_jobs_dhub().execute(
-            proc='jobs.updates.' + statement,
-            debug_show=self.DEBUG,
-            placeholders=placeholders,
-            executemany=False,
-        )
-
-    def _insert_data_and_get_id(self, statement, placeholders):
-        """Execute given insert statement, returning inserted ID."""
-        self._insert_data(statement, placeholders)
-        return self._get_last_insert_id()
-
     def _get_last_insert_id(self, contenttype="jobs"):
         """Return last-inserted ID."""
         return self.get_dhub(contenttype).execute(
@@ -1073,33 +885,10 @@ class JobsModel(TreeherderModelBase):
     def process_objects(self, loadlimit, raise_errors=False):
         """Processes JSON blobs from the objectstore into jobs schema."""
         rows = self.claim_objects(loadlimit)
-
         # TODO: Need a try/except here insuring we mark
         #   any objects in a suspended state as errored
-        self.load_job_data(rows)
-
-        """
-        for row in rows:
-            row_id = int(row['id'])
-            try:
-                data = JobData.from_json(row['json_blob'])
-                self.load_job_data(data)
-                revision_hash = data["revision_hash"]
-            except JobDataError as e:
-                self.mark_object_error(row_id, str(e))
-                if raise_errors:
-                    raise e
-            except Exception as e:
-                self.mark_object_error(
-                    row_id,
-                    u"Unknown error: {0}: {1}".format(
-                        e.__class__.__name__, unicode(e))
-                )
-                if raise_errors:
-                    raise e
-            else:
-                self.mark_object_complete(row_id, revision_hash)
-        """
+        if rows:
+            self.load_job_data(rows)
 
     def claim_objects(self, limit):
         """
@@ -1161,11 +950,19 @@ class JobsModel(TreeherderModelBase):
 
         return json_blobs
 
-    def mark_object_complete(self, object_id, revision_hash):
-        """ Call to database to mark the task completed """
+    def mark_objects_complete(self, object_placeholders):
+        """ Call to database to mark the task completed
+
+            object_placeholders = [
+                [ revision_hash, object_id ],
+                [ revision_hash, object_id ],
+                ...
+                ]
+        """
         self.get_os_dhub().execute(
             proc="objectstore.updates.mark_complete",
-            placeholders=[revision_hash, object_id],
+            placeholders=object_placeholders,
+            executemany=True,
             debug_show=self.DEBUG
         )
 
