@@ -15,7 +15,8 @@
         <div class="text-left">{{resultset.push_timestamp*1000|date:'medium'}} - {{resultset.author}} - {{resultset.revision}}</div>
     </a>
 
-    <span class="th-action-button pull-right">
+    <span class="th-action-button pull-right"
+          ng-hide="isLoadingResults">
         <span class="dropdown">
             <a class="btn btn-default dropdown-toggle" data-hover="dropdown" data-delay="1000" href="#">
                 <i class="glyphicon glyphicon-cog"></i>
@@ -32,9 +33,11 @@
             </ul>
         </span>
     </span>
-    <span class="progress progress-striped active th-rs-loading"
-         ng-show="isLoadingResults"><div class="bar" style="width: 100%"></div>
-    </span>
+    <div class="progress progress-striped active th-rs-loading"
+         ng-show="isLoadingResults">
+        <div class="progress-bar"  role="progressbar" style="width: 100%"></div>
+    </div>
+
     <div class="clearfix"></div>
 
     <div ng-hide="isCollapsedRevisions && isCollapsedResults"
