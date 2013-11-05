@@ -59,18 +59,31 @@ class JobsLoaderMixin(JsonLoaderMixin):
     def load(self, jobs):
         """post a list of jobs to the objectstore ingestion endpoint """
 
+        project_jobs_map = {}
+
         for job in jobs:
+
             project = job['project']
 
+            if project not in project_jobs_map:
+                project_jobs_map[project] = []
+
+            project_jobs_map[project].append(job)
+
+        for project in project_jobs_map:
+
             # the creation endpoint is the same as the list one
-            endpoint = reverse("resultset-add-job",
-                kwargs={"project": project, "pk": job['resultset_id']})
+            endpoint = reverse(
+                "resultset-add-job",
+                kwargs={"project": project, "pk":1 },
+                params=project_jobs_map[project]
+                )
 
             url = "{0}/{1}/".format(
                 settings.API_HOSTNAME.strip('/'),
                 endpoint.strip('/')
             )
-            response = super(JobsLoaderMixin, self).load(url, job)
+            response = super(JobsLoaderMixin, self).load(url)
 
             if response.getcode() != 200:
                 message = json.loads(response.read())

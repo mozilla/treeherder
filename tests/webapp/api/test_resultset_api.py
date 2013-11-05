@@ -48,39 +48,19 @@ def test_resultset_list_bad_project(webapp, jm):
     assert resp.json == {"message": "No project with name foo"}
 
 
-def test_resultset_list_exclude_empty_no_rs(webapp, initial_data,
-                                            pushlog_sample, jm):
-    """
-    test retrieving a resultset list, when the resultset has no jobs.
-    should not show.
-    """
-    jm.store_result_set_data(pushlog_sample['revision_hash'],
-                             pushlog_sample['push_timestamp'],
-                             pushlog_sample['revisions'])
-
-    resp = webapp.get(
-        reverse("resultset-list", kwargs={"project": jm.project}),
-        {"exclude_empty": 1},
-    )
-    assert resp.status_int == 200
-    assert len(resp.json) == 0
-
-
 def test_resultset_list_empty_rs_still_show(webapp, initial_data,
                                             pushlog_sample, jm):
     """
     test retrieving a resultset list, when the resultset has no jobs.
     should not show.
     """
-    jm.store_result_set_data(pushlog_sample['revision_hash'],
-                             pushlog_sample['push_timestamp'],
-                             pushlog_sample['revisions'])
+    jm.store_result_set_data(pushlog_sample)
 
     resp = webapp.get(
         reverse("resultset-list", kwargs={"project": jm.project}),
     )
     assert resp.status_int == 200
-    assert len(resp.json) == 1
+    assert len(resp.json) == 10
 
 
 def test_resultset_detail(webapp, eleven_jobs_processed, jm):
@@ -275,25 +255,24 @@ def test_resultset_create(webapp, pushlog_sample, jm, initial_data):
 
     stored_objs = jm.get_jobs_dhub().execute(
         proc="jobs_test.selects.resultset_by_rev_hash",
-        placeholders=[pushlog_sample['revision_hash']]
+        placeholders=[pushlog_sample[0]['revision_hash']]
     )
 
     assert len(stored_objs) == 1
 
-    assert stored_objs[0]['revision_hash'] == pushlog_sample['revision_hash']
+    assert stored_objs[0]['revision_hash'] == pushlog_sample[0]['revision_hash']
 
 
 def test_result_set_add_job(jm, initial_data, webapp, job_sample, pushlog_sample):
 
-    jm.store_result_set_data(pushlog_sample['revision_hash'],
-                             pushlog_sample['push_timestamp'],
-                             pushlog_sample['revisions'])
+    jm.store_result_set_data(pushlog_sample)
 
-    job_sample['revision_hash'] = pushlog_sample['revision_hash']
+    job_sample['revision_hash'] = pushlog_sample[0]['revision_hash']
     job_sample['job']['log_references'] = []
+
     resp = webapp.post_json(
         reverse("resultset-add-job",
                 kwargs={"project": jm.project, "pk": 1}),
-        params=job_sample
+        params=[job_sample]
     )
     assert resp.status_int == 200

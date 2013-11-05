@@ -265,10 +265,6 @@ class JobsModel(TreeherderModelBase):
         # message the user, it would save us a very expensive join
         # with the jobs table.
 
-        #TODO: Remove if this is not necessary
-        if "exclude_empty" in kwargs and int(kwargs["exclude_empty"]) == 1:
-            replace_str += " AND job.id is not null"
-
         placeholders.extend([offset, limit])
 
         # Retrieve the filtered/limited list of result sets
@@ -281,7 +277,7 @@ class JobsModel(TreeherderModelBase):
         )
 
         aggregate_details = self.get_result_set_details(result_set_ids)
-        
+
         # Construct the return dataset, include all revisions associated
         # with each result_set in the revision_list attribute
         return_list = []
@@ -301,7 +297,7 @@ class JobsModel(TreeherderModelBase):
                     "revision_list":aggregate_details[ result['id'] ]
                     }
                 )
-                    
+
         return self.as_list(return_list, "result_set", **kwargs)
 
     def get_result_set_details(self, result_set_ids):
@@ -547,23 +543,41 @@ class JobsModel(TreeherderModelBase):
         # loaded. Used to mark the status complete.
         object_placeholders = []
 
+        print "DATA"
+        print data
         for datum in data:
             # Make sure we can deserialize the json object
             # without raising an exception
             try:
-                job_struct = JobData.from_json(datum['json_blob'])
-                revision_hash = job_struct['revision_hash']
-                job = job_struct['job']
+                if 'json_blob' in datum:
+                    job_struct = JobData.from_json(datum['json_blob'])
+                    revision_hash = job_struct['revision_hash']
+                    job = job_struct['job']
+                else:
+                    job = datum['job']
+                    revision_hash = datum['revision_hash']
+
+                # TODO: Need a job structure validation step here. Now that
+                # everything works in list context we cannot detect what
+                # object is responsible for what error. If we validate here
+                # we can capture the error and associate it with the object
+                # and also skip it before generating any database errors.
+
             except JobDataError as e:
-                self.mark_object_error(datum['id'], str(e))
+
+                if 'id' in datum:
+                    self.mark_object_error(datum['id'], str(e))
+
                 if raise_errors:
                     raise e
+
             except Exception as e:
-                self.mark_object_error(
-                    datum['id'],
-                    u"Unknown error: {0}: {1}".format(
-                        e.__class__.__name__, unicode(e))
-                )
+                if 'id' in datum:
+                    self.mark_object_error(
+                        datum['id'],
+                        u"Unknown error: {0}: {1}".format(
+                            e.__class__.__name__, unicode(e))
+                    )
                 if raise_errors:
                     raise e
             else:
@@ -581,9 +595,10 @@ class JobsModel(TreeherderModelBase):
                     artifact_placeholders
                     )
 
-                object_placeholders.append(
-                    [ revision_hash, datum['id'] ]
-                    )
+                if 'id' in datum:
+                    object_placeholders.append(
+                        [ revision_hash, datum['id'] ]
+                        )
 
         # Store all reference data and retrieve associated ids
         id_lookups = self.refdata_model.set_all_reference_data()
@@ -959,12 +974,13 @@ class JobsModel(TreeherderModelBase):
                 ...
                 ]
         """
-        self.get_os_dhub().execute(
-            proc="objectstore.updates.mark_complete",
-            placeholders=object_placeholders,
-            executemany=True,
-            debug_show=self.DEBUG
-        )
+        if object_placeholders:
+            self.get_os_dhub().execute(
+                proc="objectstore.updates.mark_complete",
+                placeholders=object_placeholders,
+                executemany=True,
+                debug_show=self.DEBUG
+            )
 
     def mark_object_error(self, object_id, error):
         """ Call to database to mark the task completed """

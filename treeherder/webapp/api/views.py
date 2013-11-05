@@ -349,12 +349,7 @@ class ResultSetViewSet(viewsets.ViewSet):
         The incoming data has the same structure as for
         the objectstore ingestion.
         """
-
-        job = request.DATA
-
-        jm.load_job_data(
-            job
-        )
+        jm.load_job_data(request.DATA)
 
         return Response({'message': 'Job successfully updated'})
 

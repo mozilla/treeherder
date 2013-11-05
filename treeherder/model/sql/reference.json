@@ -238,9 +238,9 @@
                         GROUP_CONCAT( name SEPARATOR ' ' ) as opt
                    FROM `option_collection` oc
                    INNER JOIN `option` o
-                        on o.id = oc.option_id
-                    GROUP BY oc.option_collection_hash
-                   WHERE o.active_statue = 'active'",
+                        ON o.id = oc.option_id
+                   WHERE o.active_status = 'active'
+                   GROUP BY oc.option_collection_hash",
             "host":"read_host"
         }
     },

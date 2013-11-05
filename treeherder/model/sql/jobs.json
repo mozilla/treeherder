@@ -239,8 +239,6 @@
                       rs.revision_hash,
                       rs.push_timestamp
                    FROM result_set AS rs
-                   LEFT JOIN job
-                      ON job.result_set_id = rs.id
                    INNER JOIN revision_map
                       ON rs.id = revision_map.result_set_id
                    INNER JOIN revision
