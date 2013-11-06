@@ -213,6 +213,18 @@ class JobsViewSet(viewsets.ViewSet):
 
         return Response({"message": "state updated to '{0}'".format(state)})
 
+    @action()
+    @with_jobs
+    def create(self, request, project, jm):
+        """
+        This method adds a job to a given resultset.
+        The incoming data has the same structure as for
+        the objectstore ingestion.
+        """
+        jm.load_job_data(request.DATA)
+
+        return Response({'message': 'Job successfully updated'})
+
 
 class ResultSetViewSet(viewsets.ViewSet):
     """
@@ -351,17 +363,6 @@ class ResultSetViewSet(viewsets.ViewSet):
 
         return Response({"message": "well-formed JSON stored"})
 
-    @action()
-    @with_jobs
-    def add_job(self, request, project, jm, pk=None):
-        """
-        This method adds a job to a given resultset.
-        The incoming data has the same structure as for
-        the objectstore ingestion.
-        """
-        jm.load_job_data(request.DATA)
-
-        return Response({'message': 'Job successfully updated'})
 
 #####################
 # Refdata ViewSets

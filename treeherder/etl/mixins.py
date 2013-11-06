@@ -77,17 +77,15 @@ class JobsLoaderMixin(JsonLoaderMixin):
 
             # the creation endpoint is the same as the list one
             endpoint = reverse(
-                "resultset-add-job",
-                kwargs={ "project": project, "pk":1 }
+                "jobs-list",
+                kwargs={ "project": project }
                 )
 
             url = "{0}/{1}/".format(
                 settings.API_HOSTNAME.strip('/'),
                 endpoint.strip('/')
             )
-            print "URL"
-            print url
-            print project_jobs_map[project]
+
             response = super(JobsLoaderMixin, self).load(
                 url, project_jobs_map[project]
                 )
