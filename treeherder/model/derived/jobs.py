@@ -419,7 +419,6 @@ class JobsModel(TreeherderModelBase):
 
         response = {}
         for job in json_data:
-
             try:
                 json_job = json.dumps(job)
                 job_guid = job['job']['job_guid']
@@ -903,28 +902,30 @@ class JobsModel(TreeherderModelBase):
             for task in task_data:
                 # if we have a log to parse, we also have a result
                 # send a parse-log task for this job
+                parse_log.delay(self.project, task['id'],
+                                check_errors=task['check_errors'])
 
-                # TODO: Uncomment when we fix the code in treeherder.log_parser.tasks
-                pass
-                #parse_log.delay(
-                #    self.project, task['id'], check_errors=task['check_errors']
-                #    )
+    def store_job_artifact(self, artifact_placeholders):
+        """
+        Store a list of job_artifacts given a list of placeholders
+        """
+        self.get_jobs_dhub().execute(
+            proc='jobs.inserts.set_job_artifact',
+            debug_show=self.DEBUG,
+            placeholders=artifact_placeholders,
+            executemany=True)
 
     def _load_job_artifacts(self, artifact_placeholders, job_id_lookup):
-
+        """
+        Store a list of job artifacts substituting job_guid with job_id
+        """
         # Replace job_guid with id in artifact placeholders
         for index, artifact in enumerate(artifact_placeholders):
             artifact_placeholders[index][0] = job_id_lookup[
-                artifact_placeholders[index][0]
-                ]['id']
+                artifact_placeholders[index][0]]['id']
 
         if artifact_placeholders:
-            # Store the log references
-            self.get_jobs_dhub().execute(
-                proc='jobs.inserts.set_job_artifact',
-                debug_show=self.DEBUG,
-                placeholders=artifact_placeholders,
-                executemany=True )
+            self.store_job_artifact(artifact_placeholders)
 
     def _get_last_insert_id(self, contenttype="jobs"):
         """Return last-inserted ID."""
@@ -938,7 +939,7 @@ class JobsModel(TreeherderModelBase):
         """Processes JSON blobs from the objectstore into jobs schema."""
         rows = self.claim_objects(loadlimit)
         # TODO: Need a try/except here insuring we mark
-        #   any objects in a suspended state as errored
+        # any objects in a suspended state as errored
         if rows:
             self.load_job_data(rows)
 
