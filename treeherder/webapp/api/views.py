@@ -224,7 +224,7 @@ class ResultSetViewSet(viewsets.ViewSet):
         GET method for list of ``resultset`` records with revisions
         """
 
-        filters = ["author", "revision", "exclude_empty"]
+        filters = ["author", "revision"]
 
         offset = int(request.QUERY_PARAMS.get('offset', 0))
 

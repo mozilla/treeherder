@@ -75,15 +75,19 @@ class JobsLoaderMixin(JsonLoaderMixin):
             # the creation endpoint is the same as the list one
             endpoint = reverse(
                 "resultset-add-job",
-                kwargs={"project": project, "pk":1 },
-                params=project_jobs_map[project]
+                kwargs={ "project": project, "pk":1 }
                 )
 
             url = "{0}/{1}/".format(
                 settings.API_HOSTNAME.strip('/'),
                 endpoint.strip('/')
             )
-            response = super(JobsLoaderMixin, self).load(url)
+            print "URL"
+            print url
+            print project_jobs_map[project]
+            response = super(JobsLoaderMixin, self).load(
+                url, project_jobs_map[project]
+                )
 
             if response.getcode() != 200:
                 message = json.loads(response.read())
