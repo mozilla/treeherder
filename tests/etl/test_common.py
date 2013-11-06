@@ -7,10 +7,10 @@ def test_get_revision_hash(jm, initial_data,
     """That the correct revision_hash is retrieved is the revision exists"""
     from treeherder.etl import common
     project = settings.DATABASES["default"]["TEST_NAME"]
-    revision = result_set_stored['revisions'][0]['revision']
+    revision = result_set_stored[0]['revisions'][0]['revision']
     resultset = common.get_resultset(project, revision)
 
-    assert resultset['revision_hash'] == result_set_stored['revision_hash']
+    assert resultset['revision_hash'] == result_set_stored[0]['revision_hash']
 
 
 def test_get_revision_hash_none(jm, mock_get_remote_content,

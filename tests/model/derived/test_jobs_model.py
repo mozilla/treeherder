@@ -44,7 +44,7 @@ def test_ingest_single_sample_job(jm, refdata, sample_data, initial_data,
     test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset)
 
 
-def test_ingest_all_sample_jobs(jm, refdata, sample_data, initial_data, sample_resultset):
+def test_ingest_all_sample_jobs(jm, refdata, sample_data, initial_data, sample_resultset, mock_log_parser):
     """
     @@@ - Re-enable when our job_data.txt has been re-created with
           correct data.

@@ -773,8 +773,9 @@ class JobsModel(TreeherderModelBase):
     def get_number(self, s):
         try:
             return long(s)
-        except ValueError:
+        except (ValueError, TypeError):
             return 0
+
 
     def _set_data_ids(
         self, index, job_placeholders, id_lookups,
