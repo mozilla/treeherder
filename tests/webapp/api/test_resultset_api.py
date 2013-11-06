@@ -1,9 +1,6 @@
-import time
 import pytest
 from django.core.urlresolvers import reverse
 from treeherder.webapp.api.views import ResultSetViewSet
-
-xfail = pytest.mark.xfail
 
 
 def test_resultset_list(webapp, eleven_jobs_processed, jm):
@@ -263,6 +260,7 @@ def test_resultset_create(webapp, pushlog_sample, jm, initial_data):
     assert stored_objs[0]['revision_hash'] == pushlog_sample[0]['revision_hash']
 
 
+@pytest.mark.xfail
 def test_result_set_add_job(jm, initial_data, webapp, job_sample, pushlog_sample):
 
     jm.store_result_set_data(pushlog_sample)

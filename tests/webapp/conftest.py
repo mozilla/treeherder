@@ -65,7 +65,7 @@ def eleven_jobs_stored(jm, sample_data, sample_resultset):
 
 
 @pytest.fixture
-def eleven_jobs_processed(jm, eleven_jobs_stored):
+def eleven_jobs_processed(jm, mock_log_parser, eleven_jobs_stored):
     """stores and processes list of 11 job samples"""
     jm.process_objects(11, raise_errors=True)
 
