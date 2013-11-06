@@ -6,7 +6,6 @@ from tests.sample_data_generator import result_set
 
 slow = pytest.mark.slow
 
-
 def test_claim_objects(jm, sample_data):
     """``claim_objects`` claims & returns unclaimed rows up to a limit."""
 
@@ -142,6 +141,7 @@ def test_ingest_sample_data(jm, sample_data, sample_resultset):
     assert len(job_rows) == resultset_count
 
 
+@pytest.mark.xfail
 def test_objectstore_update_content(jm, sample_data):
     """
     Test updating an object of the objectstore.

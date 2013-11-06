@@ -2,6 +2,7 @@ from StringIO import StringIO
 import gzip
 import urllib2
 import logging
+from collections import defaultdict
 
 import simplejson as json
 
@@ -36,17 +37,19 @@ class ObjectstoreLoaderMixin(JsonLoaderMixin):
     def load(self, jobs):
         """post a list of jobs to the objectstore ingestion endpoint """
 
+        # group the jobs by project
+        projects = defaultdict(list)
         for job in jobs:
-            project = job['project']
+            projects[job['project']].append(job)
 
-            # the creation endpoint is the same as the list one
+        for project, jobs in projects.items():
             endpoint = reverse('objectstore-list', kwargs={"project": project})
 
             url = "{0}/{1}/".format(
                 settings.API_HOSTNAME.strip('/'),
                 endpoint.strip('/')
             )
-            response = super(ObjectstoreLoaderMixin, self).load(url, job)
+            response = super(ObjectstoreLoaderMixin, self).load(url, jobs)
 
             if response.getcode() != 200:
                 message = json.loads(response.read())

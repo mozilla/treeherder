@@ -415,7 +415,6 @@ class JobsModel(TreeherderModelBase):
         error_msg = error or ""
 
         obj_placeholders = []
-        update_placeholders = []
 
         response = {}
         for job in json_data:
@@ -441,14 +440,6 @@ class JobsModel(TreeherderModelBase):
                         job_guid
                     ])
 
-                update_placeholders.append([
-                    loaded_timestamp,
-                    json_job,
-                    error,
-                    error_msg,
-                    job_guid
-                    ])
-
         if obj_placeholders:
             # this query inserts the object if its guid is not present,
             # otherwise it does nothing
@@ -458,22 +449,6 @@ class JobsModel(TreeherderModelBase):
                 executemany=True,
                 debug_show=self.DEBUG
                 )
-
-        if update_placeholders:
-            # this update is needed in case the object was already stored,
-            # otherwise it's redundant.
-            # TODO: find a way to do a conditional update
-            #
-            # Not sure what the use case here is for. Job state information
-            # is not submitted to the objectstore so it would only occur for
-            # a completed job and we have a gaurd on not performing a data
-            # update on a job with completed status...
-            self.get_os_dhub().execute(
-                proc='objectstore.updates.update_json',
-                placeholders=update_placeholders,
-                executemany=True,
-                debug_show=self.DEBUG
-            )
 
         return response
 
