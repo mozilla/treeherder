@@ -208,9 +208,7 @@
         "get_repository_info":{
             "sql": "SELECT *
                     FROM `repository`
-                    WHERE 
-                        `id` = ?
-                    AND `active_status` = 'active'",
+                    WHERE `id` = ?  AND `active_status` = 'active'",
             "host":"read_host"
         },
         "get_all_repository_info":{
@@ -223,9 +221,7 @@
         "get_repository_group_id":{
             "sql": "SELECT `id`
                     FROM `repository_group`
-                    WHERE 
-                        `name` = ?
-                    AND `active_status` = 'active'",
+                    WHERE `name` = ?  AND `active_status` = 'active'",
             "host":"read_host"
         },
         "get_row_by_id":{

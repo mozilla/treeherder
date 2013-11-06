@@ -153,12 +153,12 @@ def test_objectstore_create(webapp, job_sample, jm):
     - return message successful
     - 1 job stored in the objectstore
     """
-
     resp = webapp.post_json(
         reverse('objectstore-list',
                 kwargs={'project': jm.project}),
-        params=job_sample
+        params=[job_sample]
     )
+
     assert resp.status_int == 200
     assert resp.json['message'] == 'well-formed JSON stored'
 

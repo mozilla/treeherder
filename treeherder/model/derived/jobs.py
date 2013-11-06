@@ -404,7 +404,7 @@ class JobsModel(TreeherderModelBase):
         secret = ds.get_oauth_consumer_secret(key)
         return secret
 
-    def store_job_data(self, json_data, job_guid, error=None):
+    def store_job_data(self, json_data, error=None):
         """
         Write the JSON to the objectstore to be queued for processing.
         job_guid is needed in order to decide wether the object exists or not
@@ -414,33 +414,69 @@ class JobsModel(TreeherderModelBase):
         error = "N" if error is None else "Y"
         error_msg = error or ""
 
-        # this query inserts the object if its guid is not present,
-        # otherwise it does nothing
-        self.get_os_dhub().execute(
-            proc='objectstore.inserts.store_json',
-            placeholders=[
-                loaded_timestamp,
-                job_guid,
-                json_data,
-                error,
-                error_msg,
-                job_guid],
-            debug_show=self.DEBUG
-        )
+        obj_placeholders = []
+        update_placeholders = []
 
-        # this update is needed in case the object was already stored,
-        # otherwise it's redundant.
-        # TODO: find a way to do a conditional update
-        self.get_os_dhub().execute(
-            proc='objectstore.updates.update_json',
-            placeholders=[
-                loaded_timestamp,
-                json_data,
-                error,
-                error_msg,
-                job_guid],
-            debug_show=self.DEBUG
-        )
+        response = {}
+        for job in json_data:
+
+            try:
+                json_job = json.dumps(job)
+                job_guid = job['job']['job_guid']
+            except Exception as e:
+
+                emsg = u"Unknown error: {0}: {1}".format(
+                    e.__class__.__name__, unicode(e))
+
+                response[emsg] = job
+
+            else:
+
+                obj_placeholders.append(
+                    [
+                        loaded_timestamp,
+                        job_guid,
+                        json_job,
+                        error,
+                        error_msg,
+                        job_guid
+                    ])
+
+                update_placeholders.append([
+                    loaded_timestamp,
+                    json_job,
+                    error,
+                    error_msg,
+                    job_guid
+                    ])
+
+        if obj_placeholders:
+            # this query inserts the object if its guid is not present,
+            # otherwise it does nothing
+            self.get_os_dhub().execute(
+                proc='objectstore.inserts.store_json',
+                placeholders=obj_placeholders,
+                executemany=True,
+                debug_show=self.DEBUG
+                )
+
+        if update_placeholders:
+            # this update is needed in case the object was already stored,
+            # otherwise it's redundant.
+            # TODO: find a way to do a conditional update
+            #
+            # Not sure what the use case here is for. Job state information
+            # is not submitted to the objectstore so it would only occur for
+            # a completed job and we have a gaurd on not performing a data
+            # update on a job with completed status...
+            self.get_os_dhub().execute(
+                proc='objectstore.updates.update_json',
+                placeholders=update_placeholders,
+                executemany=True,
+                debug_show=self.DEBUG
+            )
+
+        return response
 
     def retrieve_job_data(self, limit):
         """
@@ -543,8 +579,6 @@ class JobsModel(TreeherderModelBase):
         # loaded. Used to mark the status complete.
         object_placeholders = []
 
-        print "DATA"
-        print data
         for datum in data:
             # Make sure we can deserialize the json object
             # without raising an exception
@@ -727,7 +761,10 @@ class JobsModel(TreeherderModelBase):
         if artifact:
             name = artifact.get('name')
             artifact_type = artifact.get('type')
-            blob = json.dumps( artifact.get('blob') )
+
+            blob = artifact.get('blob')
+            if (artifact_type == 'json') and (not isinstance(blob, str)):
+                blob = json.dumps(blob)
 
             if name and artifact_type and blob:
                 artifact_placeholders.append(

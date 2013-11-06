@@ -5,7 +5,6 @@ from datadiff import diff
 from sampledata import SampleData
 from treeherder.model.derived.refdata import RefDataManager
 
-#def do_job_ingestion(jm, job_data, sample_resultset, verify_data=True):
 def do_job_ingestion(jm, refdata, job_data, sample_resultset, verify_data=True):
     """
     Ingest ``job_data`` which will be JSON job blobs.
@@ -31,26 +30,27 @@ def do_job_ingestion(jm, refdata, job_data, sample_resultset, verify_data=True):
     log_urls_ref = set()
     artifacts_ref = {}
 
+    blobs = []
     for index, blob in enumerate(job_data):
 
         if resultset_index > max_index:
             resultset_index = 0
 
         # Modify job structure to sync with the resultset sample data
-        job_guid = blob['job']['job_guid']
-
         if 'sources' in blob:
             del blob['sources']
 
         blob['revision_hash'] = sample_resultset[resultset_index]['revision_hash']
 
-        jm.store_job_data(json.dumps(blob), job_guid)
+        blobs.append(blob)
 
         resultset_index += 1
 
         # Build data structures to confirm everything is stored
         # as expected
         if verify_data:
+
+            job_guid = blob['job']['job_guid']
 
             job = blob['job']
 
@@ -93,9 +93,9 @@ def do_job_ingestion(jm, refdata, job_data, sample_resultset, verify_data=True):
             artifact_name = job.get('artifact', {}).get('name')
             if artifact_name:
                 artifacts_ref[artifact_name] = job.get('artifact')
-                artifacts_ref[artifact_name]['blob'] = json.dumps(
-                    artifacts_ref[artifact_name]['blob']
-                    )
+
+    #Store the modified json blobs
+    jm.store_job_data(blobs)
 
     # Process the job objects in chunks of size == process_objects_limit
     process_objects_limit = 1000
@@ -228,7 +228,10 @@ def verify_artifacts(jm, artifacts_ref):
         return_type='dict'
         )
 
-    assert artifacts == artifacts_ref
+    for key in artifacts.keys():
+        assert artifacts[key]['name'] == artifacts_ref[key]['name']
+        assert artifacts[key]['type'] == artifacts_ref[key]['type']
+        assert json.loads(artifacts[key]['blob']) == artifacts_ref[key]['blob']
 
 
 def load_exp(filename):

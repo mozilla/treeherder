@@ -64,7 +64,7 @@ def test_bad_date_value_ingestion(jm, initial_data):
     blob = job_data(start_timestamp="foo",
                     revision_hash=rs['revision_hash'])
 
-    jm.store_job_data(json.dumps(blob), blob['job']['job_guid'])
+    jm.store_job_data([blob])
 
     jm.store_result_set_data([rs])
 

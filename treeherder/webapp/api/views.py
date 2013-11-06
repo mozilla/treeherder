@@ -59,11 +59,17 @@ class ObjectstoreViewSet(viewsets.ViewSet):
         """
         POST method implementation
         """
-        jm.store_job_data(
-            json.dumps(request.DATA),
-            request.DATA['job']['job_guid']
-        )
-        return Response({'message': 'well-formed JSON stored'})
+        job_errors_resp = jm.store_job_data(request.DATA)
+
+        resp = {}
+        status = 200
+        if job_errors_resp:
+            resp['message'] = job_errors_resp
+            status = 500
+        else:
+            resp['message'] = 'well-formed JSON stored'
+
+        return Response(resp)
 
     @with_jobs
     def retrieve(self, request, project, jm, pk=None):
