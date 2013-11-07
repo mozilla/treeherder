@@ -141,8 +141,10 @@
                 `state` = ?,
                 `start_timestamp` = ?,
                 `end_timestamp` = ?
-                WHERE ( ( ? = 'completed' AND `state` != 'completed') OR
-                        ( ? = 'running' AND `state` = 'pending' ) ) AND `id` = ?",
+                WHERE
+                    `state` != 'completed'
+                AND ? <> 'pending'
+                AND `id` = ?",
 
             "host":"master_host"
         }

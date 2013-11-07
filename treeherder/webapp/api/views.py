@@ -304,7 +304,7 @@ class ResultSetViewSet(viewsets.ViewSet):
         # platform and options
         platform_grouper = lambda x: "{0} {1}".format(
             x["platform"],
-            option_collections[x["option_collection_hash"]]
+            option_collections[x["option_collection_hash"]]['opt']
         )
 
         #itertools needs the elements to be sorted by the grouper

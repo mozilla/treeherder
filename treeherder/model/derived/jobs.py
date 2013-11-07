@@ -644,9 +644,12 @@ class JobsModel(TreeherderModelBase):
 
         self._load_job_artifacts(artifact_placeholders, job_id_lookup)
 
-        # If there is already a job_guid stored with pending/running status
+        # If there is already a job_id stored with pending/running status
         # we need to update the information for the complete job
         if job_update_placeholders:
+            # replace job_guid with job_id
+            for row in job_update_placeholders:
+                row[-1] = job_id_lookup[row[-1]]['id']
 
             self.get_jobs_dhub().execute(
                 proc='jobs.updates.update_job_data',
@@ -815,7 +818,6 @@ class JobsModel(TreeherderModelBase):
                 job_state,
                 start_timestamp,
                 end_timestamp,
-                job_state,
                 job_state,
                 job_guid
                 ] )
