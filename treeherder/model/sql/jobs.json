@@ -239,6 +239,23 @@
             "sql":"SELECT DISTINCT
                       rs.id,
                       rs.revision_hash,
+                      rs.push_timestamp
+                   FROM result_set AS rs
+                   INNER JOIN revision_map
+                      ON rs.id = revision_map.result_set_id
+                   INNER JOIN revision
+                      ON revision_map.revision_id = revision.id
+                   WHERE rs.active_status = 'active'
+                   REP0
+                   ORDER BY rs.push_timestamp DESC
+                   LIMIT ?,?
+                   ",
+            "host": "read_host"
+        },
+        "get_revision_resultset_lookup":{
+            "sql":"SELECT
+                      rs.id,
+                      rs.revision_hash,
                       rs.push_timestamp,
                       revision.id as revision_id,
                       revision.revision

@@ -308,7 +308,7 @@ class JobsModel(TreeherderModelBase):
         replacement = ",".join(["%s"] * len(revision_list))
         replacement = " AND revision IN ("+replacement+") "
 
-        proc = "jobs.selects.get_result_set_list"
+        proc = "jobs.selects.get_revision_resultset_lookup"
         lookups = self.get_jobs_dhub().execute(
             proc=proc,
             placeholders=revision_list+[0, len(revision_list)],
@@ -339,7 +339,7 @@ class JobsModel(TreeherderModelBase):
         for data in result_set_ids:
             id_placeholders.append('%s')
             ids.append(data['id'])
-        
+
         where_in_clause = ','.join(id_placeholders)
 
         # Retrieve revision details associated with each result_set_id

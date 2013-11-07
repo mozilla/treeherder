@@ -425,6 +425,9 @@ class RefDataManager(object):
             )
 
     def process_job_types(self):
+        """
+        Process the job type reference data
+        """
 
         insert_proc = 'reference.inserts.create_job_type'
         select_proc='reference.selects.get_job_types'
@@ -437,6 +440,9 @@ class RefDataManager(object):
             )
 
     def process_products(self):
+        """
+        Process the product reference data
+        """
 
         insert_proc = 'reference.inserts.create_product'
         select_proc='reference.selects.get_products'
@@ -449,6 +455,9 @@ class RefDataManager(object):
             )
 
     def process_machines(self):
+        """
+        Process the machine reference data
+        """
 
         if not self.machine_name_placeholders:
             return {}
@@ -503,6 +512,9 @@ class RefDataManager(object):
         return name_lookup
 
     def process_option_collections(self):
+        """
+        Process option collection data
+        """
 
         # Store options not seen yet
         o_where_in_clause = ",".join(self.o_where_in_list)
@@ -532,6 +544,11 @@ class RefDataManager(object):
     def _process_platforms(
         self, insert_proc, select_proc, platform_lookup,
         platform_placeholders, unique_platforms, where_filters):
+        """
+        Internal method for processing either build or machine platforms.
+        The caller is required to provide the appropriate data structures
+        depending on what type of platform is being processed.
+        """
 
         if where_filters:
 
@@ -566,6 +583,11 @@ class RefDataManager(object):
     def _process_names(
         self, insert_proc, select_proc, where_in_list, name_placeholders,
         unique_names):
+        """
+        Internal method for processing reference data names. The caller is
+        required to provide the appropriate data structures for the target
+        reference data type.
+        """
 
         if not name_placeholders:
             return {}
@@ -590,11 +612,15 @@ class RefDataManager(object):
         return name_lookup
 
     def get_or_create_build_platforms(self, platform_data):
+        """
+        Get or create build platforms for a list of platform data.
+        See _get_or_create_platforms for data structure descriptions.
+        """
 
         insert_proc = 'reference.inserts.create_build_platform'
         select_proc = 'reference.selects.get_build_platforms'
 
-        return self.get_or_create_platforms(
+        return self._get_or_create_platforms(
             platform_data, insert_proc, select_proc,
             self.build_platform_lookup,
             self.build_platform_placeholders,
@@ -603,11 +629,15 @@ class RefDataManager(object):
             )
 
     def get_or_create_machine_platforms(self, platform_data):
+        """
+        Get or create machine platforms for a list of platform data.
+        See _get_or_create_platforms for data structure descriptions.
+        """
 
         insert_proc = 'reference.inserts.create_machine_platform'
         select_proc = 'reference.selects.get_machine_platforms'
 
-        return self.get_or_create_platforms(
+        return self._get_or_create_platforms(
             platform_data, insert_proc, select_proc,
             self.machine_platform_lookup,
             self.machine_platform_placeholders,
@@ -615,7 +645,7 @@ class RefDataManager(object):
             self.machine_where_filters
             )
 
-    def get_or_create_platforms(
+    def _get_or_create_platforms(
         self, platform_data, insert_proc, select_proc,
         platform_lookup, platform_placeholders, unique_platforms,
         where_filters):
@@ -669,31 +699,43 @@ class RefDataManager(object):
         return "{0}-{1}-{2}".format(os_name, platform, architecture)
 
     def get_or_create_job_groups(self, names):
+        """
+        Get or create job groups given a list of job group names.
+        See _get_or_create_names for data structure descriptions.
+        """
 
         insert_proc = 'reference.inserts.create_job_group'
         select_proc='reference.selects.get_job_groups'
 
-        return self.get_or_create_names(
+        return self._get_or_create_names(
                     names, insert_proc, select_proc,
                     self.job_group_lookup, self.job_group_placeholders,
                     self.unique_job_groups, self.job_group_where_in_list)
 
     def get_or_create_job_types(self, names):
+        """
+        Get or create job types given a list of job type names.
+        See _get_or_create_names for data structure descriptions.
+        """
 
         insert_proc = 'reference.inserts.create_job_type'
         select_proc='reference.selects.get_job_types'
 
-        return self.get_or_create_names(
+        return self._get_or_create_names(
                     names, insert_proc, select_proc,
                     self.job_type_lookup, self.job_type_placeholders,
                     self.unique_job_types, self.job_type_where_in_list)
 
     def get_or_create_products(self, names):
+        """
+        Get or create products given a list of product names.  See
+        _get_or_create_names for data structure descriptions.
+        """
 
         insert_proc = 'reference.inserts.create_product'
         select_proc='reference.selects.get_products'
 
-        return self.get_or_create_names(
+        return self._get_or_create_names(
                     names, insert_proc, select_proc,
                     self.product_lookup, self.product_placeholders,
                     self.unique_products, self.product_where_in_list)
@@ -724,7 +766,7 @@ class RefDataManager(object):
 
         return self.process_machines()
 
-    def get_or_create_names(self,
+    def _get_or_create_names(self,
         names, insert_proc, select_proc,
         name_lookup, where_in_list, name_placeholders, unique_names):
         """
@@ -759,6 +801,14 @@ class RefDataManager(object):
         return sha_hash.hexdigest()
 
     def get_or_create_option_collection(self, option_collections):
+        """
+        Get or create option collections for each list of options provided.
+
+        [
+            [ option1, option2, option3 ],
+            ...
+        ]
+        """
 
         # Build set of unique options
         for option_set in option_collections:
@@ -812,8 +862,14 @@ class RefDataManager(object):
         Returns all option collections in the following data structure
 
         {
-            option_collection_hash1 : "opt1 opt2",
-            option_collection_hash2 : "opt3 opt4 opt5",
+            "hash1":{
+                option_collection_hash : "hash1",
+                opt:"opt1 opt2"
+                },
+            "hash2":{
+                option_collection_hash : "hash2",
+                opt:"opt3 opt4 opt5"
+                }
             ...
             }
         """
