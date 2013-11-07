@@ -232,15 +232,20 @@ def result_set_stored(jm, initial_data, sample_resultset):
 
 @pytest.fixture(scope='function')
 def mock_get_resultset(monkeypatch, result_set_stored):
-
     from treeherder.etl import common
 
-    def _get_resultset(project, revision):
-        return {
-            'id': 1,
-            'revision_hash': result_set_stored[0]['revision_hash']
-        }
-    monkeypatch.setattr(common, 'get_resultset', _get_resultset)
+    def _get_resultset(params):
+        for k in params:
+            rev = params[k][0]
+            params[k] = {
+                rev: {
+                    'id': 1,
+                    'revision_hash': result_set_stored[0]['revision_hash']
+                }
+            }
+        return params
+
+    monkeypatch.setattr(common, 'lookup_revisions', _get_resultset)
 
 @pytest.fixture()
 def refdata():

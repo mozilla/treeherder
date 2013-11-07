@@ -357,9 +357,12 @@ class TreeherderPulseDataAdapter(PulseDataAdapter, ObjectstoreLoaderMixin):
     def adapt_data(self, data):
         """Adapts the PulseDataAdapter into the treeherder input data structure"""
 
-        resultset = common.get_resultset(data['branch'], data['revision'])
+        resultset = common.lookup_revisions({data['branch']: [data['revision']]})
+        if not resultset:
+            return {}
 
-        treeherder_data = resultset or {}
+        del resultset[data['branch']][data['revision']]['id']
+        treeherder_data = resultset[data['branch']][data['revision']]
         treeherder_data['project'] = data['branch']
         ####
         #TODO: This is a temporary fix, this data will not be located
@@ -378,7 +381,7 @@ class TreeherderPulseDataAdapter(PulseDataAdapter, ObjectstoreLoaderMixin):
                 #modified
                 request_id, data['request_times'][unicode(request_id)]
             ),
-            'revision_hash': resultset['revision_hash'],
+            'revision_hash': treeherder_data.pop('revision_hash'),
             'name': data['test_name'],
             'product_name': data['product'],
             'state': 'completed',
