@@ -83,6 +83,19 @@ class RefDataManager(object):
         self.dhub.disconnect()
 
     def set_all_reference_data(self):
+        """This method executes SQL to store data in all loaded reference
+           data structures. It returns lookup dictionaries where the key is
+           typically the string provided to the data structure and the value
+           includes the database id associated with it. Once all of the
+           reference data is processed, the reference data structures are
+           initialized to empty structures so the same class instance can be
+           used to process more reference data if necessary.
+
+           In general, users of this class should first iterate through job
+           data, calling appropriate add* class instance methods to load the
+           reference data once all of the data is loaded, call this method
+           to process the data.
+        """
 
         # id lookup structure
         self.id_lookup = {
@@ -102,6 +115,9 @@ class RefDataManager(object):
         return self.id_lookup
 
     def reset_reference_data(self):
+        """Reset all reference data structures, this should be called after
+           processing data.
+        """
 
         # reset build platforms
         self.build_platform_lookup = {}
@@ -152,9 +168,24 @@ class RefDataManager(object):
         self.o_unique_options = []
         self.o_where_in_list = []
 
+    """
+    Collection of add_* methods that take some kind of reference
+    data and populate a set of class instance data structures. These
+    methods allow a caller to iterate through a single list of
+    job data structures, generating cumulative sets of reference data.
+    """
     def add_build_platform(self, os_name, platform, arch):
+        """
+        Add build platform reference data. Requires an
+        operating system name, platform designator, and architecture
+        type.
 
-        key = self.add_platform(
+        os_name - linux | mac | win | Android | Firefox OS | ...
+        platform - fedora 12 | redhat 12 | 5.1.2600 | 6.1.7600 | OS X 10.7.2 | ...
+        architecture - x86 | x86_64 etc...
+        """
+
+        key = self._add_platform(
             os_name, platform, arch,
             self.build_platform_lookup,
             self.build_platform_placeholders,
@@ -165,8 +196,17 @@ class RefDataManager(object):
         return key
 
     def add_machine_platform(self, os_name, platform, arch):
+        """
+        Add machine platform reference data. Requires an
+        operating system name, platform designator, and architecture
+        type.
 
-        key = self.add_platform(
+        os_name - linux | mac | win | Android | Firefox OS | ...
+        platform - fedora 12 | redhat 12 | 5.1.2600 | 6.1.7600 | OS X 10.7.2 | ...
+        architecture - x86 | x86_64 etc...
+        """
+
+        key = self._add_platform(
             os_name, platform, arch,
             self.machine_platform_lookup,
             self.machine_platform_placeholders,
@@ -177,33 +217,41 @@ class RefDataManager(object):
         return key
 
     def add_job_group(self, group):
+        """Add job group names"""
 
-        self.add_name(
+        self._add_name(
             group, self.job_group_lookup, self.job_group_placeholders,
             self.unique_job_groups, self.job_group_where_in_list
             )
 
     def add_job_type(self, job_type):
+        """Add job type names"""
 
-        self.add_name(
+        self._add_name(
             job_type, self.job_type_lookup, self.job_type_placeholders,
             self.unique_job_types, self.job_type_where_in_list
             )
 
     def add_product(self, product):
+        """Add product names"""
 
-        self.add_name(
+        self._add_name(
             product, self.product_lookup, self.product_placeholders,
             self.unique_products, self.product_where_in_list
             )
 
-    def add_platform(
+    def _add_platform(
         self,
         os_name, platform, arch,
         platform_lookup,
         platform_placeholders,
         unique_platforms,
         where_filters):
+        """
+        Internal method for adding platform information, the platform
+        could be a build or machine platform. The caller must provide
+        the appropriate instance data structures as arguments.
+        """
 
         key = RefDataManager.get_platform_key(os_name, platform, arch)
 
@@ -236,10 +284,14 @@ class RefDataManager(object):
 
         return key
 
-    def add_name(
+    def _add_name(
         self, name, name_lookup, name_placeholders, unique_names,
         where_in_list):
-
+        """
+        Internal method for adding reference data that consists of a single
+        name. The caller must provide the appropriate instance data
+        structures as arguments.
+        """
         name_lookup.add(name)
 
         # Placeholders for the INSERT/SELECT SQL query
@@ -254,6 +306,12 @@ class RefDataManager(object):
         where_in_list.append('%s')
 
     def add_machine(self, machine_name, timestamp):
+        """
+        Add machine name and timestamp. There are two timestamps stored in
+        the database for each machine, one associated with the first time
+        the machine is seen and another that acts as a heartbeat for the
+        machine.
+        """
 
         if machine_name not in self.machine_name_lookup:
 
@@ -283,6 +341,13 @@ class RefDataManager(object):
                 )
 
     def add_option_collection(self, option_set):
+        """
+        Add an option collection. An option collection is made up of a
+        set of options. Each unique set of options is hashed, this hash
+        becomes the identifier for the option set. Options are stored
+        individually in the database, callers only interact directly with
+        sets of options, even when there's only on option in a set.
+        """
 
         # New set with elements in option_set but not in o_lookup
         new_options = set(option_set) - self.o_lookup
@@ -307,7 +372,15 @@ class RefDataManager(object):
 
         return option_collection_hash
 
+    """
+    The following set of process_* methods carry out the task
+    of SQL generation and execution using the class instance reference
+    data structures.
+    """
     def process_build_platforms(self):
+        """
+        Process the build platform reference data
+        """
 
         insert_proc = 'reference.inserts.create_build_platform'
         select_proc = 'reference.selects.get_build_platforms'
@@ -321,6 +394,9 @@ class RefDataManager(object):
             )
 
     def process_machine_platforms(self):
+        """
+        Process the machine platform reference data
+        """
 
         insert_proc = 'reference.inserts.create_machine_platform'
         select_proc = 'reference.selects.get_machine_platforms'
@@ -334,6 +410,9 @@ class RefDataManager(object):
             )
 
     def process_job_groups(self):
+        """
+        Process the job group reference data
+        """
 
         insert_proc = 'reference.inserts.create_job_group'
         select_proc='reference.selects.get_job_groups'
@@ -570,7 +649,7 @@ class RefDataManager(object):
         """
         for item in platform_data:
 
-            self.add_platform(
+            self._add_platform(
                 #os_name, platform, architecture
                 item[0], item[1], item[2],
                 platform_lookup, platform_placeholders,
@@ -659,7 +738,7 @@ class RefDataManager(object):
         returns { 'name1':id, 'name2':id, 'name3':id, ... }
         """
         for name in names:
-            self.add_name(
+            self._add_name(
                 name, name_lookup, name_placeholders,
                 unique_names, where_in_list
                 )
