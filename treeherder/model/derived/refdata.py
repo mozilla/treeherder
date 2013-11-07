@@ -1134,3 +1134,39 @@ class RefDataManager(object):
             proc='reference.selects.get_all_repository_info',
             debug_show=self.DEBUG,
             return_type='iter')
+
+
+    def update_bugscache(self, bug_list):
+        """
+        Add content to the bugscache, updating/inserting
+        when necessary.
+        """
+        placeholders = []
+        # create a list of placeholders from a list of dictionary
+        for bug in bug_list:
+            # keywords come as a list of values, we need a string instead
+            bug['keywords'] = ",".join(bug['keywords'])
+            placeholders.append([bug[field] for field in (
+                    'id', 'status', 'resolution', 'summary',
+                    'cf_crash_signature', 'keywords', 'op_sys', 'id')])
+
+        self.dhub.execute(
+            proc='reference.inserts.create_bugscache',
+            placeholders=placeholders,
+            executemany=True,
+            debug_show=self.DEBUG)
+
+        # removing the first placeholder because is not used in the update query
+        del placeholders[0]
+
+        self.dhub.execute(
+            proc='reference.updates.update_bugscache',
+            placeholders=placeholders,
+            executemany=True,
+            debug_show=self.DEBUG)
+
+
+
+
+
+

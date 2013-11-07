@@ -1,0 +1,112 @@
+[
+    {
+        "status": "NEW",
+        "id": 453969,
+        "summary": "Intermittent test_bug382113.html | Child got load event - got false, expected true",
+        "cf_crash_signature": "",
+        "keywords": [
+            "intermittent-failure"
+        ],
+        "resolution": "",
+        "op_sys": "All"
+    },
+    {
+        "status": "ASSIGNED",
+        "id": 455091,
+        "summary": "test_popup_preventdefault_chrome.xul | Test timed out",
+        "cf_crash_signature": "",
+        "keywords": [
+            "intermittent-failure"
+        ],
+        "resolution": "",
+        "op_sys": "Linux"
+    },
+    {
+        "status": "NEW",
+        "id": 470868,
+        "summary": "Occasional few-pixel reftest failure in reftests/svg/smil/container/ (when moving elements between SVG document fragments)",
+        "cf_crash_signature": "",
+        "keywords": [
+            "intermittent-failure"
+        ],
+        "resolution": "",
+        "op_sys": "All"
+    },
+    {
+        "status": "REOPENED",
+        "id": 473680,
+        "summary": "setTimeout-heavy crashtests time out occasionally",
+        "cf_crash_signature": "",
+        "keywords": [
+            "intermittent-failure"
+        ],
+        "resolution": "",
+        "op_sys": "All"
+    },
+    {
+        "status": "NEW",
+        "id": 481369,
+        "summary": "nsDirEnumerator::HasMoreElements may throw NS_ERROR_FAILURE [nsISimpleEnumerator.hasMoreElements] enumerating nsIFile.directoryEntries on Mac running test_bug478086.js",
+        "cf_crash_signature": "",
+        "keywords": [
+            "intermittent-failure"
+        ],
+        "resolution": "",
+        "op_sys": "Mac OS X"
+    },
+    {
+        "status": "NEW",
+        "id": 483200,
+        "summary": "test_retention_is_0_closes.xul is flakey on linux, (take 2)",
+        "cf_crash_signature": "",
+        "keywords": [
+            "intermittent-failure"
+        ],
+        "resolution": "",
+        "op_sys": "Linux"
+    },
+    {
+        "status": "NEW",
+        "id": 486787,
+        "summary": "New Reftest font-face/src-list-local-localized.html intermittently |timed out waiting for onload to fire|, (and always on MacOSX (10.4) SeaMonkey)",
+        "cf_crash_signature": "",
+        "keywords": [
+            "intermittent-failure"
+        ],
+        "resolution": "",
+        "op_sys": "Mac OS X"
+    },
+    {
+        "status": "NEW",
+        "id": 489285,
+        "summary": "WinFileAttributes tests - TEST-UNEXPECTED-FAIL | Test Win Attribs: GetFileAttributesWin attributed did not match. (2)",
+        "cf_crash_signature": "",
+        "keywords": [
+            "intermittent-failure"
+        ],
+        "resolution": "",
+        "op_sys": "Windows Vista"
+    },
+    {
+        "status": "NEW",
+        "id": 492575,
+        "summary": "Random test failure: test_bug369950.html | Clicking scrollbar should scroll - Didn't expect 0, but got it",
+        "cf_crash_signature": "",
+        "keywords": [
+            "intermittent-failure"
+        ],
+        "resolution": "",
+        "op_sys": "All"
+    },
+    {
+        "status": "NEW",
+        "id": 492821,
+        "summary": "[test disabled] TEST-UNEXPECTED-FAIL | test_videoDocumentTitle.html | Doc title incorrect - got \"320x240.ogv\", expected \"bug461281.ogg\"",
+        "cf_crash_signature": "",
+        "keywords": [
+            "intermittent-failure"
+        ],
+        "resolution": "",
+        "op_sys": "Linux"
+    }
+]

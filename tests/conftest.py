@@ -127,6 +127,23 @@ def jm():
     return model
 
 
+@pytest.fixture()
+def refdata():
+    """returns a patched RefDataManager for testing purpose"""
+
+    from treeherder.model.derived import RefDataManager
+
+    refdata = RefDataManager()
+
+    proc_path = os.path.join(
+        os.path.abspath(os.path.dirname(__file__)),
+        'refdata_test.json'
+    )
+
+    add_test_procs_file(refdata.dhub, 'reference', proc_path)
+    return refdata
+
+
 def add_test_procs_file(dhub, key, filename):
     """Add an extra procs file in for testing purposes."""
     test_proc_file = os.path.join(
