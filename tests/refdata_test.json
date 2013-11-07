@@ -103,7 +103,10 @@
                     WHERE 
                         `id` = ?",
             "host":"read_host"
-        }
+        },
+        "test_bugscache": {
+            "sql": "SELECT * FROM `bugscache`"
+        },
+        "host": "read_host"
     }
 }
-
