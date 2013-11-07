@@ -300,6 +300,26 @@ class JobsModel(TreeherderModelBase):
 
         return self.as_list(return_list, "result_set", **kwargs)
 
+    def get_revision_resultset_lookup(self, revision_list):
+        """
+        Create a list of revision->resultset lookups from a list of revision
+        """
+
+        replacement = ",".join(["%s"] * len(revision_list))
+        replacement = " AND revision IN ("+replacement+") "
+
+        proc = "jobs.selects.get_result_set_list"
+        lookups = self.get_jobs_dhub().execute(
+            proc=proc,
+            placeholders=revision_list+[0, len(revision_list)],
+            debug_show=self.DEBUG,
+            replace=[replacement],
+            return_type="dict",
+            key_column="revision"
+        )
+        return lookups
+
+
     def get_result_set_details(self, result_set_ids):
         """
         Retrieve all revisions associated with a set of ``result_set`` (also known as ``pushes``)

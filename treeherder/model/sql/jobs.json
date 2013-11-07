@@ -239,7 +239,9 @@
             "sql":"SELECT DISTINCT
                       rs.id,
                       rs.revision_hash,
-                      rs.push_timestamp
+                      rs.push_timestamp,
+                      revision.id as revision_id,
+                      revision.revision
                    FROM result_set AS rs
                    INNER JOIN revision_map
                       ON rs.id = revision_map.result_set_id

@@ -6,8 +6,9 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.reverse import reverse
-from treeherder.model import models
+from rest_framework.exceptions import ParseError
 
+from treeherder.model import models
 from treeherder.model.derived import (JobsModel, DatasetNotFoundError,
                                       ObjectNotFoundException)
 
@@ -362,6 +363,22 @@ class ResultSetViewSet(viewsets.ViewSet):
             jm.disconnect()
 
         return Response({"message": "well-formed JSON stored"})
+
+
+
+class RevisionLookupSetViewSet(viewsets.ViewSet):
+
+    @with_jobs
+    def list(self, request, project, jm):
+
+        revision_filter = request.QUERY_PARAMS.get('revision', None)
+        if not revision_filter:
+            raise ParseError(detail="The revision parameter is mandatory for this endpoint")
+
+        revision_list = revision_filter.split(",")
+
+        return Response(jm.get_revision_resultset_lookup(revision_list))
+
 
 
 #####################

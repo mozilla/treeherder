@@ -55,7 +55,7 @@ def test_ingest_all_sample_jobs(jm, refdata, sample_data, initial_data, sample_r
     job_data = sample_data.job_data
     test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset)
 
-def test_bad_date_value_ingestion(jm, initial_data):
+def test_bad_date_value_ingestion(jm, initial_data, mock_log_parser):
     """
     Test ingesting an blob with bad date value
 

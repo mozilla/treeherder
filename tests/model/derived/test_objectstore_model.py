@@ -110,7 +110,7 @@ def test_process_objects_unknown_error(jm):
     assert row_id == 0
     assert response == exp_resp
 
-def test_ingest_sample_data(jm, sample_data, sample_resultset):
+def test_ingest_sample_data(jm, sample_data, sample_resultset, mock_log_parser):
     """Process all job structures in the job_data.txt file"""
 
     resultset_count = len(sample_resultset)
