@@ -1,6 +1,8 @@
 from treeherder.etl import buildbot
 import pytest
 
+slow = pytest.mark.slow
+
 buildernames = [
  ('Android 2.2 Armv6 mozilla-inbound build',
   {'build_type': 'opt',
@@ -475,6 +477,8 @@ buildernames = [
                 'vm': False}})
 ]
 
+
+@slow
 @pytest.mark.parametrize(('buildername', 'exp_result'), buildernames)
 def test_extract_platform_info(buildername, exp_result):
     """
@@ -486,6 +490,7 @@ def test_extract_platform_info(buildername, exp_result):
     assert result == exp_result["platform"]
 
 
+@slow
 @pytest.mark.parametrize(('buildername', 'exp_result'), buildernames)
 def test_extract_job_type_info(buildername, exp_result):
     """
@@ -497,6 +502,7 @@ def test_extract_job_type_info(buildername, exp_result):
     assert result == exp_result["job_type"]
 
 
+@slow
 @pytest.mark.parametrize(('buildername', 'exp_result'), buildernames)
 def test_extract_build_type(buildername, exp_result):
     """

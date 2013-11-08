@@ -53,7 +53,10 @@ def test_note_list(webapp, sample_notes, jm):
     ]
 
     import pprint
-    assert exp_notes == note_list, pprint.pprint(note_list)
+    assert exp_notes == note_list, pprint.pprint({
+        "exp": exp_notes,
+        "act": note_list
+    })
 
 
 def test_note_detail(webapp, sample_notes, jm):

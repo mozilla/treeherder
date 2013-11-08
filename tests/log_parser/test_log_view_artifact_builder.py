@@ -1,4 +1,5 @@
 import json
+import pytest
 from datadiff import diff
 from mock import MagicMock
 
@@ -9,6 +10,7 @@ from treeherder.log_parser.parsers import ErrorParser
 from tests import test_utils
 from ..sampledata import SampleData
 
+slow = pytest.mark.slow
 
 def do_test(log, check_errors=True):
     """
@@ -57,7 +59,6 @@ def test_crashtest_passing(jm, initial_data):
         "mozilla-central_fedora-b2g_test-crashtest-1-bm54-tests1-linux-build50"
     )
 
-
 def test_mochitest_pass(jm, initial_data):
     """Process a job with a single log reference."""
 
@@ -66,6 +67,7 @@ def test_mochitest_pass(jm, initial_data):
     )
 
 
+@slow
 def test_mochitest_fail(jm, initial_data):
     """Process a job with a single log reference."""
 
@@ -81,7 +83,7 @@ def test_mochitest_process_crash(jm, initial_data):
         "mozilla-inbound_ubuntu64_vm-debug_test-mochitest-other-bm53-tests1-linux-build122"
     )
 
-
+@slow
 def test_jetpack_fail(jm, initial_data):
     """Process a job with a single log reference."""
 
@@ -90,6 +92,7 @@ def test_jetpack_fail(jm, initial_data):
     )
 
 
+@slow
 def test_crash_1(jm, initial_data):
     """Test from old log parser"""
     do_test(
@@ -97,6 +100,7 @@ def test_crash_1(jm, initial_data):
     )
 
 
+@slow
 def test_crash_2(jm, initial_data):
     """Test from old log parser"""
     do_test(
@@ -104,6 +108,7 @@ def test_crash_2(jm, initial_data):
     )
 
 
+@slow
 def test_crash_mac_1(jm, initial_data):
     """Test from old log parser"""
     do_test(
@@ -111,6 +116,7 @@ def test_crash_mac_1(jm, initial_data):
     )
 
 
+@slow
 def test_crashtest_timeout(jm, initial_data):
     """Test from old log parser"""
     do_test(
@@ -118,6 +124,7 @@ def test_crashtest_timeout(jm, initial_data):
     )
 
 
+@slow
 def test_jsreftest_fail(jm, initial_data):
     """Test from old log parser"""
     do_test(
@@ -125,6 +132,7 @@ def test_jsreftest_fail(jm, initial_data):
     )
 
 
+@slow
 def test_jsreftest_timeout_crash(jm, initial_data):
     """Test from old log parser"""
     do_test(
@@ -132,6 +140,7 @@ def test_jsreftest_timeout_crash(jm, initial_data):
     )
 
 
+@slow
 def test_leaks_1(jm, initial_data):
     """Test from old log parser"""
     do_test(
@@ -139,6 +148,7 @@ def test_leaks_1(jm, initial_data):
     )
 
 
+@slow
 def test_mochitest_test_end(jm, initial_data):
     """Test from old log parser"""
     do_test(
@@ -146,6 +156,7 @@ def test_mochitest_test_end(jm, initial_data):
     )
 
 
+@slow
 def test_multiple_timeouts(jm, initial_data):
     """Test from old log parser"""
     do_test(
@@ -153,6 +164,7 @@ def test_multiple_timeouts(jm, initial_data):
     )
 
 
+@slow
 def test_opt_objc_exception(jm, initial_data):
     """Test from old log parser"""
     do_test(
@@ -160,6 +172,7 @@ def test_opt_objc_exception(jm, initial_data):
     )
 
 
+@slow
 def test_reftest_fail_crash(jm, initial_data):
     """Test from old log parser"""
     do_test(
@@ -167,6 +180,7 @@ def test_reftest_fail_crash(jm, initial_data):
     )
 
 
+@slow
 def test_reftest_jserror(jm, initial_data):
     """Test from old log parser"""
     do_test(
@@ -174,6 +188,7 @@ def test_reftest_jserror(jm, initial_data):
     )
 
 
+@slow
 def test_reftest_opt_fail(jm, initial_data):
     """Test from old log parser"""
     do_test(
@@ -181,6 +196,7 @@ def test_reftest_opt_fail(jm, initial_data):
     )
 
 
+@slow
 def test_reftest_timeout(jm, initial_data):
     """Test from old log parser"""
     do_test(
@@ -188,6 +204,7 @@ def test_reftest_timeout(jm, initial_data):
     )
 
 
+@slow
 def test_tinderbox_exception(jm, initial_data):
     """Test from old log parser"""
     do_test(
@@ -215,6 +232,7 @@ def test_xpcshell_timeout(jm, initial_data):
         "xpcshell-timeout"
     )
 
+@slow
 def test_check_errors_false(jm, initial_data, monkeypatch):
     """ensure that parse_line is not called on the error parser."""
 
