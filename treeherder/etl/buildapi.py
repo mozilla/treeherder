@@ -146,7 +146,7 @@ class PendingTransformerMixin(object):
         # loop to catch all the revisions
         for project, revisions in data['pending'].items():
             # this skips those projects we don't care about
-            if not project in projects:
+            if project not in projects:
                 continue
 
             for rev, jobs in revisions.items():
@@ -218,7 +218,7 @@ class RunningTransformerMixin(object):
         # loop to catch all the revisions
         for project, revisions in data['running'].items():
             # this skips those projects we don't care about
-            if not project in projects:
+            if project not in projects:
                 continue
 
             for rev, jobs in revisions.items():
