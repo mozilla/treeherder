@@ -18,7 +18,6 @@ def do_job_ingestion(jm, refdata, job_data, sample_resultset, verify_data=True):
     resultset_index = 0
 
     # Structures to test if we stored everything
-    job_guids_ref = {}
     build_platforms_ref = set()
     machine_platforms_ref = set()
 
@@ -53,16 +52,6 @@ def do_job_ingestion(jm, refdata, job_data, sample_resultset, verify_data=True):
             job_guid = blob['job']['job_guid']
 
             job = blob['job']
-
-            job_guids_ref[ job_guid ] = {
-                job.get('who', 'unknown'),
-                job.get('reason', 'unknown'),
-                job.get('result', 'unknown'),
-                job.get('state', 'unknown'),
-                long( job.get('submit_timestamp') ) or None,
-                long( job.get('start_timestamp') ) or None,
-                long( job.get('end_timestamp') ) or None
-                }
 
             build_platforms_ref.add(
                 RefDataManager.get_platform_key(
