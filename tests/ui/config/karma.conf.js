@@ -17,6 +17,7 @@ module.exports = function (config) {
             'test/vendor/angular/angular-mocks.js',
             'test/vendor/jasmine-jquery.js',
             'test/unit/**/*.js',
+            'https://tbpl.mozilla.org/js/Config.js',
 
             // fixtures
             {pattern: 'test/mock/*.json', watched: true, served: true, included: false}
