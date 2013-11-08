@@ -45,7 +45,6 @@ treeherder.factory('thResultSets',
 
             return $http.get(thUrl.getProjectUrl("/resultset/"),
                              {params: {
-                                exclude_empty: 1,
                                 offset: offset,
                                 count: count
                              }}
@@ -77,6 +76,29 @@ treeherder.factory('thResults',
     };
     var isLoadingResults = true;
 
+    /*
+        Translate the platform names from their code as stored in the service
+        to a user-readable version, like it is done in TBPL.
+     */
+    var translatePlatformNames = function(results) {
+
+        for(var i = 0; i < results.length; i++) {
+            var platform = results[i];
+            var re = /(.+)(opt|debug|asan|pgo)$/i;
+            var platformArr = re.exec(platform.name);
+
+//            console.log(platform);
+//            console.log(platformArr);
+
+//            console.log("<><><> changing " + platform.name + " to " + newName);
+            if (platformArr) {
+                var newName = Config.OSNames[platformArr[1].trim()];
+                if (newName) {
+                    platform.name = newName + " " + platformArr[2];
+                }
+            }
+        };
+    }
 
     return {
         getResults: function(result_set, $scope) {
@@ -88,6 +110,8 @@ treeherder.factory('thResults',
                 success(
                     function(data) {
                         $scope.job_results = data["platforms"];
+                        translatePlatformNames($scope.job_results);
+
                         result_set.warning_level = getWarningLevel($scope.job_results);
 
                         $scope.isLoadingResults = false;
