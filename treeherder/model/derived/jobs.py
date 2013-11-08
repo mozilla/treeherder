@@ -28,15 +28,6 @@ class JobsModel(TreeherderModelBase):
     CONTENT_TYPES = [CT_JOBS, CT_OBJECTSTORE]
     STATES = ["pending", "running", "completed", "coalesced"]
 
-    # this dict contains a matrix of state changes with the values defining
-    # if the change is allowed or not
-    STATE_CHANGES = {
-        'pending': {'coalesced': True, 'completed': True, 'running': True},
-        'running': {'coalesced': True, 'completed': True, 'pending': False},
-        'completed': {'coalesced': False, 'pending': False, 'running': False},
-        'coalesced': {'completed': False, 'pending': False, 'running': False}
-    }
-
     @classmethod
     def create(cls, project, host=None):
         """
@@ -84,17 +75,6 @@ class JobsModel(TreeherderModelBase):
             return_type='iter',
         )
         return self.as_single(iter_obj, "job", id=id)
-
-    def get_job_id_by_guid(self, job_guid):
-        """Return the job id for this ``job_guid``"""
-        iter_obj = self.get_jobs_dhub().execute(
-            proc="jobs.selects.get_job_id_by_guid",
-            placeholders=[job_guid],
-            debug_show=self.DEBUG,
-            return_type='iter'
-        )
-        obj = self.as_single(iter_obj, "job", job_guid=job_guid)
-        return obj['id']
 
     def get_job_list(self, offset, limit):
         """
@@ -217,31 +197,6 @@ class JobsModel(TreeherderModelBase):
                 return_type='dict')
 
         return result_set_id_lookup
-
-    def get_revision_id(self, revision, repository_id):
-        """Return the ``revision.id`` for the given ``revision``"""
-        iter_obj = self.get_jobs_dhub().execute(
-            proc='jobs.selects.get_revision_id',
-            placeholders=[revision, repository_id],
-            debug_show=self.DEBUG,
-            return_type='iter')
-
-        return self.as_single(iter_obj, "revision",
-                              revision_hash=revision,
-                              repository_id=repository_id)
-
-    def _get_revision_map_id(self, revision_id, result_set_id):
-        """
-        Return the ``revision_map.id``
-        for the given ``revision_id`` and ``result_set_id``
-        """
-        id_iter = self.get_jobs_dhub().execute(
-            proc='jobs.selects.get_revision_map_id',
-            placeholders=[revision_id, result_set_id],
-            debug_show=self.DEBUG,
-            return_type='iter')
-
-        return id_iter.get_column_data('id')
 
     def get_result_set_list(self, offset, limit, **kwargs):
         """
@@ -407,16 +362,6 @@ class JobsModel(TreeherderModelBase):
     # Objectstore functionality
     #
     ##################
-
-    def get_os_errors(self, starttime, endtime):
-        """Return all the errors from the objectstore in this range."""
-        return self.get_os_dhub().execute(
-            proc="objectstore.selects.get_error_metadata",
-            placeholders=[starttime, endtime],
-            debug_show=self.DEBUG,
-            return_type='dict',
-            key_column="job_id"
-        )
 
     def get_oauth_consumer_secret(self, key):
         """Consumer secret for oauth"""

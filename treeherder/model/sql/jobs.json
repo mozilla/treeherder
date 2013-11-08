@@ -193,12 +193,6 @@
                    ",
             "host": "read_host"
         },
-        "get_job_id_by_guid":{
-            "sql":"SELECT `id`
-                   FROM `job`
-                   WHERE `job_guid` = ?",
-            "host": "read_host"
-        },
         "get_job_ids_by_guids":{
             "sql":"SELECT `id`, `job_guid`, `state`, `result`
                    FROM `job`
@@ -221,12 +215,6 @@
             "sql":"SELECT `id`, `revision` FROM `revision`
                    WHERE `active_status` = 'active' AND `revision` IN (REP0)",
 
-            "host": "read_host"
-        },
-        "get_revision_id":{
-            "sql":"SELECT `id` FROM `revision`
-                   WHERE `revision` = ?
-                    AND `repository_id` = ?",
             "host": "read_host"
         },
         "get_revision_map_id":{
