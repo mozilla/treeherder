@@ -42,24 +42,6 @@ def mock_buildapi_builds4h_url(monkeypatch):
                         "file://{0}".format(path))
 
 
-def test_ingest_builds4h_jobs(jm, initial_data,
-                                mock_buildapi_builds4h_url,
-                                mock_post_json_data,
-                                mock_log_parser,
-                                mock_get_resultset,
-                                mock_get_remote_content):
-    """
-    a new buildapi pending job creates a new obj in the objectstore
-    """
-    from treeherder.etl.buildapi import Builds4hJobsProcess
-    etl_process = Builds4hJobsProcess()
-    etl_process.run()
-
-    stored_obj = jm.get_os_dhub().execute(
-    proc="objectstore_test.selects.all")
-
-    assert len(stored_obj) == 100
-
 def test_ingest_pending_jobs(jm, initial_data,
                                 mock_buildapi_pending_url,
                                 mock_post_json_data,
@@ -78,21 +60,3 @@ def test_ingest_pending_jobs(jm, initial_data,
 
     assert len(stored_obj) == 1
 
-
-def test_ingest_running_jobs(jm, initial_data,
-                                mock_buildapi_running_url,
-                                mock_post_json_data,
-                                mock_log_parser,
-                                mock_get_resultset,
-                                mock_get_remote_content):
-    """
-    a new buildapi running job creates a job in the job table
-    """
-    from treeherder.etl.buildapi import RunningJobsProcess
-    etl_process = RunningJobsProcess()
-    etl_process.run()
-
-    stored_obj = jm.get_jobs_dhub().execute(
-        proc="jobs_test.selects.jobs")
-
-    assert len(stored_obj) == 1

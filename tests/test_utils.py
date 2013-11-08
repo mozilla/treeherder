@@ -1,36 +1,110 @@
 import json
+import itertools
 from datadiff import diff
 
 from sampledata import SampleData
+from treeherder.model.derived.refdata import RefDataManager
 
-
-def do_job_ingestion(jm, job_data, sample_resultset, verify_data=True):
+def do_job_ingestion(jm, refdata, job_data, sample_resultset, verify_data=True):
     """
     Ingest ``job_data`` which will be JSON job blobs.
 
     ``verify_data`` - whether or not to run the ingested jobs
                       through the verifier.
     """
+    jm.store_result_set_data(sample_resultset)
 
-    jm.store_result_set_data(
-        sample_resultset['revision_hash'],
-        sample_resultset['push_timestamp'],
-        sample_resultset['revisions']
-    )
+    max_index = len(sample_resultset) - 1
+    resultset_index = 0
 
-    for blob in job_data:
-        job_guid = blob['job']['job_guid']
-        del blob['sources']
-        blob['revision_hash'] = sample_resultset['revision_hash']
-        jm.store_job_data(json.dumps(blob), job_guid)
-        jm.process_objects(1, raise_errors=True)
+    # Structures to test if we stored everything
+    build_platforms_ref = set()
+    machine_platforms_ref = set()
 
+    machines_ref = set()
+    options_ref = set()
+    job_types_ref = set()
+    products_ref = set()
+    result_sets_ref = set()
+    log_urls_ref = set()
+    artifacts_ref = {}
+
+    blobs = []
+    for index, blob in enumerate(job_data):
+
+        if resultset_index > max_index:
+            resultset_index = 0
+
+        # Modify job structure to sync with the resultset sample data
+        if 'sources' in blob:
+            del blob['sources']
+
+        blob['revision_hash'] = sample_resultset[resultset_index]['revision_hash']
+
+        blobs.append(blob)
+
+        resultset_index += 1
+
+        # Build data structures to confirm everything is stored
+        # as expected
         if verify_data:
-            # verify the job data
-            exp_job = clean_job_blob_dict(blob["job"])
-            act_job = JobDictBuilder(jm, job_guid).as_dict()
-            assert exp_job == act_job, diff(exp_job, act_job)
 
+            job_guid = blob['job']['job_guid']
+
+            job = blob['job']
+
+            build_platforms_ref.add(
+                RefDataManager.get_platform_key(
+                    job.get('build_platform', {}).get('os_name', 'unkown'),
+                    job.get('build_platform', {}).get('platform', 'unkown'),
+                    job.get('build_platform', {}).get('architecture', 'unknown')
+                    ) )
+
+            machine_platforms_ref.add(
+                RefDataManager.get_platform_key(
+                    job.get('machine_platform', {}).get('os_name', 'unkown'),
+                    job.get('machine_platform', {}).get('platform', 'unkown'),
+                    job.get('machine_platform', {}).get('architecture', 'unknown')
+                    ) )
+
+            machines_ref.add(job.get('machine', 'unknown'))
+
+            options_ref = options_ref.union( job.get('option_collection', []).keys() )
+
+            job_types_ref.add(job.get('name', 'unknown'))
+            products_ref.add(job.get('product_name', 'unknown'))
+            result_sets_ref.add(blob['revision_hash'])
+
+            log_url_list = job.get('log_references', [])
+            for log_data in log_url_list:
+                log_urls_ref.add( log_data['url'] )
+
+            artifact_name = job.get('artifact', {}).get('name')
+            if artifact_name:
+                artifacts_ref[artifact_name] = job.get('artifact')
+
+    #Store the modified json blobs
+    jm.store_job_data(blobs)
+
+    # Process the job objects in chunks of size == process_objects_limit
+    process_objects_limit = 1000
+    chunks = grouper(job_data, process_objects_limit)
+    for c in chunks:
+        jm.process_objects(process_objects_limit, raise_errors=True)
+
+    if verify_data:
+        # Confirms stored data matches whats in the reference data structs
+        verify_build_platforms(refdata, build_platforms_ref)
+        verify_machine_platforms(refdata, machine_platforms_ref)
+        verify_machines(refdata, machines_ref)
+        verify_options(refdata, options_ref)
+        verify_job_types(refdata, job_types_ref)
+        verify_products(refdata, products_ref)
+        verify_result_sets(jm, result_sets_ref)
+        verify_log_urls(jm, log_urls_ref)
+        verify_artifacts(jm, artifacts_ref)
+
+    # Default verification confirms we loaded all of the objects
     complete_count = jm.get_os_dhub().execute(
         proc="objectstore_test.counts.complete")[0]["complete_count"]
     loading_count = jm.get_os_dhub().execute(
@@ -38,6 +112,115 @@ def do_job_ingestion(jm, job_data, sample_resultset, verify_data=True):
 
     assert complete_count == len(job_data)
     assert loading_count == 0
+
+def grouper(iterable, n, fillvalue=None):
+    args = [iter(iterable)] * n
+    return itertools.izip_longest(*args, fillvalue=fillvalue)
+
+def verify_build_platforms(refdata, build_platforms_ref):
+
+    build_platforms = refdata.dhub.execute(
+        proc='test_refdata.selects.test_all_build_platforms',
+        )
+    build_platforms_set = set()
+    for build_platform in build_platforms:
+        build_platforms_set.add(
+            RefDataManager.get_platform_key(
+                build_platform.get('os_name'),
+                build_platform.get('platform'),
+                build_platform.get('architecture')
+                ) )
+
+    assert build_platforms_ref.issubset(build_platforms_set)
+
+def verify_machine_platforms(refdata, machine_platforms_ref):
+
+    machine_platforms = refdata.dhub.execute(
+        proc='test_refdata.selects.test_all_machine_platforms',
+        )
+    machine_platforms_set = set()
+    for machine_platform in machine_platforms:
+        machine_platforms_set.add(
+            RefDataManager.get_platform_key(
+                machine_platform.get('os_name'),
+                machine_platform.get('platform'),
+                machine_platform.get('architecture')
+                ) )
+
+    assert machine_platforms_ref.issubset(machine_platforms_set)
+
+def verify_machines(refdata, machines_ref):
+
+    machines = refdata.dhub.execute(
+        proc='test_refdata.selects.test_all_machines',
+        key_column='name',
+        return_type='set'
+        )
+
+    assert machines_ref.issubset(machines)
+
+def verify_options(refdata, options_ref):
+
+    options = refdata.dhub.execute(
+        proc='test_refdata.selects.test_all_options',
+        key_column='name',
+        return_type='set'
+        )
+
+    assert options_ref.issubset(options)
+
+def verify_job_types(refdata, job_types_ref):
+
+    job_types = refdata.dhub.execute(
+        proc='test_refdata.selects.test_all_job_types',
+        key_column='name',
+        return_type='set'
+        )
+
+    assert job_types_ref.issubset(job_types)
+
+def verify_products(refdata, products_ref):
+
+    products = refdata.dhub.execute(
+        proc='test_refdata.selects.test_all_products',
+        key_column='name',
+        return_type='set'
+        )
+
+    assert products_ref.issubset(products)
+
+def verify_result_sets(jm, result_sets_ref):
+
+    revision_hashes = jm.get_jobs_dhub().execute(
+        proc='jobs.selects.get_all_result_set_revision_hashes',
+        key_column='revision_hash',
+        return_type='set'
+        )
+
+    assert result_sets_ref.issubset(revision_hashes)
+
+def verify_log_urls(jm, log_urls_ref):
+
+    log_urls = jm.get_jobs_dhub().execute(
+        proc='jobs.selects.get_all_log_urls',
+        key_column='url',
+        return_type='set'
+        )
+
+    assert log_urls_ref.issubset(log_urls)
+
+def verify_artifacts(jm, artifacts_ref):
+
+    artifacts = jm.get_jobs_dhub().execute(
+        proc='jobs.selects.get_all_artifacts',
+        key_column='name',
+        return_type='dict'
+        )
+
+    for key in artifacts.keys():
+        assert artifacts[key]['name'] == artifacts_ref[key]['name']
+        assert artifacts[key]['type'] == artifacts_ref[key]['type']
+        assert json.loads(artifacts[key]['blob']) == artifacts_ref[key]['blob']
 
 
 def load_exp(filename):

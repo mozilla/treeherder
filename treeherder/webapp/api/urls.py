@@ -34,6 +34,13 @@ project_bound_router.register(
     base_name='note',
 )
 
+project_bound_router.register(
+    r'revision-lookup',
+    views.RevisionLookupSetViewSet,
+    base_name='revision-lookup',
+)
+
+
 # this is the default router for plain restful endpoints
 
 # refdata endpoints:

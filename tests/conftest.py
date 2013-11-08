@@ -218,22 +218,51 @@ def mock_log_parser(monkeypatch):
 @pytest.fixture
 def result_set_stored(jm, initial_data, sample_resultset):
 
+    """
     jm.store_result_set_data(
         sample_resultset['revision_hash'],
         sample_resultset['push_timestamp'],
         sample_resultset['revisions']
     )
+    """
+    jm.store_result_set_data(sample_resultset)
+
     return sample_resultset
 
 
 @pytest.fixture(scope='function')
 def mock_get_resultset(monkeypatch, result_set_stored):
-
     from treeherder.etl import common
 
-    def _get_resultset(project, revision):
-        return {
-            'id': 1,
-            'revision_hash': result_set_stored['revision_hash']
-        }
-    monkeypatch.setattr(common, 'get_resultset', _get_resultset)
+    def _get_resultset(params):
+        for k in params:
+            rev = params[k][0]
+            params[k] = {
+                rev: {
+                    'id': 1,
+                    'revision_hash': result_set_stored[0]['revision_hash']
+                }
+            }
+        return params
+
+    monkeypatch.setattr(common, 'lookup_revisions', _get_resultset)
+
+@pytest.fixture()
+def refdata():
+    """returns a patched RefDataManager for testing purpose"""
+
+    import os
+    from treeherder.model.derived import RefDataManager
+    from tests.conftest import add_test_procs_file
+
+    refdata = RefDataManager()
+
+    proc_path = os.path.join(
+        os.path.abspath(os.path.dirname(__file__)),
+        'model',
+        'derived',
+        'test_refdata.json'
+    )
+
+    add_test_procs_file(refdata.dhub, 'reference', proc_path)
+    return refdata

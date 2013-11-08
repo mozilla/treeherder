@@ -2,6 +2,7 @@ from StringIO import StringIO
 import gzip
 import urllib2
 import logging
+from collections import defaultdict
 
 import simplejson as json
 
@@ -36,17 +37,19 @@ class ObjectstoreLoaderMixin(JsonLoaderMixin):
     def load(self, jobs):
         """post a list of jobs to the objectstore ingestion endpoint """
 
+        # group the jobs by project
+        projects = defaultdict(list)
         for job in jobs:
-            project = job['project']
+            projects[job['project']].append(job)
 
-            # the creation endpoint is the same as the list one
+        for project, jobs in projects.items():
             endpoint = reverse('objectstore-list', kwargs={"project": project})
 
             url = "{0}/{1}/".format(
                 settings.API_HOSTNAME.strip('/'),
                 endpoint.strip('/')
             )
-            response = super(ObjectstoreLoaderMixin, self).load(url, job)
+            response = super(ObjectstoreLoaderMixin, self).load(url, jobs)
 
             if response.getcode() != 200:
                 message = json.loads(response.read())
@@ -59,18 +62,33 @@ class JobsLoaderMixin(JsonLoaderMixin):
     def load(self, jobs):
         """post a list of jobs to the objectstore ingestion endpoint """
 
+        project_jobs_map = {}
+
         for job in jobs:
+
             project = job['project']
 
+            if project not in project_jobs_map:
+                project_jobs_map[project] = []
+
+            project_jobs_map[project].append(job)
+
+        for project in project_jobs_map:
+
             # the creation endpoint is the same as the list one
-            endpoint = reverse("resultset-add-job",
-                kwargs={"project": project, "pk": job['resultset_id']})
+            endpoint = reverse(
+                "jobs-list",
+                kwargs={ "project": project }
+                )
 
             url = "{0}/{1}/".format(
                 settings.API_HOSTNAME.strip('/'),
                 endpoint.strip('/')
             )
-            response = super(JobsLoaderMixin, self).load(url, job)
+
+            response = super(JobsLoaderMixin, self).load(
+                url, project_jobs_map[project]
+                )
 
             if response.getcode() != 200:
                 message = json.loads(response.read())
@@ -103,19 +121,17 @@ class ResultSetsLoaderMixin(JsonLoaderMixin):
             }
         ]
         """
-        for result_set in result_sets:
+        endpoint = reverse('resultset-list', kwargs={"project": project})
 
-            endpoint = reverse('resultset-list', kwargs={"project": project})
-
-            url = "{0}/{1}/".format(
-                settings.API_HOSTNAME.strip('/'),
-                endpoint.strip('/')
+        url = "{0}/{1}/".format(
+            settings.API_HOSTNAME.strip('/'),
+            endpoint.strip('/')
             )
 
-            response = super(ResultSetsLoaderMixin, self).load(url, result_set)
+        response = super(ResultSetsLoaderMixin, self).load(url, result_sets)
 
-            if response.getcode() != 200:
-                message = json.loads(response.read())
-                logger.error("ResultSet loading failed: {0}".format(message['message']))
+        if response.getcode() != 200:
+            message = json.loads(response.read())
+            logger.error("ResultSet loading failed: {0}".format(message['message']))
 
 

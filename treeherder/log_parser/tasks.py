@@ -33,6 +33,7 @@ def parse_log(project, job_id, check_errors=True):
         artifact_builder_collection.parse()
 
         # store the artifacts generated
-        for name, artifact in artifact_builder_collection.artifacts.items():
-            jm.insert_job_artifact(job_id, name, 'json', json.dumps(artifact))
+        jm.store_job_artifact(
+            [(job_id, name, 'json', json.dumps(artifact))
+                for name, artifact in artifact_builder_collection.artifacts.items()])
     jm.disconnect()

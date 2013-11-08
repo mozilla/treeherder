@@ -83,7 +83,8 @@
             "sql":"INSERT INTO `job_log_url` (
                 `job_id`,
                 `name`,
-                `url`)
+                `url`
+                )
             VALUES (?,?,?)",
 
             "host":"master_host"
@@ -125,7 +126,8 @@
                 "host":"master_host"
         },
         "update_job_data":{
-            "sql":"UPDATE `job`
+            "sql":"
+                UPDATE `job`
                 SET
                 `job_coalesced_to_guid` = ?,
                 `result_set_id` = ?,
@@ -139,8 +141,11 @@
                 `state` = ?,
                 `start_timestamp` = ?,
                 `end_timestamp` = ?
-                WHERE  `id` = ?
-                AND `state` <> 'completed'",
+                WHERE
+                    `state` != 'completed'
+                AND ? <> 'pending'
+                AND `id` = ?",
+
             "host":"master_host"
         }
     },
@@ -188,21 +193,28 @@
                    ",
             "host": "read_host"
         },
-        "get_job_id_by_guid":{
-            "sql":"SELECT `id`
+        "get_job_ids_by_guids":{
+            "sql":"SELECT `id`, `job_guid`, `state`, `result`
                    FROM `job`
-                   WHERE `job_guid` = ?",
+                   WHERE `active_status` = 'active' AND `job_guid` IN (REP0)",
             "host": "read_host"
         },
-        "get_result_set_id":{
-            "sql":"SELECT `id` FROM `result_set`
-                   WHERE `revision_hash` = ?",
+        "get_result_set_ids":{
+            "sql":"SELECT `id`, `revision_hash`
+                   FROM `result_set`
+                   WHERE `active_status` = 'active' AND `revision_hash` IN (REP0)",
             "host": "read_host"
         },
-        "get_revision_id":{
-            "sql":"SELECT `id` FROM `revision`
-                   WHERE `revision` = ?
-                    AND `repository_id` = ?",
+        "get_all_result_set_revision_hashes":{
+            "sql":"SELECT `revision_hash`
+                   FROM `result_set`
+                   WHERE `active_status` = 'active'",
+            "host": "read_host"
+        },
+        "get_revisions":{
+            "sql":"SELECT `id`, `revision` FROM `revision`
+                   WHERE `active_status` = 'active' AND `revision` IN (REP0)",
+
             "host": "read_host"
         },
         "get_revision_map_id":{
@@ -217,13 +229,30 @@
                       rs.revision_hash,
                       rs.push_timestamp
                    FROM result_set AS rs
-                   LEFT JOIN job
-                      ON job.result_set_id = rs.id
                    INNER JOIN revision_map
                       ON rs.id = revision_map.result_set_id
                    INNER JOIN revision
                       ON revision_map.revision_id = revision.id
-                   WHERE rs.active_status = 'active' 
+                   WHERE rs.active_status = 'active'
+                   REP0
+                   ORDER BY rs.push_timestamp DESC
+                   LIMIT ?,?
+                   ",
+            "host": "read_host"
+        },
+        "get_revision_resultset_lookup":{
+            "sql":"SELECT
+                      rs.id,
+                      rs.revision_hash,
+                      rs.push_timestamp,
+                      revision.id as revision_id,
+                      revision.revision
+                   FROM result_set AS rs
+                   INNER JOIN revision_map
+                      ON rs.id = revision_map.result_set_id
+                   INNER JOIN revision
+                      ON revision_map.revision_id = revision.id
+                   WHERE rs.active_status = 'active'
                    REP0
                    ORDER BY rs.push_timestamp DESC
                    LIMIT ?,?
@@ -231,7 +260,7 @@
             "host": "read_host"
         },
         "get_result_set_details":{
-            "sql":"SELECT 
+            "sql":"SELECT
                     rm.result_set_id,
                     r.repository_id,
                     r.revision,
@@ -304,6 +333,18 @@
                   REP1
                   ",
             "host": "read_host"
+        },
+        "get_all_log_urls":{
+
+            "sql":"SELECT `url` FROM `job_log_url`",
+
+            "host":"read_host"
+        },
+        "get_all_artifacts":{
+
+            "sql":"SELECT `name`, `type`, `blob`  FROM `job_artifact`",
+
+            "host":"read_host"
         }
     }
 }

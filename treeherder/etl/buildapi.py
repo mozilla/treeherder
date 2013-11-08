@@ -1,5 +1,5 @@
 import logging
-
+from collections import defaultdict
 from django.conf import settings
 
 from . import buildbot
@@ -44,19 +44,27 @@ class Builds4hTransformerMixin(object):
         our restful api
         """
         job_list = []
+        revisions = defaultdict(list)
+        for build in data['builds']:
+            prop = build['properties']
+            prop['revision'] = prop.get('revision',
+                            prop.get('got_revision',
+                                prop.get('sourcestamp', None)))
+
+            if not prop['revision']:
+                continue
+            revisions[prop['branch']].append(prop['revision'][0:12])
+
+        revisions_lookup = common.lookup_revisions(revisions)
+
         for build in data['builds']:
 
             prop = build['properties']
-            revision = prop.get('revision',
-                            prop.get('got_revision',
-                                prop.get('sourcestamp', None)))
-            if not revision:
-                continue
 
-            try:
-                resultset = common.get_resultset(prop['branch'], revision[0:12])
-            except Exception:
-                resultset = None
+            if not prop['revision'] in revisions_lookup[prop['branch']]:
+                continue
+            # the resultset object is in the nested dict
+            resultset = revisions_lookup[prop['branch']][prop['revision']]
             if not resultset:
                 continue
 
@@ -133,14 +141,29 @@ class PendingTransformerMixin(object):
         job_list = []
 
         projects = set(x.project for x in Datasource.objects.cached())
+        revision_dict = defaultdict(list)
+
+        # loop to catch all the revisions
         for project, revisions in data['pending'].items():
+            # this skips those projects we don't care about
             if not project in projects:
                 continue
+
             for rev, jobs in revisions.items():
-                resultset = common.get_resultset(project, rev)
-                if not resultset:
-                    continue
-                for job in jobs:
+                revision_dict[project].append(rev)
+
+        # retrieving the revision->resultset lookups
+        revisions_lookup = common.lookup_revisions(revision_dict)
+
+        for project, revisions in revisions_lookup.items():
+
+            for revision in revisions:
+
+                resultset = revisions[revision]
+                # using project and revision form the revision lookups
+                # to filter those jobs with unmatched revision
+                for job in data['pending'][project][revision]:
+
                     treeherder_data = {
                         'revision_hash': resultset['revision_hash'],
                         'resultset_id': resultset['id'],
@@ -178,7 +201,7 @@ class PendingTransformerMixin(object):
                     treeherder_data['job'] = job
 
                     job_list.append(common.JobData(treeherder_data))
-        return job_list
+            return job_list
 
 
 class RunningTransformerMixin(object):
@@ -190,15 +213,28 @@ class RunningTransformerMixin(object):
         """
         job_list = []
         projects = set(x.project for x in Datasource.objects.cached())
+        revisions = defaultdict(list)
+
+        # loop to catch all the revisions
         for project, revisions in data['running'].items():
+            # this skips those projects we don't care about
             if not project in projects:
                 continue
-            for rev, jobs in revisions.items():
-                resultset = common.get_resultset(project, rev)
-                if not resultset:
-                    continue
 
-                for job in jobs:
+            for rev, jobs in revisions.items():
+                revisions[project].append(rev)
+
+        # retrieving the revision->resultset lookups
+        revisions_lookup = common.lookup_revisions(revisions)
+
+        for project, revisions in revisions_lookup.items():
+
+            for revision in revisions:
+
+                resultset = revisions[revision]
+                # using project and revision form the revision lookups
+                # to filter those jobs with unmatched revision
+                for job in data['running'][project][revision]:
                     treeherder_data = {
                         'revision_hash': resultset['revision_hash'],
                         'resultset_id': resultset['id'],

@@ -172,6 +172,7 @@ def result_set(**kwargs):
         "resultset_data.json"
     )
 
-    defaults = json.loads(open(source_file).read())
+    defaults = json.loads(open(source_file).read())[0]
     defaults.update(kwargs)
+
     return defaults

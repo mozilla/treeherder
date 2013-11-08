@@ -41,16 +41,16 @@
             "sql": "SELECT * FROM `result_set` WHERE `revision_hash` = ?",
             "host": "master_host"
         },
-        "revisions": {
-            "sql": "SELECT * FROM `revision`",
+        "revision_ids": {
+            "sql": "SELECT `id`, `revision` FROM `revision`",
             "host": "master_host"
         },
         "revision_map": {
             "sql": "SELECT * FROM `revision_map`",
             "host": "master_host"
         },
-        "result_set": {
-            "sql": "SELECT * FROM `result_set`",
+        "result_set_ids": {
+            "sql": "SELECT `id`, `revision_hash` FROM `result_set`",
             "host": "master_host"
         }
     }
