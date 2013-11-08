@@ -570,6 +570,19 @@
         "repository_group": 1,
         "description": ""
     }
+},
+{
+    "pk": 45,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "hg",
+        "name": "mozilla-b2g26_v1_2",
+        "url": "https://hg.mozilla.org/releases/mozilla-b2g26_v1_2",
+        "active_status": "active",
+        "codebase": "gecko",
+        "repository_group": 2,
+        "description": ""
+    }
 }
 
 ]
