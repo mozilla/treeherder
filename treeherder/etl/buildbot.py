@@ -27,10 +27,7 @@ PLATFORMS_BUILDERNAME = [
     #// ** Linux **
 
     {
-        'regexes': [
-            re.compile('^b2g.*_(?:linux|ubuntu)64', re.IGNORECASE),
-        ],
-
+        'regex': re.compile('^b2g.*_(?:linux|ubuntu)64', re.IGNORECASE),
         'attributes': {
             'os': 'linux',
             'os_platform': 'b2g-linux64',
@@ -38,11 +35,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regexes': [
-            re.compile('(?:linux|fedora|ubuntu).*64', re.IGNORECASE),
-            re.compile('dxr', re.IGNORECASE),
-        ],
-
+        'regex': re.compile('(?:linux|fedora|ubuntu).*64|dxr', re.IGNORECASE),
         'attributes': {
             'os': 'linux',
             'os_platform': 'linux64',
@@ -50,10 +43,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regexes': [
-            re.compile('^b2g.*_(?:linux|ubuntu)32', re.IGNORECASE),
-        ],
-
+        'regex': re.compile('^b2g.*_(?:linux|ubuntu)32', re.IGNORECASE),
         'attributes': {
             'os': 'linux',
             'os_platform': 'b2g-linux32',
@@ -61,10 +51,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regexes': [
-            re.compile('linux|fedora|ubuntu', re.IGNORECASE),
-        ],
-
+        'regex': re.compile('linux|fedora|ubuntu', re.IGNORECASE),
         'attributes': {
             'os': 'linux',
             'os_platform': 'linux32',
@@ -75,10 +62,7 @@ PLATFORMS_BUILDERNAME = [
     #// ** OS X **
 
     {
-        'regexes': [
-            re.compile('^b2g.*_macosx64', re.IGNORECASE),
-        ],
-
+        'regex': re.compile('^b2g.*_macosx64', re.IGNORECASE),
         'attributes': {
             'os': 'mac',
             'os_platform': 'b2g-osx',
@@ -86,10 +70,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regexes': [
-            re.compile('mountain[ ]?lion', re.IGNORECASE),
-        ],
-
+        'regex': re.compile('mountain[ ]?lion', re.IGNORECASE),
         'attributes': {
             'os': 'mac',
             'os_platform': 'osx-10-8',
@@ -97,10 +78,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regexes': [
-            re.compile('OS X 10\.7|lion|macosx64', re.IGNORECASE),
-        ],
-
+        'regex': re.compile('OS X 10\.7|lion|macosx64', re.IGNORECASE),
         'attributes': {
             'os': 'mac',
             'os_platform': 'osx-10-7',
@@ -108,10 +86,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regexes': [
-            re.compile('snow[ ]?leopard', re.IGNORECASE),
-        ],
-
+        'regex': re.compile('snow[ ]?leopard', re.IGNORECASE),
         'attributes': {
             'os': 'mac',
             'os_platform': 'osx-10-6',
@@ -122,10 +97,7 @@ PLATFORMS_BUILDERNAME = [
     #// ** Windows **
 
     {
-        'regexes': [
-            re.compile('^b2g.*_win32', re.IGNORECASE),
-        ],
-
+        'regex': re.compile('^b2g.*_win32', re.IGNORECASE),
         'attributes': {
             'os': 'win',
             'os_platform': 'b2g-win32',
@@ -133,10 +105,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regexes': [
-            re.compile('WINNT 5|-xp-|Windows XP 32-bit', re.IGNORECASE),
-        ],
-
+        'regex': re.compile('WINNT 5|-xp-|Windows XP 32-bit', re.IGNORECASE),
         'attributes': {
             'os': 'win',
             'os_platform': 'windowsxp',
@@ -144,10 +113,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regexes': [
-            re.compile('WINNT 6\.1 x(?:86-)?64|win64', re.IGNORECASE),
-        ],
-
+        'regex': re.compile('WINNT 6\.1 x(?:86-)?64|win64', re.IGNORECASE),
         'attributes': {
             'os': 'win',
             'os_platform': 'windows2012-64',
@@ -155,10 +121,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regexes': [
-            re.compile('WINNT 6\.1|win7|Windows 7 32-bit', re.IGNORECASE),
-        ],
-
+        'regex': re.compile('WINNT 6\.1|win7|Windows 7 32-bit', re.IGNORECASE),
         'attributes': {
             'os': 'win',
             'os_platform': 'windows7-32',
@@ -166,10 +129,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regexes': [
-            re.compile('WINNT 6\.2|win8', re.IGNORECASE),
-        ],
-
+        'regex': re.compile('WINNT 6\.2|win8', re.IGNORECASE),
         'attributes': {
             'os': 'win',
             'os_platform': 'windows8-32',
@@ -180,10 +140,7 @@ PLATFORMS_BUILDERNAME = [
     #// ** Android **
 
     {
-        'regexes': [
-            re.compile('android 4\.2 x86', re.IGNORECASE),
-        ],
-
+        'regex': re.compile('android 4\.2 x86', re.IGNORECASE),
         'attributes': {
             'os': 'android',
             'os_platform': 'android-4-2-x86',
@@ -191,10 +148,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regexes': [
-            re.compile('android 4\.0', re.IGNORECASE),
-        ],
-
+        'regex': re.compile('android 4\.0', re.IGNORECASE),
         'attributes': {
             'os': 'android',
             'os_platform': 'android-4-0',
@@ -202,10 +156,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regexes': [
-            re.compile('android 2\.2 no-ionmonkey', re.IGNORECASE),
-        ],
-
+        'regex': re.compile('android 2\.2 no-ionmonkey', re.IGNORECASE),
         'attributes': {
             'os': 'android',
             'os_platform': 'android-2-2-noion',
@@ -213,10 +164,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regexes': [
-            re.compile('android 2\.2 armv6', re.IGNORECASE),
-        ],
-
+        'regex': re.compile('android 2\.2 armv6', re.IGNORECASE),
         'attributes': {
             'os': 'android',
             'os_platform': 'android-2-2-armv6',
@@ -224,10 +172,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regexes': [
-            re.compile('android 2\.2', re.IGNORECASE),
-        ],
-
+        'regex': re.compile('android 2\.2', re.IGNORECASE),
         'attributes': {
             'os': 'android',
             'os_platform': 'android-2-2',
@@ -237,10 +182,7 @@ PLATFORMS_BUILDERNAME = [
 
 
     {
-        'regexes': [
-            re.compile('b2g.*_emulator-jb', re.IGNORECASE),
-        ],
-
+        'regex': re.compile('b2g.*_emulator-jb', re.IGNORECASE),
         'attributes': {
             'os': 'b2g',
             'os_platform': 'b2g-emu-jb',
@@ -248,10 +190,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regexes': [
-            re.compile('b2g.*_emulator(?:-ics)?', re.IGNORECASE),
-        ],
-
+        'regex': re.compile('b2g.*_emulator(?:-ics)?', re.IGNORECASE),
         'attributes': {
             'os': 'b2g',
             'os_platform': 'b2g-emu-ics',
@@ -259,10 +198,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regexes': [
-            re.compile('b2g.*_(?:dep|nightly)$', re.IGNORECASE),
-        ],
-
+        'regex': re.compile('b2g.*_(?:dep|nightly)$', re.IGNORECASE),
         'attributes': {
             'os': 'b2g',
             'os_platform': 'b2g-device-image',
@@ -279,21 +215,15 @@ VM_STATUS = [
 BUILD_TYPE_BUILDERNAME = [
     {
         'type': 'pgo',
-        'regexes': [
-            re.compile('.+ pgo(?:[ ]|-).+'),
-        ]
+        'regex': re.compile('.+ pgo(?:[ ]|-).+'),
     },
     {
         'type': 'asan',
-        'regexes': [
-            re.compile('.+ asan .+'),
-        ]
+        'regex': re.compile('.+ asan .+'),
     },
     {
         'type': 'debug',
-        'regexes': [
-            re.compile('(?:debug|leak)', re.IGNORECASE),
-        ]
+        'regex': re.compile('(?:debug|leak)', re.IGNORECASE),
     }
     # defaults to "opt" if not found
 ]
@@ -319,10 +249,9 @@ def extract_platform_info(source_string):
         'vm': extract_vm_status(source_string)
     }
     for platform in PLATFORMS_BUILDERNAME:
-        for regex in platform['regexes']:
-            if regex.search(source_string):
-                output.update(platform['attributes'])
-                return output
+        if platform['regex'].search(source_string):
+            output.update(platform['attributes'])
+            return output
     return output
 
 
@@ -337,10 +266,9 @@ def extract_vm_status(source_string):
 def extract_build_type(source_string):
     output = 'opt'
     for build_type in BUILD_TYPE_BUILDERNAME:
-        for regex in build_type["regexes"]:
-            if regex.search(source_string, re.IGNORECASE):
-                output = build_type["type"]
-                return output
+        if build_type["regex"].search(source_string, re.IGNORECASE):
+            output = build_type["type"]
+            return output
     return output
 
 

@@ -478,37 +478,12 @@ buildernames = [
 ]
 
 
-@slow
 @pytest.mark.parametrize(('buildername', 'exp_result'), buildernames)
-def test_extract_platform_info(buildername, exp_result):
+def test_buildername_translation(buildername, exp_result):
     """
     test getting the right platform based on the buildername
     """
 
-    result = buildbot.extract_platform_info(buildername)
-
-    assert result == exp_result["platform"]
-
-
-@slow
-@pytest.mark.parametrize(('buildername', 'exp_result'), buildernames)
-def test_extract_job_type_info(buildername, exp_result):
-    """
-    test getting the right job_type based on the buildername
-    """
-
-    result = buildbot.extract_job_type(buildername)
-
-    assert result == exp_result["job_type"]
-
-
-@slow
-@pytest.mark.parametrize(('buildername', 'exp_result'), buildernames)
-def test_extract_build_type(buildername, exp_result):
-    """
-    test getting the right platform based on the buildername
-    """
-
-    result = buildbot.extract_build_type(buildername)
-
-    assert result == exp_result["build_type"]
+    assert buildbot.extract_platform_info(buildername) == exp_result["platform"]
+    assert buildbot.extract_job_type(buildername) == exp_result["job_type"]
+    assert buildbot.extract_build_type(buildername) == exp_result["build_type"]
