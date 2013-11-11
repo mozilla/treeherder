@@ -8,7 +8,7 @@ from treeherder.log_parser.parsers import ErrorParser
 
 
 @pytest.fixture
-def job_with_local_log(jm, initial_data):
+def jobs_with_local_log(jm, initial_data):
     log = "mozilla-central_fedora-b2g_test-crashtest-1-bm54-tests1-linux-build50"
     sample_data = SampleData()
     url = "file://{0}".format(
@@ -20,32 +20,27 @@ def job_with_local_log(jm, initial_data):
     job['job']['log_references'][0]['url'] = url
     # make this a successful job, so no error log processing
     job['job']['result'] = "success"
-    return job
+    return [job]
 
 
-def test_parse_log(jm, initial_data, job_with_local_log, sample_resultset, monkeypatch):
+def test_parse_log(jm, initial_data, jobs_with_local_log, sample_resultset, monkeypatch):
     """
     check that at least 2 job_artifacts get inserted when running
     a parse_log task
     """
 
-    jm.store_result_set_data(sample_resultset['revision_hash'],
-                            sample_resultset['push_timestamp'],
-                            sample_resultset['revisions'])
+    jm.store_result_set_data(sample_resultset)
 
-    job = job_with_local_log
-    job['revision_hash'] = sample_resultset['revision_hash']
+    jobs = jobs_with_local_log
+    for job in jobs:
+        job['revision_hash'] = sample_resultset[0]['revision_hash']
 
-    mock_pl = MagicMock(name="parse_line")
-    monkeypatch.setattr(ErrorParser, 'parse_line', mock_pl)
-
-    job = job_with_local_log
-    jm.store_job_data(json.dumps(job), job['job']['job_guid'])
+    jm.store_job_data(jobs)
     jm.process_objects(1, raise_errors=True)
 
     job_id = jm.get_jobs_dhub().execute(
         proc="jobs_test.selects.row_by_guid",
-        placeholders=[job['job']['job_guid']]
+        placeholders=[jobs[0]['job']['job_guid']]
     )[0]['id']
 
     job_artifacts = jm.get_jobs_dhub().execute(
@@ -56,5 +51,3 @@ def test_parse_log(jm, initial_data, job_with_local_log, sample_resultset, monke
     # we must have at least 2 artifacts: one for the log viewer and another one
     # for the job artifact panel
     assert len(job_artifacts) >= 2
-    # since this was a success job, should not call the ErrorParser
-    assert mock_pl.called is False

@@ -6,8 +6,9 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.reverse import reverse
-from treeherder.model import models
+from rest_framework.exceptions import ParseError
 
+from treeherder.model import models
 from treeherder.model.derived import (JobsModel, DatasetNotFoundError,
                                       ObjectNotFoundException)
 
@@ -59,11 +60,18 @@ class ObjectstoreViewSet(viewsets.ViewSet):
         """
         POST method implementation
         """
-        jm.store_job_data(
-            json.dumps(request.DATA),
-            request.DATA['job']['job_guid']
-        )
-        return Response({'message': 'well-formed JSON stored'})
+
+        job_errors_resp = jm.store_job_data(request.DATA)
+
+        resp = {}
+        if job_errors_resp:
+            resp['message'] = job_errors_resp
+            status = 500
+        else:
+            status = 200
+            resp['message'] = 'well-formed JSON stored'
+
+        return Response(resp, status=status)
 
     @with_jobs
     def retrieve(self, request, project, jm, pk=None):
@@ -206,6 +214,18 @@ class JobsViewSet(viewsets.ViewSet):
 
         return Response({"message": "state updated to '{0}'".format(state)})
 
+    @action()
+    @with_jobs
+    def create(self, request, project, jm):
+        """
+        This method adds a job to a given resultset.
+        The incoming data has the same structure as for
+        the objectstore ingestion.
+        """
+        jm.load_job_data(request.DATA)
+
+        return Response({'message': 'Job successfully updated'})
+
 
 class ResultSetViewSet(viewsets.ViewSet):
     """
@@ -220,7 +240,7 @@ class ResultSetViewSet(viewsets.ViewSet):
         GET method for list of ``resultset`` records with revisions
         """
 
-        filters = ["author", "revision", "exclude_empty"]
+        filters = ["author", "revision"]
 
         offset = int(request.QUERY_PARAMS.get('offset', 0))
         count = int(request.QUERY_PARAMS.get('count', 10))
@@ -279,15 +299,13 @@ class ResultSetViewSet(viewsets.ViewSet):
                    if k in filters)
         ))
 
-        option_collections = dict(
-            (oc['option_collection_hash'], oc['opt'])
-            for oc in jm.refdata_model.get_all_option_collections())
+        option_collections = jm.refdata_model.get_all_option_collections()
 
         # the main grouper for a result set is the combination of
         # platform and options
         platform_grouper = lambda x: "{0} {1}".format(
             x["platform"],
-            option_collections[x["option_collection_hash"]]
+            option_collections[x["option_collection_hash"]]['opt']
         )
 
         #itertools needs the elements to be sorted by the grouper
@@ -334,11 +352,7 @@ class ResultSetViewSet(viewsets.ViewSet):
         POST method implementation
         """
         try:
-            jm.store_result_set_data(
-                request.DATA["revision_hash"],
-                request.DATA["push_timestamp"],
-                request.DATA["revisions"]
-            )
+            jm.store_result_set_data( request.DATA )
         except DatasetNotFoundError as e:
             return Response({"message": str(e)}, status=404)
         except Exception as e:  # pragma nocover
@@ -350,22 +364,22 @@ class ResultSetViewSet(viewsets.ViewSet):
 
         return Response({"message": "well-formed JSON stored"})
 
-    @action()
+
+
+class RevisionLookupSetViewSet(viewsets.ViewSet):
+
     @with_jobs
-    def add_job(self, request, project, jm, pk=None):
-        """
-        This method adds a job to a given resultset.
-        The incoming data has the same structure as for
-        the objectstore ingestion.
-        """
+    def list(self, request, project, jm):
 
-        job = request.DATA
+        revision_filter = request.QUERY_PARAMS.get('revision', None)
+        if not revision_filter:
+            raise ParseError(detail="The revision parameter is mandatory for this endpoint")
 
-        jm.load_job_data(
-            job
-        )
+        revision_list = revision_filter.split(",")
 
-        return Response({'message': 'Job successfully updated'})
+        return Response(jm.get_revision_resultset_lookup(revision_list))
+
+
 
 #####################
 # Refdata ViewSets

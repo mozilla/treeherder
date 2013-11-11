@@ -1,20 +1,21 @@
 import json
 import pytest
 
-from .sample_data_generator import job_json
+from .sample_data_generator import job_data
 from tests.sample_data_generator import result_set
 
 slow = pytest.mark.slow
 
-
 def test_claim_objects(jm, sample_data):
     """``claim_objects`` claims & returns unclaimed rows up to a limit."""
 
-    blobs = dict((job['job']['job_guid'], json.dumps(job))
-                 for job in sample_data.job_data[:3])
+    blobs = []
+    blob_lookup = set()
+    for job in sample_data.job_data[:3]:
+        blobs.append(job)
+        blob_lookup.add( json.dumps(job) )
 
-    for job_guid, blob in blobs.items():
-        jm.store_job_data(blob, job_guid)
+    jm.store_job_data(blobs)
 
     rows1 = jm.claim_objects(2)
 
@@ -32,7 +33,9 @@ def test_claim_objects(jm, sample_data):
     assert len(rows2) == 1
 
     # all three blobs were fetched by one of the workers
-    assert set([r["json_blob"] for r in rows1 + rows2]) == set(blobs.values())
+    for r in rows1 + rows2:
+        assert r['json_blob'] in blob_lookup
+
 
     # the blobs are all marked as "loading" in the database
     assert loading_rows == 3
@@ -40,12 +43,16 @@ def test_claim_objects(jm, sample_data):
 
 def test_mark_object_complete(jm):
     """Marks claimed row complete and records run id."""
-    jm.store_job_data(*job_json())
+    jm.store_job_data([job_data()])
     row_id = jm.claim_objects(1)[0]["id"]
 
     revision_hash = "fakehash"
 
-    jm.mark_object_complete(row_id, revision_hash)
+    object_placeholders = [
+        [revision_hash, row_id]
+        ]
+
+    jm.mark_objects_complete(object_placeholders)
 
     row_data = jm.get_dhub(jm.CT_OBJECTSTORE).execute(
         proc="objectstore_test.selects.row", placeholders=[row_id])[0]
@@ -61,23 +68,17 @@ def test_process_objects(jm, initial_data, mock_log_parser):
     rs = result_set()
 
     blobs = [
-        job_json(submit_timestamp="1330454755",
+        job_data(submit_timestamp="1330454755",
                  job_guid="guid1", revision_hash=rs['revision_hash']),
-        job_json(submit_timestamp="1330454756",
+        job_data(submit_timestamp="1330454756",
                  job_guid="guid2", revision_hash=rs['revision_hash']),
-        job_json(submit_timestamp="1330454757",
+        job_data(submit_timestamp="1330454757",
                  job_guid="guid3", revision_hash=rs['revision_hash']),
     ]
 
-    for blob in blobs:
-        jm.store_job_data(*blob)
+    jm.store_result_set_data([rs])
 
-        # store a resultset as well
-        jm.store_result_set_data(
-            rs['revision_hash'],
-            rs['push_timestamp'],
-            rs['revisions']
-        )
+    jm.store_job_data(blobs)
 
     # just process two rows
     jm.process_objects(2, raise_errors=True)
@@ -98,74 +99,34 @@ def test_process_objects(jm, initial_data, mock_log_parser):
     assert len(date_set) == 2
 
 
-def test_process_objects_invalid_json(jm):
+def test_process_objects_unknown_error(jm):
     """process_objects fail for invalid json"""
-    jm.store_job_data("invalid json", "myguid")
+    response = jm.store_job_data(['{invalid json}'])
+
+    exp_resp = {u'Unknown error: TypeError: string indices must be integers, not str': '{invalid json}'}
+
     row_id = jm._get_last_insert_id("objectstore")
 
-    jm.process_objects(1)
+    assert row_id == 0
+    assert response == exp_resp
 
-    row_data = jm.get_dhub(jm.CT_OBJECTSTORE).execute(
-        proc="objectstore_test.selects.row", placeholders=[row_id])[0]
-
-    expected_error = "Malformed JSON: No JSON object could be decoded"
-
-    assert row_data['error'] == 'Y'
-    assert row_data['error_msg'] == expected_error
-    assert row_data['processed_state'] == 'ready'
-
-
-def test_process_objects_unknown_error(jm, monkeypatch):
-    """process_objects fail for unknown reason"""
-    jm.store_job_data("{}", "myguid")
-    row_id = jm._get_last_insert_id("objectstore")
-
-    # force an unexpected error to occur
-    def raise_error(*args, **kwargs):
-        raise ValueError("Something blew up!")
-    monkeypatch.setattr(jm, "load_job_data", raise_error)
-
-    jm.process_objects(1)
-
-    row_data = jm.get_dhub(jm.CT_OBJECTSTORE).execute(
-        proc="objectstore_test.selects.row", placeholders=[row_id])[0]
-
-    expected_error_msg = "Unknown error: ValueError: Something blew up!"
-
-    assert row_data['error'] == 'Y'
-    assert row_data['error_msg'] == expected_error_msg
-    assert row_data['processed_state'] == 'ready'
-
-
-@slow
-def test_ingest_sample_data(jm, sample_data, initial_data, mock_log_parser):
+def test_ingest_sample_data(jm, sample_data, sample_resultset, mock_log_parser):
     """Process all job structures in the job_data.txt file"""
 
-    rs = result_set()
-    jm.store_result_set_data(
-        rs['revision_hash'],
-        rs['push_timestamp'],
-        rs['revisions']
-    )
-    job_data = sample_data.job_data
-    for blob in job_data:
-        blob['revision_hash'] = rs['revision_hash']
-        jm.store_job_data(json.dumps(blob), blob['job']['job_guid'])
+    resultset_count = len(sample_resultset)
+    jm.store_result_set_data(sample_resultset)
 
-    # the number of objects stored is equivalent to
-    # the number of unique guids
-    data_length = len(set([blob['job']['job_guid']
-                          for blob in job_data]))
+    blobs = []
+    for index, job in enumerate(sample_data.job_data[0:resultset_count]):
+        job['revision_hash'] = sample_resultset[index]['revision_hash']
+        blobs.append(job)
+
+    jm.store_job_data(blobs)
 
     # process 10 rows at a time
-    remaining = data_length
+    remaining = resultset_count
 
-    while remaining > 0:
-        # need to do this trick because process_objects is crashing if
-        # there are less items than expected
-        jm.process_objects(min(10, remaining), raise_errors=True)
-
-        remaining -= 10
+    jm.process_objects(resultset_count, raise_errors=True)
 
     job_rows = jm.get_jobs_dhub().execute(
         proc="jobs_test.selects.jobs")
@@ -175,22 +136,23 @@ def test_ingest_sample_data(jm, sample_data, initial_data, mock_log_parser):
     loading_count = jm.get_os_dhub().execute(
         proc="objectstore_test.counts.loading")[0]["loading_count"]
 
-    assert complete_count == data_length
+    assert complete_count == resultset_count
     assert loading_count == 0
-    assert len(job_rows) == data_length
+    assert len(job_rows) == resultset_count
 
 
+@pytest.mark.xfail
 def test_objectstore_update_content(jm, sample_data):
     """
     Test updating an object of the objectstore.
     """
     original_obj = sample_data.job_data[0]
-    jm.store_job_data(json.dumps(original_obj), original_obj["job"]["job_guid"])
+    jm.store_job_data([original_obj])
 
     obj_updated = original_obj.copy()
     obj_updated["job"]["state"] = "new_state"
 
-    jm.store_job_data(json.dumps(obj_updated), obj_updated["job"]["job_guid"])
+    jm.store_job_data([obj_updated])
 
     stored_objs = jm.get_os_dhub().execute(
         proc="objectstore_test.selects.row_by_guid",

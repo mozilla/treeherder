@@ -12,14 +12,14 @@ def test_ingest_hg_pushlog(jm, initial_data, test_base_dir,
     process.run("file://{0}".format(pushlog), jm.project)
 
     pushes_stored = jm.get_jobs_dhub().execute(
-        proc="jobs_test.selects.result_set",
+        proc="jobs_test.selects.result_set_ids",
         return_type='tuple'
     )
 
     assert len(pushes_stored) == 10
 
     revisions_stored = jm.get_jobs_dhub().execute(
-        proc="jobs_test.selects.revisions",
+        proc="jobs_test.selects.revision_ids",
         return_type='tuple'
     )
 

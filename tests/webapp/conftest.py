@@ -32,63 +32,58 @@ def pushlog_sample(test_base_dir):
     return data
 
 @pytest.fixture
-def eleven_jobs_stored(jm, initial_data):
+def eleven_jobs_stored(jm, sample_data, sample_resultset):
     """stores a list of 11 job samples"""
+
+    jm.store_result_set_data(sample_resultset)
+
     num_jobs = 11
-    guids = ['myguid%s' % x for x in range(1, num_jobs + 1)]
+    jobs = sample_data.job_data[0:num_jobs]
 
-    rh = 0
-    pt = 0
-    for guid in guids:
-        # this is to store the job resultset.
-        job = job_data(job_guid=guid)
-        job["revision_hash"] = rh
-        del job["job"]["log_references"][0]
+    max_index = len(sample_resultset) - 1
+    resultset_index = 0
 
-        jm.store_result_set_data(
-            rh,
-            pt,
-            [{
-                "revision": "d62d628d5308f2b9ee81be755140d77f566bb4{0}".format(rh),
-                "files": [
-                    "file1",
-                    "file2",
-                    "file3"
-                ],
-                "author": "Mauro Doglio <mdoglio@mozilla.com>",
-                "branch": "default",
-                "comments":" Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-                "repository": "mozilla-aurora",
-                "commit_timestamp": "1370459745"
-            }])
+    blobs = []
+    for index, blob in enumerate(jobs):
 
-        # now we can store the job data safely
-        jm.store_job_data(
-            json.dumps(job),
-            guid
-        )
-        pt += 1
-        rh += 1
+        if resultset_index > max_index:
+            resultset_index = 0
+
+        # Modify job structure to sync with the resultset sample data
+        job_guid = blob['job']['job_guid']
+
+        if 'sources' in blob:
+            del blob['sources']
+
+        blob['revision_hash'] = sample_resultset[resultset_index]['revision_hash']
+
+        blobs.append(blob)
+
+        resultset_index += 1
+
+    jm.store_job_data(blobs)
 
 
 @pytest.fixture
-def eleven_jobs_processed(jm, eleven_jobs_stored):
+def eleven_jobs_processed(jm, mock_log_parser, eleven_jobs_stored):
     """stores and processes list of 11 job samples"""
     jm.process_objects(11, raise_errors=True)
 
 @pytest.fixture
-def sample_artifacts(jm, sample_data, eleven_jobs_processed):
+def sample_artifacts(jm, sample_data):
     """provide 11 jobs with job artifacts."""
 
-    jobs = jm.get_job_list(0, 10)
+    jobs = sample_data.job_data[0:10]
 
-    for job in jobs:
-        jm.insert_job_artifact(
-            job["id"],
-            "Foo Job Artifact",
-            "json",
-            json.dumps(sample_data.job_artifact)
-        )
+    for index, job in enumerate(jobs):
+
+        jobs[index]["job"]["artifact"] = {
+            "name":"data_1",
+            "type":"json",
+            "blob":{"data_1":"This is an artifact test" }
+            }
+
+    jm.load_job_data(jobs)
 
 @pytest.fixture
 def sample_notes(jm, sample_data, eleven_jobs_processed):

@@ -68,15 +68,17 @@ class HgPushlogProcess(JsonExtractorMixin,
         if last_object:
             source_url += "&startID=" + last_object
 
-        self.load(
-            self.transform(
-                self.extract(source_url),
+        extracted_content = self.extract(source_url)
+        if extracted_content:
+            self.load(
+                self.transform(
+                    extracted_content,
+                    repository
+                ),
+                # we have 1 job datasource for each repository
+                # and they share the name
                 repository
-            ),
-            # we have 1 job datasource for each repository
-            # and they share the name
-            repository
-        )
+            )
 
 
 
