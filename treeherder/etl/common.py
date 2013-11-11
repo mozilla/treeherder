@@ -1,3 +1,4 @@
+from collections import defaultdict
 import hashlib
 import urllib2
 import simplejson as json
@@ -76,28 +77,26 @@ def get_remote_content(url):
     return content
 
 
-
-def get_resultset(project, revision):
-    """Retrieve a revision hash given a single revision"""
-
-    cache_key = "{0}:{1}".format(project, revision)
-
-    cached_resultset = cache.get(cache_key)
-
-    if not cached_resultset:
-        endpoint = reverse('resultset-list', kwargs={"project": project})
+def lookup_revisions(revision_dict):
+    """
+    Retrieve a list of revision->resultset lookups
+    """
+    lookup = dict()
+    for project, revisions in revision_dict.items():
+        revision_set = set(revisions)
+        endpoint = reverse('revision-lookup-list', kwargs={"project": project})
+        # build the query string as a comma separated list of revisions
+        q = ','.join(revision_set)
         url = "{0}/{1}/?revision={2}".format(
             settings.API_HOSTNAME.strip('/'),
             endpoint.strip('/'),
-            revision
+            q
         )
+        print url
         content = get_remote_content(url)
         if content:
-            cached_resultset = content[0]
-            cache.set(cache_key, cached_resultset, 60 * 60 * 12)
-        else:
-            return None
-    return cached_resultset
+            lookup[project] = content
+    return lookup
 
 
 def generate_revision_hash(revisions):
