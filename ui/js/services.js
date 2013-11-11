@@ -87,10 +87,6 @@ treeherder.factory('thResults',
             var re = /(.+)(opt|debug|asan|pgo)$/i;
             var platformArr = re.exec(platform.name);
 
-//            console.log(platform);
-//            console.log(platformArr);
-
-//            console.log("<><><> changing " + platform.name + " to " + newName);
             if (platformArr) {
                 var newName = Config.OSNames[platformArr[1].trim()];
                 if (newName) {
