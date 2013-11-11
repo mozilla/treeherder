@@ -23,7 +23,7 @@ class JsonExtractorMixin(object):
                 buf = StringIO(handler.read())
                 handler = gzip.GzipFile(fileobj=buf)
             return json.loads(handler.read())
-        except urllib2.HTTPError, e:
+        except Exception, e:
             logger.error('Error fetching {0}'.format(url), exc_info=True)
             return None
 
@@ -69,6 +69,8 @@ class JobsLoaderMixin(JsonLoaderMixin):
         """post a list of jobs to the objectstore ingestion endpoint """
 
         project_jobs_map = defaultdict(list)
+        if not jobs:
+            return
 
         for job in jobs:
 

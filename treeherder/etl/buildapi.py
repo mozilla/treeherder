@@ -45,8 +45,13 @@ class Builds4hTransformerMixin(object):
         """
         job_list = []
         revisions = defaultdict(list)
+
+        projects = set(x.project for x in Datasource.objects.cached())
+
         for build in data['builds']:
             prop = build['properties']
+            if not prop['branch'] in projects:
+                continue
             prop['revision'] = prop.get('revision',
                             prop.get('got_revision',
                                 prop.get('sourcestamp', None)))
@@ -58,7 +63,8 @@ class Builds4hTransformerMixin(object):
         revisions_lookup = common.lookup_revisions(revisions)
 
         for build in data['builds']:
-
+            if not prop['branch'] in projects:
+                continue
             prop = build['properties']
 
             if not prop['revision'] in revisions_lookup[prop['branch']]:
