@@ -1024,11 +1024,8 @@ class JobsModel(TreeherderModelBase):
 
             }
         """
-        # revision_map structures
-        revision_to_rhash_lookup = dict()
-
         if not result_sets:
-            return revision_to_rhash_lookup
+            return {}
 
         # result_set data structures
         revision_hash_placeholders = []
@@ -1040,6 +1037,9 @@ class JobsModel(TreeherderModelBase):
         revision_placeholders = []
         all_revisions = []
         rev_where_in_list = []
+
+        # revision_map structures
+        revision_to_rhash_lookup = dict()
 
         # TODO: Confirm whether we need to do a lookup in this loop in the
         #   memcache to reduce query overhead
