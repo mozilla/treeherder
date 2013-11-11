@@ -63,15 +63,12 @@ class Builds4hTransformerMixin(object):
         revisions_lookup = common.lookup_revisions(revisions)
 
         for build in data['builds']:
-            if not prop['branch'] in projects:
-                continue
             prop = build['properties']
 
-            if not prop['revision'] in revisions_lookup[prop['branch']]:
-                continue
-            # the resultset object is in the nested dict
-            resultset = revisions_lookup[prop['branch']][prop['revision']]
-            if not resultset:
+            try:
+                resultset = revisions_lookup[prop['branch']][prop['revision']]
+            except KeyError:
+                # this branch is not one of those we care about
                 continue
 
             treeherder_data = {
