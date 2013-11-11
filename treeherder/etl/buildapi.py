@@ -151,7 +151,6 @@ class PendingTransformerMixin(object):
 
             for rev, jobs in revisions.items():
                 revision_dict[project].append(rev)
-
         # retrieving the revision->resultset lookups
         revisions_lookup = common.lookup_revisions(revision_dict)
 
@@ -213,7 +212,7 @@ class RunningTransformerMixin(object):
         """
         job_list = []
         projects = set(x.project for x in Datasource.objects.cached())
-        revisions = defaultdict(list)
+        revision_dict = defaultdict(list)
 
         # loop to catch all the revisions
         for project, revisions in data['running'].items():
@@ -222,10 +221,10 @@ class RunningTransformerMixin(object):
                 continue
 
             for rev, jobs in revisions.items():
-                revisions[project].append(rev)
+                revision_dict[project].append(rev)
 
         # retrieving the revision->resultset lookups
-        revisions_lookup = common.lookup_revisions(revisions)
+        revisions_lookup = common.lookup_revisions(revision_dict)
 
         for project, revisions in revisions_lookup.items():
 
@@ -283,30 +282,30 @@ class Builds4hJobsProcess(JsonExtractorMixin,
                           Builds4hTransformerMixin,
                           ObjectstoreLoaderMixin):
     def run(self):
-        self.load(
-            self.transform(
-                self.extract(settings.BUILDAPI_BUILDS4H_URL)
+        extracted_content = self.extract(settings.BUILDAPI_BUILDS4H_URL)
+        if extracted_content:
+            self.load(
+                self.transform(extracted_content)
             )
-        )
 
 
 class PendingJobsProcess(JsonExtractorMixin,
                          PendingTransformerMixin,
                          JobsLoaderMixin):
     def run(self):
-        self.load(
-            self.transform(
-                self.extract(settings.BUILDAPI_PENDING_URL)
+        extracted_content = self.extract(settings.BUILDAPI_PENDING_URL)
+        if extracted_content:
+            self.load(
+                self.transform(extracted_content)
             )
-        )
 
 
 class RunningJobsProcess(JsonExtractorMixin,
                          RunningTransformerMixin,
                          JobsLoaderMixin):
     def run(self):
-        self.load(
-            self.transform(
-                self.extract(settings.BUILDAPI_RUNNING_URL)
+        extracted_content = self.extract(settings.BUILDAPI_RUNNING_URL)
+        if extracted_content:
+            self.load(
+                self.transform(extracted_content)
             )
-        )

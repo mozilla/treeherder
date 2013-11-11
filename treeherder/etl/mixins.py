@@ -17,11 +17,15 @@ class JsonExtractorMixin(object):
         """
         Deserializes a json string contained a given file, uncompressing it if needed
         """
-        handler = urllib2.urlopen(url)
-        if handler.info().get('Content-Encoding') == 'gzip':
-            buf = StringIO(handler.read())
-            handler = gzip.GzipFile(fileobj=buf)
-        return json.loads(handler.read())
+        try:
+            handler = urllib2.urlopen(url)
+            if handler.info().get('Content-Encoding') == 'gzip':
+                buf = StringIO(handler.read())
+                handler = gzip.GzipFile(fileobj=buf)
+            return json.loads(handler.read())
+        except urllib2.HTTPError, e:
+            logger.error('Error fetching {0}'.format(url), exc_info=True)
+            return None
 
 
 class JsonLoaderMixin(object):
@@ -29,6 +33,8 @@ class JsonLoaderMixin(object):
     def load(self, url, data):
         req = urllib2.Request(url)
         req.add_header('Content-Type', 'application/json')
+        if not data:
+            data = None
         return urllib2.urlopen(req, json.dumps(data))
 
 
@@ -62,14 +68,11 @@ class JobsLoaderMixin(JsonLoaderMixin):
     def load(self, jobs):
         """post a list of jobs to the objectstore ingestion endpoint """
 
-        project_jobs_map = {}
+        project_jobs_map = defaultdict(list)
 
         for job in jobs:
 
             project = job['project']
-
-            if project not in project_jobs_map:
-                project_jobs_map[project] = []
 
             project_jobs_map[project].append(job)
 
@@ -88,9 +91,9 @@ class JobsLoaderMixin(JsonLoaderMixin):
 
             response = super(JobsLoaderMixin, self).load(
                 url, project_jobs_map[project]
-                )
+            )
 
-            if response.getcode() != 200:
+            if not response or response.getcode() != 200:
                 message = json.loads(response.read())
                 logger.error("Job loading failed: {0}".format(message['message']))
 
@@ -121,17 +124,19 @@ class ResultSetsLoaderMixin(JsonLoaderMixin):
             }
         ]
         """
-        endpoint = reverse('resultset-list', kwargs={"project": project})
+        if result_sets:
 
-        url = "{0}/{1}/".format(
-            settings.API_HOSTNAME.strip('/'),
-            endpoint.strip('/')
-            )
+            endpoint = reverse('resultset-list', kwargs={"project": project})
 
-        response = super(ResultSetsLoaderMixin, self).load(url, result_sets)
+            url = "{0}/{1}/".format(
+                settings.API_HOSTNAME.strip('/'),
+                endpoint.strip('/')
+                )
 
-        if response.getcode() != 200:
-            message = json.loads(response.read())
-            logger.error("ResultSet loading failed: {0}".format(message['message']))
+            response = super(ResultSetsLoaderMixin, self).load(url, result_sets)
+
+            if not response or response.getcode() != 200:
+                message = json.loads(response.read())
+                logger.error("ResultSet loading failed: {0}".format(message['message']))
 
 
