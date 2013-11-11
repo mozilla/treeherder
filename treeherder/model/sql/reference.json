@@ -13,25 +13,25 @@
         },
 
         "create_job_group":{
-            "sql":"INSERT INTO `job_group` (`name`, `description`)
-                   SELECT ?, 'fill me'
+            "sql":"INSERT INTO `job_group` (`name`, `symbol`, `description`)
+                   SELECT ?, ?, 'fill me'
                     FROM DUAL
                     WHERE NOT EXISTS (
-                    SELECT `name`
+                    SELECT `name`, `symbol`
                     FROM `job_group`
-                    WHERE `name` = ?
+                    WHERE `name` = ? AND `symbol` = ?
                     )",
             "host":"master_host"
         },
 
         "create_job_type":{
-            "sql":"INSERT INTO `job_type` (`name`, `description`)
-                   SELECT ?, 'fill me'
+            "sql":"INSERT INTO `job_type` (`name`, `job_group_id`, `symbol`, `description`)
+                   SELECT ?, ?, ?, 'fill me'
                     FROM DUAL
                     WHERE NOT EXISTS (
-                    SELECT `name`
+                    SELECT `name`, job_group_id, symbol
                     FROM `job_type`
-                    WHERE `name` = ?
+                    WHERE `name` = ? AND job_group_id = ? AND symbol = ?
                     )",
             "host":"master_host"
         },
@@ -222,7 +222,7 @@
         "get_repository_info":{
             "sql": "SELECT *
                     FROM `repository`
-                    WHERE 
+                    WHERE
                         `id` = ?
                     AND `active_status` = 'active'",
             "host":"read_host"
@@ -237,7 +237,7 @@
         "get_repository_group_id":{
             "sql": "SELECT `id`
                     FROM `repository_group`
-                    WHERE 
+                    WHERE
                         `name` = ?
                     AND `active_status` = 'active'",
             "host":"read_host"

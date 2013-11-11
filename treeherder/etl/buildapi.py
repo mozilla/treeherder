@@ -67,7 +67,7 @@ class Builds4hTransformerMixin(object):
             }
 
             platform_info = buildbot.extract_platform_info(prop['buildername'])
-            job_name = buildbot.extract_test_name(prop['buildername'])
+            job_name = buildbot.extract_name_info(prop['buildername'])
 
             if 'log_url' in prop:
                 log_reference = [{
@@ -151,7 +151,7 @@ class PendingTransformerMixin(object):
 
                     job = {
                         'job_guid': common.generate_job_guid(job['id'], job['submitted_at']),
-                        'name': buildbot.extract_test_name(job['buildername']),
+                        'name': buildbot.extract_name_info(job['buildername']),
                         'state': 'pending',
                         'submit_timestamp': job['submitted_at'],
                         'build_platform': {
@@ -212,7 +212,7 @@ class RunningTransformerMixin(object):
                             job['request_ids'][0],
                             job['submitted_at']
                         ),
-                        'name': buildbot.extract_test_name(job['buildername']),
+                        'name': buildbot.extract_name_info(job['buildername']),
                         'state': 'running',
                         'submit_timestamp': job['submitted_at'],
                         'build_platform': {

@@ -299,7 +299,7 @@ class PulseDataAdapter(object):
         #extend data with job type data
         data['jobtype'] = buildbot.extract_job_type(value)
 
-        data['test_name'] = buildbot.extract_test_name(value)
+        data['test_name'] = buildbot.extract_name_info(value)["name"]
 
         return data
 

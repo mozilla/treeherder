@@ -260,7 +260,7 @@ class JobsModel(TreeherderModelBase):
         )
 
         aggregate_details = self.get_result_set_details(result_set_ids)
-        
+
         # Construct the return dataset, include all revisions associated
         # with each result_set in the revision_list attribute
         return_list = []
@@ -280,7 +280,7 @@ class JobsModel(TreeherderModelBase):
                     "revision_list":aggregate_details[ result['id'] ]
                     }
                 )
-                    
+
         return self.as_list(return_list, "result_set", **kwargs)
 
     def get_result_set_details(self, result_set_ids):
@@ -302,7 +302,7 @@ class JobsModel(TreeherderModelBase):
         for data in result_set_ids:
             id_placeholders.append('%s')
             ids.append(data['id'])
-        
+
         where_in_clause = ','.join(id_placeholders)
 
         # Retrieve revision details associated with each result_set_id
@@ -527,10 +527,17 @@ class JobsModel(TreeherderModelBase):
             [k for k, v in job["option_collection"].items() if v],
         )
 
-        job_name = job["name"]
+        job_name_info = job["name"]
+
+        job_group_id = rdm.get_or_create_job_group(
+            job_name_info["group_name"],
+            job_name_info["group_symbol"],
+        )
 
         job_type_id = rdm.get_or_create_job_type(
-            job_name
+            job_name_info["name"],
+            job_group_id,
+            job_name_info["symbol"]
         )
 
         if "product_name" in job:

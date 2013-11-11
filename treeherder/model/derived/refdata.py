@@ -86,13 +86,15 @@ class RefDataManager(object):
 
         return id_iter.get_column_data('id')
 
-    def get_or_create_job_group(self, name):
+    def get_or_create_job_group(self, name, symbol):
 
         self.dhub.execute(
             proc='reference.inserts.create_job_group',
             placeholders=[
                 name,
-                name
+                symbol,
+                name,
+                symbol
             ],
             debug_show=self.DEBUG)
 
@@ -108,13 +110,17 @@ class RefDataManager(object):
 
         return id_iter.get_column_data('id')
 
-    def get_or_create_job_type(self, name):
+    def get_or_create_job_type(self, name, symbol, job_group_id):
 
         self.dhub.execute(
             proc='reference.inserts.create_job_type',
             placeholders=[
                 name,
-                name
+                job_group_id,
+                symbol,
+                name,
+                job_group_id,
+                symbol
             ],
             debug_show=self.DEBUG)
 

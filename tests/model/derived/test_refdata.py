@@ -90,10 +90,10 @@ test_params = [
     },
     {
         'func': 'get_or_create_job_group',
-        'input': ['mygroup'],
+        'input': ['mygroup', 'mg'],
         'test_proc': 'test_refdata.selects.test_job_group',
         'expected': [{
-            'symbol': '?',
+            'symbol': 'mg',
             'name': 'mygroup',
             'description': 'fill me',
             'active_status': 'active'
