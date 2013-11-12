@@ -257,6 +257,19 @@
                     WHERE
                         `active_status` = 'active'",
             "host":"read_host"
+        },
+        "get_bugs_suggestions": {
+            "sql": "SELECT id,
+                    MATCH (`summary`, `crash_signature`, `keywords`)
+                        AGAINST (?) AS relevance
+                    FROM bugscache
+                    WHERE 1
+                        AND resolution REP0 ''
+                        AND MATCH (`summary`, `crash_signature`, `keywords`)
+                            AGAINST (?)
+                    ORDER BY relevance DESC",
+            "host": "read_host"
+
         }
     },
     "updates":{

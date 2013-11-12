@@ -14,8 +14,7 @@ class BzApiBugProcess(JsonExtractorMixin):
         hostname = settings.BZ_API_URL
         params = {
             'keywords': 'intermittent-failure',
-            'include_fields': 'id,summary,status,resolution,op_sys,cf_crash_signature, keywords',
-            'resolution': '---'
+            'include_fields': 'id,summary,status,resolution,op_sys,cf_crash_signature, keywords'
         }
         if last_fetched:
             params.update({'changed_after': last_fetched})
@@ -24,8 +23,8 @@ class BzApiBugProcess(JsonExtractorMixin):
         source_url = '{0}/{1}?{2}'.format(
             hostname, endpoint, urlencode(params)
         )
-
         return source_url
+
 
     def run(self):
 
@@ -35,10 +34,13 @@ class BzApiBugProcess(JsonExtractorMixin):
 
         curr_date = datetime.date.today()
 
-        bug_list = self.extract(source_url)
+        response = self.extract(source_url)
+        bug_list = response.get('bugs', [])
 
-        # store the new date for one day
-        cache.set('bz_last_fetched', curr_date, 60 * 60 * 24)
+        if bug_list:
 
-        rdm = RefDataManager()
-        rdm.update_bugscache(bug_list)
+            # store the new date for one day
+            cache.set('bz_last_fetched', curr_date, 60 * 60 * 24)
+
+            rdm = RefDataManager()
+            rdm.update_bugscache(bug_list)
