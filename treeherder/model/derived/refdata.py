@@ -985,6 +985,7 @@ class RefDataManager(object):
         when necessary.
         """
         placeholders = []
+        bug_list = bug_list or []
         # create a list of placeholders from a list of dictionary
         for bug in bug_list:
             # keywords come as a list of values, we need a string instead
@@ -1007,6 +1008,19 @@ class RefDataManager(object):
             placeholders=placeholders,
             executemany=True,
             debug_show=self.DEBUG)
+
+    def get_suggested_bugs(self, search_term, open_bugs=True):
+
+        if not search_term:
+            return []
+
+        replacement = "=" if open_bugs else "<>"
+
+        return self.dhub.execute(
+            proc='reference.selects.get_bugs_suggestions',
+            placeholders=[search_term] * 2,
+            debug_show=self.DEBUG,
+            replace=[replacement])
 
 
 

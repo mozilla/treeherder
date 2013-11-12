@@ -120,7 +120,7 @@ def grouper(iterable, n, fillvalue=None):
 def verify_build_platforms(refdata, build_platforms_ref):
 
     build_platforms = refdata.dhub.execute(
-        proc='test_refdata.selects.test_all_build_platforms',
+        proc='refdata_test.selects.test_all_build_platforms',
         )
     build_platforms_set = set()
     for build_platform in build_platforms:
@@ -136,7 +136,7 @@ def verify_build_platforms(refdata, build_platforms_ref):
 def verify_machine_platforms(refdata, machine_platforms_ref):
 
     machine_platforms = refdata.dhub.execute(
-        proc='test_refdata.selects.test_all_machine_platforms',
+        proc='refdata_test.selects.test_all_machine_platforms',
         )
     machine_platforms_set = set()
     for machine_platform in machine_platforms:
@@ -152,7 +152,7 @@ def verify_machine_platforms(refdata, machine_platforms_ref):
 def verify_machines(refdata, machines_ref):
 
     machines = refdata.dhub.execute(
-        proc='test_refdata.selects.test_all_machines',
+        proc='refdata_test.selects.test_all_machines',
         key_column='name',
         return_type='set'
         )
@@ -162,7 +162,7 @@ def verify_machines(refdata, machines_ref):
 def verify_options(refdata, options_ref):
 
     options = refdata.dhub.execute(
-        proc='test_refdata.selects.test_all_options',
+        proc='refdata_test.selects.test_all_options',
         key_column='name',
         return_type='set'
         )
@@ -172,7 +172,7 @@ def verify_options(refdata, options_ref):
 def verify_job_types(refdata, job_types_ref):
 
     job_types = refdata.dhub.execute(
-        proc='test_refdata.selects.test_all_job_types',
+        proc='refdata_test.selects.test_all_job_types',
         key_column='name',
         return_type='set'
         )
@@ -182,7 +182,7 @@ def verify_job_types(refdata, job_types_ref):
 def verify_products(refdata, products_ref):
 
     products = refdata.dhub.execute(
-        proc='test_refdata.selects.test_all_products',
+        proc='refdata_test.selects.test_all_products',
         key_column='name',
         return_type='set'
         )

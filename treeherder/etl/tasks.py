@@ -5,6 +5,7 @@ from celery import task, group
 from .buildapi import (RunningJobsProcess,
                                      PendingJobsProcess,
                                      Builds4hJobsProcess)
+from .bugzilla import BzApiBugProcess
 from treeherder.model.derived import RefDataManager
 from .pushlog import HgPushlogProcess, GitPushlogProcess
 
@@ -39,8 +40,7 @@ def fetch_buildapi_build4h():
 @task(name='fetch-push-logs')
 def fetch_push_logs():
     """
-    this is supposed to be used as a periodic task
-    to be run every minute
+    Run several fetch_hg_push_log subtasks, one per repository
     """
     rdm = RefDataManager()
     try:
@@ -69,4 +69,13 @@ def fetch_git_push_log(repo_name, repo_url):
     Run a GitsPushlog etl process
     """
     process = GitPushlogProcess()
+    process.run()
+
+
+@task(name='fetch-bugs')
+def fetch_bugs():
+    """
+    Run a BzApiBug process
+    """
+    process = BzApiBugProcess()
     process.run()

@@ -92,7 +92,7 @@ def lookup_revisions(revision_dict):
             endpoint.strip('/'),
             q
         )
-        print url
+
         content = get_remote_content(url)
         if content:
             lookup[project] = content

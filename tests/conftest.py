@@ -276,9 +276,7 @@ def refdata():
 
     proc_path = os.path.join(
         os.path.abspath(os.path.dirname(__file__)),
-        'model',
-        'derived',
-        'test_refdata.json'
+        'refdata_test.json'
     )
 
     add_test_procs_file(refdata.dhub, 'reference', proc_path)
