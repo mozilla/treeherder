@@ -1,0 +1,578 @@
+[
+    {
+        'project': 'mozilla-b2g26_v1_2',
+        'job': {
+            'build_platform': {
+                'platform': 'b2g-emu-jb',
+                'os_name': 'b2g',
+                'architecture': 'x86'
+            },
+            'submit_timestamp': 1384270649,
+            'start_timestamp': 1384270751,
+            'build_url': '',
+            'name': 'B2G Emulator Image Build',
+            'buildername': 'b2g_mozilla-b2g26_v1_2_emulator-jb-debug_dep',
+            'machine_platform': {
+                'platform': 'b2g-emu-jb',
+                'os_name': 'b2g',
+                'architecture': 'x86'
+            },
+            'symbol': 'B',
+            'who': 'b2g_mozilla-b2g26_v1_2-b2g',
+            'group_symbol': '?',
+            'reason': 'scheduler',
+            'artifact': {
+                'log_urls': [],
+                'type': '',
+                'name': '',
+                'blob': ''
+            },
+            'group_name': None,
+            'machine': 'bld-linux64-ec2-424',
+            'state': 'completed',
+            'option_collection': {
+                'debug': True
+            },
+            'result': 'success',
+            'log_references': [
+                {
+                    'url': 'http://ftp.mozilla.org/pub/mozilla.org/b2g/tinderbox-builds/mozilla-b2g26_v1_2-emulator-jb-debug/1384270714/b2g_mozilla-b2g26_v1_2_emulator-jb-debug_dep-bm58-build1-build15.txt.gz',
+                    'name': 'builds-4h'
+                }
+            ],
+            'job_guid': '29a34690c7012df96c3300f0c2fd7cf9cc3142dc',
+            'product_name': 'b2g',
+            'end_timestamp': 1384282959
+        },
+        'revision_hash': '7127a762822a824f8f843fe1d09cb5de4c2bec67',
+        'resultset_id': 13
+    },
+    {
+        'project': 'mozilla-b2g26_v1_2',
+        'job': {
+            'build_platform': {
+                'platform': 'b2g-emu-jb',
+                'os_name': 'b2g',
+                'architecture': 'x86'
+            },
+            'submit_timestamp': 1384273307,
+            'start_timestamp': 1384273312,
+            'build_url': '',
+            'name': 'B2G Emulator Image Build',
+            'buildername': 'b2g_mozilla-b2g26_v1_2_emulator-jb_dep',
+            'machine_platform': {
+                'platform': 'b2g-emu-jb',
+                'os_name': 'b2g',
+                'architecture': 'x86'
+            },
+            'symbol': 'B',
+            'who': 'b2g_mozilla-b2g26_v1_2-b2g',
+            'group_symbol': '?',
+            'reason': 'scheduler',
+            'artifact': {
+                'log_urls': [],
+                'type': '',
+                'name': '',
+                'blob': ''
+            },
+            'group_name': None,
+            'machine': 'bld-centos6-hp-017',
+            'state': 'completed',
+            'option_collection': {
+                'opt': True
+            },
+            'result': 'success',
+            'log_references': [
+                {
+                    'url': 'http://ftp.mozilla.org/pub/mozilla.org/b2g/tinderbox-builds/mozilla-b2g26_v1_2-emulator-jb/1384273307/b2g_mozilla-b2g26_v1_2_emulator-jb_dep-bm82-build1-build2.txt.gz',
+                    'name': 'builds-4h'
+                }
+            ],
+            'job_guid': '89277ff2aa49754e191cefacdb0a7b5f0f62792a',
+            'product_name': 'b2g',
+            'end_timestamp': 1384283389
+        },
+        'revision_hash': '68a26465f545a9e7e7dd6b7e0246673b6f8ded48',
+        'resultset_id': 14
+    },
+    {
+        'project': 'mozilla-b2g26_v1_2',
+        'job': {
+            'build_platform': {
+                'platform': 'b2g-emu-jb',
+                'os_name': 'b2g',
+                'architecture': 'x86'
+            },
+            'submit_timestamp': 1384273307,
+            'start_timestamp': 1384273318,
+            'build_url': '',
+            'name': 'B2G Emulator Image Build',
+            'buildername': 'b2g_mozilla-b2g26_v1_2_emulator-jb-debug_dep',
+            'machine_platform': {
+                'platform': 'b2g-emu-jb',
+                'os_name': 'b2g',
+                'architecture': 'x86'
+            },
+            'symbol': 'B',
+            'who': 'b2g_mozilla-b2g26_v1_2-b2g',
+            'group_symbol': '?',
+            'reason': 'scheduler',
+            'artifact': {
+                'log_urls': [],
+                'type': '',
+                'name': '',
+                'blob': ''
+            },
+            'group_name': None,
+            'machine': 'bld-linux64-ec2-083',
+            'state': 'completed',
+            'option_collection': {
+                'debug': True
+            },
+            'result': 'success',
+            'log_references': [
+                {
+                    'url': 'http://ftp.mozilla.org/pub/mozilla.org/b2g/tinderbox-builds/mozilla-b2g26_v1_2-emulator-jb-debug/1384273307/b2g_mozilla-b2g26_v1_2_emulator-jb-debug_dep-bm61-build1-build21.txt.gz',
+                    'name': 'builds-4h'
+                }
+            ],
+            'job_guid': '3699daa9970d4ddeb0c79e2886228dc1cc063202',
+            'product_name': 'b2g',
+            'end_timestamp': 1384284921
+        },
+        'revision_hash': '68a26465f545a9e7e7dd6b7e0246673b6f8ded48',
+        'resultset_id': 14
+    },
+    {
+        'project': 'mozilla-b2g26_v1_2',
+        'job': {
+            'build_platform': {
+                'platform': 'b2g-emu-jb',
+                'os_name': 'b2g',
+                'architecture': 'x86'
+            },
+            'submit_timestamp': 1384274430,
+            'start_timestamp': 1384274446,
+            'build_url': '',
+            'name': 'B2G Emulator Image Build',
+            'buildername': 'b2g_mozilla-b2g26_v1_2_emulator-jb_dep',
+            'machine_platform': {
+                'platform': 'b2g-emu-jb',
+                'os_name': 'b2g',
+                'architecture': 'x86'
+            },
+            'symbol': 'B',
+            'who': 'b2g_mozilla-b2g26_v1_2-b2g',
+            'group_symbol': '?',
+            'reason': 'scheduler',
+            'artifact': {
+                'log_urls': [],
+                'type': '',
+                'name': '',
+                'blob': ''
+            },
+            'group_name': None,
+            'machine': 'bld-linux64-ec2-004',
+            'state': 'completed',
+            'option_collection': {
+                'opt': True
+            },
+            'result': 'success',
+            'log_references': [
+                {
+                    'url': 'http://ftp.mozilla.org/pub/mozilla.org/b2g/tinderbox-builds/mozilla-b2g26_v1_2-emulator-jb/1384274430/b2g_mozilla-b2g26_v1_2_emulator-jb_dep-bm57-build1-build13.txt.gz',
+                    'name': 'builds-4h'
+                }
+            ],
+            'job_guid': '97f9aa13426d8575243137fb7688b71cf224786a',
+            'product_name': 'b2g',
+            'end_timestamp': 1384285362
+        },
+        'revision_hash': '0c6a093e3b9e8a4c75c9bf1a4bf5f797a16756cb',
+        'resultset_id': 11
+    },
+    {
+        'project': 'mozilla-b2g26_v1_2',
+        'job': {
+            'build_platform': {
+                'platform': 'b2g-emu-jb',
+                'os_name': 'b2g',
+                'architecture': 'x86'
+            },
+            'submit_timestamp': 1384274430,
+            'start_timestamp': 1384274451,
+            'build_url': '',
+            'name': 'B2G Emulator Image Build',
+            'buildername': 'b2g_mozilla-b2g26_v1_2_emulator-jb-debug_dep',
+            'machine_platform': {
+                'platform': 'b2g-emu-jb',
+                'os_name': 'b2g',
+                'architecture': 'x86'
+            },
+            'symbol': 'B',
+            'who': 'b2g_mozilla-b2g26_v1_2-b2g',
+            'group_symbol': '?',
+            'reason': 'scheduler',
+            'artifact': {
+                'log_urls': [],
+                'type': '',
+                'name': '',
+                'blob': ''
+            },
+            'group_name': None,
+            'machine': 'bld-linux64-ec2-169',
+            'state': 'completed',
+            'option_collection': {
+                'debug': True
+            },
+            'result': 'success',
+            'log_references': [
+                {
+                    'url': 'http://ftp.mozilla.org/pub/mozilla.org/b2g/tinderbox-builds/mozilla-b2g26_v1_2-emulator-jb-debug/1384274430/b2g_mozilla-b2g26_v1_2_emulator-jb-debug_dep-bm57-build1-build11.txt.gz',
+                    'name': 'builds-4h'
+                }
+            ],
+            'job_guid': 'c74d2f19cee8fc4dc5deab94c15c201350c1a723',
+            'product_name': 'b2g',
+            'end_timestamp': 1384285860
+        },
+        'revision_hash': '0c6a093e3b9e8a4c75c9bf1a4bf5f797a16756cb',
+        'resultset_id': 11
+    },
+    {
+        'project': 'mozilla-b2g26_v1_2',
+        'job': {
+            'build_platform': {
+                'platform': 'osx-10-7',
+                'os_name': 'mac',
+                'architecture': 'x86_64'
+            },
+            'submit_timestamp': 1384274713,
+            'start_timestamp': 1384274738,
+            'build_url': 'http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-b2g26_v1_2-macosx64-debug/1384270711/firefox-26.0.en-US.mac64.dmg',
+            'name': 'Mochitest Browser Chrome',
+            'buildername': 'Rev4 MacOSX Lion 10.7 mozilla-b2g26_v1_2 debug test mochitest-browser-chrome',
+            'machine_platform': {
+                'platform': 'osx-10-7',
+                'os_name': 'mac',
+                'architecture': 'x86_64'
+            },
+            'symbol': 'bc',
+            'who': 'tests-mozilla-b2g26_v1_2-lion-debug-unittest',
+            'group_symbol': 'M',
+            'reason': 'scheduler',
+            'artifact': {
+                'log_urls': [],
+                'type': '',
+                'name': '',
+                'blob': ''
+            },
+            'group_name': 'Mochitest',
+            'machine': 'talos-r4-lion-053',
+            'state': 'completed',
+            'option_collection': {
+                'debug': True
+            },
+            'result': 'success',
+            'log_references': [
+                {
+                    'url': 'http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-b2g26_v1_2-macosx64-debug/1384270711/mozilla-b2g26_v1_2_lion-debug_test-mochitest-browser-chrome-bm78-tests1-macosx-build6.txt.gz',
+                    'name': 'builds-4h'
+                }
+            ],
+            'job_guid': '4dc8b79752b5e8a7d5d5558d8b341cdf811c57f4',
+            'product_name': 'firefox',
+            'end_timestamp': 1384282869
+        },
+        'revision_hash': '7127a762822a824f8f843fe1d09cb5de4c2bec67',
+        'resultset_id': 13
+    },
+    {
+        'project': 'mozilla-aurora',
+        'job': {
+            'build_platform': {
+                'platform': 'osx-10-7',
+                'os_name': 'mac',
+                'architecture': 'x86_64'
+            },
+            'submit_timestamp': 1384276173,
+            'start_timestamp': 1384276351,
+            'build_url': 'http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-aurora-macosx64-debug/1384272571/firefox-27.0a2.en-US.mac64.dmg',
+            'name': 'Mochitest Browser Chrome',
+            'buildername': 'Rev4 MacOSX Lion 10.7 mozilla-aurora debug test mochitest-browser-chrome',
+            'machine_platform': {
+                'platform': 'osx-10-7',
+                'os_name': 'mac',
+                'architecture': 'x86_64'
+            },
+            'symbol': 'bc',
+            'who': 'tests-mozilla-aurora-lion-debug-unittest',
+            'group_symbol': 'M',
+            'reason': 'scheduler',
+            'artifact': {
+                'log_urls': [],
+                'type': '',
+                'name': '',
+                'blob': ''
+            },
+            'group_name': 'Mochitest',
+            'machine': 'talos-r4-lion-061',
+            'state': 'completed',
+            'option_collection': {
+                'debug': True
+            },
+            'result': 'success',
+            'log_references': [
+                {
+                    'url': 'http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-aurora-macosx64-debug/1384272571/mozilla-aurora_lion-debug_test-mochitest-browser-chrome-bm79-tests1-macosx-build219.txt.gz',
+                    'name': 'builds-4h'
+                }
+            ],
+            'job_guid': 'c4b11aacd7e55c3738f4d050525993b31ca737c3',
+            'product_name': 'firefox',
+            'end_timestamp': 1384284191
+        },
+        'revision_hash': 'f882670046aaded8eb8bb728338c889f50fb1acd',
+        'resultset_id': 11
+    },
+    {
+        'project': 'mozilla-aurora',
+        'job': {
+            'build_platform': {
+                'platform': 'osx-10-6',
+                'os_name': 'mac',
+                'architecture': 'x86_64'
+            },
+            'submit_timestamp': 1384276166,
+            'start_timestamp': 1384276463,
+            'build_url': 'http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-aurora-macosx64-debug/1384272571/firefox-27.0a2.en-US.mac64.dmg',
+            'name': 'Mochitest Browser Chrome',
+            'buildername': 'Rev4 MacOSX Snow Leopard 10.6 mozilla-aurora debug test mochitest-browser-chrome',
+            'machine_platform': {
+                'platform': 'osx-10-6',
+                'os_name': 'mac',
+                'architecture': 'x86_64'
+            },
+            'symbol': 'bc',
+            'who': 'tests-mozilla-aurora-snowleopard-debug-unittest',
+            'group_symbol': 'M',
+            'reason': 'scheduler',
+            'artifact': {
+                'log_urls': [],
+                'type': '',
+                'name': '',
+                'blob': ''
+            },
+            'group_name': 'Mochitest',
+            'machine': 'talos-r4-snow-054',
+            'state': 'completed',
+            'option_collection': {
+                'debug': True
+            },
+            'result': 'success',
+            'log_references': [
+                {
+                    'url': 'http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-aurora-macosx64-debug/1384272571/mozilla-aurora_snowleopard-debug_test-mochitest-browser-chrome-bm78-tests1-macosx-build235.txt.gz',
+                    'name': 'builds-4h'
+                }
+            ],
+            'job_guid': 'e8faa8db36fceb662f4dd197a5ab0cb1b4dfeb92',
+            'product_name': 'firefox',
+            'end_timestamp': 1384283517
+        },
+        'revision_hash': 'f882670046aaded8eb8bb728338c889f50fb1acd',
+        'resultset_id': 11
+    },
+    {
+        'project': 'mozilla-b2g26_v1_2',
+        'job': {
+            'build_platform': {
+                'platform': 'linux32',
+                'os_name': 'linux',
+                'architecture': 'x86'
+            },
+            'submit_timestamp': 1384276584,
+            'start_timestamp': 1384276589,
+            'build_url': 'http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-b2g26_v1_2-linux-debug/1384270711/firefox-26.0.en-US.linux-i686.tar.bz2',
+            'name': 'Mochitest Browser Chrome',
+            'buildername': 'Rev3 Fedora 12 mozilla-b2g26_v1_2 debug test mochitest-browser-chrome',
+            'machine_platform': {
+                'platform': 'linux32',
+                'os_name': 'linux',
+                'architecture': 'x86'
+            },
+            'symbol': 'bc',
+            'who': 'tests-mozilla-b2g26_v1_2-fedora-debug-unittest',
+            'group_symbol': 'M',
+            'reason': 'scheduler',
+            'artifact': {
+                'log_urls': [],
+                'type': '',
+                'name': '',
+                'blob': ''
+            },
+            'group_name': 'Mochitest',
+            'machine': 'talos-r3-fed-041',
+            'state': 'completed',
+            'option_collection': {
+                'debug': True
+            },
+            'result': 'success',
+            'log_references': [
+                {
+                    'url': 'http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-b2g26_v1_2-linux-debug/1384270711/mozilla-b2g26_v1_2_fedora-debug_test-mochitest-browser-chrome-bm51-tests1-linux-build10.txt.gz',
+                    'name': 'builds-4h'
+                }
+            ],
+            'job_guid': '95a358fa6c6887ab416684eb64b30557bf6c81ec',
+            'product_name': 'firefox',
+            'end_timestamp': 1384283216
+        },
+        'revision_hash': '7127a762822a824f8f843fe1d09cb5de4c2bec67',
+        'resultset_id': 13
+    },
+    {
+        'project': 'mozilla-b2g26_v1_2',
+        'job': {
+            'build_platform': {
+                'platform': 'linux32',
+                'os_name': 'linux',
+                'architecture': 'x86'
+            },
+            'submit_timestamp': 1384276584,
+            'start_timestamp': 1384276605,
+            'build_url': 'http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-b2g26_v1_2-linux-debug/1384270711/firefox-26.0.en-US.linux-i686.tar.bz2',
+            'name': 'Reftest',
+            'buildername': 'Ubuntu VM 12.04 mozilla-b2g26_v1_2 debug test reftest',
+            'machine_platform': {
+                'platform': 'linux32',
+                'os_name': 'linux',
+                'architecture': 'x86'
+            },
+            'symbol': 'R',
+            'who': 'tests-mozilla-b2g26_v1_2-ubuntu32_vm-debug-unittest',
+            'group_symbol': 'R',
+            'reason': 'scheduler',
+            'artifact': {
+                'log_urls': [],
+                'type': '',
+                'name': '',
+                'blob': ''
+            },
+            'group_name': 'Reftest',
+            'machine': 'tst-linux32-ec2-389',
+            'state': 'completed',
+            'option_collection': {
+                'debug': True
+            },
+            'result': 'success',
+            'log_references': [
+                {
+                    'url': 'http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-b2g26_v1_2-linux-debug/1384270711/mozilla-b2g26_v1_2_ubuntu32_vm-debug_test-reftest-bm68-tests1-linux-build6.txt.gz',
+                    'name': 'builds-4h'
+                }
+            ],
+            'job_guid': '2ef26af58d9c4ec1047892ecf4813a37d30a209e',
+            'product_name': 'firefox',
+            'end_timestamp': 1384283071
+        },
+        'revision_hash': '7127a762822a824f8f843fe1d09cb5de4c2bec67',
+        'resultset_id': 13
+    },
+    {
+        'project': 'mozilla-aurora',
+        'job': {
+            'build_platform': {
+                'platform': 'linux32',
+                'os_name': 'linux',
+                'architecture': 'x86'
+            },
+            'submit_timestamp': 1384277538,
+            'start_timestamp': 1384277619,
+            'build_url': 'http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-aurora-linux-debug/1384272571/firefox-27.0a2.en-US.linux-i686.tar.bz2',
+            'name': 'Mochitest Browser Chrome',
+            'buildername': 'Rev3 Fedora 12 mozilla-aurora debug test mochitest-browser-chrome',
+            'machine_platform': {
+                'platform': 'linux32',
+                'os_name': 'linux',
+                'architecture': 'x86'
+            },
+            'symbol': 'bc',
+            'who': 'tests-mozilla-aurora-fedora-debug-unittest',
+            'group_symbol': 'M',
+            'reason': 'scheduler',
+            'artifact': {
+                'log_urls': [],
+                'type': '',
+                'name': '',
+                'blob': ''
+            },
+            'group_name': 'Mochitest',
+            'machine': 'talos-r3-fed-052',
+            'state': 'completed',
+            'option_collection': {
+                'debug': True
+            },
+            'result': 'success',
+            'log_references': [
+                {
+                    'url': 'http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-aurora-linux-debug/1384272571/mozilla-aurora_fedora-debug_test-mochitest-browser-chrome-bm68-tests1-linux-build164.txt.gz',
+                    'name': 'builds-4h'
+                }
+            ],
+            'job_guid': 'cf3b525bcaac51f8b95a64dcac7915d56d85dd9b',
+            'product_name': 'firefox',
+            'end_timestamp': 1384283800
+        },
+        'revision_hash': 'f882670046aaded8eb8bb728338c889f50fb1acd',
+        'resultset_id': 11
+    },
+    {
+        'project': 'mozilla-aurora',
+        'job': {
+            'build_platform': {
+                'platform': 'linux64',
+                'os_name': 'linux',
+                'architecture': 'x86_64'
+            },
+            'submit_timestamp': 1384277832,
+            'start_timestamp': 1384277838,
+            'build_url': 'http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-aurora-linux64-debug/1384272571/firefox-27.0a2.en-US.linux-x86_64.tar.bz2',
+            'name': 'Mochitest Browser Chrome',
+            'buildername': 'Rev3 Fedora 12x64 mozilla-aurora debug test mochitest-browser-chrome',
+            'machine_platform': {
+                'platform': 'linux64',
+                'os_name': 'linux',
+                'architecture': 'x86_64'
+            },
+            'symbol': 'bc',
+            'who': 'tests-mozilla-aurora-fedora64-debug-unittest',
+            'group_symbol': 'M',
+            'reason': 'scheduler',
+            'artifact': {
+                'log_urls': [],
+                'type': '',
+                'name': '',
+                'blob': ''
+            },
+            'group_name': 'Mochitest',
+            'machine': 'talos-r3-fed64-040',
+            'state': 'completed',
+            'option_collection': {
+                'debug': True
+            },
+            'result': 'success',
+            'log_references': [
+                {
+                    'url': 'http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-aurora-linux64-debug/1384272571/mozilla-aurora_fedora64-debug_test-mochitest-browser-chrome-bm51-tests1-linux-build150.txt.gz',
+                    'name': 'builds-4h'
+                }
+            ],
+            'job_guid': '72cb33178ff38d6d822b7fcdf0657680ebb30bbd',
+            'product_name': 'firefox',
+            'end_timestamp': 1384283096
+        },
+        'revision_hash': 'f882670046aaded8eb8bb728338c889f50fb1acd',
+        'resultset_id': 11
+    }
+]

@@ -112,3 +112,106 @@
     }
 ]
 
+/****
+*
+* Real-life sample
+*
+****/
+[
+    {
+        'project': 'mozilla-b2g26_v1_2',
+        'job': {
+            'build_platform': {
+                'platform': 'b2g-emu-jb',
+                'os_name': 'b2g',
+                'architecture': 'x86'
+            },
+            'submit_timestamp': 1384274430,
+            'start_timestamp': 1384274451,
+            'build_url': '',
+            'name': 'B2G Emulator Image Build',
+            'buildername': 'b2g_mozilla-b2g26_v1_2_emulator-jb-debug_dep',
+            'machine_platform': {
+                'platform': 'b2g-emu-jb',
+                'os_name': 'b2g',
+                'architecture': 'x86'
+            },
+            'symbol': 'B',
+            'who': 'b2g_mozilla-b2g26_v1_2-b2g',
+            'group_symbol': '?',
+            'reason': 'scheduler',
+            'artifact': {
+                'log_urls': [],
+                'type': '',
+                'name': '',
+                'blob': ''
+            },
+            'group_name': None,
+            'machine': 'bld-linux64-ec2-169',
+            'state': 'completed',
+            'option_collection': {
+                'debug': True
+            },
+            'result': 'success',
+            'log_references': [
+                {
+                    'url': 'http://ftp.mozilla.org/pub/mozilla.org/b2g/tinderbox-builds/mozilla-b2g26_v1_2-emulator-jb-debug/1384274430/b2g_mozilla-b2g26_v1_2_emulator-jb-debug_dep-bm57-build1-build11.txt.gz',
+                    'name': 'builds-4h'
+                }
+            ],
+            'job_guid': 'c74d2f19cee8fc4dc5deab94c15c201350c1a723',
+            'product_name': 'b2g',
+            'end_timestamp': 1384285860
+        },
+        'revision_hash': '0c6a093e3b9e8a4c75c9bf1a4bf5f797a16756cb',
+        'resultset_id': 11
+    },
+    {
+        'project': 'mozilla-b2g26_v1_2',
+        'job': {
+            'build_platform': {
+                'platform': 'osx-10-7',
+                'os_name': 'mac',
+                'architecture': 'x86_64'
+            },
+            'submit_timestamp': 1384274713,
+            'start_timestamp': 1384274738,
+            'build_url': 'http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-b2g26_v1_2-macosx64-debug/1384270711/firefox-26.0.en-US.mac64.dmg',
+            'name': 'Mochitest Browser Chrome',
+            'buildername': 'Rev4 MacOSX Lion 10.7 mozilla-b2g26_v1_2 debug test mochitest-browser-chrome',
+            'machine_platform': {
+                'platform': 'osx-10-7',
+                'os_name': 'mac',
+                'architecture': 'x86_64'
+            },
+            'symbol': 'bc',
+            'who': 'tests-mozilla-b2g26_v1_2-lion-debug-unittest',
+            'group_symbol': 'M',
+            'reason': 'scheduler',
+            'artifact': {
+                'log_urls': [],
+                'type': '',
+                'name': '',
+                'blob': ''
+            },
+            'group_name': 'Mochitest',
+            'machine': 'talos-r4-lion-053',
+            'state': 'completed',
+            'option_collection': {
+                'debug': True
+            },
+            'result': 'success',
+            'log_references': [
+                {
+                    'url': 'http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-b2g26_v1_2-macosx64-debug/1384270711/mozilla-b2g26_v1_2_lion-debug_test-mochitest-browser-chrome-bm78-tests1-macosx-build6.txt.gz',
+                    'name': 'builds-4h'
+                }
+            ],
+            'job_guid': '4dc8b79752b5e8a7d5d5558d8b341cdf811c57f4',
+            'product_name': 'firefox',
+            'end_timestamp': 1384282869
+        },
+        'revision_hash': '7127a762822a824f8f843fe1d09cb5de4c2bec67',
+        'resultset_id': 13
+    }
+]

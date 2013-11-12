@@ -94,7 +94,7 @@ class Builds4hTransformerMixin(object):
                 'symbol': job_name_info['symbol'],
                 'group_name': job_name_info['group_name'],
                 'group_symbol': job_name_info['group_symbol'],
-                'buildername': job_name_info['buildername'],
+                'buildername': prop['buildername'],
                 'product_name': prop['product'],
                 'state': 'completed',
                 'result': buildbot.RESULT_DICT[build['result']],
@@ -135,10 +135,6 @@ class Builds4hTransformerMixin(object):
             treeherder_data['job'] = job
             job_list.append(common.JobData(treeherder_data))
 
-        import pprint
-        print("<><><> howdy")
-        pprint.pprint(job_list)
-        #assert False
         return job_list
 
 
@@ -181,10 +177,15 @@ class PendingTransformerMixin(object):
                     }
 
                     platform_info = buildbot.extract_platform_info(job['buildername'])
+                    job_name_info = buildbot.extract_name_info(job['buildername'])
 
                     job = {
                         'job_guid': common.generate_job_guid(job['id'], job['submitted_at']),
-                        'name': buildbot.extract_name_info(job['buildername']),
+                        'name': job_name_info['name'],
+                        'symbol': job_name_info['symbol'],
+                        'group_name': job_name_info['group_name'],
+                        'group_symbol': job_name_info['group_symbol'],
+                        'buildername': job['buildername'],
                         'state': 'pending',
                         'submit_timestamp': job['submitted_at'],
                         'build_platform': {
@@ -252,13 +253,18 @@ class RunningTransformerMixin(object):
                     }
 
                     platform_info = buildbot.extract_platform_info(job['buildername'])
+                    job_name_info = buildbot.extract_name_info(job['buildername'])
 
                     job = {
                         'job_guid': common.generate_job_guid(
                             job['request_ids'][0],
                             job['submitted_at']
                         ),
-                        'name': buildbot.extract_name_info(job['buildername']),
+                        'name': job_name_info['name'],
+                        'symbol': job_name_info['symbol'],
+                        'group_name': job_name_info['group_name'],
+                        'group_symbol': job_name_info['group_symbol'],
+                        'buildername': job['buildername'],
                         'state': 'running',
                         'submit_timestamp': job['submitted_at'],
                         'build_platform': {
