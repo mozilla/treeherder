@@ -78,7 +78,7 @@ class Builds4hTransformerMixin(object):
             }
 
             platform_info = buildbot.extract_platform_info(prop['buildername'])
-            job_name = buildbot.extract_name_info(prop['buildername'])
+            job_name_info = buildbot.extract_name_info(prop['buildername'])
 
             if 'log_url' in prop:
                 log_reference = [{
@@ -90,7 +90,11 @@ class Builds4hTransformerMixin(object):
 
             job = {
                 'job_guid': self.find_job_guid(build),
-                'name': job_name,
+                'name': job_name_info['name'],
+                'symbol': job_name_info['symbol'],
+                'group_name': job_name_info['group_name'],
+                'group_symbol': job_name_info['group_symbol'],
+                'buildername': job_name_info['buildername'],
                 'product_name': prop['product'],
                 'state': 'completed',
                 'result': buildbot.RESULT_DICT[build['result']],
@@ -131,6 +135,10 @@ class Builds4hTransformerMixin(object):
             treeherder_data['job'] = job
             job_list.append(common.JobData(treeherder_data))
 
+        import pprint
+        print("<><><> howdy")
+        pprint.pprint(job_list)
+        #assert False
         return job_list
 
 
