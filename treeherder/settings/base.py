@@ -77,8 +77,8 @@ MIDDLEWARE_CLASSES = [
 ]
 
 AUTHENTICATION_BACKENDS = (
+   'django.contrib.auth.backends.ModelBackend',
    'django_browserid.auth.BrowserIDBackend',
-   'django.contrib.auth.backends.ModelBackend'
 )
 
 # this tells browserid to not create users.
@@ -246,3 +246,5 @@ BROKER_URL = 'amqp://{0}:{1}@{2}:{3}/{4}'.format(
 )
 
 API_HOSTNAME = SITE_URL
+
+BROWSERID_AUDIENCES = [SITE_URL]

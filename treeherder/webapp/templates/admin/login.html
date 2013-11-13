@@ -3,7 +3,10 @@
 {% load i18n admin_static %}
 {% load url from future %}
 
-{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/login.css" %}" />{% endblock %}
+{% block extrastyle %}{{ block.super }}
+    <link rel="stylesheet" type="text/css" href="{% static "admin/css/login.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "browserid/persona-buttons.css" %}" />
+{% endblock %}
 
 {% block extrahead %}{{ block.super }}{% browserid_info %}{% endblock %}
 
@@ -50,9 +53,11 @@
   {% endif %}
   <div class="submit-row">
     <label>&nbsp;</label><input type="submit" value="{% trans 'Log in' %}" />
+
+    <p>{% browserid_login text='Persona Login' color='dark' %}</p>
   </div>
-  <p style="text-align: center;">or</p>
-  <p style="text-align: center;">{% browserid_login text='login with Persona' %}</p>
+
+
 </form>
 
 <script type="text/javascript">

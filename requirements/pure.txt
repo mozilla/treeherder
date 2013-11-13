@@ -4,6 +4,6 @@ python-memcached==1.48
 mozillapulse==0.61
 djangorestframework==2.3.5
 django-cors-headers==0.11
-django-browserid==0.8
+django-browserid==0.9
 
 git+git://github.com/jeads/datasource@143ac08d11
