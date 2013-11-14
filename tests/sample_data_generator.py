@@ -176,6 +176,9 @@ def result_set(**kwargs):
     defaults = json.loads(open(source_file).read())[0]
     defaults.update(kwargs)
 
+    # ensure that the repository values for all the revisions have the
+    # same name as the db test name in settings.  If this is not
+    # the same, the tests will not pass.
     for rev in defaults["revisions"]:
         rev["repository"] = settings.DATABASES["default"]["TEST_NAME"]
 

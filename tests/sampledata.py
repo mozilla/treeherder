@@ -45,6 +45,10 @@ class SampleData(object):
         with open(self.resultset_data_file) as f:
 
             self.resultset_data = json.loads(f.read())
+
+            # ensure that the repository values for all the revisions have the
+            # same name as the db test name in settings.  If this is not
+            # the same, the tests will not pass.
             for rs in self.resultset_data:
                 for rev in rs["revisions"]:
                     rev["repository"] = settings.DATABASES["default"]["TEST_NAME"]
