@@ -5,6 +5,7 @@ Functions for flexible generation of sample input job JSON.
 import json
 import os
 import time
+from django.conf import settings
 from datetime import timedelta
 
 from treeherder.model import utils
@@ -174,5 +175,8 @@ def result_set(**kwargs):
 
     defaults = json.loads(open(source_file).read())[0]
     defaults.update(kwargs)
+
+    for rev in defaults["revisions"]:
+        rev["repository"] = settings.DATABASES["default"]["TEST_NAME"]
 
     return defaults
