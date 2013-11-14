@@ -332,7 +332,7 @@ TEST_NAME_BUILDERNAME = [
     {"regex": re.compile('androidx86-set'), "desc": "Android x86 Test Set"},
 ]
 
-GROUPS = {
+GROUP_NAMES = {
     "Hamachi Device Image": ["Hamachi Device Image Build",
                              "Hamachi Device Image Build (Engineering)",
                              "Hamachi Device Image Nightly",
@@ -511,6 +511,8 @@ SYMBOLS = {
     "Unknown": "?",
 }
 
+NUMBER_RE = re.compile(".*(?:mochitest|reftest|crashtest|robocop|androidx86-set)\-([0-9]+)", re.IGNORECASE)
+
 
 def extract_platform_info(source_string):
     output = {
@@ -553,20 +555,20 @@ def extract_job_type(source_string):
 
 
 def extract_name_info(source_string):
+    """Extract all the pieces that comprise a name, including symbols"""
     output = {
         "name": "Unknown",
         "symbol": "?",
         "group_name": "Unknown Group",
         "group_symbol": "?",
-        "buildername": source_string
     }
 
     for test_name in TEST_NAME_BUILDERNAME:
         if test_name["regex"].search(source_string):
             name = test_name["desc"]
-            symbol = SYMBOLS.get(name, "?")
             group_name = get_group_name(name)
             group_symbol = SYMBOLS.get(group_name, "?")
+            symbol = get_symbol(name, source_string)
 
             output.update({
                 "name": name,
@@ -579,7 +581,28 @@ def extract_name_info(source_string):
     return output
 
 
+def get_symbol(name, bn):
+    """
+    Determine the symbol based on the name and buildername
+
+    May contain a number
+    """
+
+    s = SYMBOLS.get(name, "?")
+
+    # Mochitests are the only ones that display only as a number, no letters
+    if s == "M":
+        s = ""
+
+    n = ""
+    nummatch = NUMBER_RE.match(bn)
+    if nummatch:
+        n = nummatch.group(1)
+    return "{0}{1}".format(s, n)
+
+
 def get_group_name(name):
-    for group in GROUPS:
-        if name in GROUPS[group]:
+    """Get the group name, if this test has a group."""
+    for group in GROUP_NAMES:
+        if name in GROUP_NAMES[group]:
             return group
