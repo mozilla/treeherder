@@ -6,6 +6,7 @@ module.exports = function (config) {
 
         files: [
             'test/e2e/**/*.js',
+            'https://tbpl.mozilla.org/js/Config.js',
 
             // fixtures
             {pattern: 'test/mock/*.json', watched: true, served: true, included: false}
