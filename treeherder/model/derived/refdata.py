@@ -216,20 +216,21 @@ class RefDataManager(object):
 
         return key
 
-    def add_job_group(self, group):
+    def add_job_group(self, group, group_symbol):
         """Add job group names"""
 
-        self._add_name(
-            group, self.job_group_lookup, self.job_group_placeholders,
+        self._add_name_and_symbol(
+            group, group_symbol, self.job_group_lookup, self.job_group_placeholders,
             self.unique_job_groups, self.job_group_where_in_list
             )
 
-    def add_job_type(self, job_type):
+    def add_job_type(self, job_type, job_symbol):
         """Add job type names"""
 
-        self._add_name(
-            job_type, self.job_type_lookup, self.job_type_placeholders,
-            self.unique_job_types, self.job_type_where_in_list
+        self._add_name_and_symbol(
+            job_type, job_symbol, self.job_type_lookup,
+            self.job_type_placeholders, self.unique_job_types,
+            self.job_type_where_in_list
             )
 
     def add_product(self, product):
@@ -297,6 +298,27 @@ class RefDataManager(object):
         # Placeholders for the INSERT/SELECT SQL query
         name_placeholders.append(
             [ name, name ]
+            )
+
+        # Placeholders for the id retrieval SELECT
+        unique_names.append( name )
+
+        # WHERE clause for the retrieval SELECT
+        where_in_list.append('%s')
+
+    def _add_name_and_symbol(
+        self, name, symbol, name_lookup, name_placeholders, unique_names,
+        where_in_list):
+        """
+        Internal method for adding reference data that consists of a single
+        name and associated character symbol. The caller must provide the
+        appropriate instance data structures as arguments.
+        """
+        name_lookup.add(name)
+
+        # Placeholders for the INSERT/SELECT SQL query
+        name_placeholders.append(
+            [ name, symbol, name ]
             )
 
         # Placeholders for the id retrieval SELECT
@@ -707,7 +729,7 @@ class RefDataManager(object):
         insert_proc = 'reference.inserts.create_job_group'
         select_proc='reference.selects.get_job_groups'
 
-        return self._get_or_create_names(
+        return self._get_or_create_names_and_symbols(
                     names, insert_proc, select_proc,
                     self.job_group_lookup, self.job_group_placeholders,
                     self.unique_job_groups, self.job_group_where_in_list)
@@ -721,7 +743,7 @@ class RefDataManager(object):
         insert_proc = 'reference.inserts.create_job_type'
         select_proc='reference.selects.get_job_types'
 
-        return self._get_or_create_names(
+        return self._get_or_create_names_and_symbols(
                     names, insert_proc, select_proc,
                     self.job_type_lookup, self.job_type_placeholders,
                     self.unique_job_types, self.job_type_where_in_list)
@@ -783,6 +805,35 @@ class RefDataManager(object):
             self._add_name(
                 name, name_lookup, name_placeholders,
                 unique_names, where_in_list
+                )
+
+        return self._process_names(
+            insert_proc, select_proc, where_in_list, name_placeholders,
+            unique_names
+            )
+
+    def _get_or_create_names_and_symbols(
+        self, names, insert_proc, select_proc, name_lookup, where_in_list,
+        name_placeholders, unique_names):
+        """
+        Takes a list of names and returns a dictionary to be used as a
+        lookup for each name's id. Any names not found are inserted into
+        the appropriate table, duplicate platforms are aggregated to
+        minimize database operations.
+
+        names = [
+            [name1, symbol1],
+            [name2, symbol2],
+            [name3, symbol3],
+             ...
+            ]
+
+        returns { 'name1':id, 'name2':id, 'name3':id, ... }
+        """
+        for name_symbol in names:
+            self._add_name_and_symbol(
+                name_symbol[0], name_symbol[1], name_lookup,
+                name_placeholders, unique_names, where_in_list
                 )
 
         return self._process_names(

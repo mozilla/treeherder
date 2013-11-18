@@ -87,7 +87,11 @@ test_params = [
         'func': 'get_or_create_job_groups',
         'input': [
             #Duplicate group to test aggregation
-            'mygroup1', 'mygroup2', 'mygroup3', 'mygroup4', 'mygroup4'
+            ['mygroup1', 'MG1'],
+            ['mygroup2', 'MG2'],
+            ['mygroup3', 'MG3'],
+            ['mygroup4', 'MG4'],
+            ['mygroup4', 'MG4']
             ],
         'expected': {
             'mygroup1':{'id':1, 'name':'mygroup1'},
@@ -99,7 +103,13 @@ test_params = [
     {
         'func': 'get_or_create_job_types',
         #Duplicate type to test aggregation
-        'input': ['mytype1', 'mytype2', 'mytype3', 'mytype4', 'mytype4'],
+        'input': [
+            ['mytype1', 'MT1'],
+            ['mytype2', 'MT2'],
+            ['mytype3', 'MT3'],
+            ['mytype4', 'MT4'],
+            ['mytype4', 'MT4']
+            ],
         'expected': {
             'mytype1':{'id':1, 'name':'mytype1'},
             'mytype2':{'id':2, 'name':'mytype2'},
