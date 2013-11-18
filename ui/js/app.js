@@ -1,7 +1,7 @@
 'use strict';
 
 var treeherder = angular.module('treeherder',
-    ['ngResource','ui.bootstrap', 'ngSanitize']);
+    ['ngResource','ui.bootstrap', 'ngSanitize', 'ngCookies', 'ngRoute']);
 
 treeherder.config(function($routeProvider, $httpProvider) {
 
@@ -9,6 +9,9 @@ treeherder.config(function($routeProvider, $httpProvider) {
     // @@@ hack for now to get it to work in the short-term
     $httpProvider.defaults.useXDomain = true;
     delete $httpProvider.defaults.headers.common['X-Requested-With'];
+
+    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
 
     $routeProvider.
         when('/jobs', {
