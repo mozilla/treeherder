@@ -8,7 +8,7 @@ from treeherder.model.models import Datasource
 from .mixins import JsonExtractorMixin, ObjectstoreLoaderMixin, JobsLoaderMixin
 
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 
 class Builds4hTransformerMixin(object):
@@ -50,9 +50,15 @@ class Builds4hTransformerMixin(object):
 
         for build in data['builds']:
             prop = build['properties']
-            if not 'branch' in prop or not prop['branch'] in projects:
+
+            if not 'branch' in prop:
                 logger.warning("property 'branch' not found in build4h")
                 continue
+
+            if not prop['branch'] in projects:
+                logger.warning("skipping job on branch {0}".format(prop['branch']))
+                continue
+
             prop['revision'] = prop.get('revision',
                             prop.get('got_revision',
                                 prop.get('sourcestamp', None)))
@@ -93,7 +99,7 @@ class Builds4hTransformerMixin(object):
             job = {
                 'job_guid': self.find_job_guid(build),
                 'name': job_name,
-                'product_name': prop['product'],
+                'product_name': prop.get('product', ''),
                 'state': 'completed',
                 'result': buildbot.RESULT_DICT[build['result']],
                 'reason': build['reason'],
