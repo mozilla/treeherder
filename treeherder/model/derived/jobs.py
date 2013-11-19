@@ -439,7 +439,7 @@ class JobsModel(TreeherderModelBase):
 
     def load_job_data(self, data, raise_errors=False):
         """
-        Load JobData instancea into jobs db, returns job_ids and any
+        Load JobData instances into jobs db, returns job_ids and any
         associated errors.
 
         Example:

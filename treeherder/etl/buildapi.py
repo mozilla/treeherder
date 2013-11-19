@@ -91,7 +91,7 @@ class Builds4hTransformerMixin(object):
             job = {
                 'job_guid': self.find_job_guid(build),
                 'name': job_name_info['name'],
-                'symbol': job_name_info['symbol'],
+                'job_symbol': job_name_info['job_symbol'],
                 'group_name': job_name_info['group_name'],
                 'group_symbol': job_name_info['group_symbol'],
                 'buildername': prop['buildername'],
@@ -182,7 +182,7 @@ class PendingTransformerMixin(object):
                     job = {
                         'job_guid': common.generate_job_guid(job['id'], job['submitted_at']),
                         'name': job_name_info['name'],
-                        'symbol': job_name_info['symbol'],
+                        'job_symbol': job_name_info['job_symbol'],
                         'group_name': job_name_info['group_name'],
                         'group_symbol': job_name_info['group_symbol'],
                         'buildername': job['buildername'],
@@ -261,7 +261,7 @@ class RunningTransformerMixin(object):
                             job['submitted_at']
                         ),
                         'name': job_name_info['name'],
-                        'symbol': job_name_info['symbol'],
+                        'job_symbol': job_name_info['job_symbol'],
                         'group_name': job_name_info['group_name'],
                         'group_symbol': job_name_info['group_symbol'],
                         'buildername': job['buildername'],

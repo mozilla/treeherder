@@ -558,7 +558,7 @@ def extract_name_info(source_string):
     """Extract all the pieces that comprise a name, including symbols"""
     output = {
         "name": "Unknown",
-        "symbol": "?",
+        "job_symbol": "?",
         "group_name": "Unknown Group",
         "group_symbol": "?",
     }
@@ -572,7 +572,7 @@ def extract_name_info(source_string):
 
             output.update({
                 "name": name,
-                "symbol": symbol,
+                "job_symbol": symbol,
                 "group_name": group_name,
                 "group_symbol": group_symbol
             })
