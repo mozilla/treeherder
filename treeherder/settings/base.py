@@ -175,9 +175,9 @@ from kombu import Exchange, Queue
 CELERY_QUEUES = (
     Queue('default', Exchange('default'), routing_key='default'),
     # queue for failed jobs/logs
-    Queue('log_parser_fail', routing_key='parse_log.failures'),
+    Queue('log_parser_fail', Exchange('default'), routing_key='parse_log.failures'),
     # queue for successful jobs/logs
-    Queue('log_parser', routing_key='parse_log.success'),
+    Queue('log_parser', Exchange('default'), routing_key='parse_log.success'),
 )
 
 # default value when no task routing info is specified

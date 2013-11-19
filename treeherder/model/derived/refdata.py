@@ -1167,7 +1167,6 @@ class RefDataManager(object):
             debug_show=self.DEBUG)
 
     def get_suggested_bugs(self, search_term, open_bugs=True):
-
         if not search_term:
             return []
 
@@ -1178,9 +1177,3 @@ class RefDataManager(object):
             placeholders=[search_term] * 2,
             debug_show=self.DEBUG,
             replace=[replacement])
-
-
-
-
-
-

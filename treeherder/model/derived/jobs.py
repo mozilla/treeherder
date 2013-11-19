@@ -864,10 +864,10 @@ class JobsModel(TreeherderModelBase):
                     routing_key = 'parse_log.failures'
                 else:
                     routing_key = 'parse_log.success'
+                parse_log.apply_async(args=[self.project, task['id']],
+                                      kwargs={'check_errors': task['check_errors']},
+                                      routing_key=routing_key)
 
-                    parse_log.apply_async(args=[self.project, task['id']],
-                                          kwargs=dict(check_errors=task['check_errors']),
-                                          routing_key=routing_key)
 
     def store_job_artifact(self, artifact_placeholders):
         """
