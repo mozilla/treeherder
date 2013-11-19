@@ -50,13 +50,15 @@ class Builds4hTransformerMixin(object):
 
         for build in data['builds']:
             prop = build['properties']
-            if not prop['branch'] in projects:
+            if not 'branch' in prop or not prop['branch'] in projects:
+                logger.warning("property 'branch' not found in build4h")
                 continue
             prop['revision'] = prop.get('revision',
                             prop.get('got_revision',
                                 prop.get('sourcestamp', None)))
 
             if not prop['revision']:
+                logger.warning("property 'revision' not found in build4h")
                 continue
             revisions[prop['branch']].append(prop['revision'][0:12])
 
