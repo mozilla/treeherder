@@ -458,7 +458,15 @@ class JobsModel(TreeherderModelBase):
                         },
                         "submit_timestamp": 1365732271,
                         "start_timestamp": "20130411165317",
+
                         "name": "xpcshell",
+
+                        "job_symbol": "XP",
+
+                        "group_name": "Shelliness",
+
+                        "group_symbol": "XPC",
+
                         "option_collection": {
                             "opt": true
                         },
@@ -659,8 +667,18 @@ class JobsModel(TreeherderModelBase):
             long(job.get("end_timestamp", time.time()))
             )
 
+        group_name = job.get('group_name')
+        group_symbol = job.get('group_symbol', 'unknown')
+
+        # If the incoming structure has a group name store it, if
+        # not ignore
+        if group_name:
+            self.refdata_model.add_job_group(group_name, group_symbol)
+
         job_type = job.get('name', 'unknown')
-        self.refdata_model.add_job_type(job_type)
+        job_symbol = job.get('job_symbol', 'unknown')
+
+        self.refdata_model.add_job_type(job_type, job_symbol)
 
         product = job.get('product_name', 'unknown')
         self.refdata_model.add_product(product)
