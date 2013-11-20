@@ -94,27 +94,27 @@ test_params = [
             ['mygroup4', 'MG4']
             ],
         'expected': {
-            'mygroup1':{'id':1, 'name':'mygroup1'},
-            'mygroup2':{'id':2, 'name':'mygroup2'},
-            'mygroup3':{'id':3, 'name':'mygroup3'},
-            'mygroup4':{'id':4, 'name':'mygroup4'},
+            'mygroup1-MG1':{'id':1, 'name':'mygroup1', 'symbol':'MG1'},
+            'mygroup2-MG2':{'id':2, 'name':'mygroup2', 'symbol':'MG2'},
+            'mygroup3-MG3':{'id':3, 'name':'mygroup3', 'symbol':'MG3'},
+            'mygroup4-MG4':{'id':4, 'name':'mygroup4', 'symbol':'MG4'},
             }
     },
     {
         'func': 'get_or_create_job_types',
         #Duplicate type to test aggregation
         'input': [
-            ['mytype1', 'MT1'],
-            ['mytype2', 'MT2'],
-            ['mytype3', 'MT3'],
-            ['mytype4', 'MT4'],
-            ['mytype4', 'MT4']
+            ['mytype1', 'MT1', 'mygroup1', 'MG1'],
+            ['mytype2', 'MT2', 'mygroup2', 'MG2'],
+            ['mytype3', 'MT3', 'mygroup3', 'MG3'],
+            ['mytype4', 'MT4', 'mygroup4', 'MG4'],
+            ['mytype4', 'MT4', 'mygroup4', 'MG4']
             ],
         'expected': {
-            'mytype1':{'id':1, 'name':'mytype1'},
-            'mytype2':{'id':2, 'name':'mytype2'},
-            'mytype3':{'id':3, 'name':'mytype3'},
-            'mytype4':{'id':4, 'name':'mytype4'},
+            'mytype1-MT1':{'id':1, 'name':'mytype1', 'symbol':'MT1', 'job_group_id':None},
+            'mytype2-MT2':{'id':2, 'name':'mytype2', 'symbol':'MT2', 'job_group_id':None},
+            'mytype3-MT3':{'id':3, 'name':'mytype3', 'symbol':'MT3', 'job_group_id':None},
+            'mytype4-MT4':{'id':4, 'name':'mytype4', 'symbol':'MT4', 'job_group_id':None},
             }
     },
     {
@@ -203,7 +203,41 @@ def test_refdata_manager(refdata, params):
 
 
 # some tests don't fit into a standard layout :(
+def test_add_job_type(refdata):
 
+    job_data = [
+        ['mytype1', 'MT1', 'mygroup1', 'MG1'],
+        ['mytype2', 'MT2', 'mygroup2', 'MG2'],
+        ['mytype3', 'MT3', 'mygroup3', 'MG3'],
+        ['mytype4', 'MT4', 'mygroup4', 'MG4'],
+        ['mytype4', 'MT4', 'mygroup4', 'MG4']
+        ]
+
+    expected = (
+        { 'name':'mytype1', 'symbol':'MT1', 'job_group_id':1 },
+        { 'name':'mytype2', 'symbol':'MT2', 'job_group_id':2 },
+        { 'name':'mytype3', 'symbol':'MT3', 'job_group_id':3 },
+        { 'name':'mytype4', 'symbol':'MT4', 'job_group_id':4 }
+        )
+
+    keys = []
+    for data in job_data:
+        key = refdata.add_job_type(
+            data[0], data[1], data[2], data[3]
+            )
+        keys.append(key)
+
+    refdata.process_job_groups()
+    job_lookup = refdata.process_job_types()
+
+    for key in keys:
+        assert key in job_lookup
+
+    row_data = refdata.dhub.execute(
+        proc='test_refdata.selects.test_all_job_group_ids'
+        )
+
+    assert row_data == expected
 
 def test_get_or_create_repository_version(refdata, repository_id):
 

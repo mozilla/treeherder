@@ -29,6 +29,10 @@
             "sql": "SELECT `name` FROM `job_type`",
             "host":"read_host"
         },
+        "test_all_job_group_ids":{
+            "sql": "SELECT `name`, `symbol`, `job_group_id` FROM `job_type` ORDER BY `id` ASC",
+            "host":"read_host"
+        },
         "test_all_products":{
             "sql": "SELECT `name` FROM `product`",
             "host":"read_host"
