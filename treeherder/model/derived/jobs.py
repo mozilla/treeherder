@@ -658,8 +658,8 @@ class JobsModel(TreeherderModelBase):
             rh_where_in.append('%s')
 
         build_platform_key = self.refdata_model.add_build_platform(
-            job.get('build_platform', {}).get('os_name', 'unkown'),
-            job.get('build_platform', {}).get('platform', 'unkown'),
+            job.get('build_platform', {}).get('os_name', 'unknown'),
+            job.get('build_platform', {}).get('platform', 'unknown'),
             job.get('build_platform', {}).get('architecture', 'unknown')
             )
 

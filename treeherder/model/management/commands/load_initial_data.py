@@ -8,6 +8,5 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         call_command('loaddata',
                      'repository_group',
-                     'repository',
-                     'job_group',
-                     'job_type')
+                     'repository'
+                     )
