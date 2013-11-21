@@ -122,6 +122,98 @@ body {
     padding: 0;
 }
 
+/* Custom Job buttons*/
+
+.btn-purple {
+  background-color: #9002c2;
+  border-color: #9002c2;
+  color: white;
+}
+.btn-purple:hover,
+.btn-purple:focus,
+.btn-purple:active,
+.btn-purple.active {
+  background-color: #7d02a9;
+  border-color: #6b0190;
+  color: white;
+}
+.btn-purple.disabled:hover,
+.btn-purple.disabled:focus,
+.btn-purple.disabled:active,
+.btn-purple.disabled.active,
+.btn-purple[disabled]:hover,
+.btn-purple[disabled]:focus,
+.btn-purple[disabled]:active,
+.btn-purple[disabled].active,
+fieldset[disabled] .btn-purple:hover,
+fieldset[disabled] .btn-purple:focus,
+fieldset[disabled] .btn-purple:active,
+fieldset[disabled] .btn-purple.active {
+  background-color: #9002c2;
+  border-color: #9002c2;
+  color: white;
+}
+
+.btn-ltgray {
+  background-color: #e4dfe6;
+  border-color: #e4dfe6;
+  color: white;
+}
+.btn-ltgray:hover,
+.btn-ltgray:focus,
+.btn-ltgray:active,
+.btn-ltgray.active {
+  background-color: #d8d1db;
+  border-color: #ccc2d0;
+  color: white;
+}
+.btn-ltgray.disabled:hover,
+.btn-ltgray.disabled:focus,
+.btn-ltgray.disabled:active,
+.btn-ltgray.disabled.active,
+.btn-ltgray[disabled]:hover,
+.btn-ltgray[disabled]:focus,
+.btn-ltgray[disabled]:active,
+.btn-ltgray[disabled].active,
+fieldset[disabled] .btn-ltgray:hover,
+fieldset[disabled] .btn-ltgray:focus,
+fieldset[disabled] .btn-ltgray:active,
+fieldset[disabled] .btn-ltgray.active {
+  background-color: #e4dfe6;
+  border-color: #e4dfe6;
+  color: white;
+}
+
+.btn-dkgray {
+  background-color: #7c7a7d;
+  border-color: #7c7a7d;
+  color: white;
+}
+.btn-dkgray:hover,
+.btn-dkgray:focus,
+.btn-dkgray:active,
+.btn-dkgray.active {
+  background-color: #6f6d70;
+  border-color: #626163;
+  color: white;
+}
+.btn-dkgray.disabled:hover,
+.btn-dkgray.disabled:focus,
+.btn-dkgray.disabled:active,
+.btn-dkgray.disabled.active,
+.btn-dkgray[disabled]:hover,
+.btn-dkgray[disabled]:focus,
+.btn-dkgray[disabled]:active,
+.btn-dkgray[disabled].active,
+fieldset[disabled] .btn-dkgray:hover,
+fieldset[disabled] .btn-dkgray:focus,
+fieldset[disabled] .btn-dkgray:active,
+fieldset[disabled] .btn-dkgray.active {
+  background-color: #7c7a7d;
+  border-color: #7c7a7d;
+  color: white;
+}
+
 
 /*Log Viewer*/
 

@@ -35,13 +35,74 @@ treeherder.controller('JobsCtrl',
 
 treeherder.controller('ResultSetCtrl',
     function ResultSetCtrl($scope, $rootScope, $http, $log,
-                      thResults, thUrl, thServiceDomain) {
+                           thUrl, thServiceDomain) {
+
+        var SEVERITY = {
+            "busted":     {
+                level: 1,
+                isCollapsedResults: false
+            },
+            "exception":  {
+                level: 2,
+                isCollapsedResults: false
+            },
+            "testfailed": {
+                level: 3,
+                isCollapsedResults: false
+            },
+            "retry":      {
+                level: 4,
+                isCollapsedResults: true
+            },
+            "success":    {
+                level: 5,
+                isCollapsedResults: true
+            },
+            "unknown":    {
+                level: 6,
+                isCollapsedResults: true
+            }
+        };
+
+        // determine the greatest severity this resultset contains
+        // so that the UI can show depict that
+        var getSeverity = function(results) {
+
+            var severity = "unknown",
+                highest = SEVERITY.unknown;
+
+            for (var i = 0; i < results.length; i++) {
+                if (SEVERITY[results[i]].level < highest.level) {
+                    severity = results[i];
+                    highest = SEVERITY[severity];
+                }
+            }
+            return severity;
+        };
+
+        $scope.resultSeverity = getSeverity($scope.resultset.results);
+
         // whether or not revision list for a resultset is collapsed
         $scope.isCollapsedRevisions = true;
-        $scope.isCollapsedResults = true;
+        $scope.isCollapsedResults = SEVERITY[$scope.resultSeverity].isCollapsedResults;
 
-        // get the jobs list for the current resultset
-        thResults.getResults($scope.resultset, $scope);
+        // convert the platform names to human-readable using the TBPL
+        // Config.js file
+        for(var i = 0; i < $scope.resultset.platforms.length; i++) {
+            var platform = $scope.resultset.platforms[i];
+            var re = /(.+)(opt|debug|asan|pgo)$/i;
+            var platformArr = re.exec(platform.name);
+
+            if (platformArr) {
+                var newName = Config.OSNames[platformArr[1].trim()];
+                if (newName) {
+                    platform.name = newName + " " + platformArr[2];
+                }
+            }
+        }
+
+
+
 
         $scope.viewJob = function(job) {
             // set the selected job
