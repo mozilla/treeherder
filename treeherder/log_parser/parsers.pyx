@@ -26,10 +26,11 @@ class ParserBase(object):
         return self.artifact
 
 
-class HeaderParser(ParserBase):
+RE_HEADER_VALUE = re.compile('^(?P<key>[a-z]+): (?P<value>.*)$')
+RE_HEADER_START = re.compile("={9} Started (.*)$")
 
-    RE_HEADER_VALUE = re.compile('^(?P<key>[a-z]+): (?P<value>.*)$')
-    RE_START = re.compile("={9} Started (.*)$")
+
+class HeaderParser(ParserBase):
 
     def __init__(self):
         """Setup the artifact to hold the header lines."""
@@ -52,13 +53,19 @@ class HeaderParser(ParserBase):
             revision: c80dc6ffe865
 
         """
-        if self.RE_START.match(line):
+        if RE_HEADER_START.match(line):
             self.complete = True
         else:
-            match = self.RE_HEADER_VALUE.match(line)
+            match = RE_HEADER_VALUE.match(line)
             if match:
                 key, value = match.groups()
                 self.artifact[key] = value
+
+
+PATTERN = (" (.*?) \(results: \d+, elapsed: (?:\d+ mins, )?\d+ secs\) "
+               "\(at (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d+)\) ={9}")
+RE_STEP_START = re.compile('={9} Started' + PATTERN)
+RE_STEP_FINISH = re.compile('={9} Finished' + PATTERN)
 
 
 class StepParser(ParserBase):
@@ -90,11 +97,6 @@ class StepParser(ParserBase):
     # date format in a step started/finished header
     DATE_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
 
-    PATTERN = (" (.*?) \(results: \d+, elapsed: (?:\d+ mins, )?\d+ secs\) "
-               "\(at (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d+)\) ={9}")
-    RE_START = re.compile('={9} Started' + PATTERN)
-    RE_FINISH = re.compile('={9} Finished' + PATTERN)
-
     def __init__(self, check_errors=True):
         """Setup the artifact to hold the header lines."""
         super(StepParser, self).__init__("step_data")
@@ -116,7 +118,7 @@ class StepParser(ParserBase):
 
         # check if it's the start of a step
         if not self.state == self.ST_STARTED:
-            match = self.RE_START.match(line)
+            match = RE_STEP_START.match(line)
             if match:
                 self.state = self.ST_STARTED
                 self.stepnum += 1
@@ -131,7 +133,7 @@ class StepParser(ParserBase):
 
         # check if it's the end of a step
         if self.state == self.ST_STARTED:
-            match = self.RE_FINISH.match(line)
+            match = RE_STEP_FINISH.match(line)
             if match:
                 self.state = self.ST_FINISHED
 
@@ -150,10 +152,8 @@ class StepParser(ParserBase):
                 # reset the sub_parser for the next step
                 self.sub_parser.clear()
                 return
-
-        # call the subparser to check for errors
-        if self.check_errors:
-            self.sub_parser.parse_line(line, lineno)
+            if self.check_errors:
+                self.sub_parser.parse_line(line, lineno)
 
     def parsetime(self, match):
         """Convert a string date into a datetime."""
@@ -180,9 +180,10 @@ class StepParser(ParserBase):
         return self.steps[self.stepnum]
 
 
-class TinderboxPrintParser(ParserBase):
+RE_TINDERBOXPRINT = re.compile('.*?TinderboxPrint: (.*)$')
 
-    RE_TINDERBOXPRINT = re.compile('.*?TinderboxPrint: (.*)$')
+
+class TinderboxPrintParser(ParserBase):
 
     def __init__(self):
         """Setup the artifact to hold the tinderbox print lines."""
@@ -191,47 +192,55 @@ class TinderboxPrintParser(ParserBase):
     def parse_line(self, line, lineno):
         """Parse a single line of the log"""
         if "TinderboxPrint: " in line:
-            match = self.RE_TINDERBOXPRINT.match(line)
+            match = RE_TINDERBOXPRINT.match(line)
             if match:
                 self.artifact.append(match.group(1))
 
 
-class ErrorParser(ParserBase):
-    """A generic error detection sub-parser"""
-
-    RE_INFO = re.compile((
+RE_INFO = re.compile((
         "^\d+:\d+:\d+[ ]+(?:INFO)(?: -  )"
         "(TEST-|INFO TEST-)(INFO|PASS|START|END) "
     ))
-    RE_ERR_MATCH = re.compile((
-        "^error: TEST FAILED"
-        "|^g?make(?:\[\d+\])?: \*\*\*"
-        "|^\d+:\d+:\d+[ ]+(?:ERROR|CRITICAL|FATAL) - "
-        "|^[A-Za-z]+Error:"
-        "|^BaseException:"
-        "|^remoteFailed:"
-        "|^rm: cannot "
-        "|^abort:"
-        "|^Output exceeded \d+ bytes"
-        "|^The web-page 'stop build' button was pressed"
-    ))
 
-    RE_ERR_SEARCH = re.compile((
-        "TEST-UNEXPECTED-(?:PASS|FAIL) "
-        "|TEST-TIMEOUT"
-        "|fatal error"
-        "|PROCESS-CRASH"
-        "|Assertion failure:"
-        "|Assertion failed:"
-        "|###!!! ABORT:"
-        "| error\([0-9]*\):"
-        "| error R?C[0-9]*:"
-        "|Automation Error:"
-        "|Remote Device Error:"
-        "|command timed out:"
-        "|ERROR 503:"
-        "|wget: unable "
-    ))
+
+IN_SEARCH_TERMS = (
+    'BaseException:',
+    'remoteFailed:',
+    'rm: cannot ',
+    "abort:",
+    "The web-page 'stop build' button was pressed",
+    "TEST-UNEXPECTED-PASS ",
+    "TEST-UNEXPECTED-FAIL ",
+    "TEST-TIMEOUT",
+    "fatal error",
+    "PROCESS-CRASH",
+    "Assertion failure:",
+    "Assertion failed:",
+    "###!!! ABORT:",
+    "Automation Error:",
+    "Remote Device Error:",
+    "command timed out:",
+    "ERROR 503:",
+    "wget: unable ",
+)
+
+RE_ERR_MATCH = re.compile((
+    "^error: TEST FAILED"
+    "|^g?make(?:\[\d+\])?: \*\*\*"
+    "|^\d+:\d+:\d+[ ]+(?:ERROR|CRITICAL|FATAL) - "
+    "|^[A-Za-z]+Error:"
+    "|^Output exceeded \d+ bytes"
+))
+
+
+RE_ERR_SEARCH = re.compile((
+    " error\([0-9]*\):"
+    "| error R?C[0-9]*:"
+))
+
+
+class ErrorParser(ParserBase):
+    """A generic error detection sub-parser"""
 
     def __init__(self):
         """A simple error detection sub-parser"""
@@ -239,9 +248,9 @@ class ErrorParser(ParserBase):
 
     def parse_line(self, line, lineno):
         """Check a single line for an error.  Keeps track of the linenumber"""
-        if not self.RE_INFO.match(line):
-            if (self.RE_ERR_MATCH.match(line) or
-                    self.RE_ERR_SEARCH.search(line)):
+        if not RE_INFO.match(line):
+            if any([True for term in IN_SEARCH_TERMS if term in line]) or \
+                    RE_ERR_MATCH.match(line) or RE_ERR_SEARCH.search(line):
                 self.artifact.append({
                     "linenumber": lineno,
                     "line": line.rstrip()
