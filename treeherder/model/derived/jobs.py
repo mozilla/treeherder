@@ -667,18 +667,15 @@ class JobsModel(TreeherderModelBase):
             long(job.get("end_timestamp", time.time()))
             )
 
-        group_name = job.get('group_name')
-        group_symbol = job.get('group_symbol', 'unknown')
-
-        # If the incoming structure has a group name store it, if
-        # not ignore
-        if group_name:
-            self.refdata_model.add_job_group(group_name, group_symbol)
-
         job_type = job.get('name', 'unknown')
         job_symbol = job.get('job_symbol', 'unknown')
 
-        self.refdata_model.add_job_type(job_type, job_symbol)
+        group_name = job.get('group_name', 'unknown')
+        group_symbol = job.get('group_symbol', 'unknown')
+
+        job_type_key = self.refdata_model.add_job_type(
+            job_type, job_symbol, group_name, group_symbol
+            )
 
         product = job.get('product_name', 'unknown')
         self.refdata_model.add_product(product)
@@ -695,7 +692,7 @@ class JobsModel(TreeherderModelBase):
             machine_platform_key,   # idx:4, replace with machine_platform_id
             machine,                # idx:5, replace with machine_id
             option_collection_hash, # idx:6
-            job_type,               # idx:7, replace with job_type_id
+            job_type_key,           # idx:7, replace with job_type_id
             product,                # idx:8, replace with product_id
             job.get('who', 'unknown'),
             job.get('reason', 'unknown'),
@@ -752,7 +749,7 @@ class JobsModel(TreeherderModelBase):
         machine_platform_key = job_placeholders[index][4]
         machine_name = job_placeholders[index][5]
         option_collection_hash = job_placeholders[index][6]
-        job_type = job_placeholders[index][7]
+        job_type_key = job_placeholders[index][7]
         product_type = job_placeholders[index][8]
         who = job_placeholders[index][9]
         reason = job_placeholders[index][10]
@@ -777,7 +774,7 @@ class JobsModel(TreeherderModelBase):
         job_placeholders[index][5] = id_lookups['machines'][machine_name]['id']
 
         # replace job_type with id
-        job_placeholders[index][7] = id_lookups['job_types'][job_type]['id']
+        job_placeholders[index][7] = id_lookups['job_types'][job_type_key]['id']
 
         # replace product_type with id
         job_placeholders[index][8] = id_lookups['products'][product_type]['id']
@@ -793,7 +790,7 @@ class JobsModel(TreeherderModelBase):
                 result_set_ids[revision_hash]['id'],
                 id_lookups['machines'][machine_name]['id'],
                 option_collection_hash,
-                id_lookups['job_types'][job_type]['id'],
+                id_lookups['job_types'][job_type_key]['id'],
                 id_lookups['products'][product_type]['id'],
                 who,
                 reason,

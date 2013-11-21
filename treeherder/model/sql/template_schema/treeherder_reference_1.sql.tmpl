@@ -155,7 +155,8 @@ CREATE TABLE `job_group` (
   PRIMARY KEY (`id`),
   KEY `idx_symbol` (`symbol`),
   KEY `idx_name` (`name`),
-  KEY `idx_active_status` (`active_status`)
+  KEY `idx_active_status` (`active_status`),
+  UNIQUE KEY `uni_name_symbol` (`name`,`symbol`)
 ) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -170,7 +171,7 @@ DROP TABLE IF EXISTS `job_type`;
 /**************************
  * Table: job_type
  *
- * A list of job type information and a mapping of job type to 
+ * A list of job type information and a mapping of job type to
  * an associated job_group.
  *
  * Population Method: dynamic from incoming data
@@ -197,6 +198,7 @@ CREATE TABLE `job_type` (
   KEY `idx_name` (`name`),
   KEY `idx_active_status` (`active_status`),
   KEY `fk_job_type_job_group` (`job_group_id`),
+  UNIQUE KEY `uni_name_symbol` (`name`,`symbol`),
   CONSTRAINT `fk_job_type_job_group` FOREIGN KEY (`job_group_id`) REFERENCES `job_group` (`id`)
 ) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
