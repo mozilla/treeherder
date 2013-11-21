@@ -235,7 +235,7 @@ def test_add_job_type(refdata):
         assert key in job_lookup
 
     row_data = refdata.dhub.execute(
-        proc='test_refdata.selects.test_all_job_group_ids'
+        proc='refdata_test.selects.test_all_job_group_ids'
         )
 
     assert row_data == expected
