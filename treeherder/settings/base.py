@@ -164,7 +164,7 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
-        'treeherder.etl.pulse': {
+        'treeherder': {
             'handlers': ['logfile']
         }
     }

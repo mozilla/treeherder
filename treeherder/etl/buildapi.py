@@ -8,7 +8,7 @@ from treeherder.model.models import Datasource
 from .mixins import JsonExtractorMixin, ObjectstoreLoaderMixin, JobsLoaderMixin
 
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 
 class Builds4hTransformerMixin(object):
@@ -50,13 +50,21 @@ class Builds4hTransformerMixin(object):
 
         for build in data['builds']:
             prop = build['properties']
-            if not prop['branch'] in projects:
+
+            if not 'branch' in prop:
+                logger.warning("property 'branch' not found in build4h")
                 continue
+
+            if not prop['branch'] in projects:
+                logger.warning("skipping job on branch {0}".format(prop['branch']))
+                continue
+
             prop['revision'] = prop.get('revision',
                             prop.get('got_revision',
                                 prop.get('sourcestamp', None)))
 
             if not prop['revision']:
+                logger.warning("property 'revision' not found in build4h")
                 continue
             revisions[prop['branch']].append(prop['revision'][0:12])
 
@@ -90,12 +98,12 @@ class Builds4hTransformerMixin(object):
 
             job = {
                 'job_guid': self.find_job_guid(build),
-                'name': job_name_info['name'],
-                'job_symbol': job_name_info['job_symbol'],
-                'group_name': job_name_info['group_name'],
-                'group_symbol': job_name_info['group_symbol'],
+                'name': job_name_info.get('name', ''),
+                'job_symbol': job_name_info.get('job_symbol', ''),
+                'group_name': job_name_info.get('group_name', ''),
+                'group_symbol': job_name_info.get('group_symbol', ''),
                 'buildername': prop['buildername'],
-                'product_name': prop['product'],
+                'product_name': prop.get('product', ''),
                 'state': 'completed',
                 'result': buildbot.RESULT_DICT[build['result']],
                 'reason': build['reason'],
@@ -181,10 +189,10 @@ class PendingTransformerMixin(object):
 
                     job = {
                         'job_guid': common.generate_job_guid(job['id'], job['submitted_at']),
-                        'name': job_name_info['name'],
-                        'job_symbol': job_name_info['job_symbol'],
-                        'group_name': job_name_info['group_name'],
-                        'group_symbol': job_name_info['group_symbol'],
+                        'name': job_name_info.get('name', ''),
+                        'job_symbol': job_name_info.get('job_symbol', ''),
+                        'group_name': job_name_info.get('group_name', ''),
+                        'group_symbol': job_name_info.get('group_symbol', ''),
                         'buildername': job['buildername'],
                         'state': 'pending',
                         'submit_timestamp': job['submitted_at'],
@@ -260,10 +268,10 @@ class RunningTransformerMixin(object):
                             job['request_ids'][0],
                             job['submitted_at']
                         ),
-                        'name': job_name_info['name'],
-                        'job_symbol': job_name_info['job_symbol'],
-                        'group_name': job_name_info['group_name'],
-                        'group_symbol': job_name_info['group_symbol'],
+                        'name': job_name_info.get('name', ''),
+                        'job_symbol': job_name_info.get('job_symbol', ''),
+                        'group_name': job_name_info.get('group_name', ''),
+                        'group_symbol': job_name_info.get('group_symbol', ''),
                         'buildername': job['buildername'],
                         'state': 'running',
                         'submit_timestamp': job['submitted_at'],
