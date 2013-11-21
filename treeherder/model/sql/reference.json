@@ -303,6 +303,7 @@
                    SET `job_group_id` = ?
                    WHERE `name` = ? AND `symbol` = ?",
 
+
             "host":"master_host"
         }
     }
