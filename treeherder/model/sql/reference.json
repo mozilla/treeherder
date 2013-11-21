@@ -19,7 +19,7 @@
                     WHERE NOT EXISTS (
                     SELECT `name`
                     FROM `job_group`
-                    WHERE `name` = ?
+                    WHERE `name` = ? AND `symbol` = ?
                     )",
             "host":"master_host"
         },
@@ -31,7 +31,7 @@
                     WHERE NOT EXISTS (
                     SELECT `name`
                     FROM `job_type`
-                    WHERE `name` = ?
+                    WHERE `name` = ? AND `symbol` = ?
                     )",
             "host":"master_host"
         },
@@ -127,16 +127,16 @@
             "host":"master_host"
         },
         "get_job_groups":{
-            "sql": "SELECT `id`, `name`
+            "sql": "SELECT `id`, `name`, `symbol`
                     FROM `job_group`
-                    WHERE `active_status` = 'active' AND `name` IN (REP0)",
+                    WHERE `active_status` = 'active' AND (REP0)",
 
             "host":"master_host"
         },
         "get_job_types":{
-            "sql": "SELECT `id`, `name`
+            "sql": "SELECT `id`, `name`, `symbol`, `job_group_id`
                     FROM `job_type`
-                    WHERE `active_status` = 'active' AND `name` IN (REP0)",
+                    WHERE `active_status` = 'active' AND (REP0)",
 
             "host":"master_host"
         },
@@ -251,6 +251,14 @@
             "sql": "UPDATE `machine`
                     SET `last_timestamp` = ?
                     WHERE `name` = ?",
+
+            "host":"master_host"
+        },
+        "update_job_type_group_id":{
+
+            "sql":"UPDATE `job_type`
+                   SET `job_group_id` = ?
+                   WHERE `name` = ? AND `symbol` = ?",
 
             "host":"master_host"
         }

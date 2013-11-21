@@ -43,16 +43,19 @@ class RefDataManager(object):
         self.machine_unique_platforms = []
 
         # Support structures for building job group SQL
-        self.job_group_lookup = set()
-        self.job_group_where_in_list = []
+        self.job_group_lookup = {}
+        self.job_group_where_filters = []
         self.job_group_placeholders = []
-        self.unique_job_groups = []
+        self.job_group_names_and_symbols = []
 
         # Support structures for building job types SQL
-        self.job_type_lookup = set()
-        self.job_type_where_in_list = []
+        self.job_type_lookup = {}
+        self.job_type_where_filters = []
         self.job_type_placeholders = []
-        self.unique_job_types = []
+        self.job_type_names_and_symbols = []
+
+        #Use this structure to map the job to the group id
+        self.job_type_to_group_lookup = {}
 
         # Support structures for building product SQL
         self.product_lookup = set()
@@ -79,6 +82,9 @@ class RefDataManager(object):
         self.o_unique_options = []
         self.o_where_in_list = []
 
+        # reference id lookup structure
+        self.id_lookup = {}
+
     def disconnect(self):
         self.dhub.disconnect()
 
@@ -98,17 +104,17 @@ class RefDataManager(object):
         """
 
         # id lookup structure
-        self.id_lookup = {
-            'build_platforms':self.process_build_platforms(),
-            'machine_platforms':self.process_machine_platforms(),
+        self.id_lookup['build_platforms'] = self.process_build_platforms()
+        self.id_lookup['machine_platforms'] = self.process_machine_platforms()
 
-            'job_groups':self.process_job_groups(),
-            'job_types':self.process_job_types(),
-            'products':self.process_products(),
+        # job groups need to be processed before job types so the associated
+        # group ids are available when the job types are stored
+        self.id_lookup['job_groups'] = self.process_job_groups()
+        self.id_lookup['job_types'] = self.process_job_types()
 
-            'machines':self.process_machines(),
-            'option_collections':self.process_option_collections()
-            }
+        self.id_lookup['products'] = self.process_products()
+        self.id_lookup['machines'] = self.process_machines()
+        self.id_lookup['option_collections'] = self.process_option_collections()
 
         self.reset_reference_data()
 
@@ -132,16 +138,18 @@ class RefDataManager(object):
         self.machine_unique_platforms = []
 
         # reset job groups
-        self.job_group_lookup = set()
-        self.job_group_where_in_list = []
+        self.job_group_lookup = {}
+        self.job_group_where_filters = []
         self.job_group_placeholders = []
-        self.unique_job_groups = []
+        self.job_group_names_and_symbols = []
+
+        self.job_type_to_group_lookup = {}
 
         # reset job types
-        self.job_type_lookup = set()
-        self.job_type_where_in_list = []
+        self.job_type_lookup = {}
+        self.job_type_where_filters = []
         self.job_type_placeholders = []
-        self.unique_job_types = []
+        self.job_type_names_and_symbols = []
 
         # reset products
         self.product_lookup = set()
@@ -216,22 +224,36 @@ class RefDataManager(object):
 
         return key
 
-    def add_job_group(self, group, group_symbol):
-        """Add job group names"""
+    def add_job_type(self, job_type, job_symbol, group_name='unknown', group_symbol='unknown'):
+        """Add job type names and symbols and job group names and symbols"""
 
         self._add_name_and_symbol(
-            group, group_symbol, self.job_group_lookup, self.job_group_placeholders,
-            self.unique_job_groups, self.job_group_where_in_list
+            group_name, group_symbol, self.job_group_names_and_symbols,
+            self.job_group_placeholders, self.job_group_lookup,
+            self.job_group_where_filters
             )
-
-    def add_job_type(self, job_type, job_symbol):
-        """Add job type names"""
 
         self._add_name_and_symbol(
-            job_type, job_symbol, self.job_type_lookup,
-            self.job_type_placeholders, self.unique_job_types,
-            self.job_type_where_in_list
+            job_type, job_symbol, self.job_type_names_and_symbols,
+            self.job_type_placeholders, self.job_type_lookup,
+            self.job_type_where_filters
             )
+
+        job_key = RefDataManager.get_name_symbol_key(
+            job_type, job_symbol
+            )
+
+        group_key = RefDataManager.get_name_symbol_key(
+            group_name, group_symbol
+            )
+
+        #Use this structure to map the job to the group id
+        self.job_type_to_group_lookup[job_key] = {
+            'group_key':group_key, 'job_type':job_type,
+            'job_symbol':job_symbol
+            }
+
+        return job_key
 
     def add_product(self, product):
         """Add product names"""
@@ -293,39 +315,56 @@ class RefDataManager(object):
         name. The caller must provide the appropriate instance data
         structures as arguments.
         """
-        name_lookup.add(name)
+        if name not in name_lookup:
 
-        # Placeholders for the INSERT/SELECT SQL query
-        name_placeholders.append(
-            [ name, name ]
-            )
+            name_lookup.add(name)
 
-        # Placeholders for the id retrieval SELECT
-        unique_names.append( name )
+            # Placeholders for the INSERT/SELECT SQL query
+            name_placeholders.append(
+                [ name, name ]
+                )
 
-        # WHERE clause for the retrieval SELECT
-        where_in_list.append('%s')
+            # Placeholders for the id retrieval SELECT
+            unique_names.append( name )
+
+            # WHERE clause for the retrieval SELECT
+            where_in_list.append('%s')
 
     def _add_name_and_symbol(
-        self, name, symbol, name_lookup, name_placeholders, unique_names,
-        where_in_list):
+        self, name, symbol, unique_names_and_symbols, name_placeholders,
+        name_symbol_lookup, where_filters):
         """
         Internal method for adding reference data that consists of a single
         name and associated character symbol. The caller must provide the
         appropriate instance data structures as arguments.
         """
-        name_lookup.add(name)
+        key = RefDataManager.get_name_symbol_key(name, symbol)
 
-        # Placeholders for the INSERT/SELECT SQL query
-        name_placeholders.append(
-            [ name, symbol, name ]
-            )
+        if key not in name_symbol_lookup:
 
-        # Placeholders for the id retrieval SELECT
-        unique_names.append( name )
+            # Placeholders for the INSERT/SELECT SQL query
+            name_placeholders.append(
+                [ name, symbol, name, symbol ]
+                )
 
-        # WHERE clause for the retrieval SELECT
-        where_in_list.append('%s')
+            # Placeholders for the id retrieval SELECT
+            unique_names_and_symbols.extend(
+                [ name, symbol ]
+                )
+
+            # Initializing return data structure
+            name_symbol_lookup[key] = {
+                'id':0,
+                'name':name,
+                'symbol':symbol
+                }
+
+            # WHERE clause for the retrieval SELECT
+            where_filters.append(
+                "(`name` = %s  AND `symbol` = %s)".format(name, symbol)
+                )
+
+        return key
 
     def add_machine(self, machine_name, timestamp):
         """
@@ -439,11 +478,12 @@ class RefDataManager(object):
         insert_proc = 'reference.inserts.create_job_group'
         select_proc='reference.selects.get_job_groups'
 
-        return self._process_names(
+        return self._process_names_and_symbols(
             insert_proc, select_proc,
-            self.job_group_where_in_list,
+            self.job_group_lookup,
             self.job_group_placeholders,
-            self.unique_job_groups
+            self.job_group_names_and_symbols,
+            self.job_group_where_filters
             )
 
     def process_job_types(self):
@@ -454,12 +494,35 @@ class RefDataManager(object):
         insert_proc = 'reference.inserts.create_job_type'
         select_proc='reference.selects.get_job_types'
 
-        return self._process_names(
+        job_type_lookup = self._process_names_and_symbols(
             insert_proc, select_proc,
-            self.job_type_where_in_list,
+            self.job_type_lookup,
             self.job_type_placeholders,
-            self.unique_job_types
+            self.job_type_names_and_symbols,
+            self.job_type_where_filters
             )
+
+        update_placeholders = []
+
+        # Find which job_types do not have group ids
+        for job_key in job_type_lookup:
+
+            if not job_type_lookup[job_key]['job_group_id']:
+                job_data = self.job_type_to_group_lookup[job_key]
+                group_id = self.job_group_lookup[ job_data['group_key'] ]['id']
+                update_placeholders.append(
+                    [ group_id, job_data['job_type'], job_data['job_symbol'] ]
+                    )
+
+        if update_placeholders:
+            # Update the job types with the job group id
+            self.dhub.execute(
+                proc='reference.updates.update_job_type_group_id',
+                placeholders=update_placeholders,
+                executemany=True,
+                debug_show=self.DEBUG)
+
+        return job_type_lookup
 
     def process_products(self):
         """
@@ -633,6 +696,42 @@ class RefDataManager(object):
 
         return name_lookup
 
+    def _process_names_and_symbols(
+        self, insert_proc, select_proc, name_symbol_lookup,
+        name_symbol_placeholders, names_and_symbols, where_filters):
+        """
+        Internal method for processing reference data names and their associated
+        symbols. The caller is required to provide the appropriate data
+        structures for the target reference data type.
+        """
+        if where_filters:
+
+            self.dhub.execute(
+                proc=insert_proc,
+                placeholders=name_symbol_placeholders,
+                executemany=True,
+                debug_show=self.DEBUG)
+
+            # Convert WHERE filters to string
+            where_in_clause = " OR ".join(where_filters)
+
+            data_retrieved = self.dhub.execute(
+                proc=select_proc,
+                placeholders=names_and_symbols,
+                replace=[where_in_clause],
+                debug_show=self.DEBUG)
+
+            for data in data_retrieved:
+
+                key = RefDataManager.get_name_symbol_key(
+                    data['name'], data['symbol']
+                    )
+
+                name_symbol_lookup[key] = data
+                name_symbol_lookup[key]['id'] = int(data['id'])
+
+        return name_symbol_lookup
+
     def get_or_create_build_platforms(self, platform_data):
         """
         Get or create build platforms for a list of platform data.
@@ -720,6 +819,10 @@ class RefDataManager(object):
     def get_platform_key(cls, os_name, platform, architecture):
         return "{0}-{1}-{2}".format(os_name, platform, architecture)
 
+    @classmethod
+    def get_name_symbol_key(cls, name, symbol):
+        return "{0}-{1}".format(name, symbol)
+
     def get_or_create_job_groups(self, names):
         """
         Get or create job groups given a list of job group names.
@@ -731,8 +834,10 @@ class RefDataManager(object):
 
         return self._get_or_create_names_and_symbols(
                     names, insert_proc, select_proc,
-                    self.job_group_lookup, self.job_group_placeholders,
-                    self.unique_job_groups, self.job_group_where_in_list)
+                    self.job_group_names_and_symbols,
+                    self.job_group_placeholders,
+                    self.job_group_lookup,
+                    self.job_group_where_filters)
 
     def get_or_create_job_types(self, names):
         """
@@ -745,8 +850,10 @@ class RefDataManager(object):
 
         return self._get_or_create_names_and_symbols(
                     names, insert_proc, select_proc,
-                    self.job_type_lookup, self.job_type_placeholders,
-                    self.unique_job_types, self.job_type_where_in_list)
+                    self.job_type_names_and_symbols,
+                    self.job_type_placeholders,
+                    self.job_type_lookup,
+                    self.job_type_where_filters)
 
     def get_or_create_products(self, names):
         """
@@ -813,8 +920,8 @@ class RefDataManager(object):
             )
 
     def _get_or_create_names_and_symbols(
-        self, names, insert_proc, select_proc, name_lookup, where_in_list,
-        name_placeholders, unique_names):
+        self, data, insert_proc, select_proc, names_and_symbols, placeholders,
+        name_symbol_lookup, where_filters):
         """
         Takes a list of names and returns a dictionary to be used as a
         lookup for each name's id. Any names not found are inserted into
@@ -830,17 +937,16 @@ class RefDataManager(object):
 
         returns { 'name1':id, 'name2':id, 'name3':id, ... }
         """
-        for name_symbol in names:
+        for name_symbol in data:
             self._add_name_and_symbol(
-                name_symbol[0], name_symbol[1], name_lookup,
-                name_placeholders, unique_names, where_in_list
+                name_symbol[0], name_symbol[1], names_and_symbols,
+                placeholders, name_symbol_lookup, where_filters
                 )
 
-        return self._process_names(
-            insert_proc, select_proc, where_in_list, name_placeholders,
-            unique_names
+        return self._process_names_and_symbols(
+            insert_proc, select_proc, name_symbol_lookup, placeholders,
+            names_and_symbols, where_filters
             )
-
 
     def get_option_collection_hash(self, options):
         """returns an option_collection_hash given a list of options"""
