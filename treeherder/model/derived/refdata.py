@@ -476,7 +476,7 @@ class RefDataManager(object):
         """
 
         insert_proc = 'reference.inserts.create_job_group'
-        select_proc='reference.selects.get_job_groups'
+        select_proc = 'reference.selects.get_job_groups'
 
         return self._process_names_and_symbols(
             insert_proc, select_proc,
@@ -492,7 +492,7 @@ class RefDataManager(object):
         """
 
         insert_proc = 'reference.inserts.create_job_type'
-        select_proc='reference.selects.get_job_types'
+        select_proc = 'reference.selects.get_job_types'
 
         job_type_lookup = self._process_names_and_symbols(
             insert_proc, select_proc,

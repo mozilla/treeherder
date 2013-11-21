@@ -681,7 +681,6 @@ class JobsModel(TreeherderModelBase):
         self.refdata_model.add_product(product)
 
         job_guid = job['job_guid']
-        job_state = job.get('state', 'unknown')
 
         job_placeholders.append([
             job_guid,
