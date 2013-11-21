@@ -251,39 +251,7 @@ class ResultSetViewSet(viewsets.ViewSet):
             **dict((k, v) for k, v in request.QUERY_PARAMS.iteritems()
                    if k in filters)
         )
-        return Response(objs)
-
-    @classmethod
-    def get_warning_level(cls, groups):
-        """
-        Return the most severe warning level for a list of jobs.
-
-        A color-based warning level based on the most severe
-        level in the list of jobs.
-
-        @@@ - This needs a better way.
-        """
-        job_states = []
-        for group in groups:
-            job_states.extend([job["result"] for job in group["jobs"]])
-
-        job_states = set(job_states)
-        if "busted" in job_states:
-            return "red"
-        if "fail" in job_states:
-            return "red"
-        elif "testfailed" in job_states:
-            return "red"
-        elif "orange" in job_states:
-            return "orange"
-        elif "pending" in job_states:
-            return "grey"
-        elif "retry" in job_states:
-            return "grey"
-        elif "running" in job_states:
-            return "grey"
-        else:
-            return "green"
+        return Response(self.populate_resultsets(jm, objs, {}))
 
     @with_jobs
     def retrieve(self, request, project, jm, pk=None):
@@ -291,60 +259,98 @@ class ResultSetViewSet(viewsets.ViewSet):
         GET method implementation for detail view of ``resultset``
         """
         filters = ["job_type_name"]
+        filter_kwargs = dict(
+            (k, v) for k, v in request.QUERY_PARAMS.iteritems()
+            if k in filters
+        )
 
         rs = jm.get_result_set_by_id(pk)
-        jobs_ungrouped = list(jm.get_result_set_job_list(
-            pk,
-            **dict((k, v) for k, v in request.QUERY_PARAMS.iteritems()
-                   if k in filters)
-        ))
+        resultsets = self.populate_resultsets(jm, [rs], filter_kwargs)
+
+        return Response(resultsets)
+
+    @staticmethod
+    def populate_resultsets(jm, rs_list, filter_kwargs):
+        """Convert db result of resultsets in a list to JSON"""
+
+        # organize the resultsets into an obj by key to for lookups
+        rs_map = {}
+        for rs in rs_list:
+            rs_map[rs["id"]] = rs
+
+        jobs_ungrouped = jm.get_result_set_job_list(
+            rs_map.keys(),
+            **filter_kwargs
+        )
 
         option_collections = jm.refdata_model.get_all_option_collections()
 
+        rs_grouper = lambda rsg: rsg["result_set_id"]
         # the main grouper for a result set is the combination of
         # platform and options
-        platform_grouper = lambda x: "{0} {1}".format(
-            x["platform"],
-            option_collections[x["option_collection_hash"]]['opt']
+        platform_grouper = lambda pg: "{0} {1}".format(
+            pg["platform"],
+            option_collections[pg["option_collection_hash"]]['opt']
         )
+        job_group_grouper = lambda jgg: jgg["job_group_symbol"]
+        job_type_grouper = lambda jtg: jtg['job_type_symbol']
 
-        #itertools needs the elements to be sorted by the grouper
-        jobs_sorted = sorted(jobs_ungrouped, key=platform_grouper)
+        rs_sorted = sorted(jobs_ungrouped, key=rs_grouper)
+        resultsets = []
+        for rs_id, resultset_group in itertools.groupby(rs_sorted, key=rs_grouper):
 
-        rs["platforms"] = []
+            resultset = rs_map[rs_id]
+            resultsets.append(resultset)
+            results = []
+            job_count = 0
 
-        # job_groups by platform and options
-        for k, g in itertools.groupby(jobs_sorted, key=platform_grouper):
+            #itertools needs the elements to be sorted by the grouper
+            by_platform = sorted(list(resultset_group), key=platform_grouper)
+            platforms = []
+            for platform_name, platform_group in itertools.groupby(
+                    by_platform,
+                    key=platform_grouper):
 
-            job_group_grouper = lambda x: x["job_group_symbol"]
-            job_groups = sorted(list(g), key=job_group_grouper)
-            groups = []
-            for jg_k, jg_g in itertools.groupby(job_groups,
-                                                job_group_grouper):
+                by_job_group = sorted(list(platform_group), key=job_group_grouper)
+                print json.dumps(by_job_group , indent=4)
+                groups = []
+                for jg_symbol, jg_group in itertools.groupby(
+                        by_job_group,
+                        job_group_grouper):
 
-                jobs = sorted(list(jg_g),
-                              key=lambda x: x['job_type_symbol'])
+                    by_job_type = sorted(list(jg_group), key=job_type_grouper)
 
-                groups.append({
-                    "symbol": jg_k,
-                    "name": jobs[0]["job_group_name"],
-                    "jobs": jobs
+                    groups.append({
+                        "symbol": jg_symbol,
+                        "name": by_job_type[0]["job_group_name"],
+                        "jobs": by_job_type
+                    })
+
+                    # build the uri ref for each job
+                    for job in by_job_type:
+                        job["resource_uri"] = reverse("jobs-detail",
+                            kwargs={"project": jm.project, "pk": job["job_id"]})
+                        #del(job["job_group_name"])
+                        #del(job["job_group_symbol"])
+                        del(job["result_set_id"])
+                        del(job["platform"])
+                        results.append(job["result"])
+                        job_count += 1
+
+                platforms.append({
+                    "name": platform_name,
+                    "groups": groups,
                 })
 
-                # build the uri ref for each job
-                for job in jobs:
-                    job["resource_uri"] = reverse("jobs-detail",
-                        kwargs={"project": jm.project, "pk": job["job_id"]})
-                    del(job["job_group_name"])
-                    del(job["job_group_symbol"])
+            #the unique set of results that are contained in this resultset
+            #can be used to determine the resultset's severity
+            resultset["platforms"] = platforms
+            #print json.dumps(resultset, indent=4)
+            resultset["results"] = set(results)
+            resultset["job_count"] = job_count
 
-            rs["platforms"].append({
-                "name": k,
-                "groups": groups,
-                "warning_level": self.get_warning_level(groups)
-            })
+        return resultsets
 
-        return Response(rs)
 
     @with_jobs
     def create(self, request, project, jm):

@@ -329,8 +329,8 @@
                     ON j.`job_type_id` = jt.id
 				  LEFT JOIN `REP0`.`job_group` as jg
                     ON jt.`job_group_id` = jg.id
-                  WHERE j.`result_set_id` = ?
-                  REP1
+                  WHERE j.`result_set_id` IN (REP1)
+                  REP2
                   ",
             "host": "read_host"
         },
