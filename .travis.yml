@@ -20,6 +20,7 @@ before_script:
    - mysql -e 'create database treeherder;' 
 services:
   - rabbitmq
+  - memcached
 install:
   - pip install -r requirements/compiled.txt --use-mirrors
   - pip install -r requirements/dev.txt --use-mirrors
