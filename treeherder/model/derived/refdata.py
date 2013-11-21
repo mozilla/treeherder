@@ -224,8 +224,14 @@ class RefDataManager(object):
 
         return key
 
-    def add_job_type(self, job_type, job_symbol, group_name='unknown', group_symbol='unknown'):
+    def add_job_type(self, job_type, job_symbol, group_name, group_symbol):
         """Add job type names and symbols and job group names and symbols"""
+
+        job_type = job_type or 'unknown'
+        job_symbol = job_symbol or '?'
+
+        group_name = group_name or 'unknown'
+        group_symbol = group_symbol or '?'
 
         self._add_name_and_symbol(
             group_name, group_symbol, self.job_group_names_and_symbols,
