@@ -332,73 +332,77 @@ TEST_NAME_BUILDERNAME = [
     {"regex": re.compile('androidx86-set'), "desc": "Android x86 Test Set"},
 ]
 
+# map test names to group names as "<testname>": "<groupname>"
+# when updating, please take care to ensure the ``testname`` AND the
+# ``groupname`` exist in the ``SYMBOLS`` dict as well.
 GROUP_NAMES = {
-    "Hamachi Device Image": ["Hamachi Device Image Build",
-                             "Hamachi Device Image Build (Engineering)",
-                             "Hamachi Device Image Nightly",
-                             "Hamachi Device Image Nightly (Engineering)"],
-    "Helix Device Image": ["Helix Device Image Build",
-                           "Helix Device Image Nightly"],
-    "Inari Device Image": ["Inari Device Image Build",
-                           "Inari Device Image Build (Engineering)",
-                           "Inari Device Image Nightly",
-                           "Inari Device Image Nightly (Engineering)"],
-    "Leo Device Image": ["Leo Device Image Build",
-                         "Leo Device Image Build (Engineering)",
-                         "Leo Device Image Nightly",
-                         "Leo Device Image Nightly (Engineering)"],
-    "Nexus 4 Device Image": ["Nexus 4 Device Image Build",
-                             "Nexus 4 Device Image Nightly"],
-    "Unagi Device Image": ["Unagi Device Image Build",
-                           "Unagi Device Image Build (Engineering)",
-                           "Unagi Device Image Nightly",
-                           "Unagi Device Image Nightly (Engineering)"],
-    "Unknown Device Image": ["Unknown B2G Device Image Build",
-                             "Unknown B2G Device Image Build (Engineering)",
-                             "Unknown B2G Device Image Nightly",
-                             "Unknown B2G Device Image Nightly (Engineering)"],
-    "L10n Repack": ["L10n Nightly"],
-    "Android x86 Test Combos": ["Android x86 Test Set"],
-    "Mochitest": ["Mochitest",
-                  "Mochitest WebGL",
-                  "Mochitest Browser Chrome",
-                  "Mochitest Metro Browser Chrome",
-                  "Mochitest Other",
-                  "Robocop"],
-    "Reftest": ["Crashtest",
-                "Crashtest-IPC",
-                "Reftest",
-                "Reftest Unaccelerated",
-                "Reftest-IPC",
-                "JSReftest"],
-    "SpiderMonkey": ["SpiderMonkey DTrace Build",
-                     "SpiderMonkey --enable-root-analysis Build",
-                     "SpiderMonkey --enable-sm-fail-on-warnings Build",
-                     "SpiderMonkey GGC Shell Build",
-                     "SpiderMonkey Exact Rooting Shell Build",
-                     "Static Rooting Hazard Analysis, JS Shell",
-                     "Static Rooting Hazard Analysis, Full Browser"],
-    "Talos Performance": ["Talos Performance",
-                          "Talos canvasmark",
-                          "Talos chrome",
-                          "Talos dromaeojs",
-                          "Talos dromaeojs Metro",
-                          "Talos other",
-                          "Talos other Metro",
-                          "Talos paint",
-                          "Talos robocheck2",
-                          "Talos robopan",
-                          "Talos roboprovider",
-                          "Talos svg",
-                          "Talos svg Metro",
-                          "Talos tp",
-                          "Talos tp Metro",
-                          "Talos tp nochrome",
-                          "Talos ts",
-                          "Talos tspaint",
-                          "Talos xperf"]
+    'Android x86 Test Set': 'Android x86 Test Combos',
+    'Crashtest': 'Reftest',
+    'Crashtest-IPC': 'Reftest',
+    'Hamachi Device Image Build': 'Hamachi Device Image',
+    'Hamachi Device Image Build (Engineering)': 'Hamachi Device Image',
+    'Hamachi Device Image Nightly': 'Hamachi Device Image',
+    'Hamachi Device Image Nightly (Engineering)': 'Hamachi Device Image',
+    'Helix Device Image Build': 'Helix Device Image',
+    'Helix Device Image Nightly': 'Helix Device Image',
+    'Inari Device Image Build': 'Inari Device Image',
+    'Inari Device Image Build (Engineering)': 'Inari Device Image',
+    'Inari Device Image Nightly': 'Inari Device Image',
+    'Inari Device Image Nightly (Engineering)': 'Inari Device Image',
+    'JSReftest': 'Reftest',
+    'L10n Nightly': 'L10n Repack',
+    'Leo Device Image Build': 'Leo Device Image',
+    'Leo Device Image Build (Engineering)': 'Leo Device Image',
+    'Leo Device Image Nightly': 'Leo Device Image',
+    'Leo Device Image Nightly (Engineering)': 'Leo Device Image',
+    'Mochitest': 'Mochitest',
+    'Mochitest Browser Chrome': 'Mochitest',
+    'Mochitest Metro Browser Chrome': 'Mochitest',
+    'Mochitest Other': 'Mochitest',
+    'Mochitest WebGL': 'Mochitest',
+    'Nexus 4 Device Image Build': 'Nexus 4 Device Image',
+    'Nexus 4 Device Image Nightly': 'Nexus 4 Device Image',
+    'Reftest': 'Reftest',
+    'Reftest Unaccelerated': 'Reftest',
+    'Reftest-IPC': 'Reftest',
+    'Robocop': 'Mochitest',
+    'SpiderMonkey --enable-root-analysis Build': 'SpiderMonkey',
+    'SpiderMonkey --enable-sm-fail-on-warnings Build': 'SpiderMonkey',
+    'SpiderMonkey DTrace Build': 'SpiderMonkey',
+    'SpiderMonkey Exact Rooting Shell Build': 'SpiderMonkey',
+    'SpiderMonkey GGC Shell Build': 'SpiderMonkey',
+    'Static Rooting Hazard Analysis, Full Browser': 'SpiderMonkey',
+    'Static Rooting Hazard Analysis, JS Shell': 'SpiderMonkey',
+    'Talos Performance': 'Talos Performance',
+    'Talos canvasmark': 'Talos Performance',
+    'Talos chrome': 'Talos Performance',
+    'Talos dromaeojs': 'Talos Performance',
+    'Talos dromaeojs Metro': 'Talos Performance',
+    'Talos other': 'Talos Performance',
+    'Talos other Metro': 'Talos Performance',
+    'Talos paint': 'Talos Performance',
+    'Talos robocheck2': 'Talos Performance',
+    'Talos robopan': 'Talos Performance',
+    'Talos roboprovider': 'Talos Performance',
+    'Talos svg': 'Talos Performance',
+    'Talos svg Metro': 'Talos Performance',
+    'Talos tp': 'Talos Performance',
+    'Talos tp Metro': 'Talos Performance',
+    'Talos tp nochrome': 'Talos Performance',
+    'Talos ts': 'Talos Performance',
+    'Talos tspaint': 'Talos Performance',
+    'Talos xperf': 'Talos Performance',
+    'Unagi Device Image Build': 'Unagi Device Image',
+    'Unagi Device Image Build (Engineering)': 'Unagi Device Image',
+    'Unagi Device Image Nightly': 'Unagi Device Image',
+    'Unagi Device Image Nightly (Engineering)': 'Unagi Device Image',
+    'Unknown B2G Device Image Build': 'Unknown Device Image',
+    'Unknown B2G Device Image Build (Engineering)': 'Unknown Device Image',
+    'Unknown B2G Device Image Nightly': 'Unknown Device Image',
+    'Unknown B2G Device Image Nightly (Engineering)': 'Unknown Device Image'
 }
 
+# symbols displayed in the UI for all jobs and job groups
 SYMBOLS = {
     # builds
 
@@ -566,7 +570,7 @@ def extract_name_info(source_string):
     for test_name in TEST_NAME_BUILDERNAME:
         if test_name["regex"].search(source_string):
             name = test_name["desc"]
-            group_name = get_group_name(name)
+            group_name = GROUP_NAMES.get(name, "unknown")
             group_symbol = SYMBOLS.get(group_name, "?")
             symbol = get_symbol(name, source_string)
 
@@ -599,11 +603,3 @@ def get_symbol(name, bn):
     if nummatch:
         n = nummatch.group(1)
     return "{0}{1}".format(s, n)
-
-
-def get_group_name(name):
-    """Get the group name, if this test has a group."""
-    for group in GROUP_NAMES:
-        if name in GROUP_NAMES[group]:
-            return group
-    return "unknown"
