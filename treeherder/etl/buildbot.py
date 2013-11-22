@@ -513,6 +513,7 @@ SYMBOLS = {
     "Mozmill": "Z",
     "Unknown Unit Test": "U",
     "Unknown": "?",
+    "unknown": "?",
 }
 
 NUMBER_RE = re.compile(".*(?:mochitest|reftest|crashtest|robocop|androidx86-set)\-([0-9]+)", re.IGNORECASE)
