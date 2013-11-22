@@ -140,5 +140,3 @@ class ResultSetsLoaderMixin(JsonLoaderMixin):
             if not response or response.getcode() != 200:
                 message = json.loads(response.read())
                 logger.error("ResultSet loading failed: {0}".format(message['message']))
-
-

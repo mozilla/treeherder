@@ -199,10 +199,16 @@ SITE_URL = "http://local.treeherder.mozilla.org"
 BUILDAPI_PENDING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-pending.js"
 BUILDAPI_RUNNING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-running.js"
 BUILDAPI_BUILDS4H_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-4hr.js.gz"
+
+BZ_API_URL = "https://bugzilla-dev.allizom.org"
+
 # this setting allows requests from any host
 CORS_ORIGIN_ALLOW_ALL = True
 
-ALLOWED_HOSTS = [".treeherder.mozilla.org"]
+# set ALLOWED_HOSTS to match your domain name.
+# An asterisk means everything but it's not secure.
+# IP addresses are also allowed. A dot is used to include all sub domains
+ALLOWED_HOSTS = [".mozilla.org", ".allizom.org"]
 
 try:
     from .local import *
