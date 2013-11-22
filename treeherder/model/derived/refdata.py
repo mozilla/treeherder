@@ -192,6 +192,9 @@ class RefDataManager(object):
         platform - fedora 12 | redhat 12 | 5.1.2600 | 6.1.7600 | OS X 10.7.2 | ...
         architecture - x86 | x86_64 etc...
         """
+        os_name = os_name or 'unknown'
+        platform = platform or 'unknown'
+        arch = arch or 'unknown'
 
         key = self._add_platform(
             os_name, platform, arch,
@@ -213,6 +216,9 @@ class RefDataManager(object):
         platform - fedora 12 | redhat 12 | 5.1.2600 | 6.1.7600 | OS X 10.7.2 | ...
         architecture - x86 | x86_64 etc...
         """
+        os_name = os_name or 'unknown'
+        platform = platform or 'unknown'
+        arch = arch or 'unknown'
 
         key = self._add_platform(
             os_name, platform, arch,
@@ -263,6 +269,8 @@ class RefDataManager(object):
 
     def add_product(self, product):
         """Add product names"""
+
+        product = product or 'unknown'
 
         self._add_name(
             product, self.product_lookup, self.product_placeholders,
@@ -381,6 +389,9 @@ class RefDataManager(object):
         """
 
         if machine_name not in self.machine_name_lookup:
+
+            machine_name = machine_name or 'unknown'
+            timestame = timestamp or time.time()
 
             self.machine_name_lookup.add(machine_name)
 
