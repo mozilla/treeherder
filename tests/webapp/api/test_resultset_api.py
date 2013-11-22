@@ -26,6 +26,9 @@ def test_resultset_list(webapp, eleven_jobs_processed, jm):
         u'revision_hash',
         u'revision',
         u'revision_list',
+        u'job_count',
+        u'platforms',
+        u'result_types'
     ])
     for rs in rs_list:
         assert set(rs.keys()) == exp_keys
@@ -49,7 +52,7 @@ def test_resultset_list_empty_rs_still_show(webapp, initial_data,
                                             sample_resultset, jm):
     """
     test retrieving a resultset list, when the resultset has no jobs.
-    should not show.
+    should show.
     """
     jm.store_result_set_data(sample_resultset)
 
@@ -109,7 +112,7 @@ def test_result_set_detail_bad_project(webapp, jm):
     assert resp.json == {"message": "No project with name foo"}
 
 
-def test_resultset_create(webapp, pushlog_sample, jm, initial_data):
+def test_resultset_create(webapp, sample_resultset, jm, initial_data):
     """
     test posting data to the resultset endpoint via webtest.
     extected result are:

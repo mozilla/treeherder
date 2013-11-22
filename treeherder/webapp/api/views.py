@@ -251,7 +251,7 @@ class ResultSetViewSet(viewsets.ViewSet):
             **dict((k, v) for k, v in request.QUERY_PARAMS.iteritems()
                    if k in filters)
         )
-        return Response(self.populate_resultsets(jm, objs, {}))
+        return Response(self.get_resultsets_with_jobs(jm, objs, {}))
 
     @with_jobs
     def retrieve(self, request, project, jm, pk=None):
@@ -265,15 +265,16 @@ class ResultSetViewSet(viewsets.ViewSet):
         )
 
         rs = jm.get_result_set_by_id(pk)
-        resultsets = self.populate_resultsets(jm, [rs], filter_kwargs)
-
-        return Response(resultsets)
+        resultsets = self.get_resultsets_with_jobs(jm, [rs], filter_kwargs)
+        if len(resultsets) == 0:
+            return Response("No resultset with id: {0}".format(pk), 404)
+        return Response(resultsets[0])
 
     @staticmethod
-    def populate_resultsets(jm, rs_list, filter_kwargs):
+    def get_resultsets_with_jobs(jm, rs_list, filter_kwargs):
         """Convert db result of resultsets in a list to JSON"""
 
-        # organize the resultsets into an obj by key to for lookups
+        # organize the resultsets into an obj by key for lookups
         rs_map = {}
         for rs in rs_list:
             rs_map[rs["id"]] = rs
@@ -301,7 +302,15 @@ class ResultSetViewSet(viewsets.ViewSet):
 
             resultset = rs_map[rs_id]
             resultsets.append(resultset)
-            results = []
+
+            # we found jobs for this resultset, so remove it from the map
+            # now that it's in the ``resultsets`` list.
+            # after we are done with all these jobs, whatever is in the map are
+            # resultsets with no jobs yet, which we add back in to the list
+            # of resultsets to be returned.
+            del(rs_map[rs_id])
+
+            result_types = []
             job_count = 0
 
             #itertools needs the elements to be sorted by the grouper
@@ -312,7 +321,7 @@ class ResultSetViewSet(viewsets.ViewSet):
                     key=platform_grouper):
 
                 by_job_group = sorted(list(platform_group), key=job_group_grouper)
-                print json.dumps(by_job_group , indent=4)
+
                 groups = []
                 for jg_symbol, jg_group in itertools.groupby(
                         by_job_group,
@@ -334,7 +343,7 @@ class ResultSetViewSet(viewsets.ViewSet):
                         #del(job["job_group_symbol"])
                         del(job["result_set_id"])
                         del(job["platform"])
-                        results.append(job["result"])
+                        result_types.append(job["result"])
                         job_count += 1
 
                 platforms.append({
@@ -345,10 +354,13 @@ class ResultSetViewSet(viewsets.ViewSet):
             #the unique set of results that are contained in this resultset
             #can be used to determine the resultset's severity
             resultset["platforms"] = platforms
-            #print json.dumps(resultset, indent=4)
-            resultset["results"] = set(results)
+            resultset["result_types"] = list(set(result_types))
             resultset["job_count"] = job_count
 
+        #print "<><><> howder"
+        #print json.dumps(resultsets, indent=4)
+        for rs in rs_map:
+            resultsets.append(rs)
         return resultsets
 
 
