@@ -14,16 +14,21 @@ treeherder.controller('JobsCtrl',
 
         $scope.offset = 0;
         $scope.result_sets = [];
+        $scope.isLoadingRsBatch = false;
 
         $scope.nextResultSets = function(count) {
+
+            $scope.isLoadingRsBatch = true;
 
             thResultSets.getResultSets($scope.offset, count).
                 success(function(data) {
                     $scope.offset += count;
                     $scope.result_sets.push.apply($scope.result_sets, data);
+                    $scope.isLoadingRsBatch = false;
                 }).
                 error(function(data, status, header, config) {
                     $scope.statusError("Error getting result sets and jobs from service");
+                    $scope.isLoadingRsBatch = false;
                 });
 
         };

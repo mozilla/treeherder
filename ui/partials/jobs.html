@@ -70,10 +70,15 @@
         </span>
     </div>
 </div>
+<div class="progress progress-striped active"
+     ng-show="isLoadingRsBatch">
+    <div class="progress-bar"  role="progressbar" style="width: 100%"></div>
+</div>
 <div class="well">
     get next: <div class="btn-group">
         <div class="btn btn-default btn-sm"
              ng-click="nextResultSets(count)"
              ng-repeat="count in [10, 20, 50, 100]">{{count}}</div>
     </div>
+</div>
 </div>
