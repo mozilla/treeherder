@@ -274,6 +274,12 @@ class ResultSetViewSet(viewsets.ViewSet):
     def get_resultsets_with_jobs(jm, rs_list, filter_kwargs):
         """Convert db result of resultsets in a list to JSON"""
 
+        # I think I'll just call the database in a for-loop and fetch
+        # the jobs for each resultset, then glue them together.  Oh wait...
+        # I promised Jeads I wouldn't do that.  I guess I'll fetch the job
+        # results all at once, then parse them out in memory.  Jeads will
+        # like that better.  :)
+
         # organize the resultsets into an obj by key for lookups
         rs_map = {}
         for rs in rs_list:
