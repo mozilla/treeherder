@@ -86,7 +86,7 @@ class Builds4hTransformerMixin(object):
             }
 
             platform_info = buildbot.extract_platform_info(prop['buildername'])
-            job_name = buildbot.extract_test_name(prop['buildername'])
+            job_name_info = buildbot.extract_name_info(prop['buildername'])
 
             if 'log_url' in prop:
                 log_reference = [{
@@ -98,7 +98,11 @@ class Builds4hTransformerMixin(object):
 
             job = {
                 'job_guid': self.find_job_guid(build),
-                'name': job_name,
+                'name': job_name_info.get('name', ''),
+                'job_symbol': job_name_info.get('job_symbol', ''),
+                'group_name': job_name_info.get('group_name', ''),
+                'group_symbol': job_name_info.get('group_symbol', ''),
+                'buildername': prop['buildername'],
                 'product_name': prop.get('product', ''),
                 'state': 'completed',
                 'result': buildbot.RESULT_DICT[build['result']],
@@ -181,10 +185,15 @@ class PendingTransformerMixin(object):
                     }
 
                     platform_info = buildbot.extract_platform_info(job['buildername'])
+                    job_name_info = buildbot.extract_name_info(job['buildername'])
 
                     job = {
                         'job_guid': common.generate_job_guid(job['id'], job['submitted_at']),
-                        'name': buildbot.extract_test_name(job['buildername']),
+                        'name': job_name_info.get('name', ''),
+                        'job_symbol': job_name_info.get('job_symbol', ''),
+                        'group_name': job_name_info.get('group_name', ''),
+                        'group_symbol': job_name_info.get('group_symbol', ''),
+                        'buildername': job['buildername'],
                         'state': 'pending',
                         'submit_timestamp': job['submitted_at'],
                         'build_platform': {
@@ -252,13 +261,18 @@ class RunningTransformerMixin(object):
                     }
 
                     platform_info = buildbot.extract_platform_info(job['buildername'])
+                    job_name_info = buildbot.extract_name_info(job['buildername'])
 
                     job = {
                         'job_guid': common.generate_job_guid(
                             job['request_ids'][0],
                             job['submitted_at']
                         ),
-                        'name': buildbot.extract_test_name(job['buildername']),
+                        'name': job_name_info.get('name', ''),
+                        'job_symbol': job_name_info.get('job_symbol', ''),
+                        'group_name': job_name_info.get('group_name', ''),
+                        'group_symbol': job_name_info.get('group_symbol', ''),
+                        'buildername': job['buildername'],
                         'state': 'running',
                         'submit_timestamp': job['submitted_at'],
                         'build_platform': {

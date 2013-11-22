@@ -180,11 +180,8 @@ def test_base_dir():
 
 
 @pytest.fixture
-def sample_resultset(test_base_dir):
-    source_file = os.path.join(test_base_dir, "sample_data",
-                               "resultset_data.json")
-
-    return json.loads(open(source_file).read())
+def sample_resultset(sample_data):
+    return sample_data.resultset_data
 
 
 @pytest.fixture
