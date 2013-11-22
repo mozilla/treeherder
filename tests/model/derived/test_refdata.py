@@ -1,6 +1,7 @@
 import os
 import time
 import urllib2
+import json
 
 import pytest
 from mock import Mock
@@ -234,7 +235,7 @@ def test_add_job_type(refdata):
         assert key in job_lookup
 
     row_data = refdata.dhub.execute(
-        proc='test_refdata.selects.test_all_job_group_ids'
+        proc='refdata_test.selects.test_all_job_group_ids'
         )
 
     assert row_data == expected
@@ -245,7 +246,7 @@ def test_get_or_create_repository_version(refdata, repository_id):
         repository_id, 'v1.0', 1367248930.235682)
 
     row_data = refdata.dhub.execute(
-        proc='test_refdata.selects.test_repository_version',
+        proc='refdata_test.selects.test_repository_version',
         placeholders=[id],
         return_type='iter'
     )
@@ -303,7 +304,7 @@ def test_update_repo_version_unchanged(refdata, latest_version_repository, mock_
     updated_version = refdata.get_repository_version_id(repo_id)
 
     row_data = refdata.dhub.execute(
-        proc='test_refdata.selects.test_repository_version',
+        proc='refdata_test.selects.test_repository_version',
         placeholders=[updated_version],
         return_type='iter'
     )
@@ -339,3 +340,62 @@ def test_update_repo_version_command_with_filters(refdata, old_version_repositor
     updated_version = refdata.get_repository_version_id(repo_id)
 
     assert old_version < updated_version
+
+
+@pytest.fixture
+def sample_bugs(test_base_dir):
+    filename = os.path.join(
+        test_base_dir,
+        'sample_data',
+        'bug_list.json'
+    )
+    return json.loads(open(filename).read())
+
+
+def test_update_bugscache(refdata, sample_bugs):
+    """
+    Test running twice update_bugscache inserts the rows just once
+    """
+
+    bug_list = sample_bugs['bugs']
+
+    #first iteration, inserts
+    refdata.update_bugscache(bug_list)
+    row_data = refdata.dhub.execute(
+        proc='refdata_test.selects.test_bugscache',
+        return_type='tuple'
+    )
+
+    assert len(bug_list) == len(row_data)
+
+    # second iteration, updates
+    refdata.update_bugscache(bug_list)
+
+    row_data = refdata.dhub.execute(
+        proc='refdata_test.selects.test_bugscache',
+        return_type='tuple'
+    )
+
+    assert len(bug_list) == len(row_data)
+
+
+def test_get_suggested_bugs(refdata, sample_bugs):
+    """
+    Test that at least one result is retrieved
+    for the right search terms
+    """
+    bug_list = sample_bugs['bugs']
+    refdata.update_bugscache(bug_list)
+    row_data = refdata.dhub.execute(
+        proc='refdata_test.selects.test_bugscache',
+        return_type='tuple'
+    )
+
+    search_terms = ['few-pixel',
+                    'nsDirEnumerator',
+                    'WinFileAttributes tests - TEST-UNEXPECTED-FAIL | Test '
+                    'Win Attribs: GetFileAttributesWin attributed did not match. (2)']
+
+    for search_term in search_terms:
+        suggestions = refdata.get_suggested_bugs(search_term)
+        assert len(suggestions) >= 0

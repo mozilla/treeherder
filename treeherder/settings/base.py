@@ -175,9 +175,9 @@ from kombu import Exchange, Queue
 CELERY_QUEUES = (
     Queue('default', Exchange('default'), routing_key='default'),
     # queue for failed jobs/logs
-    Queue('fail', Exchange('fail'), routing_key='*.fail'),
+    Queue('log_parser_fail', Exchange('default'), routing_key='parse_log.failures'),
     # queue for successful jobs/logs
-    Queue('success', Exchange('success'), routing_key='*.success'),
+    Queue('log_parser', Exchange('default'), routing_key='parse_log.success'),
 )
 
 # default value when no task routing info is specified
@@ -199,10 +199,16 @@ SITE_URL = "http://local.treeherder.mozilla.org"
 BUILDAPI_PENDING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-pending.js"
 BUILDAPI_RUNNING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-running.js"
 BUILDAPI_BUILDS4H_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-4hr.js.gz"
+
+BZ_API_URL = "https://bugzilla-dev.allizom.org"
+
 # this setting allows requests from any host
 CORS_ORIGIN_ALLOW_ALL = True
 
-ALLOWED_HOSTS = [".treeherder.mozilla.org"]
+# set ALLOWED_HOSTS to match your domain name.
+# An asterisk means everything but it's not secure.
+# IP addresses are also allowed. A dot is used to include all sub domains
+ALLOWED_HOSTS = [".mozilla.org", ".allizom.org"]
 
 try:
     from .local import *

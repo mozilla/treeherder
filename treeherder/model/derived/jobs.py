@@ -860,8 +860,14 @@ class JobsModel(TreeherderModelBase):
             for task in task_data:
                 # if we have a log to parse, we also have a result
                 # send a parse-log task for this job
-                parse_log.delay(self.project, task['id'],
-                                check_errors=task['check_errors'])
+                if task['check_errors']:
+                    routing_key = 'parse_log.failures'
+                else:
+                    routing_key = 'parse_log.success'
+                parse_log.apply_async(args=[self.project, task['id']],
+                                      kwargs={'check_errors': task['check_errors']},
+                                      routing_key=routing_key)
+
 
     def store_job_artifact(self, artifact_placeholders):
         """
@@ -1112,7 +1118,6 @@ class JobsModel(TreeherderModelBase):
                 revision_to_rhash_lookup[rev_datum['revision']] = result['revision_hash']
 
         # Insert new result sets
-        print revision_hash_placeholders
         self.get_jobs_dhub().execute(
             proc='jobs.inserts.set_result_set',
             placeholders=revision_hash_placeholders,
