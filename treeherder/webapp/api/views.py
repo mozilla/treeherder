@@ -353,13 +353,20 @@ class ResultSetViewSet(viewsets.ViewSet):
 
             #the unique set of results that are contained in this resultset
             #can be used to determine the resultset's severity
-            resultset["platforms"] = platforms
-            resultset["result_types"] = list(set(result_types))
-            resultset["job_count"] = job_count
+            resultset.update({
+                "platforms": platforms,
+                "result_types": list(set(result_types)),
+                "job_count": job_count,
+            })
 
-        #print "<><><> howder"
-        #print json.dumps(resultsets, indent=4)
-        for rs in rs_map:
+        # the resultsets left in the map have no jobs, so fill in the fields
+        # with blanks that WOULD otherwise have been filled.
+        for rs in rs_map.values():
+            rs.update({
+                "platforms": [],
+                "result_types": [],
+                "job_count": 0,
+            })
             resultsets.append(rs)
         return resultsets
 
