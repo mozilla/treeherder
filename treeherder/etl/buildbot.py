@@ -557,9 +557,9 @@ def extract_job_type(source_string):
 def extract_name_info(source_string):
     """Extract all the pieces that comprise a name, including symbols"""
     output = {
-        "name": "Unknown",
+        "name": "unknown",
         "job_symbol": "?",
-        "group_name": "Unknown Group",
+        "group_name": "unknown",
         "group_symbol": "?",
     }
 
@@ -606,3 +606,4 @@ def get_group_name(name):
     for group in GROUP_NAMES:
         if name in GROUP_NAMES[group]:
             return group
+    return "unknown"

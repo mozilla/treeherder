@@ -44,12 +44,12 @@ def test_objectstore_list(webapp, eleven_jobs_stored, jm):
     assert len(resp.json) == 10
 
 
-def test_objectstore_detail(webapp, eleven_jobs_stored, jm):
+def test_objectstore_detail(webapp, eleven_jobs_stored, sample_data, jm):
     """
     test retrieving a single json blobs from the objectstore-detail
     endpoint.
     """
-    job_guid = '808f4f1372895eda5ecd65f2371ebe67a2a9af9b'
+    job_guid = sample_data.job_data[0]["job"]["job_guid"]
 
     resp = webapp.get(
         reverse('objectstore-detail',

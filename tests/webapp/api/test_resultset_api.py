@@ -46,12 +46,12 @@ def test_resultset_list_bad_project(webapp, jm):
 
 
 def test_resultset_list_empty_rs_still_show(webapp, initial_data,
-                                            pushlog_sample, jm):
+                                            sample_resultset, jm):
     """
     test retrieving a resultset list, when the resultset has no jobs.
     should not show.
     """
-    jm.store_result_set_data(pushlog_sample)
+    jm.store_result_set_data(sample_resultset)
 
     resp = webapp.get(
         reverse("resultset-list", kwargs={"project": jm.project}),
@@ -121,27 +121,27 @@ def test_resultset_create(webapp, pushlog_sample, jm, initial_data):
     resp = webapp.post_json(
         reverse('resultset-list',
                 kwargs={'project': jm.project}),
-        params=pushlog_sample
+        params=sample_resultset
     )
     assert resp.status_int == 200
     assert resp.json['message'] == 'well-formed JSON stored'
 
     stored_objs = jm.get_jobs_dhub().execute(
         proc="jobs_test.selects.resultset_by_rev_hash",
-        placeholders=[pushlog_sample[0]['revision_hash']]
+        placeholders=[sample_resultset[0]['revision_hash']]
     )
 
     assert len(stored_objs) == 1
 
-    assert stored_objs[0]['revision_hash'] == pushlog_sample[0]['revision_hash']
+    assert stored_objs[0]['revision_hash'] == sample_resultset[0]['revision_hash']
 
 
 @pytest.mark.xfail
-def test_result_set_add_job(jm, initial_data, webapp, job_sample, pushlog_sample):
+def test_result_set_add_job(jm, initial_data, webapp, job_sample, sample_resultset):
 
-    jm.store_result_set_data(pushlog_sample)
+    jm.store_result_set_data(sample_resultset)
 
-    job_sample['revision_hash'] = pushlog_sample[0]['revision_hash']
+    job_sample['revision_hash'] = sample_resultset[0]['revision_hash']
     job_sample['job']['log_references'] = []
 
     resp = webapp.post_json(

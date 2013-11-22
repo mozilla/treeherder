@@ -451,7 +451,7 @@ class JobsModel(TreeherderModelBase):
 
     def load_job_data(self, data, raise_errors=False):
         """
-        Load JobData instancea into jobs db, returns job_ids and any
+        Load JobData instances into jobs db, returns job_ids and any
         associated errors.
 
         Example:
@@ -693,7 +693,6 @@ class JobsModel(TreeherderModelBase):
         self.refdata_model.add_product(product)
 
         job_guid = job['job_guid']
-        job_state = job.get('state', 'unknown')
 
         job_placeholders.append([
             job_guid,

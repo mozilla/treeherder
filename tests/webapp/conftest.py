@@ -20,18 +20,6 @@ def job_sample():
 
 
 @pytest.fixture
-def pushlog_sample(test_base_dir):
-    resultset_file = os.path.join(
-        test_base_dir,
-        'sample_data',
-        'resultset_data.json',
-    )
-    data = None
-    with open(resultset_file) as f:
-        data = json.loads(f.read())
-    return data
-
-@pytest.fixture
 def eleven_jobs_stored(jm, sample_data, sample_resultset):
     """stores a list of 11 job samples"""
 

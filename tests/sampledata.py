@@ -1,5 +1,6 @@
 import json
 import os
+from django.conf import settings
 
 
 class SampleData(object):
@@ -7,6 +8,10 @@ class SampleData(object):
     def __init__(self):
 
         self.job_data_file = "{0}/sample_data/job_data.txt".format(
+            os.path.dirname(__file__)
+        )
+
+        self.resultset_data_file = "{0}/sample_data/resultset_data.json".format(
             os.path.dirname(__file__)
         )
 
@@ -27,6 +32,7 @@ class SampleData(object):
 
         self.job_data = []
         self.raw_pulse_data = []
+        self.resultset_data = []
 
         self.initialize_data()
 
@@ -35,6 +41,17 @@ class SampleData(object):
         with open(self.job_data_file) as f:
             for line in f.readlines():
                 self.job_data.append(json.loads(line.strip()))
+
+        with open(self.resultset_data_file) as f:
+
+            self.resultset_data = json.loads(f.read())
+
+            # ensure that the repository values for all the revisions have the
+            # same name as the db test name in settings.  If this is not
+            # the same, the tests will not pass.
+            for rs in self.resultset_data:
+                for rev in rs["revisions"]:
+                    rev["repository"] = settings.DATABASES["default"]["TEST_NAME"]
 
         with open(self.raw_pulse_data_file) as f:
             for line in f.readlines():
