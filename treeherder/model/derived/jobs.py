@@ -1112,7 +1112,6 @@ class JobsModel(TreeherderModelBase):
                 revision_to_rhash_lookup[rev_datum['revision']] = result['revision_hash']
 
         # Insert new result sets
-        print revision_hash_placeholders
         self.get_jobs_dhub().execute(
             proc='jobs.inserts.set_result_set',
             placeholders=revision_hash_placeholders,
