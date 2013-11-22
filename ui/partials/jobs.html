@@ -56,13 +56,13 @@
                     <td class="col-md-2 platform"><span>{{ platform.name }}</span></td>
                     <td class="col-md-10">
                         <span ng-repeat="group in platform.groups">
-                            <span ng-show="group.symbol"
+                            <span ng-show="group.symbol != '?'"
                                class="disabled job-group"
                                title="{{ group.name }}">{{ group.symbol }}(</span>
                             <span>
                                 <th-job-button class="job-btn" ng-repeat="job in group.jobs"></th-job-button>
                             </span>
-                            <span ng-show="group.symbol" class="job-group-r-paren">)</span>
+                            <span ng-show="group.symbol != '?'" class="job-group-r-paren">)</span>
                         </span>
                     </td>
                 </tr>

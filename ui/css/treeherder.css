@@ -155,17 +155,15 @@ fieldset[disabled] .btn-purple.active {
 }
 
 .btn-ltgray {
-  background-color: #e4dfe6;
-  border-color: #e4dfe6;
-  color: white;
+  background-color: #e0e0e0;
+  border-color: #e0e0e0;
 }
 .btn-ltgray:hover,
 .btn-ltgray:focus,
 .btn-ltgray:active,
 .btn-ltgray.active {
-  background-color: #d8d1db;
-  border-color: #ccc2d0;
-  color: white;
+  background-color: #d3d3d3;
+  border-color: #c7c7c7;
 }
 .btn-ltgray.disabled:hover,
 .btn-ltgray.disabled:focus,
@@ -179,9 +177,35 @@ fieldset[disabled] .btn-ltgray:hover,
 fieldset[disabled] .btn-ltgray:focus,
 fieldset[disabled] .btn-ltgray:active,
 fieldset[disabled] .btn-ltgray.active {
-  background-color: #e4dfe6;
-  border-color: #e4dfe6;
-  color: white;
+  background-color: #e0e0e0;
+  border-color: #e0e0e0;
+}
+
+.btn-mdgray {
+  background-color: #bfbfbf;
+  border-color: #bfbfbf;
+}
+.btn-mdgray:hover,
+.btn-mdgray:focus,
+.btn-mdgray:active,
+.btn-mdgray.active {
+  background-color: #b2b2b2;
+  border-color: #a6a6a6;
+}
+.btn-mdgray.disabled:hover,
+.btn-mdgray.disabled:focus,
+.btn-mdgray.disabled:active,
+.btn-mdgray.disabled.active,
+.btn-mdgray[disabled]:hover,
+.btn-mdgray[disabled]:focus,
+.btn-mdgray[disabled]:active,
+.btn-mdgray[disabled].active,
+fieldset[disabled] .btn-mdgray:hover,
+fieldset[disabled] .btn-mdgray:focus,
+fieldset[disabled] .btn-mdgray:active,
+fieldset[disabled] .btn-mdgray.active {
+  background-color: #bfbfbf;
+  border-color: #bfbfbf;
 }
 
 .btn-dkgray {
@@ -212,6 +236,33 @@ fieldset[disabled] .btn-dkgray.active {
   background-color: #7c7a7d;
   border-color: #7c7a7d;
   color: white;
+}
+
+.btn-pink {
+  background-color: #fa73ac;
+  border-color: #fa73ac;
+}
+.btn-pink:hover,
+.btn-pink:focus,
+.btn-pink:active,
+.btn-pink.active {
+  background-color: #f95a9d;
+  border-color: #f8428f;
+}
+.btn-pink.disabled:hover,
+.btn-pink.disabled:focus,
+.btn-pink.disabled:active,
+.btn-pink.disabled.active,
+.btn-pink[disabled]:hover,
+.btn-pink[disabled]:focus,
+.btn-pink[disabled]:active,
+.btn-pink[disabled].active,
+fieldset[disabled] .btn-pink:hover,
+fieldset[disabled] .btn-pink:focus,
+fieldset[disabled] .btn-pink:active,
+fieldset[disabled] .btn-pink.active {
+  background-color: #fa73ac;
+  border-color: #fa73ac;
 }
 
 

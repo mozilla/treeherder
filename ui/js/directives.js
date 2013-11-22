@@ -36,7 +36,7 @@ treeherder.directive('thJobButton', function () {
                 case "fail":
                 case "testfailed":
                     job.display = {
-                        onFire: true,
+                        onFire: false,
                         btnClass: "btn-warning"
                     };
                     break;
@@ -46,17 +46,20 @@ treeherder.directive('thJobButton', function () {
                         btnClass: "btn-primary"
                     };
                     break;
-                case "running":
-                    job.display.btnClass="btn-dkgray";
+                case "usercancel":
+                    job.display = {
+                        onFire: false,
+                        btnClass: "btn-pink"
+                    };
                     break;
             }
         } else {
             switch(job.state) {
                 case "running":
-                    job.display.btnClass="btn-dkgray";
+                    job.display.btnClass="btn-ltgray";
                     break;
                 case "pending":
-                    job.display.btnClass="btn-ltgray";
+                    job.display.btnClass="btn-default";
                     break;
             }
         }
@@ -147,6 +150,10 @@ treeherder.directive('thShowJobs', function ($parse) {
             button: "btn-danger",
             icon: "glyphicon glyphicon-ok",
         },
+        "usercancel":    {
+            button: "btn-danger",
+            icon: "glyphicon glyphicon-stop",
+        },
         "unknown":    {
             button: "btn-default",
             icon: "glyphicon glyphicon-time",
@@ -157,6 +164,9 @@ treeherder.directive('thShowJobs', function ($parse) {
         link: function(scope, element, attrs) {
             scope.$watch('resultSeverity', function(newVal) {
                 if (newVal) {
+                    if (!SEVERITY[newVal]) {
+                        newVal = "unknown";
+                    }
                     scope.resultsetStateBtn = SEVERITY[newVal].button;
                     scope.icon = SEVERITY[newVal].icon;
                 }

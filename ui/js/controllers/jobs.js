@@ -50,37 +50,45 @@ treeherder.controller('ResultSetCtrl',
                 level: 3,
                 isCollapsedResults: false
             },
-            "retry":      {
+            "usercancel":    {
                 level: 4,
-                isCollapsedResults: true
+                isCollapsedResults: false
             },
-            "success":    {
+            "retry":      {
                 level: 5,
                 isCollapsedResults: true
             },
-            "unknown":    {
+            "success":    {
                 level: 6,
+                isCollapsedResults: true
+            },
+            "unknown":    {
+                level: 100,
                 isCollapsedResults: true
             }
         };
 
         // determine the greatest severity this resultset contains
         // so that the UI can show depict that
-        var getSeverity = function(results) {
+        var getSeverity = function(result_types) {
 
             var severity = "unknown",
                 highest = SEVERITY.unknown;
 
-            for (var i = 0; i < results.length; i++) {
-                if (SEVERITY[results[i]].level < highest.level) {
-                    severity = results[i];
-                    highest = SEVERITY[severity];
+            for (var i = 0; i < result_types.length; i++) {
+                if (SEVERITY[result_types[i]]) {
+                    if (SEVERITY[result_types[i]].level < highest.level) {
+                        severity = result_types[i];
+                        highest = SEVERITY[severity];
+                    }
+                } else {
+                    console.warn("WARNING: Unidentified result_type: " + result_types[i]);
                 }
             }
             return severity;
         };
 
-        $scope.resultSeverity = getSeverity($scope.resultset.results);
+        $scope.resultSeverity = getSeverity($scope.resultset.result_types);
 
         // whether or not revision list for a resultset is collapsed
         $scope.isCollapsedRevisions = true;
