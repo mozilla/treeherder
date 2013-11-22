@@ -277,8 +277,8 @@ class JobsModel(TreeherderModelBase):
 
     def get_result_set_details(self, result_set_ids):
         """
-        Retrieve all revisions associated with a set of ``result_set`` (also known as ``pushes``)
-        ids.
+        Retrieve all revisions associated with a set of ``result_set``
+        (also known as ``pushes``) ids.
 
         Mainly used by the restful api to list the pushes and their associated
         revisions in the UI
@@ -439,7 +439,7 @@ class JobsModel(TreeherderModelBase):
 
     def load_job_data(self, data, raise_errors=False):
         """
-        Load JobData instancea into jobs db, returns job_ids and any
+        Load JobData instances into jobs db, returns job_ids and any
         associated errors.
 
         Example:
@@ -646,8 +646,8 @@ class JobsModel(TreeherderModelBase):
             rh_where_in.append('%s')
 
         build_platform_key = self.refdata_model.add_build_platform(
-            job.get('build_platform', {}).get('os_name', 'unkown'),
-            job.get('build_platform', {}).get('platform', 'unkown'),
+            job.get('build_platform', {}).get('os_name', 'unknown'),
+            job.get('build_platform', {}).get('platform', 'unknown'),
             job.get('build_platform', {}).get('architecture', 'unknown')
             )
 
@@ -681,7 +681,6 @@ class JobsModel(TreeherderModelBase):
         self.refdata_model.add_product(product)
 
         job_guid = job['job_guid']
-        job_state = job.get('state', 'unknown')
 
         job_placeholders.append([
             job_guid,
