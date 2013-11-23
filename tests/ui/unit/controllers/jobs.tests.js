@@ -12,34 +12,28 @@ describe('JobsCtrl', function(){
         $httpBackend = $injector.get('$httpBackend');
         jasmine.getJSONFixtures().fixturesPath='base/test/mock';
 
-        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/resultset/?count=10&offset=0').respond(
+        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/resultset/?count=10&format=json&offset=0').respond(
             getJSONFixture('resultset_list.json')
         );
 
-        [1, 2, 3, 6, 7, 9, 11, 13, 14, 17].forEach(function(i) {
-            $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/resultset/' + i + '/').respond(
-                getJSONFixture('resultset_' + i + '.json')
-            );
-        });
-
-        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/jobs/260/').respond(
-            getJSONFixture('job_260.json')
+        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/jobs/1235/').respond(
+            getJSONFixture('job_1235.json')
         );
 
-        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/artifact/519/').respond(
-            getJSONFixture('artifact_519.json')
+        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/artifact/403/').respond(
+            getJSONFixture('artifact_403.json')
         );
 
-        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/artifact/519').respond(
-            getJSONFixture('artifact_519.json')
+        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/artifact/403').respond(
+            getJSONFixture('artifact_403.json')
         );
 
-        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/note?job_id=260').respond(
-            getJSONFixture('notes_job_260.json')
+        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/note?job_id=1235').respond(
+            getJSONFixture('notes_job_1235.json')
         );
 
-        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/note/?job_id=260').respond(
-            getJSONFixture('notes_job_260.json')
+        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/note/?job_id=1235').respond(
+            getJSONFixture('notes_job_1235.json')
         );
 
         $httpBackend.whenGET('resources/job_groups.json').respond(
@@ -53,7 +47,6 @@ describe('JobsCtrl', function(){
         createResultSetCtrl = function(resultset) {
             resultsetScope.resultset = resultset;
             var ctrl = $controller('ResultSetCtrl', {'$scope': resultsetScope});
-            $httpBackend.flush();
             return  ctrl;
         };
         $httpBackend.flush();
@@ -71,9 +64,9 @@ describe('JobsCtrl', function(){
         Tests ResultSetCtrl
      */
 
-    it('should have 5 jobs in resultset 2', function() {
+    it('should have 139 jobs in resultset 2', function() {
         createResultSetCtrl(jobScope.result_sets[2]);
-        expect(resultsetScope.job_results.length).toBe(5);
+        expect(resultsetScope.resultset.platforms.length).toBe(14);
     });
 
     it('should default to revisions collapsed', function() {
@@ -82,7 +75,7 @@ describe('JobsCtrl', function(){
     });
 
     it('should default to results collapsed for set without failure', function() {
-        createResultSetCtrl(jobScope.result_sets[1]);
+        createResultSetCtrl(jobScope.result_sets[7]);
         expect(resultsetScope.isCollapsedResults).toBe(true);
     });
 
@@ -98,7 +91,7 @@ describe('JobsCtrl', function(){
 
     it('should set the selectedJob in scope when calling viewJob()', function() {
         createResultSetCtrl(jobScope.result_sets[2]);
-        var job = resultsetScope.job_results[0].groups[0].jobs[0];
+        var job = resultsetScope.resultset.platforms[0].groups[0].jobs[0];
         resultsetScope.viewJob(job);
         expect(resultsetScope.selectedJob).toBe(job);
     });
