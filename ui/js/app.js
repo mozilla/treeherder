@@ -1,7 +1,7 @@
 'use strict';
 
 var treeherder = angular.module('treeherder',
-    ['ngResource','ui.bootstrap', 'ngSanitize']);
+    ['ngResource','ui.bootstrap', 'ngSanitize', 'ngCookies', 'ngRoute']);
 
 // dummy values required to use the library at: https://tbpl.mozilla.org/js/Config.js
 // for the platform name conversion
@@ -14,6 +14,9 @@ treeherder.config(function($routeProvider, $httpProvider) {
     // @@@ hack for now to get it to work in the short-term
     $httpProvider.defaults.useXDomain = true;
     delete $httpProvider.defaults.headers.common['X-Requested-With'];
+
+    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
 
     $routeProvider.
         when('/jobs', {
