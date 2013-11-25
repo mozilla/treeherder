@@ -204,11 +204,6 @@ RE_INFO = re.compile((
 
 
 IN_SEARCH_TERMS = (
-    'BaseException:',
-    'remoteFailed:',
-    'rm: cannot ',
-    "abort:",
-    "The web-page 'stop build' button was pressed",
     "TEST-UNEXPECTED-PASS ",
     "TEST-UNEXPECTED-FAIL ",
     "TEST-TIMEOUT",
@@ -230,6 +225,11 @@ RE_ERR_MATCH = re.compile((
     "|^\d+:\d+:\d+[ ]+(?:ERROR|CRITICAL|FATAL) - "
     "|^[A-Za-z]+Error:"
     "|^Output exceeded \d+ bytes"
+    "|^BaseException:"
+    "|^remoteFailed:"
+    "|^rm: cannot "
+    "|^abort:"
+    "|^The web-page 'stop build' button was pressed"
 ))
 
 
@@ -249,7 +249,7 @@ class ErrorParser(ParserBase):
     def parse_line(self, line, lineno):
         """Check a single line for an error.  Keeps track of the linenumber"""
         if not RE_INFO.match(line):
-            if any([True for term in IN_SEARCH_TERMS if term in line]) or \
+            if any(term for term in IN_SEARCH_TERMS if term in line) or \
                     RE_ERR_MATCH.match(line) or RE_ERR_SEARCH.search(line):
                 self.artifact.append({
                     "linenumber": lineno,

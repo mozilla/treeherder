@@ -11,10 +11,6 @@ import simplejson as json
 from celery import task
 
 from treeherder.model.derived import JobsModel, RefDataManager
-
-import pyximport
-pyximport.install()
-
 from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
 
 

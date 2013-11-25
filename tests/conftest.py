@@ -5,8 +5,6 @@ import sys
 from django.core.management import call_command
 import pytest
 
-import pyximport
-pyximport.install()
 
 def pytest_addoption(parser):
     parser.addoption(
