@@ -305,6 +305,14 @@
 
 
             "host":"master_host"
+        },
+        "update_job_type_group_id":{
+
+            "sql":"UPDATE `job_type`
+                   SET `job_group_id` = ?
+                   WHERE `name` = ? AND `symbol` = ?",
+
+            "host":"master_host"
         }
     }
 }
