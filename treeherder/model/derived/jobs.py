@@ -324,26 +324,38 @@ class JobsModel(TreeherderModelBase):
 
         return aggregate_details
 
-    def get_result_set_job_list(self, result_set_id, **kwargs):
+    def get_result_set_job_list(self, result_set_ids, **kwargs):
         """
         Retrieve a list of ``jobs`` and results for a result_set.
 
         Mainly used by the restful api to list the job results in the UI
         """
+        if not result_set_ids:
+            # No result sets provided
+            return {}
+
         repl = [self.refdata_model.get_db_name()]
+
+        # Generate a list of result_set_ids
+        id_placeholders = []
+        for data in result_set_ids:
+            id_placeholders.append('%s')
+        repl.append(','.join(id_placeholders))
+
+        # filter by job_type if specified
         if "job_type_name" in kwargs:
             repl.append(" AND jt.`name` = '{0}'".format(kwargs["job_type_name"]))
 
         proc = "jobs.selects.get_result_set_job_list"
         iter_obj = self.get_jobs_dhub().execute(
             proc=proc,
-            placeholders=[result_set_id],
+            placeholders=result_set_ids,
             debug_show=self.DEBUG,
             return_type='iter',
             replace=repl,
         )
 
-        return self.as_list(iter_obj, "jobs", result_set_id=result_set_id)
+        return self.as_list(iter_obj, "jobs", result_set_ids=result_set_ids)
 
     def get_result_set_by_id(self, result_set_id):
         """Get a single result_set by ``id``."""
