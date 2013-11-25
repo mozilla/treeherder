@@ -374,7 +374,7 @@ class ResultSetViewSet(viewsets.ViewSet):
                 "job_count": 0,
             })
             resultsets.append(rs)
-        return resultsets
+        return sorted(resultsets, key=lambda x: x["push_timestamp"], reverse=True)
 
 
     @with_jobs
