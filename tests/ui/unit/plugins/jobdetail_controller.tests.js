@@ -12,39 +12,39 @@ describe('JobDetailPluginCtrl', function(){
         $httpBackend = $injector.get('$httpBackend');
         jasmine.getJSONFixtures().fixturesPath='base/test/mock';
 
-        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/resultset/?count=10&offset=0').respond(
+        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/resultset/?count=10&format=json&offset=0').respond(
             getJSONFixture('resultset_list.json')
         );
 
-        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/resultset/2/').respond(
-            getJSONFixture('resultset_2.json')
+        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/jobs/134/').respond(
+            getJSONFixture('job_134.json')
         );
 
-        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/jobs/260/').respond(
-            getJSONFixture('job_260.json')
+        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/jobs/134').respond(
+            getJSONFixture('job_134.json')
         );
 
-        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/artifact/519/').respond(
-            getJSONFixture('artifact_519.json')
+        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/artifact/1/').respond(
+            getJSONFixture('artifact_1.json')
         );
 
-        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/artifact/519').respond(
-            getJSONFixture('artifact_519.json')
+        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/artifact/1').respond(
+            getJSONFixture('artifact_1.json')
         );
 
-        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/note?job_id=260').respond(
-            getJSONFixture('notes_job_260.json')
+        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/note?job_id=134').respond(
+            getJSONFixture('notes_job_134.json')
         );
 
-        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/note/?job_id=260').respond(
-            getJSONFixture('notes_job_260.json')
+        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/note/?job_id=134').respond(
+            getJSONFixture('notes_job_134.json')
         );
 
         $rootScope.repo = "mozilla-inbound";
         jobDetailPluginScope =  $rootScope.$new();
         createJobDetailPluginCtrl = function() {
             var ctrl = $controller('JobDetailPluginCtrl', {'$scope': jobDetailPluginScope});
-            jobDetailPluginScope.selectedJob = getJSONFixture('resultset_3.json').platforms[0].groups[0].jobs[0];
+            jobDetailPluginScope.selectedJob = getJSONFixture('resultset_list.json')[2].platforms[0].groups[0].jobs[0];
             jobDetailPluginScope.$apply();
             $httpBackend.flush();
             return ctrl;
@@ -59,12 +59,12 @@ describe('JobDetailPluginCtrl', function(){
         createJobDetailPluginCtrl();
         expect(jobDetailPluginScope.visibleFields).toEqual({
             'Result' : 'success',
-            'Job GUID' : '19e993f5b0a717185083fb9eacb2d422b36d6bd1',
-            'Machine Platform Arch' : 'ARMv7',
-            'Machine Platform OS' : 'android',
-            'Build Platform' : '2.2',
-            'Build Arch' : 'ARMv7',
-            'Build OS' : 'android'
+            'Job GUID' : 'e279012c6390dfcb20eecaa50e47a0ab7e809eb0',
+            'Machine Platform Arch' : 'x86',
+            'Machine Platform OS' : 'b2g',
+            'Build Platform' : 'b2g-emu-ics',
+            'Build Arch' : 'x86',
+            'Build OS' : 'b2g'
         });
     });
 
@@ -76,23 +76,23 @@ describe('JobDetailPluginCtrl', function(){
         expect(jobDetailPluginScope.jobArtifact.name).toEqual("Unknown Builder Job Artifact");
         expect(jobDetailPluginScope.jobArtifact.active_status).toEqual("active");
         expect(jobDetailPluginScope.jobArtifact.blob).toEqual({
-                "errors": [ ],
-                "tinderbox_printlines": [
-                    "mochitest-plain<br/>895/0/128"
-                ],
-                "logurl": "http://ftp.mozilla.org/pub/mozilla.org/mobile/tinderbox-builds/mozilla-inbound-android-armv6/1377289258/mozilla-inbound_tegra_android-armv6_test-mochitest-5-bm10-tests1-tegra-build1958.txt.gz"
-            });
+            "tinderbox_printlines": [
+                "mozharness_revlink: http://hg.mozilla.org/build/mozharness/rev/dcb709d56ac2",
+                "gaia_revlink: https://git.mozilla.org/?p=releases/gaia.git;a=tree;h=d1bea46121987a35501521ef1d1d5971b137dbdf"
+            ],
+            "logurl": "http://ftp.mozilla.org/pub/mozilla.org/b2g/tinderbox-builds/mozilla-inbound-emulator-debug/1385147851/b2g_mozilla-inbound_emulator-debug_dep-bm84-build1-build15.txt.gz"
+        });
         expect(jobDetailPluginScope.jobArtifact.type).toEqual("json");
-        expect(jobDetailPluginScope.jobArtifact.id).toEqual(519);
-        expect(jobDetailPluginScope.jobArtifact.job_id).toEqual(260);
+        expect(jobDetailPluginScope.jobArtifact.id).toEqual(1);
+        expect(jobDetailPluginScope.jobArtifact.job_id).toEqual(134);
     });
 
     it('should set lvArtifact when calling viewJob()', function() {
         createJobDetailPluginCtrl();
         expect(jobDetailPluginScope.lvArtifact).toEqual({
-            resource_uri : '/api/project/mozilla-inbound/artifact/520/',
+            resource_uri : '/api/project/mozilla-inbound/artifact/2/',
             type : 'json',
-            id : 520,
+            id : 2,
             name : 'Structured Log'
         });
     });

@@ -122,6 +122,176 @@ body {
     padding: 0;
 }
 
+/* Custom Job buttons*/
+
+.btn-purple {
+  background-color: #9002c2;
+  border-color: #9002c2;
+  color: white;
+}
+.btn-purple:hover,
+.btn-purple:focus,
+.btn-purple:active,
+.btn-purple.active {
+  background-color: #7d02a9;
+  border-color: #6b0190;
+  color: white;
+}
+.btn-purple.disabled:hover,
+.btn-purple.disabled:focus,
+.btn-purple.disabled:active,
+.btn-purple.disabled.active,
+.btn-purple[disabled]:hover,
+.btn-purple[disabled]:focus,
+.btn-purple[disabled]:active,
+.btn-purple[disabled].active,
+fieldset[disabled] .btn-purple:hover,
+fieldset[disabled] .btn-purple:focus,
+fieldset[disabled] .btn-purple:active,
+fieldset[disabled] .btn-purple.active {
+  background-color: #9002c2;
+  border-color: #9002c2;
+  color: white;
+}
+
+.btn-ltgray {
+  background-color: #e0e0e0;
+  border-color: #e0e0e0;
+}
+.btn-ltgray:hover,
+.btn-ltgray:focus,
+.btn-ltgray:active,
+.btn-ltgray.active {
+  background-color: #d3d3d3;
+  border-color: #c7c7c7;
+}
+.btn-ltgray.disabled:hover,
+.btn-ltgray.disabled:focus,
+.btn-ltgray.disabled:active,
+.btn-ltgray.disabled.active,
+.btn-ltgray[disabled]:hover,
+.btn-ltgray[disabled]:focus,
+.btn-ltgray[disabled]:active,
+.btn-ltgray[disabled].active,
+fieldset[disabled] .btn-ltgray:hover,
+fieldset[disabled] .btn-ltgray:focus,
+fieldset[disabled] .btn-ltgray:active,
+fieldset[disabled] .btn-ltgray.active {
+  background-color: #e0e0e0;
+  border-color: #e0e0e0;
+}
+
+.btn-mdgray {
+  background-color: #bfbfbf;
+  border-color: #bfbfbf;
+}
+.btn-mdgray:hover,
+.btn-mdgray:focus,
+.btn-mdgray:active,
+.btn-mdgray.active {
+  background-color: #b2b2b2;
+  border-color: #a6a6a6;
+}
+.btn-mdgray.disabled:hover,
+.btn-mdgray.disabled:focus,
+.btn-mdgray.disabled:active,
+.btn-mdgray.disabled.active,
+.btn-mdgray[disabled]:hover,
+.btn-mdgray[disabled]:focus,
+.btn-mdgray[disabled]:active,
+.btn-mdgray[disabled].active,
+fieldset[disabled] .btn-mdgray:hover,
+fieldset[disabled] .btn-mdgray:focus,
+fieldset[disabled] .btn-mdgray:active,
+fieldset[disabled] .btn-mdgray.active {
+  background-color: #bfbfbf;
+  border-color: #bfbfbf;
+}
+
+.btn-dkgray {
+  background-color: #7c7a7d;
+  border-color: #7c7a7d;
+  color: white;
+}
+.btn-dkgray:hover,
+.btn-dkgray:focus,
+.btn-dkgray:active,
+.btn-dkgray.active {
+  background-color: #6f6d70;
+  border-color: #626163;
+  color: white;
+}
+.btn-dkgray.disabled:hover,
+.btn-dkgray.disabled:focus,
+.btn-dkgray.disabled:active,
+.btn-dkgray.disabled.active,
+.btn-dkgray[disabled]:hover,
+.btn-dkgray[disabled]:focus,
+.btn-dkgray[disabled]:active,
+.btn-dkgray[disabled].active,
+fieldset[disabled] .btn-dkgray:hover,
+fieldset[disabled] .btn-dkgray:focus,
+fieldset[disabled] .btn-dkgray:active,
+fieldset[disabled] .btn-dkgray.active {
+  background-color: #7c7a7d;
+  border-color: #7c7a7d;
+  color: white;
+}
+
+.btn-black {
+  background-color: #000000;
+  border-color: #000000;
+}
+.btn-black:hover,
+.btn-black:focus,
+.btn-black:active,
+.btn-black.active {
+  background-color: #000000;
+  border-color: #000000;
+}
+.btn-black.disabled:hover,
+.btn-black.disabled:focus,
+.btn-black.disabled:active,
+.btn-black.disabled.active,
+.btn-black[disabled]:hover,
+.btn-black[disabled]:focus,
+.btn-black[disabled]:active,
+.btn-black[disabled].active,
+fieldset[disabled] .btn-black:hover,
+fieldset[disabled] .btn-black:focus,
+fieldset[disabled] .btn-black:active,
+fieldset[disabled] .btn-black.active {
+  background-color: #000000;
+  border-color: #000000;
+}
+
+.btn-pink {
+  background-color: #fa73ac;
+  border-color: #fa73ac;
+}
+.btn-pink:hover,
+.btn-pink:focus,
+.btn-pink:active,
+.btn-pink.active {
+  background-color: #f95a9d;
+  border-color: #f8428f;
+}
+.btn-pink.disabled:hover,
+.btn-pink.disabled:focus,
+.btn-pink.disabled:active,
+.btn-pink.disabled.active,
+.btn-pink[disabled]:hover,
+.btn-pink[disabled]:focus,
+.btn-pink[disabled]:active,
+.btn-pink[disabled].active,
+fieldset[disabled] .btn-pink:hover,
+fieldset[disabled] .btn-pink:focus,
+fieldset[disabled] .btn-pink:active,
+fieldset[disabled] .btn-pink.active {
+  background-color: #fa73ac;
+  border-color: #fa73ac;
+}
+
 
 /*Log Viewer*/
 

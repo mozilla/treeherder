@@ -4,11 +4,7 @@
      ng-controller="ResultSetCtrl"
      class="result-set">
 
-    <a class="btn {{ resultsetStateBtn }} th-show-jobs-button pull-left"
-       ng-click="isCollapsedResults = !isCollapsedResults">
-           <i class="{{ icon }}"></i>
-           {{ ' jobs' | showOrHide:isCollapsedResults }}
-    </a>
+    <span th-show-jobs severity="resultSeverity"></span>
     <a class="text-left btn btn-info th-revision-btn"
        ng-click="isCollapsedRevisions = !isCollapsedRevisions"
        >
@@ -56,17 +52,17 @@
               ng-class="{'col-md-8': (isCollapsedRevisions==false), 'col-md-12': (isCollapsedRevisions)}"
               class="job-list">
             <table class="table-hover">
-                <tr ng-repeat="platform in job_results | filter:query">
+                <tr ng-repeat="platform in resultset.platforms | filter:query">
                     <td class="col-md-2 platform"><span>{{ platform.name }}</span></td>
                     <td class="col-md-10">
                         <span ng-repeat="group in platform.groups">
-                            <span ng-show="group.symbol"
+                            <span ng-show="group.symbol != '?'"
                                class="disabled job-group"
                                title="{{ group.name }}">{{ group.symbol }}(</span>
                             <span>
                                 <th-job-button class="job-btn" ng-repeat="job in group.jobs"></th-job-button>
                             </span>
-                            <span ng-show="group.symbol" class="job-group-r-paren">)</span>
+                            <span ng-show="group.symbol != '?'" class="job-group-r-paren">)</span>
                         </span>
                     </td>
                 </tr>
@@ -74,10 +70,15 @@
         </span>
     </div>
 </div>
+<div class="progress progress-striped active"
+     ng-show="isLoadingRsBatch">
+    <div class="progress-bar"  role="progressbar" style="width: 100%"></div>
+</div>
 <div class="well">
     get next: <div class="btn-group">
         <div class="btn btn-default btn-sm"
              ng-click="nextResultSets(count)"
              ng-repeat="count in [10, 20, 50, 100]">{{count}}</div>
     </div>
+</div>
 </div>

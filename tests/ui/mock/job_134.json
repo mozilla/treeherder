@@ -1,0 +1,41 @@
+{
+    "end_timestamp": 1385153909,
+    "submit_timestamp": 1385147852,
+    "start_timestamp": 1385147875,
+    "result_set_id": 3,
+    "product_id": 2,
+    "machine_platform_id": 5,
+    "active_status": "active",
+    "artifacts": [
+        {
+            "resource_uri": "/api/project/mozilla-inbound/artifact/1/",
+            "type": "json",
+            "id": 1,
+            "name": "Unknown Builder Job Artifact"
+        },
+        {
+            "resource_uri": "/api/project/mozilla-inbound/artifact/2/",
+            "type": "json",
+            "id": 2,
+            "name": "Structured Log"
+        }
+    ],
+    "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
+    "machine_name": "bld-linux64-ix-035",
+    "state": "completed",
+    "who": "b2g_mozilla-inbound-b2g",
+    "logs": [
+        {
+            "url": "http://ftp.mozilla.org/pub/mozilla.org/b2g/tinderbox-builds/mozilla-inbound-emulator-debug/1385147851/b2g_mozilla-inbound_emulator-debug_dep-bm84-build1-build15.txt.gz",
+            "name": "builds-4h"
+        }
+    ],
+    "reason": "scheduler",
+    "machine_id": 94,
+    "result": "success",
+    "build_platform_id": 5,
+    "job_coalesced_to_guid": null,
+    "job_guid": "e279012c6390dfcb20eecaa50e47a0ab7e809eb0",
+    "id": 134,
+    "job_type_id": 21
+}

@@ -26,24 +26,50 @@ treeherder.directive('thJobButton', function () {
                 case "success":
                     job.display.btnClass = "btn-success";
                     break;
+                case "exception":
+                    job.display = {
+                        onFire: true,
+                        btnClass: "btn-purple"
+                    };
+                    break;
                 case "busted":
-                case "fail":
-                case "testfailed":
                     job.display = {
                         onFire: true,
                         btnClass: "btn-danger"
                     };
                     break;
-                case "orange":
+                case "fail":
+                case "testfailed":
                     job.display = {
-                        onFire: true,
+                        onFire: false,
                         btnClass: "btn-warning"
+                    };
+                    break;
+                case "retry":
+                    job.display = {
+                        onFire: false,
+                        btnClass: "btn-primary"
+                    };
+                    break;
+                case "usercancel":
+                    job.display = {
+                        onFire: false,
+                        btnClass: "btn-pink"
+                    };
+                    break;
+                case "unknown":
+                    job.display = {
+                        onFire: false,
+                        btnClass: "btn-black"
                     };
                     break;
             }
         } else {
-            switch(job.result) {
+            switch(job.state) {
                 case "running":
+                    job.display.btnClass="btn-ltgray";
+                    break;
+                case "pending":
                     job.display.btnClass="btn-default";
                     break;
             }
@@ -110,5 +136,56 @@ treeherder.directive('thStar', function ($parse, thStarTypes) {
                         'title="{{ hoverText }}">' +
                         '<i class="glyphicon glyphicon-star-empty"></i>' +
                         '</span>'
+    };
+});
+
+treeherder.directive('thShowJobs', function ($parse) {
+    var SEVERITY = {
+        "busted":     {
+            button: "btn-danger",
+            icon: "glyphicon glyphicon-fire",
+        },
+        "exception":  {
+            button: "btn-danger",
+            icon: "glyphicon glyphicon-fire",
+        },
+        "testfailed": {
+            button: "btn-warning",
+            icon: "glyphicon glyphicon-warning-sign",
+        },
+        "retry":      {
+            button: "btn-info",
+            icon: "glyphicon glyphicon-time",
+        },
+        "success":    {
+            button: "btn-danger",
+            icon: "glyphicon glyphicon-ok",
+        },
+        "usercancel":    {
+            button: "btn-danger",
+            icon: "glyphicon glyphicon-stop",
+        },
+        "unknown":    {
+            button: "btn-default",
+            icon: "glyphicon glyphicon-time",
+        }
+    };
+
+    return {
+        link: function(scope, element, attrs) {
+            scope.$watch('resultSeverity', function(newVal) {
+                if (newVal) {
+                    if (!SEVERITY[newVal]) {
+                        newVal = "unknown";
+                    }
+                    scope.resultsetStateBtn = SEVERITY[newVal].button;
+                    scope.icon = SEVERITY[newVal].icon;
+                }
+            });
+        },
+        template: '<a class="btn {{ resultsetStateBtn }} th-show-jobs-button pull-left" ' +
+                       'ng-click="isCollapsedResults = !isCollapsedResults">' +
+                       '<i class="{{ icon }}"></i> ' +
+                       '{{ \' jobs\' | showOrHide:isCollapsedResults }}</a>'
     };
 });
