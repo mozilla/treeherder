@@ -83,18 +83,6 @@ class TreeherderModelBase(object):
         )
         return self.as_single(iter_obj, table_name, id=obj_id)
 
-    def as_list(self, iter_obj, table_name, **kwargs):
-        try:
-            return list(iter_obj)
-        except StopIteration:
-            raise ObjectNotFoundException(table_name, **kwargs)
-
-    def as_single(self, iter_obj, table_name, **kwargs):
-        try:
-            return iter_obj.next()
-        except StopIteration:
-            raise ObjectNotFoundException(table_name, **kwargs)
-
     def disconnect(self):
         """Iterate over and disconnect all data sources."""
         self.refdata_model.disconnect()

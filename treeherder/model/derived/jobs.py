@@ -67,14 +67,13 @@ class JobsModel(TreeherderModelBase):
     def get_job(self, id):
         """Return the job row for this ``job_id``"""
         repl = [self.refdata_model.get_db_name()]
-        iter_obj = self.get_jobs_dhub().execute(
+        data = self.get_jobs_dhub().execute(
             proc="jobs.selects.get_job",
             placeholders=[id],
             debug_show=self.DEBUG,
             replace=repl,
-            return_type='iter',
         )
-        return self.as_single(iter_obj, "job", id=id)
+        return data[0]
 
     def get_job_list(self, offset, limit):
         """
@@ -82,14 +81,13 @@ class JobsModel(TreeherderModelBase):
         Mainly used by the restful api to list the jobs
         """
         proc = "jobs.selects.get_job_list"
-        iter_obj = self.get_jobs_dhub().execute(
+        data = self.get_jobs_dhub().execute(
             proc=proc,
             placeholders=[offset, limit],
             debug_show=self.DEBUG,
-            return_type='iter'
         )
 
-        return self.as_list(iter_obj, "job")
+        return data
 
     def set_state(self, job_id, state):
         """Update the state of an existing job"""
@@ -101,13 +99,12 @@ class JobsModel(TreeherderModelBase):
 
     def get_log_references(self, job_id):
         """Return the log references for the given ``job_id``."""
-        iter_obj = self.get_jobs_dhub().execute(
+        data = self.get_jobs_dhub().execute(
             proc="jobs.selects.get_log_references",
             placeholders=[job_id],
             debug_show=self.DEBUG,
-            return_type='iter',
         )
-        return self.as_list(iter_obj, "job_log_url", job_id=job_id)
+        return data
 
     def get_job_artifact_references(self, job_id):
         """
@@ -116,43 +113,39 @@ class JobsModel(TreeherderModelBase):
         This is everything about the artifact, but not the artifact blob
         itself.
         """
-        iter_obj = self.get_jobs_dhub().execute(
+        data = self.get_jobs_dhub().execute(
             proc="jobs.selects.get_job_artifact_references",
             placeholders=[job_id],
             debug_show=self.DEBUG,
-            return_type='iter',
         )
-        return self.as_list(iter_obj, "job_artifacts", job_id=job_id)
+        return data
 
     def get_job_artifact(self, id):
         """Return the job artifact blob by id."""
-        iter_obj = self.get_jobs_dhub().execute(
+        data = self.get_jobs_dhub().execute(
             proc="jobs.selects.get_job_artifact",
             placeholders=[id],
             debug_show=self.DEBUG,
-            return_type='iter',
         )
-        return self.as_single(iter_obj, "job_artifacts", id=id)
+        return data[0]
 
     def get_job_note(self, id):
         """Return the job note by id."""
-        iter_obj = self.get_jobs_dhub().execute(
+        data = self.get_jobs_dhub().execute(
             proc="jobs.selects.get_job_note",
             placeholders=[id],
             debug_show=self.DEBUG,
-            return_type='iter',
         )
-        return self.as_single(iter_obj, "job_note", id=id)
+        return data[0]
 
     def get_job_note_list(self, job_id):
         """Return the job notes by job_id."""
-        iter_obj = self.get_jobs_dhub().execute(
+        data = self.get_jobs_dhub().execute(
             proc="jobs.selects.get_job_note_list",
             placeholders=[job_id],
             debug_show=self.DEBUG,
-            return_type='iter',
         )
-        return self.as_list(iter_obj, "job_notes", job_id=job_id)
+        return data
 
     def insert_job_note(self, job_id, failure_classification_id, who, note):
         """insert a new note for the job"""
@@ -253,7 +246,7 @@ class JobsModel(TreeherderModelBase):
                     }
                 )
 
-        return self.as_list(return_list, "result_set", **kwargs)
+        return return_list
 
     def get_revision_resultset_lookup(self, revision_list):
         """
@@ -347,27 +340,25 @@ class JobsModel(TreeherderModelBase):
             repl.append(" AND jt.`name` = '{0}'".format(kwargs["job_type_name"]))
 
         proc = "jobs.selects.get_result_set_job_list"
-        iter_obj = self.get_jobs_dhub().execute(
+        data = self.get_jobs_dhub().execute(
             proc=proc,
             placeholders=result_set_ids,
             debug_show=self.DEBUG,
-            return_type='iter',
             replace=repl,
         )
 
-        return self.as_list(iter_obj, "jobs", result_set_ids=result_set_ids)
+        return data
 
     def get_result_set_by_id(self, result_set_id):
         """Get a single result_set by ``id``."""
         proc = "jobs.selects.get_result_set_by_id"
-        iter_obj = self.get_jobs_dhub().execute(
+        data = self.get_jobs_dhub().execute(
             proc=proc,
             placeholders=[result_set_id],
             debug_show=self.DEBUG,
-            return_type='iter',
         )
 
-        return self.as_single(iter_obj, "result_set", id=result_set_id)
+        return data[0]
 
     ##################
     #
@@ -1005,13 +996,12 @@ class JobsModel(TreeherderModelBase):
 
     def get_json_blob_by_guid(self, guid):
         """retrieves a json_blob given its guid"""
-        iter_obj = self.get_os_dhub().execute(
+        data = self.get_os_dhub().execute(
             proc="objectstore.selects.get_json_blob_by_guid",
             placeholders=[guid],
             debug_show=self.DEBUG,
-            return_type='iter',
         )
-        return self.as_single(iter_obj, "objectstore", guid=guid)
+        return data
 
     def get_json_blob_list(self, offset, limit):
         """
