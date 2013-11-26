@@ -23,7 +23,7 @@ def jobs_with_local_log(jm, initial_data):
     return [job]
 
 
-def test_parse_log(jm, initial_data, jobs_with_local_log, sample_resultset, monkeypatch):
+def test_parse_log(jm, initial_data, jobs_with_local_log, sample_resultset):
     """
     check that at least 2 job_artifacts get inserted when running
     a parse_log task
