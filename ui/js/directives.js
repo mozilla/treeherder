@@ -27,6 +27,11 @@ treeherder.directive('thJobButton', function () {
                     job.display.btnClass = "btn-success";
                     break;
                 case "exception":
+                    job.display = {
+                        onFire: true,
+                        btnClass: "btn-purple"
+                    };
+                    break;
                 case "busted":
                     job.display = {
                         onFire: true,
