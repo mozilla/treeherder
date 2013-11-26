@@ -21,37 +21,38 @@ def parse_log(project, job_id, check_errors=True):
     """
     jm = JobsModel(project=project)
     rdm = RefDataManager()
-    log_references = jm.get_log_references(job_id)
+    try:
+        log_references = jm.get_log_references(job_id)
 
-    # we may have many log references per job
-    for log in log_references:
+        # we may have many log references per job
+        for log in log_references:
 
-        # parse a log given its url
-        artifact_bc = ArtifactBuilderCollection(
-            log['url'],
-            check_errors=check_errors,
-        )
-        artifact_bc.parse()
+            # parse a log given its url
+            artifact_bc = ArtifactBuilderCollection(
+                log['url'],
+                check_errors=check_errors,
+            )
+            artifact_bc.parse()
 
-        artifact_list = []
-        for name, artifact in artifact_bc.artifacts.items():
-            artifact_list.append((job_id, name, 'json', json.dumps(artifact)))
+            artifact_list = []
+            for name, artifact in artifact_bc.artifacts.items():
+                artifact_list.append((job_id, name, 'json', json.dumps(artifact)))
 
-        if check_errors:
-            # I'll try to begin with a full_text search on the entire row
+            if check_errors:
+                # I'll try to begin with a full_text search on the entire row
 
-            all_errors = artifact_bc.artifacts['Structured Log']['step_data']['all_errors']
-            error_lines = [err['line'] for err in all_errors]
-            open_bugs_suggestions = rdm.get_suggested_bugs(error_lines)
-            closed_bugs_suggestions = rdm.get_suggested_bugs(error_lines, open_bugs=False)
+                all_errors = artifact_bc.artifacts['Structured Log']['step_data']['all_errors']
+                error_lines = [err['line'] for err in all_errors]
+                open_bugs_suggestions = rdm.get_suggested_bugs(error_lines)
+                closed_bugs_suggestions = rdm.get_suggested_bugs(error_lines, open_bugs=False)
 
-            for item in open_bugs_suggestions:
-                artifact_list.append((job_id, 'open_bugs', 'json', json.dumps(item)))
-            for item in closed_bugs_suggestions:
-                artifact_list.append((job_id, 'closed_bugs', 'json', json.dumps(item)))
+                for item in open_bugs_suggestions:
+                    artifact_list.append((job_id, 'open_bugs', 'json', json.dumps(item)))
+                for item in closed_bugs_suggestions:
+                    artifact_list.append((job_id, 'closed_bugs', 'json', json.dumps(item)))
 
-        # store the artifacts generated
-        jm.store_job_artifact(artifact_list)
-
-    rdm.disconnect()
-    jm.disconnect()
+            # store the artifacts generated
+            jm.store_job_artifact(artifact_list)
+    finally:
+        rdm.disconnect()
+        jm.disconnect()
