@@ -238,6 +238,33 @@ fieldset[disabled] .btn-dkgray.active {
   color: white;
 }
 
+.btn-black {
+  background-color: #000000;
+  border-color: #000000;
+}
+.btn-black:hover,
+.btn-black:focus,
+.btn-black:active,
+.btn-black.active {
+  background-color: #000000;
+  border-color: #000000;
+}
+.btn-black.disabled:hover,
+.btn-black.disabled:focus,
+.btn-black.disabled:active,
+.btn-black.disabled.active,
+.btn-black[disabled]:hover,
+.btn-black[disabled]:focus,
+.btn-black[disabled]:active,
+.btn-black[disabled].active,
+fieldset[disabled] .btn-black:hover,
+fieldset[disabled] .btn-black:focus,
+fieldset[disabled] .btn-black:active,
+fieldset[disabled] .btn-black.active {
+  background-color: #000000;
+  border-color: #000000;
+}
+
 .btn-pink {
   background-color: #fa73ac;
   border-color: #fa73ac;

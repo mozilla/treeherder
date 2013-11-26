@@ -57,6 +57,12 @@ treeherder.directive('thJobButton', function () {
                         btnClass: "btn-pink"
                     };
                     break;
+                case "unknown":
+                    job.display = {
+                        onFire: false,
+                        btnClass: "btn-black"
+                    };
+                    break;
             }
         } else {
             switch(job.state) {
