@@ -1184,6 +1184,10 @@ class RefDataManager(object):
             debug_show=self.DEBUG)
 
     def get_suggested_bugs(self, search_term, open_bugs=True):
+        """
+        retrieves bug suggestions from bugscache using search_term
+        in a full_text search.
+        """
         if not search_term:
             return []
 

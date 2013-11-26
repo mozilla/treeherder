@@ -21,6 +21,7 @@ def parse_log(project, job_id, check_errors=True):
     """
     jm = JobsModel(project=project)
     rdm = RefDataManager()
+
     try:
         log_references = jm.get_log_references(job_id)
 
@@ -43,8 +44,10 @@ def parse_log(project, job_id, check_errors=True):
 
                 all_errors = artifact_bc.artifacts['Structured Log']['step_data']['all_errors']
                 error_lines = [err['line'] for err in all_errors]
-                open_bugs_suggestions = rdm.get_suggested_bugs(error_lines)
-                closed_bugs_suggestions = rdm.get_suggested_bugs(error_lines, open_bugs=False)
+                open_bugs_suggestions = closed_bugs_suggestions = []
+                for line in error_lines:
+                    open_bugs_suggestions += rdm.get_suggested_bugs(line)
+                    closed_bugs_suggestions += rdm.get_suggested_bugs(line, open_bugs=False)
 
                 for item in open_bugs_suggestions:
                     artifact_list.append((job_id, 'open_bugs', 'json', json.dumps(item)))
