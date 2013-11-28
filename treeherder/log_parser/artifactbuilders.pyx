@@ -63,15 +63,7 @@ class BuildbotJobArtifactBuilder(ArtifactBuilderBase):
         self.parsers = [
             TinderboxPrintParser(),
         ]
-
-    @property
-    def name(self):
-        """Name that can be used to identify this type of artifact"""
-        try:
-            builder = self.artifact["builder"]
-        except KeyError:
-            builder = "Unknown Builder"
-        return "{0} Job Artifact".format(builder)
+        self.name = "Job Info"
 
 
 class BuildbotLogViewArtifactBuilder(ArtifactBuilderBase):
