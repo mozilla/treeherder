@@ -13,4 +13,8 @@ class treeherder {
         enable => true,
         require => Package['memcached'],
     }
+
+    exec{"build-extensions":
+      command => "${VENV_DIR}/bin/python ${PROJ_DIR}/setup.py build_ext --inplace"
+    }
 }

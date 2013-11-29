@@ -2,8 +2,16 @@ oauth2==1.5.211
 South==0.7.6
 python-memcached==1.48
 mozillapulse==0.61
+# requirements for mozillapulse
+carrot==0.10.7
+
 djangorestframework==2.3.5
 django-cors-headers==0.11
 django-browserid==0.9
+
+# requirements for django-browserid
+requests>=0.9.1
+fancy-tag==0.2.0
+six>=1.3
 
 git+git://github.com/jeads/datasource@143ac08d11

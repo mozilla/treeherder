@@ -1,0 +1,26 @@
+{ "MySQL_test": { ##Required##
+                  "hub":"MySQL",
+
+                  ##Required##
+                  "master_host": { "host":"localhost",
+                                   "user":"usrname",
+                                   "passwd":"passwd" },
+
+                  ##Not required if you don't have one##
+                  "read_host": { "host":"localhost",
+                                 "user":"username",
+                                 "passwd":"passwd" },
+
+                  ##Not required if you don't have one##
+                  "dev_host": { "host":"localhost",
+                                 "user":"username",
+                                 "passwd":"passwd" },
+
+                  ##Not required, if set execute uses this db as a default##
+                  "default_db": "test",
+
+                  ##All files must have unique names##
+                  "procs": []
+
+               }
+}
