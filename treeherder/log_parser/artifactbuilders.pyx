@@ -26,11 +26,7 @@ class ArtifactBuilderBase(object):
         }
         self.lineno = 0
         self.parsers = []
-
-    @property
-    def name(self):
-        """Return the name used to store this in the collection's artifact"""
-        raise NotImplementedError  # pragma nocover
+        self.name = "Generic Artifact"
 
     def parse_line(self, line):
         """Parse a single line of the log."""
@@ -76,8 +72,4 @@ class BuildbotLogViewArtifactBuilder(ArtifactBuilderBase):
             HeaderParser(),
             StepParser(check_errors=check_errors)
         ]
-
-    @property
-    def name(self):
-        """Name that can be used to identify this type of artifact"""
-        return "Structured Log"
+        self.name = "Structured Log"
