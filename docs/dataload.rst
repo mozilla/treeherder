@@ -1,26 +1,27 @@
 Loading buildbot data
 =====================
 
-Buildapi
---------
-This is the list of celery tasks in Treeherder for fetching data from buildapi:
+In order to start ingesting data, you need to turn on a celery worker with a '-B' option.
+In this way the worker can run some scheduled tasks that are loaded in the database with the init_master_db command.
+Here is a brief description of what each periodic task will do for you:
 
-* fetch-push-logs
-* fetch-buildapi-pending
-* fetch-buildapi-running
-* fetch-buildapi-build4h
+*fetch-push-logs*
+  Retrieves and store all the latest pushes (a.k.a. resultsets) from the available repositories.
+  You need to have this running before you can start ingestiong job data. No pushes, no jobs.
 
-You can setup those tasks in the django admin interface at
-``/admin/djcelery/periodictask/add/``.
+*fetch-buildapi-pending*
+  Retrieves and store buildbot pending jobs using `RelEng buildapi`_ service
 
-For each task, set the following fields:
+*fetch-buildapi-running*
+  Same as before, but for running jobs
 
-* name: just a description of the task
-* task(registered): from the list above
-* enabled: true
+*fetch-buildapi-build4h*
+  Same as before, but it collects all the jobs completed in the last 4 hours.
 
-In the schedule section you can choose between a simple interval and a
-crontab-like definition.  Choose the one that best suits your needs.
+*process-objects*
+  As the name says, processes job objects from the objectstore to the jobs store.
+  Once a job is processed, it becomes available in the restful interface for consumption.
+  See the `architecture diagram`_ for more info
 
-You can now save and exit. Once you start the celery task process, your tasks
-will be run according to the interval you chose.
+.. _RelEng buildapi: https://wiki.mozilla.org/ReleaseEngineering/BuildAPI
+.. _architecture diagram: https://cacoo.com/diagrams/870thliGfT89pLZc

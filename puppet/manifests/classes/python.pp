@@ -22,6 +22,7 @@ class python {
            "python-setuptools",
            "python-pip",
            "python-virtualenv",
+           "git",
            $libxml2]:
     ensure => installed;
   }

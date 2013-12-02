@@ -1,0 +1,55 @@
+{
+   """
+   This file contains generic SQL statements that are database independent.
+   """
+   "ds_selects":{
+               "get_databases": {"""
+                                 Returns all of the databases in an instance.
+
+                                 Parameters:
+                                    None
+
+                                 Returns:
+
+                                 """
+                                 "sql":"SHOW DATABASES",
+                                 "host_type":"master_host"},
+
+               """
+               Get the total row count for a table.
+
+               REP0 = Column name, if you use an indexed column this is much faster than *
+               REP1 = Table name
+               """
+               "get_row_count":{"sql":"SELECT COUNT(`REP0`) AS rowcount FROM `REP1`"},
+
+               "get_tables":{"sql":"SHOW tables"},
+
+               """
+               Get Max id for table.column
+
+               REP0 = column
+               REP1 = table
+               """
+               "get_max":{"sql":"SELECT MAX(`REP0`) AS max_id FROM `REP1`" },
+
+               """
+               Get Min id for table.column
+
+               REP0 = column
+               REP1 = table
+               """
+               "get_min":{"sql":"SELECT MIN(`REP0`) AS min_id FROM `REP1`" }
+
+    },
+
+   "ds_use": {
+
+      "select_database": {"sql":"USE REP0" },
+
+      "begin_transaction":{"sql":"START TRANSACTION"}
+
+   }
+
+}
+

@@ -1,0 +1,124 @@
+[
+    {
+        "pk": 1,
+        "model": "djcelery.intervalschedule",
+        "fields": {
+            "every": 3,
+            "period": "minutes"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "djcelery.intervalschedule",
+        "fields": {
+            "every": 1,
+            "period": "minutes"
+        }
+    },
+
+    {
+        "pk": 2,
+        "model": "djcelery.periodictask",
+        "fields": {
+            "task": "fetch-push-logs",
+            "name": "fetch-pushlogs",
+            "exchange": null,
+            "last_run_at": null,
+            "args": "[]",
+            "enabled": true,
+            "routing_key": null,
+            "crontab": null,
+            "interval": 1,
+            "queue": null,
+            "total_run_count": 0,
+            "expires": null,
+            "kwargs": "{}",
+            "date_changed": "2013-11-28T16:22:39",
+            "description": ""
+        }
+    },
+    {
+        "pk": 3,
+        "model": "djcelery.periodictask",
+        "fields": {
+            "task": "fetch-buildapi-pending",
+            "name": "fetch-pending",
+            "exchange": null,
+            "last_run_at": null,
+            "args": "[]",
+            "enabled": true,
+            "routing_key": null,
+            "crontab": null,
+            "interval": 2,
+            "queue": null,
+            "total_run_count": 0,
+            "expires": null,
+            "kwargs": "{}",
+            "date_changed": "2013-11-28T16:22:39",
+            "description": ""
+        }
+    },
+    {
+        "pk": 4,
+        "model": "djcelery.periodictask",
+        "fields": {
+            "task": "process-objects",
+            "name": "process-objects",
+            "exchange": null,
+            "last_run_at": null,
+            "args": "[]",
+            "enabled": true,
+            "routing_key": null,
+            "crontab": null,
+            "interval": 2,
+            "queue": null,
+            "total_run_count": 0,
+            "expires": null,
+            "kwargs": "{}",
+            "date_changed": "2013-11-28T16:22:39",
+            "description": ""
+        }
+    },
+    {
+        "pk": 5,
+        "model": "djcelery.periodictask",
+        "fields": {
+            "task": "fetch-buildapi-running",
+            "name": "fetch-running",
+            "exchange": null,
+            "last_run_at": null,
+            "args": "[]",
+            "enabled": true,
+            "routing_key": null,
+            "crontab": null,
+            "interval": 2,
+            "queue": null,
+            "total_run_count": 0,
+            "expires": null,
+            "kwargs": "{}",
+            "date_changed": "2013-11-28T16:22:39",
+            "description": ""
+        }
+    },
+    {
+        "pk": 6,
+        "model": "djcelery.periodictask",
+        "fields": {
+            "task": "fetch-buildapi-build4h",
+            "name": "fetch-completed",
+            "exchange": null,
+            "last_run_at": null,
+            "args": "[]",
+            "enabled": true,
+            "routing_key": null,
+            "crontab": null,
+            "interval": 1,
+            "queue": null,
+            "total_run_count": 0,
+            "expires": null,
+            "kwargs": "{}",
+            "date_changed": "2013-11-28T16:22:39",
+            "description": ""
+        }
+    }
+]
