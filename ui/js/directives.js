@@ -82,7 +82,6 @@ treeherder.directive('thStar', function ($parse, thStarTypes) {
 });
 
 treeherder.directive('thShowJobs', function ($parse, thResultStatusInfo) {
-
     return {
         link: function(scope, element, attrs) {
             scope.$watch('resultSeverity', function(newVal) {

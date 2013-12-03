@@ -1,0 +1,16 @@
+<div ng-controller="BugsPluginCtrl">
+    open bugs:
+    <ul >
+        <li ng-repeat="bug in open_bugs">
+            {{bug}}
+        </li>
+
+    </ul>
+    closed bugs:
+    <ul >
+        <li ng-repeat="bug in closed_bugs">
+            {{bug}}
+        </li>
+
+    </ul>
+</div>

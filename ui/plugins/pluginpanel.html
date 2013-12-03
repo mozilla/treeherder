@@ -1,7 +1,69 @@
 <div ng-controller="PluginCtrl">
-    <tabset class="tabs-below">
-        <tab ng-repeat="tab in tabs" heading="{{ tab.title }}" active="tab.active" disabled="tab.disabled">
-            <ng-include src="tab.content"></ng-include>
-        </tab>
-    </tabset>
+    <!--first panel begin-->
+    <div class="row">
+        <div class="col-sm-12 col-lg-5">
+            <div class="panel">
+                <div class="panel-body">
+                    <button class="btn btn-default btn-xs"
+                            title="add note"
+                            ng-click="addNote()">
+                        <i class="glyphicon glyphicon-comment"></i>
+                    </button>
+                    <div class="btn-group">
+                        <button class="btn btn-default btn-xs disabled">Log:</button>
+                        <div class="btn btn-default btn-xs"
+                             ng-disabled="!lvArtifact">
+                            <a target="_blank" href="{{ lvUrl }}">Structured</a>
+                        </div>
+                        <div class="btn btn-default btn-xs"
+                             ng-repeat="joblog in logs">
+                            <a target="_blank" href="{{ joblog.url }}">Raw</a>
+                        </div>
+                    </div>
+                    <dl class="dl-horizontal">
+                        <dt>Machine name</dt>
+                        <dd><a href="https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name={{ $scope.job.machine_name }}">{{ job.machine_name }}</a></dd>
+                        <span ng-repeat="(label, value) in visibleFields">
+                            <dt>{{ label }}</dt>
+                            <dd>{{ value }}</dd>
+                        </span>
+                    </dl>
+                    <dl class="dl-horizontal">
+                    <dt>
+                        <i class="glyphicon glyphicon-plus" ng-click="addNote()" title="add note"></i>
+                        <span class="label label-info">Notes</span>
+                    </dt>
+                    <dd class="th-notes-accordion">
+                        <div ng-hide="notes.length==0">
+                            <span th-star star-id="notes[0].failure_classification_id"></span> {{job.note.failure_classification_id}}{{ notes[0].note_timestamp*1000|date:'medium' }} <span class="label label-info" ng-bind="notes[0].who"></span> said <em>"<span ng-bind="notes[0].note"></span>"</em>
+                        </div>
+                        <span ng-show="notes.length==0">No notes</span>
+                    </dd>
+                </dl>
+                    <div ng-show="newNote">
+                        <form ng-submit="saveNote()" class="form-inline">
+                            <select ng-model="newNote.failure_classification_id">
+                                <option ng-repeat="(value, star) in starTypes" value="{{value}}">{{star.name}}</option>
+                            </select>
+                            <input ng-model="newNote.note" focus-me="focusInput"/>
+                            <input class="btn btn-primary" type="submit" value="save">
+                            <a class="btn btn-default" ng-click="clearNewNote()">cancel</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--first panel end-->
+        <div class="col-sm-12 col-lg-7">
+            <div class="panel">
+                <div class="panel-body">
+                <tabset class="tabs-below">
+                    <tab ng-repeat="tab in tabs" heading="{{ tab.title }}" active="tab.active" disabled="tab.disabled">
+                        <ng-include src="tab.content"></ng-include>
+                    </tab>
+                </tabset>
+                    </div>
+            </div>
+        </div>
+    </div>
 </div>
