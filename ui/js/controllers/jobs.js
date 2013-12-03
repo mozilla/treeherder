@@ -43,11 +43,11 @@ treeherder.controller('ResultSetCtrl',
                            thUrl, thServiceDomain) {
 
         var SEVERITY = {
-            "busted":     {
+            "busted": {
                 level: 1,
                 isCollapsedResults: false
             },
-            "exception":  {
+            "exception": {
                 level: 2,
                 isCollapsedResults: false
             },
@@ -55,19 +55,27 @@ treeherder.controller('ResultSetCtrl',
                 level: 3,
                 isCollapsedResults: false
             },
-            "usercancel":    {
+            "unknown": { // completed, unknown error
                 level: 4,
-                isCollapsedResults: false
-            },
-            "retry":      {
-                level: 5,
                 isCollapsedResults: true
             },
-            "success":    {
+            "usercancel": {
+                level: 5,
+                isCollapsedResults: false
+            },
+            "retry": {
                 level: 6,
                 isCollapsedResults: true
             },
-            "unknown":    {
+            "success": {
+                level: 7,
+                isCollapsedResults: true
+            },
+            "running": {
+                level: 8,
+                isCollapsedResults: true
+            },
+            "pending": {
                 level: 100,
                 isCollapsedResults: true
             }

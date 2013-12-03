@@ -13,69 +13,7 @@ treeherder.directive('ngRightClick', function($parse) {
     };
 });
 
-treeherder.directive('thJobButton', function () {
-
-    // determines the right class/color for the button of the job
-    var setJobDisplay = function(job) {
-
-        // the default is disabled
-        job.display = {btnClass: "btn-default"};
-
-        if (job.state == "completed") {
-            switch(job.result) {
-                case "success":
-                    job.display.btnClass = "btn-success";
-                    break;
-                case "exception":
-                    job.display = {
-                        onFire: true,
-                        btnClass: "btn-purple"
-                    };
-                    break;
-                case "busted":
-                    job.display = {
-                        onFire: true,
-                        btnClass: "btn-danger"
-                    };
-                    break;
-                case "fail":
-                case "testfailed":
-                    job.display = {
-                        onFire: false,
-                        btnClass: "btn-warning"
-                    };
-                    break;
-                case "retry":
-                    job.display = {
-                        onFire: false,
-                        btnClass: "btn-primary"
-                    };
-                    break;
-                case "usercancel":
-                    job.display = {
-                        onFire: false,
-                        btnClass: "btn-pink"
-                    };
-                    break;
-                case "unknown":
-                    job.display = {
-                        onFire: false,
-                        btnClass: "btn-black"
-                    };
-                    break;
-            }
-        } else {
-            switch(job.state) {
-                case "running":
-                    job.display.btnClass="btn-ltgray";
-                    break;
-                case "pending":
-                    job.display.btnClass="btn-default";
-                    break;
-            }
-        }
-
-    };
+treeherder.directive('thJobButton', function (thResultStatusInfo) {
 
     var getHoverText = function(job) {
         var duration = Math.round((job.end_timestamp - job.submit_timestamp) / 60);
@@ -89,7 +27,11 @@ treeherder.directive('thJobButton', function () {
     return {
         restrict: "E",
         link: function(scope, element, attrs) {
-            setJobDisplay(scope.job);
+            var resultState = scope.job.result;
+            if (scope.job.state != "completed") {
+                resultState = scope.job.state;
+            }
+            scope.job.display = thResultStatusInfo(resultState);
             scope.hoverText = getHoverText(scope.job);
         },
         templateUrl: 'partials/thJobButton.html'
@@ -139,47 +81,15 @@ treeherder.directive('thStar', function ($parse, thStarTypes) {
     };
 });
 
-treeherder.directive('thShowJobs', function ($parse) {
-    var SEVERITY = {
-        "busted":     {
-            button: "btn-danger",
-            icon: "glyphicon glyphicon-fire",
-        },
-        "exception":  {
-            button: "btn-danger",
-            icon: "glyphicon glyphicon-fire",
-        },
-        "testfailed": {
-            button: "btn-warning",
-            icon: "glyphicon glyphicon-warning-sign",
-        },
-        "retry":      {
-            button: "btn-info",
-            icon: "glyphicon glyphicon-time",
-        },
-        "success":    {
-            button: "btn-danger",
-            icon: "glyphicon glyphicon-ok",
-        },
-        "usercancel":    {
-            button: "btn-danger",
-            icon: "glyphicon glyphicon-stop",
-        },
-        "unknown":    {
-            button: "btn-default",
-            icon: "glyphicon glyphicon-time",
-        }
-    };
+treeherder.directive('thShowJobs', function ($parse, thResultStatusInfo) {
 
     return {
         link: function(scope, element, attrs) {
             scope.$watch('resultSeverity', function(newVal) {
                 if (newVal) {
-                    if (!SEVERITY[newVal]) {
-                        newVal = "unknown";
-                    }
-                    scope.resultsetStateBtn = SEVERITY[newVal].button;
-                    scope.icon = SEVERITY[newVal].icon;
+                    var rsInfo = thResultStatusInfo(newVal)
+                    scope.resultsetStateBtn = rsInfo.btnClass;
+                    scope.icon = rsInfo.showButtonIcon;
                 }
             });
         },
