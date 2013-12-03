@@ -49,10 +49,8 @@ def parse_log(project, job_id, check_errors=True):
                     open_bugs_suggestions += rdm.get_suggested_bugs(line)
                     closed_bugs_suggestions += rdm.get_suggested_bugs(line, open_bugs=False)
 
-                for item in open_bugs_suggestions:
-                    artifact_list.append((job_id, 'open_bugs', 'json', json.dumps(item)))
-                for item in closed_bugs_suggestions:
-                    artifact_list.append((job_id, 'closed_bugs', 'json', json.dumps(item)))
+                artifact_list.append((job_id, 'Open bugs', 'json', json.dumps(open_bugs_suggestions)))
+                artifact_list.append((job_id, 'Closed bugs', 'json', json.dumps(closed_bugs_suggestions)))
 
             # store the artifacts generated
             jm.store_job_artifact(artifact_list)

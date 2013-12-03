@@ -1,33 +1,33 @@
 import pytest
 import os
-
-from django.conf import settings
+import json
 
 from treeherder.etl.bugzilla import BzApiBugProcess
-from treeherder.model.derived import RefDataManager
+
 
 @pytest.fixture
-def mock_bz_bugs_url(monkeypatch):
+def mock_extract(monkeypatch):
     """
     mock BzApiBugProcess._get_bz_source_url() to return
     a local sample file
     """
-    def _get_bugs_url(obj, last_changed):
+    def extract(obj, url):
         tests_folder = os.path.dirname(os.path.dirname(__file__))
-        bug_list_path =  os.path.join(
+        bug_list_path = os.path.join(
             tests_folder,
             "sample_data",
             "bug_list.json"
         )
-        return "file://{0}".format(bug_list_path)
+        content = json.loads(open(bug_list_path).read())
+        return content
 
 
     monkeypatch.setattr(BzApiBugProcess,
-                        '_get_bz_source_url',
-                        _get_bugs_url)
+                        'extract',
+                        extract)
 
 
-def test_bz_api_process(mock_bz_bugs_url, refdata):
+def test_bz_api_process(mock_extract, refdata):
     process = BzApiBugProcess()
     process.run()
 
