@@ -64,12 +64,7 @@
 
         <!-- Footer -->
         <div class="nav navbar navbar-default navbar-fixed-bottom" ng-show="selectedJob">
-            <button type="button" class="btn btn-xs close-btn btn-danger pull-right" ng-click="clearJob()">
-                <span class="glyphicon glyphicon-remove"></span>
-            </button>
             <div ng-include src="'plugins/pluginpanel.html'"></div>
-
-
         </div>
 
         <script src="vendor/angular/angular.js"></script>
@@ -90,9 +85,11 @@
         <script src="js/controllers/machines.js"></script>
         <script src="js/controllers/timeline.js"></script>
         <script src="plugins/controller.js"></script>
+        <script src="plugins/notes/controller.js"></script>
         <script src="plugins/tinderbox/controller.js"></script>
         <script src="plugins/tinderbox/directives.js"></script>
-        <script src="plugins/bugs/controller.js"></script>
+        <script src="plugins/open_bugs_suggestions/controller.js"></script>
+        <script src="plugins/closed_bugs_suggestions/controller.js"></script>
         <script src="js/filters.js"></script>
         <script src="https://tbpl.mozilla.org/js/Config.js"></script>
     </body>

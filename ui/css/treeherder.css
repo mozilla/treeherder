@@ -133,7 +133,7 @@ body {
 }
 div.navbar-fixed-bottom{
     border-top: 1px solid #ccc;
-    padding:5px;
+    padding:5px 10px;
 }
 
 .table-super-condensed thead > tr > th,
@@ -147,8 +147,11 @@ div.navbar-fixed-bottom{
 }
 
 div.navbar-fixed-bottom .panel{
-    box-shadow: 0px 1px 0px rgba(255, 255, 255, 0.1), 0px 0px 2px 0px rgba(0, 0, 0, 0.8) inset
+    box-shadow: 0px 1px 0px rgba(255, 255, 255, 0.1), 0px 0px 2px 0px rgba(0, 0, 0, 0.8) inset;
+    height:300px;
+    margin:0 -20px 0 0;
 }
+div.navbar-fixed-bottom .tab-content{height: 237px; overflow-y: scroll;}
 
 div.navbar-fixed-bottom dt,
 div.navbar-fixed-bottom dt {
@@ -156,10 +159,6 @@ div.navbar-fixed-bottom dt {
 }
 
 div.navbar-fixed-bottom .close-btn{
-    position:absolute;
-    top:-15px;
-    right:5px;
-    z-index:10;
 }
 
 /* Custom Job buttons*/

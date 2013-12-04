@@ -99,12 +99,20 @@ treeherder.controller('PluginCtrl',
 
         $scope.tabs = [
             {
+                title: "Notes",
+                content: "plugins/notes/main.html"
+            },
+            {
                 title: "Tinderbox",
                 content: "plugins/tinderbox/main.html"
             },
             {
-                title: "Bug suggestions",
-                content: "plugins/bugs/main.html"
+                title: "Open bugs",
+                content: "plugins/open_bugs_suggestions/main.html"
+            },
+            {
+                title: "Closed bugs",
+                content: "plugins/closed_bugs_suggestions/main.html"
             }
         ];
 
