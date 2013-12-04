@@ -55,10 +55,10 @@ class TestAnalysisRunner(unittest.TestCase):
     def test_suppressWarningForSubject(self):
         runner = self.create_runner()
         s = runner.suppressWarningForSubject
-        self.assertTrue(s('Improvement: Fx-Team-Non-PGO - Ts, Paint - WINNT 6.1 (ix) - 96% decrease'))
+        self.assertFalse(s('Improvement: Fx-Team-Non-PGO - Ts, Paint - WINNT 6.1 (ix) - 96% decrease'))
         self.assertTrue(s('Tp5 Optimized Responsiveness - WINNT 6.1 (ix)'))
-        self.assertTrue(s('<Regression> Ts, Paint - WINNT 6.2 x64- 96% increase'))
-        self.assertTrue(s('<Regression> Mozilla-Inbound-Non-PGO - Ts Paint, MED Dirty Profile - WINNT 6.1 (ix) - 751%'))
+        self.assertFalse(s('<Regression> Ts, Paint - WINNT 6.2 x64- 96% increase'))
+        self.assertFalse(s('<Regression> Mozilla-Inbound-Non-PGO - Ts Paint, MED Dirty Profile - WINNT 6.1 (ix) - 751%'))
 
         self.assertFalse(s('<Regression> Ts, Paint - MacOSX 10.7 - 96% increase'))
         self.assertFalse(s('Tp5 Optimized Responsiveness - WINNT 5.1 (ix)'))

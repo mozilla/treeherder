@@ -24,10 +24,8 @@ percentage_threshold = 2
 ignore_percentage_tests = LibXUL Memory during link
 
 # Don't send any email alerts for these subjects (comma-separated list of regexps)
-# Ts Paint: bug 859571
 # Tp5 Responsiveness: bug 751975
-suppress_email_subjects = \bTs\b.*Paint.* WINNT 6\.(1|2),
-    Tp5 Optimized Responsiveness - WINNT 6\.(1|2)
+suppress_email_subjects = Tp5 Optimized Responsiveness - WINNT 6\.(1|2)
 
 # What t score is required to consider a machine to be bad
 machine_threshold = 15
