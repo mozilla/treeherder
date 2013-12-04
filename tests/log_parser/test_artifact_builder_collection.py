@@ -64,7 +64,7 @@ def test_all_builders_complete():
                 "steps": []
             }
         },
-        "Unknown Builder Job Artifact": {
+        "Job Info": {
             "tinderbox_printlines": []
         }
     }
@@ -73,8 +73,8 @@ def test_all_builders_complete():
     # we can't compare the "logurl" field, because it's a fully qualified url,
     # so it will be different depending on the config it's run in.
     assert "logurl" in act["Structured Log"]
-    assert "logurl" in act["Unknown Builder Job Artifact"]
-    del(act["Unknown Builder Job Artifact"]["logurl"])
+    assert "logurl" in act["Job Info"]
+    del(act["Job Info"]["logurl"])
     del(act["Structured Log"]["logurl"])
 
     assert exp == lpc.artifacts, diff(exp, lpc.artifacts)

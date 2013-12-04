@@ -53,3 +53,5 @@ treeherder/webapp/static/
 #docs build directory
 docs/_build/
 
+
+*.c

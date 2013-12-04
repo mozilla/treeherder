@@ -44,15 +44,16 @@ export TREEHERDER_RABBITMQ_PORT='${RABBITMQ_PORT}'
 "
 }
 
-class dev {
+class vagrant {
     class {
         init: before => Class["mysql"];
         mysql: before  => Class["python"];
         python: before => Class["apache"];
         apache: before => Class["treeherder"];
         treeherder: before => Class["rabbitmq"];
-        rabbitmq:;
+        rabbitmq: before => Class["dev"];
+        dev:;
     }
 }
 
-include dev
+include vagrant
