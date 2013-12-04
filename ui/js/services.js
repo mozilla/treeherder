@@ -102,22 +102,25 @@ treeherder.factory('thRepos',
 }]);
 
 treeherder.factory('thJobNote', function($resource, $http, thUrl) {
-    var JobNote = $resource(thUrl.getProjectUrl("/note/"));
-
-    // Workaround to the fact that $resource strips trailing slashes
-    // out of urls.  This causes a 301 redirect on POST because it does a
-    // preflight OPTIONS call.  Tastypie gives up on the POST after this
-    // and nothing happens.  So this alternative "thSave" command avoids
-    // that by using the trailing slash directly in a POST call.
-    // @@@ This may be fixed in later versions of Angular.  Or perhaps there's
-    // a better way?
-    JobNote.prototype.thSave = function() {
-        $http.post(thUrl.getProjectUrl("/note/"), {
-            job_id: this.job_id,
-            note: this.note,
-            who: this.who,
-            failure_classification_id: this.failure_classification_id
-        });
+    return {
+        get: function() {
+            var JobNote = $resource(thUrl.getProjectUrl("/note/"));
+            // Workaround to the fact that $resource strips trailing slashes
+            // out of urls.  This causes a 301 redirect on POST because it does a
+            // preflight OPTIONS call.  Tastypie gives up on the POST after this
+            // and nothing happens.  So this alternative "thSave" command avoids
+            // that by using the trailing slash directly in a POST call.
+            // @@@ This may be fixed in later versions of Angular.  Or perhaps there's
+            // a better way?
+            JobNote.prototype.thSave = function() {
+                $http.post(thUrl.getProjectUrl("/note/"), {
+                    job_id: this.job_id,
+                    note: this.note,
+                    who: this.who,
+                    failure_classification_id: this.failure_classification_id
+                });
+            };
+            return JobNote;
+        }
     };
-    return JobNote;
 });
