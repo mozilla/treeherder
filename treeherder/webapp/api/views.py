@@ -350,7 +350,7 @@ class ResultSetViewSet(viewsets.ViewSet):
                         del(job["result_set_id"])
                         del(job["platform"])
 
-                        if job["state"] == "complete":
+                        if job["state"] == "completed":
                             result_types.append(job["result"])
                         else:
                             result_types.append(job["state"])
