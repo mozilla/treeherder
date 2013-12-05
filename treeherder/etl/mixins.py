@@ -9,7 +9,7 @@ import simplejson as json
 from django.core.urlresolvers import reverse
 from django.conf import settings
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 
 class JsonExtractorMixin(object):
