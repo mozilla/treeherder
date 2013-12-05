@@ -74,7 +74,7 @@ class Builds4hTransformerMixin(object):
             prop = build['properties']
 
             try:
-                resultset = revisions_lookup[prop['branch']][prop['revision']]
+                resultset = revisions_lookup[prop['branch']][prop['revision'][0:12]]
             except KeyError:
                 # this branch is not one of those we care about
                 continue
