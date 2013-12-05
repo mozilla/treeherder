@@ -1,5 +1,12 @@
 from treeherder.etl import buildbot
 import pytest
+import datetime
+import time
+import json
+
+from django.conf import settings
+from treeherder.etl.mixins import JsonExtractorMixin
+from treeherder.etl import buildbot, buildapi
 
 slow = pytest.mark.slow
 
@@ -677,3 +684,185 @@ def test_buildername_translation(buildername, exp_result):
     assert buildbot.extract_job_type(buildername) == exp_result["job_type"]
     assert buildbot.extract_build_type(buildername) == exp_result["build_type"]
     assert buildbot.extract_name_info(buildername) == exp_result["name"]
+
+@pytest.mark.xfail
+@pytest.mark.slowtest
+def test_builds4h():
+
+    jem = JsonExtractorMixin()
+    extracted_content = jem.extract(settings.BUILDAPI_BUILDS4H_URL)
+
+    branch_misses = {}
+    objects_missing_buildernames = []
+    platform_regex_misses = {}
+    job_type_regex_misses = {}
+    result_code_misses = {}
+    request_id_misses = {}
+    job_guid_misses = {}
+
+    btfm = buildapi.Builds4hTransformerMixin()
+    for build in extracted_content['builds']:
+
+        # test for missing buildernames
+        try:
+            buildername = build['properties']['buildername']
+        except KeyError:
+            objects_missing_buildernames.append(json.dumps(build))
+            continue
+
+        # test for missing branch
+        if not 'branch' in build['properties']:
+            branch_misses[buildername]
+
+        # test for missing result codes
+        try:
+            result_code = buildbot.RESULT_DICT[ build['result'] ]
+        except KeyError:
+            result_code_misses[result_code] = buildername
+
+        # test for request_ids
+        request_id = build['properties'].get('request_ids', '')
+        if request_id == '':
+            request_id = build['request_ids'][-1]
+        else:
+            request_id = request_id[-1]
+
+        # test for request_times
+        request_time_dict = build['properties'].get('request_times', '')
+        request_time = ''
+        if request_time_dict != '':
+            request_time = request_time_dict[str(request_id)]
+        else:
+            request_time = build['requesttime']
+
+        if not request_id or not request_time:
+            request_id_misses[buildername] = json.dumps(build)
+
+        # test for successful job_guid formulation
+        job_guid = btfm.find_job_guid(build)
+        if not job_guid:
+            job_guid_misses[buildername] = 1
+
+        # Execute regexes directly so we can find buildernames that fail
+
+        # Match platforms
+        platform_target = {}
+        for platform in buildbot.PLATFORMS_BUILDERNAME:
+            if platform['regex'].search(buildername):
+                platform_target = platform['attributes']
+                break
+        if not platform_target:
+            platform_regex_misses[buildername] = 1
+
+        # Match job types
+        job_type_target = ""
+        for job_type in buildbot.JOB_TYPE_BUILDERNAME:
+            for regex in buildbot.JOB_TYPE_BUILDERNAME[job_type]:
+                if regex.search(buildername):
+                    job_type_target = job_type
+                    break
+            if job_type_target:
+                break
+        if not job_type_target:
+            job_type_regex_misses[buildername] = 1
+
+    # generate builds4h report
+    miss_count = process_output(
+        objects_missing_buildernames,
+        platform_regex_misses,
+        job_type_regex_misses,
+        result_code_misses,
+        request_id_misses,
+        job_guid_misses,
+        branch_misses
+        )
+
+    assert miss_count == 0
+
+def process_output(
+    objects_missing_buildernames,
+    platform_regex_misses,
+    job_type_regex_misses,
+    result_code_misses,
+    request_id_misses,
+    job_guid_misses,
+    branch_misses):
+
+    t_stamp = time.time()
+
+    f = open('builds4h_misses_{0}.txt'.format(str(int(t_stamp))), 'w')
+
+    readable_time = datetime.datetime.fromtimestamp(t_stamp).strftime('%Y-%m-%d %H:%M:%S')
+
+    f.write("Builds4h Report Run On {0}\n".format(readable_time))
+    f.write("------------------------------------\n")
+
+    no_buildername_count = len(objects_missing_buildernames)
+    if no_buildername_count > 0:
+        f.write("{0} Objects Missing Buildernames\n".format(str(no_buildername_count)))
+        f.write("------------------------------------\n")
+        for obj in objects_missing_buildernames:
+            f.write(obj)
+            f.write("\n")
+        f.write("------------------------------------\n")
+
+    branch_miss_count = len(branch_misses.values())
+    if branch_miss_count > 0:
+        f.write("{0} Branch Misses\n".format(str(branch_miss_count)))
+        f.write("------------------------------------\n")
+        for buildername in sorted(branch_misses):
+            f.write(buildername)
+            f.write("\n")
+        f.write("------------------------------------\n")
+
+    platform_count = len(platform_regex_misses.values())
+    if platform_count > 0:
+        f.write("{0} Platform Regex Misses\n".format(str(platform_count)))
+        f.write("------------------------------------\n")
+        for buildername in sorted(platform_regex_misses):
+            f.write(buildername)
+            f.write("\n")
+        f.write("------------------------------------\n")
+
+    job_type_count = len(job_type_regex_misses.values())
+    if job_type_count > 0:
+        f.write("{0} Job Type Regex Misses\n".format(str(job_type_count)))
+        f.write("------------------------------------\n")
+        for buildername in sorted(job_type_regex_misses):
+            f.write(buildername)
+            f.write("\n")
+        f.write("------------------------------------\n")
+
+    result_code_miss_count = len(result_code_misses)
+    if result_code_miss_count > 0:
+        f.write("{0} Result Code Misses\n".format(str(result_code_miss_count)))
+        f.write("------------------------------------\n")
+        for data in sorted(result_code_misses):
+            f.write("{0}: {1}".format(data['buildername'], data['result']))
+            f.write("\n")
+        f.write("------------------------------------\n")
+
+    request_id_miss_count = len(request_id_misses.values())
+    if request_id_miss_count > 0:
+        f.write("{0} Request id/Request time Misses\n".format(str(request_id_miss_count)))
+        f.write("------------------------------------\n")
+        for buildername in sorted(request_id_misses):
+            f.write(buildername)
+            f.write("\n")
+            f.write(request_id_misses[buildername])
+            f.write("\n")
+        f.write("------------------------------------\n")
+
+    job_guid_miss_count = len(job_guid_misses)
+    if job_guid_miss_count > 0:
+        f.write("{0} Job Guid Misses\n".format(str(job_guid_miss_count)))
+        f.write("------------------------------------\n")
+        for buildername in sorted(job_guid_misses):
+            f.write(buildername)
+            f.write("\n")
+        f.write("------------------------------------\n")
+
+    f.close()
+
+    return no_buildername_count + platform_count + job_type_count + \
+                result_code_miss_count + request_id_miss_count
