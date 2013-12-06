@@ -30416,7 +30416,7 @@
         ],
         "author": "Ryan VanderMeulen <ryanvm@gmail.com>",
         "comments": "Backed out changeset 4e3e7a20399f (bug 942207) for ASAN failures.\nCLOSED TREE",
-        "result_types": ["unknown"],
+        "result_types": ["running"],
         "platforms": [
             {
                 "name": "android-2-2 debug",

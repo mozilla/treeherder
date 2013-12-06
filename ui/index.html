@@ -1,7 +1,7 @@
     <!DOCTYPE html>
     <html ng-app="treeherder">
     <head>
-        <title>Treeherder: {{ repo }}</title>
+        <title>Treeherder: {{ repoName }}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
          <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <!-- Bootstrap -->
@@ -19,14 +19,16 @@
                     <li class="dropdown" ng-controller="RepoDropDownCtrl">
                         <a href="" class="dropdown-toggle" data-toggle="dropdown">Repos<b class="caret"></b></a>
                             <ul class="dropdown-menu">
-                                <li ng-repeat="item in repos"><a href="" ng-click="changeRepo(item.name)">{{item.name}}</a></li>
+                                <li ng-repeat="item in repos">
+                                    <a href="" ng-click="changeRepo(item)" ng-bind="item.name"></a>
+                                </li>
                             </ul>
                         </li>
                     <li class="divider-vertical"></li>
                     <li><a href="">Help</a></li>
                 </ul>
                 <span class="navbar-text">
-                    <span class="label label-info">{{ repo }}</span>
+                    <span class="label label-info">{{ repoName }}</span>
                     <span class="label label-info">0 unstarred</span>
                 </span>
                 <p class="navbar-text pull-right">

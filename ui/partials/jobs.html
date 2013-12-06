@@ -6,8 +6,7 @@
 
     <span th-show-jobs severity="resultSeverity"></span>
     <a class="text-left btn btn-info th-revision-btn"
-       ng-click="isCollapsedRevisions = !isCollapsedRevisions"
-       >
+       ng-click="isCollapsedRevisions = !isCollapsedRevisions">
         <div class="text-left">{{resultset.push_timestamp*1000|date:'medium'}} - {{resultset.author}} - {{resultset.revision}}</div>
     </a>
 
@@ -42,15 +41,13 @@
               ng-class="{'col-md-4': (isCollapsedResults==false)}"
               class="revision-list">
             <ul class="list-unstyled">
-                <li ng-repeat="revision in resultset.revision_list"
-                    class="revision">
-                    <span class="label label-default">{{revision.revision}}</span> {{revision.author}} <span ng-show="revision.comment" class="italic">"{{revision.comments}}"</span>
+                <li ng-repeat="revision in resultset.revision_list">
+                    <th-revision></th-revision>
                 </li>
             </ul>
         </span>
         <span ng-hide="isCollapsedResults"
-              ng-class="{'col-md-8': (isCollapsedRevisions==false), 'col-md-12': (isCollapsedRevisions)}"
-              class="job-list">
+              ng-class="{'col-md-8 job-list-pad-left': (isCollapsedRevisions==false), 'col-md-12 job-list-nopad': (isCollapsedRevisions)}">
             <table class="table-hover">
                 <tr ng-repeat="platform in resultset.platforms | filter:query">
                     <td class="col-md-2 platform"><span>{{ platform.name }}</span></td>

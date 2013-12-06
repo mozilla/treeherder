@@ -67,7 +67,7 @@ treeherder.directive('thStar', function ($parse, thStarTypes) {
         },
         link: function(scope, element, attrs) {
             scope.$watch('starId', function(newVal) {
-                if (newVal) {
+                if (newVal !== undefined) {
                     scope.starType = thStarTypes[newVal];
                     scope.badgeColorClass=scope.starType.star;
                     scope.hoverText=scope.starType.name;
@@ -97,5 +97,16 @@ treeherder.directive('thShowJobs', function ($parse, thResultStatusInfo) {
                        'ng-click="isCollapsedResults = !isCollapsedResults">' +
                        '<i class="{{ icon }}"></i> ' +
                        '{{ \' jobs\' | showOrHide:isCollapsedResults }}</a>'
+    };
+});
+
+treeherder.directive('thRevision', function($parse) {
+
+    return {
+        restrict: "E",
+        link: function(scope, element, attrs) {
+            scope.revisionUrl = scope.currentRepo.url + "/rev/" + scope.revision.revision;
+        },
+        templateUrl: 'partials/thRevision.html'
     };
 });

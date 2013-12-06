@@ -1,0 +1,452 @@
+[
+    {
+        "id": 1,
+        "repository_group": 1,
+        "name": "mozilla-central",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/mozilla-central",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 2,
+        "repository_group": 1,
+        "name": "mozilla-inbound",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/integration/mozilla-inbound",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 3,
+        "repository_group": 1,
+        "name": "b2g-inbound",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/integration/b2g-inbound/",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 4,
+        "repository_group": 3,
+        "name": "try",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/try",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 5,
+        "repository_group": 2,
+        "name": "mozilla-aurora",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/releases/mozilla-aurora",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 6,
+        "repository_group": 2,
+        "name": "mozilla-beta",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/releases/mozilla-beta",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 7,
+        "repository_group": 2,
+        "name": "mozilla-release",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/releases/mozilla-release",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 8,
+        "repository_group": 2,
+        "name": "mozilla-esr17",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/releases/mozilla-esr17",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 9,
+        "repository_group": 2,
+        "name": "mozilla-esr24",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/releases/mozilla-esr24",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 10,
+        "repository_group": 2,
+        "name": "mozilla-b2g18",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/releases/mozilla-b2g18",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 11,
+        "repository_group": 2,
+        "name": "mozilla-b2g18_v1_1_0_hd",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/releases/mozilla-b2g18_v1_1_0_hd",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 12,
+        "repository_group": 1,
+        "name": "addon-sdk",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/projects/addon-sdk",
+        "codebase": "jetpack",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 13,
+        "repository_group": 1,
+        "name": "build-system",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/projects/build-system",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 14,
+        "repository_group": 1,
+        "name": "fx-team",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/integration/fx-team",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 15,
+        "repository_group": 1,
+        "name": "graphics",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/projects/graphics",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 16,
+        "repository_group": 1,
+        "name": "ionmonkey",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/projects/ionmonkey",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 17,
+        "repository_group": 1,
+        "name": "profiling",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/projects/profiling",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 18,
+        "repository_group": 1,
+        "name": "services-central",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/services/services-central",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 19,
+        "repository_group": 1,
+        "name": "ux",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/projects/ux",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 20,
+        "repository_group": 1,
+        "name": "alder",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/projects/alder",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 21,
+        "repository_group": 1,
+        "name": "ash",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/projects/ash",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 22,
+        "repository_group": 1,
+        "name": "birch",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/projects/birch",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 23,
+        "repository_group": 1,
+        "name": "cedar",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/projects/cedar",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 24,
+        "repository_group": 1,
+        "name": "cypress",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/projects/cypress",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 25,
+        "repository_group": 1,
+        "name": "date",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/projects/date",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 26,
+        "repository_group": 1,
+        "name": "elm",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/projects/elm",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 27,
+        "repository_group": 1,
+        "name": "fig",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/projects/fig",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 28,
+        "repository_group": 1,
+        "name": "gum",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/projects/gum",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 29,
+        "repository_group": 1,
+        "name": "holly",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/projects/holly",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 30,
+        "repository_group": 1,
+        "name": "jamun",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/projects/jamun",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 31,
+        "repository_group": 1,
+        "name": "larch",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/projects/larch",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 32,
+        "repository_group": 1,
+        "name": "maple",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/projects/maple",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 33,
+        "repository_group": 1,
+        "name": "oak",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/projects/oak",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 34,
+        "repository_group": 1,
+        "name": "pine",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/projects/pine",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 35,
+        "repository_group": 1,
+        "name": "thunderbird-trunk",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/comm-central",
+        "codebase": "?",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 36,
+        "repository_group": 3,
+        "name": "thunderbird-try",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/try-comm-central",
+        "codebase": "?",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 37,
+        "repository_group": 2,
+        "name": "thunderbird-aurora",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/releases/comm-aurora",
+        "codebase": "?",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 38,
+        "repository_group": 2,
+        "name": "thunderbird-beta",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/releases/comm-beta",
+        "codebase": "?",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 39,
+        "repository_group": 2,
+        "name": "thunderbird-esr24",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/releases/comm-esr24",
+        "codebase": "?",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 40,
+        "repository_group": 2,
+        "name": "thunderbird-esr17",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/releases/comm-esr17",
+        "codebase": "?",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 41,
+        "repository_group": 1,
+        "name": "accessibility",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/projects/accessibility",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 42,
+        "repository_group": 1,
+        "name": "devtools",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/projects/devtools",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 43,
+        "repository_group": 1,
+        "name": "jaegermonkey",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/projects/jaegermonkey",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 44,
+        "repository_group": 1,
+        "name": "unknown",
+        "dvcs_type": "hg",
+        "url": "",
+        "codebase": "",
+        "description": "",
+        "active_status": "active"
+    },
+    {
+        "id": 45,
+        "repository_group": 2,
+        "name": "mozilla-b2g26_v1_2",
+        "dvcs_type": "hg",
+        "url": "https://hg.mozilla.org/releases/mozilla-b2g26_v1_2",
+        "codebase": "gecko",
+        "description": "",
+        "active_status": "active"
+    }
+]
