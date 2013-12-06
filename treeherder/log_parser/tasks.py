@@ -44,7 +44,8 @@ def parse_log(project, job_id, check_errors=True):
 
                 all_errors = artifact_bc.artifacts['Structured Log']['step_data']['all_errors']
                 error_lines = [err['line'] for err in all_errors]
-                open_bugs_suggestions = closed_bugs_suggestions = []
+                open_bugs_suggestions = []
+                closed_bugs_suggestions = []
                 for line in error_lines:
                     open_bugs_suggestions += rdm.get_suggested_bugs(line)
                     closed_bugs_suggestions += rdm.get_suggested_bugs(line, open_bugs=False)
