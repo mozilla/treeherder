@@ -1164,7 +1164,7 @@ class RefDataManager(object):
         for bug in bug_list:
             # keywords come as a list of values, we need a string instead
             bug['keywords'] = ",".join(bug['keywords'])
-            placeholders.append([bug[field] for field in (
+            placeholders.append([bug.get(field, None) for field in (
                     'id', 'status', 'resolution', 'summary',
                     'cf_crash_signature', 'keywords', 'op_sys', 'id')])
 
@@ -1183,7 +1183,7 @@ class RefDataManager(object):
             executemany=True,
             debug_show=self.DEBUG)
 
-    def get_suggested_bugs(self, search_term, open_bugs=True):
+    def get_suggested_bugs(self, search_term, open_bugs=True, limit=10):
         """
         retrieves bug suggestions from bugscache using search_term
         in a full_text search.
@@ -1195,6 +1195,6 @@ class RefDataManager(object):
 
         return self.dhub.execute(
             proc='reference.selects.get_bugs_suggestions',
-            placeholders=[search_term] * 2,
+            placeholders=[search_term] * 2 + [limit],
             debug_show=self.DEBUG,
             replace=[replacement])
