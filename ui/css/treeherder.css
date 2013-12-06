@@ -75,13 +75,13 @@ body {
 }
 
 .revision {
-    font-size: 10px;
+    font-size: 12px;
     padding-top: 2px;
     overflow: auto;
 }
 
 .platform {
-    font-size: 11px;
+    font-size: 12px;
     padding-left: 0;
     padding-right: 5px;
 }
@@ -96,7 +96,17 @@ body {
     padding-left: 0;
 }
 
-.result-set .job-list {
+.revision-list {
+    overflow: auto;
+    white-space: nowrap;
+}
+
+.result-set .job-list-pad-left {
+    padding-left: 8;
+    padding-right: 0;
+}
+
+.result-set .job-list-nopad {
     padding-left: 0;
     padding-right: 0;
 }
@@ -123,10 +133,127 @@ body {
 }
 
 /* Custom Job buttons*/
+.btn-orange {
+  background-color: rgba(221, 102, 2, 0.56);
+  border-color: #dd6602;
+  color: white;
+}
+.btn-orange:hover,
+.btn-orange:focus,
+.btn-orange:active,
+.btn-orange.active {
+  background-color: #c45a02;
+  border-color: #aa4f02;
+  color: white;
+}
+.btn-orange.disabled:hover,
+.btn-orange.disabled:focus,
+.btn-orange.disabled:active,
+.btn-orange.disabled.active,
+.btn-orange[disabled]:hover,
+.btn-orange[disabled]:focus,
+.btn-orange[disabled]:active,
+.btn-orange[disabled].active,
+fieldset[disabled] .btn-orange:hover,
+fieldset[disabled] .btn-orange:focus,
+fieldset[disabled] .btn-orange:active,
+fieldset[disabled] .btn-orange.active {
+  background-color: #dd6602;
+  border-color: #dd6602;
+}
+
+.btn-red {
+  background-color: rgba(144, 0, 0, 0.60);
+  border-color: #a1020e;
+  color: white;
+}
+.btn-red:hover,
+.btn-red:focus,
+.btn-red:active,
+.btn-red.active {
+  background-color: #a9020c;
+  border-color: #90010a;
+  color: white;
+}
+.btn-red.disabled:hover,
+.btn-red.disabled:focus,
+.btn-red.disabled:active,
+.btn-red.disabled.active,
+.btn-red[disabled]:hover,
+.btn-red[disabled]:focus,
+.btn-red[disabled]:active,
+.btn-red[disabled].active,
+fieldset[disabled] .btn-red:hover,
+fieldset[disabled] .btn-red:focus,
+fieldset[disabled] .btn-red:active,
+fieldset[disabled] .btn-red.active {
+  background-color: #c2020e;
+  border-color: #c2020e;
+}
+
+.btn-dkblue {
+  background-color: rgba(44, 71, 174, 0.57);
+  border-color: #283aa2;
+  color: white;
+}
+.btn-dkblue:hover,
+.btn-dkblue:focus,
+.btn-dkblue:active,
+.btn-dkblue.active {
+  background-color: #263fc3;
+  border-color: #2238ae;
+  color: white;
+}
+.btn-dkblue.disabled:hover,
+.btn-dkblue.disabled:focus,
+.btn-dkblue.disabled:active,
+.btn-dkblue.disabled.active,
+.btn-dkblue[disabled]:hover,
+.btn-dkblue[disabled]:focus,
+.btn-dkblue[disabled]:active,
+.btn-dkblue[disabled].active,
+fieldset[disabled] .btn-dkblue:hover,
+fieldset[disabled] .btn-dkblue:focus,
+fieldset[disabled] .btn-dkblue:active,
+fieldset[disabled] .btn-dkblue.active {
+  background-color: #2d48d6;
+  border-color: #2d48d6;
+}
+
+
+.btn-green {
+  background-color: rgba(2, 151, 42, 0.47);
+  border-color: #028233;
+  color: white;
+}
+.btn-green:hover,
+.btn-green:focus,
+.btn-green:active,
+.btn-green.active {
+  background-color: #02a931;
+  border-color: #019029;
+  color: white;
+}
+.btn-green.disabled:hover,
+.btn-green.disabled:focus,
+.btn-green.disabled:active,
+.btn-green.disabled.active,
+.btn-green[disabled]:hover,
+.btn-green[disabled]:focus,
+.btn-green[disabled]:active,
+.btn-green[disabled].active,
+fieldset[disabled] .btn-green:hover,
+fieldset[disabled] .btn-green:focus,
+fieldset[disabled] .btn-green:active,
+fieldset[disabled] .btn-green.active {
+  background-color: #02c238;
+  border-color: #02c238;
+}
+
 
 .btn-purple {
-  background-color: #9002c2;
-  border-color: #9002c2;
+  background-color: rgba(61, 2, 85, 0.50);
+  border-color: #6f0296;
   color: white;
 }
 .btn-purple:hover,
@@ -239,8 +366,9 @@ fieldset[disabled] .btn-dkgray.active {
 }
 
 .btn-black {
-  background-color: #000000;
+  background-color: rgba(0, 0, 0, 0.71);
   border-color: #000000;
+  color: white;
 }
 .btn-black:hover,
 .btn-black:focus,
@@ -248,6 +376,7 @@ fieldset[disabled] .btn-dkgray.active {
 .btn-black.active {
   background-color: #000000;
   border-color: #000000;
+  color: white;
 }
 .btn-black.disabled:hover,
 .btn-black.disabled:focus,
@@ -266,8 +395,9 @@ fieldset[disabled] .btn-black.active {
 }
 
 .btn-pink {
-  background-color: #fa73ac;
+  background-color: rgba(250, 115, 172, 0.63);
   border-color: #fa73ac;
+  color: white;
 }
 .btn-pink:hover,
 .btn-pink:focus,
@@ -275,6 +405,7 @@ fieldset[disabled] .btn-black.active {
 .btn-pink.active {
   background-color: #f95a9d;
   border-color: #f8428f;
+  color: white;
 }
 .btn-pink.disabled:hover,
 .btn-pink.disabled:focus,

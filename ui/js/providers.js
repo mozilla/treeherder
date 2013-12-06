@@ -29,7 +29,7 @@ treeherder.provider('thStarTypes', function() {
             },
             4: {
                    name: "intermittent needs filing",
-                   star: "label-important"
+                   star: "label-danger"
             }
         };
     };
@@ -40,6 +40,8 @@ treeherder.provider('thResultStatusInfo', function() {
         return function(resultState) {
             // default if there is no match, used for pending
             var resultStatusInfo = {
+                severity: 100,
+                isCollapsedResults: true,
                 btnClass: "btn-default",
                 showButtonIcon: "glyphicon glyphicon-time",
                 jobButtonIcon: ""
@@ -48,56 +50,81 @@ treeherder.provider('thResultStatusInfo', function() {
             switch (resultState) {
                 case "busted":
                     resultStatusInfo = {
-                        btnClass: "btn-danger",
+                        severity: 1,
+                        isCollapsedResults: false,
+                        btnClass: "btn-red",
                         showButtonIcon: "glyphicon glyphicon-fire",
                         jobButtonIcon: "glyphicon glyphicon-fire"
                     };
                     break;
                 case "exception":
                     resultStatusInfo = {
+                        severity: 2,
+                        isCollapsedResults: false,
                         btnClass: "btn-purple",
                         showButtonIcon: "glyphicon glyphicon-fire",
                         jobButtonIcon: "glyphicon glyphicon-fire"
                     };
                     break;
-                case "running":
+                case "testfailed":
                     resultStatusInfo = {
-                        btnClass: "btn-ltgray",
-                        showButtonIcon: "glyphicon glyphicon-time",
+                        severity: 3,
+                        isCollapsedResults: false,
+                        btnClass: "btn-orange",
+                        showButtonIcon: "glyphicon glyphicon-warning-sign",
+                        jobButtonIcon: "glyphicon glyphicon-warning-sign"
+                    };
+                    break;
+                case "unknown":
+                    resultStatusInfo = {
+                        severity: 4,
+                        isCollapsedResults: false,
+                        btnClass: "btn-black",
+                        showButtonIcon: "glyphicon glyphicon-warning-sign",
+                        jobButtonIcon: ""
+                    };
+                    break;
+                case "usercancel":
+                    resultStatusInfo = {
+                        severity: 5,
+                        isCollapsedResults: true,
+                        btnClass: "btn-pink",
+                        showButtonIcon: "glyphicon glyphicon-stop",
                         jobButtonIcon: ""
                     };
                     break;
                 case "retry":
                     resultStatusInfo = {
-                        btnClass: "btn-primary",
+                        severity: 6,
+                        isCollapsedResults: true,
+                        btnClass: "btn-dkblue",
                         showButtonIcon: "glyphicon glyphicon-time",
                         jobButtonIcon: ""
                     };
                     break;
                 case "success":
                     resultStatusInfo = {
-                        btnClass: "btn-success",
+                        severity: 7,
+                        isCollapsedResults: true,
+                        btnClass: "btn-green",
                         showButtonIcon: "glyphicon glyphicon-ok",
                         jobButtonIcon: ""
                     };
                     break;
-                case "testfailed":
+                case "running":
                     resultStatusInfo = {
-                        btnClass: "btn-warning",
-                        showButtonIcon: "glyphicon glyphicon-warning-sign",
-                        jobButtonIcon: "glyphicon glyphicon-warning-sign"
-                    };
-                    break;
-                case "usercancel":
-                    resultStatusInfo = {
-                        btnClass: "btn-pink",
-                        showButtonIcon: "glyphicon glyphicon-stop",
+                        severity: 8,
+                        isCollapsedResults: true,
+                        btnClass: "btn-ltgray",
+                        showButtonIcon: "glyphicon glyphicon-time",
                         jobButtonIcon: ""
                     };
                     break;
-                case "unknown":
+                case "pending":
                     resultStatusInfo = {
-                        btnClass: "btn-black",
+                        severity: 100,
+                        isCollapsedResults: true,
+                        btnClass: "btn-default",
                         showButtonIcon: "glyphicon glyphicon-time",
                         jobButtonIcon: ""
                     };

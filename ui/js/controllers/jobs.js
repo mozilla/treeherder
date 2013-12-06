@@ -2,15 +2,17 @@
 
 treeherder.controller('JobsCtrl',
     function JobsCtrl($scope, $http, $rootScope, $routeParams, $log,
-                      thUrl, thResultSets) {
+                      thUrl, thResultSets, thRepos) {
 
-        // set the default repo to mozilla-central if not specified
+        // set the default repo to mozilla-inbound if not specified
         if ($routeParams.hasOwnProperty("repo") &&
             $routeParams.repo !== "") {
-            $rootScope.repo = $routeParams.repo;
+            $rootScope.repoName = $routeParams.repo;
         } else {
-            $rootScope.repo = "mozilla-inbound";
+            $rootScope.repoName = "mozilla-central";
         }
+
+        thRepos.load($scope.repoName);
 
         $scope.offset = 0;
         $scope.result_sets = [];
@@ -40,72 +42,31 @@ treeherder.controller('JobsCtrl',
 
 treeherder.controller('ResultSetCtrl',
     function ResultSetCtrl($scope, $rootScope, $http, $log,
-                           thUrl, thServiceDomain) {
-
-        var SEVERITY = {
-            "busted": {
-                level: 1,
-                isCollapsedResults: false
-            },
-            "exception": {
-                level: 2,
-                isCollapsedResults: false
-            },
-            "testfailed": {
-                level: 3,
-                isCollapsedResults: false
-            },
-            "unknown": { // completed, unknown error
-                level: 4,
-                isCollapsedResults: true
-            },
-            "usercancel": {
-                level: 5,
-                isCollapsedResults: false
-            },
-            "retry": {
-                level: 6,
-                isCollapsedResults: true
-            },
-            "success": {
-                level: 7,
-                isCollapsedResults: true
-            },
-            "running": {
-                level: 8,
-                isCollapsedResults: true
-            },
-            "pending": {
-                level: 100,
-                isCollapsedResults: true
-            }
-        };
+                           thUrl, thServiceDomain, thResultStatusInfo) {
 
         // determine the greatest severity this resultset contains
-        // so that the UI can show depict that
-        var getSeverity = function(result_types) {
+        // so that the UI can depict that
+        var getMostSevereResultStatus = function(result_types) {
 
-            var severity = "unknown",
-                highest = SEVERITY.unknown;
+            var status = "pending",
+                rsInfo = thResultStatusInfo(status);
 
             for (var i = 0; i < result_types.length; i++) {
-                if (SEVERITY[result_types[i]]) {
-                    if (SEVERITY[result_types[i]].level < highest.level) {
-                        severity = result_types[i];
-                        highest = SEVERITY[severity];
-                    }
-                } else {
-                    console.warn("WARNING: Unidentified result_type: " + result_types[i]);
+                var res = thResultStatusInfo(result_types[i]);
+                if (res.severity < rsInfo.severity) {
+                    status = result_types[i];
+                    rsInfo = res;
                 }
             }
-            return severity;
+            return {status: status, isCollapsedResults: rsInfo.isCollapsedResults};
         };
 
-        $scope.resultSeverity = getSeverity($scope.resultset.result_types);
+        var severeResultStatus = getMostSevereResultStatus($scope.resultset.result_types);
+        $scope.resultSeverity = severeResultStatus.status;
+        $scope.isCollapsedResults = severeResultStatus.isCollapsedResults;
 
         // whether or not revision list for a resultset is collapsed
         $scope.isCollapsedRevisions = true;
-        $scope.isCollapsedResults = SEVERITY[$scope.resultSeverity].isCollapsedResults;
 
         // convert the platform names to human-readable using the TBPL
         // Config.js file
@@ -121,9 +82,6 @@ treeherder.controller('ResultSetCtrl',
                 }
             }
         }
-
-
-
 
         $scope.viewJob = function(job) {
             // set the selected job

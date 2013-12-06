@@ -21,10 +21,10 @@ treeherder.controller('MainCtrl',
 
 
 treeherder.controller('RepoDropDownCtrl',
-    function RepoDropDownCtrl($scope, $http, $location, thRepos) {
+    function RepoDropDownCtrl($scope, $rootScope, $http, $location, thRepos) {
         $scope.changeRepo = function(repo) {
-            $location.search({repo: repo});
+            thRepos.setCurrent(repo.name);
+            $location.search({repo: repo.name});
         };
-        thRepos.getRepos($scope);
     }
 );
