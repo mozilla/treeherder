@@ -70,6 +70,14 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
+        'regex': re.compile('Mavericks', re.IGNORECASE),
+        'attributes': {
+            'os': 'mac',
+            'os_platform': 'osx-10-9',
+            'arch': 'x86_64',
+        }
+    },
+    {
         'regex': re.compile('mountain[ ]?lion', re.IGNORECASE),
         'attributes': {
             'os': 'mac',
