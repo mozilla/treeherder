@@ -238,7 +238,8 @@ BUILD_TYPE_BUILDERNAME = [
 
 JOB_TYPE_BUILDERNAME = {
     'build': [
-        re.compile('.+ build'),
+        re.compile('.+build'),
+        re.compile('.+_dep'),
         re.compile('.+(?<!l10n) nightly$'),     # all 'nightly'-s are builds
         re.compile('.+ xulrunner$'),            # nightly
         re.compile('.+ code coverage$'),        # nightly
