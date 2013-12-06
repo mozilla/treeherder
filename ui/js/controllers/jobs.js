@@ -9,7 +9,7 @@ treeherder.controller('JobsCtrl',
             $routeParams.repo !== "") {
             $rootScope.repoName = $routeParams.repo;
         } else {
-            $rootScope.repoName = "mozilla-central";
+            $rootScope.repoName = "mozilla-inbound";
         }
 
         thRepos.load($scope.repoName);

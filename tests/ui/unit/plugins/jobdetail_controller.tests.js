@@ -40,7 +40,7 @@ describe('JobDetailPluginCtrl', function(){
             getJSONFixture('notes_job_134.json')
         );
 
-        $rootScope.repo = "mozilla-inbound";
+        $rootScope.repoName = "mozilla-inbound";
         jobDetailPluginScope =  $rootScope.$new();
         createJobDetailPluginCtrl = function() {
             var ctrl = $controller('JobDetailPluginCtrl', {'$scope': jobDetailPluginScope});
