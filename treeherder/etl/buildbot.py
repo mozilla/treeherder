@@ -70,6 +70,14 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
+        'regex': re.compile('Mavericks', re.IGNORECASE),
+        'attributes': {
+            'os': 'mac',
+            'os_platform': 'osx-10-9',
+            'arch': 'x86_64',
+        }
+    },
+    {
         'regex': re.compile('mountain[ ]?lion', re.IGNORECASE),
         'attributes': {
             'os': 'mac',
@@ -230,7 +238,8 @@ BUILD_TYPE_BUILDERNAME = [
 
 JOB_TYPE_BUILDERNAME = {
     'build': [
-        re.compile('.+ build'),
+        re.compile('.+build'),
+        re.compile('.+_dep'),
         re.compile('.+(?<!l10n) nightly$'),     # all 'nightly'-s are builds
         re.compile('.+ xulrunner$'),            # nightly
         re.compile('.+ code coverage$'),        # nightly
