@@ -1,6 +1,5 @@
 import re
 
-
 RESULT_DICT = {
     0: "success",
     1: "testfailed",
@@ -604,3 +603,4 @@ def get_symbol(name, bn):
     if nummatch:
         n = nummatch.group(1)
     return "{0}{1}".format(s, n)
+

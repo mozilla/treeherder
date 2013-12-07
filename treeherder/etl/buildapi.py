@@ -1,11 +1,15 @@
 import logging
+import time
+import datetime
+import json
+import os
+
 from collections import defaultdict
 from django.conf import settings
 
-from . import buildbot
-from treeherder.etl import common
+from treeherder.etl import common, buildbot
+from treeherder.etl.mixins import JsonExtractorMixin, ObjectstoreLoaderMixin, JobsLoaderMixin
 from treeherder.model.models import Datasource
-from .mixins import JsonExtractorMixin, ObjectstoreLoaderMixin, JobsLoaderMixin
 
 
 logger = logging.getLogger(__name__)
@@ -334,3 +338,338 @@ class RunningJobsProcess(JsonExtractorMixin,
             self.load(
                 self.transform(extracted_content)
             )
+
+class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
+
+    def __init__(self):
+
+        # builds4h deserialized json
+        self.raw_data = []
+
+        self.t_stamp = time.time()
+        self.readable_time = datetime.datetime.fromtimestamp(self.t_stamp).strftime('%Y-%m-%d %H:%M:%S')
+
+        # data structures for missing attributes
+        self.report_obj = {
+            'objects_missing_buildernames': {
+                'data':{},
+                'get_func':self.get_objects_missing_buildernames,
+                'report_func':self.report_default
+                },
+            'branch_misses': {
+                'data':{},
+                'get_func':self.get_branch_misses,
+                'report_func':self.report_default
+                },
+            'revision_misses': {
+                'data':{},
+                'get_func':self.get_revision_misses,
+                'report_func':self.report_default
+                },
+            'job_guid_misses': {
+                'data':{},
+                'get_func':self.get_job_guid_misses,
+                'report_func':self.report_default
+                },
+            'platform_regex_misses':{
+                'data':{},
+                'get_func':self.get_platform_regex_misses,
+                'report_func':self.report_default
+                },
+            'job_type_regex_misses':{
+                'data':{},
+                'get_func':self.get_job_type_regex_misses,
+                'report_func':self.report_default
+                },
+            'test_name_regex_misses':{
+                'data':{},
+                'get_func':self.get_test_name_regex_misses,
+                'report_func':self.report_default
+                }
+            }
+
+        # load last analysis data
+        self.data_path = os.path.join(
+            os.path.dirname(os.path.dirname(__file__)),
+            'treeherder',
+            settings.STATIC_ROOT,
+            'rest_framework',
+            'data'
+            )
+
+        # file that stores the json data
+        self.builds4h_analysis_file_path = os.path.join(
+            self.data_path, 'builds4h_analysis.json')
+
+        # file that stores the report to display
+        self.builds4h_report_file_path = os.path.join(
+            self.data_path, 'builds4h_report.txt')
+
+    def run(self):
+
+        self.get_analysis_file()
+
+        self.raw_data = self.extract(settings.BUILDAPI_BUILDS4H_URL)
+
+        for build in self.raw_data['builds']:
+
+            buildername = build['properties'].get('buildername', None)
+
+            for analysis_type in self.report_obj:
+                self.report_obj['get_func'](build, buildername)
+
+    def get_analysis_file(self):
+
+        if os.path.isfile(self.builds4h_analysis_file_path):
+            with open(self.builds4h_analysis_file_path) as f:
+                data = f.read()
+                deserialized_data = json.loads(data)
+                for key in deserialized_data:
+                    self.report_obj[key]['data'] = deserialized_data[key]
+
+    def write_report(self):
+        pass
+
+    def get_objects_missing_buildernames(self, build, buildername):
+
+        if not buildername:
+            self.report_obj['objects_missing_buildernames']['data'].append(build)
+
+    def get_branch_misses(self, build, buildername):
+
+        # test for missing branch
+        if not 'branch' in build['properties']:
+            builder_found = self.report_obj['branch_misses']['data'].get(
+                buildername)
+
+            if not builder_found:
+                self.report_obj['branch_misses']['data'][buildername] = self.t_stamp
+
+    def get_revision_misses(self, build, buildername):
+
+        if not buildername:
+            return
+
+        revision = prop.get('revision',
+            prop.get('got_revision',
+            prop.get('sourcestamp', None)))
+
+        if not revision:
+            builder_found = self.report_obj['revision_misses']['data'].get(buildername)
+            if not builder_found:
+                self.report_obj['revision_misses']['data'][buildername] = self.t_stamp
+
+    def get_job_guid_misses(self, build, buildername):
+
+        if not buildername:
+            return
+
+        # test for successful job_guid formulation
+        job_guid = self.find_job_guid(build)
+        if not job_guid:
+            builder_found = self.report_obj['job_guid_misses']['data'].get(buildername)
+            if not builder_found:
+                self.report_obj['job_guid_misses']['data'][buildername] = self.t_stamp
+
+    def get_platform_regex_misses(self, build, buildername):
+
+        if not buildername:
+            return
+
+        # Match platforms
+        platform_target = {}
+        for platform in buildbot.PLATFORMS_BUILDERNAME:
+            if platform['regex'].search(buildername):
+                platform_target = platform['attributes']
+                break
+        if not platform_target:
+            builder_found = self.report_obj['platform_misses']['data'].get(buildername)
+            if not builder_found:
+                self.report_obj['platform_misses']['data'][buildername] = self.t_stamp
+
+    def get_job_type_regex_misses(self, build, buildername):
+        pass
+
+    def get_test_name_regex_misses(self, build, buildername):
+        pass
+
+    def report_default(self, buildername):
+        pass
+
+def test_builds4h():
+
+    jem = JsonExtractorMixin()
+    extracted_content = jem.extract(settings.BUILDAPI_BUILDS4H_URL)
+
+    branch_misses = {}
+    objects_missing_buildernames = []
+    platform_regex_misses = {}
+    job_type_regex_misses = {}
+    result_code_misses = {}
+    request_id_misses = {}
+    job_guid_misses = {}
+
+    btfm = Builds4hTransformerMixin()
+    for build in extracted_content['builds']:
+
+        # test for missing buildernames
+        try:
+            buildername = build['properties']['buildername']
+        except KeyError:
+            objects_missing_buildernames.append(json.dumps(build))
+            continue
+
+        # test for missing branch
+        if not 'branch' in build['properties']:
+            branch_misses[buildername]
+
+        # test for missing result codes
+        try:
+            result_code = buildbot.RESULT_DICT[ build['result'] ]
+        except KeyError:
+            result_code_misses[result_code] = buildername
+
+        # test for request_ids
+        request_id = build['properties'].get('request_ids', '')
+        if request_id == '':
+            request_id = build['request_ids'][-1]
+        else:
+            request_id = request_id[-1]
+
+        # test for request_times
+        request_time_dict = build['properties'].get('request_times', '')
+        request_time = ''
+        if request_time_dict != '':
+            request_time = request_time_dict[str(request_id)]
+        else:
+            request_time = build['requesttime']
+
+        if not request_id or not request_time:
+            request_id_misses[buildername] = json.dumps(build)
+
+        # test for successful job_guid formulation
+        job_guid = btfm.find_job_guid(build)
+        if not job_guid:
+            job_guid_misses[buildername] = 1
+
+        # Execute regexes directly so we can find buildernames that fail
+
+        # Match platforms
+        platform_target = {}
+        for platform in buildbot.PLATFORMS_BUILDERNAME:
+            if platform['regex'].search(buildername):
+                platform_target = platform['attributes']
+                break
+        if not platform_target:
+            platform_regex_misses[buildername] = 1
+
+        # Match job types
+        job_type_target = ""
+        for job_type in buildbot.JOB_TYPE_BUILDERNAME:
+            for regex in buildbot.JOB_TYPE_BUILDERNAME[job_type]:
+                if regex.search(buildername):
+                    job_type_target = job_type
+                    break
+            if job_type_target:
+                break
+        if not job_type_target:
+            job_type_regex_misses[buildername] = 1
+
+    # generate builds4h report
+    miss_count = process_output(
+        objects_missing_buildernames,
+        platform_regex_misses,
+        job_type_regex_misses,
+        result_code_misses,
+        request_id_misses,
+        job_guid_misses,
+        branch_misses
+        )
+
+def process_output(
+    objects_missing_buildernames,
+    platform_regex_misses,
+    job_type_regex_misses,
+    result_code_misses,
+    request_id_misses,
+    job_guid_misses,
+    branch_misses):
+
+    t_stamp = time.time()
+
+    f = open('builds4h_misses_{0}.txt'.format(str(int(t_stamp))), 'w')
+
+    readable_time = datetime.datetime.fromtimestamp(t_stamp).strftime('%Y-%m-%d %H:%M:%S')
+
+    f.write("Builds4h Report Run On {0}\n".format(readable_time))
+    f.write("------------------------------------\n")
+
+    no_buildername_count = len(objects_missing_buildernames)
+    if no_buildername_count > 0:
+        f.write("{0} Objects Missing Buildernames\n".format(str(no_buildername_count)))
+        f.write("------------------------------------\n")
+        for obj in objects_missing_buildernames:
+            f.write(obj)
+            f.write("\n")
+        f.write("------------------------------------\n")
+
+    branch_miss_count = len(branch_misses.values())
+    if branch_miss_count > 0:
+        f.write("{0} Branch Misses\n".format(str(branch_miss_count)))
+        f.write("------------------------------------\n")
+        for buildername in sorted(branch_misses):
+            f.write(buildername)
+            f.write("\n")
+        f.write("------------------------------------\n")
+
+    platform_count = len(platform_regex_misses.values())
+    if platform_count > 0:
+        f.write("{0} Platform Regex Misses\n".format(str(platform_count)))
+        f.write("------------------------------------\n")
+        for buildername in sorted(platform_regex_misses):
+            f.write(buildername)
+            f.write("\n")
+        f.write("------------------------------------\n")
+
+    job_type_count = len(job_type_regex_misses.values())
+    if job_type_count > 0:
+        f.write("{0} Job Type Regex Misses\n".format(str(job_type_count)))
+        f.write("------------------------------------\n")
+        for buildername in sorted(job_type_regex_misses):
+            f.write(buildername)
+            f.write("\n")
+        f.write("------------------------------------\n")
+
+    result_code_miss_count = len(result_code_misses)
+    if result_code_miss_count > 0:
+        f.write("{0} Result Code Misses\n".format(str(result_code_miss_count)))
+        f.write("------------------------------------\n")
+        for data in sorted(result_code_misses):
+            f.write("{0}: {1}".format(data['buildername'], data['result']))
+            f.write("\n")
+        f.write("------------------------------------\n")
+
+    request_id_miss_count = len(request_id_misses.values())
+    if request_id_miss_count > 0:
+        f.write("{0} Request id/Request time Misses\n".format(str(request_id_miss_count)))
+        f.write("------------------------------------\n")
+        for buildername in sorted(request_id_misses):
+            f.write(buildername)
+            f.write("\n")
+            f.write(request_id_misses[buildername])
+            f.write("\n")
+        f.write("------------------------------------\n")
+
+    job_guid_miss_count = len(job_guid_misses)
+    if job_guid_miss_count > 0:
+        f.write("{0} Job Guid Misses\n".format(str(job_guid_miss_count)))
+        f.write("------------------------------------\n")
+        for buildername in sorted(job_guid_misses):
+            f.write(buildername)
+            f.write("\n")
+        f.write("------------------------------------\n")
+
+    f.close()
+
+    return no_buildername_count + platform_count + job_type_count + \
+                result_code_miss_count + request_id_miss_count
