@@ -1,12 +1,14 @@
 "use strict";
-
 treeherder.directive('thPrintLine', function() {
-    console.log("thPrintline initialized")
+
     return {
-        restrict: 'E',
+        controller:function($scope, $log){
+            $log.log("thPrintline initialized");
+
+        },
         scope: {
             line: '=line'
         },
-        template: '<span>{{line}}</span>'
+        template: 'printline.html'
     };
 });

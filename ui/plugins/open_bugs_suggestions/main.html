@@ -1,11 +1,16 @@
 <div ng-controller="OpenBugsPluginCtrl">
-    <table class="table-condensed table-hover">
+    <table class="table-super-condensed table-hover">
         <thead>
-            <tr><th>Bug ID</th><th>Relevance</th></tr>
+            <tr><th>Bug ID</th><th>Summary</th><th>Crash signature</th><th>Keywords</th><th>OS</th><th>Relevance</th></tr>
         </thead>
         <tbody>
             <tr ng-repeat="bug in open_bugs">
-                <td>{{bug.id}}</td><td>{{bug.relevance}}</td>
+                <td><a href="https://bugzilla.mozilla.org/show_bug.cgi?id={{bug.id}}">{{bug.id}}</a></td>
+                <td>{{bug.summary}}</td>
+                <td>{{bug.crash_signature}}</td>
+                <td>{{bug.keywords}}</td>
+                <td>{{bug.os}}</td>
+                <td>{{bug.relevance| number:0}}</td>
             </tr>
         </tbody>
     </table>

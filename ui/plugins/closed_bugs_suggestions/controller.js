@@ -8,9 +8,19 @@ treeherder.controller('ClosedBugsPluginCtrl',
         // watch may never get triggered.
         $scope.$watch('artifacts', function(newValue, oldValue){
             $scope.closed_bugs = [];
-            if (newValue && newValue.hasOwnProperty('Closed bugs')){
+            if (newValue && newValue.hasOwnProperty('Closed bugs') && newValue['Closed bugs'].blob){
                 $scope.closed_bugs =  newValue['Closed bugs'].blob;
+
             }
+
+            // set the item count on the tab header
+            for(var tab=0; tab<$scope.tabs.length; tab++){
+                if ($scope.tabs[tab].id == 'closed-bugs'){
+                    $scope.tabs[tab].num_items = $scope.closed_bugs.length;
+                }
+            }
+
+
 
         }, true);
     }

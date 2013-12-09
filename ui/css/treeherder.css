@@ -157,9 +157,10 @@ div.navbar-fixed-bottom dt,
 div.navbar-fixed-bottom dt {
     font-size:.8em;
 }
-
-div.navbar-fixed-bottom .close-btn{
-}
+#bottom_left_panel {width:222px; position: absolute; top: 5px; left:5px;}
+#bottom_left_panel .panel{padding:5px;}
+#bottom_center_panel {margin:0 110px 0 242px;}
+#bottom_menu{position: absolute; top: 5px; right:5px;}
 
 /* Custom Job buttons*/
 .btn-orange {

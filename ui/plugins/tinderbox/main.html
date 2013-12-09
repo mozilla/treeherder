@@ -1,8 +1,25 @@
 <div ng-controller="TinderboxPluginCtrl">
-    <ul >
-        <li ng-repeat="line in tinderbox_lines">
-            {{line}}
-        </li>
+    <table>
+        <tr ng-repeat="line in tinderbox_lines_parsed">
+            <th>{{line.title}}</th>
+            <td ng-switch on="line.type">
+                <a ng-switch-when="link" href="{{line.link}}">{{line.value}}</a>
+                <ul ng-if="line.type=='TalosResult'">
+                    <li>Datazilla:
+                        <ul>
+                            <li ng-repeat="(k,v) in line.value.datazilla"><a href="{{v.url}}">{{k}}</a></li>
+                        </ul>
+                    </li>
 
-    </ul>
+                    <li>Graphserver:
+                        <ul>
+                            <li ng-repeat="(k,v) in line.value.graphserver">{{k}}:<a href="{{v.url}}">{{v.result}}</a></li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <span ng-switch-default>{{line.value}}</span>
+        </tr>
+
+    </table>
 </div>

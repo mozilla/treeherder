@@ -1,17 +1,19 @@
 <div ng-controller="PluginCtrl">
     <!--first panel begin-->
-    <div class="row">
-        <div class="col-xs-3">
+        <div id="bottom_left_panel">
             <div class="panel">
                 <div class="panel-head">
-                    <dl class="dl-horizontal">
-                        <dt>Machine name</dt>
-                        <dd><a href="https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name={{ $scope.job.machine_name }}">{{ job.machine_name }}</a></dd>
-                        <span ng-repeat="(label, value) in visibleFields">
-                            <dt>{{ label }}</dt>
-                            <dd>{{ value | limitTo:12 }}</dd>
-                        </span>
-                    </dl>
+                    <table class="table-super-condensed table-striped">
+                        <tr>
+                            <th class="small">Machine name</th>
+                            <td class="small">
+                                <a href="https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name={{ $scope.job.machine_name }}">{{ job.machine_name }}</a>
+                            </td>
+                        </tr>
+
+                        <tr ng-repeat="(label, value) in visibleFields"><th>{{label}}</th><td>{{ value | limitTo:12 }}</td></tr>
+                    </table>
+
                     <div ng-show="newNote">
                         <form ng-submit="saveNote()" class="form-inline">
                             <select ng-model="newNote.failure_classification_id">
@@ -26,18 +28,30 @@
             </div>
         </div>
         <!--first panel end-->
-        <div class="col-xs-8">
+        <div id="bottom_center_panel">
             <div class="panel">
                 <div class="panel-body">
+                    <!--<ul class="nav nav-tabs">-->
+                      <!--<li ng-repeat="tab in tabs"><a href="#{{teb.id}}" data-toggle="tab">{{tab.title}}</a></li>-->
+
+                    <!--</ul>-->
+                    <!--<div class="tab-content">-->
+                      <!--<div ng-repeat="tab in tabs" class="tab-pane" id="{{tab.id}}">-->
+                          <!--<ng-include src="tab.content"></ng-include>-->
+                      <!--</div>-->
+                    <!--</div>-->
+
                     <tabset class="tabs-below">
-                        <tab ng-repeat="tab in tabs" heading="{{ tab.title }}" active="tab.active" disabled="tab.disabled">
+
+                        <tab ng-repeat="tab in tabs"  active="tab.active" disabled="tab.disabled">
+                            <tab-heading>{{ tab.title }} <span class="badge">{{tab.num_items}}</span></tab-heading>
                             <ng-include src="tab.content"></ng-include>
                         </tab>
                     </tabset>
                 </div>
             </div>
         </div>
-        <div class="col-xs-1">
+        <div id="bottom_menu">
             <div class="btn-group-vertical">
                 <button type="button" class="btn btn-xs btn-default close-btn" ng-click="clearJob()">
                     <span class="glyphicon glyphicon-remove"></span> Close
@@ -48,7 +62,7 @@
                 </button>
 
                 <div class="btn btn-default btn-xs"
-                     ng-disabled="!lvArtifact">
+                     ng-disabled="artifacts.length>0">
                     <a target="_blank" href="{{ lvUrl }}">Structured log</a>
                 </div>
 
@@ -58,5 +72,4 @@
                 </div>
             </div>
         </div>
-    </div>
 </div>

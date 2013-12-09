@@ -1,11 +1,11 @@
 <div ng-controller="ClosedBugsPluginCtrl">
-    <table class="table-condensed table-hover">
+    <table class="table-super-condensed table-hover">
         <thead>
-            <tr><th>Bug ID</th><th>Relevance</th></tr>
+            <tr><th>Bug ID</th><th>Summary</th><th>Crash signature</th><th>Keywords</th><th>OS</th><th>Relevance</th></tr>
         </thead>
         <tbody>
-            <tr ng-repeat="bug in closed_bugs">
-                <td>{{bug.id}}</td><td>{{bug.relevance}}</td>
+            <tr ng-repeat="bug in open_bugs">
+                <td>{{bug.id}}</td><td>{{sumary}}</td><td>{{crash_signature}}</td><td>{{keywords}}</td><td>{{os}}</td><td>{{bug.relevance}}</td>
             </tr>
         </tbody>
     </table>
