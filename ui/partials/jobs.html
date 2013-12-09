@@ -20,11 +20,11 @@
             <ul class="dropdown-menu pull-right">
                 <li class="disabled"><a>Result Set Actions</a></li>
                 <li class="divider"></li>
-                <li><a target="_blank" href="https://tbpl.mozilla.org/mcmerge/?cset=8196c86355bc">m-mcMerge</a></li>
-                <li><a target="_blank" href="https://secure.pub.build.mozilla.org/buildapi/self-serve/mozilla-central/rev/8196c86355bc">BuildAPI</a></li>
-                <li><a target="_blank" href="">Changeset URL List</a></li>
-                <li><a href="">Compare</a></li>
-                <li><a href="">Cancel All Jobs</a></li>
+                <li><a target="_blank" href="https://tbpl.mozilla.org/mcmerge/?cset={{resultset.revision}}&tree={{repoName}}">m-mcMerge</a></li>
+                <li><a target="_blank" href="https://secure.pub.build.mozilla.org/buildapi/self-serve/{{repoName}}/rev/{{resultset.revision}}">BuildAPI</a></li>
+                <li><a target="_blank" href="" data-toggle="modal" data-target="#revisionListModal">Changeset URL List</a></li>
+                <li class="hidden"><a href="">Compare</a></li>
+                <li class="hidden"><a href="" ng-disabled="true">Cancel All Jobs</a></li>
             </ul>
         </span>
     </span>
@@ -66,6 +66,30 @@
             </table>
         </span>
     </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="revisionListModal" tabindex="-1" role="dialog" aria-labelledby="revisionListModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title" id="revisionListModalLabel">Result Set Revision List</h4>
+          </div>
+          <div class="modal-body">
+            <ul class="list-unstyled">
+                <li ng-repeat="revision in resultset.revision_list">
+                    <th-revision></th-revision>
+                </li>
+            </ul>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+
 </div>
 <div class="progress progress-striped active"
      ng-show="isLoadingRsBatch">
