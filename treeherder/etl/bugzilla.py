@@ -10,11 +10,12 @@ from treeherder.model.derived import RefDataManager
 
 class BzApiBugProcess(JsonExtractorMixin):
 
-    def _get_bz_source_url(self, last_fetched):
+    def _get_bz_source_url(self, last_fetched=None):
         hostname = settings.BZ_API_URL
         params = {
             'keywords': 'intermittent-failure',
-            'include_fields': 'id,summary,status,resolution,op_sys,cf_crash_signature, keywords'
+            'include_fields': 'id,summary,status,resolution,op_sys,cf_crash_signature, keywords',
+            'resolution': '---'
         }
         if last_fetched:
             params.update({'changed_after': last_fetched})
@@ -25,9 +26,7 @@ class BzApiBugProcess(JsonExtractorMixin):
         )
         return source_url
 
-
     def run(self):
-
         # this is the last day we fetched bugs from bugzilla
         last_fetched = cache.get('bz_last_fetched')
         source_url = self._get_bz_source_url(last_fetched)
@@ -35,12 +34,13 @@ class BzApiBugProcess(JsonExtractorMixin):
         curr_date = datetime.date.today()
 
         response = self.extract(source_url)
-        bug_list = response.get('bugs', [])
+        if response:
+            bug_list = response.get('bugs', [])
 
-        if bug_list:
+            if bug_list:
 
-            # store the new date for one day
-            cache.set('bz_last_fetched', curr_date, 60 * 60 * 24)
+                # store the new date for one day
+                cache.set('bz_last_fetched', curr_date, 60 * 60 * 24)
 
-            rdm = RefDataManager()
-            rdm.update_bugscache(bug_list)
+                rdm = RefDataManager()
+                rdm.update_bugscache(bug_list)

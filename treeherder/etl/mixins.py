@@ -9,7 +9,7 @@ import simplejson as json
 from django.core.urlresolvers import reverse
 from django.conf import settings
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 
 class JsonExtractorMixin(object):
@@ -17,8 +17,11 @@ class JsonExtractorMixin(object):
         """
         Deserializes a json string contained a given file, uncompressing it if needed
         """
+        req = urllib2.Request(url)
+        req.add_header('Accept', 'application/json')
+        req.add_header('Content-Type', 'application/json')
         try:
-            handler = urllib2.urlopen(url)
+            handler = urllib2.urlopen(req)
             if handler.info().get('Content-Encoding') == 'gzip':
                 buf = StringIO(handler.read())
                 handler = gzip.GzipFile(fileobj=buf)

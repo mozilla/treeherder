@@ -267,7 +267,8 @@
                         AND resolution REP0 ''
                         AND MATCH (`summary`, `crash_signature`, `keywords`)
                             AGAINST (?)
-                    ORDER BY relevance DESC",
+                    ORDER BY relevance DESC
+                    LIMIT 0,?",
             "host": "read_host"
 
         }

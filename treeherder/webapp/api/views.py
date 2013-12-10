@@ -349,7 +349,11 @@ class ResultSetViewSet(viewsets.ViewSet):
                         #del(job["job_group_symbol"])
                         del(job["result_set_id"])
                         del(job["platform"])
-                        result_types.append(job["result"])
+
+                        if job["state"] == "completed":
+                            result_types.append(job["result"])
+                        else:
+                            result_types.append(job["state"])
                         job_count += 1
 
                 platforms.append({

@@ -71,7 +71,9 @@ class Builds4hTransformerMixin(object):
             if not prop['revision']:
                 logger.warning("property 'revision' not found in build4h")
                 continue
-            revisions[prop['branch']].append(prop['revision'][0:12])
+
+            prop['revision'] = prop['revision'][0:12]
+            revisions[prop['branch']].append(prop['revision'])
 
         revisions_lookup = common.lookup_revisions(revisions)
 
