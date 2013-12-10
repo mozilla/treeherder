@@ -1,0 +1,5 @@
+[
+    "fuzzer-linux",
+    "fuzzer-macosx64-lion",
+    "fuzzer-win64"
+]

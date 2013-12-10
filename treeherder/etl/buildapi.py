@@ -347,6 +347,7 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
 
         # builds4h deserialized json
         self.raw_data = []
+        self.blacklist = set()
 
         self.t_stamp = int(time.time())
         self.readable_time = datetime.datetime.fromtimestamp(self.t_stamp).strftime('%Y-%m-%d %H:%M:%S')
@@ -406,8 +407,13 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
         self.builds4h_report_file_path = os.path.join(
             self.data_path, 'builds4h_report.txt')
 
+        # blacklist file for buildernames and ids
+        self.builds4h_blacklist_file_path = os.path.join(
+            self.data_path, 'blacklist.json')
+
     def run(self):
 
+        self.get_blacklist()
         self.get_analysis_file()
 
         self.raw_data = self.extract(settings.BUILDAPI_BUILDS4H_URL)
@@ -415,6 +421,9 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
         for build in self.raw_data['builds']:
 
             buildername = build['properties'].get('buildername', None)
+
+            if buildername in self.blacklist:
+                continue
 
             for analysis_type in self.report_obj:
                 self.report_obj[analysis_type]['get_func'](
@@ -432,6 +441,14 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
                 deserialized_data = json.loads(data)
                 for key in deserialized_data:
                     self.report_obj[key]['data'] = deserialized_data[key]
+
+    def get_blacklist(self):
+
+        if os.path.isfile(self.builds4h_blacklist_file_path):
+            with open(self.builds4h_blacklist_file_path) as f:
+                data = f.read()
+                deserialized_data = json.loads(data)
+                self.blacklist = set(deserialized_data)
 
     def write_report(self):
 
@@ -462,6 +479,11 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
             for k, v in sorted(
                 self.report_obj[analyzer]['data'].iteritems(),
                 key=lambda (k,v): (v['first_seen'], k)):
+
+                if k in self.blacklist:
+                    if k in data_to_write[analyzer]:
+                        del data_to_write[analyzer][k]
+                    continue
 
                 readable_time = datetime.datetime.fromtimestamp(v['first_seen']).strftime('%Y-%m-%d')
                 line = "{0}\t{1}\t{2}\n".format(str(k), readable_time, str(v['count']))
