@@ -5,6 +5,7 @@ treeherder.controller('TinderboxPluginCtrl',
         $log.log("Tinderbox plugin initialized");
         $scope.$watch('artifacts', function(newValue, oldValue){
             $scope.tinderbox_lines = [];
+            $scope.tinderbox_lines_parsed = []
             // ``artifacts`` is set as a result of a promise, so we must have
             // the watch have ``true`` as the last param to watch the value,
             // not just the reference.  We also must check for ``blob`` in ``Job Info``
@@ -12,7 +13,6 @@ treeherder.controller('TinderboxPluginCtrl',
             // fulfilled.
             if (newValue && newValue.hasOwnProperty('Job Info') && newValue['Job Info'].hasOwnProperty('blob')){
                 $scope.tinderbox_lines =  newValue['Job Info'].blob.tinderbox_printlines;
-                $scope.tinderbox_lines_parsed = [];
                 for(var i=0; i<$scope.tinderbox_lines.length; i++){
                     var line = $scope.tinderbox_lines[i];
                     var title = line;
@@ -23,9 +23,9 @@ treeherder.controller('TinderboxPluginCtrl',
                     var seps = [": ", "<br/>"];
                     var sep = false;
 
-                    for(var i=0; i<seps.length; i++){
-                        if(line.indexOf(seps[i]) !== -1){
-                            sep = seps[i];
+                    for(var j=0; j<seps.length; j++){
+                        if(line.indexOf(seps[j]) !== -1){
+                            sep = seps[j];
                         }
                     }
                     if(sep){
@@ -60,10 +60,9 @@ treeherder.controller('TinderboxPluginCtrl',
                 // set the item count on the tab header
 
             }
-
             for(var tab=0; tab<$scope.tabs.length; tab++){
                 if ($scope.tabs[tab].id == 'tinderbox'){
-                    $scope.tabs[tab].num_items = $scope.tinderbox_lines.length;
+                    $scope.tabs[tab].num_items = $scope.tinderbox_lines_parsed.length;
                 }
             }
 

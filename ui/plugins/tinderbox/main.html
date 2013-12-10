@@ -4,7 +4,7 @@
             <th>{{line.title}}</th>
             <td ng-switch on="line.type">
                 <a ng-switch-when="link" href="{{line.link}}">{{line.value}}</a>
-                <ul ng-if="line.type=='TalosResult'">
+                <ul ng-switch-when="TalosResult">
                     <li>Datazilla:
                         <ul>
                             <li ng-repeat="(k,v) in line.value.datazilla"><a href="{{v.url}}">{{k}}</a></li>
@@ -17,7 +17,7 @@
                         </ul>
                     </li>
                 </ul>
-
+                <span ng-switch-when="raw_html" ng-bind-html="line.value"></span>
                 <span ng-switch-default>{{line.value}}</span>
         </tr>
 

@@ -7,6 +7,7 @@ treeherder.controller('PluginCtrl',
 
         var JobNote = null;
 
+
         $scope.$watch('selectedJob', function(newValue, oldValue) {
             // preferred way to get access to the selected job
             if (newValue) {
@@ -99,14 +100,14 @@ treeherder.controller('PluginCtrl',
 
         $scope.tabs = [
             {
-                id: "notes",
-                title: "Notes",
-                content: "plugins/notes/main.html"
-            },
-            {
                 id: "tinderbox",
                 title: "Tinderbox",
                 content: "plugins/tinderbox/main.html"
+            },
+            {
+                id: "notes",
+                title: "Notes",
+                content: "plugins/notes/main.html"
             },
             {
                 id: "open-bugs",
