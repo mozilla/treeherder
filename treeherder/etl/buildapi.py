@@ -462,6 +462,11 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
 
         for analyzer in sorted(self.report_obj):
 
+            # Remove any blacklist names found
+            for exclude_name in self.blacklist:
+                if exclude_name in self.report_obj[analyzer]['data']:
+                    del self.report_obj[analyzer]['data'][exclude_name]
+
             # Set data for json structure
             data_to_write[analyzer] = self.report_obj[analyzer]['data']
 
@@ -481,8 +486,6 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
                 key=lambda (k,v): (v['first_seen'], k)):
 
                 if k in self.blacklist:
-                    if k in data_to_write[analyzer]:
-                        del data_to_write[analyzer][k]
                     continue
 
                 readable_time = datetime.datetime.fromtimestamp(v['first_seen']).strftime('%Y-%m-%d')
