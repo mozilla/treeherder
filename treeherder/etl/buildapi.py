@@ -394,9 +394,8 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
         self.data_path = os.path.join(
             os.path.dirname(os.path.dirname(__file__)),
             'treeherder',
-            settings.STATIC_ROOT,
-            'rest_framework',
-            'data'
+            settings.MEDIA_ROOT,
+            'builds4hanalysis'
             )
 
         # file that stores the json data

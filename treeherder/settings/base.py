@@ -43,6 +43,10 @@ USE_TZ = False
 
 STATIC_ROOT = path("webapp", "static")
 STATIC_URL = "/static/"
+
+MEDIA_ROOT = path("webapp", "media")
+MEDIA_URL = "/media/"
+
 # Additional locations of static files
 STATICFILES_DIRS = []
 STATICFILES_FINDERS = [
