@@ -86,6 +86,5 @@ def run_builds4h_analyzer():
     """
     Run a Builds4h Analysis process
     """
-    print "Running Builds4hAnalyzer"
     process = Builds4hAnalyzer()
     process.run()
