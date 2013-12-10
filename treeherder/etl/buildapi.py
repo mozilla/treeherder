@@ -439,6 +439,10 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
         data_to_write = {}
         divider = "------------------------------------------------------\n"
 
+        header_line = "Builds4h Report Last Run Time {0}\n".format(self.readable_time)
+        report_fh.write(header_line)
+        report_fh.write(divider)
+
         for analyzer in sorted(self.report_obj):
 
             # Set data for json structure
