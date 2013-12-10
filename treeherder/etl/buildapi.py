@@ -354,12 +354,12 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
         # data structures for missing attributes
         self.report_obj = {
             'branch_misses': {
-                'title':'{0} Buildernames Missing Branches',
+                'title':'{0} Objects Missing Branch Attribute',
                 'data':{},
                 'get_func':self.get_branch_misses
                 },
             'job_guid_misses': {
-                'title':'{0} Buildernames Missing Job Guids or Request Ids',
+                'title':'{0} Objects Missing Job Guids or Request Ids',
                 'data':{},
                 'get_func':self.get_job_guid_misses,
                 },
@@ -379,13 +379,13 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
                 'get_func':self.get_test_name_regex_misses,
                 },
             'revision_misses': {
-                'title':'{0} Buildernames Missing Revisions',
+                'title':'{0} Objects Missing Revisions',
                 'data':{},
                 'get_func':self.get_revision_misses,
                 },
             'objects_missing_buildernames': {
                 'title':'{0} Objects With No Buildername',
-                'data':[],
+                'data':{},
                 'get_func':self.get_objects_missing_buildernames,
                 },
             }
@@ -440,13 +440,13 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
         data_to_write = {}
         divider = "------------------------------------------------------\n"
 
-        for analyzer in self.report_obj:
+        for analyzer in sorted(self.report_obj):
 
             # Set data for json structure
             data_to_write[analyzer] = self.report_obj[analyzer]['data']
 
             # Write the title line
-            datum_count = len(self.report_obj[analyzer]['data'])
+            datum_count = len(self.report_obj[analyzer]['data'].values())
 
             if datum_count > 0:
                 title = self.report_obj[analyzer].get('title', '{0} Needs Title')
@@ -456,23 +456,17 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
                 continue
 
             # Write out display report
-            if analyzer == 'objects_missing_buildernames':
-                for buildername in self.report_obj[analyzer]['data']:
-                    line = "{0}\n{1}\n".format(
-                        buildername, self.report_obj[analyzer]['data'][buildername])
-                    report_fh.write(line)
-            else:
-                for k, v in sorted(
-                    self.report_obj[analyzer]['data'].iteritems(),
-                    key=lambda (k,v): (v['first_seen'], k)):
+            for k, v in sorted(
+                self.report_obj[analyzer]['data'].iteritems(),
+                key=lambda (k,v): (v['first_seen'], k)):
 
-                    readable_time = datetime.datetime.fromtimestamp(v['first_seen']).strftime('%Y-%m-%d')
-                    line = "{0}\t{1}\t{2}\n".format(k, readable_time, str(v['count']))
-                    report_fh.write(line)
+                readable_time = datetime.datetime.fromtimestamp(v['first_seen']).strftime('%Y-%m-%d')
+                line = "{0}\t{1}\t{2}\n".format(str(k), readable_time, str(v['count']))
+                report_fh.write(line)
 
-                    if len(v['objects']) > 0:
-                        for o in v['objects']:
-                            report_fh.write("\n{0}\n\n".format(o))
+                if len(v['objects']) > 0:
+                    for o in v['objects']:
+                        report_fh.write("\n{0}\n\n".format(o))
 
             report_fh.write(divider)
 
@@ -486,9 +480,13 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
     def get_objects_missing_buildernames(self, build, buildername):
 
         if not buildername:
-            self.report_obj['objects_missing_buildernames']['data'].append(build)
+            b_id = str(build.get('builder_id', 'No id attribute found'))
+            self._load_missed_buildername('objects_missing_buildernames', b_id, build)
 
     def get_branch_misses(self, build, buildername):
+
+        if not buildername:
+            return
 
         # test for missing branch
         if not 'branch' in build['properties']:
