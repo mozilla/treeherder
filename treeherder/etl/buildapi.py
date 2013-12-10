@@ -375,7 +375,7 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
                 'get_func':self.get_job_type_regex_misses,
                 },
             'test_name_regex_misses':{
-                'title':'{0} Buildernames Not Found By Test Name Regular Expressions (Defaults to Build)',
+                'title':'{0} Buildernames Not Found By Test Name Regular Expressions',
                 'data':{},
                 'get_func':self.get_test_name_regex_misses,
                 },
