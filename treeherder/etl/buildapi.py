@@ -4,7 +4,6 @@ import datetime
 import json
 import os
 
-from collections import OrderedDict
 from collections import defaultdict
 from django.conf import settings
 
@@ -353,7 +352,7 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
         self.readable_time = datetime.datetime.fromtimestamp(self.t_stamp).strftime('%Y-%m-%d %H:%M:%S')
 
         # data structures for missing attributes
-        self.report_obj = OrderedDict({
+        self.report_obj = {
             'branch_misses': {
                 'title':'{0} Buildernames Missing Branches',
                 'data':{},
@@ -389,7 +388,7 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
                 'data':[],
                 'get_func':self.get_objects_missing_buildernames,
                 },
-            })
+            }
 
         # load last analysis data
         self.data_path = os.path.join(
