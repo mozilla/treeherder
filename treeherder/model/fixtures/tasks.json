@@ -120,5 +120,26 @@
             "date_changed": "2013-11-28T16:22:39",
             "description": ""
         }
+    },
+    {
+        "pk": 7,
+        "model": "djcelery.periodictask",
+        "fields": {
+            "task": "run-builds4h-analyzer",
+            "name": "run-builds4h-analyzer",
+            "exchange": null,
+            "last_run_at": null,
+            "args": "[]",
+            "enabled": true,
+            "routing_key": null,
+            "crontab": null,
+            "interval": 1,
+            "queue": null,
+            "total_run_count": 0,
+            "expires": null,
+            "kwargs": "{}",
+            "date_changed": "2013-11-28T16:22:39",
+            "description": ""
+        }
     }
 ]

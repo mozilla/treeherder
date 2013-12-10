@@ -3,8 +3,9 @@ This module contains
 """
 from celery import task, group
 from .buildapi import (RunningJobsProcess,
-                                     PendingJobsProcess,
-                                     Builds4hJobsProcess)
+                       PendingJobsProcess,
+                       Builds4hJobsProcess,
+                       Builds4hAnalyzer)
 from .bugzilla import BzApiBugProcess
 from treeherder.model.derived import RefDataManager
 from .pushlog import HgPushlogProcess, GitPushlogProcess
@@ -78,4 +79,12 @@ def fetch_bugs():
     Run a BzApiBug process
     """
     process = BzApiBugProcess()
+    process.run()
+
+@task(name='run-builds4h-analyzer')
+def run_builds4h_analyzer():
+    """
+    Run a Builds4h Analysis process
+    """
+    process = Builds4hAnalyzer()
     process.run()

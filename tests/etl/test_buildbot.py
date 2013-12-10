@@ -1,5 +1,11 @@
 from treeherder.etl import buildbot
 import pytest
+import datetime
+import time
+import json
+
+from django.conf import settings
+from treeherder.etl import buildbot
 
 slow = pytest.mark.slow
 
@@ -677,3 +683,4 @@ def test_buildername_translation(buildername, exp_result):
     assert buildbot.extract_job_type(buildername) == exp_result["job_type"]
     assert buildbot.extract_build_type(buildername) == exp_result["build_type"]
     assert buildbot.extract_name_info(buildername) == exp_result["name"]
+
