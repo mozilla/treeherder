@@ -26,21 +26,37 @@ class Builds4hTransformerMixin(object):
         prop = build['properties']
 
         #get the request_id from two possible places
-        request_id = prop.get('request_ids', '')
-        if request_id == '':
-            request_id = build['request_ids'][-1]
+        request_ids = prop.get('request_ids', [])
+        request_ids_str = ""
+        if request_ids == []:
+            request_ids_str = ','.join(
+                [ map(str, build.get('request_ids', [])) ]
+                )
         else:
-            request_id = request_id[-1]
+            request_ids_str = ','.join(
+                [ map(str, request_ids) ]
+                )
+
+        #return_struct = { 'job_guid':'', 'job'
+        if len(request_ids) > 1:
+            # coallesced job detected
+            pass
+
 
         #get the request_time from two possible places
-        request_time_dict = prop.get('request_times', '')
-        if request_time_dict != '':
-            request_time = request_time_dict[str(request_id)]
-            return common.generate_job_guid(request_id, request_time)
-        else:
-            request_time = build['requesttime']
-            return common.generate_job_guid(request_id, request_time)
+        request_time_dict = prop.get('request_times', {})
+        if request_time_dict != {}:
 
+            request_times = ','.join(
+                [ map(str, request_time_dict.values()) ]
+                )
+            return common.generate_job_guid(request_ids_str, request_times)
+
+        else:
+
+            request_times = str(build['requesttime'])
+
+            return common.generate_job_guid(request_ids_str, request_times)
 
     def transform(self, data):
         """
