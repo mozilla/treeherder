@@ -15,6 +15,9 @@ treeherder.controller('TinderboxPluginCtrl',
                 $scope.tinderbox_lines =  newValue['Job Info'].blob.tinderbox_printlines;
                 for(var i=0; i<$scope.tinderbox_lines.length; i++){
                     var line = $scope.tinderbox_lines[i];
+                    if(line.indexOf("<a href='http://graphs.mozilla.org") == 0){
+                        continue;
+                    }
                     var title = line;
                     var value = "";
                     var link = "";
@@ -40,10 +43,9 @@ treeherder.controller('TinderboxPluginCtrl',
                             type = "TalosResult";
                             // unescape the json string
                             value =  value.replace(/\\/g, '')
-                            $log.log(value)
                             value = angular.fromJson(value);
                         }
-                        if(sep == "<br/>"){
+                        if(sep == "<br/>" || sep.indexOf("<") !== -1){
                             type="raw_html"
                         }
                     }
@@ -53,7 +55,6 @@ treeherder.controller('TinderboxPluginCtrl',
                         link:link,
                         type: type
                     });
-                    $log.log({title:title, value:value, link:link})
                 }
 
 

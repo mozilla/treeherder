@@ -1,5 +1,6 @@
 <div ng-controller="TinderboxPluginCtrl">
-    <table>
+    {{tinderbox_lines_parsed.length}}
+    <table class="table-striped">
         <tr ng-repeat="line in tinderbox_lines_parsed">
             <th>{{line.title}}</th>
             <td ng-switch on="line.type">
