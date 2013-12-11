@@ -131,14 +131,12 @@ treeherder.directive('resizablePanel', function($document, $log) {
             element.on('mousedown', function(event) {
                 // Prevent default dragging of selected content
                 event.preventDefault();
-                $log.log(event.pageY)
                 startY = event.pageY;
                 $document.on('mousemove', mousemove);
                 $document.on('mouseup', mouseup);
             });
 
             function mousemove(event) {
-                $log.log('mousemove');
                 var y = startY - event.pageY;
                 startY = event.pageY;
                 container.height(container.height() + y);
@@ -146,7 +144,6 @@ treeherder.directive('resizablePanel', function($document, $log) {
             }
 
             function mouseup() {
-                $log.log('mouseup');
                 $document.unbind('mousemove', mousemove);
                 $document.unbind('mouseup', mouseup);
 
