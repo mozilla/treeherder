@@ -34,7 +34,7 @@ class JsonExtractorMixin(object):
 class JsonLoaderMixin(object):
     """This mixin posts a json serializable object to the given url"""
     def load(self, url, data):
-        print url
+
         req = urllib2.Request(url)
         req.add_header('Content-Type', 'application/json')
         if not data:
