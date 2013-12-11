@@ -147,6 +147,13 @@
                 AND `id` = ?",
 
             "host":"master_host"
+        },
+        "update_coalesced_guids":{
+            "sql":"UPDATE `job`
+                   SET `job_coalesced_to_guid` = ?
+                   WHERE `job_guid` = ?",
+
+            "host":"master_host"
         }
     },
     "selects":{
@@ -294,6 +301,7 @@
         "get_result_set_job_list":{
             "sql":"SELECT
                     j.`job_guid`,
+                    j.`job_coalesced_to_guid`,
                     j.`build_platform_id`,
                     j.`option_collection_hash`,
                     mp.`platform` as platform,
