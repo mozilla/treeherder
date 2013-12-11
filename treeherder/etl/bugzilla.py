@@ -49,9 +49,7 @@ class BzApiBugProcess(JsonExtractorMixin):
                     offset,
                     limit
                 )
-                print "fetching bugs {0} to {1}".format(offset, offset+limit)
                 response = self.extract(paginated_url)
-                print "bugs fetched"
                 temp_bug_list = response.get('bugs', [])
                 bug_list += temp_bug_list
                 if len(temp_bug_list) < limit:
