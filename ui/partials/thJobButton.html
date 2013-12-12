@@ -2,6 +2,7 @@
       ng-class="{'btn-lg selected-job': (selectedJob==job), 'btn-xs': (selectedJob!=job)}"
       title="{{ hoverText }}"
       ng-click="viewJob(job)"
+      ng-hide="job.job_coalesced_to_guid"
       ng-right-click="viewLog(job.resource_uri)">
       <!--
           We should conditionally remove the fire icon once they have
