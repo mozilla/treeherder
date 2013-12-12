@@ -27,6 +27,8 @@ def do_job_ingestion(jm, refdata, job_data, sample_resultset, verify_data=True):
     products_ref = set()
     result_sets_ref = set()
     log_urls_ref = set()
+    coalesced_job_guids = {}
+    coalesced_replacements = []
     artifacts_ref = {}
 
     blobs = []
@@ -83,6 +85,11 @@ def do_job_ingestion(jm, refdata, job_data, sample_resultset, verify_data=True):
             if artifact_name:
                 artifacts_ref[artifact_name] = job.get('artifact')
 
+            coalesced = blob.get('coalesced', [])
+            if coalesced:
+                coalesced_job_guids[job_guid] = coalesced
+                coalesced_replacements.append('%s')
+
     #Store the modified json blobs
     jm.store_job_data(blobs)
 
@@ -103,6 +110,7 @@ def do_job_ingestion(jm, refdata, job_data, sample_resultset, verify_data=True):
         verify_result_sets(jm, result_sets_ref)
         verify_log_urls(jm, log_urls_ref)
         verify_artifacts(jm, artifacts_ref)
+        verify_coalesced(jm, coalesced_job_guids, coalesced_replacements)
 
     # Default verification confirms we loaded all of the objects
     complete_count = jm.get_os_dhub().execute(
@@ -222,6 +230,28 @@ def verify_artifacts(jm, artifacts_ref):
         assert artifacts[key]['type'] == artifacts_ref[key]['type']
         assert json.loads(artifacts[key]['blob']) == artifacts_ref[key]['blob']
 
+def verify_coalesced(jm, coalesced_job_guids, coalesced_replacements):
+
+    coalesced_job_guid_list = coalesced_job_guids.keys()
+
+    if coalesced_job_guid_list:
+
+        rep_str = ','.join(coalesced_replacements)
+        data = jm.get_jobs_dhub().execute(
+            proc='jobs.selects.get_jobs_by_coalesced_guids',
+            replace=[rep_str],
+            placeholders=coalesced_job_guid_list
+            )
+
+        coalesced_job_guids_stored = {}
+        for datum in data:
+            if datum['job_coalesced_to_guid'] not in coalesced_job_guids_stored:
+                coalesced_job_guids_stored[ datum['job_coalesced_to_guid'] ] = []
+            coalesced_job_guids_stored[ datum['job_coalesced_to_guid'] ].append(
+                datum['job_guid']
+                )
+
+        assert coalesced_job_guids_stored == coalesced_job_guids
 
 def load_exp(filename):
     """

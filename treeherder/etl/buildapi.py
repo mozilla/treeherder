@@ -26,21 +26,44 @@ class Builds4hTransformerMixin(object):
         prop = build['properties']
 
         #get the request_id from two possible places
-        request_id = prop.get('request_ids', '')
-        if request_id == '':
-            request_id = build['request_ids'][-1]
+        request_ids = prop.get('request_ids', [])
+        request_ids_str = ""
+        if request_ids == []:
+            request_ids_str = ','.join(
+                map(str, build.get('request_ids', []))
+                )
         else:
-            request_id = request_id[-1]
+            request_ids_str = ','.join(map(str, request_ids))
 
         #get the request_time from two possible places
-        request_time_dict = prop.get('request_times', '')
-        if request_time_dict != '':
-            request_time = request_time_dict[str(request_id)]
-            return common.generate_job_guid(request_id, request_time)
-        else:
-            request_time = build['requesttime']
-            return common.generate_job_guid(request_id, request_time)
+        request_time_dict = prop.get('request_times', {})
+        if request_time_dict != {}:
 
+            request_times_str = ','.join(
+                map(str, request_time_dict.values())
+                )
+
+        else:
+
+            request_times_str = str(build['requesttime'])
+
+        job_guid_data = { 'job_guid':'', 'coalesced':[] }
+
+        if len(request_ids) > 1:
+            # coallesced job detected, generate the coalesced
+            # job guids
+            for r_id in request_ids:
+                r_id_str = str(r_id)
+                if r_id_str in request_time_dict:
+                    job_guid_data['coalesced'].append(
+                        common.generate_job_guid(
+                            r_id_str, request_time_dict[r_id_str]
+                            ))
+
+        job_guid_data['job_guid'] = common.generate_job_guid(
+            request_ids_str, request_times_str)
+
+        return job_guid_data
 
     def transform(self, data):
         """
@@ -89,6 +112,7 @@ class Builds4hTransformerMixin(object):
                 'revision_hash': resultset['revision_hash'],
                 'resultset_id': resultset['id'],
                 'project': prop['branch'],
+                'coalesced': []
             }
 
             platform_info = buildbot.extract_platform_info(prop['buildername'])
@@ -102,8 +126,12 @@ class Builds4hTransformerMixin(object):
             else:
                 log_reference = []
 
+            job_guid_data = self.find_job_guid(build)
+
+            treeherder_data['coalesced'] = job_guid_data['coalesced']
+
             job = {
-                'job_guid': self.find_job_guid(build),
+                'job_guid': job_guid_data['job_guid'],
                 'name': job_name_info.get('name', ''),
                 'job_symbol': job_name_info.get('job_symbol', ''),
                 'group_name': job_name_info.get('group_name', ''),
@@ -542,8 +570,8 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
             return
 
         # test for successful job_guid formulation
-        job_guid = self.find_job_guid(build)
-        if not job_guid:
+        job_guid_data = self.find_job_guid(build)
+        if not job_guid_data['job_guid']:
             self._load_missed_buildername(
                 'job_guid_misses', buildername, build
                 )
