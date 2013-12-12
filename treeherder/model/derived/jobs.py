@@ -521,6 +521,7 @@ class JobsModel(TreeherderModelBase):
         job_placeholders = []
         log_placeholders = []
         artifact_placeholders = []
+        coalesced_job_guid_placeholders = []
 
         # Structures supporting update of job data in SQL
         update_placeholders = []
@@ -537,9 +538,11 @@ class JobsModel(TreeherderModelBase):
                     job_struct = JobData.from_json(datum['json_blob'])
                     revision_hash = job_struct['revision_hash']
                     job = job_struct['job']
+                    coalesced = job_struct.get('coalesced', [])
                 else:
                     job = datum['job']
                     revision_hash = datum['revision_hash']
+                    coalesced = datum.get('coalesced', [])
 
                 # TODO: Need a job structure validation step here. Now that
                 # everything works in list context we cannot detect what
@@ -582,6 +585,12 @@ class JobsModel(TreeherderModelBase):
                 if 'id' in datum:
                     object_placeholders.append(
                         [ revision_hash, datum['id'] ]
+                        )
+
+                for coalesced_guid in coalesced:
+                    coalesced_job_guid_placeholders.append(
+                        # coalesced to guid, coalesced guid
+                        [ job['job_guid'], coalesced_guid ]
                         )
 
         # Store all reference data and retrieve associated ids
@@ -635,6 +644,15 @@ class JobsModel(TreeherderModelBase):
 
         # Mark job status
         self.mark_objects_complete(object_placeholders)
+
+        # set the job_coalesced_to_guid column for any coalesced
+        # job found
+        if coalesced_job_guid_placeholders:
+            self.get_jobs_dhub().execute(
+                proc='jobs.updates.update_coalesced_guids',
+                debug_show=self.DEBUG,
+                placeholders=coalesced_job_guid_placeholders,
+                executemany=True )
 
     def _load_ref_and_job_data_structs(
         self, job, revision_hash, revision_hash_lookup,

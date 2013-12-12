@@ -15,7 +15,6 @@ class BzApiBugProcess(JsonExtractorMixin):
         params = {
             'keywords': 'intermittent-failure',
             'include_fields': 'id,summary,status,resolution,op_sys,cf_crash_signature, keywords',
-            'resolution': '---'
         }
         if last_fetched:
             params.update({'changed_after': last_fetched})
@@ -29,18 +28,42 @@ class BzApiBugProcess(JsonExtractorMixin):
     def run(self):
         # this is the last day we fetched bugs from bugzilla
         last_fetched = cache.get('bz_last_fetched')
-        source_url = self._get_bz_source_url(last_fetched)
-
         curr_date = datetime.date.today()
 
-        response = self.extract(source_url)
-        if response:
-            bug_list = response.get('bugs', [])
+        if last_fetched:
+            # if we have a last_fetched timestamp available
+            # we don't need pagination.
+            source_url = self._get_bz_source_url(last_fetched)
+            response = self.extract(source_url)
+            if response:
+                bug_list = response.get('bugs', [])
+        else:
+            offset = 0
+            limit = 500
 
-            if bug_list:
+            bug_list = []
+            # fetch new pages no more than 30 times
+            # this is a safe guard to not generate an infinite loop
+            # in case something went wrong
+            for i in range(1, 30+1):
+                # fetch the bugzilla service until we have an empty result
+                paginated_url = "{0}&offset={1}&limit={2}".format(
+                    self._get_bz_source_url(),
+                    offset,
+                    limit
+                )
+                response = self.extract(paginated_url)
+                temp_bug_list = response.get('bugs', [])
+                bug_list += temp_bug_list
+                if len(temp_bug_list) < limit:
+                    break
+                else:
+                    offset += limit
 
-                # store the new date for one day
-                cache.set('bz_last_fetched', curr_date, 60 * 60 * 24)
+        if bug_list:
 
-                rdm = RefDataManager()
-                rdm.update_bugscache(bug_list)
+            # store the new date for one day
+            cache.set('bz_last_fetched', curr_date, 60 * 60 * 24)
+
+            rdm = RefDataManager()
+            rdm.update_bugscache(bug_list)

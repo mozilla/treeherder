@@ -50,6 +50,10 @@ htmlcov/
 #static files in deployment
 treeherder/webapp/static/
 
+#media files in deployment
+treeherder/webapp/media/builds4hanalysis/builds4h_analysis.json
+treeherder/webapp/media/builds4hanalysis/builds4h_report.txt
+
 #docs build directory
 docs/_build/
 
