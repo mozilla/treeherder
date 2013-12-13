@@ -73,7 +73,7 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG,
             replace=repl,
         )
-        return data[0]
+        return data
 
     def get_job_list(self, offset, limit):
         """
@@ -127,7 +127,7 @@ class JobsModel(TreeherderModelBase):
             placeholders=[id],
             debug_show=self.DEBUG,
         )
-        return data[0]
+        return data
 
     def get_job_note(self, id):
         """Return the job note by id."""
@@ -136,7 +136,7 @@ class JobsModel(TreeherderModelBase):
             placeholders=[id],
             debug_show=self.DEBUG,
         )
-        return data[0]
+        return data
 
     def get_job_note_list(self, job_id):
         """Return the job notes by job_id."""
@@ -358,7 +358,7 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG,
         )
 
-        return data[0]
+        return data
 
     ##################
     #

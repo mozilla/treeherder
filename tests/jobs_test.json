@@ -53,5 +53,15 @@
             "sql": "SELECT `id`, `revision_hash` FROM `result_set`",
             "host": "master_host"
         }
+    },
+    "updates": {
+        "set_state_any":{
+
+            "sql":"UPDATE `job`
+                SET    `state` = ?
+                WHERE  `id` = ?",
+
+                "host":"master_host"
+        }
     }
 }

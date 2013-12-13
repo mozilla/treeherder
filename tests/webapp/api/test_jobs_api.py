@@ -14,7 +14,14 @@ def test_update_state_success(webapp, eleven_jobs_processed, jm):
 
     job = jm.get_job_list(0, 1)[0]
     job_id = job["id"]
-    new_state = "pending"
+    new_state = "coalesced"
+
+    # use the backdoor to set the state of the job to something we can
+    # change.  because we can't change it once it's ``completed``
+    jm.get_jobs_dhub().execute(
+        proc='jobs_test.updates.set_state_any',
+        placeholders=["running", job_id],
+    )
 
     url = reverse("jobs-update-state", kwargs={
         "project": jm.project,
@@ -24,8 +31,8 @@ def test_update_state_success(webapp, eleven_jobs_processed, jm):
     resp = webapp.post(url, params={"state": new_state})
 
     assert resp.status_int == 200
-    assert resp.json["message"] == "state updated to 'pending'"
-    assert jm.get_job(job_id)["state"] == new_state
+    assert resp.json["message"] == "state updated to '{0}'".format(new_state)
+    assert jm.get_job(job_id)[0]["state"] == new_state
 
 
 def test_update_state_invalid_state(webapp, eleven_jobs_processed, jm):
@@ -52,7 +59,7 @@ def test_update_state_invalid_state(webapp, eleven_jobs_processed, jm):
                                         new_state,
                                         ", ".join(jm.STATES)
                                     ))
-    assert jm.get_job(job_id)["state"] == old_state
+    assert jm.get_job(job_id)[0]["state"] == old_state
 
 
 def test_update_state_invalid_job_id(webapp, eleven_jobs_processed, jm):
@@ -161,10 +168,6 @@ def test_job_detail_not_found(webapp, jm):
         expect_errors=True
     )
     assert resp.status_int == 404
-    assert resp.json == {
-        u"message": (u"ObjectNotFoundException: For table 'job':"
-                     u" {'id': u'-32767'}")
-    }
 
 
 def test_retrieve_result_set(jm, webapp, eleven_jobs_processed):
