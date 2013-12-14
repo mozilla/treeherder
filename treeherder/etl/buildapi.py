@@ -594,13 +594,7 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
         if not buildername:
             return
 
-        job_type_target = ""
-
-        for job_type in buildbot.JOB_TYPE_BUILDERNAME:
-            for regex in buildbot.JOB_TYPE_BUILDERNAME[job_type]:
-                if regex.search(buildername):
-                    job_type_target = job_type
-                    break
+        job_type_target = buildbot.extract_job_type(buildername, default=None)
 
         if not job_type_target:
             self._load_missed_buildername(
@@ -626,9 +620,9 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
             self.report_obj[key]['data'][buildername]['count'] += 1
         else:
             self.report_obj[key]['data'][buildername] = {
-                'first_seen':self.t_stamp,
-                'count':1,
-                'objects':[]
+                'first_seen': self.t_stamp,
+                'count': 1,
+                'objects': []
                 }
 
             if build:
