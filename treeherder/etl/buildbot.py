@@ -187,6 +187,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
 
+    #// ** B2G **
 
     {
         'regex': re.compile('b2g.*_emulator-jb', re.IGNORECASE),
@@ -239,11 +240,15 @@ JOB_TYPE_BUILDERNAME = {
     'build': [
         re.compile('.+build'),
         re.compile('.+_dep'),
-        re.compile('.+(?<!l10n) nightly$'),     # all 'nightly'-s are builds
-        re.compile('.+ xulrunner$'),            # nightly
-        re.compile('.+ code coverage$'),        # nightly
+        re.compile('.+(?<!l10n)[ _]nightly$'),
+        re.compile('.+ xulrunner$'),
+        re.compile('.+ code coverage$'),
+        re.compile('.*valgrind$'),
     ],
-    'unittest': [re.compile('.+(?<!leak) test .+')],
+    'unittest': [
+        re.compile('jetpack.*(opt|debug)$'),
+        re.compile('.+(?<!leak) test .+'),
+    ],
     'talos': [re.compile('.+ talos .+')],
     'repack': [re.compile('.+ l10n .+')],
 }
@@ -272,6 +277,8 @@ TEST_NAME_BUILDERNAME = [
         #// If we start doing debug ASan tests, please kill these special build types
     {"regex": re.compile('debug asan nightly'), "desc": "AddressSanitizer Debug Nightly"},
     {"regex": re.compile('asan nightly'), "desc": "AddressSanitizer Opt Nightly"},
+    {"regex": re.compile('-br-haz'), "desc": "Static Rooting Hazard Analysis, Full Browser"},
+    {"regex": re.compile('-sh-haz'), "desc": "Static Rooting Hazard Analysis, JS Shell"},
     {"regex": re.compile('xulrunner'), "desc": "XULRunner Nightly"},
     {"regex": re.compile('b2g.*_hamachi_eng_nightly'), "desc": "Hamachi Device Image Nightly (Engineering)"},
     {"regex": re.compile('b2g.*_inari_eng_nightly'), "desc": "Inari Device Image Nightly (Engineering)"},
@@ -305,8 +312,6 @@ TEST_NAME_BUILDERNAME = [
     {"regex": re.compile('spidermonkey.*-generational'), "desc": "SpiderMonkey GGC Shell Build"},
     {"regex": re.compile('spidermonkey.*-exactroot'), "desc": "SpiderMonkey Exact Rooting Shell Build"},
     {"regex": re.compile('spidermonkey.*-warnaserr'), "desc": "SpiderMonkey --enable-sm-fail-on-warnings Build"},
-    {"regex": re.compile('-br-haz'), "desc": "Static Rooting Hazard Analysis, Full Browser"},
-    {"regex": re.compile('-sh-haz'), "desc": "Static Rooting Hazard Analysis, JS Shell"},
         #// If we start doing debug ASan tests, please kill these special build types
     {"regex": re.compile('debug asan build'), "desc": "AddressSanitizer Debug Build"},
     {"regex": re.compile('asan build'), "desc": "AddressSanitizer Opt Build"},
@@ -558,13 +563,12 @@ def extract_build_type(source_string):
     return output
 
 
-def extract_job_type(source_string):
-    job_type = 'build'
+def extract_job_type(source_string, default="build"):
     for job_type in JOB_TYPE_BUILDERNAME:
         for regex in JOB_TYPE_BUILDERNAME[job_type]:
             if regex.search(source_string):
                 return job_type
-    return job_type
+    return default
 
 
 def extract_name_info(source_string):
