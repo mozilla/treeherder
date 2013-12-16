@@ -1,5 +1,4 @@
 <div ng-controller="PluginCtrl">
-    <!--first panel begin-->
         <div id="bottom_left_panel">
             <div class="panel">
                 <div class="panel-head">
@@ -10,7 +9,6 @@
                                 <a href="https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name={{ $scope.job.machine_name }}">{{ job.machine_name }}</a>
                             </td>
                         </tr>
-
                         <tr ng-repeat="(label, value) in visibleFields"><th>{{label}}</th><td>{{ value | limitTo:12 }}</td></tr>
                     </table>
 
@@ -27,22 +25,10 @@
                 </div>
             </div>
         </div>
-        <!--first panel end-->
         <div id="bottom_center_panel">
             <div class="panel">
                 <div class="panel-body">
-                    <!--<ul class="nav nav-tabs">-->
-                      <!--<li ng-repeat="tab in tabs"><a href="#{{teb.id}}" data-toggle="tab">{{tab.title}}</a></li>-->
-
-                    <!--</ul>-->
-                    <!--<div class="tab-content">-->
-                      <!--<div ng-repeat="tab in tabs" class="tab-pane" id="{{tab.id}}">-->
-                          <!--<ng-include src="tab.content"></ng-include>-->
-                      <!--</div>-->
-                    <!--</div>-->
-
                     <tabset class="tabs-below">
-
                         <tab ng-repeat="tab in tabs"  active="tab.active" disabled="tab.disabled">
                             <tab-heading>{{ tab.title }} <span class="badge">{{tab.num_items}}</span></tab-heading>
                             <ng-include src="tab.content"></ng-include>
@@ -56,16 +42,13 @@
                 <button type="button" class="btn btn-xs btn-default close-btn" ng-click="clearJob()">
                     <span class="glyphicon glyphicon-remove"></span> Close
                 </button>
-
                 <button class="btn btn-default btn-xs" title="add note" ng-click="addNote()">
                     <span class="glyphicon glyphicon-comment"></span> Add note
                 </button>
-
                 <div class="btn btn-default btn-xs"
                      ng-disabled="artifacts.length>0">
                     <a target="_blank" href="{{ lvUrl }}">Structured log</a>
                 </div>
-
                 <div class="btn btn-default btn-xs"
                      ng-repeat="joblog in logs">
                     <a target="_blank" href="{{ joblog.url }}">Raw log</a>

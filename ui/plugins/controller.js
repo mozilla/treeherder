@@ -25,12 +25,7 @@ treeherder.controller('PluginCtrl',
                     "Build Arch": $scope.job.build_architecture || undef,
                     "Build OS": $scope.job.build_os || undef
                 };
-                /*this call retrieves (again) a job detail. can we avoid it?
-                *
-                * camd: this has different job detail info than we get with the resultsets.
-                * specifically artifact info and log info. I considered it too heavy weight to
-                * get this for each job inthe resultset, since we would only want it for hte few
-                * jobs we view in this panel. */
+
                 $http.get(thServiceDomain + $scope.job.resource_uri).
                     success(function(data) {
                         $scope.logs = data.logs;
