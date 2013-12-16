@@ -63,16 +63,9 @@
         </div>
 
         <!-- Footer -->
-        <div class="nav navbar navbar-default navbar-fixed-bottom"
-             ng-show="selectedJob">
-                <div class="container">
-                    <button type="button"
-                            class="close pull-right"
-                            aria-hidden="true"
-                            ng-click="clearJob()">&times;</button>
-
-                    <div ng-include src="'plugins/pluginpanel.html'"></div>
-                </div>
+        <div class="nav navbar navbar-default navbar-fixed-bottom" ng-show="selectedJob">
+            <resizable-panel></resizable-panel>
+            <div ng-include src="'plugins/pluginpanel.html'"></div>
         </div>
 
         <script src="vendor/angular/angular.js"></script>
@@ -93,8 +86,10 @@
         <script src="js/controllers/machines.js"></script>
         <script src="js/controllers/timeline.js"></script>
         <script src="plugins/controller.js"></script>
-        <script src="plugins/jobdetail/controller.js"></script>
-        <script src="plugins/jobfoo/controller.js"></script>
+        <script src="plugins/notes/controller.js"></script>
+        <script src="plugins/tinderbox/controller.js"></script>
+        <script src="plugins/open_bugs_suggestions/controller.js"></script>
+        <script src="plugins/closed_bugs_suggestions/controller.js"></script>
         <script src="js/filters.js"></script>
         <script src="https://tbpl.mozilla.org/js/Config.js"></script>
     </body>

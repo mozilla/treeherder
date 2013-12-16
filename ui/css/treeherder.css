@@ -124,13 +124,55 @@ body {
 }
 
 .job-btn {
-  margin: 0 -4px 0 0;
+  margin: 0 -3px 0 0;
   padding: 0 2px 0 2px;
 }
 
 .th-notes-accordion .accordion-toggle {
     padding: 0;
 }
+div.navbar-fixed-bottom{
+    border-top: 1px solid #ccc;
+    padding:5px 10px;
+    height:370px;
+}
+
+.table-super-condensed thead > tr > th,
+.table-super-condensed tbody > tr > th,
+.table-super-condensed tfoot > tr > th,
+.table-super-condensed thead > tr > td,
+.table-super-condensed tbody > tr > td,
+.table-super-condensed tfoot > tr > td {
+    padding: 2px;
+    font-size: .9em;
+}
+
+#bottom_left_panel > div.panel,
+#bottom_center_panel > div.panel
+{
+    box-shadow: 0px 1px 0px rgba(255, 255, 255, 0.1), 0px 0px 2px 0px rgba(0, 0, 0, 0.8) inset;
+    margin:0 -20px 0 0;
+}
+div.navbar-fixed-bottom .tab-content{
+    height:300px;
+    overflow-y: scroll;
+}
+
+div.navbar-fixed-bottom dt,
+div.navbar-fixed-bottom dt {
+    font-size:.8em;
+}
+#bottom_left_panel {width:222px; position: absolute; top: 5px; left:5px;}
+#bottom_left_panel .panel{padding:5px;}
+#bottom_center_panel {margin:0 110px 0 242px;}
+#bottom_menu{position: absolute; top: 5px; right:5px;}
+
+#open_bugs_accordion,
+#closed_bugs_accordion{
+    margin-top: 5px;
+}
+
+.panel-body{ padding:5px;}
 
 /* Custom Job buttons*/
 .btn-orange {

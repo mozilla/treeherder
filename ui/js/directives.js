@@ -82,7 +82,6 @@ treeherder.directive('thStar', function ($parse, thStarTypes) {
 });
 
 treeherder.directive('thShowJobs', function ($parse, thResultStatusInfo) {
-
     return {
         link: function(scope, element, attrs) {
             scope.$watch('resultSeverity', function(newVal) {
@@ -110,3 +109,47 @@ treeherder.directive('thRevision', function($parse) {
         templateUrl: 'partials/thRevision.html'
     };
 });
+
+
+treeherder.directive('resizablePanel', function($document, $log) {
+    return {
+        restrict: "E",
+        link: function(scope, element, attr) {
+            var startY = 0
+            var container = $(element.parent());
+
+            element.css({
+                position: 'absolute',
+                cursor:'row-resize',
+                top:'-2px',
+                width: '100%',
+                height: '5px',
+                'z-index': '100'
+
+            });
+
+            element.on('mousedown', function(event) {
+                // Prevent default dragging of selected content
+                event.preventDefault();
+                startY = event.pageY;
+                $document.on('mousemove', mousemove);
+                $document.on('mouseup', mouseup);
+            });
+
+            function mousemove(event) {
+                var y = startY - event.pageY;
+                startY = event.pageY;
+                container.height(container.height() + y);
+
+            }
+
+            function mouseup() {
+                $document.unbind('mousemove', mousemove);
+                $document.unbind('mouseup', mouseup);
+
+            }
+
+        }
+    };
+});
+

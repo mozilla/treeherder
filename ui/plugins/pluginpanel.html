@@ -1,7 +1,58 @@
 <div ng-controller="PluginCtrl">
-    <tabset class="tabs-below">
-        <tab ng-repeat="tab in tabs" heading="{{ tab.title }}" active="tab.active" disabled="tab.disabled">
-            <ng-include src="tab.content"></ng-include>
-        </tab>
-    </tabset>
+        <div id="bottom_left_panel">
+            <div class="panel">
+                <div class="panel-head">
+                    <table class="table-super-condensed table-striped">
+                        <tr>
+                            <th class="small">Machine name</th>
+                            <td class="small">
+                                <a href="https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name={{ $scope.job.machine_name }}">{{ job.machine_name }}</a>
+                            </td>
+                        </tr>
+                        <tr ng-repeat="(label, value) in visibleFields"><th>{{label}}</th><td>{{ value | limitTo:12 }}</td></tr>
+                    </table>
+
+                    <div ng-show="newNote">
+                        <form ng-submit="saveNote()" class="form-inline">
+                            <select ng-model="newNote.failure_classification_id">
+                                <option ng-repeat="(value, star) in starTypes" value="{{value}}">{{star.name}}</option>
+                            </select>
+                            <input ng-model="newNote.note" focus-me="focusInput"/>
+                            <input class="btn btn-primary" type="submit" value="save">
+                            <a class="btn btn-default" ng-click="clearNewNote()">cancel</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="bottom_center_panel">
+            <div class="panel">
+                <div class="panel-body">
+                    <tabset class="tabs-below">
+                        <tab ng-repeat="tab in tabs"  active="tab.active" disabled="tab.disabled">
+                            <tab-heading>{{ tab.title }} <span class="badge">{{tab.num_items}}</span></tab-heading>
+                            <ng-include src="tab.content"></ng-include>
+                        </tab>
+                    </tabset>
+                </div>
+            </div>
+        </div>
+        <div id="bottom_menu">
+            <div class="btn-group-vertical">
+                <button type="button" class="btn btn-xs btn-default close-btn" ng-click="clearJob()">
+                    <span class="glyphicon glyphicon-remove"></span> Close
+                </button>
+                <button class="btn btn-default btn-xs" title="add note" ng-click="addNote()">
+                    <span class="glyphicon glyphicon-comment"></span> Add note
+                </button>
+                <div class="btn btn-default btn-xs"
+                     ng-disabled="artifacts.length>0">
+                    <a target="_blank" href="{{ lvUrl }}">Structured log</a>
+                </div>
+                <div class="btn btn-default btn-xs"
+                     ng-repeat="joblog in logs">
+                    <a target="_blank" href="{{ joblog.url }}">Raw log</a>
+                </div>
+            </div>
+        </div>
 </div>

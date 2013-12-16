@@ -11,7 +11,7 @@
             "resource_uri": "/api/project/mozilla-inbound/artifact/1/",
             "type": "json",
             "id": 1,
-            "name": "Unknown Builder Job Artifact"
+            "name": "Job Info"
         },
         {
             "resource_uri": "/api/project/mozilla-inbound/artifact/2/",
