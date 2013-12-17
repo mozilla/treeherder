@@ -378,45 +378,73 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
         self.blacklist = set()
 
         self.t_stamp = int(time.time())
-        self.readable_time = datetime.datetime.fromtimestamp(self.t_stamp).strftime('%Y-%m-%d %H:%M:%S')
+        self.readable_time = datetime.datetime.fromtimestamp(
+            self.t_stamp).strftime('%Y-%m-%d %H:%M:%S')
 
         # data structures for missing attributes
         self.report_obj = {
-            'branch_misses': {
-                'title':'{0} Objects Missing Branch Attribute',
-                'data':{},
-                'get_func':self.get_branch_misses
+            'analyzers':{
+                'branch_misses': {
+                    'title':'{0} Objects Missing Branch Attribute',
+                    'data':{},
+                    'all_misses':0,
+                    'get_func':self.get_branch_misses
+                    },
+                'log_url_misses': {
+                    'title':'{0} Objects Missing log_url Attribute',
+                    'data':{},
+                    'all_misses':0,
+                    'get_func':self.get_log_url_misses
+                    },
+                'slavename_misses': {
+                    'title':'{0} Objects Missing slavename Attribute',
+                    'data':{},
+                    'all_misses':0,
+                    'get_func':self.get_slavename_misses
+                    },
+                'job_guid_misses': {
+                    'title':'{0} Objects Missing Job Guids or Request Ids',
+                    'data':{},
+                    'all_misses':0,
+                    'get_func':self.get_job_guid_misses,
+                    },
+                'platform_regex_misses':{
+                    'title':('{0} Buildernames Not Found '
+                             'By Platform Regular Expressions'),
+                    'data':{},
+                    'all_misses':0,
+                    'get_func':self.get_platform_regex_misses,
+                    },
+                'job_type_regex_misses':{
+                    'title':('{0} Buildernames Not Found By Job Type '
+                             'Regular Expressions (Defaults to Build)'),
+                    'data':{},
+                    'all_misses':0,
+                    'get_func':self.get_job_type_regex_misses,
+                    },
+                'test_name_regex_misses':{
+                    'title':('{0} Buildernames Not Found By Test Name '
+                             'Regular Expressions'),
+                    'data':{},
+                    'all_misses':0,
+                    'get_func':self.get_test_name_regex_misses,
+                    },
+                'revision_misses': {
+                    'title':'{0} Objects Missing Revisions',
+                    'data':{},
+                    'all_misses':0,
+                    'get_func':self.get_revision_misses,
+                    },
+                'objects_missing_buildernames': {
+                    'title':'{0} Objects With No Buildername',
+                    'data':{},
+                    'all_misses':0,
+                    'get_func':self.get_objects_missing_buildernames,
+                    },
                 },
-            'job_guid_misses': {
-                'title':'{0} Objects Missing Job Guids or Request Ids',
-                'data':{},
-                'get_func':self.get_job_guid_misses,
-                },
-            'platform_regex_misses':{
-                'title':'{0} Buildernames Not Found By Platform Regular Expressions',
-                'data':{},
-                'get_func':self.get_platform_regex_misses,
-                },
-            'job_type_regex_misses':{
-                'title':'{0} Buildernames Not Found By Job Type Regular Expressions (Defaults to Build)',
-                'data':{},
-                'get_func':self.get_job_type_regex_misses,
-                },
-            'test_name_regex_misses':{
-                'title':'{0} Buildernames Not Found By Test Name Regular Expressions',
-                'data':{},
-                'get_func':self.get_test_name_regex_misses,
-                },
-            'revision_misses': {
-                'title':'{0} Objects Missing Revisions',
-                'data':{},
-                'get_func':self.get_revision_misses,
-                },
-            'objects_missing_buildernames': {
-                'title':'{0} Objects With No Buildername',
-                'data':{},
-                'get_func':self.get_objects_missing_buildernames,
-                },
+
+            'guids': {}
+
             }
 
         # load last analysis data
@@ -453,9 +481,26 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
             if buildername in self.blacklist:
                 continue
 
-            for analysis_type in self.report_obj:
-                self.report_obj[analysis_type]['get_func'](
-                    build, buildername)
+            job_guid_data = self.find_job_guid(build)
+
+            for analysis_type in self.report_obj['analyzers']:
+
+                self.report_obj['analyzers'][analysis_type]['get_func'](
+                    analysis_type, build, buildername,
+                    job_guid_data['job_guid'])
+
+                self._increment_buildername_total_count(
+                    analysis_type, buildername, job_guid_data['job_guid'])
+
+
+            if job_guid_data['job_guid']:
+                self.report_obj['guids'][job_guid_data['job_guid']] = True
+
+        ##Add up all misses here
+        for analysis_type in self.report_obj['analyzers']:
+            for buildername in self.report_obj['analyzers'][analysis_type]['data']:
+                self.report_obj['analyzers'][analysis_type]['all_misses'] += \
+                    self.report_obj['analyzers'][analysis_type]['data'][buildername]['missed_count']
 
         self.write_report()
 
@@ -467,8 +512,12 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
             with open(self.builds4h_analysis_file_path) as f:
                 data = f.read()
                 deserialized_data = json.loads(data)
-                for key in deserialized_data:
-                    self.report_obj[key]['data'] = deserialized_data[key]
+
+                self.report_obj['guids'] = deserialized_data['guids'] or {}
+
+                for analysis_type in deserialized_data['analyzers']:
+                    self.report_obj['analyzers'][analysis_type]['data'] = \
+                        deserialized_data['analyzers'][analysis_type]
 
     def get_blacklist(self):
 
@@ -481,43 +530,58 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
     def write_report(self):
 
         report_fh = open(self.builds4h_report_file_path, 'w')
-        data_to_write = {}
         divider = "------------------------------------------------------\n"
 
-        header_line = "Builds4h Report Last Run Time {0}\n".format(self.readable_time)
+        header_line = "Builds4h Report Last Run Time {0}\n".format(
+            self.readable_time)
         report_fh.write(header_line)
         report_fh.write(divider)
 
-        for analyzer in sorted(self.report_obj):
+        data_to_write = { 'analyzers':{}, 'guids':{} }
+        data_to_write['guids'] = self.report_obj['guids']
+
+        for analyzer in sorted(self.report_obj['analyzers']):
+
+            # Set data for json structure
+            data_to_write['analyzers'][analyzer] = \
+                self.report_obj['analyzers'][analyzer]['data']
 
             # Remove any blacklist names found
             for exclude_name in self.blacklist:
-                if exclude_name in self.report_obj[analyzer]['data']:
-                    del self.report_obj[analyzer]['data'][exclude_name]
-
-            # Set data for json structure
-            data_to_write[analyzer] = self.report_obj[analyzer]['data']
+                if exclude_name in self.report_obj['analyzers'][analyzer]['data']:
+                    del self.report_obj['analyzers'][analyzer]['data'][exclude_name]
 
             # Write the title line
-            datum_count = len(self.report_obj[analyzer]['data'].values())
+            all_misses = self.report_obj['analyzers'][analyzer]['all_misses']
 
-            if datum_count > 0:
-                title = self.report_obj[analyzer].get('title', '{0} Needs Title')
-                report_fh.write("{0}\n".format(title.format(str(datum_count))))
+            if all_misses > 0:
+                title = self.report_obj['analyzers'][analyzer].get(
+                    'title', '{0} Needs Title')
+                report_fh.write(
+                    "{0}\n".format(title.format(str(all_misses)))
+                    )
                 report_fh.write(divider)
             else:
                 continue
 
             # Write out display report
             for k, v in sorted(
-                self.report_obj[analyzer]['data'].iteritems(),
+                self.report_obj['analyzers'][analyzer]['data'].iteritems(),
                 key=lambda (k,v): (v['first_seen'], k)):
 
                 if k in self.blacklist:
                     continue
 
-                readable_time = datetime.datetime.fromtimestamp(v['first_seen']).strftime('%Y-%m-%d')
-                line = "{0}\t{1}\t{2}\n".format(str(k), readable_time, str(v['count']))
+                if v['missed_count'] == 0:
+                    continue
+
+                readable_time = datetime.datetime.fromtimestamp(
+                    v['first_seen']).strftime('%Y-%m-%d')
+
+                line = "{0}\t{1}\t{2}/{3}\n".format(
+                    str(k), readable_time, str(v['missed_count']),
+                    str(v['total_count']))
+
                 report_fh.write(line)
 
                 if len(v['objects']) > 0:
@@ -533,24 +597,54 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
         f.write(json.dumps(data_to_write))
         f.close()
 
-    def get_objects_missing_buildernames(self, build, buildername):
+    def get_objects_missing_buildernames(
+        self, analysis_type, build, buildername, job_guid):
 
         if not buildername:
             b_id = str(build.get('builder_id', 'No id attribute found'))
-            self._load_missed_buildername('objects_missing_buildernames', b_id, build)
+            self._load_missed_buildername(
+                analysis_type, b_id, job_guid, build)
 
-    def get_branch_misses(self, build, buildername):
+    def get_branch_misses(
+        self, analysis_type, build, buildername, job_guid):
 
         if not buildername:
             return
 
         # test for missing branch
-        if not 'branch' in build['properties']:
+        if 'branch' not in build['properties']:
             self._load_missed_buildername(
-                'branch_misses', buildername
+                analysis_type, buildername, job_guid
                 )
 
-    def get_revision_misses(self, build, buildername):
+    def get_log_url_misses(
+        self, analysis_type, build, buildername, job_guid):
+
+        if not buildername:
+            return
+
+        log_url = build['properties'].get('log_url', None)
+
+        if not log_url:
+            self._load_missed_buildername(
+                analysis_type, buildername, job_guid, build
+                )
+
+    def get_slavename_misses(
+        self, analysis_type, build, buildername, job_guid):
+
+        if not buildername:
+            return
+
+        slavename = build['properties'].get('slavename', None)
+
+        if not slavename:
+            self._load_missed_buildername(
+                analysis_type, buildername, job_guid, build
+                )
+
+    def get_revision_misses(
+        self, analysis_type, build, buildername, job_guid):
 
         if not buildername:
             return
@@ -561,10 +655,11 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
 
         if not revision:
             self._load_missed_buildername(
-                'revision_misses', buildername, build
+                analysis_type, buildername, job_guid, build
                 )
 
-    def get_job_guid_misses(self, build, buildername):
+    def get_job_guid_misses(
+        self, analysis_type, build, buildername, job_guid):
 
         if not buildername:
             return
@@ -573,10 +668,11 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
         job_guid_data = self.find_job_guid(build)
         if not job_guid_data['job_guid']:
             self._load_missed_buildername(
-                'job_guid_misses', buildername, build
+                analysis_type, buildername, job_guid, build
                 )
 
-    def get_platform_regex_misses(self, build, buildername):
+    def get_platform_regex_misses(
+        self, analysis_type, build, buildername, job_guid):
 
         if not buildername:
             return
@@ -586,22 +682,25 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
 
         if platform_target['os'] == 'unknown':
             self._load_missed_buildername(
-                'platform_regex_misses', buildername
+                analysis_type, buildername, job_guid
                 )
 
-    def get_job_type_regex_misses(self, build, buildername):
+    def get_job_type_regex_misses(
+        self, analysis_type, build, buildername, job_guid):
 
         if not buildername:
             return
 
-        job_type_target = buildbot.extract_job_type(buildername, default=None)
+        job_type_target = buildbot.extract_job_type(
+            buildername, default=None)
 
         if not job_type_target:
             self._load_missed_buildername(
-                'job_type_regex_misses', buildername
+                analysis_type, buildername, job_guid
                 )
 
-    def get_test_name_regex_misses(self, build, buildername):
+    def get_test_name_regex_misses(
+        self, analysis_type, build, buildername, job_guid):
 
         if not buildername:
             return
@@ -610,20 +709,40 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
 
         if name_info['name'] == 'unknown':
             self._load_missed_buildername(
-                'test_name_regex_misses', buildername
+                analysis_type, buildername, job_guid
                 )
 
-    def _load_missed_buildername(self, key, buildername, build=None):
+    def _increment_buildername_total_count(
+        self, key, buildername, job_guid):
 
-        builder_found = self.report_obj[key]['data'].get(buildername)
-        if builder_found:
-            self.report_obj[key]['data'][buildername]['count'] += 1
-        else:
-            self.report_obj[key]['data'][buildername] = {
+        self._initialize_buildername(key, buildername)
+
+        if job_guid not in self.report_obj['guids']:
+            self.report_obj['analyzers'][key]['data'][buildername]['total_count'] += 1
+
+    def _load_missed_buildername(
+        self, key, buildername, job_guid, build=None):
+
+        self._initialize_buildername(key, buildername)
+
+        if job_guid not in self.report_obj['guids']:
+            self.report_obj['analyzers'][key]['data'][buildername]['missed_count'] += 1
+
+        if build:
+            # Store one sample object for examination
+            if not self.report_obj['analyzers'][key]['data'][buildername]['objects']:
+                self.report_obj['analyzers'][key]['data'][buildername]['objects'].append(
+                    json.dumps(build))
+
+    def _initialize_buildername(self, key, buildername):
+
+        builder_found = self.report_obj['analyzers'][key]['data'].get(
+            buildername)
+
+        if not builder_found:
+            self.report_obj['analyzers'][key]['data'][buildername] = {
                 'first_seen': self.t_stamp,
-                'count': 1,
+                'missed_count': 0,
+                'total_count': 0,
                 'objects': []
                 }
-
-            if build:
-                self.report_obj[key]['data'][buildername]['objects'].append(json.dumps(build))
