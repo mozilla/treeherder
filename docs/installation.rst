@@ -31,11 +31,24 @@ Installation
      
      (venv)vagrant@precise32:~/treeherder-service$ ./runtests.sh
 
-* Init a master database:
+* Init a master database and setup datasources:
   
   .. code-block:: bash
      
      (venv)vagrant@precise32:~/treeherder-service$ python manage.py init_master_db
+     (venv)vagrant@precise32:~/treeherder-service$ python manage.py init_datasources
+
+* Add an entry to your vm /etc/hosts for your treeherder virtual host:
+
+  .. code-block:: bash
+
+     127.0.0.1    local.treeherder.mozilla.org
+
+* And one to your host machine /etc/hosts so that you can point your browser to local.treeherder.mozilla.org to reach it
+
+  .. code-block:: bash
+
+     192.168.33.10    local.treeherder.mozilla.org
 
 * Start a gunicorn instance listening on port 8000
   
@@ -43,7 +56,7 @@ Installation
      
      (venv)vagrant@precise32:~/treeherder-service$ gunicorn treeherder.webapp.wsgi:application
 
-  all the request sent to your virtual machine (ip 192.168.33.10 by default) on port 80 will be proxied to port 8000 by apache.
+  all the request sent to local.treeherder.mozilla.org will be proxied to it by apache.
 
 * Start up one or more celery worker to process async tasks:
 
@@ -61,6 +74,12 @@ Installation
      (venv)vagrant@precise32:~/treeherder-service$ python manage.py runserver
 
   this is more convenient because it automatically refreshes every time there's a change in the code.
+
+* The log parser shipped with treeherder makes use of cython. If you change something in the treeherder/log_parser folder, remember to re-build the c extensions with:
+
+  .. code-block:: bash
+
+     (venv)vagrant@precise32:~/treeherder-service$ python setup.py build_ext --inplace
 
 
 .. _project repo: https://github.com/mozilla/treeherder-service
