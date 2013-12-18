@@ -97,10 +97,6 @@ def test_note_detail_not_found(webapp, jm):
         expect_errors=True
     )
     assert resp.status_int == 404
-    assert resp.json == {
-        "message": ("ObjectNotFoundException: For table 'job_note':"
-                    " {'id': u'-32767'}")
-    }
 
 
 def test_note_detail_bad_project(webapp, jm):
