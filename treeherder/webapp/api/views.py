@@ -79,7 +79,10 @@ class ObjectstoreViewSet(viewsets.ViewSet):
         GET method implementation for detail view
         """
         obj = jm.get_json_blob_by_guid(pk)
-        return Response(json.loads(obj['json_blob']))
+        if obj:
+            return Response(json.loads(obj[0]['json_blob']))
+        else:
+            return Response("No objectstore entry with guid: {0}".format(pk), 404)
 
     @with_jobs
     def list(self, request, project, jm):
@@ -103,9 +106,14 @@ class ArtifactViewSet(viewsets.ViewSet):
 
         """
         obj = jm.get_job_artifact(pk)
-        if obj["type"] == "json":
-            obj["blob"] = json.loads(obj["blob"])
-        return Response(obj)
+        if obj:
+            art_obj = obj[0]
+            if art_obj["type"] == "json":
+                art_obj["blob"] = json.loads(art_obj["blob"])
+            return Response(art_obj)
+        else:
+            return Response("No artifact with id: {0}".format(pk), 404)
+
 
 
 class NoteViewSet(viewsets.ViewSet):
@@ -119,7 +127,10 @@ class NoteViewSet(viewsets.ViewSet):
 
         """
         obj = jm.get_job_note(pk)
-        return Response(obj)
+        if obj:
+            return Response(obj[0])
+        else:
+            return Response("No note with id: {0}".format(pk), 404)
 
     @with_jobs
     def list(self, request, project, jm):
@@ -162,19 +173,24 @@ class JobsViewSet(viewsets.ViewSet):
         Return a single job with log_references and
         artifact names and links to the artifact blobs.
         """
-        job = jm.get_job(pk)
-        job["logs"] = jm.get_log_references(pk)
+        obj = jm.get_job(pk)
+        if obj:
+            job = obj[0]
+            job["logs"] = jm.get_log_references(pk)
 
-        # make artifact ids into uris
-        artifact_refs = jm.get_job_artifact_references(pk)
-        job["artifacts"] = []
-        for art in artifact_refs:
-            ref = reverse("artifact-detail",
-                          kwargs={"project": jm.project, "pk": art["id"]})
-            art["resource_uri"] = ref
-            job["artifacts"].append(art)
+            # make artifact ids into uris
+            artifact_refs = jm.get_job_artifact_references(pk)
+            job["artifacts"] = []
+            for art in artifact_refs:
+                ref = reverse("artifact-detail",
+                              kwargs={"project": jm.project, "pk": art["id"]})
+                art["resource_uri"] = ref
+                job["artifacts"].append(art)
 
-        return Response(job)
+            return Response(job)
+        else:
+            return Response("No job with id: {0}".format(pk), 404)
+
 
     @with_jobs
     def list(self, request, project, jm):
@@ -209,10 +225,12 @@ class JobsViewSet(viewsets.ViewSet):
         if not pk:  # pragma nocover
             return Response({"message": "job id required"}, status=400)
 
-        jm.get_job(pk)
-        jm.set_state(pk, state)
-
-        return Response({"message": "state updated to '{0}'".format(state)})
+        obj = jm.get_job(pk)
+        if obj:
+            jm.set_state(pk, state)
+            return Response({"message": "state updated to '{0}'".format(state)})
+        else:
+            return Response("No job with id: {0}".format(pk), 404)
 
     @action()
     @with_jobs
@@ -265,10 +283,11 @@ class ResultSetViewSet(viewsets.ViewSet):
         )
 
         rs = jm.get_result_set_by_id(pk)
-        resultsets = self.get_resultsets_with_jobs(jm, [rs], filter_kwargs)
-        if len(resultsets) == 0:
+        if rs:
+            resultsets = self.get_resultsets_with_jobs(jm, [rs[0]], filter_kwargs)
+            return Response(resultsets[0])
+        else:
             return Response("No resultset with id: {0}".format(pk), 404)
-        return Response(resultsets[0])
 
     @staticmethod
     def get_resultsets_with_jobs(jm, rs_list, filter_kwargs):
