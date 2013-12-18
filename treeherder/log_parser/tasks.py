@@ -7,6 +7,7 @@ have a look at the canvas section in the docs
 http://docs.celeryproject.org/en/latest/userguide/canvas.html#guide-canvas
 """
 import simplejson as json
+import re
 
 from celery import task
 
@@ -19,8 +20,13 @@ def parse_log(project, job_id, check_errors=True):
     """
     Call ArtifactBuilderCollection on the given job.
     """
+    pattern_obj = re.compile('\d+:\d+:\d+\s+')
+
     jm = JobsModel(project=project)
     rdm = RefDataManager()
+
+    open_bugs_cache = {}
+    closed_bugs_cache = {}
 
     try:
         log_references = jm.get_log_references(job_id)
@@ -43,12 +49,25 @@ def parse_log(project, job_id, check_errors=True):
                 # I'll try to begin with a full_text search on the entire row
 
                 all_errors = artifact_bc.artifacts['Structured Log']['step_data']['all_errors']
-                error_lines = [err['line'] for err in all_errors]
+
                 open_bugs_suggestions = {}
                 closed_bugs_suggestions = {}
-                for line in error_lines:
-                    open_bugs_suggestions[line] = rdm.get_suggested_bugs(line)
-                    closed_bugs_suggestions[line] = rdm.get_suggested_bugs(line, open_bugs=False)
+
+                for err in all_errors:
+
+                    # remove timestamp
+                    clean_line = pattern_obj.sub('', err['line'])
+
+                    if clean_line not in open_bugs_cache:
+                        open_bugs_cache[clean_line] = rdm.get_suggested_bugs(
+                            clean_line)
+
+                    if clean_line not in closed_bugs_cache:
+                        closed_bugs_cache[clean_line] = rdm.get_suggested_bugs(
+                            clean_line, open_bugs=False)
+
+                    open_bugs_suggestions[ err['line'] ] = open_bugs_cache[clean_line]
+                    closed_bugs_suggestions[ err['line'] ] = closed_bugs_cache[clean_line]
 
                 artifact_list.append((job_id, 'Open bugs', 'json', json.dumps(open_bugs_suggestions)))
                 artifact_list.append((job_id, 'Closed bugs', 'json', json.dumps(closed_bugs_suggestions)))
