@@ -7,3 +7,7 @@ django-celery==3.0.17
 kombu==2.4.7
 simplejson==3.3.0
 Cython==0.19.2
+gevent==1.0
+gevent-socketio==0.3.6
+gevent-websocket==0.9
+greenlet==0.4.1
