@@ -2,7 +2,7 @@
 
 treeherder.controller('JobsCtrl',
     function JobsCtrl($scope, $http, $rootScope, $routeParams, $log,
-                      thUrl, thResultSets, thRepos) {
+                      thUrl, thResultSets, thRepos, thSocket) {
 
         // set the default repo to mozilla-inbound if not specified
         if ($routeParams.hasOwnProperty("repo") &&
@@ -37,12 +37,31 @@ treeherder.controller('JobsCtrl',
 
         $scope.nextResultSets(10);
 
+        // Add a connect listener
+        thSocket.on('connect',function() {
+            thSocket.emit('subscribe', '*');
+        });
+
+        thSocket.on("resultset", function(data) {
+            $log.info("new resultset");
+            $log.info(data);
+        });
+        thSocket.on("job", function(data) {
+            console.log("new job");
+            console.log(data);
+        });
+        thSocket.on("job_failure", function(data) {
+            console.log("new job_failure");
+            console.log(data);
+        });
+
     }
 );
 
 treeherder.controller('ResultSetCtrl',
     function ResultSetCtrl($scope, $rootScope, $http, $log,
                            thUrl, thServiceDomain, thResultStatusInfo) {
+
 
         // determine the greatest severity this resultset contains
         // so that the UI can depict that
