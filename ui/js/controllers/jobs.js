@@ -70,6 +70,24 @@ treeherder.controller('JobsCtrl',
         };
 
 
+        // Add a connect listener
+        thSocket.on('connect',function() {
+            thSocket.emit('subscribe', '*');
+        });
+
+        thSocket.on("resultset", function(data) {
+            $log.info("new resultset");
+            $log.info(data);
+        });
+        thSocket.on("job", function(data) {
+            console.log("new job");
+            console.log(data);
+        });
+        thSocket.on("job_failure", function(data) {
+            console.log("new job_failure");
+            console.log(data);
+        });
+
     }
 );
 
