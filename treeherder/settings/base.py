@@ -184,6 +184,10 @@ CELERY_QUEUES = (
     Queue('log_parser', Exchange('default'), routing_key='parse_log.success'),
 )
 
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+
 # default value when no task routing info is specified
 CELERY_DEFAULT_QUEUE = 'default'
 CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'
