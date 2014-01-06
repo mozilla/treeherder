@@ -1,0 +1,5 @@
+#!/bin/bash
+  source /etc/profile.d/treeherder.sh
+  cd /home/treeherder/treeherder-service
+  source ../venv/bin/activate
+  exec ../venv/bin/python manage.py celeryd -Q log_parser_fail,log_parser -P gevent --concurrency=10 -E --logfile=/var/log/celery/treeherder_worker_gevent.log -n gevent_worker.dev3 -l info --maxtasksperchild=500
