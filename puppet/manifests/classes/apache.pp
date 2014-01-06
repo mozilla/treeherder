@@ -13,6 +13,11 @@ $apache_service = $operatingsystem ? {
   default => "httpd",
 }
 
+$apache_port_definition_file = $operatingsystem ? {
+  ubuntu => "/etc/apache2/ports.conf",
+  default => "/etc/httpd/conf/httpd.conf",
+}
+
 class apache {
   package { $apache_devel:
     ensure => present
@@ -27,6 +32,13 @@ class apache {
     owner => "root", group => "root", mode => 0644,
     require => [Package[$apache_devel]],
     notify => Service[$apache_service],
+  }
+
+  exec { "sed -i '/[: ]80$/ s/80/8080/' ${apache_port_definition_file}":
+    require => [Package[$apache_devel]],
+    before => [
+      Service[$apache_service]
+    ]
   }
 
   service { $apache_service:
@@ -50,5 +62,8 @@ class apache {
         onlyif => 'test ! -e /etc/apache2/mods-enabled/proxy_http.load',
         before => Service[$apache_service];
     }
+
+
+
   }
 }
