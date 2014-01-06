@@ -1,0 +1,17 @@
+#!/bin/bash
+  set -e
+  LOGFILE=/var/log/gunicorn/treeherder.log
+  LOGDIR=$(dirname $LOGFILE)
+  NUM_WORKERS=5
+  # user/group to run as
+  USER=treeherder
+  GROUP=treeherder
+  source /etc/profile.d/treeherder.sh
+  cd /home/treeherder/treeherder-service
+  source ../venv/bin/activate
+  test -d $LOGDIR || mkdir -p $LOGDIR
+  exec ../venv/bin/gunicorn -w $NUM_WORKERS \
+    --user=$USER --group=$GROUP --log-level=debug \
+    --pidfile=/var/run/gunicorn/treeherder.pid \
+    --max-requests=100 \
+    --log-file=$LOGFILE treeherder.webapp.wsgi:application  2>>$LOGFILE
