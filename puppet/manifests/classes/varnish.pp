@@ -3,6 +3,11 @@ $varnish_port_file = $operatingsystem ? {
   default => "/etc/sysconfig/varnish",
 }
 
+$varnish_port_change = $operatingsystem ? {
+  ubuntu => "sed -i '/^DAEMON_OPTS=\"-a :6081* / s/6081/80/' ${varnish_port_file}",
+  default => "sed -i '/^VARNISH_LISTEN_PORT=6081$/ s/6081/80/' ${varnish_port_file}",
+}
+
 
 class varnish {
   package { "varnish":
@@ -23,7 +28,7 @@ class varnish {
     notify => Service["varnish"],
   }
 
-  exec { "sed -i '/^DAEMON_OPTS=\"-a :6081* / s/6081/80/' ${varnish_port_file}":
+  exec { $varnish_port_change:
     require => [Package[$apache_devel]],
     before => [
       Service["varnish"]
