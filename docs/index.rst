@@ -13,6 +13,7 @@ Contents:
 
    installation
    dataload
+   deployment
 
 
 Indices and tables
