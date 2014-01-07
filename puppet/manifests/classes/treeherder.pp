@@ -17,4 +17,14 @@ class treeherder {
     exec{"build-extensions":
       command => "${VENV_DIR}/bin/python ${PROJ_DIR}/setup.py build_ext --inplace"
     }
+
+    file { [
+      "/var/log/gunicorn",
+      "/var/log/celery"
+      ]:
+      ensure => "directory",
+      owner  => "${APP_USER}",
+      group  => "${APP_GROUP}",
+      mode   => 755,
+    }
 }

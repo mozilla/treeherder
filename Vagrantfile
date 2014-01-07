@@ -6,7 +6,7 @@ end
 Vagrant::Config.run do |config|
   config.vm.box = "precise32"
   config.vm.box_url = "http://files.vagrantup.com/precise32.box"
-  config.vm.customize ["modifyvm", :id, "--memory", "512"]
+  config.vm.customize ["modifyvm", :id, "--memory", "1024"]
   config.vm.network :hostonly, "192.168.33.10"
 
   # enable this to see the GUI if vagrant cannot connect

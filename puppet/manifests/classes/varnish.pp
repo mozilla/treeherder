@@ -29,7 +29,10 @@ class varnish {
   }
 
   exec { $varnish_port_change:
-    require => [Package[$apache_devel]],
+    require => [
+      Package[$apache_devel],
+      Package["varnish"],
+    ],
     before => [
       Service["varnish"]
     ],

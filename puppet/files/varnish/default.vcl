@@ -20,3 +20,9 @@ sub vcl_recv {
         set req.backend = apache;
     }
 }
+
+sub vcl_fetch {
+    if (beresp.http.content-type ~ "json" || beresp.http.content-type ~ "text" ) {
+        set beresp.do_gzip = true;
+    }
+}
