@@ -1,5 +1,9 @@
 #!/bin/bash
   set -e
+
+  curr_dir=$( dirname "${BASH_SOURCE[0]}" )
+  cd $( dirname $curr_dir)
+
   LOGFILE=/var/log/socketio/treeherder.log
 
   source /etc/profile.d/treeherder.sh

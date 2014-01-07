@@ -1,4 +1,6 @@
 #!/bin/bash
+  curr_dir=$( dirname "${BASH_SOURCE[0]}" )
+  cd $( dirname $curr_dir)
   source /etc/profile.d/treeherder.sh
   source ../venv/bin/activate
   exec ../venv/bin/python manage.py celerybeat

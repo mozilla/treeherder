@@ -1,6 +1,9 @@
 #!/bin/bash
   set -e
 
+  curr_dir=$( dirname "${BASH_SOURCE[0]}" )
+  cd $( dirname $curr_dir)
+
   LOGDIR=/var/log/gunicorn
   ACCESS_LOGFILE=$LOGDIR/treeherder_access.log
   ERROR_LOGFILE=$LOGDIR/treeherder_error.log
