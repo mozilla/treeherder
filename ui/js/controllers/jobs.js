@@ -59,7 +59,7 @@ treeherder.controller('JobsCtrl',
 
         };
 
-        $scope.nextResultSets(10);
+        $scope.nextResultSets(20);
 
         $scope.repo_has_failures = function(repo_name){
             if($rootScope.new_failures.hasOwnProperty(repo_name) && $rootScope.new_failures[repo_name].length > 0){
