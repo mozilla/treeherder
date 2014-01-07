@@ -11,5 +11,5 @@ urlpatterns = patterns('',
     url(r'^browserid/', include('django_browserid.urls')),
     url(r'^admin/', include(admin.site.urls)),
     # by default redirect all request on / to /admin/
-    url(r'^$', RedirectView.as_view(url='/api/'))
+    url(r'^$', RedirectView.as_view(url='/ui/'))
 )

@@ -6,6 +6,8 @@ from django.db import connection
 from django.core.management import call_command
 from django.utils.six.moves import input
 
+from treeherder import path
+
 
 class Command(BaseCommand):
     help = "Init master database and call syncdb"
@@ -23,7 +25,7 @@ class Command(BaseCommand):
         make_option('--template-path',
             action='store',
             dest='template_path',
-            default='treeherder/model/sql/template_schema/',
+            default=path('model', 'sql', 'template_schema'),
             help='Directory containing the sql templates',
         ),
         make_option('--skip-fixtures',
