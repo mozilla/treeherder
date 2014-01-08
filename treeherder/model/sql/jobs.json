@@ -158,10 +158,44 @@
     },
     "selects":{
         "get_job":{
-            "sql":"SELECT j.*, m.name as machine_name
-                   FROM `job` as j
-                   LEFT JOIN `REP0`.`machine` as m
-                       ON j.`machine_id` = m.id
+            "sql":"SELECT
+                    j.`job_guid`,
+                    j.`job_coalesced_to_guid`,
+                    j.`build_platform_id`,
+                    j.`option_collection_hash`,
+                    mp.`platform` as platform,
+                    mp.`os_name` as machine_platform_os,
+                    mp.`architecture` as machine_platform_architecture,
+                    bp.`platform` as build_platform,
+                    bp.`os_name` as build_os,
+                    bp.`architecture` as build_architecture,
+                    m.`name` as machine_name,
+                    jt.`name` as job_type_name,
+                    jt.`symbol` as job_type_symbol,
+                    jt.`description` as job_type_description,
+					jg.`name` as job_group_name,
+                    jg.`symbol` as job_group_symbol,
+                    jg.`description` as job_group_description,
+                    j.`who`,
+                    j.`result_set_id`,
+                    j.`id` as job_id,
+                    j.`result`,
+                    j.`state`,
+                    j.`reason`,
+                    j.`start_timestamp`,
+                    j.`end_timestamp`,
+                    j.`submit_timestamp`
+                  FROM `job` as j
+                  LEFT JOIN `REP0`.`machine` as m
+                    ON j.`machine_id` = m.id
+                  LEFT JOIN `REP0`.`machine_platform` as mp
+                    ON j.`machine_platform_id` = mp.id
+                  LEFT JOIN `REP0`.`build_platform` as bp
+                    ON j.`build_platform_id` = bp.id
+                  LEFT JOIN `REP0`.`job_type` as jt
+                    ON j.`job_type_id` = jt.id
+				  LEFT JOIN `REP0`.`job_group` as jg
+                    ON jt.`job_group_id` = jg.id
                    WHERE j.id = ?",
 
             "host":"read_host"

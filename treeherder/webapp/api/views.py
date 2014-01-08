@@ -176,6 +176,8 @@ class JobsViewSet(viewsets.ViewSet):
         obj = jm.get_job(pk)
         if obj:
             job = obj[0]
+            job["resource_uri"] = reverse("jobs-detail",
+                kwargs={"project": jm.project, "pk": job["job_id"]})
             job["logs"] = jm.get_log_references(pk)
 
             # make artifact ids into uris
