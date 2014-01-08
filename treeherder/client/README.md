@@ -1,11 +1,14 @@
 treeherder-client
 ================
 
-Client libraries to support data submission to treeherder. There are two types of data
-structures supported: job and resultset collections. Both classes have support methods for building the data structure and a minimal data structure validation method available.
+A set of client libraries to support data submission to `https://github.com/mozilla/treeherder-service`. There are two types of data
+structures supported: job and resultset collections. Both classes have support methods for building a data structure that `https://github.com/mozilla/treeherder-service` accepts. Data structures can be extended with new properties as needed, there is a minimal validation protocol applied that confirms the bare minimum parts of the data structures are defined.
 
-resultsets would contain meta data associated with a github pull request or a push to mercurial or any event that requires tests to be run on a repository. The most critical part of each resultset is the revision hash, this is used as an identifier to associate test job data with. It can be any unique 50 character string. A resultset has the following data structure
+resultset collection
+--------------------
+Resultset collections contain meta data associated with a github pull request or a push to mercurial or any event that requires tests to be run on a repository. The most critical part of each resultset is the `revision_hash`, this is used as an identifier to associate test job data with. It can be any unique 50 character string. A resultset has the following data structure
 
+```python
     [
         {
             'revision_hash': '45f8637cb9f78f19cb8463ff174e81756805d8cf',
@@ -36,9 +39,13 @@ resultsets would contain meta data associated with a github pull request or a pu
             }
         }
     ]
+```
 
-A job data structure can contain test results from any kind of test. The critical revision_hash should match the revision_hash provided in the resultset structure. The job_guid provided can be any unique 50 character string. A job has the following data structure.
+job collection
+--------------
+Job collections can contain test results from any kind of test. The critical revision_hash should match the revision_hash provided in the resultset structure. The `job_guid` provided can be any unique 50 character string. A job has the following data structure.
 
+```python
     [
         {
             'project': 'mozilla-inbound',
@@ -98,11 +105,13 @@ A job data structure can contain test results from any kind of test. The critica
             },
             ...
     ]
+```
 
 Usage
 -----
 If you want to use `TreeherderResultSetCollection` to build up the resultset data structures to send, do something like this.
 
+```python
     from thclient import TreeherderRequest, TreeherderResultSetCollection, TreeherderClientError
 
     trsc = TreeherderResultSetCollection()
@@ -146,11 +155,13 @@ If you want to use `TreeherderResultSetCollection` to build up the resultset dat
 
     # Post the result collection
     req.send(trc)
+```
 
 At any time in building a data structure, you can examine what has been created by looking at the `data` property. You can also call the `validate` method at any time before sending a collection. The `validate` method is called on every structure added to a collection. If validation fails a `TreeherderClientError` is raised.
 
 If you want to use `TreeherderJobCollection` to build up the job data structures to send, do something like this.
 
+```python
     from thclient import TreeherderRequest, TreeherderJobCollection, TreeherderClientError
 
     tjc = TreeherderJobCollection()
@@ -210,9 +221,11 @@ If you want to use `TreeherderJobCollection` to build up the job data structures
 
     # Post the job collection
     req.send(tjc)
+```
 
 If you don't want to use `TreeherderResultCollection` or `TreeherderJobCollection` to build up the data structure to send, build the data structures directly and add them to the collection.:
 
+```python
     from thclient import TreeherderRequest, TreeherderResultSetCollection
 
     trc = TreeherderResultSetCollection()
@@ -258,7 +271,7 @@ If you don't want to use `TreeherderResultCollection` or `TreeherderJobCollectio
 
     # Post the request to treeherder
     req.send(tj)
-
+```
 
 Development
 -----------
