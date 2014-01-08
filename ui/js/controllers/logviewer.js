@@ -5,7 +5,7 @@ treeherder.controller('LogviewerCtrl',
 
         if ($location.$$search.hasOwnProperty("repo") &&
             $location.$$search.repo !== "") {
-            $rootScope.repo = $location.$$search.repo;
+            $rootScope.repoName = $location.$$search.repo;
         }
         if ($location.$$search.hasOwnProperty("id") &&
             $location.$$search.id !== "") {
