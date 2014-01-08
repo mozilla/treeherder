@@ -2,7 +2,7 @@ treeherder-client
 ================
 
 A set of client libraries to support data submission to https://github.com/mozilla/treeherder-service. There are two types of data
-structures supported: job and resultset collections. Both classes have support methods for building a data structure that https://github.com/mozilla/treeherder-service accepts. Data structures can be extended with new properties as needed, there is a minimal validation protocol applied that confirms the bare minimum parts of the data structures are defined.
+structures supported: job and resultset collections. Both classes have support methods for building a data structure that https://github.com/mozilla/treeherder-service accepts. Data structures can be extended with new properties as needed, there is a minimal validation protocol applied that confirms the bare minimum parts of the structures are defined.
 
 Resultset Collection
 --------------------
