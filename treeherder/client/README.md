@@ -7,7 +7,7 @@ structures supported: job and resultset collections. Both classes have support m
 Resultset Collection
 --------------------
 
-Resultset collections contain meta data associated with a github pull request or a push to mercurial or any event that requires tests to be run on a repository. The most critical part of each resultset is the `revision_hash`, this is used as an identifier to associate test job data with. It can be any unique 50 character string. A resultset has the following data structure
+Resultset collections contain meta data associated with a github pull request or a push to mercurial or any event that requires tests to be run on a repository. The most critical part of each resultset is the `revision_hash`, this is used as an identifier to associate test job data with. It can be any unique 50 character string. A resultset collection has the following data structure
 
 ```python
     [
@@ -49,7 +49,7 @@ Resultset collections contain meta data associated with a github pull request or
 Job Collection
 --------------
 
-Job collections can contain test results from any kind of test. The `revision_hash` provided should match the associated `revision_hash` in the resultset structure. The `job_guid` provided can be any unique 50 character string. A job has the following data structure.
+Job collections can contain test results from any kind of test. The `revision_hash` provided should match the associated `revision_hash` in the resultset structure. The `job_guid` provided can be any unique 50 character string. A job collection has the following data structure.
 
 ```python
     [
@@ -67,11 +67,16 @@ Job collections can contain test results from any kind of test. The `revision_ha
                 'reason': 'scheduler',
                 'who': 'spidermonkey_info__mozilla-inbound-warnaserr',
 
-                'desc': 'Linux x86-64 mozilla-inbound spidermonkey_info-warnaserr build'
+                'desc': 'Linux x86-64 mozilla-inbound spidermonkey_info-warnaserr build',
 
                 'name': 'SpiderMonkey --enable-sm-fail-on-warnings Build',
+
+                # The symbol displayed in
+                # https://treeherder.allizom.org
                 'job_symbol': 'e',
 
+                # The symbol representing a job group in
+                # https://treeherder.allizom.org
                 'group_symbol': 'SM',
                 'group_name': 'SpiderMonkey',
 
@@ -101,6 +106,12 @@ Job collections can contain test results from any kind of test. The `revision_ha
                         }
                     ],
 
+                # The artifact can contain any kind of structured data associated with
+                # a test. Artifacts can have a name and type. The blob property can
+                # contain any valid data structure. Artifacts are retrieved dynamically
+                # in https://github.com/mozilla/treeherder-ui when a job is selected
+                # in the UI, so the data can be displayed dynamically. See
+                # https://treeherder.allizom.org for some examples.
                 'artifact': {
                     'type': '', 'name': '', 'blob': ''
                     },
@@ -151,7 +162,7 @@ If you want to use `TreeherderResultSetCollection` to build up the resultset dat
     # Send the collection to treeherder
 
     # The OAuth key and secret for your project should be supplied to you by the
-    # treeherder administrator.
+    # treeherder-service administrator.
     req = TreeherderRequest(
         protocol='https',
         host='treeherder.mozilla.org',
@@ -230,7 +241,7 @@ If you want to use `TreeherderJobCollection` to build up the job data structures
     req.send(tjc)
 ```
 
-If you don't want to use `TreeherderResultCollection` or `TreeherderJobCollection` to build up the data structure to send, build the data structures directly and add them to the collection.:
+If you don't want to use `TreeherderResultCollection` or `TreeherderJobCollection` to build up the data structure to send, build the data structures directly and add them to the collection.
 
 ```python
     from thclient import TreeherderRequest, TreeherderResultSetCollection
