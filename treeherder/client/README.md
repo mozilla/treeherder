@@ -72,11 +72,11 @@ Job collections can contain test results from any kind of test. The `revision_ha
                 'name': 'SpiderMonkey --enable-sm-fail-on-warnings Build',
 
                 # The symbol representing the job displayed in
-                # https://treeherder.allizom.org
+                # treeherder.allizom.org
                 'job_symbol': 'e',
 
                 # The symbol representing the job group in
-                # https://treeherder.allizom.org
+                # treeherder.allizom.org
                 'group_symbol': 'SM',
                 'group_name': 'SpiderMonkey',
 
@@ -111,7 +111,7 @@ Job collections can contain test results from any kind of test. The `revision_ha
                 # contain any valid data structure. Artifacts are retrieved dynamically
                 # in https://github.com/mozilla/treeherder-ui when a job is selected
                 # in the UI, so the data can be displayed dynamically. See
-                # https://treeherder.allizom.org for some examples.
+                # treeherder.allizom.org for some examples.
                 'artifact': {
                     'type': '', 'name': '', 'blob': ''
                     },
