@@ -21,7 +21,9 @@ class DataSetup(unittest.TestCase):
         job_data_file = 'job_data.json'
 
         self.job_data_file_path = os.path.join(
-            'thclient', 'tests', 'data', job_data_file
+            os.path.dirname(__file__),
+            'data',
+            job_data_file
             )
 
         with open(self.job_data_file_path) as f:
@@ -34,7 +36,9 @@ class DataSetup(unittest.TestCase):
         resultset_file = 'resultset_data.json'
 
         self.resultset_data_file_path = os.path.join(
-            'thclient', 'tests', 'data', resultset_file
+            os.path.dirname(__file__),
+            'data',
+            resultset_file
             )
 
         with open(self.resultset_data_file_path) as f:
@@ -55,7 +59,9 @@ class DataSetup(unittest.TestCase):
         # Sample post response with oauth credentials
         post_file = 'post.txt'
         self.post_file_path = os.path.join(
-            'thclient', 'tests', 'data', post_file
+            os.path.dirname(__file__),
+            'data',
+            post_file
             )
         with open(self.post_file_path) as f:
             self.post_data = f.read().strip()
@@ -63,7 +69,9 @@ class DataSetup(unittest.TestCase):
         # Sample post response with no oauth credentials
         no_oauth_post_file = 'no_oauth_post.txt'
         self.no_oauth_post_file_path = os.path.join(
-            'thclient', 'tests', 'data', no_oauth_post_file
+            os.path.dirname(__file__),
+            'data',
+            no_oauth_post_file
             )
         with open(self.no_oauth_post_file_path) as f:
             self.no_oauth_post_data = f.read().strip()

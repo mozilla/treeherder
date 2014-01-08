@@ -18,7 +18,7 @@ setup(name='treeherder-client',
       description="Python library to submit data to treeherder-service",
       long_description="""\
 """,
-      #classifiers=[], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
+      classifiers=[], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
       keywords='',
       author='Jonathan Eads',
       author_email='jeads@mozilla.com',
