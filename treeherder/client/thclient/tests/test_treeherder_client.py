@@ -163,6 +163,23 @@ class TreeherderResultsetTest(DataSetup, unittest.TestCase):
 
             self.compare_structs(trs_struct.data, resultset)
 
+    def test_revision_hash_validation(self):
+
+        trs = TreeherderResultSet(self.resultset_data[0])
+        trs.data['revision_hash'] = None
+
+        self.assertRaises(TreeherderClientError, trs.validate)
+
+    def test_revision_hash_len_validation(self):
+
+        trs = TreeherderResultSet(self.resultset_data[0])
+        trs.data['revision_hash'] = (
+            'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+            'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+                )
+
+        self.assertRaises(TreeherderClientError, trs.validate)
+
 class TreeherderResultSetCollectionTest(DataSetup, unittest.TestCase):
 
     def test_resultset_collection(self):
