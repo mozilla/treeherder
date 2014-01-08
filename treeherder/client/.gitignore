@@ -27,6 +27,9 @@ pip-log.txt
 .tox
 nosetests.xml
 
+# vi files
+*.swp
+
 # Translations
 *.mo
 
