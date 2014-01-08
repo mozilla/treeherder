@@ -71,11 +71,11 @@ Job collections can contain test results from any kind of test. The `revision_ha
 
                 'name': 'SpiderMonkey --enable-sm-fail-on-warnings Build',
 
-                # The symbol displayed in
+                # The symbol representing the job displayed in
                 # https://treeherder.allizom.org
                 'job_symbol': 'e',
 
-                # The symbol representing a job group in
+                # The symbol representing the job group in
                 # https://treeherder.allizom.org
                 'group_symbol': 'SM',
                 'group_name': 'SpiderMonkey',
