@@ -1,8 +1,8 @@
 treeherder-client
 ================
 
-A set of client libraries to support data submission to `https://github.com/mozilla/treeherder-service`. There are two types of data
-structures supported: job and resultset collections. Both classes have support methods for building a data structure that `https://github.com/mozilla/treeherder-service` accepts. Data structures can be extended with new properties as needed, there is a minimal validation protocol applied that confirms the bare minimum parts of the data structures are defined.
+A set of client libraries to support data submission to https://github.com/mozilla/treeherder-service. There are two types of data
+structures supported: job and resultset collections. Both classes have support methods for building a data structure that https://github.com/mozilla/treeherder-service accepts. Data structures can be extended with new properties as needed, there is a minimal validation protocol applied that confirms the bare minimum parts of the data structures are defined.
 
 Resultset Collection
 --------------------
@@ -12,17 +12,21 @@ Resultset collections contain meta data associated with a github pull request or
 ```python
     [
         {
+            # unique identifier for a result set, can be any unique 50 character string
             'revision_hash': '45f8637cb9f78f19cb8463ff174e81756805d8cf',
             'push_timestamp': 1384353511,
             'type': 'push',
 
-            # blob can be any kind of structured data
+            # any type of artifact data associated with the resultset
             'artifact': {
                 'type': 'extra_info',
                 'name': 'push_data',
+                # blob can be any kind of structured data
                 'blob': { 'stuff': [1, 2, 3, 4, 5] }
                 },
 
+            # a list of revisions associated with the resultset. There should be at least
+            # one.
             'revisions': [
                 {
                     'comment': 'Bug 936711 - Fix crash which happened at disabling Bluetooth...',
@@ -33,7 +37,7 @@ Resultset collections contain meta data associated with a github pull request or
                         ],
                     'revision': 'cdfe03e77e66',
                     'repository': 'test_treeherder',
-                    'author': 'Eric Chou <echou@mozilla.com>'
+                    'author': 'Some Person <sperson@someplace.com>'
                     },
                     ...
                 ]
@@ -45,7 +49,7 @@ Resultset collections contain meta data associated with a github pull request or
 Job Collection
 --------------
 
-Job collections can contain test results from any kind of test. The critical revision_hash should match the revision_hash provided in the resultset structure. The `job_guid` provided can be any unique 50 character string. A job has the following data structure.
+Job collections can contain test results from any kind of test. The `revision_hash` provided should match the associated `revision_hash` in the resultset structure. The `job_guid` provided can be any unique 50 character string. A job has the following data structure.
 
 ```python
     [
