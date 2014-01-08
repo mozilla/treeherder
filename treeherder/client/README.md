@@ -4,8 +4,9 @@ treeherder-client
 A set of client libraries to support data submission to `https://github.com/mozilla/treeherder-service`. There are two types of data
 structures supported: job and resultset collections. Both classes have support methods for building a data structure that `https://github.com/mozilla/treeherder-service` accepts. Data structures can be extended with new properties as needed, there is a minimal validation protocol applied that confirms the bare minimum parts of the data structures are defined.
 
-resultset collection
+Resultset Collection
 --------------------
+
 Resultset collections contain meta data associated with a github pull request or a push to mercurial or any event that requires tests to be run on a repository. The most critical part of each resultset is the `revision_hash`, this is used as an identifier to associate test job data with. It can be any unique 50 character string. A resultset has the following data structure
 
 ```python
@@ -41,8 +42,9 @@ Resultset collections contain meta data associated with a github pull request or
     ]
 ```
 
-job collection
+Job Collection
 --------------
+
 Job collections can contain test results from any kind of test. The critical revision_hash should match the revision_hash provided in the resultset structure. The `job_guid` provided can be any unique 50 character string. A job has the following data structure.
 
 ```python
@@ -109,6 +111,7 @@ Job collections can contain test results from any kind of test. The critical rev
 
 Usage
 -----
+
 If you want to use `TreeherderResultSetCollection` to build up the resultset data structures to send, do something like this.
 
 ```python
