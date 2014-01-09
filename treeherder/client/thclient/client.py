@@ -451,6 +451,10 @@ class TreeherderRequest(object):
     Treeherder request object that manages test submission.
     """
 
+    collection_instances = set(
+        [TreeherderResultSetCollection, TreeherderJobCollection]
+        )
+
     protocols = set(['http', 'https']) # supported protocols
 
     def __init__(
@@ -477,11 +481,27 @@ class TreeherderRequest(object):
     def send(self, collection):
         "Send given treeherder collection to server; returns httplib Response."""
 
-        assert collection.endpoint_base, "{0}: collection endpoint_base property not defined".format(
+        if (not isinstance(collection, TreeherderResultSetCollection)) and \
+            (not isinstance(collection, TreeherderJobCollection)):
+
+            msg = '{0} invalid collection class type'.format(
                 self.__class__.__name__)
 
-        assert collection.data, "{0}: collection data property not defined".format(
+            raise TreeherderClientError(msg, [])
+
+        if not collection.endpoint_base:
+
+            msg = "{0}: collection endpoint_base property not defined".format(
                 self.__class__.__name__)
+
+            raise TreeherderClientError(msg, [])
+
+        if not collection.data:
+
+            msg = "{0}: collection data property not defined".format(
+                self.__class__.__name__)
+
+            raise TreeherderClientError(msg, [])
 
         uri = self.get_uri(collection)
 
