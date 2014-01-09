@@ -6,4 +6,15 @@ class dev{
     timeout => 1800,
   }
 
+  exec{"init_master_db":
+    cwd => '/home/vagrant/treeherder-service',
+    command => "${VENV_DIR}/bin/python manage.py init_master_db --noinput",
+  }
+
+  exec{"init_datasources":
+    cwd => '/home/vagrant/treeherder-service',
+    command => "${VENV_DIR}/bin/python manage.py init_datasources",
+    require => Exec["init_master_db"],
+  }
+
 }

@@ -31,20 +31,7 @@ Installation
      
      (venv)vagrant@precise32:~/treeherder-service$ ./runtests.sh
 
-* Init a master database and setup datasources:
-  
-  .. code-block:: bash
-     
-     (venv)vagrant@precise32:~/treeherder-service$ python manage.py init_master_db
-     (venv)vagrant@precise32:~/treeherder-service$ python manage.py init_datasources
-
-* Add an entry to your vm /etc/hosts for your treeherder virtual host:
-
-  .. code-block:: bash
-
-     127.0.0.1    local.treeherder.mozilla.org
-
-* And one to your host machine /etc/hosts so that you can point your browser to local.treeherder.mozilla.org to reach it
+* And an entry to your host machine /etc/hosts so that you can point your browser to local.treeherder.mozilla.org to reach it
 
   .. code-block:: bash
 
@@ -54,9 +41,9 @@ Installation
   
   .. code-block:: bash
      
-     (venv)vagrant@precise32:~/treeherder-service$ gunicorn treeherder.webapp.wsgi:application
+     (venv)vagrant@precise32:~/treeherder-service$ ./bin/run_gunicorn
 
-  all the request sent to local.treeherder.mozilla.org will be proxied to it by apache.
+  all the request sent to local.treeherder.mozilla.org will be proxied to it by varnish/apache.
 
 * Start up one or more celery worker to process async tasks:
 
@@ -80,6 +67,12 @@ Installation
   .. code-block:: bash
 
      (venv)vagrant@precise32:~/treeherder-service$ python setup.py build_ext --inplace
+
+
+
+
+
+* If you want to use supervisord to take care of all the services,
 
 
 .. _project repo: https://github.com/mozilla/treeherder-service

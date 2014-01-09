@@ -1,0 +1,19 @@
+#!/bin/bash
+  set -e
+
+  curr_dir=$( dirname "${BASH_SOURCE[0]}" )
+  cd $( dirname $curr_dir)
+
+  LOGDIR=/var/log/gunicorn
+  ACCESS_LOGFILE=$LOGDIR/treeherder_access.log
+  ERROR_LOGFILE=$LOGDIR/treeherder_error.log
+
+  NUM_WORKERS=5
+
+  source /etc/profile.d/treeherder.sh
+  source ../venv/bin/activate
+
+  exec ../venv/bin/gunicorn -w $NUM_WORKERS \
+    --max-requests=200 \
+    --access-logfile=$ACCESS_LOGFILE \
+    --error-logfile=$ERROR_LOGFILE treeherder.webapp.wsgi:application

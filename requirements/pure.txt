@@ -1,7 +1,9 @@
+argparse==1.2.1
 South==0.7.6
 python-memcached==1.48
-mozillapulse==0.61
+
 # requirements for mozillapulse
+mozillapulse==0.61
 carrot==0.10.7
 
 djangorestframework==2.3.5

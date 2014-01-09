@@ -10,13 +10,15 @@ import simplejson as json
 import re
 
 from celery import task
+from django.conf import settings
 
 from treeherder.model.derived import JobsModel, RefDataManager
 from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
+from treeherder.events.publisher import JobFailurePublisher, JobStatusPublisher
 
 
 @task(name='parse-log')
-def parse_log(project, job_id, check_errors=True):
+def parse_log(project, job_id, check_errors=False):
     """
     Call ArtifactBuilderCollection on the given job.
     """
@@ -27,6 +29,9 @@ def parse_log(project, job_id, check_errors=True):
 
     open_bugs_cache = {}
     closed_bugs_cache = {}
+
+    status_publisher = JobStatusPublisher(settings.BROKER_URL)
+    failure_publisher = JobFailurePublisher(settings.BROKER_URL)
 
     try:
         log_references = jm.get_log_references(job_id)
@@ -74,6 +79,12 @@ def parse_log(project, job_id, check_errors=True):
 
             # store the artifacts generated
             jm.store_job_artifact(artifact_list)
+        status_publisher.publish(job_id, project, 'processed')
+        if check_errors:
+            failure_publisher.publish(job_id, project)
+
     finally:
         rdm.disconnect()
         jm.disconnect()
+        status_publisher.disconnect()
+        failure_publisher.disconnect()

@@ -26,6 +26,12 @@ Exec {
     path => "/usr/local/bin:/usr/bin:/usr/sbin:/sbin:/bin",
 }
 
+line {"etc-hosts":
+  file => "/etc/hosts",
+  line => "127.0.0.1 local.treeherder.mozilla.org",
+  ensure => "present"
+}
+
 file {"/etc/profile.d/treeherder.sh":
     content => "
 export TREEHERDER_DATABASE_NAME='${DB_NAME}'
@@ -49,7 +55,8 @@ class vagrant {
         init: before => Class["mysql"];
         mysql: before  => Class["python"];
         python: before => Class["apache"];
-        apache: before => Class["treeherder"];
+        apache: before => Class["varnish"];
+        varnish: before => Class["treeherder"];
         treeherder: before => Class["rabbitmq"];
         rabbitmq: before => Class["dev"];
         dev:;
