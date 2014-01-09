@@ -13,6 +13,10 @@ treeherder.factory('thUrl',
         },
         getLogViewerUrl: function(artifactId) {
             return "logviewer.html#?id=" + artifactId + "&repo=" + $rootScope.repoName;
+        },
+        getSocketEventUrl: function() {
+//            return thServiceDomain + '/events';
+            return 'http://local.treeherder.mozilla.org:80/events';
         }
     };
     return thUrl;
@@ -125,13 +129,9 @@ treeherder.factory('thJobNote', function($resource, $http, thUrl) {
     };
 });
 
-
 treeherder.factory('thSocket', function ($rootScope, thUrl) {
-    var port = thServiceDomain.indexOf("https:") !== -1 ? 443 :80;
-    var socket = io.connect(thServiceDomain + ':' + port + '/events');
-    socket.on('connect', function(){
-       console.log('socketio connected');
-    });
+    var socket = io.connect(thUrl.getSocketEventUrl());
+
   return {
     on: function (eventName, callback) {
       socket.on(eventName, function () {

@@ -27,12 +27,15 @@ treeherder.directive('thJobButton', function (thResultStatusInfo) {
     return {
         restrict: "E",
         link: function(scope, element, attrs) {
-            var resultState = scope.job.result;
-            if (scope.job.state != "completed") {
-                resultState = scope.job.state;
-            }
-            scope.job.display = thResultStatusInfo(resultState);
-            scope.hoverText = getHoverText(scope.job);
+            scope.$watch("job", function(newValue) {
+                console.warn("in directive");
+                var resultState = scope.job.result;
+                if (scope.job.state != "completed") {
+                    resultState = scope.job.state;
+                }
+                scope.job.display = thResultStatusInfo(resultState);
+                scope.hoverText = getHoverText(scope.job);
+            }, true);
         },
         templateUrl: 'partials/thJobButton.html'
     };

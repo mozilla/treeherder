@@ -45,11 +45,42 @@ treeherder.controller('JobsCtrl',
         $scope.nextResultSets = function(count) {
 
             $scope.isLoadingRsBatch = true;
+            // mapping of job ids to job objects with resultset and platform
+            $scope.jobMap = {};
 
             thResultSets.getResultSets($scope.offset, count).
                 success(function(data) {
                     $scope.offset += count;
                     $scope.result_sets.push.apply($scope.result_sets, data);
+
+                    // add all the jobs to the jobMap
+
+                    // resultsets
+                    for (var rs_i = 0; rs_i < data.length; rs_i++) {
+                        var rs = data[rs_i];
+
+                        // platforms
+                        for (var pl_i = 0; pl_i < rs.platforms.length; pl_i++) {
+                            var pl = rs.platforms[pl_i];
+
+                            // groups
+                            for (var gp_i = 0; gp_i < pl.groups.length; gp_i++) {
+                                var gr = pl.groups[gp_i];
+                                // jobs
+                                for (var j_i = 0; j_i < gr.jobs.length; j_i++) {
+                                    var job = gr.jobs[j_i];
+                                    $scope.jobMap[job.job_id] = {
+                                        job: job,
+                                        resultset: rs,
+                                        platform: pl,
+                                        group: gr
+                                    };
+
+                                }
+                            }
+                        }
+
+                    }
                     $scope.isLoadingRsBatch = false;
                 }).
                 error(function(data, status, header, config) {
@@ -61,11 +92,20 @@ treeherder.controller('JobsCtrl',
 
         $scope.nextResultSets(20);
 
-        $scope.repo_has_failures = function(repo_name){
-            if($rootScope.new_failures.hasOwnProperty(repo_name) && $rootScope.new_failures[repo_name].length > 0){
-                return true;
-            }else{
-                return false;
+        $scope.updateJob = function(newJob) {
+            console.log("checking about update for " + newJob.job_id);
+            var oldJob = $scope.jobMap[newJob.job_id];
+            if (oldJob) {
+                console.warn("got one: " + newJob.job_id);
+                console.log("was result: " + oldJob.result);
+                console.log("now result: " + newJob.result);
+//                var $job = $("th-job-button span[data-job-id='" + newJob.job_id + "']");
+                $scope.$apply(function() {
+                    $.extend(oldJob, newJob);
+                });
+//                $job.effect("highlight", {}, 1500);
+//                // remove once done debugging
+//                $job.css( "border", "3px dotted green") ;
             }
         };
 
@@ -75,17 +115,23 @@ treeherder.controller('JobsCtrl',
             thSocket.emit('subscribe', '*');
         });
 
-        thSocket.on("resultset", function(data) {
-            $log.info("new resultset");
-            $log.info(data);
-        });
+//        thSocket.on("resultset", function(data) {
+//            if (data.branch === $scope.repoName) {
+//                $log.info("new resultset");
+//                $log.info(data);
+//            }
+//        });
         thSocket.on("job", function(data) {
-            console.log("new job");
-            console.log(data);
-        });
-        thSocket.on("job_failure", function(data) {
-            console.log("new job_failure");
-            console.log(data);
+            if (data.branch === $scope.repoName) {
+                if ($scope.jobMap[data.id]) {
+                    console.log("updating job: " + data.id);
+                    $http.get(thUrl.getProjectUrl("/jobs/" + data.id + "/")).
+                        success($scope.updateJob);
+                } else {
+                    console.log("skipping job: " + data.id);
+                }
+
+            }
         });
 
     }
