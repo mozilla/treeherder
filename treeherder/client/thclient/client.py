@@ -16,10 +16,39 @@ class ValidatorMixin(object):
 
     def validate(self, required_properties={}):
         """
-        Implement job object validation rules. If a rule fails raise
-        TreeherderClientError
-        """
+        Implement job object validation rules. If a rule fails to validate
+        raise TreeherderClientError
 
+        Classes using this mixin should implement a required_properties
+        dict. The keys in this dict are the required keys in the struture
+        contained in self.data. Nested keys can be specified with the '.'
+        operator. Each key in required_properties should have a dict value
+        like so:
+
+            {
+                'len':some int, max allowed len of property value
+                'type':some data type, required type of property value
+                'cb': some function reference, called with
+                      list of keys, list of values, required_properties key
+            }
+
+        Example:
+
+            self.required_properties = {
+                'revision_hash':{
+                    'len':50, 'type':unicode, 'cb':self.validate_existence
+                    },
+                'project':{
+                    'len':None, 'type':unicode, 'cb':self.validate_existence
+                    },
+                'job':{
+                    'len':None, 'type':dict, 'cb':self.validate_existence
+                    },
+                'job.job_guid':{
+                    'len':50, 'type':unicode, 'cb':self.validate_existence
+                    }
+                }
+        """
         required_properties = required_properties or self.required_properties
 
         for prop in required_properties:
@@ -28,7 +57,17 @@ class ValidatorMixin(object):
 
             cb(prop.split('.'), required_properties[prop], prop)
 
-    def validate_existence(self, keys, props, property_key):
+    def validate_existence(self, keys, values, property_key):
+        """
+        This required_properties callback method confirms the following.
+
+            - The keys provided are found in required_properties
+            - The type of the values match the specified type
+            - The values are defined and less than the required len
+              if a len is specified
+
+        If any of these assertions fail TreeherderClientError is raised
+        """
 
         # missing keys
         missing_keys = []
@@ -55,11 +94,11 @@ class ValidatorMixin(object):
         if not v:
             property_errors += '\tValue not defined for {0}\n'.format(property_key)
         else:
-            if not isinstance(v, props['type']):
+            if not isinstance(v, values['type']):
                 property_errors += '\tThe value type, {0}, should be {1}\n'.format(
-                    type(v), props['type'])
+                    type(v), values['type'])
 
-        max_limit = props['len']
+        max_limit = values['len']
         if v and max_limit and (len(v) > max_limit):
             property_errors += '\tValue length exceeds maximum {0} char limit: {1}\n'.format(
                 str(max_limit), str(v))
@@ -71,7 +110,7 @@ class ValidatorMixin(object):
 
             raise TreeherderClientError(msg, [])
 
-class TreeherderJob(ValidatorMixin):
+class TreeherderData(object):
 
     def __init__(self, data={}):
 
@@ -80,7 +119,16 @@ class TreeherderJob(ValidatorMixin):
         if data:
             self.data = data
         else:
-            self.init_empty_job()
+            self.init_data()
+
+    def to_json(self):
+        return json.dumps(self.data)
+
+class TreeherderJob(TreeherderData, ValidatorMixin):
+
+    def __init__(self, data={}):
+
+        super(TreeherderJob, self).__init__(data)
 
         # Provide minimal json structure validation
         self.required_properties = {
@@ -158,9 +206,9 @@ class TreeherderJob(ValidatorMixin):
         self.data['job']['machine_platform']['platform'] = platform
         self.data['job']['machine_platform']['architecture'] = arch
 
-    def add_option_collection(self, collection):
-        if collection:
-            self.data['job']['option_collection'].update(collection)
+    def add_option_collection(self, option_collection):
+        if option_collection:
+            self.data['job']['option_collection'].update(option_collection)
 
     def add_log_reference(self, name, url):
         if name and url:
@@ -176,7 +224,7 @@ class TreeherderJob(ValidatorMixin):
                     'blob': blob
                 }
 
-    def init_empty_job(self):
+    def init_data(self):
 
         self.data = {
 
@@ -280,42 +328,15 @@ class TreeherderJob(ValidatorMixin):
         'coalesced': [ ]
             }
 
-    def to_json(self):
-        return json.dumps(self.data)
-
-class TreeherderJobCollection(object):
-
-    def __init__(self, data=[]):
-
-        self.data = []
-
-        self.endpoint_base = 'objectstore'
-
-        if data:
-            self.data = data
-
-    def add(self, job):
-
-        job.validate()
-        self.data.append(job.data)
-
-    def to_json(self):
-
-        return json.dumps(self.data)
-
-    def get_job(self, data={}):
-        return TreeherderJob(data)
-
-class TreeherderRevision(ValidatorMixin):
+class TreeherderRevision(TreeherderData, ValidatorMixin):
+    """
+    Supports building a revision structure that is contained in
+    TreeherderResultSet.
+    """
 
     def __init__(self, data={}):
 
-        self.data = {}
-
-        if data:
-            self.data = data
-        else:
-            self.init_empty_revision()
+        super(TreeherderRevision, self).__init__(data)
 
         # Provide minimal json structure validation
         self.required_properties = {
@@ -324,7 +345,7 @@ class TreeherderRevision(ValidatorMixin):
             'files':{ 'len':None, 'type':list, 'cb':self.validate_existence },
             }
 
-    def init_empty_revision(self):
+    def init_data(self):
 
         self.data = {
             # Stored in project_jobs_1.revision.author
@@ -359,23 +380,21 @@ class TreeherderRevision(ValidatorMixin):
     def add_revision(self, revision):
         self.data['revision'] = revision
 
-class TreeherderResultSet(ValidatorMixin):
+class TreeherderResultSet(TreeherderData, ValidatorMixin):
+    """
+    Supports building a treeherder result set
+    """
 
     def __init__(self, data={}):
 
-        self.data = {}
-
-        if data:
-            self.data = data
-        else:
-            self.init_empty_result_set()
+        super(TreeherderResultSet, self).__init__(data)
 
         self.required_properties = {
             'revision_hash':{ 'len':50, 'type':unicode, 'cb':self.validate_existence },
             'revisions':{ 'len':None, 'type':list, 'cb':self.validate_existence },
             }
 
-    def init_empty_result_set(self):
+    def init_data(self):
 
         self.data = {
             # Stored in project_jobs_1.result_set.push_timestamp
@@ -425,35 +444,75 @@ class TreeherderResultSet(ValidatorMixin):
     def get_revision(self, data={}):
         return TreeherderRevision(data)
 
-class TreeherderResultSetCollection(object):
+class TreeherderCollection(object):
+    """
+    Base class for treeherder data collections
+    """
 
     def __init__(self, data=[]):
 
         self.data = []
 
-        self.endpoint_base = 'resultset'
-
         if data:
             self.data = data
 
-    def add(self, resultset):
-        resultset.validate()
-        self.data.append(resultset.data)
+    def to_json(self):
+        """
+        Convert list of data objects to json
+        """
+        data_struct = []
+        for datum_instance in self.data:
+            data_struct.append(datum_instance.data)
+
+        return json.dumps(data_struct)
+
+    def add(self, datum_instance):
+        """
+        Add a data structure class instance to data list
+        """
+        self.data.append(datum_instance)
+
+    def validate(self):
+        """
+        validate the data structure class
+        """
+        for d in self.data:
+            d.validate()
+
+class TreeherderJobCollection(TreeherderCollection):
+    """
+    Collection of job objects
+    """
+
+    def __init__(self, data=[]):
+
+        super(TreeherderJobCollection, self).__init__(data)
+
+        self.endpoint_base = 'objectstore'
+
+    def get_job(self, data={}):
+
+        return TreeherderJob(data)
+
+class TreeherderResultSetCollection(TreeherderCollection):
+    """
+    Collection of result set objects
+    """
+
+    def __init__(self, data=[]):
+
+        super(TreeherderResultSetCollection, self).__init__(data)
+
+        self.endpoint_base = 'resultset'
 
     def get_resultset(self, data={}):
-        return TreeherderResultSet(data)
 
-    def to_json(self):
-        return json.dumps(self.data)
+        return TreeherderResultSet(data)
 
 class TreeherderRequest(object):
     """
     Treeherder request object that manages test submission.
     """
-
-    collection_instances = set(
-        [TreeherderResultSetCollection, TreeherderJobCollection]
-        )
 
     protocols = set(['http', 'https']) # supported protocols
 
@@ -476,40 +535,47 @@ class TreeherderRequest(object):
         self.protocol = protocol
 
         # ensure the required parameters are given
-        assert self.project, "{0}: project required for posting".format(self.__class__.__name__)
+        if not self.project:
+            msg = "{0}: project required for posting".format(self.__class__.__name__)
+            raise TreeherderClientError(msg, [])
 
-    def send(self, collection):
-        "Send given treeherder collection to server; returns httplib Response."""
+    def send(self, collection_inst):
+        """
+        Send given treeherder collection instance data to server; returns httplib Response.
+        """
 
-        if (not isinstance(collection, TreeherderResultSetCollection)) and \
-            (not isinstance(collection, TreeherderJobCollection)):
+        if (not isinstance(collection_inst, TreeherderResultSetCollection)) and \
+            (not isinstance(collection_inst, TreeherderJobCollection)):
 
             msg = '{0} invalid collection class type'.format(
                 self.__class__.__name__)
 
             raise TreeherderClientError(msg, [])
 
-        if not collection.endpoint_base:
+        if not collection_inst.endpoint_base:
 
             msg = "{0}: collection endpoint_base property not defined".format(
                 self.__class__.__name__)
 
             raise TreeherderClientError(msg, [])
 
-        if not collection.data:
+        if not collection_inst.data:
 
             msg = "{0}: collection data property not defined".format(
                 self.__class__.__name__)
 
             raise TreeherderClientError(msg, [])
 
-        uri = self.get_uri(collection)
+        collection_inst.validate()
+
+        uri = self.get_uri(collection_inst)
 
         params = {
-            'data':urllib.quote(collection.to_json())
+            'data':urllib.quote(collection_inst.to_json())
             }
 
         use_oauth = bool(self.oauth_key and self.oauth_secret)
+
         if use_oauth:
 
             params.update({'user': self.project,
@@ -532,13 +598,13 @@ class TreeherderRequest(object):
                 print 'params: %s' % params
                 raise
 
-            # Set the signature
             signature_method = oauth.SignatureMethod_HMAC_SHA1()
-
-            # Sign the request
             req.sign_request(signature_method, consumer, token)
+
             body = req.to_postdata()
+
         else:
+
             body = urllib.urlencode(params)
 
         # Build the header
@@ -552,12 +618,13 @@ class TreeherderRequest(object):
             conn = httplib.HTTPSConnection(self.host)
 
         conn.request('POST', uri, body, header)
+
         return conn.getresponse()
 
-    def get_uri(self, collection):
+    def get_uri(self, collection_inst):
 
         uri = '{0}://{1}/api/project/{2}/{3}/'.format(
-            self.protocol, self.host, self.project, collection.endpoint_base
+            self.protocol, self.host, self.project, collection_inst.endpoint_base
             )
 
         return uri

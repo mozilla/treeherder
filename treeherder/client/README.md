@@ -155,8 +155,6 @@ If you want to use `TreeherderResultSetCollection` to build up the resultset dat
 
             trs.add_revision(tr)
 
-        # data structure validation is automatically performed here, if validation
-        # fails a TreeherderClientError is raised
         trsc.add(trs)
 
     # Send the collection to treeherder
@@ -172,10 +170,13 @@ If you want to use `TreeherderResultSetCollection` to build up the resultset dat
         )
 
     # Post the result collection
+    #
+    # data structure validation is automatically performed here, if validation
+    # fails a TreeherderClientError is raised
     req.send(trc)
 ```
 
-At any time in building a data structure, you can examine what has been created by looking at the `data` property. You can also call the `validate` method at any time before sending a collection. The `validate` method is called on every structure added to a collection. If validation fails a `TreeherderClientError` is raised.
+At any time in building a data structure, you can examine what has been created by looking at the `data` property. You can also call the `validate` method at any time before sending a collection. All treeherder data classes have `validate` methods that can be used for testing. The `validate` method is called on every structure in a collection when a `send` is called on a `TreeherderRequest`. If validation fails a `TreeherderClientError` is raised.
 
 If you want to use `TreeherderJobCollection` to build up the job data structures to send, do something like this.
 
@@ -224,8 +225,6 @@ If you want to use `TreeherderJobCollection` to build up the job data structures
             data['artifact']['name'], data['artifact']['type'], data['artifact']['blob']
             )
 
-        # data structure validation is automatically performed here, if validation
-        # fails a TreeherderClientError is raised
         tjc.add(tj)
 
     # Send the collection to treeherder
@@ -238,6 +237,9 @@ If you want to use `TreeherderJobCollection` to build up the job data structures
         )
 
     # Post the job collection
+    #
+    # data structure validation is automatically performed here, if validation
+    # fails a TreeherderClientError is raised
     req.send(tjc)
 ```
 
@@ -288,6 +290,9 @@ If you don't want to use `TreeherderResultCollection` or `TreeherderJobCollectio
         )
 
     # Post the request to treeherder
+    #
+    # data structure validation is automatically performed here, if validation
+    # fails a TreeherderClientError is raised
     req.send(tj)
 ```
 
