@@ -1,6 +1,8 @@
 import simplejson as json
 import itertools
+import oauth2 as oauth
 
+from django.db import models
 from django.conf import settings
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -9,9 +11,63 @@ from rest_framework.reverse import reverse
 from rest_framework.exceptions import ParseError
 
 from treeherder.model import models
-from treeherder.model.derived import (JobsModel, DatasetNotFoundError,
-                                      ObjectNotFoundException)
+from treeherder.model.derived import (TreeherderModelBase, JobsModel,
+                                        DatasetNotFoundError, ObjectNotFoundException)
 
+##Decorators##
+def oauth_required(func):
+    """
+    Decorator for views to ensure that the user is sending an OAuth signed
+    request. View methods that use this method a project kwarg.
+    """
+    def _wrap_oauth(request, *args, **kwargs):
+        project = kwargs.get('project', None)
+
+        ds = TreeherderModelBase(project).get_datasource('objectstore')
+
+        #Get the consumer key
+        key = request.REQUEST.get('oauth_consumer_key', None)
+
+        if key is None:
+            result = {"status": "No OAuth credentials provided."}
+            return HttpResponse(
+                json.dumps(result), content_type=APP_JS, status=403)
+
+        try:
+            #Get the consumer secret stored with this key
+            ds_consumer_secret = ds.get_oauth_consumer_secret(key)
+        except DatasetNotFoundError:
+            result = {"status": "Unknown project '%s'" % project}
+            return HttpResponse(
+                json.dumps(result), content_type=APP_JS, status=404)
+
+        #Construct the OAuth request based on the django request object
+        req_obj = oauth.Request(request.method,
+                                request.build_absolute_uri(),
+                                request.REQUEST,
+                                '',
+                                False)
+
+        server = oauth.Server()
+
+        #Get the consumer object
+        cons_obj = oauth.Consumer(key, ds_consumer_secret)
+
+        #Set the signature method
+        server.add_signature_method(oauth.SignatureMethod_HMAC_SHA1())
+
+        try:
+            #verify oauth django request and consumer object match
+            server.verify_request(req_obj, cons_obj, None)
+        except oauth.Error:
+            status = 403
+            result = {"status": "Oauth verification error."}
+            return HttpResponse(
+                json.dumps(result), content_type=APP_JS, status=status)
+
+        return func(request, *args, **kwargs)
+
+    return _wrap_oauth
 
 def with_jobs(model_func):
     """

@@ -34,7 +34,7 @@ class JsonExtractorMixin(object):
 class JsonLoaderMixin(object):
     """This mixin posts a json serializable object to the given url"""
     def load(self, url, data):
-
+        print url
         req = urllib2.Request(url)
         req.add_header('Content-Type', 'application/json')
         if not data:
@@ -59,6 +59,7 @@ class ObjectstoreLoaderMixin(JsonLoaderMixin):
                 settings.API_HOSTNAME.strip('/'),
                 endpoint.strip('/')
             )
+            print "OBJECTSTORE {0}".format(url)
             response = super(ObjectstoreLoaderMixin, self).load(url, jobs)
 
             if response.getcode() != 200:
@@ -95,6 +96,7 @@ class JobsLoaderMixin(JsonLoaderMixin):
                 endpoint.strip('/')
             )
 
+            print url
             response = super(JobsLoaderMixin, self).load(
                 url, project_jobs_map[project]
             )
@@ -138,7 +140,7 @@ class ResultSetsLoaderMixin(JsonLoaderMixin):
                 settings.API_HOSTNAME.strip('/'),
                 endpoint.strip('/')
                 )
-
+            print url
             response = super(ResultSetsLoaderMixin, self).load(url, result_sets)
 
             if not response or response.getcode() != 200:

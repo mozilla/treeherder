@@ -1,4 +1,3 @@
-oauth2==1.5.211
 South==0.7.6
 python-memcached==1.48
 mozillapulse==0.61
