@@ -23,6 +23,10 @@ treeherder.controller('JobsCtrl',
             $scope.isLoadingRsBatch = true;
             // mapping of job ids to job objects with resultset and platform
             $scope.jobMap = {};
+            $scope.jobMapOldestId = null;
+
+            // testing only
+//            $scope.testJobs = [];
 
             thResultSets.getResultSets($scope.offset, count).
                 success(function(data) {
@@ -52,13 +56,17 @@ treeherder.controller('JobsCtrl',
                                         group: gr
                                     };
 
+//                                    $scope.testJobs.push(job);
+                                    if (!$scope.jobMapOldestId || $scope.jobMapOldestId > job.job_id) {
+                                        $scope.jobMapOldestId = job.job_id;
+                                    }
                                 }
                             }
                         }
 
                     }
                     $scope.isLoadingRsBatch = false;
-                    console.log($scope.jobMap);
+                    console.log("oldest: " + $scope.jobMapOldestId);
                 }).
                 error(function(data, status, header, config) {
                     $scope.statusError("Error getting result sets and jobs from service");
@@ -67,22 +75,29 @@ treeherder.controller('JobsCtrl',
 
         };
 
-        $scope.nextResultSets(20);
+        $scope.nextResultSets(1);
+
+//        $scope.nextTestJob = 0;
+        $scope.findJob = function(job_id) {
+//            var oldJob = $scope.testJobs[$scope.nextTestJob++];
+
+            var oldJob = $scope.jobMap[job_id].job;
+            return oldJob;
+        };
 
         $scope.updateJob = function(newJob) {
             console.log("checking about update for " + newJob.job_id);
-            var oldJob = $scope.jobMap[newJob.job_id];
+            var oldJob = $scope.findJob(newJob.job_id);
             if (oldJob) {
                 console.warn("got one: " + newJob.job_id);
                 console.log("was result: " + oldJob.result);
                 console.log("now result: " + newJob.result);
-//                var $job = $("th-job-button span[data-job-id='" + newJob.job_id + "']");
-                $scope.$apply(function() {
-                    $.extend(oldJob, newJob);
-                });
+                $.extend(oldJob, newJob);
+
+//                @@@ This causes the job button to flash yellow for a second to
+//                draw attention to the update.  Not sure if we want it or not.
+//                var $job = $("th-job-button span[data-job-id='" + oldJob.job_id + "']");
 //                $job.effect("highlight", {}, 1500);
-//                // remove once done debugging
-//                $job.css( "border", "3px dotted green") ;
             }
         };
 
@@ -121,7 +136,7 @@ treeherder.controller('JobsCtrl',
                     $http.get(thUrl.getProjectUrl("/jobs/" + data.id + "/")).
                         success($scope.updateJob);
                 } else {
-                    console.log("skipping job: " + data.id);
+                    console.log("skipping job");
                 }
 
             }

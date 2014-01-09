@@ -13,6 +13,10 @@ treeherder.factory('thUrl',
         },
         getLogViewerUrl: function(artifactId) {
             return "logviewer.html#?id=" + artifactId + "&repo=" + $rootScope.repoName;
+        },
+        getSocketEventUrl: function() {
+//            return thServiceDomain + '/events';
+            return 'http://local.treeherder.mozilla.org:80/events';
         }
     };
     return thUrl;
@@ -125,8 +129,8 @@ treeherder.factory('thJobNote', function($resource, $http, thUrl) {
     };
 });
 
-treeherder.factory('thSocket', function ($rootScope) {
-    var socket = io.connect('http://local.treeherder.mozilla.org:8005/events');
+treeherder.factory('thSocket', function ($rootScope, thUrl) {
+    var socket = io.connect(thUrl.getSocketEventUrl());
 
   return {
     on: function (eventName, callback) {
