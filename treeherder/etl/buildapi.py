@@ -513,7 +513,7 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
                 data = f.read()
                 deserialized_data = json.loads(data)
 
-                self.report_obj['guids'] = deserialized_data['guids'] or {}
+                self.report_obj['guids'] = deserialized_data.get('guids', {})
 
                 for analysis_type in deserialized_data['analyzers']:
                     self.report_obj['analyzers'][analysis_type]['data'] = \
