@@ -638,7 +638,12 @@ class JobsModel(TreeherderModelBase):
         # Need to iterate over log references separately since they could
         # be a different length. Replace job_guid with id in log url
         # placeholders
-        self._load_log_urls(log_placeholders, job_id_lookup)
+        # need also to retrieve the updated status to distinguish between
+        # failed and successful jobs
+        job_results = dict((el[-1], el[8]) for el in job_update_placeholders)
+
+        self._load_log_urls(log_placeholders, job_id_lookup,
+                            job_results)
 
         self._load_job_artifacts(artifact_placeholders, job_id_lookup)
 
@@ -862,31 +867,34 @@ class JobsModel(TreeherderModelBase):
 
         return job_id_lookup
 
-    def _load_log_urls(self, log_placeholders, job_id_lookup):
+    def _load_log_urls(self, log_placeholders, job_id_lookup,
+                       job_results):
+
+        # importing here to avoid an import loop
+        from treeherder.log_parser.tasks import parse_log
+
+        tasks = []
 
         if log_placeholders:
-
-            # importing here to avoid a dep loop
-            from treeherder.log_parser.tasks import parse_log
-
-            task_data = []
             for index, log_ref in enumerate(log_placeholders):
-
                 job_guid = log_placeholders[index][0]
                 job_id = job_id_lookup[job_guid]['id']
-                result = job_id_lookup[job_guid]['result']
+                result = job_results[job_guid]
                 result_set_id = job_id_lookup[job_guid]['result_set_id']
 
                 # Replace job_guid with id
                 log_placeholders[index][0] = job_id
 
-                task_data.append(
-                    {
-                        'id': job_id,
-                        'check_errors': result != "success",
-                        'result_set_id': result_set_id
-                         }
-                    )
+                task = dict()
+                task['id'] = job_id
+                task['result_set_id'] = result_set_id
+                if result != 'success':
+                    task['check_errors'] = True
+                    task['routing_key'] = 'parse_log.failures'
+                else:
+                    task['check_errors'] = False
+                    task['routing_key'] = 'parse_log.success'
+                tasks.append(task)
 
             # Store the log references
             self.get_jobs_dhub().execute(
@@ -895,16 +903,10 @@ class JobsModel(TreeherderModelBase):
                 placeholders=log_placeholders,
                 executemany=True)
 
-            for task in task_data:
-                # if we have a log to parse, we also have a result
-                # send a parse-log task for this job
-                if task['check_errors']:
-                    routing_key = 'parse_log.failures'
-                else:
-                    routing_key = 'parse_log.success'
+            for task in tasks:
                 parse_log.apply_async(args=[self.project, task['id'], task['result_set_id']],
                                       kwargs={'check_errors': task['check_errors']},
-                                      routing_key=routing_key)
+                                      routing_key=task['routing_key'])
 
 
     def store_job_artifact(self, artifact_placeholders):
