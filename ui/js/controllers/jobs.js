@@ -82,7 +82,6 @@ treeherder.controller('JobsCtrl',
 
                     }
                     $scope.isLoadingRsBatch = false;
-                    console.log("oldest: " + $scope.jobMapOldestId);
                 }).
                 error(function(data, status, header, config) {
                     $scope.statusError("Error getting result sets and jobs from service");
