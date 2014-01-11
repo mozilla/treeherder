@@ -2,7 +2,7 @@
 
 treeherder.controller('JobsCtrl',
     function JobsCtrl($scope, $http, $rootScope, $routeParams, $log,
-                      thUrl, thResultSets, thRepos, thSocket) {
+                      thUrl, thResultSets, thJobs, thRepos, thSocket) {
 
         // set the default repo to mozilla-inbound if not specified
         if ($routeParams.hasOwnProperty("repo") &&
@@ -156,7 +156,8 @@ treeherder.controller('JobsCtrl',
                 console.log(jobFetchList);
 
                 // make an ajax call to get the job details
-                $http.get(thUrl.getProjectUrl("/jobs/?joblist=" + jobFetchList.join())).
+
+                thJobs.getJobs(0, jobFetchList.length, jobFetchList).
                     success($scope.updateJobs).
                     error(function(data) {
                         console.error("Error fetching jobUpdateQueue: " + data);
@@ -170,7 +171,54 @@ treeherder.controller('JobsCtrl',
          * @param jobList List of jobs to be placed in the data model and maps
          */
         $scope.updateJobs = function(jobList) {
-            jobList.forEach(updateJob);
+
+
+        /*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            The query is not returning all the jobs that I submit IDs for.
+
+            I think it was the limit.  should be fixed now
+
+
+            I'm still not getting resultset events.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+         */
+
+
+
+            console.log("number of jobs returned for add/update: " + jobList.length);
+            for (var i = 0; i < jobList.length; i++) {
+                updateJob(jobList[i]);
+            }
+//            jobList.forEach(updateJob);
 
         };
 
@@ -292,7 +340,7 @@ treeherder.controller('JobsCtrl',
                 grpMapElement = plMapElement.groups[newJob.job_group_name];
             }
             return grpMapElement;
-        }
+        };
 
         /*
             socket.io update rules
@@ -317,6 +365,8 @@ treeherder.controller('JobsCtrl',
         });
 
         thSocket.on("resultset", function(data) {
+            console.log("seeing a resultset event: " + data.id);
+
             if (data.branch === $scope.repoName) {
                 if (data.id > $scope.rsMapOldestId) {
                     console.log("adding resultset to queue: " + data.id);
@@ -340,7 +390,7 @@ treeherder.controller('JobsCtrl',
                     console.log("adding job to queue");
                     $scope.jobUpdateQueue.push(data.id);
                 } else {
-                    console.log("skipping from resultset not yet loaded.");
+                    console.log("skipping job from resultset not yet loaded.");
                 }
 
             }
