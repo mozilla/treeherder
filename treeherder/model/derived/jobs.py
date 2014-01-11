@@ -75,14 +75,24 @@ class JobsModel(TreeherderModelBase):
         )
         return data
 
-    def get_job_list(self, offset, limit):
+    def get_job_list(self, offset, limit, **kwargs):
         """
         Retrieve a list of jobs.
         Mainly used by the restful api to list the jobs
+
+        joblist: a list of job ids to limit which jobs are returned.
         """
+        filter_str = ""
+
+        if "joblist" in kwargs:
+            filter_str += " AND j.id in ({0})".format(kwargs["joblist"])
+
+        repl = [self.refdata_model.get_db_name(), filter_str]
+
         proc = "jobs.selects.get_job_list"
         data = self.get_jobs_dhub().execute(
             proc=proc,
+            replace=repl,
             placeholders=[offset, limit],
             debug_show=self.DEBUG,
         )
@@ -208,6 +218,9 @@ class JobsModel(TreeherderModelBase):
         if "revision" in kwargs and len(kwargs["revision"]) > 5:
             replace_str += " AND revision.revision = %s"
             placeholders.append(kwargs["revision"])
+
+        if "resultsetlist" in kwargs:
+            replace_str += " AND rs.id in ({0})".format(kwargs["resultsetlist"])
 
         # If a push doesn't have jobs we can just
         # message the user, it would save us a very expensive join
@@ -607,7 +620,7 @@ class JobsModel(TreeherderModelBase):
 
         for index, job in enumerate(job_placeholders):
 
-            # Replace reference data with there associated ids
+            # Replace reference data with their associated ids
             self._set_data_ids(
                 index,
                 job_placeholders,
@@ -859,15 +872,20 @@ class JobsModel(TreeherderModelBase):
             task_data = []
             for index, log_ref in enumerate(log_placeholders):
 
-                job_guid = log_placeholders[ index ][0]
-                job_id = job_id_lookup[ job_guid ]['id']
-                result = job_id_lookup[ job_guid ]['result']
+                job_guid = log_placeholders[index][0]
+                job_id = job_id_lookup[job_guid]['id']
+                result = job_id_lookup[job_guid]['result']
+                result_set_id = job_id_lookup[job_guid]['result_set_id']
 
                 # Replace job_guid with id
                 log_placeholders[index][0] = job_id
 
                 task_data.append(
-                    { 'id':job_id, 'check_errors': result != "success" }
+                    {
+                        'id': job_id,
+                        'check_errors': result != "success",
+                        'result_set_id': result_set_id
+                         }
                     )
 
             # Store the log references
@@ -875,7 +893,7 @@ class JobsModel(TreeherderModelBase):
                 proc='jobs.inserts.set_job_log_url',
                 debug_show=self.DEBUG,
                 placeholders=log_placeholders,
-                executemany=True )
+                executemany=True)
 
             for task in task_data:
                 # if we have a log to parse, we also have a result
@@ -884,7 +902,7 @@ class JobsModel(TreeherderModelBase):
                     routing_key = 'parse_log.failures'
                 else:
                     routing_key = 'parse_log.success'
-                parse_log.apply_async(args=[self.project, task['id']],
+                parse_log.apply_async(args=[self.project, task['id'], task['result_set_id']],
                                       kwargs={'check_errors': task['check_errors']},
                                       routing_key=routing_key)
 
