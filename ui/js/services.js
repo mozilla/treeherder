@@ -15,8 +15,7 @@ treeherder.factory('thUrl',
             return "logviewer.html#?id=" + artifactId + "&repo=" + $rootScope.repoName;
         },
         getSocketEventUrl: function() {
-//            return thServiceDomain + '/events';
-            return 'http://local.treeherder.mozilla.org:80/events';
+            return thServiceDomain + ':80/events';
         }
     };
     return thUrl;
@@ -42,17 +41,23 @@ treeherder.factory('thResultSets',
 
     // get the resultsets for this repo
     return {
-        getResultSets: function(offset, count) {
-            // the default notation above only works in some browsers (firefox)
+        getResultSets: function(offset, count, resultsetlist) {
             offset = typeof offset == 'undefined'?  0: offset;
             count = typeof count == 'undefined'?  10: count;
-
+            var params = {
+                offset: offset,
+                count: count,
+                format: "json"
+            }
+            if (resultsetlist) {
+                $.extend(params, {
+                    offset: 0,
+                    count: resultsetlist.length,
+                    resultsetlist: resultsetlist.join()
+                })
+            }
             return $http.get(thUrl.getProjectUrl("/resultset/"),
-                             {params: {
-                                offset: offset,
-                                count: count,
-                                format: "json"
-                             }}
+                             {params: params}
             );
         }
     }

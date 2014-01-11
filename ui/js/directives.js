@@ -28,13 +28,15 @@ treeherder.directive('thJobButton', function (thResultStatusInfo) {
         restrict: "E",
         link: function(scope, element, attrs) {
             scope.$watch("job", function(newValue) {
-                console.warn("in directive");
                 var resultState = scope.job.result;
                 if (scope.job.state != "completed") {
                     resultState = scope.job.state;
                 }
                 scope.job.display = thResultStatusInfo(resultState);
                 scope.hoverText = getHoverText(scope.job);
+//                @@@ This causes the job button to flash yellow for a second to
+//                draw attention to the update.  Not sure if we want it or not.
+//                element.effect("highlight", {}, 1500);
             }, true);
         },
         templateUrl: 'partials/thJobButton.html'
