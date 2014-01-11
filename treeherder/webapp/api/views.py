@@ -198,11 +198,20 @@ class JobsViewSet(viewsets.ViewSet):
     def list(self, request, project, jm):
         """
         GET method implementation for list view
+
         """
+
+        filters = ["joblist"]
+
         offset = request.QUERY_PARAMS.get('offset', 0)
         count = request.QUERY_PARAMS.get('count', 10)
 
-        objs = jm.get_job_list(offset, count)
+        objs = jm.get_job_list(
+            offset,
+            count,
+            **dict((k, v) for k, v in request.QUERY_PARAMS.iteritems()
+                   if k in filters)
+        )
         return Response(objs)
 
     @action()
@@ -258,9 +267,11 @@ class ResultSetViewSet(viewsets.ViewSet):
     def list(self, request, project, jm):
         """
         GET method for list of ``resultset`` records with revisions
+
+        resultsetlist - specific resultset ids to retrieve
         """
 
-        filters = ["author", "revision"]
+        filters = ["author", "revision", "resultsetlist"]
 
         offset = int(request.QUERY_PARAMS.get('offset', 0))
         count = int(request.QUERY_PARAMS.get('count', 10))
@@ -295,12 +306,7 @@ class ResultSetViewSet(viewsets.ViewSet):
     def get_resultsets_with_jobs(jm, rs_list, filter_kwargs):
         """Convert db result of resultsets in a list to JSON"""
 
-        # I think I'll just call the database in a for-loop and fetch
-        # the jobs for each resultset, then glue them together.  Oh wait...
-        # I promised Jeads I wouldn't do that.  I guess I'll fetch the job
-        # results all at once, then parse them out in memory.  Jeads will
-        # like that better.  :)
-
+        # Fetch the job results all at once, then parse them out in memory.
         # organize the resultsets into an obj by key for lookups
         rs_map = {}
         for rs in rs_list:
