@@ -1,5 +1,18 @@
 
 <div>
+    <p class="well">
+        Most recently used repos:
+        <span ng-repeat="repo in mru_repos">
+            <button ng-show="!$first" ng-class="{'btn-danger': repo_has_failures(repo)}"  ng-click="changeRepo(repo)"  type="button" class="btn btn-default">
+                {{repo}}
+            </button>
+        </span>
+    </p>
+
+
+        </div>
+
+    </div>
 <div ng-repeat="resultset in result_sets track by resultset.id"
      ng-controller="ResultSetCtrl"
      class="result-set">

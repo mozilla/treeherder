@@ -15,7 +15,8 @@ treeherder.factory('thUrl',
             return "logviewer.html#?id=" + artifactId + "&repo=" + $rootScope.repoName;
         },
         getSocketEventUrl: function() {
-            return thServiceDomain + ':80/events';
+            var port = thServiceDomain.indexOf("https:") !== -1 ? 443 :80;
+            return thServiceDomain + ':' + port + '/events';
         }
     };
     return thUrl;
@@ -134,9 +135,12 @@ treeherder.factory('thJobNote', function($resource, $http, thUrl) {
     };
 });
 
+
 treeherder.factory('thSocket', function ($rootScope, thUrl) {
     var socket = io.connect(thUrl.getSocketEventUrl());
-
+    socket.on('connect', function(){
+       console.log('socketio connected');
+    });
   return {
     on: function (eventName, callback) {
       socket.on(eventName, function () {

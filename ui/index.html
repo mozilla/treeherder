@@ -16,24 +16,22 @@
             <div class="navbar-collapse collapse">
                 <!-- nav begin -->
                 <ul class="nav navbar-nav">
-                    <li class="dropdown" ng-controller="RepoDropDownCtrl">
+                    <li class="dropdown pulse">
                         <a href="" class="dropdown-toggle" data-toggle="dropdown">Repos<b class="caret"></b></a>
-                            <ul class="dropdown-menu">
-                                <li ng-repeat="item in repos">
-                                    <a href="" ng-click="changeRepo(item)" ng-bind="item.name"></a>
-                                </li>
-                            </ul>
-                        </li>
+                        <ul class="dropdown-menu">
+                            <li ng-repeat="item in repos">
+                                <a href="" ng-click="changeRepo(item.name)">{{item.name}}</a>
+                            </li>
+                        </ul>
+                    </li>
                     <li class="divider-vertical"></li>
                     <li><a href="">Help</a></li>
                 </ul>
                 <span class="navbar-text">
-                    <span class="label label-info">{{ repoName }}</span>
+                    <span class="label label-info" ng-cloak>{{ repoName }}</span>
                     <span class="label label-info">0 unstarred</span>
                 </span>
-                <p class="navbar-text pull-right">
-                  Logged in as <a href="#" class="navbar-link">{{ username }}</a>
-                </p>
+
                 <form class="navbar-form navbar-left pull-right"
                       role="search">
                     <div class="form-group">
@@ -44,7 +42,7 @@
         </nav>
         <!-- nav end -->
         <div class="th-content">
-            <span class="th-nav">
+            <span class="th-nav col-xs-1">
                 <ul class="nav nav-pills nav-stacked">
                     <li><a ng-class="{'active': (routeIs('jobs'))}" href="#/jobs">Jobs</a></li>
                     <li><a ng-class="{'active': (routeIs('timeline'))}" href="#/timeline">Timeline</a></li>
@@ -52,7 +50,7 @@
                 </ul>
             </span>
 
-            <span class="th-view-content" ng-cloak>
+            <span class="th-view-content col-xs-11" ng-cloak>
                 <div class="alert"
                      ng-bind="statusMsg"
                      ng-show="statusMsg"
@@ -60,6 +58,7 @@
                 <ng-view ></ng-view>
 
             </span>
+
         </div>
 
         <!-- Footer -->
@@ -77,7 +76,7 @@
         <script src="vendor/bootstrap.js"></script>
         <script src="vendor/angular/angular-sanitize.min.js"></script>
         <script src="vendor/socket.io.js"></script>
-        <script src="vendor/ng-socket-io.js"></script>
+        <script src="vendor/angular-local-storage.min.js"></script>
         <script src="vendor/jquery.ui.effect.js"></script>
         <script src="vendor/jquery.ui.effect-highlight.js"></script>
         <script src="js/config/local.conf.js"></script>
