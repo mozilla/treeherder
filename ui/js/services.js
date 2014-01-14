@@ -35,34 +35,6 @@ treeherder.factory('thArtifact',
     }
 }]);
 
-treeherder.factory('thResultSets',
-                   ['$http', 'thUrl',
-                   function($http, thUrl) {
-
-    // get the resultsets for this repo
-    return {
-        getResultSets: function(offset, count, resultsetlist) {
-            offset = typeof offset == 'undefined'?  0: offset;
-            count = typeof count == 'undefined'?  10: count;
-            var params = {
-                offset: offset,
-                count: count,
-                format: "json"
-            }
-            if (resultsetlist) {
-                $.extend(params, {
-                    offset: 0,
-                    count: resultsetlist.length,
-                    resultsetlist: resultsetlist.join()
-                })
-            }
-            return $http.get(thUrl.getProjectUrl("/resultset/"),
-                             {params: params}
-            );
-        }
-    }
-}]);
-
 treeherder.factory('thJobs',
                    ['$http', 'thUrl',
                    function($http, thUrl) {
