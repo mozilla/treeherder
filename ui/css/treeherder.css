@@ -30,17 +30,20 @@ body {
     padding-right: 5px;
 }
 
-.th-nav {
-    display: inline-block;
-    width: 100px;
-    vertical-align: top;
+.th-failures-box {
+    position: fixed;
+    top: 46px;
+    right:0px;
+    padding:2px;
 }
 
-.th-view-content {
-    display: inline-block;
-    min-width: 860px;
-    width: 100%;
-    padding-right: 114px;
+.th-failures-box li{
+    background-color: #222;
+    color: #999;
+    border-color: #080808;
+}
+th-failures-box li a{
+    color: #428bca;
 }
 
 .th-show-jobs-button {
@@ -146,10 +149,7 @@ div.navbar-fixed-bottom{
     padding: 2px;
     font-size: .9em;
 }
-
-#bottom_left_panel > div.panel,
-#bottom_center_panel > div.panel
-{
+.shadowed-panel {
     box-shadow: 0px 1px 0px rgba(255, 255, 255, 0.1), 0px 0px 2px 0px rgba(0, 0, 0, 0.8) inset;
     margin:0 -20px 0 0;
 }

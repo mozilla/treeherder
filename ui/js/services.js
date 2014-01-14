@@ -124,3 +124,32 @@ treeherder.factory('thJobNote', function($resource, $http, thUrl) {
         }
     };
 });
+
+
+treeherder.factory('thSocket', function ($rootScope, thUrl) {
+    var port = thServiceDomain.indexOf("https:") !== -1 ? 443 :80;
+    var socket = io.connect(thServiceDomain + ':' + port + '/events');
+    socket.on('connect', function(){
+       console.log('socketio connected');
+    });
+  return {
+    on: function (eventName, callback) {
+      socket.on(eventName, function () {
+        var args = arguments;
+        $rootScope.$apply(function () {
+          callback.apply(socket, args);
+        });
+      });
+    },
+    emit: function (eventName, data, callback) {
+      socket.emit(eventName, data, function () {
+        var args = arguments;
+        $rootScope.$apply(function () {
+          if (callback) {
+            callback.apply(socket, args);
+          }
+        });
+      })
+    }
+  };
+});

@@ -1,7 +1,8 @@
 "use strict";
 
 treeherder.controller('MainCtrl',
-    function MainController($scope, $rootScope) {
+    function MainController($scope, $rootScope, $routeParams, $location, $log,
+                            localStorageService, thRepos, thSocket) {
         $scope.query="";
         $scope.statusError = function(msg) {
             $rootScope.statusMsg = msg;
@@ -15,16 +16,30 @@ treeherder.controller('MainCtrl',
             // setting the selectedJob to null hides the bottom panel
             $rootScope.selectedJob = null;
         };
-        $scope.username = "User Foo";
-    }
-);
 
+        $scope.mru_repos = localStorageService.get("mru_repos") || [];
 
-treeherder.controller('RepoDropDownCtrl',
-    function RepoDropDownCtrl($scope, $rootScope, $http, $location, thRepos) {
-        $scope.changeRepo = function(repo) {
-            thRepos.setCurrent(repo.name);
-            $location.search({repo: repo.name});
+        for(var repo in $scope.mru_repos){
+            thSocket.emit('subscribe', $scope.mru_repos[repo]+'.job_failure');
+            $log.log("subscribing to "+$scope.mru_repos[repo]+'.job_failure');
+        }
+
+        $rootScope.new_failures = new Object();
+
+        thSocket.on('job_failure', function(msg){
+            if (! $rootScope.new_failures.hasOwnProperty(msg.branch)){
+                $rootScope.new_failures[msg.branch] = [];
+            }
+            $rootScope.new_failures[msg.branch].push(msg.id);
+            $log.log("new failure on branch "+msg.branch);
+        })
+
+        $scope.changeRepo = function(repo_name) {
+            thRepos.setCurrent(repo_name);
+            $location.search({repo: repo_name});
         };
+
+
+
     }
 );

@@ -1,7 +1,7 @@
 'use strict';
 
 var treeherder = angular.module('treeherder',
-    ['ngResource','ui.bootstrap', 'ngSanitize', 'ngCookies', 'ngRoute']);
+    ['ngResource','ui.bootstrap', 'ngSanitize', 'ngCookies', 'ngRoute', 'LocalStorageModule']);
 
 // dummy values required to use the library at: https://tbpl.mozilla.org/js/Config.js
 // for the platform name conversion
@@ -28,11 +28,11 @@ treeherder.config(function($routeProvider, $httpProvider) {
             templateUrl: 'partials/jobs.html'
         }).
         when('/timeline', {
-            controller: 'TimelineController',
+            controller: 'TimelineCtrl',
             templateUrl: 'partials/timeline.html'
         }).
         when('/machines', {
-            controller: 'MachinesController',
+            controller: 'MachinesCtrl',
             templateUrl: 'partials/machines.html'
         }).
         otherwise({redirectTo: '/jobs'});
