@@ -1,6 +1,6 @@
 
 <div>
-<div ng-repeat="resultset in result_sets"
+<div ng-repeat="resultset in result_sets track by resultset.id"
      ng-controller="ResultSetCtrl"
      class="result-set">
 
@@ -49,8 +49,8 @@
         <span ng-hide="isCollapsedResults"
               ng-class="{'col-md-8 job-list-pad-left': (isCollapsedRevisions==false), 'col-md-12 job-list-nopad': (isCollapsedRevisions)}">
             <table class="table-hover">
-                <tr ng-repeat="platform in resultset.platforms | filter:query">
-                    <td class="col-md-2 platform"><span>{{ platform.name }}</span></td>
+                <tr ng-repeat="platform in resultset.platforms | filter:query | orderBy:name">
+                    <td class="col-md-2 platform"><span>{{ platform.name | platformName:platform.name }} {{ platform.option }}</span></td>
                     <td class="col-md-10">
                         <span ng-repeat="group in platform.groups">
                             <span ng-show="group.symbol != '?'"
@@ -98,7 +98,7 @@
 <div class="well">
     get next: <div class="btn-group">
         <div class="btn btn-default btn-sm"
-             ng-click="nextResultSets(count)"
+             ng-click="fetchResultSets(count)"
              ng-repeat="count in [10, 20, 50, 100]">{{count}}</div>
     </div>
 </div>

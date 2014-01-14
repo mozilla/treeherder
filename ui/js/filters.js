@@ -12,3 +12,16 @@ treeherder.filter('showOrHide', function() {
         }
     };
 });
+
+treeherder.filter('platformName', function() {
+    // fix the platform name from the raw name in the db, with the more
+    // "human read-able" one from Config.js
+    return function(input, name) {
+            var newName = Config.OSNames[name];
+            if (newName) {
+                return newName;
+            }
+            // if it's not found in Config.js, then return it unchanged.
+            return name;
+    };
+})
