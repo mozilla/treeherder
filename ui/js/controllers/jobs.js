@@ -30,17 +30,16 @@ treeherder.controller('JobsCtrl',
 
         $rootScope.update_mru_repos($rootScope.repoName)
 
-        thRepos.load($scope.repoName);
-
         // stop receiving new failures for the current branch
         if($rootScope.new_failures.hasOwnProperty($rootScope.repoName)){
             delete $rootScope.new_failures[$rootScope.repoName];
         }
 
-
-
         $scope.offset = 0;
         $scope.result_sets = [];
+
+        thRepos.load($scope.repoName);
+
         $scope.isLoadingRsBatch = false;
 
         $scope.nextResultSets = function(count) {

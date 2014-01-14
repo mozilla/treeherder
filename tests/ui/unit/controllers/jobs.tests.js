@@ -45,6 +45,11 @@ describe('JobsCtrl', function(){
         );
 
         jobScope = $rootScope.$new();
+
+        //setting attributes derived from the parent controller
+        jobScope.mru_repos = [];
+        $rootScope.new_failures = [];
+
         $controller('JobsCtrl', {'$scope': jobScope});
 
         resultsetScope = jobScope.$new();
