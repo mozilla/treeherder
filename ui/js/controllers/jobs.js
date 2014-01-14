@@ -1,8 +1,8 @@
 "use strict";
 
 treeherder.controller('JobsCtrl',
-    function JobsCtrl($scope, $http, $rootScope, $routeParams, $log,
-                      thUrl, thResultSets, thRepos) {
+    function JobsCtrl($scope, $http, $rootScope, $routeParams, $log, $cookies,
+                      localStorageService, thUrl, thResultSets, thRepos, thSocket) {
 
         // set the default repo to mozilla-inbound if not specified
         if ($routeParams.hasOwnProperty("repo") &&
@@ -12,7 +12,32 @@ treeherder.controller('JobsCtrl',
             $rootScope.repoName = "mozilla-inbound";
         }
 
+        // handle the most recent used repos
+        $rootScope.update_mru_repos = function(repo){
+            var max_mru_repos_length = 6;
+            var curr_repo_index = $scope.mru_repos.indexOf($rootScope.repoName);
+            if( curr_repo_index != -1){
+                $scope.mru_repos.splice(curr_repo_index, 1);
+            }
+            $scope.mru_repos.unshift($rootScope.repoName);
+            if($scope.mru_repos.length > max_mru_repos_length){
+                var old_branch= $scope.mru_repos.pop();
+                thSocket.emit('subscribe', old_branch+'.job_failure')
+                $log.log("subscribing to "+old_branch+'.job_failure');
+            }
+            localStorageService.set("mru_repos", $scope.mru_repos);
+        }
+
+        $rootScope.update_mru_repos($rootScope.repoName)
+
         thRepos.load($scope.repoName);
+
+        // stop receiving new failures for the current branch
+        if($rootScope.new_failures.hasOwnProperty($rootScope.repoName)){
+            delete $rootScope.new_failures[$rootScope.repoName];
+        }
+
+
 
         $scope.offset = 0;
         $scope.result_sets = [];
@@ -36,6 +61,15 @@ treeherder.controller('JobsCtrl',
         };
 
         $scope.nextResultSets(10);
+
+        $scope.repo_has_failures = function(repo_name){
+            if($rootScope.new_failures.hasOwnProperty(repo_name) && $rootScope.new_failures[repo_name].length > 0){
+                return true;
+            }else{
+                return false;
+            }
+        };
+
 
     }
 );
