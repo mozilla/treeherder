@@ -484,11 +484,14 @@ class TreeherderJobCollection(TreeherderCollection):
     Collection of job objects
     """
 
-    def __init__(self, data=[]):
+    def __init__(self, data=[], job_type=''):
 
         super(TreeherderJobCollection, self).__init__(data)
 
-        self.endpoint_base = 'objectstore'
+        if job_type == 'update':
+            self.endpoint_base = 'jobs'
+        else:
+            self.endpoint_base = 'objectstore'
 
     def get_job(self, data={}):
 

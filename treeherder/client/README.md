@@ -183,6 +183,14 @@ If you want to use `TreeherderJobCollection` to build up the job data structures
 ```python
     from thclient import TreeherderRequest, TreeherderJobCollection, TreeherderClientError
 
+    #####
+    # TreeherderJobCollection() takes a 'type' parameter that can be set to 'update'
+    # if the job objects are being used for updating status (status = 'running' | 'pending') and
+    # don't contain a full data payload. If type is not set, the job object go to the
+    # objectstore (status = 'completed'). If the collection is passed a type like so,
+    # TreeherderJobCollection(type='update') the status of the object will be updated in
+    # the RDBS schema
+    #####
     tjc = TreeherderJobCollection()
 
     for data in dataset:

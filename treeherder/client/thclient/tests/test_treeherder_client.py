@@ -204,6 +204,16 @@ class TreeherderJobCollectionTest(DataSetup, unittest.TestCase):
 
         self.assertTrue( len(self.job_data) == len(tjc.data) )
 
+    def test_job_collection_job_type(self):
+        """Confirm that the job_type argument changes the endpoint_base property"""
+
+        tjc = TreeherderJobCollection()
+
+        tjc_update = TreeherderJobCollection(job_type='update')
+
+        self.assertTrue( tjc.endpoint_base, 'objectstore' )
+        self.assertTrue( tjc_update.endpoint_base, 'jobs' )
+
 class TreeherderJobTest(DataSetup, unittest.TestCase):
 
     def test_job_sample_data(self):
