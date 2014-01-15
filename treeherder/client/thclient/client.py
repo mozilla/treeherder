@@ -1,6 +1,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+from __future__ import unicode_literals
 
 import httplib
 import oauth2 as oauth
@@ -26,8 +27,8 @@ class ValidatorMixin(object):
         like so:
 
             {
-                'len':some int, max allowed len of property value
-                'type':some data type, required type of property value
+                'len':optional, some int, max allowed len of property value
+                'type':optional, some data type, required type of property value
                 'cb': some function reference, called with
                       list of keys, list of values, required_properties key
             }
@@ -36,16 +37,16 @@ class ValidatorMixin(object):
 
             self.required_properties = {
                 'revision_hash':{
-                    'len':50, 'type':unicode, 'cb':self.validate_existence
+                    'len':50, 'cb':self.validate_existence
                     },
                 'project':{
-                    'len':None, 'type':unicode, 'cb':self.validate_existence
+                    'cb':self.validate_existence
                     },
                 'job':{
-                    'len':None, 'type':dict, 'cb':self.validate_existence
+                    'type':dict, 'cb':self.validate_existence
                     },
                 'job.job_guid':{
-                    'len':50, 'type':unicode, 'cb':self.validate_existence
+                    'len':50, 'cb':self.validate_existence
                     }
                 }
         """
@@ -94,11 +95,11 @@ class ValidatorMixin(object):
         if not v:
             property_errors += '\tValue not defined for {0}\n'.format(property_key)
         else:
-            if not isinstance(v, values['type']):
+            if ('type' in values) and (not isinstance(v, values['type'])):
                 property_errors += '\tThe value type, {0}, should be {1}\n'.format(
                     type(v), values['type'])
 
-        max_limit = values['len']
+        max_limit = values.get('len', None)
         if v and max_limit and (len(v) > max_limit):
             property_errors += '\tValue length exceeds maximum {0} char limit: {1}\n'.format(
                 str(max_limit), str(v))
@@ -132,10 +133,10 @@ class TreeherderJob(TreeherderData, ValidatorMixin):
 
         # Provide minimal json structure validation
         self.required_properties = {
-            'revision_hash':{ 'len':50, 'type':unicode, 'cb':self.validate_existence },
-            'project':{ 'len':None, 'type':unicode, 'cb':self.validate_existence },
-            'job':{ 'len':None, 'type':dict, 'cb':self.validate_existence },
-            'job.job_guid':{ 'len':50, 'type':unicode, 'cb':self.validate_existence }
+            'revision_hash':{ 'len':50, 'cb':self.validate_existence },
+            'project':{ 'cb':self.validate_existence },
+            'job':{ 'type':dict, 'cb':self.validate_existence },
+            'job.job_guid':{ 'len':50, 'cb':self.validate_existence }
             }
 
     def add_revision_hash(self, revision_hash):
@@ -340,9 +341,9 @@ class TreeherderRevision(TreeherderData, ValidatorMixin):
 
         # Provide minimal json structure validation
         self.required_properties = {
-            'revision':{ 'len':50, 'type':unicode, 'cb':self.validate_existence },
-            'repository':{ 'len':None, 'type':unicode, 'cb':self.validate_existence },
-            'files':{ 'len':None, 'type':list, 'cb':self.validate_existence },
+            'revision':{ 'len':50, 'cb':self.validate_existence },
+            'repository':{ 'cb':self.validate_existence },
+            'files':{ 'type':list, 'cb':self.validate_existence },
             }
 
     def init_data(self):
@@ -390,8 +391,8 @@ class TreeherderResultSet(TreeherderData, ValidatorMixin):
         super(TreeherderResultSet, self).__init__(data)
 
         self.required_properties = {
-            'revision_hash':{ 'len':50, 'type':unicode, 'cb':self.validate_existence },
-            'revisions':{ 'len':None, 'type':list, 'cb':self.validate_existence },
+            'revision_hash':{ 'len':50, 'cb':self.validate_existence },
+            'revisions':{ 'type':list, 'cb':self.validate_existence },
             }
 
     def init_data(self):
