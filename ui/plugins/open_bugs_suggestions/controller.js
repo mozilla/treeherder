@@ -2,7 +2,7 @@
 
 treeherder.controller('OpenBugsPluginCtrl',
     function OpenBugsPluginCtrl($scope, $log) {
-        $log.log("open bugs plugin initialized");
+        $log.debug("open bugs plugin initialized");
 
         $scope.$watch('artifacts', function(newValue, oldValue){
             $scope.open_bugs = [];

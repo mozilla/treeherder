@@ -25,7 +25,7 @@ treeherder.controller('MainCtrl',
 
         for(var repo in $scope.mru_repos){
             thSocket.emit('subscribe', $scope.mru_repos[repo]+'.job_failure');
-            $log.log("subscribing to "+$scope.mru_repos[repo]+'.job_failure');
+            $log.debug("subscribing to "+$scope.mru_repos[repo]+'.job_failure');
         }
 
         $rootScope.new_failures = new Object();
@@ -35,8 +35,8 @@ treeherder.controller('MainCtrl',
                 $rootScope.new_failures[msg.branch] = [];
             }
             $rootScope.new_failures[msg.branch].push(msg.id);
-            $log.log("new failure on branch "+msg.branch);
-        })
+            $log.debug("new failure on branch "+msg.branch);
+        });
 
         $scope.changeRepo = function(repo_name) {
             thRepos.setCurrent(repo_name);

@@ -29,8 +29,8 @@ treeherder.factory('thResultSets',
 }]);
 
 treeherder.factory('thResultSetModelManager',
-                   ['thResultSets', 'thSocket', 'thJobs',
-                   function(thResultSets, thSocket, thJobs) {
+                   ['$log', 'thResultSets', 'thSocket', 'thJobs',
+                   function($log, thResultSets, thSocket, thJobs) {
 
    /******
     * Handle updating the resultset datamodel based on a queue of jobs
@@ -113,8 +113,8 @@ treeherder.factory('thResultSetModelManager',
                 }
             }
         }
-        console.log("done mapping:");
-        console.log(rsMap);
+        $log.debug("done mapping:");
+        $log.debug(rsMap);
     };
 
     /******
@@ -128,7 +128,7 @@ treeherder.factory('thResultSetModelManager',
         var plMapElement = rsMapElement.platforms[newJob.platform];
         if (!plMapElement) {
             // this platform wasn't in the resultset, so add it.
-            console.log("adding new platform");
+            $log.debug("adding new platform");
 
             var pl_obj = {
                 name: newJob.platform,
@@ -160,7 +160,7 @@ treeherder.factory('thResultSetModelManager',
         var plMapElement = getOrCreatePlatform(newJob);
         var grpMapElement = plMapElement.groups[newJob.job_group_name];
         if (!grpMapElement) {
-            console.log("adding new group");
+            $log.debug("adding new group");
             var grp_obj = {
                 symbol: newJob.job_group_symbol,
                 name: newJob.job_group_name,
@@ -195,7 +195,7 @@ treeherder.factory('thResultSetModelManager',
      */
     var processUpdateQueues = function() {
 
-        console.log("Processing update queue.  jobs: " +
+        $log.debug("Processing update queue.  jobs: " +
             jobUpdateQueue.length +
             ", resultsets: " +
             rsUpdateQueue.length);
@@ -208,13 +208,13 @@ treeherder.factory('thResultSetModelManager',
 
         if (rsFetchList.length > 0) {
             // fetch these resultsets in a batch and put them into the model
-            console.log("processing the rsFetchList");
+            $log.debug("processing the rsFetchList");
             api.fetchNewResultSets(rsFetchList);
         }
 
         if (jobFetchList.length > 0) {
-            console.log("processing jobFetchList");
-            console.log(jobFetchList);
+            $log.debug("processing jobFetchList");
+            $log.debug(jobFetchList);
 
             // make an ajax call to get the job details
 
@@ -231,7 +231,7 @@ treeherder.factory('thResultSetModelManager',
      * @param jobList List of jobs to be placed in the data model and maps
      */
     var updateJobs = function(jobList) {
-        console.log("number of jobs returned for add/update: " + jobList.length);
+        $log.debug("number of jobs returned for add/update: " + jobList.length);
         jobList.forEach(updateJob);
 
     };
@@ -272,16 +272,14 @@ treeherder.factory('thResultSetModelManager',
     var updateJob = function(newJob) {
         var loadedJob = jobMap[newJob.id];
         if (loadedJob) {
-            console.log("job already loaded, updating");
+            $log.debug("job already loaded, updating");
             $.extend(loadedJob, newJob);
         } else {
             // this job is not yet in the model or the map.  add it to both
-            console.log("adding new job");
+            $log.debug("adding new job");
             var rsMapElement = rsMap[newJob.result_set_id];
             if (!rsMapElement) {
                 console.error("we should have added the resultset for this job already!");
-                console.error("Not added:");
-                console.error(newJob);
                 return;
             }
 
@@ -300,7 +298,7 @@ treeherder.factory('thResultSetModelManager',
         // prepend the resultsets because they'll be newer.
 
         for (var i = data.length - 1; i > -1; i--) {
-            console.log("prepending resultset: " + data[i].id);
+            $log.debug("prepending resultset: " + data[i].id);
             result_sets.unshift(data[i]);
 
         }
@@ -311,7 +309,7 @@ treeherder.factory('thResultSetModelManager',
     var api = {
 
         init: function(interval, repo) {
-            console.log("new resultset model manager");
+            $log.debug("new resultset model manager");
             if (interval) {
                 updateQueueInterval = interval;
             }
@@ -347,7 +345,7 @@ treeherder.factory('thResultSetModelManager',
             // Add a connect listener
             thSocket.on('connect',function() {
                 thSocket.emit('subscribe', '*');
-                console.log("listening for new events.  interval: " + updateQueueInterval +
+                $log.debug("listening for new events.  interval: " + updateQueueInterval +
                     " for repo: " + repoName);
             });
 
@@ -370,22 +368,22 @@ treeherder.factory('thResultSetModelManager',
                         // we want to load this job, one way or another
                         if (rsMap[data.result_set_id]) {
                             // we already have this resultset loaded, so queue the job
-                            console.log("adding job to queue");
+                            $log.debug("adding job to queue");
                             jobUpdateQueue.push(data.id);
                         } else {
                             // we haven't loaded this resultset yet, so queue it
-                            console.log("checking resultset queue");
+                            $log.debug("checking resultset queue");
                             if (rsUpdateQueue.indexOf(data.result_set_id) < 0) {
-                                console.log("new resultset not yet in queue");
+                                $log.debug("new resultset not yet in queue");
                                 rsUpdateQueue.push(data.result_set_id);
                             } else {
-                                console.log("new resultset already queued");
+                                $log.debug("new resultset already queued");
                             }
                         }
 
                     }
                     else {
-                        console.log("job too old");
+                        $log.debug("job too old");
                     }
 
                 }
