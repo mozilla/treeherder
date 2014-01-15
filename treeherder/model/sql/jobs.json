@@ -196,7 +196,7 @@
                     ON j.`job_type_id` = jt.id
 				  LEFT JOIN `REP0`.`job_group` as jg
                     ON jt.`job_group_id` = jg.id
-                   WHERE j.id = ?",
+                  WHERE j.id = ?",
 
             "host":"read_host"
         },
