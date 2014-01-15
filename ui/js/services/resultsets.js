@@ -104,10 +104,10 @@ treeherder.factory('thResultSetModelManager',
                     // jobs
                     for (var j_i = 0; j_i < gr.jobs.length; j_i++) {
                         var job = gr.jobs[j_i];
-                        jobMap[job.job_id] = job;
+                        jobMap[job.id] = job;
 
-                        if (!jobMapOldestId || jobMapOldestId > job.job_id) {
-                            jobMapOldestId = job.job_id;
+                        if (!jobMapOldestId || jobMapOldestId > job.id) {
+                            jobMapOldestId = job.id;
                         }
                     }
                 }
@@ -270,7 +270,7 @@ treeherder.factory('thResultSetModelManager',
      *               to be added or updated.
      */
     var updateJob = function(newJob) {
-        var loadedJob = jobMap[newJob.job_id];
+        var loadedJob = jobMap[newJob.id];
         if (loadedJob) {
             console.log("job already loaded, updating");
             $.extend(loadedJob, newJob);
@@ -291,7 +291,7 @@ treeherder.factory('thResultSetModelManager',
             grpMapElement.grp_obj.jobs.push(newJob);
 
             // add job to the jobmap
-            jobMap[newJob.job_id] = newJob;
+            jobMap[newJob.id] = newJob;
 
         }
     };

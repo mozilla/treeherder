@@ -19,6 +19,10 @@ treeherder.controller('MainCtrl',
 
         $scope.mru_repos = localStorageService.get("mru_repos") || [];
 
+        // @@@ a dummy value for now, used when creating notes.
+        // update this value when we have authenticated login.
+        $scope.username = "Hiro Protagonist";
+
         for(var repo in $scope.mru_repos){
             thSocket.emit('subscribe', $scope.mru_repos[repo]+'.job_failure');
             $log.log("subscribing to "+$scope.mru_repos[repo]+'.job_failure');
