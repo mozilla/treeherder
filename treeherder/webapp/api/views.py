@@ -189,6 +189,9 @@ class JobsViewSet(viewsets.ViewSet):
                 art["resource_uri"] = ref
                 job["artifacts"].append(art)
 
+            option_collections = jm.refdata_model.get_all_option_collections()
+            option_collections[job["option_collection_hash"]]['opt']
+
             return Response(job)
         else:
             return Response("No job with id: {0}".format(pk), 404)
@@ -212,6 +215,12 @@ class JobsViewSet(viewsets.ViewSet):
             **dict((k, v) for k, v in request.QUERY_PARAMS.iteritems()
                    if k in filters)
         )
+        if objs:
+            option_collections = jm.refdata_model.get_all_option_collections()
+            for job in objs:
+                job["platform_opt"] = option_collections[
+                    job["option_collection_hash"]]['opt']
+
         return Response(objs)
 
     @action()
@@ -349,11 +358,15 @@ class ResultSetViewSet(viewsets.ViewSet):
             #itertools needs the elements to be sorted by the grouper
             by_platform = sorted(list(resultset_group), key=platform_grouper)
             platforms = []
-            for platform_name, platform_group in itertools.groupby(
+            for platform_group_name, platform_group in itertools.groupby(
                     by_platform,
                     key=platform_grouper):
 
                 by_job_group = sorted(list(platform_group), key=job_group_grouper)
+
+                platform_name = by_job_group[0]["platform"]
+                platform_option = option_collections[
+                    by_job_group[0]["option_collection_hash"]]['opt']
 
                 groups = []
                 for jg_symbol, jg_group in itertools.groupby(
@@ -375,7 +388,6 @@ class ResultSetViewSet(viewsets.ViewSet):
                         #del(job["job_group_name"])
                         #del(job["job_group_symbol"])
                         del(job["result_set_id"])
-                        del(job["platform"])
 
                         if job["state"] == "completed":
                             result_types.append(job["result"])
@@ -385,6 +397,7 @@ class ResultSetViewSet(viewsets.ViewSet):
 
                 platforms.append({
                     "name": platform_name,
+                    "option": platform_option,
                     "groups": groups,
                 })
 
