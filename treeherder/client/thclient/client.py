@@ -456,15 +456,21 @@ class TreeherderCollection(object):
         if data:
             self.data = data
 
-    def to_json(self):
+    def get_collection_data(self):
         """
-        Convert list of data objects to json
+        Build data structure containing the data attribute only for
+        each item in the collection
         """
         data_struct = []
         for datum_instance in self.data:
             data_struct.append(datum_instance.data)
+        return data_struct
 
-        return json.dumps(data_struct)
+    def to_json(self):
+        """
+        Convert list of data objects to json
+        """
+        return json.dumps( self.get_collection_data() )
 
     def add(self, datum_instance):
         """
