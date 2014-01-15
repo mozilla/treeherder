@@ -27,7 +27,7 @@ treeherder.controller('JobsCtrl',
                 $log.log("subscribing to "+old_branch+'.job_failure');
             }
             localStorageService.set("mru_repos", $scope.mru_repos);
-        }
+        };
 
         // the primary data model
         thResultSetModelManager.init(60000, $scope.repoName);
@@ -47,7 +47,7 @@ treeherder.controller('JobsCtrl',
         $scope.isLoadingRsBatch = false;
 
         // load our initial set of resultsets
-        thResultSetModelManager.fetchResultSets($scope.offset, 3);
+        thResultSetModelManager.fetchResultSets($scope.offset, 10);
 
         $scope.repo_has_failures = function(repo_name){
             if($rootScope.new_failures.hasOwnProperty(repo_name) && $rootScope.new_failures[repo_name].length > 0){
