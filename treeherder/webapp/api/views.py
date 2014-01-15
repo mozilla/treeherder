@@ -383,11 +383,12 @@ class ResultSetViewSet(viewsets.ViewSet):
 
                     # build the uri ref for each job
                     for job in by_job_type:
-                        job["resource_uri"] = reverse("jobs-detail",
-                            kwargs={"project": jm.project, "pk": job["job_id"]})
-                        #del(job["job_group_name"])
-                        #del(job["job_group_symbol"])
+                        job["id"] = job["job_id"]
+                        del(job["job_id"])
                         del(job["result_set_id"])
+
+                        job["resource_uri"] = reverse("jobs-detail",
+                            kwargs={"project": jm.project, "pk": job["id"]})
 
                         if job["state"] == "completed":
                             result_types.append(job["result"])

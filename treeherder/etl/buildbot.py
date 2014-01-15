@@ -281,10 +281,12 @@ TEST_NAME_BUILDERNAME = [
     {"regex": re.compile('-sh-haz'), "desc": "Static Rooting Hazard Analysis, JS Shell"},
     {"regex": re.compile('xulrunner'), "desc": "XULRunner Nightly"},
     {"regex": re.compile('b2g.*_hamachi_eng_nightly'), "desc": "Hamachi Device Image Nightly (Engineering)"},
+    {"regex": re.compile('b2g.*_helix_eng_nightly'), "desc": "Helix Device Image Nightly (Engineering)"},
     {"regex": re.compile('b2g.*_inari_eng_nightly'), "desc": "Inari Device Image Nightly (Engineering)"},
     {"regex": re.compile('b2g.*_leo_eng_nightly'), "desc": "Leo Device Image Nightly (Engineering)"},
     {"regex": re.compile('b2g.*_unagi_eng_nightly'), "desc": "Unagi Device Image Nightly (Engineering)"},
     {"regex": re.compile('b2g.*_eng_nightly'), "desc": "Unknown B2G Device Image Nightly (Engineering)"},
+    {"regex": re.compile('b2g.*_buri-limited-memory_nightly'), "desc": "Buri Limited Memory Device Image Nightly"},
     {"regex": re.compile('b2g.*_hamachi_nightly'), "desc": "Hamachi Device Image Nightly"},
     {"regex": re.compile('b2g.*_helix_nightly'), "desc": "Helix Device Image Nightly"},
     {"regex": re.compile('b2g.*_inari_nightly'), "desc": "Inari Device Image Nightly"},
@@ -295,17 +297,20 @@ TEST_NAME_BUILDERNAME = [
     {"regex": re.compile('(?:l10n|localizer) nightly'), "desc": "L10n Nightly"},
     {"regex": re.compile('nightly'), "desc": "Nightly"},
     {"regex": re.compile('b2g.*_hamachi_eng_dep'), "desc": "Hamachi Device Image Build (Engineering)"},
+    {"regex": re.compile('b2g.*_helix_eng_dep'), "desc": "Helix Device Image Build (Engineering)"},
     {"regex": re.compile('b2g.*_inari_eng_dep'), "desc": "Inari Device Image Build (Engineering)"},
     {"regex": re.compile('b2g.*_leo_eng_dep'), "desc": "Leo Device Image Build (Engineering)"},
     {"regex": re.compile('b2g.*_unagi_eng_dep'), "desc": "Unagi Device Image Build (Engineering)"},
     {"regex": re.compile('b2g.*_eng_dep'), "desc": "Unknown B2G Device Image Build (Engineering)"},
     {"regex": re.compile('b2g.*_emulator.*_dep'), "desc": "B2G Emulator Image Build"},
+    {"regex": re.compile('b2g.*_buri-limited-memory_dep'), "desc": "Buri Limited Memory Device Image Build"},
     {"regex": re.compile('b2g.*_hamachi_dep'), "desc": "Hamachi Device Image Build"},
     {"regex": re.compile('b2g.*_helix_dep'), "desc": "Helix Device Image Build"},
     {"regex": re.compile('b2g.*_inari_dep'), "desc": "Inari Device Image Build"},
     {"regex": re.compile('b2g.*_leo_dep'), "desc": "Leo Device Image Build"},
     {"regex": re.compile('b2g.*_nexus-4_dep'), "desc": "Nexus 4 Device Image Build"},
     {"regex": re.compile('b2g.*_unagi_dep'), "desc": "Unagi Device Image Build"},
+    {"regex": re.compile('b2g.*_wasabi_dep'), "desc": "Wasabi Device Image Build"},
     {"regex": re.compile('b2g.*_dep'), "desc": "Unknown B2G Device Image Build"},
     {"regex": re.compile('spidermonkey.*-dtrace'), "desc": "SpiderMonkey DTrace Build"},
     {"regex": re.compile('spidermonkey.*-rootanalysis'), "desc": "SpiderMonkey --enable-root-analysis Build"},
@@ -315,6 +320,7 @@ TEST_NAME_BUILDERNAME = [
         #// If we start doing debug ASan tests, please kill these special build types
     {"regex": re.compile('debug asan build'), "desc": "AddressSanitizer Debug Build"},
     {"regex": re.compile('asan build'), "desc": "AddressSanitizer Opt Build"},
+    {"regex": re.compile('non-unified'), "desc": "Non-Unified Build"},
     {"regex": re.compile('static analysis'), "desc": "Static Checking Build"},
     {"regex": re.compile('valgrind'), "desc": "Valgrind Nightly"},
     {"regex": re.compile('dxr'), "desc": "DXR Index Build"},
@@ -529,7 +535,7 @@ SYMBOLS = {
     "unknown": "?",
 }
 
-NUMBER_RE = re.compile(".*(?:mochitest|reftest|crashtest|robocop|androidx86-set)\-([0-9]+)", re.IGNORECASE)
+NUMBER_RE = re.compile(".*(?:mochitest(?:-debug)?|reftest|crashtest|robocop|androidx86-set|browser-chrome)\-([0-9]+)", re.IGNORECASE)
 
 
 def extract_platform_info(source_string):
@@ -616,4 +622,3 @@ def get_symbol(name, bn):
     if nummatch:
         n = nummatch.group(1)
     return "{0}{1}".format(s, n)
-
