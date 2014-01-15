@@ -296,9 +296,22 @@ treeherder.factory('thResultSetModelManager',
         }
     };
 
+    var prependResultSets = function(data) {
+        // prepend the resultsets because they'll be newer.
+
+        for (var i = data.length - 1; i > -1; i--) {
+            console.log("prepending resultset: " + data[i].id);
+            result_sets.unshift(data[i]);
+
+        }
+
+        mapResultSets(data);
+    };
+
     var api = {
 
         init: function(interval, repo) {
+            console.log("new resultset model manager");
             if (interval) {
                 updateQueueInterval = interval;
             }
@@ -394,16 +407,7 @@ treeherder.factory('thResultSetModelManager',
         fetchNewResultSets: function(resultsetlist) {
 
             thResultSets.getResultSets(0, resultsetlist.length, resultsetlist).
-                success(function(data) {
-                    // prepend the resultsets because they'll be newer.
-
-                    for (var i = data.length - 1; i > -1; i--) {
-                        result_sets.unshift(result_sets, data[i]);
-                    }
-
-                    mapResultSets(data);
-
-                });
+                success(prependResultSets);
         },
 
         /**
@@ -425,5 +429,7 @@ treeherder.factory('thResultSetModelManager',
         }
 
     };
+
     return api;
+
 }]);
