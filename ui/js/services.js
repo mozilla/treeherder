@@ -136,10 +136,10 @@ treeherder.factory('thJobNote', function($resource, $http, thUrl) {
 });
 
 
-treeherder.factory('thSocket', function ($rootScope, thUrl) {
+treeherder.factory('thSocket', function ($rootScope, $log, thUrl) {
     var socket = io.connect(thUrl.getSocketEventUrl());
     socket.on('connect', function(){
-       console.log('socketio connected');
+       $log.debug('socketio connected');
     });
   return {
     on: function (eventName, callback) {

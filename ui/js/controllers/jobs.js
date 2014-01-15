@@ -23,8 +23,8 @@ treeherder.controller('JobsCtrl',
             $scope.mru_repos.unshift($rootScope.repoName);
             if($scope.mru_repos.length > max_mru_repos_length){
                 var old_branch= $scope.mru_repos.pop();
-                thSocket.emit('subscribe', old_branch+'.job_failure')
-                $log.log("subscribing to "+old_branch+'.job_failure');
+                thSocket.emit('subscribe', old_branch+'.job_failure');
+                $log.debug("subscribing to "+old_branch+'.job_failure');
             }
             localStorageService.set("mru_repos", $scope.mru_repos);
         };
