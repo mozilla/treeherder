@@ -494,3 +494,6 @@ fieldset[disabled] .btn-pink.active {
     background-color: LightGrey;
 }
 
+#help.dt, #help.dd { text-align: center;}
+#help.panel {padding:5px;}
+#help{padding-top:10px;}
