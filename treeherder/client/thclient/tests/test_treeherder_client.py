@@ -405,7 +405,7 @@ class TreeherderRequestTest(DataSetup, unittest.TestCase):
         self.assertEqual(data, self.post_data)
 
         self.assertEqual(
-            header['Content-type'],
+            header['Content-Type'],
             'application/json',
             )
 
@@ -458,7 +458,7 @@ class TreeherderRequestTest(DataSetup, unittest.TestCase):
         self.assertEqual(data, self.no_oauth_post_data)
 
         self.assertEqual(
-            header['Content-type'],
+            header['Content-Type'],
             'application/json',
             )
 

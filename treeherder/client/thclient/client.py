@@ -611,7 +611,7 @@ class TreeherderRequest(object):
             body = urllib.urlencode(params)
 
         # Build the header
-        header = {'Content-type': 'application/json'}
+        header = {'Content-Type': 'application/json'}
 
         # Make the POST request
         conn = None
