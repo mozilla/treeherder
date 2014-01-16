@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Treeherder Help</title>
+    <link href="css/bootstrap.css" rel="stylesheet" media="screen">
+    <link href="css/treeherder.css" rel="stylesheet" media="screen">
+</head>
+<body class="container" id="help">
+<div class="panel panel-default">
+<div class="panel-heading">
+    <h1>Treeherder Help</h1>
+
+    <h5>More documentation available at <a href="https://wiki.mozilla.org/Sheriffing/TBPL">
+        https://wiki.mozilla.org/Sheriffing/TBPL
+    </a></h5>
+</div>
+<div class="panel-body">
+<div class="row">
+    <div class="col-xs-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3>Job notation</h3>
+            </div>
+            <div class="panel-body">
+                <table id="legend-other">
+                    <tr><th>..*</th>
+                    <td>commented</td></tr>
+                    <tr><th class="pending"><button class="btn btn-ltgray">light gray</button></th>
+                    <td>pending</td></tr>
+                    <tr><th class="running"><button class="btn btn-dkgray">gray</button></th>
+                    <td>running</td></tr>
+                    <tr><th class="success"><button class="btn btn-green">green</button></th>
+                    <td>success</td></tr>
+                    <tr><th class="testfailed"><button class="btn btn-orange">orange</button></th>
+                    <td>tests failed</td></tr>
+                    <tr><th class="exception"><button class="btn btn-purple">purple</button></th>
+                    <td>infrastructure exception</td></tr>
+                    <tr><th class="busted"><button class="btn btn-red">red</button></th>
+                    <td>build error</td></tr>
+                    <tr><th class="retry"><button class="btn btn-dkblue">blue</button></th>
+                    <td>build has been restarted</td></tr>
+                    <tr><th class="usercancel"><button class="btn btn-pink">pink</button></th>
+                    <td>build was cancelled</td></tr>
+                    <tr><th class="unknown"><button class="btn btn-black">black</button></th>
+                    <td>unknown error</td></tr>
+                </table>
+            </div>
+        </div>
+
+
+    </div>
+    <div class="col-xs-6">
+        <div class="panel panel-default">
+            <div class="panel-heading"><h3>Keyboard shortcuts</h3></div>
+            <div class="panel-body">
+                <table id="shortcuts">
+                    <tr><th>space</th>
+                    <td>Select/deselect active build or changeset</td></tr>
+                    <tr><th>?</th>
+                    <td>Show the help box</td></tr>
+                    <tr><th>c</th>
+                    <td>Show the comment box</td></tr>
+                    <tr><th>j</th>
+                    <td>Highlight next unstarred failure</td></tr>
+                    <tr><th>k</th>
+                    <td>Highlight previous unstarred failure</td></tr>
+                    <tr><th>n</th>
+                    <td>Highlight next unstarred failure</td></tr>
+                    <tr><th>p</th>
+                    <td>Highlight previous unstarred failure</td></tr>
+                    <tr><th>u</th>
+                    <td>Toggle showing only unstarred failures</td></tr>
+                    <tr><th>Click</th>
+                    <td>Choose an active build and display its details</td></tr>
+                    <tr><th>Ctrl/Cmd-Click</th>
+                    <td>Select/deselect build or changeset</td></tr>
+                    <tr><th>Drag</th>
+                    <td>Add build or changeset to comment</td></tr>
+                    <tr><th>Ctrl/Cmd-Enter</th>
+                    <td>Submit the comment form</td></tr>
+                </table>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+<div class="col-xs-6">
+    <div class="panel panel-default">
+        <div class="panel-heading"><h3>Builds</h3></div>
+        <div class="panel-body">
+            <table id="legend-builds">
+                <tr><th>B</th>
+                <td>Build</td></tr>
+                <tr><th>S</th>
+                <td>Static Checking Build</td></tr>
+                <tr><th>SM</th>
+                <td>SpiderMonkey</td></tr>
+                <tr><th>d</th>
+                <td>SpiderMonkey DTrace Build</td></tr>
+                <tr><th>r</th>
+                <td>SpiderMonkey --enable-root-analysis Build</td></tr>
+                <tr><th>e</th>
+                <td>SpiderMonkey --enable-sm-fail-on-warnings Build</td></tr>
+                <tr><th>ggc</th>
+                <td>SpiderMonkey GGC Shell Build</td></tr>
+                <tr><th>exr</th>
+                <td>SpiderMonkey Exact Rooting Shell Build</td></tr>
+                <tr><th>Hs</th>
+                <td>Static Rooting Hazard Analysis, JS Shell</td></tr>
+                <tr><th>Hf</th>
+                <td>Static Rooting Hazard Analysis, Full Browser</td></tr>
+                <tr><th>N</th>
+                <td>Nightly</td></tr>
+                <tr><th>Dxr</th>
+                <td>DXR Index Build</td></tr>
+                <tr><th>V</th>
+                <td>Valgrind Nightly</td></tr>
+                <tr><th>Xr</th>
+                <td>XULRunner Nightly</td></tr>
+                <tr><th>Bo</th>
+                <td>AddressSanitizer Opt Build</td></tr>
+                <tr><th>Bd</th>
+                <td>AddressSanitizer Debug Build</td></tr>
+                <tr><th>No</th>
+                <td>AddressSanitizer Opt Nightly</td></tr>
+                <tr><th>Nd</th>
+                <td>AddressSanitizer Debug Nightly</td></tr>
+                <tr><th>N</th>
+                <td>L10n Nightly</td></tr>
+                <tr><th>L10n</th>
+                <td>L10n Repack</td></tr>
+                <tr><th>B</th>
+                <td>B2G Emulator Image Build</td></tr>
+                <tr><th>Buri/Hamachi</th>
+                <td>Buri/Hamachi Device Image</td></tr>
+                <tr><th>B</th>
+                <td>Hamachi Device Image Build</td></tr>
+                <tr><th>Be</th>
+                <td>Hamachi Device Image Build (Engineering)</td></tr>
+                <tr><th>Bm</th>
+                <td>Buri Limited Memory Device Image Build</td></tr>
+                <tr><th>N</th>
+                <td>Hamachi Device Image Nightly</td></tr>
+                <tr><th>Ne</th>
+                <td>Hamachi Device Image Nightly (Engineering)</td></tr>
+                <tr><th>Nm</th>
+                <td>Buri Limited Memory Device Image Nightly</td></tr>
+                <tr><th>Helix</th>
+                <td>Helix Device Image</td></tr>
+                <tr><th>B</th>
+                <td>Helix Device Image Build</td></tr>
+                <tr><th>Be</th>
+                <td>Helix Device Image Build (Engineering)</td></tr>
+                <tr><th>N</th>
+                <td>Helix Device Image Nightly</td></tr>
+                <tr><th>Ne</th>
+                <td>Helix Device Image Nightly (Engineering)</td></tr>
+                <tr><th>Inari</th>
+                <td>Inari Device Image</td></tr>
+                <tr><th>B</th>
+                <td>Inari Device Image Build</td></tr>
+                <tr><th>Be</th>
+                <td>Inari Device Image Build (Engineering)</td></tr>
+                <tr><th>N</th>
+                <td>Inari Device Image Nightly</td></tr>
+                <tr><th>Ne</th>
+                <td>Inari Device Image Nightly (Engineering)</td></tr>
+                <tr><th>Leo</th>
+                <td>Leo Device Image</td></tr>
+                <tr><th>B</th>
+                <td>Leo Device Image Build</td></tr>
+                <tr><th>Be</th>
+                <td>Leo Device Image Build (Engineering)</td></tr>
+                <tr><th>N</th>
+                <td>Leo Device Image Nightly</td></tr>
+                <tr><th>Ne</th>
+                <td>Leo Device Image Nightly (Engineering)</td></tr>
+                <tr><th>Nexus 4</th>
+                <td>Nexus 4 Device Image</td></tr>
+                <tr><th>B</th>
+                <td>Nexus 4 Device Image Build</td></tr>
+                <tr><th>N</th>
+                <td>Nexus 4 Device Image Nightly</td></tr>
+                <tr><th>Unagi</th>
+                <td>Unagi Device Image</td></tr>
+                <tr><th>B</th>
+                <td>Unagi Device Image Build</td></tr>
+                <tr><th>Be</th>
+                <td>Unagi Device Image Build (Engineering)</td></tr>
+                <tr><th>N</th>
+                <td>Unagi Device Image Nightly</td></tr>
+                <tr><th>Ne</th>
+                <td>Unagi Device Image Nightly (Engineering)</td></tr>
+                <tr><th>Wasabi</th>
+                <td>Wasabi Device Image</td></tr>
+                <tr><th>B</th>
+                <td>Wasabi Device Image Build</td></tr>
+                <tr><th>Unknown</th>
+                <td>Unknown Device Image</td></tr>
+                <tr><th>B</th>
+                <td>Unknown B2G Device Image Build</td></tr>
+                <tr><th>Be</th>
+                <td>Unknown B2G Device Image Build (Engineering)</td></tr>
+                <tr><th>N</th>
+                <td>Unknown B2G Device Image Nightly</td></tr>
+                <tr><th>Ne</th>
+                <td>Unknown B2G Device Image Nightly (Engineering)</td></tr>
+            </table>
+        </div>
+    </div>
+
+
+</div>
+<div class="col-xs-6">
+    <div class="panel panel-default">
+        <div class="panel-heading"><h3>Tests</h3></div>
+        <div class="panel-body">
+            <table id="legend-tests">
+                <tr><th>M</th>
+                <td>Mochitest</td></tr>
+                <tr><th>gl</th>
+                <td>Mochitest WebGL</td></tr>
+                <tr><th>bc</th>
+                <td>Mochitest Browser Chrome</td></tr>
+                <tr><th>mc</th>
+                <td>Mochitest Metro Browser Chrome</td></tr>
+                <tr><th>oth</th>
+                <td>Mochitest Other</td></tr>
+                <tr><th>rc</th>
+                <td>Robocop</td></tr>
+                <tr><th>Cipc</th>
+                <td>Crashtest-IPC</td></tr>
+                <tr><th>C</th>
+                <td>Crashtest</td></tr>
+                <tr><th>Ru</th>
+                <td>Reftest Unaccelerated</td></tr>
+                <tr><th>Ripc</th>
+                <td>Reftest-IPC</td></tr>
+                <tr><th>R</th>
+                <td>Reftest</td></tr>
+                <tr><th>J</th>
+                <td>JSReftest</td></tr>
+                <tr><th>Cpp</th>
+                <td>CPP Unit Tests</td></tr>
+                <tr><th>Jit</th>
+                <td>JIT Tests</td></tr>
+                <tr><th>Mnw</th>
+                <td>Marionette WebAPI Tests</td></tr>
+                <tr><th>Mn</th>
+                <td>Marionette Framework Unit Tests</td></tr>
+                <tr><th>Gi</th>
+                <td>Gaia Integration Test</td></tr>
+                <tr><th>Gu</th>
+                <td>Gaia UI Test</td></tr>
+                <tr><th>G</th>
+                <td>Gaia Unit Test</td></tr>
+                <tr><th>X</th>
+                <td>XPCShellTest</td></tr>
+                <tr><th>Sets</th>
+                <td>Android x86 Test Combos</td></tr>
+                <tr><th>S</th>
+                <td>Android x86 Test Set</td></tr>
+                <tr><th>T</th>
+                <td>Talos Performance</td></tr>
+                <tr><th>cm</th>
+                <td>Talos canvasmark</td></tr>
+                <tr><th>c</th>
+                <td>Talos chrome</td></tr>
+                <tr><th>d</th>
+                <td>Talos dromaeojs</td></tr>
+                <tr><th>d-m</th>
+                <td>Talos dromaeojs Metro</td></tr>
+                <tr><th>s</th>
+                <td>Talos svg</td></tr>
+                <tr><th>s-m</th>
+                <td>Talos svg Metro</td></tr>
+                <tr><th>tp</th>
+                <td>Talos tp</td></tr>
+                <tr><th>tp-m</th>
+                <td>Talos tp Metro</td></tr>
+                <tr><th>tpn</th>
+                <td>Talos tp nochrome</td></tr>
+                <tr><th>o</th>
+                <td>Talos other</td></tr>
+                <tr><th>o-m</th>
+                <td>Talos other Metro</td></tr>
+                <tr><th>p</th>
+                <td>Talos paint</td></tr>
+                <tr><th>rck2</th>
+                <td>Talos robocheck2</td></tr>
+                <tr><th>rp</th>
+                <td>Talos robopan</td></tr>
+                <tr><th>rpr</th>
+                <td>Talos roboprovider</td></tr>
+                <tr><th>ts</th>
+                <td>Talos ts</td></tr>
+                <tr><th>tsp</th>
+                <td>Talos tspaint</td></tr>
+                <tr><th>x</th>
+                <td>Talos xperf</td></tr>
+                <tr><th>JP</th>
+                <td>Jetpack SDK Test</td></tr>
+                <tr><th>Z</th>
+                <td>Mozmill</td></tr>
+                <tr><th>U</th>
+                <td>Unknown Unit Test</td></tr>
+                <tr><th>?</th>
+                <td>Unknown</td></tr>
+            </table>
+        </div>
+    </div>
+
+
+</div>
+</div>
+</div>
+</body>
+</html>
