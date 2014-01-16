@@ -29,8 +29,8 @@ treeherder.factory('thResultSets',
 }]);
 
 treeherder.factory('thResultSetModelManager',
-                   ['$log', 'thResultSets', 'thSocket', 'thJobs',
-                   function($log, thResultSets, thSocket, thJobs) {
+                   ['$log', '$rootScope', 'thResultSets', 'thSocket', 'thJobs',
+                   function($log, $rootScope, thResultSets, thSocket, thJobs) {
 
    /******
     * Handle updating the resultset datamodel based on a queue of jobs
@@ -221,7 +221,7 @@ treeherder.factory('thResultSetModelManager',
             thJobs.getJobs(0, jobFetchList.length, jobFetchList).
                 success(updateJobs).
                 error(function(data) {
-                    console.error("Error fetching jobUpdateQueue: " + data);
+                    $log.error("Error fetching jobUpdateQueue: " + data);
                 });
         }
     };
@@ -344,7 +344,7 @@ treeherder.factory('thResultSetModelManager',
              */
             // Add a connect listener
             thSocket.on('connect',function() {
-                thSocket.emit('subscribe', '*');
+                thSocket.emit('subscribe', $rootScope.repoName + '.job');
                 $log.debug("listening for new events.  interval: " + updateQueueInterval +
                     " for repo: " + repoName);
             });
