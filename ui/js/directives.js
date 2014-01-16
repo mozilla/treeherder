@@ -34,10 +34,6 @@ treeherder.directive('thJobButton', function (thResultStatusInfo) {
                 }
                 scope.job.display = thResultStatusInfo(resultState);
                 scope.hoverText = getHoverText(scope.job);
-                // This causes the job button to flash yellow for a second to
-                //draw attention to the update.
-                var e = $(element);
-                e.effect("highlight", {}, 2500);
             }, true);
         },
         templateUrl: 'partials/thJobButton.html'

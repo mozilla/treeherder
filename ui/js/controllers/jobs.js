@@ -42,17 +42,18 @@ treeherder.controller('JobsCtrl',
 
         thRepos.load($scope.repoName);
 
-        $scope.isLoadingRsBatch = false;
+        $scope.isLoadingRsBatch = thResultSetModelManager.loadingStatus;
 
         // load our initial set of resultsets
         // scope needs this function so it can be called directly by the user, too.
         $scope.fetchResultSets = function(count) {
             thResultSetModelManager.fetchResultSets(count);
         };
-        $scope.fetchResultSets(3);
+        $scope.fetchResultSets(10);
 
         $scope.repo_has_failures = function(repo_name){
-            if($rootScope.new_failures.hasOwnProperty(repo_name) && $rootScope.new_failures[repo_name].length > 0){
+            if($rootScope.new_failures.hasOwnProperty(repo_name) &&
+               $rootScope.new_failures[repo_name].length > 0){
                 return true;
             }else{
                 return false;

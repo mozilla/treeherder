@@ -60,12 +60,7 @@ treeherder.factory('thResultSetModelManager',
         rsMap,
         jobMap,
         jobMapOldestId,
-        rsMapOldestId,
-
-    // if resultsets are in the process of being loaded
-        isLoadingRs;
-
-
+        rsMapOldestId;
 
     /******
      * Build the Job and Resultset object mappings to make it faster and
@@ -300,10 +295,20 @@ treeherder.factory('thResultSetModelManager',
         for (var i = data.length - 1; i > -1; i--) {
             $log.debug("prepending resultset: " + data[i].id);
             result_sets.unshift(data[i]);
-
         }
 
         mapResultSets(data);
+
+        api.loadingStatus.prepending = false;
+    };
+
+    var appendResultSets = function(data) {
+        rsOffset += data.length;
+        result_sets.push.apply(result_sets, data);
+
+        mapResultSets(data);
+
+        api.loadingStatus.appending = false;
     };
 
     var api = {
@@ -322,7 +327,6 @@ treeherder.factory('thResultSetModelManager',
             jobMap = {};
             jobMapOldestId = null;
             rsMapOldestId = null;
-            isLoadingRs = false;
             result_sets = [];
 
             setInterval(processUpdateQueues, updateQueueInterval);
@@ -394,8 +398,10 @@ treeherder.factory('thResultSetModelManager',
             return result_sets;
         },
 
-        isLoadingRs: function() {
-            return isLoadingRs;
+        // this is "watchable" by the controller now to update its scope.
+        loadingStatus: {
+            appending: false,
+            prepending: false
         },
 
         /**
@@ -404,6 +410,7 @@ treeherder.factory('thResultSetModelManager',
          */
         fetchNewResultSets: function(resultsetlist) {
 
+            api.loadingStatus.prepending = true;
             thResultSets.getResultSets(0, resultsetlist.length, resultsetlist).
                 success(prependResultSets);
         },
@@ -414,15 +421,9 @@ treeherder.factory('thResultSetModelManager',
          */
         fetchResultSets: function(count) {
 
+            api.loadingStatus.appending = true;
             thResultSets.getResultSets(rsOffset, count).
-                success(function(data) {
-                    rsOffset += data.length;
-                    result_sets.push.apply(result_sets, data);
-
-                    mapResultSets(data);
-
-                    isLoadingRs = false;
-                });
+                success(appendResultSets);
         }
 
     };

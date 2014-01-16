@@ -9,6 +9,10 @@
         </span>
     </p>
 </div>
+<div class="progress progress-striped active"
+     ng-show="isLoadingRsBatch.prepending">
+    <div class="progress-bar"  role="progressbar" style="width: 100%"></div>
+</div>
 <div ng-repeat="resultset in result_sets track by resultset.id"
      ng-controller="ResultSetCtrl"
      class="result-set">
@@ -58,7 +62,7 @@
         <span ng-hide="isCollapsedResults"
               ng-class="{'col-md-8 job-list-pad-left': (isCollapsedRevisions==false), 'col-md-12 job-list-nopad': (isCollapsedRevisions)}">
             <table class="table-hover">
-                <tr ng-repeat="platform in resultset.platforms | filter:query | orderBy:name">
+                <tr ng-repeat="platform in resultset.platforms | filter:query | orderBy: $filter('platformName')">
                     <td class="col-md-2 platform"><span>{{ platform.name | platformName:platform.name }} {{ platform.option }}</span></td>
                     <td class="col-md-10">
                         <span ng-repeat="group in platform.groups">
@@ -101,7 +105,7 @@
 
 </div>
 <div class="progress progress-striped active"
-     ng-show="isLoadingRsBatch">
+     ng-show="isLoadingRsBatch.appending">
     <div class="progress-bar"  role="progressbar" style="width: 100%"></div>
 </div>
 <div class="well">
