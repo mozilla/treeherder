@@ -50,14 +50,14 @@ def broadcast_subscribers(body, msg):
     for session_id, socket in server.sockets.iteritems():
         # loop over all the open connections
         # and send a message when needed
-        if "event" not in socket.session or "branch" not in socket.session:
+        if "subscriptions" not in socket.session:
             continue
-        branch_condition = "*" in socket.session["branch"] \
-                           or body["branch"] in socket.session["branch"]
-        event_condition = "*" in socket.session["event"] \
-                           or body["event"] in socket.session["event"]
-        if branch_condition and event_condition:
-            socket.send_packet(pkt)
+
+        for branch, events in socket.session['subscriptions'].items():
+            if branch == body["branch"] or branch == "*":
+                if body["event"] in events or "*" in events:
+                    socket.send_packet(pkt)
+                    break
     msg.ack()
 
 
