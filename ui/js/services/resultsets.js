@@ -272,14 +272,14 @@ treeherder.factory('thResultSetModelManager',
     var updateJob = function(newJob) {
         var loadedJob = jobMap[newJob.id];
         if (loadedJob) {
-            $log.debug("job already loaded, updating");
+            $log.debug("updating existing job");
             $.extend(loadedJob, newJob);
         } else {
             // this job is not yet in the model or the map.  add it to both
             $log.debug("adding new job");
             var rsMapElement = rsMap[newJob.result_set_id];
             if (!rsMapElement) {
-                console.error("we should have added the resultset for this job already!");
+                $log.error("we should have added the resultset for this job already!");
                 return;
             }
 
