@@ -417,8 +417,18 @@ buildernames = [
                    'os': 'linux',
                    'os_platform': 'linux64',
                    'vm': False}}),
-    (
-    'Linux x86-64 mozilla-inbound leak test spidermonkey_tier_1-rootanalysis '
+    ('Linux x86-64 mozilla-inbound leak test non-unified',
+    {'build_type': 'opt',
+      'job_type': 'build',
+      'name': {'group_name': 'unknown',
+               'group_symbol': '?',
+               'name': 'Build',
+               'job_symbol': 'Bn'},
+      'platform': {'arch': 'x86_64',
+                   'os': 'linux',
+                   'os_platform': 'linux64',
+                   'vm': False}}),
+    ('Linux x86-64 mozilla-inbound leak test spidermonkey_tier_1-rootanalysis '
     'build',
     {'build_type': 'debug',
     'job_type': 'build',
