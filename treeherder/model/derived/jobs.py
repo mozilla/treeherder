@@ -881,6 +881,7 @@ class JobsModel(TreeherderModelBase):
                 job_id = job_id_lookup[job_guid]['id']
                 result = job_results[job_guid]
                 result_set_id = job_id_lookup[job_guid]['result_set_id']
+
                 # Replace job_guid with id
                 log_placeholders[index][0] = job_id
 
