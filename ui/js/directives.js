@@ -34,9 +34,10 @@ treeherder.directive('thJobButton', function (thResultStatusInfo) {
                 }
                 scope.job.display = thResultStatusInfo(resultState);
                 scope.hoverText = getHoverText(scope.job);
-//                @@@ This causes the job button to flash yellow for a second to
-//                draw attention to the update.  Not sure if we want it or not.
-//                element.effect("highlight", {}, 1500);
+                // This causes the job button to flash yellow for a second to
+                //draw attention to the update.
+                var e = $(element);
+                e.effect("highlight", {}, 2500);
             }, true);
         },
         templateUrl: 'partials/thJobButton.html'
@@ -109,7 +110,11 @@ treeherder.directive('thRevision', function($parse) {
     return {
         restrict: "E",
         link: function(scope, element, attrs) {
-            scope.revisionUrl = scope.currentRepo.url + "/rev/" + scope.revision.revision;
+            scope.$watch('currentRepo', function(newVal) {
+                if (newVal) {
+                    scope.revisionUrl = scope.currentRepo.url + "/rev/" + scope.revision.revision;
+                }
+            })
         },
         templateUrl: 'partials/thRevision.html'
     };

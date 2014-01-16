@@ -410,12 +410,11 @@ treeherder.factory('thResultSetModelManager',
 
         /**
          * Get the next batch of resultsets based on our current offset.
-         * @param offset
-         * @param count
+         * @param count How many to fetch
          */
-        fetchResultSets: function(offset, count) {
+        fetchResultSets: function(count) {
 
-            thResultSets.getResultSets(offset, count).
+            thResultSets.getResultSets(rsOffset, count).
                 success(function(data) {
                     rsOffset += data.length;
                     result_sets.push.apply(result_sets, data);
