@@ -206,8 +206,8 @@ class JobsViewSet(viewsets.ViewSet):
 
         filters = ["joblist"]
 
-        offset = request.QUERY_PARAMS.get('offset', 0)
-        count = request.QUERY_PARAMS.get('count', 10)
+        offset = int(request.QUERY_PARAMS.get('offset', 0))
+        count = int(request.QUERY_PARAMS.get('count', 10))
 
         objs = jm.get_job_list(
             offset,
