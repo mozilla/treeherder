@@ -36,7 +36,6 @@ Requirements
 
 * [node.js](http://nodejs.org/download/)
 * karma: ``sudo npm install -g karma``
-* socket.io ``sudo npm install socket.io``
 
 
 Execution::
