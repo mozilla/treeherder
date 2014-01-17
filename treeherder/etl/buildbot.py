@@ -244,6 +244,7 @@ JOB_TYPE_BUILDERNAME = {
         re.compile('.+ xulrunner$'),
         re.compile('.+ code coverage$'),
         re.compile('.*valgrind$'),
+        re.compile('.*non-unified'),
     ],
     'unittest': [
         re.compile('jetpack.*(opt|debug)$'),
