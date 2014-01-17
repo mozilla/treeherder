@@ -1,6 +1,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+from __future__ import unicode_literals
 
 import httplib
 import oauth2 as oauth
@@ -556,8 +557,10 @@ class TreeherderRequest(object):
         if (not isinstance(collection_inst, TreeherderResultSetCollection)) and \
             (not isinstance(collection_inst, TreeherderJobCollection)):
 
-            msg = '{0} invalid collection class type'.format(
-                self.__class__.__name__)
+            msg = '{0} is an invalid collection class type, should be {1} or {2}'.format(
+                type(collection_inst),
+                type(TreeherderResultSetCollection),
+                type(TreeherderJobCollection))
 
             raise TreeherderClientError(msg, [])
 
@@ -579,45 +582,37 @@ class TreeherderRequest(object):
 
         uri = self.get_uri(collection_inst)
 
-        params = {
-            'data':urllib.quote(collection_inst.to_json())
-            }
+        # Build the header
+        headers = {'Content-Type': 'application/json'}
 
         use_oauth = bool(self.oauth_key and self.oauth_secret)
 
-        if use_oauth:
+        body = {
+            'collection_data':collection_inst.get_collection_data()
+            }
 
-            params.update({'user': self.project,
-                           'oauth_version': '1.0',
-                           'oauth_nonce': oauth.generate_nonce(),
-                           'oauth_timestamp': int(time.time())})
+        if use_oauth:
 
             # There is no requirement for the token in two-legged
             # OAuth but we still need the token object.
             token = oauth.Token(key='', secret='')
             consumer = oauth.Consumer(key=self.oauth_key, secret=self.oauth_secret)
 
-            params['oauth_token'] = token.key
-            params['oauth_consumer_key'] = consumer.key
-
             try:
-                req = oauth.Request(method='POST', url=uri, parameters=params)
+                req = oauth.Request(
+                    method='POST',
+                    body=collection_inst.to_json(),
+                    url=uri
+                    )
             except AssertionError, e:
                 print 'uri: %s' % uri
-                print 'params: %s' % params
+                print 'body: %s' % body
                 raise
 
             signature_method = oauth.SignatureMethod_HMAC_SHA1()
             req.sign_request(signature_method, consumer, token)
 
-            body = req.to_postdata()
-
-        else:
-
-            body = urllib.urlencode(params)
-
-        # Build the header
-        header = {'Content-Type': 'application/json'}
+            body['authentication'] = self.get_authentication_data(req)
 
         # Make the POST request
         conn = None
@@ -626,9 +621,24 @@ class TreeherderRequest(object):
         else:
             conn = httplib.HTTPSConnection(self.host)
 
-        conn.request('POST', uri, body, header)
+        conn.request('POST', uri, json.dumps(body), headers)
 
         return conn.getresponse()
+
+    def get_authentication_data(self, req):
+        """
+        Retrieve the oauth related variables out of the oauth request
+        object.
+        """
+
+        authentication = {}
+
+        oauth_params = ((k, v) for k, v in req.items() if k.startswith('oauth_'))
+        for k, v in oauth_params:
+            if v:
+                authentication[k] = v
+
+        return authentication
 
     def get_uri(self, collection_inst):
 
@@ -637,6 +647,7 @@ class TreeherderRequest(object):
             )
 
         return uri
+
 
 class TreeherderClientError(Exception):
     def __init__(self, msg, Errors):

@@ -1,5 +1,9 @@
+from __future__ import unicode_literals
+
 import unittest
 import os
+import json
+
 from mock import patch
 
 from thclient import (TreeherderJob, TreeherderJobCollection,
@@ -48,6 +52,7 @@ class DataSetup(unittest.TestCase):
                 for index, revision in enumerate(resultset['revisions']):
                     del revision['branch']
 
+                # Add artifacts to data
                 resultset['artifact'] = {
                     u'name':'push_data',
                     u'type':'push',
@@ -55,26 +60,6 @@ class DataSetup(unittest.TestCase):
                     }
 
                 resultset['type'] = 'push'
-
-        # Sample post response with oauth credentials
-        post_file = 'post.txt'
-        self.post_file_path = os.path.join(
-            os.path.dirname(__file__),
-            'data',
-            post_file
-            )
-        with open(self.post_file_path) as f:
-            self.post_data = f.read().strip()
-
-        # Sample post response with no oauth credentials
-        no_oauth_post_file = 'no_oauth_post.txt'
-        self.no_oauth_post_file_path = os.path.join(
-            os.path.dirname(__file__),
-            'data',
-            no_oauth_post_file
-            )
-        with open(self.no_oauth_post_file_path) as f:
-            self.no_oauth_post_data = f.read().strip()
 
     def compare_structs(self, struct1, struct2):
         """Compare two dictionary structures"""
@@ -383,13 +368,9 @@ class TreeherderRequestTest(DataSetup, unittest.TestCase):
 
         tjc = TreeherderJobCollection()
 
-        for job in self.job_data:
-
-            tjc.add( tjc.get_job(job) )
-            break
+        tjc.add( tjc.get_job( self.job_data[0] ) )
 
         response = req.send(tjc)
-
 
         self.assertEqual(mock_HTTPConnection.call_count, 1)
         self.assertEqual(mock_HTTPConnection.call_args[0][0], host)
@@ -399,17 +380,25 @@ class TreeherderRequestTest(DataSetup, unittest.TestCase):
         uri = req.get_uri(tjc)
 
         method, path, data, header = mock_request.call_args[0]
+
         self.assertEqual(method, "POST")
         self.assertEqual(path, uri)
 
-        self.assertEqual(data, self.post_data)
-
+        deserialized_data = json.loads(data)
+        self.assertEqual(
+            deserialized_data['collection_data'],
+            tjc.get_collection_data()
+            )
         self.assertEqual(
             header['Content-Type'],
             'application/json',
             )
-
-        self.assertEqual(data, self.post_data)
+        self.assertIsNotNone(
+            deserialized_data['authentication']['oauth_body_hash']
+            )
+        self.assertIsNotNone(
+            deserialized_data['authentication']['oauth_signature']
+            )
 
     @patch("thclient.client.oauth.generate_nonce")
     @patch("thclient.client.oauth.time.time")
@@ -455,7 +444,11 @@ class TreeherderRequestTest(DataSetup, unittest.TestCase):
         self.assertEqual(method, "POST")
         self.assertEqual(path, uri)
 
-        self.assertEqual(data, self.no_oauth_post_data)
+        deserialized_data = json.loads(data)
+        self.assertEqual(
+            deserialized_data['collection_data'],
+            tjc.get_collection_data()
+            )
 
         self.assertEqual(
             header['Content-Type'],
