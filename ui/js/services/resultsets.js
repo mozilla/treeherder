@@ -266,13 +266,22 @@ treeherder.factory('thResultSetModelManager',
      */
     var updateJob = function(newJob) {
         var loadedJob = jobMap[newJob.id];
+        var rsMapElement = rsMap[newJob.result_set_id];
+
+        // update the resultset result_types list so the hide/show button
+        // can update accordingly
+        var resultType = getResultType(newJob);
+        if (rsMapElement.rs_obj.result_types.indexOf(resultType) < 0) {
+            rsMapElement.rs_obj.result_types.push(resultType);
+            $log.debug("new status of " + resultType + " added to " + JSON.stringify(rsMapElement.rs_obj));
+        }
+
         if (loadedJob) {
             $log.debug("updating existing job");
             $.extend(loadedJob, newJob);
         } else {
             // this job is not yet in the model or the map.  add it to both
             $log.debug("adding new job");
-            var rsMapElement = rsMap[newJob.result_set_id];
             if (!rsMapElement) {
                 $log.error("we should have added the resultset for this job already!");
                 return;
@@ -287,6 +296,14 @@ treeherder.factory('thResultSetModelManager',
             jobMap[newJob.id] = newJob;
 
         }
+    };
+
+    var getResultType = function(job) {
+        var resultType = job.result;
+        if (job.state !== "completed") {
+            resultType = job.state;
+        }
+        return resultType;
     };
 
     var prependResultSets = function(data) {

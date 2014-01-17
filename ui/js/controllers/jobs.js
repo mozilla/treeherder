@@ -86,6 +86,15 @@ treeherder.controller('ResultSetCtrl',
         };
 
         var severeResultStatus = getMostSevereResultStatus($scope.resultset.result_types);
+        $scope.$watch('resultset.result_types', function(newVal) {
+            severeResultStatus = getMostSevereResultStatus($scope.resultset.result_types);
+
+            if ($scope.resultSeverity !== severeResultStatus.status) {
+                $log.debug("updating resultSeverity from " + $scope.resultSeverity + " to " + severeResultStatus.status);
+            }
+
+            $scope.resultSeverity = severeResultStatus.status;
+        }, true);
         $scope.resultSeverity = severeResultStatus.status;
         $scope.isCollapsedResults = severeResultStatus.isCollapsedResults;
 
