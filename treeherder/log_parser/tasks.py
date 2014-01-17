@@ -18,7 +18,7 @@ from treeherder.events.publisher import JobFailurePublisher, JobStatusPublisher
 
 
 @task(name='parse-log')
-def parse_log(project, job_id, check_errors=False):
+def parse_log(project, job_id, result_set_id, check_errors=False):
     """
     Call ArtifactBuilderCollection on the given job.
     """
@@ -79,7 +79,7 @@ def parse_log(project, job_id, check_errors=False):
 
             # store the artifacts generated
             jm.store_job_artifact(artifact_list)
-        status_publisher.publish(job_id, project, 'processed')
+        status_publisher.publish(job_id, result_set_id, project, 'processed')
         if check_errors:
             failure_publisher.publish(job_id, project)
 

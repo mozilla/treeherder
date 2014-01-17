@@ -176,6 +176,8 @@ class JobsViewSet(viewsets.ViewSet):
         obj = jm.get_job(pk)
         if obj:
             job = obj[0]
+            job["resource_uri"] = reverse("jobs-detail",
+                kwargs={"project": jm.project, "pk": job["id"]})
             job["logs"] = jm.get_log_references(pk)
 
             # make artifact ids into uris
@@ -187,6 +189,9 @@ class JobsViewSet(viewsets.ViewSet):
                 art["resource_uri"] = ref
                 job["artifacts"].append(art)
 
+            option_collections = jm.refdata_model.get_all_option_collections()
+            option_collections[job["option_collection_hash"]]['opt']
+
             return Response(job)
         else:
             return Response("No job with id: {0}".format(pk), 404)
@@ -196,11 +201,26 @@ class JobsViewSet(viewsets.ViewSet):
     def list(self, request, project, jm):
         """
         GET method implementation for list view
-        """
-        offset = request.QUERY_PARAMS.get('offset', 0)
-        count = request.QUERY_PARAMS.get('count', 10)
 
-        objs = jm.get_job_list(offset, count)
+        """
+
+        filters = ["joblist"]
+
+        offset = int(request.QUERY_PARAMS.get('offset', 0))
+        count = int(request.QUERY_PARAMS.get('count', 10))
+
+        objs = jm.get_job_list(
+            offset,
+            count,
+            **dict((k, v) for k, v in request.QUERY_PARAMS.iteritems()
+                   if k in filters)
+        )
+        if objs:
+            option_collections = jm.refdata_model.get_all_option_collections()
+            for job in objs:
+                job["platform_opt"] = option_collections[
+                    job["option_collection_hash"]]['opt']
+
         return Response(objs)
 
     @action()
@@ -256,9 +276,11 @@ class ResultSetViewSet(viewsets.ViewSet):
     def list(self, request, project, jm):
         """
         GET method for list of ``resultset`` records with revisions
+
+        resultsetlist - specific resultset ids to retrieve
         """
 
-        filters = ["author", "revision"]
+        filters = ["author", "revision", "resultsetlist"]
 
         offset = int(request.QUERY_PARAMS.get('offset', 0))
         count = int(request.QUERY_PARAMS.get('count', 10))
@@ -293,12 +315,7 @@ class ResultSetViewSet(viewsets.ViewSet):
     def get_resultsets_with_jobs(jm, rs_list, filter_kwargs):
         """Convert db result of resultsets in a list to JSON"""
 
-        # I think I'll just call the database in a for-loop and fetch
-        # the jobs for each resultset, then glue them together.  Oh wait...
-        # I promised Jeads I wouldn't do that.  I guess I'll fetch the job
-        # results all at once, then parse them out in memory.  Jeads will
-        # like that better.  :)
-
+        # Fetch the job results all at once, then parse them out in memory.
         # organize the resultsets into an obj by key for lookups
         rs_map = {}
         for rs in rs_list:
@@ -341,11 +358,15 @@ class ResultSetViewSet(viewsets.ViewSet):
             #itertools needs the elements to be sorted by the grouper
             by_platform = sorted(list(resultset_group), key=platform_grouper)
             platforms = []
-            for platform_name, platform_group in itertools.groupby(
+            for platform_group_name, platform_group in itertools.groupby(
                     by_platform,
                     key=platform_grouper):
 
                 by_job_group = sorted(list(platform_group), key=job_group_grouper)
+
+                platform_name = by_job_group[0]["platform"]
+                platform_option = option_collections[
+                    by_job_group[0]["option_collection_hash"]]['opt']
 
                 groups = []
                 for jg_symbol, jg_group in itertools.groupby(
@@ -362,12 +383,12 @@ class ResultSetViewSet(viewsets.ViewSet):
 
                     # build the uri ref for each job
                     for job in by_job_type:
-                        job["resource_uri"] = reverse("jobs-detail",
-                            kwargs={"project": jm.project, "pk": job["job_id"]})
-                        #del(job["job_group_name"])
-                        #del(job["job_group_symbol"])
+                        job["id"] = job["job_id"]
+                        del(job["job_id"])
                         del(job["result_set_id"])
-                        del(job["platform"])
+
+                        job["resource_uri"] = reverse("jobs-detail",
+                            kwargs={"project": jm.project, "pk": job["id"]})
 
                         if job["state"] == "completed":
                             result_types.append(job["result"])
@@ -377,6 +398,7 @@ class ResultSetViewSet(viewsets.ViewSet):
 
                 platforms.append({
                     "name": platform_name,
+                    "option": platform_option,
                     "groups": groups,
                 })
 

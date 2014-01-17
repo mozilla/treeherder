@@ -75,14 +75,24 @@ class JobsModel(TreeherderModelBase):
         )
         return data
 
-    def get_job_list(self, offset, limit):
+    def get_job_list(self, offset, limit, **kwargs):
         """
         Retrieve a list of jobs.
         Mainly used by the restful api to list the jobs
+
+        joblist: a list of job ids to limit which jobs are returned.
         """
+        filter_str = ""
+
+        if "joblist" in kwargs:
+            filter_str += " AND j.id in ({0})".format(kwargs["joblist"])
+
+        repl = [self.refdata_model.get_db_name(), filter_str]
+
         proc = "jobs.selects.get_job_list"
         data = self.get_jobs_dhub().execute(
             proc=proc,
+            replace=repl,
             placeholders=[offset, limit],
             debug_show=self.DEBUG,
         )
@@ -208,6 +218,9 @@ class JobsModel(TreeherderModelBase):
         if "revision" in kwargs and len(kwargs["revision"]) > 5:
             replace_str += " AND revision.revision = %s"
             placeholders.append(kwargs["revision"])
+
+        if "resultsetlist" in kwargs:
+            replace_str += " AND rs.id in ({0})".format(kwargs["resultsetlist"])
 
         # If a push doesn't have jobs we can just
         # message the user, it would save us a very expensive join
@@ -867,11 +880,14 @@ class JobsModel(TreeherderModelBase):
                 job_guid = log_placeholders[index][0]
                 job_id = job_id_lookup[job_guid]['id']
                 result = job_results[job_guid]
+                result_set_id = job_id_lookup[job_guid]['result_set_id']
+
                 # Replace job_guid with id
                 log_placeholders[index][0] = job_id
 
                 task = dict()
                 task['id'] = job_id
+                task['result_set_id'] = result_set_id
                 if result != 'success':
                     task['check_errors'] = True
                     task['routing_key'] = 'parse_log.failures'
@@ -888,7 +904,7 @@ class JobsModel(TreeherderModelBase):
                 executemany=True)
 
             for task in tasks:
-                parse_log.apply_async(args=[self.project, task['id']],
+                parse_log.apply_async(args=[self.project, task['id'], task['result_set_id']],
                                       kwargs={'check_errors': task['check_errors']},
                                       routing_key=task['routing_key'])
 
