@@ -60,7 +60,8 @@ treeherder.factory('thResultSetModelManager',
         rsMap,
         jobMap,
         jobMapOldestId,
-        rsMapOldestId;
+        rsMapOldestId,
+        rsMapOldestTimestamp;
 
     /******
      * Build the Job and Resultset object mappings to make it faster and
@@ -77,8 +78,17 @@ treeherder.factory('thResultSetModelManager',
                 platforms: {}
             };
 
+            // keep track of the oldest id, so we don't auto-fetch resultsets
+            // that are out of the range we care about.
             if (!rsMapOldestId || rsMapOldestId > rs.id) {
                 rsMapOldestId = rs.id;
+            }
+            // it is possible that resultset ids may be newer, even if the
+            // time stamp is older, so this is for doing a second check after
+            // fetching, but before actually adding the resultset to the data
+            // model.
+            if (!rsMapOldestTimestamp || rsMapOldestTimestamp > rs.push_timestamp) {
+                rsMapOldestTimestamp = rs.push_timestamp;
             }
 
             // platforms
@@ -108,6 +118,8 @@ treeherder.factory('thResultSetModelManager',
                 }
             }
         }
+        $log.debug("oldest job: " + jobMapOldestId);
+        $log.debug("oldest result set: " + rsMapOldestId);
         $log.debug("done mapping:");
         $log.debug(rsMap);
     };
@@ -309,12 +321,18 @@ treeherder.factory('thResultSetModelManager',
     var prependResultSets = function(data) {
         // prepend the resultsets because they'll be newer.
 
+        var added = [];
         for (var i = data.length - 1; i > -1; i--) {
-            $log.debug("prepending resultset: " + data[i].id);
-            result_sets.unshift(data[i]);
+            if (data[i].push_timestamp > rsMapOldestTimestamp) {
+                $log.debug("prepending resultset: " + data[i].id);
+                result_sets.push(data[i]);
+                added.push(data[i]);
+            } else {
+                $log.debug("not prepending.  timestamp is older");
+            }
         }
 
-        mapResultSets(data);
+        mapResultSets(added);
 
         api.loadingStatus.prepending = false;
     };
@@ -385,7 +403,7 @@ treeherder.factory('thResultSetModelManager',
              */
             thSocket.on("job", function(data) {
                 if (data.branch === repoName) {
-                    if (data.result_set_id > rsMapOldestId) {
+                    if (data.result_set_id >= rsMapOldestId) {
                         // we want to load this job, one way or another
                         if (rsMap[data.result_set_id]) {
                             // we already have this resultset loaded, so queue the job

@@ -13,9 +13,10 @@
      ng-show="isLoadingRsBatch.prepending">
     <div class="progress-bar"  role="progressbar" style="width: 100%"></div>
 </div>
-<div ng-repeat="resultset in result_sets track by resultset.id"
+<div ng-repeat="resultset in result_sets track by resultset.id | orderBy:'-push_timestamp'"
      ng-controller="ResultSetCtrl"
-     class="result-set">
+     class="result-set"
+     data-id="{{resultset.id}}">
 
     <span th-show-jobs severity="resultSeverity"></span>
     <a class="text-left btn btn-info th-revision-btn"
