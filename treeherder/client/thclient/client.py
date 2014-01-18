@@ -598,10 +598,17 @@ class TreeherderRequest(object):
             token = oauth.Token(key='', secret='')
             consumer = oauth.Consumer(key=self.oauth_key, secret=self.oauth_secret)
 
+            body['authentication'] = {
+                'user':self.project,
+                'oauth_version':'1.0',
+                'oauth_nonce':oauth.generate_nonce(),
+                'oauth_timestamp':int(time.time())
+                }
+
             try:
                 req = oauth.Request(
                     method='POST',
-                    body=collection_inst.to_json(),
+                    body=json.dumps(body),
                     url=uri
                     )
             except AssertionError, e:
@@ -612,7 +619,7 @@ class TreeherderRequest(object):
             signature_method = oauth.SignatureMethod_HMAC_SHA1()
             req.sign_request(signature_method, consumer, token)
 
-            body['authentication'] = self.get_authentication_data(req)
+            body['authentication'].update(self.get_authentication_data(req))
 
         # Make the POST request
         conn = None
@@ -637,6 +644,7 @@ class TreeherderRequest(object):
         for k, v in oauth_params:
             if v:
                 authentication[k] = v
+
 
         return authentication
 
