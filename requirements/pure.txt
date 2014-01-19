@@ -20,4 +20,4 @@ oauth2==1.5.211
 httplib2==0.7.4
 
 git+git://github.com/jeads/datasource@143ac08d11
-git+git://github.com/mozilla/treeherder-client@aefcc62f2f
+git+git://github.com/mozilla/treeherder-client@dcab407416

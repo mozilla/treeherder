@@ -4,6 +4,7 @@ import json
 from django.core.management.base import BaseCommand
 
 from treeherder.model.models import Datasource
+from treeherder.model.derived.base import TreeherderModelBase
 from treeherder.etl import buildapi
 
 
@@ -16,6 +17,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
+        immutable_credentials = TreeherderModelBase.get_oauth_credentials()
+
+        print immutable_credentials
+        """
         ds_list = Datasource.objects.all()
 
         keys = {}
@@ -34,3 +39,4 @@ class Command(BaseCommand):
         keys_fh = open(file_path, 'w')
         keys_fh.write(json_keys)
         keys_fh.close()
+        """

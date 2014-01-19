@@ -6,6 +6,10 @@ from collections import defaultdict
 
 import simplejson as json
 
+from thclient import TreeherderRequest, TreeherderJobCollection, TreeherderResultSetCollection, TreeherderClientError
+
+from treeherder.model.derived.base import TreeherderModelBase
+
 from django.core.urlresolvers import reverse
 from django.conf import settings
 
@@ -58,47 +62,10 @@ class ObjectstoreLoaderMixin(JsonLoaderMixin):
                 settings.API_HOSTNAME.strip('/'),
                 endpoint.strip('/')
             )
+            print ['ObjectstoreLoaderMixin', url]
             response = super(ObjectstoreLoaderMixin, self).load(url, jobs)
 
             if response.getcode() != 200:
-                message = json.loads(response.read())
-                logger.error("Job loading failed: {0}".format(message['message']))
-
-
-# TODO: finish the Jobs loader
-class JobsLoaderMixin(JsonLoaderMixin):
-
-    def load(self, jobs):
-        """post a list of jobs to the objectstore ingestion endpoint """
-
-        project_jobs_map = defaultdict(list)
-        if not jobs:
-            return
-
-        for job in jobs:
-
-            project = job['project']
-
-            project_jobs_map[project].append(job)
-
-        for project in project_jobs_map:
-
-            # the creation endpoint is the same as the list one
-            endpoint = reverse(
-                "jobs-list",
-                kwargs={ "project": project }
-                )
-
-            url = "{0}/{1}/".format(
-                settings.API_HOSTNAME.strip('/'),
-                endpoint.strip('/')
-            )
-
-            response = super(JobsLoaderMixin, self).load(
-                url, project_jobs_map[project]
-            )
-
-            if not response or response.getcode() != 200:
                 message = json.loads(response.read())
                 logger.error("Job loading failed: {0}".format(message['message']))
 
@@ -143,3 +110,63 @@ class ResultSetsLoaderMixin(JsonLoaderMixin):
                 message = json.loads(response.read())
                 logger.error("ResultSet loading failed: {0}".format(message['message']))
 
+class OAuthLoaderMixin(object):
+
+    credentials = {}
+
+    @classmethod
+    def set_credentials(cls):
+        # Only get the credentials once
+        if not cls.credentials:
+            cls.credentials = TreeherderModelBase.get_oauth_credentials()
+
+    @classmethod
+    def get_credentials(cls, project):
+        return cls.credentials.get(project, {})
+
+    @classmethod
+    def get_consumer_secret(cls, project):
+        return cls.credentials.get(project, {})
+
+    @classmethod
+    def validate_credentials(cls, project, key, secret):
+
+        project_credentials = cls.credentials.get(project, {})
+
+        valid = False
+        if project_credentials:
+
+            if (project_credentials['consumer_key'] == key) and \
+               (project_credentials['consumer_secret'] == secret):
+
+                valid = True
+
+        return valid
+
+    def load(self, th_collections):
+
+        for project in th_collections:
+
+            credentials = OAuthLoaderMixin.get_credentials(project)
+
+            th_request = TreeherderRequest(
+                protocol=settings.TREEHERDER_REQUEST_PROTOCOL,
+                host=settings.TREEHERDER_REQUEST_HOST,
+                project=project,
+                oauth_key=credentials['consumer_key'],
+                oauth_secret=credentials['consumer_secret']
+                )
+
+            response = th_request.send( th_collections[project] )
+
+            if not response or response.status != 200:
+                message = response.read()
+                logger.error("ResultSet loading failed: {0}".format(message))
+                print "ResultSet loading failed: {0}".format(message)
+
+            print response.read()
+            print response.status
+
+if not OAuthLoaderMixin.credentials:
+    # Only set the credentials once
+    OAuthLoaderMixin.set_credentials()

@@ -1,6 +1,8 @@
 from django.core.cache import cache
 
-from .mixins import JsonExtractorMixin, ResultSetsLoaderMixin
+from thclient import TreeherderRequest, TreeherderResultSetCollection
+
+from .mixins import JsonExtractorMixin, OAuthLoaderMixin
 from treeherder.etl.common import generate_revision_hash
 
 
@@ -16,6 +18,8 @@ class HgPushlogTransformerMixin(object):
             last_push = max(pushlog.keys())
         else:
             last_push = None
+
+        th_collections = {}
 
         # iterate over the pushes
         for push in pushlog.values():
@@ -46,19 +50,26 @@ class HgPushlogTransformerMixin(object):
 
             result_set['revision_hash'] = generate_revision_hash(rev_hash_components)
 
+            if repository not in th_collections:
+                th_collections[ repository ] = TreeherderResultSetCollection()
+
             # append the push the transformed pushlog
-            result_sets.append(result_set)
+            #result_sets.append(result_set)
+
+            th_resultset = th_collections[ repository ].get_resultset(result_set)
+            th_collections[ repository ].add(th_resultset)
 
         # cache the last push seen
         if last_push:
             cache.set("{0}:last_push".format(repository), last_push)
 
-        return result_sets
+        #return result_sets
+        return th_collections
 
 
 class HgPushlogProcess(JsonExtractorMixin,
                        HgPushlogTransformerMixin,
-                       ResultSetsLoaderMixin):
+                       OAuthLoaderMixin):
 
     def run(self, source_url, repository):
 
@@ -74,10 +85,7 @@ class HgPushlogProcess(JsonExtractorMixin,
                 self.transform(
                     extracted_content,
                     repository
-                ),
-                # we have 1 job datasource for each repository
-                # and they share the name
-                repository
+                )
             )
 
 
@@ -91,7 +99,7 @@ class GitPushlogTransformerMixin(object):
 
 class GitPushlogProcess(JsonExtractorMixin,
                         GitPushlogTransformerMixin,
-                        ResultSetsLoaderMixin):
+                        OAuthLoaderMixin):
     def run(self, source_url, project):
         # TODO: implement the whole sources.xml ingestion process
         pass

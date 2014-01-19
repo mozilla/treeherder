@@ -10,9 +10,98 @@ from rest_framework.decorators import action
 from rest_framework.reverse import reverse
 from rest_framework.exceptions import ParseError
 
+from django.contrib.auth.models import User
+
 from treeherder.model import models
 from treeherder.model.derived import (TreeherderModelBase, JobsModel,
                                         DatasetNotFoundError, ObjectNotFoundException)
+
+from treeherder.etl.mixins import OAuthLoaderMixin
+
+class OAuthAuthentication(object):
+
+    def validate_credentials(self, request, project):
+
+        # Get the project credentials
+        project_credentials = OAuthLoaderMixin.get_credentials(project)
+
+        # Get the consumer key
+        auth_data = request.DATA.get('authentication', None)
+
+        print auth_data
+
+        if not project_credentials:
+
+            msg = "project, {0}, has no OAuth credentials".format(project)
+
+            return Response(msg, 404)
+
+        oauth_body_hash = auth_data.get('oauth_body_hash', None)
+        oauth_signature = auth_data.get('oauth_signature', None)
+        oauth_consumer_key = auth_data.get('oauth_consumer_key', None)
+
+        if (oauth_body_hash is None) or (oauth_signature is None) or \
+            (oauth_consumer_key is None):
+
+            msg = {
+                'response':"invalid_request",
+                'msg':"Required parameters not provided in the HTTP body",
+                'required_parameters':{ 'authentication':{ } }
+                }
+
+            msg['required_parameters']['authentication'].update(auth_data)
+
+            return Response(json.dumps(msg), 500)
+
+        if oauth_consumer_key != project_credentials['consumer_key']:
+            msg = {
+                'response':"access_denied",
+                'msg':"oauth_consumer_key does not match project, {0}, credentials".format(project)
+                }
+
+            return Response(json.dumps(msg), 403)
+
+        #Construct the OAuth request based on the django request object
+        req_obj = oauth.Request(
+            method=request.method,
+            body=request.DATA,
+            url=request.build_absolute_uri()
+            )
+
+        req_obj.update({
+            'user': auth_data.get('user', None),
+            'oauth_version': auth_data.get('oauth_version', None),
+            'oauth_nonce': auth_data.get('oauth_nonce', None),
+            'oauth_timestamp': auth_data.get('oauth_timestamp', None)
+            })
+
+        server = oauth.Server()
+
+        #Get the consumer object
+        token = oauth.Token(key='', secret='')
+
+        consumer_secret = project_credentials['consumer_secret']
+        cons_obj = oauth.Consumer(oauth_consumer_key, consumer_secret)
+
+        #Set the signature method
+        server.add_signature_method(oauth.SignatureMethod_HMAC_SHA1())
+
+        server.verify_request(req_obj, cons_obj, None)
+        """
+        try:
+            #verify oauth django request and consumer object match
+            server.verify_request(req_obj, cons_obj, None)
+        except oauth.Error:
+            print oauth.Error.message
+            msg = {
+                'response':"invalid_client",
+                'msg':"Client authentication failed for project, ".format(project)
+                }
+
+            return Response(msg, 403)
+        """
+
+        return None
 
 ##Decorators##
 def oauth_required(func):
@@ -21,37 +110,57 @@ def oauth_required(func):
     request. View methods that use this method a project kwarg.
     """
     def _wrap_oauth(request, *args, **kwargs):
+        print '_wrap_oauth called'
+
         project = kwargs.get('project', None)
 
-        ds = TreeherderModelBase(project).get_datasource('objectstore')
+        # Get the project credentials
+        project_credentials = OAuthLoaderMixin.get_credentials(project)
 
-        #Get the consumer key
-        key = request.REQUEST.get('oauth_consumer_key', None)
+        # Get the consumer key
+        auth_data = request.DATA.get('authentication', None)
+        print auth_data
+        if not project_credentials:
+            msg = "project, {0}, has no OAuth credentials".format(project)
+            return Response(msg, 404)
 
-        if key is None:
-            result = {"status": "No OAuth credentials provided."}
-            return HttpResponse(
-                json.dumps(result), content_type=APP_JS, status=403)
+        oauth_body_hash = auth_data.get('oauth_body_hash', None)
+        oauth_signature = auth_data.get('oauth_signature', None)
+        oauth_consumer_key = auth_data.get('oauth_consumer_key', None)
 
-        try:
-            #Get the consumer secret stored with this key
-            ds_consumer_secret = ds.get_oauth_consumer_secret(key)
-        except DatasetNotFoundError:
-            result = {"status": "Unknown project '%s'" % project}
-            return HttpResponse(
-                json.dumps(result), content_type=APP_JS, status=404)
+        if (oauth_body_hash is None) or (oauth_signature is None) or \
+            (oauth_consumer_key is None):
+
+            msg = {
+                'response':"invalid_request",
+                'msg':"Required parameters not provided in the HTTP body",
+                'required_parameters':{ 'authentication':{ } }
+                }
+
+            msg['required_parameters']['authentication'].update(auth_data)
+
+            return Response(json.dumps(msg), 500)
+
+        if oauth_consumer_key != project_credentials['consumer_key']:
+            msg = {
+                'response':"access_denied",
+                'msg':"oauth_consumer_key does not match project, {0}, credentials".format(project)
+                }
+
+            return Response(json.dumps(msg), 403)
 
         #Construct the OAuth request based on the django request object
-        req_obj = oauth.Request(request.method,
-                                request.build_absolute_uri(),
-                                request.REQUEST,
-                                '',
-                                False)
+        req_obj = oauth.Request(
+            method=request.method,
+            body=request.DATA.get('data_collection'),
+            url=request.build_absolute_uri()
+            )
 
         server = oauth.Server()
 
         #Get the consumer object
-        cons_obj = oauth.Consumer(key, ds_consumer_secret)
+        consumer_secret = project_credentials['consumer_secret']
+        cons_obj = oauth.Consumer(key, consumer_secret)
 
         #Set the signature method
         server.add_signature_method(oauth.SignatureMethod_HMAC_SHA1())
@@ -60,10 +169,11 @@ def oauth_required(func):
             #verify oauth django request and consumer object match
             server.verify_request(req_obj, cons_obj, None)
         except oauth.Error:
-            status = 403
-            result = {"status": "Oauth verification error."}
-            return HttpResponse(
-                json.dumps(result), content_type=APP_JS, status=status)
+            msg = {
+                'response':"invalid_client",
+                'msg':"Client authentication failed for project, ".format(project)
+                }
+            return Response(json.dumps(msg), 403)
 
         return func(request, *args, **kwargs)
 
@@ -103,7 +213,7 @@ def with_jobs(model_func):
     return use_jobs_model
 
 
-class ObjectstoreViewSet(viewsets.ViewSet):
+class ObjectstoreViewSet(viewsets.ViewSet, OAuthAuthentication):
     """
     This view is responsible for the objectstore endpoint.
     Only create, list and detail will be implemented.
@@ -116,8 +226,11 @@ class ObjectstoreViewSet(viewsets.ViewSet):
         """
         POST method implementation
         """
+        failed_response = self.validate_credentials(request, project)
+        if failed_response:
+            return failed_response
 
-        job_errors_resp = jm.store_job_data(request.DATA)
+        job_errors_resp = jm.store_job_data(request.DATA.get('data_collection', []))
 
         resp = {}
         if job_errors_resp:
@@ -216,11 +329,12 @@ class NoteViewSet(viewsets.ViewSet):
         )
 
 
-class JobsViewSet(viewsets.ViewSet):
+class JobsViewSet(viewsets.ViewSet, OAuthAuthentication):
     """
     This viewset is responsible for the jobs endpoint.
 
     """
+
     @with_jobs
     def retrieve(self, request, project, jm, pk=None):
         """
@@ -265,7 +379,7 @@ class JobsViewSet(viewsets.ViewSet):
         """
         Change the state of a job.
         """
-        state = request.DATA.get('state', None)
+        state = request.DATA.get('data_collection').get('state', None)
 
         # check that this state is valid
         if state not in jm.STATES:
@@ -296,12 +410,16 @@ class JobsViewSet(viewsets.ViewSet):
         The incoming data has the same structure as for
         the objectstore ingestion.
         """
-        jm.load_job_data(request.DATA)
+        failed_response = self.validate_credentials(request, project)
+        if failed_response:
+            return failed_response
+
+        jm.load_job_data(request.DATA.get('data_collection', []))
 
         return Response({'message': 'Job successfully updated'})
 
 
-class ResultSetViewSet(viewsets.ViewSet):
+class ResultSetViewSet(viewsets.ViewSet, OAuthAuthentication):
     """
     View for ``resultset`` records
 
@@ -461,8 +579,12 @@ class ResultSetViewSet(viewsets.ViewSet):
         """
         POST method implementation
         """
+        failed_response = self.validate_credentials(request, project)
+        if failed_response:
+            return failed_response
+
         try:
-            jm.store_result_set_data( request.DATA )
+            jm.store_result_set_data( request.DATA.get('data_collection', []) )
         except DatasetNotFoundError as e:
             return Response({"message": str(e)}, status=404)
         except Exception as e:  # pragma nocover
@@ -473,7 +595,6 @@ class ResultSetViewSet(viewsets.ViewSet):
             jm.disconnect()
 
         return Response({"message": "well-formed JSON stored"})
-
 
 
 class RevisionLookupSetViewSet(viewsets.ViewSet):
