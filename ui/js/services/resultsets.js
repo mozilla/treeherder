@@ -19,7 +19,7 @@ treeherder.factory('thResultSets',
                     offset: 0,
                     count: resultsetlist.length,
                     resultsetlist: resultsetlist.join()
-                })
+                });
             }
             return $http.get(thUrl.getProjectUrl("/resultset/"),
                              {params: params}
@@ -46,7 +46,7 @@ treeherder.factory('thResultSetModelManager',
     */
 
     // the primary data model
-    var result_sets,
+    var resultSets,
         updateQueueInterval,
         rsOffset,
 
@@ -118,10 +118,37 @@ treeherder.factory('thResultSetModelManager',
                 }
             }
         }
+        resultSets.sort(rsCompare);
         $log.debug("oldest job: " + jobMapOldestId);
         $log.debug("oldest result set: " + rsMapOldestId);
         $log.debug("done mapping:");
         $log.debug(rsMap);
+    };
+
+    /**
+     * Sort the resultsets in place after updating the array
+     */
+    var rsCompare = function(a, b) {
+        if (a.push_timestamp > b.push_timestamp) {
+          return -1;
+        }
+        if (a.push_timestamp < b.push_timestamp) {
+          return 1;
+        }
+        return 0;
+    };
+
+    /**
+     * Sort the resultsets in place after updating the array
+     */
+    var platformCompare = function(a, b) {
+        if (a.push_timestamp > b.push_timestamp) {
+          return -1;
+        }
+        if (a.push_timestamp < b.push_timestamp) {
+          return 1;
+        }
+        return 0;
     };
 
     /******
@@ -145,7 +172,6 @@ treeherder.factory('thResultSetModelManager',
 
             // add the new platform to the datamodel
             rsMapElement.rs_obj.platforms.push(pl_obj);
-            // @@@ sort here?
 
             // add the new platform to the resultset map
             rsMapElement.platforms[newJob.platform] = {
@@ -325,7 +351,7 @@ treeherder.factory('thResultSetModelManager',
         for (var i = data.length - 1; i > -1; i--) {
             if (data[i].push_timestamp > rsMapOldestTimestamp) {
                 $log.debug("prepending resultset: " + data[i].id);
-                result_sets.push(data[i]);
+                resultSets.push(data[i]);
                 added.push(data[i]);
             } else {
                 $log.debug("not prepending.  timestamp is older");
@@ -339,7 +365,7 @@ treeherder.factory('thResultSetModelManager',
 
     var appendResultSets = function(data) {
         rsOffset += data.length;
-        result_sets.push.apply(result_sets, data);
+        resultSets.push.apply(resultSets, data);
 
         mapResultSets(data);
 
@@ -362,7 +388,7 @@ treeherder.factory('thResultSetModelManager',
             jobMap = {};
             jobMapOldestId = null;
             rsMapOldestId = null;
-            result_sets = [];
+            resultSets = [];
 
             setInterval(processUpdateQueues, updateQueueInterval);
             /*
@@ -429,8 +455,10 @@ treeherder.factory('thResultSetModelManager',
             });
         },
 
+        // this is "watchable" for when we add new resultsets and have to
+        // sort them
         getResultSetsArray: function() {
-            return result_sets;
+            return resultSets;
         },
 
         // this is "watchable" by the controller now to update its scope.
