@@ -17,7 +17,7 @@ treeherder.controller('JobsCtrl',
         $rootScope.update_mru_repos = function(repo){
             var max_mru_repos_length = 6;
             var curr_repo_index = $scope.mru_repos.indexOf($rootScope.repoName);
-            if( curr_repo_index != -1){
+            if( curr_repo_index !== -1){
                 $scope.mru_repos.splice(curr_repo_index, 1);
             }
             $scope.mru_repos.unshift($rootScope.repoName);
