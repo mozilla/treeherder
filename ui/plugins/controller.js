@@ -96,7 +96,7 @@ treeherder.controller('PluginCtrl',
         $scope.tabs = [
             {
                 id: "tinderbox",
-                title: "Tinderbox",
+                title: "Job Details",
                 content: "plugins/tinderbox/main.html"
             },
             {
@@ -106,12 +106,12 @@ treeherder.controller('PluginCtrl',
             },
             {
                 id: "open-bugs",
-                title: "Open bugs",
+                title: "Open Bugs",
                 content: "plugins/open_bugs_suggestions/main.html"
             },
             {
                 id: "closed-bugs",
-                title: "Closed bugs",
+                title: "Closed Bugs",
                 content: "plugins/closed_bugs_suggestions/main.html"
             }
         ];
