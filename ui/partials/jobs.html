@@ -13,19 +13,21 @@
      ng-show="isLoadingRsBatch.prepending">
     <div class="progress-bar"  role="progressbar" style="width: 100%"></div>
 </div>
+        <span class="btn btn-success">11 Passing</span>
+        <span class="btn btn-danger">11 Busted</span>
+        <span class="btn btn-warning">11 Test Failing</span>
+
+
 <div ng-repeat="resultset in result_sets track by resultset.id | orderBy:'-push_timestamp'"
      ng-controller="ResultSetCtrl"
      class="result-set"
      data-id="{{resultset.id}}">
 
-    <span th-show-jobs severity="resultSeverity"></span>
-    <a class="text-left btn btn-info th-revision-btn"
-       ng-click="isCollapsedRevisions = !isCollapsedRevisions">
-        <div class="text-left">{{resultset.push_timestamp*1000|date:'medium'}} - {{resultset.author}} - {{resultset.revision}}</div>
-    </a>
-
-    <span class="th-action-button pull-right"
-          ng-hide="isLoadingResults">
+    <h3>
+    <button class="btn btn-default glyphicon glyphicon-pushpin"></button>
+    <button class="btn btn-default glyphicon glyphicon-download" ng-show="isLoadingJobs"></button>
+    <span class="th-action-button"
+          ng-hide="isLoadingJobs">
         <span class="dropdown">
             <a class="btn btn-default dropdown-toggle" data-hover="dropdown" data-delay="1000" href="#">
                 <i class="glyphicon glyphicon-cog"></i>
@@ -42,12 +44,23 @@
             </ul>
         </span>
     </span>
+    <span><span class="text-left label label-default">{{resultset.push_timestamp*1000|date:'medium'}} - {{resultset.author}} - {{resultset.revision}} - {{resultset.job_count}}</span></span>
+    </h3>
+
     <div class="progress progress-striped active th-rs-loading"
          ng-show="isLoadingResults">
         <div class="progress-bar"  role="progressbar" style="width: 100%"></div>
     </div>
 
     <div class="clearfix"></div>
+
+    <h4 class="filter-line">
+        <div class="text-left btn btn-default glyphicon glyphicon-cutlery"
+             ng-click="isCollapsedRevisions = !isCollapsedRevisions"></div>
+        <span class="btn btn-success">11 Passing</span>
+        <span class="btn btn-danger">11 Busted</span>
+        <span class="btn btn-warning">11 Test Failing</span>
+    </h4>
 
     <div ng-hide="isCollapsedRevisions && isCollapsedResults"
          class="row result-set">

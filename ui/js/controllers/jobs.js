@@ -49,7 +49,7 @@ treeherder.controller('JobsCtrl',
         $scope.fetchResultSets = function(count) {
             thResultSetModelManager.fetchResultSets(count);
         };
-        $scope.fetchResultSets(10);
+        $scope.fetchResultSets(2);
 
         $scope.repo_has_failures = function(repo_name){
             if($rootScope.new_failures.hasOwnProperty(repo_name) &&

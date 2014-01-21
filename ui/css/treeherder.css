@@ -58,7 +58,6 @@ th-failures-box li a{
 .th-action-button {
     margin-left: 5px;
     width: 50px;
-    float: right;
 }
 
 .th-action-button span.dropdown:hover ul.dropdown-menu{
