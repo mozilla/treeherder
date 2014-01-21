@@ -2,7 +2,7 @@
 
 treeherder.controller('NotesPluginCtrl',
     function NotesPluginCtrl($scope, $log) {
-        $log.log("notes plugin initialized");
+        $log.debug("notes plugin initialized");
 
         $scope.$watch('notes', function(newValue, oldValue){
             for(var tab=0; tab<$scope.tabs.length; tab++){

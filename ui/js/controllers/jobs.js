@@ -2,7 +2,8 @@
 
 treeherder.controller('JobsCtrl',
     function JobsCtrl($scope, $http, $rootScope, $routeParams, $log, $cookies,
-                      localStorageService, thUrl, thResultSets, thRepos, thSocket) {
+                      localStorageService, thUrl, thRepos, thSocket,
+                      thResultSetModelManager) {
 
         // set the default repo to mozilla-inbound if not specified
         if ($routeParams.hasOwnProperty("repo") &&
@@ -16,53 +17,43 @@ treeherder.controller('JobsCtrl',
         $rootScope.update_mru_repos = function(repo){
             var max_mru_repos_length = 6;
             var curr_repo_index = $scope.mru_repos.indexOf($rootScope.repoName);
-            if( curr_repo_index != -1){
+            if( curr_repo_index !== -1){
                 $scope.mru_repos.splice(curr_repo_index, 1);
             }
             $scope.mru_repos.unshift($rootScope.repoName);
             if($scope.mru_repos.length > max_mru_repos_length){
                 var old_branch= $scope.mru_repos.pop();
-                thSocket.emit('subscribe', old_branch+'.job_failure')
-                $log.log("subscribing to "+old_branch+'.job_failure');
+                thSocket.emit('subscribe', old_branch+'.job_failure');
+                $log.debug("subscribing to "+old_branch+'.job_failure');
             }
             localStorageService.set("mru_repos", $scope.mru_repos);
-        }
+        };
 
-        $rootScope.update_mru_repos($rootScope.repoName)
+        // the primary data model
+        thResultSetModelManager.init(60000, $scope.repoName);
+        $scope.result_sets = thResultSetModelManager.getResultSetsArray();
+
+        $rootScope.update_mru_repos($rootScope.repoName);
 
         // stop receiving new failures for the current branch
         if($rootScope.new_failures.hasOwnProperty($rootScope.repoName)){
             delete $rootScope.new_failures[$rootScope.repoName];
         }
 
-        $scope.offset = 0;
-        $scope.result_sets = [];
-
         thRepos.load($scope.repoName);
 
-        $scope.isLoadingRsBatch = false;
+        $scope.isLoadingRsBatch = thResultSetModelManager.loadingStatus;
 
-        $scope.nextResultSets = function(count) {
-
-            $scope.isLoadingRsBatch = true;
-
-            thResultSets.getResultSets($scope.offset, count).
-                success(function(data) {
-                    $scope.offset += count;
-                    $scope.result_sets.push.apply($scope.result_sets, data);
-                    $scope.isLoadingRsBatch = false;
-                }).
-                error(function(data, status, header, config) {
-                    $scope.statusError("Error getting result sets and jobs from service");
-                    $scope.isLoadingRsBatch = false;
-                });
-
+        // load our initial set of resultsets
+        // scope needs this function so it can be called directly by the user, too.
+        $scope.fetchResultSets = function(count) {
+            thResultSetModelManager.fetchResultSets(count);
         };
-
-        $scope.nextResultSets(10);
+        $scope.fetchResultSets(10);
 
         $scope.repo_has_failures = function(repo_name){
-            if($rootScope.new_failures.hasOwnProperty(repo_name) && $rootScope.new_failures[repo_name].length > 0){
+            if($rootScope.new_failures.hasOwnProperty(repo_name) &&
+               $rootScope.new_failures[repo_name].length > 0){
                 return true;
             }else{
                 return false;
@@ -95,26 +86,20 @@ treeherder.controller('ResultSetCtrl',
         };
 
         var severeResultStatus = getMostSevereResultStatus($scope.resultset.result_types);
+        $scope.$watch('resultset.result_types', function(newVal) {
+            severeResultStatus = getMostSevereResultStatus($scope.resultset.result_types);
+
+            if ($scope.resultSeverity !== severeResultStatus.status) {
+                $log.debug("updating resultSeverity from " + $scope.resultSeverity + " to " + severeResultStatus.status);
+            }
+
+            $scope.resultSeverity = severeResultStatus.status;
+        }, true);
         $scope.resultSeverity = severeResultStatus.status;
         $scope.isCollapsedResults = severeResultStatus.isCollapsedResults;
 
         // whether or not revision list for a resultset is collapsed
         $scope.isCollapsedRevisions = true;
-
-        // convert the platform names to human-readable using the TBPL
-        // Config.js file
-        for(var i = 0; i < $scope.resultset.platforms.length; i++) {
-            var platform = $scope.resultset.platforms[i];
-            var re = /(.+)(opt|debug|asan|pgo)$/i;
-            var platformArr = re.exec(platform.name);
-
-            if (platformArr) {
-                var newName = Config.OSNames[platformArr[1].trim()];
-                if (newName) {
-                    platform.name = newName + " " + platformArr[2];
-                }
-            }
-        }
 
         $scope.viewJob = function(job) {
             // set the selected job

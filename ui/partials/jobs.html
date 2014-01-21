@@ -8,14 +8,15 @@
             </button>
         </span>
     </p>
-
-
-        </div>
-
-    </div>
-<div ng-repeat="resultset in result_sets"
+</div>
+<div class="progress progress-striped active"
+     ng-show="isLoadingRsBatch.prepending">
+    <div class="progress-bar"  role="progressbar" style="width: 100%"></div>
+</div>
+<div ng-repeat="resultset in result_sets track by resultset.id | orderBy:'-push_timestamp'"
      ng-controller="ResultSetCtrl"
-     class="result-set">
+     class="result-set"
+     data-id="{{resultset.id}}">
 
     <span th-show-jobs severity="resultSeverity"></span>
     <a class="text-left btn btn-info th-revision-btn"
@@ -62,8 +63,8 @@
         <span ng-hide="isCollapsedResults"
               ng-class="{'col-md-8 job-list-pad-left': (isCollapsedRevisions==false), 'col-md-12 job-list-nopad': (isCollapsedRevisions)}">
             <table class="table-hover">
-                <tr ng-repeat="platform in resultset.platforms | filter:query">
-                    <td class="col-md-2 platform"><span>{{ platform.name }}</span></td>
+                <tr ng-repeat="platform in resultset.platforms | filter:query | orderBy: $filter('platformName')">
+                    <td class="col-md-2 platform"><span>{{ platform.name | platformName:platform.name }} {{ platform.option }}</span></td>
                     <td class="col-md-10">
                         <span ng-repeat="group in platform.groups">
                             <span ng-show="group.symbol != '?'"
@@ -105,13 +106,13 @@
 
 </div>
 <div class="progress progress-striped active"
-     ng-show="isLoadingRsBatch">
+     ng-show="isLoadingRsBatch.appending">
     <div class="progress-bar"  role="progressbar" style="width: 100%"></div>
 </div>
 <div class="well">
     get next: <div class="btn-group">
         <div class="btn btn-default btn-sm"
-             ng-click="nextResultSets(count)"
+             ng-click="fetchResultSets(count)"
              ng-repeat="count in [10, 20, 50, 100]">{{count}}</div>
     </div>
 </div>

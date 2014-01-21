@@ -13,6 +13,10 @@ treeherder.factory('thUrl',
         },
         getLogViewerUrl: function(artifactId) {
             return "logviewer.html#?id=" + artifactId + "&repo=" + $rootScope.repoName;
+        },
+        getSocketEventUrl: function() {
+            var port = thServiceDomain.indexOf("https:") !== -1 ? 443 :80;
+            return thServiceDomain + ':' + port + '/events';
         }
     };
     return thUrl;
@@ -32,23 +36,29 @@ treeherder.factory('thArtifact',
     }
 }]);
 
-treeherder.factory('thResultSets',
+treeherder.factory('thJobs',
                    ['$http', 'thUrl',
                    function($http, thUrl) {
 
-    // get the resultsets for this repo
     return {
-        getResultSets: function(offset, count) {
-            // the default notation above only works in some browsers (firefox)
+        getJobs: function(offset, count, joblist) {
             offset = typeof offset == 'undefined'?  0: offset;
             count = typeof count == 'undefined'?  10: count;
+            var params = {
+                offset: offset,
+                count: count,
+                format: "json"
+            }
 
-            return $http.get(thUrl.getProjectUrl("/resultset/"),
-                             {params: {
-                                offset: offset,
-                                count: count,
-                                format: "json"
-                             }}
+            if (joblist) {
+                $.extend(params, {
+                    offset: 0,
+                    count: joblist.length,
+                    joblist: joblist.join()
+                })
+            }
+            return $http.get(thUrl.getProjectUrl("/jobs/"),
+                             {params: params}
             );
         }
     }
@@ -126,11 +136,10 @@ treeherder.factory('thJobNote', function($resource, $http, thUrl) {
 });
 
 
-treeherder.factory('thSocket', function ($rootScope, thUrl) {
-    var port = thServiceDomain.indexOf("https:") !== -1 ? 443 :80;
-    var socket = io.connect(thServiceDomain + ':' + port + '/events');
+treeherder.factory('thSocket', function ($rootScope, $log, thUrl) {
+    var socket = io.connect(thUrl.getSocketEventUrl());
     socket.on('connect', function(){
-       console.log('socketio connected');
+       $log.debug('socketio connected');
     });
   return {
     on: function (eventName, callback) {

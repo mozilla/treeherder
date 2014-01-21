@@ -2,7 +2,7 @@
 
 treeherder.controller('TinderboxPluginCtrl',
     function TinderboxPluginCtrl($scope, $rootScope, $log) {
-        $log.log("Tinderbox plugin initialized");
+        $log.debug("Tinderbox plugin initialized");
         $scope.$watch('artifacts', function(newValue, oldValue){
             $scope.tinderbox_lines = [];
             $scope.tinderbox_lines_parsed = []

@@ -27,12 +27,14 @@ treeherder.directive('thJobButton', function (thResultStatusInfo) {
     return {
         restrict: "E",
         link: function(scope, element, attrs) {
-            var resultState = scope.job.result;
-            if (scope.job.state != "completed") {
-                resultState = scope.job.state;
-            }
-            scope.job.display = thResultStatusInfo(resultState);
-            scope.hoverText = getHoverText(scope.job);
+            scope.$watch("job", function(newValue) {
+                var resultState = scope.job.result;
+                if (scope.job.state != "completed") {
+                    resultState = scope.job.state;
+                }
+                scope.job.display = thResultStatusInfo(resultState);
+                scope.hoverText = getHoverText(scope.job);
+            }, true);
         },
         templateUrl: 'partials/thJobButton.html'
     };
@@ -104,7 +106,11 @@ treeherder.directive('thRevision', function($parse) {
     return {
         restrict: "E",
         link: function(scope, element, attrs) {
-            scope.revisionUrl = scope.currentRepo.url + "/rev/" + scope.revision.revision;
+            scope.$watch('currentRepo', function(newVal) {
+                if (newVal) {
+                    scope.revisionUrl = scope.currentRepo.url + "/rev/" + scope.revision.revision;
+                }
+            })
         },
         templateUrl: 'partials/thRevision.html'
     };

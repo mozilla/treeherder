@@ -74,32 +74,17 @@ describe('JobsCtrl', function(){
      */
 
     it('should have 139 jobs in resultset 2', function() {
-        createResultSetCtrl(jobScope.result_sets[2]);
+        createResultSetCtrl(jobScope.result_sets[8]);
         expect(resultsetScope.resultset.platforms.length).toBe(14);
     });
 
     it('should default to revisions collapsed', function() {
-        createResultSetCtrl(jobScope.result_sets[2]);
+        createResultSetCtrl(jobScope.result_sets[8]);
         expect(resultsetScope.isCollapsedRevisions).toBe(true);
     });
 
-    it('should default to results collapsed for set without failure', function() {
-        createResultSetCtrl(jobScope.result_sets[7]);
-        expect(resultsetScope.isCollapsedResults).toBe(true);
-    });
-
-    it('should default to results not collapsed for set with failure', function() {
-        createResultSetCtrl(jobScope.result_sets[2]);
-        expect(resultsetScope.isCollapsedResults).toBe(false);
-    });
-
-    it('should default to results not collapsed for set with failure', function() {
-        createResultSetCtrl(jobScope.result_sets[2]);
-        expect(resultsetScope.isCollapsedResults).toBe(false);
-    });
-
     it('should set the selectedJob in scope when calling viewJob()', function() {
-        createResultSetCtrl(jobScope.result_sets[2]);
+        createResultSetCtrl(jobScope.result_sets[8]);
         var job = resultsetScope.resultset.platforms[0].groups[0].jobs[0];
         resultsetScope.viewJob(job);
         expect(resultsetScope.selectedJob).toBe(job);

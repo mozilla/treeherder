@@ -3,7 +3,7 @@
 
 treeherder.controller('PluginCtrl',
     function PluginCtrl($scope, $rootScope, $resource, $http,
-                                 thServiceDomain, thUrl, thJobNote, thStarTypes, $log) {
+                        thServiceDomain, thUrl, thJobNote, thStarTypes, $log) {
 
         var JobNote = null;
 
