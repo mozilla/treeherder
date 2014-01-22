@@ -26,6 +26,9 @@ treeherder.controller('PluginCtrl',
                     "Build OS": $scope.job.build_os || undef
                 };
 
+
+                $scope.tab_loading = true;
+
                 $http.get(thServiceDomain + $scope.job.resource_uri).
                     success(function(data) {
                         $scope.logs = data.logs;
@@ -46,6 +49,7 @@ treeherder.controller('PluginCtrl',
                                 $scope.lvUrl = thUrl.getLogViewerUrl(artifact.id);
                             }
                         });
+                        $scope.tab_loading = false;
                     });
                 JobNote = thJobNote.get();
                 $scope.updateNotes();
@@ -115,6 +119,8 @@ treeherder.controller('PluginCtrl',
                 content: "plugins/closed_bugs_suggestions/main.html"
             }
         ];
+
+        $scope.tab_loading = false;
 
     }
 );
