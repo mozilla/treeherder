@@ -1,0 +1,7 @@
+<span class="btn-group btn-group-sm" ng-click="isCollapsedResults = !isCollapsedResults">
+    <span class="btn btn-default result-status-total-count" title="total job count">{{resultset.job_count}}</span>
+    <span ng-repeat="resultStatus in statusList"
+          class="btn result-status-count-{{resultStatus}}"
+          ng-class="{'{{btnClass(resultStatus)}}-unclassified': (resultset.result_count[resultStatus]), '{{btnClass(resultStatus)}}-classified': (resultset.result_count[resultStatus] == 0)}"
+          ng-class="resultset.result_count[resultStatus]">{{resultset.result_count[resultStatus]}} {{countText(resultStatus)}}</span>
+</span>
