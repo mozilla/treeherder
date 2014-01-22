@@ -264,17 +264,15 @@ fieldset[disabled] .btn-dkblue.active {
 
 
 .btn-green {
-  background-color: rgba(2, 151, 42, 0.47);
   border-color: #028233;
-  color: white;
+  color: #028233;
 }
 .btn-green:hover,
 .btn-green:focus,
 .btn-green:active,
 .btn-green.active {
-  background-color: #02a931;
   border-color: #019029;
-  color: white;
+  color: #019029;
 }
 .btn-green.disabled:hover,
 .btn-green.disabled:focus,
@@ -288,7 +286,6 @@ fieldset[disabled] .btn-green:hover,
 fieldset[disabled] .btn-green:focus,
 fieldset[disabled] .btn-green:active,
 fieldset[disabled] .btn-green.active {
-  background-color: #02c238;
   border-color: #02c238;
 }
 
@@ -324,15 +321,15 @@ fieldset[disabled] .btn-purple.active {
 }
 
 .btn-ltgray {
-  background-color: #e0e0e0;
   border-color: #e0e0e0;
+  color: #e0e0e0;
 }
 .btn-ltgray:hover,
 .btn-ltgray:focus,
 .btn-ltgray:active,
 .btn-ltgray.active {
-  background-color: #d3d3d3;
   border-color: #c7c7c7;
+  color: #d3d3d3;
 }
 .btn-ltgray.disabled:hover,
 .btn-ltgray.disabled:focus,
@@ -346,7 +343,7 @@ fieldset[disabled] .btn-ltgray:hover,
 fieldset[disabled] .btn-ltgray:focus,
 fieldset[disabled] .btn-ltgray:active,
 fieldset[disabled] .btn-ltgray.active {
-  background-color: #e0e0e0;
+  color: #e0e0e0;
   border-color: #e0e0e0;
 }
 
