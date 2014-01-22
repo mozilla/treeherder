@@ -13,40 +13,34 @@
      ng-show="isLoadingRsBatch.prepending">
     <div class="progress-bar"  role="progressbar" style="width: 100%"></div>
 </div>
-        <span class="btn btn-success">11 Passing</span>
-        <span class="btn btn-danger">11 Busted</span>
-        <span class="btn btn-warning">11 Test Failing</span>
-
 
 <div ng-repeat="resultset in result_sets track by resultset.id | orderBy:'-push_timestamp'"
      ng-controller="ResultSetCtrl"
-     class="result-set"
+     class="result-set col col-lg-12"
      data-id="{{resultset.id}}">
-
-    <h3>
-    <button class="btn btn-default glyphicon glyphicon-pushpin"></button>
-    <button class="btn btn-default glyphicon glyphicon-download" ng-show="isLoadingJobs"></button>
-    <span class="th-action-button"
-          ng-hide="isLoadingJobs">
-        <span class="dropdown">
-            <a class="btn btn-default dropdown-toggle" data-hover="dropdown" data-delay="1000" href="#">
-                <i class="glyphicon glyphicon-cog"></i>
-                <b class="caret"></b>
-            </a>
-            <ul class="dropdown-menu pull-right">
-                <li class="disabled"><a>Result Set Actions</a></li>
-                <li class="divider"></li>
-                <li><a target="_blank" href="https://tbpl.mozilla.org/mcmerge/?cset={{resultset.revision}}&tree={{repoName}}">m-mcMerge</a></li>
-                <li><a target="_blank" href="https://secure.pub.build.mozilla.org/buildapi/self-serve/{{repoName}}/rev/{{resultset.revision}}">BuildAPI</a></li>
-                <li><a target="_blank" href="" data-toggle="modal" data-target="#revisionListModal">Changeset URL List</a></li>
-                <li class="hidden"><a href="">Compare</a></li>
-                <li class="hidden"><a href="" ng-disabled="true">Cancel All Jobs</a></li>
-            </ul>
+    <span class="result-set-title">
+        <button class="btn btn-default glyphicon glyphicon-pushpin"></button>
+        <button class="btn btn-default glyphicon glyphicon-download" ng-show="isLoadingJobs"></button>
+        <span class="th-action-button"
+              ng-hide="isLoadingJobs">
+            <span class="dropdown">
+                <a class="btn btn-default dropdown-toggle" data-hover="dropdown" data-delay="1000" href="#">
+                    <i class="glyphicon glyphicon-cog"></i>
+                    <b class="caret"></b>
+                </a>
+                <ul class="dropdown-menu pull-right">
+                    <li class="disabled"><a>Result Set Actions</a></li>
+                    <li class="divider"></li>
+                    <li><a target="_blank" href="https://tbpl.mozilla.org/mcmerge/?cset={{resultset.revision}}&tree={{repoName}}">m-mcMerge</a></li>
+                    <li><a target="_blank" href="https://secure.pub.build.mozilla.org/buildapi/self-serve/{{repoName}}/rev/{{resultset.revision}}">BuildAPI</a></li>
+                    <li><a target="_blank" href="" data-toggle="modal" data-target="#revisionListModal">Changeset URL List</a></li>
+                    <li class="hidden"><a href="">Compare</a></li>
+                    <li class="hidden"><a href="" ng-disabled="true">Cancel All Jobs</a></li>
+                </ul>
+            </span>
         </span>
+        <span><span class="text-left">{{resultset.push_timestamp*1000|date:'medium'}} - {{resultset.author}} - {{resultset.revision}} - {{resultset.job_count}}</span></span>
     </span>
-    <span><span class="text-left label label-default">{{resultset.push_timestamp*1000|date:'medium'}} - {{resultset.author}} - {{resultset.revision}} - {{resultset.job_count}}</span></span>
-    </h3>
-
     <div class="progress progress-striped active th-rs-loading"
          ng-show="isLoadingResults">
         <div class="progress-bar"  role="progressbar" style="width: 100%"></div>
@@ -54,7 +48,7 @@
 
     <div class="clearfix"></div>
 
-    <h4 class="filter-line">
+    <h4 class="result-set-filter">
         <div class="text-left btn btn-default glyphicon glyphicon-cutlery"
              ng-click="isCollapsedRevisions = !isCollapsedRevisions"></div>
         <span class="btn btn-success">11 Passing</span>
@@ -73,7 +67,7 @@
                 </li>
             </ul>
         </span>
-        <span ng-hide="isCollapsedResults"
+        <span ng-hide=""
               ng-class="{'col-md-8 job-list-pad-left': (isCollapsedRevisions==false), 'col-md-12 job-list-nopad': (isCollapsedRevisions)}">
             <table class="table-hover">
                 <tr ng-repeat="platform in resultset.platforms | filter:query | orderBy: $filter('platformName')">
