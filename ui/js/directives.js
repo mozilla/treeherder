@@ -42,6 +42,48 @@ treeherder.directive('thJobButton', function (thResultStatusInfo) {
 
 });
 
+treeherder.directive('thActionButton', function () {
+
+    return {
+        restrict: "E",
+        templateUrl: 'partials/thActionButton.html'
+    };
+});
+
+treeherder.directive('thResultCountButtons', function (thResultStatusInfo, thResultStatusList) {
+
+    return {
+        restrict: "E",
+        link: function(scope, element, attrs) {
+            scope.statusList = thResultStatusList;
+            scope.btnClass = function(resultStatus) {
+                return thResultStatusInfo(resultStatus).btnClass;
+            }
+            scope.countText = function(resultStatus) {
+                return thResultStatusInfo(resultStatus).countText;
+            }
+        },
+        templateUrl: 'partials/thResultCountButtons.html'
+    };
+});
+
+treeherder.directive('thAuthor', function () {
+
+    return {
+        restrict: "E",
+        link: function(scope, element, attrs) {
+            var userTokens = scope.resultset.author.split(/[<>]+/);
+            var email = "";
+            if (userTokens.length > 1) {
+                email = userTokens[1];
+            }
+            scope.authorName = userTokens[0].trim();
+            scope.authorEmail = email;
+        },
+        template: '<span title="{{authorEmail}}">{{authorName}}</span>'
+    };
+});
+
 
 // allow an input on a form to request focus when the value it sets in its
 // ``focus-me`` directive is true.  You can set ``focus-me="focusInput"`` and

@@ -73,6 +73,20 @@ treeherder.factory('thResultSetModelManager',
 
         for (var rs_i = 0; rs_i < data.length; rs_i++) {
             var rs = data[rs_i];
+            // add the counter for result types if it doesn't exist
+            if (!rs.hasOwnProperty("result_count")) {
+                rs.result_count = {
+                    busted: 0,
+                    exception: 0,
+                    testfailed: 0,
+                    unknown: 0,
+                    usercancel: 0,
+                    retry: 0,
+                    success: 0,
+                    running: 0,
+                    pending:0
+                };
+            }
             rsMap[rs.id] = {
                 rs_obj: rs,
                 platforms: {}
@@ -111,6 +125,13 @@ treeherder.factory('thResultSetModelManager',
                         var job = gr.jobs[j_i];
                         jobMap[job.id] = job;
 
+                        // tabulate the result type counter
+                        if (job.state === "completed") {
+                            rs.result_count[job.result]++;
+                        } else {
+                            rs.result_count[job.state]++;
+                        }
+                        // track oldest job id
                         if (!jobMapOldestId || jobMapOldestId > job.id) {
                             jobMapOldestId = job.id;
                         }
