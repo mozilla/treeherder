@@ -92,6 +92,13 @@ th-failures-box li a{
     padding-bottom: 5px;
     margin-left: 0;
     white-space: normal;
+    width: 100%;
+}
+
+.result-set-title {
+    border-top: 5px solid black;
+    border-bottom: 2px solid darkgray;
+    padding: 10px 0 10px 0;
 }
 
 .result-set .revision-list {
