@@ -46,10 +46,6 @@ body {
     color: #428bca;
 }
 
-.th-show-jobs-button {
-    width: 100px;
-}
-
 .th-revision-btn {
     margin-left: 10px;
     width: calc(100% - 170px);
@@ -93,12 +89,20 @@ body {
 
 .result-set-title {
     border-top: 1px solid black;
-    /*border-bottom: 1px solid lightgrey;*/
     padding: 5px 0 5px 0;
+}
+
+.result-set-title-left {
+    width: 600px;
+    padding-right: 10px;
 }
 
 .result-set .revision-list {
     padding-left: 0;
+}
+
+.revision-button {
+    width: 120px;
 }
 
 .revision-list {
@@ -261,9 +265,9 @@ fieldset[disabled] .btn-orange.active {
 }
 
 .btn-orange-unclassified {
-  background-color: rgba(221, 102, 2, 0.13);
+  background-color: rgba(221, 102, 2, 0.20);
   border-color: #dd6602;
-  color: rgba(221, 102, 2, 0.56);
+  color: rgba(221, 102, 2, 0.89);
 }
 .btn-orange:hover,
 .btn-orange:focus,
@@ -350,7 +354,7 @@ fieldset[disabled] .btn-red.active {
 .btn-red-unclassified {
   background-color: rgba(144, 0, 0, 0.11);
   border-color: #a1020e;
-  color: rgba(144, 0, 0, 0.60);
+  color: rgba(144, 0, 0, 0.73);
 }
 .btn-red:hover,
 .btn-red:focus,
@@ -495,7 +499,7 @@ fieldset[disabled] .btn-purple.active {
 .btn-purple-unclassified {
   background-color: rgba(111, 2, 150, 0.09);
   border-color: #6f0296;
-  color: rgba(61, 2, 85, 0.50);
+  color: rgba(61, 2, 85, 0.68);
 }
 .btn-purple:hover,
 .btn-purple:focus,
@@ -754,7 +758,7 @@ fieldset[disabled] .btn-pink.active {
 .btn-pink-unclassified {
   background-color: rgba(250, 115, 172, 0.16);
   border-color: #fa73ac;
-  color: rgba(250, 115, 172, 0.63);
+  color: rgba(250, 115, 172, 0.82);
 }
 .btn-pink:hover,
 .btn-pink:focus,

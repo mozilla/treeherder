@@ -18,19 +18,21 @@
      ng-controller="ResultSetCtrl"
      class="result-set col col-lg-12"
      data-id="{{resultset.id}}">
+
     <div class="result-set-title row">
         <span class="col-lg-5">
             <a class="btn btn-default btn-sm"><i class=" glyphicon glyphicon-pushpin"></i></a>
             <span class="btn btn-default btn-sm glyphicon glyphicon-download" ng-show="isLoadingJobs"></span>
             <th-action-button ng-hide="isLoadingJobs"></th-action-button>
-            <span class="">{{resultset.push_timestamp*1000|date:'medium'}} - </span>
+            <span>{{resultset.push_timestamp*1000|date:'medium'}} - </span>
             <th-author></th-author>
         </span>
-        <span class="btn btn-default btn-sm col-lg-1"
+        <span class="btn btn-default btn-sm col-lg-1 revision-button"
               ng-click="isCollapsedRevisions = !isCollapsedRevisions"
-              title="show revisions">{{resultset.revision}}</span>
+              title="show revisions">{{resultset.revision}} ({{resultset.revision_list.length}})</span>
         <th-result-count-buttons class="col-lg-6"></th-result-count-buttons>
     </div>
+
     <div class="progress progress-striped active th-rs-loading"
          ng-show="isLoadingResults">
         <div class="progress-bar"  role="progressbar" style="width: 100%"></div>
