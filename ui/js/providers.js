@@ -37,7 +37,7 @@ treeherder.provider('thStarTypes', function() {
 
 treeherder.provider('thResultStatusList', function() {
     this.$get = function() {
-        return ['success', 'retry', 'busted', 'testfailed', 'exception', 'unknown', 'usercancel'];
+        return ['success', 'testfailed', 'busted', 'exception', 'retry', 'usercancel'];
     };
 });
 
