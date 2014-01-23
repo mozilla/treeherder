@@ -382,22 +382,15 @@ class TreeherderRequestTest(DataSetup, unittest.TestCase):
         method, path, data, header = mock_request.call_args[0]
 
         self.assertEqual(method, "POST")
-        self.assertEqual(path, uri)
 
         deserialized_data = json.loads(data)
         self.assertEqual(
-            deserialized_data['collection_data'],
+            deserialized_data,
             tjc.get_collection_data()
             )
         self.assertEqual(
             header['Content-Type'],
             'application/json',
-            )
-        self.assertIsNotNone(
-            deserialized_data['authentication']['oauth_body_hash']
-            )
-        self.assertIsNotNone(
-            deserialized_data['authentication']['oauth_signature']
             )
 
     @patch("thclient.client.oauth.generate_nonce")
@@ -442,11 +435,10 @@ class TreeherderRequestTest(DataSetup, unittest.TestCase):
 
         method, path, data, header = mock_request.call_args[0]
         self.assertEqual(method, "POST")
-        self.assertEqual(path, uri)
 
         deserialized_data = json.loads(data)
         self.assertEqual(
-            deserialized_data['collection_data'],
+            deserialized_data,
             tjc.get_collection_data()
             )
 

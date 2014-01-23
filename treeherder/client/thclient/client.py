@@ -587,9 +587,7 @@ class TreeherderRequest(object):
 
         use_oauth = bool(self.oauth_key and self.oauth_secret)
 
-        body = {
-            'collection_data':collection_inst.get_collection_data()
-            }
+        body = collection_inst.get_collection_data()
 
         if use_oauth:
 
@@ -598,7 +596,7 @@ class TreeherderRequest(object):
             token = oauth.Token(key='', secret='')
             consumer = oauth.Consumer(key=self.oauth_key, secret=self.oauth_secret)
 
-            body['authentication'] = {
+            parameters = {
                 'user':self.project,
                 'oauth_version':'1.0',
                 'oauth_nonce':oauth.generate_nonce(),
@@ -609,7 +607,8 @@ class TreeherderRequest(object):
                 req = oauth.Request(
                     method='POST',
                     body=json.dumps(body),
-                    url=uri
+                    url=uri,
+                    parameters=parameters
                     )
             except AssertionError, e:
                 print 'uri: %s' % uri
@@ -619,7 +618,7 @@ class TreeherderRequest(object):
             signature_method = oauth.SignatureMethod_HMAC_SHA1()
             req.sign_request(signature_method, consumer, token)
 
-            body['authentication'].update(self.get_authentication_data(req))
+            uri = req.to_url()
 
         # Make the POST request
         conn = None
@@ -631,22 +630,6 @@ class TreeherderRequest(object):
         conn.request('POST', uri, json.dumps(body), headers)
 
         return conn.getresponse()
-
-    def get_authentication_data(self, req):
-        """
-        Retrieve the oauth related variables out of the oauth request
-        object.
-        """
-
-        authentication = {}
-
-        oauth_params = ((k, v) for k, v in req.items() if k.startswith('oauth_'))
-        for k, v in oauth_params:
-            if v:
-                authentication[k] = v
-
-
-        return authentication
 
     def get_uri(self, collection_inst):
 
