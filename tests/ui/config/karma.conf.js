@@ -12,7 +12,6 @@ module.exports = function (config) {
             'app/vendor/jquery.ui.effect.js',
             'app/vendor/jquery.ui.effect-highlight.js',
             'app/vendor/bootstrap*.js',
-            'app/vendor/*.js',
             'app/js/**/*.js',
             'app/js/controllers/**/*.js',
             'app/js/services/**/*.js',
@@ -20,7 +19,7 @@ module.exports = function (config) {
             'test/vendor/angular/angular-mocks.js',
             'test/vendor/jasmine-jquery.js',
             'test/unit/**/*.js',
-            'app/vendor/Config.js',
+            'app/vendor/*.js',
 
             // fixtures
             {pattern: 'test/mock/*.json', watched: true, served: true, included: false}
