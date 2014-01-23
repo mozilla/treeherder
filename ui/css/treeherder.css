@@ -187,7 +187,7 @@ div.navbar-fixed-bottom dt {
     width: 90px;
 }
 .result-status-count-retry {
-    width: 70px;
+    width: 65px;
 }
 .result-status-count-busted {
     width: 80px;
@@ -196,13 +196,13 @@ div.navbar-fixed-bottom dt {
     width: 70px;
 }
 .result-status-count-unknown {
-    width: 90px;
+    width: 85px;
 }
 .result-status-count-usercancel {
-    width: 80px;
+    width: 75px;
 }
 .result-status-count-exception {
-    width: 95px;
+    width: 90px;
 }
 
 /* Custom Job buttons*/
