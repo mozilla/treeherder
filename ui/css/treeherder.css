@@ -412,7 +412,7 @@ fieldset[disabled] .btn-purple.active {
 }
 
 .btn-purple-count-unclassified {
-  background-color: #bfbfbf;
+  background-color: rgba(61, 2, 85, 0.18);
   border-color: #bfbfbf;
   color: rgba(61, 2, 85, 0.68);
 }
