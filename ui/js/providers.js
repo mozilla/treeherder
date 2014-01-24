@@ -37,7 +37,7 @@ treeherder.provider('thStarTypes', function() {
 
 treeherder.provider('thResultStatusList', function() {
     this.$get = function() {
-        return ['success', 'testfailed', 'busted', 'exception', 'retry', 'usercancel'];
+        return ['success', 'testfailed', 'busted', 'exception', 'retry', 'running', 'pending'];
     };
 });
 
@@ -128,7 +128,7 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 8,
                         isCollapsedResults: true,
-                        btnClass: "btn-ltgray",
+                        btnClass: "btn-dkgray",
                         showButtonIcon: "glyphicon glyphicon-time",
                         jobButtonIcon: "",
                         countText: "running"
@@ -138,7 +138,7 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 100,
                         isCollapsedResults: true,
-                        btnClass: "btn-default",
+                        btnClass: "btn-ltgray",
                         showButtonIcon: "glyphicon glyphicon-time",
                         jobButtonIcon: "",
                         countText: "pending"
