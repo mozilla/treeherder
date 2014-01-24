@@ -5,5 +5,6 @@
     <span ng-repeat="resultStatus in statusList"
           class="result-status-count result-status-count-{{resultStatus}} text-right"
           ng-class="{'{{btnClass(resultStatus)}}-count-unclassified': (resultset.result_count[resultStatus]), '{{btnClass(resultStatus)}}-count-classified': (resultset.result_count[resultStatus] == 0)}"
-          ng-class="resultset.result_count[resultStatus]">{{resultset.result_count[resultStatus]}} {{countText(resultStatus)}}</span>
+          ng-class="resultset.result_count[resultStatus]">
+          <span ng-bind="resultset.result_count[resultStatus]"></span> {{countText(resultStatus)}}</span>
     </span>

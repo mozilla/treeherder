@@ -82,7 +82,7 @@ treeherder.controller('ResultSetCtrl',
                     rsInfo = res;
                 }
             }
-            return {status: status, isCollapsedResults: true};
+            return {status: status, isCollapsedResults: false};
         };
 
         var severeResultStatus = getMostSevereResultStatus($scope.resultset.result_types);

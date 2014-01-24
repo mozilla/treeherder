@@ -329,18 +329,28 @@ treeherder.factory('thResultSetModelManager',
 
         // update the resultset result_types list so the hide/show button
         // can update accordingly
-        var resultType = getResultType(newJob);
-        if (rsMapElement.rs_obj.result_types.indexOf(resultType) < 0) {
-            rsMapElement.rs_obj.result_types.push(resultType);
-            $log.debug("new status of " + resultType + " added to " + JSON.stringify(rsMapElement.rs_obj));
+        var newResultType = getResultType(newJob);
+        if (rsMapElement.rs_obj.result_types.indexOf(newResultType) < 0) {
+            rsMapElement.rs_obj.result_types.push(newResultType);
+            $log.debug("new status of " + newResultType + " added to " + JSON.stringify(rsMapElement.rs_obj));
         }
 
         if (loadedJob) {
             $log.debug("updating existing job");
+            // we need to modify the counts of the resultset this job belongs
+            // to.  decrement the old resultStatus count and increment the
+            // new one.
+            var oldResultType = getResultType(loadedJob);
+            rsMapElement.rs_obj.result_count[oldResultType]--;
+            rsMapElement.rs_obj.result_count[newResultType]++;
             $.extend(loadedJob, newJob);
         } else {
             // this job is not yet in the model or the map.  add it to both
             $log.debug("adding new job");
+
+            // increment the result count for the new job's result type
+            rsMapElement.rs_obj.result_count[newResultType]++;
+            rsMapElement.rs_obj.job_count++;
             if (!rsMapElement) {
                 $log.error("we should have added the resultset for this job already!");
                 return;
