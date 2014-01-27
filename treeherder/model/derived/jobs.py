@@ -171,6 +171,15 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG
         )
 
+        self.get_jobs_dhub().execute(
+            proc='jobs.updates.update_last_job_classification',
+            placeholders=[
+                failure_classification_id,
+                job_id,
+            ],
+            debug_show=self.DEBUG
+        )
+
     def get_result_set_ids(self, revision_hashes, where_in_list):
         """Return the  a dictionary of revision_hash to id mappings given
            a list of revision_hashes and a where_in_list.

@@ -154,6 +154,13 @@
                    WHERE `job_guid` = ?",
 
             "host":"master_host"
+        },
+        "update_last_job_classification":{
+            "sql":"UPDATE `job`
+                   SET `failure_classification_id` = ?
+                   WHERE `job_id` = ?",
+
+            "host":"master_host"
         }
     },
     "selects":{

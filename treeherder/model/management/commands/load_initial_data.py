@@ -9,4 +9,5 @@ class Command(BaseCommand):
         call_command('loaddata',
                      'repository_group',
                      'repository',
-                     'tasks')
+                     'tasks',
+                     'failure_classification')

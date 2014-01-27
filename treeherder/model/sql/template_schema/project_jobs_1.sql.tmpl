@@ -83,6 +83,7 @@ DROP TABLE IF EXISTS `job`;
  *  option_collection_hash - References treeherder_reference_1.option_collection.option_collection_hash
  *  job_type_id - References treeherder_reference_1.job_type.id
  *  product_id - References treeherder_reference_1.product.id
+ *  failure_classification_id - References treeherder_reference_1.failure_classification.id
  *  who - Description of who submitted the job: gaia | scheduler name | username
  *  reason - Reason for the job: push | scheduled | self-serve | manual
  *  result - Job outcome description: success | failure | ...
@@ -102,6 +103,7 @@ CREATE TABLE `job` (
   `option_collection_hash` varchar(64) COLLATE utf8_bin DEFAULT NULL,
   `job_type_id` int(10) unsigned NOT NULL,
   `product_id` int(10) unsigned DEFAULT NULL,
+  `failure_classification_id` int(10) unsigned DEFAULT 1,
   `who` varchar(50) COLLATE utf8_bin NOT NULL,
   `reason` varchar(125) COLLATE utf8_bin NOT NULL,
   `result` varchar(25) COLLATE utf8_bin DEFAULT NULL,
@@ -120,6 +122,7 @@ CREATE TABLE `job` (
   KEY `idx_option_collection_hash` (`option_collection_hash`),
   KEY `idx_job_type_id` (`job_type_id`),
   KEY `idx_product_id` (`product_id`),
+  KEY `idx_failure_classification_id` (`failure_classification_id`),
   KEY `idx_who` (`who`),
   KEY `idx_reason` (`reason`),
   KEY `idx_result` (`result`),
