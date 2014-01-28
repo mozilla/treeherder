@@ -42,6 +42,70 @@ treeherder.directive('thJobButton', function (thResultStatusInfo) {
 
 });
 
+treeherder.directive('thActionButton', function () {
+
+    return {
+        restrict: "E",
+        templateUrl: 'partials/thActionButton.html'
+    };
+});
+
+treeherder.directive('thResultCounts', function () {
+
+    return {
+        restrict: "E",
+        templateUrl: 'partials/thResultCounts.html'
+    };
+});
+
+treeherder.directive('thResultStatusCount', function () {
+
+    return {
+        restrict: "E",
+        link: function(scope, element, attrs) {
+            scope.resultCountText = scope.getCountText(scope.resultStatus);
+            scope.resultStatusCountClassPrefix = scope.getCountClass(scope.resultStatus)
+
+            // @@@ this will change once we have classifying implemented
+            scope.resultCount = scope.resultset.result_count[scope.resultStatus];
+            scope.unclassifiedResultCount = scope.resultCount;
+            var getCountAlertClass = function() {
+                if (scope.unclassifiedResultCount) {
+                    return scope.resultStatusCountClassPrefix + "-count-unclassified";
+                } else {
+                    return scope.resultStatusCountClassPrefix + "-count-classified";
+                }
+            }
+            scope.countAlertClass = getCountAlertClass();
+            scope.$watch("resultset.result_count", function(newValue) {
+                console.log("in the directive now");
+                scope.resultCount = scope.resultset.result_count[scope.resultStatus];
+                scope.unclassifiedResultCount = scope.resultCount;
+                scope.countAlertClass = getCountAlertClass();
+            }, true);
+        },
+        templateUrl: 'partials/thResultStatusCount.html'
+    };
+});
+
+
+treeherder.directive('thAuthor', function () {
+
+    return {
+        restrict: "E",
+        link: function(scope, element, attrs) {
+            var userTokens = scope.resultset.author.split(/[<>]+/);
+            var email = "";
+            if (userTokens.length > 1) {
+                email = userTokens[1];
+            }
+            scope.authorName = userTokens[0].trim();
+            scope.authorEmail = email;
+        },
+        template: '<span title="{{authorEmail}}">{{authorName}}</span>'
+    };
+});
+
 
 // allow an input on a form to request focus when the value it sets in its
 // ``focus-me`` directive is true.  You can set ``focus-me="focusInput"`` and

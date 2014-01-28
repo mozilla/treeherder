@@ -13,35 +13,28 @@
      ng-show="isLoadingRsBatch.prepending">
     <div class="progress-bar"  role="progressbar" style="width: 100%"></div>
 </div>
+
 <div ng-repeat="resultset in result_sets track by resultset.id | orderBy:'-push_timestamp'"
      ng-controller="ResultSetCtrl"
-     class="result-set"
+     class="result-set col col-xs-12"
      data-id="{{resultset.id}}">
 
-    <span th-show-jobs severity="resultSeverity"></span>
-    <a class="text-left btn btn-info th-revision-btn"
-       ng-click="isCollapsedRevisions = !isCollapsedRevisions">
-        <div class="text-left">{{resultset.push_timestamp*1000|date:'medium'}} - {{resultset.author}} - {{resultset.revision}}</div>
-    </a>
-
-    <span class="th-action-button pull-right"
-          ng-hide="isLoadingResults">
-        <span class="dropdown">
-            <a class="btn btn-default dropdown-toggle" data-hover="dropdown" data-delay="1000" href="#">
-                <i class="glyphicon glyphicon-cog"></i>
-                <b class="caret"></b>
-            </a>
-            <ul class="dropdown-menu pull-right">
-                <li class="disabled"><a>Result Set Actions</a></li>
-                <li class="divider"></li>
-                <li><a target="_blank" href="https://tbpl.mozilla.org/mcmerge/?cset={{resultset.revision}}&tree={{repoName}}">m-mcMerge</a></li>
-                <li><a target="_blank" href="https://secure.pub.build.mozilla.org/buildapi/self-serve/{{repoName}}/rev/{{resultset.revision}}">BuildAPI</a></li>
-                <li><a target="_blank" href="" data-toggle="modal" data-target="#revisionListModal">Changeset URL List</a></li>
-                <li class="hidden"><a href="">Compare</a></li>
-                <li class="hidden"><a href="" ng-disabled="true">Cancel All Jobs</a></li>
-            </ul>
+    <div class="result-set-title row">
+        <span class="col-xs-5">
+            <a class="btn btn-default btn-sm" ng-hide="true"><i class=" glyphicon glyphicon-pushpin"></i></a>
+            <span class="btn btn-default btn-sm glyphicon glyphicon-download" ng-show="isLoadingJobs"></span>
+            <th-action-button ng-hide="isLoadingJobs"></th-action-button>
+            <span class="timestamp-name">
+                <span>{{resultset.push_timestamp*1000|date:'medium'}} - </span>
+                <th-author></th-author>
+            </span>
         </span>
-    </span>
+        <span class="btn btn-default btn-sm col-xs-1 revision-button"
+              ng-click="isCollapsedRevisions = !isCollapsedRevisions"
+              title="show revisions">{{resultset.revision}} ({{resultset.revision_list.length}})</span>
+        <th-result-counts class="col-xs-5"/>
+    </div>
+
     <div class="progress progress-striped active th-rs-loading"
          ng-show="isLoadingResults">
         <div class="progress-bar"  role="progressbar" style="width: 100%"></div>
@@ -52,7 +45,7 @@
     <div ng-hide="isCollapsedRevisions && isCollapsedResults"
          class="row result-set">
         <span ng-hide="isCollapsedRevisions"
-              ng-class="{'col-md-4': (isCollapsedResults==false)}"
+              ng-class="{'col-xs-4': (isCollapsedResults==false)}"
               class="revision-list">
             <ul class="list-unstyled">
                 <li ng-repeat="revision in resultset.revision_list">
@@ -61,11 +54,11 @@
             </ul>
         </span>
         <span ng-hide="isCollapsedResults"
-              ng-class="{'col-md-8 job-list-pad-left': (isCollapsedRevisions==false), 'col-md-12 job-list-nopad': (isCollapsedRevisions)}">
+              ng-class="{'col-xs-8 job-list-pad-left': (isCollapsedRevisions==false), 'col-xs-12 job-list-nopad': (isCollapsedRevisions)}">
             <table class="table-hover">
                 <tr ng-repeat="platform in resultset.platforms | filter:query | orderBy: $filter('platformName')">
-                    <td class="col-md-2 platform"><span>{{ platform.name | platformName:platform.name }} {{ platform.option }}</span></td>
-                    <td class="col-md-10">
+                    <td class="col-xs-2 platform"><span>{{ platform.name | platformName:platform.name }} {{ platform.option }}</span></td>
+                    <td class="col-xs-10">
                         <span ng-repeat="group in platform.groups">
                             <span ng-show="group.symbol != '?'"
                                class="disabled job-group"

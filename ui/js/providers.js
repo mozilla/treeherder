@@ -35,6 +35,12 @@ treeherder.provider('thStarTypes', function() {
     };
 });
 
+treeherder.provider('thResultStatusList', function() {
+    this.$get = function() {
+        return ['success', 'testfailed', 'busted', 'exception', 'retry', 'running', 'pending'];
+    };
+});
+
 treeherder.provider('thResultStatusInfo', function() {
     this.$get = function() {
         return function(resultState) {
@@ -54,7 +60,8 @@ treeherder.provider('thResultStatusInfo', function() {
                         isCollapsedResults: false,
                         btnClass: "btn-red",
                         showButtonIcon: "glyphicon glyphicon-fire",
-                        jobButtonIcon: "glyphicon glyphicon-fire"
+                        jobButtonIcon: "glyphicon glyphicon-fire",
+                        countText: "busted"
                     };
                     break;
                 case "exception":
@@ -63,7 +70,8 @@ treeherder.provider('thResultStatusInfo', function() {
                         isCollapsedResults: false,
                         btnClass: "btn-purple",
                         showButtonIcon: "glyphicon glyphicon-fire",
-                        jobButtonIcon: "glyphicon glyphicon-fire"
+                        jobButtonIcon: "glyphicon glyphicon-fire",
+                        countText: "exception"
                     };
                     break;
                 case "testfailed":
@@ -72,7 +80,8 @@ treeherder.provider('thResultStatusInfo', function() {
                         isCollapsedResults: false,
                         btnClass: "btn-orange",
                         showButtonIcon: "glyphicon glyphicon-warning-sign",
-                        jobButtonIcon: "glyphicon glyphicon-warning-sign"
+                        jobButtonIcon: "glyphicon glyphicon-warning-sign",
+                        countText: "failed"
                     };
                     break;
                 case "unknown":
@@ -81,7 +90,8 @@ treeherder.provider('thResultStatusInfo', function() {
                         isCollapsedResults: false,
                         btnClass: "btn-black",
                         showButtonIcon: "glyphicon glyphicon-warning-sign",
-                        jobButtonIcon: ""
+                        jobButtonIcon: "",
+                        countText: "unknown"
                     };
                     break;
                 case "usercancel":
@@ -90,7 +100,8 @@ treeherder.provider('thResultStatusInfo', function() {
                         isCollapsedResults: true,
                         btnClass: "btn-pink",
                         showButtonIcon: "glyphicon glyphicon-stop",
-                        jobButtonIcon: ""
+                        jobButtonIcon: "",
+                        countText: "cancel"
                     };
                     break;
                 case "retry":
@@ -99,7 +110,8 @@ treeherder.provider('thResultStatusInfo', function() {
                         isCollapsedResults: true,
                         btnClass: "btn-dkblue",
                         showButtonIcon: "glyphicon glyphicon-time",
-                        jobButtonIcon: ""
+                        jobButtonIcon: "",
+                        countText: "retry"
                     };
                     break;
                 case "success":
@@ -108,25 +120,28 @@ treeherder.provider('thResultStatusInfo', function() {
                         isCollapsedResults: true,
                         btnClass: "btn-green",
                         showButtonIcon: "glyphicon glyphicon-ok",
-                        jobButtonIcon: ""
+                        jobButtonIcon: "",
+                        countText: "success"
                     };
                     break;
                 case "running":
                     resultStatusInfo = {
                         severity: 8,
                         isCollapsedResults: true,
-                        btnClass: "btn-ltgray",
+                        btnClass: "btn-dkgray",
                         showButtonIcon: "glyphicon glyphicon-time",
-                        jobButtonIcon: ""
+                        jobButtonIcon: "",
+                        countText: "running"
                     };
                     break;
                 case "pending":
                     resultStatusInfo = {
                         severity: 100,
                         isCollapsedResults: true,
-                        btnClass: "btn-default",
+                        btnClass: "btn-ltgray",
                         showButtonIcon: "glyphicon glyphicon-time",
-                        jobButtonIcon: ""
+                        jobButtonIcon: "",
+                        countText: "pending"
                     };
                     break;
             }
