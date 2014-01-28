@@ -27,6 +27,29 @@ class JobsModel(TreeherderModelBase):
     CT_OBJECTSTORE = "objectstore"
     CONTENT_TYPES = [CT_JOBS, CT_OBJECTSTORE]
     STATES = ["pending", "running", "completed", "coalesced"]
+    # list of searchable columns, i.e. those who have an index
+    # it would be nice to get this directly from the db and cache it
+    INDEXED_COLUMNS = {
+        "job": [
+            "job_guid",
+            "job_coalesced_to_guid",
+            "result_set_id",
+            "build_platform_id",
+            "machine_platform_id",
+            "machine_id",
+            "option_collection_hash",
+            "job_type_id",
+            "product_id",
+            "failure_classification_id",
+            "who",
+            "reason",
+            "result",
+            "state",
+            "submit_timestamp",
+            "start_timestamp",
+            "end_timestamp"
+        ]
+    }
 
     @classmethod
     def create(cls, project, host=None):
@@ -75,29 +98,45 @@ class JobsModel(TreeherderModelBase):
         )
         return data
 
-    def get_job_list(self, offset, limit, **kwargs):
+    def get_job_list(self, offset, limit, conditions=None):
         """
         Retrieve a list of jobs.
         Mainly used by the restful api to list the jobs
 
         joblist: a list of job ids to limit which jobs are returned.
         """
-        filter_str = ""
 
-        if "joblist" in kwargs:
-            filter_str += " AND j.id in ({0})".format(kwargs["joblist"])
+        placeholders = []
+        replace_str = ""
+        if conditions:
+            for column, condition in conditions.items():
+                if column in self.INDEXED_COLUMNS["job"]:
+                    for operator, value in condition:
+                        replace_str += "AND j.{0} {1}".format(column, operator)
+                        if operator == "IN":
+                            # create a list of placeholders of the same length
+                            # as the list of values
+                            replace_str += "({0})".format(
+                                ",".join(["%s"] * len(value))
+                            )
+                            placeholders += value
+                        else:
+                            replace_str += " %s "
+                            placeholders.append(value)
 
-        repl = [self.refdata_model.get_db_name(), filter_str]
+        repl = [self.refdata_model.get_db_name(), replace_str]
 
         proc = "jobs.selects.get_job_list"
+
         data = self.get_jobs_dhub().execute(
             proc=proc,
             replace=repl,
-            placeholders=[offset, limit],
+            placeholders=placeholders,
+            limit="{0},{1}".format(offset, limit),
             debug_show=self.DEBUG,
         )
-
         return data
+
 
     def set_state(self, job_id, state):
         """Update the state of an existing job"""

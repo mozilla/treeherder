@@ -4,13 +4,14 @@ import itertools
 from django.conf import settings
 from rest_framework import viewsets
 from rest_framework.response import Response
-from rest_framework.decorators import action
+from rest_framework.decorators import action, link
 from rest_framework.reverse import reverse
 from rest_framework.exceptions import ParseError
 
 from treeherder.model import models
 from treeherder.model.derived import (JobsModel, DatasetNotFoundError,
                                       ObjectNotFoundException)
+from treeherder.webapp.api.utils import UrlQueryFilter
 
 
 def with_jobs(model_func):
@@ -203,18 +204,12 @@ class JobsViewSet(viewsets.ViewSet):
         GET method implementation for list view
 
         """
+        filters = UrlQueryFilter(request.QUERY_PARAMS).parse()
 
-        filters = ["joblist"]
+        limit_condition = filters.pop("limit", set([("=", "0,10")])).pop()
+        offset, limit = limit_condition[1].split(",")
+        objs = jm.get_job_list(offset, limit, filters)
 
-        offset = int(request.QUERY_PARAMS.get('offset', 0))
-        count = int(request.QUERY_PARAMS.get('count', 10))
-
-        objs = jm.get_job_list(
-            offset,
-            count,
-            **dict((k, v) for k, v in request.QUERY_PARAMS.iteritems()
-                   if k in filters)
-        )
         if objs:
             option_collections = jm.refdata_model.get_all_option_collections()
             for job in objs:
