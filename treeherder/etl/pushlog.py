@@ -63,7 +63,6 @@ class HgPushlogTransformerMixin(object):
         if last_push:
             cache.set("{0}:last_push".format(repository), last_push)
 
-        #return result_sets
         return th_collections
 
 

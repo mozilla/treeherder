@@ -378,7 +378,6 @@ class RunningTransformerMixin(object):
                     th_job = th_collections[project].get_job(treeherder_data)
                     th_collections[project].add(th_job)
 
-        #return job_list
         return th_collections
 
 

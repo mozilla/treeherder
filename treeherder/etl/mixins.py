@@ -114,6 +114,25 @@ class OAuthLoaderMixin(object):
 
     credentials = {}
 
+    param_keys = set([
+        'oauth_body_hash',
+        'oauth_signature',
+        'oauth_consumer_key',
+        'oauth_nonce',
+        'oauth_timestamp',
+        'oauth_signature_method',
+        'oauth_version',
+        'oauth_token',
+        'user'
+        ])
+
+    @classmethod
+    def get_parameters(cls, query_params):
+        parameters = {}
+        for key in cls.param_keys:
+            parameters[key] = query_params.get(key, None)
+        return parameters
+
     @classmethod
     def set_credentials(cls):
         # Only get the credentials once
@@ -161,11 +180,9 @@ class OAuthLoaderMixin(object):
 
             if not response or response.status != 200:
                 message = response.read()
-                logger.error("ResultSet loading failed: {0}".format(message))
-                print "ResultSet loading failed: {0}".format(message)
+                logger.error("collection loading failed: {0}".format(message))
+                print "collection loading failed: {0}".format(message)
 
-            print response.read()
-            print response.status
 
 if not OAuthLoaderMixin.credentials:
     # Only set the credentials once
