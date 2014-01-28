@@ -27,6 +27,7 @@ pip-log.txt
 test.log
 treeherder*.log
 treeherder.log.*
+LOGFILE
 
 # Unit test / coverage reports
 .coverage
@@ -60,5 +61,8 @@ treeherder/etl/data/
 #docs build directory
 docs/_build/
 
+#supervisor
+.nfs*
+*.pid
 
 *.c

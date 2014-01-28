@@ -31,6 +31,18 @@ Installation
      
      (venv)vagrant@precise32:~/treeherder-service$ ./runtests.sh
 
+* Initialize the master database
+
+  .. code-block:: bash
+
+     (venv)vagrant@precise32:~/treeherder-service$ python manage.py init_master_db
+
+* Populate the database with repository data sources
+
+  .. code-block:: bash
+
+     (venv)vagrant@precise32:~/treeherder-service$ python manage.py init_datasources
+
 * And an entry to your host machine /etc/hosts so that you can point your browser to local.treeherder.mozilla.org to reach it
 
   .. code-block:: bash
@@ -69,10 +81,6 @@ Installation
      (venv)vagrant@precise32:~/treeherder-service$ python setup.py build_ext --inplace
 
 
-
-
-
-* If you want to use supervisord to take care of all the services,
 
 
 .. _project repo: https://github.com/mozilla/treeherder-service
