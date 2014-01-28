@@ -341,7 +341,11 @@ treeherder.factory('thResultSetModelManager',
             // to.  decrement the old resultStatus count and increment the
             // new one.
             var oldResultType = getResultType(loadedJob);
-            rsMapElement.rs_obj.result_count[oldResultType]--;
+            $log.debug("decrementing " + oldResultType + " job count down from " + rsMapElement.rs_obj.result_count[oldResultType]);
+            if (rsMapElement.rs_obj.result_count[oldResultType] > 0) {
+                rsMapElement.rs_obj.result_count[oldResultType]--;
+            }
+            $log.debug("incrementing " + newResultType + " job count up from " + rsMapElement.rs_obj.result_count[newResultType]);
             rsMapElement.rs_obj.result_count[newResultType]++;
             $.extend(loadedJob, newJob);
         } else {
@@ -349,6 +353,7 @@ treeherder.factory('thResultSetModelManager',
             $log.debug("adding new job");
 
             // increment the result count for the new job's result type
+            $log.debug("incrementing " + newResultType + " job count up from " + rsMapElement.rs_obj.result_count[newResultType]);
             rsMapElement.rs_obj.result_count[newResultType]++;
             rsMapElement.rs_obj.job_count++;
             if (!rsMapElement) {
@@ -367,10 +372,10 @@ treeherder.factory('thResultSetModelManager',
         }
     };
 
-    var getResultType = function(job) {
-        var resultType = job.result;
-        if (job.state !== "completed") {
-            resultType = job.state;
+    var getResultType = function(rtJob) {
+        var resultType = rtJob.result;
+        if (rtJob.state !== "completed") {
+            resultType = rtJob.state;
         }
         return resultType;
     };

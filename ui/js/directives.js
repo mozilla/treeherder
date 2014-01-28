@@ -50,22 +50,44 @@ treeherder.directive('thActionButton', function () {
     };
 });
 
-treeherder.directive('thResultCountButtons', function (thResultStatusInfo, thResultStatusList) {
+treeherder.directive('thResultCounts', function () {
+
+    return {
+        restrict: "E",
+        templateUrl: 'partials/thResultCounts.html'
+    };
+});
+
+treeherder.directive('thResultStatusCount', function () {
 
     return {
         restrict: "E",
         link: function(scope, element, attrs) {
-            scope.statusList = thResultStatusList;
-            scope.btnClass = function(resultStatus) {
-                return thResultStatusInfo(resultStatus).btnClass;
+            scope.resultCountText = scope.getCountText(scope.resultStatus);
+            scope.resultStatusCountClassPrefix = scope.getCountClass(scope.resultStatus)
+
+            // @@@ this will change once we have classifying implemented
+            scope.resultCount = scope.resultset.result_count[scope.resultStatus];
+            scope.unclassifiedResultCount = scope.resultCount;
+            var getCountAlertClass = function() {
+                if (scope.unclassifiedResultCount) {
+                    return scope.resultStatusCountClassPrefix + "-count-unclassified";
+                } else {
+                    return scope.resultStatusCountClassPrefix + "-count-classified";
+                }
             }
-            scope.countText = function(resultStatus) {
-                return thResultStatusInfo(resultStatus).countText;
-            }
+            scope.countAlertClass = getCountAlertClass();
+            scope.$watch("resultset.result_count", function(newValue) {
+                console.log("in the directive now");
+                scope.resultCount = scope.resultset.result_count[scope.resultStatus];
+                scope.unclassifiedResultCount = scope.resultCount;
+                scope.countAlertClass = getCountAlertClass();
+            }, true);
         },
-        templateUrl: 'partials/thResultCountButtons.html'
+        templateUrl: 'partials/thResultStatusCount.html'
     };
 });
+
 
 treeherder.directive('thAuthor', function () {
 

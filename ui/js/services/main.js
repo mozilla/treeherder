@@ -71,19 +71,19 @@ treeherder.factory('thRepos',
     // get the repositories (aka trees)
     // sample: 'resources/menu.json'
     var byName = function(name) {
-        if ($rootScope.repos != undefined) {
+        if ($rootScope.repos !== undefined) {
             for (var i = 0; i < $rootScope.repos.length; i++) {
                 var repo = $rootScope.repos[i];
                 if (repo.name === name) {
                     return repo;
                 }
-            };
+            }
         } else {
-            $log.warn("Repos list has not been loaded.")
+            $log.warn("Repos list has not been loaded.");
         }
-        $log.warn("'" + name + "' not found in repos list.")
+        $log.warn("'" + name + "' not found in repos list.");
         return null;
-    }
+    };
 
     return {
         // load the list of repos into $rootScope, and set the current repo.
@@ -158,7 +158,7 @@ treeherder.factory('thSocket', function ($rootScope, $log, thUrl) {
             callback.apply(socket, args);
           }
         });
-      })
+      });
     }
   };
 });
