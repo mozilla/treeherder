@@ -56,7 +56,7 @@ class TestAnalysisRunner(unittest.TestCase):
         runner = self.create_runner()
         s = runner.suppressWarningForSubject
         self.assertFalse(s('Improvement: Fx-Team-Non-PGO - Ts, Paint - WINNT 6.1 (ix) - 96% decrease'))
-        self.assertTrue(s('Tp5 Optimized Responsiveness - WINNT 6.1 (ix)'))
+        self.assertFalse(s('Tp5 Optimized Responsiveness - WINNT 6.1 (ix)'))
         self.assertFalse(s('<Regression> Ts, Paint - WINNT 6.2 x64- 96% increase'))
         self.assertFalse(s('<Regression> Mozilla-Inbound-Non-PGO - Ts Paint, MED Dirty Profile - WINNT 6.1 (ix) - 751%'))
 

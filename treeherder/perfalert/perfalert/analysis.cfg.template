@@ -24,8 +24,7 @@ percentage_threshold = 2
 ignore_percentage_tests = LibXUL Memory during link
 
 # Don't send any email alerts for these subjects (comma-separated list of regexps)
-# Tp5 Responsiveness: bug 751975
-suppress_email_subjects = Tp5 Optimized Responsiveness - WINNT 6\.(1|2)
+#suppress_email_subjects = 
 
 # What t score is required to consider a machine to be bad
 machine_threshold = 15
