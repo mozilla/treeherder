@@ -12,6 +12,7 @@ treeherder.factory('thResultSets',
             var params = {
                 offset: offset,
                 count: count,
+                full: false,
                 format: "json"
             };
             if (resultsetlist) {

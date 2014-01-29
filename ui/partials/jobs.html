@@ -26,7 +26,7 @@
             <th-action-button ng-hide="isLoadingJobs"></th-action-button>
             <span class="timestamp-name">
                 <span>{{resultset.push_timestamp*1000|date:'medium'}} - </span>
-                <th-author></th-author>
+                <th-author author="resultset.author"></th-author>
             </span>
         </span>
         <span class="btn btn-default btn-sm col-xs-1 revision-button"
