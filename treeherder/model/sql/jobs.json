@@ -210,6 +210,31 @@
         "get_job_list":{
             "sql":"SELECT
                     j.id,
+                    j.`option_collection_hash`,
+                    mp.`platform` as platform,
+                    jt.`name` as job_type_name,
+                    jt.`symbol` as job_type_symbol,
+					jg.`name` as job_group_name,
+                    jg.`symbol` as job_group_symbol,
+                    j.`result_set_id`,
+                    j.`result`,
+                    j.`state`
+                  FROM `job` as j
+                  LEFT JOIN `REP0`.`machine_platform` as mp
+                    ON j.`machine_platform_id` = mp.id
+                  LEFT JOIN `REP0`.`job_type` as jt
+                    ON j.`job_type_id` = jt.id
+				  LEFT JOIN `REP0`.`job_group` as jg
+                    ON jt.`job_group_id` = jg.id
+                  WHERE 1
+                  REP1
+                  LIMIT ?,?",
+
+            "host":"read_host"
+        },
+        "get_job_list_full":{
+            "sql":"SELECT
+                    j.id,
                     j.`job_guid`,
                     j.`job_coalesced_to_guid`,
                     j.`build_platform_id`,
@@ -387,6 +412,34 @@
             "host": "read_host"
         },
         "get_result_set_job_list":{
+            "sql":"SELECT
+                    j.`id`,
+                    j.`option_collection_hash`,
+                    mp.`platform` as platform,
+                    jt.`name` as job_type_name,
+                    jt.`symbol` as job_type_symbol,
+					jg.`name` as job_group_name,
+                    jg.`symbol` as job_group_symbol,
+                    j.`result_set_id`,
+                    j.`id` as job_id,
+                    j.`result`,
+                    j.`state`,
+                    j.`reason`
+                  FROM `job` as j
+                  LEFT JOIN `REP0`.`machine` as m
+                    ON j.`machine_id` = m.id
+                  LEFT JOIN `REP0`.`machine_platform` as mp
+                    ON j.`machine_platform_id` = mp.id
+                  LEFT JOIN `REP0`.`job_type` as jt
+                    ON j.`job_type_id` = jt.id
+				  LEFT JOIN `REP0`.`job_group` as jg
+                    ON jt.`job_group_id` = jg.id
+                  WHERE j.`result_set_id` IN (REP1)
+                  REP2
+                  ",
+            "host": "read_host"
+        },
+        "get_result_set_job_list_full":{
             "sql":"SELECT
                     j.`job_guid`,
                     j.`job_coalesced_to_guid`,

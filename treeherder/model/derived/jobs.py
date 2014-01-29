@@ -103,12 +103,14 @@ class JobsModel(TreeherderModelBase):
         )
         return data
 
-    def get_job_list(self, offset, limit, conditions=None):
+    def get_job_list(self, offset, limit, full=True, conditions=None):
         """
         Retrieve a list of jobs.
         Mainly used by the restful api to list the jobs
 
         joblist: a list of job ids to limit which jobs are returned.
+        full: whether to return all reference data or just what is
+              needed for the UI.
         """
 
         placeholders = []
@@ -131,8 +133,10 @@ class JobsModel(TreeherderModelBase):
 
         repl = [self.refdata_model.get_db_name(), replace_str]
 
-        proc = "jobs.selects.get_job_list"
-
+        if full:
+            proc = "jobs.selects.get_job_list_full"
+        else:
+            proc = "jobs.selects.get_job_list"
         data = self.get_jobs_dhub().execute(
             proc=proc,
             replace=repl,
@@ -254,10 +258,11 @@ class JobsModel(TreeherderModelBase):
 
         return result_set_id_lookup
 
-    def get_result_set_list(self, offset, limit, conditions=None):
+    def get_result_set_list(self, offset, limit, full=True, conditions=None):
         """
         Retrieve a list of ``result_sets`` (also known as ``pushes``)
-        with associated revisions.  No jobs
+        If ``full`` is set to ``True`` then return revisions, too.
+        No jobs
 
         Mainly used by the restful api to list the pushes in the UI
         """
@@ -301,20 +306,23 @@ class JobsModel(TreeherderModelBase):
         return_list = []
         for result in result_set_ids:
 
-            detail = aggregate_details[ result['id'] ][0]
-
-            return_list.append(
-                {
-                    "id":result['id'],
-                    "revision_hash":result['revision_hash'],
-                    "push_timestamp":result['push_timestamp'],
-                    "repository_id":detail['repository_id'],
-                    "revision":detail['revision'],
-                    "author":detail['author'],
-                    "comments":detail['comments'],
-                    "revision_list":aggregate_details[ result['id'] ]
-                    }
-                )
+            detail = aggregate_details[result['id']][0]
+            list_item = {
+                "id": result['id'],
+                "revision_hash": result['revision_hash'],
+                "push_timestamp": result['push_timestamp'],
+                "repository_id": detail['repository_id'],
+                "revision": detail['revision'],
+                "author": detail['author'],
+                "revision_count": len(aggregate_details[result['id']])
+            }
+            if full:
+                list_item.update({
+                    "full": full,
+                    "comments": detail['comments'],
+                    "revision_list": aggregate_details[result['id']]
+                })
+            return_list.append(list_item)
 
         return return_list
 
@@ -387,7 +395,7 @@ class JobsModel(TreeherderModelBase):
 
         return aggregate_details
 
-    def get_result_set_job_list(self, result_set_ids, **kwargs):
+    def get_result_set_job_list(self, result_set_ids, full=True, **kwargs):
         """
         Retrieve a list of ``jobs`` and results for a result_set.
 
@@ -409,7 +417,10 @@ class JobsModel(TreeherderModelBase):
         if "job_type_name" in kwargs:
             repl.append(" AND jt.`name` = '{0}'".format(kwargs["job_type_name"]))
 
-        proc = "jobs.selects.get_result_set_job_list"
+        if full:
+            proc = "jobs.selects.get_result_set_job_list_full"
+        else:
+            proc = "jobs.selects.get_result_set_job_list"
         data = self.get_jobs_dhub().execute(
             proc=proc,
             placeholders=result_set_ids,
