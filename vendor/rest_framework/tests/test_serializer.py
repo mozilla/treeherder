@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from django.db import models
 from django.db.models.fields import BLANK_CHOICE_DASH
@@ -104,6 +105,17 @@ class ModelSerializerWithNestedSerializer(serializers.ModelSerializer):
         model = Person
 
 
+class NestedSerializerWithRenamedField(serializers.Serializer):
+    renamed_info = serializers.Field(source='info')
+
+
+class ModelSerializerWithNestedSerializerWithRenamedField(serializers.ModelSerializer):
+    nested = NestedSerializerWithRenamedField(source='*')
+
+    class Meta:
+        model = Person
+
+
 class PersonSerializerInvalidReadOnly(serializers.ModelSerializer):
     """
     Testing for #652.
@@ -136,6 +148,7 @@ class BasicTests(TestCase):
             'Happy new year!',
             datetime.datetime(2012, 1, 1)
         )
+        self.actionitem = ActionItem(title='Some to do item',)
         self.data = {
             'email': 'tom@example.com',
             'content': 'Happy new year!',
@@ -157,8 +170,7 @@ class BasicTests(TestCase):
         expected = {
             'email': '',
             'content': '',
-            'created': None,
-            'sub_comment': ''
+            'created': None
         }
         self.assertEqual(serializer.data, expected)
 
@@ -263,6 +275,20 @@ class BasicTests(TestCase):
         Regression test for #652.
         """
         self.assertRaises(AssertionError, PersonSerializerInvalidReadOnly, [])
+
+    def test_serializer_data_is_cleared_on_save(self):
+        """
+        Check _data attribute is cleared on `save()`
+
+        Regression test for #1116
+            — id field is not populated if `data` is accessed prior to `save()`
+        """
+        serializer = ActionItemSerializer(self.actionitem)
+        self.assertIsNone(serializer.data.get('id',None), 'New instance. `id` should not be set.')
+        serializer.save()
+        self.assertIsNotNone(serializer.data.get('id',None), 'Model is saved. `id` should be set.')
+
+
 
 
 class DictStyleSerializer(serializers.Serializer):
@@ -441,6 +467,20 @@ class ValidationTests(TestCase):
         )
         self.assertEqual(serializer.is_valid(), True)
 
+    def test_writable_star_source_with_inner_source_fields(self):
+        """
+        Tests that a serializer with source="*" correctly expands the
+        it's fields into the outer serializer even if they have their
+        own 'source' parameters.
+        """
+
+        serializer = ModelSerializerWithNestedSerializerWithRenamedField(data={
+            'name': 'marko',
+            'nested': {'renamed_info': 'hi'}},
+        )
+        self.assertEqual(serializer.is_valid(), True)
+        self.assertEqual(serializer.errors, {})
+
 
 class CustomValidationTests(TestCase):
     class CommentSerializerWithFieldValidator(CommentSerializer):
@@ -494,7 +534,34 @@ class CustomValidationTests(TestCase):
         }
         serializer = self.CommentSerializerWithFieldValidator(data=wrong_data)
         self.assertFalse(serializer.is_valid())
-        self.assertEqual(serializer.errors, {'email': ['Enter a valid e-mail address.']})
+        self.assertEqual(serializer.errors, {'email': ['Enter a valid email address.']})
+
+    def test_partial_update(self):
+        """
+        Make sure that validate_email isn't called when partial=True and email
+        isn't found in data.
+        """
+        initial_data = {
+            'email': 'tom@example.com',
+            'content': 'A test comment',
+            'created': datetime.datetime(2012, 1, 1)
+        }
+
+        serializer = self.CommentSerializerWithFieldValidator(data=initial_data)
+        self.assertEqual(serializer.is_valid(), True)
+        instance = serializer.object
+
+        new_content = 'An *updated* test comment'
+        partial_data = {
+            'content': new_content
+        }
+
+        serializer = self.CommentSerializerWithFieldValidator(instance=instance,
+                                                              data=partial_data,
+                                                              partial=True)
+        self.assertEqual(serializer.is_valid(), True)
+        instance = serializer.object
+        self.assertEqual(instance.content, new_content)
 
 
 class PositiveIntegerAsChoiceTests(TestCase):
@@ -515,6 +582,29 @@ class ModelValidationTests(TestCase):
         second_serializer = AlbumsSerializer(data={'title': 'a'})
         self.assertFalse(second_serializer.is_valid())
         self.assertEqual(second_serializer.errors,  {'title': ['Album with this Title already exists.']})
+
+    def test_foreign_key_is_null_with_partial(self):
+        """
+        Test ModelSerializer validation with partial=True
+
+        Specifically test that a null foreign key does not pass validation
+        """
+        album = Album(title='test')
+        album.save()
+
+        class PhotoSerializer(serializers.ModelSerializer):
+            class Meta:
+                model = Photo
+
+        photo_serializer = PhotoSerializer(data={'description': 'test', 'album': album.pk})
+        self.assertTrue(photo_serializer.is_valid())
+        photo = photo_serializer.save()
+
+        # Updating only the album (foreign key)
+        photo_serializer = PhotoSerializer(instance=photo, data={'album': ''}, partial=True)
+        self.assertFalse(photo_serializer.is_valid())
+        self.assertTrue('album' in photo_serializer.errors)
+        self.assertEqual(photo_serializer.errors['album'], photo_serializer.error_messages['required'])
 
     def test_foreign_key_with_partial(self):
         """
@@ -1376,6 +1466,18 @@ class FieldLabelTest(TestCase):
         self.assertEqual('Label', relations.HyperlinkedRelatedField(view_name='fake', label='Label', help_text='Help', many=True).label)
 
 
+# Test for issue #961
+
+class ManyFieldHelpTextTest(TestCase):
+    def test_help_text_no_hold_down_control_msg(self):
+        """
+        Validate that help_text doesn't contain the 'Hold down "Control" ...'
+        message that Django appends to choice fields.
+        """
+        rel_field = fields.Field(help_text=ManyToManyModel._meta.get_field('rel').help_text)
+        self.assertEqual('Some help text.', rel_field.help_text)
+
+
 class AttributeMappingOnAutogeneratedFieldsTests(TestCase):
 
     def setUp(self):
@@ -1556,3 +1658,185 @@ class MetadataSerializerTestCase(TestCase):
             }
         }
         self.assertEqual(expected, metadata)
+
+
+### Regression test for #840
+
+class SimpleModel(models.Model):
+    text = models.CharField(max_length=100)
+
+
+class SimpleModelSerializer(serializers.ModelSerializer):
+    text = serializers.CharField()
+    other = serializers.CharField()
+
+    class Meta:
+        model = SimpleModel
+
+    def validate_other(self, attrs, source):
+        del attrs['other']
+        return attrs
+
+
+class FieldValidationRemovingAttr(TestCase):
+    def test_removing_non_model_field_in_validation(self):
+        """
+        Removing an attr during field valiation should ensure that it is not
+        passed through when restoring the object.
+
+        This allows additional non-model fields to be supported.
+
+        Regression test for #840.
+        """
+        serializer = SimpleModelSerializer(data={'text': 'foo', 'other': 'bar'})
+        self.assertTrue(serializer.is_valid())
+        serializer.save()
+        self.assertEqual(serializer.object.text, 'foo')
+
+
+### Regression test for #878
+
+class SimpleTargetModel(models.Model):
+    text = models.CharField(max_length=100)
+
+
+class SimplePKSourceModelSerializer(serializers.Serializer):
+    targets = serializers.PrimaryKeyRelatedField(queryset=SimpleTargetModel.objects.all(), many=True)
+    text = serializers.CharField()
+
+
+class SimpleSlugSourceModelSerializer(serializers.Serializer):
+    targets = serializers.SlugRelatedField(queryset=SimpleTargetModel.objects.all(), many=True, slug_field='pk')
+    text = serializers.CharField()
+
+
+class SerializerSupportsManyRelationships(TestCase):
+    def setUp(self):
+        SimpleTargetModel.objects.create(text='foo')
+        SimpleTargetModel.objects.create(text='bar')
+
+    def test_serializer_supports_pk_many_relationships(self):
+        """
+        Regression test for #878.
+
+        Note that pk behavior has a different code path to usual cases,
+        for performance reasons.
+        """
+        serializer = SimplePKSourceModelSerializer(data={'text': 'foo', 'targets': [1, 2]})
+        self.assertTrue(serializer.is_valid())
+        self.assertEqual(serializer.data, {'text': 'foo', 'targets': [1, 2]})
+
+    def test_serializer_supports_slug_many_relationships(self):
+        """
+        Regression test for #878.
+        """
+        serializer = SimpleSlugSourceModelSerializer(data={'text': 'foo', 'targets': [1, 2]})
+        self.assertTrue(serializer.is_valid())
+        self.assertEqual(serializer.data, {'text': 'foo', 'targets': [1, 2]})
+
+
+class TransformMethodsSerializer(serializers.Serializer):
+    a = serializers.CharField()
+    b_renamed = serializers.CharField(source='b')
+
+    def transform_a(self, obj, value):
+        return value.lower()
+
+    def transform_b_renamed(self, obj, value):
+        if value is not None:
+            return 'and ' + value
+
+
+class TestSerializerTransformMethods(TestCase):
+    def setUp(self):
+        self.s = TransformMethodsSerializer()
+
+    def test_transform_methods(self):
+        self.assertEqual(
+            self.s.to_native({'a': 'GREEN EGGS', 'b': 'HAM'}),
+            {
+                'a': 'green eggs',
+                'b_renamed': 'and HAM',
+            }
+        )
+
+    def test_missing_fields(self):
+        self.assertEqual(
+            self.s.to_native({'a': 'GREEN EGGS'}),
+            {
+                'a': 'green eggs',
+                'b_renamed': None,
+            }
+        )
+
+
+class DefaultTrueBooleanModel(models.Model):
+    cat = models.BooleanField(default=True)
+    dog = models.BooleanField(default=False)
+
+
+class SerializerDefaultTrueBoolean(TestCase):
+
+    def setUp(self):
+        super(SerializerDefaultTrueBoolean, self).setUp()
+
+        class DefaultTrueBooleanSerializer(serializers.ModelSerializer):
+            class Meta:
+                model = DefaultTrueBooleanModel
+                fields = ('cat', 'dog')
+
+        self.default_true_boolean_serializer = DefaultTrueBooleanSerializer
+
+    def test_enabled_as_false(self):
+        serializer = self.default_true_boolean_serializer(data={'cat': False,
+                                                                'dog': False})
+        self.assertEqual(serializer.is_valid(), True)
+        self.assertEqual(serializer.data['cat'], False)
+        self.assertEqual(serializer.data['dog'], False)
+
+    def test_enabled_as_true(self):
+        serializer = self.default_true_boolean_serializer(data={'cat': True,
+                                                                'dog': True})
+        self.assertEqual(serializer.is_valid(), True)
+        self.assertEqual(serializer.data['cat'], True)
+        self.assertEqual(serializer.data['dog'], True)
+
+    def test_enabled_partial(self):
+        serializer = self.default_true_boolean_serializer(data={'cat': False},
+                                                          partial=True)
+        self.assertEqual(serializer.is_valid(), True)
+        self.assertEqual(serializer.data['cat'], False)
+        self.assertEqual(serializer.data['dog'], False)
+
+        
+class BoolenFieldTypeTest(TestCase):
+    '''
+    Ensure the various Boolean based model fields are rendered as the proper
+    field type
+    
+    '''
+    
+    def setUp(self):
+        '''
+        Setup an ActionItemSerializer for BooleanTesting
+        '''
+        data = {
+            'title': 'b' * 201,
+        }
+        self.serializer = ActionItemSerializer(data=data)
+
+    def test_booleanfield_type(self):
+        '''
+        Test that BooleanField is infered from models.BooleanField
+        '''
+        bfield = self.serializer.get_fields()['done']
+        self.assertEqual(type(bfield), fields.BooleanField)
+    
+    def test_nullbooleanfield_type(self):
+        '''
+        Test that BooleanField is infered from models.NullBooleanField 
+        
+        https://groups.google.com/forum/#!topic/django-rest-framework/D9mXEftpuQ8
+        '''
+        bfield = self.serializer.get_fields()['started']
+        self.assertEqual(type(bfield), fields.BooleanField)

@@ -14,13 +14,24 @@ from rest_framework.settings import api_settings
 import warnings
 
 
-def get_object_or_404(queryset, **filter_kwargs):
+def strict_positive_int(integer_string, cutoff=None):
+    """
+    Cast a string to a strictly positive integer.
+    """
+    ret = int(integer_string)
+    if ret <= 0:
+        raise ValueError()
+    if cutoff:
+        ret = min(ret, cutoff)
+    return ret
+
+def get_object_or_404(queryset, *filter_args, **filter_kwargs):
     """
     Same as Django's standard shortcut, but make sure to raise 404
     if the filter_kwargs don't match the required types.
     """
     try:
-        return _get_object_or_404(queryset, **filter_kwargs)
+        return _get_object_or_404(queryset, *filter_args, **filter_kwargs)
     except (TypeError, ValueError):
         raise Http404
 
@@ -43,10 +54,12 @@ class GenericAPIView(views.APIView):
     # If you want to use object lookups other than pk, set this attribute.
     # For more complex lookup requirements override `get_object()`.
     lookup_field = 'pk'
+    lookup_url_kwarg = None
 
     # Pagination settings
     paginate_by = api_settings.PAGINATE_BY
     paginate_by_param = api_settings.PAGINATE_BY_PARAM
+    max_paginate_by = api_settings.MAX_PAGINATE_BY
     pagination_serializer_class = api_settings.DEFAULT_PAGINATION_SERIALIZER_CLASS
     page_kwarg = 'page'
 
@@ -135,8 +148,8 @@ class GenericAPIView(views.APIView):
         page_query_param = self.request.QUERY_PARAMS.get(self.page_kwarg)
         page = page_kwarg or page_query_param or 1
         try:
-            page_number = int(page)
-        except ValueError:
+            page_number = paginator.validate_number(page)
+        except InvalidPage:
             if page == 'last':
                 page_number = paginator.num_pages
             else:
@@ -162,6 +175,14 @@ class GenericAPIView(views.APIView):
         method if you want to apply the configured filtering backend to the
         default queryset.
         """
+        for backend in self.get_filter_backends():
+            queryset = backend().filter_queryset(self.request, queryset, self)
+        return queryset
+
+    def get_filter_backends(self):
+        """
+        Returns the list of filter backends that this view requires.
+        """
         filter_backends = self.filter_backends or []
         if not filter_backends and self.filter_backend:
             warnings.warn(
@@ -172,10 +193,8 @@ class GenericAPIView(views.APIView):
                 PendingDeprecationWarning, stacklevel=2
             )
             filter_backends = [self.filter_backend]
+        return filter_backends
 
-        for backend in filter_backends:
-            queryset = backend().filter_queryset(self.request, queryset, self)
-        return queryset
 
     ########################
     ### The following methods provide default implementations
@@ -196,9 +215,11 @@ class GenericAPIView(views.APIView):
                           PendingDeprecationWarning, stacklevel=2)
 
         if self.paginate_by_param:
-            query_params = self.request.QUERY_PARAMS
             try:
-                return int(query_params[self.paginate_by_param])
+                return strict_positive_int(
+                    self.request.QUERY_PARAMS[self.paginate_by_param],
+                    cutoff=self.max_paginate_by
+                )
             except (KeyError, ValueError):
                 pass
 
@@ -212,7 +233,7 @@ class GenericAPIView(views.APIView):
         You may want to override this if you need to provide different
         serializations depending on the incoming request.
 
-        (Eg. admins get full serialization, others get basic serilization)
+        (Eg. admins get full serialization, others get basic serialization)
         """
         serializer_class = self.serializer_class
         if serializer_class is not None:
@@ -264,9 +285,11 @@ class GenericAPIView(views.APIView):
             pass  # Deprecation warning
 
         # Perform the lookup filtering.
+        # Note that `pk` and `slug` are deprecated styles of lookup filtering.
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+        lookup = self.kwargs.get(lookup_url_kwarg, None)
         pk = self.kwargs.get(self.pk_url_kwarg, None)
         slug = self.kwargs.get(self.slug_url_kwarg, None)
-        lookup = self.kwargs.get(self.lookup_field, None)
 
         if lookup is not None:
             filter_kwargs = {self.lookup_field: lookup}
@@ -285,7 +308,7 @@ class GenericAPIView(views.APIView):
             )
             filter_kwargs = {self.slug_field: slug}
         else:
-            raise exceptions.ConfigurationError(
+            raise ImproperlyConfigured(
                 'Expected view %s to be called with a URL keyword argument '
                 'named "%s". Fix your URL conf, or set the `.lookup_field` '
                 'attribute on the view correctly.' %
@@ -321,6 +344,18 @@ class GenericAPIView(views.APIView):
         """
         pass
 
+    def pre_delete(self, obj):
+        """
+        Placeholder method for calling before deleting an object.
+        """
+        pass
+
+    def post_delete(self, obj):
+        """
+        Placeholder method for calling after saving an object.
+        """
+        pass
+
     def metadata(self, request):
         """
         Return a dictionary of metadata about the view.
@@ -342,8 +377,15 @@ class GenericAPIView(views.APIView):
                 self.check_permissions(cloned_request)
                 # Test object permissions
                 if method == 'PUT':
-                    self.get_object()
-            except (exceptions.APIException, PermissionDenied, Http404):
+                    try:
+                        self.get_object()
+                    except Http404:
+                        # Http404 should be acceptable and the serializer
+                        # metadata should be populated. Except this so the
+                        # outer "else" clause of the try-except-else block
+                        # will be executed.
+                        pass
+            except (exceptions.APIException, PermissionDenied):
                 pass
             else:
                 # If user has appropriate permissions for the view, include

@@ -252,7 +252,6 @@ class JobsViewSet(viewsets.ViewSet):
         else:
             return Response("No job with id: {0}".format(pk), 404)
 
-    @action()
     @with_jobs
     def create(self, request, project, jm):
         """

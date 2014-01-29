@@ -3,12 +3,11 @@ from django.db import models
 from django.shortcuts import get_object_or_404
 from django.test import TestCase
 from rest_framework import generics, renderers, serializers, status
-from rest_framework.tests.utils import RequestFactory
+from rest_framework.test import APIRequestFactory
 from rest_framework.tests.models import BasicModel, Comment, SlugBasedModel
 from rest_framework.compat import six
-import json
 
-factory = RequestFactory()
+factory = APIRequestFactory()
 
 
 class RootView(generics.ListCreateAPIView):
@@ -23,6 +22,10 @@ class InstanceView(generics.RetrieveUpdateDestroyAPIView):
     Example description for OPTIONS.
     """
     model = BasicModel
+
+    def get_queryset(self):
+        queryset = super(InstanceView, self).get_queryset()
+        return queryset.exclude(text='filtered out')
 
 
 class SlugSerializer(serializers.ModelSerializer):
@@ -71,9 +74,8 @@ class TestRootView(TestCase):
         """
         POST requests to ListCreateAPIView should create a new object.
         """
-        content = {'text': 'foobar'}
-        request = factory.post('/', json.dumps(content),
-                               content_type='application/json')
+        data = {'text': 'foobar'}
+        request = factory.post('/', data, format='json')
         with self.assertNumQueries(1):
             response = self.view(request).render()
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -85,9 +87,8 @@ class TestRootView(TestCase):
         """
         PUT requests to ListCreateAPIView should not be allowed
         """
-        content = {'text': 'foobar'}
-        request = factory.put('/', json.dumps(content),
-                              content_type='application/json')
+        data = {'text': 'foobar'}
+        request = factory.put('/', data, format='json')
         with self.assertNumQueries(0):
             response = self.view(request).render()
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -148,9 +149,8 @@ class TestRootView(TestCase):
         """
         POST requests to create a new object should not be able to set the id.
         """
-        content = {'id': 999, 'text': 'foobar'}
-        request = factory.post('/', json.dumps(content),
-                               content_type='application/json')
+        data = {'id': 999, 'text': 'foobar'}
+        request = factory.post('/', data, format='json')
         with self.assertNumQueries(1):
             response = self.view(request).render()
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -164,10 +164,10 @@ class TestInstanceView(TestCase):
         """
         Create 3 BasicModel intances.
         """
-        items = ['foo', 'bar', 'baz']
+        items = ['foo', 'bar', 'baz', 'filtered out']
         for item in items:
             BasicModel(text=item).save()
-        self.objects = BasicModel.objects
+        self.objects = BasicModel.objects.exclude(text='filtered out')
         self.data = [
             {'id': obj.id, 'text': obj.text}
             for obj in self.objects.all()
@@ -189,9 +189,8 @@ class TestInstanceView(TestCase):
         """
         POST requests to RetrieveUpdateDestroyAPIView should not be allowed
         """
-        content = {'text': 'foobar'}
-        request = factory.post('/', json.dumps(content),
-                               content_type='application/json')
+        data = {'text': 'foobar'}
+        request = factory.post('/', data, format='json')
         with self.assertNumQueries(0):
             response = self.view(request).render()
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -201,9 +200,8 @@ class TestInstanceView(TestCase):
         """
         PUT requests to RetrieveUpdateDestroyAPIView should update an object.
         """
-        content = {'text': 'foobar'}
-        request = factory.put('/1', json.dumps(content),
-                              content_type='application/json')
+        data = {'text': 'foobar'}
+        request = factory.put('/1', data, format='json')
         with self.assertNumQueries(2):
             response = self.view(request, pk='1').render()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -215,9 +213,8 @@ class TestInstanceView(TestCase):
         """
         PATCH requests to RetrieveUpdateDestroyAPIView should update an object.
         """
-        content = {'text': 'foobar'}
-        request = factory.patch('/1', json.dumps(content),
-                              content_type='application/json')
+        data = {'text': 'foobar'}
+        request = factory.patch('/1', data, format='json')
 
         with self.assertNumQueries(2):
             response = self.view(request, pk=1).render()
@@ -279,6 +276,48 @@ class TestInstanceView(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, expected)
 
+    def test_options_before_instance_create(self):
+        """
+        OPTIONS requests to RetrieveUpdateDestroyAPIView should return metadata
+        before the instance has been created
+        """
+        request = factory.options('/999')
+        with self.assertNumQueries(1):
+            response = self.view(request, pk=999).render()
+        expected = {
+            'parses': [
+                'application/json',
+                'application/x-www-form-urlencoded',
+                'multipart/form-data'
+            ],
+            'renders': [
+                'application/json',
+                'text/html'
+            ],
+            'name': 'Instance',
+            'description': 'Example description for OPTIONS.',
+            'actions': {
+                'PUT': {
+                    'text': {
+                        'max_length': 100,
+                        'read_only': False,
+                        'required': True,
+                        'type': 'string',
+                        'label': 'Text comes here',
+                        'help_text': 'Text description.'
+                    },
+                    'id': {
+                        'read_only': True,
+                        'required': False,
+                        'type': 'integer',
+                        'label': 'ID',
+                    },
+                }
+            }
+        }
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, expected)
+
     def test_get_instance_view_incorrect_arg(self):
         """
         GET requests with an incorrect pk type, should raise 404, not 500.
@@ -293,9 +332,8 @@ class TestInstanceView(TestCase):
         """
         PUT requests to create a new object should not be able to set the id.
         """
-        content = {'id': 999, 'text': 'foobar'}
-        request = factory.put('/1', json.dumps(content),
-                              content_type='application/json')
+        data = {'id': 999, 'text': 'foobar'}
+        request = factory.put('/1', data, format='json')
         with self.assertNumQueries(2):
             response = self.view(request, pk=1).render()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -309,9 +347,8 @@ class TestInstanceView(TestCase):
         if it does not currently exist.
         """
         self.objects.get(id=1).delete()
-        content = {'text': 'foobar'}
-        request = factory.put('/1', json.dumps(content),
-                              content_type='application/json')
+        data = {'text': 'foobar'}
+        request = factory.put('/1', data, format='json')
         with self.assertNumQueries(3):
             response = self.view(request, pk=1).render()
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -319,15 +356,25 @@ class TestInstanceView(TestCase):
         updated = self.objects.get(id=1)
         self.assertEqual(updated.text, 'foobar')
 
+    def test_put_to_filtered_out_instance(self):
+        """
+        PUT requests to an URL of instance which is filtered out should not be
+        able to create new objects.
+        """
+        data = {'text': 'foo'}
+        filtered_out_pk = BasicModel.objects.filter(text='filtered out')[0].pk
+        request = factory.put('/{0}'.format(filtered_out_pk), data, format='json')
+        response = self.view(request, pk=filtered_out_pk).render()
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_put_as_create_on_id_based_url(self):
         """
         PUT requests to RetrieveUpdateDestroyAPIView should create an object
         at the requested url if it doesn't exist.
         """
-        content = {'text': 'foobar'}
+        data = {'text': 'foobar'}
         # pk fields can not be created on demand, only the database can set the pk for a new object
-        request = factory.put('/5', json.dumps(content),
-                              content_type='application/json')
+        request = factory.put('/5', data, format='json')
         with self.assertNumQueries(3):
             response = self.view(request, pk=5).render()
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -339,15 +386,25 @@ class TestInstanceView(TestCase):
         PUT requests to RetrieveUpdateDestroyAPIView should create an object
         at the requested url if possible, else return HTTP_403_FORBIDDEN error-response.
         """
-        content = {'text': 'foobar'}
-        request = factory.put('/test_slug', json.dumps(content),
-                              content_type='application/json')
+        data = {'text': 'foobar'}
+        request = factory.put('/test_slug', data, format='json')
         with self.assertNumQueries(2):
             response = self.slug_based_view(request, slug='test_slug').render()
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data, {'slug': 'test_slug', 'text': 'foobar'})
         new_obj = SlugBasedModel.objects.get(slug='test_slug')
         self.assertEqual(new_obj.text, 'foobar')
+
+    def test_patch_cannot_create_an_object(self):
+        """
+        PATCH requests should not be able to create objects.
+        """
+        data = {'text': 'foobar'}
+        request = factory.patch('/999', data, format='json')
+        with self.assertNumQueries(1):
+            response = self.view(request, pk=999).render()
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertFalse(self.objects.filter(id=999).exists())
 
 
 class TestOverriddenGetObject(TestCase):
@@ -415,9 +472,8 @@ class TestCreateModelWithAutoNowAddField(TestCase):
 
         https://github.com/tomchristie/django-rest-framework/issues/285
         """
-        content = {'email': 'foobar@example.com', 'content': 'foobar'}
-        request = factory.post('/', json.dumps(content),
-                               content_type='application/json')
+        data = {'email': 'foobar@example.com', 'content': 'foobar'}
+        request = factory.post('/', data, format='json')
         response = self.view(request).render()
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         created = self.objects.get(id=1)
@@ -465,6 +521,25 @@ class InclusiveFilterBackend(object):
 class ExclusiveFilterBackend(object):
     def filter_queryset(self, request, queryset, view):
         return queryset.filter(text='other')
+
+
+class TwoFieldModel(models.Model):
+    field_a = models.CharField(max_length=100)
+    field_b = models.CharField(max_length=100)
+
+
+class DynamicSerializerView(generics.ListCreateAPIView):
+    model = TwoFieldModel
+    renderer_classes = (renderers.BrowsableAPIRenderer, renderers.JSONRenderer)
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            class DynamicSerializer(serializers.ModelSerializer):
+                class Meta:
+                    model = TwoFieldModel
+                    fields = ('field_b',)
+            return DynamicSerializer
+        return super(DynamicSerializerView, self).get_serializer_class()
 
 
 class TestFilterBackendAppliedToViews(TestCase):
@@ -522,28 +597,6 @@ class TestFilterBackendAppliedToViews(TestCase):
         response = instance_view(request, pk=1).render()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, {'id': 1, 'text': 'foo'})
-
-
-class TwoFieldModel(models.Model):
-    field_a = models.CharField(max_length=100)
-    field_b = models.CharField(max_length=100)
-
-
-class DynamicSerializerView(generics.ListCreateAPIView):
-    model = TwoFieldModel
-    renderer_classes = (renderers.BrowsableAPIRenderer, renderers.JSONRenderer)
-
-    def get_serializer_class(self):
-        if self.request.method == 'POST':
-            class DynamicSerializer(serializers.ModelSerializer):
-                class Meta:
-                    model = TwoFieldModel
-                    fields = ('field_b',)
-            return DynamicSerializer
-        return super(DynamicSerializerView, self).get_serializer_class()
-
-
-class TestFilterBackendAppliedToViews(TestCase):
 
     def test_dynamic_serializer_form_in_browsable_api(self):
         """
