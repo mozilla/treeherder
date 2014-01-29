@@ -12,13 +12,14 @@ treeherder.factory('thResultSets',
             var params = {
                 offset: offset,
                 count: count,
+                full: false,
                 format: "json"
             };
             if (resultsetlist) {
                 $.extend(params, {
                     offset: 0,
                     count: resultsetlist.length,
-                    resultsetlist: resultsetlist.join()
+                    id__in: resultsetlist.join()
                 });
             }
             return $http.get(thUrl.getProjectUrl("/resultset/"),

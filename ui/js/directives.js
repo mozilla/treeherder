@@ -78,7 +78,6 @@ treeherder.directive('thResultStatusCount', function () {
             }
             scope.countAlertClass = getCountAlertClass();
             scope.$watch("resultset.result_count", function(newValue) {
-                console.log("in the directive now");
                 scope.resultCount = scope.resultset.result_count[scope.resultStatus];
                 scope.unclassifiedResultCount = scope.resultCount;
                 scope.countAlertClass = getCountAlertClass();
@@ -93,8 +92,11 @@ treeherder.directive('thAuthor', function () {
 
     return {
         restrict: "E",
+        scope: {
+            author: '=author'
+        },
         link: function(scope, element, attrs) {
-            var userTokens = scope.resultset.author.split(/[<>]+/);
+            var userTokens = scope.author.split(/[<>]+/);
             var email = "";
             if (userTokens.length > 1) {
                 email = userTokens[1];
@@ -102,7 +104,7 @@ treeherder.directive('thAuthor', function () {
             scope.authorName = userTokens[0].trim();
             scope.authorEmail = email;
         },
-        template: '<span title="{{authorEmail}}">{{authorName}}</span>'
+        template: '<span title="{{authorName}}: {{authorEmail}}">{{authorName}}</span>'
     };
 });
 
