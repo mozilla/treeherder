@@ -16,7 +16,7 @@ describe('JobsCtrl', function(){
             getJSONFixture('repositories.json')
         );
 
-        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/resultset/?count=10&format=json&offset=0').respond(
+        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/resultset/?count=10&format=json&full=false&offset=0').respond(
             getJSONFixture('resultset_list.json')
         );
 
