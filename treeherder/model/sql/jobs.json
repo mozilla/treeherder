@@ -332,7 +332,6 @@
                    WHERE rs.active_status = 'active'
                    REP0
                    ORDER BY rs.push_timestamp DESC
-                   LIMIT ?,?
                    ",
             "host": "read_host"
         },

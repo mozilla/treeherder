@@ -272,19 +272,17 @@ class ResultSetViewSet(viewsets.ViewSet):
         """
         GET method for list of ``resultset`` records with revisions
 
-        resultsetlist - specific resultset ids to retrieve
         """
 
-        filters = ["author", "revision", "resultsetlist"]
+        filters = UrlQueryFilter(request.QUERY_PARAMS).parse()
 
-        offset = int(request.QUERY_PARAMS.get('offset', 0))
-        count = int(request.QUERY_PARAMS.get('count', 10))
+        limit_condition = filters.pop("limit", set([("=", "0,10")])).pop()
+        offset, limit = limit_condition[1].split(",")
 
         objs = jm.get_result_set_list(
             offset,
-            count,
-            **dict((k, v) for k, v in request.QUERY_PARAMS.iteritems()
-                   if k in filters)
+            limit,
+            filters
         )
         return Response(self.get_resultsets_with_jobs(jm, objs, {}))
 
