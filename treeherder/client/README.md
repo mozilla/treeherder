@@ -301,7 +301,7 @@ If you don't want to use `TreeherderResultCollection` or `TreeherderJobCollectio
     #
     # data structure validation is automatically performed here, if validation
     # fails a TreeherderClientError is raised
-    req.send(tj)
+    req.send(tjc)
 ```
 
 Development
