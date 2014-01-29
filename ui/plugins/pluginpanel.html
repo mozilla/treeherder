@@ -30,7 +30,10 @@
                 <div class="panel-body">
                     <tabset class="tabs-below">
                         <tab ng-repeat="tab in tabs"  active="tab.active" disabled="tab.disabled">
-                            <tab-heading>{{ tab.title }} <span class="badge">{{tab.num_items}}</span></tab-heading>
+                            <tab-heading>{{ tab.title }}
+                                <span ng-show="!tab_loading" class="badge">{{tab.num_items}}</span>
+                                <span class="waiter-small" ng-show="tab_loading"></span>
+                            </tab-heading>
                             <ng-include src="tab.content"></ng-include>
                         </tab>
                     </tabset>
