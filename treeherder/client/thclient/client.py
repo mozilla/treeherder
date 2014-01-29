@@ -580,45 +580,18 @@ class TreeherderRequest(object):
 
         collection_inst.validate()
 
-        uri = self.get_uri(collection_inst)
 
         # Build the header
         headers = {'Content-Type': 'application/json'}
 
         use_oauth = bool(self.oauth_key and self.oauth_secret)
 
-        body = collection_inst.get_collection_data()
+        serialized_body = collection_inst.to_json()
+
+        uri = self.get_uri(collection_inst)
 
         if use_oauth:
-
-            # There is no requirement for the token in two-legged
-            # OAuth but we still need the token object.
-            token = oauth.Token(key='', secret='')
-            consumer = oauth.Consumer(key=self.oauth_key, secret=self.oauth_secret)
-
-            parameters = {
-                'user':self.project,
-                'oauth_version':'1.0',
-                'oauth_nonce':oauth.generate_nonce(),
-                'oauth_timestamp':int(time.time())
-                }
-
-            try:
-                req = oauth.Request(
-                    method='POST',
-                    body=json.dumps(body),
-                    url=uri,
-                    parameters=parameters
-                    )
-            except AssertionError, e:
-                print 'uri: %s' % uri
-                print 'body: %s' % body
-                raise
-
-            signature_method = oauth.SignatureMethod_HMAC_SHA1()
-            req.sign_request(signature_method, consumer, token)
-
-            uri = req.to_url()
+            uri = self.get_signed_uri(serialized_body, uri)
 
         # Make the POST request
         conn = None
@@ -627,9 +600,40 @@ class TreeherderRequest(object):
         else:
             conn = httplib.HTTPSConnection(self.host)
 
-        conn.request('POST', uri, json.dumps(body), headers)
+        conn.request('POST', uri, serialized_body, headers)
 
         return conn.getresponse()
+
+    def get_signed_uri(self, body, uri):
+
+        # There is no requirement for the token in two-legged
+        # OAuth but we still need the token object.
+        token = oauth.Token(key='', secret='')
+        consumer = oauth.Consumer(key=self.oauth_key, secret=self.oauth_secret)
+
+        parameters = {
+            'user':self.project,
+            'oauth_version':'1.0',
+            'oauth_nonce':oauth.generate_nonce(),
+            'oauth_timestamp':int(time.time())
+            }
+
+        try:
+            req = oauth.Request(
+                method='POST',
+                body=json.dumps(body),
+                url=uri,
+                parameters=parameters
+                )
+        except AssertionError, e:
+            print 'uri: %s' % uri
+            print 'body: %s' % body
+            raise
+
+        signature_method = oauth.SignatureMethod_HMAC_SHA1()
+        req.sign_request(signature_method, consumer, token)
+
+        return req.to_url()
 
     def get_uri(self, collection_inst):
 
