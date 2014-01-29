@@ -604,7 +604,7 @@ class TreeherderRequest(object):
 
         return conn.getresponse()
 
-    def get_signed_uri(self, body, uri):
+    def get_signed_uri(self, serialized_body, uri):
 
         # There is no requirement for the token in two-legged
         # OAuth but we still need the token object.
@@ -621,7 +621,7 @@ class TreeherderRequest(object):
         try:
             req = oauth.Request(
                 method='POST',
-                body=json.dumps(body),
+                body=serialized_body,
                 url=uri,
                 parameters=parameters
                 )
