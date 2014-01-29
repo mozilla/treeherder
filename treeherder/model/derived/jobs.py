@@ -31,6 +31,7 @@ class JobsModel(TreeherderModelBase):
     # it would be nice to get this directly from the db and cache it
     INDEXED_COLUMNS = {
         "job": [
+            "id",
             "job_guid",
             "job_coalesced_to_guid",
             "result_set_id",
@@ -48,7 +49,11 @@ class JobsModel(TreeherderModelBase):
             "submit_timestamp",
             "start_timestamp",
             "end_timestamp"
+        ],
+        "result_set": [
+            "id"
         ]
+
     }
 
     @classmethod
@@ -249,7 +254,7 @@ class JobsModel(TreeherderModelBase):
 
         return result_set_id_lookup
 
-    def get_result_set_list(self, offset, limit, **kwargs):
+    def get_result_set_list(self, offset, limit, conditions=None):
         """
         Retrieve a list of ``result_sets`` (also known as ``pushes``)
         with associated revisions.  No jobs
@@ -259,30 +264,34 @@ class JobsModel(TreeherderModelBase):
         placeholders = []
         replace_str = ""
 
-        if "author" in kwargs:
-            replace_str += " AND revision.author = %s"
-            placeholders.append(kwargs["author"])
-
-        if "revision" in kwargs and len(kwargs["revision"]) > 5:
-            replace_str += " AND revision.revision = %s"
-            placeholders.append(kwargs["revision"])
-
-        if "resultsetlist" in kwargs:
-            replace_str += " AND rs.id in ({0})".format(kwargs["resultsetlist"])
+        if conditions:
+            for column, condition in conditions.items():
+                if column in self.INDEXED_COLUMNS["result_set"]:
+                    for operator, value in condition:
+                        replace_str += "AND rs.{0} {1}".format(column, operator)
+                        if operator == "IN":
+                            # create a list of placeholders of the same length
+                            # as the list of values
+                            replace_str += "({0})".format(
+                                ",".join(["%s"] * len(value))
+                            )
+                            placeholders += value
+                        else:
+                            replace_str += " %s "
+                            placeholders.append(value)
 
         # If a push doesn't have jobs we can just
         # message the user, it would save us a very expensive join
         # with the jobs table.
 
-        placeholders.extend([offset, limit])
-
         # Retrieve the filtered/limited list of result sets
         proc = "jobs.selects.get_result_set_list"
         result_set_ids = self.get_jobs_dhub().execute(
             proc=proc,
+            replace=[replace_str],
             placeholders=placeholders,
+            limit="{0},{1}".format(offset, limit),
             debug_show=self.DEBUG,
-            replace=[replace_str]
         )
 
         aggregate_details = self.get_result_set_details(result_set_ids)
