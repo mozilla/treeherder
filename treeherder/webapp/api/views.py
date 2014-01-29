@@ -1,6 +1,8 @@
 import simplejson as json
 import itertools
 
+from collections import Counter
+
 from django.conf import settings
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -208,10 +210,12 @@ class JobsViewSet(viewsets.ViewSet):
 
         offset = int(request.QUERY_PARAMS.get('offset', 0))
         count = int(request.QUERY_PARAMS.get('count', 10))
+        full = bool(request.QUERY_PARAMS.get('full', True))
 
         objs = jm.get_job_list(
             offset,
             count,
+            full,
             **dict((k, v) for k, v in request.QUERY_PARAMS.iteritems()
                    if k in filters)
         )
@@ -284,14 +288,16 @@ class ResultSetViewSet(viewsets.ViewSet):
 
         offset = int(request.QUERY_PARAMS.get('offset', 0))
         count = int(request.QUERY_PARAMS.get('count', 10))
-
+        full = request.QUERY_PARAMS.get('full', "True").lower() == "true"
+        # full=False
         objs = jm.get_result_set_list(
             offset,
             count,
+            full,
             **dict((k, v) for k, v in request.QUERY_PARAMS.iteritems()
                    if k in filters)
         )
-        return Response(self.get_resultsets_with_jobs(jm, objs, {}))
+        return Response(self.get_resultsets_with_jobs(jm, objs, full, {}))
 
     @with_jobs
     def retrieve(self, request, project, jm, pk=None):
@@ -299,6 +305,9 @@ class ResultSetViewSet(viewsets.ViewSet):
         GET method implementation for detail view of ``resultset``
         """
         filters = ["job_type_name"]
+
+        full = bool(request.QUERY_PARAMS.get('full', True))
+
         filter_kwargs = dict(
             (k, v) for k, v in request.QUERY_PARAMS.iteritems()
             if k in filters
@@ -306,13 +315,13 @@ class ResultSetViewSet(viewsets.ViewSet):
 
         rs = jm.get_result_set_by_id(pk)
         if rs:
-            resultsets = self.get_resultsets_with_jobs(jm, [rs[0]], filter_kwargs)
+            resultsets = self.get_resultsets_with_jobs(jm, [rs[0]], full, filter_kwargs)
             return Response(resultsets[0])
         else:
             return Response("No resultset with id: {0}".format(pk), 404)
 
     @staticmethod
-    def get_resultsets_with_jobs(jm, rs_list, filter_kwargs):
+    def get_resultsets_with_jobs(jm, rs_list, full, filter_kwargs):
         """Convert db result of resultsets in a list to JSON"""
 
         # Fetch the job results all at once, then parse them out in memory.
@@ -323,6 +332,7 @@ class ResultSetViewSet(viewsets.ViewSet):
 
         jobs_ungrouped = jm.get_result_set_job_list(
             rs_map.keys(),
+            full,
             **filter_kwargs
         )
 
@@ -352,8 +362,7 @@ class ResultSetViewSet(viewsets.ViewSet):
             # of resultsets to be returned.
             del(rs_map[rs_id])
 
-            result_types = []
-            job_count = 0
+            job_counts = Counter()
 
             #itertools needs the elements to be sorted by the grouper
             by_platform = sorted(list(resultset_group), key=platform_grouper)
@@ -391,10 +400,10 @@ class ResultSetViewSet(viewsets.ViewSet):
                             kwargs={"project": jm.project, "pk": job["id"]})
 
                         if job["state"] == "completed":
-                            result_types.append(job["result"])
+                            job_counts[job["result"]] += 1
                         else:
-                            result_types.append(job["state"])
-                        job_count += 1
+                            job_counts[job["state"]] += 1
+                        job_counts["total"] += 1
 
                 platforms.append({
                     "name": platform_name,
@@ -406,8 +415,7 @@ class ResultSetViewSet(viewsets.ViewSet):
             #can be used to determine the resultset's severity
             resultset.update({
                 "platforms": platforms,
-                "result_types": list(set(result_types)),
-                "job_count": job_count,
+                "job_counts": job_counts,
             })
 
         # the resultsets left in the map have no jobs, so fill in the fields
@@ -415,8 +423,7 @@ class ResultSetViewSet(viewsets.ViewSet):
         for rs in rs_map.values():
             rs.update({
                 "platforms": [],
-                "result_types": [],
-                "job_count": 0,
+                "job_counts": {"total": 0},
             })
             resultsets.append(rs)
         return sorted(resultsets, key=lambda x: x["push_timestamp"], reverse=True)
