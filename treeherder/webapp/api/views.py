@@ -193,7 +193,7 @@ class JobsViewSet(viewsets.ViewSet):
                 job["artifacts"].append(art)
 
             option_collections = jm.refdata_model.get_all_option_collections()
-            option_collections[job["option_collection_hash"]]['opt']
+            job["platform_opt"] = option_collections[job["option_collection_hash"]]['opt']
 
             return Response(job)
         else:
@@ -210,19 +210,9 @@ class JobsViewSet(viewsets.ViewSet):
 
         limit_condition = filters.pop("limit", set([("=", "0,10")])).pop()
         offset, limit = limit_condition[1].split(",")
-        objs = jm.get_job_list(offset, limit, filters)
-
-        offset = int(request.QUERY_PARAMS.get('offset', 0))
-        count = int(request.QUERY_PARAMS.get('count', 10))
         full = request.QUERY_PARAMS.get('full', 'true').lower() == 'true'
+        objs = jm.get_job_list(offset, limit, full, filters)
 
-        objs = jm.get_job_list(
-            offset,
-            count,
-            full,
-            **dict((k, v) for k, v in request.QUERY_PARAMS.iteritems()
-                   if k in filters)
-        )
         if objs:
             option_collections = jm.refdata_model.get_all_option_collections()
             for job in objs:
@@ -273,6 +263,55 @@ class JobsViewSet(viewsets.ViewSet):
         return Response({'message': 'Job successfully updated'})
 
 
+class RevisionViewSet(viewsets.ViewSet):
+    """
+    View for ``revision`` records
+
+    ``result sets`` are synonymous with ``pushes`` in the ui
+    """
+
+    @with_jobs
+    def list(self, request, project, jm):
+        """
+        GET method for list of ``resultset`` records with revisions
+
+        """
+
+        filters = UrlQueryFilter(request.QUERY_PARAMS).parse()
+
+        limit_condition = filters.pop("limit", set([("=", "0,10")])).pop()
+        offset, limit = limit_condition[1].split(",")
+        full = request.QUERY_PARAMS.get('full', "true").lower() == "true"
+
+        objs = jm.get_result_set_list(
+            offset,
+            limit,
+            full,
+            filters
+        )
+        return Response(objs)
+
+    @with_jobs
+    def retrieve(self, request, project, jm, pk=None):
+        """
+        GET method implementation for detail view of ``resultset``
+        """
+        filters = ["job_type_name"]
+
+        full = request.QUERY_PARAMS.get('full', "true").lower() == "true"
+
+        filter_kwargs = dict(
+            (k, v) for k, v in request.QUERY_PARAMS.iteritems()
+            if k in filters
+        )
+
+        rev = jm.get_revision_by_id(pk)
+        if rev:
+            return Response(rev[0])
+        else:
+            return Response("No resultset with id: {0}".format(pk), 404)
+
+
 class ResultSetViewSet(viewsets.ViewSet):
     """
     View for ``resultset`` records
@@ -306,21 +345,31 @@ class ResultSetViewSet(viewsets.ViewSet):
         """
         GET method implementation for detail view of ``resultset``
         """
-        filters = ["job_type_name"]
+        filters = UrlQueryFilter({"id": pk}).parse()
 
         full = request.QUERY_PARAMS.get('full', "true").lower() == "true"
 
-        filter_kwargs = dict(
-            (k, v) for k, v in request.QUERY_PARAMS.iteritems()
-            if k in filters
-        )
-
-        rs = jm.get_result_set_by_id(pk)
-        if rs:
-            resultsets = self.get_resultsets_with_jobs(jm, [rs[0]], full, filter_kwargs)
-            return Response(resultsets[0])
+        objs = jm.get_result_set_list(0, 1, full, filters)
+        if objs:
+            rs = self.get_resultsets_with_jobs(jm, objs, full, {})
+            return Response(rs[0])
         else:
             return Response("No resultset with id: {0}".format(pk), 404)
+
+    @staticmethod
+    def get_job_counter():
+        return Counter({
+            "busted": 0,
+            "exception": 0,
+            "testfailed": 0,
+            "unknown": 0,
+            "usercancel": 0,
+            "retry": 0,
+            "success": 0,
+            "running": 0,
+            "pending": 0,
+            "total": 0
+        })
 
     @staticmethod
     def get_resultsets_with_jobs(jm, rs_list, full, filter_kwargs):
@@ -364,7 +413,7 @@ class ResultSetViewSet(viewsets.ViewSet):
             # of resultsets to be returned.
             del(rs_map[rs_id])
 
-            job_counts = Counter()
+            job_counts = ResultSetViewSet.get_job_counter()
 
             #itertools needs the elements to be sorted by the grouper
             by_platform = sorted(list(resultset_group), key=platform_grouper)
@@ -397,6 +446,7 @@ class ResultSetViewSet(viewsets.ViewSet):
                         job["id"] = job["job_id"]
                         del(job["job_id"])
                         del(job["result_set_id"])
+                        del(job["option_collection_hash"])
 
                         job["resource_uri"] = reverse("jobs-detail",
                             kwargs={"project": jm.project, "pk": job["id"]})
@@ -425,10 +475,13 @@ class ResultSetViewSet(viewsets.ViewSet):
         for rs in rs_map.values():
             rs.update({
                 "platforms": [],
-                "job_counts": {"total": 0},
+                "job_counts": ResultSetViewSet.get_job_counter(),
             })
             resultsets.append(rs)
-        return sorted(resultsets, key=lambda x: x["push_timestamp"], reverse=True)
+        return sorted(
+            resultsets,
+            key=lambda x: x["push_timestamp"],
+            reverse=True)
 
 
     @with_jobs
