@@ -61,7 +61,6 @@ treeherder.factory('thResultSetModelManager',
         rsMap,
         jobMap,
         jobMapOldestId,
-        rsMapOldestId,
         rsMapOldestTimestamp;
 
     /******
@@ -74,29 +73,15 @@ treeherder.factory('thResultSetModelManager',
 
         for (var rs_i = 0; rs_i < data.length; rs_i++) {
             var rs = data[rs_i];
-            // add the counter for result types if it doesn't exist
-            if (!rs.hasOwnProperty("result_count")) {
-                rs.result_count = {
-                    busted: 0,
-                    exception: 0,
-                    testfailed: 0,
-                    unknown: 0,
-                    usercancel: 0,
-                    retry: 0,
-                    success: 0,
-                    running: 0,
-                    pending:0
-                };
-            }
             rsMap[rs.id] = {
                 rs_obj: rs,
                 platforms: {}
             };
 
-            // keep track of the oldest id, so we don't auto-fetch resultsets
+            // keep track of the oldest push_timestamp, so we don't auto-fetch resultsets
             // that are out of the range we care about.
-            if (!rsMapOldestId || rsMapOldestId > rs.id) {
-                rsMapOldestId = rs.id;
+            if (!rsMapOldestTimestamp || rsMapOldestTimestamp > rs.push_timestamp) {
+                rsMapOldestTimestamp = rs.push_timestamp;
             }
             // it is possible that resultset ids may be newer, even if the
             // time stamp is older, so this is for doing a second check after
@@ -126,12 +111,6 @@ treeherder.factory('thResultSetModelManager',
                         var job = gr.jobs[j_i];
                         jobMap[job.id] = job;
 
-                        // tabulate the result type counter
-                        if (job.state === "completed") {
-                            rs.result_count[job.result]++;
-                        } else {
-                            rs.result_count[job.state]++;
-                        }
                         // track oldest job id
                         if (!jobMapOldestId || jobMapOldestId > job.id) {
                             jobMapOldestId = job.id;
@@ -142,7 +121,7 @@ treeherder.factory('thResultSetModelManager',
         }
         resultSets.sort(rsCompare);
         $log.debug("oldest job: " + jobMapOldestId);
-        $log.debug("oldest result set: " + rsMapOldestId);
+        $log.debug("oldest result set: " + rsMapOldestTimestamp);
         $log.debug("done mapping:");
         $log.debug(rsMap);
     };
@@ -162,12 +141,16 @@ treeherder.factory('thResultSetModelManager',
 
     /**
      * Sort the resultsets in place after updating the array
+     *
+     * sort by the name and the option
      */
     var platformCompare = function(a, b) {
-        if (a.push_timestamp > b.push_timestamp) {
+        var acomp = a.name + a.option;
+        var bcomp = b.name + b.option;
+        if (acomp < bcomp) {
           return -1;
         }
-        if (a.push_timestamp < b.push_timestamp) {
+        if (acomp > bcomp) {
           return 1;
         }
         return 0;
@@ -192,8 +175,9 @@ treeherder.factory('thResultSetModelManager',
                 groups: []
             };
 
-            // add the new platform to the datamodel
+            // add the new platform to the datamodel and resort
             rsMapElement.rs_obj.platforms.push(pl_obj);
+            rsMapElement.rs_obj.platforms.sort(platformCompare);
 
             // add the new platform to the resultset map
             rsMapElement.platforms[newJob.platform] = {
@@ -327,36 +311,30 @@ treeherder.factory('thResultSetModelManager',
     var updateJob = function(newJob) {
         var loadedJob = jobMap[newJob.id];
         var rsMapElement = rsMap[newJob.result_set_id];
-
-        // update the resultset result_types list so the hide/show button
-        // can update accordingly
         var newResultType = getResultType(newJob);
-        if (rsMapElement.rs_obj.result_types.indexOf(newResultType) < 0) {
-            rsMapElement.rs_obj.result_types.push(newResultType);
-            $log.debug("new status of " + newResultType + " added to " + JSON.stringify(rsMapElement.rs_obj));
-        }
 
         if (loadedJob) {
             $log.debug("updating existing job");
             // we need to modify the counts of the resultset this job belongs
             // to.  decrement the old resultStatus count and increment the
-            // new one.
+            // new one.  Don't increment total because we're not adding a new
+            // job.
             var oldResultType = getResultType(loadedJob);
-            $log.debug("decrementing " + oldResultType + " job count down from " + rsMapElement.rs_obj.result_count[oldResultType]);
-            if (rsMapElement.rs_obj.result_count[oldResultType] > 0) {
-                rsMapElement.rs_obj.result_count[oldResultType]--;
+            $log.debug("decrementing " + oldResultType + " job count down from " + rsMapElement.rs_obj.job_counts[oldResultType]);
+            if (rsMapElement.rs_obj.job_counts[oldResultType] > 0) {
+                rsMapElement.rs_obj.job_counts[oldResultType]--;
             }
-            $log.debug("incrementing " + newResultType + " job count up from " + rsMapElement.rs_obj.result_count[newResultType]);
-            rsMapElement.rs_obj.result_count[newResultType]++;
+            $log.debug("incrementing " + newResultType + " job count up from " + rsMapElement.rs_obj.job_counts[newResultType]);
+            rsMapElement.rs_obj.job_counts[newResultType]++;
             $.extend(loadedJob, newJob);
         } else {
             // this job is not yet in the model or the map.  add it to both
             $log.debug("adding new job");
 
             // increment the result count for the new job's result type
-            $log.debug("incrementing " + newResultType + " job count up from " + rsMapElement.rs_obj.result_count[newResultType]);
-            rsMapElement.rs_obj.result_count[newResultType]++;
-            rsMapElement.rs_obj.job_count++;
+            $log.debug("incrementing " + newResultType + " job count up from " + rsMapElement.rs_obj.job_counts[newResultType]);
+            rsMapElement.rs_obj.job_counts[newResultType]++;
+            rsMapElement.rs_obj.job_counts.total++;
             if (!rsMapElement) {
                 $log.error("we should have added the resultset for this job already!");
                 return;
@@ -424,7 +402,7 @@ treeherder.factory('thResultSetModelManager',
             rsMap = {};
             jobMap = {};
             jobMapOldestId = null;
-            rsMapOldestId = null;
+            rsMapOldestTimestamp = null;
             resultSets = [];
 
             setInterval(processUpdateQueues, updateQueueInterval);
@@ -466,18 +444,20 @@ treeherder.factory('thResultSetModelManager',
              */
             thSocket.on("job", function(data) {
                 if (data.branch === repoName) {
-                    if (data.result_set_id >= rsMapOldestId) {
+                    $log.debug("new job event");
+                    $log.debug(data);
+                    if (data.resultset.push_timestamp >= rsMapOldestTimestamp) {
                         // we want to load this job, one way or another
-                        if (rsMap[data.result_set_id]) {
+                        if (rsMap[data.resultset.id]) {
                             // we already have this resultset loaded, so queue the job
                             $log.debug("adding job to queue");
                             jobUpdateQueue.push(data.id);
                         } else {
                             // we haven't loaded this resultset yet, so queue it
                             $log.debug("checking resultset queue");
-                            if (rsUpdateQueue.indexOf(data.result_set_id) < 0) {
+                            if (rsUpdateQueue.indexOf(data.resultset.id) < 0) {
                                 $log.debug("new resultset not yet in queue");
-                                rsUpdateQueue.push(data.result_set_id);
+                                rsUpdateQueue.push(data.resultset.id);
                             } else {
                                 $log.debug("new resultset already queued");
                             }
