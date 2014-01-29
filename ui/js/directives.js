@@ -67,7 +67,7 @@ treeherder.directive('thResultStatusCount', function () {
             scope.resultStatusCountClassPrefix = scope.getCountClass(scope.resultStatus)
 
             // @@@ this will change once we have classifying implemented
-            scope.resultCount = scope.resultset.result_count[scope.resultStatus];
+            scope.resultCount = scope.resultset.job_counts[scope.resultStatus];
             scope.unclassifiedResultCount = scope.resultCount;
             var getCountAlertClass = function() {
                 if (scope.unclassifiedResultCount) {
@@ -77,8 +77,8 @@ treeherder.directive('thResultStatusCount', function () {
                 }
             }
             scope.countAlertClass = getCountAlertClass();
-            scope.$watch("resultset.result_count", function(newValue) {
-                scope.resultCount = scope.resultset.result_count[scope.resultStatus];
+            scope.$watch("resultset.job_counts", function(newValue) {
+                scope.resultCount = scope.resultset.job_counts[scope.resultStatus];
                 scope.unclassifiedResultCount = scope.resultCount;
                 scope.countAlertClass = getCountAlertClass();
             }, true);
