@@ -54,7 +54,7 @@ treeherder.factory('thJobs',
                 $.extend(params, {
                     offset: 0,
                     count: joblist.length,
-                    joblist: joblist.join()
+                    id__in: joblist.join()
                 })
             }
             return $http.get(thUrl.getProjectUrl("/jobs/"),

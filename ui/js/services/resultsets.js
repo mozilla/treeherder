@@ -19,7 +19,7 @@ treeherder.factory('thResultSets',
                 $.extend(params, {
                     offset: 0,
                     count: resultsetlist.length,
-                    resultsetlist: resultsetlist.join()
+                    id__in: resultsetlist.join()
                 });
             }
             return $http.get(thUrl.getProjectUrl("/resultset/"),
