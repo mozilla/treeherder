@@ -482,7 +482,6 @@ treeherder.factory('thResultSetModelManager',
             var rs = rsMap[resultset_id].rs_obj;
             if (rs && rs.revisions.length === 0) {
                 // these revisions have never been loaded; do so now.
-
                 thResultSets.get(rs.revisions_uri).
                     success(function(data) {
                         rs.revisions.push.apply(rs.revisions, data);
