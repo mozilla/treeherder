@@ -16,21 +16,52 @@ treeherder.controller('PluginCtrl',
 
                 var undef = "---undefined---";
                 // fields that will show in the job detail panel
-                $scope.visibleFields = {
-                    "Result": $scope.job.result || undef,
-                    "Job GUID": $scope.job.job_guid || undef,
-                    "Machine Platform Arch": $scope.job.machine_platform_architecture || undef,
-                    "Machine Platform OS": $scope.job.machine_platform_os || undef,
-                    "Build Platform": $scope.job.build_platform || undef,
-                    "Build Arch": $scope.job.build_architecture || undef,
-                    "Build OS": $scope.job.build_os || undef
-                };
 
 
                 $scope.tab_loading = true;
 
                 $http.get(thServiceDomain + $scope.job.resource_uri).
                     success(function(data) {
+
+
+
+
+
+
+
+
+
+                        not updating the machine name.  make that a directive
+                        and have it update.  should I update the actual "selectedJob"
+                        object with the result of this query?  or just populate?
+                        saving it with the job would be a good cache so I don't
+                        have to re-fetch again.  but it's quick enough, maybe it doesn't
+                        matter.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        $scope.visibleFields = {
+                            "Result": data.result || undef,
+                            "Job GUID": data.job_guid || undef,
+                            "Machine Platform Arch": data.machine_platform_architecture || undef,
+                            "Machine Platform OS": data.machine_platform_os || undef,
+                            "Build Platform": data.build_platform || undef,
+                            "Build Arch": data.build_architecture || undef,
+                            "Build OS": data.build_os || undef
+                        };
+
+
                         $scope.logs = data.logs;
 
                         data.artifacts.forEach(function(artifact) {

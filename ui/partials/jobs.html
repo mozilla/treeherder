@@ -30,7 +30,7 @@
             </span>
         </span>
         <span class="btn btn-default btn-sm col-xs-1 revision-button"
-              ng-click="isCollapsedRevisions = !isCollapsedRevisions"
+              ng-click="toggleRevisions()"
               title="show revisions">{{resultset.revision}} ({{resultset.revision_count}})</span>
         <th-result-counts class="col-xs-5"/>
     </div>
@@ -48,7 +48,7 @@
               ng-class="{'col-xs-4': (isCollapsedResults==false)}"
               class="revision-list">
             <ul class="list-unstyled">
-                <li ng-repeat="revision in resultset.revision_list">
+                <li ng-repeat="revision in resultset.revisions">
                     <th-revision></th-revision>
                 </li>
             </ul>

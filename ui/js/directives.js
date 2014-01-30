@@ -172,11 +172,11 @@ treeherder.directive('thRevision', function($parse) {
     return {
         restrict: "E",
         link: function(scope, element, attrs) {
-            scope.$watch('currentRepo', function(newVal) {
+            scope.$watch('resultset.revisions', function(newVal) {
                 if (newVal) {
                     scope.revisionUrl = scope.currentRepo.url + "/rev/" + scope.revision.revision;
                 }
-            })
+            }, true);
         },
         templateUrl: 'partials/thRevision.html'
     };

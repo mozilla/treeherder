@@ -1,8 +1,8 @@
 'use strict';
 
 treeherder.factory('thResultSets',
-                   ['$http', 'thUrl',
-                   function($http, thUrl) {
+                   ['$http', 'thUrl', 'thServiceDomain',
+                   function($http, thUrl, thServiceDomain) {
 
     // get the resultsets for this repo
     return {
@@ -25,8 +25,11 @@ treeherder.factory('thResultSets',
             return $http.get(thUrl.getProjectUrl("/resultset/"),
                              {params: params}
             );
+        },
+        get: function(uri) {
+            return $http.get(thServiceDomain + uri, {params: {format: "json"}});
         }
-    }
+    };
 }]);
 
 treeherder.factory('thResultSetModelManager',
@@ -77,6 +80,9 @@ treeherder.factory('thResultSetModelManager',
                 rs_obj: rs,
                 platforms: {}
             };
+
+            // make a watch-able revisions array
+            rs.revisions = [];
 
             // keep track of the oldest push_timestamp, so we don't auto-fetch resultsets
             // that are out of the range we care about.
@@ -470,6 +476,18 @@ treeherder.factory('thResultSetModelManager',
 
                 }
             });
+        },
+
+        loadRevisions: function(resultset_id) {
+            var rs = rsMap[resultset_id].rs_obj;
+            if (rs && rs.revisions.length === 0) {
+                // these revisions have never been loaded; do so now.
+
+                thResultSets.get(rs.revisions_uri).
+                    success(function(data) {
+                        rs.revisions.push.apply(rs.revisions, data);
+                    });
+            }
         },
 
         // this is "watchable" for when we add new resultsets and have to
