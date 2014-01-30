@@ -1,8 +1,6 @@
 import simplejson as json
 import itertools
 
-from collections import Counter
-
 from django.conf import settings
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -367,7 +365,7 @@ class ResultSetViewSet(viewsets.ViewSet):
 
     @staticmethod
     def get_job_counter():
-        return Counter({
+        return {
             "busted": 0,
             "exception": 0,
             "testfailed": 0,
@@ -378,7 +376,7 @@ class ResultSetViewSet(viewsets.ViewSet):
             "running": 0,
             "pending": 0,
             "total": 0
-        })
+        }
 
     @staticmethod
     def get_resultsets_with_jobs(jm, rs_list, full, filter_kwargs):
