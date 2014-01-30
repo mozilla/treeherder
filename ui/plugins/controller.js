@@ -14,6 +14,16 @@ treeherder.controller('PluginCtrl',
                 $scope.artifacts = {};
 
                 var undef = "---undefined---";
+                // fields that will show in the job detail panel
+                $scope.visibleFields = {
+                    "Result": $scope.job.result || undef,
+                    "Job GUID": $scope.job.job_guid || undef,
+                    "Machine Platform Arch": $scope.job.machine_platform_architecture || undef,
+                    "Machine Platform OS": $scope.job.machine_platform_os || undef,
+                    "Build Platform": $scope.job.build_platform || undef,
+                    "Build Arch": $scope.job.build_architecture || undef,
+                    "Build OS": $scope.job.build_os || undef
+                };
 
                 $scope.tab_loading = true;
 
@@ -21,17 +31,6 @@ treeherder.controller('PluginCtrl',
                     success(function(data) {
 
                         _.extend($scope.job, data);
-
-                        // fields that will show in the job detail panel
-                        $scope.visibleFields = {
-                            "Result": $scope.job.result || undef,
-                            "Job GUID": $scope.job.job_guid || undef,
-                            "Machine Platform Arch": $scope.job.machine_platform_architecture || undef,
-                            "Machine Platform OS": $scope.job.machine_platform_os || undef,
-                            "Build Platform": $scope.job.build_platform || undef,
-                            "Build Arch": $scope.job.build_architecture || undef,
-                            "Build OS": $scope.job.build_os || undef
-                        };
 
                         $scope.logs = data.logs;
 
