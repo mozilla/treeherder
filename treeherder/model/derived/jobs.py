@@ -318,7 +318,6 @@ class JobsModel(TreeherderModelBase):
             }
             if full:
                 list_item.update({
-                    "full": full,
                     "comments": detail['comments'],
                     "revision_list": aggregate_details[result['id']]
                 })
