@@ -389,6 +389,9 @@ class ResultSetViewSet(viewsets.ViewSet):
         rs_map = {}
         for rs in rs_list:
             rs_map[rs["id"]] = rs
+            # all rs should have the revisions_uri, so add it here
+            rs["revisions_uri"] = reverse("resultset-revisions",
+                kwargs={"project": jm.project, "pk": rs["id"]})
 
         jobs_ungrouped = jm.get_result_set_job_list(
             rs_map.keys(),
@@ -413,9 +416,6 @@ class ResultSetViewSet(viewsets.ViewSet):
         for rs_id, resultset_group in itertools.groupby(rs_sorted, key=rs_grouper):
 
             resultset = rs_map[rs_id]
-            resultset["revisions_uri"] = reverse("resultset-revisions",
-                    kwargs={"project": jm.project, "pk": rs_id})
-
             resultsets.append(resultset)
 
             # we found jobs for this resultset, so remove it from the map
@@ -502,7 +502,7 @@ class ResultSetViewSet(viewsets.ViewSet):
         POST method implementation
         """
         try:
-            jm.store_result_set_data( request.DATA )
+            jm.store_result_set_data(request.DATA)
         except DatasetNotFoundError as e:
             return Response({"message": str(e)}, status=404)
         except Exception as e:  # pragma nocover
@@ -513,7 +513,6 @@ class ResultSetViewSet(viewsets.ViewSet):
             jm.disconnect()
 
         return Response({"message": "well-formed JSON stored"})
-
 
 
 class RevisionLookupSetViewSet(viewsets.ViewSet):
