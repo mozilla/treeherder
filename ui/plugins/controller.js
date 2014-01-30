@@ -31,12 +31,12 @@ treeherder.controller('PluginCtrl',
 
 
 
-                        not updating the machine name.  make that a directive
-                        and have it update.  should I update the actual "selectedJob"
-                        object with the result of this query?  or just populate?
-                        saving it with the job would be a good cache so I don't
-                        have to re-fetch again.  but it's quick enough, maybe it doesn't
-                        matter.
+//                        not updating the machine name.  make that a directive
+//                        and have it update.  should I update the actual "selectedJob"
+//                        object with the result of this query?  or just populate?
+//                        saving it with the job would be a good cache so I don't
+//                        have to re-fetch again.  but it's quick enough, maybe it doesn't
+//                        matter.
 
 
 
