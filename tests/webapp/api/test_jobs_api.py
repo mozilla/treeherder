@@ -207,10 +207,10 @@ def test_job_detail_not_found(webapp, jm):
 
 
 def test_retrieve_result_set(jm, webapp, eleven_jobs_processed):
-    url = reverse("resultset-list", kwargs={"project": jm.project})
-    print url
-    resp = webapp.get(url)
-
+    resp = webapp.get(
+        reverse("resultset-list",
+                kwargs={"project": jm.project})
+    )
     assert resp.status_int == 200
     assert isinstance(resp.json, list)
 

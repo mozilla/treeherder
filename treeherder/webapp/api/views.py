@@ -263,55 +263,6 @@ class JobsViewSet(viewsets.ViewSet):
         return Response({'message': 'Job successfully updated'})
 
 
-class RevisionViewSet(viewsets.ViewSet):
-    """
-    View for ``revision`` records
-
-    ``result sets`` are synonymous with ``pushes`` in the ui
-    """
-
-    @with_jobs
-    def list(self, request, project, jm):
-        """
-        GET method for list of ``resultset`` records with revisions
-
-        """
-
-        filters = UrlQueryFilter(request.QUERY_PARAMS).parse()
-
-        limit_condition = filters.pop("limit", set([("=", "0,10")])).pop()
-        offset, limit = limit_condition[1].split(",")
-        full = request.QUERY_PARAMS.get('full', "true").lower() == "true"
-
-        objs = jm.get_result_set_list(
-            offset,
-            limit,
-            full,
-            filters
-        )
-        return Response(objs)
-
-    @with_jobs
-    def retrieve(self, request, project, jm, pk=None):
-        """
-        GET method implementation for detail view of ``resultset``
-        """
-        filters = ["job_type_name"]
-
-        full = request.QUERY_PARAMS.get('full', "true").lower() == "true"
-
-        filter_kwargs = dict(
-            (k, v) for k, v in request.QUERY_PARAMS.iteritems()
-            if k in filters
-        )
-
-        rev = jm.get_revision_by_id(pk)
-        if rev:
-            return Response(rev[0])
-        else:
-            return Response("No resultset with id: {0}".format(pk), 404)
-
-
 class ResultSetViewSet(viewsets.ViewSet):
     """
     View for ``resultset`` records
