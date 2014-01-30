@@ -356,6 +356,15 @@ class ResultSetViewSet(viewsets.ViewSet):
         else:
             return Response("No resultset with id: {0}".format(pk), 404)
 
+    @link()
+    @with_jobs
+    def revisions(self, request, project, jm, pk=None):
+        """
+        GET method for revisions of a resultset
+        """
+        objs = jm.get_resultset_revisions_list(pk)
+        return Response(objs)
+
     @staticmethod
     def get_job_counter():
         return Counter({
@@ -404,6 +413,9 @@ class ResultSetViewSet(viewsets.ViewSet):
         for rs_id, resultset_group in itertools.groupby(rs_sorted, key=rs_grouper):
 
             resultset = rs_map[rs_id]
+            resultset["revisions_uri"] = reverse("resultset-revisions",
+                    kwargs={"project": jm.project, "pk": rs_id})
+
             resultsets.append(resultset)
 
             # we found jobs for this resultset, so remove it from the map

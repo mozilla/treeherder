@@ -346,6 +346,20 @@ class JobsModel(TreeherderModelBase):
         return lookups
 
 
+    def get_resultset_revisions_list(self, result_set_id):
+        """
+        Return the revisions for the given resultset
+        """
+
+        proc = "jobs.selects.get_result_set_details"
+        lookups = self.get_jobs_dhub().execute(
+            proc=proc,
+            debug_show=self.DEBUG,
+            replace=[result_set_id],
+        )
+        return lookups
+
+
     def get_result_set_details(self, result_set_ids):
         """
         Retrieve all revisions associated with a set of ``result_set``
