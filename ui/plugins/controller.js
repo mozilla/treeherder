@@ -7,7 +7,6 @@ treeherder.controller('PluginCtrl',
 
         var JobNote = null;
 
-
         $scope.$watch('selectedJob', function(newValue, oldValue) {
             // preferred way to get access to the selected job
             if (newValue) {
@@ -21,7 +20,7 @@ treeherder.controller('PluginCtrl',
                 $http.get(thServiceDomain + $scope.job.resource_uri).
                     success(function(data) {
 
-                        jQuery.extend($scope.job, data);
+                        _.extend($scope.job, data);
 
                         // fields that will show in the job detail panel
                         $scope.visibleFields = {

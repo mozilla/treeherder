@@ -16,7 +16,7 @@ treeherder.factory('thResultSets',
                 format: "json"
             };
             if (resultsetlist) {
-                $.extend(params, {
+                _.extend(params, {
                     offset: 0,
                     count: resultsetlist.length,
                     id__in: resultsetlist.join()
@@ -332,7 +332,7 @@ treeherder.factory('thResultSetModelManager',
             }
             $log.debug("incrementing " + newResultType + " job count up from " + rsMapElement.rs_obj.job_counts[newResultType]);
             rsMapElement.rs_obj.job_counts[newResultType]++;
-            $.extend(loadedJob, newJob);
+            _.extend(loadedJob, newJob);
         } else {
             // this job is not yet in the model or the map.  add it to both
             $log.debug("adding new job");

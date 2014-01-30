@@ -51,7 +51,7 @@ treeherder.factory('thJobs',
             }
 
             if (joblist) {
-                $.extend(params, {
+                _.extend(params, {
                     offset: 0,
                     count: joblist.length,
                     id__in: joblist.join()
