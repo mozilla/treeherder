@@ -1,9 +1,15 @@
 import uuid
 import hmac
 from hashlib import sha1
-from rest_framework.compat import User
 from django.conf import settings
 from django.db import models
+
+
+# Prior to Django 1.5, the AUTH_USER_MODEL setting does not exist.
+# Note that we don't perform this code in the compat module due to
+# bug report #1297
+# See: https://github.com/tomchristie/django-rest-framework/issues/1297
+AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
 
 
 class Token(models.Model):
@@ -11,7 +17,7 @@ class Token(models.Model):
     The default authorization token model.
     """
     key = models.CharField(max_length=40, primary_key=True)
-    user = models.OneToOneField(User, related_name='auth_token')
+    user = models.OneToOneField(AUTH_USER_MODEL, related_name='auth_token')
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:

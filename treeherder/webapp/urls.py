@@ -10,6 +10,7 @@ urlpatterns = patterns('',
     url(r'^api/', include(api_urls)),
     url(r'^browserid/', include('django_browserid.urls')),
     url(r'^admin/', include(admin.site.urls)),
-    # by default redirect all request on / to /admin/
+    url(r'^docs/', include('rest_framework_swagger.urls')),
+    # by default redirect all request on / to /ui/
     url(r'^$', RedirectView.as_view(url='/ui/'))
 )

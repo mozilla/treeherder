@@ -28,6 +28,29 @@ def is_form_media_type(media_type):
             base_media_type == 'multipart/form-data')
 
 
+class override_method(object):
+    """
+    A context manager that temporarily overrides the method on a request,
+    additionally setting the `view.request` attribute.
+
+    Usage:
+
+        with override_method(view, request, 'POST') as request:
+            ... # Do stuff with `view` and `request`
+    """
+    def __init__(self, view, request, method):
+        self.view = view
+        self.request = request
+        self.method = method
+
+    def __enter__(self):
+        self.view.request = clone_request(self.request, self.method)
+        return self.view.request
+
+    def __exit__(self, *args, **kwarg):
+        self.view.request = self.request
+
+
 class Empty(object):
     """
     Placeholder for unset attributes.
@@ -64,6 +87,20 @@ def clone_request(request, method):
     return ret
 
 
+class ForcedAuthentication(object):
+    """
+    This authentication class is used if the test client or request factory
+    forcibly authenticated the request.
+    """
+
+    def __init__(self, force_user, force_token):
+        self.force_user = force_user
+        self.force_token = force_token
+
+    def authenticate(self, request):
+        return (self.force_user, self.force_token)
+
+
 class Request(object):
     """
     Wrapper allowing to enhance a standard `HttpRequest` instance.
@@ -97,6 +134,12 @@ class Request(object):
             self.parser_context = {}
         self.parser_context['request'] = self
         self.parser_context['encoding'] = request.encoding or settings.DEFAULT_CHARSET
+
+        force_user = getattr(request, '_force_auth_user', None)
+        force_token = getattr(request, '_force_auth_token', None)
+        if (force_user is not None or force_token is not None):
+            forced_auth = ForcedAuthentication(force_user, force_token)
+            self.authenticators = (forced_auth,)
 
     def _default_negotiator(self):
         return api_settings.DEFAULT_CONTENT_NEGOTIATION_CLASS()
@@ -180,7 +223,7 @@ class Request(object):
     def user(self, value):
         """
         Sets the user on the current request. This is necessary to maintain
-        compatilbility with django.contrib.auth where the user proprety is
+        compatibility with django.contrib.auth where the user property is
         set in the login and logout functions.
         """
         self._user = value
@@ -291,7 +334,7 @@ class Request(object):
             self._CONTENT_PARAM in self._data and
             self._CONTENTTYPE_PARAM in self._data):
             self._content_type = self._data[self._CONTENTTYPE_PARAM]
-            self._stream = BytesIO(self._data[self._CONTENT_PARAM].encode(HTTP_HEADER_ENCODING))
+            self._stream = BytesIO(self._data[self._CONTENT_PARAM].encode(self.parser_context['encoding']))
             self._data, self._files = (Empty, Empty)
 
     def _parse(self):
@@ -313,7 +356,16 @@ class Request(object):
         if not parser:
             raise exceptions.UnsupportedMediaType(media_type)
 
-        parsed = parser.parse(stream, media_type, self.parser_context)
+        try:
+            parsed = parser.parse(stream, media_type, self.parser_context)
+        except:
+            # If we get an exception during parsing, fill in empty data and
+            # re-raise.  Ensures we don't simply repeat the error when
+            # attempting to render the browsable renderer response, or when
+            # logging the request or similar.
+            self._data = QueryDict('', self._request._encoding)
+            self._files = MultiValueDict()
+            raise
 
         # Parser classes may return the raw data, or a
         # DataAndFiles object.  Unpack the result as required.

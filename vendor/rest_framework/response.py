@@ -12,7 +12,7 @@ from rest_framework.compat import six
 
 class Response(SimpleTemplateResponse):
     """
-    An HttpResponse that allows it's data to be rendered into
+    An HttpResponse that allows its data to be rendered into
     arbitrary media types.
     """
 
@@ -61,6 +61,10 @@ class Response(SimpleTemplateResponse):
             assert charset, 'renderer returned unicode, and did not specify ' \
             'a charset value.'
             return bytes(ret.encode(charset))
+
+        if not ret:
+            del self['Content-Type']
+
         return ret
 
     @property

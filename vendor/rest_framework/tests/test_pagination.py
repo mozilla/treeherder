@@ -4,13 +4,13 @@ from decimal import Decimal
 from django.db import models
 from django.core.paginator import Paginator
 from django.test import TestCase
-from django.test.client import RequestFactory
 from django.utils import unittest
 from rest_framework import generics, status, pagination, filters, serializers
 from rest_framework.compat import django_filters
+from rest_framework.test import APIRequestFactory
 from rest_framework.tests.models import BasicModel
 
-factory = RequestFactory()
+factory = APIRequestFactory()
 
 
 class FilterableItem(models.Model):
@@ -39,6 +39,16 @@ class PaginateByParamView(generics.ListAPIView):
     View for testing custom paginate_by_param usage
     """
     model = BasicModel
+    paginate_by_param = 'page_size'
+
+
+class MaxPaginateByView(generics.ListAPIView):
+    """
+    View for testing custom max_paginate_by usage
+    """
+    model = BasicModel
+    paginate_by = 3
+    max_paginate_by = 5
     paginate_by_param = 'page_size'
 
 
@@ -112,7 +122,7 @@ class IntegrationTestPaginationAndFiltering(TestCase):
             for obj in self.objects.all()
         ]
 
-    @unittest.skipUnless(django_filters, 'django-filters not installed')
+    @unittest.skipUnless(django_filters, 'django-filter not installed')
     def test_get_django_filter_paginated_filtered_root_view(self):
         """
         GET requests to paginated filtered ListCreateAPIView should return
@@ -313,6 +323,43 @@ class TestCustomPaginateByParam(TestCase):
         self.assertEqual(response.data['results'], self.data[:5])
 
 
+class TestMaxPaginateByParam(TestCase):
+    """
+    Tests for list views with max_paginate_by kwarg
+    """
+
+    def setUp(self):
+        """
+        Create 13 BasicModel instances.
+        """
+        for i in range(13):
+            BasicModel(text=i).save()
+        self.objects = BasicModel.objects
+        self.data = [
+            {'id': obj.id, 'text': obj.text}
+            for obj in self.objects.all()
+        ]
+        self.view = MaxPaginateByView.as_view()
+
+    def test_max_paginate_by(self):
+        """
+        If max_paginate_by is set, it should limit page size for the view.
+        """
+        request = factory.get('/?page_size=10')
+        response = self.view(request).render()
+        self.assertEqual(response.data['count'], 13)
+        self.assertEqual(response.data['results'], self.data[:5])
+
+    def test_max_paginate_by_without_page_size_param(self):
+        """
+        If max_paginate_by is set, but client does not specifiy page_size,
+        standard `paginate_by` behavior should be used.
+        """
+        request = factory.get('/')
+        response = self.view(request).render()
+        self.assertEqual(response.data['results'], self.data[:3])
+
+
 ### Tests for context in pagination serializers
 
 class CustomField(serializers.Field):
@@ -369,7 +416,7 @@ class TestCustomPaginationSerializer(TestCase):
         self.page = paginator.page(1)
 
     def test_custom_pagination_serializer(self):
-        request = RequestFactory().get('/foobar')
+        request = APIRequestFactory().get('/foobar')
         serializer = CustomPaginationSerializer(
             instance=self.page,
             context={'request': request}
@@ -381,5 +428,90 @@ class TestCustomPaginationSerializer(TestCase):
             },
             'total_results': 4,
             'objects': ['john', 'paul']
+        }
+        self.assertEqual(serializer.data, expected)
+
+
+class NonIntegerPage(object):
+
+    def __init__(self, paginator, object_list, prev_token, token, next_token):
+        self.paginator = paginator
+        self.object_list = object_list
+        self.prev_token = prev_token
+        self.token = token
+        self.next_token = next_token
+
+    def has_next(self):
+        return not not self.next_token
+
+    def next_page_number(self):
+        return self.next_token
+
+    def has_previous(self):
+        return not not self.prev_token
+
+    def previous_page_number(self):
+        return self.prev_token
+
+
+class NonIntegerPaginator(object):
+
+    def __init__(self, object_list, per_page):
+        self.object_list = object_list
+        self.per_page = per_page
+
+    def count(self):
+        # pretend like we don't know how many pages we have
+        return None
+
+    def page(self, token=None):
+        if token:
+            try:
+                first = self.object_list.index(token)
+            except ValueError:
+                first = 0
+        else:
+            first = 0
+        n = len(self.object_list)
+        last = min(first + self.per_page, n)
+        prev_token = self.object_list[last - (2 * self.per_page)] if first else None
+        next_token = self.object_list[last] if last < n else None
+        return NonIntegerPage(self, self.object_list[first:last], prev_token, token, next_token)
+
+
+class TestNonIntegerPagination(TestCase):
+
+
+    def test_custom_pagination_serializer(self):
+        objects = ['john', 'paul', 'george', 'ringo']
+        paginator = NonIntegerPaginator(objects, 2)
+
+        request = APIRequestFactory().get('/foobar')
+        serializer = CustomPaginationSerializer(
+            instance=paginator.page(),
+            context={'request': request}
+        )
+        expected = {
+            'links': {
+                'next': 'http://testserver/foobar?page={0}'.format(objects[2]),
+                'prev': None
+            },
+            'total_results': None,
+            'objects': objects[:2]
+        }
+        self.assertEqual(serializer.data, expected)
+
+        request = APIRequestFactory().get('/foobar')
+        serializer = CustomPaginationSerializer(
+            instance=paginator.page('george'),
+            context={'request': request}
+        )
+        expected = {
+            'links': {
+                'next': None,
+                'prev': 'http://testserver/foobar?page={0}'.format(objects[0]),
+            },
+            'total_results': None,
+            'objects': objects[2:]
         }
         self.assertEqual(serializer.data, expected)
