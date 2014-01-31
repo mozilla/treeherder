@@ -26,9 +26,10 @@ def test_resultset_list(webapp, eleven_jobs_processed, jm):
         u'revision_hash',
         u'revision',
         u'revision_list',
-        u'job_count',
-        u'platforms',
-        u'result_types'
+        u'revision_count',
+        u'revisions_uri',
+        u'job_counts',
+        u'platforms'
     ])
     for rs in rs_list:
         assert set(rs.keys()) == exp_keys
