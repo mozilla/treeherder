@@ -63,7 +63,8 @@ treeherder.controller('JobsCtrl',
 
 treeherder.controller('ResultSetCtrl',
     function ResultSetCtrl($scope, $rootScope, $http, $log,
-                           thUrl, thServiceDomain, thResultStatusInfo) {
+                           thUrl, thServiceDomain, thResultStatusInfo,
+                           thResultSetModelManager) {
 
         $scope.getCountClass = function(resultStatus) {
             return thResultStatusInfo(resultStatus).btnClass;
@@ -94,36 +95,17 @@ treeherder.controller('ResultSetCtrl',
 
         };
 
-        // determine the greatest severity this resultset contains
-        // so that the UI can depict that
-        var getMostSevereResultStatus = function(result_types) {
-
-            var status = "pending",
-                rsInfo = thResultStatusInfo(status);
-
-            for (var i = 0; i < result_types.length; i++) {
-                var res = thResultStatusInfo(result_types[i]);
-                if (res.severity < rsInfo.severity) {
-                    status = result_types[i];
-                    rsInfo = res;
-                }
+        $scope.toggleRevisions = function() {
+            $scope.isCollapsedRevisions = !$scope.isCollapsedRevisions;
+            if (!$scope.isCollapsedRevisions) {
+                // we are expanding the revisions list.  It may be the first
+                // time, so attempt to populate this resultset's revisions
+                // list, if it isn't already
+                thResultSetModelManager.loadRevisions($scope.resultset.id);
             }
-            return {status: status, isCollapsedResults: false};
+
         };
-
-        var severeResultStatus = getMostSevereResultStatus($scope.resultset.result_types);
-        $scope.$watch('resultset.result_types', function(newVal) {
-            severeResultStatus = getMostSevereResultStatus($scope.resultset.result_types);
-
-            if ($scope.resultSeverity !== severeResultStatus.status) {
-                $log.debug("updating resultSeverity from " + $scope.resultSeverity + " to " + severeResultStatus.status);
-            }
-
-            $scope.resultSeverity = severeResultStatus.status;
-        }, true);
-
-        $scope.resultSeverity = severeResultStatus.status;
-        $scope.isCollapsedResults = severeResultStatus.isCollapsedResults;
+        $scope.isCollapsedResults = false;
 
         // whether or not revision list for a resultset is collapsed
         $scope.isCollapsedRevisions = true;

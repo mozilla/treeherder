@@ -7,7 +7,6 @@ treeherder.controller('PluginCtrl',
 
         var JobNote = null;
 
-
         $scope.$watch('selectedJob', function(newValue, oldValue) {
             // preferred way to get access to the selected job
             if (newValue) {
@@ -26,11 +25,13 @@ treeherder.controller('PluginCtrl',
                     "Build OS": $scope.job.build_os || undef
                 };
 
-
                 $scope.tab_loading = true;
 
                 $http.get(thServiceDomain + $scope.job.resource_uri).
                     success(function(data) {
+
+                        _.extend($scope.job, data);
+
                         $scope.logs = data.logs;
 
                         data.artifacts.forEach(function(artifact) {
