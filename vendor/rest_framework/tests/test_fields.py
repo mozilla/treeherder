@@ -42,6 +42,31 @@ class TimeFieldModelSerializer(serializers.ModelSerializer):
         model = TimeFieldModel
 
 
+SAMPLE_CHOICES = [
+    ('red', 'Red'),
+    ('green', 'Green'),
+    ('blue', 'Blue'),
+]
+
+
+class ChoiceFieldModel(models.Model):
+    choice = models.CharField(choices=SAMPLE_CHOICES, blank=True, max_length=255)
+
+
+class ChoiceFieldModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChoiceFieldModel
+
+
+class ChoiceFieldModelWithNull(models.Model):
+    choice = models.CharField(choices=SAMPLE_CHOICES, blank=True, null=True, max_length=255)
+
+
+class ChoiceFieldModelWithNullSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChoiceFieldModelWithNull
+
+
 class BasicFieldTests(TestCase):
     def test_auto_now_fields_read_only(self):
         """
@@ -667,26 +692,71 @@ class ChoiceFieldTests(TestCase):
     """
     Tests for the ChoiceField options generator
     """
-
-    SAMPLE_CHOICES = [
-        ('red', 'Red'),
-        ('green', 'Green'),
-        ('blue', 'Blue'),
-    ]
-
     def test_choices_required(self):
         """
         Make sure proper choices are rendered if field is required
         """
-        f = serializers.ChoiceField(required=True, choices=self.SAMPLE_CHOICES)
-        self.assertEqual(f.choices, self.SAMPLE_CHOICES)
+        f = serializers.ChoiceField(required=True, choices=SAMPLE_CHOICES)
+        self.assertEqual(f.choices, SAMPLE_CHOICES)
 
     def test_choices_not_required(self):
         """
         Make sure proper choices (plus blank) are rendered if the field isn't required
         """
-        f = serializers.ChoiceField(required=False, choices=self.SAMPLE_CHOICES)
-        self.assertEqual(f.choices, models.fields.BLANK_CHOICE_DASH + self.SAMPLE_CHOICES)
+        f = serializers.ChoiceField(required=False, choices=SAMPLE_CHOICES)
+        self.assertEqual(f.choices, models.fields.BLANK_CHOICE_DASH + SAMPLE_CHOICES)
+
+    def test_invalid_choice_model(self):
+        s = ChoiceFieldModelSerializer(data={'choice': 'wrong_value'})
+        self.assertFalse(s.is_valid())
+        self.assertEqual(s.errors,  {'choice': ['Select a valid choice. wrong_value is not one of the available choices.']})
+        self.assertEqual(s.data['choice'], '')
+
+    def test_empty_choice_model(self):
+        """
+        Test that the 'empty' value is correctly passed and used depending on
+        the 'null' property on the model field.
+        """
+        s = ChoiceFieldModelSerializer(data={'choice': ''})
+        self.assertTrue(s.is_valid())
+        self.assertEqual(s.data['choice'], '')
+
+        s = ChoiceFieldModelWithNullSerializer(data={'choice': ''})
+        self.assertTrue(s.is_valid())
+        self.assertEqual(s.data['choice'], None)
+
+    def test_from_native_empty(self):
+        """
+        Make sure from_native() returns an empty string on empty param by default.
+        """
+        f = serializers.ChoiceField(choices=SAMPLE_CHOICES)
+        self.assertEqual(f.from_native(''), '')
+        self.assertEqual(f.from_native(None), '')
+
+    def test_from_native_empty_override(self):
+        """
+        Make sure you can override from_native() behavior regarding empty values.
+        """
+        f = serializers.ChoiceField(choices=SAMPLE_CHOICES, empty=None)
+        self.assertEqual(f.from_native(''), None)
+        self.assertEqual(f.from_native(None), None)
+
+    def test_metadata_choices(self):
+        """
+        Make sure proper choices are included in the field's metadata.
+        """
+        choices = [{'value': v, 'display_name': n} for v, n in SAMPLE_CHOICES]
+        f = serializers.ChoiceField(choices=SAMPLE_CHOICES)
+        self.assertEqual(f.metadata()['choices'], choices)
+
+    def test_metadata_choices_not_required(self):
+        """
+        Make sure proper choices are included in the field's metadata.
+        """
+        choices = [{'value': v, 'display_name': n}
+                   for v, n in models.fields.BLANK_CHOICE_DASH + SAMPLE_CHOICES]
+        f = serializers.ChoiceField(required=False, choices=SAMPLE_CHOICES)
+        self.assertEqual(f.metadata()['choices'], choices)
 
 
 class EmailFieldTests(TestCase):
@@ -865,4 +935,43 @@ class FieldCallableDefault(TestCase):
         field = serializers.WritableField(default=self.simple_callable)
         into = {}
         field.field_from_native({}, {}, 'field', into)
-        self.assertEquals(into, {'field': 'foo bar'})
+        self.assertEqual(into, {'field': 'foo bar'})
+
+
+class CustomIntegerField(TestCase):
+    """
+        Test that custom fields apply min_value and max_value constraints
+    """
+    def test_custom_fields_can_be_validated_for_value(self):
+
+        class MoneyField(models.PositiveIntegerField):
+            pass
+
+        class EntryModel(models.Model):
+            bank = MoneyField(validators=[validators.MaxValueValidator(100)])
+
+        class EntrySerializer(serializers.ModelSerializer):
+            class Meta:
+                model = EntryModel
+
+        entry = EntryModel(bank=1)
+
+        serializer = EntrySerializer(entry, data={"bank": 11})
+        self.assertTrue(serializer.is_valid())
+
+        serializer = EntrySerializer(entry, data={"bank": -1})
+        self.assertFalse(serializer.is_valid())
+
+        serializer = EntrySerializer(entry, data={"bank": 101})
+        self.assertFalse(serializer.is_valid())
+
+
+class BooleanField(TestCase):
+    """
+        Tests for BooleanField
+    """
+    def test_boolean_required(self):
+        class BooleanRequiredSerializer(serializers.Serializer):
+            bool_field = serializers.BooleanField(required=True)
+
+        self.assertFalse(BooleanRequiredSerializer(data={}).is_valid())

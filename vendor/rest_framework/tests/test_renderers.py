@@ -4,20 +4,20 @@ from __future__ import unicode_literals
 from decimal import Decimal
 from django.core.cache import cache
 from django.test import TestCase
-from django.test.client import RequestFactory
 from django.utils import unittest
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import status, permissions
-from rest_framework.compat import yaml, etree, patterns, url, include
+from rest_framework.compat import yaml, etree, patterns, url, include, six, StringIO
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.renderers import BaseRenderer, JSONRenderer, YAMLRenderer, \
     XMLRenderer, JSONPRenderer, BrowsableAPIRenderer, UnicodeJSONRenderer
 from rest_framework.parsers import YAMLParser, XMLParser
 from rest_framework.settings import api_settings
-from rest_framework.compat import StringIO
-from rest_framework.compat import six
+from rest_framework.test import APIRequestFactory
+from collections import MutableMapping
 import datetime
+import json
 import pickle
 import re
 
@@ -66,9 +66,21 @@ class MockView(APIView):
 
 
 class MockGETView(APIView):
-
     def get(self, request, **kwargs):
         return Response({'foo': ['bar', 'baz']})
+
+
+
+class MockPOSTView(APIView):
+    def post(self, request, **kwargs):
+        return Response({'foo': request.DATA})
+
+
+class EmptyGETView(APIView):
+    renderer_classes = (JSONRenderer,)
+
+    def get(self, request, **kwargs):
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class HTMLView(APIView):
@@ -90,8 +102,10 @@ urlpatterns = patterns('',
     url(r'^cache$', MockGETView.as_view()),
     url(r'^jsonp/jsonrenderer$', MockGETView.as_view(renderer_classes=[JSONRenderer, JSONPRenderer])),
     url(r'^jsonp/nojsonrenderer$', MockGETView.as_view(renderer_classes=[JSONPRenderer])),
+    url(r'^parseerror$', MockPOSTView.as_view(renderer_classes=[JSONRenderer, BrowsableAPIRenderer])),
     url(r'^html$', HTMLView.as_view()),
     url(r'^html1$', HTMLView1.as_view()),
+    url(r'^empty$', EmptyGETView.as_view()),
     url(r'^api', include('rest_framework.urls', namespace='rest_framework'))
 )
 
@@ -121,7 +135,7 @@ class POSTDeniedView(APIView):
 class DocumentingRendererTests(TestCase):
     def test_only_permitted_forms_are_displayed(self):
         view = POSTDeniedView.as_view()
-        request = RequestFactory().get('/')
+        request = APIRequestFactory().get('/')
         response = view(request).render()
         self.assertNotContains(response, '>POST<')
         self.assertContains(response, '>PUT<')
@@ -221,6 +235,22 @@ class RendererEndToEndTests(TestCase):
         self.assertEqual(resp.content, RENDERER_B_SERIALIZER(DUMMYCONTENT))
         self.assertEqual(resp.status_code, DUMMYSTATUS)
 
+    def test_parse_error_renderers_browsable_api(self):
+        """Invalid data should still render the browsable API correctly."""
+        resp = self.client.post('/parseerror', data='foobar', content_type='application/json', HTTP_ACCEPT='text/html')
+        self.assertEqual(resp['Content-Type'], 'text/html; charset=utf-8')
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_204_no_content_responses_have_no_content_type_set(self):
+        """
+        Regression test for #1196
+
+        https://github.com/tomchristie/django-rest-framework/issues/1196
+        """
+        resp = self.client.get('/empty')
+        self.assertEqual(resp.get('Content-Type', None), None)
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+
 
 _flat_repr = '{"foo": ["bar", "baz"]}'
 _indented_repr = '{\n  "foo": [\n    "bar",\n    "baz"\n  ]\n}'
@@ -246,6 +276,44 @@ class JSONRendererTests(TestCase):
         ret = JSONRenderer().render(_('test'))
         self.assertEqual(ret, b'"test"')
 
+    def test_render_dict_abc_obj(self):
+        class Dict(MutableMapping):
+            def __init__(self):
+                self._dict = dict()
+            def __getitem__(self, key):
+                return self._dict.__getitem__(key)
+            def __setitem__(self, key, value):
+                return self._dict.__setitem__(key, value)
+            def __delitem__(self, key):
+                return self._dict.__delitem__(key)
+            def __iter__(self):
+                return self._dict.__iter__()
+            def __len__(self):
+                return self._dict.__len__()
+            def keys(self):
+                return self._dict.keys()
+
+        x = Dict()
+        x['key'] = 'string value'
+        x[2] = 3
+        ret = JSONRenderer().render(x)
+        data = json.loads(ret.decode('utf-8'))
+        self.assertEquals(data, {'key': 'string value', '2': 3})    
+
+    def test_render_obj_with_getitem(self):
+        class DictLike(object):
+            def __init__(self):
+                self._dict = {}
+            def set(self, value):
+                self._dict = dict(value)
+            def __getitem__(self, key):
+                return self._dict[key]
+            
+        x = DictLike()
+        x.set({'a': 1, 'b': 'string'})
+        with self.assertRaises(TypeError):
+            JSONRenderer().render(x)
+        
     def test_without_content_type_args(self):
         """
         Test basic JSON rendering.
@@ -330,7 +398,7 @@ if yaml:
 
     class YAMLRendererTests(TestCase):
         """
-        Tests specific to the JSON Renderer
+        Tests specific to the YAML Renderer
         """
 
         def test_render(self):
@@ -355,6 +423,17 @@ if yaml:
             content = renderer.render(obj, 'application/yaml')
             data = parser.parse(StringIO(content))
             self.assertEqual(obj, data)
+
+        def test_render_decimal(self):
+            """
+            Test YAML decimal rendering.
+            """
+            renderer = YAMLRenderer()
+            content = renderer.render({'field': Decimal('111.2')}, 'application/yaml')
+            self.assertYAMLContains(content, "field: '111.2'")
+
+        def assertYAMLContains(self, content, string):
+            self.assertTrue(string in content, '%r not in %r' % (string, content))
 
 
 class XMLRendererTestCase(TestCase):

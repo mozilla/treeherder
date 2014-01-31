@@ -1,17 +1,15 @@
 from __future__ import unicode_literals
 
 import copy
-
 from django.test import TestCase
-from django.test.client import RequestFactory
-
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
+from rest_framework.test import APIRequestFactory
 from rest_framework.views import APIView
 
-factory = RequestFactory()
+factory = APIRequestFactory()
 
 
 class BasicView(APIView):
@@ -32,6 +30,16 @@ def basic_view(request):
         return {'method': 'PUT', 'data': request.DATA}
     elif request.method == 'PATCH':
         return {'method': 'PATCH', 'data': request.DATA}
+
+
+class ErrorView(APIView):
+    def get(self, request, *args, **kwargs):
+        raise Exception
+
+
+@api_view(['GET'])
+def error_view(request):
+    raise Exception
 
 
 def sanitise_json_error(error_dict):
@@ -101,3 +109,34 @@ class FunctionBasedViewIntegrationTests(TestCase):
         }
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(sanitise_json_error(response.data), expected)
+
+
+class TestCustomExceptionHandler(TestCase):
+    def setUp(self):
+        self.DEFAULT_HANDLER = api_settings.EXCEPTION_HANDLER
+
+        def exception_handler(exc):
+            return Response('Error!', status=status.HTTP_400_BAD_REQUEST)
+
+        api_settings.EXCEPTION_HANDLER = exception_handler
+
+    def tearDown(self):
+        api_settings.EXCEPTION_HANDLER = self.DEFAULT_HANDLER
+
+    def test_class_based_view_exception_handler(self):
+        view = ErrorView.as_view()
+
+        request = factory.get('/', content_type='application/json')
+        response = view(request)
+        expected = 'Error!'
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data, expected)
+
+    def test_function_based_view_exception_handler(self):
+        view = error_view
+
+        request = factory.get('/', content_type='application/json')
+        response = view(request)
+        expected = 'Error!'
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data, expected)

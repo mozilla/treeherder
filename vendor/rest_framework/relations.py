@@ -12,7 +12,7 @@ from django.db.models.fields import BLANK_CHOICE_DASH
 from django.forms import widgets
 from django.forms.models import ModelChoiceIterator
 from django.utils.translation import ugettext_lazy as _
-from rest_framework.fields import Field, WritableField, get_component
+from rest_framework.fields import Field, WritableField, get_component, is_simple_callable
 from rest_framework.reverse import reverse
 from rest_framework.compat import urlparse
 from rest_framework.compat import smart_text
@@ -65,16 +65,11 @@ class RelatedField(WritableField):
     def initialize(self, parent, field_name):
         super(RelatedField, self).initialize(parent, field_name)
         if self.queryset is None and not self.read_only:
-            try:
-                manager = getattr(self.parent.opts.model, self.source or field_name)
-                if hasattr(manager, 'related'):  # Forward
-                    self.queryset = manager.related.model._default_manager.all()
-                else:  # Reverse
-                    self.queryset = manager.field.rel.to._default_manager.all()
-            except Exception:
-                msg = ('Serializer related fields must include a `queryset`' +
-                       ' argument or set `read_only=True')
-                raise Exception(msg)
+            manager = getattr(self.parent.opts.model, self.source or field_name)
+            if hasattr(manager, 'related'):  # Forward
+                self.queryset = manager.related.model._default_manager.all()
+            else:  # Reverse
+                self.queryset = manager.field.rel.to._default_manager.all()
 
     ### We need this stuff to make form choices work...
 
@@ -134,9 +129,9 @@ class RelatedField(WritableField):
             value = obj
 
             for component in source.split('.'):
-                value = get_component(value, component)
                 if value is None:
                     break
+                value = get_component(value, component)
         except ObjectDoesNotExist:
             return None
 
@@ -144,7 +139,12 @@ class RelatedField(WritableField):
             return None
 
         if self.many:
-            return [self.to_native(item) for item in value.all()]
+            if is_simple_callable(getattr(value, 'all', None)):
+                return [self.to_native(item) for item in value.all()]
+            else:
+                # Also support non-queryset iterables.
+                # This allows us to also support plain lists of related items.
+                return [self.to_native(item) for item in value]
         return self.to_native(value)
 
     def field_from_native(self, data, files, field_name, into):
@@ -239,10 +239,17 @@ class PrimaryKeyRelatedField(RelatedField):
                 source = self.source or field_name
                 queryset = obj
                 for component in source.split('.'):
+                    if queryset is None:
+                        return []
                     queryset = get_component(queryset, component)
 
             # Forward relationship
-            return [self.to_native(item.pk) for item in queryset.all()]
+            if is_simple_callable(getattr(queryset, 'all', None)):
+                return [self.to_native(item.pk) for item in queryset.all()]
+            else:
+                # Also support non-queryset iterables.
+                # This allows us to also support plain lists of related items.
+                return [self.to_native(item.pk) for item in queryset]
 
         # To-one relationship
         try:
@@ -252,7 +259,7 @@ class PrimaryKeyRelatedField(RelatedField):
             # RelatedObject (reverse relationship)
             try:
                 pk = getattr(obj, self.source or field_name).pk
-            except ObjectDoesNotExist:
+            except (ObjectDoesNotExist, AttributeError):
                 return None
 
         # Forward relationship
@@ -557,8 +564,13 @@ class HyperlinkedIdentityField(Field):
         May raise a `NoReverseMatch` if the `view_name` and `lookup_field`
         attributes are not configured to correctly match the URL conf.
         """
-        lookup_field = getattr(obj, self.lookup_field)
+        lookup_field = getattr(obj, self.lookup_field, None)
         kwargs = {self.lookup_field: lookup_field}
+
+        # Handle unsaved object case
+        if lookup_field is None:
+            return None
+
         try:
             return reverse(view_name, kwargs=kwargs, request=request, format=format)
         except NoReverseMatch:

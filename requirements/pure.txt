@@ -6,7 +6,10 @@ mozillapulse==0.61
 # requirements for mozillapulse
 carrot==0.10.7
 
-djangorestframework==2.3.5
+djangorestframework==2.3.12
+Unipath==1.0
+django-rest-swagger==0.1.11
+
 django-cors-headers==0.11
 django-browserid==0.9
 
