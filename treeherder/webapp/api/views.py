@@ -75,7 +75,6 @@ def oauth_required(func):
             )
 
         server = oauth.Server()
-
         token = oauth.Token(key='', secret='')
 
         #Get the consumer object

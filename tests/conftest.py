@@ -5,7 +5,6 @@ import sys
 from django.core.management import call_command
 import pytest
 
-
 def pytest_addoption(parser):
     parser.addoption(
         "--runslow",
@@ -100,7 +99,6 @@ def initial_data():
     from django.core.management import call_command
 
     call_command('load_initial_data')
-
 
 @pytest.fixture()
 def jm():

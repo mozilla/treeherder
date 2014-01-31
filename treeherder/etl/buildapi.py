@@ -556,20 +556,28 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
             # found in the analysis file
             with open(self.builds4h_analysis_file_path) as f:
                 data = f.read()
-                deserialized_data = json.loads(data)
+
+                deserialized_data = {}
+                if data:
+                    deserialized_data = json.loads(data)
 
                 self.report_obj['guids'] = deserialized_data.get('guids', {})
 
-                for analysis_type in deserialized_data['analyzers']:
-                    self.report_obj['analyzers'][analysis_type]['data'] = \
-                        deserialized_data['analyzers'][analysis_type]
+                if 'analyzers' in deserialized_data:
+                    for analysis_type in deserialized_data['analyzers']:
+                        self.report_obj['analyzers'][analysis_type]['data'] = \
+                            deserialized_data['analyzers'][analysis_type]
 
     def get_blacklist(self):
 
         if os.path.isfile(self.builds4h_blacklist_file_path):
             with open(self.builds4h_blacklist_file_path) as f:
                 data = f.read()
-                deserialized_data = json.loads(data)
+
+                deserialized_data = []
+                if data:
+                    deserialized_data = json.loads(data)
+
                 self.blacklist = set(deserialized_data)
 
     def write_report(self):

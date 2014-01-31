@@ -134,10 +134,12 @@ class OAuthLoaderMixin(object):
         return parameters
 
     @classmethod
-    def set_credentials(cls):
+    def set_credentials(cls, credentials={}):
         # Only get the credentials once
-        if not cls.credentials:
+        if not cls.credentials and not credentials:
             cls.credentials = TreeherderModelBase.get_oauth_credentials()
+        else:
+            cls.credentials = credentials
 
     @classmethod
     def get_credentials(cls, project):
