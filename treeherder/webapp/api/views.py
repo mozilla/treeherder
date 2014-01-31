@@ -199,7 +199,6 @@ class JobsViewSet(viewsets.ViewSet):
         else:
             return Response("No job with id: {0}".format(pk), 404)
 
-
     @with_jobs
     def list(self, request, project, jm):
         """
@@ -220,35 +219,6 @@ class JobsViewSet(viewsets.ViewSet):
                     job["option_collection_hash"]]['opt']
 
         return Response(objs)
-
-    @action()
-    @with_jobs
-    def update_state(self, request, project, jm, pk=None):
-        """
-        Change the state of a job.
-        """
-        state = request.DATA.get('state', None)
-
-        # check that this state is valid
-        if state not in jm.STATES:
-            return Response(
-                {"message": ("'{0}' is not a valid state.  Must be "
-                             "one of: {1}".format(
-                                 state,
-                                 ", ".join(jm.STATES)
-                             ))},
-                status=400,
-            )
-
-        if not pk:  # pragma nocover
-            return Response({"message": "job id required"}, status=400)
-
-        obj = jm.get_job(pk)
-        if obj:
-            jm.set_state(pk, state)
-            return Response({"message": "state updated to '{0}'".format(state)})
-        else:
-            return Response("No job with id: {0}".format(pk), 404)
 
     @with_jobs
     def create(self, request, project, jm):
@@ -316,23 +286,6 @@ class ResultSetViewSet(viewsets.ViewSet):
         return Response(objs)
 
     @staticmethod
-    def get_job_counter():
-        d = defaultdict(int)
-        d.update({
-            "busted": 0,
-            "exception": 0,
-            "testfailed": 0,
-            "unknown": 0,
-            "usercancel": 0,
-            "retry": 0,
-            "success": 0,
-            "running": 0,
-            "pending": 0,
-            "total": 0
-        })
-        return d
-
-    @staticmethod
     def get_resultsets_with_jobs(jm, rs_list, full, filter_kwargs):
         """Convert db result of resultsets in a list to JSON"""
 
@@ -377,7 +330,8 @@ class ResultSetViewSet(viewsets.ViewSet):
             # of resultsets to be returned.
             del(rs_map[rs_id])
 
-            job_counts = ResultSetViewSet.get_job_counter()
+            job_counts = dict.fromkeys(
+                jm.RESULTS + jm.INCOMPLETE_STATES + ["total"], 0)
 
             #itertools needs the elements to be sorted by the grouper
             by_platform = sorted(list(resultset_group), key=platform_grouper)
@@ -439,7 +393,8 @@ class ResultSetViewSet(viewsets.ViewSet):
         for rs in rs_map.values():
             rs.update({
                 "platforms": [],
-                "job_counts": ResultSetViewSet.get_job_counter(),
+                "job_counts": dict.fromkeys(
+                    jm.RESULTS + jm.INCOMPLETE_STATES + ["total"], 0),
             })
             resultsets.append(rs)
         return sorted(

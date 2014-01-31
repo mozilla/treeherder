@@ -26,7 +26,18 @@ class JobsModel(TreeherderModelBase):
     CT_JOBS = "jobs"
     CT_OBJECTSTORE = "objectstore"
     CONTENT_TYPES = [CT_JOBS, CT_OBJECTSTORE]
-    STATES = ["pending", "running", "completed", "coalesced"]
+    RESULTS = [
+        "busted",
+        "exception",
+        "testfailed",
+        "unknown",
+        "usercancel",
+        "retry",
+        "success",
+    ]
+    INCOMPLETE_STATES = ["running", "pending"]
+    STATES = INCOMPLETE_STATES + ["completed", "coalesced"]
+
     # list of searchable columns, i.e. those who have an index
     # it would be nice to get this directly from the db and cache it
     INDEXED_COLUMNS = {
