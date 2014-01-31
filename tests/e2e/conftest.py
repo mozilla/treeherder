@@ -1,10 +1,16 @@
+import os
+import pytest
+import simplejson as json
+from webtest.app import TestApp
+
 from django.core.urlresolvers import reverse
 from django.template import Context, Template
-import pytest
-from webtest.app import TestApp
-import simplejson as json
+
 from treeherder.webapp.wsgi import application
-import os
+from treeherder.etl.mixins import OAuthLoaderMixin
+
+from thclient import TreeherderJobCollection, TreeherderRequest
+from tests.sampledata import SampleData
 
 
 @pytest.fixture
@@ -36,36 +42,96 @@ def completed_jobs(sample_data):
 
 
 @pytest.fixture
-def pending_jobs_stored(jm, pending_jobs, result_set_stored):
+def pending_jobs_stored(
+    jm, pending_jobs, result_set_stored):
     """
     stores a list of buildapi pending jobs into the jobs store
     using BuildApiTreeHerderAdapter
     """
-    pending_jobs.update(result_set_stored[0])
-    url = reverse("jobs-list", kwargs={"project": jm.project})
-    TestApp(application).post_json(url, params=[pending_jobs])
 
+    pending_jobs.update(result_set_stored[0])
+
+    tjc = TreeherderJobCollection(job_type='update')
+    tj = tjc.get_job(pending_jobs)
+    tjc.add(tj)
+
+    OAuthLoaderMixin.set_credentials( SampleData.get_credentials() )
+    credentials = OAuthLoaderMixin.get_credentials('test_treeherder')
+
+    tr = TreeherderRequest(
+        protocol='http',
+        host='localhost',
+        project=jm.project,
+        oauth_key=credentials['consumer_key'],
+        oauth_secret=credentials['consumer_secret']
+        )
+
+    signed_uri = tr.get_signed_uri(tjc.to_json(), tr.get_uri(tjc))
+
+    TestApp(application).post_json(
+        str(signed_uri), params=tjc.get_collection_data()
+        )
 
 @pytest.fixture
-def running_jobs_stored(jm, running_jobs, result_set_stored):
+def running_jobs_stored(
+    jm, running_jobs, result_set_stored):
     """
     stores a list of buildapi running jobs into the objectstore
     using BuildApiTreeHerderAdapter
     """
     running_jobs.update(result_set_stored[0])
-    url = reverse("jobs-list", kwargs={"project": jm.project})
-    TestApp(application).post_json(url, params=[running_jobs])
+
+    tjc = TreeherderJobCollection(job_type='update')
+    tj = tjc.get_job(running_jobs)
+    tjc.add(tj)
+
+    OAuthLoaderMixin.set_credentials( SampleData.get_credentials() )
+    credentials = OAuthLoaderMixin.get_credentials('test_treeherder')
+
+    tr = TreeherderRequest(
+        protocol='http',
+        host='localhost',
+        project=jm.project,
+        oauth_key=credentials['consumer_key'],
+        oauth_secret=credentials['consumer_secret']
+        )
+
+    signed_uri = tr.get_signed_uri(tjc.to_json(), tr.get_uri(tjc))
+
+    TestApp(application).post_json(
+        str(signed_uri), params=tjc.get_collection_data()
+        )
 
 
 @pytest.fixture
-def completed_jobs_stored(jm, completed_jobs, result_set_stored):
+def completed_jobs_stored(
+    jm, completed_jobs, result_set_stored):
     """
     stores a list of buildapi completed jobs into the objectstore
     using BuildApiTreeHerderAdapter
     """
     completed_jobs['revision_hash'] = result_set_stored[0]['revision_hash']
-    url = reverse('objectstore-list', kwargs={"project": jm.project})
-    TestApp(application).post_json(url, params=[completed_jobs])
+
+    tjc = TreeherderJobCollection()
+    tj = tjc.get_job(completed_jobs)
+    tjc.add(tj)
+
+    OAuthLoaderMixin.set_credentials( SampleData.get_credentials() )
+    credentials = OAuthLoaderMixin.get_credentials('test_treeherder')
+
+    tr = TreeherderRequest(
+        protocol='http',
+        host='localhost',
+        project=jm.project,
+        oauth_key=credentials['consumer_key'],
+        oauth_secret=credentials['consumer_secret']
+        )
+
+    signed_uri = tr.get_signed_uri(tjc.to_json(), tr.get_uri(tjc))
+
+    TestApp(application).post_json(
+        str(signed_uri), params=tjc.get_collection_data()
+        )
 
 
 @pytest.fixture
