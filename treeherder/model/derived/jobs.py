@@ -27,6 +27,34 @@ class JobsModel(TreeherderModelBase):
     CT_OBJECTSTORE = "objectstore"
     CONTENT_TYPES = [CT_JOBS, CT_OBJECTSTORE]
     STATES = ["pending", "running", "completed", "coalesced"]
+    # list of searchable columns, i.e. those who have an index
+    # it would be nice to get this directly from the db and cache it
+    INDEXED_COLUMNS = {
+        "job": [
+            "id",
+            "job_guid",
+            "job_coalesced_to_guid",
+            "result_set_id",
+            "build_platform_id",
+            "machine_platform_id",
+            "machine_id",
+            "option_collection_hash",
+            "job_type_id",
+            "product_id",
+            "failure_classification_id",
+            "who",
+            "reason",
+            "result",
+            "state",
+            "submit_timestamp",
+            "start_timestamp",
+            "end_timestamp"
+        ],
+        "result_set": [
+            "id"
+        ]
+
+    }
 
     @classmethod
     def create(cls, project, host=None):
@@ -75,29 +103,45 @@ class JobsModel(TreeherderModelBase):
         )
         return data
 
-    def get_job_list(self, offset, limit, **kwargs):
+    def get_job_list(self, offset, limit, conditions=None):
         """
         Retrieve a list of jobs.
         Mainly used by the restful api to list the jobs
 
         joblist: a list of job ids to limit which jobs are returned.
         """
-        filter_str = ""
 
-        if "joblist" in kwargs:
-            filter_str += " AND j.id in ({0})".format(kwargs["joblist"])
+        placeholders = []
+        replace_str = ""
+        if conditions:
+            for column, condition in conditions.items():
+                if column in self.INDEXED_COLUMNS["job"]:
+                    for operator, value in condition:
+                        replace_str += "AND j.{0} {1}".format(column, operator)
+                        if operator == "IN":
+                            # create a list of placeholders of the same length
+                            # as the list of values
+                            replace_str += "({0})".format(
+                                ",".join(["%s"] * len(value))
+                            )
+                            placeholders += value
+                        else:
+                            replace_str += " %s "
+                            placeholders.append(value)
 
-        repl = [self.refdata_model.get_db_name(), filter_str]
+        repl = [self.refdata_model.get_db_name(), replace_str]
 
         proc = "jobs.selects.get_job_list"
+
         data = self.get_jobs_dhub().execute(
             proc=proc,
             replace=repl,
-            placeholders=[offset, limit],
+            placeholders=placeholders,
+            limit="{0},{1}".format(offset, limit),
             debug_show=self.DEBUG,
         )
-
         return data
+
 
     def set_state(self, job_id, state):
         """Update the state of an existing job"""
@@ -171,6 +215,15 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG
         )
 
+        self.get_jobs_dhub().execute(
+            proc='jobs.updates.update_last_job_classification',
+            placeholders=[
+                failure_classification_id,
+                job_id,
+            ],
+            debug_show=self.DEBUG
+        )
+
     def get_result_set_ids(self, revision_hashes, where_in_list):
         """Return the  a dictionary of revision_hash to id mappings given
            a list of revision_hashes and a where_in_list.
@@ -201,7 +254,7 @@ class JobsModel(TreeherderModelBase):
 
         return result_set_id_lookup
 
-    def get_result_set_list(self, offset, limit, **kwargs):
+    def get_result_set_list(self, offset, limit, conditions=None):
         """
         Retrieve a list of ``result_sets`` (also known as ``pushes``)
         with associated revisions.  No jobs
@@ -211,30 +264,34 @@ class JobsModel(TreeherderModelBase):
         placeholders = []
         replace_str = ""
 
-        if "author" in kwargs:
-            replace_str += " AND revision.author = %s"
-            placeholders.append(kwargs["author"])
-
-        if "revision" in kwargs and len(kwargs["revision"]) > 5:
-            replace_str += " AND revision.revision = %s"
-            placeholders.append(kwargs["revision"])
-
-        if "resultsetlist" in kwargs:
-            replace_str += " AND rs.id in ({0})".format(kwargs["resultsetlist"])
+        if conditions:
+            for column, condition in conditions.items():
+                if column in self.INDEXED_COLUMNS["result_set"]:
+                    for operator, value in condition:
+                        replace_str += "AND rs.{0} {1}".format(column, operator)
+                        if operator == "IN":
+                            # create a list of placeholders of the same length
+                            # as the list of values
+                            replace_str += "({0})".format(
+                                ",".join(["%s"] * len(value))
+                            )
+                            placeholders += value
+                        else:
+                            replace_str += " %s "
+                            placeholders.append(value)
 
         # If a push doesn't have jobs we can just
         # message the user, it would save us a very expensive join
         # with the jobs table.
 
-        placeholders.extend([offset, limit])
-
         # Retrieve the filtered/limited list of result sets
         proc = "jobs.selects.get_result_set_list"
         result_set_ids = self.get_jobs_dhub().execute(
             proc=proc,
+            replace=[replace_str],
             placeholders=placeholders,
+            limit="{0},{1}".format(offset, limit),
             debug_show=self.DEBUG,
-            replace=[replace_str]
         )
 
         aggregate_details = self.get_result_set_details(result_set_ids)

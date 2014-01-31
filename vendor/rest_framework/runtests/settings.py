@@ -100,6 +100,9 @@ INSTALLED_APPS = (
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework.tests',
+    'rest_framework.tests.accounts',
+    'rest_framework.tests.records',
+    'rest_framework.tests.users',
 )
 
 # OAuth is optional and won't work if there is no oauth_provider & oauth2
@@ -123,6 +126,21 @@ else:
         'provider.oauth2',
     )
 
+# guardian is optional
+try:
+    import guardian
+except ImportError:
+    pass
+else:
+    ANONYMOUS_USER_ID = -1
+    AUTHENTICATION_BACKENDS = (
+        'django.contrib.auth.backends.ModelBackend', # default
+        'guardian.backends.ObjectPermissionBackend',
+    )
+    INSTALLED_APPS += (
+        'guardian',
+    )
+
 STATIC_URL = '/static/'
 
 PASSWORD_HASHERS = (
@@ -133,6 +151,8 @@ PASSWORD_HASHERS = (
     'django.contrib.auth.hashers.MD5PasswordHasher',
     'django.contrib.auth.hashers.CryptPasswordHasher',
 )
+
+AUTH_USER_MODEL = 'auth.User'
 
 import django
 

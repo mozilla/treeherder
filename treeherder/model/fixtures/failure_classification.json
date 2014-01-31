@@ -1,0 +1,56 @@
+[
+    {
+        "pk": 1,
+        "model": "model.failureclassification",
+        "fields": {
+            "name": "not classified",
+            "description": "",
+            "active_status": "active"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "model.failureclassification",
+        "fields": {
+            "name": "expected fail",
+            "description": "",
+            "active_status": "active"
+        }
+    },
+    {
+        "pk": 3,
+        "model": "model.failureclassification",
+        "fields": {
+            "name": "expected fail",
+            "description": "",
+            "active_status": "active"
+        }
+    },
+    {
+        "pk": 4,
+        "model": "model.failureclassification",
+        "fields": {
+            "name": "intermittent",
+            "description": "",
+            "active_status": "active"
+        }
+    },
+    {
+        "pk": 5,
+        "model": "model.failureclassification",
+        "fields": {
+            "name": "infra",
+            "description": "",
+            "active_status": "active"
+        }
+    },
+    {
+        "pk": 6,
+        "model": "model.failureclassification",
+        "fields": {
+            "name": "intermittent needs filing",
+            "description": "",
+            "active_status": "active"
+        }
+    }
+]

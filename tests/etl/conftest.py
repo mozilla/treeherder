@@ -4,6 +4,7 @@ from treeherder.etl.mixins import JsonLoaderMixin, OAuthLoaderMixin
 from treeherder.webapp.wsgi import application
 from treeherder.etl import common
 
+from thclient import TreeherderJobCollection, TreeherderRequest
 from tests.sampledata import SampleData
 
 @pytest.fixture

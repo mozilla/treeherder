@@ -154,6 +154,13 @@
                    WHERE `job_guid` = ?",
 
             "host":"master_host"
+        },
+        "update_last_job_classification":{
+            "sql":"UPDATE `job`
+                   SET `failure_classification_id` = ?
+                   WHERE `id` = ?",
+
+            "host":"master_host"
         }
     },
     "selects":{
@@ -240,8 +247,7 @@
 				  LEFT JOIN `REP0`.`job_group` as jg
                     ON jt.`job_group_id` = jg.id
                   WHERE 1
-                  REP1
-                  LIMIT ?,?",
+                  REP1",
 
             "host":"read_host"
         },
@@ -326,7 +332,6 @@
                    WHERE rs.active_status = 'active'
                    REP0
                    ORDER BY rs.push_timestamp DESC
-                   LIMIT ?,?
                    ",
             "host": "read_host"
         },

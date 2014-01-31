@@ -7,25 +7,25 @@ from __future__ import unicode_literals
 
 import copy
 import datetime
-from decimal import Decimal, DecimalException
 import inspect
 import re
 import warnings
+from decimal import Decimal, DecimalException
+from django import forms
 from django.core import validators
 from django.core.exceptions import ValidationError
 from django.conf import settings
 from django.db.models.fields import BLANK_CHOICE_DASH
-from django import forms
+from django.http import QueryDict
 from django.forms import widgets
 from django.utils.encoding import is_protected_type
 from django.utils.translation import ugettext_lazy as _
 from django.utils.datastructures import SortedDict
 from rest_framework import ISO_8601
-from rest_framework.compat import (timezone, parse_date, parse_datetime,
-                                   parse_time)
-from rest_framework.compat import BytesIO
-from rest_framework.compat import six
-from rest_framework.compat import smart_text, force_text, is_non_str_iterable
+from rest_framework.compat import (
+    timezone, parse_date, parse_datetime, parse_time, BytesIO, six, smart_text,
+    force_text, is_non_str_iterable
+)
 from rest_framework.settings import api_settings
 
 
@@ -101,6 +101,19 @@ def humanize_strptime(format_string):
     return format_string
 
 
+def strip_multiple_choice_msg(help_text):
+    """
+    Remove the 'Hold down "control" ...' message that is Django enforces in
+    select multiple fields on ModelForms.  (Required for 1.5 and earlier)
+
+    See https://code.djangoproject.com/ticket/9321
+    """
+    multiple_choice_msg = _(' Hold down "Control", or "Command" on a Mac, to select more than one.')
+    multiple_choice_msg = force_text(multiple_choice_msg)
+
+    return help_text.replace(multiple_choice_msg, '')
+
+
 class Field(object):
     read_only = True
     creation_counter = 0
@@ -110,6 +123,7 @@ class Field(object):
     use_files = False
     form_field_class = forms.CharField
     type_label = 'field'
+    widget = None
 
     def __init__(self, source=None, label=None, help_text=None):
         self.parent = None
@@ -121,9 +135,29 @@ class Field(object):
 
         if label is not None:
             self.label = smart_text(label)
+        else:
+            self.label = None
 
         if help_text is not None:
-            self.help_text = smart_text(help_text)
+            self.help_text = strip_multiple_choice_msg(smart_text(help_text))
+        else:
+            self.help_text = None
+
+        self._errors = []
+        self._value = None
+        self._name = None
+
+    @property
+    def errors(self):
+        return self._errors
+
+    def widget_html(self):
+        if not self.widget:
+            return ''
+        return self.widget.render(self._name, self._value)
+
+    def label_tag(self):
+        return '<label for="%s">%s:</label>' % (self._name, self.label)
 
     def initialize(self, parent, field_name):
         """
@@ -212,6 +246,7 @@ class WritableField(Field):
     """
     Base for read/write fields.
     """
+    write_only = False
     default_validators = []
     default_error_messages = {
         'required': _('This field is required.'),
@@ -221,7 +256,7 @@ class WritableField(Field):
     default = None
 
     def __init__(self, source=None, label=None, help_text=None,
-                 read_only=False, required=None,
+                 read_only=False, write_only=False, required=None,
                  validators=[], error_messages=None, widget=None,
                  default=None, blank=None):
 
@@ -235,6 +270,10 @@ class WritableField(Field):
         super(WritableField, self).__init__(source=source, label=label, help_text=help_text)
 
         self.read_only = read_only
+        self.write_only = write_only
+
+        assert not (read_only and write_only), "Cannot set read_only=True and write_only=True"
+
         if required is None:
             self.required = not(read_only)
         else:
@@ -255,6 +294,12 @@ class WritableField(Field):
         if isinstance(widget, type):
             widget = widget()
         self.widget = widget
+
+    def __deepcopy__(self, memo):
+        result = copy.copy(self)
+        memo[id(self)] = result
+        result.validators = self.validators[:]
+        return result
 
     def validate(self, value):
         if value in validators.EMPTY_VALUES and self.required:
@@ -278,6 +323,11 @@ class WritableField(Field):
         if errors:
             raise ValidationError(errors)
 
+    def field_to_native(self, obj, field_name):
+        if self.write_only:
+            return None
+        return super(WritableField, self).field_to_native(obj, field_name)
+
     def field_from_native(self, data, files, field_name, into):
         """
         Given a dictionary and a field name, updates the dictionary `into`,
@@ -287,9 +337,13 @@ class WritableField(Field):
             return
 
         try:
+            data = data or {}
             if self.use_files:
                 files = files or {}
-                native = files[field_name]
+                try:
+                    native = files[field_name]
+                except KeyError:
+                    native = data[field_name]
             else:
                 native = data[field_name]
         except KeyError:
@@ -331,9 +385,13 @@ class ModelField(WritableField):
             raise ValueError("ModelField requires 'model_field' kwarg")
 
         self.min_length = kwargs.pop('min_length',
-                            getattr(self.model_field, 'min_length', None))
+                                     getattr(self.model_field, 'min_length', None))
         self.max_length = kwargs.pop('max_length',
-                            getattr(self.model_field, 'max_length', None))
+                                     getattr(self.model_field, 'max_length', None))
+        self.min_value = kwargs.pop('min_value',
+                                    getattr(self.model_field, 'min_value', None))
+        self.max_value = kwargs.pop('max_value',
+                                    getattr(self.model_field, 'max_value', None))
 
         super(ModelField, self).__init__(*args, **kwargs)
 
@@ -341,6 +399,10 @@ class ModelField(WritableField):
             self.validators.append(validators.MinLengthValidator(self.min_length))
         if self.max_length is not None:
             self.validators.append(validators.MaxLengthValidator(self.max_length))
+        if self.min_value is not None:
+            self.validators.append(validators.MinValueValidator(self.min_value))
+        if self.max_value is not None:
+            self.validators.append(validators.MaxValueValidator(self.max_value))
 
     def from_native(self, value):
         rel = getattr(self.model_field, "rel", None)
@@ -373,10 +435,15 @@ class BooleanField(WritableField):
     }
     empty = False
 
-    # Note: we set default to `False` in order to fill in missing value not
-    # supplied by html form.  TODO: Fix so that only html form input gets
-    # this behavior.
-    default = False
+    def field_from_native(self, data, files, field_name, into):
+        # HTML checkboxes do not explicitly represent unchecked as `False`
+        # we deal with that here...
+        if isinstance(data, QueryDict) and self.default is None:
+            self.default = False
+
+        return super(BooleanField, self).field_from_native(
+            data, files, field_name, into
+        )
 
     def from_native(self, value):
         if value in ('true', 't', 'True', '1'):
@@ -428,13 +495,6 @@ class SlugField(CharField):
     def __init__(self, *args, **kwargs):
         super(SlugField, self).__init__(*args, **kwargs)
 
-    def __deepcopy__(self, memo):
-        result = copy.copy(self)
-        memo[id(self)] = result
-        #result.widget = copy.deepcopy(self.widget, memo)
-        result.validators = self.validators[:]
-        return result
-
 
 class ChoiceField(WritableField):
     type_name = 'ChoiceField'
@@ -447,6 +507,7 @@ class ChoiceField(WritableField):
     }
 
     def __init__(self, choices=(), *args, **kwargs):
+        self.empty = kwargs.pop('empty', '')
         super(ChoiceField, self).__init__(*args, **kwargs)
         self.choices = choices
         if not self.required:
@@ -462,6 +523,11 @@ class ChoiceField(WritableField):
         self._choices = self.widget.choices = list(value)
 
     choices = property(_get_choices, _set_choices)
+
+    def metadata(self):
+        data = super(ChoiceField, self).metadata()
+        data['choices'] = [{'value': v, 'display_name': n} for v, n in self.choices]
+        return data
 
     def validate(self, value):
         """
@@ -486,6 +552,12 @@ class ChoiceField(WritableField):
                     return True
         return False
 
+    def from_native(self, value):
+        value = super(ChoiceField, self).from_native(value)
+        if value == self.empty or value in validators.EMPTY_VALUES:
+            return self.empty
+        return value
+
 
 class EmailField(CharField):
     type_name = 'EmailField'
@@ -493,7 +565,7 @@ class EmailField(CharField):
     form_field_class = forms.EmailField
 
     default_error_messages = {
-        'invalid': _('Enter a valid e-mail address.'),
+        'invalid': _('Enter a valid email address.'),
     }
     default_validators = [validators.validate_email]
 
@@ -502,13 +574,6 @@ class EmailField(CharField):
         if ret is None:
             return None
         return ret.strip()
-
-    def __deepcopy__(self, memo):
-        result = copy.copy(self)
-        memo[id(self)] = result
-        #result.widget = copy.deepcopy(self.widget, memo)
-        result.validators = self.validators[:]
-        return result
 
 
 class RegexField(CharField):
@@ -533,12 +598,6 @@ class RegexField(CharField):
         self.validators.append(self._regex_validator)
 
     regex = property(_get_regex, _set_regex)
-
-    def __deepcopy__(self, memo):
-        result = copy.copy(self)
-        memo[id(self)] = result
-        result.validators = self.validators[:]
-        return result
 
 
 class DateField(WritableField):
@@ -736,6 +795,7 @@ class IntegerField(WritableField):
     type_name = 'IntegerField'
     type_label = 'integer'
     form_field_class = forms.IntegerField
+    empty = 0
 
     default_error_messages = {
         'invalid': _('Enter a whole number.'),
@@ -767,6 +827,7 @@ class FloatField(WritableField):
     type_name = 'FloatField'
     type_label = 'float'
     form_field_class = forms.FloatField
+    empty = 0
 
     default_error_messages = {
         'invalid': _("'%s' value must be a float."),
@@ -787,6 +848,7 @@ class DecimalField(WritableField):
     type_name = 'DecimalField'
     type_label = 'decimal'
     form_field_class = forms.DecimalField
+    empty = Decimal('0')
 
     default_error_messages = {
         'invalid': _('Enter a number.'),
@@ -918,8 +980,8 @@ class ImageField(FileField):
         if f is None:
             return None
 
-        from compat import Image
-        assert Image is not None, 'PIL must be installed for ImageField support'
+        from rest_framework.compat import Image
+        assert Image is not None, 'Either Pillow or PIL must be installed for ImageField support.'
 
         # We need to get a file object for PIL. We might have a path or we might
         # have to read the data into memory.

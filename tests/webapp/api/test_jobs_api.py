@@ -137,6 +137,33 @@ def test_job_list_bad_project(webapp, eleven_jobs_processed, jm):
     webapp.get(badurl, status=404)
 
 
+def test_job_list_equals_filter(webapp, eleven_jobs_processed, jm):
+    """
+    test retrieving a job list with a querystring filter.
+    """
+    url = reverse("jobs-list",
+                  kwargs={"project": jm.project})
+    final_url = url + "?job_guid=f1c75261017c7c5ce3000931dce4c442fe0a1297"
+
+    resp = webapp.get(final_url)
+    assert len(resp.json) == 1
+
+
+def test_job_list_in_filter(webapp, eleven_jobs_processed, jm):
+    """
+    test retrieving a job list with a querystring filter.
+    """
+    url = reverse("jobs-list",
+                  kwargs={"project": jm.project})
+    final_url = url + ("?job_guid__in="
+    "f1c75261017c7c5ce3000931dce4c442fe0a1297,"
+    "9abb6f7d54a49d763c584926377f09835c5e1a32")
+
+    resp = webapp.get(final_url)
+    assert len(resp.json) == 2
+
+
+
 def test_job_detail(webapp, eleven_jobs_processed, sample_artifacts, jm):
     """
     test retrieving a single job from the jobs-detail

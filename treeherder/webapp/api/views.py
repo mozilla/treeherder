@@ -7,17 +7,21 @@ from django.db import models
 from django.conf import settings
 from rest_framework import viewsets
 from rest_framework.response import Response
-from rest_framework.decorators import action
+from rest_framework.decorators import action, link
 from rest_framework.reverse import reverse
 from rest_framework.exceptions import ParseError
 
 from django.contrib.auth.models import User
 
 from treeherder.model import models
-from treeherder.model.derived import (TreeherderModelBase, JobsModel,
-                                        DatasetNotFoundError, ObjectNotFoundException)
+
+from treeherder.model.derived import (JobsModel, DatasetNotFoundError,
+                                      ObjectNotFoundException)
+
+from treeherder.webapp.api.utils import UrlQueryFilter
 
 from treeherder.etl.mixins import OAuthLoaderMixin
+
 
 def oauth_required(func):
 
@@ -292,18 +296,12 @@ class JobsViewSet(viewsets.ViewSet):
         GET method implementation for list view
 
         """
+        filters = UrlQueryFilter(request.QUERY_PARAMS).parse()
 
-        filters = ["joblist"]
+        limit_condition = filters.pop("limit", set([("=", "0,10")])).pop()
+        offset, limit = limit_condition[1].split(",")
+        objs = jm.get_job_list(offset, limit, filters)
 
-        offset = int(request.QUERY_PARAMS.get('offset', 0))
-        count = int(request.QUERY_PARAMS.get('count', 10))
-
-        objs = jm.get_job_list(
-            offset,
-            count,
-            **dict((k, v) for k, v in request.QUERY_PARAMS.iteritems()
-                   if k in filters)
-        )
         if objs:
             option_collections = jm.refdata_model.get_all_option_collections()
             for job in objs:
@@ -342,7 +340,6 @@ class JobsViewSet(viewsets.ViewSet):
         else:
             return Response("No job with id: {0}".format(pk), 404)
 
-    @action()
     @with_jobs
     @oauth_required
     def create(self, request, project, jm):
@@ -368,19 +365,17 @@ class ResultSetViewSet(viewsets.ViewSet):
         """
         GET method for list of ``resultset`` records with revisions
 
-        resultsetlist - specific resultset ids to retrieve
         """
 
-        filters = ["author", "revision", "resultsetlist"]
+        filters = UrlQueryFilter(request.QUERY_PARAMS).parse()
 
-        offset = int(request.QUERY_PARAMS.get('offset', 0))
-        count = int(request.QUERY_PARAMS.get('count', 10))
+        limit_condition = filters.pop("limit", set([("=", "0,10")])).pop()
+        offset, limit = limit_condition[1].split(",")
 
         objs = jm.get_result_set_list(
             offset,
-            count,
-            **dict((k, v) for k, v in request.QUERY_PARAMS.iteritems()
-                   if k in filters)
+            limit,
+            filters
         )
         return Response(self.get_resultsets_with_jobs(jm, objs, {}))
 
