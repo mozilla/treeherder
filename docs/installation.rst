@@ -43,6 +43,12 @@ Installation
 
      (venv)vagrant@precise32:~/treeherder-service$ python manage.py init_datasources
 
+* Export oauth credentials for all data source projects
+
+  .. code-block:: bash
+
+     (venv)vagrant@precise32:~/treeherder-service$ python manage.py export_project_credentials
+
 * And an entry to your host machine /etc/hosts so that you can point your browser to local.treeherder.mozilla.org to reach it
 
   .. code-block:: bash
