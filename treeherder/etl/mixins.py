@@ -1,5 +1,6 @@
 from StringIO import StringIO
 import gzip
+import os
 import urllib2
 import logging
 from collections import defaultdict
@@ -7,8 +8,6 @@ from collections import defaultdict
 import simplejson as json
 
 from thclient import TreeherderRequest, TreeherderJobCollection, TreeherderResultSetCollection, TreeherderClientError
-
-from treeherder.model.derived.base import TreeherderModelBase
 
 from django.core.urlresolvers import reverse
 from django.conf import settings
@@ -62,7 +61,7 @@ class ObjectstoreLoaderMixin(JsonLoaderMixin):
                 settings.API_HOSTNAME.strip('/'),
                 endpoint.strip('/')
             )
-            print ['ObjectstoreLoaderMixin', url]
+
             response = super(ObjectstoreLoaderMixin, self).load(url, jobs)
 
             if response.getcode() != 200:
@@ -126,6 +125,12 @@ class OAuthLoaderMixin(object):
         'user'
         ])
 
+    credentials_file = os.path.join(
+        os.path.dirname(__file__),
+        'data',
+        'credentials.json'
+        )
+
     @classmethod
     def get_parameters(cls, query_params):
         parameters = {}
@@ -137,7 +142,25 @@ class OAuthLoaderMixin(object):
     def set_credentials(cls, credentials={}):
         # Only get the credentials once
         if not cls.credentials and not credentials:
-            cls.credentials = TreeherderModelBase.get_oauth_credentials()
+
+            try:
+                with open(cls.credentials_file) as f:
+                    credentials = f.read()
+                    cls.credentials = json.loads(credentials)
+
+            except IOError:
+                msg = ('Credentials file not found at {0}.'
+                       ' Try running `manage.py export_project_credentials`'
+                       ' to generate them').format(cls.credentials_file)
+
+                logger.error(msg)
+
+                raise OAuthLoaderError(msg, [])
+
+            except e:
+                logger(e)
+                raise e
+
         else:
             cls.credentials = credentials
 
@@ -185,7 +208,12 @@ class OAuthLoaderMixin(object):
                 logger.error("collection loading failed: {0}".format(message))
                 print "collection loading failed: {0}".format(message)
 
+class OAuthLoaderError(Exception):
+    def __init__(self, msg, Errors):
+        Exception.__init__(self, msg)
+        self.Errors = Errors
 
 if not OAuthLoaderMixin.credentials:
     # Only set the credentials once
     OAuthLoaderMixin.set_credentials()
+

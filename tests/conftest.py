@@ -213,13 +213,6 @@ def mock_log_parser(monkeypatch):
 @pytest.fixture
 def result_set_stored(jm, initial_data, sample_resultset):
 
-    """
-    jm.store_result_set_data(
-        sample_resultset['revision_hash'],
-        sample_resultset['push_timestamp'],
-        sample_resultset['revisions']
-    )
-    """
     jm.store_result_set_data(sample_resultset)
 
     return sample_resultset

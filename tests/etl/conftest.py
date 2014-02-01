@@ -1,24 +1,21 @@
 import pytest
+import json
 from webtest.app import TestApp
 from treeherder.etl.mixins import JsonLoaderMixin, OAuthLoaderMixin
 from treeherder.webapp.wsgi import application
 from treeherder.etl import common
 
-from thclient import TreeherderJobCollection, TreeherderRequest
+from thclient import TreeherderRequest
 from tests.sampledata import SampleData
 
 @pytest.fixture
-def mock_post_json_data(monkeypatch):
-    """mock the urllib call replacing it with a webtest call"""
-    def _post_json_data(adapter, url, data):
+def mock_post_json_data(monkeypatch, jm):
+    def _post_json_data(url, data):
 
-        tjc = TreeherderJobCollection()
-        tj = tjc.get_job(data)
-        tjc.add(tj)
+        th_collection = data[jm.project]
 
         OAuthLoaderMixin.set_credentials( SampleData.get_credentials() )
-        credentials = OAuthLoaderMixin.get_credentials('test_treeherder')
-
+        credentials = OAuthLoaderMixin.get_credentials(jm.project)
 
         tr = TreeherderRequest(
             protocol='http',
@@ -27,17 +24,18 @@ def mock_post_json_data(monkeypatch):
             oauth_key=credentials['consumer_key'],
             oauth_secret=credentials['consumer_secret']
             )
-        signed_uri = tr.get_signed_uri(tjc.to_json(), tr.get_uri(tjc))
+        signed_uri = tr.get_signed_uri(
+            th_collection.to_json(), tr.get_uri(th_collection)
+            )
 
-        #response = TestApp(application).post_json(url, params=data)
         response = TestApp(application).post_json(
-            str(signed_uri), params=tjc.get_collection_data()
+            str(signed_uri), params=th_collection.get_collection_data()
             )
 
         response.getcode = lambda: response.status_int
         return response
 
-    monkeypatch.setattr(JsonLoaderMixin, 'load', _post_json_data)
+    monkeypatch.setattr(OAuthLoaderMixin, 'load', _post_json_data)
 
 
 @pytest.fixture

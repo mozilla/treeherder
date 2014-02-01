@@ -56,7 +56,7 @@ def pending_jobs_stored(
     tjc.add(tj)
 
     OAuthLoaderMixin.set_credentials( SampleData.get_credentials() )
-    credentials = OAuthLoaderMixin.get_credentials('test_treeherder')
+    credentials = OAuthLoaderMixin.get_credentials(jm.project)
 
     tr = TreeherderRequest(
         protocol='http',
@@ -86,7 +86,7 @@ def running_jobs_stored(
     tjc.add(tj)
 
     OAuthLoaderMixin.set_credentials( SampleData.get_credentials() )
-    credentials = OAuthLoaderMixin.get_credentials('test_treeherder')
+    credentials = OAuthLoaderMixin.get_credentials(jm.project)
 
     tr = TreeherderRequest(
         protocol='http',
@@ -117,7 +117,7 @@ def completed_jobs_stored(
     tjc.add(tj)
 
     OAuthLoaderMixin.set_credentials( SampleData.get_credentials() )
-    credentials = OAuthLoaderMixin.get_credentials('test_treeherder')
+    credentials = OAuthLoaderMixin.get_credentials(jm.project)
 
     tr = TreeherderRequest(
         protocol='http',

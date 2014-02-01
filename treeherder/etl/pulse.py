@@ -8,11 +8,15 @@ import logging
 
 from mozillapulse import consumers
 
+from thclient import TreeherderJobCollection
+
 from .daemon import Daemon
 from treeherder.etl.common import JobData
 from treeherder.etl import common
 from treeherder.etl import buildbot
-from treeherder.etl.mixins import ObjectstoreLoaderMixin
+from treeherder.etl.mixins import OAuthLoaderMixin
+
+
 
 
 class PulseDataAdapter(object):
@@ -346,7 +350,7 @@ class PulseDataAdapter(object):
         return target_struct
 
 
-class TreeherderPulseDataAdapter(PulseDataAdapter, ObjectstoreLoaderMixin):
+class TreeherderPulseDataAdapter(PulseDataAdapter, OAuthLoaderMixin):
     """Data adapter class that converts the PulseDataAdapter
        structure into the data structure accepted by treeherder."""
 
@@ -448,8 +452,17 @@ class TreeherderPulseDataAdapter(PulseDataAdapter, ObjectstoreLoaderMixin):
 
             # load transformed data into the restful api
             if data and self.loaddata:
+
+                th_collections = {}
+
+                project = data['project']
+
+                th_collections[project] = TreeherderJobCollection()
+                tj = th_collections[project].get_job(data)
+                th_collections[project].add(tj)
+
                 try:
-                    self.load([data])
+                    self.load(th_collections)
                 # in case of a missing repositories log the error
                 # but don't fail
                 except Exception as e:
