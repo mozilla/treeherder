@@ -1,0 +1,17 @@
+<div id="accordion-panel" class="tabbable">
+    <div class="tab-content" collapse="isFilterPanelHidden">
+        <div id="filter" class="tab-pane active">
+		    <div class="well well-lg">filter</div>
+        </div>
+        <div id="pinbucket" class="tab-pane">
+		    <div class="well well-lg">pin bucket</div>
+        </div>
+    </div>
+    <span >
+        <ul class="nav nav-tabs" ng-click="isFilterPanelHidden = false">
+            <li ><a data-target="#filter" data-toggle="tab">filter</a></li>
+            <li><a data-target="#pinbucket" data-toggle="tab">pinbucket</a></li>
+        </ul>
+        <button class="btn btn-xs" ng-click="isFilterPanelHidden = !isFilterPanelHidden">pinbucket</button>
+    </span>
+</div>

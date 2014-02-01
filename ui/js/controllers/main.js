@@ -16,6 +16,7 @@ treeherder.controller('MainCtrl',
             // setting the selectedJob to null hides the bottom panel
             $rootScope.selectedJob = null;
         };
+        $scope.isFilterPanelHidden = true;
 
         $scope.mru_repos = localStorageService.get("mru_repos") || [];
 

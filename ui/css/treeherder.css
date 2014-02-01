@@ -1,5 +1,5 @@
 body {
-    padding-top: 60px;
+    padding-top: 50px;
     padding-bottom: 500px;
     min-width: 1300px;
     width: auto !important;
@@ -28,6 +28,50 @@ body {
     padding-bottom: 101px;
     white-space: nowrap;
     padding-right: 5px;
+}
+
+ /*top tabs */
+#accordion-panel .tab-content {
+    padding:10px;
+    border:1px solid #ddd;
+    border-bottom:0px;
+}
+#accordion-panel .nav-tabs {
+    border:1px solid #ddd;
+    border-bottom:0px;
+    padding-bottom: 10px;
+}
+
+#accordion-panel .nav-tabs > li {
+    margin-bottom:0;
+    margin-top:-1px;
+}
+
+#accordion-panel .nav-tabs > li > a {
+    outline: 0;
+    padding: 3px 20px;
+    line-height: 20px;
+    border-top: 1px solid transparent;
+    border-bottom: 1px solid lightgray;
+    border-left: 1px solid lightgray;
+    border-right: 1px solid lightgray;
+    -moz-border-radius:0px;
+    -webkit-border-radius:0px;
+    border-radius:0px;
+    -moz-border-radius-bottomright: 5px;
+    -webkit-border-bottom-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    -moz-border-radius-bottomleft: 5px;
+    -webkit-border-bottom-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+
+.accordion-panel .nav-tabs > .active > a, .accordion-panel .nav-tabs > .active > a:hover, .accordion-panel .nav-tabs > .active > a:focus {
+    color: #555555;
+    cursor: default;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-top-color: transparent;
 }
 
 .th-failures-box {

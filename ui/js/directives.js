@@ -1,6 +1,14 @@
 'use strict';
 
 /* Directives */
+treeherder.directive('thAccordionPanel', function () {
+
+    return {
+        restrict: "E",
+        templateUrl: 'partials/thAccordionPanel.html'
+    };
+});
+
 treeherder.directive('ngRightClick', function($parse) {
     return function(scope, element, attrs) {
         var fn = $parse(attrs.ngRightClick);
