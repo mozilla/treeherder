@@ -1,4 +1,10 @@
 {
+    "deletes":{
+        "delete_bug_job_map":{
+            "sql":"DELETE FROM bug_job_map WHERE job_id = ? and bug_id = ?",
+            "host": "master_host"
+        }
+    },
     "inserts":{
         "create_job_data":{
 
@@ -111,7 +117,17 @@
             VALUES (?,?,?,?,?)",
 
             "host":"master_host"
+        },
+        "insert_bug_job_map":{
+            "sql":"INSERT INTO `bug_job_map` (
+                `job_id`,
+                `bug_id`,
+                `type`,
+                `active_status`)
+            VALUES (?,?,?,'active')",
+            "host":"master_host"
         }
+
 
     },
 
@@ -482,6 +498,13 @@
             "sql":"SELECT `name`, `type`, `blob`  FROM `job_artifact`",
 
             "host":"read_host"
+        },
+        "get_bug_job_map":{
+            "sql":"SELECT `job_id`, `bug_id`, `type`
+                   FROM `bug_job_map`
+                   WHERE 1
+                   REP0",
+            "host": "read_host"
         }
     }
 }

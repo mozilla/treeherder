@@ -564,6 +564,67 @@ class RevisionLookupSetViewSet(viewsets.ViewSet):
         return Response(jm.get_revision_resultset_lookup(revision_list))
 
 
+class BugJobMapViewSet(viewsets.ViewSet):
+
+    @with_jobs
+    def create(self, request, project, jm):
+        """
+        Add a new relation between a job and a bug
+        """
+        jm.insert_bug_job_map(
+            request.DATA['job_id'],
+            request.DATA['bug_id'],
+            request.DATA['type']
+        )
+
+        return Response({"message": "Bug job map stored"})
+
+    @with_jobs
+    def destroy(self, request, project, jm, pk=None):
+        """
+        Delete bug-job-map entry. pk is a composite key in the form
+        bug_id-job_id
+        """
+        job_id, bug_id = pk.split("-")
+        jm.delete_bug_job_map(job_id, bug_id)
+        return Response({"message": "Bug job map deleted"})
+
+    @with_jobs
+    def retrieve(self, request, project, jm, pk=None):
+        """
+        Retrieve a bug-job-map entry. pk is a composite key in the form
+        bug_id-job_id
+        """
+        job_id, bug_id = pk.split("-")
+        params = {
+            "bug_id": bug_id,
+            "job_id": job_id
+        }
+        params.update(request.QUERY_PARAMS)
+        filters = UrlQueryFilter(params).parse()
+        obj = jm.get_bug_job_map_list(0, 1, filters)
+        if obj:
+            return Response(obj[0])
+        else:
+            return Response("Object not found", 404)
+
+
+
+    @with_jobs
+    def list(self, request, project, jm):
+        filters = UrlQueryFilter(request.QUERY_PARAMS).parse()
+
+        limit_condition = filters.pop("limit", set([("=", "0,10")])).pop()
+        offset, limit = limit_condition[1].split(",")
+
+        objs = jm.get_bug_job_map_list(
+            offset,
+            limit,
+            filters
+        )
+        return Response(objs)
+
+
 
 #####################
 # Refdata ViewSets

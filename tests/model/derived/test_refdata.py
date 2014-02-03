@@ -391,7 +391,7 @@ def test_update_bugscache(refdata, sample_bugs):
     assert len(bug_list) == len(row_data)
 
 
-def test_get_suggested_bugs(refdata, sample_bugs):
+def test_get_bugscache(refdata, sample_bugs):
     """
     Test that at least one result is retrieved
     for the right search terms
