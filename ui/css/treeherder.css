@@ -37,20 +37,24 @@ body {
     border-bottom:0px;
 }
 #accordion-panel .nav-tabs {
+    padding-left: 25px;
     border:1px solid #ddd;
-    border-bottom:0px;
+    border-bottom: 0px;
     padding-bottom: 10px;
 }
 
 #accordion-panel .nav-tabs > li {
     margin-bottom:0;
     margin-top:-1px;
+    cursor: pointer;
+    cursor: hand;
 }
 
 #accordion-panel .nav-tabs > li > a {
+    color: #555555;
     outline: 0;
     padding: 3px 20px;
-    line-height: 20px;
+    line-height: 11px;
     border-top: 1px solid transparent;
     border-bottom: 1px solid lightgray;
     border-left: 1px solid lightgray;
@@ -67,7 +71,6 @@ body {
 }
 
 .accordion-panel .nav-tabs > .active > a, .accordion-panel .nav-tabs > .active > a:hover, .accordion-panel .nav-tabs > .active > a:focus {
-    color: #555555;
     cursor: default;
     background-color: #ffffff;
     border: 1px solid #ddd;

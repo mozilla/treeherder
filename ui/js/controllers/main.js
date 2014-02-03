@@ -16,8 +16,6 @@ treeherder.controller('MainCtrl',
             // setting the selectedJob to null hides the bottom panel
             $rootScope.selectedJob = null;
         };
-        $scope.isFilterPanelHidden = true;
-
         $scope.mru_repos = localStorageService.get("mru_repos") || [];
 
         // @@@ a dummy value for now, used when creating notes.
@@ -44,7 +42,26 @@ treeherder.controller('MainCtrl',
             $location.search({repo: repo_name});
         };
 
+        /* TOP DROP-DOWN PANEL */
+        $scope.isFilterPanelHidden = true;
 
+        $scope.filterOptions = [
+            {
+                value: "failures",
+                name: "failures",
+                resultStatuses: ["testfailed", "busted", "exception"]
+            },
+            {
+                value: "inProgress",
+                name: "in progress",
+                resultStatuses: ["pending", "running"]
+            },
+            {
+                value: "success",
+                name: "success",
+                resultStatuses: ["success"]
+            }
+        ];
 
     }
 );
