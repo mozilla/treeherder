@@ -8,7 +8,7 @@ from collections import defaultdict
 
 import simplejson as json
 
-from thclient import TreeherderRequest, TreeherderJobCollection, TreeherderResultSetCollection, TreeherderClientError
+from thclient import TreeherderRequest
 
 from django.core.urlresolvers import reverse
 from django.conf import settings
@@ -158,10 +158,8 @@ class OAuthLoaderMixin(object):
 
                 logger.error(msg)
 
-                raise OAuthLoaderError(msg, [])
-
             except e:
-                logger(e)
+                logger.error(e)
                 raise e
 
         else:
@@ -194,7 +192,6 @@ class OAuthLoaderMixin(object):
             if not response or response.status != 200:
                 message = response.read()
                 logger.error("collection loading failed: {0}".format(message))
-                print "collection loading failed: {0}".format(message)
 
 class OAuthLoaderError(Exception):
     def __init__(self, msg, Errors):

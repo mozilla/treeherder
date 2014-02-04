@@ -9,7 +9,7 @@ from django.conf import settings
 from thclient import TreeherderRequest, TreeherderJobCollection
 
 from treeherder.etl import common, buildbot
-from treeherder.etl.mixins import JsonExtractorMixin, ObjectstoreLoaderMixin, OAuthLoaderMixin
+from treeherder.etl.mixins import JsonExtractorMixin, OAuthLoaderMixin
 from treeherder.model.models import Datasource
 
 
@@ -71,7 +71,6 @@ class Builds4hTransformerMixin(object):
         transform the builds4h structure into something we can ingest via
         our restful api
         """
-        job_list = []
         revisions = defaultdict(list)
 
         projects = set(x.project for x in Datasource.objects.cached())
@@ -183,9 +182,6 @@ class Builds4hTransformerMixin(object):
 
             treeherder_data['job'] = job
 
-            # REMOVE
-            job_list.append(common.JobData(treeherder_data))
-
             if project not in th_collections:
                 th_collections[ project ] = TreeherderJobCollection()
 
@@ -204,7 +200,6 @@ class PendingTransformerMixin(object):
         transform the buildapi structure into something we can ingest via
         our restful api
         """
-        job_list = []
 
         projects = set(x.project for x in Datasource.objects.cached())
         revision_dict = defaultdict(list)
@@ -272,9 +267,6 @@ class PendingTransformerMixin(object):
                     }
                     treeherder_data['job'] = job
 
-                    # REMOVE
-                    job_list.append(common.JobData(treeherder_data))
-
                     if project not in th_collections:
                         th_collections[ project ] = TreeherderJobCollection(
                             job_type='update'
@@ -295,7 +287,6 @@ class RunningTransformerMixin(object):
         transform the buildapi structure into something we can ingest via
         our restful api
         """
-        job_list = []
         projects = set(x.project for x in Datasource.objects.cached())
         revision_dict = defaultdict(list)
 
@@ -366,8 +357,6 @@ class RunningTransformerMixin(object):
 
                     treeherder_data['job'] = job
 
-                    job_list.append(common.JobData(treeherder_data))
-
                     if project not in th_collections:
                         th_collections[ project ] = TreeherderJobCollection(
                             job_type='update'
@@ -383,7 +372,6 @@ class RunningTransformerMixin(object):
 
 class Builds4hJobsProcess(JsonExtractorMixin,
                           Builds4hTransformerMixin,
-                          #ObjectstoreLoaderMixin):
                           OAuthLoaderMixin):
     def run(self):
         extracted_content = self.extract(settings.BUILDAPI_BUILDS4H_URL)

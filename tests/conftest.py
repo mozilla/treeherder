@@ -42,7 +42,6 @@ def pytest_sessionstart(session):
     # this sets up a clean test-only database
     session.django_db_config = session.django_runner.setup_databases()
 
-
 def pytest_sessionfinish(session):
     """Tear down the test environment, including databases."""
     session.django_runner.teardown_databases(session.django_db_config)
@@ -64,6 +63,7 @@ def pytest_runtest_setup(item):
 
     # this should provide isolation between tests.
     call_command("init_master_db", interactive=False, skip_fixtures=True)
+    call_command('export_project_credentials', safe=True)
 
 
 def pytest_runtest_teardown(item):
