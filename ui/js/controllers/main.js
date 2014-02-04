@@ -2,7 +2,8 @@
 
 treeherder.controller('MainCtrl',
     function MainController($scope, $rootScope, $routeParams, $location, $log,
-                            localStorageService, thRepos, thSocket) {
+                            localStorageService, thRepos, thSocket,
+                            thResultStatusList) {
         $scope.query="";
         $scope.statusError = function(msg) {
             $rootScope.statusMsg = msg;
@@ -22,12 +23,12 @@ treeherder.controller('MainCtrl',
         // update this value when we have authenticated login.
         $scope.username = "Hiro Protagonist";
 
-        for(var repo in $scope.mru_repos){
+        for (var repo in $scope.mru_repos){
             thSocket.emit('subscribe', $scope.mru_repos[repo]+'.job_failure');
             $log.debug("subscribing to "+$scope.mru_repos[repo]+'.job_failure');
         }
 
-        $rootScope.new_failures = new Object();
+        $rootScope.new_failures = {};
 
         thSocket.on('job_failure', function(msg){
             if (! $rootScope.new_failures.hasOwnProperty(msg.branch)){
@@ -45,23 +46,67 @@ treeherder.controller('MainCtrl',
         /* TOP DROP-DOWN PANEL */
         $scope.isFilterPanelHidden = true;
 
-        $scope.filterOptions = [
-            {
+        $scope.filterOptions = thResultStatusList;
+
+        $scope.filterGroups = {
+            failures: {
                 value: "failures",
                 name: "failures",
                 resultStatuses: ["testfailed", "busted", "exception"]
             },
-            {
+            nonfailures: {
+                value: "nonfailures",
+                name: "non-failures",
+                resultStatuses: ["success", "retry"]
+            },
+            inProgress: {
                 value: "inProgress",
                 name: "in progress",
                 resultStatuses: ["pending", "running"]
-            },
-            {
-                value: "success",
-                name: "success",
-                resultStatuses: ["success"]
             }
-        ];
+        };
+
+        /**
+         * If all members of the group are checked, then uncheck them all.  If
+         * any are unchecked, then check them all.
+         * @param resultStatuses
+         */
+        $scope.toggleGroup = function(resultStatuses) {
+            var isChecked = function(rs) {return $scope.resultStatusFilters[rs];};
+            var check = function(rs) {$scope.resultStatusFilters[rs] = tf;};
+
+            var tf = !_.every(resultStatuses, isChecked);
+            _.each(resultStatuses, check);
+
+        };
+
+        // which result statuses that should be shown
+        $scope.resultStatusFilters = {};
+        for (var i = 0; i < $scope.filterOptions.length; i++) {
+            $scope.resultStatusFilters[$scope.filterOptions[i]] = true;
+        }
+        // where or not to show classified jobs
+        $scope.classifiedFilter = true;
+
+        /**
+         * When a filter is checked, update the list of
+         */
+        $scope.updateResultStatusFilters = function() {
+
+        };
+
+        $scope.resultStatusFilterJobs= function() {
+            return function(job) {
+                return $scope.resultStatusFilters[job.result] ||
+                    $scope.resultStatusFilters[job.state];
+            };
+        };
+        $scope.resultStatusFilterPlatform= function() {
+            return function(platform) {
+                return $scope.resultStatusFilters[job.result] ||
+                    $scope.resultStatusFilters[job.state];
+            };
+        };
 
     }
 );

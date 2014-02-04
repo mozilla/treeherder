@@ -2,10 +2,14 @@
     <div class="tab-content" collapse="isFilterPanelHidden">
         <div id="filter" class="tab-pane active">
 		    <div class="well well-lg">
+		        <button class="btn btn-default btn-sm"
+		                ng-repeat="group in filterGroups"
+		                ng-click="toggleGroup(group.resultStatuses)">{{group.name}}</button>
                 <label ng-repeat="filter in filterOptions"
-                       class="checkbox-inline"
-                       title="{{filter.name}} jobs:  {{filter.resultStatuses.join()}}">
-                    <input type="checkbox" id="filter.value" value="filter.value" checked> {{filter.name}}
+                       class="checkbox-inline">
+                    <input type="checkbox"
+                           id="{{filter}}"
+                           ng-model="resultStatusFilters[filter]"> {{filter}}
                 </label>
                 <label class="checkbox-inline" title="classified jobs">
                     <input type="checkbox" id="classified" value="classified" checked> classified
