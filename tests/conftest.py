@@ -63,7 +63,6 @@ def pytest_runtest_setup(item):
 
     # this should provide isolation between tests.
     call_command("init_master_db", interactive=False, skip_fixtures=True)
-    call_command('export_project_credentials', safe=True)
 
 
 def pytest_runtest_teardown(item):
