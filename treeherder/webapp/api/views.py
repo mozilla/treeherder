@@ -207,10 +207,10 @@ class JobsViewSet(viewsets.ViewSet):
         """
         filters = UrlQueryFilter(request.QUERY_PARAMS).parse()
 
-        limit_condition = filters.pop("limit", set([("=", "0,10")])).pop()
-        offset, limit = limit_condition[1].split(",")
+        count = filters.pop("count", set([("=", "10")])).pop()[1]
+        offset = filters.pop("offset", set([("=", "0")])).pop()[1]
         full = request.QUERY_PARAMS.get('full', 'true').lower() == 'true'
-        objs = jm.get_job_list(offset, limit, full, filters)
+        objs = jm.get_job_list(offset, count, full, filters)
 
         if objs:
             option_collections = jm.refdata_model.get_all_option_collections()
@@ -248,13 +248,13 @@ class ResultSetViewSet(viewsets.ViewSet):
 
         filters = UrlQueryFilter(request.QUERY_PARAMS).parse()
 
-        limit_condition = filters.pop("limit", set([("=", "0,10")])).pop()
-        offset, limit = limit_condition[1].split(",")
+        count = filters.pop("count", set([("=", "10")])).pop()[1]
+        offset = filters.pop("offset", set([("=", "0")])).pop()[1]
         full = request.QUERY_PARAMS.get('full', "true").lower() == "true"
 
         objs = jm.get_result_set_list(
             offset,
-            limit,
+            count,
             full,
             filters
         )
