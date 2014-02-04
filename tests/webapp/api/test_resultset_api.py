@@ -2,6 +2,9 @@ import pytest
 from django.core.urlresolvers import reverse
 from treeherder.webapp.api.views import ResultSetViewSet
 
+from thclient import TreeherderResultSetCollection
+from tests import test_utils
+
 
 def test_resultset_list(webapp, eleven_jobs_processed, jm):
     """
@@ -108,7 +111,7 @@ def test_result_set_detail_bad_project(webapp, jm):
     assert resp.json == {"message": "No project with name foo"}
 
 
-def test_resultset_create(webapp, sample_resultset, jm, initial_data):
+def test_resultset_create(sample_resultset, jm, initial_data):
     """
     test posting data to the resultset endpoint via webtest.
     extected result are:
@@ -117,11 +120,14 @@ def test_resultset_create(webapp, sample_resultset, jm, initial_data):
     - 1 resultset stored in the jobs schema
     """
 
-    resp = webapp.post_json(
-        reverse('resultset-list',
-                kwargs={'project': jm.project}),
-        params=sample_resultset
-    )
+    trsc = TreeherderResultSetCollection()
+
+    for rs in sample_resultset:
+        rs = trsc.get_resultset(rs)
+        trsc.add(rs)
+
+    resp = test_utils.post_collection(jm.project, trsc)
+
     assert resp.status_int == 200
     assert resp.json['message'] == 'well-formed JSON stored'
 
@@ -131,21 +137,34 @@ def test_resultset_create(webapp, sample_resultset, jm, initial_data):
     )
 
     assert len(stored_objs) == 1
-
     assert stored_objs[0]['revision_hash'] == sample_resultset[0]['revision_hash']
 
+def test_resultset_with_bad_secret(sample_resultset, jm, initial_data):
 
-@pytest.mark.xfail
-def test_result_set_add_job(jm, initial_data, webapp, job_sample, sample_resultset):
+    trsc = TreeherderResultSetCollection()
+    for rs in sample_resultset:
+        rs = trsc.get_resultset(rs)
+        trsc.add(rs)
 
-    jm.store_result_set_data(sample_resultset)
+    resp = test_utils.post_collection(
+        jm.project, trsc, status=403, consumer_secret="horrible secret"
+        )
 
-    job_sample['revision_hash'] = sample_resultset[0]['revision_hash']
-    job_sample['job']['log_references'] = []
+    assert resp.status_int == 403
+    assert resp.json['message'] == "Client authentication failed for project, {0}".format(jm.project)
+    assert resp.json['response'] == "invalid_client"
 
-    resp = webapp.post_json(
-        reverse("resultset-add-job",
-                kwargs={"project": jm.project, "pk": 1}),
-        params=[job_sample]
-    )
-    assert resp.status_int == 200
+def test_resultset_with_bad_key(sample_resultset, jm, initial_data):
+
+    trsc = TreeherderResultSetCollection()
+    for rs in sample_resultset:
+        rs = trsc.get_resultset(rs)
+        trsc.add(rs)
+
+    resp = test_utils.post_collection(
+        jm.project, trsc, status=403, consumer_key="horrible key"
+        )
+
+    assert resp.status_int == 403
+    assert resp.json['response'] == "access_denied"
+    assert resp.json['message'] == "oauth_consumer_key does not match project, {0}, credentials".format(jm.project)

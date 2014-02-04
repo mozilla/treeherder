@@ -37,7 +37,10 @@ def oauth_required(func):
         project_credentials = OAuthLoaderMixin.get_credentials(project)
 
         if not project_credentials:
-            msg = "project, {0}, has no OAuth credentials".format(project)
+            msg = {
+                'response':"invalid_request",
+                'message':"project, {0}, has no OAuth credentials".format(project)
+                }
             return Response(msg, 500)
 
         parameters = OAuthLoaderMixin.get_parameters(request.QUERY_PARAMS)
@@ -51,24 +54,26 @@ def oauth_required(func):
 
             msg = {
                 'response':"invalid_request",
-                'msg':"Required oauth parameters not provided in the uri"
+                'message':"Required oauth parameters not provided in the uri"
                 }
 
-            return Response(json.dumps(msg), 500)
+            return Response(msg, 500)
 
         if oauth_consumer_key != project_credentials['consumer_key']:
             msg = {
                 'response':"access_denied",
-                'msg':"oauth_consumer_key does not match project, {0}, credentials".format(project)
+                'message':"oauth_consumer_key does not match project, {0}, credentials".format(project)
                 }
 
-            return Response(json.dumps(msg), 403)
+            return Response(msg, 403)
 
         scheme = 'http'
         if 'https' in request.build_absolute_uri():
             scheme = 'https'
 
-        uri = '{0}://{1}{2}'.format(scheme, request.get_host(), request.path)
+        uri = '{0}://{1}{2}'.format(
+            scheme, request.get_host(), request.path
+            )
 
         #Construct the OAuth request based on the django request object
         req_obj = oauth.Request(
@@ -96,7 +101,7 @@ def oauth_required(func):
         except oauth.Error:
             msg = {
                 'response':"invalid_client",
-                'msg':"Client authentication failed for project, {0}".format(project)
+                'message':"Client authentication failed for project, {0}".format(project)
                 }
 
             return Response(msg, 403)

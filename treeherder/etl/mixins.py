@@ -3,6 +3,7 @@ import gzip
 import os
 import urllib2
 import logging
+import copy
 from collections import defaultdict
 
 import simplejson as json
@@ -133,6 +134,7 @@ class OAuthLoaderMixin(object):
 
     @classmethod
     def get_parameters(cls, query_params):
+
         parameters = {}
         for key in cls.param_keys:
             parameters[key] = query_params.get(key, None)
@@ -140,6 +142,7 @@ class OAuthLoaderMixin(object):
 
     @classmethod
     def set_credentials(cls, credentials={}):
+
         # Only get the credentials once
         if not cls.credentials and not credentials:
 
@@ -166,26 +169,11 @@ class OAuthLoaderMixin(object):
 
     @classmethod
     def get_credentials(cls, project):
-        return cls.credentials.get(project, {})
+        return copy.deepcopy( cls.credentials.get(project, {}) )
 
     @classmethod
     def get_consumer_secret(cls, project):
-        return cls.credentials.get(project, {})
-
-    @classmethod
-    def validate_credentials(cls, project, key, secret):
-
-        project_credentials = cls.credentials.get(project, {})
-
-        valid = False
-        if project_credentials:
-
-            if (project_credentials['consumer_key'] == key) and \
-               (project_credentials['consumer_secret'] == secret):
-
-                valid = True
-
-        return valid
+        return copy.deepcopy( cls.credentials.get(project, {}) )
 
     def load(self, th_collections):
 
@@ -214,6 +202,7 @@ class OAuthLoaderError(Exception):
         self.Errors = Errors
 
 if not OAuthLoaderMixin.credentials:
-    # Only set the credentials once
+
+    # Only set the credentials once when the module is loaded
     OAuthLoaderMixin.set_credentials()
 

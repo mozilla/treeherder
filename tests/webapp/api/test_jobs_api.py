@@ -2,6 +2,9 @@ import json
 
 from django.core.urlresolvers import reverse
 
+from tests import test_utils
+from thclient import TreeherderJobCollection
+
 
 def test_update_state_success(webapp, eleven_jobs_processed, jm):
     """
@@ -23,12 +26,18 @@ def test_update_state_success(webapp, eleven_jobs_processed, jm):
         placeholders=["running", job_id],
     )
 
-    url = reverse("jobs-update-state", kwargs={
+    uri = reverse("jobs-update-state", kwargs={
         "project": jm.project,
         "pk": job_id
     })
 
-    resp = webapp.post(url, params={"state": new_state})
+    data = {
+        "project": jm.project,
+        "pk": job_id,
+        "state": new_state
+        }
+
+    resp = test_utils.post_job_data(jm.project, uri, data)
 
     assert resp.status_int == 200
     assert resp.json["message"] == "state updated to '{0}'".format(new_state)
@@ -47,12 +56,19 @@ def test_update_state_invalid_state(webapp, eleven_jobs_processed, jm):
     old_state = job["state"]
     new_state = "chokey"
 
-    url = reverse("jobs-update-state", kwargs={
+    uri = reverse("jobs-update-state", kwargs={
         "project": jm.project,
         "pk": job_id
     })
 
-    resp = webapp.post(url, params={"state": new_state}, status=400)
+    data = {
+        "project": jm.project,
+        "pk": job_id,
+        "state": new_state
+        }
+
+    resp = test_utils.post_job_data(
+        jm.project, uri, data, status=404, expect_errors=True)
 
     assert resp.json["message"] == ("'{0}' is not a valid state.  Must be "
                                     "one of: {1}".format(
@@ -77,7 +93,16 @@ def test_update_state_invalid_job_id(webapp, eleven_jobs_processed, jm):
         "pk": job_id
     })
 
-    webapp.post(url, params={"state": new_state}, status=404)
+    data = {
+        "project": jm.project,
+        "pk": job_id,
+        "state": new_state
+        }
+
+    expect_errors = '{"message": "\'chokey\' is not a valid state.  Must be one of: pending, running, completed, coalesced"}'
+
+    test_utils.post_job_data(
+        jm.project, url, data, status=404, expect_errors=True)
 
 
 def test_job_list(webapp, eleven_jobs_processed, jm):
