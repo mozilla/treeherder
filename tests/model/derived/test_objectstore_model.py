@@ -146,11 +146,11 @@ def test_objectstore_update_content(jm, sample_data):
     """
     Test updating an object of the objectstore.
     """
-    original_obj = sample_data.job_data[0]
+    original_obj = sample_data.job_data[100]
     jm.store_job_data([original_obj])
 
     obj_updated = original_obj.copy()
-    obj_updated["job"]["state"] = "new_state"
+    obj_updated["job"]["state"] = "pending"
 
     jm.store_job_data([obj_updated])
 
@@ -165,4 +165,4 @@ def test_objectstore_update_content(jm, sample_data):
     stored_blob = json.loads(stored_objs[0]["json_blob"])
 
     # check that the blob was updated
-    assert stored_blob["job"]["state"] == "new_state"
+    assert stored_blob["job"]["state"] == "pending"

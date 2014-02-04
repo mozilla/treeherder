@@ -10,7 +10,6 @@ RESULT_DICT = {
     6: "usercancel"
 }
 
-
 ####
 #   The following variables were taken from util.py
 #

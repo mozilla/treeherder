@@ -34,6 +34,12 @@ def parse_log(project, job_id, result_set_id, check_errors=False):
     failure_publisher = JobFailurePublisher(settings.BROKER_URL)
 
     try:
+        # return the resultset with the job id to identify if the UI wants
+        # to fetch the whole thing.
+        resultset = jm.get_result_set_by_id(result_set_id=result_set_id)[0]
+        del(resultset["active_status"])
+        del(resultset["revision_hash"])
+
         log_references = jm.get_log_references(job_id)
 
         # we may have many log references per job
@@ -79,7 +85,7 @@ def parse_log(project, job_id, result_set_id, check_errors=False):
 
             # store the artifacts generated
             jm.store_job_artifact(artifact_list)
-        status_publisher.publish(job_id, result_set_id, project, 'processed')
+        status_publisher.publish(job_id, resultset, project, 'processed')
         if check_errors:
             failure_publisher.publish(job_id, project)
 
