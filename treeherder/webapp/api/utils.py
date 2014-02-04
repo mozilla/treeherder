@@ -40,14 +40,9 @@ class UrlQueryFilter(object):
     splitter = "__"
 
     def __init__(self, query_params):
-        self.params = query_params
-
-    def parse(self):
-        """
-        Parse the query_params using self.operators for the conversion
-        """
-        filters = defaultdict(set)
-        for k, v in self.params.iteritems():
+        self.raw_params = query_params
+        self.conditions = defaultdict(set)
+        for k, v in self.raw_params.iteritems():
             if self.splitter in k:
                 field, operator = k.split(self.splitter, 1)
                 if operator not in self.operators:
@@ -58,5 +53,31 @@ class UrlQueryFilter(object):
                 field = k
                 operator = "="
 
-            filters[field].add((self.operators[operator], v))
-        return filters
+            self.conditions[field].add((self.operators[operator], v))
+
+    def get(self, key, default=None):
+        if key in self.conditions:
+            value = self.conditions[key]
+            if len(value) == 1:
+                value = value.pop()
+                if value[0] == "=":
+                    value = value[1]
+            return value
+        else:
+            if default:
+                return default
+            raise KeyError(key)
+
+    def delete(self, key):
+        del self.conditions[key]
+
+    def pop(self, key, default=None):
+        try:
+            value = self.get(key)
+            self.delete(key)
+            return value
+        except KeyError, e:
+            if default is not None:
+                return default
+            raise e
+

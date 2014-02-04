@@ -17,7 +17,7 @@ def test_single_filter():
     }
 
     filter = UrlQueryFilter(input)
-    actual = filter.parse()
+    actual = filter.conditions
 
     for k in expected:
         assert actual[k] == expected[k]
@@ -36,7 +36,50 @@ def test_multiple_filters():
     }
 
     filter = UrlQueryFilter(input)
-    actual = filter.parse()
+    actual = filter.conditions
 
     for k in expected:
         assert actual[k] == expected[k]
+
+
+def test_get_multiple_value():
+    input = {
+        "name": "john",
+        "age__gte": 30,
+        "age__lt": 80,
+    }
+
+    expected = set([('>=', 30), ('<', 80)])
+
+    filter = UrlQueryFilter(input)
+    actual = filter.get("age")
+
+    assert actual == expected
+
+
+def test_get_single_value():
+    input = {
+        "name": "john",
+        "age__gte": 30,
+        "age__lt": 80,
+    }
+
+    expected = "john"
+
+    filter = UrlQueryFilter(input)
+    actual = filter.get("name")
+
+    assert actual == expected
+
+def test_get_default_value():
+    input = {
+        "name": "john",
+        "age__gte": 30,
+        "age__lt": 80,
+    }
+    expected = "bar"
+
+    filter = UrlQueryFilter(input)
+    actual = filter.get("foo", "bar")
+
+    assert expected == actual
