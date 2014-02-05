@@ -88,25 +88,21 @@ treeherder.controller('MainCtrl',
         // where or not to show classified jobs
         $scope.classifiedFilter = true;
 
-        /**
-         * When a filter is checked, update the list of
-         */
-        $scope.updateResultStatusFilters = function() {
-
-        };
-
-        $scope.resultStatusFilterJobs= function() {
+        $scope.resultStatusFilterJobs = function(job) {
             return function(job) {
                 return $scope.resultStatusFilters[job.result] ||
                     $scope.resultStatusFilters[job.state];
             };
         };
-        $scope.resultStatusFilterPlatform= function() {
+        $scope.resultStatusFilterPlatform = function() {
             return function(platform) {
-                return $scope.resultStatusFilters[job.result] ||
-                    $scope.resultStatusFilters[job.state];
+                for (var key in $scope.resultStatusFilters) {
+                    if (platform.job_counts[key] && $scope.resultStatusFilters[key]) {
+                        return true;
+                    }
+                }
+                return false;
             };
         };
-
     }
 );

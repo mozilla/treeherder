@@ -1,5 +1,5 @@
 body {
-    padding-top: 50px;
+    padding-top: 80px;
     padding-bottom: 500px;
     min-width: 1300px;
     width: auto !important;
@@ -20,6 +20,10 @@ body {
     overflow: auto;
 }
 
+.navbar-fixed-top {
+    border-bottom: 0px;
+}
+
 .th-content {
     display: inline-block;
     overflow: hidden;
@@ -32,11 +36,13 @@ body {
 
  /*top tabs */
 #accordion-panel .tab-content {
+    background-color: white;
     padding:10px;
     border:1px solid #ddd;
     border-bottom:0px;
 }
 #accordion-panel .nav-tabs {
+    background-color: white;
     padding-left: 25px;
     border:1px solid #ddd;
     border-bottom: 0px;
@@ -56,9 +62,9 @@ body {
     padding: 3px 20px;
     line-height: 11px;
     border-top: 1px solid transparent;
-    border-bottom: 1px solid lightgray;
-    border-left: 1px solid lightgray;
-    border-right: 1px solid lightgray;
+    border-bottom: 1px solid darkgray;
+    border-left: 1px solid darkgray;
+    border-right: 1px solid darkgray;
     -moz-border-radius:0px;
     -webkit-border-radius:0px;
     border-radius:0px;
@@ -75,6 +81,10 @@ body {
     background-color: #ffffff;
     border: 1px solid #ddd;
     border-top-color: transparent;
+}
+
+.accordion-padding {
+    height: 166px;
 }
 
 .th-failures-box {

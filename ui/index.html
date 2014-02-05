@@ -9,7 +9,7 @@
         <link href="css/treeherder.css" rel="stylesheet" media="screen">
     </head>
     <body ng-controller="MainCtrl">
-        <nav class="navbar navbar-inverse navbar-fixed-top">
+        <nav class="navbar navbar-inverse navbar-fixed-top th-navbar">
             <div class="navbar-header">
                 <a class="navbar-brand" href="#">Treeherder</a>
             </div>
@@ -39,9 +39,10 @@
                     </div>
                 </form>
             </div>
+            <th-accordion-panel></th-accordion-panel>
         </nav>
         <!-- nav end -->
-        <th-accordion-panel></th-accordion-panel>
+        <div class="accordion-padding" ng-hide="isFilterPanelHidden"></div>
         <div class="th-content">
             <span class="th-nav col-xs-1">
                 <ul class="nav nav-pills nav-stacked">

@@ -56,8 +56,7 @@
         <span ng-hide="isCollapsedResults"
               ng-class="{'col-xs-8 job-list-pad-left': (isCollapsedRevisions==false), 'col-xs-12 job-list-nopad': (isCollapsedRevisions)}">
             <table class="table-hover">
-                <tr ng-repeat="platform in resultset.platforms | filter:query | filter:platformHasGroups() | orderBy: $filter('platformName')"
-                    ng-show="$(element).find('platform-group')">
+                <tr ng-repeat="platform in resultset.platforms | filter:query | filter:resultStatusFilterPlatform() | orderBy: $filter('platformName')">
                     <td class="col-xs-2 platform"><span>{{ platform.name | platformName:platform.name }} {{ platform.option }}</span></td>
                     <td class="col-xs-10">
                         <span ng-repeat="group in platform.groups"
