@@ -64,15 +64,6 @@ def fetch_hg_push_log(repo_name, repo_url):
     process.run(repo_url+'/json-pushes/?full=1', repo_name)
 
 
-@task(name='fetch-git-push-logs')
-def fetch_git_push_log(repo_name, repo_url):
-    """
-    Run a GitsPushlog etl process
-    """
-    process = GitPushlogProcess()
-    process.run()
-
-
 @task(name='fetch-bugs')
 def fetch_bugs():
     """

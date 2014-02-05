@@ -1,7 +1,11 @@
 from django.core.urlresolvers import reverse
 
+from thclient import TreeherderJobCollection
 
-def test_objectstore_create(webapp, job_sample, jm):
+from tests import test_utils
+
+
+def test_objectstore_create(job_sample, jm):
     """
     test posting data to the objectstore via webtest.
     extected result are:
@@ -10,11 +14,12 @@ def test_objectstore_create(webapp, job_sample, jm):
     - 1 job stored in the objectstore
     """
 
-    resp = webapp.post_json(
-        reverse('objectstore-list',
-                kwargs={'project': jm.project}),
-        params=[job_sample]
-    )
+    tjc = TreeherderJobCollection()
+    tj = tjc.get_job(job_sample)
+    tjc.add(tj)
+
+    resp = test_utils.post_collection(jm.project, tjc)
+
     assert resp.status_int == 200
     assert resp.json['message'] == 'well-formed JSON stored'
 
@@ -76,21 +81,44 @@ def test_objectstore_detail_not_found(webapp, jm):
     assert resp.status_int == 404
 
 
-def test_objectstore_create_bad_project(webapp, job_sample, jm):
+def test_objectstore_with_bad_secret(job_sample, jm):
     """
-    test calling with bad project name.
+    test calling with the wrong project secret.
     extected result are:
-    - return code 404
+    - return code 403
+    - return message authentication failed
+    """
+
+    tjc = TreeherderJobCollection()
+    tj = tjc.get_job(job_sample)
+    tjc.add(tj)
+
+    resp = test_utils.post_collection(
+        jm.project, tjc, status=403, consumer_secret='not so secret'
+        )
+
+    assert resp.status_int == 403
+    assert resp.json['message'] == "Client authentication failed for project, {0}".format(jm.project)
+    assert resp.json['response'] == "invalid_client"
+
+def test_objectstore_with_bad_key(job_sample, jm):
+    """
+    test calling with the wrong project key.
+    extected result are:
+    - return code 403
     - return message failed
     """
 
-    url = reverse('objectstore-list',
-                  kwargs={'project': jm.project})
-    badurl = url.replace(jm.project, "badproject")
-    resp = webapp.post_json(
-        badurl,
-        params=[job_sample],
-        status=404
-    )
-    assert resp.status_int == 404
-    assert resp.json['message'] == "No project with name badproject"
+    tjc = TreeherderJobCollection()
+    tj = tjc.get_job(job_sample)
+    tjc.add(tj)
+
+    resp = test_utils.post_collection(
+        jm.project, tjc, status=403, consumer_key='wrong key'
+        )
+
+    assert resp.status_int == 403
+    assert resp.json['response'] == "access_denied"
+    assert resp.json['message'] == "oauth_consumer_key does not match project, {0}, credentials".format(jm.project)
+
+

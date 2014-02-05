@@ -5,6 +5,18 @@ from django.conf import settings
 
 class SampleData(object):
 
+    @classmethod
+    def get_credentials(cls):
+
+        credentials = {
+            'test_treeherder': {
+                'consumer_key':'8de17836-4a9b-45f5-824c-5ada76713334',
+                'consumer_secret':'0f71d011-d773-4831-9f1c-17b237207467'
+                }
+            }
+
+        return credentials
+
     def __init__(self):
 
         self.job_data_file = "{0}/sample_data/job_data.txt".format(
@@ -61,3 +73,4 @@ class SampleData(object):
     def get_log_path(self, name):
         """Returns the full path to a log file"""
         return "{0}/{1}".format(self.logs_dir, name)
+

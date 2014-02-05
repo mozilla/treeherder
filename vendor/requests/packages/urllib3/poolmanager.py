@@ -1,5 +1,5 @@
 # urllib3/poolmanager.py
-# Copyright 2008-2013 Andrey Petrov and contributors (see CONTRIBUTORS.txt)
+# Copyright 2008-2014 Andrey Petrov and contributors (see CONTRIBUTORS.txt)
 #
 # This module is part of urllib3 and is released under
 # the MIT License: http://www.opensource.org/licenses/mit-license.php
@@ -176,7 +176,7 @@ class ProxyManager(PoolManager):
     Behaves just like :class:`PoolManager`, but sends all requests through
     the defined proxy, using the CONNECT method for HTTPS URLs.
 
-    :param poxy_url:
+    :param proxy_url:
         The URL of the proxy to be used.
 
     :param proxy_headers:
@@ -245,12 +245,11 @@ class ProxyManager(PoolManager):
         u = parse_url(url)
 
         if u.scheme == "http":
-            # It's too late to set proxy headers on per-request basis for
-            # tunnelled HTTPS connections, should use
-            # constructor's proxy_headers instead.
+            # For proxied HTTPS requests, httplib sets the necessary headers
+            # on the CONNECT to the proxy. For HTTP, we'll definitely
+            # need to set 'Host' at the very least.
             kw['headers'] = self._set_proxy_headers(url, kw.get('headers',
                                                                 self.headers))
-            kw['headers'].update(self.proxy_headers)
 
         return super(ProxyManager, self).urlopen(method, url, redirect, **kw)
 

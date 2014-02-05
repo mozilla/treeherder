@@ -5,7 +5,6 @@ import sys
 from django.core.management import call_command
 import pytest
 
-
 def pytest_addoption(parser):
     parser.addoption(
         "--runslow",
@@ -42,7 +41,6 @@ def pytest_sessionstart(session):
 
     # this sets up a clean test-only database
     session.django_db_config = session.django_runner.setup_databases()
-
 
 def pytest_sessionfinish(session):
     """Tear down the test environment, including databases."""
@@ -100,7 +98,6 @@ def initial_data():
     from django.core.management import call_command
 
     call_command('load_initial_data')
-
 
 @pytest.fixture()
 def jm():
@@ -215,13 +212,6 @@ def mock_log_parser(monkeypatch):
 @pytest.fixture
 def result_set_stored(jm, initial_data, sample_resultset):
 
-    """
-    jm.store_result_set_data(
-        sample_resultset['revision_hash'],
-        sample_resultset['push_timestamp'],
-        sample_resultset['revisions']
-    )
-    """
     jm.store_result_set_data(sample_resultset)
 
     return sample_resultset

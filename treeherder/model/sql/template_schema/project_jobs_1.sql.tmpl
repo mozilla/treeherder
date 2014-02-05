@@ -309,7 +309,7 @@ DROP TABLE IF EXISTS `revision`;
 CREATE TABLE `revision` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `revision` varchar(50) COLLATE utf8_bin NOT NULL,
-  `author` varchar(50) COLLATE utf8_bin NOT NULL,
+  `author` varchar(150) COLLATE utf8_bin NOT NULL,
   `comments` text DEFAULT NULL,
   `commit_timestamp` int(11) unsigned default NULL,
   `files` mediumtext COLLATE utf8_bin,

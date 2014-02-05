@@ -55,6 +55,9 @@ treeherder/webapp/static/
 treeherder/webapp/media/builds4hanalysis/builds4h_analysis.json
 treeherder/webapp/media/builds4hanalysis/builds4h_report.txt
 
+#etl data files
+treeherder/etl/data/credentials.json
+
 #docs build directory
 docs/_build/
 
