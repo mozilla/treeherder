@@ -1,8 +1,10 @@
 import simplejson as json
 import itertools
-
+import oauth2 as oauth
+import urllib
 from collections import defaultdict
 
+from django.db import models
 from django.conf import settings
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -10,11 +12,104 @@ from rest_framework.decorators import action, link
 from rest_framework.reverse import reverse
 from rest_framework.exceptions import ParseError
 
+from django.contrib.auth.models import User
+
 from treeherder.model import models
+
 from treeherder.model.derived import (JobsModel, DatasetNotFoundError,
                                       ObjectNotFoundException)
+
 from treeherder.webapp.api.utils import UrlQueryFilter
 
+from treeherder.etl.mixins import OAuthLoaderMixin
+
+
+def oauth_required(func):
+
+    def wrap_oauth(cls, *args, **kwargs):
+
+        # First argument must be request object
+        request = args[0]
+
+        # Get the project keyword argumet
+        project = kwargs.get('project', None)
+
+        # Get the project credentials
+        project_credentials = OAuthLoaderMixin.get_credentials(project)
+
+        if not project_credentials:
+            msg = {
+                'response':"invalid_request",
+                'message':"project, {0}, has no OAuth credentials".format(project)
+                }
+            return Response(msg, 500)
+
+        parameters = OAuthLoaderMixin.get_parameters(request.QUERY_PARAMS)
+
+        oauth_body_hash = parameters.get('oauth_body_hash', None)
+        oauth_signature = parameters.get('oauth_signature', None)
+        oauth_consumer_key = parameters.get('oauth_consumer_key', None)
+        oauth_token = parameters.get('oauth_token', None)
+
+        if not oauth_body_hash or not oauth_signature or not oauth_consumer_key:
+
+            msg = {
+                'response':"invalid_request",
+                'message':"Required oauth parameters not provided in the uri"
+                }
+
+            return Response(msg, 500)
+
+        if oauth_consumer_key != project_credentials['consumer_key']:
+            msg = {
+                'response':"access_denied",
+                'message':"oauth_consumer_key does not match project, {0}, credentials".format(project)
+                }
+
+            return Response(msg, 403)
+
+        scheme = 'http'
+        if 'https' in request.build_absolute_uri():
+            scheme = 'https'
+
+        uri = '{0}://{1}{2}'.format(
+            scheme, request.get_host(), request.path
+            )
+
+        #Construct the OAuth request based on the django request object
+        req_obj = oauth.Request(
+            method=request.method,
+            url=uri,
+            parameters=parameters,
+            body=json.dumps(request.DATA),
+            )
+
+        server = oauth.Server()
+        token = oauth.Token(key='', secret='')
+
+        #Get the consumer object
+        cons_obj = oauth.Consumer(
+            oauth_consumer_key,
+            project_credentials['consumer_secret']
+            )
+
+        #Set the signature method
+        server.add_signature_method(oauth.SignatureMethod_HMAC_SHA1())
+
+        try:
+            #verify oauth django request and consumer object match
+            server.verify_request(req_obj, cons_obj, oauth_token)
+        except oauth.Error:
+            msg = {
+                'response':"invalid_client",
+                'message':"Client authentication failed for project, {0}".format(project)
+                }
+
+            return Response(msg, 403)
+
+        return func(request, *args, **kwargs)
+
+    return wrap_oauth
 
 def with_jobs(model_func):
     """
@@ -59,11 +154,11 @@ class ObjectstoreViewSet(viewsets.ViewSet):
     """
 
     @with_jobs
+    @oauth_required
     def create(self, request, project, jm):
         """
         POST method implementation
         """
-
         job_errors_resp = jm.store_job_data(request.DATA)
 
         resp = {}
@@ -168,6 +263,7 @@ class JobsViewSet(viewsets.ViewSet):
     This viewset is responsible for the jobs endpoint.
 
     """
+
     @with_jobs
     def retrieve(self, request, project, jm, pk=None):
         """
@@ -220,7 +316,38 @@ class JobsViewSet(viewsets.ViewSet):
 
         return Response(objs)
 
+    @action()
     @with_jobs
+    @oauth_required
+    def update_state(self, request, project, jm, pk=None):
+        """
+        Change the state of a job.
+        """
+        state = request.DATA.get('state', None)
+
+        # check that this state is valid
+        if state not in jm.STATES:
+            return Response(
+                {"message": ("'{0}' is not a valid state.  Must be "
+                             "one of: {1}".format(
+                                 state,
+                                 ", ".join(jm.STATES)
+                             ))},
+                status=400,
+            )
+
+        if not pk:  # pragma nocover
+            return Response({"message": "job id required"}, status=400)
+
+        obj = jm.get_job(pk)
+        if obj:
+            jm.set_state(pk, state)
+            return Response({"message": "state updated to '{0}'".format(state)})
+        else:
+            return Response("No job with id: {0}".format(pk), 404)
+
+    @with_jobs
+    @oauth_required
     def create(self, request, project, jm):
         """
         This method adds a job to a given resultset.
@@ -404,6 +531,7 @@ class ResultSetViewSet(viewsets.ViewSet):
 
 
     @with_jobs
+    @oauth_required
     def create(self, request, project, jm):
         """
         POST method implementation

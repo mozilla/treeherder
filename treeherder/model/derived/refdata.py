@@ -1100,7 +1100,9 @@ class RefDataManager(object):
         repository = self.get_repository_info(repository_id)
 
         if repository['dvcs_type'] != 'hg':
-            raise NotImplementedError
+            # TODO: Add handling for git, for now do nothing and return
+            #raise NotImplementedError
+            return
         else:
             version = self.get_hg_repository_version(repository['url'])
 

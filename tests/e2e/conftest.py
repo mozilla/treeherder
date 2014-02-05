@@ -1,11 +1,16 @@
+import os
+import pytest
+import simplejson as json
+from webtest.app import TestApp
+
 from django.core.urlresolvers import reverse
 from django.template import Context, Template
-import pytest
-from webtest.app import TestApp
-import simplejson as json
-from treeherder.webapp.wsgi import application
-import os
 
+from treeherder.webapp.wsgi import application
+
+from thclient import TreeherderJobCollection
+
+from tests import test_utils
 
 @pytest.fixture
 def pending_jobs():
@@ -36,36 +41,48 @@ def completed_jobs(sample_data):
 
 
 @pytest.fixture
-def pending_jobs_stored(jm, pending_jobs, result_set_stored):
+def pending_jobs_stored(
+    jm, pending_jobs, result_set_stored):
     """
     stores a list of buildapi pending jobs into the jobs store
     using BuildApiTreeHerderAdapter
     """
-    pending_jobs.update(result_set_stored[0])
-    url = reverse("jobs-list", kwargs={"project": jm.project})
-    TestApp(application).post_json(url, params=[pending_jobs])
 
+    pending_jobs.update(result_set_stored[0])
+
+    tjc = TreeherderJobCollection(job_type='update')
+    tj = tjc.get_job(pending_jobs)
+    tjc.add(tj)
+
+    test_utils.post_collection(jm.project, tjc)
 
 @pytest.fixture
-def running_jobs_stored(jm, running_jobs, result_set_stored):
+def running_jobs_stored(
+    jm, running_jobs, result_set_stored):
     """
     stores a list of buildapi running jobs into the objectstore
-    using BuildApiTreeHerderAdapter
     """
     running_jobs.update(result_set_stored[0])
-    url = reverse("jobs-list", kwargs={"project": jm.project})
-    TestApp(application).post_json(url, params=[running_jobs])
 
+    tjc = TreeherderJobCollection(job_type='update')
+    tj = tjc.get_job(running_jobs)
+    tjc.add(tj)
+
+    test_utils.post_collection(jm.project, tjc)
 
 @pytest.fixture
-def completed_jobs_stored(jm, completed_jobs, result_set_stored):
+def completed_jobs_stored(
+    jm, completed_jobs, result_set_stored):
     """
     stores a list of buildapi completed jobs into the objectstore
-    using BuildApiTreeHerderAdapter
     """
     completed_jobs['revision_hash'] = result_set_stored[0]['revision_hash']
-    url = reverse('objectstore-list', kwargs={"project": jm.project})
-    TestApp(application).post_json(url, params=[completed_jobs])
+
+    tjc = TreeherderJobCollection()
+    tj = tjc.get_job(completed_jobs)
+    tjc.add(tj)
+
+    test_utils.post_collection(jm.project, tjc)
 
 
 @pytest.fixture

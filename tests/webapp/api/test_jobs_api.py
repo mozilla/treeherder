@@ -2,7 +2,6 @@ import json
 
 from django.core.urlresolvers import reverse
 
-
 def test_job_list(webapp, eleven_jobs_processed, jm):
     """
     test retrieving a list of ten json blobs from the jobs-list

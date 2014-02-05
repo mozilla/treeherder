@@ -583,6 +583,19 @@
         "repository_group": 2,
         "description": ""
     }
+},
+{
+    "pk": 46,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "git",
+        "name": "gaia",
+        "url": "https://github.com/mozilla-b2g/gaia",
+        "active_status": "active",
+        "codebase": "gaia",
+        "repository_group": 3,
+        "description": ""
+    }
 }
 
 ]

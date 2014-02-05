@@ -6,9 +6,10 @@ import os
 
 from collections import defaultdict
 from django.conf import settings
+from thclient import TreeherderRequest, TreeherderJobCollection
 
 from treeherder.etl import common, buildbot
-from treeherder.etl.mixins import JsonExtractorMixin, ObjectstoreLoaderMixin, JobsLoaderMixin
+from treeherder.etl.mixins import JsonExtractorMixin, OAuthLoaderMixin
 from treeherder.model.models import Datasource
 
 
@@ -70,7 +71,6 @@ class Builds4hTransformerMixin(object):
         transform the builds4h structure into something we can ingest via
         our restful api
         """
-        job_list = []
         revisions = defaultdict(list)
 
         projects = set(x.project for x in Datasource.objects.cached())
@@ -87,7 +87,7 @@ class Builds4hTransformerMixin(object):
                 continue
 
             prop['revision'] = prop.get('revision',
-                            prop.get('got_revision',
+                                prop.get('got_revision',
                                 prop.get('sourcestamp', None)))
 
             if not prop['revision']:
@@ -99,6 +99,9 @@ class Builds4hTransformerMixin(object):
 
         revisions_lookup = common.lookup_revisions(revisions)
 
+        # Holds one collection per unique branch/project
+        th_collections = {}
+
         for build in data['builds']:
             prop = build['properties']
 
@@ -108,12 +111,15 @@ class Builds4hTransformerMixin(object):
                 # this branch is not one of those we care about
                 continue
 
+            project = prop['branch']
+
             treeherder_data = {
                 'revision_hash': resultset['revision_hash'],
                 'resultset_id': resultset['id'],
-                'project': prop['branch'],
+                'project': project,
                 'coalesced': []
             }
+
 
             platform_info = buildbot.extract_platform_info(prop['buildername'])
             job_name_info = buildbot.extract_name_info(prop['buildername'])
@@ -175,9 +181,16 @@ class Builds4hTransformerMixin(object):
             }
 
             treeherder_data['job'] = job
-            job_list.append(common.JobData(treeherder_data))
 
-        return job_list
+            if project not in th_collections:
+                th_collections[ project ] = TreeherderJobCollection()
+
+            # get treeherder job instance and add the job instance
+            # to the collection instance
+            th_job = th_collections[project].get_job(treeherder_data)
+            th_collections[project].add( th_job )
+
+        return th_collections
 
 
 class PendingTransformerMixin(object):
@@ -187,7 +200,6 @@ class PendingTransformerMixin(object):
         transform the buildapi structure into something we can ingest via
         our restful api
         """
-        job_list = []
 
         projects = set(x.project for x in Datasource.objects.cached())
         revision_dict = defaultdict(list)
@@ -202,6 +214,8 @@ class PendingTransformerMixin(object):
                 revision_dict[project].append(rev)
         # retrieving the revision->resultset lookups
         revisions_lookup = common.lookup_revisions(revision_dict)
+
+        th_collections = {}
 
         for project, revisions in revisions_lookup.items():
 
@@ -253,8 +267,17 @@ class PendingTransformerMixin(object):
                     }
                     treeherder_data['job'] = job
 
-                    job_list.append(common.JobData(treeherder_data))
-            return job_list
+                    if project not in th_collections:
+                        th_collections[ project ] = TreeherderJobCollection(
+                            job_type='update'
+                            )
+
+                    # get treeherder job instance and add the job instance
+                    # to the collection instance
+                    th_job = th_collections[project].get_job(treeherder_data)
+                    th_collections[project].add(th_job)
+
+        return th_collections
 
 
 class RunningTransformerMixin(object):
@@ -264,7 +287,6 @@ class RunningTransformerMixin(object):
         transform the buildapi structure into something we can ingest via
         our restful api
         """
-        job_list = []
         projects = set(x.project for x in Datasource.objects.cached())
         revision_dict = defaultdict(list)
 
@@ -279,6 +301,8 @@ class RunningTransformerMixin(object):
 
         # retrieving the revision->resultset lookups
         revisions_lookup = common.lookup_revisions(revision_dict)
+
+        th_collections = {}
 
         for project, revisions in revisions_lookup.items():
 
@@ -333,13 +357,22 @@ class RunningTransformerMixin(object):
 
                     treeherder_data['job'] = job
 
-                    job_list.append(common.JobData(treeherder_data))
-        return job_list
+                    if project not in th_collections:
+                        th_collections[ project ] = TreeherderJobCollection(
+                            job_type='update'
+                            )
+
+                    # get treeherder job instance and add the job instance
+                    # to the collection instance
+                    th_job = th_collections[project].get_job(treeherder_data)
+                    th_collections[project].add(th_job)
+
+        return th_collections
 
 
 class Builds4hJobsProcess(JsonExtractorMixin,
                           Builds4hTransformerMixin,
-                          ObjectstoreLoaderMixin):
+                          OAuthLoaderMixin):
     def run(self):
         extracted_content = self.extract(settings.BUILDAPI_BUILDS4H_URL)
         if extracted_content:
@@ -350,7 +383,7 @@ class Builds4hJobsProcess(JsonExtractorMixin,
 
 class PendingJobsProcess(JsonExtractorMixin,
                          PendingTransformerMixin,
-                         JobsLoaderMixin):
+                         OAuthLoaderMixin):
     def run(self):
         extracted_content = self.extract(settings.BUILDAPI_PENDING_URL)
         if extracted_content:
@@ -361,7 +394,7 @@ class PendingJobsProcess(JsonExtractorMixin,
 
 class RunningJobsProcess(JsonExtractorMixin,
                          RunningTransformerMixin,
-                         JobsLoaderMixin):
+                         OAuthLoaderMixin):
     def run(self):
         extracted_content = self.extract(settings.BUILDAPI_RUNNING_URL)
         if extracted_content:
@@ -511,20 +544,28 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
             # found in the analysis file
             with open(self.builds4h_analysis_file_path) as f:
                 data = f.read()
-                deserialized_data = json.loads(data)
+
+                deserialized_data = {}
+                if data:
+                    deserialized_data = json.loads(data)
 
                 self.report_obj['guids'] = deserialized_data.get('guids', {})
 
-                for analysis_type in deserialized_data['analyzers']:
-                    self.report_obj['analyzers'][analysis_type]['data'] = \
-                        deserialized_data['analyzers'][analysis_type]
+                if 'analyzers' in deserialized_data:
+                    for analysis_type in deserialized_data['analyzers']:
+                        self.report_obj['analyzers'][analysis_type]['data'] = \
+                            deserialized_data['analyzers'][analysis_type]
 
     def get_blacklist(self):
 
         if os.path.isfile(self.builds4h_blacklist_file_path):
             with open(self.builds4h_blacklist_file_path) as f:
                 data = f.read()
-                deserialized_data = json.loads(data)
+
+                deserialized_data = []
+                if data:
+                    deserialized_data = json.loads(data)
+
                 self.blacklist = set(deserialized_data)
 
     def write_report(self):
