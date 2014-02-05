@@ -572,11 +572,11 @@ class BugJobMapViewSet(viewsets.ViewSet):
         """
         Add a new relation between a job and a bug
         """
-        jm.insert_bug_job_map(
-            request.DATA['job_id'],
-            request.DATA['bug_id'],
-            request.DATA['type']
-        )
+        job_id, bug_id = map(int, (request.DATA['job_id'],
+                             request.DATA['bug_id']))
+
+        jm.insert_bug_job_map(job_id, bug_id,
+                              request.DATA['type'])
 
         return Response({"message": "Bug job map stored"})
 
@@ -586,7 +586,7 @@ class BugJobMapViewSet(viewsets.ViewSet):
         Delete bug-job-map entry. pk is a composite key in the form
         bug_id-job_id
         """
-        job_id, bug_id = pk.split("-")
+        job_id, bug_id = map(int, pk.split("-"))
         jm.delete_bug_job_map(job_id, bug_id)
         return Response({"message": "Bug job map deleted"})
 
@@ -596,7 +596,7 @@ class BugJobMapViewSet(viewsets.ViewSet):
         Retrieve a bug-job-map entry. pk is a composite key in the form
         bug_id-job_id
         """
-        job_id, bug_id = pk.split("-")
+        job_id, bug_id = map(int, pk.split("-"))
         params = {
             "bug_id": bug_id,
             "job_id": job_id
