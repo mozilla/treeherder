@@ -1,4 +1,21 @@
 <div id="accordion-panel" class="tabbable">
+    <span >
+        <ul class="nav nav-pills">
+            <li ng-click="isFilterPanelHidden = false">
+                <a data-target="#filter" data-toggle="tab">filter</a>
+            </li>
+            <li ng-click="isFilterPanelHidden = false">
+                <a data-target="#pinbucket" data-toggle="tab">pinbucket</a>
+
+            </li>
+            <li class="accordion-panel-hide-button"
+                ng-click="isFilterPanelHidden = true"
+                ng-hide="isFilterPanelHidden"
+                title="hide">
+                <i class="glyphicon glyphicon-chevron-up"></i>
+            </li>
+        </ul>
+    </span>
     <div class="tab-content" collapse="isFilterPanelHidden">
         <div id="filter" class="tab-pane active">
 		    <div class="well well-lg">
@@ -24,21 +41,4 @@
 		    <div class="well well-lg">pin bucket</div>
         </div>
     </div>
-    <span >
-        <ul class="nav nav-tabs">
-            <li ng-click="isFilterPanelHidden = false">
-                <a data-target="#filter" data-toggle="tab">filter</a>
-            </li>
-            <li ng-click="isFilterPanelHidden = false">
-                <a data-target="#pinbucket" data-toggle="tab">pinbucket</a>
-
-            </li>
-            <li class="accordion-panel-hide-button"
-                ng-click="isFilterPanelHidden = true"
-                ng-hide="isFilterPanelHidden"
-                title="hide">
-                <i class="glyphicon glyphicon-chevron-up"></i>
-            </li>
-        </ul>
-    </span>
 </div>

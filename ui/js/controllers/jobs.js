@@ -3,7 +3,7 @@
 treeherder.controller('JobsCtrl',
     function JobsCtrl($scope, $http, $rootScope, $routeParams, $log, $cookies,
                       localStorageService, thUrl, thRepos, thSocket,
-                      thResultSetModelManager, thResultStatusList) {
+                      thResultSetModel, thResultStatusList) {
 
         // handle the most recent used repos
         $rootScope.update_mru_repos = function(repo){
@@ -27,7 +27,7 @@ treeherder.controller('JobsCtrl',
         // load our initial set of resultsets
         // scope needs this function so it can be called directly by the user, too.
         $scope.fetchResultSets = function(count) {
-            thResultSetModelManager.fetchResultSets(count);
+            thResultSetModel.fetchResultSets(count);
         };
 
         // set the default repo to mozilla-inbound if not specified
@@ -39,10 +39,10 @@ treeherder.controller('JobsCtrl',
         }
 
         // the primary data model
-        thResultSetModelManager.init(60000, $scope.repoName);
+        thResultSetModel.init(60000, $scope.repoName);
 
-        $scope.isLoadingRsBatch = thResultSetModelManager.loadingStatus;
-        $scope.result_sets = thResultSetModelManager.getResultSetsArray();
+        $scope.isLoadingRsBatch = thResultSetModel.loadingStatus;
+        $scope.result_sets = thResultSetModel.getResultSetsArray();
         $scope.statusList = thResultStatusList;
 
         $rootScope.update_mru_repos($scope.repoName);
@@ -64,7 +64,7 @@ treeherder.controller('JobsCtrl',
 treeherder.controller('ResultSetCtrl',
     function ResultSetCtrl($scope, $rootScope, $http, $log,
                            thUrl, thServiceDomain, thResultStatusInfo,
-                           thResultSetModelManager) {
+                           thResultSetModel) {
 
         $scope.getCountClass = function(resultStatus) {
             return thResultStatusInfo(resultStatus).btnClass;
@@ -101,7 +101,7 @@ treeherder.controller('ResultSetCtrl',
                 // we are expanding the revisions list.  It may be the first
                 // time, so attempt to populate this resultset's revisions
                 // list, if it isn't already
-                thResultSetModelManager.loadRevisions($scope.resultset.id);
+                thResultSetModel.loadRevisions($scope.resultset.id);
             }
 
         };

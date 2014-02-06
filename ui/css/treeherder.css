@@ -1,5 +1,5 @@
 body {
-    padding-top: 80px;
+    padding-top: 100px;
     padding-bottom: 500px;
     min-width: 1300px;
     width: auto !important;
@@ -101,6 +101,10 @@ body {
 }
 .th-failures-box li a{
     color: #428bca;
+}
+
+.view-nav {
+    background-color: #6a6a6a;
 }
 
 .th-revision-btn {

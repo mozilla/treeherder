@@ -32,7 +32,7 @@ treeherder.factory('thResultSets',
     };
 }]);
 
-treeherder.factory('thResultSetModelManager',
+treeherder.factory('thResultSetModel',
                    ['$log', '$rootScope', 'thResultSets', 'thSocket', 'thJobs',
                    function($log, $rootScope, thResultSets, thSocket, thJobs) {
 

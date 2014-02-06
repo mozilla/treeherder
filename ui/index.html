@@ -32,25 +32,25 @@
                     <span class="label label-info">0 unstarred</span>
                 </span>
 
-                <form class="navbar-form navbar-left pull-right"
-                      role="search">
-                    <div class="form-group">
-                            <input type="text" ng-model="query" class="form-control" placeholder="Search">
-                    </div>
-                </form>
-            </div>
             <th-accordion-panel></th-accordion-panel>
-        </nav>
-        <!-- nav end -->
-        <div class="accordion-padding" ng-hide="isFilterPanelHidden"></div>
-        <div class="th-content">
-            <span class="th-nav col-xs-1">
-                <ul class="nav nav-pills nav-stacked">
+                <!--<form class="navbar-form navbar-left pull-right"-->
+                      <!--role="search">-->
+                    <!--<div class="form-group">-->
+                            <!--<input type="text" ng-model="query" class="form-control" placeholder="Search">-->
+                    <!--</div>-->
+                <!--</form>-->
+            </div>
+            <div>
+                <ul class="nav nav-pills view-nav">
                     <li><a ng-class="{'active': (routeIs('jobs'))}" href="#/jobs">Jobs</a></li>
                     <li><a ng-class="{'active': (routeIs('timeline'))}" href="#/timeline">Timeline</a></li>
                     <li><a ng-class="{'active': (routeIs('machines'))}" href="#/machines">Machines</a></li>
                 </ul>
-            </span>
+            </div>
+        </nav>
+        <!-- nav end -->
+        <div class="accordion-padding" ng-hide="isFilterPanelHidden"></div>
+        <div class="th-content">
 
             <span class="th-view-content col-xs-11" ng-cloak>
                 <div class="alert"
