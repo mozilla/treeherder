@@ -107,6 +107,11 @@ body {
     background-color: #6a6a6a;
 }
 
+.view-nav a {
+    color: lightgray;
+
+}
+
 .th-revision-btn {
     margin-left: 10px;
     width: calc(100% - 170px);
