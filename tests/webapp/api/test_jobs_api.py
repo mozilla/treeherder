@@ -126,21 +126,3 @@ def test_job_detail_not_found(webapp, jm):
         expect_errors=True
     )
     assert resp.status_int == 404
-
-
-def test_retrieve_result_set(jm, webapp, eleven_jobs_processed):
-    resp = webapp.get(
-        reverse("resultset-list",
-                kwargs={"project": jm.project})
-    )
-    assert resp.status_int == 200
-    assert isinstance(resp.json, list)
-
-
-def test_retrieve_result_set_detail(jm, webapp, eleven_jobs_processed):
-    job = jm.get_job_list(0, 1)[0]
-    resp = webapp.get(
-        reverse("resultset-detail",
-                kwargs={"project": jm.project, "pk": job["id"]})
-    )
-    assert resp.status_int == 200

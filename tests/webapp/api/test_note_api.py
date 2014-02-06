@@ -1,8 +1,4 @@
-import json
-import pytest
 from django.core.urlresolvers import reverse
-
-xfail = pytest.mark.xfail
 
 
 def test_note_list(webapp, sample_notes, jm):
@@ -142,5 +138,3 @@ def test_create_note(webapp, eleven_jobs_processed, jm):
         u'active_status': u'active',
         u'id': 1
     }
-
-

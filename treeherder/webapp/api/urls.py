@@ -40,6 +40,12 @@ project_bound_router.register(
     base_name='revision-lookup',
 )
 
+project_bound_router.register(
+    r'bug-job-map',
+    views.BugJobMapViewSet,
+    base_name='bug-job-map',
+)
+
 
 # this is the default router for plain restful endpoints
 

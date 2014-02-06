@@ -301,12 +301,13 @@ class JobsViewSet(viewsets.ViewSet):
         GET method implementation for list view
 
         """
-        filters = UrlQueryFilter(request.QUERY_PARAMS).parse()
+        filter = UrlQueryFilter(request.QUERY_PARAMS)
 
-        limit_condition = filters.pop("limit", set([("=", "0,10")])).pop()
-        offset, limit = limit_condition[1].split(",")
-        full = request.QUERY_PARAMS.get('full', 'true').lower() == 'true'
-        objs = jm.get_job_list(offset, limit, full, filters)
+        offset = filter.pop("offset", 0)
+        count = filter.pop("count", 10)
+
+        full = filter.pop('full', 'true').lower() == 'true'
+        objs = jm.get_job_list(offset, count, full, filter.conditions)
 
         if objs:
             option_collections = jm.refdata_model.get_all_option_collections()
@@ -373,17 +374,17 @@ class ResultSetViewSet(viewsets.ViewSet):
 
         """
 
-        filters = UrlQueryFilter(request.QUERY_PARAMS).parse()
+        filter = UrlQueryFilter(request.QUERY_PARAMS)
 
-        limit_condition = filters.pop("limit", set([("=", "0,10")])).pop()
-        offset, limit = limit_condition[1].split(",")
-        full = request.QUERY_PARAMS.get('full', "true").lower() == "true"
+        offset = filter.pop("offset", 0)
+        count = filter.pop("count", 10)
+        full = filter.pop('full', 'true').lower() == 'true'
 
         objs = jm.get_result_set_list(
             offset,
-            limit,
+            count,
             full,
-            filters
+            filter.conditions
         )
         return Response(self.get_resultsets_with_jobs(jm, objs, full, {}))
 
@@ -392,11 +393,11 @@ class ResultSetViewSet(viewsets.ViewSet):
         """
         GET method implementation for detail view of ``resultset``
         """
-        filters = UrlQueryFilter({"id": pk}).parse()
+        filter = UrlQueryFilter({"id": pk})
 
-        full = request.QUERY_PARAMS.get('full', "true").lower() == "true"
+        full = filter.pop('full', 'true').lower() == 'true'
 
-        objs = jm.get_result_set_list(0, 1, full, filters)
+        objs = jm.get_result_set_list(0, 1, full, filter.conditions)
         if objs:
             rs = self.get_resultsets_with_jobs(jm, objs, full, {})
             return Response(rs[0])
@@ -562,6 +563,67 @@ class RevisionLookupSetViewSet(viewsets.ViewSet):
         revision_list = revision_filter.split(",")
 
         return Response(jm.get_revision_resultset_lookup(revision_list))
+
+
+class BugJobMapViewSet(viewsets.ViewSet):
+
+    @with_jobs
+    def create(self, request, project, jm):
+        """
+        Add a new relation between a job and a bug
+        """
+        job_id, bug_id = map(int, (request.DATA['job_id'],
+                             request.DATA['bug_id']))
+
+        jm.insert_bug_job_map(job_id, bug_id,
+                              request.DATA['type'])
+
+        return Response({"message": "Bug job map stored"})
+
+    @with_jobs
+    def destroy(self, request, project, jm, pk=None):
+        """
+        Delete bug-job-map entry. pk is a composite key in the form
+        bug_id-job_id
+        """
+        job_id, bug_id = map(int, pk.split("-"))
+        jm.delete_bug_job_map(job_id, bug_id)
+        return Response({"message": "Bug job map deleted"})
+
+    @with_jobs
+    def retrieve(self, request, project, jm, pk=None):
+        """
+        Retrieve a bug-job-map entry. pk is a composite key in the form
+        bug_id-job_id
+        """
+        job_id, bug_id = map(int, pk.split("-"))
+        params = {
+            "bug_id": bug_id,
+            "job_id": job_id
+        }
+        params.update(request.QUERY_PARAMS)
+        filter = UrlQueryFilter(params)
+        obj = jm.get_bug_job_map_list(0, 1, filter.conditions)
+        if obj:
+            return Response(obj[0])
+        else:
+            return Response("Object not found", 404)
+
+
+
+    @with_jobs
+    def list(self, request, project, jm):
+        filter = UrlQueryFilter(request.QUERY_PARAMS)
+
+        offset = filter.pop("offset", 0)
+        count = filter.pop("count", 10)
+
+        objs = jm.get_bug_job_map_list(
+            offset,
+            count,
+            filter.conditions
+        )
+        return Response(objs)
 
 
 

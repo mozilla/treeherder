@@ -63,6 +63,11 @@ class JobsModel(TreeherderModelBase):
         ],
         "result_set": [
             "id"
+        ],
+        "bug_job_map": [
+            "job_id",
+            "bug_id",
+            "type"
         ]
 
     }
@@ -116,31 +121,18 @@ class JobsModel(TreeherderModelBase):
 
     def get_job_list(self, offset, limit, full=True, conditions=None):
         """
-        Retrieve a list of jobs.
-        Mainly used by the restful api to list the jobs
-
-        joblist: a list of job ids to limit which jobs are returned.
-        full: whether to return all reference data or just what is
-              needed for the UI.
+        Retrieve a list of jobs. It's mainly used by the restful api to list
+        the jobs. The conditions parameter is a dict containing a set of
+        conditions for each key. e.g.:
+        {
+            'who': set([('=', 'john')]),
+            'result': set([('IN', ("success", "retry"))])
+        }
         """
 
-        placeholders = []
-        replace_str = ""
-        if conditions:
-            for column, condition in conditions.items():
-                if column in self.INDEXED_COLUMNS["job"]:
-                    for operator, value in condition:
-                        replace_str += "AND j.{0} {1}".format(column, operator)
-                        if operator == "IN":
-                            # create a list of placeholders of the same length
-                            # as the list of values
-                            replace_str += "({0})".format(
-                                ",".join(["%s"] * len(value))
-                            )
-                            placeholders += value
-                        else:
-                            replace_str += " %s "
-                            placeholders.append(value)
+        replace_str, placeholders = self._process_conditions(
+            conditions, self.INDEXED_COLUMNS['job'], prefix="j."
+        )
 
         repl = [self.refdata_model.get_db_name(), replace_str]
 
@@ -157,6 +149,27 @@ class JobsModel(TreeherderModelBase):
         )
         return data
 
+    def _process_conditions(self, conditions, allowed_fields=None, prefix=""):
+        """Transform a list of conditions into a list of placeholders and
+        replacement strings to feed a datahub.execute statement."""
+        placeholders = []
+        replace_str = ""
+        if conditions:
+            for column, condition in conditions.items():
+                if allowed_fields is None or column in allowed_fields:
+                    for operator, value in condition:
+                        replace_str += "AND {0}{1} {2}".format(prefix, column, operator)
+                        if operator == "IN":
+                            # create a list of placeholders of the same length
+                            # as the list of values
+                            replace_str += "({0})".format(
+                                ",".join(["%s"] * len(value))
+                            )
+                            placeholders += value
+                        else:
+                            replace_str += " %s "
+                            placeholders.append(value)
+        return replace_str, placeholders
 
     def set_state(self, job_id, state):
         """Update the state of an existing job"""
@@ -230,6 +243,7 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG
         )
 
+
         self.get_jobs_dhub().execute(
             proc='jobs.updates.update_last_job_classification',
             placeholders=[
@@ -238,6 +252,64 @@ class JobsModel(TreeherderModelBase):
             ],
             debug_show=self.DEBUG
         )
+
+
+    def insert_bug_job_map(self, job_id, bug_id, assignment_type):
+        """
+        Store a new relation between the given job and bug ids.
+        """
+        self.get_jobs_dhub().execute(
+            proc='jobs.inserts.insert_bug_job_map',
+            placeholders=[
+                job_id,
+                bug_id,
+                assignment_type
+            ],
+            debug_show=self.DEBUG
+        )
+
+    def delete_bug_job_map(self, job_id, bug_id):
+        """
+        Delete a bug-job entry identified by bug_id and job_id
+        """
+        self.get_jobs_dhub().execute(
+            proc='jobs.deletes.delete_bug_job_map',
+            placeholders=[
+                job_id,
+                bug_id
+            ],
+            debug_show=self.DEBUG
+        )
+
+    def get_bug_job_map_list(self, offset, limit, conditions=None):
+        """
+        Retrieve a list of bug_job_map entries. The conditions parameter is a
+        dict containing a set of conditions for each key. e.g.:
+        {
+            'job_id': set([('IN', (1, 2))])
+        }
+        """
+
+        replace_str, placeholders = self._process_conditions(
+            conditions, self.INDEXED_COLUMNS['bug_job_map']
+        )
+
+        repl = [replace_str]
+
+        proc = "jobs.selects.get_bug_job_map"
+
+        print repl
+        print placeholders
+
+        data = self.get_jobs_dhub().execute(
+            proc=proc,
+            replace=repl,
+            placeholders=placeholders,
+            limit="{0},{1}".format(offset, limit),
+            debug_show=self.DEBUG,
+        )
+        return data
+
 
     def get_result_set_ids(self, revision_hashes, where_in_list):
         """Return the  a dictionary of revision_hash to id mappings given
@@ -277,24 +349,10 @@ class JobsModel(TreeherderModelBase):
 
         Mainly used by the restful api to list the pushes in the UI
         """
-        placeholders = []
-        replace_str = ""
 
-        if conditions:
-            for column, condition in conditions.items():
-                if column in self.INDEXED_COLUMNS["result_set"]:
-                    for operator, value in condition:
-                        replace_str += "AND rs.{0} {1}".format(column, operator)
-                        if operator == "IN":
-                            # create a list of placeholders of the same length
-                            # as the list of values
-                            replace_str += "({0})".format(
-                                ",".join(["%s"] * len(value))
-                            )
-                            placeholders += value
-                        else:
-                            replace_str += " %s "
-                            placeholders.append(value)
+        replace_str, placeholders = self._process_conditions(
+            conditions, self.INDEXED_COLUMNS['result_set'], prefix="rs."
+        )
 
         # If a push doesn't have jobs we can just
         # message the user, it would save us a very expensive join
