@@ -22,6 +22,7 @@ body {
 
 .navbar-fixed-top {
     border-bottom: 0px;
+    background-color: #273038;
 }
 
 .th-content {
@@ -104,7 +105,7 @@ body {
 }
 
 .view-nav {
-    background-color: #6a6a6a;
+    background-color: #353f47;
 }
 
 .view-nav a {
