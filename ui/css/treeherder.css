@@ -1,5 +1,5 @@
 body {
-    padding-top: 100px;
+    padding-top: 64px;
     padding-bottom: 500px;
     min-width: 800px;
     width: auto !important;
@@ -39,7 +39,7 @@ body {
 }
 
 .th-help-link {
-    padding-top: 6px;
+    padding-top: 8px;
 }
 
 .th-context-navbar {
@@ -122,8 +122,12 @@ body {
     border-top-color: transparent;
 }
 
-.accordion-padding {
-    height: 166px;
+.view-options-panel-padding {
+    height: 106px;
+}
+
+.repo-panel-padding {
+    height: 192px;
 }
 
 .th-failures-box {
@@ -809,6 +813,10 @@ fieldset[disabled] .btn-pink.active {
 
 .white, .white a {
     color: white;
+}
+
+.lightgray, .lightgray a {
+    color: lightgray;
 }
 
 #help.dt, #help.dd { text-align: center;}

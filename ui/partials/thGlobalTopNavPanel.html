@@ -14,14 +14,22 @@
         </span>
         <span class="pull-right">
             <span class="btn btn-view-nav dropdown-toggle"
-                  ng-click="isRepoPanelShowing=!isRepoPanelShowing"
-                  >repos  <span class="caret white"></span></span>
-            <span class="btn btn-view-nav"
-                  ng-class="{'active': (locationPath===viewOption)}"
-                  ng-click="isViewOptionsPanelShowing=!isViewOptionsPanelShowing"
-                  >options <span class="caret"></span>
+                  ng-class="{'active': (isRepoPanelShowing)}"
+                  ng-click="isRepoPanelShowing=!isRepoPanelShowing"><span>repos</span>
+                <i class="glyphicon glyphicon-chevron-down lightgray"
+                   ng-hide="isRepoPanelShowing"></i>
+                <i class="glyphicon glyphicon-chevron-up lightgray"
+                   ng-show="isRepoPanelShowing"></i>
             </span>
-            <a class="th-help-link" href="help.html" target="_blank">Help</a>
+            <span class="btn btn-view-nav"
+                  ng-class="{'active': (isViewOptionsPanelShowing)}"
+                  ng-click="isViewOptionsPanelShowing=!isViewOptionsPanelShowing"><span>options</span>
+                <i class="glyphicon glyphicon-chevron-down lightgray"
+                   ng-hide="isViewOptionsPanelShowing"></i>
+                <i class="glyphicon glyphicon-chevron-up lightgray"
+                   ng-show="isViewOptionsPanelShowing"></i>
+            </span>
+            <a class="btn btn-view-nav" href="help.html" target="_blank">help</a>
         </span>
 
     </div>
