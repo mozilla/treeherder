@@ -200,17 +200,26 @@ class ArtifactViewSet(viewsets.ViewSet):
     @with_jobs
     def retrieve(self, request, project, jm, pk=None):
         """
-        GET method implementation for an artifact blob
-
+        retrieve a single instance of job_artifact
         """
-        obj = jm.get_job_artifact(pk)
-        if obj:
-            art_obj = obj[0]
-            if art_obj["type"] == "json":
-                art_obj["blob"] = json.loads(art_obj["blob"])
-            return Response(art_obj)
+        filter = UrlQueryFilter({"id": pk})
+
+        objs = jm.get_job_artifact_list(0, 1, filter.conditions)
+        if objs:
+            return Response(objs[0])
         else:
-            return Response("No artifact with id: {0}".format(pk), 404)
+            return Response("job_artifact {0} not found".format(pk), 404)
+
+    @with_jobs
+    def list(self, request, project, jm):
+        """
+        return a list of job artifacts
+        """
+        offset = int(request.QUERY_PARAMS.get('offset', 0))
+        count = int(request.QUERY_PARAMS.get('count', 10))
+        objs = jm.get_job_artifact_list(offset, count)
+        return Response(objs)
+
 
 
 

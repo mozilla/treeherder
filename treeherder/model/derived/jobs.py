@@ -68,6 +68,12 @@ class JobsModel(TreeherderModelBase):
             "job_id",
             "bug_id",
             "type"
+        ],
+        "job_artifact": [
+            "id",
+            "job_id",
+            "name",
+            "type"
         ]
 
     }
@@ -202,13 +208,34 @@ class JobsModel(TreeherderModelBase):
         )
         return data
 
-    def get_job_artifact(self, id):
-        """Return the job artifact blob by id."""
+    def get_job_artifact_list(self, offset, limit, conditions=None):
+        """
+        Retrieve a list of job artifacts. The conditions parameter is a
+        dict containing a set of conditions for each key. e.g.:
+        {
+            'job_id': set([('IN', (1, 2))])
+        }
+        """
+
+        replace_str, placeholders = self._process_conditions(
+            conditions, self.INDEXED_COLUMNS['job_artifact']
+        )
+
+        repl = [replace_str]
+
+        proc = "jobs.selects.get_job_artifact"
+
         data = self.get_jobs_dhub().execute(
-            proc="jobs.selects.get_job_artifact",
-            placeholders=[id],
+            proc=proc,
+            replace=repl,
+            placeholders=placeholders,
+            limit="{0},{1}".format(offset, limit),
             debug_show=self.DEBUG,
         )
+        for artifact in data:
+            if artifact["type"] == "json":
+                artifact["blob"] = json.loads(artifact["blob"])
+
         return data
 
     def get_job_note(self, id):
@@ -297,9 +324,6 @@ class JobsModel(TreeherderModelBase):
         repl = [replace_str]
 
         proc = "jobs.selects.get_bug_job_map"
-
-        print repl
-        print placeholders
 
         data = self.get_jobs_dhub().execute(
             proc=proc,
