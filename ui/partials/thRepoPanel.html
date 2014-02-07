@@ -1,0 +1,5 @@
+<div id="repos" class="th-top-nav-options-panel">
+    <span ng-repeat="item in repos | orderBy:'name'" class="btn btn-default">
+        <a href="" ng-click="changeRepo(item.name)">{{item.name}}</a>
+    </span>
+</div>

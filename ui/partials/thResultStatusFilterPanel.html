@@ -1,0 +1,24 @@
+<div id="filter" class="th-top-nav-options-panel">
+    <div>
+        <span ng-repeat="group in filterGroups" class="th-filter-group">
+            <div>
+            <button class="btn btn-view-nav btn-sm"
+                    ng-click="toggleGroup(group.resultStatuses)">{{group.name}}</button>
+            </div>
+            <label ng-repeat="filter in group.resultStatuses"
+                   class="checkbox-inline">
+                <input type="checkbox"
+                       id="{{filter}}"
+                       ng-model="resultStatusFilters[filter]"> {{filter}}
+            </label>
+        </span>
+        <span class="th-filter-group">
+            <div>
+                <span class="label label-default">Classified</span>
+            </div>
+            <label class="checkbox-inline" title="classified jobs">
+                <input type="checkbox" id="classified" value="classified" checked> classified
+            </label>
+        </span>
+    </div>
+</div>

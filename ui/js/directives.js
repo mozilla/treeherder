@@ -25,6 +25,22 @@ treeherder.directive('thJobsTopNavPanel', function () {
     };
 });
 
+treeherder.directive('thResultStatusFilterPanel', function () {
+
+    return {
+        restrict: "E",
+        templateUrl: 'partials/thResultStatusFilterPanel.html'
+    };
+});
+
+treeherder.directive('thRepoPanel', function () {
+
+    return {
+        restrict: "E",
+        templateUrl: 'partials/thRepoPanel.html'
+    };
+});
+
 treeherder.directive('ngRightClick', function($parse) {
     return function(scope, element, attrs) {
         var fn = $parse(attrs.ngRightClick);

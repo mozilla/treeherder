@@ -19,7 +19,7 @@ treeherder.controller('MainCtrl',
         };
 
         // detect window width and put it in scope so items can react to
-        // a narrow window
+        // a narrow/wide window
         $scope.getWidth = function() {
             return $(window).width();
         };
@@ -93,7 +93,7 @@ treeherder.controller('MainCtrl',
             var isNotChecked = function(rs) {return !$scope.resultStatusFilters[rs];};
             var check = function(rs) {$scope.resultStatusFilters[rs] = tf;};
 
-            var tf = !_.every(resultStatuses, isNotChecked);
+            var tf = _.every(resultStatuses, isNotChecked);
             _.each(resultStatuses, check);
 
         };

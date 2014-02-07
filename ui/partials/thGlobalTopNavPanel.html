@@ -5,21 +5,29 @@
     <div class="navbar-collapse collapse th-global-navbar">
         <!-- nav begin -->
         <span class="nav navbar-nav">
-            <span class="btn-group" ng-repeat="viewOption in ['jobs', 'timeline', 'machines']">
+            <span class="btn-group"
+                  ng-repeat="viewOption in ['jobs', 'timeline', 'machines']">
                 <a class="btn btn-view-nav"
                    ng-class="{'active': (locationPath===viewOption)}"
                    href="#/{{viewOption}}">{{viewOption}}</a>
-                <span class="btn btn-view-nav dropdown-toggle"
-                      ng-class="{'active': (locationPath===viewOption)}"
-                      data-toggle="dropdown">
-                    <span class="caret"></span>
-                </span>
             </span>
         </span>
-        <span class="divider-vertical"></span>
-        <span class="pull-right th-help-link"><a href="help.html" target="_blank">Help</a></span>
+        <span class="pull-right">
+            <span class="btn btn-view-nav dropdown-toggle"
+                  ng-click="isRepoPanelShowing=!isRepoPanelShowing"
+                  >repos  <span class="caret white"></span></span>
+            <span class="btn btn-view-nav"
+                  ng-class="{'active': (locationPath===viewOption)}"
+                  ng-click="isViewOptionsPanelShowing=!isViewOptionsPanelShowing"
+                  >options <span class="caret"></span>
+            </span>
+            <a class="th-help-link" href="help.html" target="_blank">Help</a>
+        </span>
 
     </div>
-    <!--<th-accordion-panel class="pull-right"></th-accordion-panel>-->
+    <div ng-show="isViewOptionsPanelShowing">
+        <th-result-status-filter-panel ng-show="locationPath==='jobs'"></th-result-status-filter-panel>
+    </div>
+    <th-repo-panel ng-show="isRepoPanelShowing"></th-repo-panel>
     <th-jobs-top-nav-panel ng-show="locationPath==='jobs'"></th-jobs-top-nav-panel>
 </nav>
