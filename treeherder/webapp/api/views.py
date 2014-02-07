@@ -215,12 +215,13 @@ class ArtifactViewSet(viewsets.ViewSet):
         """
         return a list of job artifacts
         """
-        offset = int(request.QUERY_PARAMS.get('offset', 0))
-        count = int(request.QUERY_PARAMS.get('count', 10))
-        objs = jm.get_job_artifact_list(offset, count)
+        filter = UrlQueryFilter(request.QUERY_PARAMS)
+
+        offset = filter.pop("offset", 0)
+        count = filter.pop("count", 10)
+
+        objs = jm.get_job_artifact_list(offset, count, filter.conditions)
         return Response(objs)
-
-
 
 
 class NoteViewSet(viewsets.ViewSet):
