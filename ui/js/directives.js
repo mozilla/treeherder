@@ -9,6 +9,22 @@ treeherder.directive('thAccordionPanel', function () {
     };
 });
 
+treeherder.directive('thGlobalTopNavPanel', function () {
+
+    return {
+        restrict: "E",
+        templateUrl: 'partials/thGlobalTopNavPanel.html'
+    };
+});
+
+treeherder.directive('thJobsTopNavPanel', function () {
+
+    return {
+        restrict: "E",
+        templateUrl: 'partials/thJobsTopNavPanel.html'
+    };
+});
+
 treeherder.directive('ngRightClick', function($parse) {
     return function(scope, element, attrs) {
         var fn = $parse(attrs.ngRightClick);

@@ -1,7 +1,7 @@
 body {
     padding-top: 100px;
     padding-bottom: 500px;
-    min-width: 1300px;
+    min-width: 800px;
     width: auto !important;
     width: 1300px;
 }
@@ -12,23 +12,39 @@ body {
 }
 
 .navbar {
-    min-width: 1300px;
+    min-width: 800px;
+    min-height: 36px;
 }
 
+.navbar-brand {
+    line-height: 2px;
+}
 .navbar .dropdown-menu {
     max-height: 600px;
     overflow: auto;
 }
 
 .navbar-fixed-top {
-    border-bottom: 0px;
     background-color: #273038;
+}
+
+.th-global-navbar {
+    border-bottom: 1px solid black;
+}
+
+.th-help-link {
+    padding-top: 6px;
+}
+
+.th-context-navbar {
+    background-color: #354048;
+    height: 30px;
 }
 
 .th-content {
     display: inline-block;
     overflow: hidden;
-    min-width: 960px;
+    min-width: 800px;
     width: 100%;
     padding-bottom: 101px;
     white-space: nowrap;
@@ -36,6 +52,11 @@ body {
 }
 
  /*top tabs */
+
+#accordion-panel {
+    display: inline;
+}
+
 #accordion-panel .tab-content {
     background-color: white;
     padding:10px;
@@ -267,6 +288,9 @@ div.navbar-fixed-bottom dt {
 .result-status-total-count {
     width: 40px;
 }
+.result-status-count-min-width {
+    width: 28px;
+}
 .result-status-count-success {
     width: 75px;
 }
@@ -296,6 +320,64 @@ div.navbar-fixed-bottom dt {
 }
 
 /* Custom Job buttons*/
+.btn-view-nav {
+  background-color: rgba(63, 74, 81, 0.56);
+  border-color: #22282d;
+  color: lightgray;
+}
+.btn-view-nav:hover,
+.btn-view-nav:focus,
+.btn-view-nav:active,
+.btn-view-nav.active {
+  background-color: #25292b;
+  border-color: #1a1d20;
+  color: white;
+}
+.btn-view-nav.disabled:hover,
+.btn-view-nav.disabled:focus,
+.btn-view-nav.disabled:active,
+.btn-view-nav.disabled.active,
+.btn-view-nav[disabled]:hover,
+.btn-view-nav[disabled]:focus,
+.btn-view-nav[disabled]:active,
+.btn-view-nav[disabled].active,
+fieldset[disabled] .btn-view-nav:hover,
+fieldset[disabled] .btn-view-nav:focus,
+fieldset[disabled] .btn-view-nav:active,
+fieldset[disabled] .btn-view-nav.active {
+  color: #e0e0e0;
+  border-color: #e0e0e0;
+}
+
+.btn-recent-repo {
+  background-color: rgba(63, 74, 81, 0.56);
+  border-color: #22282d;
+  color: lightgray;
+}
+.btn-recent-repo:hover,
+.btn-recent-repo:focus,
+.btn-recent-repo:active,
+.btn-recent-repo.active {
+  background-color: #25292b;
+  border-color: #1a1d20;
+  color: white;
+}
+.btn-recent-repo.disabled:hover,
+.btn-recent-repo.disabled:focus,
+.btn-recent-repo.disabled:active,
+.btn-recent-repo.disabled.active,
+.btn-recent-repo[disabled]:hover,
+.btn-recent-repo[disabled]:focus,
+.btn-recent-repo[disabled]:active,
+.btn-recent-repo[disabled].active,
+fieldset[disabled] .btn-recent-repo:hover,
+fieldset[disabled] .btn-recent-repo:focus,
+fieldset[disabled] .btn-recent-repo:active,
+fieldset[disabled] .btn-recent-repo.active {
+  color: #e0e0e0;
+  border-color: #e0e0e0;
+}
+
 .btn-orange {
   background-color: rgba(221, 102, 2, 0.56);
   border-color: #dd6602;
@@ -708,6 +790,9 @@ fieldset[disabled] .btn-pink.active {
     background-color: LightGrey;
 }
 
+.white, .white a {
+    color: white;
+}
 
 #help.dt, #help.dd { text-align: center;}
 #help.panel {padding:5px;}

@@ -1,14 +1,3 @@
-
-<div>
-    <p class="well">
-        Most recently used repos:
-        <span ng-repeat="repo in mru_repos">
-            <button ng-show="!$first" ng-class="{'btn-danger': repo_has_failures(repo)}"  ng-click="changeRepo(repo)"  type="button" class="btn btn-default">
-                {{repo}}
-            </button>
-        </span>
-    </p>
-</div>
 <div class="progress progress-striped active"
      ng-show="isLoadingRsBatch.prepending">
     <div class="progress-bar"  role="progressbar" style="width: 100%"></div>

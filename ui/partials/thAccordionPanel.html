@@ -1,24 +1,26 @@
 <div id="accordion-panel" class="tabbable">
     <span >
         <ul class="nav nav-pills">
-            <li ng-click="isFilterPanelHidden = false">
+            <li ng-click="isTopAccordionPanelHidden = false">
                 <a data-target="#filter" data-toggle="tab">filter</a>
             </li>
-            <li ng-click="isFilterPanelHidden = false">
+            <li ng-click="isTopAccordionPanelHidden = false">
                 <a data-target="#pinbucket" data-toggle="tab">pinbucket</a>
 
+            <li ng-click="isTopAccordionPanelHidden = false">
+                <a data-target="#repos" data-toggle="tab">repos</a>
             </li>
             <li class="accordion-panel-hide-button"
-                ng-click="isFilterPanelHidden = true"
-                ng-hide="isFilterPanelHidden"
+                ng-click="isTopAccordionPanelHidden = true"
+                ng-hide="isTopAccordionPanelHidden"
                 title="hide">
-                <i class="glyphicon glyphicon-chevron-up"></i>
+                <i class="glyphicon glyphicon-chevron-up white"></i>
             </li>
         </ul>
     </span>
-    <div class="tab-content" collapse="isFilterPanelHidden">
+    <div class="tab-content" collapse="isTopAccordionPanelHidden">
         <div id="filter" class="tab-pane active">
-		    <div class="well well-lg">
+		    <div class="lightgray">
 		        <div>
                     <button class="btn btn-default btn-sm"
                             ng-repeat="group in filterGroups"
@@ -39,6 +41,11 @@
         </div>
         <div id="pinbucket" class="tab-pane">
 		    <div class="well well-lg">pin bucket</div>
+        </div>
+        <div id="repos" class="tab-pane">
+            <span ng-repeat="item in repos">
+                <a href="" ng-click="changeRepo(item.name)">{{item.name}}</a>
+            </span>
         </div>
     </div>
 </div>

@@ -17,6 +17,24 @@ treeherder.controller('MainCtrl',
             // setting the selectedJob to null hides the bottom panel
             $rootScope.selectedJob = null;
         };
+
+        // detect window width and put it in scope so items can react to
+        // a narrow window
+        $scope.getWidth = function() {
+            return $(window).width();
+        };
+        $scope.$watch($scope.getWidth, function(newValue, oldValue) {
+            $scope.windowWidth = newValue;
+        });
+        window.onresize = function(){
+            $scope.$apply();
+        };
+
+        // give the page a way to determine which nav toolbar to show
+        $rootScope.$on('$locationChangeSuccess', function(ev,newUrl) {
+            $rootScope.locationPath = $location.path().replace('/', '');
+        });
+
         $scope.mru_repos = localStorageService.get("mru_repos") || [];
 
         // @@@ a dummy value for now, used when creating notes.
@@ -44,7 +62,7 @@ treeherder.controller('MainCtrl',
         };
 
         /* TOP DROP-DOWN PANEL */
-        $scope.isFilterPanelHidden = true;
+        $scope.isTopAccordionPanelHidden = true;
 
         $scope.filterOptions = thResultStatusList;
 
@@ -72,10 +90,10 @@ treeherder.controller('MainCtrl',
          * @param resultStatuses
          */
         $scope.toggleGroup = function(resultStatuses) {
-            var isChecked = function(rs) {return $scope.resultStatusFilters[rs];};
+            var isNotChecked = function(rs) {return !$scope.resultStatusFilters[rs];};
             var check = function(rs) {$scope.resultStatusFilters[rs] = tf;};
 
-            var tf = !_.every(resultStatuses, isChecked);
+            var tf = !_.every(resultStatuses, isNotChecked);
             _.each(resultStatuses, check);
 
         };
