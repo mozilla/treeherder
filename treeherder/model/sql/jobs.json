@@ -299,8 +299,17 @@
             "host":"read_host"
         },
         "get_job_artifact":{
-            "sql":"SELECT * from `job_artifact`
-                   WHERE `id` = ?",
+            "sql":"SELECT
+                      id,
+                      job_id,
+                      name,
+                      `type`,
+                      `blob`
+                   FROM job_artifact
+                   WHERE active_status = 'active'
+                   REP0
+                   ORDER BY id DESC, name
+                   ",
             "host": "read_host"
         },
         "get_job_artifact_references":{

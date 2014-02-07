@@ -25,7 +25,6 @@ def test_artifact_detail(webapp, eleven_jobs_processed, sample_artifacts, jm):
     assert resp.json["id"] == artifact["id"]
     assert set(resp.json.keys()) == set([
         "job_id",
-        "active_status",
         "blob",
         "type",
         "id",
