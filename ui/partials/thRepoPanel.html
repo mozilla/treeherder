@@ -1,5 +1,14 @@
 <div id="repos" class="th-top-nav-options-panel">
-    <span ng-repeat="item in repos | orderBy:'name'" class="btn btn-view-nav"
-          ng-click="changeRepo(item.name)">{{item.name}}
-    </span>
+    <div ng-repeat="(group_name,group) in groupedRepos"
+         class="repo-group"
+         title="group.repository_group.description">
+            <div class="label label-primary">{{group_name}}</div>
+            <div class="repo-group-buttons">
+            <span ng-repeat="repo in group | orderBy:'name'"
+                  class="btn btn-view-nav btn-sm"
+                  ng-click="changeRepo(repo.name)">{{repo.name}}
+            </span>
+            </div>
+
+    </div>
 </div>

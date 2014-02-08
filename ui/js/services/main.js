@@ -85,12 +85,31 @@ treeherder.factory('thRepos',
         return null;
     };
 
+    // get by category
+    var byGroup = function() {
+        var groupedRepos = {};
+        var group = function(repo) {
+            if (!_.has(groupedRepos, repo.repository_group.name)) {
+                groupedRepos[repo.repository_group.name] = [];
+            }
+            groupedRepos[repo.repository_group.name].push(repo);
+        };
+
+        if (!groupedRepos.length) {
+            _.each($rootScope.repos, group);
+        }
+        return groupedRepos;
+    }
+
     return {
         // load the list of repos into $rootScope, and set the current repo.
         load: function(name) {
             return $http.get(thUrl.getRootUrl("/repository/")).
                 success(function(data) {
                     $rootScope.repos = data;
+                    $rootScope.groupedRepos = byGroup();
+                    console.log($rootScope.groupedRepos);
+
                     if (name) {
                         $rootScope.currentRepo = byName(name)
                     }
@@ -107,6 +126,9 @@ treeherder.factory('thRepos',
         // get a repo object without setting anything
         getRepo: function(name) {
             return byName(name);
+        },
+        getByGroup: function() {
+            return byGroup();
         }
     };
 }]);

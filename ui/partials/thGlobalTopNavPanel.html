@@ -23,7 +23,7 @@
             </span>
             <span class="btn btn-view-nav"
                   ng-class="{'active': (isViewOptionsPanelShowing)}"
-                  ng-click="isViewOptionsPanelShowing=!isViewOptionsPanelShowing"><span>options</span>
+                  ng-click="isViewOptionsPanelShowing=!isViewOptionsPanelShowing"><span>status filters</span>
                 <i class="glyphicon glyphicon-chevron-down lightgray"
                    ng-hide="isViewOptionsPanelShowing"></i>
                 <i class="glyphicon glyphicon-chevron-up lightgray"
@@ -33,9 +33,9 @@
         </span>
 
     </div>
+    <th-jobs-top-nav-panel ng-show="locationPath==='jobs'"></th-jobs-top-nav-panel>
     <div ng-show="isViewOptionsPanelShowing">
         <th-result-status-filter-panel ng-show="locationPath==='jobs'"></th-result-status-filter-panel>
     </div>
     <th-repo-panel ng-show="isRepoPanelShowing"></th-repo-panel>
-    <th-jobs-top-nav-panel ng-show="locationPath==='jobs'"></th-jobs-top-nav-panel>
 </nav>

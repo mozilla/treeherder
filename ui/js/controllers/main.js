@@ -85,8 +85,8 @@ treeherder.controller('MainCtrl',
         };
 
         /**
-         * If all members of the group are checked, then uncheck them all.  If
-         * any are unchecked, then check them all.
+         * If all members of the group are unchecked, then check them all.
+         * otherwise, uncheck them all.
          * @param resultStatuses
          */
         $scope.toggleGroup = function(resultStatuses) {
@@ -103,7 +103,7 @@ treeherder.controller('MainCtrl',
         for (var i = 0; i < $scope.filterOptions.length; i++) {
             $scope.resultStatusFilters[$scope.filterOptions[i]] = true;
         }
-        // where or not to show classified jobs
+        // whether or not to show classified jobs
         $scope.classifiedFilter = true;
 
         $scope.resultStatusFilterJobs = function(job) {
