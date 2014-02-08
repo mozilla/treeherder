@@ -6,7 +6,7 @@ from collections import defaultdict
 
 from django.db import models
 from django.conf import settings
-from rest_framework import viewsets
+from rest_framework import viewsets, serializers
 from rest_framework.response import Response
 from rest_framework.decorators import action, link
 from rest_framework.reverse import reverse
@@ -661,9 +661,21 @@ class JobGroupViewSet(viewsets.ReadOnlyModelViewSet):
     model = models.JobGroup
 
 
+class RepositoryGroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.RepositoryGroup
+        fields = ('name', 'description')
+
+class RepositorySerializer(serializers.ModelSerializer):
+    repository_group = RepositoryGroupSerializer()
+
+    class Meta:
+        model = models.Repository
+
 class RepositoryViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for the refdata Repository model"""
     model = models.Repository
+    serializer_class = RepositorySerializer
 
 
 class MachinePlatformViewSet(viewsets.ReadOnlyModelViewSet):
