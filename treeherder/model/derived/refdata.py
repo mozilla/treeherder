@@ -196,6 +196,12 @@ class RefDataManager(object):
         platform = platform or 'unknown'
         arch = arch or 'unknown'
 
+        max_len = 25
+
+        os_name = os_name[0:max_len]
+        platform = platform[0:max_len]
+        arch = arch[0:max_len]
+
         key = self._add_platform(
             os_name, platform, arch,
             self.build_platform_lookup,
@@ -220,6 +226,12 @@ class RefDataManager(object):
         platform = platform or 'unknown'
         arch = arch or 'unknown'
 
+        max_len = 25
+
+        os_name = os_name[0:max_len]
+        platform = platform[0:max_len]
+        arch = arch[0:max_len]
+
         key = self._add_platform(
             os_name, platform, arch,
             self.machine_platform_lookup,
@@ -238,6 +250,15 @@ class RefDataManager(object):
 
         group_name = group_name or 'unknown'
         group_symbol = group_symbol or '?'
+
+        max_name = 100
+        max_symbol = 10
+
+        job_type = job_type[0:max_name]
+        job_symbol = job_symbol[0:max_symbol]
+
+        group_name = group_name[0:max_name]
+        group_symbol = group_symbol[0:max_symbol]
 
         self._add_name_and_symbol(
             group_name, group_symbol, self.job_group_names_and_symbols,
@@ -271,6 +292,8 @@ class RefDataManager(object):
         """Add product names"""
 
         product = product or 'unknown'
+
+        product = product[0:50]
 
         self._add_name(
             product, self.product_lookup, self.product_placeholders,
@@ -392,6 +415,8 @@ class RefDataManager(object):
 
             machine_name = machine_name or 'unknown'
             timestame = timestamp or time.time()
+
+            machine_name = machine_name[0:50]
 
             self.machine_name_lookup.add(machine_name)
 
