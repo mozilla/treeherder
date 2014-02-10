@@ -896,12 +896,11 @@ class JobsModel(TreeherderModelBase):
         job_guid = job['job_guid']
         job_guid = job_guid[0:50]
 
-        who = job.get('who', 'unknown')[0:50]
+        who = job.get('who', 'unknown')
         who = who[0:50]
 
         reason = job.get('reason', 'unknown')
         reason = reason[0:125]
-
 
         state = job.get('state', 'unknown')
         state = state[0:25]
