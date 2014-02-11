@@ -350,7 +350,8 @@ div.navbar-fixed-bottom dt {
 .btn-view-nav:focus,
 .btn-view-nav:active,
 .btn-view-nav.active {
-  background-color: #25292b;
+  /*background-color: #25292b;*/
+  background-color: black;
   border-color: #1a1d20;
   color: white;
 }
@@ -366,40 +367,6 @@ fieldset[disabled] .btn-view-nav:hover,
 fieldset[disabled] .btn-view-nav:focus,
 fieldset[disabled] .btn-view-nav:active,
 fieldset[disabled] .btn-view-nav.active {
-  color: #e0e0e0;
-  border-color: #e0e0e0;
-}
-
-.btn-watched-repo {
-  background-color: rgba(63, 74, 81, 0.56);
-  border-color: #22282d;
-  color: lightgray;
-  border-radius: 0;
-  border-bottom: 0;
-  border-top: 0;
-  border-left: 0;
-
-}
-.btn-watched-repo:hover,
-.btn-watched-repo:focus,
-.btn-watched-repo:active,
-.btn-watched-repo.active {
-  background-color: #25292b;
-  border-color: #1a1d20;
-  color: white;
-}
-.btn-watched-repo.disabled:hover,
-.btn-watched-repo.disabled:focus,
-.btn-watched-repo.disabled:active,
-.btn-watched-repo.disabled.active,
-.btn-watched-repo[disabled]:hover,
-.btn-watched-repo[disabled]:focus,
-.btn-watched-repo[disabled]:active,
-.btn-watched-repo[disabled].active,
-fieldset[disabled] .btn-watched-repo:hover,
-fieldset[disabled] .btn-watched-repo:focus,
-fieldset[disabled] .btn-watched-repo:active,
-fieldset[disabled] .btn-watched-repo.active {
   color: #e0e0e0;
   border-color: #e0e0e0;
 }
