@@ -1,24 +1,30 @@
 <div id="filter" class="th-top-nav-options-panel">
-    <div>
-        <span ng-repeat="group in filterGroups" class="th-filter-group">
-            <div>
-            <button class="btn btn-view-nav btn-sm"
-                    ng-click="toggleGroup(group.resultStatuses)">{{group.name}}</button>
-            </div>
-            <label ng-repeat="filter in group.resultStatuses"
-                   class="checkbox-inline">
+        <span ng-repeat="group in filterGroups"
+              class="panel panel-default th-option-group th-inline-option-group">
+
+            <!--heading for each group-->
+            <div class="panel-heading th-option-heading">{{group.name}}
+                <span class="pull-right">
                 <input type="checkbox"
-                       id="{{filter}}"
-                       ng-model="resultStatusFilters[filter]"> {{filter}}
-            </label>
-        </span>
-        <span class="th-filter-group">
-            <div>
-                <span class="label label-default">Classified</span>
+                       ng-model="group.allChecked"
+                       ng-change="toggleGroup(group)"> all
+                </span>
             </div>
-            <label class="checkbox-inline" title="classified jobs">
-                <input type="checkbox" id="classified" value="classified" checked> classified
-            </label>
+            <!--content for each group-->
+            <div class="panel-body">
+                <span ng-repeat="filterName in group.resultStatuses">
+                    <th-filter-checkbox></th-filter-checkbox>
+                </span>
+            </div>
         </span>
-    </div>
+        <span class="panel panel-default th-option-group th-inline-option-group">
+            <div class="panel-heading th-option-heading">classified</div>
+            <div class="panel-body">
+                <label class="checkbox-inline">
+                    <input type="checkbox"
+                           id="classified"
+                           ng-model="classifiedFilter"> classified
+                </label>
+            </div>
+        </span>
 </div>

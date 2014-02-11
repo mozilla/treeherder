@@ -1,13 +1,24 @@
 <div id="repos" class="th-top-nav-options-panel">
     <div ng-repeat="(group_name,group) in groupedRepos"
-         class="repo-group"
-         title="group.repository_group.description">
-            <div class="label label-primary">{{group_name}}</div>
-            <div class="repo-group-buttons">
-            <span ng-repeat="repo in group | orderBy:'name'"
-                  class="btn btn-view-nav btn-sm"
-                  ng-click="changeRepo(repo.name)">{{repo.name}}
-            </span>
+         class="panel panel-default th-option-group th-stacked-option-group"
+         title="{{group.repository_group.description}}">
+
+            <!--heading for each group-->
+            <div class="th-option-heading panel-heading">{{group_name}}</div>
+
+            <!--content for each group-->
+            <div class="panel-body repo-group">
+                <span ng-repeat="repo in group | orderBy:'name'"
+                      class="repo-group-items btn-group">
+                      <span class="input-group th-repo-item">
+                      <span class="input-group-addon">
+                          <input type="checkbox">
+                      </span>
+                      <span class="btn btn-repo btn-sm"
+                            ng-click="changeRepo(repo.name)">{{repo.name}}
+                      </span>
+                      </span>
+                </span>
             </div>
 
     </div>

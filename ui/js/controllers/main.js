@@ -62,40 +62,35 @@ treeherder.controller('MainCtrl',
         };
 
         /* TOP DROP-DOWN PANEL */
-        $scope.isTopAccordionPanelHidden = true;
-
         $scope.filterOptions = thResultStatusList;
 
         $scope.filterGroups = {
             failures: {
                 value: "failures",
                 name: "failures",
+                allChecked: true,
                 resultStatuses: ["testfailed", "busted", "exception"]
             },
             nonfailures: {
                 value: "nonfailures",
                 name: "non-failures",
+                allChecked: true,
                 resultStatuses: ["success", "retry"]
             },
             inProgress: {
                 value: "inProgress",
                 name: "in progress",
+                allChecked: true,
                 resultStatuses: ["pending", "running"]
             }
         };
 
         /**
-         * If all members of the group are unchecked, then check them all.
-         * otherwise, uncheck them all.
-         * @param resultStatuses
+         * Handle checking the "all" button for a result status group
          */
-        $scope.toggleGroup = function(resultStatuses) {
-            var isNotChecked = function(rs) {return !$scope.resultStatusFilters[rs];};
-            var check = function(rs) {$scope.resultStatusFilters[rs] = tf;};
-
-            var tf = _.every(resultStatuses, isNotChecked);
-            _.each(resultStatuses, check);
-
+        $scope.toggleGroup = function(group) {
+            var check = function(rs) {$scope.resultStatusFilters[rs] = group.allChecked;};
+            _.each(group.resultStatuses, check);
         };
 
         // which result statuses that should be shown
@@ -103,15 +98,27 @@ treeherder.controller('MainCtrl',
         for (var i = 0; i < $scope.filterOptions.length; i++) {
             $scope.resultStatusFilters[$scope.filterOptions[i]] = true;
         }
+        $scope.toggleFilter = function(group, filter) {
+            if (!$scope.resultStatusFilters[filter]) {
+                group.allChecked = false;
+            }
+        };
         // whether or not to show classified jobs
         $scope.classifiedFilter = true;
 
+
+        /**
+         * Handle display/hide of a job based on the result status filters
+         */
         $scope.resultStatusFilterJobs = function(job) {
             return function(job) {
                 return $scope.resultStatusFilters[job.result] ||
                     $scope.resultStatusFilters[job.state];
             };
         };
+        /**
+         * Handle display/hide of a platform based on the result status filters
+         */
         $scope.resultStatusFilterPlatform = function() {
             return function(platform) {
                 for (var key in $scope.resultStatusFilters) {
