@@ -41,6 +41,17 @@ treeherder.controller('MainCtrl',
         // update this value when we have authenticated login.
         $scope.username = "Hiro Protagonist";
 
+
+        // the repos the user has chosen to watch
+        $scope.watchedRepos = thRepos.watchedRepos;
+
+        $scope.$watch('watchedRepos', function() {
+            thRepos.saveWatchedRepos();
+        }, true);
+
+
+
+
         for (var repo in $scope.mru_repos){
             thSocket.emit('subscribe', $scope.mru_repos[repo]+'.job_failure');
             $log.debug("subscribing to "+$scope.mru_repos[repo]+'.job_failure');
@@ -60,6 +71,15 @@ treeherder.controller('MainCtrl',
             thRepos.setCurrent(repo_name);
             $location.search({repo: repo_name});
         };
+
+
+
+
+
+
+
+
+
 
         /* TOP DROP-DOWN PANEL */
         $scope.filterOptions = thResultStatusList;

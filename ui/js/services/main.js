@@ -65,8 +65,8 @@ treeherder.factory('thJobs',
 }]);
 
 treeherder.factory('thRepos',
-                   ['$http', 'thUrl', '$rootScope', '$log',
-                   function($http, thUrl, $rootScope, $log) {
+                   ['$http', 'thUrl', '$rootScope', '$log', 'localStorageService',
+                   function($http, thUrl, $rootScope, $log, localStorageService) {
 
     // get the repositories (aka trees)
     // sample: 'resources/menu.json'
@@ -101,14 +101,22 @@ treeherder.factory('thRepos',
         return groupedRepos;
     }
 
-    return {
+    var addToWatchList = function(repo) {
+        api.watchedRepos[repo.name] = false;
+    }
+
+    var api = {
         // load the list of repos into $rootScope, and set the current repo.
         load: function(name) {
+
+            var storedWatchedRepos = localStorageService.get("watchedRepos") || {};
+
             return $http.get(thUrl.getRootUrl("/repository/")).
                 success(function(data) {
                     $rootScope.repos = data;
                     $rootScope.groupedRepos = byGroup();
-                    console.log($rootScope.groupedRepos);
+                    _.each(data, addToWatchList)
+                    _.extend(api.watchedRepos, storedWatchedRepos);
 
                     if (name) {
                         $rootScope.currentRepo = byName(name)
@@ -129,8 +137,14 @@ treeherder.factory('thRepos',
         },
         getByGroup: function() {
             return byGroup();
+        },
+        watchedRepos: {},
+        saveWatchedRepos: function() {
+            localStorageService.set("watchedRepos", api.watchedRepos);
         }
     };
+
+    return api;
 }]);
 
 treeherder.factory('thJobNote', function($resource, $http, thUrl) {

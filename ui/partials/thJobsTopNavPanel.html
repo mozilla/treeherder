@@ -1,11 +1,10 @@
 <div class="th-context-navbar" >
-        <span class="btn-group btn-group-sm">
-            <span ng-repeat="repo in mru_repos"
-                  ng-class="{'active': repo===repoName}"
-                  ng-click="changeRepo(repo)"
-                  type="button"
-                  class="btn btn-sm btn-recent-repo">{{repo}}</span>
-        </span>
+        <span ng-repeat="(repo, isVisible) in watchedRepos"
+              ng-class="{'active': repo===repoName}"
+              ng-click="changeRepo(repo)"
+              ng-show="isVisible"
+              type="button"
+              class="btn btn-sm btn-watched-repo">{{repo}}</span>
         <span class="pull-right">
             <span>
                 <form role="search" class="form-inline">
