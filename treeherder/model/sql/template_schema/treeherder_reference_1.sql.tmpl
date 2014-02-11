@@ -29,12 +29,12 @@ DROP TABLE IF EXISTS `bugscache`;
 /**************************
  * Table: bugscache
  *
- * Holds bugzilla bugs associated with intermittent failures. 
+ * Holds bugzilla bugs associated with intermittent failures.
  *
  * Population Method: scheduled job.
  *
  * Example Data:
- *  
+ *
  *  status - enum('NEW', 'ASSIGNED', 'REOPENED', 'RESOLVED', 'VERIFIED', 'CLOSED')
  *  resolution - enum('', 'FIXED', 'INVALID', 'WONTFIX', 'LATER', 'REMIND', 'DUPLICATE', 'WORKSFORME')
  *  summary - Summary of bug
@@ -150,7 +150,7 @@ DROP TABLE IF EXISTS `job_group`;
 CREATE TABLE `job_group` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `symbol` char(10) COLLATE utf8_bin DEFAULT '?',
-  `name` varchar(50) COLLATE utf8_bin NOT NULL,
+  `name` varchar(100) COLLATE utf8_bin NOT NULL,
   `description` text COLLATE utf8_bin,
   `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
   PRIMARY KEY (`id`),
@@ -191,7 +191,7 @@ CREATE TABLE `job_type` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `job_group_id` int(10) unsigned DEFAULT NULL,
   `symbol` char(10) COLLATE utf8_bin DEFAULT '?',
-  `name` varchar(50) COLLATE utf8_bin NOT NULL,
+  `name` varchar(100) COLLATE utf8_bin NOT NULL,
   `description` text COLLATE utf8_bin,
   `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
   PRIMARY KEY (`id`),

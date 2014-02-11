@@ -758,7 +758,7 @@ class JobsModel(TreeherderModelBase):
 
                 # json object can be sucessfully deserialized
                 # load reference data
-                self._load_ref_and_job_data_structs(
+                job_guid = self._load_ref_and_job_data_structs(
                     job,
                     revision_hash,
                     revision_hash_lookup,
@@ -777,7 +777,7 @@ class JobsModel(TreeherderModelBase):
                 for coalesced_guid in coalesced:
                     coalesced_job_guid_placeholders.append(
                         # coalesced to guid, coalesced guid
-                        [ job['job_guid'], coalesced_guid ]
+                        [ job_guid, coalesced_guid ]
                         )
 
         # Store all reference data and retrieve associated ids
@@ -894,6 +894,16 @@ class JobsModel(TreeherderModelBase):
         self.refdata_model.add_product(product)
 
         job_guid = job['job_guid']
+        job_guid = job_guid[0:50]
+
+        who = job.get('who', 'unknown')
+        who = who[0:50]
+
+        reason = job.get('reason', 'unknown')
+        reason = reason[0:125]
+
+        state = job.get('state', 'unknown')
+        state = state[0:25]
 
         job_placeholders.append([
             job_guid,
@@ -906,10 +916,10 @@ class JobsModel(TreeherderModelBase):
             option_collection_hash, # idx:6
             job_type_key,           # idx:7, replace with job_type_id
             product,                # idx:8, replace with product_id
-            job.get('who', 'unknown'),
-            job.get('reason', 'unknown'),
-            job.get('result', 'unknown'),  # idx:11
-            job.get('state', 'unknown'),
+            who,
+            reason,
+            job.get('result', 'unknown'), # idx:11, this is typically an int
+            state,
             self.get_number( job.get('submit_timestamp') ),
             self.get_number( job.get('start_timestamp') ),
             self.get_number( job.get('end_timestamp') ),
@@ -919,11 +929,18 @@ class JobsModel(TreeherderModelBase):
         log_refs = job.get('log_references', [])
         if log_refs:
             for log in log_refs:
+
+                name = log.get('name', 'unknown')
+                name = name[0:50]
+
+                url = log.get('url', 'unknown')
+                url = url[0:255]
+
                 log_placeholders.append(
                     [
                         job_guid,
-                        log.get('name', 'unknown'),
-                        log.get('url', 'unknown')
+                        name,
+                        url
                         ] )
 
         artifact = job.get('artifact', {})
@@ -939,6 +956,8 @@ class JobsModel(TreeherderModelBase):
                 artifact_placeholders.append(
                     [job_guid, name, artifact_type, blob]
                     )
+
+        return job_guid
 
     def get_number(self, s):
         try:

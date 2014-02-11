@@ -183,8 +183,8 @@ class OAuthLoaderMixin(object):
                 protocol=settings.TREEHERDER_REQUEST_PROTOCOL,
                 host=settings.TREEHERDER_REQUEST_HOST,
                 project=project,
-                oauth_key=credentials['consumer_key'],
-                oauth_secret=credentials['consumer_secret']
+                oauth_key=credentials.get('consumer_key', None),
+                oauth_secret=credentials.get('consumer_secret', None)
                 )
 
             response = th_request.send( th_collections[project] )
