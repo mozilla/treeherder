@@ -259,7 +259,7 @@
             "host":"read_host"
         },
         "get_bugs_suggestions": {
-            "sql": "SELECT id, summary, crash_signature, keywords, os,
+            "sql": "SELECT id, summary, crash_signature, keywords, os, resolution,
                     MATCH (`summary`, `crash_signature`, `keywords`)
                         AGAINST (?) AS relevance
                     FROM bugscache
