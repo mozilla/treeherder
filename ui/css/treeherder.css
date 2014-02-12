@@ -94,32 +94,15 @@ body {
     background-color: darkgray;
 }
 
-.repo-watch-group {
-    border-radius: 0;
-}
-
-.repo-group {
+.th-repo-group {
     margin-bottom: 5px;
 }
 
-.repo-group .btn-xs {
-    padding-top: 3px;
-}
-
-.repo-group .input-group-addon {
-    padding: 2px 6px;
-}
-
-.repo-group-items {
+.th-repo-group-items {
     display: inline-block;
     margin: 5px 5px 0 5px;
-}
-
-.th-repo-item {
     min-width: 225px;
 }
-
-
 
 
 /**
@@ -350,8 +333,7 @@ div.navbar-fixed-bottom dt {
 .btn-view-nav:focus,
 .btn-view-nav:active,
 .btn-view-nav.active {
-  /*background-color: #25292b;*/
-  background-color: black;
+  background-color: #25292b;
   border-color: #1a1d20;
   color: white;
 }

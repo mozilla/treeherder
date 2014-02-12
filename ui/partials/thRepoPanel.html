@@ -7,17 +7,13 @@
         <div class="th-option-heading panel-heading">{{group_name}}</div>
 
         <!--content for each group-->
-        <div class="repo-group">
+        <div class="th-repo-group">
             <span ng-repeat="repo in group | orderBy:'name'"
-                  class="repo-group-items btn-group btn-group-xs">
-                <span class="input-group th-repo-item">
-                <span class="input-group-addon input-group">
-                    <input type="checkbox" ng-model="watchedRepos[repo.name]">
-                </span>
-                <span class="btn btn-repo btn-xs"
+                  class="th-repo-group-items">
+                <input type="checkbox" ng-model="watchedRepos[repo.name]">
+                <a href="" class="repo-link"
                       ng-click="changeRepo(repo.name)">{{repo.name}}
-                </span>
-                </span>
+                </a>
             </span>
         </div>
     </div>

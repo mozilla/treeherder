@@ -5,21 +5,6 @@ treeherder.controller('JobsCtrl',
                       localStorageService, thUrl, thRepos, thSocket,
                       thResultSetModel, thResultStatusList) {
 
-        // handle the most recent used repos
-        $rootScope.update_mru_repos = function(repo){
-            var max_mru_repos_length = 6;
-            var curr_repo_index = $scope.mru_repos.indexOf($rootScope.repoName);
-            if( curr_repo_index !== -1){
-                $scope.mru_repos.splice(curr_repo_index, 1);
-            }
-            $scope.mru_repos.unshift($rootScope.repoName);
-            if($scope.mru_repos.length > max_mru_repos_length){
-                var old_branch= $scope.mru_repos.pop();
-                thSocket.emit('subscribe', old_branch+'.job_failure');
-                $log.debug("subscribing to "+old_branch+'.job_failure');
-            }
-            localStorageService.set("mru_repos", $scope.mru_repos);
-        };
         $scope.repo_has_failures = function(repo_name){
             return ($rootScope.new_failures.hasOwnProperty(repo_name) &&
                 $rootScope.new_failures[repo_name].length > 0);
@@ -44,8 +29,6 @@ treeherder.controller('JobsCtrl',
         $scope.isLoadingRsBatch = thResultSetModel.loadingStatus;
         $scope.result_sets = thResultSetModel.getResultSetsArray();
         $scope.statusList = thResultStatusList;
-
-        $rootScope.update_mru_repos($scope.repoName);
 
         // load the list of repos into $rootScope, and set the current repo.
         thRepos.load($scope.repoName);

@@ -126,7 +126,11 @@ treeherder.factory('thResultSetModel',
                         };
                         jobMap[job.id] = rsMap[rs.id].platforms[pl.name].groups[gr.name].jobs[job.id];
 
-                        incrementJobCounts(job);
+                        var rt = getResultType(job);
+                        // update group count
+                        jobMap[job.id].parent.grp_obj.job_counts[rt] += 1;
+                        // update platform count
+                        jobMap[job.id].parent.parent.pl_obj.job_counts[rt] += 1;
 
                         // map result status count at different levels
                         // track oldest job id
@@ -168,7 +172,7 @@ treeherder.factory('thResultSetModel',
         jobMap[job.id].parent.grp_obj.job_counts[rt] += 1;
         // update platform count
         jobMap[job.id].parent.parent.pl_obj.job_counts[rt] += 1;
-        // update platform count
+        // update resultset count
         jobMap[job.id].parent.parent.parent.rs_obj.job_counts[rt] += 1;
     };
 
@@ -188,7 +192,7 @@ treeherder.factory('thResultSetModel',
         if (jobMap[job.id].parent.parent.pl_obj.job_counts[oldResultType] > 0) {
             jobMap[job.id].parent.parent.pl_obj.job_counts[oldResultType] -= 1;
         }
-        // decrement platform count
+        // decrement resultset count
         if (jobMap[job.id].parent.parent.parent.rs_obj.job_counts[oldResultType] > 0) {
             jobMap[job.id].parent.parent.parent.rs_obj.job_counts[oldResultType] -= 1;
         }

@@ -35,9 +35,7 @@ treeherder.controller('MainCtrl',
             $rootScope.locationPath = $location.path().replace('/', '');
         });
 
-        $scope.mru_repos = localStorageService.get("mru_repos") || [];
-
-        // @@@ a dummy value for now, used when creating notes.
+        // @@@ a dummy value for now, used when creating classifications.
         // update this value when we have authenticated login.
         $scope.username = "Hiro Protagonist";
 
@@ -45,16 +43,16 @@ treeherder.controller('MainCtrl',
         // the repos the user has chosen to watch
         $scope.watchedRepos = thRepos.watchedRepos;
 
-        $scope.$watch('watchedRepos', function() {
-            thRepos.saveWatchedRepos();
-        }, true);
+//        $scope.$watch('watchedRepos', function() {
+//            thRepos.saveWatchedRepos();
+//            $log.debug("watchedRepos:");
+//            $log.debug($scope.watchedRepos);
+//            $scope.$apply();
+//        }, true);
 
-
-
-
-        for (var repo in $scope.mru_repos){
-            thSocket.emit('subscribe', $scope.mru_repos[repo]+'.job_failure');
-            $log.debug("subscribing to "+$scope.mru_repos[repo]+'.job_failure');
+        for (var repo in $scope.watchedRepos){
+            thSocket.emit('subscribe', $scope.watchedRepos[repo]+'.job_failure');
+            $log.debug("subscribing to "+$scope.watchedRepos[repo]+'.job_failure');
         }
 
         $rootScope.new_failures = {};
@@ -71,14 +69,6 @@ treeherder.controller('MainCtrl',
             thRepos.setCurrent(repo_name);
             $location.search({repo: repo_name});
         };
-
-
-
-
-
-
-
-
 
 
         /* TOP DROP-DOWN PANEL */
@@ -130,7 +120,7 @@ treeherder.controller('MainCtrl',
         /**
          * Handle display/hide of a job based on the result status filters
          */
-        $scope.resultStatusFilterJobs = function(job) {
+        $scope.resultStatusFilterJobs = function() {
             return function(job) {
                 return $scope.resultStatusFilters[job.result] ||
                     $scope.resultStatusFilters[job.state];
