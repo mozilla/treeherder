@@ -34,7 +34,9 @@ class UrlQueryFilter(object):
         "lt": "<",
         "lte": "<=",
         "=": "=",
-        "in": "IN"
+        "in": "IN",
+        "ne": "<>",
+        "nin": "NOT IN"
     }
 
     splitter = "__"
@@ -47,7 +49,7 @@ class UrlQueryFilter(object):
                 field, operator = k.split(self.splitter, 1)
                 if operator not in self.operators:
                     raise ValueError("{0} is not a supported operator".format(operator))
-                if operator == "in":
+                if operator in ("in", "nin"):
                     v = tuple(v.split(","))
             else:
                 field = k
