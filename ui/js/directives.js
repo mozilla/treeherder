@@ -9,11 +9,11 @@ treeherder.directive('thGlobalTopNavPanel', function () {
     };
 });
 
-treeherder.directive('thJobsTopNavPanel', function () {
+treeherder.directive('thWatchedRepoPanel', function () {
 
     return {
         restrict: "E",
-        templateUrl: 'partials/thJobsTopNavPanel.html'
+        templateUrl: 'partials/thWatchedRepoPanel.html'
     };
 });
 

@@ -46,7 +46,7 @@ treeherder.factory('thReposModel',
         return groupedRepos;
     };
 
-    var addToWatchList = function(repo) {
+    var addAsUnwatched = function(repo) {
         api.watchedRepos[repo.name] = false;
     };
 
@@ -62,11 +62,11 @@ treeherder.factory('thReposModel',
                 success(function(data) {
                     $rootScope.repos = data;
                     $rootScope.groupedRepos = byGroup();
-                    _.each(data, addToWatchList);
+                    _.each(data, addAsUnwatched);
                     _.extend(api.watchedRepos, storedWatchedRepos);
 
                     if (name) {
-                        $rootScope.currentRepo = byName(name)
+                        $rootScope.currentRepo = byName(name);
                     }
                 });
         },
@@ -76,7 +76,9 @@ treeherder.factory('thReposModel',
         },
         // set the current repo to one in the repos list
         setCurrent: function(name) {
-            $rootScope.currentRepo = byName(name)
+            $rootScope.currentRepo = byName(name);
+            api.watchedRepos[name] = true;
+            api.saveWatchedRepos();
         },
         // get a repo object without setting anything
         getRepo: function(name) {

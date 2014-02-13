@@ -1,0 +1,21 @@
+<div class="th-context-navbar" >
+    <span ng-repeat="(repo, isVisible) in watchedRepos"
+          ng-class="{'active': repo===repoName}"
+          ng-click="changeRepo(repo)"
+          ng-show="isVisible"
+          type="button"
+          class="btn btn-sm btn-view-nav">{{repo}} <span class="badge" ng-show="failures[repo] > 0">{{failures[repo]}}</span></span>
+    <span class="pull-right">
+        <span>
+            <form role="search" class="form-inline">
+                <span class="label label-primary">0 unstarred</span>
+                <div class="form-group form-inline">
+                        <input type="text"
+                               ng-model="query"
+                               class="form-control input-sm"
+                               placeholder="Filter platforms & jobs">
+                </div>
+            </form>
+        </span>
+    </span>
+</div>
