@@ -1,4 +1,6 @@
-<div id="repos" class="th-top-nav-options-panel">
+<div id="repos"
+     class="th-top-nav-options-panel"
+     ng-controller="ReposPanelCtrl">
     <div ng-repeat="(group_name,group) in groupedRepos"
          class="panel panel-default th-option-group th-stacked-option-group"
          title="{{group.repository_group.description}}">
@@ -10,7 +12,9 @@
         <div class="th-repo-group">
             <span ng-repeat="repo in group | orderBy:'name'"
                   class="th-repo-group-items">
-                <input type="checkbox" ng-model="watchedRepos[repo.name]">
+                    <input type="checkbox"
+                           ng-model="watchedRepos[repo.name]"
+                           ng-change="saveWatchedRepos()">
                 <a href="" class="repo-link"
                       ng-click="changeRepo(repo.name)">{{repo.name}}
                 </a>

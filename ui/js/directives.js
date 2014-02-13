@@ -17,11 +17,11 @@ treeherder.directive('thJobsTopNavPanel', function () {
     };
 });
 
-treeherder.directive('thResultStatusFilterPanel', function () {
+treeherder.directive('thStatusFilterPanel', function () {
 
     return {
         restrict: "E",
-        templateUrl: 'partials/thResultStatusFilterPanel.html'
+        templateUrl: 'partials/thStatusFilterPanel.html'
     };
 });
 

@@ -2,13 +2,9 @@
 
 treeherder.controller('JobsCtrl',
     function JobsCtrl($scope, $http, $rootScope, $routeParams, $log, $cookies,
-                      localStorageService, thUrl, thRepos, thSocket,
+                      localStorageService, thUrl, thReposModel, thSocket,
                       thResultSetModel, thResultStatusList) {
 
-        $scope.repo_has_failures = function(repo_name){
-            return ($rootScope.new_failures.hasOwnProperty(repo_name) &&
-                $rootScope.new_failures[repo_name].length > 0);
-        };
         // load our initial set of resultsets
         // scope needs this function so it can be called directly by the user, too.
         $scope.fetchResultSets = function(count) {
@@ -31,12 +27,7 @@ treeherder.controller('JobsCtrl',
         $scope.statusList = thResultStatusList;
 
         // load the list of repos into $rootScope, and set the current repo.
-        thRepos.load($scope.repoName);
-
-        // stop receiving new failures for the current branch
-        if($rootScope.new_failures.hasOwnProperty($scope.repoName)){
-            delete $rootScope.new_failures[$scope.repoName];
-        }
+        thReposModel.load($scope.repoName);
 
         // get our first set of resultsets
         $scope.fetchResultSets(10);

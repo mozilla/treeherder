@@ -6,6 +6,10 @@ body {
     width: 1300px;
 }
 
+.nav, .pagination, .carousel, .panel-title a {
+    cursor: pointer;
+}
+
 .hidden {
     display: none;
     visibility: hidden;
@@ -610,7 +614,7 @@ fieldset[disabled] .btn-mdgray.active {
 }
 
 .btn-dkgray {
-  border-color: #7c7a7d;
+  border-color: rgba(124, 122, 125, 0.37);
   color: #7c7a7d;
 }
 .btn-dkgray:hover,

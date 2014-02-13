@@ -2,7 +2,7 @@
 
 treeherder.controller('MainCtrl',
     function MainController($scope, $rootScope, $routeParams, $location, $log,
-                            localStorageService, thRepos, thSocket,
+                            localStorageService, thReposModel, thSocket,
                             thResultStatusList) {
         $scope.query="";
         $scope.statusError = function(msg) {
@@ -41,81 +41,12 @@ treeherder.controller('MainCtrl',
 
 
         // the repos the user has chosen to watch
-        $scope.watchedRepos = thRepos.watchedRepos;
-
-//        $scope.$watch('watchedRepos', function() {
-//            thRepos.saveWatchedRepos();
-//            $log.debug("watchedRepos:");
-//            $log.debug($scope.watchedRepos);
-//            $scope.$apply();
-//        }, true);
-
-        for (var repo in $scope.watchedRepos){
-            thSocket.emit('subscribe', $scope.watchedRepos[repo]+'.job_failure');
-            $log.debug("subscribing to "+$scope.watchedRepos[repo]+'.job_failure');
-        }
-
-        $rootScope.new_failures = {};
-
-        thSocket.on('job_failure', function(msg){
-            if (! $rootScope.new_failures.hasOwnProperty(msg.branch)){
-                $rootScope.new_failures[msg.branch] = [];
-            }
-            $rootScope.new_failures[msg.branch].push(msg.id);
-            $log.debug("new failure on branch "+msg.branch);
-        });
+        $scope.watchedRepos = thReposModel.watchedRepos;
 
         $scope.changeRepo = function(repo_name) {
-            thRepos.setCurrent(repo_name);
+            thReposModel.setCurrent(repo_name);
             $location.search({repo: repo_name});
         };
-
-
-        /* TOP DROP-DOWN PANEL */
-        $scope.filterOptions = thResultStatusList;
-
-        $scope.filterGroups = {
-            failures: {
-                value: "failures",
-                name: "failures",
-                allChecked: true,
-                resultStatuses: ["testfailed", "busted", "exception"]
-            },
-            nonfailures: {
-                value: "nonfailures",
-                name: "non-failures",
-                allChecked: true,
-                resultStatuses: ["success", "retry"]
-            },
-            inProgress: {
-                value: "inProgress",
-                name: "in progress",
-                allChecked: true,
-                resultStatuses: ["pending", "running"]
-            }
-        };
-
-        /**
-         * Handle checking the "all" button for a result status group
-         */
-        $scope.toggleGroup = function(group) {
-            var check = function(rs) {$scope.resultStatusFilters[rs] = group.allChecked;};
-            _.each(group.resultStatuses, check);
-        };
-
-        // which result statuses that should be shown
-        $scope.resultStatusFilters = {};
-        for (var i = 0; i < $scope.filterOptions.length; i++) {
-            $scope.resultStatusFilters[$scope.filterOptions[i]] = true;
-        }
-        $scope.toggleFilter = function(group, filter) {
-            if (!$scope.resultStatusFilters[filter]) {
-                group.allChecked = false;
-            }
-        };
-        // whether or not to show classified jobs
-        $scope.classifiedFilter = true;
-
 
         /**
          * Handle display/hide of a job based on the result status filters
