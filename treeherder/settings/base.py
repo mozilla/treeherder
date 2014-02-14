@@ -91,7 +91,7 @@ AUTHENTICATION_BACKENDS = (
 # this tells browserid to not create users.
 # a user must be created first in the admin
 # and then can be recognized with persona login
-BROWSERID_CREATE_USER = False
+BROWSERID_CREATE_USER = True
 
 # Path to redirect to on successful login.
 LOGIN_REDIRECT_URL = '/'
