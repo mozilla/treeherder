@@ -1,0 +1,6 @@
+<label class="checkbox-inline {{checkClass}}">
+    <input type="checkbox"
+           id="{{filterName}}"
+           ng-model="resultStatusFilters[filterName]"
+           ng-change="toggleFilter(group, filterName)"> {{filterName}}
+</label>

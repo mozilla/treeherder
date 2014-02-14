@@ -1,7 +1,8 @@
 'use strict';
 
 var treeherder = angular.module('treeherder',
-    ['ngResource','ui.bootstrap', 'ngSanitize', 'ngCookies', 'ngRoute', 'LocalStorageModule']);
+    ['ngResource','ui.bootstrap', 'ngSanitize', 'ngCookies', 'ngRoute',
+     'LocalStorageModule']);
 
 // dummy values required to use the library at: https://tbpl.mozilla.org/js/Config.js
 // for the platform name conversion

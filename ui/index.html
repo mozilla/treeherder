@@ -9,54 +9,16 @@
         <link href="css/treeherder.css" rel="stylesheet" media="screen">
     </head>
     <body ng-controller="MainCtrl">
-        <nav class="navbar navbar-inverse navbar-fixed-top">
-            <div class="navbar-header">
-                <a class="navbar-brand" href="#">Treeherder</a>
-            </div>
-            <div class="navbar-collapse collapse">
-                <!-- nav begin -->
-                <ul class="nav navbar-nav">
-                    <li class="dropdown pulse">
-                        <a href="" class="dropdown-toggle" data-toggle="dropdown">Repos<b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                            <li ng-repeat="item in repos">
-                                <a href="" ng-click="changeRepo(item.name)">{{item.name}}</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="divider-vertical"></li>
-                    <li><a href="help.html" target="_blank">Help</a></li>
-                </ul>
-                <span class="navbar-text">
-                    <span class="label label-info" ng-cloak>{{ repoName }}</span>
-                    <span class="label label-info">0 unstarred</span>
-                </span>
-
-                <form class="navbar-form navbar-left pull-right"
-                      role="search">
-                    <div class="form-group">
-                            <input type="text" ng-model="query" class="form-control" placeholder="Search">
-                    </div>
-                </form>
-            </div>
-        </nav>
-        <!-- nav end -->
+        <th-global-top-nav-panel></th-global-top-nav-panel>
         <div class="th-content">
-            <span class="th-nav col-xs-1">
-                <ul class="nav nav-pills nav-stacked">
-                    <li><a ng-class="{'active': (routeIs('jobs'))}" href="#/jobs">Jobs</a></li>
-                    <li><a ng-class="{'active': (routeIs('timeline'))}" href="#/timeline">Timeline</a></li>
-                    <li><a ng-class="{'active': (routeIs('machines'))}" href="#/machines">Machines</a></li>
-                </ul>
-            </span>
 
-            <span class="th-view-content col-xs-11" ng-cloak>
+            <span class="th-view-content" ng-cloak>
                 <div class="alert"
                      ng-bind="statusMsg"
                      ng-show="statusMsg"
-                     ng-class="{'alert-success': (statusColor=='green'), 'alert-error': (statusColor=='red')}"></div>
+                     ng-class="{'alert-success': (statusColor=='green'), 'alert-error': (statusColor=='red')}">
+                </div>
                 <ng-view ></ng-view>
-
             </span>
 
         </div>
@@ -71,7 +33,7 @@
         <script src="vendor/angular/angular-route.js"></script>
         <script src="vendor/angular/angular-resource.js"></script>
         <script src="vendor/angular/angular-cookies.js"></script>
-        <script src="vendor/ui-bootstrap-tpls-0.6.0.js"></script>
+        <script src="vendor/ui-bootstrap-tpls-0.10.0.min.js"></script>
         <script src="vendor/jquery-2.0.3.js"></script>
         <script src="vendor/bootstrap.js"></script>
         <script src="vendor/angular/angular-sanitize.min.js"></script>
@@ -83,8 +45,11 @@
         <script src="js/providers.js"></script>
         <script src="js/directives.js"></script>
         <script src="js/services/main.js"></script>
-        <script src="js/services/resultsets.js"></script>
+        <script src="js/services/models/repository.js"></script>
+        <script src="js/services/models/resultsets.js"></script>
         <script src="js/controllers/main.js"></script>
+        <script src="js/controllers/repository.js"></script>
+        <script src="js/controllers/filters.js"></script>
         <script src="js/controllers/jobs.js"></script>
         <script src="js/controllers/machines.js"></script>
         <script src="js/controllers/timeline.js"></script>

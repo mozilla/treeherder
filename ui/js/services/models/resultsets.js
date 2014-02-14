@@ -32,7 +32,7 @@ treeherder.factory('thResultSets',
     };
 }]);
 
-treeherder.factory('thResultSetModelManager',
+treeherder.factory('thResultSetModel',
                    ['$log', '$rootScope', 'thResultSets', 'thSocket', 'thJobs',
                    function($log, $rootScope, thResultSets, thSocket, thJobs) {
 
@@ -102,21 +102,37 @@ treeherder.factory('thResultSetModelManager',
                 var pl = rs.platforms[pl_i];
                 rsMap[rs.id].platforms[pl.name] = {
                     pl_obj: pl,
+                    parent: rsMap[rs.id],
                     groups: {}
                 };
+                pl.job_counts = getCountDefaults();
 
                 // groups
                 for (var gp_i = 0; gp_i < pl.groups.length; gp_i++) {
                     var gr = pl.groups[gp_i];
                     rsMap[rs.id].platforms[pl.name].groups[gr.name] = {
-                        grp_obj: gr
+                        grp_obj: gr,
+                        parent: rsMap[rs.id].platforms[pl.name],
+                        jobs: {}
                     };
+                    gr.job_counts = getCountDefaults();
 
                     // jobs
                     for (var j_i = 0; j_i < gr.jobs.length; j_i++) {
                         var job = gr.jobs[j_i];
-                        jobMap[job.id] = job;
+                        rsMap[rs.id].platforms[pl.name].groups[gr.name].jobs[job.id] = {
+                            job_obj: job,
+                            parent: rsMap[rs.id].platforms[pl.name].groups[gr.name]
+                        };
+                        jobMap[job.id] = rsMap[rs.id].platforms[pl.name].groups[gr.name].jobs[job.id];
 
+                        var rt = getResultType(job);
+                        // update group count
+                        jobMap[job.id].parent.grp_obj.job_counts[rt] += 1;
+                        // update platform count
+                        jobMap[job.id].parent.parent.pl_obj.job_counts[rt] += 1;
+
+                        // map result status count at different levels
                         // track oldest job id
                         if (!jobMapOldestId || jobMapOldestId > job.id) {
                             jobMapOldestId = job.id;
@@ -131,6 +147,57 @@ treeherder.factory('thResultSetModelManager',
         $log.debug("done mapping:");
         $log.debug(rsMap);
     };
+
+    var getCountDefaults = function() {
+        return {
+            "busted": 0,
+            "exception": 0,
+            "testfailed": 0,
+            "unknown": 0,
+            "usercancel": 0,
+            "retry": 0,
+            "success": 0,
+            "running": 0,
+            "pending": 0
+        };
+    };
+
+    /**
+     * increment the data models job_counts at each level
+     * @param job
+     */
+    var incrementJobCounts = function(job) {
+        var rt = getResultType(job);
+        // update group count
+        jobMap[job.id].parent.grp_obj.job_counts[rt] += 1;
+        // update platform count
+        jobMap[job.id].parent.parent.pl_obj.job_counts[rt] += 1;
+        // update resultset count
+        jobMap[job.id].parent.parent.parent.rs_obj.job_counts[rt] += 1;
+    };
+
+    /**
+     * increment and decrement the data models job_counts at each level
+     * @param job
+     * @param oldResultType
+     */
+    var switchJobCounts = function(job, oldResultType) {
+        incrementJobCounts(job);
+
+        // decrement group count
+        if (jobMap[job.id].parent.grp_obj.job_counts[oldResultType] > 0) {
+            jobMap[job.id].parent.grp_obj.job_counts[oldResultType] -= 1;
+        }
+        // decrement platform count
+        if (jobMap[job.id].parent.parent.pl_obj.job_counts[oldResultType] > 0) {
+            jobMap[job.id].parent.parent.pl_obj.job_counts[oldResultType] -= 1;
+        }
+        // decrement resultset count
+        if (jobMap[job.id].parent.parent.parent.rs_obj.job_counts[oldResultType] > 0) {
+            jobMap[job.id].parent.parent.parent.rs_obj.job_counts[oldResultType] -= 1;
+        }
+    };
+
 
     /**
      * Sort the resultsets in place after updating the array
@@ -209,6 +276,7 @@ treeherder.factory('thResultSetModelManager',
             var grp_obj = {
                 symbol: newJob.job_group_symbol,
                 name: newJob.job_group_name,
+                parent: plMapElement.pl_obj,
                 jobs: []
             };
 
@@ -315,9 +383,14 @@ treeherder.factory('thResultSetModelManager',
      *               to be added or updated.
      */
     var updateJob = function(newJob) {
-        var loadedJob = jobMap[newJob.id];
+        var loadedJob = jobMap[newJob.id].job_obj;
         var rsMapElement = rsMap[newJob.result_set_id];
         var newResultType = getResultType(newJob);
+
+        if (!rsMapElement) {
+            $log.error("we should have added the resultset for this job already!");
+            return;
+        }
 
         if (loadedJob) {
             $log.debug("updating existing job");
@@ -326,12 +399,8 @@ treeherder.factory('thResultSetModelManager',
             // new one.  Don't increment total because we're not adding a new
             // job.
             var oldResultType = getResultType(loadedJob);
-            $log.debug("decrementing " + oldResultType + " job count down from " + rsMapElement.rs_obj.job_counts[oldResultType]);
-            if (rsMapElement.rs_obj.job_counts[oldResultType] > 0) {
-                rsMapElement.rs_obj.job_counts[oldResultType]--;
-            }
-            $log.debug("incrementing " + newResultType + " job count up from " + rsMapElement.rs_obj.job_counts[newResultType]);
-            rsMapElement.rs_obj.job_counts[newResultType]++;
+            $log.debug("switching " + oldResultType + " to " + newResultType);
+            switchJobCounts(newJob, oldResultType);
             _.extend(loadedJob, newJob);
         } else {
             // this job is not yet in the model or the map.  add it to both
@@ -339,12 +408,8 @@ treeherder.factory('thResultSetModelManager',
 
             // increment the result count for the new job's result type
             $log.debug("incrementing " + newResultType + " job count up from " + rsMapElement.rs_obj.job_counts[newResultType]);
-            rsMapElement.rs_obj.job_counts[newResultType]++;
+            incrementJobCounts(newJob);
             rsMapElement.rs_obj.job_counts.total++;
-            if (!rsMapElement) {
-                $log.error("we should have added the resultset for this job already!");
-                return;
-            }
 
             var grpMapElement = getOrCreateGroup(newJob);
 
@@ -352,7 +417,7 @@ treeherder.factory('thResultSetModelManager',
             grpMapElement.grp_obj.jobs.push(newJob);
 
             // add job to the jobmap
-            jobMap[newJob.id] = newJob;
+            jobMap[newJob.id].job_obj = newJob;
 
         }
     };
