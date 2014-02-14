@@ -6,128 +6,122 @@
     'use strict';
 
     // State? Ewwwwww.
-    var loginRedirect = null; // Path to redirect to post-login.
-    var logoutRedirect = null; // Path to redirect to post-logout.
-    var loginCallback = null; // Callback to run post-login.
+    var logoutDeferred = null; // Deferred for post-logout actions.
+    var requestDeferred = null; // Deferred for post-request actions.
+
+    // Fetch browseridInfo via AJAX.
+    var browseridInfo = $.get('/browserid/info/');
 
     // Public API
     window.django_browserid = {
         /**
-         * Triggers BrowserID login.
-         * @param {string} next URL to redirect the user to after login.
+         * Retrieve an assertion and use it to log the user into your site.
          * @param {object} requestArgs Options to pass to navigator.id.request.
+         * @return {jQuery.Deferred} Deferred that resolves once the user has
+         *                           been logged in.
          */
-        login: function login(next, requestArgs) {
-            var defaults = $('#browserid-info').data('requestArgs');
-            requestArgs = $.extend({}, defaults, requestArgs);
-
-            loginRedirect = next;
-            navigator.id.request(requestArgs);
+        login: function login(requestArgs) {
+            return django_browserid.getAssertion(requestArgs).then(function(assertion) {
+                return django_browserid.verifyAssertion(assertion);
+            });
         },
 
         /**
-         * Triggers BrowserID logout.
-         * @param {string} next URL to redirect the user to after logout.
+         * Log the user out of your site.
+         * @return {jQuery.Deferred} Deferred that resolves once the user has
+         *                           been logged out.
          */
-        logout: function logout(next) {
-            logoutRedirect = next;
-            navigator.id.logout();
+        logout: function logout() {
+            return browseridInfo.then(function(info) {
+                logoutDeferred = $.Deferred();
+                navigator.id.logout();
+
+                return logoutDeferred.then(function() {
+                    return $.ajax(info.logoutUrl, {
+                        type: 'POST',
+                        headers: {'X-CSRFToken': info.csrfToken},
+                    });
+                });
+            });
         },
 
         /**
-         * Check to see if the current user has authenticated via
-         * django_browserid.
-         * @return {boolean} True if the user has authenticated, false
-         *                   otherwise.
+         * Retrieve an assertion via BrowserID.
+         * @param {object} requestArgs Options to pass to navigator.id.request.
+         * @return {jQuery.Deferred} Deferred that resolves with the assertion
+         *                           once it is retrieved.
          */
-        isUserAuthenticated: function isUserAuthenticated() {
-            return !!$('#browserid-info').data('userEmail');
+        getAssertion: function getAssertion(requestArgs) {
+            return browseridInfo.then(function(info) {
+                requestArgs = $.extend({}, info.requestArgs, requestArgs);
+
+                requestDeferred = $.Deferred();
+                navigator.id.request(requestArgs);
+                return requestDeferred;
+            });
         },
 
         /**
-         * Retrieve an assertion from BrowserID and execute a callback.
-         * @param {function} Callback to run after requesting an assertion.
-         */
-        getAssertion: function getAssertion(callback, requestArgs) {
-            var defaults = $('#browserid-info').data('requestArgs');
-            requestArgs = $.extend({}, defaults, requestArgs);
-
-            loginCallback = callback || null;
-            navigator.id.request(requestArgs);
-        },
-
-        /**
-         * Verify that the given assertion is valid, and redirect to another
-         * page if successful.
+         * Verify that the given assertion is valid, and log the user in.
          * @param {string} Assertion to verify.
-         * @param {string} URL to redirect to after successful verification.
+         * @return {jQuery.Deferred} Deferred that resolves with the login view
+         *                           response once login is complete.
          */
-        verifyAssertion: function verifyAssertion(assertion, redirectTo) {
-            var $loginForm = $('#browserid-form'); // Form used to submit login.
-            $loginForm.find('input[name="next"]').val(redirectTo);
-            $loginForm.find('input[name="assertion"]').val(assertion);
-            $loginForm.submit();
+        verifyAssertion: function verifyAssertion(assertion) {
+            return browseridInfo.then(function(info) {
+                return $.ajax(info.loginUrl, {
+                    type: 'POST',
+                    data: {assertion: assertion},
+                    headers: {'X-CSRFToken': info.csrfToken},
+                });
+            });
         }
     };
 
     $(function() {
-        var $loginForm = $('#browserid-form'); // Form used to submit login.
-        var $browseridInfo = $('#browserid-info'); // Useful info from backend.
-
         var loginFailed = location.search.indexOf('bid_login_failed=1') !== -1;
 
-        // Call navigator.id.request whenever a login link is clicked.
+        // Trigger login whenever a login link is clicked, and redirect the user
+        // once it succeeds.
         $(document).on('click', '.browserid-login', function(e) {
             e.preventDefault();
-            django_browserid.login($(this).data('next'));
+            var $link = $(this);
+            django_browserid.login().then(function(verifyResult) {
+                window.location = $link.data('next') || verifyResult.redirect;
+            });
         });
 
-        // Call navigator.id.logout whenever a logout link is clicked.
+        // Trigger logout whenever a logout link is clicked, and redirect the
+        // user once it succeeds.
         $(document).on('click', '.browserid-logout', function(e) {
             e.preventDefault();
-            django_browserid.logout($(this).attr('href'));
+            var $link = $(this);
+            django_browserid.logout().then(function(logoutResult) {
+                window.location = $link.attr('next') || logoutResult.redirect;
+            });
         });
 
-        navigator.id.watch({
-            loggedInUser: $browseridInfo.data('userEmail') || null,
-            onlogin: function(assertion) {
-                // Avoid auto-login on failure.
-                if (loginFailed) {
-                    navigator.id.logout();
-                    loginFailed = false;
-                    return;
-                }
+        browseridInfo.then(function(info) {
+            navigator.id.watch({
+                loggedInUser: info.userEmail,
+                onlogin: function(assertion) {
+                    // Avoid auto-login on failure.
+                    if (loginFailed) {
+                        navigator.id.logout();
+                        loginFailed = false;
+                        return;
+                    }
 
-                if (isFunction(loginCallback)) {
-                    loginCallback(assertion);
-                } else if (assertion) {
-                    django_browserid.verifyAssertion(assertion, loginRedirect);
-                }
-            },
-            onlogout: function() {
-                // Follow the logout link's href once logout is complete.
-                var currentLogoutUrl = logoutRedirect;
-                if (currentLogoutUrl !== null) {
-                    logoutRedirect = null;
-                    window.location = currentLogoutUrl;
-                } else {
-                    // Sometimes you can get caught in a loop where BrowserID
-                    // keeps trying to log you out as soon as watch is called,
-                    // and fails since the logout URL hasn't been set yet.
-                    // Here we just find the first logout button and use that
-                    // URL; if this breaks your site, you'll just need custom
-                    // JavaScript instead, sorry. :(
-                    currentLogoutUrl = $('.browserid-logout').attr('href');
-                    if (currentLogoutUrl) {
-                        window.location = currentLogoutUrl;
+                    if (requestDeferred) {
+                        requestDeferred.resolve(assertion);
+                    }
+                },
+                onlogout: function() {
+                    if (logoutDeferred) {
+                        logoutDeferred.resolve();
                     }
                 }
-            }
+            });
         });
     });
-
-    // Courtesy of http://jsperf.com/alternative-isfunction-implementations/9
-    function isFunction(obj) {
-        return typeof(obj) == 'function';
-    }
 })(jQuery, window);

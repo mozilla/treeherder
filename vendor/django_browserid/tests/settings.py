@@ -33,3 +33,5 @@ BROWSERID_CREATE_USER = True
 BROWSERID_USERNAME_ALGO = None
 
 STATIC_URL = 'static/'
+
+BROWSERID_AUDIENCES = ['http://testserver']

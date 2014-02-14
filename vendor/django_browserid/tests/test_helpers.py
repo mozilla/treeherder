@@ -1,155 +1,142 @@
-from django.contrib.auth import authenticate
-from django.contrib.auth.models import AnonymousUser, User
-from django.test import TestCase
-from django.test.client import RequestFactory
-from django.utils.functional import lazy
-
-from mock import patch
-from pyquery import PyQuery as pq
-
-from django_browserid.helpers import (browserid_button, browserid_info,
-                                      browserid_js, browserid_login,
-                                      browserid_css, browserid_logout)
-from django_browserid.tests import mock_browserid, patch_settings
+from django_browserid import helpers
+from django_browserid.tests import TestCase
 
 
-@patch('django_browserid.helpers.FORM_JAVASCRIPT',
-       ('test1.js', 'test2.js'))
-@patch('django_browserid.helpers.BROWSERID_SHIM',
-       'https://example.com/test3.js')
 class BrowserIDJSTests(TestCase):
     def test_basic(self):
-        output = browserid_js()
-        self.assertTrue('src="static/test1.js"' in output)
-        self.assertTrue('src="static/test2.js"' in output)
-        self.assertTrue('src="https://example.com/test3.js"' in output)
+        output = helpers.browserid_js()
+        self.assertHTMLEqual(output, """
+            <script type="text/javascript" src="https://login.persona.org/include.js"></script>
+            <script type="text/javascript" src="static/browserid/browserid.js"></script>
+        """)
 
     def test_no_shim(self):
-        output = browserid_js(include_shim=False)
-        self.assertTrue('src="static/test1.js"' in output)
-        self.assertTrue('src="static/test2.js"' in output)
-        self.assertTrue('src="https://example.com/test3.js"' not in output)
+        output = helpers.browserid_js(include_shim=False)
+        self.assertHTMLEqual(output, """
+            <script type="text/javascript" src="static/browserid/browserid.js"></script>
+        """)
 
-@patch('django_browserid.helpers.FORM_CSS',
-       ('test1.css', 'test2.css'))
+    def test_custom_shim(self):
+        with self.settings(BROWSERID_SHIM='http://example.com/test.js'):
+            output = helpers.browserid_js()
+        self.assertHTMLEqual(output, """
+            <script type="text/javascript" src="http://example.com/test.js"></script>
+            <script type="text/javascript" src="static/browserid/browserid.js"></script>
+        """)
+
+
 class BrowserIDCSSTests(TestCase):
     def test_basic(self):
-        output = browserid_css()
-        self.assertTrue('href="static/test1.css"' in output)
-        self.assertTrue('href="static/test2.css"' in output)
+        output = helpers.browserid_css()
+        self.assertHTMLEqual(output, """
+            <link rel="stylesheet" href="static/browserid/persona-buttons.css" />
+        """)
 
 
 class BrowserIDButtonTests(TestCase):
     def test_basic(self):
-        button = browserid_button(text='asdf', next='1234',
-                                  link_class='fake-button',
-                                  attrs={'target': '_blank'})
-        a = pq(button)('a')
-
-        self.assertTrue(a.hasClass('fake-button'))
-        self.assertEqual(a.attr('href'), '#')
-        self.assertEqual(a.attr('data-next'), '1234')
-        self.assertEqual(a.text(), 'asdf')
-        self.assertEqual(a.attr('target'), '_blank')
+        button = helpers.browserid_button(text='asdf', next='1234', link_class='fake-button',
+                                          href="/test", attrs={'target': '_blank'})
+        self.assertHTMLEqual(button, """
+            <a href="/test" class="fake-button" data-next="1234" target="_blank">
+                <span>asdf</span>
+            </a>
+        """)
 
     def test_json_attrs(self):
-        button = browserid_button(text='qwer', next='5678',
-                                  link_class='fake-button',
-                                  attrs='{"target": "_blank"}')
-        a = pq(button)('a')
+        button = helpers.browserid_button(text='qwer', next='5678', link_class='fake-button',
+                                          attrs='{"target": "_blank"}')
+        self.assertHTMLEqual(button, """
+            <a href="#" class="fake-button" data-next="5678" target="_blank">
+                <span>qwer</span>
+            </a>
+        """)
 
-        self.assertTrue(a.hasClass('fake-button'))
-        self.assertEqual(a.attr('href'), '#')
-        self.assertEqual(a.attr('data-next'), '5678')
-        self.assertEqual(a.attr('target'), '_blank')
-        self.assertEqual(a.text(), 'qwer')
 
+class BrowserIDLoginTests(TestCase):
     def test_login_class(self):
-        # If browserid-login isn't in the link_class argument, it should be
-        # appended to it prior to calling browserid_button.
-        button = browserid_login(link_class='go button')
-        a = pq(button)('a')
+        with self.settings(LOGIN_REDIRECT_URL='/'):
+            button = helpers.browserid_login(link_class='go button')
+        self.assertHTMLEqual(button, """
+            <a href="#" class="go button" data-next="/">
+                <span>Sign in</span>
+            </a>
+        """)
 
-        self.assertTrue(a.hasClass('browserid-login'))
+    def test_default_class(self):
+        # If no class is provided, it should default to
+        # 'browserid-login persona-button'
+        with self.settings(LOGIN_REDIRECT_URL='/'):
+            button = helpers.browserid_login()
+        self.assertHTMLEqual(button, """
+            <a href="#" class="browserid-login persona-button" data-next="/">
+                <span>Sign in</span>
+            </a>
+        """)
 
+    def test_color_class(self):
+        with self.settings(LOGIN_REDIRECT_URL='/'):
+            button = helpers.browserid_login(color='dark')
+        self.assertHTMLEqual(button, """
+            <a href="#" class="browserid-login persona-button dark" data-next="/">
+                <span>Sign in</span>
+            </a>
+        """)
+
+    def test_color_custom_class(self):
+        # If using a color and a custom link class, persona-button
+        # should be added to the link class.
+        with self.settings(LOGIN_REDIRECT_URL='/'):
+            button = helpers.browserid_login(link_class='go button', color='dark')
+        self.assertHTMLEqual(button, """
+            <a href="#" class="go button persona-button dark" data-next="/">
+                <span>Sign in</span>
+            </a>
+        """)
+
+    def test_next(self):
+        button = helpers.browserid_login(next='/foo/bar')
+        self.assertHTMLEqual(button, """
+            <a href="#" class="browserid-login persona-button" data-next="/foo/bar">
+                <span>Sign in</span>
+            </a>
+        """)
+
+    def test_next_default(self):
+        # next should default to LOGIN_REDIRECT_URL
+        with self.settings(LOGIN_REDIRECT_URL='/foo/bar'):
+            button = helpers.browserid_login()
+        self.assertHTMLEqual(button, """
+            <a href="#" class="browserid-login persona-button" data-next="/foo/bar">
+                <span>Sign in</span>
+            </a>
+        """)
+
+
+class BrowserIDLogoutTests(TestCase):
     def test_logout_class(self):
-        # If browserid-logout isn't in the link_class argument, it should be
-        # appended to it prior to calling browserid_button.
-        button = browserid_logout(link_class='go button')
-        a = pq(button)('a')
+        with self.settings(LOGOUT_REDIRECT_URL='/'):
+            button = helpers.browserid_logout(link_class='go button')
+        self.assertHTMLEqual(button, """
+            <a href="/browserid/logout/" class="go button" data-next="/">
+                <span>Sign out</span>
+            </a>
+        """)
 
-        self.assertTrue(a.hasClass('browserid-logout'))
+    def test_next(self):
+        button = helpers.browserid_logout(next='/foo/bar')
+        self.assertHTMLEqual(button, """
+            <a href="/browserid/logout/" class="browserid-logout" data-next="/foo/bar">
+                <span>Sign out</span>
+            </a>
+        """)
 
-
-def _lazy_request_args():
-    return {'siteName': 'asdf'}
-lazy_request_args = lazy(_lazy_request_args, dict)
-
-
-class BrowserIDInfoTests(TestCase):
-    def setUp(self):
-        self.factory = RequestFactory()
-
-    def test_defaults(self):
-        request = self.factory.get('/')
-        request.user = AnonymousUser()
-        info = browserid_info(request)
-        d = pq(info)
-
-        info_div = d('#browserid-info')
-        self.assertEqual(info_div.attr('data-user-email'), '')
-        self.assertEqual(info_div.attr('data-request-args'), '{}')
-
-        form = d('#browserid-form')
-        self.assertEqual(form.attr('action'), '/browserid/login/')
-
-    @patch_settings(BROWSERID_REQUEST_ARGS={'siteName': 'asdf'})
-    def test_custom_values(self):
-        request = self.factory.get('/')
-
-        User.objects.create_user('asdf', 'a@example.com')
-        with mock_browserid('a@example.com'):
-            user = authenticate(assertion='asdf', audience='1234')
-            request.user = user
-
-        info = browserid_info(request)
-        d = pq(info)
-
-        info_div = d('#browserid-info')
-        self.assertEqual(info_div.attr('data-user-email'), 'a@example.com')
-        self.assertEqual(info_div.attr('data-request-args'),
-                         '{"siteName": "asdf"}')
-
-        form = d('#browserid-form')
-        self.assertEqual(form.attr('action'), '/browserid/login/')
-
-    def test_non_browserid_user(self):
-        """
-        If the current user was not authenticated via django-browserid,
-        data-user-email should be empty.
-        """
-        request = self.factory.get('/')
-
-        User.objects.create_user('asdf', 'a@example.com', '1234')
-        with mock_browserid(None):
-            user = authenticate(username='asdf', password='1234')
-            self.assertTrue(user.is_authenticated())
-            request.user = user
-
-        info = browserid_info(request)
-        d = pq(info)
-
-        info_div = d('#browserid-info')
-        self.assertEqual(info_div.attr('data-user-email'), '')
-
-    @patch_settings(BROWSERID_REQUEST_ARGS=lazy_request_args())
-    def test_lazy_request_args(self):
-        # Ensure that request_args can be a lazy-evaluated dictionary.
-        request = self.factory.get('/')
-        request.user = AnonymousUser()
-        info = browserid_info(request)
-        d = pq(info)
-
-        info_div = d('#browserid-info')
-        self.assertEqual(info_div.attr('data-request-args'),
-                         '{"siteName": "asdf"}')
+    def test_next_default(self):
+        # next should default to LOGOUT_REDIRECT_URL
+        with self.settings(LOGOUT_REDIRECT_URL='/foo/bar'):
+            button = helpers.browserid_logout()
+        self.assertHTMLEqual(button, """
+            <a href="/browserid/logout/" class="browserid-logout" data-next="/foo/bar">
+                <span>Sign out</span>
+            </a>
+        """)

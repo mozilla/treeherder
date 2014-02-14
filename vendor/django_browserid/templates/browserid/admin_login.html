@@ -1,0 +1,86 @@
+{% extends 'admin/login.html' %}
+{% load admin_static browserid %}
+
+{% comment %}
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+{% endcomment %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  {% browserid_css %}
+  <style>
+    a.persona-button:link,
+    a.persona-button:visited {
+      color: #FFF;
+    }
+
+    .persona-button-container {
+      display: flex;
+      float: left;
+      justify-content: center;
+      margin-top: 2em;
+      width: 100%;
+    }
+
+    .seperator {
+      background-color: #CCC;
+      float: left;
+      height: 1px;
+      margin: 2em 0 0;
+      overflow: visible;
+      text-align: center;
+      width: 100%;
+    }
+
+    .seperator-text {
+      background-color: #FFF;
+      padding: 2px;
+      position: relative;
+      top: -0.7em;
+    }
+
+    #persona-error {
+      background-color: #FCF8E3;
+      border: 1px solid #FAEBCC;
+      color: #8A6D3B;
+      display: none;
+      float: left;
+      margin: 2em 0 0;
+      padding: 10px 8px;
+      width
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  {% if include_password_form %}
+    {{ block.super }}
+    <div class="seperator">
+      <span class="seperator-text">or</span>
+    </div>
+  {% endif %}
+
+  <div class="persona-button-container">
+    {% browserid_login text='Sign in with email' color='dark' next=app_path link_class='admin-browserid-login' %}
+  </div>
+  <div id="persona-error">There was a problem signing you in. Please try again.</div>
+
+  <script src="{% static 'browserid/jquery-1.10.2.min.js' %}"></script>
+  {% browserid_js %}
+  <script>
+      $(document).on('click', '.admin-browserid-login', function(e) {
+          e.preventDefault();
+          var $link = $(this);
+          var $error = $('#persona-error');
+
+          $error.slideUp(500);
+          django_browserid.login().then(function(verifyResult) {
+              window.location = $link.data('next');
+          }, function(jqXHR) {
+              $error.slideDown(500);
+          });
+      });
+  </script>
+{% endblock %}

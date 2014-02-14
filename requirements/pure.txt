@@ -11,7 +11,8 @@ Unipath==1.0
 django-rest-swagger==0.1.11
 
 django-cors-headers==0.11
-django-browserid==0.9
+
+git+git://github.com/mozilla/django-browserid@e8d1d57145
 
 # requirements for django-browserid
 requests>=0.9.1

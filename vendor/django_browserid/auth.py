@@ -6,16 +6,15 @@ import hashlib
 import logging
 
 from django.conf import settings
-from django.db import IntegrityError
 
 try:
     from django.utils.encoding import smart_bytes
 except ImportError:
     from django.utils.encoding import smart_str as smart_bytes
 
-from django_browserid.base import verify
+from django_browserid.base import get_audience, RemoteVerifier
 from django_browserid.signals import user_created
-from django_browserid.util import import_function_from_setting
+from django_browserid.util import import_from_setting
 
 try:
     from django.contrib.auth import get_user_model
@@ -44,12 +43,16 @@ class BrowserIDBackend(object):
     supports_object_permissions = False
 
     def __init__(self):
-        """
-        Store the current user model on creation to avoid issues if
-        settings.AUTH_USER_MODEL changes, which usually only happens during
-        tests.
-        """
+        # Store the current user model on creation to avoid issues if settings.AUTH_USER_MODEL
+        # changes, which usually only happens during tests.
         self.User = get_user_model()
+
+    def get_verifier(self):
+        """
+        Create a verifier for verifying assertions. Uses a
+        :class:`django_browserid.base.RemoteVerifier` by default.
+        """
+        return RemoteVerifier()
 
     def filter_users_by_email(self, email):
         """Return all users matching the specified email."""
@@ -57,6 +60,8 @@ class BrowserIDBackend(object):
 
     def create_user(self, email):
         """Return object for a newly created user account."""
+        from django.db import IntegrityError  # Importing at the top causes issues on DB init.
+
         username_algo = getattr(settings, 'BROWSERID_USERNAME_ALGO', None)
         if username_algo is not None:
             username = username_algo(email)
@@ -80,23 +85,44 @@ class BrowserIDBackend(object):
         # This method is basically for your overriding pleasures.
         return True
 
-    def authenticate(self, assertion=None, audience=None, browserid_extra=None, **kw):
-        """``django.contrib.auth`` compatible authentication method.
-
-        Given a BrowserID assertion and an audience, it attempts to
-        verify them and then extract the email address for the authenticated
-        user.
-
-        An audience should be in the form ``https://example.com`` or
-        ``http://localhost:8001``.
-
-        See django_browserid.base.get_audience()
+    def authenticate(self, assertion=None, audience=None, request=None, **kwargs):
         """
-        result = verify(assertion, audience, extra_params=browserid_extra)
+        Authenticate a user by verifying a BrowserID assertion. Defers to the verifier returned by
+        :func:`BrowserIDBackend.get_verifier` for verification.
+
+        You may either pass the ``request`` parameter to determine the audience from the request,
+        or pass the ``audience`` parameter explicitly.
+
+        :param assertion:
+            Assertion submitted by the user. This asserts that the user controls a specific email
+            address.
+
+        :param audience:
+            The audience to use when verifying the assertion; this prevents another site using
+            an assertion for their site to login to yours. This value takes precedence over the
+            audience pulled from the request parameter, if given.
+
+        :param request:
+            The request that generated this authentication attempt. This is used to determine the
+            audience to use during verification, using the
+            :func:`django_browserid.base.get_audience` function. If the audience parameter is also
+            passed, it will be used instead of the audience from the request.
+
+        :param kwargs:
+            All remaining keyword arguments are passed to the ``verify`` function on the verifier.
+        """
+        if audience is None and request:
+            audience = get_audience(request)
+
+        if audience is None or assertion is None:
+            return None
+
+        verifier = self.get_verifier()
+        result = verifier.verify(assertion, audience, **kwargs)
         if not result:
             return None
 
-        email = result['email']
+        email = result.email
         if not self.is_valid_email(email):
             return None
 
@@ -119,7 +145,7 @@ class BrowserIDBackend(object):
                 create_function = self.create_user
             else:
                 # Find the function to call.
-                create_function = import_function_from_setting('BROWSERID_CREATE_USER')
+                create_function = import_from_setting('BROWSERID_CREATE_USER')
 
             user = create_function(email)
             user_created.send(create_function, user=user)
@@ -128,7 +154,6 @@ class BrowserIDBackend(object):
     def get_user(self, user_id):
         try:
             user = self.User.objects.get(pk=user_id)
-            user.backend = 'django_browserid.auth.BrowserIDBackend'
             return user
         except self.User.DoesNotExist:
             return None
