@@ -115,3 +115,43 @@ treeherder.factory('thSocket', function ($rootScope, $log, thUrl) {
     }
   };
 });
+
+treeherder.factory('BrowserId', function($http, $q,  thServiceDomain){
+    var browserid = {
+        info: $http.get(thServiceDomain+'/browserid/info/'),
+        requestDeferred: null,
+        logoutDeferred: null,
+        login: function(requestArgs){
+           return browserid.getAssertion(requestArgs).then(function(response) {
+                return browserid.verifyAssertion(response.data);
+            });
+
+        },
+        logout: function(){
+            browserid.info.then(function(response){
+                browserid.logoutDeferred = $q.defer();
+                navigator.id.logout();
+                return browserid.logoutDeferred.then(function(){
+                    return $http.post(response.data.logoutUrl);
+                })
+            });
+
+
+        },
+        getAssertion: function(requestArgs){
+            return browserid.info.then(function(response){
+                requestArgs = _.extend({}, response.data.requestArgs, requestArgs);
+                browserid.requestDeferred = $q.defer();
+                navigator.id.request(requestArgs);
+                return browserid.requestDeferred;
+           });
+        },
+        verifyAssertion: function(assertion){
+            return browserid.info.then(function(response){
+                return $http.post(response.data.loginUrl,
+                {assertion: assertion});
+            });
+        }
+    }
+    return browserid;
+});

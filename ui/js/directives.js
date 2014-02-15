@@ -268,3 +268,44 @@ treeherder.directive('resizablePanel', function($document, $log) {
     };
 });
 
+treeherder.directive('personaButtons', function($http, $q, $log, thServiceDomain, BrowserId) {
+
+    return {
+        restrict: "E",
+        link: function(scope, element, attrs) {
+            scope.user = scope.user || {};
+            scope.user.email = scope.user.email || null;
+            scope.login = function(){
+                BrowserId.login().then(function(response){
+                    $log.log("logged in");
+                    $log.log(response.data);
+                    scope.user.logged_in = true;
+                });
+            };
+            scope.logout = function(){
+                BrowserId.logout().then(function(response){
+                    $log.log("logged out");
+                    $log.log(response.data);
+                    scope.user.logged_in = false;
+                });
+            };
+
+            navigator.id.watch({
+                loggedInUser: scope.user.email,
+                onlogin: function(assertion){
+                    if (BrowserId.requestDeferred) {
+                        BrowserId.requestDeferred.resolve(assertion);
+                    }
+
+                    
+                },
+                onlogout: function(){
+                    if (BrowserId.logoutDeferred) {
+                        BrowserId.logoutDeferred.resolve();
+                    }
+                }
+            });
+        },
+        templateUrl: 'partials/persona_buttons.html'
+    };
+});
