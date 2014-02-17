@@ -268,25 +268,31 @@ treeherder.directive('resizablePanel', function($document, $log) {
     };
 });
 
-treeherder.directive('personaButtons', function($http, $q, $log, thServiceDomain, BrowserId) {
+treeherder.directive('personaButtons', function($http, $q, $log, $rootScope, localStorageService, thServiceDomain, BrowserId) {
 
     return {
         restrict: "E",
         link: function(scope, element, attrs) {
+            localStorageService.clearAll()
             scope.user = scope.user || {};
-            scope.user.email = scope.user.email || null;
+            scope.user.email = scope.user.email || localStorageService.get('user.email');
+            scope.user.loggedin =  scope.user.email == null ? false : true;
             scope.login = function(){
-                BrowserId.login().then(function(response){
-                    $log.log("logged in");
-                    $log.log(response.data);
-                    scope.user.logged_in = true;
+                BrowserId.login()
+                .then(function(response){
+                    scope.user.loggedin = true;
+                    scope.user.email = response.data.email;
+                    localStorageService.add('user.email', scope.user.email);
+                },function(){
+                    scope.logout();
                 });
             };
             scope.logout = function(){
                 BrowserId.logout().then(function(response){
-                    $log.log("logged out");
-                    $log.log(response.data);
-                    scope.user.logged_in = false;
+                    scope.user.loggedin = false;
+                    scope.user.email = null;
+                    localStorageService.remove('user.loggedin');
+                    localStorageService.remove('user.email');
                 });
             };
 
@@ -296,8 +302,6 @@ treeherder.directive('personaButtons', function($http, $q, $log, thServiceDomain
                     if (BrowserId.requestDeferred) {
                         BrowserId.requestDeferred.resolve(assertion);
                     }
-
-                    
                 },
                 onlogout: function(){
                     if (BrowserId.logoutDeferred) {

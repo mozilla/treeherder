@@ -72,5 +72,7 @@ treeherder.controller('MainCtrl',
         };
 
         $scope.user = {};
+        $scope.user.email = localStorageService.get("user.email");
+        $scope.user.loggedin = $scope.user.email == null ? false : true;
     }
 );

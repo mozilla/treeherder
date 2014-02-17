@@ -116,22 +116,23 @@ treeherder.factory('thSocket', function ($rootScope, $log, thUrl) {
   };
 });
 
-treeherder.factory('BrowserId', function($http, $q,  thServiceDomain){
+treeherder.factory('BrowserId', function($http, $q, $log,  thServiceDomain){
     var browserid = {
         info: $http.get(thServiceDomain+'/browserid/info/'),
         requestDeferred: null,
         logoutDeferred: null,
         login: function(requestArgs){
-           return browserid.getAssertion(requestArgs).then(function(response) {
-                return browserid.verifyAssertion(response.data);
+            return browserid.getAssertion(requestArgs)
+            .then(function(response) {
+                return browserid.verifyAssertion(response);
             });
 
         },
         logout: function(){
-            browserid.info.then(function(response){
+            return browserid.info.then(function(response){
                 browserid.logoutDeferred = $q.defer();
                 navigator.id.logout();
-                return browserid.logoutDeferred.then(function(){
+                return browserid.logoutDeferred.promise.then(function(){
                     return $http.post(response.data.logoutUrl);
                 })
             });
@@ -143,14 +144,20 @@ treeherder.factory('BrowserId', function($http, $q,  thServiceDomain){
                 requestArgs = _.extend({}, response.data.requestArgs, requestArgs);
                 browserid.requestDeferred = $q.defer();
                 navigator.id.request(requestArgs);
-                return browserid.requestDeferred;
+                return browserid.requestDeferred.promise;
            });
         },
         verifyAssertion: function(assertion){
             return browserid.info.then(function(response){
-                return $http.post(response.data.loginUrl,
-                {assertion: assertion});
+                return $http.post(
+                    response.data.loginUrl, {assertion: assertion},{
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
+                        transformRequest: browserid.transform_data
+                    });
             });
+        },
+        transform_data: function(data){
+            return $.param(data);
         }
     }
     return browserid;
