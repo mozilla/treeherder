@@ -10,6 +10,7 @@
   position: relative;
   text-decoration: none;
   text-shadow: 0 1px rgba(0,0,0,0.5), 0 0 2px rgba(0,0,0,0.2);
+  margin-bottom: -9px;
 
   background: #297dc3;
   background: -moz-linear-gradient(top, #43a6e2, #287cc2);
