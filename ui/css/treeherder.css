@@ -1,9 +1,13 @@
 body {
-    padding-top: 60px;
+    padding-top: 64px;
     padding-bottom: 500px;
-    min-width: 1300px;
+    min-width: 800px;
     width: auto !important;
     width: 1300px;
+}
+
+.nav, .pagination, .carousel, .panel-title a {
+    cursor: pointer;
 }
 
 .hidden {
@@ -11,24 +15,103 @@ body {
     visibility: hidden;
 }
 
-.navbar {
-    min-width: 1300px;
+.th-navbar {
+    min-width: 800px;
 }
 
+.navbar {
+    min-width: 800px;
+    min-height: 36px;
+}
+
+.navbar-brand {
+    line-height: 2px;
+}
 .navbar .dropdown-menu {
     max-height: 600px;
     overflow: auto;
 }
 
+.navbar-fixed-top {
+    background-color: #273038;
+}
+
+.th-global-navbar {
+    border-bottom: 1px solid black;
+    min-width: 800px;
+}
+
+.th-help-link {
+    padding-top: 8px;
+}
+
+.th-context-navbar {
+    background-color: #354048;
+    height: 30px;
+    min-width: 800px;
+}
+
 .th-content {
     display: inline-block;
     overflow: hidden;
-    min-width: 960px;
+    min-width: 800px;
     width: 100%;
     padding-bottom: 101px;
     white-space: nowrap;
     padding-right: 5px;
 }
+
+/* Options drop-downs*/
+
+.th-top-nav-options-panel {
+    background-color: lightgray;
+    padding: 10px;
+    border: 1px solid black;
+    max-height: 500px;
+    overflow: auto;
+}
+
+.th-top-nav-options-panel .th-option-heading {
+    padding: 3px 10px;
+    background-color: darkgray;
+    color: white;
+}
+
+.th-inline-option-group {
+    display: inline-block;
+}
+
+.th-stacked-option-group {
+    display: block;
+}
+
+.th-option-group {
+    margin: 5px;
+    border: 1px solid darkgrey;
+    -moz-border-radius:3px;
+    -webkit-border-radius:3px;
+    border-radius:3px;
+}
+
+.th-option-heading .th-panel-heading{
+    padding: 5px 10px;
+    background-color: darkgray;
+}
+
+.th-repo-group {
+    margin-bottom: 5px;
+}
+
+.th-repo-group-items {
+    display: inline-block;
+    margin: 5px 5px 0 5px;
+    min-width: 225px;
+}
+
+
+/**
+  Failures
+*/
 
 .th-failures-box {
     position: fixed;
@@ -44,6 +127,15 @@ body {
 }
 .th-failures-box li a{
     color: #428bca;
+}
+
+.view-nav {
+    background-color: #353f47;
+}
+
+.view-nav a {
+    color: lightgray;
+
 }
 
 .th-revision-btn {
@@ -200,6 +292,9 @@ div.navbar-fixed-bottom dt {
 .result-status-total-count {
     width: 40px;
 }
+.result-status-count-min-width {
+    width: 28px;
+}
 .result-status-count-success {
     width: 75px;
 }
@@ -229,6 +324,39 @@ div.navbar-fixed-bottom dt {
 }
 
 /* Custom Job buttons*/
+.btn-view-nav {
+  background-color: rgba(63, 74, 81, 0.56);
+  border-color: #22282d;
+  color: lightgray;
+  border-radius: 0;
+  border-bottom: 0;
+  border-top: 0;
+  border-left: 0;
+}
+.btn-view-nav:hover,
+.btn-view-nav:focus,
+.btn-view-nav:active,
+.btn-view-nav.active {
+  background-color: #25292b;
+  border-color: #1a1d20;
+  color: white;
+}
+.btn-view-nav.disabled:hover,
+.btn-view-nav.disabled:focus,
+.btn-view-nav.disabled:active,
+.btn-view-nav.disabled.active,
+.btn-view-nav[disabled]:hover,
+.btn-view-nav[disabled]:focus,
+.btn-view-nav[disabled]:active,
+.btn-view-nav[disabled].active,
+fieldset[disabled] .btn-view-nav:hover,
+fieldset[disabled] .btn-view-nav:focus,
+fieldset[disabled] .btn-view-nav:active,
+fieldset[disabled] .btn-view-nav.active {
+  color: #e0e0e0;
+  border-color: #e0e0e0;
+}
+
 .btn-orange {
   background-color: rgba(221, 102, 2, 0.56);
   border-color: #dd6602;
@@ -480,8 +608,13 @@ fieldset[disabled] .btn-mdgray.active {
   color: #6f6d70;
 }
 
+.btn-default-count-unclassified, .btn-default-count-classified {
+  border-color: #bfbfbf;
+  color: #6f6d70;
+}
+
 .btn-dkgray {
-  border-color: #7c7a7d;
+  border-color: rgba(124, 122, 125, 0.37);
   color: #7c7a7d;
 }
 .btn-dkgray:hover,
@@ -613,6 +746,40 @@ fieldset[disabled] .btn-pink.active {
   border-color: #fa73ac;
   color: rgba(250, 115, 172, 0.82);
 }
+
+.btn-repo {
+  border-color: #c3c3c3;
+  color: #7c7a7d;
+  background-color: #eaeaea;
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+}
+.btn-repo:hover,
+.btn-repo:focus,
+.btn-repo:active,
+.btn-repo.active {
+  background-color: #6f6d70;
+  border-color: #626163;
+  color: white;
+}
+.btn-repo.disabled:hover,
+.btn-repo.disabled:focus,
+.btn-repo.disabled:active,
+.btn-repo.disabled.active,
+.btn-repo[disabled]:hover,
+.btn-repo[disabled]:focus,
+.btn-repo[disabled]:active,
+.btn-repo[disabled].active,
+fieldset[disabled] .btn-repo:hover,
+fieldset[disabled] .btn-repo:focus,
+fieldset[disabled] .btn-repo:active,
+fieldset[disabled] .btn-repo.active {
+  background-color: #7c7a7d;
+  border-color: #7c7a7d;
+  color: white;
+}
+
+
 /*Log Viewer*/
 
 .lv-line-no {
@@ -641,6 +808,13 @@ fieldset[disabled] .btn-pink.active {
     background-color: LightGrey;
 }
 
+.white, .white a {
+    color: white;
+}
+
+.lightgray, .lightgray a {
+    color: lightgray;
+}
 
 #help.dt, #help.dd { text-align: center;}
 #help.panel {padding:5px;}

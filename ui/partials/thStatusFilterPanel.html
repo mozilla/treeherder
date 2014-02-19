@@ -1,0 +1,33 @@
+<div id="filter"
+     class="th-top-nav-options-panel model-body"
+     ng-controller="StatusFilterPanelCtrl">
+    <div class="well"><h5>Specify which results and statuses to display.</h5></div>
+        <span ng-repeat="group in filterGroups"
+              class="panel panel-default th-option-group th-inline-option-group">
+
+            <!--heading for each group-->
+            <div class="panel-heading th-option-heading">{{group.name}}
+                <span class="pull-right">
+                <input type="checkbox"
+                       ng-model="group.allChecked"
+                       ng-change="toggleGroup(group)"> all
+                </span>
+            </div>
+            <!--content for each group-->
+            <div class="panel-body">
+                <span ng-repeat="filterName in group.resultStatuses">
+                    <th-filter-checkbox></th-filter-checkbox>
+                </span>
+            </div>
+        </span>
+        <span class="panel panel-default th-option-group th-inline-option-group">
+            <div class="panel-heading th-option-heading">classified</div>
+            <div class="panel-body">
+                <label class="checkbox-inline">
+                    <input type="checkbox"
+                           id="classified"
+                           ng-model="classifiedFilter"> classified
+                </label>
+            </div>
+        </span>
+</div>

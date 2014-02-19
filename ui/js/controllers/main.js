@@ -2,7 +2,8 @@
 
 treeherder.controller('MainCtrl',
     function MainController($scope, $rootScope, $routeParams, $location, $log,
-                            localStorageService, thRepos, thSocket) {
+                            localStorageService, thReposModel, thSocket,
+                            thResultStatusList) {
         $scope.query="";
         $scope.statusError = function(msg) {
             $rootScope.statusMsg = msg;
@@ -17,33 +18,57 @@ treeherder.controller('MainCtrl',
             $rootScope.selectedJob = null;
         };
 
-        $scope.mru_repos = localStorageService.get("mru_repos") || [];
+        // detect window width and put it in scope so items can react to
+        // a narrow/wide window
+        $scope.getWidth = function() {
+            return $(window).width();
+        };
+        $scope.$watch($scope.getWidth, function(newValue, oldValue) {
+            $scope.windowWidth = newValue;
+        });
+        window.onresize = function(){
+            $scope.$apply();
+        };
 
-        // @@@ a dummy value for now, used when creating notes.
+        // give the page a way to determine which nav toolbar to show
+        $rootScope.$on('$locationChangeSuccess', function(ev,newUrl) {
+            $rootScope.locationPath = $location.path().replace('/', '');
+        });
+
+        // @@@ a dummy value for now, used when creating classifications.
         // update this value when we have authenticated login.
         $scope.username = "Hiro Protagonist";
 
-        for(var repo in $scope.mru_repos){
-            thSocket.emit('subscribe', $scope.mru_repos[repo]+'.job_failure');
-            $log.debug("subscribing to "+$scope.mru_repos[repo]+'.job_failure');
-        }
 
-        $rootScope.new_failures = new Object();
-
-        thSocket.on('job_failure', function(msg){
-            if (! $rootScope.new_failures.hasOwnProperty(msg.branch)){
-                $rootScope.new_failures[msg.branch] = [];
-            }
-            $rootScope.new_failures[msg.branch].push(msg.id);
-            $log.debug("new failure on branch "+msg.branch);
-        });
+        // the repos the user has chosen to watch
+        $scope.watchedRepos = thReposModel.watchedRepos;
 
         $scope.changeRepo = function(repo_name) {
-            thRepos.setCurrent(repo_name);
+            thReposModel.setCurrent(repo_name);
             $location.search({repo: repo_name});
         };
 
-
-
+        /**
+         * Handle display/hide of a job based on the result status filters
+         */
+        $scope.resultStatusFilterJobs = function() {
+            return function(job) {
+                return $scope.resultStatusFilters[job.result] ||
+                    $scope.resultStatusFilters[job.state];
+            };
+        };
+        /**
+         * Handle display/hide of a platform based on the result status filters
+         */
+        $scope.resultStatusFilterPlatform = function() {
+            return function(platform) {
+                for (var key in $scope.resultStatusFilters) {
+                    if (platform.job_counts[key] && $scope.resultStatusFilters[key]) {
+                        return true;
+                    }
+                }
+                return false;
+            };
+        };
     }
 );

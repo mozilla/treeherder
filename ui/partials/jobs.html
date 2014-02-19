@@ -1,14 +1,3 @@
-
-<div>
-    <p class="well">
-        Most recently used repos:
-        <span ng-repeat="repo in mru_repos">
-            <button ng-show="!$first" ng-class="{'btn-danger': repo_has_failures(repo)}"  ng-click="changeRepo(repo)"  type="button" class="btn btn-default">
-                {{repo}}
-            </button>
-        </span>
-    </p>
-</div>
 <div class="progress progress-striped active"
      ng-show="isLoadingRsBatch.prepending">
     <div class="progress-bar"  role="progressbar" style="width: 100%"></div>
@@ -55,12 +44,31 @@
         </span>
         <span ng-hide="isCollapsedResults"
               ng-class="{'col-xs-8 job-list-pad-left': (isCollapsedRevisions==false), 'col-xs-12 job-list-nopad': (isCollapsedRevisions)}">
-            <table class="table-hover th-platform-att-site">
-            </table>
+            <table class="table-hover th-platform-att-site"></table>
         </span>
     </div>
 </div>
 <!-- END Clone target -->
+<div style="display:none;">
+    <table class="table-hover">
+        <tr ng-repeat="platform in resultset.platforms | filter:query | filter:resultStatusFilterPlatform() | orderBy: $filter('platformName')">
+            <td class="col-xs-2 platform"><span>{{ platform.name | platformName:platform.name }} {{ platform.option }}</span></td>
+            <td class="col-xs-10">
+                <span ng-repeat="group in platform.groups"
+                    ng-show="(group.jobs | filter:resultStatusFilterJobs()).length"
+                    class="platform-group">
+                    <span ng-show="group.symbol != '?'"
+                        class="disabled job-group"
+                        title="{{ group.name }}">{{ group.symbol }}(</span>
+                    <span>
+                        <th-job-button class="job-btn" ng-repeat="job in group.jobs | filter:resultStatusFilterJobs()"></th-job-button>
+                    </span>
+                    <span ng-show="group.symbol != '?'" class="job-group-r-paren">)</span>
+                </span>
+            </td>
+        </tr>
+    </table>
+</div>
 
 <div class="progress progress-striped active"
      ng-show="isLoadingRsBatch.appending">

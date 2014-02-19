@@ -162,6 +162,49 @@ treeherder.directive('thCloneJobs', function($compile, $interpolate, thResultSta
         }
 
 });
+treeherder.directive('thGlobalTopNavPanel', function () {
+
+    return {
+        restrict: "E",
+        templateUrl: 'partials/thGlobalTopNavPanel.html'
+    };
+});
+
+treeherder.directive('thWatchedRepoPanel', function () {
+
+    return {
+        restrict: "E",
+        templateUrl: 'partials/thWatchedRepoPanel.html'
+    };
+});
+
+treeherder.directive('thStatusFilterPanel', function () {
+
+    return {
+        restrict: "E",
+        templateUrl: 'partials/thStatusFilterPanel.html'
+    };
+});
+
+treeherder.directive('thRepoPanel', function () {
+
+    return {
+        restrict: "E",
+        templateUrl: 'partials/thRepoPanel.html'
+    };
+});
+
+treeherder.directive('thFilterCheckbox', function (thResultStatusInfo) {
+
+    return {
+        restrict: "E",
+        link: function(scope, element, attrs) {
+            scope.checkClass = thResultStatusInfo(scope.filterName).btnClass + "-count-classified";
+        },
+        templateUrl: 'partials/thFilterCheckbox.html'
+    };
+});
+
 treeherder.directive('ngRightClick', function($parse) {
     return function(scope, element, attrs) {
         var fn = $parse(attrs.ngRightClick);
