@@ -14,11 +14,15 @@ sub vcl_pipe {
 sub vcl_recv {
     if (req.url ~ "socket.io/[0-9]") {
         set req.backend = socketio;
-        return (pipe);
+        
+        if(req.http.upgrade ~ "(?i)websocket"){
+            return (pipe);
+        }
     }
     else {
         set req.backend = apache;
     }
+    return (pass);
 }
 
 sub vcl_fetch {
