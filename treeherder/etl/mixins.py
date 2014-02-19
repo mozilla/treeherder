@@ -26,10 +26,12 @@ class JsonExtractorMixin(object):
         req.add_header('Content-Type', 'application/json')
         try:
             handler = urllib2.urlopen(req)
-            if 'gzip' in handler.info().get('Content-Encoding'):
+            encoding = handler.info().get('Content-Encoding')
+            if encoding and 'gzip' in encoding:
                 buf = StringIO(handler.read())
                 handler = gzip.GzipFile(fileobj=buf)
-            return handler.read()
+
+            return json.loads(handler.read())
         except Exception, e:
             logger.error('Error fetching {0}'.format(url), exc_info=True)
             return None
