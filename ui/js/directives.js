@@ -1,6 +1,167 @@
 'use strict';
 
 /* Directives */
+treeherder.directive('thCloneJobs', function($compile, $interpolate, thResultStatusInfo){
+
+    var revisionLiHtml = '<li><th-revision></th-revision></li>';
+
+    var platformHtml = '<td class="col-xs-2 platform">' +
+                            '<span>{{ name }} {{ option }} </span>' +
+                       '</td>';
+
+    var jobGroupAttHtml = '<td class="col-xs-10"></td>';
+
+    var jobGroupBeginHtml = '<span style="margin-right:6px;" class="platform-group">' +
+                            '<span class="disabled job-group" title="{{ name }}">{{ symbol }}(</span>' +
+                            '</span>';
+
+    var jobGroupEndHtml = '<span class="job-group-r-paren">)</span>';
+
+    var jobBtnHtml = '<span style="margin-right:1px;" class="btn job-btn btn-xs" data-job-id="" ' +
+                     'ng-right-click="viewLog(job_map.{{ key }}.resource_uri)" ' +
+                     'ng-hide="job_map.{{ key }}.job_coalesced_to_guid" ' +
+                     'ng-click="viewJob(job_map.{{ key }})" ng-class="' +
+                    "{\'btn-lg selected-job\': (selectedJob==job_map.{{key}}), " +
+                    "\'btn-xs\': (selectedJob!=job)}\"" +
+                    "></span></span>";
+
+    var getJobMapKey = function(job){
+        return 'key' + job.id;
+        };
+
+    var getHoverText = function(job) {
+        var duration = Math.round((job.end_timestamp - job.submit_timestamp) / 60);
+        var status = job.result;
+        if (job.state != "completed") {
+            status = job.state;
+        }
+        return job.job_type_name + " - " + status + " - " + duration + "mins";
+    };
+
+    var addJobBtnEls = function(jgObj, jobBtnInterpolator, jobGroupAttEl){
+
+        var job = {};
+        var hText = "";
+        var key = "";
+        var jobStatus = {};
+        var jobBtn = {};
+        var resultState = "";
+        var l = 0;
+
+        for(; l<jgObj.jobs.length; l++){
+
+            job = jgObj.jobs[l];
+            hText = getHoverText(job);
+            key = getJobMapKey(job);
+
+            resultState = job.result;
+            if (job.state != "completed") {
+                resultState = job.state;
+            }
+
+            jobStatus = thResultStatusInfo(resultState);
+
+            jobStatus['key'] = key;
+
+            jobBtn = $( jobBtnInterpolator(jobStatus) );
+
+            jobBtn.addClass(jobStatus.btnClass);
+            jobBtn.text(job.job_type_symbol);
+            jobBtn.prop('title', hText);
+
+            jobGroupAttEl.append(jobBtn);
+        }
+    };
+
+    var linker = function(scope, element, attrs){
+        var jobWatcher = function(newValue) {
+            var resultState = scope.job.result;
+            if (scope.job.state != "completed") {
+                resultState = scope.job.state;
+            }
+            scope.job.display = thResultStatusInfo(resultState);
+            scope.hoverText = getHoverText(scope.job);
+
+            if (scope.job.state == "completed") {
+                //Remove watchers when a job has a completed status
+                //unbindWatcher();
+            }
+        };
+
+        //Clone the target html
+        var targetEl = $( $('.th-jobs-clone-target').html() );
+
+        //Add revisions
+        var ulEl = targetEl.find('.th-revision-att-site');
+
+        for(var i=0; i<scope.resultset.revisions.length; i++){
+            ulEl.append( revisionLiHtml );
+        }
+
+        //Instantiate platform interpolator
+        var tableEl = targetEl.find('table');
+        var platformInterpolator = $interpolate(platformHtml);
+
+        //Instantiate job group interpolator
+        var jobGroupInterpolator = $interpolate(jobGroupBeginHtml);
+
+        //Instantiate job btn interpolator
+        var jobBtnInterpolator = $interpolate(jobBtnHtml);
+
+        scope.resultset.platforms.sort();
+        for(var j=0; j<scope.resultset.platforms.length; j++){
+
+            var row = $('<tr></tr>');
+
+            var name = Config.OSNames[name] ||
+                scope.resultset.platforms[j].name;
+
+            //Add platforms
+            var platformTd = platformInterpolator({'name':name});
+
+            //Retrieve job group attachment element
+            var jobGroupAttEl = $(jobGroupAttHtml);
+
+            for(var k=0; k<scope.resultset.platforms[j].groups.length; k++){
+
+                var jgObj = scope.resultset.platforms[j].groups[k];
+
+                if(jgObj.symbol != '?'){
+                    var jobGroup = jobGroupInterpolator(
+                        scope.resultset.platforms[j].groups[k]
+                        );
+                    jobGroupAttEl.append(jobGroup);
+
+                    addJobBtnEls(
+                        jgObj, jobBtnInterpolator, jobGroupAttEl
+                        );
+//result === 'success' and state === 'completed'
+
+                    jobGroupAttEl.append(jobGroupEndHtml);
+                }else{
+
+                    addJobBtnEls(
+                        jgObj, jobBtnInterpolator, jobGroupAttEl
+                        );
+                }
+            }
+
+            row.append(platformTd);
+            row.append(jobGroupAttEl);
+            tableEl.append(row);
+        }
+
+        element.append(targetEl);
+
+        //$compile(element.contents())(scope);
+    }
+
+    return {
+        link:linker,
+        replace:true
+        }
+
+});
 treeherder.directive('ngRightClick', function($parse) {
     return function(scope, element, attrs) {
         var fn = $parse(attrs.ngRightClick);
@@ -27,13 +188,19 @@ treeherder.directive('thJobButton', function (thResultStatusInfo) {
     return {
         restrict: "E",
         link: function(scope, element, attrs) {
-            scope.$watch("job", function(newValue) {
+            var unbindWatcher = scope.$watch("job", function(newValue) {
                 var resultState = scope.job.result;
                 if (scope.job.state != "completed") {
                     resultState = scope.job.state;
                 }
                 scope.job.display = thResultStatusInfo(resultState);
                 scope.hoverText = getHoverText(scope.job);
+
+                if (scope.job.state == "completed") {
+                    //Remove watchers when a job has a completed status
+                    unbindWatcher();
+                }
+
             }, true);
         },
         templateUrl: 'partials/thJobButton.html'

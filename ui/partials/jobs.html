@@ -14,7 +14,7 @@
     <div class="progress-bar"  role="progressbar" style="width: 100%"></div>
 </div>
 
-<div ng-repeat="resultset in result_sets track by resultset.id | orderBy:'-push_timestamp'"
+<div  ng-repeat="resultset in result_sets track by resultset.id | orderBy:'-push_timestamp'"
      ng-controller="ResultSetCtrl"
      class="result-set col col-xs-12"
      data-id="{{resultset.id}}">
@@ -35,6 +35,10 @@
         <th-result-counts class="col-xs-5"/>
     </div>
 
+    <div th-clone-jobs ></div>
+</div>
+<!-- Clone target for each result set -->
+<div style="display:none;" class="th-jobs-clone-target">
     <div class="progress progress-striped active th-rs-loading"
          ng-show="isLoadingResults">
         <div class="progress-bar"  role="progressbar" style="width: 100%"></div>
@@ -47,57 +51,17 @@
         <span ng-hide="isCollapsedRevisions"
               ng-class="{'col-xs-4': (isCollapsedResults==false)}"
               class="revision-list">
-            <ul class="list-unstyled">
-                <li ng-repeat="revision in resultset.revisions">
-                    <th-revision></th-revision>
-                </li>
-            </ul>
+            <ul class="list-unstyled th-revision-att-site"></ul>
         </span>
         <span ng-hide="isCollapsedResults"
               ng-class="{'col-xs-8 job-list-pad-left': (isCollapsedRevisions==false), 'col-xs-12 job-list-nopad': (isCollapsedRevisions)}">
-            <table class="table-hover">
-                <tr ng-repeat="platform in resultset.platforms | filter:query | orderBy: $filter('platformName')">
-                    <td class="col-xs-2 platform"><span>{{ platform.name | platformName:platform.name }} {{ platform.option }}</span></td>
-                    <td class="col-xs-10">
-                        <span ng-repeat="group in platform.groups">
-                            <span ng-show="group.symbol != '?'"
-                               class="disabled job-group"
-                               title="{{ group.name }}">{{ group.symbol }}(</span>
-                            <span>
-                                <th-job-button class="job-btn" ng-repeat="job in group.jobs"></th-job-button>
-                            </span>
-                            <span ng-show="group.symbol != '?'" class="job-group-r-paren">)</span>
-                        </span>
-                    </td>
-                </tr>
+            <table class="table-hover th-platform-att-site">
             </table>
         </span>
     </div>
-
-    <!-- Modal -->
-    <div class="modal fade" id="revisionListModal" tabindex="-1" role="dialog" aria-labelledby="revisionListModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h4 class="modal-title" id="revisionListModalLabel">Result Set Revision List</h4>
-          </div>
-          <div class="modal-body">
-            <ul class="list-unstyled">
-                <li ng-repeat="revision in resultset.revision_list">
-                    <th-revision></th-revision>
-                </li>
-            </ul>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          </div>
-        </div><!-- /.modal-content -->
-      </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
-
-
 </div>
+<!-- END Clone target -->
+
 <div class="progress progress-striped active"
      ng-show="isLoadingRsBatch.appending">
     <div class="progress-bar"  role="progressbar" style="width: 100%"></div>

@@ -7,6 +7,7 @@ module.exports = function (config) {
         files: [
             'app/vendor/angular/angular.js',
             'app/vendor/angular/angular-*.js',
+            'app/vendor/bindonce/bindonce.js',
             'app/vendor/ui-bootstrap-*.js',
             'app/vendor/jquery-*.js',
             'app/vendor/jquery.ui.effect.js',

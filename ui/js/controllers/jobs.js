@@ -43,6 +43,7 @@ treeherder.controller('JobsCtrl',
 
         $scope.isLoadingRsBatch = thResultSetModelManager.loadingStatus;
         $scope.result_sets = thResultSetModelManager.getResultSetsArray();
+        $scope.job_map = thResultSetModelManager.getJobMap();
         $scope.statusList = thResultStatusList;
 
         $rootScope.update_mru_repos($scope.repoName);

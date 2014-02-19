@@ -66,6 +66,11 @@ treeherder.factory('thResultSetModelManager',
         jobMapOldestId,
         rsMapOldestTimestamp;
 
+    var getJobMapKey = function(job) {
+        //Build string key for jobMap entires
+        return 'key' + job.id;
+    };
+
     /******
      * Build the Job and Resultset object mappings to make it faster and
      * easier to find and update jobs and resultsets
@@ -115,7 +120,7 @@ treeherder.factory('thResultSetModelManager',
                     // jobs
                     for (var j_i = 0; j_i < gr.jobs.length; j_i++) {
                         var job = gr.jobs[j_i];
-                        jobMap[job.id] = job;
+                        jobMap[ getJobMapKey(job) ] = job;
 
                         // track oldest job id
                         if (!jobMapOldestId || jobMapOldestId > job.id) {
@@ -125,6 +130,7 @@ treeherder.factory('thResultSetModelManager',
                 }
             }
         }
+
         resultSets.sort(rsCompare);
         $log.debug("oldest job: " + jobMapOldestId);
         $log.debug("oldest result set: " + rsMapOldestTimestamp);
@@ -315,7 +321,7 @@ treeherder.factory('thResultSetModelManager',
      *               to be added or updated.
      */
     var updateJob = function(newJob) {
-        var loadedJob = jobMap[newJob.id];
+        var loadedJob = jobMap[ getJobMapKey(newJob) ];
         var rsMapElement = rsMap[newJob.result_set_id];
         var newResultType = getResultType(newJob);
 
@@ -352,7 +358,7 @@ treeherder.factory('thResultSetModelManager',
             grpMapElement.grp_obj.jobs.push(newJob);
 
             // add job to the jobmap
-            jobMap[newJob.id] = newJob;
+            jobMap[ getJobMapKey(newJob) ] = newJob;
 
         }
     };
@@ -493,6 +499,11 @@ treeherder.factory('thResultSetModelManager',
         // sort them
         getResultSetsArray: function() {
             return resultSets;
+        },
+
+        // this is a "watchable" for jobs
+        getJobMap: function() {
+            return jobMap;
         },
 
         // this is "watchable" by the controller now to update its scope.
