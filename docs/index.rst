@@ -14,6 +14,7 @@ Contents:
    installation
    dataload
    deployment
+   ui_integration
 
 
 Indices and tables
