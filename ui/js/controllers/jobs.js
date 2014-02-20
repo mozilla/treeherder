@@ -22,14 +22,9 @@ treeherder.controller('JobsCtrl',
         // the primary data model
         thResultSetModel.init(60000, $scope.repoName);
 
-<<<<<<< HEAD
-        $scope.isLoadingRsBatch = thResultSetModelManager.loadingStatus;
-        $scope.result_sets = thResultSetModelManager.getResultSetsArray();
-        $scope.job_map = thResultSetModelManager.getJobMap();
-=======
         $scope.isLoadingRsBatch = thResultSetModel.loadingStatus;
         $scope.result_sets = thResultSetModel.getResultSetsArray();
->>>>>>> a25bc2907a41840407b41cfd11fce1ff779667c3
+        $scope.job_map = thResultSetModel.getJobMap();
         $scope.statusList = thResultStatusList;
 
         // load the list of repos into $rootScope, and set the current repo.
@@ -89,6 +84,11 @@ treeherder.controller('ResultSetCtrl',
 
         // whether or not revision list for a resultset is collapsed
         $scope.isCollapsedRevisions = true;
+
+        $rootScope.$on('job-contextmenu-EVT', function(event, job){
+console.log('job-contextmenu-EVT caught');
+            //$scope.viewLog(job.resource_uri);
+        });
 
     }
 );

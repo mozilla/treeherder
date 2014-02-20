@@ -48,7 +48,19 @@
         </span>
     </div>
 </div>
-<!-- END Clone target -->
+<!-- END clone target -->
+
+<!-- Clone target for each revision -->
+<span style="display:none;">
+    <span class="revision">
+        <a href="{{revisionUrl}}" target="_blank">{{revision.revision}}</a>
+        <span title="{{authorName}}: {{authorEmail}}">{{authorName}}</span>
+        <span><em>"{{revision.comments}}"</em></span>
+    </span>
+</span>
+
+<!-- END Revision clone target -->
+
 <div style="display:none;">
     <table class="table-hover">
         <tr ng-repeat="platform in resultset.platforms | filter:query | filter:resultStatusFilterPlatform() | orderBy: $filter('platformName')">

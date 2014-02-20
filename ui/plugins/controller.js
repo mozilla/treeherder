@@ -7,7 +7,7 @@ treeherder.controller('PluginCtrl',
 
         var JobNote = null;
 
-        $scope.$watch('selectedJob', function(newValue, oldValue) {
+        var selectJob = function(newValue, oldValue) {
             // preferred way to get access to the selected job
             if (newValue) {
                 $scope.job = newValue;
@@ -55,7 +55,14 @@ treeherder.controller('PluginCtrl',
                 JobNote = thJobNote.get();
                 $scope.updateNotes();
             }
-        }, true);
+        };
+
+        //$scope.$watch('selectedJob', selectJob, true);
+
+        $rootScope.$on('job-click-EVT', function(event, job){
+            selectJob(job, $rootScope.selectedJob);
+            $rootScope.selectedJob = job;
+        });
 
         $scope.starTypes = thStarTypes;
 
