@@ -3,7 +3,8 @@
 
 treeherder.controller('PluginCtrl',
     function PluginCtrl($scope, $rootScope, $resource, $http,
-                        thServiceDomain, thUrl, thJobNote, thStarTypes, $log) {
+                        thServiceDomain, thUrl, thJobNote, thStarTypes,
+                        thEvents, $log) {
 
         var JobNote = null;
 
@@ -59,7 +60,7 @@ treeherder.controller('PluginCtrl',
 
         //$scope.$watch('selectedJob', selectJob, true);
 
-        $rootScope.$on('job-click-EVT', function(event, job){
+        $rootScope.$on(thEvents.jobClick, function(event, job){
             selectJob(job, $rootScope.selectedJob);
             $rootScope.selectedJob = job;
         });

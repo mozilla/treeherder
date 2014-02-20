@@ -3,7 +3,7 @@
 /* Directives */
 treeherder.directive('thCloneJobs', function(
         $rootScope, $compile, $http, $log, $interpolate,
-        thUrl, thServiceDomain, thResultStatusInfo){
+        thUrl, thServiceDomain, thResultStatusInfo, thEvents){
 
     var lastJobElSelected = {};
 
@@ -15,10 +15,6 @@ treeherder.directive('thCloneJobs', function(
     // CSS class selectors
     var jobsCloneTargetClsSel = '.th-jobs-clone-target';
     var revisionAttSiteClsSel = '.th-revision-att-site';
-
-    // Events
-    var jobClickEvt = 'job-click-EVT';
-    var jobContextmenuEvt = 'job-contextmenu-EVT';
 
     // Custom Attributes
     var jobKeyAttr = 'data-jmkey';
@@ -73,7 +69,7 @@ treeherder.directive('thCloneJobs', function(
 
     var clickJobCb = function(ev, el, job){
         selectJob(el);
-        $rootScope.$broadcast(jobClickEvt, job);
+        $rootScope.$broadcast(thEvents.jobClick, job);
     };
 
     var jobContextmenuCb = function(ev, el, job){
@@ -185,7 +181,7 @@ treeherder.directive('thCloneJobs', function(
         element.on('mousedown', _.bind(jobMouseDown, scope));
 
         $rootScope.$on(
-            'revisions-loaded-EVT', function(ev, rs){
+            thEvents.revisionsLoaded, function(ev, rs){
 
                 if(rs.id === scope.resultset.id){
                     _.bind(addRevisions, scope, rs, element)();

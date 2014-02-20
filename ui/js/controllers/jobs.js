@@ -3,7 +3,7 @@
 treeherder.controller('JobsCtrl',
     function JobsCtrl($scope, $http, $rootScope, $routeParams, $log, $cookies,
                       localStorageService, thUrl, thReposModel, thSocket,
-                      thResultSetModel, thResultStatusList) {
+                      thResultSetModel, thResultStatusList, thEvents) {
 
         // load our initial set of resultsets
         // scope needs this function so it can be called directly by the user, too.
@@ -39,7 +39,7 @@ treeherder.controller('JobsCtrl',
 treeherder.controller('ResultSetCtrl',
     function ResultSetCtrl($scope, $rootScope, $http, $log,
                            thUrl, thServiceDomain, thResultStatusInfo,
-                           thResultSetModel) {
+                           thResultSetModel, thEvents) {
 
         $scope.getCountClass = function(resultStatus) {
             return thResultStatusInfo(resultStatus).btnClass;
@@ -85,8 +85,8 @@ treeherder.controller('ResultSetCtrl',
         // whether or not revision list for a resultset is collapsed
         $scope.isCollapsedRevisions = true;
 
-        $rootScope.$on('job-contextmenu-EVT', function(event, job){
-console.log('job-contextmenu-EVT caught');
+        $rootScope.$on(thEvents.jobContextMenu, function(event, job){
+            console.log(thEvents.jobContextMenu + ' caught');
             //$scope.viewLog(job.resource_uri);
         });
 
