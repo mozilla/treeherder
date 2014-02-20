@@ -564,6 +564,7 @@ treeherder.factory('thResultSetModel',
                 thResultSets.get(rs.revisions_uri).
                     success(function(data) {
                         rs.revisions.push.apply(rs.revisions, data);
+                        $rootScope.$broadcast('revisions-loaded-EVT', rs);
                     });
             }
         },

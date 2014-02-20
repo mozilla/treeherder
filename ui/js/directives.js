@@ -164,14 +164,15 @@ treeherder.directive('thCloneJobs', function(
         }
     };
 
-    var addRevisions = function(revisions, element){
+    var addRevisions = function(resultset, element){
 
+        console.log(resultset.revisions);
         //if(revisions.length > 0){
 
-            var ulEl = element.find(revisionAttSiteClsSel);
-            for(var i=0; i<revisions.length; i++){
-                ulEl.append( revisionLiHtml );
-            }
+            //var ulEl = element.find(revisionAttSiteClsSel);
+            //for(var i=0; i<revisions.length; i++){
+            //    ulEl.append( revisionLiHtml );
+            //}
         //}
     };
 
@@ -183,11 +184,17 @@ treeherder.directive('thCloneJobs', function(
         //Register events callback
         element.on('mousedown', _.bind(jobMouseDown, scope));
 
+        $rootScope.$on(
+            'revisions-loaded-EVT', function(ev, rs){
+
+                if(rs.id === scope.resultset.id){
+                    _.bind(addRevisions, scope, rs, element)();
+                }
+            }
+            );
+
         //Clone the target html
         var targetEl = $( $(jobsCloneTargetClsSel).html() );
-
-        //Add revisions
-        addRevisions(scope.resultset.revisions, targetEl);
 
         //Instantiate platform interpolator
         var tableEl = targetEl.find('table');
