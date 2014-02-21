@@ -60,5 +60,21 @@
         <script src="plugins/closed_bugs_suggestions/controller.js"></script>
         <script src="js/filters.js"></script>
         <script src="vendor/Config.js"></script>
+
+<!-- Clone targets -->
+
+<!-- Clone target for each revision -->
+<script type="'text/ng-template'" id="revisionsClone.html">
+
+    <li>
+        <span class="revision">
+            <a href="{{revisionUrl}}" target="_blank">{{revision}}</a>
+            <span title="{{name}}: {{email}}">{{name}}</span>
+            <span><em>"{{comments}}"</em></span>
+        </span>
+    </li>
+
+</script>
+
     </body>
     </html>

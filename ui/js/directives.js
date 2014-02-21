@@ -3,7 +3,7 @@
 /* Directives */
 treeherder.directive('thCloneJobs', function(
         $rootScope, $compile, $http, $log, $interpolate,
-        thUrl, thServiceDomain, thResultStatusInfo){
+        $templateCache, thUrl, thServiceDomain, thResultStatusInfo){
 
     var lastJobElSelected = {};
 
@@ -15,6 +15,7 @@ treeherder.directive('thCloneJobs', function(
     // CSS class selectors
     var jobsCloneTargetClsSel = '.th-jobs-clone-target';
     var revisionAttSiteClsSel = '.th-revision-att-site';
+    var revisionCloneTargetClsSel = '.th-revision-clone-target';
 
     // Events
     var jobClickEvt = 'job-click-EVT';
@@ -24,8 +25,6 @@ treeherder.directive('thCloneJobs', function(
     var jobKeyAttr = 'data-jmkey';
 
     // HTML Templates
-    var revisionLiHtml = '<li><th-revision></th-revision></li>';
-
     var platformHtml = '<td class="col-xs-2 platform">' +
                             '<span>{{ name }} {{ option }} </span>' +
                        '</td>';
@@ -166,14 +165,115 @@ treeherder.directive('thCloneJobs', function(
 
     var addRevisions = function(resultset, element){
 
-        console.log(resultset.revisions);
-        //if(revisions.length > 0){
+        if(resultset.revisions.length > 0){
 
-            //var ulEl = element.find(revisionAttSiteClsSel);
-            //for(var i=0; i<revisions.length; i++){
-            //    ulEl.append( revisionLiHtml );
-            //}
-        //}
+
+            var revisionSpanTxt = document.getElementById('revisionsClone.html').text;
+
+            var revisionInterpolator = $interpolate(revisionSpanTxt);
+            var ulEl = element.find('ul');
+
+            //make sure we're starting with an empty element
+            ulEl.empty();
+
+            var revision = {};
+            var revisionHtml = "";
+            var userTokens = [];
+            var i = 0;
+
+            for(; i<resultset.revisions.length; i++){
+
+                revision = resultset.revisions[i];
+
+                userTokens = revision.author.split(/[<>]+/);
+                if (userTokens.length > 1) {
+                    revision['email'] = userTokens[1];
+                }
+                revision['name'] = userTokens[0].trim();
+
+                revisionHtml = revisionInterpolator(revision);
+
+                ulEl.append(revisionHtml);
+            }
+        }
+    };
+
+    var toggleRevisions = function(element){
+
+        var revisionsEl = element.find('ul').parent();
+        var jobsEl = element.find('table').parent();
+
+        if(revisionsEl.css('display') === 'none'){
+
+            if(jobsEl.css('display') === 'block'){
+                toggleRevisionsSpanOnWithJobs(revisionsEl);
+                //Make sure the jobs span has correct styles
+                toggleJobsSpanOnWithRevisions(jobsEl);
+            }else{
+                toggleRevisionsSpanOnWithoutJobs(revisionsEl);
+            }
+
+        }else{
+            toggleRevisionsSpanOff(revisionsEl);
+
+            if(jobsEl.css('display') === 'block'){
+                toggleJobsSpanOnWithoutRevisions(jobsEl);
+            }
+        }
+
+    };
+    var toggleJobs = function(element){
+
+        var revisionsEl = element.find('ul').parent();
+        var jobsEl = element.find('table').parent();
+
+        if(jobs.css('display') === 'none'){
+
+            if(revisionsEl.css('display') === 'block'){
+                toggleJobsSpanOnWithRevisions(tableParent);
+                //Make sure the revisions span has correct styles
+                toggleRevisionsSpanOnWithJobs(revisionsEl);
+            }else{
+                toggleJobsSpanOnWithoutRevisions(tableParent);
+            }
+
+        }else{
+            toggleJobsSpanOff(jobsEl);
+
+            if(revisionsEl.css('display') === 'block'){
+                toggleRevisionsOnWithoutJobs(revisionsEl);
+            }
+        }
+
+    };
+    var toggleRevisionsSpanOnWithJobs = function(el){
+        el.css('display', 'block');
+        el.addClass('col-xs-4');
+    };
+    var toggleRevisionsSpanOnWithoutJobs = function(el){
+        el.css('display', 'block');
+        el.removeClass('col-xs-4');
+    };
+    var toggleRevisionsSpanOff = function(el){
+        el.css('display', 'none');
+        el.removeClass('col-xs-4');
+    };
+    var toggleJobsSpanOnWithRevisions = function(el){
+        tableParent.css('display', 'block');
+        tableParent.removeClass('job-list-nopad');
+        tableParent.removeClass('col-xs-12');
+        tableParent.addClass('col-xs-8');
+        tableParent.addClass('job-list-pad-left');
+    };
+    var toggleJobsSpanOnWithoutRevisions = function(el){
+        tableParent.css('display', 'block');
+        tableParent.removeClass('col-xs-8');
+        tableParent.remobeClass('job-list-pad-left');
+        tableParent.addClass('job-list-nopad');
+        tableParent.addClass('col-xs-12');
+    };
+    var toggleJobsSpanOff = function(el){
+        tableParent.css('display', 'none');
     };
 
     var linker = function(scope, element, attrs){
@@ -267,10 +367,6 @@ treeherder.directive('thCloneJobs', function(
         }
 
         element.append(targetEl);
-
-        //NOTE: If compile is called here it will set up all
-        // ng-* directives but it's SLOOOOOOOOOW
-        //$compile(element.contents())(scope);
     }
 
     return {
