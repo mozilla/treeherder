@@ -151,3 +151,21 @@ treeherder.provider('thResultStatusInfo', function() {
 
     };
 });
+
+/**
+ * The set of custom Treeherder events.
+ *
+ * These are/can be used via $rootScope.$broadcast.
+ */
+treeherder.provider('thEvents', function() {
+    this.$get = function() {
+        return {
+            revisionsLoaded: "revisions-loaded-EVT",
+            toggleRevisions: "toggle-revisions-EVT",
+            toggleJobs: "toggle-jobs-EVT",
+            jobClick:        "job-click-EVT",
+            jobContextMenu:  "job-context-menu-EVT",
+            jobUpdated:      "job-updated-EVT"
+        };
+    };
+});

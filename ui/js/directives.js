@@ -2,8 +2,8 @@
 
 /* Directives */
 treeherder.directive('thCloneJobs', function(
-        $rootScope, $compile, $http, $log, $interpolate,
-        $templateCache, thUrl, thServiceDomain, thResultStatusInfo){
+        $rootScope, $compile, $http, $log, $interpolate, $templateCache,
+        thUrl, thCloneHtml, thServiceDomain, thResultStatusInfo, thEvents){
 
     var lastJobElSelected = {};
 
@@ -12,36 +12,14 @@ treeherder.directive('thCloneJobs', function(
     var selectedBtnCls = 'selected-job';
     var largeBtnCls = 'btn-lg';
 
-    // CSS class selectors
-    var jobsCloneTargetClsSel = '.th-jobs-clone-target';
-    var revisionAttSiteClsSel = '.th-revision-att-site';
-    var revisionCloneTargetClsSel = '.th-revision-clone-target';
-
-    // Events
-    var jobClickEvt = 'job-click-EVT';
-    var jobContextmenuEvt = 'job-contextmenu-EVT';
+    var col4Cls = 'col-xs-4';
+    var col8Cls = 'col-xs-8';
+    var col12Cls = 'col-xs-12';
+    var jobListNoPadCls = 'job-list-nopad';
+    var jobListPadLeftCls = 'job-list-pad-left';
 
     // Custom Attributes
     var jobKeyAttr = 'data-jmkey';
-
-    // HTML Templates
-    var platformHtml = '<td class="col-xs-2 platform">' +
-                            '<span>{{ name }} {{ option }} </span>' +
-                       '</td>';
-
-    var jobGroupAttHtml = '<td class="col-xs-10"></td>';
-
-    var jobGroupBeginHtml = '<span style="margin-right:6px;" class="platform-group">' +
-                            '<span class="disabled job-group" title="{{ name }}">' +
-                            '{{ symbol }}(</span></span>';
-
-    var jobGroupEndHtml = '<span class="job-group-r-paren">)</span>';
-
-    var jobBtnHtml = '<span style="margin-right:1px;" ' +
-                     'class="btn job-btn btn-xs {{ btn_class }}" ' +
-                     'data-jmkey="{{ key }}" title="{{ title }}" ' +
-                     '>{{ value }}</span>';
-
 
     var getJobMapKey = function(job){
         return 'key' + job.id;
@@ -72,7 +50,7 @@ treeherder.directive('thCloneJobs', function(
 
     var clickJobCb = function(ev, el, job){
         selectJob(el);
-        $rootScope.$broadcast(jobClickEvt, job);
+        $rootScope.$broadcast(thEvents.jobClick, job);
     };
 
     var jobContextmenuCb = function(ev, el, job){
@@ -95,7 +73,7 @@ treeherder.directive('thCloneJobs', function(
             });
     };
 
-    var addJobBtnEls = function(jgObj, jobBtnInterpolator, jobGroupAttEl){
+    var addJobBtnEls = function(jgObj, jobBtnInterpolator, jobTdEl){
 
         var l = 0;
         var hText, key, resultState = "";
@@ -127,7 +105,7 @@ treeherder.directive('thCloneJobs', function(
 
             jobBtn = $( jobBtnInterpolator(jobStatus) );
 
-            jobGroupAttEl.append(jobBtn);
+            jobTdEl.append(jobBtn);
         }
     };
 
@@ -167,14 +145,12 @@ treeherder.directive('thCloneJobs', function(
 
         if(resultset.revisions.length > 0){
 
+            var revisionInterpolator = thCloneHtml.get('revisionsClone').interpolator;
 
-            var revisionSpanTxt = document.getElementById('revisionsClone.html').text;
-
-            var revisionInterpolator = $interpolate(revisionSpanTxt);
             var ulEl = element.find('ul');
 
             //make sure we're starting with an empty element
-            ulEl.empty();
+            $(ulEl).empty();
 
             var revision = {};
             var revisionHtml = "";
@@ -192,7 +168,6 @@ treeherder.directive('thCloneJobs', function(
                 revision['name'] = userTokens[0].trim();
 
                 revisionHtml = revisionInterpolator(revision);
-
                 ulEl.append(revisionHtml);
             }
         }
@@ -203,12 +178,19 @@ treeherder.directive('thCloneJobs', function(
         var revisionsEl = element.find('ul').parent();
         var jobsEl = element.find('table').parent();
 
-        if(revisionsEl.css('display') === 'none'){
+        var revElDisplayState = revisionsEl.css('display') || 'block';
+        var jobsElDisplayState = jobsEl.css('display') || 'block';
 
-            if(jobsEl.css('display') === 'block'){
+        var rowEl = revisionsEl.parent();
+        rowEl.css('display', 'block');
+
+        if(revElDisplayState != 'block'){
+
+            if(jobsElDisplayState === 'block'){
                 toggleRevisionsSpanOnWithJobs(revisionsEl);
                 //Make sure the jobs span has correct styles
                 toggleJobsSpanOnWithRevisions(jobsEl);
+
             }else{
                 toggleRevisionsSpanOnWithoutJobs(revisionsEl);
             }
@@ -216,8 +198,12 @@ treeherder.directive('thCloneJobs', function(
         }else{
             toggleRevisionsSpanOff(revisionsEl);
 
-            if(jobsEl.css('display') === 'block'){
+            if(jobsElDisplayState === 'block'){
                 toggleJobsSpanOnWithoutRevisions(jobsEl);
+            }else{
+                //Nothing is displayed, hide the row to
+                //prevent a double border from displaying
+                rowEl.css('display', 'none');
             }
         }
 
@@ -227,53 +213,63 @@ treeherder.directive('thCloneJobs', function(
         var revisionsEl = element.find('ul').parent();
         var jobsEl = element.find('table').parent();
 
-        if(jobs.css('display') === 'none'){
+        var revElDisplayState = revisionsEl.css('display') || 'block';
+        var jobsElDisplayState = jobsEl.css('display') || 'block';
 
-            if(revisionsEl.css('display') === 'block'){
-                toggleJobsSpanOnWithRevisions(tableParent);
+        var rowEl = revisionsEl.parent();
+        rowEl.css('display', 'block');
+
+        if(jobsElDisplayState != 'block'){
+
+            if(revElDisplayState === 'block'){
+                toggleJobsSpanOnWithRevisions(jobsEl);
                 //Make sure the revisions span has correct styles
                 toggleRevisionsSpanOnWithJobs(revisionsEl);
             }else{
-                toggleJobsSpanOnWithoutRevisions(tableParent);
+                toggleJobsSpanOnWithoutRevisions(jobsEl);
             }
 
         }else{
             toggleJobsSpanOff(jobsEl);
 
-            if(revisionsEl.css('display') === 'block'){
-                toggleRevisionsOnWithoutJobs(revisionsEl);
+            if(revElDisplayState === 'block'){
+                toggleRevisionsSpanOnWithoutJobs(revisionsEl);
+            }else{
+                //Nothing is displayed, hide the row to
+                //prevent a double border from displaying
+                rowEl.css('display', 'none');
             }
         }
 
     };
     var toggleRevisionsSpanOnWithJobs = function(el){
         el.css('display', 'block');
-        el.addClass('col-xs-4');
+        el.addClass(col4Cls);
     };
     var toggleRevisionsSpanOnWithoutJobs = function(el){
         el.css('display', 'block');
-        el.removeClass('col-xs-4');
+        el.removeClass(col4Cls);
     };
     var toggleRevisionsSpanOff = function(el){
         el.css('display', 'none');
-        el.removeClass('col-xs-4');
+        el.removeClass(col4Cls);
     };
     var toggleJobsSpanOnWithRevisions = function(el){
-        tableParent.css('display', 'block');
-        tableParent.removeClass('job-list-nopad');
-        tableParent.removeClass('col-xs-12');
-        tableParent.addClass('col-xs-8');
-        tableParent.addClass('job-list-pad-left');
+        el.css('display', 'block');
+        el.removeClass(jobListNoPadCls);
+        el.removeClass(col12Cls);
+        el.addClass(col8Cls);
+        el.addClass(jobListPadLeftCls);
     };
     var toggleJobsSpanOnWithoutRevisions = function(el){
-        tableParent.css('display', 'block');
-        tableParent.removeClass('col-xs-8');
-        tableParent.remobeClass('job-list-pad-left');
-        tableParent.addClass('job-list-nopad');
-        tableParent.addClass('col-xs-12');
+        el.css('display', 'block');
+        el.removeClass(col8Cls);
+        el.removeClass(jobListPadLeftCls);
+        el.addClass(jobListNoPadCls);
+        el.addClass(col12Cls);
     };
     var toggleJobsSpanOff = function(el){
-        tableParent.css('display', 'none');
+        el.css('display', 'none');
     };
 
     var linker = function(scope, element, attrs){
@@ -284,32 +280,46 @@ treeherder.directive('thCloneJobs', function(
         //Register events callback
         element.on('mousedown', _.bind(jobMouseDown, scope));
 
+        //Register rootScope custom event listeners
         $rootScope.$on(
-            'revisions-loaded-EVT', function(ev, rs){
-
+            thEvents.revisionsLoaded, function(ev, rs){
                 if(rs.id === scope.resultset.id){
                     _.bind(addRevisions, scope, rs, element)();
                 }
-            }
-            );
+            });
+        $rootScope.$on(
+            thEvents.toggleRevisions, function(ev, rs){
+                if(rs.id === scope.resultset.id){
+                    _.bind(toggleRevisions, scope, element)();
+                }
+            });
+
+        $rootScope.$on(
+            thEvents.toggleJobs, function(ev, rs){
+                if(rs.id === scope.resultset.id){
+                    _.bind(toggleJobs, scope, element)();
+                }
+            });
 
         //Clone the target html
-        var targetEl = $( $(jobsCloneTargetClsSel).html() );
+        var targetEl = $( thCloneHtml.get('resultsetClone').text );
 
-        //Instantiate platform interpolator
+        //Retrieve platform interpolator
+        var platformInterpolator = thCloneHtml.get('platformClone').interpolator;
+
+        //Retrieve table el for appending
         var tableEl = targetEl.find('table');
-        var platformInterpolator = $interpolate(platformHtml);
 
         //Instantiate job group interpolator
-        var jobGroupInterpolator = $interpolate(jobGroupBeginHtml);
+        var jobGroupInterpolator = thCloneHtml.get('jobGroupBeginClone').interpolator;
 
         //Instantiate job btn interpolator
-        var jobBtnInterpolator = $interpolate(jobBtnHtml);
+        var jobBtnInterpolator = thCloneHtml.get('jobBtnClone').interpolator;
+
+        var name, option = "";
+        var row, platformTd, jobTdEl = {};
 
         var j = 0;
-        var name, option = "";
-        var row, platformTd, jobGroupAttEl = {};
-
         for(; j<scope.resultset.platforms.length; j++){
 
             row = $('<tr></tr>');
@@ -326,12 +336,12 @@ treeherder.directive('thCloneJobs', function(
                 );
 
             //Retrieve job group attachment element
-            jobGroupAttEl = $(jobGroupAttHtml);
+            jobTdEl = $( thCloneHtml.get('jobTdClone').text );
 
-            var k = 0;
             var jgObj = {};
             var jobGroup = "";
 
+            var k = 0;
             for(; k<scope.resultset.platforms[j].groups.length; k++){
 
                 jgObj = scope.resultset.platforms[j].groups[k];
@@ -342,27 +352,29 @@ treeherder.directive('thCloneJobs', function(
                         scope.resultset.platforms[j].groups[k]
                         );
 
-                    jobGroupAttEl.append(jobGroup);
+                    jobTdEl.append(jobGroup);
 
                     // Add the job btn spans
                     addJobBtnEls(
-                        jgObj, jobBtnInterpolator, jobGroupAttEl
+                        jgObj, jobBtnInterpolator, jobTdEl
                         );
 
                     // Add the job group closure span
-                    jobGroupAttEl.append(jobGroupEndHtml);
+                    jobTdEl.append(
+                        $( thCloneHtml.get('jobGroupEndClone').text )
+                        );
 
                 }else{
 
                     // Add the job btn spans
                     addJobBtnEls(
-                        jgObj, jobBtnInterpolator, jobGroupAttEl
+                        jgObj, jobBtnInterpolator, jobTdEl
                         );
                 }
             }
 
             row.append(platformTd);
-            row.append(jobGroupAttEl);
+            row.append(jobTdEl);
             tableEl.append(row);
         }
 

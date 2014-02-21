@@ -115,3 +115,43 @@ treeherder.factory('thSocket', function ($rootScope, $log, thUrl) {
     }
   };
 });
+
+treeherder.factory('thCloneHtml', function($interpolate) {
+
+    var cloneTemplateIds = [
+        'revisionsClone.html',
+        'resultsetClone.html',
+        'platformClone.html',
+        'jobTdClone.html',
+        'jobGroupBeginClone.html',
+        'jobGroupEndClone.html',
+        'jobBtnClone.html'
+        ];
+
+    var cloneHtmlObjs = {};
+    var templateId = "";
+    var templateName = "";
+    var templateTxt = "";
+
+    var i=0;
+    for(; i<cloneTemplateIds.length; i++){
+
+        templateId = cloneTemplateIds[i];
+        templateName = templateId.replace('.html', '');
+
+        templateTxt = document.getElementById(templateId);
+        cloneHtmlObjs[templateName] = {
+            interpolator:$interpolate(templateTxt.text),
+            text:templateTxt.text
+            };
+    }
+
+    var getClone = function(templateName){
+        return cloneHtmlObjs[templateName];
+    };
+
+    return {
+        get:getClone
+        };
+
+});

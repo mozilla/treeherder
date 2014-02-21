@@ -1,7 +1,7 @@
     <!DOCTYPE html>
     <html ng-app="treeherder">
     <head>
-        <title>Treeherder: {{ repoName }}</title>
+        <title ng-bind="repoName"></title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
          <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <!-- Bootstrap -->
@@ -76,5 +76,46 @@
 
 </script>
 
+<!-- Clone target for each result set -->
+<script type="'text/ng-template'" id="resultsetClone.html">
+    <div class="clearfix"></div>
+    <div class="row result-set">
+        <span style="display:none;" class="revision-list">
+            <ul class="list-unstyled"></ul>
+        </span>
+        <span class="col-xs-12 job-list-nopad">
+            <table class="table-hover"></table>
+        </span>
+    </div>
+</script>
+<!-- Clone target for each platform -->
+<script type="'text/ng-template'" id="platformClone.html">
+    <td class="col-xs-2 platform">
+        <span>{{ name }} {{ option }}</span>
+    </td>
+</script>
+
+<!-- Table column for jobs -->
+<script type="'text/ng-template'" id="jobTdClone.html">
+    <td class="col-xs-10"></td>
+</script>
+
+<!-- Start span for job groups -->
+<script type="'text/ng-template'" id="jobGroupBeginClone.html">
+    <span style="margin-right:2px;" class="platform-group">
+        <span class="disabled job-group" title="{{ name }}">{{ symbol }}(</span>
+    </span>
+</script>
+<!-- Close span for job groups -->
+<script type="'text/ng-template'" id="jobGroupEndClone.html">
+    <span class="job-group-r-paren">)</span>
+</script>
+
+<!-- Job Btn span -->
+<script type="'text/ng-template'" id="jobBtnClone.html">
+    <span style="margin-right:1px;" class="btn job-btn btn-xs {{ btn_class }}" data-jmkey="{{ key }}" title="{{ title }}">{{ value }}</span>
+</script>
+
+
     </body>
-    </html>
+</html>

@@ -3,7 +3,7 @@
 treeherder.controller('JobsCtrl',
     function JobsCtrl($scope, $http, $rootScope, $routeParams, $log, $cookies,
                       localStorageService, thUrl, thReposModel, thSocket,
-                      thResultSetModel, thResultStatusList) {
+                      thResultSetModel, thResultStatusList, thEvents) {
 
         // load our initial set of resultsets
         // scope needs this function so it can be called directly by the user, too.
@@ -39,7 +39,7 @@ treeherder.controller('JobsCtrl',
 treeherder.controller('ResultSetCtrl',
     function ResultSetCtrl($scope, $rootScope, $http, $log,
                            thUrl, thServiceDomain, thResultStatusInfo,
-                           thResultSetModel) {
+                           thResultSetModel, thEvents) {
 
         $scope.getCountClass = function(resultStatus) {
             return thResultStatusInfo(resultStatus).btnClass;
@@ -71,22 +71,28 @@ treeherder.controller('ResultSetCtrl',
         };
 
         $scope.toggleRevisions = function() {
-            $scope.isCollapsedRevisions = !$scope.isCollapsedRevisions;
-            if (!$scope.isCollapsedRevisions) {
-                // we are expanding the revisions list.  It may be the first
-                // time, so attempt to populate this resultset's revisions
-                // list, if it isn't already
-                thResultSetModel.loadRevisions($scope.resultset.id);
-            }
+
+            thResultSetModel.loadRevisions($scope.resultset.id);
+            $rootScope.$broadcast(
+                thEvents.toggleRevisions, $scope.resultset
+                );
 
         };
+        $scope.toggleJobs = function() {
+
+            $rootScope.$broadcast(
+                thEvents.toggleJobs, $scope.resultset
+                );
+
+        };
+
         $scope.isCollapsedResults = false;
 
         // whether or not revision list for a resultset is collapsed
         $scope.isCollapsedRevisions = true;
 
-        $rootScope.$on('job-contextmenu-EVT', function(event, job){
-console.log('job-contextmenu-EVT caught');
+        $rootScope.$on(thEvents.jobContextMenu, function(event, job){
+            console.log(thEvents.jobContextMenu + ' caught');
             //$scope.viewLog(job.resource_uri);
         });
 

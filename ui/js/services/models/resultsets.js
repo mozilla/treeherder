@@ -33,8 +33,8 @@ treeherder.factory('thResultSets',
 }]);
 
 treeherder.factory('thResultSetModel',
-                   ['$log', '$rootScope', 'thResultSets', 'thSocket', 'thJobs',
-                   function($log, $rootScope, thResultSets, thSocket, thJobs) {
+                   ['$log', '$rootScope', 'thResultSets', 'thSocket', 'thJobs', 'thEvents',
+                   function($log, $rootScope, thResultSets, thSocket, thJobs, thEvents) {
 
    /******
     * Handle updating the resultset datamodel based on a queue of jobs
@@ -225,7 +225,7 @@ treeherder.factory('thResultSetModel',
     };
 
     /**
-     * Sort the resultsets in place after updating the array
+     * Sort the platforms in place after updating the array
      *
      * sort by the name and the option
      */
@@ -434,6 +434,8 @@ treeherder.factory('thResultSetModel',
             jobMap[key].job_obj = newJob;
 
         }
+
+        $rootScope.$broadcast(thEvents.jobUpdated, newJob);
     };
 
     var getResultType = function(rtJob) {
@@ -564,7 +566,7 @@ treeherder.factory('thResultSetModel',
                 thResultSets.get(rs.revisions_uri).
                     success(function(data) {
                         rs.revisions.push.apply(rs.revisions, data);
-                        $rootScope.$broadcast('revisions-loaded-EVT', rs);
+                        $rootScope.$broadcast(thEvents.revisionsLoaded, rs);
                     });
             }
         },
