@@ -3,7 +3,7 @@
 treeherder.controller('MainCtrl',
     function MainController($scope, $rootScope, $routeParams, $location, $log,
                             localStorageService, thReposModel, thSocket,
-                            thResultStatusList) {
+                            thResultStatusList, thServiceDomain) {
         $scope.query="";
         $scope.statusError = function(msg) {
             $rootScope.statusMsg = msg;
@@ -70,5 +70,9 @@ treeherder.controller('MainCtrl',
                 return false;
             };
         };
+
+        $scope.user = {};
+        $scope.user.email = localStorageService.get("user.email");
+        $scope.user.loggedin = $scope.user.email == null ? false : true;
     }
 );
