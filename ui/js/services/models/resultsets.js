@@ -80,70 +80,68 @@ treeherder.factory('thResultSetModel',
     var mapResultSets = function(data) {
 
         for (var rs_i = 0; rs_i < data.length; rs_i++) {
-            var rs = data[rs_i];
-            rsMap[rs.id] = {
-                rs_obj: rs,
+            var rs_obj = data[rs_i];
+            // make a watch-able revisions array
+            rs_obj.revisions = [];
+
+            var rsMapElement = {
+                rs_obj: rs_obj,
                 platforms: {}
             };
-
-            // make a watch-able revisions array
-            rs.revisions = [];
+            rsMap[rs_obj.id] = rsMapElement;
 
             // keep track of the oldest push_timestamp, so we don't auto-fetch resultsets
             // that are out of the range we care about.
-            if (!rsMapOldestTimestamp || rsMapOldestTimestamp > rs.push_timestamp) {
-                rsMapOldestTimestamp = rs.push_timestamp;
-            }
-            // it is possible that resultset ids may be newer, even if the
-            // time stamp is older, so this is for doing a second check after
-            // fetching, but before actually adding the resultset to the data
-            // model.
-            if (!rsMapOldestTimestamp || rsMapOldestTimestamp > rs.push_timestamp) {
-                rsMapOldestTimestamp = rs.push_timestamp;
+            if (!rsMapOldestTimestamp || rsMapOldestTimestamp > rs_obj.push_timestamp) {
+                rsMapOldestTimestamp = rs_obj.push_timestamp;
             }
 
             // platforms
-            for (var pl_i = 0; pl_i < rs.platforms.length; pl_i++) {
-                var pl = rs.platforms[pl_i];
-                rsMap[rs.id].platforms[pl.name] = {
-                    pl_obj: pl,
-                    parent: rsMap[rs.id],
+            for (var pl_i = 0; pl_i < rs_obj.platforms.length; pl_i++) {
+                var pl_obj = rs_obj.platforms[pl_i];
+                pl_obj.job_counts = getCountDefaults();
+
+                var plMapElement = {
+                    pl_obj: pl_obj,
+                    parent: rsMap[rs_obj.id],
                     groups: {}
                 };
-                pl.job_counts = getCountDefaults();
+                rsMap[rs_obj.id].platforms[pl_obj.name] = plMapElement;
 
                 // groups
-                for (var gp_i = 0; gp_i < pl.groups.length; gp_i++) {
-                    var gr = pl.groups[gp_i];
-                    rsMap[rs.id].platforms[pl.name].groups[gr.name] = {
-                        grp_obj: gr,
-                        parent: rsMap[rs.id].platforms[pl.name],
+                for (var gp_i = 0; gp_i < pl_obj.groups.length; gp_i++) {
+                    var gr_obj = pl_obj.groups[gp_i];
+                    gr_obj.job_counts = getCountDefaults();
+
+                    var grMapElement = {
+                        grp_obj: gr_obj,
+                        parent: plMapElement,
                         jobs: {}
                     };
-                    gr.job_counts = getCountDefaults();
+                    plMapElement.groups[gr_obj.name] = grMapElement;
 
                     // jobs
-                    for (var j_i = 0; j_i < gr.jobs.length; j_i++) {
-                        var job = gr.jobs[j_i];
-                        var key = getJobMapKey(job);
-                        jobMap[key] = job;
+                    for (var j_i = 0; j_i < gr_obj.jobs.length; j_i++) {
+                        var job_obj = gr_obj.jobs[j_i];
+                        var key = getJobMapKey(job_obj);
 
-                        rsMap[rs.id].platforms[pl.name].groups[gr.name].jobs[job.id] = {
-                            job_obj: job,
-                            parent: rsMap[rs.id].platforms[pl.name].groups[gr.name]
+                        var jobMapElement = {
+                            job_obj: job_obj,
+                            parent: grMapElement
                         };
-                        jobMap[key] = rsMap[rs.id].platforms[pl.name].groups[gr.name].jobs[job.id];
+                        grMapElement.jobs[key] = jobMapElement;
+                        jobMap[key] = jobMapElement;
 
-                        var rt = getResultType(job);
+                        // map result status count at different levels
+                        var rt = getResultType(job_obj);
                         // update group count
                         jobMap[key].parent.grp_obj.job_counts[rt] += 1;
                         // update platform count
                         jobMap[key].parent.parent.pl_obj.job_counts[rt] += 1;
 
-                        // map result status count at different levels
                         // track oldest job id
-                        if (!jobMapOldestId || jobMapOldestId > job.id) {
-                            jobMapOldestId = job.id;
+                        if (!jobMapOldestId || jobMapOldestId > job_obj.id) {
+                            jobMapOldestId = job_obj.id;
                         }
                     }
                 }
@@ -178,12 +176,16 @@ treeherder.factory('thResultSetModel',
     var incrementJobCounts = function(job) {
         var rt = getResultType(job);
         var key = getJobMapKey(job);
-        // update group count
-        jobMap[key].parent.grp_obj.job_counts[rt] += 1;
-        // update platform count
-        jobMap[key].parent.parent.pl_obj.job_counts[rt] += 1;
-        // update resultset count
-        jobMap[key].parent.parent.parent.rs_obj.job_counts[rt] += 1;
+        if (jobMap[key]) {
+            // update group count
+            jobMap[key].parent.grp_obj.job_counts[rt] += 1;
+            // update platform count
+            jobMap[key].parent.parent.pl_obj.job_counts[rt] += 1;
+            // update resultset count
+            jobMap[key].parent.parent.parent.rs_obj.job_counts[rt] += 1;
+        } else {
+            $log.debug("key not found in jobMap: " + key);
+        }
     };
 
     /**
@@ -196,17 +198,21 @@ treeherder.factory('thResultSetModel',
 
         var key = getJobMapKey(job);
 
-        // decrement group count
-        if (jobMap[key].parent.grp_obj.job_counts[oldResultType] > 0) {
-            jobMap[key].parent.grp_obj.job_counts[oldResultType] -= 1;
-        }
-        // decrement platform count
-        if (jobMap[key].parent.parent.pl_obj.job_counts[oldResultType] > 0) {
-            jobMap[key].parent.parent.pl_obj.job_counts[oldResultType] -= 1;
-        }
-        // decrement resultset count
-        if (jobMap[key].parent.parent.parent.rs_obj.job_counts[oldResultType] > 0) {
-            jobMap[key].parent.parent.parent.rs_obj.job_counts[oldResultType] -= 1;
+        if (jobMap[key]) {
+            // decrement group count
+            if (jobMap[key].parent.grp_obj.job_counts[oldResultType] > 0) {
+                jobMap[key].parent.grp_obj.job_counts[oldResultType] -= 1;
+            }
+            // decrement platform count
+            if (jobMap[key].parent.parent.pl_obj.job_counts[oldResultType] > 0) {
+                jobMap[key].parent.parent.pl_obj.job_counts[oldResultType] -= 1;
+            }
+            // decrement resultset count
+            if (jobMap[key].parent.parent.parent.rs_obj.job_counts[oldResultType] > 0) {
+                jobMap[key].parent.parent.parent.rs_obj.job_counts[oldResultType] -= 1;
+            }
+        } else {
+            $log.debug("key not found in jobMap: " + key);
         }
     };
 
@@ -267,6 +273,7 @@ treeherder.factory('thResultSetModel',
             // add the new platform to the resultset map
             rsMapElement.platforms[newJob.platform] = {
                 pl_obj: pl_obj,
+                parent: rsMapElement,
                 groups: {}
             };
             plMapElement = rsMapElement.platforms[newJob.platform];
@@ -282,13 +289,12 @@ treeherder.factory('thResultSetModel',
      */
     var getOrCreateGroup = function(newJob) {
         var plMapElement = getOrCreatePlatform(newJob);
-        var grpMapElement = plMapElement.groups[newJob.job_group_name];
-        if (!grpMapElement) {
+        var grMapElement = plMapElement.groups[newJob.job_group_name];
+        if (!grMapElement) {
             $log.debug("adding new group");
             var grp_obj = {
                 symbol: newJob.job_group_symbol,
                 name: newJob.job_group_name,
-                parent: plMapElement.pl_obj,
                 jobs: []
             };
 
@@ -296,15 +302,15 @@ treeherder.factory('thResultSetModel',
             plMapElement.pl_obj.groups.push(grp_obj);
 
             // add the new group to the platform map
-            // note: while the map didn't NEED to have ``grp_obj: grp_obj``
-            // here (it could have just been ``grp_obj``)
-            // I did this to maintain consistency with the other map
-            // objects.
-            plMapElement.groups[grp_obj.name] = {grp_obj: grp_obj};
+            plMapElement.groups[grp_obj.name] = {
+                grp_obj: grp_obj,
+                parent: plMapElement,
+                jobs: {}
+            };
 
-            grpMapElement = plMapElement.groups[newJob.job_group_name];
+            grMapElement = plMapElement.groups[newJob.job_group_name];
         }
-        return grpMapElement;
+        return grMapElement;
     };
 
     /******
@@ -358,7 +364,7 @@ treeherder.factory('thResultSetModel',
     var updateJobs = function(jobList) {
         $log.debug("number of jobs returned for add/update: " + jobList.length);
         jobList.forEach(updateJob);
-
+        $rootScope.$broadcast(thEvents.jobsLoaded, jobList);
     };
 
     /******
@@ -397,7 +403,8 @@ treeherder.factory('thResultSetModel',
     var updateJob = function(newJob) {
 
         var key = getJobMapKey(newJob);
-        var loadedJob = jobMap[key].job_obj;
+        var loadedJobMap = jobMap[key];
+        var loadedJob = loadedJobMap? loadedJobMap.job_obj: null;
         var rsMapElement = rsMap[newJob.result_set_id];
         var newResultType = getResultType(newJob);
 
@@ -427,11 +434,20 @@ treeherder.factory('thResultSetModel',
 
             var grpMapElement = getOrCreateGroup(newJob);
 
+            // add the job mapping to the group
+            grpMapElement.jobs[key] = {
+                job_obj: newJob,
+                parent: grpMapElement
+            };
             // add the job to the datamodel
             grpMapElement.grp_obj.jobs.push(newJob);
 
+
             // add job to the jobmap
-            jobMap[key].job_obj = newJob;
+            jobMap[key] = {
+                job_obj: newJob,
+                parent: grpMapElement
+            };
 
         }
 
