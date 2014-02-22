@@ -33,8 +33,8 @@ treeherder.factory('thResultSets',
 }]);
 
 treeherder.factory('thResultSetModel',
-                   ['$log', '$rootScope', 'thResultSets', 'thSocket', 'thJobs', 'thEvents',
-                   function($log, $rootScope, thResultSets, thSocket, thJobs, thEvents) {
+                   ['$log', '$rootScope', 'thResultSets', 'thSocket', 'thJobs', 'thEvents', 'thPlatformHash',
+                   function($log, $rootScope, thResultSets, thSocket, thJobs, thEvents, thPlatformHash) {
 
    /******
     * Handle updating the resultset datamodel based on a queue of jobs
@@ -363,8 +363,19 @@ treeherder.factory('thResultSetModel',
      */
     var updateJobs = function(jobList) {
         $log.debug("number of jobs returned for add/update: " + jobList.length);
-        jobList.forEach(updateJob);
-        $rootScope.$broadcast(thEvents.jobsLoaded, jobList);
+
+        var platformHashes = [];
+        for (var i = 0; i < jobList.length; i++) {
+            updateJob(jobList[i]);
+            var ph = thPlatformHash(jobList[i]);
+            if (platformHashes.indexof(ph) < 0) {
+                platformHashes.push(ph);
+            }
+        }
+
+        // coalesce the updated jobs into their
+
+        $rootScope.$broadcast(thEvents.jobsLoaded, platformHashes, jobList);
     };
 
     /******
