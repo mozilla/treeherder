@@ -196,3 +196,14 @@ treeherder.provider('thEvents', function() {
     };
 });
 
+/**
+ * Create a hash for a job based on the resultset id, platform name, and
+ * platform option
+ */
+treeherder.provider('thPlatformHash', function() {
+    this.$get = function() {
+        return function(job) {
+            return job.resultset_id + job.platform + job.platform_opt;
+        };
+    };
+});

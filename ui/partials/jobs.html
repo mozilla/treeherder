@@ -3,7 +3,7 @@
     <div class="progress-bar"  role="progressbar" style="width: 100%"></div>
 </div>
 
-<div  ng-repeat="resultset in result_sets track by resultset.id | orderBy:'-push_timestamp'"
+<div ng-repeat="resultset in result_sets track by resultset.id | orderBy:'-push_timestamp'"
      ng-controller="ResultSetCtrl"
      class="result-set col col-xs-12"
      data-id="{{resultset.id}}">
