@@ -160,12 +160,39 @@ treeherder.provider('thResultStatusInfo', function() {
 treeherder.provider('thEvents', function() {
     this.$get = function() {
         return {
+
+            // fired when a list of revisions has been loaded by button-click
             revisionsLoaded: "revisions-loaded-EVT",
+
+            // fired (surprisingly) when a job is clicked
+            jobClick: "job-click-EVT",
+
+            // fired when the user middle-clicks on a job to view the log
+            jobContextMenu: "job-context-menu-EVT",
+
+            // fired when jobs are either classified locally, or we are
+            // notified about a classification over socket.io
+            jobClassified: "job-classified-EVT",
+
+            // after loading a group of jobs queued during socket.io events
+            jobsLoaded: "jobs-loaded-EVT",
+
+            // fired when a new resultset has been loaded either by
+            // a socket.io event, or user request
+            // @@@ we *may* not need this because ng-repeat is still used
+            // on resultsets at this point.
+            resultSetLoaded: "result-set-loaded-EVT",
+
+            // fired when a global filter has changed
+            globalFilterChanged: "status-filter-changed-EVT",
+
+            // fired when filtering on a specific resultset has changed
+            resultSetFilterChanged: "resultset-filter-changed-EVT",
+
             toggleRevisions: "toggle-revisions-EVT",
-            toggleJobs: "toggle-jobs-EVT",
-            jobClick:        "job-click-EVT",
-            jobContextMenu:  "job-context-menu-EVT",
-            jobUpdated:      "job-updated-EVT"
+
+            toggleJobs: "toggle-jobs-EVT"
         };
     };
 });
+
