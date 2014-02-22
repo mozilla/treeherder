@@ -363,19 +363,11 @@ treeherder.factory('thResultSetModel',
      */
     var updateJobs = function(jobList) {
         $log.debug("number of jobs returned for add/update: " + jobList.length);
-
-        var platformHashes = [];
-        for (var i = 0; i < jobList.length; i++) {
-            updateJob(jobList[i]);
-            var ph = thPlatformHash(jobList[i]);
-            if (platformHashes.indexof(ph) < 0) {
-                platformHashes.push(ph);
-            }
-        }
+        jobList.forEach(updateJob);
 
         // coalesce the updated jobs into their
 
-        $rootScope.$broadcast(thEvents.jobsLoaded, platformHashes, jobList);
+        $rootScope.$broadcast(thEvents.jobsLoaded, jobList);
     };
 
     /******

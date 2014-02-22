@@ -177,12 +177,6 @@ treeherder.provider('thEvents', function() {
             // after loading a group of jobs queued during socket.io events
             jobsLoaded: "jobs-loaded-EVT",
 
-            // fired when a new resultset has been loaded either by
-            // a socket.io event, or user request
-            // @@@ we *may* not need this because ng-repeat is still used
-            // on resultsets at this point.
-            resultSetLoaded: "result-set-loaded-EVT",
-
             // fired when a global filter has changed
             globalFilterChanged: "status-filter-changed-EVT",
 
