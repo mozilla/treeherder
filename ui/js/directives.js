@@ -2,8 +2,8 @@
 
 /* Directives */
 treeherder.directive('thCloneJobs', function(
-        $rootScope, $compile, $http, $log, $interpolate, $templateCache,
-        thUrl, thCloneHtml, thServiceDomain, thResultStatusInfo, thEvents){
+        $rootScope, $http, $log, thUrl, thCloneHtml, thServiceDomain,
+        thResultStatusInfo, thEvents, thPlatformElements){
 
     var lastJobElSelected = {};
 
@@ -24,6 +24,7 @@ treeherder.directive('thCloneJobs', function(
     var getJobMapKey = function(job){
         return 'key' + job.id;
         };
+
 
     var getHoverText = function(job) {
         var duration = Math.round((job.end_timestamp - job.submit_timestamp) / 60);
@@ -75,10 +76,10 @@ treeherder.directive('thCloneJobs', function(
 
     var addJobBtnEls = function(jgObj, jobBtnInterpolator, jobTdEl){
 
-        var l = 0;
         var hText, key, resultState = "";
         var job, jobStatus, jobBtn = {};
 
+        var l = 0;
         for(; l<jgObj.jobs.length; l++){
 
             job = jgObj.jobs[l];
@@ -101,7 +102,7 @@ treeherder.directive('thCloneJobs', function(
             jobStatus['key'] = key;
             jobStatus['value'] = job.job_type_symbol;
             jobStatus['title'] = hText;
-            jobStatus['btn_class'] = jobStatus.btnClass;
+            jobStatus['btnClass'] = jobStatus.btnClass;
 
             jobBtn = $( jobBtnInterpolator(jobStatus) );
 
@@ -316,13 +317,21 @@ treeherder.directive('thCloneJobs', function(
         //Instantiate job btn interpolator
         var jobBtnInterpolator = thCloneHtml.get('jobBtnClone').interpolator;
 
-        var name, option = "";
+        var name, option, platformId = "";
         var row, platformTd, jobTdEl = {};
 
         var j = 0;
         for(; j<scope.resultset.platforms.length; j++){
 
             row = $('<tr></tr>');
+
+            platformId = thPlatformElements.getPlatformRowId(
+                scope.resultset.id,
+                scope.resultset.platforms[j].name,
+                scope.resultset.platforms[j].option
+                );
+
+            row.prop('id', platformId);
 
             name = Config.OSNames[scope.resultset.platforms[j].name];
             option = scope.resultset.platforms[j].option;
@@ -332,7 +341,14 @@ treeherder.directive('thCloneJobs', function(
             }
             //Add platforms
             platformTd = platformInterpolator(
-                {'name':name, 'option':option}
+                {
+                    'name':name, 'option':option,
+                    'id':thPlatformElements.getPlatformRowId(
+                        scope.resultset.id,
+                        scope.resultset.platforms[j].name,
+                        scope.resultset.platforms[j].option
+                        )
+                    }
                 );
 
             //Retrieve job group attachment element

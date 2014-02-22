@@ -155,3 +155,26 @@ treeherder.factory('thCloneHtml', function($interpolate) {
         };
 
 });
+
+treeherder.factory('thPlatformElements', function($rootScope) {
+
+    var getPlatformRowId = function(
+        resultsetId, platformName, platformOptions){
+        return $rootScope.repoName +
+                resultsetId +
+                platformName +
+                platformOptions;
+    };
+
+    var getPlatformRowElement = function(
+        resultsetId, platformName, platformOptions){
+        return document.getElementById(
+            getPlatformRowId(resultsetId, platformName, platformOptions)
+            );
+    };
+
+    return {
+        getPlatformRowId:getPlatformRowId,
+        getPlatformRowElement:getPlatformRowElement
+        };
+});
