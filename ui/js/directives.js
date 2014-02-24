@@ -273,6 +273,12 @@ treeherder.directive('thCloneJobs', function(
         el.css('display', 'none');
     };
 
+    //Register global custom event listeners
+    $rootScope.$on(
+        thEvents.jobsLoaded, function(ev, platformData){
+            //console.log(platformData);
+        });
+
     var linker = function(scope, element, attrs){
 
         //Remove any jquery on() bindings
@@ -302,6 +308,7 @@ treeherder.directive('thCloneJobs', function(
                 }
             });
 
+
         //Clone the target html
         var targetEl = $( thCloneHtml.get('resultsetClone').text );
 
@@ -326,6 +333,7 @@ treeherder.directive('thCloneJobs', function(
             row = $('<tr></tr>');
 
             platformId = thPlatformElements.getPlatformRowId(
+                $rootScope.repoName,
                 scope.resultset.id,
                 scope.resultset.platforms[j].name,
                 scope.resultset.platforms[j].option

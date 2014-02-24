@@ -196,14 +196,26 @@ treeherder.provider('thEvents', function() {
     };
 });
 
-/**
- * Create a hash for a job based on the resultset id, platform name, and
- * platform option
- */
-treeherder.provider('thPlatformHash', function() {
+treeherder.provider('thPlatformElements', function() {
+    var getPlatformRowId = function(
+        repoName, resultsetId, platformName, platformOptions){
+        return  repoName +
+                resultsetId +
+                platformName +
+                platformOptions;
+    };
+
+    var getPlatformRowElement = function(
+        repoName, resultsetId, platformName, platformOptions){
+        return document.getElementById(
+            getPlatformRowId(repoName, resultsetId, platformName, platformOptions)
+            );
+    };
+
     this.$get = function() {
-        return function(job) {
-            return job.resultset_id + job.platform + job.platform_opt;
-        };
+        return {
+            getPlatformRowId:getPlatformRowId,
+            getPlatformRowElement:getPlatformRowElement
+            };
     };
 });

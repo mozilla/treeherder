@@ -33,8 +33,8 @@ treeherder.factory('thResultSets',
 }]);
 
 treeherder.factory('thResultSetModel',
-                   ['$log', '$rootScope', 'thResultSets', 'thSocket', 'thJobs', 'thEvents', 'thPlatformHash',
-                   function($log, $rootScope, thResultSets, thSocket, thJobs, thEvents, thPlatformHash) {
+                   ['$log', '$rootScope', 'thResultSets', 'thSocket', 'thJobs', 'thEvents', 'thPlatformElements',
+                   function($log, $rootScope, thResultSets, thSocket, thJobs, thEvents, thPlatformElements) {
 
    /******
     * Handle updating the resultset datamodel based on a queue of jobs
@@ -364,18 +364,33 @@ treeherder.factory('thResultSetModel',
     var updateJobs = function(jobList) {
         $log.debug("number of jobs returned for add/update: " + jobList.length);
 
-        var platformHashes = [];
+        var aggregateId = "";
+        var platformData = {};
         for (var i = 0; i < jobList.length; i++) {
+
             updateJob(jobList[i]);
-            var ph = thPlatformHash(jobList[i]);
-            if (platformHashes.indexof(ph) < 0) {
-                platformHashes.push(ph);
+
+            aggregateId = thPlatformElements.getPlatformRowId(
+                $rootScope.repoName,
+                jobList[i].result_set_id,
+                jobList[i].platform,
+                jobList[i].platform_opt
+                );
+
+            if(!platformData[aggregateId]){
+                platformData[aggregateId] = {
+                    resultSetId:jobList[i].result_set_id,
+                    jobs:[]
+                    };
             }
+
+            platformData[aggregateId]['jobs'].push(jobList[i]);
+
         }
 
         // coalesce the updated jobs into their
 
-        $rootScope.$broadcast(thEvents.jobsLoaded, platformHashes, jobList);
+        $rootScope.$broadcast(thEvents.jobsLoaded, platformData);
     };
 
     /******
