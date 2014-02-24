@@ -2,7 +2,7 @@
 
 treeherder.controller('StatusFilterPanelCtrl',
     function StatusFilterPanelCtrl($scope, $rootScope, $routeParams, $location, $log,
-                               localStorageService, thResultStatusList) {
+                               localStorageService, thResultStatusList, thEvents) {
 
         $scope.filterOptions = thResultStatusList;
 
@@ -33,6 +33,8 @@ treeherder.controller('StatusFilterPanelCtrl',
         $scope.toggleGroup = function(group) {
             var check = function(rs) {$scope.resultStatusFilters[rs] = group.allChecked;};
             _.each(group.resultStatuses, check);
+            $rootScope.$broadcast(thEvents.globalFilterChanged,
+                                  {target: group, newValue: check});
         };
 
         // which result statuses should be shown
@@ -45,6 +47,8 @@ treeherder.controller('StatusFilterPanelCtrl',
             if (!$scope.resultStatusFilters[filter]) {
                 group.allChecked = false;
             }
+            $rootScope.$broadcast(thEvents.globalFilterChanged,
+                                  {target: filter, newValue: $scope.resultStatusFilters[filter]});
         };
         // whether or not to show classified jobs
         $scope.classifiedFilter = true;
