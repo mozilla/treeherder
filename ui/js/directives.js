@@ -3,7 +3,7 @@
 /* Directives */
 treeherder.directive('thCloneJobs', function(
         $rootScope, $http, $log, thUrl, thCloneHtml, thServiceDomain,
-        thResultStatusInfo, thEvents, thPlatformElements){
+        thResultStatusInfo, thEvents, thPlatformElements, thJobFilters){
 
     var lastJobElSelected = {};
 
@@ -21,10 +21,18 @@ treeherder.directive('thCloneJobs', function(
     // Custom Attributes
     var jobKeyAttr = 'data-jmkey';
 
+    //Retrieve platform interpolator
+    var platformInterpolator = thCloneHtml.get('platformClone').interpolator;
+
+    //Instantiate job group interpolator
+    var jobGroupInterpolator = thCloneHtml.get('jobGroupBeginClone').interpolator;
+
+    //Instantiate job btn interpolator
+    var jobBtnInterpolator = thCloneHtml.get('jobBtnClone').interpolator;
+
     var getJobMapKey = function(job){
         return 'key' + job.id;
         };
-
 
     var getHoverText = function(job) {
         var duration = Math.round((job.end_timestamp - job.submit_timestamp) / 60);
@@ -79,10 +87,17 @@ treeherder.directive('thCloneJobs', function(
         var hText, key, resultState = "";
         var job, jobStatus, jobBtn = {};
 
+        var jobsShown = 0;
         var l = 0;
         for(; l<jgObj.jobs.length; l++){
 
             job = jgObj.jobs[l];
+
+            if(thJobFilters.showJob(job) === false){
+                continue;
+            }
+
+            jobsShown++;
 
             if(job.job_coalesced_to_guid != undefined){
                 // Don't render coalesced jobs
@@ -108,6 +123,8 @@ treeherder.directive('thCloneJobs', function(
 
             jobTdEl.append(jobBtn);
         }
+
+        return jobsShown;
     };
 
     var jobMouseDown = function(ev){
@@ -243,6 +260,7 @@ treeherder.directive('thCloneJobs', function(
         }
 
     };
+
     var toggleRevisionsSpanOnWithJobs = function(el){
         el.css('display', 'block');
         el.addClass(col4Cls);
@@ -273,11 +291,95 @@ treeherder.directive('thCloneJobs', function(
         el.css('display', 'none');
     };
 
+    var renderJobTableRow = function(row, platformTd, jobTdEl, jobGroups){
+
+        //Empty the job column before populating it
+        jobTdEl.empty();
+
+        //If at least one job is visible we need to display the platform
+        //otherwise hide it
+        var jobsShownTotal = 0;
+
+        var jgObj = {};
+        var jobGroup = "";
+
+        var i = 0;
+        for(; i<jobGroups.length; i++){
+
+            jgObj = jobGroups[i];
+
+            var jobsShown = 0;
+            if(jgObj.symbol != '?'){
+                // Job group detected, add job group symbols
+                jobGroup = $( jobGroupInterpolator(jobGroups[i]) );
+
+                jobTdEl.append(jobGroup);
+
+                // Add the job btn spans
+                jobsShown = addJobBtnEls(jgObj, jobBtnInterpolator, jobTdEl);
+
+                if(jobsShown > 0){
+                    // Add the job group closure span
+                    jobTdEl.append(
+                        $( thCloneHtml.get('jobGroupEndClone').text )
+                        );
+                }else {
+                    // No jobs were displayed in the group, hide
+                    // the group symbol
+                    jobGroup.hide();
+                }
+
+
+            }else{
+
+                // Add the job btn spans
+                jobsShown = addJobBtnEls(
+                    jgObj, jobBtnInterpolator, jobTdEl
+                    );
+            }
+            jobsShownTotal += jobsShown;
+        }
+
+        if(jobsShownTotal === 0){
+            row.hide();
+        }else{
+            row.show();
+        }
+        row.append(jobTdEl);
+    };
+
+    var filterJobs = function(element){
+
+        var platformId = "";
+        var rowEl = {};
+
+        var i = 0;
+        for(; i<this.resultset.platforms.length; i++){
+
+            platformId = thPlatformElements.getPlatformRowId(
+                $rootScope.repoName,
+                this.resultset.id,
+                this.resultset.platforms[i].name,
+                this.resultset.platforms[i].option
+                );
+
+            rowEl = $( document.getElementById(platformId) );
+
+            var tdEls = rowEl.find('td');
+
+            renderJobTableRow(
+                rowEl, $(tdEls[0]), $(tdEls[1]), this.resultset.platforms[i].groups
+                );
+        }
+
+    };
+
     //Register global custom event listeners
     $rootScope.$on(
         thEvents.jobsLoaded, function(ev, platformData){
             //console.log(platformData);
         });
+
 
     var linker = function(scope, element, attrs){
 
@@ -287,13 +389,15 @@ treeherder.directive('thCloneJobs', function(
         //Register events callback
         element.on('mousedown', _.bind(jobMouseDown, scope));
 
-        //Register rootScope custom event listeners
+        //Register rootScope custom event listeners that require
+        //access to the anguler level resultset scope
         $rootScope.$on(
             thEvents.revisionsLoaded, function(ev, rs){
                 if(rs.id === scope.resultset.id){
                     _.bind(addRevisions, scope, rs, element)();
                 }
             });
+
         $rootScope.$on(
             thEvents.toggleRevisions, function(ev, rs){
                 if(rs.id === scope.resultset.id){
@@ -308,21 +412,16 @@ treeherder.directive('thCloneJobs', function(
                 }
             });
 
+        $rootScope.$on(
+            thEvents.globalFilterChanged, function(ev, filterData){
+                _.bind(filterJobs, scope, element, filterData)();
+            });
 
         //Clone the target html
         var targetEl = $( thCloneHtml.get('resultsetClone').text );
 
-        //Retrieve platform interpolator
-        var platformInterpolator = thCloneHtml.get('platformClone').interpolator;
-
         //Retrieve table el for appending
         var tableEl = targetEl.find('table');
-
-        //Instantiate job group interpolator
-        var jobGroupInterpolator = thCloneHtml.get('jobGroupBeginClone').interpolator;
-
-        //Instantiate job btn interpolator
-        var jobBtnInterpolator = thCloneHtml.get('jobBtnClone').interpolator;
 
         var name, option, platformId = "";
         var row, platformTd, jobTdEl = {};
@@ -359,46 +458,15 @@ treeherder.directive('thCloneJobs', function(
                     }
                 );
 
-            //Retrieve job group attachment element
+            row.append(platformTd);
+
+            // Render the row of job data
             jobTdEl = $( thCloneHtml.get('jobTdClone').text );
 
-            var jgObj = {};
-            var jobGroup = "";
+            renderJobTableRow(
+                row, platformTd, jobTdEl, scope.resultset.platforms[j].groups
+                );
 
-            var k = 0;
-            for(; k<scope.resultset.platforms[j].groups.length; k++){
-
-                jgObj = scope.resultset.platforms[j].groups[k];
-
-                if(jgObj.symbol != '?'){
-                    // Job group detected, add job group symbols
-                    jobGroup = jobGroupInterpolator(
-                        scope.resultset.platforms[j].groups[k]
-                        );
-
-                    jobTdEl.append(jobGroup);
-
-                    // Add the job btn spans
-                    addJobBtnEls(
-                        jgObj, jobBtnInterpolator, jobTdEl
-                        );
-
-                    // Add the job group closure span
-                    jobTdEl.append(
-                        $( thCloneHtml.get('jobGroupEndClone').text )
-                        );
-
-                }else{
-
-                    // Add the job btn spans
-                    addJobBtnEls(
-                        jgObj, jobBtnInterpolator, jobTdEl
-                        );
-                }
-            }
-
-            row.append(platformTd);
-            row.append(jobTdEl);
             tableEl.append(row);
         }
 
