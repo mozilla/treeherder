@@ -86,7 +86,7 @@ body {
 }
 
 .th-option-group {
-    margin: 5px;
+    margin-right: 5px;
     border: 1px solid darkgrey;
     -moz-border-radius:3px;
     -webkit-border-radius:3px;
@@ -98,6 +98,38 @@ body {
     background-color: darkgray;
 }
 
+#jobFilterValue {
+    width: 150px;
+}
+
+#jobFilterField {
+    width: 200px;
+}
+
+.field-filter-form {
+    border-top: 2px solid lightgray;
+    margin-top: 5px;
+    padding: 3px;
+    background-color: lightgray;
+}
+
+.field-filter {
+    margin: 3px;
+}
+
+.field-filter a, .th-option-heading a {
+    color: white;
+    cursor: pointer;
+}
+
+.field-filter-placeholder a {
+    cursor: pointer;
+}
+
+/**
+  repository panel
+*/
+
 .th-repo-group {
     margin-bottom: 5px;
 }
@@ -107,7 +139,6 @@ body {
     margin: 5px 5px 0 5px;
     min-width: 225px;
 }
-
 
 /**
   Failures
