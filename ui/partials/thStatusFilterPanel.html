@@ -2,6 +2,8 @@
      class="th-top-nav-options-panel model-body"
      ng-controller="StatusFilterPanelCtrl">
     <div class="well"><h5>Specify which jobs to show based on this filter criteria.</h5></div>
+
+    <!-- result status filters -->
     <span ng-repeat="group in filterGroups"
           class="panel panel-default th-option-group th-inline-option-group">
 
@@ -10,7 +12,7 @@
             <span class="pull-right">
             <input type="checkbox"
                    ng-model="group.allChecked"
-                   ng-change="toggleGroup(group)"> all
+                   ng-change="toggleResultStatusGroup(group)"> all
             </span>
         </div>
         <!--content for each group-->
@@ -20,13 +22,22 @@
             </span>
         </div>
     </span>
+
+    <!-- classified / unclassified -->
     <span class="panel panel-default th-option-group th-inline-option-group">
         <div class="panel-heading th-option-heading">classified</div>
         <div class="panel-body">
             <label class="checkbox-inline">
                 <input type="checkbox"
                        id="classified"
-                       ng-model="classifiedFilter"> classified
+                       ng-model="classifiedFilter"
+                       ng-click="toggleClassificationFilter(true)"> classified
+            </label>
+            <label class="checkbox-inline">
+                <input type="checkbox"
+                       id="unclassified"
+                       ng-model="unClassifiedFilter"
+                       ng-click="toggleClassificationFilter(false)"> un-classified
             </label>
         </div>
     </span>

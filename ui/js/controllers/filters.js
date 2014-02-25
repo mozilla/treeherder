@@ -30,16 +30,23 @@ treeherder.controller('StatusFilterPanelCtrl',
         /**
          * Handle checking the "all" button for a result status group
          */
-        $scope.toggleGroup = function(group) {
-            var check = function(rs) {$scope.resultStatusFilters[rs] = group.allChecked;};
+        $scope.toggleResultStatusGroup = function(group) {
+            var check = function(rs) {
+                $scope.resultStatusFilters[rs] = group.allChecked;
+            };
+
             _.each(group.resultStatuses, check);
-            thJobFilters.toggleFilters(thJobFilters.resultStatus, group.resultStatuses, group.allChecked);
+            thJobFilters.toggleFilters(
+                thJobFilters.resultStatus,
+                group.resultStatuses,
+                group.allChecked
+            );
             $rootScope.$broadcast(thEvents.globalFilterChanged,
                                   {target: group, newValue: group.allChecked});
             showCheck();
         };
 
-        $scope.toggleFilter = function(group, filter) {
+        $scope.toggleResultStatusFilter = function(group, filter) {
             if (!$scope.resultStatusFilters[filter]) {
                 group.allChecked = false;
                 thJobFilters.removeFilter(thJobFilters.resultStatus, filter);
@@ -48,6 +55,28 @@ treeherder.controller('StatusFilterPanelCtrl',
             }
             $rootScope.$broadcast(thEvents.globalFilterChanged,
                                   {target: filter, newValue: $scope.resultStatusFilters[filter]});
+            showCheck();
+        };
+
+        /**
+         * Toggle the filters to show either unclassified or classified jobs,
+         * neither or both.
+         * @param isClassified - whether to toggle the filter on/off for
+         *                       ``classified`` (when true) or ``unclassified``
+         *                       (when false)
+         */
+        $scope.toggleClassificationFilter = function(isClassified) {
+            var field = "failure_classification_id";
+            // this function is called before the checkbox value has actually
+            // changed the scope model value, so change to the inverse.
+            var isChecked = !(isClassified? $scope.classifiedFilter: $scope.unClassifiedFilter);
+            var func = isChecked? thJobFilters.addFilter: thJobFilters.removeFilter;
+            var target = isClassified? "classified": "unclassified";
+
+            func(field, isClassified);
+
+            $rootScope.$broadcast(thEvents.globalFilterChanged,
+                                  {target: target, newValue: isChecked});
             showCheck();
         };
 
@@ -73,6 +102,7 @@ treeherder.controller('StatusFilterPanelCtrl',
                 value: $scope.newFieldFilter.value
             });
             $scope.newFieldFilter = null;
+            showCheck();
 
         };
 
@@ -81,6 +111,7 @@ treeherder.controller('StatusFilterPanelCtrl',
                 thJobFilters.removeFilter(ff.field, ff.value);
             });
             $scope.fieldFilters = [];
+            showCheck();
         };
 
         $scope.removeFilter = function(index) {
@@ -90,20 +121,36 @@ treeherder.controller('StatusFilterPanelCtrl',
                 $scope.fieldFilters[index].value
             );
             $scope.fieldFilters.splice(index, 1);
+            showCheck();
         };
 
         /*
         @@@ TODO: CAMD: test code, remove before merge.
          */
         var jobs = [];
-        $scope.filterGroups.inProgress.resultStatuses.forEach(function(rs) {jobs.push({state: rs, result: "unknown"});});
-        $scope.filterGroups.failures.resultStatuses.forEach(function(rs) {jobs.push({state: "completed", result: rs});});
-        $scope.filterGroups.nonfailures.resultStatuses.forEach(function(rs) {jobs.push({state: "completed", result: rs});});
+        $scope.filterGroups.inProgress.resultStatuses.forEach(function(rs) {jobs.push({
+            state: rs,
+            result: "unknown",
+            failure_classification_id: null
+            });});
+
+        $scope.filterGroups.failures.resultStatuses.forEach(function(rs) {jobs.push({
+            state: "completed",
+            result: rs,
+            job_type_symbol: "A",
+            job_group_symbol: "M",
+            failure_classification_id: "bird"
+            });});
+        $scope.filterGroups.nonfailures.resultStatuses.forEach(function(rs) {jobs.push({
+            state: "completed",
+            result: rs
+            });});
 
         var showCheck = function() {
             jobs.forEach(function(job) {
-               $log.debug("show job: " + job.result + " " + job.state + ": " + thJobFilters.showJob(job));
+               $log.debug("show job: " + JSON.stringify(job) + ": " + thJobFilters.showJob(job));
             });
+            $log.debug(JSON.stringify(thJobFilters.getFilters()));
         };
         // END test code
 
@@ -112,7 +159,11 @@ treeherder.controller('StatusFilterPanelCtrl',
             $scope.resultStatusFilters[$scope.filterOptions[i]] = true;
         }
         // whether or not to show classified jobs
+        // these are a special case of filtering because we're not checking
+        // for a value, just whether the job has any value set or not.
+        // just a boolean check either way
         $scope.classifiedFilter = true;
+        $scope.unClassifiedFilter = true;
 
         // field filters
         $scope.newFieldFilter = null;

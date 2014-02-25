@@ -37,12 +37,17 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log) {
      *     ]
      */
     var filters = {
-        resultStatus: thResultStatusList
+        resultStatus: thResultStatusList.slice(),
+        failure_classification_id: [true, false]
     };
 
     /**
      * If a custom resultStatusList is passed in (like for individual
      * resultSets, then use that.  Otherwise, fall back to the global one.
+     *
+     * if the filter value is just ``true`` or ``false`` then simply check
+     * whether or not the field of ``job`` has a value set or not.  ``true``
+     * means it must have a value set, ``false`` means it must be null.
      */
     var checkFilter = function(field, job, resultStatusList) {
         // resultStatus is a special case that spans two job fields
@@ -51,7 +56,11 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log) {
             return _.contains(filterList, job.result) ||
                    _.contains(filterList, job.state);
         } else {
-            return _.contains(filters[field], job[field]);
+            var jobFieldValue = job[field];
+            if (_.every(filters[field], _.isBoolean)) {
+                jobFieldValue = !_.isNull(jobFieldValue);
+            }
+            return _.contains(filters[field], jobFieldValue);
         }
     };
 
@@ -64,7 +73,7 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log) {
             } else {
                 filters[field] = [value];
             }
-            $log.debug("adding " + value);
+            $log.debug("adding " + field + ": " + value);
             $log.debug(filters);
         },
         removeFilter: function(field, value) {
@@ -109,14 +118,20 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log) {
          */
         showJob: function(job, resultStatusList) {
             var fields = _.keys(filters);
+            if (filters.length === 0) {
+                return false;
+            }
             for(var i = 0; i < fields.length; i++) {
-                if (checkFilter(fields[i], job)) {
-                    return true;
+                if (!checkFilter(fields[i], job)) {
+                    return false;
                 }
             }
-            return false;
+            return true;
         },
-        resultStatus: "resultStatus"
+        resultStatus: "resultStatus",
+        getFilters: function() {
+            return filters;
+        }
     };
 
     return api;
