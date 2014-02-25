@@ -91,7 +91,7 @@ def oauth_required(func):
 
         #Get the consumer object
         cons_obj = oauth.Consumer(
-            project_credentials['consumer_key'],
+            oauth_consumer_key,
             project_credentials['consumer_secret']
             )
 
