@@ -91,29 +91,29 @@ treeherder.factory('thJobNote', function($resource, $http, thUrl) {
 
 treeherder.factory('thSocket', function ($rootScope, $log, thUrl) {
     var socket = io.connect(thUrl.getSocketEventUrl());
-    socket.on('connect', function(){
-       $log.debug('socketio connected');
+    socket.on('connect', function () {
+        $log.debug('socketio connected');
     });
-  return {
-    on: function (eventName, callback) {
-      socket.on(eventName, function () {
-        var args = arguments;
-        $rootScope.$apply(function () {
-          callback.apply(socket, args);
-        });
-      });
-    },
-    emit: function (eventName, data, callback) {
-      socket.emit(eventName, data, function () {
-        var args = arguments;
-        $rootScope.$apply(function () {
-          if (callback) {
-            callback.apply(socket, args);
-          }
-        });
-      });
-    }
-  };
+    return {
+        on: function (eventName, callback) {
+            socket.on(eventName, function () {
+                var args = arguments;
+                $rootScope.$apply(function () {
+                    callback.apply(socket, args);
+                });
+            });
+        },
+        emit: function (eventName, data, callback) {
+            socket.emit(eventName, data, function () {
+                var args = arguments;
+                $rootScope.$apply(function () {
+                    if (callback) {
+                        callback.apply(socket, args);
+                    }
+                });
+            });
+        }
+    };
 });
 
 treeherder.factory('thCloneHtml', function($interpolate) {

@@ -3,7 +3,7 @@
 treeherder.controller('JobsCtrl',
     function JobsCtrl($scope, $http, $rootScope, $routeParams, $log, $cookies,
                       localStorageService, thUrl, thReposModel, thSocket,
-                      thResultSetModel, thResultStatusList, thEvents) {
+                      thResultSetModel, thResultStatusList) {
 
         // load our initial set of resultsets
         // scope needs this function so it can be called directly by the user, too.
@@ -36,10 +36,11 @@ treeherder.controller('JobsCtrl',
     }
 );
 
+
 treeherder.controller('ResultSetCtrl',
     function ResultSetCtrl($scope, $rootScope, $http, $log,
                            thUrl, thServiceDomain, thResultStatusInfo,
-                           thResultSetModel, thEvents) {
+                           thResultSetModel, thEvents, thJobFilters) {
 
         $scope.getCountClass = function(resultStatus) {
             return thResultStatusInfo(resultStatus).btnClass;
@@ -85,6 +86,34 @@ treeherder.controller('ResultSetCtrl',
                 );
 
         };
+
+        /**
+         * When the user clicks one of the resultStates on the resultset line,
+         * then toggle what is showing for just this resultset.
+         *
+         * @param resultStatus - Which resultStatus to toggle.
+         */
+        $scope.toggleResultStatusFilter = function(resultStatus) {
+            var idx = $scope.resultStatusFilters.indexOf(resultStatus);
+            if (idx < 0) {
+                $scope.resultStatusFilters.push(resultStatus);
+            } else {
+                $scope.resultStatusFilters.splice(idx, 1);
+            }
+            $log.debug("toggled: " + resultStatus);
+            $log.debug($scope.resultStatusFilters);
+        };
+
+        /**
+         * Whether or not a job should be shown based on the global and local
+         * filters.
+         * @param job
+         */
+        $scope.showJob = function(job) {
+            return thJobFilters.showJob(job, $scope.resultStatusFilters);
+        };
+
+        $scope.resultStatusFilters = thJobFilters.copyResultStatusFilters();
 
         $scope.isCollapsedResults = false;
 

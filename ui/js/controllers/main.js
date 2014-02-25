@@ -47,28 +47,5 @@ treeherder.controller('MainCtrl',
             thReposModel.setCurrent(repo_name);
             $location.search({repo: repo_name});
         };
-
-        /**
-         * Handle display/hide of a job based on the result status filters
-         */
-        $scope.resultStatusFilterJobs = function() {
-            return function(job) {
-                return $scope.resultStatusFilters[job.result] ||
-                    $scope.resultStatusFilters[job.state];
-            };
-        };
-        /**
-         * Handle display/hide of a platform based on the result status filters
-         */
-        $scope.resultStatusFilterPlatform = function() {
-            return function(platform) {
-                for (var key in $scope.resultStatusFilters) {
-                    if (platform.job_counts[key] && $scope.resultStatusFilters[key]) {
-                        return true;
-                    }
-                }
-                return false;
-            };
-        };
     }
 );
