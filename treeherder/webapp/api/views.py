@@ -98,7 +98,7 @@ def oauth_required(func):
 
         try:
             #verify oauth django request and consumer object match
-            server.verify_request(req_obj, cons_obj, oauth_token)
+            server.verify_request(req_obj, cons_obj, token)
         except oauth.Error:
             msg = {
                 'response':"invalid_client",
