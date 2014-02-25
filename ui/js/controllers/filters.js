@@ -51,6 +51,46 @@ treeherder.controller('StatusFilterPanelCtrl',
             showCheck();
         };
 
+        $scope.createFieldFilter = function() {
+            $scope.newFieldFilter = {field: "", value: ""};
+        };
+        $scope.cancelFieldFilter = function() {
+            $scope.newFieldFilter = null;
+        };
+
+
+        $scope.addFieldFilter = function() {
+            $log.debug("adding filter of " + $scope.newFieldFilter.field);
+            if (!$scope.newFieldFilter || $scope.newFieldFilter.field === "" || $scope.newFieldFilter.value === "") {
+                return;
+            }
+            thJobFilters.addFilter(
+                $scope.newFieldFilter.field,
+                $scope.newFieldFilter.value
+            );
+            $scope.fieldFilters.push({
+                field: $scope.newFieldFilter.field,
+                value: $scope.newFieldFilter.value
+            });
+            $scope.newFieldFilter = null;
+
+        };
+
+        $scope.removeAllFieldFilters = function() {
+            $scope.fieldFilters.forEach(function(ff) {
+                thJobFilters.removeFilter(ff.field, ff.value);
+            });
+            $scope.fieldFilters = [];
+        };
+
+        $scope.removeFilter = function(index) {
+            $log.debug("removing index: " + index);
+            thJobFilters.removeFilter(
+                $scope.fieldFilters[index].field,
+                $scope.fieldFilters[index].value
+            );
+            $scope.fieldFilters.splice(index, 1);
+        };
 
         /*
         @@@ TODO: CAMD: test code, remove before merge.
@@ -74,5 +114,15 @@ treeherder.controller('StatusFilterPanelCtrl',
         // whether or not to show classified jobs
         $scope.classifiedFilter = true;
 
+        // field filters
+        $scope.newFieldFilter = null;
+        $scope.fieldFilters = [];
+        $scope.fieldChoices = {
+            job_type_name: "job name",
+            job_type_symbol: "job symbol",
+            job_group_name: "group name",
+            job_group_symbol: "group symbol",
+            platform: "platform"
+        };
     }
 );

@@ -44,8 +44,12 @@ treeherder.controller('MainCtrl',
         $scope.watchedRepos = thReposModel.watchedRepos;
 
         $scope.changeRepo = function(repo_name) {
+            // hide the repo panel if they chose to load one.
+            $scope.isRepoPanelShowing = false;
+
             thReposModel.setCurrent(repo_name);
             $location.search({repo: repo_name});
+
         };
     }
 );
