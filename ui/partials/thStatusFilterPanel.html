@@ -1,7 +1,7 @@
 <div id="filter"
      class="th-top-nav-options-panel model-body"
      ng-controller="StatusFilterPanelCtrl">
-    <div class="well"><h5>Specify which jobs to show based on this filter criteria.</h5></div>
+    <div class="nav-panel-help-text">Specify which jobs to show based on this filter criteria.</div>
 
     <!-- result status filters -->
     <span ng-repeat="group in filterGroups"
@@ -52,7 +52,7 @@
             </span>
         </div>
         <div class="panel-body">
-            <span class="field-filter-placeholder">click <a ng-click="createFieldFilter()"
+            <span class="field-filter-placeholder" ng-hide="fieldFilters.length">click <a ng-click="createFieldFilter()"
                 title="create new field filter">new</a> to filter by a specific job field</span>
             <h4>
                 <div class="label label-default field-filter"
