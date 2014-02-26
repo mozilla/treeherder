@@ -95,7 +95,8 @@ treeherder.controller('StatusFilterPanelCtrl',
             }
             thJobFilters.addFilter(
                 $scope.newFieldFilter.field,
-                $scope.newFieldFilter.value
+                $scope.newFieldFilter.value,
+                $scope.fieldChoices[$scope.newFieldFilter.field].matchType
             );
             $scope.fieldFilters.push({
                 field: $scope.newFieldFilter.field,
@@ -144,7 +145,9 @@ treeherder.controller('StatusFilterPanelCtrl',
             state: "completed",
             result: rs,
             job_type_symbol: "A",
+            job_type_name: "Apples",
             job_group_symbol: "M",
+            job_group_name: "Mochitest",
             failure_classification_id: "bird"
             });});
         $scope.filterGroups.nonfailures.resultStatuses.forEach(function(rs) {jobs.push({
@@ -175,11 +178,26 @@ treeherder.controller('StatusFilterPanelCtrl',
         $scope.newFieldFilter = null;
         $scope.fieldFilters = [];
         $scope.fieldChoices = {
-            job_type_name: "job name",
-            job_type_symbol: "job symbol",
-            job_group_name: "group name",
-            job_group_symbol: "group symbol",
-            platform: "platform"
+            job_type_name: {
+                name: "job name",
+                matchType: thJobFilters.matchType.substr
+            },
+            job_type_symbol: {
+                name: "job symbol",
+                matchType: thJobFilters.matchType.exactstr
+            },
+            job_group_name: {
+                name: "group name",
+                matchType: thJobFilters.matchType.substr
+            },
+            job_group_symbol: {
+                name: "group symbol",
+                matchType: thJobFilters.matchType.exactstr
+            },
+            platform: {
+                name: "platform",
+                matchType: thJobFilters.matchType.substr
+            }
         };
     }
 );

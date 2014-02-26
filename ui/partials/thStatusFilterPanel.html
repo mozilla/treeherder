@@ -56,7 +56,7 @@
                 title="create new field filter">new</a> to filter by a specific job field</span>
             <h4>
                 <div class="label label-default field-filter"
-                     ng-repeat="filter in fieldFilters">{{fieldChoices[filter.field]}}: "{{filter.value}}"
+                     ng-repeat="filter in fieldFilters">{{fieldChoices[filter.field].name}}: "{{filter.value}}"
                      <a ng-click="removeFilter($index)"
                         title="delete this filter"><i class="glyphicon glyphicon-remove"></i></a>
                 </div>
@@ -72,8 +72,8 @@
                             placeholder="filter field"
                             required>
                         <option value="" disabled selected>select filter field</option>
-                        <option ng-repeat="(field, name) in fieldChoices"
-                                value="{{field}}">{{name}}</option>
+                        <option ng-repeat="(field, obj) in fieldChoices"
+                                value="{{field}}">{{obj.name}}</option>
                     </select>
                     <label class="sr-only" for="jobFilterValue">Value</label>
                     <input class="form-control"
