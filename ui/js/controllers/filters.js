@@ -101,6 +101,8 @@ treeherder.controller('StatusFilterPanelCtrl',
                 field: $scope.newFieldFilter.field,
                 value: $scope.newFieldFilter.value
             });
+            $rootScope.$broadcast(thEvents.globalFilterChanged,
+                                  {target: $scope.newFieldFilter.field, newValue: $scope.newFieldFilter.value});
             $scope.newFieldFilter = null;
             showCheck();
 
@@ -110,6 +112,8 @@ treeherder.controller('StatusFilterPanelCtrl',
             $scope.fieldFilters.forEach(function(ff) {
                 thJobFilters.removeFilter(ff.field, ff.value);
             });
+            $rootScope.$broadcast(thEvents.globalFilterChanged,
+                                  {target: "allFieldFilters", newValue: null});
             $scope.fieldFilters = [];
             showCheck();
         };
@@ -120,6 +124,8 @@ treeherder.controller('StatusFilterPanelCtrl',
                 $scope.fieldFilters[index].field,
                 $scope.fieldFilters[index].value
             );
+            $rootScope.$broadcast(thEvents.globalFilterChanged,
+                                  {target: $scope.fieldFilters[index].field, newValue: null});
             $scope.fieldFilters.splice(index, 1);
             showCheck();
         };
