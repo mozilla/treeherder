@@ -3,7 +3,7 @@
 /* Directives */
 treeherder.directive('thCloneJobs', function(
         $rootScope, $http, $log, thUrl, thCloneHtml, thServiceDomain,
-        thResultStatusInfo, thEvents, thPlatformElements, thJobFilters){
+        thResultStatusInfo, thEvents, thAggregateIds, thJobFilters){
 
     var lastJobElSelected = {};
 
@@ -20,6 +20,8 @@ treeherder.directive('thCloneJobs', function(
 
     // Custom Attributes
     var jobKeyAttr = 'data-jmkey';
+
+    var tableInterpolator = thCloneHtml.get('resultsetClone').interpolator;
 
     //Retrieve platform interpolator
     var platformInterpolator = thCloneHtml.get('platformClone').interpolator;
@@ -84,8 +86,7 @@ treeherder.directive('thCloneJobs', function(
 
     var addJobBtnEls = function(jgObj, jobBtnInterpolator, jobTdEl){
 
-        var hText, key, resultState = "";
-        var job, jobStatus, jobBtn = {};
+        var hText, key, resultState, job, jobStatus, jobBtn;
 
         var jobsShown = 0;
         var l = 0;
@@ -170,11 +171,9 @@ treeherder.directive('thCloneJobs', function(
             //make sure we're starting with an empty element
             $(ulEl).empty();
 
-            var revision = {};
-            var revisionHtml = "";
-            var userTokens = [];
-            var i = 0;
+            var revision, revisionHtml, userTokens;
 
+            var i = 0;
             for(; i<resultset.revisions.length; i++){
 
                 revision = resultset.revisions[i];
@@ -300,11 +299,9 @@ treeherder.directive('thCloneJobs', function(
         //otherwise hide it
         var jobsShownTotal = 0;
 
-        var jgObj = {};
-        var jobGroup = "";
+        var jgObj, jobGroup, i;
 
-        var i = 0;
-        for(; i<jobGroups.length; i++){
+        for(i=0; i<jobGroups.length; i++){
 
             jgObj = jobGroups[i];
 
@@ -345,18 +342,17 @@ treeherder.directive('thCloneJobs', function(
         }else{
             row.show();
         }
+
         row.append(jobTdEl);
     };
 
     var filterJobs = function(element){
 
-        var platformId = "";
-        var rowEl = {};
+        var platformId, rowEl, tdEls, i;
 
-        var i = 0;
-        for(; i<this.resultset.platforms.length; i++){
+        for(i=0; i<this.resultset.platforms.length; i++){
 
-            platformId = thPlatformElements.getPlatformRowId(
+            platformId = thAggregateIds.getPlatformRowId(
                 $rootScope.repoName,
                 this.resultset.id,
                 this.resultset.platforms[i].name,
@@ -365,20 +361,116 @@ treeherder.directive('thCloneJobs', function(
 
             rowEl = $( document.getElementById(platformId) );
 
-            var tdEls = rowEl.find('td');
-
+            tdEls = rowEl.find('td');
+            // tdEls[0] is the platform <td> and
+            // tdEls[1] is the jobs <td>
             renderJobTableRow(
-                rowEl, $(tdEls[0]), $(tdEls[1]), this.resultset.platforms[i].groups
+                rowEl, $(tdEls[0]), $(tdEls[1]),
+                this.resultset.platforms[i].groups
                 );
         }
 
     };
 
+    var getPlatformName = function(name){
+
+        var platformName = Config.OSNames[name];
+
+        if(platformName === undefined){
+            platformName = value.platformName;
+        }
+
+        return platformName;
+    };
+
     //Register global custom event listeners
     $rootScope.$on(
         thEvents.jobsLoaded, function(ev, platformData){
-            //console.log(platformData);
+
+            var tdEls, rowEl, platformTdEl, jobTdEl,
+                name, option, tableRows;
+
+            angular.forEach(platformData, function(value, platformId){
+
+                rowEl = document.getElementById(platformId);
+
+console.log('rendering ' + platformId + ' ' + value.resultsetAggregateId);
+
+                if(!rowEl){
+                    //First job for this platform found, which means we need
+                    //to create the platform and job td elements and the
+                    //row
+                    rowEl = $('<tr></tr>');
+
+                    var tableEl = document.getElementById(
+                        value.resultsetAggregateId
+                        );
+
+                    rowEl.prop('id', platformId);
+
+                    option = value.platformOption;
+                    name = getPlatformName(value.platformName);
+
+                    //Add platforms
+                    platformTd = platformInterpolator(
+                        {'name':name, 'option':option, 'id':platformId }
+                        );
+
+                    jobTdEl = $( thCloneHtml.get('jobTdClone').text );
+
+                    renderJobTableRow(
+                        $(rowEl), platformTdEl, jobTdEl, value.jobGroups
+                        );
+
+                    //We need to determine where to append the new row
+                    tableRows = $(tableEl).find('tr');
+
+                    if(tableRows.length > 0){
+                        //Rows already exist, insert the new one in
+                        //alphabetical order
+                        var targetPlatformName = Config.OSNames[value.platformName];
+                        option = value.platformOption;
+
+                        if(targetPlatformName === undefined){
+                            targetPlatformName = value.platformName;
+                        }
+
+                        var orderedPlatforms = [];
+                        orderedPlatforms.push( targetPlatformName );
+
+                        var td, platformSpan, platformName, r, p;
+
+                        for(r=0; r<tableRows.length; r++){
+                            td = tableRows[r].find('td');
+                            platformSpan = td[0].find('span');
+                            platformName = $(platformSpan).text();
+                            orderedPlatforms.push( platformName );
+                        }
+
+                        orderedPlatforms.sort();
+
+                        for(p=0; p<orderedPlatforms.length; p++){
+                            if(orderedPlatforms[p] === targetPlatformName){
+                                $(tableRows[ p - 1 ]).append(rowEl);
+                                break;
+                            }
+                        }
+
+                    }else{
+                        $(tableEl).append(rowEl);
+                    }
+
+                }else{
+                    tdEls = $(rowEl).find('td');
+                    platformTdEl = $(tdEls[0]);
+                    jobTdEl = $(tdEls[1]);
+
+                    renderJobTableRow(
+                        $(rowEl), platformTdEl, jobTdEl, value.jobGroups
+                        );
+                }
         });
+    });
 
 
     var linker = function(scope, element, attrs){
@@ -418,20 +510,24 @@ treeherder.directive('thCloneJobs', function(
             });
 
         //Clone the target html
-        var targetEl = $( thCloneHtml.get('resultsetClone').text );
+        var resultsetAggregateId = thAggregateIds.getResultsetTableId(
+            $rootScope.repoName, scope.resultset.id, scope.resultset.revision
+            );
+
+        var targetEl = $(
+            tableInterpolator({ aggregateId:resultsetAggregateId })
+            );
 
         //Retrieve table el for appending
         var tableEl = targetEl.find('table');
 
-        var name, option, platformId = "";
-        var row, platformTd, jobTdEl = {};
+        var name, option, platformId,row, platformTd, jobTdEl, j;
 
-        var j = 0;
-        for(; j<scope.resultset.platforms.length; j++){
+        for(j=0; j<scope.resultset.platforms.length; j++){
 
             row = $('<tr></tr>');
 
-            platformId = thPlatformElements.getPlatformRowId(
+            platformId = thAggregateIds.getPlatformRowId(
                 $rootScope.repoName,
                 scope.resultset.id,
                 scope.resultset.platforms[j].name,
@@ -440,17 +536,14 @@ treeherder.directive('thCloneJobs', function(
 
             row.prop('id', platformId);
 
-            name = Config.OSNames[scope.resultset.platforms[j].name];
+            name = getPlatformName(scope.resultset.platforms[j].name);
             option = scope.resultset.platforms[j].option;
 
-            if(name === undefined){
-                name = scope.resultset.platforms[j].name;
-            }
             //Add platforms
             platformTd = platformInterpolator(
                 {
                     'name':name, 'option':option,
-                    'id':thPlatformElements.getPlatformRowId(
+                    'id':thAggregateIds.getPlatformRowId(
                         scope.resultset.id,
                         scope.resultset.platforms[j].name,
                         scope.resultset.platforms[j].option
@@ -462,7 +555,6 @@ treeherder.directive('thCloneJobs', function(
 
             // Render the row of job data
             jobTdEl = $( thCloneHtml.get('jobTdClone').text );
-
             renderJobTableRow(
                 row, platformTd, jobTdEl, scope.resultset.platforms[j].groups
                 );

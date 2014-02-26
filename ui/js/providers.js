@@ -190,7 +190,7 @@ treeherder.provider('thEvents', function() {
     };
 });
 
-treeherder.provider('thPlatformElements', function() {
+treeherder.provider('thAggregateIds', function() {
     var getPlatformRowId = function(
         repoName, resultsetId, platformName, platformOptions){
         return  repoName +
@@ -199,17 +199,14 @@ treeherder.provider('thPlatformElements', function() {
                 platformOptions;
     };
 
-    var getPlatformRowElement = function(
-        repoName, resultsetId, platformName, platformOptions){
-        return document.getElementById(
-            getPlatformRowId(repoName, resultsetId, platformName, platformOptions)
-            );
+    var getResultsetTableId = function(repoName, resultsetId, revision){
+        return repoName + resultsetId + revision;
     };
 
     this.$get = function() {
         return {
             getPlatformRowId:getPlatformRowId,
-            getPlatformRowElement:getPlatformRowElement
+            getResultsetTableId:getResultsetTableId
             };
     };
 });

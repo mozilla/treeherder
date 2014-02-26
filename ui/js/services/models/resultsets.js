@@ -33,8 +33,8 @@ treeherder.factory('thResultSets',
 }]);
 
 treeherder.factory('thResultSetModel',
-                   ['$log', '$rootScope', 'thResultSets', 'thSocket', 'thJobs', 'thEvents', 'thPlatformElements',
-                   function($log, $rootScope, thResultSets, thSocket, thJobs, thEvents, thPlatformElements) {
+                   ['$log', '$rootScope', 'thResultSets', 'thSocket', 'thJobs', 'thEvents', 'thAggregateIds',
+                   function($log, $rootScope, thResultSets, thSocket, thJobs, thEvents, thAggregateIds) {
 
    /******
     * Handle updating the resultset datamodel based on a queue of jobs
@@ -364,32 +364,55 @@ treeherder.factory('thResultSetModel',
     var updateJobs = function(jobList) {
         $log.debug("number of jobs returned for add/update: " + jobList.length);
 
-        var aggregateId = "";
+        var resultsetId, platformName, platformOption, platformAggregateId,
+            resultsetAggregateId, revision, i = "";
+
         var platformData = {};
-        for (var i = 0; i < jobList.length; i++) {
+
+        for (i = 0; i < jobList.length; i++) {
 
             updateJob(jobList[i]);
 
-            aggregateId = thPlatformElements.getPlatformRowId(
+            platformAggregateId = thAggregateIds.getPlatformRowId(
                 $rootScope.repoName,
                 jobList[i].result_set_id,
                 jobList[i].platform,
                 jobList[i].platform_opt
                 );
 
-            if(!platformData[aggregateId]){
-                platformData[aggregateId] = {
-                    resultSetId:jobList[i].result_set_id,
-                    jobs:[]
-                    };
+            if(!platformData[platformAggregateId]){
+
+                resultsetId = jobList[i].result_set_id;
+                platformName = jobList[i].platform;
+                platformOption = jobList[i].platformOption;
+
+                if(!_.isEmpty(rsMap[resultsetId])){
+
+                    revision = rsMap[resultsetId].rs_obj.revision;
+
+                    resultsetAggregateId = thAggregateIds.getResultsetTableId(
+                        $rootScope.repoName, resultsetId, revision
+                        );
+
+                    platformData[platformAggregateId] = {
+                        platformName:platformName,
+                        platformOrder:rsMap[resultsetId].rs_obj.platforms,
+                        resultsetAggregateId:resultsetAggregateId,
+                        platformOption:platformOption,
+                        jobGroups:rsMap[resultsetId].platforms[platformName].pl_obj.groups,
+                        jobs:[]
+                        };
+                }else{
+                    //We don't have the result set associated with this job yet
+                    continue;
+                }
             }
 
-            platformData[aggregateId]['jobs'].push(jobList[i]);
+            platformData[platformAggregateId]['jobs'].push(jobList[i]);
 
         }
 
         // coalesce the updated jobs into their
-
         $rootScope.$broadcast(thEvents.jobsLoaded, platformData);
     };
 
