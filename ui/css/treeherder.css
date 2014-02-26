@@ -61,6 +61,11 @@ body {
     padding-right: 5px;
 }
 
+.nav-panel-help-text {
+    color: #2b393f;
+    margin-bottom: 10px;
+}
+
 /* Options drop-downs*/
 
 .th-top-nav-options-panel {
