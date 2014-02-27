@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 /**
   This service handles whether or not a job, job group or platform row should
@@ -43,6 +43,9 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log) {
                 //$log.warn("job object has no field of '" + field + "'.  Skipping filtration.");
                 return true;
             }
+
+            var jobFieldValue = getJobFieldValue(job, field);
+            $log.debug(field + ": " + JSON.stringify(job));
             switch (filters[field].matchType) {
                 case api.matchType.isnull:
                     jobFieldValue = !_.isNull(jobFieldValue);
@@ -174,7 +177,17 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log) {
          */
         showJob: function(job, resultStatusList) {
             var fields = _.keys(filters);
-            if (filters.length === 0) {
+            /*
+            @@@ Yes, this is kind of a hack.  Since we have some filters that are
+            just check boxes, it's possible that you could remove all filters
+            by having them all unchecked and technically that would mean no
+            filtration.  But visually, you're saying, "don't include any of
+            these items" so we should return none.  In addition,
+            ``failure_classificaion_id`` is kind of a special case that is
+            a field filter, but ALSO checkboxes for set or not set.  So if
+            both are unchecked, again, we should display no jobs.
+             */
+            if (filters.length === 0 || !_.contains(fields, 'failure_classification_id')) {
                 return false;
             }
             for(var i = 0; i < fields.length; i++) {
