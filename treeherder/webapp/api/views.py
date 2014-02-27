@@ -267,6 +267,14 @@ class NoteViewSet(viewsets.ViewSet):
             )}
         )
 
+def get_option(obj, option_collections):
+    """Get the option, if there is one.  Otherwise, return None."""
+    opt = obj.get("option_collection_hash", None)
+    if (opt):
+        return option_collections[opt]['opt']
+    else:
+        return None
+
 
 class JobsViewSet(viewsets.ViewSet):
     """
@@ -299,7 +307,7 @@ class JobsViewSet(viewsets.ViewSet):
                 job["artifacts"].append(art)
 
             option_collections = jm.refdata_model.get_all_option_collections()
-            job["platform_opt"] = option_collections[job["option_collection_hash"]]['opt']
+            job["platform_opt"] = get_option(job, option_collections)
 
             return Response(job)
         else:
@@ -322,11 +330,7 @@ class JobsViewSet(viewsets.ViewSet):
         if objs:
             option_collections = jm.refdata_model.get_all_option_collections()
             for job in objs:
-                opt = job.get("option_collection_hash", None)
-                if (opt):
-                    job["platform_opt"] = option_collections[opt]['opt']
-                else:
-                    job["platform_opt"] = None
+                job["platform_opt"] = get_option(job, option_collections)
 
         return Response(objs)
 
@@ -452,7 +456,8 @@ class ResultSetViewSet(viewsets.ViewSet):
         # platform and options
         platform_grouper = lambda pg: "{0} {1}".format(
             pg["platform"],
-            option_collections[pg["option_collection_hash"]]['opt']
+            get_option(pg, option_collections)
+
         )
         job_group_grouper = lambda jgg: jgg["job_group_symbol"]
         job_type_grouper = lambda jtg: jtg['job_type_symbol']
