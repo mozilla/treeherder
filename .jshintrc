@@ -1,0 +1,20 @@
+{
+"jshint bitwise":true,
+"curly":true,
+"eqeqeq":true,
+"forin":true,
+"noarg":true,
+"noempty":true,
+"nonew":true,
+"undef":true,
+"strict":true,
+"globalstrict":true,
+"moz":true,
+"browser":true,
+"jquery":true,
+"globals":{
+    "treeherder": true,
+    "angular": true,
+    "_": true
+ }
+}

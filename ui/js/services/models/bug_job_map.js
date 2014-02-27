@@ -1,3 +1,5 @@
+'use strict';
+
 treeherder.factory('ThBugJobMapModel', function($http, thUrl) {
     // ThBugJobMap is a class which we can use for retrieving and
     // updating data on the server
@@ -5,12 +7,12 @@ treeherder.factory('ThBugJobMapModel', function($http, thUrl) {
         angular.extend(this, data);
     };
 
-    ThBugJobMapModel.get_uri = function(){return thUrl.getProjectUrl("/bug-job-map/");}
+    ThBugJobMapModel.get_uri = function(){return thUrl.getProjectUrl("/bug-job-map/");};
 
     // a static method to retrieve a list of ThBugJobMap
     // the options parameter is used to filter/limit the list of objects
     ThBugJobMapModel.get_list = function(options) {
-        var query_string = $.param(options)
+        var query_string = $.param(options);
         return $http.get(ThBugJobMapModel.get_uri()+"?"+query_string).then(function(response) {
             var item_list = [];
             angular.each(response.data, function(elem){

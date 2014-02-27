@@ -5,7 +5,7 @@ treeherder.controller('SimilarJobsPluginCtrl',
         $log.debug("similar jobs plugin initialized");
 
 
-        $scope.update_similar_jobs = function(newValue){
+        $scope.update_similar_jobs = function(newValue) {
             if(newValue){$scope.similar_jobs_count = 20;}
             if($scope.job.id){
                 var options = {
@@ -20,10 +20,10 @@ treeherder.controller('SimilarJobsPluginCtrl',
                 ThJobModel.get_list(options).then(function(data){
                     $scope.similar_jobs = data;
                 });
-                };
             }
+        };
 
-        $scope.result_status_info = thResultStatusInfo
+        $scope.result_status_info = thResultStatusInfo;
 
         $scope.$watch('job.job_guid', $scope.update_similar_jobs, true);
         $scope.similar_jobs = [];
@@ -34,15 +34,15 @@ treeherder.controller('SimilarJobsPluginCtrl',
         };
         $scope.button_class = function(job){
             var resultState = job.result;
-            if (job.state != "completed") {
+            if (job.state !== "completed") {
                 resultState = job.state;
             }
-            return thResultStatusInfo(resultState).btnClass
+            return thResultStatusInfo(resultState).btnClass;
 
-        }
+        };
         $scope.show_more = function(){
             $scope.similar_jobs_count += 20;
-            $scope.update_similar_jobs()
+            $scope.update_similar_jobs();
         };
     }
 );

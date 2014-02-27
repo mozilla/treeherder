@@ -2,13 +2,13 @@
 
 treeherder.controller('JobsCtrl',
     function JobsCtrl($scope, $http, $rootScope, $routeParams, $log, $cookies,
-                      localStorageService, thUrl, thReposModel, thSocket,
-                      thResultSetModel, thResultStatusList) {
+                      localStorageService, thUrl, ThRepositoryModel, thSocket,
+                      ThResultSetModel, thResultStatusList) {
 
         // load our initial set of resultsets
         // scope needs this function so it can be called directly by the user, too.
         $scope.fetchResultSets = function(count) {
-            thResultSetModel.fetchResultSets(count);
+            ThResultSetModel.fetchResultSets(count);
         };
 
         // set the default repo to mozilla-inbound if not specified
@@ -20,15 +20,15 @@ treeherder.controller('JobsCtrl',
         }
 
         // the primary data model
-        thResultSetModel.init(60000, $scope.repoName);
+        ThResultSetModel.init(60000, $scope.repoName);
 
-        $scope.isLoadingRsBatch = thResultSetModel.loadingStatus;
-        $scope.result_sets = thResultSetModel.getResultSetsArray();
-        $scope.job_map = thResultSetModel.getJobMap();
+        $scope.isLoadingRsBatch = ThResultSetModel.loadingStatus;
+        $scope.result_sets = ThResultSetModel.getResultSetsArray();
+        $scope.job_map = ThResultSetModel.getJobMap();
         $scope.statusList = thResultStatusList;
 
         // load the list of repos into $rootScope, and set the current repo.
-        thReposModel.load($scope.repoName);
+        ThRepositoryModel.load($scope.repoName);
 
         // get our first set of resultsets
         $scope.fetchResultSets(10);
@@ -40,7 +40,7 @@ treeherder.controller('JobsCtrl',
 treeherder.controller('ResultSetCtrl',
     function ResultSetCtrl($scope, $rootScope, $http, $log,
                            thUrl, thServiceDomain, thResultStatusInfo,
-                           thResultSetModel, thEvents, thJobFilters) {
+                           ThResultSetModel, thEvents, thJobFilters) {
 
         $scope.getCountClass = function(resultStatus) {
             return thResultStatusInfo(resultStatus).btnClass;
@@ -73,7 +73,7 @@ treeherder.controller('ResultSetCtrl',
 
         $scope.toggleRevisions = function() {
 
-            thResultSetModel.loadRevisions($scope.resultset.id);
+            ThResultSetModel.loadRevisions($scope.resultset.id);
             $rootScope.$broadcast(
                 thEvents.toggleRevisions, $scope.resultset
                 );
@@ -127,7 +127,7 @@ treeherder.controller('ResultSetCtrl',
         $scope.isCollapsedRevisions = true;
 
         $rootScope.$on(thEvents.jobContextMenu, function(event, job){
-            console.log(thEvents.jobContextMenu + ' caught');
+            $log.debug(thEvents.jobContextMenu + ' caught');
             //$scope.viewLog(job.resource_uri);
         });
 

@@ -1,3 +1,5 @@
+'use strict';
+
 treeherder.factory('ThJobModel', ['$http', '$log', 'thUrl', function($http, $log, thUrl) {
     // ThJobArtifactModel is the js counterpart of job_artifact
 
@@ -7,11 +9,11 @@ treeherder.factory('ThJobModel', ['$http', '$log', 'thUrl', function($http, $log
         angular.extend(this, data);
     };
 
-    ThJobModel.get_uri = function(){return thUrl.getProjectUrl("/jobs/");}
+    ThJobModel.get_uri = function(){return thUrl.getProjectUrl("/jobs/");};
 
     ThJobModel.get_list = function(options) {
         // a static method to retrieve a list of ThJobModel
-        var query_string = $.param(options)
+        var query_string = $.param(options);
         return $http.get(ThJobModel.get_uri()+"?"+query_string)
             .then(function(response) {
                 var item_list = [];

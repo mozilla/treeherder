@@ -2,8 +2,7 @@
 
 treeherder.controller('MainCtrl',
     function MainController($scope, $rootScope, $routeParams, $location, $log,
-                            localStorageService, thReposModel, thSocket,
-                            thResultStatusList, thServiceDomain) {
+                            localStorageService, ThRepositoryModel) {
         $scope.query="";
         $scope.statusError = function(msg) {
             $rootScope.statusMsg = msg;
@@ -41,19 +40,19 @@ treeherder.controller('MainCtrl',
 
 
         // the repos the user has chosen to watch
-        $scope.watchedRepos = thReposModel.watchedRepos;
+        $scope.watchedRepos = ThRepositoryModel.watchedRepos;
 
         $scope.changeRepo = function(repo_name) {
             // hide the repo panel if they chose to load one.
             $scope.isRepoPanelShowing = false;
 
-            thReposModel.setCurrent(repo_name);
+            ThRepositoryModel.setCurrent(repo_name);
             $location.search({repo: repo_name});
 
         };
 
         $scope.user = {};
         $scope.user.email = localStorageService.get("user.email");
-        $scope.user.loggedin = $scope.user.email == null ? false : true;
+        $scope.user.loggedin = $scope.user.email !== null;
     }
 );

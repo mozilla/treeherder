@@ -1,4 +1,6 @@
-treeherder.factory('thReposModel',
+'use strict';
+
+treeherder.factory('ThRepositoryModel',
                    ['$http', 'thUrl', '$rootScope', '$log', 'localStorageService', 'thSocket',
                    function($http, thUrl, $rootScope, $log, localStorageService, thSocket) {
 

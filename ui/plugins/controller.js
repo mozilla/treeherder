@@ -1,10 +1,9 @@
 "use strict";
 
-
 treeherder.controller('PluginCtrl',
     function PluginCtrl($scope, $rootScope, $resource, $http,
-                        thServiceDomain, thUrl, thJobNote, thStarTypes,
-                        thJobModel, thEvents, $log) {
+                        thServiceDomain, thUrl, ThJobNoteModel, thStarTypes,
+                        ThJobModel, thEvents, $log) {
 
         $scope.job = {};
 
