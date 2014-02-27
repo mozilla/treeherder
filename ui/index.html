@@ -3,10 +3,13 @@
     <head>
         <title ng-bind="repoName"></title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge">
         <!-- Bootstrap -->
         <link href="css/bootstrap.css" rel="stylesheet" media="screen">
         <link href="css/treeherder.css" rel="stylesheet" media="screen">
+        <link href="css/persona-buttons.css" rel="stylesheet" media="screen">
+
     </head>
     <body ng-controller="MainCtrl">
         <th-global-top-nav-panel></th-global-top-nav-panel>
@@ -61,6 +64,7 @@
         <script src="plugins/closed_bugs_suggestions/controller.js"></script>
         <script src="js/filters.js"></script>
         <script src="vendor/Config.js"></script>
+        <script src="https://login.persona.org/include.js"></script>
 
 <!-- Clone targets -->
 
