@@ -30,6 +30,7 @@ treeherder.factory('thReposModel',
         return null;
     };
 
+
     // get by category
     var byGroup = function() {
         var groupedRepos = {};
@@ -67,6 +68,7 @@ treeherder.factory('thReposModel',
 
                     if (name) {
                         $rootScope.currentRepo = byName(name);
+
                     }
                 });
         },

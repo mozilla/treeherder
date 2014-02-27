@@ -1,22 +1,22 @@
 'use strict';
 
-treeherder.controller('LogviewerCtrl',
-    function Logviewer($anchorScroll, $scope, $rootScope, $location, $routeParams, $http, $timeout, thArtifact) {
+logViewer.controller('LogviewerCtrl',
+    function Logviewer($anchorScroll, $scope, $log, $rootScope, $location, $http, $timeout, ThJobArtifactModel) {
 
-        if ($location.$$search.hasOwnProperty("repo") &&
-            $location.$$search.repo !== "") {
-            $rootScope.repoName = $location.$$search.repo;
+        var query_string = $location.search();
+        if (query_string.repo != "") {
+            $rootScope.repoName = query_string.repo;
         }
-        if ($location.$$search.hasOwnProperty("id") &&
-            $location.$$search.id !== "") {
-            $scope.lvArtifactId= $location.$$search.id;
+        if (query_string.job_id != "") {
+            $scope.job_id= query_string.job_id;
         }
-
 
         $scope.scrollTo = function(step, linenumber) {
             $location.hash('lv-line-'+linenumber);
             $anchorScroll();
         };
+
+
 
         // @@@ it may be possible to do this with the angular date filter?
         $scope.formatTime = function(sec) {
@@ -85,17 +85,18 @@ treeherder.controller('LogviewerCtrl',
 //                            $scope.sliceLog(data.split("\n"));
 //                        });
 //                });
+            $log.log(ThJobArtifactModel.get_uri());
+            ThJobArtifactModel.get_list({job_id: $scope.job_id, name: "Structured Log"})
+            .then(function(artifact_list){
+                if(artifact_list.length > 0){
+                    $scope.artifact = artifact_list[0].blob;
+                    return $http.get($scope.artifact.logurl)
+                    .success(function(data){
+                        $scope.sliceLog(data.split("\n"));
+                    });
+                }
 
-            thArtifact.getArtifact($scope.lvArtifactId).
-                success(function(data) {
-                    $scope.artifact = data.blob;
-                    $scope.logurl = data.blob.logurl;
-                    $http.get($scope.logurl).
-                        success(function(data) {
-                            $scope.sliceLog(data.split("\n"));
-                        });
-                });
+            });
         };
-
     }
 );

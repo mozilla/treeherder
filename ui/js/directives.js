@@ -763,7 +763,7 @@ treeherder.directive('personaButtons', function($http, $q, $log, $rootScope, loc
             // if the user.email value is null, it means that he's not logged in
             scope.user.email = scope.user.email || localStorageService.get('user.email');
             scope.user.loggedin =  scope.user.email == null ? false : true;
-            
+
             scope.login = function(){
                 /*
                 * BrowserID.login returns a promise of the verification.
@@ -788,7 +788,7 @@ treeherder.directive('personaButtons', function($http, $q, $log, $rootScope, loc
                 });
             };
 
-            
+
             navigator.id.watch({
                 /*
                 * loggedinUser is all that we know about the user before
@@ -808,9 +808,9 @@ treeherder.directive('personaButtons', function($http, $q, $log, $rootScope, loc
                         BrowserId.requestDeferred.resolve(assertion);
                     }
                 },
-                
+
                 /*
-                * Resolve BrowserId.logoutDeferred once the user is logged out from persona 
+                * Resolve BrowserId.logoutDeferred once the user is logged out from persona
                 */
                 onlogout: function(){
                     if (BrowserId.logoutDeferred) {
@@ -821,4 +821,50 @@ treeherder.directive('personaButtons', function($http, $q, $log, $rootScope, loc
         },
         templateUrl: 'partials/persona_buttons.html'
     };
+});
+
+treeherder.directive('thSimilarJobs', function(ThJobModel, $log){
+    return {
+        restrict: "E",
+        templateUrl: "partials/similar_jobs.html",
+        link: function(scope, element, attr) {
+            scope.$watch('job', function(newVal, oldVal){
+                $log.log(newVal);
+                if(newVal){
+                    scope.update_similar_jobs(newVal);
+                }
+            });
+            scope.similar_jobs = []
+            scope.similar_jobs_filters = {
+                "machine_id": true,
+                "job_type_id": true,
+                "build_platform_id": true
+            }
+            scope.update_similar_jobs = function(job){
+                $log.log("updating similar jobs")
+                var options = {result_set_id__ne: job.result_set_id};
+                angular.forEach(scope.similar_jobs_filters, function(elem, key){
+                    if(elem){
+                        options[key] = job[key];
+                    }
+                });
+                ThJobModel.get_list(options).then(function(data){
+                    scope.similar_jobs = data;
+                });
+            };
+        }
+    }
+});
+
+treeherder.directive('thNotificationBox', function($log, thNotify){
+    return {
+        restrict: "E",
+        template: '<div id="notification_box" ng-class="notify.current.severity" ng-if="notify.current.message">' +
+                    '<p>{{notify.current.message}}' +
+                    '<a ng-click="notify.clear()" ng-if="notify.current.sticky" title="close" class="close">x</a></p>' +
+                  '</div>',
+        link: function(scope, element, attr) {
+            scope.notify = thNotify;
+        }
+    }
 });

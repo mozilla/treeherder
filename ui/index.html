@@ -32,6 +32,8 @@
             <div ng-include src="'plugins/pluginpanel.html'"></div>
         </div>
 
+        <th-notification-box></th-notification-box>
+
         <script src="vendor/angular/angular.js"></script>
         <script src="vendor/angular/angular-route.js"></script>
         <script src="vendor/angular/angular-resource.js"></script>
@@ -49,8 +51,12 @@
         <script src="js/directives.js"></script>
         <script src="js/services/main.js"></script>
         <script src="js/services/jobfilters.js"></script>
-        <script src="js/services/models/repository.js"></script>
         <script src="js/services/models/resultsets.js"></script>
+        <script src="js/services/models/job_artifact.js"></script>
+        <script src="js/services/models/repository.js"></script>
+        <script src="js/services/models/bug_job_map.js"></script>
+        <script src="js/services/models/note.js"></script>
+        <script src="js/services/models/job.js"></script>
         <script src="js/controllers/main.js"></script>
         <script src="js/controllers/repository.js"></script>
         <script src="js/controllers/filters.js"></script>
@@ -60,8 +66,8 @@
         <script src="plugins/controller.js"></script>
         <script src="plugins/notes/controller.js"></script>
         <script src="plugins/tinderbox/controller.js"></script>
-        <script src="plugins/open_bugs_suggestions/controller.js"></script>
-        <script src="plugins/closed_bugs_suggestions/controller.js"></script>
+        <script src="plugins/bugs_suggestions/controller.js"></script>
+        <script src="plugins/similar_jobs/controller.js"></script>
         <script src="js/filters.js"></script>
         <script src="vendor/Config.js"></script>
         <script src="https://login.persona.org/include.js"></script>

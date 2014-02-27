@@ -291,7 +291,7 @@ div.navbar-fixed-bottom{
 }
 div.navbar-fixed-bottom .tab-content{
     height:300px;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 div.navbar-fixed-bottom dt,
@@ -302,11 +302,6 @@ div.navbar-fixed-bottom dt {
 #bottom_left_panel .panel{padding:5px;}
 #bottom_center_panel {margin:0 110px 0 242px;}
 #bottom_menu{position: absolute; top: 5px; right:5px;}
-
-#open_bugs_accordion,
-#closed_bugs_accordion{
-    margin-top: 5px;
-}
 
 .panel-body{ padding:5px;}
 
@@ -860,3 +855,12 @@ fieldset[disabled] .btn-repo.active {
 .waiter-small{ background: url("../img/waiter16.png") no-repeat center center; width: 16px; height: 16px; display: inline-block;}
 .waiter-medium{ background: url("../img/waiter32.png") no-repeat center center; width: 32px; height: 32px; display: inline-block;}
 .waiter-large{ background: url("../img/waiter64.png") no-repeat center center; width: 64px; height: 64px; display: inline-block;}
+
+.deleted{ text-decoration: line-through;}
+
+.plugin_controls{ margin: 5px;}
+.btn-similar-jobs{ margin: 5px;}
+
+#notification_box{ position:fixed; top:720px; right:10px; height:680px; width:300px;}
+#notification_box p{position:relative;}
+#notification_box a.close{position:absolute; top:5px; right:5px; z-index: 999;}
