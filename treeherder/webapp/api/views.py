@@ -504,6 +504,7 @@ class ResultSetViewSet(viewsets.ViewSet):
                         del(job["result_set_id"])
                         del(job["option_collection_hash"])
 
+                        job["platform_option"] = platform_option
                         job["resource_uri"] = reverse("jobs-detail",
                             kwargs={"project": jm.project, "pk": job["id"]})
 
