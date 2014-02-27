@@ -322,8 +322,11 @@ class JobsViewSet(viewsets.ViewSet):
         if objs:
             option_collections = jm.refdata_model.get_all_option_collections()
             for job in objs:
-                job["platform_opt"] = option_collections[
-                    job["option_collection_hash"]]['opt']
+                opt = job.get("option_collection_hash", None)
+                if (opt):
+                    job["platform_opt"] = option_collections[opt]['opt']
+                else:
+                    job["platform_opt"] = None
 
         return Response(objs)
 
