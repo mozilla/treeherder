@@ -105,8 +105,9 @@ treeherder.controller('ResultSetCtrl',
                 value = "removed";
             }
 
-            $rootScope.$broadcast(thEvents.resultSetFilterChanged,
-                      {target: $scope.resultset});
+            $rootScope.$broadcast(
+                thEvents.resultSetFilterChanged, $scope.resultset
+                );
 
             $log.debug("toggled: " + resultStatus);
             $log.debug($scope.resultStatusFilters);
@@ -132,6 +133,5 @@ treeherder.controller('ResultSetCtrl',
             console.log(thEvents.jobContextMenu + ' caught');
             //$scope.viewLog(job.resource_uri);
         });
-
     }
 );

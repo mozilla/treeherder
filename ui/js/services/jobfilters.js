@@ -40,7 +40,7 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log) {
         } else {
             var jobFieldValue = getJobFieldValue(job, field);
             if (_.isUndefined(jobFieldValue)) {
-                $log.warn("job object has no field of '" + field + "'.  Skipping filtration.");
+                //$log.warn("job object has no field of '" + field + "'.  Skipping filtration.");
                 return true;
             }
             switch (filters[field].matchType) {
@@ -178,7 +178,7 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log) {
                 return false;
             }
             for(var i = 0; i < fields.length; i++) {
-                if (!checkFilter(fields[i], job)) {
+                if (!checkFilter(fields[i], job, resultStatusList)) {
                     return false;
                 }
             }

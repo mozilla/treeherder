@@ -84,26 +84,26 @@ treeherder.directive('thCloneJobs', function(
             });
     };
 
-    var addJobBtnEls = function(jgObj, jobBtnInterpolator, jobTdEl){
+    var addJobBtnEls = function(jgObj, jobBtnInterpolator, jobTdEl, resultStatusFilters){
 
-        var hText, key, resultState, job, jobStatus, jobBtn;
+        var hText, key, resultState, job, jobStatus, jobBtn, l;
 
+        var showJob = false;
         var jobsShown = 0;
-        var l = 0;
-        for(; l<jgObj.jobs.length; l++){
+        for(l=0; l<jgObj.jobs.length; l++){
 
             job = jgObj.jobs[l];
 
-            if(thJobFilters.showJob(job) === false){
+            if(thJobFilters.showJob(job, resultStatusFilters) === false){
                 continue;
             }
-
-            jobsShown++;
 
             if(job.job_coalesced_to_guid != undefined){
                 // Don't render coalesced jobs
                 continue;
             }
+
+            jobsShown++;
 
             hText = getHoverText(job);
             key = getJobMapKey(job);
@@ -290,7 +290,8 @@ treeherder.directive('thCloneJobs', function(
         el.css('display', 'none');
     };
 
-    var renderJobTableRow = function(row, platformTd, jobTdEl, jobGroups){
+    var renderJobTableRow = function(
+        row, jobTdEl, jobGroups, resultStatusFilters){
 
         //Empty the job column before populating it
         jobTdEl.empty();
@@ -313,7 +314,9 @@ treeherder.directive('thCloneJobs', function(
                 jobTdEl.append(jobGroup);
 
                 // Add the job btn spans
-                jobsShown = addJobBtnEls(jgObj, jobBtnInterpolator, jobTdEl);
+                jobsShown = addJobBtnEls(
+                    jgObj, jobBtnInterpolator, jobTdEl, resultStatusFilters
+                    );
 
                 if(jobsShown > 0){
                     // Add the job group closure span
@@ -331,9 +334,10 @@ treeherder.directive('thCloneJobs', function(
 
                 // Add the job btn spans
                 jobsShown = addJobBtnEls(
-                    jgObj, jobBtnInterpolator, jobTdEl
+                    jgObj, jobBtnInterpolator, jobTdEl, resultStatusFilters
                     );
             }
+            //Keep track of all of the jobs shown in a row
             jobsShownTotal += jobsShown;
         }
 
@@ -346,7 +350,7 @@ treeherder.directive('thCloneJobs', function(
         row.append(jobTdEl);
     };
 
-    var filterJobs = function(element){
+    var filterJobs = function(element, resultStatusFilters){
 
         var platformId, rowEl, tdEls, i;
 
@@ -365,14 +369,10 @@ treeherder.directive('thCloneJobs', function(
             // tdEls[0] is the platform <td> and
             // tdEls[1] is the jobs <td>
             renderJobTableRow(
-                rowEl, $(tdEls[0]), $(tdEls[1]),
-                this.resultset.platforms[i].groups
+                rowEl, $(tdEls[1]), this.resultset.platforms[i].groups,
+                resultStatusFilters
                 );
         }
-
-    };
-
-    var toggleResultsetJobStatus = function(element){
 
     };
 
@@ -414,7 +414,7 @@ treeherder.directive('thCloneJobs', function(
                 if(orderedPlatforms[p] === platformName){
                     //Target row for appending should be one less
                     //than the position of the platform name
-                    $(tableRows[ p - 1 ]).append(rowEl);
+                    $(tableRows[ p - 1 ]).after(rowEl);
                     break;
                 }
             }
@@ -455,10 +455,12 @@ treeherder.directive('thCloneJobs', function(
                         {'name':platformName, 'option':option, 'id':platformId }
                         ) );
 
+                    rowEl.append(platformTdEl);
+
                     jobTdEl = $( thCloneHtml.get('jobTdClone').text );
 
                     renderJobTableRow(
-                        $(rowEl), platformTdEl, jobTdEl, value.jobGroups
+                        $(rowEl), jobTdEl, value.jobGroups
                         );
 
                     //Determine appropriate place to append row for this
@@ -471,9 +473,7 @@ treeherder.directive('thCloneJobs', function(
                     platformTdEl = $(tdEls[0]);
                     jobTdEl = $(tdEls[1]);
 
-                    renderJobTableRow(
-                        $(rowEl), platformTdEl, jobTdEl, value.jobGroups
-                        );
+                    renderJobTableRow( $(rowEl), jobTdEl, value.jobGroups );
                 }
         });
     });
@@ -512,15 +512,18 @@ treeherder.directive('thCloneJobs', function(
 
         $rootScope.$on(
             thEvents.globalFilterChanged, function(ev, filterData){
-                _.bind(filterJobs, scope, element, filterData)();
+
+                scope.resultStatusFilters = thJobFilters.copyResultStatusFilters();
+
+                _.bind(filterJobs, scope, element)();
             });
 
         $rootScope.$on(
             thEvents.resultSetFilterChanged, function(ev, rs){
                 if(rs.id === scope.resultset.id){
-                    //_.bind(toggleResultsetJobStatus, scope, element)();
-console.log('resultSetFilterChanged');
-                    _.bind(filterJobs, scope, element)();
+                    _.bind(
+                        filterJobs, scope, element, scope.resultStatusFilters
+                        )();
                 }
             });
 
@@ -571,7 +574,8 @@ console.log('resultSetFilterChanged');
             // Render the row of job data
             jobTdEl = $( thCloneHtml.get('jobTdClone').text );
             renderJobTableRow(
-                row, platformTd, jobTdEl, scope.resultset.platforms[j].groups
+                row, jobTdEl, scope.resultset.platforms[j].groups,
+                scope.resultStatusFilters
                 );
 
             tableEl.append(row);
