@@ -46,6 +46,13 @@ treeherder.controller('StatusFilterPanelCtrl',
             showCheck();
         };
 
+        /**
+         * Handle toggling one of the individual result status filters in
+         * the filter panel.
+         *
+         * @param group
+         * @param filter
+         */
         $scope.toggleResultStatusFilter = function(group, filter) {
             if (!$scope.resultStatusFilters[filter]) {
                 group.allChecked = false;

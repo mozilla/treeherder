@@ -93,13 +93,19 @@ treeherder.controller('ResultSetCtrl',
          *
          * @param resultStatus - Which resultStatus to toggle.
          */
-        $scope.toggleResultStatusFilter = function(resultStatus) {
+        $scope.toggleResultSetResultStatusFilter = function(resultStatus) {
             var idx = $scope.resultStatusFilters.indexOf(resultStatus);
+            var value = "added";
             if (idx < 0) {
                 $scope.resultStatusFilters.push(resultStatus);
             } else {
                 $scope.resultStatusFilters.splice(idx, 1);
+                value = "removed";
             }
+
+            $rootScope.$broadcast(thEvents.resultSetFilterChanged,
+                      {target: $scope.resultset});
+
             $log.debug("toggled: " + resultStatus);
             $log.debug($scope.resultStatusFilters);
         };
