@@ -80,7 +80,7 @@ treeherder.controller('StatusFilterPanelCtrl',
             var func = isChecked? thJobFilters.addFilter: thJobFilters.removeFilter;
             var target = isClassified? "classified": "unclassified";
 
-            func(field, isClassified);
+            func(field, isClassified, thJobFilters.matchType.isnull);
 
             $rootScope.$broadcast(thEvents.globalFilterChanged,
                                   {target: target, newValue: isChecked});
@@ -200,6 +200,10 @@ treeherder.controller('StatusFilterPanelCtrl',
             job_group_symbol: {
                 name: "group symbol",
                 matchType: thJobFilters.matchType.exactstr
+            },
+            machine_name: {
+                name: "machine name",
+                matchType: thJobFilters.matchType.substr
             },
             platform: {
                 name: "platform",
