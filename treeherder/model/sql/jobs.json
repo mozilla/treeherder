@@ -229,6 +229,7 @@
             "sql":"SELECT
                     j.id,
                     j.`option_collection_hash`,
+                    j.job_coalesced_to_guid,
                     j.failure_classification_id,
                     m.`name` as machine_name,
                     mp.`platform` as platform,
@@ -436,6 +437,7 @@
                     j.`id`,
                     j.`option_collection_hash`,
                     j.failure_classification_id,
+                    j.job_coalesced_to_guid,
                     m.`name` as machine_name,
                     mp.`platform` as platform,
                     jt.`name` as job_type_name,
