@@ -1,93 +1,26 @@
 'use strict';
 
 /* Services */
-treeherder.factory('thUrl',
-                   ['$rootScope', 'thServiceDomain',
-                   function($rootScope, thServiceDomain) {
-    return {
+treeherder.factory('thUrl',['$rootScope', 'thServiceDomain', '$log', function($rootScope, thServiceDomain, $log) {
+
+   var thUrl =  {
         getRootUrl: function(uri) {
             return thServiceDomain + "/api" + uri;
         },
         getProjectUrl: function(uri) {
             return thServiceDomain + "/api/project/" + $rootScope.repoName + uri;
         },
-        getLogViewerUrl: function(artifactId) {
-            return "logviewer.html#?id=" + artifactId + "&repo=" + $rootScope.repoName;
+        getLogViewerUrl: function(job_id) {
+            return "logviewer.html#?job_id=" + job_id + "&repo=" + $rootScope.repoName;
         },
         getSocketEventUrl: function() {
             var port = thServiceDomain.indexOf("https:") !== -1 ? 443 :80;
             return thServiceDomain + ':' + port + '/events';
         }
-    };
-    return thUrl;
+   };
+   return thUrl;
 
 }]);
-
-treeherder.factory('thArtifact',
-                   ['$http', 'thUrl',
-                   function($http, thUrl) {
-
-    // get the artifacts for this tree
-    return {
-        getArtifact: function(id) {
-            return $http.get(thUrl.getProjectUrl(
-                "/artifact/" + id + "/"));
-        }
-    }
-}]);
-
-treeherder.factory('thJobs',
-                   ['$http', 'thUrl',
-                   function($http, thUrl) {
-
-    return {
-        getJobs: function(offset, count, joblist) {
-            offset = typeof offset == 'undefined'?  0: offset;
-            count = typeof count == 'undefined'?  10: count;
-            var params = {
-                offset: offset,
-                count: count,
-                format: "json"
-            }
-
-            if (joblist) {
-                _.extend(params, {
-                    offset: 0,
-                    count: joblist.length,
-                    id__in: joblist.join()
-                })
-            }
-            return $http.get(thUrl.getProjectUrl("/jobs/"),
-                             {params: params}
-            );
-        }
-    }
-}]);
-
-treeherder.factory('thJobNote', function($resource, $http, thUrl) {
-    return {
-        get: function() {
-            var JobNote = $resource(thUrl.getProjectUrl("/note/"));
-            // Workaround to the fact that $resource strips trailing slashes
-            // out of urls.  This causes a 301 redirect on POST because it does a
-            // preflight OPTIONS call.  Tastypie gives up on the POST after this
-            // and nothing happens.  So this alternative "thSave" command avoids
-            // that by using the trailing slash directly in a POST call.
-            // @@@ This may be fixed in later versions of Angular.  Or perhaps there's
-            // a better way?
-            JobNote.prototype.thSave = function() {
-                $http.post(thUrl.getProjectUrl("/note/"), {
-                    job_id: this.job_id,
-                    note: this.note,
-                    who: this.who,
-                    failure_classification_id: this.failure_classification_id
-                });
-            };
-            return JobNote;
-        }
-    };
-});
-
 
 treeherder.factory('thSocket', function ($rootScope, $log, thUrl) {
     var socket = io.connect(thUrl.getSocketEventUrl());
@@ -150,6 +83,27 @@ treeherder.factory('thCloneHtml', function($interpolate) {
     return {
         get:getClone
         };
+
+});
+
+treeherder.factory('ThPaginator', function(){
+    //dead-simple implementation of an in-memory paginator
+
+    var ThPaginator = function(data, limit){
+        this.data = data;
+        this.length = data.length;
+        this.limit = limit;
+    };
+
+    ThPaginator.prototype.get_page = function(n){
+        return this.data.slice(n * limit - limit, n * limit);
+    }
+
+    ThPaginator.prototype.get_all = function(){
+        return data
+    };
+
+    return ThPaginator
 
 });
 
@@ -224,4 +178,47 @@ treeherder.factory('BrowserId', function($http, $q, $log,  thServiceDomain){
         }
     }
     return browserid;
+});
+
+treeherder.factory('thNotify', function($log){
+    //a growl-like notification system
+
+    var thNotify =  {
+        // message queue
+        notifications: [],
+        // the currently displayed message
+        current: {},
+        
+        /*
+        * send a message to the notification queue
+        * @severity can be one of success|info|warning|danger
+        * @sticky is a boolean indicating if you want to message to disappear
+        * after a while or not
+        */ 
+        send: function(message, severity, sticky){
+            $log.log("received message");
+            $log.log(message);
+            var severity = severity || 'info';
+            var sticky = sticky || false;
+            thNotify.notifications.push({
+                message: message,
+                severity: severity,
+                sticky: sticky
+            });
+            thNotify.fetch();
+        },
+        fetch: function(){
+            thNotify.current=thNotify.notifications.shift() || {};
+            
+            if(thNotify.current.message && !thNotify.current.sticky){
+                window.setTimeout(thNotify.remove, 5000);
+            }
+        },
+        remove: function(){
+            thNotify.current = {};
+            thNotify.fetch();
+        }
+    }
+    return thNotify;
+
 });

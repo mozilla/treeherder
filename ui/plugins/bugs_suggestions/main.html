@@ -1,0 +1,73 @@
+<div ng-controller="BugsPluginCtrl">
+
+    <p class="plugin_controls">
+
+        <input type="radio" ng-click="visible='open'" ng-checked="visible=='open'" />
+        Open bugs
+        <input type="radio" ng-click="visible='closed'" ng-checked="visible=='closed'" />
+        Closed bugs
+    </p>
+    <p>
+        Classification:
+       <select ng-model="classification">
+            <option ng-repeat="(value, star) in starTypes" value="{{value}}">{{star.name}}</option>
+        </select>
+
+        <button type="button" class="btn btn-default btn-sm" ng-click="quick_submit()">Quick submit</button>
+
+        <!-- <button type="button" class="btn btn-default btn-sm" ng-click="classify(selected_bugs)">Classify</button> -->
+    </p>
+
+
+
+<ul class="list-group" class="bg-info">
+    <li class="list-group-item" ng-repeat="(error, bug_list) in bugs">
+        <p><strong>{{error}}</strong></p>
+        <table class="table-super-condensed table-hover">
+            <tbody>
+                <tr ng-repeat="bug in bug_list[visible] | orderBy:bug.relevance:reverse" ng-show="$index<3 || show_all">
+                    <td>
+                        <input type="checkbox" ng-model="selected_bugs[bug.id]" />
+                    </td>
+                    <td><a href="https://bugzilla.mozilla.org/show_bug.cgi?id={{bug.id}}">{{bug.id}}</a></td>
+                    <td ng-class="{'deleted': bug.resolution!=''}">{{bug.summary}}</td>
+                    <td>{{bug.os}}</td>
+                    <td>{{bug.relevance| number:0}}</td>
+                </tr>
+                <tr>
+                    <td colspan="4">
+                        <a ng-click="show_all=true"  ng-show="show_all != true">Show more</a>
+                        <a ng-click="show_all=false" ng-show="show_all == true">Show less</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </li>
+</ul>
+
+
+
+</div>
+
+<script type="text/ng-template" id="bug_classification.html">
+    <div class="modal-header">
+        <h3>Job failure classification</h3>
+    </div>
+    <div class="modal-body">
+        <ul>
+            <li ng-repeat="(bug_id, selected) in selected_bugs">
+                <input type="checkbox" ng-model="selected_bugs[bug_id]" />
+                <label>{{bug_id}}</label>
+            </li>
+        </ul>
+        <label>Bug id:</label><input type="text" value=""/>
+        <textarea>
+            {{comment}}
+        </textarea>
+
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">OK</button>
+        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+    </div>
+</script>

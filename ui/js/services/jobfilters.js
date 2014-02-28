@@ -124,7 +124,8 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log) {
             } else {
                 filters[field] = {
                     values: [value],
-                    matchType: matchType
+                    matchType: matchType,
+                    removeWhenEmpty: true
                 };
             }
             $log.debug("adding " + field + ": " + value);
@@ -144,7 +145,8 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log) {
             }
 
             // if this filer no longer has any values, then remove it
-            if (filters[field].values.length === 0) {
+            // unless it has the ``allowEmpty`` setting
+            if (filters[field].removeWhenEmpty && filters[field].values.length === 0) {
                 delete filters[field];
             }
             $log.debug(filters);
@@ -164,11 +166,7 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log) {
             }
         },
         copyResultStatusFilters: function() {
-            if (filters.hasOwnProperty(api.resultStatus)) {
-                return filters[api.resultStatus].values.slice();
-            } else {
-                return [];
-            }
+            return filters[api.resultStatus].values.slice();
         },
         /**
          * Whether or not this job should be shown based on the current
@@ -180,23 +178,6 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log) {
          */
         showJob: function(job, resultStatusList) {
             var fields = _.keys(filters);
-            // if all global filters for resultStatus are off, then the field
-            // of resultStatus won't be in ``fields``.  However, if values are
-            // passed in with ``resultStatusList``, then we need to check in
-            // that field.
-            if (!_.contains(fields, "resultStatus") && resultStatusList) {
-                fields.push("resultStatus");
-            }
-            /*
-            Handle the two special checkbox fields.  If ALL the boxes in
-            either group are unchecked, then we should show no jobs, regardless
-            of other filters.
-             */
-
-            if ((!resultStatusList && !_.contains(fields, api.resultStatus)) ||
-                !_.contains(fields, api.failure_classification_id)) {
-                return false;
-            }
 
             for(var i = 0; i < fields.length; i++) {
                 if (!checkFilter(fields[i], job, resultStatusList)) {
@@ -209,7 +190,7 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log) {
             return filters;
         },
 
-        // CONSTANTS to avoid typos
+        // CONSTANTS
         failure_classification_id: "failure_classification_id",
         resultStatus: "resultStatus",
         matchType: {
@@ -223,11 +204,13 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log) {
     var filters = {
         resultStatus: {
             matchType: api.matchType.exactstr,
-            values: thResultStatusList.slice()
+            values: thResultStatusList.slice(),
+            removeWhenEmpty: false
         },
         failure_classification_id: {
             matchType: api.matchType.isnull,
-            values: [true, false]
+            values: [true, false],
+            removeWhenEmpty: false
         }
     };
 
