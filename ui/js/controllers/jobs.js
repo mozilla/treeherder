@@ -95,12 +95,10 @@ treeherder.controller('ResultSetCtrl',
          */
         $scope.toggleResultSetResultStatusFilter = function(resultStatus) {
             var idx = $scope.resultStatusFilters.indexOf(resultStatus);
-            var value = "added";
             if (idx < 0) {
                 $scope.resultStatusFilters.push(resultStatus);
             } else {
                 $scope.resultStatusFilters.splice(idx, 1);
-                value = "removed";
             }
 
             $rootScope.$broadcast(
