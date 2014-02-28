@@ -280,6 +280,7 @@ treeherder.factory('ThResultSetModel',
                     platformData[platformAggregateId] = {
                         platformName:platformName,
                         platformOrder:rsMap[resultsetId].rs_obj.platforms,
+                        resultsetId:resultsetId,
                         resultsetAggregateId:resultsetAggregateId,
                         platformOption:platformOption,
                         jobGroups:rsMap[resultsetId].platforms[platformName].pl_obj.groups,

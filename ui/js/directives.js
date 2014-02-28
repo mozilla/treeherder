@@ -302,12 +302,11 @@ treeherder.directive('thCloneJobs', function(
     };
 
     var renderJobTableRow = function(
-        row, jobTdEl, jobGroups, resultStatusFilters){
+        row, jobTdEl, jobGroups, resultStatusFilters,
+        statusData){
 
         //Empty the job column before populating it
         jobTdEl.empty();
-
-        var statusCounts = {};
 
         //If at least one job is visible we need to display the platform
         //otherwise hide it
@@ -329,7 +328,7 @@ treeherder.directive('thCloneJobs', function(
                 // Add the job btn spans
                 jobsShown = addJobBtnEls(
                     jgObj, jobBtnInterpolator, jobTdEl, resultStatusFilters,
-                    statusCounts
+                    statusData.statusCounts
                     );
 
                 if(jobsShown > 0){
@@ -350,7 +349,7 @@ treeherder.directive('thCloneJobs', function(
                 // Add the job btn spans
                 jobsShown = addJobBtnEls(
                     jgObj, jobBtnInterpolator, jobTdEl, resultStatusFilters,
-                    statusCounts
+                    statusData.statusCounts
                     );
 
             }
@@ -365,12 +364,16 @@ treeherder.directive('thCloneJobs', function(
         }
 
         row.append(jobTdEl);
-console.log(statusCounts);
+
+        resetCounts(
+            statusData.resultsetId, statusData.platformName,
+            statusData.statusCounts
+            );
     };
 
     var filterJobs = function(element, resultStatusFilters){
 
-        var platformId, rowEl, tdEls, i;
+        var platformId, rowEl, tdEls, statusData, i;
 
         for(i=0; i<this.resultset.platforms.length; i++){
 
@@ -386,9 +389,16 @@ console.log(statusCounts);
             tdEls = rowEl.find('td');
             // tdEls[0] is the platform <td> and
             // tdEls[1] is the jobs <td>
+
+            statusData = {
+                resultsetId:this.resultset.id,
+                platformName:this.resultset.platforms[i].name,
+                statusCounts:{}
+                };
+
             renderJobTableRow(
                 rowEl, $(tdEls[1]), this.resultset.platforms[i].groups,
-                resultStatusFilters
+                resultStatusFilters, statusData
                 );
         }
 
@@ -399,7 +409,7 @@ console.log(statusCounts);
         var platformName = Config.OSNames[name];
 
         if(platformName === undefined){
-            platformName = value.platformName;
+            platformName = name;
         }
 
         return platformName;
@@ -442,21 +452,35 @@ console.log(statusCounts);
         }
     };
 
-    var resetCounts = function(
-        resultsetId, platformName, counts, rsMap, resultset
-        ){
+    var resetCounts = function(resultsetId, platformName, counts){
 
-        var rsMap = thResultSetModel.getResultsetMap();
-        rsMap[ resultSetId ].platforms[ platformName ].pl_obj.job_counts = counts;
+        var rsMap = ThResultSetModel.getResultsetMap();
+        rsMap[ resultsetId ].platforms[ platformName ].pl_obj.job_counts = counts;
+
+        var statusCounts = {};
 
         // Iterate through the platforms and reset the resultset counts
-        var i;
-        for(i=0; i<platforms.length; i++){
-            //platforms[i].name
-        }
+        angular.forEach(
+            rsMap[resultsetId].platforms,
+            function(platformObj, platformName){
+
+                angular.forEach(
+                    platformObj.pl_obj.job_counts,
+                    function(value, statusName){
+                        if(!statusCounts[statusName]){
+                            statusCounts[statusName] = 0;
+                        }
+                        statusCounts[statusName] += 1;
+                    }
+                    );
+            });
+
+        rsMap[resultsetId].job_counts = statusCounts;
 
         //resultset.job_counts = { busted:0, exception:0 ...
         //resetGlobalCounts
+        //angular.forEach(rsMap, function(value, resultsetId){
+        //});
     };
 
     //Register global custom event listeners
@@ -469,6 +493,12 @@ console.log(statusCounts);
             angular.forEach(platformData, function(value, platformId){
 
                 rowEl = document.getElementById(platformId);
+
+                statusData = {
+                    resultsetId:value.resultsetId,
+                    platformName:this.resultset.platforms[i].name,
+                    statusCounts:{}
+                    };
 
                 if(!rowEl){
                     //First job for this platform found, which means we need
@@ -495,7 +525,7 @@ console.log(statusCounts);
                     jobTdEl = $( thCloneHtml.get('jobTdClone').text );
 
                     renderJobTableRow(
-                        $(rowEl), jobTdEl, value.jobGroups
+                        $(rowEl), jobTdEl, value.jobGroups, statusData
                         );
 
                     //Determine appropriate place to append row for this
@@ -508,7 +538,9 @@ console.log(statusCounts);
                     platformTdEl = $(tdEls[0]);
                     jobTdEl = $(tdEls[1]);
 
-                    renderJobTableRow( $(rowEl), jobTdEl, value.jobGroups );
+                    renderJobTableRow(
+                        $(rowEl), jobTdEl, value.jobGroups, statusData
+                        );
                 }
         });
     });
@@ -572,9 +604,7 @@ console.log(statusCounts);
         //Retrieve table el for appending
         var tableEl = targetEl.find('table');
 
-        var name, option, platformId,row, platformTd, jobTdEl, j;
-
-//var rsMap = thResultSetModel.getResultsetMap();
+        var name, option, platformId,row, platformTd, jobTdEl, statusData, j;
 
         for(j=0; j<scope.resultset.platforms.length; j++){
 
@@ -585,7 +615,6 @@ console.log(statusCounts);
                 scope.resultset.platforms[j].name,
                 scope.resultset.platforms[j].option
                 );
-//console.log(rsMap[ scope.resultset.id ].platforms[ scope.resultset.platforms[j].name ].pl_obj.job_counts);
 
             row.prop('id', platformId);
 
@@ -606,11 +635,17 @@ console.log(statusCounts);
 
             row.append(platformTd);
 
+            statusData = {
+                resultsetId:scope.resultset.id,
+                platformName:scope.resultset.platforms[j].name,
+                statusCounts:{}
+                };
+
             // Render the row of job data
             jobTdEl = $( thCloneHtml.get('jobTdClone').text );
             renderJobTableRow(
                 row, jobTdEl, scope.resultset.platforms[j].groups,
-                scope.resultStatusFilters
+                scope.resultStatusFilters, statusData
                 );
 
             tableEl.append(row);
