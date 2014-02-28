@@ -3,7 +3,8 @@
 /* Directives */
 treeherder.directive('thCloneJobs', function(
         $rootScope, $http, $log, thUrl, thCloneHtml, thServiceDomain,
-        thResultStatusInfo, thEvents, thAggregateIds, thJobFilters){
+        thResultStatusInfo, thEvents, thAggregateIds, thJobFilters,
+        thResultSetModel){
 
     var lastJobElSelected = {};
 
@@ -84,7 +85,9 @@ treeherder.directive('thCloneJobs', function(
             });
     };
 
-    var addJobBtnEls = function(jgObj, jobBtnInterpolator, jobTdEl, resultStatusFilters){
+    var addJobBtnEls = function(
+        jgObj, jobBtnInterpolator, jobTdEl, resultStatusFilters,
+        statusCounts){
 
         var hText, key, resultState, job, jobStatus, jobBtn, l;
 
@@ -112,6 +115,14 @@ treeherder.directive('thCloneJobs', function(
             if (job.state != "completed") {
                 resultState = job.state;
             }
+
+            resultState = resultState || 'unknown';
+
+            if (!statusCounts[ resultState ]){
+                statusCounts[ resultState ] = 0;
+            }
+
+            statusCounts[ resultState ] += 1;
 
             jobStatus = thResultStatusInfo(resultState);
 
@@ -296,6 +307,8 @@ treeherder.directive('thCloneJobs', function(
         //Empty the job column before populating it
         jobTdEl.empty();
 
+        var statusCounts = {};
+
         //If at least one job is visible we need to display the platform
         //otherwise hide it
         var jobsShownTotal = 0;
@@ -315,7 +328,8 @@ treeherder.directive('thCloneJobs', function(
 
                 // Add the job btn spans
                 jobsShown = addJobBtnEls(
-                    jgObj, jobBtnInterpolator, jobTdEl, resultStatusFilters
+                    jgObj, jobBtnInterpolator, jobTdEl, resultStatusFilters,
+                    statusCounts
                     );
 
                 if(jobsShown > 0){
@@ -323,6 +337,7 @@ treeherder.directive('thCloneJobs', function(
                     jobTdEl.append(
                         $( thCloneHtml.get('jobGroupEndClone').text )
                         );
+
                 }else {
                     // No jobs were displayed in the group, hide
                     // the group symbol
@@ -334,8 +349,10 @@ treeherder.directive('thCloneJobs', function(
 
                 // Add the job btn spans
                 jobsShown = addJobBtnEls(
-                    jgObj, jobBtnInterpolator, jobTdEl, resultStatusFilters
+                    jgObj, jobBtnInterpolator, jobTdEl, resultStatusFilters,
+                    statusCounts
                     );
+
             }
             //Keep track of all of the jobs shown in a row
             jobsShownTotal += jobsShown;
@@ -348,6 +365,7 @@ treeherder.directive('thCloneJobs', function(
         }
 
         row.append(jobTdEl);
+console.log(statusCounts);
     };
 
     var filterJobs = function(element, resultStatusFilters){
@@ -422,6 +440,23 @@ treeherder.directive('thCloneJobs', function(
         }else{
             $(tableEl).append(rowEl);
         }
+    };
+
+    var resetCounts = function(
+        resultsetId, platformName, counts, rsMap, resultset
+        ){
+
+        var rsMap = thResultSetModel.getResultsetMap();
+        rsMap[ resultSetId ].platforms[ platformName ].pl_obj.job_counts = counts;
+
+        // Iterate through the platforms and reset the resultset counts
+        var i;
+        for(i=0; i<platforms.length; i++){
+            //platforms[i].name
+        }
+
+        //resultset.job_counts = { busted:0, exception:0 ...
+        //resetGlobalCounts
     };
 
     //Register global custom event listeners
@@ -512,18 +547,13 @@ treeherder.directive('thCloneJobs', function(
 
         $rootScope.$on(
             thEvents.globalFilterChanged, function(ev, filterData){
-
                 scope.resultStatusFilters = thJobFilters.copyResultStatusFilters();
-console.log('globalFilterChanged');
-console.log(scope.resultStatusFilters);
                 _.bind(filterJobs, scope, element)();
             });
 
         $rootScope.$on(
             thEvents.resultSetFilterChanged, function(ev, rs){
                 if(rs.id === scope.resultset.id){
-console.log('resultSetFilterChanged');
-console.log(scope.resultStatusFilters);
                     _.bind(
                         filterJobs, scope, element, scope.resultStatusFilters
                         )();
@@ -544,16 +574,18 @@ console.log(scope.resultStatusFilters);
 
         var name, option, platformId,row, platformTd, jobTdEl, j;
 
+//var rsMap = thResultSetModel.getResultsetMap();
+
         for(j=0; j<scope.resultset.platforms.length; j++){
 
             row = $('<tr></tr>');
-
             platformId = thAggregateIds.getPlatformRowId(
                 $rootScope.repoName,
                 scope.resultset.id,
                 scope.resultset.platforms[j].name,
                 scope.resultset.platforms[j].option
                 );
+//console.log(rsMap[ scope.resultset.id ].platforms[ scope.resultset.platforms[j].name ].pl_obj.job_counts);
 
             row.prop('id', platformId);
 

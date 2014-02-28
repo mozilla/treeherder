@@ -642,6 +642,10 @@ treeherder.factory('thResultSetModel',
             return resultSets;
         },
 
+        getResultsetMap: function() {
+            return rsMap;
+        },
+
         // this is a "watchable" for jobs
         getJobMap: function() {
             return jobMap;

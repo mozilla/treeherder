@@ -20,10 +20,10 @@ treeherder.controller('JobsCtrl',
         }
 
         // the primary data model
-        thResultSetModel.init(600000, $scope.repoName);
+        //thResultSetModel.init(600000, $scope.repoName);
         //thResultSetModel.init(60000, $scope.repoName);
         //thResultSetModel.init(10000, $scope.repoName);
-        //thResultSetModel.init(5000, $scope.repoName);
+        thResultSetModel.init(5000, $scope.repoName);
 
         $scope.isLoadingRsBatch = thResultSetModel.loadingStatus;
         $scope.result_sets = thResultSetModel.getResultSetsArray();
