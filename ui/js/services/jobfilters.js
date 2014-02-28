@@ -180,6 +180,13 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log) {
          */
         showJob: function(job, resultStatusList) {
             var fields = _.keys(filters);
+            // if all global filters for resultStatus are off, then the field
+            // of resultStatus won't be in ``fields``.  However, if values are
+            // passed in with ``resultStatusList``, then we need to check in
+            // that field.
+            if (!_.contains(fields, "resultStatus") && resultStatusList) {
+                fields.push("resultStatus");
+            }
             /*
             Handle the two special checkbox fields.  If ALL the boxes in
             either group are unchecked, then we should show no jobs, regardless
