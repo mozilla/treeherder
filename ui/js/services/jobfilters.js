@@ -165,7 +165,11 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log) {
             }
         },
         copyResultStatusFilters: function() {
-            return filters[api.resultStatus].values.slice();
+            if (filters.hasOwnProperty(api.resultStatus)) {
+                return filters[api.resultStatus].values.slice();
+            } else {
+                return [];
+            }
         },
         /**
          * Whether or not this job should be shown based on the current
@@ -178,16 +182,12 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log) {
         showJob: function(job, resultStatusList) {
             var fields = _.keys(filters);
             /*
-            @@@ Yes, this is kind of a hack.  Since we have some filters that are
-            just check boxes, it's possible that you could remove all filters
-            by having them all unchecked and technically that would mean no
-            filtration.  But visually, you're saying, "don't include any of
-            these items" so we should return none.  In addition,
-            ``failure_classificaion_id`` is kind of a special case that is
-            a field filter, but ALSO checkboxes for set or not set.  So if
-            both are unchecked, again, we should display no jobs.
+            Handle the two special checkbox fields.  If ALL the boxes in
+            either group are unchecked, then we should show no jobs, regardless
+            of other filters.
              */
-            if (filters.length === 0 || !_.contains(fields, 'failure_classification_id')) {
+            if (!_.contains(fields, api.resultStatus) ||
+                !_.contains(fields, api.failure_classification_id)) {
                 return false;
             }
             for(var i = 0; i < fields.length; i++) {
@@ -197,10 +197,13 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log) {
             }
             return true;
         },
-        resultStatus: "resultStatus",
         getFilters: function() {
             return filters;
         },
+
+        // CONSTANTS to avoid typos
+        failure_classification_id: "failure_classification_id",
+        resultStatus: "resultStatus",
         matchType: {
             exactstr: 0,
             substr: 1,
