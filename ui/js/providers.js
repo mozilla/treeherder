@@ -1,3 +1,5 @@
+"use strict";
+
 treeherder.provider('thServiceDomain', function() {
     this.$get = function() {
         if (window.thServiceDomain) {

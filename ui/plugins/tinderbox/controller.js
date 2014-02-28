@@ -20,12 +20,12 @@ treeherder.controller('TinderboxPluginCtrl',
                     // not just the reference.  We also must check for ``blob`` in ``Job Info``
                     // because ``Job Info`` can exist without the blob as the promise is
                     // fulfilled.
-                    if (data.length == 1 && _.has(data[0], 'blob')){
+                    if (data.length === 1 && _.has(data[0], 'blob')){
 
                         $scope.tinderbox_lines = data[0].blob.tinderbox_printlines;
                         for(var i=0; i<$scope.tinderbox_lines.length; i++){
                             var line = $scope.tinderbox_lines[i];
-                            if(line.indexOf("<a href='http://graphs.mozilla.org") == 0){
+                            if(line.indexOf("<a href='http://graphs.mozilla.org") === 0){
                                 continue;
                             }
                             var title = line;
@@ -49,20 +49,20 @@ treeherder.controller('TinderboxPluginCtrl',
                                     link = value;
                                     type = "link";
                                 }
-                                if(title == "TalosResult"){
+                                if(title === "TalosResult"){
                                     type = "TalosResult";
                                     // unescape the json string
                                     value =  value.replace(/\\/g, '');
                                     value = angular.fromJson(value);
                                 }
-                                if(sep == "<br/>" || sep.indexOf("<") !== -1){
+                                if(sep === "<br/>" || sep.indexOf("<") !== -1){
                                     type="raw_html";
                                 }
                             }else{
                                 var uploaded_to_regexp = /\s*Uploaded\s+([A-Za-z\/\.0-9\-_]+)\s+to\s+(http:\/\/[A-Za-z\/\.0-9\-_]+)\s*/g;
                                 var uploaded_to_chunks = uploaded_to_regexp.exec(title);
-                                if(uploaded_to_chunks != null){
-                                    title = "artifact uploaded"
+                                if(uploaded_to_chunks !== null){
+                                    title = "artifact uploaded";
                                     value = uploaded_to_chunks[1];
                                     link = uploaded_to_chunks[2];
                                     type = "link";
