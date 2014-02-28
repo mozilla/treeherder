@@ -61,13 +61,10 @@ treeherder.factory('thCloneHtml', function($interpolate) {
         'jobBtnClone.html'
         ];
 
-    var cloneHtmlObjs = {};
-    var templateId = "";
-    var templateName = "";
-    var templateTxt = "";
+    var templateId, templateName, templateTxt, i;
 
-    var i=0;
-    for(; i<cloneTemplateIds.length; i++){
+    var cloneHtmlObjs = {};
+    for(i=0; i<cloneTemplateIds.length; i++){
 
         templateId = cloneTemplateIds[i];
         templateName = templateId.replace('.html', '');
