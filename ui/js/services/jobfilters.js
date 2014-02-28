@@ -190,6 +190,7 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log) {
                 !_.contains(fields, api.failure_classification_id)) {
                 return false;
             }
+
             for(var i = 0; i < fields.length; i++) {
                 if (!checkFilter(fields[i], job, resultStatusList)) {
                     return false;
