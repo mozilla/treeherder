@@ -44,7 +44,6 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log) {
                 return true;
             }
 
-            var jobFieldValue = getJobFieldValue(job, field);
             $log.debug(field + ": " + JSON.stringify(job));
             switch (filters[field].matchType) {
                 case api.matchType.isnull:
@@ -186,7 +185,8 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log) {
             either group are unchecked, then we should show no jobs, regardless
             of other filters.
              */
-            if (!_.contains(fields, api.resultStatus) ||
+
+            if ((!resultStatusList && !_.contains(fields, api.resultStatus)) ||
                 !_.contains(fields, api.failure_classification_id)) {
                 return false;
             }
