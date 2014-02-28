@@ -507,19 +507,6 @@
     }
 },
 {
-    "pk": 40,
-    "model": "model.repository",
-    "fields": {
-        "dvcs_type": "hg",
-        "name": "thunderbird-esr17",
-        "url": "https://hg.mozilla.org/releases/comm-esr17",
-        "active_status": "active",
-        "codebase": "?",
-        "repository_group": 2,
-        "description": ""
-    }
-},
-{
     "pk": 41,
     "model": "model.repository",
     "fields": {
@@ -594,6 +581,19 @@
         "active_status": "active",
         "codebase": "gaia",
         "repository_group": 3,
+        "description": ""
+    }
+},
+{
+    "pk": 47,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "hg",
+        "name": "mozilla-b2g28_v1_3",
+        "url": "https://hg.mozilla.org/releases/mozilla-b2g28_v1_3",
+        "active_status": "active",
+        "codebase": "gecko",
+        "repository_group": 2,
         "description": ""
     }
 }

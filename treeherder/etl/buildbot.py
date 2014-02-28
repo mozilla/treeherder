@@ -20,6 +20,8 @@ RESULT_DICT = {
 #   PIPEDREAM: Once these attributes are available as build properties in the
 #         pulse stream these structures can be removed.
 ####
+
+# source for these is in ``Data.js.getMachine`` function.
 PLATFORMS_BUILDERNAME = [
 
     #// ** Linux **
@@ -76,18 +78,10 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile('mountain[ ]?lion', re.IGNORECASE),
+        'regex': re.compile('OS X 10\.7|lion', re.IGNORECASE),
         'attributes': {
             'os': 'mac',
             'os_platform': 'osx-10-8',
-            'arch': 'x86_64',
-        }
-    },
-    {
-        'regex': re.compile('OS X 10\.7|lion|macosx64', re.IGNORECASE),
-        'attributes': {
-            'os': 'mac',
-            'os_platform': 'osx-10-7',
             'arch': 'x86_64',
         }
     },
@@ -162,6 +156,14 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
+        'regex': re.compile('android 2\.3', re.IGNORECASE),
+        'attributes': {
+            'os': 'android',
+            'os_platform': 'android-2-3',
+            'arch': 'x86',
+        }
+    },
+    {
         'regex': re.compile('android 2\.2 no-ionmonkey', re.IGNORECASE),
         'attributes': {
             'os': 'android',
@@ -205,7 +207,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile('b2g.*_(?:dep|nightly)$', re.IGNORECASE),
+        'regex': re.compile('b2g.*_(?:dep|nightly|periodic)$', re.IGNORECASE),
         'attributes': {
             'os': 'b2g',
             'os_platform': 'b2g-device-image',
@@ -293,30 +295,32 @@ TEST_NAME_BUILDERNAME = [
     {"regex": re.compile('b2g.*_leo_nightly'), "desc": "Leo Device Image Nightly"},
     {"regex": re.compile('b2g.*_nexus-4_nightly'), "desc": "Nexus 4 Device Image Nightly"},
     {"regex": re.compile('b2g.*_unagi_nightly'), "desc": "Unagi Device Image Nightly"},
+    {"regex": re.compile('b2g.*_wasabi_nightly'), "desc": "Wasabi Device Image Nightly"},
     {"regex": re.compile('b2g.*_nightly'), "desc": "Unknown B2G Device Image Nightly"},
     {"regex": re.compile('(?:l10n|localizer) nightly'), "desc": "L10n Nightly"},
     {"regex": re.compile('nightly'), "desc": "Nightly"},
-    {"regex": re.compile('b2g.*_hamachi_eng_dep'), "desc": "Hamachi Device Image Build (Engineering)"},
-    {"regex": re.compile('b2g.*_helix_eng_dep'), "desc": "Helix Device Image Build (Engineering)"},
-    {"regex": re.compile('b2g.*_inari_eng_dep'), "desc": "Inari Device Image Build (Engineering)"},
-    {"regex": re.compile('b2g.*_leo_eng_dep'), "desc": "Leo Device Image Build (Engineering)"},
-    {"regex": re.compile('b2g.*_unagi_eng_dep'), "desc": "Unagi Device Image Build (Engineering)"},
-    {"regex": re.compile('b2g.*_eng_dep'), "desc": "Unknown B2G Device Image Build (Engineering)"},
+    {"regex": re.compile('b2g.*_hamachi_eng_(?:dep|periodic)'), "desc": "Hamachi Device Image Build (Engineering)"},
+    {"regex": re.compile('b2g.*_helix_eng_(?:dep|periodic)'), "desc": "Helix Device Image Build (Engineering)"},
+    {"regex": re.compile('b2g.*_inari_eng_(?:dep|periodic)'), "desc": "Inari Device Image Build (Engineering)"},
+    {"regex": re.compile('b2g.*_leo_eng_(?:dep|periodic)'), "desc": "Leo Device Image Build (Engineering)"},
+    {"regex": re.compile('b2g.*_unagi_eng_(?:dep|periodic)'), "desc": "Unagi Device Image Build (Engineering)"},
+    {"regex": re.compile('b2g.*_eng_(?:dep|periodic)'), "desc": "Unknown B2G Device Image Build (Engineering)"},
     {"regex": re.compile('b2g.*_emulator.*_dep'), "desc": "B2G Emulator Image Build"},
-    {"regex": re.compile('b2g.*_buri-limited-memory_dep'), "desc": "Buri Limited Memory Device Image Build"},
-    {"regex": re.compile('b2g.*_hamachi_dep'), "desc": "Hamachi Device Image Build"},
-    {"regex": re.compile('b2g.*_helix_dep'), "desc": "Helix Device Image Build"},
-    {"regex": re.compile('b2g.*_inari_dep'), "desc": "Inari Device Image Build"},
-    {"regex": re.compile('b2g.*_leo_dep'), "desc": "Leo Device Image Build"},
-    {"regex": re.compile('b2g.*_nexus-4_dep'), "desc": "Nexus 4 Device Image Build"},
-    {"regex": re.compile('b2g.*_unagi_dep'), "desc": "Unagi Device Image Build"},
-    {"regex": re.compile('b2g.*_wasabi_dep'), "desc": "Wasabi Device Image Build"},
-    {"regex": re.compile('b2g.*_dep'), "desc": "Unknown B2G Device Image Build"},
+    {"regex": re.compile('b2g.*_buri-limited-memory_(?:dep|periodic)'), "desc": "Buri Limited Memory Device Image Build"},
+    {"regex": re.compile('b2g.*_hamachi_(?:dep|periodic)'), "desc": "Hamachi Device Image Build"},
+    {"regex": re.compile('b2g.*_helix_(?:dep|periodic)'), "desc": "Helix Device Image Build"},
+    {"regex": re.compile('b2g.*_inari_(?:dep|periodic)'), "desc": "Inari Device Image Build"},
+    {"regex": re.compile('b2g.*_leo_(?:dep|periodic)'), "desc": "Leo Device Image Build"},
+    {"regex": re.compile('b2g.*_nexus-4_(?:dep|periodic)'), "desc": "Nexus 4 Device Image Build"},
+    {"regex": re.compile('b2g.*_unagi_(?:dep|periodic)'), "desc": "Unagi Device Image Build"},
+    {"regex": re.compile('b2g.*_wasabi_(?:dep|periodic)'), "desc": "Wasabi Device Image Build"},
+    {"regex": re.compile('b2g.*_(?:dep|periodic)'), "desc": "Unknown B2G Device Image Build"},
+    {"regex": re.compile('spidermonkey.*-arm-sim'), "desc": "SpiderMonkey ARM Simulator Build"},
     {"regex": re.compile('spidermonkey.*-dtrace'), "desc": "SpiderMonkey DTrace Build"},
-    {"regex": re.compile('spidermonkey.*-rootanalysis'), "desc": "SpiderMonkey --enable-root-analysis Build"},
-    {"regex": re.compile('spidermonkey.*-generational'), "desc": "SpiderMonkey GGC Shell Build"},
+    {"regex": re.compile('spidermonkey.*-warnaserr'), "desc": "SpiderMonkey Fail-On_Warnings Build"},
     {"regex": re.compile('spidermonkey.*-exactroot'), "desc": "SpiderMonkey Exact Rooting Shell Build"},
-    {"regex": re.compile('spidermonkey.*-warnaserr'), "desc": "SpiderMonkey --enable-sm-fail-on-warnings Build"},
+    {"regex": re.compile('spidermonkey.*-generational'), "desc": "SpiderMonkey GGC Shell Build"},
+    {"regex": re.compile('spidermonkey.*-rootanalysis'), "desc": "SpiderMonkey Root Analysis Build"},
         #// If we start doing debug ASan tests, please kill these special build types
     {"regex": re.compile('debug asan build'), "desc": "AddressSanitizer Debug Build"},
     {"regex": re.compile('asan build'), "desc": "AddressSanitizer Opt Build"},
@@ -326,29 +330,33 @@ TEST_NAME_BUILDERNAME = [
     {"regex": re.compile('dxr'), "desc": "DXR Index Build"},
     {"regex": re.compile('build$'), "desc": "Build"},
         #// ** Unit tests **
-    {"regex": re.compile('mochitest-other'), "desc": "Mochitest Other"},
-    {"regex": re.compile('mochitest-metro-chrome'), "desc": "Mochitest Metro Browser Chrome"},
+        #// These are generally sorted in the same order as how they are sorted in
+        #// Config.js, though some exceptions are needed to avoid false-positives.
+    {"regex": re.compile('mozbase'), "desc": "Mozbase Unit Tests"},
     {"regex": re.compile('mochitest-browser-chrome'), "desc": "Mochitest Browser Chrome"},
+    {"regex": re.compile('mochitest-metro-chrome'), "desc": "Mochitest Metro Browser Chrome"},
+    {"regex": re.compile('mochitest-other'), "desc": "Mochitest Other"},
     {"regex": re.compile('mochitest-gl'), "desc": "Mochitest WebGL"},
     {"regex": re.compile('mochitest'), "desc": "Mochitest"},
     {"regex": re.compile('robocop'), "desc": "Robocop"},
     {"regex": re.compile('crashtest-ipc'), "desc": "Crashtest-IPC"},
     {"regex": re.compile('crashtest'), "desc": "Crashtest"},
     {"regex": re.compile('jsreftest'), "desc": "JSReftest"},
-    {"regex": re.compile('reftest-no-accel'), "desc": "Reftest Unaccelerated"},
     {"regex": re.compile('reftest-ipc'), "desc": "Reftest-IPC"},
+    {"regex": re.compile('reftest-no-accel'), "desc": "Reftest Unaccelerated"},
     {"regex": re.compile('reftest'), "desc": "Reftest"},
     {"regex": re.compile('cppunit'), "desc": "CPP Unit Tests"},
     {"regex": re.compile('jittest'), "desc": "JIT Tests"},
-    {"regex": re.compile('xpcshell'), "desc": "XPCShellTest"},
-    {"regex": re.compile('marionette-webapi'), "desc": "Marionette WebAPI Tests"},
-    {"regex": re.compile('marionette'), "desc": "Marionette Framework Unit Tests"},
+    {"regex": re.compile('jetpack'), "desc": "Jetpack SDK Test"},
+    {"regex": re.compile('gaia-unit'), "desc": "Gaia Unit Test"},
     {"regex": re.compile('gaia-integration'), "desc": "Gaia Integration Test"},
     {"regex": re.compile('gaia-ui-test'), "desc": "Gaia UI Test"},
-    {"regex": re.compile('gaia-unit'), "desc": "Gaia Unit Test"},
-    {"regex": re.compile('jetpack'), "desc": "Jetpack SDK Test"},
-    {"regex": re.compile('mozmill'), "desc": "Mozmill"},
+    {"regex": re.compile('marionette-webapi'), "desc": "Marionette WebAPI Tests"},
+    {"regex": re.compile('marionette'), "desc": "Marionette Framework Unit Tests"},
     {"regex": re.compile('androidx86-set'), "desc": "Android x86 Test Set"},
+    {"regex": re.compile('web-platform-tests'), "desc": "W3C Web Platform Tests"},
+    {"regex": re.compile('xpcshell'), "desc": "XPCShell"},
+    {"regex": re.compile('mozmill'), "desc": "Mozmill"},
 ]
 
 # map test names to group names as "<testname>": "<groupname>"
@@ -380,6 +388,7 @@ GROUP_NAMES = {
     "Unagi Device Image Nightly": "Unagi Device Image",
     "Unagi Device Image Nightly (Engineering)": "Unagi Device Image",
     "Wasabi Device Image Build": "Wasabi Device Image",
+    "Wasabi Device Image Nightly": "Wasabi Device Image",
     "Unknown B2G Device Image Build": "Unknown Device Image",
     "Unknown B2G Device Image Build (Engineering)": "Unknown Device Image",
     "Unknown B2G Device Image Nightly": "Unknown Device Image",
@@ -398,13 +407,14 @@ GROUP_NAMES = {
     "Reftest Unaccelerated": "Reftest",
     "Reftest-IPC": "Reftest",
     "JSReftest": "Reftest",
+    "SpiderMonkey ARM Simulator Build": "SpiderMonkey",
     "SpiderMonkey DTrace Build": "SpiderMonkey",
-    "SpiderMonkey --enable-root-analysis Build": "SpiderMonkey",
-    "SpiderMonkey --enable-sm-fail-on-warnings Build": "SpiderMonkey",
-    "SpiderMonkey GGC Shell Build": "SpiderMonkey",
+    "SpiderMonkey Fail-On_Warnings Build": "SpiderMonkey",
     "SpiderMonkey Exact Rooting Shell Build": "SpiderMonkey",
-    "Static Rooting Hazard Analysis, JS Shell": "SpiderMonkey",
+    "SpiderMonkey GGC Shell Build": "SpiderMonkey",
+    "SpiderMonkey Root Analysis Build": "SpiderMonkey",
     "Static Rooting Hazard Analysis, Full Browser": "SpiderMonkey",
+    "Static Rooting Hazard Analysis, JS Shell": "SpiderMonkey",
     "Talos Performance": "Talos Performance",
     "Talos canvasmark": "Talos Performance",
     "Talos chrome": "Talos Performance",
@@ -427,6 +437,7 @@ GROUP_NAMES = {
 }
 
 # symbols displayed in the UI for all jobs and job groups
+# from ``buildNames`` and ``testNames`` in ``Config.js`` file
 SYMBOLS = {
     # builds
 
@@ -435,13 +446,14 @@ SYMBOLS = {
     "Non-Unified Build": "Bn",
     "Static Checking Build" : "S",
     "SpiderMonkey" : "SM",
+    "SpiderMonkey ARM Simulator Build" : "arm",
     "SpiderMonkey DTrace Build" : "d",
-    "SpiderMonkey --enable-root-analysis Build" : "r",
-    "SpiderMonkey --enable-sm-fail-on-warnings Build" : "e",
-    "SpiderMonkey GGC Shell Build" : "ggc",
+    "SpiderMonkey Fail-On-Warnings Build" : "e",
     "SpiderMonkey Exact Rooting Shell Build" : "exr",
-    "Static Rooting Hazard Analysis, JS Shell" : "Hs",
+    "SpiderMonkey GGC Shell Build" : "ggc",
+    "SpiderMonkey Root Analysis Build" : "r",
     "Static Rooting Hazard Analysis, Full Browser" : "Hf",
+    "Static Rooting Hazard Analysis, JS Shell" : "Hs",
     # // ** Nightly Builds **
     "Nightly" : "N",
     "DXR Index Build" : "Dxr",
@@ -491,6 +503,7 @@ SYMBOLS = {
     "Unagi Device Image Nightly (Engineering)": "Ne",
     "Wasabi Device Image": "Wasabi",
     "Wasabi Device Image Build": "B",
+    "Wasabi Device Image Nightly": "N",
     "Unknown Device Image": "Unknown",
     "Unknown B2G Device Image Build": "B",
     "Unknown B2G Device Image Build (Engineering)": "Be",
@@ -498,28 +511,40 @@ SYMBOLS = {
     "Unknown B2G Device Image Nightly (Engineering)": "Ne",
     # tests
 
+    #// Mozbase is kind of a "glue" test suite between builds and all other tests,
+    #// so we list it first to make any bustage more obvious.
+    "Mozbase Unit Tests" : "Mb",
+    #// Mochitests and reftests come next since they're the most common tests
+    #// run across all platforms and therefore benefit from better vertical alignment.
     "Mochitest" : "M",
-    "Mochitest WebGL" : "gl",
     "Mochitest Browser Chrome" : "bc",
     "Mochitest Metro Browser Chrome" : "mc",
     "Mochitest Other" : "oth",
+    "Mochitest WebGL" : "gl",
     "Robocop" : "rc",
-    "Crashtest-IPC" : "Cipc",
     "Crashtest" : "C",
-    "Reftest Unaccelerated" : "Ru",
-    "Reftest-IPC" : "Ripc",
-    "Reftest" : "R",
+    "Crashtest-IPC" : "Cipc",
     "JSReftest" : "J",
+    "Reftest" : "R",
+    "Reftest-IPC" : "Ripc",
+    "Reftest Unaccelerated" : "Ru",
+
+    #// All other unit tests, sorted alphabetically by TBPL symbol.
     "CPP Unit Tests" : "Cpp",
     "JIT Tests" : "Jit",
-    "Marionette WebAPI Tests" : "Mnw",
-    "Marionette Framework Unit Tests" : "Mn",
+    "Jetpack SDK Test" : "JP",
+    "Gaia Unit Test" : "G",
     "Gaia Integration Test" : "Gi",
     "Gaia UI Test" : "Gu",
-    "Gaia Unit Test" : "G",
-    "XPCShellTest" : "X",
-    "Android x86 Test Combos" : "Sets",
+    "Marionette Framework Unit Tests" : "Mn",
+    "Marionette WebAPI Tests" : "Mnw",
     "Android x86 Test Set" : "S",
+    "Android x86 Test Combos" : "Sets",
+    "W3C Web Platform Tests" : "W",
+    "XPCShell" : "X",
+    "Mozmill" : "Z",
+
+    #// Display talos perf tests after correctness tests.
     "Talos Performance" : "T",
     "Talos canvasmark" : "cm",
     "Talos chrome" : "c",
@@ -527,23 +552,21 @@ SYMBOLS = {
     "Talos dromaeojs Metro" : "d-m",
     "Talos svg" : "s",
     "Talos svg Metro" : "s-m",
-    "Talos tp" : "tp",
-    "Talos tp Metro" : "tp-m",
-    "Talos tp nochrome" : "tpn",
     "Talos other" : "o",
     "Talos other Metro" : "o-m",
     "Talos paint" : "p",
     "Talos robocheck2" : "rck2",
     "Talos robopan" : "rp",
     "Talos roboprovider" : "rpr",
+    "Talos tp" : "tp",
+    "Talos tp Metro" : "tp-m",
+    "Talos tp nochrome" : "tpn",
     "Talos ts" : "ts",
     "Talos tspaint" : "tsp",
     "Talos xperf" : "x",
-    "Jetpack SDK Test" : "JP",
-    "Mozmill" : "Z",
+    #// Sort unknown jobs after all others.
     "Unknown Unit Test" : "U",
     "Unknown": "?",
-    "unknown": "?",
 }
 
 NUMBER_RE = re.compile(".*(?:mochitest(?:-debug)?|reftest|crashtest|robocop|androidx86-set|browser-chrome)\-([0-9]+)", re.IGNORECASE)
