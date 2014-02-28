@@ -16,22 +16,13 @@ treeherder.controller('PluginCtrl',
                 // get the details of the current job
                 ThJobModel.get($scope.job.id).then(function(data){
                     _.extend($scope.job, data);
+                    updateVisibleFields();
                     $scope.logs = data.logs;
                 });
 
                 $scope.artifacts = {};
 
-                var undef = "---undefined---";
-                // fields that will show in the job detail panel
-                $scope.visibleFields = {
-                    "Result": $scope.job.result || undef,
-                    "Job GUID": $scope.job.job_guid || undef,
-                    "Machine Platform Arch": $scope.job.machine_platform_architecture || undef,
-                    "Machine Platform OS": $scope.job.machine_platform_os || undef,
-                    "Build Platform": $scope.job.build_platform || undef,
-                    "Build Arch": $scope.job.build_architecture || undef,
-                    "Build OS": $scope.job.build_os || undef
-                };
+                updateVisibleFields();
 
                 $scope.tab_loading = true;
                 $scope.lvUrl = thUrl.getLogViewerUrl($scope.job.id);
@@ -40,6 +31,22 @@ treeherder.controller('PluginCtrl',
 
 
             }
+        };
+
+        var updateVisibleFields = function() {
+                var undef = "---undefined---";
+                // fields that will show in the job detail panel
+                $scope.visibleFields = {
+                    "Result": $scope.job.result || undef,
+                    "Job Name": $scope.job.job_type_name || undef,
+                    "Start time": $scope.job.start_timestamp || undef,
+                    "Job GUID": $scope.job.job_guid || undef,
+                    "Machine Platform Arch": $scope.job.machine_platform_architecture || undef,
+                    "Machine Platform OS": $scope.job.machine_platform_os || undef,
+                    "Build Platform": $scope.job.build_platform || undef,
+                    "Build Arch": $scope.job.build_architecture || undef,
+                    "Build OS": $scope.job.build_os || undef
+                };
         };
 
         //$scope.$watch('selectedJob', selectJob, true);

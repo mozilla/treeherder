@@ -14,6 +14,7 @@
     "jquery": true,
     "globals": {
         "treeherder": true,
+        "logViewer": true,
         "angular": true,
         "_": true,
         "Config": true

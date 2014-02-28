@@ -4,10 +4,10 @@ logViewer.controller('LogviewerCtrl',
     function Logviewer($anchorScroll, $scope, $log, $rootScope, $location, $http, $timeout, ThJobArtifactModel) {
 
         var query_string = $location.search();
-        if (query_string.repo != "") {
+        if (query_string.repo !== "") {
             $rootScope.repoName = query_string.repo;
         }
-        if (query_string.job_id != "") {
+        if (query_string.job_id !== "") {
             $scope.job_id= query_string.job_id;
         }
 

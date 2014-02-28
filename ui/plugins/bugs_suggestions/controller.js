@@ -7,7 +7,7 @@ treeherder.controller('BugClassificationCtrl',
         $scope.comment = "";
         angular.forEach($scope.selected_bugs, function(bug_id, selected){
             if(selected){
-                if($scope.comment != ""){
+                if($scope.comment !== ""){
                     $scope.comment += ",";
                 }
                 $scope.comment += "Bug #"+bug_id;
@@ -31,10 +31,11 @@ treeherder.controller('BugClassificationCtrl',
         $scope.cancel = function () {
             $modalInstance.dismiss('cancel');
         };
-    })
+    });
 
 treeherder.controller('BugsPluginCtrl',
-    function BugsPluginCtrl($scope, $rootScope, $log, ThJobArtifactModel, ThBugJobMapModel, ThJobNoteModel, thNotify) {
+    function BugsPluginCtrl($scope, $rootScope, $log, ThJobArtifactModel,
+                            ThBugJobMapModel, ThJobNoteModel, thNotify, $modal) {
         $log.debug("bugs plugin initialized");
 
         $scope.classify = function(bug_list){
@@ -45,7 +46,7 @@ treeherder.controller('BugsPluginCtrl',
                 scope: $scope
             });
         };
-        $scope.message = ""
+        $scope.message = "";
 
         $scope.quick_submit = function(){
             angular.forEach($scope.selected_bugs, function(v, k){
@@ -55,9 +56,9 @@ treeherder.controller('BugsPluginCtrl',
                         job_id: $scope.job.id,
                         type: 'annotation'
                     });
-                    bjm.create()
+                    bjm.create();
                 }
-            })
+            });
             var note = new ThJobNoteModel({
                 job_id:$scope.job.id,
                 who: $scope.user ? $scope.user.email : "",
@@ -72,23 +73,23 @@ treeherder.controller('BugsPluginCtrl',
                         message: "Note successfully created",
                         severity: "success",
                         sticky: false
-                    })
+                    });
                 },
                 function(){
                     thNotify.send({
                         message: "Note creation failed",
                         severity: "danger",
                         sticky: true
-                    })
+                    });
                 }
             );
-        }
+        };
 
         var update_bugs = function(newValue, oldValue){
             $scope.bugs = {};
             $scope.visible = "open";
             $scope.show_all = false;
-            $scope.selected_bugs = {}
+            $scope.selected_bugs = {};
             $scope.classification = null;
 
 
@@ -103,7 +104,7 @@ treeherder.controller('BugsPluginCtrl',
                 .then(function(response){
                     // iterate to retrieve the total num of suggestions
                     angular.forEach(response, function(artifact){
-                        var open_closed = artifact.name == "Open bugs" ? "open" : "closed";
+                        var open_closed = artifact.name === "Open bugs" ? "open" : "closed";
                         angular.forEach(artifact.blob, function(suggestions, error){
                             if(!_.has($scope.bugs, error)){
                                 $scope.bugs[error] = {'open':[], 'closed':[]};
