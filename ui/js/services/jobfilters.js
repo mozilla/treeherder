@@ -184,7 +184,7 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log) {
             // of resultStatus won't be in ``fields``.  However, if values are
             // passed in with ``resultStatusList``, then we need to check in
             // that field.
-            if (resultStatusList) {
+            if (!_.contains(fields, "resultStatus") && resultStatusList) {
                 fields.push("resultStatus");
             }
             /*
