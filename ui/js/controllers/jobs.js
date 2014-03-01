@@ -18,6 +18,7 @@ treeherder.controller('JobsCtrl',
         } else {
             $rootScope.repoName = "mozilla-inbound";
         }
+        ThRepositoryModel.setCurrent($rootScope.repoName);
 
         // the primary data model
         ThResultSetModel.init(60000, $scope.repoName);

@@ -41,6 +41,10 @@ body {
     min-width: 800px;
 }
 
+.th-username {
+    margin-right: 5px;
+}
+
 .th-help-link {
     padding-top: 8px;
 }
