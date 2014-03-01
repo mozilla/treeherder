@@ -34,11 +34,6 @@ treeherder.controller('MainCtrl',
             $rootScope.locationPath = $location.path().replace('/', '');
         });
 
-        // @@@ a dummy value for now, used when creating classifications.
-        // update this value when we have authenticated login.
-        $scope.username = "guest";
-
-
         // the repos the user has chosen to watch
         $scope.watchedRepos = ThRepositoryModel.watchedRepos;
 
