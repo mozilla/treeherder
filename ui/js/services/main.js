@@ -128,7 +128,6 @@ treeherder.factory('BrowserId', function($http, $q, $log,  thServiceDomain){
         login: function(requestArgs){
             return browserid.getAssertion(requestArgs)
             .then(function(response) {
-                $log.warn(response);
                 return browserid.verifyAssertion(response);
             });
 
