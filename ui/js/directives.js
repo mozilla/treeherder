@@ -943,7 +943,6 @@ treeherder.directive('personaButtons', function($http, $q, $log, $rootScope, loc
             // check if already know who the current user is
             // if the user.email value is null, it means that he's not logged in
             scope.user.email = scope.user.email || localStorageService.get('user.email');
-            $rootScope.username = scope.user.email || "guest";
             scope.user.loggedin =  scope.user.email == null ? false : true;
 
             scope.login = function(){
@@ -955,7 +954,6 @@ treeherder.directive('personaButtons', function($http, $q, $log, $rootScope, loc
                 .then(function(response){
                     scope.user.loggedin = true;
                     scope.user.email = response.data.email;
-                    $rootScope.username = scope.user.email;
                     localStorageService.add('user.email', scope.user.email);
                 },function(){
                     // logout if the verification failed
@@ -966,7 +964,6 @@ treeherder.directive('personaButtons', function($http, $q, $log, $rootScope, loc
                 BrowserId.logout().then(function(response){
                     scope.user.loggedin = false;
                     scope.user.email = null;
-                    $rootScope.username = "guest";
                     localStorageService.remove('user.loggedin');
                     localStorageService.remove('user.email');
                 });
