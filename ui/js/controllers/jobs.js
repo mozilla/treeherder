@@ -119,9 +119,9 @@ treeherder.controller('ResultSetCtrl',
             return thJobFilters.showJob(job, $scope.resultStatusFilters);
         };
 
-        $scope.urlBasePath = $location.absUrl().split('?')[0];
-        $scope.revisionUrl = $scope.urlBasePath + "?revision=" + $scope.resultset.revision;
-        $scope.authorUrl = $scope.urlBasePath + "?author=" + $scope.resultset.author;
+        $scope.idResultsetFilterUrl = $scope.urlBasePath + "?id=" + $scope.resultset.id;
+        $scope.revisionResultsetFilterUrl = $scope.urlBasePath + "?revision=" + $scope.resultset.revision;
+        $scope.authorResultsetFilterUrl = $scope.urlBasePath + "?author=" + $scope.resultset.author;
 
         $scope.resultStatusFilters = thJobFilters.copyResultStatusFilters();
 
