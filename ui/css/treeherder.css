@@ -240,6 +240,7 @@ body {
 }
 
 .revision-link {
+    padding-top: 5px;
     width: 115px;
     display: block;
 }
