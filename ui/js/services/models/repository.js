@@ -1,4 +1,6 @@
-treeherder.factory('thReposModel',
+'use strict';
+
+treeherder.factory('ThRepositoryModel',
                    ['$http', 'thUrl', '$rootScope', '$log', 'localStorageService', 'thSocket',
                    function($http, thUrl, $rootScope, $log, localStorageService, thSocket) {
 
@@ -29,6 +31,7 @@ treeherder.factory('thReposModel',
         $log.warn("'" + name + "' not found in repos list.");
         return null;
     };
+
 
     // get by category
     var byGroup = function() {
@@ -67,6 +70,7 @@ treeherder.factory('thReposModel',
 
                     if (name) {
                         $rootScope.currentRepo = byName(name);
+
                     }
                 });
         },

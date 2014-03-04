@@ -1,40 +1,10 @@
 'use strict';
 
-treeherder.factory('thResultSets',
-                   ['$http', 'thUrl', 'thServiceDomain',
-                   function($http, thUrl, thServiceDomain) {
-
-    // get the resultsets for this repo
-    return {
-        getResultSets: function(offset, count, resultsetlist) {
-            offset = typeof offset === 'undefined'?  0: offset;
-            count = typeof count === 'undefined'?  10: count;
-            var params = {
-                offset: offset,
-                count: count,
-                full: false,
-                format: "json"
-            };
-            if (resultsetlist) {
-                _.extend(params, {
-                    offset: 0,
-                    count: resultsetlist.length,
-                    id__in: resultsetlist.join()
-                });
-            }
-            return $http.get(thUrl.getProjectUrl("/resultset/"),
-                             {params: params}
-            );
-        },
-        get: function(uri) {
-            return $http.get(thServiceDomain + uri, {params: {format: "json"}});
-        }
-    };
-}]);
-
-treeherder.factory('thResultSetModel',
-                   ['$log', '$rootScope', 'thResultSets', 'thSocket', 'thJobs',
-                   function($log, $rootScope, thResultSets, thSocket, thJobs) {
+treeherder.factory('ThResultSetModel',
+                   ['$log', '$rootScope', 'thResultSets', 'thSocket',
+                    'ThJobModel', 'thEvents', 'thAggregateIds',
+                   function($log, $rootScope, thResultSets, thSocket,
+                            ThJobModel, thEvents, thAggregateIds) {
 
    /******
     * Handle updating the resultset datamodel based on a queue of jobs
@@ -66,6 +36,19 @@ treeherder.factory('thResultSetModel',
         jobMapOldestId,
         rsMapOldestTimestamp;
 
+    var getJobMapKey = function(job) {
+        //Build string key for jobMap entires
+        return 'key' + job.id;
+    };
+
+    var getPlatformKey = function(name, option){
+        var key = name;
+        if(option != undefined){
+            key += option;
+        }
+        return key;
+    };
+
     /******
      * Build the Job and Resultset object mappings to make it faster and
      * easier to find and update jobs and resultsets
@@ -75,129 +58,72 @@ treeherder.factory('thResultSetModel',
     var mapResultSets = function(data) {
 
         for (var rs_i = 0; rs_i < data.length; rs_i++) {
-            var rs = data[rs_i];
-            rsMap[rs.id] = {
-                rs_obj: rs,
+            var rs_obj = data[rs_i];
+            // make a watch-able revisions array
+            rs_obj.revisions = [];
+
+            var rsMapElement = {
+                rs_obj: rs_obj,
                 platforms: {}
             };
-
-            // make a watch-able revisions array
-            rs.revisions = [];
+            rsMap[rs_obj.id] = rsMapElement;
 
             // keep track of the oldest push_timestamp, so we don't auto-fetch resultsets
             // that are out of the range we care about.
-            if (!rsMapOldestTimestamp || rsMapOldestTimestamp > rs.push_timestamp) {
-                rsMapOldestTimestamp = rs.push_timestamp;
-            }
-            // it is possible that resultset ids may be newer, even if the
-            // time stamp is older, so this is for doing a second check after
-            // fetching, but before actually adding the resultset to the data
-            // model.
-            if (!rsMapOldestTimestamp || rsMapOldestTimestamp > rs.push_timestamp) {
-                rsMapOldestTimestamp = rs.push_timestamp;
+            if (!rsMapOldestTimestamp || rsMapOldestTimestamp > rs_obj.push_timestamp) {
+                rsMapOldestTimestamp = rs_obj.push_timestamp;
             }
 
             // platforms
-            for (var pl_i = 0; pl_i < rs.platforms.length; pl_i++) {
-                var pl = rs.platforms[pl_i];
-                rsMap[rs.id].platforms[pl.name] = {
-                    pl_obj: pl,
-                    parent: rsMap[rs.id],
+            for (var pl_i = 0; pl_i < rs_obj.platforms.length; pl_i++) {
+                var pl_obj = rs_obj.platforms[pl_i];
+
+                var plMapElement = {
+                    pl_obj: pl_obj,
+                    parent: rsMap[rs_obj.id],
                     groups: {}
                 };
-                pl.job_counts = getCountDefaults();
+                var platformKey = getPlatformKey(pl_obj.name, pl_obj.option);
+                rsMap[rs_obj.id].platforms[platformKey] = plMapElement;
 
                 // groups
-                for (var gp_i = 0; gp_i < pl.groups.length; gp_i++) {
-                    var gr = pl.groups[gp_i];
-                    rsMap[rs.id].platforms[pl.name].groups[gr.name] = {
-                        grp_obj: gr,
-                        parent: rsMap[rs.id].platforms[pl.name],
+                for (var gp_i = 0; gp_i < pl_obj.groups.length; gp_i++) {
+                    var gr_obj = pl_obj.groups[gp_i];
+
+                    var grMapElement = {
+                        grp_obj: gr_obj,
+                        parent: plMapElement,
                         jobs: {}
                     };
-                    gr.job_counts = getCountDefaults();
+                    plMapElement.groups[gr_obj.name] = grMapElement;
 
                     // jobs
-                    for (var j_i = 0; j_i < gr.jobs.length; j_i++) {
-                        var job = gr.jobs[j_i];
-                        rsMap[rs.id].platforms[pl.name].groups[gr.name].jobs[job.id] = {
-                            job_obj: job,
-                            parent: rsMap[rs.id].platforms[pl.name].groups[gr.name]
+                    for (var j_i = 0; j_i < gr_obj.jobs.length; j_i++) {
+                        var job_obj = gr_obj.jobs[j_i];
+                        var key = getJobMapKey(job_obj);
+
+                        var jobMapElement = {
+                            job_obj: job_obj,
+                            parent: grMapElement
                         };
-                        jobMap[job.id] = rsMap[rs.id].platforms[pl.name].groups[gr.name].jobs[job.id];
+                        grMapElement.jobs[key] = jobMapElement;
+                        jobMap[key] = jobMapElement;
 
-                        var rt = getResultType(job);
-                        // update group count
-                        jobMap[job.id].parent.grp_obj.job_counts[rt] += 1;
-                        // update platform count
-                        jobMap[job.id].parent.parent.pl_obj.job_counts[rt] += 1;
-
-                        // map result status count at different levels
                         // track oldest job id
-                        if (!jobMapOldestId || jobMapOldestId > job.id) {
-                            jobMapOldestId = job.id;
+                        if (!jobMapOldestId || jobMapOldestId > job_obj.id) {
+                            jobMapOldestId = job_obj.id;
                         }
                     }
                 }
             }
         }
+
         resultSets.sort(rsCompare);
         $log.debug("oldest job: " + jobMapOldestId);
         $log.debug("oldest result set: " + rsMapOldestTimestamp);
         $log.debug("done mapping:");
         $log.debug(rsMap);
     };
-
-    var getCountDefaults = function() {
-        return {
-            "busted": 0,
-            "exception": 0,
-            "testfailed": 0,
-            "unknown": 0,
-            "usercancel": 0,
-            "retry": 0,
-            "success": 0,
-            "running": 0,
-            "pending": 0
-        };
-    };
-
-    /**
-     * increment the data models job_counts at each level
-     * @param job
-     */
-    var incrementJobCounts = function(job) {
-        var rt = getResultType(job);
-        // update group count
-        jobMap[job.id].parent.grp_obj.job_counts[rt] += 1;
-        // update platform count
-        jobMap[job.id].parent.parent.pl_obj.job_counts[rt] += 1;
-        // update resultset count
-        jobMap[job.id].parent.parent.parent.rs_obj.job_counts[rt] += 1;
-    };
-
-    /**
-     * increment and decrement the data models job_counts at each level
-     * @param job
-     * @param oldResultType
-     */
-    var switchJobCounts = function(job, oldResultType) {
-        incrementJobCounts(job);
-
-        // decrement group count
-        if (jobMap[job.id].parent.grp_obj.job_counts[oldResultType] > 0) {
-            jobMap[job.id].parent.grp_obj.job_counts[oldResultType] -= 1;
-        }
-        // decrement platform count
-        if (jobMap[job.id].parent.parent.pl_obj.job_counts[oldResultType] > 0) {
-            jobMap[job.id].parent.parent.pl_obj.job_counts[oldResultType] -= 1;
-        }
-        // decrement resultset count
-        if (jobMap[job.id].parent.parent.parent.rs_obj.job_counts[oldResultType] > 0) {
-            jobMap[job.id].parent.parent.parent.rs_obj.job_counts[oldResultType] -= 1;
-        }
-    };
-
 
     /**
      * Sort the resultsets in place after updating the array
@@ -212,23 +138,6 @@ treeherder.factory('thResultSetModel',
         return 0;
     };
 
-    /**
-     * Sort the resultsets in place after updating the array
-     *
-     * sort by the name and the option
-     */
-    var platformCompare = function(a, b) {
-        var acomp = a.name + a.option;
-        var bcomp = b.name + b.option;
-        if (acomp < bcomp) {
-          return -1;
-        }
-        if (acomp > bcomp) {
-          return 1;
-        }
-        return 0;
-    };
-
     /******
      * Ensure that the platform for ``newJob`` exists.  Create it if
      * necessary.  Add to the datamodel AND the map
@@ -237,7 +146,8 @@ treeherder.factory('thResultSetModel',
      */
     var getOrCreatePlatform = function(newJob) {
         var rsMapElement = rsMap[newJob.result_set_id];
-        var plMapElement = rsMapElement.platforms[newJob.platform];
+        var platformKey = getPlatformKey(newJob.platform, newJob.option);
+        var plMapElement = rsMapElement.platforms[platformKey];
         if (!plMapElement) {
             // this platform wasn't in the resultset, so add it.
             $log.debug("adding new platform");
@@ -250,14 +160,14 @@ treeherder.factory('thResultSetModel',
 
             // add the new platform to the datamodel and resort
             rsMapElement.rs_obj.platforms.push(pl_obj);
-            rsMapElement.rs_obj.platforms.sort(platformCompare);
 
             // add the new platform to the resultset map
-            rsMapElement.platforms[newJob.platform] = {
+            rsMapElement.platforms[platformKey] = {
                 pl_obj: pl_obj,
+                parent: rsMapElement,
                 groups: {}
             };
-            plMapElement = rsMapElement.platforms[newJob.platform];
+            plMapElement = rsMapElement.platforms[platformKey];
         }
         return plMapElement;
     };
@@ -270,13 +180,12 @@ treeherder.factory('thResultSetModel',
      */
     var getOrCreateGroup = function(newJob) {
         var plMapElement = getOrCreatePlatform(newJob);
-        var grpMapElement = plMapElement.groups[newJob.job_group_name];
-        if (!grpMapElement) {
+        var grMapElement = plMapElement.groups[newJob.job_group_name];
+        if (!grMapElement) {
             $log.debug("adding new group");
             var grp_obj = {
                 symbol: newJob.job_group_symbol,
                 name: newJob.job_group_name,
-                parent: plMapElement.pl_obj,
                 jobs: []
             };
 
@@ -284,15 +193,15 @@ treeherder.factory('thResultSetModel',
             plMapElement.pl_obj.groups.push(grp_obj);
 
             // add the new group to the platform map
-            // note: while the map didn't NEED to have ``grp_obj: grp_obj``
-            // here (it could have just been ``grp_obj``)
-            // I did this to maintain consistency with the other map
-            // objects.
-            plMapElement.groups[grp_obj.name] = {grp_obj: grp_obj};
+            plMapElement.groups[grp_obj.name] = {
+                grp_obj: grp_obj,
+                parent: plMapElement,
+                jobs: {}
+            };
 
-            grpMapElement = plMapElement.groups[newJob.job_group_name];
+            grMapElement = plMapElement.groups[newJob.job_group_name];
         }
-        return grpMapElement;
+        return grMapElement;
     };
 
     /******
@@ -331,9 +240,11 @@ treeherder.factory('thResultSetModel',
 
             // make an ajax call to get the job details
 
-            thJobs.getJobs(0, jobFetchList.length, jobFetchList).
-                success(updateJobs).
-                error(function(data) {
+            ThJobModel.get_list({
+                id__in: jobFetchList.join()
+            }).then(
+                updateJobs,
+                function(data) {
                     $log.error("Error fetching jobUpdateQueue: " + data);
                 });
         }
@@ -345,8 +256,60 @@ treeherder.factory('thResultSetModel',
      */
     var updateJobs = function(jobList) {
         $log.debug("number of jobs returned for add/update: " + jobList.length);
-        jobList.forEach(updateJob);
 
+        var platformData = {};
+
+        var resultsetId, platformName, platformOption, platformAggregateId,
+            platformKey, resultsetAggregateId, revision, i;
+
+        for (i = 0; i < jobList.length; i++) {
+
+            updateJob(jobList[i]);
+
+            platformAggregateId = thAggregateIds.getPlatformRowId(
+                $rootScope.repoName,
+                jobList[i].result_set_id,
+                jobList[i].platform,
+                jobList[i].platform_opt
+                );
+
+            if(!platformData[platformAggregateId]){
+
+                resultsetId = jobList[i].result_set_id;
+                platformName = jobList[i].platform;
+                platformOption = jobList[i].platform_opt;
+
+                if(!_.isEmpty(rsMap[resultsetId])){
+
+                    revision = rsMap[resultsetId].rs_obj.revision;
+
+                    resultsetAggregateId = thAggregateIds.getResultsetTableId(
+                        $rootScope.repoName, resultsetId, revision
+                        );
+
+                    platformKey = getPlatformKey(platformName, platformOption);
+
+                    platformData[platformAggregateId] = {
+                        platformName:platformName,
+                        revision:revision,
+                        platformOrder:rsMap[resultsetId].rs_obj.platforms,
+                        resultsetId:resultsetId,
+                        resultsetAggregateId:resultsetAggregateId,
+                        platformOption:platformOption,
+                        jobGroups:rsMap[resultsetId].platforms[platformKey].pl_obj.groups,
+                        jobs:[]
+                        };
+                }else{
+                    //We don't have the result set associated with this job yet
+                    continue;
+                }
+            }
+
+            platformData[platformAggregateId].jobs.push(jobList[i]);
+        }
+
+        // coalesce the updated jobs into their
+        $rootScope.$broadcast(thEvents.jobsLoaded, platformData);
     };
 
     /******
@@ -363,7 +326,7 @@ treeherder.factory('thResultSetModel',
            <rs_id1>: {
                rs_obj: rs_obj,
                platforms: {
-                   <pl_name1>: {
+                   <pl_name1 + pl_option>: {
                        pl_obj: pl_obj,
                        groups: {
                            <grp_name1>: {
@@ -383,9 +346,11 @@ treeherder.factory('thResultSetModel',
      *               to be added or updated.
      */
     var updateJob = function(newJob) {
-        var loadedJob = jobMap[newJob.id].job_obj;
+
+        var key = getJobMapKey(newJob);
+        var loadedJobMap = jobMap[key];
+        var loadedJob = loadedJobMap? loadedJobMap.job_obj: null;
         var rsMapElement = rsMap[newJob.result_set_id];
-        var newResultType = getResultType(newJob);
 
         if (!rsMapElement) {
             $log.error("we should have added the resultset for this job already!");
@@ -394,40 +359,31 @@ treeherder.factory('thResultSetModel',
 
         if (loadedJob) {
             $log.debug("updating existing job");
-            // we need to modify the counts of the resultset this job belongs
-            // to.  decrement the old resultStatus count and increment the
-            // new one.  Don't increment total because we're not adding a new
-            // job.
-            var oldResultType = getResultType(loadedJob);
-            $log.debug("switching " + oldResultType + " to " + newResultType);
-            switchJobCounts(newJob, oldResultType);
             _.extend(loadedJob, newJob);
         } else {
             // this job is not yet in the model or the map.  add it to both
             $log.debug("adding new job");
 
-            // increment the result count for the new job's result type
-            $log.debug("incrementing " + newResultType + " job count up from " + rsMapElement.rs_obj.job_counts[newResultType]);
-            incrementJobCounts(newJob);
-            rsMapElement.rs_obj.job_counts.total++;
-
             var grpMapElement = getOrCreateGroup(newJob);
 
+            // add the job mapping to the group
+            grpMapElement.jobs[key] = {
+                job_obj: newJob,
+                parent: grpMapElement
+            };
             // add the job to the datamodel
             grpMapElement.grp_obj.jobs.push(newJob);
 
+
             // add job to the jobmap
-            jobMap[newJob.id].job_obj = newJob;
+            jobMap[key] = {
+                job_obj: newJob,
+                parent: grpMapElement
+            };
 
         }
-    };
 
-    var getResultType = function(rtJob) {
-        var resultType = rtJob.result;
-        if (rtJob.state !== "completed") {
-            resultType = rtJob.state;
-        }
-        return resultType;
+        $rootScope.$broadcast(thEvents.jobUpdated, newJob);
     };
 
     var prependResultSets = function(data) {
@@ -550,6 +506,7 @@ treeherder.factory('thResultSetModel',
                 thResultSets.get(rs.revisions_uri).
                     success(function(data) {
                         rs.revisions.push.apply(rs.revisions, data);
+                        $rootScope.$broadcast(thEvents.revisionsLoaded, rs);
                     });
             }
         },
@@ -559,6 +516,17 @@ treeherder.factory('thResultSetModel',
         getResultSetsArray: function() {
             return resultSets;
         },
+
+        getResultSetsMap: function() {
+            return rsMap;
+        },
+
+        // this is a "watchable" for jobs
+        getJobMap: function() {
+            return jobMap;
+        },
+
+        getPlatformKey: getPlatformKey,
 
         // this is "watchable" by the controller now to update its scope.
         loadingStatus: {

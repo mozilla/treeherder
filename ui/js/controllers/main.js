@@ -2,8 +2,7 @@
 
 treeherder.controller('MainCtrl',
     function MainController($scope, $rootScope, $routeParams, $location, $log,
-                            localStorageService, thReposModel, thSocket,
-                            thResultStatusList, thServiceDomain) {
+                            localStorageService, ThRepositoryModel) {
         $scope.query="";
         $scope.statusError = function(msg) {
             $rootScope.statusMsg = msg;
@@ -35,44 +34,22 @@ treeherder.controller('MainCtrl',
             $rootScope.locationPath = $location.path().replace('/', '');
         });
 
-        // @@@ a dummy value for now, used when creating classifications.
-        // update this value when we have authenticated login.
-        $scope.username = "Hiro Protagonist";
-
+        $rootScope.urlBasePath = $location.absUrl().split('?')[0];
 
         // the repos the user has chosen to watch
-        $scope.watchedRepos = thReposModel.watchedRepos;
+        $scope.watchedRepos = ThRepositoryModel.watchedRepos;
 
         $scope.changeRepo = function(repo_name) {
-            thReposModel.setCurrent(repo_name);
-            $location.search({repo: repo_name});
-        };
+            // hide the repo panel if they chose to load one.
+            $scope.isRepoPanelShowing = false;
 
-        /**
-         * Handle display/hide of a job based on the result status filters
-         */
-        $scope.resultStatusFilterJobs = function() {
-            return function(job) {
-                return $scope.resultStatusFilters[job.result] ||
-                    $scope.resultStatusFilters[job.state];
-            };
-        };
-        /**
-         * Handle display/hide of a platform based on the result status filters
-         */
-        $scope.resultStatusFilterPlatform = function() {
-            return function(platform) {
-                for (var key in $scope.resultStatusFilters) {
-                    if (platform.job_counts[key] && $scope.resultStatusFilters[key]) {
-                        return true;
-                    }
-                }
-                return false;
-            };
+            ThRepositoryModel.setCurrent(repo_name);
+            $location.search({repo: repo_name});
+
         };
 
         $scope.user = {};
         $scope.user.email = localStorageService.get("user.email");
-        $scope.user.loggedin = $scope.user.email == null ? false : true;
+        $scope.user.loggedin = $scope.user.email !== null;
     }
 );

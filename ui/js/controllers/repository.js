@@ -1,12 +1,11 @@
 "use strict";
 
-treeherder.controller('ReposPanelCtrl',
-    function ReposPanelCtrl($scope, $rootScope, $routeParams, $location, $log,
-                            localStorageService, thReposModel, thSocket, $modal) {
-
+treeherder.controller('RepositoryPanelCtrl',
+    function RepositoryPanelCtrl($scope, $rootScope, $routeParams, $location, $log,
+                            localStorageService, ThRepositoryModel, thSocket) {
 
         $scope.saveWatchedRepos = function() {
-            thReposModel.saveWatchedRepos();
+            ThRepositoryModel.saveWatchedRepos();
         };
 
         for (var repo in $scope.watchedRepos) {

@@ -41,6 +41,10 @@ body {
     min-width: 800px;
 }
 
+.th-username {
+    margin-right: 5px;
+}
+
 .th-help-link {
     padding-top: 8px;
 }
@@ -59,6 +63,11 @@ body {
     padding-bottom: 101px;
     white-space: nowrap;
     padding-right: 5px;
+}
+
+.nav-panel-help-text {
+    color: #2b393f;
+    margin-bottom: 10px;
 }
 
 /* Options drop-downs*/
@@ -86,7 +95,7 @@ body {
 }
 
 .th-option-group {
-    margin: 5px;
+    margin-right: 5px;
     border: 1px solid darkgrey;
     -moz-border-radius:3px;
     -webkit-border-radius:3px;
@@ -98,6 +107,38 @@ body {
     background-color: darkgray;
 }
 
+#jobFilterValue {
+    width: 150px;
+}
+
+#jobFilterField {
+    width: 200px;
+}
+
+.field-filter-form {
+    border-top: 2px solid lightgray;
+    margin-top: 5px;
+    padding: 3px;
+    background-color: lightgray;
+}
+
+.field-filter {
+    margin: 3px;
+}
+
+.field-filter a, .th-option-heading a {
+    color: white;
+    cursor: pointer;
+}
+
+.field-filter-placeholder a {
+    cursor: pointer;
+}
+
+/**
+  repository panel
+*/
+
 .th-repo-group {
     margin-bottom: 5px;
 }
@@ -107,7 +148,6 @@ body {
     margin: 5px 5px 0 5px;
     min-width: 225px;
 }
-
 
 /**
   Failures
@@ -137,6 +177,10 @@ body {
     color: lightgray;
 
 }
+
+/*
+    Resultsets
+*/
 
 .th-revision-btn {
     margin-left: 10px;
@@ -195,8 +239,14 @@ body {
     padding-left: 0;
 }
 
+.revision-link {
+    padding-top: 5px;
+    width: 115px;
+    display: block;
+}
+
 .revision-button {
-    width: 120px;
+    width: 60px;
 }
 
 .revision-list {
@@ -223,7 +273,7 @@ body {
 }
 
 .job-group-r-paren {
-    margin: 0 3px 0 3px;
+    margin: 0 3px 0 1px;
 }
 
 .job-btn {
@@ -255,7 +305,7 @@ div.navbar-fixed-bottom{
 }
 div.navbar-fixed-bottom .tab-content{
     height:300px;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 div.navbar-fixed-bottom dt,
@@ -266,11 +316,6 @@ div.navbar-fixed-bottom dt {
 #bottom_left_panel .panel{padding:5px;}
 #bottom_center_panel {margin:0 110px 0 242px;}
 #bottom_menu{position: absolute; top: 5px; right:5px;}
-
-#open_bugs_accordion,
-#closed_bugs_accordion{
-    margin-top: 5px;
-}
 
 .panel-body{ padding:5px;}
 
@@ -288,9 +333,10 @@ div.navbar-fixed-bottom dt {
 .result-status-count {
     padding: 5px 5px;
     display: inline-block;
+    cursor: pointer;
 }
 .result-status-total-count {
-    width: 40px;
+    width: 60px;
 }
 .result-status-count-min-width {
     width: 28px;
@@ -823,3 +869,12 @@ fieldset[disabled] .btn-repo.active {
 .waiter-small{ background: url("../img/waiter16.png") no-repeat center center; width: 16px; height: 16px; display: inline-block;}
 .waiter-medium{ background: url("../img/waiter32.png") no-repeat center center; width: 32px; height: 32px; display: inline-block;}
 .waiter-large{ background: url("../img/waiter64.png") no-repeat center center; width: 64px; height: 64px; display: inline-block;}
+
+.deleted{ text-decoration: line-through;}
+
+.plugin_controls{ margin: 5px;}
+.btn-similar-jobs{ margin: 5px;}
+
+#notification_box{ position:fixed; top:720px; right:10px; height:680px; width:300px;}
+#notification_box p{position:relative;}
+#notification_box a.close{position:absolute; top:5px; right:5px; z-index: 999;}

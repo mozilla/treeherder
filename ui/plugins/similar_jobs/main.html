@@ -1,0 +1,34 @@
+<div ng-controller="SimilarJobsPluginCtrl">
+    <h5>Similar jobs</h5>
+    <form role="form">
+        <div class="checkbox">
+            <label>
+                <input ng-change="update_similar_jobs()" type="checkbox" ng-model="similar_jobs_filters.machine_id"/>
+                Same machine: {{ job.machine_name }}
+            </label>
+        </div>
+        <div class="checkbox">
+            <label>
+                <input ng-change="update_similar_jobs()" type="checkbox" ng-model="similar_jobs_filters.job_type_id"/>
+                Same job type: {{ job.job_group_name }} {{ job.job_type_name }} ({{ job.job_type_symbol }})
+            </label>
+        </div>
+        <div class="checkbox">
+            <label>
+                <input ng-change="update_similar_jobs()" type="checkbox" ng-model="similar_jobs_filters.build_platform_id"/>
+                Same platform: {{ job.platform }}
+            </label>
+        </div>
+    </form>
+    <p>
+        <button class="btn btn-similar-jobs btn-xs" ng-class="button_class(job)"
+                ng-repeat="job in similar_jobs | orderBy: -submit_timestamp">
+            {{job.job_type_symbol}}
+        </button>
+
+    </p>
+    <a ng-click="show_more()">Show more</a>
+
+
+</div>
+

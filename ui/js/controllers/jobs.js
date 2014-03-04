@@ -2,13 +2,13 @@
 
 treeherder.controller('JobsCtrl',
     function JobsCtrl($scope, $http, $rootScope, $routeParams, $log, $cookies,
-                      localStorageService, thUrl, thReposModel, thSocket,
-                      thResultSetModel, thResultStatusList) {
+                      localStorageService, thUrl, ThRepositoryModel, thSocket,
+                      ThResultSetModel, thResultStatusList) {
 
         // load our initial set of resultsets
         // scope needs this function so it can be called directly by the user, too.
         $scope.fetchResultSets = function(count) {
-            thResultSetModel.fetchResultSets(count);
+            ThResultSetModel.fetchResultSets(count);
         };
 
         // set the default repo to mozilla-inbound if not specified
@@ -18,16 +18,18 @@ treeherder.controller('JobsCtrl',
         } else {
             $rootScope.repoName = "mozilla-inbound";
         }
+        ThRepositoryModel.setCurrent($rootScope.repoName);
 
         // the primary data model
-        thResultSetModel.init(60000, $scope.repoName);
+        ThResultSetModel.init(10000, $scope.repoName);
 
-        $scope.isLoadingRsBatch = thResultSetModel.loadingStatus;
-        $scope.result_sets = thResultSetModel.getResultSetsArray();
+        $scope.isLoadingRsBatch = ThResultSetModel.loadingStatus;
+        $scope.result_sets = ThResultSetModel.getResultSetsArray();
+        $scope.job_map = ThResultSetModel.getJobMap();
         $scope.statusList = thResultStatusList;
 
         // load the list of repos into $rootScope, and set the current repo.
-        thReposModel.load($scope.repoName);
+        ThRepositoryModel.load($scope.repoName);
 
         // get our first set of resultsets
         $scope.fetchResultSets(10);
@@ -35,10 +37,11 @@ treeherder.controller('JobsCtrl',
     }
 );
 
+
 treeherder.controller('ResultSetCtrl',
-    function ResultSetCtrl($scope, $rootScope, $http, $log,
+    function ResultSetCtrl($scope, $rootScope, $http, $log, $location,
                            thUrl, thServiceDomain, thResultStatusInfo,
-                           thResultSetModel) {
+                           ThResultSetModel, thEvents, thJobFilters, $route) {
 
         $scope.getCountClass = function(resultStatus) {
             return thResultStatusInfo(resultStatus).btnClass;
@@ -70,19 +73,66 @@ treeherder.controller('ResultSetCtrl',
         };
 
         $scope.toggleRevisions = function() {
-            $scope.isCollapsedRevisions = !$scope.isCollapsedRevisions;
-            if (!$scope.isCollapsedRevisions) {
-                // we are expanding the revisions list.  It may be the first
-                // time, so attempt to populate this resultset's revisions
-                // list, if it isn't already
-                thResultSetModel.loadRevisions($scope.resultset.id);
-            }
+
+            ThResultSetModel.loadRevisions($scope.resultset.id);
+            $rootScope.$broadcast(
+                thEvents.toggleRevisions, $scope.resultset
+                );
 
         };
+        $scope.toggleJobs = function() {
+
+            $rootScope.$broadcast(
+                thEvents.toggleJobs, $scope.resultset
+                );
+
+        };
+
+        /**
+         * When the user clicks one of the resultStates on the resultset line,
+         * then toggle what is showing for just this resultset.
+         *
+         * @param resultStatus - Which resultStatus to toggle.
+         */
+        $scope.toggleResultSetResultStatusFilter = function(resultStatus) {
+            var idx = $scope.resultStatusFilters.indexOf(resultStatus);
+            if (idx < 0) {
+                $scope.resultStatusFilters.push(resultStatus);
+            } else {
+                $scope.resultStatusFilters.splice(idx, 1);
+            }
+
+            $rootScope.$broadcast(
+                thEvents.resultSetFilterChanged, $scope.resultset
+                );
+
+            $log.debug("toggled: " + resultStatus);
+            $log.debug($scope.resultStatusFilters);
+        };
+
+        /**
+         * Whether or not a job should be shown based on the global and local
+         * filters.
+         * @param job
+         */
+        $scope.showJob = function(job) {
+            return thJobFilters.showJob(job, $scope.resultStatusFilters);
+        };
+
+        $scope.idResultsetFilterUrl = $scope.urlBasePath + "?id=" + $scope.resultset.id;
+        $scope.revisionResultsetFilterUrl = $scope.urlBasePath + "?revision=" + $scope.resultset.revision;
+        $scope.authorResultsetFilterUrl = $scope.urlBasePath + "?author=" + $scope.resultset.author;
+
+        $scope.resultStatusFilters = thJobFilters.copyResultStatusFilters();
+
         $scope.isCollapsedResults = false;
 
         // whether or not revision list for a resultset is collapsed
         $scope.isCollapsedRevisions = true;
 
+        $rootScope.$on(thEvents.jobContextMenu, function(event, job){
+            $log.debug(thEvents.jobContextMenu + ' caught');
+            //$scope.viewLog(job.resource_uri);
+        });
     }
 );

@@ -1,3 +1,5 @@
+"use strict";
+
 treeherder.provider('thServiceDomain', function() {
     this.$get = function() {
         if (window.thServiceDomain) {
@@ -38,6 +40,25 @@ treeherder.provider('thStarTypes', function() {
 treeherder.provider('thResultStatusList', function() {
     this.$get = function() {
         return ['success', 'testfailed', 'busted', 'exception', 'retry', 'running', 'pending'];
+    };
+});
+treeherder.provider('thResultStatusObject', function() {
+    var getResultStatusObject = function(){
+        return {
+            'success':0,
+            'testfailed':0,
+            'busted':0,
+            'exception':0,
+            'retry':0,
+            'running':0,
+            'pending':0
+            };
+    };
+
+    this.$get = function() {
+        return {
+            getResultStatusObject:getResultStatusObject
+            };
     };
 });
 
@@ -149,5 +170,64 @@ treeherder.provider('thResultStatusInfo', function() {
             return resultStatusInfo;
         };
 
+    };
+});
+
+/**
+ * The set of custom Treeherder events.
+ *
+ * These are/can be used via $rootScope.$broadcast.
+ */
+treeherder.provider('thEvents', function() {
+    this.$get = function() {
+        return {
+
+            // fired when a list of revisions has been loaded by button-click
+            revisionsLoaded: "revisions-loaded-EVT",
+
+            // fired (surprisingly) when a job is clicked
+            jobClick: "job-click-EVT",
+
+            // fired when the user middle-clicks on a job to view the log
+            jobContextMenu: "job-context-menu-EVT",
+
+            // fired when jobs are either classified locally, or we are
+            // notified about a classification over socket.io
+            jobClassified: "job-classified-EVT",
+
+            // after loading a group of jobs queued during socket.io events
+            jobsLoaded: "jobs-loaded-EVT",
+
+            // fired when a global filter has changed
+            globalFilterChanged: "status-filter-changed-EVT",
+
+            // fired when filtering on a specific resultset has changed
+            resultSetFilterChanged: "resultset-filter-changed-EVT",
+
+            toggleRevisions: "toggle-revisions-EVT",
+
+            toggleJobs: "toggle-jobs-EVT"
+        };
+    };
+});
+
+treeherder.provider('thAggregateIds', function() {
+    var getPlatformRowId = function(
+        repoName, resultsetId, platformName, platformOptions){
+        return  repoName +
+                resultsetId +
+                platformName +
+                platformOptions;
+    };
+
+    var getResultsetTableId = function(repoName, resultsetId, revision){
+        return repoName + resultsetId + revision;
+    };
+
+    this.$get = function() {
+        return {
+            getPlatformRowId:getPlatformRowId,
+            getResultsetTableId:getResultsetTableId
+            };
     };
 });

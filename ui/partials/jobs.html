@@ -14,81 +14,26 @@
             <span class="btn btn-default btn-sm glyphicon glyphicon-download" ng-show="isLoadingJobs"></span>
             <th-action-button ng-hide="isLoadingJobs"></th-action-button>
             <span class="timestamp-name">
-                <span>{{resultset.push_timestamp*1000|date:'medium'}} - </span>
-                <th-author author="resultset.author"></th-author>
+                <span><a href="{{idResultsetFilterUrl}}">{{resultset.push_timestamp*1000|date:'medium'}}</a> - </span>
+                <th-author author="{{resultset.author}}"></th-author>
             </span>
         </span>
-        <span class="btn btn-default btn-sm col-xs-1 revision-button"
+        <span class="col-xs-3 revision-link">
+            <a href="{{revisionResultsetFilterUrl}}"
+               title="filter to only resultsets that contain revision {{revision}}"
+               target="_blank">{{resultset.revision}}</a>
+        </span>
+        <span class="col-xs-1 btn btn-default btn-sm revision-button"
               ng-click="toggleRevisions()"
-              title="show revisions">{{resultset.revision}} ({{resultset.revision_count}})</span>
-        <th-result-counts class="col-xs-5"/>
+              title="show revisions"><i class="fa fa-code-fork fa-lg"></i> {{resultset.revision_count}}</span>
+        <th-result-counts class="col-xs-4"/>
     </div>
 
-    <div class="progress progress-striped active th-rs-loading"
-         ng-show="isLoadingResults">
-        <div class="progress-bar"  role="progressbar" style="width: 100%"></div>
-    </div>
-
-    <div class="clearfix"></div>
-
-    <div ng-hide="isCollapsedRevisions && isCollapsedResults"
-         class="row result-set">
-        <span ng-hide="isCollapsedRevisions"
-              ng-class="{'col-xs-4': (isCollapsedResults==false)}"
-              class="revision-list">
-            <ul class="list-unstyled">
-                <li ng-repeat="revision in resultset.revisions">
-                    <th-revision></th-revision>
-                </li>
-            </ul>
-        </span>
-        <span ng-hide="isCollapsedResults"
-              ng-class="{'col-xs-8 job-list-pad-left': (isCollapsedRevisions==false), 'col-xs-12 job-list-nopad': (isCollapsedRevisions)}">
-            <table class="table-hover">
-                <tr ng-repeat="platform in resultset.platforms | filter:query | filter:resultStatusFilterPlatform() | orderBy: $filter('platformName')">
-                    <td class="col-xs-2 platform"><span>{{ platform.name | platformName:platform.name }} {{ platform.option }}</span></td>
-                    <td class="col-xs-10">
-                        <span ng-repeat="group in platform.groups"
-                              ng-show="(group.jobs | filter:resultStatusFilterJobs()).length"
-                              class="platform-group">
-                            <span ng-show="group.symbol != '?'"
-                               class="disabled job-group"
-                               title="{{ group.name }}">{{ group.symbol }}(</span>
-                            <span>
-                                <th-job-button class="job-btn" ng-repeat="job in group.jobs | filter:resultStatusFilterJobs()"></th-job-button>
-                            </span>
-                            <span ng-show="group.symbol != '?'" class="job-group-r-paren">)</span>
-                        </span>
-                    </td>
-                </tr>
-            </table>
-        </span>
-    </div>
-
-    <!-- Modal -->
-    <div class="modal fade" id="revisionListModal" tabindex="-1" role="dialog" aria-labelledby="revisionListModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h4 class="modal-title" id="revisionListModalLabel">Result Set Revision List</h4>
-          </div>
-          <div class="modal-body">
-            <ul class="list-unstyled">
-                <li ng-repeat="revision in resultset.revision_list">
-                    <th-revision></th-revision>
-                </li>
-            </ul>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          </div>
-        </div><!-- /.modal-content -->
-      </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
-
-
+    <div th-clone-jobs ></div>
 </div>
+
+<!-- END Revision clone target -->
+
 <div class="progress progress-striped active"
      ng-show="isLoadingRsBatch.appending">
     <div class="progress-bar"  role="progressbar" style="width: 100%"></div>

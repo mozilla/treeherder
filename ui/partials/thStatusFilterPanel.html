@@ -1,33 +1,94 @@
 <div id="filter"
      class="th-top-nav-options-panel model-body"
      ng-controller="StatusFilterPanelCtrl">
-    <div class="well"><h5>Specify which results and statuses to display.</h5></div>
-        <span ng-repeat="group in filterGroups"
-              class="panel panel-default th-option-group th-inline-option-group">
+    <div class="nav-panel-help-text">Specify which jobs to show based on this filter criteria.</div>
 
-            <!--heading for each group-->
-            <div class="panel-heading th-option-heading">{{group.name}}
-                <span class="pull-right">
+    <!-- result status filters -->
+    <span ng-repeat="group in filterGroups"
+          class="panel panel-default th-option-group th-inline-option-group">
+
+        <!--heading for each group-->
+        <div class="panel-heading th-option-heading">{{group.name}}
+            <span class="pull-right">
+            <input type="checkbox"
+                   ng-model="group.allChecked"
+                   ng-change="toggleResultStatusGroup(group)"> all
+            </span>
+        </div>
+        <!--content for each group-->
+        <div class="panel-body">
+            <span ng-repeat="filterName in group.resultStatuses">
+                <th-filter-checkbox></th-filter-checkbox>
+            </span>
+        </div>
+    </span>
+
+    <!-- classified / unclassified -->
+    <span class="panel panel-default th-option-group th-inline-option-group">
+        <div class="panel-heading th-option-heading">classified</div>
+        <div class="panel-body">
+            <label class="checkbox-inline">
                 <input type="checkbox"
-                       ng-model="group.allChecked"
-                       ng-change="toggleGroup(group)"> all
+                       id="classified"
+                       ng-model="classifiedFilter"
+                       ng-click="toggleClassificationFilter(true)"> classified
+            </label>
+            <label class="checkbox-inline">
+                <input type="checkbox"
+                       id="unclassified"
+                       ng-model="unClassifiedFilter"
+                       ng-click="toggleClassificationFilter(false)"> un-classified
+            </label>
+        </div>
+    </span>
+    <div class="panel panel-default th-option-group">
+        <div class="panel-heading th-option-heading">field filters
+            <span class="pull-right">
+                 <a ng-click="createFieldFilter()"
+                    title="create new field filter">new</a>
+                <span ng-show="fieldFilters.length"> | <a ng-click="removeAllFieldFilters()"
+                       title="delete all field filters">remove all</a>
                 </span>
-            </div>
-            <!--content for each group-->
-            <div class="panel-body">
-                <span ng-repeat="filterName in group.resultStatuses">
-                    <th-filter-checkbox></th-filter-checkbox>
-                </span>
-            </div>
-        </span>
-        <span class="panel panel-default th-option-group th-inline-option-group">
-            <div class="panel-heading th-option-heading">classified</div>
-            <div class="panel-body">
-                <label class="checkbox-inline">
-                    <input type="checkbox"
-                           id="classified"
-                           ng-model="classifiedFilter"> classified
-                </label>
-            </div>
-        </span>
+            </span>
+        </div>
+        <div class="panel-body">
+            <span class="field-filter-placeholder" ng-hide="fieldFilters.length">click <a ng-click="createFieldFilter()"
+                title="create new field filter">new</a> to filter by a specific job field</span>
+            <h4>
+                <div class="label label-default field-filter"
+                     ng-repeat="filter in fieldFilters">{{fieldChoices[filter.field].name}}: "{{filter.value}}"
+                     <a ng-click="removeFilter($index)"
+                        title="delete this filter"><i class="glyphicon glyphicon-remove"></i></a>
+                </div>
+            </h4>
+        </div>
+        <div class="field-filter-form" ng-show="newFieldFilter">
+            <form novalidate class="form-inline" role="form">
+                <div class="form-group input-group-sm">
+                    <label class="sr-only" for="jobFilterField">Field</label>
+                    <select id="jobFilterField"
+                            class="form-control"
+                            ng-model="newFieldFilter.field"
+                            placeholder="filter field"
+                            required>
+                        <option value="" disabled selected>select filter field</option>
+                        <option ng-repeat="(field, obj) in fieldChoices"
+                                value="{{field}}">{{obj.name}}</option>
+                    </select>
+                    <label class="sr-only" for="jobFilterValue">Value</label>
+                    <input class="form-control"
+                           ng-model="newFieldFilter.value"
+                           id="jobFilterValue"
+                           type="text"
+                           placeholder="filter value"
+                           required>
+                    <button type="submit"
+                            class="btn btn-default btn-sm"
+                            ng-click="addFieldFilter()">add</button>
+                    <button class="btn btn-default btn-sm"
+                            ng-click="cancelFieldFilter()">cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
