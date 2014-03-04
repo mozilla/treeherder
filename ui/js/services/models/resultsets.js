@@ -41,6 +41,14 @@ treeherder.factory('ThResultSetModel',
         return 'key' + job.id;
     };
 
+    var getPlatformKey = function(name, option){
+        var key = name;
+        if(option != undefined){
+            key += option;
+        }
+        return key;
+    };
+
     /******
      * Build the Job and Resultset object mappings to make it faster and
      * easier to find and update jobs and resultsets
@@ -75,7 +83,8 @@ treeherder.factory('ThResultSetModel',
                     parent: rsMap[rs_obj.id],
                     groups: {}
                 };
-                rsMap[rs_obj.id].platforms[pl_obj.name] = plMapElement;
+                var platformKey = getPlatformKey(pl_obj.name, pl_obj.option);
+                rsMap[rs_obj.id].platforms[platformKey] = plMapElement;
 
                 // groups
                 for (var gp_i = 0; gp_i < pl_obj.groups.length; gp_i++) {
@@ -137,7 +146,8 @@ treeherder.factory('ThResultSetModel',
      */
     var getOrCreatePlatform = function(newJob) {
         var rsMapElement = rsMap[newJob.result_set_id];
-        var plMapElement = rsMapElement.platforms[newJob.platform];
+        var platformKey = getPlatformKey(newJob.platform, newJob.option);
+        var plMapElement = rsMapElement.platforms[platformKey];
         if (!plMapElement) {
             // this platform wasn't in the resultset, so add it.
             $log.debug("adding new platform");
@@ -152,12 +162,12 @@ treeherder.factory('ThResultSetModel',
             rsMapElement.rs_obj.platforms.push(pl_obj);
 
             // add the new platform to the resultset map
-            rsMapElement.platforms[newJob.platform] = {
+            rsMapElement.platforms[platformKey] = {
                 pl_obj: pl_obj,
                 parent: rsMapElement,
                 groups: {}
             };
-            plMapElement = rsMapElement.platforms[newJob.platform];
+            plMapElement = rsMapElement.platforms[platformKey];
         }
         return plMapElement;
     };
@@ -247,10 +257,10 @@ treeherder.factory('ThResultSetModel',
     var updateJobs = function(jobList) {
         $log.debug("number of jobs returned for add/update: " + jobList.length);
 
-        var resultsetId, platformName, platformOption, platformAggregateId,
-            resultsetAggregateId, revision, i = "";
-
         var platformData = {};
+
+        var resultsetId, platformName, platformOption, platformAggregateId,
+            platformKey, resultsetAggregateId, revision, i;
 
         for (i = 0; i < jobList.length; i++) {
 
@@ -267,7 +277,7 @@ treeherder.factory('ThResultSetModel',
 
                 resultsetId = jobList[i].result_set_id;
                 platformName = jobList[i].platform;
-                platformOption = jobList[i].platformOption;
+                platformOption = jobList[i].platform_opt;
 
                 if(!_.isEmpty(rsMap[resultsetId])){
 
@@ -277,13 +287,16 @@ treeherder.factory('ThResultSetModel',
                         $rootScope.repoName, resultsetId, revision
                         );
 
+                    platformKey = getPlatformKey(platformName, platformOption);
+
                     platformData[platformAggregateId] = {
                         platformName:platformName,
+                        revision:revision,
                         platformOrder:rsMap[resultsetId].rs_obj.platforms,
                         resultsetId:resultsetId,
                         resultsetAggregateId:resultsetAggregateId,
                         platformOption:platformOption,
-                        jobGroups:rsMap[resultsetId].platforms[platformName].pl_obj.groups,
+                        jobGroups:rsMap[resultsetId].platforms[platformKey].pl_obj.groups,
                         jobs:[]
                         };
                 }else{
@@ -313,7 +326,7 @@ treeherder.factory('ThResultSetModel',
            <rs_id1>: {
                rs_obj: rs_obj,
                platforms: {
-                   <pl_name1>: {
+                   <pl_name1 + pl_option>: {
                        pl_obj: pl_obj,
                        groups: {
                            <grp_name1>: {
@@ -504,7 +517,7 @@ treeherder.factory('ThResultSetModel',
             return resultSets;
         },
 
-        getResultsetMap: function() {
+        getResultSetsMap: function() {
             return rsMap;
         },
 
@@ -512,6 +525,8 @@ treeherder.factory('ThResultSetModel',
         getJobMap: function() {
             return jobMap;
         },
+
+        getPlatformKey: getPlatformKey,
 
         // this is "watchable" by the controller now to update its scope.
         loadingStatus: {

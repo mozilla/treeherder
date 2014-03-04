@@ -4,7 +4,7 @@
 treeherder.directive('thCloneJobs', function(
         $rootScope, $http, $log, thUrl, thCloneHtml, thServiceDomain,
         thResultStatusInfo, thEvents, thAggregateIds, thJobFilters,
-        ThResultSetModel){
+        thResultStatusObject, ThResultSetModel){
 
     var lastJobElSelected = {};
 
@@ -69,9 +69,7 @@ treeherder.directive('thCloneJobs', function(
 
         ev.preventDefault();
 
-        var job_uri = job.resource_uri;
-
-        $http.get(thServiceDomain + job_uri).
+        $http.get(thServiceDomain + job.resource_uri).
             success(function(data) {
                 if (data.hasOwnProperty("artifacts")) {
                     data.artifacts.forEach(function(artifact) {
@@ -86,23 +84,36 @@ treeherder.directive('thCloneJobs', function(
     };
 
     var addJobBtnEls = function(
-        jgObj, jobBtnInterpolator, jobTdEl, resultStatusFilters,
-        statusCounts){
-
-        var hText, key, resultState, job, jobStatus, jobBtn, l;
+        jgObj, jobBtnInterpolator, jobTdEl, resultStatusFilters, jobCounts){
 
         var showJob = false;
         var jobsShown = 0;
+
+        var hText, key, resultState, job, jobStatus, jobBtn, l;
+
         for(l=0; l<jgObj.jobs.length; l++){
 
             job = jgObj.jobs[l];
 
-            if(thJobFilters.showJob(job, resultStatusFilters) === false){
+            //Set the resultState
+            resultState = job.result;
+            if (job.state != "completed") {
+                resultState = job.state;
+            }
+            resultState = resultState || 'unknown';
+
+            if(job.job_coalesced_to_guid != null){
+                // Don't count or render coalesced jobs
                 continue;
             }
 
-            if(job.job_coalesced_to_guid != undefined){
-                // Don't render coalesced jobs
+            //Increment the jobCounts here so they're not modified by
+            //filtering
+            jobCounts[resultState] += 1;
+
+            //Make sure that filtering doesn't effect the resultset counts
+            //displayed
+            if(thJobFilters.showJob(job, resultStatusFilters) === false){
                 continue;
             }
 
@@ -111,23 +122,16 @@ treeherder.directive('thCloneJobs', function(
             hText = getHoverText(job);
             key = getJobMapKey(job);
 
-            resultState = job.result;
-            if (job.state != "completed") {
-                resultState = job.state;
-            }
-
-            resultState = resultState || 'unknown';
-
-            if (!statusCounts[ resultState ]){
-                statusCounts[ resultState ] = 0;
-            }
-
-            statusCounts[ resultState ] += 1;
-
             jobStatus = thResultStatusInfo(resultState);
 
             jobStatus['key'] = key;
-            jobStatus['value'] = job.job_type_symbol;
+
+            if(job.failure_classification_id != null){
+                jobStatus['value'] = '*' + job.job_type_symbol;
+            }else{
+                jobStatus['value'] = job.job_type_symbol;
+            }
+
             jobStatus['title'] = hText;
             jobStatus['btnClass'] = jobStatus.btnClass;
 
@@ -182,10 +186,8 @@ treeherder.directive('thCloneJobs', function(
             //make sure we're starting with an empty element
             $(ulEl).empty();
 
-            var revision, revisionHtml, userTokens;
-
-            var i = 0;
-            for(; i<resultset.revisions.length; i++){
+            var revision, revisionHtml, userTokens, i;
+            for(i=0; i<resultset.revisions.length; i++){
 
                 revision = resultset.revisions[i];
 
@@ -302,23 +304,30 @@ treeherder.directive('thCloneJobs', function(
     };
 
     var renderJobTableRow = function(
-        row, jobTdEl, jobGroups, resultStatusFilters,
-        statusData){
+        row, jobTdEl, jobGroups, resultStatusFilters, resultsetId,
+        platformKey){
 
         //Empty the job column before populating it
         jobTdEl.empty();
+
+        var resultSetMap = ThResultSetModel.getResultSetsMap();
 
         //If at least one job is visible we need to display the platform
         //otherwise hide it
         var jobsShownTotal = 0;
 
-        var jgObj, jobGroup, i;
+        var jobCounts = thResultStatusObject.getResultStatusObject();
 
+        //Reset counts for the platform every time we render the
+        //row. This is required to account for job coallescing.
+        //Coallesced jobs cause the pending/running counts to be
+        //incorrect.
+        var jgObj, jobGroup, jobsShown, i;
         for(i=0; i<jobGroups.length; i++){
 
             jgObj = jobGroups[i];
 
-            var jobsShown = 0;
+            jobsShown = 0;
             if(jgObj.symbol != '?'){
                 // Job group detected, add job group symbols
                 jobGroup = $( jobGroupInterpolator(jobGroups[i]) );
@@ -328,7 +337,7 @@ treeherder.directive('thCloneJobs', function(
                 // Add the job btn spans
                 jobsShown = addJobBtnEls(
                     jgObj, jobBtnInterpolator, jobTdEl, resultStatusFilters,
-                    statusData.statusCounts
+                    jobCounts
                     );
 
                 if(jobsShown > 0){
@@ -343,13 +352,12 @@ treeherder.directive('thCloneJobs', function(
                     jobGroup.hide();
                 }
 
-
             }else{
 
                 // Add the job btn spans
                 jobsShown = addJobBtnEls(
                     jgObj, jobBtnInterpolator, jobTdEl, resultStatusFilters,
-                    statusData.statusCounts
+                    jobCounts
                     );
 
             }
@@ -358,6 +366,7 @@ treeherder.directive('thCloneJobs', function(
         }
 
         if(jobsShownTotal === 0){
+            //No jobs shown hide the whole row
             row.hide();
         }else{
             row.show();
@@ -365,15 +374,16 @@ treeherder.directive('thCloneJobs', function(
 
         row.append(jobTdEl);
 
-        resetCounts(
-            statusData.resultsetId, statusData.platformName,
-            statusData.statusCounts
-            );
+        //reset the resultset counts for the platformKey
+        resultSetMap[resultsetId].platforms[platformKey].job_counts = jobCounts;
+
+        //re-total the counts across platforms
+        resetCounts(resultSetMap);
     };
 
     var filterJobs = function(element, resultStatusFilters){
 
-        var platformId, rowEl, tdEls, statusData, i;
+        var platformId, platformKey, rowEl, tdEls, i;
 
         for(i=0; i<this.resultset.platforms.length; i++){
 
@@ -390,15 +400,13 @@ treeherder.directive('thCloneJobs', function(
             // tdEls[0] is the platform <td> and
             // tdEls[1] is the jobs <td>
 
-            statusData = {
-                resultsetId:this.resultset.id,
-                platformName:this.resultset.platforms[i].name,
-                statusCounts:{}
-                };
+            platformKey = ThResultSetModel.getPlatformKey(
+                this.resultset.platforms[i].name, this.resultset.platforms[i].option
+                );
 
             renderJobTableRow(
                 rowEl, $(tdEls[1]), this.resultset.platforms[i].groups,
-                resultStatusFilters, statusData
+                resultStatusFilters, this.resultset.id, platformKey
                 );
         }
 
@@ -452,99 +460,115 @@ treeherder.directive('thCloneJobs', function(
         }
     };
 
-    var resetCounts = function(resultsetId, platformName, counts){
+    var resetCounts = function(resultSetMap){
 
-        var rsMap = ThResultSetModel.getResultsetMap();
-        rsMap[ resultsetId ].platforms[ platformName ].pl_obj.job_counts = counts;
+        var resultSets = ThResultSetModel.getResultSetsArray();
 
-        var statusCounts = {};
+        var platformName, platformOption, platformKey, resultsetId, i;
 
-        // Iterate through the platforms and reset the resultset counts
-        angular.forEach(
-            rsMap[resultsetId].platforms,
-            function(platformObj, platformName){
+        for(i=0; i<resultSets.length; i++){
 
-                angular.forEach(
-                    platformObj.pl_obj.job_counts,
-                    function(value, statusName){
-                        if(!statusCounts[statusName]){
-                            statusCounts[statusName] = 0;
-                        }
-                        statusCounts[statusName] += 1;
-                    }
+            var jobCounts = thResultStatusObject.getResultStatusObject();
+
+            var statusKeys = _.keys(jobCounts);
+            jobCounts['total'] = 0;
+
+            resultsetId = resultSets[i].id;
+
+            var j;
+            for(j=0; j<resultSets[i].platforms.length; j++){
+
+                platformName = resultSets[i].platforms[j].name;
+                platformOption = resultSets[i].platforms[j].option;
+
+                platformKey = ThResultSetModel.getPlatformKey(
+                    platformName, platformOption
                     );
-            });
 
-        rsMap[resultsetId].job_counts = statusCounts;
+                var statusPerPlatform = {};
+                if(!_.isEmpty(resultSetMap[ resultsetId ].platforms[platformKey])){
+                    statusPerPlatform = resultSetMap[ resultsetId ].platforms[platformKey].job_counts;
+                }
 
-        //resultset.job_counts = { busted:0, exception:0 ...
-        //resetGlobalCounts
-        //angular.forEach(rsMap, function(value, resultsetId){
-        //});
+                if(!_.isEmpty(statusPerPlatform)){
+
+                    var jobStatus, k;
+                    for(k=0; k<statusKeys.length; k++){
+                        jobStatus = statusKeys[k];
+                        jobCounts[jobStatus] += statusPerPlatform[jobStatus];
+                        jobCounts['total'] += statusPerPlatform[jobStatus];
+                    }
+                }
+            }
+
+            resultSets[i].job_counts = jobCounts;
+        }
     };
 
-    //Register global custom event listeners
-    $rootScope.$on(
-        thEvents.jobsLoaded, function(ev, platformData){
+    var updateJobs = function(ev, platformData){
+
+        angular.forEach(platformData, function(value, platformId){
+
+            if(value.resultsetId != this.resultset.id){
+                //Confirm we are the correct result set
+                return;
+            }
 
             var tdEls, rowEl, platformTdEl, jobTdEl,
-                platformName, option, tableRows;
+                platformKey, platformName, option, tableRows;
 
-            angular.forEach(platformData, function(value, platformId){
+            platformName = getPlatformName(value.platformName);
 
-                rowEl = document.getElementById(platformId);
+            platformKey = ThResultSetModel.getPlatformKey(
+                value.platformName, value.platformOption
+                );
 
-                statusData = {
-                    resultsetId:value.resultsetId,
-                    platformName:this.resultset.platforms[i].name,
-                    statusCounts:{}
-                    };
+            rowEl = document.getElementById(platformId);
 
-                if(!rowEl){
-                    //First job for this platform found, which means we need
-                    //to create the platform and job td elements and the
-                    //row
-                    rowEl = $('<tr></tr>');
+            if(!rowEl){
+                //First job for this platform found, which means we need
+                //to create the platform and job td elements and the
+                //row
+                rowEl = $('<tr></tr>');
 
-                    var tableEl = document.getElementById(
-                        value.resultsetAggregateId
-                        );
+                var tableEl = document.getElementById(
+                    value.resultsetAggregateId
+                    );
 
-                    rowEl.prop('id', platformId);
+                rowEl.prop('id', platformId);
 
-                    option = value.platformOption;
-                    platformName = getPlatformName(value.platformName);
+                option = value.platformOption;
 
-                    //Add platforms
-                    platformTdEl = $( platformInterpolator(
-                        {'name':platformName, 'option':option, 'id':platformId }
-                        ) );
+                //Add platforms
+                platformTdEl = $( platformInterpolator(
+                    {'name':platformName, 'option':option, 'id':platformId }
+                    ) );
 
-                    rowEl.append(platformTdEl);
+                rowEl.append(platformTdEl);
 
-                    jobTdEl = $( thCloneHtml.get('jobTdClone').text );
+                jobTdEl = $( thCloneHtml.get('jobTdClone').text );
 
-                    renderJobTableRow(
-                        $(rowEl), jobTdEl, value.jobGroups, statusData
-                        );
+                renderJobTableRow(
+                    rowEl, jobTdEl, value.jobGroups, this.resultStatusFilters,
+                    value.resultsetId, platformKey, true
+                    );
 
-                    //Determine appropriate place to append row for this
-                    //platform name
-                    appendPlatformRow(tableEl, rowEl, platformName);
+                //Determine appropriate place to append row for this
+                //platform name
+                appendPlatformRow(tableEl, rowEl, platformName);
 
-                }else{
+            }else{
+                tdEls = $(rowEl).find('td');
+                platformTdEl = $(tdEls[0]);
+                jobTdEl = $(tdEls[1]);
 
-                    tdEls = $(rowEl).find('td');
-                    platformTdEl = $(tdEls[0]);
-                    jobTdEl = $(tdEls[1]);
-
-                    renderJobTableRow(
-                        $(rowEl), jobTdEl, value.jobGroups, statusData
-                        );
-                }
+                renderJobTableRow(
+                    $(rowEl), jobTdEl, value.jobGroups, this.resultStatusFilters,
+                    value.resultsetId, platformKey, true
+                    );
+            }
         });
-    });
-
+    };
 
     var linker = function(scope, element, attrs){
 
@@ -556,6 +580,12 @@ treeherder.directive('thCloneJobs', function(
 
         //Register rootScope custom event listeners that require
         //access to the anguler level resultset scope
+        //
+        //NOTE: These event listeners are registered 1 per resultets
+        //      so make sure the callback is only called if the event
+        //      is associated with the target result set. Some of these
+        //      events are really at the level of the $rootScope but the
+        //      callbacks need access to the resultset level angular scope.
         $rootScope.$on(
             thEvents.revisionsLoaded, function(ev, rs){
                 if(rs.id === scope.resultset.id){
@@ -580,7 +610,7 @@ treeherder.directive('thCloneJobs', function(
         $rootScope.$on(
             thEvents.globalFilterChanged, function(ev, filterData){
                 scope.resultStatusFilters = thJobFilters.copyResultStatusFilters();
-                _.bind(filterJobs, scope, element)();
+                _.bind(filterJobs, scope, element, scope.resultStatusFilters)();
             });
 
         $rootScope.$on(
@@ -590,6 +620,11 @@ treeherder.directive('thCloneJobs', function(
                         filterJobs, scope, element, scope.resultStatusFilters
                         )();
                 }
+            });
+
+        $rootScope.$on(
+            thEvents.jobsLoaded, function(ev, platformData){
+                _.bind(updateJobs, scope, platformData)();
             });
 
         //Clone the target html
@@ -604,7 +639,8 @@ treeherder.directive('thCloneJobs', function(
         //Retrieve table el for appending
         var tableEl = targetEl.find('table');
 
-        var name, option, platformId,row, platformTd, jobTdEl, statusData, j;
+        var name, option, platformId, platformKey, row, platformTd, jobTdEl,
+            statusList, j;
 
         for(j=0; j<scope.resultset.platforms.length; j++){
 
@@ -635,17 +671,17 @@ treeherder.directive('thCloneJobs', function(
 
             row.append(platformTd);
 
-            statusData = {
-                resultsetId:scope.resultset.id,
-                platformName:scope.resultset.platforms[j].name,
-                statusCounts:{}
-                };
-
             // Render the row of job data
             jobTdEl = $( thCloneHtml.get('jobTdClone').text );
+
+            platformKey = ThResultSetModel.getPlatformKey(
+                scope.resultset.platforms[j].name, scope.resultset.platforms[j].option
+                );
+
             renderJobTableRow(
                 row, jobTdEl, scope.resultset.platforms[j].groups,
-                scope.resultStatusFilters, statusData
+                scope.resultStatusFilters, scope.resultset.id,
+                platformKey, true
                 );
 
             tableEl.append(row);
@@ -785,11 +821,13 @@ treeherder.directive('thResultStatusCount', function () {
                 }
             }
             scope.countAlertClass = getCountAlertClass();
+
             scope.$watch("resultset.job_counts", function(newValue) {
                 scope.resultCount = scope.resultset.job_counts[scope.resultStatus];
                 scope.unclassifiedResultCount = scope.resultCount;
                 scope.countAlertClass = getCountAlertClass();
             }, true);
+
         },
         templateUrl: 'partials/thResultStatusCount.html'
     };

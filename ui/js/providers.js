@@ -42,6 +42,25 @@ treeherder.provider('thResultStatusList', function() {
         return ['success', 'testfailed', 'busted', 'exception', 'retry', 'running', 'pending'];
     };
 });
+treeherder.provider('thResultStatusObject', function() {
+    var getResultStatusObject = function(){
+        return {
+            'success':0,
+            'testfailed':0,
+            'busted':0,
+            'exception':0,
+            'retry':0,
+            'running':0,
+            'pending':0
+            };
+    };
+
+    this.$get = function() {
+        return {
+            getResultStatusObject:getResultStatusObject
+            };
+    };
+});
 
 treeherder.provider('thResultStatusInfo', function() {
     this.$get = function() {
