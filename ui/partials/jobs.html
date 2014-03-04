@@ -14,8 +14,8 @@
             <span class="btn btn-default btn-sm glyphicon glyphicon-download" ng-show="isLoadingJobs"></span>
             <th-action-button ng-hide="isLoadingJobs"></th-action-button>
             <span class="timestamp-name">
-                <span>{{resultset.push_timestamp*1000|date:'medium'}} - </span>
-                <th-author author="resultset.author"></th-author>
+                <span><a href="{{revisionUrl}}">{{resultset.push_timestamp*1000|date:'medium'}}</a> - </span>
+                <th-author author="{{resultset.author}}" authorUrl="authorUrl"></th-author>
             </span>
         </span>
         <span class="col-xs-3 revision-link">
