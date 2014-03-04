@@ -14,13 +14,13 @@
             <span class="btn btn-default btn-sm glyphicon glyphicon-download" ng-show="isLoadingJobs"></span>
             <th-action-button ng-hide="isLoadingJobs"></th-action-button>
             <span class="timestamp-name">
-                <span><a href="{{revisionUrl}}">{{resultset.push_timestamp*1000|date:'medium'}}</a> - </span>
-                <th-author author="{{resultset.author}}" authorUrl="authorUrl"></th-author>
+                <span><a href="{{idResultsetFilterUrl}}">{{resultset.push_timestamp*1000|date:'medium'}}</a> - </span>
+                <th-author author="{{resultset.author}}"></th-author>
             </span>
         </span>
         <span class="col-xs-3 revision-link">
-            <a href="{{currentRepo.url}}/rev/{{resultset.revision}}"
-               title="revision"
+            <a href="{{revisionResultsetFilterUrl}}"
+               title="filter to only resultsets that contain revision {{revision}}"
                target="_blank">{{resultset.revision}}</a>
         </span>
         <span class="col-xs-1 btn btn-default btn-sm revision-button"

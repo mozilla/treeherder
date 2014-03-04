@@ -34,6 +34,8 @@ treeherder.controller('MainCtrl',
             $rootScope.locationPath = $location.path().replace('/', '');
         });
 
+        $rootScope.urlBasePath = $location.absUrl().split('?')[0];
+
         // the repos the user has chosen to watch
         $scope.watchedRepos = ThRepositoryModel.watchedRepos;
 

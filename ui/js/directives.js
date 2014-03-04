@@ -847,7 +847,7 @@ treeherder.directive('thAuthor', function () {
             scope.authorName = userTokens[0].trim();
             scope.authorEmail = email;
         },
-        template: '<span title="{{authorName}}: {{authorEmail}}"><a href="{{authorUrl}}">{{authorName}}</a></span>'
+        template: '<span title="{{authorName}}: {{authorEmail}}"><a href="{{authorResultsetFilterUrl}}">{{authorName}}</a></span>'
     };
 });
 
