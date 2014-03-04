@@ -838,11 +838,8 @@ treeherder.directive('thAuthor', function () {
 
     return {
         restrict: "E",
-        scope: {
-            author: '=author'
-        },
         link: function(scope, element, attrs) {
-            var userTokens = scope.author.split(/[<>]+/);
+            var userTokens = attrs.author.split(/[<>]+/);
             var email = "";
             if (userTokens.length > 1) {
                 email = userTokens[1];
@@ -850,7 +847,7 @@ treeherder.directive('thAuthor', function () {
             scope.authorName = userTokens[0].trim();
             scope.authorEmail = email;
         },
-        template: '<span title="{{authorName}}: {{authorEmail}}">{{authorName}}</span>'
+        template: '<span title="{{authorName}}: {{authorEmail}}"><a href="{{authorUrl}}">{{authorName}}</a></span>'
     };
 });
 

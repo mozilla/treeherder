@@ -1,8 +1,8 @@
 'use strict';
 
 treeherder.factory('thResultSets',
-                   ['$http', 'thUrl', 'thServiceDomain',
-                   function($http, thUrl, thServiceDomain) {
+                   ['$http', '$location', 'thUrl', 'thServiceDomain',
+                   function($http, $location, thUrl, thServiceDomain) {
 
     // get the resultsets for this repo
     return {
@@ -15,6 +15,11 @@ treeherder.factory('thResultSets',
                 full: false,
                 format: "json"
             };
+
+            // if there are any search params on the url line, they should
+            // pass directly to the set of resultsets.
+            _.extend(params, $location.search());
+
             if (resultsetlist) {
                 _.extend(params, {
                     offset: 0,

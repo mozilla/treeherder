@@ -40,9 +40,9 @@ treeherder.controller('JobsCtrl',
 
 
 treeherder.controller('ResultSetCtrl',
-    function ResultSetCtrl($scope, $rootScope, $http, $log,
+    function ResultSetCtrl($scope, $rootScope, $http, $log, $location,
                            thUrl, thServiceDomain, thResultStatusInfo,
-                           ThResultSetModel, thEvents, thJobFilters) {
+                           ThResultSetModel, thEvents, thJobFilters, $route) {
 
         $scope.getCountClass = function(resultStatus) {
             return thResultStatusInfo(resultStatus).btnClass;
@@ -119,6 +119,10 @@ treeherder.controller('ResultSetCtrl',
         $scope.showJob = function(job) {
             return thJobFilters.showJob(job, $scope.resultStatusFilters);
         };
+
+        $scope.urlBasePath = $location.absUrl().split('?')[0];
+        $scope.revisionUrl = $scope.urlBasePath + "?revision=" + $scope.resultset.revision;
+        $scope.authorUrl = $scope.urlBasePath + "?author=" + $scope.resultset.author;
 
         $scope.resultStatusFilters = thJobFilters.copyResultStatusFilters();
 
