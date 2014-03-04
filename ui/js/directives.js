@@ -505,7 +505,7 @@ treeherder.directive('thCloneJobs', function(
         }
     };
 
-    var updateJobs = function(ev, platformData){
+    var updateJobs = function(platformData){
 
         angular.forEach(platformData, function(value, platformId){
 
@@ -567,7 +567,7 @@ treeherder.directive('thCloneJobs', function(
                     value.resultsetId, platformKey, true
                     );
             }
-        });
+        }, this);
     };
 
     var linker = function(scope, element, attrs){
