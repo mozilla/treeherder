@@ -41,40 +41,43 @@ class JobsModel(TreeherderModelBase):
     # list of searchable columns, i.e. those who have an index
     # it would be nice to get this directly from the db and cache it
     INDEXED_COLUMNS = {
-        "job": [
-            "id",
-            "job_guid",
-            "job_coalesced_to_guid",
-            "result_set_id",
-            "build_platform_id",
-            "machine_platform_id",
-            "machine_id",
-            "option_collection_hash",
-            "job_type_id",
-            "product_id",
-            "failure_classification_id",
-            "who",
-            "reason",
-            "result",
-            "state",
-            "submit_timestamp",
-            "start_timestamp",
-            "end_timestamp"
-        ],
-        "result_set": [
-            "id"
-        ],
-        "bug_job_map": [
-            "job_id",
-            "bug_id",
-            "type"
-        ],
-        "job_artifact": [
-            "id",
-            "job_id",
-            "name",
-            "type"
-        ]
+        "job": {
+            "id": "j.id",
+            "job_guid": "j.job_guid",
+            "job_coalesced_to_guid": "j.job_coalesced_to_guid",
+            "result_set_id": "j.result_set_id",
+            "build_platform_id": "j.build_platform_id",
+            "machine_platform_id": "j.machine_platform_id",
+            "machine_id": "j.machine_id",
+            "option_collection_hash": "j.option_collection_hash",
+            "job_type_id": "j.job_type_id",
+            "product_id": "j.product_id",
+            "failure_classification_id": "j.failure_classification_id",
+            "who": "j.who",
+            "reason": "j.reason",
+            "result": "j.result",
+            "state": "j.state",
+            "submit_timestamp": "j.submit_timestamp",
+            "start_timestamp": "j.start_timestamp",
+            "end_timestamp": "j.end_timestamp"
+        },
+        "result_set": {
+            "id": "rs.id",
+            "revision_hash": "rs.revision_hash",
+            "revision": "revision.revision",
+            "author": "revision.author"
+        },
+        "bug_job_map": {
+            "job_id": "job_id",
+            "bug_id": "bug_id",
+            "type": "type"
+        },
+        "job_artifact": {
+            "id": "id",
+            "job_id": "job_id",
+            "name": "name",
+            "type": "type"
+        }
 
     }
 
@@ -137,7 +140,7 @@ class JobsModel(TreeherderModelBase):
         """
 
         replace_str, placeholders = self._process_conditions(
-            conditions, self.INDEXED_COLUMNS['job'], prefix="j."
+            conditions, self.INDEXED_COLUMNS['job']
         )
 
         repl = [self.refdata_model.get_db_name(), replace_str]
@@ -155,16 +158,23 @@ class JobsModel(TreeherderModelBase):
         )
         return data
 
-    def _process_conditions(self, conditions, allowed_fields=None, prefix=""):
+    def _process_conditions(self, conditions, allowed_fields=None):
         """Transform a list of conditions into a list of placeholders and
         replacement strings to feed a datahub.execute statement."""
         placeholders = []
         replace_str = ""
         if conditions:
             for column, condition in conditions.items():
-                if allowed_fields is None or column in allowed_fields:
+                if allowed_fields is None or column in allowed_fields.keys():
+                    if column in allowed_fields.keys():
+                        # we need to get the db column string from the passed
+                        # in querystring column.  It could be the same, but
+                        # often it will have a table prefix for the column.
+                        # This allows us to have where clauses on joined fields
+                        # of the query.
+                        column = allowed_fields[column]
                     for operator, value in condition:
-                        replace_str += "AND {0}{1} {2}".format(prefix, column, operator)
+                        replace_str += "AND {0} {1}".format(column, operator)
                         if operator == "IN":
                             # create a list of placeholders of the same length
                             # as the list of values
@@ -375,7 +385,7 @@ class JobsModel(TreeherderModelBase):
         """
 
         replace_str, placeholders = self._process_conditions(
-            conditions, self.INDEXED_COLUMNS['result_set'], prefix="rs."
+            conditions, self.INDEXED_COLUMNS['result_set']
         )
 
         # If a push doesn't have jobs we can just
