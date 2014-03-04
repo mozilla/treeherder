@@ -3,7 +3,7 @@
 treeherder.controller('PluginCtrl',
     function PluginCtrl($scope, $rootScope, $resource, $http,
                         thServiceDomain, thUrl, ThJobNoteModel, thStarTypes,
-                        ThJobModel, thEvents, $log) {
+                        ThJobModel, thEvents, dateFilter, $log) {
 
         $scope.job = {};
 
@@ -36,10 +36,11 @@ treeherder.controller('PluginCtrl',
         var updateVisibleFields = function() {
                 var undef = "---undefined---";
                 // fields that will show in the job detail panel
+
                 $scope.visibleFields = {
                     "Result": $scope.job.result || undef,
                     "Job Name": $scope.job.job_type_name || undef,
-                    "Start time": $scope.job.start_timestamp || undef,
+                    "Start time": dateFilter($scope.job.start_timestamp*1000, 'short') || undef,
                     "Job GUID": $scope.job.job_guid || undef,
                     "Machine Platform Arch": $scope.job.machine_platform_architecture || undef,
                     "Machine Platform OS": $scope.job.machine_platform_os || undef,

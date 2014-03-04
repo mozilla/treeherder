@@ -108,22 +108,22 @@ treeherder.factory('ThPaginator', function(){
 });
 
 treeherder.factory('BrowserId', function($http, $q, $log,  thServiceDomain){
-    
-    /* 
+
+    /*
     * BrowserId is a wrapper for the persona authentication service
     * it handles the navigator.id.request and navigator.id.logout calls
     * and exposes the related promises via requestDeferred and logoutDeferred.
-    * This is mostly inspired by the django_browserid jquery implementation.  
+    * This is mostly inspired by the django_browserid jquery implementation.
     */
     var browserid = {
         info: $http.get(thServiceDomain+'/browserid/info/'),
         requestDeferred: null,
         logoutDeferred: null,
-        
+
         /*
-        * Retrieve an assertion from the persona service and 
+        * Retrieve an assertion from the persona service and
         * and send it to the treeherder verification endpoints.
-        * 
+        *
         */
         login: function(requestArgs){
             return browserid.getAssertion(requestArgs)
@@ -149,7 +149,7 @@ treeherder.factory('BrowserId', function($http, $q, $log,  thServiceDomain){
         /*
         * Ask persona to provide an assetion and return a promise of the response
         * The requestDeferred promise is resolved by the onLogin callback
-        * of navigator.id.watch. 
+        * of navigator.id.watch.
         */
         getAssertion: function(requestArgs){
             return browserid.info.then(function(response){
@@ -161,7 +161,7 @@ treeherder.factory('BrowserId', function($http, $q, $log,  thServiceDomain){
         },
         /*
         * Verify the assertion provided by persona against the treeherder verification endpoint.
-        * The django_browserid endpoint accept a post request with form-urlencoded fields. 
+        * The django_browserid endpoint accept a post request with form-urlencoded fields.
         */
         verifyAssertion: function(assertion){
             return browserid.info.then(function(response){
@@ -172,7 +172,7 @@ treeherder.factory('BrowserId', function($http, $q, $log,  thServiceDomain){
                     });
             });
         },
-        
+
         transform_data: function(data){
             return $.param(data);
         }
@@ -188,13 +188,13 @@ treeherder.factory('thNotify', function($log){
         notifications: [],
         // the currently displayed message
         current: {},
-        
+
         /*
         * send a message to the notification queue
         * @severity can be one of success|info|warning|danger
         * @sticky is a boolean indicating if you want to message to disappear
         * after a while or not
-        */ 
+        */
         send: function(message, severity, sticky){
             $log.log("received message");
             $log.log(message);
@@ -209,7 +209,7 @@ treeherder.factory('thNotify', function($log){
         },
         fetch: function(){
             thNotify.current=thNotify.notifications.shift() || {};
-            
+
             if(thNotify.current.message && !thNotify.current.sticky){
                 window.setTimeout(thNotify.remove, 5000);
             }

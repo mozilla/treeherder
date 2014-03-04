@@ -18,10 +18,15 @@
                 <th-author author="resultset.author"></th-author>
             </span>
         </span>
-        <span class="btn btn-default btn-sm col-xs-1 revision-button"
+        <span class="col-xs-3 revision-link">
+            <a href="{{currentRepo.url}}/rev/{{resultset.revision}}"
+               title="revision"
+               target="_blank">{{resultset.revision}}</a>
+        </span>
+        <span class="col-xs-1 btn btn-default btn-sm revision-button"
               ng-click="toggleRevisions()"
-              title="show revisions">{{resultset.revision}} ({{resultset.revision_count}})</span>
-        <th-result-counts class="col-xs-5"/>
+              title="show revisions"><i class="fa fa-code-fork fa-lg"></i> {{resultset.revision_count}}</span>
+        <th-result-counts class="col-xs-4"/>
     </div>
 
     <div th-clone-jobs ></div>
