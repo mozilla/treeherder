@@ -178,6 +178,10 @@ body {
 
 }
 
+/*
+    Resultsets
+*/
+
 .th-revision-btn {
     margin-left: 10px;
     width: calc(100% - 170px);
@@ -235,8 +239,13 @@ body {
     padding-left: 0;
 }
 
+.revision-link {
+    width: 115px;
+    display: block;
+}
+
 .revision-button {
-    width: 120px;
+    width: 60px;
 }
 
 .revision-list {
@@ -326,7 +335,7 @@ div.navbar-fixed-bottom dt {
     cursor: pointer;
 }
 .result-status-total-count {
-    width: 40px;
+    width: 60px;
 }
 .result-status-count-min-width {
     width: 28px;
