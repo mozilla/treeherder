@@ -70,6 +70,7 @@ treeherder.factory('ThRepositoryModel',
 
                     if (name) {
                         $rootScope.currentRepo = byName(name);
+                        console.log("stored currentRepo");
 
                     }
                 });

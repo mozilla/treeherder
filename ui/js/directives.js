@@ -191,6 +191,9 @@ treeherder.directive('thCloneJobs', function(
 
                 revision = resultset.revisions[i];
 
+                element.scope.revisionRepoUrl = $rootScope.currentRepo.url + "/rev/" + revision;
+//                element.scope.revisionRepoUrl = element.scope.urlBasePath + "/rev/" + revision;
+
                 userTokens = revision.author.split(/[<>]+/);
                 if (userTokens.length > 1) {
                     revision['email'] = userTokens[1];
