@@ -13,8 +13,6 @@
             </span>
         </span>
         <span class="pull-right">
-            <span class="nav-text white th-username">{{user.email}}</span>
-            <persona-buttons></persona-buttons>
             <span class="btn btn-view-nav"
                   ng-class="{'active': (isRepoPanelShowing)}"
                   ng-click="isRepoPanelShowing=!isRepoPanelShowing"><span>repos</span>
@@ -32,6 +30,8 @@
                    ng-show="isFilterPanelShowing"></i>
             </span>
             <a class="btn btn-view-nav" href="help.html" target="_blank">help</a>
+            <span class="nav-text white th-username">{{user.email}}</span>
+            <persona-buttons></persona-buttons>
         </span>
 
     </div>
