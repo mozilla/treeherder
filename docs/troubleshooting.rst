@@ -23,3 +23,13 @@ If you just want to access the restful api or the admin for example, comment all
 related to gunicorn.
 You can stop supervisord (and all processes he's taking care of) with ctrl+c.
 Please note that for some reason you may need to manually kill the celery worker when it's under heavy load.
+
+Where are my log files?
+-----------------------
+
+You can find the various services log files under
+  /var/log/celery
+  /var/log/gunicorn
+  /var/log/socketio
+
+You may also want to inspect the main treeherder log file ~/treeherder-service/treeherder.log

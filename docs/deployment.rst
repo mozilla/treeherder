@@ -73,3 +73,19 @@ Once puppet has finished, the only thing left to do is to start all the treeherd
 The easiest way to do it is via supervisord.
 A supervisord configuration file is included in the repo under deployment/supervisord/treeherder.conf.
 
+
+Securing the connection
+-----------------------
+
+To put everything under a SSL connection you may want to use a SSL wrapper like stunnel_. Here is a bacis example
+of a stunnel configuration file:
+
+.. code-block:: INI
+
+  cert = /path-to-my-pem-file/credentials.pem
+
+  [https]
+  accept  = 443
+  connect = 80
+
+.. _stunnel: https://www.stunnel.org
