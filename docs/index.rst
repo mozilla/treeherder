@@ -15,6 +15,9 @@ Contents:
    dataload
    deployment
    ui_integration
+   list_of_services
+   common_tasks
+   troubleshooting
 
 
 Indices and tables
