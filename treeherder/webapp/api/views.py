@@ -68,12 +68,9 @@ def oauth_required(func):
 
             return Response(msg, 403)
 
-        scheme = 'http'
-        if request.is_secure():
-            scheme = 'https'
-
         uri = '{0}://{1}{2}'.format(
-            scheme, request.get_host(), request.path
+            settings.TREEHERDER_REQUEST_PROTOCOL, request.get_host(),
+            request.path
             )
 
         #Construct the OAuth request based on the django request object
