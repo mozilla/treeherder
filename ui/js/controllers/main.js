@@ -35,7 +35,6 @@ treeherder.controller('MainCtrl',
         });
 
         $rootScope.urlBasePath = $location.absUrl().split('?')[0];
-        $rootScope.testRepoUrl = "ferp";
 
         // the repos the user has chosen to watch
         $scope.watchedRepos = ThRepositoryModel.watchedRepos;
