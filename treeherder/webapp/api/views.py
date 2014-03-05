@@ -69,7 +69,7 @@ def oauth_required(func):
             return Response(msg, 403)
 
         scheme = 'http'
-        if 'https' in request.build_absolute_uri():
+        if request.is_secure():
             scheme = 'https'
 
         uri = '{0}://{1}{2}'.format(
