@@ -8,16 +8,17 @@ from rest_framework.response import Response
 from rest_framework.decorators import action, link
 from rest_framework.reverse import reverse
 from rest_framework.exceptions import ParseError
+
 from rest_framework.authentication import SessionAuthentication
 from treeherder.webapp.api.permissions import IsStaffOrReadOnly
 
 from treeherder.model import models
 from treeherder.model.derived import (JobsModel, DatasetNotFoundError,
-                                      ObjectNotFoundException)
+                                      RefDataManager, ObjectNotFoundException)
 
 from treeherder.webapp.api.utils import UrlQueryFilter
 
-from treeherder.etl.mixins import OAuthLoaderMixin
+from treeherder.etl.oauth_utils import OAuthCredentials
 
 
 def oauth_required(func):
@@ -31,7 +32,7 @@ def oauth_required(func):
         project = kwargs.get('project', None)
 
         # Get the project credentials
-        project_credentials = OAuthLoaderMixin.get_credentials(project)
+        project_credentials = OAuthCredentials.get_credentials(project)
 
         if not project_credentials:
             msg = {
@@ -40,7 +41,7 @@ def oauth_required(func):
             }
             return Response(msg, 500)
 
-        parameters = OAuthLoaderMixin.get_parameters(request.QUERY_PARAMS)
+        parameters = OAuthCredentials.get_parameters(request.QUERY_PARAMS)
 
         oauth_body_hash = parameters.get('oauth_body_hash', None)
         oauth_signature = parameters.get('oauth_signature', None)
@@ -215,6 +216,12 @@ class ArtifactViewSet(viewsets.ViewSet):
 
         objs = jm.get_job_artifact_list(offset, count, filter.conditions)
         return Response(objs)
+
+    @with_jobs
+    @oauth_required
+    def create(self, request, project, jm):
+        jm.store_job_artifact(request.DATA)
+        return Response({'message': 'Artifacts stored successfully'})
 
 
 class NoteViewSet(viewsets.ViewSet):
@@ -693,6 +700,23 @@ class MachinePlatformViewSet(viewsets.ReadOnlyModelViewSet):
 class BugscacheViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for the refdata Bugscache model"""
     model = models.Bugscache
+
+    def list(self, request):
+        search_term = request.QUERY_PARAMS.get("search", None)
+        if not search_term:
+            return Response({"message": "the 'search' parameter is mandatory"}, status=400)
+
+        status = request.QUERY_PARAMS.get("status", "open")
+        if not status in ("open", "closed"):
+            return Response({"message": "status must be 'open' or 'closed'"}, status=400)
+
+        open_only = True if status == "open" else False
+
+        rdm = RefDataManager()
+        return Response(rdm.get_suggested_bugs(search_term, open_only))
+
+
+
 
 
 class MachineViewSet(viewsets.ReadOnlyModelViewSet):
