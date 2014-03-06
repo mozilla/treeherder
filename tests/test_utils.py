@@ -6,6 +6,7 @@ from webtest.app import TestApp, AppError
 from sampledata import SampleData
 from treeherder.model.derived.refdata import RefDataManager
 from treeherder.etl.mixins import OAuthLoaderMixin
+from treeherder.etl.oauth_utils import OAuthCredentials
 from treeherder.webapp.wsgi import application
 
 from thclient import TreeherderRequest
@@ -16,9 +17,9 @@ def post_collection(
     consumer_key=None, consumer_secret=None):
 
     # Set the credentials
-    OAuthLoaderMixin.set_credentials( SampleData.get_credentials() )
+    OAuthCredentials.set_credentials( SampleData.get_credentials() )
 
-    credentials = OAuthLoaderMixin.get_credentials(project)
+    credentials = OAuthCredentials.get_credentials(project)
 
     # The only time the credentials should be overridden are when
     # a client needs to test authentication failure confirmation
@@ -55,9 +56,9 @@ def post_job_data(
     uri = 'http://localhost{0}'.format(uri)
 
     # Set the credentials
-    OAuthLoaderMixin.set_credentials( SampleData.get_credentials() )
+    OAuthCredentials.set_credentials( SampleData.get_credentials() )
 
-    credentials = OAuthLoaderMixin.get_credentials(project)
+    credentials = OAuthCredentials.get_credentials(project)
 
     tr = TreeherderRequest(
         protocol='http',
