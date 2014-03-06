@@ -25,6 +25,8 @@ treeherder.controller('JobsCtrl',
 
         $scope.isLoadingRsBatch = ThResultSetModel.loadingStatus;
         $scope.result_sets = ThResultSetModel.getResultSetsArray();
+console.log('result_sets reset to');
+console.log($scope.result_sets);
         $scope.job_map = ThResultSetModel.getJobMap();
         $scope.statusList = thResultStatusList;
 

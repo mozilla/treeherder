@@ -18,7 +18,7 @@ treeherder.factory('ThResultSetModel',
     *     job queue
     *     job map
     */
-
+console.log('ThResultSetModel Initialized');
     // the primary data model
     var resultSets,
         updateQueueInterval,
@@ -116,6 +116,8 @@ treeherder.factory('ThResultSetModel',
                     }
                 }
             }
+//console.log('initializing rsMap');
+//console.log(rsMap);
         }
 
         resultSets.sort(rsCompare);
@@ -260,7 +262,7 @@ treeherder.factory('ThResultSetModel',
         var platformData = {};
 
         var resultsetId, platformName, platformOption, platformAggregateId,
-            platformKey, resultsetAggregateId, revision, i;
+            platformKey, resultsetAggregateId, revision, jobGroups, i;
 
         for (i = 0; i < jobList.length; i++) {
 
@@ -289,6 +291,14 @@ treeherder.factory('ThResultSetModel',
 
                     platformKey = getPlatformKey(platformName, platformOption);
 
+                    try{
+                        jobGroups = rsMap[resultsetId].platforms[platformKey].pl_obj.groups;
+                    }catch(e){
+                        console.log(e);
+                        console.log(platformName + ' ' + platformOption);
+                        console.log(rsMap[resultsetId].platforms);
+                    }
+
                     platformData[platformAggregateId] = {
                         platformName:platformName,
                         revision:revision,
@@ -296,7 +306,7 @@ treeherder.factory('ThResultSetModel',
                         resultsetId:resultsetId,
                         resultsetAggregateId:resultsetAggregateId,
                         platformOption:platformOption,
-                        jobGroups:rsMap[resultsetId].platforms[platformKey].pl_obj.groups,
+                        jobGroups:jobGroups,
                         jobs:[]
                         };
                 }else{
@@ -422,6 +432,7 @@ treeherder.factory('ThResultSetModel',
                 updateQueueInterval = interval;
             }
 
+$log.debug('ThResultSetModel.api.init Called');
             repoName = repo;
             rsOffset = 0;
             jobUpdateQueue = [];
@@ -454,6 +465,8 @@ treeherder.factory('ThResultSetModel',
                 thSocket.emit('subscribe', $rootScope.repoName + '.job');
                 $log.debug("listening for new events.  interval: " + updateQueueInterval +
                     " for repo: " + repoName);
+$log.debug("listening for new events.  interval: " + updateQueueInterval +
+    " for repo: " + $rootScope.repoName);
             });
 
             /******
@@ -470,9 +483,15 @@ treeherder.factory('ThResultSetModel',
              * need to add it to the ``jobUpdateQueue``.
              */
             thSocket.on("job", function(data) {
+$log.debug('repo match: branch ' + data.branch + ' repoName: ' + repoName);
                 if (data.branch === repoName) {
                     $log.debug("new job event");
                     $log.debug(data);
+/*
+console.log('thSocket.on');
+console.log(rsMap);
+console.log(jobUpdateQueue);
+*/
                     if (data.resultset.push_timestamp >= rsMapOldestTimestamp) {
                         // we want to load this job, one way or another
                         if (rsMap[data.resultset.id]) {
