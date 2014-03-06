@@ -1,8 +1,51 @@
 <div ng-controller="PluginCtrl">
-    <div id="bottom_left_panel">
+    <div id="pinboard_panel"
+         ng-show="hasPinnedJobs()"><div><i class="glyphicon glyphicon-pushpin"></i> pinboard</div>
+        <div class="panel shadowed-panel pinboard_shadowed_panel">
+            <span ng-repeat="job in pinnedJobs">
+                <th-pinned-job></th-pinned-job>
+            </span>
+        </div>
+        <div  id="pinboard_checked_bugs"><i class="fa fa-bug"></i> checked bugs
+
+              <div class="panel checked-bugs pinboard_shadowed_panel">
+                  <span class="label label-info" title="bug description here">920504 <i class="fa fa-times"></i></span>
+                  <span class="label label-info" title="bug description here">920505 <i class="fa fa-times"></i></span>
+                  <span class="label label-info" title="bug description here">920506 <i class="fa fa-times"></i></span>
+                  <span class="label label-info" title="bug description here">920507 <i class="fa fa-times"></i></span>
+                  <span class="label label-info" title="bug description here">920508 <i class="fa fa-times"></i></span>
+              </div>
+
+        </div>
+        <div>
+            <form ng-submit="saveNewBatchClassification()" class="form-inline">
+                <label>classification</label>
+                <select ng-model="newBatchClassification.failure_classification_id">
+                    <option ng-repeat="(value, star) in starTypes" value="{{value}}">{{star.name}}</option>
+                </select>
+                <input ng-model="newBatchClassification.note" focus-me="focusInput"/>
+                <input class="btn btn-primary btn-sm" type="submit" value="save">
+            </form>
+        </div>
+    </div>
+    <div id="pinboard_batch_menu"
+     ng-class="{'with_pinboard_abs': hasPinnedJobs(), 'without_pinboard_abs': !hasPinnedJobs()}">
+    <div class="btn-group-vertical">
+        <button type="button" class="btn btn-xs btn-default close-btn" ng-click="unPinAll()">
+            <span class="glyphicon glyphicon-remove"></span> un-pin all
+        </button>
+    </div>
+
+    </div>
+    <div id="bottom_left_panel"
+         ng-class="{'with_pinboard_abs': hasPinnedJobs(), 'without_pinboard_abs': !hasPinnedJobs()}">
         <div class="panel shadowed-panel">
             <div class="panel-head">
                 <table class="table-super-condensed table-striped">
+                    <tr>
+                        <th class="small">Result</th>
+                        <td class="small">{{ job.result }}</td>
+                    </tr>
                     <tr>
                         <th class="small">Machine name</th>
                         <td class="small">
@@ -11,21 +54,11 @@
                     </tr>
                     <tr ng-repeat="(label, value) in visibleFields"><th>{{label}}</th><td>{{ value | limitTo:12 }}</td></tr>
                 </table>
-
-                <div ng-show="newNote">
-                    <form ng-submit="saveNote()" class="form-inline">
-                        <select ng-model="newNote.failure_classification_id">
-                            <option ng-repeat="(value, star) in starTypes" value="{{value}}">{{star.name}}</option>
-                        </select>
-                        <input ng-model="newNote.note" focus-me="focusInput"/>
-                        <input class="btn btn-primary" type="submit" value="save">
-                        <a class="btn btn-default" ng-click="clearNewNote()">cancel</a>
-                    </form>
-                </div>
             </div>
         </div>
     </div>
-    <div id="bottom_center_panel">
+    <div id="bottom_center_panel"
+         ng-class="{'with_pinboard_margin': hasPinnedJobs(), 'without_pinboard_margin': !hasPinnedJobs()}">
         <div class="panel shadowed-panel">
             <div class="panel-body resizable">
                 <tabset class="tabs-below">
@@ -40,13 +73,17 @@
             </div>
         </div>
     </div>
-    <div id="bottom_menu">
+    <div id="bottom_menu"
+         ng-class="{'with_pinboard_abs': hasPinnedJobs(), 'without_pinboard_abs': !hasPinnedJobs()}">
         <div class="btn-group-vertical">
             <button type="button" class="btn btn-xs btn-default close-btn" ng-click="clearJob()">
-                <span class="glyphicon glyphicon-remove"></span> Close
+                <span class="glyphicon glyphicon-remove"></span> close
             </button>
-            <button class="btn btn-default btn-xs" title="add note" ng-click="addNote()">
-                <span class="glyphicon glyphicon-comment"></span> Add note
+            <button class="btn btn-default btn-xs" title="classify all pinned jobs" ng-click="addNewBatchClassification()">
+                <span class="glyphicon glyphicon-comment"></span> classify
+            </button>
+            <button class="btn btn-default btn-xs" title="pin job" ng-click="pinJob(job)">
+                <span class="glyphicon glyphicon-pushpin"></span> pin job
             </button>
             <div class="btn btn-default btn-xs"
                  ng-disabled="artifacts.length>0">

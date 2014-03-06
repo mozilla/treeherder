@@ -312,10 +312,44 @@ div.navbar-fixed-bottom dt,
 div.navbar-fixed-bottom dt {
     font-size:.8em;
 }
-#bottom_left_panel {width:222px; position: absolute; top: 5px; left:5px;}
+#bottom_left_panel {width:222px; position: absolute; left:5px;}
 #bottom_left_panel .panel{padding:5px;}
-#bottom_center_panel {margin:0 110px 0 242px;}
-#bottom_menu{position: absolute; top: 5px; right:5px;}
+#bottom_center_panel {margin-right: 110px; margin-left: 242px;}
+#bottom_menu{position: absolute; right:5px;}
+
+.with_pinboard_abs {
+    top: 125px;
+}
+.with_pinboard_margin {
+    margin-top: 5px;
+}
+.without_pinboard_abs {
+    top: 5px;
+}
+
+#pinboard_panel {
+    margin-right: 345px;
+    margin-left: -5px;
+}
+
+.pinboard_shadowed_panel {
+    height: 61px;
+}
+
+#pinboard_checked_bugs {
+    top: 5px;
+    height: 95px;
+    position: absolute;
+    right: 103px;
+    width: 222px;
+}
+
+#pinboard_batch_menu{position: absolute; top: 5px; right:5px;}
+
+.pinned-job {
+  padding: 0 2px 0 2px;
+}
+
 
 .panel-body{ padding:5px;}
 

@@ -188,6 +188,9 @@ treeherder.provider('thEvents', function() {
             // fired (surprisingly) when a job is clicked
             jobClick: "job-click-EVT",
 
+            // fired when a job is shift-clicked
+            jobPin: "job-pin-EVT",
+
             // fired when the user middle-clicks on a job to view the log
             jobContextMenu: "job-context-menu-EVT",
 

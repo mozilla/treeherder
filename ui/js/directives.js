@@ -65,6 +65,13 @@ treeherder.directive('thCloneJobs', function(
         $rootScope.$broadcast(thEvents.jobClick, job);
     };
 
+    var togglePinJobCb = function(ev, el, job){
+        // todo: if another job is selected already, add that and this new one
+        // to the pinboard.
+        console.log("shift-clicked job");
+        $rootScope.$broadcast(thEvents.jobPin, job);
+    };
+
     var jobContextmenuCb = function(ev, el, job){
 
         ev.preventDefault();
@@ -157,7 +164,11 @@ treeherder.directive('thCloneJobs', function(
             switch (ev.which) {
                 case 1:
                     //Left mouse button pressed
-                    _.bind(clickJobCb, this, ev, el, job)();
+                    if (ev.shiftKey) {
+                        _.bind(togglePinJobCb, this, ev, el, job)();
+                    } else {
+                        _.bind(clickJobCb, this, ev, el, job)();
+                    }
                     break;
                 case 2:
                     //Middle mouse button pressed
@@ -782,8 +793,39 @@ treeherder.directive('thJobButton', function (thResultStatusInfo) {
         },
         templateUrl: 'partials/thJobButton.html'
     };
+});
 
+treeherder.directive('thPinnedJob', function (thResultStatusInfo) {
 
+    var getHoverText = function(job) {
+        var duration = Math.round((job.end_timestamp - job.start_timestamp) / 60);
+        var status = job.result;
+        if (job.state != "completed") {
+            status = job.state;
+        }
+        return job.job_type_name + " - " + status + " - " + duration + "mins";
+    };
+
+    return {
+        restrict: "E",
+        link: function(scope, element, attrs) {
+            var unbindWatcher = scope.$watch("job", function(newValue) {
+                var resultState = scope.job.result;
+                if (scope.job.state != "completed") {
+                    resultState = scope.job.state;
+                }
+                scope.job.display = thResultStatusInfo(resultState);
+                scope.hoverText = getHoverText(scope.job);
+
+                if (scope.job.state == "completed") {
+                    //Remove watchers when a job has a completed status
+                    unbindWatcher();
+                }
+
+            }, true);
+        },
+        templateUrl: 'partials/thPinnedJob.html'
+    };
 });
 
 treeherder.directive('thActionButton', function () {
