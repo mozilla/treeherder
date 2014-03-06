@@ -1,21 +1,17 @@
 import simplejson as json
 import itertools
 import oauth2 as oauth
-import urllib
-from collections import defaultdict
 
-from django.db import models
 from django.conf import settings
 from rest_framework import viewsets, serializers
 from rest_framework.response import Response
 from rest_framework.decorators import action, link
 from rest_framework.reverse import reverse
 from rest_framework.exceptions import ParseError
-
-from django.contrib.auth.models import User
+from rest_framework.authentication import SessionAuthentication
+from treeherder.webapp.api.permissions import IsStaffOrReadOnly
 
 from treeherder.model import models
-
 from treeherder.model.derived import (JobsModel, DatasetNotFoundError,
                                       ObjectNotFoundException)
 
@@ -39,9 +35,9 @@ def oauth_required(func):
 
         if not project_credentials:
             msg = {
-                'response':"invalid_request",
-                'message':"project, {0}, has no OAuth credentials".format(project)
-                }
+                'response': "invalid_request",
+                'message': "project, {0}, has no OAuth credentials".format(project)
+            }
             return Response(msg, 500)
 
         parameters = OAuthLoaderMixin.get_parameters(request.QUERY_PARAMS)
@@ -225,6 +221,9 @@ class ArtifactViewSet(viewsets.ViewSet):
 
 
 class NoteViewSet(viewsets.ViewSet):
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = (IsStaffOrReadOnly,)
+
     """
     This viewset is responsible for the note endpoint.
     """
@@ -259,7 +258,7 @@ class NoteViewSet(viewsets.ViewSet):
             request.DATA['job_id'],
             request.DATA['failure_classification_id'],
             request.DATA['who'],
-            request.DATA['note'],
+            request.DATA.get('note', '')
         )
         return Response(
             {'message': 'note stored for job {0}'.format(
@@ -576,6 +575,8 @@ class RevisionLookupSetViewSet(viewsets.ViewSet):
 
 
 class BugJobMapViewSet(viewsets.ViewSet):
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = (IsStaffOrReadOnly,)
 
     @with_jobs
     def create(self, request, project, jm):

@@ -73,11 +73,14 @@ def pytest_runtest_teardown(item):
     between tests
 
     """
+
     from treeherder.model.models import Datasource
 
     ds_list = Datasource.objects.all()
     for ds in ds_list:
         ds.delete()
+
+
 
 
 def increment_cache_key_prefix():
