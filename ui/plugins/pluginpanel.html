@@ -7,35 +7,20 @@
             </span>
         </div>
         <div  id="pinboard_checked_bugs"><i class="fa fa-bug"></i> checked bugs
-
-              <div class="panel checked-bugs pinboard_shadowed_panel">
-                  <span class="label label-info" title="bug description here">920504 <i class="fa fa-times"></i></span>
-                  <span class="label label-info" title="bug description here">920505 <i class="fa fa-times"></i></span>
-                  <span class="label label-info" title="bug description here">920506 <i class="fa fa-times"></i></span>
-                  <span class="label label-info" title="bug description here">920507 <i class="fa fa-times"></i></span>
-                  <span class="label label-info" title="bug description here">920508 <i class="fa fa-times"></i></span>
-              </div>
-
+            <div class="panel checked-bugs shadowed-panel pinboard_shadowed_panel">
+                <span ng-repeat="bug in checkedBugs"
+                      class="label label-info"
+                      title="{{bug.summary}}">{{bug.id}}<i class="fa fa-times"></i></span>
+            </div>
         </div>
-        <div>
-            <form ng-submit="saveNewBatchClassification()" class="form-inline">
-                <label>classification</label>
-                <select ng-model="newBatchClassification.failure_classification_id">
+        <div id="pinboard_classification_panel"><div><i class="glyphicon glyphicon-star"></i> classification</div>
+            <form ng-submit="saveNewClassification()" class="form">
+                <select ng-model="newClassification.failure_classification_id">
                     <option ng-repeat="(value, star) in starTypes" value="{{value}}">{{star.name}}</option>
                 </select>
-                <input ng-model="newBatchClassification.note" focus-me="focusInput"/>
-                <input class="btn btn-primary btn-sm" type="submit" value="save">
+                <input ng-model="newClassification.note" focus-me="focusInput"/>
             </form>
         </div>
-    </div>
-    <div id="pinboard_batch_menu"
-     ng-class="{'with_pinboard_abs': hasPinnedJobs(), 'without_pinboard_abs': !hasPinnedJobs()}">
-    <div class="btn-group-vertical">
-        <button type="button" class="btn btn-xs btn-default close-btn" ng-click="unPinAll()">
-            <span class="glyphicon glyphicon-remove"></span> un-pin all
-        </button>
-    </div>
-
     </div>
     <div id="bottom_left_panel"
          ng-class="{'with_pinboard_abs': hasPinnedJobs(), 'without_pinboard_abs': !hasPinnedJobs()}">
@@ -74,16 +59,19 @@
         </div>
     </div>
     <div id="bottom_menu"
-         ng-class="{'with_pinboard_abs': hasPinnedJobs(), 'without_pinboard_abs': !hasPinnedJobs()}">
+         class="without_pinboard_abs">
         <div class="btn-group-vertical">
             <button type="button" class="btn btn-xs btn-default close-btn" ng-click="clearJob()">
                 <span class="glyphicon glyphicon-remove"></span> close
             </button>
-            <button class="btn btn-default btn-xs" title="classify all pinned jobs" ng-click="addNewBatchClassification()">
-                <span class="glyphicon glyphicon-comment"></span> classify
+            <button type="button" class="btn btn-xs btn-default close-btn" ng-click="unPinAll()">
+                <span class="glyphicon glyphicon-remove"></span> un-pin all
             </button>
             <button class="btn btn-default btn-xs" title="pin job" ng-click="pinJob(job)">
                 <span class="glyphicon glyphicon-pushpin"></span> pin job
+            </button>
+            <button class="btn btn-default btn-xs" title="pin job" ng-click="applyChanges()">
+                <span class="fa fa-save"></span> apply
             </button>
             <div class="btn btn-default btn-xs"
                  ng-disabled="artifacts.length>0">

@@ -1,0 +1,23 @@
+<div ng-controller="AnnotationsPluginCtrl">
+    <table ng-show="classifications.length > 0" class="table-condensed table-hover">
+        <thead>
+            <tr><th>Datetime</th><th>Author</th><th>Failure type</th><th>Note</th></tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="classification in classifications">
+                <td>
+                    {{ classification.note_timestamp*1000|date:'medium' }}
+                </td>
+                <td>
+                    {{classification.who}}
+                </td>
+                <td>
+                    <span th-star star-id="classification.failure_classification_id"></span>
+                </td>
+                <td>
+                    {{classification.note}}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

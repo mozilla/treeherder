@@ -281,9 +281,6 @@ body {
   padding: 0 2px 0 2px;
 }
 
-.th-notes-accordion .accordion-toggle {
-    padding: 0;
-}
 div.navbar-fixed-bottom{
     border-top: 1px solid #ccc;
     padding:5px 10px;
@@ -318,7 +315,7 @@ div.navbar-fixed-bottom dt {
 #bottom_menu{position: absolute; right:5px;}
 
 .with_pinboard_abs {
-    top: 125px;
+    top: 91px;
 }
 .with_pinboard_margin {
     margin-top: 5px;
@@ -328,7 +325,7 @@ div.navbar-fixed-bottom dt {
 }
 
 #pinboard_panel {
-    margin-right: 345px;
+    margin-right: 545px;
     margin-left: -5px;
 }
 
@@ -340,11 +337,16 @@ div.navbar-fixed-bottom dt {
     top: 5px;
     height: 95px;
     position: absolute;
-    right: 103px;
+    right: 310px;
     width: 222px;
 }
 
-#pinboard_batch_menu{position: absolute; top: 5px; right:5px;}
+#pinboard_classification_panel {
+    position: absolute;
+    top: 5px;
+    right:180px;
+    width: 100px;
+}
 
 .pinned-job {
   padding: 0 2px 0 2px;

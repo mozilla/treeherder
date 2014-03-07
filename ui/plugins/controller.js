@@ -2,11 +2,11 @@
 
 treeherder.controller('PluginCtrl',
     function PluginCtrl($scope, $rootScope, $resource, $http,
-                        thServiceDomain, thUrl, ThJobNoteModel, thStarTypes,
-                        ThJobModel, thEvents, dateFilter, numberFilter, $log) {
+                        thServiceDomain, thUrl, ThJobClassificationModel, thStarTypes,
+                        ThJobModel, thEvents, dateFilter, numberFilter,
+                        thPinboard, $log) {
 
         $scope.job = {};
-        $rootScope.pinnedJobs = {};
 
         var selectJob = function(newValue, oldValue) {
             // preferred way to get access to the selected job
@@ -28,59 +28,8 @@ treeherder.controller('PluginCtrl',
                 $scope.tab_loading = true;
                 $scope.lvUrl = thUrl.getLogViewerUrl($scope.job.id);
 
-                $scope.updateNotes();
-
-
+                $scope.updateclassifications();
             }
-        };
-
-        $scope.pinJob = function(job) {
-            $rootScope.pinnedJobs[job.id] = job;
-        };
-
-        $scope.unPinJob = function(id) {
-            delete $rootScope.pinnedJobs[id];
-        };
-
-        $scope.unPinAll = function() {
-            $rootScope.pinnedJobs = {};
-        };
-
-        // open form to create a new note
-        $scope.addNewBatchClassification = function() {
-            var fci = 0;
-            $scope.newBatchClassification = new ThJobNoteModel({
-                job_id: $scope.job.id,
-                note: "",
-                who: $scope.username,
-                failure_classification_id: fci
-            });
-            $scope.focusInput=true;
-        };
-
-        // done adding a new note, so clear and hide the form
-        $scope.clearNewBatchClassification = function() {
-            $scope.newBatchClassification = null;
-        };
-
-        // save the note and hide the form
-        $scope.saveNewBatchClassification = function() {
-            alert("I'm saved!");
-//            $scope.newBatchClassification.create()
-//                .then(function(response){
-//                    $scope.updateNotes();
-//                    $scope.clearNewNote();
-//                });
-        };
-
-
-        $scope.hasPinnedJobs = function() {
-            return !_.isEmpty($scope.pinnedJobs);
-        };
-
-        $scope.viewJob = function(job) {
-            $rootScope.selectedJob = job;
-            $rootScope.$broadcast(thEvents.jobClick, job);
         };
 
         var updateVisibleFields = function() {
@@ -112,57 +61,69 @@ treeherder.controller('PluginCtrl',
 
         $scope.starTypes = thStarTypes;
 
-        // load the list of existing notes (including possibly a new one just
+        // load the list of existing classifications (including possibly a new one just
         // added).
-        $scope.updateNotes = function() {
-            ThJobNoteModel.get_list({job_id: $scope.job.id}).then(function(response) {
-                $scope.notes = response;
+        $scope.updateclassifications = function() {
+            ThJobClassificationModel.get_list({job_id: $scope.job.id}).then(function(response) {
+                $scope.classifications = response;
             });
         };
-        // when notes comes in, then set the latest note for the job
-        $scope.$watch('notes', function(newValue, oldValue) {
+        // when classifications comes in, then set the latest note for the job
+        $scope.$watch('classifications', function(newValue, oldValue) {
             if (newValue && newValue.length > 0) {
                 $scope.job.note=newValue[0];
             }
         });
 
-        // open form to create a new note
-        $scope.addNote = function() {
-            var fci = 0;
-            if ($scope.notes && $scope.notes.length > 0) {
-                fci = $scope.notes[0].failure_classification_id;
-            }
-            $scope.newNote = new ThJobNoteModel({
-                job_id: $scope.job.id,
-                note: "",
-                who: $scope.username,
-                failure_classification_id: fci
-            });
-            $scope.focusInput=true;
+        /*
+         * Pinboard functionality
+         */
+        $scope.pinJob = function(job) {
+            thPinboard.pinJob(job);
         };
 
-        // done adding a new note, so clear and hide the form
-        $scope.clearNewNote = function() {
-            $scope.newNote = null;
+        $scope.unPinJob = function(id) {
+            thPinboard.unPinJob(id);
         };
 
-        // save the note and hide the form
-        $scope.saveNote = function() {
-            $scope.newNote.create()
-                .then(function(response){
-                    $scope.updateNotes();
-                    $scope.clearNewNote();
-                });
+        $scope.checkBug = function(bug) {
+            thPinboard.checkBug(bug);
         };
+
+        $scope.unCheckBug = function(id) {
+            thPinboard.unCheckBug(id);
+        };
+
+        $scope.unPinAll = function() {
+            thPinboard.unPinAll();
+        };
+
+        $scope.saveClassification = function() {
+            thPinboard.saveClassification();
+        };
+
+        $scope.hasPinnedJobs = function() {
+            return thPinboard.hasPinnedJobs();
+        };
+
+
+        $scope.viewJob = function(job) {
+            $rootScope.selectedJob = job;
+            $rootScope.$broadcast(thEvents.jobClick, job);
+        };
+
+        $scope.pinnedJobs = thPinboard.pinnedJobs;
+        $scope.checkedBugs = thPinboard.checkedBugs;
+
 
         $scope.tabs = {
             "tinderbox": {
                 title: "Job Details",
                 content: "plugins/tinderbox/main.html"
             },
-            "notes": {
-                title: "Notes",
-                content: "plugins/notes/main.html"
+            "annotations": {
+                title: "Annotations",
+                content: "plugins/annotations/main.html"
             },
             "bugs_suggestions": {
                 title: "Bugs suggestions",
