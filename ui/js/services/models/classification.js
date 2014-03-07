@@ -4,7 +4,7 @@ treeherder.factory('ThJobClassificationModel', ['$http', '$log', 'thUrl', functi
     // ThJobClassificationModel is the js counterpart of note
 
     var ThJobClassificationModel = function(data) {
-        // creates a new instance of ThJobArtifactModel
+        // creates a new instance of ThJobClassificationModel
         // using the provided properties
         angular.extend(this, data);
     };

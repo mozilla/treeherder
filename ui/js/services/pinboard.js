@@ -8,7 +8,7 @@ treeherder.factory('thPinboard',
     var relatedBugs = {};
 
     var classifyAndRelateBugs = function(job) {
-        var classification = this;
+        var classification = new ThJobClassificationModel(this);
         classification.job_id = job.id;
 
         console.log("classification: " + JSON.stringify(classification) + " for job: " + job.job_type_name);
