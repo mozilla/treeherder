@@ -8,7 +8,8 @@ from mock import patch
 
 from thclient import (TreeherderJob, TreeherderJobCollection,
     TreeherderRevision, TreeherderResultSet, TreeherderResultSetCollection,
-    TreeherderClientError, TreeherderRequest)
+    TreeherderClientError, TreeherderRequest, TreeherderArtifact,
+    TreeherderArtifactCollection)
 
 try:
     import json
@@ -60,6 +61,22 @@ class DataSetup(unittest.TestCase):
                     }
 
                 resultset['type'] = 'push'
+
+        # Load sample artifact
+
+        self.artifact_data = []
+
+        artifact_file = 'artifact_data.json'
+
+        self.artifact_data_file_path = os.path.join(
+            os.path.dirname(__file__),
+            'data',
+            artifact_file
+            )
+
+        with open(self.artifact_data_file_path) as f:
+            data = f.read()
+            self.artifact_data = json.loads(data)
 
     def compare_structs(self, struct1, struct2):
         """Compare two dictionary structures"""
@@ -165,6 +182,7 @@ class TreeherderResultsetTest(DataSetup, unittest.TestCase):
 
         self.assertRaises(TreeherderClientError, trs.validate)
 
+
 class TreeherderResultSetCollectionTest(DataSetup, unittest.TestCase):
 
     def test_resultset_collection(self):
@@ -176,6 +194,57 @@ class TreeherderResultSetCollectionTest(DataSetup, unittest.TestCase):
             trc.add(trs)
 
         self.assertTrue( len(self.resultset_data) == len(trc.data) )
+
+
+class TreeherderArtifactTest(DataSetup, unittest.TestCase):
+
+    def test_sample_data_validation(self):
+        """Confirm that the sample data validates"""
+
+        for artifact in self.artifact_data:
+
+            rs = TreeherderArtifact(artifact)
+            rs.validate()
+
+    def test_artifact_sample_data(self):
+        """Test all add methods for building an artifact"""
+
+        tac = TreeherderArtifactCollection()
+
+        for artifact in self.artifact_data:
+
+            ta = TreeherderArtifact()
+
+            ta.add_blob(artifact['blob'])
+            ta.add_job_id(artifact['job_id'])
+            ta.add_name(artifact['name'])
+            ta.add_type(artifact['type'])
+
+
+
+            self.compare_structs(ta.data, artifact)
+
+            tac.add(ta)
+
+            # confirm we get the same thing if we initialize from
+            # a resultset dict
+            ta_struct = TreeherderArtifact(artifact)
+
+            self.compare_structs(ta_struct.data, artifact)
+
+
+class TreeherderArtifactCollectionTest(DataSetup, unittest.TestCase):
+
+    def test_artifact_collection(self):
+        """Confirm the collection matches the sample data"""
+        tac = TreeherderArtifactCollection()
+
+        for artifact in self.artifact_data:
+            ta = TreeherderArtifact(artifact)
+            tac.add(ta)
+
+        self.assertTrue( len(self.artifact_data) == len(tac.data) )
+
 
 class TreeherderJobCollectionTest(DataSetup, unittest.TestCase):
 
@@ -341,6 +410,32 @@ class TreeherderRequestTest(DataSetup, unittest.TestCase):
             trc.data,
             mock_send.call_args_list[0][0][0].data
             )
+
+    @patch.object(TreeherderRequest, 'send')
+    def test_send_artifact_collection(self, mock_send):
+        """Can add a artifact collections to a TreeherderRequest."""
+
+        tac = TreeherderArtifactCollection()
+
+        for artifact in self.artifact_data:
+
+            tac.add(tac.get_artifact(artifact))
+
+        req = TreeherderRequest(
+            protocol='http',
+            host='host',
+            project='project',
+            oauth_key='key',
+            oauth_secret='secret',
+        )
+
+        req.send(tac)
+
+        self.assertEqual(mock_send.call_count, 1)
+        self.assertEqual(
+            tac.data,
+            mock_send.call_args_list[0][0][0].data
+        )
 
     @patch("thclient.client.oauth.generate_nonce")
     @patch("thclient.client.oauth.time.time")
