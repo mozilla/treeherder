@@ -18,7 +18,11 @@ treeherder.factory('thResultSets',
 
             // if there are any search params on the url line, they should
             // pass directly to the set of resultsets.
-            _.extend(params, $location.search());
+            // with the exception of ``repo``.  That has no effect on the
+            // service at this time, but it could be confusing.
+            var locationParams = $location.search();
+            delete locationParams.repo;
+            _.extend(params, locationParams);
 
             if (resultsetlist) {
                 _.extend(params, {
