@@ -124,6 +124,23 @@ Job collections can contain test results from any kind of test. The `revision_ha
     ]
 ```
 
+Artifact Collection
+--------------------
+
+Artifact collections contain arbitrary data associated with a job. This is usually a json blob of structured data produced by the build system during the job execution.
+
+```python
+    [
+        {
+            'type': 'json',
+            'name': 'my-artifact-name',
+            # blob can be any kind of structured data
+            'blob': { 'stuff': [1, 2, 3, 4, 5] },
+            'job_guid': 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
+        }
+    ]
+```
+
 Usage
 -----
 
@@ -251,6 +268,40 @@ If you want to use `TreeherderJobCollection` to build up the job data structures
     req.send(tjc)
 ```
 
+If you want to use `TreeherderArtifactCollection` to build up the job artifacts data structures to send, do something like this.
+
+```python
+    from thclient import TreeherderRequest, TreeherderArtifactCollection, TreeherderClientError
+
+    tac = TreeherderArtifactCollection()
+
+    for data in dataset:
+
+        ta = tac.get_artifact()
+
+        ta.add_blob( data['blob'] )
+        ta.add_name( data['name'] )
+        ta.add_type( data['type'] )
+        ta.add_job_guid( data['job_guid'] )
+
+        tac.add(ta)
+
+    # Send the collection to treeherder
+    req = TreeherderRequest(
+        protocol='https',
+        host='treeherder.mozilla.org',
+        project='project',
+        oauth_key='oauth-key',
+        oauth_secret='oauth-secret',
+        )
+
+    # Post the artifact collection
+    #
+    # data structure validation is automatically performed here, if validation
+    # fails a TreeherderClientError is raised
+    req.send(tac)
+```
+
 If you don't want to use `TreeherderResultCollection` or `TreeherderJobCollection` to build up the data structure to send, build the data structures directly and add them to the collection.
 
 ```python
@@ -303,6 +354,35 @@ If you don't want to use `TreeherderResultCollection` or `TreeherderJobCollectio
     # fails a TreeherderClientError is raised
     req.send(tjc)
 ```
+
+In the same way, if you don't want to use `TreeherderArtifactCollection` to build up the data structure to send, build the data structures directly and add them to the collection.
+
+```python
+    from thclient import TreeherderRequest, TreeherderArtifactCollection
+
+    tac = TreeherderArtifactCollection()
+
+    for artifact in artifact_data:
+        ta = tac.get_artifact(artifact)
+
+        # Add any additional data to ta.data here
+
+        # add artifact to collection
+        tac.add(ta)
+
+    req = TreeherderRequest(
+        protocol='https',
+        host='treeherder.mozilla.org',
+        project='project',
+        oauth_key='oauth-key',
+        oauth_secret='oauth-secret',
+        )
+
+    # Post the request to treeherder
+    req.send(tac)
+```
+
+
 
 Development
 -----------

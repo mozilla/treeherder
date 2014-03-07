@@ -460,7 +460,7 @@ class TreeherderArtifact(TreeherderData, ValidatorMixin):
             'blob': {'cb': self.validate_existence},
             'type': {'cb': self.validate_existence},
             'name': {'cb': self.validate_existence},
-            'job_id': {'type': int, 'cb': self.validate_existence}
+            'job_guid': {'cb': self.validate_existence}
         }
 
     def init_data(self):
@@ -472,8 +472,8 @@ class TreeherderArtifact(TreeherderData, ValidatorMixin):
             'type': '',
             # Stored in project_jobs_1.artifact.name
             'name': '',
-            # Stored in project_jobs_1.artifact.job_id
-            'job_id': None
+            # Stored in project_jobs_1.artifact.job_guid
+            'job_guid': None
         }
 
     def add_blob(self, blob):
@@ -485,8 +485,8 @@ class TreeherderArtifact(TreeherderData, ValidatorMixin):
     def add_name(self, name):
         self.data['name'] = name
 
-    def add_job_id(self, job_id):
-        self.data['job_id'] = job_id
+    def add_job_guid(self, job_guid):
+        self.data['job_guid'] = job_guid
 
 
 class TreeherderCollection(object):

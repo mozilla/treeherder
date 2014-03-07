@@ -216,7 +216,7 @@ class TreeherderArtifactTest(DataSetup, unittest.TestCase):
             ta = TreeherderArtifact()
 
             ta.add_blob(artifact['blob'])
-            ta.add_job_id(artifact['job_id'])
+            ta.add_job_guid(artifact['job_guid'])
             ta.add_name(artifact['name'])
             ta.add_type(artifact['type'])
 

@@ -6,7 +6,7 @@
         },
         "type": "json",
         "name": "Job Info",
-        "job_id": 32698
+        "job_guid": 32698
     },
     {
         "blob": {
@@ -182,7 +182,7 @@
         },
         "type": "json",
         "name": "Structured Log",
-        "job_id": 32698
+        "job_guid": 32698
     },
     {
         "blob": {
@@ -191,7 +191,7 @@
         },
         "type": "json",
         "name": "Job Info",
-        "job_id": 33028
+        "job_guid": 33028
     },
     {
         "blob": {
@@ -367,7 +367,7 @@
         },
         "type": "json",
         "name": "Structured Log",
-        "job_id": 33028
+        "job_guid": 33028
     },
     {
         "blob": {
@@ -376,7 +376,7 @@
         },
         "type": "json",
         "name": "Job Info",
-        "job_id": 32956
+        "job_guid": 32956
     },
     {
         "blob": {
@@ -552,7 +552,7 @@
         },
         "type": "json",
         "name": "Structured Log",
-        "job_id": 32956
+        "job_guid": 32956
     },
     {
         "blob": {
@@ -561,7 +561,7 @@
         },
         "type": "json",
         "name": "Job Info",
-        "job_id": 32975
+        "job_guid": 32975
     },
     {
         "blob": {
@@ -737,7 +737,7 @@
         },
         "type": "json",
         "name": "Structured Log",
-        "job_id": 32975
+        "job_guid": 32975
     },
     {
         "blob": {
@@ -746,7 +746,7 @@
         },
         "type": "json",
         "name": "Job Info",
-        "job_id": 32968
+        "job_guid": 32968
     },
     {
         "blob": {
@@ -922,6 +922,6 @@
         },
         "type": "json",
         "name": "Structured Log",
-        "job_id": 32968
+        "job_guid": 32968
     }
 ]
