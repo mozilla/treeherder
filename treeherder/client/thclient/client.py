@@ -616,7 +616,7 @@ class TreeherderRequest(object):
 
         if not isinstance(collection_inst, TreeherderCollection):
             
-            msg = '{0} should be an instance of TreeherderCollection'.format(collection_inst)
+            msg = '{0} should be an instance of TreeherderCollection'.format(type(collection_inst))
 
             raise TreeherderClientError(msg, [])
 
