@@ -99,8 +99,12 @@ treeherder.controller('PluginCtrl',
         };
 
         $scope.save = function() {
-            $scope.classification.who = $scope.user.email;
-            thPinboard.save($scope.classification);
+            if ($scope.user.loggedin) {
+                $scope.classification.who = $scope.user.email;
+                thPinboard.save($scope.classification);
+            } else {
+                alert("you must be logged in");
+            }
         };
 
         $scope.hasPinnedJobs = function() {
