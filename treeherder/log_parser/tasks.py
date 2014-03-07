@@ -11,10 +11,13 @@ import re
 
 from celery import task
 from django.conf import settings
+from django.core.urlresolvers import reverse
 
 from treeherder.model.derived import JobsModel, RefDataManager
 from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
 from treeherder.events.publisher import JobFailurePublisher, JobStatusPublisher
+from treeherder.etl.common import get_remote_content
+import urllib
 
 
 @task(name='parse-log')
@@ -41,6 +44,7 @@ def parse_log(project, job_id, result_set_id, check_errors=False):
         del(resultset["revision_hash"])
 
         log_references = jm.get_log_references(job_id)
+        artifact_uri = reverse("bugscache-list")
 
         # we may have many log references per job
         for log in log_references:
@@ -70,12 +74,23 @@ def parse_log(project, job_id, result_set_id, check_errors=False):
                     clean_line = pattern_obj.sub('', err['line'])
 
                     if clean_line not in open_bugs_cache:
-                        open_bugs_cache[clean_line] = rdm.get_suggested_bugs(
-                            clean_line)
+                        query_params = urllib.urlencode({
+                            "search": clean_line,
+                            "status": 'open'
+                        })
+
+                        open_bugs_cache[clean_line] = get_remote_content(
+                            "{0}?{1}".format(artifact_uri, query_params)
+                        )
 
                     if clean_line not in closed_bugs_cache:
-                        closed_bugs_cache[clean_line] = rdm.get_suggested_bugs(
-                            clean_line, open_bugs=False)
+                        query_params = urllib.urlencode({
+                            "search": clean_line,
+                            "status": 'closed'
+                        })
+                        closed_bugs_cache[clean_line] = get_remote_content(
+                            "{0}?{1}".format(artifact_uri, query_params)
+                        )
 
                     open_bugs_suggestions[ err['line'] ] = open_bugs_cache[clean_line]
                     closed_bugs_suggestions[ err['line'] ] = closed_bugs_cache[clean_line]

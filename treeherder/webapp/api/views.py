@@ -702,6 +702,12 @@ class BugscacheViewSet(viewsets.ReadOnlyModelViewSet):
     model = models.Bugscache
 
     def list(self, request):
+        """
+        Retrieves a list of bugs from the bugs cache
+
+        search -- Mandatory term of search
+        status -- Optional filter on the status. Can be 'open' or 'closed'. Open by default
+        """
         search_term = request.QUERY_PARAMS.get("search", None)
         if not search_term:
             return Response({"message": "the 'search' parameter is mandatory"}, status=400)
