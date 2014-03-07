@@ -2,7 +2,9 @@
 
 treeherder.factory('thPinboard',
                    ['$http', 'thUrl', 'ThJobClassificationModel', '$rootScope',
-                   function($http, thUrl, ThJobClassificationModel, $rootScope) {
+                    'thEvents',
+                   function($http, thUrl, ThJobClassificationModel, $rootScope,
+                            thEvents) {
 
     var pinnedJobs = {};
     var relatedBugs = {};
@@ -13,6 +15,7 @@ treeherder.factory('thPinboard',
 
         console.log("classification: " + JSON.stringify(classification) + " for job: " + job.job_type_name);
         classification.create();
+        $rootScope.$broadcast(thEvents.jobClassified, {job: job});
     };
 
     var api = {

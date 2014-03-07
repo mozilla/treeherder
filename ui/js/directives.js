@@ -66,9 +66,6 @@ treeherder.directive('thCloneJobs', function(
     };
 
     var togglePinJobCb = function(ev, el, job){
-        // todo: if another job is selected already, add that and this new one
-        // to the pinboard.
-        console.log("shift-clicked job");
         $rootScope.$broadcast(thEvents.jobPin, job);
     };
 
