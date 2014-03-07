@@ -1,5 +1,5 @@
 <div class="progress progress-striped active"
-     ng-show="isLoadingRsBatch.prepending">
+     ng-show="isLoadingRsBatch.prepending && result_sets.length === 0">
     <div class="progress-bar"  role="progressbar" style="width: 100%"></div>
 </div>
 
@@ -14,13 +14,16 @@
             <span class="btn btn-default btn-sm glyphicon glyphicon-download" ng-show="isLoadingJobs"></span>
             <th-action-button ng-hide="isLoadingJobs"></th-action-button>
             <span class="timestamp-name">
-                <span><a href="{{idResultsetFilterUrl}}">{{resultset.push_timestamp*1000|date:'medium'}}</a> - </span>
+                <span>
+                    <a href="{{revisionResultsetFilterUrl}}"
+                       title="open resultsets that contain revision {{resultset.revision}}"
+                       target="_blank">{{resultset.push_timestamp*1000|date:'medium'}}</a> - </span>
                 <th-author author="{{resultset.author}}"></th-author>
             </span>
         </span>
         <span class="col-xs-3 revision-link">
             <a href="{{revisionResultsetFilterUrl}}"
-               title="filter to only resultsets that contain revision {{revision}}"
+               title="open resultsets that contain revision {{resultset.revision}}"
                target="_blank">{{resultset.revision}}</a>
         </span>
         <span class="col-xs-1 btn btn-default btn-sm revision-button"
