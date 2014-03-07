@@ -99,6 +99,7 @@ treeherder.controller('PluginCtrl',
         };
 
         $scope.save = function() {
+            $scope.classification.who = $scope.user.email;
             thPinboard.save($scope.classification);
         };
 
@@ -112,7 +113,7 @@ treeherder.controller('PluginCtrl',
             $rootScope.$broadcast(thEvents.jobClick, job);
         };
 
-        $scope.classification = thPinboard.createNewClassification($rootScope.username);
+        $scope.classification = thPinboard.createNewClassification();
         $scope.pinnedJobs = thPinboard.pinnedJobs;
         $scope.relatedBugs = thPinboard.relatedBugs;
 

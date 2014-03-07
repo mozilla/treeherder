@@ -6,12 +6,12 @@ treeherder.factory('thPinboard',
 
     var pinnedJobs = {};
     var relatedBugs = {};
-    var newClassification;
 
     var classifyAndRelateBugs = function(job) {
         var classification = this;
-        console.log("classification: " + JSON.stringify(classification) + " for job: " + job.job_type_name);
         classification.job_id = job.id;
+
+        console.log("classification: " + JSON.stringify(classification) + " for job: " + job.job_type_name);
         classification.create();
     };
 
@@ -41,10 +41,10 @@ treeherder.factory('thPinboard',
         },
 
         // open form to create a new note
-        createNewClassification: function(username) {
+        createNewClassification: function() {
             return new ThJobClassificationModel({
                 note: "",
-                who: username,
+                who: null,
                 failure_classification_id: -1
             });
         },
