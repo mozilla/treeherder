@@ -191,6 +191,9 @@ treeherder.directive('thCloneJobs', function(
 
                 revision = resultset.revisions[i];
 
+                revision['urlBasePath'] = $rootScope.urlBasePath;
+                revision['currentRepo'] = $rootScope.currentRepo;
+
                 userTokens = revision.author.split(/[<>]+/);
                 if (userTokens.length > 1) {
                     revision['email'] = userTokens[1];
@@ -847,7 +850,9 @@ treeherder.directive('thAuthor', function () {
             scope.authorName = userTokens[0].trim();
             scope.authorEmail = email;
         },
-        template: '<span title="{{authorName}}: {{authorEmail}}"><a href="{{authorResultsetFilterUrl}}">{{authorName}}</a></span>'
+        template: '<span title="open resultsets for {{authorName}}: {{authorEmail}}">' +
+                      '<a href="{{authorResultsetFilterUrl}}" ' +
+                         'target="_blank">{{authorName}}</a></span>'
     };
 });
 

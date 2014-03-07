@@ -81,16 +81,16 @@
 
     <li>
         <span class="revision">
-            <a href="{{urlBasePath}}?revision={{revision}}"
+            <a href="{{urlBasePath}}?repo={{currentRepo.name}}&revision={{revision}}"
                target="_blank"
-               title="filter to only resultsets that contain revision {{revision}}"
+               title="open resultsets that contain revision {{revision}}"
                >{{revision}}</a>
             <a href="{{currentRepo.url}}/rev/{{revision}}"
                target="_blank"
                class="btn btn-default btn-xs"
-               title="navigate to repo revision info"
+               title="open revision {{revision}} on {{currentRepo.url}}"
                >
-                <i class="fa fa-external-link"></i>
+                <i class="fa fa-external-link-square"></i>
             </a>
             <span title="{{name}}: {{email}}">{{name}}</span>
             <span title="{{comments}}"><em>"{{comments}}"</em></span>
