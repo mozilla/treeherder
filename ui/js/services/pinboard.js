@@ -8,6 +8,13 @@ treeherder.factory('thPinboard',
     var relatedBugs = {};
     var newClassification;
 
+    var classifyAndRelateBugs = function(job) {
+        var classification = this;
+        console.log("classification: " + JSON.stringify(classification) + " for job: " + job.job_type_name);
+        classification.job_id = job.id;
+        classification.create();
+    };
+
     var api = {
         pinJob: function(job) {
             pinnedJobs[job.id] = job;
@@ -35,31 +42,17 @@ treeherder.factory('thPinboard',
 
         // open form to create a new note
         createNewClassification: function(username) {
-            var fci = 0;
-            newClassification = new ThJobClassificationModel({
+            return new ThJobClassificationModel({
                 note: "",
                 who: username,
-                failure_classification_id: fci
+                failure_classification_id: -1
             });
-            return newClassification;
-//            $scope.focusInput=true;
         },
 
-        // done adding a new note, so clear and hide the form
-        clearNewClassification: function() {
-            newClassification = null;
-        },
-
-        // save the classification to all pinned jobs
-        saveNewClassification: function() {
+        // save the classification and related bugs to all pinned jobs
+        save: function(classification) {
             // add job_id to the ThJobClassificationModel.
-//            job_id: $scope.job.id,
-
-//            $scope.newBatchClassification.create()
-//                .then(function(response){
-//                    $scope.updateclassifications();
-//                    $scope.clearNewNote();
-//                });
+            _.each(pinnedJobs, classifyAndRelateBugs, classification);
         },
 
         hasPinnedJobs: function() {

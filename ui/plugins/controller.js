@@ -98,8 +98,8 @@ treeherder.controller('PluginCtrl',
             thPinboard.unPinAll();
         };
 
-        $scope.saveClassification = function() {
-            thPinboard.saveClassification();
+        $scope.save = function() {
+            thPinboard.save($scope.classification);
         };
 
         $scope.hasPinnedJobs = function() {
@@ -112,6 +112,7 @@ treeherder.controller('PluginCtrl',
             $rootScope.$broadcast(thEvents.jobClick, job);
         };
 
+        $scope.classification = thPinboard.createNewClassification($rootScope.username);
         $scope.pinnedJobs = thPinboard.pinnedJobs;
         $scope.relatedBugs = thPinboard.relatedBugs;
 

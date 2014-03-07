@@ -1,25 +1,29 @@
 <div ng-controller="PluginCtrl">
     <div id="pinboard-panel"
-         ng-show="hasPinnedJobs()"><div><i class="glyphicon glyphicon-pushpin"></i> pinboard</div>
+         ng-show="hasPinnedJobs()">
+        <div class="bottom-panel-title"><i class="glyphicon glyphicon-pushpin"></i> pinboard</div>
         <div class="panel shadowed-panel pinboard-shadowed-panel">
             <span ng-repeat="job in pinnedJobs">
                 <th-pinned-job></th-pinned-job>
             </span>
         </div>
-        <div  id="pinboard-related-bugs-panel"><i class="fa fa-bug"></i> related bugs
+        <div  id="pinboard-related-bugs-panel">
+            <div class="bottom-panel-title"><i class="fa fa-bug"></i> related bugs</div>
             <div class="panel related-bugs shadowed-panel pinboard-shadowed-panel">
                 <span ng-repeat="bug in relatedBugs">
                       <th-related-bug></th-related-bug>
                 </span>
             </div>
         </div>
-        <div id="pinboard-classification-panel"><div><i class="glyphicon glyphicon-star"></i> classification</div>
+        <div id="pinboard-classification-panel">
+            <div class="bottom-panel-title"><i class="glyphicon glyphicon-star"></i> classification</div>
             <form ng-submit="saveNewClassification()" class="form">
-                <select ng-model="newClassification.failure_classification_id"
+                <select ng-model="classification.failure_classification_id"
                         class="pinboard-classification-select">
+                    <option value="-1">none</option>
                     <option ng-repeat="(value, star) in starTypes" value="{{value}}">{{star.name}}</option>
                 </select>
-                <input class="pinboard-classification-comment" ng-model="newClassification.note" focus-me="focusInput"/>
+                <input class="pinboard-classification-comment" ng-model="classification.note" focus-me="focusInput"/>
             </form>
         </div>
     </div>
@@ -44,7 +48,7 @@
         </div>
     </div>
     <div id="bottom-center-panel"
-         ng-class="{'with_pinboard_margin': hasPinnedJobs(), 'without_pinboard_margin': !hasPinnedJobs()}">
+         ng-class="{'with-pinboard-margin': hasPinnedJobs(), 'without-pinboard-margin': !hasPinnedJobs()}">
         <div class="panel shadowed-panel bottom-shadowed-panel">
             <div class="panel-body resizable">
                 <tabset class="tabs-below bottom-panel-tabs">
@@ -71,8 +75,8 @@
             <button class="btn btn-default btn-xs" title="pin job" ng-click="pinJob(job)">
                 <span class="glyphicon glyphicon-pushpin"></span> pin job
             </button>
-            <button class="btn btn-default btn-xs" title="pin job" ng-click="applyChanges()">
-                <span class="fa fa-save"></span> apply
+            <button class="btn btn-default btn-xs" title="save classification and bug associations" ng-click="save()">
+                <span class="fa fa-save"></span> save
             </button>
         </div>
         <div class="btn-group-vertical">
