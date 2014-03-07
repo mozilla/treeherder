@@ -831,6 +831,14 @@ treeherder.directive('thPinnedJob', function (thResultStatusInfo) {
     };
 });
 
+treeherder.directive('thRelatedBug', function () {
+
+    return {
+        restrict: "E",
+        templateUrl: 'partials/thRelatedBug.html'
+    };
+});
+
 treeherder.directive('thActionButton', function () {
 
     return {

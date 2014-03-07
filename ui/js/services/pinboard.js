@@ -5,7 +5,7 @@ treeherder.factory('thPinboard',
                    function($http, thUrl, ThJobClassificationModel, $rootScope) {
 
     var pinnedJobs = {};
-    var checkedBugs = {};
+    var relatedBugs = {};
     var newClassification;
 
     var api = {
@@ -25,13 +25,12 @@ treeherder.factory('thPinboard',
                 if (pinnedJobs.hasOwnProperty(id)) { delete pinnedJobs[id]; } }
         },
 
-        checkBug: function(bug) {
-            console.log("adding a bug");
-            checkedBugs[bug.id] = bug;
+        addBug: function(bug) {
+            relatedBugs[bug.id] = bug;
         },
 
-        unCheckBug: function(id) {
-            delete checkedBugs[id];
+        removeBug: function(id) {
+            delete relatedBugs[id];
         },
 
         // open form to create a new note
@@ -67,7 +66,7 @@ treeherder.factory('thPinboard',
             return !_.isEmpty(pinnedJobs);
         },
         pinnedJobs: pinnedJobs,
-        checkedBugs: checkedBugs
+        relatedBugs: relatedBugs
     };
 
     return api;

@@ -16,7 +16,7 @@
             <tbody>
                 <tr ng-repeat="bug in bug_list[visible] | orderBy:bug.relevance:reverse" ng-show="$index<3 || show_all">
                     <td>
-                        <span class="btn btn-xs btn-default" ng-click="checkBug(bug)"><i class="fa fa-plus"></i></span>
+                        <span class="btn btn-xs btn-default" ng-click="addBug(bug)"><i class="fa fa-plus"></i></span>
                     </td>
                     <td><a href="https://bugzilla.mozilla.org/show_bug.cgi?id={{bug.id}}">{{bug.id}}</a></td>
                     <td ng-class="{'deleted': bug.resolution!=''}">{{bug.summary}}</td>

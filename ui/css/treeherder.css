@@ -284,7 +284,7 @@ body {
 div.navbar-fixed-bottom{
     border-top: 1px solid #ccc;
     padding:5px 10px;
-    height:370px;
+    height:270px;
 }
 
 .table-super-condensed thead > tr > th,
@@ -301,39 +301,59 @@ div.navbar-fixed-bottom{
     margin:0 -20px 0 0;
 }
 div.navbar-fixed-bottom .tab-content{
-    height:300px;
+    height:160px;
     overflow-y: auto;
+}
+
+.bottom-panel-tabs .nav li a {
+    padding: 1px 10px 2px 10px;
 }
 
 div.navbar-fixed-bottom dt,
 div.navbar-fixed-bottom dt {
     font-size:.8em;
 }
-#bottom_left_panel {width:222px; position: absolute; left:5px;}
-#bottom_left_panel .panel{padding:5px;}
-#bottom_center_panel {margin-right: 110px; margin-left: 242px;}
-#bottom_menu{position: absolute; right:5px;}
-
-.with_pinboard_abs {
-    top: 91px;
+#bottom-left-panel {width:222px; position: absolute; left:5px;}
+#bottom-left-panel .panel{padding:5px;}
+#bottom-center-panel {
+    margin: 0 110px 0 242px;
 }
-.with_pinboard_margin {
+#bottom-menu {position: absolute; right:-5px; width: 100px}
+
+.bottom-shadowed-panel {
+    height: 195px;
+}
+
+.bottom-menu-group {
+    width: 90px;
+    margin-bottom: 5px;
+}
+/*
+ * pinboard
+ */
+
+.with-pinboard-abs {
+    top: 80px;
+}
+.with-pinboard-margin {
     margin-top: 5px;
 }
-.without_pinboard_abs {
+.without-pinboard-abs {
     top: 5px;
 }
 
-#pinboard_panel {
+#pinboard-panel {
     margin-right: 545px;
     margin-left: -5px;
 }
 
-.pinboard_shadowed_panel {
-    height: 61px;
+.pinboard-shadowed-panel {
+    height: 52px;
+    padding: 2px;
+    overflow: auto;
 }
 
-#pinboard_checked_bugs {
+#pinboard-related-bugs-panel {
     top: 5px;
     height: 95px;
     position: absolute;
@@ -341,15 +361,32 @@ div.navbar-fixed-bottom dt {
     width: 222px;
 }
 
-#pinboard_classification_panel {
+.pinboard-related-bug {
+    margin: 2px 1px;
+}
+
+#pinboard-classification-panel {
     position: absolute;
     top: 5px;
-    right:180px;
-    width: 100px;
+    right:100px;
+    width: 185px;
+}
+
+.pinboard-classification-comment {
+    width: 185px;
+    margin-top: 5px;
+}
+
+.pinboard-classification-select {
+    width: 185px;
 }
 
 .pinned-job {
-  padding: 0 2px 0 2px;
+  padding: 1px 7px;
+}
+
+.pinned-job-close-btn {
+    padding: 1px 2px 1px 2px;
 }
 
 
@@ -639,8 +676,8 @@ fieldset[disabled] .btn-purple.active {
 .btn-ltgray:focus,
 .btn-ltgray:active,
 .btn-ltgray.active {
-  border-color: #c7c7c7;
-  color: #d3d3d3;
+  border-color: #808080;
+  color: #808080;
 }
 .btn-ltgray.disabled:hover,
 .btn-ltgray.disabled:focus,

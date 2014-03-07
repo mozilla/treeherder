@@ -86,12 +86,12 @@ treeherder.controller('PluginCtrl',
             thPinboard.unPinJob(id);
         };
 
-        $scope.checkBug = function(bug) {
-            thPinboard.checkBug(bug);
+        $scope.addBug = function(bug) {
+            thPinboard.addBug(bug);
         };
 
-        $scope.unCheckBug = function(id) {
-            thPinboard.unCheckBug(id);
+        $scope.removeBug = function(id) {
+            thPinboard.removeBug(id);
         };
 
         $scope.unPinAll = function() {
@@ -113,7 +113,7 @@ treeherder.controller('PluginCtrl',
         };
 
         $scope.pinnedJobs = thPinboard.pinnedJobs;
-        $scope.checkedBugs = thPinboard.checkedBugs;
+        $scope.relatedBugs = thPinboard.relatedBugs;
 
 
         $scope.tabs = {
