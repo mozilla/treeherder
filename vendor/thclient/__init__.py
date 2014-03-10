@@ -4,4 +4,5 @@
 
 from .client import (TreeherderJob, TreeherderJobCollection,
     TreeherderRevision, TreeherderResultSet, TreeherderResultSetCollection,
+    TreeherderArtifact, TreeherderArtifactCollection,
     TreeherderClientError, TreeherderRequest)

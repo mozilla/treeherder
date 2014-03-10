@@ -445,6 +445,50 @@ class TreeherderResultSet(TreeherderData, ValidatorMixin):
     def get_revision(self, data={}):
         return TreeherderRevision(data)
 
+
+class TreeherderArtifact(TreeherderData, ValidatorMixin):
+    """
+    Supports building a treeherder job artifact
+    """
+
+    def __init__(self, data={}):
+
+        super(TreeherderArtifact, self).__init__(data)
+
+        # Provide minimal json structure validation
+        self.required_properties = {
+            'blob': {'cb': self.validate_existence},
+            'type': {'cb': self.validate_existence},
+            'name': {'cb': self.validate_existence},
+            'job_guid': {'cb': self.validate_existence}
+        }
+
+    def init_data(self):
+
+        self.data = {
+            # Stored in project_jobs_1.artifact.blob
+            'blob': '',
+            # Stored in project_jobs_1.artifact.type
+            'type': '',
+            # Stored in project_jobs_1.artifact.name
+            'name': '',
+            # Stored in project_jobs_1.artifact.job_guid
+            'job_guid': None
+        }
+
+    def add_blob(self, blob):
+        self.data['blob'] = blob
+
+    def add_type(self, type):
+        self.data['type'] = type
+
+    def add_name(self, name):
+        self.data['name'] = name
+
+    def add_job_guid(self, job_guid):
+        self.data['job_guid'] = job_guid
+
+
 class TreeherderCollection(object):
     """
     Base class for treeherder data collections
@@ -519,6 +563,22 @@ class TreeherderResultSetCollection(TreeherderCollection):
 
         return TreeherderResultSet(data)
 
+class TreeherderArtifactCollection(TreeherderCollection):
+    """
+    Collection of job artifacts
+    """
+
+    def __init__(self, data=[]):
+
+        super(TreeherderArtifactCollection, self).__init__(data)
+
+        self.endpoint_base = 'artifact'
+
+    def get_artifact(self, data={}):
+
+        return TreeherderArtifact(data)
+
+
 class TreeherderRequest(object):
     """
     Treeherder request object that manages test submission.
@@ -554,13 +614,9 @@ class TreeherderRequest(object):
         Send given treeherder collection instance data to server; returns httplib Response.
         """
 
-        if (not isinstance(collection_inst, TreeherderResultSetCollection)) and \
-            (not isinstance(collection_inst, TreeherderJobCollection)):
-
-            msg = '{0} is an invalid collection class type, should be {1} or {2}'.format(
-                type(collection_inst),
-                type(TreeherderResultSetCollection),
-                type(TreeherderJobCollection))
+        if not isinstance(collection_inst, TreeherderCollection):
+            
+            msg = '{0} should be an instance of TreeherderCollection'.format(type(collection_inst))
 
             raise TreeherderClientError(msg, [])
 
@@ -627,7 +683,7 @@ class TreeherderRequest(object):
                 )
         except AssertionError, e:
             print 'uri: %s' % uri
-            print 'body: %s' % body
+            print 'body: %s' % serialized_body
             raise
 
         signature_method = oauth.SignatureMethod_HMAC_SHA1()
