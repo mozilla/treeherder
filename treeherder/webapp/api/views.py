@@ -220,7 +220,20 @@ class ArtifactViewSet(viewsets.ViewSet):
     @with_jobs
     @oauth_required
     def create(self, request, project, jm):
-        jm.store_job_artifact(request.DATA)
+        artifact_data = []
+
+        job_guids = [x['job_guid'] for x in request.DATA]
+        job_id_lookup = jm.get_job_ids_by_guid(job_guids)
+
+        for datum in request.DATA:
+            artifact_data.append((
+                job_id_lookup[datum['job_guid']]['id'],
+                datum['name'],
+                datum['type'],
+                datum['blob']
+            ))
+
+        jm.store_job_artifact(artifact_data)
         return Response({'message': 'Artifacts stored successfully'})
 
 
@@ -648,7 +661,6 @@ class BugJobMapViewSet(viewsets.ViewSet):
             filter.conditions
         )
         return Response(objs)
-
 
 
 #####################

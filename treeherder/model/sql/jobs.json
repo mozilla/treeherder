@@ -426,10 +426,10 @@
 
             "host": "read_host"
         },
-        "get_result_set_by_id":{
-            "sql":"SELECT *
+        "get_result_set_push_timestamp":{
+            "sql":"SELECT id, push_timestamp
                    FROM result_set
-                   WHERE id = ?",
+                   WHERE id IN (REP0)",
             "host": "read_host"
         },
         "get_result_set_job_list":{

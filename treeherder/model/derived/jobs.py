@@ -546,15 +546,25 @@ class JobsModel(TreeherderModelBase):
 
         return data
 
-    def get_result_set_by_id(self, result_set_id):
-        """Get a single result_set by ``id``."""
-        proc = "jobs.selects.get_result_set_by_id"
+    def get_push_timestamp_lookup(self, result_set_ids):
+        """Get the push timestamp for a list of result_set."""
+
+        # Generate a list of result_set_ids
+        id_placeholders = []
+        repl = []
+        for data in result_set_ids:
+            id_placeholders.append('%s')
+        repl.append(','.join(id_placeholders))
+
+        proc = "jobs.selects.get_result_set_push_timestamp"
         data = self.get_jobs_dhub().execute(
             proc=proc,
-            placeholders=[result_set_id],
+            placeholders=result_set_ids,
             debug_show=self.DEBUG,
+            replace=repl,
+            return_type="dict",
+            key_column="id"
         )
-
         return data
 
     ##################
@@ -946,12 +956,7 @@ class JobsModel(TreeherderModelBase):
                 url = log.get('url', 'unknown')
                 url = url[0:255]
 
-                log_placeholders.append(
-                    [
-                        job_guid,
-                        name,
-                        url
-                        ] )
+                log_placeholders.append([job_guid, name, url])
 
         artifact = job.get('artifact', {})
         if artifact:
@@ -1057,9 +1062,12 @@ class JobsModel(TreeherderModelBase):
             placeholders=job_placeholders,
             executemany=True )
 
-        job_guid_where_in_clause = ",".join(job_guid_where_in_list)
+        return self.get_job_ids_by_guid(job_guid_list)
 
-        # Retrieve new job ids
+    def get_job_ids_by_guid(self, job_guid_list):
+
+        job_guid_where_in_clause = ",".join(["%s"] * len(job_guid_list))
+
         job_id_lookup = self.get_jobs_dhub().execute(
             proc='jobs.selects.get_job_ids_by_guids',
             debug_show=self.DEBUG,
@@ -1070,6 +1078,7 @@ class JobsModel(TreeherderModelBase):
 
         return job_id_lookup
 
+
     def _load_log_urls(self, log_placeholders, job_id_lookup,
                        job_results):
 
@@ -1078,18 +1087,22 @@ class JobsModel(TreeherderModelBase):
 
         tasks = []
 
+        result_sets = []
+
         if log_placeholders:
             for index, log_ref in enumerate(log_placeholders):
-                job_guid = log_placeholders[index][0]
+                job_guid = log_ref[0]
                 job_id = job_id_lookup[job_guid]['id']
                 result = job_results[job_guid]
                 result_set_id = job_id_lookup[job_guid]['result_set_id']
+                result_sets.append(result_set_id)
 
                 # Replace job_guid with id
                 log_placeholders[index][0] = job_id
 
                 task = dict()
-                task['id'] = job_id
+                task['job_guid'] = job_guid
+                task['log_url'] = log_ref[2]
                 task['result_set_id'] = result_set_id
                 if result != 'success':
                     task['check_errors'] = True
@@ -1099,6 +1112,9 @@ class JobsModel(TreeherderModelBase):
                     task['routing_key'] = 'parse_log.success'
                 tasks.append(task)
 
+            # a dict of result_set_id => push_timestamp
+            push_timestamp_lookup = self.get_push_timestamp_lookup(result_sets)
+
             # Store the log references
             self.get_jobs_dhub().execute(
                 proc='jobs.inserts.set_job_log_url',
@@ -1107,9 +1123,16 @@ class JobsModel(TreeherderModelBase):
                 executemany=True)
 
             for task in tasks:
-                parse_log.apply_async(args=[self.project, task['id'], task['result_set_id']],
-                                      kwargs={'check_errors': task['check_errors']},
-                                      routing_key=task['routing_key'])
+                parse_log.apply_async(
+                    args=[
+                        self.project,
+                        task['log_url'],
+                        task['job_guid'],
+                        push_timestamp_lookup[task['result_set_id']]
+                    ],
+                    kwargs={'check_errors': task['check_errors']},
+                    routing_key=task['routing_key']
+                )
 
 
     def store_job_artifact(self, artifact_placeholders):
