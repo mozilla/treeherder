@@ -1,5 +1,7 @@
+import json
 from django.core.urlresolvers import reverse
-
+from rest_framework.test import APIClient
+from django.contrib.auth.models import User
 
 def test_note_list(webapp, sample_notes, jm):
     """
@@ -113,8 +115,12 @@ def test_create_note(webapp, eleven_jobs_processed, jm):
     """
     test creating a single note via endpoint
     """
+    client = APIClient()
+    user = User.objects.create(username="MyName", is_staff=True)
+    client.force_authenticate(user=user)
+
     job = jm.get_job_list(0, 1)[0]
-    resp = webapp.post_json(
+    resp = client.post(
         reverse("note-list", kwargs={"project": jm.project}),
         {
             "job_id": job["id"],
@@ -123,9 +129,13 @@ def test_create_note(webapp, eleven_jobs_processed, jm):
             "note": "you look like a man-o-lantern"
         }
     )
+    
+    user.delete()
+    
+    assert resp.status_code == 200
 
-    assert resp.status_int == 200
-    assert resp.json['message'] == 'note stored for job 1'
+    content = json.loads(resp.content)
+    assert content['message'] == 'note stored for job 1'
 
     note_list = jm.get_job_note_list(job_id=job["id"])
     del(note_list[0]["note_timestamp"])
@@ -138,3 +148,23 @@ def test_create_note(webapp, eleven_jobs_processed, jm):
         u'active_status': u'active',
         u'id': 1
     }
+
+
+def test_create_note_no_auth(eleven_jobs_processed, jm):
+    """
+    test creating a single note via endpoint
+    """
+    client = APIClient()
+
+    job = jm.get_job_list(0, 1)[0]
+    resp = client.post(
+        reverse("note-list", kwargs={"project": jm.project}),
+        {
+            "job_id": job["id"],
+            "failure_classification_id": 2,
+            "who": "kelly clarkson",
+            "note": "you look like a man-o-lantern"
+        }
+    )
+
+    assert resp.status_code == 403

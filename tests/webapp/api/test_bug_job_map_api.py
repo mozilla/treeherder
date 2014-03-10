@@ -1,11 +1,16 @@
 from django.core.urlresolvers import reverse
+from rest_framework.test import APIClient
+from django.contrib.auth.models import User
 import random
+import json
 
 
-def test_create_bug_job_map(webapp, eleven_jobs_processed, jm):
+def test_create_bug_job_map_no_auth(eleven_jobs_processed, jm):
     """
     test creating a single note via endpoint
     """
+    client = APIClient()
+
     job = jm.get_job_list(0, 1)[0]
 
     bug_job_map_obj = {
@@ -14,9 +19,36 @@ def test_create_bug_job_map(webapp, eleven_jobs_processed, jm):
         "type": "manual"
     }
 
-    resp = webapp.post_json(
+    resp = client.post(
         reverse("bug-job-map-list", kwargs={"project": jm.project}),
-        bug_job_map_obj)
+        bug_job_map_obj, expect_errors=True)
+
+    assert resp.status_code == 403
+
+
+def test_create_bug_job_map(eleven_jobs_processed, jm):
+    """
+    test creating a single note via endpoint
+    """
+
+    client = APIClient()
+    user = User.objects.create(username="MyName", is_staff=True)
+    client.force_authenticate(user=user)
+
+    job = jm.get_job_list(0, 1)[0]
+
+    bug_job_map_obj = {
+        "job_id": job["id"],
+        "bug_id": 1,
+        "type": "manual"
+    }
+
+    client.post(
+        reverse("bug-job-map-list", kwargs={"project": jm.project}),
+        bug_job_map_obj
+    )
+    
+    user.delete()
 
     assert (bug_job_map_obj,) == jm.get_bug_job_map_list(0, 1)
 
@@ -70,6 +102,10 @@ def test_bug_job_map_delete(webapp, jm, eleven_jobs_processed):
     """
     test retrieving a list of bug_job_map
     """
+    client = APIClient()
+    user = User.objects.create(username="MyName", is_staff=True)
+    client.force_authenticate(user=user)
+
     job_id = jm.get_job_list(0, 1)[0]["id"]
     bug_id = random.randint(0, 100)
 
@@ -79,11 +115,39 @@ def test_bug_job_map_delete(webapp, jm, eleven_jobs_processed):
 
 
 
-    resp = webapp.delete_json(
+    resp = client.delete(
+        reverse("bug-job-map-detail", kwargs={
+            "project": jm.project,
+            "pk": pk
+        })
+    )
+    
+    user.delete()
+
+    content = json.loads(resp.content)
+    assert content == {"message": "Bug job map deleted"}
+
+
+def test_bug_job_map_delete_no_auth(jm, eleven_jobs_processed):
+    """
+    test retrieving a list of bug_job_map
+    """
+    client = APIClient()
+
+    job_id = jm.get_job_list(0, 1)[0]["id"]
+    bug_id = random.randint(0, 100)
+
+    jm.insert_bug_job_map(job_id, bug_id, "manual")
+
+    pk = "{0}-{1}".format(job_id, bug_id)
+
+
+
+    resp = client.delete(
         reverse("bug-job-map-detail", kwargs={
             "project": jm.project,
             "pk": pk
         })
     )
 
-    assert resp.json == {"message": "Bug job map deleted"}
+    assert resp.status_code == 403
