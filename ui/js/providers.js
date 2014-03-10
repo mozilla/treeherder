@@ -10,7 +10,7 @@ treeherder.provider('thServiceDomain', function() {
     };
 });
 
-treeherder.provider('thStarTypes', function() {
+treeherder.provider('thClassificationTypes', function() {
     this.$get = function() {
         return {
             0: {
@@ -196,7 +196,11 @@ treeherder.provider('thEvents', function() {
 
             // fired when jobs are either classified locally, or we are
             // notified about a classification over socket.io
-            jobClassified: "job-classified-EVT",
+            jobsClassified: "jobs-classified-EVT",
+
+            // fired when bugs are associated to jobs locally, or we are
+            // notified about a bug association over socket.io
+            bugsAssociated: "bugs-associated-EVT",
 
             // after loading a group of jobs queued during socket.io events
             jobsLoaded: "jobs-loaded-EVT",

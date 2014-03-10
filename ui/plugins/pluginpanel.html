@@ -1,4 +1,5 @@
 <div ng-controller="PluginCtrl">
+    <div class="bottom-panel-title" ng-hide="hasPinnedJobs()">Pin one or more jobs to classify (shift-click).</div>
     <div id="pinboard-panel"
          ng-show="hasPinnedJobs()">
         <div class="bottom-panel-title"><i class="glyphicon glyphicon-pushpin"></i> pinboard</div>
@@ -16,12 +17,12 @@
             </div>
         </div>
         <div id="pinboard-classification-panel">
-            <div class="bottom-panel-title"><i class="glyphicon glyphicon-star"></i> classification</div>
+            <div class="bottom-panel-title"><i class="fa fa-star"></i> classification</div>
             <form ng-submit="saveNewClassification()" class="form">
                 <select ng-model="classification.failure_classification_id"
                         class="pinboard-classification-select">
                     <option value="-1">none</option>
-                    <option ng-repeat="(value, star) in starTypes" value="{{value}}">{{star.name}}</option>
+                    <option ng-repeat="(value, star) in classificationTypes" value="{{value}}">{{star.name}}</option>
                 </select>
                 <input class="pinboard-classification-comment" ng-model="classification.note" focus-me="focusInput"/>
             </form>
@@ -66,21 +67,41 @@
     <div id="bottom-menu"
          class="without-pinboard-abs">
         <div class="btn-group-vertical bottom-menu-group">
-            <button type="button" class="btn btn-xs btn-default close-btn" ng-click="clearJob()">
+            <button type="button"
+                    class="btn btn-xs btn-default close-btn"
+                    ng-click="clearJob()">
                 <span class="glyphicon glyphicon-remove"></span> close
             </button>
-            <button type="button" class="btn btn-xs btn-default close-btn" ng-click="unPinAll()">
-                <span class="glyphicon glyphicon-remove"></span> un-pin all
-            </button>
-            <button class="btn btn-default btn-xs" title="pin job" ng-click="pinJob(job)">
+            <button class="btn btn-default btn-xs"
+                    title="pin job"
+                    ng-click="pinJob(job)">
                 <span class="glyphicon glyphicon-pushpin"></span> pin job
             </button>
-            <button class="btn btn-default btn-xs" title="save classification and bug associations" ng-click="save()">
+            <button type="button"
+                    class="btn btn-xs btn-default close-btn"
+                    ng-show="hasPinnedJobs()"
+                    ng-click="unPinAll()">
+                <span class="glyphicon glyphicon-remove"></span> un-pin all
+            </button>
+        </div>
+        <div class="save-btn-group btn-group bottom-menu-group"
+             ng-show="hasPinnedJobs()">
+            <button class="btn btn-default btn-xs save-btn"
+                    title="save classification and bug associations"
+                    ng-click="save()">
                 <span class="fa fa-save"></span> save
             </button>
+            <button type="button" class="btn btn-default btn-xs dropdown-toggle save-btn-dropdown" data-toggle="dropdown">
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu pull-right" role="menu">
+                <li><a ng-click="saveClassificationOnly()"><i class="fa fa-star"></i> classification only</a></li>
+                <li><a ng-click="saveBugsOnly()"><i class="fa fa-bug"></i> bugs only</a></li>
+            </ul>
         </div>
         <div class="btn-group-vertical">
             <div class="btn btn-default btn-xs"
+                 ng-show="logs"
                  ng-disabled="artifacts.length>0">
                 <a target="_blank" href="{{ lvUrl }}">Structured log</a>
             </div>

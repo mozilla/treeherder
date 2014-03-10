@@ -923,7 +923,7 @@ treeherder.directive('focusMe', function($timeout) {
   };
 });
 
-treeherder.directive('thStar', function ($parse, thStarTypes) {
+treeherder.directive('thStar', function ($parse, thClassificationTypes) {
     return {
         scope: {
             starId: "="
@@ -931,7 +931,7 @@ treeherder.directive('thStar', function ($parse, thStarTypes) {
         link: function(scope, element, attrs) {
             scope.$watch('starId', function(newVal) {
                 if (newVal !== undefined) {
-                    scope.starType = thStarTypes[newVal];
+                    scope.starType = thClassificationTypes[newVal];
                     scope.badgeColorClass=scope.starType.star;
                     scope.hoverText=scope.starType.name;
                 }

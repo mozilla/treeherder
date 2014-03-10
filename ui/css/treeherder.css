@@ -341,6 +341,18 @@ div.navbar-fixed-bottom dt {
     width: 90px;
     margin-bottom: 5px;
 }
+
+.save-btn {
+    width: 73px;
+}
+
+.save-btn-dropdown {
+    width: 18px;
+}
+
+.btn-group + .btn + .save-btn-dropdown {
+    margin-left: -5px;
+}
 /*
  * pinboard
  */
@@ -352,7 +364,7 @@ div.navbar-fixed-bottom dt {
     margin-top: 3px;
 }
 .without-pinboard-abs {
-    top: 5px;
+    top: 25px;
 }
 
 #pinboard-panel {

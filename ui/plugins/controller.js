@@ -2,7 +2,7 @@
 
 treeherder.controller('PluginCtrl',
     function PluginCtrl($scope, $rootScope, $resource, $http,
-                        thServiceDomain, thUrl, ThJobClassificationModel, thStarTypes,
+                        thServiceDomain, thUrl, ThJobClassificationModel, thClassificationTypes,
                         ThJobModel, thEvents, dateFilter, numberFilter,
                         thPinboard, $log) {
 
@@ -59,7 +59,7 @@ treeherder.controller('PluginCtrl',
             $scope.pinJob(job);
         });
 
-        $scope.starTypes = thStarTypes;
+        $scope.classificationTypes = thClassificationTypes;
 
         // load the list of existing classifications (including possibly a new one just
         // added).
@@ -103,7 +103,29 @@ treeherder.controller('PluginCtrl',
                 $scope.classification.who = $scope.user.email;
                 thPinboard.save($scope.classification);
             } else {
-                alert("you must be logged in");
+                // @@@ DEBUG ONLY!!!!
+                $scope.classification.who = "guest";
+                thPinboard.save($scope.classification);
+            }
+        };
+
+        $scope.saveClassificationOnly = function() {
+            if ($scope.user.loggedin) {
+                $scope.classification.who = $scope.user.email;
+                thPinboard.saveClassificationOnly($scope.classification);
+            } else {
+                // @@@ DEBUG ONLY!!!!
+                $scope.classification.who = "cdawson@mozilla.com";
+                thPinboard.saveClassificationOnly($scope.classification);
+            }
+        };
+
+        $scope.saveBugsOnly = function() {
+            if ($scope.user.loggedin) {
+                thPinboard.saveBugsOnly();
+            } else {
+                // @@@ DEBUG ONLY!!!!
+                thPinboard.saveBugsOnly();
             }
         };
 
