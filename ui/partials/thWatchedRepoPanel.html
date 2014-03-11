@@ -9,9 +9,8 @@
         <span>
             <form role="search" class="form-inline">
                 <span class="label label-primary">0 unstarred</span>
-                <div class="form-group form-inline">
-                        <input type="text"
-                               ng-model="query"
+                <div ng-controller="SearchCtrl" class="form-group form-inline">
+                        <input ng-model="searchQuery" ng-keyup="search($event)" type="text"
                                class="form-control input-sm"
                                placeholder="Filter platforms & jobs">
                 </div>
