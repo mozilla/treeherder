@@ -8,7 +8,7 @@ treeherder.controller('JobsCtrl',
         // load our initial set of resultsets
         // scope needs this function so it can be called directly by the user, too.
         $scope.fetchResultSets = function(count) {
-            ThResultSetModel.fetchResultSets(count);
+            ThResultSetModel.fetchResultSets($scope.repoName, count);
         };
 
         // set the default repo to mozilla-inbound if not specified
@@ -20,21 +20,21 @@ treeherder.controller('JobsCtrl',
         }
         ThRepositoryModel.setCurrent($rootScope.repoName);
 
-        // the primary data model
-        ThResultSetModel.init(10000, $scope.repoName);
 
-        $scope.isLoadingRsBatch = ThResultSetModel.loadingStatus;
-        $scope.result_sets = ThResultSetModel.getResultSetsArray();
-console.log('result_sets reset to');
-console.log($scope.result_sets);
-        $scope.job_map = ThResultSetModel.getJobMap();
+        ThResultSetModel.addRepository($scope.repoName);
+
+        $scope.isLoadingRsBatch = ThResultSetModel.getLoadingStatus($scope.repoName);
+        $scope.result_sets = ThResultSetModel.getResultSetsArray($scope.repoName);
+        $scope.job_map = ThResultSetModel.getJobMap($scope.repoName);
         $scope.statusList = thResultStatusList;
 
         // load the list of repos into $rootScope, and set the current repo.
         ThRepositoryModel.load($scope.repoName);
 
-        // get our first set of resultsets
-        $scope.fetchResultSets(10);
+        if(ThResultSetModel.isNotLoaded($scope.repoName)){
+            // get our first set of resultsets
+            $scope.fetchResultSets(10);
+        }
 
     }
 );
@@ -76,7 +76,10 @@ treeherder.controller('ResultSetCtrl',
 
         $scope.toggleRevisions = function() {
 
-            ThResultSetModel.loadRevisions($scope.resultset.id);
+            ThResultSetModel.loadRevisions(
+                $rootScope.repoName, $scope.resultset.id
+                );
+
             $rootScope.$broadcast(
                 thEvents.toggleRevisions, $scope.resultset
                 );
