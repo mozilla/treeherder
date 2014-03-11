@@ -214,13 +214,16 @@ treeherder.controller('StatusFilterPanelCtrl',
 );
 
 treeherder.controller('SearchCtrl',
-    function SearchCtrl($scope, $rootScope){
+    function SearchCtrl($scope, $rootScope, thEvents){
 
-        $scope.searchQuery = "";
+        $rootScope.searchQuery = "";
 
         $scope.search = function(ev){
             //User hit enter
-            if( ($scope.searchQuery.length >= 3) || (ev.keyCode === 13) ){
+            if( (ev.keyCode === 13) ||
+                ($scope.searchQuery === "") ){
+
+                $rootScope.searchQuery = $scope.searchQuery;
 
                 $rootScope.$broadcast(
                     thEvents.searchPage,

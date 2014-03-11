@@ -21,7 +21,7 @@
  * Each field is AND'ed so that, if a field exists in ``filters`` then the job
  * must match at least one value in every field.
  */
-treeherder.factory('thJobFilters', function(thResultStatusList, $log) {
+treeherder.factory('thJobFilters', function(thResultStatusList, $log, $rootScope) {
 
     /**
      * If a custom resultStatusList is passed in (like for individual
@@ -177,13 +177,20 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log) {
          *        that can be used for individual resultsets
          */
         showJob: function(job, resultStatusList) {
-            var fields = _.keys(filters);
-
-            for(var i = 0; i < fields.length; i++) {
-                if (!checkFilter(fields[i], job, resultStatusList)) {
+            for(var i = 0; i < filterKeys.length; i++) {
+                if (!checkFilter(filterKeys[i], job, resultStatusList)) {
                     return false;
                 }
             }
+            if($rootScope.searchQuery != ""){
+                //Confirm job matches search query
+                if(job.searchableStr.toLowerCase().indexOf(
+                    $rootScope.searchQuery.toLowerCase()
+                    ) === -1){
+                    return false;
+                }
+            }
+
             return true;
         },
         getFilters: function() {
@@ -213,6 +220,8 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log) {
             removeWhenEmpty: false
         }
     };
+
+    var filterKeys = _.keys(filters);
 
     return api;
 
