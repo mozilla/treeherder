@@ -2,6 +2,7 @@ import pytest
 import json
 from webtest.app import TestApp
 from treeherder.etl.mixins import JsonLoaderMixin, OAuthLoaderMixin
+from treeherder.etl.oauth_utils import OAuthCredentials
 from treeherder.webapp.wsgi import application
 from treeherder.etl import common
 
@@ -14,8 +15,8 @@ def mock_post_json_data(monkeypatch, jm):
 
         th_collection = data[jm.project]
 
-        OAuthLoaderMixin.set_credentials( SampleData.get_credentials() )
-        credentials = OAuthLoaderMixin.get_credentials(jm.project)
+        OAuthCredentials.set_credentials( SampleData.get_credentials() )
+        credentials = OAuthCredentials.get_credentials(jm.project)
 
         tr = TreeherderRequest(
             protocol='http',

@@ -3,14 +3,16 @@ import pytest
 import simplejson as json
 from webtest.app import TestApp
 
-from django.core.urlresolvers import reverse
 from django.template import Context, Template
 
 from treeherder.webapp.wsgi import application
 
-from thclient import TreeherderJobCollection
+from thclient import (TreeherderJobCollection, TreeherderRequest)
 
+from treeherder.etl.oauth_utils import OAuthCredentials
+from tests.sampledata import SampleData
 from tests import test_utils
+
 
 @pytest.fixture
 def pending_jobs():
@@ -72,7 +74,7 @@ def running_jobs_stored(
 
 @pytest.fixture
 def completed_jobs_stored(
-    jm, completed_jobs, result_set_stored):
+    jm, completed_jobs, result_set_stored, mock_send_request ):
     """
     stores a list of buildapi completed jobs into the objectstore
     """
@@ -88,3 +90,27 @@ def completed_jobs_stored(
 @pytest.fixture
 def completed_jobs_loaded(jm, completed_jobs_stored):
     jm.process_objects(1, raise_errors=True)
+
+
+@pytest.fixture
+def mock_send_request(monkeypatch, jm):
+    def _send(th_request, th_collection):
+
+        OAuthCredentials.set_credentials(SampleData.get_credentials())
+        credentials = OAuthCredentials.get_credentials(jm.project)
+
+        th_request.oauth_key = credentials['consumer_key']
+        th_request.oauth_secret = credentials['consumer_secret']
+
+        signed_uri = th_request.get_signed_uri(
+            th_collection.to_json(), th_request.get_uri(th_collection)
+        )
+
+        response = TestApp(application).post_json(
+            str(signed_uri), params=th_collection.get_collection_data()
+        )
+
+        response.getcode = lambda: response.status_int
+        return response
+
+    monkeypatch.setattr(TreeherderRequest, 'send', _send)
