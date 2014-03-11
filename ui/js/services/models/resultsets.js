@@ -20,21 +20,89 @@ treeherder.factory('ThResultSetModel',
     */
 
     // the primary data model
-    var resultSets,
-        updateQueueInterval,
-        rsOffset,
+    var repositories = {};
 
-        repoName,
+    var updateQueueInterval = 10000;
 
-    // queues of updates that have come over socket.io.  Processed at intervals
-        jobUpdateQueue,
-        rsUpdateQueue,
+    var addRepository = function(repoName){
+        //Initialize a new repository in the repositories structure
 
-    // maps to help finding objects to update/add
-        rsMap,
-        jobMap,
-        jobMapOldestId,
-        rsMapOldestTimestamp;
+        if(_.isEmpty(repositories[repoName])){
+            repositories[repoName] = {
+
+                name:repoName,
+
+                //This is set to the id of the last resultset loaded
+                //and used as the offset in paging
+                rsOffsetId:0,
+
+                // queues of updates that have come over socket.io.
+                // Processed at intervals
+                jobUpdateQueue:[],
+                rsUpdateQueue:[],
+
+                // maps to help finding objects to update/add
+                rsMap:{},
+                jobMap:{},
+                jobMapOldestId:null,
+                rsMapOldestTimestamp:null,
+                resultSets:[],
+
+                // this is "watchable" by the controller now to update its scope.
+                loadingStatus: {
+                    appending: false,
+                    prepending: false
+                },
+            };
+
+            // Add a connect listener
+            thSocket.on('connect',function() {
+                thSocket.emit('subscribe', repoName + '.job');
+                });
+
+            //Set up job update queue
+            setInterval(
+                _.bind(processUpdateQueues, $rootScope, repoName),
+                updateQueueInterval
+                );
+
+            //Set up the socket listener
+            thSocket.on(
+                "job",
+                _.bind(processSocketData, $rootScope, repoName)
+                );
+        }
+    };
+
+    var processSocketData = function(repoName, data){
+        /******
+         * Process a new ``job`` event notification.
+         * Check the job's ``result_set_id``.  If the id belongs to a resulset
+         * we already have in memory, add it to the ``jobUpdateQueue``.  If
+         * not, then check if the ``resultset_id`` is newer or older than the
+         * oldest rs_id we have in memory.  If it's newer, then add the
+         * ``resultset_id`` to ``rsUpdateQueue``.
+         *
+         * So basically, if we see a job belonging to a newer resultset we
+         * don't yet have loaded, then add it to the list of resultsets to
+         * fetch.  Fetching a resultset also gets all its jobs, so we don't
+         * need to add it to the ``jobUpdateQueue``.
+         */
+        if (data.branch === repoName) {
+            if (data.resultset.push_timestamp >= repositories[repoName].rsMapOldestTimestamp) {
+                // we want to load this job, one way or another
+                if (repositories[repoName].rsMap[data.resultset.id]) {
+                    // we already have this resultset loaded, so queue the job
+                    repositories[repoName].jobUpdateQueue.push(data.id);
+                } else {
+                    // we haven't loaded this resultset yet, so queue it
+                    if (repositories[repoName].rsUpdateQueue.indexOf(data.resultset.id) < 0) {
+                        repositories[repoName].rsUpdateQueue.push(data.resultset.id);
+                    }
+                }
+            }
+        }
+    };
 
     var getJobMapKey = function(job) {
         //Build string key for jobMap entires
@@ -55,7 +123,7 @@ treeherder.factory('ThResultSetModel',
      *
      * @param data The array of resultsets to map.
      */
-    var mapResultSets = function(data) {
+    var mapResultSets = function(repoName, data) {
 
         for (var rs_i = 0; rs_i < data.length; rs_i++) {
             var rs_obj = data[rs_i];
@@ -66,12 +134,13 @@ treeherder.factory('ThResultSetModel',
                 rs_obj: rs_obj,
                 platforms: {}
             };
-            rsMap[rs_obj.id] = rsMapElement;
+            repositories[repoName].rsMap[rs_obj.id] = rsMapElement;
 
             // keep track of the oldest push_timestamp, so we don't auto-fetch resultsets
             // that are out of the range we care about.
-            if (!rsMapOldestTimestamp || rsMapOldestTimestamp > rs_obj.push_timestamp) {
-                rsMapOldestTimestamp = rs_obj.push_timestamp;
+            if ( !repositories[repoName].rsMapOldestTimestamp ||
+                 (repositories[repoName].rsMapOldestTimestamp > rs_obj.push_timestamp)) {
+                repositories[repoName].rsMapOldestTimestamp = rs_obj.push_timestamp;
             }
 
             // platforms
@@ -80,11 +149,11 @@ treeherder.factory('ThResultSetModel',
 
                 var plMapElement = {
                     pl_obj: pl_obj,
-                    parent: rsMap[rs_obj.id],
+                    parent: repositories[repoName].rsMap[rs_obj.id],
                     groups: {}
                 };
                 var platformKey = getPlatformKey(pl_obj.name, pl_obj.option);
-                rsMap[rs_obj.id].platforms[platformKey] = plMapElement;
+                repositories[repoName].rsMap[rs_obj.id].platforms[platformKey] = plMapElement;
 
                 // groups
                 for (var gp_i = 0; gp_i < pl_obj.groups.length; gp_i++) {
@@ -107,22 +176,24 @@ treeherder.factory('ThResultSetModel',
                             parent: grMapElement
                         };
                         grMapElement.jobs[key] = jobMapElement;
-                        jobMap[key] = jobMapElement;
+                        repositories[repoName].jobMap[key] = jobMapElement;
 
                         // track oldest job id
-                        if (!jobMapOldestId || jobMapOldestId > job_obj.id) {
-                            jobMapOldestId = job_obj.id;
+                        if (!repositories[repoName].jobMapOldestId ||
+                            (repositories[repoName].jobMapOldestId > job_obj.id)) {
+                            repositories[repoName].jobMapOldestId = job_obj.id;
                         }
                     }
                 }
             }
         }
 
-        resultSets.sort(rsCompare);
-        $log.debug("oldest job: " + jobMapOldestId);
-        $log.debug("oldest result set: " + rsMapOldestTimestamp);
+        repositories[repoName].resultSets.sort(rsCompare);
+
+        $log.debug("oldest job: " + repositories[repoName].jobMapOldestId);
+        $log.debug("oldest result set: " + repositories[repoName].rsMapOldestTimestamp);
         $log.debug("done mapping:");
-        $log.debug(rsMap);
+        $log.debug(repositories[repoName].rsMap);
     };
 
     /**
@@ -144,8 +215,8 @@ treeherder.factory('ThResultSetModel',
      * @param newJob
      * @returns plMapElement
      */
-    var getOrCreatePlatform = function(newJob) {
-        var rsMapElement = rsMap[newJob.result_set_id];
+    var getOrCreatePlatform = function(repoName, newJob) {
+        var rsMapElement = repositories[repoName].rsMap[newJob.result_set_id];
         var platformKey = getPlatformKey(newJob.platform, newJob.option);
         var plMapElement = rsMapElement.platforms[platformKey];
         if (!plMapElement) {
@@ -178,8 +249,8 @@ treeherder.factory('ThResultSetModel',
      * @param newJob
      * @returns grpMapElement
      */
-    var getOrCreateGroup = function(newJob) {
-        var plMapElement = getOrCreatePlatform(newJob);
+    var getOrCreateGroup = function(repoName, newJob) {
+        var plMapElement = getOrCreatePlatform(repoName, newJob);
         var grMapElement = plMapElement.groups[newJob.job_group_name];
         if (!grMapElement) {
             $log.debug("adding new group");
@@ -215,23 +286,24 @@ treeherder.factory('ThResultSetModel',
      * Then we fetch the remaining jobs in a batch and add them to their
      * appropriate resultset.
      */
-    var processUpdateQueues = function() {
-
+    var processUpdateQueues = function(repoName) {
         $log.debug("Processing update queue.  jobs: " +
-            jobUpdateQueue.length +
+            repositories[repoName].jobUpdateQueue.length +
             ", resultsets: " +
-            rsUpdateQueue.length);
+            repositories[repoName].rsUpdateQueue.length);
         // clear the ``jobUpdateQueue`` so we won't miss items that get
         // added while in the process of fetching the current queue items.
-        var rsFetchList = rsUpdateQueue;
-        rsUpdateQueue = [];
-        var jobFetchList = jobUpdateQueue;
-        jobUpdateQueue = [];
+        var rsFetchList = repositories[repoName].rsUpdateQueue;
+        repositories[repoName].rsUpdateQueue = [];
+
+
+        var jobFetchList = repositories[repoName].jobUpdateQueue;
+        repositories[repoName].jobUpdateQueue = [];
 
         if (rsFetchList.length > 0) {
             // fetch these resultsets in a batch and put them into the model
             $log.debug("processing the rsFetchList");
-            api.fetchNewResultSets(rsFetchList);
+            fetchNewResultSets(repoName, rsFetchList);
         }
 
         if (jobFetchList.length > 0) {
@@ -243,7 +315,7 @@ treeherder.factory('ThResultSetModel',
             ThJobModel.get_list({
                 id__in: jobFetchList.join()
             }).then(
-                updateJobs,
+                _.bind(updateJobs, $rootScope, repoName),
                 function(data) {
                     $log.error("Error fetching jobUpdateQueue: " + data);
                 });
@@ -254,20 +326,27 @@ treeherder.factory('ThResultSetModel',
      * update resultsets and jobs with those that were in the update queue
      * @param jobList List of jobs to be placed in the data model and maps
      */
-    var updateJobs = function(jobList) {
+    var updateJobs = function(repoName, jobList) {
         $log.debug("number of jobs returned for add/update: " + jobList.length);
 
         var platformData = {};
 
         var resultsetId, platformName, platformOption, platformAggregateId,
-            platformKey, resultsetAggregateId, revision, i;
+            platformKey, jobUpdated, resultsetAggregateId, revision,
+            jobGroups, i;
 
         for (i = 0; i < jobList.length; i++) {
 
-            updateJob(jobList[i]);
+            jobUpdated = updateJob(repoName, jobList[i]);
+
+            //the job was not updated or added to the model, don't include it
+            //in the jobsLoaded broadcast
+            if(jobUpdated === false){
+                continue;
+            }
 
             platformAggregateId = thAggregateIds.getPlatformRowId(
-                $rootScope.repoName,
+                repoName,
                 jobList[i].result_set_id,
                 jobList[i].platform,
                 jobList[i].platform_opt
@@ -279,9 +358,9 @@ treeherder.factory('ThResultSetModel',
                 platformName = jobList[i].platform;
                 platformOption = jobList[i].platform_opt;
 
-                if(!_.isEmpty(rsMap[resultsetId])){
+                if(!_.isEmpty(repositories[repoName].rsMap[resultsetId])){
 
-                    revision = rsMap[resultsetId].rs_obj.revision;
+                    revision = repositories[repoName].rsMap[resultsetId].rs_obj.revision;
 
                     resultsetAggregateId = thAggregateIds.getResultsetTableId(
                         $rootScope.repoName, resultsetId, revision
@@ -289,14 +368,15 @@ treeherder.factory('ThResultSetModel',
 
                     platformKey = getPlatformKey(platformName, platformOption);
 
+                    jobGroups = repositories[repoName].rsMap[resultsetId].platforms[platformKey].pl_obj.groups;
                     platformData[platformAggregateId] = {
                         platformName:platformName,
                         revision:revision,
-                        platformOrder:rsMap[resultsetId].rs_obj.platforms,
+                        platformOrder:repositories[repoName].rsMap[resultsetId].rs_obj.platforms,
                         resultsetId:resultsetId,
                         resultsetAggregateId:resultsetAggregateId,
                         platformOption:platformOption,
-                        jobGroups:rsMap[resultsetId].platforms[platformKey].pl_obj.groups,
+                        jobGroups:jobGroups,
                         jobs:[]
                         };
                 }else{
@@ -308,8 +388,9 @@ treeherder.factory('ThResultSetModel',
             platformData[platformAggregateId].jobs.push(jobList[i]);
         }
 
-        // coalesce the updated jobs into their
-        $rootScope.$broadcast(thEvents.jobsLoaded, platformData);
+        if(!_.isEmpty(platformData)){
+            $rootScope.$broadcast(thEvents.jobsLoaded, platformData);
+        }
     };
 
     /******
@@ -345,16 +426,16 @@ treeherder.factory('ThResultSetModel',
      * @param newJob The new job object that was just fetched which needs
      *               to be added or updated.
      */
-    var updateJob = function(newJob) {
+    var updateJob = function(repoName, newJob) {
 
         var key = getJobMapKey(newJob);
-        var loadedJobMap = jobMap[key];
+        var loadedJobMap = repositories[repoName].jobMap[key];
         var loadedJob = loadedJobMap? loadedJobMap.job_obj: null;
-        var rsMapElement = rsMap[newJob.result_set_id];
+        var rsMapElement = repositories[repoName].rsMap[newJob.result_set_id];
 
-        if (!rsMapElement) {
-            $log.error("we should have added the resultset for this job already!");
-            return;
+        //We don't have this resultset id yet
+        if (_.isEmpty(rsMapElement)) {
+            return false;
         }
 
         if (loadedJob) {
@@ -364,7 +445,7 @@ treeherder.factory('ThResultSetModel',
             // this job is not yet in the model or the map.  add it to both
             $log.debug("adding new job");
 
-            var grpMapElement = getOrCreateGroup(newJob);
+            var grpMapElement = getOrCreateGroup(repoName, newJob);
 
             // add the job mapping to the group
             grpMapElement.jobs[key] = {
@@ -376,7 +457,7 @@ treeherder.factory('ThResultSetModel',
 
 
             // add job to the jobmap
-            jobMap[key] = {
+            repositories[repoName].jobMap[key] = {
                 job_obj: newJob,
                 parent: grpMapElement
             };
@@ -384,177 +465,125 @@ treeherder.factory('ThResultSetModel',
         }
 
         $rootScope.$broadcast(thEvents.jobUpdated, newJob);
+
+        return true;
     };
 
-    var prependResultSets = function(data) {
+    var prependResultSets = function(repoName, data) {
         // prepend the resultsets because they'll be newer.
 
         var added = [];
         for (var i = data.length - 1; i > -1; i--) {
-            if (data[i].push_timestamp > rsMapOldestTimestamp) {
+            if (data[i].push_timestamp > repositories[repoName].rsMapOldestTimestamp) {
                 $log.debug("prepending resultset: " + data[i].id);
-                resultSets.push(data[i]);
+                repositories[repoName].resultSets.push(data[i]);
                 added.push(data[i]);
             } else {
                 $log.debug("not prepending.  timestamp is older");
             }
         }
 
-        mapResultSets(added);
+        mapResultSets(repoName, added);
 
-        api.loadingStatus.prepending = false;
+        repositories[repoName].loadingStatus.prepending = false;
     };
 
-    var appendResultSets = function(data) {
-        rsOffset += data.length;
-        resultSets.push.apply(resultSets, data);
+    var appendResultSets = function(repoName, data) {
 
-        mapResultSets(data);
+        if(data.length > 0){
+            repositories[repoName].rsOffsetId = data[ data.length - 1 ].id;
 
-        api.loadingStatus.appending = false;
+            Array.prototype.push.apply(
+                repositories[repoName].resultSets, data
+                );
+
+            mapResultSets(repoName, data);
+        }
+
+        repositories[repoName].loadingStatus.appending = false;
     };
 
-    var api = {
+    var loadRevisions = function(repoName, resultsetId){
+        var rs = repositories[repoName].rsMap[resultsetId].rs_obj;
+        if (rs && rs.revisions.length === 0) {
+            // these revisions have never been loaded; do so now.
+            thResultSets.get(rs.revisions_uri).
+                success(function(data) {
 
-        init: function(interval, repo) {
-            $log.debug("new resultset model manager");
-            if (interval) {
-                updateQueueInterval = interval;
-            }
+                    Array.prototype.push.apply(rs.revisions, data);
+                    $rootScope.$broadcast(thEvents.revisionsLoaded, rs);
 
-            repoName = repo;
-            rsOffset = 0;
-            jobUpdateQueue = [];
-            rsUpdateQueue = [];
-            rsMap = {};
-            jobMap = {};
-            jobMapOldestId = null;
-            rsMapOldestTimestamp = null;
-            resultSets = [];
-
-            setInterval(processUpdateQueues, updateQueueInterval);
-            /*
-                socket.io update rules
-
-                new resultset: when a job comes in, check the resultset id.  If
-                    its newer than the oldest resultset in memory, then add it to the
-                    update queue.  It will be added to the beginning of the resultsets
-                    array.
-
-                new job: check against list of jobs.
-                    if it exists, update job data.
-                    if it is part of the resultset update queue, then don't queue
-                        it for update, we will get it with the resultset.
-                    If it belongs to an existing resultset, but we don't have it to
-                        be updated, then add it to the queue.
-
-             */
-            // Add a connect listener
-            thSocket.on('connect',function() {
-                thSocket.emit('subscribe', $rootScope.repoName + '.job');
-                $log.debug("listening for new events.  interval: " + updateQueueInterval +
-                    " for repo: " + repoName);
-            });
-
-            /******
-             * Process a new ``job`` event notification.
-             * Check the job's ``result_set_id``.  If the id belongs to a resulset
-             * we already have in memory, add it to the ``jobUpdateQueue``.  If
-             * not, then check if the ``resultset_id`` is newer or older than the
-             * oldest rs_id we have in memory.  If it's newer, then add the
-             * ``resultset_id`` to ``rsUpdateQueue``.
-             *
-             * So basically, if we see a job belonging to a newer resultset we
-             * don't yet have loaded, then add it to the list of resultsets to
-             * fetch.  Fetching a resultset also gets all its jobs, so we don't
-             * need to add it to the ``jobUpdateQueue``.
-             */
-            thSocket.on("job", function(data) {
-                if (data.branch === repoName) {
-                    $log.debug("new job event");
-                    $log.debug(data);
-                    if (data.resultset.push_timestamp >= rsMapOldestTimestamp) {
-                        // we want to load this job, one way or another
-                        if (rsMap[data.resultset.id]) {
-                            // we already have this resultset loaded, so queue the job
-                            $log.debug("adding job to queue");
-                            jobUpdateQueue.push(data.id);
-                        } else {
-                            // we haven't loaded this resultset yet, so queue it
-                            $log.debug("checking resultset queue");
-                            if (rsUpdateQueue.indexOf(data.resultset.id) < 0) {
-                                $log.debug("new resultset not yet in queue");
-                                rsUpdateQueue.push(data.resultset.id);
-                            } else {
-                                $log.debug("new resultset already queued");
-                            }
-                        }
-
-                    }
-                    else {
-                        $log.debug("job too old");
-                    }
-
-                }
-            });
-        },
-
-        loadRevisions: function(resultset_id) {
-            var rs = rsMap[resultset_id].rs_obj;
-            if (rs && rs.revisions.length === 0) {
-                // these revisions have never been loaded; do so now.
-                thResultSets.get(rs.revisions_uri).
-                    success(function(data) {
-                        rs.revisions.push.apply(rs.revisions, data);
-                        $rootScope.$broadcast(thEvents.revisionsLoaded, rs);
                     });
-            }
-        },
+        }
+    };
 
+    var getResultSetsArray = function(repoName){
         // this is "watchable" for when we add new resultsets and have to
         // sort them
-        getResultSetsArray: function() {
-            return resultSets;
-        },
+        return repositories[repoName].resultSets;
+    };
 
-        getResultSetsMap: function() {
-            return rsMap;
-        },
+    var getResultSetsMap = function(repoName){
+        return repositories[repoName].rsMap;
+    };
 
+    var getJobMap = function(repoName){
         // this is a "watchable" for jobs
-        getJobMap: function() {
-            return jobMap;
-        },
+        return repositories[repoName].jobMap;
+    };
+    var getLoadingStatus = function(repoName){
+        return repositories[repoName].loadingStatus;
+    };
+    var isNotLoaded = function(repoName){
+        return _.isEmpty(repositories[repoName].rsMap);
+    };
 
-        getPlatformKey: getPlatformKey,
-
-        // this is "watchable" by the controller now to update its scope.
-        loadingStatus: {
-            appending: false,
-            prepending: false
-        },
-
+    var fetchNewResultSets = function(repoName, resultsetList){
         /**
          * For fetching new resultsets via the web socket queue
          * @param resultsetlist list of result set ids to fetch.
          */
-        fetchNewResultSets: function(resultsetlist) {
-
-            api.loadingStatus.prepending = true;
+        if(resultsetList.length > 0){
+            repositories[repoName].loadingStatus.prepending = true;
             thResultSets.getResultSets(0, resultsetlist.length, resultsetlist).
-                success(prependResultSets);
-        },
+            success( _.bind(prependResultSets, $rootScope, repoName) );
+        }
+    };
 
+    var fetchResultSets = function(repoName, count){
         /**
          * Get the next batch of resultsets based on our current offset.
          * @param count How many to fetch
          */
-        fetchResultSets: function(count) {
+        repositories[repoName].loadingStatus.appending = true;
+        thResultSets.getResultSets(
+            repositories[repoName].rsOffsetId, count
+            ).success( _.bind(appendResultSets, $rootScope, repoName) );
 
-            api.loadingStatus.appending = true;
-            thResultSets.getResultSets(rsOffset, count).
-                success(appendResultSets);
-        }
+    };
+
+    //Public interface
+    var api = {
+
+        addRepository: addRepository,
+
+        loadRevisions: loadRevisions,
+
+        getResultSetsArray: getResultSetsArray,
+
+        getResultSetsMap: getResultSetsMap,
+
+        getJobMap: getJobMap,
+
+        getLoadingStatus: getLoadingStatus,
+
+        getPlatformKey: getPlatformKey,
+
+        isNotLoaded: isNotLoaded,
+
+        fetchNewResultSets: fetchNewResultSets,
+
+        fetchResultSets: fetchResultSets
 
     };
 
