@@ -6,15 +6,18 @@ treeherder.factory('thResultSets',
 
     // get the resultsets for this repo
     return {
-        getResultSets: function(offset, count, resultsetlist) {
-            offset = typeof offset === 'undefined'?  0: offset;
+        getResultSets: function(rsOffsetId, count, resultsetlist) {
+            rsOffsetId = typeof rsOffsetId === 'undefined'?  0: rsOffsetId;
             count = typeof count === 'undefined'?  10: count;
             var params = {
-                offset: offset,
                 count: count,
                 full: false,
                 format: "json"
             };
+
+            if(rsOffsetId > 0){
+                params['id__lt'] = rsOffsetId;
+            }
 
             // if there are any search params on the url line, they should
             // pass directly to the set of resultsets.
