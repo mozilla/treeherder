@@ -87,7 +87,7 @@ def parse_log(project, log_url, job_guid, resultset, check_errors=False):
                             "status": 'closed'
                         })
                         closed_bugs_cache[clean_line] = get_remote_content(
-                            "{0}?{1}".format(
+                            "{0}{1}?{2}".format(
                                 settings.API_HOSTNAME,
                                 bugscache_uri,
                                 query_params)

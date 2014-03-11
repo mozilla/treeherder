@@ -30,6 +30,8 @@ class BzApiBugProcess(JsonExtractorMixin):
         last_fetched = cache.get('bz_last_fetched')
         curr_date = datetime.date.today()
 
+        bug_list = []
+
         if last_fetched:
             # if we have a last_fetched timestamp available
             # we don't need pagination.
@@ -41,7 +43,6 @@ class BzApiBugProcess(JsonExtractorMixin):
             offset = 0
             limit = 500
 
-            bug_list = []
             # fetch new pages no more than 30 times
             # this is a safe guard to not generate an infinite loop
             # in case something went wrong
@@ -66,4 +67,7 @@ class BzApiBugProcess(JsonExtractorMixin):
             cache.set('bz_last_fetched', curr_date, 60 * 60 * 24)
 
             rdm = RefDataManager()
-            rdm.update_bugscache(bug_list)
+            try:
+                rdm.update_bugscache(bug_list)
+            finally:
+                rdm.disconnect()

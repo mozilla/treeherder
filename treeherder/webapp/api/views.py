@@ -731,7 +731,11 @@ class BugscacheViewSet(viewsets.ReadOnlyModelViewSet):
         open_only = True if status == "open" else False
 
         rdm = RefDataManager()
-        return Response(rdm.get_suggested_bugs(search_term, open_only))
+        try:
+            suggested_bugs = rdm.get_suggested_bugs(search_term, open_only)
+        finally:
+            rdm.disconnect()
+        return Response(suggested_bugs)
 
 
 
