@@ -375,7 +375,8 @@ class JobsModel(TreeherderModelBase):
 
         return result_set_id_lookup
 
-    def get_result_set_list(self, offset, limit, full=True, conditions=None):
+    def get_result_set_list(
+        self, offset_id, limit, full=True, conditions=None):
         """
         Retrieve a list of ``result_sets`` (also known as ``pushes``)
         If ``full`` is set to ``True`` then return revisions, too.
@@ -383,7 +384,6 @@ class JobsModel(TreeherderModelBase):
 
         Mainly used by the restful api to list the pushes in the UI
         """
-
         replace_str, placeholders = self._process_conditions(
             conditions, self.INDEXED_COLUMNS['result_set']
         )
@@ -398,7 +398,7 @@ class JobsModel(TreeherderModelBase):
             proc=proc,
             replace=[replace_str],
             placeholders=placeholders,
-            limit="{0},{1}".format(offset, limit),
+            limit=limit,
             debug_show=self.DEBUG,
         )
 
