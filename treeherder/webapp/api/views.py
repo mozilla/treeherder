@@ -390,12 +390,12 @@ class ResultSetViewSet(viewsets.ViewSet):
 
         filter = UrlQueryFilter(request.QUERY_PARAMS)
 
-        offset = filter.pop("offset", 0)
+        offset_id = filter.pop("id__lt", 0)
         count = filter.pop("count", 10)
         full = filter.pop('full', 'true').lower() == 'true'
 
         objs = jm.get_result_set_list(
-            offset,
+            offset_id,
             count,
             full,
             filter.conditions
