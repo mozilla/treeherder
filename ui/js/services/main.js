@@ -180,24 +180,22 @@ treeherder.factory('BrowserId', function($http, $q, $log,  thServiceDomain){
     return browserid;
 });
 
-treeherder.factory('thNotify', function($log){
+treeherder.factory('thNotify', function($timeout, $log){
     //a growl-like notification system
 
     var thNotify =  {
         // message queue
         notifications: [],
-        // the currently displayed message
-        current: {},
 
         /*
         * send a message to the notification queue
         * @severity can be one of success|info|warning|danger
-        * @sticky is a boolean indicating if you want to message to disappear
+        * @sticky is a boolean indicating if you want the message to disappear
         * after a while or not
         */
         send: function(message, severity, sticky){
-            $log.log("received message");
-            $log.log(message);
+            $log.debug("received message");
+            $log.debug(message);
             var severity = severity || 'info';
             var sticky = sticky || false;
             thNotify.notifications.push({
@@ -205,18 +203,27 @@ treeherder.factory('thNotify', function($log){
                 severity: severity,
                 sticky: sticky
             });
-            thNotify.fetch();
-        },
-        fetch: function(){
-            thNotify.current=thNotify.notifications.shift() || {};
-
-            if(thNotify.current.message && !thNotify.current.sticky){
-                window.setTimeout(thNotify.remove, 5000);
+            if(!sticky){
+                $timeout(thNotify.shift, 5000, true);
             }
         },
-        remove: function(){
-            thNotify.current = {};
-            thNotify.fetch();
+
+        /*
+        * Delete the first non-sticky element from the notifications queue
+        */
+        shift: function(){
+            for(var i=0;i<thNotify.notifications.length; i++){
+                if(!thNotify.notifications[i].sticky){
+                    thNotify.remove(i);
+                    return;
+                }
+            }
+        },
+        /*
+        * remove an arbitrary element from the notifications queue
+        */
+        remove: function(index){
+            thNotify.notifications.splice(index, 1)
         }
     }
     return thNotify;
