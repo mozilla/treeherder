@@ -131,7 +131,7 @@ treeherder.directive('thCloneJobs', function(
             jobStatus['key'] = key;
 
             if(job.failure_classification_id != null){
-                jobStatus['value'] = '*' + job.job_type_symbol;
+                jobStatus['value'] = job.job_type_symbol + '*';
             }else{
                 jobStatus['value'] = job.job_type_symbol;
             }
@@ -321,7 +321,7 @@ treeherder.directive('thCloneJobs', function(
         //Empty the job column before populating it
         jobTdEl.empty();
 
-        var resultSetMap = ThResultSetModel.getResultSetsMap();
+        var resultSetMap = ThResultSetModel.getResultSetsMap($rootScope.repoName);
 
         //If at least one job is visible we need to display the platform
         //otherwise hide it
@@ -473,7 +473,7 @@ treeherder.directive('thCloneJobs', function(
 
     var resetCounts = function(resultSetMap){
 
-        var resultSets = ThResultSetModel.getResultSetsArray();
+        var resultSets = ThResultSetModel.getResultSetsArray($rootScope.repoName);
 
         var platformName, platformOption, platformKey, resultsetId, i;
 
