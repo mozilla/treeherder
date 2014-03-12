@@ -9,8 +9,20 @@
             </span>
         </div>
         <div  id="pinboard-related-bugs-panel">
-            <div class="bottom-panel-title"><i class="fa fa-bug"></i> related bugs</div>
+            <div class="bottom-panel-title"><i class="fa fa-bug"></i> related bugs
+                <a ng-click="toggleEnterBugNumber()"
+                   title="type in a bug number"><i class="fa fa-plus"></i>
+                </a>
+            </div>
             <div class="panel related-bugs shadowed-panel pinboard-shadowed-panel">
+                <form ng-submit="saveEnteredBugNumber()">
+                    <input type="number"
+                           ng-show="enteringBugNumber"
+                           ng-model="newEnteredBugNumber"
+                           placeholder="enter bug number"
+                           numbers-only="numbers-only"
+                           focus-me="focusInput">
+                </form>
                 <span ng-repeat="bug in relatedBugs">
                       <th-related-bug></th-related-bug>
                 </span>
@@ -24,7 +36,7 @@
                     <option value="-1">none</option>
                     <option ng-repeat="(value, star) in classificationTypes" value="{{value}}">{{star.name}}</option>
                 </select>
-                <input class="pinboard-classification-comment" ng-model="classification.note" focus-me="focusInput"/>
+                <input class="pinboard-classification-comment" ng-model="classification.note"/>
             </form>
         </div>
     </div>

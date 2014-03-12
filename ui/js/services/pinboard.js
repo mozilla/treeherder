@@ -16,14 +16,14 @@ treeherder.factory('thPinboard',
     };
 
     var saveBugs = function(job) {
-        var bug_id = 23432;
-        _.forEach(relatedBugs, function(bug_id) {
+        _.forEach(relatedBugs, function(bug) {
             var bjm = new ThBugJobMapModel({
-                bug_id : bug_id,
+                bug_id : bug.id,
                 job_id: job.id,
                 type: 'annotation'
             });
             bjm.create();
+            api.removeBug(bug.id);
         });
     };
 

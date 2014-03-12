@@ -78,12 +78,6 @@ treeherder.controller('PluginCtrl',
             ThJobClassificationModel.get_list({job_id: $scope.job.id}).then(function(response) {
                 $scope.classifications = response;
             });
-//            $scope.classifications = [
-//                {note_timestamp: 123453432, who: "camd", failure_classification_id: 1, note: "wazzon chokey1?"},
-//                {note_timestamp: 123453432, who: "camd", failure_classification_id: 2, note: "wazzon chokey2?"},
-//                {note_timestamp: 123453432, who: "camd", failure_classification_id: 3, note: "wazzon chokey3?"},
-//                {note_timestamp: 123453432, who: "camd", failure_classification_id: 4, note: "wazzon really really long one with a lot of text that will wrap and just be a funny funny guy chokey4?"}
-//            ];
         };
         // when classifications comes in, then set the latest note for the job
         $scope.$watch('classifications', function(newValue, oldValue) {
@@ -98,14 +92,6 @@ treeherder.controller('PluginCtrl',
             ThBugJobMapModel.get_list({job_id: $scope.job.id}).then(function(response) {
                 $scope.bugs = response;
             });
-//            $scope.bugs = [
-//                {"bug_id": 809752},
-//                {"bug_id": 960129},
-//                {"bug_id": 960129},
-//                {"bug_id": 960129},
-//                {"bug_id": 960129},
-//                {"bug_id": 902551}
-//            ];
         };
 
         /*
@@ -166,6 +152,21 @@ treeherder.controller('PluginCtrl',
             return thPinboard.hasPinnedJobs();
         };
 
+        $scope.toggleEnterBugNumber = function() {
+            $scope.enteringBugNumber = !$scope.enteringBugNumber;
+
+            $scope.focusInput = $scope.enteringBugNumber;
+        };
+
+        $scope.saveEnteredBugNumber = function() {
+            if (_.isNumber($scope.newEnteredBugNumber)) {
+                thPinboard.addBug({id:$scope.newEnteredBugNumber});
+                $scope.newEnteredBugNumber = null;
+                $scope.toggleEnterBugNumber();
+            } else {
+                alert("must be numeric only");
+            }
+        };
 
         $scope.viewJob = function(job) {
             $rootScope.selectedJob = job;
