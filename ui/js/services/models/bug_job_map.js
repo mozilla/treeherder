@@ -1,6 +1,6 @@
 'use strict';
 
-treeherder.factory('ThBugJobMapModel', ['$http', 'thUrl', function($http, thUrl) {
+treeherder.factory('ThBugJobMapModel', function($http, thUrl) {
     // ThBugJobMap is a class which we can use for retrieving and
     // updating data on the server
     var ThBugJobMapModel = function(data) {
@@ -42,4 +42,4 @@ treeherder.factory('ThBugJobMapModel', ['$http', 'thUrl', function($http, thUrl)
     };
 
     return ThBugJobMapModel;
-}]);
+});

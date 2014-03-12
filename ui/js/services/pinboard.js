@@ -1,10 +1,8 @@
 'use strict';
 
 treeherder.factory('thPinboard',
-                   ['$http', 'thUrl', 'ThJobClassificationModel', '$rootScope',
-                    'thEvents', 'ThBugJobMapModel',
                    function($http, thUrl, ThJobClassificationModel, $rootScope,
-                            thEvents, ThBugJobMapModel) {
+                            thEvents, ThBugJobMapModel, thNotify) {
 
     var pinnedJobs = {};
     var relatedBugs = {};
@@ -67,9 +65,14 @@ treeherder.factory('thPinboard',
         // save the classification and related bugs to all pinned jobs
         save: function(classification) {
             _.each(pinnedJobs, saveClassification, classification);
-            _.each(pinnedJobs, saveBugs);
             $rootScope.$broadcast(thEvents.jobsClassified, {jobs: pinnedJobs});
-            $rootScope.$broadcast(thEvents.bugsAssociated, {jobs: pinnedJobs});
+
+            if (!_.size(relatedBugs)) {
+                thNotify.send("no bug associations to save");
+            } else {
+                _.each(pinnedJobs, saveBugs);
+                $rootScope.$broadcast(thEvents.bugsAssociated, {jobs: pinnedJobs});
+            }
         },
 
         // save the classification only on all pinned jobs
@@ -80,8 +83,12 @@ treeherder.factory('thPinboard',
 
         // save bug associations only on all pinned jobs
         saveBugsOnly: function() {
-            _.each(pinnedJobs, saveBugs);
-            $rootScope.$broadcast(thEvents.bugsAssociated, {jobs: pinnedJobs});
+            if (!_.size(relatedBugs)) {
+                thNotify.send("no bug associations to save");
+            } else {
+                _.each(pinnedJobs, saveBugs);
+                $rootScope.$broadcast(thEvents.bugsAssociated, {jobs: pinnedJobs});
+            }
         },
 
         hasPinnedJobs: function() {
@@ -92,5 +99,5 @@ treeherder.factory('thPinboard',
     };
 
     return api;
-}]);
+});
 

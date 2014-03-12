@@ -1,11 +1,9 @@
 "use strict";
 
 treeherder.controller('PluginCtrl',
-    function PluginCtrl($scope, $rootScope, $resource, $http,
-                        thServiceDomain, thUrl, ThJobClassificationModel, thClassificationTypes,
-                        ThJobModel, thEvents, dateFilter, numberFilter,
-                        thPinboard, ThBugJobMapModel, thResultStatusInfo,
-                        thResultStatus, thNotify, $log) {
+    function PluginCtrl($scope, $rootScope, thUrl, ThJobClassificationModel,
+                        thClassificationTypes, ThJobModel, thEvents, dateFilter,
+                        numberFilter, ThBugJobMapModel, thResultStatus) {
 
         $scope.job = {};
 
@@ -50,8 +48,6 @@ treeherder.controller('PluginCtrl',
                              $scope.job.build_os || undef
                 };
         };
-
-        //$scope.$watch('selectedJob', selectJob, true);
 
         $rootScope.$on(thEvents.jobClick, function(event, job) {
             selectJob(job, $rootScope.selectedJob);

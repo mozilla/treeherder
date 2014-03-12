@@ -1,21 +1,12 @@
 "use strict";
 
 treeherder.controller('PinboardCtrl',
-    function PinboardCtrl($scope, $rootScope, $resource, $http,
-                        thServiceDomain, thUrl, ThJobClassificationModel, thClassificationTypes,
-                        ThJobModel, thEvents, dateFilter, numberFilter,
-                        thPinboard, ThBugJobMapModel, thResultStatusInfo,
-                        thResultStatus, thNotify, $log) {
+    function PinboardCtrl($scope, $rootScope, thEvents, thPinboard, thNotify) {
 
         $rootScope.$on(thEvents.jobPin, function(event, job) {
             $scope.pinJob(job);
         });
 
-        $scope.classificationTypes = thClassificationTypes;
-
-        /*
-         * Pinboard functionality
-         */
         $scope.pinJob = function(job) {
             thPinboard.pinJob(job);
         };
