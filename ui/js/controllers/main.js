@@ -2,7 +2,7 @@
 
 treeherder.controller('MainCtrl',
     function MainController($scope, $rootScope, $routeParams, $location, $log,
-                            localStorageService, ThRepositoryModel) {
+                            localStorageService, thEvents, ThRepositoryModel) {
         $scope.query="";
         $scope.statusError = function(msg) {
             $rootScope.statusMsg = msg;
@@ -15,6 +15,24 @@ treeherder.controller('MainCtrl',
         $scope.clearJob = function() {
             // setting the selectedJob to null hides the bottom panel
             $rootScope.selectedJob = null;
+        };
+        $scope.processKeyboardInput = function(ev){
+            if( (ev.keyCode === 74) || (ev.keyCode === 78) ){
+                //Highlight next unclassified failure keys:j/n
+                $rootScope.$broadcast(
+                    thEvents.selectNextUnclassifiedFailure
+                    );
+
+            }else if( (ev.keyCode === 75) || (ev.keyCode === 80) ){
+                //Highlight previous unclassified failure keys:k/p
+                $rootScope.$broadcast(
+                    thEvents.selectPreviousUnclassifiedFailure
+                    );
+
+            }else if(ev.keyCode === 32){
+                //Select/deselect active build or changeset, keys:space
+                console.log('Select/deselect active build or changeset, keys:space');
+            }
         };
 
         // detect window width and put it in scope so items can react to

@@ -206,7 +206,11 @@ treeherder.provider('thEvents', function() {
 
             toggleRevisions: "toggle-revisions-EVT",
 
-            toggleJobs: "toggle-jobs-EVT"
+            toggleJobs: "toggle-jobs-EVT",
+
+            selectNextUnclassifiedFailure: "next-unclassified-failure-EVT",
+
+            selectPreviousUnclassifiedFailure: "previous-unclassified-failure-EVT",
         };
     };
 });
