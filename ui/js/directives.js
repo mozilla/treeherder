@@ -951,7 +951,7 @@ treeherder.directive('thStar', function ($parse, thClassificationTypes) {
         template: '<span class="label {{ badgeColorClass}}" ' +
                         'title="{{ hoverText }}">' +
                         '<i class="glyphicon glyphicon-star-empty"></i>' +
-                        '</span>'
+                        '</span> {{ hoverText }}'
     };
 });
 

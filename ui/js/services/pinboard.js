@@ -10,7 +10,12 @@ treeherder.factory('thPinboard',
     var saveClassification = function(job) {
         var classification = new ThJobClassificationModel(this);
         classification.job_id = job.id;
-        classification.create();
+        classification.create().
+            success(function(data) {
+                thNotify.send("classification saved for " + job.platform + ": " + job.job_type_name, "success");
+            }).error(function(data) {
+                thNotify.send("error saving classification for " + job.platform + ": " + job.job_type_name, "danger");
+            });
     };
 
     var saveBugs = function(job) {
@@ -20,7 +25,12 @@ treeherder.factory('thPinboard',
                 job_id: job.id,
                 type: 'annotation'
             });
-            bjm.create();
+            bjm.create().
+            success(function(data) {
+                thNotify.send("bug association saved for " + job.platform + ": " + job.job_type_name, "success");
+            }).error(function(data) {
+                thNotify.send("error saving bug association for " + job.platform + ": " + job.job_type_name, "danger");
+            });
             api.removeBug(bug.id);
         });
     };
@@ -67,12 +77,10 @@ treeherder.factory('thPinboard',
             _.each(pinnedJobs, saveClassification, classification);
             $rootScope.$broadcast(thEvents.jobsClassified, {jobs: pinnedJobs});
 
-            if (!_.size(relatedBugs)) {
-                thNotify.send("no bug associations to save");
-            } else {
-                _.each(pinnedJobs, saveBugs);
-                $rootScope.$broadcast(thEvents.bugsAssociated, {jobs: pinnedJobs});
-            }
+            _.each(pinnedJobs, saveBugs);
+            $rootScope.$broadcast(thEvents.bugsAssociated, {jobs: pinnedJobs});
+
+            api.unPinAll();
         },
 
         // save the classification only on all pinned jobs

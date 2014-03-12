@@ -22,7 +22,13 @@ treeherder.controller('PluginCtrl',
 
                 $scope.artifacts = {};
 
-                updateVisibleFields();
+                $scope.visibleFields = {
+                    "Job Name": $scope.job.job_type_name,
+                    "Start time": "",
+                    "Duration":  "",
+                    "Machine ": "",
+                    "Build": ""
+                };
 
                 $scope.tab_loading = true;
                 $scope.lvUrl = thUrl.getLogViewerUrl($scope.job.id);
@@ -34,13 +40,17 @@ treeherder.controller('PluginCtrl',
         };
 
         var updateVisibleFields = function() {
-                var undef = "---undefined---";
+                var undef = "";
                 // fields that will show in the job detail panel
+                var duration = ($scope.job.end_timestamp-$scope.job.start_timestamp)/60;
+                if (duration) {
+                    duration = numberFilter(duration, 0) + " minutes";
+                }
 
                 $scope.visibleFields = {
                     "Job Name": $scope.job.job_type_name || undef,
                     "Start time": dateFilter($scope.job.start_timestamp*1000, 'short') || undef,
-                    "Duration": numberFilter(($scope.job.end_timestamp-$scope.job.start_timestamp)/60, 0) + " minutes" || undef,
+                    "Duration":  duration || undef,
                     "Machine ": $scope.job.machine_platform_architecture + " " +
                                 $scope.job.machine_platform_os || undef,
                     "Build": $scope.job.build_architecture + " " +

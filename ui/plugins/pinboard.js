@@ -32,6 +32,11 @@ treeherder.controller('PinboardCtrl',
 
         $scope.save = function() {
             if ($scope.user.loggedin) {
+                if ($scope.enteringBugNumber) {
+                    // we should save this for the user, as they likely
+                    // just forgot to hit enter.
+                    $scope.saveEnteredBugNumber();
+                }
                 $scope.classification.who = $scope.user.email;
                 thPinboard.save($scope.classification);
             } else {
