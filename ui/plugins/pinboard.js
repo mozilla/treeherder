@@ -40,7 +40,7 @@ treeherder.controller('PinboardCtrl',
                 $scope.classification.who = $scope.user.email;
                 thPinboard.save($scope.classification);
             } else {
-                thNotify.send("must be logged in to classify jobs");
+                thNotify.send("must be logged in to classify jobs", "danger");
             }
         };
 
@@ -49,7 +49,7 @@ treeherder.controller('PinboardCtrl',
                 $scope.classification.who = $scope.user.email;
                 thPinboard.saveClassificationOnly($scope.classification);
             } else {
-                thNotify.send("must be logged in to classify jobs");
+                thNotify.send("must be logged in to classify jobs", "danger");
             }
         };
 
@@ -57,7 +57,7 @@ treeherder.controller('PinboardCtrl',
             if ($scope.user.loggedin) {
                 thPinboard.saveBugsOnly();
             } else {
-                thNotify.send("must be logged in to classify jobs");
+                thNotify.send("must be logged in to classify jobs", "danger");
             }
         };
 
