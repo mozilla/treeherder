@@ -1137,12 +1137,10 @@ treeherder.directive('thSimilarJobs', function(ThJobModel, $log){
 treeherder.directive('thNotificationBox', function($log, thNotify){
     return {
         restrict: "E",
-        template: '<div id="notification_box" ng-class="notify.current.severity" ng-if="notify.current.message">' +
-                    '<p>{{notify.current.message}}' +
-                    '<a ng-click="notify.clear()" ng-if="notify.current.sticky" title="close" class="close">x</a></p>' +
-                  '</div>',
+        templateUrl: "partials/thNotificationsBox.html",
         link: function(scope, element, attr) {
-            scope.notify = thNotify;
+            scope.notifier = thNotify
+            scope.alert_class_prefix = "alert-"
         }
     }
 });

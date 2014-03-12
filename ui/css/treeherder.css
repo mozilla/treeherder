@@ -1008,6 +1008,14 @@ fieldset[disabled] .btn-repo.active {
 .plugin_controls{ margin: 5px;}
 .btn-similar-jobs{ margin: 5px;}
 
-#notification_box{ position:fixed; top:720px; right:10px; height:680px; width:300px;}
-#notification_box p{position:relative;}
-#notification_box a.close{position:absolute; top:5px; right:5px; z-index: 999;}
+#notification_box{
+    position:fixed;
+    top:70px;
+    right:10px;
+}
+
+#notification_box div.alert{
+    margin-bottom:5px;
+}
+
+#notification_box button.close{position:relative; top:-2px; right:-8px; color:inherit}
