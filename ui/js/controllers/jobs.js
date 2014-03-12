@@ -140,3 +140,4 @@ treeherder.controller('ResultSetCtrl',
         });
     }
 );
+

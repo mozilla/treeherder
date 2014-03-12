@@ -212,3 +212,25 @@ treeherder.controller('StatusFilterPanelCtrl',
         };
     }
 );
+
+treeherder.controller('SearchCtrl',
+    function SearchCtrl($scope, $rootScope, thEvents){
+
+        $rootScope.searchQuery = "";
+
+        $scope.search = function(ev){
+            //User hit enter
+            if( (ev.keyCode === 13) ||
+                ($scope.searchQuery === "") ){
+
+                $rootScope.searchQuery = $scope.searchQuery;
+
+                $rootScope.$broadcast(
+                    thEvents.searchPage,
+                    {searchQuery: $scope.searchQuery}
+                    );
+            }
+        };
+
+    }
+);

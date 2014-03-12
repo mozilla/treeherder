@@ -111,6 +111,11 @@ treeherder.directive('thCloneJobs', function(
             //filtering
             jobCounts[resultState] += 1;
 
+            job.searchableStr = getPlatformName(job.platform) + ' ' +
+                job.platform_option + ' ' + job.job_group_name + ' ' +
+                job.job_group_symbol + ' ' + job.job_type_name + ' ' +
+                job.machine_name + ' ' + job.job_type_symbol;
+
             //Make sure that filtering doesn't effect the resultset counts
             //displayed
             if(thJobFilters.showJob(job, resultStatusFilters) === false){
@@ -612,6 +617,12 @@ treeherder.directive('thCloneJobs', function(
 
         $rootScope.$on(
             thEvents.globalFilterChanged, function(ev, filterData){
+                scope.resultStatusFilters = thJobFilters.copyResultStatusFilters();
+                _.bind(filterJobs, scope, element, scope.resultStatusFilters)();
+            });
+
+        $rootScope.$on(
+            thEvents.searchPage, function(ev, searchData){
                 scope.resultStatusFilters = thJobFilters.copyResultStatusFilters();
                 _.bind(filterJobs, scope, element, scope.resultStatusFilters)();
             });
