@@ -978,7 +978,6 @@ treeherder.directive('personaButtons', function($http, $q, $log, $rootScope, loc
     return {
         restrict: "E",
         link: function(scope, element, attrs) {
-            localStorageService.clearAll()
             scope.user = scope.user || {};
             // check if already know who the current user is
             // if the user.email value is null, it means that he's not logged in
