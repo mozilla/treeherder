@@ -622,7 +622,7 @@ treeherder.directive('thCloneJobs', function(
             });
 
         $rootScope.$on(
-            thEvents.searchPage, function(ev, filterData){
+            thEvents.searchPage, function(ev, searchData){
                 scope.resultStatusFilters = thJobFilters.copyResultStatusFilters();
                 _.bind(filterJobs, scope, element, scope.resultStatusFilters)();
             });
