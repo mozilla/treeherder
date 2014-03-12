@@ -15,7 +15,7 @@ treeherder.factory('ThBugJobMapModel', ['$http', 'thUrl', function($http, thUrl)
         var query_string = $.param(options);
         return $http.get(ThBugJobMapModel.get_uri()+"?"+query_string).then(function(response) {
             var item_list = [];
-            angular.each(response.data, function(elem){
+            _.each(response.data, function(elem){
                 item_list.push(new ThBugJobMapModel(elem));
             });
             return item_list;

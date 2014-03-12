@@ -422,6 +422,29 @@ div.navbar-fixed-bottom dt {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+.annotations-panel {
+    overflow: scroll;
+    margin-right: 0;
+}
+
+.classifications-panel {
+    border-right: solid 1px lightgray;
+}
+
+.bug-list-panel {
+    right: 0;
+}
+
+.bug-list {
+    list-style: none inside none;
+    padding-left: 0;
+}
+
+/**
+ * RESULT STATUS COUNTS
+ */
+
 .result-status-count-group {
     font-size: 12px;
     white-space: nowrap;
@@ -467,7 +490,11 @@ div.navbar-fixed-bottom dt {
     width: 69px;
 }
 
-/* Custom Job buttons*/
+
+/**
+ * CUSTOM BUTTONS
+ */
+
 .btn-view-nav {
   background-color: rgba(63, 74, 81, 0.56);
   border-color: #22282d;
@@ -615,7 +642,6 @@ fieldset[disabled] .btn-dkblue.active {
   border-color: #bfbfbf;
   color: #283aa2;
 }
-
 
 .btn-green {
   border-color: rgba(2, 131, 44, 0.24);

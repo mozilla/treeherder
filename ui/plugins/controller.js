@@ -4,7 +4,7 @@ treeherder.controller('PluginCtrl',
     function PluginCtrl($scope, $rootScope, $resource, $http,
                         thServiceDomain, thUrl, ThJobClassificationModel, thClassificationTypes,
                         ThJobModel, thEvents, dateFilter, numberFilter,
-                        thPinboard, $log) {
+                        thPinboard, ThBugJobMapModel, $log) {
 
         $scope.job = {};
 
@@ -28,7 +28,8 @@ treeherder.controller('PluginCtrl',
                 $scope.tab_loading = true;
                 $scope.lvUrl = thUrl.getLogViewerUrl($scope.job.id);
 
-                $scope.updateclassifications();
+                $scope.updateClassifications();
+                $scope.updateBugs();
             }
         };
 
@@ -59,14 +60,28 @@ treeherder.controller('PluginCtrl',
             $scope.pinJob(job);
         });
 
+        $rootScope.$on(thEvents.jobsClassified, function(event, job) {
+            $scope.updateClassifications();
+        });
+
+        $rootScope.$on(thEvents.bugsAssociated, function(event, job) {
+            $scope.updateBugs();
+        });
+
         $scope.classificationTypes = thClassificationTypes;
 
         // load the list of existing classifications (including possibly a new one just
         // added).
-        $scope.updateclassifications = function() {
+        $scope.updateClassifications = function() {
             ThJobClassificationModel.get_list({job_id: $scope.job.id}).then(function(response) {
                 $scope.classifications = response;
             });
+//            $scope.classifications = [
+//                {note_timestamp: 123453432, who: "camd", failure_classification_id: 1, note: "wazzon chokey1?"},
+//                {note_timestamp: 123453432, who: "camd", failure_classification_id: 2, note: "wazzon chokey2?"},
+//                {note_timestamp: 123453432, who: "camd", failure_classification_id: 3, note: "wazzon chokey3?"},
+//                {note_timestamp: 123453432, who: "camd", failure_classification_id: 4, note: "wazzon really really long one with a lot of text that will wrap and just be a funny funny guy chokey4?"}
+//            ];
         };
         // when classifications comes in, then set the latest note for the job
         $scope.$watch('classifications', function(newValue, oldValue) {
@@ -74,6 +89,22 @@ treeherder.controller('PluginCtrl',
                 $scope.job.note=newValue[0];
             }
         });
+
+        // load the list of bug associations (including possibly new ones just
+        // added).
+        $scope.updateBugs = function() {
+            ThBugJobMapModel.get_list({job_id: $scope.job.id}).then(function(response) {
+                $scope.bugs = response;
+            });
+//            $scope.bugs = [
+//                {"bug_id": 809752},
+//                {"bug_id": 960129},
+//                {"bug_id": 960129},
+//                {"bug_id": 960129},
+//                {"bug_id": 960129},
+//                {"bug_id": 902551}
+//            ];
+        };
 
         /*
          * Pinboard functionality
