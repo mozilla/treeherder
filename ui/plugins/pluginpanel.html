@@ -1,125 +1,127 @@
 <div ng-controller="PluginCtrl">
-    <div class="bottom-panel-title" ng-hide="hasPinnedJobs()">Pin one or more jobs to classify (shift-click).</div>
-    <div id="pinboard-panel"
-         ng-show="hasPinnedJobs()">
-        <div class="bottom-panel-title"><i class="glyphicon glyphicon-pushpin"></i> pinboard</div>
-        <div class="panel shadowed-panel pinboard-shadowed-panel">
-            <span ng-repeat="job in pinnedJobs">
-                <th-pinned-job></th-pinned-job>
-            </span>
-        </div>
-        <div  id="pinboard-related-bugs-panel">
-            <div class="bottom-panel-title"><i class="fa fa-bug"></i> related bugs
-                <a ng-click="toggleEnterBugNumber()"
-                   title="type in a bug number"><i class="fa fa-plus"></i>
-                </a>
-            </div>
-            <div class="panel related-bugs shadowed-panel pinboard-shadowed-panel">
-                <form ng-submit="saveEnteredBugNumber()">
-                    <input type="number"
-                           ng-show="enteringBugNumber"
-                           ng-model="newEnteredBugNumber"
-                           placeholder="enter bug number"
-                           numbers-only="numbers-only"
-                           focus-me="focusInput">
-                </form>
-                <span ng-repeat="bug in relatedBugs">
-                      <th-related-bug></th-related-bug>
+    <div ng-controller="PinboardCtrl">
+        <div class="bottom-panel-title" ng-hide="hasPinnedJobs()">Pin one or more jobs to classify (shift-click).</div>
+        <div id="pinboard-panel"
+             ng-show="hasPinnedJobs()">
+            <div class="bottom-panel-title"><i class="glyphicon glyphicon-pushpin"></i> pinboard</div>
+            <div class="panel shadowed-panel pinboard-shadowed-panel">
+                <span ng-repeat="job in pinnedJobs">
+                    <th-pinned-job></th-pinned-job>
                 </span>
             </div>
-        </div>
-        <div id="pinboard-classification-panel">
-            <div class="bottom-panel-title"><i class="fa fa-star"></i> classification</div>
-            <form ng-submit="saveNewClassification()" class="form">
-                <select ng-model="classification.failure_classification_id"
-                        class="pinboard-classification-select">
-                    <option value="-1">none</option>
-                    <option ng-repeat="(value, star) in classificationTypes" value="{{value}}">{{star.name}}</option>
-                </select>
-                <input class="pinboard-classification-comment" ng-model="classification.note"/>
-            </form>
-        </div>
-    </div>
-    <div id="bottom-left-panel"
-         ng-class="{'with-pinboard-abs': hasPinnedJobs(), 'without-pinboard-abs': !hasPinnedJobs()}">
-        <div class="panel shadowed-panel">
-            <div class="panel-head">
-                <table class="table-super-condensed table-striped">
-                    <tr>
-                        <th class="small">Result</th>
-                        <td class="small {{ resultStatusClass }}">{{ job.result }}</td>
-                    </tr>
-                    <tr>
-                        <th class="small">Machine name</th>
-                        <td class="small">
-                            <a target="_blank" href="https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name={{ job.machine_name }}">{{ job.machine_name }}</a>
-                        </td>
-                    </tr>
-                    <tr ng-repeat="(label, value) in visibleFields"><th>{{label}}</th><td>{{ value }}</td></tr>
-                </table>
+            <div  id="pinboard-related-bugs-panel">
+                <div class="bottom-panel-title"><i class="fa fa-bug"></i> related bugs
+                    <a ng-click="toggleEnterBugNumber()"
+                       title="type in a bug number"><i class="fa fa-plus"></i>
+                    </a>
+                </div>
+                <div class="panel related-bugs shadowed-panel pinboard-shadowed-panel">
+                    <form ng-submit="saveEnteredBugNumber()">
+                        <input type="number"
+                               ng-show="enteringBugNumber"
+                               ng-model="newEnteredBugNumber"
+                               placeholder="enter bug number"
+                               numbers-only="numbers-only"
+                               focus-me="focusInput">
+                    </form>
+                    <span ng-repeat="bug in relatedBugs">
+                          <th-related-bug></th-related-bug>
+                    </span>
+                </div>
+            </div>
+            <div id="pinboard-classification-panel">
+                <div class="bottom-panel-title"><i class="fa fa-star"></i> classification</div>
+                <form ng-submit="saveNewClassification()" class="form">
+                    <select ng-model="classification.failure_classification_id"
+                            class="pinboard-classification-select">
+                        <option value="-1">none</option>
+                        <option ng-repeat="(value, star) in classificationTypes" value="{{value}}">{{star.name}}</option>
+                    </select>
+                    <input class="pinboard-classification-comment" ng-model="classification.note"/>
+                </form>
             </div>
         </div>
-    </div>
-    <div id="bottom-center-panel"
-         ng-class="{'with-pinboard-margin': hasPinnedJobs(), 'without-pinboard-margin': !hasPinnedJobs()}">
-        <div class="panel shadowed-panel bottom-shadowed-panel">
-            <div class="panel-body resizable">
-                <tabset class="tabs-below bottom-panel-tabs">
-                    <tab ng-repeat="(tab_id, tab) in tabs"  active="tab.active" disabled="tab.disabled">
-                        <tab-heading>{{ tab.title }}
-                            <span ng-show="!tab.is_loading" class="badge">{{tab.num_items}}</span>
-                            <span class="waiter-small" ng-show="tab.is_loading"></span>
-                        </tab-heading>
-                        <ng-include src="tab.content"></ng-include>
-                    </tab>
-                </tabset>
+        <div id="bottom-left-panel"
+             ng-class="{'with-pinboard-abs': hasPinnedJobs(), 'without-pinboard-abs': !hasPinnedJobs()}">
+            <div class="panel shadowed-panel">
+                <div class="panel-head">
+                    <table class="table-super-condensed table-striped">
+                        <tr>
+                            <th class="small">Result</th>
+                            <td class="small {{ resultStatusClass }}">{{ job.result }}</td>
+                        </tr>
+                        <tr>
+                            <th class="small">Machine name</th>
+                            <td class="small">
+                                <a target="_blank" href="https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name={{ job.machine_name }}">{{ job.machine_name }}</a>
+                            </td>
+                        </tr>
+                        <tr ng-repeat="(label, value) in visibleFields"><th>{{label}}</th><td>{{ value }}</td></tr>
+                    </table>
+                </div>
             </div>
         </div>
-    </div>
-    <div id="bottom-menu"
-         class="without-pinboard-abs">
-        <div class="btn-group-vertical bottom-menu-group">
-            <button type="button"
-                    class="btn btn-xs btn-default close-btn"
-                    ng-click="clearJob()">
-                <span class="glyphicon glyphicon-remove"></span> close
-            </button>
-            <button class="btn btn-default btn-xs"
-                    title="pin job"
-                    ng-click="pinJob(job)">
-                <span class="glyphicon glyphicon-pushpin"></span> pin job
-            </button>
-            <button type="button"
-                    class="btn btn-xs btn-default close-btn"
-                    ng-show="hasPinnedJobs()"
-                    ng-click="unPinAll()">
-                <span class="glyphicon glyphicon-remove"></span> un-pin all
-            </button>
-        </div>
-        <div class="save-btn-group btn-group bottom-menu-group"
-             ng-show="hasPinnedJobs()">
-            <button class="btn btn-default btn-xs save-btn"
-                    title="save classification and bug associations"
-                    ng-click="save()">
-                <span class="fa fa-save"></span> save
-            </button>
-            <button type="button" class="btn btn-default btn-xs dropdown-toggle save-btn-dropdown" data-toggle="dropdown">
-                <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu pull-right" role="menu">
-                <li><a ng-click="saveClassificationOnly()"><i class="fa fa-star"></i> classification only</a></li>
-                <li><a ng-click="saveBugsOnly()"><i class="fa fa-bug"></i> bugs only</a></li>
-            </ul>
-        </div>
-        <div class="btn-group-vertical">
-            <div class="btn btn-default btn-xs"
-                 ng-show="logs"
-                 ng-disabled="artifacts.length>0">
-                <a target="_blank" href="{{ lvUrl }}">Structured log</a>
+        <div id="bottom-center-panel"
+             ng-class="{'with-pinboard-margin': hasPinnedJobs(), 'without-pinboard-margin': !hasPinnedJobs()}">
+            <div class="panel shadowed-panel bottom-shadowed-panel">
+                <div class="panel-body resizable">
+                    <tabset class="tabs-below bottom-panel-tabs">
+                        <tab ng-repeat="(tab_id, tab) in tabs"  active="tab.active" disabled="tab.disabled">
+                            <tab-heading>{{ tab.title }}
+                                <span ng-show="!tab.is_loading" class="badge">{{tab.num_items}}</span>
+                                <span class="waiter-small" ng-show="tab.is_loading"></span>
+                            </tab-heading>
+                            <ng-include src="tab.content"></ng-include>
+                        </tab>
+                    </tabset>
+                </div>
             </div>
-            <div class="btn btn-default btn-xs"
-                 ng-repeat="joblog in logs">
-                <a target="_blank" href="{{ joblog.url }}">Raw log</a>
+        </div>
+        <div id="bottom-menu"
+             class="without-pinboard-abs">
+            <div class="btn-group-vertical bottom-menu-group">
+                <button type="button"
+                        class="btn btn-xs btn-default close-btn"
+                        ng-click="clearJob()">
+                    <span class="glyphicon glyphicon-remove"></span> close
+                </button>
+                <button class="btn btn-default btn-xs"
+                        title="pin job"
+                        ng-click="pinJob(job)">
+                    <span class="glyphicon glyphicon-pushpin"></span> pin job
+                </button>
+                <button type="button"
+                        class="btn btn-xs btn-default close-btn"
+                        ng-show="hasPinnedJobs()"
+                        ng-click="unPinAll()">
+                    <span class="glyphicon glyphicon-remove"></span> un-pin all
+                </button>
+            </div>
+            <div class="save-btn-group btn-group bottom-menu-group"
+                 ng-show="hasPinnedJobs()">
+                <button class="btn btn-default btn-xs save-btn"
+                        title="save classification and bug associations"
+                        ng-click="save()">
+                    <span class="fa fa-save"></span> save
+                </button>
+                <button type="button" class="btn btn-default btn-xs dropdown-toggle save-btn-dropdown" data-toggle="dropdown">
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu pull-right" role="menu">
+                    <li><a ng-click="saveClassificationOnly()"><i class="fa fa-star"></i> classification only</a></li>
+                    <li><a ng-click="saveBugsOnly()"><i class="fa fa-bug"></i> bugs only</a></li>
+                </ul>
+            </div>
+            <div class="btn-group-vertical">
+                <div class="btn btn-default btn-xs"
+                     ng-show="logs"
+                     ng-disabled="artifacts.length>0">
+                    <a target="_blank" href="{{ lvUrl }}">Structured log</a>
+                </div>
+                <div class="btn btn-default btn-xs"
+                     ng-repeat="joblog in logs">
+                    <a target="_blank" href="{{ joblog.url }}">Raw log</a>
+                </div>
             </div>
         </div>
     </div>

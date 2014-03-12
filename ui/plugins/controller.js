@@ -5,7 +5,7 @@ treeherder.controller('PluginCtrl',
                         thServiceDomain, thUrl, ThJobClassificationModel, thClassificationTypes,
                         ThJobModel, thEvents, dateFilter, numberFilter,
                         thPinboard, ThBugJobMapModel, thResultStatusInfo,
-                        thResultStatus, $log) {
+                        thResultStatus, thNotify, $log) {
 
         $scope.job = {};
 
@@ -58,10 +58,6 @@ treeherder.controller('PluginCtrl',
             $rootScope.selectedJob = job;
         });
 
-        $rootScope.$on(thEvents.jobPin, function(event, job) {
-            $scope.pinJob(job);
-        });
-
         $rootScope.$on(thEvents.jobsClassified, function(event, job) {
             $scope.updateClassifications();
         });
@@ -93,89 +89,6 @@ treeherder.controller('PluginCtrl',
                 $scope.bugs = response;
             });
         };
-
-        /*
-         * Pinboard functionality
-         */
-        $scope.pinJob = function(job) {
-            thPinboard.pinJob(job);
-        };
-
-        $scope.unPinJob = function(id) {
-            thPinboard.unPinJob(id);
-        };
-
-        $scope.addBug = function(bug) {
-            thPinboard.addBug(bug);
-        };
-
-        $scope.removeBug = function(id) {
-            thPinboard.removeBug(id);
-        };
-
-        $scope.unPinAll = function() {
-            thPinboard.unPinAll();
-        };
-
-        $scope.save = function() {
-            if ($scope.user.loggedin) {
-                $scope.classification.who = $scope.user.email;
-                thPinboard.save($scope.classification);
-            } else {
-                // @@@ DEBUG ONLY!!!!
-                $scope.classification.who = "guest";
-                thPinboard.save($scope.classification);
-            }
-        };
-
-        $scope.saveClassificationOnly = function() {
-            if ($scope.user.loggedin) {
-                $scope.classification.who = $scope.user.email;
-                thPinboard.saveClassificationOnly($scope.classification);
-            } else {
-                // @@@ DEBUG ONLY!!!!
-                $scope.classification.who = "cdawson@mozilla.com";
-                thPinboard.saveClassificationOnly($scope.classification);
-            }
-        };
-
-        $scope.saveBugsOnly = function() {
-            if ($scope.user.loggedin) {
-                thPinboard.saveBugsOnly();
-            } else {
-                // @@@ DEBUG ONLY!!!!
-                thPinboard.saveBugsOnly();
-            }
-        };
-
-        $scope.hasPinnedJobs = function() {
-            return thPinboard.hasPinnedJobs();
-        };
-
-        $scope.toggleEnterBugNumber = function() {
-            $scope.enteringBugNumber = !$scope.enteringBugNumber;
-
-            $scope.focusInput = $scope.enteringBugNumber;
-        };
-
-        $scope.saveEnteredBugNumber = function() {
-            if (_.isNumber($scope.newEnteredBugNumber)) {
-                thPinboard.addBug({id:$scope.newEnteredBugNumber});
-                $scope.newEnteredBugNumber = null;
-                $scope.toggleEnterBugNumber();
-            } else {
-                alert("must be numeric only");
-            }
-        };
-
-        $scope.viewJob = function(job) {
-            $rootScope.selectedJob = job;
-            $rootScope.$broadcast(thEvents.jobClick, job);
-        };
-
-        $scope.classification = thPinboard.createNewClassification();
-        $scope.pinnedJobs = thPinboard.pinnedJobs;
-        $scope.relatedBugs = thPinboard.relatedBugs;
 
 
         $scope.tabs = {
