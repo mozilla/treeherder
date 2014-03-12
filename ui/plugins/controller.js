@@ -28,7 +28,7 @@ treeherder.controller('PluginCtrl',
 
                 $scope.tab_loading = true;
                 $scope.lvUrl = thUrl.getLogViewerUrl($scope.job.id);
-                $scope.resultStatusClass = thResultStatusInfo(thResultStatus($scope.job)).btnClass + "-count-classified";
+                $scope.resultStatusShading = "result-status-shading-" + thResultStatus($scope.job);
 
                 $scope.updateClassifications();
                 $scope.updateBugs();
