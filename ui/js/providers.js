@@ -224,7 +224,9 @@ treeherder.provider('thEvents', function() {
 
             toggleRevisions: "toggle-revisions-EVT",
 
-            toggleJobs: "toggle-jobs-EVT"
+            toggleJobs: "toggle-jobs-EVT",
+
+            searchPage: "search-page-EVT",
         };
     };
 });
