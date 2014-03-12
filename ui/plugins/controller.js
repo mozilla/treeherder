@@ -4,7 +4,8 @@ treeherder.controller('PluginCtrl',
     function PluginCtrl($scope, $rootScope, $resource, $http,
                         thServiceDomain, thUrl, ThJobClassificationModel, thClassificationTypes,
                         ThJobModel, thEvents, dateFilter, numberFilter,
-                        thPinboard, ThBugJobMapModel, $log) {
+                        thPinboard, ThBugJobMapModel, thResultStatusInfo,
+                        thResultStatus, $log) {
 
         $scope.job = {};
 
@@ -27,6 +28,7 @@ treeherder.controller('PluginCtrl',
 
                 $scope.tab_loading = true;
                 $scope.lvUrl = thUrl.getLogViewerUrl($scope.job.id);
+                $scope.resultStatusClass = thResultStatusInfo(thResultStatus($scope.job)).btnClass + "-count-classified";
 
                 $scope.updateClassifications();
                 $scope.updateBugs();

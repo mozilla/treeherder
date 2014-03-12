@@ -42,6 +42,17 @@ treeherder.provider('thResultStatusList', function() {
         return ['success', 'testfailed', 'busted', 'exception', 'retry', 'running', 'pending'];
     };
 });
+treeherder.provider('thResultStatus', function() {
+    this.$get = function() {
+        return function(job) {
+            var rs = job.result;
+            if (job.state !== "completed") {
+                rs = job.state;
+            }
+            return rs;
+        };
+    };
+});
 treeherder.provider('thResultStatusObject', function() {
     var getResultStatusObject = function(){
         return {

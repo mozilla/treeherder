@@ -302,7 +302,7 @@ div.navbar-fixed-bottom{
  */
 .shadowed-panel {
     box-shadow: 0px 1px 0px rgba(255, 255, 255, 0.1), 0px 0px 2px 0px rgba(0, 0, 0, 0.8) inset;
-    margin:0 -20px 0 0;
+    margin:0;
 }
 .bottom-panel {
     background-color: #354048;
@@ -325,10 +325,10 @@ div.navbar-fixed-bottom dt,
 div.navbar-fixed-bottom dt {
     font-size:.8em;
 }
-#bottom-left-panel {width:222px; position: absolute; left:5px;}
+#bottom-left-panel {width:242px; position: absolute; left:5px;}
 #bottom-left-panel .panel{padding:5px;}
 #bottom-center-panel {
-    margin-right: 110px;
+    margin-right: 90px;
     margin-left: 242px;
 }
 #bottom-menu {position: absolute; right:-5px; width: 100px}
@@ -368,7 +368,7 @@ div.navbar-fixed-bottom dt {
 }
 
 #pinboard-panel {
-    margin-right: 545px;
+    margin-right: 527px;
     margin-left: -5px;
 }
 
@@ -382,8 +382,8 @@ div.navbar-fixed-bottom dt {
     top: 5px;
     height: 95px;
     position: absolute;
-    right: 310px;
-    width: 222px;
+    right: 290px;
+    width: 242px;
 }
 
 .pinboard-related-bug {
