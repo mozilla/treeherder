@@ -1,46 +1,7 @@
 <div ng-controller="PluginCtrl">
     <div ng-controller="PinboardCtrl">
         <div class="bottom-panel-title" ng-hide="hasPinnedJobs()">Pin one or more jobs to classify (shift-click).</div>
-        <div id="pinboard-panel"
-             ng-show="hasPinnedJobs()">
-            <div class="bottom-panel-title"><i class="glyphicon glyphicon-pushpin"></i> pinboard</div>
-            <div class="panel shadowed-panel pinboard-shadowed-panel">
-                <span ng-repeat="job in pinnedJobs">
-                    <th-pinned-job></th-pinned-job>
-                </span>
-            </div>
-            <div  id="pinboard-related-bugs-panel">
-                <div class="bottom-panel-title"><i class="fa fa-bug"></i> related bugs
-                    <a ng-click="toggleEnterBugNumber()"
-                       title="type in a bug number"><i class="fa fa-plus"></i>
-                    </a>
-                </div>
-                <div class="panel related-bugs shadowed-panel pinboard-shadowed-panel">
-                    <form ng-submit="saveEnteredBugNumber()">
-                        <input type="number"
-                               ng-show="enteringBugNumber"
-                               ng-model="newEnteredBugNumber"
-                               placeholder="enter bug number"
-                               numbers-only="numbers-only"
-                               focus-me="focusInput">
-                    </form>
-                    <span ng-repeat="bug in relatedBugs">
-                          <th-related-bug></th-related-bug>
-                    </span>
-                </div>
-            </div>
-            <div id="pinboard-classification-panel">
-                <div class="bottom-panel-title"><i class="fa fa-star"></i> classification</div>
-                <form ng-submit="saveNewClassification()" class="form">
-                    <select ng-model="classification.failure_classification_id"
-                            class="pinboard-classification-select">
-                        <option value="-1">none</option>
-                        <option ng-repeat="(value, star) in classificationTypes" value="{{value}}">{{star.name}}</option>
-                    </select>
-                    <input class="pinboard-classification-comment" ng-model="classification.note"/>
-                </form>
-            </div>
-        </div>
+        <th-pinboard-panel></th-pinboard-panel>
         <div id="bottom-left-panel"
              ng-class="{'with-pinboard-abs': hasPinnedJobs(), 'without-pinboard-abs': !hasPinnedJobs()}">
             <div class="panel shadowed-panel">
