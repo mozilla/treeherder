@@ -12,6 +12,11 @@ treeherder.controller('PinboardCtrl',
             if (!$scope.selectedJob) {
                 $scope.viewJob(job);
             }
+            $rootScope.$digest();
+        };
+
+        $scope.pinSelectedJob = function() {
+            thPinboard.pinJob($scope.selectedJob);
         };
 
         $scope.unPinJob = function(id) {

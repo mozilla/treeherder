@@ -48,11 +48,8 @@ treeherder.controller('MainCtrl',
 
         };
 
-        $scope.countPinnedJobs = thPinboard.pinnedJobsCount;
+        $scope.pinboardCount = thPinboard.count;
         $scope.pinnedJobs = thPinboard.pinnedJobs;
-        $scope.$watch('pinnedJobs', function(newVal) {
-            $scope.countPinnedJobs = _.size($scope.pinnedJobs);
-        }, true);
 
         $scope.user = {};
         $scope.user.email = localStorageService.get("user.email");

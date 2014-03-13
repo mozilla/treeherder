@@ -38,13 +38,12 @@ treeherder.factory('thPinboard',
     var api = {
         pinJob: function(job) {
             pinnedJobs[job.id] = job;
-            // update the ui because these are added outside the angular event
-            // model.
-            $rootScope.$apply();
+            api.count.numPinnedJobs = _.size(pinnedJobs);
         },
 
         unPinJob: function(id) {
             delete pinnedJobs[id];
+            api.count.numPinnedJobs = _.size(pinnedJobs);
         },
 
         // clear all pinned jobs and related bugs
@@ -53,14 +52,17 @@ treeherder.factory('thPinboard',
                 if (pinnedJobs.hasOwnProperty(jid)) { delete pinnedJobs[jid]; } }
             for (var bid in relatedBugs) {
                 if (relatedBugs.hasOwnProperty(bid)) { delete relatedBugs[bid]; } }
+            api.count.numPinnedJobs = _.size(pinnedJobs);
         },
 
         addBug: function(bug) {
             relatedBugs[bug.id] = bug;
+            api.count.numRelatedBugs = _.size(relatedBugs);
         },
 
         removeBug: function(id) {
             delete relatedBugs[id];
+            api.count.numRelatedBugs = _.size(relatedBugs);
         },
 
         // open form to create a new note
@@ -103,7 +105,11 @@ treeherder.factory('thPinboard',
             return !_.isEmpty(pinnedJobs);
         },
         pinnedJobs: pinnedJobs,
-        relatedBugs: relatedBugs
+        relatedBugs: relatedBugs,
+        count: {
+            numPinnedJobs: 0,
+            numRelatedBugs: 0
+        }
     };
 
     return api;
