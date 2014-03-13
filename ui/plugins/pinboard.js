@@ -3,11 +3,11 @@
 treeherder.controller('PinboardCtrl',
     function PinboardCtrl($scope, $rootScope, thEvents, thPinboard, thNotify) {
 
-//        $rootScope.$on(thEvents.jobPin, function(event, job) {
-//            $scope.pinJob(job);
-////            $scope.$digest();
-//        });
-//
+        $rootScope.$on(thEvents.jobPin, function(event, job) {
+            $scope.pinJob(job);
+            $rootScope.$digest();
+        });
+
         $scope.pinJob = function(job) {
             thPinboard.pinJob(job);
             if (!$scope.selectedJob) {
