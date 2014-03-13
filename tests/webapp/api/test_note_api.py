@@ -111,7 +111,7 @@ def test_note_detail_bad_project(webapp, jm):
     assert resp.json == {"message": "No project with name foo"}
 
 
-def test_create_note(webapp, eleven_jobs_processed, jm):
+def test_create_note(webapp, eleven_jobs_processed, mock_message_broker, jm):
     """
     test creating a single note via endpoint
     """

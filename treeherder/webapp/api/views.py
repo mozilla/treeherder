@@ -15,10 +15,9 @@ from treeherder.webapp.api.permissions import IsStaffOrReadOnly
 from treeherder.model import models
 from treeherder.model.derived import (JobsModel, DatasetNotFoundError,
                                       RefDataManager, ObjectNotFoundException)
-
 from treeherder.webapp.api.utils import UrlQueryFilter
-
 from treeherder.etl.oauth_utils import OAuthCredentials
+from treeherder.events.publisher import JobClassificationPublisher
 
 
 def oauth_required(func):
@@ -272,11 +271,18 @@ class NoteViewSet(viewsets.ViewSet):
         POST method implementation
         """
         jm.insert_job_note(
-            request.DATA['job_id'],
-            request.DATA['failure_classification_id'],
+            int(request.DATA['job_id']),
+            int(request.DATA['failure_classification_id']),
             request.DATA['who'],
             request.DATA.get('note', '')
         )
+
+        publisher = JobClassificationPublisher(settings.BROKER_URL)
+        try:
+            publisher.publish(int(request.DATA['job_id']), project)
+        finally:
+            publisher.disconnect()
+
         return Response(
             {'message': 'note stored for job {0}'.format(
                 request.DATA['job_id']
@@ -615,6 +621,11 @@ class BugJobMapViewSet(viewsets.ViewSet):
         jm.insert_bug_job_map(job_id, bug_id,
                               request.DATA['type'])
 
+        publisher = JobClassificationPublisher(settings.BROKER_URL)
+        try:
+            publisher.publish(job_id, project)
+        finally:
+            publisher.disconnect()
         return Response({"message": "Bug job map stored"})
 
     @with_jobs
@@ -625,6 +636,11 @@ class BugJobMapViewSet(viewsets.ViewSet):
         """
         job_id, bug_id = map(int, pk.split("-"))
         jm.delete_bug_job_map(job_id, bug_id)
+        publisher = JobClassificationPublisher(settings.BROKER_URL)
+        try:
+            publisher.publish(job_id, project)
+        finally:
+            publisher.disconnect()
         return Response({"message": "Bug job map deleted"})
 
     @with_jobs

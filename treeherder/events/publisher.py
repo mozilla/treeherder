@@ -93,3 +93,18 @@ class ResultsetPublisher(EventsPublisher):
         super(ResultsetPublisher, self).publish(
             message,
             "events.{0}.resultset".format(branch))
+
+
+class JobClassificationPublisher(EventsPublisher):
+
+    def publish(self, job_id, branch):
+        message = {
+            "id": job_id,
+            "event": "job_classification",
+            "branch": branch
+        }
+
+        super(JobClassificationPublisher, self).publish(
+            message,
+            "events.{0}.job_classification".format(branch)
+        )
