@@ -76,12 +76,22 @@ treeherder.factory('thPinboard',
 
         // save the classification and related bugs to all pinned jobs
         save: function(classification) {
+
+            var pinnedJobsClone = {};
+            var jid;
+            for (jid in pinnedJobs) {
+                if (pinnedJobs.hasOwnProperty(jid)) {
+                    pinnedJobsClone[jid] = pinnedJobs[jid];
+                }
+            }
+
             _.each(pinnedJobs, saveClassification, classification);
-            $rootScope.$broadcast(thEvents.jobsClassified, {jobs: pinnedJobs});
+            $rootScope.$broadcast(thEvents.jobsClassified, {jobs: pinnedJobsClone});
 
             _.each(pinnedJobs, saveBugs);
-            $rootScope.$broadcast(thEvents.bugsAssociated, {jobs: pinnedJobs});
-
+            $rootScope.$broadcast(thEvents.bugsAssociated, {jobs: pinnedJobsClone});
+console.log('save function');
+console.log(pinnedJobs);
             api.unPinAll();
         },
 
