@@ -44,18 +44,18 @@
                 <button type="button"
                         class="btn btn-xs btn-default close-btn"
                         ng-click="clearJob()">
-                    <span class="glyphicon glyphicon-remove"></span> close
+                    <span class="glyphicon glyphicon-remove pull-left"></span> close
                 </button>
                 <button class="btn btn-default btn-xs"
                         title="pin job"
                         ng-click="pinSelectedJob()">
-                    <span class="glyphicon glyphicon-pushpin"></span> pin job
+                    <span class="glyphicon glyphicon-pushpin navbar-left"></span> pin job
                 </button>
                 <button type="button"
                         class="btn btn-xs btn-default close-btn"
                         ng-show="hasPinnedJobs()"
                         ng-click="unPinAll()">
-                    <span class="glyphicon glyphicon-remove"></span> un-pin all
+                    <span class="fa fa-minus navbar-left btn-icon-top-margin"></span> un-pin all
                 </button>
             </div>
             <div class="save-btn-group btn-group bottom-menu-group"
@@ -63,7 +63,7 @@
                 <button class="btn btn-default btn-xs save-btn"
                         title="save classification and bug associations"
                         ng-click="save()">
-                    <span class="fa fa-save"></span> save
+                    <span class="glyphicon glyphicon-floppy-disk pull-left"></span> save
                 </button>
                 <button type="button" class="btn btn-default btn-xs dropdown-toggle save-btn-dropdown" data-toggle="dropdown">
                     <span class="caret"></span>

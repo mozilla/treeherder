@@ -1171,6 +1171,7 @@ treeherder.directive('thPinboardPanel', function($rootScope, thEvents){
         restrict: "E",
         templateUrl: "partials/thPinboardPanel.html",
         link: function(scope, element, attr) {
+
             $rootScope.$on(thEvents.jobPin, function(event, job) {
                 console.log("got an event");
                 scope.pinJob(job);
