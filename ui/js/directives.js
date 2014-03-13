@@ -1186,18 +1186,10 @@ treeherder.directive('numbersOnly', function(){
    };
 });
 
-treeherder.directive('thPinboardPanel', function($rootScope, thEvents){
+treeherder.directive('thPinboardPanel', function(){
     return {
         restrict: "E",
-        templateUrl: "partials/thPinboardPanel.html",
-        link: function(scope, element, attr) {
-
-            $rootScope.$on(thEvents.jobPin, function(event, job) {
-                console.log("got an event");
-                scope.pinJob(job);
-//                scope.$digest();
-            });
-        }
+        templateUrl: "partials/thPinboardPanel.html"
     }
 });
 

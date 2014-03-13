@@ -31,7 +31,6 @@
                 <form ng-submit="saveNewClassification()" class="form">
                     <select ng-model="classification.failure_classification_id"
                             class="pinboard-classification-select">
-                        <option value="-1">none</option>
                         <option ng-repeat="(value, star) in classificationTypes" value="{{value}}">{{star.name}}</option>
                     </select>
                     <input class="pinboard-classification-comment" ng-model="classification.note"/>
