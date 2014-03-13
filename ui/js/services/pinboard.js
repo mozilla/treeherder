@@ -9,6 +9,9 @@ treeherder.factory('thPinboard',
 
     var saveClassification = function(job) {
         var classification = new ThJobClassificationModel(this);
+
+        job.failure_classification_id = classification.failure_classification_id;
+
         classification.job_id = job.id;
         classification.create().
             success(function(data) {
@@ -90,8 +93,7 @@ treeherder.factory('thPinboard',
 
             _.each(pinnedJobs, saveBugs);
             $rootScope.$broadcast(thEvents.bugsAssociated, {jobs: pinnedJobsClone});
-console.log('save function');
-console.log(pinnedJobs);
+
             api.unPinAll();
         },
 

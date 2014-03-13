@@ -134,8 +134,7 @@ treeherder.directive('thCloneJobs', function(
             jobStatus = thResultStatusInfo(resultState);
 
             jobStatus['key'] = key;
-
-            if(job.failure_classification_id != null){
+            if(parseInt(job.failure_classification_id) > 1){
                 jobStatus['value'] = job.job_type_symbol + '*';
             }else{
                 jobStatus['value'] = job.job_type_symbol;
@@ -522,8 +521,6 @@ treeherder.directive('thCloneJobs', function(
     };
 
     var updateJobs = function(platformData){
-console.log('updateJobs called with');
-console.log(platformData);
 
         angular.forEach(platformData, function(value, platformId){
 
@@ -660,9 +657,6 @@ console.log(platformData);
                 for(jid in pinnedJobs.jobs){
                     if (pinnedJobs.jobs.hasOwnProperty(jid)) {
                         //Only update the target resultset id
-
-console.log([pinnedJobs.jobs[jid].result_set_id, scope.resultset.id]);
-
                         if(pinnedJobs.jobs[jid].result_set_id === scope.resultset.id){
                             ThResultSetModel.aggregateJobPlatform(
                                 $rootScope.repoName, pinnedJobs.jobs[jid], platformData
@@ -670,8 +664,6 @@ console.log([pinnedJobs.jobs[jid].result_set_id, scope.resultset.id]);
                         }
                     }
                 }
-console.log('platformData');
-console.log(platformData);
                 if(!_.isEmpty(platformData)){
                     _.bind(updateJobs, scope, platformData)();
                 }
