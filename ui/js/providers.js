@@ -13,23 +13,27 @@ treeherder.provider('thServiceDomain', function() {
 treeherder.provider('thClassificationTypes', function() {
     this.$get = function() {
         return {
-            0: {
+            1: {
+                   name: "not classified",
+                   star: ""
+            },
+            2: {
                    name: "expected fail",
                    star: "label-info"
             },
-            1: {
+            3: {
                    name: "fixed by backout",
                    star: "label-success"
             },
-            2: {
+            4: {
                    name: "intermittent",
                    star: "label-warning"
             },
-            3: {
+            5: {
                    name: "infra",
                    star: "label-default"
             },
-            4: {
+            6: {
                    name: "intermittent needs filing",
                    star: "label-danger"
             }
