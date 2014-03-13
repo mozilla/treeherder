@@ -266,8 +266,23 @@ class JobsModel(TreeherderModelBase):
         )
         return data
 
+    def update_last_job_classification(self, job_id):
+        """
+        Update failure_classification_id no the job table accordingly to
+        the latest annotation. If none is present it gets reverted to the
+        default value
+        """
+
+        self.get_jobs_dhub().execute(
+            proc='jobs.updates.update_last_job_classification',
+            placeholders=[
+                job_id,
+            ],
+            debug_show=self.DEBUG
+        )
+
     def insert_job_note(self, job_id, failure_classification_id, who, note):
-        """insert a new note for the job"""
+        """insert a new note for a job and updates its failure classification"""
         self.get_jobs_dhub().execute(
             proc='jobs.inserts.insert_note',
             placeholders=[
@@ -279,17 +294,22 @@ class JobsModel(TreeherderModelBase):
             ],
             debug_show=self.DEBUG
         )
+        self.update_last_job_classification(job_id)
 
+    def delete_job_note(self, note_id, job_id):
+        """
+        Delete a job note and updates the failure classification for that job
+        """
 
         self.get_jobs_dhub().execute(
-            proc='jobs.updates.update_last_job_classification',
+            proc='jobs.deletes.delete_note',
             placeholders=[
-                failure_classification_id,
-                job_id,
+                note_id,
             ],
             debug_show=self.DEBUG
         )
 
+        self.update_last_job_classification(job_id)
 
     def insert_bug_job_map(self, job_id, bug_id, assignment_type):
         """

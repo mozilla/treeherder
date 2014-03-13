@@ -168,3 +168,24 @@ def test_create_note_no_auth(eleven_jobs_processed, jm):
     )
 
     assert resp.status_code == 403
+
+def test_delete_note(webapp, sample_notes, mock_message_broker, jm):
+    """
+    test creating a single note via endpoint
+    """
+    client = APIClient()
+    user = User.objects.create(username="MyName", is_staff=True)
+    client.force_authenticate(user=user)
+
+    notes = jm.get_job_note_list(job_id=1)
+
+    resp = client.delete(
+        reverse("note-detail", kwargs={"project": jm.project, "pk": notes[0]['id']}),
+    )
+    new_notes = jm.get_job_note_list(job_id=1)
+
+    user.delete()
+
+    assert resp.status_code == 200, resp
+
+    assert len(new_notes) == len(notes)-1

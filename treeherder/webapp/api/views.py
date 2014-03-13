@@ -279,7 +279,8 @@ class NoteViewSet(viewsets.ViewSet):
 
         publisher = JobClassificationPublisher(settings.BROKER_URL)
         try:
-            publisher.publish(int(request.DATA['job_id']), project)
+            publisher.publish(int(request.DATA['job_id']),
+                              request.DATA['who'], project)
         finally:
             publisher.disconnect()
 
@@ -288,6 +289,25 @@ class NoteViewSet(viewsets.ViewSet):
                 request.DATA['job_id']
             )}
         )
+
+    @with_jobs
+    def destroy(self, request, project, jm, pk=None):
+        """
+        Delete a note entry
+        """
+        objs = jm.get_job_note(pk)
+        if objs:
+            jm.delete_job_note(pk, objs[0]['job_id'])
+            publisher = JobClassificationPublisher(settings.BROKER_URL)
+            try:
+                publisher.publish(objs[0]['job_id'], objs[0]['who'], project)
+            finally:
+                publisher.disconnect()
+            return Response({"message": "Note deleted"})
+
+        else:
+            return Response("No note with id: {0}".format(pk), 404)
+
 
 def get_option(obj, option_collections):
     """Get the option, if there is one.  Otherwise, return None."""
@@ -621,11 +641,6 @@ class BugJobMapViewSet(viewsets.ViewSet):
         jm.insert_bug_job_map(job_id, bug_id,
                               request.DATA['type'])
 
-        publisher = JobClassificationPublisher(settings.BROKER_URL)
-        try:
-            publisher.publish(job_id, project)
-        finally:
-            publisher.disconnect()
         return Response({"message": "Bug job map stored"})
 
     @with_jobs
@@ -636,11 +651,6 @@ class BugJobMapViewSet(viewsets.ViewSet):
         """
         job_id, bug_id = map(int, pk.split("-"))
         jm.delete_bug_job_map(job_id, bug_id)
-        publisher = JobClassificationPublisher(settings.BROKER_URL)
-        try:
-            publisher.publish(job_id, project)
-        finally:
-            publisher.disconnect()
         return Response({"message": "Bug job map deleted"})
 
     @with_jobs

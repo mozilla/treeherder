@@ -3,6 +3,10 @@
         "delete_bug_job_map":{
             "sql":"DELETE FROM bug_job_map WHERE job_id = ? and bug_id = ?",
             "host": "master_host"
+        },
+        "delete_note":{
+            "sql":"DELETE FROM job_note WHERE id = ?",
+            "host": "master_host"
         }
     },
     "inserts":{
@@ -172,9 +176,20 @@
             "host":"master_host"
         },
         "update_last_job_classification":{
-            "sql":"UPDATE `job`
-                   SET `failure_classification_id` = ?
-                   WHERE `id` = ?",
+            "sql":"update job j
+                    set failure_classification_id = (
+	                    select
+	                        IF(failure_classification_id IS NOT NULL, failure_classification_id, 1)
+	                    from
+	                        job_note jn
+	                    where
+	                        jn.job_id = j.id
+	                    order by
+	                        note_timestamp DESC
+	                    limit 0,1
+	                )
+	                where j.id = ?
+            ",
 
             "host":"master_host"
         }

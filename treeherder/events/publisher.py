@@ -97,9 +97,10 @@ class ResultsetPublisher(EventsPublisher):
 
 class JobClassificationPublisher(EventsPublisher):
 
-    def publish(self, job_id, branch):
+    def publish(self, job_id, who, branch):
         message = {
             "id": job_id,
+            "who": who,
             "event": "job_classification",
             "branch": branch
         }

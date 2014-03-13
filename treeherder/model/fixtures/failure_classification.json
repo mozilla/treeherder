@@ -12,7 +12,7 @@
         "pk": 2,
         "model": "model.failureclassification",
         "fields": {
-            "name": "expected fail",
+            "name": "fixed by backout",
             "description": "",
             "active_status": "active"
         }
