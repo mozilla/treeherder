@@ -3,16 +3,16 @@
 treeherder.controller('PinboardCtrl',
     function PinboardCtrl($scope, $rootScope, thEvents, thPinboard, thNotify) {
 
-        $rootScope.$on(thEvents.jobPin, function(event, job) {
-            $scope.pinJob(job);
-        });
-
+//        $rootScope.$on(thEvents.jobPin, function(event, job) {
+//            $scope.pinJob(job);
+////            $scope.$digest();
+//        });
+//
         $scope.pinJob = function(job) {
             thPinboard.pinJob(job);
             if (!$scope.selectedJob) {
                 $scope.viewJob(job);
             }
-            $rootScope.$digest();
         };
 
         $scope.pinSelectedJob = function() {
@@ -89,6 +89,5 @@ treeherder.controller('PinboardCtrl',
         $scope.classification = thPinboard.createNewClassification();
         $scope.pinnedJobs = thPinboard.pinnedJobs;
         $scope.relatedBugs = thPinboard.relatedBugs;
-
     }
 );
