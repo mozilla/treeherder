@@ -110,8 +110,8 @@ treeherder.controller('PluginCtrl',
                     if(jobMap.hasOwnProperty(map_key)){
                         // update the old job with the new info
                         _.extend(jobMap[map_key].job_obj, job);
-                        var params = {};
-                        params[job.id] = jobMap[map_key].job_obj;
+                        var params = { jobs: {}};
+                        params.jobs[job.id] = jobMap[map_key].job_obj;
                         // broadcast the job classification event
                         $rootScope.$broadcast(thEvents.jobsClassified, params);
                     }

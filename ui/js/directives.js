@@ -650,6 +650,7 @@ treeherder.directive('thCloneJobs', function(
 
         $rootScope.$on(
             thEvents.jobsClassified, function(ev, pinnedJobs){
+                $log.log(pinnedJobs);
 
                 var platformData = {};
 
