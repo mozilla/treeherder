@@ -15,10 +15,9 @@ from treeherder.webapp.api.permissions import IsStaffOrReadOnly
 from treeherder.model import models
 from treeherder.model.derived import (JobsModel, DatasetNotFoundError,
                                       RefDataManager, ObjectNotFoundException)
-
 from treeherder.webapp.api.utils import UrlQueryFilter
-
 from treeherder.etl.oauth_utils import OAuthCredentials
+from treeherder.events.publisher import JobClassificationPublisher
 
 
 def oauth_required(func):
@@ -272,16 +271,43 @@ class NoteViewSet(viewsets.ViewSet):
         POST method implementation
         """
         jm.insert_job_note(
-            request.DATA['job_id'],
-            request.DATA['failure_classification_id'],
+            int(request.DATA['job_id']),
+            int(request.DATA['failure_classification_id']),
             request.DATA['who'],
             request.DATA.get('note', '')
         )
+
+        publisher = JobClassificationPublisher(settings.BROKER_URL)
+        try:
+            publisher.publish(int(request.DATA['job_id']),
+                              request.DATA['who'], project)
+        finally:
+            publisher.disconnect()
+
         return Response(
             {'message': 'note stored for job {0}'.format(
                 request.DATA['job_id']
             )}
         )
+
+    @with_jobs
+    def destroy(self, request, project, jm, pk=None):
+        """
+        Delete a note entry
+        """
+        objs = jm.get_job_note(pk)
+        if objs:
+            jm.delete_job_note(pk, objs[0]['job_id'])
+            publisher = JobClassificationPublisher(settings.BROKER_URL)
+            try:
+                publisher.publish(objs[0]['job_id'], objs[0]['who'], project)
+            finally:
+                publisher.disconnect()
+            return Response({"message": "Note deleted"})
+
+        else:
+            return Response("No note with id: {0}".format(pk), 404)
+
 
 def get_option(obj, option_collections):
     """Get the option, if there is one.  Otherwise, return None."""

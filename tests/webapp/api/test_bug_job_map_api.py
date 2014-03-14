@@ -26,7 +26,7 @@ def test_create_bug_job_map_no_auth(eleven_jobs_processed, jm):
     assert resp.status_code == 403
 
 
-def test_create_bug_job_map(eleven_jobs_processed, jm):
+def test_create_bug_job_map(eleven_jobs_processed, mock_message_broker, jm):
     """
     test creating a single note via endpoint
     """
@@ -98,7 +98,8 @@ def test_bug_job_map_detail(webapp, jm, eleven_jobs_processed):
     assert resp.json == {"job_id": job_id, "bug_id": bug_id, "type": "manual"}
 
 
-def test_bug_job_map_delete(webapp, jm, eleven_jobs_processed):
+def test_bug_job_map_delete(webapp, eleven_jobs_processed,
+                            jm, mock_message_broker):
     """
     test retrieving a list of bug_job_map
     """

@@ -254,3 +254,8 @@ def refdata():
 
     add_test_procs_file(refdata.dhub, 'reference', proc_path)
     return refdata
+
+@pytest.fixture
+def mock_message_broker(monkeypatch):
+    from django.conf import settings
+    monkeypatch.setattr(settings, 'BROKER_URL', 'memory://')
