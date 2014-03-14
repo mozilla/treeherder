@@ -311,16 +311,16 @@ treeherder.factory('ThResultSetModel',
             $log.debug(jobFetchList);
 
             // make an ajax call to get the job details
-            fetchJobs(jobFetchList);
+            fetchJobs(repoName, jobFetchList);
         }
     };
     /**
-     * Fetch the job objects for the ids in ``jobIdList`` and update them
+     * Fetch the job objects for the ids in ``jobFetchList`` and update them
      * in the data model.
      */
-    var fetchJobs = function(repoName, jobIdList) {
+    var fetchJobs = function(repoName, jobFetchList) {
         ThJobModel.get_list({
-            id__in: jobIdList.join()
+            id__in: jobFetchList.join()
         }).then(
             _.bind(updateJobs, $rootScope, repoName),
             function(data) {

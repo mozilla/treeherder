@@ -754,11 +754,11 @@ treeherder.directive('thWatchedRepoPanel', function () {
     };
 });
 
-treeherder.directive('thStatusFilterPanel', function () {
+treeherder.directive('thFilterPanel', function () {
 
     return {
         restrict: "E",
-        templateUrl: 'partials/thStatusFilterPanel.html'
+        templateUrl: 'partials/thFilterPanel.html'
     };
 });
 

@@ -21,7 +21,9 @@
  * Each field is AND'ed so that, if a field exists in ``filters`` then the job
  * must match at least one value in every field.
  */
-treeherder.factory('thJobFilters', function(thResultStatusList, $log, $rootScope) {
+treeherder.factory('thJobFilters',
+                   function(thResultStatusList, $log, $rootScope,
+                            ThResultSetModel, thPinboard) {
 
     /**
      * If a custom resultStatusList is passed in (like for individual
@@ -179,14 +181,16 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log, $rootScope
         showJob: function(job, resultStatusList) {
             for(var i = 0; i < filterKeys.length; i++) {
                 if (!checkFilter(filterKeys[i], job, resultStatusList)) {
+                    console.log("failed filterkeys");
                     return false;
                 }
             }
-            if($rootScope.searchQuery != ""){
+            if($rootScope.searchQuery !== ""){
                 //Confirm job matches search query
                 if(job.searchableStr.toLowerCase().indexOf(
                     $rootScope.searchQuery.toLowerCase()
                     ) === -1){
+                    console.log("failed searchQuery");
                     return false;
                 }
             }
@@ -195,6 +199,23 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log, $rootScope
         },
         getFilters: function() {
             return filters;
+        },
+        /**
+         * Pin all jobs that pass the GLOBAL filters.  Ignores toggling at
+         * the result set level.
+         */
+        pinAllShownJobs: function() {
+            var jobs = ThResultSetModel.getJobMap($rootScope.repoName);
+            console.log(_.size(jobs));
+            var pinIfShown = function(job) {
+                console.log("checking...");
+                if (api.showJob(job)) {
+                    thPinboard.pinJob(job);
+                } else {
+                    $log.debug("nope, don't show: " + job.job_type_symbol);
+                }
+            };
+            _.forEach(jobs, pinIfShown);
         },
 
         // CONSTANTS
