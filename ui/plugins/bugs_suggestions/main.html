@@ -7,17 +7,6 @@
         <input type="radio" ng-click="visible='closed'" ng-checked="visible=='closed'" />
         Closed bugs
     </p>
-    <p>
-        Classification:
-       <select ng-model="classification">
-            <option ng-repeat="(value, star) in starTypes" value="{{value}}">{{star.name}}</option>
-        </select>
-
-        <button type="button" class="btn btn-default btn-sm" ng-click="quick_submit()">Quick submit</button>
-
-        <!-- <button type="button" class="btn btn-default btn-sm" ng-click="classify(selected_bugs)">Classify</button> -->
-    </p>
-
 
 
 <ul class="list-group" class="bg-info">
@@ -27,7 +16,9 @@
             <tbody>
                 <tr ng-repeat="bug in bug_list[visible] | orderBy:bug.relevance:reverse" ng-show="$index<3 || show_all">
                     <td>
-                        <input type="checkbox" ng-model="selected_bugs[bug.id]" />
+                        <span class="btn btn-xs btn-default"
+                              ng-click="addBug(bug)"
+                              title="add to list of bugs to associate with all pinned jobs"><i class="fa fa-plus"></i></span>
                     </td>
                     <td><a href="https://bugzilla.mozilla.org/show_bug.cgi?id={{bug.id}}">{{bug.id}}</a></td>
                     <td ng-class="{'deleted': bug.resolution!=''}">{{bug.summary}}</td>

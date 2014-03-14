@@ -1,0 +1,36 @@
+<div ng-controller="AnnotationsPluginCtrl" class="row annotations-panel">
+    <div class="col-xs-11 classifications-panel">
+        <table class="table-condensed table-hover">
+            <thead>
+                <tr><th>Datetime</th><th>Author</th><th>Failure type</th><th>Note</th></tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="classification in classifications">
+                    <td>
+                        {{ classification.note_timestamp*1000|date:'medium' }}
+                    </td>
+                    <td>
+                        {{classification.who}}
+                    </td>
+                    <td>
+                        <span th-star star-id="classification.failure_classification_id"></span>
+                    </td>
+                    <td>
+                        {{classification.note}}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div ng-show="classifications.length < 1"></br><em>This job has not been classified</em></div>
+    </div>
+    <div class="col-xs-1 bug-list-panel">
+        <h5><strong>Bugs</strong></h5>
+        <ul class="bug-list">
+            <li ng-repeat="bug in bugs">
+                <a href="https://bugzilla.mozilla.org/show_bug.cgi?id={{bug.bug_id}}"
+                   target="_blank"
+                   class="label label-default">{{bug.bug_id}}</a>
+            </li>
+        </ul>
+    </div>
+</div>

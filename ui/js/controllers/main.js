@@ -2,7 +2,8 @@
 
 treeherder.controller('MainCtrl',
     function MainController($scope, $rootScope, $routeParams, $location, $log,
-                            localStorageService, thEvents, ThRepositoryModel) {
+                            localStorageService, ThRepositoryModel,
+                            thEvents, thPinboard) {
         $scope.query="";
         $scope.statusError = function(msg) {
             $rootScope.statusMsg = msg;
@@ -65,6 +66,9 @@ treeherder.controller('MainCtrl',
             $location.search({repo: repo_name});
 
         };
+
+        $scope.pinboardCount = thPinboard.count;
+        $scope.pinnedJobs = thPinboard.pinnedJobs;
 
         $scope.user = {};
         $scope.user.email = localStorageService.get("user.email");

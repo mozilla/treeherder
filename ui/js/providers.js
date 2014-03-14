@@ -10,26 +10,30 @@ treeherder.provider('thServiceDomain', function() {
     };
 });
 
-treeherder.provider('thStarTypes', function() {
+treeherder.provider('thClassificationTypes', function() {
     this.$get = function() {
         return {
-            0: {
+            1: {
+                   name: "not classified",
+                   star: ""
+            },
+            2: {
                    name: "expected fail",
                    star: "label-info"
             },
-            1: {
+            3: {
                    name: "fixed by backout",
                    star: "label-success"
             },
-            2: {
+            4: {
                    name: "intermittent",
                    star: "label-warning"
             },
-            3: {
+            5: {
                    name: "infra",
                    star: "label-default"
             },
-            4: {
+            6: {
                    name: "intermittent needs filing",
                    star: "label-danger"
             }
@@ -40,6 +44,17 @@ treeherder.provider('thStarTypes', function() {
 treeherder.provider('thResultStatusList', function() {
     this.$get = function() {
         return ['success', 'testfailed', 'busted', 'exception', 'retry', 'running', 'pending'];
+    };
+});
+treeherder.provider('thResultStatus', function() {
+    this.$get = function() {
+        return function(job) {
+            var rs = job.result;
+            if (job.state !== "completed") {
+                rs = job.state;
+            }
+            return rs;
+        };
     };
 });
 treeherder.provider('thResultStatusObject', function() {
@@ -188,12 +203,19 @@ treeherder.provider('thEvents', function() {
             // fired (surprisingly) when a job is clicked
             jobClick: "job-click-EVT",
 
+            // fired when a job is shift-clicked
+            jobPin: "job-pin-EVT",
+
             // fired when the user middle-clicks on a job to view the log
             jobContextMenu: "job-context-menu-EVT",
 
             // fired when jobs are either classified locally, or we are
             // notified about a classification over socket.io
-            jobClassified: "job-classified-EVT",
+            jobsClassified: "jobs-classified-EVT",
+
+            // fired when bugs are associated to jobs locally, or we are
+            // notified about a bug association over socket.io
+            bugsAssociated: "bugs-associated-EVT",
 
             // after loading a group of jobs queued during socket.io events
             jobsLoaded: "jobs-loaded-EVT",
@@ -211,6 +233,8 @@ treeherder.provider('thEvents', function() {
             selectNextUnclassifiedFailure: "next-unclassified-failure-EVT",
 
             selectPreviousUnclassifiedFailure: "previous-unclassified-failure-EVT",
+
+            searchPage: "search-page-EVT",
         };
     };
 });

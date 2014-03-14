@@ -65,6 +65,10 @@ treeherder.directive('thCloneJobs', function(
         $rootScope.$broadcast(thEvents.jobClick, job);
     };
 
+    var togglePinJobCb = function(ev, el, job){
+        $rootScope.$broadcast(thEvents.jobPin, job);
+    };
+
     var jobContextmenuCb = function(ev, el, job){
 
         ev.preventDefault();
@@ -111,6 +115,11 @@ treeherder.directive('thCloneJobs', function(
             //filtering
             jobCounts[resultState] += 1;
 
+            job.searchableStr = getPlatformName(job.platform) + ' ' +
+                job.platform_option + ' ' + job.job_group_name + ' ' +
+                job.job_group_symbol + ' ' + job.job_type_name + ' ' +
+                job.machine_name + ' ' + job.job_type_symbol;
+
             //Make sure that filtering doesn't effect the resultset counts
             //displayed
             if(thJobFilters.showJob(job, resultStatusFilters) === false){
@@ -125,8 +134,7 @@ treeherder.directive('thCloneJobs', function(
             jobStatus = thResultStatusInfo(resultState);
 
             jobStatus['key'] = key;
-
-            if(job.failure_classification_id != null){
+            if(parseInt(job.failure_classification_id) > 1){
                 jobStatus['value'] = job.job_type_symbol + '*';
             }else{
                 jobStatus['value'] = job.job_type_symbol;
@@ -157,7 +165,11 @@ treeherder.directive('thCloneJobs', function(
             switch (ev.which) {
                 case 1:
                     //Left mouse button pressed
-                    _.bind(clickJobCb, this, ev, el, job)();
+                    if (ev.shiftKey) {
+                        _.bind(togglePinJobCb, this, ev, el, job)();
+                    } else {
+                        _.bind(clickJobCb, this, ev, el, job)();
+                    }
                     break;
                 case 2:
                     //Middle mouse button pressed
@@ -617,6 +629,12 @@ treeherder.directive('thCloneJobs', function(
             });
 
         $rootScope.$on(
+            thEvents.searchPage, function(ev, searchData){
+                scope.resultStatusFilters = thJobFilters.copyResultStatusFilters();
+                _.bind(filterJobs, scope, element, scope.resultStatusFilters)();
+            });
+
+        $rootScope.$on(
             thEvents.resultSetFilterChanged, function(ev, rs){
                 if(rs.id === scope.resultset.id){
                     _.bind(
@@ -628,6 +646,27 @@ treeherder.directive('thCloneJobs', function(
         $rootScope.$on(
             thEvents.jobsLoaded, function(ev, platformData){
                 _.bind(updateJobs, scope, platformData)();
+            });
+
+        $rootScope.$on(
+            thEvents.jobsClassified, function(ev, pinnedJobs){
+
+                var platformData = {};
+
+                var jid;
+                for(jid in pinnedJobs.jobs){
+                    if (pinnedJobs.jobs.hasOwnProperty(jid)) {
+                        //Only update the target resultset id
+                        if(pinnedJobs.jobs[jid].result_set_id === scope.resultset.id){
+                            ThResultSetModel.aggregateJobPlatform(
+                                $rootScope.repoName, pinnedJobs.jobs[jid], platformData
+                                );
+                        }
+                    }
+                }
+                if(!_.isEmpty(platformData)){
+                    _.bind(updateJobs, scope, platformData)();
+                }
             });
 
         //Clone the target html
@@ -785,8 +824,47 @@ treeherder.directive('thJobButton', function (thResultStatusInfo) {
         },
         templateUrl: 'partials/thJobButton.html'
     };
+});
 
+treeherder.directive('thPinnedJob', function (thResultStatusInfo) {
 
+    var getHoverText = function(job) {
+        var duration = Math.round((job.end_timestamp - job.start_timestamp) / 60);
+        var status = job.result;
+        if (job.state != "completed") {
+            status = job.state;
+        }
+        return job.job_type_name + " - " + status + " - " + duration + "mins";
+    };
+
+    return {
+        restrict: "E",
+        link: function(scope, element, attrs) {
+            var unbindWatcher = scope.$watch("job", function(newValue) {
+                var resultState = scope.job.result;
+                if (scope.job.state != "completed") {
+                    resultState = scope.job.state;
+                }
+                scope.job.display = thResultStatusInfo(resultState);
+                scope.hoverText = getHoverText(scope.job);
+
+                if (scope.job.state == "completed") {
+                    //Remove watchers when a job has a completed status
+                    unbindWatcher();
+                }
+
+            }, true);
+        },
+        templateUrl: 'partials/thPinnedJob.html'
+    };
+});
+
+treeherder.directive('thRelatedBug', function () {
+
+    return {
+        restrict: "E",
+        templateUrl: 'partials/thRelatedBug.html'
+    };
 });
 
 treeherder.directive('thActionButton', function () {
@@ -876,7 +954,7 @@ treeherder.directive('focusMe', function($timeout) {
   };
 });
 
-treeherder.directive('thStar', function ($parse, thStarTypes) {
+treeherder.directive('thStar', function ($parse, thClassificationTypes) {
     return {
         scope: {
             starId: "="
@@ -884,7 +962,7 @@ treeherder.directive('thStar', function ($parse, thStarTypes) {
         link: function(scope, element, attrs) {
             scope.$watch('starId', function(newVal) {
                 if (newVal !== undefined) {
-                    scope.starType = thStarTypes[newVal];
+                    scope.starType = thClassificationTypes[newVal];
                     scope.badgeColorClass=scope.starType.star;
                     scope.hoverText=scope.starType.name;
                 }
@@ -893,7 +971,7 @@ treeherder.directive('thStar', function ($parse, thStarTypes) {
         template: '<span class="label {{ badgeColorClass}}" ' +
                         'title="{{ hoverText }}">' +
                         '<i class="glyphicon glyphicon-star-empty"></i>' +
-                        '</span>'
+                        '</span> {{ hoverText }}'
     };
 });
 
@@ -1079,12 +1157,39 @@ treeherder.directive('thSimilarJobs', function(ThJobModel, $log){
 treeherder.directive('thNotificationBox', function($log, thNotify){
     return {
         restrict: "E",
-        template: '<div id="notification_box" ng-class="notify.current.severity" ng-if="notify.current.message">' +
-                    '<p>{{notify.current.message}}' +
-                    '<a ng-click="notify.clear()" ng-if="notify.current.sticky" title="close" class="close">x</a></p>' +
-                  '</div>',
+        templateUrl: "partials/thNotificationsBox.html",
         link: function(scope, element, attr) {
-            scope.notify = thNotify;
+            scope.notifier = thNotify
+            scope.alert_class_prefix = "alert-"
         }
     }
 });
+
+treeherder.directive('numbersOnly', function(){
+   return {
+     require: 'ngModel',
+     link: function(scope, element, attrs, modelCtrl) {
+       modelCtrl.$parsers.push(function (inputValue) {
+           // this next is necessary for when using ng-required on your input.
+           // In such cases, when a letter is typed first, this parser will be called
+           // again, and the 2nd time, the value will be undefined
+           if (inputValue == undefined) return ''
+           var transformedInput = inputValue.replace(/[^0-9]/g, '');
+           if (transformedInput!=inputValue) {
+              modelCtrl.$setViewValue(transformedInput);
+              modelCtrl.$render();
+           }
+
+           return transformedInput;
+       });
+     }
+   };
+});
+
+treeherder.directive('thPinboardPanel', function(){
+    return {
+        restrict: "E",
+        templateUrl: "partials/thPinboardPanel.html"
+    }
+});
+

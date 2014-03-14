@@ -321,71 +321,81 @@ treeherder.factory('ThResultSetModel',
                 });
         }
     };
+    var aggregateJobPlatform = function(repoName, job, platformData){
+
+        var resultsetId, platformName, platformOption, platformAggregateId,
+            platformKey, jobUpdated, resultsetAggregateId, revision,
+            jobGroups;
+
+        console.log('aggregating job platform');
+        console.log(job);
+        jobUpdated = updateJob(repoName, job);
+
+        //the job was not updated or added to the model, don't include it
+        //in the jobsLoaded broadcast
+        if(jobUpdated === false){
+            return;
+        }
+
+        resultsetId = job.result_set_id;
+        platformName = job.platform;
+        platformOption = job.platform_opt;
+
+        if(_.isEmpty(repositories[repoName].rsMap[ resultsetId ])){
+            //We don't have this resultset
+            return;
+        }
+
+        platformAggregateId = thAggregateIds.getPlatformRowId(
+            repoName,
+            job.result_set_id,
+            job.platform,
+            job.platform_opt
+            );
+
+        if(!platformData[platformAggregateId]){
+
+            if(!_.isEmpty(repositories[repoName].rsMap[resultsetId])){
+
+                revision = repositories[repoName].rsMap[resultsetId].rs_obj.revision;
+
+                resultsetAggregateId = thAggregateIds.getResultsetTableId(
+                    $rootScope.repoName, resultsetId, revision
+                    );
+
+                platformKey = getPlatformKey(platformName, platformOption);
+
+                jobGroups = repositories[repoName].rsMap[resultsetId].platforms[platformKey].pl_obj.groups;
+                platformData[platformAggregateId] = {
+                    platformName:platformName,
+                    revision:revision,
+                    platformOrder:repositories[repoName].rsMap[resultsetId].rs_obj.platforms,
+                    resultsetId:resultsetId,
+                    resultsetAggregateId:resultsetAggregateId,
+                    platformOption:platformOption,
+                    jobGroups:jobGroups,
+                    jobs:[]
+                    };
+            }
+        }
+
+        platformData[platformAggregateId].jobs.push(job);
+    };
 
     /***
      * update resultsets and jobs with those that were in the update queue
      * @param jobList List of jobs to be placed in the data model and maps
      */
     var updateJobs = function(repoName, jobList) {
+
         $log.debug("number of jobs returned for add/update: " + jobList.length);
 
         var platformData = {};
 
-        var resultsetId, platformName, platformOption, platformAggregateId,
-            platformKey, jobUpdated, resultsetAggregateId, revision,
-            jobGroups, i;
+        var jobUpdated, i;
 
         for (i = 0; i < jobList.length; i++) {
-
-            jobUpdated = updateJob(repoName, jobList[i]);
-
-            //the job was not updated or added to the model, don't include it
-            //in the jobsLoaded broadcast
-            if(jobUpdated === false){
-                continue;
-            }
-
-            platformAggregateId = thAggregateIds.getPlatformRowId(
-                repoName,
-                jobList[i].result_set_id,
-                jobList[i].platform,
-                jobList[i].platform_opt
-                );
-
-            if(!platformData[platformAggregateId]){
-
-                resultsetId = jobList[i].result_set_id;
-                platformName = jobList[i].platform;
-                platformOption = jobList[i].platform_opt;
-
-                if(!_.isEmpty(repositories[repoName].rsMap[resultsetId])){
-
-                    revision = repositories[repoName].rsMap[resultsetId].rs_obj.revision;
-
-                    resultsetAggregateId = thAggregateIds.getResultsetTableId(
-                        $rootScope.repoName, resultsetId, revision
-                        );
-
-                    platformKey = getPlatformKey(platformName, platformOption);
-
-                    jobGroups = repositories[repoName].rsMap[resultsetId].platforms[platformKey].pl_obj.groups;
-                    platformData[platformAggregateId] = {
-                        platformName:platformName,
-                        revision:revision,
-                        platformOrder:repositories[repoName].rsMap[resultsetId].rs_obj.platforms,
-                        resultsetId:resultsetId,
-                        resultsetAggregateId:resultsetAggregateId,
-                        platformOption:platformOption,
-                        jobGroups:jobGroups,
-                        jobs:[]
-                        };
-                }else{
-                    //We don't have the result set associated with this job yet
-                    continue;
-                }
-            }
-
-            platformData[platformAggregateId].jobs.push(jobList[i]);
+            aggregateJobPlatform(repoName, jobList[i], platformData);
         }
 
         if(!_.isEmpty(platformData)){
@@ -583,7 +593,9 @@ treeherder.factory('ThResultSetModel',
 
         fetchNewResultSets: fetchNewResultSets,
 
-        fetchResultSets: fetchResultSets
+        fetchResultSets: fetchResultSets,
+
+        aggregateJobPlatform: aggregateJobPlatform
 
     };
 
