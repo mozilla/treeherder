@@ -1,8 +1,8 @@
 'use strict';
 
 treeherder.factory('ThRepositoryModel',
-                   ['$http', 'thUrl', '$rootScope', '$log', 'localStorageService', 'thSocket',
-                   function($http, thUrl, $rootScope, $log, localStorageService, thSocket) {
+                   ['$http', 'thUrl', '$rootScope', '$log', 'localStorageService', 'thSocket', 'thEvents',
+                   function($http, thUrl, $rootScope, $log, localStorageService, thSocket, thEvents) {
 
     var new_failures = {};
 
@@ -80,9 +80,16 @@ treeherder.factory('ThRepositoryModel',
         },
         // set the current repo to one in the repos list
         setCurrent: function(name) {
-            $rootScope.currentRepo = byName(name);
+            var oldRepo = $rootScope.currentRepo;
+            var newRepo = byName(name);
+            $rootScope.currentRepo = newRepo;
             api.watchedRepos[name] = true;
             api.saveWatchedRepos();
+
+            // broadcast that the current repo has changed
+            $log.log("broadcasting "+ name);
+            $rootScope.$broadcast(thEvents.repoChanged,
+                {oldRepo: oldRepo, newRepo: name});
         },
         // get a repo object without setting anything
         getRepo: function(name) {

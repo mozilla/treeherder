@@ -1,9 +1,12 @@
 "use strict";
 
 treeherder.controller('PluginCtrl',
+
     function PluginCtrl($scope, $rootScope, thUrl, ThJobClassificationModel,
                         thClassificationTypes, ThJobModel, thEvents, dateFilter,
-                        numberFilter, ThBugJobMapModel, thResultStatus) {
+                        numberFilter, ThBugJobMapModel, thResultStatus, thSocket,
+                        ThResultSetModel, $log) {
+
 
         $scope.job = {};
 
@@ -96,6 +99,35 @@ treeherder.controller('PluginCtrl',
             });
         };
 
+        var updateClassification = function(classification){
+            if(classification.who != $scope.user.email){
+                // get a fresh version of the job
+                var job = ThJobModel.get(classification.id);
+                // get the list of jobs we know about
+                var jobMap  = ThResultSetModel.getJobMap(classification.branch);
+                if(jobMap.hasOwnProperty(job.id)){
+                    // update the old job with the new info
+                    _.extend(jobMap[job.id], job);
+                    var params = {};
+                    params[job.id] = jobMap[job.id];
+                    // broadcast the job classification event
+                    $rootScope.$broadcast(thEvents.jobsClassified, params);
+                }
+            }
+
+        }
+
+        $rootScope.$on(thEvents.repoChanged, function(ev, repoMsg){
+            // and subscribe to the new repo ones
+            thSocket.emit("subscribe", repoMsg.newRepo + ".job_classification");
+            $log.log("subscribed to "+repoMsg.newRepo+" classifications");
+            thSocket.on("job_classification", updateClassification);
+        });
+
+        // just in case thEvents.repoChanged event is triggered before we start listening to it
+        if($rootScope.currentRepo){
+            thSocket.emit("subscribe", $rootScope.currentRepo.name + ".job_classification");
+        }
 
         $scope.tabs = {
             "tinderbox": {
