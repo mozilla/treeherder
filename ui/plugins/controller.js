@@ -102,17 +102,21 @@ treeherder.controller('PluginCtrl',
         var updateClassification = function(classification){
             if(classification.who != $scope.user.email){
                 // get a fresh version of the job
-                var job = ThJobModel.get(classification.id);
-                // get the list of jobs we know about
-                var jobMap  = ThResultSetModel.getJobMap(classification.branch);
-                if(jobMap.hasOwnProperty(job.id)){
-                    // update the old job with the new info
-                    _.extend(jobMap[job.id], job);
-                    var params = {};
-                    params[job.id] = jobMap[job.id];
-                    // broadcast the job classification event
-                    $rootScope.$broadcast(thEvents.jobsClassified, params);
-                }
+                ThJobModel.get(classification.id)
+                .then(function(job){
+                    // get the list of jobs we know about
+                    var jobMap  = ThResultSetModel.getJobMap(classification.branch);
+                    var map_key = "key"+job.id;
+                    if(jobMap.hasOwnProperty(map_key)){
+                        // update the old job with the new info
+                        _.extend(jobMap[map_key].job_obj, job);
+                        var params = {};
+                        params[job.id] = jobMap[map_key].job_obj;
+                        // broadcast the job classification event
+                        $rootScope.$broadcast(thEvents.jobsClassified, params);
+                    }
+                });
+
             }
 
         }

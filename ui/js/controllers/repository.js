@@ -9,8 +9,10 @@ treeherder.controller('RepositoryPanelCtrl',
         };
 
         for (var repo in $scope.watchedRepos) {
-            thSocket.emit('subscribe', $scope.watchedRepos[repo]+'.job_failure');
-            $log.debug("subscribing to "+$scope.watchedRepos[repo]+'.job_failure');
+            if($scope.watchedRepos[repo]){
+                thSocket.emit('subscribe', repo);
+                $log.debug("subscribing to "+$scope.watchedRepos[repo]);
+            }
         }
 
     }
