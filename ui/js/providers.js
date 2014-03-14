@@ -231,6 +231,8 @@ treeherder.provider('thEvents', function() {
             toggleJobs: "toggle-jobs-EVT",
 
             searchPage: "search-page-EVT",
+
+            repoChanged: "repo-changed-EVT"
         };
     };
 });
