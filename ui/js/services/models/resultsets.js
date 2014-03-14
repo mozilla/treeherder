@@ -52,7 +52,7 @@ treeherder.factory('ThResultSetModel',
                 loadingStatus: {
                     appending: false,
                     prepending: false
-                },
+                }
             };
 
             // Add a connect listener
@@ -111,7 +111,7 @@ treeherder.factory('ThResultSetModel',
 
     var getPlatformKey = function(name, option){
         var key = name;
-        if(option != undefined){
+        if(option !== undefined){
             key += option;
         }
         return key;
@@ -327,8 +327,8 @@ treeherder.factory('ThResultSetModel',
             platformKey, jobUpdated, resultsetAggregateId, revision,
             jobGroups;
 
-        console.log('aggregating job platform');
-        console.log(job);
+        $log.debug('aggregating job platform');
+        $log.debug(job);
         jobUpdated = updateJob(repoName, job);
 
         //the job was not updated or added to the model, don't include it
@@ -555,7 +555,7 @@ treeherder.factory('ThResultSetModel',
          */
         if(resultsetList.length > 0){
             repositories[repoName].loadingStatus.prepending = true;
-            thResultSets.getResultSets(0, resultsetlist.length, resultsetlist).
+            thResultSets.getResultSets(0, resultsetList.length, resultsetList).
             success( _.bind(prependResultSets, $rootScope, repoName) );
         }
     };

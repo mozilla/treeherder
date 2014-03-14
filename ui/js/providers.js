@@ -18,11 +18,11 @@ treeherder.provider('thClassificationTypes', function() {
                    star: ""
             },
             2: {
-                   name: "expected fail",
+                   name: "fixed by backout",
                    star: "label-info"
             },
             3: {
-                   name: "fixed by backout",
+                   name: "expected fail",
                    star: "label-success"
             },
             4: {
@@ -46,6 +46,7 @@ treeherder.provider('thResultStatusList', function() {
         return ['success', 'testfailed', 'busted', 'exception', 'retry', 'running', 'pending'];
     };
 });
+
 treeherder.provider('thResultStatus', function() {
     this.$get = function() {
         return function(job) {
@@ -57,6 +58,7 @@ treeherder.provider('thResultStatus', function() {
         };
     };
 });
+
 treeherder.provider('thResultStatusObject', function() {
     var getResultStatusObject = function(){
         return {
@@ -230,7 +232,7 @@ treeherder.provider('thEvents', function() {
 
             toggleJobs: "toggle-jobs-EVT",
 
-            searchPage: "search-page-EVT",
+            searchPage: "search-page-EVT"
         };
     };
 });
