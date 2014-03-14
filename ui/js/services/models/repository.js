@@ -80,16 +80,9 @@ treeherder.factory('ThRepositoryModel',
         },
         // set the current repo to one in the repos list
         setCurrent: function(name) {
-            var oldRepo = $rootScope.currentRepo;
-            var newRepo = byName(name);
-            $rootScope.currentRepo = newRepo;
+            $rootScope.currentRepo = byName(name);
             api.watchedRepos[name] = true;
             api.saveWatchedRepos();
-
-            // broadcast that the current repo has changed
-            $log.log("broadcasting "+ name);
-            $rootScope.$broadcast(thEvents.repoChanged,
-                {oldRepo: oldRepo, newRepo: name});
         },
         // get a repo object without setting anything
         getRepo: function(name) {

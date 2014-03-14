@@ -117,17 +117,7 @@ treeherder.controller('PluginCtrl',
 
         }
 
-        $rootScope.$on(thEvents.repoChanged, function(ev, repoMsg){
-            // and subscribe to the new repo ones
-            thSocket.emit("subscribe", repoMsg.newRepo + ".job_classification");
-            $log.log("subscribed to "+repoMsg.newRepo+" classifications");
-            thSocket.on("job_classification", updateClassification);
-        });
-
-        // just in case thEvents.repoChanged event is triggered before we start listening to it
-        if($rootScope.currentRepo){
-            thSocket.emit("subscribe", $rootScope.currentRepo.name + ".job_classification");
-        }
+        thSocket.on("job_classification", updateClassification);
 
         $scope.tabs = {
             "tinderbox": {
