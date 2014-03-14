@@ -28,7 +28,7 @@
         </div>
 
         <!-- Footer -->
-        <div class="nav navbar navbar-default navbar-fixed-bottom" ng-show="selectedJob">
+        <div class="nav navbar navbar-default navbar-fixed-bottom bottom-panel" ng-show="selectedJob">
             <resizable-panel></resizable-panel>
             <div ng-include src="'plugins/pluginpanel.html'"></div>
         </div>
@@ -52,12 +52,13 @@
         <script src="js/directives.js"></script>
         <script src="js/services/main.js"></script>
         <script src="js/services/jobfilters.js"></script>
+        <script src="js/services/pinboard.js"></script>
         <script src="js/services/resultsets.js"></script>
         <script src="js/services/models/resultsets.js"></script>
         <script src="js/services/models/job_artifact.js"></script>
         <script src="js/services/models/repository.js"></script>
         <script src="js/services/models/bug_job_map.js"></script>
-        <script src="js/services/models/note.js"></script>
+        <script src="js/services/models/classification.js"></script>
         <script src="js/services/models/job.js"></script>
         <script src="js/controllers/main.js"></script>
         <script src="js/controllers/repository.js"></script>
@@ -66,7 +67,8 @@
         <script src="js/controllers/machines.js"></script>
         <script src="js/controllers/timeline.js"></script>
         <script src="plugins/controller.js"></script>
-        <script src="plugins/notes/controller.js"></script>
+        <script src="plugins/pinboard.js"></script>
+        <script src="plugins/annotations/controller.js"></script>
         <script src="plugins/tinderbox/controller.js"></script>
         <script src="plugins/bugs_suggestions/controller.js"></script>
         <script src="plugins/similar_jobs/controller.js"></script>

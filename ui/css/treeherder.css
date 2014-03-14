@@ -281,13 +281,10 @@ body {
   padding: 0 2px 0 2px;
 }
 
-.th-notes-accordion .accordion-toggle {
-    padding: 0;
-}
 div.navbar-fixed-bottom{
     border-top: 1px solid #ccc;
     padding:5px 10px;
-    height:370px;
+    height:270px;
 }
 
 .table-super-condensed thead > tr > th,
@@ -299,23 +296,136 @@ div.navbar-fixed-bottom{
     padding: 2px;
     font-size: .9em;
 }
+
+/*
+ * bottom panel
+ */
 .shadowed-panel {
     box-shadow: 0px 1px 0px rgba(255, 255, 255, 0.1), 0px 0px 2px 0px rgba(0, 0, 0, 0.8) inset;
-    margin:0 -20px 0 0;
+    margin:0;
 }
+.bottom-panel {
+    background-color: #354048;
+}
+
+.bottom-panel-title {
+    color: lightgray;
+}
+
 div.navbar-fixed-bottom .tab-content{
-    height:300px;
+    height:160px;
     overflow-y: auto;
+}
+
+.bottom-panel-tabs .nav li a {
+    padding: 1px 10px 2px 10px;
 }
 
 div.navbar-fixed-bottom dt,
 div.navbar-fixed-bottom dt {
     font-size:.8em;
 }
-#bottom_left_panel {width:222px; position: absolute; top: 5px; left:5px;}
-#bottom_left_panel .panel{padding:5px;}
-#bottom_center_panel {margin:0 110px 0 242px;}
-#bottom_menu{position: absolute; top: 5px; right:5px;}
+#bottom-left-panel {width:242px; position: absolute; left:5px;}
+#bottom-left-panel .panel{padding:5px;}
+#bottom-center-panel {
+    margin-right: 90px;
+    margin-left: 242px;
+}
+#bottom-menu {position: absolute; right:-5px; width: 100px}
+
+.result-status-shading-success {background-color: rgba(120, 196, 192, 0.54);}
+.result-status-shading-testfailed {background-color: rgba(221, 102, 2, 0.56);}
+.result-status-shading-busted {background-color: rgba(144, 0, 0, 0.60);}
+.result-status-shading-exception {background-color: rgba(61, 2, 85, 0.50);}
+.result-status-shading-retry {background-color: #263fc3;}
+.result-status-shading-usercancel {background-color: rgba(250, 115, 172, 0.63)}
+.result-status-shading-pending {background-color: white;}
+.result-status-shading-running {background-color: white;}
+
+.bottom-shadowed-panel {
+    height: 195px;
+}
+
+.bottom-menu-group {
+    width: 90px;
+    margin-bottom: 5px;
+}
+
+.save-btn {
+    width: 73px;
+}
+
+.save-btn-dropdown {
+    width: 18px;
+}
+
+.btn-group + .btn + .save-btn-dropdown {
+    margin-left: -5px;
+}
+/*
+ * pinboard
+ */
+
+.with-pinboard-abs {
+    top: 80px;
+}
+.with-pinboard-margin {
+    margin-top: 3px;
+}
+.without-pinboard-abs {
+    top: 25px;
+}
+
+#pinboard-panel {
+    margin-right: 527px;
+    margin-left: -5px;
+}
+
+.pinboard-shadowed-panel {
+    height: 52px;
+    padding: 2px;
+    overflow: auto;
+}
+
+#pinboard-related-bugs-panel {
+    top: 5px;
+    height: 95px;
+    position: absolute;
+    right: 290px;
+    width: 242px;
+}
+
+.pinboard-related-bug {
+    margin: 2px 1px;
+}
+
+#pinboard-classification-panel {
+    position: absolute;
+    top: 5px;
+    right:100px;
+    width: 185px;
+}
+
+.pinboard-classification-comment {
+    width: 185px;
+    margin-top: 5px;
+}
+
+.pinboard-classification-select {
+    width: 185px;
+}
+
+.pinned-job {
+    padding: 1px 7px;
+}
+
+.pinned-job-close-btn {
+    padding: 1px 2px 1px 2px;
+}
+
+.btn-icon-top-margin {
+    margin-top: 0.3em;
+}
 
 .panel-body{ padding:5px;}
 
@@ -324,6 +434,29 @@ div.navbar-fixed-bottom dt {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+.annotations-panel {
+    overflow: scroll;
+    margin-right: 0;
+}
+
+.classifications-panel {
+    border-right: solid 1px lightgray;
+}
+
+.bug-list-panel {
+    right: 0;
+}
+
+.bug-list {
+    list-style: none inside none;
+    padding-left: 0;
+}
+
+/**
+ * RESULT STATUS COUNTS
+ */
+
 .result-status-count-group {
     font-size: 12px;
     white-space: nowrap;
@@ -369,7 +502,11 @@ div.navbar-fixed-bottom dt {
     width: 69px;
 }
 
-/* Custom Job buttons*/
+
+/**
+ * CUSTOM BUTTONS
+ */
+
 .btn-view-nav {
   background-color: rgba(63, 74, 81, 0.56);
   border-color: #22282d;
@@ -518,7 +655,6 @@ fieldset[disabled] .btn-dkblue.active {
   color: #283aa2;
 }
 
-
 .btn-green {
   border-color: rgba(2, 131, 44, 0.24);
   color: #028233;
@@ -603,8 +739,8 @@ fieldset[disabled] .btn-purple.active {
 .btn-ltgray:focus,
 .btn-ltgray:active,
 .btn-ltgray.active {
-  border-color: #c7c7c7;
-  color: #d3d3d3;
+  border-color: #808080;
+  color: #808080;
 }
 .btn-ltgray.disabled:hover,
 .btn-ltgray.disabled:focus,

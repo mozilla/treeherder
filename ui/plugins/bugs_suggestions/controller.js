@@ -35,7 +35,7 @@ treeherder.controller('BugClassificationCtrl',
 
 treeherder.controller('BugsPluginCtrl',
     function BugsPluginCtrl($scope, $rootScope, $log, ThJobArtifactModel,
-                            ThBugJobMapModel, ThJobNoteModel, thNotify, $modal) {
+                            ThBugJobMapModel, ThJobClassificationModel, thNotify, $modal) {
         $log.debug("bugs plugin initialized");
 
         $scope.classify = function(bug_list){
@@ -59,7 +59,7 @@ treeherder.controller('BugsPluginCtrl',
                     bjm.create();
                 }
             });
-            var note = new ThJobNoteModel({
+            var note = new ThJobClassificationModel({
                 job_id:$scope.job.id,
                 who: $scope.user ? $scope.user.email : "",
                 failure_classification_id: $scope.classification,

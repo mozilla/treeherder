@@ -1,9 +1,9 @@
 "use strict";
 
 treeherder.controller('PluginCtrl',
-    function PluginCtrl($scope, $rootScope, $resource, $http,
-                        thServiceDomain, thUrl, ThJobNoteModel, thStarTypes,
-                        ThJobModel, thEvents, dateFilter, $log) {
+    function PluginCtrl($scope, $rootScope, thUrl, ThJobClassificationModel,
+                        thClassificationTypes, ThJobModel, thEvents, dateFilter,
+                        numberFilter, ThBugJobMapModel, thResultStatus) {
 
         $scope.job = {};
 
@@ -22,94 +22,89 @@ treeherder.controller('PluginCtrl',
 
                 $scope.artifacts = {};
 
-                updateVisibleFields();
+                $scope.visibleFields = {
+                    "Job Name": $scope.job.job_type_name,
+                    "Start time": "",
+                    "Duration":  "",
+                    "Machine ": "",
+                    "Build": ""
+                };
 
                 $scope.tab_loading = true;
                 $scope.lvUrl = thUrl.getLogViewerUrl($scope.job.id);
+                $scope.resultStatusShading = "result-status-shading-" + thResultStatus($scope.job);
 
-                $scope.updateNotes();
-
-
+                $scope.updateClassifications();
+                $scope.updateBugs();
             }
         };
 
         var updateVisibleFields = function() {
-                var undef = "---undefined---";
+                var undef = "";
                 // fields that will show in the job detail panel
+                var duration = ($scope.job.end_timestamp-$scope.job.start_timestamp)/60;
+                if (duration) {
+                    duration = numberFilter(duration, 0) + " minutes";
+                }
 
                 $scope.visibleFields = {
-                    "Result": $scope.job.result || undef,
                     "Job Name": $scope.job.job_type_name || undef,
                     "Start time": dateFilter($scope.job.start_timestamp*1000, 'short') || undef,
-                    "Job GUID": $scope.job.job_guid || undef,
-                    "Machine Platform Arch": $scope.job.machine_platform_architecture || undef,
-                    "Machine Platform OS": $scope.job.machine_platform_os || undef,
-                    "Build Platform": $scope.job.build_platform || undef,
-                    "Build Arch": $scope.job.build_architecture || undef,
-                    "Build OS": $scope.job.build_os || undef
+                    "Duration":  duration || undef,
+                    "Machine ": $scope.job.machine_platform_architecture + " " +
+                                $scope.job.machine_platform_os || undef,
+                    "Build": $scope.job.build_architecture + " " +
+                             $scope.job.build_platform  + " " +
+                             $scope.job.build_os || undef
                 };
         };
 
-        //$scope.$watch('selectedJob', selectJob, true);
-
-        $rootScope.$on(thEvents.jobClick, function(event, job){
+        $rootScope.$on(thEvents.jobClick, function(event, job) {
             selectJob(job, $rootScope.selectedJob);
             $rootScope.selectedJob = job;
         });
 
-        $scope.starTypes = thStarTypes;
+        $rootScope.$on(thEvents.jobsClassified, function(event, job) {
+            $scope.updateClassifications();
+        });
 
-        // load the list of existing notes (including possibly a new one just
+        $rootScope.$on(thEvents.bugsAssociated, function(event, job) {
+            $scope.updateBugs();
+        });
+
+        $scope.classificationTypes = thClassificationTypes;
+
+        // load the list of existing classifications (including possibly a new one just
         // added).
-        $scope.updateNotes = function() {
-            ThJobNoteModel.get_list({job_id: $scope.job.id}).then(function(response){
-                $scope.notes = response;
+        $scope.updateClassifications = function() {
+            ThJobClassificationModel.get_list({job_id: $scope.job.id}).then(function(response) {
+                $scope.classifications = response;
             });
         };
-        // when notes comes in, then set the latest note for the job
-        $scope.$watch('notes', function(newValue, oldValue) {
+        // when classifications comes in, then set the latest note for the job
+        $scope.$watch('classifications', function(newValue, oldValue) {
             if (newValue && newValue.length > 0) {
                 $scope.job.note=newValue[0];
             }
         });
 
-        // open form to create a new note
-        $scope.addNote = function() {
-            var fci = 0;
-            if ($scope.notes && $scope.notes.length > 0) {
-                fci = $scope.notes[0].failure_classification_id;
-            }
-            $scope.newNote = new ThJobNoteModel({
-                job_id: $scope.job.id,
-                note: "",
-                who: $scope.username,
-                failure_classification_id: fci
+        // load the list of bug associations (including possibly new ones just
+        // added).
+        $scope.updateBugs = function() {
+            ThBugJobMapModel.get_list({job_id: $scope.job.id}).then(function(response) {
+                $scope.bugs = response;
             });
-            $scope.focusInput=true;
         };
 
-        // done adding a new note, so clear and hide the form
-        $scope.clearNewNote = function() {
-            $scope.newNote = null;
-        };
-
-        // save the note and hide the form
-        $scope.saveNote = function() {
-            $scope.newNote.create()
-                .then(function(response){
-                    $scope.updateNotes();
-                    $scope.clearNewNote();
-                });
-        };
 
         $scope.tabs = {
             "tinderbox": {
                 title: "Job Details",
                 content: "plugins/tinderbox/main.html"
             },
-            "notes": {
-                title: "Notes",
-                content: "plugins/notes/main.html"
+            "annotations": {
+                title: "Annotations",
+                content: "plugins/annotations/main.html"
             },
             "bugs_suggestions": {
                 title: "Bugs suggestions",
