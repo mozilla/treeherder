@@ -39,7 +39,7 @@ treeherder.factory('ThJobClassificationModel', function($http, $log, thUrl) {
 
     // an instance method to delete a ThJobClassificationModel object
     ThJobClassificationModel.prototype.delete = function(){
-        return $http.delete(ThJobClassificationModel.get_uri()+this.id);
+        return $http.delete(ThJobClassificationModel.get_uri()+this.id+"/");
     };
 
     return ThJobClassificationModel;

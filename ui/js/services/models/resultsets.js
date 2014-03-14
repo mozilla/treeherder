@@ -311,15 +311,21 @@ treeherder.factory('ThResultSetModel',
             $log.debug(jobFetchList);
 
             // make an ajax call to get the job details
-
-            ThJobModel.get_list({
-                id__in: jobFetchList.join()
-            }).then(
-                _.bind(updateJobs, $rootScope, repoName),
-                function(data) {
-                    $log.error("Error fetching jobUpdateQueue: " + data);
-                });
+            fetchJobs(jobFetchList);
         }
+    };
+    /**
+     * Fetch the job objects for the ids in ``jobIdList`` and update them
+     * in the data model.
+     */
+    var fetchJobs = function(repoName, jobIdList) {
+        ThJobModel.get_list({
+            id__in: jobIdList.join()
+        }).then(
+            _.bind(updateJobs, $rootScope, repoName),
+            function(data) {
+                $log.error("Error fetching jobs: " + data);
+            });
     };
     var aggregateJobPlatform = function(repoName, job, platformData){
 
@@ -594,6 +600,8 @@ treeherder.factory('ThResultSetModel',
         fetchNewResultSets: fetchNewResultSets,
 
         fetchResultSets: fetchResultSets,
+
+        fetchJobs: fetchJobs,
 
         aggregateJobPlatform: aggregateJobPlatform
 

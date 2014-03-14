@@ -1,7 +1,8 @@
 "use strict";
 
 treeherder.controller('AnnotationsPluginCtrl',
-    function AnnotationsPluginCtrl($scope, $log, ThJobClassificationModel, thNotify) {
+    function AnnotationsPluginCtrl($scope, $rootScope, $log, ThJobClassificationModel,
+                                   thNotify, thEvents, ThResultSetModel) {
         $log.debug("annotations plugin initialized");
 
         $scope.$watch('classifications', function(newValue, oldValue){
@@ -14,18 +15,19 @@ treeherder.controller('AnnotationsPluginCtrl',
             jcModel.delete()
                 .then(
                     function(){
-                        thNotify.send({
-                            message: "Classification successfully deleted",
-                            severity: "success",
-                            sticky: false
-                        });
+                        thNotify.send("Classification successfully deleted", "success", false);
+                        var jobs = {};
+                        jobs[$scope.selectedJob.id] = $scope.selectedJob;
+
+                        // also be sure the job object in question gets updated to the latest
+                        // classification state (in case one was added or removed).
+                        ThResultSetModel.fetchJobs($scope.repoName, [$scope.job.id]);
+
+                        $rootScope.$broadcast(thEvents.jobsClassified, {jobs: jobs});
                     },
                     function(){
-                        thNotify.send({
-                            message: "Classification deletion failed",
-                            severity: "danger",
-                            sticky: true
-                        });
+                        thNotify.send("Classification deletion failed", "danger", true
+                        );
                     }
                 );
         };
