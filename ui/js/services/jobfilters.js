@@ -23,7 +23,7 @@
  */
 treeherder.factory('thJobFilters',
                    function(thResultStatusList, $log, $rootScope,
-                            ThResultSetModel, thPinboard) {
+                            ThResultSetModel, thPinboard, thNotify) {
 
     /**
      * If a custom resultStatusList is passed in (like for individual
@@ -181,7 +181,6 @@ treeherder.factory('thJobFilters',
         showJob: function(job, resultStatusList) {
             for(var i = 0; i < filterKeys.length; i++) {
                 if (!checkFilter(filterKeys[i], job, resultStatusList)) {
-                    console.log("failed filterkeys");
                     return false;
                 }
             }
@@ -190,7 +189,6 @@ treeherder.factory('thJobFilters',
                 if(job.searchableStr.toLowerCase().indexOf(
                     $rootScope.searchQuery.toLowerCase()
                     ) === -1){
-                    console.log("failed searchQuery");
                     return false;
                 }
             }
@@ -206,16 +204,24 @@ treeherder.factory('thJobFilters',
          */
         pinAllShownJobs: function() {
             var jobs = ThResultSetModel.getJobMap($rootScope.repoName);
-            console.log(_.size(jobs));
-            var pinIfShown = function(job) {
-                console.log("checking...");
-                if (api.showJob(job)) {
-                    thPinboard.pinJob(job);
-                } else {
-                    $log.debug("nope, don't show: " + job.job_type_symbol);
+            var jobsToPin = [];
+
+            var queuePinIfShown = function(jMap) {
+                if (api.showJob(jMap.job_obj)) {
+                    jobsToPin.push(jMap.job_obj);
                 }
             };
-            _.forEach(jobs, pinIfShown);
+            _.forEach(jobs, queuePinIfShown);
+
+            if (_.size(jobsToPin) > thPinboard.spaceRemaining()) {
+                jobsToPin = jobsToPin.splice(0, thPinboard.spaceRemaining());
+                thNotify.send("Pinboard max size exceeded.  Pinning only the first " + thPinboard.spaceRemaining(),
+                              "danger",
+                              true);
+            }
+
+            $rootScope.selectedJob = jobsToPin[0];
+            _.forEach(jobsToPin, thPinboard.pinJob);
         },
 
         // CONSTANTS

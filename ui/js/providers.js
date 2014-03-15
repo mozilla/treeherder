@@ -18,11 +18,11 @@ treeherder.provider('thClassificationTypes', function() {
                    star: ""
             },
             2: {
-                   name: "fixed by backout",
+                   name: "expected fail",
                    star: "label-info"
             },
             3: {
-                   name: "expected fail",
+                   name: "fixed by backout",
                    star: "label-success"
             },
             4: {
@@ -232,7 +232,9 @@ treeherder.provider('thEvents', function() {
 
             toggleJobs: "toggle-jobs-EVT",
 
-            searchPage: "search-page-EVT"
+            searchPage: "search-page-EVT",
+
+            repoChanged: "repo-changed-EVT"
         };
     };
 });

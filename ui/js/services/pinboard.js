@@ -40,8 +40,12 @@ treeherder.factory('thPinboard',
 
     var api = {
         pinJob: function(job) {
-            pinnedJobs[job.id] = job;
-            api.count.numPinnedJobs = _.size(pinnedJobs);
+            if (api.spaceRemaining() > 0) {
+                pinnedJobs[job.id] = job;
+                api.count.numPinnedJobs = _.size(pinnedJobs);
+            } else {
+                thNotify.send("Pinboard is already at maximum size of " + api.maxNumPinned, "danger", true);
+            }
         },
 
         unPinJob: function(id) {
@@ -116,12 +120,19 @@ treeherder.factory('thPinboard',
         hasPinnedJobs: function() {
             return !_.isEmpty(pinnedJobs);
         },
+
+        spaceRemaining: function() {
+            return api.maxNumPinned - api.count.numPinnedJobs;
+        },
+
         pinnedJobs: pinnedJobs,
         relatedBugs: relatedBugs,
         count: {
             numPinnedJobs: 0,
             numRelatedBugs: 0
-        }
+        },
+        // not sure what this should be, but we need some limit, I think.
+        maxNumPinned: 100
     };
 
     return api;

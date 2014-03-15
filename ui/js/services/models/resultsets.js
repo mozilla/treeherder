@@ -57,7 +57,8 @@ treeherder.factory('ThResultSetModel',
 
             // Add a connect listener
             thSocket.on('connect',function() {
-                thSocket.emit('subscribe', repoName + '.job');
+                // subscribe to all the events for this repo
+                thSocket.emit('subscribe', repoName);
                 });
 
             //Set up job update queue
