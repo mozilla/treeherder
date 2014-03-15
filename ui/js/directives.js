@@ -6,7 +6,7 @@ treeherder.directive('thCloneJobs', function(
         thResultStatusInfo, thEvents, thAggregateIds, thJobFilters,
         thResultStatusObject, ThResultSetModel){
 
-    var lastJobElSelected = {};
+    var lastJobElSelected, lastJobObjSelected;
 
     // CSS classes
     var btnCls = 'btn-xs';
@@ -45,6 +45,26 @@ treeherder.directive('thCloneJobs', function(
         }
         return job.job_type_name + " - " + jobStatus + " - " + duration + "mins";
     };
+
+    //Global event listeners
+    $rootScope.$on(
+        thEvents.selectNextUnclassifiedFailure, function(ev){
+
+            var jobMap = ThResultSetModel.getJobMap($rootScope.repoName);
+
+            var targetEl, jobKey;
+            if(!_.isEmpty(lastJobElSelected)){
+                //Select the first unclassified failure
+
+                //getJobMapKey(); = function(job){
+                jobKey = getJobMapKey(lastJobObjSelected);
+                getNextUnclassifiedFailure(jobMap[jobKey].job_obj);
+
+            }else{
+                //Select the first unclassified failure
+                getNextUnclassifiedFailure({});
+            }
+    });
 
     var selectJob = function(el){
 
@@ -184,6 +204,7 @@ treeherder.directive('thCloneJobs', function(
             }
 
             lastJobElSelected = el;
+            lastJobObjSelected = job;
         }
     };
 
@@ -585,13 +606,70 @@ treeherder.directive('thCloneJobs', function(
         }, this);
     };
 
-    var linker = function(scope, element, attrs){
+    var getNextUnclassifiedFailure = function(currentJob){
 
-        //Remove any jquery on() bindings
-        element.off();
 
-        //Register events callback
-        element.on('mousedown', _.bind(jobMouseDown, scope));
+        var resultsets = ThResultSetModel.getResultSetsArray($rootScope.repoName);
+
+        var startWatch = false;
+        if(_.isEmpty(currentJob)){
+            startWatch = true;
+        }
+console.log(startWatch);
+        var platforms, groups, jobs, jobKey, jobEl, r;
+
+        superloop:
+        for(r = 0; r < resultsets.length; r++){
+
+            platforms = resultsets[r].platforms;
+            var p;
+            for(p = 0; p < platforms.length; p++){
+
+                groups = platforms[p].groups;
+                var g;
+                for(g = 0; g < groups.length; g++){
+
+                    jobs = groups[g].jobs;
+                    var j;
+                    for(j = 0; j < jobs.length; j++){
+
+                        if(currentJob.id === jobs[j].id){
+
+                            //This is the current selection, get the next
+                            startWatch = true;
+                            continue;
+                        }
+                        if(startWatch){
+                            if(
+                        (jobs[j].result === 'testfailed') &&
+                        ( (parseInt(jobs[j].failure_classification_id) === 1) ||
+                          (jobs[j].failure_classification_id === null)  )
+                            ){
+
+                                jobKey = getJobMapKey(jobs[j]);
+                                jobEl = $('.' + jobKey);
+
+                                //Scroll to the job element
+                                $('html, body').animate({
+                                    scrollTop: jobEl.offset().top - 100
+                                }, 250);
+
+                                clickJobCb({}, jobEl, jobs[j]);
+
+                                lastJobElSelected = jobEl;
+                                lastJobObjSelected = jobs[j];
+
+                                //Next test failure
+                                break superloop;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    var registerCustomEventCallbacks = function(scope, element, attrs){
 
         //Register rootScope custom event listeners that require
         //access to the anguler level resultset scope
@@ -668,6 +746,19 @@ treeherder.directive('thCloneJobs', function(
                     _.bind(updateJobs, scope, platformData)();
                 }
             });
+
+
+    };
+
+    var linker = function(scope, element, attrs){
+
+        //Remove any jquery on() bindings
+        element.off();
+
+        //Register events callback
+        element.on('mousedown', _.bind(jobMouseDown, scope));
+
+        registerCustomEventCallbacks(scope, element, attrs);
 
         //Clone the target html
         var resultsetAggregateId = thAggregateIds.getResultsetTableId(

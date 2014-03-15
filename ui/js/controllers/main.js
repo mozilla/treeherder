@@ -20,6 +20,7 @@ treeherder.controller('MainCtrl',
         $scope.processKeyboardInput = function(ev){
             if( (ev.keyCode === 74) || (ev.keyCode === 78) ){
                 //Highlight next unclassified failure keys:j/n
+console.log(ev.keyCode);
                 $rootScope.$broadcast(
                     thEvents.selectNextUnclassifiedFailure
                     );
