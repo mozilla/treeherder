@@ -34,11 +34,18 @@ treeherder.factory('thJobFilters',
      * means it must have a value set, ``false`` means it must be null.
      */
     var checkFilter = function(field, job, resultStatusList) {
-        // resultStatus is a special case that spans two job fields
         if (field === api.resultStatus) {
+            // resultStatus is a special case that spans two job fields
             var filterList = resultStatusList || filters[field].values;
             return _.contains(filterList, job.result) ||
                    _.contains(filterList, job.state);
+        } else if (field === api.failure_classification_id) {
+            // fci is a special case, too.  Where 1 is "not classified"
+            var fci_filters = filters[field].values;
+            if (_.contains(fci_filters, false) && job.failure_classification_id === 1) {
+                return true;
+            }
+            return _.contains(fci_filters, true) && job.failure_classification_id > 1;
         } else {
             var jobFieldValue = getJobFieldValue(job, field);
             if (_.isUndefined(jobFieldValue)) {
@@ -119,7 +126,7 @@ treeherder.factory('thJobFilters',
                 value = value.toLowerCase();
             }
             if (filters.hasOwnProperty(field)) {
-                if (!_.contains(filters[field], value)) {
+                if (!_.contains(filters[field].values, value)) {
                     filters[field].values.push(value);
                     filters[field].matchType = matchType;
                 }
@@ -230,7 +237,8 @@ treeherder.factory('thJobFilters',
         matchType: {
             exactstr: 0,
             substr: 1,
-            isnull: 2
+            isnull: 2,
+            bool: 3
         }
     };
 
@@ -242,7 +250,7 @@ treeherder.factory('thJobFilters',
             removeWhenEmpty: false
         },
         failure_classification_id: {
-            matchType: api.matchType.isnull,
+            matchType: api.matchType.bool,
             values: [true, false],
             removeWhenEmpty: false
         }

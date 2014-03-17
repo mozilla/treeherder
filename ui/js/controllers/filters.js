@@ -79,7 +79,7 @@ treeherder.controller('FilterPanelCtrl',
             var func = isChecked? thJobFilters.addFilter: thJobFilters.removeFilter;
             var target = isClassified? "classified": "unclassified";
 
-            func(field, isClassified, thJobFilters.matchType.isnull);
+            func(field, isClassified, thJobFilters.matchType.bool);
 
             $rootScope.$broadcast(thEvents.globalFilterChanged,
                                   {target: target, newValue: isChecked});
