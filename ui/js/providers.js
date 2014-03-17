@@ -235,6 +235,7 @@ treeherder.provider('thEvents', function() {
             selectPreviousUnclassifiedFailure: "previous-unclassified-failure-EVT",
 
             searchPage: "search-page-EVT",
+
         };
     };
 });

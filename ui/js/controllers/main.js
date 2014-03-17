@@ -20,7 +20,6 @@ treeherder.controller('MainCtrl',
         $scope.processKeyboardInput = function(ev){
             if( (ev.keyCode === 74) || (ev.keyCode === 78) ){
                 //Highlight next unclassified failure keys:j/n
-console.log(ev.keyCode);
                 $rootScope.$broadcast(
                     thEvents.selectNextUnclassifiedFailure
                     );
@@ -31,9 +30,10 @@ console.log(ev.keyCode);
                     thEvents.selectPreviousUnclassifiedFailure
                     );
 
-            }else if(ev.keyCode === 32){
-                //Select/deselect active build or changeset, keys:space
-                console.log('Select/deselect active build or changeset, keys:space');
+            }else if(ev.keyCode === 83){
+                //Select/deselect active build or changeset, keys:s
+                $rootScope.$broadcast(thEvents.jobPin, $rootScope.selectedJob);
+
             }
         };
 

@@ -8,6 +8,12 @@ treeherder.directive('thCloneJobs', function(
 
     var lastJobElSelected, lastJobObjSelected;
 
+    var classificationRequired = {
+        "busted":1,
+        "exception":1,
+        "testfailed":1
+        };
+
     // CSS classes
     var btnCls = 'btn-xs';
     var selectedBtnCls = 'selected-job';
@@ -54,9 +60,6 @@ treeherder.directive('thCloneJobs', function(
 
             var targetEl, jobKey;
             if(!_.isEmpty(lastJobElSelected)){
-                //Select the first unclassified failure
-
-                //getJobMapKey(); = function(job){
                 jobKey = getJobMapKey(lastJobObjSelected);
                 getNextUnclassifiedFailure(jobMap[jobKey].job_obj);
 
@@ -64,6 +67,23 @@ treeherder.directive('thCloneJobs', function(
                 //Select the first unclassified failure
                 getNextUnclassifiedFailure({});
             }
+    });
+
+    $rootScope.$on(
+        thEvents.selectPreviousUnclassifiedFailure, function(ev){
+
+            var jobMap = ThResultSetModel.getJobMap($rootScope.repoName);
+
+            var targetEl, jobKey;
+            if(!_.isEmpty(lastJobElSelected)){
+                jobKey = getJobMapKey(lastJobObjSelected);
+                getPreviousUnclassifiedFailure(jobMap[jobKey].job_obj);
+
+            }else{
+                //Select the first unclassified failure
+                getPreviousUnclassifiedFailure({});
+            }
+
     });
 
     var selectJob = function(el){
@@ -608,16 +628,14 @@ treeherder.directive('thCloneJobs', function(
 
     var getNextUnclassifiedFailure = function(currentJob){
 
-
         var resultsets = ThResultSetModel.getResultSetsArray($rootScope.repoName);
 
         var startWatch = false;
         if(_.isEmpty(currentJob)){
             startWatch = true;
         }
-console.log(startWatch);
-        var platforms, groups, jobs, jobKey, jobEl, r;
 
+        var platforms, groups, jobs, jobKey, jobEl, r;
         superloop:
         for(r = 0; r < resultsets.length; r++){
 
@@ -640,24 +658,79 @@ console.log(startWatch);
                             continue;
                         }
                         if(startWatch){
-                            if(
-                        (jobs[j].result === 'testfailed') &&
-                        ( (parseInt(jobs[j].failure_classification_id) === 1) ||
-                          (jobs[j].failure_classification_id === null)  )
-                            ){
+                            if( (classificationRequired[jobs[j].result] === 1) &&
+                                ( (parseInt(jobs[j].failure_classification_id) === 1) ||
+                                  (jobs[j].failure_classification_id === null)  )){
 
                                 jobKey = getJobMapKey(jobs[j]);
                                 jobEl = $('.' + jobKey);
 
-                                //Scroll to the job element
-                                $('html, body').animate({
-                                    scrollTop: jobEl.offset().top - 100
-                                }, 250);
-
-                                clickJobCb({}, jobEl, jobs[j]);
+                                selectJob(jobEl);
+                                scrollToElement(jobEl);
 
                                 lastJobElSelected = jobEl;
                                 lastJobObjSelected = jobs[j];
+
+                                $rootScope.$broadcast(thEvents.jobClick, jobs[j]);
+
+                                //Next test failure
+                                break superloop;
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    var getPreviousUnclassifiedFailure = function(currentJob){
+
+        var resultsets = ThResultSetModel.getResultSetsArray($rootScope.repoName);
+
+        var startWatch = false;
+        if(_.isEmpty(currentJob)){
+            startWatch = true;
+        }
+
+        var platforms, groups, jobs, jobKey, jobEl, r;
+
+        superloop:
+        for(r = resultsets.length - 1; r >= 0; r--){
+
+            platforms = resultsets[r].platforms;
+            var p;
+            for(p = platforms.length - 1; p >= 0; p--){
+
+                groups = platforms[p].groups;
+                var g;
+                for(g = groups.length - 1; g >= 0; g--){
+
+                    jobs = groups[g].jobs;
+                    var j;
+                    for(j = jobs.length - 1; j >= 0; j--){
+
+                        if(currentJob.id === jobs[j].id){
+
+                            //This is the current selection, get the next
+                            startWatch = true;
+                            continue;
+                        }
+                        if(startWatch){
+                            if( (classificationRequired[jobs[j].result] === 1) &&
+                                ( (parseInt(jobs[j].failure_classification_id) === 1) ||
+                                  (jobs[j].failure_classification_id === null)  )){
+
+                                jobKey = getJobMapKey(jobs[j]);
+                                jobEl = $('.' + jobKey);
+
+                                selectJob(jobEl);
+                                scrollToElement(jobEl);
+
+                                lastJobElSelected = jobEl;
+                                lastJobObjSelected = jobs[j];
+
+                                $rootScope.$broadcast(thEvents.jobClick, jobs[j]);
 
                                 //Next test failure
                                 break superloop;
@@ -667,6 +740,15 @@ console.log(startWatch);
                 }
             }
         }
+    };
+
+    var scrollToElement = function(el){
+
+        //Scroll to the job element
+        $('html, body').animate({
+            scrollTop: el.offset().top - 175
+        }, 200);
+
     };
 
     var registerCustomEventCallbacks = function(scope, element, attrs){
