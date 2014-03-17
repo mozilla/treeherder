@@ -3,7 +3,8 @@
 treeherder.controller('PluginCtrl',
     function PluginCtrl($scope, $rootScope, thUrl, ThJobClassificationModel,
                         thClassificationTypes, ThJobModel, thEvents, dateFilter,
-                        numberFilter, ThBugJobMapModel, thResultStatus) {
+                        numberFilter, ThBugJobMapModel, thResultStatus, thSocket,
+                        ThResultSetModel, $log) {
 
         $scope.job = {};
 
@@ -96,6 +97,33 @@ treeherder.controller('PluginCtrl',
             });
         };
 
+        var updateClassification = function(classification){
+            if(classification.who != $scope.user.email){
+                // get a fresh version of the job
+                ThJobModel.get_list({id:classification.id})
+                .then(function(job_list){
+                    if(job_list.length > 0){
+                        var job = job_list[0];
+                        // get the list of jobs we know about
+                        var jobMap  = ThResultSetModel.getJobMap(classification.branch);
+                        var map_key = "key"+job.id;
+                        if(jobMap.hasOwnProperty(map_key)){
+                            // update the old job with the new info
+                            _.extend(jobMap[map_key].job_obj,job);
+                            var params = { jobs: {}};
+                            params.jobs[job.id] = jobMap[map_key].job_obj;
+                            // broadcast the job classification event
+                            $rootScope.$broadcast(thEvents.jobsClassified, params);
+                        }
+                    }
+
+                });
+
+            }
+
+        }
+
+        thSocket.on("job_classification", updateClassification);
 
         $scope.tabs = {
             "tinderbox": {

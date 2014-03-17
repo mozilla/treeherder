@@ -6,7 +6,7 @@ body {
     width: 1300px;
 }
 
-.nav, .pagination, .carousel, .panel-title a {
+.pagination, .carousel, .panel-title a {
     cursor: pointer;
 }
 
@@ -502,6 +502,9 @@ div.navbar-fixed-bottom dt {
     width: 69px;
 }
 
+.click-able-icon, .nav-tabs li {
+    cursor: pointer;
+}
 
 /**
  * CUSTOM BUTTONS

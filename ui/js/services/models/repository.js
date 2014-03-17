@@ -1,8 +1,8 @@
 'use strict';
 
 treeherder.factory('ThRepositoryModel',
-                   ['$http', 'thUrl', '$rootScope', '$log', 'localStorageService', 'thSocket',
-                   function($http, thUrl, $rootScope, $log, localStorageService, thSocket) {
+                   ['$http', 'thUrl', '$rootScope', '$log', 'localStorageService', 'thSocket', 'thEvents',
+                   function($http, thUrl, $rootScope, $log, localStorageService, thSocket, thEvents) {
 
     var new_failures = {};
 

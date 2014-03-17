@@ -18,6 +18,13 @@
                     <td>
                         {{classification.note}}
                     </td>
+                    <td>
+                        <span ng-click="deleteClassification(classification)"
+                              class="click-able-icon"
+                              title="delete this classification">
+                            <i class="fa fa-trash-o"></i>
+                        </span>
+                    </td>
                 </tr>
             </tbody>
         </table>

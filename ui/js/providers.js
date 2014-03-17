@@ -46,6 +46,7 @@ treeherder.provider('thResultStatusList', function() {
         return ['success', 'testfailed', 'busted', 'exception', 'retry', 'running', 'pending'];
     };
 });
+
 treeherder.provider('thResultStatus', function() {
     this.$get = function() {
         return function(job) {
@@ -57,6 +58,7 @@ treeherder.provider('thResultStatus', function() {
         };
     };
 });
+
 treeherder.provider('thResultStatusObject', function() {
     var getResultStatusObject = function(){
         return {
@@ -236,6 +238,7 @@ treeherder.provider('thEvents', function() {
 
             searchPage: "search-page-EVT",
 
+            repoChanged: "repo-changed-EVT"
         };
     };
 });
