@@ -995,6 +995,8 @@ treeherder.directive('resizablePanel', function($document, $log) {
                 var y = startY - event.pageY;
                 startY = event.pageY;
                 container.height(container.height() + y);
+                container.find("#bottom-center-panel").find(
+                    ".bottom-shadowed-panel").height(container.height() - 20);
 
             }
 
