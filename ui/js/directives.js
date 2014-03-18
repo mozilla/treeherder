@@ -929,17 +929,17 @@ treeherder.directive('focusMe', function($timeout) {
   };
 });
 
-treeherder.directive('thStar', function ($parse, thClassificationTypes) {
+treeherder.directive('thFailureClassification', function ($parse, thClassificationTypes) {
     return {
         scope: {
-            starId: "="
+            failureId: "="
         },
         link: function(scope, element, attrs) {
-            scope.$watch('starId', function(newVal) {
+            scope.$watch('failureId', function(newVal) {
                 if (newVal) {
-                    scope.starType = thClassificationTypes.getClassifications()[newVal];
-                    scope.badgeColorClass=scope.starType.star;
-                    scope.hoverText=scope.starType.name;
+                    scope.classification = thClassificationTypes.classifications[newVal];
+                    scope.badgeColorClass=scope.classification.star;
+                    scope.hoverText=scope.classification.name;
                 }
             });
         },

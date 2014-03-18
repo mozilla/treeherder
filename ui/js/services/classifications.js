@@ -28,9 +28,7 @@ treeherder.factory('thClassificationTypes', function($http, thUrl) {
     };
 
     return {
-        getClassifications: function() {
-            return classifications;
-        },
+        classifications: classifications,
         load: load
     };
 });
