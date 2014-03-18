@@ -6,6 +6,10 @@ treeherder.factory('ThRepositoryModel',
 
     var new_failures = {};
 
+    var storedWatchedRepos = localStorageService.get("watchedRepos") || {};
+    $log.debug("stored watchedRepos");
+    $log.debug(storedWatchedRepos);
+
     thSocket.on('job_failure', function(msg){
         if (! new_failures.hasOwnProperty(msg.branch)){
             new_failures[msg.branch] = [];
@@ -56,10 +60,6 @@ treeherder.factory('ThRepositoryModel',
     var api = {
         // load the list of repos into $rootScope, and set the current repo.
         load: function(name) {
-
-            var storedWatchedRepos = localStorageService.get("watchedRepos") || {};
-            $log.debug("stored watchedRepos");
-            $log.debug(storedWatchedRepos);
 
             return $http.get(thUrl.getRootUrl("/repository/")).
                 success(function(data) {
