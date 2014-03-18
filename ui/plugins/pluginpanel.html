@@ -1,15 +1,19 @@
 <div ng-controller="PluginCtrl">
     <div ng-controller="PinboardCtrl">
         <div class="bottom-panel-title" ng-hide="hasPinnedJobs()">Pin one or more jobs to classify (shift-click).</div>
+
+
         <th-pinboard-panel></th-pinboard-panel>
+
+
         <div id="bottom-left-panel"
              ng-class="{'with-pinboard-abs': hasPinnedJobs(), 'without-pinboard-abs': !hasPinnedJobs()}">
             <div class="panel shadowed-panel">
                 <div class="panel-head">
-                    <table class="table-super-condensed table-striped">
+                    <table class="table-super-condensed table-striped {{resultStatusShading}}">
                         <tr>
                             <th class="small">Result</th>
-                            <td class="small {{ resultStatusClass }}">{{ job.result }}</td>
+                            <td class="small">{{ job.result }}</td>
                         </tr>
                         <tr>
                             <th class="small">Machine name</th>
@@ -22,6 +26,8 @@
                 </div>
             </div>
         </div>
+
+
         <div id="bottom-center-panel"
              ng-class="{'with-pinboard-margin': hasPinnedJobs(), 'without-pinboard-margin': !hasPinnedJobs()}">
             <div class="panel shadowed-panel bottom-shadowed-panel">
@@ -38,6 +44,8 @@
                 </div>
             </div>
         </div>
+
+
         <div id="bottom-menu"
              class="without-pinboard-abs">
             <div class="btn-group-vertical bottom-menu-group">
