@@ -10,15 +10,18 @@ treeherder.factory('thPinboard',
     var saveClassification = function(job) {
         var classification = new ThJobClassificationModel(this);
 
-        job.failure_classification_id = classification.failure_classification_id;
+        // classification can be left unset making this a no-op
+        if (classification.failure_classification_id > 0) {
+            job.failure_classification_id = classification.failure_classification_id;
 
-        classification.job_id = job.id;
-        classification.create().
-            success(function(data) {
-                thNotify.send("classification saved for " + job.platform + ": " + job.job_type_name, "success");
-            }).error(function(data) {
-                thNotify.send("error saving classification for " + job.platform + ": " + job.job_type_name, "danger");
-            });
+            classification.job_id = job.id;
+            classification.create().
+                success(function(data) {
+                    thNotify.send("classification saved for " + job.platform + ": " + job.job_type_name, "success");
+                }).error(function(data) {
+                    thNotify.send("error saving classification for " + job.platform + ": " + job.job_type_name, "danger");
+                });
+        }
     };
 
     var saveBugs = function(job) {
@@ -109,12 +112,8 @@ treeherder.factory('thPinboard',
 
         // save bug associations only on all pinned jobs
         saveBugsOnly: function() {
-            if (!_.size(relatedBugs)) {
-                thNotify.send("no bug associations to save");
-            } else {
-                _.each(pinnedJobs, saveBugs);
-                $rootScope.$broadcast(thEvents.bugsAssociated, {jobs: pinnedJobs});
-            }
+            _.each(pinnedJobs, saveBugs);
+            $rootScope.$broadcast(thEvents.bugsAssociated, {jobs: pinnedJobs});
         },
 
         hasPinnedJobs: function() {
@@ -132,7 +131,7 @@ treeherder.factory('thPinboard',
             numRelatedBugs: 0
         },
         // not sure what this should be, but we need some limit, I think.
-        maxNumPinned: 100
+        maxNumPinned: 500
     };
 
     return api;

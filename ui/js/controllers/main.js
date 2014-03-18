@@ -2,16 +2,11 @@
 
 treeherder.controller('MainCtrl',
     function MainController($scope, $rootScope, $routeParams, $location, $log,
-                            localStorageService, ThRepositoryModel, thPinboard) {
-        $scope.query="";
-        $scope.statusError = function(msg) {
-            $rootScope.statusMsg = msg;
-            $rootScope.statusColor = "red";
-        };
-        $scope.statusSuccess = function(msg) {
-            $rootScope.statusMsg = msg;
-            $rootScope.statusColor = "green";
-        };
+                            localStorageService, ThRepositoryModel, thPinboard,
+                            thClassificationTypes) {
+
+        thClassificationTypes.load();
+
         $scope.clearJob = function() {
             // setting the selectedJob to null hides the bottom panel
             $rootScope.selectedJob = null;

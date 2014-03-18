@@ -42,7 +42,8 @@ treeherder.factory('thJobFilters',
         } else if (field === api.failure_classification_id) {
             // fci is a special case, too.  Where 1 is "not classified"
             var fci_filters = filters[field].values;
-            if (_.contains(fci_filters, false) && job.failure_classification_id === 1) {
+            if (_.contains(fci_filters, false) && (job.failure_classification_id === 1 ||
+                                                   job.failure_classification_id === null)) {
                 return true;
             }
             return _.contains(fci_filters, true) && job.failure_classification_id > 1;

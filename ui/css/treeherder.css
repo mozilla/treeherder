@@ -1018,6 +1018,7 @@ fieldset[disabled] .btn-repo.active {
     position:fixed;
     top:70px;
     right:10px;
+    z-index: 1100;
 }
 
 #notification_box div.alert{
