@@ -1121,37 +1121,6 @@ treeherder.directive('personaButtons', function($http, $q, $log, $rootScope, loc
     };
 });
 
-treeherder.directive('thSimilarJobs', function(ThJobModel, $log){
-    return {
-        restrict: "E",
-        templateUrl: "partials/similar_jobs.html",
-        link: function(scope, element, attr) {
-            scope.$watch('job', function(newVal, oldVal){
-                if(newVal){
-                    scope.update_similar_jobs(newVal);
-                }
-            });
-            scope.similar_jobs = []
-            scope.similar_jobs_filters = {
-                "machine_id": true,
-                "job_type_id": true,
-                "build_platform_id": true
-            }
-            scope.update_similar_jobs = function(job){
-                var options = {result_set_id__ne: job.result_set_id};
-                angular.forEach(scope.similar_jobs_filters, function(elem, key){
-                    if(elem){
-                        options[key] = job[key];
-                    }
-                });
-                ThJobModel.get_list(options).then(function(data){
-                    scope.similar_jobs = data;
-                });
-            };
-        }
-    }
-});
-
 treeherder.directive('thNotificationBox', function($log, thNotify){
     return {
         restrict: "E",
@@ -1191,3 +1160,37 @@ treeherder.directive('thPinboardPanel', function(){
     }
 });
 
+//treeherder.directive('thSimilarJobs', function($log, $templateCache, ThJobModel, thResultStatusInfo){
+//    return {
+//        restrict: 'E',
+//        scope: {
+//            jobList: "=jobList"
+//        },
+//        link: function(scope, element, attrs){
+//            scope.tooltips_content = {};
+//            scope.waiter_template = '<img src="img/waiter16.png" />';
+//            scope.on_job_enter = function(job_id){
+//                if(!scope.tooltips_content[job_id]){
+//                    scope.tooltips_content[job_id] = scope.waiter_template;
+//                    ThJobModel.get(job_id)
+//                    .then(function(response){
+//                        scope.tooltips_content[job_id] = $templateCache.get("jobInfoTooltip.html");
+//                    });
+//                }
+//            }
+//            scope.button_class = function(job){
+//            var resultState = job.result;
+//            if (job.state !== "completed") {
+//                resultState = job.state;
+//            }
+//            return thResultStatusInfo(resultState).btnClass;
+//
+//        };
+//
+//        },
+//        template: '<button class="btn btn-similar-jobs btn-xs" ng-class="button_class(job)" ng-mouseover="on_job_enter(job.id)"' +
+//                'ng-repeat="job in jobList | orderBy: -submit_timestamp"'+
+//            'tooltip-html-unsafe="{{tooltips_content[job.id]}}" tooltip-placement="top" tooltip-animation=false>'+
+//            '{{job.job_type_symbol}}</button>'
+//    }
+//})
