@@ -6,10 +6,6 @@ treeherder.factory('ThRepositoryModel',
 
     var new_failures = {};
 
-    var storedWatchedRepos = localStorageService.cookie.get("watchedRepos") || {};
-    $log.debug("stored watchedRepos");
-    $log.debug(storedWatchedRepos);
-
     thSocket.on('job_failure', function(msg){
         if (! new_failures.hasOwnProperty(msg.branch)){
             new_failures[msg.branch] = [];
@@ -61,12 +57,20 @@ treeherder.factory('ThRepositoryModel',
         // load the list of repos into $rootScope, and set the current repo.
         load: function(name) {
 
+            var storedWatchedRepos = localStorageService.get("watchedRepos");
+            $log.debug("stored watchedRepos");
+            $log.debug(storedWatchedRepos);
+
             return $http.get(thUrl.getRootUrl("/repository/")).
                 success(function(data) {
                     $rootScope.repos = data;
                     $rootScope.groupedRepos = byGroup();
                     _.each(data, addAsUnwatched);
-                    _.extend(api.watchedRepos, storedWatchedRepos);
+                    if (storedWatchedRepos) {
+                        _.extend(api.watchedRepos, storedWatchedRepos);
+                        localStorageService.remove("watchedRepos");
+                    }
+                    localStorageService.add("watchedRepos", api.watchedRepos);
 
                     if (name) {
                         $rootScope.currentRepo = byName(name);
@@ -93,10 +97,11 @@ treeherder.factory('ThRepositoryModel',
         },
         watchedRepos: {},
         watchedReposUpdated: function() {
-            localStorageService.cookie.add("watchedRepos", api.watchedRepos);
+//            localStorageService.cookie.add("watchedRepos", api.watchedRepos);
 
             $log.debug("watchedReposUpdated");
-            $log.debug(localStorageService.cookie.get("watchedRepos"));
+            console.log("watchedReposUpdated");
+//            $log.debug(localStorageService.cookie.get("watchedRepos"));
 
             $rootScope.$broadcast(thEvents.topNavBarContentChanged);
         },
