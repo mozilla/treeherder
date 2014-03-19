@@ -1159,38 +1159,3 @@ treeherder.directive('thPinboardPanel', function(){
         templateUrl: "partials/thPinboardPanel.html"
     }
 });
-
-//treeherder.directive('thSimilarJobs', function($log, $templateCache, ThJobModel, thResultStatusInfo){
-//    return {
-//        restrict: 'E',
-//        scope: {
-//            jobList: "=jobList"
-//        },
-//        link: function(scope, element, attrs){
-//            scope.tooltips_content = {};
-//            scope.waiter_template = '<img src="img/waiter16.png" />';
-//            scope.on_job_enter = function(job_id){
-//                if(!scope.tooltips_content[job_id]){
-//                    scope.tooltips_content[job_id] = scope.waiter_template;
-//                    ThJobModel.get(job_id)
-//                    .then(function(response){
-//                        scope.tooltips_content[job_id] = $templateCache.get("jobInfoTooltip.html");
-//                    });
-//                }
-//            }
-//            scope.button_class = function(job){
-//            var resultState = job.result;
-//            if (job.state !== "completed") {
-//                resultState = job.state;
-//            }
-//            return thResultStatusInfo(resultState).btnClass;
-//
-//        };
-//
-//        },
-//        template: '<button class="btn btn-similar-jobs btn-xs" ng-class="button_class(job)" ng-mouseover="on_job_enter(job.id)"' +
-//                'ng-repeat="job in jobList | orderBy: -submit_timestamp"'+
-//            'tooltip-html-unsafe="{{tooltips_content[job.id]}}" tooltip-placement="top" tooltip-animation=false>'+
-//            '{{job.job_type_symbol}}</button>'
-//    }
-//})
