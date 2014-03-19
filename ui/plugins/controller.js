@@ -17,6 +17,9 @@ treeherder.controller('PluginCtrl',
                 // get the details of the current job
                 ThJobModel.get($scope.job.id).then(function(data){
                     $scope.job = data;
+                    //_.extend($scope.job, data);
+                    //$scope.$broadcast(thEvents.jobDetailLoaded);
+
                     updateVisibleFields();
                     $scope.logs = data.logs;
                 });
@@ -73,7 +76,7 @@ treeherder.controller('PluginCtrl',
             $scope.updateBugs();
         });
 
-        $scope.classificationTypes = thClassificationTypes;
+        $scope.classificationTypes = thClassificationTypes.classifications;
 
         // load the list of existing classifications (including possibly a new one just
         // added).

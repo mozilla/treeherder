@@ -1,5 +1,5 @@
-<div ng-controller="PluginCtrl">
-    <div ng-controller="PinboardCtrl">
+<div ng-controller="PluginCtrl" class="full-height">
+    <div ng-controller="PinboardCtrl" class="full-height">
         <div class="bottom-panel-title" ng-hide="hasPinnedJobs()">Pin one or more jobs to classify (shift-click).</div>
 
 
@@ -8,7 +8,7 @@
 
         <div id="bottom-left-panel"
              ng-class="{'with-pinboard-abs': hasPinnedJobs(), 'without-pinboard-abs': !hasPinnedJobs()}">
-            <div class="panel shadowed-panel">
+            <div class="panel shadowed-panel full-height">
                 <div class="panel-head">
                     <table class="table-super-condensed table-striped {{resultStatusShading}}">
                         <tr>
@@ -29,8 +29,10 @@
 
 
         <div id="bottom-center-panel"
+             class="full-height"
              ng-class="{'with-pinboard-margin': hasPinnedJobs(), 'without-pinboard-margin': !hasPinnedJobs()}">
-            <div class="panel shadowed-panel bottom-shadowed-panel">
+            <div class="panel shadowed-panel"
+                 ng-class="{'bottom-shadowed-panel-with-pinboard': hasPinnedJobs(), 'bottom-shadowed-panel-without-pinboard': !hasPinnedJobs()}">
                 <div class="panel-body resizable">
                     <tabset class="tabs-below bottom-panel-tabs">
                         <tab ng-repeat="(tab_id, tab) in tabs"  active="tab.active" disabled="tab.disabled">
