@@ -1081,37 +1081,6 @@ treeherder.directive('personaButtons', function($http, $q, $log, $rootScope, loc
     };
 });
 
-treeherder.directive('thSimilarJobs', function(ThJobModel, $log){
-    return {
-        restrict: "E",
-        templateUrl: "partials/similar_jobs.html",
-        link: function(scope, element, attr) {
-            scope.$watch('job', function(newVal, oldVal){
-                if(newVal){
-                    scope.update_similar_jobs(newVal);
-                }
-            });
-            scope.similar_jobs = []
-            scope.similar_jobs_filters = {
-                "machine_id": true,
-                "job_type_id": true,
-                "build_platform_id": true
-            }
-            scope.update_similar_jobs = function(job){
-                var options = {result_set_id__ne: job.result_set_id};
-                angular.forEach(scope.similar_jobs_filters, function(elem, key){
-                    if(elem){
-                        options[key] = job[key];
-                    }
-                });
-                ThJobModel.get_list(options).then(function(data){
-                    scope.similar_jobs = data;
-                });
-            };
-        }
-    }
-});
-
 treeherder.directive('thNotificationBox', function($log, thNotify){
     return {
         restrict: "E",
@@ -1150,4 +1119,3 @@ treeherder.directive('thPinboardPanel', function(){
         templateUrl: "partials/thPinboardPanel.html"
     }
 });
-
