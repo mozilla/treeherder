@@ -333,8 +333,25 @@ div.navbar-fixed-bottom dt,
 div.navbar-fixed-bottom dt {
     font-size:.8em;
 }
-#bottom-left-panel {width:242px; position: absolute; left:5px;}
-#bottom-left-panel .panel{padding:5px;}
+#bottom-left-panel {
+    width:242px;
+    position: absolute;
+    left:5px;
+    bottom: 5px;
+}
+#bottom-left-panel .panel{
+    padding:5px;
+}
+
+#bottom-left-panel .panel-head{
+    overflow: auto;
+    height: 100%;
+}
+
+#bottom-left-panel .table-super-condensed {
+    width: 100%;
+}
+
 #bottom-center-panel {
     margin-right: 90px;
     margin-left: 242px;
