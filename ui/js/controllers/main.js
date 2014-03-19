@@ -3,7 +3,7 @@
 treeherder.controller('MainCtrl',
     function MainController($scope, $rootScope, $routeParams, $location, $log,
                             localStorageService, ThRepositoryModel, thPinboard,
-                            thClassificationTypes) {
+                            thClassificationTypes, thEvents) {
 
         thClassificationTypes.load();
 
@@ -19,10 +19,19 @@ treeherder.controller('MainCtrl',
         };
         $scope.$watch($scope.getWidth, function(newValue, oldValue) {
             $scope.windowWidth = newValue;
+            $rootScope.$broadcast(thEvents.topNavBarContentChanged);
         });
         window.onresize = function(){
             $scope.$apply();
         };
+
+        $rootScope.$on(thEvents.topNavBarContentChanged, function(ev) {
+            var newTopNavHeight = $("th-global-top-nav-panel").find(".navbar-fixed-top").height();
+            if ($scope.topNavBarHeight !== newTopNavHeight) {
+                $scope.topNavBarHeight = newTopNavHeight;
+                $("body").css("padding-top", newTopNavHeight);
+            }
+        });
 
         // give the page a way to determine which nav toolbar to show
         $rootScope.$on('$locationChangeSuccess', function(ev,newUrl) {

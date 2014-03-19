@@ -4,8 +4,8 @@ treeherder.controller('RepositoryPanelCtrl',
     function RepositoryPanelCtrl($scope, $rootScope, $routeParams, $location, $log,
                             localStorageService, ThRepositoryModel, thSocket) {
 
-        $scope.saveWatchedRepos = function() {
-            ThRepositoryModel.saveWatchedRepos();
+        $scope.watchedReposUpdated = function() {
+            ThRepositoryModel.watchedReposUpdated();
         };
 
         for (var repo in $scope.watchedRepos) {

@@ -203,7 +203,14 @@ treeherder.provider('thEvents', function() {
 
             searchPage: "search-page-EVT",
 
-            repoChanged: "repo-changed-EVT"
+            repoChanged: "repo-changed-EVT",
+
+            // this is a call to re-check how much padding we need at the top
+            // of the main content window.  If the width of the browser changes
+            // or the number of watched repos changes, this could change the
+            // height of the top navbar and require more top-padding to be able
+            // to view the main content window.
+            topNavBarContentChanged: "top-navbar-height-changed-EVT"
         };
     };
 });

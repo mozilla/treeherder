@@ -1,8 +1,8 @@
 'use strict';
 
 treeherder.factory('ThRepositoryModel',
-                   ['$http', 'thUrl', '$rootScope', '$log', 'localStorageService', 'thSocket', 'thEvents',
-                   function($http, thUrl, $rootScope, $log, localStorageService, thSocket, thEvents) {
+                   function($http, thUrl, $rootScope, $log, localStorageService,
+                            thSocket, thEvents) {
 
     var new_failures = {};
 
@@ -82,7 +82,7 @@ treeherder.factory('ThRepositoryModel',
         setCurrent: function(name) {
             $rootScope.currentRepo = byName(name);
             api.watchedRepos[name] = true;
-            api.saveWatchedRepos();
+            api.watchedReposUpdated();
         },
         // get a repo object without setting anything
         getRepo: function(name) {
@@ -92,11 +92,13 @@ treeherder.factory('ThRepositoryModel',
             return byGroup();
         },
         watchedRepos: {},
-        saveWatchedRepos: function() {
+        watchedReposUpdated: function() {
             localStorageService.set("watchedRepos", api.watchedRepos);
 
-            $log.debug("saveWatchedRepos");
+            $log.debug("watchedReposUpdated");
             $log.debug(localStorageService.get("watchedRepos"));
+
+            $rootScope.$on(thEvents.topNavBarContentChanged);
         },
         repo_has_failures: function(repo_name){
             return ($rootScope.new_failures.hasOwnProperty(repo_name) &&
@@ -106,4 +108,4 @@ treeherder.factory('ThRepositoryModel',
     };
 
     return api;
-}]);
+});
