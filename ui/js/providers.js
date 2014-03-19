@@ -10,37 +10,6 @@ treeherder.provider('thServiceDomain', function() {
     };
 });
 
-treeherder.provider('thClassificationTypes', function() {
-    this.$get = function() {
-        return {
-            1: {
-                   name: "not classified",
-                   star: ""
-            },
-            2: {
-                   name: "expected fail",
-                   star: "label-info"
-            },
-            3: {
-                   name: "fixed by backout",
-                   star: "label-success"
-            },
-            4: {
-                   name: "intermittent",
-                   star: "label-warning"
-            },
-            5: {
-                   name: "infra",
-                   star: "label-default"
-            },
-            6: {
-                   name: "intermittent needs filing",
-                   star: "label-danger"
-            }
-        };
-    };
-});
-
 treeherder.provider('thResultStatusList', function() {
     this.$get = function() {
         return ['success', 'testfailed', 'busted', 'exception', 'retry', 'running', 'pending'];

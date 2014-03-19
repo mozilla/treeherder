@@ -313,7 +313,7 @@ div.navbar-fixed-bottom{
 }
 
 div.navbar-fixed-bottom .tab-content{
-    height:160px;
+    height:202px;
     overflow-y: auto;
 }
 
@@ -333,17 +333,17 @@ div.navbar-fixed-bottom dt {
 }
 #bottom-menu {position: absolute; right:-5px; width: 100px}
 
-.result-status-shading-success {background-color: rgba(120, 196, 192, 0.54);}
-.result-status-shading-testfailed {background-color: rgba(221, 102, 2, 0.56);}
-.result-status-shading-busted {background-color: rgba(144, 0, 0, 0.60);}
-.result-status-shading-exception {background-color: rgba(61, 2, 85, 0.50);}
-.result-status-shading-retry {background-color: #263fc3;}
-.result-status-shading-usercancel {background-color: rgba(250, 115, 172, 0.63)}
+.result-status-shading-success {background-color: rgba(2, 131, 44, 0.24);}
+.result-status-shading-testfailed {background-color: rgba(221, 102, 2, 0.25);}
+.result-status-shading-busted {background-color: rgba(144, 0, 0, 0.25);}
+.result-status-shading-exception {background-color: rgba(61, 2, 85, 0.25);}
+.result-status-shading-retry {background-color: rgba(38, 63, 195, 0.25);}
+.result-status-shading-usercancel {background-color: rgba(250, 115, 172, 0.25)}
 .result-status-shading-pending {background-color: white;}
 .result-status-shading-running {background-color: white;}
 
 .bottom-shadowed-panel {
-    height: 195px;
+    height: 240px;
 }
 
 .bottom-menu-group {
@@ -1018,6 +1018,7 @@ fieldset[disabled] .btn-repo.active {
     position:fixed;
     top:70px;
     right:10px;
+    z-index: 1100;
 }
 
 #notification_box div.alert{

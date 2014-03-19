@@ -2,7 +2,7 @@
 
 treeherder.controller('AnnotationsPluginCtrl',
     function AnnotationsPluginCtrl($scope, $rootScope, $log, ThJobClassificationModel,
-                                   thNotify, thEvents, ThResultSetModel) {
+                                   thNotify, thEvents, ThResultSetModel, ThBugJobMapModel) {
         $log.debug("annotations plugin initialized");
 
         $scope.$watch('classifications', function(newValue, oldValue){
@@ -26,8 +26,24 @@ treeherder.controller('AnnotationsPluginCtrl',
                         $rootScope.$broadcast(thEvents.jobsClassified, {jobs: jobs});
                     },
                     function(){
-                        thNotify.send("Classification deletion failed", "danger", true
-                        );
+                        thNotify.send("Classification deletion failed", "danger", true);
+                    }
+                );
+        };
+
+        $scope.deleteBug = function(bug) {
+            var bjmModel = new ThBugJobMapModel(bug);
+            bjmModel.delete()
+                .then(
+                    function(){
+                        thNotify.send("Association to bug " + bug.bug_id + " successfully deleted", "success", false);
+                        var jobs = {};
+                        jobs[$scope.selectedJob.id] = $scope.selectedJob;
+
+                        $rootScope.$broadcast(thEvents.bugsAssociated, {jobs: jobs});
+                    },
+                    function(){
+                        thNotify.send("Association to bug " + bug.bug_id + " deletion failed", "danger", true);
                     }
                 );
         };

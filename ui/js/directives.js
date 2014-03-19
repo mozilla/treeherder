@@ -966,39 +966,6 @@ treeherder.directive('ngRightClick', function($parse) {
     };
 });
 
-treeherder.directive('thJobButton', function (thResultStatusInfo) {
-
-    var getHoverText = function(job) {
-        var duration = Math.round((job.end_timestamp - job.submit_timestamp) / 60);
-        var status = job.result;
-        if (job.state != "completed") {
-            status = job.state;
-        }
-        return job.job_type_name + " - " + status + " - " + duration + "mins";
-    };
-
-    return {
-        restrict: "E",
-        link: function(scope, element, attrs) {
-            var unbindWatcher = scope.$watch("job", function(newValue) {
-                var resultState = scope.job.result;
-                if (scope.job.state != "completed") {
-                    resultState = scope.job.state;
-                }
-                scope.job.display = thResultStatusInfo(resultState);
-                scope.hoverText = getHoverText(scope.job);
-
-                if (scope.job.state == "completed") {
-                    //Remove watchers when a job has a completed status
-                    unbindWatcher();
-                }
-
-            }, true);
-        },
-        templateUrl: 'partials/thJobButton.html'
-    };
-});
-
 treeherder.directive('thPinnedJob', function (thResultStatusInfo) {
 
     var getHoverText = function(job) {
@@ -1032,11 +999,19 @@ treeherder.directive('thPinnedJob', function (thResultStatusInfo) {
     };
 });
 
-treeherder.directive('thRelatedBug', function () {
+treeherder.directive('thRelatedBugSaved', function () {
 
     return {
         restrict: "E",
-        templateUrl: 'partials/thRelatedBug.html'
+        templateUrl: 'partials/thRelatedBugSaved.html'
+    };
+});
+
+treeherder.directive('thRelatedBugQueued', function () {
+
+    return {
+        restrict: "E",
+        templateUrl: 'partials/thRelatedBugQueued.html'
     };
 });
 
@@ -1127,17 +1102,17 @@ treeherder.directive('focusMe', function($timeout) {
   };
 });
 
-treeherder.directive('thStar', function ($parse, thClassificationTypes) {
+treeherder.directive('thFailureClassification', function ($parse, thClassificationTypes) {
     return {
         scope: {
-            starId: "="
+            failureId: "="
         },
         link: function(scope, element, attrs) {
-            scope.$watch('starId', function(newVal) {
-                if (newVal !== undefined) {
-                    scope.starType = thClassificationTypes[newVal];
-                    scope.badgeColorClass=scope.starType.star;
-                    scope.hoverText=scope.starType.name;
+            scope.$watch('failureId', function(newVal) {
+                if (newVal) {
+                    scope.classification = thClassificationTypes.classifications[newVal];
+                    scope.badgeColorClass=scope.classification.star;
+                    scope.hoverText=scope.classification.name;
                 }
             });
         },
@@ -1145,24 +1120,6 @@ treeherder.directive('thStar', function ($parse, thClassificationTypes) {
                         'title="{{ hoverText }}">' +
                         '<i class="glyphicon glyphicon-star-empty"></i>' +
                         '</span> {{ hoverText }}'
-    };
-});
-
-treeherder.directive('thShowJobs', function ($parse, thResultStatusInfo) {
-    return {
-        link: function(scope, element, attrs) {
-            scope.$watch('resultSeverity', function(newVal) {
-                if (newVal) {
-                    var rsInfo = thResultStatusInfo(newVal)
-                    scope.resultsetStateBtn = rsInfo.btnClass;
-                    scope.icon = rsInfo.showButtonIcon;
-                }
-            });
-        },
-        template: '<a class="btn {{ resultsetStateBtn }} th-show-jobs-button pull-left" ' +
-                       'ng-click="isCollapsedResults = !isCollapsedResults">' +
-                       '<i class="{{ icon }}"></i> ' +
-                       '{{ \' jobs\' | showOrHide:isCollapsedResults }}</a>'
     };
 });
 
@@ -1211,6 +1168,9 @@ treeherder.directive('resizablePanel', function($document, $log) {
                 var y = startY - event.pageY;
                 startY = event.pageY;
                 container.height(container.height() + y);
+                var bcp = container.find("#bottom-center-panel");
+                bcp.find(".bottom-shadowed-panel").height(container.height() - 20);
+                bcp.find(".tab-content").height(container.height() - 55);
 
             }
 
