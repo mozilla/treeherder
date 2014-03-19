@@ -1,9 +1,0 @@
-    <span class="btn job-btn {{ job.display.btnClass }}"
-          ng-class="{'btn-lg selected-job': (selectedJob==job), 'btn-xs': (selectedJob!=job)}"
-          title="{{ hoverText }}"
-          ng-click="viewJob(job)"
-          ng-hide="job.job_coalesced_to_guid"
-          ng-right-click="viewLog(job.resource_uri)"
-          data-job-id="{{ job.job_id }}">
-          {{ job.job_type_symbol }}
-    </span>

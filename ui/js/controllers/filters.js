@@ -1,8 +1,9 @@
 "use strict";
 
-treeherder.controller('StatusFilterPanelCtrl',
-    function StatusFilterPanelCtrl($scope, $rootScope, $routeParams, $location, $log,
-                               localStorageService, thResultStatusList, thEvents, thJobFilters) {
+treeherder.controller('FilterPanelCtrl',
+    function FilterPanelCtrl($scope, $rootScope, $routeParams, $location, $log,
+                             localStorageService, thResultStatusList, thEvents,
+                             thJobFilters) {
 
         $scope.filterOptions = thResultStatusList;
 
@@ -43,7 +44,6 @@ treeherder.controller('StatusFilterPanelCtrl',
             );
             $rootScope.$broadcast(thEvents.globalFilterChanged,
                                   {target: group, newValue: group.allChecked});
-            showCheck();
         };
 
         /**
@@ -62,7 +62,6 @@ treeherder.controller('StatusFilterPanelCtrl',
             }
             $rootScope.$broadcast(thEvents.globalFilterChanged,
                                   {target: filter, newValue: $scope.resultStatusFilters[filter]});
-            showCheck();
         };
 
         /**
@@ -80,11 +79,10 @@ treeherder.controller('StatusFilterPanelCtrl',
             var func = isChecked? thJobFilters.addFilter: thJobFilters.removeFilter;
             var target = isClassified? "classified": "unclassified";
 
-            func(field, isClassified, thJobFilters.matchType.isnull);
+            func(field, isClassified, thJobFilters.matchType.bool);
 
             $rootScope.$broadcast(thEvents.globalFilterChanged,
                                   {target: target, newValue: isChecked});
-            showCheck();
         };
 
         $scope.createFieldFilter = function() {
@@ -112,7 +110,6 @@ treeherder.controller('StatusFilterPanelCtrl',
             $rootScope.$broadcast(thEvents.globalFilterChanged,
                                   {target: $scope.newFieldFilter.field, newValue: $scope.newFieldFilter.value});
             $scope.newFieldFilter = null;
-            showCheck();
 
         };
 
@@ -123,7 +120,6 @@ treeherder.controller('StatusFilterPanelCtrl',
             $rootScope.$broadcast(thEvents.globalFilterChanged,
                                   {target: "allFieldFilters", newValue: null});
             $scope.fieldFilters = [];
-            showCheck();
         };
 
         $scope.removeFilter = function(index) {
@@ -135,40 +131,11 @@ treeherder.controller('StatusFilterPanelCtrl',
             $rootScope.$broadcast(thEvents.globalFilterChanged,
                                   {target: $scope.fieldFilters[index].field, newValue: null});
             $scope.fieldFilters.splice(index, 1);
-            showCheck();
         };
 
-        /*
-        @@@ TODO: CAMD: test code, remove before merge.
-         */
-        var jobs = [];
-        $scope.filterGroups.inProgress.resultStatuses.forEach(function(rs) {jobs.push({
-            state: rs,
-            result: "unknown",
-            failure_classification_id: null
-            });});
-
-        $scope.filterGroups.failures.resultStatuses.forEach(function(rs) {jobs.push({
-            state: "completed",
-            result: rs,
-            job_type_symbol: "A",
-            job_type_name: "Apples",
-            job_group_symbol: "M",
-            job_group_name: "Mochitest",
-            failure_classification_id: "bird"
-            });});
-        $scope.filterGroups.nonfailures.resultStatuses.forEach(function(rs) {jobs.push({
-            state: "completed",
-            result: rs
-            });});
-
-        var showCheck = function() {
-            jobs.forEach(function(job) {
-               $log.debug("show job: " + JSON.stringify(job) + ": " + thJobFilters.showJob(job));
-            });
-            $log.debug(JSON.stringify(thJobFilters.getFilters()));
+        $scope.pinAllShownJobs = function() {
+            thJobFilters.pinAllShownJobs();
         };
-        // END test code
 
         $scope.resultStatusFilters = {};
         for (var i = 0; i < $scope.filterOptions.length; i++) {

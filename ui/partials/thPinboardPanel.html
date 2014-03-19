@@ -9,6 +9,7 @@
             <div  id="pinboard-related-bugs-panel">
                 <div class="bottom-panel-title"><i class="fa fa-bug"></i> related bugs
                     <a ng-click="toggleEnterBugNumber()"
+                       class="click-able-icon lightgray"
                        title="type in a bug number"><i class="fa fa-plus"></i>
                     </a>
                 </div>
@@ -22,7 +23,7 @@
                                focus-me="focusInput">
                     </form>
                     <span ng-repeat="bug in relatedBugs">
-                          <th-related-bug></th-related-bug>
+                          <th-related-bug-queued></th-related-bug-queued>
                     </span>
                 </div>
             </div>

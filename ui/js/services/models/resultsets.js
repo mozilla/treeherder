@@ -112,7 +112,7 @@ treeherder.factory('ThResultSetModel',
 
     var getPlatformKey = function(name, option){
         var key = name;
-        if(option != undefined){
+        if(option !== undefined){
             key += option;
         }
         return key;
@@ -312,15 +312,21 @@ treeherder.factory('ThResultSetModel',
             $log.debug(jobFetchList);
 
             // make an ajax call to get the job details
-
-            ThJobModel.get_list({
-                id__in: jobFetchList.join()
-            }).then(
-                _.bind(updateJobs, $rootScope, repoName),
-                function(data) {
-                    $log.error("Error fetching jobUpdateQueue: " + data);
-                });
+            fetchJobs(repoName, jobFetchList);
         }
+    };
+    /**
+     * Fetch the job objects for the ids in ``jobFetchList`` and update them
+     * in the data model.
+     */
+    var fetchJobs = function(repoName, jobFetchList) {
+        ThJobModel.get_list({
+            id__in: jobFetchList.join()
+        }).then(
+            _.bind(updateJobs, $rootScope, repoName),
+            function(data) {
+                $log.error("Error fetching jobs: " + data);
+            });
     };
     var aggregateJobPlatform = function(repoName, job, platformData){
 
@@ -328,8 +334,8 @@ treeherder.factory('ThResultSetModel',
             platformKey, jobUpdated, resultsetAggregateId, revision,
             jobGroups;
 
-        console.log('aggregating job platform');
-        console.log(job);
+        $log.debug('aggregating job platform');
+        $log.debug(job);
         jobUpdated = updateJob(repoName, job);
 
         //the job was not updated or added to the model, don't include it
@@ -556,7 +562,7 @@ treeherder.factory('ThResultSetModel',
          */
         if(resultsetList.length > 0){
             repositories[repoName].loadingStatus.prepending = true;
-            thResultSets.getResultSets(0, resultsetlist.length, resultsetlist).
+            thResultSets.getResultSets(0, resultsetList.length, resultsetList).
             success( _.bind(prependResultSets, $rootScope, repoName) );
         }
     };
@@ -595,6 +601,8 @@ treeherder.factory('ThResultSetModel',
         fetchNewResultSets: fetchNewResultSets,
 
         fetchResultSets: fetchResultSets,
+
+        fetchJobs: fetchJobs,
 
         aggregateJobPlatform: aggregateJobPlatform
 

@@ -1,7 +1,11 @@
 <div id="filter"
      class="th-top-nav-options-panel model-body"
-     ng-controller="StatusFilterPanelCtrl">
-    <div class="nav-panel-help-text">Specify which jobs to show based on this filter criteria.</div>
+     ng-controller="FilterPanelCtrl">
+    <div class="nav-panel-help-text">Specify which jobs to show based on this filter criteria.
+        <span class="btn btn-default btn-sm pull-right"
+              title="pin all jobs that pass the global filters"
+              ng-click="pinAllShownJobs()"><i class="glyphicon glyphicon-pushpin"></i> pin all showing</span>
+    </div>
 
     <!-- result status filters -->
     <span ng-repeat="group in filterGroups"

@@ -1,12 +1,10 @@
 "use strict";
 
 treeherder.controller('PluginCtrl',
-
     function PluginCtrl($scope, $rootScope, thUrl, ThJobClassificationModel,
                         thClassificationTypes, ThJobModel, thEvents, dateFilter,
                         numberFilter, ThBugJobMapModel, thResultStatus, thSocket,
                         ThResultSetModel, $log) {
-
 
         $scope.job = {};
 
@@ -76,7 +74,7 @@ treeherder.controller('PluginCtrl',
             $scope.updateBugs();
         });
 
-        $scope.classificationTypes = thClassificationTypes;
+        $scope.classificationTypes = thClassificationTypes.classifications;
 
         // load the list of existing classifications (including possibly a new one just
         // added).
@@ -101,7 +99,7 @@ treeherder.controller('PluginCtrl',
         };
 
         var updateClassification = function(classification){
-            if(classification.who != $scope.user.email){
+            if(classification.who !== $scope.user.email){
                 // get a fresh version of the job
                 ThJobModel.get_list({id:classification.id})
                 .then(function(job_list){
@@ -124,7 +122,7 @@ treeherder.controller('PluginCtrl',
 
             }
 
-        }
+        };
 
         thSocket.on("job_classification", updateClassification);
 

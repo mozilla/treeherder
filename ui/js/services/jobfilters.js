@@ -21,7 +21,9 @@
  * Each field is AND'ed so that, if a field exists in ``filters`` then the job
  * must match at least one value in every field.
  */
-treeherder.factory('thJobFilters', function(thResultStatusList, $log, $rootScope) {
+treeherder.factory('thJobFilters',
+                   function(thResultStatusList, $log, $rootScope,
+                            ThResultSetModel, thPinboard, thNotify) {
 
     /**
      * If a custom resultStatusList is passed in (like for individual
@@ -32,11 +34,19 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log, $rootScope
      * means it must have a value set, ``false`` means it must be null.
      */
     var checkFilter = function(field, job, resultStatusList) {
-        // resultStatus is a special case that spans two job fields
         if (field === api.resultStatus) {
+            // resultStatus is a special case that spans two job fields
             var filterList = resultStatusList || filters[field].values;
             return _.contains(filterList, job.result) ||
                    _.contains(filterList, job.state);
+        } else if (field === api.failure_classification_id) {
+            // fci is a special case, too.  Where 1 is "not classified"
+            var fci_filters = filters[field].values;
+            if (_.contains(fci_filters, false) && (job.failure_classification_id === 1 ||
+                                                   job.failure_classification_id === null)) {
+                return true;
+            }
+            return _.contains(fci_filters, true) && job.failure_classification_id > 1;
         } else {
             var jobFieldValue = getJobFieldValue(job, field);
             if (_.isUndefined(jobFieldValue)) {
@@ -117,7 +127,7 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log, $rootScope
                 value = value.toLowerCase();
             }
             if (filters.hasOwnProperty(field)) {
-                if (!_.contains(filters[field], value)) {
+                if (!_.contains(filters[field].values, value)) {
                     filters[field].values.push(value);
                     filters[field].matchType = matchType;
                 }
@@ -182,7 +192,7 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log, $rootScope
                     return false;
                 }
             }
-            if($rootScope.searchQuery != ""){
+            if($rootScope.searchQuery !== ""){
                 //Confirm job matches search query
                 if(job.searchableStr.toLowerCase().indexOf(
                     $rootScope.searchQuery.toLowerCase()
@@ -196,6 +206,31 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log, $rootScope
         getFilters: function() {
             return filters;
         },
+        /**
+         * Pin all jobs that pass the GLOBAL filters.  Ignores toggling at
+         * the result set level.
+         */
+        pinAllShownJobs: function() {
+            var jobs = ThResultSetModel.getJobMap($rootScope.repoName);
+            var jobsToPin = [];
+
+            var queuePinIfShown = function(jMap) {
+                if (api.showJob(jMap.job_obj)) {
+                    jobsToPin.push(jMap.job_obj);
+                }
+            };
+            _.forEach(jobs, queuePinIfShown);
+
+            if (_.size(jobsToPin) > thPinboard.spaceRemaining()) {
+                jobsToPin = jobsToPin.splice(0, thPinboard.spaceRemaining());
+                thNotify.send("Pinboard max size exceeded.  Pinning only the first " + thPinboard.spaceRemaining(),
+                              "danger",
+                              true);
+            }
+
+            $rootScope.selectedJob = jobsToPin[0];
+            _.forEach(jobsToPin, thPinboard.pinJob);
+        },
 
         // CONSTANTS
         failure_classification_id: "failure_classification_id",
@@ -203,7 +238,8 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log, $rootScope
         matchType: {
             exactstr: 0,
             substr: 1,
-            isnull: 2
+            isnull: 2,
+            bool: 3
         }
     };
 
@@ -215,7 +251,7 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log, $rootScope
             removeWhenEmpty: false
         },
         failure_classification_id: {
-            matchType: api.matchType.isnull,
+            matchType: api.matchType.bool,
             values: [true, false],
             removeWhenEmpty: false
         }

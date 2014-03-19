@@ -38,7 +38,7 @@ treeherder.factory('ThBugJobMapModel', function($http, thUrl) {
     // an instance method to delete a ThBugJobMap object
     ThBugJobMapModel.prototype.delete = function(){
         var pk = this.job_id+"-"+this.bug_id;
-        return $http.delete(ThBugJobMapModel.get_uri()+pk);
+        return $http.delete(ThBugJobMapModel.get_uri()+pk+"/");
     };
 
     return ThBugJobMapModel;

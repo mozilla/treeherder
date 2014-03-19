@@ -30,8 +30,10 @@
         <!-- Footer -->
         <div class="nav navbar navbar-default navbar-fixed-bottom bottom-panel" ng-show="selectedJob">
             <resizable-panel></resizable-panel>
-            <div ng-include src="'plugins/pluginpanel.html'"></div>
+            <div class="full-height" ng-include src="'plugins/pluginpanel.html'"></div>
         </div>
+
+        <th-notification-box></th-notification-box>
 
         <script src="vendor/angular/angular.js"></script>
         <script src="vendor/angular/angular-route.js"></script>
@@ -50,6 +52,7 @@
         <script src="js/directives.js"></script>
         <script src="js/services/main.js"></script>
         <script src="js/services/jobfilters.js"></script>
+        <script src="js/services/classifications.js"></script>
         <script src="js/services/pinboard.js"></script>
         <script src="js/services/resultsets.js"></script>
         <script src="js/services/models/resultsets.js"></script>
