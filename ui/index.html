@@ -25,7 +25,7 @@
         <!-- Footer -->
         <div class="nav navbar navbar-default navbar-fixed-bottom bottom-panel" ng-show="selectedJob">
             <resizable-panel></resizable-panel>
-            <div ng-include src="'plugins/pluginpanel.html'"></div>
+            <div class="full-height" ng-include src="'plugins/pluginpanel.html'"></div>
         </div>
 
         <th-notification-box></th-notification-box>
@@ -143,5 +143,24 @@
 </script>
 
 
+<!-- Tooltip for job info-->
+<script type="'text/ng-template'" id="jobInfoTooltip.html">
+    <div>
+        <table class="table-super-condensed table-striped">
+            <tr>
+                <th class="small">Result</th>
+                <td class="small {{ resultStatusClass }}">{{ job.result }}</td>
+            </tr>
+            <tr>
+                <th class="small">Machine name</th>
+                <td class="small">
+                    <a target="_blank" href="https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name={{ job.machine_name }}">{{ job.machine_name }}</a>
+                </td>
+            </tr>
+            <tr ng-repeat="(label, value) in visibleFields"><th>{{label}}</th><td>{{ value }}</td></tr>
+        </table>
+
+    </div>
+</script>
     </body>
 </html>

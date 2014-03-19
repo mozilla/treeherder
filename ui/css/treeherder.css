@@ -15,6 +15,10 @@ body {
     visibility: hidden;
 }
 
+.full-height {
+    height: 100%;
+}
+
 .th-navbar {
     min-width: 800px;
 }
@@ -317,8 +321,12 @@ div.navbar-fixed-bottom{
 }
 
 div.navbar-fixed-bottom .tab-content{
-    height:202px;
+    height: calc(100% - 22px);
     overflow-y: auto;
+}
+
+.bottom-panel-tabs {
+    height: 100%;
 }
 
 .bottom-panel-tabs .nav li a {
@@ -329,8 +337,25 @@ div.navbar-fixed-bottom dt,
 div.navbar-fixed-bottom dt {
     font-size:.8em;
 }
-#bottom-left-panel {width:242px; position: absolute; left:5px;}
-#bottom-left-panel .panel{padding:5px;}
+#bottom-left-panel {
+    width:242px;
+    position: absolute;
+    left:5px;
+    bottom: 5px;
+}
+#bottom-left-panel .panel{
+    padding:5px;
+}
+
+#bottom-left-panel .panel-head{
+    overflow: auto;
+    height: 100%;
+}
+
+#bottom-left-panel .table-super-condensed {
+    width: 100%;
+}
+
 #bottom-center-panel {
     margin-right: 90px;
     margin-left: 242px;
@@ -346,8 +371,12 @@ div.navbar-fixed-bottom dt {
 .result-status-shading-pending {background-color: white;}
 .result-status-shading-running {background-color: white;}
 
-.bottom-shadowed-panel {
-    height: 240px;
+.bottom-shadowed-panel-with-pinboard {
+    height: calc(100% - 75px);
+}
+
+.bottom-shadowed-panel-without-pinboard {
+    height: calc(100% - 20px);
 }
 
 .bottom-menu-group {
@@ -431,7 +460,10 @@ div.navbar-fixed-bottom dt {
     margin-top: 0.3em;
 }
 
-.panel-body{ padding:5px;}
+.panel-body{
+    padding:5px;
+    height: 100%;
+}
 
 .timestamp-name {
     overflow: hidden;

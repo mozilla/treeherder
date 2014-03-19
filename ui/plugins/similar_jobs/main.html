@@ -1,32 +1,75 @@
-<div ng-controller="SimilarJobsPluginCtrl">
-    <form role="form">
-        <div class="checkbox">
-            <label>
-                <input ng-change="update_similar_jobs()" type="checkbox" ng-model="similar_jobs_filters.machine_id"/>
-                Same machine: {{ job.machine_name }}
-            </label>
-        </div>
-        <div class="checkbox">
-            <label>
-                <input ng-change="update_similar_jobs()" type="checkbox" ng-model="similar_jobs_filters.job_type_id"/>
-                Same job type: {{ job.job_group_name }} {{ job.job_type_name }} ({{ job.job_type_symbol }})
-            </label>
-        </div>
-        <div class="checkbox">
-            <label>
-                <input ng-change="update_similar_jobs()" type="checkbox" ng-model="similar_jobs_filters.build_platform_id"/>
-                Same platform: {{ job.platform }}
-            </label>
-        </div>
-    </form>
-    <p>
-        <button class="btn btn-similar-jobs btn-xs" ng-class="button_class(job)"
-                ng-repeat="job in similar_jobs | orderBy: -submit_timestamp">
-            {{job.job_type_symbol}}
-        </button>
+<div class="" ng-controller="SimilarJobsPluginCtrl">
+    <div class="row">
+        <div class="col-xs-2">
+            <form role="form">
+                <div class="checkbox">
 
-    </p>
-    <a ng-click="show_more()">Show more</a>
+                        <input ng-change="update_similar_jobs()" type="checkbox" ng-model="similar_jobs_filters.machine_id"/>
+                        <small>Same machine</small>
+
+                </div>
+                <div class="checkbox">
+
+                        <input ng-change="update_similar_jobs()" type="checkbox" ng-model="similar_jobs_filters.job_type_id"/>
+                        <small>Same job type</small>
+
+                </div>
+                <div class="checkbox">
+
+                        <input ng-change="update_similar_jobs()" type="checkbox" ng-model="similar_jobs_filters.build_platform_id"/>
+                        <small>Same platform</small>
+
+                </div>
+            </form>
+        </div>
+        <div class="col-xs-10">
+            <p class="similar_job_list">
+                <button ng-click="show_job_info(job)" class="btn btn-similar-jobs btn-xs" ng-class="button_class(job)"
+                        ng-repeat="job in similar_jobs | orderBy: -submit_timestamp">
+                    {{job.job_type_symbol}}
+                </button>
+
+            </p>
+            <a ng-click="show_more()">Show more</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <table class="table-bordered table-super-condensed" ng-if="similar_job_selected">
+                <tr>
+                    <th>Job Name</th>
+                    <th>Start time</th>
+                    <th>Duration</th>
+                    <th>Machine</th>
+                    <th>Build</th>
+                    <th>Result</th>
+                    <th>Classification</th>
+                </tr>
+                <tr>
+                    <td>{{ similar_job_selected.job_type_name }}</td>
+                    <td>{{ similar_job_selected.start_time }}</td>
+                    <td>{{ similar_job_selected.duration }}</td>
+                    <td>{{ similar_job_selected.machine_platform_architecture }}
+                        {{ similar_job_selected.machine_platform_os }}
+                    </td>
+                    <td>
+                        {{ similar_job_selected.build_architecture }}
+                        {{ similar_job_selected.build_platform }}
+                        {{ similar_job_selected.build_os }}
+                    </td>
+                    <td>{{ similar_job_selected.result_status }}</td>
+                    <td>{{ similar_job_selected.failure_classification_name }}</td>
+                </tr>
+            </table>
+            <ul class="list-unstyled" ng-if="similar_job_selected.error_lines.length > 0">
+                <li><h5>Error lines:</h5></li>
+                <li class=""  ng-repeat="error in similar_job_selected.error_lines">
+                    <small>{{error.line}}</small>
+                </li>
+            </ul>
+        </div>
+    </div>
+
 
 
 </div>

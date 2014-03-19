@@ -107,10 +107,6 @@ treeherder.directive('resizablePanel', function($document, $log) {
                 var y = startY - event.pageY;
                 startY = event.pageY;
                 container.height(container.height() + y);
-                var bcp = container.find("#bottom-center-panel");
-                bcp.find(".bottom-shadowed-panel").height(container.height() - 20);
-                bcp.find(".tab-content").height(container.height() - 55);
-
             }
 
             function mouseup() {
