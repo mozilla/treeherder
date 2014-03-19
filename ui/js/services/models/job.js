@@ -26,7 +26,7 @@ treeherder.factory('ThJobModel', ['$http', '$log', 'thUrl', function($http, $log
 
     ThJobModel.get = function(pk) {
         // a static method to retrieve a single instance of ThJobModel
-        return $http.get(ThJobModel.get_uri()+pk).then(function(response) {
+        return $http.get(ThJobModel.get_uri()+pk+"/").then(function(response) {
             return new ThJobModel(response.data);
         });
     };
