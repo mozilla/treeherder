@@ -201,6 +201,8 @@ treeherder.provider('thEvents', function() {
 
             toggleJobs: "toggle-jobs-EVT",
 
+            toggleUnclassifiedFailures: "toggle-unclassified-failures-EVT",
+
             selectNextUnclassifiedFailure: "next-unclassified-failure-EVT",
 
             selectPreviousUnclassifiedFailure: "previous-unclassified-failure-EVT",
@@ -208,6 +210,7 @@ treeherder.provider('thEvents', function() {
             searchPage: "search-page-EVT",
 
             repoChanged: "repo-changed-EVT"
+
         };
     };
 });

@@ -86,6 +86,13 @@ treeherder.directive('thCloneJobs', function(
 
     });
 
+    $rootScope.$on(
+        thEvents.toggleUnclassifiedFailure, function(ev){
+
+        console.log('toggle unclassified failure');
+
+    });
+
     var selectJob = function(el){
 
         if(!_.isEmpty(lastJobElSelected)){

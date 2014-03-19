@@ -2,8 +2,8 @@
 
 treeherder.controller('MainCtrl',
     function MainController($scope, $rootScope, $routeParams, $location, $log,
-                            localStorageService, ThRepositoryModel, thPinboard,
-                            thClassificationTypes) {
+                            localStorageService, thEvents, ThRepositoryModel,
+                            thPinboard, thClassificationTypes) {
 
         thClassificationTypes.load();
 
@@ -28,6 +28,11 @@ treeherder.controller('MainCtrl',
                 //Select/deselect active build or changeset, keys:s
                 $rootScope.$broadcast(thEvents.jobPin, $rootScope.selectedJob);
 
+            }else if(ev.keyCode === 85){
+                //toggle displaying only unclassified failures, keys:u
+console.log('char 85 caught');
+                $rootScope.$broadcast(
+                    thEvents.toggleUnclassifiedFailures, $rootScope.selectedJob);
             }
         };
 
