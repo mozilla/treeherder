@@ -144,6 +144,13 @@ treeherder.factory('ThResultSetModel',
                 repositories[repoName].rsMapOldestTimestamp = rs_obj.push_timestamp;
             }
 
+            //Keep track of the last resultset id for paging
+            var resultsetId = parseInt(rs_obj.id);
+            if( (resultsetId < repositories[repoName].rsOffsetId) ||
+                (repositories[repoName].rsOffsetId === 0) ){
+                repositories[repoName].rsOffsetId = resultsetId;
+            }
+
             // platforms
             for (var pl_i = 0; pl_i < rs_obj.platforms.length; pl_i++) {
                 var pl_obj = rs_obj.platforms[pl_i];
@@ -506,7 +513,7 @@ treeherder.factory('ThResultSetModel',
     var appendResultSets = function(repoName, data) {
 
         if(data.length > 0){
-            repositories[repoName].rsOffsetId = data[ data.length - 1 ].id;
+
 
             Array.prototype.push.apply(
                 repositories[repoName].resultSets, data
