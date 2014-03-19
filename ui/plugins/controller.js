@@ -17,8 +17,7 @@ treeherder.controller('PluginCtrl',
                 // get the details of the current job
                 ThJobModel.get($scope.job.id).then(function(data){
                     $scope.job = data;
-                    //_.extend($scope.job, data);
-                    //$scope.$broadcast(thEvents.jobDetailLoaded);
+                    $scope.$broadcast(thEvents.jobDetailLoaded);
 
                     updateVisibleFields();
                     $scope.logs = data.logs;
