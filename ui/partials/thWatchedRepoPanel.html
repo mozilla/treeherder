@@ -11,7 +11,8 @@
                 <span class="label label-primary"><span ng-bind="pinboardCount.numPinnedJobs"></span> pinned jobs</span>
                 <span class="label label-primary">0 unclassified</span>
                 <div ng-controller="SearchCtrl" class="form-group form-inline">
-                        <input ng-model="searchQuery" ng-keyup="search($event)" type="text"
+                        <input id="platform-job-text-search-field"
+                               ng-model="searchQuery" ng-keyup="search($event)" type="text"
                                class="form-control input-sm"
                                placeholder="Filter platforms & jobs">
                 </div>
