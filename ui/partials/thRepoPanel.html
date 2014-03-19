@@ -15,7 +15,7 @@
                   class="th-repo-group-items">
                     <input type="checkbox"
                            ng-model="watchedRepos[repo.name]"
-                           ng-change="saveWatchedRepos()">
+                           ng-change="watchedReposUpdated()">
                 <a href="" class="repo-link"
                       ng-click="changeRepo(repo.name)">{{repo.name}}
                 </a>

@@ -6,7 +6,7 @@ treeherder.factory('ThRepositoryModel',
 
     var new_failures = {};
 
-    var storedWatchedRepos = localStorageService.get("watchedRepos") || {};
+    var storedWatchedRepos = localStorageService.cookie.get("watchedRepos") || {};
     $log.debug("stored watchedRepos");
     $log.debug(storedWatchedRepos);
 
@@ -93,12 +93,12 @@ treeherder.factory('ThRepositoryModel',
         },
         watchedRepos: {},
         watchedReposUpdated: function() {
-            localStorageService.set("watchedRepos", api.watchedRepos);
+            localStorageService.cookie.add("watchedRepos", api.watchedRepos);
 
             $log.debug("watchedReposUpdated");
-            $log.debug(localStorageService.get("watchedRepos"));
+            $log.debug(localStorageService.cookie.get("watchedRepos"));
 
-            $rootScope.$on(thEvents.topNavBarContentChanged);
+            $rootScope.$broadcast(thEvents.topNavBarContentChanged);
         },
         repo_has_failures: function(repo_name){
             return ($rootScope.new_failures.hasOwnProperty(repo_name) &&

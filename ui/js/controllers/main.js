@@ -6,6 +6,7 @@ treeherder.controller('MainCtrl',
                             thClassificationTypes, thEvents) {
 
         thClassificationTypes.load();
+        ThRepositoryModel.load();
 
         $scope.clearJob = function() {
             // setting the selectedJob to null hides the bottom panel
