@@ -87,7 +87,7 @@ treeherder.directive('thCloneJobs', function(
     });
 
     $rootScope.$on(
-        thEvents.toggleUnclassifiedFailure, function(ev){
+        thEvents.toggleUnclassifiedFailures, function(ev){
 
         console.log('toggle unclassified failure');
 

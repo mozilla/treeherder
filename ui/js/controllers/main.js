@@ -30,9 +30,9 @@ treeherder.controller('MainCtrl',
 
             }else if(ev.keyCode === 85){
                 //toggle displaying only unclassified failures, keys:u
-console.log('char 85 caught');
                 $rootScope.$broadcast(
-                    thEvents.toggleUnclassifiedFailures, $rootScope.selectedJob);
+                    thEvents.toggleUnclassifiedFailures, $rootScope.selectedJob
+                    );
             }
         };
 
