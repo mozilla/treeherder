@@ -596,6 +596,19 @@
         "repository_group": 2,
         "description": ""
     }
-}
+},
 
+{
+    "pk": 48,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "git",
+        "name": "taskcluster-integration-tests",
+        "url": "https://github.com/taskcluster/github-graph-example",
+        "active_status": "active",
+        "codebase": "taskcluster",
+        "repository_group": 3,
+        "description": "taskcluster integration test dumping ground."
+    }
+}
 ]
