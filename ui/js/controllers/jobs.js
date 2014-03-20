@@ -125,7 +125,7 @@ treeherder.controller('ResultSetCtrl',
         };
 
         $scope.revisionResultsetFilterUrl = $scope.urlBasePath + "?repo=" + $scope.repoName + "&revision=" + $scope.resultset.revision;
-        $scope.authorResultsetFilterUrl = $scope.urlBasePath + "?repo=" + $scope.repoName + "&author=" + $scope.resultset.author;
+        $scope.authorResultsetFilterUrl = $scope.urlBasePath + "?repo=" + $scope.repoName + "&author=" + encodeURIComponent($scope.resultset.author);
 
         $scope.resultStatusFilters = thJobFilters.copyResultStatusFilters();
 

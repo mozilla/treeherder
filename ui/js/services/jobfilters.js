@@ -50,7 +50,8 @@ treeherder.factory('thJobFilters',
         } else {
             var jobFieldValue = getJobFieldValue(job, field);
             if (_.isUndefined(jobFieldValue)) {
-                //$log.warn("job object has no field of '" + field + "'.  Skipping filtration.");
+                // if a filter is added somehow, but the job object doesn't
+                // have that field, then don't filter.  Consider it a pass.
                 return true;
             }
 

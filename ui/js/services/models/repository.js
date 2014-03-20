@@ -1,10 +1,11 @@
 'use strict';
 
 treeherder.factory('ThRepositoryModel',
-                   ['$http', 'thUrl', '$rootScope', '$log', 'localStorageService', 'thSocket', 'thEvents',
-                   function($http, thUrl, $rootScope, $log, localStorageService, thSocket, thEvents) {
+                   function($http, thUrl, $rootScope, $log, localStorageService,
+                            thSocket, thEvents) {
 
     var new_failures = {};
+    var watchedRepos = {};
 
     thSocket.on('job_failure', function(msg){
         if (! new_failures.hasOwnProperty(msg.branch)){
@@ -14,10 +15,9 @@ treeherder.factory('ThRepositoryModel',
         $log.debug("new failure on branch "+msg.branch);
     });
 
-
     // get the repositories (aka trees)
     // sample: 'resources/menu.json'
-    var byName = function(name) {
+    var getByName = function(name) {
         if ($rootScope.repos !== undefined) {
             for (var i = 0; i < $rootScope.repos.length; i++) {
                 var repo = $rootScope.repos[i];
@@ -34,7 +34,7 @@ treeherder.factory('ThRepositoryModel',
 
 
     // get by category
-    var byGroup = function() {
+    var getByGroup = function() {
         var groupedRepos = {};
         var group = function(repo) {
             if (!_.has(groupedRepos, repo.repository_group.name)) {
@@ -50,60 +50,69 @@ treeherder.factory('ThRepositoryModel',
     };
 
     var addAsUnwatched = function(repo) {
-        api.watchedRepos[repo.name] = false;
+        watchedRepos[repo.name] = false;
     };
 
-    var api = {
+    var load = function(name) {
+
+        var storedWatchedRepos = localStorageService.get("watchedRepos");
+
+        return $http.get(thUrl.getRootUrl("/repository/")).
+            success(function(data) {
+                $rootScope.repos = data;
+                $rootScope.groupedRepos = getByGroup();
+                _.each(data, addAsUnwatched);
+                if (storedWatchedRepos) {
+                    _.extend(watchedRepos, storedWatchedRepos);
+                }
+                localStorageService.add("watchedRepos", watchedRepos);
+
+                if (name) {
+                    $rootScope.currentRepo = getByName(name);
+
+                }
+            });
+    };
+
+    var getCurrent = function() {
+        return $rootScope.currentRepo;
+    };
+
+    var setCurrent = function(name) {
+        $rootScope.currentRepo = getByName(name);
+        watchedRepos[name] = true;
+    };
+
+    var repo_has_failures = function(repo_name){
+        return ($rootScope.new_failures.hasOwnProperty(repo_name) &&
+            $rootScope.new_failures[repo_name].length > 0);
+    };
+
+    var watchedReposUpdated = function() {
+        localStorageService.add("watchedRepos", watchedRepos);
+    };
+
+
+    return {
         // load the list of repos into $rootScope, and set the current repo.
-        load: function(name) {
+        load: load,
 
-            var storedWatchedRepos = localStorageService.get("watchedRepos") || {};
-            $log.debug("stored watchedRepos");
-            $log.debug(storedWatchedRepos);
-
-            return $http.get(thUrl.getRootUrl("/repository/")).
-                success(function(data) {
-                    $rootScope.repos = data;
-                    $rootScope.groupedRepos = byGroup();
-                    _.each(data, addAsUnwatched);
-                    _.extend(api.watchedRepos, storedWatchedRepos);
-
-                    if (name) {
-                        $rootScope.currentRepo = byName(name);
-
-                    }
-                });
-        },
         // return the currently selected repo
-        getCurrent: function() {
-            return $rootScope.currentRepo;
-        },
-        // set the current repo to one in the repos list
-        setCurrent: function(name) {
-            $rootScope.currentRepo = byName(name);
-            api.watchedRepos[name] = true;
-            api.saveWatchedRepos();
-        },
-        // get a repo object without setting anything
-        getRepo: function(name) {
-            return byName(name);
-        },
-        getByGroup: function() {
-            return byGroup();
-        },
-        watchedRepos: {},
-        saveWatchedRepos: function() {
-            localStorageService.set("watchedRepos", api.watchedRepos);
+        getCurrent: getCurrent,
 
-            $log.debug("saveWatchedRepos");
-            $log.debug(localStorageService.get("watchedRepos"));
-        },
-        repo_has_failures: function(repo_name){
-            return ($rootScope.new_failures.hasOwnProperty(repo_name) &&
-                $rootScope.new_failures[repo_name].length > 0);
-        }
+        // set the current repo to one in the repos list
+        setCurrent: setCurrent,
+
+        // get a repo object without setting anything
+        getRepo: getByName,
+
+        getByGroup: getByGroup,
+
+        watchedRepos: watchedRepos,
+
+        watchedReposUpdated: watchedReposUpdated,
+
+        repo_has_failures: repo_has_failures
 
     };
-
-    return api;
-}]);
+});

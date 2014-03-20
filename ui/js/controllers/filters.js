@@ -30,8 +30,10 @@ treeherder.controller('FilterPanelCtrl',
 
         /**
          * Handle checking the "all" button for a result status group
+         *
+         * quiet - whether or not to broadcast a message about this change.
          */
-        $scope.toggleResultStatusGroup = function(group) {
+        $scope.toggleResultStatusGroup = function(group, quiet) {
             var check = function(rs) {
                 $scope.resultStatusFilters[rs] = group.allChecked;
             };
@@ -42,8 +44,35 @@ treeherder.controller('FilterPanelCtrl',
                 group.resultStatuses,
                 group.allChecked
             );
-            $rootScope.$broadcast(thEvents.globalFilterChanged,
-                                  {target: group, newValue: group.allChecked});
+
+            if (!quiet) {
+                $rootScope.$broadcast(thEvents.globalFilterChanged,
+                                      {target: group, newValue: group.allChecked});
+            }
+        };
+
+        $rootScope.$on(thEvents.filterUnclassifiedFailures, function() {
+            $scope.showUnclassifiedFailures();
+        });
+
+        /**
+         * Handle clicking the ``unclassified failures`` button.
+         */
+        $scope.showUnclassifiedFailures = function() {
+            $scope.filterGroups.failures.allChecked = true;
+            $scope.filterGroups.nonfailures.allChecked = false;
+            $scope.filterGroups.inProgress.allChecked = false;
+            $scope.classifiedFilter = false;
+            $scope.unClassifiedFilter = true;
+
+            $scope.toggleResultStatusGroup($scope.filterGroups.failures, true);
+            $scope.toggleResultStatusGroup($scope.filterGroups.nonfailures, true);
+            $scope.toggleResultStatusGroup($scope.filterGroups.inProgress, true);
+
+            $scope.setClassificationFilter(true, $scope.classifiedFilter, true);
+            $scope.setClassificationFilter(false, $scope.unClassifiedFilter, true);
+
+            $rootScope.$broadcast(thEvents.globalFilterChanged);
         };
 
         /**
@@ -67,22 +96,32 @@ treeherder.controller('FilterPanelCtrl',
         /**
          * Toggle the filters to show either unclassified or classified jobs,
          * neither or both.
+         */
+        $scope.toggleClassificationFilter = function(isClassified) {
+            var isChecked = !(isClassified? $scope.classifiedFilter: $scope.unClassifiedFilter);
+            $scope.setClassificationFilter(isClassified, isChecked, false);
+        };
+
+        /**
+         * Toggle the filters to show either unclassified or classified jobs,
+         * neither or both.
          * @param isClassified - whether to toggle the filter on/off for
          *                       ``classified`` (when true) or ``unclassified``
          *                       (when false)
          */
-        $scope.toggleClassificationFilter = function(isClassified) {
+        $scope.setClassificationFilter = function(isClassified, isChecked, quiet) {
             var field = "failure_classification_id";
             // this function is called before the checkbox value has actually
             // changed the scope model value, so change to the inverse.
-            var isChecked = !(isClassified? $scope.classifiedFilter: $scope.unClassifiedFilter);
             var func = isChecked? thJobFilters.addFilter: thJobFilters.removeFilter;
             var target = isClassified? "classified": "unclassified";
 
             func(field, isClassified, thJobFilters.matchType.bool);
 
-            $rootScope.$broadcast(thEvents.globalFilterChanged,
-                                  {target: target, newValue: isChecked});
+            if (!quiet) {
+                $rootScope.$broadcast(thEvents.globalFilterChanged,
+                                      {target: target, newValue: isChecked});
+            }
         };
 
         $scope.createFieldFilter = function() {

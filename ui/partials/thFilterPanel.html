@@ -2,9 +2,14 @@
      class="th-top-nav-options-panel model-body"
      ng-controller="FilterPanelCtrl">
     <div class="nav-panel-help-text">Specify which jobs to show based on this filter criteria.
-        <span class="btn btn-default btn-sm pull-right"
-              title="pin all jobs that pass the global filters"
-              ng-click="pinAllShownJobs()"><i class="glyphicon glyphicon-pushpin"></i> pin all showing</span>
+        <span class="pull-right">
+            <span class="btn btn-default btn-xs"
+                  title="set filtering to show only unclassified failures"
+                  ng-click="showUnclassifiedFailures()"><i class="fa fa-star-o"></i> unclassified failures</span>
+            <span class="btn btn-default btn-xs"
+                  title="pin all jobs that pass the global filters"
+                  ng-click="pinAllShownJobs()"><i class="glyphicon glyphicon-pushpin"></i> pin all showing</span>
+        </span>
     </div>
 
     <!-- result status filters -->
