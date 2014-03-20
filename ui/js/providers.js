@@ -213,7 +213,11 @@ treeherder.provider('thEvents', function() {
             // or the number of watched repos changes, this could change the
             // height of the top navbar and require more top-padding to be able
             // to view the main content window.
-            topNavBarContentChanged: "top-navbar-height-changed-EVT"
+            topNavBarContentChanged: "top-navbar-height-changed-EVT",
+
+            // throwing this event will filter jobs to only show failures
+            // that have no classification.  
+            showUnclassifiedFailures: "show-unclassified-failures-EVT"
         };
     };
 });
