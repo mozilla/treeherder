@@ -14,8 +14,8 @@
             <span ng-repeat="repo in group | orderBy:'name'"
                   class="th-repo-group-items">
                     <input type="checkbox"
-                           ng-model="watchedRepos[repo.name]"
-                           ng-change="watchedReposUpdated()">
+                           ng-checked="watchedRepos[repo.name]"
+                           ng-click="toggleRepo(repo.name)">
                 <a href="" class="repo-link"
                       ng-click="changeRepo(repo.name)">{{repo.name}}
                 </a>

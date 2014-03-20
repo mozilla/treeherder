@@ -26,13 +26,28 @@ treeherder.controller('MainCtrl',
             $scope.$apply();
         };
 
+        // the repos the user has chosen to watch
+        $scope.watchedRepos = ThRepositoryModel.watchedRepos;
+        $log.debug("<><><> watched repos");
+        $log.debug($scope.watchedRepos);
+
+//        $(function() {
+//            $log.debug("load function");
+//            $rootScope.$broadcast(thEvents.topNavBarContentChanged);
+//        });
+
         $rootScope.$on(thEvents.topNavBarContentChanged, function(ev) {
-            var newTopNavHeight = $("th-global-top-nav-panel").find(".navbar-fixed-top").height();
+            var newTopNavHeight = $("th-global-top-nav-panel").find("#top-nav-main-panel").height();
+            $log.debug("I can see things are changing to " + newTopNavHeight);
             if ($scope.topNavBarHeight !== newTopNavHeight) {
                 $scope.topNavBarHeight = newTopNavHeight;
                 $("body").css("padding-top", newTopNavHeight);
             }
         });
+
+        $rootScope.$watch('watchedRepos', function(newValue, oldValue) {
+            $log.warn("got her dun");
+        }, true);
 
         // give the page a way to determine which nav toolbar to show
         $rootScope.$on('$locationChangeSuccess', function(ev,newUrl) {
@@ -40,9 +55,6 @@ treeherder.controller('MainCtrl',
         });
 
         $rootScope.urlBasePath = $location.absUrl().split('?')[0];
-
-        // the repos the user has chosen to watch
-        $scope.watchedRepos = ThRepositoryModel.watchedRepos;
 
         $scope.changeRepo = function(repo_name) {
             // hide the repo panel if they chose to load one.

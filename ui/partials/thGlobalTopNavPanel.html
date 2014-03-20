@@ -1,4 +1,5 @@
 <nav class="navbar navbar-inverse navbar-fixed-top th-navbar">
+    <div id="top-nav-main-panel">
     <div class="navbar-header">
         <a class="navbar-brand" href="#">Treeherder</a>
     </div>
@@ -36,6 +37,7 @@
 
     </div>
     <th-watched-repo-panel ng-show="locationPath==='jobs'"></th-watched-repo-panel>
+    </div>
     <div ng-show="isFilterPanelShowing">
         <th-filter-panel></th-filter-panel>
     </div>
