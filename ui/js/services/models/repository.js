@@ -5,7 +5,6 @@ treeherder.factory('ThRepositoryModel',
                             thSocket, thEvents) {
 
     var new_failures = {};
-
     var watchedRepos = {};
 
     thSocket.on('job_failure', function(msg){
@@ -91,7 +90,6 @@ treeherder.factory('ThRepositoryModel',
 
     var watchedReposUpdated = function() {
         localStorageService.add("watchedRepos", watchedRepos);
-        $rootScope.$broadcast(thEvents.topNavBarContentChanged);
     };
 
 

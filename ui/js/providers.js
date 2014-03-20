@@ -208,15 +208,8 @@ treeherder.provider('thEvents', function() {
 
             repoChanged: "repo-changed-EVT",
 
-            // this is a call to re-check how much padding we need at the top
-            // of the main content window.  If the width of the browser changes
-            // or the number of watched repos changes, this could change the
-            // height of the top navbar and require more top-padding to be able
-            // to view the main content window.
-            topNavBarContentChanged: "top-navbar-height-changed-EVT",
-
             // throwing this event will filter jobs to only show failures
-            // that have no classification.  
+            // that have no classification.
             showUnclassifiedFailures: "show-unclassified-failures-EVT"
         };
     };
