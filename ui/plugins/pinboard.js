@@ -5,6 +5,7 @@ treeherder.controller('PinboardCtrl',
 
         $rootScope.$on(thEvents.jobPin, function(event, job) {
             $scope.pinJob(job);
+            $scope.$digest();
         });
 
         $scope.pinJob = function(job) {

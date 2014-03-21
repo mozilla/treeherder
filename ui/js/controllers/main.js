@@ -16,7 +16,8 @@ treeherder.controller('MainCtrl',
 
             //Only listen to key commands when the body has focus. Otherwise
             //html input elements won't work correctly.
-            if(document.activeElement.nodeName != 'BODY'){
+            if( (document.activeElement.nodeName != 'BODY') ||
+                (ev.keyCode === 16) ){
                 return;
             }
 
