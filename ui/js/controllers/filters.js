@@ -52,7 +52,7 @@ treeherder.controller('FilterPanelCtrl',
             }
         };
 
-        $rootScope.$on(thEvents.filterUnclassifiedFailures, function() {
+        $rootScope.$on(thEvents.showUnclassifiedFailures, function() {
             $scope.showUnclassifiedFailures();
         });
 
