@@ -341,8 +341,6 @@ treeherder.factory('ThResultSetModel',
             platformKey, jobUpdated, resultsetAggregateId, revision,
             jobGroups;
 
-        $log.debug('aggregating job platform');
-        $log.debug(job);
         jobUpdated = updateJob(repoName, job);
 
         //the job was not updated or added to the model, don't include it

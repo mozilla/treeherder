@@ -12,7 +12,7 @@
         <link href="css/persona-buttons.css" rel="stylesheet" media="screen">
 
     </head>
-    <body ng-controller="MainCtrl">
+    <body ng-controller="MainCtrl" ng-keydown="processKeyboardInput($event)">
         <th-global-top-nav-panel></th-global-top-nav-panel>
         <div class="th-content">
 
@@ -139,7 +139,7 @@
 
 <!-- Job Btn span -->
 <script type="'text/ng-template'" id="jobBtnClone.html">
-    <span style="margin-right:1px;" class="btn job-btn btn-xs {{ btnClass }}" data-jmkey="{{ key }}" title="{{ title }}">{{ value }}</span>
+    <span style="margin-right:1px;" class="btn job-btn btn-xs {{ btnClass }} {{ key }}" data-jmkey="{{ key }}" title="{{ title }}">{{ value }}</span>
 </script>
 
 

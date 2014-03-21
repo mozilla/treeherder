@@ -5,7 +5,7 @@ treeherder.controller('PinboardCtrl',
 
         $rootScope.$on(thEvents.jobPin, function(event, job) {
             $scope.pinJob(job);
-            $rootScope.$digest();
+            $scope.$digest();
         });
 
         $scope.pinJob = function(job) {
@@ -84,10 +84,12 @@ treeherder.controller('PinboardCtrl',
         $scope.viewJob = function(job) {
             $rootScope.selectedJob = job;
             $rootScope.$broadcast(thEvents.jobClick, job);
+            $rootScope.$broadcast(thEvents.selectJob, job);
         };
 
         $scope.classification = thPinboard.createNewClassification();
         $scope.pinnedJobs = thPinboard.pinnedJobs;
         $scope.relatedBugs = thPinboard.relatedBugs;
+
     }
 );

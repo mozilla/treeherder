@@ -12,6 +12,36 @@ treeherder.controller('MainCtrl',
             // setting the selectedJob to null hides the bottom panel
             $rootScope.selectedJob = null;
         };
+        $scope.processKeyboardInput = function(ev){
+
+            //Only listen to key commands when the body has focus. Otherwise
+            //html input elements won't work correctly.
+            if( (document.activeElement.nodeName != 'BODY') ||
+                (ev.keyCode === 16) ){
+                return;
+            }
+
+            if( (ev.keyCode === 74) || (ev.keyCode === 78) ){
+                //Highlight next unclassified failure keys:j/n
+                $rootScope.$broadcast(
+                    thEvents.selectNextUnclassifiedFailure
+                    );
+
+            }else if( (ev.keyCode === 75) || (ev.keyCode === 80) ){
+                //Highlight previous unclassified failure keys:k/p
+                $rootScope.$broadcast(
+                    thEvents.selectPreviousUnclassifiedFailure
+                    );
+
+            }else if(ev.keyCode === 83){
+                //Select/deselect active build or changeset, keys:s
+                $rootScope.$broadcast(thEvents.jobPin, $rootScope.selectedJob);
+
+            }else if(ev.keyCode === 85){
+                //display only unclassified failures, keys:u
+                $rootScope.$broadcast(thEvents.showUnclassifiedFailures);
+            }
+        };
 
         // detect window width and put it in scope so items can react to
         // a narrow/wide window
