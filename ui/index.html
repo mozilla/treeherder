@@ -13,7 +13,7 @@
 
     </head>
     <body ng-controller="MainCtrl">
-        <th-global-top-nav-panel></th-global-top-nav-panel>
+        <ng-include id="th-global-top-nav-panel" src="'partials/thGlobalTopNavPanel.html'"></ng-include>
         <div class="th-content">
 
             <span class="th-view-content" ng-cloak>
@@ -55,12 +55,13 @@
         <script src="js/services/classifications.js"></script>
         <script src="js/services/pinboard.js"></script>
         <script src="js/services/resultsets.js"></script>
-        <script src="js/services/models/resultsets.js"></script>
-        <script src="js/services/models/job_artifact.js"></script>
-        <script src="js/services/models/repository.js"></script>
-        <script src="js/services/models/bug_job_map.js"></script>
-        <script src="js/services/models/classification.js"></script>
-        <script src="js/services/models/job.js"></script>
+        <script src="js/services/treestatus.js"></script>
+        <script src="js/models/resultsets.js"></script>
+        <script src="js/models/job_artifact.js"></script>
+        <script src="js/models/repository.js"></script>
+        <script src="js/models/bug_job_map.js"></script>
+        <script src="js/models/classification.js"></script>
+        <script src="js/models/job.js"></script>
         <script src="js/controllers/main.js"></script>
         <script src="js/controllers/repository.js"></script>
         <script src="js/controllers/filters.js"></script>

@@ -25,6 +25,8 @@ treeherder.factory('thJobFilters',
                    function(thResultStatusList, $log, $rootScope,
                             ThResultSetModel, thPinboard, thNotify) {
 
+    var logId = "thJobFilters";
+
     /**
      * If a custom resultStatusList is passed in (like for individual
      * resultSets, then use that.  Otherwise, fall back to the global one.
@@ -55,7 +57,7 @@ treeherder.factory('thJobFilters',
                 return true;
             }
 
-            $log.debug(field + ": " + JSON.stringify(job));
+            $log.debug(logId, "jobField filter", field, job);
             switch (filters[field].matchType) {
                 case api.matchType.isnull:
                     jobFieldValue = !_.isNull(jobFieldValue);
@@ -139,8 +141,8 @@ treeherder.factory('thJobFilters',
                     removeWhenEmpty: true
                 };
             }
-            $log.debug("adding " + field + ": " + value);
-            $log.debug(filters);
+            $log.debug(logId, "adding ", field, ": ", value);
+            $log.debug(logId, "filters", filters);
         },
         removeFilter: function(field, value) {
             if (filters.hasOwnProperty(field)) {
@@ -150,7 +152,7 @@ treeherder.factory('thJobFilters',
                 }
                 var idx = filters[field].values.indexOf(value);
                 if(idx > -1) {
-                    $log.debug("removing " + value);
+                    $log.debug(logId, "removing ", value);
                     filters[field].values.splice(idx, 1);
                 }
             }
@@ -160,7 +162,7 @@ treeherder.factory('thJobFilters',
             if (filters[field].removeWhenEmpty && filters[field].values.length === 0) {
                 delete filters[field];
             }
-            $log.debug(filters);
+            $log.debug(logId, "filters", filters);
         },
         /**
          * used mostly for resultStatus doing group toggles
@@ -170,7 +172,7 @@ treeherder.factory('thJobFilters',
          * @param add - true if adding, false if removing
          */
         toggleFilters: function(field, values, add) {
-            $log.debug("toggling: " + add);
+            $log.debug(logId, "toggling: ", add);
             var action = add? api.addFilter: api.removeFilter;
             for (var i = 0; i < values.length; i++) {
                 action(field, values[i]);

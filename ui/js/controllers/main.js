@@ -29,7 +29,7 @@ treeherder.controller('MainCtrl',
         $scope.watchedRepos = ThRepositoryModel.watchedRepos;
 
         $scope.getTopNavBarHeight = function() {
-            return $("th-global-top-nav-panel").find("#top-nav-main-panel").height();
+            return $("#th-global-top-nav-panel").find("#top-nav-main-panel").height();
         };
 
         // adjust the body padding so we can see all the job/resultset data

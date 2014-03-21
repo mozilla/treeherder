@@ -1,7 +1,6 @@
 'use strict';
 
 treeherder.factory('thResultSets',
-                   ['$http', '$location', 'thUrl', 'thServiceDomain',
                    function($http, $location, thUrl, thServiceDomain) {
 
     // get the resultsets for this repo
@@ -42,4 +41,4 @@ treeherder.factory('thResultSets',
             return $http.get(thServiceDomain + uri, {params: {format: "json"}});
         }
     };
-}]);
+});

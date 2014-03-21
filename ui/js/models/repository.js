@@ -2,17 +2,19 @@
 
 treeherder.factory('ThRepositoryModel',
                    function($http, thUrl, $rootScope, $log, localStorageService,
-                            thSocket, thEvents) {
+                            thSocket, treeStatus) {
+    var logId = "ThRepositoryModel";
 
     var new_failures = {};
     var watchedRepos = {};
+    var repoStatus = {};
 
     thSocket.on('job_failure', function(msg){
         if (! new_failures.hasOwnProperty(msg.branch)){
             new_failures[msg.branch] = [];
         }
         new_failures[msg.branch].push(msg.id);
-        $log.debug("new failure on branch "+msg.branch);
+        $log.debug(logId, "new failure on branch ", msg.branch);
     });
 
     // get the repositories (aka trees)
@@ -50,7 +52,27 @@ treeherder.factory('ThRepositoryModel',
     };
 
     var addAsUnwatched = function(repo) {
-        watchedRepos[repo.name] = false;
+        watchedRepos[repo.name] = {
+            isWatched: false
+        };
+    };
+
+    /**
+     * We want to add this repo as watched, but we also
+     * want to get the treestatus for it
+     */
+    var addAsWatched = function(data, repoName) {
+        if (data.isWatched) {
+            watchedRepos[repoName] = {
+                isWatched: true,
+                treeStatus: null,
+                unclassifiedFailureCount: 0
+            };
+            treeStatus.get(repoName).then(function(data) {
+                watchedRepos[repoName].treeStatus = data.data;
+            });
+            $log.debug(logId, "watchedRepo", watchedRepos[repoName]);
+        }
     };
 
     var load = function(name) {
@@ -61,9 +83,10 @@ treeherder.factory('ThRepositoryModel',
             success(function(data) {
                 $rootScope.repos = data;
                 $rootScope.groupedRepos = getByGroup();
+
                 _.each(data, addAsUnwatched);
                 if (storedWatchedRepos) {
-                    _.extend(watchedRepos, storedWatchedRepos);
+                    _.each(storedWatchedRepos, addAsWatched);
                 }
                 localStorageService.add("watchedRepos", watchedRepos);
 

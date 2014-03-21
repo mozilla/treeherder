@@ -1,13 +1,6 @@
 'use strict';
 
 
-treeherder.directive('thPinboardPanel', function(){
-    return {
-        restrict: "E",
-        templateUrl: "partials/thPinboardPanel.html"
-    };
-});
-
 treeherder.directive('thPinnedJob', function (thResultStatusInfo) {
 
     var getHoverText = function(job) {

@@ -1,45 +1,44 @@
 <nav class="navbar navbar-inverse navbar-fixed-top th-navbar">
     <div id="top-nav-main-panel">
-    <div class="navbar-header">
-        <a class="navbar-brand" href="#">Treeherder</a>
-    </div>
-    <div class="navbar-collapse collapse th-global-navbar">
-        <!-- nav begin -->
-        <span class="nav navbar-nav">
-            <span class="btn-group"
-                  ng-repeat="viewOption in ['jobs', 'timeline', 'machines']">
-                <a class="btn btn-view-nav"
-                   ng-class="{'active': (locationPath===viewOption)}"
-                   href="#/{{viewOption}}">{{viewOption}}</a>
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">Treeherder</a>
+        </div>
+        <div class="navbar-collapse collapse th-global-navbar">
+            <!-- nav begin -->
+            <span class="nav navbar-nav">
+                <span class="btn-group"
+                      ng-repeat="viewOption in ['jobs', 'timeline', 'machines']">
+                    <a class="btn btn-view-nav"
+                       ng-class="{'active': (locationPath===viewOption)}"
+                       href="#/{{viewOption}}">{{viewOption}}</a>
+                </span>
             </span>
-        </span>
-        <span class="pull-right">
-            <span class="btn btn-view-nav"
-                  ng-class="{'active': (isRepoPanelShowing)}"
-                  ng-click="isRepoPanelShowing=!isRepoPanelShowing"><span>repos</span>
-                <i class="glyphicon glyphicon-chevron-down lightgray"
-                   ng-hide="isRepoPanelShowing"></i>
-                <i class="glyphicon glyphicon-chevron-up lightgray"
-                   ng-show="isRepoPanelShowing"></i>
+            <span class="pull-right">
+                <span class="btn btn-view-nav"
+                      ng-class="{'active': (isRepoPanelShowing)}"
+                      ng-click="isRepoPanelShowing=!isRepoPanelShowing"><span>repos</span>
+                    <i class="glyphicon glyphicon-chevron-down lightgray"
+                       ng-hide="isRepoPanelShowing"></i>
+                    <i class="glyphicon glyphicon-chevron-up lightgray"
+                       ng-show="isRepoPanelShowing"></i>
+                </span>
+                <span class="btn btn-view-nav"
+                      ng-class="{'active': (isFilterPanelShowing)}"
+                      ng-click="isFilterPanelShowing=!isFilterPanelShowing"><span>filters</span>
+                    <i class="glyphicon glyphicon-chevron-down lightgray"
+                       ng-hide="isFilterPanelShowing"></i>
+                    <i class="glyphicon glyphicon-chevron-up lightgray"
+                       ng-show="isFilterPanelShowing"></i>
+                </span>
+                <a class="btn btn-view-nav" href="help.html" target="_blank">help</a>
+                <span class="nav-text white th-username">{{user.email}}</span>
+                <persona-buttons></persona-buttons>
             </span>
-            <span class="btn btn-view-nav"
-                  ng-class="{'active': (isFilterPanelShowing)}"
-                  ng-click="isFilterPanelShowing=!isFilterPanelShowing"><span>filters</span>
-                <i class="glyphicon glyphicon-chevron-down lightgray"
-                   ng-hide="isFilterPanelShowing"></i>
-                <i class="glyphicon glyphicon-chevron-up lightgray"
-                   ng-show="isFilterPanelShowing"></i>
-            </span>
-            <a class="btn btn-view-nav" href="help.html" target="_blank">help</a>
-            <span class="nav-text white th-username">{{user.email}}</span>
-            <persona-buttons></persona-buttons>
-        </span>
 
+        </div>
+        <ng-include src="'partials/thWatchedRepoPanel.html'" ng-show="locationPath==='jobs'">
+        </ng-include>
     </div>
-    <th-watched-repo-panel ng-show="locationPath==='jobs'"></th-watched-repo-panel>
-    </div>
-    <div ng-show="isFilterPanelShowing">
-        <th-filter-panel></th-filter-panel>
-    </div>
-    <th-repo-panel ng-show="isRepoPanelShowing"></th-repo-panel>
+    <ng-include src="'partials/thFilterPanel.html'" ng-show="isFilterPanelShowing"></ng-include>
+    <ng-include src="'partials/thRepoPanel.html'" ng-show="isRepoPanelShowing"></ng-include>
 </nav>

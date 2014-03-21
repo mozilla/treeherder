@@ -1,0 +1,8 @@
+    <span ng-class="{'active': name===repoName}"
+          ng-click="changeRepo(name)"
+          ng-show="repoData.isWatched"
+          type="button"
+          title="{{titleText}}"
+          class="btn btn-sm btn-view-nav">
+          <i class="fa {{statusIcon}} {{statusColor}}"></i> {{name}}
+            <span class="badge" ng-show="repoData.unclassifiedFailureCount > 0">{{repoData.unclassifiedFailureCount}}</span></span>

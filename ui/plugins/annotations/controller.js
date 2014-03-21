@@ -3,7 +3,9 @@
 treeherder.controller('AnnotationsPluginCtrl',
     function AnnotationsPluginCtrl($scope, $rootScope, $log, ThJobClassificationModel,
                                    thNotify, thEvents, ThResultSetModel, ThBugJobMapModel) {
-        $log.debug("annotations plugin initialized");
+        var logId = this.constructor.name;
+
+        $log.debug(logId, "annotations plugin initialized");
 
         $scope.$watch('classifications', function(newValue, oldValue){
 

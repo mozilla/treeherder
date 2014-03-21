@@ -4,6 +4,7 @@ treeherder.controller('JobsCtrl',
     function JobsCtrl($scope, $http, $rootScope, $routeParams, $log, $cookies,
                       localStorageService, thUrl, ThRepositoryModel, thSocket,
                       ThResultSetModel, thResultStatusList) {
+        var logId = this.constructor.name;
 
         // load our initial set of resultsets
         // scope needs this function so it can be called directly by the user, too.
@@ -44,6 +45,8 @@ treeherder.controller('ResultSetCtrl',
     function ResultSetCtrl($scope, $rootScope, $http, $log, $location,
                            thUrl, thServiceDomain, thResultStatusInfo,
                            ThResultSetModel, thEvents, thJobFilters, $route) {
+
+        var logId = this.constructor.name;
 
         $scope.getCountClass = function(resultStatus) {
             return thResultStatusInfo(resultStatus).btnClass;
@@ -111,8 +114,8 @@ treeherder.controller('ResultSetCtrl',
                 thEvents.resultSetFilterChanged, $scope.resultset
                 );
 
-            $log.debug("toggled: " + resultStatus);
-            $log.debug($scope.resultStatusFilters);
+            $log.debug(logId, "toggled: ", resultStatus);
+            $log.debug(logId, "resultStatusFilters", $scope.resultStatusFilters);
         };
 
         /**
@@ -135,7 +138,7 @@ treeherder.controller('ResultSetCtrl',
         $scope.isCollapsedRevisions = true;
 
         $rootScope.$on(thEvents.jobContextMenu, function(event, job){
-            $log.debug(thEvents.jobContextMenu + ' caught');
+            $log.debug(logId, "caught", thEvents.jobContextMenu);
             //$scope.viewLog(job.resource_uri);
         });
     }

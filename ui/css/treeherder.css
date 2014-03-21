@@ -59,6 +59,18 @@ body {
     overflow: auto;
 }
 
+.treeClosed {
+    color: red;
+}
+
+.treeOpen {
+    color: green;
+}
+
+.treeApproval {
+    color: yellow;
+}
+
 #platform-job-text-search-field {
     height:28px;
 }
