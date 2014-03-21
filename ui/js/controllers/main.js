@@ -2,16 +2,24 @@
 
 treeherder.controller('MainCtrl',
     function MainController($scope, $rootScope, $routeParams, $location, $log,
-                            localStorageService, thEvents, ThRepositoryModel,
-                            thPinboard, thClassificationTypes) {
+                            localStorageService, ThRepositoryModel, thPinboard,
+                            thClassificationTypes, thEvents, $window) {
 
         thClassificationTypes.load();
+        ThRepositoryModel.load();
 
         $scope.clearJob = function() {
             // setting the selectedJob to null hides the bottom panel
             $rootScope.selectedJob = null;
         };
         $scope.processKeyboardInput = function(ev){
+
+            //Only listen to key commands when the body has focus. Otherwise
+            //html input elements won't work correctly.
+            if(document.activeElement.nodeName != 'BODY'){
+                return;
+            }
+
             if( (ev.keyCode === 74) || (ev.keyCode === 78) ){
                 //Highlight next unclassified failure keys:j/n
                 $rootScope.$broadcast(
@@ -29,10 +37,8 @@ treeherder.controller('MainCtrl',
                 $rootScope.$broadcast(thEvents.jobPin, $rootScope.selectedJob);
 
             }else if(ev.keyCode === 85){
-                //toggle displaying only unclassified failures, keys:u
-                $rootScope.$broadcast(
-                    thEvents.toggleUnclassifiedFailures, $rootScope.selectedJob
-                    );
+                //display only unclassified failures, keys:u
+                $rootScope.$broadcast(thEvents.showUnclassifiedFailures);
             }
         };
 
@@ -48,15 +54,26 @@ treeherder.controller('MainCtrl',
             $scope.$apply();
         };
 
+        // the repos the user has chosen to watch
+        $scope.watchedRepos = ThRepositoryModel.watchedRepos;
+
+        $scope.getTopNavBarHeight = function() {
+            return $("th-global-top-nav-panel").find("#top-nav-main-panel").height();
+        };
+
+        // adjust the body padding so we can see all the job/resultset data
+        // if the top navbar height has changed due to window width changes
+        // or adding enough watched repos to wrap.
+        $rootScope.$watch($scope.getTopNavBarHeight, function(newValue) {
+            $("body").css("padding-top", newValue);
+        });
+
         // give the page a way to determine which nav toolbar to show
         $rootScope.$on('$locationChangeSuccess', function(ev,newUrl) {
             $rootScope.locationPath = $location.path().replace('/', '');
         });
 
         $rootScope.urlBasePath = $location.absUrl().split('?')[0];
-
-        // the repos the user has chosen to watch
-        $scope.watchedRepos = ThRepositoryModel.watchedRepos;
 
         $scope.changeRepo = function(repo_name) {
             // hide the repo panel if they chose to load one.

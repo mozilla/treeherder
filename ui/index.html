@@ -17,11 +17,6 @@
         <div class="th-content">
 
             <span class="th-view-content" ng-cloak>
-                <div class="alert"
-                     ng-bind="statusMsg"
-                     ng-show="statusMsg"
-                     ng-class="{'alert-success': (statusColor=='green'), 'alert-error': (statusColor=='red')}">
-                </div>
                 <ng-view ></ng-view>
             </span>
 
@@ -46,10 +41,15 @@
         <script src="vendor/socket.io.js"></script>
         <script src="vendor/angular-local-storage.min.js"></script>
         <script src="vendor/underscore-min.js"></script>
-        <script src="js/config/local.conf.js"></script>
         <script src="js/app.js"></script>
+        <script src="js/config/local.conf.js"></script>
         <script src="js/providers.js"></script>
-        <script src="js/directives.js"></script>
+        <script src="js/directives/main.js"></script>
+        <script src="js/directives/clonejobs.js"></script>
+        <script src="js/directives/persona.js"></script>
+        <script src="js/directives/resultsets.js"></script>
+        <script src="js/directives/top_nav_bar.js"></script>
+        <script src="js/directives/bottom_nav_panel.js"></script>
         <script src="js/services/main.js"></script>
         <script src="js/services/jobfilters.js"></script>
         <script src="js/services/classifications.js"></script>

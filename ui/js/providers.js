@@ -212,8 +212,13 @@ treeherder.provider('thEvents', function() {
 
             searchPage: "search-page-EVT",
 
-            repoChanged: "repo-changed-EVT"
+            repoChanged: "repo-changed-EVT",
 
+            // throwing this event will filter jobs to only show failures
+            // that have no classification.
+            showUnclassifiedFailures: "show-unclassified-failures-EVT",
+
+            selectJob: "select-job-EVT"
         };
     };
 });
