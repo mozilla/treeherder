@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 import uuid
 import subprocess
 import os
-import MySQLdb
 
 from datasource.bases.BaseHub import BaseHub
 from datasource.hubs.MySQL import MySQL
@@ -183,7 +182,7 @@ class DatasourceManager(models.Manager):
 
 class Datasource(models.Model):
     id = models.AutoField(primary_key=True)
-    project = models.CharField(max_length=25L)
+    project = models.CharField(max_length=50L)
     contenttype = models.CharField(max_length=25L)
     dataset = models.IntegerField()
     host = models.CharField(max_length=128L)
@@ -276,6 +275,9 @@ class Datasource(models.Model):
             if self.contenttype == 'objectstore':
                 self.oauth_consumer_key = uuid.uuid4()
                 self.oauth_consumer_secret = uuid.uuid4()
+
+        # validate the model before saving
+        self.full_clean()
 
         super(Datasource, self).save(*args, **kwargs)
         if inserting:
