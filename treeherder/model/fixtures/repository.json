@@ -603,7 +603,7 @@
     "model": "model.repository",
     "fields": {
         "dvcs_type": "git",
-        "name": "taskcluster-integration-tests",
+        "name": "taskcluster-integration",
         "url": "https://github.com/taskcluster/github-graph-example",
         "active_status": "active",
         "codebase": "taskcluster",
