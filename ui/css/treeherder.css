@@ -182,6 +182,15 @@ body {
     min-width: 225px;
 }
 
+.th-repo-group-items .dropdown-menu {
+    top: inherit;
+    left: inherit;
+}
+
+.th-repo-group-items .dropdown-toggle {
+    cursor: pointer;
+}
+
 /**
   Failures
 */

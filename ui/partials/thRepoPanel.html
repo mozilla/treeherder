@@ -19,13 +19,12 @@
                 <a href="" class="repo-link"
                       ng-click="changeRepo(repo.name)">{{repo.name}}
                 </a>
-                <button class="btn btn-sm btn-view-nav dropdown-toggle"
+                <span class="dropdown-toggle"
                         data-toggle="dropdown"
                         title="{{repo.name}} info"
-                        type="button"
                         ng-click="setDropDownPull($event)">
                     <span class="fa fa-caret-down"></span>
-                </button>
+                </span>
                 <th-repo-drop-down name="{{repo.name}}"></th-repo-drop-down>
             </span>
         </div>
