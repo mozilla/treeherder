@@ -12,7 +12,7 @@
         <link href="css/persona-buttons.css" rel="stylesheet" media="screen">
 
     </head>
-    <body ng-controller="MainCtrl">
+    <body ng-controller="MainCtrl" ng-keydown="processKeyboardInput($event)">
         <ng-include id="th-global-top-nav-panel" src="'partials/thGlobalTopNavPanel.html'"></ng-include>
         <div class="th-content">
 
@@ -30,12 +30,12 @@
 
         <th-notification-box></th-notification-box>
 
+        <script src="vendor/jquery-2.0.3.js"></script>
         <script src="vendor/angular/angular.js"></script>
         <script src="vendor/angular/angular-route.js"></script>
         <script src="vendor/angular/angular-resource.js"></script>
         <script src="vendor/angular/angular-cookies.js"></script>
         <script src="vendor/ui-bootstrap-tpls-0.10.0.min.js"></script>
-        <script src="vendor/jquery-2.0.3.js"></script>
         <script src="vendor/bootstrap.js"></script>
         <script src="vendor/angular/angular-sanitize.min.js"></script>
         <script src="vendor/socket.io.js"></script>
@@ -140,7 +140,7 @@
 
 <!-- Job Btn span -->
 <script type="'text/ng-template'" id="jobBtnClone.html">
-    <span style="margin-right:1px;" class="btn job-btn btn-xs {{ btnClass }}" data-jmkey="{{ key }}" title="{{ title }}">{{ value }}</span>
+    <span style="margin-right:1px;" class="btn job-btn btn-xs {{ btnClass }} {{ key }}" data-jmkey="{{ key }}" title="{{ title }}">{{ value }}</span>
 </script>
 
 

@@ -204,13 +204,21 @@ treeherder.provider('thEvents', function() {
 
             toggleJobs: "toggle-jobs-EVT",
 
+            toggleUnclassifiedFailures: "toggle-unclassified-failures-EVT",
+
+            selectNextUnclassifiedFailure: "next-unclassified-failure-EVT",
+
+            selectPreviousUnclassifiedFailure: "previous-unclassified-failure-EVT",
+
             searchPage: "search-page-EVT",
 
             repoChanged: "repo-changed-EVT",
 
             // throwing this event will filter jobs to only show failures
             // that have no classification.
-            showUnclassifiedFailures: "show-unclassified-failures-EVT"
+            showUnclassifiedFailures: "show-unclassified-failures-EVT",
+
+            selectJob: "select-job-EVT"
         };
     };
 });

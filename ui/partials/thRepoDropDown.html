@@ -1,0 +1,39 @@
+    <ul class="dropdown-menu" role="menu">
+        <li ng-show="message_of_the_day" class="watched-repo-dropdown-item">
+            <span ng-bind-html="message_of_the_day"></span>
+        </li>
+        <li ng-show="reason" class="watched-repo-dropdown-item">
+            <span ng-bind-html="reason"></span>
+        </li>
+
+        <li class="divider" ng-show="reason || message_of_the_day"></li>
+
+        <li class="watched-repo-dropdown-item">
+            <span class="lightgray">Sherrif</span>
+            <a href="irc://irc.mozilla.org/#developers" target="_blank">#developers</a>
+        </li>
+
+        <li class="watched-repo-dropdown-item">
+            <span class="lightgray">Buildduty</span>
+            <a href="https://www.google.com/calendar/embed?src=aelh98g866kuc80d5nbfqo6u54%40group.calendar.google.com" target="_blank">Schedule</a>
+        </li>
+
+        <li class="watched-repo-dropdown-item">
+            <span class="lightgray">Admin: </span>
+            <a href="#" id="adminUILink">Adjust Hidden Builders</a>
+        </li>
+        <li class="watched-repo-dropdown-item">
+            <a href="https://treestatus.mozilla.org/" target="_blank">Tree Status</a>
+        </li>
+
+        <li class="watched-repo-dropdown-item">
+            <span class="lightgray">Pushlog: </span>
+            <a href="{{pushlog}}" target="_blank">{{name}}</a>
+        </li>
+
+        <li class="watched-repo-dropdown-item">
+            <span class="lightgray">Clobberer: </span>
+            <a href="https://secure.pub.build.mozilla.org/clobberer/?branch={{name}}" target="_blank">{{name}}</a>
+        </li>
+
+    </ul>

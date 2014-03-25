@@ -142,3 +142,10 @@ treeherder.directive('thSimilarJobs', function(ThJobModel, $log){
         }
     };
 });
+
+treeherder.directive('thPinboardPanel', function(){
+    return {
+        restrict: "E",
+        templateUrl: "partials/thPinboardPanel.html"
+    };
+});

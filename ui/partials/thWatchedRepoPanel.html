@@ -1,8 +1,6 @@
-<div class="th-context-navbar" >
-    <span ng-repeat="(name, repoData) in watchedRepos">
-        <th-watched-repo></th-watched-repo>
-    </span>
-    <span class="pull-right">
+<div class="th-context-navbar watched-repo-navbar clearfix" >
+    <th-watched-repo ng-repeat="(name, repoData) in watchedRepos"></th-watched-repo>
+    <span class="navbar-right">
         <span>
             <form role="search" class="form-inline">
                 <span class="label label-primary"><span ng-bind="pinboardCount.numPinnedJobs"></span> pinned jobs</span>
