@@ -1,9 +1,9 @@
 'use strict';
 
 treeherder.factory('ThRepositoryModel',
-                   function($http, thUrl, $rootScope, $log, localStorageService,
+                   function($http, thUrl, $rootScope, ThLog, localStorageService,
                             thSocket, treeStatus) {
-    var logId = "ThRepositoryModel";
+    var thLog = new ThLog("ThRepositoryModel");
 
     var new_failures = {};
     var watchedRepos = {};
@@ -14,7 +14,7 @@ treeherder.factory('ThRepositoryModel',
             new_failures[msg.branch] = [];
         }
         new_failures[msg.branch].push(msg.id);
-        $log.debug(logId, "new failure on branch ", msg.branch);
+        thLog.debug("new failure on branch ", msg.branch);
     });
 
     // get the repositories (aka trees)
@@ -28,9 +28,9 @@ treeherder.factory('ThRepositoryModel',
                 }
             }
         } else {
-            $log.warn("Repos list has not been loaded.");
+            thLog.warn("Repos list has not been loaded.");
         }
-        $log.warn("'" + name + "' not found in repos list.");
+        thLog.warn("'" + name + "' not found in repos list.");
         return null;
     };
 
@@ -71,7 +71,7 @@ treeherder.factory('ThRepositoryModel',
             treeStatus.get(repoName).then(function(data) {
                 watchedRepos[repoName].treeStatus = data.data;
             });
-            $log.debug(logId, "watchedRepo", watchedRepos[repoName]);
+            thLog.debug("watchedRepo", watchedRepos[repoName]);
         }
     };
 

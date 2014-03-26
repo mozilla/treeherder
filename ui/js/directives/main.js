@@ -31,7 +31,7 @@ treeherder.directive('focusMe', function($timeout) {
   };
 });
 
-treeherder.directive('thNotificationBox', function($log, thNotify){
+treeherder.directive('thNotificationBox', function(thNotify){
     return {
         restrict: "E",
         templateUrl: "partials/thNotificationsBox.html",

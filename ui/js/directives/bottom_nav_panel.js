@@ -71,7 +71,7 @@ treeherder.directive('thFailureClassification', function ($parse, thClassificati
     };
 });
 
-treeherder.directive('resizablePanel', function($document, $log) {
+treeherder.directive('resizablePanel', function($document, ThLog) {
     return {
         restrict: "E",
         link: function(scope, element, attr) {
@@ -112,7 +112,7 @@ treeherder.directive('resizablePanel', function($document, $log) {
     };
 });
 
-treeherder.directive('thSimilarJobs', function(ThJobModel, $log){
+treeherder.directive('thSimilarJobs', function(ThJobModel, ThLog){
     return {
         restrict: "E",
         templateUrl: "partials/similar_jobs.html",

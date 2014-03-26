@@ -2,9 +2,9 @@
 
 treeherder.factory('thPinboard',
                    function($http, thUrl, ThJobClassificationModel, $rootScope,
-                            thEvents, ThBugJobMapModel, thNotify, $log) {
+                            thEvents, ThBugJobMapModel, thNotify, ThLog) {
 
-    var logId = "thPinboard";
+    var thLog = new ThLog("thPinboard");
 
     var pinnedJobs = {};
     var relatedBugs = {};
@@ -68,7 +68,7 @@ treeherder.factory('thPinboard',
         },
 
         addBug: function(bug) {
-            $log.debug(logId, "adding bug ", bug);
+            thLog.debug("adding bug ", bug);
             relatedBugs[bug.id] = bug;
             api.count.numRelatedBugs = _.size(relatedBugs);
         },

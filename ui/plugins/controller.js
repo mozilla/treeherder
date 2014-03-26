@@ -4,7 +4,7 @@ treeherder.controller('PluginCtrl',
     function PluginCtrl($scope, $rootScope, thUrl, ThJobClassificationModel,
                         thClassificationTypes, ThJobModel, thEvents, dateFilter,
                         numberFilter, ThBugJobMapModel, thResultStatus, thSocket,
-                        ThResultSetModel, $log) {
+                        ThResultSetModel, ThLog) {
 
         $scope.job = {};
 

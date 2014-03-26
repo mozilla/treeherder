@@ -1,6 +1,6 @@
 'use strict';
 
-treeherder.factory('ThJobModel', function($http, $log, thUrl) {
+treeherder.factory('ThJobModel', function($http, ThLog, thUrl) {
     // ThJobModel is the js counterpart of job
 
     var ThJobModel = function(data) {

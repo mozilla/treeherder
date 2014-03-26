@@ -1,12 +1,12 @@
 "use strict";
 
 treeherder.controller('SimilarJobsPluginCtrl',
-    function SimilarJobsPluginCtrl($scope, $log, $rootScope, ThJobModel, thResultStatusInfo, thEvents,
+    function SimilarJobsPluginCtrl($scope, ThLog, $rootScope, ThJobModel, thResultStatusInfo, thEvents,
                                    numberFilter, dateFilter, thClassificationTypes, thResultStatus,
                                    ThJobArtifactModel) {
-        var logId = this.constructor.name;
+        var thLog = new ThLog(this.constructor.name);
 
-        $log.debug(logId, "similar jobs plugin initialized");
+        thLog.debug("similar jobs plugin initialized");
 
         // do the jobs retrieval based on the user selection
         $scope.get_similar_jobs = function(){
@@ -18,9 +18,9 @@ treeherder.controller('SimilarJobsPluginCtrl',
                         options[key] = $scope.job[key];
                     }
                 });
-                $log.log(options);
+                thLog.log(options);
                 ThJobModel.get_list(options).then(function(data){
-                    $log.log(data);
+                    thLog.log(data);
                     $scope.similar_jobs = data;
                 });
         };

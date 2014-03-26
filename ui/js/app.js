@@ -11,7 +11,7 @@ window.PushlogJSONParser = "None";
 
 treeherder.config(function($routeProvider, $httpProvider, $logProvider) {
 
-    // enable or disable debug messages using $log.
+    // enable or disable debug messages using thLog.
     // comment out the next line to enable them
     $logProvider.debugEnabled(false);
 

@@ -11,8 +11,8 @@ treeherder.directive('thFilterCheckbox', function (thResultStatusInfo) {
     };
 });
 
-treeherder.directive('thWatchedRepo', function ($log, ThRepositoryModel) {
-    var logId = "thWatchedRepo";
+treeherder.directive('thWatchedRepo', function (ThLog, ThRepositoryModel) {
+    var thLog = new ThLog("thWatchedRepo");
 
     var statusInfo = {
         "open": {
@@ -32,11 +32,11 @@ treeherder.directive('thWatchedRepo', function ($log, ThRepositoryModel) {
     return {
         restrict: "E",
         link: function(scope, element, attrs) {
-            $log.debug(logId, "repoData", scope.repoData);
+            thLog.debug("repoData", scope.repoData);
 
             scope.$watch('repoData.treeStatus', function(newVal) {
                 if (newVal) {
-                    $log.debug(logId, "updated treeStatus", newVal.status);
+                    thLog.debug("updated treeStatus", newVal.status);
                     scope.statusIcon = statusInfo[newVal.status].icon;
                     scope.statusColor = statusInfo[newVal.status].color;
                 }
@@ -47,8 +47,8 @@ treeherder.directive('thWatchedRepo', function ($log, ThRepositoryModel) {
     };
 });
 
-treeherder.directive('thRepoDropDown', function ($log, ThRepositoryModel) {
-    var logId = "thRepoDropDown";
+treeherder.directive('thRepoDropDown', function (ThLog, ThRepositoryModel) {
+    var thLog = new ThLog("thRepoDropDown");
 
     return {
         restrict: "E",
@@ -57,7 +57,7 @@ treeherder.directive('thRepoDropDown', function ($log, ThRepositoryModel) {
 
             scope.name = attrs.name;
             var repo_obj = ThRepositoryModel.getRepo(attrs.name);
-            $log.debug(logId, "repo", repo_obj);
+            thLog.debug("repo", repo_obj);
             scope.pushlog = repo_obj.url +"/pushloghtml";
 
             scope.$watch('repoData.treeStatus', function(newVal) {

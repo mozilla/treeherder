@@ -1,7 +1,9 @@
 'use strict';
 
 logViewer.controller('LogviewerCtrl',
-    function Logviewer($anchorScroll, $scope, $log, $rootScope, $location, $http, $timeout, ThJobArtifactModel) {
+    function Logviewer($anchorScroll, $scope, ThLog, $rootScope, $location, $http, $timeout, ThJobArtifactModel) {
+
+        var thLog = new ThLog("LogviewerCtrl");
 
         var query_string = $location.search();
         if (query_string.repo !== "") {
@@ -85,7 +87,7 @@ logViewer.controller('LogviewerCtrl',
 //                            $scope.sliceLog(data.split("\n"));
 //                        });
 //                });
-            $log.log(ThJobArtifactModel.get_uri());
+            thLog.log(ThJobArtifactModel.get_uri());
             ThJobArtifactModel.get_list({job_id: $scope.job_id, name: "Structured Log"})
             .then(function(artifact_list){
                 if(artifact_list.length > 0){

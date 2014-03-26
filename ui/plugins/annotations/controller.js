@@ -1,11 +1,11 @@
 "use strict";
 
 treeherder.controller('AnnotationsPluginCtrl',
-    function AnnotationsPluginCtrl($scope, $rootScope, $log, ThJobClassificationModel,
+    function AnnotationsPluginCtrl($scope, $rootScope, ThLog, ThJobClassificationModel,
                                    thNotify, thEvents, ThResultSetModel, ThBugJobMapModel) {
-        var logId = this.constructor.name;
+        var thLog = new ThLog(this.constructor.name);
 
-        $log.debug(logId, "annotations plugin initialized");
+        thLog.debug("annotations plugin initialized");
 
         $scope.$watch('classifications', function(newValue, oldValue){
 

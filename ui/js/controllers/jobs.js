@@ -1,10 +1,10 @@
 "use strict";
 
 treeherder.controller('JobsCtrl',
-    function JobsCtrl($scope, $http, $rootScope, $routeParams, $log, $cookies,
+    function JobsCtrl($scope, $http, $rootScope, $routeParams, ThLog, $cookies,
                       localStorageService, thUrl, ThRepositoryModel, thSocket,
                       ThResultSetModel, thResultStatusList) {
-        var logId = this.constructor.name;
+        var thLog = new ThLog(this.constructor.name);
 
         // load our initial set of resultsets
         // scope needs this function so it can be called directly by the user, too.
@@ -42,11 +42,11 @@ treeherder.controller('JobsCtrl',
 
 
 treeherder.controller('ResultSetCtrl',
-    function ResultSetCtrl($scope, $rootScope, $http, $log, $location,
+    function ResultSetCtrl($scope, $rootScope, $http, ThLog, $location,
                            thUrl, thServiceDomain, thResultStatusInfo,
-                           ThResultSetModel, thEvents, thJobFilters, $route) {
+                           ThResultSetModel, thEvents, thJobFilters) {
 
-        var logId = this.constructor.name;
+        var thLog = new ThLog(this.constructor.name);
 
         $scope.getCountClass = function(resultStatus) {
             return thResultStatusInfo(resultStatus).btnClass;
@@ -71,7 +71,7 @@ treeherder.controller('ResultSetCtrl',
                             }
                         });
                     } else {
-                        $log.warn("Job had no artifacts: " + job_uri);
+                        thLog.warn("Job had no artifacts: " + job_uri);
                     }
                 });
 
@@ -114,8 +114,8 @@ treeherder.controller('ResultSetCtrl',
                 thEvents.resultSetFilterChanged, $scope.resultset
                 );
 
-            $log.debug(logId, "toggled: ", resultStatus);
-            $log.debug(logId, "resultStatusFilters", $scope.resultStatusFilters);
+            thLog.debug("toggled: ", resultStatus);
+            thLog.debug("resultStatusFilters", $scope.resultStatusFilters);
         };
 
         /**
@@ -138,7 +138,7 @@ treeherder.controller('ResultSetCtrl',
         $scope.isCollapsedRevisions = true;
 
         $rootScope.$on(thEvents.jobContextMenu, function(event, job){
-            $log.debug(logId, "caught", thEvents.jobContextMenu);
+            thLog.debug("caught", thEvents.jobContextMenu);
             //$scope.viewLog(job.resource_uri);
         });
     }

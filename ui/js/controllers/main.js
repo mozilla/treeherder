@@ -1,11 +1,11 @@
 "use strict";
 
 treeherder.controller('MainCtrl',
-    function MainController($scope, $rootScope, $routeParams, $location, $log,
+    function MainController($scope, $rootScope, $routeParams, $location, ThLog,
                             localStorageService, ThRepositoryModel, thPinboard,
                             thClassificationTypes, thEvents, $window) {
 
-        var logId = "MainCtrl";
+        var thLog = new ThLog("MainCtrl");
 
         thClassificationTypes.load();
         ThRepositoryModel.load();
@@ -79,7 +79,7 @@ treeherder.controller('MainCtrl',
          * check this each time a drop-down is invoked.
          */
         $scope.setDropDownPull = function(event) {
-            $log.debug(logId, "dropDown", event.target);
+            thLog.debug("dropDown", event.target);
             var element = event.target.offsetParent;
             if (element.offsetLeft > $scope.getWidth() / 2) {
                 $(element).find(".dropdown-menu").addClass("pull-right");
