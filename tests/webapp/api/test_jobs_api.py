@@ -39,7 +39,7 @@ def test_job_list(webapp, eleven_jobs_processed, jm):
         "job_type_symbol",
         "platform",
         "job_group_description",
-        "platform_opt",
+        "platform_option",
         "machine_platform_os",
         "build_os",
         "machine_platform_architecture",
