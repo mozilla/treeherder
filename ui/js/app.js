@@ -11,7 +11,7 @@ window.PushlogJSONParser = "None";
 
 treeherder.config(function($routeProvider, $httpProvider, $logProvider) {
 
-    // enable or disable debug messages using thLog.
+    // enable or disable debug messages using $log.
     // comment out the next line to enable them
     $logProvider.debugEnabled(false);
 
@@ -42,6 +42,5 @@ treeherder.config(function($routeProvider, $httpProvider, $logProvider) {
         }).
         otherwise({redirectTo: '/jobs'});
 });
-
 
 var logViewer = angular.module('logViewer',['treeherder']);

@@ -3,7 +3,7 @@
 treeherder.controller('PinboardCtrl',
     function PinboardCtrl($scope, $rootScope, thEvents, thPinboard, thNotify, ThLog) {
 
-        var thLog = new ThLog(this.constructor.name);
+        var $log = new ThLog(this.constructor.name);
 
         $rootScope.$on(thEvents.jobPin, function(event, job) {
             $scope.pinJob(job);
@@ -78,7 +78,7 @@ treeherder.controller('PinboardCtrl',
         };
 
         $scope.saveEnteredBugNumber = function() {
-            thLog.debug("new bug number to be saved: ", $scope.newEnteredBugNumber);
+            $log.debug("new bug number to be saved: ", $scope.newEnteredBugNumber);
             thPinboard.addBug({id:$scope.newEnteredBugNumber});
             $scope.newEnteredBugNumber = null;
             $scope.toggleEnterBugNumber();

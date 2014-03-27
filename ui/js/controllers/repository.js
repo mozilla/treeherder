@@ -3,12 +3,12 @@
 treeherder.controller('RepositoryPanelCtrl',
     function RepositoryPanelCtrl($scope, $rootScope, $routeParams, $location, ThLog,
                             localStorageService, ThRepositoryModel, thSocket) {
-        var thLog = new ThLog(this.constructor.name);
+        var $log = new ThLog(this.constructor.name);
 
         for (var repo in $scope.watchedRepos) {
             if($scope.watchedRepos[repo]){
                 thSocket.emit('subscribe', repo+".job_failure");
-                thLog.debug("subscribing to "+repo+".job_failure");
+                $log.debug("subscribing to "+repo+".job_failure");
             }
         }
         $scope.toggleRepo = function(repoName) {

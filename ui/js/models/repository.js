@@ -3,18 +3,19 @@
 treeherder.factory('ThRepositoryModel',
                    function($http, thUrl, $rootScope, ThLog, localStorageService,
                             thSocket, treeStatus) {
-    var thLog = new ThLog("ThRepositoryModel");
+    var $log = new ThLog("ThRepositoryModel");
 
     var new_failures = {};
     var watchedRepos = {};
     var repoStatus = {};
+    var currentRepo = "mozilla-central";
 
     thSocket.on('job_failure', function(msg){
         if (! new_failures.hasOwnProperty(msg.branch)){
             new_failures[msg.branch] = [];
         }
         new_failures[msg.branch].push(msg.id);
-        thLog.debug("new failure on branch ", msg.branch);
+        $log.debug("new failure on branch ", msg.branch);
     });
 
     // get the repositories (aka trees)
@@ -28,9 +29,9 @@ treeherder.factory('ThRepositoryModel',
                 }
             }
         } else {
-            thLog.warn("Repos list has not been loaded.");
+            $log.warn("Repos list has not been loaded.");
         }
-        thLog.warn("'" + name + "' not found in repos list.");
+        $log.warn("'" + name + "' not found in repos list.");
         return null;
     };
 
@@ -71,7 +72,7 @@ treeherder.factory('ThRepositoryModel',
             treeStatus.get(repoName).then(function(data) {
                 watchedRepos[repoName].treeStatus = data.data;
             });
-            thLog.debug("watchedRepo", watchedRepos[repoName]);
+            $log.debug("watchedRepo", watchedRepos[repoName]);
         }
     };
 
@@ -103,7 +104,9 @@ treeherder.factory('ThRepositoryModel',
 
     var setCurrent = function(name) {
         $rootScope.currentRepo = getByName(name);
-        watchedRepos[name] = true;
+//        watchedRepos[name].isWatched = true;
+        $log.debug("repoModel", "setCurrent", name, "watchedRepos", watchedRepos);
+        watchedReposUpdated();
     };
 
     var repo_has_failures = function(repo_name){

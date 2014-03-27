@@ -6,7 +6,7 @@ treeherder.directive('thCloneJobs', function(
         thResultStatusInfo, thEvents, thAggregateIds, thJobFilters,
         thResultStatusObject, ThResultSetModel){
 
-    var thLog = new ThLog("thCloneJobs");
+    var $log = new ThLog("thCloneJobs");
 
     var lastJobElSelected, lastJobObjSelected;
 
@@ -143,7 +143,7 @@ treeherder.directive('thCloneJobs', function(
                         }
                     });
                 } else {
-                    thLog.warn("Job had no artifacts: " + job.resource_uri);
+                    $log.warn("Job had no artifacts: " + job.resource_uri);
                 }
             });
     };

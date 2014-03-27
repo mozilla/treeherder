@@ -5,7 +5,7 @@ treeherder.controller('MainCtrl',
                             localStorageService, ThRepositoryModel, thPinboard,
                             thClassificationTypes, thEvents, $window) {
 
-        var thLog = new ThLog("MainCtrl");
+        var $log = new ThLog("MainCtrl");
 
         thClassificationTypes.load();
         ThRepositoryModel.load();
@@ -79,7 +79,7 @@ treeherder.controller('MainCtrl',
          * check this each time a drop-down is invoked.
          */
         $scope.setDropDownPull = function(event) {
-            thLog.debug("dropDown", event.target);
+            $log.debug("dropDown", event.target);
             var element = event.target.offsetParent;
             if (element.offsetLeft > $scope.getWidth() / 2) {
                 $(element).find(".dropdown-menu").addClass("pull-right");

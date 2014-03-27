@@ -4,7 +4,7 @@ treeherder.controller('JobsCtrl',
     function JobsCtrl($scope, $http, $rootScope, $routeParams, ThLog, $cookies,
                       localStorageService, thUrl, ThRepositoryModel, thSocket,
                       ThResultSetModel, thResultStatusList) {
-        var thLog = new ThLog(this.constructor.name);
+        var $log = new ThLog(this.constructor.name);
 
         // load our initial set of resultsets
         // scope needs this function so it can be called directly by the user, too.
@@ -46,7 +46,7 @@ treeherder.controller('ResultSetCtrl',
                            thUrl, thServiceDomain, thResultStatusInfo,
                            ThResultSetModel, thEvents, thJobFilters) {
 
-        var thLog = new ThLog(this.constructor.name);
+        var $log = new ThLog(this.constructor.name);
 
         $scope.getCountClass = function(resultStatus) {
             return thResultStatusInfo(resultStatus).btnClass;
@@ -71,7 +71,7 @@ treeherder.controller('ResultSetCtrl',
                             }
                         });
                     } else {
-                        thLog.warn("Job had no artifacts: " + job_uri);
+                        $log.warn("Job had no artifacts: " + job_uri);
                     }
                 });
 
@@ -114,8 +114,8 @@ treeherder.controller('ResultSetCtrl',
                 thEvents.resultSetFilterChanged, $scope.resultset
                 );
 
-            thLog.debug("toggled: ", resultStatus);
-            thLog.debug("resultStatusFilters", $scope.resultStatusFilters);
+            $log.debug("toggled: ", resultStatus);
+            $log.debug("resultStatusFilters", $scope.resultStatusFilters);
         };
 
         /**
@@ -138,7 +138,7 @@ treeherder.controller('ResultSetCtrl',
         $scope.isCollapsedRevisions = true;
 
         $rootScope.$on(thEvents.jobContextMenu, function(event, job){
-            thLog.debug("caught", thEvents.jobContextMenu);
+            $log.debug("caught", thEvents.jobContextMenu);
             //$scope.viewLog(job.resource_uri);
         });
     }

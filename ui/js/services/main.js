@@ -23,11 +23,11 @@ treeherder.factory('thUrl',['$rootScope', 'thServiceDomain', 'ThLog', function($
 }]);
 
 treeherder.factory('thSocket', function ($rootScope, ThLog, thUrl) {
-    var thLog = new ThLog("thSocket");
+    var $log = new ThLog("thSocket");
 
     var socket = io.connect(thUrl.getSocketEventUrl());
     socket.on('connect', function () {
-        thLog.debug('socketio connected');
+        $log.debug('socketio connected');
     });
     return {
         on: function (eventName, callback) {
@@ -185,7 +185,7 @@ treeherder.factory('BrowserId', function($http, $q, ThLog,  thServiceDomain){
 treeherder.factory('thNotify', function($timeout, ThLog){
     //a growl-like notification system
 
-    var thLog = new ThLog("thNotify");
+    var $log = new ThLog("thNotify");
 
     var thNotify =  {
         // message queue
@@ -198,7 +198,7 @@ treeherder.factory('thNotify', function($timeout, ThLog){
         * after a while or not
         */
         send: function(message, severity, sticky){
-            thLog.debug("received message", message);
+            $log.debug("received message", message);
             var severity = severity || 'info';
             var sticky = sticky || false;
             thNotify.notifications.push({

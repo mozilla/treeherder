@@ -3,9 +3,9 @@
 treeherder.controller('BugsPluginCtrl',
     function BugsPluginCtrl($scope, $rootScope, ThLog, ThJobArtifactModel,
                             ThBugJobMapModel, ThJobClassificationModel, thNotify, $modal) {
-        var thLog = new ThLog(this.constructor.name);
+        var $log = new ThLog(this.constructor.name);
 
-        thLog.debug("bugs plugin initialized");
+        $log.debug("bugs plugin initialized");
 
         var update_bugs = function(newValue, oldValue){
             $scope.bugs = {};

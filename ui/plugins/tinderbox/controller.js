@@ -2,9 +2,9 @@
 
 treeherder.controller('TinderboxPluginCtrl',
     function TinderboxPluginCtrl($scope, $rootScope, ThLog, ThJobArtifactModel) {
-        var thLog = new ThLog(this.constructor.name);
+        var $log = new ThLog(this.constructor.name);
 
-        thLog.debug("Tinderbox plugin initialized");
+        $log.debug("Tinderbox plugin initialized");
         var update_job_info = function(newValue, oldValue){
             $scope.tinderbox_lines = [];
             $scope.tinderbox_lines_parsed = [];
