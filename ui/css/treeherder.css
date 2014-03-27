@@ -46,9 +46,6 @@ body {
 }
 
 .watched-repo-dropdown-item {
-    /*z-index: 1100;*/
-    /*overflow: visible;*/
-    /*width: 250px;*/
     margin: 0px 10px;
 }
 .watched-repo-dropdown-item > a {
