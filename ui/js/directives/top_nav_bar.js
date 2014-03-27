@@ -32,7 +32,6 @@ treeherder.directive('thWatchedRepo', function (ThLog, ThRepositoryModel) {
     return {
         restrict: "E",
         link: function(scope, element, attrs) {
-            $log.debug("repoData", scope.repoData);
 
             scope.$watch('repoData.treeStatus', function(newVal) {
                 if (newVal) {
@@ -57,11 +56,11 @@ treeherder.directive('thRepoDropDown', function (ThLog, ThRepositoryModel) {
 
             scope.name = attrs.name;
             var repo_obj = ThRepositoryModel.getRepo(attrs.name);
-            $log.debug("repo", repo_obj);
             scope.pushlog = repo_obj.url +"/pushloghtml";
 
             scope.$watch('repoData.treeStatus', function(newVal) {
                 if (newVal) {
+                    $log.debug("updated treeStatus", repo_obj, newVal);
                     scope.reason = newVal.reason;
                     scope.message_of_the_day = newVal.message_of_the_day;
                 }

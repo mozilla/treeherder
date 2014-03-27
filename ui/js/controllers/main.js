@@ -3,7 +3,7 @@
 treeherder.controller('MainCtrl',
     function MainController($scope, $rootScope, $routeParams, $location, ThLog,
                             localStorageService, ThRepositoryModel, thPinboard,
-                            thClassificationTypes, thEvents, $window) {
+                            thClassificationTypes, thEvents, $interval) {
 
         var $log = new ThLog("MainCtrl");
 
@@ -59,6 +59,9 @@ treeherder.controller('MainCtrl',
 
         // the repos the user has chosen to watch
         $scope.watchedRepos = ThRepositoryModel.watchedRepos;
+
+        // update the repo status (treestatus) in an interval of every 2 minutes
+        $interval(ThRepositoryModel.updateAllWatchedRepoTreeStatus, 2 * 60 * 1000);
 
         $scope.getTopNavBarHeight = function() {
             return $("#th-global-top-nav-panel").find("#top-nav-main-panel").height();

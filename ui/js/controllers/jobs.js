@@ -19,8 +19,9 @@ treeherder.controller('JobsCtrl',
         } else {
             $rootScope.repoName = "mozilla-inbound";
         }
-        ThRepositoryModel.setCurrent($rootScope.repoName);
 
+        // load the list of repos into $rootScope, and set the current repo.
+        ThRepositoryModel.load($scope.repoName);
 
         ThResultSetModel.addRepository($scope.repoName);
 
@@ -28,9 +29,6 @@ treeherder.controller('JobsCtrl',
         $scope.result_sets = ThResultSetModel.getResultSetsArray($scope.repoName);
         $scope.job_map = ThResultSetModel.getJobMap($scope.repoName);
         $scope.statusList = thResultStatusList;
-
-        // load the list of repos into $rootScope, and set the current repo.
-        ThRepositoryModel.load($scope.repoName);
 
         if(ThResultSetModel.isNotLoaded($scope.repoName)){
             // get our first set of resultsets

@@ -13,7 +13,7 @@ treeherder.controller('RepositoryPanelCtrl',
         }
         $scope.toggleRepo = function(repoName) {
             $scope.watchedRepos[repoName].isWatched = !$scope.watchedRepos[repoName].isWatched;
-            ThRepositoryModel.watchedReposUpdated();
+            ThRepositoryModel.watchedReposUpdated(repoName);
         };
     }
 );
