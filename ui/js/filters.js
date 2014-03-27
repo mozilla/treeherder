@@ -28,7 +28,8 @@ treeherder.filter('platformName', function() {
 
 treeherder.filter('stripHtml', function() {
     return function(input) {
-        return input.replace(/<\/?[^>]+>/gi, '');
+        var str = input || '';
+        return str.replace(/<\/?[^>]+>/gi, '');
     };
 })
 
