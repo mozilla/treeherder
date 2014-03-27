@@ -1,11 +1,6 @@
-<div class="th-context-navbar" >
-    <span ng-repeat="(repo, isVisible) in watchedRepos"
-          ng-class="{'active': repo===repoName}"
-          ng-click="changeRepo(repo)"
-          ng-show="isVisible"
-          type="button"
-          class="btn btn-sm btn-view-nav">{{repo}} <span class="badge" ng-show="failures[repo] > 0">{{failures[repo]}}</span></span>
-    <span class="pull-right">
+<div class="th-context-navbar watched-repo-navbar clearfix" >
+    <th-watched-repo ng-repeat="(name, repoData) in watchedRepos"></th-watched-repo>
+    <span class="navbar-right">
         <span>
             <form role="search" class="form-inline">
                 <span class="label label-primary"><span ng-bind="pinboardCount.numPinnedJobs"></span> pinned jobs</span>

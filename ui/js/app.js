@@ -43,5 +43,4 @@ treeherder.config(function($routeProvider, $httpProvider, $logProvider) {
         otherwise({redirectTo: '/jobs'});
 });
 
-
 var logViewer = angular.module('logViewer',['treeherder']);

@@ -25,3 +25,11 @@ treeherder.filter('platformName', function() {
             return name;
     };
 })
+
+treeherder.filter('stripHtml', function() {
+    return function(input) {
+        var str = input || '';
+        return str.replace(/<\/?[^>]+>/gi, '');
+    };
+})
+

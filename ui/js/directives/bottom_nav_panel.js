@@ -1,13 +1,6 @@
 'use strict';
 
 
-treeherder.directive('thPinboardPanel', function(){
-    return {
-        restrict: "E",
-        templateUrl: "partials/thPinboardPanel.html"
-    };
-});
-
 treeherder.directive('thPinnedJob', function (thResultStatusInfo) {
 
     var getHoverText = function(job) {
@@ -78,7 +71,7 @@ treeherder.directive('thFailureClassification', function ($parse, thClassificati
     };
 });
 
-treeherder.directive('resizablePanel', function($document, $log) {
+treeherder.directive('resizablePanel', function($document, ThLog) {
     return {
         restrict: "E",
         link: function(scope, element, attr) {
@@ -119,7 +112,7 @@ treeherder.directive('resizablePanel', function($document, $log) {
     };
 });
 
-treeherder.directive('thSimilarJobs', function(ThJobModel, $log){
+treeherder.directive('thSimilarJobs', function(ThJobModel, ThLog){
     return {
         restrict: "E",
         templateUrl: "partials/similar_jobs.html",
@@ -147,5 +140,12 @@ treeherder.directive('thSimilarJobs', function(ThJobModel, $log){
                 });
             };
         }
+    };
+});
+
+treeherder.directive('thPinboardPanel', function(){
+    return {
+        restrict: "E",
+        templateUrl: "partials/thPinboardPanel.html"
     };
 });

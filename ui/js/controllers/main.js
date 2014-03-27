@@ -1,9 +1,11 @@
 "use strict";
 
 treeherder.controller('MainCtrl',
-    function MainController($scope, $rootScope, $routeParams, $location, $log,
+    function MainController($scope, $rootScope, $routeParams, $location, ThLog,
                             localStorageService, ThRepositoryModel, thPinboard,
-                            thClassificationTypes, thEvents, $window) {
+                            thClassificationTypes, thEvents, $interval) {
+
+        var $log = new ThLog("MainCtrl");
 
         thClassificationTypes.load();
         ThRepositoryModel.load();
@@ -16,7 +18,7 @@ treeherder.controller('MainCtrl',
 
             //Only listen to key commands when the body has focus. Otherwise
             //html input elements won't work correctly.
-            if( (document.activeElement.nodeName != 'BODY') ||
+            if( (document.activeElement.nodeName !== 'BODY') ||
                 (ev.keyCode === 16) ){
                 return;
             }
@@ -58,8 +60,11 @@ treeherder.controller('MainCtrl',
         // the repos the user has chosen to watch
         $scope.watchedRepos = ThRepositoryModel.watchedRepos;
 
+        // update the repo status (treestatus) in an interval of every 2 minutes
+        $interval(ThRepositoryModel.updateAllWatchedRepoTreeStatus, 2 * 60 * 1000);
+
         $scope.getTopNavBarHeight = function() {
-            return $("th-global-top-nav-panel").find("#top-nav-main-panel").height();
+            return $("#th-global-top-nav-panel").find("#top-nav-main-panel").height();
         };
 
         // adjust the body padding so we can see all the job/resultset data
@@ -68,6 +73,24 @@ treeherder.controller('MainCtrl',
         $rootScope.$watch($scope.getTopNavBarHeight, function(newValue) {
             $("body").css("padding-top", newValue);
         });
+
+        /**
+         * The watched repos in the nav bar can be either on the left or the
+         * right side of the screen and the drop-down menu may get cut off
+         * if it pulls right while on the left side of the screen.
+         * And it can change any time the user re-sized the window, so we must
+         * check this each time a drop-down is invoked.
+         */
+        $scope.setDropDownPull = function(event) {
+            $log.debug("dropDown", event.target);
+            var element = event.target.offsetParent;
+            if (element.offsetLeft > $scope.getWidth() / 2) {
+                $(element).find(".dropdown-menu").addClass("pull-right");
+            } else {
+                $(element).find(".dropdown-menu").removeClass("pull-right");
+            }
+
+        };
 
         // give the page a way to determine which nav toolbar to show
         $rootScope.$on('$locationChangeSuccess', function(ev,newUrl) {
