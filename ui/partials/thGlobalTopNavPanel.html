@@ -14,6 +14,14 @@
         </span>
         <span class="pull-right">
             <span class="btn btn-view-nav"
+                  ng-class="{'active': (isSheriffPanelShowing)}"
+                  ng-click="isSheriffPanelShowing=!isSheriffPanelShowing"><span>Sheriffing</span>
+                <i class="glyphicon glyphicon-chevron-down lightgray"
+                   ng-hide="isSheriffPanelShowing"></i>
+                <i class="glyphicon glyphicon-chevron-up lightgray"
+                   ng-show="isSheriffPanelShowing"></i>
+            </span>
+            <span class="btn btn-view-nav"
                   ng-class="{'active': (isRepoPanelShowing)}"
                   ng-click="isRepoPanelShowing=!isRepoPanelShowing"><span>repos</span>
                 <i class="glyphicon glyphicon-chevron-down lightgray"
@@ -40,4 +48,5 @@
         <th-status-filter-panel></th-status-filter-panel>
     </div>
     <th-repo-panel ng-show="isRepoPanelShowing"></th-repo-panel>
+    <th-sheriff-panel ng-show="isSheriffPanelShowing"></th-sheriff-panel>
 </nav>

@@ -61,7 +61,7 @@ treeherder.factory('ThRepositoryModel',
             $log.debug("stored watchedRepos");
             $log.debug(storedWatchedRepos);
 
-            return $http.get(thUrl.getRootUrl("/repository/")).
+            return api.get_list().
                 success(function(data) {
                     $rootScope.repos = data;
                     $rootScope.groupedRepos = byGroup();
@@ -74,6 +74,12 @@ treeherder.factory('ThRepositoryModel',
                     }
                 });
         },
+        get_uri : function(){return thUrl.getRootUrl("/repository/");},
+
+        get_list: function(){
+            return $http.get(api.get_uri(), {cache: true})
+        },
+
         // return the currently selected repo
         getCurrent: function() {
             return $rootScope.currentRepo;

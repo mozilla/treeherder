@@ -1022,3 +1022,25 @@ fieldset[disabled] .btn-repo.active {
 }
 
 #notification_box button.close{position:relative; top:-2px; right:-8px; color:inherit}
+
+.add-new-filter .form-group{
+    margin-bottom: 5px;
+}
+
+.th-multi-select input[type=text]{
+    width:534px;
+}
+
+.th-multi-select select{
+    width:250px;
+    font-size: 12px;
+}
+
+.th-multi-select button{
+    width:30px;
+}
+
+.form-group-inline>.form-group{
+    display: inline-block;
+    vertical-align: top;
+}

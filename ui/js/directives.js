@@ -770,6 +770,14 @@ treeherder.directive('thRepoPanel', function () {
     };
 });
 
+treeherder.directive('thSheriffPanel', function () {
+
+    return {
+        restrict: "E",
+        templateUrl: 'partials/thSheriffPanel.html'
+    };
+});
+
 treeherder.directive('thFilterCheckbox', function (thResultStatusInfo) {
 
     return {
@@ -1191,3 +1199,32 @@ treeherder.directive('thPinboardPanel', function(){
     }
 });
 
+treeherder.directive("thMultiSelect", function($log){
+    return {
+        restrict: "E",
+        templateUrl: "partials/thMultiSelect.html",
+        scope: {
+            leftList: "=",
+            rightList: "="
+        },
+        link: function(scope, element, attrs){
+
+            scope.leftSelected = [];
+            scope.rightSelected = [];
+            // move the elements selected from one list to the other
+            var move_options = function(what, from, to){
+                for(var i=from.length-1; i--;){
+                    if(what.indexOf(from[i]) !== -1){
+                        to.push(from.splice(i,1)[0]);
+                    }
+                }
+            }
+            scope.move_left = function(){
+                move_options(scope.rightSelected, scope.rightList, scope.leftList);
+            };
+            scope.move_right = function(){
+                move_options(scope.leftSelected, scope.leftList, scope.rightList);
+            };
+        }
+    }
+})

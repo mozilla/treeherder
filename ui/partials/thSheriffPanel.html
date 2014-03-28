@@ -15,10 +15,10 @@
             Visibility Profile list
         </div>
         <div class="panel-body">
-            <table>
+            <p ng-if="profiles.length==0">No profile available.</p>
+            <table ng-if="profiles.length>0" class="table table-condensed table-bordered">
                 <tr>
                     <th>Profile name</th>
-                    <th>Enabled filters</th>
                 </tr>
                 <tr ng-repeat="profile in profiles">
                     <td>{{profile.name}}</td>
@@ -30,6 +30,7 @@
                         </ul>
                     </td>
                 </tr>
+
             </table>
             <button ng-click="switchView('vis_profile_add')" type="button" class="btn btn-sm btn-default">Add new</button>
         </div>
@@ -47,14 +48,10 @@
             <form class="form">
                 <div class="form-group-inline">
                     <div class="well form-group" ng-repeat="filter in filters">
-                            <div class="form-group">
-                                <label>Name</label>
-                                {{filter.name}}
-                            </div>
-                            <div class="form-group">
-                                <label>Description</label>
-                                {{filter.description}}
-                            </div>
+                        <ul class="list-unstyled">
+                            <li><strong>Name: </strong>{{filter.name}}</li>
+                            <li><strong>Description:</strong>{{filter.description}}</li>
+                        </ul>
                         <div class="form-group">
                             <th-multi-select left-list="form_repos" right-list="form_profile.filters[filter.name]"></th-multi-select>
                         </div>
@@ -77,7 +74,10 @@
             Job Filter list
         </div>
         <div class="panel-body">
-            <table>
+            <p ng-if="filters-length == 0">
+                No filter available
+            </p>
+            <table ng-if="filters.lenght>0" class="table table-condensed table-bordered">
                 <tr>
                     <th>Name</th><th>Description</th><th>Platform</th><th>Options</th><th>Job Type</th>
                 </tr>

@@ -7,6 +7,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=Edge">
         <!-- Bootstrap -->
         <link href="css/bootstrap.css" rel="stylesheet" media="screen">
+        <link href="css/select2.css" rel="stylesheet" media="screen">
         <link href="css/font-awesome.min.css" rel="stylesheet" media="screen">
         <link href="css/treeherder.css" rel="stylesheet" media="screen">
         <link href="css/persona-buttons.css" rel="stylesheet" media="screen">
@@ -35,17 +36,19 @@
 
         <th-notification-box></th-notification-box>
 
+        <script src="vendor/jquery-2.0.3.js"></script>
         <script src="vendor/angular/angular.js"></script>
         <script src="vendor/angular/angular-route.js"></script>
         <script src="vendor/angular/angular-resource.js"></script>
         <script src="vendor/angular/angular-cookies.js"></script>
         <script src="vendor/ui-bootstrap-tpls-0.10.0.min.js"></script>
-        <script src="vendor/jquery-2.0.3.js"></script>
+        <script src="vendor/select2.js"></script>
         <script src="vendor/bootstrap.js"></script>
         <script src="vendor/angular/angular-sanitize.min.js"></script>
         <script src="vendor/socket.io.js"></script>
         <script src="vendor/angular-local-storage.min.js"></script>
         <script src="vendor/underscore-min.js"></script>
+        <script src="vendor/ui-select2.js"></script>
         <script src="js/config/local.conf.js"></script>
         <script src="js/app.js"></script>
         <script src="js/providers.js"></script>
@@ -58,9 +61,13 @@
         <script src="js/services/models/job_artifact.js"></script>
         <script src="js/services/models/repository.js"></script>
         <script src="js/services/models/bug_job_map.js"></script>
+        <script src="js/services/models/build_platform.js"></script>
+        <script src="js/services/models/job_type.js"></script>
         <script src="js/services/models/classification.js"></script>
+        <script src="js/services/models/option.js"></script>
         <script src="js/services/models/job.js"></script>
         <script src="js/controllers/main.js"></script>
+        <script src="js/controllers/sheriff.js"></script>
         <script src="js/controllers/repository.js"></script>
         <script src="js/controllers/filters.js"></script>
         <script src="js/controllers/jobs.js"></script>
