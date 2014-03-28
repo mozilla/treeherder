@@ -1094,3 +1094,5 @@ fieldset[disabled] .btn-repo.active {
 }
 
 #notification_box button.close{position:relative; top:-2px; right:-8px; color:inherit}
+
+div.logviewer-step{ padding:6px 6px;}
