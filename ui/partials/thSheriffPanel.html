@@ -1,0 +1,141 @@
+<div class="th-top-nav-options-panel" id="sheriff_panel" ng-controller="SheriffCtrl">
+    <ul class="list-inline">
+        <li>
+            <a ng-if="view != 'vis_profile_list'" ng-click="switchView('vis_profile_list')">Visibility profiles</a>
+            <span ng-if="view =='vis_profile_list'">Visibility profiles</span>
+        </li>
+        <li>
+            <a ng-if="view != 'job_filter_list'" ng-click="switchView('job_filter_list')">Job filters</a>
+            <span ng-if="view =='job_filter_list'">Job filters profiles</span>
+        </li>
+    </ul>
+
+    <div ng-if="view == 'vis_profile_list'" class="panel panel-default th-option-group th-inline-option-group add-new-filter">
+        <div class="panel-heading th-option-heading">
+            Visibility Profile list
+        </div>
+        <div class="panel-body">
+            <table>
+                <tr>
+                    <th>Profile name</th>
+                    <th>Enabled filters</th>
+                </tr>
+                <tr ng-repeat="profile in profiles">
+                    <td>{{profile.name}}</td>
+                    <td>
+                        <ul class="list-unstyled">
+                            <li ng-repeat="(filter_name, repos) in profile.filters">
+                                {{filter_name}}:{{repos}}
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+            </table>
+            <button ng-click="switchView('vis_profile_add')" type="button" class="btn btn-sm btn-default">Add new</button>
+        </div>
+    </div>
+
+    <div ng-if="view == 'vis_profile_add'" class="panel panel-default th-option-group th-inline-option-group add-new-filter">
+        <div class="panel-heading th-option-heading">
+            New Visibility Profile
+        </div>
+        <div class="panel-body">
+            <div class="form-group">
+                <label>Name</label>
+                <input class="form-control input-sm" type="text" ng-model="form_profile.name" placeholder="Enter a name"/>
+            </div>
+            <form class="form">
+                <div class="form-group-inline">
+                    <div class="well form-group" ng-repeat="filter in filters">
+                            <div class="form-group">
+                                <label>Name</label>
+                                {{filter.name}}
+                            </div>
+                            <div class="form-group">
+                                <label>Description</label>
+                                {{filter.description}}
+                            </div>
+                        <div class="form-group">
+                            <th-multi-select left-list="form_repos" right-list="form_profile.filters[filter.name]"></th-multi-select>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="form-group-inline">
+                <div class="form-group">
+                    <button ng-click="reset_profile()" type="submit" class="btn btn-sm btn-default pull right">reset</button>
+                </div>
+                <div class="form-group">
+                    <button ng-click="save_profile()" type="submit" class="btn btn-sm btn-default pull right">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div ng-if="view == 'job_filter_list'" class="panel panel-default th-option-group th-inline-option-group add-new-filter">
+        <div class="panel-heading th-option-heading">
+            Job Filter list
+        </div>
+        <div class="panel-body">
+            <table>
+                <tr>
+                    <th>Name</th><th>Description</th><th>Platform</th><th>Options</th><th>Job Type</th>
+                </tr>
+                <tr ng-repeat="filter in filters">
+                    <td>{{filter.name}}</td>
+                    <td>{{filter.description}}</td>
+                    <td>{{filter.platforms}}</td>
+                    <td>{{filter.options}}</td>
+                    <td>{{filter.job_types}}</td>
+                </tr>
+            </table>
+            <button ng-click="switchView('job_filter_add')" type="button" class="btn btn-sm btn-default">Add new</button>
+        </div>
+        {{filters}}
+    </div>
+
+
+    <div ng-if="view == 'job_filter_add'" class="panel panel-default th-option-group th-inline-option-group add-new-filter">
+        <div class="panel-heading th-option-heading">
+            New Job Filter
+        </div>
+        <div class="panel-body">
+            <form class="form">
+                <div class="form-group-inline">
+                    <div class="form-group">
+                        <label>Platforms</label>
+                        <th-multi-select left-list="form_platforms" right-list="form_filter.platforms"></th-multi-select>
+                    </div>
+                    <div class="form-group">
+                        <label>Options</label>
+                        <th-multi-select left-list="form_options" right-list="form_filter.options"></th-multi-select>
+                    </div>
+                    <div class="form-group">
+                        <label>Job Types</label>
+                        <th-multi-select left-list="form_job_types" right-list="form_filter.job_types"></th-multi-select>
+                    </div>
+                    <div class="form-group">
+
+                        <div class="form-group">
+                            <label>Name</label>
+                            <input class="form-control input-sm" type="text" ng-model="form_filter.name" placeholder="Enter a name"/>
+                        </div>
+                        <div class="form-group">
+                            <label class="sr-only control-label">Description</label>
+                            <textarea class="form-control input-sm" ng-model="form_filter.description" placeholder="Enter a description"></textarea>
+                        </div>
+                        <div class="form-group-inline">
+                            <div class="form-group">
+                                <button ng-click="reset_filter()" type="submit" class="btn btn-sm btn-default pull right">reset</button>
+                            </div>
+                            <div class="form-group">
+                                <button ng-click="save_filter()" type="submit" class="btn btn-sm btn-default pull right">Save</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    {{profiles}}
+</div>
