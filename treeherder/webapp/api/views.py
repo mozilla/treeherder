@@ -349,7 +349,7 @@ class JobsViewSet(viewsets.ViewSet):
                 job["artifacts"].append(art)
 
             option_collections = jm.refdata_model.get_all_option_collections()
-            job["platform_opt"] = get_option(job, option_collections)
+            job["platform_option"] = get_option(job, option_collections)
 
             return Response(job)
         else:
@@ -372,7 +372,7 @@ class JobsViewSet(viewsets.ViewSet):
         if objs:
             option_collections = jm.refdata_model.get_all_option_collections()
             for job in objs:
-                job["platform_opt"] = get_option(job, option_collections)
+                job["platform_option"] = get_option(job, option_collections)
 
         return Response(objs)
 
@@ -551,7 +551,6 @@ class ResultSetViewSet(viewsets.ViewSet):
                     for job in by_job_type:
                         job["id"] = job["job_id"]
                         del(job["job_id"])
-                        del(job["result_set_id"])
                         del(job["option_collection_hash"])
 
                         job["platform_option"] = platform_option
