@@ -1,9 +1,12 @@
     <ul class="dropdown-menu" role="menu">
-        <li ng-show="message_of_the_day" class="watched-repo-dropdown-item">
-            <span ng-bind-html="message_of_the_day"></span>
-        </li>
         <li ng-show="reason" class="watched-repo-dropdown-item">
             <span ng-bind-html="reason"></span>
+        </li>
+
+        <li class="divider" ng-show="reason && message_of_the_day"></li>
+
+        <li ng-show="message_of_the_day" class="watched-repo-dropdown-item">
+            <span ng-bind-html="message_of_the_day"></span>
         </li>
 
         <li class="divider" ng-show="reason || message_of_the_day"></li>
