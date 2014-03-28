@@ -201,7 +201,7 @@ treeherder.factory('thJobFilters',
                     return false;
                 }
             }
-            if($rootScope.searchQuery !== ""){
+            if(typeof $rootScope.searchQuery === 'string'){
                 //Confirm job matches search query
                 if(job.searchableStr.toLowerCase().indexOf(
                     $rootScope.searchQuery.toLowerCase()
