@@ -234,7 +234,7 @@ treeherder.factory('ThResultSetModel',
 
             var pl_obj = {
                 name: newJob.platform,
-                option: newJob.platform_opt,
+                option: newJob.platform_option,
                 groups: []
             };
 
@@ -351,7 +351,7 @@ treeherder.factory('ThResultSetModel',
 
         resultsetId = job.result_set_id;
         platformName = job.platform;
-        platformOption = job.platform_opt;
+        platformOption = job.platform_option;
 
         if(_.isEmpty(repositories[repoName].rsMap[ resultsetId ])){
             //We don't have this resultset
@@ -362,7 +362,7 @@ treeherder.factory('ThResultSetModel',
             repoName,
             job.result_set_id,
             job.platform,
-            job.platform_opt
+            job.platform_option
             );
 
         if(!platformData[platformAggregateId]){
@@ -377,6 +377,7 @@ treeherder.factory('ThResultSetModel',
 
                 platformKey = getPlatformKey(platformName, platformOption);
 
+                $log.debug("aggregateJobPlatform", repoName, resultsetId, platformKey, repositories);
                 jobGroups = repositories[repoName].rsMap[resultsetId].platforms[platformKey].pl_obj.groups;
                 platformData[platformAggregateId] = {
                     platformName:platformName,
