@@ -301,6 +301,7 @@ body {
 .result-set .job-list-nopad {
     padding-left: 0;
     padding-right: 0;
+    display: block;
 }
 
 .selected-job {

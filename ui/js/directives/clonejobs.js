@@ -201,7 +201,7 @@ treeherder.directive('thCloneJobs', function(
             jobStatus = thResultStatusInfo(resultState);
 
             jobStatus.key = key;
-            if(parseInt(job.failure_classification_id) > 1){
+            if(parseInt(job.failure_classification_id, 10) > 1){
                 jobStatus.value = job.job_type_symbol + '*';
             }else{
                 jobStatus.value = job.job_type_symbol;
@@ -688,7 +688,7 @@ treeherder.directive('thCloneJobs', function(
                         if(startWatch){
                             if( (jobs[j].visible === true) &&
                                 (classificationRequired[jobs[j].result] === 1) &&
-                                ( (parseInt(jobs[j].failure_classification_id) === 1) ||
+                                ( (parseInt(jobs[j].failure_classification_id, 10) === 1) ||
                                   (jobs[j].failure_classification_id === null)  )){
 
                                 selectJob(jobs[j]);
@@ -739,7 +739,7 @@ treeherder.directive('thCloneJobs', function(
                         if(startWatch){
                             if( (jobs[j].visible === true) &&
                                 (classificationRequired[jobs[j].result] === 1) &&
-                                ( (parseInt(jobs[j].failure_classification_id) === 1) ||
+                                ( (parseInt(jobs[j].failure_classification_id, 10) === 1) ||
                                   (jobs[j].failure_classification_id === null)  )){
 
                                 selectJob(jobs[j]);
