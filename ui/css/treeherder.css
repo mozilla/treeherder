@@ -81,6 +81,10 @@ body {
     color: #fb9910;
 }
 
+.treeUnavailable {
+    color: lightgray;
+}
+
 #platform-job-text-search-field {
     height:28px;
 }

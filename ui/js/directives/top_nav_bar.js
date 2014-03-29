@@ -26,6 +26,10 @@ treeherder.directive('thWatchedRepo', function (ThLog, ThRepositoryModel) {
         "closed": {
             icon: "fa-times-circle",
             color: "treeClosed"
+        },
+        "unavailable": {
+            icon: "fa-chain-broken",
+            color: "treeUnavailable"
         }
     };
 

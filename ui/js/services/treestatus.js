@@ -21,10 +21,7 @@ treeherder.factory('treeStatus', function($http, $q) {
     var get = function(repoName) {
         var url = urlBase + getTreeStatusName(repoName);
 
-        return $http.get(url, {params: {format: "json"}})
-            .then(function(data) {
-                return data;
-            });
+        return $http.get(url, {params: {format: "json"}});
     };
 
     return {

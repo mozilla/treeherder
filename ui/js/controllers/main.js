@@ -60,6 +60,10 @@ treeherder.controller('MainCtrl',
         // the repos the user has chosen to watch
         $scope.watchedRepos = ThRepositoryModel.watchedRepos;
 
+        $scope.unwatchRepo = function(name) {
+            ThRepositoryModel.unwatch(name);
+        };
+
         // update the repo status (treestatus) in an interval of every 2 minutes
         $interval(ThRepositoryModel.updateAllWatchedRepoTreeStatus, 2 * 60 * 1000);
 
