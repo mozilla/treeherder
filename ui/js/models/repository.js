@@ -135,7 +135,8 @@ treeherder.factory('ThRepositoryModel',
                 }, function(data) {
                     repos[repoName].treeStatus = {
                         status: "unavailable",
-                        message_of_the_day: repoName + ' is not supported in <a href="https://treestatus.mozilla.org">treestatus.mozilla.org</a>"'
+                        message_of_the_day: repoName +
+                            ' is not supported in <a href="https://treestatus.mozilla.org">treestatus.mozilla.org</a>'
                     };
                 });
         }
