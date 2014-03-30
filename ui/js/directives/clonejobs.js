@@ -46,12 +46,17 @@ treeherder.directive('thCloneJobs', function(
         };
 
     var getHoverText = function(job) {
-        var duration = Math.round((job.end_timestamp - job.submit_timestamp) / 60);
         var jobStatus = job.result;
         if (job.state !== "completed") {
             jobStatus = job.state;
         }
-        return job.job_type_name + " - " + jobStatus + " - " + duration + "mins";
+        var result = job.job_type_name + " - " + jobStatus;
+        $log.debug("job timestamps", job, job.end_timestamp, job.submit_timestamp);
+        if (job.end_timestamp && job.submit_timestamp) {
+            var duration = Math.round((job.end_timestamp - job.submit_timestamp) / 60);
+            result = result + " - " + duration + "mins";
+        }
+        return result;
     };
 
     //Global event listeners
