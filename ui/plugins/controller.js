@@ -68,7 +68,6 @@ treeherder.controller('PluginCtrl',
          * Test whether or not the selected job is a reftest
          */
         $scope.isReftest = function() {
-            $log.debug("isReftest", $scope.selectedJob);
             if ($scope.selectedJob) {
                 return $scope.selectedJob.job_group_symbol === "R";
             } else {
