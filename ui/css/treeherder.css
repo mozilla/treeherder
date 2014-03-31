@@ -286,6 +286,8 @@ body {
     padding-top: 5px;
     width: 115px;
     display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .revision-button {
