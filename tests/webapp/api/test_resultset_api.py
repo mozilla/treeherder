@@ -1,6 +1,6 @@
 import pytest
 from django.core.urlresolvers import reverse
-from treeherder.webapp.api.views import ResultSetViewSet
+from treeherder.webapp.api.resultset import ResultSetViewSet
 
 from thclient import TreeherderResultSetCollection
 from tests import test_utils
