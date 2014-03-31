@@ -841,7 +841,6 @@ treeherder.directive('thCloneJobs', function(
                 }
             });
 
-
     };
 
     var linker = function(scope, element, attrs){
