@@ -3,7 +3,7 @@
     <button ng-class="{'active': name===repoName}"
             ng-click="changeRepo(name)"
             type="button"
-            title="{{repoData.treeStatus.message_of_the_day|stripHtml}}"
+            title="{{titleText|stripHtml}}"
             class="btn btn-sm btn-view-nav">
         <i class="fa {{statusIcon}} {{statusColor}}"></i> {{name}}
         <span class="badge"
