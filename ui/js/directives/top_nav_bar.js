@@ -1,37 +1,5 @@
 'use strict';
 
-treeherder.directive('thGlobalTopNavPanel', function () {
-
-    return {
-        restrict: "E",
-        templateUrl: 'partials/thGlobalTopNavPanel.html'
-    };
-});
-
-treeherder.directive('thWatchedRepoPanel', function () {
-
-    return {
-        restrict: "E",
-        templateUrl: 'partials/thWatchedRepoPanel.html'
-    };
-});
-
-treeherder.directive('thFilterPanel', function () {
-
-    return {
-        restrict: "E",
-        templateUrl: 'partials/thFilterPanel.html'
-    };
-});
-
-treeherder.directive('thRepoPanel', function () {
-
-    return {
-        restrict: "E",
-        templateUrl: 'partials/thRepoPanel.html'
-    };
-});
-
 treeherder.directive('thFilterCheckbox', function (thResultStatusInfo) {
 
     return {
@@ -43,3 +11,62 @@ treeherder.directive('thFilterCheckbox', function (thResultStatusInfo) {
     };
 });
 
+treeherder.directive('thWatchedRepo', function (ThLog, ThRepositoryModel) {
+    var $log = new ThLog("thWatchedRepo");
+
+    var statusInfo = {
+        "open": {
+            icon: "fa-circle-o",
+            color: "treeOpen"
+        },
+        "approval required": {
+            icon: "fa-lock",
+            color: "treeApproval"
+        },
+        "closed": {
+            icon: "fa-times-circle",
+            color: "treeClosed"
+        }
+    };
+
+    return {
+        restrict: "E",
+        link: function(scope, element, attrs) {
+
+            scope.$watch('repoData.treeStatus', function(newVal) {
+                if (newVal) {
+                    $log.debug("updated treeStatus", newVal.status);
+                    scope.statusIcon = statusInfo[newVal.status].icon;
+                    scope.statusColor = statusInfo[newVal.status].color;
+                }
+            }, true);
+
+        },
+        templateUrl: 'partials/thWatchedRepo.html'
+    };
+});
+
+treeherder.directive('thRepoDropDown', function (ThLog, ThRepositoryModel) {
+    var $log = new ThLog("thRepoDropDown");
+
+    return {
+        restrict: "E",
+        replace: true,
+        link: function(scope, element, attrs) {
+
+            scope.name = attrs.name;
+            var repo_obj = ThRepositoryModel.getRepo(attrs.name);
+            scope.pushlog = repo_obj.url +"/pushloghtml";
+
+            scope.$watch('repoData.treeStatus', function(newVal) {
+                if (newVal) {
+                    $log.debug("updated treeStatus", repo_obj, newVal);
+                    scope.reason = newVal.reason;
+                    scope.message_of_the_day = newVal.message_of_the_day;
+                }
+            }, true);
+
+        },
+        templateUrl: 'partials/thRepoDropDown.html'
+    };
+});

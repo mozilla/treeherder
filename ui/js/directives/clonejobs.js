@@ -2,9 +2,11 @@
 
 /* Directives */
 treeherder.directive('thCloneJobs', function(
-        $rootScope, $http, $log, thUrl, thCloneHtml, thServiceDomain,
+        $rootScope, $http, ThLog, thUrl, thCloneHtml, thServiceDomain,
         thResultStatusInfo, thEvents, thAggregateIds, thJobFilters,
         thResultStatusObject, ThResultSetModel){
+
+    var $log = new ThLog("thCloneJobs");
 
     var lastJobElSelected, lastJobObjSelected;
 
@@ -754,7 +756,7 @@ treeherder.directive('thCloneJobs', function(
 
     var scrollToElement = function(el){
 
-        if(el.offset() != undefined){
+        if(el.offset() !== undefined){
             //Scroll to the job element
             $('html, body').animate({
                 scrollTop: el.offset().top - 250

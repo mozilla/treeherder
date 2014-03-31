@@ -1,7 +1,7 @@
 body {
     padding-top: 61px;
     padding-bottom: 500px;
-    min-width: 800px;
+    min-width: 970px;
     width: auto !important;
     width: 1300px;
 }
@@ -20,11 +20,11 @@ body {
 }
 
 .th-navbar {
-    min-width: 800px;
+    min-width: 970px;
 }
 
 .navbar {
-    min-width: 800px;
+    min-width: 970px;
     min-height: 36px;
 }
 
@@ -42,9 +42,19 @@ body {
 
 .th-global-navbar {
     border-bottom: 1px solid black;
-    min-width: 800px;
+    min-width: 970px;
 }
 
+.watched-repo-dropdown-item {
+    margin: 0px 10px;
+}
+.watched-repo-dropdown-item > a {
+    white-space: normal;
+}
+
+.watched-repo-navbar {
+    overflow: visible;
+}
 .th-username {
     margin-right: 5px;
 }
@@ -55,8 +65,20 @@ body {
 
 .th-context-navbar {
     background-color: #354048;
-    min-width: 800px;
-    overflow: auto;
+    min-width: 970px;
+    overflow: visible;
+}
+
+.treeClosed {
+    color: rgb(161, 52, 53);
+}
+
+.treeOpen {
+    color: green;
+}
+
+.treeApproval {
+    color: #fb9910;
 }
 
 #platform-job-text-search-field {
@@ -66,7 +88,7 @@ body {
 .th-content {
     display: inline-block;
     overflow: hidden;
-    min-width: 800px;
+    min-width: 970px;
     width: 100%;
     padding-bottom: 101px;
     white-space: nowrap;
@@ -84,7 +106,7 @@ body {
     background-color: lightgray;
     padding: 10px;
     border: 1px solid black;
-    max-height: 500px;
+    max-height: 300px;
     overflow-y: auto;
 }
 
@@ -155,6 +177,15 @@ body {
     display: inline-block;
     margin: 5px 5px 0 5px;
     min-width: 225px;
+}
+
+.th-repo-group-items .dropdown-menu {
+    top: inherit;
+    left: inherit;
+}
+
+.th-repo-group-items .dropdown-toggle {
+    cursor: pointer;
 }
 
 /**
@@ -251,6 +282,8 @@ body {
     padding-top: 5px;
     width: 115px;
     display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .revision-button {
@@ -547,7 +580,7 @@ div.navbar-fixed-bottom dt {
  */
 
 .btn-view-nav {
-  background-color: rgba(63, 74, 81, 0.56);
+  background-color: rgba(75, 86, 93, 0.56);
   border-color: #22282d;
   color: lightgray;
   border-radius: 0;
@@ -1062,3 +1095,5 @@ fieldset[disabled] .btn-repo.active {
 }
 
 #notification_box button.close{position:relative; top:-2px; right:-8px; color:inherit}
+
+div.logviewer-step{ padding:6px 6px;}

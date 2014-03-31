@@ -3,7 +3,7 @@
         <div class="bottom-panel-title" ng-hide="hasPinnedJobs()">Pin one or more jobs to classify (shift-click).</div>
 
 
-        <th-pinboard-panel></th-pinboard-panel>
+        <ng-include src="'partials/thPinboardPanel.html'"></ng-include>
 
 
         <div id="bottom-left-panel"
@@ -75,7 +75,9 @@
                         ng-click="save()">
                     <span class="glyphicon glyphicon-floppy-disk pull-left"></span> save
                 </button>
-                <button type="button" class="btn btn-default btn-xs dropdown-toggle save-btn-dropdown" data-toggle="dropdown">
+                <button type="button"
+                        class="btn btn-default btn-xs dropdown-toggle save-btn-dropdown"
+                        data-toggle="dropdown">
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu pull-right" role="menu">

@@ -1,9 +1,10 @@
 "use strict";
 
 treeherder.controller('FilterPanelCtrl',
-    function FilterPanelCtrl($scope, $rootScope, $routeParams, $location, $log,
+    function FilterPanelCtrl($scope, $rootScope, $routeParams, $location, ThLog,
                              localStorageService, thResultStatusList, thEvents,
                              thJobFilters) {
+        var $log = new ThLog(this.constructor.name);
 
         $scope.filterOptions = thResultStatusList;
 
@@ -133,7 +134,7 @@ treeherder.controller('FilterPanelCtrl',
 
 
         $scope.addFieldFilter = function() {
-            $log.debug("adding filter of " + $scope.newFieldFilter.field);
+            $log.debug("adding filter", $scope.newFieldFilter.field);
             if (!$scope.newFieldFilter || $scope.newFieldFilter.field === "" || $scope.newFieldFilter.value === "") {
                 return;
             }
@@ -162,7 +163,7 @@ treeherder.controller('FilterPanelCtrl',
         };
 
         $scope.removeFilter = function(index) {
-            $log.debug("removing index: " + index);
+            $log.debug("removing index", index);
             thJobFilters.removeFilter(
                 $scope.fieldFilters[index].field,
                 $scope.fieldFilters[index].value

@@ -1,18 +1,19 @@
 'use strict';
 
 treeherder.factory('ThRepositoryModel',
-                   function($http, thUrl, $rootScope, $log, localStorageService,
-                            thSocket, thEvents) {
+                   function($http, thUrl, $rootScope, ThLog, localStorageService,
+                            thSocket, treeStatus) {
+    var $log = new ThLog("ThRepositoryModel");
 
     var new_failures = {};
-    var watchedRepos = {};
+    var repos = {};
 
     thSocket.on('job_failure', function(msg){
         if (! new_failures.hasOwnProperty(msg.branch)){
             new_failures[msg.branch] = [];
         }
         new_failures[msg.branch].push(msg.id);
-        $log.debug("new failure on branch "+msg.branch);
+        $log.debug("new failure on branch ", msg.branch);
     });
 
     // get the repositories (aka trees)
@@ -50,7 +51,27 @@ treeherder.factory('ThRepositoryModel',
     };
 
     var addAsUnwatched = function(repo) {
-        watchedRepos[repo.name] = false;
+        repos[repo.name] = {
+            isWatched: false,
+            treeStatus: null,
+            unclassifiedFailureCount: 0
+        };
+    };
+
+    /**
+     * We want to add this repo as watched, but we also
+     * want to get the treestatus for it
+     */
+    var addAsWatched = function(data, repoName) {
+        if (data.isWatched) {
+            repos[repoName] = {
+                isWatched: true,
+                treeStatus: null,
+                unclassifiedFailureCount: 0
+            };
+            updateTreeStatus(repoName);
+            $log.debug("watchedRepo", repoName, repos[repoName]);
+        }
     };
 
     var load = function(name) {
@@ -61,16 +82,18 @@ treeherder.factory('ThRepositoryModel',
             success(function(data) {
                 $rootScope.repos = data;
                 $rootScope.groupedRepos = getByGroup();
+
                 _.each(data, addAsUnwatched);
                 if (storedWatchedRepos) {
-                    _.extend(watchedRepos, storedWatchedRepos);
+                    _.each(storedWatchedRepos, addAsWatched);
                 }
-                localStorageService.add("watchedRepos", watchedRepos);
+                localStorageService.add("watchedRepos", repos);
 
                 if (name) {
                     $rootScope.currentRepo = getByName(name);
-
+                    addAsWatched({isWatched: true}, name);
                 }
+                watchedReposUpdated();
             });
     };
 
@@ -80,7 +103,7 @@ treeherder.factory('ThRepositoryModel',
 
     var setCurrent = function(name) {
         $rootScope.currentRepo = getByName(name);
-        watchedRepos[name] = true;
+        $log.debug("repoModel", "setCurrent", name, "watchedRepos", repos);
     };
 
     var repo_has_failures = function(repo_name){
@@ -88,8 +111,26 @@ treeherder.factory('ThRepositoryModel',
             $rootScope.new_failures[repo_name].length > 0);
     };
 
-    var watchedReposUpdated = function() {
-        localStorageService.add("watchedRepos", watchedRepos);
+    var watchedReposUpdated = function(repoName) {
+        localStorageService.add("watchedRepos", repos);
+        if (repoName) {
+            updateTreeStatus(repoName);
+        } else {
+            updateAllWatchedRepoTreeStatus();
+        }
+    };
+
+    var updateTreeStatus = function(repoName) {
+        if (repos[repoName].isWatched) {
+            $log.debug("updateTreeStatus", "updating", repoName);
+            treeStatus.get(repoName).then(function(data) {
+                repos[repoName].treeStatus = data.data;
+            });
+        }
+    };
+
+    var updateAllWatchedRepoTreeStatus = function() {
+        _.each(_.keys(repos), updateTreeStatus);
     };
 
 
@@ -108,9 +149,11 @@ treeherder.factory('ThRepositoryModel',
 
         getByGroup: getByGroup,
 
-        watchedRepos: watchedRepos,
+        watchedRepos: repos,
 
         watchedReposUpdated: watchedReposUpdated,
+
+        updateAllWatchedRepoTreeStatus: updateAllWatchedRepoTreeStatus,
 
         repo_has_failures: repo_has_failures
 

@@ -1,8 +1,10 @@
 "use strict";
 
 treeherder.controller('BugsPluginCtrl',
-    function BugsPluginCtrl($scope, $rootScope, $log, ThJobArtifactModel,
+    function BugsPluginCtrl($scope, $rootScope, ThLog, ThJobArtifactModel,
                             ThBugJobMapModel, ThJobClassificationModel, thNotify, $modal) {
+        var $log = new ThLog(this.constructor.name);
+
         $log.debug("bugs plugin initialized");
 
         var update_bugs = function(newValue, oldValue){

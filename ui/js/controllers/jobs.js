@@ -1,9 +1,10 @@
 "use strict";
 
 treeherder.controller('JobsCtrl',
-    function JobsCtrl($scope, $http, $rootScope, $routeParams, $log, $cookies,
+    function JobsCtrl($scope, $http, $rootScope, $routeParams, ThLog, $cookies,
                       localStorageService, thUrl, ThRepositoryModel, thSocket,
                       ThResultSetModel, thResultStatusList) {
+        var $log = new ThLog(this.constructor.name);
 
         // load our initial set of resultsets
         // scope needs this function so it can be called directly by the user, too.
@@ -18,8 +19,9 @@ treeherder.controller('JobsCtrl',
         } else {
             $rootScope.repoName = "mozilla-inbound";
         }
-        ThRepositoryModel.setCurrent($rootScope.repoName);
 
+        // load the list of repos into $rootScope, and set the current repo.
+        ThRepositoryModel.load($scope.repoName);
 
         ThResultSetModel.addRepository($scope.repoName);
 
@@ -27,9 +29,6 @@ treeherder.controller('JobsCtrl',
         $scope.result_sets = ThResultSetModel.getResultSetsArray($scope.repoName);
         $scope.job_map = ThResultSetModel.getJobMap($scope.repoName);
         $scope.statusList = thResultStatusList;
-
-        // load the list of repos into $rootScope, and set the current repo.
-        ThRepositoryModel.load($scope.repoName);
 
         if(ThResultSetModel.isNotLoaded($scope.repoName)){
             // get our first set of resultsets
@@ -41,9 +40,11 @@ treeherder.controller('JobsCtrl',
 
 
 treeherder.controller('ResultSetCtrl',
-    function ResultSetCtrl($scope, $rootScope, $http, $log, $location,
+    function ResultSetCtrl($scope, $rootScope, $http, ThLog, $location,
                            thUrl, thServiceDomain, thResultStatusInfo,
-                           ThResultSetModel, thEvents, thJobFilters, $route) {
+                           ThResultSetModel, thEvents, thJobFilters) {
+
+        var $log = new ThLog(this.constructor.name);
 
         $scope.getCountClass = function(resultStatus) {
             return thResultStatusInfo(resultStatus).btnClass;
@@ -111,8 +112,8 @@ treeherder.controller('ResultSetCtrl',
                 thEvents.resultSetFilterChanged, $scope.resultset
                 );
 
-            $log.debug("toggled: " + resultStatus);
-            $log.debug($scope.resultStatusFilters);
+            $log.debug("toggled: ", resultStatus);
+            $log.debug("resultStatusFilters", $scope.resultStatusFilters);
         };
 
         /**
@@ -135,7 +136,7 @@ treeherder.controller('ResultSetCtrl',
         $scope.isCollapsedRevisions = true;
 
         $rootScope.$on(thEvents.jobContextMenu, function(event, job){
-            $log.debug(thEvents.jobContextMenu + ' caught');
+            $log.debug("caught", thEvents.jobContextMenu);
             //$scope.viewLog(job.resource_uri);
         });
     }

@@ -1,6 +1,6 @@
 'use strict';
 
-treeherder.directive('personaButtons', function($http, $q, $log, $rootScope, localStorageService, thServiceDomain, BrowserId) {
+treeherder.directive('personaButtons', function($http, $q, ThLog, $rootScope, localStorageService, thServiceDomain, BrowserId) {
 
     return {
         restrict: "E",

@@ -1,7 +1,9 @@
 'use strict';
 
 logViewer.controller('LogviewerCtrl',
-    function Logviewer($anchorScroll, $scope, $log, $rootScope, $location, $http, $timeout, ThJobArtifactModel) {
+    function Logviewer($anchorScroll, $scope, ThLog, $rootScope, $location, $http, $timeout, ThJobArtifactModel) {
+
+        var $log = new ThLog("LogviewerCtrl");
 
         var query_string = $location.search();
         if (query_string.repo !== "") {

@@ -1,7 +1,7 @@
 'use strict';
 
 /* Services */
-treeherder.factory('thUrl',['$rootScope', 'thServiceDomain', '$log', function($rootScope, thServiceDomain, $log) {
+treeherder.factory('thUrl',['$rootScope', 'thServiceDomain', 'ThLog', function($rootScope, thServiceDomain, ThLog) {
 
    var thUrl =  {
         getRootUrl: function(uri) {
@@ -22,7 +22,9 @@ treeherder.factory('thUrl',['$rootScope', 'thServiceDomain', '$log', function($r
 
 }]);
 
-treeherder.factory('thSocket', function ($rootScope, $log, thUrl) {
+treeherder.factory('thSocket', function ($rootScope, ThLog, thUrl) {
+    var $log = new ThLog("thSocket");
+
     var socket = io.connect(thUrl.getSocketEventUrl());
     socket.on('connect', function () {
         $log.debug('socketio connected');
@@ -107,7 +109,7 @@ treeherder.factory('ThPaginator', function(){
 
 });
 
-treeherder.factory('BrowserId', function($http, $q, $log,  thServiceDomain){
+treeherder.factory('BrowserId', function($http, $q, ThLog,  thServiceDomain){
 
     /*
     * BrowserId is a wrapper for the persona authentication service
@@ -180,8 +182,10 @@ treeherder.factory('BrowserId', function($http, $q, $log,  thServiceDomain){
     return browserid;
 });
 
-treeherder.factory('thNotify', function($timeout, $log){
+treeherder.factory('thNotify', function($timeout, ThLog){
     //a growl-like notification system
+
+    var $log = new ThLog("thNotify");
 
     var thNotify =  {
         // message queue
@@ -194,8 +198,7 @@ treeherder.factory('thNotify', function($timeout, $log){
         * after a while or not
         */
         send: function(message, severity, sticky){
-            $log.debug("received message");
-            $log.debug(message);
+            $log.debug("received message", message);
             var severity = severity || 'info';
             var sticky = sticky || false;
             thNotify.notifications.push({
