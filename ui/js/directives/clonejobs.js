@@ -8,7 +8,8 @@ treeherder.directive('thCloneJobs', function(
 
     var $log = new ThLog("thCloneJobs");
 
-    var lastJobElSelected, lastJobObjSelected;
+    //var lastJobElSelected, lastJobObjSelected;
+
 
     var classificationRequired = {
         "busted":1,
@@ -59,10 +60,11 @@ treeherder.directive('thCloneJobs', function(
         thEvents.selectNextUnclassifiedFailure, function(ev){
 
             var jobMap = ThResultSetModel.getJobMap($rootScope.repoName);
+            var lastJobSelected = ThResultSetModel.getSelectedJob($rootScope.repoName);
 
             var targetEl, jobKey;
-            if(!_.isEmpty(lastJobElSelected)){
-                jobKey = getJobMapKey(lastJobObjSelected);
+            if(!_.isEmpty(lastJobSelected.el)){
+                jobKey = getJobMapKey(lastJobSelected.job);
                 getNextUnclassifiedFailure(jobMap[jobKey].job_obj);
 
             }else{
@@ -76,9 +78,11 @@ treeherder.directive('thCloneJobs', function(
 
             var jobMap = ThResultSetModel.getJobMap($rootScope.repoName);
 
+            var lastJobSelected = ThResultSetModel.getSelectedJob($rootScope.repoName);
+
             var targetEl, jobKey;
-            if(!_.isEmpty(lastJobElSelected)){
-                jobKey = getJobMapKey(lastJobObjSelected);
+            if(!_.isEmpty(lastJobSelected.el)){
+                jobKey = getJobMapKey(lastObjSelected.job);
                 getPreviousUnclassifiedFailure(jobMap[jobKey].job_obj);
 
             }else{
@@ -87,6 +91,7 @@ treeherder.directive('thCloneJobs', function(
             }
 
     });
+
     $rootScope.$on(
         thEvents.selectJob, function(ev, job){
 
@@ -102,17 +107,21 @@ treeherder.directive('thCloneJobs', function(
         clickJobCb({}, jobEl, job);
         scrollToElement(jobEl);
 
-        lastJobElSelected = jobEl;
-        lastJobObjSelected = job;
+        ThResultSetModel.setSelectedJob(
+            $rootScope.repoName, jobEl, job
+            );
 
     };
 
     var setSelectJobStyles = function(el){
 
-        if(!_.isEmpty(lastJobElSelected)){
-            lastJobElSelected.removeClass(selectedBtnCls);
-            lastJobElSelected.removeClass(largeBtnCls);
-            lastJobElSelected.addClass(btnCls);
+        var lastJobSelected = ThResultSetModel.getSelectedJob(
+            $rootScope.repoName);
+
+        if(!_.isEmpty(lastJobSelected.el)){
+            lastJobSelected.el.removeClass(selectedBtnCls);
+            lastJobSelected.el.removeClass(largeBtnCls);
+            lastJobSelected.el.addClass(btnCls);
         }
 
         el.removeClass(btnCls);
@@ -153,6 +162,10 @@ treeherder.directive('thCloneJobs', function(
 
         var showJob = false;
         var jobsShown = 0;
+
+        var lastJobSelected = ThResultSetModel.getSelectedJob(
+            $rootScope.repoName
+            );
 
         var hText, key, resultState, job, jobStatus, jobBtn, l;
 
@@ -200,6 +213,7 @@ treeherder.directive('thCloneJobs', function(
 
             jobStatus = thResultStatusInfo(resultState);
 
+            //Add a visual indicator for a failure classification
             jobStatus.key = key;
             if(parseInt(job.failure_classification_id) > 1){
                 jobStatus.value = job.job_type_symbol + '*';
@@ -208,9 +222,23 @@ treeherder.directive('thCloneJobs', function(
             }
 
             jobStatus.title = hText;
+
+
             jobStatus.btnClass = jobStatus.btnClass;
 
             jobBtn = $( jobBtnInterpolator(jobStatus) );
+
+            //If the job is currently selected make sure to re-apply
+            //the job selection styles
+            if( !_.isEmpty(lastJobSelected.job) &&
+                (lastJobSelected.job.id === job.id)){
+
+                setSelectJobStyles(jobBtn);
+
+                //Update the selected job element to the current one
+                ThResultSetModel.setSelectedJob(
+                    $rootScope.repoName, jobBtn, job);
+            }
 
             jobTdEl.append(jobBtn);
         }
@@ -250,8 +278,7 @@ treeherder.directive('thCloneJobs', function(
                     _.bind(clickJobCb, this, ev, el, job)();
             }
 
-            lastJobElSelected = el;
-            lastJobObjSelected = job;
+            ThResultSetModel.setSelectedJob($rootScope.repoName, el, job);
         }
     };
 
