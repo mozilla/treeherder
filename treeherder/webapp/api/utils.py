@@ -51,7 +51,7 @@ class UrlQueryFilter(object):
 
     splitter = "__"
 
-    def __init__(self, query_params):
+    def __init__(self, query_params, translators):
         self.raw_params = query_params
         self.conditions = defaultdict(set)
         for k, v in self.raw_params.iteritems():
@@ -64,6 +64,10 @@ class UrlQueryFilter(object):
             else:
                 field = k
                 operator = "="
+
+            # run the value through the translator for this field
+            if field in translators.keys():
+                v = translators[field](v)
 
             self.conditions[field].add((self.operators[operator], v))
 

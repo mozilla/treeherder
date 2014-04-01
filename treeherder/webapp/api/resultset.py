@@ -1,4 +1,6 @@
 import itertools
+import time
+import datetime
 
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -22,8 +24,18 @@ class ResultSetViewSet(viewsets.ViewSet):
         GET method for list of ``resultset`` records with revisions
 
         """
+        def xlate_date(datestr):
+            # exp a date like 2014-03-31.  change to timestamp
+            return time.mktime(datetime.datetime.strptime(datestr, "%Y-%m-%d").timetuple())
 
-        filter = UrlQueryFilter(request.QUERY_PARAMS)
+        filter = UrlQueryFilter(request.QUERY_PARAMS, {
+            "push_timestamp": xlate_date,
+        })
+
+        # translate range filter conditions for date and revision
+
+        # fromchange = filter.pop("fromchange", None)
+        # tochange = filter.pop("tochange", None)
 
         offset_id = filter.pop("id__lt", 0)
         count = filter.pop("count", 10)
