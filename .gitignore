@@ -28,6 +28,7 @@ test.log
 treeherder*.log
 treeherder.log.*
 LOGFILE
+supervisor*.log
 
 # Unit test / coverage reports
 .coverage
