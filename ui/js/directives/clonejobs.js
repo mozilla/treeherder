@@ -4,7 +4,7 @@
 treeherder.directive('thCloneJobs', function(
         $rootScope, $http, ThLog, thUrl, thCloneHtml, thServiceDomain,
         thResultStatusInfo, thEvents, thAggregateIds, thJobFilters,
-        thResultStatusObject, ThResultSetModel){
+        thResultStatusObject, ThResultSetModel, ThJobModel){
 
     var $log = new ThLog("thCloneJobs");
 
@@ -265,9 +265,19 @@ treeherder.directive('thCloneJobs', function(
                     } else {
                         _.bind(clickJobCb, this, ev, el, job)();
                     }
+
                     break;
+
                 case 2:
                     //Middle mouse button pressed
+                    ThJobModel.get(job.id).then(function(data){
+                        //Retrieve the job reference data and open a new
+                        //window on the job's log file
+                        if(data.logs.length > 0){
+                            window.open(data.logs[0].url, "Log");
+                        }
+                        });
+
                     break;
                 case 3:
                     //Right mouse button pressed
