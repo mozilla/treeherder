@@ -1,9 +1,12 @@
     <ul class="dropdown-menu" role="menu">
-        <li ng-show="message_of_the_day" class="watched-repo-dropdown-item">
-            <span ng-bind-html="message_of_the_day"></span>
-        </li>
         <li ng-show="reason" class="watched-repo-dropdown-item">
             <span ng-bind-html="reason"></span>
+        </li>
+
+        <li class="divider" ng-show="reason && message_of_the_day"></li>
+
+        <li ng-show="message_of_the_day" class="watched-repo-dropdown-item">
+            <span ng-bind-html="message_of_the_day"></span>
         </li>
 
         <li class="divider" ng-show="reason || message_of_the_day"></li>
@@ -13,19 +16,23 @@
         </li>
 
         <li class="watched-repo-dropdown-item">
-            <a href="https://www.google.com/calendar/embed?src=aelh98g866kuc80d5nbfqo6u54%40group.calendar.google.com" target="_blank">Schedule</a>
+            <a href="https://www.google.com/calendar/embed?src=aelh98g866kuc80d5nbfqo6u54%40group.calendar.google.com" target="_blank">schedule</a>
         </li>
 
         <li class="watched-repo-dropdown-item">
-            <a href="https://treestatus.mozilla.org/{{name}}" target="_blank">Tree Status</a>
+            <a href="https://treestatus.mozilla.org/{{name}}" target="_blank">tree status</a>
         </li>
 
         <li class="watched-repo-dropdown-item">
-            <a href="{{pushlog}}" target="_blank">Pushlog: {{name}}</a>
+            <a href="{{pushlog}}" target="_blank">pushlog</a>
         </li>
 
         <li class="watched-repo-dropdown-item">
-            <a href="https://secure.pub.build.mozilla.org/clobberer/?branch={{name}}" target="_blank">Cobberer: {{name}}</a>
+            <a href="https://secure.pub.build.mozilla.org/clobberer/?branch={{name}}" target="_blank">clobberer</a>
+        </li>
+
+        <li class="watched-repo-dropdown-item">
+            <a href="" ng-click="unwatchRepo(name)">unwatch</a>
         </li>
 
     </ul>

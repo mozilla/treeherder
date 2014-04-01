@@ -36,6 +36,7 @@ treeherder.factory('thJobFilters',
      * means it must have a value set, ``false`` means it must be null.
      */
     var checkFilter = function(field, job, resultStatusList) {
+        $log.debug("checkFilter", field, job, resultStatusList);
         if (field === api.resultStatus) {
             // resultStatus is a special case that spans two job fields
             var filterList = resultStatusList || filters[field].values;
@@ -141,6 +142,9 @@ treeherder.factory('thJobFilters',
                     removeWhenEmpty: true
                 };
             }
+
+            filterKeys = _.keys(filters);
+
             $log.debug("adding ", field, ": ", value);
             $log.debug("filters", filters);
         },
@@ -162,6 +166,8 @@ treeherder.factory('thJobFilters',
             if (filters[field].removeWhenEmpty && filters[field].values.length === 0) {
                 delete filters[field];
             }
+
+            filterKeys = _.keys(filters);
             $log.debug("filters", filters);
         },
         /**

@@ -26,6 +26,10 @@ treeherder.directive('thWatchedRepo', function (ThLog, ThRepositoryModel) {
         "closed": {
             icon: "fa-times-circle",
             color: "treeClosed"
+        },
+        "unavailable": {
+            icon: "fa-chain-broken",
+            color: "treeUnavailable"
         }
     };
 
@@ -38,6 +42,10 @@ treeherder.directive('thWatchedRepo', function (ThLog, ThRepositoryModel) {
                     $log.debug("updated treeStatus", newVal.status);
                     scope.statusIcon = statusInfo[newVal.status].icon;
                     scope.statusColor = statusInfo[newVal.status].color;
+                    scope.titleText = newVal.status;
+                    if (newVal.message_of_the_day) {
+                        scope.titleText = scope.titleText + ' - ' + newVal.message_of_the_day;
+                    }
                 }
             }, true);
 

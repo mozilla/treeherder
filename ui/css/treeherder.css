@@ -81,6 +81,10 @@ body {
     color: #fb9910;
 }
 
+.treeUnavailable {
+    color: lightgray;
+}
+
 #platform-job-text-search-field {
     height:28px;
 }
@@ -280,7 +284,7 @@ body {
 
 .revision-link {
     padding-top: 5px;
-    width: 115px;
+    width: 130px;
     display: block;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -303,6 +307,7 @@ body {
 .result-set .job-list-nopad {
     padding-left: 0;
     padding-right: 0;
+    display: block;
 }
 
 .selected-job {
@@ -390,10 +395,10 @@ div.navbar-fixed-bottom dt {
 }
 
 #bottom-center-panel {
-    margin-right: 90px;
+    margin-right: 98px;
     margin-left: 242px;
 }
-#bottom-menu {position: absolute; right:-5px; width: 100px}
+#bottom-menu {position: absolute; right:0; width: 104px}
 
 .result-status-shading-success {background-color: rgba(2, 131, 44, 0.24);}
 .result-status-shading-testfailed {background-color: rgba(221, 102, 2, 0.25);}
@@ -413,12 +418,12 @@ div.navbar-fixed-bottom dt {
 }
 
 .bottom-menu-group {
-    width: 90px;
+    width: 98px;
     margin-bottom: 5px;
 }
 
 .save-btn {
-    width: 73px;
+    width: 81px;
 }
 
 .save-btn-dropdown {
@@ -473,12 +478,12 @@ div.navbar-fixed-bottom dt {
 }
 
 .pinboard-classification-comment {
-    width: 185px;
+    width: 177px;
     margin-top: 5px;
 }
 
 .pinboard-classification-select {
-    width: 185px;
+    width: 177px;
 }
 
 .pinned-job {

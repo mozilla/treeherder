@@ -71,6 +71,8 @@ treeherder.factory('thPinboard',
             $log.debug("adding bug ", bug);
             relatedBugs[bug.id] = bug;
             api.count.numRelatedBugs = _.size(relatedBugs);
+            $log.debug("related bugs", relatedBugs);
+
         },
 
         removeBug: function(id) {
