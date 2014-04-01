@@ -74,6 +74,13 @@ treeherder.factory('ThRepositoryModel',
         }
     };
 
+    var unwatch = function(name) {
+        if (!_.contains(repos, name)) {
+            repos[name].isWatched = false;
+        }
+        watchedReposUpdated();
+    };
+
     var load = function(name) {
 
         var storedWatchedRepos = localStorageService.get("watchedRepos");
@@ -124,8 +131,14 @@ treeherder.factory('ThRepositoryModel',
         if (repos[repoName].isWatched) {
             $log.debug("updateTreeStatus", "updating", repoName);
             treeStatus.get(repoName).then(function(data) {
-                repos[repoName].treeStatus = data.data;
-            });
+                    repos[repoName].treeStatus = data.data;
+                }, function(data) {
+                    repos[repoName].treeStatus = {
+                        status: "unavailable",
+                        message_of_the_day: repoName +
+                            ' is not supported in <a href="https://treestatus.mozilla.org">treestatus.mozilla.org</a>'
+                    };
+                });
         }
     };
 
@@ -152,6 +165,8 @@ treeherder.factory('ThRepositoryModel',
         watchedRepos: repos,
 
         watchedReposUpdated: watchedReposUpdated,
+
+        unwatch: unwatch,
 
         updateAllWatchedRepoTreeStatus: updateAllWatchedRepoTreeStatus,
 

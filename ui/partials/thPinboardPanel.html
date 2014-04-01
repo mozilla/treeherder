@@ -1,4 +1,5 @@
         <div id="pinboard-panel"
+
              ng-show="hasPinnedJobs()">
             <div class="bottom-panel-title"><i class="glyphicon glyphicon-pushpin"></i> pinboard</div>
             <div class="panel shadowed-panel pinboard-shadowed-panel">
@@ -17,7 +18,7 @@
                     <form ng-submit="saveEnteredBugNumber()">
                         <input type="number"
                                ng-show="enteringBugNumber"
-                               ng-model="newEnteredBugNumber"
+                               ng-model="$parent.newEnteredBugNumber"
                                placeholder="enter bug number"
                                numbers-only="numbers-only"
                                focus-me="focusInput">

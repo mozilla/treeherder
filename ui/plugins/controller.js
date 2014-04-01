@@ -6,6 +6,8 @@ treeherder.controller('PluginCtrl',
                         numberFilter, ThBugJobMapModel, thResultStatus, thSocket,
                         ThResultSetModel, ThLog) {
 
+        var $log = new ThLog("PluginCtrl");
+
         $scope.job = {};
 
         var selectJob = function(newValue, oldValue) {
@@ -60,6 +62,17 @@ treeherder.controller('PluginCtrl',
                              $scope.job.build_platform  + " " +
                              $scope.job.build_os || undef
                 };
+        };
+
+        /**
+         * Test whether or not the selected job is a reftest
+         */
+        $scope.isReftest = function() {
+            if ($scope.selectedJob) {
+                return $scope.selectedJob.job_group_symbol === "R";
+            } else {
+                return false;
+            }
         };
 
         $rootScope.$on(thEvents.jobClick, function(event, job) {
