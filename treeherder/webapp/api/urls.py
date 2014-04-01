@@ -1,5 +1,6 @@
 from django.conf.urls import patterns, include, url
-from treeherder.webapp.api import views
+from treeherder.webapp.api import (refdata, objectstore, jobs, resultset,
+                                   artifact, note, revision, bug)
 
 from rest_framework import routers
 
@@ -8,41 +9,41 @@ from rest_framework import routers
 project_bound_router = routers.DefaultRouter()
 project_bound_router.register(
     r'objectstore',
-    views.ObjectstoreViewSet,
+    objectstore.ObjectstoreViewSet,
     base_name='objectstore',
 )
 project_bound_router.register(
     r'jobs',
-    views.JobsViewSet,
+    jobs.JobsViewSet,
     base_name='jobs',
 )
 project_bound_router.register(
     r'resultset',
-    views.ResultSetViewSet,
+    resultset.ResultSetViewSet,
     base_name='resultset',
 )
 
 project_bound_router.register(
     r'artifact',
-    views.ArtifactViewSet,
+    artifact.ArtifactViewSet,
     base_name='artifact',
 )
 
 project_bound_router.register(
     r'note',
-    views.NoteViewSet,
+    note.NoteViewSet,
     base_name='note',
 )
 
 project_bound_router.register(
     r'revision-lookup',
-    views.RevisionLookupSetViewSet,
+    revision.RevisionLookupSetViewSet,
     base_name='revision-lookup',
 )
 
 project_bound_router.register(
     r'bug-job-map',
-    views.BugJobMapViewSet,
+    bug.BugJobMapViewSet,
     base_name='bug-job-map',
 )
 
@@ -51,19 +52,19 @@ project_bound_router.register(
 
 # refdata endpoints:
 default_router = routers.DefaultRouter()
-default_router.register(r'product', views.ProductViewSet)
-default_router.register(r'machine', views.MachineViewSet)
-default_router.register(r'machinenote', views.MachineNoteViewSet)
-default_router.register(r'machineplatform', views.MachinePlatformViewSet)
-default_router.register(r'buildplatform', views.BuildPlatformViewSet)
-default_router.register(r'jobgroup', views.JobGroupViewSet)
-default_router.register(r'jobtype', views.JobTypeViewSet)
-default_router.register(r'repository', views.RepositoryViewSet)
-default_router.register(r'repositoryversion', views.RepositoryVersionViewSet)
-default_router.register(r'option', views.OptionViewSet)
-default_router.register(r'optioncollection', views.OptionCollectionViewSet)
-default_router.register(r'bugscache', views.BugscacheViewSet)
-default_router.register(r'failureclassification', views.FailureClassificationViewSet)
+default_router.register(r'product', refdata.ProductViewSet)
+default_router.register(r'machine', refdata.MachineViewSet)
+default_router.register(r'machinenote', refdata.MachineNoteViewSet)
+default_router.register(r'machineplatform', refdata.MachinePlatformViewSet)
+default_router.register(r'buildplatform', refdata.BuildPlatformViewSet)
+default_router.register(r'jobgroup', refdata.JobGroupViewSet)
+default_router.register(r'jobtype', refdata.JobTypeViewSet)
+default_router.register(r'repository', refdata.RepositoryViewSet)
+default_router.register(r'repositoryversion', refdata.RepositoryVersionViewSet)
+default_router.register(r'option', refdata.OptionViewSet)
+default_router.register(r'optioncollection', refdata.OptionCollectionViewSet)
+default_router.register(r'bugscache', refdata.BugscacheViewSet)
+default_router.register(r'failureclassification', refdata.FailureClassificationViewSet)
 
 
 urlpatterns = patterns(
