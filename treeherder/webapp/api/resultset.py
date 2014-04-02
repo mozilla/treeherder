@@ -1,6 +1,4 @@
 import itertools
-import time
-import datetime
 
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -8,7 +6,9 @@ from rest_framework.decorators import link
 from rest_framework.reverse import reverse
 from treeherder.model.derived import DatasetNotFoundError
 from treeherder.webapp.api.utils import (UrlQueryFilter, with_jobs,
-                                         oauth_required, get_option)
+                                         oauth_required, get_option,
+                                         get_revision_timestamp,
+                                         to_timestamp)
 
 
 class ResultSetViewSet(viewsets.ViewSet):
@@ -24,18 +24,37 @@ class ResultSetViewSet(viewsets.ViewSet):
         GET method for list of ``resultset`` records with revisions
 
         """
-        def xlate_date(datestr):
-            # exp a date like 2014-03-31.  change to timestamp
-            return time.mktime(datetime.datetime.strptime(datestr, "%Y-%m-%d").timetuple())
 
-        filter = UrlQueryFilter(request.QUERY_PARAMS, {
-            "push_timestamp": xlate_date,
-        })
+        # make a mutable copy of these params
+        query_params = request.QUERY_PARAMS.copy()
 
-        # translate range filter conditions for date and revision
+        # support ranges for date as well as revisions(changes) like old tbpl
+        fromchange = query_params.pop("fromchange", None)
+        tochange = query_params.pop("tochange", None)
+        startdate = query_params.pop("startdate", None)
+        enddate = query_params.pop("enddate", None)
 
-        # fromchange = filter.pop("fromchange", None)
-        # tochange = filter.pop("tochange", None)
+        # translate these params into our own filtering mechanism
+        if fromchange:
+            query_params.update({
+                "push_timestamp__gte": get_revision_timestamp(jm, fromchange[0])
+            })
+        if tochange:
+            query_params.update({
+                "push_timestamp__lte": get_revision_timestamp(jm, tochange[0])
+            })
+        if startdate:
+            query_params.update({
+                "push_timestamp__gte": to_timestamp(startdate[0])
+            })
+        if enddate:
+            # add a day because we aren't supplying a time, just a date.  So
+            # we're doing ``less than``, rather than ``less than or equal to``.
+            query_params.update({
+                "push_timestamp__lt": to_timestamp(enddate[0]) + 86400
+            })
+
+        filter = UrlQueryFilter(query_params)
 
         offset_id = filter.pop("id__lt", 0)
         count = filter.pop("count", 10)

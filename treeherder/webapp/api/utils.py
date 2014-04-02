@@ -2,6 +2,8 @@ from collections import defaultdict
 
 import simplejson as json
 import oauth2 as oauth
+import time
+import datetime
 
 from django.conf import settings
 from rest_framework.response import Response
@@ -51,7 +53,7 @@ class UrlQueryFilter(object):
 
     splitter = "__"
 
-    def __init__(self, query_params, translators):
+    def __init__(self, query_params, translators=None):
         self.raw_params = query_params
         self.conditions = defaultdict(set)
         for k, v in self.raw_params.iteritems():
@@ -66,7 +68,7 @@ class UrlQueryFilter(object):
                 operator = "="
 
             # run the value through the translator for this field
-            if field in translators.keys():
+            if translators and field in translators.keys():
                 v = translators[field](v)
 
             self.conditions[field].add((self.operators[operator], v))
@@ -224,3 +226,16 @@ def get_option(obj, option_collections):
     else:
         return None
 
+
+def to_timestamp(datestr):
+    """get a timestamp from a datestr like 2014-03-31"""
+    return time.mktime(datetime.datetime.strptime(
+        datestr,
+        "%Y-%m-%d"
+        ).timetuple())
+
+def get_revision_timestamp(jm, rev):
+    """Get the push timestamp of the resultset for a revision"""
+    return jm.get_revision_resultset_lookup([rev])[rev][
+        "push_timestamp"
+        ]

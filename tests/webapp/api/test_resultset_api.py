@@ -1,10 +1,10 @@
 import pytest
 from django.core.urlresolvers import reverse
-from treeherder.webapp.api.resultset import ResultSetViewSet
 
 from thclient import TreeherderResultSetCollection
 from tests import test_utils
 
+from treeherder.webapp.api import utils
 
 def test_resultset_list(webapp, eleven_jobs_processed, jm):
     """
@@ -65,6 +65,46 @@ def test_resultset_list_empty_rs_still_show(webapp, initial_data,
     )
     assert resp.status_int == 200
     assert len(resp.json) == 10
+
+
+def test_resultset_list_filter_by_revision(webapp, eleven_jobs_processed, jm):
+    """
+    test retrieving a resultset list, filtered by a date range
+    """
+
+    resp = webapp.get(
+        reverse("resultset-list", kwargs={"project": jm.project}),
+        {"fromchange": "21fb3eed1b5f", "tochange": "909f55c626a8"}
+    )
+    assert resp.status_int == 200
+    assert len(resp.json) == 4
+    assert set([rs["revision"] for rs in resp.json]) == set(
+        ["909f55c626a8","71d49fee325a","bb57e9f67223","21fb3eed1b5f"]
+        )
+
+
+def test_resultset_list_filter_by_date(webapp, initial_data,
+                                       sample_resultset, jm):
+    """
+    test retrieving a resultset list, filtered by a date range
+    """
+    sample_resultset[3]["push_timestamp"] = utils.to_timestamp("2013-08-09")
+    sample_resultset[4]["push_timestamp"] = utils.to_timestamp("2013-08-10")
+    sample_resultset[5]["push_timestamp"] = utils.to_timestamp("2013-08-11")
+    sample_resultset[6]["push_timestamp"] = utils.to_timestamp("2013-08-12")
+    sample_resultset[7]["push_timestamp"] = utils.to_timestamp("2013-08-13")
+
+    jm.store_result_set_data(sample_resultset)
+
+    resp = webapp.get(
+        reverse("resultset-list", kwargs={"project": jm.project}),
+        {"startdate": "2013-08-10", "enddate": "2013-08-13"}
+    )
+    assert resp.status_int == 200
+    assert len(resp.json) == 4
+    assert set([rs["revision"] for rs in resp.json]) == set(
+        ["909f55c626a8","71d49fee325a","bb57e9f67223","668424578a0d"]
+        )
 
 
 def test_resultset_detail(webapp, eleven_jobs_processed, jm):

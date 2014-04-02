@@ -66,8 +66,7 @@ class JobsModel(TreeherderModelBase):
             "revision_hash": "rs.revision_hash",
             "revision": "revision.revision",
             "author": "revision.author",
-            "push_timestamp": "rs.push_timestamp",
-            "revision_date": "revision.commit_timestamp"
+            "push_timestamp": "rs.push_timestamp"
         },
         "bug_job_map": {
             "job_id": "job_id",
@@ -570,27 +569,6 @@ class JobsModel(TreeherderModelBase):
 
     def get_push_timestamp_lookup(self, result_set_ids):
         """Get the push timestamp for a list of result_set."""
-
-        # Generate a list of result_set_ids
-        id_placeholders = []
-        repl = []
-        for data in result_set_ids:
-            id_placeholders.append('%s')
-        repl.append(','.join(id_placeholders))
-
-        proc = "jobs.selects.get_result_set_push_timestamp"
-        data = self.get_jobs_dhub().execute(
-            proc=proc,
-            placeholders=result_set_ids,
-            debug_show=self.DEBUG,
-            replace=repl,
-            return_type="dict",
-            key_column="id"
-        )
-        return data
-
-    def get_push_timestamp_lookup_for_revisions(self, revisions):
-        """Get the push timestamp for a list of revisions."""
 
         # Generate a list of result_set_ids
         id_placeholders = []

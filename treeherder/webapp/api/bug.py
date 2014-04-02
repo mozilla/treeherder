@@ -1,3 +1,4 @@
+from _mysql_exceptions import IntegrityError
 from rest_framework import viewsets
 from rest_framework.response import Response
 
@@ -18,10 +19,18 @@ class BugJobMapViewSet(viewsets.ViewSet):
         job_id, bug_id = map(int, (request.DATA['job_id'],
                              request.DATA['bug_id']))
 
-        jm.insert_bug_job_map(job_id, bug_id,
-                              request.DATA['type'])
+        resp_msg = "Bug job map saved"
+        try:
+            jm.insert_bug_job_map(job_id, bug_id,
+                                  request.DATA['type'])
+        except IntegrityError as e:
+            code, msg = e.args
+            if "Duplicate" in msg:
+                resp_msg = "Bug job map skipped: {0}".format(msg)
+            else:
+                raise e
 
-        return Response({"message": "Bug job map stored"})
+        return Response({"message": resp_msg})
 
     @with_jobs
     def destroy(self, request, project, jm, pk=None):
