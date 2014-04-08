@@ -9,68 +9,68 @@ describe('JobsCtrl', function(){
     beforeEach(module('treeherder'));
 
     beforeEach(inject(function (
-//        $injector,
-//        $rootScope,
-//        $controller
+        $injector,
+        $rootScope,
+        $controller
         ) {
         var projectPrefix = 'http://local.treeherder.mozilla.org/api/project/mozilla-inbound/';
-//
-//        $httpBackend = $injector.get('$httpBackend');
-//        jasmine.getJSONFixtures().fixturesPath='base/test/mock';
-//
-//        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/repository/').respond(
-//            getJSONFixture('repositories.json')
-//        );
-//
-//        $httpBackend.whenGET(projectPrefix + 'resultset/?count=10&format=json&full=false').respond(
-//            getJSONFixture('resultset_list.json')
-//        );
-//
-//        $httpBackend.whenGET(projectPrefix + 'jobs/1235/').respond(
-//            getJSONFixture('job_1235.json')
-//        );
-//
-//        $httpBackend.whenGET(projectPrefix + 'artifact/403/').respond(
-//            getJSONFixture('artifact_403.json')
-//        );
-//
-//        $httpBackend.whenGET(projectPrefix + 'artifact/403').respond(
-//            getJSONFixture('artifact_403.json')
-//        );
-//
-//        $httpBackend.whenGET(projectPrefix + 'note?job_id=1235').respond(
-//            getJSONFixture('notes_job_1235.json')
-//        );
-//
-//        $httpBackend.whenGET(projectPrefix + 'note/?job_id=1235').respond(
-//            getJSONFixture('notes_job_1235.json')
-//        );
-//
-//        $httpBackend.whenGET('resources/job_groups.json').respond(
-//            getJSONFixture('job_groups.json')
-//        );
-//
-//        a = "foo";
-//
-//        jobScope = $rootScope.$new();
-//
-//        //setting attributes derived from the parent controller
-//        jobScope.mru_repos = [];
-//        $rootScope.new_failures = [];
-//
-//        $controller('JobsCtrl', {'$scope': jobScope});
-//
-//        resultsetScope = jobScope.$new();
-//        createResultSetCtrl = function(resultset) {
-//            resultsetScope.resultset = resultset;
-//            return $controller('ResultSetCtrl', {'$scope': resultsetScope});
-//        };
-//        $httpBackend.flush();
+
+        $httpBackend = $injector.get('$httpBackend');
+        jasmine.getJSONFixtures().fixturesPath='base/test/mock';
+
+        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/repository/').respond(
+            getJSONFixture('repositories.json')
+        );
+
+        $httpBackend.whenGET(projectPrefix + 'resultset/?count=10&format=json&full=false').respond(
+            getJSONFixture('resultset_list.json')
+        );
+
+        $httpBackend.whenGET(projectPrefix + 'jobs/1235/').respond(
+            getJSONFixture('job_1235.json')
+        );
+
+        $httpBackend.whenGET(projectPrefix + 'artifact/403/').respond(
+            getJSONFixture('artifact_403.json')
+        );
+
+        $httpBackend.whenGET(projectPrefix + 'artifact/403').respond(
+            getJSONFixture('artifact_403.json')
+        );
+
+        $httpBackend.whenGET(projectPrefix + 'note?job_id=1235').respond(
+            getJSONFixture('notes_job_1235.json')
+        );
+
+        $httpBackend.whenGET(projectPrefix + 'note/?job_id=1235').respond(
+            getJSONFixture('notes_job_1235.json')
+        );
+
+        $httpBackend.whenGET('resources/job_groups.json').respond(
+            getJSONFixture('job_groups.json')
+        );
+
+        a = "foo";
+
+        jobScope = $rootScope.$new();
+
+        //setting attributes derived from the parent controller
+        jobScope.mru_repos = [];
+        $rootScope.new_failures = [];
+
+        $controller('JobsCtrl', {'$scope': jobScope});
+
+        resultsetScope = jobScope.$new();
+        createResultSetCtrl = function(resultset) {
+            resultsetScope.resultset = resultset;
+            return $controller('ResultSetCtrl', {'$scope': resultsetScope});
+        };
+        $httpBackend.flush();
     }));
 
 
     it('should be foo', function() {
-        expect(a).toEqual("bar");
+        expect(a).toEqual("foo");
     });
 
     /*
