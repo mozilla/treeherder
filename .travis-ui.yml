@@ -7,6 +7,8 @@ before_script:
   - sh -e /etc/init.d/xvfb start
   - npm install --quiet -g karma
   - npm install --quiet -g karma-cli
+  - npm install --quiet -g karma-jasmine
+  - npm install --quiet -g karma-coverage
   - cd ./webapp
   - ./scripts/web-server.js > /dev/null &
   - sleep 1 # give server time to start
