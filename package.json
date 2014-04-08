@@ -11,7 +11,7 @@
     "karma-firefox-launcher": ">=0.1.3"
   },
   "scripts": {
-      "test": "./node_modules/.bin/karma start --single-run --browsers Firefox"
+      "test": "./node_modules/.bin/karma start config/karma.conf.js --single-run --browsers Firefox"
   }
 
 }
