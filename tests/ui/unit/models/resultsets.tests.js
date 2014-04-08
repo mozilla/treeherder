@@ -32,6 +32,9 @@ describe('ThResultSetModel', function(){
     it('should have 1 resultset', function() {
         expect(model.getResultSetsArray().length).toBe(1);
     });
+    it('should have 1 resultset', function() {
+        expect(model.getResultSetsArray().length).toBe(5);
+    });
 
     /**
      * Test that events for new jobs gets those job updates on the current repo
