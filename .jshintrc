@@ -17,6 +17,20 @@
         "logViewer": true,
         "angular": true,
         "_": true,
-        "Config": true
+        "Config": true,
+        //jasmine
+        "jasmine" : false,
+        "it" : false,
+        "xit" : false,
+        "describe" : false,
+        "xdescribe" : false,
+        "beforeEach" : false,
+        "afterEach" : false,
+        "expect" : false,
+        "module" : false,
+        "inject" : false,
+        "getJSONFixture" : false,
+        "spyOn" : false
+
     }
 }

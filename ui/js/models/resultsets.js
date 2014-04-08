@@ -1,10 +1,9 @@
 'use strict';
 
 treeherder.factory('ThResultSetModel',
-                   ['$rootScope', 'thResultSets', 'thSocket',
-                    'ThJobModel', 'thEvents', 'thAggregateIds', 'ThLog',
-                   function($rootScope, thResultSets, thSocket,
-                            ThJobModel, thEvents, thAggregateIds, ThLog) {
+                   function($rootScope, $location, thResultSets, thSocket,
+                            ThJobModel, thEvents, thAggregateIds, ThLog,
+                            thNotify) {
 
     var $log = new ThLog("ThResultSetModel");
 
@@ -28,8 +27,16 @@ treeherder.factory('ThResultSetModel',
 
     var addRepository = function(repoName){
         //Initialize a new repository in the repositories structure
+        var locationSearch = _.clone($location.search());
+        $log.debug("locationSearch", locationSearch);
 
-        if(_.isEmpty(repositories[repoName])){
+        if(_.isEmpty(repositories[repoName]) ||
+           !_.isEqual(locationSearch, repositories[repoName].search)){
+            $log.debug(
+                "fetching new resultset list with parameters:",
+                locationSearch
+                );
+
             repositories[repoName] = {
 
                 name:repoName,
@@ -54,7 +61,8 @@ treeherder.factory('ThResultSetModel',
                 loadingStatus: {
                     appending: false,
                     prepending: false
-                }
+                },
+                search: locationSearch
             };
 
             // Add a connect listener
@@ -327,7 +335,7 @@ treeherder.factory('ThResultSetModel',
      * in the data model.
      */
     var fetchJobs = function(repoName, jobFetchList) {
-        ThJobModel.get_list({
+        ThJobModel.get_list(repoName, {
             id__in: jobFetchList.join()
         }).then(
             _.bind(updateJobs, $rootScope, repoName),
@@ -568,8 +576,13 @@ treeherder.factory('ThResultSetModel',
          */
         if(resultsetList.length > 0){
             repositories[repoName].loadingStatus.prepending = true;
-            thResultSets.getResultSets(0, resultsetList.length, resultsetList).
-            success( _.bind(prependResultSets, $rootScope, repoName) );
+            thResultSets.getResultSets(repoName, 0, resultsetList.length, resultsetList).
+            success( _.bind(prependResultSets, $rootScope, repoName) ).
+            error(function(data) {
+                thNotify.send("Error retrieving job data!", "danger", true);
+                $log.error(data);
+                prependResultSets(repoName, []);
+            });
         }
     };
 
@@ -580,9 +593,15 @@ treeherder.factory('ThResultSetModel',
          */
         repositories[repoName].loadingStatus.appending = true;
         thResultSets.getResultSets(
-            repositories[repoName].rsOffsetId, count
-            ).success( _.bind(appendResultSets, $rootScope, repoName) );
-
+            repoName,
+            repositories[repoName].rsOffsetId,
+            count).
+            success( _.bind(appendResultSets, $rootScope, repoName)).
+            error(function(data) {
+                thNotify.send("Error retrieving job data!", "danger", true);
+                $log.error(data);
+                appendResultSets(repoName, []);
+            });
     };
 
     //Public interface
@@ -616,4 +635,4 @@ treeherder.factory('ThResultSetModel',
 
     return api;
 
-}]);
+});

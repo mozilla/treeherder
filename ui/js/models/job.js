@@ -4,14 +4,14 @@ treeherder.factory('ThJobModel', function($http, ThLog, thUrl) {
     // ThJobModel is the js counterpart of job
 
     var ThJobModel = function(data) {
-        // creates a new instance of ThJobArtifactModel
+        // creates a new instance of ThJobModel
         // using the provided properties
         angular.extend(this, data);
     };
 
-    ThJobModel.get_uri = function(){return thUrl.getProjectUrl("/jobs/");};
+    ThJobModel.get_uri = function(repoName){return thUrl.getProjectUrl("/jobs/", repoName);};
 
-    ThJobModel.get_list = function(options) {
+    ThJobModel.get_list = function(repoName, options) {
         // a static method to retrieve a list of ThJobModel
         var query_string = $.param(options);
         return $http.get(ThJobModel.get_uri()+"?"+query_string)
@@ -24,9 +24,9 @@ treeherder.factory('ThJobModel', function($http, ThLog, thUrl) {
         });
     };
 
-    ThJobModel.get = function(pk) {
+    ThJobModel.get = function(repoName, pk) {
         // a static method to retrieve a single instance of ThJobModel
-        return $http.get(ThJobModel.get_uri()+pk+"/").then(function(response) {
+        return $http.get(ThJobModel.get_uri(repoName)+pk+"/").then(function(response) {
             return new ThJobModel(response.data);
         });
     };
