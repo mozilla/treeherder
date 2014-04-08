@@ -68,8 +68,9 @@ describe('JobsCtrl', function(){
 //        $httpBackend.flush();
     }));
 
+
     it('should be foo', function() {
-        expect(a).toEqual("foo");
+        expect(a).toEqual("bar");
     });
 
     /*

@@ -28,7 +28,7 @@ module.exports = function (config) {
         ],
 
         autoWatch: false,
-        singleRun: true,
+        singleRun: false,
 
         browsers: ['Firefox'],
 
