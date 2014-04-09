@@ -46,7 +46,6 @@ project_bound_router.register(
     base_name='bug-job-map',
 )
 
-
 # this is the default router for plain restful endpoints
 
 # refdata endpoints:
@@ -64,6 +63,10 @@ default_router.register(r'option', views.OptionViewSet)
 default_router.register(r'optioncollection', views.OptionCollectionViewSet)
 default_router.register(r'bugscache', views.BugscacheViewSet)
 default_router.register(r'failureclassification', views.FailureClassificationViewSet)
+default_router.register(r'failureclassification', views.FailureClassificationViewSet)
+default_router.register(r'user', views.UserViewSet)
+default_router.register(r'exclusion-profile', views.ExclusionProfileViewSet)
+default_router.register(r'job-filter', views.JobFilterViewSet)
 
 
 urlpatterns = patterns(

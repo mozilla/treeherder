@@ -3,21 +3,25 @@ import itertools
 import oauth2 as oauth
 
 from django.conf import settings
-from rest_framework import viewsets, serializers
+from django.contrib.auth.models import User
+
+from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action, link
 from rest_framework.reverse import reverse
 from rest_framework.exceptions import ParseError
 
 from rest_framework.authentication import SessionAuthentication
-from treeherder.webapp.api.permissions import IsStaffOrReadOnly
 
+from treeherder.webapp.api.permissions import (IsStaffOrReadOnly,
+                                               IsOwnerOrReadOnly)
 from treeherder.model import models
 from treeherder.model.derived import (JobsModel, DatasetNotFoundError,
                                       RefDataManager, ObjectNotFoundException)
 from treeherder.webapp.api.utils import UrlQueryFilter
 from treeherder.etl.oauth_utils import OAuthCredentials
 from treeherder.events.publisher import JobClassificationPublisher
+from treeherder.webapp.api import serializers as th_serializers
 
 
 def oauth_required(func):
@@ -713,21 +717,10 @@ class JobGroupViewSet(viewsets.ReadOnlyModelViewSet):
     model = models.JobGroup
 
 
-class RepositoryGroupSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.RepositoryGroup
-        fields = ('name', 'description')
-
-class RepositorySerializer(serializers.ModelSerializer):
-    repository_group = RepositoryGroupSerializer()
-
-    class Meta:
-        model = models.Repository
-
 class RepositoryViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for the refdata Repository model"""
     model = models.Repository
-    serializer_class = RepositorySerializer
+    serializer_class = th_serializers.RepositorySerializer
 
 
 class MachinePlatformViewSet(viewsets.ReadOnlyModelViewSet):
@@ -787,6 +780,11 @@ class OptionCollectionViewSet(viewsets.ReadOnlyModelViewSet):
     model = models.OptionCollection
 
 
+class OptionViewSet(viewsets.ReadOnlyModelViewSet):
+    """ViewSet for the refdata Option model"""
+    model = models.Option
+
+
 class JobTypeViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for the refdata JobType model"""
     model = models.JobType
@@ -795,3 +793,63 @@ class JobTypeViewSet(viewsets.ReadOnlyModelViewSet):
 class FailureClassificationViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for the refdata FailureClassification model"""
     model = models.FailureClassification
+
+
+#############################
+# User and exclusion profiles
+#############################
+
+
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Info about a logged-in user.
+    Used by treeherder-ui to inspect user properties like the exclusion profile
+    """
+    model = User
+    serializer_class = th_serializers.UserSerializer
+    authentication_classes = (SessionAuthentication,)
+
+    def get_queryset(self):
+        return User.objects.filter(id=self.request.user.id)
+
+
+class UserExclusionProfileViewSet(viewsets.ModelViewSet):
+    model = models.UserExclusionProfile
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = (IsOwnerOrReadOnly,)
+    serializer_class = th_serializers.UserExclusionProfileSerializer
+
+
+class JobFilterViewSet(viewsets.ModelViewSet):
+    model = models.JobFilter
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = (IsStaffOrReadOnly,)
+    serializer_class = th_serializers.JobFilterSerializer
+
+    def create(self, request, *args, **kwargs):
+        """
+        Overrides the default Viewset to set the current user
+        as the author of this filter
+        """
+        if "author" not in request.DATA:
+            request.DATA["author"] = request.user.id
+        return super(JobFilterViewSet, self).create(request, *args, **kwargs)
+
+
+class ExclusionProfileViewSet(viewsets.ModelViewSet):
+    """
+
+    """
+    model = models.ExclusionProfile
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = (IsStaffOrReadOnly,)
+    serializer_class = th_serializers.ExclusionProfileSerializer
+
+    def create(self, request, *args, **kwargs):
+        """
+        Overrides the default Viewset to set the current user
+        as the author of this exclusion profile
+        """
+        if "author" not in request.DATA:
+            request.DATA["author"] = request.user.id
+        return super(ExclusionProfileViewSet, self).create(request, *args, **kwargs)

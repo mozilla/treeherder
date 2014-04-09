@@ -1,0 +1,18 @@
+[
+    {
+        "pk": 1,
+        "model": "model.visibilityprofile",
+        "fields": {
+            "default": true,
+
+        }
+    },
+    {
+        "pk": 2,
+        "model": "djcelery.intervalschedule",
+        "fields": {
+            "every": 1,
+            "period": "minutes"
+        }
+    }
+]
