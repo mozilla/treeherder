@@ -4,15 +4,11 @@
 
 describe('JobsCtrl', function(){
     var $httpBackend, createResultSetCtrl, jobScope, resultsetScope;
-    var a = "foo";
 
     beforeEach(module('treeherder'));
 
-    beforeEach(inject(function (
-        $injector,
-        $rootScope,
-        $controller
-        ) {
+    beforeEach(inject(function ($injector, $rootScope, $controller
+    ) {
         var projectPrefix = 'http://local.treeherder.mozilla.org/api/project/mozilla-inbound/';
 
         $httpBackend = $injector.get('$httpBackend');
@@ -50,7 +46,14 @@ describe('JobsCtrl', function(){
             getJSONFixture('job_groups.json')
         );
 
-        a = "foo";
+        $httpBackend.whenGET('https://treestatus.mozilla.org/mozilla-inbound?format=json').respond(
+            {
+                "status": "closed",
+                "message_of_the_day": "See the <a href=\"https://wiki.mozilla.org/Tree_Rules/Inbound\">Inbound tree rules</a> before pushing. <a href=\"https://sheriffs.etherpad.mozilla.org/sheriffing-notes\">Sheriff notes/current issues</a>.",
+                "tree": "mozilla-inbound",
+                "reason": "Bustage"
+            }
+        );
 
         jobScope = $rootScope.$new();
 
@@ -67,11 +70,6 @@ describe('JobsCtrl', function(){
         };
         $httpBackend.flush();
     }));
-
-
-    it('should be foo', function() {
-        expect(a).toEqual("foo");
-    });
 
     /*
         Tests JobsCtrl
