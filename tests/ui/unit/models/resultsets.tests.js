@@ -9,21 +9,27 @@ describe('ThResultSetModel', function(){
 
     beforeEach(inject(function ($injector, $rootScope, $controller, ThResultSetModel) {
 
+        var projectPrefix = 'http://local.treeherder.mozilla.org/api/project/mozilla-inbound/';
+
         $httpBackend = $injector.get('$httpBackend');
         jasmine.getJSONFixtures().fixturesPath='base/test/mock';
 
-        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/resultset/?count=10&format=json&full=false').respond(
+        $httpBackend.whenGET(projectPrefix + 'resultset/?count=10&format=json&full=false').respond(
             getResultSets()
         );
 
-        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/jobs/1235/').respond(
+        $httpBackend.whenGET(projectPrefix + 'jobs/1235/').respond(
             getJSONFixture('job_1235.json')
         );
 
         rootScope = $rootScope.$new();
-        model = new ThResultSetModel();
-        model.fetchResultSets("foo", 1);
-//        $httpBackend.flush();
+        rootScope.repoName = "mozilla-inbound";
+
+        model = ThResultSetModel;
+        model.load(rootScope.repoName);
+        model.addRepository(rootScope.repoName);
+
+        $httpBackend.flush();
     }));
 
     /*

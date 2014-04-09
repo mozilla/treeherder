@@ -73,15 +73,3 @@ treeherder.provider('ThLogConfig', function() {
     };
 
 });
-
-treeherder.config(["$provide", function($provide, ThLog) {
-    $provide.decorator("$log", ["$delegate", function($delegate) {
-
-        $delegate.getInstance = function(className) {
-            return new ThLog(className);
-        };
-        return $delegate;
-
-    }]);
-
-}]);
