@@ -70,7 +70,7 @@ DROP TABLE IF EXISTS `datasource`;
  **************************/
 CREATE TABLE `datasource` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `project` varchar(25) COLLATE utf8_bin NOT NULL,
+  `project` varchar(50) COLLATE utf8_bin NOT NULL,
   `contenttype` varchar(25) COLLATE utf8_bin NOT NULL,
   `dataset` int(11) NOT NULL,
   `host` varchar(128) COLLATE utf8_bin NOT NULL,

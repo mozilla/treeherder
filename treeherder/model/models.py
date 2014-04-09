@@ -14,7 +14,6 @@ from django.core.cache import cache
 from django.db import models
 from django.db.models import Max
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save
 from warnings import filterwarnings, resetwarnings
 
 from jsonfield import JSONField
@@ -189,7 +188,7 @@ class DatasourceManager(models.Manager):
 
 class Datasource(models.Model):
     id = models.AutoField(primary_key=True)
-    project = models.CharField(max_length=25L)
+    project = models.CharField(max_length=50L)
     contenttype = models.CharField(max_length=25L)
     dataset = models.IntegerField()
     host = models.CharField(max_length=128L)
@@ -282,6 +281,9 @@ class Datasource(models.Model):
             if self.contenttype == 'objectstore':
                 self.oauth_consumer_key = uuid.uuid4()
                 self.oauth_consumer_secret = uuid.uuid4()
+
+        # validate the model before saving
+        self.full_clean()
 
         super(Datasource, self).save(*args, **kwargs)
         if inserting:

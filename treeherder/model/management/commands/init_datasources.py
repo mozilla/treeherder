@@ -1,7 +1,8 @@
 from optparse import make_option
 
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from treeherder.model.models import Datasource, Repository
+
 
 class Command(BaseCommand):
     help = ("Populate the datasource table and"
@@ -21,10 +22,10 @@ class Command(BaseCommand):
     )
 
     def handle(self, *args, **options):
-        projects = Repository.objects.all().values_list('name',flat=True)
+        projects = Repository.objects.all().values_list('name', flat=True)
         for project in projects:
-        	for contenttype in ("jobs","objectstore"):
-	        	Datasource.objects.get_or_create(
+            for contenttype in ("jobs","objectstore"):
+                Datasource.objects.get_or_create(
                     contenttype=contenttype,
                     dataset=1,
                     project=project,

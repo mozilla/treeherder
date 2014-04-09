@@ -105,7 +105,7 @@ class Migration(SchemaMigration):
         # Adding model 'Datasource'
         db.create_table(u'datasource', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('project', self.gf('django.db.models.fields.CharField')(max_length=25L)),
+            ('project', self.gf('django.db.models.fields.CharField')(max_length=50L)),
             ('contenttype', self.gf('django.db.models.fields.CharField')(max_length=25L)),
             ('dataset', self.gf('django.db.models.fields.IntegerField')()),
             ('host', self.gf('django.db.models.fields.CharField')(max_length=128L)),
