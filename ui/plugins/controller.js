@@ -1,12 +1,12 @@
 "use strict";
 
 treeherder.controller('PluginCtrl',
-
     function PluginCtrl($scope, $rootScope, thUrl, ThJobClassificationModel,
                         thClassificationTypes, ThJobModel, thEvents, dateFilter,
                         numberFilter, ThBugJobMapModel, thResultStatus, thSocket,
-                        ThResultSetModel, $log) {
+                        ThResultSetModel, ThLog) {
 
+        var $log = new ThLog("PluginCtrl");
 
         $scope.job = {};
 
@@ -18,7 +18,9 @@ treeherder.controller('PluginCtrl',
 
                 // get the details of the current job
                 ThJobModel.get($scope.job.id).then(function(data){
-                    _.extend($scope.job, data);
+                    $scope.job = data;
+                    $scope.$broadcast(thEvents.jobDetailLoaded);
+
                     updateVisibleFields();
                     $scope.logs = data.logs;
                 });
@@ -62,6 +64,17 @@ treeherder.controller('PluginCtrl',
                 };
         };
 
+        /**
+         * Test whether or not the selected job is a reftest
+         */
+        $scope.isReftest = function() {
+            if ($scope.selectedJob) {
+                return $scope.selectedJob.job_group_symbol === "R";
+            } else {
+                return false;
+            }
+        };
+
         $rootScope.$on(thEvents.jobClick, function(event, job) {
             selectJob(job, $rootScope.selectedJob);
             $rootScope.selectedJob = job;
@@ -75,7 +88,7 @@ treeherder.controller('PluginCtrl',
             $scope.updateBugs();
         });
 
-        $scope.classificationTypes = thClassificationTypes;
+        $scope.classificationTypes = thClassificationTypes.classifications;
 
         // load the list of existing classifications (including possibly a new one just
         // added).
@@ -100,7 +113,7 @@ treeherder.controller('PluginCtrl',
         };
 
         var updateClassification = function(classification){
-            if(classification.who != $scope.user.email){
+            if(classification.who !== $scope.user.email){
                 // get a fresh version of the job
                 ThJobModel.get_list({id:classification.id})
                 .then(function(job_list){
@@ -123,7 +136,7 @@ treeherder.controller('PluginCtrl',
 
             }
 
-        }
+        };
 
         thSocket.on("job_classification", updateClassification);
 

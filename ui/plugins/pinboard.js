@@ -1,11 +1,13 @@
 "use strict";
 
 treeherder.controller('PinboardCtrl',
-    function PinboardCtrl($scope, $rootScope, thEvents, thPinboard, thNotify) {
+    function PinboardCtrl($scope, $rootScope, thEvents, thPinboard, thNotify, ThLog) {
+
+        var $log = new ThLog(this.constructor.name);
 
         $rootScope.$on(thEvents.jobPin, function(event, job) {
             $scope.pinJob(job);
-            $rootScope.$digest();
+            $scope.$digest();
         });
 
         $scope.pinJob = function(job) {
@@ -44,6 +46,7 @@ treeherder.controller('PinboardCtrl',
                 }
                 $scope.classification.who = $scope.user.email;
                 thPinboard.save($scope.classification);
+                $rootScope.selectedJob = null;
             } else {
                 thNotify.send("must be logged in to classify jobs", "danger");
             }
@@ -76,6 +79,7 @@ treeherder.controller('PinboardCtrl',
         };
 
         $scope.saveEnteredBugNumber = function() {
+            $log.debug("new bug number to be saved: ", $scope.newEnteredBugNumber);
             thPinboard.addBug({id:$scope.newEnteredBugNumber});
             $scope.newEnteredBugNumber = null;
             $scope.toggleEnterBugNumber();
@@ -84,10 +88,12 @@ treeherder.controller('PinboardCtrl',
         $scope.viewJob = function(job) {
             $rootScope.selectedJob = job;
             $rootScope.$broadcast(thEvents.jobClick, job);
+            $rootScope.$broadcast(thEvents.selectJob, job);
         };
 
         $scope.classification = thPinboard.createNewClassification();
         $scope.pinnedJobs = thPinboard.pinnedJobs;
         $scope.relatedBugs = thPinboard.relatedBugs;
+
     }
 );

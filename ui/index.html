@@ -13,16 +13,11 @@
         <link href="css/persona-buttons.css" rel="stylesheet" media="screen">
 
     </head>
-    <body ng-controller="MainCtrl">
-        <th-global-top-nav-panel></th-global-top-nav-panel>
+    <body ng-controller="MainCtrl" ng-keydown="processKeyboardInput($event)">
+        <ng-include id="th-global-top-nav-panel" src="'partials/thGlobalTopNavPanel.html'"></ng-include>
         <div class="th-content">
 
             <span class="th-view-content" ng-cloak>
-                <div class="alert"
-                     ng-bind="statusMsg"
-                     ng-show="statusMsg"
-                     ng-class="{'alert-success': (statusColor=='green'), 'alert-error': (statusColor=='red')}">
-                </div>
                 <ng-view ></ng-view>
             </span>
 
@@ -31,7 +26,7 @@
         <!-- Footer -->
         <div class="nav navbar navbar-default navbar-fixed-bottom bottom-panel" ng-show="selectedJob">
             <resizable-panel></resizable-panel>
-            <div ng-include src="'plugins/pluginpanel.html'"></div>
+            <div class="full-height" ng-include src="'plugins/pluginpanel.html'"></div>
         </div>
 
         <th-notification-box></th-notification-box>
@@ -47,26 +42,39 @@
         <script src="vendor/socket.io.js"></script>
         <script src="vendor/angular-local-storage.min.js"></script>
         <script src="vendor/underscore-min.js"></script>
-        <script src="js/config/local.conf.js"></script>
+
         <script src="js/app.js"></script>
+        <script src="js/services/log.js"></script>
+        <script src="js/config/local.conf.js"></script>
         <script src="js/providers.js"></script>
-        <script src="js/directives.js"></script>
+        <!-- Directives -->
+        <script src="js/directives/main.js"></script>
+        <script src="js/directives/clonejobs.js"></script>
+        <script src="js/directives/persona.js"></script>
+        <script src="js/directives/resultsets.js"></script>
+        <script src="js/directives/top_nav_bar.js"></script>
+        <script src="js/directives/bottom_nav_panel.js"></script>
+        <!-- Main services -->
         <script src="js/services/main.js"></script>
         <script src="js/services/jobfilters.js"></script>
+        <script src="js/services/classifications.js"></script>
         <script src="js/services/pinboard.js"></script>
         <script src="js/services/resultsets.js"></script>
-        <script src="js/services/models/resultsets.js"></script>
-        <script src="js/services/models/job_artifact.js"></script>
-        <script src="js/services/models/job_filter.js"></script>
-        <script src="js/services/models/exclusion_profile.js"></script>
-        <script src="js/services/models/repository.js"></script>
-        <script src="js/services/models/bug_job_map.js"></script>
-        <script src="js/services/models/build_platform.js"></script>
-        <script src="js/services/models/job_type.js"></script>
-        <script src="js/services/models/classification.js"></script>
-        <script src="js/services/models/option.js"></script>
-        <script src="js/services/models/job.js"></script>
-        <script src="js/services/models/user.js"></script>
+        <script src="js/services/treestatus.js"></script>
+        <!-- Model services -->
+        <script src="js/models/resultsets.js"></script>
+        <script src="js/models/job_artifact.js"></script>
+        <script src="js/models/repository.js"></script>
+        <script src="js/models/bug_job_map.js"></script>
+        <script src="js/models/classification.js"></script>
+        <script src="js/models/job.js"></script>
+        <script src="js/models/job_filter.js"></script>
+        <script src="js/models/exclusion_profile.js"></script>
+        <script src="js/models/build_platform.js"></script>
+        <script src="js/models/job_type.js"></script>
+        <script src="js/models/option.js"></script>
+        <script src="js/models/user.js"></script>
+        <!-- Controllers -->
         <script src="js/controllers/main.js"></script>
         <script src="js/controllers/sheriff.js"></script>
         <script src="js/controllers/settings.js"></script>
@@ -75,12 +83,14 @@
         <script src="js/controllers/jobs.js"></script>
         <script src="js/controllers/machines.js"></script>
         <script src="js/controllers/timeline.js"></script>
+        <!-- Plugins -->
         <script src="plugins/controller.js"></script>
         <script src="plugins/pinboard.js"></script>
         <script src="plugins/annotations/controller.js"></script>
         <script src="plugins/tinderbox/controller.js"></script>
         <script src="plugins/bugs_suggestions/controller.js"></script>
         <script src="plugins/similar_jobs/controller.js"></script>
+
         <script src="js/filters.js"></script>
         <script src="vendor/Config.js"></script>
         <script src="https://login.persona.org/include.js"></script>
@@ -147,9 +157,28 @@
 
 <!-- Job Btn span -->
 <script type="'text/ng-template'" id="jobBtnClone.html">
-    <span style="margin-right:1px;" class="btn job-btn btn-xs {{ btnClass }}" data-jmkey="{{ key }}" title="{{ title }}">{{ value }}</span>
+    <span style="margin-right:1px;" class="btn job-btn btn-xs {{ btnClass }} {{ key }}" data-jmkey="{{ key }}" title="{{ title }}">{{ value }}</span>
 </script>
 
 
+<!-- Tooltip for job info-->
+<script type="'text/ng-template'" id="jobInfoTooltip.html">
+    <div>
+        <table class="table-super-condensed table-striped">
+            <tr>
+                <th class="small">Result</th>
+                <td class="small {{ resultStatusClass }}">{{ job.result }}</td>
+            </tr>
+            <tr>
+                <th class="small">Machine name</th>
+                <td class="small">
+                    <a target="_blank" href="https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name={{ job.machine_name }}">{{ job.machine_name }}</a>
+                </td>
+            </tr>
+            <tr ng-repeat="(label, value) in visibleFields"><th>{{label}}</th><td>{{ value }}</td></tr>
+        </table>
+
+    </div>
+</script>
     </body>
 </html>

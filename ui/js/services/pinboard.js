@@ -2,7 +2,9 @@
 
 treeherder.factory('thPinboard',
                    function($http, thUrl, ThJobClassificationModel, $rootScope,
-                            thEvents, ThBugJobMapModel, thNotify) {
+                            thEvents, ThBugJobMapModel, thNotify, ThLog) {
+
+    var $log = new ThLog("thPinboard");
 
     var pinnedJobs = {};
     var relatedBugs = {};
@@ -10,15 +12,18 @@ treeherder.factory('thPinboard',
     var saveClassification = function(job) {
         var classification = new ThJobClassificationModel(this);
 
-        job.failure_classification_id = classification.failure_classification_id;
+        // classification can be left unset making this a no-op
+        if (classification.failure_classification_id > 0) {
+            job.failure_classification_id = classification.failure_classification_id;
 
-        classification.job_id = job.id;
-        classification.create().
-            success(function(data) {
-                thNotify.send("classification saved for " + job.platform + ": " + job.job_type_name, "success");
-            }).error(function(data) {
-                thNotify.send("error saving classification for " + job.platform + ": " + job.job_type_name, "danger");
-            });
+            classification.job_id = job.id;
+            classification.create().
+                success(function(data) {
+                    thNotify.send("classification saved for " + job.platform + ": " + job.job_type_name, "success");
+                }).error(function(data) {
+                    thNotify.send("error saving classification for " + job.platform + ": " + job.job_type_name, "danger");
+                });
+        }
     };
 
     var saveBugs = function(job) {
@@ -40,8 +45,12 @@ treeherder.factory('thPinboard',
 
     var api = {
         pinJob: function(job) {
-            pinnedJobs[job.id] = job;
-            api.count.numPinnedJobs = _.size(pinnedJobs);
+            if (api.spaceRemaining() > 0) {
+                pinnedJobs[job.id] = job;
+                api.count.numPinnedJobs = _.size(pinnedJobs);
+            } else {
+                thNotify.send("Pinboard is already at maximum size of " + api.maxNumPinned, "danger", true);
+            }
         },
 
         unPinJob: function(id) {
@@ -59,8 +68,11 @@ treeherder.factory('thPinboard',
         },
 
         addBug: function(bug) {
+            $log.debug("adding bug ", bug);
             relatedBugs[bug.id] = bug;
             api.count.numRelatedBugs = _.size(relatedBugs);
+            $log.debug("related bugs", relatedBugs);
+
         },
 
         removeBug: function(id) {
@@ -105,23 +117,26 @@ treeherder.factory('thPinboard',
 
         // save bug associations only on all pinned jobs
         saveBugsOnly: function() {
-            if (!_.size(relatedBugs)) {
-                thNotify.send("no bug associations to save");
-            } else {
-                _.each(pinnedJobs, saveBugs);
-                $rootScope.$broadcast(thEvents.bugsAssociated, {jobs: pinnedJobs});
-            }
+            _.each(pinnedJobs, saveBugs);
+            $rootScope.$broadcast(thEvents.bugsAssociated, {jobs: pinnedJobs});
         },
 
         hasPinnedJobs: function() {
             return !_.isEmpty(pinnedJobs);
         },
+
+        spaceRemaining: function() {
+            return api.maxNumPinned - api.count.numPinnedJobs;
+        },
+
         pinnedJobs: pinnedJobs,
         relatedBugs: relatedBugs,
         count: {
             numPinnedJobs: 0,
             numRelatedBugs: 0
-        }
+        },
+        // not sure what this should be, but we need some limit, I think.
+        maxNumPinned: 500
     };
 
     return api;

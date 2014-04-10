@@ -1,12 +1,12 @@
 body {
-    padding-top: 64px;
+    padding-top: 61px;
     padding-bottom: 500px;
-    min-width: 800px;
+    min-width: 970px;
     width: auto !important;
     width: 1300px;
 }
 
-.nav, .pagination, .carousel, .panel-title a {
+.pagination, .carousel, .panel-title a {
     cursor: pointer;
 }
 
@@ -15,12 +15,16 @@ body {
     visibility: hidden;
 }
 
+.full-height {
+    height: 100%;
+}
+
 .th-navbar {
-    min-width: 800px;
+    min-width: 970px;
 }
 
 .navbar {
-    min-width: 800px;
+    min-width: 970px;
     min-height: 36px;
 }
 
@@ -38,9 +42,19 @@ body {
 
 .th-global-navbar {
     border-bottom: 1px solid black;
-    min-width: 800px;
+    min-width: 970px;
 }
 
+.watched-repo-dropdown-item {
+    margin: 0px 10px;
+}
+.watched-repo-dropdown-item > a {
+    white-space: normal;
+}
+
+.watched-repo-navbar {
+    overflow: visible;
+}
 .th-username {
     margin-right: 5px;
 }
@@ -51,14 +65,34 @@ body {
 
 .th-context-navbar {
     background-color: #354048;
-    height: 30px;
-    min-width: 800px;
+    min-width: 970px;
+    overflow: visible;
+}
+
+.treeClosed {
+    color: rgb(161, 52, 53);
+}
+
+.treeOpen {
+    color: green;
+}
+
+.treeApproval {
+    color: #fb9910;
+}
+
+.treeUnavailable {
+    color: lightgray;
+}
+
+#platform-job-text-search-field {
+    height:28px;
 }
 
 .th-content {
     display: inline-block;
     overflow: hidden;
-    min-width: 800px;
+    min-width: 970px;
     width: 100%;
     padding-bottom: 101px;
     white-space: nowrap;
@@ -76,8 +110,8 @@ body {
     background-color: lightgray;
     padding: 10px;
     border: 1px solid black;
-    max-height: 500px;
-    overflow: auto;
+    max-height: 300px;
+    overflow-y: auto;
 }
 
 .th-top-nav-options-panel .th-option-heading {
@@ -147,6 +181,15 @@ body {
     display: inline-block;
     margin: 5px 5px 0 5px;
     min-width: 225px;
+}
+
+.th-repo-group-items .dropdown-menu {
+    top: inherit;
+    left: inherit;
+}
+
+.th-repo-group-items .dropdown-toggle {
+    cursor: pointer;
 }
 
 /**
@@ -241,8 +284,10 @@ body {
 
 .revision-link {
     padding-top: 5px;
-    width: 115px;
+    width: 130px;
     display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .revision-button {
@@ -262,6 +307,7 @@ body {
 .result-set .job-list-nopad {
     padding-left: 0;
     padding-right: 0;
+    display: block;
 }
 
 .selected-job {
@@ -313,8 +359,12 @@ div.navbar-fixed-bottom{
 }
 
 div.navbar-fixed-bottom .tab-content{
-    height:160px;
+    height: calc(100% - 22px);
     overflow-y: auto;
+}
+
+.bottom-panel-tabs {
+    height: 100%;
 }
 
 .bottom-panel-tabs .nav li a {
@@ -325,34 +375,55 @@ div.navbar-fixed-bottom dt,
 div.navbar-fixed-bottom dt {
     font-size:.8em;
 }
-#bottom-left-panel {width:242px; position: absolute; left:5px;}
-#bottom-left-panel .panel{padding:5px;}
+#bottom-left-panel {
+    width:242px;
+    position: absolute;
+    left:5px;
+    bottom: 5px;
+}
+#bottom-left-panel .panel{
+    padding:5px;
+}
+
+#bottom-left-panel .panel-head{
+    overflow: auto;
+    height: 100%;
+}
+
+#bottom-left-panel .table-super-condensed {
+    width: 100%;
+}
+
 #bottom-center-panel {
-    margin-right: 90px;
+    margin-right: 98px;
     margin-left: 242px;
 }
-#bottom-menu {position: absolute; right:-5px; width: 100px}
+#bottom-menu {position: absolute; right:0; width: 104px}
 
-.result-status-shading-success {background-color: rgba(120, 196, 192, 0.54);}
-.result-status-shading-testfailed {background-color: rgba(221, 102, 2, 0.56);}
-.result-status-shading-busted {background-color: rgba(144, 0, 0, 0.60);}
-.result-status-shading-exception {background-color: rgba(61, 2, 85, 0.50);}
-.result-status-shading-retry {background-color: #263fc3;}
-.result-status-shading-usercancel {background-color: rgba(250, 115, 172, 0.63)}
+.result-status-shading-success {background-color: rgba(2, 131, 44, 0.24);}
+.result-status-shading-testfailed {background-color: rgba(221, 102, 2, 0.25);}
+.result-status-shading-busted {background-color: rgba(144, 0, 0, 0.25);}
+.result-status-shading-exception {background-color: rgba(61, 2, 85, 0.25);}
+.result-status-shading-retry {background-color: rgba(38, 63, 195, 0.25);}
+.result-status-shading-usercancel {background-color: rgba(250, 115, 172, 0.25)}
 .result-status-shading-pending {background-color: white;}
 .result-status-shading-running {background-color: white;}
 
-.bottom-shadowed-panel {
-    height: 195px;
+.bottom-shadowed-panel-with-pinboard {
+    height: calc(100% - 75px);
+}
+
+.bottom-shadowed-panel-without-pinboard {
+    height: calc(100% - 20px);
 }
 
 .bottom-menu-group {
-    width: 90px;
+    width: 98px;
     margin-bottom: 5px;
 }
 
 .save-btn {
-    width: 73px;
+    width: 81px;
 }
 
 .save-btn-dropdown {
@@ -407,12 +478,12 @@ div.navbar-fixed-bottom dt {
 }
 
 .pinboard-classification-comment {
-    width: 185px;
+    width: 177px;
     margin-top: 5px;
 }
 
 .pinboard-classification-select {
-    width: 185px;
+    width: 177px;
 }
 
 .pinned-job {
@@ -427,7 +498,10 @@ div.navbar-fixed-bottom dt {
     margin-top: 0.3em;
 }
 
-.panel-body{ padding:5px;}
+.panel-body{
+    padding:5px;
+    height: 100%;
+}
 
 .timestamp-name {
     overflow: hidden;
@@ -502,13 +576,16 @@ div.navbar-fixed-bottom dt {
     width: 69px;
 }
 
+.click-able-icon, .nav-tabs li {
+    cursor: pointer;
+}
 
 /**
  * CUSTOM BUTTONS
  */
 
 .btn-view-nav {
-  background-color: rgba(63, 74, 81, 0.56);
+  background-color: rgba(75, 86, 93, 0.56);
   border-color: #22282d;
   color: lightgray;
   border-radius: 0;
@@ -1015,7 +1092,7 @@ fieldset[disabled] .btn-repo.active {
     position:fixed;
     top:70px;
     right:10px;
-    z-index: 9000;
+    z-index: 1100;
 }
 
 #notification_box div.alert{
@@ -1045,3 +1122,5 @@ fieldset[disabled] .btn-repo.active {
     display: inline-block;
     vertical-align: top;
 }
+
+div.logviewer-step{ padding:6px 6px;}

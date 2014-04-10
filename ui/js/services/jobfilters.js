@@ -21,7 +21,11 @@
  * Each field is AND'ed so that, if a field exists in ``filters`` then the job
  * must match at least one value in every field.
  */
-treeherder.factory('thJobFilters', function(thResultStatusList, $log, $rootScope) {
+treeherder.factory('thJobFilters',
+                   function(thResultStatusList, ThLog, $rootScope,
+                            ThResultSetModel, thPinboard, thNotify) {
+
+    var $log = new ThLog("thJobFilters");
 
     /**
      * If a custom resultStatusList is passed in (like for individual
@@ -32,19 +36,29 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log, $rootScope
      * means it must have a value set, ``false`` means it must be null.
      */
     var checkFilter = function(field, job, resultStatusList) {
-        // resultStatus is a special case that spans two job fields
+        $log.debug("checkFilter", field, job, resultStatusList);
         if (field === api.resultStatus) {
+            // resultStatus is a special case that spans two job fields
             var filterList = resultStatusList || filters[field].values;
             return _.contains(filterList, job.result) ||
                    _.contains(filterList, job.state);
+        } else if (field === api.failure_classification_id) {
+            // fci is a special case, too.  Where 1 is "not classified"
+            var fci_filters = filters[field].values;
+            if (_.contains(fci_filters, false) && (job.failure_classification_id === 1 ||
+                                                   job.failure_classification_id === null)) {
+                return true;
+            }
+            return _.contains(fci_filters, true) && job.failure_classification_id > 1;
         } else {
             var jobFieldValue = getJobFieldValue(job, field);
             if (_.isUndefined(jobFieldValue)) {
-                //$log.warn("job object has no field of '" + field + "'.  Skipping filtration.");
+                // if a filter is added somehow, but the job object doesn't
+                // have that field, then don't filter.  Consider it a pass.
                 return true;
             }
 
-            $log.debug(field + ": " + JSON.stringify(job));
+            $log.debug("jobField filter", field, job);
             switch (filters[field].matchType) {
                 case api.matchType.isnull:
                     jobFieldValue = !_.isNull(jobFieldValue);
@@ -117,7 +131,7 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log, $rootScope
                 value = value.toLowerCase();
             }
             if (filters.hasOwnProperty(field)) {
-                if (!_.contains(filters[field], value)) {
+                if (!_.contains(filters[field].values, value)) {
                     filters[field].values.push(value);
                     filters[field].matchType = matchType;
                 }
@@ -128,8 +142,11 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log, $rootScope
                     removeWhenEmpty: true
                 };
             }
-            $log.debug("adding " + field + ": " + value);
-            $log.debug(filters);
+
+            filterKeys = _.keys(filters);
+
+            $log.debug("adding ", field, ": ", value);
+            $log.debug("filters", filters);
         },
         removeFilter: function(field, value) {
             if (filters.hasOwnProperty(field)) {
@@ -139,7 +156,7 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log, $rootScope
                 }
                 var idx = filters[field].values.indexOf(value);
                 if(idx > -1) {
-                    $log.debug("removing " + value);
+                    $log.debug("removing ", value);
                     filters[field].values.splice(idx, 1);
                 }
             }
@@ -149,7 +166,9 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log, $rootScope
             if (filters[field].removeWhenEmpty && filters[field].values.length === 0) {
                 delete filters[field];
             }
-            $log.debug(filters);
+
+            filterKeys = _.keys(filters);
+            $log.debug("filters", filters);
         },
         /**
          * used mostly for resultStatus doing group toggles
@@ -159,7 +178,7 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log, $rootScope
          * @param add - true if adding, false if removing
          */
         toggleFilters: function(field, values, add) {
-            $log.debug("toggling: " + add);
+            $log.debug("toggling: ", add);
             var action = add? api.addFilter: api.removeFilter;
             for (var i = 0; i < values.length; i++) {
                 action(field, values[i]);
@@ -182,7 +201,7 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log, $rootScope
                     return false;
                 }
             }
-            if($rootScope.searchQuery != ""){
+            if(typeof $rootScope.searchQuery === 'string'){
                 //Confirm job matches search query
                 if(job.searchableStr.toLowerCase().indexOf(
                     $rootScope.searchQuery.toLowerCase()
@@ -206,6 +225,31 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log, $rootScope
         getFilters: function() {
             return filters;
         },
+        /**
+         * Pin all jobs that pass the GLOBAL filters.  Ignores toggling at
+         * the result set level.
+         */
+        pinAllShownJobs: function() {
+            var jobs = ThResultSetModel.getJobMap($rootScope.repoName);
+            var jobsToPin = [];
+
+            var queuePinIfShown = function(jMap) {
+                if (api.showJob(jMap.job_obj)) {
+                    jobsToPin.push(jMap.job_obj);
+                }
+            };
+            _.forEach(jobs, queuePinIfShown);
+
+            if (_.size(jobsToPin) > thPinboard.spaceRemaining()) {
+                jobsToPin = jobsToPin.splice(0, thPinboard.spaceRemaining());
+                thNotify.send("Pinboard max size exceeded.  Pinning only the first " + thPinboard.spaceRemaining(),
+                              "danger",
+                              true);
+            }
+
+            $rootScope.selectedJob = jobsToPin[0];
+            _.forEach(jobsToPin, thPinboard.pinJob);
+        },
 
         // CONSTANTS
         failure_classification_id: "failure_classification_id",
@@ -213,7 +257,8 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log, $rootScope
         matchType: {
             exactstr: 0,
             substr: 1,
-            isnull: 2
+            isnull: 2,
+            bool: 3
         }
     };
 
@@ -225,7 +270,7 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log, $rootScope
             removeWhenEmpty: false
         },
         failure_classification_id: {
-            matchType: api.matchType.isnull,
+            matchType: api.matchType.bool,
             values: [true, false],
             removeWhenEmpty: false
         }

@@ -1,8 +1,10 @@
 "use strict";
 
-treeherder.controller('StatusFilterPanelCtrl',
-    function StatusFilterPanelCtrl($scope, $rootScope, $routeParams, $location, $log,
-                               localStorageService, thResultStatusList, thEvents, thJobFilters) {
+treeherder.controller('FilterPanelCtrl',
+    function FilterPanelCtrl($scope, $rootScope, $routeParams, $location, ThLog,
+                             localStorageService, thResultStatusList, thEvents,
+                             thJobFilters) {
+        var $log = new ThLog(this.constructor.name);
 
         $scope.filterOptions = thResultStatusList;
 
@@ -29,8 +31,10 @@ treeherder.controller('StatusFilterPanelCtrl',
 
         /**
          * Handle checking the "all" button for a result status group
+         *
+         * quiet - whether or not to broadcast a message about this change.
          */
-        $scope.toggleResultStatusGroup = function(group) {
+        $scope.toggleResultStatusGroup = function(group, quiet) {
             var check = function(rs) {
                 $scope.resultStatusFilters[rs] = group.allChecked;
             };
@@ -41,9 +45,35 @@ treeherder.controller('StatusFilterPanelCtrl',
                 group.resultStatuses,
                 group.allChecked
             );
-            $rootScope.$broadcast(thEvents.globalFilterChanged,
-                                  {target: group, newValue: group.allChecked});
-            showCheck();
+
+            if (!quiet) {
+                $rootScope.$broadcast(thEvents.globalFilterChanged,
+                                      {target: group, newValue: group.allChecked});
+            }
+        };
+
+        $rootScope.$on(thEvents.showUnclassifiedFailures, function() {
+            $scope.showUnclassifiedFailures();
+        });
+
+        /**
+         * Handle clicking the ``unclassified failures`` button.
+         */
+        $scope.showUnclassifiedFailures = function() {
+            $scope.filterGroups.failures.allChecked = true;
+            $scope.filterGroups.nonfailures.allChecked = false;
+            $scope.filterGroups.inProgress.allChecked = false;
+            $scope.classifiedFilter = false;
+            $scope.unClassifiedFilter = true;
+
+            $scope.toggleResultStatusGroup($scope.filterGroups.failures, true);
+            $scope.toggleResultStatusGroup($scope.filterGroups.nonfailures, true);
+            $scope.toggleResultStatusGroup($scope.filterGroups.inProgress, true);
+
+            $scope.setClassificationFilter(true, $scope.classifiedFilter, true);
+            $scope.setClassificationFilter(false, $scope.unClassifiedFilter, true);
+
+            $rootScope.$broadcast(thEvents.globalFilterChanged);
         };
 
         /**
@@ -62,7 +92,15 @@ treeherder.controller('StatusFilterPanelCtrl',
             }
             $rootScope.$broadcast(thEvents.globalFilterChanged,
                                   {target: filter, newValue: $scope.resultStatusFilters[filter]});
-            showCheck();
+        };
+
+        /**
+         * Toggle the filters to show either unclassified or classified jobs,
+         * neither or both.
+         */
+        $scope.toggleClassificationFilter = function(isClassified) {
+            var isChecked = !(isClassified? $scope.classifiedFilter: $scope.unClassifiedFilter);
+            $scope.setClassificationFilter(isClassified, isChecked, false);
         };
 
         /**
@@ -72,19 +110,19 @@ treeherder.controller('StatusFilterPanelCtrl',
          *                       ``classified`` (when true) or ``unclassified``
          *                       (when false)
          */
-        $scope.toggleClassificationFilter = function(isClassified) {
+        $scope.setClassificationFilter = function(isClassified, isChecked, quiet) {
             var field = "failure_classification_id";
             // this function is called before the checkbox value has actually
             // changed the scope model value, so change to the inverse.
-            var isChecked = !(isClassified? $scope.classifiedFilter: $scope.unClassifiedFilter);
             var func = isChecked? thJobFilters.addFilter: thJobFilters.removeFilter;
             var target = isClassified? "classified": "unclassified";
 
-            func(field, isClassified, thJobFilters.matchType.isnull);
+            func(field, isClassified, thJobFilters.matchType.bool);
 
-            $rootScope.$broadcast(thEvents.globalFilterChanged,
-                                  {target: target, newValue: isChecked});
-            showCheck();
+            if (!quiet) {
+                $rootScope.$broadcast(thEvents.globalFilterChanged,
+                                      {target: target, newValue: isChecked});
+            }
         };
 
         $scope.createFieldFilter = function() {
@@ -96,7 +134,7 @@ treeherder.controller('StatusFilterPanelCtrl',
 
 
         $scope.addFieldFilter = function() {
-            $log.debug("adding filter of " + $scope.newFieldFilter.field);
+            $log.debug("adding filter", $scope.newFieldFilter.field);
             if (!$scope.newFieldFilter || $scope.newFieldFilter.field === "" || $scope.newFieldFilter.value === "") {
                 return;
             }
@@ -112,7 +150,6 @@ treeherder.controller('StatusFilterPanelCtrl',
             $rootScope.$broadcast(thEvents.globalFilterChanged,
                                   {target: $scope.newFieldFilter.field, newValue: $scope.newFieldFilter.value});
             $scope.newFieldFilter = null;
-            showCheck();
 
         };
 
@@ -123,11 +160,10 @@ treeherder.controller('StatusFilterPanelCtrl',
             $rootScope.$broadcast(thEvents.globalFilterChanged,
                                   {target: "allFieldFilters", newValue: null});
             $scope.fieldFilters = [];
-            showCheck();
         };
 
         $scope.removeFilter = function(index) {
-            $log.debug("removing index: " + index);
+            $log.debug("removing index", index);
             thJobFilters.removeFilter(
                 $scope.fieldFilters[index].field,
                 $scope.fieldFilters[index].value
@@ -135,40 +171,11 @@ treeherder.controller('StatusFilterPanelCtrl',
             $rootScope.$broadcast(thEvents.globalFilterChanged,
                                   {target: $scope.fieldFilters[index].field, newValue: null});
             $scope.fieldFilters.splice(index, 1);
-            showCheck();
         };
 
-        /*
-        @@@ TODO: CAMD: test code, remove before merge.
-         */
-        var jobs = [];
-        $scope.filterGroups.inProgress.resultStatuses.forEach(function(rs) {jobs.push({
-            state: rs,
-            result: "unknown",
-            failure_classification_id: null
-            });});
-
-        $scope.filterGroups.failures.resultStatuses.forEach(function(rs) {jobs.push({
-            state: "completed",
-            result: rs,
-            job_type_symbol: "A",
-            job_type_name: "Apples",
-            job_group_symbol: "M",
-            job_group_name: "Mochitest",
-            failure_classification_id: "bird"
-            });});
-        $scope.filterGroups.nonfailures.resultStatuses.forEach(function(rs) {jobs.push({
-            state: "completed",
-            result: rs
-            });});
-
-        var showCheck = function() {
-            jobs.forEach(function(job) {
-               $log.debug("show job: " + JSON.stringify(job) + ": " + thJobFilters.showJob(job));
-            });
-            $log.debug(JSON.stringify(thJobFilters.getFilters()));
+        $scope.pinAllShownJobs = function() {
+            thJobFilters.pinAllShownJobs();
         };
-        // END test code
 
         $scope.resultStatusFilters = {};
         for (var i = 0; i < $scope.filterOptions.length; i++) {

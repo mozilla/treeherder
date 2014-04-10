@@ -10,42 +10,12 @@ treeherder.provider('thServiceDomain', function() {
     };
 });
 
-treeherder.provider('thClassificationTypes', function() {
-    this.$get = function() {
-        return {
-            1: {
-                   name: "not classified",
-                   star: ""
-            },
-            2: {
-                   name: "expected fail",
-                   star: "label-info"
-            },
-            3: {
-                   name: "fixed by backout",
-                   star: "label-success"
-            },
-            4: {
-                   name: "intermittent",
-                   star: "label-warning"
-            },
-            5: {
-                   name: "infra",
-                   star: "label-default"
-            },
-            6: {
-                   name: "intermittent needs filing",
-                   star: "label-danger"
-            }
-        };
-    };
-});
-
 treeherder.provider('thResultStatusList', function() {
     this.$get = function() {
         return ['success', 'testfailed', 'busted', 'exception', 'retry', 'running', 'pending'];
     };
 });
+
 treeherder.provider('thResultStatus', function() {
     this.$get = function() {
         return function(job) {
@@ -57,6 +27,7 @@ treeherder.provider('thResultStatus', function() {
         };
     };
 });
+
 treeherder.provider('thResultStatusObject', function() {
     var getResultStatusObject = function(){
         return {
@@ -203,6 +174,9 @@ treeherder.provider('thEvents', function() {
             // fired (surprisingly) when a job is clicked
             jobClick: "job-click-EVT",
 
+            // fired when the job details are loaded
+            jobDetailLoaded: "job-detail-loaded-EVT",
+
             // fired when a job is shift-clicked
             jobPin: "job-pin-EVT",
 
@@ -230,9 +204,21 @@ treeherder.provider('thEvents', function() {
 
             toggleJobs: "toggle-jobs-EVT",
 
+            toggleUnclassifiedFailures: "toggle-unclassified-failures-EVT",
+
+            selectNextUnclassifiedFailure: "next-unclassified-failure-EVT",
+
+            selectPreviousUnclassifiedFailure: "previous-unclassified-failure-EVT",
+
             searchPage: "search-page-EVT",
 
-            repoChanged: "repo-changed-EVT"
+            repoChanged: "repo-changed-EVT",
+
+            // throwing this event will filter jobs to only show failures
+            // that have no classification.
+            showUnclassifiedFailures: "show-unclassified-failures-EVT",
+
+            selectJob: "select-job-EVT"
         };
     };
 });

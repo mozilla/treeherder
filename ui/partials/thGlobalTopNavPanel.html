@@ -23,44 +23,43 @@
                        ng-show="isSheriffPanelShowing"></i>
                 </span>
             </span>
-            <span class="btn btn-view-nav"
-                  ng-class="{'active': (isRepoPanelShowing)}"
-                  ng-click="isRepoPanelShowing=!isRepoPanelShowing"><span>repos</span>
-                <i class="glyphicon glyphicon-chevron-down lightgray"
-                   ng-hide="isRepoPanelShowing"></i>
-                <i class="glyphicon glyphicon-chevron-up lightgray"
-                   ng-show="isRepoPanelShowing"></i>
+            <span class="pull-right">
+                <span class="btn btn-view-nav"
+                      ng-class="{'active': (isRepoPanelShowing)}"
+                      ng-click="isRepoPanelShowing=!isRepoPanelShowing"><span>Repos</span>
+                    <i class="glyphicon glyphicon-chevron-down lightgray"
+                       ng-hide="isRepoPanelShowing"></i>
+                    <i class="glyphicon glyphicon-chevron-up lightgray"
+                       ng-show="isRepoPanelShowing"></i>
+                </span>
+                <span class="btn btn-view-nav"
+                      ng-class="{'active': (isFilterPanelShowing)}"
+                      ng-click="isFilterPanelShowing=!isFilterPanelShowing"><span>Filters</span>
+                    <i class="glyphicon glyphicon-chevron-down lightgray"
+                       ng-hide="isFilterPanelShowing"></i>
+                    <i class="glyphicon glyphicon-chevron-up lightgray"
+                       ng-show="isFilterPanelShowing"></i>
+                </span>
+                <a class="btn btn-view-nav" href="help.html" target="_blank">Help</a>
+                <span class="nav-text white th-username">{{user.email}}</span>
+                <!--TODO: change this condition to enable the settings panel-->
+                <span ng-show="false" class="btn btn-view-nav"
+                      ng-class="{'active': (isSettingsPanelShowing)}"
+                      ng-click="isSettingsPanelShowing=!isSettingsPanelShowing"><span>Settings</span>
+                    <i class="glyphicon glyphicon-chevron-down lightgray"
+                       ng-hide="isSettingsPanelShowing"></i>
+                    <i class="glyphicon glyphicon-chevron-up lightgray"
+                       ng-show="isSettingsPanelShowing"></i>
+                </span>
+                <persona-buttons></persona-buttons>
             </span>
-            <span class="btn btn-view-nav"
-                  ng-class="{'active': (isFilterPanelShowing)}"
-                  ng-click="isFilterPanelShowing=!isFilterPanelShowing"><span>filters</span>
-                <i class="glyphicon glyphicon-chevron-down lightgray"
-                   ng-hide="isFilterPanelShowing"></i>
-                <i class="glyphicon glyphicon-chevron-up lightgray"
-                   ng-show="isFilterPanelShowing"></i>
-            </span>
-            <a class="btn btn-view-nav" href="help.html" target="_blank">help</a>
-            <span class="nav-text white th-username">{{user.email}}</span>
 
-            <!--TODO: change this condition to enable the settings panel-->
-            <span ng-show="false" class="btn btn-view-nav"
-                  ng-class="{'active': (isSettingsPanelShowing)}"
-                  ng-click="isSettingsPanelShowing=!isSettingsPanelShowing"><span>Settings</span>
-                <i class="glyphicon glyphicon-chevron-down lightgray"
-                   ng-hide="isSettingsPanelShowing"></i>
-                <i class="glyphicon glyphicon-chevron-up lightgray"
-                   ng-show="isSettingsPanelShowing"></i>
-            </span>
 
-            <persona-buttons></persona-buttons>
-        </span>
-
+        </div>
+        <ng-include class="watched-repo-navbar" src="'partials/thWatchedRepoPanel.html'" ng-show="locationPath==='jobs'">
+        </ng-include>
     </div>
-    <th-watched-repo-panel ng-show="locationPath==='jobs'"></th-watched-repo-panel>
-    <div ng-show="isFilterPanelShowing">
-        <th-status-filter-panel></th-status-filter-panel>
-    </div>
-    <th-repo-panel ng-show="isRepoPanelShowing"></th-repo-panel>
-    <th-sheriff-panel ng-show="isSheriffPanelShowing"></th-sheriff-panel>
-    <th-settings-panel ng-show="isSettingsPanelShowing"></th-settings-panel>
+    <ng-include src="'partials/thSheriffPanel.html'" ng-show="isSheriffPanelShowing"></ng-include>
+    <ng-include src="'partials/thFilterPanel.html'" ng-show="isFilterPanelShowing"></ng-include>
+    <ng-include src="'partials/thRepoPanel.html'" ng-show="isRepoPanelShowing"></ng-include>
 </nav>

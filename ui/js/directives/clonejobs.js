@@ -2,11 +2,19 @@
 
 /* Directives */
 treeherder.directive('thCloneJobs', function(
-        $rootScope, $http, $log, thUrl, thCloneHtml, thServiceDomain,
+        $rootScope, $http, ThLog, thUrl, thCloneHtml, thServiceDomain,
         thResultStatusInfo, thEvents, thAggregateIds, thJobFilters,
         thResultStatusObject, ThResultSetModel){
 
-    var lastJobElSelected = {};
+    var $log = new ThLog("thCloneJobs");
+
+    var lastJobElSelected, lastJobObjSelected;
+
+    var classificationRequired = {
+        "busted":1,
+        "exception":1,
+        "testfailed":1
+        };
 
     // CSS classes
     var btnCls = 'btn-xs';
@@ -38,15 +46,73 @@ treeherder.directive('thCloneJobs', function(
         };
 
     var getHoverText = function(job) {
-        var duration = Math.round((job.end_timestamp - job.submit_timestamp) / 60);
         var jobStatus = job.result;
-        if (job.state != "completed") {
+        if (job.state !== "completed") {
             jobStatus = job.state;
         }
-        return job.job_type_name + " - " + jobStatus + " - " + duration + "mins";
+        var result = job.job_type_name + " - " + jobStatus;
+        $log.debug("job timestamps", job, job.end_timestamp, job.submit_timestamp);
+        if (job.end_timestamp && job.submit_timestamp) {
+            var duration = Math.round((job.end_timestamp - job.submit_timestamp) / 60);
+            result = result + " - " + duration + "mins";
+        }
+        return result;
     };
 
-    var selectJob = function(el){
+    //Global event listeners
+    $rootScope.$on(
+        thEvents.selectNextUnclassifiedFailure, function(ev){
+
+            var jobMap = ThResultSetModel.getJobMap($rootScope.repoName);
+
+            var targetEl, jobKey;
+            if(!_.isEmpty(lastJobElSelected)){
+                jobKey = getJobMapKey(lastJobObjSelected);
+                getNextUnclassifiedFailure(jobMap[jobKey].job_obj);
+
+            }else{
+                //Select the first unclassified failure
+                getNextUnclassifiedFailure({});
+            }
+    });
+
+    $rootScope.$on(
+        thEvents.selectPreviousUnclassifiedFailure, function(ev){
+
+            var jobMap = ThResultSetModel.getJobMap($rootScope.repoName);
+
+            var targetEl, jobKey;
+            if(!_.isEmpty(lastJobElSelected)){
+                jobKey = getJobMapKey(lastJobObjSelected);
+                getPreviousUnclassifiedFailure(jobMap[jobKey].job_obj);
+
+            }else{
+                //Select the first unclassified failure
+                getPreviousUnclassifiedFailure({});
+            }
+
+    });
+    $rootScope.$on(
+        thEvents.selectJob, function(ev, job){
+
+        selectJob(job);
+
+    });
+
+    var selectJob = function(job){
+
+        var jobKey = getJobMapKey(job);
+        var jobEl = $('.' + jobKey);
+
+        clickJobCb({}, jobEl, job);
+        scrollToElement(jobEl);
+
+        lastJobElSelected = jobEl;
+        lastJobObjSelected = job;
+
+    };
+
+    var setSelectJobStyles = function(el){
 
         if(!_.isEmpty(lastJobElSelected)){
             lastJobElSelected.removeClass(selectedBtnCls);
@@ -61,7 +127,7 @@ treeherder.directive('thCloneJobs', function(
     };
 
     var clickJobCb = function(ev, el, job){
-        selectJob(el);
+        setSelectJobStyles(el);
         $rootScope.$broadcast(thEvents.jobClick, job);
     };
 
@@ -82,7 +148,7 @@ treeherder.directive('thCloneJobs', function(
                         }
                     });
                 } else {
-                    $log.warn("Job had no artifacts: " + job_uri);
+                    $log.warn("Job had no artifacts: " + job.resource_uri);
                 }
             });
     };
@@ -101,12 +167,12 @@ treeherder.directive('thCloneJobs', function(
 
             //Set the resultState
             resultState = job.result;
-            if (job.state != "completed") {
+            if (job.state !== "completed") {
                 resultState = job.state;
             }
             resultState = resultState || 'unknown';
 
-            if(job.job_coalesced_to_guid != null){
+            if(job.job_coalesced_to_guid !== null){
                 // Don't count or render coalesced jobs
                 continue;
             }
@@ -123,25 +189,31 @@ treeherder.directive('thCloneJobs', function(
             //Make sure that filtering doesn't effect the resultset counts
             //displayed
             if(thJobFilters.showJob(job, resultStatusFilters) === false){
+                //Keep track of visibility with this property. This
+                //way down stream job consumers don't need to repeatedly
+                //call showJob
+                job.visible = false;
                 continue;
             }
 
             jobsShown++;
+
+            job.visible = true;
 
             hText = getHoverText(job);
             key = getJobMapKey(job);
 
             jobStatus = thResultStatusInfo(resultState);
 
-            jobStatus['key'] = key;
-            if(parseInt(job.failure_classification_id) > 1){
-                jobStatus['value'] = job.job_type_symbol + '*';
+            jobStatus.key = key;
+            if(parseInt(job.failure_classification_id, 10) > 1){
+                jobStatus.value = job.job_type_symbol + '*';
             }else{
-                jobStatus['value'] = job.job_type_symbol;
+                jobStatus.value = job.job_type_symbol;
             }
 
-            jobStatus['title'] = hText;
-            jobStatus['btnClass'] = jobStatus.btnClass;
+            jobStatus.title = hText;
+            jobStatus.btnClass = jobStatus.btnClass;
 
             jobBtn = $( jobBtnInterpolator(jobStatus) );
 
@@ -184,6 +256,7 @@ treeherder.directive('thCloneJobs', function(
             }
 
             lastJobElSelected = el;
+            lastJobObjSelected = job;
         }
     };
 
@@ -203,14 +276,14 @@ treeherder.directive('thCloneJobs', function(
 
                 revision = resultset.revisions[i];
 
-                revision['urlBasePath'] = $rootScope.urlBasePath;
-                revision['currentRepo'] = $rootScope.currentRepo;
+                revision.urlBasePath = $rootScope.urlBasePath;
+                revision.currentRepo = $rootScope.currentRepo;
 
                 userTokens = revision.author.split(/[<>]+/);
                 if (userTokens.length > 1) {
-                    revision['email'] = userTokens[1];
+                    revision.email = userTokens[1];
                 }
-                revision['name'] = userTokens[0].trim();
+                revision.name = userTokens[0].trim();
 
                 revisionHtml = revisionInterpolator(revision);
                 ulEl.append(revisionHtml);
@@ -229,7 +302,7 @@ treeherder.directive('thCloneJobs', function(
         var rowEl = revisionsEl.parent();
         rowEl.css('display', 'block');
 
-        if(revElDisplayState != 'block'){
+        if(revElDisplayState !== 'block'){
 
             if(jobsElDisplayState === 'block'){
                 toggleRevisionsSpanOnWithJobs(revisionsEl);
@@ -264,7 +337,7 @@ treeherder.directive('thCloneJobs', function(
         var rowEl = revisionsEl.parent();
         rowEl.css('display', 'block');
 
-        if(jobsElDisplayState != 'block'){
+        if(jobsElDisplayState !== 'block'){
 
             if(revElDisplayState === 'block'){
                 toggleJobsSpanOnWithRevisions(jobsEl);
@@ -343,7 +416,7 @@ treeherder.directive('thCloneJobs', function(
             jgObj = jobGroups[i];
 
             jobsShown = 0;
-            if(jgObj.symbol != '?'){
+            if(jgObj.symbol !== '?'){
                 // Job group detected, add job group symbols
                 jobGroup = $( jobGroupInterpolator(jobGroups[i]) );
 
@@ -486,7 +559,7 @@ treeherder.directive('thCloneJobs', function(
             var jobCounts = thResultStatusObject.getResultStatusObject();
 
             var statusKeys = _.keys(jobCounts);
-            jobCounts['total'] = 0;
+            jobCounts.total = 0;
 
             resultsetId = resultSets[i].id;
 
@@ -511,7 +584,7 @@ treeherder.directive('thCloneJobs', function(
                     for(k=0; k<statusKeys.length; k++){
                         jobStatus = statusKeys[k];
                         jobCounts[jobStatus] += statusPerPlatform[jobStatus];
-                        jobCounts['total'] += statusPerPlatform[jobStatus];
+                        jobCounts.total += statusPerPlatform[jobStatus];
                     }
                 }
             }
@@ -524,7 +597,7 @@ treeherder.directive('thCloneJobs', function(
 
         angular.forEach(platformData, function(value, platformId){
 
-            if(value.resultsetId != this.resultset.id){
+            if(value.resultsetId !== this.resultset.id){
                 //Confirm we are the correct result set
                 return;
             }
@@ -585,13 +658,119 @@ treeherder.directive('thCloneJobs', function(
         }, this);
     };
 
-    var linker = function(scope, element, attrs){
+    var getNextUnclassifiedFailure = function(currentJob){
 
-        //Remove any jquery on() bindings
-        element.off();
+        var resultsets = ThResultSetModel.getResultSetsArray($rootScope.repoName);
 
-        //Register events callback
-        element.on('mousedown', _.bind(jobMouseDown, scope));
+        var startWatch = false;
+        if(_.isEmpty(currentJob)){
+            startWatch = true;
+        }
+
+        var platforms, groups, jobs, r;
+        superloop:
+        for(r = 0; r < resultsets.length; r++){
+
+            platforms = resultsets[r].platforms;
+            var p;
+            for(p = 0; p < platforms.length; p++){
+
+                groups = platforms[p].groups;
+                var g;
+                for(g = 0; g < groups.length; g++){
+
+                    jobs = groups[g].jobs;
+                    var j;
+                    for(j = 0; j < jobs.length; j++){
+
+                        if(currentJob.id === jobs[j].id){
+
+                            //This is the current selection, get the next
+                            startWatch = true;
+                            continue;
+                        }
+
+                        if(startWatch){
+                            if( (jobs[j].visible === true) &&
+                                (classificationRequired[jobs[j].result] === 1) &&
+                                ( (parseInt(jobs[j].failure_classification_id, 10) === 1) ||
+                                  (jobs[j].failure_classification_id === null)  )){
+
+                                selectJob(jobs[j]);
+
+                                //Next test failure found
+                                break superloop;
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    var getPreviousUnclassifiedFailure = function(currentJob){
+
+        var resultsets = ThResultSetModel.getResultSetsArray($rootScope.repoName);
+
+        var startWatch = false;
+        if(_.isEmpty(currentJob)){
+            startWatch = true;
+        }
+
+        var platforms, groups, jobs, r;
+
+        superloop:
+        for(r = resultsets.length - 1; r >= 0; r--){
+
+            platforms = resultsets[r].platforms;
+            var p;
+            for(p = platforms.length - 1; p >= 0; p--){
+
+                groups = platforms[p].groups;
+                var g;
+                for(g = groups.length - 1; g >= 0; g--){
+
+                    jobs = groups[g].jobs;
+                    var j;
+                    for(j = jobs.length - 1; j >= 0; j--){
+
+                        if(currentJob.id === jobs[j].id){
+
+                            //This is the current selection, get the next
+                            startWatch = true;
+                            continue;
+                        }
+                        if(startWatch){
+                            if( (jobs[j].visible === true) &&
+                                (classificationRequired[jobs[j].result] === 1) &&
+                                ( (parseInt(jobs[j].failure_classification_id, 10) === 1) ||
+                                  (jobs[j].failure_classification_id === null)  )){
+
+                                selectJob(jobs[j]);
+
+                                //Previous test failure found
+                                break superloop;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    var scrollToElement = function(el){
+
+        if(el.offset() !== undefined){
+            //Scroll to the job element
+            $('html, body').animate({
+                scrollTop: el.offset().top - 250
+            }, 200);
+        }
+
+    };
+
+    var registerCustomEventCallbacks = function(scope, element, attrs){
 
         //Register rootScope custom event listeners that require
         //access to the anguler level resultset scope
@@ -669,6 +848,19 @@ treeherder.directive('thCloneJobs', function(
                 }
             });
 
+
+    };
+
+    var linker = function(scope, element, attrs){
+
+        //Remove any jquery on() bindings
+        element.off();
+
+        //Register events callback
+        element.on('mousedown', _.bind(jobMouseDown, scope));
+
+        registerCustomEventCallbacks(scope, element, attrs);
+
         //Clone the target html
         var resultsetAggregateId = thAggregateIds.getResultsetTableId(
             $rootScope.repoName, scope.resultset.id, scope.resultset.revision
@@ -730,557 +922,11 @@ treeherder.directive('thCloneJobs', function(
         }
 
         element.append(targetEl);
-    }
+    };
 
     return {
         link:linker,
         replace:true
-        }
-
-});
-treeherder.directive('thGlobalTopNavPanel', function () {
-
-    return {
-        restrict: "E",
-        templateUrl: 'partials/thGlobalTopNavPanel.html'
-    };
-});
-
-treeherder.directive('thWatchedRepoPanel', function () {
-
-    return {
-        restrict: "E",
-        templateUrl: 'partials/thWatchedRepoPanel.html'
-    };
-});
-
-treeherder.directive('thStatusFilterPanel', function () {
-
-    return {
-        restrict: "E",
-        templateUrl: 'partials/thStatusFilterPanel.html'
-    };
-});
-
-treeherder.directive('thRepoPanel', function () {
-
-    return {
-        restrict: "E",
-        templateUrl: 'partials/thRepoPanel.html'
-    };
-});
-
-treeherder.directive('thSheriffPanel', function () {
-
-    return {
-        restrict: "E",
-        templateUrl: 'partials/thSheriffPanel.html'
-    };
-});
-
-treeherder.directive('thSettingsPanel', function () {
-
-    return {
-        restrict: "E",
-        templateUrl: 'partials/thSettingsPanel.html'
-    };
-});
-
-
-treeherder.directive('thFilterCheckbox', function (thResultStatusInfo) {
-
-    return {
-        restrict: "E",
-        link: function(scope, element, attrs) {
-            scope.checkClass = thResultStatusInfo(scope.filterName).btnClass + "-count-classified";
-        },
-        templateUrl: 'partials/thFilterCheckbox.html'
-    };
-});
-
-treeherder.directive('ngRightClick', function($parse) {
-    return function(scope, element, attrs) {
-        var fn = $parse(attrs.ngRightClick);
-        element.bind('contextmenu', function(event) {
-            scope.$apply(function() {
-                event.preventDefault();
-                fn(scope, {$event:event});
-            });
-        });
-    };
-});
-
-treeherder.directive('thJobButton', function (thResultStatusInfo) {
-
-    var getHoverText = function(job) {
-        var duration = Math.round((job.end_timestamp - job.submit_timestamp) / 60);
-        var status = job.result;
-        if (job.state != "completed") {
-            status = job.state;
-        }
-        return job.job_type_name + " - " + status + " - " + duration + "mins";
     };
 
-    return {
-        restrict: "E",
-        link: function(scope, element, attrs) {
-            var unbindWatcher = scope.$watch("job", function(newValue) {
-                var resultState = scope.job.result;
-                if (scope.job.state != "completed") {
-                    resultState = scope.job.state;
-                }
-                scope.job.display = thResultStatusInfo(resultState);
-                scope.hoverText = getHoverText(scope.job);
-
-                if (scope.job.state == "completed") {
-                    //Remove watchers when a job has a completed status
-                    unbindWatcher();
-                }
-
-            }, true);
-        },
-        templateUrl: 'partials/thJobButton.html'
-    };
-});
-
-treeherder.directive('thPinnedJob', function (thResultStatusInfo) {
-
-    var getHoverText = function(job) {
-        var duration = Math.round((job.end_timestamp - job.start_timestamp) / 60);
-        var status = job.result;
-        if (job.state != "completed") {
-            status = job.state;
-        }
-        return job.job_type_name + " - " + status + " - " + duration + "mins";
-    };
-
-    return {
-        restrict: "E",
-        link: function(scope, element, attrs) {
-            var unbindWatcher = scope.$watch("job", function(newValue) {
-                var resultState = scope.job.result;
-                if (scope.job.state != "completed") {
-                    resultState = scope.job.state;
-                }
-                scope.job.display = thResultStatusInfo(resultState);
-                scope.hoverText = getHoverText(scope.job);
-
-                if (scope.job.state == "completed") {
-                    //Remove watchers when a job has a completed status
-                    unbindWatcher();
-                }
-
-            }, true);
-        },
-        templateUrl: 'partials/thPinnedJob.html'
-    };
-});
-
-treeherder.directive('thRelatedBug', function () {
-
-    return {
-        restrict: "E",
-        templateUrl: 'partials/thRelatedBug.html'
-    };
-});
-
-treeherder.directive('thActionButton', function () {
-
-    return {
-        restrict: "E",
-        templateUrl: 'partials/thActionButton.html'
-    };
-});
-
-treeherder.directive('thResultCounts', function () {
-
-    return {
-        restrict: "E",
-        templateUrl: 'partials/thResultCounts.html'
-    };
-});
-
-treeherder.directive('thResultStatusCount', function () {
-
-    return {
-        restrict: "E",
-        link: function(scope, element, attrs) {
-            scope.resultCountText = scope.getCountText(scope.resultStatus);
-            scope.resultStatusCountClassPrefix = scope.getCountClass(scope.resultStatus)
-
-            // @@@ this will change once we have classifying implemented
-            scope.resultCount = scope.resultset.job_counts[scope.resultStatus];
-            scope.unclassifiedResultCount = scope.resultCount;
-            var getCountAlertClass = function() {
-                if (scope.unclassifiedResultCount) {
-                    return scope.resultStatusCountClassPrefix + "-count-unclassified";
-                } else {
-                    return scope.resultStatusCountClassPrefix + "-count-classified";
-                }
-            }
-            scope.countAlertClass = getCountAlertClass();
-
-            scope.$watch("resultset.job_counts", function(newValue) {
-                scope.resultCount = scope.resultset.job_counts[scope.resultStatus];
-                scope.unclassifiedResultCount = scope.resultCount;
-                scope.countAlertClass = getCountAlertClass();
-            }, true);
-
-        },
-        templateUrl: 'partials/thResultStatusCount.html'
-    };
-});
-
-
-treeherder.directive('thAuthor', function () {
-
-    return {
-        restrict: "E",
-        link: function(scope, element, attrs) {
-            var userTokens = attrs.author.split(/[<>]+/);
-            var email = "";
-            if (userTokens.length > 1) {
-                email = userTokens[1];
-            }
-            scope.authorName = userTokens[0].trim();
-            scope.authorEmail = email;
-        },
-        template: '<span title="open resultsets for {{authorName}}: {{authorEmail}}">' +
-                      '<a href="{{authorResultsetFilterUrl}}" ' +
-                         'target="_blank">{{authorName}}</a></span>'
-    };
-});
-
-
-// allow an input on a form to request focus when the value it sets in its
-// ``focus-me`` directive is true.  You can set ``focus-me="focusInput"`` and
-// when ``$scope.focusInput`` changes to true, it will request focus on
-// the element with this directive.
-treeherder.directive('focusMe', function($timeout) {
-  return {
-    link: function(scope, element, attrs) {
-      scope.$watch(attrs.focusMe, function(value) {
-        if(value === true) {
-          $timeout(function() {
-            element[0].focus();
-            scope[attrs.focusMe] = false;
-          }, 0);
-        }
-      });
-    }
-  };
-});
-
-treeherder.directive('thStar', function ($parse, thClassificationTypes) {
-    return {
-        scope: {
-            starId: "="
-        },
-        link: function(scope, element, attrs) {
-            scope.$watch('starId', function(newVal) {
-                if (newVal !== undefined) {
-                    scope.starType = thClassificationTypes[newVal];
-                    scope.badgeColorClass=scope.starType.star;
-                    scope.hoverText=scope.starType.name;
-                }
-            });
-        },
-        template: '<span class="label {{ badgeColorClass}}" ' +
-                        'title="{{ hoverText }}">' +
-                        '<i class="glyphicon glyphicon-star-empty"></i>' +
-                        '</span> {{ hoverText }}'
-    };
-});
-
-treeherder.directive('thShowJobs', function ($parse, thResultStatusInfo) {
-    return {
-        link: function(scope, element, attrs) {
-            scope.$watch('resultSeverity', function(newVal) {
-                if (newVal) {
-                    var rsInfo = thResultStatusInfo(newVal)
-                    scope.resultsetStateBtn = rsInfo.btnClass;
-                    scope.icon = rsInfo.showButtonIcon;
-                }
-            });
-        },
-        template: '<a class="btn {{ resultsetStateBtn }} th-show-jobs-button pull-left" ' +
-                       'ng-click="isCollapsedResults = !isCollapsedResults">' +
-                       '<i class="{{ icon }}"></i> ' +
-                       '{{ \' jobs\' | showOrHide:isCollapsedResults }}</a>'
-    };
-});
-
-treeherder.directive('thRevision', function($parse) {
-
-    return {
-        restrict: "E",
-        link: function(scope, element, attrs) {
-            scope.$watch('resultset.revisions', function(newVal) {
-                if (newVal) {
-                    scope.revisionUrl = scope.currentRepo.url + "/rev/" + scope.revision.revision;
-                }
-            }, true);
-        },
-        templateUrl: 'partials/thRevision.html'
-    };
-});
-
-
-treeherder.directive('resizablePanel', function($document, $log) {
-    return {
-        restrict: "E",
-        link: function(scope, element, attr) {
-            var startY = 0
-            var container = $(element.parent());
-
-            element.css({
-                position: 'absolute',
-                cursor:'row-resize',
-                top:'-2px',
-                width: '100%',
-                height: '5px',
-                'z-index': '100'
-
-            });
-
-            element.on('mousedown', function(event) {
-                // Prevent default dragging of selected content
-                event.preventDefault();
-                startY = event.pageY;
-                $document.on('mousemove', mousemove);
-                $document.on('mouseup', mouseup);
-            });
-
-            function mousemove(event) {
-                var y = startY - event.pageY;
-                startY = event.pageY;
-                container.height(container.height() + y);
-
-            }
-
-            function mouseup() {
-                $document.unbind('mousemove', mousemove);
-                $document.unbind('mouseup', mouseup);
-
-            }
-
-        }
-    };
-});
-
-treeherder.directive('personaButtons', function($http, $q, $log, $rootScope, localStorageService,
-                                                thServiceDomain, BrowserId, ThUserModel) {
-
-    return {
-        restrict: "E",
-        link: function(scope, element, attrs) {
-            scope.user = scope.user
-                || angular.fromJson(localStorageService.get('user'))
-                || {};
-            // check if already know who the current user is
-            // if the user.email value is null, it means that he's not logged in
-            scope.user.email = scope.user.email || null;
-            scope.user.loggedin = scope.user.email == null ? false : true;
-
-            scope.login = function(){
-                /*
-                * BrowserID.login returns a promise of the verification.
-                * If successful, we will find the user email in the response
-                */
-                BrowserId.login()
-                .then(function(response){
-                    scope.user.loggedin = true;
-                    scope.user.email = response.data.email;
-                    // retrieve the current user's info from the api
-                    // including the exclusion profile
-                    ThUserModel.get().then(function(user){
-                        angular.extend(scope.user, user);
-                        localStorageService.add('user', angular.toJson(scope.user));
-                    }, null);
-                },function(){
-                    // logout if the verification failed
-                    scope.logout();
-                });
-            };
-            scope.logout = function(){
-                BrowserId.logout().then(function(response){
-                    scope.user = {loggedin: false, email:null};
-                    localStorageService.remove('user');
-                });
-            };
-
-
-            navigator.id.watch({
-                /*
-                * loggedinUser is all that we know about the user before
-                * the interaction with persona. This value could come from a cookie to persist the authentication
-                * among page reloads. If the value is null, the user is considered logged out.
-                */
-
-                loggedInUser: scope.user.email,
-                /*
-                * We need a watch call to interact with persona.
-                * onLogin is called when persona provides an assertion
-                * This is the only way we can know the assertion from persona,
-                * so we resolve BrowserId.requestDeferred with the assertion retrieved
-                */
-                onlogin: function(assertion){
-                    if (BrowserId.requestDeferred) {
-                        BrowserId.requestDeferred.resolve(assertion);
-                    }
-                },
-
-                /*
-                * Resolve BrowserId.logoutDeferred once the user is logged out from persona
-                */
-                onlogout: function(){
-                    if (BrowserId.logoutDeferred) {
-                        BrowserId.logoutDeferred.resolve();
-                    }
-                }
-            });
-        },
-        templateUrl: 'partials/persona_buttons.html'
-    };
-});
-
-treeherder.directive('thSimilarJobs', function(ThJobModel, $log){
-    return {
-        restrict: "E",
-        templateUrl: "partials/similar_jobs.html",
-        link: function(scope, element, attr) {
-            scope.$watch('job', function(newVal, oldVal){
-                if(newVal){
-                    scope.update_similar_jobs(newVal);
-                }
-            });
-            scope.similar_jobs = []
-            scope.similar_jobs_filters = {
-                "machine_id": true,
-                "job_type_id": true,
-                "build_platform_id": true
-            }
-            scope.update_similar_jobs = function(job){
-                var options = {result_set_id__ne: job.result_set_id};
-                angular.forEach(scope.similar_jobs_filters, function(elem, key){
-                    if(elem){
-                        options[key] = job[key];
-                    }
-                });
-                ThJobModel.get_list(options).then(function(data){
-                    scope.similar_jobs = data;
-                });
-            };
-        }
-    }
-});
-
-treeherder.directive('thNotificationBox', function($log, thNotify){
-    return {
-        restrict: "E",
-        templateUrl: "partials/thNotificationsBox.html",
-        link: function(scope, element, attr) {
-            scope.notifier = thNotify
-            scope.alert_class_prefix = "alert-"
-        }
-    }
-});
-
-treeherder.directive('numbersOnly', function(){
-   return {
-     require: 'ngModel',
-     link: function(scope, element, attrs, modelCtrl) {
-       modelCtrl.$parsers.push(function (inputValue) {
-           // this next is necessary for when using ng-required on your input.
-           // In such cases, when a letter is typed first, this parser will be called
-           // again, and the 2nd time, the value will be undefined
-           if (inputValue == undefined) return ''
-           var transformedInput = inputValue.replace(/[^0-9]/g, '');
-           if (transformedInput!=inputValue) {
-              modelCtrl.$setViewValue(transformedInput);
-              modelCtrl.$render();
-           }
-
-           return transformedInput;
-       });
-     }
-   };
-});
-
-treeherder.directive('thPinboardPanel', function(){
-    return {
-        restrict: "E",
-        templateUrl: "partials/thPinboardPanel.html"
-    }
-});
-
-treeherder.directive("thMultiSelect", function($log){
-    return {
-        restrict: "E",
-        templateUrl: "partials/thMultiSelect.html",
-        scope: {
-            leftList: "=",
-            rightList: "="
-        },
-        link: function(scope, element, attrs){
-
-            scope.leftSelected = [];
-            scope.rightSelected = [];
-            // move the elements selected from one list to the other
-            var move_options = function(what, from, to){
-                var found;
-                for(var i=0;i<what.length; i++){
-                    found = from.indexOf(what[i]);
-                    if(found !== -1){
-                        to.push(from.splice(found, 1)[0]);
-                    }
-                }
-            }
-            scope.move_left = function(){
-                move_options(scope.rightSelected, scope.rightList, scope.leftList);
-            };
-            scope.move_right = function(){
-                move_options(scope.leftSelected, scope.leftList, scope.rightList);
-            };
-        }
-    }
-});
-
-treeherder.directive("thTruncatedList", function($log){
-    // transforms a list of elements in a shortened list
-    // with a "more" link
-    return {
-        restrict: "E",
-        scope: {
-            // number of visible elementrs
-            visible: "@",
-            elem_list: "=elements"
-        },
-        link: function(scope, element, attrs){
-            scope.visible = parseInt(scope.visible)
-            if(typeof scope.visible !== 'number'
-                || scope.visible < 0
-                || isNaN(scope.visible)){
-                throw new TypeError("The visible parameter must be a positive number")
-            }
-            // cloning the original list to avoid
-            scope.$watch("elem_list", function(newValue, oldValue){
-                if(newValue){
-                    var elem_list_clone = angular.copy(newValue);
-                    scope.visible = Math.min(scope.visible, elem_list_clone.length);
-                    var visible_content = elem_list_clone.splice(0, scope.visible);
-                    $(element[0]).empty();
-                    $(element[0]).append(visible_content.join(", "));
-                    if(elem_list_clone.length > 0){
-                        $(element[0]).append(
-                            $("<a></a>")
-                            .attr("title", elem_list_clone.join(", "))
-                            .text(" and "+ elem_list_clone.length+ " others")
-                            .tooltip()
-                        );
-                    }
-                }
-            });
-        }
-    }
 });
