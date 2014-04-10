@@ -778,6 +778,15 @@ treeherder.directive('thSheriffPanel', function () {
     };
 });
 
+treeherder.directive('thSettingsPanel', function () {
+
+    return {
+        restrict: "E",
+        templateUrl: 'partials/thSettingsPanel.html'
+    };
+});
+
+
 treeherder.directive('thFilterCheckbox', function (thResultStatusInfo) {
 
     return {
@@ -1059,16 +1068,19 @@ treeherder.directive('resizablePanel', function($document, $log) {
     };
 });
 
-treeherder.directive('personaButtons', function($http, $q, $log, $rootScope, localStorageService, thServiceDomain, BrowserId) {
+treeherder.directive('personaButtons', function($http, $q, $log, $rootScope, localStorageService,
+                                                thServiceDomain, BrowserId, ThUserModel) {
 
     return {
         restrict: "E",
         link: function(scope, element, attrs) {
-            scope.user = scope.user || {};
+            scope.user = scope.user
+                || angular.fromJson(localStorageService.get('user'))
+                || {};
             // check if already know who the current user is
             // if the user.email value is null, it means that he's not logged in
-            scope.user.email = scope.user.email || localStorageService.get('user.email');
-            scope.user.loggedin =  scope.user.email == null ? false : true;
+            scope.user.email = scope.user.email || null;
+            scope.user.loggedin = scope.user.email == null ? false : true;
 
             scope.login = function(){
                 /*
@@ -1079,7 +1091,12 @@ treeherder.directive('personaButtons', function($http, $q, $log, $rootScope, loc
                 .then(function(response){
                     scope.user.loggedin = true;
                     scope.user.email = response.data.email;
-                    localStorageService.add('user.email', scope.user.email);
+                    // retrieve the current user's info from the api
+                    // including the exclusion profile
+                    ThUserModel.get().then(function(user){
+                        angular.extend(scope.user, user);
+                        localStorageService.add('user', angular.toJson(scope.user));
+                    }, null);
                 },function(){
                     // logout if the verification failed
                     scope.logout();
@@ -1087,10 +1104,8 @@ treeherder.directive('personaButtons', function($http, $q, $log, $rootScope, loc
             };
             scope.logout = function(){
                 BrowserId.logout().then(function(response){
-                    scope.user.loggedin = false;
-                    scope.user.email = null;
-                    localStorageService.remove('user.loggedin');
-                    localStorageService.remove('user.email');
+                    scope.user = {loggedin: false, email:null};
+                    localStorageService.remove('user');
                 });
             };
 
@@ -1213,9 +1228,11 @@ treeherder.directive("thMultiSelect", function($log){
             scope.rightSelected = [];
             // move the elements selected from one list to the other
             var move_options = function(what, from, to){
-                for(var i=from.length-1; i--;){
-                    if(what.indexOf(from[i]) !== -1){
-                        to.push(from.splice(i,1)[0]);
+                var found;
+                for(var i=0;i<what.length; i++){
+                    found = from.indexOf(what[i]);
+                    if(found !== -1){
+                        to.push(from.splice(found, 1)[0]);
                     }
                 }
             }
@@ -1227,4 +1244,43 @@ treeherder.directive("thMultiSelect", function($log){
             };
         }
     }
-})
+});
+
+treeherder.directive("thTruncatedList", function($log){
+    // transforms a list of elements in a shortened list
+    // with a "more" link
+    return {
+        restrict: "E",
+        scope: {
+            // number of visible elementrs
+            visible: "@",
+            elem_list: "=elements"
+        },
+        link: function(scope, element, attrs){
+            scope.visible = parseInt(scope.visible)
+            if(typeof scope.visible !== 'number'
+                || scope.visible < 0
+                || isNaN(scope.visible)){
+                throw new TypeError("The visible parameter must be a positive number")
+            }
+            // cloning the original list to avoid
+            scope.$watch("elem_list", function(newValue, oldValue){
+                if(newValue){
+                    var elem_list_clone = angular.copy(newValue);
+                    scope.visible = Math.min(scope.visible, elem_list_clone.length);
+                    var visible_content = elem_list_clone.splice(0, scope.visible);
+                    $(element[0]).empty();
+                    $(element[0]).append(visible_content.join(", "));
+                    if(elem_list_clone.length > 0){
+                        $(element[0]).append(
+                            $("<a></a>")
+                            .attr("title", elem_list_clone.join(", "))
+                            .text(" and "+ elem_list_clone.length+ " others")
+                            .tooltip()
+                        );
+                    }
+                }
+            });
+        }
+    }
+});

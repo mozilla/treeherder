@@ -1,69 +1,78 @@
 <div class="th-top-nav-options-panel" id="sheriff_panel" ng-controller="SheriffCtrl">
     <ul class="list-inline">
         <li>
-            <a ng-if="view != 'vis_profile_list'" ng-click="switchView('vis_profile_list')">Visibility profiles</a>
-            <span ng-if="view =='vis_profile_list'">Visibility profiles</span>
+            <a href="" ng-if="view != 'exclusion_profile_list'" ng-click="switchView('exclusion_profile_list')">Visibility profiles</a>
+            <span ng-if="view =='exclusion_profile_list'">Exclusion profiles</span>
         </li>
         <li>
-            <a ng-if="view != 'job_filter_list'" ng-click="switchView('job_filter_list')">Job filters</a>
-            <span ng-if="view =='job_filter_list'">Job filters profiles</span>
+            <a href="" ng-if="view != 'job_filter_list'" ng-click="switchView('job_filter_list')">Job filters</a>
+            <span ng-if="view =='job_filter_list'">Job filters</span>
         </li>
     </ul>
 
-    <div ng-if="view == 'vis_profile_list'" class="panel panel-default th-option-group th-inline-option-group add-new-filter">
+    <div ng-if="view == 'exclusion_profile_list'" class="panel panel-default th-option-group th-inline-option-group add-new-filter">
         <div class="panel-heading th-option-heading">
-            Visibility Profile list
+            Exclusion Profile list
         </div>
         <div class="panel-body">
             <p ng-if="profiles.length==0">No profile available.</p>
             <table ng-if="profiles.length>0" class="table table-condensed table-bordered">
                 <tr>
-                    <th>Profile name</th>
+                    <th>Profile name</th><th>Default</th><th>Filters</th><th>Actions</th>
                 </tr>
                 <tr ng-repeat="profile in profiles">
                     <td>{{profile.name}}</td>
+                    <td class="text-center">
+                        <span ng-if="profile.is_default" class="glyphicon glyphicon-ok-sign text-success">
+                        </span>
+                    </td>
                     <td>
-                        <ul class="list-unstyled">
-                            <li ng-repeat="(filter_name, repos) in profile.filters">
-                                {{filter_name}}:{{repos}}
-                            </li>
-                        </ul>
+                        <a ng-click="init_filter_update(filters_map[filter])" ng-repeat="filter in profile.filters">
+                            {{ filters_map[filter].name }}
+                        </a>
+                    </td>
+                    <td>
+                        <button ng-click="init_profile_update(profile)" type="button" class="btn btn-default btn-xs">
+                          <span class="glyphicon glyphicon-pencil"></span> Change
+                        </button>
+                        <button ng-click="delete_profile(profile)" type="button" class="btn btn-default btn-xs">
+                          <span class="glyphicon glyphicon-remove"></span> Delete
+                        </button>
+                        <button ng-click="set_default_profile(profile)" type="button" class="btn btn-default btn-xs">
+                          <span class="glyphicon  glyphicon glyphicon-ok-sign"></span> Make default
+                        </button>
                     </td>
                 </tr>
 
             </table>
-            <button ng-click="switchView('vis_profile_add')" type="button" class="btn btn-sm btn-default">Add new</button>
+            <button ng-click="init_profile_add()" type="button" class="btn btn-sm btn-default">Add new</button>
         </div>
     </div>
 
-    <div ng-if="view == 'vis_profile_add'" class="panel panel-default th-option-group th-inline-option-group add-new-filter">
+
+    <div ng-if="view == 'exclusion_profile_add'" class="panel panel-default th-option-group th-inline-option-group add-new-filter">
         <div class="panel-heading th-option-heading">
-            New Visibility Profile
+            Create/Update Exclusion Profile
         </div>
         <div class="panel-body">
             <div class="form-group">
-                <label>Name</label>
-                <input class="form-control input-sm" type="text" ng-model="form_profile.name" placeholder="Enter a name"/>
+                <label>Name</label><input class="form-control input-sm" type="text" ng-model="form_profile.name" placeholder="Enter a name"/>
             </div>
             <form class="form">
-                <div class="form-group-inline">
-                    <div class="well form-group" ng-repeat="filter in filters">
-                        <ul class="list-unstyled">
-                            <li><strong>Name: </strong>{{filter.name}}</li>
-                            <li><strong>Description:</strong>{{filter.description}}</li>
-                        </ul>
-                        <div class="form-group">
-                            <th-multi-select left-list="form_repos" right-list="form_profile.filters[filter.name]"></th-multi-select>
-                        </div>
+                <label>Select one or more filters to enable in your new profile</label>
+                    <div ng-repeat="filter in filters" class="form-group">
+                            <input type="checkbox" ng-model="form_profile_choices[filter.id]" />
+                            <span title="{{filter.description}}">
+                                {{filter.name}}
+                            </span>
                     </div>
-                </div>
             </form>
             <div class="form-group-inline">
                 <div class="form-group">
                     <button ng-click="reset_profile()" type="submit" class="btn btn-sm btn-default pull right">reset</button>
                 </div>
                 <div class="form-group">
-                    <button ng-click="save_profile()" type="submit" class="btn btn-sm btn-default pull right">Save</button>
+                    <button ng-click="save_profile(form_profile)" type="submit" class="btn btn-sm btn-default pull right">Save</button>
                 </div>
             </div>
         </div>
@@ -74,45 +83,64 @@
             Job Filter list
         </div>
         <div class="panel-body">
-            <p ng-if="filters-length == 0">
+            <p ng-if="filters.length == 0">
                 No filter available
             </p>
-            <table ng-if="filters.lenght>0" class="table table-condensed table-bordered">
+            <table ng-if="filters.length>0" class="table table-condensed table-bordered">
                 <tr>
-                    <th>Name</th><th>Description</th><th>Platform</th><th>Options</th><th>Job Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Repositories</th>
+                    <th>Platform</th>
+                    <th>Options</th>
+                    <th>Job Type</th>
+                    <th>Actions</th>
                 </tr>
                 <tr ng-repeat="filter in filters">
                     <td>{{filter.name}}</td>
                     <td>{{filter.description}}</td>
-                    <td>{{filter.platforms}}</td>
-                    <td>{{filter.options}}</td>
-                    <td>{{filter.job_types}}</td>
+                    <td><th-truncated-list visible="2" elements="filter.info.repos" /></td>
+                    <td><th-truncated-list visible="2" elements="filter.info.platforms" /></td>
+                    <td><th-truncated-list visible="2" elements="filter.info.options" /></td>
+                    <td><th-truncated-list visible="2" elements="filter.info.job_types" /></td>
+                    <td>
+                        <button ng-click="init_filter_update(filter)" type="button" class="btn btn-default btn-xs">
+                          <span class="glyphicon glyphicon-pencil"></span> Change
+                        </button>
+                        <button ng-click="delete_filter(filter)" type="button" class="btn btn-default btn-xs">
+                          <span class="glyphicon glyphicon-remove"></span> Delete
+                        </button>
+                    </td>
+
                 </tr>
             </table>
-            <button ng-click="switchView('job_filter_add')" type="button" class="btn btn-sm btn-default">Add new</button>
+            <button ng-click="init_filter_add()" type="button" class="btn btn-sm btn-default">Add new</button>
         </div>
-        {{filters}}
     </div>
 
 
     <div ng-if="view == 'job_filter_add'" class="panel panel-default th-option-group th-inline-option-group add-new-filter">
         <div class="panel-heading th-option-heading">
-            New Job Filter
+            Create/Update Job Filter
         </div>
         <div class="panel-body">
             <form class="form">
                 <div class="form-group-inline">
                     <div class="form-group">
+                        <label>Repositories</label>
+                        <th-multi-select left-list="form_repos" right-list="form_filter.info.repos"></th-multi-select>
+                    </div>
+                    <div class="form-group">
                         <label>Platforms</label>
-                        <th-multi-select left-list="form_platforms" right-list="form_filter.platforms"></th-multi-select>
+                        <th-multi-select left-list="form_platforms" right-list="form_filter.info.platforms"></th-multi-select>
                     </div>
                     <div class="form-group">
                         <label>Options</label>
-                        <th-multi-select left-list="form_options" right-list="form_filter.options"></th-multi-select>
+                        <th-multi-select left-list="form_options" right-list="form_filter.info.options"></th-multi-select>
                     </div>
                     <div class="form-group">
                         <label>Job Types</label>
-                        <th-multi-select left-list="form_job_types" right-list="form_filter.job_types"></th-multi-select>
+                        <th-multi-select left-list="form_job_types" right-list="form_filter.info.job_types"></th-multi-select>
                     </div>
                     <div class="form-group">
 
@@ -129,7 +157,7 @@
                                 <button ng-click="reset_filter()" type="submit" class="btn btn-sm btn-default pull right">reset</button>
                             </div>
                             <div class="form-group">
-                                <button ng-click="save_filter()" type="submit" class="btn btn-sm btn-default pull right">Save</button>
+                                <button ng-click="save_filter(form_filter)" type="submit" class="btn btn-sm btn-default pull right">Save</button>
                             </div>
                         </div>
                     </div>
@@ -137,5 +165,4 @@
             </form>
         </div>
     </div>
-    {{profiles}}
 </div>

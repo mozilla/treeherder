@@ -13,13 +13,15 @@
             </span>
         </span>
         <span class="pull-right">
-            <span class="btn btn-view-nav"
-                  ng-class="{'active': (isSheriffPanelShowing)}"
-                  ng-click="isSheriffPanelShowing=!isSheriffPanelShowing"><span>Sheriffing</span>
-                <i class="glyphicon glyphicon-chevron-down lightgray"
-                   ng-hide="isSheriffPanelShowing"></i>
-                <i class="glyphicon glyphicon-chevron-up lightgray"
-                   ng-show="isSheriffPanelShowing"></i>
+            <span ng-show="user.is_staff">
+                <span class="btn btn-view-nav"
+                      ng-class="{'active': (isSheriffPanelShowing)}"
+                      ng-click="isSheriffPanelShowing=!isSheriffPanelShowing"><span>Sheriffing</span>
+                    <i class="glyphicon glyphicon-chevron-down lightgray"
+                       ng-hide="isSheriffPanelShowing"></i>
+                    <i class="glyphicon glyphicon-chevron-up lightgray"
+                       ng-show="isSheriffPanelShowing"></i>
+                </span>
             </span>
             <span class="btn btn-view-nav"
                   ng-class="{'active': (isRepoPanelShowing)}"
@@ -39,6 +41,17 @@
             </span>
             <a class="btn btn-view-nav" href="help.html" target="_blank">help</a>
             <span class="nav-text white th-username">{{user.email}}</span>
+
+            <!--TODO: change this condition to enable the settings panel-->
+            <span ng-show="false" class="btn btn-view-nav"
+                  ng-class="{'active': (isSettingsPanelShowing)}"
+                  ng-click="isSettingsPanelShowing=!isSettingsPanelShowing"><span>Settings</span>
+                <i class="glyphicon glyphicon-chevron-down lightgray"
+                   ng-hide="isSettingsPanelShowing"></i>
+                <i class="glyphicon glyphicon-chevron-up lightgray"
+                   ng-show="isSettingsPanelShowing"></i>
+            </span>
+
             <persona-buttons></persona-buttons>
         </span>
 
@@ -49,4 +62,5 @@
     </div>
     <th-repo-panel ng-show="isRepoPanelShowing"></th-repo-panel>
     <th-sheriff-panel ng-show="isSheriffPanelShowing"></th-sheriff-panel>
+    <th-settings-panel ng-show="isSettingsPanelShowing"></th-settings-panel>
 </nav>

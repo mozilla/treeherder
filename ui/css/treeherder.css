@@ -82,7 +82,7 @@ body {
 
 .th-top-nav-options-panel .th-option-heading {
     padding: 3px 10px;
-    background-color: darkgray;
+    background-color: #354048;;
     color: white;
 }
 
@@ -96,15 +96,15 @@ body {
 
 .th-option-group {
     margin-right: 5px;
-    border: 1px solid darkgrey;
-    -moz-border-radius:3px;
-    -webkit-border-radius:3px;
-    border-radius:3px;
+    border: 1px solid #101010;
+    -moz-border-radius:5px;
+    -webkit-border-radius:5px;
+    border-radius:5px;
 }
 
 .th-option-heading .th-panel-heading{
     padding: 5px 10px;
-    background-color: darkgray;
+    background-color: #354048;
 }
 
 #jobFilterValue {
@@ -1015,6 +1015,7 @@ fieldset[disabled] .btn-repo.active {
     position:fixed;
     top:70px;
     right:10px;
+    z-index: 9000;
 }
 
 #notification_box div.alert{

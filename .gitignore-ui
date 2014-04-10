@@ -8,6 +8,9 @@ d]
 #vi files
 *.swp
 
+#pycharm files
+.idea/
+
 # Packages
 *.egg
 *.egg-info

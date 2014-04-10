@@ -190,6 +190,16 @@ treeherder.factory('thJobFilters', function(thResultStatusList, $log, $rootScope
                     return false;
                 }
             }
+            if($rootScope.active_exclusion_profile){
+                try{
+                    if($rootScope.active_exclusion_profile.flat_exclusion[$rootScope.repoName]
+                        [job.platform][job.job_type_name].indexOf(job.platform_option) !== -1){
+                        return false;
+                    }
+                }catch (e){
+                    //do nothing
+                }
+            }
 
             return true;
         },
