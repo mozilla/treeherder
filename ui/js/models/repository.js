@@ -83,11 +83,11 @@ treeherder.factory('ThRepositoryModel',
 
     var get_uri = function(){
         return thUrl.getRootUrl("/repository/");
-    }
+    };
 
-    var get_list = function(){
-        return $http.get(api.get_uri(), {cache: true})
-    }
+    var get_list = function () {
+        return $http.get(get_uri(), {cache: true});
+    };
 
     var load = function(name) {
 
@@ -159,6 +159,8 @@ treeherder.factory('ThRepositoryModel',
     return {
         // load the list of repos into $rootScope, and set the current repo.
         load: load,
+
+        get_list: get_list,
 
         // return the currently selected repo
         getCurrent: getCurrent,
