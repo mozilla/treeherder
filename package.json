@@ -8,8 +8,7 @@
     "karma-coverage": ">=0.2.0",
     "karma-jasmine": ">=0.1.5",
     "karma-ng-scenario": ">=0.1.0",
-    "karma-firefox-launcher": ">=0.1.3",
-    "karma-spec-reporter": ">=0.0.12"
+    "karma-firefox-launcher": ">=0.1.3"
   },
   "scripts": {
       "test": "./node_modules/.bin/karma start webapp/config/karma.conf.js --single-run --browsers Firefox"
