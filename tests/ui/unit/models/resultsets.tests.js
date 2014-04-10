@@ -187,7 +187,7 @@ describe('ThResultSetModel', function(){
         newSocketEvent(backgroundRepo, data);
 
         var jobs = model.getResultSetsArray(backgroundRepo)[0].platforms[0].groups[0].jobs;
-        expect(jobs.length).toBe(3);
+        expect(jobs.length).toBe(2);
         expect(_.pluck(jobs, "id")).toEqual([590604, 590599]);
         expect(_.pluck(jobs, "state")).toEqual(["completed", "completed"]);
     });
