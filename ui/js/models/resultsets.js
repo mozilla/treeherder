@@ -234,7 +234,7 @@ treeherder.factory('ThResultSetModel',
      */
     var getOrCreatePlatform = function(repoName, newJob) {
         var rsMapElement = repositories[repoName].rsMap[newJob.result_set_id];
-        var platformKey = getPlatformKey(newJob.platform, newJob.option);
+        var platformKey = getPlatformKey(newJob.platform, newJob.platform_option);
         var plMapElement = rsMapElement.platforms[platformKey];
         if (!plMapElement) {
             // this platform wasn't in the resultset, so add it.
@@ -486,7 +486,6 @@ treeherder.factory('ThResultSetModel',
             // add the job to the datamodel
             grpMapElement.grp_obj.jobs.push(newJob);
 
-
             // add job to the jobmap
             repositories[repoName].jobMap[key] = {
                 job_obj: newJob,
@@ -505,7 +504,7 @@ treeherder.factory('ThResultSetModel',
 
         var added = [];
         for (var i = data.length - 1; i > -1; i--) {
-            if (data[i].push_timestamp > repositories[repoName].rsMapOldestTimestamp) {
+            if (data[i].push_timestamp >= repositories[repoName].rsMapOldestTimestamp) {
                 $log.debug("prepending resultset: ", data[i].id);
                 repositories[repoName].resultSets.push(data[i]);
                 added.push(data[i]);
@@ -629,7 +628,11 @@ treeherder.factory('ThResultSetModel',
 
         fetchJobs: fetchJobs,
 
-        aggregateJobPlatform: aggregateJobPlatform
+        aggregateJobPlatform: aggregateJobPlatform,
+
+        processSocketData: processSocketData,
+
+        processUpdateQueues: processUpdateQueues
 
     };
 

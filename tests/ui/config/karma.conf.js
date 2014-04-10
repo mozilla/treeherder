@@ -31,6 +31,8 @@ module.exports = function (config) {
         autoWatch: false,
         singleRun: true,
 
+        logLevel: config.LOG_INFO,
+
         browsers: ['Firefox'],
 
         junitReporter: {
