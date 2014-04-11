@@ -547,6 +547,44 @@ treeherder.factory('ThResultSetModel',
         }
     };
 
+    /**
+     * Check if ``repoName`` had a range specified in its ``locationParams``
+     * and whether or not ``data`` falls within that range.
+     */
+    var isInResultSetRange = function(repoName, data) {
+        var result = true;
+        if (repositories[repoName]) {
+            var search = repositories[repoName].search;
+            if (_.has(search, "enddate") &&
+                Date.parse(search.enddate)/1000 + 84600 < data.resultset.push_timestamp) {
+                result = false;
+            }
+            if (_.has(search, "startdate") &&
+                Date.parse(search.startdate)/1000 + 84600 > data.resultset.push_timestamp) {
+                result = false;
+            }
+        }
+
+
+
+
+
+
+
+
+//        not done.  we need to handle revision ranges, too.
+        
+
+
+
+
+
+
+
+
+        return result;
+    };
+
     var getResultSetsArray = function(repoName){
         // this is "watchable" for when we add new resultsets and have to
         // sort them
