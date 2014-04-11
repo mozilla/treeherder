@@ -43,6 +43,9 @@ treeherder.factory('ThResultSetModel',
                 jobUpdateQueue:[],
                 rsUpdateQueue:[],
 
+                lastJobElSelected:{},
+                lastJobObjSelected:{},
+
                 // maps to help finding objects to update/add
                 rsMap:{},
                 jobMap:{},
@@ -110,6 +113,18 @@ treeherder.factory('ThResultSetModel',
     var getJobMapKey = function(job) {
         //Build string key for jobMap entires
         return 'key' + job.id;
+    };
+
+    var getSelectedJob = function(repoName){
+        return { el:repositories[repoName].lastJobElSelected,
+                 job:repositories[repoName].lastJobObjSelected };
+    };
+
+    var setSelectedJob = function(
+        repoName, lastJobElSelected, lastJobObjSelected){
+
+        repositories[repoName].lastJobElSelected = lastJobElSelected;
+        repositories[repoName].lastJobObjSelected = lastJobObjSelected;
     };
 
     var getPlatformKey = function(name, option){
@@ -601,6 +616,10 @@ treeherder.factory('ThResultSetModel',
         getLoadingStatus: getLoadingStatus,
 
         getPlatformKey: getPlatformKey,
+
+        getSelectedJob: getSelectedJob,
+
+        setSelectedJob: setSelectedJob,
 
         isNotLoaded: isNotLoaded,
 
