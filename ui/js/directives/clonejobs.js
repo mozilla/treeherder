@@ -8,9 +8,6 @@ treeherder.directive('thCloneJobs', function(
 
     var $log = new ThLog("thCloneJobs");
 
-    //var lastJobElSelected, lastJobObjSelected;
-
-
     var classificationRequired = {
         "busted":1,
         "exception":1,
