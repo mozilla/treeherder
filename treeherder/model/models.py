@@ -4,13 +4,19 @@ import uuid
 import subprocess
 import os
 
+from collections import defaultdict
+import itertools
+
 from datasource.bases.BaseHub import BaseHub
 from datasource.hubs.MySQL import MySQL
 from django.conf import settings
 from django.core.cache import cache
 from django.db import models
 from django.db.models import Max
+from django.contrib.auth.models import User
 from warnings import filterwarnings, resetwarnings
+
+from jsonfield import JSONField
 
 from treeherder import path
 
@@ -524,3 +530,77 @@ class FailureClassification(models.Model):
 
     def __unicode__(self):
         return self.name
+
+
+# exclusion profiles models
+
+class JobExclusion(models.Model):
+    """
+    A filter represents a collection of properties
+    that you want to filter jobs on. These properties along with their values
+    are kept in the info field in json format
+    """
+    name = models.CharField(max_length=255, unique=True)
+    description = models.TextField(blank=True)
+    info = JSONField()
+    author = models.ForeignKey(User)
+
+    def save(self, *args, **kwargs):
+        super(JobExclusion, self).save(*args, **kwargs)
+
+        # trigger the save method on all the profiles related to this exclusion
+        for profile in self.profiles.all():
+            profile.save()
+
+
+class ExclusionProfile(models.Model):
+    """
+    An exclusion profile represents a list of job exclusions that can be associated with a user profile.
+    """
+    name = models.CharField(max_length=255, unique=True)
+    is_default = models.BooleanField(default=False)
+    exclusions = models.ManyToManyField(JobExclusion, related_name="profiles")
+    flat_exclusion = JSONField(blank=True, default={})
+    author = models.ForeignKey(User, related_name="exclusion_profiles_authored")
+
+    def save(self, *args, **kwargs):
+        super(ExclusionProfile, self).save(*args, **kwargs)
+
+        # prepare the nested defaultdict structure for the flat exclusions
+        # options should be stored in a set but sets are not serializable.
+        # using a list instead
+        job_types_constructor = lambda: defaultdict(list)
+        platform_constructor = lambda: defaultdict(job_types_constructor)
+        flat_exclusions = defaultdict(platform_constructor)
+
+        for exclusion in self.exclusions.all().select_related("info"):
+            # create a set of combinations for each property in the exclusion
+            combo = tuple(itertools.product(exclusion.info['repos'], exclusion.info['platforms'],
+                                            exclusion.info['job_types'], exclusion.info['options']))
+            for repo, platform, job_type, option in combo:
+                # strip the job type symbol appended in the ui
+                job_type = job_type[:job_type.rfind(" (")]
+                options = flat_exclusions[repo][platform][job_type]
+                # using a list instead of a set and checking if the value already exists
+                if not options in options:
+                    options.append(option)
+
+        self.flat_exclusion = flat_exclusions
+        kwargs["force_insert"] = False
+        kwargs["force_update"] = True
+        super(ExclusionProfile, self).save(*args, **kwargs)
+
+        # update the old default profile
+        if self.is_default:
+            ExclusionProfile.objects.filter(is_default=True).exclude(id=self.id).update(is_default=False)
+
+
+class UserExclusionProfile(models.Model):
+    """
+    An extension to the standard user model that keeps the exclusion
+    profile relationship.
+    """
+
+    user = models.ForeignKey(User, related_name="exclusion_profiles")
+    exclusion_profile = models.ForeignKey(ExclusionProfile, blank=True, null=True)
+    is_default = models.BooleanField(default=True)

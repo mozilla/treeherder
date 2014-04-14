@@ -272,3 +272,12 @@ BROKER_URL = 'amqp://{0}:{1}@{2}:{3}/{4}'.format(
 API_HOSTNAME = SITE_URL
 
 BROWSERID_AUDIENCES = [SITE_URL]
+
+
+def obtain_username(email):
+    if email.endswith("@mozilla.com"):
+        return email.rsplit('@', 1)[0]
+    else:
+        return email
+
+BROWSERID_USERNAME_ALGO = obtain_username
