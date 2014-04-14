@@ -218,6 +218,7 @@
                     jg.`symbol` as job_group_symbol,
                     jg.`description` as job_group_description,
                     j.`who`,
+                    j.failure_classification_id,
                     j.`result_set_id`,
                     j.`result`,
                     j.`state`,
