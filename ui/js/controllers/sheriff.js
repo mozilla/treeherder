@@ -1,15 +1,15 @@
 'use strict';
 treeherder.controller('SheriffCtrl',
     function SheriffController($scope, $rootScope, ThBuildPlatformModel, ThJobTypeModel, thEvents,
-                               ThRepositoryModel, ThOptionModel, ThJobFilterModel, ThExclusionProfileModel) {
+                               ThRepositoryModel, ThOptionModel, ThJobExclusionModel, ThExclusionProfileModel) {
 
         // fetch the reference data
-        $scope.filters = [];
-        $scope.filters_map = {};
+        $scope.exclusions = [];
+        $scope.exclusions_map = {};
 
-        ThJobFilterModel.get_list().then(function(data) {
-            $scope.filters = data;
-            $scope.filters_map = _.indexBy($scope.filters, 'id');
+        ThJobExclusionModel.get_list().then(function(data) {
+            $scope.exclusions = data;
+            $scope.exclusions_map = _.indexBy($scope.exclusions, 'id');
         });
 
         $scope.profiles = [];
@@ -67,23 +67,23 @@ treeherder.controller('SheriffCtrl',
 
         // init the master properties for the forms
 
-        $scope.master_filter = {};
-        $scope.master_filter.name = '';
-        $scope.master_filter.description = '';
-        $scope.master_filter.info = {};
-        $scope.master_filter.info.platforms = [];
-        $scope.master_filter.info.job_types = [];
-        $scope.master_filter.info.options = [];
-        $scope.master_filter.info.repos = [];
+        $scope.master_exclusion = {};
+        $scope.master_exclusion.name = '';
+        $scope.master_exclusion.description = '';
+        $scope.master_exclusion.info = {};
+        $scope.master_exclusion.info.platforms = [];
+        $scope.master_exclusion.info.job_types = [];
+        $scope.master_exclusion.info.options = [];
+        $scope.master_exclusion.info.repos = [];
 
-        $scope.master_profile = {name: '', filters: []};
+        $scope.master_profile = {name: '', exclusions: []};
 
 
         // form handling functions
 
-        $scope.reset_filter = function() {
+        $scope.reset_exclusion = function() {
             // reset the user choices
-            $scope.form_filter = angular.copy($scope.master_filter);
+            $scope.form_exclusion = angular.copy($scope.master_exclusion);
             // and reset the available choices
             $scope.form_platforms = angular.copy($scope.master_platforms);
             $scope.form_job_types = angular.copy($scope.master_job_types);
@@ -91,56 +91,56 @@ treeherder.controller('SheriffCtrl',
             $scope.form_repos = angular.copy($scope.master_repos);
         };
 
-        $scope.save_filter = function(filter) {
-            if (filter.id) {
-                filter.update().then(function() {
-                    $scope.switchView('job_filter_list');
+        $scope.save_exclusion = function(exclusion) {
+            if (exclusion.id) {
+                exclusion.update().then(function() {
+                    $scope.switchView('job_exclusion_list');
                 }, null);
             }else {
-                var filter = new ThJobFilterModel(filter);
-                filter.create().then(function() {
-                    $scope.filters.push(filter);
-                    $scope.reset_filter();
+                exclusion = new ThJobExclusionModel(exclusion);
+                exclusion.create().then(function() {
+                    $scope.exclusions.push(exclusion);
+                    $scope.reset_exclusion();
                     $scope.reset_profile();
-                    $scope.switchView('job_filter_list');
+                    $scope.switchView('job_exclusion_list');
                 }, null);
             }
         };
 
-        $scope.delete_filter = function(filter) {
-            filter.delete().then(function() {
+        $scope.delete_exclusion = function(exclusion) {
+            exclusion.delete().then(function() {
                 // update the visibility profiles
                 // since some of them may keep an old relationship
-                // with the filter just deleted
+                // with the exclusion just deleted
                 ThExclusionProfileModel.get_list().then(function(data) {
                     $scope.profiles = data;
                 })
-                // delete the filter from the filter map
-                delete $scope.filters_map[filter.id + ''];
+                // delete the exclusion from the exclusion map
+                delete $scope.exclusions_map[exclusion.id + ''];
 
-                // and from the list of available filters
-                var index = $scope.filters.indexOf(filter);
-                $scope.filters.splice(index, 1);
+                // and from the list of available exclusions
+                var index = $scope.exclusions.indexOf(exclusion);
+                $scope.exclusions.splice(index, 1);
             });
         };
 
-        // Init the filter add form
-        $scope.init_filter_add = function() {
-            $scope.reset_filter();
-            $scope.switchView('job_filter_add');
+        // Init the exclusion add form
+        $scope.init_exclusion_add = function() {
+            $scope.reset_exclusion();
+            $scope.switchView('job_exclusion_add');
         };
 
-        // Init the filter change form
-        $scope.init_filter_update = function(filter) {
-            $scope.form_filter = filter;
+        // Init the exclusion change form
+        $scope.init_exclusion_update = function(exclusion) {
+            $scope.form_exclusion = exclusion;
             angular.forEach(['platforms', 'job_types', 'options', 'repos'], function(elem) {
                 // assign to the left selection the remaining items
                 $scope['form_'+ elem] = _.difference(
                     $scope['master_'+ elem], // this is the whole list
-                    $scope.form_filter.info[elem] // this is what we got
+                    $scope.form_exclusion.info[elem] // this is what we got
                 );
             });
-            $scope.switchView('job_filter_add');
+            $scope.switchView('job_exclusion_add');
         };
 
 
@@ -157,7 +157,7 @@ treeherder.controller('SheriffCtrl',
                     choices.push(key);
                 }
             });
-            $scope.form_profile.filters = choices;
+            $scope.form_profile.exclusions = choices;
             if (profile.id) {
                 //angular.extend(profile, $scope.form_profile);
                 profile.update().then(function() {
@@ -203,8 +203,8 @@ treeherder.controller('SheriffCtrl',
         $scope.init_profile_update = function(profile) {
             $scope.form_profile = profile;
             $scope.form_profile_choices = {};
-            angular.forEach($scope.form_profile.filters, function(filter_id) {
-                $scope.form_profile_choices[filter_id] = true;
+            angular.forEach($scope.form_profile.exclusions, function(exclusion_id) {
+                $scope.form_profile_choices[exclusion_id] = true;
             });
             $scope.switchView('exclusion_profile_add');
         };

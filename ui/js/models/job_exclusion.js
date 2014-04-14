@@ -1,49 +1,49 @@
 'use strict';
 
-treeherder.factory('ThJobFilterModel',
+treeherder.factory('ThJobExclusionModel',
     ['$http', '$log', 'thUrl', 'thNotify', '$q', function($http, $log, thUrl, thNotify, $q) {
-    // ThJobFilterModel is the js counterpart of JobFilter
+    // ThJobExclusionModel is the js counterpart of JobFilter
 
-    var ThJobFilterModel = function(data) {
-        // creates a new instance of ThJobFilterModel
+    var ThJobExclusionModel = function(data) {
+        // creates a new instance of ThJobExclusionModel
         // using the provided properties
         return angular.extend(this, data);
     };
 
-    ThJobFilterModel.get_uri = function(){
-        var url = thUrl.getRootUrl("/job-filter/");
+    ThJobExclusionModel.get_uri = function(){
+        var url = thUrl.getRootUrl("/job-exclusion/");
         $log.log(url);
         return url;
     };
 
-    ThJobFilterModel.get_list = function(options, cache) {
-        // a static method to retrieve a list of ThJobFilterModel
+    ThJobExclusionModel.get_list = function(options, cache) {
+        // a static method to retrieve a list of ThJobExclusionModel
         options = options || {};
         cache = cache || false;
         var query_string = $.param(options);
-        return $http.get(ThJobFilterModel.get_uri()+"?"+query_string, {
+        return $http.get(ThJobExclusionModel.get_uri()+"?"+query_string, {
             cache: cache
         })
         .then(function(response) {
             var item_list = [];
             angular.forEach(response.data, function(elem){
-                item_list.push(new ThJobFilterModel(elem));
+                item_list.push(new ThJobExclusionModel(elem));
             });
             return item_list;
         });
     };
 
-    ThJobFilterModel.get = function(pk) {
-        // a static method to retrieve a single instance of ThJobFilterModel
-        return $http.get(ThJobFilterModel.get_uri()+pk).then(function(response) {
-            return new ThJobFilterModel(response.data);
+    ThJobExclusionModel.get = function(pk) {
+        // a static method to retrieve a single instance of ThJobExclusionModel
+        return $http.get(ThJobExclusionModel.get_uri()+pk).then(function(response) {
+            return new ThJobExclusionModel(response.data);
         });
     };
 
-    // an instance method to create a new ThJobFilterModel
-    ThJobFilterModel.prototype.create = function() {
+    // an instance method to create a new ThJobExclusionModel
+    ThJobExclusionModel.prototype.create = function() {
         var job_filter = this;
-        return $http.post(ThJobFilterModel.get_uri(), job_filter)
+        return $http.post(ThJobExclusionModel.get_uri(), job_filter)
         .then(
             function(response){
                 angular.extend(job_filter, response.data);
@@ -65,11 +65,11 @@ treeherder.factory('ThJobFilterModel',
         );
     };
 
-    // an instance method to create a new ThJobFilterModel
-    ThJobFilterModel.prototype.update = function() {
+    // an instance method to create a new ThJobExclusionModel
+    ThJobExclusionModel.prototype.update = function() {
         var job_filter = this;
         return $http.put(
-                ThJobFilterModel.get_uri()+job_filter.id+"/",
+                ThJobExclusionModel.get_uri()+job_filter.id+"/",
                 job_filter
             )
             .then(
@@ -93,11 +93,11 @@ treeherder.factory('ThJobFilterModel',
             );
     };
 
-    // an instance method to delete a ThJobFilterModel object
-    ThJobFilterModel.prototype.delete = function(){
+    // an instance method to delete a ThJobExclusionModel object
+    ThJobExclusionModel.prototype.delete = function(){
         $log.log(this);
         var pk = this.id;
-        return $http.delete(ThJobFilterModel.get_uri()+pk+"/")
+        return $http.delete(ThJobExclusionModel.get_uri()+pk+"/")
             .then(
                 function(response){
                     thNotify.send("Job filter successfully deleted", "success");
@@ -109,5 +109,5 @@ treeherder.factory('ThJobFilterModel',
             );
     };
 
-    return ThJobFilterModel;
+    return ThJobExclusionModel;
 }]);
