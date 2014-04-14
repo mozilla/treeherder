@@ -27,23 +27,23 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal(u'model', ['ExclusionProfile'])
 
-        # Adding M2M table for field filters on 'ExclusionProfile'
-        db.create_table(u'model_exclusionprofile_filters', (
+        # Adding M2M table for field exclusions on 'ExclusionProfile'
+        db.create_table(u'model_exclusionprofile_exclusions', (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
             ('exclusionprofile', models.ForeignKey(orm[u'model.exclusionprofile'], null=False)),
-            ('jobfilter', models.ForeignKey(orm[u'model.jobfilter'], null=False))
+            ('jobexclusion', models.ForeignKey(orm[u'model.jobexclusion'], null=False))
         ))
-        db.create_unique(u'model_exclusionprofile_filters', ['exclusionprofile_id', 'jobfilter_id'])
+        db.create_unique(u'model_exclusionprofile_exclusions', ['exclusionprofile_id', 'jobexclusion_id'])
 
-        # Adding model 'JobFilter'
-        db.create_table(u'model_jobfilter', (
+        # Adding model 'JobExclusion'
+        db.create_table(u'model_jobexclusion', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('name', self.gf('django.db.models.fields.CharField')(unique=True, max_length=255)),
             ('description', self.gf('django.db.models.fields.TextField')(blank=True)),
             ('info', self.gf('jsonfield.fields.JSONField')()),
             ('author', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
         ))
-        db.send_create_signal(u'model', ['JobFilter'])
+        db.send_create_signal(u'model', ['JobExclusion'])
 
 
     def backwards(self, orm):
@@ -53,11 +53,11 @@ class Migration(SchemaMigration):
         # Deleting model 'ExclusionProfile'
         db.delete_table(u'model_exclusionprofile')
 
-        # Removing M2M table for field filters on 'ExclusionProfile'
-        db.delete_table('model_exclusionprofile_filters')
+        # Removing M2M table for field exclusion on 'ExclusionProfile'
+        db.delete_table('model_exclusionprofile_exclusions')
 
-        # Deleting model 'JobFilter'
-        db.delete_table(u'model_jobfilter')
+        # Deleting model 'JobExclusion'
+        db.delete_table(u'model_jobexclusion')
 
 
     models = {
@@ -133,7 +133,7 @@ class Migration(SchemaMigration):
         u'model.exclusionprofile': {
             'Meta': {'object_name': 'ExclusionProfile'},
             'author': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'exclusion_profiles_authored'", 'to': u"orm['auth.User']"}),
-            'filters': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "u'profiles'", 'symmetrical': 'False', 'to': u"orm['model.JobFilter']"}),
+            'exclusions': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "u'profiles'", 'symmetrical': 'False', 'to': u"orm['model.JobExclusion']"}),
             'flat_exclusion': ('jsonfield.fields.JSONField', [], {'default': '{}', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_default': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
@@ -146,8 +146,8 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50L'})
         },
-        u'model.jobfilter': {
-            'Meta': {'object_name': 'JobFilter'},
+        u'model.jobexclusion': {
+            'Meta': {'object_name': 'JobExclusion'},
             'author': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['auth.User']"}),
             'description': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),

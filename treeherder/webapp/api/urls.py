@@ -66,7 +66,7 @@ default_router.register(r'bugscache', refdata.BugscacheViewSet)
 default_router.register(r'failureclassification', refdata.FailureClassificationViewSet)
 default_router.register(r'user', refdata.UserViewSet)
 default_router.register(r'exclusion-profile', refdata.ExclusionProfileViewSet)
-default_router.register(r'job-filter', refdata.JobFilterViewSet)
+default_router.register(r'job-exclusion', refdata.JobExclusionViewSet)
 
 
 urlpatterns = patterns(

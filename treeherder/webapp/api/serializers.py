@@ -20,17 +20,17 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ["username", "is_superuser", "is_staff", "email", "exclusion_profiles"]
 
 
-class JobFilterSerializer(serializers.ModelSerializer):
+class JobExclusionSerializer(serializers.ModelSerializer):
     info = serializers.WritableField()
 
     class Meta:
-        model = models.JobFilter
+        model = models.JobExclusion
 
 
 class ExclusionProfileSerializer(serializers.ModelSerializer):
 
     flat_exclusion = serializers.WritableField(required=False)
-    filters = serializers.PrimaryKeyRelatedField(many=True)
+    exclusions = serializers.PrimaryKeyRelatedField(many=True)
 
     class Meta:
         model = models.ExclusionProfile

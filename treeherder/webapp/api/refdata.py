@@ -129,11 +129,11 @@ class UserExclusionProfileViewSet(viewsets.ModelViewSet):
     serializer_class = th_serializers.UserExclusionProfileSerializer
 
 
-class JobFilterViewSet(viewsets.ModelViewSet):
-    model = models.JobFilter
+class JobExclusionViewSet(viewsets.ModelViewSet):
+    model = models.JobExclusion
     authentication_classes = (SessionAuthentication,)
     permission_classes = (IsStaffOrReadOnly,)
-    serializer_class = th_serializers.JobFilterSerializer
+    serializer_class = th_serializers.JobExclusionSerializer
 
     def create(self, request, *args, **kwargs):
         """
@@ -142,7 +142,7 @@ class JobFilterViewSet(viewsets.ModelViewSet):
         """
         if "author" not in request.DATA:
             request.DATA["author"] = request.user.id
-        return super(JobFilterViewSet, self).create(request, *args, **kwargs)
+        return super(JobExclusionViewSet, self).create(request, *args, **kwargs)
 
 
 class ExclusionProfileViewSet(viewsets.ModelViewSet):

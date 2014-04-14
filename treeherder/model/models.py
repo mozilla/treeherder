@@ -534,7 +534,7 @@ class FailureClassification(models.Model):
 
 # exclusion profiles models
 
-class JobFilter(models.Model):
+class JobExclusion(models.Model):
     """
     A filter represents a collection of properties
     that you want to filter jobs on. These properties along with their values
@@ -545,40 +545,47 @@ class JobFilter(models.Model):
     info = JSONField()
     author = models.ForeignKey(User)
 
+    def save(self, *args, **kwargs):
+        super(JobExclusion, self).save(*args, **kwargs)
+
+        # trigger the save method on all the profiles related to this exclusion
+        for profile in self.profiles.all():
+            profile.save()
+
 
 class ExclusionProfile(models.Model):
     """
-    An exclusion profile represents a list of filters that can be associated with a user profile.
+    An exclusion profile represents a list of job exclusions that can be associated with a user profile.
     """
     name = models.CharField(max_length=255, unique=True)
     is_default = models.BooleanField(default=False)
-    filters = models.ManyToManyField(JobFilter, related_name="profiles")
+    exclusions = models.ManyToManyField(JobExclusion, related_name="profiles")
     flat_exclusion = JSONField(blank=True, default={})
     author = models.ForeignKey(User, related_name="exclusion_profiles_authored")
 
     def save(self, *args, **kwargs):
         super(ExclusionProfile, self).save(*args, **kwargs)
 
-        # prepare the nested defaultdict structure for the flat filters
+        # prepare the nested defaultdict structure for the flat exclusions
         # options should be stored in a set but sets are not serializable.
         # using a list instead
         job_types_constructor = lambda: defaultdict(list)
         platform_constructor = lambda: defaultdict(job_types_constructor)
-        flat_filters = defaultdict(platform_constructor)
+        flat_exclusions = defaultdict(platform_constructor)
 
-        for filter in self.filters.all().select_related("info"):
-            # create a set of combinations for each property in the filter
-            combo = tuple(itertools.product(filter.info['repos'], filter.info['platforms'],
-                                            filter.info['job_types'], filter.info['options']))
+        for exclusion in self.exclusions.all().select_related("info"):
+            # create a set of combinations for each property in the exclusion
+            combo = tuple(itertools.product(exclusion.info['repos'], exclusion.info['platforms'],
+                                            exclusion.info['job_types'], exclusion.info['options']))
             for repo, platform, job_type, option in combo:
                 # strip the job type symbol appended in the ui
                 job_type = job_type[:job_type.rfind(" (")]
-                options = flat_filters[repo][platform][job_type]
+                options = flat_exclusions[repo][platform][job_type]
                 # using a list instead of a set and checking if the value already exists
                 if not options in options:
                     options.append(option)
 
-        self.flat_exclusion = flat_filters
+        self.flat_exclusion = flat_exclusions
         kwargs["force_insert"] = False
         kwargs["force_update"] = True
         super(ExclusionProfile, self).save(*args, **kwargs)
