@@ -7,6 +7,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=Edge">
         <!-- Bootstrap -->
         <link href="css/bootstrap.css" rel="stylesheet" media="screen">
+        <link href="css/select2.css" rel="stylesheet" media="screen">
         <link href="css/font-awesome.min.css" rel="stylesheet" media="screen">
         <link href="css/treeherder.css" rel="stylesheet" media="screen">
         <link href="css/persona-buttons.css" rel="stylesheet" media="screen">
@@ -41,40 +42,55 @@
         <script src="vendor/socket.io.js"></script>
         <script src="vendor/angular-local-storage.min.js"></script>
         <script src="vendor/underscore-min.js"></script>
+
         <script src="js/app.js"></script>
         <script src="js/services/log.js"></script>
         <script src="js/config/local.conf.js"></script>
         <script src="js/providers.js"></script>
+        <!-- Directives -->
         <script src="js/directives/main.js"></script>
         <script src="js/directives/clonejobs.js"></script>
         <script src="js/directives/persona.js"></script>
         <script src="js/directives/resultsets.js"></script>
         <script src="js/directives/top_nav_bar.js"></script>
         <script src="js/directives/bottom_nav_panel.js"></script>
+        <!-- Main services -->
         <script src="js/services/main.js"></script>
         <script src="js/services/jobfilters.js"></script>
         <script src="js/services/classifications.js"></script>
         <script src="js/services/pinboard.js"></script>
         <script src="js/services/resultsets.js"></script>
         <script src="js/services/treestatus.js"></script>
+        <!-- Model services -->
         <script src="js/models/resultsets.js"></script>
         <script src="js/models/job_artifact.js"></script>
         <script src="js/models/repository.js"></script>
         <script src="js/models/bug_job_map.js"></script>
         <script src="js/models/classification.js"></script>
         <script src="js/models/job.js"></script>
+        <script src="js/models/job_exclusion.js"></script>
+        <script src="js/models/exclusion_profile.js"></script>
+        <script src="js/models/build_platform.js"></script>
+        <script src="js/models/job_type.js"></script>
+        <script src="js/models/option.js"></script>
+        <script src="js/models/user.js"></script>
+        <!-- Controllers -->
         <script src="js/controllers/main.js"></script>
+        <script src="js/controllers/sheriff.js"></script>
+        <script src="js/controllers/settings.js"></script>
         <script src="js/controllers/repository.js"></script>
         <script src="js/controllers/filters.js"></script>
         <script src="js/controllers/jobs.js"></script>
         <script src="js/controllers/machines.js"></script>
         <script src="js/controllers/timeline.js"></script>
+        <!-- Plugins -->
         <script src="plugins/controller.js"></script>
         <script src="plugins/pinboard.js"></script>
         <script src="plugins/annotations/controller.js"></script>
         <script src="plugins/tinderbox/controller.js"></script>
         <script src="plugins/bugs_suggestions/controller.js"></script>
         <script src="plugins/similar_jobs/controller.js"></script>
+
         <script src="js/filters.js"></script>
         <script src="vendor/Config.js"></script>
         <script src="https://login.persona.org/include.js"></script>

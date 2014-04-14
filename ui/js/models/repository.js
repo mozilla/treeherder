@@ -81,11 +81,19 @@ treeherder.factory('ThRepositoryModel',
         watchedReposUpdated();
     };
 
+    var get_uri = function(){
+        return thUrl.getRootUrl("/repository/");
+    };
+
+    var get_list = function () {
+        return $http.get(get_uri(), {cache: true});
+    };
+
     var load = function(name) {
 
         var storedWatchedRepos = localStorageService.get("watchedRepos");
 
-        return $http.get(thUrl.getRootUrl("/repository/")).
+        return get_list().
             success(function(data) {
                 $rootScope.repos = data;
                 $rootScope.groupedRepos = getByGroup();
@@ -103,6 +111,7 @@ treeherder.factory('ThRepositoryModel',
                 watchedReposUpdated();
             });
     };
+
 
     var getCurrent = function() {
         return $rootScope.currentRepo;
@@ -150,6 +159,8 @@ treeherder.factory('ThRepositoryModel',
     return {
         // load the list of repos into $rootScope, and set the current repo.
         load: load,
+
+        get_list: get_list,
 
         // return the currently selected repo
         getCurrent: getCurrent,
