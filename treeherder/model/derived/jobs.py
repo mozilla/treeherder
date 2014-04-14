@@ -81,6 +81,27 @@ class JobsModel(TreeherderModelBase):
 
     }
 
+    OBJECTSTORE_CYCLE_TARGETS = [
+        "objectstore.deletes.cycle_objectstore"
+    ]
+
+    # jobs cycle targets
+    # NOTE: There is an order dependency here, cycle_job and
+    # cycle_result_set should be after any tables with foreign keys
+    # to their ids.
+    JOBS_CYCLE_TARGETS = [
+        "jobs.deletes.cycle_job_artifact",
+        "jobs.deletes.cycle_job_log_url",
+        "jobs.deletes.cycle_job_note",
+        "jobs.deletes.cycle_job",
+        "jobs.deletes.cycle_revision",
+        "jobs.deletes.cycle_revision_map",
+        "jobs.deletes.cycle_result_set"
+    ]
+
+    # 6 months in seconds
+    DATA_CYCLE_INTERVAL = 15552000
+
     @classmethod
     def create(cls, project, host=None):
         """
@@ -337,6 +358,66 @@ class JobsModel(TreeherderModelBase):
             ],
             debug_show=self.DEBUG
         )
+
+    def cycle_data(self, sql_targets={}, execute_sleep=True):
+
+        # Compute 6 month old timestamp
+        min_date = int(time.time() - self.DATA_CYCLE_INTERVAL)
+
+        sql_targets['total_count'] = 0
+
+        # remove data from specified objectstore and jobs tables that is
+        # older than 6 months
+        self._execute_table_deletes(
+            min_date, self.get_os_dhub(), self.OBJECTSTORE_CYCLE_TARGETS,
+            sql_targets, execute_sleep
+            )
+
+        self._execute_table_deletes(
+            min_date, self.get_jobs_dhub(), self.JOBS_CYCLE_TARGETS,
+            sql_targets, execute_sleep
+            )
+
+        return sql_targets
+
+    def _execute_table_deletes(
+        self, min_date, dhub, sql_to_execute, sql_targets, execute_sleep):
+
+        for sql in sql_to_execute:
+
+            if sql not in sql_targets:
+                sql_targets[sql] = None
+
+            if (sql_targets[sql] == None) or (sql_targets[sql] > 0):
+
+                # Disable foreign key checks to improve performance
+                dhub.execute(
+                    proc='generic.db_control.disable_foreign_key_checks',
+                    debug_show=self.DEBUG
+                    )
+
+                dhub.execute(
+                    proc=sql,
+                    placeholders=[min_date],
+                    debug_show=self.DEBUG,
+                    )
+
+                row_count = dhub.connection['master_host']['cursor'].rowcount
+
+                dhub.commit('master_host')
+
+                # Re-enable foreign key checks to improve performance
+                dhub.execute(
+                    proc='generic.db_control.enable_foreign_key_checks',
+                    debug_show=self.DEBUG
+                    )
+
+                sql_targets[sql] = row_count
+                sql_targets['total_count'] += row_count
+
+                if execute_sleep:
+                    # Allow some time for other queries to get through
+                    time.sleep(5)
 
     def get_bug_job_map_list(self, offset, limit, conditions=None):
         """

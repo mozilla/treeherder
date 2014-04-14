@@ -55,6 +55,67 @@ def test_ingest_all_sample_jobs(jm, refdata, sample_data, initial_data, sample_r
     job_data = sample_data.job_data
     test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset)
 
+def test_cycle_all_data(jm, refdata, sample_data, initial_data, sample_resultset, mock_log_parser):
+    """
+    Test cycling the sample data
+    """
+
+    job_count = 20
+    job_data = sample_data.job_data[:job_count]
+    test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset, False)
+
+    # build a date that will cause the data to be cycled
+    cycle_date_ts = int(time.time() - (jm.DATA_CYCLE_INTERVAL + 100))
+
+    jm.get_dhub(jm.CT_JOBS).execute(
+        proc="jobs_test.updates.set_jobs_submit_timestamp",
+        placeholders=[cycle_date_ts]
+    )
+
+    jobs_before = jm.get_dhub(jm.CT_JOBS).execute(proc="jobs_test.selects.jobs")
+
+    sql_targets = jm.cycle_data({}, False)
+
+    jobs_after = jm.get_dhub(jm.CT_JOBS).execute(proc="jobs_test.selects.jobs")
+
+    assert len(jobs_before) == job_count
+
+    # There should be no jobs after cycling
+    assert len(jobs_after) == 0
+
+    assert sql_targets['jobs.deletes.cycle_job'] == job_count
+
+def test_cycle_one_job(jm, refdata, sample_data, initial_data, sample_resultset, mock_log_parser):
+    """
+    Test cycling one job in a group of jobs to confirm there are no
+    unexpected deletions
+    """
+
+    job_count = 20
+    job_data = sample_data.job_data[:job_count]
+    test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset, False)
+
+    # build a date that will cause the data to be cycled
+    cycle_date_ts = int(time.time() - (jm.DATA_CYCLE_INTERVAL + 100))
+
+    jm.get_dhub(jm.CT_JOBS).execute(
+        proc="jobs_test.updates.set_one_job_submit_timestamp",
+        placeholders=[cycle_date_ts]
+    )
+
+    jobs_before = jm.get_dhub(jm.CT_JOBS).execute(proc="jobs_test.selects.jobs")
+
+    sql_targets = jm.cycle_data({}, False)
+
+    jobs_after = jm.get_dhub(jm.CT_JOBS).execute(proc="jobs_test.selects.jobs")
+
+    assert len(jobs_before) == job_count
+
+    # There should be no jobs after cycling
+    assert len(jobs_after) == job_count - 1
+
+    assert sql_targets['jobs.deletes.cycle_job'] == 1
+
 def test_bad_date_value_ingestion(jm, initial_data, mock_log_parser):
     """
     Test ingesting an blob with bad date value

@@ -1,4 +1,12 @@
 {
+    "deletes":{
+        "cycle_objectstore":{
+
+            "sql":"DELETE FROM objectstore WHERE loaded_timestamp < ? ORDER BY id ASC LIMIT 10000",
+
+            "host": "master_host"
+        }
+    },
     "inserts":{
         "store_json":{
 
