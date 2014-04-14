@@ -116,7 +116,7 @@ body {
 
 .th-top-nav-options-panel .th-option-heading {
     padding: 3px 10px;
-    background-color: darkgray;
+    background-color: #354048;;
     color: white;
 }
 
@@ -130,15 +130,15 @@ body {
 
 .th-option-group {
     margin-right: 5px;
-    border: 1px solid darkgrey;
-    -moz-border-radius:3px;
-    -webkit-border-radius:3px;
-    border-radius:3px;
+    border: 1px solid #101010;
+    -moz-border-radius:5px;
+    -webkit-border-radius:5px;
+    border-radius:5px;
 }
 
 .th-option-heading .th-panel-heading{
     padding: 5px 10px;
-    background-color: darkgray;
+    background-color: #354048;
 }
 
 #jobFilterValue {
@@ -1100,5 +1100,27 @@ fieldset[disabled] .btn-repo.active {
 }
 
 #notification_box button.close{position:relative; top:-2px; right:-8px; color:inherit}
+
+.add-new-filter .form-group{
+    margin-bottom: 5px;
+}
+
+.th-multi-select input[type=text]{
+    width:534px;
+}
+
+.th-multi-select select{
+    width:250px;
+    font-size: 12px;
+}
+
+.th-multi-select button{
+    width:30px;
+}
+
+.form-group-inline>.form-group{
+    display: inline-block;
+    vertical-align: top;
+}
 
 div.logviewer-step{ padding:6px 6px;}

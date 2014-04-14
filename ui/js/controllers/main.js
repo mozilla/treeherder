@@ -3,7 +3,7 @@
 treeherder.controller('MainCtrl',
     function MainController($scope, $rootScope, $routeParams, $location, ThLog,
                             localStorageService, ThRepositoryModel, thPinboard,
-                            thClassificationTypes, thEvents, $interval) {
+                            thClassificationTypes, thEvents, $interval, ThExclusionProfileModel) {
 
         var $log = new ThLog("MainCtrl");
 
@@ -116,8 +116,21 @@ treeherder.controller('MainCtrl',
         $scope.pinboardCount = thPinboard.count;
         $scope.pinnedJobs = thPinboard.pinnedJobs;
 
-        $scope.user = {};
-        $scope.user.email = localStorageService.get("user.email");
-        $scope.user.loggedin = $scope.user.email !== null;
+        $scope.user = angular.fromJson(localStorageService.get("user")) || {};
+        $scope.user.loggedin = angular.isDefined($scope.user.email) && $scope.user.email !== null;
+
+        // get a cached version of the exclusion profiles
+        ThExclusionProfileModel.get_list({}, true).then(function(profiles){
+            $scope.exclusion_profiles = profiles;
+            $rootScope.active_exclusion_profile = _.find(
+                $scope.exclusion_profiles,
+                function(elem){
+                    return elem.is_default;
+                }
+            );
+            if($rootScope.active_exclusion_profile){
+                $scope.$broadcast(thEvents.globalFilterChanged, null);
+            }
+        }, null);
     }
 );

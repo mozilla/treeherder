@@ -1,22 +1,32 @@
 <nav class="navbar navbar-inverse navbar-fixed-top th-navbar">
-    <div id="top-nav-main-panel">
-        <div class="navbar-header">
-            <a class="navbar-brand" href="#">Treeherder</a>
-        </div>
-        <div class="navbar-collapse collapse th-global-navbar">
-            <!-- nav begin -->
-            <span class="nav navbar-nav">
-                <span class="btn-group"
-                      ng-repeat="viewOption in ['jobs', 'timeline', 'machines']">
-                    <a class="btn btn-view-nav"
-                       ng-class="{'active': (locationPath===viewOption)}"
-                       href="#/{{viewOption}}">{{viewOption}}</a>
+    <div class="navbar-header">
+        <a class="navbar-brand" href="#">Treeherder</a>
+    </div>
+    <div class="navbar-collapse collapse th-global-navbar">
+        <!-- nav begin -->
+        <span class="nav navbar-nav">
+            <span class="btn-group"
+                  ng-repeat="viewOption in ['jobs', 'timeline', 'machines']">
+                <a class="btn btn-view-nav"
+                   ng-class="{'active': (locationPath===viewOption)}"
+                   href="#/{{viewOption}}">{{viewOption}}</a>
+            </span>
+        </span>
+        <span class="pull-right">
+            <span ng-show="user.is_staff">
+                <span class="btn btn-view-nav"
+                      ng-class="{'active': (isSheriffPanelShowing)}"
+                      ng-click="isSheriffPanelShowing=!isSheriffPanelShowing"><span>Sheriffing</span>
+                    <i class="glyphicon glyphicon-chevron-down lightgray"
+                       ng-hide="isSheriffPanelShowing"></i>
+                    <i class="glyphicon glyphicon-chevron-up lightgray"
+                       ng-show="isSheriffPanelShowing"></i>
                 </span>
             </span>
             <span class="pull-right">
                 <span class="btn btn-view-nav"
                       ng-class="{'active': (isRepoPanelShowing)}"
-                      ng-click="isRepoPanelShowing=!isRepoPanelShowing"><span>repos</span>
+                      ng-click="isRepoPanelShowing=!isRepoPanelShowing"><span>Repos</span>
                     <i class="glyphicon glyphicon-chevron-down lightgray"
                        ng-hide="isRepoPanelShowing"></i>
                     <i class="glyphicon glyphicon-chevron-up lightgray"
@@ -24,21 +34,32 @@
                 </span>
                 <span class="btn btn-view-nav"
                       ng-class="{'active': (isFilterPanelShowing)}"
-                      ng-click="isFilterPanelShowing=!isFilterPanelShowing"><span>filters</span>
+                      ng-click="isFilterPanelShowing=!isFilterPanelShowing"><span>Filters</span>
                     <i class="glyphicon glyphicon-chevron-down lightgray"
                        ng-hide="isFilterPanelShowing"></i>
                     <i class="glyphicon glyphicon-chevron-up lightgray"
                        ng-show="isFilterPanelShowing"></i>
                 </span>
-                <a class="btn btn-view-nav" href="help.html" target="_blank">help</a>
+                <a class="btn btn-view-nav" href="help.html" target="_blank">Help</a>
                 <span class="nav-text white th-username">{{user.email}}</span>
+                <!--TODO: change this condition to enable the settings panel-->
+                <span ng-show="false" class="btn btn-view-nav"
+                      ng-class="{'active': (isSettingsPanelShowing)}"
+                      ng-click="isSettingsPanelShowing=!isSettingsPanelShowing"><span>Settings</span>
+                    <i class="glyphicon glyphicon-chevron-down lightgray"
+                       ng-hide="isSettingsPanelShowing"></i>
+                    <i class="glyphicon glyphicon-chevron-up lightgray"
+                       ng-show="isSettingsPanelShowing"></i>
+                </span>
                 <persona-buttons></persona-buttons>
             </span>
+
 
         </div>
         <ng-include class="watched-repo-navbar" src="'partials/thWatchedRepoPanel.html'" ng-show="locationPath==='jobs'">
         </ng-include>
     </div>
+    <ng-include src="'partials/thSheriffPanel.html'" ng-show="isSheriffPanelShowing"></ng-include>
     <ng-include src="'partials/thFilterPanel.html'" ng-show="isFilterPanelShowing"></ng-include>
     <ng-include src="'partials/thRepoPanel.html'" ng-show="isRepoPanelShowing"></ng-include>
 </nav>

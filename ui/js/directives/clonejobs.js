@@ -960,6 +960,6 @@ treeherder.directive('thCloneJobs', function(
     return {
         link:linker,
         replace:true
-        };
+    };
 
 });
