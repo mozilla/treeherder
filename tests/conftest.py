@@ -1,5 +1,4 @@
 import os
-import simplejson as json
 from os.path import dirname
 import sys
 from django.core.management import call_command
@@ -79,6 +78,8 @@ def pytest_runtest_teardown(item):
     ds_list = Datasource.objects.all()
     for ds in ds_list:
         ds.delete()
+
+    call_command("migrate", 'model', '0001_initial')
 
 
 
