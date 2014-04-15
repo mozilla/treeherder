@@ -26,35 +26,45 @@ class ResultSetViewSet(viewsets.ViewSet):
         """
 
         # make a mutable copy of these params
-        query_params = request.QUERY_PARAMS.copy()
+        filter_params = request.QUERY_PARAMS.copy()
 
         # support ranges for date as well as revisions(changes) like old tbpl
-        fromchange = query_params.pop("fromchange", None)
-        tochange = query_params.pop("tochange", None)
-        startdate = query_params.pop("startdate", None)
-        enddate = query_params.pop("enddate", None)
+        fromchange = filter_params.pop("fromchange", None)
+        tochange = filter_params.pop("tochange", None)
+        startdate = filter_params.pop("startdate", None)
+        enddate = filter_params.pop("enddate", None)
+
+        # This will contain some meta data about the request and results
+        meta = {}
 
         # translate these params into our own filtering mechanism
         if fromchange:
-            query_params.update({
-                "push_timestamp__gte": get_revision_timestamp(jm, fromchange[0])
+            meta['fromchange'] = fromchange[0]
+            filter_params.update({
+                "push_timestamp__gte": get_revision_timestamp(jm, meta['fromchange'])
             })
         if tochange:
-            query_params.update({
-                "push_timestamp__lte": get_revision_timestamp(jm, tochange[0])
+            meta['tochange'] = tochange[0]
+            filter_params.update({
+                "push_timestamp__lte": get_revision_timestamp(jm, meta['tochange'])
             })
         if startdate:
-            query_params.update({
+            meta['startdate'] = startdate[0]
+            filter_params.update({
                 "push_timestamp__gte": to_timestamp(startdate[0])
             })
         if enddate:
+            meta['enddate'] = enddate[0]
+
             # add a day because we aren't supplying a time, just a date.  So
             # we're doing ``less than``, rather than ``less than or equal to``.
-            query_params.update({
+            filter_params.update({
                 "push_timestamp__lt": to_timestamp(enddate[0]) + 86400
             })
 
-        filter = UrlQueryFilter(query_params)
+        meta['filter_params'] = filter_params
+
+        filter = UrlQueryFilter(filter_params)
 
         offset_id = filter.pop("id__lt", 0)
         count = filter.pop("count", 10)
@@ -66,7 +76,15 @@ class ResultSetViewSet(viewsets.ViewSet):
             full,
             filter.conditions
         )
-        return Response(self.get_resultsets_with_jobs(jm, objs, full, {}))
+
+        results = self.get_resultsets_with_jobs(jm, objs, full, {})
+        meta['count'] = len(results)
+        meta['repository'] = project
+
+        return Response({
+            'meta': meta,
+            'results': results
+        })
 
     @with_jobs
     def retrieve(self, request, project, jm, pk=None):
