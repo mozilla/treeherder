@@ -352,7 +352,7 @@ treeherder.factory('ThResultSetModel',
      * in the data model.
      */
     var fetchJobs = function(repoName, jobFetchList) {
-        ThJobModel.get_list(repoName, {
+        ThJobModel.get_list({
             job_guid__in: jobFetchList.join()
         }).then(
             _.bind(updateJobs, $rootScope, repoName),
