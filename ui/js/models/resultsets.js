@@ -103,7 +103,9 @@ treeherder.factory('ThResultSetModel',
          * need to add it to the ``jobUpdateQueue``.
          */
         if (data.branch === repoName) {
-            if (data.resultset.push_timestamp >= repositories[repoName].rsMapOldestTimestamp) {
+            if (data.resultset.push_timestamp >= repositories[repoName].rsMapOldestTimestamp &&
+                isInResultSetRange(repoName, data.resultset.push_timestamp)) {
+
                 // we want to load this job, one way or another
                 if (repositories[repoName].rsMap[data.resultset.id]) {
                     // we already have this resultset loaded, so queue the job
@@ -351,7 +353,7 @@ treeherder.factory('ThResultSetModel',
      */
     var fetchJobs = function(repoName, jobFetchList) {
         ThJobModel.get_list(repoName, {
-            id__in: jobFetchList.join()
+            job_guid__in: jobFetchList.join()
         }).then(
             _.bind(updateJobs, $rootScope, repoName),
             function(data) {
@@ -518,11 +520,13 @@ treeherder.factory('ThResultSetModel',
         // prepend the resultsets because they'll be newer.
 
         var added = [];
-        for (var i = data.length - 1; i > -1; i--) {
-            if (data[i].push_timestamp >= repositories[repoName].rsMapOldestTimestamp) {
-                $log.debug("prepending resultset: ", data[i].id);
-                repositories[repoName].resultSets.push(data[i]);
-                added.push(data[i]);
+        for (var i = data.results.length - 1; i > -1; i--) {
+            if (data.results[i].push_timestamp >= repositories[repoName].rsMapOldestTimestamp &&
+                isInResultSetRange(repoName, data.results[i].push_timestamp)) {
+
+                $log.debug("prepending resultset: ", data.results[i].id);
+                repositories[repoName].resultSets.push(data.results[i]);
+                added.push(data.results[i]);
             } else {
                 $log.debug("not prepending.  timestamp is older");
             }
@@ -535,14 +539,20 @@ treeherder.factory('ThResultSetModel',
 
     var appendResultSets = function(repoName, data) {
 
-        if(data.length > 0){
+        if(data.results.length > 0){
 
 
             Array.prototype.push.apply(
-                repositories[repoName].resultSets, data
+                repositories[repoName].resultSets, data.results
                 );
 
-            mapResultSets(repoName, data);
+            mapResultSets(repoName, data.results);
+
+            // only set the meta-data on the first pull for a repo.
+            // because this will establish ranges from then-on for auto-updates.
+            if (_.isUndefined(repositories[repoName].meta)) {
+                repositories[repoName].meta = data.meta;
+            }
         }
 
         repositories[repoName].loadingStatus.appending = false;
@@ -563,39 +573,26 @@ treeherder.factory('ThResultSetModel',
     };
 
     /**
-     * Check if ``repoName`` had a range specified in its ``locationParams``
-     * and whether or not ``data`` falls within that range.
+     * Check if ``repoName`` had a range specified in its ``meta`` data
+     * and whether or not ``push_timestamp`` falls within that range.
      */
-    var isInResultSetRange = function(repoName, data) {
+    var isInResultSetRange = function(repoName, push_timestamp) {
         var result = true;
         if (repositories[repoName]) {
-            var search = repositories[repoName].search;
-            if (_.has(search, "enddate") &&
-                Date.parse(search.enddate)/1000 + 84600 < data.resultset.push_timestamp) {
+            var meta = repositories[repoName].meta;
+            if (_.has(meta, "push_timestamp__gte") &&
+                push_timestamp < meta.push_timestamp__gte) {
                 result = false;
             }
-            if (_.has(search, "startdate") &&
-                Date.parse(search.startdate)/1000 + 84600 > data.resultset.push_timestamp) {
+            if (_.has(meta, "push_timestamp__lte") &&
+                push_timestamp > meta.push_timestamp__lte) {
+                result = false;
+            }
+            if (_.has(meta, "push_timestamp__lt") &&
+                push_timestamp >= meta.push_timestamp__lt) {
                 result = false;
             }
         }
-
-
-
-
-
-
-
-
-//        not done.  we need to handle revision ranges, too.
-        
-
-
-
-
-
-
-
 
         return result;
     };
