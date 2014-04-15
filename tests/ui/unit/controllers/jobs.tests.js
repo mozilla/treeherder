@@ -22,30 +22,6 @@ describe('JobsCtrl', function(){
             getJSONFixture('resultset_list.json')
         );
 
-        $httpBackend.whenGET(projectPrefix + 'jobs/1235/').respond(
-            getJSONFixture('job_1235.json')
-        );
-
-        $httpBackend.whenGET(projectPrefix + 'artifact/403/').respond(
-            getJSONFixture('artifact_403.json')
-        );
-
-        $httpBackend.whenGET(projectPrefix + 'artifact/403').respond(
-            getJSONFixture('artifact_403.json')
-        );
-
-        $httpBackend.whenGET(projectPrefix + 'note?job_id=1235').respond(
-            getJSONFixture('notes_job_1235.json')
-        );
-
-        $httpBackend.whenGET(projectPrefix + 'note/?job_id=1235').respond(
-            getJSONFixture('notes_job_1235.json')
-        );
-
-        $httpBackend.whenGET('resources/job_groups.json').respond(
-            getJSONFixture('job_groups.json')
-        );
-
         $httpBackend.whenGET('https://treestatus.mozilla.org/mozilla-inbound?format=json').respond(
             {
                 "status": "closed",
@@ -83,9 +59,9 @@ describe('JobsCtrl', function(){
         Tests ResultSetCtrl
      */
 
-    it('should have 139 jobs in resultset 2', function() {
+    it('should have 31 platforms in resultset 8', function() {
         createResultSetCtrl(jobScope.result_sets[8]);
-        expect(resultsetScope.resultset.platforms.length).toBe(14);
+        expect(resultsetScope.resultset.platforms.length).toBe(31);
     });
 
     it('should default to revisions collapsed', function() {

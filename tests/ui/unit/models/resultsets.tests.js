@@ -28,10 +28,6 @@ describe('ThResultSetModel', function(){
             getResultSet(10)
         );
 
-        $httpBackend.whenGET(projectPrefix + 'jobs/1235/').respond(
-            getJSONFixture('job_1235.json')
-        );
-
         rootScope = $rootScope.$new();
         rootScope.repoName = foregroundRepo;
 
@@ -114,7 +110,7 @@ describe('ThResultSetModel', function(){
             resultset: {id: 1, push_timestamp: 1396899074}
         };
 
-        $httpBackend.whenGET(foregroundPrefix + '/jobs/?id__in=123').respond(
+        $httpBackend.whenGET(foregroundPrefix + '/jobs/?job_guid__in=123').respond(
             getJob(123, {result_set_id: 1})
         );
 
@@ -136,7 +132,7 @@ describe('ThResultSetModel', function(){
             resultset: {id: 1, push_timestamp: 1396899074}
         };
 
-        $httpBackend.whenGET(foregroundPrefix + '/jobs/?id__in=590604').respond(
+        $httpBackend.whenGET(foregroundPrefix + '/jobs/?job_guid__in=590604').respond(
             getJob(590604, {result_set_id: 1})
         );
 
@@ -158,7 +154,7 @@ describe('ThResultSetModel', function(){
             resultset: {id: 10, push_timestamp: 1396899074}
         };
 
-        $httpBackend.whenGET(backgroundPrefix + '/jobs/?id__in=123').respond(
+        $httpBackend.whenGET(backgroundPrefix + '/jobs/?job_guid__in=123').respond(
             getJob(123, {result_set_id: 10})
         );
 
@@ -180,7 +176,7 @@ describe('ThResultSetModel', function(){
             resultset: {id: 10, push_timestamp: 1396899074}
         };
 
-        $httpBackend.whenGET(backgroundPrefix + '/jobs/?id__in=590604').respond(
+        $httpBackend.whenGET(backgroundPrefix + '/jobs/?job_guid__in=590604').respond(
             getJob(590604, {result_set_id: 10})
         );
 
@@ -278,7 +274,18 @@ describe('ThResultSetModel', function(){
             "revision": "793611be6b26"
         };
         _.extend(rs, values);
-        return [rs];
+        return {
+            "meta": {
+                "count": 1,
+                "filter_params": {
+                    "count": "10",
+                    "full": "false",
+                    "format": "json"
+                },
+                "repository": "mozilla-inbound"
+            },
+            "results": [rs]
+        };
     };
 
     var getJob = function(id, values) {

@@ -13,8 +13,7 @@ treeherder.factory('ThJobModel', function($http, ThLog, thUrl) {
 
     ThJobModel.get_list = function(repoName, options) {
         // a static method to retrieve a list of ThJobModel
-        var query_string = $.param(options);
-        return $http.get(ThJobModel.get_uri(repoName)+"?"+query_string)
+        return $http.get(ThJobModel.get_uri(repoName), {params: options})
             .then(function(response) {
                 var item_list = [];
                 angular.forEach(response.data, function(elem){

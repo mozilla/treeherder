@@ -222,7 +222,7 @@ treeherder.factory('ThResultSetModel',
                 }
             }
         }
-
+        $log.debug("sorting", repoName, repositories[repoName]);
         repositories[repoName].resultSets.sort(rsCompare);
 
         $log.debug("oldest job: ", repositories[repoName].jobMapOldestId);
@@ -233,11 +233,11 @@ treeherder.factory('ThResultSetModel',
     /**
      * Sort the resultsets in place after updating the array
      */
-    var rsCompare = function(a, b) {
-        if (a.push_timestamp > b.push_timestamp) {
+    var rsCompare = function(rs_a, rs_b) {
+        if (rs_a.push_timestamp > rs_b.push_timestamp) {
           return -1;
         }
-        if (a.push_timestamp < b.push_timestamp) {
+        if (rs_a.push_timestamp < rs_b.push_timestamp) {
           return 1;
         }
         return 0;
@@ -341,7 +341,7 @@ treeherder.factory('ThResultSetModel',
         }
 
         if (jobFetchList.length > 0) {
-            $log.debug("processing jobFetchList", jobFetchList);
+            $log.debug("processing the jobFetchList", jobFetchList.length, jobFetchList);
 
             // make an ajax call to get the job details
             fetchJobs(repoName, jobFetchList);
@@ -352,7 +352,8 @@ treeherder.factory('ThResultSetModel',
      * in the data model.
      */
     var fetchJobs = function(repoName, jobFetchList) {
-        ThJobModel.get_list({
+        $log.debug("fetchJobs", repoName, jobFetchList);
+        ThJobModel.get_list(repoName, {
             job_guid__in: jobFetchList.join()
         }).then(
             _.bind(updateJobs, $rootScope, repoName),
@@ -436,7 +437,7 @@ treeherder.factory('ThResultSetModel',
             aggregateJobPlatform(repoName, jobList[i], platformData);
         }
 
-        if(!_.isEmpty(platformData)){
+        if(!_.isEmpty(platformData) && repoName === $rootScope.repoName){
             $rootScope.$broadcast(thEvents.jobsLoaded, platformData);
         }
     };
@@ -510,8 +511,6 @@ treeherder.factory('ThResultSetModel',
             };
 
         }
-
-        $rootScope.$broadcast(thEvents.jobUpdated, newJob);
 
         return true;
     };
