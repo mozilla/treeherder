@@ -1,6 +1,6 @@
     <ul class="dropdown-menu" role="menu">
         <li ng-show="reason" class="watched-repo-dropdown-item">
-            <span ng-bind-html="reason"></span>
+            <span ng-bind-html="reason|linkifyBugs"></span>
         </li>
 
         <li class="divider" ng-show="reason && message_of_the_day"></li>
