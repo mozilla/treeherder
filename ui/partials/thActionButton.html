@@ -6,7 +6,7 @@
         <ul class="dropdown-menu pull-left">
             <li><a target="_blank" href="https://tbpl.mozilla.org/mcmerge/?cset={{resultset.revision}}&tree={{repoName}}">m-mcMerge</a></li>
             <li><a target="_blank" href="https://secure.pub.build.mozilla.org/buildapi/self-serve/{{repoName}}/rev/{{resultset.revision}}">BuildAPI</a></li>
-            <li class="hidden"><a target="_blank" href="" data-toggle="modal" data-target="#revisionListModal">Changeset URL List</a></li>
+            <li><a target="_blank" href="" ng-click="openRevisionListModal()">Changeset URL List</a></li>
             <li class="hidden"><a href="" ng-disabled="true">Cancel All Jobs</a></li>
         </ul>
     </span>

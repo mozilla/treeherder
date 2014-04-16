@@ -42,7 +42,8 @@ treeherder.controller('JobsCtrl',
 treeherder.controller('ResultSetCtrl',
     function ResultSetCtrl($scope, $rootScope, $http, ThLog, $location,
                            thUrl, thServiceDomain, thResultStatusInfo,
-                           ThResultSetModel, thEvents, thJobFilters) {
+                           ThResultSetModel, thEvents, thJobFilters,
+                           $modal) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -93,6 +94,28 @@ treeherder.controller('ResultSetCtrl',
                 );
 
         };
+
+        $scope.openRevisionListModal = function() {
+            $log.debug("resultset", $scope.resultset);
+            ThResultSetModel.loadRevisions(
+                $rootScope.repoName, $scope.resultset.id
+                );
+            var modalInstance = $modal.open({
+                templateUrl: 'partials/revisionListModal.html',
+                controller: RevisionListModalInstanceCtrl,
+                resolve: {
+                    items: function () {
+                        return $scope.resultset.revisions;
+                    }
+                }
+            });
+
+        };
+
+        var RevisionListModalInstanceCtrl = function ($scope, $modalInstance, items) {
+            $scope.revisions = items;
+        };
+
 
         /**
          * When the user clicks one of the resultStates on the resultset line,
