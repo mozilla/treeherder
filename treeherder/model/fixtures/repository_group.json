@@ -30,9 +30,9 @@
     "pk": 4, 
     "model": "model.repositorygroup", 
     "fields": {
-        "name": "task-cluster", 
+        "name": "taskcluster", 
         "active_status": "active", 
-        "description": ""
+        "description": "Collection of test repositories for taskcluster data"
     }
 }
 ]
