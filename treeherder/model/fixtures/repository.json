@@ -641,9 +641,9 @@
     "pk": 51,
     "model": "model.repository",
     "fields": {
-        "dvcs_type": "hg",
+        "dvcs_type": "git",
         "name": "try-taskcluster",
-        "url": "https://hg.mozilla.org/try",
+        "url": "https://github.com/mozilla",
         "active_status": "active",
         "codebase": "gecko",
         "repository_group": 4,
