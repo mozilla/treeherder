@@ -409,5 +409,5 @@ def test_get_bugscache(refdata, sample_bugs):
                     'Win Attribs: GetFileAttributesWin attributed did not match. (2)']
 
     for search_term in search_terms:
-        suggestions = refdata.get_bugs_suggestions(search_term)
+        suggestions = refdata.get_bug_suggestions(search_term)
         assert len(suggestions) >= 0

@@ -32,7 +32,7 @@ def parse_log(project, log_url, job_guid, resultset, check_errors=False):
     pattern_obj = re.compile('\d+:\d+:\d+\s+')
 
     bugs_cache = {'open': {}, 'closed': {}}
-    bugs_suggestions = {'open': {}, 'closed': {}}
+    bug_suggestions = {'open': {}, 'closed': {}}
 
     status_publisher = JobStatusPublisher(settings.BROKER_URL)
     failure_publisher = JobFailurePublisher(settings.BROKER_URL)
@@ -85,10 +85,10 @@ def parse_log(project, log_url, job_guid, resultset, check_errors=False):
                                         status,
                                         bugscache_uri
                                     )
-                            bugs_suggestions[status][err['line']] = bugs_cache[status][search_term]
+                            bug_suggestions[status][err['line']] = bugs_cache[status][search_term]
 
-                artifact_list.append((job_guid, 'Open bugs', 'json', json.dumps(bugs_suggestions['open'])))
-                artifact_list.append((job_guid, 'Closed bugs', 'json', json.dumps(bugs_suggestions['closed'])))
+                artifact_list.append((job_guid, 'Open bugs', 'json', json.dumps(bug_suggestions['open'])))
+                artifact_list.append((job_guid, 'Closed bugs', 'json', json.dumps(bug_suggestions['closed'])))
 
             # store the artifacts generated
             tac = TreeherderArtifactCollection()

@@ -74,7 +74,7 @@ class BugscacheViewSet(viewsets.ReadOnlyModelViewSet):
 
         rdm = RefDataManager()
         try:
-            suggested_bugs = rdm.get_bugs_suggestions(search_term, open_only)
+            suggested_bugs = rdm.get_bug_suggestions(search_term, open_only)
         finally:
             rdm.disconnect()
         return Response(suggested_bugs)

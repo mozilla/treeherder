@@ -1210,12 +1210,12 @@ class RefDataManager(object):
             executemany=True,
             debug_show=self.DEBUG)
 
-    def get_bugs_suggestions(self, search_term, open_bugs=True, limit=10):
+    def get_bug_suggestions(self, search_term, open_bugs=True, limit=10):
 
         replacement = "=" if open_bugs else "<>"
 
         return self.dhub.execute(
-            proc='reference.selects.get_bugs_suggestions',
+            proc='reference.selects.get_bug_suggestions',
             placeholders=[search_term] * 2 + [limit],
             debug_show=self.DEBUG,
             replace=[replacement])

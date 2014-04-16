@@ -258,7 +258,7 @@
                         `active_status` = 'active'",
             "host":"read_host"
         },
-        "get_bugs_suggestions": {
+        "get_bug_suggestions": {
             "sql": "SELECT id, summary, crash_signature, keywords, os, resolution,
                     MATCH (`summary`)
                         AGAINST (?) AS relevance
