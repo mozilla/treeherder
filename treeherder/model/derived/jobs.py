@@ -361,21 +361,101 @@ class JobsModel(TreeherderModelBase):
 
     def cycle_data(self, sql_targets={}, execute_sleep=True):
 
-        # Compute 6 month old timestamp
         min_date = int(time.time() - self.DATA_CYCLE_INTERVAL)
+
+        # Retrieve list of result sets to delete
+        result_set_data = self.get_jobs_dhub().execute(
+            proc='jobs.selects.get_result_sets_to_cycle',
+            placeholders=[min_date],
+            debug_show=self.DEBUG
+            )
+
+        if len(result_set_data) == 0:
+            sql_targets['total_count'] = 0
+            return sql_targets
+
+        rs_placeholders = map( lambda x:x['id'], result_set_data )
+        rs_where_in_clause = [ ','.join( map( lambda v:'%s', rs_placeholders) ) ]
+
+        # Retrieve list of revisions associated with result sets
+        revision_data = self.get_jobs_dhub().execute(
+            proc='jobs.selects.get_revision_ids_to_cycle',
+            placeholders=rs_placeholders,
+            replace=rs_where_in_clause,
+            debug_show=self.DEBUG
+            )
+
+        rev_placeholders = map( lambda x:x['revision_id'], revision_data )
+        rev_where_in_clause = [ ','.join( map( lambda v:'%s', rev_placeholders ) ) ]
+
+        # Retrieve list of jobs associated with result sets
+        job_data = self.get_jobs_dhub().execute(
+            proc='jobs.selects.get_jobs_to_cycle',
+            placeholders=rs_placeholders,
+            replace=rs_where_in_clause,
+            debug_show=self.DEBUG
+            )
+
+        guid_placeholders = []
+        job_id_placeholders = []
+
+        for d in job_data:
+            guid_placeholders.append(d['job_guid'])
+            job_id_placeholders.append(d['id'])
+
+        jobs_where_in_clause = [ ','.join( map( lambda v:'%s', job_id_placeholders ) ) ]
+
+        # Associate placeholders and replace data with sql
+        obj_targets = []
+        for sql in self.OBJECTSTORE_CYCLE_TARGETS:
+            obj_targets.append(
+                { "sql":sql,
+                  "placeholders":guid_placeholders,
+                  "replace":jobs_where_in_clause } )
+
+        jobs_targets = []
+        for sql in self.JOBS_CYCLE_TARGETS:
+
+            if sql == 'cycle_revision':
+
+                jobs_targets.append(
+                    { "sql":sql,
+                      "placeholders":rev_placeholders,
+                      "replace":rev_where_in_clause } )
+
+            elif sql == 'cycle_revision_map':
+
+                jobs_targets.append(
+                    { "sql":sql,
+                      "placeholders":rs_placeholders,
+                      "replace":rs_where_in_clause } )
+
+            elif sql == 'cycle_result_set':
+
+                jobs_targets.append(
+                    { "sql":sql,
+                      "placeholders":rs_placeholders,
+                      "replace":rs_where_in_clause } )
+
+            else:
+
+                jobs_targets.append(
+                    { "sql":sql,
+                      "placeholders":job_id_placeholders,
+                      "replace":jobs_where_in_clause } )
 
         sql_targets['total_count'] = 0
 
         # remove data from specified objectstore and jobs tables that is
         # older than 6 months
         self._execute_table_deletes(
-            min_date, self.get_os_dhub(), self.OBJECTSTORE_CYCLE_TARGETS,
-            sql_targets, execute_sleep
+            min_date, self.get_os_dhub(), obj_targets, sql_targets,
+            execute_sleep
             )
 
         self._execute_table_deletes(
-            min_date, self.get_jobs_dhub(), self.JOBS_CYCLE_TARGETS,
-            sql_targets, execute_sleep
+            min_date, self.get_jobs_dhub(), jobs_targets, sql_targets,
+            execute_sleep
             )
 
         return sql_targets
@@ -383,9 +463,14 @@ class JobsModel(TreeherderModelBase):
     def _execute_table_deletes(
         self, min_date, dhub, sql_to_execute, sql_targets, execute_sleep):
 
-        for sql in sql_to_execute:
+        for sql_obj in sql_to_execute:
+
+            sql = sql_obj['sql']
+            placeholders = sql_obj['placeholders']
+            replace = sql_obj['replace']
 
             if sql not in sql_targets:
+                # First pass for sql
                 sql_targets[sql] = None
 
             if (sql_targets[sql] == None) or (sql_targets[sql] > 0):
@@ -398,7 +483,8 @@ class JobsModel(TreeherderModelBase):
 
                 dhub.execute(
                     proc=sql,
-                    placeholders=[min_date],
+                    placeholders=placeholders,
+                    replace=replace,
                     debug_show=self.DEBUG,
                     )
 

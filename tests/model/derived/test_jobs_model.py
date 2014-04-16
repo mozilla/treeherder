@@ -68,10 +68,17 @@ def test_cycle_all_data(jm, refdata, sample_data, initial_data, sample_resultset
     cycle_date_ts = int(time.time() - (jm.DATA_CYCLE_INTERVAL + 100))
 
     jm.get_dhub(jm.CT_JOBS).execute(
-        proc="jobs_test.updates.set_jobs_submit_timestamp",
-        placeholders=[cycle_date_ts]
+        proc="jobs_test.updates.set_result_sets_push_timestamp",
+        placeholders=[cycle_date_ts, cycle_date_ts]
     )
 
+    jobs_to_be_deleted = jm.get_dhub(jm.CT_JOBS).execute(
+        proc="jobs_test.selects.get_jobs_for_cycling",
+        placeholders=[cycle_date_ts]
+    )
+    job_count = len(jobs_to_be_deleted)
+
+    rs = jm.get_dhub(jm.CT_JOBS).execute(sql="SELECT * FROM result_set")
     jobs_before = jm.get_dhub(jm.CT_JOBS).execute(proc="jobs_test.selects.jobs")
 
     sql_targets = jm.cycle_data({}, False)
@@ -99,7 +106,7 @@ def test_cycle_one_job(jm, refdata, sample_data, initial_data, sample_resultset,
     cycle_date_ts = int(time.time() - (jm.DATA_CYCLE_INTERVAL + 100))
 
     jm.get_dhub(jm.CT_JOBS).execute(
-        proc="jobs_test.updates.set_one_job_submit_timestamp",
+        proc="jobs_test.updates.set_result_sets_push_timestamp",
         placeholders=[cycle_date_ts]
     )
 

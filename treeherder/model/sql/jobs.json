@@ -10,91 +10,37 @@
         },
         "cycle_job_artifact":{
 
-            "sql":"DELETE FROM job_artifact
-                   WHERE job_id IN (
-                        SELECT * FROM (
-                            SELECT id FROM job
-                            WHERE submit_timestamp < ?
-                            ORDER BY id ASC
-                            LIMIT 10000
-                        ) AS j
-                    )",
-
+            "sql":"DELETE FROM job_artifact WHERE job_id IN (REP0)",
             "host": "master_host"
         },
         "cycle_job_log_url":{
 
-            "sql":"DELETE FROM job_log_url
-                   WHERE job_id IN (
-                        SELECT * FROM (
-                            SELECT id FROM job
-                            WHERE submit_timestamp < ?
-                            ORDER BY id ASC
-                            LIMIT 10000
-                        ) AS j
-                    )",
-
+            "sql":"DELETE FROM job_log_url WHERE job_id IN (REP0)",
             "host": "master_host"
         },
         "cycle_job_note":{
 
-            "sql":"DELETE FROM job_note
-                   WHERE job_id IN (
-                        SELECT * FROM (
-                            SELECT id FROM job
-                            WHERE submit_timestamp < ?
-                            ORDER BY id ASC
-                            LIMIT 10000
-                        ) AS j
-                    )",
-
+            "sql":"DELETE FROM job_note WHERE job_id IN (REP0)",
             "host": "master_host"
         },
         "cycle_job":{
 
-            "sql":"DELETE FROM job
-                   WHERE submit_timestamp < ?
-                   ORDER BY id ASC
-                   LIMIT 10000",
-
+            "sql":"DELETE FROM job WHERE id IN (REP0)",
             "host": "master_host"
         },
         "cycle_revision":{
 
-            "sql":"DELETE FROM revision
-                   WHERE id IN (
-                        SELECT * FROM (
-                            SELECT revision_id
-                            FROM revision_map
-                            INNER JOIN result_set ON revision_map.result_set_id = result_set.id
-                            WHERE result_set.push_timestamp < ?
-                            ORDER BY revision_id ASC
-                            LIMIT 10000
-                        ) AS r
-                    )",
-
+            "sql":"DELETE FROM revision WHERE revision_id IN (REP0)",
             "host": "master_host"
         },
         "cycle_revision_map":{
 
-            "sql":"DELETE FROM revision_map
-                   WHERE result_set_id IN (
-                        SELECT * FROM (
-                            SELECT id
-                            FROM result_set
-                            WHERE push_timestamp < ?
-                            ORDER BY id ASC
-                            LIMIT 10000
-                        ) AS r
-                    )",
-
+            "sql":"DELETE FROM revision_map WHERE result_set_id IN (REP0)",
             "host": "master_host"
         },
         "cycle_result_set":{
 
-            "sql":"DELETE FROM result_set WHERE push_timestamp < ?
-                   ORDER BY id ASC LIMIT 10000",
-
+            "sql":"DELETE FROM result_set WHERE in IN (REP0)",
             "host": "master_host"
         }
     },
@@ -284,6 +230,22 @@
         }
     },
     "selects":{
+
+        "get_revision_ids_to_cycle":{
+            "sql":"SELECT revision_id FROM revision_map WHERE result_set_id IN (REP0)",
+            "host":"master_host"
+        },
+
+        "get_jobs_to_cycle":{
+            "sql":"SELECT id, guid FROM job WHERE result_set_id IN (REP0)",
+            "host":"master_host"
+        },
+
+        "get_result_sets_to_cycle":{
+            "sql":"SELECT id FROM result_set WHERE push_timestamp < ? LIMIT 5000",
+            "host":"master_host"
+        },
+
         "get_job":{
             "sql":"SELECT
                     j.id,
