@@ -1210,13 +1210,7 @@ class RefDataManager(object):
             executemany=True,
             debug_show=self.DEBUG)
 
-    def get_suggested_bugs(self, search_term, open_bugs=True, limit=10):
-        """
-        retrieves bug suggestions from bugscache using search_term
-        in a full_text search.
-        """
-        if not search_term:
-            return []
+    def get_bugs_suggestions(self, search_term, open_bugs=True, limit=10):
 
         replacement = "=" if open_bugs else "<>"
 
