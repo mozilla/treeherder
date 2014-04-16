@@ -25,5 +25,14 @@
         "active_status": "active", 
         "description": ""
     }
+},
+{
+    "pk": 4, 
+    "model": "model.repositorygroup", 
+    "fields": {
+        "name": "task-cluster", 
+        "active_status": "active", 
+        "description": ""
+    }
 }
 ]

@@ -636,5 +636,18 @@
         "repository_group": 1,
         "description": ""
     }
+},
+{
+    "pk": 51,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "hg",
+        "name": "try-taskcluster",
+        "url": "https://hg.mozilla.org/try",
+        "active_status": "active",
+        "codebase": "gecko",
+        "repository_group": 4,
+        "description": ""
+    }
 }
 ]
