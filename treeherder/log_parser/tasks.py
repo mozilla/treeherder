@@ -65,15 +65,18 @@ def parse_log(project, log_url, job_guid, resultset, check_errors=False):
                 for err in all_errors:
                     # remove timestamp
                     clean_line = pattern_obj.sub('', err['line']).strip()
+                    # get a meaningful search term out of the error line
                     search_term = get_error_search_term(clean_line)
-
+                    # collect open and closed bugs suggestions
                     for status in ('open', 'closed'):
                         if search_term not in bugs_cache[status]:
+                            # retrieve the list of suggestions from the api
                             bugs_cache[status][search_term] = get_bugs_for_search_term(
                                 search_term,
                                 status,
                                 bugscache_uri
                             )
+                            # no suggestions, try to use the crash signature as search term
                             if not bugs_cache[status][search_term]:
                                 crash_signature = get_crash_signature(search_term)
                                 if crash_signature:
@@ -82,7 +85,6 @@ def parse_log(project, log_url, job_guid, resultset, check_errors=False):
                                         status,
                                         bugscache_uri
                                     )
-
                             bugs_suggestions[status][err['line']] = bugs_cache[status][search_term]
 
                 artifact_list.append((job_guid, 'Open bugs', 'json', json.dumps(bugs_suggestions['open'])))
