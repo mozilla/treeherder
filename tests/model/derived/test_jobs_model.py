@@ -120,7 +120,6 @@ def test_cycle_one_job(jm, refdata, sample_data, initial_data, sample_resultset,
 
     jobs_after = jm.get_dhub(jm.CT_JOBS).execute(proc="jobs_test.selects.jobs")
 
-    # There should be no jobs after cycling
     assert len(jobs_before) - len(jobs_after) == job_count
 
     assert sql_targets['jobs.deletes.cycle_job'] == job_count
