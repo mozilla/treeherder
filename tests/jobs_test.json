@@ -75,8 +75,8 @@
 
             "host":"master_host"
         },
-        "set_one_job_submit_timestamp":{
-            "sql":"UPDATE `job` SET `submit_timestamp` = ? WHERE id = 1",
+        "set_one_result_set_push_timestamp":{
+            "sql":"UPDATE `result_set` SET `push_timestamp` = ? WHERE id = 1",
 
             "host":"master_host"
         }
