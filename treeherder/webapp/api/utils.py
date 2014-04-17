@@ -1,8 +1,9 @@
 from collections import defaultdict
+import time
+import datetime
 
 import simplejson as json
 import oauth2 as oauth
-
 from django.conf import settings
 from rest_framework.response import Response
 
@@ -220,3 +221,10 @@ def get_option(obj, option_collections):
     else:
         return None
 
+
+def to_timestamp(datestr):
+    """get a timestamp from a datestr like 2014-03-31"""
+    return time.mktime(datetime.datetime.strptime(
+        datestr,
+        "%Y-%m-%d"
+        ).timetuple())

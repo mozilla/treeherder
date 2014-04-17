@@ -1,10 +1,10 @@
 import pytest
 from django.core.urlresolvers import reverse
-from treeherder.webapp.api.resultset import ResultSetViewSet
 
 from thclient import TreeherderResultSetCollection
 from tests import test_utils
 
+from treeherder.webapp.api import utils
 
 def test_resultset_list(webapp, eleven_jobs_processed, jm):
     """
@@ -15,11 +15,13 @@ def test_resultset_list(webapp, eleven_jobs_processed, jm):
         reverse("resultset-list", kwargs={"project": jm.project})
     )
 
-    assert resp.status_int == 200
-    assert isinstance(resp.json, list)
-    rs_list = resp.json
+    results = resp.json['results']
+    meta = resp.json['meta']
 
-    assert len(rs_list) == 10
+    assert resp.status_int == 200
+    assert isinstance(results, list)
+
+    assert len(results) == 10
     exp_keys = set([
         u'id',
         u'repository_id',
@@ -34,8 +36,15 @@ def test_resultset_list(webapp, eleven_jobs_processed, jm):
         u'job_counts',
         u'platforms'
     ])
-    for rs in rs_list:
+    for rs in results:
         assert set(rs.keys()) == exp_keys
+
+    assert(meta == {
+        u'count': 10,
+        u'filter_params': {},
+        u'repository':
+        u'test_treeherder'
+    })
 
 
 def test_resultset_list_bad_project(webapp, jm):
@@ -64,7 +73,71 @@ def test_resultset_list_empty_rs_still_show(webapp, initial_data,
         reverse("resultset-list", kwargs={"project": jm.project}),
     )
     assert resp.status_int == 200
-    assert len(resp.json) == 10
+    assert len(resp.json['results']) == 10
+
+
+def test_resultset_list_filter_by_revision(webapp, eleven_jobs_processed, jm):
+    """
+    test retrieving a resultset list, filtered by a date range
+    """
+
+    resp = webapp.get(
+        reverse("resultset-list", kwargs={"project": jm.project}),
+        {"fromchange": "21fb3eed1b5f", "tochange": "909f55c626a8"}
+    )
+    assert resp.status_int == 200
+    results = resp.json['results']
+    meta = resp.json['meta']
+    assert len(results) == 4
+    assert set([rs["revision"] for rs in results]) == set(
+        ["909f55c626a8","71d49fee325a","bb57e9f67223","21fb3eed1b5f"]
+        )
+    assert(meta == {
+        u'count': 4,
+        u'fromchange': u'21fb3eed1b5f',
+        u'filter_params': {
+            u'push_timestamp__gte': 1384363842,
+            u'push_timestamp__lte': 1384365942
+        },
+        u'repository': u'test_treeherder',
+        u'tochange': u'909f55c626a8'}
+    )
+
+
+def test_resultset_list_filter_by_date(webapp, initial_data,
+                                       sample_resultset, jm):
+    """
+    test retrieving a resultset list, filtered by a date range
+    """
+    sample_resultset[3]["push_timestamp"] = utils.to_timestamp("2013-08-09")
+    sample_resultset[4]["push_timestamp"] = utils.to_timestamp("2013-08-10")
+    sample_resultset[5]["push_timestamp"] = utils.to_timestamp("2013-08-11")
+    sample_resultset[6]["push_timestamp"] = utils.to_timestamp("2013-08-12")
+    sample_resultset[7]["push_timestamp"] = utils.to_timestamp("2013-08-13")
+
+    jm.store_result_set_data(sample_resultset)
+
+    resp = webapp.get(
+        reverse("resultset-list", kwargs={"project": jm.project}),
+        {"startdate": "2013-08-10", "enddate": "2013-08-13"}
+    )
+    assert resp.status_int == 200
+    results = resp.json['results']
+    meta = resp.json['meta']
+    assert len(results) == 4
+    assert set([rs["revision"] for rs in results]) == set(
+        ["909f55c626a8","71d49fee325a","bb57e9f67223","668424578a0d"]
+        )
+    assert(meta == {
+        u'count': 4,
+        u'enddate': u'2013-08-13',
+        u'filter_params': {
+            u'push_timestamp__gte': 1376118000.0,
+            u'push_timestamp__lt': 1376463600.0
+        },
+        u'repository': u'test_treeherder',
+        u'startdate': u'2013-08-10'}
+    )
 
 
 def test_resultset_detail(webapp, eleven_jobs_processed, jm):
