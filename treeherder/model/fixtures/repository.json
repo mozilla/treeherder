@@ -208,19 +208,6 @@
     }
 },
 {
-    "pk": 17,
-    "model": "model.repository",
-    "fields": {
-        "dvcs_type": "hg",
-        "name": "profiling",
-        "url": "https://hg.mozilla.org/projects/profiling",
-        "active_status": "active",
-        "codebase": "gecko",
-        "repository_group": 1,
-        "description": ""
-    }
-},
-{
     "pk": 18,
     "model": "model.repository",
     "fields": {
@@ -636,5 +623,19 @@
         "repository_group": 1,
         "description": ""
     }
+},
+{
+    "pk": 51,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "hg",
+        "name": "mozilla-b2g28_v1_3t",
+        "url": "https://hg.mozilla.org/releases/mozilla-b2g28_v1_3t",
+        "active_status": "active",
+        "codebase": "gecko",
+        "repository_group": 2,
+        "description": "Mozilla-B2g28-v1.3t"
+    }
 }
+
 ]
