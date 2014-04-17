@@ -2,6 +2,8 @@ import json
 import MySQLdb
 import time
 
+from _mysql_exceptions import IntegrityError
+
 from warnings import filterwarnings, resetwarnings
 from django.conf import settings
 
@@ -316,15 +318,19 @@ class JobsModel(TreeherderModelBase):
         """
         Store a new relation between the given job and bug ids.
         """
-        self.get_jobs_dhub().execute(
-            proc='jobs.inserts.insert_bug_job_map',
-            placeholders=[
-                job_id,
-                bug_id,
-                assignment_type
-            ],
-            debug_show=self.DEBUG
-        )
+        try:
+            self.get_jobs_dhub().execute(
+                proc='jobs.inserts.insert_bug_job_map',
+                placeholders=[
+                    job_id,
+                    bug_id,
+                    assignment_type
+                ],
+                debug_show=self.DEBUG
+            )
+        except IntegrityError as e:
+            raise JobDataIntegrityError(e)
+
 
     def delete_bug_job_map(self, job_id, bug_id):
         """
@@ -1470,7 +1476,18 @@ class JobsModel(TreeherderModelBase):
             'revision_ids':revision_id_lookup
             }
 
+    def get_revision_timestamp(self, rev):
+        """Get the push timestamp of the resultset for a revision"""
+        return self.get_revision_resultset_lookup([rev])[rev][
+            "push_timestamp"
+            ]
+
+
 class JobDataError(ValueError):
+    pass
+
+
+class JobDataIntegrityError(IntegrityError):
     pass
 
 

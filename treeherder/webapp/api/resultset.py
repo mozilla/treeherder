@@ -7,7 +7,6 @@ from rest_framework.reverse import reverse
 from treeherder.model.derived import DatasetNotFoundError
 from treeherder.webapp.api.utils import (UrlQueryFilter, with_jobs,
                                          oauth_required, get_option,
-                                         get_revision_timestamp,
                                          to_timestamp)
 
 
@@ -28,38 +27,35 @@ class ResultSetViewSet(viewsets.ViewSet):
         # make a mutable copy of these params
         filter_params = request.QUERY_PARAMS.copy()
 
-        # support ranges for date as well as revisions(changes) like old tbpl
-        fromchange = filter_params.pop("fromchange", None)
-        tochange = filter_params.pop("tochange", None)
-        startdate = filter_params.pop("startdate", None)
-        enddate = filter_params.pop("enddate", None)
-
         # This will contain some meta data about the request and results
         meta = {}
 
+        # support ranges for date as well as revisions(changes) like old tbpl
+        for param in ["fromchange", "tochange", "startdate", "enddate"]:
+            v = filter_params.get(param, None)
+            if v:
+                del(filter_params[param])
+                meta[param] = v
+
         # translate these params into our own filtering mechanism
-        if fromchange:
-            meta['fromchange'] = fromchange[0]
+        if 'fromchange' in meta:
             filter_params.update({
-                "push_timestamp__gte": get_revision_timestamp(jm, meta['fromchange'])
+                "push_timestamp__gte": jm.get_revision_timestamp(meta['fromchange'])
             })
-        if tochange:
-            meta['tochange'] = tochange[0]
+        if 'tochange' in meta:
             filter_params.update({
-                "push_timestamp__lte": get_revision_timestamp(jm, meta['tochange'])
+                "push_timestamp__lte": jm.get_revision_timestamp(meta['tochange'])
             })
-        if startdate:
-            meta['startdate'] = startdate[0]
+        if 'startdate' in meta:
             filter_params.update({
-                "push_timestamp__gte": to_timestamp(startdate[0])
+                "push_timestamp__gte": to_timestamp(meta['startdate'])
             })
-        if enddate:
-            meta['enddate'] = enddate[0]
+        if 'enddate' in meta:
 
             # add a day because we aren't supplying a time, just a date.  So
             # we're doing ``less than``, rather than ``less than or equal to``.
             filter_params.update({
-                "push_timestamp__lt": to_timestamp(enddate[0]) + 86400
+                "push_timestamp__lt": to_timestamp(meta['enddate']) + 86400
             })
 
         meta['filter_params'] = filter_params

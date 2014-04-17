@@ -1,10 +1,9 @@
 from collections import defaultdict
-
-import simplejson as json
-import oauth2 as oauth
 import time
 import datetime
 
+import simplejson as json
+import oauth2 as oauth
 from django.conf import settings
 from rest_framework.response import Response
 
@@ -229,9 +228,3 @@ def to_timestamp(datestr):
         datestr,
         "%Y-%m-%d"
         ).timetuple())
-
-def get_revision_timestamp(jm, rev):
-    """Get the push timestamp of the resultset for a revision"""
-    return jm.get_revision_resultset_lookup([rev])[rev][
-        "push_timestamp"
-        ]

@@ -1,4 +1,4 @@
-from _mysql_exceptions import IntegrityError
+from treeherder.model.derived.jobs import JobDataIntegrityError
 from rest_framework import viewsets
 from rest_framework.response import Response
 
@@ -19,18 +19,20 @@ class BugJobMapViewSet(viewsets.ViewSet):
         job_id, bug_id = map(int, (request.DATA['job_id'],
                              request.DATA['bug_id']))
 
-        resp_msg = "Bug job map saved"
         try:
             jm.insert_bug_job_map(job_id, bug_id,
                                   request.DATA['type'])
-        except IntegrityError as e:
+        except JobDataIntegrityError as e:
             code, msg = e.args
             if "Duplicate" in msg:
-                resp_msg = "Bug job map skipped: {0}".format(msg)
+                return Response(
+                    {"message": "Bug job map skipped: {0}".format(msg)},
+                    409
+                )
             else:
                 raise e
 
-        return Response({"message": resp_msg})
+        return Response({"message": "Bug job map saved"})
 
     @with_jobs
     def destroy(self, request, project, jm, pk=None):
