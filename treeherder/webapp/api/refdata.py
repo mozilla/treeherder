@@ -1,9 +1,14 @@
-from rest_framework import viewsets, serializers
+from rest_framework import viewsets
 from rest_framework.response import Response
+from rest_framework.authentication import SessionAuthentication
+
+from django.contrib.auth.models import User
 
 from treeherder.model import models
 from treeherder.model.derived import RefDataManager
-
+from treeherder.webapp.api import serializers as th_serializers
+from treeherder.webapp.api.permissions import (IsStaffOrReadOnly,
+                                               IsOwnerOrReadOnly)
 
 #####################
 # Refdata ViewSets
@@ -29,21 +34,10 @@ class JobGroupViewSet(viewsets.ReadOnlyModelViewSet):
     model = models.JobGroup
 
 
-class RepositoryGroupSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.RepositoryGroup
-        fields = ('name', 'description')
-
-class RepositorySerializer(serializers.ModelSerializer):
-    repository_group = RepositoryGroupSerializer()
-
-    class Meta:
-        model = models.Repository
-
 class RepositoryViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for the refdata Repository model"""
     model = models.Repository
-    serializer_class = RepositorySerializer
+    serializer_class = th_serializers.RepositorySerializer
 
 
 class MachinePlatformViewSet(viewsets.ReadOnlyModelViewSet):
@@ -74,13 +68,10 @@ class BugscacheViewSet(viewsets.ReadOnlyModelViewSet):
 
         rdm = RefDataManager()
         try:
-            suggested_bugs = rdm.get_suggested_bugs(search_term, open_only)
+            suggested_bugs = rdm.get_bug_suggestions(search_term, open_only)
         finally:
             rdm.disconnect()
         return Response(suggested_bugs)
-
-
-
 
 
 class MachineViewSet(viewsets.ReadOnlyModelViewSet):
@@ -111,3 +102,63 @@ class JobTypeViewSet(viewsets.ReadOnlyModelViewSet):
 class FailureClassificationViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for the refdata FailureClassification model"""
     model = models.FailureClassification
+
+
+#############################
+# User and exclusion profiles
+#############################
+
+
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Info about a logged-in user.
+    Used by treeherder-ui to inspect user properties like the exclusion profile
+    """
+    model = User
+    serializer_class = th_serializers.UserSerializer
+    authentication_classes = (SessionAuthentication,)
+
+    def get_queryset(self):
+        return User.objects.filter(id=self.request.user.id)
+
+
+class UserExclusionProfileViewSet(viewsets.ModelViewSet):
+    model = models.UserExclusionProfile
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = (IsOwnerOrReadOnly,)
+    serializer_class = th_serializers.UserExclusionProfileSerializer
+
+
+class JobExclusionViewSet(viewsets.ModelViewSet):
+    model = models.JobExclusion
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = (IsStaffOrReadOnly,)
+    serializer_class = th_serializers.JobExclusionSerializer
+
+    def create(self, request, *args, **kwargs):
+        """
+        Overrides the default Viewset to set the current user
+        as the author of this filter
+        """
+        if "author" not in request.DATA:
+            request.DATA["author"] = request.user.id
+        return super(JobExclusionViewSet, self).create(request, *args, **kwargs)
+
+
+class ExclusionProfileViewSet(viewsets.ModelViewSet):
+    """
+
+    """
+    model = models.ExclusionProfile
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = (IsStaffOrReadOnly,)
+    serializer_class = th_serializers.ExclusionProfileSerializer
+
+    def create(self, request, *args, **kwargs):
+        """
+        Overrides the default Viewset to set the current user
+        as the author of this exclusion profile
+        """
+        if "author" not in request.DATA:
+            request.DATA["author"] = request.user.id
+        return super(ExclusionProfileViewSet, self).create(request, *args, **kwargs)

@@ -258,14 +258,14 @@
                         `active_status` = 'active'",
             "host":"read_host"
         },
-        "get_bugs_suggestions": {
+        "get_bug_suggestions": {
             "sql": "SELECT id, summary, crash_signature, keywords, os, resolution,
-                    MATCH (`summary`, `crash_signature`, `keywords`)
+                    MATCH (`summary`)
                         AGAINST (?) AS relevance
                     FROM bugscache
                     WHERE 1
                         AND resolution REP0 ''
-                        AND MATCH (`summary`, `crash_signature`, `keywords`)
+                        AND MATCH (`summary`)
                             AGAINST (?)
                     ORDER BY relevance DESC
                     LIMIT 0,?",
