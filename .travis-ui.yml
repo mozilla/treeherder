@@ -1,17 +1,11 @@
 language: node_js
 node_js:
-  - 0.8
+  - 0.10
 
 before_script:
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
-  - npm install --quiet -g karma-cli
-  - cd ./webapp
-  - ./scripts/web-server.js > /dev/null &
-  - sleep 1 # give server time to start
 
-script:
-  - karma start config/karma.conf.js --no-auto-watch --single-run --reporters=dots --browsers=Firefox
 
 # Do not run these on the travis server at this time.
 # The end to end tests require the service to be running, but travis can't

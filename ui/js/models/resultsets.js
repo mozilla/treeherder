@@ -1,10 +1,9 @@
 'use strict';
 
 treeherder.factory('ThResultSetModel',
-                   ['$rootScope', 'thResultSets', 'thSocket',
-                    'ThJobModel', 'thEvents', 'thAggregateIds', 'ThLog',
-                   function($rootScope, thResultSets, thSocket,
-                            ThJobModel, thEvents, thAggregateIds, ThLog) {
+                   function($rootScope, $location, thResultSets, thSocket,
+                            ThJobModel, thEvents, thAggregateIds, ThLog,
+                            thNotify) {
 
     var $log = new ThLog("ThResultSetModel");
 
@@ -28,8 +27,16 @@ treeherder.factory('ThResultSetModel',
 
     var addRepository = function(repoName){
         //Initialize a new repository in the repositories structure
+        var locationSearch = _.clone($location.search());
+        $log.debug("locationSearch", locationSearch);
 
-        if(_.isEmpty(repositories[repoName])){
+        if(_.isEmpty(repositories[repoName]) ||
+           !_.isEqual(locationSearch, repositories[repoName].search)){
+            $log.debug(
+                "fetching new resultset list with parameters:",
+                locationSearch
+                );
+
             repositories[repoName] = {
 
                 name:repoName,
@@ -57,7 +64,8 @@ treeherder.factory('ThResultSetModel',
                 loadingStatus: {
                     appending: false,
                     prepending: false
-                }
+                },
+                search: locationSearch
             };
 
             // Add a connect listener
@@ -95,7 +103,9 @@ treeherder.factory('ThResultSetModel',
          * need to add it to the ``jobUpdateQueue``.
          */
         if (data.branch === repoName) {
-            if (data.resultset.push_timestamp >= repositories[repoName].rsMapOldestTimestamp) {
+            if (data.resultset.push_timestamp >= repositories[repoName].rsMapOldestTimestamp &&
+                isInResultSetRange(repoName, data.resultset.push_timestamp)) {
+
                 // we want to load this job, one way or another
                 if (repositories[repoName].rsMap[data.resultset.id]) {
                     // we already have this resultset loaded, so queue the job
@@ -212,7 +222,7 @@ treeherder.factory('ThResultSetModel',
                 }
             }
         }
-
+        $log.debug("sorting", repoName, repositories[repoName]);
         repositories[repoName].resultSets.sort(rsCompare);
 
         $log.debug("oldest job: ", repositories[repoName].jobMapOldestId);
@@ -223,11 +233,11 @@ treeherder.factory('ThResultSetModel',
     /**
      * Sort the resultsets in place after updating the array
      */
-    var rsCompare = function(a, b) {
-        if (a.push_timestamp > b.push_timestamp) {
+    var rsCompare = function(rs_a, rs_b) {
+        if (rs_a.push_timestamp > rs_b.push_timestamp) {
           return -1;
         }
-        if (a.push_timestamp < b.push_timestamp) {
+        if (rs_a.push_timestamp < rs_b.push_timestamp) {
           return 1;
         }
         return 0;
@@ -241,7 +251,7 @@ treeherder.factory('ThResultSetModel',
      */
     var getOrCreatePlatform = function(repoName, newJob) {
         var rsMapElement = repositories[repoName].rsMap[newJob.result_set_id];
-        var platformKey = getPlatformKey(newJob.platform, newJob.option);
+        var platformKey = getPlatformKey(newJob.platform, newJob.platform_option);
         var plMapElement = rsMapElement.platforms[platformKey];
         if (!plMapElement) {
             // this platform wasn't in the resultset, so add it.
@@ -331,7 +341,7 @@ treeherder.factory('ThResultSetModel',
         }
 
         if (jobFetchList.length > 0) {
-            $log.debug("processing jobFetchList", jobFetchList);
+            $log.debug("processing the jobFetchList", jobFetchList.length, jobFetchList);
 
             // make an ajax call to get the job details
             fetchJobs(repoName, jobFetchList);
@@ -342,7 +352,8 @@ treeherder.factory('ThResultSetModel',
      * in the data model.
      */
     var fetchJobs = function(repoName, jobFetchList) {
-        ThJobModel.get_list({
+        $log.debug("fetchJobs", repoName, jobFetchList);
+        ThJobModel.get_list(repoName, {
             job_guid__in: jobFetchList.join()
         }).then(
             _.bind(updateJobs, $rootScope, repoName),
@@ -426,7 +437,7 @@ treeherder.factory('ThResultSetModel',
             aggregateJobPlatform(repoName, jobList[i], platformData);
         }
 
-        if(!_.isEmpty(platformData)){
+        if(!_.isEmpty(platformData) && repoName === $rootScope.repoName){
             $rootScope.$broadcast(thEvents.jobsLoaded, platformData);
         }
     };
@@ -493,7 +504,6 @@ treeherder.factory('ThResultSetModel',
             // add the job to the datamodel
             grpMapElement.grp_obj.jobs.push(newJob);
 
-
             // add job to the jobmap
             repositories[repoName].jobMap[key] = {
                 job_obj: newJob,
@@ -502,8 +512,6 @@ treeherder.factory('ThResultSetModel',
 
         }
 
-        $rootScope.$broadcast(thEvents.jobUpdated, newJob);
-
         return true;
     };
 
@@ -511,11 +519,13 @@ treeherder.factory('ThResultSetModel',
         // prepend the resultsets because they'll be newer.
 
         var added = [];
-        for (var i = data.length - 1; i > -1; i--) {
-            if (data[i].push_timestamp > repositories[repoName].rsMapOldestTimestamp) {
-                $log.debug("prepending resultset: ", data[i].id);
-                repositories[repoName].resultSets.push(data[i]);
-                added.push(data[i]);
+        for (var i = data.results.length - 1; i > -1; i--) {
+            if (data.results[i].push_timestamp >= repositories[repoName].rsMapOldestTimestamp &&
+                isInResultSetRange(repoName, data.results[i].push_timestamp)) {
+
+                $log.debug("prepending resultset: ", data.results[i].id);
+                repositories[repoName].resultSets.push(data.results[i]);
+                added.push(data.results[i]);
             } else {
                 $log.debug("not prepending.  timestamp is older");
             }
@@ -528,14 +538,20 @@ treeherder.factory('ThResultSetModel',
 
     var appendResultSets = function(repoName, data) {
 
-        if(data.length > 0){
+        if(data.results.length > 0){
 
 
             Array.prototype.push.apply(
-                repositories[repoName].resultSets, data
+                repositories[repoName].resultSets, data.results
                 );
 
-            mapResultSets(repoName, data);
+            mapResultSets(repoName, data.results);
+
+            // only set the meta-data on the first pull for a repo.
+            // because this will establish ranges from then-on for auto-updates.
+            if (_.isUndefined(repositories[repoName].meta)) {
+                repositories[repoName].meta = data.meta;
+            }
         }
 
         repositories[repoName].loadingStatus.appending = false;
@@ -553,6 +569,31 @@ treeherder.factory('ThResultSetModel',
 
                     });
         }
+    };
+
+    /**
+     * Check if ``repoName`` had a range specified in its ``meta`` data
+     * and whether or not ``push_timestamp`` falls within that range.
+     */
+    var isInResultSetRange = function(repoName, push_timestamp) {
+        var result = true;
+        if (repositories[repoName]) {
+            var meta = repositories[repoName].meta;
+            if (_.has(meta, "push_timestamp__gte") &&
+                push_timestamp < meta.push_timestamp__gte) {
+                result = false;
+            }
+            if (_.has(meta, "push_timestamp__lte") &&
+                push_timestamp > meta.push_timestamp__lte) {
+                result = false;
+            }
+            if (_.has(meta, "push_timestamp__lt") &&
+                push_timestamp >= meta.push_timestamp__lt) {
+                result = false;
+            }
+        }
+
+        return result;
     };
 
     var getResultSetsArray = function(repoName){
@@ -583,8 +624,13 @@ treeherder.factory('ThResultSetModel',
          */
         if(resultsetList.length > 0){
             repositories[repoName].loadingStatus.prepending = true;
-            thResultSets.getResultSets(0, resultsetList.length, resultsetList).
-            success( _.bind(prependResultSets, $rootScope, repoName) );
+            thResultSets.getResultSets(repoName, 0, resultsetList.length, resultsetList).
+            success( _.bind(prependResultSets, $rootScope, repoName) ).
+            error(function(data) {
+                thNotify.send("Error retrieving job data!", "danger", true);
+                $log.error(data);
+                prependResultSets(repoName, []);
+            });
         }
     };
 
@@ -595,9 +641,15 @@ treeherder.factory('ThResultSetModel',
          */
         repositories[repoName].loadingStatus.appending = true;
         thResultSets.getResultSets(
-            repositories[repoName].rsOffsetId, count
-            ).success( _.bind(appendResultSets, $rootScope, repoName) );
-
+            repoName,
+            repositories[repoName].rsOffsetId,
+            count).
+            success( _.bind(appendResultSets, $rootScope, repoName)).
+            error(function(data) {
+                thNotify.send("Error retrieving job data!", "danger", true);
+                $log.error(data);
+                appendResultSets(repoName, []);
+            });
     };
 
     //Public interface
@@ -629,10 +681,14 @@ treeherder.factory('ThResultSetModel',
 
         fetchJobs: fetchJobs,
 
-        aggregateJobPlatform: aggregateJobPlatform
+        aggregateJobPlatform: aggregateJobPlatform,
+
+        processSocketData: processSocketData,
+
+        processUpdateQueues: processUpdateQueues
 
     };
 
     return api;
 
-}]);
+});

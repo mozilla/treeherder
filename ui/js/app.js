@@ -15,8 +15,7 @@ treeherder.config(function($routeProvider, $httpProvider, $logProvider) {
     // comment out the next line to enable them
     $logProvider.debugEnabled(false);
 
-    // needed to avoid CORS issue when getting the logs from the ftp site
-    // @@@ hack for now to get it to work in the short-term
+    // avoid CORS issue when getting the logs from the ftp site
     $httpProvider.defaults.useXDomain = true;
     delete $httpProvider.defaults.headers.common['X-Requested-With'];
 

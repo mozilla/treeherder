@@ -1,14 +1,17 @@
 'use strict';
 
 /* Services */
-treeherder.factory('thUrl',['$rootScope', 'thServiceDomain', 'ThLog', function($rootScope, thServiceDomain, ThLog) {
+treeherder.factory('thUrl', function($rootScope, thServiceDomain, ThLog) {
 
    var thUrl =  {
         getRootUrl: function(uri) {
             return thServiceDomain + "/api" + uri;
         },
-        getProjectUrl: function(uri) {
-            return thServiceDomain + "/api/project/" + $rootScope.repoName + uri;
+        getProjectUrl: function(uri, repoName) {
+            if (_.isUndefined(repoName)) {
+                repoName = $rootScope.repoName;
+            }
+            return thServiceDomain + "/api/project/" + repoName + uri;
         },
         getLogViewerUrl: function(job_id) {
             return "logviewer.html#?job_id=" + job_id + "&repo=" + $rootScope.repoName;
@@ -20,7 +23,7 @@ treeherder.factory('thUrl',['$rootScope', 'thServiceDomain', 'ThLog', function($
    };
    return thUrl;
 
-}]);
+});
 
 treeherder.factory('thSocket', function ($rootScope, ThLog, thUrl) {
     var $log = new ThLog("thSocket");

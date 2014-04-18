@@ -12,9 +12,12 @@ module.exports = function (config) {
             'app/vendor/jquery.ui.effect.js',
             'app/vendor/jquery.ui.effect-highlight.js',
             'app/vendor/bootstrap*.js',
-            'app/js/**/*.js',
+            'app/js/*.js',
             'app/js/controllers/**/*.js',
+            'app/js/directives/**/*.js',
+            'app/js/models/**/*.js',
             'app/js/services/**/*.js',
+            'app/js/config/sample.local.conf.js',
             'app/plugins/**/*.js',
             'test/vendor/angular/angular-mocks.js',
             'test/vendor/jasmine-jquery.js',
@@ -27,6 +30,8 @@ module.exports = function (config) {
 
         autoWatch: false,
         singleRun: true,
+
+        logLevel: config.LOG_INFO,
 
         browsers: ['Firefox'],
 

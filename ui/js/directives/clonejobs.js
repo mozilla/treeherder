@@ -84,7 +84,7 @@ treeherder.directive('thCloneJobs', function(
 
             var targetEl, jobKey;
             if(!_.isEmpty(lastJobSelected.el)){
-                jobKey = getJobMapKey(lastObjSelected.job);
+                jobKey = getJobMapKey(lastJobSelected.job);
                 getPreviousUnclassifiedFailure(jobMap[jobKey].job_obj);
 
             }else{
@@ -881,7 +881,6 @@ treeherder.directive('thCloneJobs', function(
                     _.bind(updateJobs, scope, platformData)();
                 }
             });
-
     };
 
     var linker = function(scope, element, attrs){

@@ -82,7 +82,7 @@ treeherder.controller('MainCtrl',
          * The watched repos in the nav bar can be either on the left or the
          * right side of the screen and the drop-down menu may get cut off
          * if it pulls right while on the left side of the screen.
-         * And it can change any time the user re-sized the window, so we must
+         * And it can change any time the user re-sizes the window, so we must
          * check this each time a drop-down is invoked.
          */
         $scope.setDropDownPull = function(event) {
@@ -103,6 +103,7 @@ treeherder.controller('MainCtrl',
 
         $rootScope.urlBasePath = $location.absUrl().split('?')[0];
 
+        $scope.isRepoPanelShowing = false;
         $scope.changeRepo = function(repo_name) {
             // hide the repo panel if they chose to load one.
             $scope.isRepoPanelShowing = false;

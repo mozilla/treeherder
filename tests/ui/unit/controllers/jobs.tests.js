@@ -3,11 +3,13 @@
 /* jasmine specs for controllers go here */
 
 describe('JobsCtrl', function(){
-    var $httpBackend, createJobsCtrl, createResultSetCtrl, jobScope, resultsetScope;
+    var $httpBackend, createResultSetCtrl, jobScope, resultsetScope;
 
     beforeEach(module('treeherder'));
 
-    beforeEach(inject(function ($injector, $rootScope, $controller, thUrl) {
+    beforeEach(inject(function ($injector, $rootScope, $controller
+    ) {
+        var projectPrefix = 'http://local.treeherder.mozilla.org/api/project/mozilla-inbound/';
 
         $httpBackend = $injector.get('$httpBackend');
         jasmine.getJSONFixtures().fixturesPath='base/test/mock';
@@ -16,32 +18,17 @@ describe('JobsCtrl', function(){
             getJSONFixture('repositories.json')
         );
 
-        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/resultset/?count=10&format=json&full=false').respond(
+        $httpBackend.whenGET(projectPrefix + 'resultset/?count=10&format=json&full=false').respond(
             getJSONFixture('resultset_list.json')
         );
 
-        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/jobs/1235/').respond(
-            getJSONFixture('job_1235.json')
-        );
-
-        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/artifact/403/').respond(
-            getJSONFixture('artifact_403.json')
-        );
-
-        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/artifact/403').respond(
-            getJSONFixture('artifact_403.json')
-        );
-
-        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/note?job_id=1235').respond(
-            getJSONFixture('notes_job_1235.json')
-        );
-
-        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/note/?job_id=1235').respond(
-            getJSONFixture('notes_job_1235.json')
-        );
-
-        $httpBackend.whenGET('resources/job_groups.json').respond(
-            getJSONFixture('job_groups.json')
+        $httpBackend.whenGET('https://treestatus.mozilla.org/mozilla-inbound?format=json').respond(
+            {
+                "status": "closed",
+                "message_of_the_day": "See the <a href=\"https://wiki.mozilla.org/Tree_Rules/Inbound\">Inbound tree rules</a> before pushing. <a href=\"https://sheriffs.etherpad.mozilla.org/sheriffing-notes\">Sheriff notes/current issues</a>.",
+                "tree": "mozilla-inbound",
+                "reason": "Bustage"
+            }
         );
 
         jobScope = $rootScope.$new();
@@ -55,8 +42,7 @@ describe('JobsCtrl', function(){
         resultsetScope = jobScope.$new();
         createResultSetCtrl = function(resultset) {
             resultsetScope.resultset = resultset;
-            var ctrl = $controller('ResultSetCtrl', {'$scope': resultsetScope});
-            return  ctrl;
+            return $controller('ResultSetCtrl', {'$scope': resultsetScope});
         };
         $httpBackend.flush();
     }));
@@ -73,9 +59,9 @@ describe('JobsCtrl', function(){
         Tests ResultSetCtrl
      */
 
-    it('should have 139 jobs in resultset 2', function() {
+    it('should have 31 platforms in resultset 8', function() {
         createResultSetCtrl(jobScope.result_sets[8]);
-        expect(resultsetScope.resultset.platforms.length).toBe(14);
+        expect(resultsetScope.resultset.platforms.length).toBe(31);
     });
 
     it('should default to revisions collapsed', function() {

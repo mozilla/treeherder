@@ -32,7 +32,7 @@ treeherder.controller('JobsCtrl',
 
         if(ThResultSetModel.isNotLoaded($scope.repoName)){
             // get our first set of resultsets
-            $scope.fetchResultSets(10);
+            ThResultSetModel.fetchResultSets($scope.repoName, 10);
         }
 
     }
