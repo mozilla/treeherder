@@ -63,7 +63,8 @@ treeherder.factory('thCloneHtml', function($interpolate) {
         'jobTdClone.html',
         'jobGroupBeginClone.html',
         'jobGroupEndClone.html',
-        'jobBtnClone.html'
+        'jobBtnClone.html',
+        'revisionUrlClone.html'
         ];
 
     var templateId, templateName, templateTxt, i;

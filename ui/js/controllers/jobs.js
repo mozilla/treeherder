@@ -43,7 +43,7 @@ treeherder.controller('ResultSetCtrl',
     function ResultSetCtrl($scope, $rootScope, $http, ThLog, $location,
                            thUrl, thServiceDomain, thResultStatusInfo,
                            ThResultSetModel, thEvents, thJobFilters,
-                           $modal) {
+                           $compile, thCloneHtml) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -95,21 +95,35 @@ treeherder.controller('ResultSetCtrl',
 
         };
 
-        $scope.openRevisionListModal = function() {
-            $log.debug("resultset", $scope.resultset);
-            ThResultSetModel.loadRevisions(
-                $rootScope.repoName, $scope.resultset.id
+        var openRevisions = function() {
+            var interpolator = thCloneHtml.get('revisionUrlClone').interpolator;
+            var htmlStr = '';
+            _.forEach($scope.resultset.revisions, function(revision) {
+                htmlStr = htmlStr + interpolator(
+                    {repoUrl: $scope.currentRepo.url, revision: revision}
                 );
-            var modalInstance = $modal.open({
-                templateUrl: 'partials/revisionListModal.html',
-                controller: RevisionListModalInstanceCtrl,
-                resolve: {
-                    items: function () {
-                        return $scope.resultset.revisions;
-                    }
-                }
             });
+            var el = $compile(interpolator($scope))($scope, function(el, scope) {
+                var wnd = window.open(
+                    '',
+                    $scope.repoName,
+                    "outerHeight=250,outerWidth=500,toolbar=no,location=no,menubar=no"
+                );
+                wnd.document.write(htmlStr);
+            });
+        };
 
+        $scope.openRevisionListWindow = function() {
+            $log.debug("resultset", $scope.resultset);
+            if (!$scope.resultset.revisions.length) {
+                ThResultSetModel.loadRevisions(
+                    $rootScope.repoName, $scope.resultset.id
+                ).then(function() {
+                    openRevisions();
+                });
+            } else {
+                openRevisions();
+            }
         };
 
         var RevisionListModalInstanceCtrl = function ($scope, $modalInstance, items) {

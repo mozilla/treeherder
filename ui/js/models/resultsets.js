@@ -561,7 +561,7 @@ treeherder.factory('ThResultSetModel',
         var rs = repositories[repoName].rsMap[resultsetId].rs_obj;
         if (rs && rs.revisions.length === 0) {
             // these revisions have never been loaded; do so now.
-            thResultSets.get(rs.revisions_uri).
+            return thResultSets.get(rs.revisions_uri).
                 success(function(data) {
 
                     Array.prototype.push.apply(rs.revisions, data);
