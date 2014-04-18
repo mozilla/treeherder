@@ -6,7 +6,8 @@ from rest_framework.decorators import link
 from rest_framework.reverse import reverse
 from treeherder.model.derived import DatasetNotFoundError
 from treeherder.webapp.api.utils import (UrlQueryFilter, with_jobs,
-                                         oauth_required, get_option)
+                                         oauth_required, get_option,
+                                         to_timestamp)
 
 
 class ResultSetViewSet(viewsets.ViewSet):
@@ -23,7 +24,43 @@ class ResultSetViewSet(viewsets.ViewSet):
 
         """
 
-        filter = UrlQueryFilter(request.QUERY_PARAMS)
+        # make a mutable copy of these params
+        filter_params = request.QUERY_PARAMS.copy()
+
+        # This will contain some meta data about the request and results
+        meta = {}
+
+        # support ranges for date as well as revisions(changes) like old tbpl
+        for param in ["fromchange", "tochange", "startdate", "enddate"]:
+            v = filter_params.get(param, None)
+            if v:
+                del(filter_params[param])
+                meta[param] = v
+
+        # translate these params into our own filtering mechanism
+        if 'fromchange' in meta:
+            filter_params.update({
+                "push_timestamp__gte": jm.get_revision_timestamp(meta['fromchange'])
+            })
+        if 'tochange' in meta:
+            filter_params.update({
+                "push_timestamp__lte": jm.get_revision_timestamp(meta['tochange'])
+            })
+        if 'startdate' in meta:
+            filter_params.update({
+                "push_timestamp__gte": to_timestamp(meta['startdate'])
+            })
+        if 'enddate' in meta:
+
+            # add a day because we aren't supplying a time, just a date.  So
+            # we're doing ``less than``, rather than ``less than or equal to``.
+            filter_params.update({
+                "push_timestamp__lt": to_timestamp(meta['enddate']) + 86400
+            })
+
+        meta['filter_params'] = filter_params
+
+        filter = UrlQueryFilter(filter_params)
 
         offset_id = filter.pop("id__lt", 0)
         count = filter.pop("count", 10)
@@ -35,7 +72,15 @@ class ResultSetViewSet(viewsets.ViewSet):
             full,
             filter.conditions
         )
-        return Response(self.get_resultsets_with_jobs(jm, objs, full, {}))
+
+        results = self.get_resultsets_with_jobs(jm, objs, full, {})
+        meta['count'] = len(results)
+        meta['repository'] = project
+
+        return Response({
+            'meta': meta,
+            'results': results
+        })
 
     @with_jobs
     def retrieve(self, request, project, jm, pk=None):

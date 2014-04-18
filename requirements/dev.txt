@@ -13,6 +13,7 @@ WebTest==1.3.4
 WebOb==1.2
 
 mock==1.0b1
+django-extensions==1.3.3
 
 
 # in order to be able to run bin/generate-vendor-lib.py

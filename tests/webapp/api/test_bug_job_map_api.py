@@ -47,7 +47,39 @@ def test_create_bug_job_map(eleven_jobs_processed, mock_message_broker, jm):
         reverse("bug-job-map-list", kwargs={"project": jm.project}),
         bug_job_map_obj
     )
-    
+
+    user.delete()
+
+    assert (bug_job_map_obj,) == jm.get_bug_job_map_list(0, 1)
+
+
+def test_create_bug_job_map_dup(eleven_jobs_processed, mock_message_broker, jm):
+    """
+    test creating the same bug map skips it
+    """
+
+    client = APIClient()
+    user = User.objects.create(username="MyName", is_staff=True)
+    client.force_authenticate(user=user)
+
+    job = jm.get_job_list(0, 1)[0]
+
+    bug_job_map_obj = {
+        "job_id": job["id"],
+        "bug_id": 1,
+        "type": "manual"
+    }
+
+    client.post(
+        reverse("bug-job-map-list", kwargs={"project": jm.project}),
+        bug_job_map_obj
+    )
+
+    client.post(
+        reverse("bug-job-map-list", kwargs={"project": jm.project}),
+        bug_job_map_obj
+    )
+
     user.delete()
 
     assert (bug_job_map_obj,) == jm.get_bug_job_map_list(0, 1)
@@ -122,7 +154,7 @@ def test_bug_job_map_delete(webapp, eleven_jobs_processed,
             "pk": pk
         })
     )
-    
+
     user.delete()
 
     content = json.loads(resp.content)
