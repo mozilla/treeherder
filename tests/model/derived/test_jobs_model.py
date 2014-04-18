@@ -36,6 +36,7 @@ def test_bad_contenttype(jm):
     with pytest.raises(DatasetNotFoundError):
         jm.get_dhub("foo")
 
+    jm.disconnect()
 
 def test_ingest_single_sample_job(jm, refdata, sample_data, initial_data,
                                   mock_log_parser, sample_resultset):
@@ -43,6 +44,7 @@ def test_ingest_single_sample_job(jm, refdata, sample_data, initial_data,
     job_data = sample_data.job_data[:1]
     test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset)
 
+    jm.disconnect()
 
 def test_ingest_all_sample_jobs(jm, refdata, sample_data, initial_data, sample_resultset, mock_log_parser):
     """
@@ -54,6 +56,8 @@ def test_ingest_all_sample_jobs(jm, refdata, sample_data, initial_data, sample_r
     """
     job_data = sample_data.job_data
     test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset)
+
+    jm.disconnect()
 
 def test_cycle_all_data(jm, refdata, sample_data, initial_data, sample_resultset, mock_log_parser):
     """
@@ -82,6 +86,8 @@ def test_cycle_all_data(jm, refdata, sample_data, initial_data, sample_resultset
     sql_targets = jm.cycle_data({}, False)
 
     jobs_after = jm.get_dhub(jm.CT_JOBS).execute(proc="jobs_test.selects.jobs")
+
+    jm.disconnect()
 
     assert len(jobs_before) == job_count
 
@@ -120,6 +126,8 @@ def test_cycle_one_job(jm, refdata, sample_data, initial_data, sample_resultset,
 
     jobs_after = jm.get_dhub(jm.CT_JOBS).execute(proc="jobs_test.selects.jobs")
 
+    jm.disconnect()
+
     assert len(jobs_before) - len(jobs_after) == job_count
 
     assert sql_targets['jobs.deletes.cycle_job'] == job_count
@@ -143,6 +151,8 @@ def test_bad_date_value_ingestion(jm, initial_data, mock_log_parser):
     last_error = get_objectstore_last_error(
         jm) == u"invalid literal for long() with base 10: 'foo'"
 
+    jm.disconnect()
+
     assert last_error == False
 
 def get_objectstore_last_error(jm):
@@ -150,6 +160,8 @@ def get_objectstore_last_error(jm):
 
     row_data = jm.get_dhub(jm.CT_OBJECTSTORE).execute(
         proc="objectstore_test.selects.row", placeholders=[row_id])[0]
+
+    jm.disconnect()
 
     return row_data['error_msg']
 
@@ -176,6 +188,8 @@ def test_store_result_set_data(jm, initial_data, sample_resultset):
         revision_hashes.add(datum['revision_hash'])
         for revision in datum['revisions']:
             revisions.add(revision['revision'])
+
+    jm.disconnect()
 
     # Confirm all of the revision_hashes and revisions in the
     # sample_resultset have been stored
