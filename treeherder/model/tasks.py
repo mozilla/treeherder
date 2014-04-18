@@ -17,7 +17,8 @@ def process_objects(limit=None):
         finally:
             jm.disconnect()
 
-@task(name='cycle-data', rate_limit='24/h')
+# Run a maximum of 1 per hour
+@task(name='cycle-data', rate_limit='1/h')
 def cycle_data(max_iterations=50, debug=False):
 
     projects = Repository.objects.all().values_list('name', flat=True)
