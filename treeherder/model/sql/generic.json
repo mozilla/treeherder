@@ -1,4 +1,19 @@
 {
+    "db_control":{
+        "disable_foreign_key_checks":{
+
+            "sql":"SET FOREIGN_KEY_CHECKS = 0",
+
+            "host":"master_host"
+        },
+        "enable_foreign_key_checks":{
+
+            "sql":"SET FOREIGN_KEY_CHECKS = 1",
+
+            "host":"master_host"
+
+        }
+    },
     "selects":{
         "get_last_insert_id":{
 

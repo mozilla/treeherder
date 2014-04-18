@@ -1,4 +1,12 @@
 {
+    "deletes":{
+        "cycle_objectstore":{
+
+            "sql":"DELETE FROM objectstore WHERE job_guid IN (REP0)",
+
+            "host": "master_host"
+        }
+    },
     "inserts":{
         "store_json":{
 

@@ -141,5 +141,26 @@
             "date_changed": "2013-11-28T16:22:39",
             "description": ""
         }
+    },
+    {
+        "pk": 8,
+        "model": "djcelery.periodictask",
+        "fields": {
+            "task": "cycle-data",
+            "name": "cycle-data",
+            "exchange": null,
+            "last_run_at": null,
+            "args": "[]",
+            "enabled": true,
+            "routing_key": null,
+            "crontab": null,
+            "interval": 1,
+            "queue": null,
+            "total_run_count": 0,
+            "expires": null,
+            "kwargs": "{}",
+            "date_changed": "2013-11-28T16:22:39",
+            "description": "Deletes data from the objectstore and jobs databases that's greater than six months old"
+        }
     }
 ]

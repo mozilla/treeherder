@@ -7,6 +7,46 @@
         "delete_note":{
             "sql":"DELETE FROM job_note WHERE id = ?",
             "host": "master_host"
+        },
+        "cycle_job_artifact":{
+
+            "sql":"DELETE FROM job_artifact WHERE job_id IN (REP0)",
+            "host": "master_host"
+        },
+        "cycle_job_log_url":{
+
+            "sql":"DELETE FROM job_log_url WHERE job_id IN (REP0)",
+            "host": "master_host"
+        },
+        "cycle_job_note":{
+
+            "sql":"DELETE FROM job_note WHERE job_id IN (REP0)",
+            "host": "master_host"
+        },
+        "cycle_bug_job_map":{
+
+            "sql":"DELETE FROM bug_job_map WHERE job_id IN (REP0)",
+            "host": "master_host"
+        },
+        "cycle_job":{
+
+            "sql":"DELETE FROM job WHERE id IN (REP0)",
+            "host": "master_host"
+        },
+        "cycle_revision":{
+
+            "sql":"DELETE FROM revision WHERE id IN (REP0)",
+            "host": "master_host"
+        },
+        "cycle_revision_map":{
+
+            "sql":"DELETE FROM revision_map WHERE result_set_id IN (REP0)",
+            "host": "master_host"
+        },
+        "cycle_result_set":{
+
+            "sql":"DELETE FROM result_set WHERE id IN (REP0)",
+            "host": "master_host"
         }
     },
     "inserts":{
@@ -195,6 +235,22 @@
         }
     },
     "selects":{
+
+        "get_revision_ids_to_cycle":{
+            "sql":"SELECT revision_id FROM revision_map WHERE result_set_id IN (REP0)",
+            "host":"master_host"
+        },
+
+        "get_jobs_to_cycle":{
+            "sql":"SELECT id, job_guid FROM job WHERE result_set_id IN (REP0)",
+            "host":"master_host"
+        },
+
+        "get_result_sets_to_cycle":{
+            "sql":"SELECT id FROM result_set WHERE push_timestamp < ? LIMIT 5000",
+            "host":"master_host"
+        },
+
         "get_job":{
             "sql":"SELECT
                     j.id,
