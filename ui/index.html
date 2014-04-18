@@ -114,7 +114,7 @@
                 <i class="fa fa-external-link-square"></i>
             </a>
             <span title="{{name}}: {{email}}">{{name}}</span>
-            <span title="{{comments}}"><em>"{{comments}}"</em></span>
+            <span title="{{comments}}"><em>"{{comments_bug_link}}"</em></span>
         </span>
     </li>
 
@@ -158,6 +158,11 @@
 <!-- Job Btn span -->
 <script type="'text/ng-template'" id="jobBtnClone.html">
     <span style="margin-right:1px;" class="btn job-btn btn-xs {{ btnClass }} {{ key }}" data-jmkey="{{ key }}" title="{{ title }}">{{ value }}</span>
+</script>
+
+<!-- revision url window -->
+<script type="'text/ng-template'" id="revisionUrlClone.html">
+    <div>{{repoUrl}}/rev/{{revision.revision}}</div>
 </script>
 
 

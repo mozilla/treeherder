@@ -33,3 +33,13 @@ treeherder.filter('stripHtml', function() {
     };
 })
 
+treeherder.filter('linkifyBugs', function() {
+    return function(input) {
+        var re = new RegExp('(?:Bug (\\d+))', 'ig');
+        var str = input || '';
+        return str.replace(re,
+            '<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=$1" target="_blank">Bug $1</a>'
+        );
+    };
+})
+

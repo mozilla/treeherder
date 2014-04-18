@@ -4,7 +4,7 @@
 treeherder.directive('thCloneJobs', function(
         $rootScope, $http, ThLog, thUrl, thCloneHtml, thServiceDomain,
         thResultStatusInfo, thEvents, thAggregateIds, thJobFilters,
-        thResultStatusObject, ThResultSetModel, ThJobModel){
+        thResultStatusObject, ThResultSetModel, ThJobModel, linkifyBugsFilter){
 
     var $log = new ThLog("thCloneJobs");
 
@@ -318,7 +318,7 @@ treeherder.directive('thCloneJobs', function(
                     revision.email = userTokens[1];
                 }
                 revision.name = userTokens[0].trim();
-
+                revision.comments_bug_link = linkifyBugsFilter(revision.comments);
                 revisionHtml = revisionInterpolator(revision);
                 ulEl.append(revisionHtml);
             }

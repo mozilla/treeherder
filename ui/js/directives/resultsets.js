@@ -1,10 +1,42 @@
 'use strict';
 
-treeherder.directive('thActionButton', function () {
+treeherder.directive('thActionButton', function ($compile, thCloneHtml, ThResultSetModel) {
 
     return {
         restrict: "E",
-        templateUrl: 'partials/thActionButton.html'
+        templateUrl: 'partials/thActionButton.html',
+        link: function(scope, element, attrs) {
+            var openRevisions = function() {
+                var interpolator = thCloneHtml.get('revisionUrlClone').interpolator;
+                var htmlStr = '';
+                _.forEach(scope.resultset.revisions, function(revision) {
+                    htmlStr = htmlStr + interpolator(
+                        {repoUrl: scope.currentRepo.url, revision: revision}
+                    );
+                });
+                var el = $compile(interpolator(scope))(scope, function(el, scope) {
+                    var wnd = window.open(
+                        '',
+                        scope.repoName,
+                        "outerHeight=250,outerWidth=500,toolbar=no,location=no,menubar=no"
+                    );
+                    wnd.document.write(htmlStr);
+                });
+            };
+
+            scope.openRevisionListWindow = function() {
+                if (!scope.resultset.revisions.length) {
+                    ThResultSetModel.loadRevisions(
+                        scope.repoName, scope.resultset.id
+                    ).then(function() {
+                            openRevisions();
+                    });
+                } else {
+                    openRevisions();
+                }
+            };
+
+        }
     };
 });
 
