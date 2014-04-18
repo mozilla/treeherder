@@ -1,6 +1,9 @@
 from celery import task
+from django.conf import settings
+
 from treeherder.model.derived import JobsModel
 from treeherder.model.models import Datasource, Repository
+from treeherder.events.publisher import JobUnclassifiedCountPublisher
 
 @task(name='process-objects')
 def process_objects(limit=None):
@@ -50,3 +53,18 @@ def cycle_data(max_iterations=50, debug=False):
                 cycle_iterations = 0
 
         jm.disconnect()
+
+@task(name='broadcast-unclassified-jobs')
+@task(name='cycle-data', rate_limit='24/h')
+def cycle_data(max_iterations=50, debug=False):
+
+    projects = Repository.objects.all().values_list('name', flat=True)
+    unclassified_publisher = JobUnclassifiedCountPublisher(settings.BROKER_URL)
+
+    for project in projects:
+
+        jm = JobsModel(project)
+        count = jm.get_unclassified_failure_count()
+        unclassified_publisher.publish(project, count)
+
+    unclassified_publisher.disconnect()
