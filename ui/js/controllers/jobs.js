@@ -94,11 +94,6 @@ treeherder.controller('ResultSetCtrl',
 
         };
 
-        var RevisionListModalInstanceCtrl = function ($scope, $modalInstance, items) {
-            $scope.revisions = items;
-        };
-
-
         /**
          * When the user clicks one of the resultStates on the resultset line,
          * then toggle what is showing for just this resultset.
