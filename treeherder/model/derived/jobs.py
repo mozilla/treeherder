@@ -96,6 +96,7 @@ class JobsModel(TreeherderModelBase):
         "jobs.deletes.cycle_job_artifact",
         "jobs.deletes.cycle_job_log_url",
         "jobs.deletes.cycle_job_note",
+        "jobs.deletes.cycle_bug_job_map",
         "jobs.deletes.cycle_job",
         "jobs.deletes.cycle_revision",
         "jobs.deletes.cycle_revision_map",
@@ -382,7 +383,7 @@ class JobsModel(TreeherderModelBase):
             return sql_targets
 
         rs_placeholders = map( lambda x:x['id'], result_set_data )
-        rs_where_in_clause = [ ','.join( map( lambda v:'%s', rs_placeholders) ) ]
+        rs_where_in_clause = [ ','.join( ['%s'] * len(rs_placeholders) ) ]
 
         # Retrieve list of revisions associated with result sets
         revision_data = self.get_jobs_dhub().execute(
@@ -393,7 +394,7 @@ class JobsModel(TreeherderModelBase):
             )
 
         rev_placeholders = map( lambda x:x['revision_id'], revision_data )
-        rev_where_in_clause = [ ','.join( map( lambda v:'%s', rev_placeholders ) ) ]
+        rev_where_in_clause = [ ','.join( ['%s'] * len(rev_placeholders) ) ]
 
         # Retrieve list of jobs associated with result sets
         job_data = self.get_jobs_dhub().execute(
@@ -410,7 +411,7 @@ class JobsModel(TreeherderModelBase):
             guid_placeholders.append(d['job_guid'])
             job_id_placeholders.append(d['id'])
 
-        jobs_where_in_clause = [ ','.join( map( lambda v:'%s', job_id_placeholders ) ) ]
+        jobs_where_in_clause = [ ','.join( ['%s'] * len(job_id_placeholders) ) ]
 
         # Associate placeholders and replace data with sql
         obj_targets = []

@@ -23,6 +23,11 @@
             "sql":"DELETE FROM job_note WHERE job_id IN (REP0)",
             "host": "master_host"
         },
+        "cycle_bug_job_map":{
+
+            "sql":"DELETE FROM bug_job_map WHERE job_id IN (REP0)",
+            "host": "master_host"
+        },
         "cycle_job":{
 
             "sql":"DELETE FROM job WHERE id IN (REP0)",
