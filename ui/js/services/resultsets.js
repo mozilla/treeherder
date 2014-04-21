@@ -11,10 +11,13 @@ treeherder.factory('thResultSets',
             rsOffsetId = typeof rsOffsetId === 'undefined'?  0: rsOffsetId;
             count = typeof count === 'undefined'?  10: count;
             var params = {
-                count: count,
                 full: false,
                 format: "json"
             };
+
+            if (count > 0) {
+                params.count = count;
+            }
 
             if(rsOffsetId > 0){
                 params.id__lt = rsOffsetId;

@@ -3,7 +3,7 @@
 treeherder.controller('JobsCtrl',
     function JobsCtrl($scope, $http, $rootScope, $routeParams, ThLog, $cookies,
                       localStorageService, thUrl, ThRepositoryModel, thSocket,
-                      ThResultSetModel, thResultStatusList) {
+                      ThResultSetModel, thResultStatusList, $location) {
         var $log = new ThLog(this.constructor.name);
 
         // load our initial set of resultsets
@@ -30,9 +30,15 @@ treeherder.controller('JobsCtrl',
         $scope.job_map = ThResultSetModel.getJobMap($scope.repoName);
         $scope.statusList = thResultStatusList;
 
+        var count = 10;
+        if ((_.has($location.search(), "startdate") && _.has($location.search(), "enddate")) ||
+            (_.has($location.search(), "fromchange") && _.has($location.search(), "tochange"))) {
+
+            count = 0;
+        }
         if(ThResultSetModel.isNotLoaded($scope.repoName)){
             // get our first set of resultsets
-            ThResultSetModel.fetchResultSets($scope.repoName, 10);
+            ThResultSetModel.fetchResultSets($scope.repoName, count);
         }
 
     }
