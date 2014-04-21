@@ -3,7 +3,7 @@ from django.conf import settings
 
 from treeherder.model.derived import JobsModel
 from treeherder.model.models import Datasource, Repository
-from treeherder.events.publisher import JobUnclassifiedCountPublisher
+from treeherder.events.publisher import UnclassifiedJobCountPublisher
 
 @task(name='process-objects')
 def process_objects(limit=None):
@@ -59,7 +59,7 @@ def cycle_data(max_iterations=50, debug=False):
 def cycle_data(max_iterations=50, debug=False):
 
     projects = Repository.objects.all().values_list('name', flat=True)
-    unclassified_publisher = JobUnclassifiedCountPublisher(settings.BROKER_URL)
+    unclassified_publisher = UnclassifiedJobCountPublisher(settings.BROKER_URL)
 
     for project in projects:
 

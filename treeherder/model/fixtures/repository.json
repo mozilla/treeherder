@@ -208,19 +208,6 @@
     }
 },
 {
-    "pk": 17,
-    "model": "model.repository",
-    "fields": {
-        "dvcs_type": "hg",
-        "name": "profiling",
-        "url": "https://hg.mozilla.org/projects/profiling",
-        "active_status": "active",
-        "codebase": "gecko",
-        "repository_group": 1,
-        "description": ""
-    }
-},
-{
     "pk": 18,
     "model": "model.repository",
     "fields": {
