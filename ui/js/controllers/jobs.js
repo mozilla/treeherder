@@ -3,7 +3,7 @@
 treeherder.controller('JobsCtrl',
     function JobsCtrl($scope, $http, $rootScope, $routeParams, ThLog, $cookies,
                       localStorageService, thUrl, ThRepositoryModel, thSocket,
-                      ThResultSetModel, thResultStatusList, $location) {
+                      ThResultSetModel, thResultStatusList, $location, thEvents) {
         var $log = new ThLog(this.constructor.name);
 
         // load our initial set of resultsets
@@ -30,16 +30,34 @@ treeherder.controller('JobsCtrl',
         $scope.job_map = ThResultSetModel.getJobMap($scope.repoName);
         $scope.statusList = thResultStatusList;
 
+        // determine how many resultsets to fetch.  default to 10.
         var count = 10;
-        if ((_.has($location.search(), "startdate") && _.has($location.search(), "enddate")) ||
-            (_.has($location.search(), "fromchange") && _.has($location.search(), "tochange"))) {
+        var searchParams = $location.search();
+        if ((_.has(searchParams, "startdate") || _.has(searchParams, "fromchange") &&
+            (_.has(searchParams, "enddate")) || _.has(searchParams, "tochange"))) {
+            // just fetch all (up to 1000) the resultsets if an upper AND lower range is specified
 
-            count = 0;
+            count = 1000;
         }
         if(ThResultSetModel.isNotLoaded($scope.repoName)){
             // get our first set of resultsets
             ThResultSetModel.fetchResultSets($scope.repoName, count);
         }
+
+        $rootScope.$on(
+            thEvents.toggleAllJobs, function(ev, expand){
+                _.forEach($scope.result_sets, function(rs) {
+                    $rootScope.$broadcast(thEvents.toggleJobs, rs, expand);
+                })
+            });
+
+        $rootScope.$on(
+            thEvents.toggleAllRevisions, function(ev, expand){
+                _.forEach($scope.result_sets, function(rs) {
+                    $rootScope.$broadcast(thEvents.toggleRevisions, rs, expand);
+                })
+            });
+
 
     }
 );

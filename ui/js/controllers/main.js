@@ -96,6 +96,26 @@ treeherder.controller('MainCtrl',
 
         };
 
+        $scope.allJobsExpanded = true;
+
+        $scope.toggleAllJobs = function() {
+            $scope.allJobsExpanded = !$scope.allJobsExpanded;
+            $rootScope.$broadcast(
+                thEvents.toggleAllJobs, $scope.allJobsExpanded
+            );
+
+        };
+
+        $scope.allRevisionsExpanded = false;
+
+        $scope.toggleAllRevisions = function() {
+            $scope.allRevisionsExpanded = !$scope.allRevisionsExpanded;
+            $rootScope.$broadcast(
+                thEvents.toggleAllRevisions, $scope.allRevisionsExpanded
+            );
+
+        };
+
         // give the page a way to determine which nav toolbar to show
         $rootScope.$on('$locationChangeSuccess', function(ev,newUrl) {
             $rootScope.locationPath = $location.path().replace('/', '');

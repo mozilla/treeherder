@@ -325,7 +325,7 @@ treeherder.directive('thCloneJobs', function(
         }
     };
 
-    var toggleRevisions = function(element){
+    var toggleRevisions = function(element, expand){
 
         var revisionsEl = element.find('ul').parent();
         var jobsEl = element.find('table').parent();
@@ -333,10 +333,19 @@ treeherder.directive('thCloneJobs', function(
         var revElDisplayState = revisionsEl.css('display') || 'block';
         var jobsElDisplayState = jobsEl.css('display') || 'block';
 
+        var on = revElDisplayState !== 'block';
+        if (!_.isUndefined(expand)) {
+            on = expand;
+        }
+
         var rowEl = revisionsEl.parent();
         rowEl.css('display', 'block');
 
-        if(revElDisplayState !== 'block'){
+        if(on){
+
+            ThResultSetModel.loadRevisions(
+                $rootScope.repoName, this.resultset.id
+            );
 
             if(jobsElDisplayState === 'block'){
                 toggleRevisionsSpanOnWithJobs(revisionsEl);
@@ -360,7 +369,15 @@ treeherder.directive('thCloneJobs', function(
         }
 
     };
-    var toggleJobs = function(element){
+    /**
+     * Toggle the jobs of a resultset expanded or collapsed
+     * @param element - The element to expand/collapse
+     * @param expand - whether to force either expanding or collapsing.  If 'undefined' then
+     *                 just toggle.  If set to true, the expand if it isn't already.  Supports
+     *                 an expand/collapse all button.
+     */
+    var toggleJobs = function(element, expand){
+
 
         var revisionsEl = element.find('ul').parent();
         var jobsEl = element.find('table').parent();
@@ -368,10 +385,15 @@ treeherder.directive('thCloneJobs', function(
         var revElDisplayState = revisionsEl.css('display') || 'block';
         var jobsElDisplayState = jobsEl.css('display') || 'block';
 
+        var on = jobsElDisplayState !== 'block';
+        if (!_.isUndefined(expand)) {
+            on = expand;
+        }
+
         var rowEl = revisionsEl.parent();
         rowEl.css('display', 'block');
 
-        if(jobsElDisplayState !== 'block'){
+        if(on){
 
             if(revElDisplayState === 'block'){
                 toggleJobsSpanOnWithRevisions(jobsEl);
@@ -822,16 +844,16 @@ treeherder.directive('thCloneJobs', function(
             });
 
         $rootScope.$on(
-            thEvents.toggleRevisions, function(ev, rs){
+            thEvents.toggleRevisions, function(ev, rs, expand){
                 if(rs.id === scope.resultset.id){
-                    _.bind(toggleRevisions, scope, element)();
+                    _.bind(toggleRevisions, scope, element, expand)();
                 }
             });
 
         $rootScope.$on(
-            thEvents.toggleJobs, function(ev, rs){
+            thEvents.toggleJobs, function(ev, rs, expand){
                 if(rs.id === scope.resultset.id){
-                    _.bind(toggleJobs, scope, element)();
+                    _.bind(toggleJobs, scope, element, expand)();
                 }
             });
 

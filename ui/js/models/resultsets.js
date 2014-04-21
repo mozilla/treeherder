@@ -557,6 +557,10 @@ treeherder.factory('ThResultSetModel',
         repositories[repoName].loadingStatus.appending = false;
     };
 
+    /**
+     * Ensure the revisions for this resultset have been loaded.  If this resultset
+     * already has revisions loaded, then this is a no-op.
+     */
     var loadRevisions = function(repoName, resultsetId){
         var rs = repositories[repoName].rsMap[resultsetId].rs_obj;
         if (rs && rs.revisions.length === 0) {

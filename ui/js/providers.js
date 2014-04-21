@@ -202,7 +202,11 @@ treeherder.provider('thEvents', function() {
 
             toggleRevisions: "toggle-revisions-EVT",
 
+            toggleAllRevisions: "toggle-all-revisions-EVT",
+
             toggleJobs: "toggle-jobs-EVT",
+
+            toggleAllJobs: "toggle-all-jobs-EVT",
 
             toggleUnclassifiedFailures: "toggle-unclassified-failures-EVT",
 
