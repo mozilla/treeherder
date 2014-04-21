@@ -61,6 +61,7 @@ class DataSetup(unittest.TestCase):
                     }
 
                 resultset['type'] = 'push'
+                resultset['author'] = 'somebody@somewhere.com'
 
         # Load sample artifact
 
@@ -140,6 +141,7 @@ class TreeherderResultsetTest(DataSetup, unittest.TestCase):
 
             trs.add_push_timestamp( resultset['push_timestamp'] )
             trs.add_revision_hash( resultset['revision_hash'] )
+            trs.add_author( resultset['author'] )
             trs.add_type( 'push' )
             trs.add_artifact( 'push_data', 'push', { 'stuff':[1,2,3,4,5] } )
 

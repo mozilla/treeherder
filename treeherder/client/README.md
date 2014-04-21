@@ -14,6 +14,7 @@ Resultset collections contain meta data associated with a github pull request or
         {
             # unique identifier for a result set, can be any unique 50 character string
             'revision_hash': '45f8637cb9f78f19cb8463ff174e81756805d8cf',
+            'author': 'somebody@somewhere.com',
             'push_timestamp': 1384353511,
             'type': 'push',
 
