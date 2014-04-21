@@ -611,7 +611,7 @@ class JobsModel(TreeherderModelBase):
                 "push_timestamp": result['push_timestamp'],
                 "repository_id": detail['repository_id'],
                 "revision": detail['revision'],
-                "author": detail['author'],
+                "author": result['author'],
                 "revision_count": len(aggregate_details[result['id']])
             }
             if full:
@@ -1486,6 +1486,7 @@ class JobsModel(TreeherderModelBase):
             {
              "revision_hash": "8afdb7debc82a8b6e0d56449dfdf916c77a7bf80",
              "push_timestamp": 1378293517,
+             "author": "some-sheriff@mozilla.com",
              "revisions": [
                 {
                     "files": ["js/src/TraceLogging.h"],
@@ -1527,6 +1528,7 @@ class JobsModel(TreeherderModelBase):
         for result in result_sets:
             revision_hash_placeholders.append(
                 [
+                    result.get('author', 'unknown@somewhere.com'),
                     result['revision_hash'],
                     result['push_timestamp'],
                     result['revision_hash']
