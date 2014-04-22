@@ -81,8 +81,8 @@
         },
         "set_result_set":{
 
-            "sql":"INSERT INTO `result_set` (`revision_hash`,`push_timestamp`)
-                SELECT ?,?
+            "sql":"INSERT INTO `result_set` (`author`, `revision_hash`,`push_timestamp`)
+                SELECT ?,?,?
                 FROM DUAL
                 WHERE NOT EXISTS (
                     SELECT `revision_hash`, `push_timestamp`
@@ -451,6 +451,7 @@
         "get_result_set_list":{
             "sql":"SELECT DISTINCT
                       rs.id,
+                      rs.author,
                       rs.revision_hash,
                       rs.push_timestamp
                    FROM result_set AS rs

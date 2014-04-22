@@ -269,10 +269,13 @@ DROP TABLE IF EXISTS `result_set`;
  * Example Data:
  *
  *  revision_hash - Hash of any number of revisions associated with the result set
+ *  author - The author associated with the result_set. May or may not be the author
+ *           of an associated revision.
  **************************/
 CREATE TABLE `result_set` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `revision_hash` varchar(50) COLLATE utf8_bin NOT NULL,
+  `author` varchar(150) COLLATE utf8_bin NOT NULL,
   `push_timestamp` int(11) unsigned NOT NULL,
   `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
   PRIMARY KEY (`id`),
