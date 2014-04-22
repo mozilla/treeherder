@@ -19,12 +19,12 @@ describe('ThResultSetModel', function(){
         $httpBackend = $injector.get('$httpBackend');
         jasmine.getJSONFixtures().fixturesPath='base/test/mock';
 
-        $httpBackend.whenGET(foregroundPrefix + '/resultset/?count=10&format=json&full=false').respond(
+        $httpBackend.whenGET(foregroundPrefix + '/resultset/?count=10&format=json&full=true').respond(
             getResultSet(1)
         );
 
 
-        $httpBackend.whenGET(backgroundPrefix + '/resultset/?count=10&format=json&full=false').respond(
+        $httpBackend.whenGET(backgroundPrefix + '/resultset/?count=10&format=json&full=true').respond(
             getResultSet(10)
         );
 
