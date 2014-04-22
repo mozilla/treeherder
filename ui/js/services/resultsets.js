@@ -11,7 +11,7 @@ treeherder.factory('thResultSets',
             rsOffsetId = typeof rsOffsetId === 'undefined'?  0: rsOffsetId;
             count = typeof count === 'undefined'?  10: count;
             var params = {
-                full: false,
+                full: true,
                 format: "json"
             };
 

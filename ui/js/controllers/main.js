@@ -96,22 +96,22 @@ treeherder.controller('MainCtrl',
 
         };
 
-        $scope.allJobsExpanded = true;
+        $scope.allExpanded = function(cls) {
+            var fullList = $("." + cls);
+            var visibleList = $("." + cls + ":visible");
+            return fullList.length === visibleList.length;
+        };
 
         $scope.toggleAllJobs = function() {
-            $scope.allJobsExpanded = !$scope.allJobsExpanded;
             $rootScope.$broadcast(
-                thEvents.toggleAllJobs, $scope.allJobsExpanded
+                thEvents.toggleAllJobs, !$scope.allExpanded("job-list")
             );
 
         };
 
-        $scope.allRevisionsExpanded = false;
-
         $scope.toggleAllRevisions = function() {
-            $scope.allRevisionsExpanded = !$scope.allRevisionsExpanded;
             $rootScope.$broadcast(
-                thEvents.toggleAllRevisions, $scope.allRevisionsExpanded
+                thEvents.toggleAllRevisions, !$scope.allExpanded("revision-list")
             );
 
         };
