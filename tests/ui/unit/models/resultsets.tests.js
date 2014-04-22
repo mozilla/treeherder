@@ -69,7 +69,7 @@ describe('ThResultSetModel', function(){
         var rsValues = {id: 2, push_timestamp: 1396899074+1},
             data = {branch: foregroundRepo, resultset: rsValues};
 
-        $httpBackend.whenGET(foregroundPrefix + '/resultset/?count=1&format=json&full=false&id__in=2&offset=0').respond(
+        $httpBackend.whenGET(foregroundPrefix + '/resultset/?count=1&format=json&full=true&id__in=2&offset=0').respond(
             getResultSet(2, rsValues)
         );
 
@@ -88,7 +88,7 @@ describe('ThResultSetModel', function(){
         var rsValues = {id: 12, push_timestamp: 1396899074+1},
             data = {branch: backgroundRepo, resultset: rsValues};
 
-        $httpBackend.whenGET(backgroundPrefix + '/resultset/?count=1&format=json&full=false&id__in=12&offset=0').respond(
+        $httpBackend.whenGET(backgroundPrefix + '/resultset/?count=1&format=json&full=true&id__in=12&offset=0').respond(
             getResultSet(12, rsValues)
         );
 
