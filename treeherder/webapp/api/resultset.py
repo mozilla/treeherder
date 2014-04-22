@@ -63,7 +63,7 @@ class ResultSetViewSet(viewsets.ViewSet):
         filter = UrlQueryFilter(filter_params)
 
         offset_id = filter.pop("id__lt", 0)
-        count = min(filter.pop("count", 10), 1000)
+        count = min(int(filter.pop("count", 10)), 1000)
 
         full = filter.pop('full', 'true').lower() == 'true'
 
@@ -120,7 +120,6 @@ class ResultSetViewSet(viewsets.ViewSet):
             # all rs should have the revisions_uri, so add it here
             rs["revisions_uri"] = reverse("resultset-revisions",
                 kwargs={"project": jm.project, "pk": rs["id"]})
-            rs["revisions"] = jm.get_resultset_revisions_list(str(rs["id"]))
 
         jobs_ungrouped = jm.get_result_set_job_list(
             rs_map.keys(),
