@@ -120,6 +120,7 @@ class ResultSetViewSet(viewsets.ViewSet):
             # all rs should have the revisions_uri, so add it here
             rs["revisions_uri"] = reverse("resultset-revisions",
                 kwargs={"project": jm.project, "pk": rs["id"]})
+            rs["revisions"] = jm.get_resultset_revisions_list(str(rs["id"]))
 
         jobs_ungrouped = jm.get_result_set_job_list(
             rs_map.keys(),
