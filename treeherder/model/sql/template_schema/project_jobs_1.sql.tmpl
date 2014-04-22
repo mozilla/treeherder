@@ -280,6 +280,7 @@ CREATE TABLE `result_set` (
   `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_revision_hash` (`revision_hash`),
+  KEY `idx_author` (`author`),
   KEY `idx_push_timestamp` (`push_timestamp`),
   KEY `idx_active_status` (`active_status`)
 ) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;

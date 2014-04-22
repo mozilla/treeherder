@@ -611,7 +611,7 @@ class JobsModel(TreeherderModelBase):
                 "push_timestamp": result['push_timestamp'],
                 "repository_id": detail['repository_id'],
                 "revision": detail['revision'],
-                "author": result['author'],
+                "author": result['author'] or detail['author'],
                 "revision_count": len(aggregate_details[result['id']])
             }
             if full:
