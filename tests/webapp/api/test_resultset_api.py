@@ -6,10 +6,10 @@ from tests import test_utils
 
 from treeherder.webapp.api import utils
 
-def test_resultset_list(webapp, eleven_jobs_processed, jm):
+def test_resultset_list_full_true(webapp, eleven_jobs_processed, jm):
     """
     test retrieving a list of ten json blobs from the jobs-list
-    endpoint.
+    endpoint.  Defaults to returning revisions.
     """
     resp = webapp.get(
         reverse("resultset-list", kwargs={"project": jm.project})
@@ -30,7 +30,7 @@ def test_resultset_list(webapp, eleven_jobs_processed, jm):
         u'comments',
         u'revision_hash',
         u'revision',
-        u'revision_list',
+        u'revisions',
         u'revision_count',
         u'revisions_uri',
         u'job_counts',
@@ -42,6 +42,46 @@ def test_resultset_list(webapp, eleven_jobs_processed, jm):
     assert(meta == {
         u'count': 10,
         u'filter_params': {},
+        u'repository':
+        u'test_treeherder'
+    })
+
+
+def test_resultset_list_full_false(webapp, eleven_jobs_processed, jm):
+    """
+    test retrieving a list of ten json blobs from the jobs-list
+    endpoint.  ``full`` set to false, so it doesn't return revisions.
+    """
+    resp = webapp.get(
+        reverse("resultset-list", kwargs={"project": jm.project}),
+                {"full": False}
+    )
+
+    results = resp.json['results']
+    meta = resp.json['meta']
+
+    assert resp.status_int == 200
+    assert isinstance(results, list)
+
+    assert len(results) == 10
+    exp_keys = set([
+        u'id',
+        u'repository_id',
+        u'push_timestamp',
+        u'author',
+        u'revision_hash',
+        u'revision',
+        u'revision_count',
+        u'revisions_uri',
+        u'job_counts',
+        u'platforms'
+    ])
+    for rs in results:
+        assert set(rs.keys()) == exp_keys
+
+    assert(meta == {
+        u'count': 10,
+        u'filter_params': {u'full': u'False'},
         u'repository':
         u'test_treeherder'
     })

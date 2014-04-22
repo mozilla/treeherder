@@ -600,7 +600,7 @@ class JobsModel(TreeherderModelBase):
         aggregate_details = self.get_result_set_details(result_set_ids)
 
         # Construct the return dataset, include all revisions associated
-        # with each result_set in the revision_list attribute
+        # with each result_set in the revisions attribute
         return_list = []
         for result in result_set_ids:
 
@@ -617,7 +617,7 @@ class JobsModel(TreeherderModelBase):
             if full:
                 list_item.update({
                     "comments": detail['comments'],
-                    "revision_list": aggregate_details[result['id']]
+                    "revisions": aggregate_details[result['id']]
                 })
             return_list.append(list_item)
 
