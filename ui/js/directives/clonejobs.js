@@ -295,6 +295,7 @@ treeherder.directive('thCloneJobs', function(
     };
 
     var addRevisions = function(resultset, element){
+        $log.debug("addRevisions", resultset, element);
 
         if(resultset.revisions.length > 0){
 
@@ -931,6 +932,7 @@ treeherder.directive('thCloneJobs', function(
             statusList, j;
 
         addRevisions(scope.resultset, element);
+//        _.bind(addRevisions, scope, scope.resultset, element)();
 
         for(j=0; j<scope.resultset.platforms.length; j++){
 
