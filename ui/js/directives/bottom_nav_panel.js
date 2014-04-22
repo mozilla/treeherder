@@ -135,7 +135,7 @@ treeherder.directive('thSimilarJobs', function(ThJobModel, ThLog){
                         options[key] = job[key];
                     }
                 });
-                ThJobModel.get_list(options).then(function(data){
+                ThJobModel.get_list(scope.repoName, options).then(function(data){
                     scope.similar_jobs = data;
                 });
             };

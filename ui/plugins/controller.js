@@ -17,7 +17,7 @@ treeherder.controller('PluginCtrl',
                 $scope.job = newValue;
 
                 // get the details of the current job
-                ThJobModel.get($scope.job.id).then(function(data){
+                ThJobModel.get($scope.repoName, $scope.job.id).then(function(data){
                     $scope.job = data;
                     $scope.$broadcast(thEvents.jobDetailLoaded);
 
@@ -115,7 +115,7 @@ treeherder.controller('PluginCtrl',
         var updateClassification = function(classification){
             if(classification.who !== $scope.user.email){
                 // get a fresh version of the job
-                ThJobModel.get_list({id:classification.id})
+                ThJobModel.get_list($scope.repoName, {id:classification.id})
                 .then(function(job_list){
                     if(job_list.length > 0){
                         var job = job_list[0];

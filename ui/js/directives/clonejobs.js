@@ -272,7 +272,7 @@ treeherder.directive('thCloneJobs', function(
 
                 case 2:
                     //Middle mouse button pressed
-                    ThJobModel.get(job.id).then(function(data){
+                    ThJobModel.get(this.repoName, job.id).then(function(data){
                         //Retrieve the job reference data and open a new
                         //window on the job's log file
                         if(data.logs.length > 0){
@@ -929,6 +929,8 @@ treeherder.directive('thCloneJobs', function(
 
         var name, option, platformId, platformKey, row, platformTd, jobTdEl,
             statusList, j;
+
+        addRevisions(scope.resultset, element);
 
         for(j=0; j<scope.resultset.platforms.length; j++){
 
