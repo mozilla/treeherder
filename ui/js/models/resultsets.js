@@ -570,10 +570,12 @@ treeherder.factory('ThResultSetModel',
             return thResultSets.get(rs.revisions_uri).
                 success(function(data) {
 
-                    Array.prototype.push.apply(rs.revisions, data);
-                    $rootScope.$broadcast(thEvents.revisionsLoaded, rs);
+                    if (rs.revisions.length === 0) {
+                        Array.prototype.push.apply(rs.revisions, data);
+                        $rootScope.$broadcast(thEvents.revisionsLoaded, rs);
+                    }
 
-                    });
+                });
         }
     };
 
