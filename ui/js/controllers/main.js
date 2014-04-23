@@ -124,9 +124,16 @@ treeherder.controller('MainCtrl',
         $rootScope.urlBasePath = $location.absUrl().split('?')[0];
 
         $scope.isRepoPanelShowing = false;
+
+        $scope.toggleRepoPanel = function() {
+            $scope.isRepoPanelShowing=!$scope.isRepoPanelShowing;
+        };
+
         $scope.changeRepo = function(repo_name) {
             // hide the repo panel if they chose to load one.
             $scope.isRepoPanelShowing = false;
+            $rootScope.selectedJob = null;
+            thPinboard.unPinAll();
 
             ThRepositoryModel.setCurrent(repo_name);
             $location.search({repo: repo_name});
