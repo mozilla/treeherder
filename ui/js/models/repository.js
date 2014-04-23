@@ -70,6 +70,30 @@ treeherder.factory('ThRepositoryModel',
                 unclassifiedFailureCount: 0
             };
             updateTreeStatus(repoName);
+
+            // a static method to retrieve a single instance of ThJobModel
+            $http.get(thUrl.getProjectUrl("/jobs/0/unclassified_failure_count/", repoName)).then(function(response) {
+                repos[repoName].unclassifiedFailureCount = response.data.unclassified_failure_count;
+            });
+
+
+            // Add a connect listener
+            thSocket.on('connect',function() {
+                // subscribe to all the events for this repo
+                thSocket.emit('subscribe', repoName);
+            });
+
+            //Set up the socket listener
+            thSocket.on(
+                "unclassified_failure_count",
+                function(data) {
+                    if (data.branch === repoName) {
+                        $log.debug("event unclassified_failure_count", data);
+                        repos[repoName].unclassifiedFailureCount = data.count;
+                    }
+                }
+            );
+
             $log.debug("watchedRepo", repoName, repos[repoName]);
         }
     };
