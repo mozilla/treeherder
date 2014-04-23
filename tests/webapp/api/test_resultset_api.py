@@ -140,6 +140,34 @@ def test_resultset_list_filter_by_date(webapp, initial_data,
     )
 
 
+def test_resultset_list_without_jobs(webapp, initial_data,
+                                       sample_resultset, jm):
+    """
+    test retrieving a resultset list without jobs
+    """
+    jm.store_result_set_data(sample_resultset)
+
+    resp = webapp.get(
+        reverse("resultset-list", kwargs={"project": jm.project}),
+        {"with_jobs": "false"}
+    )
+    assert resp.status_int == 200
+
+    results = resp.json['results']
+    assert len(results) == 10
+    assert all([('platforms' not in result) for result in results])
+
+    meta = resp.json['meta']
+
+    assert meta == {
+        u'count': len(results),
+        u'filter_params': {
+            u"with_jobs": u"false",
+        },
+        u'repository': u'test_treeherder'
+    }
+
+
 def test_resultset_detail(webapp, eleven_jobs_processed, jm):
     """
     test retrieving a resultset from the resultset-detail
