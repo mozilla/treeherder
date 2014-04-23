@@ -111,16 +111,16 @@ class JobClassificationPublisher(EventsPublisher):
         )
 
 
-class UnclassifiedJobCountPublisher(EventsPublisher):
+class UnclassifiedFailureCountPublisher(EventsPublisher):
 
     def publish(self, branch, count):
         message = {
             "count": count,
-            "event": "unclassified_job_count",
+            "event": "unclassified_failure_count",
             "branch": branch
         }
 
-        super(UnclassifiedJobCountPublisher, self).publish(
+        super(UnclassifiedFailureCountPublisher, self).publish(
             message,
-            "events.{0}.unclassified_job_count".format(branch)
+            "events.{0}.unclassified_failure_count".format(branch)
         )
