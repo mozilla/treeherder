@@ -585,7 +585,7 @@ treeherder.factory('ThResultSetModel',
      */
     var isInResultSetRange = function(repoName, push_timestamp) {
         var result = true;
-        if (repositories[repoName]) {
+        if (repositories[repoName] && repositories[repoName].length) {
             var meta = repositories[repoName].meta;
             if (_.has(meta, "push_timestamp__gte") &&
                 push_timestamp < meta.push_timestamp__gte) {
