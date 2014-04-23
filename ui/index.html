@@ -5,12 +5,14 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=Edge">
-        <!-- Bootstrap -->
+
+        <!-- build:css css/style.min.css -->
         <link href="css/bootstrap.css" rel="stylesheet" media="screen">
         <link href="css/select2.css" rel="stylesheet" media="screen">
         <link href="css/font-awesome.min.css" rel="stylesheet" media="screen">
         <link href="css/treeherder.css" rel="stylesheet" media="screen">
         <link href="css/persona-buttons.css" rel="stylesheet" media="screen">
+        <!-- endbuild -->
 
     </head>
     <body ng-controller="MainCtrl" ng-keydown="processKeyboardInput($event)">
@@ -31,6 +33,7 @@
 
         <th-notification-box></th-notification-box>
 
+        <!-- build:js js/treeherder.min.js -->
         <script src="vendor/jquery-2.0.3.js"></script>
         <script src="vendor/angular/angular.js"></script>
         <script src="vendor/angular/angular-route.js"></script>
@@ -93,6 +96,8 @@
 
         <script src="js/filters.js"></script>
         <script src="vendor/Config.js"></script>
+        <!-- endbuild -->
+
         <script src="https://login.persona.org/include.js"></script>
 
 <!-- Clone targets -->
