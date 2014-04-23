@@ -29,7 +29,7 @@ class ArtifactViewSet(viewsets.ViewSet):
         filter = UrlQueryFilter(request.QUERY_PARAMS)
 
         offset = filter.pop("offset", 0)
-        count = filter.pop("count", 10)
+        count = min(int(filter.pop("count", 10)), 1000)
 
         objs = jm.get_job_artifact_list(offset, count, filter.conditions)
         return Response(objs)

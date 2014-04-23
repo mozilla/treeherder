@@ -4,7 +4,8 @@ Deployment
 The easiest way to deploy all the treeherder services on a server is to let puppet do it.
 Once puppet is installed on your machine, clone the treeherder repo on the target machine and create a puppet
 manifest like this inside the puppet directory:
-  .. code-block:: ruby
+
+.. code-block:: ruby
 
     import "classes/*.pp"
 
@@ -66,8 +67,9 @@ manifest like this inside the puppet directory:
 As you can see it's very similar to the file used to startup the vagrant environment.
 You can run this file with the following command
 
-  .. code-block:: bash
-    (venv)vagrant@precise32:~/treeherder-service$ sudo puppet apply puppet/your_manifest_file.pp
+.. code-block:: bash
+  
+  (venv)vagrant@precise32:~/treeherder-service$ sudo puppet apply puppet/your_manifest_file.pp
 
 Once puppet has finished, the only thing left to do is to start all the treeherder services (gunicorn, socketio, celery, etc).
 The easiest way to do it is via supervisord.

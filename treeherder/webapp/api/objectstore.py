@@ -49,7 +49,7 @@ class ObjectstoreViewSet(viewsets.ViewSet):
         GET method implementation for list view
         """
         offset = int(request.QUERY_PARAMS.get('offset', 0))
-        count = int(request.QUERY_PARAMS.get('count', 10))
+        count = min(int(request.QUERY_PARAMS.get('count', 10)), 1000)
         objs = jm.get_json_blob_list(offset, count)
         return Response([json.loads(obj['json_blob']) for obj in objs])
 

@@ -28,6 +28,9 @@ class HgPushlogTransformerMixin(object):
 
             result_set['revisions'] = []
 
+            # Author of the push/resultset
+            result_set['author'] = push['user']
+
             rev_hash_components = []
 
             # iterate over the revisions
@@ -52,9 +55,6 @@ class HgPushlogTransformerMixin(object):
 
             if repository not in th_collections:
                 th_collections[ repository ] = TreeherderResultSetCollection()
-
-            # append the push the transformed pushlog
-            #result_sets.append(result_set)
 
             th_resultset = th_collections[ repository ].get_resultset(result_set)
             th_collections[ repository ].add(th_resultset)

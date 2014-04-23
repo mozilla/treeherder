@@ -7,6 +7,8 @@
 
     'revision_hash': '638a3df94dc1fd0d1efbeb4b94b4278f8751e3f2',
 
+    'author': 'nobody@somewhere.com',
+
     'revisions': [
         {
             'author': 'John Doe <jdoe@mozilla.com>',
