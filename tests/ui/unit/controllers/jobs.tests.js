@@ -18,7 +18,7 @@ describe('JobsCtrl', function(){
             getJSONFixture('repositories.json')
         );
 
-        $httpBackend.whenGET(projectPrefix + 'resultset/?count=10&format=json&full=true').respond(
+        $httpBackend.whenGET(projectPrefix + 'resultset/?count=10&format=json&full=true&with_jobs=true').respond(
             getJSONFixture('resultset_list.json')
         );
 
