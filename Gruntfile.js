@@ -43,6 +43,15 @@ module.exports = function(grunt) {
                 dest: 'dist/fonts/',
                 flatten: true
                 },
+        },
+        uglify:{
+            options:{
+                report: 'min',
+                compress: true,
+                // Cannot use mangle, it will break angularjs's dependency
+                // injection
+                mangle: false
+            }
         }
     });
 
