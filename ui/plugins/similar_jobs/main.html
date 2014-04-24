@@ -1,76 +1,116 @@
-<div class="" ng-controller="SimilarJobsPluginCtrl">
-    <div class="row">
-        <div class="col-xs-2">
-            <form role="form">
-                <div class="checkbox">
+<div class="similar_jobs" ng-controller="SimilarJobsPluginCtrl">
+            <div class="right_panel">
+                <form role="form" class="form form-inline">
+                    <div class="checkbox">
 
                         <input ng-change="update_similar_jobs()" type="checkbox" ng-model="similar_jobs_filters.machine_id"/>
-                        <small>Same machine</small>
+                            <small>Same machine</small>
 
+                    </div>
+
+                    <div class="checkbox">
+                            <input ng-change="update_similar_jobs()" type="checkbox" ng-model="similar_jobs_filters.job_type_id"/>
+                            <small>Same job type</small>
+
+                    </div>
+
+                    <div class="checkbox">
+                            <input ng-change="update_similar_jobs()" type="checkbox" ng-model="similar_jobs_filters.build_platform_id"/>
+                            <small>Same platform</small>
+
+                    </div>
+                </form>
+                <div class="similar_job_detail">
+                    <table class="table table-super-condensed" ng-if="similar_job_selected">
+                        <tr>
+                            <th>Result</th>
+                            <td>{{ similar_job_selected.result_status }}</td>
+                        </tr>
+                        <tr>
+                            <th>Machine name</th>
+                            <td>
+                                <a target="_blank" href="https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name={{ similar_job_selected.machine_name }}">
+                                    {{ similar_job_selected.machine_name }}
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Build</th>
+                            <td>
+                                {{ similar_job_selected.build_architecture }} {{ similar_job_selected.build_platform }} {{ similar_job_selected.build_os }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Duration</th>
+                            <td>{{ similar_job_selected.duration }}</td>
+                        </tr>
+                        <tr><th>Job Name</th><td>{{ similar_job_selected.job_type_name }}</td></tr>
+                        <tr>
+                            <th>Start time</th>
+                            <td>
+                                {{ similar_job_selected.start_time }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Classification</th>
+                            <td>
+                                <label class="label {{similar_job_selected.failure_classification.star}}">
+                                    {{ similar_job_selected.failure_classification.name }}
+                                </label>
+                            </td>
+                        </tr>
+                        <tr ng-if="similar_job_selected.error_lines.length > 0">
+                            <td colspan=2>
+                                <ul class="list-unstyled error_list">
+                                    <li class="" ng-repeat="error in similar_job_selected.error_lines">
+                                        <small title="{{error.line}}">
+
+                                            {{error.line}}
+                                        </small>
+                                    </li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </table>
                 </div>
-                <div class="checkbox">
-
-                        <input ng-change="update_similar_jobs()" type="checkbox" ng-model="similar_jobs_filters.job_type_id"/>
-                        <small>Same job type</small>
-
-                </div>
-                <div class="checkbox">
-
-                        <input ng-change="update_similar_jobs()" type="checkbox" ng-model="similar_jobs_filters.build_platform_id"/>
-                        <small>Same platform</small>
-
-                </div>
-            </form>
-        </div>
-        <div class="col-xs-10">
-            <p class="similar_job_list">
-                <button ng-click="show_job_info(job)" class="btn btn-similar-jobs btn-xs" ng-class="button_class(job)"
-                        ng-repeat="job in similar_jobs | orderBy: -submit_timestamp">
-                    {{job.job_type_symbol}}
-                </button>
-
-            </p>
-            <a ng-click="show_more()">Show more</a>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-xs-12">
-            <table class="table-bordered table-super-condensed" ng-if="similar_job_selected">
-                <tr>
-                    <th>Job Name</th>
-                    <th>Start time</th>
-                    <th>Duration</th>
-                    <th>Machine</th>
-                    <th>Build</th>
-                    <th>Result</th>
-                    <th>Classification</th>
-                </tr>
-                <tr>
-                    <td>{{ similar_job_selected.job_type_name }}</td>
-                    <td>{{ similar_job_selected.start_time }}</td>
-                    <td>{{ similar_job_selected.duration }}</td>
-                    <td>{{ similar_job_selected.machine_platform_architecture }}
-                        {{ similar_job_selected.machine_platform_os }}
-                    </td>
-                    <td>
-                        {{ similar_job_selected.build_architecture }}
-                        {{ similar_job_selected.build_platform }}
-                        {{ similar_job_selected.build_os }}
-                    </td>
-                    <td>{{ similar_job_selected.result_status }}</td>
-                    <td>{{ similar_job_selected.failure_classification_name }}</td>
-                </tr>
-            </table>
-            <ul class="list-unstyled" ng-if="similar_job_selected.error_lines.length > 0">
-                <li><h5>Error lines:</h5></li>
-                <li class=""  ng-repeat="error in similar_job_selected.error_lines">
-                    <small>{{error.line}}</small>
-                </li>
-            </ul>
-        </div>
-    </div>
-
-
+            </div>
+            <div class="left_panel">
+                <table class="table table-super-condensed table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>Job</th><th>Push timestamp</th><th>Author</th><th>Revision</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-click="show_job_info(similar_job)"
+                            ng-class="{'active': similar_job_selected.id===similar_job.id}"
+                            ng-repeat="similar_job in similar_jobs">
+                            <td>
+                                <button
+                                        class="btn btn-similar-jobs btn-xs"
+                                        ng-class="button_class(similar_job)">
+                                    {{ similar_job.job_type_symbol }}
+                                    <span ng-if="similar_job.failure_classification_id>1">
+                                        *
+                                    </span>
+                                </button>
+                            </td>
+                            <td>{{ similar_job.push_timestamp*1000|date:'medium' }}</td>
+                            <td>
+                                <a href="{{ similar_job.authorResultsetFilterUrl }}">
+                                    {{ similar_job.result_set.author }}
+                                </a>
+                            </td>
+                            <td>
+                                <a href="{{ similar_job.revisionResultsetFilterUrl }}">
+                                    {{ similar_job.result_set.revision_list[0].revision }}
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <a ng-if="has_next_page" href="" ng-click="show_next()">Show previous jobs</a>
+            </div>
 
 </div>
 
