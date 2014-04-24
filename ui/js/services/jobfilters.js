@@ -23,7 +23,8 @@
  */
 treeherder.factory('thJobFilters',
                    function(thResultStatusList, ThLog, $rootScope,
-                            ThResultSetModel, thPinboard, thNotify) {
+                            ThResultSetModel, thPinboard, thNotify,
+                            thEvents) {
 
     var $log = new ThLog("thJobFilters");
 
@@ -112,144 +113,181 @@ treeherder.factory('thJobFilters',
         return false;
     };
 
-    var api = {
-        /**
-         * Add a case-insensitive filter.
-         * @param field - the field in the job objec to check
-         * @param value - the value to match
-         * @param matchType - which type of filter to use.  Default: ``exactstr``
-         *                    If the filter field already exists, update the
-         *                    ``matchType`` to this value.
-         */
-        addFilter: function(field, value, matchType) {
-            if (_.isUndefined(matchType)) {
-                matchType = api.matchType.exactstr;
+    /**
+     * Add a case-insensitive filter.
+     * @param field - the field in the job objec to check
+     * @param value - the value to match
+     * @param matchType - which type of filter to use.  Default: ``exactstr``
+     *                    If the filter field already exists, update the
+     *                    ``matchType`` to this value.
+     */
+    var addFilter = function(field, value, matchType) {
+        if (_.isUndefined(matchType)) {
+            matchType = api.matchType.exactstr;
+        }
+        // always store in lower case so that comparisons are case insensitive
+        if (_.isString(value)) {
+            // the string types are case insensitive
+            value = value.toLowerCase();
+        }
+        if (filters.hasOwnProperty(field)) {
+            if (!_.contains(filters[field].values, value)) {
+                filters[field].values.push(value);
+                filters[field].matchType = matchType;
             }
-            // always store in lower case so that comparisons are case insensitive
+        } else {
+            filters[field] = {
+                values: [value],
+                matchType: matchType,
+                removeWhenEmpty: true
+            };
+        }
+
+        filterKeys = _.keys(filters);
+
+        $log.debug("adding ", field, ": ", value);
+        $log.debug("filters", filters);
+    };
+
+    var removeFilter = function(field, value) {
+        if (filters.hasOwnProperty(field)) {
             if (_.isString(value)) {
                 // the string types are case insensitive
                 value = value.toLowerCase();
             }
-            if (filters.hasOwnProperty(field)) {
-                if (!_.contains(filters[field].values, value)) {
-                    filters[field].values.push(value);
-                    filters[field].matchType = matchType;
-                }
-            } else {
-                filters[field] = {
-                    values: [value],
-                    matchType: matchType,
-                    removeWhenEmpty: true
-                };
+            var idx = filters[field].values.indexOf(value);
+            if(idx > -1) {
+                $log.debug("removing ", value);
+                filters[field].values.splice(idx, 1);
             }
+        }
 
-            filterKeys = _.keys(filters);
+        // if this filer no longer has any values, then remove it
+        // unless it has the ``allowEmpty`` setting
+        if (filters[field].removeWhenEmpty && filters[field].values.length === 0) {
+            delete filters[field];
+        }
 
-            $log.debug("adding ", field, ": ", value);
-            $log.debug("filters", filters);
-        },
-        removeFilter: function(field, value) {
-            if (filters.hasOwnProperty(field)) {
-                if (_.isString(value)) {
-                    // the string types are case insensitive
-                    value = value.toLowerCase();
-                }
-                var idx = filters[field].values.indexOf(value);
-                if(idx > -1) {
-                    $log.debug("removing ", value);
-                    filters[field].values.splice(idx, 1);
-                }
+        filterKeys = _.keys(filters);
+        $log.debug("filters", filters);
+    };
+
+    /**
+     * used mostly for resultStatus doing group toggles
+     *
+     * @param field
+     * @param values - an array of values for the field
+     * @param add - true if adding, false if removing
+     */
+    var toggleFilters = function(field, values, add) {
+        $log.debug("toggling: ", add);
+        var action = add? api.addFilter: api.removeFilter;
+        for (var i = 0; i < values.length; i++) {
+            action(field, values[i]);
+        }
+    };
+
+    var copyResultStatusFilters = function() {
+        return filters[api.resultStatus].values.slice();
+    };
+
+    /**
+     * Whether or not this job should be shown based on the current
+     * filters.
+     *
+     * @param job - the job we are checking against the filter
+     * @param resultStatusList - optional.  custom list of resultstatuses
+     *        that can be used for individual resultsets
+     */
+    var showJob = function(job, resultStatusList) {
+        for(var i = 0; i < filterKeys.length; i++) {
+            if (!checkFilter(filterKeys[i], job, resultStatusList)) {
+                return false;
             }
-
-            // if this filer no longer has any values, then remove it
-            // unless it has the ``allowEmpty`` setting
-            if (filters[field].removeWhenEmpty && filters[field].values.length === 0) {
-                delete filters[field];
+        }
+        if(typeof $rootScope.searchQuery === 'string'){
+            //Confirm job matches search query
+            if(job.searchableStr.toLowerCase().indexOf(
+                $rootScope.searchQuery.toLowerCase()
+                ) === -1){
+                return false;
             }
-
-            filterKeys = _.keys(filters);
-            $log.debug("filters", filters);
-        },
-        /**
-         * used mostly for resultStatus doing group toggles
-         *
-         * @param field
-         * @param values - an array of values for the field
-         * @param add - true if adding, false if removing
-         */
-        toggleFilters: function(field, values, add) {
-            $log.debug("toggling: ", add);
-            var action = add? api.addFilter: api.removeFilter;
-            for (var i = 0; i < values.length; i++) {
-                action(field, values[i]);
-            }
-        },
-        copyResultStatusFilters: function() {
-            return filters[api.resultStatus].values.slice();
-        },
-        /**
-         * Whether or not this job should be shown based on the current
-         * filters.
-         *
-         * @param job - the job we are checking against the filter
-         * @param resultStatusList - optional.  custom list of resultstatuses
-         *        that can be used for individual resultsets
-         */
-        showJob: function(job, resultStatusList) {
-            for(var i = 0; i < filterKeys.length; i++) {
-                if (!checkFilter(filterKeys[i], job, resultStatusList)) {
+        }
+        if($rootScope.active_exclusion_profile){
+            try{
+                if($rootScope.active_exclusion_profile.flat_exclusion[$rootScope.repoName]
+                    [job.platform][job.job_type_name].indexOf(job.platform_option) !== -1){
                     return false;
                 }
+            }catch (e){
+                //do nothing
             }
-            if(typeof $rootScope.searchQuery === 'string'){
-                //Confirm job matches search query
-                if(job.searchableStr.toLowerCase().indexOf(
-                    $rootScope.searchQuery.toLowerCase()
-                    ) === -1){
-                    return false;
-                }
+        }
+
+        return true;
+    };
+
+    var getFilters =  function() {
+        return filters;
+    };
+
+    /**
+     * Pin all jobs that pass the GLOBAL filters.  Ignores toggling at
+     * the result set level.
+     */
+    var pinAllShownJobs = function() {
+        var jobs = ThResultSetModel.getJobMap($rootScope.repoName);
+        var jobsToPin = [];
+
+        var queuePinIfShown = function(jMap) {
+            if (api.showJob(jMap.job_obj)) {
+                jobsToPin.push(jMap.job_obj);
             }
-            if($rootScope.active_exclusion_profile){
-                try{
-                    if($rootScope.active_exclusion_profile.flat_exclusion[$rootScope.repoName]
-                        [job.platform][job.job_type_name].indexOf(job.platform_option) !== -1){
-                        return false;
-                    }
-                }catch (e){
-                    //do nothing
-                }
-            }
+        };
+        _.forEach(jobs, queuePinIfShown);
 
-            return true;
-        },
-        getFilters: function() {
-            return filters;
-        },
-        /**
-         * Pin all jobs that pass the GLOBAL filters.  Ignores toggling at
-         * the result set level.
-         */
-        pinAllShownJobs: function() {
-            var jobs = ThResultSetModel.getJobMap($rootScope.repoName);
-            var jobsToPin = [];
+        if (_.size(jobsToPin) > thPinboard.spaceRemaining()) {
+            jobsToPin = jobsToPin.splice(0, thPinboard.spaceRemaining());
+            thNotify.send("Pinboard max size exceeded.  Pinning only the first " + thPinboard.spaceRemaining(),
+                          "danger",
+                          true);
+        }
 
-            var queuePinIfShown = function(jMap) {
-                if (api.showJob(jMap.job_obj)) {
-                    jobsToPin.push(jMap.job_obj);
-                }
-            };
-            _.forEach(jobs, queuePinIfShown);
+        $rootScope.selectedJob = jobsToPin[0];
+        _.forEach(jobsToPin, thPinboard.pinJob);
+    };
 
-            if (_.size(jobsToPin) > thPinboard.spaceRemaining()) {
-                jobsToPin = jobsToPin.splice(0, thPinboard.spaceRemaining());
-                thNotify.send("Pinboard max size exceeded.  Pinning only the first " + thPinboard.spaceRemaining(),
-                              "danger",
-                              true);
-            }
+    $rootScope.$on(thEvents.showUnclassifiedFailures, function() {
+        showUnclassifiedFailures();
+        $rootScope.$broadcast(thEvents.globalFilterChanged);
+    });
 
-            $rootScope.selectedJob = jobsToPin[0];
-            _.forEach(jobsToPin, thPinboard.pinJob);
-        },
+    var showUnclassifiedFailures = function() {
+        filters.resultStatus.values = ["busted", "testfailed", "exception"];
+        filters.failure_classification_id.values = [false];
+    };
+
+    var isUnclassifiedFailures = function() {
+        return (_.isEqual(filters.resultStatus.values, ["busted", "testfailed", "exception"]) &&
+                _.isEqual(filters.failure_classification_id.values, [false]));
+    };
+
+    var resetNonFieldFilters = function() {
+        filters.resultStatus.values = thResultStatusList.slice();
+        filters.failure_classification_id.values = [true, false];
+    };
+
+    var api = {
+        addFilter: addFilter,
+        removeFilter: removeFilter,
+        toggleFilters: toggleFilters,
+        copyResultStatusFilters: copyResultStatusFilters,
+        showJob: showJob,
+        getFilters: getFilters,
+        pinAllShownJobs: pinAllShownJobs,
+        showUnclassifiedFailures: showUnclassifiedFailures,
+        isUnclassifiedFailures: isUnclassifiedFailures,
+        resetNonFieldFilters: resetNonFieldFilters,
 
         // CONSTANTS
         failure_classification_id: "failure_classification_id",

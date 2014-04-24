@@ -4,14 +4,14 @@
             ng-click="changeRepo(name)"
             type="button"
             title="{{titleText|stripHtml}}"
-            class="btn btn-sm btn-view-nav">
+            class="watched-repo-main-btn btn btn-sm btn-view-nav">
         <i class="fa {{statusIcon}} {{statusColor}}"></i> {{name}}
-        <span class="badge"
+        <span class="important"
             ng-show="repoData.unclassifiedFailureCount > 0">
-        {{repoData.unclassifiedFailureCount}}
+            <strong>| {{repoData.unclassifiedFailureCount}}</strong>
         </span>
     </button>
-    <button class="btn btn-sm btn-view-nav dropdown-toggle"
+    <button class="watched-repo-info-btn btn btn-sm btn-view-nav dropdown-toggle"
             ng-class="{'active': name===repoName}"
             data-toggle="dropdown"
             title="{{name}} info"
@@ -19,7 +19,7 @@
             ng-click="setDropDownPull($event)">
         <span class="fa fa-info-circle"></span>
     </button>
-    <button class="btn btn-sm btn-view-nav"
+    <button class="watched-repo-unwatch-btn btn btn-sm btn-view-nav"
             ng-class="{'active': name===repoName}"
             ng-click="unwatchRepo(name)"
             title="unwatch {{name}}"><span class="fa fa-times"></span></button>

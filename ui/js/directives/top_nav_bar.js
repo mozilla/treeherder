@@ -37,14 +37,17 @@ treeherder.directive('thWatchedRepo', function (ThLog, ThRepositoryModel) {
         restrict: "E",
         link: function(scope, element, attrs) {
 
-            scope.$watch('repoData.treeStatus', function(newVal) {
+            scope.$watch('repoData', function(newVal) {
                 if (newVal) {
-                    $log.debug("updated treeStatus", newVal.status);
-                    scope.statusIcon = statusInfo[newVal.status].icon;
-                    scope.statusColor = statusInfo[newVal.status].color;
-                    scope.titleText = newVal.status;
-                    if (newVal.message_of_the_day) {
-                        scope.titleText = scope.titleText + ' - ' + newVal.message_of_the_day;
+                    $log.debug("updated treeStatus", newVal.treeStatus.status);
+                    scope.statusIcon = statusInfo[newVal.treeStatus.status].icon;
+                    scope.statusColor = statusInfo[newVal.treeStatus.status].color;
+                    scope.titleText = newVal.treeStatus.status;
+                    if (newVal.unclassifiedFailureCount > 0) {
+                        scope.titleText = scope.titleText + ' - ' + newVal.unclassifiedFailureCount + " unclassified failures";
+                    }
+                    if (newVal.treeStatus.message_of_the_day) {
+                        scope.titleText = scope.titleText + ' - ' + newVal.treeStatus.message_of_the_day;
                     }
                 }
             }, true);

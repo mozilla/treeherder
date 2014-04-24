@@ -52,30 +52,6 @@ treeherder.controller('FilterPanelCtrl',
             }
         };
 
-        $rootScope.$on(thEvents.showUnclassifiedFailures, function() {
-            $scope.showUnclassifiedFailures();
-        });
-
-        /**
-         * Handle clicking the ``unclassified failures`` button.
-         */
-        $scope.showUnclassifiedFailures = function() {
-            $scope.filterGroups.failures.allChecked = true;
-            $scope.filterGroups.nonfailures.allChecked = false;
-            $scope.filterGroups.inProgress.allChecked = false;
-            $scope.classifiedFilter = false;
-            $scope.unClassifiedFilter = true;
-
-            $scope.toggleResultStatusGroup($scope.filterGroups.failures, true);
-            $scope.toggleResultStatusGroup($scope.filterGroups.nonfailures, true);
-            $scope.toggleResultStatusGroup($scope.filterGroups.inProgress, true);
-
-            $scope.setClassificationFilter(true, $scope.classifiedFilter, true);
-            $scope.setClassificationFilter(false, $scope.unClassifiedFilter, true);
-
-            $rootScope.$broadcast(thEvents.globalFilterChanged);
-        };
-
         /**
          * Handle toggling one of the individual result status filters in
          * the filter panel.

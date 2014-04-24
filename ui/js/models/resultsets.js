@@ -650,7 +650,7 @@ treeherder.factory('ThResultSetModel',
             error(function(data) {
                 thNotify.send("Error retrieving job data!", "danger", true);
                 $log.error(data);
-                appendResultSets(repoName, []);
+                appendResultSets(repoName, {results: []});
             });
     };
 

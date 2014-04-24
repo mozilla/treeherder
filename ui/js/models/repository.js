@@ -83,6 +83,7 @@ treeherder.factory('ThRepositoryModel',
                 thSocket.emit('subscribe', repoName);
             });
 
+            $log.debug("addAsWatched", repos[repoName]);
             //Set up the socket listener
             thSocket.on(
                 "unclassified_failure_count",
