@@ -156,7 +156,7 @@ treeherder.factory('ThResultSetModel',
         for (var rs_i = 0; rs_i < data.length; rs_i++) {
             var rs_obj = data[rs_i];
             // make a watch-able revisions array
-            rs_obj.revisions = [];
+            rs_obj.revisions = rs_obj.revisions || [];
 
             var rsMapElement = {
                 rs_obj: rs_obj,
@@ -540,7 +540,7 @@ treeherder.factory('ThResultSetModel',
 
         if(data.results.length > 0){
 
-
+            $log.debug("appendResultSets", data.results);
             Array.prototype.push.apply(
                 repositories[repoName].resultSets, data.results
                 );
@@ -562,16 +562,20 @@ treeherder.factory('ThResultSetModel',
      * already has revisions loaded, then this is a no-op.
      */
     var loadRevisions = function(repoName, resultsetId){
+        $log.debug("loadRevisions", repoName, resultsetId);
         var rs = repositories[repoName].rsMap[resultsetId].rs_obj;
         if (rs && rs.revisions.length === 0) {
+            $log.debug("loadRevisions: check out to load revisions", rs, repoName);
             // these revisions have never been loaded; do so now.
             return thResultSets.get(rs.revisions_uri).
                 success(function(data) {
 
-                    Array.prototype.push.apply(rs.revisions, data);
-                    $rootScope.$broadcast(thEvents.revisionsLoaded, rs);
+                    if (rs.revisions.length === 0) {
+                        Array.prototype.push.apply(rs.revisions, data);
+                        $rootScope.$broadcast(thEvents.revisionsLoaded, rs);
+                    }
 
-                    });
+                });
         }
     };
 
@@ -581,7 +585,7 @@ treeherder.factory('ThResultSetModel',
      */
     var isInResultSetRange = function(repoName, push_timestamp) {
         var result = true;
-        if (repositories[repoName]) {
+        if (repositories[repoName] && repositories[repoName].length) {
             var meta = repositories[repoName].meta;
             if (_.has(meta, "push_timestamp__gte") &&
                 push_timestamp < meta.push_timestamp__gte) {

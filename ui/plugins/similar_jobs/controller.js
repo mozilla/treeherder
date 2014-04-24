@@ -19,7 +19,7 @@ treeherder.controller('SimilarJobsPluginCtrl',
                     }
                 });
                 $log.log(options);
-                ThJobModel.get_list(options).then(function(data){
+                ThJobModel.get_list($scope.repoName, options).then(function(data){
                     $log.log(data);
                     $scope.similar_jobs = data;
                 });
@@ -63,7 +63,7 @@ treeherder.controller('SimilarJobsPluginCtrl',
         $scope.similar_job_selected = null;
 
         $scope.show_job_info = function(job){
-            ThJobModel.get(job.id)
+            ThJobModel.get($scope.repoName, job.id)
             .then(function(job){
                 $scope.similar_job_selected = job;
                 $scope.similar_job_selected.result_status = thResultStatus($scope.similar_job_selected);

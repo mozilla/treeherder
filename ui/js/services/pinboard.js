@@ -39,7 +39,6 @@ treeherder.factory('thPinboard',
             }).error(function(data) {
                 thNotify.send("error saving bug association for " + job.platform + ": " + job.job_type_name, "danger");
             });
-            api.removeBug(bug.id);
         });
     };
 

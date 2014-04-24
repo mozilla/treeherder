@@ -272,7 +272,7 @@ treeherder.directive('thCloneJobs', function(
 
                 case 2:
                     //Middle mouse button pressed
-                    ThJobModel.get(job.id).then(function(data){
+                    ThJobModel.get(this.repoName, job.id).then(function(data){
                         //Retrieve the job reference data and open a new
                         //window on the job's log file
                         if(data.logs.length > 0){
@@ -295,6 +295,7 @@ treeherder.directive('thCloneJobs', function(
     };
 
     var addRevisions = function(resultset, element){
+        $log.debug("addRevisions", resultset, element);
 
         if(resultset.revisions.length > 0){
 
@@ -976,6 +977,8 @@ treeherder.directive('thCloneJobs', function(
         }
 
         element.append(targetEl);
+
+        addRevisions(scope.resultset, element);
     };
 
     return {

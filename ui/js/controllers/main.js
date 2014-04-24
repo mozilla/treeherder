@@ -96,22 +96,22 @@ treeherder.controller('MainCtrl',
 
         };
 
-        $scope.allJobsExpanded = true;
+        $scope.allExpanded = function(cls) {
+            var fullList = $("." + cls);
+            var visibleList = $("." + cls + ":visible");
+            return fullList.length === visibleList.length;
+        };
 
         $scope.toggleAllJobs = function() {
-            $scope.allJobsExpanded = !$scope.allJobsExpanded;
             $rootScope.$broadcast(
-                thEvents.toggleAllJobs, $scope.allJobsExpanded
+                thEvents.toggleAllJobs, !$scope.allExpanded("job-list")
             );
 
         };
 
-        $scope.allRevisionsExpanded = false;
-
         $scope.toggleAllRevisions = function() {
-            $scope.allRevisionsExpanded = !$scope.allRevisionsExpanded;
             $rootScope.$broadcast(
-                thEvents.toggleAllRevisions, $scope.allRevisionsExpanded
+                thEvents.toggleAllRevisions, !$scope.allExpanded("revision-list")
             );
 
         };
@@ -124,9 +124,16 @@ treeherder.controller('MainCtrl',
         $rootScope.urlBasePath = $location.absUrl().split('?')[0];
 
         $scope.isRepoPanelShowing = false;
+
+        $scope.toggleRepoPanel = function() {
+            $scope.isRepoPanelShowing=!$scope.isRepoPanelShowing;
+        };
+
         $scope.changeRepo = function(repo_name) {
             // hide the repo panel if they chose to load one.
             $scope.isRepoPanelShowing = false;
+            $rootScope.selectedJob = null;
+            thPinboard.unPinAll();
 
             ThRepositoryModel.setCurrent(repo_name);
             $location.search({repo: repo_name});
