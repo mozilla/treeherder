@@ -23,7 +23,7 @@ treeherder.factory('thClassificationTypes', [
     };
 
     var load = function() {
-        return $http.get(thUrl.getRootUrl("/failureclassification/")).
+        return $http.get(thUrl.getRootUrl("/failureclassification/"), {cache: true}).
             success(function(data) {
                 _.forEach(data, addClassification);
             });
