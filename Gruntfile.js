@@ -4,7 +4,7 @@ module.exports = function(grunt) {
 
         pkg: grunt.file.readJSON('package.json'),
 
-        clean: ['dist'],
+        clean: ['dist/'],
 
         useminPrepare:{
             index: {
@@ -84,6 +84,7 @@ module.exports = function(grunt) {
         }
     });
 
+    grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-cssmin');
@@ -92,7 +93,7 @@ module.exports = function(grunt) {
 
     // Default tasks
     grunt.registerTask('build', [
-
+        'clean',
         'copy:main',
         'copy:img',
         'copy:partials',
