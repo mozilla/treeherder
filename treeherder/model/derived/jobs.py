@@ -37,6 +37,11 @@ class JobsModel(TreeherderModelBase):
         "retry",
         "success",
     ]
+    FAILED_RESULTS = [
+        "busted",
+        "exception",
+        "testfailed",
+    ]
     INCOMPLETE_STATES = ["running", "pending"]
     STATES = INCOMPLETE_STATES + ["completed", "coalesced"]
 
@@ -182,6 +187,23 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG,
         )
         return data
+
+
+    def get_unclassified_failure_count(self):
+        """
+        Get the count of unclassified failed jobs
+        """
+
+        repl = "'" + "','".join(self.FAILED_RESULTS) + "'"
+
+        proc = "jobs.selects.get_unclassified_failure_count"
+        data = self.get_jobs_dhub().execute(
+            proc=proc,
+            replace=[repl],
+            debug_show=self.DEBUG,
+        )
+        return data[0]
+
 
     def _process_conditions(self, conditions, allowed_fields=None):
         """Transform a list of conditions into a list of placeholders and

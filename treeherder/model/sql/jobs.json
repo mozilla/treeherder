@@ -251,6 +251,14 @@
             "host":"master_host"
         },
 
+        "get_unclassified_failure_count":{
+            "sql":"SELECT count(id) as unclassified_failure_count FROM job
+                   WHERE failure_classification_id=1
+                   AND result IN (REP0)",
+            "host":"read_host"
+        },
+
+
         "get_job":{
             "sql":"SELECT
                     j.id,

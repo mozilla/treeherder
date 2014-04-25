@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
-from rest_framework.decorators import action
+from rest_framework.decorators import action, link
 from rest_framework.reverse import reverse
 from treeherder.webapp.api.utils import (UrlQueryFilter, with_jobs,
                                          oauth_required, get_option)
@@ -11,6 +11,16 @@ class JobsViewSet(viewsets.ViewSet):
     This viewset is responsible for the jobs endpoint.
 
     """
+
+    @link()
+    @with_jobs
+    def unclassified_failure_count(self, request, project, jm, pk=None):
+        """
+        GET method for revisions of a resultset
+        """
+        objs = jm.get_unclassified_failure_count()
+        objs['repository'] = project
+        return Response(objs)
 
     @with_jobs
     def retrieve(self, request, project, jm, pk=None):

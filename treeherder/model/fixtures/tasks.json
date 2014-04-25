@@ -162,5 +162,26 @@
             "date_changed": "2013-11-28T16:22:39",
             "description": "Deletes data from the objectstore and jobs databases that's greater than six months old"
         }
+    },
+    {
+        "pk": 9,
+        "model": "djcelery.periodictask",
+        "fields": {
+            "task": "unclassified-failure-count",
+            "name": "unclassified-failure-count",
+            "exchange": null,
+            "last_run_at": null,
+            "args": "[]",
+            "enabled": true,
+            "routing_key": null,
+            "crontab": null,
+            "interval": 2,
+            "queue": null,
+            "total_run_count": 0,
+            "expires": null,
+            "kwargs": "{}",
+            "date_changed": "2014-04-24T16:22:39",
+            "description": "Broadcasts the count of unclassified job failures per repository"
+        }
     }
 ]
