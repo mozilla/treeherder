@@ -15,6 +15,10 @@ Vagrant::Config.run do |config|
   config.vm.provision :puppet do |puppet|
     puppet.manifests_path = "puppet/manifests"
     puppet.manifest_file = "vagrant.pp"
+
+    #uncomment in production to serve treeherder-ui from dist directory
+    #puppet.manifest_file = "production.pp"
+
     # enable this to see verbose and debug puppet output
     #puppet.options = "--verbose --debug"
   end
@@ -22,5 +26,5 @@ Vagrant::Config.run do |config|
   # Try to use NFS only on platforms other than Windows
   nfs = !Kernel.is_windows?
   config.vm.share_folder("treeherder", "/home/vagrant/treeherder-service", "./", :nfs => nfs)
-  #config.vm.share_folder("treeherder-ui", "/home/vagrant/treeherder-ui", "../treeherder-ui/", :nfs => nfs)
+  config.vm.share_folder("treeherder-ui", "/home/vagrant/treeherder-ui", "../treeherder-ui/", :nfs => nfs)
 end
