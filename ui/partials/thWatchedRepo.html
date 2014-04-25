@@ -6,9 +6,9 @@
             title="{{titleText|stripHtml}}"
             class="watched-repo-main-btn btn btn-sm btn-view-nav">
         <i class="fa {{statusIcon}} {{statusColor}}"></i> {{name}}
-        <span class="important"
-            ng-show="repoData.unclassifiedFailureCount > 0">
-            <strong>| {{repoData.unclassifiedFailureCount}}</strong>
+        <span class="watched-repo-spacer"></span>
+        <span ng-show="repoData.unclassifiedFailureCount > 0">
+            <strong>{{repoData.unclassifiedFailureCount}}</strong>
         </span>
     </button>
     <button class="watched-repo-info-btn btn btn-sm btn-view-nav dropdown-toggle"

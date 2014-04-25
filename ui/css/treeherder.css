@@ -47,6 +47,11 @@ body {
 
 .watched-repo-main-btn {
     border-right: 0;
+    padding-right: 5px;
+}
+
+.watched-repo-spacer {
+    padding-right: 7px;
 }
 
 .watched-repo-info-btn {
@@ -633,7 +638,7 @@ fieldset[disabled] .btn-view-nav.active {
 
 .btn-unclassified-failures {
   background-color: rgba(78, 93, 21, 0.56);
-  border-color: #cdce1d;
+  border-color: #9fa01d;
   color: lightgray;
 }
 .btn-unclassified-failures:hover,
