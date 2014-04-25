@@ -49,7 +49,7 @@ treeherder.controller('SimilarJobsPluginCtrl', [
                                     angular.forEach(data, function(obj){
                                         obj.result_set = resultsets[obj.result_set_id];
                                         obj.revisionResultsetFilterUrl = $scope.urlBasePath + "?repo=" +
-                                            $scope.repoName + "&revision=" + obj.result_set.revision_list[0].revision;
+                                            $scope.repoName + "&revision=" + obj.result_set.revisions[0].revision;
                                         obj.authorResultsetFilterUrl = $scope.urlBasePath + "?repo=" +
                                             $scope.repoName + "&author=" + encodeURIComponent(obj.result_set.author);
                                     });

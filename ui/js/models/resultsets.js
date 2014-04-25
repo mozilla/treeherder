@@ -70,12 +70,6 @@ treeherder.factory('ThResultSetModel', [
                 search: locationSearch
             };
 
-            // Add a connect listener
-            thSocket.on('connect',function() {
-                // subscribe to all the events for this repo
-                thSocket.emit('subscribe', repoName);
-                });
-
             //Set up job update queue
             setInterval(
                 _.bind(processUpdateQueues, $rootScope, repoName),
@@ -658,7 +652,7 @@ treeherder.factory('ThResultSetModel', [
             error(function(data) {
                 thNotify.send("Error retrieving job data!", "danger", true);
                 $log.error(data);
-                appendResultSets(repoName, []);
+                appendResultSets(repoName, {results: []});
             });
     };
 

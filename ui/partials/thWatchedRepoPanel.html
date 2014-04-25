@@ -3,8 +3,10 @@
     <span class="navbar-right">
         <span>
             <form role="search" class="form-inline">
-                <span class="label label-primary"><span ng-bind="pinboardCount.numPinnedJobs"></span> pinned jobs</span>
-                <span class="label label-primary">0 unclassified</span>
+                <span class="btn btn-sm"
+                      ng-click="toggleUnclassifiedFailures()"
+                      title="toggle filtering for unclassified failures"
+                      ng-class="{'btn-unclassified-failures': watchedRepos[repoName].unclassifiedFailureCount, 'btn-view-nav': watchedRepos[repoName].unclassifiedFailureCount===0}"><span ng-bind="watchedRepos[repoName].unclassifiedFailureCount"></span> unclassified</span>
                 <span class="btn btn-view-nav btn-sm"
                       title="collapse/expand all revisions"
                       ng-click="toggleAllRevisions()"><i class="fa fa-code-fork fa-lg"></i></span>

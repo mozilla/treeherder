@@ -32,6 +32,8 @@ treeherder.controller('FilterPanelCtrl', [
             }
         };
 
+        $scope.resultStatusFilters = {};
+
         /**
          * Handle checking the "all" button for a result status group
          *
@@ -55,30 +57,6 @@ treeherder.controller('FilterPanelCtrl', [
             }
         };
 
-        $rootScope.$on(thEvents.showUnclassifiedFailures, function() {
-            $scope.showUnclassifiedFailures();
-        });
-
-        /**
-         * Handle clicking the ``unclassified failures`` button.
-         */
-        $scope.showUnclassifiedFailures = function() {
-            $scope.filterGroups.failures.allChecked = true;
-            $scope.filterGroups.nonfailures.allChecked = false;
-            $scope.filterGroups.inProgress.allChecked = false;
-            $scope.classifiedFilter = false;
-            $scope.unClassifiedFilter = true;
-
-            $scope.toggleResultStatusGroup($scope.filterGroups.failures, true);
-            $scope.toggleResultStatusGroup($scope.filterGroups.nonfailures, true);
-            $scope.toggleResultStatusGroup($scope.filterGroups.inProgress, true);
-
-            $scope.setClassificationFilter(true, $scope.classifiedFilter, true);
-            $scope.setClassificationFilter(false, $scope.unClassifiedFilter, true);
-
-            $rootScope.$broadcast(thEvents.globalFilterChanged);
-        };
-
         /**
          * Handle toggling one of the individual result status filters in
          * the filter panel.
@@ -88,7 +66,6 @@ treeherder.controller('FilterPanelCtrl', [
          */
         $scope.toggleResultStatusFilter = function(group, filter) {
             if (!$scope.resultStatusFilters[filter]) {
-                group.allChecked = false;
                 thJobFilters.removeFilter(thJobFilters.resultStatus, filter);
             } else {
                 thJobFilters.addFilter(thJobFilters.resultStatus, filter);
@@ -180,16 +157,30 @@ treeherder.controller('FilterPanelCtrl', [
             thJobFilters.pinAllShownJobs();
         };
 
-        $scope.resultStatusFilters = {};
-        for (var i = 0; i < $scope.filterOptions.length; i++) {
-            $scope.resultStatusFilters[$scope.filterOptions[i]] = true;
-        }
-        // whether or not to show classified jobs
-        // these are a special case of filtering because we're not checking
-        // for a value, just whether the job has any value set or not.
-        // just a boolean check either way
-        $scope.classifiedFilter = true;
-        $scope.unClassifiedFilter = true;
+        var updateToggleFilters = function() {
+            for (var i = 0; i < $scope.filterOptions.length; i++) {
+                var opt = $scope.filterOptions[i];
+                $scope.resultStatusFilters[opt] = _.contains(thJobFilters.filters.resultStatus.values, opt);
+            }
+
+            // whether or not to show classified jobs
+            // these are a special case of filtering because we're not checking
+            // for a value, just whether the job has any value set or not.
+            // just a boolean check either way
+            $scope.classifiedFilter = _.contains(thJobFilters.filters.failure_classification_id.values, true);
+            $scope.unClassifiedFilter = _.contains(thJobFilters.filters.failure_classification_id.values, false);
+
+            // update "all checked" boxes for groups
+            _.each($scope.filterGroups, function(group) {
+                group.allChecked = _.difference(group.resultStatuses, thJobFilters.filters.resultStatus.values).length === 0;
+            });
+        };
+
+        updateToggleFilters();
+
+        $scope.$on(thEvents.globalFilterChanged, function() {
+            updateToggleFilters();
+        });
 
         // field filters
         $scope.newFieldFilter = null;

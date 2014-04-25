@@ -45,6 +45,24 @@ body {
     min-width: 970px;
 }
 
+.watched-repo-main-btn {
+    border-right: 0;
+    padding-right: 5px;
+}
+
+.watched-repo-spacer {
+    padding-right: 7px;
+}
+
+.watched-repo-info-btn {
+    width: 10px;
+    border-right: 0
+}
+
+.watched-repo-unwatch-btn {
+    width: 20px;
+}
+
 .watched-repo-dropdown-item {
     margin: 0px 10px;
 }
@@ -55,6 +73,7 @@ body {
 .watched-repo-navbar {
     overflow: visible;
 }
+
 .th-username {
     margin-right: 5px;
 }
@@ -617,6 +636,38 @@ fieldset[disabled] .btn-view-nav.active {
   color: #e0e0e0;
   border-color: #e0e0e0;
 }
+
+.btn-unclassified-failures {
+  background-color: rgba(78, 93, 21, 0.56);
+  border-color: #9fa01d;
+  color: lightgray;
+}
+.btn-unclassified-failures:hover,
+.btn-unclassified-failures:focus,
+.btn-unclassified-failures:active,
+.btn-unclassified-failures.active {
+  background-color: #25292b;
+  border-color: #cdce1d;
+  color: white;
+}
+.btn-unclassified-failures.disabled:hover,
+.btn-unclassified-failures.disabled:focus,
+.btn-unclassified-failures.disabled:active,
+.btn-unclassified-failures.disabled.active,
+.btn-unclassified-failures[disabled]:hover,
+.btn-unclassified-failures[disabled]:focus,
+.btn-unclassified-failures[disabled]:active,
+.btn-unclassified-failures[disabled].active,
+fieldset[disabled] .btn-unclassified-failures:hover,
+fieldset[disabled] .btn-unclassified-failures:focus,
+fieldset[disabled] .btn-unclassified-failures:active,
+fieldset[disabled] .btn-unclassified-failures.active {
+  color: #e0e0e0;
+  border-color: #e0e0e0;
+}
+
+
+
 
 .btn-orange {
   background-color: rgba(221, 102, 2, 0.56);

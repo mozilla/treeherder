@@ -4,11 +4,12 @@ treeherder.controller('MainCtrl', [
     '$scope', '$rootScope', '$routeParams', '$location', 'ThLog',
     'localStorageService', 'ThRepositoryModel', 'thPinboard',
     'thClassificationTypes', 'thEvents', '$interval',
-    'ThExclusionProfileModel',
+    'ThExclusionProfileModel', 'thJobFilters',
     function MainController(
         $scope, $rootScope, $routeParams, $location, ThLog,
         localStorageService, ThRepositoryModel, thPinboard,
-        thClassificationTypes, thEvents, $interval, ThExclusionProfileModel) {
+        thClassificationTypes, thEvents, $interval,
+        ThExclusionProfileModel, thJobFilters) {
 
         var $log = new ThLog("MainCtrl");
 
@@ -46,7 +47,7 @@ treeherder.controller('MainCtrl', [
 
             }else if(ev.keyCode === 85){
                 //display only unclassified failures, keys:u
-                $rootScope.$broadcast(thEvents.showUnclassifiedFailures);
+                $scope.toggleUnclassifiedFailures();
             }
         };
 
@@ -98,6 +99,17 @@ treeherder.controller('MainCtrl', [
             } else {
                 $(element).find(".dropdown-menu").removeClass("pull-right");
             }
+
+        };
+
+        $scope.toggleUnclassifiedFailures = function() {
+            $log.debug("toggleUnclassifiedFailures");
+            if (thJobFilters.isUnclassifiedFailures()) {
+                thJobFilters.resetNonFieldFilters();
+            } else {
+                thJobFilters.showUnclassifiedFailures();
+            }
+            $rootScope.$broadcast(thEvents.globalFilterChanged);
 
         };
 

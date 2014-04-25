@@ -12,14 +12,6 @@ treeherder.factory('ThRepositoryModel', [
     var new_failures = {};
     var repos = {};
 
-    thSocket.on('job_failure', function(msg){
-        if (! new_failures.hasOwnProperty(msg.branch)){
-            new_failures[msg.branch] = [];
-        }
-        new_failures[msg.branch].push(msg.id);
-        $log.debug("new failure on branch ", msg.branch);
-    });
-
     // get the repositories (aka trees)
     // sample: 'resources/menu.json'
     var getByName = function(name) {
@@ -74,6 +66,37 @@ treeherder.factory('ThRepositoryModel', [
                 unclassifiedFailureCount: 0
             };
             updateTreeStatus(repoName);
+
+
+            // if it's not a branch in the try group, then fetch the
+            // current count of unclassified failures, rather than waiting
+            // for the socket event to be published.
+            if (getByName(repoName).repository_group.name !== "try") {
+                $http.get(thUrl.getProjectUrl("/jobs/0/unclassified_failure_count/", repoName)).then(function(response) {
+                    repos[repoName].unclassifiedFailureCount = response.data.unclassified_failure_count;
+                });
+            }
+
+            // Add a connect listener
+            thSocket.on('connect',function() {
+                // subscribe to all the events for this repo
+                thSocket.emit('subscribe', repoName);
+            });
+
+            // setup to listen for the socket events that notify us of the
+            // current count of unclassified failures.
+            thSocket.on(
+                "unclassified_failure_count",
+                function(data) {
+                    if (data.branch === repoName &&
+                        getByName(repoName).repository_group.name !== "try") {
+
+                        $log.debug("event unclassified_failure_count", data);
+                        repos[repoName].unclassifiedFailureCount = data.count;
+                    }
+                }
+            );
+
             $log.debug("watchedRepo", repoName, repos[repoName]);
         }
     };
