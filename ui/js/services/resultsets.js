@@ -12,7 +12,7 @@ treeherder.factory('thResultSets', [
             rsOffsetId = typeof rsOffsetId === 'undefined'?  0: rsOffsetId;
             count = typeof count === 'undefined'?  10: count;
             with_jobs = _.isUndefined(with_jobs) ? true: with_jobs;
-            full = _.isUndefined(full) ? false: full;
+            full = _.isUndefined(full) ? true: full;
 
             var params = {
                 full: full,
