@@ -64,7 +64,8 @@ module.exports = function(grunt) {
                 flatten: true
                 },
             // Copy html in plugins, make sure not to flatten
-            //    src: 'webapp/app/plugins/**/*.html',
+            // to retain the directory structure for the html
+            // and make paths relative with cwd definition.
             plugins:{
                 expand: true,
                 cwd: 'webapp/app/plugins/',
