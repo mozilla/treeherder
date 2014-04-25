@@ -21,10 +21,12 @@
  * Each field is AND'ed so that, if a field exists in ``filters`` then the job
  * must match at least one value in every field.
  */
-treeherder.factory('thJobFilters',
-                   function(thResultStatusList, ThLog, $rootScope,
-                            ThResultSetModel, thPinboard, thNotify,
-                            thEvents) {
+treeherder.factory('thJobFilters', [
+    'thResultStatusList', 'ThLog', '$rootScope', 'ThResultSetModel',
+    'thPinboard', 'thNotify', 'thEvents',
+    function(
+        thResultStatusList, ThLog, $rootScope,
+        ThResultSetModel, thPinboard, thNotify, thEvents) {
 
     var $log = new ThLog("thJobFilters");
 
@@ -327,4 +329,4 @@ treeherder.factory('thJobFilters',
 
     return api;
 
-});
+}]);

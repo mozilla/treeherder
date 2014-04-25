@@ -416,6 +416,7 @@ div.navbar-fixed-bottom dt {
 #bottom-center-panel {
     margin-right: 98px;
     margin-left: 242px;
+    position: relative;
 }
 #bottom-menu {position: absolute; right:0; width: 104px}
 
@@ -1137,7 +1138,21 @@ fieldset[disabled] .btn-repo.active {
 .deleted{ text-decoration: line-through;}
 
 .plugin_controls{ margin: 5px;}
-.btn-similar-jobs{ margin: 5px;}
+
+div.similar_jobs .right_panel{position:absolute; top:32px; right:4px; width:300px; border: 1px solid #101010;}
+div.similar_jobs .right_panel form{height:30px; background-color: #D3D3D3;}
+div.similar_jobs .right_panel .similar_job_detail{width:300px; border-top: 1px solid #101010; }
+div.similar_jobs .right_panel .similar_job_detail table{ width: inherit;}
+div.similar_jobs .right_panel .similar_job_detail ul.error_list li{
+    width: 296px;
+    overflow-x: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+div.similar_jobs .left_panel{padding-right:300px;}
+div.similar_jobs .left_panel table tr.active>td{background-color: #FFEE99;}
+div.similar_jobs .left_panel table tr{cursor: pointer;}
+
 
 #notification_box{
     position:fixed;

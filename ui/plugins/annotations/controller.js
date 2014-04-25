@@ -1,8 +1,12 @@
 "use strict";
 
-treeherder.controller('AnnotationsPluginCtrl',
-    function AnnotationsPluginCtrl($scope, $rootScope, ThLog, ThJobClassificationModel,
-                                   thNotify, thEvents, ThResultSetModel, ThBugJobMapModel) {
+treeherder.controller('AnnotationsPluginCtrl', [
+    '$scope', '$rootScope', 'ThLog', 'ThJobClassificationModel', 'thNotify',
+    'thEvents', 'ThResultSetModel', 'ThBugJobMapModel',
+    function AnnotationsPluginCtrl(
+        $scope, $rootScope, ThLog, ThJobClassificationModel,
+        thNotify, thEvents, ThResultSetModel, ThBugJobMapModel) {
+
         var $log = new ThLog(this.constructor.name);
 
         $log.debug("annotations plugin initialized");
@@ -50,4 +54,4 @@ treeherder.controller('AnnotationsPluginCtrl',
                 );
         };
     }
-);
+]);

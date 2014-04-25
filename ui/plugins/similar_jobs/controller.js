@@ -1,35 +1,79 @@
 "use strict";
 
-treeherder.controller('SimilarJobsPluginCtrl',
-    function SimilarJobsPluginCtrl($scope, ThLog, $rootScope, ThJobModel, thResultStatusInfo, thEvents,
-                                   numberFilter, dateFilter, thClassificationTypes, thResultStatus,
-                                   ThJobArtifactModel) {
+treeherder.controller('SimilarJobsPluginCtrl', [
+    '$scope', 'ThLog', '$rootScope', 'ThJobModel', 'thResultStatusInfo',
+    'thEvents', 'numberFilter', 'dateFilter', 'thClassificationTypes',
+    'thResultStatus', 'ThJobArtifactModel', 'thResultSets', 'thNotify',
+    function SimilarJobsPluginCtrl(
+        $scope, ThLog, $rootScope, ThJobModel, thResultStatusInfo, thEvents,
+        numberFilter, dateFilter, thClassificationTypes, thResultStatus,
+        ThJobArtifactModel, thResultSets, thNotify) {
+
         var $log = new ThLog(this.constructor.name);
 
         $log.debug("similar jobs plugin initialized");
 
         // do the jobs retrieval based on the user selection
+        $scope.page_size = 20;
         $scope.get_similar_jobs = function(){
             var options = {
-                    count: $scope.similar_jobs_count
+                    count: $scope.page_size +1,
+                    offset: ($scope.page-1) * $scope.page_size,
+                    full: false
                 };
                 angular.forEach($scope.similar_jobs_filters, function(value, key){
                     if(value){
                         options[key] = $scope.job[key];
                     }
                 });
-                $log.log(options);
-                ThJobModel.get_list($scope.repoName, options).then(function(data){
-                    $log.log(data);
-                    $scope.similar_jobs = data;
-                });
+                ThJobModel.get_list($scope.repoName, options)
+                    .then(function(data){
+                        if(data.length > 0){
+                            if(data.length > $scope.page_size){
+                                $scope.has_next_page = true;
+                            }else{
+                                $scope.has_next_page = false;
+                            }
+                            data.pop();
+                            // retrieve the list of result_set_ids
+                            var result_set_ids = _.uniq(
+                                _.pluck(data, 'result_set_id')
+                            );
+
+                            // get resultsets and revisions for the given ids
+                            thResultSets.getResultSets(
+                                $scope.repoName, null, 100, result_set_ids, false, true
+                                ).then(function(response){
+                                    //decorate the list of jobs with their result sets
+                                    var resultsets = _.indexBy(response.data.results, "id");
+                                    angular.forEach(data, function(obj){
+                                        obj.result_set = resultsets[obj.result_set_id];
+                                        obj.revisionResultsetFilterUrl = $scope.urlBasePath + "?repo=" +
+                                            $scope.repoName + "&revision=" + obj.result_set.revision_list[0].revision;
+                                        obj.authorResultsetFilterUrl = $scope.urlBasePath + "?repo=" +
+                                            $scope.repoName + "&author=" + encodeURIComponent(obj.result_set.author);
+                                    });
+                                    $scope.similar_jobs = $scope.similar_jobs.concat(data);
+                                    // on the first page show the first element info by default
+                                    if($scope.page === 1){
+                                        $scope.show_job_info($scope.similar_jobs[0]);
+                                    }
+                                },
+                                function(){
+                                    thNotify.send("Error fetching result sets for similar jobs","danger");
+                                });
+                        }
+                    });
         };
 
-        // reset the counter and retrieve the list of jobs
+        // reset the page counter and retrieve the list of jobs
         $scope.update_similar_jobs = function(event) {
             if($scope.job){
-                $scope.similar_jobs_count = 20;
+                $scope.page = 1;
+                $scope.has_next_page = false;
+                $scope.similar_jobs = [];
                 $scope.similar_job_selected = null;
+
             }
             if($scope.job.id){
                 $scope.get_similar_jobs();
@@ -37,9 +81,10 @@ treeherder.controller('SimilarJobsPluginCtrl',
             }
         };
 
+        $scope.similar_jobs = [];
+
         $scope.result_status_info = thResultStatusInfo;
         $scope.$on(thEvents.jobDetailLoaded, $scope.update_similar_jobs);
-        $scope.similar_jobs = [];
         $scope.similar_jobs_filters = {
             "machine_id": false,
             "job_type_id": true,
@@ -55,8 +100,8 @@ treeherder.controller('SimilarJobsPluginCtrl',
         };
 
         // this is triggered by the show more link
-        $scope.show_more = function(){
-            $scope.similar_jobs_count += 20;
+        $scope.show_next = function(){
+            $scope.page += 1;
             $scope.get_similar_jobs();
         };
 
@@ -74,11 +119,11 @@ treeherder.controller('SimilarJobsPluginCtrl',
                     duration = numberFilter(duration, 0) + " minutes";
                 }
                 $scope.similar_job_selected.duration = duration;
-                $scope.similar_job_selected.start_time = dateFilter(
+                $scope.similar_job_selected.start_time = $scope.similar_job_selected.start_timestamp !== 0 ? dateFilter(
                     $scope.similar_job_selected.start_timestamp*1000,
                     'short'
-                );
-                $scope.similar_job_selected.failure_classification_name = thClassificationTypes[
+                ) : "";
+                $scope.similar_job_selected.failure_classification = thClassificationTypes.classifications[
                     $scope.similar_job_selected.failure_classification_id
                 ];
 
@@ -94,7 +139,6 @@ treeherder.controller('SimilarJobsPluginCtrl',
                     });
                 });
         };
-
-});
+}]);
 
 

@@ -1,7 +1,11 @@
 'use strict';
 
-logViewer.controller('LogviewerCtrl',
-    function Logviewer($anchorScroll, $scope, ThLog, $rootScope, $location, $http, $timeout, ThJobArtifactModel) {
+logViewer.controller('LogviewerCtrl', [
+    '$anchorScroll', '$scope', 'ThLog', '$rootScope', '$location', '$http',
+    '$timeout', 'ThJobArtifactModel',
+    function Logviewer(
+        $anchorScroll, $scope, ThLog, $rootScope, $location, $http,
+        $timeout, ThJobArtifactModel) {
 
         var $log = new ThLog("LogviewerCtrl");
 
@@ -101,4 +105,4 @@ logViewer.controller('LogviewerCtrl',
             });
         };
     }
-);
+]);

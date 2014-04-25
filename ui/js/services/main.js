@@ -1,7 +1,9 @@
 'use strict';
 
 /* Services */
-treeherder.factory('thUrl', function($rootScope, thServiceDomain, ThLog) {
+treeherder.factory('thUrl', [
+    '$rootScope', 'thServiceDomain', 'ThLog',
+    function($rootScope, thServiceDomain, ThLog) {
 
    var thUrl =  {
         getRootUrl: function(uri) {
@@ -23,9 +25,12 @@ treeherder.factory('thUrl', function($rootScope, thServiceDomain, ThLog) {
    };
    return thUrl;
 
-});
+}]);
 
-treeherder.factory('thSocket', function ($rootScope, ThLog, thUrl) {
+treeherder.factory('thSocket', [
+    '$rootScope', 'ThLog', 'thUrl',
+    function ($rootScope, ThLog, thUrl) {
+
     var $log = new ThLog("thSocket");
 
     var socket = io.connect(thUrl.getSocketEventUrl());
@@ -52,9 +57,11 @@ treeherder.factory('thSocket', function ($rootScope, ThLog, thUrl) {
             });
         }
     };
-});
+}]);
 
-treeherder.factory('thCloneHtml', function($interpolate) {
+treeherder.factory('thCloneHtml', [
+    '$interpolate',
+    function($interpolate) {
 
     var cloneTemplateIds = [
         'revisionsClone.html',
@@ -90,7 +97,7 @@ treeherder.factory('thCloneHtml', function($interpolate) {
         get:getClone
         };
 
-});
+}]);
 
 treeherder.factory('ThPaginator', function(){
     //dead-simple implementation of an in-memory paginator
@@ -113,7 +120,9 @@ treeherder.factory('ThPaginator', function(){
 
 });
 
-treeherder.factory('BrowserId', function($http, $q, ThLog,  thServiceDomain){
+treeherder.factory('BrowserId', [
+    '$http', '$q', 'ThLog',  'thServiceDomain',
+    function($http, $q, ThLog,  thServiceDomain){
 
     /*
     * BrowserId is a wrapper for the persona authentication service
@@ -184,9 +193,11 @@ treeherder.factory('BrowserId', function($http, $q, ThLog,  thServiceDomain){
         }
     }
     return browserid;
-});
+}]);
 
-treeherder.factory('thNotify', function($timeout, ThLog){
+treeherder.factory('thNotify', [
+    '$timeout', 'ThLog',
+    function($timeout, ThLog){
     //a growl-like notification system
 
     var $log = new ThLog("thNotify");
@@ -235,4 +246,4 @@ treeherder.factory('thNotify', function($timeout, ThLog){
     }
     return thNotify;
 
-});
+}]);

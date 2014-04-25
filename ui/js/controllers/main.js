@@ -1,10 +1,15 @@
 "use strict";
 
-treeherder.controller('MainCtrl',
-    function MainController($scope, $rootScope, $routeParams, $location, ThLog,
-                            localStorageService, ThRepositoryModel, thPinboard,
-                            thClassificationTypes, thEvents, $interval,
-                            ThExclusionProfileModel, thJobFilters) {
+treeherder.controller('MainCtrl', [
+    '$scope', '$rootScope', '$routeParams', '$location', 'ThLog',
+    'localStorageService', 'ThRepositoryModel', 'thPinboard',
+    'thClassificationTypes', 'thEvents', '$interval',
+    'ThExclusionProfileModel', 'thJobFilters',
+    function MainController(
+        $scope, $rootScope, $routeParams, $location, ThLog,
+        localStorageService, ThRepositoryModel, thPinboard,
+        thClassificationTypes, thEvents, $interval,
+        ThExclusionProfileModel, thJobFilters) {
 
         var $log = new ThLog("MainCtrl");
 
@@ -172,4 +177,4 @@ treeherder.controller('MainCtrl',
             }
         }, null);
     }
-);
+]);

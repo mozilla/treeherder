@@ -1,18 +1,23 @@
 'use strict';
 
-treeherder.factory('thResultSets',
-                   function($http, $location, thUrl, thServiceDomain, ThLog) {
+treeherder.factory('thResultSets', [
+    '$http', '$location', 'thUrl', 'thServiceDomain', 'ThLog',
+    function($http, $location, thUrl, thServiceDomain, ThLog) {
 
     var $log = new ThLog("thResultSets");
 
     // get the resultsets for this repo
     return {
-        getResultSets: function(repoName, rsOffsetId, count, resultsetlist) {
+        getResultSets: function(repoName, rsOffsetId, count, resultsetlist, with_jobs, full) {
             rsOffsetId = typeof rsOffsetId === 'undefined'?  0: rsOffsetId;
             count = typeof count === 'undefined'?  10: count;
+            with_jobs = _.isUndefined(with_jobs) ? true: with_jobs;
+            full = _.isUndefined(full) ? false: full;
+
             var params = {
-                full: true,
-                format: "json"
+                full: full,
+                format: "json",
+                with_jobs: with_jobs
             };
 
             if (count > 0) {
@@ -64,4 +69,4 @@ treeherder.factory('thResultSets',
             return $http.get(thServiceDomain + uri, {params: {format: "json"}});
         }
     };
-});
+}]);

@@ -1,7 +1,9 @@
 'use strict';
 
 
-treeherder.directive('thPinnedJob', function (thResultStatusInfo) {
+treeherder.directive('thPinnedJob', [
+    'thResultStatusInfo',
+    function (thResultStatusInfo) {
 
     var getHoverText = function(job) {
         var duration = Math.round((job.end_timestamp - job.start_timestamp) / 60);
@@ -32,7 +34,7 @@ treeherder.directive('thPinnedJob', function (thResultStatusInfo) {
         },
         templateUrl: 'partials/thPinnedJob.html'
     };
-});
+}]);
 
 treeherder.directive('thRelatedBugSaved', function () {
 
@@ -50,7 +52,9 @@ treeherder.directive('thRelatedBugQueued', function () {
     };
 });
 
-treeherder.directive('thFailureClassification', function ($parse, thClassificationTypes) {
+treeherder.directive('thFailureClassification', [
+    '$parse', 'thClassificationTypes',
+    function ($parse, thClassificationTypes) {
     return {
         scope: {
             failureId: "="
@@ -69,9 +73,11 @@ treeherder.directive('thFailureClassification', function ($parse, thClassificati
                         '<i class="glyphicon glyphicon-star-empty"></i>' +
                         '</span> {{ hoverText }}'
     };
-});
+}]);
 
-treeherder.directive('resizablePanel', function($document, ThLog) {
+treeherder.directive('resizablePanel', [
+    '$document', 'ThLog',
+    function($document, ThLog) {
     return {
         restrict: "E",
         link: function(scope, element, attr) {
@@ -110,9 +116,11 @@ treeherder.directive('resizablePanel', function($document, ThLog) {
 
         }
     };
-});
+}]);
 
-treeherder.directive('thSimilarJobs', function(ThJobModel, ThLog){
+treeherder.directive('thSimilarJobs', [
+    'ThJobModel', 'ThLog',
+    function(ThJobModel, ThLog){
     return {
         restrict: "E",
         templateUrl: "partials/similar_jobs.html",
@@ -141,7 +149,7 @@ treeherder.directive('thSimilarJobs', function(ThJobModel, ThLog){
             };
         }
     };
-});
+}]);
 
 treeherder.directive('thPinboardPanel', function(){
     return {

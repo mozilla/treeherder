@@ -1,9 +1,12 @@
 "use strict";
 
-treeherder.controller('FilterPanelCtrl',
-    function FilterPanelCtrl($scope, $rootScope, $routeParams, $location, ThLog,
-                             localStorageService, thResultStatusList, thEvents,
-                             thJobFilters) {
+treeherder.controller('FilterPanelCtrl', [
+    '$scope', '$rootScope', '$routeParams', '$location', 'ThLog',
+    'localStorageService', 'thResultStatusList', 'thEvents', 'thJobFilters',
+    function FilterPanelCtrl(
+        $scope, $rootScope, $routeParams, $location, ThLog,
+        localStorageService, thResultStatusList, thEvents, thJobFilters) {
+
         var $log = new ThLog(this.constructor.name);
 
         $scope.filterOptions = thResultStatusList;
@@ -209,9 +212,10 @@ treeherder.controller('FilterPanelCtrl',
             }
         };
     }
-);
+]);
 
-treeherder.controller('SearchCtrl',
+treeherder.controller('SearchCtrl', [
+    '$scope', '$rootScope', 'thEvents',
     function SearchCtrl($scope, $rootScope, thEvents){
 
         $rootScope.searchQuery = "";
@@ -231,4 +235,4 @@ treeherder.controller('SearchCtrl',
         };
 
     }
-);
+]);
