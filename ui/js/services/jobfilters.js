@@ -281,16 +281,27 @@ treeherder.factory('thJobFilters',
         $rootScope.$broadcast(thEvents.globalFilterChanged);
     });
 
+    /**
+     * Set the non-field filters so that we only view unclassified failures
+     */
     var showUnclassifiedFailures = function() {
         filters.resultStatus.values = ["busted", "testfailed", "exception"];
         filters.failure_classification_id.values = [false];
     };
 
+    /**
+     * check if we're in the state of showing only unclassified failures
+     */
     var isUnclassifiedFailures = function() {
         return (_.isEqual(filters.resultStatus.values, ["busted", "testfailed", "exception"]) &&
                 _.isEqual(filters.failure_classification_id.values, [false]));
     };
 
+    /**
+     * reset the non-field (checkbox in the ui) filters to the default state
+     * so the user sees everything.  Doesn't affect the field filters.  This
+     * is used to undo the call to ``showUnclassifiedFailures``.
+     */
     var resetNonFieldFilters = function() {
         filters.resultStatus.values = thResultStatusList.slice();
         filters.failure_classification_id.values = [true, false];

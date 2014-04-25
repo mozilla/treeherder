@@ -631,39 +631,6 @@ fieldset[disabled] .btn-view-nav.active {
   border-color: #e0e0e0;
 }
 
-.btn-no-unclassified-failures {
-  background-color: rgba(75, 86, 93, 0.56);
-  border-color: #22282d;
-  color: lightgray;
-  border-radius: 0;
-  border-bottom: 0;
-  border-top: 0;
-  border-left: 0;
-}
-.btn-no-unclassified-failures:hover,
-.btn-no-unclassified-failures:focus,
-.btn-no-unclassified-failures:active,
-.btn-no-unclassified-failures.active {
-  background-color: #25292b;
-  border-color: #1a1d20;
-  color: white;
-}
-.btn-no-unclassified-failures.disabled:hover,
-.btn-no-unclassified-failures.disabled:focus,
-.btn-no-unclassified-failures.disabled:active,
-.btn-no-unclassified-failures.disabled.active,
-.btn-no-unclassified-failures[disabled]:hover,
-.btn-no-unclassified-failures[disabled]:focus,
-.btn-no-unclassified-failures[disabled]:active,
-.btn-no-unclassified-failures[disabled].active,
-fieldset[disabled] .btn-no-unclassified-failures:hover,
-fieldset[disabled] .btn-no-unclassified-failures:focus,
-fieldset[disabled] .btn-no-unclassified-failures:active,
-fieldset[disabled] .btn-no-unclassified-failures.active {
-  color: #e0e0e0;
-  border-color: #e0e0e0;
-}
-
 .btn-unclassified-failures {
   background-color: rgba(78, 93, 21, 0.56);
   border-color: #cdce1d;

@@ -6,7 +6,7 @@
                 <span class="btn btn-sm"
                       ng-click="toggleUnclassifiedFailures()"
                       title="toggle filtering for unclassified failures"
-                      ng-class="{'btn-unclassified-failures': watchedRepos[repoName].unclassifiedFailureCount, 'btn-no-unclassified-failures': watchedRepos[repoName].unclassifiedFailureCount===0}"><span ng-bind="watchedRepos[repoName].unclassifiedFailureCount"></span> unclassified</span>
+                      ng-class="{'btn-unclassified-failures': watchedRepos[repoName].unclassifiedFailureCount, 'btn-view-nav': watchedRepos[repoName].unclassifiedFailureCount===0}"><span ng-bind="watchedRepos[repoName].unclassifiedFailureCount"></span> unclassified</span>
                 <span class="btn btn-view-nav btn-sm"
                       title="collapse/expand all revisions"
                       ng-click="toggleAllRevisions()"><i class="fa fa-code-fork fa-lg"></i></span>

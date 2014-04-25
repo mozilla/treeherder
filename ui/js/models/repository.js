@@ -63,6 +63,10 @@ treeherder.factory('ThRepositoryModel',
             };
             updateTreeStatus(repoName);
 
+
+            // if it's not a branch in the try group, then fetch the
+            // current count of unclassified failures, rather than waiting
+            // for the socket event to be published.
             if (getByName(repoName).repository_group.name !== "try") {
                 $http.get(thUrl.getProjectUrl("/jobs/0/unclassified_failure_count/", repoName)).then(function(response) {
                     repos[repoName].unclassifiedFailureCount = response.data.unclassified_failure_count;
@@ -75,8 +79,8 @@ treeherder.factory('ThRepositoryModel',
                 thSocket.emit('subscribe', repoName);
             });
 
-            $log.debug("addAsWatched", repos[repoName]);
-            //Set up the socket listener
+            // setup to listen for the socket events that notify us of the
+            // current count of unclassified failures.
             thSocket.on(
                 "unclassified_failure_count",
                 function(data) {
