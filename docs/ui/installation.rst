@@ -43,6 +43,16 @@ Execution::
     cd webapp
     ./scripts/test.sh
 
+Build
+-----
+* Install grunt ``sudo npm install grunt``
+* Install the ``devDependencies`` in ``package.json``
+* Run the following command in ``treeherder-ui``:
+
+Build::
+    grunt build
+
+This will create a ``dist`` directory in ``treeherder-ui`` where concatenated and minified js, css, and application assets can be served from.
 
 Configuration
 =============
