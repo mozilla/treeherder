@@ -15,6 +15,10 @@ Vagrant::Config.run do |config|
   config.vm.provision :puppet do |puppet|
     puppet.manifests_path = "puppet/manifests"
     puppet.manifest_file = "vagrant.pp"
+
+    #uncomment in production to serve treeherder-ui from dist directory
+    #puppet.manifest_file = "production.pp"
+
     # enable this to see verbose and debug puppet output
     #puppet.options = "--verbose --debug"
   end

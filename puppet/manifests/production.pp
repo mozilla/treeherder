@@ -8,8 +8,9 @@ $APP_USER="vagrant"
 $APP_GROUP="vagrant"
 $PROJ_DIR = "/home/${APP_USER}/treeherder-service"
 $VENV_DIR = "/home/${APP_USER}/venv"
-# Serve ui from app directory
-$APP_UI="webapp/app"
+# Serve ui from distribution directory, the contents of dist
+# should be built with "grunt build", run in treeherder-ui
+$APP_UI="dist"
 # You can make these less generic if you like, but these are box-specific
 # so it's not required.
 $DB_NAME = "treeherder"

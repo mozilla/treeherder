@@ -91,3 +91,19 @@ of a stunnel configuration file:
   connect = 80
 
 .. _stunnel: https://www.stunnel.org
+
+Serving the UI build from the distribution directory
+----------------------------------------------------
+To serve the UI from the ``treeherder-ui/dist`` directory, in the ``treeherder-ui`` directory run:
+
+.. code-block:: bash
+
+  (venv)vagrant@precise32:~/treeherder-ui$ grunt build
+
+This will build the UI by concatenating and minifying the js and css and move all required assets to a directory called ``dist`` in the repository root of ``treeherder-ui``. In ``treeherder-service/Vagrantfile`` uncomment this line:
+
+.. code-block:: ruby
+
+  puppet.manifest_file = "production.pp"
+
+The ``production.pp`` manifest sets the web application directory to the ``dist`` directory.
