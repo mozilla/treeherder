@@ -636,10 +636,11 @@ class JobsModel(TreeherderModelBase):
                 "author": result['author'] or detail['author'],
                 "revision_count": len(aggregate_details[result['id']])
             }
+            # we only return the first 20 revisions.
             if full:
                 list_item.update({
                     "comments": detail['comments'],
-                    "revisions": aggregate_details[result['id']]
+                    "revisions": aggregate_details[result['id']][:20]
                 })
             return_list.append(list_item)
 
