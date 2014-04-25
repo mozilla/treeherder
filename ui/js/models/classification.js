@@ -1,6 +1,9 @@
 'use strict';
 
-treeherder.factory('ThJobClassificationModel', function($http, ThLog, thUrl) {
+treeherder.factory('ThJobClassificationModel', [
+    '$http', 'ThLog', 'thUrl',
+    function($http, ThLog, thUrl) {
+
     // ThJobClassificationModel is the js counterpart of note
 
     var ThJobClassificationModel = function(data) {
@@ -43,4 +46,4 @@ treeherder.factory('ThJobClassificationModel', function($http, ThLog, thUrl) {
     };
 
     return ThJobClassificationModel;
-});
+}]);

@@ -1,8 +1,12 @@
 'use strict';
 
-treeherder.factory('ThRepositoryModel',
-                   function($http, thUrl, $rootScope, ThLog, localStorageService,
-                            thSocket, treeStatus) {
+treeherder.factory('ThRepositoryModel', [
+    '$http', 'thUrl', '$rootScope', 'ThLog', 'localStorageService',
+    'thSocket', 'treeStatus',
+    function(
+        $http, thUrl, $rootScope, ThLog, localStorageService,
+        thSocket, treeStatus) {
+
     var $log = new ThLog("ThRepositoryModel");
 
     var new_failures = {};
@@ -184,4 +188,4 @@ treeherder.factory('ThRepositoryModel',
         repo_has_failures: repo_has_failures
 
     };
-});
+}]);

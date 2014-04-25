@@ -1,7 +1,11 @@
 'use strict';
 
-treeherder.directive('personaButtons', function($http, $q, $log, $rootScope, localStorageService,
-                                                thServiceDomain, BrowserId, ThUserModel) {
+treeherder.directive('personaButtons', [
+    '$http', '$q', '$log', '$rootScope', 'localStorageService',
+    'thServiceDomain', 'BrowserId', 'ThUserModel',
+    function(
+        $http, $q, $log, $rootScope, localStorageService, thServiceDomain,
+        BrowserId, ThUserModel) {
 
     return {
         restrict: "E",
@@ -74,4 +78,4 @@ treeherder.directive('personaButtons', function($http, $q, $log, $rootScope, loc
         },
         templateUrl: 'partials/persona_buttons.html'
     };
-});
+}]);

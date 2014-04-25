@@ -1,6 +1,8 @@
 'use strict';
 
-treeherder.directive('thFilterCheckbox', function (thResultStatusInfo) {
+treeherder.directive('thFilterCheckbox', [
+    'thResultStatusInfo',
+    function (thResultStatusInfo) {
 
     return {
         restrict: "E",
@@ -9,9 +11,12 @@ treeherder.directive('thFilterCheckbox', function (thResultStatusInfo) {
         },
         templateUrl: 'partials/thFilterCheckbox.html'
     };
-});
+}]);
 
-treeherder.directive('thWatchedRepo', function (ThLog, ThRepositoryModel) {
+treeherder.directive('thWatchedRepo', [
+    'ThLog', 'ThRepositoryModel',
+    function (ThLog, ThRepositoryModel) {
+
     var $log = new ThLog("thWatchedRepo");
 
     var statusInfo = {
@@ -52,9 +57,12 @@ treeherder.directive('thWatchedRepo', function (ThLog, ThRepositoryModel) {
         },
         templateUrl: 'partials/thWatchedRepo.html'
     };
-});
+}]);
 
-treeherder.directive('thRepoDropDown', function (ThLog, ThRepositoryModel) {
+treeherder.directive('thRepoDropDown', [
+    'ThLog', 'ThRepositoryModel',
+    function (ThLog, ThRepositoryModel) {
+
     var $log = new ThLog("thRepoDropDown");
 
     return {
@@ -77,4 +85,4 @@ treeherder.directive('thRepoDropDown', function (ThLog, ThRepositoryModel) {
         },
         templateUrl: 'partials/thRepoDropDown.html'
     };
-});
+}]);

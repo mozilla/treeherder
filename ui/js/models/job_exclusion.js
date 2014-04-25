@@ -1,7 +1,9 @@
 'use strict';
 
-treeherder.factory('ThJobExclusionModel',
-    ['$http', '$log', 'thUrl', 'thNotify', '$q', function($http, $log, thUrl, thNotify, $q) {
+treeherder.factory('ThJobExclusionModel', [
+    '$http', '$log', 'thUrl', 'thNotify', '$q',
+    function($http, $log, thUrl, thNotify, $q) {
+
     // ThJobExclusionModel is the js counterpart of JobFilter
 
     var ThJobExclusionModel = function(data) {

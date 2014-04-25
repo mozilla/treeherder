@@ -1,6 +1,8 @@
 'use strict';
 
-treeherder.directive('thActionButton', function ($compile, thCloneHtml, ThResultSetModel) {
+treeherder.directive('thActionButton', [
+    '$compile', 'thCloneHtml', 'ThResultSetModel',
+    function ($compile, thCloneHtml, ThResultSetModel) {
 
     return {
         restrict: "E",
@@ -38,7 +40,7 @@ treeherder.directive('thActionButton', function ($compile, thCloneHtml, ThResult
 
         }
     };
-});
+}]);
 
 treeherder.directive('thResultCounts', function () {
 
@@ -79,7 +81,9 @@ treeherder.directive('thResultStatusCount', function () {
     };
 });
 
-treeherder.directive('thRevision', function($parse) {
+treeherder.directive('thRevision', [
+    '$parse',
+    function($parse) {
 
     return {
         restrict: "E",
@@ -92,7 +96,7 @@ treeherder.directive('thRevision', function($parse) {
         },
         templateUrl: 'partials/thRevision.html'
     };
-});
+}]);
 
 treeherder.directive('thAuthor', function () {
 

@@ -1,6 +1,9 @@
 'use strict';
 
-treeherder.factory('ThBuildPlatformModel', ['$http', '$log', 'thUrl', function($http, $log, thUrl) {
+treeherder.factory('ThBuildPlatformModel', [
+    '$http', '$log', 'thUrl',
+    function($http, $log, thUrl) {
+
     // ThBuildPlatform is the js counterpart of buildplatform
 
     var ThBuildPlatformModel = function(data) {
