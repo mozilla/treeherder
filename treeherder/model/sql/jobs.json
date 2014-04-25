@@ -311,7 +311,8 @@
                     jg.`symbol` as job_group_symbol,
                     j.`result_set_id`,
                     j.`result`,
-                    j.`state`
+                    j.`state`,
+                    rs.push_timestamp as push_timestamp
                   FROM `job` as j
                   LEFT JOIN `REP0`.`machine` as m
                     ON j.`machine_id` = m.id
@@ -321,8 +322,14 @@
                     ON j.`job_type_id` = jt.id
 				  LEFT JOIN `REP0`.`job_group` as jg
                     ON jt.`job_group_id` = jg.id
+                  LEFT JOIN result_set rs
+                    ON rs.id = j.result_set_id
                   WHERE 1
-                  REP1",
+                  REP1
+                  ORDER BY
+                    rs.push_timestamp DESC,
+                    mp.platform ASC
+                  ",
 
             "host":"read_host"
         },
