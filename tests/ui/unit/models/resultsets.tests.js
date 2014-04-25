@@ -19,12 +19,12 @@ describe('ThResultSetModel', function(){
         $httpBackend = $injector.get('$httpBackend');
         jasmine.getJSONFixtures().fixturesPath='base/test/mock';
 
-        $httpBackend.whenGET(foregroundPrefix + '/resultset/?count=10&format=json&full=false&with_jobs=true').respond(
+        $httpBackend.whenGET(foregroundPrefix + '/resultset/?count=10&format=json&full=true&with_jobs=true').respond(
             getResultSet(1)
         );
 
 
-        $httpBackend.whenGET(backgroundPrefix + '/resultset/?count=10&format=json&full=false&with_jobs=true').respond(
+        $httpBackend.whenGET(backgroundPrefix + '/resultset/?count=10&format=json&full=true&with_jobs=true').respond(
             getResultSet(10)
         );
 
@@ -69,7 +69,7 @@ describe('ThResultSetModel', function(){
         var rsValues = {id: 2, push_timestamp: 1396899074+1},
             data = {branch: foregroundRepo, resultset: rsValues};
 
-        $httpBackend.whenGET(foregroundPrefix + '/resultset/?count=1&format=json&full=false&id__in=2&offset=0&with_jobs=true').respond(
+        $httpBackend.whenGET(foregroundPrefix + '/resultset/?count=1&format=json&full=true&id__in=2&offset=0&with_jobs=true').respond(
             getResultSet(2, rsValues)
         );
 
@@ -88,7 +88,7 @@ describe('ThResultSetModel', function(){
         var rsValues = {id: 12, push_timestamp: 1396899074+1},
             data = {branch: backgroundRepo, resultset: rsValues};
 
-        $httpBackend.whenGET(backgroundPrefix + '/resultset/?count=1&format=json&full=false&id__in=12&offset=0&with_jobs=true').respond(
+        $httpBackend.whenGET(backgroundPrefix + '/resultset/?count=1&format=json&full=true&id__in=12&offset=0&with_jobs=true').respond(
             getResultSet(12, rsValues)
         );
 
