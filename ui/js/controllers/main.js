@@ -102,6 +102,15 @@ treeherder.controller('MainCtrl', [
 
         };
 
+        $scope.isSkippingExclusionProfiles = function() {
+            return thJobFilters.isSkippingExclusionProfiles();
+        };
+
+        $scope.toggleExcludedJobs = function() {
+            thJobFilters.toggleSkipExclusionProfiles();
+            $rootScope.$broadcast(thEvents.globalFilterChanged);
+        };
+
         $scope.toggleUnclassifiedFailures = function() {
             $log.debug("toggleUnclassifiedFailures");
             if (thJobFilters.isUnclassifiedFailures()) {

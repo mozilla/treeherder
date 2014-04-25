@@ -53,6 +53,11 @@ treeherder.factory('thJobFilters', [
 
     var filterKeys = _.keys(filters);
 
+    // whether or not to skip the checks for the exclusion profiles.
+    // an exclusion profile may be enabled, but this allows the user
+    // to toggle it on or off.
+    var skipExclusionProfiles = false;
+
     /**
      * If a custom resultStatusList is passed in (like for individual
      * resultSets, then use that.  Otherwise, fall back to the global one.
@@ -238,7 +243,8 @@ treeherder.factory('thJobFilters', [
                 return false;
             }
         }
-        if($rootScope.active_exclusion_profile){
+        if($rootScope.active_exclusion_profile && !skipExclusionProfiles) {
+            $log.debug("exclusion profile active", $rootScope.active_exclusion_profile);
             try{
                 if($rootScope.active_exclusion_profile.flat_exclusion[$rootScope.repoName]
                     [job.platform][job.job_type_name].indexOf(job.platform_option) !== -1){
@@ -309,6 +315,14 @@ treeherder.factory('thJobFilters', [
         filters.failure_classification_id.values = [true, false];
     };
 
+    var toggleSkipExclusionProfiles = function() {
+        skipExclusionProfiles = !skipExclusionProfiles;
+    };
+
+    var isSkippingExclusionProfiles = function() {
+        return skipExclusionProfiles;
+    };
+
     var api = {
         addFilter: addFilter,
         removeFilter: removeFilter,
@@ -320,6 +334,8 @@ treeherder.factory('thJobFilters', [
         showUnclassifiedFailures: showUnclassifiedFailures,
         isUnclassifiedFailures: isUnclassifiedFailures,
         resetNonFieldFilters: resetNonFieldFilters,
+        toggleSkipExclusionProfiles: toggleSkipExclusionProfiles,
+        isSkippingExclusionProfiles: isSkippingExclusionProfiles,
 
         // CONSTANTS
         failure_classification_id: "failure_classification_id",

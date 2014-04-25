@@ -8,6 +8,12 @@
                       title="toggle filtering for unclassified failures"
                       ng-class="{'btn-unclassified-failures': watchedRepos[repoName].unclassifiedFailureCount, 'btn-view-nav': watchedRepos[repoName].unclassifiedFailureCount===0}"><span ng-bind="watchedRepos[repoName].unclassifiedFailureCount"></span> unclassified</span>
                 <span class="btn btn-view-nav btn-sm"
+                      title="toggle showing hidden jobs"
+                      ng-click="toggleExcludedJobs()">
+                        <i class="fa fa=lg"
+                           ng-class="{'fa-eye': isSkippingExclusionProfiles(), 'fa-eye-slash': !isSkippingExclusionProfiles()}"></i>
+                </span>
+                <span class="btn btn-view-nav btn-sm"
                       title="collapse/expand all revisions"
                       ng-click="toggleAllRevisions()"><i class="fa fa-code-fork fa-lg"></i></span>
                 <span class="btn btn-view-nav btn-sm"
