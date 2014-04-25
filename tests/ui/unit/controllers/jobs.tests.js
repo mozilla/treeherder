@@ -31,6 +31,13 @@ describe('JobsCtrl', function(){
             }
         );
 
+        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/jobs/0/unclassified_failure_count/').respond(
+            {
+                "unclassified_failure_count": 1152,
+                "repository": "mozilla-inbound"
+            }
+        );
+
         jobScope = $rootScope.$new();
 
         //setting attributes derived from the parent controller
