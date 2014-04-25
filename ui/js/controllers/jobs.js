@@ -1,9 +1,14 @@
 "use strict";
 
-treeherder.controller('JobsCtrl',
-    function JobsCtrl($scope, $http, $rootScope, $routeParams, ThLog, $cookies,
-                      localStorageService, thUrl, ThRepositoryModel, thSocket,
-                      ThResultSetModel, thResultStatusList, $location, thEvents) {
+treeherder.controller('JobsCtrl', [
+    '$scope', '$http', '$rootScope', '$routeParams', 'ThLog', '$cookies',
+    'localStorageService', 'thUrl', 'ThRepositoryModel', 'thSocket',
+    'ThResultSetModel', 'thResultStatusList', '$location', 'thEvents',
+    function JobsCtrl(
+        $scope, $http, $rootScope, $routeParams, ThLog, $cookies,
+        localStorageService, thUrl, ThRepositoryModel, thSocket,
+        ThResultSetModel, thResultStatusList, $location, thEvents) {
+
         var $log = new ThLog(this.constructor.name);
 
         // load our initial set of resultsets
@@ -60,13 +65,17 @@ treeherder.controller('JobsCtrl',
 
 
     }
-);
+]);
 
 
-treeherder.controller('ResultSetCtrl',
-    function ResultSetCtrl($scope, $rootScope, $http, ThLog, $location,
-                           thUrl, thServiceDomain, thResultStatusInfo,
-                           ThResultSetModel, thEvents, thJobFilters) {
+treeherder.controller('ResultSetCtrl', [
+    '$scope', '$rootScope', '$http', 'ThLog', '$location', 'thUrl',
+    'thServiceDomain', 'thResultStatusInfo', 'ThResultSetModel', 'thEvents',
+    'thJobFilters',
+    function ResultSetCtrl(
+        $scope, $rootScope, $http, ThLog, $location,
+        thUrl, thServiceDomain, thResultStatusInfo,
+        ThResultSetModel, thEvents, thJobFilters) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -164,5 +173,5 @@ treeherder.controller('ResultSetCtrl',
             //$scope.viewLog(job.resource_uri);
         });
     }
-);
+]);
 

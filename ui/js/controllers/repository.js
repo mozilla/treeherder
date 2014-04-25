@@ -1,8 +1,12 @@
 "use strict";
 
-treeherder.controller('RepositoryPanelCtrl',
-    function RepositoryPanelCtrl($scope, $rootScope, $routeParams, $location, ThLog,
-                            localStorageService, ThRepositoryModel, thSocket) {
+treeherder.controller('RepositoryPanelCtrl', [
+    '$scope', '$rootScope', '$routeParams', '$location', 'ThLog',
+    'localStorageService', 'ThRepositoryModel', 'thSocket',
+    function RepositoryPanelCtrl(
+        $scope, $rootScope, $routeParams, $location, ThLog,
+        localStorageService, ThRepositoryModel, thSocket) {
+
         var $log = new ThLog(this.constructor.name);
 
         for (var repo in $scope.watchedRepos) {
@@ -16,4 +20,4 @@ treeherder.controller('RepositoryPanelCtrl',
             ThRepositoryModel.watchedReposUpdated(repoName);
         };
     }
-);
+]);

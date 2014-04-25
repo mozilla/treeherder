@@ -1,8 +1,12 @@
 "use strict";
 
-treeherder.controller('BugsPluginCtrl',
-    function BugsPluginCtrl($scope, $rootScope, ThLog, ThJobArtifactModel,
-                            ThBugJobMapModel, ThJobClassificationModel, thNotify, $modal) {
+treeherder.controller('BugsPluginCtrl', [
+    '$scope', '$rootScope', 'ThLog', 'ThJobArtifactModel', 'ThBugJobMapModel',
+    'ThJobClassificationModel', 'thNotify', '$modal',
+    function BugsPluginCtrl(
+        $scope, $rootScope, ThLog, ThJobArtifactModel, ThBugJobMapModel,
+        ThJobClassificationModel, thNotify, $modal) {
+
         var $log = new ThLog(this.constructor.name);
 
         $log.debug("bugs plugin initialized");
@@ -43,4 +47,4 @@ treeherder.controller('BugsPluginCtrl',
 
         $scope.$watch("job.id", update_bugs, true);
     }
-);
+]);

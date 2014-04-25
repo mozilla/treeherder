@@ -1,6 +1,8 @@
 'use strict';
 
-treeherder.factory('ThLog', function($log, ThLogConfig) {
+treeherder.factory('ThLog', [
+    '$log', 'ThLogConfig',
+    function($log, ThLogConfig) {
     // a logger that states the object doing the logging
 
     var ThLog = function(name) {
@@ -35,7 +37,7 @@ treeherder.factory('ThLog', function($log, ThLogConfig) {
     };
 
     return ThLog;
-});
+}]);
 
 
 /**

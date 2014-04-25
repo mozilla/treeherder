@@ -1,10 +1,15 @@
 "use strict";
 
-treeherder.controller('PluginCtrl',
-    function PluginCtrl($scope, $rootScope, thUrl, ThJobClassificationModel,
-                        thClassificationTypes, ThJobModel, thEvents, dateFilter,
-                        numberFilter, ThBugJobMapModel, thResultStatus, thSocket,
-                        ThResultSetModel, ThLog) {
+treeherder.controller('PluginCtrl', [
+    '$scope', '$rootScope', 'thUrl', 'ThJobClassificationModel',
+    'thClassificationTypes', 'ThJobModel', 'thEvents', 'dateFilter',
+    'numberFilter', 'ThBugJobMapModel', 'thResultStatus', 'thSocket',
+    'ThResultSetModel', 'ThLog',
+    function PluginCtrl(
+        $scope, $rootScope, thUrl, ThJobClassificationModel,
+        thClassificationTypes, ThJobModel, thEvents, dateFilter,
+        numberFilter, ThBugJobMapModel, thResultStatus, thSocket,
+        ThResultSetModel, ThLog) {
 
         var $log = new ThLog("PluginCtrl");
 
@@ -160,4 +165,4 @@ treeherder.controller('PluginCtrl',
         };
 
     }
-);
+]);

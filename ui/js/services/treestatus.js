@@ -1,6 +1,8 @@
 'use strict';
 
-treeherder.factory('treeStatus', function($http, $q) {
+treeherder.factory('treeStatus', [
+    '$http', '$q',
+    function($http, $q) {
 
     var urlBase = "https://treestatus.mozilla.org/";
 
@@ -27,5 +29,5 @@ treeherder.factory('treeStatus', function($http, $q) {
     return {
         get: get
     };
-});
+}]);
 

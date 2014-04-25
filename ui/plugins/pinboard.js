@@ -1,7 +1,9 @@
 "use strict";
 
-treeherder.controller('PinboardCtrl',
-    function PinboardCtrl($scope, $rootScope, thEvents, thPinboard, thNotify, ThLog) {
+treeherder.controller('PinboardCtrl', [
+    '$scope', '$rootScope', 'thEvents', 'thPinboard', 'thNotify', 'ThLog',
+    function PinboardCtrl(
+        $scope, $rootScope, thEvents, thPinboard, thNotify, ThLog) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -96,4 +98,4 @@ treeherder.controller('PinboardCtrl',
         $scope.relatedBugs = thPinboard.relatedBugs;
 
     }
-);
+]);

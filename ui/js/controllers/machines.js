@@ -1,5 +1,6 @@
 "use strict";
 
-treeherder.controller('MachinesCtrl',
+treeherder.controller('MachinesCtrl', [
+    '$scope',
     function MachinesCtrl($scope){}
-);
+]);

@@ -2,8 +2,10 @@
 <html ng-app="logViewer">
     <head>
         <title>Treeherder Log Viewer </title>
-        <link href="css/treeherder.css" rel="stylesheet" type="text/css">
+        <!-- build:css css/logviewer.min.css -->
         <link href="css/bootstrap.css" rel="stylesheet" media="screen">
+        <link href="css/treeherder.css" rel="stylesheet" type="text/css">
+        <!-- endbuild -->
     </head>
     <body ng-controller="LogviewerCtrl" ng-init="init()">
         <div class="container">
@@ -51,6 +53,7 @@
                 </div>
             </div>
         </div>
+    <!-- build:js js/logviewer.min.js -->
     <script src="vendor/angular/angular.js"></script>
     <script src="vendor/angular/angular-route.js"></script>
     <script src="vendor/angular/angular-resource.js"></script>
@@ -68,5 +71,6 @@
     <script src="js/models/job_artifact.js"></script>
     <script src="js/providers.js"></script>
     <script src="js/controllers/logviewer.js"></script>
+    <!-- endbuild -->
     </body>
 </html>

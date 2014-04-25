@@ -4,13 +4,31 @@ module.exports = function(grunt) {
 
         pkg: grunt.file.readJSON('package.json'),
 
+        clean: ['dist'],
+
         useminPrepare:{
-            html:'webapp/app/index.html',
-            options:{
-                dest:'dist'
+            index: {
+                src:'webapp/app/index.html',
+                options:{
+                    dest:'dist'
+                }
+            },
+            help: {
+                src:'webapp/app/help.html',
+                options:{
+                    dest:'dist'
+                }
+            },
+            logviewer: {
+                src:'webapp/app/logviewer.html',
+                options:{
+                    dest:'dist'
+                }
             }
         },
-        usemin:{ html:['dist/index.html'] },
+
+        usemin:{ html:['dist/index.html', 'dist/help.html', 'dist/logviewer.html'] },
+
         copy:{
 
             main: {
@@ -31,23 +49,34 @@ module.exports = function(grunt) {
                 dest: 'dist/img/',
                 flatten: true
                 },
+            // Copy html in partials
             partials:{
                 expand: true,
                 src: 'webapp/app/partials/*',
                 dest: 'dist/partials/',
                 flatten: true
                 },
+            // Copy fonts
             fonts:{
                 expand: true,
                 src: 'webapp/app/fonts/*',
                 dest: 'dist/fonts/',
                 flatten: true
                 },
+            // Copy html in plugins, make sure not to flatten
+            //    src: 'webapp/app/plugins/**/*.html',
+            plugins:{
+                expand: true,
+                cwd: 'webapp/app/plugins/',
+                src: '**/*.html',
+                dest: 'dist/plugins/',
+                flatten: false
+                }
         },
         uglify:{
             options:{
                 report: 'min',
-                compress: true,
+                //compress: true,
                 // Cannot use mangle, it will break angularjs's dependency
                 // injection
                 mangle: false
@@ -68,6 +97,7 @@ module.exports = function(grunt) {
         'copy:img',
         'copy:partials',
         'copy:fonts',
+        'copy:plugins',
         'useminPrepare',
         'concat',
         'cssmin',
