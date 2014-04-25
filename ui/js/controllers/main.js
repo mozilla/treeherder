@@ -47,7 +47,7 @@ treeherder.controller('MainCtrl', [
 
             }else if(ev.keyCode === 85){
                 //display only unclassified failures, keys:u
-                $rootScope.$broadcast(thEvents.showUnclassifiedFailures);
+                $scope.toggleUnclassifiedFailures();
             }
         };
 
