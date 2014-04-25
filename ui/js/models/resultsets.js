@@ -1,9 +1,11 @@
 'use strict';
 
-treeherder.factory('ThResultSetModel',
-                   function($rootScope, $location, thResultSets, thSocket,
-                            ThJobModel, thEvents, thAggregateIds, ThLog,
-                            thNotify) {
+treeherder.factory('ThResultSetModel', [
+    '$rootScope', '$location', 'thResultSets', 'thSocket', 'ThJobModel',
+    'thEvents', 'thAggregateIds', 'ThLog', 'thNotify',
+    function(
+        $rootScope, $location, thResultSets, thSocket, ThJobModel, thEvents,
+        thAggregateIds, ThLog, thNotify) {
 
     var $log = new ThLog("ThResultSetModel");
 
@@ -699,4 +701,4 @@ treeherder.factory('ThResultSetModel',
 
     return api;
 
-});
+}]);

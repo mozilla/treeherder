@@ -1,6 +1,8 @@
 'use strict';
 
-treeherder.factory('thClassificationTypes', function($http, thUrl) {
+treeherder.factory('thClassificationTypes', [
+    '$http', 'thUrl',
+    function($http, thUrl) {
 
     var classifications = {};
 
@@ -31,5 +33,5 @@ treeherder.factory('thClassificationTypes', function($http, thUrl) {
         classifications: classifications,
         load: load
     };
-});
+}]);
 

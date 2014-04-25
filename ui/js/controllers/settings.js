@@ -1,5 +1,6 @@
 "use strict";
-treeherder.controller('SettingsCtrl',
+treeherder.controller('SettingsCtrl', [
+    '$scope', '$log',
     function SheriffController($scope, $log){
     }
-)
+])

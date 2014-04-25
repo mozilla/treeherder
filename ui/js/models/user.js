@@ -1,6 +1,9 @@
 'use strict';
 
-treeherder.factory('ThUserModel', function($http, $log, thUrl, thNotify, $q) {
+treeherder.factory('ThUserModel', [
+    '$http', '$log', 'thUrl', 'thNotify', '$q',
+    function($http, $log, thUrl, thNotify, $q) {
+
     // ThUserModel is the js counterpart of user
 
     var ThUserModel = function(data) {
@@ -28,4 +31,4 @@ treeherder.factory('ThUserModel', function($http, $log, thUrl, thNotify, $q) {
     };
 
     return ThUserModel;
-});
+}]);

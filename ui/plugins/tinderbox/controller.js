@@ -1,7 +1,10 @@
 "use strict";
 
-treeherder.controller('TinderboxPluginCtrl',
-    function TinderboxPluginCtrl($scope, $rootScope, ThLog, ThJobArtifactModel) {
+treeherder.controller('TinderboxPluginCtrl', [
+    '$scope', '$rootScope', 'ThLog', 'ThJobArtifactModel',
+    function TinderboxPluginCtrl(
+        $scope, $rootScope, ThLog, ThJobArtifactModel) {
+
         var $log = new ThLog(this.constructor.name);
 
         $log.debug("Tinderbox plugin initialized");
@@ -91,4 +94,4 @@ treeherder.controller('TinderboxPluginCtrl',
         };
         $scope.$watch("job.id", update_job_info, true);
     }
-);
+]);

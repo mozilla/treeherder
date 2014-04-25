@@ -1,7 +1,12 @@
 'use strict';
 
 /* Directives */
-treeherder.directive('thCloneJobs', function(
+treeherder.directive('thCloneJobs', [
+    '$rootScope', '$http', 'ThLog', 'thUrl', 'thCloneHtml',
+    'thServiceDomain', 'thResultStatusInfo', 'thEvents', 'thAggregateIds',
+    'thJobFilters', 'thResultStatusObject', 'ThResultSetModel',
+    'ThJobModel', 'linkifyBugsFilter',
+    function(
         $rootScope, $http, ThLog, thUrl, thCloneHtml, thServiceDomain,
         thResultStatusInfo, thEvents, thAggregateIds, thJobFilters,
         thResultStatusObject, ThResultSetModel, ThJobModel, linkifyBugsFilter){
@@ -986,4 +991,4 @@ treeherder.directive('thCloneJobs', function(
         replace:true
     };
 
-});
+}]);

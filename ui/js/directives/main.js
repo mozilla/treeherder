@@ -1,6 +1,8 @@
 'use strict';
 
-treeherder.directive('ngRightClick', function($parse) {
+treeherder.directive('ngRightClick', [
+    '$parse',
+    function($parse) {
     return function(scope, element, attrs) {
         var fn = $parse(attrs.ngRightClick);
         element.bind('contextmenu', function(event) {
@@ -10,13 +12,15 @@ treeherder.directive('ngRightClick', function($parse) {
             });
         });
     };
-});
+}]);
 
 // allow an input on a form to request focus when the value it sets in its
 // ``focus-me`` directive is true.  You can set ``focus-me="focusInput"`` and
 // when ``$scope.focusInput`` changes to true, it will request focus on
 // the element with this directive.
-treeherder.directive('focusMe', function($timeout) {
+treeherder.directive('focusMe', [
+  '$timeout',
+  function($timeout) {
   return {
     link: function(scope, element, attrs) {
       scope.$watch(attrs.focusMe, function(value) {
@@ -29,9 +33,11 @@ treeherder.directive('focusMe', function($timeout) {
       });
     }
   };
-});
+}]);
 
-treeherder.directive('thNotificationBox', function(thNotify){
+treeherder.directive('thNotificationBox', [
+    'thNotify',
+    function(thNotify){
     return {
         restrict: "E",
         templateUrl: "partials/thNotificationsBox.html",
@@ -40,7 +46,7 @@ treeherder.directive('thNotificationBox', function(thNotify){
             scope.alert_class_prefix = "alert-"
         }
     }
-});
+}]);
 
 treeherder.directive('numbersOnly', function(){
    return {
@@ -63,7 +69,9 @@ treeherder.directive('numbersOnly', function(){
    };
 });
 
-treeherder.directive("thMultiSelect", function($log){
+treeherder.directive("thMultiSelect", [
+    '$log',
+    function($log){
     return {
         restrict: "E",
         templateUrl: "partials/thMultiSelect.html",
@@ -93,9 +101,11 @@ treeherder.directive("thMultiSelect", function($log){
             };
         }
     }
-});
+}]);
 
-treeherder.directive("thTruncatedList", function($log){
+treeherder.directive("thTruncatedList", [
+    '$log',
+    function($log){
     // transforms a list of elements in a shortened list
     // with a "more" link
     return {
@@ -132,4 +142,4 @@ treeherder.directive("thTruncatedList", function($log){
             });
         }
     }
-});
+}]);

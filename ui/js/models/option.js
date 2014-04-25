@@ -1,6 +1,8 @@
 'use strict';
 
-treeherder.factory('ThOptionModel', function($http, $log, thUrl) {
+treeherder.factory('ThOptionModel', [
+    '$http', '$log', 'thUrl',
+    function($http, $log, thUrl) {
     // ThOptionModel is the js counterpart of option
 
     var ThOptionModel = function(data) {
@@ -33,4 +35,4 @@ treeherder.factory('ThOptionModel', function($http, $log, thUrl) {
     };
 
     return ThOptionModel;
-});
+}]);

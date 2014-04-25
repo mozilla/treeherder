@@ -1,7 +1,9 @@
 'use strict';
 
-treeherder.factory('ThExclusionProfileModel',
-    ['$http', '$log', 'thUrl', '$q', 'thNotify', function($http, $log, thUrl, $q, thNotify) {
+treeherder.factory('ThExclusionProfileModel', [
+    '$http', '$log', 'thUrl', '$q', 'thNotify',
+    function($http, $log, thUrl, $q, thNotify) {
+
     // ThExclusionProfileModel is the js counterpart of Exclusion Profile
 
     var ThExclusionProfileModel = function(data) {

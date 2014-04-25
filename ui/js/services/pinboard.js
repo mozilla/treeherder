@@ -1,8 +1,11 @@
 'use strict';
 
-treeherder.factory('thPinboard',
-                   function($http, thUrl, ThJobClassificationModel, $rootScope,
-                            thEvents, ThBugJobMapModel, thNotify, ThLog) {
+treeherder.factory('thPinboard', [
+    '$http', 'thUrl', 'ThJobClassificationModel', '$rootScope', 'thEvents',
+    'ThBugJobMapModel', 'thNotify', 'ThLog',
+    function(
+        $http, thUrl, ThJobClassificationModel, $rootScope, thEvents,
+        ThBugJobMapModel, thNotify, ThLog) {
 
     var $log = new ThLog("thPinboard");
 
@@ -139,5 +142,5 @@ treeherder.factory('thPinboard',
     };
 
     return api;
-});
+}]);
 

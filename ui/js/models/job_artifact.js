@@ -1,6 +1,9 @@
 'use strict';
 
-treeherder.factory('ThJobArtifactModel', function($http, ThLog, thUrl) {
+treeherder.factory('ThJobArtifactModel', [
+    '$http', 'ThLog', 'thUrl',
+    function($http, ThLog, thUrl) {
+
     // ThJobArtifactModel is the js counterpart of job_artifact
 
     var ThJobArtifactModel = function(data) {
@@ -32,4 +35,4 @@ treeherder.factory('ThJobArtifactModel', function($http, ThLog, thUrl) {
     };
 
     return ThJobArtifactModel;
-});
+}]);

@@ -1,7 +1,8 @@
 'use strict';
 
-treeherder.factory('thResultSets',
-                   function($http, $location, thUrl, thServiceDomain, ThLog) {
+treeherder.factory('thResultSets', [
+    '$http', '$location', 'thUrl', 'thServiceDomain', 'ThLog',
+    function($http, $location, thUrl, thServiceDomain, ThLog) {
 
     var $log = new ThLog("thResultSets");
 
@@ -68,4 +69,4 @@ treeherder.factory('thResultSets',
             return $http.get(thServiceDomain + uri, {params: {format: "json"}});
         }
     };
-});
+}]);

@@ -1,7 +1,12 @@
 'use strict';
-treeherder.controller('SheriffCtrl',
-    function SheriffController($scope, $rootScope, ThBuildPlatformModel, ThJobTypeModel, thEvents,
-                               ThRepositoryModel, ThOptionModel, ThJobExclusionModel, ThExclusionProfileModel) {
+treeherder.controller('SheriffCtrl', [
+    '$scope', '$rootScope', 'ThBuildPlatformModel', 'ThJobTypeModel',
+    'thEvents', 'ThRepositoryModel', 'ThOptionModel', 'ThJobExclusionModel',
+    'ThExclusionProfileModel',
+    function SheriffController(
+        $scope, $rootScope, ThBuildPlatformModel, ThJobTypeModel, thEvents,
+        ThRepositoryModel, ThOptionModel, ThJobExclusionModel,
+        ThExclusionProfileModel) {
 
         // fetch the reference data
         $scope.exclusions = [];
@@ -209,4 +214,4 @@ treeherder.controller('SheriffCtrl',
             $scope.switchView('exclusion_profile_add');
         };
     }
-);
+]);
