@@ -66,6 +66,7 @@ class ResultSetViewSet(viewsets.ViewSet):
         count = min(int(filter.pop("count", 10)), 1000)
 
         full = filter.pop('full', 'true').lower() == 'true'
+        with_jobs = filter.pop('with_jobs', 'true').lower() == 'true'
 
         objs = jm.get_result_set_list(
             offset_id,
@@ -74,7 +75,11 @@ class ResultSetViewSet(viewsets.ViewSet):
             filter.conditions
         )
 
-        results = self.get_resultsets_with_jobs(jm, objs, full, {})
+        if with_jobs:
+            results = self.get_resultsets_with_jobs(jm, objs, full, {})
+        else:
+            results = objs
+
         meta['count'] = len(results)
         meta['repository'] = project
 
