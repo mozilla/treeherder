@@ -28,6 +28,29 @@ treeherder.factory('thJobFilters',
 
     var $log = new ThLog("thJobFilters");
 
+    var matchType = {
+        exactstr: 0,
+        substr: 1,
+        isnull: 2,
+        bool: 3
+    };
+
+    // default filters
+    var filters = {
+        resultStatus: {
+            matchType: matchType.exactstr,
+            values: thResultStatusList.slice(),
+            removeWhenEmpty: false
+        },
+        failure_classification_id: {
+            matchType: matchType.bool,
+            values: [true, false],
+            removeWhenEmpty: false
+        }
+    };
+
+    var filterKeys = _.keys(filters);
+
     /**
      * If a custom resultStatusList is passed in (like for individual
      * resultSets, then use that.  Otherwise, fall back to the global one.
@@ -180,7 +203,7 @@ treeherder.factory('thJobFilters',
      * @param add - true if adding, false if removing
      */
     var toggleFilters = function(field, values, add) {
-        $log.debug("toggling: ", add);
+        $log.debug("toggling to ", add);
         var action = add? api.addFilter: api.removeFilter;
         for (var i = 0; i < values.length; i++) {
             action(field, values[i]);
@@ -225,10 +248,6 @@ treeherder.factory('thJobFilters',
         }
 
         return true;
-    };
-
-    var getFilters =  function() {
-        return filters;
     };
 
     /**
@@ -283,7 +302,7 @@ treeherder.factory('thJobFilters',
         toggleFilters: toggleFilters,
         copyResultStatusFilters: copyResultStatusFilters,
         showJob: showJob,
-        getFilters: getFilters,
+        filters: filters,
         pinAllShownJobs: pinAllShownJobs,
         showUnclassifiedFailures: showUnclassifiedFailures,
         isUnclassifiedFailures: isUnclassifiedFailures,
@@ -292,29 +311,8 @@ treeherder.factory('thJobFilters',
         // CONSTANTS
         failure_classification_id: "failure_classification_id",
         resultStatus: "resultStatus",
-        matchType: {
-            exactstr: 0,
-            substr: 1,
-            isnull: 2,
-            bool: 3
-        }
+        matchType: matchType
     };
-
-    // default filters
-    var filters = {
-        resultStatus: {
-            matchType: api.matchType.exactstr,
-            values: thResultStatusList.slice(),
-            removeWhenEmpty: false
-        },
-        failure_classification_id: {
-            matchType: api.matchType.bool,
-            values: [true, false],
-            removeWhenEmpty: false
-        }
-    };
-
-    var filterKeys = _.keys(filters);
 
     return api;
 

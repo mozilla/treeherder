@@ -38,7 +38,7 @@ treeherder.directive('thWatchedRepo', function (ThLog, ThRepositoryModel) {
         link: function(scope, element, attrs) {
 
             scope.$watch('repoData', function(newVal) {
-                if (newVal) {
+                if (newVal.treeStatus) {
                     $log.debug("updated treeStatus", newVal.treeStatus.status);
                     scope.statusIcon = statusInfo[newVal.treeStatus.status].icon;
                     scope.statusColor = statusInfo[newVal.treeStatus.status].color;

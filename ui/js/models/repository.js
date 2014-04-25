@@ -8,14 +8,6 @@ treeherder.factory('ThRepositoryModel',
     var new_failures = {};
     var repos = {};
 
-    thSocket.on('job_failure', function(msg){
-        if (! new_failures.hasOwnProperty(msg.branch)){
-            new_failures[msg.branch] = [];
-        }
-        new_failures[msg.branch].push(msg.id);
-        $log.debug("new failure on branch ", msg.branch);
-    });
-
     // get the repositories (aka trees)
     // sample: 'resources/menu.json'
     var getByName = function(name) {
@@ -71,11 +63,11 @@ treeherder.factory('ThRepositoryModel',
             };
             updateTreeStatus(repoName);
 
-            // a static method to retrieve a single instance of ThJobModel
-            $http.get(thUrl.getProjectUrl("/jobs/0/unclassified_failure_count/", repoName)).then(function(response) {
-                repos[repoName].unclassifiedFailureCount = response.data.unclassified_failure_count;
-            });
-
+            if (getByName(repoName).repository_group.name !== "try") {
+                $http.get(thUrl.getProjectUrl("/jobs/0/unclassified_failure_count/", repoName)).then(function(response) {
+                    repos[repoName].unclassifiedFailureCount = response.data.unclassified_failure_count;
+                });
+            }
 
             // Add a connect listener
             thSocket.on('connect',function() {
@@ -88,7 +80,9 @@ treeherder.factory('ThRepositoryModel',
             thSocket.on(
                 "unclassified_failure_count",
                 function(data) {
-                    if (data.branch === repoName) {
+                    if (data.branch === repoName &&
+                        getByName(repoName).repository_group.name !== "try") {
+
                         $log.debug("event unclassified_failure_count", data);
                         repos[repoName].unclassifiedFailureCount = data.count;
                     }
