@@ -125,6 +125,17 @@
 
 </script>
 
+<!-- Clone target for "more" link for large revision sets -->
+<script type="'text/ng-template'" id="pushlogRevisionsClone.html">
+
+    <li>
+        <a href="{{currentRepo.url}}/pushloghtml?changeset={{revision}}" target="_blank"> ...and {{diff}} more
+            <i class="fa fa-external-link-square"></i>
+        </a>
+    </li>
+
+</script>
+
 <!-- Clone target for each result set -->
 <script type="'text/ng-template'" id="resultsetClone.html">
     <div class="clearfix"></div>
