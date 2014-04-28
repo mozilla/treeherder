@@ -59,6 +59,11 @@ treeherder.factory('thJobFilters', [
     // to toggle it on or off.
     var skipExclusionProfiles = false;
 
+    // when setting to ``unclassified`` failures only, we stash any status
+    // filters you had before so that when you untoggle from them, you get
+    // back to where you were
+    var stashedStatusFilterValues = {};
+
     /**
      * If a custom resultStatusList is passed in (like for individual
      * resultSets, then use that.  Otherwise, fall back to the global one.
@@ -298,6 +303,10 @@ treeherder.factory('thJobFilters', [
      * Set the non-field filters so that we only view unclassified failures
      */
     var showUnclassifiedFailures = function() {
+        stashedStatusFilterValues = {
+            resultStatus: filters.resultStatus.values,
+            isClassified: filters.isClassified.values
+        };
         filters.resultStatus.values = ["busted", "testfailed", "exception"];
         filters.isClassified.values = [false];
     };
@@ -316,8 +325,8 @@ treeherder.factory('thJobFilters', [
      * is used to undo the call to ``showUnclassifiedFailures``.
      */
     var resetNonFieldFilters = function() {
-        filters.resultStatus.values = thResultStatusList.slice();
-        filters.isClassified.values = [true, false];
+        filters.resultStatus.values = stashedStatusFilterValues.resultStatus;
+        filters.isClassified.values = stashedStatusFilterValues.isClassified;
     };
 
     var toggleSkipExclusionProfiles = function() {
