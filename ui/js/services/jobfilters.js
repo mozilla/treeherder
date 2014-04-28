@@ -31,10 +31,11 @@ treeherder.factory('thJobFilters', [
     var $log = new ThLog("thJobFilters");
 
     var matchType = {
-        exactstr: 0,
-        substr: 1,
-        isnull: 2,
-        bool: 3
+        exactstr: 'exactstr',
+        substr: 'substr',
+        isnull: 'isnull',
+        bool: 'bool',
+        choice: 'choice'
     };
 
     // default filters
@@ -44,7 +45,7 @@ treeherder.factory('thJobFilters', [
             values: thResultStatusList.slice(),
             removeWhenEmpty: false
         },
-        failure_classification_id: {
+        isClassified: {
             matchType: matchType.bool,
             values: [true, false],
             removeWhenEmpty: false
@@ -73,8 +74,9 @@ treeherder.factory('thJobFilters', [
             var filterList = resultStatusList || filters[field].values;
             return _.contains(filterList, job.result) ||
                    _.contains(filterList, job.state);
-        } else if (field === api.failure_classification_id) {
-            // fci is a special case, too.  Where 1 is "not classified"
+        } else if (field === api.isClassified) {
+            // isClassified is a special case, too.  Where value of 1 in the
+            // job field of ``failure_classification_id`` is "not classified"
             var fci_filters = filters[field].values;
             if (_.contains(fci_filters, false) && (job.failure_classification_id === 1 ||
                                                    job.failure_classification_id === null)) {
@@ -100,6 +102,9 @@ treeherder.factory('thJobFilters', [
 
                 case api.matchType.exactstr:
                     return _.contains(filters[field].values, jobFieldValue.toLowerCase());
+
+                case api.matchType.choice:
+                    return _.contains(filters[field].values, String(jobFieldValue).toLowerCase());
 
             }
         }
@@ -294,7 +299,7 @@ treeherder.factory('thJobFilters', [
      */
     var showUnclassifiedFailures = function() {
         filters.resultStatus.values = ["busted", "testfailed", "exception"];
-        filters.failure_classification_id.values = [false];
+        filters.isClassified.values = [false];
     };
 
     /**
@@ -302,7 +307,7 @@ treeherder.factory('thJobFilters', [
      */
     var isUnclassifiedFailures = function() {
         return (_.isEqual(filters.resultStatus.values, ["busted", "testfailed", "exception"]) &&
-                _.isEqual(filters.failure_classification_id.values, [false]));
+                _.isEqual(filters.isClassified.values, [false]));
     };
 
     /**
@@ -312,7 +317,7 @@ treeherder.factory('thJobFilters', [
      */
     var resetNonFieldFilters = function() {
         filters.resultStatus.values = thResultStatusList.slice();
-        filters.failure_classification_id.values = [true, false];
+        filters.isClassified.values = [true, false];
     };
 
     var toggleSkipExclusionProfiles = function() {
@@ -338,7 +343,7 @@ treeherder.factory('thJobFilters', [
         isSkippingExclusionProfiles: isSkippingExclusionProfiles,
 
         // CONSTANTS
-        failure_classification_id: "failure_classification_id",
+        isClassified: "isClassified",
         resultStatus: "resultStatus",
         matchType: matchType
     };

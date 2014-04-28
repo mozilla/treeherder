@@ -3,9 +3,11 @@
 treeherder.controller('FilterPanelCtrl', [
     '$scope', '$rootScope', '$routeParams', '$location', 'ThLog',
     'localStorageService', 'thResultStatusList', 'thEvents', 'thJobFilters',
+    'thClassificationTypes',
     function FilterPanelCtrl(
         $scope, $rootScope, $routeParams, $location, ThLog,
-        localStorageService, thResultStatusList, thEvents, thJobFilters) {
+        localStorageService, thResultStatusList, thEvents, thJobFilters,
+        thClassificationTypes) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -91,7 +93,7 @@ treeherder.controller('FilterPanelCtrl', [
          *                       (when false)
          */
         $scope.setClassificationFilter = function(isClassified, isChecked, quiet) {
-            var field = "failure_classification_id";
+            var field = "isClassified";
             // this function is called before the checkbox value has actually
             // changed the scope model value, so change to the inverse.
             var func = isChecked? thJobFilters.addFilter: thJobFilters.removeFilter;
@@ -112,20 +114,40 @@ treeherder.controller('FilterPanelCtrl', [
             $scope.newFieldFilter = null;
         };
 
+        // we have to set the field match type here so that the UI can either
+        // show a text field for entering a value, or switch to a drop-down select.
+        $scope.setFieldMatchType = function() {
+            $scope.newFieldFilter.matchType=$scope.fieldChoices[$scope.newFieldFilter.field].matchType;
+            $scope.newFieldFilter.choices=$scope.fieldChoices[$scope.newFieldFilter.field].choices;
+
+        };
+
+        // for most match types we want to show just the raw value.  But for
+        // choice value type, we want to show the string representation of the
+        // value.  For example, failure_classification_id is an int, but we
+        // want to show the text.
+        $scope.getFilterValue = function(field, value) {
+            if ($scope.fieldChoices[field].matchType === 'choice') {
+                return $scope.fieldChoices[field].choices[value].name;
+            }
+            return value;
+        };
 
         $scope.addFieldFilter = function() {
             $log.debug("adding filter", $scope.newFieldFilter.field);
-            if (!$scope.newFieldFilter || $scope.newFieldFilter.field === "" || $scope.newFieldFilter.value === "") {
+            var value = $scope.newFieldFilter.value;
+
+            if (!$scope.newFieldFilter || $scope.newFieldFilter.field === "" || value === "") {
                 return;
             }
             thJobFilters.addFilter(
                 $scope.newFieldFilter.field,
-                $scope.newFieldFilter.value,
+                value,
                 $scope.fieldChoices[$scope.newFieldFilter.field].matchType
             );
             $scope.fieldFilters.push({
                 field: $scope.newFieldFilter.field,
-                value: $scope.newFieldFilter.value
+                value: value
             });
             $rootScope.$broadcast(thEvents.globalFilterChanged,
                                   {target: $scope.newFieldFilter.field, newValue: $scope.newFieldFilter.value});
@@ -167,8 +189,8 @@ treeherder.controller('FilterPanelCtrl', [
             // these are a special case of filtering because we're not checking
             // for a value, just whether the job has any value set or not.
             // just a boolean check either way
-            $scope.classifiedFilter = _.contains(thJobFilters.filters.failure_classification_id.values, true);
-            $scope.unClassifiedFilter = _.contains(thJobFilters.filters.failure_classification_id.values, false);
+            $scope.classifiedFilter = _.contains(thJobFilters.filters.isClassified.values, true);
+            $scope.unClassifiedFilter = _.contains(thJobFilters.filters.isClassified.values, false);
 
             // update "all checked" boxes for groups
             _.each($scope.filterGroups, function(group) {
@@ -209,6 +231,11 @@ treeherder.controller('FilterPanelCtrl', [
             platform: {
                 name: "platform",
                 matchType: thJobFilters.matchType.substr
+            },
+            failure_classification_id: {
+                name: "failure classification",
+                matchType: thJobFilters.matchType.choice,
+                choices: thClassificationTypes.classifications
             }
         };
     }
