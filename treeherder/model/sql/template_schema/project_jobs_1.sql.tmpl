@@ -93,6 +93,8 @@ DROP TABLE IF EXISTS `job`;
  *  submit_timestamp - Time the job was submitted.
  *  start_timestamp - Time the job was started.
  *  end_timestamp - Time the job completed.
+ *  pending_eta - ETA to a running state. A rolling average over a 12 hr window of start_timestamp - submit_timestamp, recomputed every 30 min.
+ *  running_eta - ETA to a completed state. A rolling average over a 12 hr window of end_timestamp - start_timestamp, recomputed every 30 min.
  **************************/
 CREATE TABLE `job` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -114,6 +116,8 @@ CREATE TABLE `job` (
   `submit_timestamp` int(10) unsigned NOT NULL,
   `start_timestamp` int(10) unsigned DEFAULT NULL,
   `end_timestamp` int(10) unsigned DEFAULT NULL,
+  `pending_eta` int(10) unsigned DEFAULT NULL,
+  `running_eta` int(10) unsigned DEFAULT NULL,
   `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
   PRIMARY KEY (`id`),
   KEY `idx_job_guid` (`job_guid`),
@@ -134,6 +138,8 @@ CREATE TABLE `job` (
   KEY `idx_submit_timestamp` (`submit_timestamp`),
   KEY `idx_start_timestamp` (`start_timestamp`),
   KEY `idx_end_timestamp` (`end_timestamp`),
+  KEY `idx_pending_eta` (`pending_eta`),
+  KEY `idx_running` (`running_eta`),
   KEY `idx_active_status` (`active_status`),
   CONSTRAINT `fk_result_set` FOREIGN KEY (`result_set_id`) REFERENCES `result_set` (`id`)
 ) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
