@@ -1,12 +1,12 @@
 /**
- * @license AngularJS v1.2.1
- * (c) 2010-2012 Google, Inc. http://angularjs.org
+ * @license AngularJS v1.2.16
+ * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
 (function(window, angular, undefined) {'use strict';
 
 /**
- * @ngdoc overview
+ * @ngdoc module
  * @name ngRoute
  * @description
  *
@@ -14,7 +14,9 @@
  *
  * The `ngRoute` module provides routing and deeplinking services and directives for angular apps.
  *
- * {@installModule route}
+ * ## Example
+ * See {@link ngRoute.$route#example $route} for an example of configuring and using `ngRoute`.
+ *
  *
  * <div doc-module-components="ngRoute"></div>
  */
@@ -23,14 +25,18 @@ var ngRouteModule = angular.module('ngRoute', ['ng']).
                         provider('$route', $RouteProvider);
 
 /**
- * @ngdoc object
- * @name ngRoute.$routeProvider
+ * @ngdoc provider
+ * @name $routeProvider
  * @function
  *
  * @description
  *
- * Used for configuring routes. See {@link ngRoute.$route $route} for an example.
+ * Used for configuring routes.
  *
+ * ## Example
+ * See {@link ngRoute.$route#example $route} for an example of configuring and using `ngRoute`.
+ *
+ * ## Dependencies
  * Requires the {@link ngRoute `ngRoute`} module to be installed.
  */
 function $RouteProvider(){
@@ -42,27 +48,26 @@ function $RouteProvider(){
 
   /**
    * @ngdoc method
-   * @name ngRoute.$routeProvider#when
-   * @methodOf ngRoute.$routeProvider
+   * @name $routeProvider#when
    *
    * @param {string} path Route path (matched against `$location.path`). If `$location.path`
    *    contains redundant trailing slash or is missing one, the route will still match and the
    *    `$location.path` will be updated to add or drop the trailing slash to exactly match the
    *    route definition.
    *
-   *      * `path` can contain named groups starting with a colon (`:name`). All characters up
+   *    * `path` can contain named groups starting with a colon: e.g. `:name`. All characters up
    *        to the next slash are matched and stored in `$routeParams` under the given `name`
    *        when the route matches.
-   *      * `path` can contain named groups starting with a colon and ending with a star (`:name*`).
-   *        All characters are eagerly stored in `$routeParams` under the given `name`
+   *    * `path` can contain named groups starting with a colon and ending with a star:
+   *        e.g.`:name*`. All characters are eagerly stored in `$routeParams` under the given `name`
    *        when the route matches.
-   *      * `path` can contain optional named groups with a question mark (`:name?`).
+   *    * `path` can contain optional named groups with a question mark: e.g.`:name?`.
    *
    *    For example, routes like `/color/:color/largecode/:largecode*\/edit` will match
-   *    `/color/brown/largecode/code/with/slashs/edit` and extract:
+   *    `/color/brown/largecode/code/with/slashes/edit` and extract:
    *
-   *      * `color: brown`
-   *      * `largecode: code/with/slashs`.
+   *    * `color: brown`
+   *    * `largecode: code/with/slashes`.
    *
    *
    * @param {Object} route Mapping information to be assigned to `$route.current` on route
@@ -105,7 +110,7 @@ function $RouteProvider(){
    *
    *      - `key` – `{string}`: a name of a dependency to be injected into the controller.
    *      - `factory` - `{string|function}`: If `string` then it is an alias for a service.
-   *        Otherwise if function, then it is {@link api/AUTO.$injector#invoke injected}
+   *        Otherwise if function, then it is {@link auto.$injector#invoke injected}
    *        and the return value is treated as the dependency. If the result is a promise, it is
    *        resolved before its value is injected into the controller. Be aware that
    *        `ngRoute.$routeParams` will still refer to the previous route within these resolve
@@ -183,7 +188,7 @@ function $RouteProvider(){
 
     path = path
       .replace(/([().])/g, '\\$1')
-      .replace(/(\/)?:(\w+)([\?|\*])?/g, function(_, slash, key, option){
+      .replace(/(\/)?:(\w+)([\?\*])?/g, function(_, slash, key, option){
         var optional = option === '?' ? option : null;
         var star = option === '*' ? option : null;
         keys.push({ name: key, optional: !!optional });
@@ -205,8 +210,7 @@ function $RouteProvider(){
 
   /**
    * @ngdoc method
-   * @name ngRoute.$routeProvider#otherwise
-   * @methodOf ngRoute.$routeProvider
+   * @name $routeProvider#otherwise
    *
    * @description
    * Sets route definition that will be used on route change when no other route definition
@@ -232,8 +236,8 @@ function $RouteProvider(){
       function($rootScope, $location, $routeParams, $q, $injector, $http, $templateCache, $sce) {
 
     /**
-     * @ngdoc object
-     * @name ngRoute.$route
+     * @ngdoc service
+     * @name $route
      * @requires $location
      * @requires $routeParams
      *
@@ -248,7 +252,7 @@ function $RouteProvider(){
      *     - `$scope` - The current route scope.
      *     - `$template` - The current route template HTML.
      *
-     * @property {Array.<Object>} routes Array of all configured routes.
+     * @property {Object} routes Object with all route configuration Objects as its properties.
      *
      * @description
      * `$route` is used for deep-linking URLs to controllers and views (HTML partials).
@@ -263,112 +267,115 @@ function $RouteProvider(){
      * {@link ngRoute.$routeParams `$routeParams`} service.
      *
      * @example
-       This example shows how changing the URL hash causes the `$route` to match a route against the
-       URL, and the `ngView` pulls in the partial.
-
-       Note that this example is using {@link ng.directive:script inlined templates}
-       to get it working on jsfiddle as well.
-
-     <example module="ngViewExample" deps="angular-route.js">
-       <file name="index.html">
-         <div ng-controller="MainCntl">
-           Choose:
-           <a href="Book/Moby">Moby</a> |
-           <a href="Book/Moby/ch/1">Moby: Ch1</a> |
-           <a href="Book/Gatsby">Gatsby</a> |
-           <a href="Book/Gatsby/ch/4?key=value">Gatsby: Ch4</a> |
-           <a href="Book/Scarlet">Scarlet Letter</a><br/>
-
-           <div ng-view></div>
-           <hr />
-
-           <pre>$location.path() = {{$location.path()}}</pre>
-           <pre>$route.current.templateUrl = {{$route.current.templateUrl}}</pre>
-           <pre>$route.current.params = {{$route.current.params}}</pre>
-           <pre>$route.current.scope.name = {{$route.current.scope.name}}</pre>
-           <pre>$routeParams = {{$routeParams}}</pre>
-         </div>
-       </file>
-
-       <file name="book.html">
-         controller: {{name}}<br />
-         Book Id: {{params.bookId}}<br />
-       </file>
-
-       <file name="chapter.html">
-         controller: {{name}}<br />
-         Book Id: {{params.bookId}}<br />
-         Chapter Id: {{params.chapterId}}
-       </file>
-
-       <file name="script.js">
-         angular.module('ngViewExample', ['ngRoute'])
-
-         .config(function($routeProvider, $locationProvider) {
-           $routeProvider.when('/Book/:bookId', {
-             templateUrl: 'book.html',
-             controller: BookCntl,
-             resolve: {
-               // I will cause a 1 second delay
-               delay: function($q, $timeout) {
-                 var delay = $q.defer();
-                 $timeout(delay.resolve, 1000);
-                 return delay.promise;
-               }
-             }
-           });
-           $routeProvider.when('/Book/:bookId/ch/:chapterId', {
-             templateUrl: 'chapter.html',
-             controller: ChapterCntl
-           });
-
-           // configure html5 to get links working on jsfiddle
-           $locationProvider.html5Mode(true);
-         });
-
-         function MainCntl($scope, $route, $routeParams, $location) {
-           $scope.$route = $route;
-           $scope.$location = $location;
-           $scope.$routeParams = $routeParams;
-         }
-
-         function BookCntl($scope, $routeParams) {
-           $scope.name = "BookCntl";
-           $scope.params = $routeParams;
-         }
-
-         function ChapterCntl($scope, $routeParams) {
-           $scope.name = "ChapterCntl";
-           $scope.params = $routeParams;
-         }
-       </file>
-
-       <file name="scenario.js">
-         it('should load and compile correct template', function() {
-           element('a:contains("Moby: Ch1")').click();
-           var content = element('.doc-example-live [ng-view]').text();
-           expect(content).toMatch(/controller\: ChapterCntl/);
-           expect(content).toMatch(/Book Id\: Moby/);
-           expect(content).toMatch(/Chapter Id\: 1/);
-
-           element('a:contains("Scarlet")').click();
-           sleep(2); // promises are not part of scenario waiting
-           content = element('.doc-example-live [ng-view]').text();
-           expect(content).toMatch(/controller\: BookCntl/);
-           expect(content).toMatch(/Book Id\: Scarlet/);
-         });
-       </file>
-     </example>
+     * This example shows how changing the URL hash causes the `$route` to match a route against the
+     * URL, and the `ngView` pulls in the partial.
+     *
+     * Note that this example is using {@link ng.directive:script inlined templates}
+     * to get it working on jsfiddle as well.
+     *
+     * <example name="$route-service" module="ngRouteExample"
+     *          deps="angular-route.js" fixBase="true">
+     *   <file name="index.html">
+     *     <div ng-controller="MainController">
+     *       Choose:
+     *       <a href="Book/Moby">Moby</a> |
+     *       <a href="Book/Moby/ch/1">Moby: Ch1</a> |
+     *       <a href="Book/Gatsby">Gatsby</a> |
+     *       <a href="Book/Gatsby/ch/4?key=value">Gatsby: Ch4</a> |
+     *       <a href="Book/Scarlet">Scarlet Letter</a><br/>
+     *
+     *       <div ng-view></div>
+     *
+     *       <hr />
+     *
+     *       <pre>$location.path() = {{$location.path()}}</pre>
+     *       <pre>$route.current.templateUrl = {{$route.current.templateUrl}}</pre>
+     *       <pre>$route.current.params = {{$route.current.params}}</pre>
+     *       <pre>$route.current.scope.name = {{$route.current.scope.name}}</pre>
+     *       <pre>$routeParams = {{$routeParams}}</pre>
+     *     </div>
+     *   </file>
+     *
+     *   <file name="book.html">
+     *     controller: {{name}}<br />
+     *     Book Id: {{params.bookId}}<br />
+     *   </file>
+     *
+     *   <file name="chapter.html">
+     *     controller: {{name}}<br />
+     *     Book Id: {{params.bookId}}<br />
+     *     Chapter Id: {{params.chapterId}}
+     *   </file>
+     *
+     *   <file name="script.js">
+     *     angular.module('ngRouteExample', ['ngRoute'])
+     *
+     *      .controller('MainController', function($scope, $route, $routeParams, $location) {
+     *          $scope.$route = $route;
+     *          $scope.$location = $location;
+     *          $scope.$routeParams = $routeParams;
+     *      })
+     *
+     *      .controller('BookController', function($scope, $routeParams) {
+     *          $scope.name = "BookController";
+     *          $scope.params = $routeParams;
+     *      })
+     *
+     *      .controller('ChapterController', function($scope, $routeParams) {
+     *          $scope.name = "ChapterController";
+     *          $scope.params = $routeParams;
+     *      })
+     *
+     *     .config(function($routeProvider, $locationProvider) {
+     *       $routeProvider
+     *        .when('/Book/:bookId', {
+     *         templateUrl: 'book.html',
+     *         controller: 'BookController',
+     *         resolve: {
+     *           // I will cause a 1 second delay
+     *           delay: function($q, $timeout) {
+     *             var delay = $q.defer();
+     *             $timeout(delay.resolve, 1000);
+     *             return delay.promise;
+     *           }
+     *         }
+     *       })
+     *       .when('/Book/:bookId/ch/:chapterId', {
+     *         templateUrl: 'chapter.html',
+     *         controller: 'ChapterController'
+     *       });
+     *
+     *       // configure html5 to get links working on jsfiddle
+     *       $locationProvider.html5Mode(true);
+     *     });
+     *
+     *   </file>
+     *
+     *   <file name="protractor.js" type="protractor">
+     *     it('should load and compile correct template', function() {
+     *       element(by.linkText('Moby: Ch1')).click();
+     *       var content = element(by.css('[ng-view]')).getText();
+     *       expect(content).toMatch(/controller\: ChapterController/);
+     *       expect(content).toMatch(/Book Id\: Moby/);
+     *       expect(content).toMatch(/Chapter Id\: 1/);
+     *
+     *       element(by.partialLinkText('Scarlet')).click();
+     *
+     *       content = element(by.css('[ng-view]')).getText();
+     *       expect(content).toMatch(/controller\: BookController/);
+     *       expect(content).toMatch(/Book Id\: Scarlet/);
+     *     });
+     *   </file>
+     * </example>
      */
 
     /**
      * @ngdoc event
-     * @name ngRoute.$route#$routeChangeStart
-     * @eventOf ngRoute.$route
+     * @name $route#$routeChangeStart
      * @eventType broadcast on root scope
      * @description
      * Broadcasted before a route change. At this  point the route services starts
-     * resolving all of the dependencies needed for the route change to occurs.
+     * resolving all of the dependencies needed for the route change to occur.
      * Typically this involves fetching the view template as well as any dependencies
      * defined in `resolve` route property. Once  all of the dependencies are resolved
      * `$routeChangeSuccess` is fired.
@@ -380,8 +387,7 @@ function $RouteProvider(){
 
     /**
      * @ngdoc event
-     * @name ngRoute.$route#$routeChangeSuccess
-     * @eventOf ngRoute.$route
+     * @name $route#$routeChangeSuccess
      * @eventType broadcast on root scope
      * @description
      * Broadcasted after a route dependencies are resolved.
@@ -396,8 +402,7 @@ function $RouteProvider(){
 
     /**
      * @ngdoc event
-     * @name ngRoute.$route#$routeChangeError
-     * @eventOf ngRoute.$route
+     * @name $route#$routeChangeError
      * @eventType broadcast on root scope
      * @description
      * Broadcasted if any of the resolve promises are rejected.
@@ -410,8 +415,7 @@ function $RouteProvider(){
 
     /**
      * @ngdoc event
-     * @name ngRoute.$route#$routeUpdate
-     * @eventOf ngRoute.$route
+     * @name $route#$routeUpdate
      * @eventType broadcast on root scope
      * @description
      *
@@ -425,8 +429,7 @@ function $RouteProvider(){
 
           /**
            * @ngdoc method
-           * @name ngRoute.$route#reload
-           * @methodOf ngRoute.$route
+           * @name $route#reload
            *
            * @description
            * Causes `$route` service to reload the current route even if
@@ -558,7 +561,7 @@ function $RouteProvider(){
 
 
     /**
-     * @returns the current active route, by matching it against the URL
+     * @returns {Object} the current active route, by matching it against the URL
      */
     function parseRoute() {
       // Match a route
@@ -576,7 +579,7 @@ function $RouteProvider(){
     }
 
     /**
-     * @returns interpolation of the redirect path with the parameters
+     * @returns {string} interpolation of the redirect path with the parameters
      */
     function interpolate(string, params) {
       var result = [];
@@ -600,8 +603,8 @@ ngRouteModule.provider('$routeParams', $RouteParamsProvider);
 
 
 /**
- * @ngdoc object
- * @name ngRoute.$routeParams
+ * @ngdoc service
+ * @name $routeParams
  * @requires $route
  *
  * @description
@@ -610,7 +613,7 @@ ngRouteModule.provider('$routeParams', $RouteParamsProvider);
  * Requires the {@link ngRoute `ngRoute`} module to be installed.
  *
  * The route parameters are a combination of {@link ng.$location `$location`}'s
- * {@link ng.$location#methods_search `search()`} and {@link ng.$location#methods_path `path()`}.
+ * {@link ng.$location#search `search()`} and {@link ng.$location#path `path()`}.
  * The `path` parameters are extracted when the {@link ngRoute.$route `$route`} path is matched.
  *
  * In case of parameter name collision, `path` params take precedence over `search` params.
@@ -623,24 +626,26 @@ ngRouteModule.provider('$routeParams', $RouteParamsProvider);
  * Instead you can use `$route.current.params` to access the new route's parameters.
  *
  * @example
- * <pre>
+ * ```js
  *  // Given:
  *  // URL: http://server.com/index.html#/Chapter/1/Section/2?search=moby
  *  // Route: /Chapter/:chapterId/Section/:sectionId
  *  //
  *  // Then
  *  $routeParams ==> {chapterId:1, sectionId:2, search:'moby'}
- * </pre>
+ * ```
  */
 function $RouteParamsProvider() {
   this.$get = function() { return {}; };
 }
 
 ngRouteModule.directive('ngView', ngViewFactory);
+ngRouteModule.directive('ngView', ngViewFillContentFactory);
+
 
 /**
  * @ngdoc directive
- * @name ngRoute.directive:ngView
+ * @name ngView
  * @restrict ECA
  *
  * @description
@@ -660,10 +665,21 @@ ngRouteModule.directive('ngView', ngViewFactory);
  *
  * @scope
  * @priority 400
+ * @param {string=} onload Expression to evaluate whenever the view updates.
+ *
+ * @param {string=} autoscroll Whether `ngView` should call {@link ng.$anchorScroll
+ *                  $anchorScroll} to scroll the viewport after the view is updated.
+ *
+ *                  - If the attribute is not set, disable scrolling.
+ *                  - If the attribute is set without value, enable scrolling.
+ *                  - Otherwise enable scrolling only if the `autoscroll` attribute value evaluated
+ *                    as an expression yields a truthy value.
  * @example
-    <example module="ngViewExample" deps="angular-route.js" animations="true">
+    <example name="ngView-directive" module="ngViewExample"
+             deps="angular-route.js;angular-animate.js"
+             animations="true" fixBase="true">
       <file name="index.html">
-        <div ng-controller="MainCntl as main">
+        <div ng-controller="MainCtrl as main">
           Choose:
           <a href="Book/Moby">Moby</a> |
           <a href="Book/Moby/ch/1">Moby: Ch1</a> |
@@ -742,51 +758,53 @@ ngRouteModule.directive('ngView', ngViewFactory);
       </file>
 
       <file name="script.js">
-        angular.module('ngViewExample', ['ngRoute', 'ngAnimate'],
-          function($routeProvider, $locationProvider) {
-            $routeProvider.when('/Book/:bookId', {
-              templateUrl: 'book.html',
-              controller: BookCntl,
-              controllerAs: 'book'
-            });
-            $routeProvider.when('/Book/:bookId/ch/:chapterId', {
-              templateUrl: 'chapter.html',
-              controller: ChapterCntl,
-              controllerAs: 'chapter'
-            });
+        angular.module('ngViewExample', ['ngRoute', 'ngAnimate'])
+          .config(['$routeProvider', '$locationProvider',
+            function($routeProvider, $locationProvider) {
+              $routeProvider
+                .when('/Book/:bookId', {
+                  templateUrl: 'book.html',
+                  controller: 'BookCtrl',
+                  controllerAs: 'book'
+                })
+                .when('/Book/:bookId/ch/:chapterId', {
+                  templateUrl: 'chapter.html',
+                  controller: 'ChapterCtrl',
+                  controllerAs: 'chapter'
+                });
 
-            // configure html5 to get links working on jsfiddle
-            $locationProvider.html5Mode(true);
-        });
+              // configure html5 to get links working on jsfiddle
+              $locationProvider.html5Mode(true);
+          }])
+          .controller('MainCtrl', ['$route', '$routeParams', '$location',
+            function($route, $routeParams, $location) {
+              this.$route = $route;
+              this.$location = $location;
+              this.$routeParams = $routeParams;
+          }])
+          .controller('BookCtrl', ['$routeParams', function($routeParams) {
+            this.name = "BookCtrl";
+            this.params = $routeParams;
+          }])
+          .controller('ChapterCtrl', ['$routeParams', function($routeParams) {
+            this.name = "ChapterCtrl";
+            this.params = $routeParams;
+          }]);
 
-        function MainCntl($route, $routeParams, $location) {
-          this.$route = $route;
-          this.$location = $location;
-          this.$routeParams = $routeParams;
-        }
-
-        function BookCntl($routeParams) {
-          this.name = "BookCntl";
-          this.params = $routeParams;
-        }
-
-        function ChapterCntl($routeParams) {
-          this.name = "ChapterCntl";
-          this.params = $routeParams;
-        }
       </file>
 
-      <file name="scenario.js">
+      <file name="protractor.js" type="protractor">
         it('should load and compile correct template', function() {
-          element('a:contains("Moby: Ch1")').click();
-          var content = element('.doc-example-live [ng-view]').text();
-          expect(content).toMatch(/controller\: ChapterCntl/);
+          element(by.linkText('Moby: Ch1')).click();
+          var content = element(by.css('[ng-view]')).getText();
+          expect(content).toMatch(/controller\: ChapterCtrl/);
           expect(content).toMatch(/Book Id\: Moby/);
           expect(content).toMatch(/Chapter Id\: 1/);
 
-          element('a:contains("Scarlet")').click();
-          content = element('.doc-example-live [ng-view]').text();
-          expect(content).toMatch(/controller\: BookCntl/);
+          element(by.partialLinkText('Scarlet')).click();
+
+          content = element(by.css('[ng-view]')).getText();
+          expect(content).toMatch(/controller\: BookCtrl/);
           expect(content).toMatch(/Book Id\: Scarlet/);
         });
       </file>
@@ -796,14 +814,13 @@ ngRouteModule.directive('ngView', ngViewFactory);
 
 /**
  * @ngdoc event
- * @name ngRoute.directive:ngView#$viewContentLoaded
- * @eventOf ngRoute.directive:ngView
+ * @name ngView#$viewContentLoaded
  * @eventType emit on the current ngView scope
  * @description
  * Emitted every time the ngView content is reloaded.
  */
-ngViewFactory.$inject = ['$route', '$anchorScroll', '$compile', '$controller', '$animate'];
-function ngViewFactory(   $route,   $anchorScroll,   $compile,   $controller,   $animate) {
+ngViewFactory.$inject = ['$route', '$anchorScroll', '$animate'];
+function ngViewFactory(   $route,   $anchorScroll,   $animate) {
   return {
     restrict: 'ECA',
     terminal: true,
@@ -812,6 +829,7 @@ function ngViewFactory(   $route,   $anchorScroll,   $compile,   $controller,   
     link: function(scope, $element, attr, ctrl, $transclude) {
         var currentScope,
             currentElement,
+            previousElement,
             autoScrollExp = attr.autoscroll,
             onloadExp = attr.onload || '';
 
@@ -819,12 +837,19 @@ function ngViewFactory(   $route,   $anchorScroll,   $compile,   $controller,   
         update();
 
         function cleanupLastView() {
-          if (currentScope) {
+          if(previousElement) {
+            previousElement.remove();
+            previousElement = null;
+          }
+          if(currentScope) {
             currentScope.$destroy();
             currentScope = null;
           }
           if(currentElement) {
-            $animate.leave(currentElement);
+            $animate.leave(currentElement, function() {
+              previousElement = null;
+            });
+            previousElement = currentElement;
             currentElement = null;
           }
         }
@@ -833,43 +858,67 @@ function ngViewFactory(   $route,   $anchorScroll,   $compile,   $controller,   
           var locals = $route.current && $route.current.locals,
               template = locals && locals.$template;
 
-          if (template) {
+          if (angular.isDefined(template)) {
             var newScope = scope.$new();
-            $transclude(newScope, function(clone) {
-              clone.html(template);
+            var current = $route.current;
+
+            // Note: This will also link all children of ng-view that were contained in the original
+            // html. If that content contains controllers, ... they could pollute/change the scope.
+            // However, using ng-view on an element with additional content does not make sense...
+            // Note: We can't remove them in the cloneAttchFn of $transclude as that
+            // function is called before linking the content, which would apply child
+            // directives to non existing elements.
+            var clone = $transclude(newScope, function(clone) {
               $animate.enter(clone, null, currentElement || $element, function onNgViewEnter () {
                 if (angular.isDefined(autoScrollExp)
                   && (!autoScrollExp || scope.$eval(autoScrollExp))) {
                   $anchorScroll();
                 }
               });
-
               cleanupLastView();
-
-              var link = $compile(clone.contents()),
-                  current = $route.current;
-
-              currentScope = current.scope = newScope;
-              currentElement = clone;
-
-              if (current.controller) {
-                locals.$scope = currentScope;
-                var controller = $controller(current.controller, locals);
-                if (current.controllerAs) {
-                  currentScope[current.controllerAs] = controller;
-                }
-                clone.data('$ngControllerController', controller);
-                clone.children().data('$ngControllerController', controller);
-              }
-
-              link(currentScope);
-              currentScope.$emit('$viewContentLoaded');
-              currentScope.$eval(onloadExp);
             });
+
+            currentElement = clone;
+            currentScope = current.scope = newScope;
+            currentScope.$emit('$viewContentLoaded');
+            currentScope.$eval(onloadExp);
           } else {
             cleanupLastView();
           }
         }
+    }
+  };
+}
+
+// This directive is called during the $transclude call of the first `ngView` directive.
+// It will replace and compile the content of the element with the loaded template.
+// We need this directive so that the element content is already filled when
+// the link function of another directive on the same element as ngView
+// is called.
+ngViewFillContentFactory.$inject = ['$compile', '$controller', '$route'];
+function ngViewFillContentFactory($compile, $controller, $route) {
+  return {
+    restrict: 'ECA',
+    priority: -400,
+    link: function(scope, $element) {
+      var current = $route.current,
+          locals = current.locals;
+
+      $element.html(locals.$template);
+
+      var link = $compile($element.contents());
+
+      if (current.controller) {
+        locals.$scope = scope;
+        var controller = $controller(current.controller, locals);
+        if (current.controllerAs) {
+          scope[current.controllerAs] = controller;
+        }
+        $element.data('$ngControllerController', controller);
+        $element.children().data('$ngControllerController', controller);
+      }
+
+      link(scope);
     }
   };
 }

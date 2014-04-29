@@ -71,7 +71,8 @@ treeherder.factory('thCloneHtml', [
         'jobGroupBeginClone.html',
         'jobGroupEndClone.html',
         'jobBtnClone.html',
-        'revisionUrlClone.html'
+        'revisionUrlClone.html',
+        'pushlogRevisionsClone.html'
         ];
 
     var templateId, templateName, templateTxt, i;

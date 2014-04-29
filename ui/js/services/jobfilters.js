@@ -31,10 +31,11 @@ treeherder.factory('thJobFilters', [
     var $log = new ThLog("thJobFilters");
 
     var matchType = {
-        exactstr: 0,
-        substr: 1,
-        isnull: 2,
-        bool: 3
+        exactstr: 'exactstr',
+        substr: 'substr',
+        isnull: 'isnull',
+        bool: 'bool',
+        choice: 'choice'
     };
 
     // default filters
@@ -44,7 +45,7 @@ treeherder.factory('thJobFilters', [
             values: thResultStatusList.slice(),
             removeWhenEmpty: false
         },
-        failure_classification_id: {
+        isClassified: {
             matchType: matchType.bool,
             values: [true, false],
             removeWhenEmpty: false
@@ -57,6 +58,11 @@ treeherder.factory('thJobFilters', [
     // an exclusion profile may be enabled, but this allows the user
     // to toggle it on or off.
     var skipExclusionProfiles = false;
+
+    // when setting to ``unclassified`` failures only, we stash any status
+    // filters you had before so that when you untoggle from them, you get
+    // back to where you were
+    var stashedStatusFilterValues = {};
 
     /**
      * If a custom resultStatusList is passed in (like for individual
@@ -73,8 +79,9 @@ treeherder.factory('thJobFilters', [
             var filterList = resultStatusList || filters[field].values;
             return _.contains(filterList, job.result) ||
                    _.contains(filterList, job.state);
-        } else if (field === api.failure_classification_id) {
-            // fci is a special case, too.  Where 1 is "not classified"
+        } else if (field === api.isClassified) {
+            // isClassified is a special case, too.  Where value of 1 in the
+            // job field of ``failure_classification_id`` is "not classified"
             var fci_filters = filters[field].values;
             if (_.contains(fci_filters, false) && (job.failure_classification_id === 1 ||
                                                    job.failure_classification_id === null)) {
@@ -100,6 +107,9 @@ treeherder.factory('thJobFilters', [
 
                 case api.matchType.exactstr:
                     return _.contains(filters[field].values, jobFieldValue.toLowerCase());
+
+                case api.matchType.choice:
+                    return _.contains(filters[field].values, String(jobFieldValue).toLowerCase());
 
             }
         }
@@ -293,8 +303,21 @@ treeherder.factory('thJobFilters', [
      * Set the non-field filters so that we only view unclassified failures
      */
     var showUnclassifiedFailures = function() {
+        stashedStatusFilterValues = {
+            resultStatus: filters.resultStatus.values,
+            isClassified: filters.isClassified.values
+        };
         filters.resultStatus.values = ["busted", "testfailed", "exception"];
-        filters.failure_classification_id.values = [false];
+        filters.isClassified.values = [false];
+    };
+
+    var toggleInProgress = function() {
+        var func = addFilter;
+        if (_.difference(['pending', 'running'], filters.resultStatus.values).length === 0) {
+            func = removeFilter;
+        }
+        func(api.resultStatus, 'pending');
+        func(api.resultStatus, 'running');
     };
 
     /**
@@ -302,7 +325,7 @@ treeherder.factory('thJobFilters', [
      */
     var isUnclassifiedFailures = function() {
         return (_.isEqual(filters.resultStatus.values, ["busted", "testfailed", "exception"]) &&
-                _.isEqual(filters.failure_classification_id.values, [false]));
+                _.isEqual(filters.isClassified.values, [false]));
     };
 
     /**
@@ -311,8 +334,8 @@ treeherder.factory('thJobFilters', [
      * is used to undo the call to ``showUnclassifiedFailures``.
      */
     var resetNonFieldFilters = function() {
-        filters.resultStatus.values = thResultStatusList.slice();
-        filters.failure_classification_id.values = [true, false];
+        filters.resultStatus.values = stashedStatusFilterValues.resultStatus;
+        filters.isClassified.values = stashedStatusFilterValues.isClassified;
     };
 
     var toggleSkipExclusionProfiles = function() {
@@ -332,13 +355,14 @@ treeherder.factory('thJobFilters', [
         filters: filters,
         pinAllShownJobs: pinAllShownJobs,
         showUnclassifiedFailures: showUnclassifiedFailures,
+        toggleInProgress: toggleInProgress,
         isUnclassifiedFailures: isUnclassifiedFailures,
         resetNonFieldFilters: resetNonFieldFilters,
         toggleSkipExclusionProfiles: toggleSkipExclusionProfiles,
         isSkippingExclusionProfiles: isSkippingExclusionProfiles,
 
         // CONSTANTS
-        failure_classification_id: "failure_classification_id",
+        isClassified: "isClassified",
         resultStatus: "resultStatus",
         matchType: matchType
     };
