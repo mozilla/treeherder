@@ -18,9 +18,6 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
---
--- Table structure for table `bug_job_map`
---
 
 DROP TABLE IF EXISTS `bug_job_map`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -76,6 +73,7 @@ DROP TABLE IF EXISTS `job`;
  *             the guid is a hash of associated request_ids and a timestamp.
  *
  *  job_coalesced_to_guid - If present the job was coalesced to this job_guid
+ *  reference_data_signature - If populated, points to treeherder_reference_1.buildbot_buildernames
  *  result_set_id - References result_set.id
  *  build_platform_id - References treeherder_reference_1.build_platform.id
  *  machine_platform_id - References treeherder_reference_1.machine_platform.id
@@ -95,6 +93,7 @@ DROP TABLE IF EXISTS `job`;
 CREATE TABLE `job` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `job_guid` varchar(50) COLLATE utf8_bin NOT NULL,
+  `reference_data_signature` varchar(50) DEFAULT NULL,
   `job_coalesced_to_guid` varchar(50) COLLATE utf8_bin DEFAULT NULL,
   `result_set_id` bigint(20) unsigned NOT NULL,
   `build_platform_id` int(10) unsigned NOT NULL,
@@ -115,6 +114,7 @@ CREATE TABLE `job` (
   PRIMARY KEY (`id`),
   KEY `idx_job_guid` (`job_guid`),
   KEY `idx_job_coalesced_to_guid` (`job_coalesced_to_guid`),
+  KEY `idx_reference_data_signature` (`reference_data_signature`),
   KEY `idx_result_set_id` (`result_set_id`),
   KEY `idx_build_platform_id` (`build_platform_id`),
   KEY `idx_machine_platform_id` (`machine_platform_id`),
@@ -275,17 +275,61 @@ DROP TABLE IF EXISTS `result_set`;
 CREATE TABLE `result_set` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `revision_hash` varchar(50) COLLATE utf8_bin NOT NULL,
+  `aggregate_id` varchar(50) COLLATE utf8_bin NOT NULL,
+  `result_set_classification_id` int(10) unsigned DEFAULT NULL,
   `author` varchar(150) COLLATE utf8_bin NOT NULL,
+  `type` varchar(25) DEFAULT NULL,
   `push_timestamp` int(11) unsigned NOT NULL,
   `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_revision_hash` (`revision_hash`),
+  KEY `idx_result_set_classification_id` (`result_set_classification_id`),
+  KEY `idx_aggregate_id` (`aggregate_id`),
   KEY `idx_author` (`author`),
+  KEY `idx_type` (`type`),
   KEY `idx_push_timestamp` (`push_timestamp`),
   KEY `idx_active_status` (`active_status`)
 ) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Table structure for table `result_set_artifact`
+--
+
+DROP TABLE IF EXISTS `result_set_artifact`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+
+/**************************
+ * Table: result_set_artifact
+ *
+ *  Holds any kind of data associated with a result set. Data can be structured in the
+ *  case of JSON data or raw binary in the case of an image.
+ *
+ * Population Method: dynamic from incoming data
+ *
+ * Example Data:
+ *
+ *  result_set_id - References result_set.id
+ *  name - Name of artifact data.
+ *  type - json | img | ...
+ *  blob - Artifact data
+ **************************/
+CREATE TABLE `result_set_artifact` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `result_set_id` bigint(20) unsigned NOT NULL,
+  `name` varchar(50) COLLATE utf8_bin NOT NULL,
+  `type` varchar(50) COLLATE utf8_bin NOT NULL,
+  `blob` mediumblob NOT NULL,
+  `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
+  PRIMARY KEY (`id`),
+  KEY `idx_result_set_id` (`result_set_id`),
+  KEY `idx_name` (`name`),
+  KEY `idx_type` (`type`),
+  KEY `idx_active_status` (`active_status`),
+  CONSTRAINT `fk_result_set_artifact` FOREIGN KEY (`result_set_id`) REFERENCES `result_set` (`id`)
+) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 --
 -- Table structure for table `revision`
 --

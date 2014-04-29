@@ -19,6 +19,62 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `buildbot_buildernames`
+--
+DROP TABLE IF EXISTS `buildbot_buildernames`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+/**************************
+ * Table: buildbot_buildernames
+ *
+ * Holds a list of all unique buildernames and their associated reference data
+ * inferences. The reference data used to populate the columns is used as the
+ * source of the reference_data_signature. This signature is used to map jobs
+ * to buildernames. This allows multiple buildernames to map to the same set of
+ * reference data properties. The table provides a data model for modifying the
+ * the reference data properties associated with a buildername after it's received.
+ * It also allows for a direct mapping between buildername and associated properties
+ * leaving the regular expression analysis as a last resort.
+ *
+ * NOTE: buildernames are specific to the buildbot build/test system but could be
+ *  used by a non-buildbot system for similar sheriff management functions to give
+ *  control over incoming job reference data.
+ *
+ * id - Unique integer id
+ * buildername - Buildername received from buildbot
+ * reference_data_signature - Jash of all of the associated reference data properties
+ * os_name - Found in build_platform.os_name
+ * os_platform - Found in build_platform.platform
+ * architecture - Found in build_platform.architecture
+ * job_group_name - Found in job_group.name
+ * job_type_name - Found in job_type.name
+ * option_collection_hash - References treeherder_reference_1.option_collection.option_collection_hash
+ * first_submission_timestamp - Timestamp associated with the first entry
+ * review_timestamp - Timestamp associated with the sheriff review
+ * review_status - Review status of buildername, possible values: reviewed | not_reviewed | on_hold
+ **************************/
+CREATE TABLE `buildbot_buildernames` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `buildername` varchar(150) NOT NULL,
+  `reference_data_signature` varchar(50) NOT NULL,
+  `os_name` varchar(25) NOT NULL,
+  `os_platform` varchar(25) NOT NULL,
+  `architecture` varchar(25) NOT NULL,
+  `job_group_name` varchar(100) DEFAULT NULL,
+  `job_type_name` varchar(100) NOT NULL,
+  `option_collection_hash` varchar(64) DEFAULT NULL,
+  `first_submission_timestamp` int(10) unsigned NOT NULL,
+  `review_timestamp` int(10) unsigned DEFAULT NULL,
+  `review_status` enum('reviewed', 'not_reviewed', 'on_hold'),
+  UNIQUE KEY `uni_buildername` (`buildername`),
+  KEY `idx_id` (`id`),
+  KEY `idx_reference_data_signature` (`reference_data_signature`),
+  KEY `idx_first_submission_timestamp` (`first_submission_timestamp`),
+  KEY `idx_review_status` (`review_status`)
+) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `bugscache`
 --
 
@@ -108,13 +164,43 @@ DROP TABLE IF EXISTS `failure_classification`;
 /**************************
  * Table: failure_classification
  *
- * A list of failure classification names associated with project test data. 
+ * A list of failure classification names associated with project test data.
  *
- * Population Method: manual by admin 
+ * Population Method: manual by admin
  *
  * Example Data:
  *
  *  name - broken | clobber-needed | infrastructure | intermittent | needs-filing | other | ... 
+ **************************/
+CREATE TABLE `failure_classification` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) COLLATE utf8_bin NOT NULL,
+  `description` text COLLATE utf8_bin,
+  `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
+  PRIMARY KEY (`id`),
+  KEY `idx_name` (`name`),
+  KEY `idx_active_status` (`active_status`)
+) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `result_set_classification`
+--
+
+DROP TABLE IF EXISTS `result_set_classification`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+
+/**************************
+ * Table: result_set_classification
+ *
+ * A list of result_set classification names.
+ *
+ * Population Method: manual by admin or dynamic from incoming data
+ *
+ * Example Data:
+ *
+ *  name - backout | test | uplift | other | ...
  **************************/
 CREATE TABLE `failure_classification` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
