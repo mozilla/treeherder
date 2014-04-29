@@ -23,6 +23,10 @@ DROP TABLE IF EXISTS `bug_job_map`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 
+--
+-- Table structure for table `bug_job_map`
+--
+
 /**************************
  * Table: bug_job_map
  *
@@ -73,7 +77,7 @@ DROP TABLE IF EXISTS `job`;
  *             the guid is a hash of associated request_ids and a timestamp.
  *
  *  job_coalesced_to_guid - If present the job was coalesced to this job_guid
- *  reference_data_signature - If populated, points to treeherder_reference_1.buildbot_buildernames
+ *  reference_data_signature - If populated, references treeherder_reference_1.buildbot_buildernames
  *  result_set_id - References result_set.id
  *  build_platform_id - References treeherder_reference_1.build_platform.id
  *  machine_platform_id - References treeherder_reference_1.machine_platform.id
