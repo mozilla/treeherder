@@ -29,7 +29,11 @@ treeherder.controller('MainCtrl', [
                 return;
             }
 
-            if( (ev.keyCode === 74) || (ev.keyCode === 78) ){
+            if( (ev.keyCode === 73) ){
+                // toggle display in-progress jobs(pending/running), key:i
+                $scope.toggleInProgress();
+
+            }else if( (ev.keyCode === 74) || (ev.keyCode === 78) ){
                 //Highlight next unclassified failure keys:j/n
                 $rootScope.$broadcast(
                     thEvents.selectNextUnclassifiedFailure
@@ -120,6 +124,11 @@ treeherder.controller('MainCtrl', [
             }
             $rootScope.$broadcast(thEvents.globalFilterChanged);
 
+        };
+
+        $scope.toggleInProgress = function() {
+            thJobFilters.toggleInProgress();
+            $rootScope.$broadcast(thEvents.globalFilterChanged);
         };
 
         $scope.allExpanded = function(cls) {

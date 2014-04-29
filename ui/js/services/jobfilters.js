@@ -311,6 +311,15 @@ treeherder.factory('thJobFilters', [
         filters.isClassified.values = [false];
     };
 
+    var toggleInProgress = function() {
+        var func = addFilter;
+        if (_.difference(['pending', 'running'], filters.resultStatus.values).length === 0) {
+            func = removeFilter;
+        }
+        func(api.resultStatus, 'pending');
+        func(api.resultStatus, 'running');
+    };
+
     /**
      * check if we're in the state of showing only unclassified failures
      */
@@ -346,6 +355,7 @@ treeherder.factory('thJobFilters', [
         filters: filters,
         pinAllShownJobs: pinAllShownJobs,
         showUnclassifiedFailures: showUnclassifiedFailures,
+        toggleInProgress: toggleInProgress,
         isUnclassifiedFailures: isUnclassifiedFailures,
         resetNonFieldFilters: resetNonFieldFilters,
         toggleSkipExclusionProfiles: toggleSkipExclusionProfiles,
