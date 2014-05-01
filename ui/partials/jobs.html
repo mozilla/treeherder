@@ -16,15 +16,18 @@
             <span class="timestamp-name">
                 <span>
                     <a href="{{revisionResultsetFilterUrl}}"
-                       title="open resultsets that contain revision {{resultset.revision}}"
+                       title="open this resultset in new tab"
                        target="_blank">{{resultset.push_timestamp*1000|date:'medium'}}</a> - </span>
                 <th-author author="{{resultset.author}}"></th-author>
             </span>
         </span>
         <span class="col-xs-3 revision-link">
-            <a href="{{revisionResultsetFilterUrl}}"
-               title="open resultsets that contain revision {{resultset.revision}}"
-               target="_blank">{{resultset.revision}}</a>
+            <span class="btn btn-default btn-xs"
+                  title="copy revision link to clipboard"
+                  clip-copy="revisionResultsetFilterUrl"
+                  clip-click="revisionUrlCopied(resultset.revision)">
+                <i class="glyphicon glyphicon-link"></i></span>
+                {{resultset.revision}}
         </span>
         <span class="col-xs-1 btn btn-default btn-sm revision-button"
               ng-click="toggleRevisions()"

@@ -53,14 +53,14 @@ treeherder.controller('JobsCtrl', [
             thEvents.toggleAllJobs, function(ev, expand){
                 _.forEach($scope.result_sets, function(rs) {
                     $rootScope.$broadcast(thEvents.toggleJobs, rs, expand);
-                })
+                });
             });
 
         $rootScope.$on(
             thEvents.toggleAllRevisions, function(ev, expand){
                 _.forEach($scope.result_sets, function(rs) {
                     $rootScope.$broadcast(thEvents.toggleRevisions, rs, expand);
-                })
+                });
             });
 
 
@@ -71,11 +71,11 @@ treeherder.controller('JobsCtrl', [
 treeherder.controller('ResultSetCtrl', [
     '$scope', '$rootScope', '$http', 'ThLog', '$location', 'thUrl',
     'thServiceDomain', 'thResultStatusInfo', 'ThResultSetModel', 'thEvents',
-    'thJobFilters',
+    'thJobFilters', 'thNotify',
     function ResultSetCtrl(
         $scope, $rootScope, $http, ThLog, $location,
         thUrl, thServiceDomain, thResultStatusInfo,
-        ThResultSetModel, thEvents, thJobFilters) {
+        ThResultSetModel, thEvents, thJobFilters, thNotify) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -125,6 +125,10 @@ treeherder.controller('ResultSetCtrl', [
                 thEvents.toggleJobs, $scope.resultset
                 );
 
+        };
+
+        $scope.revisionUrlCopied = function(revision) {
+            thNotify.send("url to " + revision + " copied to clipboard");
         };
 
         /**

@@ -2,14 +2,14 @@
 
 var treeherder = angular.module('treeherder',
     ['ngResource','ui.bootstrap', 'ngSanitize', 'ngCookies', 'ngRoute',
-     'LocalStorageModule']);
+     'LocalStorageModule', 'ngClipboard']);
 
 // dummy values required to use the library at: https://tbpl.mozilla.org/js/Config.js
 // for the platform name conversion
 window.BuildbotDBUser = "Treeherder";
 window.PushlogJSONParser = "None";
 
-treeherder.config(function($routeProvider, $httpProvider, $logProvider) {
+treeherder.config(function($routeProvider, $httpProvider, $logProvider, ngClipProvider) {
 
     // enable or disable debug messages using $log.
     // comment out the next line to enable them
@@ -21,6 +21,8 @@ treeherder.config(function($routeProvider, $httpProvider, $logProvider) {
 
     $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
     $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+
+    ngClipProvider.setPath("vendor/zeroclipboard/ZeroClipboard.swf");
 
     $routeProvider.
         when('/jobs', {

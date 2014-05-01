@@ -49,10 +49,13 @@ treeherder.directive('thWatchedRepo', [
                     scope.statusColor = statusInfo[newVal.treeStatus.status].color;
                     scope.titleText = newVal.treeStatus.status;
                     if (newVal.unclassifiedFailureCount > 0) {
-                        scope.titleText = scope.titleText + ' - ' + newVal.unclassifiedFailureCount + " unclassified failures";
+                        scope.titleText = scope.titleText + ' - ' +
+                            newVal.unclassifiedFailureCount +
+                            " unclassified failures in past week";
                     }
                     if (newVal.treeStatus.message_of_the_day) {
-                        scope.titleText = scope.titleText + ' - ' + newVal.treeStatus.message_of_the_day;
+                        scope.titleText = scope.titleText + ' - ' +
+                            newVal.treeStatus.message_of_the_day;
                     }
                 }
             }, true);
