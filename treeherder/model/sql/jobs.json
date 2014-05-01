@@ -252,9 +252,12 @@
         },
 
         "get_unclassified_failure_count":{
-            "sql":"SELECT count(id) as unclassified_failure_count FROM job
-                   WHERE failure_classification_id=1
-                   AND result IN (REP0)",
+            "sql":"SELECT count(j.id) as unclassified_failure_count FROM job as j
+                   LEFT JOIN result_set as rs
+                     ON rs.id = j.result_set_id
+                   WHERE j.failure_classification_id=1
+                   AND j.result IN (REP0)
+                   AND rs.push_timestamp > ?",
             "host":"read_host"
         },
 

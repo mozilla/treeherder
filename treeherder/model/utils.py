@@ -10,5 +10,3 @@ def get_now_timestamp():
     This is useful because it can be mocked out in unit tests.
     """
     return int(time.time())
-
-

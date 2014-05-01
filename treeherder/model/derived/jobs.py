@@ -111,6 +111,9 @@ class JobsModel(TreeherderModelBase):
     # 6 months in seconds
     DATA_CYCLE_INTERVAL = 15552000
 
+    # 1 week in seconds
+    UNCLASSIFIED_FAILURE_RANGE = 604800
+
     @classmethod
     def create(cls, project, host=None):
         """
@@ -194,12 +197,15 @@ class JobsModel(TreeherderModelBase):
         Get the count of unclassified failed jobs
         """
 
-        repl = "'" + "','".join(self.FAILED_RESULTS) + "'"
+        repl = ["'" + "','".join(self.FAILED_RESULTS) + "'"]
+        placeholders = [utils.get_now_timestamp() -
+                        self.UNCLASSIFIED_FAILURE_RANGE]
 
         proc = "jobs.selects.get_unclassified_failure_count"
         data = self.get_jobs_dhub().execute(
             proc=proc,
-            replace=[repl],
+            replace=repl,
+            placeholders=placeholders,
             debug_show=self.DEBUG,
         )
         return data[0]
@@ -337,7 +343,7 @@ class JobsModel(TreeherderModelBase):
                 failure_classification_id,
                 who,
                 note,
-                time.time(),
+                utils.get_now_timestamp(),
             ],
             debug_show=self.DEBUG
         )
