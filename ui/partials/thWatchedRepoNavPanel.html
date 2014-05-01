@@ -10,8 +10,8 @@
                 <span class="btn btn-view-nav btn-sm"
                       title="toggle showing hidden jobs"
                       ng-click="toggleExcludedJobs()">
-                        <i class="fa fa=lg"
-                           ng-class="{'fa-eye': isSkippingExclusionProfiles(), 'fa-eye-slash': !isSkippingExclusionProfiles()}"></i>
+                    <i class="fa fa=lg"
+                       ng-class="{'fa-eye': isSkippingExclusionProfiles(), 'fa-eye-slash': !isSkippingExclusionProfiles()}"></i>
                 </span>
                 <span class="btn btn-view-nav btn-sm"
                       title="collapse/expand all revisions"
@@ -20,10 +20,10 @@
                       title="collapse/expand all jobs"
                       ng-click="toggleAllJobs()"><i class="fa fa-th-list fa-lg"></i></span>
                 <div ng-controller="SearchCtrl" class="form-group form-inline">
-                        <input id="platform-job-text-search-field"
-                               ng-model="searchQuery" ng-keyup="search($event)" type="text"
-                               class="form-control input-sm"
-                               placeholder="Filter platforms & jobs">
+                    <input id="platform-job-text-search-field"
+                           ng-model="searchQuery" ng-keyup="search($event)" type="text"
+                           class="form-control input-sm"
+                           placeholder="Filter platforms & jobs">
                 </div>
             </form>
         </span>
