@@ -162,6 +162,10 @@ treeherder.controller('ResultSetCtrl', [
             return thJobFilters.showJob(job, $scope.resultStatusFilters);
         };
 
+        $scope.totalExcluded = function() {
+            return thJobFilters.getCountExcluded($scope.resultset.id, "total");
+        };
+
         $scope.revisionResultsetFilterUrl = $scope.urlBasePath + "?repo=" + $scope.repoName + "&revision=" + $scope.resultset.revision;
         $scope.authorResultsetFilterUrl = $scope.urlBasePath + "?repo=" + $scope.repoName + "&author=" + encodeURIComponent($scope.resultset.author);
 
