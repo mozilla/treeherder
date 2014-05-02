@@ -12,6 +12,12 @@ treeherder.provider('thServiceDomain', function() {
 
 treeherder.provider('thResultStatusList', function() {
     this.$get = function() {
+        return ['success', 'testfailed', 'busted', 'exception', 'retry', 'usercancel', 'running', 'pending'];
+    };
+});
+
+treeherder.provider('thResultStatusCountsList', function() {
+    this.$get = function() {
         return ['success', 'testfailed', 'busted', 'exception', 'retry', 'running', 'pending'];
     };
 });
