@@ -24,7 +24,7 @@ treeherder.controller('FilterPanelCtrl', [
                 value: "nonfailures",
                 name: "non-failures",
                 allChecked: true,
-                resultStatuses: ["success", "retry"]
+                resultStatuses: ["success", "retry", "usercancel"]
             },
             inProgress: {
                 value: "inProgress",

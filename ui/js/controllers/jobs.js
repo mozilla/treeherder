@@ -3,11 +3,11 @@
 treeherder.controller('JobsCtrl', [
     '$scope', '$http', '$rootScope', '$routeParams', 'ThLog', '$cookies',
     'localStorageService', 'thUrl', 'ThRepositoryModel', 'thSocket',
-    'ThResultSetModel', 'thResultStatusList', '$location', 'thEvents',
+    'ThResultSetModel', 'thResultStatusCountsList', '$location', 'thEvents',
     function JobsCtrl(
         $scope, $http, $rootScope, $routeParams, ThLog, $cookies,
         localStorageService, thUrl, ThRepositoryModel, thSocket,
-        ThResultSetModel, thResultStatusList, $location, thEvents) {
+        ThResultSetModel, thResultStatusCountsList, $location, thEvents) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -33,7 +33,7 @@ treeherder.controller('JobsCtrl', [
         $scope.isLoadingRsBatch = ThResultSetModel.getLoadingStatus($scope.repoName);
         $scope.result_sets = ThResultSetModel.getResultSetsArray($scope.repoName);
         $scope.job_map = ThResultSetModel.getJobMap($scope.repoName);
-        $scope.statusList = thResultStatusList;
+        $scope.statusList = thResultStatusCountsList;
 
         // determine how many resultsets to fetch.  default to 10.
         var count = 10;
