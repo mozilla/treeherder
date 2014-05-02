@@ -29,7 +29,7 @@ def bz_request(api, path, data=None, method=None, username=None, password=None):
     if method:
         req.get_method = lambda: method
 
-    result = urllib2.urlopen(req)
+    result = urllib2.urlopen(req, timeout=60)
     data = result.read()
     return json.loads(data)
 
@@ -76,7 +76,7 @@ def shorten(url, login, apiKey, max_tries=10, sleep_time=30):
         i += 1
         if i >= max_tries:
             raise IOError("Too many retries")
-        data = json.load(urllib.urlopen(api_url))
+        data = json.load(urllib2.urlopen(api_url, timeout=60))
         if data['status_code'] == 200:
             return data['data']['url']
         elif data['status_code'] == 403:
@@ -189,7 +189,7 @@ class PushLog:
                 changesets = ["changeset=%s" % c for c in chunk]
                 base_url = self.base_url
                 url = "%s/%s/json-pushes?full=1&%s" % (base_url, repo_path, "&".join(changesets))
-                raw_data = urllib.urlopen(url).read()
+                raw_data = urllib2.urlopen(url, timeout=300).read()
                 try:
                     data = json.loads(raw_data)
                     self._handleJson(branch, data)
@@ -218,7 +218,7 @@ class PushLog:
         log.debug("Fetching changesets from %s to %s", from_, to_)
         base_url = self.base_url
         url = "%s/%s/json-pushes?full=1&fromchange=%s&tochange=%s" % (base_url, repo_path, from_, to_)
-        raw_data = urllib.urlopen(url).read()
+        raw_data = urllib2.urlopen(url, timeout=300).read()
         try:
             data = json.loads(raw_data)
             self._handleJson(branch, data)
@@ -380,9 +380,8 @@ class AnalysisRunner:
 
         if self.config.has_option('main', 'bz_api'):
             bug = bz_get_bug(self.config.get('main', 'bz_api'), bug_num)
-            if bug:
-                self.bug_cache[bug_num] = bug
-                return bug
+            self.bug_cache[bug_num] = bug
+            return bug
 
     def ignorePercentageForTest(self, test_name):
         return self.testMatchesOption(test_name, 'ignore_percentage_tests')
