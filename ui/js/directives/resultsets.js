@@ -50,7 +50,12 @@ treeherder.directive('thResultCounts', function () {
     };
 });
 
-treeherder.directive('thResultStatusCount', function () {
+treeherder.directive('thResultStatusCount', function (thJobFilters) {
+
+    var updateResultCount = function(scope) {
+        scope.resultCount = scope.resultset.job_counts[scope.resultStatus] -
+                            thJobFilters.getCountExcluded(scope.resultStatus);
+    };
 
     return {
         restrict: "E",
@@ -58,8 +63,12 @@ treeherder.directive('thResultStatusCount', function () {
             scope.resultCountText = scope.getCountText(scope.resultStatus);
             scope.resultStatusCountClassPrefix = scope.getCountClass(scope.resultStatus);
 
-            // @@@ this will change once we have classifying implemented
-            scope.resultCount = scope.resultset.job_counts[scope.resultStatus];
+            // make this watch-able
+            scope.isExcluding = function() {
+                return !thJobFilters.isSkippingExclusionProfiles();
+            };
+            updateResultCount(scope);
+
             scope.unclassifiedResultCount = scope.resultCount;
             var getCountAlertClass = function() {
                 if (scope.unclassifiedResultCount) {
@@ -71,10 +80,16 @@ treeherder.directive('thResultStatusCount', function () {
             scope.countAlertClass = getCountAlertClass();
 
             scope.$watch("resultset.job_counts", function(newValue) {
-                scope.resultCount = scope.resultset.job_counts[scope.resultStatus];
+                updateResultCount(scope);
                 scope.unclassifiedResultCount = scope.resultCount;
                 scope.countAlertClass = getCountAlertClass();
             }, true);
+
+            // so that when you toggle skipping the exclusion profiles,
+            // we update the counts to reflect what is seen.
+            scope.$watch("isExcluding()", function(newValue) {
+                updateResultCount(scope);
+            });
 
         },
         templateUrl: 'partials/thResultStatusCount.html'

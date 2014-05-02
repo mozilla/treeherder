@@ -23,10 +23,11 @@
  */
 treeherder.factory('thJobFilters', [
     'thResultStatusList', 'ThLog', '$rootScope', 'ThResultSetModel',
-    'thPinboard', 'thNotify', 'thEvents',
+    'thPinboard', 'thNotify', 'thEvents', 'thResultStatus',
     function(
         thResultStatusList, ThLog, $rootScope,
-        ThResultSetModel, thPinboard, thNotify, thEvents) {
+        ThResultSetModel, thPinboard, thNotify, thEvents,
+        thResultStatus) {
 
     var $log = new ThLog("thJobFilters");
 
@@ -63,6 +64,11 @@ treeherder.factory('thJobFilters', [
     // filters you had before so that when you untoggle from them, you get
     // back to where you were
     var stashedStatusFilterValues = {};
+
+    var excludedJobs = {
+        resultStatusCounts: {},
+        job_guids: []
+    };
 
     /**
      * If a custom resultStatusList is passed in (like for individual
@@ -258,14 +264,61 @@ treeherder.factory('thJobFilters', [
             try{
                 if($rootScope.active_exclusion_profile.flat_exclusion[$rootScope.repoName]
                     [job.platform][job.job_type_name].indexOf(job.platform_option) !== -1){
+                    addExcludedJob(job);
                     return false;
                 }
             }catch (e){
                 //do nothing
             }
+            removeExcludedJob(job);
         }
-
         return true;
+    };
+
+    /**
+     * When a job is excluded, we add it to the ``excludedJobs`` object which
+     * keeps track of the counts of resultStatus values during exclusion.
+     * These values can then be used to modify the displayed counts per
+     * ``resultStatus`` in that directive if exclusion is enabled.
+     * @param job
+     */
+    var addExcludedJob = function(job) {
+        var rs = thResultStatus(job);
+        if (!_.contains(excludedJobs.job_guids, job.job_guid)) {
+            excludedJobs.job_guids.push(job.job_guid);
+            if (_.has(excludedJobs.resultStatusCounts, rs)) {
+                excludedJobs.resultStatusCounts[rs] = excludedJobs.resultStatusCounts[rs] +1;
+            } else {
+                excludedJobs.resultStatusCounts[rs] = 1;
+            }
+        }
+    };
+
+    /**
+     * If an exclusion profile is changed, we may need to modify the count
+     * excluded.
+     * @param job
+     */
+    var removeExcludedJob = function(job) {
+        var rs = thResultStatus(job);
+        var idx = excludedJobs.job_guids.indexOf(job.job_guid);
+        if (idx >= 0) {
+            excludedJobs.job_guids.splice(idx, 1);
+            excludedJobs.resultStatusCounts[rs]--;
+        }
+    };
+
+    /**
+     * Get the count of this resultStatus that were excluded.  If
+     * skipping exclusion, then return 0.
+     * @param resultStatus
+     */
+    var getCountExcluded = function(resultStatus) {
+        if (skipExclusionProfiles) {
+            return 0;
+        } else {
+            return excludedJobs.resultStatusCounts[resultStatus] || 0;
+        }
     };
 
     /**
@@ -360,6 +413,8 @@ treeherder.factory('thJobFilters', [
         resetNonFieldFilters: resetNonFieldFilters,
         toggleSkipExclusionProfiles: toggleSkipExclusionProfiles,
         isSkippingExclusionProfiles: isSkippingExclusionProfiles,
+        excludedJobs: excludedJobs,
+        getCountExcluded: getCountExcluded,
 
         // CONSTANTS
         isClassified: "isClassified",
