@@ -65,20 +65,24 @@ treeherder.factory('thJobFilters', [
     // back to where you were
     var stashedStatusFilterValues = {};
 
-//        resultsets:{
-//            id1: {
-//                counts: {
-//                    "success": 4,
-//                    ...
-//                },
-//                jobs: {
-//                    job_guid1: "success",
-//                    job_guid2: "testfailure"
-//                }
-//
-//            }
-//
-//        }
+    // This object will look like:
+    //
+    //        {
+    //            resultset_id1: {
+    //                counts: {
+    //                    "success": 4,
+    //                    "testfailed": 6,
+    //                    "total": 10
+    //                    ...
+    //                },
+    //                jobs: {
+    //                    job_guid1: "success",
+    //                    job_guid2: "testfailure",
+    //                    ...
+    //                }
+    //            },
+    //            resultset_id2: ...
+    //        }
     var excludedJobs = {};
 
     /**
@@ -311,7 +315,7 @@ treeherder.factory('thJobFilters', [
         }
 
         // now we can do the increment, because we've decremented the old count
-        // if it was there.
+        // if one was there.
         rs_excluded.jobs[job.job_guid] = newStatus;
         rs_excluded.counts[newStatus] = rs_excluded.counts[newStatus] || 0;
         ++rs_excluded.counts[newStatus];
