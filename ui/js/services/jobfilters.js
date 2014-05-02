@@ -65,10 +65,21 @@ treeherder.factory('thJobFilters', [
     // back to where you were
     var stashedStatusFilterValues = {};
 
-    var excludedJobs = {
-        resultStatusCounts: {},
-        job_guids: []
-    };
+//        resultsets:{
+//            id1: {
+//                counts: {
+//                    "success": 4,
+//                    ...
+//                },
+//                jobs: {
+//                    job_guid1: "success",
+//                    job_guid2: "testfailure"
+//                }
+//
+//            }
+//
+//        }
+    var excludedJobs = {};
 
     /**
      * If a custom resultStatusList is passed in (like for individual
@@ -283,28 +294,47 @@ treeherder.factory('thJobFilters', [
      * @param job
      */
     var addExcludedJob = function(job) {
-        var rs = thResultStatus(job);
-        if (!_.contains(excludedJobs.job_guids, job.job_guid)) {
-            excludedJobs.job_guids.push(job.job_guid);
-            if (_.has(excludedJobs.resultStatusCounts, rs)) {
-                excludedJobs.resultStatusCounts[rs] = excludedJobs.resultStatusCounts[rs] +1;
-            } else {
-                excludedJobs.resultStatusCounts[rs] = 1;
-            }
+        var newStatus = thResultStatus(job),
+            rsid = job.result_set_id;
+        if (!_.has(excludedJobs, rsid)) {
+            excludedJobs[rsid] = {
+                counts: {},
+                jobs: {}
+            };
         }
+        var rs_excluded = excludedJobs[rsid];
+
+        if (_.has(rs_excluded.jobs, job.guid)) {
+            //we already have this in the map, but the status may be different
+            //so we want to update the counts accordingly
+            var oldStatus = rs_excluded.jobs[job.guid];
+            --rs_excluded.counts[oldStatus];
+//            rs_excluded.counts[oldStatus] = rs_excluded.counts[oldStatus]-1;
+        }
+
+        // now we can do the increment, because we've decremented the old count
+        // if it was there.
+        rs_excluded.jobs[job.guid] = newStatus;
+        rs_excluded.counts[newStatus] = rs_excluded.counts[newStatus] || 0;
+        ++rs_excluded.counts[newStatus];
+//        rs_excluded.counts[newStatus] = rs_excluded.counts[newStatus]+1;
     };
 
     /**
-     * If an exclusion profile is changed, we may need to modify the count
+     * If an exclusion profile is changed, we need to modify the count
      * excluded.
      * @param job
      */
     var removeExcludedJob = function(job) {
-        var rs = thResultStatus(job);
-        var idx = excludedJobs.job_guids.indexOf(job.job_guid);
-        if (idx >= 0) {
-            excludedJobs.job_guids.splice(idx, 1);
-            excludedJobs.resultStatusCounts[rs]--;
+        var status = thResultStatus(job);
+        if (_.has(excludedJobs, job.result_set_id)) {
+            var rs_excluded = excludedJobs[job.result_set_id];
+
+            if (_.has(rs_excluded.jobs, job.job_guid)) {
+                delete rs_excluded.jobs[job.job_guid];
+                --rs_excluded.counts[status];
+//                rs_excluded.counts[status]=rs_excluded.counts[status]-1;
+            }
         }
     };
 
@@ -313,11 +343,14 @@ treeherder.factory('thJobFilters', [
      * skipping exclusion, then return 0.
      * @param resultStatus
      */
-    var getCountExcluded = function(resultStatus) {
+    var getCountExcluded = function(resultset_id, resultStatus) {
         if (skipExclusionProfiles) {
             return 0;
         } else {
-            return excludedJobs.resultStatusCounts[resultStatus] || 0;
+            if (_.has(excludedJobs, resultset_id)) {
+                return excludedJobs[resultset_id].counts[resultStatus] || 0;
+            }
+            return 0;
         }
     };
 
