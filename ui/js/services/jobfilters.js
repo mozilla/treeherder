@@ -328,11 +328,12 @@ treeherder.factory('thJobFilters', [
      * @param job
      */
     var removeExcludedJob = function(job) {
-        var status = thResultStatus(job);
         if (_.has(excludedJobs, job.result_set_id)) {
             var rs_excluded = excludedJobs[job.result_set_id];
 
             if (_.has(rs_excluded.jobs, job.job_guid)) {
+
+                var status = rs_excluded.jobs[job.job_guid];
                 delete rs_excluded.jobs[job.job_guid];
                 --rs_excluded.counts[status];
                 rs_excluded.counts.total = _.size(rs_excluded.jobs);
