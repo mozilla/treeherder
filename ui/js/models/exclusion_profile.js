@@ -55,8 +55,8 @@ treeherder.factory('ThExclusionProfileModel', [
                         angular.forEach(reason.data, function(error_list, field){
                             angular.forEach(error_list, function(error){
                                 thNotify.send(field+": "+error, "danger");
-                            })
-                        })
+                            });
+                        });
                     }
                     else{
                         if(reason.data && reason.data.detail){
@@ -89,8 +89,8 @@ treeherder.factory('ThExclusionProfileModel', [
                         angular.forEach(reason.data, function(error_list, field){
                             angular.forEach(error_list, function(error){
                                 thNotify.send(field+": "+error, "danger");
-                            })
-                        })
+                            });
+                        });
                     }
                     else{
                         thNotify.send(reason,"danger");

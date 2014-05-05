@@ -119,9 +119,9 @@ treeherder.controller('SheriffCtrl', [
                 // with the exclusion just deleted
                 ThExclusionProfileModel.get_list().then(function(data) {
                     $scope.profiles = data;
-                })
+                });
                 // delete the exclusion from the exclusion map
-                delete $scope.exclusions_map[exclusion.id + ''];
+                delete $scope.exclusions_map[String(exclusion.id)];
 
                 // and from the list of available exclusions
                 var index = $scope.exclusions.indexOf(exclusion);
@@ -169,7 +169,7 @@ treeherder.controller('SheriffCtrl', [
                     $scope.switchView('exclusion_profile_list');
                 }, null);
             }else {
-                var profile = new ThExclusionProfileModel($scope.form_profile);
+                profile = new ThExclusionProfileModel($scope.form_profile);
                 profile.create().then(
                     function() {
                         $scope.profiles.push(profile);

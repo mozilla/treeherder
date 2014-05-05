@@ -278,7 +278,7 @@ treeherder.factory('thJobFilters', [
             $log.debug("exclusion profile active", $rootScope.active_exclusion_profile);
             try{
                 if($rootScope.active_exclusion_profile.flat_exclusion[$rootScope.repoName]
-                    [job.platform][job.job_type_name].indexOf(job.platform_option) !== -1){
+                    [job.platform][job.job_type_name][job.platform_option]){
                     addExcludedJob(job);
                     return false;
                 }
