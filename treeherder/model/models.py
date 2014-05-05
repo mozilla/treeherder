@@ -569,7 +569,7 @@ class ExclusionProfile(models.Model):
         # prepare the nested defaultdict structure for the flat exclusions
         # options should be stored in a set but sets are not serializable.
         # using a list instead
-        job_types_constructor = lambda: defaultdict(list)
+        job_types_constructor = lambda: defaultdict(dict)
         platform_constructor = lambda: defaultdict(job_types_constructor)
         flat_exclusions = defaultdict(platform_constructor)
 
@@ -580,10 +580,7 @@ class ExclusionProfile(models.Model):
             for repo, platform, job_type, option in combo:
                 # strip the job type symbol appended in the ui
                 job_type = job_type[:job_type.rfind(" (")]
-                options = flat_exclusions[repo][platform][job_type]
-                # using a list instead of a set and checking if the value already exists
-                if not options in options:
-                    options.append(option)
+                flat_exclusions[repo][platform][job_type][option] = 1
 
         self.flat_exclusion = flat_exclusions
         kwargs["force_insert"] = False
