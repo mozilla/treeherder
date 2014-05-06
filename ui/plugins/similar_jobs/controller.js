@@ -16,6 +16,7 @@ treeherder.controller('SimilarJobsPluginCtrl', [
         // do the jobs retrieval based on the user selection
         $scope.page_size = 20;
         $scope.get_similar_jobs = function(){
+            $scope.tabs.similar_jobs.is_loading = true;
             var options = {
                     count: $scope.page_size +1,
                     offset: ($scope.page-1) * $scope.page_size,
@@ -53,11 +54,12 @@ treeherder.controller('SimilarJobsPluginCtrl', [
                                         obj.authorResultsetFilterUrl = $scope.urlBasePath + "?repo=" +
                                             $scope.repoName + "&author=" + encodeURIComponent(obj.result_set.author);
                                     });
-                                    $scope.similar_jobs = $scope.similar_jobs.concat(data);
+                                    $scope.similar_jobs = data;
                                     // on the first page show the first element info by default
                                     if($scope.page === 1){
                                         $scope.show_job_info($scope.similar_jobs[0]);
                                     }
+                                    $scope.tabs.similar_jobs.is_loading = false;
                                 },
                                 function(){
                                     thNotify.send("Error fetching result sets for similar jobs","danger");
@@ -73,22 +75,19 @@ treeherder.controller('SimilarJobsPluginCtrl', [
                 $scope.has_next_page = false;
                 $scope.similar_jobs = [];
                 $scope.similar_job_selected = null;
-
-            }
-            if($scope.job.id){
                 $scope.get_similar_jobs();
-
             }
         };
 
         $scope.similar_jobs = [];
 
         $scope.result_status_info = thResultStatusInfo;
-        $scope.$on(thEvents.jobDetailLoaded, $scope.update_similar_jobs);
+
+        $rootScope.$on(thEvents.jobDetailLoaded, $scope.update_similar_jobs);
         $scope.similar_jobs_filters = {
             "machine_id": false,
             "job_type_id": true,
-            "build_platform_id": false
+            "build_platform_id": true
         };
         $scope.button_class = function(job){
             var resultState = job.result;
@@ -96,7 +95,6 @@ treeherder.controller('SimilarJobsPluginCtrl', [
                 resultState = job.state;
             }
             return thResultStatusInfo(resultState).btnClass;
-
         };
 
         // this is triggered by the show more link

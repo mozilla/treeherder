@@ -1,105 +1,126 @@
-<div ng-controller="PluginCtrl" class="full-height">
-    <div ng-controller="PinboardCtrl" class="full-height">
-        <div class="bottom-panel-title" ng-hide="hasPinnedJobs()">Pin one or more jobs to classify (shift-click).</div>
+<ng-include src="'partials/thPinboardPanel.html'"></ng-include>
+
+<nav class="navbar navbar-dark">
+    <ul class="nav navbar-nav tab-headers">
+        <li ng-repeat="(tab_id, tab) in tabs" ng-class="{'active': tab.active}">
+            <a title="show {{ tab.title }}" href="" ng-click="show_tab(tab)">{{ tab.title }}</a>
+        </li>
+
+    </ul>
+    <ul class="nav navbar-nav pull-right">
+        <li ng-show="isReftest()">
+            <a title="Launch the Reftest Analyser in a new page" target="_blank" href="https://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml">
+                <span class="fa fa-bar-chart-o"></span>
+            </a>
+        </li>
+        <li ng-if="logs" ng-disabled="artifacts.length>0">
+            <a title="Open the structured log in a new window" target="_blank" href="{{ lvUrl }}">
+                <span class="glyphicon glyphicon-tasks"></span>
+            </a>
+        </li>
+        <li ng-repeat="joblog in logs">
+            <a title="Open the raw log in a new window" target="_blank" href="{{ joblog.url }}">
+                <span class="glyphicon glyphicon-list-alt"></span>
+            </a>
+        </li>
+        <li>
+            <!--the first 3 items are in the same box-->
+            <ul class="nav navbar-nav">
+                <li>
+                    <a href=""
+                       title="Add the current job to the pinboard. You can click+shift on any job to pin it"
+                       ng-click="pinboard_service.pinJob(selectedJob)">
+                        <span class="glyphicon glyphicon-pushpin"></span>
+                    </a>
+                </li>
+                <li>
+                    <a title="detach panel" href="" ng-click="alert('Detachable panel not implemented')">
+                        <span class="glyphicon glyphicon glyphicon-resize-full"></span>
+                    </a>
+                </li>
+                <li>
+                    <a title="close panel" href="" ng-click="clearJob()">
+                        <span class="glyphicon glyphicon-remove"></span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+
+    </ul>
+</nav>
 
 
-        <ng-include src="'partials/thPinboardPanel.html'"></ng-include>
+<div id="bottom-left-panel">
+    <ul ng-if="classifications.length > 0 || bugs.length > 0" class="list-unstyled">
+        <li ng-if="classifications.length > 0">
+            <label>Classification:</label>
+            <span th-failure-classification failure-id="classifications[0].failure_classification_id"></span>
+        </li>
+        <li ng-if="bugs.length > 0">
+            <label>Associated bugs:</label>
+            <a ng-repeat="bug in bugs"
+               href="https://bugzilla.mozilla.org/show_bug.cgi?id={{bug.id}}"
+               title="bug.summary">
+                {{bug.id}}
+            </a>
+        </li>
+    </ul>
+    <ul class="list-unstyled">
+        <li class="small {{resultStatusShading}}">
+            <label>Result:</label>
+            <span>{{ job.result }}</span>
+        </li>
+    </ul>
+    <ul>
+        <li class="small">
+            <label>Machine name:</label>
+            <a title="Open Buildbot Slave Health Report" target="_blank"
+               href="https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name={{ job.machine_name }}">
+                {{job.machine_name }}
+            </a>
+        </li>
+        <li class="small" ng-repeat="(label, value) in visibleFields">
+            <label>{{label}}:</label>
+            <span>{{value}}</span>
+        </li>
+    </ul>
+    <ul ng-controller="TinderboxPluginCtrl" class="list-unstyled">
+        <li ng-repeat="line in tinderbox_lines_parsed" class="small">
+            <label>{{line.title}}</label>
+            <span ng-switch on="line.type">
+                <a ng-switch-when="link" title="{{line.value}}" href="{{line.link}}" target="_blank">{{line.value}}</a>
+                <ul ng-switch-when="TalosResult">
+                    <li>Datazilla:
+                        <ul>
+                            <li ng-repeat="(k,v) in line.value.datazilla"><a href="{{v.url}}" target="_blank">{{k}}</a>
+                            </li>
+                        </ul>
+                    </li>
 
-
-        <div id="bottom-left-panel"
-             ng-class="{'with-pinboard-abs': hasPinnedJobs(), 'without-pinboard-abs': !hasPinnedJobs()}">
-            <div class="panel shadowed-panel full-height">
-                <div class="panel-head">
-                    <table class="table-super-condensed table-striped {{resultStatusShading}}">
-                        <tr>
-                            <th class="small">Result</th>
-                            <td class="small">{{ job.result }}</td>
-                        </tr>
-                        <tr>
-                            <th class="small">Machine name</th>
-                            <td class="small">
-                                <a target="_blank" href="https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name={{ job.machine_name }}">{{ job.machine_name }}</a>
-                            </td>
-                        </tr>
-                        <tr ng-repeat="(label, value) in visibleFields"><th>{{label}}</th><td>{{ value }}</td></tr>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-
-        <div id="bottom-center-panel"
-             class="full-height"
-             ng-class="{'with-pinboard-margin': hasPinnedJobs(), 'without-pinboard-margin': !hasPinnedJobs()}">
-            <div class="panel shadowed-panel"
-                 ng-class="{'bottom-shadowed-panel-with-pinboard': hasPinnedJobs(), 'bottom-shadowed-panel-without-pinboard': !hasPinnedJobs()}">
-                <div class="panel-body resizable">
-                    <tabset class="tabs-below bottom-panel-tabs">
-                        <tab ng-repeat="(tab_id, tab) in tabs"  active="tab.active" disabled="tab.disabled">
-                            <tab-heading>{{ tab.title }}
-                                <span ng-show="!tab.is_loading" class="badge">{{tab.num_items}}</span>
-                                <span class="waiter-small" ng-show="tab.is_loading"></span>
-                            </tab-heading>
-                            <ng-include src="tab.content"></ng-include>
-                        </tab>
-                    </tabset>
-                </div>
-            </div>
-        </div>
-
-
-        <div id="bottom-menu"
-             class="without-pinboard-abs">
-            <div class="btn-group-vertical bottom-menu-group">
-                <button type="button"
-                        class="btn btn-xs btn-default close-btn"
-                        ng-click="clearJob()">
-                    <span class="glyphicon glyphicon-remove pull-left"></span> close
-                </button>
-                <button class="btn btn-default btn-xs"
-                        title="pin job"
-                        ng-click="pinSelectedJob()">
-                    <span class="glyphicon glyphicon-pushpin navbar-left"></span> pin job
-                </button>
-                <button type="button"
-                        class="btn btn-xs btn-default close-btn"
-                        ng-show="hasPinnedJobs()"
-                        ng-click="unPinAll()">
-                    <span class="fa fa-minus navbar-left btn-icon-top-margin"></span> un-pin all
-                </button>
-            </div>
-            <div class="save-btn-group btn-group bottom-menu-group"
-                 ng-show="hasPinnedJobs()">
-                <button class="btn btn-default btn-xs save-btn"
-                        title="save classification and bug associations"
-                        ng-click="save()">
-                    <span class="glyphicon glyphicon-floppy-disk pull-left"></span> save
-                </button>
-                <button type="button"
-                        class="btn btn-default btn-xs dropdown-toggle save-btn-dropdown"
-                        data-toggle="dropdown">
-                    <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu pull-right" role="menu">
-                    <li><a ng-click="saveClassificationOnly()"><i class="fa fa-star"></i> classification only</a></li>
-                    <li><a ng-click="saveBugsOnly()"><i class="fa fa-bug"></i> bugs only</a></li>
+                    <li>Graphserver:
+                        <ul>
+                            <li ng-repeat="(k,v) in line.value.graphserver">{{k}}:<a href="{{v.url}}"
+                                                                                     target="_blank">{{v.result}}</a>
+                            </li>
+                        </ul>
+                    </li>
                 </ul>
-            </div>
-            <div class="btn-group-vertical bottom-menu-group">
-                <div class="btn btn-default btn-xs"
-                     ng-show="isReftest()">
-                    <a target="_blank" href="https://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml">Reftest Analyzer</a>
-                </div>
-                <div class="btn btn-default btn-xs"
-                     ng-show="logs"
-                     ng-disabled="artifacts.length>0">
-                    <a target="_blank" href="{{ lvUrl }}">Structured log</a>
-                </div>
-                <div class="btn btn-default btn-xs"
-                     ng-repeat="joblog in logs">
-                    <a target="_blank" href="{{ joblog.url }}">Raw log</a>
-                </div>
-            </div>
+                <span ng-switch-when="raw_html" ng-bind-html="line.value"></span>
+                <span title="{{line.value}}" ng-switch-default>{{line.value}}</span>
+            </span>
+        </li>
+    </ul>
+    <div ng-if="job_detail_loading" class="overlay">
+        <div>
+            <span class="fa fa-refresh fa-spin"></span>
+        </div>
+    </div>
+</div>
+<div id="bottom-center-panel">
+    <resizable-panel position="left"></resizable-panel>
+    <div ng-repeat="(tab_id, tab) in tabs">
+        <div ng-show="tab.active">
+            <ng-include src="tab.content"></ng-include>
         </div>
     </div>
 </div>

@@ -4,29 +4,39 @@ treeherder.controller('PluginCtrl', [
     '$scope', '$rootScope', 'thUrl', 'ThJobClassificationModel',
     'thClassificationTypes', 'ThJobModel', 'thEvents', 'dateFilter',
     'numberFilter', 'ThBugJobMapModel', 'thResultStatus', 'thSocket',
-    'ThResultSetModel', 'ThLog',
+    'ThResultSetModel', 'ThLog', '$q', 'thPinboard',
     function PluginCtrl(
         $scope, $rootScope, thUrl, ThJobClassificationModel,
         thClassificationTypes, ThJobModel, thEvents, dateFilter,
         numberFilter, ThBugJobMapModel, thResultStatus, thSocket,
-        ThResultSetModel, ThLog) {
+        ThResultSetModel, ThLog, $q, thPinboard) {
 
         var $log = new ThLog("PluginCtrl");
 
         $scope.job = {};
 
+        var timeout_promise = null;
+
         var selectJob = function(newValue, oldValue) {
             // preferred way to get access to the selected job
             if (newValue) {
-
+                $scope.job_detail_loading = true;
                 $scope.job = newValue;
 
-                // get the details of the current job
-                ThJobModel.get($scope.repoName, $scope.job.id).then(function(data){
-                    $scope.job = data;
-                    $scope.$broadcast(thEvents.jobDetailLoaded);
+                if(timeout_promise !== null){
+                    console.log("timing out previous job request");
+                    timeout_promise.resolve();
+                }
+                timeout_promise = $q.defer();
 
+                // get the details of the current job
+                ThJobModel.get($scope.repoName, $scope.job.id, {
+                    timeout: timeout_promise
+                }).then(function(data){
+                    $scope.job = data;
+                    $rootScope.$broadcast(thEvents.jobDetailLoaded);
                     updateVisibleFields();
+                    $scope.job_detail_loading = false;
                     $scope.logs = data.logs;
                 });
 
@@ -39,8 +49,6 @@ treeherder.controller('PluginCtrl', [
                     "Machine ": "",
                     "Build": ""
                 };
-
-                $scope.tab_loading = true;
                 $scope.lvUrl = thUrl.getLogViewerUrl($scope.job.id);
                 $scope.resultStatusShading = "result-status-shading-" + thResultStatus($scope.job);
 
@@ -93,6 +101,11 @@ treeherder.controller('PluginCtrl', [
             $scope.updateBugs();
         });
 
+        $scope.bug_job_map_list = []
+        $rootScope.$on(thEvents.bugsAssociated, function(event, job) {
+            $scope.updateBugs();
+        });thEvents.jobDetailLoaded
+
         $scope.classificationTypes = thClassificationTypes.classifications;
 
         // load the list of existing classifications (including possibly a new one just
@@ -116,6 +129,8 @@ treeherder.controller('PluginCtrl', [
                 $scope.bugs = response;
             });
         };
+
+        $scope.pinboard_service = thPinboard;
 
         var updateClassification = function(classification){
             if(classification.who !== $scope.user.email){
@@ -146,17 +161,14 @@ treeherder.controller('PluginCtrl', [
         thSocket.on("job_classification", updateClassification);
 
         $scope.tabs = {
-            "tinderbox": {
-                title: "Job Details",
-                content: "plugins/tinderbox/main.html"
+            "bug_suggestions": {
+                title: "Bug suggestions",
+                content: "plugins/bug_suggestions/main.html",
+                active: true
             },
             "annotations": {
                 title: "Annotations",
                 content: "plugins/annotations/main.html"
-            },
-            "bugs_suggestions": {
-                title: "Bugs suggestions",
-                content: "plugins/bugs_suggestions/main.html"
             },
             "similar_jobs": {
                 title: "Similar jobs",
@@ -164,5 +176,123 @@ treeherder.controller('PluginCtrl', [
             }
         };
 
+        $scope.show_tab = function(tab){
+            if(tab.active !== true){
+                angular.forEach($scope.tabs, function(v,k){
+                    v.active=false;
+                });
+                tab.active = true;
+            }
+        };
+
+    }
+]);
+
+treeherder.controller('TinderboxPluginCtrl', [
+    '$scope', '$rootScope', 'ThLog', 'ThJobArtifactModel', '$q',
+    function TinderboxPluginCtrl(
+        $scope, $rootScope, ThLog, ThJobArtifactModel, $q) {
+
+        var $log = new ThLog(this.constructor.name);
+
+        $log.debug("Tinderbox plugin initialized");
+        var timeout_promise = null;
+
+
+        var update_job_info = function(newValue, oldValue){
+            $scope.tinderbox_lines = [];
+            $scope.tinderbox_lines_parsed = [];
+
+            if(newValue){
+                $scope.is_loading = true;
+
+                if(timeout_promise !== null){
+                            timeout_promise.resolve();
+                }
+                timeout_promise = $q.defer();
+
+                ThJobArtifactModel.get_list({
+                    name: "Job Info",
+                    "type": "json",
+                    job_id: newValue
+                }, {timeout: timeout_promise})
+                .then(function(data){
+                    // ``artifacts`` is set as a result of a promise, so we must have
+                    // the watch have ``true`` as the last param to watch the value,
+                    // not just the reference.  We also must check for ``blob`` in ``Job Info``
+                    // because ``Job Info`` can exist without the blob as the promise is
+                    // fulfilled.
+                    if (data.length === 1 && _.has(data[0], 'blob')){
+
+                        $scope.tinderbox_lines = data[0].blob.tinderbox_printlines;
+                        for(var i=0; i<$scope.tinderbox_lines.length; i++){
+                            var line = $scope.tinderbox_lines[i];
+                            if(line.indexOf("<a href='http://graphs.mozilla.org") === 0){
+                                continue;
+                            }
+                            var title = line;
+                            var value = "";
+                            var link = "";
+                            var type = "";
+
+                            var seps = [": ", "<br/>"];
+                            var sep = false;
+
+                            for(var j=0; j<seps.length; j++){
+                                if(line.indexOf(seps[j]) !== -1){
+                                    sep = seps[j];
+                                }
+                            }
+                            if(sep){
+                                var chunks = line.split(sep);
+                                title = chunks[0];
+                                value = chunks.slice(1).join(sep);
+                                if(title.indexOf("link") !== -1){
+                                    link = value;
+                                    type = "link";
+                                }
+                                if(title === "TalosResult"){
+                                    type = "TalosResult";
+                                    // unescape the json string
+                                    value =  value.replace(/\\/g, '');
+                                    value = angular.fromJson(value);
+                                }
+
+                                if(value.indexOf("uploaded") !== -1){
+                                    var uploaded_to_regexp = /<a href='(http:\/\/[A-Za-z\/\.0-9\-_]+)'>([A-Za-z\/\.0-9\-_]+)<\/a>/;
+                                    var uploaded_to_chunks = uploaded_to_regexp.exec(title);
+                                    if(uploaded_to_chunks !== null){
+                                        title = "artifact uploaded";
+                                        value = uploaded_to_chunks[2];
+                                        link = uploaded_to_chunks[1];
+                                        type = "link";
+                                    }
+                                }
+
+                                if(sep === "<br/>" || sep.indexOf("<") !== -1 || value.indexOf("<") !== -1){
+                                    type="raw_html";
+                                }
+
+
+
+
+                            }
+
+                            $scope.tinderbox_lines_parsed.push({
+                                title:title,
+                                value:value,
+                                link:link,
+                                type: type
+                            });
+                        }
+                    }
+
+                })
+                .finally(function(){
+                    $scope.is_loading = false;
+                });
+            }
+        };
+        $scope.$watch("job.id", update_job_info, true);
     }
 ]);

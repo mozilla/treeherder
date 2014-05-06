@@ -112,5 +112,10 @@
                 <a ng-if="has_next_page" href="" ng-click="show_next()">Show previous jobs</a>
             </div>
 
+    <div ng-if="tabs.similar_jobs.is_loading" class="overlay">
+        <div>
+            <span class="fa fa-refresh fa-spin"></span>
+        </div>
+    </div>
 </div>
 

@@ -26,9 +26,12 @@
         </div>
 
         <!-- Footer -->
-        <div class="nav navbar navbar-default navbar-fixed-bottom bottom-panel" ng-show="selectedJob">
-            <resizable-panel></resizable-panel>
-            <div class="full-height" ng-include src="'plugins/pluginpanel.html'"></div>
+        <div ng-controller="PluginCtrl" id="bottom-panel" ng-show="selectedJob">
+            <resizable-panel position="top"></resizable-panel>
+
+            <div class="full-height"
+                 ng-include src="'plugins/pluginpanel.html'">
+            </div>
         </div>
 
         <th-notification-box></th-notification-box>
@@ -92,8 +95,7 @@
         <script src="plugins/controller.js"></script>
         <script src="plugins/pinboard.js"></script>
         <script src="plugins/annotations/controller.js"></script>
-        <script src="plugins/tinderbox/controller.js"></script>
-        <script src="plugins/bugs_suggestions/controller.js"></script>
+        <script src="plugins/bug_suggestions/controller.js"></script>
         <script src="plugins/similar_jobs/controller.js"></script>
 
         <script src="js/filters.js"></script>

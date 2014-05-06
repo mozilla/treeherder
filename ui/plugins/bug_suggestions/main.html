@@ -1,0 +1,35 @@
+<div class="full-height" class="bug-suggestions" ng-controller="BugsPluginCtrl">
+    <ul class="list-unstyled bug-suggestion-list">
+        <li ng-repeat="(error, bug_list) in bugs">
+            <strong>{{error}}</strong>
+            <span ng-repeat="visible in ['open','closed']">
+                <ul class="list-unstyled">
+                    <li class="nowrap" ng-repeat="bug in bug_list[visible] | orderBy:bug.relevance:reverse"
+                        ng-show="$index<3 || show_all">
+                        <button class="btn btn-xs btn-default"
+                                ng-click="pinboard_service.addBug(bug)"
+                                title="add to list of bugs to associate with all pinned jobs">
+                            <i class="fa fa-plus"></i>
+                        </button>
+                        <a href="https://bugzilla.mozilla.org/show_bug.cgi?id={{bug.id}}"
+                           ng-class="{'deleted': bug.resolution != ''}">{{bug.id}}</a>
+                        <span ng-bind-html="bug.summary | highlightCommonTerms:error"
+                              title="{{bug.summary}}"
+                              ng-class="{'deleted': bug.resolution != ''}">
+                        </span>
+                    </li>
+                    <li>
+                        <a href="" ng-click="show_all=true"
+                           ng-show="!show_all && bug_list[visible].length > 3">Show more</a>
+                        <a href="" ng-click="show_all=false" ng-show="show_all">Show less</a>
+                    </li>
+                </ul>
+            </span>
+        </li>
+    </ul>
+    <div ng-if="tabs.bug_suggestions.is_loading" class="overlay">
+        <div>
+            <span class="fa fa-refresh fa-spin"></span>
+        </div>
+    </div>
+</div>
