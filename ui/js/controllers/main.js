@@ -110,6 +110,10 @@ treeherder.controller('MainCtrl', [
             return thJobFilters.isSkippingExclusionProfiles();
         };
 
+        $scope.getUnclassifiedFailureCount = function(repoName) {
+            return thJobFilters.getCountExcludedForRepo(repoName);
+        };
+
         $scope.toggleExcludedJobs = function() {
             thJobFilters.toggleSkipExclusionProfiles();
             $rootScope.$broadcast(thEvents.globalFilterChanged);

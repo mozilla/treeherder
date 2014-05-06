@@ -23,11 +23,11 @@
  */
 treeherder.factory('thJobFilters', [
     'thResultStatusList', 'ThLog', '$rootScope', 'ThResultSetModel',
-    'thPinboard', 'thNotify', 'thEvents', 'thResultStatus',
+    'thPinboard', 'thNotify', 'thEvents', 'thResultStatus', 'ThRepositoryModel',
     function(
         thResultStatusList, ThLog, $rootScope,
         ThResultSetModel, thPinboard, thNotify, thEvents,
-        thResultStatus) {
+        thResultStatus, ThRepositoryModel) {
 
     var $log = new ThLog("thJobFilters");
 
@@ -357,6 +357,16 @@ treeherder.factory('thJobFilters', [
         }
     };
 
+    var getCountExcludedForRepo = function(repoName) {
+        var repoData = ThRepositoryModel.watchedRepos[repoName];
+
+        if (skipExclusionProfiles) {
+            return repoData.unclassifiedFailureCount;
+        } else {
+            return repoData.unclassifiedFailureCount - repoData.unclassifiedFailureCountExcluded;
+        }
+    };
+
     /**
      * Pin all jobs that pass the GLOBAL filters.  Ignores toggling at
      * the result set level.
@@ -451,6 +461,7 @@ treeherder.factory('thJobFilters', [
         isSkippingExclusionProfiles: isSkippingExclusionProfiles,
         excludedJobs: excludedJobs,
         getCountExcluded: getCountExcluded,
+        getCountExcludedForRepo: getCountExcludedForRepo,
 
         // CONSTANTS
         isClassified: "isClassified",

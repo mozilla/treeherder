@@ -14,8 +14,8 @@ treeherder.directive('thFilterCheckbox', [
 }]);
 
 treeherder.directive('thWatchedRepo', [
-    'ThLog', 'ThRepositoryModel',
-    function (ThLog, ThRepositoryModel) {
+    'ThLog',
+    function (ThLog) {
 
     var $log = new ThLog("thWatchedRepo");
 
@@ -42,23 +42,39 @@ treeherder.directive('thWatchedRepo', [
         restrict: "E",
         link: function(scope, element, attrs) {
 
+            scope.updateCount = function() {
+                scope.adjustedUnclassifiedFailureCount = scope.getUnclassifiedFailureCount(
+                    scope.name);
+            };
+
+            scope.updateTitleText = function() {
+                scope.titleText = scope.repoData.treeStatus.status;
+
+                if (scope.adjustedUnclassifiedFailureCount > 0) {
+                    scope.titleText = scope.titleText + ' - ' +
+                        scope.adjustedUnclassifiedFailureCount +
+                        " unclassified failures in past week";
+                }
+                if (scope.repoData.treeStatus.message_of_the_day) {
+                    scope.titleText = scope.titleText + ' - ' +
+                        scope.repoData.treeStatus.message_of_the_day;
+                }
+            };
+
             scope.$watch('repoData', function(newVal) {
                 if (newVal.treeStatus) {
                     $log.debug("updated treeStatus", newVal.treeStatus.status);
                     scope.statusIcon = statusInfo[newVal.treeStatus.status].icon;
                     scope.statusColor = statusInfo[newVal.treeStatus.status].color;
-                    scope.titleText = newVal.treeStatus.status;
-                    if (newVal.unclassifiedFailureCount > 0) {
-                        scope.titleText = scope.titleText + ' - ' +
-                            newVal.unclassifiedFailureCount +
-                            " unclassified failures in past week";
-                    }
-                    if (newVal.treeStatus.message_of_the_day) {
-                        scope.titleText = scope.titleText + ' - ' +
-                            newVal.treeStatus.message_of_the_day;
-                    }
+                    scope.updateCount();
+                    scope.updateTitleText();
                 }
             }, true);
+
+            scope.$watch('isSkippingExclusionProfiles()', function(newVal) {
+                scope.updateCount();
+                scope.updateTitleText();
+            });
 
         },
         templateUrl: 'partials/thWatchedRepo.html'
