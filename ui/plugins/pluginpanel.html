@@ -58,10 +58,10 @@
         </li>
         <li ng-if="bugs.length > 0">
             <label>Associated bugs:</label>
-            <a ng-repeat="bug in bugs"
-               href="https://bugzilla.mozilla.org/show_bug.cgi?id={{bug.id}}"
-               title="bug.summary">
-                {{bug.id}}
+            <a class="btn btn-xs btn-default" ng-repeat="bug in bugs"
+               href="https://bugzilla.mozilla.org/show_bug.cgi?id={{bug.bug_id}}"
+               title="Open bug page on bugzilla.mozilla.org">
+               {{bug.bug_id}}
             </a>
         </li>
     </ul>
@@ -117,7 +117,6 @@
     </div>
 </div>
 <div id="bottom-center-panel">
-    <resizable-panel position="left"></resizable-panel>
     <div ng-repeat="(tab_id, tab) in tabs">
         <div ng-show="tab.active">
             <ng-include src="tab.content"></ng-include>
