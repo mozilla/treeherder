@@ -48,16 +48,18 @@ treeherder.directive('thWatchedRepo', [
             };
 
             scope.updateTitleText = function() {
-                scope.titleText = scope.repoData.treeStatus.status;
+                if (scope.repoData.treeStatus) {
+                    scope.titleText = scope.repoData.treeStatus.status;
 
-                if (scope.adjustedUnclassifiedFailureCount > 0) {
-                    scope.titleText = scope.titleText + ' - ' +
-                        scope.adjustedUnclassifiedFailureCount +
-                        " unclassified failures in past week";
-                }
-                if (scope.repoData.treeStatus.message_of_the_day) {
-                    scope.titleText = scope.titleText + ' - ' +
-                        scope.repoData.treeStatus.message_of_the_day;
+                    if (scope.adjustedUnclassifiedFailureCount > 0) {
+                        scope.titleText = scope.titleText + ' - ' +
+                            scope.adjustedUnclassifiedFailureCount +
+                            " unclassified failures in past week";
+                    }
+                    if (scope.repoData.treeStatus.message_of_the_day) {
+                        scope.titleText = scope.titleText + ' - ' +
+                            scope.repoData.treeStatus.message_of_the_day;
+                    }
                 }
             };
 
