@@ -252,12 +252,32 @@
         },
 
         "get_unclassified_failure_count":{
-            "sql":"SELECT count(j.id) as unclassified_failure_count FROM job as j
+            "sql":"SELECT count(j.id) as count FROM job as j
                    LEFT JOIN result_set as rs
                      ON rs.id = j.result_set_id
                    WHERE j.failure_classification_id=1
                    AND j.result IN (REP0)
                    AND rs.push_timestamp > ?",
+            "host":"read_host"
+        },
+
+        "get_unclassified_failure_count_excluded":{
+            "sql":"SELECT count(j.id) as count FROM job as j
+                   LEFT JOIN REP0.machine_platform as mp
+                     ON j.machine_platform_id = mp.id
+                   LEFT JOIN REP0.job_type as jt
+                     ON j.job_type_id = jt.id
+                   LEFT JOIN REP0.option_collection as oc
+                     ON j.option_collection_hash = oc.option_collection_hash
+                   LEFT JOIN REP0.option as opt
+                     ON oc.option_id = opt.id
+                   LEFT JOIN result_set as rs
+                     ON rs.id = j.result_set_id
+
+                   WHERE failure_classification_id=1
+                   AND result in (REP1)
+                   AND rs.push_timestamp > REP2
+                   REP3",
             "host":"read_host"
         },
 
