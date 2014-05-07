@@ -19,7 +19,7 @@ class JobsViewSet(viewsets.ViewSet):
         GET method for revisions of a resultset
         """
         all = jm.get_unclassified_failure_count()["count"]
-        excluded = jm.get_unclassified_failure_count_excluded()["count"]
+        excluded = jm.get_unclassified_failure_count_excluded()["count_excluded"]
 
         return Response({
             "repository": project,

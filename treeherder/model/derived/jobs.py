@@ -204,26 +204,38 @@ class JobsModel(TreeherderModelBase):
         flat_exclusions = ExclusionProfile.objects.filter(
             is_default=1).values("flat_exclusion")
 
-        exclusions = utils.where_wolf(self.project, flat_exclusions)
+        try:
+            condition, values_list = utils.where_wolf(self.project, flat_exclusions)
 
-        # there may be no exclusions for this repo/project
-        if not exclusions:
-            return {"count": 0}
+            repl = [
+                self.refdata_model.get_db_name(),
+                "'" + "','".join(self.FAILED_RESULTS) + "'",
+                condition
+            ]
 
-        repl = [
-            self.refdata_model.get_db_name(),
-            "'" + "','".join(self.FAILED_RESULTS) + "'",
-            str(utils.get_now_timestamp() - self.UNCLASSIFIED_FAILURE_RANGE),
-            exclusions
-        ]
+            placeholders = [
+                utils.get_now_timestamp() - self.UNCLASSIFIED_FAILURE_RANGE,
+            ]
+            placeholders.extend(values_list)
 
-        proc = "jobs.selects.get_unclassified_failure_count_excluded"
-        data = self.get_jobs_dhub().execute(
-            proc=proc,
-            replace=repl,
-            debug_show=self.DEBUG,
-        )
-        return data[0]
+            proc = "jobs.selects.get_unclassified_failure_count_excluded"
+            data = self.get_jobs_dhub().execute(
+                proc=proc,
+                replace=repl,
+                placeholders=placeholders,
+                debug_show=self.DEBUG,
+            )
+            if len(data):
+                return data[0]
+
+
+        except Exception as ex:
+            # there may be no exclusions for this repo/project
+            # pass and fall through to the zero count response.
+            pass
+
+        return {"count_excluded": 0}
+
 
 
     def get_unclassified_failure_count(self):
