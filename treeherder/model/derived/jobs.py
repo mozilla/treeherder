@@ -7,7 +7,7 @@ from _mysql_exceptions import IntegrityError
 from warnings import filterwarnings, resetwarnings
 from django.conf import settings
 
-from treeherder.model.models import Datasource
+from treeherder.model.models import Datasource, ExclusionProfile
 
 from treeherder.model import utils
 
@@ -192,9 +192,55 @@ class JobsModel(TreeherderModelBase):
         return data
 
 
+    def get_unclassified_failure_count_excluded(self):
+        """
+        Get the count of unclassified failed jobs that are being hidden/excluded
+
+        this value can be subtracted from ``get_unclassified_failure_count``
+        to get the number that should be shown to the user when exclusions are
+        active.
+        """
+
+        flat_exclusions = ExclusionProfile.objects.filter(
+            is_default=1).values("flat_exclusion")
+
+        try:
+            condition, values_list = utils.where_wolf(self.project, flat_exclusions)
+
+            repl = [
+                self.refdata_model.get_db_name(),
+                "'" + "','".join(self.FAILED_RESULTS) + "'",
+                condition
+            ]
+
+            placeholders = [
+                utils.get_now_timestamp() - self.UNCLASSIFIED_FAILURE_RANGE,
+            ]
+            placeholders.extend(values_list)
+
+            proc = "jobs.selects.get_unclassified_failure_count_excluded"
+            data = self.get_jobs_dhub().execute(
+                proc=proc,
+                replace=repl,
+                placeholders=placeholders,
+                debug_show=self.DEBUG,
+            )
+            if len(data):
+                return data[0]
+
+
+        except Exception as ex:
+            # there may be no exclusions for this repo/project
+            # pass and fall through to the zero count response.
+            pass
+
+        return {"count_excluded": 0}
+
+
+
     def get_unclassified_failure_count(self):
         """
-        Get the count of unclassified failed jobs
+        Get the count of unclassified failed jobs ignoring exclusions
         """
 
         repl = ["'" + "','".join(self.FAILED_RESULTS) + "'"]

@@ -18,9 +18,14 @@ class JobsViewSet(viewsets.ViewSet):
         """
         GET method for revisions of a resultset
         """
-        objs = jm.get_unclassified_failure_count()
-        objs['repository'] = project
-        return Response(objs)
+        all = jm.get_unclassified_failure_count()["count"]
+        excluded = jm.get_unclassified_failure_count_excluded()["count_excluded"]
+
+        return Response({
+            "repository": project,
+            "count": all,
+            "count_excluded": excluded
+        })
 
     @with_jobs
     def retrieve(self, request, project, jm, pk=None):
