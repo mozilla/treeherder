@@ -204,6 +204,35 @@ def test_refdata_manager(refdata, params):
 
 
 # some tests don't fit into a standard layout :(
+def test_reference_data_signatures(refdata):
+
+    reference_data_sample = [
+        [ 'buildername 1', 'buildbot', [
+            'buildbot', 'macosx', '10.8', 'x64', 'macosx', '10.8', 'x64',
+            'M', 'mochitest-1', 'asdfasdfasdf', int(time.time()) ] ],
+
+        [ 'buildername 2', 'buildbot', [
+            'buildbot', 'macosx', '10.8', 'x64', 'macosx', '10.8', 'x64',
+            'M', 'mochitest-2', 'asdfasdfasdf', int(time.time()) ] ],
+
+        [ 'buildername 3', 'buildbot', [
+            'buildbot', 'macosx', '10.8', 'x64', 'macosx', '10.8', 'x64',
+            'M', 'mochitest-3', 'asdfasdfasdf', int(time.time()) ] ] ]
+
+    expected_signatures = []
+    for d in reference_data_sample:
+        expected_signatures.append(
+            refdata.add_reference_data_signature(d[0], d[1], d[2]) )
+
+    refdata.process_reference_data_signatures()
+
+    row_data = refdata.dhub.execute(
+        proc='refdata_test.selects.test_reference_data_signatures'
+        )
+
+    for row, expected_signature in zip(row_data, expected_signatures):
+        assert row['signature'] == expected_signature
+
 def test_add_job_type(refdata):
 
     job_data = [
