@@ -1,6 +1,10 @@
 {
     "inserts":{},
     "selects":{
+        "test_reference_data_signatures":{
+            "sql": "SELECT * FROM `reference_data_signatures`",
+            "host":"read_host"
+        },
         "test_build_platform":{
             "sql": "SELECT `platform`, `os_name`, `architecture`, `active_status`
                     FROM `build_platform`

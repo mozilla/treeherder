@@ -1,5 +1,20 @@
 {
     "inserts":{
+        "create_reference_data_signature":{
+            "sql": "INSERT INTO `reference_data_signatures` (
+                        `name`, `signature`, `build_system_type`, `build_os_name`, `build_platform`,
+                        `build_architecture`, `machine_os_name`, `machine_platform`,
+                        `machine_architecture`, `job_group_name`, `job_type_name`,
+                        `option_collection_hash`, `first_submission_timestamp`)
+                    SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                    FROM DUAL
+                    WHERE NOT EXISTS (
+                    SELECT `name`, `build_system_type`
+                    FROM `reference_data_signatures`
+                    WHERE `name` = ? AND `build_system_type` = ?
+                    )",
+            "host":"master_host"
+        },
         "create_build_platform":{
             "sql": "INSERT INTO `build_platform` (`os_name`, `platform`, `architecture`)
                     SELECT ?, ?, ?

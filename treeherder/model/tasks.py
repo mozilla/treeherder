@@ -68,3 +68,17 @@ def unclassified_failure_count():
         jm.disconnect()
 
     unclassified_failure_publisher.disconnect()
+
+def calculate_eta(sample_window_seconds=21600, debug=False):
+
+    projects = Repository.objects.all().values_list('name', flat=True)
+
+    for project in projects:
+
+        jm = JobsModel(project)
+
+        jm.calculate_eta(sample_window_seconds, debug)
+
+        jm.disconnect()
+
+

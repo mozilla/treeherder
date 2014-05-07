@@ -389,6 +389,102 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG
         )
 
+    def calculate_eta(self, sample_window_seconds, debug):
+
+        # Get the most recent timestamp from jobs
+        max_timestamp = self.get_jobs_dhub().execute(
+            proc='jobs.selects.get_max_job_submit_timestamp',
+            return_type='iter',
+            debug_show=self.DEBUG
+            ).get_column_data('submit_timestamp')
+
+        if max_timestamp:
+
+            time_window = int(max_timestamp) - sample_window_seconds
+            print time_window
+            print "BEFORE GET_ETA_GROUPS"
+            eta_groups = self.get_jobs_dhub().execute(
+                proc='jobs.selects.get_eta_groups',
+                placeholders=[time_window],
+                key_column='signature',
+                return_type='dict',
+                debug_show=self.DEBUG
+                )
+            print "AFTER GET_ETA_GROUPS"
+
+            placeholders = []
+            submit_timestamp = int( time.time() )
+            for signature in eta_groups:
+
+                pending_samples = map(
+                    lambda x: int(x),
+                    eta_groups[signature]['pending_samples'].split(',') )
+
+                pending_median = self.get_median_from_sorted_list(
+                    sorted(pending_samples))
+
+                running_samples = map(
+                    lambda x: int(x),
+                    eta_groups[signature]['running_samples'].split(',') )
+
+                running_median = self.get_median_from_sorted_list(
+                    sorted(running_samples))
+
+                placeholders.append(
+                    [
+                        signature,
+                        'pending',
+                        eta_groups[signature]['pending_avg_sec'],
+                        pending_median,
+                        eta_groups[signature]['pending_min_sec'],
+                        eta_groups[signature]['pending_max_sec'],
+                        eta_groups[signature]['pending_std'],
+                        len(pending_samples),
+                        submit_timestamp
+                        ])
+
+                placeholders.append(
+                    [
+                        signature,
+                        'running',
+                        eta_groups[signature]['running_avg_sec'],
+                        running_median,
+                        eta_groups[signature]['running_min_sec'],
+                        eta_groups[signature]['running_max_sec'],
+                        eta_groups[signature]['running_std'],
+                        len(running_samples),
+                        submit_timestamp
+                        ])
+            print "BEFORE INSERT"
+            grrr =  len(placeholders)
+            if grrr == 2644:
+                print len(placeholders)
+                print placeholders[1950]
+                print placeholders[1951]
+                print placeholders[1952]
+            self.get_jobs_dhub().execute(
+                proc='jobs.inserts.set_job_eta',
+                placeholders=placeholders,
+                executemany=True,
+                debug_show=self.DEBUG
+                )
+
+    def get_median_from_sorted_list(self, sorted_list):
+
+        length = len(sorted_list)
+
+        # Cannot take the median with only on sample,
+        # return it
+        if length == 1:
+            return sorted_list[0]
+
+        if not length % 2:
+            return round(
+                (sorted_list[length / 2] + sorted_list[length / 2 - 1]) / 2, 0
+                    )
+
+        return round( sorted_list[length / 2], 0 )
+
     def cycle_data(self, sql_targets={}, execute_sleep=True):
 
         min_date = int(time.time() - self.DATA_CYCLE_INTERVAL)
@@ -502,6 +598,10 @@ class JobsModel(TreeherderModelBase):
             if sql not in sql_targets:
                 # First pass for sql
                 sql_targets[sql] = None
+
+            if len(placeholders) == 0:
+                sql_targets[sql] = 0
+                continue
 
             if (sql_targets[sql] == None) or (sql_targets[sql] > 0):
 
@@ -1021,6 +1121,10 @@ class JobsModel(TreeherderModelBase):
         # Store all reference data and retrieve associated ids
         id_lookups = self.refdata_model.set_all_reference_data()
 
+        job_eta_times = self.get_job_eta_times(
+            id_lookups['reference_data_signatures']
+            )
+
         # Store all revision hashes and retrieve result_set_ids
         result_set_ids = self.get_result_set_ids(
             unique_revision_hashes, rh_where_in
@@ -1040,7 +1144,8 @@ class JobsModel(TreeherderModelBase):
                 job_guid_list,
                 job_guid_where_in_list,
                 job_update_placeholders,
-                result_set_ids
+                result_set_ids,
+                job_eta_times
                 )
 
         job_id_lookup = self._load_jobs(
@@ -1096,16 +1201,26 @@ class JobsModel(TreeherderModelBase):
             unique_revision_hashes.append(revision_hash)
             rh_where_in.append('%s')
 
+        build_os_name = job.get(
+            'build_platform', {}).get('os_name', 'unknown')
+        build_platform = job.get(
+            'build_platform', {}).get('platform', 'unknown')
+        build_architecture = job.get(
+            'build_platform', {}).get('architecture', 'unknown')
+
         build_platform_key = self.refdata_model.add_build_platform(
-            job.get('build_platform', {}).get('os_name', 'unknown'),
-            job.get('build_platform', {}).get('platform', 'unknown'),
-            job.get('build_platform', {}).get('architecture', 'unknown')
+            build_os_name, build_platform, build_architecture
             )
 
+        machine_os_name = job.get(
+            'machine_platform', {}).get('os_name', 'unknown')
+        machine_platform = job.get(
+            'machine_platform', {}).get('platform', 'unknown')
+        machine_architecture = job.get(
+            'machine_platform', {}).get('architecture', 'unknown')
+
         machine_platform_key = self.refdata_model.add_machine_platform(
-            job.get('machine_platform', {}).get('os_name', 'unknown'),
-            job.get('machine_platform', {}).get('platform', 'unknown'),
-            job.get('machine_platform', {}).get('architecture', 'unknown')
+            machine_os_name, machine_platform, machine_architecture
             )
 
         option_collection_hash = self.refdata_model.add_option_collection(
@@ -1143,24 +1258,38 @@ class JobsModel(TreeherderModelBase):
         state = job.get('state', 'unknown')
         state = state[0:25]
 
+        build_system_type = job.get('build_system_type', 'buildbot')
+
+        # Should be the buildername in the case of buildbot
+        reference_data_name = job.get('reference_data_name', None)
+
+        signature = self.refdata_model.add_reference_data_signature(
+            reference_data_name, build_system_type,
+            [ build_system_type, build_os_name, build_platform, build_architecture,
+              machine_os_name, machine_platform, machine_architecture,
+              group_name, job_type, option_collection_hash, int(time.time()) ]
+            )
+
         job_placeholders.append([
             job_guid,
-            None,                   # idx:1, job_coalesced_to_guid,
-                                    # TODO: How do find this value?
-            revision_hash,          # idx:2, replace with result_set_id
-            build_platform_key,     # idx:3, replace with build_platform_id
-            machine_platform_key,   # idx:4, replace with machine_platform_id
-            machine,                # idx:5, replace with machine_id
-            option_collection_hash, # idx:6
-            job_type_key,           # idx:7, replace with job_type_id
-            product,                # idx:8, replace with product_id
+            signature,
+            None,                   # idx:2, job_coalesced_to_guid,
+            revision_hash,          # idx:3, replace with result_set_id
+            build_platform_key,     # idx:4, replace with build_platform_id
+            machine_platform_key,   # idx:5, replace with machine_platform_id
+            machine,                # idx:6, replace with machine_id
+            option_collection_hash, # idx:7
+            job_type_key,           # idx:8, replace with job_type_id
+            product,                # idx:9, replace with product_id
             who,
             reason,
-            job.get('result', 'unknown'), # idx:11, this is typically an int
+            job.get('result', 'unknown'), # idx:12, this is typically an int
             state,
             self.get_number( job.get('submit_timestamp') ),
             self.get_number( job.get('start_timestamp') ),
             self.get_number( job.get('end_timestamp') ),
+            0,                      # idx:17, replace with pending_avg_sec
+            0,                      # idx:18, replace with running_avg_sec
             job_guid
             ])
 
@@ -1198,53 +1327,69 @@ class JobsModel(TreeherderModelBase):
         except (ValueError, TypeError):
             return 0
 
-
     def _set_data_ids(
         self, index, job_placeholders, id_lookups,
         job_guid_list, job_guid_where_in_list, job_update_placeholders,
-        result_set_ids
+        result_set_ids, job_eta_times
         ):
 
         # Replace reference data with their ids
         job_guid = job_placeholders[index][0]
-        job_coalesced_to_guid = job_placeholders[index][1]
-        revision_hash = job_placeholders[index][2]
-        build_platform_key = job_placeholders[index][3]
-        machine_platform_key = job_placeholders[index][4]
-        machine_name = job_placeholders[index][5]
-        option_collection_hash = job_placeholders[index][6]
-        job_type_key = job_placeholders[index][7]
-        product_type = job_placeholders[index][8]
-        who = job_placeholders[index][9]
-        reason = job_placeholders[index][10]
-        result = job_placeholders[index][11]
-        job_state = job_placeholders[index][12]
-        submit_timestamp = job_placeholders[index][13]
-        start_timestamp = job_placeholders[index][14]
-        end_timestamp = job_placeholders[index][15]
+        job_coalesced_to_guid = job_placeholders[index][2]
+        revision_hash = job_placeholders[index][3]
+        build_platform_key = job_placeholders[index][4]
+        machine_platform_key = job_placeholders[index][5]
+        machine_name = job_placeholders[index][6]
+        option_collection_hash = job_placeholders[index][7]
+        job_type_key = job_placeholders[index][8]
+        product_type = job_placeholders[index][9]
+        who = job_placeholders[index][10]
+        reason = job_placeholders[index][11]
+        result = job_placeholders[index][12]
+        job_state = job_placeholders[index][13]
+        submit_timestamp = job_placeholders[index][14]
+        start_timestamp = job_placeholders[index][15]
+        end_timestamp = job_placeholders[index][16]
 
         # Load job_placeholders
 
         # replace revision_hash with id
-        job_placeholders[index][2] = result_set_ids[revision_hash]['id']
+        job_placeholders[index][3] = result_set_ids[revision_hash]['id']
 
         # replace build_platform_key with id
-        job_placeholders[index][3] = id_lookups['build_platforms'][build_platform_key]['id']
+        build_platform_id = id_lookups['build_platforms'][build_platform_key]['id']
+        job_placeholders[index][4] = build_platform_id
 
         # replace machine_platform_key with id
-        job_placeholders[index][4] = id_lookups['machine_platforms'][machine_platform_key]['id']
+        machine_platform_id = id_lookups['machine_platforms'][machine_platform_key]['id']
+        job_placeholders[index][5] = machine_platform_id
 
         # replace machine with id
-        job_placeholders[index][5] = id_lookups['machines'][machine_name]['id']
+        job_placeholders[index][6] = id_lookups['machines'][machine_name]['id']
 
         # replace job_type with id
-        job_placeholders[index][7] = id_lookups['job_types'][job_type_key]['id']
+        job_type_id = id_lookups['job_types'][job_type_key]['id']
+        job_placeholders[index][8] = job_type_id
 
         # replace product_type with id
-        job_placeholders[index][8] = id_lookups['products'][product_type]['id']
+        job_placeholders[index][9] = id_lookups['products'][product_type]['id']
 
         job_guid_list.append(job_guid)
         job_guid_where_in_list.append('%s')
+
+        reference_data_signature = job_placeholders[index][1]
+        pending_avg_sec = job_eta_times.get(reference_data_signature, {}).get('pending', 0)
+        running_avg_sec = job_eta_times.get(reference_data_signature, {}).get('running', 0)
+
+        print 'PENDING'
+        print pending_avg_sec
+        print 'RUNNING'
+        print running_avg_sec
+        print reference_data_signature
+        print job_eta_times
+
+        job_placeholders[index][17] = pending_avg_sec
+        job_placeholders[index][18] = running_avg_sec
 
         # Load job_update_placeholders
         if job_state != 'pending':
@@ -1281,6 +1426,36 @@ class JobsModel(TreeherderModelBase):
             executemany=True )
 
         return self.get_job_ids_by_guid(job_guid_list)
+
+    def get_job_eta_times(self, reference_data_signatures):
+
+        eta_lookup = {}
+
+        if len(reference_data_signatures) == 0:
+            return eta_lookup
+
+        rds_where_in_clause = ','.join( ['%s'] * len(reference_data_signatures) )
+
+        job_eta_data = self.get_jobs_dhub().execute(
+            proc='jobs.selects.get_last_eta_by_signatures',
+            debug_show=self.DEBUG,
+            replace=[rds_where_in_clause],
+            placeholders=reference_data_signatures)
+
+        for eta_data in job_eta_data:
+
+            signature = eta_data['signature']
+            state = eta_data['state']
+
+            if signature not in eta_lookup:
+                eta_lookup[ signature ] = {}
+
+            if state not in eta_lookup[ signature ]:
+                eta_lookup[ signature ][ state ] = {}
+
+            eta_lookup[ signature ][ state ] = eta_data['avg_sec']
+
+        return eta_lookup
 
     def get_job_ids_by_guid(self, job_guid_list):
 
