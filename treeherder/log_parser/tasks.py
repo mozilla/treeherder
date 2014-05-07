@@ -20,7 +20,7 @@ from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderColle
 from treeherder.log_parser.utils import (get_error_search_term,
                                          get_crash_signature, get_bugs_for_search_term)
 from treeherder.events.publisher import JobFailurePublisher, JobStatusPublisher
-from treeherder.etl.common import get_remote_content
+
 from treeherder.etl.oauth_utils import OAuthCredentials
 
 
@@ -29,7 +29,9 @@ def parse_log(project, log_url, job_guid, resultset, check_errors=False):
     """
     Call ArtifactBuilderCollection on the given job.
     """
-    pattern_obj = re.compile('\d+:\d+:\d+\s+')
+    mozharness_pattern = re.compile(
+        '^\d+:\d+:\d+[ ]+(?:DEBUG|INFO|WARNING|ERROR|CRITICAL|FATAL) - [ ]?'
+    )
 
     bugs_cache = {'open': {}, 'closed': {}}
     bug_suggestions = {'open': {}, 'closed': {}}
@@ -63,12 +65,15 @@ def parse_log(project, log_url, job_guid, resultset, check_errors=False):
             if check_errors:
                 all_errors = artifact_bc.artifacts['Structured Log']['step_data']['all_errors']
                 for err in all_errors:
-                    # remove timestamp
-                    clean_line = pattern_obj.sub('', err['line']).strip()
+                    # remove the mozharness prefix
+                    clean_line = mozharness_pattern.sub('', err['line']).strip()
                     # get a meaningful search term out of the error line
                     search_term = get_error_search_term(clean_line)
                     # collect open and closed bugs suggestions
                     for status in ('open', 'closed'):
+                        if not search_term:
+                            bug_suggestions[status][clean_line] = []
+                            continue
                         if search_term not in bugs_cache[status]:
                             # retrieve the list of suggestions from the api
                             bugs_cache[status][search_term] = get_bugs_for_search_term(
@@ -85,7 +90,7 @@ def parse_log(project, log_url, job_guid, resultset, check_errors=False):
                                         status,
                                         bugscache_uri
                                     )
-                            bug_suggestions[status][err['line']] = bugs_cache[status][search_term]
+                        bug_suggestions[status][clean_line] = bugs_cache[status][search_term]
 
                 artifact_list.append((job_guid, 'Open bugs', 'json', json.dumps(bug_suggestions['open'])))
                 artifact_list.append((job_guid, 'Closed bugs', 'json', json.dumps(bug_suggestions['closed'])))
