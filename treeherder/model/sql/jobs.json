@@ -262,7 +262,7 @@
         },
 
         "get_unclassified_failure_count_excluded":{
-            "sql":"SELECT count(j.id) as count FROM job as j
+            "sql":"SELECT count(j.id) as count_excluded FROM job as j
                    LEFT JOIN REP0.machine_platform as mp
                      ON j.machine_platform_id = mp.id
                    LEFT JOIN REP0.job_type as jt
@@ -274,10 +274,10 @@
                    LEFT JOIN result_set as rs
                      ON rs.id = j.result_set_id
 
-                   WHERE failure_classification_id=1
-                   AND result in (REP1)
-                   AND rs.push_timestamp > REP2
-                   REP3",
+                   WHERE j.failure_classification_id=1
+                   AND j.result in (REP1)
+                   AND rs.push_timestamp > ?
+                   REP2",
             "host":"read_host"
         },
 

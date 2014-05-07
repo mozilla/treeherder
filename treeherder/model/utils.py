@@ -44,22 +44,16 @@ def where_wolf(project, flat_exclusions):
 
     """
 
-    condition_list = []
+    values_list = []
 
     for exclusion in flat_exclusions:
         repos = json.loads(exclusion["flat_exclusion"])
-        for repo, platforms in repos.items():
-            if repo == project:
-                for platform, jobs in platforms.items():
-                    for job, opts in jobs.items():
-                        for opt, v in opts.items():
-                            condition_list.append(
-                                (" (mp.platform = '{0}' AND "
-                                "jt.name = '{1}' AND "
-                                "opt.name = '{2}')").format(platform, job, opt)
-                            )
+        platforms = repos[project]
+        for platform, jobs in platforms.items():
+            for job, opts in jobs.items():
+                for opt, v in opts.items():
+                    values_list.extend([platform, job, opt])
 
-    if condition_list:
-        return "AND ({0})".format(" OR ".join(condition_list))
-    else:
-        return None
+    condition = " (mp.platform = %s AND jt.name = %s AND opt.name = %s)"
+    condition_list = " OR ".join([condition] * (len(values_list)/3))
+    return " AND ({0})".format(condition_list), values_list
