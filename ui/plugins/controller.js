@@ -101,10 +101,7 @@ treeherder.controller('PluginCtrl', [
             $scope.updateBugs();
         });
 
-        $scope.bug_job_map_list = []
-        $rootScope.$on(thEvents.bugsAssociated, function(event, job) {
-            $scope.updateBugs();
-        });thEvents.jobDetailLoaded
+        $scope.bug_job_map_list = [];
 
         $scope.classificationTypes = thClassificationTypes.classifications;
 

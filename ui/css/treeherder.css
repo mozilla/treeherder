@@ -440,6 +440,12 @@ div#bottom-panel .navbar-nav.pull-right li a:focus{
     background-color: #FCFCFC;
 }
 
+div#bottom-panel.with-pinboard #bottom-left-panel,
+div#bottom-panel.with-pinboard #bottom-center-panel{
+    height: calc(100% - 120px);
+}
+
+
 
 #bottom-left-panel {
     width:400px;
@@ -1265,8 +1271,9 @@ div.similar_jobs .right_panel .similar_job_detail ul.error_list li{
     white-space: nowrap;
     text-overflow: ellipsis;
 }
-div.similar_jobs .left_panel{margin-right:300px;}
-div.similar_jobs .left_panel table tr.active>td{background-color: #FFEE99;}
+div.similar_jobs .left_panel{margin-right:300px; margin-bottom: 15px;}
+div.similar_jobs .left_panel table{ margin-bottom: 5px;}
+div.similar_jobs .left_panel table tr.active>td{background-color: #D3D3D3;}
 div.similar_jobs .left_panel table tr{cursor: pointer;}
 
 

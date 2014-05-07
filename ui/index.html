@@ -26,7 +26,10 @@
         </div>
 
         <!-- Footer -->
-        <div ng-controller="PluginCtrl" id="bottom-panel" ng-show="selectedJob">
+        <div ng-controller="PluginCtrl"
+             id="bottom-panel"
+             ng-show="selectedJob"
+             ng-class="{'with-pinboard':pinboard_service.hasPinnedJobs()}">
             <resizable-panel position="top"></resizable-panel>
 
             <div class="full-height"
