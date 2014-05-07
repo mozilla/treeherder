@@ -50,7 +50,8 @@ treeherder.factory('ThRepositoryModel', [
         repos[repo.name] = {
             isWatched: false,
             treeStatus: null,
-            unclassifiedFailureCount: 0
+            unclassifiedFailureCount: 0,
+            unclassifiedFailureCountExcluded: 0
         };
     };
 
@@ -63,7 +64,8 @@ treeherder.factory('ThRepositoryModel', [
             repos[repoName] = {
                 isWatched: true,
                 treeStatus: null,
-                unclassifiedFailureCount: 0
+                unclassifiedFailureCount: 0,
+                unclassifiedFailureCountExcluded: 0
             };
             updateTreeStatus(repoName);
 
@@ -73,7 +75,8 @@ treeherder.factory('ThRepositoryModel', [
             // for the socket event to be published.
             if (getByName(repoName).repository_group.name !== "try") {
                 $http.get(thUrl.getProjectUrl("/jobs/0/unclassified_failure_count/", repoName)).then(function(response) {
-                    repos[repoName].unclassifiedFailureCount = response.data.unclassified_failure_count;
+                    repos[repoName].unclassifiedFailureCount = response.data.count;
+                    repos[repoName].unclassifiedFailureCountExcluded = response.data.count_excluded;
                 });
             }
 
@@ -92,7 +95,8 @@ treeherder.factory('ThRepositoryModel', [
                         getByName(repoName).repository_group.name !== "try") {
 
                         $log.debug("event unclassified_failure_count", data);
-                        repos[repoName].unclassifiedFailureCount = data.count;
+                    repos[repoName].unclassifiedFailureCount = data.count;
+                    repos[repoName].unclassifiedFailureCountExcluded = data.count_excluded;
                     }
                 }
             );

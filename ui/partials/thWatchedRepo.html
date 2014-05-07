@@ -7,8 +7,8 @@
             class="watched-repo-main-btn btn btn-sm btn-view-nav">
         <i class="fa {{statusIcon}} {{statusColor}}"></i> {{name}}
         <span class="watched-repo-spacer"></span>
-        <span ng-show="repoData.unclassifiedFailureCount > 0">
-            <strong>{{repoData.unclassifiedFailureCount}}</strong>
+        <span ng-show="adjustedUnclassifiedFailureCount > 0">
+            <strong>{{ adjustedUnclassifiedFailureCount }}</strong>
         </span>
     </button>
     <button class="watched-repo-info-btn btn btn-sm btn-view-nav dropdown-toggle"

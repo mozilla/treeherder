@@ -81,6 +81,9 @@ treeherder.directive("thMultiSelect", [
         },
         link: function(scope, element, attrs){
 
+            scope.rightList.sort();
+            scope.leftList.sort();
+
             scope.leftSelected = [];
             scope.rightSelected = [];
             // move the elements selected from one list to the other
@@ -111,7 +114,7 @@ treeherder.directive("thTruncatedList", [
     return {
         restrict: "E",
         scope: {
-            // number of visible elementrs
+            // number of visible elements
             visible: "@",
             elem_list: "=elements"
         },
