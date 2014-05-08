@@ -1,5 +1,6 @@
 from celery import task
 from django.conf import settings
+from django.core.cache import cache
 
 from treeherder.model.derived import JobsModel
 from treeherder.model.models import Datasource, Repository
@@ -63,8 +64,12 @@ def unclassified_failure_count():
     for project in projects:
 
         jm = JobsModel(project)
-        count = jm.get_unclassified_failure_count()['unclassified_failure_count']
-        unclassified_failure_publisher.publish(project, count)
+        count = jm.get_unclassified_failure_count()['count']
+        cache.set("{0}:unclassified_failure_count".format(project), count);
+        count_excluded = jm.get_unclassified_failure_count_excluded()['count_excluded']
+        cache.set("{0}:unclassified_failure_count_excluded".format(project), count_excluded);
+
+        unclassified_failure_publisher.publish(project, count, count_excluded)
         jm.disconnect()
 
     unclassified_failure_publisher.disconnect()
