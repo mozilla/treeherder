@@ -14,10 +14,17 @@ treeherder.factory('ThJobArtifactModel', [
 
     ThJobArtifactModel.get_uri = function(){return thUrl.getProjectUrl("/artifact/");};
 
-    ThJobArtifactModel.get_list = function(options) {
+    ThJobArtifactModel.get_list = function(options, config) {
         // a static method to retrieve a list of ThJobArtifactModel
-        var query_string = $.param(options);
-        return $http.get(ThJobArtifactModel.get_uri()+"?"+query_string)
+        // the timeout configuration parameter is a promise that can be used to abort
+        // the ajax request
+        config = config || {};
+        var timeout = config.timeout || null;
+
+        return $http.get(ThJobArtifactModel.get_uri(),{
+            params: options,
+            timeout: timeout
+        })
             .then(function(response) {
                 var item_list = [];
                 angular.forEach(response.data, function(elem){

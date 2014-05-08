@@ -13,9 +13,15 @@ treeherder.factory('ThJobModel', [
 
     ThJobModel.get_uri = function(repoName){return thUrl.getProjectUrl("/jobs/", repoName);};
 
-    ThJobModel.get_list = function(repoName, options) {
+    ThJobModel.get_list = function(repoName, options, config) {
         // a static method to retrieve a list of ThJobModel
-        return $http.get(ThJobModel.get_uri(repoName), {params: options})
+        config = config || {};
+        var timeout = config.timeout || null;
+
+        return $http.get(ThJobModel.get_uri(repoName),{
+                params: options,
+                timeout:timeout
+            })
             .then(function(response) {
                 var item_list = [];
                 angular.forEach(response.data, function(elem){
@@ -25,9 +31,14 @@ treeherder.factory('ThJobModel', [
         });
     };
 
-    ThJobModel.get = function(repoName, pk) {
+    ThJobModel.get = function(repoName, pk, config) {
         // a static method to retrieve a single instance of ThJobModel
-        return $http.get(ThJobModel.get_uri(repoName)+pk+"/").then(function(response) {
+        config = config || {};
+        var timeout = config.timeout || null;
+
+        return $http.get(ThJobModel.get_uri(repoName)+pk+"/",
+            {timeout:timeout})
+            .then(function(response) {
             return new ThJobModel(response.data);
         });
     };

@@ -1,6 +1,6 @@
 body {
     padding-top: 61px;
-    padding-bottom: 500px;
+    /*padding-bottom: 500px;*/
     min-width: 970px;
     width: auto !important;
     width: 1300px;
@@ -113,7 +113,7 @@ body {
     overflow: hidden;
     min-width: 970px;
     width: 100%;
-    padding-bottom: 101px;
+    margin-bottom: 301px;
     white-space: nowrap;
     padding-right: 5px;
 }
@@ -350,12 +350,6 @@ body {
   padding: 0 2px 0 2px;
 }
 
-div.navbar-fixed-bottom{
-    border-top: 1px solid #ccc;
-    padding:5px 10px;
-    height:270px;
-}
-
 .table-super-condensed thead > tr > th,
 .table-super-condensed tbody > tr > th,
 .table-super-condensed tfoot > tr > th,
@@ -369,69 +363,176 @@ div.navbar-fixed-bottom{
 /*
  * bottom panel
  */
+
+div#bottom-panel {
+    background-color: #AAAAAA;
+    height:270px;
+    position:fixed;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    font-size: 12px;
+
+}
+
+div#bottom-panel .navbar{
+    border-radius: 0px;
+    border-style: solid;
+    border-color: #42484F;
+    border-width:1px 0;
+    height:33px;
+    margin:0;
+    font-size:12px;
+    min-height: 33px;
+
+}
+
+div#bottom-panel .navbar-nav > li > a{
+    padding: 9px 15px;
+    line-height: 13px;
+}
+
+div#bottom-panel .navbar-nav > li.active a,
+div#bottom-panel .navbar-nav > li.active a:hover,
+div#bottom-panel .navbar-nav > li.active a:focus {
+    box-shadow: inset 0px 2px 0px;
+    outline: 0;
+
+}
+
+div#bottom-panel .navbar > ul.tab-headers > li{
+    border-right: 1px solid #42484F;
+}
+
+.navbar.navbar-dark{
+    background-color: #252C33;
+    color: #CED3D9;
+}
+
+.navbar.navbar-dark .navbar-nav > li > a{
+    color: #9FA3A5;
+}
+
+.navbar.navbar-dark .navbar-nav > li > a:hover,
+.navbar.navbar-dark .navbar-nav > li > a:focus {
+    background-color: #1E252B;
+    color: #D3D8DA;
+}
+
+div#bottom-panel .navbar.navbar-dark .navbar-nav > li.active a,
+div#bottom-panel .navbar.navbar-dark .navbar-nav > li.active a:hover,
+div#bottom-panel .navbar.navbar-dark .navbar-nav > li.active a:focus {
+    background-color: #1A4666;
+    color: #EEF0F2;
+}
+
+div#bottom-panel .navbar-nav.pull-right li a,
+div#bottom-panel .navbar-nav.pull-right li a:hover,
+div#bottom-panel .navbar-nav.pull-right li a:focus{
+    font-size: 12px;
+    line-height: 8px;
+}
+
+#bottom-left-panel, #bottom-center-panel{
+    height: calc(100% - 33px);
+    overflow-y: auto;
+    position: relative;
+    background-color: #FCFCFC;
+}
+
+div#bottom-panel.with-pinboard #bottom-left-panel,
+div#bottom-panel.with-pinboard #bottom-center-panel{
+    height: calc(100% - 120px);
+}
+
+
+
+#bottom-left-panel {
+    width:400px;
+    float:left;
+    overflow-y: auto;
+}
+
+#bottom-left-panel > ul{
+    margin: 0px;
+    padding: 0px;
+    line-height:12px;
+    border-top: 1px solid #AAAAAA;
+}
+
+#bottom-left-panel ul li{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 0px 0px 0px 5px;
+    line-height: 15px;
+}
+
+#bottom-left-panel ul li label{
+    padding: 0;
+}
+
+#bottom-left-panel em.testfail{ color:red;}
+
+#bottom-left-panel .printlines{padding-bottom: 5px;}
+
+#bottom-center-panel {
+    margin-left: 401px;
+    background-color: #FCFCFC;
+    padding:0px;
+}
+
+#bottom-panel nav.navbar.navbar-sub{
+    border-top: none;
+}
+
+#bottom-center-panel  ul.bug-suggestion-list{
+    padding-left: 0px;
+    height:100%;
+    overflow: auto;
+}
+
+ul.bug-suggestion-list li{
+    padding: 1px 0 1px 5px ;
+
+}
+
+ul.bug-suggestion-list li .btn-xs{
+    font-size: 10px;
+}
+
+
 .shadowed-panel {
     box-shadow: 0px 1px 0px rgba(255, 255, 255, 0.1), 0px 0px 2px 0px rgba(0, 0, 0, 0.8) inset;
     margin:0;
 }
-.bottom-panel {
-    background-color: #354048;
+
+/*#bottom-menu {position: absolute; right:0; width: 104px}*/
+
+.overlay{
+    position:absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width:100%;
+    height:100%;
+    background-color: rgba(242, 242, 242, 0.25);
+    z-index: 9999;
+    font-size: 30px;
 }
 
-.bottom-panel-title {
-    color: lightgray;
-}
-
-div.navbar-fixed-bottom .tab-content{
-    height: calc(100% - 22px);
-    overflow-y: auto;
-}
-
-.bottom-panel-tabs {
-    height: 100%;
-}
-
-.bottom-panel-tabs .nav li a {
-    padding: 1px 10px 2px 10px;
-}
-
-div.navbar-fixed-bottom dt,
-div.navbar-fixed-bottom dt {
-    font-size:.8em;
-}
-#bottom-left-panel {
-    width:242px;
-    position: absolute;
-    left:5px;
-    bottom: 5px;
-}
-#bottom-left-panel .panel{
-    padding:5px;
-}
-
-#bottom-left-panel .panel-head{
-    overflow: auto;
-    height: 100%;
-}
-
-#bottom-left-panel .table-super-condensed {
-    width: 100%;
-}
-
-#bottom-center-panel {
-    margin-right: 98px;
-    margin-left: 242px;
+.overlay > div{
     position: relative;
+    height:100%;
+    width:100%;
 }
-#bottom-menu {position: absolute; right:0; width: 104px}
 
-.result-status-shading-success {background-color: rgba(2, 131, 44, 0.24);}
-.result-status-shading-testfailed {background-color: rgba(221, 102, 2, 0.25);}
-.result-status-shading-busted {background-color: rgba(144, 0, 0, 0.25);}
-.result-status-shading-exception {background-color: rgba(61, 2, 85, 0.25);}
-.result-status-shading-retry {background-color: rgba(38, 63, 195, 0.25);}
-.result-status-shading-usercancel {background-color: rgba(250, 115, 172, 0.25)}
-.result-status-shading-pending {background-color: white;}
-.result-status-shading-running {background-color: white;}
+.overlay > div > span{
+    position:absolute;
+    top: 40%;
+    left:45%;
+}
 
 .bottom-shadowed-panel-with-pinboard {
     height: calc(100% - 75px);
@@ -461,54 +562,69 @@ div.navbar-fixed-bottom dt {
  * pinboard
  */
 
-.with-pinboard-abs {
-    top: 80px;
-}
-.with-pinboard-margin {
-    margin-top: 3px;
-}
-.without-pinboard-abs {
-    top: 25px;
-}
-
 #pinboard-panel {
-    margin-right: 527px;
-    margin-left: -5px;
+    background-color: #252C33;
+    color: #EEF0F2;
+    padding: 2px 5px;
 }
 
-.pinboard-shadowed-panel {
-    height: 52px;
-    padding: 2px;
-    overflow: auto;
+#pinboard-panel .header{
+    height: 18px;
 }
 
-#pinboard-related-bugs-panel {
-    top: 5px;
-    height: 95px;
+#pinned-job-list{
+    margin-right: 550px;
+}
+
+#pinned-job-list .content{
+    padding:2px;
+    background-color: #FFFFFF;
+    height:66px;
+}
+
+#pinboard-related-bugs{
     position: absolute;
-    right: 290px;
-    width: 242px;
+    top: 2px;
+    right: 322px;
+    width: 215px;
 }
 
-.pinboard-related-bug {
-    margin: 2px 1px;
+#pinboard-related-bugs .content{
+    height: 66px;
+    background-color: #FFFFFF;
 }
 
-#pinboard-classification-panel {
+#pinboard-classification{
     position: absolute;
-    top: 5px;
-    right:100px;
+    top: 2px;
+    right:120px;
     width: 185px;
 }
 
-.pinboard-classification-comment {
+#pinboard-classification select {
     width: 177px;
-    margin-top: 5px;
 }
 
-.pinboard-classification-select {
+#pinboard-classification textarea {
     width: 177px;
+    margin-top: 5px;
+    height: 40px;
 }
+
+#pinboard-controls{
+    position: absolute;
+    top: 21px;
+    right: 10px;
+}
+
+#pinboard-controls .dropdown-menu {
+    z-index: 2000;
+}
+
+#pinboard-controls .save-btn-dropdown {
+    margin-left: -5px;
+}
+
 
 .pinned-job {
     padding: 1px 7px;
@@ -520,11 +636,6 @@ div.navbar-fixed-bottom dt {
 
 .btn-icon-top-margin {
     margin-top: 0.3em;
-}
-
-.panel-body{
-    padding:5px;
-    height: 100%;
 }
 
 .timestamp-name {
@@ -542,18 +653,27 @@ div.navbar-fixed-bottom dt {
     border-right: solid 1px lightgray;
 }
 
-.bug-list-panel {
-    right: 0;
-}
-
 .bug-list {
     list-style: none inside none;
     padding-left: 0;
 }
 
+
+
+
+
 /**
  * RESULT STATUS COUNTS
  */
+
+.result-status-shading-success {background-color: rgba(2, 131, 44, 0.24);}
+.result-status-shading-testfailed {background-color: rgba(221, 102, 2, 0.25);}
+.result-status-shading-busted {background-color: rgba(144, 0, 0, 0.25);}
+.result-status-shading-exception {background-color: rgba(61, 2, 85, 0.25);}
+.result-status-shading-retry {background-color: rgba(38, 63, 195, 0.25);}
+.result-status-shading-usercancel {background-color: rgba(250, 115, 172, 0.25)}
+.result-status-shading-pending {background-color: white;}
+.result-status-shading-running {background-color: white;}
 
 .result-status-count-group {
     font-size: 12px;
@@ -1143,7 +1263,7 @@ fieldset[disabled] .btn-repo.active {
 
 .plugin_controls{ margin: 5px;}
 
-div.similar_jobs .right_panel{position:absolute; top:32px; right:4px; width:300px; border: 1px solid #101010;}
+div.similar_jobs .right_panel{position:absolute; top:0px; right:0px; width:300px; border: 1px solid #101010;}
 div.similar_jobs .right_panel form{height:30px; background-color: #D3D3D3;}
 div.similar_jobs .right_panel .similar_job_detail{width:300px; border-top: 1px solid #101010; }
 div.similar_jobs .right_panel .similar_job_detail table{ width: inherit;}
@@ -1153,8 +1273,9 @@ div.similar_jobs .right_panel .similar_job_detail ul.error_list li{
     white-space: nowrap;
     text-overflow: ellipsis;
 }
-div.similar_jobs .left_panel{padding-right:300px;}
-div.similar_jobs .left_panel table tr.active>td{background-color: #FFEE99;}
+div.similar_jobs .left_panel{margin-right:300px; margin-bottom: 15px;}
+div.similar_jobs .left_panel table{ margin-bottom: 5px;}
+div.similar_jobs .left_panel table tr.active>td{background-color: #D3D3D3;}
 div.similar_jobs .left_panel table tr{cursor: pointer;}
 
 
@@ -1194,3 +1315,11 @@ div.similar_jobs .left_panel table tr{cursor: pointer;}
 }
 
 div.logviewer-step{ padding:6px 6px;}
+
+.nowrap{
+    overflow-x: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;overflow-x: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
