@@ -248,12 +248,6 @@ treeherder.controller('TinderboxPluginCtrl', [
                                     link = value;
                                     type = "link";
                                 }
-                                if(title === "TalosResult"){
-                                    type = "TalosResult";
-                                    // unescape the json string
-                                    value =  value.replace(/\\/g, '');
-                                    value = angular.fromJson(value);
-                                }
 
                                 if(value.indexOf("uploaded") !== -1){
                                     var uploaded_to_regexp = /<a href='(http:\/\/[A-Za-z\/\.0-9\-_]+)'>([A-Za-z\/\.0-9\-_]+)<\/a>/;
@@ -270,8 +264,13 @@ treeherder.controller('TinderboxPluginCtrl', [
                                     type="raw_html";
                                 }
 
-
-
+                                if(title === "TalosResult"){
+                                    type = "TalosResult";
+                                    // unescape the json string
+                                    value =  value.replace(/\\/g, '');
+                                    console.log(value);
+                                    value = angular.fromJson(value);
+                                }
 
                             }
 

@@ -474,6 +474,8 @@ div#bottom-panel.with-pinboard #bottom-center-panel{
 
 #bottom-left-panel em.testfail{ color:red;}
 
+#bottom-left-panel .printlines{padding-bottom: 5px;}
+
 #bottom-center-panel {
     margin-left: 401px;
     background-color: #FCFCFC;

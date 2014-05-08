@@ -84,32 +84,34 @@
             <span>{{value}}</span>
         </li>
     </ul>
-    <ul ng-controller="TinderboxPluginCtrl" class="list-unstyled">
-        <li ng-repeat="line in tinderbox_lines_parsed" class="small">
-            <label>{{line.title}}</label>
-            <span ng-switch on="line.type">
-                <a ng-switch-when="link" title="{{line.value}}" href="{{line.link}}" target="_blank">{{line.value}}</a>
-                <ul ng-switch-when="TalosResult">
-                    <li>Datazilla:
-                        <ul>
-                            <li ng-repeat="(k,v) in line.value.datazilla"><a href="{{v.url}}" target="_blank">{{k}}</a>
-                            </li>
-                        </ul>
-                    </li>
+    <div class="printlines">
+        <ul ng-controller="TinderboxPluginCtrl" class="list-unstyled">
+            <li ng-repeat="line in tinderbox_lines_parsed" class="small">
+                <label>{{line.title}}</label>
+                <span ng-switch on="line.type">
+                    <a ng-switch-when="link" title="{{line.value}}" href="{{line.link}}" target="_blank">{{line.value}}</a>
+                    <ul ng-switch-when="TalosResult">
+                        <li>Datazilla:
+                            <ul>
+                                <li ng-repeat="(k,v) in line.value.datazilla"><a href="{{v.url}}" target="_blank">{{k}}</a>
+                                </li>
+                            </ul>
+                        </li>
 
-                    <li>Graphserver:
-                        <ul>
-                            <li ng-repeat="(k,v) in line.value.graphserver">{{k}}:<a href="{{v.url}}"
-                                                                                     target="_blank">{{v.result}}</a>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
-                <span ng-switch-when="raw_html" ng-bind-html="line.value"></span>
-                <span title="{{line.value}}" ng-switch-default>{{line.value}}</span>
-            </span>
-        </li>
-    </ul>
+                        <li>Graphserver:
+                            <ul>
+                                <li ng-repeat="(k,v) in line.value.graphserver">{{k}}:<a href="{{v.url}}"
+                                                                                         target="_blank">{{v.result}}</a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <span ng-switch-when="raw_html" ng-bind-html="line.value"></span>
+                    <span title="{{line.value}}" ng-switch-default>{{line.value}}</span>
+                </span>
+            </li>
+        </ul>
+    </div>
     <div ng-if="job_detail_loading" class="overlay">
         <div>
             <span class="fa fa-refresh fa-spin"></span>
