@@ -2,6 +2,9 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action, link
 from rest_framework.reverse import reverse
+
+from django.core.cache import cache
+
 from treeherder.webapp.api.utils import (UrlQueryFilter, with_jobs,
                                          oauth_required, get_option)
 
@@ -18,13 +21,21 @@ class JobsViewSet(viewsets.ViewSet):
         """
         GET method for revisions of a resultset
         """
-        all = jm.get_unclassified_failure_count()["count"]
-        excluded = jm.get_unclassified_failure_count_excluded()["count_excluded"]
+        count = cache.get(
+            "{0}:unclassified_failure_count".format(project)
+        )
+        count_excluded = cache.get(
+            "{0}:unclassified_failure_count_excluded".format(project)
+        )
+
+        # count = jm.get_unclassified_failure_count()["count"]
+        # excluded = jm.get_unclassified_failure_count_excluded()["count_excluded"]
+
 
         return Response({
             "repository": project,
-            "count": all,
-            "count_excluded": excluded
+            "count": count or 0,
+            "count_excluded": count_excluded or 0
         })
 
     @with_jobs
