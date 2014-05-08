@@ -195,19 +195,6 @@
     }
 },
 {
-    "pk": 16,
-    "model": "model.repository",
-    "fields": {
-        "dvcs_type": "hg",
-        "name": "ionmonkey",
-        "url": "https://hg.mozilla.org/projects/ionmonkey",
-        "active_status": "active",
-        "codebase": "gecko",
-        "repository_group": 1,
-        "description": ""
-    }
-},
-{
     "pk": 18,
     "model": "model.repository",
     "fields": {
@@ -634,6 +621,32 @@
         "active_status": "active",
         "codebase": "gecko",
         "repository_group": 4,
+        "description": ""
+    }
+},
+{
+    "pk": 52,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "hg",
+        "name": "gaia-try",
+        "url": "https://hg.mozilla.org/integration/gaia-try",
+        "active_status": "active",
+        "codebase": "gaia",
+        "repository_group": 3,
+        "description": ""
+    }
+},
+{
+    "pk": 53,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "hg",
+        "name": "mozilla-b2g30_v1_4",
+        "url": "https://hg.mozilla.org/releases/mozilla-b2g30_v1_4",
+        "active_status": "active",
+        "codebase": "gecko",
+        "repository_group": 2,
         "description": ""
     }
 }
