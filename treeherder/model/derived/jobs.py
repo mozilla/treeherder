@@ -6,6 +6,7 @@ from _mysql_exceptions import IntegrityError
 
 from warnings import filterwarnings, resetwarnings
 from django.conf import settings
+from django.core.cache import cache
 
 from treeherder.model.models import Datasource, ExclusionProfile
 
@@ -203,6 +204,7 @@ class JobsModel(TreeherderModelBase):
 
         flat_exclusions = ExclusionProfile.objects.filter(
             is_default=1).values("flat_exclusion")
+        count = 0
 
         try:
             condition, values_list = utils.where_wolf(self.project, flat_exclusions)
@@ -225,16 +227,19 @@ class JobsModel(TreeherderModelBase):
                 placeholders=placeholders,
                 debug_show=self.DEBUG,
             )
-            if len(data):
-                return data[0]
 
+            if len(data):
+                count = data[0]["count_excluded"]
+                cache.set(
+                    "{0}:unclassified_failure_count_excluded".format(self.project),
+                    count)
 
         except Exception as ex:
             # there may be no exclusions for this repo/project
             # pass and fall through to the zero count response.
             pass
 
-        return {"count_excluded": 0}
+        return count
 
 
 
@@ -254,7 +259,15 @@ class JobsModel(TreeherderModelBase):
             placeholders=placeholders,
             debug_show=self.DEBUG,
         )
-        return data[0]
+        count = 0
+        if len(data):
+            count = data[0]["count"]
+            cache.set(
+                "{0}:unclassified_failure_count".format(self.project),
+                count
+            )
+
+        return count
 
 
     def _process_conditions(self, conditions, allowed_fields=None):
