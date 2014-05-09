@@ -28,10 +28,6 @@ class JobsViewSet(viewsets.ViewSet):
             "{0}:unclassified_failure_count_excluded".format(project)
         )
 
-        # count = jm.get_unclassified_failure_count()["count"]
-        # excluded = jm.get_unclassified_failure_count_excluded()["count_excluded"]
-
-
         return Response({
             "repository": project,
             "count": count or 0,
