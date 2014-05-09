@@ -445,7 +445,9 @@ div#bottom-panel.with-pinboard #bottom-center-panel{
     height: calc(100% - 120px);
 }
 
-
+.pinned-job-count {
+    margin-left: 5px;
+}
 
 #bottom-left-panel {
     width:400px;

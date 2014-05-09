@@ -19,7 +19,9 @@
             </a>
         </li>
         <li ng-repeat="joblog in logs">
-            <a title="Open the raw log in a new window" target="_blank" href="{{ joblog.url }}">
+            <a title="Open the raw log in a new window"
+               target="_blank"
+               href="{{ joblog.url }}">
                 <span class="glyphicon glyphicon-list-alt"></span>
             </a>
         </li>
@@ -27,15 +29,20 @@
             <!--the first 3 items are in the same box-->
             <ul class="nav navbar-nav">
                 <li>
-                    <a href=""
-                       title="Add the current job to the pinboard. You can click+shift on any job to pin it"
-                       ng-click="pinboard_service.pinJob(selectedJob)">
+                    <a href="" title="Add the current job to the pinboard. You can click+shift on any job to pin it"
+                          ng-click="pinboard_service.pinJob(selectedJob)">
                         <span class="glyphicon glyphicon-pushpin"></span>
+                        <span class="pinned-job-count"><strong>{{ getCountPinnedJobs() }}</strong></span>
                     </a>
                 </li>
                 <li>
-                    <a title="detach panel" href="" ng-click="alert('Detachable panel not implemented')">
-                        <span class="glyphicon glyphicon glyphicon-resize-full"></span>
+                    <a href="" ng-click="togglePinboardVisibility()">
+                        <span ng-hide="isPinboardVisible"
+                              title="show pinboard"
+                              class="glyphicon glyphicon-chevron-down"></span>
+                        <span ng-show="isPinboardVisible"
+                              title="hide pinboard"
+                              class="glyphicon glyphicon-chevron-up"></span>
                     </a>
                 </li>
                 <li>

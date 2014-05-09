@@ -77,6 +77,20 @@ treeherder.controller('PluginCtrl', [
                 };
         };
 
+        $scope.getCountPinnedJobs = function() {
+            return thPinboard.count.numPinnedJobs;
+        };
+
+        $scope.togglePinboardVisibility = function() {
+            $scope.isPinboardVisible = !$scope.isPinboardVisible;
+        };
+
+        $scope.$watch('getCountPinnedJobs()', function(newVal, oldVal) {
+            if (oldVal === 0 && newVal > 0) {
+                $scope.isPinboardVisible = true;
+            }
+        });
+
         /**
          * Test whether or not the selected job is a reftest
          */

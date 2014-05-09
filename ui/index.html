@@ -29,7 +29,7 @@
         <div ng-controller="PluginCtrl"
              id="bottom-panel"
              ng-show="selectedJob"
-             ng-class="{'with-pinboard':pinboard_service.hasPinnedJobs()}">
+             ng-class="{'with-pinboard':isPinboardVisible}">
             <resizable-panel position="top"></resizable-panel>
 
             <div class="full-height"

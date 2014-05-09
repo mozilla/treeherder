@@ -360,11 +360,14 @@ treeherder.factory('thJobFilters', [
     var getCountExcludedForRepo = function(repoName) {
         var repoData = ThRepositoryModel.watchedRepos[repoName];
 
-        if (skipExclusionProfiles) {
-            return repoData.unclassifiedFailureCount;
-        } else {
-            return repoData.unclassifiedFailureCount - repoData.unclassifiedFailureCountExcluded;
+        if (repoData) {
+            if (skipExclusionProfiles) {
+                return repoData.unclassifiedFailureCount;
+            } else {
+                return repoData.unclassifiedFailureCount - repoData.unclassifiedFailureCountExcluded;
+            }
         }
+        return 0;
     };
 
     /**
