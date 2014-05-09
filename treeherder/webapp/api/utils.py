@@ -7,8 +7,7 @@ import oauth2 as oauth
 from django.conf import settings
 from rest_framework.response import Response
 
-from treeherder.model.derived import (JobsModel, DatasetNotFoundError,
-                                      ObjectNotFoundException)
+from treeherder.model.derived import JobsModel
 from treeherder.etl.oauth_utils import OAuthCredentials
 
 
@@ -185,28 +184,13 @@ def with_jobs(model_func):
 
     ``func`` must take a jobsmodel object and return a response object
 
-    Catches exceptions
     """
     def use_jobs_model(*args, **kwargs):
+
         project = kwargs["project"]
+        jm = JobsModel(project)
         try:
-            jm = JobsModel(project)
             return model_func(*args, jm=jm, **kwargs)
-
-        except DatasetNotFoundError as e:
-            return Response(
-                {"message": "No project with name {0}".format(project)},
-                status=404,
-            )
-        except ObjectNotFoundException as e:
-            return Response({"message": unicode(e)}, status=404)
-        except Exception as e:  # pragma nocover
-            msg = {"message": unicode(e)}
-            if settings.DEBUG:
-                import traceback
-                msg["traceback"] = traceback.format_exc()
-
-            return Response(msg, status=500)
         finally:
             jm.disconnect()
 

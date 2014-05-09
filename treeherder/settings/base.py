@@ -209,7 +209,8 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
-    )
+    ),
+    'EXCEPTION_HANDLER': 'treeherder.webapp.api.exceptions.exception_handler'
 }
 
 SITE_URL = "http://local.treeherder.mozilla.org"
@@ -281,3 +282,5 @@ def obtain_username(email):
         return email
 
 BROWSERID_USERNAME_ALGO = obtain_username
+
+SWAGGER_SETTINGS = {"enabled_methods": ['get',]}

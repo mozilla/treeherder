@@ -98,7 +98,7 @@ def test_resultset_list_bad_project(webapp, jm):
     )
 
     assert resp.status_int == 404
-    assert resp.json == {"message": "No project with name foo"}
+    assert resp.json == {"detail": "No project with name foo"}
 
 
 def test_resultset_list_empty_rs_still_show(webapp, initial_data,
@@ -250,7 +250,7 @@ def test_result_set_detail_bad_project(webapp, jm):
         expect_errors=True
     )
     assert resp.status_int == 404
-    assert resp.json == {"message": "No project with name foo"}
+    assert resp.json == {"detail": "No project with name foo"}
 
 
 def test_resultset_create(sample_resultset, jm, initial_data):

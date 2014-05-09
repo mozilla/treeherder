@@ -1,6 +1,7 @@
 from django.conf import settings
 from rest_framework import viewsets
 from rest_framework.response import Response
+from rest_framework.exceptions import ParseError
 
 from rest_framework.authentication import SessionAuthentication
 from treeherder.webapp.api.permissions import IsStaffOrReadOnly
@@ -32,11 +33,19 @@ class NoteViewSet(viewsets.ViewSet):
     def list(self, request, project, jm):
         """
         GET method implementation for list view
+        job_id -- Mandatory filter indicating which job these notes belong to.
         """
-        job_id = request.QUERY_PARAMS.get('job_id')
 
-        objs = jm.get_job_note_list(job_id=job_id)
-        return Response(objs)
+        job_id = request.QUERY_PARAMS.get('job_id')
+        if not job_id:
+            raise ParseError(detail="The job_id parameter is mandatory for this endpoint")
+        try:
+            job_id = int(job_id)
+        except:
+            raise ParseError(detail="The job_id parameter must be an integer")
+
+        job_note_list = jm.get_job_note_list(job_id=job_id)
+        return Response(job_note_list)
 
     @with_jobs
     def create(self, request, project, jm):
@@ -80,4 +89,3 @@ class NoteViewSet(viewsets.ViewSet):
 
         else:
             return Response("No note with id: {0}".format(pk), 404)
-
