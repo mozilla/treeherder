@@ -2,11 +2,12 @@
     "inserts":{
         "create_reference_data_signature":{
             "sql": "INSERT INTO `reference_data_signatures` (
-                        `name`, `signature`, `build_system_type`, `build_os_name`, `build_platform`,
-                        `build_architecture`, `machine_os_name`, `machine_platform`,
-                        `machine_architecture`, `job_group_name`, `job_type_name`,
+                        `name`, `signature`, `build_system_type`, `build_os_name`,
+                        `build_platform`, `build_architecture`, `machine_os_name`,
+                        `machine_platform`, `machine_architecture`, `device_name`,
+                        `job_group_name`, `job_group_symbol`, `job_type_name`, `job_type_symbol`,
                         `option_collection_hash`, `first_submission_timestamp`)
-                    SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                    SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
                     FROM DUAL
                     WHERE NOT EXISTS (
                     SELECT `name`, `build_system_type`
@@ -106,6 +107,18 @@
                     WHERE NOT EXISTS (
                     SELECT `name`
                     FROM `product`
+                    WHERE `name` = ?
+                    )",
+            "host":"master_host"
+        },
+
+        "create_device":{
+            "sql": "INSERT INTO `device` (`name`, `description`)
+                    SELECT ?, 'fill me'
+                    FROM DUAL
+                    WHERE NOT EXISTS (
+                    SELECT `name`
+                    FROM `device`
                     WHERE `name` = ?
                     )",
             "host":"master_host"
@@ -212,6 +225,13 @@
         "get_products":{
             "sql": "SELECT `id`, `name`
                     FROM `product`
+                    WHERE `active_status` = 'active' AND `name` IN (REP0)",
+
+            "host":"read_host"
+        },
+        "get_devices":{
+            "sql": "SELECT `id`, `name`
+                    FROM `device`
                     WHERE `active_status` = 'active' AND `name` IN (REP0)",
 
             "host":"read_host"
