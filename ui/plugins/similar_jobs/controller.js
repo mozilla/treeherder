@@ -56,7 +56,7 @@ treeherder.controller('SimilarJobsPluginCtrl', [
                                     });
                                     $scope.similar_jobs = data;
                                     // on the first page show the first element info by default
-                                    if($scope.page === 1){
+                                    if($scope.page === 1 && $scope.similar_jobs.length > 0){
                                         $scope.show_job_info($scope.similar_jobs[0]);
                                     }
                                     $scope.tabs.similar_jobs.is_loading = false;

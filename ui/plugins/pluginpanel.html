@@ -60,17 +60,16 @@
 <div id="bottom-left-panel">
     <ul ng-if="classifications.length > 0 || bugs.length > 0" class="list-unstyled">
         <li ng-if="classifications.length > 0">
-            <label>Classification:</label>
             <span th-failure-classification failure-id="classifications[0].failure_classification_id"></span>
-        </li>
-        <li ng-if="bugs.length > 0">
-            <label>Associated bugs:</label>
-            <a class="btn btn-xs btn-default" ng-repeat="bug in bugs"
+
+            <a target="_blank" class="btn btn-xs btn-default" ng-repeat="bug in bugs"
                href="https://bugzilla.mozilla.org/show_bug.cgi?id={{bug.bug_id}}"
                title="Open bug page on bugzilla.mozilla.org">
-               {{bug.bug_id}}
+               <span class="fa fa-bug"></span>{{bug.bug_id}}
             </a>
         </li>
+        <li ng-if="classifications[0].note.length > 0"><em>{{classifications[0].note}}</em></li>
+        <li>by <em>{{classifications[0].who}}</em> on {{ classifications[0].note_timestamp*1000|date:'medium' }}</li>
     </ul>
     <ul class="list-unstyled">
         <li class="small {{resultStatusShading}}">
