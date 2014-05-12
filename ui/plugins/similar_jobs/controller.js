@@ -43,7 +43,7 @@ treeherder.controller('SimilarJobsPluginCtrl', [
 
                             // get resultsets and revisions for the given ids
                             thResultSets.getResultSets(
-                                $scope.repoName, null, 100, result_set_ids, false, true
+                                $scope.repoName, null, 100, result_set_ids, false, true, false
                                 ).then(function(response){
                                     //decorate the list of jobs with their result sets
                                     var resultsets = _.indexBy(response.data.results, "id");
@@ -87,7 +87,8 @@ treeherder.controller('SimilarJobsPluginCtrl', [
         $scope.similar_jobs_filters = {
             "machine_id": false,
             "job_type_id": true,
-            "build_platform_id": true
+            "build_platform_id": true,
+            "option_collection_hash": true
         };
         $scope.button_class = function(job){
             var resultState = job.result;

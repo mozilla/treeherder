@@ -1266,7 +1266,7 @@ fieldset[disabled] .btn-repo.active {
 .plugin_controls{ margin: 5px;}
 
 div.similar_jobs .right_panel{position:absolute; top:0px; right:0px; width:300px; border: 1px solid #101010;}
-div.similar_jobs .right_panel form{height:30px; background-color: #D3D3D3;}
+div.similar_jobs .right_panel form{height:42px; background-color: #D3D3D3;}
 div.similar_jobs .right_panel .similar_job_detail{width:300px; border-top: 1px solid #101010; }
 div.similar_jobs .right_panel .similar_job_detail table{ width: inherit;}
 div.similar_jobs .right_panel .similar_job_detail ul.error_list li{
