@@ -50,7 +50,9 @@ treeherder.directive('thResultCounts', function () {
     };
 });
 
-treeherder.directive('thResultStatusCount', function (thJobFilters) {
+treeherder.directive('thResultStatusCount', [
+    'thJobFilters',
+    function (thJobFilters) {
 
     var updateResultCount = function(scope) {
         scope.resultCount = scope.resultset.job_counts[scope.resultStatus] -
@@ -94,7 +96,7 @@ treeherder.directive('thResultStatusCount', function (thJobFilters) {
         },
         templateUrl: 'partials/thResultStatusCount.html'
     };
-});
+}]);
 
 treeherder.directive('thRevision', [
     '$parse',

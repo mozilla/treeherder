@@ -69,9 +69,9 @@ treeherder.controller('JobsCtrl', [
 
 
 treeherder.controller('ResultSetCtrl', [
-    '$scope', '$rootScope', '$http', 'ThLog', '$location', 'thUrl',
-    'thServiceDomain', 'thResultStatusInfo', 'ThResultSetModel', 'thEvents',
-    'thJobFilters', 'thNotify',
+    '$scope', '$rootScope', '$http', 'ThLog', '$location',
+    'thUrl', 'thServiceDomain', 'thResultStatusInfo',
+    'ThResultSetModel', 'thEvents', 'thJobFilters', 'thNotify',
     function ResultSetCtrl(
         $scope, $rootScope, $http, ThLog, $location,
         thUrl, thServiceDomain, thResultStatusInfo,

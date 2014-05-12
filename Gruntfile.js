@@ -39,8 +39,10 @@ module.exports = function(grunt) {
 
                     { src:'webapp/app/help.html', dest:'dist/help.html' },
 
-                    { src:'webapp/app/logviewer.html', dest:'dist/logviewer.html' }
-                ],
+                    { src:'webapp/app/logviewer.html', dest:'dist/logviewer.html' },
+
+                    { src:'webapp/app/vendor/zeroclipboard/ZeroClipboard.swf', dest:'dist/vendor/zeroclipboard/ZeroClipboard.swf' }
+                ]
             },
             // Copy img dir
             img:{
