@@ -56,6 +56,10 @@ var Config = {
       isTry: true,
       ftpDir: "https://ftp.mozilla.org/pub/mozilla.org/firefox/try-builds"
     },
+    "Gaia-Try": {
+      primaryRepo: "integration/gaia-try",
+      buildbotBranch: "gaia-try",
+    },
     "Mozilla-Aurora": {
       primaryRepo: "releases/mozilla-aurora",
       buildbotBranch: "mozilla-aurora",
@@ -73,6 +77,10 @@ var Config = {
       buildbotBranch: "mozilla-esr24",
     },
     // B2G trees
+    "Mozilla-B2g30-v1.4": {
+      primaryRepo: "releases/mozilla-b2g30_v1_4",
+      buildbotBranch: "mozilla-b2g30_v1_4",
+    },
     "Mozilla-B2g28-v1.3": {
       primaryRepo: "releases/mozilla-b2g28_v1_3",
       buildbotBranch: "mozilla-b2g28_v1_3",
@@ -114,11 +122,6 @@ var Config = {
       primaryRepo: "projects/graphics",
       buildbotBranch: "graphics",
       sheriff: '<a href="irc://irc.mozilla.org/#gfx" target="_blank">#gfx</a>'
-    },
-    "Ionmonkey": {
-      primaryRepo: "projects/ionmonkey",
-      buildbotBranch: "ionmonkey",
-      sheriff: '<a href="irc://irc.mozilla.org/#jsapi" target="_blank">#jsapi</a>'
     },
     "Services-Central": {
       primaryRepo: "services/services-central",
@@ -457,8 +460,10 @@ var Config = {
     "JIT Tests" : "Jit",
     "Jetpack SDK Test" : "JP",
     "Gaia Unit Test" : "G",
+    "Gaia Build Test" : "Gb",
     "Gaia Integration Test" : "Gi",
     "Gaia UI Test" : "Gu",
+    "Linter Test" : "Li",
     "Marionette Framework Unit Tests" : "Mn",
     "Marionette WebAPI Tests" : "Mnw",
     "Android x86 Test Set" : "S",
