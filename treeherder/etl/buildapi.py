@@ -124,6 +124,10 @@ class Builds4hTransformerMixin(object):
             platform_info = buildbot.extract_platform_info(prop['buildername'])
             job_name_info = buildbot.extract_name_info(prop['buildername'])
 
+            device_name = 'unknown'
+            if platform_info['vm'] == True:
+                device_name = 'vm'
+
             if 'log_url' in prop:
                 log_reference = [{
                     'url': prop['log_url'],

@@ -466,8 +466,7 @@ class JobsModel(TreeherderModelBase):
         if max_timestamp:
 
             time_window = int(max_timestamp) - sample_window_seconds
-            print time_window
-            print "BEFORE GET_ETA_GROUPS"
+
             eta_groups = self.get_jobs_dhub().execute(
                 proc='jobs.selects.get_eta_groups',
                 placeholders=[time_window],
@@ -475,7 +474,6 @@ class JobsModel(TreeherderModelBase):
                 return_type='dict',
                 debug_show=self.DEBUG
                 )
-            print "AFTER GET_ETA_GROUPS"
 
             placeholders = []
             submit_timestamp = int( time.time() )
@@ -520,13 +518,7 @@ class JobsModel(TreeherderModelBase):
                         len(running_samples),
                         submit_timestamp
                         ])
-            print "BEFORE INSERT"
-            grrr =  len(placeholders)
-            if grrr == 2644:
-                print len(placeholders)
-                print placeholders[1950]
-                print placeholders[1951]
-                print placeholders[1952]
+
             self.get_jobs_dhub().execute(
                 proc='jobs.inserts.set_job_eta',
                 placeholders=placeholders,
@@ -1054,6 +1046,8 @@ class JobsModel(TreeherderModelBase):
 
                         "name": "xpcshell",
 
+                        "device_name": "vm",
+
                         "job_symbol": "XP",
 
                         "group_name": "Shelliness",
@@ -1298,6 +1292,9 @@ class JobsModel(TreeherderModelBase):
             long(job.get("end_timestamp", time.time()))
             )
 
+        device_name = job.get('device_name', 'unknown')
+        self.refdata_model.add_device(device_name)
+
         job_type = job.get('name', 'unknown')
         job_symbol = job.get('job_symbol', 'unknown')
 
@@ -1332,7 +1329,8 @@ class JobsModel(TreeherderModelBase):
             reference_data_name, build_system_type,
             [ build_system_type, build_os_name, build_platform, build_architecture,
               machine_os_name, machine_platform, machine_architecture,
-              group_name, job_type, option_collection_hash, int(time.time()) ]
+              device_name, group_name, group_symbol, job_type, job_symbol,
+              option_collection_hash ]
             )
 
         job_placeholders.append([
@@ -1343,18 +1341,19 @@ class JobsModel(TreeherderModelBase):
             build_platform_key,     # idx:4, replace with build_platform_id
             machine_platform_key,   # idx:5, replace with machine_platform_id
             machine,                # idx:6, replace with machine_id
-            option_collection_hash, # idx:7
-            job_type_key,           # idx:8, replace with job_type_id
-            product,                # idx:9, replace with product_id
+            device_name,            # idx:7, replace with device_id
+            option_collection_hash, # idx:8
+            job_type_key,           # idx:9, replace with job_type_id
+            product,                # idx:10, replace with product_id
             who,
             reason,
-            job.get('result', 'unknown'), # idx:12, this is typically an int
+            job.get('result', 'unknown'), # idx:13, this is typically an int
             state,
             self.get_number( job.get('submit_timestamp') ),
             self.get_number( job.get('start_timestamp') ),
             self.get_number( job.get('end_timestamp') ),
-            0,                      # idx:17, replace with pending_avg_sec
-            0,                      # idx:18, replace with running_avg_sec
+            0,                      # idx:18, replace with pending_avg_sec
+            0,                      # idx:19, replace with running_avg_sec
             job_guid
             ])
 
@@ -1405,16 +1404,17 @@ class JobsModel(TreeherderModelBase):
         build_platform_key = job_placeholders[index][4]
         machine_platform_key = job_placeholders[index][5]
         machine_name = job_placeholders[index][6]
-        option_collection_hash = job_placeholders[index][7]
-        job_type_key = job_placeholders[index][8]
-        product_type = job_placeholders[index][9]
-        who = job_placeholders[index][10]
-        reason = job_placeholders[index][11]
-        result = job_placeholders[index][12]
-        job_state = job_placeholders[index][13]
-        submit_timestamp = job_placeholders[index][14]
-        start_timestamp = job_placeholders[index][15]
-        end_timestamp = job_placeholders[index][16]
+        device_name = job_placeholders[index][7]
+        option_collection_hash = job_placeholders[index][8]
+        job_type_key = job_placeholders[index][9]
+        product_type = job_placeholders[index][10]
+        who = job_placeholders[index][11]
+        reason = job_placeholders[index][12]
+        result = job_placeholders[index][13]
+        job_state = job_placeholders[index][14]
+        submit_timestamp = job_placeholders[index][15]
+        start_timestamp = job_placeholders[index][16]
+        end_timestamp = job_placeholders[index][17]
 
         # Load job_placeholders
 
@@ -1432,12 +1432,15 @@ class JobsModel(TreeherderModelBase):
         # replace machine with id
         job_placeholders[index][6] = id_lookups['machines'][machine_name]['id']
 
+        job_placeholders[index][7] = id_lookups['devices'][device_name]['id']
+
         # replace job_type with id
         job_type_id = id_lookups['job_types'][job_type_key]['id']
-        job_placeholders[index][8] = job_type_id
+        job_placeholders[index][9] = job_type_id
 
         # replace product_type with id
-        job_placeholders[index][9] = id_lookups['products'][product_type]['id']
+        job_placeholders[index][10] = id_lookups['products'][product_type]['id']
+
 
         job_guid_list.append(job_guid)
         job_guid_where_in_list.append('%s')
@@ -1446,15 +1449,8 @@ class JobsModel(TreeherderModelBase):
         pending_avg_sec = job_eta_times.get(reference_data_signature, {}).get('pending', 0)
         running_avg_sec = job_eta_times.get(reference_data_signature, {}).get('running', 0)
 
-        print 'PENDING'
-        print pending_avg_sec
-        print 'RUNNING'
-        print running_avg_sec
-        print reference_data_signature
-        print job_eta_times
-
-        job_placeholders[index][17] = pending_avg_sec
-        job_placeholders[index][18] = running_avg_sec
+        job_placeholders[index][18] = pending_avg_sec
+        job_placeholders[index][19] = running_avg_sec
 
         # Load job_update_placeholders
         if job_state != 'pending':

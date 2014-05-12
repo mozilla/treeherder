@@ -60,6 +60,7 @@
                 `build_platform_id`,
                 `machine_platform_id`,
                 `machine_id`,
+                `device_id`,
                 `option_collection_hash`,
                 `job_type_id`,
                 `product_id`,
@@ -72,7 +73,7 @@
                 `end_timestamp`,
                 `pending_eta`,
                 `running_eta`)
-                SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
+                SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
                 FROM DUAL WHERE NOT EXISTS (
                     SELECT `job_guid`
                     FROM `job`
@@ -264,58 +265,37 @@
 
             "sql":"SELECT signature,
                           CAST(
-                            ROUND( AVG(
-                                CAST(start_timestamp AS SIGNED) - CAST(submit_timestamp AS SIGNED)
-                                ) )
-                            AS SIGNED) AS 'pending_avg_sec',
+                            ROUND( AVG(start_timestamp - submit_timestamp) )
+                            AS UNSIGNED) AS 'pending_avg_sec',
 
-                          MIN(
-                            CAST(start_timestamp AS SIGNED) - CAST(submit_timestamp AS SIGNED)
-                            ) AS 'pending_min_sec',
-
-                          MAX(
-                            CAST(start_timestamp AS SIGNED) - CAST(submit_timestamp AS SIGNED)
-                            ) AS 'pending_max_sec',
+                          MIN(start_timestamp - submit_timestamp) AS 'pending_min_sec',
+                          MAX(start_timestamp - submit_timestamp) AS 'pending_max_sec',
 
                           CAST(
-                            ROUND( STD(
-                                CAST(start_timestamp AS SIGNED) - CAST(submit_timestamp AS SIGNED)
-                                ) )
-                            AS SIGNED) AS 'pending_std',
+                            ROUND( STD(start_timestamp - submit_timestamp))
+                            AS UNSIGNED) AS 'pending_std',
 
                           CAST(
-                            ROUND( AVG(
-                                CAST(end_timestamp AS SIGNED) - CAST(start_timestamp AS SIGNED)
-                                ) )
-                            AS SIGNED) AS 'running_avg_sec',
+                            ROUND( AVG(end_timestamp - start_timestamp) )
+                            AS UNSIGNED) AS 'running_avg_sec',
 
-                          MIN(
-                            CAST(end_timestamp AS SIGNED) - CAST(start_timestamp AS SIGNED)
-                            ) AS 'running_min_sec',
-
-                          MAX(
-                            CAST(end_timestamp AS SIGNED) - CAST(start_timestamp AS SIGNED)
-                            ) AS 'running_max_sec',
+                          MIN(end_timestamp - start_timestamp) AS 'running_min_sec',
+                          MAX(end_timestamp - start_timestamp) AS 'running_max_sec',
 
                           CAST(
-                            ROUND( STD(
-                                CAST(end_timestamp AS SIGNED) - CAST(start_timestamp AS SIGNED)
-                                ) )
+                            ROUND( STD(end_timestamp - start_timestamp) )
                             AS SIGNED) AS 'running_std',
 
-                          GROUP_CONCAT(
-                                CAST(start_timestamp AS SIGNED) - CAST(submit_timestamp AS SIGNED)
-                            SEPARATOR ',')
+                          GROUP_CONCAT(start_timestamp - submit_timestamp SEPARATOR ',')
                             AS 'pending_samples',
 
-                          GROUP_CONCAT(
-                                CAST(end_timestamp AS SIGNED) - CAST(start_timestamp AS SIGNED)
-                            SEPARATOR ',')
+                          GROUP_CONCAT(end_timestamp - start_timestamp SEPARATOR ',')
                             AS 'running_samples'
                    FROM job
                    WHERE submit_timestamp >= ? AND
-                         start_timestamp > 0 AND
-                         end_timestamp > 0
+                         start_timestamp >= submit_timestamp AND
+                         end_timestamp >= start_timestamp AND
+                         start_timestamp > 0 AND end_timestamp > 0
                    GROUP BY signature",
 
             "host":"read_host"
