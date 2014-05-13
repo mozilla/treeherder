@@ -1282,7 +1282,7 @@ fieldset[disabled] .btn-repo.active {
 }
 
 .lv-log-line {
-    width: 100%;
+    width: auto;
     float: left;
     white-space: pre-line;
 }
@@ -1362,8 +1362,6 @@ div.similar_jobs .left_panel table tr{cursor: pointer;}
     vertical-align: top;
 }
 
-div.logviewer-step{ padding:6px 6px;}
-
 .nowrap{
     overflow-x: hidden;
     white-space: nowrap;
@@ -1371,3 +1369,5 @@ div.logviewer-step{ padding:6px 6px;}
     white-space: nowrap;
     text-overflow: ellipsis;
 }
+
+div.logviewer-step{ padding:6px 6px;}

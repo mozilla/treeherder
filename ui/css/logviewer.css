@@ -1,0 +1,26 @@
+body {
+	padding-top: 270px;
+}
+
+.lv-log-container {
+    overflow-y: scroll;
+    overflow-x: auto;
+    height: auto;
+}
+
+.run-data {
+    height: 270px;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    background-color: #FFF;
+    padding: 30px;
+    border-bottom: 1px solid #EFEFEF;
+}
+
+.run-data .steps-data {
+    height: 210px;
+    overflow: auto;
+    border: 1px solid #EFEFEF;
+	padding-top: 10px;
+}

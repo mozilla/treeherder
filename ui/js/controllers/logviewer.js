@@ -17,6 +17,8 @@ logViewer.controller('LogviewerCtrl', [
             $scope.job_id= query_string.job_id;
         }
 
+        var extraLines = 100;
+
         $scope.scrollTo = function(step, linenumber) {
             $location.hash('lv-line-'+linenumber);
             $anchorScroll();
@@ -77,6 +79,7 @@ logViewer.controller('LogviewerCtrl', [
                     text: (data.slice(offset, step.finished_linenumber+1)).join('\n'),
                     hasError: false
                 });
+
             });
         };
 
@@ -103,6 +106,10 @@ logViewer.controller('LogviewerCtrl', [
                 }
 
             });
+        };
+
+        $scope.hasError = function ( step ) {
+            return step.error_count !== 0;
         };
     }
 ]);
