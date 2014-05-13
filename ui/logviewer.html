@@ -9,16 +9,16 @@
         <!-- endbuild -->
     </head>
     <body ng-controller="LogviewerCtrl" ng-init="init()" class="body-logviewer">
-        <div class="container">
-            <div class="row run-data">
-                <div class="col-md-6">
-                    <table class="table table-condensed">
-                        <tr ng-repeat="(label, value) in artifact.header">
-                            <th>{{label}}</th><td>{{value}}</td>
-                        </tr>
-                    </table>
-                </div>
-                <div class="col-md-6 steps-data">
+        <div class="run-data">
+            <div class="col-md-6">
+                <table class="table table-condensed">
+                    <tr ng-repeat="(label, value) in artifact.header">
+                        <th>{{label}}</th><td>{{value}}</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <div class="steps-data">
                     <div ng-repeat="step in artifact.step_data.steps"
                          ng-click="displayLog(step)"
                          ng-class="{'selected': (displayedStep.order === step.order), 'btn-success': (step.error_count === 0), 'btn-warning': (step.error_count > 0)}"
@@ -48,14 +48,15 @@
                 Show Successful Steps
             </div>
 
-            <div id="lv-log-container">
-                <div ng-repeat="lv_line in displayedStep.logPieces"
-                     ng-if="displayedStep.logPieces.length !== 0"
-                     ng-class="{'text-danger': (lv_line.hasError == true)}"
-                     class="lv-log-line"
-                     id="lv-line-{{ lv_line.errLine }}">
-                     {{ lv_line.text }}
-                </div>
+        </div>
+
+        <div id="lv-log-container">
+            <div ng-repeat="lv_line in displayedStep.logPieces"
+                 ng-if="displayedStep.logPieces.length !== 0"
+                 ng-class="{'text-danger': (lv_line.hasError == true)}"
+                 class="lv-log-line"
+                 id="lv-line-{{ lv_line.errLine }}">
+                 {{ lv_line.text }}
             </div>
         </div>
     <!-- build:js js/logviewer.min.js -->

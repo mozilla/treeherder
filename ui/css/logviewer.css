@@ -1,5 +1,8 @@
 body {
+    padding: 20px;
 	padding-top: 270px;
+    white-space: nowrap;
+    float: left;
 }
 
 .lv-log-container {
@@ -36,4 +39,8 @@ body {
     color: #ffffff;
     background-color: #ed9c28;
     border-color: #d58512;
+}
+
+.lv-line-no.label {
+    border-radius: 0px;
 }
