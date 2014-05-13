@@ -19,12 +19,13 @@ logViewer.controller('LogviewerCtrl', [
 
         var extraLines = 100;
 
-        $scope.scrollTo = function(step, linenumber) {
-            $location.hash('lv-line-'+linenumber);
-            $anchorScroll();
+        $scope.scrollTo = function($event, step, linenumber) {
+            setTimeout(function () {
+                $('body').scrollTop( $('#lv-line-'+linenumber).offset().top - 270 );
+            });
+
+            if ( $scope.displayedStep && $scope.displayedStep.order === step.order ) $event.stopPropagation();
         };
-
-
 
         // @@@ it may be possible to do this with the angular date filter?
         $scope.formatTime = function(sec) {
@@ -47,8 +48,8 @@ logViewer.controller('LogviewerCtrl', [
             $scope.displayedStep = step;
 
             //so that all displayed steps are auto scrolled to top
-            $timeout(function() {
-                document.getElementById("lv-log-container").scrollTop = 0;
+            setTimeout(function() {
+                $('body').scrollTop(0);
             });
         };
 
@@ -108,8 +109,5 @@ logViewer.controller('LogviewerCtrl', [
             });
         };
 
-        $scope.hasError = function ( step ) {
-            return step.error_count !== 0;
-        };
     }
 ]);
