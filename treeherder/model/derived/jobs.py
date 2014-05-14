@@ -530,12 +530,15 @@ class JobsModel(TreeherderModelBase):
 
         length = len(sorted_list)
 
+        if length == 0:
+            return 0
+
         # Cannot take the median with only on sample,
         # return it
-        if length == 1:
+        elif length == 1:
             return sorted_list[0]
 
-        if not length % 2:
+        elif not length % 2:
             return round(
                 (sorted_list[length / 2] + sorted_list[length / 2 - 1]) / 2, 0
                     )

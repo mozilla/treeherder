@@ -71,6 +71,7 @@ def unclassified_failure_count():
 
     unclassified_failure_publisher.disconnect()
 
+@task(name='calculate-eta', rate_limit='1/h')
 def calculate_eta(sample_window_seconds=21600, debug=False):
 
     projects = Repository.objects.all().values_list('name', flat=True)
