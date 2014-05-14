@@ -110,7 +110,7 @@ def oauth_required(func):
         if not project_credentials:
             msg = {
                 'response': "invalid_request",
-                'message': "project, {0}, has no OAuth credentials".format(project)
+                'detail': "project, {0}, has no OAuth credentials".format(project)
             }
             return Response(msg, 500)
 
@@ -125,7 +125,7 @@ def oauth_required(func):
 
             msg = {
                 'response':"invalid_request",
-                'message':"Required oauth parameters not provided in the uri"
+                'detail':"Required oauth parameters not provided in the uri"
                 }
 
             return Response(msg, 500)
@@ -133,7 +133,7 @@ def oauth_required(func):
         if oauth_consumer_key != project_credentials['consumer_key']:
             msg = {
                 'response':"access_denied",
-                'message':"oauth_consumer_key does not match project, {0}, credentials".format(project)
+                'detail':"oauth_consumer_key does not match project, {0}, credentials".format(project)
                 }
 
             return Response(msg, 403)
@@ -169,7 +169,7 @@ def oauth_required(func):
         except oauth.Error:
             msg = {
                 'response':"invalid_client",
-                'message':"Client authentication failed for project, {0}".format(project)
+                'detail':"Client authentication failed for project, {0}".format(project)
                 }
 
             return Response(msg, 403)
@@ -177,6 +177,7 @@ def oauth_required(func):
         return func(request, *args, **kwargs)
 
     return wrap_oauth
+
 
 def with_jobs(model_func):
     """

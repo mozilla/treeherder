@@ -271,7 +271,7 @@ def test_resultset_create(sample_resultset, jm, initial_data):
     resp = test_utils.post_collection(jm.project, trsc)
 
     assert resp.status_int == 200
-    assert resp.json['message'] == 'well-formed JSON stored'
+    assert resp.json['detail'] == 'well-formed JSON stored'
 
     stored_objs = jm.get_jobs_dhub().execute(
         proc="jobs_test.selects.resultset_by_rev_hash",
@@ -293,7 +293,7 @@ def test_resultset_with_bad_secret(sample_resultset, jm, initial_data):
         )
 
     assert resp.status_int == 403
-    assert resp.json['message'] == "Client authentication failed for project, {0}".format(jm.project)
+    assert resp.json['detail'] == "Client authentication failed for project, {0}".format(jm.project)
     assert resp.json['response'] == "invalid_client"
 
 def test_resultset_with_bad_key(sample_resultset, jm, initial_data):
@@ -309,4 +309,4 @@ def test_resultset_with_bad_key(sample_resultset, jm, initial_data):
 
     assert resp.status_int == 403
     assert resp.json['response'] == "access_denied"
-    assert resp.json['message'] == "oauth_consumer_key does not match project, {0}, credentials".format(jm.project)
+    assert resp.json['detail'] == "oauth_consumer_key does not match project, {0}, credentials".format(jm.project)

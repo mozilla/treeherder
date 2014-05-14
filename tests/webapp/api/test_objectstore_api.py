@@ -21,7 +21,7 @@ def test_objectstore_create(job_sample, jm):
     resp = test_utils.post_collection(jm.project, tjc)
 
     assert resp.status_int == 200
-    assert resp.json['message'] == 'well-formed JSON stored'
+    assert resp.json['detail'] == 'well-formed JSON stored'
 
     stored_objs = jm.get_os_dhub().execute(
         proc="objectstore_test.selects.row_by_guid",
@@ -98,7 +98,7 @@ def test_objectstore_with_bad_secret(job_sample, jm):
         )
 
     assert resp.status_int == 403
-    assert resp.json['message'] == "Client authentication failed for project, {0}".format(jm.project)
+    assert resp.json['detail'] == "Client authentication failed for project, {0}".format(jm.project)
     assert resp.json['response'] == "invalid_client"
 
 def test_objectstore_with_bad_key(job_sample, jm):
@@ -119,6 +119,4 @@ def test_objectstore_with_bad_key(job_sample, jm):
 
     assert resp.status_int == 403
     assert resp.json['response'] == "access_denied"
-    assert resp.json['message'] == "oauth_consumer_key does not match project, {0}, credentials".format(jm.project)
-
-
+    assert resp.json['detail'] == "oauth_consumer_key does not match project, {0}, credentials".format(jm.project)
