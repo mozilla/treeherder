@@ -4,12 +4,12 @@ treeherder.controller('PluginCtrl', [
     '$scope', '$rootScope', 'thUrl', 'ThJobClassificationModel',
     'thClassificationTypes', 'ThJobModel', 'thEvents', 'dateFilter',
     'numberFilter', 'ThBugJobMapModel', 'thResultStatus', 'thSocket',
-    'ThResultSetModel', 'ThLog', '$q', 'thPinboard',
+    'ThResultSetModel', 'ThLog', '$q', 'thPinboard', 'ThJobArtifactModel',
     function PluginCtrl(
         $scope, $rootScope, thUrl, ThJobClassificationModel,
         thClassificationTypes, ThJobModel, thEvents, dateFilter,
         numberFilter, ThBugJobMapModel, thResultStatus, thSocket,
-        ThResultSetModel, ThLog, $q, thPinboard) {
+        ThResultSetModel, ThLog, $q, thPinboard, ThJobArtifactModel) {
 
         var $log = new ThLog("PluginCtrl");
 
@@ -24,7 +24,7 @@ treeherder.controller('PluginCtrl', [
                 $scope.job = newValue;
 
                 if(timeout_promise !== null){
-                    console.log("timing out previous job request");
+                    $log.debug("timing out previous job request");
                     timeout_promise.resolve();
                 }
                 timeout_promise = $q.defer();
@@ -40,7 +40,16 @@ treeherder.controller('PluginCtrl', [
                     $scope.logs = data.logs;
                 });
 
-                $scope.artifacts = {};
+                ThJobArtifactModel.get_list({
+                    name: "buildapi",
+                    "type": "json",
+                    job_id: $scope.job.id
+                }, {timeout: timeout_promise})
+                .then(function(data) {
+                    if (data.length === 1 && _.has(data[0], 'blob')){
+                        $scope.job.build_id = data[0].blob.id;
+                    }
+                });
 
                 $scope.visibleFields = {
                     "Job Name": $scope.job.job_type_name,

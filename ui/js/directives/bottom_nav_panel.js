@@ -2,15 +2,12 @@
 
 
 treeherder.directive('thPinnedJob', [
-    'thResultStatusInfo',
-    function (thResultStatusInfo) {
+    'thResultStatusInfo', 'thResultStatus',
+    function (thResultStatusInfo, thResultStatus) {
 
     var getHoverText = function(job) {
         var duration = Math.round((job.end_timestamp - job.start_timestamp) / 60);
-        var status = job.result;
-        if (job.state !== "completed") {
-            status = job.state;
-        }
+        var status = thResultStatus(job);
         return job.job_type_name + " - " + status + " - " + duration + "mins";
     };
 
@@ -18,10 +15,7 @@ treeherder.directive('thPinnedJob', [
         restrict: "E",
         link: function(scope, element, attrs) {
             var unbindWatcher = scope.$watch("job", function(newValue) {
-                var resultState = scope.job.result;
-                if (scope.job.state !== "completed") {
-                    resultState = scope.job.state;
-                }
+                var resultState = thResultStatus(scope.job);
                 scope.job.display = thResultStatusInfo(resultState);
                 scope.hoverText = getHoverText(scope.job);
 

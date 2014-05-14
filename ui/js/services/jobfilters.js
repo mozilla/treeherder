@@ -22,8 +22,9 @@
  * must match at least one value in every field.
  */
 treeherder.factory('thJobFilters', [
-    'thResultStatusList', 'ThLog', '$rootScope', 'ThResultSetModel',
-    'thPinboard', 'thNotify', 'thEvents', 'thResultStatus', 'ThRepositoryModel',
+    'thResultStatusList', 'ThLog', '$rootScope',
+    'ThResultSetModel', 'thPinboard', 'thNotify', 'thEvents',
+    'thResultStatus', 'ThRepositoryModel',
     function(
         thResultStatusList, ThLog, $rootScope,
         ThResultSetModel, thPinboard, thNotify, thEvents,
@@ -43,7 +44,7 @@ treeherder.factory('thJobFilters', [
     var filters = {
         resultStatus: {
             matchType: matchType.exactstr,
-            values: thResultStatusList.slice(),
+            values: thResultStatusList.defaultFilters(),
             removeWhenEmpty: false
         },
         isClassified: {
@@ -98,8 +99,8 @@ treeherder.factory('thJobFilters', [
         if (field === api.resultStatus) {
             // resultStatus is a special case that spans two job fields
             var filterList = resultStatusList || filters[field].values;
-            return _.contains(filterList, job.result) ||
-                   _.contains(filterList, job.state);
+            var resultState = thResultStatus(job);
+            return _.contains(filterList, resultState);
         } else if (field === api.isClassified) {
             // isClassified is a special case, too.  Where value of 1 in the
             // job field of ``failure_classification_id`` is "not classified"
@@ -208,6 +209,7 @@ treeherder.factory('thJobFilters', [
 
         $log.debug("adding ", field, ": ", value);
         $log.debug("filters", filters);
+        $rootScope.$broadcast(thEvents.globalFilterChanged);
     };
 
     var removeFilter = function(field, value) {
@@ -220,6 +222,7 @@ treeherder.factory('thJobFilters', [
             if(idx > -1) {
                 $log.debug("removing ", value);
                 filters[field].values.splice(idx, 1);
+                $rootScope.$broadcast(thEvents.globalFilterChanged);
             }
         }
 
@@ -228,6 +231,32 @@ treeherder.factory('thJobFilters', [
         if (filters[field].removeWhenEmpty && filters[field].values.length === 0) {
             delete filters[field];
         }
+
+        filterKeys = _.keys(filters);
+        $log.debug("filters", filters);
+    };
+
+    var removeAllFilters = function(field, value) {
+        var someRemoved = false;
+        var removeAll = function(field) {
+            if (!_.contains(['resultStatus', 'isClassified'], field)) {
+                filters[field].values = [];
+                someRemoved = true;
+            }
+
+            // if this filer no longer has any values, then remove it
+            // if it has the ``removeWhenEmpty`` setting
+            if (filters[field].removeWhenEmpty) {
+                delete filters[field];
+            }
+        };
+
+        _.forEach(filterKeys, removeAll);
+
+        if (someRemoved) {
+            $rootScope.$broadcast(thEvents.globalFilterChanged);
+        }
+
 
         filterKeys = _.keys(filters);
         $log.debug("filters", filters);
@@ -246,6 +275,7 @@ treeherder.factory('thJobFilters', [
         for (var i = 0; i < values.length; i++) {
             action(field, values[i]);
         }
+        $rootScope.$broadcast(thEvents.globalFilterChanged);
     };
 
     var copyResultStatusFilters = function() {
@@ -373,13 +403,19 @@ treeherder.factory('thJobFilters', [
     /**
      * Pin all jobs that pass the GLOBAL filters.  Ignores toggling at
      * the result set level.
+     *
+     * If optional resultsetId is passed in, then only pin jobs from that
+     * resultset.
      */
-    var pinAllShownJobs = function() {
+    var pinAllShownJobs = function(resultsetId, resultStatusFilters) {
         var jobs = ThResultSetModel.getJobMap($rootScope.repoName);
         var jobsToPin = [];
 
         var queuePinIfShown = function(jMap) {
-            if (api.showJob(jMap.job_obj)) {
+            if (resultsetId && jMap.job_obj.result_set_id !== resultsetId) {
+                return;
+            }
+            if (api.showJob(jMap.job_obj, resultStatusFilters)) {
                 jobsToPin.push(jMap.job_obj);
             }
         };
@@ -392,13 +428,14 @@ treeherder.factory('thJobFilters', [
                           true);
         }
 
-        $rootScope.selectedJob = jobsToPin[0];
+        if (!$rootScope.selectedJob) {
+            $rootScope.selectedJob = jobsToPin[0];
+        }
         _.forEach(jobsToPin, thPinboard.pinJob);
     };
 
     $rootScope.$on(thEvents.showUnclassifiedFailures, function() {
         showUnclassifiedFailures();
-        $rootScope.$broadcast(thEvents.globalFilterChanged);
     });
 
     /**
@@ -411,6 +448,20 @@ treeherder.factory('thJobFilters', [
         };
         filters.resultStatus.values = ["busted", "testfailed", "exception"];
         filters.isClassified.values = [false];
+        $rootScope.$broadcast(thEvents.globalFilterChanged);
+    };
+
+    /**
+     * Set the non-field filters so that we only view coalesced jobs
+     */
+    var showCoalesced = function() {
+        stashedStatusFilterValues = {
+            resultStatus: filters.resultStatus.values,
+            isClassified: filters.isClassified.values
+        };
+        filters.resultStatus.values = ["coalesced"];
+        filters.isClassified.values = [false, true];
+        $rootScope.$broadcast(thEvents.globalFilterChanged);
     };
 
     var toggleInProgress = function() {
@@ -420,6 +471,7 @@ treeherder.factory('thJobFilters', [
         }
         func(api.resultStatus, 'pending');
         func(api.resultStatus, 'running');
+        $rootScope.$broadcast(thEvents.globalFilterChanged);
     };
 
     /**
@@ -436,8 +488,21 @@ treeherder.factory('thJobFilters', [
      * is used to undo the call to ``showUnclassifiedFailures``.
      */
     var resetNonFieldFilters = function() {
+        filters.resultStatus.values = thResultStatusList.defaultFilters();
+        filters.isClassified.values = [true, false];
+        $rootScope.$broadcast(thEvents.globalFilterChanged);
+
+    };
+
+    /**
+     * Revert the filters back to what they were before one of the
+     * showXXX functions was called.
+     */
+    var revertNonFieldFilters = function() {
         filters.resultStatus.values = stashedStatusFilterValues.resultStatus;
         filters.isClassified.values = stashedStatusFilterValues.isClassified;
+        $rootScope.$broadcast(thEvents.globalFilterChanged);
+
     };
 
     var toggleSkipExclusionProfiles = function() {
@@ -457,9 +522,11 @@ treeherder.factory('thJobFilters', [
         filters: filters,
         pinAllShownJobs: pinAllShownJobs,
         showUnclassifiedFailures: showUnclassifiedFailures,
+        showCoalesced: showCoalesced,
         toggleInProgress: toggleInProgress,
         isUnclassifiedFailures: isUnclassifiedFailures,
         resetNonFieldFilters: resetNonFieldFilters,
+        revertNonFieldFilters: revertNonFieldFilters,
         toggleSkipExclusionProfiles: toggleSkipExclusionProfiles,
         isSkippingExclusionProfiles: isSkippingExclusionProfiles,
         excludedJobs: excludedJobs,

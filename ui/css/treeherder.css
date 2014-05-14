@@ -296,19 +296,18 @@ body {
 }
 
 .result-set-title-left {
-    width: 600px;
-    padding-right: 10px;
-    white-space: nowrap;
+    padding-top: 5px;
 }
 
 .result-set .revision-list {
     padding-left: 0;
 }
 
-.revision-link {
-    padding-top: 5px;
-    width: 155px;
+.result-set-buttons {
+    width: 242px;
     display: block;
+}
+.revision-text {
     overflow: hidden;
     text-overflow: ellipsis;
 }
@@ -668,6 +667,10 @@ ul.bug-suggestion-list li .btn-xs{
  * RESULT STATUS COUNTS
  */
 
+.result-counts {
+    margin-left: -11px;
+}
+
 .result-status-shading-success {background-color: rgba(2, 131, 44, 0.24);}
 .result-status-shading-testfailed {background-color: rgba(221, 102, 2, 0.25);}
 .result-status-shading-busted {background-color: rgba(144, 0, 0, 0.25);}
@@ -676,6 +679,7 @@ ul.bug-suggestion-list li .btn-xs{
 .result-status-shading-usercancel {background-color: rgba(250, 115, 172, 0.25)}
 .result-status-shading-pending {background-color: white;}
 .result-status-shading-running {background-color: white;}
+.result-status-shading-coalesced {background-color: white;}
 
 .result-status-count-group {
     font-size: 12px;
@@ -720,6 +724,9 @@ ul.bug-suggestion-list li .btn-xs{
 }
 .result-status-count-pending {
     width: 69px;
+}
+.result-status-count-coalesced {
+    width: 75px;
 }
 
 .click-able-icon, .nav-tabs li {
@@ -980,6 +987,36 @@ fieldset[disabled] .btn-purple.active {
   background-color: rgba(61, 2, 85, 0.18);
   border-color: #bfbfbf;
   color: rgba(61, 2, 85, 0.68);
+}
+
+.btn-yellow {
+  border-color: rgba(205, 206, 29, 0.24);
+  color: #cdce1d;
+}
+.btn-yellow:hover,
+.btn-yellow:focus,
+.btn-yellow:active,
+.btn-yellow.active {
+  border-color: #cdce1d;
+  color: #cdce1d;
+}
+.btn-yellow.disabled:hover,
+.btn-yellow.disabled:focus,
+.btn-yellow.disabled:active,
+.btn-yellow.disabled.active,
+.btn-yellow[disabled]:hover,
+.btn-yellow[disabled]:focus,
+.btn-yellow[disabled]:active,
+.btn-yellow[disabled].active,
+fieldset[disabled] .btn-yellow:hover,
+fieldset[disabled] .btn-yellow:focus,
+fieldset[disabled] .btn-yellow:active,
+fieldset[disabled] .btn-yellow.active {
+  border-color: #cdce1d;
+}
+
+.btn-yellow-count-classified, .btn-yellow-count-unclassified {
+  color: #cdce1d;
 }
 
 .btn-ltgray-count-unclassified, .btn-ltgray-count-classified {

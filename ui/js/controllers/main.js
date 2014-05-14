@@ -116,7 +116,6 @@ treeherder.controller('MainCtrl', [
 
         $scope.toggleExcludedJobs = function() {
             thJobFilters.toggleSkipExclusionProfiles();
-            $rootScope.$broadcast(thEvents.globalFilterChanged);
         };
 
         $scope.toggleUnclassifiedFailures = function() {
@@ -126,13 +125,10 @@ treeherder.controller('MainCtrl', [
             } else {
                 thJobFilters.showUnclassifiedFailures();
             }
-            $rootScope.$broadcast(thEvents.globalFilterChanged);
-
         };
 
         $scope.toggleInProgress = function() {
             thJobFilters.toggleInProgress();
-            $rootScope.$broadcast(thEvents.globalFilterChanged);
         };
 
         $scope.allExpanded = function(cls) {

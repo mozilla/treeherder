@@ -5,11 +5,12 @@ treeherder.directive('thCloneJobs', [
     '$rootScope', '$http', 'ThLog', 'thUrl', 'thCloneHtml',
     'thServiceDomain', 'thResultStatusInfo', 'thEvents', 'thAggregateIds',
     'thJobFilters', 'thResultStatusObject', 'ThResultSetModel',
-    'ThJobModel', 'linkifyBugsFilter',
+    'ThJobModel', 'linkifyBugsFilter', 'thResultStatus',
     function(
-        $rootScope, $http, ThLog, thUrl, thCloneHtml, thServiceDomain,
-        thResultStatusInfo, thEvents, thAggregateIds, thJobFilters,
-        thResultStatusObject, ThResultSetModel, ThJobModel, linkifyBugsFilter){
+        $rootScope, $http, ThLog, thUrl, thCloneHtml,
+        thServiceDomain, thResultStatusInfo, thEvents, thAggregateIds,
+        thJobFilters, thResultStatusObject, ThResultSetModel,
+        ThJobModel, linkifyBugsFilter, thResultStatus){
 
     var $log = new ThLog("thCloneJobs");
 
@@ -49,10 +50,7 @@ treeherder.directive('thCloneJobs', [
         };
 
     var getHoverText = function(job) {
-        var jobStatus = job.result;
-        if (job.state !== "completed") {
-            jobStatus = job.state;
-        }
+        var jobStatus = thResultStatus(job);
         var result = job.job_type_name + " - " + jobStatus;
         $log.debug("job timestamps", job, job.end_timestamp, job.submit_timestamp);
         if (job.end_timestamp && job.submit_timestamp) {
@@ -181,16 +179,7 @@ treeherder.directive('thCloneJobs', [
             job = jgObj.jobs[l];
 
             //Set the resultState
-            resultState = job.result;
-            if (job.state !== "completed") {
-                resultState = job.state;
-            }
-            resultState = resultState || 'unknown';
-
-            if(job.job_coalesced_to_guid !== null){
-                // Don't count or render coalesced jobs
-                continue;
-            }
+            resultState = thResultStatus(job);
 
             //Increment the jobCounts here so they're not modified by
             //filtering

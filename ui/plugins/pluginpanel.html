@@ -8,8 +8,26 @@
 
     </ul>
     <ul class="nav navbar-nav pull-right">
+        <li ng-show="job.build_id">
+            <a title="Cancel job"
+               href=""
+               target="_blank"
+               ng-click="cancelJob()">
+                <span class="fa fa-stop"></span>
+            </a>
+        </li>
+        <li ng-show="job.build_id">
+            <a title="Retrigger job"
+               href=""
+               target="_blank"
+               ng-click="retriggerJob()">
+                <span class="fa fa-play"></span>
+            </a>
+        </li>
         <li ng-show="isReftest()">
-            <a title="Launch the Reftest Analyser in a new page" target="_blank" href="https://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml">
+            <a title="Launch the Reftest Analyser in a new page"
+               target="_blank"
+               href="https://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml">
                 <span class="fa fa-bar-chart-o"></span>
             </a>
         </li>
@@ -38,10 +56,10 @@
                 <li>
                     <a href="" ng-click="togglePinboardVisibility()">
                         <span ng-hide="isPinboardVisible"
-                              title="show pinboard"
+                              title="Show the pinboard"
                               class="glyphicon glyphicon-chevron-down"></span>
                         <span ng-show="isPinboardVisible"
-                              title="hide pinboard"
+                              title="Hide the pinboard"
                               class="glyphicon glyphicon-chevron-up"></span>
                     </a>
                 </li>

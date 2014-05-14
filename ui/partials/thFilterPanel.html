@@ -5,7 +5,13 @@
         <span class="pull-right">
             <span class="btn btn-default btn-xs"
                   title="pin all jobs that pass the global filters"
-                  ng-click="pinAllShownJobs()"><i class="glyphicon glyphicon-pushpin"></i> pin all showing</span>
+                  ng-click="thJobFilters.pinAllShownJobs()"><i class="glyphicon glyphicon-pushpin"></i> pin all showing</span>
+            <span class="btn btn-default btn-xs"
+                  title="show only coalesced jobs"
+                  ng-click="thJobFilters.showCoalesced()">coalesced only</span>
+            <span class="btn btn-default btn-xs"
+                  title="reset to default status filters"
+                  ng-click="thJobFilters.resetNonFieldFilters()">reset</span>
         </span>
     </div>
 

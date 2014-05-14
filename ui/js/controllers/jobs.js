@@ -3,11 +3,11 @@
 treeherder.controller('JobsCtrl', [
     '$scope', '$http', '$rootScope', '$routeParams', 'ThLog', '$cookies',
     'localStorageService', 'thUrl', 'ThRepositoryModel', 'thSocket',
-    'ThResultSetModel', 'thResultStatusCountsList', '$location', 'thEvents',
+    'ThResultSetModel', 'thResultStatusList', '$location', 'thEvents',
     function JobsCtrl(
         $scope, $http, $rootScope, $routeParams, ThLog, $cookies,
         localStorageService, thUrl, ThRepositoryModel, thSocket,
-        ThResultSetModel, thResultStatusCountsList, $location, thEvents) {
+        ThResultSetModel, thResultStatusList, $location, thEvents) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -33,7 +33,7 @@ treeherder.controller('JobsCtrl', [
         $scope.isLoadingRsBatch = ThResultSetModel.getLoadingStatus($scope.repoName);
         $scope.result_sets = ThResultSetModel.getResultSetsArray($scope.repoName);
         $scope.job_map = ThResultSetModel.getJobMap($scope.repoName);
-        $scope.statusList = thResultStatusCountsList;
+        $scope.statusList = thResultStatusList.counts();
 
         // determine how many resultsets to fetch.  default to 10.
         var count = 10;
@@ -125,6 +125,10 @@ treeherder.controller('ResultSetCtrl', [
                 thEvents.toggleJobs, $scope.resultset
                 );
 
+        };
+
+        $scope.pinAllShownJobs = function() {
+            thJobFilters.pinAllShownJobs($scope.resultset.id, $scope.resultStatusFilters);
         };
 
         $scope.revisionUrlCopied = function(revision) {
