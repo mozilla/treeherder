@@ -21,7 +21,7 @@
                 <div class="steps-data">
                     <div ng-repeat="step in artifact.step_data.steps"
                          ng-click="displayLog(step)"
-                         ng-class="{'selected': (displayedStep.order === step.order), 'btn-success': (step.error_count === 0), 'btn-warning': (step.error_count > 0)}"
+                         ng-class="{'selected': (mostVisibleOrder === step.order), 'btn-success': (step.error_count === 0), 'btn-warning': (step.error_count > 0)}"
                          ng-if="show_successful === true || step.error_count !== 0"
                          class="btn btn-block logviewer-step clearfix">
                         <span class="pull-left clearfix">{{step.order+1}}. {{step.name}}</span>
@@ -50,15 +50,19 @@
 
         </div>
 
+        <div class="lv-scroll-extend-above"></div>
+
         <div id="lv-log-container">
-            <div ng-repeat="lv_line in displayedStep.logPieces"
-                 ng-if="displayedStep.logPieces.length !== 0"
-                 ng-class="{'text-danger': (lv_line.hasError == true)}"
+            <div ng-repeat="lv_line in displayedLogPieces"
+                 ng-class="{'text-danger': (lv_line.hasError == true), 'lv-selected-lines': (mostVisibleOrder === lv_line.order)}"
                  class="lv-log-line"
+                 order="{{ lv_line.order }}"
                  id="lv-line-{{ lv_line.errLine }}">
                  {{ lv_line.text }}
             </div>
         </div>
+
+        <div class="lv-scroll-extend-below"></div>
     <!-- build:js js/logviewer.min.js -->
     <script src="vendor/angular/angular.js"></script>
     <script src="vendor/angular/angular-route.js"></script>

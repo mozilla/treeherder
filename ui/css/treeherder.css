@@ -1273,6 +1273,7 @@ fieldset[disabled] .btn-repo.active {
     background-color: white;
     color: #333333;
     width: 100%;
+    overflow: hidden;
 }
 
 .lv-log-container {
@@ -1283,8 +1284,7 @@ fieldset[disabled] .btn-repo.active {
 
 .lv-log-line {
     width: auto;
-    float: left;
-    white-space: pre-line;
+    white-space: pre;
 }
 
 .lv-line-highlight {

@@ -17,11 +17,104 @@ logViewer.controller('LogviewerCtrl', [
             $scope.job_id= query_string.job_id;
         }
 
-        var extraLines = 100;
+        $scope.displayedLogPieces = [];
+
+        var isInViewport = function (el, partial) {
+            //special bonus for those using jQuery
+            if (el instanceof jQuery) {
+                el = el[0];
+            }
+
+            var rect = el.getBoundingClientRect();
+            var offsetHeight = 270;
+
+            if (!partial) {
+                return (
+                    rect.top >= 270 &&
+                    rect.left >= 0 &&
+                    rect.bottom <= $(window).height() && /*or  */
+                    rect.right <= $(window).height() /*or $(window).width() */
+                );
+            }
+
+            var height = $(el).height();
+            var width = $(el).width();
+
+            return (
+                (rect.bottom >= 270 && rect.top <= 270) ||
+                (rect.top >= 270 && rect.bottom <= $(window).height()) ||
+                (rect.right >= 0 && rect.left <= 0) ||
+                (rect.top <= $(window).height() && rect.bottom >= $(window).height()) ||
+                (rect.left <= $(window).width() && rect.right >= $(window).width())
+            );
+        }
+
+        function checkLoadAbove () {
+            var topVisible = isInViewport( $('.lv-scroll-extend-above')[0] );
+
+            if (!$scope.displayedStep || !topVisible) return;
+
+            var index = $scope.displayedLogPieces[ 0 ].order;
+
+            // make sure we are not at the first step
+            if ( index === 0 ) return;
+
+            // prepending the data will always send us to the scroll position 0. reset that
+            $timeout(function () {
+                $(window).scrollTop( $('.lv-log-line[order="' + index + '"]').first().offset().top - 270 );
+            });
+
+            var step = $scope.artifact.step_data.steps[ index - 1 ];
+
+            $scope.displayedLogPieces = step.logPieces.concat( $scope.displayedLogPieces );
+
+            if(!$scope.$$phase) { $scope.$apply(); }
+        }
+
+        function checkLoadBelow () {
+            var bottomVisible = isInViewport( $('.lv-scroll-extend-below')[0] );
+
+            if (!$scope.displayedStep || !bottomVisible) return;
+
+            var index = $scope.displayedLogPieces[ $scope.displayedLogPieces.length - 1 ].order;
+
+            // make sure we are not at the last step
+            if ( index === $scope.artifact.step_data.steps.length - 1 ) return;
+
+            var step = $scope.artifact.step_data.steps[ index + 1 ];
+
+            $scope.displayedLogPieces = $scope.displayedLogPieces.concat( step.logPieces );
+
+            if(!$scope.$$phase) { $scope.$apply(); }
+        }
+
+        // we need to remove any log pieces we can't see
+        function pruneUnseenData () {
+            var ordersVisibility = [], l;
+
+            for ( var i = 0; l = $scope.artifact.step_data.steps.length, i < l; i++ ) {
+                var els = $('.lv-log-line[order="' + i + '"]');
+                ordersVisibility[i] = 0;
+                els.each(function ( index, el ) {
+                    // check if the element is in the viewport, even partially
+                    if ( isInViewport( el, true ) ) ordersVisibility[i]++;
+                });
+
+                if ( ordersVisibility[i] === 0 ) {
+                    for ( var j = 0; j < $scope.displayedLogPieces.length; j++ ) {
+                        if ( $scope.displayedLogPieces.order === i ) {
+                            $scope.displayedLogPieces = $scope.displayedLogPieces.splice(j, 1);
+                        }
+                    }
+                }
+            }
+
+            if(!$scope.$$phase) { $scope.$apply(); }
+        }
 
         $scope.scrollTo = function($event, step, linenumber) {
-            setTimeout(function () {
-                $('body').scrollTop( $('#lv-line-'+linenumber).offset().top - 270 );
+            $timeout(function () {
+                $(window).scrollTop( $('#lv-line-'+linenumber).offset().top - 270 );
             });
 
             if ( $scope.displayedStep && $scope.displayedStep.order === step.order ) $event.stopPropagation();
@@ -46,10 +139,17 @@ logViewer.controller('LogviewerCtrl', [
 
         $scope.displayLog = function(step) {
             $scope.displayedStep = step;
+            $scope.mostVisibleOrder = step.order;
 
-            //so that all displayed steps are auto scrolled to top
-            setTimeout(function() {
-                $('body').scrollTop(0);
+            // start by getting the surrounding log pieces
+            var previousStep = $scope.artifact.step_data.steps[ step.order - 1 ] || {logPieces: []};
+            var nextStep = $scope.artifact.step_data.steps[ step.order + 1 ] || {logPieces: []};
+
+            $scope.displayedLogPieces = previousStep.logPieces.concat( step.logPieces, nextStep.logPieces );
+
+            // center on our selected steps first log piece
+            $timeout(function() {
+                $(window).scrollTop( $('.lv-log-line[order="' + step.order + '"]').first().offset().top - 270 );
             });
         };
 
@@ -66,19 +166,22 @@ logViewer.controller('LogviewerCtrl', [
                     if (offset !== end) {
                         step.logPieces.push({
                             text: (data.slice(offset, end)).join('\n'),
-                            hasError: false
+                            hasError: false,
+                            order: step.order
                         });
                     }
                     step.logPieces.push({
                         text: data.slice(end, end+1)[0],
                         hasError: true,
+                        order: step.order,
                         errLine: end
                     });
                     offset = end+1;
                 });
                 step.logPieces.push({
                     text: (data.slice(offset, step.finished_linenumber+1)).join('\n'),
-                    hasError: false
+                    hasError: false,
+                    order: step.order
                 });
 
             });
@@ -95,6 +198,12 @@ logViewer.controller('LogviewerCtrl', [
 //                            $scope.sliceLog(data.split("\n"));
 //                        });
 //                });
+            $(window).scroll(function () {
+                checkLoadAbove();
+                checkLoadBelow();
+                // pruneUnseenData();
+            });
+
             $log.log(ThJobArtifactModel.get_uri());
             ThJobArtifactModel.get_list({job_id: $scope.job_id, name: "Structured Log"})
             .then(function(artifact_list){
