@@ -95,7 +95,6 @@ treeherder.factory('thJobFilters', [
      * means it must have a value set, ``false`` means it must be null.
      */
     var checkFilter = function(field, job, resultStatusList) {
-        $log.debug("checkFilter", field, job, resultStatusList);
         if (field === api.resultStatus) {
             // resultStatus is a special case that spans two job fields
             var filterList = resultStatusList || filters[field].values;
@@ -118,7 +117,6 @@ treeherder.factory('thJobFilters', [
                 return true;
             }
 
-            $log.debug("jobField filter", field, job);
             switch (filters[field].matchType) {
                 case api.matchType.isnull:
                     jobFieldValue = !_.isNull(jobFieldValue);
@@ -207,8 +205,8 @@ treeherder.factory('thJobFilters', [
 
         filterKeys = _.keys(filters);
 
-        $log.debug("adding ", field, ": ", value);
-        $log.debug("filters", filters);
+        $log.debug("added ", field, ": ", value);
+        $log.debug("filters", filters, "filterkeys", filterKeys);
         $rootScope.$broadcast(thEvents.globalFilterChanged);
     };
 
@@ -236,12 +234,15 @@ treeherder.factory('thJobFilters', [
         $log.debug("filters", filters);
     };
 
-    var removeAllFilters = function(field, value) {
+    var removeAllFilters = function() {
         var someRemoved = false;
+        $log.debug("removeAllFilters", filters, filterKeys);
         var removeAll = function(field) {
+            $log.debug("removeAllFilters", field, filters);
             if (!_.contains(['resultStatus', 'isClassified'], field)) {
                 filters[field].values = [];
                 someRemoved = true;
+                $log.debug("removeAllFilters", "removed", field, filters);
             }
 
             // if this filer no longer has any values, then remove it
@@ -253,13 +254,12 @@ treeherder.factory('thJobFilters', [
 
         _.forEach(filterKeys, removeAll);
 
+        filterKeys = _.keys(filters);
+        $log.debug("filters", filters);
+
         if (someRemoved) {
             $rootScope.$broadcast(thEvents.globalFilterChanged);
         }
-
-
-        filterKeys = _.keys(filters);
-        $log.debug("filters", filters);
     };
 
     /**
@@ -305,7 +305,6 @@ treeherder.factory('thJobFilters', [
             }
         }
         if($rootScope.active_exclusion_profile && !skipExclusionProfiles) {
-            $log.debug("exclusion profile active", $rootScope.active_exclusion_profile);
             try{
                 if($rootScope.active_exclusion_profile.flat_exclusion[$rootScope.repoName]
                     [job.platform][job.job_type_name][job.platform_option]){
@@ -516,6 +515,7 @@ treeherder.factory('thJobFilters', [
     var api = {
         addFilter: addFilter,
         removeFilter: removeFilter,
+        removeAllFilters: removeAllFilters,
         toggleFilters: toggleFilters,
         copyResultStatusFilters: copyResultStatusFilters,
         showJob: showJob,

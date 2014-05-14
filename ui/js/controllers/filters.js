@@ -139,8 +139,8 @@ treeherder.controller('FilterPanelCtrl', [
         };
 
         $scope.removeAllFieldFilters = function() {
-            thJobFilters.removeAllFieldFilters();
             $scope.fieldFilters = [];
+            thJobFilters.removeAllFilters();
         };
 
         $scope.removeFilter = function(index) {
