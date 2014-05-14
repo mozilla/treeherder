@@ -94,8 +94,8 @@ DROP TABLE IF EXISTS `job`;
  *  submit_timestamp - Time the job was submitted.
  *  start_timestamp - Time the job was started.
  *  end_timestamp - Time the job completed.
- *  pending_eta - ETA to a running state. A rolling average over a 12 hr window of start_timestamp - submit_timestamp, recomputed every 30 min.
- *  running_eta - ETA to a completed state. A rolling average over a 12 hr window of end_timestamp - start_timestamp, recomputed every 30 min.
+ *  pending_eta - ETA to a running state. A rolling average over a 6 hr window of start_timestamp - submit_timestamp, recomputed every 30 min.
+ *  running_eta - ETA to a completed state. A rolling average over a 6 hr window of end_timestamp - start_timestamp, recomputed every 30 min.
  **************************/
 CREATE TABLE `job` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,

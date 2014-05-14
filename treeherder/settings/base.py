@@ -4,6 +4,7 @@ from treeherder import path
 
 # needed to setup celery
 import djcelery
+from celery.schedules import crontab
 djcelery.setup_loader()
 
 # These settings can all be optionally set via env vars, or in local.py:
@@ -201,6 +202,23 @@ CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'
 CELERY_DEFAULT_ROUTING_KEY = 'default'
 
 CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
+
+CELERYBEAT_SCHEDULE = {
+
+    'add-every-24-hours':{
+
+        'task':'tasks.cycle-data',
+        # Execute daily at midnight
+        'schedule': crontab(minute=0, hour=0)
+    },
+
+    'add-every-6-hours':{
+
+        'task':'tasks.calculate-eta',
+        # Execute every 6 hours
+        'schedule':crontab(minute=0, hour='*/6')
+    }
+}
 
 # rest-framework settings
 REST_FRAMEWORK = {
