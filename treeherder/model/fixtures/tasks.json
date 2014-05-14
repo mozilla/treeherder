@@ -15,7 +15,39 @@
             "period": "minutes"
         }
     },
-
+    {
+        "pk": 1,
+        "model": "djcelery.crontabschedule",
+        "fields": {
+            "minute": 0,
+            "hour": 4,
+            "day_of_week": "*",
+            "day_of_month": "*",
+            "month_of_year": "*"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "djcelery.crontabschedule",
+        "fields": {
+            "minute": 0,
+            "hour": "*/6",
+            "day_of_week": "*",
+            "day_of_month": "*",
+            "month_of_year": "*"
+        }
+    },
+    {
+        "pk": 3,
+        "model": "djcelery.crontabschedule",
+        "fields": {
+            "minute": 0,
+            "hour": "0",
+            "day_of_week": "*",
+            "day_of_month": "*",
+            "month_of_year": "*"
+        }
+    },
     {
         "pk": 2,
         "model": "djcelery.periodictask",
