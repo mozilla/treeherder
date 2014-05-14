@@ -30,6 +30,10 @@ class RefDataManager(object):
         self.dhub = DataHub.get("reference")
         self.DEBUG = settings.DEBUG
 
+        # Support structure for reference data signatures
+        self.reference_data_signature_lookup = {}
+        self.build_signature_placeholders = []
+
         # Support structures for building build platform SQL
         self.build_platform_lookup = {}
         self.build_where_filters = []
@@ -62,6 +66,12 @@ class RefDataManager(object):
         self.product_where_in_list = []
         self.product_placeholders = []
         self.unique_products = []
+
+        # Support structures for building device SQL
+        self.device_lookup = set()
+        self.device_where_in_list = []
+        self.device_placeholders = []
+        self.unique_devices = []
 
         # Support structures for building machine SQL
         self.machine_name_lookup = set()
@@ -103,6 +113,10 @@ class RefDataManager(object):
            to process the data.
         """
 
+        # This is not really an id lookup but a list of unique reference
+        # data signatures that can be used for subsequent queries
+        self.id_lookup['reference_data_signatures'] = self.process_reference_data_signatures()
+
         # id lookup structure
         self.id_lookup['build_platforms'] = self.process_build_platforms()
         self.id_lookup['machine_platforms'] = self.process_machine_platforms()
@@ -114,6 +128,8 @@ class RefDataManager(object):
 
         self.id_lookup['products'] = self.process_products()
         self.id_lookup['machines'] = self.process_machines()
+        self.id_lookup['devices'] = self.process_devices()
+
         self.id_lookup['option_collections'] = self.process_option_collections()
 
         self.reset_reference_data()
@@ -124,6 +140,10 @@ class RefDataManager(object):
         """Reset all reference data structures, this should be called after
            processing data.
         """
+
+        # reference data signatures
+        self.reference_data_signature_lookup = {}
+        self.build_signature_placeholders = []
 
         # reset build platforms
         self.build_platform_lookup = {}
@@ -157,6 +177,12 @@ class RefDataManager(object):
         self.product_placeholders = []
         self.unique_products = []
 
+        # reset devices
+        self.device_lookup = set()
+        self.device_where_in_list = []
+        self.device_placeholders = []
+        self.unique_devices = []
+
         # reset machines
         self.machine_name_lookup = set()
         self.machine_where_in_list = []
@@ -182,6 +208,28 @@ class RefDataManager(object):
     methods allow a caller to iterate through a single list of
     job data structures, generating cumulative sets of reference data.
     """
+    def add_reference_data_signature(
+        self, name, build_system_type, reference_data):
+
+        signature = self.get_reference_data_signature(reference_data)
+
+        if signature not in self.reference_data_signature_lookup:
+
+            # No reference_data_name was provided use the signature
+            # in it's place, in the case of buildbot this will be the
+            # buildername
+            if name == None:
+                name = signature
+
+            placeholders = [ name, signature ]
+            placeholders.extend(reference_data)
+            placeholders.extend([int(time.time()), name, build_system_type])
+            self.build_signature_placeholders.append(placeholders)
+
+            self.reference_data_signature_lookup[signature] = reference_data
+
+        return signature
+
     def add_build_platform(self, os_name, platform, arch):
         """
         Add build platform reference data. Requires an
@@ -298,6 +346,18 @@ class RefDataManager(object):
         self._add_name(
             product, self.product_lookup, self.product_placeholders,
             self.unique_products, self.product_where_in_list
+            )
+
+    def add_device(self, device):
+        """Add device names"""
+
+        device = device or 'unknown'
+
+        device = device[0:50]
+
+        self._add_name(
+            device, self.device_lookup, self.device_placeholders,
+            self.unique_devices, self.device_where_in_list
             )
 
     def _add_platform(
@@ -480,6 +540,18 @@ class RefDataManager(object):
     of SQL generation and execution using the class instance reference
     data structures.
     """
+    def process_reference_data_signatures(self):
+
+        insert_proc = 'reference.inserts.create_reference_data_signature'
+
+        self.dhub.execute(
+            proc=insert_proc,
+            placeholders=self.build_signature_placeholders,
+            executemany=True,
+            debug_show=self.DEBUG)
+
+        return self.reference_data_signature_lookup.keys()
+
     def process_build_platforms(self):
         """
         Process the build platform reference data
@@ -579,6 +651,21 @@ class RefDataManager(object):
             self.product_where_in_list,
             self.product_placeholders,
             self.unique_products
+            )
+
+    def process_devices(self):
+        """
+        Process the device reference data
+        """
+
+        insert_proc = 'reference.inserts.create_device'
+        select_proc='reference.selects.get_devices'
+
+        return self._process_names(
+            insert_proc, select_proc,
+            self.device_where_in_list,
+            self.device_placeholders,
+            self.unique_devices
             )
 
     def process_machines(self):
@@ -911,6 +998,20 @@ class RefDataManager(object):
                     self.product_lookup, self.product_placeholders,
                     self.unique_products, self.product_where_in_list)
 
+    def get_or_create_devices(self, names):
+        """
+        Get or create devices given a list of device names.  See
+        _get_or_create_names for data structure descriptions.
+        """
+
+        insert_proc = 'reference.inserts.create_device'
+        select_proc='reference.selects.get_devices'
+
+        return self._get_or_create_names(
+                    names, insert_proc, select_proc,
+                    self.device_lookup, self.device_placeholders,
+                    self.unique_devices, self.device_where_in_list)
+
     def get_or_create_machines(self, names_and_timestamps):
         """
         Takes a list of machine names and timestamps returns a dictionary to
@@ -1219,3 +1320,12 @@ class RefDataManager(object):
             placeholders=[search_term] * 2 + [limit],
             debug_show=self.DEBUG,
             replace=[replacement])
+
+    def get_reference_data_signature(self, signature_properties):
+
+        sh = sha1()
+        sh.update(''.join(map(lambda x: str(x), signature_properties)) )
+
+        return sh.hexdigest()
+
+

@@ -23,6 +23,7 @@ DROP TABLE IF EXISTS `bug_job_map`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 
+
 --
 -- Table structure for table `bug_job_map`
 --
@@ -77,7 +78,7 @@ DROP TABLE IF EXISTS `job`;
  *             the guid is a hash of associated request_ids and a timestamp.
  *
  *  job_coalesced_to_guid - If present the job was coalesced to this job_guid
- *  reference_data_signature - If populated, references treeherder_reference_1.buildbot_buildernames
+ *  signature - If populated, references treeherder_reference_1.buildbot_buildernames.signature
  *  result_set_id - References result_set.id
  *  build_platform_id - References treeherder_reference_1.build_platform.id
  *  machine_platform_id - References treeherder_reference_1.machine_platform.id
@@ -93,18 +94,19 @@ DROP TABLE IF EXISTS `job`;
  *  submit_timestamp - Time the job was submitted.
  *  start_timestamp - Time the job was started.
  *  end_timestamp - Time the job completed.
- *  pending_eta - ETA to a running state. A rolling average over a 12 hr window of start_timestamp - submit_timestamp, recomputed every 30 min.
- *  running_eta - ETA to a completed state. A rolling average over a 12 hr window of end_timestamp - start_timestamp, recomputed every 30 min.
+ *  pending_eta - ETA to a running state. A rolling average over a 6 hr window of start_timestamp - submit_timestamp, recomputed every 30 min.
+ *  running_eta - ETA to a completed state. A rolling average over a 6 hr window of end_timestamp - start_timestamp, recomputed every 30 min.
  **************************/
 CREATE TABLE `job` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `job_guid` varchar(50) COLLATE utf8_bin NOT NULL,
-  `reference_data_signature` varchar(50) DEFAULT NULL,
+  `signature` varchar(50) DEFAULT NULL,
   `job_coalesced_to_guid` varchar(50) COLLATE utf8_bin DEFAULT NULL,
   `result_set_id` bigint(20) unsigned NOT NULL,
   `build_platform_id` int(10) unsigned NOT NULL,
   `machine_platform_id` int(10) unsigned NOT NULL,
   `machine_id` int(10) unsigned DEFAULT NULL,
+  `device_id` int(10) unsigned DEFAULT NULL,
   `option_collection_hash` varchar(64) COLLATE utf8_bin DEFAULT NULL,
   `job_type_id` int(10) unsigned NOT NULL,
   `product_id` int(10) unsigned DEFAULT NULL,
@@ -122,11 +124,12 @@ CREATE TABLE `job` (
   PRIMARY KEY (`id`),
   KEY `idx_job_guid` (`job_guid`),
   KEY `idx_job_coalesced_to_guid` (`job_coalesced_to_guid`),
-  KEY `idx_reference_data_signature` (`reference_data_signature`),
+  KEY `idx_signature` (`signature`),
   KEY `idx_result_set_id` (`result_set_id`),
   KEY `idx_build_platform_id` (`build_platform_id`),
   KEY `idx_machine_platform_id` (`machine_platform_id`),
   KEY `idx_machine_id` (`machine_id`),
+  KEY `idx_device_id` (`device_id`),
   KEY `idx_option_collection_hash` (`option_collection_hash`),
   KEY `idx_job_type_id` (`job_type_id`),
   KEY `idx_product_id` (`product_id`),
@@ -142,6 +145,51 @@ CREATE TABLE `job` (
   KEY `idx_running` (`running_eta`),
   KEY `idx_active_status` (`active_status`),
   CONSTRAINT `fk_result_set` FOREIGN KEY (`result_set_id`) REFERENCES `result_set` (`id`)
+) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+DROP TABLE IF EXISTS `job_eta`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+--
+-- Table structure for table `job_eta`
+--
+/*************************
+ * Table: job_eta
+ *
+ * This table holds a timeline of eta trends for pending and running jobs
+ *
+ * Population Method: dynamic from incoming data
+ *
+ * Example Data:
+ *
+ *  signature - References treeherder_reference_1.buildbot_buildernames.signature
+ *  state - pending | running
+ *  avg_sec - A rolling average over a 12 hr window in seconds
+ *  median_sec - The median of the sample range
+ *  min_sec - The minimum value of the sample range
+ *  max_sec - The minimum value of the sample range
+ *  std - Of the of avg_sec
+ *  sample_count - The number of samples used in the rolling average
+ *  submit_timestamp - The timestamp the eta data was computed and entered
+ *************************/
+CREATE TABLE `job_eta` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `signature` varchar(50) DEFAULT NULL,
+  `state` varchar(25) COLLATE utf8_bin NOT NULL,
+  `avg_sec` int(10) unsigned NOT NULL,
+  `median_sec` int(10) unsigned NOT NULL,
+  `min_sec` int(10) unsigned NOT NULL,
+  `max_sec` int(10) unsigned NOT NULL,
+  `std` int(10) unsigned NOT NULL,
+  `sample_count` int(10) unsigned NOT NULL,
+  `submit_timestamp` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_state` (`state`),
+  KEY `idx_avg_sec` (`avg_sec`),
+  KEY `idx_median_sec` (`median_sec`),
+  KEY `idx_sample_count` (`sample_count`),
+  KEY `idx_submit_timestamp` (`submit_timestamp`)
 ) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -288,7 +336,7 @@ DROP TABLE IF EXISTS `result_set`;
 CREATE TABLE `result_set` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `revision_hash` varchar(50) COLLATE utf8_bin NOT NULL,
-  `aggregate_id` varchar(50) COLLATE utf8_bin NOT NULL,
+  `aggregate_id` varchar(50) COLLATE utf8_bin DEFAULT NULL,
   `result_set_classification_id` int(10) unsigned DEFAULT NULL,
   `author` varchar(150) COLLATE utf8_bin NOT NULL,
   `type` varchar(25) DEFAULT NULL,

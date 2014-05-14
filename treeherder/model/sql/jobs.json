@@ -54,11 +54,13 @@
 
             "sql":"INSERT INTO `job` (
                 `job_guid`,
+                `signature`,
                 `job_coalesced_to_guid`,
                 `result_set_id`,
                 `build_platform_id`,
                 `machine_platform_id`,
                 `machine_id`,
+                `device_id`,
                 `option_collection_hash`,
                 `job_type_id`,
                 `product_id`,
@@ -68,14 +70,30 @@
                 `state`,
                 `submit_timestamp`,
                 `start_timestamp`,
-                `end_timestamp`)
-
-                SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
+                `end_timestamp`,
+                `pending_eta`,
+                `running_eta`)
+                SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
                 FROM DUAL WHERE NOT EXISTS (
                     SELECT `job_guid`
                     FROM `job`
                     WHERE `job_guid` = ?
                 )",
+
+            "host":"master_host"
+        },
+        "set_job_eta":{
+            "sql":"INSERT INTO `job_eta` (
+                    `signature`,
+                    `state`,
+                    `avg_sec`,
+                    `median_sec`,
+                    `min_sec`,
+                    `max_sec`,
+                    `std`,
+                    `sample_count`,
+                    `submit_timestamp`)
+                   VALUES (?,?,?,?,?,?,?,?,?)",
 
             "host":"master_host"
         },
@@ -236,6 +254,69 @@
     },
     "selects":{
 
+        "get_max_job_submit_timestamp":{
+
+            "sql": "SELECT MAX(`submit_timestamp`) AS 'submit_timestamp' FROM `job`",
+
+            "host":"master_host"
+
+        },
+        "get_eta_groups":{
+
+            "sql":"SELECT signature,
+                          CAST(
+                            ROUND( AVG(start_timestamp - submit_timestamp) )
+                            AS UNSIGNED) AS 'pending_avg_sec',
+
+                          MIN(start_timestamp - submit_timestamp) AS 'pending_min_sec',
+                          MAX(start_timestamp - submit_timestamp) AS 'pending_max_sec',
+
+                          CAST(
+                            ROUND( STD(start_timestamp - submit_timestamp))
+                            AS UNSIGNED) AS 'pending_std',
+
+                          CAST(
+                            ROUND( AVG(end_timestamp - start_timestamp) )
+                            AS UNSIGNED) AS 'running_avg_sec',
+
+                          MIN(end_timestamp - start_timestamp) AS 'running_min_sec',
+                          MAX(end_timestamp - start_timestamp) AS 'running_max_sec',
+
+                          CAST(
+                            ROUND( STD(end_timestamp - start_timestamp) )
+                            AS SIGNED) AS 'running_std',
+
+                          GROUP_CONCAT(start_timestamp - submit_timestamp SEPARATOR ',')
+                            AS 'pending_samples',
+
+                          GROUP_CONCAT(end_timestamp - start_timestamp SEPARATOR ',')
+                            AS 'running_samples'
+                   FROM job
+                   WHERE submit_timestamp >= ? AND
+                         start_timestamp >= submit_timestamp AND
+                         end_timestamp >= start_timestamp AND
+                         start_timestamp > 0 AND end_timestamp > 0
+                   GROUP BY signature",
+
+            "host":"read_host"
+
+        },
+        "get_last_eta_by_signatures":{
+            "sql":"SELECT signature,
+                          state,
+                          avg_sec,
+                          median_sec,
+                          min_sec,
+                          max_sec,
+                          std,
+                          sample_count,
+                          MAX(submit_timestamp)
+                    FROM job_eta
+                    WHERE signature IN (REP0)
+                    GROUP BY signature, state
+                    ORDER BY submit_timestamp DESC",
+            "host":"read_host"
+        },
         "get_revision_ids_to_cycle":{
             "sql":"SELECT revision_id FROM revision_map WHERE result_set_id IN (REP0)",
             "host":"master_host"

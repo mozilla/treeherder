@@ -4,6 +4,7 @@ from treeherder import path
 
 # needed to setup celery
 import djcelery
+from celery.schedules import crontab
 djcelery.setup_loader()
 
 # These settings can all be optionally set via env vars, or in local.py:

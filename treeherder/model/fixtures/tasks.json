@@ -15,7 +15,39 @@
             "period": "minutes"
         }
     },
-
+    {
+        "pk": 1,
+        "model": "djcelery.crontabschedule",
+        "fields": {
+            "minute": 0,
+            "hour": 4,
+            "day_of_week": "*",
+            "day_of_month": "*",
+            "month_of_year": "*"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "djcelery.crontabschedule",
+        "fields": {
+            "minute": 0,
+            "hour": "*/6",
+            "day_of_week": "*",
+            "day_of_month": "*",
+            "month_of_year": "*"
+        }
+    },
+    {
+        "pk": 3,
+        "model": "djcelery.crontabschedule",
+        "fields": {
+            "minute": 0,
+            "hour": "0",
+            "day_of_week": "*",
+            "day_of_month": "*",
+            "month_of_year": "*"
+        }
+    },
     {
         "pk": 2,
         "model": "djcelery.periodictask",
@@ -153,8 +185,8 @@
             "args": "[]",
             "enabled": true,
             "routing_key": null,
-            "crontab": null,
-            "interval": 1,
+            "crontab": 3,
+            "interval": null,
             "queue": null,
             "total_run_count": 0,
             "expires": null,
@@ -182,6 +214,27 @@
             "kwargs": "{}",
             "date_changed": "2014-04-24T16:22:39",
             "description": "Broadcasts the count of unclassified job failures per repository"
+        }
+    },
+    {
+        "pk": 10,
+        "model": "djcelery.periodictask",
+        "fields": {
+            "task": "calculate-eta",
+            "name": "calculate-eta",
+            "exchange": null,
+            "last_run_at": null,
+            "args": "[]",
+            "enabled": true,
+            "routing_key": null,
+            "crontab": 2,
+            "interval": null,
+            "queue": null,
+            "total_run_count": 0,
+            "expires": null,
+            "kwargs": "{}",
+            "date_changed": "2014-04-24T16:22:39",
+            "description": "Compute pending and running eta times"
         }
     }
 ]
