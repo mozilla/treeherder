@@ -386,9 +386,18 @@ div#bottom-panel .navbar{
 
 }
 
+div#bottom-panel .navbar-nav > ul{
+    height:32px;
+}
+
 div#bottom-panel .navbar-nav > li > a{
-    padding: 9px 15px;
-    line-height: 13px;
+    padding: 6px 15px;
+    line-height: 19px;
+}
+
+div#bottom-panel ul.bottom-panel-controls{
+    width:401px;
+    border-right: 1px solid #42484F;
 }
 
 div#bottom-panel .navbar-nav > li.active a,
@@ -566,7 +575,7 @@ ul.bug-suggestion-list li .btn-xs{
 #pinboard-panel {
     background-color: #252C33;
     color: #EEF0F2;
-    padding: 2px 5px;
+    padding: 0px 5px;
 }
 
 #pinboard-panel .header{

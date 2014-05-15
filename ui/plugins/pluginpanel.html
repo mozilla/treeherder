@@ -1,13 +1,7 @@
 <ng-include src="'partials/thPinboardPanel.html'"></ng-include>
 
 <nav class="navbar navbar-dark">
-    <ul class="nav navbar-nav tab-headers">
-        <li ng-repeat="(tab_id, tab) in tabs" ng-class="{'active': tab.active}">
-            <a title="show {{ tab.title }}" href="" ng-click="show_tab(tab)">{{ tab.title }}</a>
-        </li>
-
-    </ul>
-    <ul class="nav navbar-nav pull-right">
+    <ul class="nav navbar-nav bottom-panel-controls">
         <li ng-show="job.build_id">
             <a title="Cancel job"
                href=""
@@ -63,14 +57,23 @@
                               class="glyphicon glyphicon-chevron-up"></span>
                     </a>
                 </li>
-                <li>
-                    <a title="close panel" href="" ng-click="clearJob()">
-                        <span class="glyphicon glyphicon-remove"></span>
-                    </a>
-                </li>
+
             </ul>
         </li>
 
+    </ul>
+    <ul class="nav navbar-nav tab-headers">
+        <li ng-repeat="(tab_id, tab) in tabs" ng-class="{'active': tab.active}">
+            <a title="show {{ tab.title }}" href="" ng-click="show_tab(tab)">{{ tab.title }}</a>
+        </li>
+
+    </ul>
+    <ul class="nav navbar-nav pull-right">
+        <li>
+            <a title="close panel" href="" ng-click="clearJob()">
+                <span class="glyphicon glyphicon-remove"></span>
+            </a>
+        </li>
     </ul>
 </nav>
 
