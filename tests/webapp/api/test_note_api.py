@@ -108,7 +108,7 @@ def test_note_detail_bad_project(webapp, jm):
         expect_errors=True
     )
     assert resp.status_int == 404
-    assert resp.json == {"message": "No project with name foo"}
+    assert resp.json == {"detail": "No project with name foo"}
 
 
 def test_create_note(webapp, eleven_jobs_processed, mock_message_broker, jm):

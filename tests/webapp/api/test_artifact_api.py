@@ -56,5 +56,5 @@ def test_artifact_detail_bad_project(webapp, jm):
         expect_errors=True
     )
     assert resp.status_int == 404
-    assert resp.json == {"message": "No project with name foo"}
+    assert resp.json == {"detail": "No project with name foo"}
 
