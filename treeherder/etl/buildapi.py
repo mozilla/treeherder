@@ -120,7 +120,6 @@ class Builds4hTransformerMixin(object):
                 'coalesced': []
             }
 
-
             platform_info = buildbot.extract_platform_info(prop['buildername'])
             job_name_info = buildbot.extract_name_info(prop['buildername'])
 
@@ -172,12 +171,23 @@ class Builds4hTransformerMixin(object):
                     buildbot.extract_build_type(prop['buildername']): True
                 },
                 'log_references': log_reference,
-                'artifact': {
-                    'type': '',
-                    'name': '',
-                    'log_urls': [],
-                    'blob': ''
-                }
+                'artifacts': [
+                    {
+                        'type': 'json',
+                        'name': 'buildapi_complete',
+                        'log_urls': [],
+                        'blob': build
+                    },
+                    {
+                        'type': 'json',
+                        'name': 'buildapi',
+                        'log_urls': [],
+                        'blob': {
+                            'buildername': build['properties']['buildername'],
+                            'build_id': build['id']
+                        }
+                    },
+                ]
             }
 
             treeherder_data['job'] = job

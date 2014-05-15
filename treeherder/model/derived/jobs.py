@@ -971,13 +971,13 @@ class JobsModel(TreeherderModelBase):
                         ],
                         "who": "sendchange-unittest",
                         "reason": "scheduler",
-                        artifact:{
+                        artifacts:[{
                             type:" json | img | ...",
                             name:"",
                             log_urls:[
                                 ]
                             blob:""
-                        },
+                        }],
                         "machine_platform": {
                             "platform": "Ubuntu VM 12.04",
                             "os_name": "linux",
@@ -1059,7 +1059,7 @@ class JobsModel(TreeherderModelBase):
                     raise e
             else:
 
-                # json object can be sucessfully deserialized
+                # json object can be successfully deserialized
                 # load reference data
                 job_guid = self._load_ref_and_job_data_structs(
                     job,
@@ -1241,19 +1241,20 @@ class JobsModel(TreeherderModelBase):
 
                 log_placeholders.append([job_guid, name, url])
 
-        artifact = job.get('artifact', {})
-        if artifact:
-            name = artifact.get('name')
-            artifact_type = artifact.get('type')
+        artifacts = job.get('artifacts', [])
+        if artifacts:
+            for artifact in artifacts:
+                name = artifact.get('name')
+                artifact_type = artifact.get('type')
 
-            blob = artifact.get('blob')
-            if (artifact_type == 'json') and (not isinstance(blob, str)):
-                blob = json.dumps(blob)
+                blob = artifact.get('blob')
+                if (artifact_type == 'json') and (not isinstance(blob, str)):
+                    blob = json.dumps(blob)
 
-            if name and artifact_type and blob:
-                artifact_placeholders.append(
-                    [job_guid, name, artifact_type, blob]
-                    )
+                if name and artifact_type and blob:
+                    artifact_placeholders.append(
+                        [job_guid, name, artifact_type, blob]
+                        )
 
         return job_guid
 
