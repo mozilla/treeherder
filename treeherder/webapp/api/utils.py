@@ -7,8 +7,7 @@ import oauth2 as oauth
 from django.conf import settings
 from rest_framework.response import Response
 
-from treeherder.model.derived import (JobsModel, DatasetNotFoundError,
-                                      ObjectNotFoundException)
+from treeherder.model.derived import JobsModel
 from treeherder.etl.oauth_utils import OAuthCredentials
 
 
@@ -111,7 +110,7 @@ def oauth_required(func):
         if not project_credentials:
             msg = {
                 'response': "invalid_request",
-                'message': "project, {0}, has no OAuth credentials".format(project)
+                'detail': "project, {0}, has no OAuth credentials".format(project)
             }
             return Response(msg, 500)
 
@@ -126,7 +125,7 @@ def oauth_required(func):
 
             msg = {
                 'response':"invalid_request",
-                'message':"Required oauth parameters not provided in the uri"
+                'detail':"Required oauth parameters not provided in the uri"
                 }
 
             return Response(msg, 500)
@@ -134,7 +133,7 @@ def oauth_required(func):
         if oauth_consumer_key != project_credentials['consumer_key']:
             msg = {
                 'response':"access_denied",
-                'message':"oauth_consumer_key does not match project, {0}, credentials".format(project)
+                'detail':"oauth_consumer_key does not match project, {0}, credentials".format(project)
                 }
 
             return Response(msg, 403)
@@ -170,7 +169,7 @@ def oauth_required(func):
         except oauth.Error:
             msg = {
                 'response':"invalid_client",
-                'message':"Client authentication failed for project, {0}".format(project)
+                'detail':"Client authentication failed for project, {0}".format(project)
                 }
 
             return Response(msg, 403)
@@ -179,34 +178,20 @@ def oauth_required(func):
 
     return wrap_oauth
 
+
 def with_jobs(model_func):
     """
     Create a jobsmodel and pass it to the ``func``.
 
     ``func`` must take a jobsmodel object and return a response object
 
-    Catches exceptions
     """
     def use_jobs_model(*args, **kwargs):
+
         project = kwargs["project"]
+        jm = JobsModel(project)
         try:
-            jm = JobsModel(project)
             return model_func(*args, jm=jm, **kwargs)
-
-        except DatasetNotFoundError as e:
-            return Response(
-                {"message": "No project with name {0}".format(project)},
-                status=404,
-            )
-        except ObjectNotFoundException as e:
-            return Response({"message": unicode(e)}, status=404)
-        except Exception as e:  # pragma nocover
-            msg = {"message": unicode(e)}
-            if settings.DEBUG:
-                import traceback
-                msg["traceback"] = traceback.format_exc()
-
-            return Response(msg, status=500)
         finally:
             jm.disconnect()
 

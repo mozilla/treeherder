@@ -19,57 +19,85 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `buildbot_buildernames`
+-- Table structure for table `reference_data_signatures`
 --
-DROP TABLE IF EXISTS `buildbot_buildernames`;
+DROP TABLE IF EXISTS `reference_data_signatures`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 /**************************
- * Table: buildbot_buildernames
+ * Table: reference_data_signatures
  *
- * Holds a list of all unique buildernames and their associated reference data
+ * Holds a list of all unique signatures and their associated reference data
  * inferences. The reference data used to populate the columns is used as the
- * source of the reference_data_signature. This signature is used to map jobs
- * to buildernames. This allows multiple buildernames to map to the same set of
+ * source of the signature. This signature is used to map jobs to their associated
+ * reference data. This allows multiple names (buildernames) to map to the same set of
  * reference data properties. The table provides a data model for modifying the
- * the reference data properties associated with a buildername after it's received.
- * It also allows for a direct mapping between buildername and associated properties
- * leaving the regular expression analysis as a last resort.
+ * the reference data properties associated with a name (buildername) after it's received.
+ * In the case of the build_system_type buildbot, it also allows for a direct mapping
+ * between name and associated properties leaving the regular expression analysis as
+ * a last resort.
  *
- * NOTE: buildernames are specific to the buildbot build/test system but could be
- *  used by a non-buildbot system for similar sheriff management functions to give
+ * NOTE: buildernames are specific to the buildbot build/test system. However this table
+ *  can be used by a non-buildbot system for similar sheriff management functions to give
  *  control over incoming job reference data.
  *
  * id - Unique integer id
- * buildername - Buildername received from buildbot
- * reference_data_signature - Jash of all of the associated reference data properties
- * os_name - Found in build_platform.os_name
- * os_platform - Found in build_platform.platform
- * architecture - Found in build_platform.architecture
+ * name - Name of signature, buildername in the case of buildbot
+ * signature - Hash of all of the associated reference data properties
+ * build_os_name - Found in build_platform.os_name
+ * build_os_platform - Found in build_platform.platform
+ * build_architecture - Found in build_platform.architecture
+ * machine_os_name - Found in machine_platform.os_name
+ * machine_os_platform - Found in machine_platform.platform
+ * machine_architecture - Found in machine_platform.architecture
  * job_group_name - Found in job_group.name
+ * job_group_symbol - Found in job_group.symbol
  * job_type_name - Found in job_type.name
+ * job_type_symbol - Found in job_type.symbol
  * option_collection_hash - References treeherder_reference_1.option_collection.option_collection_hash
+ * build_system_type - The type of build system used to generate the data, defaults to buildbot if not provided
  * first_submission_timestamp - Timestamp associated with the first entry
  * review_timestamp - Timestamp associated with the sheriff review
  * review_status - Review status of buildername, possible values: reviewed | not_reviewed | on_hold
  **************************/
-CREATE TABLE `buildbot_buildernames` (
+CREATE TABLE `reference_data_signatures` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `buildername` varchar(150) NOT NULL,
-  `reference_data_signature` varchar(50) NOT NULL,
-  `os_name` varchar(25) NOT NULL,
-  `os_platform` varchar(25) NOT NULL,
-  `architecture` varchar(25) NOT NULL,
-  `job_group_name` varchar(100) DEFAULT NULL,
-  `job_type_name` varchar(100) NOT NULL,
-  `option_collection_hash` varchar(64) DEFAULT NULL,
+  `name` varchar(150) COLLATE utf8_bin NOT NULL,
+  `signature` varchar(50) COLLATE utf8_bin NOT NULL,
+  `build_os_name` varchar(25) COLLATE utf8_bin NOT NULL,
+  `build_platform` varchar(25) COLLATE utf8_bin NOT NULL,
+  `build_architecture` varchar(25) COLLATE utf8_bin NOT NULL,
+  `machine_os_name` varchar(25) COLLATE utf8_bin NOT NULL,
+  `machine_platform` varchar(25) COLLATE utf8_bin NOT NULL,
+  `machine_architecture` varchar(25) COLLATE utf8_bin NOT NULL,
+  `device_name` varchar(50) COLLATE utf8_bin NOT NULL,
+  `job_group_name` varchar(100) COLLATE utf8_bin DEFAULT NULL,
+  `job_group_symbol` char(25) COLLATE utf8_bin DEFAULT '?',
+  `job_type_name` varchar(100) COLLATE utf8_bin NOT NULL,
+  `job_type_symbol` char(25) COLLATE utf8_bin DEFAULT '?',
+  `option_collection_hash` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `build_system_type` varchar(25) COLLATE utf8_bin DEFAULT NULL,
   `first_submission_timestamp` int(10) unsigned NOT NULL,
   `review_timestamp` int(10) unsigned DEFAULT NULL,
-  `review_status` enum('reviewed', 'not_reviewed', 'on_hold'),
-  UNIQUE KEY `uni_buildername` (`buildername`),
+  `review_status` enum('reviewed', 'not_reviewed', 'on_hold') COLLATE utf8_bin DEFAULT 'not_reviewed',
+  UNIQUE KEY `uni_name_build_type` (`name`, `build_system_type`),
   KEY `idx_id` (`id`),
-  KEY `idx_reference_data_signature` (`reference_data_signature`),
+  KEY `idx_signature` (`signature`),
+  KEY `idx_build_os_name` (`build_os_name`),
+  KEY `idx_build_platform` (`build_platform`),
+  KEY `idx_build_architecture` (`build_architecture`),
+  KEY `idx_machine_os_name` (`machine_os_name`),
+  KEY `idx_machine_platform` (`machine_platform`),
+  KEY `idx_machine_architecture` (`machine_architecture`),
+  KEY `idx_device_name` (`device_name`),
+  KEY `idx_job_group_name` (`job_group_name`),
+  KEY `idx_job_group_symbol` (`job_group_symbol`),
+  KEY `idx_job_type_name` (`job_type_name`),
+  KEY `idx_job_type_symbol` (`job_type_symbol`),
+  KEY `idx_option_collection_hash` (`option_collection_hash`),
+  KEY `idx_build_system_type` (`build_system_type`),
   KEY `idx_first_submission_timestamp` (`first_submission_timestamp`),
+  KEY `idx_review_timestamp` (`review_timestamp`),
   KEY `idx_review_status` (`review_status`)
 ) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -235,7 +263,7 @@ DROP TABLE IF EXISTS `job_group`;
  **************************/
 CREATE TABLE `job_group` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `symbol` char(10) COLLATE utf8_bin DEFAULT '?',
+  `symbol` char(25) COLLATE utf8_bin DEFAULT '?',
   `name` varchar(100) COLLATE utf8_bin NOT NULL,
   `description` text COLLATE utf8_bin,
   `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
@@ -276,7 +304,7 @@ DROP TABLE IF EXISTS `job_type`;
 CREATE TABLE `job_type` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `job_group_id` int(10) unsigned DEFAULT NULL,
-  `symbol` char(10) COLLATE utf8_bin DEFAULT '?',
+  `symbol` char(25) COLLATE utf8_bin DEFAULT '?',
   `name` varchar(100) COLLATE utf8_bin NOT NULL,
   `description` text COLLATE utf8_bin,
   `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
@@ -398,6 +426,31 @@ CREATE TABLE `machine_platform` (
 ) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+DROP TABLE IF EXISTS `device`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+
+/**************************
+ * Table: device
+ *
+ * A list of device names associated with project test data.
+ *
+ * Population Method: dynamic from incoming data
+ *
+ * Example Data:
+ *
+ *  name - tarako | hamachi | inari | VM ...
+ **************************/
+CREATE TABLE `device` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) COLLATE utf8_bin NOT NULL,
+  `description` text COLLATE utf8_bin,
+  `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
+  PRIMARY KEY (`id`),
+  KEY `idx_name` (`name`),
+  KEY `idx_active_status` (`active_status`)
+) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 --
 -- Table structure for table `option`
 --

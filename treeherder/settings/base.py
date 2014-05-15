@@ -4,6 +4,7 @@ from treeherder import path
 
 # needed to setup celery
 import djcelery
+from celery.schedules import crontab
 djcelery.setup_loader()
 
 # These settings can all be optionally set via env vars, or in local.py:
@@ -209,7 +210,8 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
-    )
+    ),
+    'EXCEPTION_HANDLER': 'treeherder.webapp.api.exceptions.exception_handler'
 }
 
 SITE_URL = "http://local.treeherder.mozilla.org"
@@ -281,3 +283,5 @@ def obtain_username(email):
         return email
 
 BROWSERID_USERNAME_ALGO = obtain_username
+
+SWAGGER_SETTINGS = {"enabled_methods": ['get',]}

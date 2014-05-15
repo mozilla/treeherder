@@ -123,6 +123,10 @@ class Builds4hTransformerMixin(object):
             platform_info = buildbot.extract_platform_info(prop['buildername'])
             job_name_info = buildbot.extract_name_info(prop['buildername'])
 
+            device_name = 'unknown'
+            if platform_info['vm'] == True:
+                device_name = 'vm'
+
             if 'log_url' in prop:
                 log_reference = [{
                     'url': prop['log_url'],
@@ -141,7 +145,7 @@ class Builds4hTransformerMixin(object):
                 'job_symbol': job_name_info.get('job_symbol', ''),
                 'group_name': job_name_info.get('group_name', ''),
                 'group_symbol': job_name_info.get('group_symbol', ''),
-                'buildername': prop['buildername'],
+                'reference_data_name': prop['buildername'],
                 'product_name': prop.get('product', ''),
                 'state': 'completed',
                 'result': buildbot.RESULT_DICT[build['result']],
@@ -251,7 +255,7 @@ class PendingTransformerMixin(object):
                         'job_symbol': job_name_info.get('job_symbol', ''),
                         'group_name': job_name_info.get('group_name', ''),
                         'group_symbol': job_name_info.get('group_symbol', ''),
-                        'buildername': job['buildername'],
+                        'reference_data_name': job['buildername'],
                         'state': 'pending',
                         'submit_timestamp': job['submitted_at'],
                         'build_platform': {
@@ -340,7 +344,7 @@ class RunningTransformerMixin(object):
                         'job_symbol': job_name_info.get('job_symbol', ''),
                         'group_name': job_name_info.get('group_name', ''),
                         'group_symbol': job_name_info.get('group_symbol', ''),
-                        'buildername': job['buildername'],
+                        'reference_data_name': job['buildername'],
                         'state': 'running',
                         'submit_timestamp': job['submitted_at'],
                         'build_platform': {

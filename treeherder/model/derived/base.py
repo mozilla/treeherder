@@ -100,10 +100,7 @@ class TreeherderModelBase(object):
                 candidate_sources.append(source)
 
         if not candidate_sources:
-            raise DatasetNotFoundError(
-                "No dataset found for project %r, contenttype %r."
-                % (self.project, contenttype)
-            )
+            raise DatasetNotFoundError(self.project, contenttype)
 
         candidate_sources.sort(key=lambda s: s.dataset, reverse=True)
 
@@ -111,7 +108,16 @@ class TreeherderModelBase(object):
 
 
 class DatasetNotFoundError(ValueError):
-    pass
+    def __init__(self, project, contenttype,  *args, **kwargs):
+        super(DatasetNotFoundError, self).__init__(*args, **kwargs)
+        self.project = project
+        self.contenttype = contenttype
+
+        def __unicode__(self):
+            return u"No dataset found for project {0} and contenttype '{1}'".format(
+            self.project,
+            self.contenttype,
+            )
 
 
 class ObjectNotFoundException(Exception):

@@ -3,7 +3,7 @@ Services architecture
 
 Running treeherder at full speed requires a number of services to be started. For an overview of all the services, see the diagram below
 
-.. image:: https://cacoo.com/diagrams/c5uZPojmQdR0QaDp-3D076.png
+.. image:: http://people.mozilla.org/~mdoglio/c5uZPojmQdR0QaDp-3D076.png
 
 All the services marked with a yellow background are python scripts that can be found in the bin directory.
 In a typical deployment they are monitored by something like supervisord.
