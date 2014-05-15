@@ -271,7 +271,7 @@ def test_resultset_create(sample_resultset, jm, initial_data):
     resp = test_utils.post_collection(jm.project, trsc)
 
     assert resp.status_int == 200
-    assert resp.json['detail'] == 'well-formed JSON stored'
+    assert resp.json['message'] == 'well-formed JSON stored'
 
     stored_objs = jm.get_jobs_dhub().execute(
         proc="jobs_test.selects.resultset_by_rev_hash",
