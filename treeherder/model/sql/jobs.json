@@ -164,7 +164,13 @@
                 `name`,
                 `type`,
                 `blob`)
-            VALUES (?,?,?,?)",
+                SELECT ?,?,?,?
+                FROM DUAL
+                WHERE NOT EXISTS (
+                    SELECT `job_id`
+                    FROM `job_artifact`
+                    WHERE `job_id` = ? and `name` = ?
+                )",
 
             "host":"master_host"
         },

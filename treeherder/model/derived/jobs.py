@@ -1384,7 +1384,7 @@ class JobsModel(TreeherderModelBase):
 
                 if name and artifact_type and blob:
                     artifact_placeholders.append(
-                        [job_guid, name, artifact_type, blob]
+                        [job_guid, name, artifact_type, blob, job_guid, name]
                         )
 
         return job_guid
@@ -1597,6 +1597,7 @@ class JobsModel(TreeherderModelBase):
         """
         Store a list of job_artifacts given a list of placeholders
         """
+
         self.get_jobs_dhub().execute(
             proc='jobs.inserts.set_job_artifact',
             debug_show=self.DEBUG,

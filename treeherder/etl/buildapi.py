@@ -277,7 +277,16 @@ class PendingTransformerMixin(object):
                             # build_type contains an option name, eg. PGO
                             buildbot.extract_build_type(job['buildername']): True
                         },
-                        'log_references': []
+                        'log_references': [],
+                        'artifacts': [
+                            {
+                                'type': 'json',
+                                'name': 'buildapi_pending',
+                                'log_urls': [],
+                                'blob': job
+                            },
+                        ]
+
                     }
                     treeherder_data['job'] = job
 
@@ -366,7 +375,15 @@ class RunningTransformerMixin(object):
                             # build_type contains an option name, eg. PGO
                             buildbot.extract_build_type(job['buildername']): True
                         },
-                        'log_references': []
+                        'log_references': [],
+                        'artifacts': [
+                            {
+                                'type': 'json',
+                                'name': 'buildapi_running',
+                                'log_urls': [],
+                                'blob': job
+                            },
+                        ]
                     }
 
                     treeherder_data['job'] = job
