@@ -1,21 +1,27 @@
-def Kernel.is_windows?
-    processor, platform, *rest = RUBY_PLATFORM.split("-")
-    platform == 'mingw32'
-end
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
 
-Vagrant::Config.run do |config|
+# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  # Every Vagrant virtual environment requires a box to build off of.
   config.vm.box = "precise32"
   config.vm.box_url = "http://files.vagrantup.com/precise32.box"
-  config.vm.customize ["modifyvm", :id, "--memory", "1024"]
-  config.vm.network :hostonly, "192.168.33.10"
+  
+  config.vm.network "private_network", ip: "192.168.33.10"
 
-  # enable this to see the GUI if vagrant cannot connect
-  #config.vm.boot_mode = :gui
+  config.vm.synced_folder ".", "/home/vagrant/treeherder-service", type: "nfs"
+  config.vm.synced_folder "../treeherder-ui", "/home/vagrant/treeherder-ui", type: "nfs"
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.customize ["modifyvm", :id, "--memory", "1024"]
+  end
 
   config.vm.provision :puppet do |puppet|
     puppet.manifests_path = "puppet/manifests"
     puppet.manifest_file = "vagrant.pp"
-
+    
     #uncomment in production to serve treeherder-ui from dist directory
     #puppet.manifest_file = "production.pp"
 
@@ -23,8 +29,4 @@ Vagrant::Config.run do |config|
     #puppet.options = "--verbose --debug"
   end
 
-  # Try to use NFS only on platforms other than Windows
-  nfs = !Kernel.is_windows?
-  config.vm.share_folder("treeherder", "/home/vagrant/treeherder-service", "./", :nfs => nfs)
-  config.vm.share_folder("treeherder-ui", "/home/vagrant/treeherder-ui", "../treeherder-ui/", :nfs => nfs)
 end
