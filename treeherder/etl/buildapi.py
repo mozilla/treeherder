@@ -238,7 +238,7 @@ class PendingTransformerMixin(object):
                 resultset = revisions[revision]
                 # using project and revision form the revision lookups
                 # to filter those jobs with unmatched revision
-                for job in data['pending'][project][revision]:
+                for pending_job in data['pending'][project][revision]:
 
                     treeherder_data = {
                         'revision_hash': resultset['revision_hash'],
@@ -246,18 +246,18 @@ class PendingTransformerMixin(object):
                         'project': project,
                     }
 
-                    platform_info = buildbot.extract_platform_info(job['buildername'])
-                    job_name_info = buildbot.extract_name_info(job['buildername'])
+                    platform_info = buildbot.extract_platform_info(pending_job['buildername'])
+                    job_name_info = buildbot.extract_name_info(pending_job['buildername'])
 
-                    job = {
-                        'job_guid': common.generate_job_guid(job['id'], job['submitted_at']),
+                    new_job = {
+                        'job_guid': common.generate_job_guid(pending_job['id'], pending_job['submitted_at']),
                         'name': job_name_info.get('name', ''),
                         'job_symbol': job_name_info.get('job_symbol', ''),
                         'group_name': job_name_info.get('group_name', ''),
                         'group_symbol': job_name_info.get('group_symbol', ''),
-                        'reference_data_name': job['buildername'],
+                        'reference_data_name': pending_job['buildername'],
                         'state': 'pending',
-                        'submit_timestamp': job['submitted_at'],
+                        'submit_timestamp': pending_job['submitted_at'],
                         'build_platform': {
                             'os_name': platform_info['os'],
                             'platform': platform_info['os_platform'],
@@ -275,7 +275,7 @@ class PendingTransformerMixin(object):
 
                         'option_collection': {
                             # build_type contains an option name, eg. PGO
-                            buildbot.extract_build_type(job['buildername']): True
+                            buildbot.extract_build_type(pending_job['buildername']): True
                         },
                         'log_references': [],
                         'artifacts': [
@@ -283,12 +283,12 @@ class PendingTransformerMixin(object):
                                 'type': 'json',
                                 'name': 'buildapi_pending',
                                 'log_urls': [],
-                                'blob': job
+                                'blob': pending_job
                             },
                         ]
 
                     }
-                    treeherder_data['job'] = job
+                    treeherder_data['job'] = new_job
 
                     if project not in th_collections:
                         th_collections[ project ] = TreeherderJobCollection(
@@ -334,28 +334,28 @@ class RunningTransformerMixin(object):
                 resultset = revisions[revision]
                 # using project and revision form the revision lookups
                 # to filter those jobs with unmatched revision
-                for job in data['running'][project][revision]:
+                for running_job in data['running'][project][revision]:
                     treeherder_data = {
                         'revision_hash': resultset['revision_hash'],
                         'resultset_id': resultset['id'],
                         'project': project,
                     }
 
-                    platform_info = buildbot.extract_platform_info(job['buildername'])
-                    job_name_info = buildbot.extract_name_info(job['buildername'])
+                    platform_info = buildbot.extract_platform_info(running_job['buildername'])
+                    job_name_info = buildbot.extract_name_info(running_job['buildername'])
 
-                    job = {
+                    new_job = {
                         'job_guid': common.generate_job_guid(
-                            job['request_ids'][0],
-                            job['submitted_at']
+                            running_job['request_ids'][0],
+                            running_job['submitted_at']
                         ),
                         'name': job_name_info.get('name', ''),
                         'job_symbol': job_name_info.get('job_symbol', ''),
                         'group_name': job_name_info.get('group_name', ''),
                         'group_symbol': job_name_info.get('group_symbol', ''),
-                        'reference_data_name': job['buildername'],
+                        'reference_data_name': running_job['buildername'],
                         'state': 'running',
-                        'submit_timestamp': job['submitted_at'],
+                        'submit_timestamp': running_job['submitted_at'],
                         'build_platform': {
                             'os_name': platform_info['os'],
                             'platform': platform_info['os_platform'],
@@ -373,7 +373,7 @@ class RunningTransformerMixin(object):
 
                         'option_collection': {
                             # build_type contains an option name, eg. PGO
-                            buildbot.extract_build_type(job['buildername']): True
+                            buildbot.extract_build_type(running_job['buildername']): True
                         },
                         'log_references': [],
                         'artifacts': [
@@ -381,12 +381,12 @@ class RunningTransformerMixin(object):
                                 'type': 'json',
                                 'name': 'buildapi_running',
                                 'log_urls': [],
-                                'blob': job
+                                'blob': running_job
                             },
                         ]
                     }
 
-                    treeherder_data['job'] = job
+                    treeherder_data['job'] = new_job
 
                     if project not in th_collections:
                         th_collections[ project ] = TreeherderJobCollection(

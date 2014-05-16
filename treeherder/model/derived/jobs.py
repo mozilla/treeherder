@@ -1610,8 +1610,10 @@ class JobsModel(TreeherderModelBase):
         """
         # Replace job_guid with id in artifact placeholders
         for index, artifact in enumerate(artifact_placeholders):
-            artifact_placeholders[index][0] = job_id_lookup[
+            job_id = job_id_lookup[
                 artifact_placeholders[index][0]]['id']
+            artifact_placeholders[index][0] = job_id
+            artifact_placeholders[index][4] = job_id
 
         if artifact_placeholders:
             self.store_job_artifact(artifact_placeholders)
