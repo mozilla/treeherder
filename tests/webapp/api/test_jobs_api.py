@@ -43,7 +43,9 @@ def test_job_list(webapp, eleven_jobs_processed, jm):
         "machine_platform_os",
         "build_os",
         "machine_platform_architecture",
-        "failure_classification_id"
+        "failure_classification_id",
+        "pending_eta",
+        "running_eta"
     ]
     for job in jobs:
         assert set(job.keys()) == set(exp_keys)
