@@ -6,7 +6,7 @@ from rest_framework import routers
 
 # router for views that are bound to a project
 # i.e. all those views that don't involve reference data
-project_bound_router = routers.DefaultRouter()
+project_bound_router = routers.SimpleRouter()
 project_bound_router.register(
     r'objectstore',
     objectstore.ObjectstoreViewSet,
