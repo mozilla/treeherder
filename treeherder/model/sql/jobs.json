@@ -163,7 +163,8 @@
                 `job_id`,
                 `name`,
                 `type`,
-                `blob`)
+                `blob`
+                )
                 SELECT ?,?,?,?
                 FROM DUAL
                 WHERE NOT EXISTS (
