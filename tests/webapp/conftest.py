@@ -65,11 +65,11 @@ def sample_artifacts(jm, sample_data):
 
     for index, job in enumerate(jobs):
 
-        jobs[index]["job"]["artifact"] = {
+        jobs[index]["job"]["artifacts"] = [{
             "name":"data_1",
             "type":"json",
             "blob":{"data_1":"This is an artifact test" }
-            }
+            }]
 
     jm.load_job_data(jobs)
 
