@@ -26,131 +26,13 @@ logViewer.controller('LogviewerCtrl', [
         $scope.loadMore = function(bounds, element) {
             var deferred = $q.defer();
 
-            function getLineRangeOfArray (arr) {
-                var start, end;
-
-                if (arr.length === 0) {
-                    start = -1; 
-                    end = -1;
-                } else {
-                    start = arr[0].index;
-                    end = arr[arr.length - 1].index;
-                }
-
-                return {
-                    start: start,
-                    end: end
-                };
-            }
-
-            function logFileLineCount () {
-                var steps = $scope.artifact.step_data.steps;
-                return steps[ steps.length - 1 ].finished_linenumber;
-            }
-
-            function getIndexOfLine ( lineIndex ) {
-                for (var i = 0; i < $scope.displayedLogLines.length; i++) {
-                    if ($scope.displayedLogLines[i].index === lineIndex) return i;
-                }
-
-                return -1;
-            }
-
-            function getLineRangeToDisplay (bounds) {
-                var start, end, overflow, currentRange, trim;
-
-                function getRangeUpperBounds () {
-                    return ($scope.currentLineNumber - LINE_BUFFER_SIZE > 0) 
-                           ? $scope.currentLineNumber - LINE_BUFFER_SIZE : 0;
-                }
-
-                function getRangeLowerBounds () {
-                    var lastStepLineNumber = logFileLineCount();
-
-                    // make sure that the last line is not past the last line
-                    return ($scope.currentLineNumber + LINE_BUFFER_SIZE < lastStepLineNumber ) 
-                           ? $scope.currentLineNumber + LINE_BUFFER_SIZE : lastStepLineNumber;
-                }
-
-                start = getRangeUpperBounds();
-                end = getRangeLowerBounds();
-                currentRange = getLineRangeOfArray($scope.displayedLogLines);
-
-                // add any extra lines at the top to the bottom
-                overflow = LINE_BUFFER_SIZE - $scope.currentLineNumber; 
-                if (overflow > 0) end += overflow;
-
-                // add any extra lines at the bottom to the top
-                overflow = LINE_BUFFER_SIZE - (logFileLineCount() - $scope.currentLineNumber);
-                if (overflow > 0) start -= overflow;
-
-                if (bounds.top) {
-                    trim = getIndexOfLine( currentRange.end );
-                    end = currentRange.start;
-                } else if (bounds.bottom) {
-                    trim = getIndexOfLine( start );
-                    start = currentRange.end + 1;
-                }
-
-                return {
-                    start: start,
-                    end: end,
-                    trim: trim
-                };
-            }
-
-            function moveLineNumber (bounds) {
-                var lines = $scope.displayedLogLines;
-
-                if (bounds.top) {
-                    return lines[0].index;
-                } else if (bounds.bottom) {
-                    return lines[lines.length - 1].index;
-                }
-
-                return $scope.currentLineNumber;
-            }
-
-            /*
-             * returns index in 'data' where we need to slice in order to join 
-             * the 'data' array and the displayedLogLines array
-             */
-            function getSliceIndex (data) {
-                var startLine = $scope.currentLineNumber;
-
-                for ( var i = 0; i < data.length; i++ ) {
-                    if ( data[i].index === startLine ) {
-                        return i;
-                    }
-                };
-
-                return 0;
-            }
-
-            function drawErrorLines (data) {
-                if (data.length === 0) return;
-
-                var min = data[0].index;
-                var max = data[ data.length - 1 ].index;
-
-                $scope.artifact.step_data.steps.forEach(function(step) {
-                    step.errors.forEach(function(err) {
-                        var line = err.linenumber;
-
-                        if (line < min || line > max) return;
-
-                        var index = line - min;
-                        data[index].hasError = true;
-                    });
-                });
-            }
-
             if (!$scope.loading) {
                 // move the line number either up or down depending which boundary was hit
                 $scope.currentLineNumber = moveLineNumber(bounds);
 
                 var range = getLineRangeToDisplay(bounds);
 
+                // dont do the call if we already have all the lines
                 if ( range.start === range.end ) return;
 
                 $scope.loading = true;
@@ -161,11 +43,6 @@ logViewer.controller('LogviewerCtrl', [
                     end_line: range.end
                 }).then(function(data) {
                     var slicedData, length;
-
-                    function cleanup (ret) {
-                        $scope.loading = false;
-                        deferred.resolve(ret);
-                    }
 
                     drawErrorLines(data);
 
@@ -190,7 +67,8 @@ logViewer.controller('LogviewerCtrl', [
                         $scope.displayedLogLines = data;
                     }
 
-                    cleanup();
+                    $scope.loading = false;
+                    deferred.resolve();
                 });
             } else {
                 deferred.reject();
@@ -241,40 +119,6 @@ logViewer.controller('LogviewerCtrl', [
             });
         };
 
-        // $scope.sliceLog = function(data) {
-        // // split the log into chunks.  Non-error sections are one large
-        // // chunk separated by \n.  Each error gets its own chunk.
-
-        //     $scope.artifact.step_data.steps.forEach(function(step) {
-        //         // slice up the raw log and add those pieces to the artifact step.
-        //         step.logPieces = [];
-        //         var offset = step.started_linenumber;
-        //         step.errors.forEach(function(err) {
-        //             var end = err.linenumber;
-        //             if (offset !== end) {
-        //                 step.logPieces.push({
-        //                     text: (data.slice(offset, end)).join('\n'),
-        //                     hasError: false,
-        //                     order: step.order
-        //                 });
-        //             }
-        //             step.logPieces.push({
-        //                 text: data.slice(end, end+1)[0],
-        //                 hasError: true,
-        //                 order: step.order,
-        //                 errLine: end
-        //             });
-        //             offset = end+1;
-        //         });
-        //         step.logPieces.push({
-        //             text: (data.slice(offset, step.finished_linenumber+1)).join('\n'),
-        //             hasError: false,
-        //             order: step.order
-        //         });
-
-        //     });
-        // };
-
         $scope.init = function() {
             $log.log(ThJobArtifactModel.get_uri());
             ThJobArtifactModel.get_list({job_id: $scope.job_id, name: "Structured Log"})
@@ -289,6 +133,109 @@ logViewer.controller('LogviewerCtrl', [
 
             });
         };
+
+        function logFileLineCount () {
+            var steps = $scope.artifact.step_data.steps;
+            return steps[ steps.length - 1 ].finished_linenumber;
+        }
+
+        function getRangeUpperBounds () {
+            return ($scope.currentLineNumber - LINE_BUFFER_SIZE > 0) 
+                   ? $scope.currentLineNumber - LINE_BUFFER_SIZE : 0;
+        }
+
+        function getRangeLowerBounds () {
+            var lastStepLineNumber = logFileLineCount();
+
+            // make sure that the last line is not past the last line
+            return ($scope.currentLineNumber + LINE_BUFFER_SIZE < lastStepLineNumber ) 
+                   ? $scope.currentLineNumber + LINE_BUFFER_SIZE : lastStepLineNumber;
+        }
+
+        function getLineRangeOfArray (arr) {
+            var start, end;
+
+            if (arr.length === 0) {
+                start = -1; 
+                end = -1;
+            } else {
+                start = arr[0].index;
+                end = arr[arr.length - 1].index;
+            }
+
+            return {
+                start: start,
+                end: end
+            };
+        }
+
+        function getIndexOfLine ( lineIndex ) {
+            for (var i = 0; i < $scope.displayedLogLines.length; i++) {
+                if ($scope.displayedLogLines[i].index === lineIndex) return i;
+            }
+
+            return -1;
+        }
+
+        function getLineRangeToDisplay (bounds) {
+            var start, end, overflow, currentRange, trim;
+
+            start = getRangeUpperBounds();
+            end = getRangeLowerBounds();
+            currentRange = getLineRangeOfArray($scope.displayedLogLines);
+
+            // add any extra lines at the top to the bottom
+            overflow = LINE_BUFFER_SIZE - $scope.currentLineNumber; 
+            if (overflow > 0) end += overflow;
+
+            // add any extra lines at the bottom to the top
+            overflow = LINE_BUFFER_SIZE - (logFileLineCount() - $scope.currentLineNumber);
+            if (overflow > 0) start -= overflow;
+
+            if (bounds.top) {
+                trim = getIndexOfLine( currentRange.end );
+                end = currentRange.start;
+            } else if (bounds.bottom) {
+                trim = getIndexOfLine( start );
+                start = currentRange.end + 1;
+            }
+
+            return {
+                start: start,
+                end: end,
+                trim: trim
+            };
+        }
+
+        function moveLineNumber (bounds) {
+            var lines = $scope.displayedLogLines;
+
+            if (bounds.top) {
+                return lines[0].index;
+            } else if (bounds.bottom) {
+                return lines[lines.length - 1].index;
+            }
+
+            return $scope.currentLineNumber;
+        }
+
+        function drawErrorLines (data) {
+            if (data.length === 0) return;
+
+            var min = data[0].index;
+            var max = data[ data.length - 1 ].index;
+
+            $scope.artifact.step_data.steps.forEach(function(step) {
+                step.errors.forEach(function(err) {
+                    var line = err.linenumber;
+
+                    if (line < min || line > max) return;
+
+                    var index = line - min;
+                    data[index].hasError = true;
+                });
+            });
+        }
 
     }
 ]);

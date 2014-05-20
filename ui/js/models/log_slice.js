@@ -26,7 +26,7 @@ treeherder.factory('ThLogSliceModel', [
         };
 
         this.insertIntoBuffer = function (res) {
-            console.warn("insertIntoBuffer Not Implemented");
+            // console.warn("insertIntoBuffer Not Implemented");
         };
 
         config = config || {};
