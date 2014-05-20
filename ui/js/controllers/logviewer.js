@@ -2,10 +2,10 @@
 
 logViewer.controller('LogviewerCtrl', [
     '$anchorScroll', '$scope', 'ThLog', '$rootScope', '$location', '$http',
-    '$timeout', 'ThJobArtifactModel',
+    '$timeout', '$q', 'ThJobArtifactModel', 'ThLogSliceModel',
     function Logviewer(
         $anchorScroll, $scope, ThLog, $rootScope, $location, $http,
-        $timeout, ThJobArtifactModel) {
+        $timeout, $q, ThJobArtifactModel, ThLogSliceModel) {
 
         var $log = new ThLog("LogviewerCtrl");
 
@@ -17,107 +17,186 @@ logViewer.controller('LogviewerCtrl', [
             $scope.job_id= query_string.job_id;
         }
 
-        $scope.displayedLogPieces = [];
+        $scope.displayedLogLines = [];
+        $scope.loading = false;
+        $scope.currentLineNumber = 0;
 
-        var isInViewport = function (el, partial) {
-            //special bonus for those using jQuery
-            if (el instanceof jQuery) {
-                el = el[0];
-            }
+        var LINE_BUFFER_SIZE = 100;
 
-            var rect = el.getBoundingClientRect();
-            var offsetHeight = 270;
+        $scope.loadMore = function(bounds, element) {
+            var deferred = $q.defer();
 
-            if (!partial) {
-                return (
-                    rect.top >= 270 &&
-                    rect.left >= 0 &&
-                    rect.bottom <= $(window).height() && /*or  */
-                    rect.right <= $(window).height() /*or $(window).width() */
-                );
-            }
+            function getLineRangeOfArray (arr) {
+                var start, end;
 
-            var height = $(el).height();
-            var width = $(el).width();
-
-            return (
-                (rect.bottom >= 270 && rect.top <= 270) ||
-                (rect.top >= 270 && rect.bottom <= $(window).height()) ||
-                (rect.right >= 0 && rect.left <= 0) ||
-                (rect.top <= $(window).height() && rect.bottom >= $(window).height()) ||
-                (rect.left <= $(window).width() && rect.right >= $(window).width())
-            );
-        }
-
-        function checkLoadAbove () {
-            var topVisible = isInViewport( $('.lv-scroll-extend-above')[0] );
-
-            if (!$scope.displayedStep || !topVisible) return;
-
-            var index = $scope.displayedLogPieces[ 0 ].order;
-
-            // make sure we are not at the first step
-            if ( index === 0 ) return;
-
-            // prepending the data will always send us to the scroll position 0. reset that
-            $timeout(function () {
-                $(window).scrollTop( $('.lv-log-line[order="' + index + '"]').first().offset().top - 270 );
-            });
-
-            var step = $scope.artifact.step_data.steps[ index - 1 ];
-
-            $scope.displayedLogPieces = step.logPieces.concat( $scope.displayedLogPieces );
-
-            if(!$scope.$$phase) { $scope.$apply(); }
-        }
-
-        function checkLoadBelow () {
-            var bottomVisible = isInViewport( $('.lv-scroll-extend-below')[0] );
-
-            if (!$scope.displayedStep || !bottomVisible) return;
-
-            var index = $scope.displayedLogPieces[ $scope.displayedLogPieces.length - 1 ].order;
-
-            // make sure we are not at the last step
-            if ( index === $scope.artifact.step_data.steps.length - 1 ) return;
-
-            var step = $scope.artifact.step_data.steps[ index + 1 ];
-
-            $scope.displayedLogPieces = $scope.displayedLogPieces.concat( step.logPieces );
-
-            if(!$scope.$$phase) { $scope.$apply(); }
-        }
-
-        // we need to remove any log pieces we can't see
-        function pruneUnseenData () {
-            var ordersVisibility = [], l;
-
-            for ( var i = 0; l = $scope.artifact.step_data.steps.length, i < l; i++ ) {
-                var els = $('.lv-log-line[order="' + i + '"]');
-                ordersVisibility[i] = 0;
-                els.each(function ( index, el ) {
-                    // check if the element is in the viewport, even partially
-                    if ( isInViewport( el, true ) ) ordersVisibility[i]++;
-                });
-
-                if ( ordersVisibility[i] === 0 ) {
-                    for ( var j = 0; j < $scope.displayedLogPieces.length; j++ ) {
-                        if ( $scope.displayedLogPieces.order === i ) {
-                            $scope.displayedLogPieces = $scope.displayedLogPieces.splice(j, 1);
-                        }
-                    }
+                if (arr.length === 0) {
+                    start = -1; 
+                    end = -1;
+                } else {
+                    start = arr[0].index;
+                    end = arr[arr.length - 1].index;
                 }
+
+                return {
+                    start: start,
+                    end: end
+                };
             }
 
-            if(!$scope.$$phase) { $scope.$apply(); }
-        }
+            function logFileLineCount () {
+                var steps = $scope.artifact.step_data.steps;
+                return steps[ steps.length - 1 ].finished_linenumber;
+            }
 
-        $scope.scrollTo = function($event, step, linenumber) {
-            $timeout(function () {
-                $(window).scrollTop( $('#lv-line-'+linenumber).offset().top - 270 );
-            });
+            function getIndexOfLine ( lineIndex ) {
+                for (var i = 0; i < $scope.displayedLogLines.length; i++) {
+                    if ($scope.displayedLogLines[i].index === lineIndex) return i;
+                }
 
-            if ( $scope.displayedStep && $scope.displayedStep.order === step.order ) $event.stopPropagation();
+                return -1;
+            }
+
+            function getLineRangeToDisplay (bounds) {
+                var start, end, overflow, currentRange, trim;
+
+                function getRangeUpperBounds () {
+                    return ($scope.currentLineNumber - LINE_BUFFER_SIZE > 0) 
+                           ? $scope.currentLineNumber - LINE_BUFFER_SIZE : 0;
+                }
+
+                function getRangeLowerBounds () {
+                    var lastStepLineNumber = logFileLineCount();
+
+                    // make sure that the last line is not past the last line
+                    return ($scope.currentLineNumber + LINE_BUFFER_SIZE < lastStepLineNumber ) 
+                           ? $scope.currentLineNumber + LINE_BUFFER_SIZE : lastStepLineNumber;
+                }
+
+                start = getRangeUpperBounds();
+                end = getRangeLowerBounds();
+                currentRange = getLineRangeOfArray($scope.displayedLogLines);
+
+                // add any extra lines at the top to the bottom
+                overflow = LINE_BUFFER_SIZE - $scope.currentLineNumber; 
+                if (overflow > 0) end += overflow;
+
+                // add any extra lines at the bottom to the top
+                overflow = LINE_BUFFER_SIZE - (logFileLineCount() - $scope.currentLineNumber);
+                if (overflow > 0) start -= overflow;
+
+                if (bounds.top) {
+                    trim = getIndexOfLine( currentRange.end );
+                    end = currentRange.start;
+                } else if (bounds.bottom) {
+                    trim = getIndexOfLine( start );
+                    start = currentRange.end + 1;
+                }
+
+                return {
+                    start: start,
+                    end: end,
+                    trim: trim
+                };
+            }
+
+            function moveLineNumber (bounds) {
+                var lines = $scope.displayedLogLines;
+
+                if (bounds.top) {
+                    return lines[0].index;
+                } else if (bounds.bottom) {
+                    return lines[lines.length - 1].index;
+                }
+
+                return $scope.currentLineNumber;
+            }
+
+            /*
+             * returns index in 'data' where we need to slice in order to join 
+             * the 'data' array and the displayedLogLines array
+             */
+            function getSliceIndex (data) {
+                var startLine = $scope.currentLineNumber;
+
+                for ( var i = 0; i < data.length; i++ ) {
+                    if ( data[i].index === startLine ) {
+                        return i;
+                    }
+                };
+
+                return 0;
+            }
+
+            function drawErrorLines (data) {
+                if (data.length === 0) return;
+
+                var min = data[0].index;
+                var max = data[ data.length - 1 ].index;
+
+                $scope.artifact.step_data.steps.forEach(function(step) {
+                    step.errors.forEach(function(err) {
+                        var line = err.linenumber;
+
+                        if (line < min || line > max) return;
+
+                        var index = line - min;
+                        data[index].hasError = true;
+                    });
+                });
+            }
+
+            if (!$scope.loading) {
+                // move the line number either up or down depending which boundary was hit
+                $scope.currentLineNumber = moveLineNumber(bounds);
+
+                var range = getLineRangeToDisplay(bounds);
+
+                if ( range.start === range.end ) return;
+
+                $scope.loading = true;
+
+                ThLogSliceModel.get_line_range({
+                    job_id: $scope.job_id, 
+                    start_line: range.start, 
+                    end_line: range.end
+                }).then(function(data) {
+                    var slicedData, length;
+
+                    function cleanup (ret) {
+                        $scope.loading = false;
+                        deferred.resolve(ret);
+                    }
+
+                    drawErrorLines(data);
+
+                    if (bounds.top) {
+                        for (var i = data.length - 1; i >= 0; i--) $scope.displayedLogLines.unshift(data[i]);
+
+                        $timeout(function () {
+                            length = $scope.displayedLogLines.length;
+                            $scope.displayedLogLines = $scope.displayedLogLines.slice( 0, range.trim );
+                        }, 100);
+                    } else if (bounds.bottom) {
+                        var sh = element.scrollHeight;
+    
+                        for (var i = 0; i < data.length; i++) $scope.displayedLogLines.push(data[i]);
+
+                        $timeout(function () {
+                            length = $scope.displayedLogLines.length;
+                            $scope.displayedLogLines = $scope.displayedLogLines.slice( range.trim, length );
+                            element.scrollTop -= element.scrollHeight - sh;
+                        }, 100);
+                    } else {
+                        $scope.displayedLogLines = data;
+                    }
+
+                    cleanup();
+                });
+            } else {
+                deferred.reject();
+            }
+
+            return deferred.promise;
         };
 
         // @@@ it may be possible to do this with the angular date filter?
@@ -137,82 +216,75 @@ logViewer.controller('LogviewerCtrl', [
             return start + "-" + end;
         };
 
+        $scope.scrollTo = function($event, step, linenumber) {
+            $scope.currentLineNumber = linenumber;
+
+            $scope.loadMore({}).then(function () {
+                $timeout(function () {
+                    var raw = $('.lv-log-container')[0];
+                    raw.scrollTop += $('.lv-log-line[line="' + linenumber + '"]').offset().top - 270; 
+                });
+            });
+
+            if ( $scope.displayedStep && $scope.displayedStep.order === step.order ) $event.stopPropagation();
+        };
+
         $scope.displayLog = function(step) {
             $scope.displayedStep = step;
-            $scope.mostVisibleOrder = step.order;
+            $scope.currentLineNumber = step.started_linenumber;
 
-            // start by getting the surrounding log pieces
-            var previousStep = $scope.artifact.step_data.steps[ step.order - 1 ] || {logPieces: []};
-            var nextStep = $scope.artifact.step_data.steps[ step.order + 1 ] || {logPieces: []};
-
-            $scope.displayedLogPieces = previousStep.logPieces.concat( step.logPieces, nextStep.logPieces );
-
-            // center on our selected steps first log piece
-            $timeout(function() {
-                $(window).scrollTop( $('.lv-log-line[order="' + step.order + '"]').first().offset().top - 270 );
+            $scope.loadMore({}).then(function () {
+                $timeout(function () {
+                    var raw = $('.lv-log-container')[0];
+                    raw.scrollTop += $('.lv-log-line[line="' + step.started_linenumber + '"]').offset().top - 270; 
+                });
             });
         };
 
-        $scope.sliceLog = function(data) {
-        // split the log into chunks.  Non-error sections are one large
-        // chunk separated by \n.  Each error gets its own chunk.
+        // $scope.sliceLog = function(data) {
+        // // split the log into chunks.  Non-error sections are one large
+        // // chunk separated by \n.  Each error gets its own chunk.
 
-            $scope.artifact.step_data.steps.forEach(function(step) {
-                // slice up the raw log and add those pieces to the artifact step.
-                step.logPieces = [];
-                var offset = step.started_linenumber;
-                step.errors.forEach(function(err) {
-                    var end = err.linenumber;
-                    if (offset !== end) {
-                        step.logPieces.push({
-                            text: (data.slice(offset, end)).join('\n'),
-                            hasError: false,
-                            order: step.order
-                        });
-                    }
-                    step.logPieces.push({
-                        text: data.slice(end, end+1)[0],
-                        hasError: true,
-                        order: step.order,
-                        errLine: end
-                    });
-                    offset = end+1;
-                });
-                step.logPieces.push({
-                    text: (data.slice(offset, step.finished_linenumber+1)).join('\n'),
-                    hasError: false,
-                    order: step.order
-                });
+        //     $scope.artifact.step_data.steps.forEach(function(step) {
+        //         // slice up the raw log and add those pieces to the artifact step.
+        //         step.logPieces = [];
+        //         var offset = step.started_linenumber;
+        //         step.errors.forEach(function(err) {
+        //             var end = err.linenumber;
+        //             if (offset !== end) {
+        //                 step.logPieces.push({
+        //                     text: (data.slice(offset, end)).join('\n'),
+        //                     hasError: false,
+        //                     order: step.order
+        //                 });
+        //             }
+        //             step.logPieces.push({
+        //                 text: data.slice(end, end+1)[0],
+        //                 hasError: true,
+        //                 order: step.order,
+        //                 errLine: end
+        //             });
+        //             offset = end+1;
+        //         });
+        //         step.logPieces.push({
+        //             text: (data.slice(offset, step.finished_linenumber+1)).join('\n'),
+        //             hasError: false,
+        //             order: step.order
+        //         });
 
-            });
-        };
+        //     });
+        // };
 
         $scope.init = function() {
-//            To test with a static log when no log artifacts are available.
-//            $http.get('resources/logs/mozilla-inbound_ubuntu64_vm-debug_test-mochitest-other-bm53-tests1-linux-build122.logview.json').
-//                success(function(data) {
-//                    $scope.artifact = data;
-//                    $scope.logurl = data.logurl;
-//                    $http.get('resources/logs/mozilla-inbound_ubuntu64_vm-debug_test-mochitest-other-bm53-tests1-linux-build122.txt').
-//                        success(function(data) {
-//                            $scope.sliceLog(data.split("\n"));
-//                        });
-//                });
-            $(window).scroll(function () {
-                checkLoadAbove();
-                checkLoadBelow();
-                // pruneUnseenData();
-            });
-
             $log.log(ThJobArtifactModel.get_uri());
             ThJobArtifactModel.get_list({job_id: $scope.job_id, name: "Structured Log"})
             .then(function(artifact_list){
                 if(artifact_list.length > 0){
                     $scope.artifact = artifact_list[0].blob;
-                    return $http.get($scope.artifact.logurl)
-                    .success(function(data){
-                        $scope.sliceLog(data.split("\n"));
-                    });
+                    // return $http.get($scope.artifact.logurl)
+                    // .success(function(data){
+                    //     $scope.sliceLog(data.split("\n"));
+                    // });
                 }
 
             });

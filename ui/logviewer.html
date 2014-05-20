@@ -21,8 +21,35 @@
                 <div class="steps-data">
                     <div ng-repeat="step in artifact.step_data.steps"
                          ng-click="displayLog(step)"
+                         ng-class="{'selected': (mostVisibleOrder === step.order)}"
+                         ng-if="step.error_count !== 0"
+                         class="btn btn-block logviewer-step clearfix btn-warning">
+                        <span class="pull-left clearfix">{{step.order+1}}. {{step.name}}</span>
+                        <span ng-init="time=formatTime(step.duration)"
+                             ng-mouseover="time=displayTime(step.started, step.finished)"
+                             ng-mouseleave="time=formatTime(step.duration)"
+                            class="pull-right clearfix">{{time}}</span>
+                        <div>
+                            <p>
+                                <div ng-repeat="error in step.errors"
+                                     ng-mouseover="check=(step==displayedStep)"
+                                     ng-mouseleave="check=false"
+                                     ng-class="{'lv-line-highlight': check}"
+                                     ng-click="scrollTo($event, step, error.linenumber);"
+                                     class="text-left pull-left lv-error-line">
+                                    <span class="label label-default lv-line-no">{{error.linenumber}}</span>
+                                    <span title="{{error.line}}">{{error.line | limitTo: 67}}</span><span ng-if="error.line.length > 70">...</span>
+                                </div>
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr ng-if="show_successful === true" />
+
+                    <div ng-repeat="step in artifact.step_data.steps"
+                         ng-click="displayLog(step)"
                          ng-class="{'selected': (mostVisibleOrder === step.order), 'btn-success': (step.error_count === 0), 'btn-warning': (step.error_count > 0)}"
-                         ng-if="show_successful === true || step.error_count !== 0"
+                         ng-if="show_successful === true"
                          class="btn btn-block logviewer-step clearfix">
                         <span class="pull-left clearfix">{{step.order+1}}. {{step.name}}</span>
                         <span ng-init="time=formatTime(step.duration)"
@@ -50,19 +77,22 @@
 
         </div>
 
-        <div class="lv-scroll-extend-above"></div>
+        <div class="lv-log-container" infinite-scroll on-scroll="loadMore(bounds, element)">
+            <div class="lv-log-loading"
+                 ng-if="loading"> Loading... </div>
 
-        <div id="lv-log-container">
-            <div ng-repeat="lv_line in displayedLogPieces"
+            <div ng-repeat="lv_line in displayedLogLines"
                  ng-class="{'text-danger': (lv_line.hasError == true), 'lv-selected-lines': (mostVisibleOrder === lv_line.order)}"
                  class="lv-log-line"
                  order="{{ lv_line.order }}"
-                 id="lv-line-{{ lv_line.errLine }}">
-                 {{ lv_line.text }}
+                 line="{{ lv_line.index }}">
+
+                 <span class="lv-line-number">{{ lv_line.index }}</span>
+                 <span class="lv-line-text">{{ lv_line.text }}</span>
             </div>
         </div>
 
-        <div class="lv-scroll-extend-below"></div>
+        
     <!-- build:js js/logviewer.min.js -->
     <script src="vendor/angular/angular.js"></script>
     <script src="vendor/angular/angular-route.js"></script>
@@ -81,8 +111,10 @@
     <script src="js/services/main.js"></script>
     <script src="js/services/log.js"></script>
     <script src="js/models/job_artifact.js"></script>
+    <script src="js/models/log_slice.js"></script>
     <script src="js/providers.js"></script>
     <script src="js/controllers/logviewer.js"></script>
+    <script src="js/directives/infinite_scroll.js"></script>
     <!-- endbuild -->
     </body>
 </html>

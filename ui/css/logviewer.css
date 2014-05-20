@@ -5,10 +5,51 @@ body {
     float: left;
 }
 
-#lv-log-container {
-    overflow-y: scroll;
-    overflow-x: auto;
+/*Log Viewer*/
+
+.lv-line-no {
+    width: 3em;
+}
+
+.lv-error-line {
+    background-color: white;
+    color: #333333;
+    width: 100%;
+    overflow: hidden;
+}
+
+.lv-log-container {
     height: auto;
+    width: 100%;
+    position: absolute;
+    overflow: auto;
+    right: 0px;
+    top: 270px;
+    left: 0px;
+    bottom: 0px;
+    padding: 20px;
+    background: #EFEFEF;
+}
+
+.lv-log-line {
+    width: auto;
+}
+
+.lv-line-number {
+    background-color: #232323;
+    color: #EFEFEF;
+    padding: 2px 5px;
+    display: inline-block;
+    text-align: right;
+    min-width: 45px;
+}
+
+.text-danger .lv-line-number {
+    background: #e74c3c !important;
+}
+
+.lv-line-highlight {
+    background-color: LightGrey;
 }
 
 .run-data {
@@ -45,16 +86,13 @@ body {
     border-radius: 0px;
 }
 
-.lv-scroll-extend-above {
-    height: 0px;
-    width: 0px;
-}
-
-.lv-scroll-extend-below {
-    height: 0px;
-    width: 0px;
-}
-
-.lv-selected-lines {
-    background-color: #EFEFEF;
+.lv-log-loading {
+    position: fixed;
+    top: 280px;
+    left: 50%;
+    background: #FFF;
+    color: #585858;
+    width: 150px;
+    margin-left: -75px;
+    font-size: 2em;
 }
