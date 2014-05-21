@@ -7,8 +7,6 @@ treeherder.directive('infiniteScroll', ['$timeout', '$parse', function ($timeout
             var sh = raw.scrollHeight;
             var invoker = $parse(attr.onScroll);
 
-            if (!invoker) return;
-            
             if (raw.scrollTop <= 100) {
                 invoker(scope, {bounds: {top: true}, element: raw}).then(function(haltScrollTop) {
                     if (!haltScrollTop) {

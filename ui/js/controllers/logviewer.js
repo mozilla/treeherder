@@ -33,7 +33,7 @@ logViewer.controller('LogviewerCtrl', [
                 var range = getLineRangeToDisplay(bounds);
 
                 // dont do the call if we already have all the lines
-                if ( range.start === range.end ) return;
+                if ( range.start === range.end ) return deferred.promise;
 
                 $scope.loading = true;
 
