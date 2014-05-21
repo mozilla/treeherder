@@ -8,22 +8,22 @@ treeherder.factory('thBuildApi', [
     var selfServeUrl = "https://secure.pub.build.mozilla.org/buildapi/self-serve/";
 
     return {
-        retriggerJob: function(repoName, buildId) {
+        retriggerJob: function(repoName, requestId) {
 
             $http({
-                url: selfServeUrl + repoName + "/build",
+                url: selfServeUrl + repoName + "/request",
                 method: "POST",
-                data: "build_id=" + buildId,
+                data: "request_id=" + requestId,
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded"
                 },
                 withCredentials: true
-            }).
-            success(function(data) {
-                thNotify.send("job " + buildId + " retriggered");
-            }).
-            error(function(data) {
-                thNotify.send("job " + buildId + " retrigger FAILED", "danger");
+            }).then(
+            function(data) {
+                thNotify.send("job with request of " + requestId + " retriggered");
+            },
+            function(data) {
+                thNotify.send("job with request of " + requestId + " retrigger FAILED", "danger");
             });
         },
         cancelJob: function(repoName, requestId) {
@@ -35,6 +35,12 @@ treeherder.factory('thBuildApi', [
                     "Content-Type": "application/x-www-form-urlencoded"
                 },
                 withCredentials: true
+            }).
+            success(function(data) {
+                thNotify.send("job with request of " + requestId + " cancelled");
+            }).
+            error(function(data) {
+                thNotify.send("job with request of " + requestId + " cancel FAILED", "danger");
             });
         },
         cancelAll: function(repoName, revision) {

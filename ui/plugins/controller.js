@@ -107,23 +107,10 @@ treeherder.controller('PluginCtrl', [
             }
         });
 
-        $scope.canRetrigger = function() {
-            if ($scope.job && $scope.artifacts) {
-                if ($scope.job.state === "pending" && $scope.artifacts.buildapi_pending) {
-                    return true;
-                } else if (($scope.job.state === "running" ||
-                            $scope.job.state === "completed") && $scope.artifacts.buildapi_running) {
-                    return true;
-                }
-            }
-            return false;
-        };
-
         $scope.canCancel = function() {
             if ($scope.job && $scope.artifacts) {
-                if ($scope.job.state === "pending" && $scope.artifacts.buildapi_pending) {
-                    return true;
-                } else if ($scope.job.state === "pending" && $scope.artifacts.buildapi_pending) {
+                if (($scope.job.state === "pending" || $scope.job.state === "running") &&
+                    ($scope.artifacts.buildapi_pending || $scope.artifacts.buildapi_running)) {
                     return true;
                 }
             }
@@ -134,20 +121,29 @@ treeherder.controller('PluginCtrl', [
          * Get the build_id needed to cancel or retrigger from the currently
          * selected job.
          */
-        var getBuildId = function() {
-            if ($scope.job.state === 'pending') {
+        var getRequestId = function() {
+            if ($scope.artifacts.buildapi_pending) {
                 return $scope.artifacts.buildapi_pending.blob.id;
-            } else if ($scope.job.state === 'running' || $scope.job.state === 'completed') {
-                return $scope.artifacts.buildapi_running.blob.id;
+            } else if ($scope.artifacts.buildapi_running &&
+                       $scope.artifacts.buildapi_running.blob.request_ids.length > 0) {
+                return $scope.artifacts.buildapi_running.blob.request_ids[0];
+            } else if ($scope.artifacts.buildapi_complete &&
+                       $scope.artifacts.buildapi_complete.blob.request_ids.length > 0) {
+                return $scope.artifacts.buildapi_complete.blob.request_ids[0];
+            } else {
+                // this is super unlikely since we'd need to have at least one of those
+                // artifacts to even create the job in treeherder.  This is just a fallback...
+                thNotify.send("Unable to get request id for retrigger/cancel", "danger", true);
+                return null;
             }
         };
 
         $scope.retriggerJob = function() {
-            thBuildApi.retriggerJob($scope.repoName, getBuildId());
+            thBuildApi.retriggerJob($scope.repoName, getRequestId());
         };
 
         $scope.cancelJob = function() {
-            thBuildApi.cancelJob($scope.repoName, getBuildId());
+            thBuildApi.cancelJob($scope.repoName, getRequestId());
         };
 
         $scope.cancelAll = function(resultsetId) {
