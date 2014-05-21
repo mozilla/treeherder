@@ -15,12 +15,20 @@
                     <i class="fa fa=lg"
                        ng-class="{'fa-eye': isSkippingExclusionProfiles(), 'fa-eye-slash': !isSkippingExclusionProfiles()}"></i>
                 </span>
-                <span class="btn btn-view-nav btn-sm"
-                      title="collapse/expand all revisions"
-                      ng-click="toggleAllRevisions()"><i class="fa fa-code-fork fa-lg"></i></span>
-                <span class="btn btn-view-nav btn-sm"
-                      title="collapse/expand all jobs"
-                      ng-click="toggleAllJobs()"><i class="fa fa-list fa-lg"></i></span>
+                <span class="btn-group">
+                    <button class="btn btn-view-nav btn-sm"
+                            title="collapse/expand all result sets"
+                            ng-click="toggleAllJobsAndRevisions()"><i class="fa fa-list fa-lg"></i>
+                    </button>
+                    <button type="button"
+                            class="btn btn-view-nav btn-sm dropdown-toggle save-btn-dropdown"
+                            data-toggle="dropdown"><b class="caret"></b>
+                    </button>
+                    <ul class="dropdown-menu pull-right" role="menu">
+                        <li><a ng-click="toggleAllRevisions()">Collapse/expand all revisions</a></li>
+                        <li><a ng-click="toggleAllJobs()">Collapse/expand all jobs</a></li>
+                    </ul>
+                </span>
                 <div ng-controller="SearchCtrl" class="form-group form-inline">
                     <input id="platform-job-text-search-field"
                            ng-model="searchQuery" ng-keyup="search($event)" type="text"

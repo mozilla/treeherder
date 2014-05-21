@@ -2,7 +2,7 @@
 
 <nav class="navbar navbar-dark">
     <ul class="nav navbar-nav bottom-panel-controls">
-        <li ng-show="job.build_id">
+        <li ng-show="canCancel()">
             <a title="Cancel job"
                href=""
                target="_blank"
@@ -10,7 +10,7 @@
                 <span class="fa fa-stop"></span>
             </a>
         </li>
-        <li ng-show="job.build_id">
+        <li ng-show="canRetrigger()">
             <a title="Retrigger job"
                href=""
                target="_blank"

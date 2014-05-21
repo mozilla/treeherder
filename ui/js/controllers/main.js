@@ -137,6 +137,11 @@ treeherder.controller('MainCtrl', [
             return fullList.length === visibleList.length;
         };
 
+        $scope.toggleAllJobsAndRevisions = function() {
+            $scope.toggleAllJobs();
+            $scope.toggleAllRevisions();
+        };
+
         $scope.toggleAllJobs = function() {
             $rootScope.$broadcast(
                 thEvents.toggleAllJobs, !$scope.allExpanded("job-list")

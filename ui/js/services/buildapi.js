@@ -1,25 +1,46 @@
 'use strict';
 
 treeherder.factory('thBuildApi', [
-    '$http', '$location', 'thUrl', 'thServiceDomain', 'ThLog',
-    function($http, $location, thUrl, thServiceDomain, ThLog) {
+    '$http', '$location', 'thUrl', 'thServiceDomain', 'ThLog', 'thNotify',
+    function($http, $location, thUrl, thServiceDomain, ThLog, thNotify) {
 
     var $log = new ThLog("thBuildApi");
     var selfServeUrl = "https://secure.pub.build.mozilla.org/buildapi/self-serve/";
 
     return {
-        retrigger: function(repoName, buildId) {
+        retriggerJob: function(repoName, buildId) {
 
-            var params = {
-                build_id: buildId
-            };
-
-            return $http.post(selfServeUrl + repoName + "/build",
-                              {params: params}
-            );
+            $http({
+                url: selfServeUrl + repoName + "/build",
+                method: "POST",
+                data: "build_id=" + buildId,
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                withCredentials: true
+            }).
+            success(function(data) {
+                thNotify.send("job " + buildId + " retriggered");
+            }).
+            error(function(data) {
+                thNotify.send("job " + buildId + " retrigger FAILED", "danger");
+            });
         },
-        cancel: function(repoName, buildId) {
-            return $http.delete(selfServeUrl + repoName + "/build/" + buildId);
+        cancelJob: function(repoName, requestId) {
+            return $http({
+                url: selfServeUrl + repoName + "/request/" + requestId,
+                method: "POST",
+                data: "_method=DELETE",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                withCredentials: true
+            });
+        },
+        cancelAll: function(repoName, revision) {
+            return $http.delete(selfServeUrl + repoName + "/rev/" + revision,
+                                {withCredentials: true}
+            );
         }
     };
 }]);

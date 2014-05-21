@@ -610,6 +610,10 @@ treeherder.factory('ThResultSetModel', [
         return repositories[repoName].rsMap;
     };
 
+    var getResultSet = function(repoName, resultsetId){
+        return repositories[repoName].rsMap[resultsetId].rs_obj;
+    };
+
     var getJobMap = function(repoName){
         // this is a "watchable" for jobs
         return repositories[repoName].jobMap;
@@ -666,6 +670,8 @@ treeherder.factory('ThResultSetModel', [
         getResultSetsArray: getResultSetsArray,
 
         getResultSetsMap: getResultSetsMap,
+
+        getResultSet: getResultSet,
 
         getJobMap: getJobMap,
 

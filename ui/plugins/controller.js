@@ -5,11 +5,13 @@ treeherder.controller('PluginCtrl', [
     'thClassificationTypes', 'ThJobModel', 'thEvents', 'dateFilter',
     'numberFilter', 'ThBugJobMapModel', 'thResultStatus', 'thSocket',
     'ThResultSetModel', 'ThLog', '$q', 'thPinboard', 'ThJobArtifactModel',
+    'thBuildApi', 'thNotify',
     function PluginCtrl(
         $scope, $rootScope, thUrl, ThJobClassificationModel,
         thClassificationTypes, ThJobModel, thEvents, dateFilter,
         numberFilter, ThBugJobMapModel, thResultStatus, thSocket,
-        ThResultSetModel, ThLog, $q, thPinboard, ThJobArtifactModel) {
+        ThResultSetModel, ThLog, $q, thPinboard, ThJobArtifactModel,
+        thBuildApi, thNotify) {
 
         var $log = new ThLog("PluginCtrl");
 
@@ -18,6 +20,8 @@ treeherder.controller('PluginCtrl', [
         var timeout_promise = null;
 
         var selectJob = function(newValue, oldValue) {
+            $scope.artifacts = {};
+
             // preferred way to get access to the selected job
             if (newValue) {
                 $scope.job_detail_loading = true;
@@ -41,13 +45,16 @@ treeherder.controller('PluginCtrl', [
                 });
 
                 ThJobArtifactModel.get_list({
-                    name: "buildapi",
+                    name__in: "buildapi,buildapi_pending,buildapi_running,buildapi_complete",
                     "type": "json",
                     job_id: $scope.job.id
                 }, {timeout: timeout_promise})
                 .then(function(data) {
-                    if (data.length === 1 && _.has(data[0], 'blob')){
-                        $scope.job.build_id = data[0].blob.id;
+                    if (data.length > 0 && _.has(data[0], 'blob')){
+                        _.forEach(data, function(item) {
+                            $scope.artifacts[item.name] = item;
+                        });
+                        $log.debug("buildapi artifacts", $scope.artifacts);
                     }
                 });
 
@@ -99,6 +106,54 @@ treeherder.controller('PluginCtrl', [
                 $scope.isPinboardVisible = true;
             }
         });
+
+        $scope.canRetrigger = function() {
+            if ($scope.job && $scope.artifacts) {
+                if ($scope.job.state === "pending" && $scope.artifacts.buildapi_pending) {
+                    return true;
+                } else if (($scope.job.state === "running" ||
+                            $scope.job.state === "completed") && $scope.artifacts.buildapi_running) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        $scope.canCancel = function() {
+            if ($scope.job && $scope.artifacts) {
+                if ($scope.job.state === "pending" && $scope.artifacts.buildapi_pending) {
+                    return true;
+                } else if ($scope.job.state === "pending" && $scope.artifacts.buildapi_pending) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        /**
+         * Get the build_id needed to cancel or retrigger from the currently
+         * selected job.
+         */
+        var getBuildId = function() {
+            if ($scope.job.state === 'pending') {
+                return $scope.artifacts.buildapi_pending.blob.id;
+            } else if ($scope.job.state === 'running' || $scope.job.state === 'completed') {
+                return $scope.artifacts.buildapi_running.blob.id;
+            }
+        };
+
+        $scope.retriggerJob = function() {
+            thBuildApi.retriggerJob($scope.repoName, getBuildId());
+        };
+
+        $scope.cancelJob = function() {
+            thBuildApi.cancelJob($scope.repoName, getBuildId());
+        };
+
+        $scope.cancelAll = function(resultsetId) {
+            var rs = ThResultSetModel.getResultSet($scope.repoName, resultsetId);
+            thBuildApi.cancelAllJobs($scope.repoName, rs.revision);
+        };
 
         /**
          * Test whether or not the selected job is a reftest
