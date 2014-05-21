@@ -71,6 +71,7 @@ treeherder.directive('thCloneJobs', [
             if(remainingMinutes > 0){
 
                 result = result + ', ETA to completed, ' + remainingMinutes + ' mins';
+
             }else if(remainingMinutes < 0){
 
                 var minutesOverdue = Math.abs(remainingMinutes);
@@ -78,6 +79,7 @@ treeherder.directive('thCloneJobs', [
                     + typicalMinutes + ' mins';
 
             }else {
+
                 result = result + ', ETA any minute now, typically takes ' +
                     typicalMinutes + ' mins';
             }
