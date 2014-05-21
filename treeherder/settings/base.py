@@ -209,7 +209,7 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.JSONParser',
     ),
     'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.JSONRenderer',
+        'drf_ujson.renderers.UJSONRenderer',
     ),
     'EXCEPTION_HANDLER': 'treeherder.webapp.api.exceptions.exception_handler'
 }

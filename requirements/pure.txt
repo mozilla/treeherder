@@ -10,6 +10,8 @@ djangorestframework==2.3.12
 Unipath==1.0
 django-rest-swagger==0.1.11
 
+drf-ujson==1.1
+
 django-cors-headers==0.11
 
 git+git://github.com/mozilla/django-browserid@e8d1d57145
