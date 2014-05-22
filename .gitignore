@@ -67,3 +67,5 @@ docs/_build/
 *.pid
 
 *.c
+
+treeherder/webapp/log_cache
