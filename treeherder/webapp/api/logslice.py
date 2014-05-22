@@ -50,12 +50,10 @@ class LogSliceView(viewsets.ViewSet):
                 gz_file = filesystem.get(url)
 
                 if not gz_file:
-                    print('miss')
                     handle = self.get_log_handle(url)
                     gz_file = gzip.GzipFile(fileobj=io.BytesIO(handle.read()))
                     filesystem.set(url, gz_file.fileobj)
                 else:
-                    print('hit')
                     gz_file = gzip.GzipFile(fileobj=gz_file)
 
                 lines = []
