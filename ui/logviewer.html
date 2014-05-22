@@ -21,7 +21,7 @@
                 <div class="steps-data">
                     <div ng-repeat="step in artifact.step_data.steps"
                          ng-click="displayLog(step)"
-                         ng-class="{'selected': (mostVisibleOrder === step.order)}"
+                         ng-class="{'selected': (displayedStep.order === step.order)}"
                          ng-if="step.error_count !== 0"
                          class="btn btn-block logviewer-step clearfix btn-warning">
                         <span class="pull-left clearfix">{{step.order+1}}. {{step.name}}</span>
@@ -48,7 +48,7 @@
 
                     <div ng-repeat="step in artifact.step_data.steps"
                          ng-click="displayLog(step)"
-                         ng-class="{'selected': (mostVisibleOrder === step.order), 'btn-success': (step.error_count === 0), 'btn-warning': (step.error_count > 0)}"
+                         ng-class="{'selected': (displayedStep.order === step.order), 'btn-success': (step.error_count === 0), 'btn-warning': (step.error_count > 0)}"
                          ng-if="show_successful === true"
                          class="btn btn-block logviewer-step clearfix">
                         <span class="pull-left clearfix">{{step.order+1}}. {{step.name}}</span>
@@ -72,19 +72,18 @@
                     </div>
                 </div>
                 <input type="checkbox" ng-model="show_successful" />
-                Show Successful Steps
+                Show Successful Steps {{currentSelectedStep}}
             </div>
 
         </div>
 
-        <div class="lv-log-container" infinite-scroll on-scroll="loadMore(bounds, element)">
+        <div class="lv-log-container" infinite-scroll on-load-more="loadMore(bounds, element)" on-scroll="scroll(element)">
             <div class="lv-log-loading"
                  ng-if="loading"> Loading... </div>
 
             <div ng-repeat="lv_line in displayedLogLines"
-                 ng-class="{'text-danger': (lv_line.hasError == true), 'lv-selected-lines': (mostVisibleOrder === lv_line.order)}"
+                 ng-class="{'text-danger': (lv_line.hasError == true), 'lv-selected-lines': (displayedStep.order === lv_line.index)}"
                  class="lv-log-line"
-                 order="{{ lv_line.order }}"
                  line="{{ lv_line.index }}">
 
                  <span class="lv-line-number">{{ lv_line.index }}</span>

@@ -70,15 +70,16 @@ body {
 	padding: 10px;
 }
 
+.logviewer-step.selected {
+    color: #232323;
+    background-color: #FFF;
+}
+
 .logviewer-step.btn-success.selected {
-    color: #ffffff;
-    background-color: #47a447;
     border-color: #398439;
 }
 
 .logviewer-step.btn-warning.selected {
-    color: #ffffff;
-    background-color: #ed9c28;
     border-color: #d58512;
 }
 

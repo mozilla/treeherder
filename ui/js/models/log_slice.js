@@ -37,11 +37,9 @@ treeherder.factory('ThLogSliceModel', [
         if ( found ) {
             var deferred = $q.defer();
 
-            $timeout(function () {
-                deferred.resolve(found);
-            });
+            deferred.resolve(found);
 
-            return deferred.promise();
+            return deferred.promise;
         }
 
         return $http.get(ThLogSliceModel.get_uri(),{
