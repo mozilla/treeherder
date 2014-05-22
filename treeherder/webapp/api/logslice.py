@@ -2,7 +2,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from django.core import cache
 
-from treeherder.webapp.api.utils import (UrlQueryFilter, with_jobs)
+from treeherder.webapp.api.utils import (with_jobs)
 
 from treeherder.webapp.api.exceptions import ResourceNotFoundException
 
@@ -31,9 +31,7 @@ class LogSliceView(viewsets.ViewSet):
         """
         job_id = request.QUERY_PARAMS.get("job_id")
 
-        filter = UrlQueryFilter({"job_id": job_id, "name": "Structured Log"})
-
-        objs = jm.get_job_artifact_list(0, 1, filter.conditions)
+        log = jm.get_log_references(job_id)
 
         handle = None
         gz_file = None
@@ -41,12 +39,9 @@ class LogSliceView(viewsets.ViewSet):
         start_line = int(request.QUERY_PARAMS.get("start_line"))
         end_line = int(request.QUERY_PARAMS.get("end_line"))
 
-        if objs:
-            job = objs[0]
-
+        if log[0]:
             try:
-
-                url = job.get("blob").get("logurl")
+                url = log[0].get("url")
                 gz_file = filesystem.get(url)
 
                 if not gz_file:
@@ -62,7 +57,7 @@ class LogSliceView(viewsets.ViewSet):
                     if i < start_line or i >= end_line: continue
                     lines.append({"text": line, "index": i})
 
-                return Response( lines )
+                return Response(lines)
 
             except Exception as e:
                 logging.error(e)
