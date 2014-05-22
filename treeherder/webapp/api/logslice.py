@@ -1,12 +1,10 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
-from rest_framework.decorators import action, link
-from rest_framework.reverse import reverse
-
 from django.core.cache import cache
 
-from treeherder.webapp.api.utils import (UrlQueryFilter, with_jobs,
-                                         oauth_required)
+from treeherder.webapp.api.utils import (UrlQueryFilter, with_jobs)
+
+from treeherder.webapp.api.exceptions import ResourceNotFoundException
 
 import urllib2
 import gzip
@@ -51,15 +49,14 @@ class LogSliceView(viewsets.ViewSet):
                 lines = []
 
                 for i, line in enumerate(gz_file):
+                    if i < start_line or i >= end_line: continue
                     lines.append({"text": line, "index": i})
 
-                return Response( lines[start_line:end_line] )
+                return Response( lines )
 
             except Exception as e:
-                import traceback
-                print traceback.format_exc()
                 logging.error(e)
-                return Response("there was an error opening the log file", 404)
+                raise ResourceNotFoundException
 
             finally:
                 if handle:
@@ -69,8 +66,3 @@ class LogSliceView(viewsets.ViewSet):
 
         else:
             return Response("job_artifact {0} not found".format(job_id), 404)
-
-        # if obj:
-        #     return Response(obj)
-        # else:
-        #     return Response("No job with id: {0}".format(pk), 404)
