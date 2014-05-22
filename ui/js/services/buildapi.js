@@ -7,6 +7,24 @@ treeherder.factory('thBuildApi', [
     var $log = new ThLog("thBuildApi");
     var selfServeUrl = "https://secure.pub.build.mozilla.org/buildapi/self-serve/";
 
+    var notify = function(status, action) {
+        /*
+        Use this logic if self-serve can return us a parse-able response.
+        currently it comes back here with status 0 for success and error, so
+        we can't tell if it worked or not.  So we just log the request as
+        "sent" for now.
+         */
+        if (status === 0) {
+            thNotify.send(action + " sent");
+        } else if (status === 202 || status === 200) {
+            thNotify.send(action + " SUCCESS");
+        } else {
+            thNotify.send(action + " FAILED " + status, "danger", true);
+        }
+
+
+    };
+
     return {
         retriggerJob: function(repoName, requestId) {
 
@@ -15,15 +33,15 @@ treeherder.factory('thBuildApi', [
                 method: "POST",
                 data: "request_id=" + requestId,
                 headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
+                    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
                 },
                 withCredentials: true
-            }).then(
-            function(data) {
-                thNotify.send("job with request of " + requestId + " retriggered");
-            },
-            function(data) {
-                thNotify.send("job with request of " + requestId + " retrigger FAILED", "danger");
+            }).
+            success(function(data, status) {
+                notify(status, "retrigger");
+            }).
+            error(function(data, status) {
+                notify(status, "retrigger");
             });
         },
         cancelJob: function(repoName, requestId) {
@@ -36,11 +54,11 @@ treeherder.factory('thBuildApi', [
                 },
                 withCredentials: true
             }).
-            success(function(data) {
-                thNotify.send("job with request of " + requestId + " cancelled");
+            success(function(data, status) {
+                notify(status, "cancel");
             }).
-            error(function(data) {
-                thNotify.send("job with request of " + requestId + " cancel FAILED", "danger");
+            error(function(data, status) {
+                notify(status, "cancel");
             });
         },
         cancelAll: function(repoName, revision) {
