@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
-from django.core.cache import cache
+from django.core import cache
 
 from treeherder.webapp.api.utils import (UrlQueryFilter, with_jobs)
 
@@ -10,6 +10,8 @@ import urllib2
 import gzip
 import io
 import logging
+
+filesystem = cache.get_cache('filesystem')
 
 class LogSliceView(viewsets.ViewSet):
     """
@@ -43,8 +45,18 @@ class LogSliceView(viewsets.ViewSet):
             job = objs[0]
 
             try:
-                handle = self.get_log_handle( job.get("blob").get("logurl") )
-                gz_file = gzip.GzipFile(fileobj=io.BytesIO(handle.read()))
+
+                url = job.get("blob").get("logurl")
+                gz_file = filesystem.get(url)
+
+                if not gz_file:
+                    print('miss')
+                    handle = self.get_log_handle(url)
+                    gz_file = gzip.GzipFile(fileobj=io.BytesIO(handle.read()))
+                    filesystem.set(url, gz_file.fileobj)
+                else:
+                    print('hit')
+                    gz_file = gzip.GzipFile(fileobj=gz_file)
 
                 lines = []
 
