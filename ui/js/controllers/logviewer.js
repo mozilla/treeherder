@@ -9,20 +9,22 @@ logViewer.controller('LogviewerCtrl', [
 
         var $log = new ThLog("LogviewerCtrl");
 
-        var query_string = $location.search();
-        if (query_string.repo !== "") {
-            $rootScope.repoName = query_string.repo;
-        }
-        if (query_string.job_id !== "") {
-            $scope.job_id= query_string.job_id;
-        }
-
         $scope.displayedLogLines = [];
         $scope.loading = false;
         $scope.currentLineNumber = 0;
         $scope.highestLine = 0;
 
         var LINE_BUFFER_SIZE = 100;
+        var LogSliceModel;
+
+        var query_string = $location.search();
+        if (query_string.repo !== "") {
+            $rootScope.repoName = query_string.repo;
+        }
+        if (query_string.job_id !== "") {
+            $scope.job_id= query_string.job_id;
+            LogSliceModel = new ThLogSliceModel($scope.job_id, LINE_BUFFER_SIZE);
+        }
 
         $scope.loadMore = function(bounds, element) {
             var deferred = $q.defer(), range, req, above, below;
@@ -49,12 +51,12 @@ logViewer.controller('LogviewerCtrl', [
 
                 $scope.loading = true;
 
-                console.log( range );
-
-                ThLogSliceModel.get_line_range({
+                LogSliceModel.get_line_range({
                     job_id: $scope.job_id, 
                     start_line: range.start, 
                     end_line: range.end
+                }, {
+                    buffer_size: LINE_BUFFER_SIZE
                 }).then(function(data) {
                     var slicedData, length;
 
@@ -80,8 +82,6 @@ logViewer.controller('LogviewerCtrl', [
                     } else {
                         $scope.displayedLogLines = data;
                     }
-
-                    console.log( $scope.displayedLogLines.length );
 
                     $scope.loading = false;
                     deferred.resolve();
@@ -172,75 +172,6 @@ logViewer.controller('LogviewerCtrl', [
             return steps[ steps.length - 1 ].finished_linenumber;
         }
 
-        function getRangeUpperBounds () {
-            return ($scope.currentLineNumber - LINE_BUFFER_SIZE > 0) 
-                   ? $scope.currentLineNumber - LINE_BUFFER_SIZE : 0;
-        }
-
-        function getRangeLowerBounds () {
-            var lastStepLineNumber = logFileLineCount();
-
-            // make sure that the last line is not past the last line
-            return ($scope.currentLineNumber + LINE_BUFFER_SIZE < lastStepLineNumber ) 
-                   ? $scope.currentLineNumber + LINE_BUFFER_SIZE : lastStepLineNumber;
-        }
-
-        function getLineRangeOfArray (arr) {
-            var start, end;
-
-            if (arr.length === 0) {
-                start = -1; 
-                end = -1;
-            } else {
-                start = arr[0].index;
-                end = arr[arr.length - 1].index;
-            }
-
-            return {
-                start: start,
-                end: end
-            };
-        }
-
-        function getIndexOfLine ( lineIndex ) {
-            for (var i = 0; i < $scope.displayedLogLines.length; i++) {
-                if ($scope.displayedLogLines[i].index === lineIndex) return i;
-            }
-
-            return -1;
-        }
-
-        function getLineRangeToDisplay (bounds) {
-            var start, end, overflow, currentRange, trim;
-
-            start = getRangeUpperBounds();
-            end = getRangeLowerBounds();
-            currentRange = getLineRangeOfArray($scope.displayedLogLines);
-
-            // add any extra lines at the top to the bottom
-            overflow = LINE_BUFFER_SIZE - $scope.currentLineNumber; 
-            if (overflow > 0) end += overflow;
-
-            // add any extra lines at the bottom to the top
-            overflow = LINE_BUFFER_SIZE - (logFileLineCount() - $scope.currentLineNumber);
-            if (overflow > 0) start -= overflow;
-
-            if (bounds.top) {
-                trim = getIndexOfLine( currentRange.end );
-                end = currentRange.start;
-            } else if (bounds.bottom) {
-                trim = getIndexOfLine( start );
-                start = currentRange.end + 1;
-                end += 1;
-            }
-
-            return {
-                start: start,
-                end: end,
-                trim: trim
-            };
-        }
-
         function moveLineNumber (bounds) {
             var lines = $scope.displayedLogLines, newLine;
 
@@ -273,34 +204,6 @@ logViewer.controller('LogviewerCtrl', [
             });
         }
 
-        /******
-        *
-        *
-        *
-        *
-        */
-
-        /* DELETE
-            1: get the hundred # is contained in
-            2: get the hundred above that
-            3: get the hundred below that
-            */
-        function getHundredIndexFor (line) {
-            return Math.floor(line/100);
-        }
-
-        function moveUp (request) {
-            var above = getChunkAbove(request);
-            if (above) removeChunkBelow(request);
-            return request;
-        }
-
-        function moveDown (request) {
-            var below = getChunkBelow(request);
-            if (below) removeChunkAbove(request);
-            return request;
-        }
-
         function getChunksSurrounding(line) {
             var request = {start: null, end: null};
 
@@ -312,14 +215,14 @@ logViewer.controller('LogviewerCtrl', [
         }
 
         function getChunkContaining (line, request) {
-            var index = getHundredIndexFor(line);
+            var index = Math.floor(line/LINE_BUFFER_SIZE);
             
-            request.start = index * 100;
-            request.end = (index + 1) * 100;
+            request.start = index * LINE_BUFFER_SIZE;
+            request.end = (index + 1) * LINE_BUFFER_SIZE;
         }
 
         function getChunkAbove (request) {
-            request.start -= 100;
+            request.start -= LINE_BUFFER_SIZE;
 
             if (request.start >= 0) {
                 return true;
@@ -332,7 +235,7 @@ logViewer.controller('LogviewerCtrl', [
         function getChunkBelow (request) {
             var lastLine = logFileLineCount();
 
-            request.end += 100;
+            request.end += LINE_BUFFER_SIZE;
 
             if (request.end <= lastLine) {
                 return true;
@@ -343,11 +246,11 @@ logViewer.controller('LogviewerCtrl', [
         }
 
         function removeChunkAbove (request) {
-            $scope.displayedLogLines = $scope.displayedLogLines.slice(100);
+            $scope.displayedLogLines = $scope.displayedLogLines.slice(LINE_BUFFER_SIZE);
         }
 
         function removeChunkBelow (request) {
-            $scope.displayedLogLines = $scope.displayedLogLines.slice(0, $scope.displayedLogLines.length - 100);
+            $scope.displayedLogLines = $scope.displayedLogLines.slice(0, $scope.displayedLogLines.length - LINE_BUFFER_SIZE);
         }
 
     }
