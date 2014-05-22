@@ -188,7 +188,8 @@ class Builds4hTransformerMixin(object):
                         'log_urls': [],
                         'blob': {
                             'buildername': build['properties']['buildername'],
-                            'build_id': build['id']
+                            'build_id': build['id'],
+                            'request_id': prop.request_ids[0]
                         }
                     },
                 ]
@@ -284,6 +285,15 @@ class PendingTransformerMixin(object):
                                 'name': 'buildapi_pending',
                                 'log_urls': [],
                                 'blob': pending_job
+                            },
+                            {
+                                'type': 'json',
+                                'name': 'buildapi',
+                                'log_urls': [],
+                                'blob': {
+                                    'buildername': pending_job['buildername'],
+                                    'request_id': pending_job.request_ids[0]
+                                }
                             },
                         ]
 
@@ -382,6 +392,15 @@ class RunningTransformerMixin(object):
                                 'name': 'buildapi_running',
                                 'log_urls': [],
                                 'blob': running_job
+                            },
+                            {
+                                'type': 'json',
+                                'name': 'buildapi',
+                                'log_urls': [],
+                                'blob': {
+                                    'buildername': running_job['buildername'],
+                                    'request_id': running_job['id']
+                                }
                             },
                         ]
                     }
