@@ -75,4 +75,4 @@ class LogSliceView(viewsets.ViewSet):
                     gz_file.close()
 
         else:
-            return Response("job_artifact {0} not found".format(job_id), 404)
+            raise ResourceNotFoundException("job_artifact {0} not found".format(job_id))
