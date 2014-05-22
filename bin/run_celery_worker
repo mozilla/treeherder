@@ -4,4 +4,9 @@
 
   source /etc/profile.d/treeherder.sh
   source ../venv/bin/activate
-  exec ../venv/bin/python manage.py celeryd -c 3 -Q default -E --maxtasksperchild=500 --logfile=/var/log/celery/treeherder_worker.log
+
+  if [[ ${NEW_RELIC_LICENSE_KEY+isset} = isset ]]; then
+    NEWRELIC_ADMIN="newrelic-admin run-program"
+  fi
+
+  exec $NEWRELIC_ADMIN ../venv/bin/python manage.py celeryd -c 3 -Q default -E --maxtasksperchild=500 --logfile=/var/log/celery/treeherder_worker.log

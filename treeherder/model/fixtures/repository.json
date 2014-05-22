@@ -649,5 +649,18 @@
         "repository_group": 2,
         "description": ""
     }
+},
+{
+    "pk": 54,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "git",
+        "name": "qa-try",
+        "url": "https://github.com/mozilla",
+        "active_status": "active",
+        "codebase": "gecko",
+        "repository_group": 5,
+        "description": ""
+    }
 }
 ]

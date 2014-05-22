@@ -480,14 +480,14 @@ class JobsModel(TreeherderModelBase):
             for signature in eta_groups:
 
                 pending_samples = map(
-                    lambda x: int(x),
+                    lambda x: int(x or 0),
                     eta_groups[signature]['pending_samples'].split(',') )
 
                 pending_median = self.get_median_from_sorted_list(
                     sorted(pending_samples))
 
                 running_samples = map(
-                    lambda x: int(x),
+                    lambda x: int(x or 0),
                     eta_groups[signature]['running_samples'].split(',') )
 
                 running_median = self.get_median_from_sorted_list(

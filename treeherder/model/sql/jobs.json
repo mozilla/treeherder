@@ -431,7 +431,9 @@
                     j.`result_set_id`,
                     j.`result`,
                     j.`state`,
-                    rs.push_timestamp as push_timestamp
+                    rs.push_timestamp as push_timestamp,
+                    j.`pending_eta`,
+                    j.`running_eta`
                   FROM `job` as j
                   LEFT JOIN `REP0`.`machine` as m
                     ON j.`machine_id` = m.id
@@ -480,7 +482,9 @@
                     j.`reason`,
                     j.`start_timestamp`,
                     j.`end_timestamp`,
-                    j.`submit_timestamp`
+                    j.`submit_timestamp`,
+                    j.`pending_eta`,
+                    j.`running_eta`
                   FROM `job` as j
                   LEFT JOIN `REP0`.`machine` as m
                     ON j.`machine_id` = m.id
@@ -690,7 +694,9 @@
                     j.`reason`,
                     j.`start_timestamp`,
                     j.`end_timestamp`,
-                    j.`submit_timestamp`
+                    j.`submit_timestamp`,
+                    j.`pending_eta`,
+                    j.`running_eta`
                   FROM `job` as j
                   LEFT JOIN `REP0`.`machine` as m
                     ON j.`machine_id` = m.id

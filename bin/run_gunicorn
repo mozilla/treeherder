@@ -14,6 +14,6 @@
   source ../venv/bin/activate
 
   exec ../venv/bin/gunicorn -w $NUM_WORKERS \
-    --max-requests=200 \
+    --max-requests=2000 \
     --access-logfile=$ACCESS_LOGFILE \
     --error-logfile=$ERROR_LOGFILE treeherder.webapp.wsgi:application

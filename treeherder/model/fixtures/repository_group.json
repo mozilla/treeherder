@@ -34,5 +34,14 @@
         "active_status": "active", 
         "description": "Collection of test repositories for taskcluster data"
     }
+},
+{
+    "pk": 5, 
+    "model": "model.repositorygroup", 
+    "fields": {
+        "name": "qa automation tests", 
+        "active_status": "active", 
+        "description": "Collection of test repositories for the qa group"
+    }
 }
 ]
