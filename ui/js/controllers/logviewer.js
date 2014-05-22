@@ -14,6 +14,7 @@ logViewer.controller('LogviewerCtrl', [
         $scope.currentLineNumber = 0;
         $scope.highestLine = 0;
 
+        // changes the size of chunks pulled from server
         var LINE_BUFFER_SIZE = 100;
         var LogSliceModel;
 
