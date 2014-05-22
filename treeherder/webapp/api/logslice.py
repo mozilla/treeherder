@@ -66,7 +66,7 @@ class LogSliceView(viewsets.ViewSet):
 
             except Exception as e:
                 logging.error(e)
-                raise ResourceNotFoundException
+                raise ResourceNotFoundException("There was an error fetching the log file.")
 
             finally:
                 if handle:
