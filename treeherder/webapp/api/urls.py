@@ -1,22 +1,25 @@
 from django.conf.urls import patterns, include, url
 from treeherder.webapp.api import (refdata, objectstore, jobs, resultset,
-                                   artifact, note, revision, bug)
+                                   artifact, note, revision, bug, logslice)
 
 from rest_framework import routers
 
 # router for views that are bound to a project
 # i.e. all those views that don't involve reference data
 project_bound_router = routers.SimpleRouter()
+
 project_bound_router.register(
     r'objectstore',
     objectstore.ObjectstoreViewSet,
     base_name='objectstore',
 )
+
 project_bound_router.register(
     r'jobs',
     jobs.JobsViewSet,
     base_name='jobs',
 )
+
 project_bound_router.register(
     r'resultset',
     resultset.ResultSetViewSet,
@@ -45,6 +48,12 @@ project_bound_router.register(
     r'bug-job-map',
     bug.BugJobMapViewSet,
     base_name='bug-job-map',
+)
+
+project_bound_router.register(
+    r'logslice',
+    logslice.LogSliceView,
+    base_name='logslice',
 )
 
 # this is the default router for plain restful endpoints

@@ -257,6 +257,15 @@ CACHES = {
         "TIMEOUT": 0,
         # bumping this is effectively equivalent to restarting memcached
         "VERSION": 1,
+    },
+    "filesystem": {
+        "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
+        "LOCATION": path("webapp", "log_cache"),
+        "TIMEOUT": 0,
+        "VERSION": 1,
+        'OPTIONS': {
+            'MAX_ENTRIES': 1000
+        }
     }
 }
 
