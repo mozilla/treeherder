@@ -3,6 +3,7 @@ import time
 import datetime
 import json
 import os
+import copy
 
 from collections import defaultdict
 from django.conf import settings
@@ -104,6 +105,7 @@ class Builds4hTransformerMixin(object):
 
         for build in data['builds']:
             prop = build['properties']
+            artifact_build = copy.deepcopy(build)
 
             try:
                 resultset = revisions_lookup[prop['branch']][prop['revision']]
@@ -138,6 +140,28 @@ class Builds4hTransformerMixin(object):
             job_guid_data = self.find_job_guid(build)
 
             treeherder_data['coalesced'] = job_guid_data['coalesced']
+
+            def prop_remove(field):
+                try:
+                    del(artifact_build['properties'][field])
+                except:
+                    pass
+
+            prop_remove("product")
+            prop_remove("project")
+            prop_remove("buildername")
+            prop_remove("slavename")
+            prop_remove("build_url")
+            prop_remove("log_url")
+            prop_remove("slavebuilddir")
+            prop_remove("branch")
+            prop_remove("repository")
+            prop_remove("revision")
+
+            del(artifact_build['requesttime'])
+            del(artifact_build['starttime'])
+            del(artifact_build['endtime'])
+
 
             job = {
                 'job_guid': job_guid_data['job_guid'],
@@ -180,7 +204,7 @@ class Builds4hTransformerMixin(object):
                         'type': 'json',
                         'name': 'buildapi_complete',
                         'log_urls': [],
-                        'blob': build
+                        'blob': artifact_build
                     },
                     {
                         'type': 'json',
@@ -188,8 +212,7 @@ class Builds4hTransformerMixin(object):
                         'log_urls': [],
                         'blob': {
                             'buildername': build['properties']['buildername'],
-                            'build_id': build['id'],
-                            'request_id': prop.request_ids[0]
+                            'request_id': build['request_ids'][0]
                         }
                     },
                 ]
@@ -292,7 +315,7 @@ class PendingTransformerMixin(object):
                                 'log_urls': [],
                                 'blob': {
                                     'buildername': pending_job['buildername'],
-                                    'request_id': pending_job.request_ids[0]
+                                    'request_id': pending_job['id']
                                 }
                             },
                         ]
@@ -399,7 +422,7 @@ class RunningTransformerMixin(object):
                                 'log_urls': [],
                                 'blob': {
                                     'buildername': running_job['buildername'],
-                                    'request_id': running_job['id']
+                                    'request_id': running_job['request_ids'][0]
                                 }
                             },
                         ]
