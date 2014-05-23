@@ -45,7 +45,7 @@ treeherder.controller('PluginCtrl', [
                 });
 
                 ThJobArtifactModel.get_list({
-                    name__in: "buildapi,buildapi_pending,buildapi_running,buildapi_complete",
+                    name: "buildapi",
                     "type": "json",
                     job_id: $scope.job.id
                 }, {timeout: timeout_promise})
@@ -107,14 +107,13 @@ treeherder.controller('PluginCtrl', [
             }
         });
 
+        $scope.canRetrigger = function() {
+            return ($scope.job && $scope.artifacts && _.has($scope.artifacts, "buildapi"));
+        };
+
         $scope.canCancel = function() {
-            if ($scope.job && $scope.artifacts) {
-                if (($scope.job.state === "pending" || $scope.job.state === "running") &&
-                    ($scope.artifacts.buildapi_pending || $scope.artifacts.buildapi_running)) {
-                    return true;
-                }
-            }
-            return false;
+            return $scope.job && $scope.artifacts && _.has($scope.artifacts, "buildapi") &&
+                ($scope.job.state === "pending" || $scope.job.state === "running");
         };
 
         /**
@@ -122,14 +121,8 @@ treeherder.controller('PluginCtrl', [
          * selected job.
          */
         var getRequestId = function() {
-            if ($scope.artifacts.buildapi_pending) {
-                return $scope.artifacts.buildapi_pending.blob.id;
-            } else if ($scope.artifacts.buildapi_running &&
-                       $scope.artifacts.buildapi_running.blob.request_ids.length > 0) {
-                return $scope.artifacts.buildapi_running.blob.request_ids[0];
-            } else if ($scope.artifacts.buildapi_complete &&
-                       $scope.artifacts.buildapi_complete.blob.request_ids.length > 0) {
-                return $scope.artifacts.buildapi_complete.blob.request_ids[0];
+            if ($scope.artifacts.buildapi) {
+                return $scope.artifacts.buildapi.blob.request_id;
             } else {
                 // this is super unlikely since we'd need to have at least one of those
                 // artifacts to even create the job in treeherder.  This is just a fallback...

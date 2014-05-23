@@ -2,29 +2,6 @@
 
 <nav class="navbar navbar-dark">
     <ul class="nav navbar-nav bottom-panel-controls">
-        <li ng-show="canCancel()">
-            <a title="Cancel job"
-               href=""
-               target="_blank"
-               ng-click="cancelJob()">
-                <span class="fa fa-stop"></span>
-            </a>
-        </li>
-        <li>
-            <a title="Retrigger job"
-               href=""
-               target="_blank"
-               ng-click="retriggerJob()">
-                <span class="fa fa-play"></span>
-            </a>
-        </li>
-        <li ng-show="isReftest()">
-            <a title="Launch the Reftest Analyser in a new page"
-               target="_blank"
-               href="https://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml">
-                <span class="fa fa-bar-chart-o"></span>
-            </a>
-        </li>
         <li ng-if="logs" ng-disabled="artifacts.length>0">
             <a title="Open the structured log in a new window" target="_blank" href="{{ lvUrl }}">
                 <span class="glyphicon glyphicon-tasks"></span>
@@ -47,18 +24,31 @@
                         <span class="pinned-job-count"><strong>{{ getCountPinnedJobs() }}</strong></span>
                     </a>
                 </li>
-                <li>
-                    <a href="" ng-click="togglePinboardVisibility()">
-                        <span ng-hide="isPinboardVisible"
-                              title="Show the pinboard"
-                              class="glyphicon glyphicon-chevron-down"></span>
-                        <span ng-show="isPinboardVisible"
-                              title="Hide the pinboard"
-                              class="glyphicon glyphicon-chevron-up"></span>
-                    </a>
-                </li>
 
             </ul>
+        </li>
+        <li ng-show="canCancel()">
+            <a title="Cancel job"
+               href=""
+               target="_blank"
+               ng-click="cancelJob()">
+                <span class="fa fa-stop"></span>
+            </a>
+        </li>
+        <li ng-show="canRetrigger()">
+            <a title="Retrigger job"
+               href=""
+               target="_blank"
+               ng-click="retriggerJob()">
+                <span class="fa fa-play"></span>
+            </a>
+        </li>
+        <li ng-show="isReftest()">
+            <a title="Launch the Reftest Analyser in a new page"
+               target="_blank"
+               href="https://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml">
+                <span class="fa fa-bar-chart-o"></span>
+            </a>
         </li>
 
     </ul>
@@ -69,6 +59,16 @@
 
     </ul>
     <ul class="nav navbar-nav pull-right">
+        <li>
+            <a href="" ng-click="togglePinboardVisibility()">
+                <span ng-hide="isPinboardVisible"
+                      title="Show the pinboard"
+                      class="glyphicon glyphicon-chevron-down"></span>
+                <span ng-show="isPinboardVisible"
+                      title="Hide the pinboard"
+                      class="glyphicon glyphicon-chevron-up"></span>
+            </a>
+        </li>
         <li>
             <a title="close panel" href="" ng-click="clearJob()">
                 <span class="glyphicon glyphicon-remove"></span>

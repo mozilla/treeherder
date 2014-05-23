@@ -175,11 +175,6 @@ treeherder.controller('ResultSetCtrl', [
 
         $scope.resultStatusFilters = thJobFilters.copyResultStatusFilters();
 
-        $scope.isCollapsedResults = false;
-
-        // whether or not revision list for a resultset is collapsed
-        $scope.isCollapsedRevisions = true;
-
         $rootScope.$on(thEvents.jobContextMenu, function(event, job){
             $log.debug("caught", thEvents.jobContextMenu);
             //$scope.viewLog(job.resource_uri);

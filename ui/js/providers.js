@@ -73,7 +73,6 @@ treeherder.provider('thResultStatusInfo', function() {
             // default if there is no match, used for pending
             var resultStatusInfo = {
                 severity: 100,
-                isCollapsedResults: true,
                 btnClass: "btn-default",
                 jobButtonIcon: ""
             };
@@ -82,7 +81,6 @@ treeherder.provider('thResultStatusInfo', function() {
                 case "busted":
                     resultStatusInfo = {
                         severity: 1,
-                        isCollapsedResults: false,
                         btnClass: "btn-red",
                         jobButtonIcon: "glyphicon glyphicon-fire",
                         countText: "busted"
@@ -91,7 +89,6 @@ treeherder.provider('thResultStatusInfo', function() {
                 case "exception":
                     resultStatusInfo = {
                         severity: 2,
-                        isCollapsedResults: false,
                         btnClass: "btn-purple",
                         jobButtonIcon: "glyphicon glyphicon-fire",
                         countText: "exception"
@@ -100,7 +97,6 @@ treeherder.provider('thResultStatusInfo', function() {
                 case "testfailed":
                     resultStatusInfo = {
                         severity: 3,
-                        isCollapsedResults: false,
                         btnClass: "btn-orange",
                         jobButtonIcon: "glyphicon glyphicon-warning-sign",
                         countText: "failed"
@@ -109,7 +105,6 @@ treeherder.provider('thResultStatusInfo', function() {
                 case "unknown":
                     resultStatusInfo = {
                         severity: 4,
-                        isCollapsedResults: false,
                         btnClass: "btn-black",
                         jobButtonIcon: "",
                         countText: "unknown"
@@ -118,7 +113,6 @@ treeherder.provider('thResultStatusInfo', function() {
                 case "usercancel":
                     resultStatusInfo = {
                         severity: 5,
-                        isCollapsedResults: true,
                         btnClass: "btn-pink",
                         jobButtonIcon: "",
                         countText: "cancel"
@@ -127,7 +121,6 @@ treeherder.provider('thResultStatusInfo', function() {
                 case "retry":
                     resultStatusInfo = {
                         severity: 6,
-                        isCollapsedResults: true,
                         btnClass: "btn-dkblue",
                         jobButtonIcon: "",
                         countText: "retry"
@@ -136,7 +129,6 @@ treeherder.provider('thResultStatusInfo', function() {
                 case "success":
                     resultStatusInfo = {
                         severity: 7,
-                        isCollapsedResults: true,
                         btnClass: "btn-green",
                         jobButtonIcon: "",
                         countText: "success"
@@ -145,7 +137,6 @@ treeherder.provider('thResultStatusInfo', function() {
                 case "running":
                     resultStatusInfo = {
                         severity: 8,
-                        isCollapsedResults: true,
                         btnClass: "btn-dkgray",
                         jobButtonIcon: "",
                         countText: "running"
@@ -154,7 +145,6 @@ treeherder.provider('thResultStatusInfo', function() {
                 case "pending":
                     resultStatusInfo = {
                         severity: 100,
-                        isCollapsedResults: true,
                         btnClass: "btn-ltgray",
                         jobButtonIcon: "",
                         countText: "pending"
@@ -163,7 +153,6 @@ treeherder.provider('thResultStatusInfo', function() {
                 case "coalesced":
                     resultStatusInfo = {
                         severity: 101,
-                        isCollapsedResults: true,
                         btnClass: "btn-yellow",
                         jobButtonIcon: "",
                         countText: "coalesced"

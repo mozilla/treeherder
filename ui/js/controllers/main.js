@@ -137,21 +137,34 @@ treeherder.controller('MainCtrl', [
             return fullList.length === visibleList.length;
         };
 
-        $scope.toggleAllJobsAndRevisions = function() {
-            $scope.toggleAllJobs();
-            $scope.toggleAllRevisions();
+        $scope.allCollapsed = function(cls) {
+            var visibleList = $("." + cls + ":visible");
+            return visibleList.length === 0;
         };
 
-        $scope.toggleAllJobs = function() {
+        $scope.toggleAllJobsAndRevisions = function() {
+            var collapse = ($scope.allCollapsed("job-list") &&
+                            $scope.allCollapsed("revision-list"));
             $rootScope.$broadcast(
-                thEvents.toggleAllJobs, !$scope.allExpanded("job-list")
+                thEvents.toggleAllJobs, collapse
+            );
+            $rootScope.$broadcast(
+                thEvents.toggleAllRevisions, collapse
+            );
+        };
+
+        $scope.toggleAllJobs = function(collapse) {
+            collapse = collapse || $scope.allCollapsed("job-list");
+            $rootScope.$broadcast(
+                thEvents.toggleAllJobs, collapse
             );
 
         };
 
-        $scope.toggleAllRevisions = function() {
+        $scope.toggleAllRevisions = function(collapse) {
+            collapse = collapse || $scope.allCollapsed("revision-list");
             $rootScope.$broadcast(
-                thEvents.toggleAllRevisions, !$scope.allExpanded("revision-list")
+                thEvents.toggleAllRevisions, collapse
             );
 
         };
