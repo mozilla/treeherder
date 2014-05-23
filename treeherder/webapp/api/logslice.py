@@ -10,7 +10,6 @@ import urllib2
 import gzip
 import io
 import logging
-import math
 
 filesystem = cache.get_cache('filesystem')
 
@@ -38,8 +37,8 @@ class LogSliceView(viewsets.ViewSet):
         gz_file = None
 
         try:
-            start_line = math.fabs(int(request.QUERY_PARAMS.get("start_line", 0)))
-            end_line = math.fabs(int(request.QUERY_PARAMS.get("end_line", 0)))
+            start_line = abs(int(request.QUERY_PARAMS.get("start_line", 0)))
+            end_line = abs(int(request.QUERY_PARAMS.get("end_line", 0)))
         except Exception as e:
             return Response("parameters could not be converted to integers", 400)
 
