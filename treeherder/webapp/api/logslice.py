@@ -10,6 +10,7 @@ import urllib2
 import gzip
 import io
 import logging
+import math
 
 filesystem = cache.get_cache('filesystem')
 
@@ -36,8 +37,14 @@ class LogSliceView(viewsets.ViewSet):
         handle = None
         gz_file = None
 
-        start_line = int(request.QUERY_PARAMS.get("start_line"))
-        end_line = int(request.QUERY_PARAMS.get("end_line"))
+        try:
+            start_line = math.abs(int(request.QUERY_PARAMS.get("start_line", 0)))
+            end_line = math.abs(int(request.QUERY_PARAMS.get("end_line", 0)))
+        except Exception as e:
+            return Response("parameters could not be converted to integers", 400)
+
+        if start_line >= end_line:
+            return Response("end_line must be larger than start_line", 400)
 
         if log[0]:
             try:
@@ -54,14 +61,16 @@ class LogSliceView(viewsets.ViewSet):
                 lines = []
 
                 for i, line in enumerate(gz_file):
-                    if i < start_line or i >= end_line: continue
+                    if i < start_line: continue
+                    elif i >= end_line: break
+
                     lines.append({"text": line, "index": i})
 
                 return Response(lines)
 
             except Exception as e:
                 logging.error(e)
-                raise ResourceNotFoundException("There was an error fetching the log file.")
+                raise ResourceNotFoundException("log file not found")
 
             finally:
                 if handle:

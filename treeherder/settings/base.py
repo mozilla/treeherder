@@ -261,8 +261,11 @@ CACHES = {
     "filesystem": {
         "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
         "LOCATION": path("webapp", "log_cache"),
-
-        "VERSION": 1
+        "TIMEOUT": 0,
+        "VERSION": 1,
+        'OPTIONS': {
+            'MAX_ENTRIES': 1000
+        }
     }
 }
 
