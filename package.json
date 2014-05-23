@@ -19,6 +19,6 @@
     "grunt-filerev": "^0.2.1"
   },
   "scripts": {
-    "test": "./node_modules/.bin/karma start webapp/config/karma.conf.js --single-run --browsers Firefox"
+    "test": "karma start webapp/config/karma.conf.js --single-run --browsers Firefox"
   }
 }
