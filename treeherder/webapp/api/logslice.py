@@ -45,7 +45,7 @@ class LogSliceView(viewsets.ViewSet):
         if start_line >= end_line:
             return Response("end_line must be larger than start_line", 400)
 
-        if log[0]:
+        if len(log) > 0:
             try:
                 url = log[0].get("url")
                 gz_file = filesystem.get(url)
