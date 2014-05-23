@@ -55,12 +55,10 @@ body {
 }
 
 .watched-repo-info-btn {
-    width: 10px;
     border-right: 0
 }
 
 .watched-repo-unwatch-btn {
-    width: 20px;
 }
 
 .watched-repo-dropdown-item {
@@ -1342,3 +1340,8 @@ div.similar_jobs .left_panel table tr{cursor: pointer;}
 }
 
 div.logviewer-step{ padding:6px 6px;}
+
+th-watched-repo {
+    display: block;
+    float: left;
+}
