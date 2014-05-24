@@ -71,11 +71,6 @@ describe('JobsCtrl', function(){
         expect(resultsetScope.resultset.platforms.length).toBe(31);
     });
 
-    it('should default to revisions collapsed', function() {
-        createResultSetCtrl(jobScope.result_sets[8]);
-        expect(resultsetScope.isCollapsedRevisions).toBe(true);
-    });
-
     it('should set the selectedJob in scope when calling viewJob()', function() {
         createResultSetCtrl(jobScope.result_sets[8]);
         var job = resultsetScope.resultset.platforms[0].groups[0].jobs[0];

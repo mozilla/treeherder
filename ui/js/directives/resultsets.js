@@ -55,7 +55,7 @@ treeherder.directive('thResultStatusCount', [
     function (thJobFilters) {
 
     var updateResultCount = function(scope) {
-        scope.resultCount = scope.resultset.job_counts[scope.resultStatus] -
+        scope.resultCount = (scope.resultset.job_counts[scope.resultStatus] || 0) -
                             thJobFilters.getCountExcluded(scope.resultset.id, scope.resultStatus);
     };
 

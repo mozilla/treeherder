@@ -62,9 +62,22 @@ treeherder.factory('thBuildApi', [
             });
         },
         cancelAll: function(repoName, revision) {
-            return $http.delete(selfServeUrl + repoName + "/rev/" + revision,
-                                {withCredentials: true}
-            );
+            return $http({
+                url: selfServeUrl + repoName + "/rev/" + revision,
+                method: "POST",
+                data: "_method=DELETE",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                withCredentials: true
+
+            }).
+            success(function(data, status) {
+                notify(status, "cancel all jobs");
+            }).
+            error(function(data, status) {
+                notify(status, "cancel all jobs");
+            });
         }
     };
 }]);
