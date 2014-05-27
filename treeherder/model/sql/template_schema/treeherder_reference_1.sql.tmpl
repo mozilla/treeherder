@@ -654,8 +654,126 @@ CREATE TABLE `repository_version` (
   CONSTRAINT `fk_repository` FOREIGN KEY (`repository_id`) REFERENCES `repository` (`id`)
 ) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
+DROP TABLE IF EXISTS `job_exclusion`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+
+/**************************
+ * Table: job_exclusion
+ *
+ * A list of job exclusions expressed in terms of reference data
+ *
+ * Population Method: manual via ui
+ *
+ * Example Data:
+ *
+ *  name - my_job_exclusion
+ *  description - This is a very descriptive text
+ *  info - a json field containing the reference data combination
+ *  author_id - references auth_user.id
+ **************************/
+CREATE TABLE `job_exclusion` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `name` varchar(255) NOT NULL UNIQUE,
+    `description` longtext NOT NULL,
+    `info` longtext NOT NULL,
+    `author_id` integer NOT NULL,
+
+KEY `idx_name` (`name`)
+) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+
+DROP TABLE IF EXISTS `exclusion_profile`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+/**************************
+ * Table: exclusion_profile
+ *
+ * A list of profile for job exclusions.
+ * This allows to hide different sets of jobs based on the user
+ *
+ * Population Method: manual via ui
+ *
+ * Example Data:
+ *
+ *  name - My profile name
+ *  is_default - 0|1
+ *  flat_exclusion - a json field containing a flattened version of the job exclusions
+ **************************/
+CREATE TABLE `exclusion_profile` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `name` varchar(255) NOT NULL UNIQUE,
+    `is_default` bool NOT NULL,
+    `flat_exclusion` longtext NOT NULL,
+    `author_id` integer NOT NULL,
+KEY `idx_name` (`name`),
+KEY `idx_is_default` (`is_default`),
+KEY `idx_author` (`author_id`)
+)ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+
+DROP TABLE IF EXISTS `user_exclusion_profile`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+/**************************
+ * Table: user_exclusion_profile
+ *
+ * A many to many relationship between auth_user and exclusion_profile
+ * A user can have more than one profile and profiles are shared among users
+ * is_default indicates if this is the default profile for the user
+ *
+ * Population Method: manual via ui
+ *
+ * Example Data:
+ *
+ *  user_id - references auth_user.id
+ *  exclusion_profile_id - references exclusion_profile.id
+ *  is_default - 0|1
+ **************************/
+CREATE TABLE `user_exclusion_profile` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `user_id` integer NOT NULL,
+    `exclusion_profile_id` integer,
+    `is_default` bool NOT NULL,
+  UNIQUE (`user_id`, `exclusion_profile_id`),
+  KEY `idx_is_default` (`is_default`),
+  KEY `idx_user` (`user_id`),
+  CONSTRAINT `fk_exclusion_profile` FOREIGN KEY (`exclusion_profile_id`) REFERENCES `exclusion_profile` (`id`)
+)ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+
+DROP TABLE IF EXISTS `exclusion_profile_exclusions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+/**************************
+ * Table: exclusionprofile_exclusions
+ *
+ * Many to many relationship between exclusionprofile
+ *
+ * Population Method: manual via ui
+ *
+ * Example Data:
+ *
+ *  exclusionprofile_id - references exclusion_profile.id
+ *  jobexclusion_id - references job_exclusion.id
+ **************************/
+CREATE TABLE `exclusion_profile_exclusions` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `exclusionprofile_id` integer NOT NULL,
+    `jobexclusion_id` integer NOT NULL,
+    UNIQUE (`exclusionprofile_id`, `jobexclusion_id`),
+  CONSTRAINT `fk_exclusionprofile` FOREIGN KEY (`exclusionprofile_id`) REFERENCES `exclusion_profile` (`id`),
+  CONSTRAINT `fk_jobexclusion` FOREIGN KEY (`jobexclusion_id`) REFERENCES `job_exclusion` (`id`)
+) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+
+
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
@@ -663,5 +781,7 @@ CREATE TABLE `repository_version` (
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+
 
 -- Dump completed on 2013-02-27  8:55:49
