@@ -15,7 +15,9 @@ class treeherder {
     }
 
     exec{"build-extensions":
-      command => "${VENV_DIR}/bin/python ${PROJ_DIR}/setup.py build_ext --inplace"
+      command => "${VENV_DIR}/bin/python ${PROJ_DIR}/setup.py build_ext --inplace",
+      user => "${APP_USER}",
+      cwd => "${PROJ_DIR}",
     }
 
     file { [
