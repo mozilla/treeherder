@@ -7,14 +7,15 @@ class dev{
   }
 
   exec{"init_master_db":
-    cwd => '/home/vagrant/treeherder-service',
-    command => "${VENV_DIR}/bin/python manage.py init_master_db --noinput",
+    cwd => "${PROJ_DIR}",
+    command => "bash -c 'source /etc/profile.d/treeherder.sh; ${VENV_DIR}/bin/python manage.py init_master_db --noinput'",
+    user => "${APP_USER}",
   }
 
   exec{"init_datasources":
-    cwd => '/home/vagrant/treeherder-service',
-    command => "${VENV_DIR}/bin/python manage.py init_datasources",
+    cwd => "${PROJ_DIR}",
+    command => "bash -c 'source /etc/profile.d/treeherder.sh; ${VENV_DIR}/bin/python manage.py init_datasources'",
     require => Exec["init_master_db"],
+    user => "${APP_USER}",
   }
-
 }
