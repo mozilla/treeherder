@@ -48,14 +48,11 @@ def checkin_changes(ctx):
 def deploy_app(ctx):
     """Call the remote update script to push changes to webheads."""
     ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
-    ctx.remote('/etc/init.d/httpd graceful')
+    ctx.remote('/usr/bin/supervisorctl gunicorn restart')
 
 @hostgroups(settings.CELERY_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
-def update_celery(ctx):
-    """Update and restart Celery."""
-    ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
-    ctx.remote('/sbin/service %s restart' % settings.CELERY_SERVICE)
-
+def deploy_app(ctx):
+    ctx.remote('/usr/bin/supervisorctl restart celery')
 
 @task
 def update_info(ctx):
