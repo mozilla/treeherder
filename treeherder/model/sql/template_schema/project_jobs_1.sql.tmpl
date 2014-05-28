@@ -239,8 +239,8 @@ DROP TABLE IF EXISTS `performance_artifact`;
 /**************************
  * Table: performance_artifact
  *
- *  Holds any kind of performance related data associated with a job. Data can be structured in the
- *  case of JSON data or raw binary in the case of an image.
+ *  Holds any kind of performance related data associated with a job. Data can be structured
+ *  JSON data or binary in the case of an image.
  *
  * Population Method: dynamic from incoming data
  *
@@ -255,7 +255,7 @@ DROP TABLE IF EXISTS `performance_artifact`;
 CREATE TABLE `performance_artifact` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `job_id` bigint(20) unsigned NOT NULL,
-  `series_signature` varchar(50) NOT NULL,
+  `series_signature` varchar(50) COLLATE utf8_bin NOT NULL,
   `name` varchar(50) COLLATE utf8_bin NOT NULL,
   `type` varchar(50) COLLATE utf8_bin NOT NULL,
   `blob` mediumblob NOT NULL,
@@ -277,9 +277,10 @@ DROP TABLE IF EXISTS `series_signature`;
 /**************************
  * Table: series_signature
  *
- * Each package of performance data submitted to treeherder has a set of associated properties
- * the signature column is a hash of those property values. This allows for an easy identification
- * of unique data series suitable for graphing or other analysis applications.
+ * Each package of performance data submitted to treeherder has a set of properties and associated
+ * values that are incorporated into the signature column as a hash. This allows for an easy identification
+ * of unique data series suitable for graphing or other analysis applications where identifying data
+ * in a series is required.
  *
  * Population Method: dynamic from incoming data
  *
