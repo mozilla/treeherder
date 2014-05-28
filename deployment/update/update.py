@@ -71,14 +71,18 @@ def deploy_web_app(ctx):
     # Make sure web assets are rebuilt when code is updated
     update_assets(ctx)
 
-    ctx.remote('{0}/service gunicorn restart')
-    ctx.remote('{0}/service socketio-server restart')
+    # this is primarely for the persona ui
+    ctx.remote("python2.6 manage.py collectstatic --noinput")
+
+    ctx.remote( '{0}/service httpd graceful'.format(settings.BIN_DIR) )
+    ctx.remote( '{0}/service gunicorn restart'.format(settings.BIN_DIR) )
+    ctx.remote( '{0}/service socketio-server restart'.format(settings.BIN_DIR) )
 
 @hostgroups(settings.CELERY_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
 def deploy_workers(ctx):
     """Call the remote update script to push changes to workers."""
     ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
-    ctx.remote('{0}/service celery restart')
+    ctx.remote( '{0}/service celery restart'.format(settings.BIN_DIR) )
 
 @task
 def update_info(ctx):
