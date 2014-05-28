@@ -39,11 +39,13 @@ def update_oauth_credentials(ctx):
 def push_worker_credentials(ctx):
     # scp treeherder/treeherder-service/treeherder/etl/data/credentials.json
     # to hostgroup
+    pass
 
 @hostgroups(settings.WEB_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
 def push_web_credentials(ctx):
     # scp treeherder/treeherder-service/treeherder/etl/data/credentials.json
     # to hostgroup
+    pass
 
 @task
 def update_db(ctx):
