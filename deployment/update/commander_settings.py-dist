@@ -1,5 +1,6 @@
 SRC_DIR = ''
 WWW_DIR = ''
+BIN_DIR = ''
 
 CRON_NAME = ''
 

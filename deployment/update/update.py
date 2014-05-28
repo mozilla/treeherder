@@ -14,7 +14,6 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from commander.deploy import task, hostgroups
 import commander_settings as settings
 
-
 @task
 def update_code(ctx, tag):
     """Update the code to a specific git reference (tag/sha/etc)."""
@@ -33,6 +32,18 @@ def update_oauth_credentials(ctx):
     ctx.local("python2.6 manage.py export_project_credentials")
 
     # Need to scp the credentials from admin node to workers and web service nodes
+    push_worker_credentials(ctx)
+    push_web_credentials(ctx)
+
+@hostgroups(settings.CELERY_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
+def push_worker_credentials(ctx):
+    # scp treeherder/treeherder-service/treeherder/etl/data/credentials.json
+    # to hostgroup
+
+@hostgroups(settings.WEB_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
+def push_web_credentials(ctx):
+    # scp treeherder/treeherder-service/treeherder/etl/data/credentials.json
+    # to hostgroup
 
 @task
 def update_db(ctx):
@@ -48,9 +59,9 @@ def checkin_changes(ctx):
     ctx.local(settings.DEPLOY_SCRIPT)
 
 def deploy_admin_node(ctx):
-    ctx.local('/usr/bin/supervisorctl restart celerybeat')
-    ctx.local('/usr/bin/supervisorctl restart celerymon')
-    ctx.local('/usr/bin/supervisorctl restart celery')
+    ctx.local( '{0}/service celerybeat restart'.format(settings.BIN_DIR) )
+    ctx.local( '{0}/service celerymon restart'.format(settings.BIN_DIR) )
+    ctx.local( '{0}/service celery restart'.format(settings.BIN_DIR) )
 
 @hostgroups(settings.WEB_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
 def deploy_web_app(ctx):
@@ -60,14 +71,14 @@ def deploy_web_app(ctx):
     # Make sure web assets are rebuilt when code is updated
     update_assets(ctx)
 
-    ctx.remote('/usr/bin/supervisorctl restart gunicorn')
-    ctx.remote('/usr/bin/supervisorctl restart socketio-server')
+    ctx.remote('{0}/service gunicorn restart')
+    ctx.remote('{0}/service socketio-server restart')
 
 @hostgroups(settings.CELERY_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
 def deploy_workers(ctx):
     """Call the remote update script to push changes to workers."""
     ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
-    ctx.remote('/usr/bin/supervisorctl restart celery')
+    ctx.remote('{0}/service celery restart')
 
 @task
 def update_info(ctx):
@@ -92,6 +103,7 @@ def pre_update(ctx, ref=settings.UPDATE_REF):
 def update(ctx):
     update_assets()
     update_db()
+    update_oauth_credentials()
 
 
 @task
