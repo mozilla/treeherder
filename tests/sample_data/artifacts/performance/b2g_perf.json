@@ -268,5 +268,72 @@
             "restart": true,
             "ro.build.version.incremental": "324"
         }
+    },
+    {
+
+        "test_machine": {
+            "platform": "Gonk",
+            "osversion": "2.0.0.0-prerelease",
+            "os": "Firefox OS",
+            "name": "e4:2d:02:2b:da:59",
+            "type": "hamachi"
+        },
+        "testrun": {
+            "date": 1400861136,
+            "suite": "contacts"
+        },
+        "results": {
+            "cold_load_time": [
+                1784,
+                1946,
+                1642,
+                1611,
+                1604,
+                1598,
+                1598,
+                1591,
+                1610,
+                1594,
+                1596,
+                1580,
+                1612,
+                1590,
+                1611,
+                1614,
+                1605,
+                1600,
+                1661,
+                1614,
+                1606,
+                1602,
+                1601,
+                1579,
+                1790,
+                1726,
+                1612,
+                1614,
+                1608,
+                1605
+            ]
+        },
+        "test_build": {
+            "gecko_repository": "https://hg.mozilla.org/mozilla-central",
+            "ro.build.date.utc": "1387433095",
+            "ro.build.version.release": "4.0.4",
+            "name": "B2G",
+            "gecko_revision": "662f7195a362",
+            "build_url": "http://selenium.qa.mtv2.mozilla.com:8080/job/b2g.hamachi.mozilla-central.perf/1921/",
+            "generated_by": "b2gperf 0.26",
+            "delay": 10,
+            "version": "prerelease",
+            "build_revision": "2a165bebfa19b11b697837409f9550dd2917c46c",
+            "branch": "master",
+            "gaia_revision": "b61129780e085636d09406f2a46e922d0f8b9757",
+            "settle_time": 60,
+            "revision": "b61129780e085636d09406f2a46e922d0f8b9757",
+            "id": "20140523065123",
+            "restart": true,
+            "ro.build.version.incremental": "324"
+        }
     }
 ]
