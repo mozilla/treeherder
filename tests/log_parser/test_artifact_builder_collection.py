@@ -62,10 +62,12 @@ def test_all_builders_complete():
             "step_data": {
                 "all_errors": [],
                 "steps": []
-            }
+            },
+            "talos_data": []
         },
         "Job Info": {
-            "tinderbox_printlines": []
+            "tinderbox_printlines": [],
+            "talos_data": []
         }
     }
     act = lpc.artifacts

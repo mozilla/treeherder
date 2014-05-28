@@ -1,4 +1,5 @@
 {
     "tinderbox_printlines": [],
+    "talos_data": [],
     "logurl": "file:///home/vagrant/treeherder-service/tests/sample_data/logs/ux_ubuntu32_vm_test-jetpack-bm67-tests1-linux-build16.txt.gz"
 }
