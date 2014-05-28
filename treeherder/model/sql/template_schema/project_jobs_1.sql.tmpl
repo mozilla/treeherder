@@ -266,7 +266,7 @@ CREATE TABLE `performance_artifact` (
   KEY `idx_name` (`name`),
   KEY `idx_type` (`type`),
   KEY `idx_active_status` (`active_status`),
-  CONSTRAINT `fk_job_artifact` FOREIGN KEY (`job_id`) REFERENCES `job` (`id`)
+  CONSTRAINT `fk_performance_artifact` FOREIGN KEY (`job_id`) REFERENCES `job` (`id`)
 ) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -327,12 +327,10 @@ CREATE TABLE `performance_series` (
   `blob` mediumblob NOT NULL,
   `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
   PRIMARY KEY (`id`),
-  KEY `idx_job_id` (`job_id`),
+  KEY `idx_interval_seconds` (`interval_seconds`),
   KEY `idx_series_signature` (`series_signature`),
-  KEY `idx_name` (`name`),
   KEY `idx_type` (`type`),
-  KEY `idx_active_status` (`active_status`),
-  CONSTRAINT `fk_job_artifact` FOREIGN KEY (`job_id`) REFERENCES `job` (`id`)
+  KEY `idx_active_status` (`active_status`)
 ) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
