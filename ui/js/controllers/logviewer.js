@@ -27,6 +27,17 @@ logViewer.controller('LogviewerCtrl', [
             LogSliceModel = new ThLogSliceModel($scope.job_id, LINE_BUFFER_SIZE);
         }
 
+        $scope.toggleSuccessfulSteps = function() {
+            var firstError = $scope.artifact.step_data.steps.filter(function(step){return step.errors && step.errors.length > 0;})[0];
+
+            // scroll to the first error
+            $timeout(function () {
+                var scrollTop = getOffsetOfStep(firstError.order);
+
+                $('.steps-data').scrollTop( scrollTop );
+            });
+        };
+
         $scope.loadMore = function(bounds, element) {
             var deferred = $q.defer(), range, req, above, below;
 
@@ -106,8 +117,17 @@ logViewer.controller('LogviewerCtrl', [
 
                     for (var j = 0, ll = steps.length; j < ll; j++) {
                         if (lineNumber > (steps[j].started_linenumber - 1) && lineNumber < (steps[j].finished_linenumber + 1)) {
+                            // make sure we aren't updating when its already correct
+                            if ($scope.displayedStep.order === steps[j].order) return;
+
                             $scope.displayedStep = steps[j];
+
+                            // scroll to the step
+                            var scrollTop = getOffsetOfStep(steps[j].order);
+                            $('.steps-data').scrollTop(scrollTop);
+
                             if(!$scope.$$phase) {$scope.$apply();}
+
                             return;
                         }
                     }
@@ -167,6 +187,15 @@ logViewer.controller('LogviewerCtrl', [
                 }
             });
         };
+
+        /** utility functions **/
+
+        function getOffsetOfStep (order) {
+            var el = $('.logviewer-step[order="' + order + '"]');
+            var parentOffset = el.parent().offset();
+
+            return el.offset().top - parentOffset.top + el.parent().scrollTop() - 10.5;
+        }
 
         function logFileLineCount () {
             var steps = $scope.artifact.step_data.steps;
