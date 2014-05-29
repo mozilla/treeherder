@@ -1,0 +1,11 @@
+SRC_DIR = ''
+BIN_DIR = '/usr/sbin'
+
+DEPLOY_SCRIPT = ''
+REMOTE_UPDATE_SCRIPT = ''
+
+WEB_HOSTGROUP = ''
+CELERY_HOSTGROUP = ''
+
+UPDATE_REF = 'origin/master'
+SSH_KEY = None
