@@ -53,6 +53,7 @@ def checkin_changes(ctx):
     """Use the local, IT-written deploy script to check in changes."""
     ctx.local(settings.DEPLOY_SCRIPT)
 
+
 @hostgroups(settings.WEB_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
 def deploy_web_app(ctx):
     """Call the remote update script to push changes to webheads."""
@@ -64,14 +65,23 @@ def deploy_web_app(ctx):
     # this is primarely for the persona ui
     ctx.remote("python2.6 manage.py collectstatic --noinput")
 
-    ctx.remote( '{0}/service httpd graceful'.format(settings.BIN_DIR) )
-    ctx.remote( '{0}/service gunicorn restart'.format(settings.BIN_DIR) )
+    ctx.remote( '{0}/supervisorctl graceful httpd'.format(settings.BIN_DIR) )
+    ctx.remote( '{0}/supervisorctl restart gunicorn'.format(settings.BIN_DIR) )
 
 @hostgroups(settings.CELERY_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
 def deploy_workers(ctx):
     """Call the remote update script to push changes to workers."""
     ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
-    ctx.remote( '{0}/service celery restart'.format(settings.BIN_DIR) )
+
+    # Restarts celery worker on the celery hostgroup to listen to the
+    # celery queues: log_parser_fail,log_parser
+    ctx.remote( '{0}/supervisorctl restart celery_gevent'.format(settings.BIN_DIR) )
+
+def deploy_admin_node(ctx):
+
+    # Restarts celery worker on the admin node listening to the
+    # celery queues: default
+    ctx.remote( '{0}/supervisorctl restart run_celery_worker'.format(settings.BIN_DIR) )
 
 @task
 def update_info(ctx):
@@ -104,5 +114,6 @@ def deploy(ctx):
     checkin_changes()
     deploy_web_app()
     deploy_workers()
+    deploy_admin_node()
     update_info()
 
