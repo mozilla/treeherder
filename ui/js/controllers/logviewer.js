@@ -105,7 +105,7 @@ logViewer.controller('LogviewerCtrl', [
                     var lineNumber = +$(lines[i]).attr('line');
 
                     for (var j = 0, ll = steps.length; j < ll; j++) {
-                        if (lineNumber > steps[j].started_linenumber && lineNumber < steps[j].finished_linenumber) {
+                        if (lineNumber > (steps[j].started_linenumber - 1) && lineNumber < (steps[j].finished_linenumber + 1)) {
                             $scope.displayedStep = steps[j];
                             if(!$scope.$$phase) {$scope.$apply();}
                             return;
