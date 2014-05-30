@@ -16,7 +16,7 @@ fi
 
 LOGFILE=/var/log/celery/celery_worker.log
 
-if [! -f $LOGFILE ]; then
+if [ !-f $LOGFILE ]; then
     touch $LOGFILE
 fi
 

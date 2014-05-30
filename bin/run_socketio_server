@@ -7,7 +7,7 @@ cd $( dirname $curr_dir)
 
 LOGFILE=/var/log/socketio/treeherder.log
 
-if [! -f $LOGFILE ]; then
+if [ ! -f $LOGFILE ]; then
     touch $LOGFILE
 fi
 

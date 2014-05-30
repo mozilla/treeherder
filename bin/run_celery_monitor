@@ -5,7 +5,7 @@ cd $( dirname $curr_dir)
 
 LOGFILE=/var/log/celery/celerymon.log
 
-if [! -f $LOGFILE ]; then
+if [ ! -f $LOGFILE ]; then
     touch $LOGFILE
 fi
 

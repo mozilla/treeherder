@@ -8,11 +8,11 @@ LOGDIR=/var/log/gunicorn
 ACCESS_LOGFILE=$LOGDIR/treeherder_access.log
 ERROR_LOGFILE=$LOGDIR/treeherder_error.log
 
-if [! -f $ACCESS_LOGFILE ]; then
+if [ ! -f $ACCESS_LOGFILE ]; then
     touch $ACCESS_LOGFILE
 fi
 
-if [! -f $ERROR_LOGFILE ]; then
+if [ ! -f $ERROR_LOGFILE ]; then
     touch $ERROR_LOGFILE
 fi
 
