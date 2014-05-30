@@ -25,5 +25,5 @@
   
   exec $PYTHON treeherder/events/run_socketio.py \
    --broker-url  amqp://$USER:$PASS@$HOST:$PORT/$VHOST \
-   --log-file LOGFILE
+   --log-file $LOGFILE
 
