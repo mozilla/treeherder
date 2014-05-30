@@ -393,6 +393,7 @@ class TreeherderResultSet(TreeherderData, ValidatorMixin):
         self.required_properties = {
             'revision_hash':{ 'len':50, 'cb':self.validate_existence },
             'revisions':{ 'type':list, 'cb':self.validate_existence },
+            'author':{ 'len':150, 'cb':self.validate_existence }
             }
 
     def init_data(self):
@@ -402,6 +403,8 @@ class TreeherderResultSet(TreeherderData, ValidatorMixin):
             'push_timestamp': None,
             # Stored in project_jobs_1.result_set.revision_hash
             'revision_hash': '',
+            # Stored in project_jobs_1.result_set.author
+            'author': '',
             # Stored in project_jobs_1.revision, new row per revision
             'revisions': [],
             # TODO: add type column to resultset in treeherder-service
@@ -419,6 +422,9 @@ class TreeherderResultSet(TreeherderData, ValidatorMixin):
 
     def add_revision_hash(self, revision_hash):
         self.data['revision_hash'] = revision_hash
+
+    def add_author(self, author):
+        self.data['author'] = author
 
     def add_revisions(self, revisions):
         if revisions:
@@ -615,7 +621,7 @@ class TreeherderRequest(object):
         """
 
         if not isinstance(collection_inst, TreeherderCollection):
-            
+
             msg = '{0} should be an instance of TreeherderCollection'.format(type(collection_inst))
 
             raise TreeherderClientError(msg, [])
