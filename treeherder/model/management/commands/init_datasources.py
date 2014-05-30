@@ -12,16 +12,18 @@ class Command(BaseCommand):
         make_option('--host',
             action='store',
             dest='host',
-            default='localhost',
             help='Host to associate the datasource to'),
         make_option('--readonly-host',
             action='store',
             dest='readonly_host',
-            default='localhost',
             help='Readonly host to associate the datasource to'),
     )
 
     def handle(self, *args, **options):
+        if not options['host']:
+            raise CommandError("The --host option is required")
+        if not options['readonly_host']:
+            raise CommandError("The --readonly-host option is required")
         projects = Repository.objects.all().values_list('name', flat=True)
         for project in projects:
             for contenttype in ("jobs","objectstore"):

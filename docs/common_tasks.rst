@@ -34,7 +34,11 @@ To add a new repository, the following steps are needed:
 
   .. code-block:: bash
 
-     > python manage.py init_datasources
+     > python manage.py init_datasources --host localhost --readonly-host localhost
+
+  .. note::
+    If you are running treeherder in a non-development environment make sure to set ``--host`` and
+    ``--readonly-host`` to the correct database fqdns
 
 * Restart memcached to clean any previously cached datasource
 
