@@ -82,6 +82,29 @@
 
             "host":"master_host"
         },
+        "set_performance_artifact":{
+            "sql":"INSERT INTO `performance_artifact` (`job_id`, `series_signature`, `name`, `type`, `blob`)
+                   VALUES ?,?,?,?,?",
+
+            "host":"master_host"
+        },
+        "set_series_signature":{
+            "sql":"INSERT INTO `series_signature` (`signature`, `property`, `value`)
+                   SELECT ?,?,?
+                   FROM DUAL WHERE NOT EXISTS (
+                        SELECT `signature`, `property`, `value`
+                        FROM `series_signature`
+                        WHERE `signature` = ? AND `property` = ? AND `value` = ?
+                   )",
+            "host":"master_host"
+        },
+        "set_performance_series":{
+            "sql":"INSERT INTO `performance_series`
+                    (`interval_seconds`, `series_signature`, `type`, `last_update_timestamp`, `blob`)
+                   VALUES ?,?,?,?,?
+                   ON DUPLICATE KEY UPDATE `last_update_timestamp` = ?, `blob` = ?",
+            "host":"master_host"
+        },
         "set_job_eta":{
             "sql":"INSERT INTO `job_eta` (
                     `signature`,
@@ -233,6 +256,13 @@
 
             "host":"master_host"
         },
+        "update_performance_series":{
+            "sql":"UPDATE `performance_series`
+                   SET `blob` = ?
+                   WHERE `id` = ?",
+
+            "host":"master_host"
+        },
         "update_coalesced_guids":{
             "sql":"UPDATE `job`
                    SET `job_coalesced_to_guid` = ?
@@ -260,7 +290,14 @@
         }
     },
     "selects":{
+        "get_performance_artifact":{
 
+            "sql":"SELECT `id`, `job_id`, `series_signature`, `name`, `type`, `blob`
+                   FROM `performance_artifact`
+                   WHERE `job_id` IN (REP0) AND `active_status` = 'active'",
+
+            "host":"read_host"
+        },
         "get_max_job_submit_timestamp":{
 
             "sql": "SELECT MAX(`submit_timestamp`) AS 'submit_timestamp' FROM `job`",
