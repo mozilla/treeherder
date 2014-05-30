@@ -14,9 +14,9 @@ else
     PYTHON=python
 fi
 
-LOGFILE=/var/log/celery/celery_worker.log
+LOGFILE=/var/log/celery/celery_worker_gevent.log
 
-if [ !-f $LOGFILE ]; then
+if [ ! -f $LOGFILE ]; then
     touch $LOGFILE
 fi
 
