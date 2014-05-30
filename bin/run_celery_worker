@@ -8,8 +8,7 @@ if [[ ${NEW_RELIC_LICENSE_KEY+isset} = isset ]]; then
     NEWRELIC_ADMIN="newrelic-admin run-program"
 fi
 
-if [ -f ../venv/bin/python ]
-then
+if [ -f ../venv/bin/python ]; then
     source ../venv/bin/activate
     PYTHON=../venv/bin/python
 else
@@ -18,8 +17,7 @@ fi
 
 LOGFILE=/var/log/celery/celery_worker.log
 
-if [! -f $LOGFILE ]
-then
+if [! -f $LOGFILE ]; then
     touch $LOGFILE
 fi
 
