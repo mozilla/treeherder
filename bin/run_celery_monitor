@@ -1,14 +1,22 @@
 #!/bin/bash
-  curr_dir=$( dirname "${BASH_SOURCE[0]}" )
-  cd $( dirname $curr_dir)
-  source /etc/profile.d/treeherder.sh
 
-  if [ -f ../venv/bin/python ]
-  then
+curr_dir=$( dirname "${BASH_SOURCE[0]}" )
+cd $( dirname $curr_dir)
+
+LOGFILE=/var/log/celery/celerymon.log
+
+if [! -f $LOGFILE ]
+then
+    touch $LOGFILE
+fi
+
+source /etc/profile.d/treeherder.sh
+
+if [ -f ../venv/bin/python ]; then
     source ../venv/bin/activate
     PYTHON=../venv/bin/python
-  else
+else
     PYTHON=python
-  fi
+fi
 
-  exec $PYTHON manage.py celerymon
+exec ../venv/bin/python manage.py celerymon -f $LOGFILE

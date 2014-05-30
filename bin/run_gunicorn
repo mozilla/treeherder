@@ -1,26 +1,36 @@
 #!/bin/bash
-  set -e
+set -e
 
-  curr_dir=$( dirname "${BASH_SOURCE[0]}" )
-  cd $( dirname $curr_dir)
+curr_dir=$( dirname "${BASH_SOURCE[0]}" )
+cd $( dirname $curr_dir)
 
-  LOGDIR=/var/log/gunicorn
-  ACCESS_LOGFILE=$LOGDIR/treeherder_access.log
-  ERROR_LOGFILE=$LOGDIR/treeherder_error.log
+LOGDIR=/var/log/gunicorn
+ACCESS_LOGFILE=$LOGDIR/treeherder_access.log
+ERROR_LOGFILE=$LOGDIR/treeherder_error.log
 
-  NUM_WORKERS=5
+if [! -f $ACCESS_LOGFILE ]
+then
+    touch $ACCESS_LOGFILE
+fi
 
-  source /etc/profile.d/treeherder.sh
+if [! -f $ERROR_LOGFILE ]
+then
+    touch $ERROR_LOGFILE
+fi
 
-  if [ -f ../venv/bin/gunicorn ]
-  then
+NUM_WORKERS=5
+
+source /etc/profile.d/treeherder.sh
+
+if [ -f ../venv/bin/gunicorn ]
+then
     source ../venv/bin/activate
     GUNICORN=../venv/bin/gunicorn
-  else
+else
     GUNICORN=/usr/bin/gunicorn
-  fi
+fi
 
-  exec $GUNICORN -w $NUM_WORKERS \
+exec $GUNICORN -w $NUM_WORKERS \
     --max-requests=2000 \
     --access-logfile=$ACCESS_LOGFILE \
     --error-logfile=$ERROR_LOGFILE treeherder.webapp.wsgi:application
