@@ -65,7 +65,7 @@ def deploy_web_app(ctx):
     # this is primarely for the persona ui
     ctx.remote("python2.6 manage.py collectstatic --noinput")
 
-    ctx.remote( '{0}/service httpd gracefull'.format(settings.SBIN_DIR) )
+    ctx.remote( '{0}/service httpd graceful'.format(settings.SBIN_DIR) )
     ctx.remote( '{0}/supervisorctl restart gunicorn'.format(settings.BIN_DIR) )
 
 @hostgroups(settings.CELERY_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
