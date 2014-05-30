@@ -7,7 +7,15 @@
   LOGFILE=/var/log/socketio/treeherder.log
 
   source /etc/profile.d/treeherder.sh
-  source ../venv/bin/activate
+
+  if [ -f ../venv/bin/python ]
+  then
+    source ../venv/bin/activate
+    PYTHON=../venv/bin/python
+  else
+    PYTHON=python
+  fi
+
   USER=$TREEHERDER_RABBITMQ_USER
   PASS=$TREEHERDER_RABBITMQ_PASSWORD
   HOST=$TREEHERDER_RABBITMQ_HOST
@@ -15,7 +23,7 @@
   VHOST=$TREEHERDER_RABBITMQ_VHOST
 
   
-  exec python treeherder/events/run_socketio.py \
+  exec $PYTHON treeherder/events/run_socketio.py \
    --broker-url  amqp://$USER:$PASS@$HOST:$PORT/$VHOST \
    --log-file LOGFILE
 
