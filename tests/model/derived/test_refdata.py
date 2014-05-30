@@ -243,6 +243,8 @@ def test_reference_data_signatures(refdata):
         proc='refdata_test.selects.test_reference_data_signatures'
         )
 
+    refdata.disconnect()
+
     for row, expected_signature in zip(row_data, expected_signatures):
         assert row['signature'] == expected_signature
 
@@ -292,6 +294,8 @@ def test_add_job_type(refdata):
         proc='refdata_test.selects.test_all_job_group_ids'
         )
 
+    refdata.disconnect()
+
     assert row_data == expected
 
 def test_get_or_create_repository_version(refdata, repository_id):
@@ -304,6 +308,8 @@ def test_get_or_create_repository_version(refdata, repository_id):
         placeholders=[id],
         return_type='iter'
     )
+
+    refdata.disconnect()
 
     assert row_data.get_column_data('repository_id') == repository_id
     assert row_data.get_column_data('version') == 'v1.0'
@@ -325,6 +331,9 @@ def test_get_repository_info(refdata, repository_id):
         "repository_group_id": 1,
         "description": ""
     }
+
+    refdata.disconnect()
+
     for k, v in expected.items():
         assert info[k] == v
 
