@@ -3,10 +3,17 @@
   cd $( dirname $curr_dir)
 
   source /etc/profile.d/treeherder.sh
-  source ../venv/bin/activate
 
   if [[ ${NEW_RELIC_LICENSE_KEY+isset} = isset ]]; then
     NEWRELIC_ADMIN="newrelic-admin run-program"
   fi
 
-  exec $NEWRELIC_ADMIN ../venv/bin/python manage.py celeryd -c 3 -Q default -E --maxtasksperchild=500 --logfile=/var/log/celery/treeherder_worker.log
+  if [ -f ../venv/bin/python ]
+  then
+    source ../venv/bin/activate
+    PYTHON=../venv/bin/python
+  else
+    PYTHON=python
+  fi
+
+  exec $NEWRELIC_ADMIN $PYTHON manage.py celeryd -c 3 -Q default -E --maxtasksperchild=500 --logfile=/var/log/celery/treeherder_worker.log
