@@ -1,29 +1,32 @@
 #!/bin/bash
-  set -e
 
-  curr_dir=$( dirname "${BASH_SOURCE[0]}" )
-  cd $( dirname $curr_dir)
+set -e
 
-  LOGFILE=/var/log/socketio/treeherder.log
+curr_dir=$( dirname "${BASH_SOURCE[0]}" )
+cd $( dirname $curr_dir)
 
-  source /etc/profile.d/treeherder.sh
+LOGFILE=/var/log/socketio/treeherder.log
 
-  if [ -f ../venv/bin/python ]
-  then
+if [ ! -f $LOGFILE ]; then
+    touch $LOGFILE
+fi
+
+if [ -f ../venv/bin/python ]; then
     source ../venv/bin/activate
     PYTHON=../venv/bin/python
-  else
+else
     PYTHON=python
-  fi
+fi
 
-  USER=$TREEHERDER_RABBITMQ_USER
-  PASS=$TREEHERDER_RABBITMQ_PASSWORD
-  HOST=$TREEHERDER_RABBITMQ_HOST
-  PORT=$TREEHERDER_RABBITMQ_PORT
-  VHOST=$TREEHERDER_RABBITMQ_VHOST
+source /etc/profile.d/treeherder.sh
 
-  
-  exec $PYTHON treeherder/events/run_socketio.py \
-   --broker-url  amqp://$USER:$PASS@$HOST:$PORT/$VHOST \
-   --log-file $LOGFILE
+USER=$TREEHERDER_RABBITMQ_USER
+PASS=$TREEHERDER_RABBITMQ_PASSWORD
+HOST=$TREEHERDER_RABBITMQ_HOST
+PORT=$TREEHERDER_RABBITMQ_PORT
+VHOST=$TREEHERDER_RABBITMQ_VHOST
 
+
+exec python treeherder/events/run_socketio.py \
+    --broker-url  amqp://$USER:$PASS@$HOST:$PORT/$VHOST \
+    --log-file $LOGFILE

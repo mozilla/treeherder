@@ -1,18 +1,25 @@
 #!/bin/bash
-  curr_dir=$( dirname "${BASH_SOURCE[0]}" )
-  cd $( dirname $curr_dir)
-  source /etc/profile.d/treeherder.sh
+curr_dir=$( dirname "${BASH_SOURCE[0]}" )
+cd $( dirname $curr_dir)
+source /etc/profile.d/treeherder.sh
 
-  if [[ ${NEW_RELIC_LICENSE_KEY+isset} = isset ]]; then
+if [[ ${NEW_RELIC_LICENSE_KEY+isset} = isset ]]; then
     NEWRELIC_ADMIN="newrelic-admin run-program"
-  fi
+fi
 
-  if [ -f ../venv/bin/python ]
-  then
+if [ -f ../venv/bin/python ]; then
     source ../venv/bin/activate
     PYTHON=../venv/bin/python
-  else
+else
     PYTHON=python
-  fi
+fi
 
-  exec $NEWRELIC_ADMIN $PYTHON manage.py celeryd -Q log_parser_fail,log_parser -P gevent --concurrency=10 -E --logfile=/var/log/celery/treeherder_worker_gevent.log -n gevent_worker.%h -l debug --maxtasksperchild=500
+LOGFILE=/var/log/celery/celery_worker_gevent.log
+
+if [ ! -f $LOGFILE ]; then
+    touch $LOGFILE
+fi
+
+exec $NEWRELIC_ADMIN $PYTHON manage.py celeryd -Q log_parser_fail,log_parser -P gevent \
+    --concurrency=10 -E --logfile=$LOGFILE -n gevent_worker.%h -l debug \
+    --maxtasksperchild=500
