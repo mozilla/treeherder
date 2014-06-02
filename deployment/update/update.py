@@ -37,7 +37,7 @@ def update_code(ctx, tag):
 
 
 def update_assets(ctx):
-    ctx.remote("{0}grunt build".format(th_ui_src))
+    ctx.local("{0}grunt build".format(th_ui_src))
 
 
 def update_oauth_credentials(ctx):
