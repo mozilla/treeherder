@@ -103,7 +103,7 @@ def initial_data():
 
     call_command('load_initial_data')
 
-@pytest.fixture()
+@pytest.fixture(scope='function')
 def jm():
     """ Give a test access to a JobsModel instance. """
     from django.conf import settings
@@ -238,7 +238,7 @@ def mock_get_resultset(monkeypatch, result_set_stored):
 
     monkeypatch.setattr(common, 'lookup_revisions', _get_resultset)
 
-@pytest.fixture()
+@pytest.fixture(scope='function')
 def refdata():
     """returns a patched RefDataManager for testing purpose"""
 
@@ -254,6 +254,10 @@ def refdata():
     )
 
     add_test_procs_file(refdata.dhub, 'reference', proc_path)
+
+    def fin():
+        refdata.disconnect()
+
     return refdata
 
 @pytest.fixture

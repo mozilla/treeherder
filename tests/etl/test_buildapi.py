@@ -58,5 +58,7 @@ def test_ingest_pending_jobs(jm, initial_data,
     stored_obj = jm.get_jobs_dhub().execute(
         proc="jobs_test.selects.jobs")
 
+    jm.disconnect()
+
     assert len(stored_obj) == 1
 

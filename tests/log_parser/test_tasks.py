@@ -8,7 +8,7 @@ from treeherder.log_parser.parsers import ErrorParser
 
 
 @pytest.fixture
-def jobs_with_local_log(jm, initial_data):
+def jobs_with_local_log(initial_data):
     log = "mozilla-central_fedora-b2g_test-crashtest-1-bm54-tests1-linux-build50"
     sample_data = SampleData()
     url = "file://{0}".format(
@@ -48,6 +48,9 @@ def test_parse_log(jm, initial_data, jobs_with_local_log, sample_resultset, mock
         placeholders=[job_id]
     )
 
+    jm.disconnect()
+
     # we must have at least 2 artifacts: one for the log viewer and another one
     # for the job artifact panel
+
     assert len(job_artifacts) >= 2

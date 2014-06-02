@@ -73,6 +73,7 @@ def sample_artifacts(jm, sample_data):
 
     jm.load_job_data(jobs)
 
+
 @pytest.fixture
 def sample_notes(jm, sample_data, eleven_jobs_processed):
     """provide 11 jobs with job notes."""
@@ -87,3 +88,4 @@ def sample_notes(jm, sample_data, eleven_jobs_processed):
                 "kellyclarkson",
                 "you look like a man-o-lantern"
             )
+

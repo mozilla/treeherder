@@ -25,6 +25,8 @@ def test_create_bug_job_map_no_auth(eleven_jobs_processed, jm):
 
     assert resp.status_code == 403
 
+    jm.disconnect()
+
 
 def test_create_bug_job_map(eleven_jobs_processed, mock_message_broker, jm):
     """
@@ -51,6 +53,8 @@ def test_create_bug_job_map(eleven_jobs_processed, mock_message_broker, jm):
     user.delete()
 
     assert (bug_job_map_obj,) == jm.get_bug_job_map_list(0, 1)
+
+    jm.disconnect()
 
 
 def test_create_bug_job_map_dup(eleven_jobs_processed, mock_message_broker, jm):
@@ -84,6 +88,7 @@ def test_create_bug_job_map_dup(eleven_jobs_processed, mock_message_broker, jm):
 
     assert (bug_job_map_obj,) == jm.get_bug_job_map_list(0, 1)
 
+    jm.disconnect()
 
 def test_bug_job_map_list(webapp, jm, eleven_jobs_processed):
     """
@@ -107,6 +112,8 @@ def test_bug_job_map_list(webapp, jm, eleven_jobs_processed):
     for i, v in enumerate(expected):
         assert v == resp.json[i]
 
+    jm.disconnect()
+
 def test_bug_job_map_detail(webapp, jm, eleven_jobs_processed):
     """
     test retrieving a list of bug_job_map
@@ -129,6 +136,7 @@ def test_bug_job_map_detail(webapp, jm, eleven_jobs_processed):
 
     assert resp.json == {"job_id": job_id, "bug_id": bug_id, "type": "manual"}
 
+    jm.disconnect()
 
 def test_bug_job_map_delete(webapp, eleven_jobs_processed,
                             jm, mock_message_broker):
@@ -160,6 +168,7 @@ def test_bug_job_map_delete(webapp, eleven_jobs_processed,
     content = json.loads(resp.content)
     assert content == {"message": "Bug job map deleted"}
 
+    jm.disconnect()
 
 def test_bug_job_map_delete_no_auth(jm, eleven_jobs_processed):
     """
@@ -184,3 +193,5 @@ def test_bug_job_map_delete_no_auth(jm, eleven_jobs_processed):
     )
 
     assert resp.status_code == 403
+
+    jm.disconnect()

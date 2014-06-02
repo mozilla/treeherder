@@ -28,6 +28,9 @@ def test_claim_objects(jm, sample_data):
     loading_rows = jm.get_dhub(jm.CT_OBJECTSTORE).execute(
         proc="objectstore_test.counts.loading")[0]["loading_count"]
 
+    jm.disconnect()
+    jm2.disconnect()
+
     assert len(rows1) == 2
     # second worker asked for two rows but only got one that was left
     assert len(rows2) == 1
@@ -56,6 +59,8 @@ def test_mark_object_complete(jm):
 
     row_data = jm.get_dhub(jm.CT_OBJECTSTORE).execute(
         proc="objectstore_test.selects.row", placeholders=[row_id])[0]
+
+    jm.disconnect()
 
     assert row_data["revision_hash"] == revision_hash
     assert row_data["processed_state"] == "complete"
@@ -93,6 +98,8 @@ def test_process_objects(jm, initial_data, mock_log_parser):
     loading_count = jm.get_dhub(jm.CT_OBJECTSTORE).execute(
         proc="objectstore_test.counts.loading")[0]["loading_count"]
 
+    jm.disconnect()
+
     assert complete_count == 2
     assert loading_count == 0
     assert date_set.issubset(expected_dates)
@@ -106,6 +113,8 @@ def test_process_objects_unknown_error(jm):
     exp_resp = {u'Unknown error: TypeError: string indices must be integers, not str': '{invalid json}'}
 
     row_id = jm._get_last_insert_id("objectstore")
+
+    jm.disconnect()
 
     assert row_id == 0
     assert response == exp_resp
@@ -136,6 +145,8 @@ def test_ingest_sample_data(jm, sample_data, sample_resultset, mock_log_parser):
     loading_count = jm.get_os_dhub().execute(
         proc="objectstore_test.counts.loading")[0]["loading_count"]
 
+    jm.disconnect()
+
     assert complete_count == resultset_count
     assert loading_count == 0
     assert len(job_rows) == resultset_count
@@ -158,6 +169,8 @@ def test_objectstore_update_content(jm, sample_data):
         proc="objectstore_test.selects.row_by_guid",
         placeholders=[obj_updated["job"]["job_guid"]]
     )
+
+    jm.disconnect()
 
     # check that it didn't create a new object
     assert len(stored_objs) == 1
