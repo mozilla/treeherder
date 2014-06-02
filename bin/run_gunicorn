@@ -18,6 +18,7 @@
     GUNICORN=../venv/bin/gunicorn
   else
     GUNICORN=/usr/bin/gunicorn
+  fi
 
   exec $GUNICORN -w $NUM_WORKERS \
     --max-requests=2000 \
