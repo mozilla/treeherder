@@ -2,7 +2,7 @@
 from django.conf import settings
 
 
-def test_get_revision_hash(jm, initial_data,
+def test_get_revision_hash(initial_data,
                            result_set_stored, mock_get_remote_content):
     """That the correct revision_hash is retrieved is the revision exists"""
     from treeherder.etl import common
@@ -12,7 +12,7 @@ def test_get_revision_hash(jm, initial_data,
     assert resultset[project][revision]['revision_hash'] == result_set_stored[0]['revision_hash']
 
 
-def test_get_revision_hash_none(jm, mock_get_remote_content,
+def test_get_revision_hash_none(mock_get_remote_content,
                                 initial_data, result_set_stored):
     """Test that none is returned if the revision doesn't exist"""
     from treeherder.etl import common

@@ -24,3 +24,5 @@ def test_ingest_hg_pushlog(jm, initial_data, test_base_dir,
     )
 
     assert len(revisions_stored) == 15
+
+    jm.disconnect()

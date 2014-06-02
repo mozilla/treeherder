@@ -115,6 +115,7 @@ def test_resultset_list_empty_rs_still_show(webapp, initial_data,
     assert resp.status_int == 200
     assert len(resp.json['results']) == 10
 
+    jm.disconnect()
 
 def test_resultset_list_filter_by_revision(webapp, eleven_jobs_processed, jm):
     """
@@ -179,6 +180,8 @@ def test_resultset_list_filter_by_date(webapp, initial_data,
         u'startdate': u'2013-08-10'}
     )
 
+    jm.disconnect()
+
 
 def test_resultset_list_without_jobs(webapp, initial_data,
                                        sample_resultset, jm):
@@ -207,6 +210,7 @@ def test_resultset_list_without_jobs(webapp, initial_data,
         u'repository': u'test_treeherder'
     }
 
+    jm.disconnect()
 
 def test_resultset_detail(webapp, eleven_jobs_processed, jm):
     """
@@ -280,6 +284,8 @@ def test_resultset_create(sample_resultset, jm, initial_data):
 
     assert len(stored_objs) == 1
     assert stored_objs[0]['revision_hash'] == sample_resultset[0]['revision_hash']
+
+    jm.disconnect()
 
 def test_resultset_with_bad_secret(sample_resultset, jm, initial_data):
 

@@ -86,11 +86,11 @@ def completed_jobs_stored(
 
     test_utils.post_collection(jm.project, tjc)
 
-
 @pytest.fixture
 def completed_jobs_loaded(jm, completed_jobs_stored):
     jm.process_objects(1, raise_errors=True)
 
+    jm.disconnect()
 
 @pytest.fixture
 def mock_send_request(monkeypatch, jm):
@@ -109,6 +109,7 @@ def mock_send_request(monkeypatch, jm):
         response = TestApp(application).post_json(
             str(signed_uri), params=th_collection.get_collection_data()
         )
+
 
         response.getcode = lambda: response.status_int
         return response
