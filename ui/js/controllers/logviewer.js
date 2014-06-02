@@ -9,11 +9,6 @@ logViewer.controller('LogviewerCtrl', [
 
         var $log = new ThLog("LogviewerCtrl");
 
-        $scope.displayedLogLines = [];
-        $scope.loading = false;
-        $scope.currentLineNumber = 0;
-        $scope.highestLine = 0;
-
         // changes the size of chunks pulled from server
         var LINE_BUFFER_SIZE = 100;
         var LogSliceModel;
@@ -27,8 +22,39 @@ logViewer.controller('LogviewerCtrl', [
             LogSliceModel = new ThLogSliceModel($scope.job_id, LINE_BUFFER_SIZE);
         }
 
+        $scope.displayedLogLines = [];
+        $scope.loading = false;
+        $scope.currentLineNumber = 0;
+        $scope.highestLine = 0;
+        $scope.showSuccessful = true;
+
+        $scope.$watch('artifact', function () {
+            if (!$scope.artifact) return;
+            if ($scope.totalErrors() > 0) {
+                $scope.showSuccessful = false;
+            } else {
+                $scope.showSuccessful = true;
+            }
+        });
+
+        $scope.totalErrors = function () {
+            return $scope.artifact.step_data.steps.reduce(function (prev, curr) {
+                if (prev.errors) {
+                    return prev.errors.length;
+                }
+
+                return prev + curr.errors.length;
+            });
+        };
+
         $scope.toggleSuccessfulSteps = function() {
-            var firstError = $scope.artifact.step_data.steps.filter(function(step){return step.errors && step.errors.length > 0;})[0];
+            $scope.showSuccessful = !$scope.showSuccessful;
+
+            var firstError = $scope.artifact.step_data.steps.filter(function(step){
+                return step.errors && step.errors.length > 0;
+            })[0];
+
+            if (!firstError) return;
 
             // scroll to the first error
             $timeout(function () {
@@ -75,15 +101,24 @@ logViewer.controller('LogviewerCtrl', [
                     drawErrorLines(data);
 
                     if (bounds.top) {
-                        for (var i = data.length - 1; i >= 0; i--) $scope.displayedLogLines.unshift(data[i]);
+                        for (var i = data.length - 1; i >= 0; i--) {
+                            // make sure we are inserting at the right place
+                            if ($scope.displayedLogLines[0].index != data[i].index + 1) continue;
+                            $scope.displayedLogLines.unshift(data[i]);
+                        }
 
                         $timeout(function () {
                             if (above) removeChunkBelow();
                         }, 100);
                     } else if (bounds.bottom) {
                         var sh = element.scrollHeight;
+                        var lines = $scope.displayedLogLines;
     
-                        for (var i = 0; i < data.length; i++) $scope.displayedLogLines.push(data[i]);
+                        for (var i = 0; i < data.length; i++) {
+                            // make sure we are inserting at the right place
+                            if (lines[ lines.length - 1 ].index != data[i].index - 1) continue;
+                            $scope.displayedLogLines.push(data[i]);
+                        }
 
                         $timeout(function () {
                             if (below) {
@@ -116,7 +151,8 @@ logViewer.controller('LogviewerCtrl', [
                     var lineNumber = +$(lines[i]).attr('line');
 
                     for (var j = 0, ll = steps.length; j < ll; j++) {
-                        if (lineNumber > (steps[j].started_linenumber - 1) && lineNumber < (steps[j].finished_linenumber + 1)) {
+                        if (lineNumber > (steps[j].started_linenumber - 1) && 
+                            lineNumber < (steps[j].finished_linenumber + 1)) {
                             // make sure we aren't updating when its already correct
                             if ($scope.displayedStep.order === steps[j].order) return;
 
@@ -156,14 +192,16 @@ logViewer.controller('LogviewerCtrl', [
             $scope.currentLineNumber = linenumber;
 
             $scope.loadMore({}).then(function () {
-                // center around the selected line number, the 270 is the offset from the floating header
                 $timeout(function () {
                     var raw = $('.lv-log-container')[0];
-                    raw.scrollTop += $('.lv-log-line[line="' + linenumber + '"]').offset().top - 270; 
+                    var line = $('.lv-log-line[line="' + linenumber + '"]');
+                    raw.scrollTop += line.offset().top - $('.run-data').outerHeight(); 
                 });
             });
 
-            if ( $scope.displayedStep && $scope.displayedStep.order === step.order ) $event.stopPropagation();
+            if ($scope.displayedStep && $scope.displayedStep.order === step.order) {
+                $event.stopPropagation();
+            }
         };
 
         $scope.displayLog = function(step) {
@@ -173,7 +211,8 @@ logViewer.controller('LogviewerCtrl', [
             $scope.loadMore({}).then(function () {
                 $timeout(function () {
                     var raw = $('.lv-log-container')[0];
-                    raw.scrollTop += $('.lv-log-line[line="' + step.started_linenumber + '"]').offset().top - 270; 
+                    var line = $('.lv-log-line[line="' + step.started_linenumber + '"]');
+                    raw.scrollTop += line.offset().top - $('.run-data').outerHeight(); 
                 });
             });
         };
@@ -194,7 +233,9 @@ logViewer.controller('LogviewerCtrl', [
             var el = $('.logviewer-step[order="' + order + '"]');
             var parentOffset = el.parent().offset();
 
-            return el.offset().top - parentOffset.top + el.parent().scrollTop() - 10.5;
+            return el.offset().top - 
+                   parentOffset.top + el.parent().scrollTop() - 
+                   parseInt($('.steps-data').first().css('padding-bottom'));
         }
 
         function logFileLineCount () {
@@ -204,7 +245,6 @@ logViewer.controller('LogviewerCtrl', [
 
         function moveLineNumber (bounds) {
             var lines = $scope.displayedLogLines, newLine;
-
 
             if (bounds.top) {
                 return lines[0].index;
@@ -253,6 +293,7 @@ logViewer.controller('LogviewerCtrl', [
 
         function getChunkAbove (request) {
             request.start -= LINE_BUFFER_SIZE;
+            request.start = Math.floor(request.start/LINE_BUFFER_SIZE)*LINE_BUFFER_SIZE;
 
             if (request.start >= 0) {
                 return true;
@@ -266,6 +307,7 @@ logViewer.controller('LogviewerCtrl', [
             var lastLine = logFileLineCount();
 
             request.end += LINE_BUFFER_SIZE;
+            request.end = Math.ceil(request.end/LINE_BUFFER_SIZE)*LINE_BUFFER_SIZE;
 
             if (request.end <= lastLine) {
                 return true;
@@ -280,7 +322,8 @@ logViewer.controller('LogviewerCtrl', [
         }
 
         function removeChunkBelow (request) {
-            $scope.displayedLogLines = $scope.displayedLogLines.slice(0, $scope.displayedLogLines.length - LINE_BUFFER_SIZE);
+            var endSlice = $scope.displayedLogLines.length - LINE_BUFFER_SIZE;
+            $scope.displayedLogLines = $scope.displayedLogLines.slice(0, endSlice);
         }
 
     }

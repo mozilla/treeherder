@@ -70,6 +70,10 @@ body {
 	padding: 10px;
 }
 
+.logviewer-step {
+    overflow: hidden;
+}
+
 .logviewer-step.selected {
     color: #232323;
     background-color: #FFF;
