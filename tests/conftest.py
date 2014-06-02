@@ -254,6 +254,10 @@ def refdata():
     )
 
     add_test_procs_file(refdata.dhub, 'reference', proc_path)
+
+    def fin():
+        refdata.disconnect()
+
     return refdata
 
 @pytest.fixture
