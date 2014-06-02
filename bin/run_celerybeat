@@ -18,4 +18,4 @@ else
     PYTHON=python
 fi
 
-exec ../venv/bin/python manage.py celerybeat -f $LOGFILE
+exec $PYTHON manage.py celerybeat -f $LOGFILE
