@@ -418,6 +418,7 @@ class Datasource(models.Model):
             user=DB_USER,
             passwd=DB_PASS,
         )
+
         cur = conn.cursor()
         cur.execute("DROP DATABASE {0}".format(self.name))
         conn.close()
