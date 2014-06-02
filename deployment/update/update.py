@@ -14,8 +14,8 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from commander.deploy import task, hostgroups
 import commander_settings as settings
 
-th_service_src = "{0}/treeherder-service/".format(settings.SRC_DIR)
-th_ui_src = "{0}/treeherder-ui/".format(settings.SRC_DIR)
+th_service_src = os.path.join(settings.SRC_DIR, 'treeherder-service')
+th_ui_src = os.path.join(settings.SRC_DIR, 'treeherder-ui')
 
 
 @task
@@ -37,7 +37,8 @@ def update_code(ctx, tag):
 
 
 def update_assets(ctx):
-    ctx.local("{0}grunt build".format(th_ui_src))
+    grunt_path = os.path.join(th_ui_src, 'grunt')
+    ctx.local("{0} build".format(grunt_path))
 
 
 def update_oauth_credentials(ctx):
