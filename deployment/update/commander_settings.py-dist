@@ -1,5 +1,6 @@
 SRC_DIR = ''
-BIN_DIR = '/usr/sbin'
+BIN_DIR = '/usr/bin'
+SBIN_DIR = '/sbin'
 
 DEPLOY_SCRIPT = ''
 REMOTE_UPDATE_SCRIPT = ''

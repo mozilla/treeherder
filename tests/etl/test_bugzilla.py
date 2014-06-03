@@ -35,6 +35,9 @@ def test_bz_api_process(mock_extract, refdata):
         proc='refdata_test.selects.test_bugscache',
         return_type='tuple'
     )
+
+    refdata.disconnect()
+
     # the number of rows inserted should equal to the number of bugs
     assert len(row_data) == 10
 

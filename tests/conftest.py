@@ -103,8 +103,8 @@ def initial_data():
 
     call_command('load_initial_data')
 
-@pytest.fixture()
-def jm():
+@pytest.fixture(scope='function')
+def jm(request):
     """ Give a test access to a JobsModel instance. """
     from django.conf import settings
     from treeherder.model.derived.jobs import JobsModel
@@ -124,6 +124,8 @@ def jm():
 
     def fin():
         model.disconnect()
+
+    request.addfinalizer(fin)
 
     return model
 
@@ -238,8 +240,8 @@ def mock_get_resultset(monkeypatch, result_set_stored):
 
     monkeypatch.setattr(common, 'lookup_revisions', _get_resultset)
 
-@pytest.fixture()
-def refdata():
+@pytest.fixture(scope='function')
+def refdata(request):
     """returns a patched RefDataManager for testing purpose"""
 
     import os
@@ -254,6 +256,12 @@ def refdata():
     )
 
     add_test_procs_file(refdata.dhub, 'reference', proc_path)
+
+    def fin():
+        refdata.disconnect()
+
+    request.addfinalizer(fin)
+
     return refdata
 
 @pytest.fixture

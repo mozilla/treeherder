@@ -1,4 +1,18 @@
 #!/bin/bash
-  source /etc/profile.d/treeherder.sh
-  source ../venv/bin/activate
-  exec ../venv/bin/python manage.py start_pulse_consumer --start
+
+LOGDIR=/var/log/pulse_consumer/
+
+if [ ! -d $LOGDIR ]; then
+    mkdir -p $LOGDIR
+fi
+
+source /etc/profile.d/treeherder.sh
+
+if [ -f ../venv/bin/python ]; then
+    source ../venv/bin/activate
+    PYTHON=../venv/bin/python
+else
+    PYTHON=python
+fi
+
+exec ../venv/bin/python manage.py start_pulse_consumer --start --logdir $LOGDIR

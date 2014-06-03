@@ -17,6 +17,7 @@ def test_note_list(webapp, sample_notes, jm):
     assert isinstance(resp.json, list)
     note_list = resp.json
 
+
     assert set(note_list[0].keys()) == set([
         'note_timestamp',
         'job_id',
@@ -56,6 +57,8 @@ def test_note_list(webapp, sample_notes, jm):
         "act": note_list
     })
 
+    jm.disconnect()
+
 
 def test_note_detail(webapp, sample_notes, jm):
     """
@@ -83,6 +86,8 @@ def test_note_detail(webapp, sample_notes, jm):
         'id'
     ])
 
+    jm.disconnect()
+
 
 def test_note_detail_not_found(webapp, jm):
     """
@@ -96,6 +101,7 @@ def test_note_detail_not_found(webapp, jm):
     )
     assert resp.status_int == 404
 
+    jm.disconnect()
 
 def test_note_detail_bad_project(webapp, jm):
     """
@@ -110,6 +116,7 @@ def test_note_detail_bad_project(webapp, jm):
     assert resp.status_int == 404
     assert resp.json == {"detail": "No project with name foo"}
 
+    jm.disconnect()
 
 def test_create_note(webapp, eleven_jobs_processed, mock_message_broker, jm):
     """
@@ -149,6 +156,7 @@ def test_create_note(webapp, eleven_jobs_processed, mock_message_broker, jm):
         u'id': 1
     }
 
+    jm.disconnect()
 
 def test_create_note_no_auth(eleven_jobs_processed, jm):
     """
@@ -168,6 +176,8 @@ def test_create_note_no_auth(eleven_jobs_processed, jm):
     )
 
     assert resp.status_code == 403
+
+    jm.disconnect()
 
 def test_delete_note(webapp, sample_notes, mock_message_broker, jm):
     """
@@ -189,3 +199,5 @@ def test_delete_note(webapp, sample_notes, mock_message_broker, jm):
     assert resp.status_code == 200, resp
 
     assert len(new_notes) == len(notes)-1
+
+    jm.disconnect()

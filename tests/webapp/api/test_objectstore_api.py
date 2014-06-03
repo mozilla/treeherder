@@ -32,6 +32,8 @@ def test_objectstore_create(job_sample, jm):
 
     assert stored_objs[0]['job_guid'] == job_sample["job"]["job_guid"]
 
+    jm.disconnect()
+
 
 def test_objectstore_list(webapp, eleven_jobs_stored, jm):
     """

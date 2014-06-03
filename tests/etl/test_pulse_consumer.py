@@ -62,6 +62,8 @@ def test_load_data(sample_data, jm, mock_post_json_data,
     stored_obj = jm.get_os_dhub().execute(
         proc="objectstore_test.selects.all")
 
+    jm.disconnect()
+
     assert len(stored_obj) == 1
 
 
@@ -90,5 +92,7 @@ def test_load_data_missing_attribute(sample_data, jm, mock_post_json_data, initi
 
     stored_obj = jm.get_os_dhub().execute(
         proc="objectstore_test.selects.all")
+
+    jm.disconnect()
 
     assert len(stored_obj) == 0

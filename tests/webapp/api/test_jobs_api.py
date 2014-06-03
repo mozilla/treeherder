@@ -104,6 +104,8 @@ def test_job_detail(webapp, eleven_jobs_processed, sample_artifacts, jm):
     assert isinstance(resp.json, dict)
     assert resp.json["id"] == job["id"]
 
+    jm.disconnect()
+
 
 def test_job_detail_bad_project(webapp, eleven_jobs_processed, jm):
     """
@@ -117,6 +119,7 @@ def test_job_detail_bad_project(webapp, eleven_jobs_processed, jm):
 
     webapp.get(badurl, status=404)
 
+    jm.disconnect()
 
 def test_job_detail_not_found(webapp, jm):
     """

@@ -17,6 +17,8 @@ def test_unicode(jm):
     """Unicode representation of a ``JobModel`` is the project name."""
     assert unicode(jm) == unicode(jm.project)
 
+    jm.disconnect()
+
 
 def test_disconnect(jm):
     """test that your model disconnects"""
@@ -45,6 +47,7 @@ def test_ingest_single_sample_job(jm, refdata, sample_data, initial_data,
     test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset)
 
     jm.disconnect()
+    refdata.disconnect()
 
 def test_ingest_all_sample_jobs(jm, refdata, sample_data, initial_data, sample_resultset, mock_log_parser):
     """
@@ -58,6 +61,7 @@ def test_ingest_all_sample_jobs(jm, refdata, sample_data, initial_data, sample_r
     test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset)
 
     jm.disconnect()
+    refdata.disconnect()
 
 def test_cycle_all_data(jm, refdata, sample_data, initial_data, sample_resultset, mock_log_parser):
     """
@@ -88,6 +92,7 @@ def test_cycle_all_data(jm, refdata, sample_data, initial_data, sample_resultset
     jobs_after = jm.get_dhub(jm.CT_JOBS).execute(proc="jobs_test.selects.jobs")
 
     jm.disconnect()
+    refdata.disconnect()
 
     assert len(jobs_before) == job_count
 
@@ -141,6 +146,7 @@ def test_cycle_one_job(jm, refdata, sample_data, initial_data, sample_resultset,
     assert len(jobs_count_after_delete) == 0
 
     jm.disconnect()
+    refdata.disconnect()
 
 def test_bad_date_value_ingestion(jm, initial_data, mock_log_parser):
     """
