@@ -41,7 +41,7 @@ def test_get_request_body(jm, eleven_jobs_processed):
         "logfile": "00000000",
         "tree": "test_treeherder",
         "rev": "cdfe03e77e66",
-        "comment": "Bug {}".format(bug_id),
+        "comment": "Bug {0}".format(bug_id),
         "who": who,
         "timestamp": submit_timestamp
     }
