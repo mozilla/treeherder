@@ -189,9 +189,11 @@ treeherder.controller('PluginCtrl', [
         // load the list of bug associations (including possibly new ones just
         // added).
         $scope.updateBugs = function() {
-            ThBugJobMapModel.get_list({job_id: $scope.job.id}).then(function(response) {
-                $scope.bugs = response;
-            });
+            if (_.has($scope.job, "id")) {
+                ThBugJobMapModel.get_list({job_id: $scope.job.id}).then(function (response) {
+                    $scope.bugs = response;
+                });
+            }
         };
 
         $scope.pinboard_service = thPinboard;
