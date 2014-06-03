@@ -48,7 +48,7 @@ class OrangeFactorBugRequest(object):
             # "logfile": "",
             "tree": self.project,
             "rev": revision_list[0]["revision"],
-            "comment": "Bug {}".format(self.bug_id),
+            "comment": "Bug {0}".format(self.bug_id),
             "who": self.who,
             "timestamp": self.submit_timestamp,
             "logfile": "00000000"
@@ -93,7 +93,7 @@ class TbplBugRequest(object):
 
         note = ""
         if self.bug_id:
-            note = "Bug {}".format(self.bug_id)
+            note = "Bug {0}".format(self.bug_id)
         if self.classification_id:
             if note:
                 note += " - "
