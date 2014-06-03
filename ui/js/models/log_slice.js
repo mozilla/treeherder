@@ -1,8 +1,8 @@
 'use strict';
 
 treeherder.factory('ThLogSliceModel', [
-    '$http', '$q', '$timeout', 'ThLog', 'thUrl',
-    function($http, $q, $timeout, ThLog, thUrl) {
+    '$http', '$q', '$timeout', 'thUrl',
+    function($http, $q, $timeout, thUrl) {
 
     // ThLogSliceModel is the js counterpart of logslice
 
@@ -63,6 +63,81 @@ treeherder.factory('ThLogSliceModel', [
         }
     };
 
+    ThLogSliceModel.prototype.load_more = function (bounds, element) {
+        var deferred = $q.defer(), range, req, above, below;
+        var self = this;
+
+        if (!this.loading) {
+            // move the line number either up or down depending which boundary was hit
+            this.line_number = moveLineNumber(bounds);
+
+            range = {
+                start: this.line_number,
+                end: this.line_number
+            };
+
+            if (bounds.top) {
+                above = getChunkAbove(range);
+            } else if (bounds.bottom) {
+                below = getChunkBelow(range);
+            } else {
+                range = getChunksSurrounding(this.line_number);
+            }
+
+            // dont do the call if we already have all the lines
+            if ( range.start === range.end ) return deferred.promise;
+
+            this.loading = true;
+
+            this.get_line_range({
+                job_id: this.job_id, 
+                start_line: range.start, 
+                end_line: range.end
+            }).then(function(data) {
+                var slicedData, length;
+
+                drawErrorLines(data);
+
+                if (bounds.top) {
+                    for (var i = data.length - 1; i >= 0; i--) {
+                        // make sure we are inserting at the right place
+                        if (self.lines[0].index != data[i].index + 1) continue;
+                        self.lines.unshift(data[i]);
+                    }
+
+                    $timeout(function () {
+                        if (above) removeChunkBelow();
+                    }, 100);
+                } else if (bounds.bottom) {
+                    var sh = element.scrollHeight;
+                    var lines = self.lines;
+
+                    for (var i = 0; i < data.length; i++) {
+                        // make sure we are inserting at the right place
+                        if (lines[ lines.length - 1 ].index != data[i].index - 1) continue;
+                        self.lines.push(data[i]);
+                    }
+
+                    $timeout(function () {
+                        if (below) {
+                            removeChunkAbove();
+                            element.scrollTop -= element.scrollHeight - sh;
+                        }
+                    }, 100);
+                } else {
+                    self.lines = data;
+                }
+
+                self.loading = false;
+                deferred.resolve();
+            });
+        } else {
+            deferred.reject();
+        }
+
+        return deferred.promise;
+    };
+
     ThLogSliceModel.prototype.get_line_range = function(options, config) {
         config = config || {};
         var timeout = config.timeout || null;
@@ -81,7 +156,7 @@ treeherder.factory('ThLogSliceModel', [
             params: options,
             timeout: timeout
         }).then(function (res) {
-            self.insert_into_buffer(options, res.data); 
+            self.insert_into_buffer(options, res.data);
 
             return res.data;
         });

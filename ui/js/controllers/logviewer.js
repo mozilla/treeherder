@@ -7,11 +7,11 @@ logViewer.controller('LogviewerCtrl', [
         $anchorScroll, $scope, ThLog, $rootScope, $location, $http,
         $timeout, $q, ThJobArtifactModel, ThLogSliceModel) {
 
-        var $log = new ThLog("LogviewerCtrl");
+        var $log = new ThLog('LogviewerCtrl');
 
         // changes the size of chunks pulled from server
         var LINE_BUFFER_SIZE = 100;
-        var LogSliceModel;
+        var LogSlice;
 
         var query_string = $location.search();
         if (query_string.repo !== "") {
@@ -19,7 +19,7 @@ logViewer.controller('LogviewerCtrl', [
         }
         if (query_string.job_id !== "") {
             $scope.job_id= query_string.job_id;
-            LogSliceModel = new ThLogSliceModel($scope.job_id, LINE_BUFFER_SIZE);
+            LogSlice = new ThLogSliceModel($scope.job_id, LINE_BUFFER_SIZE);
         }
 
         $scope.displayedLogLines = [];
@@ -44,23 +44,6 @@ logViewer.controller('LogviewerCtrl', [
                 }
 
                 return prev + curr.errors.length;
-            });
-        };
-
-        $scope.toggleSuccessfulSteps = function() {
-            $scope.showSuccessful = !$scope.showSuccessful;
-
-            var firstError = $scope.artifact.step_data.steps.filter(function(step){
-                return step.errors && step.errors.length > 0;
-            })[0];
-
-            if (!firstError) return;
-
-            // scroll to the first error
-            $timeout(function () {
-                var scrollTop = getOffsetOfStep(firstError.order);
-
-                $('.steps-data').scrollTop( scrollTop );
             });
         };
 
@@ -89,7 +72,7 @@ logViewer.controller('LogviewerCtrl', [
 
                 $scope.loading = true;
 
-                LogSliceModel.get_line_range({
+                LogSlice.get_line_range({
                     job_id: $scope.job_id, 
                     start_line: range.start, 
                     end_line: range.end
@@ -140,37 +123,6 @@ logViewer.controller('LogviewerCtrl', [
             return deferred.promise;
         };
 
-        // highlights the section that you are currently scrolling through
-        $scope.scroll = function (element) {
-            var lines = $('.lv-log-line');
-            var scrollTop = $('.lv-log-container').scrollTop();
-
-            for (var i = 0, l = lines.length; i < l; i++) {
-                if (lines[i].offsetTop > scrollTop) {
-                    var steps = $scope.artifact.step_data.steps;
-                    var lineNumber = +$(lines[i]).attr('line');
-
-                    for (var j = 0, ll = steps.length; j < ll; j++) {
-                        if (lineNumber > (steps[j].started_linenumber - 1) && 
-                            lineNumber < (steps[j].finished_linenumber + 1)) {
-                            // make sure we aren't updating when its already correct
-                            if ($scope.displayedStep.order === steps[j].order) return;
-
-                            $scope.displayedStep = steps[j];
-
-                            // scroll to the step
-                            var scrollTop = getOffsetOfStep(steps[j].order);
-                            $('.steps-data').scrollTop(scrollTop);
-
-                            if(!$scope.$$phase) {$scope.$apply();}
-
-                            return;
-                        }
-                    }
-                }
-            }
-        };
-
         // @@@ it may be possible to do this with the angular date filter?
         $scope.formatTime = function(sec) {
             var h = Math.floor(sec/3600);
@@ -188,38 +140,9 @@ logViewer.controller('LogviewerCtrl', [
             return start + "-" + end;
         };
 
-        $scope.scrollTo = function($event, step, linenumber) {
-            $scope.currentLineNumber = linenumber;
-
-            $scope.loadMore({}).then(function () {
-                $timeout(function () {
-                    var raw = $('.lv-log-container')[0];
-                    var line = $('.lv-log-line[line="' + linenumber + '"]');
-                    raw.scrollTop += line.offset().top - $('.run-data').outerHeight(); 
-                });
-            });
-
-            if ($scope.displayedStep && $scope.displayedStep.order === step.order) {
-                $event.stopPropagation();
-            }
-        };
-
-        $scope.displayLog = function(step) {
-            $scope.displayedStep = step;
-            $scope.currentLineNumber = step.started_linenumber;
-
-            $scope.loadMore({}).then(function () {
-                $timeout(function () {
-                    var raw = $('.lv-log-container')[0];
-                    var line = $('.lv-log-line[line="' + step.started_linenumber + '"]');
-                    raw.scrollTop += line.offset().top - $('.run-data').outerHeight(); 
-                });
-            });
-        };
-
         $scope.init = function() {
             $log.log(ThJobArtifactModel.get_uri());
-            ThJobArtifactModel.get_list({job_id: $scope.job_id, name: "Structured Log"})
+            ThJobArtifactModel.get_list({job_id: $scope.job_id, name: 'Structured Log'})
             .then(function(artifact_list){
                 if(artifact_list.length > 0){
                     $scope.artifact = artifact_list[0].blob;
@@ -228,15 +151,6 @@ logViewer.controller('LogviewerCtrl', [
         };
 
         /** utility functions **/
-
-        function getOffsetOfStep (order) {
-            var el = $('.logviewer-step[order="' + order + '"]');
-            var parentOffset = el.parent().offset();
-
-            return el.offset().top - 
-                   parentOffset.top + el.parent().scrollTop() - 
-                   parseInt($('.steps-data').first().css('padding-bottom'));
-        }
 
         function logFileLineCount () {
             var steps = $scope.artifact.step_data.steps;
