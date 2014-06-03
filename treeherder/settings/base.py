@@ -142,42 +142,24 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'standard': {
-            'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+            'format': "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
         },
-    },
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
-        }
     },
     'handlers': {
-        'mail_admins': {
+        'console': {
             'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
-        },
-        'logfile': {
-            'level':'DEBUG',
-            'class':'logging.handlers.RotatingFileHandler',
-            'filename': 'treeherder.log',
-            'maxBytes': 1 * 1024 * 1024,
-            'backupCount': 2,
-            'formatter': 'standard',
-        },
-        'console':{
-            'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'standard'
         },
     },
     'loggers': {
         'django.request': {
-            'handlers': ['mail_admins'],
+            'handlers': ['console'],
             'level': 'ERROR',
             'propagate': True,
         },
         'treeherder': {
-            'handlers': ['logfile']
+            'handlers': ['console']
         }
     }
 }
@@ -229,6 +211,10 @@ CORS_ORIGIN_ALLOW_ALL = True
 # An asterisk means everything but it's not secure.
 # IP addresses are also allowed. A dot is used to include all sub domains
 ALLOWED_HOSTS = [".mozilla.org", ".allizom.org"]
+
+# set this to True to enable bug associations to tbpl (and then Orange Factor)
+TBPL_BUGS_TRANSFER_ENABLED = True
+TBPL_HOST = "https://tbpl.mozilla.org"
 
 try:
     from .local import *

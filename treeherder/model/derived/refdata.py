@@ -208,8 +208,8 @@ class RefDataManager(object):
     methods allow a caller to iterate through a single list of
     job data structures, generating cumulative sets of reference data.
     """
-    def add_reference_data_signature(
-        self, name, build_system_type, reference_data):
+    def add_reference_data_signature(self, name, build_system_type,
+                                     repository, reference_data):
 
         signature = self.get_reference_data_signature(reference_data)
 
@@ -221,9 +221,9 @@ class RefDataManager(object):
             if name == None:
                 name = signature
 
-            placeholders = [ name, signature ]
+            placeholders = [name, signature]
             placeholders.extend(reference_data)
-            placeholders.extend([int(time.time()), name, build_system_type])
+            placeholders.extend([int(time.time()), name, build_system_type, repository])
             self.build_signature_placeholders.append(placeholders)
 
             self.reference_data_signature_lookup[signature] = reference_data

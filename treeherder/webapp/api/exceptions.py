@@ -4,6 +4,10 @@ from rest_framework.views import exception_handler as drf_exc_handler
 from django.conf import settings
 
 from treeherder.model.derived import DatasetNotFoundError, ObjectNotFoundException
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 class ResourceNotFoundException(exceptions.APIException):
@@ -16,6 +20,11 @@ def exception_handler(exc):
 Add treeherder-specific exception handling to the rest framework
 Mostly a conversion of treeherders ORM exceptions to drf APIExceptions
 """
+    import traceback
+    full_message = traceback.format_exc()
+    logger.error(exc)
+    logger.error(full_message)
+
     if isinstance(exc, DatasetNotFoundError):
         exc = ResourceNotFoundException(
             "No project with name {0}".format(exc.project)
@@ -29,7 +38,6 @@ Mostly a conversion of treeherders ORM exceptions to drf APIExceptions
     if response is None:
         msg = {"detail": unicode(exc)}
         if settings.DEBUG:
-            import traceback
-            msg["traceback"] = traceback.format_exc()
+            msg["traceback"] = full_message
         response = Response(msg, status=500)
     return response
