@@ -8,6 +8,7 @@ from treeherder.webapp.api.permissions import IsStaffOrReadOnly
 
 from treeherder.webapp.api.utils import with_jobs
 from treeherder.events.publisher import JobClassificationPublisher
+from treeherder.model.tasks import unclassified_failure_count
 
 
 class NoteViewSet(viewsets.ViewSet):
@@ -65,6 +66,9 @@ class NoteViewSet(viewsets.ViewSet):
                               request.DATA['who'], project)
         finally:
             publisher.disconnect()
+
+        # refresh unclassified failure count and publish the socket event
+        unclassified_failure_count(projects=[project])
 
         return Response(
             {'message': 'note stored for job {0}'.format(
