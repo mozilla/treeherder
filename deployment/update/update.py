@@ -109,8 +109,8 @@ def pre_update(ctx, ref=settings.UPDATE_REF):
 
 @task
 def update(ctx):
-    update_db(ctx)
-    update_oauth_credentials(ctx)
+    update_db()
+    update_oauth_credentials()
 
 
 @task
