@@ -1604,8 +1604,20 @@ class JobsModel(TreeherderModelBase):
             placeholders=artifact_placeholders,
             executemany=True)
 
-    def store_performance_artifact(self, performance_artifact_placeholders):
-        pass
+    def store_performance_artifact(self, job_ids, performance_artifact_placeholders):
+
+        # use job_ids to retrieve all reference data signature properties
+
+
+        # call method on talos data adapter with reference data signature
+        # properties to generate the performance signatures
+
+        # store series signatures
+
+        # store performance artifacts
+
+        # store performance series data / or add task to generate it
+
 
     def _load_job_artifacts(self, artifact_placeholders, job_id_lookup):
         """
