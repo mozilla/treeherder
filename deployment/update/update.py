@@ -36,8 +36,11 @@ def update_code(ctx, tag):
         ctx.local("find . -type f -name '*.pyc' -delete")
 
 
+@task
 def update_oauth_credentials(ctx):
-    ctx.local("python2.6 manage.py export_project_credentials")
+
+    with ctx.lcd(th_service_src):
+        ctx.local("python2.6 manage.py export_project_credentials")
 
 
 @task
@@ -80,11 +83,12 @@ def deploy_workers(ctx):
         '{0}/supervisorctl restart celery_gevent'.format(settings.BIN_DIR))
 
 
+@task
 def deploy_admin_node(ctx):
 
     # Restarts celery worker on the admin node listening to the
     # celery queues: default
-    ctx.remote(
+    ctx.local(
         '{0}/supervisorctl restart run_celery_worker'.format(settings.BIN_DIR))
 
 
@@ -109,8 +113,8 @@ def pre_update(ctx, ref=settings.UPDATE_REF):
 
 @task
 def update(ctx):
-    update_db(ctx)
-    update_oauth_credentials(ctx)
+    update_db()
+    update_oauth_credentials()
 
 
 @task
