@@ -1323,6 +1323,10 @@ class JobsModel(TreeherderModelBase):
         state = job.get('state', 'unknown')
         state = state[0:25]
 
+        result = job.get('result', 'unknown')
+        if result == 'retry':
+            job_guid = '{0}RETRY'.format(job_guid)
+
         build_system_type = job.get('build_system_type', 'buildbot')
 
         # Should be the buildername in the case of buildbot
