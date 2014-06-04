@@ -1260,35 +1260,6 @@ fieldset[disabled] .btn-repo.active {
   color: white;
 }
 
-
-/*Log Viewer*/
-
-.lv-line-no {
-    width: 3em;
-}
-
-.lv-error-line {
-    background-color: white;
-    color: #333333;
-    width: 100%;
-}
-
-.lv-log-container {
-    overflow-y: scroll;
-    overflow-x: auto;
-    height: 1000px;
-}
-
-.lv-log-line {
-    width: 100%;
-    float: left;
-    white-space: pre-line;
-}
-
-.lv-line-highlight {
-    background-color: LightGrey;
-}
-
 .white, .white a {
     color: white;
 }
@@ -1360,8 +1331,6 @@ div.similar_jobs .left_panel table tr{cursor: pointer;}
     vertical-align: top;
 }
 
-div.logviewer-step{ padding:6px 6px;}
-
 .nowrap{
     overflow-x: hidden;
     white-space: nowrap;
@@ -1369,6 +1338,8 @@ div.logviewer-step{ padding:6px 6px;}
     white-space: nowrap;
     text-overflow: ellipsis;
 }
+
+div.logviewer-step{ padding:6px 6px;}
 
 th-watched-repo {
     display: block;
