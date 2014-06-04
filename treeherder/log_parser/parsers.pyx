@@ -1,5 +1,6 @@
 import re
 import datetime
+import json
 
 
 class ParserBase(object):
@@ -255,3 +256,21 @@ class ErrorParser(ParserBase):
                     "linenumber": lineno,
                     "line": line.rstrip()
                 })
+
+RE_TALOSDATA = re.compile('.*?TALOSDATA: (\[.*\])$')
+
+class TalosParser(ParserBase):
+    """a sub-parser to find TALOSDATA"""
+
+    def __init__(self):
+        super(TalosParser, self).__init__("talos_data")
+
+    def parse_line(self, line, lineno):
+        """check each line for TALOSDATA"""
+
+        match = RE_TALOSDATA.match(line)
+        if "TALOSDATA: " in line and match:
+            try:
+                self.artifact = json.loads(match.group(1))
+            except ValueError, e:
+                self.artifact.append(match.group(1))

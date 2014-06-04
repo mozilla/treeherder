@@ -1618,7 +1618,6 @@ class JobsModel(TreeherderModelBase):
 
         # store performance series data / or add task to generate it
 
-
     def _load_job_artifacts(self, artifact_placeholders, job_id_lookup):
         """
         Store a list of job artifacts substituting job_guid with job_id
