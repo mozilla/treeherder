@@ -51,7 +51,6 @@ def update_db(ctx):
         ctx.local('python2.6 manage.py syncdb')
         ctx.local('python2.6 manage.py migrate')
 
-
 @task
 def checkin_changes(ctx):
     """Use the local, IT-written deploy script to check in changes."""
@@ -63,12 +62,8 @@ def checkin_changes(ctx):
 def deploy_web_app(ctx):
     """Call the remote update script to push changes to webheads."""
     ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
-
-    # this is primarely for the persona ui
-    ctx.remote("python2.6 manage.py collectstatic --noinput")
-
     ctx.remote( '{0}/service httpd graceful'.format(settings.SBIN_DIR) )
-    ctx.remote( '{0}/supervisorctl restart gunicorn'.format(settings.BIN_DIR) )
+    ctx.remote( '{0}/service gunicorn restart'.format(settings.SBIN_DIR) )
 
 
 @hostgroups(
@@ -80,7 +75,7 @@ def deploy_workers(ctx):
     # Restarts celery worker on the celery hostgroup to listen to the
     # celery queues: log_parser_fail,log_parser
     ctx.remote(
-        '{0}/supervisorctl restart celery_gevent'.format(settings.BIN_DIR))
+        '{0}/service celery restart'.format(settings.SBIN_DIR))
 
 
 @task
@@ -89,7 +84,10 @@ def deploy_admin_node(ctx):
     # Restarts celery worker on the admin node listening to the
     # celery queues: default
     ctx.local(
-        '{0}/supervisorctl restart run_celery_worker'.format(settings.BIN_DIR))
+        '{0}/service celery restart'.format(settings.SBIN_DIR))
+
+    # this is primarely for the persona ui
+    ctx.local("python2.6 manage.py collectstatic --noinput")
 
 
 @task
