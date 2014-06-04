@@ -169,12 +169,16 @@ treeherder.controller('MainCtrl', [
 
         };
 
+        $rootScope.urlBasePath = $location.absUrl().split('?')[0];
+
         // give the page a way to determine which nav toolbar to show
         $rootScope.$on('$locationChangeSuccess', function(ev,newUrl) {
             $rootScope.locationPath = $location.path().replace('/', '');
-        });
 
-        $rootScope.urlBasePath = $location.absUrl().split('?')[0];
+            // this is to avoid bad urls showing up
+            // when the app redirects internally
+            $rootScope.urlBasePath = $location.absUrl().split('?')[0];
+        });
 
         $scope.isRepoPanelShowing = false;
 
