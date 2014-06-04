@@ -1604,6 +1604,9 @@ class JobsModel(TreeherderModelBase):
             placeholders=artifact_placeholders,
             executemany=True)
 
+    def store_performance_artifact(self, performance_artifact_placeholders):
+        pass
+
     def _load_job_artifacts(self, artifact_placeholders, job_id_lookup):
         """
         Store a list of job artifacts substituting job_guid with job_id

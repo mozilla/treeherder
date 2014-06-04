@@ -1,5 +1,6 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
+from treeherder.etl.perf_data_adapters import PerformanceDataAdapter
 from treeherder.webapp.api.utils import (UrlQueryFilter, with_jobs,
                                          oauth_required)
 
@@ -38,20 +39,34 @@ class ArtifactViewSet(viewsets.ViewSet):
     @oauth_required
     def create(self, request, project, jm):
         artifact_data = []
+        performance_artifact_data = []
 
         job_guids = [x['job_guid'] for x in request.DATA]
         job_id_lookup = jm.get_job_ids_by_guid(job_guids)
 
         for datum in request.DATA:
             job_id = job_id_lookup[datum['job_guid']]['id']
-            artifact_data.append((
-                job_id,
-                datum['name'],
-                datum['type'],
-                datum['blob'],
-                job_id,
-                datum['name'],
-            ))
+
+            if datum['type'] in PerformanceDataAdapter.performance_types:
+                performance_artifact_data.append((
+                    job_id,
+                    datum['name'],
+                    datum['type'],
+                    datum['blob'],
+                    job_id,
+                    datum['name'],
+                ))
+            else:
+                artifact_data.append((
+                    job_id,
+                    datum['name'],
+                    datum['type'],
+                    datum['blob'],
+                    job_id,
+                    datum['name'],
+                ))
 
         jm.store_job_artifact(artifact_data)
+        jm.store_performance_job_artifact(performance_artifact_data)
+
         return Response({'message': 'Artifacts stored successfully'})
