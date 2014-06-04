@@ -36,20 +36,6 @@ def update_code(ctx, tag):
         ctx.local("find . -type f -name '*.pyc' -delete")
 
 
-def update_assets(ctx):
-
-    cwd = os.getcwd()
-
-    # change cwd to ui src directory
-    ctx.local( "cd {0}".format(th_ui_src) )
-
-    # run grunt in ui src directory
-    ctx.local( "{0}/grunt build".format(settings.BIN_DIR) )
-
-    # change cwd back to original location
-    ctx.local( "cd {0}".format(cwd) )
-
-
 def update_oauth_credentials(ctx):
     ctx.local("python2.6 manage.py export_project_credentials")
 
@@ -74,9 +60,6 @@ def checkin_changes(ctx):
 def deploy_web_app(ctx):
     """Call the remote update script to push changes to webheads."""
     ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
-
-    # Make sure web assets are rebuilt when code is updated
-    update_assets(ctx)
 
     # this is primarely for the persona ui
     ctx.remote("python2.6 manage.py collectstatic --noinput")
@@ -126,7 +109,6 @@ def pre_update(ctx, ref=settings.UPDATE_REF):
 
 @task
 def update(ctx):
-    update_assets(ctx)
     update_db(ctx)
     update_oauth_credentials(ctx)
 
