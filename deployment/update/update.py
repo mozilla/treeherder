@@ -37,8 +37,17 @@ def update_code(ctx, tag):
 
 
 def update_assets(ctx):
-    grunt_path = os.path.join(th_ui_src, 'grunt')
-    ctx.local("{0} build".format(grunt_path))
+
+    cwd = os.getcwd()
+
+    # change cwd to ui src directory
+    ctx.local( "cd {0}".format(th_ui_src) )
+
+    # run grunt in ui src directory
+    ctx.local( "{0}/grunt build".format(settings.BIN_DIR) )
+
+    # change cwd back to original location
+    ctx.local( "cd {0}".format(cwd) )
 
 
 def update_oauth_credentials(ctx):
