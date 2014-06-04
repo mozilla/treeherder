@@ -20,6 +20,6 @@ if [ ! -f $LOGFILE ]; then
     touch $LOGFILE
 fi
 
-exec $NEWRELIC_ADMIN $PYTHON manage.py celeryd -Q log_parser_fail,log_parser -P gevent \
-    --concurrency=10 -E --logfile=$LOGFILE -n gevent_worker.%h -l debug \
+exec $NEWRELIC_ADMIN $PYTHON manage.py celery worker -Q log_parser_fail,log_parser -P gevent \
+    --concurrency=10 --logfile=$LOGFILE -n gevent_worker -l INFO \
     --maxtasksperchild=500

@@ -55,9 +55,10 @@ def cycle_data(max_iterations=50, debug=False):
         jm.disconnect()
 
 @task(name='unclassified-failure-count', rate_limit='60/h')
-def unclassified_failure_count():
+def unclassified_failure_count(projects=None):
 
-    projects = Repository.objects.all().values_list('name', flat=True)
+    if not projects:
+        projects = Repository.objects.all().values_list('name', flat=True)
     unclassified_failure_publisher = UnclassifiedFailureCountPublisher(settings.BROKER_URL)
 
     for project in projects:

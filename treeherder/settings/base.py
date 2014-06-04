@@ -145,25 +145,7 @@ LOGGING = {
             'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
         },
     },
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
-        }
-    },
     'handlers': {
-        'mail_admins': {
-            'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
-        },
-        'logfile': {
-            'level':'DEBUG',
-            'class':'logging.handlers.RotatingFileHandler',
-            'filename': 'treeherder.log',
-            'maxBytes': 1 * 1024 * 1024,
-            'backupCount': 2,
-            'formatter': 'standard',
-        },
         'console':{
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
@@ -171,13 +153,10 @@ LOGGING = {
         },
     },
     'loggers': {
-        'django.request': {
-            'handlers': ['mail_admins'],
-            'level': 'ERROR',
+        '': {
+            'handlers': ['console'],
+            'level': 'DEBUG' if DEBUG else 'ERROR',
             'propagate': True,
-        },
-        'treeherder': {
-            'handlers': ['logfile']
         }
     }
 }

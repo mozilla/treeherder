@@ -7,16 +7,13 @@ from gevent import monkey
 monkey.patch_all()
 from socketio.server import SocketIOServer
 from socketio import socketio_manage
-import os
-from kombu import Connection, Consumer
+from kombu import Connection
 
 sys.path.append(dirname(dirname(dirname(__file__))))
-os.environ['DJANGO_SETTINGS_MODULE'] = 'treeherder.settings'
 
 from treeherder.events.consumer import EventsConsumer
 from treeherder.events.sockets import EventsNamespace
 
-from django.conf import settings
 
 class Application(object):
     """wsgi application with socketio enabled"""
@@ -88,9 +85,10 @@ if __name__ == "__main__":
 
     try:
         server = SocketIOServer((args.host, args.port), Application(),
-                                resource="socket.io", log_file=args.log_file)
+                                resource="socket.io", log_file=args.log_file,
+                                policy_server=False, )
         print "Listening on http://{0}:{1}".format(args.host, args.port)
-        print "and on port 10843 (flash policy server)"
+        print "writing logs on %s" % args.log_file
         gevent.spawn(start_consumer, args.broker_url)
         server.serve_forever()
     except KeyboardInterrupt:
