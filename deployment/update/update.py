@@ -100,7 +100,7 @@ def update_info(ctx):
 @task
 def pre_update(ctx, ref=settings.UPDATE_REF):
     """Update code to pick up changes to this file."""
-    update_code(ref)
+    update_code(ctx, ref)
 
 
 @task
