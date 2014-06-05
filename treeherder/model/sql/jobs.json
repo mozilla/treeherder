@@ -214,6 +214,8 @@
             "sql":"
                 UPDATE `job`
                 SET
+                `job_guid` = ?,
+                `result` = ?,
                 `job_coalesced_to_guid` = ?,
                 `result_set_id` = ?,
                 `machine_id` = ?,
@@ -222,7 +224,6 @@
                 `product_id` = ?,
                 `who` = ?,
                 `reason` = ?,
-                `result` = ?,
                 `state` = ?,
                 `start_timestamp` = ?,
                 `end_timestamp` = ?
