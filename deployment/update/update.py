@@ -17,7 +17,7 @@ import commander_settings as settings
 th_service_src = os.path.join(settings.SRC_DIR, 'treeherder-service')
 th_ui_src = os.path.join(settings.SRC_DIR, 'treeherder-ui')
 
-sys.path.append(os.path.dirname(th_service_src))
+sys.path.append(th_service_src)
 
 
 def update_code(ctx, tag):
