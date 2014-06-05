@@ -18,7 +18,6 @@ th_service_src = os.path.join(settings.SRC_DIR, 'treeherder-service')
 th_ui_src = os.path.join(settings.SRC_DIR, 'treeherder-ui')
 
 
-@task
 def update_code(ctx, tag):
     """Update the code to a specific git reference (tag/sha/etc)."""
     with ctx.lcd(th_service_src):
@@ -36,14 +35,12 @@ def update_code(ctx, tag):
         ctx.local("find . -type f -name '*.pyc' -delete")
 
 
-@task
 def update_oauth_credentials(ctx):
 
     with ctx.lcd(th_service_src):
         ctx.local("python2.6 manage.py export_project_credentials")
 
 
-@task
 def update_db(ctx):
     """Update the database schema, if necessary."""
 
@@ -51,7 +48,6 @@ def update_db(ctx):
         ctx.local('python2.6 manage.py syncdb')
         ctx.local('python2.6 manage.py migrate')
 
-@task
 def checkin_changes(ctx):
     """Use the local, IT-written deploy script to check in changes."""
     ctx.local(settings.DEPLOY_SCRIPT)
@@ -78,7 +74,6 @@ def deploy_workers(ctx):
         '{0}/service celery restart'.format(settings.SBIN_DIR))
 
 
-@task
 def deploy_admin_node(ctx):
 
     # Restarts celery worker on the admin node listening to the
@@ -90,7 +85,6 @@ def deploy_admin_node(ctx):
     ctx.local("python2.6 manage.py collectstatic --noinput")
 
 
-@task
 def update_info(ctx):
     """Write info about the current state to a publicly visible file."""
     with ctx.lcd(th_service_src):
