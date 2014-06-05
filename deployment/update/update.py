@@ -105,14 +105,14 @@ def pre_update(ctx, ref=settings.UPDATE_REF):
 
 @task
 def update(ctx):
-    update_db()
-    update_oauth_credentials()
+    update_db(ctx)
+    update_oauth_credentials(ctx)
 
 
 @task
 def deploy(ctx):
-    checkin_changes()
-    deploy_web_app()
-    deploy_workers()
-    deploy_admin_node()
-    update_info()
+    checkin_changes(ctx)
+    deploy_web_app(ctx)
+    deploy_workers(ctx)
+    deploy_admin_node(ctx)
+    update_info(ctx)
