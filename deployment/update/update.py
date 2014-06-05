@@ -45,6 +45,10 @@ def update_db(ctx):
     """Update the database schema, if necessary."""
 
     with ctx.lcd(th_service_src):
+
+        # this is for debugging chief, remove when done
+        #for path in sys.path: print path
+
         ctx.local('python2.6 manage.py syncdb')
         ctx.local('python2.6 manage.py migrate')
 
@@ -105,8 +109,8 @@ def pre_update(ctx, ref=settings.UPDATE_REF):
 
 @task
 def update(ctx):
-    update_db(ctx)
     update_oauth_credentials(ctx)
+    update_db(ctx)
 
 
 @task
