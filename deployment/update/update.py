@@ -17,6 +17,8 @@ import commander_settings as settings
 th_service_src = os.path.join(settings.SRC_DIR, 'treeherder-service')
 th_ui_src = os.path.join(settings.SRC_DIR, 'treeherder-ui')
 
+sys.path.append(os.path.dirname(th_service_src))
+
 
 def update_code(ctx, tag):
     """Update the code to a specific git reference (tag/sha/etc)."""
@@ -48,6 +50,7 @@ def update_db(ctx):
 
         # this is for debugging chief, remove when done
         for path in sys.path: print path
+        print "CWD: {0}".format( os.getcwd() )
 
         ctx.local('python2.6 manage.py syncdb')
         ctx.local('python2.6 manage.py migrate')

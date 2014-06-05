@@ -2,6 +2,7 @@ import os
 from os.path import dirname
 import sys
 from django.core.management import call_command
+from django.conf import settings
 import pytest
 
 def pytest_addoption(parser):
@@ -152,7 +153,7 @@ def jobs_ds():
         project=settings.DATABASES["default"]["TEST_NAME"],
         dataset=1,
         contenttype="jobs",
-        host="localhost",
+        host=settings.TREEHERDER_DATABASE_HOST,
     )
 
 
@@ -164,7 +165,7 @@ def objectstore_ds():
         project=settings.DATABASES["default"]["TEST_NAME"],
         dataset=1,
         contenttype="objectstore",
-        host="localhost",
+        host=settings.TREEHERDER_DATABASE_HOST,
     )
 
 
