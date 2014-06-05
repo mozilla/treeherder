@@ -14,6 +14,9 @@ from treeherder.model import utils
 
 from .base import TreeherderModelBase
 
+from datasource.DataHub import DataHub
+
+from treeherder.etl.perf_data_adapters import TalosDataAdapter
 
 class JobsModel(TreeherderModelBase):
     """
@@ -1605,11 +1608,42 @@ class JobsModel(TreeherderModelBase):
             executemany=True)
 
     def store_performance_artifact(self, job_ids, performance_artifact_placeholders):
+        """
+        Store the performance data
+        """
+        jobs_signatures_where_in_clause = [ ','.join( ['%s'] * len(job_ids) ) ]
+
+        job_data = self.get_jobs_dhub().execute(
+            proc='jobs.selects.get_signature_list_from_job_ids',
+            debug_show=self.DEBUG,
+            replace=jobs_signatures_where_in_clause,
+            placeholders=job_ids)
+
+        job_signatures = [x['signature'] for x in job_data]
+        reference_data_signatures_where_in_clause = [ ','.join( ['%s'] * len(job_signatures) ) ]
+
+        reference_data = DataHub.get('reference').execute(
+            proc='reference.selects.get_from_signatures',
+            debug_show=self.DEBUG,
+            replace=reference_data_signatures_where_in_clause,
+            placeholders=job_signatures)
+
+        name = 'talos'
+        obj_type = 'performance'
+        job_guid = 'lakjsdfhlaksj'
+
+        pre_adapted_data = []
+        for datum in performance_artifact_placeholders:
+
+            tda = TalosDataAdapter(datum)
+
+            # Confirm pre_adapt doesn't raise any exceptions
+            a = tda.pre_adapt(job_guid, name, obj_type)
+            pre_adapted_data.append(a)
 
         # use job_ids to retrieve all reference data signature properties
 
-
-        # call method on talos data adapter with reference data signature
+        # call method on TalosDataAdapter with reference data signature
         # properties to generate the performance signatures
 
         # store series signatures

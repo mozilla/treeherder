@@ -297,6 +297,7 @@
                    WHERE `job_id` IN (REP0) AND `active_status` = 'active'",
 
             "host":"read_host"
+
         },
         "get_max_job_submit_timestamp":{
 
@@ -342,6 +343,12 @@
                          start_timestamp > 0 AND end_timestamp > 0
                    GROUP BY signature",
 
+            "host":"read_host"
+
+        },
+        "get_signature_list_from_job_ids":{
+
+            "sql":"SELECT signature FROM job WHERE id IN (REP0) GROUP BY signature",
             "host":"read_host"
 
         },

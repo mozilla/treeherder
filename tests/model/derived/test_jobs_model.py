@@ -6,6 +6,7 @@ import itertools
 
 from treeherder.model.derived.base import DatasetNotFoundError
 from tests.sample_data_generator import job_data, result_set
+from tests.sampledata import SampleData
 from tests import test_utils
 from datadiff import diff
 
@@ -216,3 +217,14 @@ def test_store_result_set_data(jm, initial_data, sample_resultset):
     # the database
     assert data['result_set_ids'] == result_set_ids
     assert data['revision_ids'] == revision_ids
+
+def test_store_performance_artifact(jm, refdata, sample_data, initial_data,
+                                  mock_log_parser, sample_resultset):
+
+    talos_perf_data = SampleData.get_talos_perf_data()
+
+    job_data = sample_data.job_data[:20]
+    test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset, False)
+
+    job_ids = range(1,21)
+    jm.store_performance_artifact(job_ids, talos_perf_data)
