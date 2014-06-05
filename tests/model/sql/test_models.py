@@ -8,11 +8,13 @@ def create_datasource(model, **kwargs):
     """Utility function to easily create a test DataSource."""
     global dataset_num
 
+    from django.conf import settings
+
     defaults = {
         "project": "foo",
         "dataset": dataset_num,
         "contenttype": "jobs",
-        "host": "localhost",
+        "host": settings.TREEHERDER_DATABASE_HOST,
         "type": "MySQL-InnoDB",
         "creation_date": datetime.datetime.now(),
     }

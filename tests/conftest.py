@@ -2,7 +2,6 @@ import os
 from os.path import dirname
 import sys
 from django.core.management import call_command
-from django.conf import settings
 import pytest
 
 def pytest_addoption(parser):
