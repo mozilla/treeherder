@@ -1,5 +1,7 @@
 from optparse import make_option
 
+from django.conf import settings
+
 from django.core.management.base import BaseCommand, CommandError
 from treeherder.model.models import Datasource, Repository
 
@@ -12,12 +14,12 @@ class Command(BaseCommand):
         make_option('--host',
             action='store',
             dest='host',
-            default='localhost',
+            default=settings.TREEHERDER_DATABASE_HOST,
             help='Host to associate the datasource to'),
         make_option('--readonly-host',
             action='store',
             dest='readonly_host',
-            default='localhost',
+            default=settings.TREEHERDER_DATABASE_HOST,
             help='Readonly host to associate the datasource to'),
     )
 
