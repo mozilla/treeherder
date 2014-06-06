@@ -122,7 +122,7 @@ def update(ctx):
 @task
 def deploy(ctx):
     checkin_changes(ctx)
-    deploy_web_app(ctx)
-    deploy_workers(ctx)
+    deploy_web_app()
+    deploy_workers()
     deploy_admin_node(ctx)
     update_info(ctx)
