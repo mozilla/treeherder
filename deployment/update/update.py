@@ -50,11 +50,6 @@ def update_db(ctx):
     """Update the database schema, if necessary."""
 
     with ctx.lcd(th_service_src):
-
-        # this is for debugging chief, remove when done
-        for path in sys.path: print path
-        print "CWD: {0}".format( os.getcwd() )
-
         ctx.local('python2.6 manage.py syncdb --settings {0}'.format(th_settings))
         ctx.local('python2.6 manage.py migrate --settings {0}'.format(th_settings))
 
@@ -91,8 +86,9 @@ def deploy_admin_node(ctx):
     ctx.local(
         '{0}/service celery restart'.format(settings.SBIN_DIR))
 
-    # this is primarely for the persona ui
-    ctx.local("python2.6 manage.py collectstatic --noinput --settings {0}".format(th_settings))
+    with ctx.lcd(th_service_src):
+        # this is primarely for the persona ui
+        ctx.local("python2.6 manage.py collectstatic --noinput --settings {0}".format(th_settings))
 
 
 def update_info(ctx):
