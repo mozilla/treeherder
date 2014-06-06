@@ -17,6 +17,8 @@ import commander_settings as settings
 th_service_src = os.path.join(settings.SRC_DIR, 'treeherder-service')
 th_ui_src = os.path.join(settings.SRC_DIR, 'treeherder-ui')
 
+th_settings = 'treeherder.settings'
+
 sys.path.append(th_service_src)
 
 
@@ -40,7 +42,8 @@ def update_code(ctx, tag):
 def update_oauth_credentials(ctx):
 
     with ctx.lcd(th_service_src):
-        ctx.local("python2.6 manage.py export_project_credentials")
+        ctx.local(
+            "python2.6 manage.py export_project_credentials --settings {0}".format(th_settings))
 
 
 def update_db(ctx):
@@ -52,8 +55,8 @@ def update_db(ctx):
         for path in sys.path: print path
         print "CWD: {0}".format( os.getcwd() )
 
-        ctx.local('python2.6 manage.py syncdb')
-        ctx.local('python2.6 manage.py migrate')
+        ctx.local('python2.6 manage.py syncdb --settings {0}'.format(th_settings))
+        ctx.local('python2.6 manage.py migrate --settings {0}'.format(th_settings))
 
 def checkin_changes(ctx):
     """Use the local, IT-written deploy script to check in changes."""
@@ -89,7 +92,7 @@ def deploy_admin_node(ctx):
         '{0}/service celery restart'.format(settings.SBIN_DIR))
 
     # this is primarely for the persona ui
-    ctx.local("python2.6 manage.py collectstatic --noinput")
+    ctx.local("python2.6 manage.py collectstatic --noinput --settings {0}".format(th_settings))
 
 
 def update_info(ctx):
