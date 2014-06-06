@@ -100,7 +100,7 @@ def update_info(ctx):
         ctx.local('git status')
         ctx.local('git submodule status')
 
-        ctx.local('git rev-parse HEAD > webapp/media/revision')
+        ctx.local('git rev-parse HEAD > treeherder/webapp/media/revision')
 
 
 @task
