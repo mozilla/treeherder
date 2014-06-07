@@ -1328,4 +1328,11 @@ class RefDataManager(object):
 
         return sh.hexdigest()
 
+    def get_from_signatures(self, signatures):
+        reference_data_signatures_where_in_clause = [ ','.join( ['%s'] * len(signatures) ) ]
 
+        return self.dhub.execute(
+            proc="reference.selects.get_from_signatures",
+            placeholders="signatures",
+            replace=reference_data_signatures_where_in_clause,
+            debug_show=self.DEBUG)

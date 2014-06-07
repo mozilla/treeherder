@@ -25,6 +25,7 @@ def do_test(log):
     lpc = ArtifactBuilderCollection(url, builders=builder)
     lpc.parse()
     act = lpc.artifacts[builder.name]
+
     # we can't compare the "logurl" field, because it's a fully qualified url,
     # so it will be different depending on the config it's run in.
     assert "logurl" in act

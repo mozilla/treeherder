@@ -53,13 +53,14 @@ class PerformanceDataAdapter(object):
                     "properties": {
                         "series_properties": { "type": "object" },
                         "testsuite": { "type": "string" },
-                        "sub_test": { "type": "string" },
-                        "replicates": { "type": "list" }
+                        "test": { "type": "string" },
+                        "replicates": { "type": "list" },
+                        "metadata": {"type": "object"} #added (holds 'options' from talos data & talos_aux [if present])
                         }
                      },
                     "required": [
                         "series_signature", "replicates", "testsuite",
-                        "sub_test"
+                        "test"
                         ]
                 },
 
@@ -115,7 +116,12 @@ class TalosDataAdapter(PerformanceDataAdapter):
 
     def get_series_signature(self, reference_data, datum):
 
-        pass
+        #get suite name
+        #per entry in results create new signature for each page
 
+        #ref data is from ref_data_signature
+        #datum is talos blob
 
+        #insert_on_duplicate_key_update https://dev.mysql.com/doc/refman/5.0/en/insert-on-duplicate.html
 
+        #insert into series_signature(signature, property, value) DUPLICATE KEY UPDATE 
