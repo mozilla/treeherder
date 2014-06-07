@@ -1620,28 +1620,15 @@ class JobsModel(TreeherderModelBase):
             placeholders=job_ids)
 
         job_signatures = [x['signature'] for x in job_data]
-        reference_data_signatures_where_in_clause = [ ','.join( ['%s'] * len(job_signatures) ) ]
+        reference_data = self.refdata_model.get_from_signatures(job_signatures)
 
-        reference_data = DataHub.get('reference').execute(
-            proc='reference.selects.get_from_signatures',
-            debug_show=self.DEBUG,
-            replace=reference_data_signatures_where_in_clause,
-            placeholders=job_signatures)
+        for ref_data, artifact in zip(reference_data, performance_artifact_placeholders):
+            for exclude in ['first_submission_timestamp', 'id', 'review_timestamp', 'review_status']:
+                ref_data.pop(exclude, None)
+            
+            tda = TalosDataAdapter(artifact.blob)
 
-        name = 'talos'
-        obj_type = 'performance'
-        job_guid = 'lakjsdfhlaksj'
-
-        pre_adapted_data = []
-        for datum in performance_artifact_placeholders:
-
-            tda = TalosDataAdapter(datum)
-
-            # Confirm pre_adapt doesn't raise any exceptions
-            a = tda.pre_adapt(job_guid, name, obj_type)
-            pre_adapted_data.append(a)
-
-        # use job_ids to retrieve all reference data signature properties
+            tda.adapt(reference_data)
 
         # call method on TalosDataAdapter with reference data signature
         # properties to generate the performance signatures
