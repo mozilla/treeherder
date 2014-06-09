@@ -209,6 +209,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 # IP addresses are also allowed. A dot is used to include all sub domains
 ALLOWED_HOSTS = [".mozilla.org", ".allizom.org"]
 USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 try:
     from .local import *
