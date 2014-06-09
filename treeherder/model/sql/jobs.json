@@ -192,8 +192,10 @@
                 `job_id`,
                 `bug_id`,
                 `type`,
+                `submit_timestamp`,
+                `who`,
                 `active_status`)
-            VALUES (?,?,?,'active')",
+            VALUES (?,?,?,?,?,'active')",
             "host":"master_host"
         }
 
@@ -374,6 +376,7 @@
             "sql":"SELECT
                     j.id,
                     j.`job_guid`,
+                    j.`signature`,
                     j.`job_coalesced_to_guid`,
                     j.`build_platform_id`,
                     j.`option_collection_hash`,
@@ -726,7 +729,7 @@
             "host":"read_host"
         },
         "get_bug_job_map":{
-            "sql":"SELECT `job_id`, `bug_id`, `type`
+            "sql":"SELECT `job_id`, `bug_id`, `type`, `submit_timestamp`, `who`
                    FROM `bug_job_map`
                    WHERE 1
                    REP0",

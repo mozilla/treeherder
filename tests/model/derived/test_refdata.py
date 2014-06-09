@@ -222,22 +222,22 @@ def test_refdata_manager(refdata, params):
 def test_reference_data_signatures(refdata):
 
     reference_data_sample = [
-        [ 'buildername 1', 'buildbot', [
-            'buildbot', 'macosx', '10.8', 'x64', 'macosx', '10.8', 'x64', 'device1',
+        [ 'buildername 1', 'buildbot', 'myrepo', [
+            'buildbot', 'myrepo', 'macosx', '10.8', 'x64', 'macosx', '10.8', 'x64', 'device1',
             'Mochitest', 'M', 'mochitest-1', 'M-1', 'asdfasdfasdf' ] ],
 
-        [ 'buildername 2', 'buildbot', [
-            'buildbot', 'macosx', '10.8', 'x64', 'macosx', '10.8', 'x64', 'device2',
+        [ 'buildername 2', 'buildbot', 'myrepo', [
+            'buildbot', 'myrepo', 'macosx', '10.8', 'x64', 'macosx', '10.8', 'x64', 'device2',
             'Mochitest', 'M', 'mochitest-2', 'M-2', 'asdfasdfasdf' ] ],
 
-        [ 'buildername 3', 'buildbot', [
-            'buildbot', 'macosx', '10.8', 'x64', 'macosx', '10.8', 'x64', 'device3',
+        [ 'buildername 3', 'buildbot', 'myrepo', [
+            'buildbot', 'myrepo', 'macosx', '10.8', 'x64', 'macosx', '10.8', 'x64', 'device3',
             'Mochitest', 'M', 'mochitest-3', 'M-2', 'asdfasdfasdf' ] ] ]
 
     expected_signatures = []
     for d in reference_data_sample:
         expected_signatures.append(
-            refdata.add_reference_data_signature(d[0], d[1], d[2]) )
+            refdata.add_reference_data_signature(d[0], d[1], d[2], d[3]) )
 
     refdata.process_reference_data_signatures()
 
