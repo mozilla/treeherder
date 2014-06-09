@@ -1,6 +1,7 @@
 import pytest
 import json
 from webtest.app import TestApp
+
 from treeherder.etl.mixins import JsonLoaderMixin, OAuthLoaderMixin
 from treeherder.etl.oauth_utils import OAuthCredentials
 from treeherder.webapp.wsgi import application

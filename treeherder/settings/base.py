@@ -18,7 +18,7 @@ TREEHERDER_DATABASE_PORT = os.environ.get("TREEHERDER_DATABASE_PORT", "")
 TREEHERDER_RO_DATABASE_USER     = os.environ.get("TREEHERDER_RO_DATABASE_USER", "TREEHERDER_DATABASE_USER")
 TREEHERDER_RO_DATABASE_PASSWORD = os.environ.get("TREEHERDER_RO_DATABASE_PASSWORD", "TREEHERDER_DATABASE_PASSWORD")
 
-TREEHERDER_MEMCACHED = os.environ.get("TREEHERDER_MEMCACHED", "")
+TREEHERDER_MEMCACHED = os.environ.get("TREEHERDER_MEMCACHED", "").strip(',').split(',')
 TREEHERDER_MEMCACHED_KEY_PREFIX = os.environ.get("TREEHERDER_MEMCACHED_KEY_PREFIX", "treeherder")
 DEBUG = os.environ.get("TREEHERDER_DEBUG", False)
 
@@ -208,6 +208,8 @@ CORS_ORIGIN_ALLOW_ALL = True
 # An asterisk means everything but it's not secure.
 # IP addresses are also allowed. A dot is used to include all sub domains
 ALLOWED_HOSTS = [".mozilla.org", ".allizom.org"]
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 try:
     from .local import *

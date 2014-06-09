@@ -152,7 +152,7 @@ def jobs_ds():
         project=settings.DATABASES["default"]["TEST_NAME"],
         dataset=1,
         contenttype="jobs",
-        host="localhost",
+        host=settings.TREEHERDER_DATABASE_HOST,
     )
 
 
@@ -164,7 +164,7 @@ def objectstore_ds():
         project=settings.DATABASES["default"]["TEST_NAME"],
         dataset=1,
         contenttype="objectstore",
-        host="localhost",
+        host=settings.TREEHERDER_DATABASE_HOST,
     )
 
 
