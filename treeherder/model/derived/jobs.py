@@ -8,7 +8,9 @@ from warnings import filterwarnings, resetwarnings
 from django.conf import settings
 from django.core.cache import cache
 
-from treeherder.model.models import Datasource, ExclusionProfile
+from treeherder.model.models import (Datasource,
+                                     ExclusionProfile,
+                                     ReferenceDataSignatures)
 
 from treeherder.model import utils
 
@@ -81,7 +83,9 @@ class JobsModel(TreeherderModelBase):
         "bug_job_map": {
             "job_id": "job_id",
             "bug_id": "bug_id",
-            "type": "type"
+            "type": "type",
+            "who": "who",
+            "submit_timestamp": "submit_timestamp"
         },
         "job_artifact": {
             "id": "id",
@@ -152,6 +156,19 @@ class JobsModel(TreeherderModelBase):
     def get_os_dhub(self):
         """Get the dhub for the objectstore"""
         return self.get_dhub(self.CT_OBJECTSTORE)
+
+    def get_build_system_type(self, project=None):
+        if not project:
+            project = self.project
+        build_systems = cache.get("build_system_by_repo", None)
+        if not build_systems:
+            build_systems = dict((repo, build_system_type) for repo, build_system_type in
+                ReferenceDataSignatures.objects.order_by("repository"
+                ).values_list("repository", "build_system_type").distinct()
+            )
+            cache.set("build_system_by_repo", build_systems)
+
+
 
     def get_job(self, id):
         """Return the job row for this ``job_id``"""
@@ -270,7 +287,6 @@ class JobsModel(TreeherderModelBase):
             )
 
         return count
-
 
     def _process_conditions(self, conditions, allowed_fields=None):
         """Transform a list of conditions into a list of placeholders and
@@ -410,6 +426,24 @@ class JobsModel(TreeherderModelBase):
         )
         self.update_last_job_classification(job_id)
 
+        if settings.TBPL_BUGS_TRANSFER_ENABLED:
+            job = self.get_job(job_id)[0]
+            if job["state"] == "completed":
+                signature = ReferenceDataSignatures.objects.filter(
+                    signature=job['signature'],
+                    repository=self.project)[0]
+                if signature.build_system_type == 'buildbot':
+
+                    from treeherder.etl.tasks import submit_build_star
+                    submit_build_star.delay(
+                        self.project,
+                        int(job_id),
+                        who,
+                        classification_id=int(failure_classification_id),
+                        note=note
+                    )
+
+
     def delete_job_note(self, note_id, job_id):
         """
         Delete a job note and updates the failure classification for that job
@@ -425,7 +459,7 @@ class JobsModel(TreeherderModelBase):
 
         self.update_last_job_classification(job_id)
 
-    def insert_bug_job_map(self, job_id, bug_id, assignment_type):
+    def insert_bug_job_map(self, job_id, bug_id, assignment_type, submit_timestamp, who):
         """
         Store a new relation between the given job and bug ids.
         """
@@ -435,12 +469,41 @@ class JobsModel(TreeherderModelBase):
                 placeholders=[
                     job_id,
                     bug_id,
-                    assignment_type
+                    assignment_type,
+                    submit_timestamp,
+                    who
                 ],
                 debug_show=self.DEBUG
             )
         except IntegrityError as e:
             raise JobDataIntegrityError(e)
+
+        if settings.TBPL_BUGS_TRANSFER_ENABLED:
+            job = self.get_job(job_id)[0]
+            if job["state"] == "completed":
+                signature = ReferenceDataSignatures.objects.filter(
+                    signature=job['signature'],
+                    repository=self.project)[0]
+                if signature.build_system_type == 'buildbot':
+                    # importing here to avoid an import loop
+                    from treeherder.etl.tasks import (submit_star_comment,
+                                                      submit_build_star)
+                    # submit bug association to tbpl
+                    # using an async task
+                    submit_star_comment.delay(
+                        self.project,
+                        job_id,
+                        bug_id,
+                        submit_timestamp,
+                        who
+                    )
+
+                    submit_build_star.delay(
+                        self.project,
+                        int(job_id),
+                        who,
+                        bug_id=bug_id
+                    )
 
 
     def delete_bug_job_map(self, job_id, bug_id):
@@ -455,6 +518,11 @@ class JobsModel(TreeherderModelBase):
             ],
             debug_show=self.DEBUG
         )
+
+    def get_build_system_type(self, job_id):
+        job = self.get_job(job_id)
+        rds = ReferenceDataSignatures.objects.get(signature=job["signature"])
+        return rds.build_system_type
 
     def calculate_eta(self, sample_window_seconds, debug):
 
@@ -837,7 +905,8 @@ class JobsModel(TreeherderModelBase):
         lookups = self.get_jobs_dhub().execute(
             proc=proc,
             debug_show=self.DEBUG,
-            replace=[result_set_id],
+            placeholders=[result_set_id],
+            replace=["%s"],
         )
         return lookups
 
@@ -1333,8 +1402,8 @@ class JobsModel(TreeherderModelBase):
         reference_data_name = job.get('reference_data_name', None)
 
         signature = self.refdata_model.add_reference_data_signature(
-            reference_data_name, build_system_type,
-            [ build_system_type, build_os_name, build_platform, build_architecture,
+            reference_data_name, build_system_type, self.project,
+            [ build_system_type, self.project,  build_os_name, build_platform, build_architecture,
               machine_os_name, machine_platform, machine_architecture,
               device_name, group_name, group_symbol, job_type, job_symbol,
               option_collection_hash ]

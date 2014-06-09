@@ -142,21 +142,24 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'standard': {
-            'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+            'format': "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
         },
     },
     'handlers': {
-        'console':{
-            'level': 'DEBUG',
+        'console': {
+            'level': 'ERROR',
             'class': 'logging.StreamHandler',
             'formatter': 'standard'
         },
     },
     'loggers': {
-        '': {
+        'django.request': {
             'handlers': ['console'],
-            'level': 'DEBUG' if DEBUG else 'ERROR',
+            'level': 'ERROR',
             'propagate': True,
+        },
+        'treeherder': {
+            'handlers': ['console']
         }
     }
 }
@@ -210,6 +213,10 @@ CORS_ORIGIN_ALLOW_ALL = True
 ALLOWED_HOSTS = [".mozilla.org", ".allizom.org"]
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# set this to True to enable bug associations to tbpl (and then Orange Factor)
+TBPL_BUGS_TRANSFER_ENABLED = True
+TBPL_HOST = "https://tbpl.mozilla.org"
 
 try:
     from .local import *

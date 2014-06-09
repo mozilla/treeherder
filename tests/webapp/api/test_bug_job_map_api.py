@@ -3,6 +3,7 @@ from rest_framework.test import APIClient
 from django.contrib.auth.models import User
 import random
 import json
+from time import time
 
 
 def test_create_bug_job_map_no_auth(eleven_jobs_processed, jm):
@@ -45,19 +46,26 @@ def test_create_bug_job_map(eleven_jobs_processed, mock_message_broker, jm):
         "type": "manual"
     }
 
-    client.post(
+    resp = client.post(
         reverse("bug-job-map-list", kwargs={"project": jm.project}),
         bug_job_map_obj
     )
 
+
+
+    bug_job_map_obj["who"] = "MyName"
+
     user.delete()
 
-    assert (bug_job_map_obj,) == jm.get_bug_job_map_list(0, 1)
+    actual_obj = jm.get_bug_job_map_list(0, 1)[0]
+    del actual_obj["submit_timestamp"]
+
+    assert bug_job_map_obj == actual_obj
 
     jm.disconnect()
 
 
-def test_create_bug_job_map_dup(eleven_jobs_processed, mock_message_broker, jm):
+def test_create_bug_job_map_dupe(eleven_jobs_processed, mock_message_broker, jm):
     """
     test creating the same bug map skips it
     """
@@ -71,7 +79,7 @@ def test_create_bug_job_map_dup(eleven_jobs_processed, mock_message_broker, jm):
     bug_job_map_obj = {
         "job_id": job["id"],
         "bug_id": 1,
-        "type": "manual"
+        "type": "manual",
     }
 
     client.post(
@@ -84,9 +92,14 @@ def test_create_bug_job_map_dup(eleven_jobs_processed, mock_message_broker, jm):
         bug_job_map_obj
     )
 
+    bug_job_map_obj["who"] = "MyName"
+
     user.delete()
 
-    assert (bug_job_map_obj,) == jm.get_bug_job_map_list(0, 1)
+    actual_obj = jm.get_bug_job_map_list(0, 1)[0]
+    del actual_obj["submit_timestamp"]
+
+    assert bug_job_map_obj == actual_obj
 
     jm.disconnect()
 
@@ -96,15 +109,23 @@ def test_bug_job_map_list(webapp, jm, eleven_jobs_processed):
     """
     jobs = jm.get_job_list(0, 10)
     bugs = [random.randint(0, 100) for i in range(0, len(jobs))]
+    submit_timestamp = int(time())
+    who = "user@mozilla.com"
 
     expected = list()
 
     for i, v in enumerate(jobs):
-        jm.insert_bug_job_map(v["id"], bugs[i], "manual")
+
+        jm.insert_bug_job_map(v["id"], bugs[i],
+                              "manual", submit_timestamp, who)
         expected.append({
             "job_id": v["id"],
             "bug_id": bugs[i],
-            "type": "manual"})
+            "type": "manual",
+            "submit_timestamp": submit_timestamp,
+            "who": who
+        })
+        submit_timestamp += 1
 
     resp = webapp.get(
         reverse("bug-job-map-list", kwargs={"project": jm.project}))
@@ -123,7 +144,9 @@ def test_bug_job_map_detail(webapp, jm, eleven_jobs_processed):
 
     expected = list()
 
-    jm.insert_bug_job_map(job_id, bug_id, "manual")
+    submit_timestamp = int(time())
+    who = "user@mozilla.com"
+    jm.insert_bug_job_map(job_id, bug_id, "manual", submit_timestamp, who)
 
     pk = "{0}-{1}".format(job_id, bug_id)
 
@@ -134,9 +157,17 @@ def test_bug_job_map_detail(webapp, jm, eleven_jobs_processed):
         })
     )
 
-    assert resp.json == {"job_id": job_id, "bug_id": bug_id, "type": "manual"}
+    expected = {
+        "job_id": job_id,
+        "bug_id": bug_id,
+        "type": "manual",
+        "submit_timestamp": submit_timestamp,
+        "who": who}
+
+    assert resp.json == expected
 
     jm.disconnect()
+
 
 def test_bug_job_map_delete(webapp, eleven_jobs_processed,
                             jm, mock_message_broker):
@@ -150,11 +181,13 @@ def test_bug_job_map_delete(webapp, eleven_jobs_processed,
     job_id = jm.get_job_list(0, 1)[0]["id"]
     bug_id = random.randint(0, 100)
 
-    jm.insert_bug_job_map(job_id, bug_id, "manual")
+    submit_timestamp = int(time())
+    who = "user@mozilla.com"
+
+    jm.insert_bug_job_map(job_id, bug_id,
+                          "manual", submit_timestamp, who)
 
     pk = "{0}-{1}".format(job_id, bug_id)
-
-
 
     resp = client.delete(
         reverse("bug-job-map-detail", kwargs={
@@ -170,6 +203,7 @@ def test_bug_job_map_delete(webapp, eleven_jobs_processed,
 
     jm.disconnect()
 
+
 def test_bug_job_map_delete_no_auth(jm, eleven_jobs_processed):
     """
     test retrieving a list of bug_job_map
@@ -179,7 +213,11 @@ def test_bug_job_map_delete_no_auth(jm, eleven_jobs_processed):
     job_id = jm.get_job_list(0, 1)[0]["id"]
     bug_id = random.randint(0, 100)
 
-    jm.insert_bug_job_map(job_id, bug_id, "manual")
+    submit_timestamp = int(time())
+    who = "user@mozilla.com"
+
+    jm.insert_bug_job_map(job_id, bug_id, "manual",
+                          submit_timestamp, who)
 
     pk = "{0}-{1}".format(job_id, bug_id)
 
