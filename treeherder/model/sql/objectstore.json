@@ -154,7 +154,8 @@
 
             "sql":"UPDATE   `objectstore`
                    SET      `processed_state` = 'complete',
-                            `revision_hash` = ?
+                            `revision_hash` = ?,
+                            `job_guid` = ?
                    WHERE    `processed_state` = 'loading'
                    AND      `id` = ?
                    AND      `worker_id` = CONNECTION_ID()

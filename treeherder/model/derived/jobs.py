@@ -1172,8 +1172,11 @@ class JobsModel(TreeherderModelBase):
                     )
 
                 if 'id' in datum:
+                    datum_job_guid = job['job_guid']
+                    if datum_job_guid in retry_job_guids:
+                        datum_job_guid = '{0}RETRY'.format(datum_job_guid)
                     object_placeholders.append(
-                        [ revision_hash, datum['id'] ]
+                        [ revision_hash, datum_job_guid, datum['id'] ]
                         )
 
                 for coalesced_guid in coalesced:
@@ -1337,7 +1340,7 @@ class JobsModel(TreeherderModelBase):
 
         result = job.get('result', 'unknown')
         if result == 'retry':
-            retry_job_guids.append(job_guid)
+            job_guid = '{0}RETRY'.format(job_guid)
 
         build_system_type = job.get('build_system_type', 'buildbot')
 
