@@ -81,6 +81,9 @@ def deploy_workers(ctx):
 
 def deploy_admin_node(ctx):
 
+    ctx.local(
+        '{0}/service celerybeat restart'.format(settings.SBIN_DIR))
+
     # Restarts celery worker on the admin node listening to the
     # celery queues: default
     ctx.local(
