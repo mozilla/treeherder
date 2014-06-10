@@ -1,6 +1,5 @@
-import urllib2
-import gzip
-import io
+import requests
+from contextlib import closing
 import logging
 
 from .artifactbuilders import (BuildbotLogViewArtifactBuilder,
@@ -75,10 +74,6 @@ class ArtifactBuilderCollection(object):
                 BuildbotJobArtifactBuilder(self.url)
             ]
 
-    def get_log_handle(self, url):
-        """Hook to get a handle to the log with this url"""
-        return urllib2.urlopen(url)
-
     def parse(self):
         """
         Iterate over each line of the log, running each parser against it.
@@ -87,21 +82,8 @@ class ArtifactBuilderCollection(object):
         building the ``artifact`` as we go.
 
         """
-
-        handle = None
-        gz_file = None
-        try:
-            handle = self.get_log_handle(self.url)
-
-            # using BytesIO is a workaround.  Apparently this is fixed in
-            # Python 3.2, but not in the 2.x versions.  GzipFile wants the
-            # the methods seek() and tell(), which don't exist on a normal
-            # fileobj.
-            # interesting write-up here:
-            #     http://www.enricozini.org/2011/cazzeggio/python-gzip/
-            gz_file = gzip.GzipFile(fileobj=io.BytesIO(handle.read()))
-
-            for line in gz_file:
+        with closing(requests.get(self.url, stream=True)) as response:
+            for line in response.iter_lines():
                 # run each parser on each line of the log
                 for builder in self.builders:
 
@@ -110,12 +92,3 @@ class ArtifactBuilderCollection(object):
             # gather the artifacts from all builders
             for builder in self.builders:
                 self.artifacts[builder.name] = builder.get_artifact()
-        except Exception as e:
-            import traceback
-            print traceback.format_exc()
-            logging.error(e)
-        finally:
-            if handle:
-                handle.close()
-            if gz_file:
-                gz_file.close()
