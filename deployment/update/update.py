@@ -31,6 +31,8 @@ def update_code(ctx, tag):
         ctx.local('git submodule update --init --recursive')
         ctx.local("find . -type f -name '*.pyc' -delete")
 
+        ctx.local('python2.6 manage.py build_ext --inplace --settings {0}'.format(th_settings))
+
     with ctx.lcd(th_ui_src):
         ctx.local('git checkout %s' % tag)
         ctx.local('git pull -f')
