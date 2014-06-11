@@ -99,10 +99,9 @@
             "host":"master_host"
         },
         "set_performance_series":{
-            "sql":"INSERT INTO `performance_series`
-                    (`interval_seconds`, `series_signature`, `type`, `last_update_timestamp`, `blob`)
-                   VALUES ?,?,?,?,?
-                   ON DUPLICATE KEY UPDATE `last_update_timestamp` = ?, `blob` = ?",
+            "sql":"INSERT INTO `performance_series` (`interval_seconds`, `series_signature`, `type`, `blob`)
+                    VALUES ?,?,?,?
+                    ON DUPLICATE KEY UPDATE `blob`=?",
             "host":"master_host"
         },
         "set_job_eta":{

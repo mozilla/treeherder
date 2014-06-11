@@ -160,7 +160,7 @@
 
     },
     "selects":{
-        "get_from_signatures":{
+        "get_objects_from_signatures":{
             "sql":"SELECT * FROM reference_data_signatures WHERE signature IN (REP0)",
             "host": "read_host"
         },

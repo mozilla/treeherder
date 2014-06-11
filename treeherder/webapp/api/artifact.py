@@ -51,14 +51,7 @@ class ArtifactViewSet(viewsets.ViewSet):
             if datum['type'] in PerformanceDataAdapter.performance_types:
                 job_id_list.append(job_id)
 
-                performance_artifact_data.append((
-                    job_id,
-                    datum['name'],
-                    datum['type'],
-                    datum['blob'],
-                    job_id,
-                    datum['name'],
-                ))
+                performance_artifact_data.append(datum)
             else:
                 artifact_data.append((
                     job_id,

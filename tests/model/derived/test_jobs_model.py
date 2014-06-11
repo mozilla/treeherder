@@ -218,6 +218,15 @@ def test_store_result_set_data(jm, initial_data, sample_resultset):
     assert data['result_set_ids'] == result_set_ids
     assert data['revision_ids'] == revision_ids
 
+def test_get_job_data(jm, refdata, sample_data, initial_data,
+                                  mock_log_parser, sample_resultset):
+    job_data = sample_data.job_data[:10]
+    test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset)
+
+    job_data = jm.get_job_signatures_from_ids(range(1,11))
+
+    assert len(job_data) is 9
+
 def test_store_performance_artifact(jm, refdata, sample_data, initial_data,
                                   mock_log_parser, sample_resultset):
 
@@ -227,4 +236,16 @@ def test_store_performance_artifact(jm, refdata, sample_data, initial_data,
     test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset, False)
 
     job_ids = range(1,21)
-    jm.store_performance_artifact(job_ids, talos_perf_data)
+
+    perf_data = []
+    for x in talos_perf_data:
+        perf_data.append({
+            "job_guid": "0b4e73d7b204783cfdf0e364c3d015b18069a872",
+            "name": "test",
+            "type": "test",
+            "blob": talos_perf_data[0]
+        })
+
+    jm.store_performance_artifact(job_ids, perf_data)
+
+

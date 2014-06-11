@@ -1,6 +1,7 @@
 import json
 import MySQLdb
 import time
+import pprint
 
 from _mysql_exceptions import IntegrityError
 
@@ -1607,10 +1608,7 @@ class JobsModel(TreeherderModelBase):
             placeholders=artifact_placeholders,
             executemany=True)
 
-    def store_performance_artifact(self, job_ids, performance_artifact_placeholders):
-        """
-        Store the performance data
-        """
+    def get_job_signatures_from_ids(self, job_ids):
         jobs_signatures_where_in_clause = [ ','.join( ['%s'] * len(job_ids) ) ]
 
         job_data = self.get_jobs_dhub().execute(
@@ -1619,25 +1617,66 @@ class JobsModel(TreeherderModelBase):
             replace=jobs_signatures_where_in_clause,
             placeholders=job_ids)
 
+        return job_data
+
+    def store_performance_artifact(self, job_ids, performance_artifact_placeholders):
+        """
+        Store the performance data
+        """
+        job_data = self.get_job_signatures_from_ids(job_ids)
+
         job_signatures = [x['signature'] for x in job_data]
-        reference_data = self.refdata_model.get_from_signatures(job_signatures)
+        
+        reference_data = self.refdata_model.get_objects_from_signatures(job_signatures)
 
-        for ref_data, artifact in zip(reference_data, performance_artifact_placeholders):
+        adapted_data = []
+        adapted_data_placeholders = []
+        performance_data_placeholders = []
+
+        for job_id, perf_data in zip(job_ids, performance_artifact_placeholders):
+
+            job_guid = perf_data["job_guid"]
+            ref_data = reference_data[job_guid]
+
             for exclude in ['first_submission_timestamp', 'id', 'review_timestamp', 'review_status']:
-                ref_data.pop(exclude, None)
+                if exclude in ref_data:
+                    ref_data.pop(exclude)
             
-            tda = TalosDataAdapter(artifact.blob)
+            tda = TalosDataAdapter(perf_data["blob"])
 
-            tda.adapt(reference_data)
+            for datum in tda.adapt(ref_data, perf_data):
+                adapted_data.append(datum)
 
-        # call method on TalosDataAdapter with reference data signature
-        # properties to generate the performance signatures
+                performance_data_placeholders.append((
+                    10, #interval_seconds #TODO: should not be static
+                    datum["blob"]["series_signature"],
+                    datum["type"],
+                    json.dumps(datum["blob"]["performance_series"]),
+                    json.dumps(datum["blob"]["performance_series"])
+                ))
 
-        # store series signatures
+                adapted_data_placeholders.append((
+                    job_id,
+                    datum["blob"]["series_signature"],
+                    datum["name"],
+                    datum["type"],
+                    datum["blob"]
+                ))
 
-        # store performance artifacts
 
-        # store performance series data / or add task to generate it
+
+        # self.get_jobs_dhub().execute(
+        #     proc="jobs.inserts.set_performance_artifact",
+        #     debug_show=self.DEBUG,
+        #     placeholders=adapted_data_placeholders,
+        #     executemany=True)
+
+        self.get_jobs_dhub().execute(
+            proc="jobs.inserts.set_performance_series",
+            debug_show=self.DEBUG,
+            placeholders=performance_data_placeholders,
+            executemany=True)
+
 
     def _load_job_artifacts(self, artifact_placeholders, job_id_lookup):
         """
