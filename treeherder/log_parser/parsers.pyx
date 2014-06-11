@@ -229,10 +229,11 @@ class TinderboxPrintParser(ParserBase):
                             url = uploaded_to_chunks.group(1)
                             content_type = "link"
 
-                    if (splitters_used[0] == "<br/>" or
-                            ("<" in splitters_used[0]) or
-                            ("<" in value)):
-                        content_type = "html"
+                    if splitters_used:
+                        if (splitters_used[0] == "<br/>" or
+                                ("<" in splitters_used[0]) or
+                                ("<" in value)):
+                            content_type = "html"
 
                     artifact["title"] = title
                     artifact["value"] = value
