@@ -37,7 +37,7 @@ def test_get_series_signature():
 
     tda = TalosDataAdapter(datum["blob"])
 
-    sig = tda.get_series_signature(ref_data, datum)
+    sig = tda.get_series_signature(ref_data, datum, "name")
 
     assert sig is not None
 
