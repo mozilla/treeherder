@@ -1,5 +1,6 @@
 import re
 import datetime
+import json
 
 
 class ParserBase(object):
@@ -182,6 +183,7 @@ class StepParser(ParserBase):
 
 RE_TINDERBOXPRINT = re.compile('.*?TinderboxPrint: (.*)$')
 
+RE_UPLOADED_TO = re.compile("<a href='(http://[A-Za-z/\.0-9\-_]+)'>([A-Za-z/\.0-9\-_]+)</a>")
 
 class TinderboxPrintParser(ParserBase):
 
@@ -194,7 +196,51 @@ class TinderboxPrintParser(ParserBase):
         if "TinderboxPrint: " in line:
             match = RE_TINDERBOXPRINT.match(line)
             if match:
-                self.artifact.append(match.group(1))
+                artifact = {}
+                line = match.group(1)
+                if "<a href='http://graphs.mozilla.org" in line:
+                    return
+                # by default use the whole line
+                title = line
+                value = ""
+                content_type = "text"
+                url = None
+                splitters = (": ", "<br/>")
+
+                splitters_used = [s for s in splitters if s in line]
+
+                if splitters_used:
+                    title, value = line.split(splitters_used[0], 1)
+
+                # if it's a json string, return it as is.
+                try:
+                    artifact = json.loads(value)
+                    self.artifact.append(artifact)
+                except ValueError:
+                    # if it's not a json string, let's parse it
+                    if "link" in title:
+                        content_type = "link"
+                        url = value
+                    if "uploaded" in value:
+                        uploaded_to_chunks = RE_UPLOADED_TO.match(title)
+                        if uploaded_to_chunks:
+                            title = "artifact uploaded"
+                            value = uploaded_to_chunks.group(2)
+                            url = uploaded_to_chunks.group(1)
+                            content_type = "link"
+
+                    if (splitters_used[0] == "<br/>" or
+                            ("<" in splitters_used[0]) or
+                            ("<" in value)):
+                        content_type = "html"
+
+                    artifact["title"] = title
+                    artifact["value"] = value
+                    artifact["content_type"] = content_type
+                    artifact["url"] = url
+
+                self.artifact.append(artifact)
+
 
 
 RE_INFO = re.compile((
