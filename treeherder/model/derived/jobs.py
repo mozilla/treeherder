@@ -1,7 +1,6 @@
 import json
 import MySQLdb
 import time
-import pprint
 
 from _mysql_exceptions import IntegrityError
 
@@ -1628,36 +1627,68 @@ class JobsModel(TreeherderModelBase):
         job_signatures = [x['signature'] for x in job_data]
         
         reference_data = self.refdata_model.get_objects_from_signatures(job_signatures)
+        
+        artifact_placeholders = []
+        series_placeholders = []
 
-        adapted_data = []
-        adapted_data_placeholders = []
-        performance_data_placeholders = []
-
-        for job_id, perf_data in zip(job_ids, performance_artifact_placeholders):
-
-            job_guid = perf_data["job_guid"]
+        def get_transformed_ref_data(job_guid):
             ref_data = reference_data[job_guid]
 
             for exclude in ['first_submission_timestamp', 'id', 'review_timestamp', 'review_status']:
                 if exclude in ref_data:
                     ref_data.pop(exclude)
-            
+
+            return ref_data
+
+        def store_signature_properties(signatures):
+            props_placeholders = []
+
+            for signature in signatures.keys():
+                signature_properties = signatures[signature]
+
+                for key in signature_properties.keys():
+                    value = signature_properties[key]
+
+                    props_placeholders.append((
+                        signature,
+                        key,
+                        json.dumps(value),
+                        signature,
+                        key,
+                        json.dumps(value)
+                    ))
+
+            self.get_jobs_dhub().execute(
+                proc='jobs.inserts.set_series_signature',
+                debug_show=self.DEBUG,
+                placeholders= props_placeholders,
+                executemany=True)
+
+        intervals = (10, 20, 30)
+
+        for job_id, perf_data in zip(job_ids, performance_artifact_placeholders):
+
+            job_guid = perf_data["job_guid"]
+            ref_data = get_transformed_ref_data(job_guid)
+
             tda = TalosDataAdapter(perf_data["blob"])
+            adapted_data = tda.adapt(ref_data, perf_data)
 
-            for datum in tda.adapt(ref_data, perf_data):
-                adapted_data.append(datum)
+            store_signature_properties(tda.signatures)
 
-                performance_data_placeholders.append((
-                    10, #interval_seconds #TODO: should not be static
-                    datum["blob"]["series_signature"],
-                    datum["type"],
-                    utils.get_now_timestamp(),
-                    json.dumps(datum["blob"]["performance_series"]),
-                    datum["blob"]["series_signature"],
-                    10
-                ))
+            for signature in adapted_data.keys():
+                datum = adapted_data[signature]
 
-                adapted_data_placeholders.append((
+                for interval in intervals:
+                    series_placeholders.append((
+                        interval, #interval_seconds #TODO: should different second intervals
+                        datum["blob"]["series_signature"],
+                        datum["type"],
+                        utils.get_now_timestamp(),
+                        json.dumps(datum["blob"]["performance_series"])
+                    ))
+
+                artifact_placeholders.append((
                     job_id,
                     datum["blob"]["series_signature"],
                     datum["name"],
@@ -1665,19 +1696,16 @@ class JobsModel(TreeherderModelBase):
                     json.dumps(datum["blob"])
                 ))
 
-        pp = pprint.PrettyPrinter(indent=4)
-        pp.pprint(performance_data_placeholders)
-
-        # self.get_jobs_dhub().execute(
-        #     proc="jobs.inserts.set_performance_artifact",
-        #     debug_show=self.DEBUG,
-        #     placeholders=adapted_data_placeholders,
-        #     executemany=True)
+        self.get_jobs_dhub().execute(
+            proc="jobs.inserts.set_performance_artifact",
+            debug_show=self.DEBUG,
+            placeholders=artifact_placeholders,
+            executemany=True)
 
         self.get_jobs_dhub().execute(
             proc="jobs.inserts.set_performance_series",
             debug_show=self.DEBUG,
-            placeholders=performance_data_placeholders,
+            placeholders=series_placeholders,
             executemany=True)
 
 

@@ -82,7 +82,7 @@ class PerformanceDataAdapter(object):
             "min": min(r),
             "max": max(r),
             "mean": float(sum(r))/len(r) if len(r) > 0 else float('nan'),
-            "median": r[int(math.floor(len(r)/2))] if (len(r)%2 == 1) else avg(r[(len(r)/2) - 1], r[len(r/2)])
+            "median": r[int(math.floor(len(r)/2))] if (len(r)%2 == 1) else avg(r[(len(r)/2) - 1], r[len(r)/2])
         }
 
 class TalosDataAdapter(PerformanceDataAdapter):
@@ -92,6 +92,7 @@ class TalosDataAdapter(PerformanceDataAdapter):
         super(TalosDataAdapter, self).__init__(data)
 
         self.adapted_data = []
+        self.signatures = {}
 
     def pre_adapt(self, job_guid, name, obj_type):
         """Adapt the talos data into the structure that the web service
@@ -116,16 +117,16 @@ class TalosDataAdapter(PerformanceDataAdapter):
 
     def adapt(self, reference_data, datum):
 
-        series_signature = self.get_series_signature(reference_data, datum)
-
         _job_guid = datum["job_guid"]
         _name = datum["name"]
         _type = "performance"
         _suite = datum["blob"]["testrun"]["suite"]
 
-        ret = []
+        ret = {}
 
-        for test in datum["blob"]["results"]:
+        for test in datum["blob"]["results"].keys():
+            series_signature = self.get_series_signature(reference_data, datum, _suite + test)
+
             obj = {
                 "job_guid": _job_guid,
                 "name": _name,
@@ -142,7 +143,7 @@ class TalosDataAdapter(PerformanceDataAdapter):
 
             validate(obj, self.treeherder_perf_test_schema)
 
-            ret.append(obj)
+            ret[series_signature] = obj
 
         return ret
 
@@ -152,17 +153,23 @@ class TalosDataAdapter(PerformanceDataAdapter):
 
         self.adapted_data.append(adapted_datum)
 
-    def get_series_signature(self, reference_data, datum):
+    def get_series_signature(self, reference_data, datum, test_name):
 
         datum_properties = {
             "test_machine": datum["blob"]["test_machine"],
-            "testrun": datum["blob"]["testrun"]
+            "testrun": datum["blob"]["testrun"],
+            "test": test_name
         }
 
-        signature_properties = dict(reference_data.items() + datum_properties.items())
+        signature_dict = dict(reference_data.items() + datum_properties.items())
+        signature_properties = tuple(signature_dict.items())
 
         sha = sha1()
 
         sha.update(''.join(map(lambda x: str(x), signature_properties)))
 
-        return sha.hexdigest()
+        signature = sha.hexdigest()
+
+        self.signatures[signature] = signature_dict
+
+        return signature
