@@ -325,13 +325,16 @@ CREATE TABLE `performance_series` (
   `interval_seconds` int(10) unsigned NOT NULL,
   `series_signature` varchar(50) COLLATE utf8_bin NOT NULL,
   `type` varchar(50) COLLATE utf8_bin NOT NULL,
+  `last_updated` int(10) unsigned NOT NULL,
   `blob` mediumblob NOT NULL,
   `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
   PRIMARY KEY (`id`),
   KEY `idx_interval_seconds` (`interval_seconds`),
   KEY `idx_series_signature` (`series_signature`),
+  KEY `idx_last_updated` (`last_updated`),
   KEY `idx_type` (`type`),
-  KEY `idx_active_status` (`active_status`)
+  KEY `idx_active_status` (`active_status`),
+  UNIQUE KEY `idx_series` (`interval_seconds`, `series_signature`)
 ) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

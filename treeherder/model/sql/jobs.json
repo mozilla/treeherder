@@ -84,7 +84,7 @@
         },
         "set_performance_artifact":{
             "sql":"INSERT INTO `performance_artifact` (`job_id`, `series_signature`, `name`, `type`, `blob`)
-                   VALUES ?,?,?,?,?",
+                   VALUES (?,?,?,?,?)",
 
             "host":"master_host"
         },
@@ -99,9 +99,9 @@
             "host":"master_host"
         },
         "set_performance_series":{
-            "sql":"INSERT INTO `performance_series` (`interval_seconds`, `series_signature`, `type`, `blob`)
-                    VALUES ?,?,?,?
-                    ON DUPLICATE KEY UPDATE `blob`=?",
+            "sql":"INSERT INTO `performance_series` (`interval_seconds`, `series_signature`, `type`, `last_updated`, `blob`)
+                    VALUES (?,?,?,?,?)
+                    ON DUPLICATE KEY UPDATE `series_signature`=?, `interval_seconds`=?",
             "host":"master_host"
         },
         "set_job_eta":{

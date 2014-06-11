@@ -1651,8 +1651,10 @@ class JobsModel(TreeherderModelBase):
                     10, #interval_seconds #TODO: should not be static
                     datum["blob"]["series_signature"],
                     datum["type"],
+                    utils.get_now_timestamp(),
                     json.dumps(datum["blob"]["performance_series"]),
-                    json.dumps(datum["blob"]["performance_series"])
+                    datum["blob"]["series_signature"],
+                    10
                 ))
 
                 adapted_data_placeholders.append((
@@ -1660,10 +1662,11 @@ class JobsModel(TreeherderModelBase):
                     datum["blob"]["series_signature"],
                     datum["name"],
                     datum["type"],
-                    datum["blob"]
+                    json.dumps(datum["blob"])
                 ))
 
-
+        pp = pprint.PrettyPrinter(indent=4)
+        pp.pprint(performance_data_placeholders)
 
         # self.get_jobs_dhub().execute(
         #     proc="jobs.inserts.set_performance_artifact",
