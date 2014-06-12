@@ -15,7 +15,6 @@ from treeherder.model.models import (Datasource,
 from treeherder.model import utils
 
 from treeherder.etl.common import get_guid_root
-from treeherder.etl import buildbot
 
 from .base import TreeherderModelBase
 
@@ -1181,9 +1180,6 @@ class JobsModel(TreeherderModelBase):
         log_placeholders = []
         artifact_placeholders = []
         coalesced_job_guid_placeholders = []
-
-        # Structures supporting update of job data in SQL
-        update_placeholders = []
 
         # List of json object ids and associated revision_hashes
         # loaded. Used to mark the status complete.

@@ -122,7 +122,9 @@ def generate_job_guid(request_id, request_time, endtime=None):
 
     # for some jobs (I'm looking at you, ``retry``) we need the endtime to be
     # unique because the job_guid otherwise looks identical
-    # for all retries and the complete job
+    # for all retries and the complete job.  The ``job_guid`` needs to be
+    # unique in the ``objectstore``, or it will skip the rest of the retries
+    # and/or the completed outcome.
     if endtime:
         job_guid = "{0}_{1}".format(job_guid, str(endtime)[-5:])
     return job_guid
