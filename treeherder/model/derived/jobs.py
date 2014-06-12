@@ -1285,10 +1285,10 @@ class JobsModel(TreeherderModelBase):
             job_placeholders, job_guid_where_in_list, job_guid_list
             )
 
-        # replace complete retry jobs with updated guids containing
-        # a retry suffix, because a new job with the same job_guid will
-        # be coming in, and if the old job_guid doesn't change, it'll be
-        # skipped.
+        # Add the root of the retry guid to the lookup.  This is needed
+        # because ``_load_ref_and_job_data_structs`` will only add the
+        # ``job_guid`` with the retry suffix.  But we need the
+        # non-suffixed (or guid root) to find and update pending/running jobs
         for retry_guid in retry_job_guids:
             retry_job = job_id_lookup[retry_guid]
             job_id_lookup[get_guid_root(retry_guid)] = retry_job
@@ -1340,9 +1340,14 @@ class JobsModel(TreeherderModelBase):
         """
         Take the raw job object after etl and convert it to job_placeholders.
 
-
-
+        If the job is a ``retry`` the ``job_guid`` will have a special
+        suffix on it.  But the matching ``pending``/``running`` job will not.
+        So we append the suffixed ``job_guid`` to ``retry_job_guids``
+        so that we can update the job_id_lookup later with the non-suffixed
+        ``job_guid`` (root ``job_guid``). Then we can find the right
+        ``pending``/``running`` job and update it with this ``retry`` job.
         """
+
         # Store revision_hash to support SQL construction
         # for result_set entry
         if revision_hash not in revision_hash_lookup:
@@ -1493,8 +1498,11 @@ class JobsModel(TreeherderModelBase):
         Supplant ref data with ids and create update placeholders
 
         Pending jobs should be updated, rather than created.
+
         ``job_placeholders`` are used for creating new jobs.
-        ``job_update_placeholders`` are used for updating existing jobs
+
+        ``job_update_placeholders`` are used for updating existing non-complete
+        jobs
         """
 
         # Replace reference data with their ids
@@ -1548,7 +1556,7 @@ class JobsModel(TreeherderModelBase):
         # because retry jobs append a suffix for uniqueness (since the job_guid
         # won't be unique due to them all having the same request_id and request_time.
         # But there may be a ``pending`` or ``running`` job that this retry
-        # should be updating, so make sure to add the root job_guid as well.
+        # should be updating, so make sure to add the root ``job_guid`` as well.
         job_guid_root = get_guid_root(job_guid)
         if job_guid != job_guid_root:
             job_guid_list.append(job_guid_root)
