@@ -289,67 +289,7 @@ treeherder.controller('TinderboxPluginCtrl', [
                     // because ``Job Info`` can exist without the blob as the promise is
                     // fulfilled.
                     if (data.length === 1 && _.has(data[0], 'blob')){
-
                         $scope.tinderbox_lines = data[0].blob.tinderbox_printlines;
-                        for(var i=0; i<$scope.tinderbox_lines.length; i++){
-                            var line = $scope.tinderbox_lines[i];
-                            if(line.indexOf("<a href='http://graphs.mozilla.org") === 0){
-                                continue;
-                            }
-                            var title = line;
-                            var value = "";
-                            var link = "";
-                            var type = "";
-
-                            var seps = [": ", "<br/>"];
-                            var sep = false;
-
-                            for(var j=0; j<seps.length; j++){
-                                if(line.indexOf(seps[j]) !== -1){
-                                    sep = seps[j];
-                                }
-                            }
-                            if(sep){
-                                var chunks = line.split(sep);
-                                title = chunks[0];
-                                value = chunks.slice(1).join(sep);
-                                if(title.indexOf("link") !== -1){
-                                    link = value;
-                                    type = "link";
-                                }
-
-                                if(value.indexOf("uploaded") !== -1){
-                                    var uploaded_to_regexp = /<a href='(http:\/\/[A-Za-z\/\.0-9\-_]+)'>([A-Za-z\/\.0-9\-_]+)<\/a>/;
-                                    var uploaded_to_chunks = uploaded_to_regexp.exec(title);
-                                    if(uploaded_to_chunks !== null){
-                                        title = "artifact uploaded";
-                                        value = uploaded_to_chunks[2];
-                                        link = uploaded_to_chunks[1];
-                                        type = "link";
-                                    }
-                                }
-
-                                if(sep === "<br/>" || sep.indexOf("<") !== -1 || value.indexOf("<") !== -1){
-                                    type="raw_html";
-                                }
-
-                                if(title === "TalosResult"){
-                                    type = "TalosResult";
-                                    // unescape the json string
-                                    value =  value.replace(/\\/g, '');
-                                    console.log(value);
-                                    value = angular.fromJson(value);
-                                }
-
-                            }
-
-                            $scope.tinderbox_lines_parsed.push({
-                                title:title,
-                                value:value,
-                                link:link,
-                                type: type
-                            });
-                        }
                     }
 
                 })
