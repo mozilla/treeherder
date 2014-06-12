@@ -160,6 +160,10 @@
 
     },
     "selects":{
+        "get_objects_from_signatures":{
+            "sql":"SELECT * FROM reference_data_signatures WHERE signature IN (REP0)",
+            "host": "read_host"
+        },
         "get_build_platforms":{
             "sql": "SELECT `id`, `os_name`, `platform`, `architecture`
                     FROM `build_platform`

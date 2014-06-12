@@ -5,5 +5,6 @@
         "mochitest-a11y<br/><em class=\"testfail\">T-FAIL</em>&nbsp;<em class=\"testfail\">CRASH</em>",
         "mochitest-plugins<br/><em class=\"testfail\">T-FAIL</em>&nbsp;<em class=\"testfail\">CRASH</em>"
     ],
+    "talos_data": [],
     "logurl": "file:///home/vagrant/treeherder-service/tests/sample_data/logs/mozilla-inbound_ubuntu64_vm-debug_test-mochitest-other-bm53-tests1-linux-build122.txt.gz"
 }

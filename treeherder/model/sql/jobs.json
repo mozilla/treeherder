@@ -84,7 +84,7 @@
         },
         "set_performance_artifact":{
             "sql":"INSERT INTO `performance_artifact` (`job_id`, `series_signature`, `name`, `type`, `blob`)
-                   VALUES ?,?,?,?,?",
+                   VALUES (?,?,?,?,?)",
 
             "host":"master_host"
         },
@@ -99,10 +99,9 @@
             "host":"master_host"
         },
         "set_performance_series":{
-            "sql":"INSERT INTO `performance_series`
-                    (`interval_seconds`, `series_signature`, `type`, `last_update_timestamp`, `blob`)
-                   VALUES ?,?,?,?,?
-                   ON DUPLICATE KEY UPDATE `last_update_timestamp` = ?, `blob` = ?",
+            "sql":"INSERT INTO `performance_series` (`interval_seconds`, `series_signature`, `type`, `last_updated`, `blob`)
+                    VALUES (?,?,?,?,?)
+                    ON DUPLICATE KEY UPDATE `series_signature`=VALUES(`series_signature`), `interval_seconds`=VALUES(`interval_seconds`)",
             "host":"master_host"
         },
         "set_job_eta":{
@@ -299,6 +298,16 @@
                    WHERE `job_id` IN (REP0) AND `active_status` = 'active'",
 
             "host":"read_host"
+
+        },
+        "get_performance_series": {
+            
+            "sql":"SELECT *
+                   FROM `performance_series`
+                   WHERE `id` IN (REP0)",
+
+            "host":"read_host"
+
         },
         "get_max_job_submit_timestamp":{
 
@@ -344,6 +353,12 @@
                          start_timestamp > 0 AND end_timestamp > 0
                    GROUP BY signature",
 
+            "host":"read_host"
+
+        },
+        "get_signature_list_from_job_ids":{
+
+            "sql":"SELECT signature FROM job WHERE id IN (REP0) GROUP BY signature",
             "host":"read_host"
 
         },

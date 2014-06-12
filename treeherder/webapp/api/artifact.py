@@ -40,6 +40,7 @@ class ArtifactViewSet(viewsets.ViewSet):
     def create(self, request, project, jm):
         artifact_data = []
         performance_artifact_data = []
+        job_id_list = []
 
         job_guids = [x['job_guid'] for x in request.DATA]
         job_id_lookup = jm.get_job_ids_by_guid(job_guids)
@@ -51,14 +52,9 @@ class ArtifactViewSet(viewsets.ViewSet):
             if job_id:
 
                 if datum['type'] in PerformanceDataAdapter.performance_types:
-                    performance_artifact_data.append((
-                        job_id,
-                        datum['name'],
-                        datum['type'],
-                        datum['blob'],
-                        job_id,
-                        datum['name'],
-                    ))
+                    job_id_list.append(job_id)
+
+                    performance_artifact_data.append(datum)
                 else:
                     artifact_data.append((
                         job_id,
@@ -70,6 +66,6 @@ class ArtifactViewSet(viewsets.ViewSet):
                     ))
 
         jm.store_job_artifact(artifact_data)
-        jm.store_performance_job_artifact(performance_artifact_data)
+        jm.store_performance_artifact(job_id_list, performance_artifact_data)
 
         return Response({'message': 'Artifacts stored successfully'})

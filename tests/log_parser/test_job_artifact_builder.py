@@ -3,6 +3,8 @@ from datadiff import diff
 
 from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
 from treeherder.log_parser.artifactbuilders import BuildbotJobArtifactBuilder
+from treeherder.log_parser.parsers import TalosParser
+
 from ..sampledata import SampleData
 from tests import test_utils
 
@@ -23,6 +25,7 @@ def do_test(log):
     lpc = ArtifactBuilderCollection(url, builders=builder)
     lpc.parse()
     act = lpc.artifacts[builder.name]
+
     # we can't compare the "logurl" field, because it's a fully qualified url,
     # so it will be different depending on the config it's run in.
     assert "logurl" in act
@@ -30,10 +33,10 @@ def do_test(log):
     # leaving the logurl in the exp files so they are a good example of the
     # expected structure.
     del(exp["logurl"])
-    assert act == exp, diff(exp, act)
+    # assert act == exp, diff(exp, act)
 
     # if you want to gather results for a new test, use this
-    # assert act == exp, json.dumps(act, indent=4)
+    assert act == exp, json.dumps(act, indent=4)
 
 
 def test_crashtest_passing(initial_data):
@@ -80,3 +83,8 @@ def test_jetpack_fail(initial_data):
     """Process a job with a single log reference."""
 
     do_test("ux_ubuntu32_vm_test-jetpack-bm67-tests1-linux-build16")
+
+def test_check_talos_data_true(jm, initial_data):
+    """ensure that TALOSDATA is parsed out of the log"""
+
+    do_test("talos-data")

@@ -16,6 +16,9 @@ from treeherder.model import utils
 
 from .base import TreeherderModelBase
 
+from datasource.DataHub import DataHub
+
+from treeherder.etl.perf_data_adapters import TalosDataAdapter
 
 class JobsModel(TreeherderModelBase):
     """
@@ -1673,21 +1676,107 @@ class JobsModel(TreeherderModelBase):
             placeholders=artifact_placeholders,
             executemany=True)
 
+    def get_job_signatures_from_ids(self, job_ids):
+        jobs_signatures_where_in_clause = [ ','.join( ['%s'] * len(job_ids) ) ]
+
+        job_data = []
+
+        if job_ids:
+            job_data = self.get_jobs_dhub().execute(
+                proc='jobs.selects.get_signature_list_from_job_ids',
+                debug_show=self.DEBUG,
+                replace=jobs_signatures_where_in_clause,
+                placeholders=job_ids)
+
+        return job_data
+
     def store_performance_artifact(self, job_ids, performance_artifact_placeholders):
+        """
+        Store the performance data
+        """
+        job_data = self.get_job_signatures_from_ids(job_ids)
 
-        # use job_ids to retrieve all reference data signature properties
+        job_signatures = [x['signature'] for x in job_data]
+        reference_data = self.refdata_model.get_objects_from_signatures(job_signatures)
+        artifact_placeholders = []
+        series_placeholders = []
 
+        def get_transformed_ref_data(job_guid):
+            ref_data = reference_data.get(job_guid, {})
 
-        # call method on talos data adapter with reference data signature
-        # properties to generate the performance signatures
+            for exclude in ['first_submission_timestamp', 'id', 'review_timestamp', 'review_status']:
+                if exclude in ref_data:
+                    ref_data.pop(exclude)
 
-        # store series signatures
+            return ref_data
 
-        # store performance artifacts
+        def store_signature_properties(signatures):
+            props_placeholders = []
 
-        # store performance series data / or add task to generate it
-        pass
+            for signature in signatures.keys():
+                signature_properties = signatures[signature]
 
+                for key in signature_properties.keys():
+                    value = signature_properties[key]
+
+                    props_placeholders.append((
+                        signature,
+                        key,
+                        json.dumps(value),
+                        signature,
+                        key,
+                        json.dumps(value)
+                    ))
+
+            self.get_jobs_dhub().execute(
+                proc='jobs.inserts.set_series_signature',
+                debug_show=self.DEBUG,
+                placeholders= props_placeholders,
+                executemany=True)
+
+        intervals = (10, 20, 30)
+
+        for job_id, perf_data in zip(job_ids, performance_artifact_placeholders):
+
+            job_guid = perf_data["job_guid"]
+            ref_data = get_transformed_ref_data(job_guid)
+
+            tda = TalosDataAdapter(perf_data["blob"])
+            adapted_data = tda.adapt(ref_data, perf_data)
+
+            store_signature_properties(tda.signatures)
+
+            for signature in adapted_data.keys():
+                datum = adapted_data[signature]
+
+                for interval in intervals:
+                    series_placeholders.append((
+                        interval, #interval_seconds #TODO: should different second intervals
+                        datum["blob"]["series_signature"],
+                        datum["type"],
+                        utils.get_now_timestamp(),
+                        json.dumps(datum["blob"]["performance_series"])
+                    ))
+
+                artifact_placeholders.append((
+                    job_id,
+                    datum["blob"]["series_signature"],
+                    datum["name"],
+                    datum["type"],
+                    json.dumps(datum["blob"])
+                ))
+
+        self.get_jobs_dhub().execute(
+            proc="jobs.inserts.set_performance_artifact",
+            debug_show=self.DEBUG,
+            placeholders=artifact_placeholders,
+            executemany=True)
+
+        self.get_jobs_dhub().execute(
+            proc="jobs.inserts.set_performance_series",
+            debug_show=self.DEBUG,
+            placeholders=series_placeholders,
+            executemany=True)
 
     def _load_job_artifacts(self, artifact_placeholders, job_id_lookup):
         """
