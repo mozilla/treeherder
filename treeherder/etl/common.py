@@ -124,12 +124,12 @@ def generate_job_guid(request_id, request_time, endtime=None):
     # unique because the job_guid otherwise looks identical
     # for all retries and the complete job
     if endtime:
-        job_guid = "{0}_{1}".format(job_guid, endtime)
-    return
+        job_guid = "{0}_{1}".format(job_guid, str(endtime)[-5:])
+    return job_guid
 
 
 def get_guid_root(guid):
     """Converts a job_guid with endtime suffix to normal job_guid"""
-    if "_" in guid:
-        return guid.split("_", 1)[0]
+    if "_" in str(guid):
+        return str(guid).split("_", 1)[0]
     return guid

@@ -15,6 +15,7 @@ from treeherder.model.models import (Datasource,
 from treeherder.model import utils
 
 from treeherder.etl.common import get_guid_root
+from treeherder.etl import buildbot
 
 from .base import TreeherderModelBase
 
@@ -1188,6 +1189,8 @@ class JobsModel(TreeherderModelBase):
         # loaded. Used to mark the status complete.
         object_placeholders = []
 
+        retry_job_guids = []
+
         for datum in data:
             # Make sure we can deserialize the json object
             # without raising an exception
@@ -1237,7 +1240,8 @@ class JobsModel(TreeherderModelBase):
                     rh_where_in,
                     job_placeholders,
                     log_placeholders,
-                    artifact_placeholders
+                    artifact_placeholders,
+                    retry_job_guids
                     )
 
                 if 'id' in datum:
@@ -1285,12 +1289,20 @@ class JobsModel(TreeherderModelBase):
             job_placeholders, job_guid_where_in_list, job_guid_list
             )
 
+        # replace complete retry jobs with updated guids containing
+        # a retry suffix, because a new job with the same job_guid will
+        # be coming in, and if the old job_guid doesn't change, it'll be
+        # skipped.
+        for retry_guid in retry_job_guids:
+            retry_job = job_id_lookup[retry_guid]
+            job_id_lookup[get_guid_root(retry_guid)] = retry_job
+
         # Need to iterate over log references separately since they could
         # be a different length. Replace job_guid with id in log url
         # placeholders
         # need also to retrieve the updated status to distinguish between
         # failed and successful jobs
-        job_results = dict((el[-1], el[8]) for el in job_update_placeholders)
+        job_results = dict((el[0], el[9]) for el in job_update_placeholders)
 
         self._load_log_urls(log_placeholders, job_id_lookup,
                             job_results)
@@ -1327,9 +1339,14 @@ class JobsModel(TreeherderModelBase):
     def _load_ref_and_job_data_structs(
         self, job, revision_hash, revision_hash_lookup,
         unique_revision_hashes, rh_where_in, job_placeholders,
-        log_placeholders, artifact_placeholders
+        log_placeholders, artifact_placeholders, retry_job_guids
         ):
+        """
+        Take the raw job object after etl and convert it to job_placeholders.
 
+
+
+        """
         # Store revision_hash to support SQL construction
         # for result_set entry
         if revision_hash not in revision_hash_lookup:
@@ -1395,6 +1412,9 @@ class JobsModel(TreeherderModelBase):
 
         state = job.get('state', 'unknown')
         state = state[0:25]
+
+        if job.get('result', 'unknown') == 'retry':
+            retry_job_guids.append(job_guid)
 
         build_system_type = job.get('build_system_type', 'buildbot')
 
@@ -1473,6 +1493,13 @@ class JobsModel(TreeherderModelBase):
         job_guid_list, job_guid_where_in_list, job_update_placeholders,
         result_set_ids, job_eta_times
         ):
+        """
+        Supplant ref data with ids and create update placeholders
+
+        Pending jobs should be updated, rather than created.
+        ``job_placeholders`` are used for creating new jobs.
+        ``job_update_placeholders`` are used for updating existing jobs
+        """
 
         # Replace reference data with their ids
         job_guid = job_placeholders[index][0]
@@ -1520,6 +1547,16 @@ class JobsModel(TreeherderModelBase):
 
 
         job_guid_list.append(job_guid)
+
+        # for retry jobs, we may have a different job_guid than the root of job_guid
+        # because retry jobs append a suffix for uniqueness (since the job_guid
+        # won't be unique due to them all having the same request_id and request_time.
+        # But there may be a ``pending`` or ``running`` job that this retry
+        # should be updating, so make sure to add the root job_guid as well.
+        job_guid_root = get_guid_root(job_guid)
+        if job_guid != job_guid_root:
+            job_guid_list.append(job_guid_root)
+
         job_guid_where_in_list.append('%s')
 
         reference_data_signature = job_placeholders[index][1]
@@ -1547,7 +1584,7 @@ class JobsModel(TreeherderModelBase):
                 start_timestamp,
                 end_timestamp,
                 job_state,
-                job_guid
+                get_guid_root(job_guid)
                 ] )
 
     def _load_jobs(
