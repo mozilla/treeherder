@@ -214,8 +214,13 @@ class TinderboxPrintParser(ParserBase):
 
                 # if it's a json string, return it as is.
                 try:
-                    artifact = json.loads(value)
-                    self.artifact.append(artifact)
+                    artifact["value"] = json.loads(value)
+                    if "TalosResult" in title:
+                        # we need special handling for talos results
+                        artifact["content_type"] = "TalosResult"
+                    else:
+                        artifact["content_type"] = "object"
+                    artifact["title"] = title
                 except ValueError:
                     # if it's not a json string, let's parse it
                     if "link" in title:
