@@ -46,11 +46,15 @@ CREATE TABLE `bug_job_map` (
   `job_id` bigint(20) unsigned NOT NULL,
   `bug_id` int(10) unsigned NOT NULL,
   `type` varchar(50) COLLATE utf8_bin NOT NULL,
+  `submit_timestamp` int(10) unsigned NOT NULL,
+  `who` varchar(50) COLLATE utf8_bin NOT NULL,
   `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
   UNIQUE KEY `uni_job_id_bug_id` (`job_id`,`bug_id`),
   KEY `idx_job_id` (`job_id`),
   KEY `idx_bug_id` (`bug_id`),
   KEY `idx_type` (`type`),
+  KEY `idx_who` (`who`),
+  KEY `idx_submit_timestamp` (`submit_timestamp`),
   KEY `idx_active_status` (`active_status`),
   CONSTRAINT `fk_bug_job` FOREIGN KEY (`job_id`) REFERENCES `job` (`id`)
 ) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;

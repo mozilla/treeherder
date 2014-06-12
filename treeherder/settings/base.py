@@ -18,7 +18,7 @@ TREEHERDER_DATABASE_PORT = os.environ.get("TREEHERDER_DATABASE_PORT", "")
 TREEHERDER_RO_DATABASE_USER     = os.environ.get("TREEHERDER_RO_DATABASE_USER", "TREEHERDER_DATABASE_USER")
 TREEHERDER_RO_DATABASE_PASSWORD = os.environ.get("TREEHERDER_RO_DATABASE_PASSWORD", "TREEHERDER_DATABASE_PASSWORD")
 
-TREEHERDER_MEMCACHED = os.environ.get("TREEHERDER_MEMCACHED", "")
+TREEHERDER_MEMCACHED = os.environ.get("TREEHERDER_MEMCACHED", "").strip(',').split(',')
 TREEHERDER_MEMCACHED_KEY_PREFIX = os.environ.get("TREEHERDER_MEMCACHED_KEY_PREFIX", "treeherder")
 DEBUG = os.environ.get("TREEHERDER_DEBUG", False)
 
@@ -142,21 +142,24 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'standard': {
-            'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+            'format': "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
         },
     },
     'handlers': {
-        'console':{
-            'level': 'DEBUG',
+        'console': {
+            'level': 'ERROR',
             'class': 'logging.StreamHandler',
             'formatter': 'standard'
         },
     },
     'loggers': {
-        '': {
+        'django.request': {
             'handlers': ['console'],
-            'level': 'DEBUG' if DEBUG else 'ERROR',
+            'level': 'ERROR',
             'propagate': True,
+        },
+        'treeherder': {
+            'handlers': ['console']
         }
     }
 }
@@ -174,6 +177,7 @@ CELERY_QUEUES = (
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
+
 
 # default value when no task routing info is specified
 CELERY_DEFAULT_QUEUE = 'default'
@@ -208,6 +212,12 @@ CORS_ORIGIN_ALLOW_ALL = True
 # An asterisk means everything but it's not secure.
 # IP addresses are also allowed. A dot is used to include all sub domains
 ALLOWED_HOSTS = [".mozilla.org", ".allizom.org"]
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# set this to True to enable bug associations to tbpl (and then Orange Factor)
+TBPL_BUGS_TRANSFER_ENABLED = True
+TBPL_HOST = "https://tbpl.mozilla.org"
 
 try:
     from .local import *
@@ -258,6 +268,9 @@ BROKER_URL = 'amqp://{0}:{1}@{2}:{3}/{4}'.format(
     RABBITMQ_PORT,
     RABBITMQ_VHOST
 )
+
+CELERY_RESULT_BACKEND = BROKER_URL
+CELERY_IGNORE_RESULT = True
 
 API_HOSTNAME = SITE_URL
 

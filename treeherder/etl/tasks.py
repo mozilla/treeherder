@@ -1,14 +1,19 @@
 """
 This module contains
 """
+import time
+from datetime import timedelta, datetime
+from django.core.cache import cache
 from celery import task, group
+from treeherder.model.derived import RefDataManager, JobsModel
+from treeherder.model.models import ReferenceDataSignatures
 from .buildapi import (RunningJobsProcess,
                        PendingJobsProcess,
                        Builds4hJobsProcess,
                        Builds4hAnalyzer)
 from .bugzilla import BzApiBugProcess
-from treeherder.model.derived import RefDataManager
-from .pushlog import HgPushlogProcess, GitPushlogProcess
+from .tbpl import OrangeFactorBugRequest, TbplBugRequest
+from .pushlog import HgPushlogProcess
 
 
 @task(name='fetch-buildapi-pending')
@@ -72,6 +77,7 @@ def fetch_bugs():
     process = BzApiBugProcess()
     process.run()
 
+
 @task(name='run-builds4h-analyzer')
 def run_builds4h_analyzer():
     """
@@ -79,3 +85,26 @@ def run_builds4h_analyzer():
     """
     process = Builds4hAnalyzer()
     process.run()
+
+
+@task(name="submit-star-comment")
+def submit_star_comment(project, job_id, bug_id, submit_timestamp, who):
+    """
+    Send a post request to tbpl's starcomment.php containing a bug association.
+    starcomment.php proxies then the request to orange factor
+    """
+    req = OrangeFactorBugRequest(project, job_id, bug_id, submit_timestamp, who)
+    req.generate_request_body()
+    req.send_request()
+
+
+
+@task(name="submit-build-star")
+def submit_build_star( project, job_id, who, bug_id=None, classification_id=None, note=None):
+    """
+    Send a post request to tbpl's submitBuildStar.php to mirror sheriff's activity
+    from treeherder to tbpl. It can be used for both bug association and classification
+    """
+    req = TbplBugRequest(project, job_id, who, bug_id=bug_id, classification_id=classification_id, note=note)
+    req.generate_request_body()
+    req.send_request()

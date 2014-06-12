@@ -45,26 +45,29 @@ class ArtifactViewSet(viewsets.ViewSet):
         job_id_lookup = jm.get_job_ids_by_guid(job_guids)
 
         for datum in request.DATA:
-            job_id = job_id_lookup[datum['job_guid']]['id']
 
-            if datum['type'] in PerformanceDataAdapter.performance_types:
-                performance_artifact_data.append((
-                    job_id,
-                    datum['name'],
-                    datum['type'],
-                    datum['blob'],
-                    job_id,
-                    datum['name'],
-                ))
-            else:
-                artifact_data.append((
-                    job_id,
-                    datum['name'],
-                    datum['type'],
-                    datum['blob'],
-                    job_id,
-                    datum['name'],
-                ))
+            job_id = job_id_lookup.get( datum['job_guid'], {}).get('id', None)
+
+            if job_id:
+
+                if datum['type'] in PerformanceDataAdapter.performance_types:
+                    performance_artifact_data.append((
+                        job_id,
+                        datum['name'],
+                        datum['type'],
+                        datum['blob'],
+                        job_id,
+                        datum['name'],
+                    ))
+                else:
+                    artifact_data.append((
+                        job_id,
+                        datum['name'],
+                        datum['type'],
+                        datum['blob'],
+                        job_id,
+                        datum['name'],
+                    ))
 
         jm.store_job_artifact(artifact_data)
         jm.store_performance_job_artifact(performance_artifact_data)

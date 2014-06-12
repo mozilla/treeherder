@@ -17,8 +17,11 @@ import commander_settings as settings
 th_service_src = os.path.join(settings.SRC_DIR, 'treeherder-service')
 th_ui_src = os.path.join(settings.SRC_DIR, 'treeherder-ui')
 
+th_settings = 'treeherder.settings'
 
-@task
+sys.path.append(th_service_src)
+
+
 def update_code(ctx, tag):
     """Update the code to a specific git reference (tag/sha/etc)."""
     with ctx.lcd(th_service_src):
@@ -28,6 +31,8 @@ def update_code(ctx, tag):
         ctx.local('git submodule update --init --recursive')
         ctx.local("find . -type f -name '*.pyc' -delete")
 
+        ctx.local('python2.6 manage.py build_ext --inplace --settings {0}'.format(th_settings))
+
     with ctx.lcd(th_ui_src):
         ctx.local('git checkout %s' % tag)
         ctx.local('git pull -f')
@@ -36,34 +41,20 @@ def update_code(ctx, tag):
         ctx.local("find . -type f -name '*.pyc' -delete")
 
 
-def update_assets(ctx):
-
-    cwd = os.getcwd()
-
-    # change cwd to ui src directory
-    ctx.local( "cd {0}".format(th_ui_src) )
-
-    # run grunt in ui src directory
-    ctx.local( "{0}/grunt build".format(settings.BIN_DIR) )
-
-    # change cwd back to original location
-    ctx.local( "cd {0}".format(cwd) )
-
-
 def update_oauth_credentials(ctx):
-    ctx.local("python2.6 manage.py export_project_credentials")
+
+    with ctx.lcd(th_service_src):
+        ctx.local(
+            "python2.6 manage.py export_project_credentials --settings {0}".format(th_settings))
 
 
-@task
 def update_db(ctx):
     """Update the database schema, if necessary."""
 
     with ctx.lcd(th_service_src):
-        ctx.local('python2.6 manage.py syncdb')
-        ctx.local('python2.6 manage.py migrate')
+        ctx.local('python2.6 manage.py syncdb --settings {0}'.format(th_settings))
+        ctx.local('python2.6 manage.py migrate --settings {0}'.format(th_settings))
 
-
-@task
 def checkin_changes(ctx):
     """Use the local, IT-written deploy script to check in changes."""
     ctx.local(settings.DEPLOY_SCRIPT)
@@ -74,15 +65,8 @@ def checkin_changes(ctx):
 def deploy_web_app(ctx):
     """Call the remote update script to push changes to webheads."""
     ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
-
-    # Make sure web assets are rebuilt when code is updated
-    update_assets(ctx)
-
-    # this is primarely for the persona ui
-    ctx.remote("python2.6 manage.py collectstatic --noinput")
-
     ctx.remote( '{0}/service httpd graceful'.format(settings.SBIN_DIR) )
-    ctx.remote( '{0}/supervisorctl restart gunicorn'.format(settings.BIN_DIR) )
+    ctx.remote( '{0}/service gunicorn restart'.format(settings.SBIN_DIR) )
 
 
 @hostgroups(
@@ -94,18 +78,24 @@ def deploy_workers(ctx):
     # Restarts celery worker on the celery hostgroup to listen to the
     # celery queues: log_parser_fail,log_parser
     ctx.remote(
-        '{0}/supervisorctl restart celery_gevent'.format(settings.BIN_DIR))
+        '{0}/service celery restart'.format(settings.SBIN_DIR))
 
 
 def deploy_admin_node(ctx):
 
+    ctx.local(
+        '{0}/service celerybeat restart'.format(settings.SBIN_DIR))
+
     # Restarts celery worker on the admin node listening to the
     # celery queues: default
-    ctx.remote(
-        '{0}/supervisorctl restart run_celery_worker'.format(settings.BIN_DIR))
+    ctx.local(
+        '{0}/service celery restart'.format(settings.SBIN_DIR))
+
+    with ctx.lcd(th_service_src):
+        # this is primarely for the persona ui
+        ctx.local("python2.6 manage.py collectstatic --noinput --settings {0}".format(th_settings))
 
 
-@task
 def update_info(ctx):
     """Write info about the current state to a publicly visible file."""
     with ctx.lcd(th_service_src):
@@ -115,26 +105,25 @@ def update_info(ctx):
         ctx.local('git status')
         ctx.local('git submodule status')
 
-        ctx.local('git rev-parse HEAD > webapp/media/revision')
+        ctx.local('git rev-parse HEAD > treeherder/webapp/media/revision')
 
 
 @task
 def pre_update(ctx, ref=settings.UPDATE_REF):
     """Update code to pick up changes to this file."""
-    update_code(ref)
+    update_code(ctx, ref)
 
 
 @task
 def update(ctx):
-    update_assets(ctx)
     update_db(ctx)
     update_oauth_credentials(ctx)
 
 
 @task
 def deploy(ctx):
-    checkin_changes()
+    checkin_changes(ctx)
     deploy_web_app()
     deploy_workers()
-    deploy_admin_node()
-    update_info()
+    deploy_admin_node(ctx)
+    update_info(ctx)

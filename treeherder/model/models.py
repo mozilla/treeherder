@@ -646,6 +646,7 @@ class ReferenceDataSignatures(models.Model):
     job_type_symbol = models.CharField(max_length=25L, blank=True)
     option_collection_hash = models.CharField(max_length=64L, blank=True)
     build_system_type = models.CharField(max_length=25L, blank=True)
+    repository = models.CharField(max_length=50L)
     first_submission_timestamp = models.IntegerField()
     review_timestamp = models.IntegerField(null=True, blank=True)
     review_status = models.CharField(max_length=12L, blank=True)

@@ -162,7 +162,7 @@
             "exchange": null,
             "last_run_at": null,
             "args": "[]",
-            "enabled": true,
+            "enabled": false,
             "routing_key": null,
             "crontab": null,
             "interval": 1,
