@@ -216,7 +216,7 @@ class Builds4hTransformerMixin(object):
                         'log_urls': [],
                         'blob': {
                             'buildername': build['properties']['buildername'],
-                            'request_id': build['request_ids'][0]
+                            'request_id': build['properties']['request_ids'][0]
                         }
                     },
                 ]
