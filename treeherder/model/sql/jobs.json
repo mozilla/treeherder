@@ -78,6 +78,7 @@
                     SELECT `job_guid`
                     FROM `job`
                     WHERE `job_guid` = ?
+                    OR `job_guid` = ?
                 )",
 
             "host":"master_host"

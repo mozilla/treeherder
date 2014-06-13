@@ -1,13 +1,11 @@
 import time
-import os
 import json
 import pytest
-import itertools
+import copy
 
 from treeherder.model.derived.base import DatasetNotFoundError
 from tests.sample_data_generator import job_data, result_set
 from tests import test_utils
-from datadiff import diff
 
 slow = pytest.mark.slow
 xfail = pytest.mark.xfail
@@ -40,6 +38,7 @@ def test_bad_contenttype(jm):
 
     jm.disconnect()
 
+
 def test_ingest_single_sample_job(jm, refdata, sample_data, initial_data,
                                   mock_log_parser, sample_resultset):
     """Process a single job structure in the job_data.txt file"""
@@ -48,6 +47,7 @@ def test_ingest_single_sample_job(jm, refdata, sample_data, initial_data,
 
     jm.disconnect()
     refdata.disconnect()
+
 
 def test_ingest_all_sample_jobs(jm, refdata, sample_data, initial_data, sample_resultset, mock_log_parser):
     """
@@ -62,6 +62,47 @@ def test_ingest_all_sample_jobs(jm, refdata, sample_data, initial_data, sample_r
 
     jm.disconnect()
     refdata.disconnect()
+
+
+def test_ingest_pending_to_retry_to_success_sample_job(jm, refdata, sample_data, initial_data,
+                                  mock_log_parser, sample_resultset):
+    """Process a single job structure in the job_data.txt file"""
+    job_data = copy.deepcopy(sample_data.job_data[:1])
+    job = job_data[0]['job']
+    job_data[0]['revision_hash'] = sample_resultset[0]['revision_hash']
+
+    jm.store_result_set_data(sample_resultset)
+
+    job['state'] = 'running'
+    job['result'] = 'unknown'
+
+    # for pending and running jobs, we call this directly, just like
+    # the web api does.
+    jm.load_job_data(job_data)
+
+    jl = jm.get_job_list(0, 1)
+    initial_job_id = jl[0]["id"]
+
+
+    # now we simulate the complete version of the job coming in
+    job['state'] = 'complete'
+    job['result'] = 'retry'
+    # convert the job_guid to what it would be on a retry from objectstore
+    job['job_guid'] = job['job_guid'] + "_" + str(job['end_timestamp'])[-5:]
+
+    jm.store_job_data(job_data)
+    jm.process_objects(10, raise_errors=True)
+
+    jl = jm.get_job_list(0, 10)
+    print json.dumps(jl, indent=4)
+
+    jm.disconnect()
+    refdata.disconnect()
+
+    assert len(jl) == 1
+    assert jl[0]['result'] == 'retry'
+    assert jl[0]['id'] == initial_job_id
+
 
 def test_cycle_all_data(jm, refdata, sample_data, initial_data, sample_resultset, mock_log_parser):
     """

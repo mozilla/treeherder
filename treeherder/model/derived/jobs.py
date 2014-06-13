@@ -1290,8 +1290,22 @@ class JobsModel(TreeherderModelBase):
         # ``job_guid`` with the retry suffix.  But we need the
         # non-suffixed (or guid root) to find and update pending/running jobs
         for retry_guid in retry_job_guids:
-            retry_job = job_id_lookup[retry_guid]
-            job_id_lookup[get_guid_root(retry_guid)] = retry_job
+            try:
+
+                retry_guid_root = get_guid_root(retry_guid)
+                # if job_id_lookup contains the root, then the insert
+                # will have skipped, so we want to find that job
+                # when looking for the retry_guid for update later.
+                retry_job = job_id_lookup[retry_guid_root]
+                job_id_lookup[retry_guid] = retry_job
+            except KeyError:
+                pass
+                # if the retry isn't replacing a running/pending job,
+                # we'll end up here, and that's fine.
+
+
+        print "job_id_lookup"
+        print json.dumps(job_id_lookup, indent=4)
 
         # Need to iterate over log references separately since they could
         # be a different length. Replace job_guid with id in log url
@@ -1451,7 +1465,8 @@ class JobsModel(TreeherderModelBase):
             self.get_number( job.get('end_timestamp') ),
             0,                      # idx:18, replace with pending_avg_sec
             0,                      # idx:19, replace with running_avg_sec
-            job_guid
+            job_guid,
+            get_guid_root(job_guid) # will be the same except for ``retry`` jobs
             ])
 
         log_refs = job.get('log_references', [])
