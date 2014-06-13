@@ -1,7 +1,7 @@
 {
-    "tinderbox_printlines": [
-        "mozharness_revlink: http://hg.mozilla.org/build/mozharness/rev/97228ea173cb",
-        "mochitest-plain2<br/><em class=\"testfail\">T-FAIL</em>"
+    "job_details": [
+        {"url": "http://hg.mozilla.org/build/mozharness/rev/97228ea173cb", "content_type": "link", "value": "http://hg.mozilla.org/build/mozharness/rev/97228ea173cb", "title": "mozharness_revlink"},
+        {"url": null, "content_type": "html", "value": "<em class=\"testfail\">T-FAIL</em>", "title": "mochitest-plain2"}
     ],
     "talos_data": [],
     "logurl": "file:///home/vagrant/treeherder-service/tests/sample_data/logs/mozilla-central_mountainlion_test-mochitest-2-bm80-tests1-macosx-build138.txt.gz"
