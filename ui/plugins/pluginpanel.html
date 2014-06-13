@@ -112,11 +112,12 @@
         </li>
     </ul>
     <div class="printlines">
-        <ul ng-controller="TinderboxPluginCtrl" class="list-unstyled">
-            <li ng-repeat="line in tinderbox_lines_parsed" class="small">
+        <ul ng-controller="JobDetailsPluginCtrl" class="list-unstyled">
+            <li ng-repeat="line in job_details" class="small">
                 <label>{{line.title}}</label>
-                <span ng-switch on="line.type">
-                    <a ng-switch-when="link" title="{{line.value}}" href="{{line.link}}" target="_blank">{{line.value}}</a>
+                <span ng-switch on="line.content_type">
+                    <a ng-switch-when="link" title="{{line.value}}" href="{{line.url}}" target="_blank">{{line.value}}</a>
+                    <span ng-switch-when="raw_html" ng-bind-html="line.value"></span>
                     <ul ng-switch-when="TalosResult">
                         <li>Datazilla:
                             <ul>
@@ -133,7 +134,7 @@
                             </ul>
                         </li>
                     </ul>
-                    <span ng-switch-when="raw_html" ng-bind-html="line.value"></span>
+                    <span title="{{line.value}}" ng-switch-when="object">{{line.value}}</span>
                     <span title="{{line.value}}" ng-switch-default>{{line.value}}</span>
                 </span>
             </li>
