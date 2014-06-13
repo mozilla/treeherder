@@ -178,6 +178,7 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 
+
 # default value when no task routing info is specified
 CELERY_DEFAULT_QUEUE = 'default'
 CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'
@@ -267,6 +268,9 @@ BROKER_URL = 'amqp://{0}:{1}@{2}:{3}/{4}'.format(
     RABBITMQ_PORT,
     RABBITMQ_VHOST
 )
+
+CELERY_RESULT_BACKEND = BROKER_URL
+CELERY_IGNORE_RESULT = True
 
 API_HOSTNAME = SITE_URL
 

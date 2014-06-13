@@ -19,48 +19,34 @@ logger = logging.getLogger(__name__)
 
 class Builds4hTransformerMixin(object):
 
-    def find_job_guid(self, build):
+
+    def find_job_guid(self, request_ids, request_times):
         """
         returns the job_guid, based on request id and request time.
         necessary because request id and request time is inconsistently
         represented in builds4h
         """
-        prop = build['properties']
+        request_ids_str = ",".join(map(str, request_ids))
 
-        #get the request_id from two possible places
-        request_ids = prop.get('request_ids', [])
-        request_ids_str = ""
-        if request_ids == []:
-            request_ids_str = ','.join(
-                map(str, build.get('request_ids', []))
-                )
-        else:
-            request_ids_str = ','.join(map(str, request_ids))
-
-        #get the request_time from two possible places
-        request_time_dict = prop.get('request_times', {})
-        if request_time_dict != {}:
-
+        if type(request_times) == dict:
+            request_time_list = []
+            for request_id in request_ids:
+                request_time_list.append(
+                    request_times[str(request_id)])
             request_times_str = ','.join(
-                map(str, request_time_dict.values())
-                )
-
+                map(str, request_time_list))
         else:
+            request_times_str = str(request_times)
 
-            request_times_str = str(build['requesttime'])
-
-        job_guid_data = { 'job_guid':'', 'coalesced':[] }
+        job_guid_data = {'job_guid': '', 'coalesced': []}
 
         if len(request_ids) > 1:
             # coallesced job detected, generate the coalesced
             # job guids
-            for r_id in request_ids:
-                r_id_str = str(r_id)
-                if r_id_str in request_time_dict:
-                    job_guid_data['coalesced'].append(
-                        common.generate_job_guid(
-                            r_id_str, request_time_dict[r_id_str]
-                            ))
+            for index, r_id in enumerate(request_ids):
+                job_guid_data['coalesced'].append(
+                    common.generate_job_guid(
+                        str(r_id), request_time_list[index]))
 
         endtime = None
         if buildbot.RESULT_DICT[build['result']] == 'retry':
@@ -141,7 +127,25 @@ class Builds4hTransformerMixin(object):
             else:
                 log_reference = []
 
-            job_guid_data = self.find_job_guid(build)
+            # request_id and request_time are mandatory
+            # and they can be found in a couple of different places
+            try:
+                request_ids = build['properties'].get('request_ids',
+                                                      build['request_ids'])
+            except KeyError:
+                logger.error("({0})request_id not found in {1}".format(
+                    prop["branch"], build))
+                continue
+
+            try:
+                request_times = build['properties'].get('request_times',
+                                                        build['requesttime'])
+            except KeyError:
+                logger.error("({0})request_time not found in {1}".format(
+                    prop["branch"], build))
+                continue
+
+            job_guid_data = self.find_job_guid(request_ids, request_times)
 
             treeherder_data['coalesced'] = job_guid_data['coalesced']
 
@@ -198,6 +202,7 @@ class Builds4hTransformerMixin(object):
                     'platform': platform_info.get('os_platform', ''),
                     'architecture': platform_info.get('arch', '')
                 },
+                'device_name': device_name,
                 #pgo or non-pgo dependent on buildername parsing
                 'option_collection': {
                     buildbot.extract_build_type(prop['buildername']): True
@@ -216,7 +221,7 @@ class Builds4hTransformerMixin(object):
                         'log_urls': [],
                         'blob': {
                             'buildername': build['properties']['buildername'],
-                            'request_id': build['properties']['request_ids'][0]
+                            'request_id': request_ids[0]
                         }
                     },
                 ]

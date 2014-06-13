@@ -43,15 +43,17 @@ class ArtifactViewSet(viewsets.ViewSet):
         job_id_lookup = jm.get_job_ids_by_guid(job_guids)
 
         for datum in request.DATA:
-            job_id = job_id_lookup[datum['job_guid']]['id']
-            artifact_data.append((
-                job_id,
-                datum['name'],
-                datum['type'],
-                datum['blob'],
-                job_id,
-                datum['name'],
-            ))
+            job_id = job_id_lookup.get( datum['job_guid'], {}).get('id', None)
+
+            if job_id:
+                artifact_data.append((
+                    job_id,
+                    datum['name'],
+                    datum['type'],
+                    datum['blob'],
+                    job_id,
+                    datum['name'],
+                ))
 
         jm.store_job_artifact(artifact_data)
         return Response({'message': 'Artifacts stored successfully'})

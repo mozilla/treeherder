@@ -31,6 +31,7 @@ def update_code(ctx, tag):
         ctx.local('git submodule update --init --recursive')
         ctx.local("find . -type f -name '*.pyc' -delete")
 
+
     with ctx.lcd(th_ui_src):
         ctx.local('git checkout %s' % tag)
         ctx.local('git pull -f')
@@ -92,6 +93,7 @@ def deploy_admin_node(ctx):
     with ctx.lcd(th_service_src):
         # this is primarely for the persona ui
         ctx.local("python2.6 manage.py collectstatic --noinput --settings {0}".format(th_settings))
+        ctx.local("python2.6 setup.py build_ext --inplace")
 
 
 def update_info(ctx):
