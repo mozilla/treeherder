@@ -240,7 +240,6 @@ def test_store_performance_artifact(
 
     job_ids = tp_data['job_ids']
     perf_data = tp_data['perf_data']
-    signature_count = tp_data['signature_count']
 
     jm.store_performance_artifact(job_ids, perf_data)
 
@@ -263,4 +262,3 @@ def test_store_performance_artifact(
     jm.disconnect()
 
     assert performance_artifact_signatures == series_signatures
-    assert len(performance_artifact_signatures) == signature_count

@@ -400,7 +400,7 @@ def ingest_talos_performance_data(jm, refdata, sample_data, sample_resultset):
     talos_perf_index_max = len(talos_perf_data)
     talos_perf_index = 0
     perf_data = []
-    test_count = 0
+
     for job_guid in job_guids:
         perf_data.append({
             "job_guid": job_guid,
@@ -409,15 +409,12 @@ def ingest_talos_performance_data(jm, refdata, sample_data, sample_resultset):
             "blob": talos_perf_data[talos_perf_index]
         })
 
-        test_count += len(talos_perf_data[talos_perf_index]["results"])
-
         # cycle through the talos perf indexes so we test all of
         # the sample structures
         if talos_perf_index == talos_perf_index_max - 1:
             talos_perf_index = 0
 
     return {
-        "signature_count":test_count,
         "job_ids":job_ids,
         "perf_data":perf_data
         }
