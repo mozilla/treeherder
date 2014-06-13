@@ -1285,27 +1285,29 @@ class JobsModel(TreeherderModelBase):
             job_placeholders, job_guid_where_in_list, job_guid_list
             )
 
-        # Add the root of the retry guid to the lookup.  This is needed
-        # because ``_load_ref_and_job_data_structs`` will only add the
-        # ``job_guid`` with the retry suffix.  But we need the
-        # non-suffixed (or guid root) to find and update pending/running jobs
+        # For each of these ``retry_job_guids`` the job_id_lookup will
+        # either contain the retry guid, or the root guid (based on whether we
+        # inserted, or skipped insertion to do an update).  So add in
+        # whichever is missing.
         for retry_guid in retry_job_guids:
-            try:
+            retry_guid_root = get_guid_root(retry_guid)
+            lookup_keys = job_id_lookup.keys()
 
-                retry_guid_root = get_guid_root(retry_guid)
+            if retry_guid in lookup_keys:
+                # this retry was inserted in the db at some point
+                if retry_guid_root not in lookup_keys:
+                    # the root isn't there because there was, for some reason,
+                    # never a pending/running version of this job
+                    retry_job = job_id_lookup[retry_guid]
+                    job_id_lookup[retry_guid_root] = retry_job
+
+            elif retry_guid_root in lookup_keys:
                 # if job_id_lookup contains the root, then the insert
                 # will have skipped, so we want to find that job
                 # when looking for the retry_guid for update later.
                 retry_job = job_id_lookup[retry_guid_root]
                 job_id_lookup[retry_guid] = retry_job
-            except KeyError:
-                pass
-                # if the retry isn't replacing a running/pending job,
-                # we'll end up here, and that's fine.
 
-
-        print "job_id_lookup"
-        print json.dumps(job_id_lookup, indent=4)
 
         # Need to iterate over log references separately since they could
         # be a different length. Replace job_guid with id in log url
