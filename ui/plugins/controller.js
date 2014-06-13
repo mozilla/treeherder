@@ -254,20 +254,20 @@ treeherder.controller('PluginCtrl', [
     }
 ]);
 
-treeherder.controller('TinderboxPluginCtrl', [
+treeherder.controller('JobDetailsPluginCtrl', [
     '$scope', '$rootScope', 'ThLog', 'ThJobArtifactModel', '$q',
-    function TinderboxPluginCtrl(
+    function JobDetails(
         $scope, $rootScope, ThLog, ThJobArtifactModel, $q) {
 
         var $log = new ThLog(this.constructor.name);
 
-        $log.debug("Tinderbox plugin initialized");
+        $log.debug("JobDetails plugin initialized");
         var timeout_promise = null;
 
 
         var update_job_info = function(newValue, oldValue){
-            $scope.tinderbox_lines = [];
-            $scope.tinderbox_lines_parsed = [];
+            $scope.job_details = [];
+            $scope.job_details_parsed = [];
 
             if(newValue){
                 $scope.is_loading = true;
@@ -289,7 +289,7 @@ treeherder.controller('TinderboxPluginCtrl', [
                     // because ``Job Info`` can exist without the blob as the promise is
                     // fulfilled.
                     if (data.length === 1 && _.has(data[0], 'blob')){
-                        $scope.tinderbox_lines = data[0].blob.tinderbox_printlines;
+                        $scope.job_details = data[0].blob.job_details;
                     }
 
                 })
