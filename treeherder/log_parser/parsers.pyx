@@ -188,8 +188,8 @@ RE_UPLOADED_TO = re.compile("<a href='(http://[A-Za-z/\.0-9\-_]+)'>([A-Za-z/\.0-
 class TinderboxPrintParser(ParserBase):
 
     def __init__(self):
-        """Setup the artifact to hold the tinderbox print lines."""
-        super(TinderboxPrintParser, self).__init__("tinderbox_printlines")
+        """Setup the artifact to hold the job details."""
+        super(TinderboxPrintParser, self).__init__("job_details")
 
     def parse_line(self, line, lineno):
         """Parse a single line of the log"""

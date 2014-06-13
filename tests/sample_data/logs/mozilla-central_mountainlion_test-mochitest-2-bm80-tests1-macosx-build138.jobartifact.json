@@ -1,5 +1,5 @@
 {
-    "tinderbox_printlines": [
+    "job_details": [
         {"url": "http://hg.mozilla.org/build/mozharness/rev/97228ea173cb", "content_type": "link", "value": "http://hg.mozilla.org/build/mozharness/rev/97228ea173cb", "title": "mozharness_revlink"},
         {"url": null, "content_type": "html", "value": "<em class=\"testfail\">T-FAIL</em>", "title": "mochitest-plain2"}
     ],

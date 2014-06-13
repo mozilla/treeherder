@@ -65,7 +65,7 @@ def test_all_builders_complete():
             }
         },
         "Job Info": {
-            "tinderbox_printlines": []
+            "job_details": []
         }
     }
     act = lpc.artifacts
