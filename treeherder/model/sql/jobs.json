@@ -301,10 +301,22 @@
 
         },
         "get_performance_series": {
-            
+
             "sql":"SELECT *
                    FROM `performance_series`
                    WHERE `id` IN (REP0)",
+
+            "host":"read_host"
+
+        },
+        "get_all_series_signatures": {
+
+            "sql":"SELECT `signature`,
+                    GROUP_CONCAT(
+                        CONCAT_WS('=', `property`, `value`) SEPARATOR ', '
+                    ) AS 'properties'
+                   FROM `series_signature`
+                   GROUP BY `signature`",
 
             "host":"read_host"
 
