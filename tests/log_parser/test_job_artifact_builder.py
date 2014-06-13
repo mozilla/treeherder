@@ -84,7 +84,7 @@ def test_jetpack_fail(initial_data):
 
     do_test("ux_ubuntu32_vm_test-jetpack-bm67-tests1-linux-build16")
 
-def test_check_talos_data_true(jm, initial_data):
+def test_check_talos_data_true(initial_data):
     """ensure that TALOSDATA is parsed out of the log"""
 
     do_test("talos-data")

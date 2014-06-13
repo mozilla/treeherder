@@ -66,7 +66,7 @@ def test_all_builders_complete():
             "talos_data": []
         },
         "Job Info": {
-            "talos_data": []
+            "talos_data": [],
             "job_details": []
         }
     }
