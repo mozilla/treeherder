@@ -151,9 +151,10 @@
             "sql":"INSERT INTO `job_log_url` (
                 `job_id`,
                 `name`,
-                `url`
+                `url`,
+                `parse_timestamp`
                 )
-            VALUES (?,?,?)",
+            VALUES (?,?,?,?)",
 
             "host":"master_host"
         },

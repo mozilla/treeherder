@@ -1616,6 +1616,8 @@ class JobsModel(TreeherderModelBase):
 
         result_sets = []
 
+        time_now = int(time.time())
+
         if log_placeholders:
             for index, log_ref in enumerate(log_placeholders):
                 job_guid = log_ref[0]
@@ -1626,7 +1628,7 @@ class JobsModel(TreeherderModelBase):
 
                 # Replace job_guid with id
                 log_placeholders[index][0] = job_id
-
+                log_placeholders[index].append(time_now)
                 task = dict()
                 task['job_guid'] = job_guid
                 task['log_url'] = log_ref[2]
