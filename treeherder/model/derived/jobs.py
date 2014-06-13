@@ -1677,106 +1677,76 @@ class JobsModel(TreeherderModelBase):
             executemany=True)
 
     def get_job_signatures_from_ids(self, job_ids):
-        jobs_signatures_where_in_clause = [ ','.join( ['%s'] * len(job_ids) ) ]
 
-        job_data = []
+        job_data = {}
 
         if job_ids:
+
+            jobs_signatures_where_in_clause = [ ','.join( ['%s'] * len(job_ids) ) ]
+
             job_data = self.get_jobs_dhub().execute(
                 proc='jobs.selects.get_signature_list_from_job_ids',
                 debug_show=self.DEBUG,
                 replace=jobs_signatures_where_in_clause,
+                key_column='job_guid',
+                return_type='dict',
                 placeholders=job_ids)
 
         return job_data
 
-    def store_performance_artifact(self, job_ids, performance_artifact_placeholders):
+    def store_performance_artifact(
+        self, job_ids, performance_artifact_placeholders):
         """
         Store the performance data
         """
+
+        # Retrieve list of job signatures associated with the jobs
         job_data = self.get_job_signatures_from_ids(job_ids)
 
-        job_signatures = [x['signature'] for x in job_data]
-        reference_data = self.refdata_model.get_objects_from_signatures(job_signatures)
-        artifact_placeholders = []
-        series_placeholders = []
+        job_ref_data_signatures = set()
+        map(
+            lambda job_guid: job_ref_data_signatures.add(
+                job_data[job_guid]['signature']
+                ),
+            job_data.keys()
+            )
 
-        def get_transformed_ref_data(job_guid):
-            ref_data = reference_data.get(job_guid, {})
+        # Retrieve associated data in reference_data_signatures
+        reference_data = self.refdata_model.get_reference_data_for_perf_signature(
+            list(job_ref_data_signatures))
 
-            for exclude in ['first_submission_timestamp', 'id', 'review_timestamp', 'review_status']:
-                if exclude in ref_data:
-                    ref_data.pop(exclude)
+        tda = TalosDataAdapter()
 
-            return ref_data
-
-        def store_signature_properties(signatures):
-            props_placeholders = []
-
-            for signature in signatures.keys():
-                signature_properties = signatures[signature]
-
-                for key in signature_properties.keys():
-                    value = signature_properties[key]
-
-                    props_placeholders.append((
-                        signature,
-                        key,
-                        json.dumps(value),
-                        signature,
-                        key,
-                        json.dumps(value)
-                    ))
-
-            self.get_jobs_dhub().execute(
-                proc='jobs.inserts.set_series_signature',
-                debug_show=self.DEBUG,
-                placeholders= props_placeholders,
-                executemany=True)
-
-        intervals = (10, 20, 30)
-
-        for job_id, perf_data in zip(job_ids, performance_artifact_placeholders):
+        for perf_data in performance_artifact_placeholders:
 
             job_guid = perf_data["job_guid"]
-            ref_data = get_transformed_ref_data(job_guid)
 
-            tda = TalosDataAdapter(perf_data["blob"])
-            adapted_data = tda.adapt(ref_data, perf_data)
+            job_id = job_data.get(
+                perf_data['job_guid'], {}
+                ).get('id', None)
 
-            store_signature_properties(tda.signatures)
+            ref_data_signature = job_data[job_guid]['signature']
+            ref_data = reference_data[ ref_data_signature ]
 
-            for signature in adapted_data.keys():
-                datum = adapted_data[signature]
+            if 'signature' in ref_data:
+                del ref_data['signature']
 
-                for interval in intervals:
-                    series_placeholders.append((
-                        interval, #interval_seconds #TODO: should different second intervals
-                        datum["blob"]["series_signature"],
-                        datum["type"],
-                        utils.get_now_timestamp(),
-                        json.dumps(datum["blob"]["performance_series"])
-                    ))
-
-                artifact_placeholders.append((
-                    job_id,
-                    datum["blob"]["series_signature"],
-                    datum["name"],
-                    datum["type"],
-                    json.dumps(datum["blob"])
-                ))
+            # adapt and load data into placeholder structures
+            tda.adapt_and_load(ref_data, job_data, perf_data)
 
         self.get_jobs_dhub().execute(
             proc="jobs.inserts.set_performance_artifact",
             debug_show=self.DEBUG,
-            placeholders=artifact_placeholders,
+            placeholders=tda.performance_artifact_placeholders,
             executemany=True)
 
         self.get_jobs_dhub().execute(
-            proc="jobs.inserts.set_performance_series",
+            proc='jobs.inserts.set_series_signature',
             debug_show=self.DEBUG,
-            placeholders=series_placeholders,
+            placeholders=tda.signature_property_placeholders,
             executemany=True)
+
+        tda.submit_tasks()
 
     def _load_job_artifacts(self, artifact_placeholders, job_id_lookup):
         """

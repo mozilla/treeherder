@@ -358,7 +358,15 @@
         },
         "get_signature_list_from_job_ids":{
 
-            "sql":"SELECT signature FROM job WHERE id IN (REP0) GROUP BY signature",
+            "sql":"SELECT j.id,
+                          j.result_set_id,
+                          j.job_guid,
+                          j.signature,
+                          r.push_timestamp
+                   FROM job AS j
+                   JOIN result_set AS r
+                    ON j.result_set_id = r.id
+                   WHERE j.id IN (REP0)",
             "host":"read_host"
 
         },
