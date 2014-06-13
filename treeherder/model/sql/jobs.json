@@ -100,8 +100,18 @@
         },
         "set_performance_series":{
             "sql":"INSERT INTO `performance_series` (`interval_seconds`, `series_signature`, `type`, `last_updated`, `blob`)
-                    VALUES (?,?,?,?,?)
-                    ON DUPLICATE KEY UPDATE `series_signature`=VALUES(`series_signature`), `interval_seconds`=VALUES(`interval_seconds`)",
+                   SELECT ?,?,?,?,?
+                   FROM DUAL WHERE NOT EXISTS (
+                        SELECT `interval_seconds`, `series_signature`
+                        FROM `performance_series`
+                        WHERE `interval_seconds` = ? AND `series_signature` = ?
+                   )",
+            "host":"master_host"
+        },
+        "update_performance_series":{
+            "sql":"UPDATE `performance_series`
+                   SET `last_updated` = ?, `blob` = ?
+                   WHERE `interval_seconds` = ? AND `series_signature` = ?",
             "host":"master_host"
         },
         "set_job_eta":{
