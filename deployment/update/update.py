@@ -93,7 +93,7 @@ def deploy_admin_node(ctx):
     with ctx.lcd(th_service_src):
         # this is primarely for the persona ui
         ctx.local("python2.6 manage.py collectstatic --noinput --settings {0}".format(th_settings))
-        ctx.local('python2.6 manage.py build_ext --inplace --settings {0}'.format(th_settings))
+        ctx.local('python2.6 setup.py build_ext --inplace --settings {0}'.format(th_settings))
 
 
 def update_info(ctx):
