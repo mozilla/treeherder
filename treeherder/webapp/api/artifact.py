@@ -50,7 +50,6 @@ class ArtifactViewSet(viewsets.ViewSet):
             job_id = job_id_lookup.get( datum['job_guid'], {}).get('id', None)
 
             if job_id:
-
                 if datum['type'] in PerformanceDataAdapter.performance_types:
                     job_id_list.append(job_id)
 
