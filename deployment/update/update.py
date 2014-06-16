@@ -64,11 +64,11 @@ def checkin_changes(ctx):
 def deploy_web_app(ctx):
     """Call the remote update script to push changes to webheads."""
     ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
-    ctx.remote( '{0}/service httpd stop'.format(settings.SBIN_DIR) )
-    ctx.remote( '{0}/service gunicorn stop'.format(settings.SBIN_DIR) )
+    ctx.remote( '{0}/service httpd graceful'.format(settings.SBIN_DIR) )
+    ctx.remote( '{0}/service gunicorn restart'.format(settings.SBIN_DIR) )
 
     # REMOVE
-    ctx.remote( '{0}/service memcached stop'.format(settings.SBIN_DIR) )
+    ctx.remote( '{0}/service memcached restart'.format(settings.SBIN_DIR) )
 
 
 @hostgroups(
@@ -80,18 +80,18 @@ def deploy_workers(ctx):
     # Restarts celery worker on the celery hostgroup to listen to the
     # celery queues: log_parser_fail,log_parser
     ctx.remote(
-        '{0}/service celery-worker-gevent stop'.format(settings.SBIN_DIR))
+        '{0}/service celery-worker-gevent restart'.format(settings.SBIN_DIR))
 
 
 def deploy_admin_node(ctx):
 
     ctx.local(
-        '{0}/service celerybeat stop'.format(settings.SBIN_DIR))
+        '{0}/service celerybeat restart'.format(settings.SBIN_DIR))
 
     # Restarts celery worker on the admin node listening to the
     # celery queues: default
     ctx.local(
-        '{0}/service celery stop'.format(settings.SBIN_DIR))
+        '{0}/service celery restart'.format(settings.SBIN_DIR))
 
     with ctx.lcd(th_service_src):
         # this is primarely for the persona ui
