@@ -67,6 +67,9 @@ def deploy_web_app(ctx):
     ctx.remote( '{0}/service httpd stop'.format(settings.SBIN_DIR) )
     ctx.remote( '{0}/service gunicorn stop'.format(settings.SBIN_DIR) )
 
+    # REMOVE
+    ctx.remote( '{0}/service memcached stop'.format(settings.SBIN_DIR) )
+
 
 @hostgroups(
     settings.CELERY_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
