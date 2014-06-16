@@ -70,7 +70,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--host",
                         help="interface to bind the server to",
-                        default="127.0.0.1")
+                        default="0.0.0.0")
     parser.add_argument("--port",
                         help="port to bind the server to",
                         default="8005",

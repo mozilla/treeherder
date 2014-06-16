@@ -498,32 +498,6 @@
     "model": "model.repository",
     "fields": {
         "dvcs_type": "hg",
-        "name": "devtools",
-        "url": "https://hg.mozilla.org/projects/devtools",
-        "active_status": "active",
-        "codebase": "gecko",
-        "repository_group": 1,
-        "description": ""
-    }
-},
-{
-    "pk": 43,
-    "model": "model.repository",
-    "fields": {
-        "dvcs_type": "hg",
-        "name": "jaegermonkey",
-        "url": "https://hg.mozilla.org/projects/jaegermonkey",
-        "active_status": "active",
-        "codebase": "gecko",
-        "repository_group": 1,
-        "description": ""
-    }
-},
-{
-    "pk": 44,
-    "model": "model.repository",
-    "fields": {
-        "dvcs_type": "hg",
         "name": "unknown",
         "url": "",
         "active_status": "active",
@@ -533,7 +507,7 @@
     }
 },
 {
-    "pk": 45,
+    "pk": 43,
     "model": "model.repository",
     "fields": {
         "dvcs_type": "hg",
@@ -546,7 +520,7 @@
     }
 },
 {
-    "pk": 46,
+    "pk": 44,
     "model": "model.repository",
     "fields": {
         "dvcs_type": "git",
@@ -559,7 +533,7 @@
     }
 },
 {
-    "pk": 47,
+    "pk": 45,
     "model": "model.repository",
     "fields": {
         "dvcs_type": "hg",
@@ -573,7 +547,7 @@
 },
 
 {
-    "pk": 48,
+    "pk": 46,
     "model": "model.repository",
     "fields": {
         "dvcs_type": "git",
@@ -586,7 +560,7 @@
     }
 },
 {
-    "pk": 49,
+    "pk": 47,
     "model": "model.repository",
     "fields": {
         "dvcs_type": "git",
@@ -599,7 +573,7 @@
     }
 },
 {
-    "pk": 50,
+    "pk": 48,
     "model": "model.repository",
     "fields": {
         "dvcs_type": "git",
@@ -612,7 +586,7 @@
     }
 },
 {
-    "pk": 51,
+    "pk": 49,
     "model": "model.repository",
     "fields": {
         "dvcs_type": "git",
@@ -625,7 +599,7 @@
     }
 },
 {
-    "pk": 52,
+    "pk": 50,
     "model": "model.repository",
     "fields": {
         "dvcs_type": "hg",
@@ -638,7 +612,7 @@
     }
 },
 {
-    "pk": 53,
+    "pk": 51,
     "model": "model.repository",
     "fields": {
         "dvcs_type": "hg",
@@ -651,7 +625,7 @@
     }
 },
 {
-    "pk": 54,
+    "pk": 52,
     "model": "model.repository",
     "fields": {
         "dvcs_type": "git",

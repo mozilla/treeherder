@@ -14,9 +14,7 @@ class PerformanceDataAdapter(object):
         'performance'
     ])
 
-    def __init__(self, data={}):
-
-        self.data = data
+    def __init__(self):
 
         self.datazilla_schema = {
             "title": "Datazilla Schema",
@@ -69,63 +67,90 @@ class PerformanceDataAdapter(object):
             "required": ["blob", "job_guid", "name", "type"]
         }
 
-        validate(self.data, self.datazilla_schema)
 
-    def calculate_series_data(self, replicates):
+    def calculate_series_data(
+        self, job_id, result_set_id, push_timestamp, replicates):
+
         replicates.sort()
         r = replicates
+        r_len = len(replicates)
 
-        def avg(x, y):
-            return (x + y) / 2
-
-        return {
+        series_data = {
+            "job_id": job_id,
+            "result_set_id": result_set_id,
+            "push_timestamp": push_timestamp,
+            "total_replicates": r_len,
             "min": min(r),
             "max": max(r),
-            "mean": float(sum(r))/len(r) if len(r) > 0 else float('nan'),
-            "median": r[int(math.floor(len(r)/2))] if (len(r)%2 == 1) else avg(r[(len(r)/2) - 1], r[len(r)/2])
-        }
+            "mean": 0,
+            "std": 0,
+            "median": 0
+            }
+
+        if r_len > 0:
+
+            def avg(s):
+                return float(sum(r)) / r_len
+
+            mean = round( float(sum(r))/r_len, 1 )
+            variance = map( lambda x: (x - mean)**2, replicates )
+
+            series_data["mean"] = '%.1f' % mean
+            series_data["std"] = '%.1f' % round( math.sqrt(avg(variance)), 1 )
+
+            if len(r)%2 == 1:
+                series_data["median"] = r[int(math.floor(len(r)/2))]
+            else:
+                series_data["median"] = '%1f' % round(
+                    avg([r[(len(r)/2) - 1], r[len(r)/2]]) )
+
+        return series_data
 
 class TalosDataAdapter(PerformanceDataAdapter):
 
-    def __init__(self, data={}):
+    def __init__(self):
 
-        super(TalosDataAdapter, self).__init__(data)
+        super(TalosDataAdapter, self).__init__()
 
         self.adapted_data = []
+
         self.signatures = {}
+        self.performance_artifact_placeholders = []
+        self.signature_property_placeholders = []
+        self.series_signature_data = []
 
-    def pre_adapt(self, job_guid, name, obj_type):
-        """Adapt the talos data into the structure that the web service
-           can interpret"""
+    def adapt_and_load(self, reference_data, job_data, datum):
 
-        performance_artifact = {
-            "job_guid": job_guid,
-            "name": name,
-            "type": obj_type,
-            "blob": {
-                "testmachine": self.data["test_machine"],
-                "testbuild": self.data["test_build"],
-                "testrun": self.data["testrun"],
-                "results": self.data["results"]
-            }
-        }
-
-        if "test_aux" in self.data:
-            performance_artifact["blob"]["test_aux"] = self.data["test_aux"]
-
-        return performance_artifact
-
-    def adapt(self, reference_data, datum):
+        validate(datum['blob'], self.datazilla_schema)
 
         _job_guid = datum["job_guid"]
         _name = datum["name"]
         _type = "performance"
         _suite = datum["blob"]["testrun"]["suite"]
 
-        ret = {}
+        # data for performance series
+        job_id = job_data[_job_guid]['id']
+        result_set_id = job_data[_job_guid]['result_set_id']
+        push_timestamp = job_data[_job_guid]['push_timestamp']
 
-        for test in datum["blob"]["results"].keys():
-            series_signature = self.get_series_signature(reference_data, datum, _suite + test)
+        for _test in datum["blob"]["results"].keys():
+
+            signature_properties = {}
+
+            signature_properties.update(reference_data)
+            signature_properties.update({
+                'suite':_suite,
+                'test':_test
+                })
+
+            series_signature = self.get_series_signature(
+                signature_properties.values()
+                )
+
+            series_data = self.calculate_series_data(
+                job_id, result_set_id, push_timestamp,
+                datum["blob"]["results"][_test]
+                )
 
             obj = {
                 "job_guid": _job_guid,
@@ -133,43 +158,60 @@ class TalosDataAdapter(PerformanceDataAdapter):
                 "type": _type,
                 "blob": {
                     "series_signature": series_signature,
+                    "signature_properties": signature_properties,
+                    "performance_series": series_data,
                     "testsuite": _suite,
-                    "test": test,
-                    "performance_series": self.calculate_series_data(datum["blob"]["results"][test]),
-                    "replicates": datum["blob"]["results"][test],
-                    "metadata": datum["blob"]["testrun"]["options"] if datum["blob"]["testrun"]["options"] else None
+                    "test": _test,
+                    "replicates": datum["blob"]["results"][_test],
+                    "metadata":{}
                 }
             }
 
+            options = datum["blob"]["testrun"].get(
+                "options", {})
+            if options:
+                obj['blob']['metadata']['options'] = options
+
+            test_aux = datum["blob"].get(
+                "test_aux", {})
+            if test_aux:
+                obj['blob']['metadata']['auxiliary_data'] = test_aux
+
             validate(obj, self.treeherder_perf_test_schema)
 
-            ret[series_signature] = obj
+            if series_signature not in self.signatures:
 
-        return ret
+                self.signatures[series_signature] = True
 
-    def adapt_and_store(self, reference_data, datum):
+                for signature_property in signature_properties:
+                    self.signature_property_placeholders.append([
+                        series_signature,
+                        signature_property,
+                        signature_properties[signature_property],
+                        series_signature,
+                        signature_property,
+                        signature_properties[signature_property],
+                        ])
 
-        adapted_datum = self.adapt(reference_data, datum)
+            self.performance_artifact_placeholders.append([
+                job_id,
+                series_signature,
+                _name,
+                _test,
+                json.dumps(obj)
+                ])
 
-        self.adapted_data.append(adapted_datum)
+            self.series_signature_data.append(series_data)
 
-    def get_series_signature(self, reference_data, datum, test_name):
-
-        datum_properties = {
-            "test_machine": datum["blob"]["test_machine"],
-            "testrun": datum["blob"]["testrun"],
-            "test": test_name
-        }
-
-        signature_dict = dict(reference_data.items() + datum_properties.items())
-        signature_properties = tuple(signature_dict.items())
+    def get_series_signature(self, signature_values):
 
         sha = sha1()
 
-        sha.update(''.join(map(lambda x: str(x), signature_properties)))
+        sha.update(''.join(map(lambda x: str(x), signature_values)))
 
         signature = sha.hexdigest()
 
-        self.signatures[signature] = signature_dict
-
         return signature
+
+    def submit_tasks(self):
+        pass

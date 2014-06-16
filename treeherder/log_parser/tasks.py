@@ -65,7 +65,13 @@ def parse_log(project, log_url, job_guid, resultset, check_errors=False):
                 artifact_list.append((job_guid, name, data_type, json.dumps(artifact)))
 
             if check_errors:
-                all_errors = artifact_bc.artifacts['Structured Log']['step_data']['all_errors']
+                all_errors = artifact_bc.artifacts.get(
+                    'Structured Log', {}
+                    ).get(
+                        'step_data', {}
+                        ).get(
+                            'all_errors', [] )
+
                 for err in all_errors:
                     # remove the mozharness prefix
                     clean_line = mozharness_pattern.sub('', err['line']).strip()

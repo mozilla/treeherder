@@ -1,4 +1,7 @@
 from optparse import make_option
+from django.utils.six.moves import input
+
+from django.conf import settings
 
 from django.core.management.base import BaseCommand, CommandError
 from treeherder.model.models import Datasource, Repository
@@ -12,19 +15,34 @@ class Command(BaseCommand):
         make_option('--host',
             action='store',
             dest='host',
-            default='localhost',
+            default=settings.TREEHERDER_DATABASE_HOST,
             help='Host to associate the datasource to'),
         make_option('--readonly-host',
             action='store',
             dest='readonly_host',
-            default='localhost',
+            default=settings.TREEHERDER_DATABASE_HOST,
             help='Readonly host to associate the datasource to'),
+        make_option('--reset',
+            action='store_true',
+            dest='reset',
+            default=False,
+            help='Reset the datasources if they already exists'),
     )
 
     def handle(self, *args, **options):
+        if options["reset"]:
+            confirm = input("""You have requested an init of the datasources.
+This will IRREVERSIBLY DESTROY all data in the jobs and objectstore databases.
+Are you sure you want to do this?
+
+Type 'yes' to continue, or 'no' to cancel: """)
+            if confirm == "yes":
+                for ds in Datasource.objects.all():
+                    ds.delete()
+
         projects = Repository.objects.all().values_list('name', flat=True)
         for project in projects:
-            for contenttype in ("jobs","objectstore"):
+            for contenttype in ("jobs", "objectstore"):
                 Datasource.objects.get_or_create(
                     contenttype=contenttype,
                     dataset=1,

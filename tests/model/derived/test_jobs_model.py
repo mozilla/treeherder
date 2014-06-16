@@ -221,51 +221,44 @@ def test_store_result_set_data(jm, initial_data, sample_resultset):
 
 def test_get_job_data(jm, refdata, sample_data, initial_data,
                                   mock_log_parser, sample_resultset):
-    job_data = sample_data.job_data[:10]
+
+    target_len = 10
+    job_data = sample_data.job_data[:target_len]
     test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset)
 
     job_data = jm.get_job_signatures_from_ids(range(1,11))
 
-    assert len(job_data) is 9
+    assert len(job_data) is target_len
 
-def test_store_performance_artifact(jm, refdata, sample_data, initial_data,
-                                  mock_log_parser, sample_resultset):
+def test_store_performance_artifact(
+    jm, refdata, sample_data, sample_resultset, initial_data,
+    mock_log_parser):
 
-    num_intervals = 3
-    talos_perf_data = SampleData.get_talos_perf_data()
+    tp_data = test_utils.ingest_talos_performance_data(
+        jm, refdata, sample_data, sample_resultset
+        )
 
-    job_data = sample_data.job_data[:20]
-    test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset, False)
-
-    job_ids = range(1,800)
-
-    perf_data = []
-    test_count = 0
-    for x in talos_perf_data:
-        perf_data.append({
-            "job_guid": "0b4e73d7b204783cfdf0e364c3d015b18069a872",
-            "name": "test",
-            "type": "test",
-            "blob": x
-        })
-
-        test_count += len(x["results"])
+    job_ids = tp_data['job_ids']
+    perf_data = tp_data['perf_data']
 
     jm.store_performance_artifact(job_ids, perf_data)
 
     replace = [ ','.join( ['%s'] * len(job_ids) ) ]
 
-    performance_artifacts = jm.get_jobs_dhub().execute(
+    performance_artifact_signatures = jm.get_jobs_dhub().execute(
         proc="jobs.selects.get_performance_artifact",
         debug_show=jm.DEBUG,
         placeholders=job_ids,
-        replace=replace)
+        replace=replace,
+        return_type='set',
+        key_column='series_signature')
 
-    performance_series = jm.get_jobs_dhub().execute(
-        proc="jobs.selects.get_performance_series",
-        debug_show=jm.DEBUG,
-        placeholders=job_ids,
-        replace=replace)
+    series_signatures = jm.get_jobs_dhub().execute(
+        proc="jobs.selects.get_all_series_signatures",
+        return_type='set',
+        key_column='signature',
+        debug_show=jm.DEBUG)
 
-    assert len(performance_series) == test_count * num_intervals
-    assert len(performance_artifacts) == test_count
+    jm.disconnect()
+
+    assert performance_artifact_signatures == series_signatures

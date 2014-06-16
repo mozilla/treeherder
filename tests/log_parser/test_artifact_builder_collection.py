@@ -66,8 +66,8 @@ def test_all_builders_complete():
             "talos_data": []
         },
         "Job Info": {
-            "tinderbox_printlines": [],
-            "talos_data": []
+            "talos_data": [],
+            "job_details": []
         }
     }
     act = lpc.artifacts

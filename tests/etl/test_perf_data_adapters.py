@@ -5,58 +5,43 @@ from tests.sample_data_generator import job_data, result_set
 from tests.sampledata import SampleData
 from tests import test_utils
 
-def test_talos_data_adapter():
+def test_adapt_and_load():
+
     talos_perf_data = SampleData.get_talos_perf_data()
 
-    name = 'talos'
-    obj_type = 'performance'
-    job_guid = 'lakjsdfhlaksj'
+    ref_data = {
+        "test": 1
+    }
 
-    pre_adapted_data = []
+    tda = TalosDataAdapter()
+
+    result_count = 0
     for datum in talos_perf_data:
 
-        tda = TalosDataAdapter(datum)
+        datum = {
+            "job_guid": 'oqiwy0q847365qiu',
+            "name": "test",
+            "type": "test",
+            "blob": datum
+        }
 
-        # Confirm pre_adapt doesn't raise any exceptions
-        a = tda.pre_adapt(job_guid, name, obj_type)
-        pre_adapted_data.append(a)
+        job_data = {
+            "oqiwy0q847365qiu": {
+                "id":1,
+                "result_set_id":1,
+                "push_timestamp":1402692388
+            }
+        }
 
-def test_get_series_signature():
-    talos_perf_data = SampleData.get_talos_perf_data()
+        reference_data = {
+            "property1":"value1",
+            "property2":"value2",
+            "property3":"value3"
+        }
 
-    ref_data = {
-        "test": 1
-    }
+        result_count += len(datum['blob']["results"])
+        tda.adapt_and_load(reference_data, job_data, datum)
 
-    datum = {
-        "job_guid": 1,
-        "name": "test",
-        "type": "test",
-        "blob": talos_perf_data[0]
-    }
+    assert result_count == len( tda.performance_artifact_placeholders )
+    assert result_count == len( tda.series_signature_data )
 
-    tda = TalosDataAdapter(datum["blob"])
-
-    sig = tda.get_series_signature(ref_data, datum, "name")
-
-    assert sig is not None
-
-def test_adapt_data():
-    talos_perf_data = SampleData.get_talos_perf_data()
-
-    ref_data = {
-        "test": 1
-    }
-
-    datum = {
-        "job_guid": "abc",
-        "name": "test",
-        "type": "test",
-        "blob": talos_perf_data[0]
-    }
-
-    tda = TalosDataAdapter(datum["blob"])
-
-    ret = tda.adapt(ref_data, datum)
-
-    assert len(ret) is len(talos_perf_data[0]["results"])

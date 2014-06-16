@@ -8,7 +8,9 @@ from warnings import filterwarnings, resetwarnings
 from django.conf import settings
 from django.core.cache import cache
 
-from treeherder.model.models import Datasource, ExclusionProfile
+from treeherder.model.models import (Datasource,
+                                     ExclusionProfile,
+                                     ReferenceDataSignatures)
 
 from treeherder.model import utils
 
@@ -82,7 +84,9 @@ class JobsModel(TreeherderModelBase):
         "bug_job_map": {
             "job_id": "job_id",
             "bug_id": "bug_id",
-            "type": "type"
+            "type": "type",
+            "who": "who",
+            "submit_timestamp": "submit_timestamp"
         },
         "job_artifact": {
             "id": "id",
@@ -153,6 +157,19 @@ class JobsModel(TreeherderModelBase):
     def get_os_dhub(self):
         """Get the dhub for the objectstore"""
         return self.get_dhub(self.CT_OBJECTSTORE)
+
+    def get_build_system_type(self, project=None):
+        if not project:
+            project = self.project
+        build_systems = cache.get("build_system_by_repo", None)
+        if not build_systems:
+            build_systems = dict((repo, build_system_type) for repo, build_system_type in
+                ReferenceDataSignatures.objects.order_by("repository"
+                ).values_list("repository", "build_system_type").distinct()
+            )
+            cache.set("build_system_by_repo", build_systems)
+
+
 
     def get_job(self, id):
         """Return the job row for this ``job_id``"""
@@ -271,7 +288,6 @@ class JobsModel(TreeherderModelBase):
             )
 
         return count
-
 
     def _process_conditions(self, conditions, allowed_fields=None):
         """Transform a list of conditions into a list of placeholders and
@@ -411,6 +427,24 @@ class JobsModel(TreeherderModelBase):
         )
         self.update_last_job_classification(job_id)
 
+        if settings.TBPL_BUGS_TRANSFER_ENABLED:
+            job = self.get_job(job_id)[0]
+            if job["state"] == "completed":
+                signature = ReferenceDataSignatures.objects.filter(
+                    signature=job['signature'],
+                    repository=self.project)[0]
+                if signature.build_system_type == 'buildbot':
+
+                    from treeherder.etl.tasks import submit_build_star
+                    submit_build_star.delay(
+                        self.project,
+                        int(job_id),
+                        who,
+                        classification_id=int(failure_classification_id),
+                        note=note
+                    )
+
+
     def delete_job_note(self, note_id, job_id):
         """
         Delete a job note and updates the failure classification for that job
@@ -426,7 +460,7 @@ class JobsModel(TreeherderModelBase):
 
         self.update_last_job_classification(job_id)
 
-    def insert_bug_job_map(self, job_id, bug_id, assignment_type):
+    def insert_bug_job_map(self, job_id, bug_id, assignment_type, submit_timestamp, who):
         """
         Store a new relation between the given job and bug ids.
         """
@@ -436,12 +470,41 @@ class JobsModel(TreeherderModelBase):
                 placeholders=[
                     job_id,
                     bug_id,
-                    assignment_type
+                    assignment_type,
+                    submit_timestamp,
+                    who
                 ],
                 debug_show=self.DEBUG
             )
         except IntegrityError as e:
             raise JobDataIntegrityError(e)
+
+        if settings.TBPL_BUGS_TRANSFER_ENABLED:
+            job = self.get_job(job_id)[0]
+            if job["state"] == "completed":
+                signature = ReferenceDataSignatures.objects.filter(
+                    signature=job['signature'],
+                    repository=self.project)[0]
+                if signature.build_system_type == 'buildbot':
+                    # importing here to avoid an import loop
+                    from treeherder.etl.tasks import (submit_star_comment,
+                                                      submit_build_star)
+                    # submit bug association to tbpl
+                    # using an async task
+                    submit_star_comment.delay(
+                        self.project,
+                        job_id,
+                        bug_id,
+                        submit_timestamp,
+                        who
+                    )
+
+                    submit_build_star.delay(
+                        self.project,
+                        int(job_id),
+                        who,
+                        bug_id=bug_id
+                    )
 
 
     def delete_bug_job_map(self, job_id, bug_id):
@@ -456,6 +519,11 @@ class JobsModel(TreeherderModelBase):
             ],
             debug_show=self.DEBUG
         )
+
+    def get_build_system_type(self, job_id):
+        job = self.get_job(job_id)
+        rds = ReferenceDataSignatures.objects.get(signature=job["signature"])
+        return rds.build_system_type
 
     def calculate_eta(self, sample_window_seconds, debug):
 
@@ -838,7 +906,8 @@ class JobsModel(TreeherderModelBase):
         lookups = self.get_jobs_dhub().execute(
             proc=proc,
             debug_show=self.DEBUG,
-            replace=[result_set_id],
+            placeholders=[result_set_id],
+            replace=["%s"],
         )
         return lookups
 
@@ -1332,8 +1401,8 @@ class JobsModel(TreeherderModelBase):
         reference_data_name = job.get('reference_data_name', None)
 
         signature = self.refdata_model.add_reference_data_signature(
-            reference_data_name, build_system_type,
-            [ build_system_type, build_os_name, build_platform, build_architecture,
+            reference_data_name, build_system_type, self.project,
+            [ build_system_type, self.project,  build_os_name, build_platform, build_architecture,
               machine_os_name, machine_platform, machine_architecture,
               device_name, group_name, group_symbol, job_type, job_symbol,
               option_collection_hash ]
@@ -1550,6 +1619,8 @@ class JobsModel(TreeherderModelBase):
 
         result_sets = []
 
+        time_now = int(time.time())
+
         if log_placeholders:
             for index, log_ref in enumerate(log_placeholders):
                 job_guid = log_ref[0]
@@ -1560,7 +1631,7 @@ class JobsModel(TreeherderModelBase):
 
                 # Replace job_guid with id
                 log_placeholders[index][0] = job_id
-
+                log_placeholders[index].append(time_now)
                 task = dict()
                 task['job_guid'] = job_guid
                 task['log_url'] = log_ref[2]
@@ -1608,106 +1679,76 @@ class JobsModel(TreeherderModelBase):
             executemany=True)
 
     def get_job_signatures_from_ids(self, job_ids):
-        jobs_signatures_where_in_clause = [ ','.join( ['%s'] * len(job_ids) ) ]
 
-        job_data = self.get_jobs_dhub().execute(
-            proc='jobs.selects.get_signature_list_from_job_ids',
-            debug_show=self.DEBUG,
-            replace=jobs_signatures_where_in_clause,
-            placeholders=job_ids)
+        job_data = {}
+
+        if job_ids:
+
+            jobs_signatures_where_in_clause = [ ','.join( ['%s'] * len(job_ids) ) ]
+
+            job_data = self.get_jobs_dhub().execute(
+                proc='jobs.selects.get_signature_list_from_job_ids',
+                debug_show=self.DEBUG,
+                replace=jobs_signatures_where_in_clause,
+                key_column='job_guid',
+                return_type='dict',
+                placeholders=job_ids)
 
         return job_data
 
-    def store_performance_artifact(self, job_ids, performance_artifact_placeholders):
+    def store_performance_artifact(
+        self, job_ids, performance_artifact_placeholders):
         """
         Store the performance data
         """
+
+        # Retrieve list of job signatures associated with the jobs
         job_data = self.get_job_signatures_from_ids(job_ids)
 
-        job_signatures = [x['signature'] for x in job_data]
-        
-        reference_data = self.refdata_model.get_objects_from_signatures(job_signatures)
-        
-        artifact_placeholders = []
-        series_placeholders = []
+        job_ref_data_signatures = set()
+        map(
+            lambda job_guid: job_ref_data_signatures.add(
+                job_data[job_guid]['signature']
+                ),
+            job_data.keys()
+            )
 
-        def get_transformed_ref_data(job_guid):
-            ref_data = reference_data[job_guid]
+        # Retrieve associated data in reference_data_signatures
+        reference_data = self.refdata_model.get_reference_data_for_perf_signature(
+            list(job_ref_data_signatures))
 
-            for exclude in ['first_submission_timestamp', 'id', 'review_timestamp', 'review_status']:
-                if exclude in ref_data:
-                    ref_data.pop(exclude)
+        tda = TalosDataAdapter()
 
-            return ref_data
-
-        def store_signature_properties(signatures):
-            props_placeholders = []
-
-            for signature in signatures.keys():
-                signature_properties = signatures[signature]
-
-                for key in signature_properties.keys():
-                    value = signature_properties[key]
-
-                    props_placeholders.append((
-                        signature,
-                        key,
-                        json.dumps(value),
-                        signature,
-                        key,
-                        json.dumps(value)
-                    ))
-
-            self.get_jobs_dhub().execute(
-                proc='jobs.inserts.set_series_signature',
-                debug_show=self.DEBUG,
-                placeholders= props_placeholders,
-                executemany=True)
-
-        intervals = (10, 20, 30)
-
-        for job_id, perf_data in zip(job_ids, performance_artifact_placeholders):
+        for perf_data in performance_artifact_placeholders:
 
             job_guid = perf_data["job_guid"]
-            ref_data = get_transformed_ref_data(job_guid)
 
-            tda = TalosDataAdapter(perf_data["blob"])
-            adapted_data = tda.adapt(ref_data, perf_data)
+            job_id = job_data.get(
+                perf_data['job_guid'], {}
+                ).get('id', None)
 
-            store_signature_properties(tda.signatures)
+            ref_data_signature = job_data[job_guid]['signature']
+            ref_data = reference_data[ ref_data_signature ]
 
-            for signature in adapted_data.keys():
-                datum = adapted_data[signature]
+            if 'signature' in ref_data:
+                del ref_data['signature']
 
-                for interval in intervals:
-                    series_placeholders.append((
-                        interval, #interval_seconds #TODO: should different second intervals
-                        datum["blob"]["series_signature"],
-                        datum["type"],
-                        utils.get_now_timestamp(),
-                        json.dumps(datum["blob"]["performance_series"])
-                    ))
-
-                artifact_placeholders.append((
-                    job_id,
-                    datum["blob"]["series_signature"],
-                    datum["name"],
-                    datum["type"],
-                    json.dumps(datum["blob"])
-                ))
+            # adapt and load data into placeholder structures
+            tda.adapt_and_load(ref_data, job_data, perf_data)
 
         self.get_jobs_dhub().execute(
             proc="jobs.inserts.set_performance_artifact",
             debug_show=self.DEBUG,
-            placeholders=artifact_placeholders,
+            placeholders=tda.performance_artifact_placeholders,
             executemany=True)
 
         self.get_jobs_dhub().execute(
-            proc="jobs.inserts.set_performance_series",
+            proc='jobs.inserts.set_series_signature',
             debug_show=self.DEBUG,
-            placeholders=series_placeholders,
+            placeholders=tda.signature_property_placeholders,
             executemany=True)
 
+        tda.submit_tasks()
 
     def _load_job_artifacts(self, artifact_placeholders, job_id_lookup):
         """

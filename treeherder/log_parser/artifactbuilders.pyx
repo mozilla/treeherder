@@ -46,7 +46,7 @@ class ArtifactBuilderBase(object):
 
 class BuildbotJobArtifactBuilder(ArtifactBuilderBase):
     """
-    Gather error and tinderbox print lines for this job.
+    Gather error and details for this job.
 
     This parser gathers the data that shows on the bottom panel of the main
     TBPL page.

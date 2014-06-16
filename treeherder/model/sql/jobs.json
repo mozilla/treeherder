@@ -100,8 +100,18 @@
         },
         "set_performance_series":{
             "sql":"INSERT INTO `performance_series` (`interval_seconds`, `series_signature`, `type`, `last_updated`, `blob`)
-                    VALUES (?,?,?,?,?)
-                    ON DUPLICATE KEY UPDATE `series_signature`=VALUES(`series_signature`), `interval_seconds`=VALUES(`interval_seconds`)",
+                   SELECT ?,?,?,?,?
+                   FROM DUAL WHERE NOT EXISTS (
+                        SELECT `interval_seconds`, `series_signature`
+                        FROM `performance_series`
+                        WHERE `interval_seconds` = ? AND `series_signature` = ?
+                   )",
+            "host":"master_host"
+        },
+        "update_performance_series":{
+            "sql":"UPDATE `performance_series`
+                   SET `last_updated` = ?, `blob` = ?
+                   WHERE `interval_seconds` = ? AND `series_signature` = ?",
             "host":"master_host"
         },
         "set_job_eta":{
@@ -173,9 +183,10 @@
             "sql":"INSERT INTO `job_log_url` (
                 `job_id`,
                 `name`,
-                `url`
+                `url`,
+                `parse_timestamp`
                 )
-            VALUES (?,?,?)",
+            VALUES (?,?,?,?)",
 
             "host":"master_host"
         },
@@ -214,8 +225,10 @@
                 `job_id`,
                 `bug_id`,
                 `type`,
+                `submit_timestamp`,
+                `who`,
                 `active_status`)
-            VALUES (?,?,?,'active')",
+            VALUES (?,?,?,?,?,'active')",
             "host":"master_host"
         }
 
@@ -299,10 +312,22 @@
 
         },
         "get_performance_series": {
-            
+
             "sql":"SELECT *
                    FROM `performance_series`
                    WHERE `id` IN (REP0)",
+
+            "host":"read_host"
+
+        },
+        "get_all_series_signatures": {
+
+            "sql":"SELECT `signature`,
+                    GROUP_CONCAT(
+                        CONCAT_WS('=', `property`, `value`) SEPARATOR ', '
+                    ) AS 'properties'
+                   FROM `series_signature`
+                   GROUP BY `signature`",
 
             "host":"read_host"
 
@@ -356,7 +381,15 @@
         },
         "get_signature_list_from_job_ids":{
 
-            "sql":"SELECT signature FROM job WHERE id IN (REP0) GROUP BY signature",
+            "sql":"SELECT j.id,
+                          j.result_set_id,
+                          j.job_guid,
+                          j.signature,
+                          r.push_timestamp
+                   FROM job AS j
+                   JOIN result_set AS r
+                    ON j.result_set_id = r.id
+                   WHERE j.id IN (REP0)",
             "host":"read_host"
 
         },
@@ -426,6 +459,7 @@
             "sql":"SELECT
                     j.id,
                     j.`job_guid`,
+                    j.`signature`,
                     j.`job_coalesced_to_guid`,
                     j.`build_platform_id`,
                     j.`option_collection_hash`,
@@ -778,7 +812,7 @@
             "host":"read_host"
         },
         "get_bug_job_map":{
-            "sql":"SELECT `job_id`, `bug_id`, `type`
+            "sql":"SELECT `job_id`, `bug_id`, `type`, `submit_timestamp`, `who`
                    FROM `bug_job_map`
                    WHERE 1
                    REP0",

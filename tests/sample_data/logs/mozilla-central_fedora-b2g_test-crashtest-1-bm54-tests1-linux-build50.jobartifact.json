@@ -1,7 +1,17 @@
 {
-    "tinderbox_printlines": [
-        "mozharness_revlink: http://hg.mozilla.org/build/mozharness/rev/c43ba6cb3db3",
-        "crashtest<br/>810/0/22"
+    "job_details": [
+        {
+            "url": "http://hg.mozilla.org/build/mozharness/rev/c43ba6cb3db3",
+            "content_type": "link",
+            "value": "http://hg.mozilla.org/build/mozharness/rev/c43ba6cb3db3",
+            "title": "mozharness_revlink"
+        },
+        {
+            "url": null,
+            "content_type": "html",
+            "value": "810/0/22",
+            "title": "crashtest"
+        }
     ],
     "talos_data": [],
     "logurl": "file:///home/vagrant/treeherder-service/tests/sample_data/logs/mozilla-central_fedora-b2g_test-crashtest-1-bm54-tests1-linux-build50.txt.gz"

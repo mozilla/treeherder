@@ -208,8 +208,8 @@ class RefDataManager(object):
     methods allow a caller to iterate through a single list of
     job data structures, generating cumulative sets of reference data.
     """
-    def add_reference_data_signature(
-        self, name, build_system_type, reference_data):
+    def add_reference_data_signature(self, name, build_system_type,
+                                     repository, reference_data):
 
         signature = self.get_reference_data_signature(reference_data)
 
@@ -221,9 +221,9 @@ class RefDataManager(object):
             if name == None:
                 name = signature
 
-            placeholders = [ name, signature ]
+            placeholders = [name, signature]
             placeholders.extend(reference_data)
-            placeholders.extend([int(time.time()), name, build_system_type])
+            placeholders.extend([int(time.time()), name, build_system_type, repository])
             self.build_signature_placeholders.append(placeholders)
 
             self.reference_data_signature_lookup[signature] = reference_data
@@ -1328,14 +1328,20 @@ class RefDataManager(object):
 
         return sh.hexdigest()
 
-    def get_objects_from_signatures(self, signatures):
+    def get_reference_data_for_perf_signature(self, signatures):
         # use job_id to map to reference data
-        reference_data_signatures_where_in_clause = [ ','.join( ['%s'] * len(signatures) ) ]
+        reference_data = {}
 
-        return self.dhub.execute(
-            proc="reference.selects.get_objects_from_signatures",
-            placeholders=signatures,
-            replace=reference_data_signatures_where_in_clause,
-            debug_show=self.DEBUG,
-            key_column='signature',
-            return_type='dict')
+        if signatures:
+
+            reference_data_signatures_where_in_clause = [ ','.join( ['%s'] * len(signatures) ) ]
+
+            reference_data = self.dhub.execute(
+                proc="reference.selects.get_reference_data_for_perf_signature",
+                placeholders=signatures,
+                replace=reference_data_signatures_where_in_clause,
+                debug_show=self.DEBUG,
+                key_column='signature',
+                return_type='dict')
+
+        return reference_data

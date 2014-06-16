@@ -2,17 +2,17 @@
     "inserts":{
         "create_reference_data_signature":{
             "sql": "INSERT INTO `reference_data_signatures` (
-                        `name`, `signature`, `build_system_type`, `build_os_name`,
+                        `name`, `signature`, `build_system_type`, `repository`, `build_os_name`,
                         `build_platform`, `build_architecture`, `machine_os_name`,
                         `machine_platform`, `machine_architecture`, `device_name`,
                         `job_group_name`, `job_group_symbol`, `job_type_name`, `job_type_symbol`,
                         `option_collection_hash`, `first_submission_timestamp`)
-                    SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                    SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
                     FROM DUAL
                     WHERE NOT EXISTS (
-                    SELECT `name`, `build_system_type`
+                    SELECT `name`, `build_system_type`, `repository`
                     FROM `reference_data_signatures`
-                    WHERE `name` = ? AND `build_system_type` = ?
+                    WHERE `name` = ? AND `build_system_type` = ? AND `repository` = ?
                     )",
             "host":"master_host"
         },
@@ -160,8 +160,24 @@
 
     },
     "selects":{
-        "get_objects_from_signatures":{
-            "sql":"SELECT * FROM reference_data_signatures WHERE signature IN (REP0)",
+        "get_reference_data_for_perf_signature":{
+            "sql":"SELECT `signature`,
+                          `build_os_name`,
+                          `build_platform`,
+                          `build_architecture`,
+                          `machine_os_name`,
+                          `machine_platform`,
+                          `machine_architecture`,
+                          `device_name`,
+                          `job_group_name`,
+                          `job_group_symbol`,
+                          `job_type_name`,
+                          `job_type_symbol`,
+                          `option_collection_hash`,
+                          `build_system_type`,
+                          `repository`
+                    FROM reference_data_signatures WHERE signature IN (REP0)",
+
             "host": "read_host"
         },
         "get_build_platforms":{
