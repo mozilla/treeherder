@@ -77,7 +77,7 @@ def deploy_workers(ctx):
     # Restarts celery worker on the celery hostgroup to listen to the
     # celery queues: log_parser_fail,log_parser
     ctx.remote(
-        '{0}/service celery restart'.format(settings.SBIN_DIR))
+        '{0}/service celery-worker-gevent restart'.format(settings.SBIN_DIR))
 
 
 def deploy_admin_node(ctx):
