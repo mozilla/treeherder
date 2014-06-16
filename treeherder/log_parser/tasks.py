@@ -60,7 +60,7 @@ def parse_log(project, log_url, job_guid, resultset, check_errors=False):
 
             artifact_list = []
             for name, artifact in artifact_bc.artifacts.items():
-                data_type = 'performance' if name == 'talos-data' else 'json'
+                data_type = 'performance' if name == 'talos_data' else 'json'
 
                 artifact_list.append((job_guid, name, data_type, json.dumps(artifact)))
 
