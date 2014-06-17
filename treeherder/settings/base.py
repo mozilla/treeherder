@@ -219,6 +219,10 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 TBPL_BUGS_TRANSFER_ENABLED = True
 TBPL_HOST = "https://tbpl.mozilla.org"
 
+# timeout for requests to external sources
+# like ftp.mozilla.org or hg.mozilla.org
+TREEHERDER_REQUESTS_TIMEOUT = 30
+
 try:
     from .local import *
 except ImportError:
