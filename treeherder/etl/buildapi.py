@@ -48,8 +48,12 @@ class Builds4hTransformerMixin(object):
                     common.generate_job_guid(
                         str(r_id), request_time_list[index]))
 
+        endtime = None
+        if buildbot.RESULT_DICT[build['result']] == 'retry':
+            endtime = build['endtime']
+
         job_guid_data['job_guid'] = common.generate_job_guid(
-            request_ids_str, request_times_str)
+            request_ids_str, request_times_str, endtime)
 
         return job_guid_data
 

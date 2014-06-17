@@ -78,6 +78,7 @@
                     SELECT `job_guid`
                     FROM `job`
                     WHERE `job_guid` = ?
+                    OR `job_guid` = ?
                 )",
 
             "host":"master_host"
@@ -217,6 +218,7 @@
             "sql":"
                 UPDATE `job`
                 SET
+                `job_guid` = ?,
                 `job_coalesced_to_guid` = ?,
                 `result_set_id` = ?,
                 `machine_id` = ?,
