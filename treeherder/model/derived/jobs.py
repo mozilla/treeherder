@@ -1416,6 +1416,8 @@ class JobsModel(TreeherderModelBase):
             )
 
         product = job.get('product_name', 'unknown')
+        if len(product.strip()) == 0:
+            product = 'unknown'
         self.refdata_model.add_product(product)
 
         job_guid = job['job_guid']
