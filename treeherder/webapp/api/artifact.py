@@ -65,8 +65,11 @@ class ArtifactViewSet(viewsets.ViewSet):
                         datum['name'],
                     ))
 
-        jm.store_job_artifact(artifact_data)
-        jm.store_performance_artifact(
-            job_id_list, performance_artifact_data)
+        if artifact_data:
+            jm.store_job_artifact(artifact_data)
+
+        if job_id_list and performance_artifact_data:
+            jm.store_performance_artifact(
+                job_id_list, performance_artifact_data)
 
         return Response({'message': 'Artifacts stored successfully'})
