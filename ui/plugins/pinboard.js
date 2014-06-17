@@ -9,7 +9,9 @@ treeherder.controller('PinboardCtrl', [
 
         $rootScope.$on(thEvents.jobPin, function(event, job) {
             $scope.pinJob(job);
-            $scope.$digest();
+            if(!$scope.$$phase){
+                $scope.$digest();
+            }
         });
 
         $scope.pinJob = function(job) {

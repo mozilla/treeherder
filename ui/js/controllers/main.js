@@ -64,7 +64,9 @@ treeherder.controller('MainCtrl', [
             $scope.windowWidth = newValue;
         });
         window.onresize = function(){
-            $scope.$apply();
+            if(!$scope.$$phase){
+                $scope.$apply();
+            }
         };
 
         // the repos the user has chosen to watch
