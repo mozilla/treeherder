@@ -67,6 +67,9 @@ def deploy_web_app(ctx):
     ctx.remote( '{0}/service httpd graceful'.format(settings.SBIN_DIR) )
     ctx.remote( '{0}/service gunicorn restart'.format(settings.SBIN_DIR) )
 
+    # REMOVE
+    ctx.remote( '{0}/service memcached restart'.format(settings.SBIN_DIR) )
+
 
 @hostgroups(
     settings.CELERY_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
@@ -77,7 +80,7 @@ def deploy_workers(ctx):
     # Restarts celery worker on the celery hostgroup to listen to the
     # celery queues: log_parser_fail,log_parser
     ctx.remote(
-        '{0}/service celery restart'.format(settings.SBIN_DIR))
+        '{0}/service celery-worker-gevent restart'.format(settings.SBIN_DIR))
 
 
 def deploy_admin_node(ctx):

@@ -14,6 +14,8 @@ from treeherder.model.models import (Datasource,
 
 from treeherder.model import utils
 
+from treeherder.etl.common import get_guid_root
+
 from .base import TreeherderModelBase
 
 from datasource.DataHub import DataHub
@@ -1182,12 +1184,11 @@ class JobsModel(TreeherderModelBase):
         artifact_placeholders = []
         coalesced_job_guid_placeholders = []
 
-        # Structures supporting update of job data in SQL
-        update_placeholders = []
-
         # List of json object ids and associated revision_hashes
         # loaded. Used to mark the status complete.
         object_placeholders = []
+
+        retry_job_guids = []
 
         for datum in data:
             # Make sure we can deserialize the json object
@@ -1238,7 +1239,8 @@ class JobsModel(TreeherderModelBase):
                     rh_where_in,
                     job_placeholders,
                     log_placeholders,
-                    artifact_placeholders
+                    artifact_placeholders,
+                    retry_job_guids
                     )
 
                 if 'id' in datum:
@@ -1286,12 +1288,36 @@ class JobsModel(TreeherderModelBase):
             job_placeholders, job_guid_where_in_list, job_guid_list
             )
 
+        # For each of these ``retry_job_guids`` the job_id_lookup will
+        # either contain the retry guid, or the root guid (based on whether we
+        # inserted, or skipped insertion to do an update).  So add in
+        # whichever is missing.
+        for retry_guid in retry_job_guids:
+            retry_guid_root = get_guid_root(retry_guid)
+            lookup_keys = job_id_lookup.keys()
+
+            if retry_guid in lookup_keys:
+                # this retry was inserted in the db at some point
+                if retry_guid_root not in lookup_keys:
+                    # the root isn't there because there was, for some reason,
+                    # never a pending/running version of this job
+                    retry_job = job_id_lookup[retry_guid]
+                    job_id_lookup[retry_guid_root] = retry_job
+
+            elif retry_guid_root in lookup_keys:
+                # if job_id_lookup contains the root, then the insert
+                # will have skipped, so we want to find that job
+                # when looking for the retry_guid for update later.
+                retry_job = job_id_lookup[retry_guid_root]
+                job_id_lookup[retry_guid] = retry_job
+
+
         # Need to iterate over log references separately since they could
         # be a different length. Replace job_guid with id in log url
         # placeholders
         # need also to retrieve the updated status to distinguish between
         # failed and successful jobs
-        job_results = dict((el[-1], el[8]) for el in job_update_placeholders)
+        job_results = dict((el[0], el[9]) for el in job_update_placeholders)
 
         self._load_log_urls(log_placeholders, job_id_lookup,
                             job_results)
@@ -1303,7 +1329,9 @@ class JobsModel(TreeherderModelBase):
         if job_update_placeholders:
             # replace job_guid with job_id
             for row in job_update_placeholders:
-                row[-1] = job_id_lookup[row[-1]]['id']
+                row[-1] = job_id_lookup[
+                    get_guid_root(row[-1])
+                    ]['id']
 
             self.get_jobs_dhub().execute(
                 proc='jobs.updates.update_job_data',
@@ -1326,8 +1354,18 @@ class JobsModel(TreeherderModelBase):
     def _load_ref_and_job_data_structs(
         self, job, revision_hash, revision_hash_lookup,
         unique_revision_hashes, rh_where_in, job_placeholders,
-        log_placeholders, artifact_placeholders
+        log_placeholders, artifact_placeholders, retry_job_guids
         ):
+        """
+        Take the raw job object after etl and convert it to job_placeholders.
+
+        If the job is a ``retry`` the ``job_guid`` will have a special
+        suffix on it.  But the matching ``pending``/``running`` job will not.
+        So we append the suffixed ``job_guid`` to ``retry_job_guids``
+        so that we can update the job_id_lookup later with the non-suffixed
+        ``job_guid`` (root ``job_guid``). Then we can find the right
+        ``pending``/``running`` job and update it with this ``retry`` job.
+        """
 
         # Store revision_hash to support SQL construction
         # for result_set entry
@@ -1381,6 +1419,8 @@ class JobsModel(TreeherderModelBase):
             )
 
         product = job.get('product_name', 'unknown')
+        if len(product.strip()) == 0:
+            product = 'unknown'
         self.refdata_model.add_product(product)
 
         job_guid = job['job_guid']
@@ -1394,6 +1434,9 @@ class JobsModel(TreeherderModelBase):
 
         state = job.get('state', 'unknown')
         state = state[0:25]
+
+        if job.get('result', 'unknown') == 'retry':
+            retry_job_guids.append(job_guid)
 
         build_system_type = job.get('build_system_type', 'buildbot')
 
@@ -1429,7 +1472,8 @@ class JobsModel(TreeherderModelBase):
             self.get_number( job.get('end_timestamp') ),
             0,                      # idx:18, replace with pending_avg_sec
             0,                      # idx:19, replace with running_avg_sec
-            job_guid
+            job_guid,
+            get_guid_root(job_guid) # will be the same except for ``retry`` jobs
             ])
 
         log_refs = job.get('log_references', [])
@@ -1472,6 +1516,16 @@ class JobsModel(TreeherderModelBase):
         job_guid_list, job_guid_where_in_list, job_update_placeholders,
         result_set_ids, job_eta_times
         ):
+        """
+        Supplant ref data with ids and create update placeholders
+
+        Pending jobs should be updated, rather than created.
+
+        ``job_placeholders`` are used for creating new jobs.
+
+        ``job_update_placeholders`` are used for updating existing non-complete
+        jobs
+        """
 
         # Replace reference data with their ids
         job_guid = job_placeholders[index][0]
@@ -1519,6 +1573,16 @@ class JobsModel(TreeherderModelBase):
 
 
         job_guid_list.append(job_guid)
+
+        # for retry jobs, we may have a different job_guid than the root of job_guid
+        # because retry jobs append a suffix for uniqueness (since the job_guid
+        # won't be unique due to them all having the same request_id and request_time.
+        # But there may be a ``pending`` or ``running`` job that this retry
+        # should be updating, so make sure to add the root ``job_guid`` as well.
+        job_guid_root = get_guid_root(job_guid)
+        if job_guid != job_guid_root:
+            job_guid_list.append(job_guid_root)
+
         job_guid_where_in_list.append('%s')
 
         reference_data_signature = job_placeholders[index][1]
@@ -1532,6 +1596,7 @@ class JobsModel(TreeherderModelBase):
         if job_state != 'pending':
 
             job_update_placeholders.append([
+                job_guid,
                 job_coalesced_to_guid,
                 result_set_ids[revision_hash]['id'],
                 id_lookups['machines'][machine_name]['id'],
@@ -1545,7 +1610,7 @@ class JobsModel(TreeherderModelBase):
                 start_timestamp,
                 end_timestamp,
                 job_state,
-                job_guid
+                get_guid_root(job_guid)
                 ] )
 
     def _load_jobs(

@@ -20,16 +20,48 @@ logger = logging.getLogger(__name__)
 class Builds4hTransformerMixin(object):
 
 
-    def find_job_guid(self, request_ids, request_times):
+    def find_job_guid(self, build):
         """
         returns the job_guid, based on request id and request time.
         necessary because request id and request time is inconsistently
         represented in builds4h
         """
+
+        # this is reused in the transformer and the analyzer, so reverting
+        # the field getters to this function.
+
+        # request_id and request_time are mandatory
+        # and they can be found in a couple of different places
+        prop = build['properties']
+        try:
+            request_ids = build['properties'].get('request_ids',
+                                                  build['request_ids'])
+        except KeyError as e:
+            logger.error("({0})request_id not found in {1}".format(
+                prop["branch"], build))
+            raise e
+
+        try:
+            request_times = build['properties'].get('request_times',
+                                                    build['requesttime'])
+        except KeyError as e:
+            logger.error("({0})request_time not found in {1}".format(
+                prop["branch"], build))
+            raise e
+
+        endtime = None
+        if buildbot.RESULT_DICT[build['result']] == 'retry':
+            try:
+                endtime = build['endtime']
+            except KeyError as e:
+                logger.error("({0})endtime not found in {1}".format(
+                    prop["branch"], build))
+                raise e
+
         request_ids_str = ",".join(map(str, request_ids))
+        request_time_list = []
 
         if type(request_times) == dict:
-            request_time_list = []
             for request_id in request_ids:
                 request_time_list.append(
                     request_times[str(request_id)])
@@ -44,12 +76,14 @@ class Builds4hTransformerMixin(object):
             # coallesced job detected, generate the coalesced
             # job guids
             for index, r_id in enumerate(request_ids):
-                job_guid_data['coalesced'].append(
-                    common.generate_job_guid(
-                        str(r_id), request_time_list[index]))
+                #skip if buildbot doesn't have a matching number of ids and times
+                if len(request_time_list) > index:
+                    job_guid_data['coalesced'].append(
+                        common.generate_job_guid(
+                            str(r_id), request_time_list[index]))
 
         job_guid_data['job_guid'] = common.generate_job_guid(
-            request_ids_str, request_times_str)
+            request_ids_str, request_times_str, endtime)
 
         return job_guid_data
 
@@ -126,22 +160,11 @@ class Builds4hTransformerMixin(object):
             # request_id and request_time are mandatory
             # and they can be found in a couple of different places
             try:
+                job_guid_data = self.find_job_guid(build)
                 request_ids = build['properties'].get('request_ids',
-                                                      build['request_ids'])
+                                      build['request_ids'])
             except KeyError:
-                logger.error("({0})request_id not found in {1}".format(
-                    prop["branch"], build))
                 continue
-
-            try:
-                request_times = build['properties'].get('request_times',
-                                                        build['requesttime'])
-            except KeyError:
-                logger.error("({0})request_time not found in {1}".format(
-                    prop["branch"], build))
-                continue
-
-            job_guid_data = self.find_job_guid(request_ids, request_times)
 
             treeherder_data['coalesced'] = job_guid_data['coalesced']
 
@@ -591,6 +614,7 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
 
             if buildername in self.blacklist:
                 continue
+
 
             job_guid_data = self.find_job_guid(build)
 
