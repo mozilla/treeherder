@@ -23,4 +23,4 @@ fi
 
 
 
-exec $NEWRELIC_ADMIN $PYTHON manage.py celeryd -c 3 -Q default -E --maxtasksperchild=500 --logfile=$LOGFILE --loglevel=INFO
+exec $NEWRELIC_ADMIN $PYTHON manage.py celeryd -c 1 -Q default -E --maxtasksperchild=500 --logfile=$LOGFILE --loglevel=INFO
