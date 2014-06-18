@@ -18,7 +18,7 @@ TREEHERDER_DATABASE_PORT = os.environ.get("TREEHERDER_DATABASE_PORT", "")
 TREEHERDER_RO_DATABASE_USER     = os.environ.get("TREEHERDER_RO_DATABASE_USER", "TREEHERDER_DATABASE_USER")
 TREEHERDER_RO_DATABASE_PASSWORD = os.environ.get("TREEHERDER_RO_DATABASE_PASSWORD", "TREEHERDER_DATABASE_PASSWORD")
 
-TREEHERDER_MEMCACHED = os.environ.get("TREEHERDER_MEMCACHED", "").strip(',').split(',')
+TREEHERDER_MEMCACHED = os.environ.get("TREEHERDER_MEMCACHED", "")
 TREEHERDER_MEMCACHED_KEY_PREFIX = os.environ.get("TREEHERDER_MEMCACHED_KEY_PREFIX", "treeherder")
 DEBUG = os.environ.get("TREEHERDER_DEBUG", False)
 
@@ -239,10 +239,13 @@ DATABASES = {
     }
 }
 
+# TREEHERDER_MEMCACHED is a string of comma-separated address:port pairs
+MEMCACHED_LOCATION = TREEHERDER_MEMCACHED.strip(',').split(',')
+
 CACHES = {
     "default": {
         "BACKEND": "treeherder.cache.MemcachedCache",
-        "LOCATION": TREEHERDER_MEMCACHED,
+        "LOCATION": MEMCACHED_LOCATION,
         "TIMEOUT": 0,
         # bumping this is effectively equivalent to restarting memcached
         "VERSION": 1,
