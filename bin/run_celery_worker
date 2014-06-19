@@ -21,6 +21,4 @@ if [ ! -f $LOGFILE ]; then
     touch $LOGFILE
 fi
 
-WORKER_UUID=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
-
-exec $NEWRELIC_ADMIN $PYTHON manage.py celeryd -c 1 -Q default -E --maxtasksperchild=500 --logfile=$LOGFILE --loglevel=INFO -n $WORKER_UUID
+exec $NEWRELIC_ADMIN $PYTHON manage.py celeryd -c 3 -Q default -E --maxtasksperchild=500 --logfile=$LOGFILE
