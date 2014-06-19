@@ -1,6 +1,6 @@
 from kombu.mixins import ConsumerMixin
 from kombu import Connection, Exchange, Consumer, Queue
-
+import logging
 
 class EventsConsumer(ConsumerMixin):
     """
@@ -25,6 +25,8 @@ class EventsConsumer(ConsumerMixin):
         self.connection = connection
         self.exchange = Exchange("events", type="topic")
         self.consumers = []
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel("DEBUG")
 
     def get_consumers(self, Consumer, channel):
         return [
@@ -32,6 +34,10 @@ class EventsConsumer(ConsumerMixin):
         ]
 
     def listen_to(self, routing_key, callback):
+        self.info("message consumer listening to : {0}".format(
+            routing_key
+        ))
+
         queue = Queue(
             name="",
             channel=self.connection.channel(),

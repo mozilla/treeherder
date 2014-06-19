@@ -2,25 +2,28 @@ import logging
 from collections import defaultdict
 from socketio.namespace import BaseNamespace
 
+logger = logging.getLogger(__name__)
 
 class EventsNamespace(BaseNamespace):
 
     def __init__(self, *args, **kwargs):
         super(EventsNamespace, self).__init__(*args, **kwargs)
-        self.logger = logging.getLogger("treeherder.events.socketio")
+        self.logger = logger
+        self.logger.setLevel("DEBUG")
         self.log("New connection")
         self.session['subscriptions'] = defaultdict(set)
 
-    def log(self, message):
-        self.logger.info("[{0}] {1}".format(self.socket.sessid, message))
+    def log(self, message, level="DEBUG"):
+        self.logger.debug("[{0}] {1}".format(self.socket.sessid, message))
 
     def on_subscribe(self, subscription):
         """
         this method is triggered by a new client subscription.
         subscription is a string indicating a branch or branch.event
         """
-        tokens = subscription.split(".")
 
+        tokens = subscription.split(".")
+        self.log("subscribing to {0}".format(subscription))
         if len(tokens) == 1:
             # event is implicitly set to 'all'
             self.session['subscriptions'][tokens[0]].add("*")
@@ -28,7 +31,9 @@ class EventsNamespace(BaseNamespace):
             # event subscription
             self.session['subscriptions'][tokens[0]].add(tokens[1])
         else:
-            self.emit('error', 'malformed subscription')
+            error_message = 'malformed subscription'
+            self.emit('error', error_message)
+            self.log(error_message, "ERROR")
 
     def on_unsubscribe(self, subscription=None):
         """
@@ -37,6 +42,7 @@ class EventsNamespace(BaseNamespace):
         if no subscription is passed, all the subscriptions are cleared
         """
 
+        self.log("unsubscribing from channels: {0}".format(subscription))
         if not subscription:
             self.session['subscriptions'] = defaultdict(set)
         else:

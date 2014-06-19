@@ -8,12 +8,14 @@ monkey.patch_all()
 from socketio.server import SocketIOServer
 from socketio import socketio_manage
 from kombu import Connection
+import logging
 
 sys.path.append(dirname(dirname(dirname(__file__))))
 
 from treeherder.events.consumer import EventsConsumer
 from treeherder.events.sockets import EventsNamespace
 
+logger = logging.getLogger("treeherder.events")
 
 class Application(object):
     """wsgi application with socketio enabled"""
@@ -44,6 +46,10 @@ def broadcast_subscribers(body, msg):
     pkt = dict(type="event", name=body['event'],
                args=body, endpoint='/events')
 
+    logger.error("emitting event {0} on branch {1}".format(
+        body["event"], body["branch"]
+    ))
+
     for session_id, socket in server.sockets.iteritems():
         # loop over all the open connections
         # and send a message when needed
@@ -53,6 +59,9 @@ def broadcast_subscribers(body, msg):
         for branch, events in socket.session['subscriptions'].items():
             if branch == body["branch"] or branch == "*":
                 if body["event"] in events or "*" in events:
+                    logger.debug("sending packet {0} to {1}".format(
+                        pkt, session_id
+                    ))
                     socket.send_packet(pkt)
                     break
     msg.ack()
@@ -78,18 +87,43 @@ if __name__ == "__main__":
     parser.add_argument("--broker-url",
                         help="url of the broker to use",
                         required=True)
-    parser.add_argument("--log-file",
-                        help="where to log the access log",
-                        default=None)
+    parser.add_argument('--log-file',
+                        default="stdout",
+                        help="""the file where the log should be written to.
+Default to stdout""")
+    parser.add_argument("--log-level",
+                        help="minimum level to log",
+                        default="DEBUG",
+                        choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"])
     args = parser.parse_args()
 
+    # logging system setup
+    logger.setLevel(args.log_level)
+
+    if not args.log_file:
+        args.log_file = "stdout"
+    if args.log_file in ["stdout", "stderr"]:
+        log_handler = logging.StreamHandler(getattr(sys, args.log_file))
+    else:
+        log_handler = logging.FileHandler(args.log_file)
+    log_handler.setLevel(args.log_level)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    log_handler.setFormatter(formatter)
+    logger.addHandler(log_handler)
+
     try:
+        logger.info("Starting SocketIOServer")
+
         server = SocketIOServer((args.host, args.port), Application(),
-                                resource="socket.io", log_file=args.log_file,
-                                policy_server=False, )
-        print "Listening on http://{0}:{1}".format(args.host, args.port)
-        print "writing logs on %s" % args.log_file
+                                resource="socket.io", policy_server=False)
+        logger.info("Listening to http://{0}:{1}".format(args.host, args.port))
+        logger.debug("writing logs to %s" % args.log_file)
         gevent.spawn(start_consumer, args.broker_url)
         server.serve_forever()
     except KeyboardInterrupt:
-        print "Socketio server stopped"
+        logger.info("Socketio server stopped")
+        for handler in logger.handlers:
+            try:
+                handler.close()
+            except AttributeError:
+                pass
