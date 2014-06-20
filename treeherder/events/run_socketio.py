@@ -47,7 +47,7 @@ def broadcast_subscribers(body, msg):
     pkt = dict(type="event", name=body['event'],
                args=body, endpoint='/events')
 
-    logger.log(logging.DEBUG, "emitting event {0} on branch {1}".format(
+    logger.debug("emitting event {0} on branch {1}".format(
         body["event"], body["branch"]
     ))
 
@@ -60,7 +60,7 @@ def broadcast_subscribers(body, msg):
         for branch, events in socket.session['subscriptions'].items():
             if branch == body["branch"] or branch == "*":
                 if body["event"] in events or "*" in events:
-                    logger.log(logging.DEBUG, "sending packet {0} to {1}".format(
+                    logger.debug("sending packet {0} to {1}".format(
                         pkt, session_id
                     ))
                     socket.send_packet(pkt)

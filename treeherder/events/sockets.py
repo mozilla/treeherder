@@ -8,14 +8,12 @@ class EventsNamespace(BaseNamespace):
 
     def __init__(self, *args, **kwargs):
         super(EventsNamespace, self).__init__(*args, **kwargs)
-        self.logger = logger
-        self.logger.setLevel("DEBUG")
-        self.log("New connection")
+        logger.info("New connection")
         self.session['subscriptions'] = defaultdict(set)
 
     def log(self, message, level="DEBUG"):
-        self.logger.log(getattr(logging, level),
-                        "[{0}] {1}".format(self.socket.sessid, message))
+        logger.log(getattr(logging, level),
+                   "[{0}] {1}".format(self.socket.sessid, message))
 
     def on_subscribe(self, subscription):
         """
