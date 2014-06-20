@@ -68,7 +68,6 @@ def deploy_web_app(ctx):
     ctx.remote( '{0}/service gunicorn restart'.format(settings.SBIN_DIR) )
     ctx.remote( '{0}/service socketio-server restart'.format(settings.SBIN_DIR) )
 
-
 @hostgroups(
     settings.CELERY_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
 def deploy_workers(ctx):
@@ -85,6 +84,11 @@ def deploy_admin_node(ctx):
 
     ctx.local(
         '{0}/service celerybeat restart'.format(settings.SBIN_DIR))
+
+    # REMOVE: Need to run these once for clean up
+    ctx.local('{0}/pkill -f "/bin/cat /dev/urandom*"')
+    ctx.local('{0}/pkill -f "/usr/bin/fold -w 32*"')
+    ctx.local('{0}/pkill -f "/usr/bin/tr -dc*"')
 
     # REMOVE: once we resolve the zombie issue this should be removed
     ctx.local(
