@@ -68,9 +68,6 @@ def deploy_web_app(ctx):
     ctx.remote( '{0}/service gunicorn restart'.format(settings.SBIN_DIR) )
     ctx.remote( '{0}/service socketio-server restart'.format(settings.SBIN_DIR) )
 
-    # REMOVE: testing whether this solves the issue
-    ctx.remote( '{0}/service memcached start'.format(settings.SBIN_DIR) )
-
 @hostgroups(
     settings.CELERY_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
 def deploy_workers(ctx):
