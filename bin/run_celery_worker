@@ -21,4 +21,4 @@ if [ ! -f $LOGFILE ]; then
     touch $LOGFILE
 fi
 
-exec $NEWRELIC_ADMIN $PYTHON manage.py celeryd -c 3 -Q default -E --maxtasksperchild=500 --logfile=$LOGFILE
+exec $NEWRELIC_ADMIN $PYTHON manage.py celeryd -c 3 -Q default -E --maxtasksperchild=500 --logfile=$LOGFILE -l INFO
