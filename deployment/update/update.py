@@ -86,6 +86,10 @@ def deploy_admin_node(ctx):
     ctx.local(
         '{0}/service celerybeat restart'.format(settings.SBIN_DIR))
 
+    # REMOVE: once we resolve the zombie issue this should be removed
+    ctx.local(
+        '{0}/pkill -f "python manage.py celeryd*"'.format(settings.BIN_DIR))
+
     # Restarts celery worker on the admin node listening to the
     # celery queues: default
     ctx.local(
