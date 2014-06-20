@@ -27,6 +27,6 @@ PORT=$TREEHERDER_RABBITMQ_PORT
 VHOST=$TREEHERDER_RABBITMQ_VHOST
 
 
-exec python treeherder/events/run_socketio.py \
+exec $PYTHON treeherder/events/run_socketio.py \
     --broker-url  amqp://$USER:$PASS@$HOST:$PORT/$VHOST \
     --log-file $LOGFILE
