@@ -66,9 +66,7 @@ def deploy_web_app(ctx):
     ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
     ctx.remote( '{0}/service httpd graceful'.format(settings.SBIN_DIR) )
     ctx.remote( '{0}/service gunicorn restart'.format(settings.SBIN_DIR) )
-
-    # REMOVE
-    ctx.remote( '{0}/service memcached restart'.format(settings.SBIN_DIR) )
+    ctx.remote( '{0}/service socketio-server restart'.format(settings.SBIN_DIR) )
 
 
 @hostgroups(
