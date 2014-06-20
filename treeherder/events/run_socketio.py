@@ -77,6 +77,14 @@ def start_consumer(broker_url):
 
 if __name__ == "__main__":
 
+    LOG_LEVELS = {
+        "DEBUG": logging.DEBUG,
+        "INFO": logging.INFO,
+        "WARNING": logging.WARNING,
+        "ERROR": logging.ERROR,
+        "CRITICAL": logging.CRITICAL
+    }
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--host",
                         help="interface to bind the server to",
@@ -89,39 +97,38 @@ if __name__ == "__main__":
                         help="url of the broker to use",
                         required=True)
     parser.add_argument('--log-file',
-                        default="stdout",
+                        default=None,
                         help="""the file where the log should be written to.
 Default to stdout""")
     parser.add_argument("--log-level",
                         help="minimum level to log",
                         default="DEBUG",
-                        choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"])
+                        choices=LOG_LEVELS.keys())
     args = parser.parse_args()
 
     # logging system setup
-    logging.basicConfig(level=args.log_level)
-
-    if not args.log_file:
-        args.log_file = "stdout"
-    if args.log_file in ["stdout", "stderr"]:
-        log_handler = logging.StreamHandler(getattr(sys, args.log_file))
-    else:
+    root_logger = logging.getLogger('')
+    root_logger.setLevel(LOG_LEVELS[args.log_level])
+    if args.log_file:
         log_handler = logging.FileHandler(args.log_file)
+    else:
+        log_handler = logging.StreamHandler()
+
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     log_handler.setFormatter(formatter)
-    logger.addHandler(log_handler)
+    root_logger.addHandler(log_handler)
 
     try:
         logger.info("Starting SocketIOServer")
 
         server = SocketIOServer((args.host, args.port), Application(),
                                 resource="socket.io", policy_server=False)
-        logger.log(logging.INFO, "Listening to http://{0}:{1}".format(args.host, args.port))
-        logger.log(logging.DEBUG, "writing logs to %s" % args.log_file)
+        logger.info("Listening to http://{0}:{1}".format(args.host, args.port))
+        logger.debug("writing logs to %s" % args.log_file)
         gevent.spawn(start_consumer, args.broker_url)
         server.serve_forever()
     except KeyboardInterrupt:
-        logger.log(logging.INFO, "Socketio server stopped")
+        logger.info("Socketio server stopped")
         for handler in logger.handlers:
             try:
                 handler.close()
