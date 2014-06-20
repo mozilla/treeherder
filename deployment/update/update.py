@@ -86,9 +86,9 @@ def deploy_admin_node(ctx):
         '{0}/service celerybeat restart'.format(settings.SBIN_DIR))
 
     # REMOVE: Need to run these once for clean up
-    ctx.local('{0}/pkill -f "cat /dev/urandom*"').format(settings.BIN_DIR)
-    ctx.local('{0}/pkill -f "fold -w 32*"').format(settings.BIN_DIR)
-    ctx.local('{0}/pkill -f "tr -dc*"').format(settings.BIN_DIR)
+    ctx.local('{0}/pkill -f "cat /dev/urandom*"'.format(settings.BIN_DIR))
+    ctx.local('{0}/pkill -f "fold -w 32*"'.format(settings.BIN_DIR))
+    ctx.local('{0}/pkill -f "tr -dc*"'.format(settings.BIN_DIR))
 
     # REMOVE: once we resolve the zombie issue this should be removed
     ctx.local(
