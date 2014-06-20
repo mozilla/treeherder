@@ -46,7 +46,7 @@ def broadcast_subscribers(body, msg):
     pkt = dict(type="event", name=body['event'],
                args=body, endpoint='/events')
 
-    logger.error("emitting event {0} on branch {1}".format(
+    logger.log(logging.DEBUG, "emitting event {0} on branch {1}".format(
         body["event"], body["branch"]
     ))
 
@@ -59,7 +59,7 @@ def broadcast_subscribers(body, msg):
         for branch, events in socket.session['subscriptions'].items():
             if branch == body["branch"] or branch == "*":
                 if body["event"] in events or "*" in events:
-                    logger.debug("sending packet {0} to {1}".format(
+                    logger.log(logging.DEBUG, "sending packet {0} to {1}".format(
                         pkt, session_id
                     ))
                     socket.send_packet(pkt)
@@ -116,12 +116,12 @@ Default to stdout""")
 
         server = SocketIOServer((args.host, args.port), Application(),
                                 resource="socket.io", policy_server=False)
-        logger.info("Listening to http://{0}:{1}".format(args.host, args.port))
-        logger.debug("writing logs to %s" % args.log_file)
+        logger.log(logging.INFO, "Listening to http://{0}:{1}".format(args.host, args.port))
+        logger.log(logging.DEBUG, "writing logs to %s" % args.log_file)
         gevent.spawn(start_consumer, args.broker_url)
         server.serve_forever()
     except KeyboardInterrupt:
-        logger.info("Socketio server stopped")
+        logger.log(logging.INFO, "Socketio server stopped")
         for handler in logger.handlers:
             try:
                 handler.close()

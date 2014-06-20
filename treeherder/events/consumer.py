@@ -34,7 +34,7 @@ class EventsConsumer(ConsumerMixin):
         ]
 
     def listen_to(self, routing_key, callback):
-        self.info("message consumer listening to : {0}".format(
+        self.log(logging.INFO, "message consumer listening to : {0}".format(
             routing_key
         ))
 
