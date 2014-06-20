@@ -4,7 +4,8 @@ import io
 import logging
 from contextlib import closing
 from .artifactbuilders import (BuildbotLogViewArtifactBuilder,
-                               BuildbotJobArtifactBuilder)
+                               BuildbotJobArtifactBuilder,
+                               BuildbotPerformanceDataArtifactBuilder)
 
 
 class ArtifactBuilderCollection(object):
@@ -46,6 +47,12 @@ BuildbotJobArtifactBuilder
 * Parsers:
 * ErrorParser
 * TinderboxPrintParser
+
+BuildbotPerformanceDataArtifactBuilder
+-------------
+* Builds an artifact from talos data
+* Parsers:
+* TalosParser
 """
 
     def __init__(self, url, builders=None, check_errors=True):
@@ -72,7 +79,8 @@ In omitted, use defaults.
                     url=self.url,
                     check_errors=check_errors,
                     ),
-                BuildbotJobArtifactBuilder(self.url)
+                BuildbotJobArtifactBuilder(self.url),
+                BuildbotPerformanceDataArtifactBuilder(self.url)
             ]
 
     def get_log_handle(self, url):

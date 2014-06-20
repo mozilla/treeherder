@@ -117,9 +117,10 @@ class TalosDataAdapter(PerformanceDataAdapter):
         self.signatures = {}
         self.performance_artifact_placeholders = []
         self.signature_property_placeholders = []
-        self.series_signature_data = []
 
     def adapt_and_load(self, reference_data, job_data, datum):
+
+        datum['blob'] = json.loads(datum['blob'])
 
         validate(datum['blob'], self.datazilla_schema)
 
@@ -181,7 +182,7 @@ class TalosDataAdapter(PerformanceDataAdapter):
 
             if series_signature not in self.signatures:
 
-                self.signatures[series_signature] = True
+                self.signatures[series_signature] = []
 
                 for signature_property in signature_properties:
                     self.signature_property_placeholders.append([
@@ -201,7 +202,7 @@ class TalosDataAdapter(PerformanceDataAdapter):
                 json.dumps(obj)
                 ])
 
-            self.series_signature_data.append(series_data)
+            self.signatures[series_signature].append(series_data)
 
     def get_series_signature(self, signature_values):
 
@@ -213,5 +214,10 @@ class TalosDataAdapter(PerformanceDataAdapter):
 
         return signature
 
-    def submit_tasks(self):
-        pass
+    def submit_tasks(self, project):
+
+        from treeherder.model.tasks import populate_performance_series
+
+        populate_performance_series.apply_async(
+            args=[project, 'talos_data', self.signatures]
+        )

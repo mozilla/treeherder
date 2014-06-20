@@ -52,7 +52,6 @@ class ArtifactViewSet(viewsets.ViewSet):
             if job_id:
                 if datum['type'] in PerformanceDataAdapter.performance_types:
                     job_id_list.append(job_id)
-
                     performance_artifact_data.append(datum)
                 else:
                     artifact_data.append((

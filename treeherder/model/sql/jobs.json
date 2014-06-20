@@ -315,9 +315,9 @@
         },
         "get_performance_series": {
 
-            "sql":"SELECT *
+            "sql":"SELECT `interval_seconds`, `series_signature`, `type`, `last_updated`, `blob`
                    FROM `performance_series`
-                   WHERE `id` IN (REP0)",
+                   WHERE `interval_seconds` = ? AND `series_signature` = ?",
 
             "host":"read_host"
 

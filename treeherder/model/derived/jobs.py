@@ -2,6 +2,8 @@ import json
 import MySQLdb
 import time
 
+from operator import itemgetter
+
 from _mysql_exceptions import IntegrityError
 
 from warnings import filterwarnings, resetwarnings
@@ -1812,8 +1814,52 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG,
             placeholders=tda.signature_property_placeholders,
             executemany=True)
+        print "CALLING SUBMIT_TASKS {0}".format(self.project)
+        tda.submit_tasks(self.project)
 
-        tda.submit_tasks()
+    def store_performance_series(self, t_range, series_type, signature, series_data):
+
+        now_timestamp = int(time.time())
+
+        # If we don't have this t_range/signature combination create it
+        series_data_json = json.dumps(series_data)
+        insert_placeholders = [
+            t_range, signature, series_type, now_timestamp,
+            series_data_json, t_range, signature
+            ]
+        self.get_jobs_dhub().execute(
+            proc='jobs.inserts.set_performance_series',
+            debug_show=self.DEBUG,
+            placeholders=insert_placeholders)
+
+        # Retrieve and update the series
+        performance_series = self.get_jobs_dhub().execute(
+            proc='jobs.selects.get_performance_series',
+            debug_show=self.DEBUG,
+            placeholders=[t_range, signature])
+
+        db_series_json = performance_series[0]['blob']
+
+        # If they're equal this was the first time the t_range
+        # and signature combination was stored, so there's nothing to
+        # do
+        if series_data_json != db_series_json:
+
+            series = json.loads(db_series_json)
+            push_timestamp_limit = now_timestamp - int(t_range)
+
+            series.extend(series_data)
+
+            sorted_series = sorted(
+                series, key=itemgetter('result_set_id')
+            )
+
+            filtered_series = filter(
+                lambda d: d['push_timestamp'] > push_timestamp_limit,
+                sorted_series
+            )
+            print [t_range, push_timestamp_limit, signature]
+            print filtered_series
 
     def _load_job_artifacts(self, artifact_placeholders, job_id_lookup):
         """

@@ -57,12 +57,17 @@ def parse_log(project, log_url, job_guid, resultset, check_errors=False):
                 check_errors=check_errors,
             )
             artifact_bc.parse()
-
             artifact_list = []
             for name, artifact in artifact_bc.artifacts.items():
-                data_type = 'performance' if name == 'talos_data' else 'json'
-
-                artifact_list.append((job_guid, name, data_type, json.dumps(artifact)))
+                if name == 'talos_data':
+                    data_type = 'performance'
+                    if artifact[name]:
+                        artifact_list.append(
+                            (job_guid, name, data_type, json.dumps(artifact[name][0]))
+                        )
+                else:
+                    data_type = 'json'
+                    artifact_list.append((job_guid, name, data_type, json.dumps(artifact)))
 
             if check_errors:
                 all_errors = artifact_bc.artifacts.get(
