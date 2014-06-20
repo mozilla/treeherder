@@ -10,12 +10,13 @@ from socketio import socketio_manage
 from kombu import Connection
 import logging
 
+logger = logging.getLogger("treeherder.events")
+
 sys.path.append(dirname(dirname(dirname(__file__))))
 
 from treeherder.events.consumer import EventsConsumer
 from treeherder.events.sockets import EventsNamespace
 
-logger = logging.getLogger("treeherder.events")
 
 class Application(object):
     """wsgi application with socketio enabled"""
@@ -98,7 +99,7 @@ Default to stdout""")
     args = parser.parse_args()
 
     # logging system setup
-    logger.setLevel(args.log_level)
+    logging.basicConfig(level=args.log_level)
 
     if not args.log_file:
         args.log_file = "stdout"
@@ -106,7 +107,6 @@ Default to stdout""")
         log_handler = logging.StreamHandler(getattr(sys, args.log_file))
     else:
         log_handler = logging.FileHandler(args.log_file)
-    log_handler.setLevel(args.log_level)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     log_handler.setFormatter(formatter)
     logger.addHandler(log_handler)
