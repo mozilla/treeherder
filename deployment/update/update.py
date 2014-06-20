@@ -66,10 +66,7 @@ def deploy_web_app(ctx):
     ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
     ctx.remote( '{0}/service httpd graceful'.format(settings.SBIN_DIR) )
     ctx.remote( '{0}/service gunicorn restart'.format(settings.SBIN_DIR) )
-
-    # REMOVE
-    ctx.remote( '{0}/service memcached restart'.format(settings.SBIN_DIR) )
-
+    ctx.remote( '{0}/service socketio-server restart'.format(settings.SBIN_DIR) )
 
 @hostgroups(
     settings.CELERY_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
@@ -87,6 +84,10 @@ def deploy_admin_node(ctx):
 
     ctx.local(
         '{0}/service celerybeat restart'.format(settings.SBIN_DIR))
+
+    # REMOVE: once we resolve the zombie issue this should be removed
+    ctx.local(
+        '{0}/pkill -f "python manage.py celeryd*"'.format(settings.BIN_DIR))
 
     # Restarts celery worker on the admin node listening to the
     # celery queues: default
