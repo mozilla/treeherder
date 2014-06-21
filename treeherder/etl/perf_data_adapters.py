@@ -99,10 +99,10 @@ class PerformanceDataAdapter(object):
             series_data["std"] = '%.1f' % round( math.sqrt(avg(variance)), 1 )
 
             if len(r)%2 == 1:
-                series_data["median"] = '%1f' % round(
+                series_data["median"] = '%.1f' % round(
                     r[int(math.floor(len(r)/2))] )
             else:
-                series_data["median"] = '%1f' % round(
+                series_data["median"] = '%.1f' % round(
                     avg([r[(len(r)/2) - 1], r[len(r)/2]]) )
 
         return series_data
