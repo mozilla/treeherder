@@ -33,11 +33,6 @@ class Command(BaseCommand):
             default='mozilla-inbound',
             help='Project name to store data in.'),
 
-        make_option('--data_file',
-            dest='data_file',
-            default=None,
-            help='File to use for input data, otherwise uses default'),
-
         make_option('--show_default_data',
             action='store_true',
             dest='show_default_data',

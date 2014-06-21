@@ -109,12 +109,6 @@
                    )",
             "host":"master_host"
         },
-        "update_performance_series":{
-            "sql":"UPDATE `performance_series`
-                   SET `last_updated` = ?, `blob` = ?
-                   WHERE `interval_seconds` = ? AND `series_signature` = ?",
-            "host":"master_host"
-        },
         "set_job_eta":{
             "sql":"INSERT INTO `job_eta` (
                     `signature`,
@@ -237,6 +231,12 @@
     },
 
     "updates": {
+        "update_performance_series":{
+            "sql":"UPDATE `performance_series`
+                   SET `last_updated` = ?, `blob` = ?
+                   WHERE `interval_seconds` = ? AND `series_signature` = ?",
+            "host":"master_host"
+        },
         "set_state":{
 
             "sql":"UPDATE `job`
@@ -267,13 +267,6 @@
                     `state` != 'completed'
                 AND ? <> 'pending'
                 AND `id` = ?",
-
-            "host":"master_host"
-        },
-        "update_performance_series":{
-            "sql":"UPDATE `performance_series`
-                   SET `blob` = ?
-                   WHERE `id` = ?",
 
             "host":"master_host"
         },

@@ -27,8 +27,7 @@
                 round(sum( data_length + index_length ) / 1024 / 1024, 2) as size_mb
                 FROM information_schema.TABLES
                 WHERE TABLE_SCHEMA like ?
-                GROUP BY TABLE_SCHEMA
-                ",
+                GROUP BY TABLE_SCHEMA",
 
             "host":"read_host"
         },
@@ -36,6 +35,20 @@
             "sql": "SELECT * FROM REP0
                     WHERE `id` = ?",
             "host":"read_host"
+        }
+    },
+    "locks": {
+        "get_lock": {
+
+            "sql":"SELECT GET_LOCK(?, ?) AS 'lock'",
+
+            "host":"master_host"
+        },
+        "release_lock": {
+
+            "sql":"SELECT RELEASE_LOCK(?) AS 'release_lock'",
+
+            "host":"master_host"
         }
     }
 }

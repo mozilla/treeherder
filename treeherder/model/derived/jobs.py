@@ -1,6 +1,7 @@
 import json
 import MySQLdb
 import time
+import logging
 
 from operator import itemgetter
 
@@ -23,6 +24,8 @@ from .base import TreeherderModelBase
 from datasource.DataHub import DataHub
 
 from treeherder.etl.perf_data_adapters import TalosDataAdapter
+
+logger = logging.getLogger(__name__)
 
 class JobsModel(TreeherderModelBase):
     """
@@ -1814,52 +1817,94 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG,
             placeholders=tda.signature_property_placeholders,
             executemany=True)
-        print "CALLING SUBMIT_TASKS {0}".format(self.project)
+
         tda.submit_tasks(self.project)
 
     def store_performance_series(self, t_range, series_type, signature, series_data):
 
-        now_timestamp = int(time.time())
+        lock_string = "sps_{0}_{1}_{2}".format(t_range, series_type, signature)
 
-        # If we don't have this t_range/signature combination create it
-        series_data_json = json.dumps(series_data)
-        insert_placeholders = [
-            t_range, signature, series_type, now_timestamp,
-            series_data_json, t_range, signature
-            ]
-        self.get_jobs_dhub().execute(
-            proc='jobs.inserts.set_performance_series',
+        # Use MySQL GETLOCK function to gaurd against concurrent celery tasks
+        # overwriting each other's blobs. The log is specific to the time
+        # interval and signature combination.
+        lock = self.get_jobs_dhub().execute(
+            proc='generic.locks.get_lock',
             debug_show=self.DEBUG,
-            placeholders=insert_placeholders)
+            placeholders=[lock_string, 120])
 
-        # Retrieve and update the series
-        performance_series = self.get_jobs_dhub().execute(
-            proc='jobs.selects.get_performance_series',
-            debug_show=self.DEBUG,
-            placeholders=[t_range, signature])
+        if lock[0]['lock'] != 1:
+            logger.error(
+                'store_performance_series lock_string, {0}, timed out!'
+                ).format(lock_string)
+            return
 
-        db_series_json = performance_series[0]['blob']
+        try:
+            now_timestamp = int(time.time())
 
-        # If they're equal this was the first time the t_range
-        # and signature combination was stored, so there's nothing to
-        # do
-        if series_data_json != db_series_json:
+            # If we don't have this t_range/signature combination create it
+            series_data_json = json.dumps(series_data)
+            insert_placeholders = [
+                t_range, signature, series_type, now_timestamp,
+                series_data_json, t_range, signature
+                ]
 
-            series = json.loads(db_series_json)
-            push_timestamp_limit = now_timestamp - int(t_range)
+            self.get_jobs_dhub().execute(
+                proc='jobs.inserts.set_performance_series',
+                debug_show=self.DEBUG,
+                placeholders=insert_placeholders)
 
-            series.extend(series_data)
+            # Retrieve and update the series
+            performance_series = self.get_jobs_dhub().execute(
+                proc='jobs.selects.get_performance_series',
+                debug_show=self.DEBUG,
+                placeholders=[t_range, signature])
 
-            sorted_series = sorted(
-                series, key=itemgetter('result_set_id')
-            )
+            db_series_json = performance_series[0]['blob']
 
-            filtered_series = filter(
-                lambda d: d['push_timestamp'] > push_timestamp_limit,
-                sorted_series
-            )
-            print [t_range, push_timestamp_limit, signature]
-            print filtered_series
+            # If they're equal this was the first time the t_range
+            # and signature combination was stored, so there's nothing to
+            # do
+            if series_data_json != db_series_json:
+
+                series = json.loads(db_series_json)
+                push_timestamp_limit = now_timestamp - int(t_range)
+
+                series.extend(series_data)
+
+                sorted_series = sorted(
+                    series, key=itemgetter('result_set_id'), reverse=True
+                )
+
+                filtered_series = filter(
+                    lambda d: d['push_timestamp'] >= push_timestamp_limit,
+                    sorted_series
+                )
+
+                if filtered_series:
+
+                    filtered_series_json = json.dumps(filtered_series)
+
+                    update_placeholders = [
+                        now_timestamp, filtered_series_json,
+                        t_range, signature
+                    ]
+
+                    self.get_jobs_dhub().execute(
+                        proc='jobs.updates.update_performance_series',
+                        debug_show=self.DEBUG,
+                        placeholders=update_placeholders)
+
+        except Exception as e:
+
+            raise e
+
+        finally:
+            # Make sure we release the lock no matter what errors
+            # are generated
+            self.get_jobs_dhub().execute(
+                proc='generic.locks.release_lock',
+                debug_show=self.DEBUG,
+                placeholders=[lock_string])
 
     def _load_job_artifacts(self, artifact_placeholders, job_id_lookup):
         """
