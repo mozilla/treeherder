@@ -51,10 +51,9 @@ class EventsPublisher(object):
 
 class JobStatusPublisher(EventsPublisher):
 
-    def publish(self, job_id, resultset, branch, status):
+    def publish(self, job_guids, branch, status):
         message = {
-            "id": job_id,
-            "resultset": resultset,
+            "job_guids": job_guids,
             "event": "job",
             "branch": branch,
             "status": status
