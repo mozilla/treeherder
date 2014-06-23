@@ -16,7 +16,7 @@ from .tbpl import OrangeFactorBugRequest, TbplBugRequest
 from .pushlog import HgPushlogProcess
 
 
-@task(name='fetch-buildapi-pending')
+@task(name='fetch-buildapi-pending', time_limit=60)
 def fetch_buildapi_pending():
     """
     Fetches the buildapi pending jobs api and load them to
@@ -25,7 +25,7 @@ def fetch_buildapi_pending():
     PendingJobsProcess().run()
 
 
-@task(name='fetch-buildapi-running')
+@task(name='fetch-buildapi-running', time_limit=60)
 def fetch_buildapi_running():
     """
     Fetches the buildapi running jobs api and load them to
@@ -34,7 +34,7 @@ def fetch_buildapi_running():
     RunningJobsProcess().run()
 
 
-@task(name='fetch-buildapi-build4h')
+@task(name='fetch-buildapi-build4h', time_limit=120)
 def fetch_buildapi_build4h():
     """
     Fetches the buildapi running jobs api and load them to
@@ -57,10 +57,9 @@ def fetch_push_logs():
         g()
     finally:
         rdm.disconnect()
-    # TODO: implement the git pushlog retrieval
 
 
-@task(name='fetch-hg-push-logs')
+@task(name='fetch-hg-push-logs', time_limit=30)
 def fetch_hg_push_log(repo_name, repo_url):
     """
     Run a HgPushlog etl process
@@ -69,7 +68,7 @@ def fetch_hg_push_log(repo_name, repo_url):
     process.run(repo_url+'/json-pushes/?full=1', repo_name)
 
 
-@task(name='fetch-bugs')
+@task(name='fetch-bugs', time_limit=60*5)
 def fetch_bugs():
     """
     Run a BzApiBug process
