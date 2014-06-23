@@ -121,8 +121,19 @@ Default to stdout""")
     try:
         logger.info("Starting SocketIOServer")
 
-        server = SocketIOServer((args.host, args.port), Application(),
-                                resource="socket.io", policy_server=False)
+        available_transports = [
+            'htmlfile',
+            'xhr-multipart',
+            'xhr-polling',
+            'jsonp-polling'
+        ]
+        server = SocketIOServer(
+            (args.host, args.port),
+            Application(),
+            resource="socket.io",
+            transports=available_transports,
+            policy_server=False
+        )
         logger.info("Listening to http://{0}:{1}".format(args.host, args.port))
         logger.debug("writing logs to %s" % args.log_file)
         gevent.spawn(start_consumer, args.broker_url)
