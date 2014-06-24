@@ -80,13 +80,7 @@ class BuildbotPerformanceDataArtifactBuilder(ArtifactBuilderBase):
     def __init__(self, url=None, check_errors=True):
         """Construct artifact builder for the log viewer"""
         super(BuildbotPerformanceDataArtifactBuilder, self).__init__(url)
-        self.parser = TalosParser()
+        self.parsers = [
+            TalosParser()
+        ]
         self.name = "talos_data"
-
-    def get_artifact(self):
-        """Return the job artifact if there is one."""
-        self.artifact[self.parser.name] = self.parser.get_artifact()
-        if self.artifact[self.parser.name]:
-            return self.artifact
-        else:
-            return {}
