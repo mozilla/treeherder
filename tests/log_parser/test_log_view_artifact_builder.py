@@ -5,7 +5,7 @@ from mock import MagicMock
 
 from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
 from treeherder.log_parser.artifactbuilders import BuildbotLogViewArtifactBuilder
-from treeherder.log_parser.parsers import ErrorParser
+from treeherder.log_parser.parsers import ErrorParser, TalosParser
 
 from tests import test_utils
 from ..sampledata import SampleData

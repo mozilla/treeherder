@@ -85,4 +85,14 @@ def calculate_eta(sample_window_seconds=21600, debug=False):
 
         jm.disconnect()
 
+@task(name='populate-performance-series')
+def populate_performance_series(project, series_type, series_data):
 
+    jm = JobsModel(project)
+    for t_range in settings.TREEHERDER_PERF_SERIES_TIME_RANGES:
+        for signature in series_data:
+            jm.store_performance_series(
+                t_range['seconds'], series_type, signature,
+                series_data[signature]
+            )
+    jm.disconnect()

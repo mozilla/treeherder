@@ -1,6 +1,9 @@
 import json
 import MySQLdb
 import time
+import logging
+
+from operator import itemgetter
 
 from _mysql_exceptions import IntegrityError
 
@@ -18,6 +21,11 @@ from treeherder.etl.common import get_guid_root
 
 from .base import TreeherderModelBase
 
+from datasource.DataHub import DataHub
+
+from treeherder.etl.perf_data_adapters import TalosDataAdapter
+
+logger = logging.getLogger(__name__)
 
 class JobsModel(TreeherderModelBase):
     """
@@ -1739,6 +1747,164 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG,
             placeholders=artifact_placeholders,
             executemany=True)
+
+    def get_job_signatures_from_ids(self, job_ids):
+
+        job_data = {}
+
+        if job_ids:
+
+            jobs_signatures_where_in_clause = [ ','.join( ['%s'] * len(job_ids) ) ]
+
+            job_data = self.get_jobs_dhub().execute(
+                proc='jobs.selects.get_signature_list_from_job_ids',
+                debug_show=self.DEBUG,
+                replace=jobs_signatures_where_in_clause,
+                key_column='job_guid',
+                return_type='dict',
+                placeholders=job_ids)
+
+        return job_data
+
+    def store_performance_artifact(
+        self, job_ids, performance_artifact_placeholders):
+        """
+        Store the performance data
+        """
+
+        # Retrieve list of job signatures associated with the jobs
+        job_data = self.get_job_signatures_from_ids(job_ids)
+
+        job_ref_data_signatures = set()
+        map(
+            lambda job_guid: job_ref_data_signatures.add(
+                job_data[job_guid]['signature']
+                ),
+            job_data.keys()
+            )
+
+        # Retrieve associated data in reference_data_signatures
+        reference_data = self.refdata_model.get_reference_data_for_perf_signature(
+            list(job_ref_data_signatures))
+
+        tda = TalosDataAdapter()
+
+        for perf_data in performance_artifact_placeholders:
+
+            job_guid = perf_data["job_guid"]
+
+            job_id = job_data.get(
+                perf_data['job_guid'], {}
+                ).get('id', None)
+
+            ref_data_signature = job_data[job_guid]['signature']
+            ref_data = reference_data[ ref_data_signature ]
+
+            if 'signature' in ref_data:
+                del ref_data['signature']
+
+            # adapt and load data into placeholder structures
+            tda.adapt_and_load(ref_data, job_data, perf_data)
+
+        self.get_jobs_dhub().execute(
+            proc="jobs.inserts.set_performance_artifact",
+            debug_show=self.DEBUG,
+            placeholders=tda.performance_artifact_placeholders,
+            executemany=True)
+
+        self.get_jobs_dhub().execute(
+            proc='jobs.inserts.set_series_signature',
+            debug_show=self.DEBUG,
+            placeholders=tda.signature_property_placeholders,
+            executemany=True)
+
+        tda.submit_tasks(self.project)
+
+    def store_performance_series(self, t_range, series_type, signature, series_data):
+
+        lock_string = "sps_{0}_{1}_{2}".format(t_range, series_type, signature)
+
+        # Use MySQL GETLOCK function to gaurd against concurrent celery tasks
+        # overwriting each other's blobs. The log is specific to the time
+        # interval and signature combination.
+        lock = self.get_jobs_dhub().execute(
+            proc='generic.locks.get_lock',
+            debug_show=self.DEBUG,
+            placeholders=[lock_string, 60])
+
+        if lock[0]['lock'] != 1:
+            logger.error(
+                'store_performance_series lock_string, {0}, timed out!'
+                ).format(lock_string)
+            return
+
+        try:
+            now_timestamp = int(time.time())
+
+            # If we don't have this t_range/signature combination create it
+            series_data_json = json.dumps(series_data)
+            insert_placeholders = [
+                t_range, signature, series_type, now_timestamp,
+                series_data_json, t_range, signature
+                ]
+
+            self.get_jobs_dhub().execute(
+                proc='jobs.inserts.set_performance_series',
+                debug_show=self.DEBUG,
+                placeholders=insert_placeholders)
+
+            # Retrieve and update the series
+            performance_series = self.get_jobs_dhub().execute(
+                proc='jobs.selects.get_performance_series',
+                debug_show=self.DEBUG,
+                placeholders=[t_range, signature])
+
+            db_series_json = performance_series[0]['blob']
+
+            # If they're equal this was the first time the t_range
+            # and signature combination was stored, so there's nothing to
+            # do
+            if series_data_json != db_series_json:
+
+                series = json.loads(db_series_json)
+                push_timestamp_limit = now_timestamp - int(t_range)
+
+                series.extend(series_data)
+
+                sorted_series = sorted(
+                    series, key=itemgetter('result_set_id'), reverse=True
+                )
+
+                filtered_series = filter(
+                    lambda d: d['push_timestamp'] >= push_timestamp_limit,
+                    sorted_series
+                )
+
+                if filtered_series:
+
+                    filtered_series_json = json.dumps(filtered_series)
+
+                    update_placeholders = [
+                        now_timestamp, filtered_series_json,
+                        t_range, signature
+                    ]
+
+                    self.get_jobs_dhub().execute(
+                        proc='jobs.updates.update_performance_series',
+                        debug_show=self.DEBUG,
+                        placeholders=update_placeholders)
+
+        except Exception as e:
+
+            raise e
+
+        finally:
+            # Make sure we release the lock no matter what errors
+            # are generated
+            self.get_jobs_dhub().execute(
+                proc='generic.locks.release_lock',
+                debug_show=self.DEBUG,
+                placeholders=[lock_string])
 
     def _load_job_artifacts(self, artifact_placeholders, job_id_lookup):
         """

@@ -83,6 +83,32 @@
 
             "host":"master_host"
         },
+        "set_performance_artifact":{
+            "sql":"INSERT INTO `performance_artifact` (`job_id`, `series_signature`, `name`, `type`, `blob`)
+                   VALUES (?,?,?,?,?)",
+
+            "host":"master_host"
+        },
+        "set_series_signature":{
+            "sql":"INSERT INTO `series_signature` (`signature`, `property`, `value`)
+                   SELECT ?,?,?
+                   FROM DUAL WHERE NOT EXISTS (
+                        SELECT `signature`, `property`, `value`
+                        FROM `series_signature`
+                        WHERE `signature` = ? AND `property` = ? AND `value` = ?
+                   )",
+            "host":"master_host"
+        },
+        "set_performance_series":{
+            "sql":"INSERT INTO `performance_series` (`interval_seconds`, `series_signature`, `type`, `last_updated`, `blob`)
+                   SELECT ?,?,?,?,?
+                   FROM DUAL WHERE NOT EXISTS (
+                        SELECT `interval_seconds`, `series_signature`
+                        FROM `performance_series`
+                        WHERE `interval_seconds` = ? AND `series_signature` = ?
+                   )",
+            "host":"master_host"
+        },
         "set_job_eta":{
             "sql":"INSERT INTO `job_eta` (
                     `signature`,
@@ -205,6 +231,12 @@
     },
 
     "updates": {
+        "update_performance_series":{
+            "sql":"UPDATE `performance_series`
+                   SET `last_updated` = ?, `blob` = ?
+                   WHERE `interval_seconds` = ? AND `series_signature` = ?",
+            "host":"master_host"
+        },
         "set_state":{
 
             "sql":"UPDATE `job`
@@ -265,7 +297,36 @@
         }
     },
     "selects":{
+        "get_performance_artifact":{
 
+            "sql":"SELECT `id`, `job_id`, `series_signature`, `name`, `type`, `blob`
+                   FROM `performance_artifact`
+                   WHERE `job_id` IN (REP0) AND `active_status` = 'active'",
+
+            "host":"read_host"
+
+        },
+        "get_performance_series": {
+
+            "sql":"SELECT `interval_seconds`, `series_signature`, `type`, `last_updated`, `blob`
+                   FROM `performance_series`
+                   WHERE `interval_seconds` = ? AND `series_signature` = ?",
+
+            "host":"read_host"
+
+        },
+        "get_all_series_signatures": {
+
+            "sql":"SELECT `signature`,
+                    GROUP_CONCAT(
+                        CONCAT_WS('=', `property`, `value`) SEPARATOR ', '
+                    ) AS 'properties'
+                   FROM `series_signature`
+                   GROUP BY `signature`",
+
+            "host":"read_host"
+
+        },
         "get_max_job_submit_timestamp":{
 
             "sql": "SELECT MAX(`submit_timestamp`) AS 'submit_timestamp' FROM `job`",
@@ -310,6 +371,20 @@
                          start_timestamp > 0 AND end_timestamp > 0
                    GROUP BY signature",
 
+            "host":"read_host"
+
+        },
+        "get_signature_list_from_job_ids":{
+
+            "sql":"SELECT j.id,
+                          j.result_set_id,
+                          j.job_guid,
+                          j.signature,
+                          r.push_timestamp
+                   FROM job AS j
+                   JOIN result_set AS r
+                    ON j.result_set_id = r.id
+                   WHERE j.id IN (REP0)",
             "host":"read_host"
 
         },
