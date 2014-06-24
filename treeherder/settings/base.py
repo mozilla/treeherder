@@ -1,11 +1,17 @@
 # Django settings for webapp project.
 import os
+import sys
 from treeherder import path
 
 # needed to setup celery
 import djcelery
 from celery.schedules import crontab
 djcelery.setup_loader()
+
+# Insure the vendor libraries are added to the python path
+# in production
+sys.path.append( path("vendor") )
+
 
 # These settings can all be optionally set via env vars, or in local.py:
 

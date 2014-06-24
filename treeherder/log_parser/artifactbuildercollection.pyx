@@ -115,8 +115,8 @@ building the ``artifact`` as we go.
                 # gather the artifacts from all builders
                 for builder in self.builders:
                     artifact = builder.get_artifact()
-                    print "ARTIFACT"
-                    print artifact
-                    print builder.name
-                    if artifact:
+                    if builder.name == 'talos_data':
+                        if len(artifact[builder.name]) > 0:
+                            self.artifacts[builder.name] = artifact
+                    else:
                         self.artifacts[builder.name] = artifact

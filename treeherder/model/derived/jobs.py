@@ -1820,13 +1820,16 @@ class JobsModel(TreeherderModelBase):
 
         tda.submit_tasks(self.project)
 
-    def store_performance_series(self, t_range, series_type, signature, series_data):
+    def store_performance_series(
+        self, t_range, series_type, signature, series_data):
 
-        lock_string = "sps_{0}_{1}_{2}".format(t_range, series_type, signature)
+        lock_string = "sps_{0}_{1}_{2}".format(
+            t_range, series_type, signature)
 
         # Use MySQL GETLOCK function to gaurd against concurrent celery tasks
-        # overwriting each other's blobs. The log is specific to the time
-        # interval and signature combination.
+        # overwriting each other's blobs. The lock incorporates the time
+        # interval and signature combination and is specific to a single
+        # json blob.
         lock = self.get_jobs_dhub().execute(
             proc='generic.locks.get_lock',
             debug_show=self.DEBUG,
