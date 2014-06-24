@@ -10,7 +10,7 @@ djcelery.setup_loader()
 
 # Insure the vendor libraries are added to the python path
 # in production
-sys.path.append( path("vendor") )
+sys.path.append( path('..', 'vendor') )
 
 
 # These settings can all be optionally set via env vars, or in local.py:
