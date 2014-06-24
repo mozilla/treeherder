@@ -77,10 +77,6 @@ def test_all_builders_complete():
     del(act["Job Info"]["logurl"])
     del(act["Structured Log"]["logurl"])
 
-    print "LPC ARTIFACTS"
-    print lpc.artifacts
-    print "EXP"
-    print exp
     assert exp == lpc.artifacts, diff(exp, lpc.artifacts)
 
 
