@@ -325,3 +325,10 @@ class TalosParser(ParserBase):
                 self.artifact = json.loads(match.group(1))
             except ValueError, e:
                 self.artifact.append(match.group(1))
+
+    def get_artifact(self):
+        """By default, just return the artifact as-is."""
+        if len(self.artifact) > 0:
+            return self.artifact
+        else:
+            return {}

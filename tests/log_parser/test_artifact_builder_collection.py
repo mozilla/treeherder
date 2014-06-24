@@ -30,7 +30,7 @@ def test_default_builders():
         "foo-url",
     )
     assert isinstance(lpc.builders, list)
-    assert len(lpc.builders) == 2
+    assert len(lpc.builders) == 3
 
 
 def test_check_errors_false():
@@ -63,10 +63,8 @@ def test_all_builders_complete():
                 "all_errors": [],
                 "steps": []
             },
-            "talos_data": []
         },
         "Job Info": {
-            "talos_data": [],
             "job_details": []
         }
     }

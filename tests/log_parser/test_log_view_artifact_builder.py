@@ -255,9 +255,3 @@ def test_check_errors_true(initial_data, monkeypatch):
         "mozilla-central_mountainlion_test-mochitest-2-bm77-tests1-macosx-build141"
     )
     assert mock_pl.called is True
-    
-def test_check_talos_data_true(jm, initial_data):
-    """ensure that TALOSDATA is parsed out of the log"""
-    do_test(
-        "talos-data"
-    )

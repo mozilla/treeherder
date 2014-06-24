@@ -114,4 +114,9 @@ building the ``artifact`` as we go.
 
                 # gather the artifacts from all builders
                 for builder in self.builders:
-                    self.artifacts[builder.name] = builder.get_artifact()
+                    artifact = builder.get_artifact()
+                    print "ARTIFACT"
+                    print artifact
+                    print builder.name
+                    if artifact:
+                        self.artifacts[builder.name] = artifact

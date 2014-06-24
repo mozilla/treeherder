@@ -1,3 +1,5 @@
+import json
+
 from tests.sampledata import SampleData
 from treeherder.etl.perf_data_adapters import TalosDataAdapter
 
@@ -40,8 +42,11 @@ def test_adapt_and_load():
         }
 
         result_count += len(datum['blob']["results"])
+
+        # Mimic production environment, the blobs are serialized
+        # when the web service receives them
+        datum['blob'] = json.dumps(datum['blob'])
         tda.adapt_and_load(reference_data, job_data, datum)
 
     assert result_count == len( tda.performance_artifact_placeholders )
-    assert result_count == len( tda.series_signature_data )
 

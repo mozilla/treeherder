@@ -1830,7 +1830,7 @@ class JobsModel(TreeherderModelBase):
         lock = self.get_jobs_dhub().execute(
             proc='generic.locks.get_lock',
             debug_show=self.DEBUG,
-            placeholders=[lock_string, 120])
+            placeholders=[lock_string, 60])
 
         if lock[0]['lock'] != 1:
             logger.error(

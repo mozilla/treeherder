@@ -360,6 +360,9 @@ def test_store_performance_artifact(
     job_ids = tp_data['job_ids']
     perf_data = tp_data['perf_data']
 
+    for index, d in enumerate(perf_data):
+        perf_data[index]['blob'] = json.dumps(d['blob'])
+
     jm.store_performance_artifact(job_ids, perf_data)
 
     replace = [ ','.join( ['%s'] * len(job_ids) ) ]

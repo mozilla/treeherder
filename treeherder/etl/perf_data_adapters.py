@@ -75,13 +75,17 @@ class PerformanceDataAdapter(object):
         r = replicates
         r_len = len(replicates)
 
+        # Use a precision of .2f for all numbers stored
+        # to insure we don't have floats with giant mantissa's
+        # that inflate the size of the stored data structure
+        precision = '%.2f'
         series_data = {
             "job_id": job_id,
             "result_set_id": result_set_id,
             "push_timestamp": push_timestamp,
             "total_replicates": r_len,
-            "min": min(r),
-            "max": max(r),
+            "min": float( precision % round( min(r), 2 ) ),
+            "max": float( precision % round( max(r), 2 ) ),
             "mean": 0,
             "std": 0,
             "median": 0
@@ -92,18 +96,25 @@ class PerformanceDataAdapter(object):
             def avg(s):
                 return float(sum(r)) / r_len
 
-            mean = round( float(sum(r))/r_len, 1 )
+            mean = round( float(sum(r))/r_len, 2 )
             variance = map( lambda x: (x - mean)**2, replicates )
 
-            series_data["mean"] = '%.1f' % mean
-            series_data["std"] = '%.1f' % round( math.sqrt(avg(variance)), 1 )
+            series_data["mean"] = float( precision % mean )
+            series_data["std"] = float(
+                precision % round( math.sqrt(avg(variance)), 2 )
+            )
 
-            if len(r)%2 == 1:
-                series_data["median"] = '%.1f' % round(
-                    r[int(math.floor(len(r)/2))] )
+            if len(r) % 2 == 1:
+                series_data["median"] = float(
+                    precision % round(
+                    r[int(math.floor(len(r)/2))], 2 )
+                )
+
             else:
-                series_data["median"] = '%.1f' % round(
-                    avg([r[(len(r)/2) - 1], r[len(r)/2]]) )
+                series_data["median"] = float(
+                    precision % round(
+                        avg([r[(len(r)/2) - 1], r[len(r)/2]]), 2 )
+                )
 
         return series_data
 
