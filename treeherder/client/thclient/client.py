@@ -6,7 +6,9 @@ from __future__ import unicode_literals
 import httplib
 import oauth2 as oauth
 import time
-import urllib
+import logging
+
+logger = logging.getLogger(__name__)
 
 try:
     import json
@@ -585,6 +587,47 @@ class TreeherderArtifactCollection(TreeherderCollection):
         return TreeherderArtifact(data)
 
 
+class OauthClient(object):
+    """
+    A utility class containing the logic to sign a oauth request
+    """
+    def __init__(self, oauth_key, oauth_secret, user):
+        self.oauth_key = oauth_key
+        self.oauth_secret = oauth_secret
+        self.user = user
+
+    def get_signed_uri(self, serialized_body, uri, http_method):
+
+        # There is no requirement for the token in two-legged
+        # OAuth but we still need the token object.
+        token = oauth.Token(key='', secret='')
+        consumer = oauth.Consumer(key=self.oauth_key, secret=self.oauth_secret)
+
+        parameters = {
+            'user': self.user,
+            'oauth_version': '1.0',
+            'oauth_nonce': oauth.generate_nonce(),
+            'oauth_timestamp': int(time.time())
+        }
+
+        try:
+            req = oauth.Request(
+                method=http_method,
+                body=serialized_body,
+                url=uri,
+                parameters=parameters
+            )
+        except AssertionError, e:
+            logger.error('uri: %s' % uri)
+            logger.error('body: %s' % serialized_body)
+            raise
+
+        signature_method = oauth.SignatureMethod_HMAC_SHA1()
+        req.sign_request(signature_method, consumer, token)
+
+        return req.to_url()
+
+
 class TreeherderRequest(object):
     """
     Treeherder request object that manages test submission.
@@ -604,6 +647,10 @@ class TreeherderRequest(object):
         self.project = project
         self.oauth_key = oauth_key
         self.oauth_secret = oauth_secret
+        self.use_oauth = bool(self.oauth_key and self.oauth_secret)
+        self.oauth_client = None
+        if self.use_oauth:
+            self.oauth_client = OauthClient(oauth_key, oauth_secret, self.project)
 
         if protocol not in self.protocols:
             raise AssertionError('Protocol "%s" not supported; please use one of %s' %
@@ -615,10 +662,7 @@ class TreeherderRequest(object):
             msg = "{0}: project required for posting".format(self.__class__.__name__)
             raise TreeherderClientError(msg, [])
 
-    def send(self, collection_inst):
-        """
-        Send given treeherder collection instance data to server; returns httplib Response.
-        """
+    def post(self, collection_inst):
 
         if not isinstance(collection_inst, TreeherderCollection):
 
@@ -642,65 +686,52 @@ class TreeherderRequest(object):
 
         collection_inst.validate()
 
+        return self.send(collection_inst.endpoint_base,
+                         "POST", collection_inst.to_json())
+
+    def send(self, endpoint, method=None, data=None):
+        """
+        Send given treeherder collection instance data to server; returns httplib Response.
+        """
+        if method not in ("GET", "POST", "PUT"):
+            msg = "{0}: {1} is not a supported method".format(
+                self.__class__.__name__,
+                method
+            )
+            raise TreeherderClientError(msg, [])
 
         # Build the header
         headers = {'Content-Type': 'application/json'}
 
-        use_oauth = bool(self.oauth_key and self.oauth_secret)
+        if data:
+            if not isinstance(data, str):
+                # if the body is not serialized yet, do it now
+                serialized_body = json.dumps(data)
+            else:
+                serialized_body = data
+        else:
+            serialized_body = None
 
-        serialized_body = collection_inst.to_json()
+        uri = self.get_uri(endpoint)
 
-        uri = self.get_uri(collection_inst)
+        if self.use_oauth:
+            uri = self.oauth_client.get_signed_uri(serialized_body, uri, method)
 
-        if use_oauth:
-            uri = self.get_signed_uri(serialized_body, uri)
-
-        # Make the POST request
+        # Make the request
         conn = None
         if self.protocol == 'http':
             conn = httplib.HTTPConnection(self.host)
         else:
             conn = httplib.HTTPSConnection(self.host)
 
-        conn.request('POST', uri, serialized_body, headers)
+        conn.request(method, uri, serialized_body, headers)
 
         return conn.getresponse()
 
-    def get_signed_uri(self, serialized_body, uri):
-
-        # There is no requirement for the token in two-legged
-        # OAuth but we still need the token object.
-        token = oauth.Token(key='', secret='')
-        consumer = oauth.Consumer(key=self.oauth_key, secret=self.oauth_secret)
-
-        parameters = {
-            'user':self.project,
-            'oauth_version':'1.0',
-            'oauth_nonce':oauth.generate_nonce(),
-            'oauth_timestamp':int(time.time())
-            }
-
-        try:
-            req = oauth.Request(
-                method='POST',
-                body=serialized_body,
-                url=uri,
-                parameters=parameters
-                )
-        except AssertionError, e:
-            print 'uri: %s' % uri
-            print 'body: %s' % serialized_body
-            raise
-
-        signature_method = oauth.SignatureMethod_HMAC_SHA1()
-        req.sign_request(signature_method, consumer, token)
-
-        return req.to_url()
-
-    def get_uri(self, collection_inst):
+    def get_uri(self, endpoint):
 
         uri = '{0}://{1}/api/project/{2}/{3}/'.format(
-            self.protocol, self.host, self.project, collection_inst.endpoint_base
+            self.protocol, self.host, self.project, endpoint
             )
 
         return uri
