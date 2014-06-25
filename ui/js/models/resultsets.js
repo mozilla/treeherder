@@ -73,10 +73,12 @@ treeherder.factory('ThResultSetModel', [
             //Set up job update queue
             setInterval(
                 _.bind(processUpdateQueues, $rootScope, repoName),
-                updateQueueInterval
+                5000
+//                updateQueueInterval
                 );
 
             //Set up the socket listener
+            console.log("<><><><>setup the listener");
             thSocket.on(
                 "job",
                 _.bind(processSocketData, $rootScope, repoName)
@@ -98,21 +100,24 @@ treeherder.factory('ThResultSetModel', [
          * fetch.  Fetching a resultset also gets all its jobs, so we don't
          * need to add it to the ``jobUpdateQueue``.
          */
+        console.log("<><><><> socket job event!", data);
         if (data.branch === repoName) {
-            if (data.resultset.push_timestamp >= repositories[repoName].rsMapOldestTimestamp &&
-                isInResultSetRange(repoName, data.resultset.push_timestamp)) {
+            _.each(data.job_guids, function(rs, job_guid) {
+                if (rs.result_set_push_timestamp >= repositories[repoName].rsMapOldestTimestamp &&
+                    isInResultSetRange(repoName, rs.result_set_push_timestamp)) {
 
-                // we want to load this job, one way or another
-                if (repositories[repoName].rsMap[data.resultset.id]) {
-                    // we already have this resultset loaded, so queue the job
-                    repositories[repoName].jobUpdateQueue.push(data.id);
-                } else {
-                    // we haven't loaded this resultset yet, so queue it
-                    if (repositories[repoName].rsUpdateQueue.indexOf(data.resultset.id) < 0) {
-                        repositories[repoName].rsUpdateQueue.push(data.resultset.id);
+                    // we want to load this job, one way or another
+                    if (repositories[repoName].rsMap[rs.result_set_id]) {
+                        // we already have this resultset loaded, so queue the job
+                        repositories[repoName].jobUpdateQueue[job_guid] = true;
+                    } else {
+                        // we haven't loaded this resultset yet, so queue it
+                        repositories[repoName].rsUpdateQueue[rs.result_set_id] = true;
                     }
+                } else {
+                    console.log("out of resultset range", repositories[repoName].rsMapOldestTimestamp, rs, job_guid);
                 }
-            }
+            });
         }
     };
 
@@ -318,19 +323,19 @@ treeherder.factory('ThResultSetModel', [
      */
     var processUpdateQueues = function(repoName) {
         $log.debug("Processing update queue.  jobs: " +
-            repositories[repoName].jobUpdateQueue.length +
+            _.size(repositories[repoName].jobUpdateQueue) +
             ", resultsets: " +
-            repositories[repoName].rsUpdateQueue.length);
+            _.size(repositories[repoName].rsUpdateQueue));
         // clear the ``jobUpdateQueue`` so we won't miss items that get
         // added while in the process of fetching the current queue items.
-        var rsFetchList = repositories[repoName].rsUpdateQueue;
-        repositories[repoName].rsUpdateQueue = [];
+        var rsFetchList = _.keys(repositories[repoName].rsUpdateQueue);
+        repositories[repoName].rsUpdateQueue = {};
 
 
-        var jobFetchList = repositories[repoName].jobUpdateQueue;
-        repositories[repoName].jobUpdateQueue = [];
+        var jobFetchList = _.keys(repositories[repoName].jobUpdateQueue);
+        repositories[repoName].jobUpdateQueue = {};
 
-        if (rsFetchList.length > 0) {
+        if (_.size(rsFetchList) > 0) {
             // fetch these resultsets in a batch and put them into the model
             $log.debug("processing the rsFetchList");
             fetchNewResultSets(repoName, rsFetchList);
@@ -349,13 +354,23 @@ treeherder.factory('ThResultSetModel', [
      */
     var fetchJobs = function(repoName, jobFetchList) {
         $log.debug("fetchJobs", repoName, jobFetchList);
-        ThJobModel.get_list(repoName, {
-            job_guid__in: jobFetchList.join()
-        }).then(
-            _.bind(updateJobs, $rootScope, repoName),
-            function(data) {
-                $log.error("Error fetching jobs: " + data);
-            });
+
+        // we could potentially have very large lists of jobs.  So we need
+        // to chunk this fetching.
+        var offset = 0;
+        var error_callback = function(data) {
+            $log.error("Error fetching jobs: " + data);
+        };
+
+        while (offset < jobFetchList.length) {
+            var jobFetchSlice = jobFetchList.slice(offset, 20);
+            offset += 20;
+            ThJobModel.get_list(repoName, {
+                job_guid__in: jobFetchSlice.join()
+            }).then(
+                _.bind(updateJobs, $rootScope, repoName),
+                error_callback);
+        }
     };
     var aggregateJobPlatform = function(repoName, job, platformData){
 
