@@ -1189,9 +1189,17 @@ class JobsModel(TreeherderModelBase):
         ]
 
         """
-        # Insure that we have job data to process
+        # Ensure that we have job data to process
         if not data:
             return
+
+        # remove any existing jobs that already have the same state
+        print "before culling"
+        print len(data)
+        data = self._remove_existing_jobs(data)
+
+        print "after culling"
+        print len(data)
 
         # Structures supporting revision_hash SQL
         revision_hash_lookup = set()
@@ -1291,6 +1299,7 @@ class JobsModel(TreeherderModelBase):
         job_update_placeholders = []
         job_guid_list = []
         job_guid_where_in_list = []
+        push_timestamps = {}
 
         for index, job in enumerate(job_placeholders):
 
@@ -1303,7 +1312,8 @@ class JobsModel(TreeherderModelBase):
                 job_guid_where_in_list,
                 job_update_placeholders,
                 result_set_ids,
-                job_eta_times
+                job_eta_times,
+                push_timestamps
                 )
 
         job_id_lookup = self._load_jobs(
@@ -1376,13 +1386,106 @@ class JobsModel(TreeherderModelBase):
         # send socket.io events for the newly loaded jobs
         # get all the job_guids for the insertions and updates
         # the 0th element of both lists is the job_guid.
-        loaded_job_guids = [{
-            x[self.JOB_PH_JOB_GUID]: {
-                "result_set_id": x[self.JOB_PH_RESULT_SET_ID],
-                "result_set_push_timestamp":
-            }} for x in job_placeholders]
+        loaded_job_guids = {}
+        for loaded_job in job_placeholders:
+            loaded_job_guids[loaded_job[self.JOB_PH_JOB_GUID]] = {
+                "result_set_id": loaded_job[self.JOB_PH_RESULT_SET_ID],
+                "result_set_push_timestamp": push_timestamps[loaded_job[self.JOB_PH_RESULT_SET_ID]]
+            }
 
         status_publisher.publish(loaded_job_guids, self.project, 'processed')
+
+    def _remove_existing_jobs(self, data):
+        """
+        Remove jobs from data where we already have them in the same state.
+
+        split the incoming jobs into pending, running and complete.
+        then fetch 3 lists with those job guids.
+        if we get ones back with matching state and job_guid, then
+        remove from data.
+
+        or we could extract the job_guids for all jobs in data.  fetch that list
+        from the db mapping job_guid to state.  use that as a lookup to see if we
+        already have that job in that state.  If we do, then throw it out of data.
+
+        """
+        states = {
+            'pending': [],
+            'running': [],
+            'completed': [],
+        }
+        data_idx = {}
+
+        new_data = list(data)
+
+        for i, datum in enumerate(new_data):
+            print '<><>'
+            print json.dumps(datum, indent=4)
+
+            # try:
+            if 'json_blob' in datum:
+                job_struct = JobData.from_json(datum['json_blob'])
+                job = job_struct['job']
+            else:
+                job = datum['job']
+
+            job_guid = str(job['job_guid'])
+            states[str(job['state'])].append(job_guid)
+
+            # index this place in the data object so we can quickly cull ``data``
+            data_idx[job_guid] = i
+            # except Exception as e:
+            #     raise e
+            #     pass
+            #     # it will get caught later
+
+        print json.dumps(states, indent=4)
+
+        placeholders = []
+        state_clauses = []
+
+        for state, guids in states.items():
+            if len(guids) > 0:
+                placeholders.append(state)
+                placeholders.extend(guids)
+                state_clauses.append(
+                    "(`state` = %s AND `job_guid` IN ({0}))".format(
+                        ",".join(["%s"] * len(guids))
+                        )
+                    )
+
+        replacement = ' OR '.join(state_clauses)
+
+        print 'REPL'
+        print replacement
+        print 'PLACE'
+        print placeholders
+
+        if len(placeholders) > 0:
+            existing_guids = self.get_jobs_dhub().execute(
+                proc='jobs.selects.get_job_guids_in_states',
+                debug_show=self.DEBUG,
+                placeholders=placeholders,
+                replace=[replacement],
+                return_type='set',
+                key_column='job_guid'
+                )
+
+            print existing_guids
+            print 'DATA IDX'
+            print data_idx
+            print 'NEW DATA'
+            print new_data
+
+            # remove any guids we found from ``data`` because we already have them
+            if len(existing_guids) > 0:
+                print "got GUIDs"
+                for guid in existing_guids:
+                    print "<>GUID"
+                    print guid
+                    # del(new_data[data_idx[guid]])
+
+        return new_data
 
 
     def _load_ref_and_job_data_structs(
@@ -1548,7 +1651,7 @@ class JobsModel(TreeherderModelBase):
     def _set_data_ids(
         self, index, job_placeholders, id_lookups,
         job_guid_list, job_guid_where_in_list, job_update_placeholders,
-        result_set_ids, job_eta_times
+        result_set_ids, job_eta_times, push_timestamps
         ):
         """
         Supplant ref data with ids and create update placeholders
@@ -1590,8 +1693,10 @@ class JobsModel(TreeherderModelBase):
         # Load job_placeholders
 
         # replace revision_hash with id
+        result_set = result_set_ids[revision_hash]
         job_placeholders[index][
-            self.JOB_PH_RESULT_SET_ID] = result_set_ids[revision_hash]['id']
+            self.JOB_PH_RESULT_SET_ID] = result_set['id']
+        push_timestamps[result_set['id']] = result_set['push_timestamp']
 
         # replace build_platform_key with id
         build_platform_id = id_lookups['build_platforms'][build_platform_key]['id']

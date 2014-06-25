@@ -551,6 +551,14 @@
                    WHERE `active_status` = 'active' AND `job_guid` IN (REP0)",
             "host": "read_host"
         },
+        "get_job_guids_in_states":{
+            "sql":"SELECT `job_guid`
+                   FROM `job`
+                   WHERE
+                   REP0
+                   ",
+            "host": "read_host"
+        },
         "get_jobs_by_coalesced_guids":{
 
             "sql":"SELECT `id`, `job_guid`, `job_coalesced_to_guid`
