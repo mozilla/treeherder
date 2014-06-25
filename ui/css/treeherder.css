@@ -273,6 +273,12 @@ body {
     overflow: auto;
 }
 
+.revision > a:first-child {
+    float: left;
+    width: 7.5em;
+    padding-top: 2px;
+}
+
 .platform {
     font-size: 12px;
     padding-left: 0;
