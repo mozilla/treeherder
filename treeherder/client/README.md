@@ -383,7 +383,67 @@ In the same way, if you don't want to use `TreeherderArtifactCollection` to buil
     req.send(tac)
 ```
 
+Job Info artifact structure
+---------------------------
+The content of a Job Info artifact is loaded in the UI in the left section of the bottom panel.
+All the Job Info artifacts have a mandatory title attribute and a set of optional attributes depending on content_type. 
+The content_type also drives the way this kind of artifact will be rendered. Here are the possible values:
 
+Text
+----
+
+This is the simplest content type you can render and is the one used by default if the content type
+specified is not recognised or is missing.
+
+This content type renders as
+
+```html
+<label>{{title}}</label><span>{{value}}</span>
+```
+
+Link
+----
+
+This content type renders as an anchor html tag with the following format:
+
+```html
+{{title}}: <a title="{{value}}" href="{{url}}" target="_blank">{{value}}</a>
+```
+
+Raw Html
+--------
+
+The last resource for when you need to show some formatted content.
+
+
+Follows an example of usage of this content types:
+
+```json
+{
+    "blob": {
+        "job_details": [
+            {
+                "url": "https://www.mozilla.org",
+                "value": "this is my linked content",
+                "content_type": "link",
+                "title": "my linked artifact"
+            },
+            {
+                "value": "this is the content",
+                "content_type": "text",
+                "title": "my text artifact"
+            },
+            {
+                "value": "<span class="alert">Hey</span><strong>you</strong>",
+                "content_type": "raw_html",
+                "title": "my html artifact"
+            }
+        ]
+    },
+    "name": "Job Info",
+    ....
+}
+```
 
 Development
 -----------
