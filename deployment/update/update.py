@@ -74,6 +74,10 @@ def deploy_workers(ctx):
     """Call the remote update script to push changes to workers."""
     ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
 
+    # REMOVE: once we resolve the zombie issue this should be removed
+    ctx.local(
+        '{0}/pkill -f "python manage.py celery worker*"'.format(settings.BIN_DIR))
+
     # Restarts celery worker on the celery hostgroup to listen to the
     # celery queues: log_parser_fail,log_parser
     ctx.remote(
