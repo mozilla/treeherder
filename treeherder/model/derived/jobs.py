@@ -1465,15 +1465,15 @@ class JobsModel(TreeherderModelBase):
         # print placeholders
 
         if len(placeholders) > 0:
-            # existing_guids = self.get_jobs_dhub().execute(
-            #     proc='jobs.selects.get_job_guids_in_states',
-            #     placeholders=placeholders,
-            #     replace=[replacement],
-            #     key_column='job_guid',
-            #     return_type='set',
-            #     debug_show=self.DEBUG,
-            #     )
-            existing_guids = set([])
+            existing_guids = self.get_jobs_dhub().execute(
+                proc='jobs.selects.get_job_guids_in_states',
+                placeholders=placeholders,
+                replace=[replacement],
+                key_column='job_guid',
+                return_type='set',
+                debug_show=self.DEBUG,
+                )
+            # existing_guids = set([])
             # print 'DATA'
             # print data
             # print 'EXISTING GUIDS'
