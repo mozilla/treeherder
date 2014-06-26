@@ -1886,7 +1886,6 @@ class JobsModel(TreeherderModelBase):
                 if filtered_series:
 
                     filtered_series_json = json.dumps(filtered_series)
-
                     update_placeholders = [
                         now_timestamp, filtered_series_json,
                         t_range, signature

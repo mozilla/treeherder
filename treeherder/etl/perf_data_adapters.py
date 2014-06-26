@@ -1,8 +1,12 @@
-import simplejson as json
+import json
+from json import encoder
+
 from hashlib import sha1
 import math
 
 from jsonschema import validate, ValidationError
+
+encoder.FLOAT_REPR = lambda o: format(o, '.2f')
 
 class PerformanceDataAdapter(object):
     """
