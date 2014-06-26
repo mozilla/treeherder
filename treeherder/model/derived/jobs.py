@@ -1203,6 +1203,8 @@ class JobsModel(TreeherderModelBase):
         print len(data)
         print json.dumps(data, indent=4)
 
+        if not data:
+            return
         # Structures supporting revision_hash SQL
         revision_hash_lookup = set()
         unique_revision_hashes = []
