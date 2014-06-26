@@ -30,7 +30,7 @@ def test_default_builders():
         "foo-url",
     )
     assert isinstance(lpc.builders, list)
-    assert len(lpc.builders) == 2
+    assert len(lpc.builders) == 3
 
 
 def test_check_errors_false():
@@ -62,7 +62,7 @@ def test_all_builders_complete():
             "step_data": {
                 "all_errors": [],
                 "steps": []
-            }
+            },
         },
         "Job Info": {
             "job_details": []
@@ -78,3 +78,6 @@ def test_all_builders_complete():
     del(act["Structured Log"]["logurl"])
 
     assert exp == lpc.artifacts, diff(exp, lpc.artifacts)
+
+
+

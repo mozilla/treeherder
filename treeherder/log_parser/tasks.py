@@ -35,8 +35,6 @@ def parse_log(project, log_url, job_guid, resultset, check_errors=False):
     bugs_cache = {'open': {}, 'closed': {}}
     bug_suggestions = {'open': {}, 'closed': {}}
 
-    # return the resultset with the job id to identify if the UI wants
-    # to fetch the whole thing.
 
     bugscache_uri = '{0}{1}'.format(
         settings.API_HOSTNAME,
@@ -52,10 +50,17 @@ def parse_log(project, log_url, job_guid, resultset, check_errors=False):
             check_errors=check_errors,
         )
         artifact_bc.parse()
-
         artifact_list = []
         for name, artifact in artifact_bc.artifacts.items():
-            artifact_list.append((job_guid, name, 'json', json.dumps(artifact)))
+            if name == 'talos_data':
+                data_type = 'performance'
+                if artifact[name]:
+                    artifact_list.append(
+                        (job_guid, name, data_type, json.dumps(artifact[name][0]))
+                    )
+            else:
+                data_type = 'json'
+                artifact_list.append((job_guid, name, data_type, json.dumps(artifact)))
 
         if check_errors:
             all_errors = artifact_bc.artifacts.get(

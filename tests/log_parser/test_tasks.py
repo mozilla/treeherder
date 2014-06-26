@@ -2,6 +2,8 @@ import pytest
 import simplejson as json
 from mock import MagicMock
 
+from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
+
 from ..sampledata import SampleData
 from treeherder.model.derived import JobData
 from treeherder.log_parser.parsers import ErrorParser
