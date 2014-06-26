@@ -358,13 +358,14 @@ treeherder.factory('ThResultSetModel', [
         // we could potentially have very large lists of jobs.  So we need
         // to chunk this fetching.
         var offset = 0;
+        var count = 40;
         var error_callback = function(data) {
             $log.error("Error fetching jobs: " + data);
         };
 
         while (offset < jobFetchList.length) {
-            var jobFetchSlice = jobFetchList.slice(offset, 20);
-            offset += 20;
+            var jobFetchSlice = jobFetchList.slice(offset, offset+count);
+            offset += count;
             ThJobModel.get_list(repoName, {
                 job_guid__in: jobFetchSlice.join()
             }).then(
