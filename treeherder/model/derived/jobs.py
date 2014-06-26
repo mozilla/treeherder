@@ -1194,17 +1194,10 @@ class JobsModel(TreeherderModelBase):
             return
 
         # remove any existing jobs that already have the same state
-        print "before culling"
-        print len(data)
-        print json.dumps(data, indent=4)
         data = self._remove_existing_jobs(data)
-
-        print "after culling"
-        print len(data)
-        print json.dumps(data, indent=4)
-
         if not data:
             return
+
         # Structures supporting revision_hash SQL
         revision_hash_lookup = set()
         unique_revision_hashes = []
@@ -1403,14 +1396,11 @@ class JobsModel(TreeherderModelBase):
         """
         Remove jobs from data where we already have them in the same state.
 
-        split the incoming jobs into pending, running and complete.
-        then fetch 3 lists with those job guids.
-        if we get ones back with matching state and job_guid, then
-        remove from data.
-
-        or we could extract the job_guids for all jobs in data.  fetch that list
-        from the db mapping job_guid to state.  use that as a lookup to see if we
-        already have that job in that state.  If we do, then throw it out of data.
+        1. split the incoming jobs into pending, running and complete.
+        2. fetch the ``job_guids`` from the db that are in the same state as they
+           are in ``data``.
+        3. build a new list of jobs in ``new_data`` that are not already in
+           the db and pass that back.  It could end up empty at that point.
 
         """
         states = {
@@ -1420,12 +1410,10 @@ class JobsModel(TreeherderModelBase):
         }
         data_idx = []
         new_data = []
-
-        # new_data = list(data)
+        placeholders = []
+        state_clauses = []
 
         for i, datum in enumerate(data):
-            # print '<><>'
-            # print json.dumps(datum, indent=4)
 
             try:
                 if 'json_blob' in datum:
@@ -1437,20 +1425,20 @@ class JobsModel(TreeherderModelBase):
                 job_guid = str(job['job_guid'])
                 states[str(job['state'])].append(job_guid)
 
-                # index this place in the data object so we can quickly cull ``data``
+                # index this place in the ``data`` object
                 data_idx.append(job_guid)
+
             except Exception as e:
                 data_idx.append("skipped")
                 # it will get caught later in ``load_job_data``
-
-        # print 'STATES'
-        # print json.dumps(states, indent=4)
-
-        placeholders = []
-        state_clauses = []
+                # adding the guid as "skipped" will mean it won't be found
+                # in the returned list of dup guids from the db.
+                # This will cause the bad job to be re-added
+                # to ``new_data`` so that the error can be handled
+                # in ``load_job_data``.
 
         for state, guids in states.items():
-            if len(guids) > 0:
+            if guids:
                 placeholders.append(state)
                 placeholders.extend(guids)
                 state_clauses.append(
@@ -1461,12 +1449,7 @@ class JobsModel(TreeherderModelBase):
 
         replacement = ' OR '.join(state_clauses)
 
-        # print 'REPLACEMENTS'
-        # print replacement
-        # print 'PLACEHOLDERS'
-        # print placeholders
-
-        if len(placeholders) > 0:
+        if placeholders:
             existing_guids = self.get_jobs_dhub().execute(
                 proc='jobs.selects.get_job_guids_in_states',
                 placeholders=placeholders,
@@ -1475,19 +1458,12 @@ class JobsModel(TreeherderModelBase):
                 return_type='set',
                 debug_show=self.DEBUG,
                 )
-            # existing_guids = set([])
-            # print 'DATA'
-            # print data
-            # print 'EXISTING GUIDS'
-            # print existing_guids
-            # print 'DATA IDX'
-            # print data_idx
 
-            # add guids we didn't already have
+            # build a new list of jobs without those we already have loaded
             for i, guid in enumerate(data_idx):
                 if guid not in existing_guids:
-                    # print 'index to add: ' + str(data_idx[str(guid)])
                     new_data.append(data[i])
+
         return new_data
 
 
