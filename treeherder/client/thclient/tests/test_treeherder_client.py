@@ -315,10 +315,13 @@ class TreeherderJobTest(DataSetup, unittest.TestCase):
             tj.add_log_reference(
                 'builds-4h', job['job']['log_references'][0]['url'] )
 
+            # if the blob is empty, TreeherderJob will ignore the insertion
+            job['job']['artifacts'][0]['blob'] = "some value"
+
             tj.add_artifact(
-                job['job']['artifact']['name'],
-                job['job']['artifact']['type'],
-                job['job']['artifact']['blob'] )
+                job['job']['artifacts'][0]['name'],
+                job['job']['artifacts'][0]['type'],
+                job['job']['artifacts'][0]['blob'])
 
             self.compare_structs(tj.data, job)
 

@@ -221,11 +221,11 @@ class TreeherderJob(TreeherderData, ValidatorMixin):
 
     def add_artifact(self, name, artifact_type, blob):
         if blob:
-            self.data['job']['artifact'] = {
-                    'name': name,
-                    'type': artifact_type,
-                    'blob': blob
-                }
+            self.data['job']['artifacts'].append({
+                'name': name,
+                'type': artifact_type,
+                'blob': blob
+            })
 
     def init_data(self):
 
@@ -317,11 +317,7 @@ class TreeherderJob(TreeherderData, ValidatorMixin):
                 # project_jobs_1.job_artifact.name
                 # project_jobs_1.job_artifact.type
                 # project_jobs_1.job_artifact.blob
-                'artifact': {
-                    'name': '',
-                    'type': '',
-                    'blob': ''
-                    }
+                'artifacts': []
             },
 
         # List of job_guids that were coallesced to this job
@@ -413,11 +409,11 @@ class TreeherderResultSet(TreeherderData, ValidatorMixin):
             'type': '',
             # TODO: add resultset artifact table in treeherder-service
             'artifact': {
-                'type': '',
-                'name': '',
-                'blob': ''
-                }
+                'name': "",
+                'type': "",
+                'blob': ""
             }
+        }
 
     def add_push_timestamp(self, push_timestamp):
         self.data['push_timestamp'] = push_timestamp
@@ -445,10 +441,10 @@ class TreeherderResultSet(TreeherderData, ValidatorMixin):
     def add_artifact(self, name, artifact_type, blob):
         if blob:
             self.data['artifact'] = {
-                    'name': name,
-                    'type': artifact_type,
-                    'blob': blob
-                }
+                'name': name,
+                'type': artifact_type,
+                'blob': blob
+            }
 
     def get_revision(self, data={}):
         return TreeherderRevision(data)
