@@ -227,9 +227,9 @@ treeherder.controller('PluginCtrl', [
         thSocket.on("job_classification", updateClassification);
 
         $scope.tabs = {
-            "bug_suggestions": {
-                title: "Bug suggestions",
-                content: "plugins/bug_suggestions/main.html",
+            "failure_summary": {
+                title: "Failure summary",
+                content: "plugins/failure_summary/main.html",
                 active: true
             },
             "annotations": {
