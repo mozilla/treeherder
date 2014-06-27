@@ -67,7 +67,15 @@ describe('ThResultSetModel', function(){
      */
     it('should add new rs to the foreground repo', function() {
         var rsValues = {id: 2, push_timestamp: 1396899074+1},
-            data = {branch: foregroundRepo, resultset: rsValues};
+            data = {
+                branch: foregroundRepo,
+                job_guids: {
+                    590604: {
+                        result_set_id: 2,
+                        result_set_push_timestamp: 1396899074+1
+                    }
+                }
+            };
 
         $httpBackend.whenGET(foregroundPrefix + '/resultset/?count=1&format=json&full=true&id__in=2&offset=0&with_jobs=true').respond(
             getResultSet(2, rsValues)
@@ -86,7 +94,15 @@ describe('ThResultSetModel', function(){
      */
     it('should add new rs to a background repo', function() {
         var rsValues = {id: 12, push_timestamp: 1396899074+1},
-            data = {branch: backgroundRepo, resultset: rsValues};
+            data = {
+                branch: backgroundRepo,
+                job_guids: {
+                    590604: {
+                        result_set_id: 12,
+                        result_set_push_timestamp: 1396899074+1
+                    }
+                }
+            };
 
         $httpBackend.whenGET(backgroundPrefix + '/resultset/?count=1&format=json&full=true&id__in=12&offset=0&with_jobs=true').respond(
             getResultSet(12, rsValues)
@@ -106,8 +122,12 @@ describe('ThResultSetModel', function(){
     it('should add new job to the foreground repo', function() {
         var data = {
             branch: foregroundRepo,
-            id: 123,
-            resultset: {id: 1, push_timestamp: 1396899074}
+            job_guids: {
+                123: {
+                    result_set_id: 1,
+                    result_set_push_timestamp: 1396899074
+                }
+            }
         };
 
         $httpBackend.whenGET(foregroundPrefix + '/jobs/?job_guid__in=123').respond(
@@ -128,8 +148,12 @@ describe('ThResultSetModel', function(){
     it('should update an existing job in the foreground repo to its new status', function() {
         var data = {
             branch: foregroundRepo,
-            id: 590604,
-            resultset: {id: 1, push_timestamp: 1396899074}
+            job_guids: {
+                590604: {
+                    result_set_id: 1,
+                    result_set_push_timestamp: 1396899074
+                }
+            }
         };
 
         $httpBackend.whenGET(foregroundPrefix + '/jobs/?job_guid__in=590604').respond(
@@ -150,8 +174,12 @@ describe('ThResultSetModel', function(){
     it('should add new job to the background repo', function() {
         var data = {
             branch: backgroundRepo,
-            id: 123,
-            resultset: {id: 10, push_timestamp: 1396899074}
+            job_guids: {
+                123: {
+                    result_set_id: 10,
+                    result_set_push_timestamp: 1396899074
+                }
+            }
         };
 
         $httpBackend.whenGET(backgroundPrefix + '/jobs/?job_guid__in=123').respond(
@@ -172,8 +200,12 @@ describe('ThResultSetModel', function(){
     it('should update an existing job in the background repo to its new status', function() {
         var data = {
             branch: backgroundRepo,
-            id: 590604,
-            resultset: {id: 10, push_timestamp: 1396899074}
+            job_guids: {
+                590604: {
+                    result_set_id: 10,
+                    result_set_push_timestamp: 1396899074
+                }
+            }
         };
 
         $httpBackend.whenGET(backgroundPrefix + '/jobs/?job_guid__in=590604').respond(
