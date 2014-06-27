@@ -46,4 +46,4 @@ def test_get_request_body(jm, eleven_jobs_processed):
         "timestamp": submit_timestamp
     }
 
-    assert req.body == expected, diff(req.body, expected)
+    assert req.body == expected, diff(expected, req.body)

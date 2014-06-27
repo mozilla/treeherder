@@ -57,11 +57,11 @@ BuildbotPerformanceDataArtifactBuilder
 
     def __init__(self, url, builders=None, check_errors=True):
         """
-``url`` - url of the log to be parsed
-``builders`` - ArtifactBuilder instances to generate artifacts.
-In omitted, use defaults.
+        ``url`` - url of the log to be parsed
+        ``builders`` - ArtifactBuilder instances to generate artifacts.
+        In omitted, use defaults.
 
-"""
+        """
 
         self.url = url
         self.artifacts = {}
@@ -89,12 +89,12 @@ In omitted, use defaults.
 
     def parse(self):
         """
-Iterate over each line of the log, running each parser against it.
+        Iterate over each line of the log, running each parser against it.
 
-Stream lines from the gzip file and run each parser against it,
-building the ``artifact`` as we go.
+        Stream lines from the gzip file and run each parser against it,
+        building the ``artifact`` as we go.
 
-"""
+        """
 
         handle = None
         gz_file = None

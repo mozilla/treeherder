@@ -3,7 +3,6 @@ from datadiff import diff
 
 from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
 from treeherder.log_parser.artifactbuilders import BuildbotJobArtifactBuilder
-from treeherder.log_parser.parsers import TalosParser
 
 from ..sampledata import SampleData
 from tests import test_utils

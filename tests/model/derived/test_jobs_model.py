@@ -88,7 +88,7 @@ def test_ingest_running_to_retry_sample_job(jm, refdata, sample_data, initial_da
 
 
     # now we simulate the complete version of the job coming in
-    job['state'] = 'complete'
+    job['state'] = 'completed'
     job['result'] = 'retry'
     # convert the job_guid to what it would be on a retry from objectstore
     job['job_guid'] = job['job_guid'] + "_" + str(job['end_timestamp'])[-5:]
@@ -125,7 +125,7 @@ def test_ingest_running_to_retry_to_success_sample_job(jm, refdata, sample_data,
     initial_job_id = jl[0]["id"]
 
     # now we simulate the complete RETRY version of the job coming in
-    job['state'] = 'complete'
+    job['state'] = 'completed'
     job['result'] = 'retry'
     # convert the job_guid to what it would be on a retry from objectstore
     job['job_guid'] = job_guid_root + "_" + str(job['end_timestamp'])[-5:]
@@ -135,7 +135,7 @@ def test_ingest_running_to_retry_to_success_sample_job(jm, refdata, sample_data,
 
 
     # now we simulate the complete SUCCESS version of the job coming in
-    job['state'] = 'complete'
+    job['state'] = 'completed'
     job['result'] = 'success'
     # convert the job_guid to the normal root style
     job['job_guid'] = job_guid_root
@@ -166,7 +166,7 @@ def test_ingest_retry_sample_job_no_running(jm, refdata, sample_data, initial_da
     jm.store_result_set_data(sample_resultset)
 
     # complete version of the job coming in
-    job['state'] = 'complete'
+    job['state'] = 'completed'
     job['result'] = 'retry'
     # convert the job_guid to what it would be on a retry from objectstore
     job['job_guid'] = job['job_guid'] + "_" + str(job['end_timestamp'])[-5:]
@@ -335,6 +335,11 @@ def test_store_result_set_data(jm, initial_data, sample_resultset):
 
     # Confirm the data structures returned match what's stored in
     # the database
+    print '<><>EXP'
+    print data['result_set_ids']
+    print '<><>ACT'
+    print result_set_ids
+
     assert data['result_set_ids'] == result_set_ids
     assert data['revision_ids'] == revision_ids
 
@@ -384,3 +389,48 @@ def test_store_performance_artifact(
     jm.disconnect()
 
     assert performance_artifact_signatures == series_signatures
+
+
+def test_remove_existing_jobs_single_existing(jm, sample_data, initial_data, refdata,
+                                     mock_log_parser, sample_resultset):
+    """Remove single existing job prior to loading"""
+
+    job_data = sample_data.job_data[:1]
+    test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset)
+
+    jl = jm.get_job_list(0, 10)
+    print 'JOBLIST before'
+    print json.dumps(jl, indent=4)
+
+    data = jm._remove_existing_jobs(job_data)
+    # print data
+    assert len(data) == 0
+    jl = jm.get_job_list(0, 10)
+    assert len(jl) == 1
+
+
+def test_remove_existing_jobs_one_existing_one_new(jm, sample_data, initial_data, refdata,
+                                     mock_log_parser, sample_resultset):
+    """Remove single existing job prior to loading"""
+
+    job_data = sample_data.job_data[:1]
+    test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset)
+
+    data = jm._remove_existing_jobs(sample_data.job_data[:2])
+
+    assert len(data) == 1
+
+
+def test_ingesting_skip_existing(jm, sample_data, initial_data, refdata,
+                                     mock_log_parser, sample_resultset):
+    """Remove single existing job prior to loading"""
+
+    job_data = sample_data.job_data[:1]
+    test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset)
+
+    jm.load_job_data(sample_data.job_data[:2])
+
+    jl = jm.get_job_list(0, 10)
+    assert len(jl) == 2
+
+
