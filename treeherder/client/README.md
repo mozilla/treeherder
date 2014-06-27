@@ -464,8 +464,8 @@ This is what a Job Info artifact looks like:
 }
 ```
 
-All the elements in the job_details attribute of this artifact have a mandatory title attribute and a set of optional attributes depending on content_type. 
-The content_type drives the way this kind of artifact will be rendered. Here are the possible values:
+All the elements in the job_details attribute of this artifact have a mandatory title attribute and a set of optional attributes depending on ``content_type``. 
+The ``content_type`` drives the way this kind of artifact will be rendered. Here are the possible values:
 
 * **Text** - This is the simplest content type you can render and is the one used by default if the content type
     specified is not recognised or is missing.
