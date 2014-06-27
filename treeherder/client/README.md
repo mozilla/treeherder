@@ -7,7 +7,7 @@ structures supported: job and resultset collections. Both classes have support m
 
 
 Resultset collections contain meta data associated with a github pull request or a push to mercurial or any event that requires tests to be run on a repository.
-The most critical part of each resultset is the `revision_hash`, this is used as an identifier to associate test job data with. It can be any unique string of 50 characters at most. A resultset collection has the following data structure
+The most critical part of each resultset is the `revision_hash`.  This is used as an identifier to associate test job data with. It can be any unique string of 50 characters at most. A resultset collection has the following data structure
 
 ```python
     [
@@ -467,30 +467,22 @@ This is what a Job Info artifact looks like:
 All the elements in the job_details attribute of this artifact have a mandatory title attribute and a set of optional attributes depending on content_type. 
 The content_type drives the way this kind of artifact will be rendered. Here are the possible values:
 
-Text
+* **Text** - This is the simplest content type you can render and is the one used by default if the content type
+    specified is not recognised or is missing.
 
+    This content type renders as:
 
-This is the simplest content type you can render and is the one used by default if the content type
-specified is not recognised or is missing.
+    ```html
+    <label>{{title}}</label><span>{{value}}</span>
+    ```
 
-This content type renders as
+* **Link** - This content type renders as an anchor html tag with the following format:
 
-```html
-<label>{{title}}</label><span>{{value}}</span>
-```
+    ```html
+    {{title}}: <a title="{{value}}" href="{{url}}" target="_blank">{{value}}</a>
+    ```
 
-Link
-
-
-This content type renders as an anchor html tag with the following format:
-
-```html
-{{title}}: <a title="{{value}}" href="{{url}}" target="_blank">{{value}}</a>
-```
-Raw Html
-
-
-The last resource for when you need to show some formatted content.
+* **Raw Html** - The last resource for when you need to show some formatted content.
 
 
 
