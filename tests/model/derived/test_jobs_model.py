@@ -434,32 +434,3 @@ def test_ingesting_skip_existing(jm, sample_data, initial_data, refdata,
     assert len(jl) == 2
 
 
-def xtest_remove_existing_jobs_some_existing(jm, sample_data, initial_data, refdata,
-                                     mock_log_parser, sample_resultset):
-    """Remove single existing job prior to loading"""
-
-    job_data = sample_data.job_data[:1]
-    test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset)
-
-    job_data = copy.deepcopy(sample_data.job_data[:1])
-    job = job_data[0]['job']
-    job_data[0]['revision_hash'] = sample_resultset[0]['revision_hash']
-    job_guid_root = job['job_guid']
-
-    jm.store_result_set_data(sample_resultset)
-
-    job['state'] = 'running'
-    job['result'] = 'unknown'
-    jm.load_job_data(job_data)
-
-    jl = jm.get_job_list(0, 1)
-    initial_job_id = jl[0]["id"]
-
-    # now we simulate the complete RETRY version of the job coming in
-    job['state'] = 'completed'
-    job['result'] = 'retry'
-    # convert the job_guid to what it would be on a retry from objectstore
-    job['job_guid'] = job_guid_root + "_" + str(job['end_timestamp'])[-5:]
-
-    jm.store_job_data(job_data)
-    jm.process_objects(10, raise_errors=True)
