@@ -73,12 +73,10 @@ treeherder.factory('ThResultSetModel', [
             //Set up job update queue
             setInterval(
                 _.bind(processUpdateQueues, $rootScope, repoName),
-                5000
-//                updateQueueInterval
+                updateQueueInterval
                 );
 
             //Set up the socket listener
-            console.log("<><><><>setup the listener");
             thSocket.on(
                 "job",
                 _.bind(processSocketData, $rootScope, repoName)
@@ -100,7 +98,6 @@ treeherder.factory('ThResultSetModel', [
          * fetch.  Fetching a resultset also gets all its jobs, so we don't
          * need to add it to the ``jobUpdateQueue``.
          */
-        console.log("<><><><> socket job event!", data);
         if (data.branch === repoName) {
             _.each(data.job_guids, function(rs, job_guid) {
                 if (rs.result_set_push_timestamp >= repositories[repoName].rsMapOldestTimestamp &&
