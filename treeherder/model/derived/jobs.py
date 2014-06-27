@@ -1223,8 +1223,6 @@ class JobsModel(TreeherderModelBase):
 
         retry_job_guids = []
 
-        status_publisher = JobStatusPublisher(settings.BROKER_URL)
-
         for datum in data:
             # Make sure we can deserialize the json object
             # without raising an exception
@@ -1398,7 +1396,11 @@ class JobsModel(TreeherderModelBase):
                 "result_set_push_timestamp": push_timestamps[loaded_job[self.JOB_PH_RESULT_SET_ID]]
             }
 
-        status_publisher.publish(loaded_job_guids, self.project, 'processed')
+        status_publisher = JobStatusPublisher(settings.BROKER_URL)
+        try:
+            status_publisher.publish(loaded_job_guids, self.project, 'processed')
+        finally:
+            status_publisher.disconnect()
 
     def _remove_existing_jobs(self, data):
         """
