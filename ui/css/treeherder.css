@@ -277,6 +277,8 @@ body {
     float: left;
     width: 7.5em;
     padding-top: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .platform {
