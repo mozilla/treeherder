@@ -479,15 +479,16 @@ This content type renders as
 <label>{{title}}</label><span>{{value}}</span>
 ```
 
-###Link
+Link
+
 
 This content type renders as an anchor html tag with the following format:
 
 ```html
 {{title}}: <a title="{{value}}" href="{{url}}" target="_blank">{{value}}</a>
 ```
+Raw Html
 
-###Raw Html
 
 The last resource for when you need to show some formatted content.
 
