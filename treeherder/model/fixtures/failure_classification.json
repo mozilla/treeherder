@@ -12,7 +12,7 @@
         "pk": 2,
         "model": "model.failureclassification",
         "fields": {
-            "name": "fixed by backout",
+            "name": "fixed by commit",
             "description": "",
             "active_status": "active"
         }
