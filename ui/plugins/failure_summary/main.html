@@ -1,5 +1,5 @@
-<div class="full-height" class="bug-suggestions" ng-controller="BugsPluginCtrl">
-    <ul class="list-unstyled bug-suggestion-list">
+<div class="full-height" ng-controller="BugsPluginCtrl">
+    <ul class="list-unstyled failure-summary-list">
         <li ng-repeat="(error, bug_list) in bugs">
             <strong>{{error}}</strong>
             <span ng-repeat="visible in ['open','closed']">
@@ -27,7 +27,7 @@
             </span>
         </li>
     </ul>
-    <div ng-if="tabs.bug_suggestions.is_loading" class="overlay">
+    <div ng-if="tabs.failure_summary.is_loading" class="overlay">
         <div>
             <span class="fa fa-refresh fa-spin"></span>
         </div>
