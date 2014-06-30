@@ -3,7 +3,13 @@
 // mozilla hosted service
 //window.thServiceDomain = "http://dev.treeherder.mozilla.org";
 
-// local vagrant instance of service
+// window.thServiceDomain holds a reference to backend service
+// this can be one of:
+//
+// -  http://local.treeherder.mozilla.org (local vagrant)
+// -  http://treeherder-dev.allizom.org (dev)
+// -  https://treeherder.allizom.org (stage)
+// -  https://treeherder.mozilla.org (prod)
 window.thServiceDomain = "http://local.treeherder.mozilla.org";
 
 //treeherder.config(['$logProvider', 'ThLogConfigProvider',
