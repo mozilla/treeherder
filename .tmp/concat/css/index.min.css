@@ -7311,18 +7311,18 @@ div#bottom-panel.with-pinboard #bottom-center-panel{
     border-top: none;
 }
 
-#bottom-center-panel  ul.bug-suggestion-list{
+#bottom-center-panel  ul.failure-summary-list{
     padding-left: 0px;
     height:100%;
     overflow: auto;
 }
 
-ul.bug-suggestion-list li{
+ul.failure-summary-list li{
     padding: 1px 0 1px 5px ;
 
 }
 
-ul.bug-suggestion-list li .btn-xs{
+ul.failure-summary-list li .btn-xs{
     font-size: 10px;
 }
 
