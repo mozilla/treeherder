@@ -314,7 +314,7 @@ describe('ThResultSetModel', function(){
                     "full": "false",
                     "format": "json"
                 },
-                "repository": "mozilla-inbound"
+                "repository": "mozilla-central"
             },
             "results": [rs]
         };

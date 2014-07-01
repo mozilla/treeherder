@@ -22,7 +22,7 @@ treeherder.controller('JobsCtrl', [
             $routeParams.repo !== "") {
             $rootScope.repoName = $routeParams.repo;
         } else {
-            $rootScope.repoName = "mozilla-inbound";
+            $rootScope.repoName = "mozilla-central";
         }
 
         // load the list of repos into $rootScope, and set the current repo.

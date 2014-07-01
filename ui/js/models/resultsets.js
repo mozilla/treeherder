@@ -26,6 +26,7 @@ treeherder.factory('ThResultSetModel', [
     var repositories = {};
 
     var updateQueueInterval = 10000;
+    var FAILURE_RESULTS = {"testfailed":1, "busted": 1, "exception": 1}
 
     var addRepository = function(repoName){
         //Initialize a new repository in the repositories structure
@@ -58,6 +59,7 @@ treeherder.factory('ThResultSetModel', [
                 // maps to help finding objects to update/add
                 rsMap:{},
                 jobMap:{},
+                unclassifiedFailureMap: {},
                 jobMapOldestId:null,
                 rsMapOldestTimestamp:null,
                 resultSets:[],
@@ -112,7 +114,10 @@ treeherder.factory('ThResultSetModel', [
                         repositories[repoName].rsUpdateQueue[rs.result_set_id] = true;
                     }
                 } else {
-                    console.log("out of resultset range", repositories[repoName].rsMapOldestTimestamp, rs, job_guid);
+                    $log.debug("Out of resultset range",
+                               repositories[repoName].rsMapOldestTimestamp,
+                               rs,
+                               job_guid);
                 }
             });
         }
@@ -210,6 +215,7 @@ treeherder.factory('ThResultSetModel', [
                         };
                         grMapElement.jobs[key] = jobMapElement;
                         repositories[repoName].jobMap[key] = jobMapElement;
+                        updateUnclassifiedFailureMap(repoName, job_obj);
 
                         // track oldest job id
                         if (!repositories[repoName].jobMapOldestId ||
@@ -226,6 +232,28 @@ treeherder.factory('ThResultSetModel', [
         $log.debug("oldest job: ", repositories[repoName].jobMapOldestId);
         $log.debug("oldest result set: ", repositories[repoName].rsMapOldestTimestamp);
         $log.debug("done mapping:", repositories[repoName].rsMap);
+    };
+
+    var isUnclassifiedFailure = function(job) {
+        if (_.has(FAILURE_RESULTS, job.result)) {
+            return job.failure_classification_id === 1;
+        }
+        return false;
+    };
+
+    var updateUnclassifiedFailureMap = function(repoName, job) {
+        if (isUnclassifiedFailure(job)) {
+            repositories[repoName].unclassifiedFailureMap[job.job_guid] = true;
+        } else {
+            delete repositories[repoName].unclassifiedFailureMap[job.job_guid];
+        }
+    };
+
+    var getUnclassifiedFailureCount = function(repoName) {
+        if (_.has(repositories, repoName)) {
+            return _.size(repositories[repoName].unclassifiedFailureMap);
+        }
+        return 0;
     };
 
     /**
@@ -514,12 +542,14 @@ treeherder.factory('ThResultSetModel', [
             grpMapElement.grp_obj.jobs.push(newJob);
 
             // add job to the jobmap
-            repositories[repoName].jobMap[key] = {
+            var jobMapElement = {
                 job_obj: newJob,
                 parent: grpMapElement
             };
+            repositories[repoName].jobMap[key] = jobMapElement;
 
         }
+        updateUnclassifiedFailureMap(repoName, newJob);
 
         return true;
     };
@@ -677,38 +707,24 @@ treeherder.factory('ThResultSetModel', [
     var api = {
 
         addRepository: addRepository,
-
-        loadRevisions: loadRevisions,
-
-        getResultSetsArray: getResultSetsArray,
-
-        getResultSetsMap: getResultSetsMap,
-
-        getResultSet: getResultSet,
-
-        getJobMap: getJobMap,
-
-        getLoadingStatus: getLoadingStatus,
-
-        getPlatformKey: getPlatformKey,
-
-        getSelectedJob: getSelectedJob,
-
-        setSelectedJob: setSelectedJob,
-
-        isNotLoaded: isNotLoaded,
-
-        fetchNewResultSets: fetchNewResultSets,
-
-        fetchResultSets: fetchResultSets,
-
-        fetchJobs: fetchJobs,
-
         aggregateJobPlatform: aggregateJobPlatform,
-
+        fetchJobs: fetchJobs,
+        fetchNewResultSets: fetchNewResultSets,
+        fetchResultSets: fetchResultSets,
+        getJobMap: getJobMap,
+        getLoadingStatus: getLoadingStatus,
+        getPlatformKey: getPlatformKey,
+        getResultSet: getResultSet,
+        getResultSetsArray: getResultSetsArray,
+        getResultSetsMap: getResultSetsMap,
+        getSelectedJob: getSelectedJob,
+        getUnclassifiedFailureCount: getUnclassifiedFailureCount,
+        isNotLoaded: isNotLoaded,
+        loadRevisions: loadRevisions,
         processSocketData: processSocketData,
-
-        processUpdateQueues: processUpdateQueues
+        processUpdateQueues: processUpdateQueues,
+        setSelectedJob: setSelectedJob,
+        updateUnclassifiedFailureMap: updateUnclassifiedFailureMap
 
     };
 

@@ -9,7 +9,7 @@ describe('JobsCtrl', function(){
 
     beforeEach(inject(function ($injector, $rootScope, $controller
     ) {
-        var projectPrefix = 'http://local.treeherder.mozilla.org/api/project/mozilla-inbound/';
+        var projectPrefix = 'http://local.treeherder.mozilla.org/api/project/mozilla-central/';
 
         $httpBackend = $injector.get('$httpBackend');
         jasmine.getJSONFixtures().fixturesPath='base/test/mock';
@@ -22,19 +22,19 @@ describe('JobsCtrl', function(){
             getJSONFixture('resultset_list.json')
         );
 
-        $httpBackend.whenGET('https://treestatus.mozilla.org/mozilla-inbound?format=json').respond(
+        $httpBackend.whenGET('https://treestatus.mozilla.org/mozilla-central?format=json').respond(
             {
                 "status": "closed",
                 "message_of_the_day": "See the <a href=\"https://wiki.mozilla.org/Tree_Rules/Inbound\">Inbound tree rules</a> before pushing. <a href=\"https://sheriffs.etherpad.mozilla.org/sheriffing-notes\">Sheriff notes/current issues</a>.",
-                "tree": "mozilla-inbound",
+                "tree": "mozilla-central",
                 "reason": "Bustage"
             }
         );
 
-        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-inbound/jobs/0/unclassified_failure_count/').respond(
+        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-central/jobs/0/unclassified_failure_count/').respond(
             {
                 "unclassified_failure_count": 1152,
-                "repository": "mozilla-inbound"
+                "repository": "mozilla-central"
             }
         );
 

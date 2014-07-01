@@ -4,17 +4,26 @@ treeherder.controller('MainCtrl', [
     '$scope', '$rootScope', '$routeParams', '$location', 'ThLog',
     'localStorageService', 'ThRepositoryModel', 'thPinboard',
     'thClassificationTypes', 'thEvents', '$interval',
-    'ThExclusionProfileModel', 'thJobFilters',
+    'ThExclusionProfileModel', 'thJobFilters', 'ThResultSetModel',
     function MainController(
         $scope, $rootScope, $routeParams, $location, ThLog,
         localStorageService, ThRepositoryModel, thPinboard,
         thClassificationTypes, thEvents, $interval,
-        ThExclusionProfileModel, thJobFilters) {
+        ThExclusionProfileModel, thJobFilters, ThResultSetModel) {
 
         var $log = new ThLog("MainCtrl");
 
         thClassificationTypes.load();
         ThRepositoryModel.load();
+
+        $rootScope.getWindowTitle = function() {
+            var ufc = $scope.getUnclassifiedFailureCount($rootScope.repoName);
+            var title = $rootScope.repoName;
+            if (ufc > 0) {
+                title = "[" + ufc + "] " + title;
+            }
+            return title;
+        };
 
         $scope.clearJob = function() {
             // setting the selectedJob to null hides the bottom panel
@@ -113,6 +122,11 @@ treeherder.controller('MainCtrl', [
         };
 
         $scope.getUnclassifiedFailureCount = function(repoName) {
+            // TODO  Not yet honoring excluded jobs
+            return ThResultSetModel.getUnclassifiedFailureCount(repoName);
+        };
+
+        $scope.getTimeWindowUnclassifiedFailureCount = function(repoName) {
             return thJobFilters.getCountExcludedForRepo(repoName);
         };
 
