@@ -5,7 +5,7 @@
             <form role="search" class="form-inline">
                 <span class="btn btn-sm"
                       ng-click="toggleUnclassifiedFailures()"
-                      title="toggle filtering for unclassified failures - count of last 7 days"
+                      title="toggle filtering for unclassified failures - count of loaded failures"
                       ng-class="{'btn-unclassified-failures': getUnclassifiedFailureCount(repoName), 'btn-view-nav': getUnclassifiedFailureCount(repoName)===0}">
                     <span>{{ getUnclassifiedFailureCount(repoName) }}</span> unclassified
                 </span>

@@ -54,7 +54,7 @@ treeherder.directive('thWatchedRepo', [
                     if (scope.adjustedUnclassifiedFailureCount > 0) {
                         scope.titleText = scope.titleText + ' - ' +
                             scope.adjustedUnclassifiedFailureCount +
-                            " unclassified failures in last 8 hours";
+                            " unclassified failures in last 24 hours";
                     }
                     if (scope.repoData.treeStatus.message_of_the_day) {
                         scope.titleText = scope.titleText + ' - ' +
