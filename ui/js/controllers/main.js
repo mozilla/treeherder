@@ -16,6 +16,15 @@ treeherder.controller('MainCtrl', [
         thClassificationTypes.load();
         ThRepositoryModel.load();
 
+        $rootScope.getWindowTitle = function() {
+            var ufc = $scope.getUnclassifiedFailureCount($rootScope.repoName);
+            var title = $rootScope.repoName;
+            if (ufc > 0) {
+                title = "[" + ufc + "] " + title;
+            }
+            return title;
+        };
+
         $scope.clearJob = function() {
             // setting the selectedJob to null hides the bottom panel
             $rootScope.selectedJob = null;
