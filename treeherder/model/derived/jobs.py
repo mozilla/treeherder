@@ -149,8 +149,8 @@ class JobsModel(TreeherderModelBase):
     # 6 months in seconds
     DATA_CYCLE_INTERVAL = 15552000
 
-    # last 8 hours in seconds
-    UNCLASSIFIED_FAILURE_RANGE = 28800
+    # last 24 hours in seconds
+    UNCLASSIFIED_FAILURE_RANGE = 86400
 
     @classmethod
     def create(cls, project, host=None):
