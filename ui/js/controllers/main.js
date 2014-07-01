@@ -4,12 +4,12 @@ treeherder.controller('MainCtrl', [
     '$scope', '$rootScope', '$routeParams', '$location', 'ThLog',
     'localStorageService', 'ThRepositoryModel', 'thPinboard',
     'thClassificationTypes', 'thEvents', '$interval',
-    'ThExclusionProfileModel', 'thJobFilters',
+    'ThExclusionProfileModel', 'thJobFilters', 'ThResultSetModel',
     function MainController(
         $scope, $rootScope, $routeParams, $location, ThLog,
         localStorageService, ThRepositoryModel, thPinboard,
         thClassificationTypes, thEvents, $interval,
-        ThExclusionProfileModel, thJobFilters) {
+        ThExclusionProfileModel, thJobFilters, ThResultSetModel) {
 
         var $log = new ThLog("MainCtrl");
 
@@ -113,6 +113,11 @@ treeherder.controller('MainCtrl', [
         };
 
         $scope.getUnclassifiedFailureCount = function(repoName) {
+            // TODO  Not yet honoring excluded jobs
+            return ThResultSetModel.getUnclassifiedFailureCount(repoName);
+        };
+
+        $scope.getTimeWindowUnclassifiedFailureCount = function(repoName) {
             return thJobFilters.getCountExcludedForRepo(repoName);
         };
 

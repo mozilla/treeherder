@@ -43,7 +43,7 @@ treeherder.directive('thWatchedRepo', [
         link: function(scope, element, attrs) {
 
             scope.updateCount = function() {
-                scope.adjustedUnclassifiedFailureCount = scope.getUnclassifiedFailureCount(
+                scope.adjustedUnclassifiedFailureCount = scope.getTimeWindowUnclassifiedFailureCount(
                     scope.name);
             };
 
@@ -54,7 +54,7 @@ treeherder.directive('thWatchedRepo', [
                     if (scope.adjustedUnclassifiedFailureCount > 0) {
                         scope.titleText = scope.titleText + ' - ' +
                             scope.adjustedUnclassifiedFailureCount +
-                            " unclassified failures in past week";
+                            " unclassified failures in last 8 hours";
                     }
                     if (scope.repoData.treeStatus.message_of_the_day) {
                         scope.titleText = scope.titleText + ' - ' +

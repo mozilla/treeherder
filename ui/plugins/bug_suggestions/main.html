@@ -7,7 +7,7 @@
                     <li class="nowrap" ng-repeat="bug in bug_list[visible] | orderBy:bug.relevance:reverse"
                         ng-show="$index<3 || show_all">
                         <button class="btn btn-xs btn-default"
-                                ng-click="pinboard_service.addBug(bug)"
+                                ng-click="pinboard_service.addBug(bug, selectedJob)"
                                 title="add to list of bugs to associate with all pinned jobs">
                             <i class="fa fa-plus"></i>
                         </button>
