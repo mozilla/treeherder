@@ -1,5 +1,5 @@
-<div class="full-height" class="bug-suggestions" ng-controller="BugsPluginCtrl">
-    <ul class="list-unstyled bug-suggestion-list">
+<div class="full-height" ng-controller="BugsPluginCtrl">
+    <ul class="list-unstyled failure-summary-list">
         <li ng-repeat="(error, bug_list) in bugs">
             <strong>{{error}}</strong>
             <span ng-repeat="visible in ['open','closed']">
@@ -7,7 +7,7 @@
                     <li class="nowrap" ng-repeat="bug in bug_list[visible] | orderBy:bug.relevance:reverse"
                         ng-show="$index<3 || show_all">
                         <button class="btn btn-xs btn-default"
-                                ng-click="pinboard_service.addBug(bug, selectedJob)"
+                                ng-click="pinboard_service.addBug(bug)"
                                 title="add to list of bugs to associate with all pinned jobs">
                             <i class="fa fa-plus"></i>
                         </button>
@@ -27,7 +27,7 @@
             </span>
         </li>
     </ul>
-    <div ng-if="tabs.bug_suggestions.is_loading" class="overlay">
+    <div ng-if="tabs.failure_summary.is_loading" class="overlay">
         <div>
             <span class="fa fa-refresh fa-spin"></span>
         </div>

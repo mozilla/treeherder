@@ -24,7 +24,7 @@ treeherder.controller('BugsPluginCtrl', [
 
             // fetch artifacts only if the job is finished
             if(newValue){
-                $scope.tabs.bug_suggestions.is_loading = true;
+                $scope.tabs.failure_summary.is_loading = true;
                 // if there's a ongoing request, abort it
                 if(timeout_promise !== null){
                     timeout_promise.resolve();
@@ -36,21 +36,21 @@ treeherder.controller('BugsPluginCtrl', [
                     job_id: newValue
                 }, {timeout: timeout_promise})
                 .then(function(response){
-                    // iterate to retrieve the total num of suggestions
+                    // iterate to retrieve the total num of failures
                     angular.forEach(response, function(artifact){
                         var open_closed = artifact.name === "Open bugs" ? "open" : "closed";
-                        angular.forEach(artifact.blob, function(suggestions, error){
+                        angular.forEach(artifact.blob, function(failures, error){
                             if(!_.has($scope.bugs, error)){
                                 var error_prefix_re = /^\d+:\d+:\d+[ ]+(?:DEBUG|INFO|WARNING|ERROR|CRITICAL|FATAL) - [ ]?/;
                                 error = error.replace(error_prefix_re, '');
                                 $scope.bugs[error] = {'open':[], 'closed':[]};
                             }
-                            $scope.bugs[error][open_closed] = suggestions;
+                            $scope.bugs[error][open_closed] = failures;
                         });
                     });
                 })
                 .finally(function(){
-                    $scope.tabs.bug_suggestions.is_loading = false;
+                    $scope.tabs.failure_summary.is_loading = false;
                 });
             }
         };
