@@ -1,8 +1,5 @@
 'use strict';
 
-// mozilla hosted service
-//window.thServiceDomain = "http://dev.treeherder.mozilla.org";
-
 // window.thServiceDomain holds a reference to backend service
 // this can be one of:
 //
