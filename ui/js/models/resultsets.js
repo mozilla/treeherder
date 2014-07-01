@@ -251,7 +251,6 @@ treeherder.factory('ThResultSetModel', [
 
     var getUnclassifiedFailureCount = function(repoName) {
         if (_.has(repositories, repoName)) {
-//            console.log("<><> ufc map", repositories[repoName].unclassifiedFailureMap);
             return _.size(repositories[repoName].unclassifiedFailureMap);
         }
         return 0;
