@@ -17,8 +17,13 @@
                        ng-checked="watchedRepos[repo.name].isWatched"
                        ng-click="toggleRepo(repo.name)">
                 <a href="" class="repo-link"
-                      ng-click="changeRepo(repo.name)">{{repo.name}}
+                   title="add to watch list and view repo"
+                   ng-click="changeRepo(repo.name)"><span class="fa fa-plus"></span>
                 </a>
+                <a href="/ui/#/jobs?repo={{repo.name}}"
+                   title="open repo in new tab"
+                   target="_blank"
+                   class="repo-link">{{repo.name}}</a>
                 <span class="dropdown-toggle"
                         data-toggle="dropdown"
                         title="{{repo.name}} info"
