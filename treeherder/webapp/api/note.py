@@ -13,7 +13,6 @@ from treeherder.model.tasks import unclassified_failure_count
 
 class NoteViewSet(viewsets.ViewSet):
     authentication_classes = (SessionAuthentication,)
-    permission_classes = (IsStaffOrReadOnly,)
 
     """
     This viewset is responsible for the note endpoint.
