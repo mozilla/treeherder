@@ -7,7 +7,7 @@ describe('ThResultSetModel', function(){
         model,
         foregroundRepo = "foreground-repo",
         backgroundRepo = "background-repo",
-        projectPrefix = 'http://local.treeherder.mozilla.org/api/project/',
+        projectPrefix = 'https://treeherder.mozilla.org/api/project/',
         foregroundPrefix = projectPrefix + 'foreground-repo',
         backgroundPrefix = projectPrefix + 'background-repo';
 

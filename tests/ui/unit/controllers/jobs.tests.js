@@ -9,12 +9,12 @@ describe('JobsCtrl', function(){
 
     beforeEach(inject(function ($injector, $rootScope, $controller
     ) {
-        var projectPrefix = 'http://local.treeherder.mozilla.org/api/project/mozilla-central/';
+        var projectPrefix = 'https://treeherder.mozilla.org/api/project/mozilla-central/';
 
         $httpBackend = $injector.get('$httpBackend');
         jasmine.getJSONFixtures().fixturesPath='base/test/mock';
 
-        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/repository/').respond(
+        $httpBackend.whenGET('https://treeherder.mozilla.org/api/repository/').respond(
             getJSONFixture('repositories.json')
         );
 
@@ -31,7 +31,7 @@ describe('JobsCtrl', function(){
             }
         );
 
-        $httpBackend.whenGET('http://local.treeherder.mozilla.org/api/project/mozilla-central/jobs/0/unclassified_failure_count/').respond(
+        $httpBackend.whenGET('https://treeherder.mozilla.org/api/project/mozilla-central/jobs/0/unclassified_failure_count/').respond(
             {
                 "unclassified_failure_count": 1152,
                 "repository": "mozilla-central"
