@@ -4,7 +4,7 @@
             <strong>{{error}}</strong>
             <span ng-repeat="visible in ['open','closed']">
                 <ul class="list-unstyled">
-                    <li class="nowrap" ng-repeat="bug in bug_list[visible] | orderBy:bug.relevance:reverse"
+                    <li ng-repeat="bug in bug_list[visible] | orderBy:bug.relevance:reverse"
                         ng-show="$index<3 || show_all">
                         <button class="btn btn-xs btn-default"
                                 ng-click="pinboard_service.addBug(bug, selectedJob)"
