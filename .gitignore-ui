@@ -51,3 +51,4 @@ webapp/app/js/config/local.conf.js
 docs/_build/
 
 node_modules
+.tmp/
