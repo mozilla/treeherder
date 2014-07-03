@@ -659,6 +659,11 @@ class TreeherderRequest(object):
             raise TreeherderClientError(msg, [])
 
     def post(self, collection_inst):
+        """Shortcut method to send a treeherder collection via POST
+
+        :param collection_inst: a TreeherderCollection instance
+        :returns: an httplib Response object
+        """
 
         if not isinstance(collection_inst, TreeherderCollection):
 
@@ -687,9 +692,14 @@ class TreeherderRequest(object):
                          data=collection_inst.to_json())
 
     def send(self, endpoint, method=None, data=None):
+        """send data to the given endpoint with the given http method.
+
+        :param endpoint: the target endpoint for this request
+        :param method: can be one of GET,POST,PUT
+        :param data: the body of this request
+        :returns: an httplib Response object
         """
-        Send given treeherder collection instance data to server; returns httplib Response.
-        """
+
         if method not in ("GET", "POST", "PUT"):
             msg = "{0}: {1} is not a supported method".format(
                 self.__class__.__name__,
