@@ -133,10 +133,6 @@ treeherder.controller('ResultSetCtrl', [
             thJobFilters.pinAllShownJobs($scope.resultset.id, $scope.resultStatusFilters);
         };
 
-        $scope.revisionUrlCopied = function(revision) {
-            thNotify.send("url to " + revision + " copied to clipboard");
-        };
-
         /**
          * When the user clicks one of the resultStates on the resultset line,
          * then toggle what is showing for just this resultset.
