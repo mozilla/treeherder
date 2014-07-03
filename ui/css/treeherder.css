@@ -288,8 +288,9 @@ body {
 }
 
 .result-set {
-    padding-bottom: 5px;
+    padding-bottom: 0px;
     margin-left: 0;
+    margin-top: 2px;
     white-space: normal;
     width: 100%;
     border-top: 1px solid lightgrey;
@@ -297,7 +298,7 @@ body {
 
 .result-set-title {
     border-top: 1px solid black;
-    padding: 5px 0 5px 0;
+    padding: 2px 0px 0px 0px;
     white-space: nowrap;
 }
 
@@ -310,12 +311,15 @@ body {
 }
 
 .result-set-buttons {
-    width: 203px;
+    width: 205px;
     display: block;
 }
 .revision-text {
     overflow: hidden;
     text-overflow: ellipsis;
+    width: 95px;
+    display: inline-block;
+    vertical-align: middle;
 }
 
 .revision-button {
