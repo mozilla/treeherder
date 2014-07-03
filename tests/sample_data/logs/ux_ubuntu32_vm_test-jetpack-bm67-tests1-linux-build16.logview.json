@@ -110,7 +110,7 @@
                 "finished_linenumber": 227, 
                 "finished": "2013-06-05 13:02:01.869535", 
                 "error_count": 0, 
-                "duration": 16, 
+                "duration": 17, 
                 "order": 6
             }, 
             {
@@ -143,7 +143,7 @@
                 "finished_linenumber": 360, 
                 "finished": "2013-06-05 13:02:02.667440", 
                 "error_count": 0, 
-                "duration": 0, 
+                "duration": 1, 
                 "order": 9
             }, 
             {
@@ -154,7 +154,7 @@
                 "finished_linenumber": 421, 
                 "finished": "2013-06-05 13:02:14.651874", 
                 "error_count": 0, 
-                "duration": 11, 
+                "duration": 12, 
                 "order": 10
             }, 
             {
@@ -278,7 +278,7 @@
                 "finished_linenumber": 11828, 
                 "finished": "2013-06-05 13:10:29.331890", 
                 "error_count": 6, 
-                "duration": 456, 
+                "duration": 457, 
                 "order": 19
             }, 
             {

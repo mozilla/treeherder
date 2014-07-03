@@ -168,7 +168,7 @@ class StepParser(ParserBase):
         secs = (
             td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6
         ) / 10.0**6
-        self.current_step["duration"] = int(secs)
+        self.current_step["duration"] = int(round(secs))
 
     @property
     def steps(self):

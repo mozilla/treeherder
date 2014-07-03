@@ -94,7 +94,7 @@
                 "finished_linenumber": 80631, 
                 "finished": "2013-06-05 13:16:04.014823", 
                 "error_count": 0, 
-                "duration": 24, 
+                "duration": 25, 
                 "order": 3
             }, 
             {
@@ -105,7 +105,7 @@
                 "finished_linenumber": 80635, 
                 "finished": "2013-06-05 13:16:04.963614", 
                 "error_count": 0, 
-                "duration": 0, 
+                "duration": 1, 
                 "order": 4
             }
         ]

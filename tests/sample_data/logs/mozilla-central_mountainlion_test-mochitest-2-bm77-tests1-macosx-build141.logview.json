@@ -30,7 +30,7 @@
                 "finished_linenumber": 36, 
                 "finished": "2013-06-05 12:55:03.579905", 
                 "error_count": 0, 
-                "duration": 0, 
+                "duration": 1, 
                 "order": 1
             }, 
             {
@@ -41,7 +41,7 @@
                 "finished_linenumber": 39, 
                 "finished": "2013-06-05 12:55:05.429410", 
                 "error_count": 0, 
-                "duration": 1, 
+                "duration": 2, 
                 "order": 2
             }, 
             {
@@ -74,7 +74,7 @@
                 "finished_linenumber": 118, 
                 "finished": "2013-06-05 12:55:08.587665", 
                 "error_count": 0, 
-                "duration": 2, 
+                "duration": 3, 
                 "order": 5
             }, 
             {

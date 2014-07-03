@@ -94,7 +94,7 @@
                 "finished_linenumber": 257, 
                 "finished": "2013-06-05 12:52:27.906228", 
                 "error_count": 0, 
-                "duration": 23, 
+                "duration": 24, 
                 "order": 6
             }, 
             {
@@ -116,7 +116,7 @@
                 "finished_linenumber": 373, 
                 "finished": "2013-06-05 12:52:28.689661", 
                 "error_count": 0, 
-                "duration": 0, 
+                "duration": 1, 
                 "order": 8
             }, 
             {
@@ -138,7 +138,7 @@
                 "finished_linenumber": 484, 
                 "finished": "2013-06-05 12:54:02.983974", 
                 "error_count": 0, 
-                "duration": 6, 
+                "duration": 7, 
                 "order": 10
             }, 
             {
@@ -149,7 +149,7 @@
                 "finished_linenumber": 530, 
                 "finished": "2013-06-05 12:54:06.858348", 
                 "error_count": 0, 
-                "duration": 3, 
+                "duration": 4, 
                 "order": 11
             }, 
             {
@@ -226,7 +226,7 @@
                 "finished_linenumber": 761, 
                 "finished": "2013-06-05 12:54:23.359326", 
                 "error_count": 0, 
-                "duration": 0, 
+                "duration": 1, 
                 "order": 18
             }, 
             {
@@ -237,7 +237,7 @@
                 "finished_linenumber": 807, 
                 "finished": "2013-06-05 12:54:55.231690", 
                 "error_count": 0, 
-                "duration": 31, 
+                "duration": 32, 
                 "order": 19
             }, 
             {
@@ -268,7 +268,7 @@
                 "finished_linenumber": 54469, 
                 "finished": "2013-06-05 13:16:04.014823", 
                 "error_count": 0, 
-                "duration": 24, 
+                "duration": 25, 
                 "order": 21
             }, 
             {
@@ -279,7 +279,7 @@
                 "finished_linenumber": 54473, 
                 "finished": "2013-06-05 13:16:04.963614", 
                 "error_count": 0, 
-                "duration": 0, 
+                "duration": 1, 
                 "order": 22
             }
         ]
