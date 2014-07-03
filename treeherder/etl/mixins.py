@@ -129,7 +129,7 @@ class OAuthLoaderMixin(object):
                 oauth_secret=credentials.get('consumer_secret', None)
             )
 
-            response = th_request.send(th_collections[project])
+            response = th_request.post(th_collections[project])
 
             if not response or response.status != 200:
                 message = response.read()

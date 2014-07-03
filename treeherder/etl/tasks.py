@@ -59,7 +59,7 @@ def fetch_push_logs():
         rdm.disconnect()
 
 
-@task(name='fetch-hg-push-logs', time_limit=30)
+@task(name='fetch-hg-push-logs', time_limit=60)
 def fetch_hg_push_log(repo_name, repo_url):
     """
     Run a HgPushlog etl process

@@ -26,8 +26,10 @@ def mock_post_json_data(monkeypatch, jm):
             oauth_key=credentials['consumer_key'],
             oauth_secret=credentials['consumer_secret']
             )
-        signed_uri = tr.get_signed_uri(
-            th_collection.to_json(), tr.get_uri(th_collection)
+        signed_uri = tr.oauth_client.get_signed_uri(
+            th_collection.to_json(),
+            tr.get_uri(th_collection.endpoint_base),
+            "POST"
             )
 
         response = TestApp(application).post_json(

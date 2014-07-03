@@ -1,16 +1,14 @@
 import json
 import itertools
-from datadiff import diff
 from webtest.app import TestApp, AppError
 
-from sampledata import SampleData
 from treeherder.model.derived.refdata import RefDataManager
-from treeherder.etl.mixins import OAuthLoaderMixin
 from treeherder.etl.oauth_utils import OAuthCredentials
 from treeherder.webapp.wsgi import application
 
 from thclient import TreeherderRequest
 from tests.sampledata import SampleData
+
 
 def post_collection(
     project, th_collection, status=None, expect_errors=False,
@@ -37,15 +35,18 @@ def post_collection(
         oauth_secret=credentials['consumer_secret']
         )
 
-    signed_uri = tr.get_signed_uri(
-        th_collection.to_json(), tr.get_uri(th_collection)
-        )
+    signed_uri = tr.oauth_client.get_signed_uri(
+        th_collection.to_json(),
+        tr.get_uri(th_collection.endpoint_base),
+        'POST'
+    )
 
     response = TestApp(application).post_json(
         str(signed_uri), params=th_collection.get_collection_data(), status=status
-        )
+    )
 
     return response
+
 
 def post_job_data(
     project, uri, data, status=None, expect_errors=False):
