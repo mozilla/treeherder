@@ -7,7 +7,7 @@
         "starttime": "1370461908.77\r", 
         "builduid": "11d37c0c73ec4f4aa16b29cbe6481a9f\r", 
         "revision": "e2eecb449eeb\r"
-    },
+    }, 
     "step_data": {
         "all_errors": [
             {
@@ -24,7 +24,7 @@
                 "finished_linenumber": 10, 
                 "finished": "2013-06-05 12:51:48.768393", 
                 "error_count": 0, 
-                "duration": 0.000642, 
+                "duration": 0, 
                 "order": 0
             }, 
             {
@@ -35,7 +35,7 @@
                 "finished_linenumber": 14, 
                 "finished": "2013-06-05 12:51:48.769473", 
                 "error_count": 0, 
-                "duration": 0.000592, 
+                "duration": 0, 
                 "order": 1
             }, 
             {
@@ -51,7 +51,7 @@
                 "finished_linenumber": 42582, 
                 "finished": "2013-06-05 13:15:39.235146", 
                 "error_count": 1, 
-                "duration": 1244.002782, 
+                "duration": 1244, 
                 "order": 2
             }, 
             {
@@ -62,7 +62,7 @@
                 "finished_linenumber": 42628, 
                 "finished": "2013-06-05 13:16:04.014823", 
                 "error_count": 0, 
-                "duration": 24.770278, 
+                "duration": 24, 
                 "order": 3
             }, 
             {
@@ -73,7 +73,7 @@
                 "finished_linenumber": 42632, 
                 "finished": "2013-06-05 13:16:04.963614", 
                 "error_count": 0, 
-                "duration": 0.948209, 
+                "duration": 0, 
                 "order": 4
             }
         ]

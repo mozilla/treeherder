@@ -63,10 +63,9 @@ class HeaderParser(ParserBase):
                 self.artifact[key] = value
 
 
-PATTERN = (" (.*?) \(results: \d+, elapsed: (?:\d+ mins, )?\d+ secs\) "
-               "\(at (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d+)\) ={9}")
-RE_STEP_START = re.compile('={9} Started' + PATTERN)
-RE_STEP_FINISH = re.compile('={9} Finished' + PATTERN)
+PATTERN = '(.*?) \(results: \d+, elapsed: .*?\) \(at (.*?)\)'
+RE_STEP_START = re.compile('={9} Started ' + PATTERN)
+RE_STEP_FINISH = re.compile('={9} Finished ' + PATTERN)
 
 
 class StepParser(ParserBase):
@@ -97,6 +96,7 @@ class StepParser(ParserBase):
     ST_FINISHED = "finished"
     # date format in a step started/finished header
     DATE_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
+
 
     def __init__(self, check_errors=True):
         """Setup the artifact to hold the header lines."""
@@ -168,7 +168,7 @@ class StepParser(ParserBase):
         secs = (
             td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6
         ) / 10.0**6
-        self.current_step["duration"] = secs
+        self.current_step["duration"] = int(secs)
 
     @property
     def steps(self):
