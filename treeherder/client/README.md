@@ -184,7 +184,7 @@ If you want to use `TreeherderResultSetCollection` to build up the resultset dat
     #
     # data structure validation is automatically performed here, if validation
     # fails a TreeherderClientError is raised
-    req.send(trc)
+    req.post(trc)
 ```
 
 At any time in building a data structure, you can examine what has been created by looking at the `data` property.
@@ -264,7 +264,7 @@ If you want to use `TreeherderJobCollection` to build up the job data structures
     #
     # data structure validation is automatically performed here, if validation
     # fails a TreeherderClientError is raised
-    req.send(tjc)
+    req.post(tjc)
 ```
 
 If you want to use `TreeherderArtifactCollection` to build up the job artifacts data structures to send, do something like this.
@@ -298,7 +298,7 @@ If you want to use `TreeherderArtifactCollection` to build up the job artifacts 
     #
     # data structure validation is automatically performed here, if validation
     # fails a TreeherderClientError is raised
-    req.send(tac)
+    req.post(tac)
 ```
 
 If you don't want to use `TreeherderResultCollection` or `TreeherderJobCollection` to build up the data structure
@@ -326,7 +326,7 @@ to send, build the data structures directly and add them to the collection.
         )
 
     # Post the request to treeherder
-    req.send(trc)
+    req.post(trc)
 
     from thclient import TreeherderRequest, TreeherderJobCollection
 
@@ -352,7 +352,7 @@ to send, build the data structures directly and add them to the collection.
     #
     # data structure validation is automatically performed here, if validation
     # fails a TreeherderClientError is raised
-    req.send(tjc)
+    req.post(tjc)
 ```
 
 In the same way, if you don't want to use `TreeherderArtifactCollection` to build up the data structure to send, build the data structures directly and add them to the collection.
@@ -379,7 +379,7 @@ In the same way, if you don't want to use `TreeherderArtifactCollection` to buil
         )
 
     # Post the request to treeherder
-    req.send(tac)
+    req.post(tac)
 ```
 
 ##Job artifacts format
