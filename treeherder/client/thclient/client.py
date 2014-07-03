@@ -683,7 +683,8 @@ class TreeherderRequest(object):
         collection_inst.validate()
 
         return self.send(collection_inst.endpoint_base,
-                         "POST", collection_inst.to_json())
+                         method="POST",
+                         data=collection_inst.to_json())
 
     def send(self, endpoint, method=None, data=None):
         """

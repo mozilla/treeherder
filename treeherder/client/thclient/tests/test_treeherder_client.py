@@ -387,7 +387,7 @@ class TreeherderRequestTest(DataSetup, unittest.TestCase):
         self.assertEqual(mock_send.call_count, 1)
         self.assertEqual(
             tjc.to_json(),
-            mock_send.call_args_list[0][0][2]
+            mock_send.call_args_list[0][1]['data']
             )
 
     @patch.object(TreeherderRequest, 'send')
@@ -413,7 +413,7 @@ class TreeherderRequestTest(DataSetup, unittest.TestCase):
         self.assertEqual(mock_send.call_count, 1)
         self.assertEqual(
             trc.to_json(),
-            mock_send.call_args_list[0][0][2]
+            mock_send.call_args_list[0][1]['data']
             )
 
     @patch.object(TreeherderRequest, 'send')
@@ -439,7 +439,7 @@ class TreeherderRequestTest(DataSetup, unittest.TestCase):
         self.assertEqual(mock_send.call_count, 1)
         self.assertEqual(
             tac.to_json(),
-            mock_send.call_args_list[0][0][2]
+            mock_send.call_args_list[0][1]["data"]
         )
 
     @patch("thclient.client.oauth.generate_nonce")
