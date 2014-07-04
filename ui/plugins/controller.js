@@ -5,13 +5,13 @@ treeherder.controller('PluginCtrl', [
     'thClassificationTypes', 'ThJobModel', 'thEvents', 'dateFilter',
     'numberFilter', 'ThBugJobMapModel', 'thResultStatus', 'thSocket',
     'ThResultSetModel', 'ThLog', '$q', 'thPinboard', 'ThJobArtifactModel',
-    'thBuildApi', 'thNotify',
+    'thBuildApi', 'thNotify', 'ThJobLogUrlModel',
     function PluginCtrl(
         $scope, $rootScope, thUrl, ThJobClassificationModel,
         thClassificationTypes, ThJobModel, thEvents, dateFilter,
         numberFilter, ThBugJobMapModel, thResultStatus, thSocket,
         ThResultSetModel, ThLog, $q, thPinboard, ThJobArtifactModel,
-        thBuildApi, thNotify) {
+        thBuildApi, thNotify, ThJobLogUrlModel) {
 
         var $log = new ThLog("PluginCtrl");
 
@@ -56,6 +56,11 @@ treeherder.controller('PluginCtrl', [
                         });
                         $log.debug("buildapi artifacts", $scope.artifacts);
                     }
+                });
+
+                ThJobLogUrlModel.get_list($scope.job.id)
+                .then(function(data){
+                    $scope.job_log_urls = data;
                 });
 
                 $scope.visibleFields = {
