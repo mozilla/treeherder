@@ -66,7 +66,10 @@ def test_mochitest_pass(initial_data):
         "mozilla-central_mountainlion_test-mochitest-2-bm77-tests1-macosx-build141"
     )
 
-
+def test_duration_gt_1hr(initial_data):
+    do_test(
+        "mozilla-central-win32-pgo-bm85-build1-build111"
+    )
 @slow
 def test_mochitest_fail(initial_data):
     """Process a job with a single log reference."""
