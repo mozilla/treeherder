@@ -63,7 +63,7 @@ class HeaderParser(ParserBase):
                 self.artifact[key] = value
 
 
-PATTERN = ' (.*?) \(.*?\) \(at (.*?)\)'
+PATTERN = ' (.*?) \(results: \d+, elapsed: .*?\) \(at (.*?)\)'
 RE_STEP_START = re.compile('={9} Started' + PATTERN)
 RE_STEP_FINISH = re.compile('={9} Finished' + PATTERN)
 
