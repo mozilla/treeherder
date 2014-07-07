@@ -2,9 +2,12 @@ import urllib2
 import gzip
 import io
 from contextlib import closing
-from .artifactbuilders import (BuildbotLogViewArtifactBuilder,
-                               BuildbotJobArtifactBuilder)
 from django.conf import settings
+
+from .artifactbuilders import (BuildbotLogViewArtifactBuilder,
+                               BuildbotJobArtifactBuilder,
+                               BuildbotPerformanceDataArtifactBuilder)
+
 
 class ArtifactBuilderCollection(object):
     """
@@ -45,15 +48,21 @@ BuildbotJobArtifactBuilder
 * Parsers:
 * ErrorParser
 * TinderboxPrintParser
+
+BuildbotPerformanceDataArtifactBuilder
+-------------
+* Builds an artifact from talos data
+* Parsers:
+* TalosParser
 """
 
     def __init__(self, url, builders=None, check_errors=True):
         """
-``url`` - url of the log to be parsed
-``builders`` - ArtifactBuilder instances to generate artifacts.
-In omitted, use defaults.
+        ``url`` - url of the log to be parsed
+        ``builders`` - ArtifactBuilder instances to generate artifacts.
+        In omitted, use defaults.
 
-"""
+        """
 
         self.url = url
         self.artifacts = {}
@@ -71,7 +80,8 @@ In omitted, use defaults.
                     url=self.url,
                     check_errors=check_errors,
                     ),
-                BuildbotJobArtifactBuilder(self.url)
+                BuildbotJobArtifactBuilder(self.url),
+                BuildbotPerformanceDataArtifactBuilder(self.url)
             ]
 
     def get_log_handle(self, url):
@@ -83,12 +93,12 @@ In omitted, use defaults.
 
     def parse(self):
         """
-Iterate over each line of the log, running each parser against it.
+        Iterate over each line of the log, running each parser against it.
 
-Stream lines from the gzip file and run each parser against it,
-building the ``artifact`` as we go.
+        Stream lines from the gzip file and run each parser against it,
+        building the ``artifact`` as we go.
 
-"""
+        """
 
         handle = None
         gz_file = None
@@ -108,4 +118,9 @@ building the ``artifact`` as we go.
 
                 # gather the artifacts from all builders
                 for builder in self.builders:
-                    self.artifacts[builder.name] = builder.get_artifact()
+                    artifact = builder.get_artifact()
+                    if builder.name == 'talos_data':
+                        if len(artifact[builder.name]) > 0:
+                            self.artifacts[builder.name] = artifact
+                    else:
+                        self.artifacts[builder.name] = artifact

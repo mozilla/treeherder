@@ -1330,4 +1330,20 @@ class RefDataManager(object):
 
         return sh.hexdigest()
 
+    def get_reference_data_for_perf_signature(self, signatures):
+        # use job_id to map to reference data
+        reference_data = {}
 
+        if signatures:
+
+            reference_data_signatures_where_in_clause = [ ','.join( ['%s'] * len(signatures) ) ]
+
+            reference_data = self.dhub.execute(
+                proc="reference.selects.get_reference_data_for_perf_signature",
+                placeholders=signatures,
+                replace=reference_data_signatures_where_in_clause,
+                debug_show=self.DEBUG,
+                key_column='signature',
+                return_type='dict')
+
+        return reference_data

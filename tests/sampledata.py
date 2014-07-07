@@ -17,6 +17,24 @@ class SampleData(object):
 
         return credentials
 
+    @classmethod
+    def get_talos_perf_data(cls):
+        talos_perf_data = []
+        with open("{0}/sample_data/artifacts/performance/talos_perf.json".format(
+            os.path.dirname(__file__))) as f:
+            talos_perf_data = json.loads(f.read())
+
+        return talos_perf_data
+
+    @classmethod
+    def get_b2g_perf_data(cls):
+        b2g_perf_data = []
+        with open("{0}/sample_data/artifacts/performance/b2g_perf.json".format(
+            os.path.dirname(__file__))) as f:
+            b2g_perf_data = json.loads(f.read())
+
+        return b2g_perf_data
+
     def __init__(self):
 
         self.job_data_file = "{0}/sample_data/job_data.txt".format(
@@ -73,4 +91,7 @@ class SampleData(object):
     def get_log_path(self, name):
         """Returns the full path to a log file"""
         return "{0}/{1}".format(self.logs_dir, name)
+
+
+
 

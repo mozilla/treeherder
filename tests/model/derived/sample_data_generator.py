@@ -63,7 +63,7 @@ def job_data(**kwargs):
 
             u"machine": kwargs.pop("machine", u"talos-r3-xp-088"),
 
-            u"state": kwargs.pop("state", u"TODO"),
+            u"state": kwargs.pop("state", u"completed"),
 
             u"result": kwargs.pop("result", 0),
 

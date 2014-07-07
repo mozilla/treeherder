@@ -13,6 +13,7 @@ class EventsPublisher(object):
         self.producer = None
         self.default_routing_key = routing_key
         self.exchange = Exchange("events", type="topic")
+        self.logger = logger
 
     def connect(self):
         self.connection = Connection(self.connection_url)
@@ -25,7 +26,7 @@ class EventsPublisher(object):
             self.producer = None
 
     def log(self, message):
-        logger.info("{0}".format(message))
+        self.logger.info("{0}".format(message))
 
     def publish(self, message, routing_key=None):
 
@@ -50,10 +51,9 @@ class EventsPublisher(object):
 
 class JobStatusPublisher(EventsPublisher):
 
-    def publish(self, job_id, resultset, branch, status):
+    def publish(self, job_guids, branch, status):
         message = {
-            "id": job_id,
-            "resultset": resultset,
+            "job_guids": job_guids,
             "event": "job",
             "branch": branch,
             "status": status

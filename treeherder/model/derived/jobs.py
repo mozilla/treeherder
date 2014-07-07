@@ -1,6 +1,9 @@
 import json
 import MySQLdb
 import time
+import logging
+
+from operator import itemgetter
 
 from _mysql_exceptions import IntegrityError
 
@@ -14,8 +17,17 @@ from treeherder.model.models import (Datasource,
 
 from treeherder.model import utils
 
+from treeherder.events.publisher import JobStatusPublisher
+
+from treeherder.etl.common import get_guid_root
+
 from .base import TreeherderModelBase
 
+from datasource.DataHub import DataHub
+
+from treeherder.etl.perf_data_adapters import TalosDataAdapter
+
+logger = logging.getLogger(__name__)
 
 class JobsModel(TreeherderModelBase):
     """
@@ -47,6 +59,27 @@ class JobsModel(TreeherderModelBase):
     ]
     INCOMPLETE_STATES = ["running", "pending"]
     STATES = INCOMPLETE_STATES + ["completed", "coalesced"]
+
+    # indexes of specific items in the ``job_placeholder`` objects
+    JOB_PH_JOB_GUID = 0
+    JOB_PH_COALESCED_TO_GUID = 2
+    JOB_PH_RESULT_SET_ID = 3
+    JOB_PH_BUILD_PLATFORM_KEY = 4
+    JOB_PH_MACHINE_PLATFORM_KEY = 5
+    JOB_PH_MACHINE_NAME = 6
+    JOB_PH_DEVICE_NAME = 7
+    JOB_PH_OPTION_COLLECTION_HASH = 8
+    JOB_PH_TYPE_KEY = 9
+    JOB_PH_PRODUCT_TYPE = 10
+    JOB_PH_WHO = 11
+    JOB_PH_REASON = 12
+    JOB_PH_RESULT = 13
+    JOB_PH_STATE = 14
+    JOB_PH_START_TIMESTAMP = 16
+    JOB_PH_END_TIMESTAMP = 17
+    JOB_PH_PENDING_AVG = 18
+    JOB_PH_RUNNING_AVG = 19
+
 
     # list of searchable columns, i.e. those who have an index
     # it would be nice to get this directly from the db and cache it
@@ -116,8 +149,8 @@ class JobsModel(TreeherderModelBase):
     # 6 months in seconds
     DATA_CYCLE_INTERVAL = 15552000
 
-    # 1 week in seconds
-    UNCLASSIFIED_FAILURE_RANGE = 604800
+    # last 24 hours in seconds
+    UNCLASSIFIED_FAILURE_RANGE = 86400
 
     @classmethod
     def create(cls, project, host=None):
@@ -800,8 +833,8 @@ class JobsModel(TreeherderModelBase):
             returns:
 
             {
-              revision_hash1:id1,
-              revision_hash2:id2,
+              revision_hash1:{id: id1, push_timestamp: pt1},
+              revision_hash2:{id: id2, push_timestamp: pt2},
               ...
                 }
             """
@@ -1164,7 +1197,12 @@ class JobsModel(TreeherderModelBase):
         ]
 
         """
-        # Insure that we have job data to process
+        # Ensure that we have job data to process
+        if not data:
+            return
+
+        # remove any existing jobs that already have the same state
+        data = self._remove_existing_jobs(data)
         if not data:
             return
 
@@ -1179,12 +1217,11 @@ class JobsModel(TreeherderModelBase):
         artifact_placeholders = []
         coalesced_job_guid_placeholders = []
 
-        # Structures supporting update of job data in SQL
-        update_placeholders = []
-
         # List of json object ids and associated revision_hashes
         # loaded. Used to mark the status complete.
         object_placeholders = []
+
+        retry_job_guids = []
 
         for datum in data:
             # Make sure we can deserialize the json object
@@ -1235,7 +1272,8 @@ class JobsModel(TreeherderModelBase):
                     rh_where_in,
                     job_placeholders,
                     log_placeholders,
-                    artifact_placeholders
+                    artifact_placeholders,
+                    retry_job_guids
                     )
 
                 if 'id' in datum:
@@ -1264,6 +1302,7 @@ class JobsModel(TreeherderModelBase):
         job_update_placeholders = []
         job_guid_list = []
         job_guid_where_in_list = []
+        push_timestamps = {}
 
         for index, job in enumerate(job_placeholders):
 
@@ -1276,19 +1315,44 @@ class JobsModel(TreeherderModelBase):
                 job_guid_where_in_list,
                 job_update_placeholders,
                 result_set_ids,
-                job_eta_times
+                job_eta_times,
+                push_timestamps
                 )
 
         job_id_lookup = self._load_jobs(
             job_placeholders, job_guid_where_in_list, job_guid_list
             )
 
+        # For each of these ``retry_job_guids`` the job_id_lookup will
+        # either contain the retry guid, or the root guid (based on whether we
+        # inserted, or skipped insertion to do an update).  So add in
+        # whichever is missing.
+        for retry_guid in retry_job_guids:
+            retry_guid_root = get_guid_root(retry_guid)
+            lookup_keys = job_id_lookup.keys()
+
+            if retry_guid in lookup_keys:
+                # this retry was inserted in the db at some point
+                if retry_guid_root not in lookup_keys:
+                    # the root isn't there because there was, for some reason,
+                    # never a pending/running version of this job
+                    retry_job = job_id_lookup[retry_guid]
+                    job_id_lookup[retry_guid_root] = retry_job
+
+            elif retry_guid_root in lookup_keys:
+                # if job_id_lookup contains the root, then the insert
+                # will have skipped, so we want to find that job
+                # when looking for the retry_guid for update later.
+                retry_job = job_id_lookup[retry_guid_root]
+                job_id_lookup[retry_guid] = retry_job
+
+
         # Need to iterate over log references separately since they could
         # be a different length. Replace job_guid with id in log url
         # placeholders
         # need also to retrieve the updated status to distinguish between
         # failed and successful jobs
-        job_results = dict((el[-1], el[8]) for el in job_update_placeholders)
+        job_results = dict((el[0], el[9]) for el in job_update_placeholders)
 
         self._load_log_urls(log_placeholders, job_id_lookup,
                             job_results)
@@ -1300,7 +1364,9 @@ class JobsModel(TreeherderModelBase):
         if job_update_placeholders:
             # replace job_guid with job_id
             for row in job_update_placeholders:
-                row[-1] = job_id_lookup[row[-1]]['id']
+                row[-1] = job_id_lookup[
+                    get_guid_root(row[-1])
+                    ]['id']
 
             self.get_jobs_dhub().execute(
                 proc='jobs.updates.update_job_data',
@@ -1318,13 +1384,114 @@ class JobsModel(TreeherderModelBase):
                 proc='jobs.updates.update_coalesced_guids',
                 debug_show=self.DEBUG,
                 placeholders=coalesced_job_guid_placeholders,
-                executemany=True )
+                executemany=True)
+
+        # send socket.io events for the newly loaded jobs
+        # get all the job_guids for the insertions and updates
+        # the 0th element of both lists is the job_guid.
+        loaded_job_guids = {}
+        for loaded_job in job_placeholders:
+            loaded_job_guids[loaded_job[self.JOB_PH_JOB_GUID]] = {
+                "result_set_id": loaded_job[self.JOB_PH_RESULT_SET_ID],
+                "result_set_push_timestamp": push_timestamps[loaded_job[self.JOB_PH_RESULT_SET_ID]]
+            }
+
+        status_publisher = JobStatusPublisher(settings.BROKER_URL)
+        try:
+            status_publisher.publish(loaded_job_guids, self.project, 'processed')
+        finally:
+            status_publisher.disconnect()
+
+    def _remove_existing_jobs(self, data):
+        """
+        Remove jobs from data where we already have them in the same state.
+
+        1. split the incoming jobs into pending, running and complete.
+        2. fetch the ``job_guids`` from the db that are in the same state as they
+           are in ``data``.
+        3. build a new list of jobs in ``new_data`` that are not already in
+           the db and pass that back.  It could end up empty at that point.
+
+        """
+        states = {
+            'pending': [],
+            'running': [],
+            'completed': [],
+        }
+        data_idx = []
+        new_data = []
+        placeholders = []
+        state_clauses = []
+
+        for i, datum in enumerate(data):
+
+            try:
+                if 'json_blob' in datum:
+                    job_struct = JobData.from_json(datum['json_blob'])
+                    job = job_struct['job']
+                else:
+                    job = datum['job']
+
+                job_guid = str(job['job_guid'])
+                states[str(job['state'])].append(job_guid)
+
+                # index this place in the ``data`` object
+                data_idx.append(job_guid)
+
+            except Exception as e:
+                data_idx.append("skipped")
+                # it will get caught later in ``load_job_data``
+                # adding the guid as "skipped" will mean it won't be found
+                # in the returned list of dup guids from the db.
+                # This will cause the bad job to be re-added
+                # to ``new_data`` so that the error can be handled
+                # in ``load_job_data``.
+
+        for state, guids in states.items():
+            if guids:
+                placeholders.append(state)
+                placeholders.extend(guids)
+                state_clauses.append(
+                    "(`state` = %s AND `job_guid` IN ({0}))".format(
+                        ",".join(["%s"] * len(guids))
+                        )
+                    )
+
+        replacement = ' OR '.join(state_clauses)
+
+        if placeholders:
+            existing_guids = self.get_jobs_dhub().execute(
+                proc='jobs.selects.get_job_guids_in_states',
+                placeholders=placeholders,
+                replace=[replacement],
+                key_column='job_guid',
+                return_type='set',
+                debug_show=self.DEBUG,
+                )
+
+            # build a new list of jobs without those we already have loaded
+            for i, guid in enumerate(data_idx):
+                if guid not in existing_guids:
+                    new_data.append(data[i])
+
+        return new_data
+
 
     def _load_ref_and_job_data_structs(
         self, job, revision_hash, revision_hash_lookup,
         unique_revision_hashes, rh_where_in, job_placeholders,
-        log_placeholders, artifact_placeholders
+        log_placeholders, artifact_placeholders, retry_job_guids
         ):
+        """
+        Take the raw job object after etl and convert it to job_placeholders.
+
+        If the job is a ``retry`` the ``job_guid`` will have a special
+        suffix on it.  But the matching ``pending``/``running`` job will not.
+        So we append the suffixed ``job_guid`` to ``retry_job_guids``
+        so that we can update the job_id_lookup later with the non-suffixed
+        ``job_guid`` (root ``job_guid``). Then we can find the right
+        ``pending``/``running`` job and update it with this ``retry`` job.
+        """
 
         # Store revision_hash to support SQL construction
         # for result_set entry
@@ -1378,6 +1545,8 @@ class JobsModel(TreeherderModelBase):
             )
 
         product = job.get('product_name', 'unknown')
+        if len(product.strip()) == 0:
+            product = 'unknown'
         self.refdata_model.add_product(product)
 
         job_guid = job['job_guid']
@@ -1391,6 +1560,9 @@ class JobsModel(TreeherderModelBase):
 
         state = job.get('state', 'unknown')
         state = state[0:25]
+
+        if job.get('result', 'unknown') == 'retry':
+            retry_job_guids.append(job_guid)
 
         build_system_type = job.get('build_system_type', 'buildbot')
 
@@ -1426,7 +1598,8 @@ class JobsModel(TreeherderModelBase):
             self.get_number( job.get('end_timestamp') ),
             0,                      # idx:18, replace with pending_avg_sec
             0,                      # idx:19, replace with running_avg_sec
-            job_guid
+            job_guid,
+            get_guid_root(job_guid) # will be the same except for ``retry`` jobs
             ])
 
         log_refs = job.get('log_references', [])
@@ -1467,68 +1640,104 @@ class JobsModel(TreeherderModelBase):
     def _set_data_ids(
         self, index, job_placeholders, id_lookups,
         job_guid_list, job_guid_where_in_list, job_update_placeholders,
-        result_set_ids, job_eta_times
+        result_set_ids, job_eta_times, push_timestamps
         ):
+        """
+        Supplant ref data with ids and create update placeholders
+
+        Pending jobs should be updated, rather than created.
+
+        ``job_placeholders`` are used for creating new jobs.
+
+        ``job_update_placeholders`` are used for updating existing non-complete
+        jobs
+        """
 
         # Replace reference data with their ids
-        job_guid = job_placeholders[index][0]
-        job_coalesced_to_guid = job_placeholders[index][2]
-        revision_hash = job_placeholders[index][3]
-        build_platform_key = job_placeholders[index][4]
-        machine_platform_key = job_placeholders[index][5]
-        machine_name = job_placeholders[index][6]
-        device_name = job_placeholders[index][7]
-        option_collection_hash = job_placeholders[index][8]
-        job_type_key = job_placeholders[index][9]
-        product_type = job_placeholders[index][10]
-        who = job_placeholders[index][11]
-        reason = job_placeholders[index][12]
-        result = job_placeholders[index][13]
-        job_state = job_placeholders[index][14]
-        submit_timestamp = job_placeholders[index][15]
-        start_timestamp = job_placeholders[index][16]
-        end_timestamp = job_placeholders[index][17]
+        job_guid = job_placeholders[index][
+            self.JOB_PH_JOB_GUID]
+        job_coalesced_to_guid = job_placeholders[index][
+            self.JOB_PH_COALESCED_TO_GUID]
+        revision_hash = job_placeholders[index][
+            self.JOB_PH_RESULT_SET_ID]
+        build_platform_key = job_placeholders[index][
+            self.JOB_PH_BUILD_PLATFORM_KEY]
+        machine_platform_key = job_placeholders[index][
+            self.JOB_PH_MACHINE_PLATFORM_KEY]
+        machine_name = job_placeholders[index][
+            self.JOB_PH_MACHINE_NAME]
+        device_name = job_placeholders[index][
+            self.JOB_PH_DEVICE_NAME]
+        option_collection_hash = job_placeholders[index][
+            self.JOB_PH_OPTION_COLLECTION_HASH]
+        job_type_key = job_placeholders[index][self.JOB_PH_TYPE_KEY]
+        product_type = job_placeholders[index][self.JOB_PH_PRODUCT_TYPE]
+        who = job_placeholders[index][self.JOB_PH_WHO]
+        reason = job_placeholders[index][self.JOB_PH_REASON]
+        result = job_placeholders[index][self.JOB_PH_RESULT]
+        job_state = job_placeholders[index][self.JOB_PH_STATE]
+        start_timestamp = job_placeholders[index][self.JOB_PH_START_TIMESTAMP]
+        end_timestamp = job_placeholders[index][self.JOB_PH_END_TIMESTAMP]
 
         # Load job_placeholders
 
         # replace revision_hash with id
-        job_placeholders[index][3] = result_set_ids[revision_hash]['id']
+        result_set = result_set_ids[revision_hash]
+        job_placeholders[index][
+            self.JOB_PH_RESULT_SET_ID] = result_set['id']
+        push_timestamps[result_set['id']] = result_set['push_timestamp']
 
         # replace build_platform_key with id
         build_platform_id = id_lookups['build_platforms'][build_platform_key]['id']
-        job_placeholders[index][4] = build_platform_id
+        job_placeholders[index][
+            self.JOB_PH_BUILD_PLATFORM_KEY] = build_platform_id
 
         # replace machine_platform_key with id
         machine_platform_id = id_lookups['machine_platforms'][machine_platform_key]['id']
-        job_placeholders[index][5] = machine_platform_id
+        job_placeholders[index][
+            self.JOB_PH_MACHINE_PLATFORM_KEY] = machine_platform_id
 
         # replace machine with id
-        job_placeholders[index][6] = id_lookups['machines'][machine_name]['id']
+        job_placeholders[index][
+            self.JOB_PH_MACHINE_NAME] = id_lookups['machines'][machine_name]['id']
 
-        job_placeholders[index][7] = id_lookups['devices'][device_name]['id']
+        job_placeholders[index][
+            self.JOB_PH_DEVICE_NAME] = id_lookups['devices'][device_name]['id']
 
         # replace job_type with id
         job_type_id = id_lookups['job_types'][job_type_key]['id']
-        job_placeholders[index][9] = job_type_id
+        job_placeholders[index][self.JOB_PH_TYPE_KEY] = job_type_id
 
         # replace product_type with id
-        job_placeholders[index][10] = id_lookups['products'][product_type]['id']
+        job_placeholders[index][
+            self.JOB_PH_PRODUCT_TYPE] = id_lookups['products'][product_type]['id']
 
 
         job_guid_list.append(job_guid)
+
+        # for retry jobs, we may have a different job_guid than the root of job_guid
+        # because retry jobs append a suffix for uniqueness (since the job_guid
+        # won't be unique due to them all having the same request_id and request_time.
+        # But there may be a ``pending`` or ``running`` job that this retry
+        # should be updating, so make sure to add the root ``job_guid`` as well.
+        job_guid_root = get_guid_root(job_guid)
+        if job_guid != job_guid_root:
+            job_guid_list.append(job_guid_root)
+
         job_guid_where_in_list.append('%s')
 
         reference_data_signature = job_placeholders[index][1]
         pending_avg_sec = job_eta_times.get(reference_data_signature, {}).get('pending', 0)
         running_avg_sec = job_eta_times.get(reference_data_signature, {}).get('running', 0)
 
-        job_placeholders[index][18] = pending_avg_sec
-        job_placeholders[index][19] = running_avg_sec
+        job_placeholders[index][self.JOB_PH_PENDING_AVG] = pending_avg_sec
+        job_placeholders[index][self.JOB_PH_RUNNING_AVG] = running_avg_sec
 
         # Load job_update_placeholders
         if job_state != 'pending':
 
             job_update_placeholders.append([
+                job_guid,
                 job_coalesced_to_guid,
                 result_set_ids[revision_hash]['id'],
                 id_lookups['machines'][machine_name]['id'],
@@ -1542,7 +1751,7 @@ class JobsModel(TreeherderModelBase):
                 start_timestamp,
                 end_timestamp,
                 job_state,
-                job_guid
+                get_guid_root(job_guid)
                 ] )
 
     def _load_jobs(
@@ -1674,6 +1883,166 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG,
             placeholders=artifact_placeholders,
             executemany=True)
+
+    def get_job_signatures_from_ids(self, job_ids):
+
+        job_data = {}
+
+        if job_ids:
+
+            jobs_signatures_where_in_clause = [ ','.join( ['%s'] * len(job_ids) ) ]
+
+            job_data = self.get_jobs_dhub().execute(
+                proc='jobs.selects.get_signature_list_from_job_ids',
+                debug_show=self.DEBUG,
+                replace=jobs_signatures_where_in_clause,
+                key_column='job_guid',
+                return_type='dict',
+                placeholders=job_ids)
+
+        return job_data
+
+    def store_performance_artifact(
+        self, job_ids, performance_artifact_placeholders):
+        """
+        Store the performance data
+        """
+
+        # Retrieve list of job signatures associated with the jobs
+        job_data = self.get_job_signatures_from_ids(job_ids)
+
+        job_ref_data_signatures = set()
+        map(
+            lambda job_guid: job_ref_data_signatures.add(
+                job_data[job_guid]['signature']
+                ),
+            job_data.keys()
+            )
+
+        # Retrieve associated data in reference_data_signatures
+        reference_data = self.refdata_model.get_reference_data_for_perf_signature(
+            list(job_ref_data_signatures))
+
+        tda = TalosDataAdapter()
+
+        for perf_data in performance_artifact_placeholders:
+
+            job_guid = perf_data["job_guid"]
+
+            job_id = job_data.get(
+                perf_data['job_guid'], {}
+                ).get('id', None)
+
+            ref_data_signature = job_data[job_guid]['signature']
+            ref_data = reference_data[ ref_data_signature ]
+
+            if 'signature' in ref_data:
+                del ref_data['signature']
+
+            # adapt and load data into placeholder structures
+            tda.adapt_and_load(ref_data, job_data, perf_data)
+
+        self.get_jobs_dhub().execute(
+            proc="jobs.inserts.set_performance_artifact",
+            debug_show=self.DEBUG,
+            placeholders=tda.performance_artifact_placeholders,
+            executemany=True)
+
+        self.get_jobs_dhub().execute(
+            proc='jobs.inserts.set_series_signature',
+            debug_show=self.DEBUG,
+            placeholders=tda.signature_property_placeholders,
+            executemany=True)
+
+        tda.submit_tasks(self.project)
+
+    def store_performance_series(
+        self, t_range, series_type, signature, series_data):
+
+        lock_string = "sps_{0}_{1}_{2}".format(
+            t_range, series_type, signature)
+
+        # Use MySQL GETLOCK function to gaurd against concurrent celery tasks
+        # overwriting each other's blobs. The lock incorporates the time
+        # interval and signature combination and is specific to a single
+        # json blob.
+        lock = self.get_jobs_dhub().execute(
+            proc='generic.locks.get_lock',
+            debug_show=self.DEBUG,
+            placeholders=[lock_string, 60])
+
+        if lock[0]['lock'] != 1:
+            logger.error(
+                'store_performance_series lock_string, {0}, timed out!'
+                ).format(lock_string)
+            return
+
+        try:
+            now_timestamp = int(time.time())
+
+            # If we don't have this t_range/signature combination create it
+            series_data_json = json.dumps(series_data)
+            insert_placeholders = [
+                t_range, signature, series_type, now_timestamp,
+                series_data_json, t_range, signature
+                ]
+
+            self.get_jobs_dhub().execute(
+                proc='jobs.inserts.set_performance_series',
+                debug_show=self.DEBUG,
+                placeholders=insert_placeholders)
+
+            # Retrieve and update the series
+            performance_series = self.get_jobs_dhub().execute(
+                proc='jobs.selects.get_performance_series',
+                debug_show=self.DEBUG,
+                placeholders=[t_range, signature])
+
+            db_series_json = performance_series[0]['blob']
+
+            # If they're equal this was the first time the t_range
+            # and signature combination was stored, so there's nothing to
+            # do
+            if series_data_json != db_series_json:
+
+                series = json.loads(db_series_json)
+                push_timestamp_limit = now_timestamp - int(t_range)
+
+                series.extend(series_data)
+
+                sorted_series = sorted(
+                    series, key=itemgetter('result_set_id'), reverse=True
+                )
+
+                filtered_series = filter(
+                    lambda d: d['push_timestamp'] >= push_timestamp_limit,
+                    sorted_series
+                )
+
+                if filtered_series:
+
+                    filtered_series_json = json.dumps(filtered_series)
+                    update_placeholders = [
+                        now_timestamp, filtered_series_json,
+                        t_range, signature
+                    ]
+
+                    self.get_jobs_dhub().execute(
+                        proc='jobs.updates.update_performance_series',
+                        debug_show=self.DEBUG,
+                        placeholders=update_placeholders)
+
+        except Exception as e:
+
+            raise e
+
+        finally:
+            # Make sure we release the lock no matter what errors
+            # are generated
+            self.get_jobs_dhub().execute(
+                proc='generic.locks.release_lock',
+                debug_show=self.DEBUG,
+                placeholders=[lock_string])
 
     def _load_job_artifacts(self, artifact_placeholders, job_id_lookup):
         """

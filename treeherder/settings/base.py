@@ -1,11 +1,17 @@
 # Django settings for webapp project.
 import os
+import sys
 from treeherder import path
 
 # needed to setup celery
 import djcelery
 from celery.schedules import crontab
 djcelery.setup_loader()
+
+# Insure the vendor libraries are added to the python path
+# in production
+sys.path.append( path('..', 'vendor') )
+
 
 # These settings can all be optionally set via env vars, or in local.py:
 
@@ -18,12 +24,21 @@ TREEHERDER_DATABASE_PORT = os.environ.get("TREEHERDER_DATABASE_PORT", "")
 TREEHERDER_RO_DATABASE_USER     = os.environ.get("TREEHERDER_RO_DATABASE_USER", "TREEHERDER_DATABASE_USER")
 TREEHERDER_RO_DATABASE_PASSWORD = os.environ.get("TREEHERDER_RO_DATABASE_PASSWORD", "TREEHERDER_DATABASE_PASSWORD")
 
-TREEHERDER_MEMCACHED = os.environ.get("TREEHERDER_MEMCACHED", "").strip(',').split(',')
+TREEHERDER_MEMCACHED = os.environ.get("TREEHERDER_MEMCACHED", "")
 TREEHERDER_MEMCACHED_KEY_PREFIX = os.environ.get("TREEHERDER_MEMCACHED_KEY_PREFIX", "treeherder")
 DEBUG = os.environ.get("TREEHERDER_DEBUG", False)
 
 TREEHERDER_REQUEST_PROTOCOL = os.environ.get("TREEHERDER_REQUEST_PROTOCOL", "http")
 TREEHERDER_REQUEST_HOST = os.environ.get("TREEHERDER_REQUEST_HOST", "local.treeherder.mozilla.org")
+
+TREEHERDER_PERF_SERIES_TIME_RANGES = [
+    { "seconds":86400, "days":1 },
+    { "seconds":604800, "days":7 },
+    { "seconds":1209600, "days":14 },
+    { "seconds":2592000, "days":30 },
+    { "seconds":5184000, "days":60 },
+    { "seconds":7776000, "days":90 },
+]
 
 RABBITMQ_USER = os.environ.get("TREEHERDER_RABBITMQ_USER", "")
 RABBITMQ_PASSWORD = os.environ.get("TREEHERDER_RABBITMQ_PASSWORD", "")
@@ -243,10 +258,13 @@ DATABASES = {
     }
 }
 
+# TREEHERDER_MEMCACHED is a string of comma-separated address:port pairs
+MEMCACHED_LOCATION = TREEHERDER_MEMCACHED.strip(',').split(',')
+
 CACHES = {
     "default": {
         "BACKEND": "treeherder.cache.MemcachedCache",
-        "LOCATION": TREEHERDER_MEMCACHED,
+        "LOCATION": MEMCACHED_LOCATION,
         "TIMEOUT": 0,
         # bumping this is effectively equivalent to restarting memcached
         "VERSION": 1,

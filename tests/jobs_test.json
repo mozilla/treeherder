@@ -67,7 +67,7 @@
             "host": "master_host"
         },
         "result_set_ids": {
-            "sql": "SELECT `id`, `revision_hash` FROM `result_set`",
+            "sql": "SELECT `id`, `push_timestamp`, `revision_hash` FROM `result_set`",
             "host": "master_host"
         }
     },

@@ -1,5 +1,5 @@
 from .parsers import (ErrorParser, TinderboxPrintParser,
-                      HeaderParser, StepParser)
+                      HeaderParser, StepParser, TalosParser)
 
 
 class ArtifactBuilderBase(object):
@@ -57,7 +57,7 @@ class BuildbotJobArtifactBuilder(ArtifactBuilderBase):
         """Construct a job artifact builder."""
         super(BuildbotJobArtifactBuilder, self).__init__(url)
         self.parsers = [
-            TinderboxPrintParser(),
+            TinderboxPrintParser()
         ]
         self.name = "Job Info"
 
@@ -73,3 +73,14 @@ class BuildbotLogViewArtifactBuilder(ArtifactBuilderBase):
             StepParser(check_errors=check_errors)
         ]
         self.name = "Structured Log"
+
+class BuildbotPerformanceDataArtifactBuilder(ArtifactBuilderBase):
+    """Makes the artifact for performance data."""
+
+    def __init__(self, url=None, check_errors=True):
+        """Construct artifact builder for the log viewer"""
+        super(BuildbotPerformanceDataArtifactBuilder, self).__init__(url)
+        self.parsers = [
+            TalosParser()
+        ]
+        self.name = "talos_data"
