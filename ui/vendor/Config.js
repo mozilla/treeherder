@@ -10,6 +10,8 @@ var Config = {
   loadInterval: 120, // seconds
   goBackPushes: 10,
   maxChangesets: 20,
+  // Max length of the title prefix added to certain pages (eg Try).
+  titlePrefixLimit: 70,
   // By default the server-side components at '<location of index.html> + php/'
   // are used - unless index.html is opened from the local filesystem (in which
   // case we default to prodBaseURL, for easy client-side testing). To override
@@ -59,6 +61,12 @@ var Config = {
     "Gaia-Try": {
       primaryRepo: "integration/gaia-try",
       buildbotBranch: "gaia-try",
+      isTry: true,
+    },
+    "Staging-Gaia-Try": {
+      primaryRepo: "users/jford_mozilla.com/gaia-try",
+      buildbotBranch: "staging-gaia-try",
+      isTry: true,
     },
     "Mozilla-Aurora": {
       primaryRepo: "releases/mozilla-aurora",
@@ -88,18 +96,6 @@ var Config = {
     "Mozilla-B2g28-v1.3t": {
       primaryRepo: "releases/mozilla-b2g28_v1_3t",
       buildbotBranch: "mozilla-b2g28_v1_3t",
-    },
-    "Mozilla-B2g26-v1.2": {
-      primaryRepo: "releases/mozilla-b2g26_v1_2",
-      buildbotBranch: "mozilla-b2g26_v1_2",
-    },
-    "Mozilla-B2g18": {
-      primaryRepo: "releases/mozilla-b2g18",
-      buildbotBranch: "mozilla-b2g18",
-    },
-    "Mozilla-B2g18-v1.1.0hd": {
-      primaryRepo: "releases/mozilla-b2g18_v1_1_0_hd",
-      buildbotBranch: "mozilla-b2g18_v1_1_0_hd",
     },
     // Project/team trees
     "Jetpack": {
@@ -233,6 +229,10 @@ var Config = {
     }
   },
   groupedMachineTypes: {
+    "Dolphin Device Image": ["Dolphin Device Image Build",
+                             "Dolphin Device Image Build (Engineering)",
+                             "Dolphin Device Image Nightly",
+                             "Dolphin Device Image Nightly (Engineering)"],
     "Flame Device Image": ["Flame Device Image Build",
                            "Flame Device Image Build (Engineering)",
                            "Flame Device Image Nightly",
@@ -279,11 +279,14 @@ var Config = {
                   "Mochitest DevTools Browser Chrome",
                   "Mochitest Metro Browser Chrome",
                   "Mochitest Other",
+                  "Webapprt Content",
+                  "Webapprt Chrome",
                   "Robocop"],
     "Mochitest e10s": ["Mochitest e10s",
                        "Mochitest e10s Browser Chrome",
                        "Mochitest e10s DevTools Browser Chrome",
                        "Mochitest e10s Other"],
+    "Mochitest OOP": ["Mochitest OOP"],
     "Reftest": ["Crashtest",
                 "Crashtest IPC",
                 "JSReftest",
@@ -294,6 +297,7 @@ var Config = {
     "Reftest e10s": ["Crashtest e10s",
                      "JSReftest e10s",
                      "Reftest e10s"],
+    "Reftest Sanity OOP": ["Reftest Sanity OOP"],
     "SpiderMonkey": ["SpiderMonkey ARM Simulator Build",
                      "SpiderMonkey DTrace Build",
                      "SpiderMonkey Fail-On-Warnings Build",
@@ -334,7 +338,7 @@ var Config = {
     "windows2012-64": "Windows 2012 x64",
     "android-2-2-armv6": "Android 2.2 Armv6",
     "android-2-2": "Android 2.2",
-    "android-2-2-noion": "Android 2.2 NoIon",
+    "android-2-3-armv6": "Android 2.3 Armv6",
     "android-2-3": "Android 2.3",
     "android-4-0": "Android 4.0",
     "android-4-2-x86": "Android 4.2 x86",
@@ -346,6 +350,10 @@ var Config = {
     "b2g-emu-jb": "B2G JB Emulator",
     "b2g-emu-kk": "B2G KK Emulator",
     "b2g-device-image" : "B2G Device Image",
+    "mulet-linux32" : "Mulet Linux",
+    "mulet-linux64" : "Mulet Linux x64",
+    "mulet-osx": "Mulet OS X",
+    "mulet-win32": "Mulet Windows",
     "other": "Other",
   },
   buildNames: {
@@ -365,7 +373,7 @@ var Config = {
     // ** Nightly Builds **
     "Nightly" : "N",
     "DXR Index Build" : "Dxr",
-    "Valgrind Nightly": "V",
+    "Valgrind Build": "V",
     "XULRunner Nightly" : "Xr",
     // ** Special Builds **
     // If we start doing debug ASan tests, please kill these special build types.
@@ -377,8 +385,14 @@ var Config = {
     "L10n Nightly" : "N",
     "L10n Repack": "L10n",
     "B2G Emulator Image Build": "B",
+    "B2G Emulator Image Non-Unified Build": "Bn",
     "B2G Emulator Image Nightly": "N",
     // B2G device image builds (grouped by device in the UI)
+    "Dolphin Device Image": "Dolphin",
+    "Dolphin Device Image Build": "B",
+    "Dolphin Device Image Build (Engineering)": "Be",
+    "Dolphin Device Image Nightly": "N",
+    "Dolphin Device Image Nightly (Engineering)": "Ne",
     "Flame Device Image": "Flame",
     "Flame Device Image Build": "B",
     "Flame Device Image Build (Engineering)": "Be",
@@ -444,7 +458,10 @@ var Config = {
     "Mochitest e10s Browser Chrome" : "bc",
     "Mochitest e10s DevTools Browser Chrome" : "dt",
     "Mochitest e10s Other" : "oth",
+    "Mochitest OOP": "M-oop",
     "Robocop" : "rc",
+    "Webapprt Content": "w",
+    "Webapprt Chrome": "wc",
     "Crashtest" : "C",
     "Crashtest e10s" : "C",
     "Crashtest IPC" : "Cipc",
@@ -452,6 +469,7 @@ var Config = {
     "JSReftest e10s" : "J",
     "Reftest" : "R",
     "Reftest e10s" : "R-e10s",
+    "Reftest Sanity OOP" : "R-oop",
     "Reftest IPC" : "Ripc",
     "Reftest OMTC" : "Ro",
     "Reftest Unaccelerated" : "Ru",
@@ -459,9 +477,12 @@ var Config = {
     "CPP Unit Tests" : "Cpp",
     "JIT Tests" : "Jit",
     "Jetpack SDK Test" : "JP",
+    "Gaia Unit Test OOP" : "G-oop",
     "Gaia Unit Test" : "G",
     "Gaia Build Test" : "Gb",
+    "Gaia Integration Test OOP" : "Gi-oop",
     "Gaia Integration Test" : "Gi",
+    "Gaia UI Test OOP" : "Gu-oop",
     "Gaia UI Test" : "Gu",
     "Linter Test" : "Li",
     "Marionette Framework Unit Tests" : "Mn",
@@ -469,6 +490,7 @@ var Config = {
     "Android x86 Test Set" : "S",
     "Android x86 Test Combos" : "Sets",
     "W3C Web Platform Tests" : "W",
+    "W3C Web Platform Reftests" : "Wr",
     "XPCShell" : "X",
     "Mozmill" : "Z",
     // Display talos perf tests after correctness tests.
