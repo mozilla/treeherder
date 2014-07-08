@@ -68,20 +68,19 @@ def deploy_web_app(ctx):
     ctx.remote( '{0}/service gunicorn restart'.format(settings.SBIN_DIR) )
     ctx.remote( '{0}/service socketio-server restart'.format(settings.SBIN_DIR) )
 
+
 @hostgroups(
     settings.CELERY_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
 def deploy_workers(ctx):
     """Call the remote update script to push changes to workers."""
     ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
 
-    # REMOVE: once we resolve the zombie issue this should be removed
-    ctx.local(
-        '{0}/pkill -f "python manage.py celery worker*"'.format(settings.BIN_DIR))
-
-    # Restarts celery worker on the celery hostgroup to listen to the
-    # celery queues: log_parser_fail,log_parser
-    ctx.remote(
-        '{0}/service celery-worker-gevent restart'.format(settings.SBIN_DIR))
+    # Send a warm shutdown event to all the workers in the cluster.
+    # The workers will finish their current tasks and safely shutdown.
+    # Supervisord will then start new workers to replace them.
+    # We need to do this because supervisorctl generates zombies
+    # everytime you ask it to restart a worker.
+    ctx.local("python2.6 manage.py shutdown_workers --settings {0}".format(th_settings))
 
 
 def deploy_admin_node(ctx):
