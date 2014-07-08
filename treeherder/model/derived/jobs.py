@@ -1884,6 +1884,63 @@ class JobsModel(TreeherderModelBase):
             placeholders=artifact_placeholders,
             executemany=True)
 
+    def get_performance_series_from_signatures(self, signatures, interval_seconds):
+
+        repl = [ ','.join( ['%s'] * len(signatures) ) ]
+        placeholders = signatures
+        placeholders.append(str(interval_seconds))
+
+        data = self.get_jobs_dhub().execute(
+            proc="jobs.selects.get_performance_series_from_signatures",
+            debug_show=self.DEBUG,
+            placeholders=placeholders,
+            replace=repl)
+
+        data = [{"series_signature": x["series_signature"],
+                 "blob": json.loads(x["blob"])} for x in data]
+
+        return data
+
+
+    def get_signatures_from_properties(self, props):
+
+        props_where_repl = [
+            ' OR '.join(['(`property`=%s AND `value`=%s)'] * len(props)),
+            ' AND '.join(['SUM(`property`=%s AND `value`=%s) > 0'] * len(props))]
+
+        # convert to 1 dimentional list
+        props = [el for x in props.items() for el in x]
+        props.extend(props)
+
+        signatures = self.get_jobs_dhub().execute(
+            proc="jobs.selects.get_signatures_from_properties",
+            debug_show=self.DEBUG,
+            placeholders=props,
+            replace=props_where_repl)
+
+        if not signatures:
+            return {"success": False}
+
+        signatures = [x.get("signature") for x in signatures]
+
+        signatures_repl = [ ','.join( ['%s'] * len(signatures) ) ]
+
+        properties = self.get_jobs_dhub().execute(
+            proc="jobs.selects.get_all_properties_of_signatures",
+            debug_show=self.DEBUG,
+            placeholders=signatures,
+            replace=signatures_repl)
+
+
+        ret = {}
+        for d in properties:
+            sig = d["signature"]
+
+            ret[sig] = ret[sig] if sig in ret else {}
+            ret[sig][d["property"]] = d["value"]
+
+        return ret
+
     def get_job_signatures_from_ids(self, job_ids):
 
         job_data = {}

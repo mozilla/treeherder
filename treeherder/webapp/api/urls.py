@@ -1,6 +1,7 @@
 from django.conf.urls import patterns, include, url
 from treeherder.webapp.api import (refdata, objectstore, jobs, resultset,
-                                   artifact, note, revision, bug, logslice)
+                                   artifact, note, revision, bug, logslice,
+                                   performance_data)
 
 from rest_framework import routers
 
@@ -54,6 +55,12 @@ project_bound_router.register(
     r'logslice',
     logslice.LogSliceView,
     base_name='logslice',
+)
+
+project_bound_router.register(
+    r'performance-data',
+    performance_data.PerformanceDataViewSet,
+    base_name='performance-data',
 )
 
 # this is the default router for plain restful endpoints
