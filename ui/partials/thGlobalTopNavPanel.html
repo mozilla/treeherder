@@ -5,8 +5,9 @@
     <div class="navbar-collapse collapse th-global-navbar">
         <!-- nav begin -->
         <span class="nav navbar-nav">
+            <!-- 'timeline' and 'machines' currently removed from viewOption -->
             <span class="btn-group"
-                  ng-repeat="viewOption in ['jobs', 'timeline', 'machines']">
+                  ng-repeat="viewOption in ['jobs']">
                 <a class="btn btn-view-nav"
                    ng-class="{'active': (locationPath===viewOption)}"
                    href="#/{{viewOption}}">{{viewOption}}</a>
