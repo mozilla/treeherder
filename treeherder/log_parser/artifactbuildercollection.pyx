@@ -1,8 +1,9 @@
 import urllib2
 import gzip
 import io
-import logging
 from contextlib import closing
+from django.conf import settings
+
 from .artifactbuilders import (BuildbotLogViewArtifactBuilder,
                                BuildbotJobArtifactBuilder,
                                BuildbotPerformanceDataArtifactBuilder)
@@ -85,7 +86,10 @@ BuildbotPerformanceDataArtifactBuilder
 
     def get_log_handle(self, url):
         """Hook to get a handle to the log with this url"""
-        return urllib2.urlopen(url)
+        return urllib2.urlopen(
+               url,
+               timeout=settings.TREEHERDER_REQUESTS_TIMEOUT
+        )
 
     def parse(self):
         """
