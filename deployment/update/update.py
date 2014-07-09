@@ -130,7 +130,7 @@ def update(ctx):
 def deploy(ctx):
     checkin_changes(ctx)
     deploy_admin_node(ctx)
-    deploy_web_app(ctx)
-    deploy_workers(ctx)
+    deploy_web_app()
+    deploy_workers()
     restart_celery_workers(ctx)
     update_info(ctx)
