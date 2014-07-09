@@ -14,7 +14,6 @@ treeherder.controller('MainCtrl', [
         var $log = new ThLog("MainCtrl");
 
         thClassificationTypes.load();
-        ThRepositoryModel.load();
 
         $rootScope.getWindowTitle = function() {
             var ufc = $scope.getUnclassifiedFailureCount($rootScope.repoName);
