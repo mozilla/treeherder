@@ -33,7 +33,7 @@ treeherder.directive('thWatchedRepo', [
             color: "treeClosed"
         },
         "unavailable": {
-            icon: "fa-chain-broken",
+            icon: "",
             color: "treeUnavailable"
         }
     };
