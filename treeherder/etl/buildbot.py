@@ -35,7 +35,15 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile('(?:linux|fedora|ubuntu).*64|dxr', re.IGNORECASE),
+        'regex': re.compile('^(?:Linux|Ubuntu).*64 Mulet', re.IGNORECASE),
+        'attributes': {
+            'os': 'linux',
+            'os_platform': 'mulet-linux64',
+            'arch': 'x86_64',
+        }
+    },
+    {
+        'regex': re.compile('(?:linux|ubuntu).*64|dxr', re.IGNORECASE),
         'attributes': {
             'os': 'linux',
             'os_platform': 'linux64',
@@ -51,7 +59,15 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile('linux|fedora|ubuntu', re.IGNORECASE),
+        'regex': re.compile('^(?:Linux|Ubuntu).*Mulet', re.IGNORECASE),
+        'attributes': {
+            'os': 'linux',
+            'os_platform': 'mulet-linux32',
+            'arch': 'x86',
+        }
+    },
+    {
+        'regex': re.compile('linux|ubuntu', re.IGNORECASE),
         'attributes': {
             'os': 'linux',
             'os_platform': 'linux32',
@@ -66,6 +82,14 @@ PLATFORMS_BUILDERNAME = [
         'attributes': {
             'os': 'mac',
             'os_platform': 'b2g-osx',
+            'arch': 'x86_64',
+        }
+    },
+    {
+        'regex': re.compile('^OS X.*Mulet', re.IGNORECASE),
+        'attributes': {
+            'os': 'mac',
+            'os_platform': 'mulet-osx',
             'arch': 'x86_64',
         }
     },
@@ -101,6 +125,14 @@ PLATFORMS_BUILDERNAME = [
         'attributes': {
             'os': 'win',
             'os_platform': 'b2g-win32',
+            'arch': 'x86',
+        }
+    },
+    {
+        'regex': re.compile('^Windows.*Mulet', re.IGNORECASE),
+        'attributes': {
+            'os': 'win',
+            'os_platform': 'mulet-win32',
             'arch': 'x86',
         }
     },
@@ -156,18 +188,18 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile('android 2\.3', re.IGNORECASE),
+        'regex': re.compile('android 2\.3 armv6', re.IGNORECASE),
         'attributes': {
             'os': 'android',
-            'os_platform': 'android-2-3',
+            'os_platform': 'android-2-3-armv6',
             'arch': 'x86',
         }
     },
     {
-        'regex': re.compile('android 2\.2 no-ionmonkey', re.IGNORECASE),
+        'regex': re.compile('android 2\.3', re.IGNORECASE),
         'attributes': {
             'os': 'android',
-            'os_platform': 'android-2-2-noion',
+            'os_platform': 'android-2-3',
             'arch': 'x86',
         }
     },
@@ -297,7 +329,12 @@ TEST_NAME_BUILDERNAME = [
     {"regex": re.compile('mochitest-metro-chrome'), "desc": "Mochitest Metro Browser Chrome"},
     {"regex": re.compile('mochitest-other'), "desc": "Mochitest Other"},
     {"regex": re.compile('mochitest-gl'), "desc": "Mochitest WebGL"},
+    {"regex": re.compile('mochitest-oop'), "desc": "Mochitest OOP"},
     {"regex": re.compile('mochitest'), "desc": "Mochitest"},
+    {"regex": re.compile('webapprt-chrome'), "desc": "Webapprt Chrome"},
+    {"regex": re.compile('webapprt-content'), "desc": "Webapprt Content"},
+    {"regex": re.compile('web-platform-tests$'), "desc": "W3C Web Platform Tests"},
+    {"regex": re.compile('web-platform-tests-reftests'), "desc": "W3C Web Platform Reftests"},
     {"regex": re.compile('robocop'), "desc": "Robocop"},
     {"regex": re.compile('crashtest-e10s'), "desc": "Crashtest e10s"},
     {"regex": re.compile('crashtest-ipc'), "desc": "Crashtest IPC"},
@@ -305,6 +342,7 @@ TEST_NAME_BUILDERNAME = [
     {"regex": re.compile('jsreftest-e10s'), "desc": "JSReftest e10s"},
     {"regex": re.compile('jsreftest'), "desc": "JSReftest"},
     {"regex": re.compile('reftest-e10s'), "desc": "Reftest e10s"},
+    {"regex": re.compile('reftest-sanity-oop'), "desc": "Reftest Sanity OOP"},
     {"regex": re.compile('reftest-ipc'), "desc": "Reftest IPC"},
     {"regex": re.compile('reftest-omtc'), "desc": "Reftest OMTC"},
     {"regex": re.compile('reftest-no-accel'), "desc": "Reftest Unaccelerated"},
@@ -312,15 +350,17 @@ TEST_NAME_BUILDERNAME = [
     {"regex": re.compile('cppunit'), "desc": "CPP Unit Tests"},
     {"regex": re.compile('jittest'), "desc": "JIT Tests"},
     {"regex": re.compile('jetpack'), "desc": "Jetpack SDK Test"},
+    {"regex": re.compile('gaia-unit-oop'), "desc": "Gaia Unit Test OOP"},
     {"regex": re.compile('gaia-unit'), "desc": "Gaia Unit Test"},
     {"regex": re.compile('gaia-build'), "desc": "Gaia Build Test"},
+    {"regex": re.compile('gaia-integration-oop'), "desc": "Gaia Integration Test OOP"},
     {"regex": re.compile('gaia-integration'), "desc": "Gaia Integration Test"},
+    {"regex": re.compile('gaia-ui-test-oop'), "desc": "Gaia UI Test OOP"},
     {"regex": re.compile('gaia-ui-test'), "desc": "Gaia UI Test"},
     {"regex": re.compile('linter'), "desc": "Linter Test"},
     {"regex": re.compile('marionette-webapi'), "desc": "Marionette WebAPI Tests"},
     {"regex": re.compile('marionette'), "desc": "Marionette Framework Unit Tests"},
     {"regex": re.compile('androidx86-set'), "desc": "Android x86 Test Set"},
-    {"regex": re.compile('web-platform-tests'), "desc": "W3C Web Platform Tests"},
     {"regex": re.compile('xpcshell'), "desc": "XPCShell"},
     {"regex": re.compile('mozmill'), "desc": "Mozmill"},
         #// ** Builds **
@@ -330,6 +370,7 @@ TEST_NAME_BUILDERNAME = [
     {"regex": re.compile('-br-haz'), "desc": "Static Rooting Hazard Analysis, Full Browser"},
     {"regex": re.compile('-sh-haz'), "desc": "Static Rooting Hazard Analysis, JS Shell"},
     {"regex": re.compile('xulrunner'), "desc": "XULRunner Nightly"},
+    {"regex": re.compile('b2g.*_dolphin_eng_nightly'), "desc": "Dolphin Device Image Nightly (Engineering)"},
     {"regex": re.compile('b2g.*_flame_eng_nightly'), "desc": "Flame Device Image Nightly (Engineering)"},
     {"regex": re.compile('b2g.*_hamachi_eng_nightly'), "desc": "Hamachi Device Image Nightly (Engineering)"},
     {"regex": re.compile('b2g.*_helix_eng_nightly'), "desc": "Helix Device Image Nightly (Engineering)"},
@@ -340,6 +381,7 @@ TEST_NAME_BUILDERNAME = [
     {"regex": re.compile('b2g.*_unagi_eng_nightly'), "desc": "Unagi Device Image Nightly (Engineering)"},
     {"regex": re.compile('b2g.*_eng_nightly'), "desc": "Unknown B2G Device Image Nightly (Engineering)"},
     {"regex": re.compile('b2g.*_emulator.*_nightly'), "desc": "B2G Emulator Image Nightly"},
+    {"regex": re.compile('b2g.*_dolphin_nightly'), "desc": "Dolphin Device Image Nightly"},
     {"regex": re.compile('b2g.*_flame_nightly'), "desc": "Flame Device Image Nightly"},
     {"regex": re.compile('b2g.*_hamachi_nightly'), "desc": "Hamachi Device Image Nightly"},
     {"regex": re.compile('b2g.*_helix_nightly'), "desc": "Helix Device Image Nightly"},
@@ -352,6 +394,7 @@ TEST_NAME_BUILDERNAME = [
     {"regex": re.compile('b2g.*_nightly'), "desc": "Unknown B2G Device Image Nightly"},
     {"regex": re.compile('(?:l10n|localizer) nightly'), "desc": "L10n Nightly"},
     {"regex": re.compile('nightly'), "desc": "Nightly"},
+    {"regex": re.compile('b2g.*_dolphin_eng_(?:dep|periodic)'), "desc": "Dolphin Device Image Build (Engineering)"},
     {"regex": re.compile('b2g.*_flame_eng_(?:dep|periodic)'), "desc": "Flame Device Image Build (Engineering)"},
     {"regex": re.compile('b2g.*_hamachi_eng_(?:dep|periodic)'), "desc": "Hamachi Device Image Build (Engineering)"},
     {"regex": re.compile('b2g.*_helix_eng_(?:dep|periodic)'), "desc": "Helix Device Image Build (Engineering)"},
@@ -361,7 +404,9 @@ TEST_NAME_BUILDERNAME = [
     {"regex": re.compile('b2g.*_tarako_eng_(?:dep|periodic)'), "desc": "Tarako Device Image Build (Engineering)"},
     {"regex": re.compile('b2g.*_unagi_eng_(?:dep|periodic)'), "desc": "Unagi Device Image Build (Engineering)"},
     {"regex": re.compile('b2g.*_eng_(?:dep|periodic)'), "desc": "Unknown B2G Device Image Build (Engineering)"},
+    {"regex": re.compile('b2g.*_emulator.*_nonunified'), "desc": "B2G Emulator Image Non-Unified Build"},
     {"regex": re.compile('b2g.*_emulator.*_(?:dep|periodic)'), "desc": "B2G Emulator Image Build"},
+    {"regex": re.compile('b2g.*_dolphin_(?:dep|periodic)'), "desc": "Dolphin Device Image Build"},
     {"regex": re.compile('b2g.*_flame_(?:dep|periodic)'), "desc": "Flame Device Image Build"},
     {"regex": re.compile('b2g.*_hamachi_(?:dep|periodic)'), "desc": "Hamachi Device Image Build"},
     {"regex": re.compile('b2g.*_helix_(?:dep|periodic)'), "desc": "Helix Device Image Build"},
@@ -381,17 +426,21 @@ TEST_NAME_BUILDERNAME = [
         #// If we start doing debug ASan tests, please kill these special build types
     {"regex": re.compile('debug asan build'), "desc": "AddressSanitizer Debug Build"},
     {"regex": re.compile('asan build'), "desc": "AddressSanitizer Opt Build"},
-    {"regex": re.compile('non-unified'), "desc": "Non-Unified Build"},
+    {"regex": re.compile('non[-]?unified'), "desc": "Non-Unified Build"},
     {"regex": re.compile('static analysis'), "desc": "Static Checking Build"},
-    {"regex": re.compile('valgrind'), "desc": "Valgrind Nightly"},
+    {"regex": re.compile('valgrind'), "desc": "Valgrind Build"},
     {"regex": re.compile('dxr'), "desc": "DXR Index Build"},
-    {"regex": re.compile('build$'), "desc": "Build"},
+    {"regex": re.compile('(build|dep|periodic)$'), "desc": "Build"},
 ]
 
 # map test names to group names as "<testname>": "<groupname>"
 # when updating, please take care to ensure the ``testname`` AND the
 # ``groupname`` exist in the ``SYMBOLS`` dict as well.
 GROUP_NAMES = {
+    "Dolphin Device Image Build": "Dolphin Device Image",
+    "Dolphin Device Image Build (Engineering)": "Dolphin Device Image",
+    "Dolphin Device Image Nightly": "Dolphin Device Image",
+    "Dolphin Device Image Nightly (Engineering)": "Dolphin Device Image",
     "Flame Device Image Build": "Flame Device Image",
     "Flame Device Image Build (Engineering)": "Flame Device Image",
     "Flame Device Image Nightly": "Flame Device Image",
@@ -438,11 +487,14 @@ GROUP_NAMES = {
     "Mochitest DevTools Browser Chrome": "Mochitest",
     "Mochitest Metro Browser Chrome": "Mochitest",
     "Mochitest Other": "Mochitest",
+    "Webapprt Content": "Mochitest",
+    "Webapprt Chrome": "Mochitest",
+    "Robocop": "Mochitest",
     "Mochitest e10s": "Mochitest e10s",
     "Mochitest e10s Browser Chrome": "Mochitest e10s",
     "Mochitest e10s DevTools Browser Chrome": "Mochitest e10s",
     "Mochitest e10s Other": "Mochitest e10s",
-    "Robocop": "Mochitest",
+    "Mochitest OOP": "Mochitest OOP",
     "Crashtest": "Reftest",
     "Crashtest IPC": "Reftest",
     "Reftest": "Reftest",
@@ -453,6 +505,7 @@ GROUP_NAMES = {
     "Crashtest e10s": "Reftest e10s",
     "JSReftest e10s": "Reftest e10s",
     "Reftest e10s": "Reftest e10s",
+    "Reftest Sanity OOP": "Reftest Sanity OOP",
     "SpiderMonkey ARM Simulator Build": "SpiderMonkey",
     "SpiderMonkey DTrace Build": "SpiderMonkey",
     "SpiderMonkey Fail-On-Warnings Build": "SpiderMonkey",
@@ -503,7 +556,7 @@ SYMBOLS = {
     # // ** Nightly Builds **
     "Nightly" : "N",
     "DXR Index Build" : "Dxr",
-    "Valgrind Nightly": "V",
+    "Valgrind Build": "V",
     "XULRunner Nightly" : "Xr",
     # // ** Special Builds **
     # // If we start doing debug ASan tests, please
@@ -516,8 +569,14 @@ SYMBOLS = {
     "L10n Nightly" : "N",
     "L10n Repack": "L10n",
     "B2G Emulator Image Build": "B",
+    "B2G Emulator Image Non-Unified Build": "Bn",
     "B2G Emulator Image Nightly": "N",
     # // B2G device image builds (grouped by device in the UI)
+    "Dolphin Device Image": "Dolphin",
+    "Dolphin Device Image Build": "B",
+    "Dolphin Device Image Build (Engineering)": "Be",
+    "Dolphin Device Image Nightly": "N",
+    "Dolphin Device Image Nightly (Engineering)": "Ne",
     "Flame Device Image": "Flame",
     "Flame Device Image Build": "B",
     "Flame Device Image Build (Engineering)": "Be",
@@ -583,7 +642,10 @@ SYMBOLS = {
     "Mochitest e10s Browser Chrome" : "bc",
     "Mochitest e10s DevTools Browser Chrome" : "dt",
     "Mochitest e10s Other" : "oth",
+    "Mochitest OOP": "M-oop",
     "Robocop" : "rc",
+    "Webapprt Content": "w",
+    "Webapprt Chrome": "wc",
     "Crashtest" : "C",
     "Crashtest e10s" : "C",
     "Crashtest IPC" : "Cipc",
@@ -591,6 +653,7 @@ SYMBOLS = {
     "JSReftest e10s" : "J",
     "Reftest" : "R",
     "Reftest e10s" : "R-e10s",
+    "Reftest Sanity OOP" : "R-oop",
     "Reftest IPC" : "Ripc",
     "Reftest OMTC" : "Ro",
     "Reftest Unaccelerated" : "Ru",
@@ -599,9 +662,12 @@ SYMBOLS = {
     "CPP Unit Tests" : "Cpp",
     "JIT Tests" : "Jit",
     "Jetpack SDK Test" : "JP",
+    "Gaia Unit Test OOP" : "G-oop",
     "Gaia Unit Test" : "G",
     "Gaia Build Test" : "Gb",
+    "Gaia Integration Test OOP" : "Gi-oop",
     "Gaia Integration Test" : "Gi",
+    "Gaia UI Test OOP" : "Gu-oop",
     "Gaia UI Test" : "Gu",
     "Linter Test" : "Li",
     "Marionette Framework Unit Tests" : "Mn",
@@ -609,6 +675,7 @@ SYMBOLS = {
     "Android x86 Test Set" : "S",
     "Android x86 Test Combos" : "Sets",
     "W3C Web Platform Tests" : "W",
+    "W3C Web Platform Reftests" : "Wr",
     "XPCShell" : "X",
     "Mozmill" : "Z",
 

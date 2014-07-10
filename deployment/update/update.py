@@ -31,7 +31,6 @@ def update_code(ctx, tag):
         ctx.local('git submodule update --init --recursive')
         ctx.local("find . -type f -name '*.pyc' -delete")
 
-
     with ctx.lcd(th_ui_src):
         ctx.local('git checkout %s' % tag)
         ctx.local('git pull -f')
@@ -54,9 +53,25 @@ def update_db(ctx):
         ctx.local('python2.6 manage.py syncdb --settings {0}'.format(th_settings))
         ctx.local('python2.6 manage.py migrate --settings {0}'.format(th_settings))
 
+
 def checkin_changes(ctx):
     """Use the local, IT-written deploy script to check in changes."""
     ctx.local(settings.DEPLOY_SCRIPT)
+
+
+def deploy_admin_node(ctx):
+    """
+    - Restart celerybeat
+    - Collect the static files
+    - Rebuild the cython code
+    """
+    ctx.local(
+        '{0}/service celerybeat restart'.format(settings.SBIN_DIR))
+
+    with ctx.lcd(th_service_src):
+        # this is primarely for the persona ui
+        ctx.local("python2.6 manage.py collectstatic --noinput --settings {0}".format(th_settings))
+        ctx.local("python2.6 setup.py build_ext --inplace")
 
 
 @hostgroups(
@@ -68,40 +83,23 @@ def deploy_web_app(ctx):
     ctx.remote( '{0}/service gunicorn restart'.format(settings.SBIN_DIR) )
     ctx.remote( '{0}/service socketio-server restart'.format(settings.SBIN_DIR) )
 
+
 @hostgroups(
     settings.CELERY_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
 def deploy_workers(ctx):
     """Call the remote update script to push changes to workers."""
     ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
 
-    # REMOVE: once we resolve the zombie issue this should be removed
-    ctx.local(
-        '{0}/pkill -f "python manage.py celery worker*"'.format(settings.BIN_DIR))
 
-    # Restarts celery worker on the celery hostgroup to listen to the
-    # celery queues: log_parser_fail,log_parser
-    ctx.remote(
-        '{0}/service celery-worker-gevent restart'.format(settings.SBIN_DIR))
-
-
-def deploy_admin_node(ctx):
-
-    ctx.local(
-        '{0}/service celerybeat restart'.format(settings.SBIN_DIR))
-
-    # REMOVE: once we resolve the zombie issue this should be removed
-    ctx.local(
-        '{0}/pkill -f "python manage.py celeryd*"'.format(settings.BIN_DIR))
-
-    # Restarts celery worker on the admin node listening to the
-    # celery queues: default
-    ctx.local(
-        '{0}/service celery restart'.format(settings.SBIN_DIR))
-
+def restart_celery_workers(ctx):
+    """Send a warm shutdown event to all the workers in the cluster.
+The workers will finish their current tasks and safely shutdown.
+Supervisord will then start new workers to replace them.
+We need to do this because supervisorctl generates zombies
+everytime you ask it to restart a worker.
+"""
     with ctx.lcd(th_service_src):
-        # this is primarely for the persona ui
-        ctx.local("python2.6 manage.py collectstatic --noinput --settings {0}".format(th_settings))
-        ctx.local("python2.6 setup.py build_ext --inplace")
+        ctx.local("python2.6 manage.py shutdown_workers --settings {0}".format(th_settings))
 
 
 def update_info(ctx):
@@ -131,7 +129,8 @@ def update(ctx):
 @task
 def deploy(ctx):
     checkin_changes(ctx)
+    deploy_admin_node(ctx)
     deploy_web_app()
     deploy_workers()
-    deploy_admin_node(ctx)
+    restart_celery_workers(ctx)
     update_info(ctx)

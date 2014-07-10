@@ -142,6 +142,7 @@ INSTALLED_APPS = [
     'treeherder.webapp',
     'treeherder.log_parser',
     'treeherder.etl',
+    'treeherder.workers',
 
 ]
 
@@ -233,6 +234,10 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 # set this to True to enable bug associations to tbpl (and then Orange Factor)
 TBPL_BUGS_TRANSFER_ENABLED = True
 TBPL_HOST = "https://tbpl.mozilla.org"
+
+# timeout for requests to external sources
+# like ftp.mozilla.org or hg.mozilla.org
+TREEHERDER_REQUESTS_TIMEOUT = 30
 
 try:
     from .local import *

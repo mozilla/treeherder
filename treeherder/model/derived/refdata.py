@@ -1256,7 +1256,9 @@ class RefDataManager(object):
         milestone_path = '/raw-file/default/config/milestone.txt'
         version_url = "".join((repo_url, milestone_path))
 
-        response = urllib2.urlopen(version_url)
+        response = urllib2.urlopen(
+            version_url,
+            timeout=settings.TREEHERDER_REQUESTS_TIMEOUT)
         for line in response:
             #go to the last line
             pass
