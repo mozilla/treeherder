@@ -119,19 +119,23 @@ treeherder.factory('ThRepositoryModel', [
 
     var load = function(name) {
 
-        return get_list().
-            success(function(data) {
-                $rootScope.repos = data;
-                $rootScope.groupedRepos = getByGroup();
+        if (!$rootScope.repos) {
+            get_list().
+                success(function (data) {
+                            $rootScope.repos = data;
+                            $rootScope.groupedRepos = getByGroup();
 
-                _.each(data, addAsUnwatched);
+                            _.each(data, addAsUnwatched);
 
-                if (name) {
-                    $rootScope.currentRepo = getByName(name);
-                    addAsWatched({isWatched: true}, name);
-                }
-                watchedReposUpdated();
-            });
+                            if (name) {
+                                $rootScope.currentRepo = getByName(name);
+                                addAsWatched({isWatched: true}, name);
+                            }
+                            watchedReposUpdated();
+                        });
+        } else {
+            $log.debug("repository list already loaded.  Not reloading.")
+        }
     };
 
 
