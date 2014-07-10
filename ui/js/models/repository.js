@@ -1,10 +1,10 @@
 'use strict';
 
 treeherder.factory('ThRepositoryModel', [
-    '$http', 'thUrl', '$rootScope', 'ThLog', 'localStorageService',
+    '$http', 'thUrl', '$rootScope', 'ThLog',
     'thSocket', 'treeStatus',
     function(
-        $http, thUrl, $rootScope, ThLog, localStorageService,
+        $http, thUrl, $rootScope, ThLog,
         thSocket, treeStatus) {
 
     var $log = new ThLog("ThRepositoryModel");
@@ -119,18 +119,12 @@ treeherder.factory('ThRepositoryModel', [
 
     var load = function(name) {
 
-        var storedWatchedRepos = localStorageService.get("watchedRepos");
-
         return get_list().
             success(function(data) {
                 $rootScope.repos = data;
                 $rootScope.groupedRepos = getByGroup();
 
                 _.each(data, addAsUnwatched);
-                if (storedWatchedRepos) {
-                    _.each(storedWatchedRepos, addAsWatched);
-                }
-                localStorageService.add("watchedRepos", repos);
 
                 if (name) {
                     $rootScope.currentRepo = getByName(name);
@@ -156,7 +150,6 @@ treeherder.factory('ThRepositoryModel', [
     };
 
     var watchedReposUpdated = function(repoName) {
-        localStorageService.add("watchedRepos", repos);
         if (repoName) {
             updateTreeStatus(repoName);
         } else {
