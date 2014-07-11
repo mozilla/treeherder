@@ -78,11 +78,7 @@ treeherder.controller('MainCtrl', [
         };
 
         // the repos the user has chosen to watch
-        $scope.watchedRepos = ThRepositoryModel.watchedRepos;
-
-        $scope.unwatchRepo = function(name) {
-            ThRepositoryModel.unwatch(name);
-        };
+        $scope.repoModel = ThRepositoryModel;
 
         // update the repo status (treestatus) in an interval of every 2 minutes
         $interval(ThRepositoryModel.updateAllWatchedRepoTreeStatus, 2 * 60 * 1000);
@@ -197,8 +193,8 @@ treeherder.controller('MainCtrl', [
 
         $scope.isRepoPanelShowing = false;
 
-        $scope.toggleRepoPanel = function() {
-            $scope.isRepoPanelShowing=!$scope.isRepoPanelShowing;
+        $scope.setRepoPanelShowing = function(tf) {
+            $scope.isRepoPanelShowing = tf;
         };
 
         $scope.changeRepo = function(repo_name) {
@@ -207,7 +203,7 @@ treeherder.controller('MainCtrl', [
             $rootScope.selectedJob = null;
             thPinboard.unPinAll();
 
-            ThRepositoryModel.setCurrent(repo_name);
+            $scope.repoModel.setCurrent(repo_name);
             $location.search({repo: repo_name});
 
         };

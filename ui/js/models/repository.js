@@ -11,6 +11,7 @@ treeherder.factory('ThRepositoryModel', [
 
     var new_failures = {};
     var repos = {};
+    var watchedRepos = {};
 
     // get the repositories (aka trees)
     // sample: 'resources/menu.json'
@@ -46,7 +47,7 @@ treeherder.factory('ThRepositoryModel', [
         return groupedRepos;
     };
 
-    var addAsUnwatched = function(repo) {
+    var addRepoAsUnwatched = function(repo) {
         repos[repo.name] = {
             isWatched: false,
             treeStatus: null,
@@ -59,53 +60,52 @@ treeherder.factory('ThRepositoryModel', [
      * We want to add this repo as watched, but we also
      * want to get the treestatus for it
      */
-    var addAsWatched = function(data, repoName) {
-        if (data.isWatched) {
-            repos[repoName] = {
-                isWatched: true,
-                treeStatus: null,
-                unclassifiedFailureCount: 0,
-                unclassifiedFailureCountExcluded: 0
-            };
-            updateTreeStatus(repoName);
+    var watchRepo = function(repoName) {
+        repos[repoName] = {
+            isWatched: true,
+            treeStatus: null,
+            unclassifiedFailureCount: 0,
+            unclassifiedFailureCountExcluded: 0
+        };
+        watchedRepos[repoName] = repos[repoName];
+        updateTreeStatus(repoName);
 
 
-            // fetch the
-            // current count of unclassified failures, rather than waiting
-            // for the socket event to be published.
-            $http.get(thUrl.getProjectUrl("/jobs/0/unclassified_failure_count/", repoName)).then(function(response) {
-                repos[repoName].unclassifiedFailureCount = response.data.count;
-                repos[repoName].unclassifiedFailureCountExcluded = response.data.count_excluded;
-            });
+        // fetch the
+        // current count of unclassified failures, rather than waiting
+        // for the socket event to be published.
+        $http.get(thUrl.getProjectUrl("/jobs/0/unclassified_failure_count/", repoName)).then(function(response) {
+            repos[repoName].unclassifiedFailureCount = response.data.count;
+            repos[repoName].unclassifiedFailureCountExcluded = response.data.count_excluded;
+        });
 
-            // Add a connect listener
-            thSocket.on('connect',function() {
-                // subscribe to all the events for this repo
-                thSocket.emit('subscribe', repoName);
-            });
+        // Add a connect listener
+        thSocket.on('connect',function() {
+            // subscribe to all the events for this repo
+            thSocket.emit('subscribe', repoName);
+        });
 
-            // setup to listen for the socket events that notify us of the
-            // current count of unclassified failures.
-            thSocket.on(
-                "unclassified_failure_count",
-                function(data) {
-                    if (data.branch === repoName) {
+        // setup to listen for the socket events that notify us of the
+        // current count of unclassified failures.
+        thSocket.on(
+            "unclassified_failure_count",
+            function(data) {
+                if (data.branch === repoName) {
 
-                        $log.debug("event unclassified_failure_count", data);
-                        repos[repoName].unclassifiedFailureCount = data.count;
-                        repos[repoName].unclassifiedFailureCountExcluded = data.count_excluded;
-                    }
+                    $log.debug("event unclassified_failure_count", data);
+                    repos[repoName].unclassifiedFailureCount = data.count;
+                    repos[repoName].unclassifiedFailureCountExcluded = data.count_excluded;
                 }
-            );
+            }
+        );
 
-            $log.debug("watchedRepo", repoName, repos[repoName]);
-        }
+        $log.debug("watchedRepo", repoName, repos[repoName]);
     };
 
-    var unwatch = function(name) {
-        if (!_.contains(repos, name)) {
-            repos[name].isWatched = false;
-        }
+    var unwatchRepo = function(name) {
+        $log.debug("unwatchRepo", name, watchedRepos);
+        delete watchedRepos[name];
+        repos[name].isWatched = false;
         watchedReposUpdated();
     };
 
@@ -122,19 +122,18 @@ treeherder.factory('ThRepositoryModel', [
         if (!$rootScope.repos) {
             get_list().
                 success(function (data) {
-                            $rootScope.repos = data;
-                            $rootScope.groupedRepos = getByGroup();
+                    $rootScope.repos = data;
+                    $rootScope.groupedRepos = getByGroup();
 
-                            _.each(data, addAsUnwatched);
+                    _.each(data, addRepoAsUnwatched);
 
-                            if (name) {
-                                $rootScope.currentRepo = getByName(name);
-                                addAsWatched({isWatched: true}, name);
-                            }
-                            watchedReposUpdated();
-                        });
+                    if (name) {
+                        setCurrent(name);
+                    }
+                    watchedReposUpdated();
+                });
         } else {
-            $log.debug("repository list already loaded.  Not reloading.")
+            setCurrent(name);
         }
     };
 
@@ -145,12 +144,19 @@ treeherder.factory('ThRepositoryModel', [
 
     var setCurrent = function(name) {
         $rootScope.currentRepo = getByName(name);
-        $log.debug("repoModel", "setCurrent", name, "watchedRepos", repos);
-    };
 
-    var repo_has_failures = function(repo_name){
-        return ($rootScope.new_failures.hasOwnProperty(repo_name) &&
-            $rootScope.new_failures[repo_name].length > 0);
+        // don't want to just replace the watchedRepos object because
+        // controllers, etc, are watching the reference to it, which would
+        // be lost by replacing.
+        if (_.size(watchedRepos) <= 1) {
+            _.each(watchedRepos, function(r, rname) {
+                unwatchRepo(rname);
+            });
+        }
+        watchRepo(name);
+
+
+        $log.debug("repoModel", "setCurrent", name, "watchedRepos", repos);
     };
 
     var watchedReposUpdated = function(repoName) {
@@ -176,6 +182,16 @@ treeherder.factory('ThRepositoryModel', [
         }
     };
 
+    var toggleWatched = function(repoName) {
+        $log.debug("toggleWatched", repoName, repos[repoName]);
+        if (repos[repoName].isWatched) {
+            unwatchRepo(repoName);
+        } else {
+            watchRepo(repoName);
+        }
+
+    };
+
     var updateAllWatchedRepoTreeStatus = function() {
         _.each(_.keys(repos), updateTreeStatus);
     };
@@ -198,15 +214,17 @@ treeherder.factory('ThRepositoryModel', [
 
         getByGroup: getByGroup,
 
-        watchedRepos: repos,
+        repos: repos,
+
+        watchedRepos: watchedRepos,
 
         watchedReposUpdated: watchedReposUpdated,
 
-        unwatch: unwatch,
+        unwatchRepo: unwatchRepo,
 
-        updateAllWatchedRepoTreeStatus: updateAllWatchedRepoTreeStatus,
+        toggleWatched: toggleWatched,
 
-        repo_has_failures: repo_has_failures
+        updateAllWatchedRepoTreeStatus: updateAllWatchedRepoTreeStatus
 
     };
 }]);

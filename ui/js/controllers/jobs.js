@@ -27,6 +27,7 @@ treeherder.controller('JobsCtrl', [
 
         // load the list of repos into $rootScope, and set the current repo.
         ThRepositoryModel.load($scope.repoName);
+        $scope.setRepoPanelShowing(false);
 
         ThResultSetModel.addRepository($scope.repoName);
 

@@ -1,5 +1,4 @@
-<span class="btn-group"
-      ng-show="repoData.isWatched">
+<span class="btn-group">
     <button ng-class="{'active': name===repoName}"
             ng-click="changeRepo(name)"
             type="button"
@@ -22,7 +21,7 @@
     <button class="watched-repo-unwatch-btn btn btn-sm btn-view-nav"
             ng-class="{'active': name===repoName}"
             ng-hide="name===repoName"
-            ng-click="unwatchRepo(name)"
+            ng-click="repoModel.unwatchRepo(name)"
             title="unwatch {{name}}"><span class="fa fa-times"></span></button>
     <th-repo-drop-down name="{{name}}"
                        reason="{{repoData.treeStatus.reason}}"
