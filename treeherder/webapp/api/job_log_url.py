@@ -1,10 +1,10 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.exceptions import ParseError
-from rest_framework.decorators import action, permission_classes
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 
 from treeherder.webapp.api.utils import with_jobs, oauth_required
-from treeherder.webapp.api.permissions import IsStaffOrReadOnly
 
 
 class JobLogUrlViewSet(viewsets.ViewSet):
@@ -73,8 +73,7 @@ class JobLogUrlViewSet(viewsets.ViewSet):
             raise ParseError(detail=("The parse_status and parse_timestamp parameters"
                                      " are mandatory for this endpoint"))
 
-
-    @action(permission_classes=[IsStaffOrReadOnly])
+    @action(permission_classes=[IsAuthenticated])
     @with_jobs
     def parse(self, request, project, jm, pk=None):
         """
