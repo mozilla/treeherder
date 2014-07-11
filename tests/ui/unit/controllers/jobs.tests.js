@@ -39,6 +39,9 @@ describe('JobsCtrl', function(){
         );
 
         jobScope = $rootScope.$new();
+        jobScope.setRepoPanelShowing = function(tf) {
+            // no op in the tests.
+        };
 
         //setting attributes derived from the parent controller
         jobScope.mru_repos = [];
