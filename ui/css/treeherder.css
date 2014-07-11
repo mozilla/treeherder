@@ -405,6 +405,11 @@ div#bottom-panel .navbar-nav > li > a{
     line-height: 19px;
 }
 
+div#bottom-panel .navbar-nav > li > a.disabled {
+    cursor: not-allowed;
+    text-decoration: none;
+}
+
 div#bottom-panel ul.bottom-panel-controls{
     width:401px;
     border-right: 1px solid #42484F;

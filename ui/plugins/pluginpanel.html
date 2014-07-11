@@ -2,15 +2,29 @@
 
 <nav class="navbar navbar-dark">
     <ul class="nav navbar-nav bottom-panel-controls">
-        <li ng-if="logs" ng-disabled="artifacts.length>0">
-            <a title="Open the structured log in a new window" target="_blank" href="{{ lvUrl }}">
+
+        <li ng-repeat="job_log_url in job_log_urls">
+            <a ng-if="job_log_url.parse_status == 'parsed'"
+               title="Open the structured log in a new window"
+               target="_blank"
+               href="{{ lvUrl }}"
+               class="">
+                <span class="glyphicon glyphicon-tasks"></span>
+            </a>
+            <a ng-if="job_log_url.parse_status == 'failed'"
+               title="Log parsing has failed"
+               class="disabled" >
+                <span class="glyphicon glyphicon-tasks"></span>
+            </a>
+            <a ng-if="job_log_url.parse_status == 'pending'"
+               class="disabled"
+               title="Log parsing in progress">
                 <span class="glyphicon glyphicon-tasks"></span>
             </a>
         </li>
-        <li ng-repeat="joblog in logs">
-            <a title="Open the raw log in a new window"
-               target="_blank"
-               href="{{ joblog.url }}">
+
+        <li ng-repeat="job_log_url in job_log_urls">
+            <a title="Open the raw log in a new window" target="_blank" href="{{ job_log_url.url }}">
                 <span class="glyphicon glyphicon-list-alt"></span>
             </a>
         </li>
@@ -109,6 +123,10 @@
         <li class="small" ng-repeat="(label, value) in visibleFields">
             <label>{{label}}:</label>
             <span>{{value}}</span>
+        </li>
+        <li class="small" ng-repeat="job_log_url in job_log_urls">
+            <label>Log parsing status:</label>
+            <span>{{ job_log_url.parse_status }}</span>
         </li>
     </ul>
     <div class="printlines">
