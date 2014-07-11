@@ -25,12 +25,11 @@ from treeherder.log_parser.utils import (get_error_search_term,
 from treeherder.etl.oauth_utils import OAuthCredentials
 
 
-@task(name='parse-log')
+@task(name='parse-log', max_retries=3)
 def parse_log(project, job_log_url, job_guid, check_errors=False):
     """
     Call ArtifactBuilderCollection on the given job.
     """
-
     credentials = OAuthCredentials.get_credentials(project)
     req = TreeherderRequest(
         protocol=settings.TREEHERDER_REQUEST_PROTOCOL,
@@ -40,7 +39,6 @@ def parse_log(project, job_log_url, job_guid, check_errors=False):
         oauth_secret=credentials.get('consumer_secret', None),
     )
     update_endpoint = 'job-log-url/{0}/update_parse_status'.format(job_log_url['id'])
-
 
     try:
         log_url = job_log_url['url']
@@ -136,6 +134,7 @@ def parse_log(project, job_log_url, job_guid, check_errors=False):
             )
 
     except Exception, e:
+        parse_log.retry(exc=e)
         # send an update to job_log_url
         # the job_log_url status changes
         # from pending to running
