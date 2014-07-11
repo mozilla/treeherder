@@ -1,8 +1,18 @@
 import os
 from os.path import dirname
 import sys
-from django.core.management import call_command
+import json
+
 import pytest
+from django.core.management import call_command
+from webtest.app import TestApp
+
+from thclient.client import TreeherderRequest
+
+from tests.sampledata import SampleData
+from treeherder.etl.oauth_utils import OAuthCredentials
+from treeherder.webapp.wsgi import application
+
 
 def pytest_addoption(parser):
     parser.addoption(
@@ -309,3 +319,32 @@ def eleven_jobs_stored(jm, sample_data, sample_resultset):
 def eleven_jobs_processed(jm, mock_log_parser, eleven_jobs_stored):
     """stores and processes list of 11 job samples"""
     jm.process_objects(11, raise_errors=True)
+
+
+@pytest.fixture
+def mock_send_request(monkeypatch, jm):
+    def _send(th_request, endpoint,  method=None, data=None):
+
+        OAuthCredentials.set_credentials(SampleData.get_credentials())
+        credentials = OAuthCredentials.get_credentials(jm.project)
+
+        th_request.oauth_key = credentials['consumer_key']
+        th_request.oauth_secret = credentials['consumer_secret']
+
+        if data and not isinstance(data, str):
+            data = json.dumps(data)
+
+        signed_uri = th_request.oauth_client.get_signed_uri(
+            data, th_request.get_uri(endpoint), method
+        )
+
+        response = getattr(TestApp(application), method.lower())(
+            str(signed_uri),
+            params=data,
+            content_type='application/json'
+        )
+
+        response.getcode = lambda: response.status_int
+        return response
+
+    monkeypatch.setattr(TreeherderRequest, 'send', _send)
