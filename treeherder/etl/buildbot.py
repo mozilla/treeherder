@@ -300,18 +300,19 @@ TEST_NAME_BUILDERNAME = [
         #// ** Talos **
     {"regex": re.compile('talos remote-tcanvasmark$'), "desc": "Talos canvasmark"},
     {"regex": re.compile('talos chrome[z]?$'), "desc": "Talos chrome"},
-    {"regex": re.compile('talos dromaeojs$'), "desc": "Talos dromaeojs"},
     {"regex": re.compile('talos dromaeojs-metro$'), "desc": "Talos dromaeojs Metro"},
-    {"regex": re.compile('talos other$'), "desc": "Talos other"},
+    {"regex": re.compile('talos dromaeojs$'), "desc": "Talos dromaeojs"},
+    {"regex": re.compile('talos g1$'), "desc": "Talos g1"},
     {"regex": re.compile('talos other-metro$'), "desc": "Talos other Metro"},
+    {"regex": re.compile('talos other'), "desc": "Talos other"},
     {"regex": re.compile('talos dirtypaint$'), "desc": "Talos paint"},
     {"regex": re.compile('talos remote-trobocheck2$'), "desc": "Talos robocheck2"},
     {"regex": re.compile('talos remote-trobopan$'), "desc": "Talos robopan"},
     {"regex": re.compile('talos remote-troboprovider$'), "desc": "Talos roboprovider"},
-    {"regex": re.compile('talos (?:remote-t)?svg[rx]?$'), "desc": "Talos svg"},
     {"regex": re.compile('talos (?:remote-t)?svg[rx]?-metro$'), "desc": "Talos svg Metro"},
-    {"regex": re.compile('talos remote-tp4m_nochrome$'), "desc": "Talos tp nochrome"},
+    {"regex": re.compile('talos (?:remote-t)?svg[rx]?$'), "desc": "Talos svg"},
     {"regex": re.compile('talos (?:remote-)?tp5o-metro$'), "desc": "Talos tp Metro"},
+    {"regex": re.compile('talos remote-tp4m_nochrome$'), "desc": "Talos tp nochrome"},
     {"regex": re.compile('talos (?:remote-)?tp'), "desc": "Talos tp"},
     {"regex": re.compile('talos remote-tspaint$'), "desc": "Talos tspaint"},
     {"regex": re.compile('talos remote-ts$'), "desc": "Talos ts"},
@@ -519,6 +520,7 @@ GROUP_NAMES = {
     "Talos chrome": "Talos Performance",
     "Talos dromaeojs": "Talos Performance",
     "Talos dromaeojs Metro": "Talos Performance",
+    "Talos g1": "Talos Performance",
     "Talos other": "Talos Performance",
     "Talos other Metro": "Talos Performance",
     "Talos paint": "Talos Performance",
@@ -685,14 +687,15 @@ SYMBOLS = {
     "Talos chrome" : "c",
     "Talos dromaeojs" : "d",
     "Talos dromaeojs Metro" : "d-m",
-    "Talos svg" : "s",
-    "Talos svg Metro" : "s-m",
+    "Talos g1" : "g1",
     "Talos other" : "o",
     "Talos other Metro" : "o-m",
     "Talos paint" : "p",
     "Talos robocheck2" : "rck2",
     "Talos robopan" : "rp",
     "Talos roboprovider" : "rpr",
+    "Talos svg" : "s",
+    "Talos svg Metro" : "s-m",
     "Talos tp" : "tp",
     "Talos tp Metro" : "tp-m",
     "Talos tp nochrome" : "tpn",
@@ -704,7 +707,7 @@ SYMBOLS = {
     "Unknown": "?",
 }
 
-NUMBER_RE = re.compile(".*(?:mochitest(?:-debug)?|reftest|crashtest|robocop|androidx86-set|browser-chrome)\-([0-9]+)", re.IGNORECASE)
+NUMBER_RE = re.compile(".*(?:mochitest(?:-debug|-e10s|-devtools-chrome)?|reftest|crashtest|robocop|androidx86-set|browser-chrome|jittest)\-([0-9]+)", re.IGNORECASE)
 
 
 def extract_platform_info(source_string):
@@ -782,8 +785,9 @@ def get_symbol(name, bn):
 
     s = SYMBOLS.get(name, "?")
 
-    # Mochitests are the only ones that display only as a number, no letters
-    if s == "M":
+    # Mochitests and Mochitest-e10s are the only ones that display
+    # only as a number, no letters
+    if s in ["M", "M-e10s"]:
         s = ""
 
     n = ""
