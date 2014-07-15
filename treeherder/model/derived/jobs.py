@@ -198,6 +198,7 @@ class JobsModel(TreeherderModelBase):
                 ).values_list("repository", "build_system_type").distinct()
             )
             cache.set("build_system_by_repo", build_systems)
+        return build_systems[project]
 
 
 
@@ -460,11 +461,8 @@ class JobsModel(TreeherderModelBase):
         if settings.TBPL_BUGS_TRANSFER_ENABLED:
             job = self.get_job(job_id)[0]
             if job["state"] == "completed":
-                signature = ReferenceDataSignatures.objects.filter(
-                    signature=job['signature'],
-                    repository=self.project)[0]
-                if signature.build_system_type == 'buildbot':
-
+                if self.get_build_system_type() == 'buildbot':
+                    # importing here to avoid an import loop
                     from treeherder.etl.tasks import submit_build_star
                     submit_build_star.delay(
                         self.project,
@@ -512,10 +510,7 @@ class JobsModel(TreeherderModelBase):
         if settings.TBPL_BUGS_TRANSFER_ENABLED:
             job = self.get_job(job_id)[0]
             if job["state"] == "completed":
-                signature = ReferenceDataSignatures.objects.filter(
-                    signature=job['signature'],
-                    repository=self.project)[0]
-                if signature.build_system_type == 'buildbot':
+                if self.get_build_system_type() == 'buildbot':
                     # importing here to avoid an import loop
                     from treeherder.etl.tasks import (submit_star_comment,
                                                       submit_build_star)
@@ -550,10 +545,6 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG
         )
 
-    def get_build_system_type(self, job_id):
-        job = self.get_job(job_id)
-        rds = ReferenceDataSignatures.objects.get(signature=job["signature"])
-        return rds.build_system_type
 
     def calculate_eta(self, sample_window_seconds, debug):
 
