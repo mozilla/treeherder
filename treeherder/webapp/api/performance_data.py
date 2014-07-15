@@ -3,7 +3,7 @@ import ast
 
 from rest_framework import viewsets
 from rest_framework.response import Response
-from rest_framework.decorators import link
+from rest_framework.decorators import action, link
 
 from treeherder.webapp.api.utils import (with_jobs)
 
@@ -12,7 +12,7 @@ class PerformanceDataViewSet(viewsets.ViewSet):
     This view serves performance charts data
     """
 
-    @link()
+    @action()
     @with_jobs
     def get_signatures_from_properties(self, request, project, jm, pk=None):
         """
@@ -22,10 +22,8 @@ class PerformanceDataViewSet(viewsets.ViewSet):
         Output: unique signatures
         """
 
-        print(request.QUERY_PARAMS)
-
         try:
-            props = json.loads(request.QUERY_PARAMS.get("properties", {}))
+            props = request.DATA.get("properties", {})
         except Exception as e:
             return Response("incorrect parameters", 400)
 
@@ -33,7 +31,7 @@ class PerformanceDataViewSet(viewsets.ViewSet):
 
         return Response(signatures)
 
-    @link()
+    @action()
     @with_jobs
     def get_performance_data(self, request, project, jm, pk=None):
         """
@@ -43,10 +41,10 @@ class PerformanceDataViewSet(viewsets.ViewSet):
         Output: performance charting data
         """
 
-        signature_string = request.QUERY_PARAMS.get("signatures", "[]")
+        signature_string = request.DATA.get("signatures", "[]")
 
         try:
-            interval_seconds = abs(int(request.QUERY_PARAMS.get("interval_seconds", 0)))
+            interval_seconds = abs(int(request.DATA.get("interval_seconds", 0)))
             signatures = ast.literal_eval(signature_string)
             signatures = [n.strip() for n in signatures]
         except Exception as e:

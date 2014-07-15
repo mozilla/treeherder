@@ -21,7 +21,7 @@ from treeherder.events.publisher import JobStatusPublisher
 
 from treeherder.etl.common import get_guid_root
 
-from .base import TreeherderModelBase
+from .base import TreeherderModelBase, ObjectNotFoundException
 
 from datasource.DataHub import DataHub
 
@@ -198,6 +198,7 @@ class JobsModel(TreeherderModelBase):
                 ).values_list("repository", "build_system_type").distinct()
             )
             cache.set("build_system_by_repo", build_systems)
+        return build_systems[project]
 
 
 
@@ -460,11 +461,8 @@ class JobsModel(TreeherderModelBase):
         if settings.TBPL_BUGS_TRANSFER_ENABLED:
             job = self.get_job(job_id)[0]
             if job["state"] == "completed":
-                signature = ReferenceDataSignatures.objects.filter(
-                    signature=job['signature'],
-                    repository=self.project)[0]
-                if signature.build_system_type == 'buildbot':
-
+                if self.get_build_system_type() == 'buildbot':
+                    # importing here to avoid an import loop
                     from treeherder.etl.tasks import submit_build_star
                     submit_build_star.delay(
                         self.project,
@@ -512,10 +510,7 @@ class JobsModel(TreeherderModelBase):
         if settings.TBPL_BUGS_TRANSFER_ENABLED:
             job = self.get_job(job_id)[0]
             if job["state"] == "completed":
-                signature = ReferenceDataSignatures.objects.filter(
-                    signature=job['signature'],
-                    repository=self.project)[0]
-                if signature.build_system_type == 'buildbot':
+                if self.get_build_system_type() == 'buildbot':
                     # importing here to avoid an import loop
                     from treeherder.etl.tasks import (submit_star_comment,
                                                       submit_build_star)
@@ -550,10 +545,6 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG
         )
 
-    def get_build_system_type(self, job_id):
-        job = self.get_job(job_id)
-        rds = ReferenceDataSignatures.objects.get(signature=job["signature"])
-        return rds.build_system_type
 
     def calculate_eta(self, sample_window_seconds, debug):
 
@@ -1850,9 +1841,6 @@ class JobsModel(TreeherderModelBase):
                     task['routing_key'] = 'parse_log.success'
                 tasks.append(task)
 
-            # a dict of result_set_id => push_timestamp
-            push_timestamp_lookup = self.get_push_timestamp_lookup(result_sets)
-
             # Store the log references
             self.get_jobs_dhub().execute(
                 proc='jobs.inserts.set_job_log_url',
@@ -1860,17 +1848,66 @@ class JobsModel(TreeherderModelBase):
                 placeholders=log_placeholders,
                 executemany=True)
 
+            # I need to find the jog_log_url ids
+            # just inserted but there's no unique key.
+            # Also, the url column is not indexed, so it's
+            # not a good idea to search based on that.
+            # I'm gonna retrieve the logs by job ids and then
+            # use their url to create a map.
+
+            job_ids = [j["id"] for j in job_id_lookup.values()]
+
+            job_log_url_list = self.get_job_log_url_list(job_ids)
+
+            log_url_lookup = dict([(jlu['url'], jlu)
+                                  for jlu in job_log_url_list])
+
             for task in tasks:
                 parse_log.apply_async(
                     args=[
                         self.project,
-                        task['log_url'],
+                        log_url_lookup[task['log_url']],
                         task['job_guid'],
-                        push_timestamp_lookup[task['result_set_id']]
                     ],
                     kwargs={'check_errors': task['check_errors']},
                     routing_key=task['routing_key']
                 )
+
+    def get_job_log_url_detail(self, job_log_url_id):
+        obj = self.get_jobs_dhub().execute(
+            proc='jobs.selects.get_job_log_url_detail',
+            debug_show=self.DEBUG,
+            placeholders=[job_log_url_id])
+        if len(obj) == 0:
+            raise ObjectNotFoundException("job_log_url", id=job_log_url_id)
+        return obj[0]
+
+    def get_job_log_url_list(self, job_ids):
+        """
+        Return a list of logs belonging to the given job_id(s).
+        """
+        if len(job_ids) == 0:
+            return []
+
+        replacement = []
+        id_placeholders = ["%s"] * len(job_ids)
+        replacement.append(','.join(id_placeholders))
+
+        data = self.get_jobs_dhub().execute(
+            proc="jobs.selects.get_job_log_url_list",
+            placeholders=job_ids,
+            replace=replacement,
+            debug_show=self.DEBUG,
+        )
+        return data
+
+    def update_job_log_url_status(self, job_log_url_id,
+                                  parse_status, parse_timestamp):
+
+        self.get_jobs_dhub().execute(
+                proc='jobs.updates.update_job_log_url',
+                debug_show=self.DEBUG,
+                placeholders=[parse_status, parse_timestamp, job_log_url_id])
 
 
     def store_job_artifact(self, artifact_placeholders):

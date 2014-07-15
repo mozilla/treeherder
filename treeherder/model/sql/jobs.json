@@ -51,7 +51,6 @@
     },
     "inserts":{
         "create_job_data":{
-
             "sql":"INSERT INTO `job` (
                 `job_guid`,
                 `signature`,
@@ -293,6 +292,14 @@
 	                where j.id = ?
             ",
 
+            "host":"master_host"
+        },
+        "update_job_log_url":{
+
+            "sql":"UPDATE `job_log_url`
+                SET    `parse_status` = ?, `parse_timestamp` = ?
+                WHERE  `id` = ?
+                AND `active_status` = 'active'",
             "host":"master_host"
         }
     },
@@ -608,6 +615,19 @@
                    WHERE job_id = ?",
 
             "host":"read_host"
+        },
+        "get_job_log_url_detail":{
+            "sql": "SELECT `id`, `job_id`, `name`, `url`, `parse_status`, `parse_timestamp`
+                    FROM job_log_url
+                    WHERE id = ? and active_status = 'active'",
+            "host":"read_host"
+        },
+        "get_job_log_url_list":{
+            "sql": "SELECT `id`, `job_id`, `name`, `url`, `parse_status`, `parse_timestamp`
+                    FROM job_log_url
+                    WHERE job_id in (REP0)
+                    and active_status='active'",
+            "host": "read_host"
         },
         "get_job_artifact":{
             "sql":"SELECT
