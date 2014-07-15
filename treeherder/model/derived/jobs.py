@@ -464,14 +464,18 @@ class JobsModel(TreeherderModelBase):
                 if self.get_build_system_type() == 'buildbot':
                     # importing here to avoid an import loop
                     from treeherder.etl.tasks import submit_build_star
-                    submit_build_star.delay(
-                        self.project,
-                        int(job_id),
-                        who,
-                        classification_id=int(failure_classification_id),
-                        note=note
+                    submit_build_star.apply_async(
+                        args=[
+                            self.project,
+                            int(job_id),
+                            who
+                        ],
+                        kwargs={
+                            'classification_id': int(failure_classification_id),
+                            'note': note
+                        },
+                        routing_key='high_priority'
                     )
-
 
     def delete_job_note(self, note_id, job_id):
         """
@@ -516,19 +520,27 @@ class JobsModel(TreeherderModelBase):
                                                       submit_build_star)
                     # submit bug association to tbpl
                     # using an async task
-                    submit_star_comment.delay(
-                        self.project,
-                        job_id,
-                        bug_id,
-                        submit_timestamp,
-                        who
+                    submit_star_comment.apply_async(
+                        args=[
+                            self.project,
+                            job_id,
+                            bug_id,
+                            submit_timestamp,
+                            who
+                        ],
+                        routing_key='high_priority'
                     )
 
-                    submit_build_star.delay(
-                        self.project,
-                        int(job_id),
-                        who,
-                        bug_id=bug_id
+                    submit_build_star.apply_async(
+                        args=[
+                            self.project,
+                            int(job_id),
+                            who
+                        ],
+                        kwargs={
+                            'bug_id': bug_id
+                        },
+                        routing_key='high_priority'
                     )
 
 
