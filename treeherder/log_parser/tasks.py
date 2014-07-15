@@ -9,6 +9,7 @@ http://docs.celeryproject.org/en/latest/userguide/canvas.html#guide-canvas
 import simplejson as json
 import re
 import time
+import traceback, sys
 
 from celery import task
 from django.conf import settings
@@ -47,7 +48,7 @@ def parse_log(project, job_log_url, job_guid, check_errors=False):
         )
 
         bugs_cache = {'open': {}, 'closed': {}}
-        bug_suggestions = {'open': {}, 'closed': {}}
+        bug_suggestions = {'open': [], 'closed': []}
 
 
         # return the resultset with the job id to identify if the UI wants
@@ -86,15 +87,26 @@ def parse_log(project, job_log_url, job_guid, check_errors=False):
                     # collect open and closed bugs suggestions
                     for status in ('open', 'closed'):
                         if not search_term:
-                            bug_suggestions[status][clean_line] = []
+                            bug_suggestions[status].append([])
                             continue
                         if search_term not in bugs_cache[status]:
                             # retrieve the list of suggestions from the api
-                            bugs_cache[status][search_term] = get_bugs_for_search_term(
-                                search_term,
-                                status,
-                                bugscache_uri
-                            )
+                            # bugs_cache[status][search_term] = get_bugs_for_search_term(
+                            #     search_term,
+                            #     status,
+                            #     bugscache_uri
+                            # )
+                            bugs_cache[status][search_term] = {
+                                "Preparing to abort run due to failed verify check.": [],
+                                "Dying due to failing verification": [],
+                                "Return code: 1": [],
+                                "Exiting -1": [],
+                                "Remote Device Error: Unhandled exception in cleanupDevice": [],
+                                "Running post_fatal callback...": [],
+                                "Caught Exception: Remote Device Error: unable to connect to panda-0415 after 5 attempts": []
+                            }
+
+
                             # no suggestions, try to use the crash signature as search term
                             if not bugs_cache[status][search_term]:
                                 crash_signature = get_crash_signature(search_term)
@@ -104,7 +116,11 @@ def parse_log(project, job_log_url, job_guid, check_errors=False):
                                         status,
                                         bugscache_uri
                                     )
-                        bug_suggestions[status][clean_line] = bugs_cache[status][search_term]
+
+                        bug_suggestions[status].append({
+                            "search": clean_line,
+                            "bugs": bugs_cache[status][search_term]
+                        })
 
             # store the artifacts generated
             tac = TreeherderArtifactCollection()
@@ -134,6 +150,8 @@ def parse_log(project, job_log_url, job_guid, check_errors=False):
             )
 
     except Exception, e:
+        traceback.print_exc(file=sys.stdout)
+        print e
         parse_log.retry(exc=e)
         # send an update to job_log_url
         # the job_log_url status changes
