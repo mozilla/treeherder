@@ -1,17 +1,12 @@
 import pytest
 import simplejson as json
-from mock import MagicMock
-
-from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
 
 from ..sampledata import SampleData
-from treeherder.model.derived import JobData
-from treeherder.log_parser.parsers import ErrorParser
 
 
 @pytest.fixture
 def jobs_with_local_log(initial_data):
-    log = "mozilla-central_fedora-b2g_test-crashtest-1-bm54-tests1-linux-build50"
+    log = "mozilla-inbound_ubuntu64_vm-debug_test-mochitest-other-bm53-tests1-linux-build122"
     sample_data = SampleData()
     url = "file://{0}".format(
         sample_data.get_log_path("{0}.txt.gz".format(log)))
@@ -20,8 +15,6 @@ def jobs_with_local_log(initial_data):
 
     # substitute the log url with a local url
     job['job']['log_references'][0]['url'] = url
-    # make this a successful job, so no error log processing
-    job['job']['result'] = "success"
     return [job]
 
 
@@ -35,6 +28,8 @@ def test_parse_log(jm, initial_data, jobs_with_local_log, sample_resultset, mock
 
     jobs = jobs_with_local_log
     for job in jobs:
+        # make this a successful job, so no error log processing
+        job['job']['result'] = "success"
         job['revision_hash'] = sample_resultset[0]['revision_hash']
 
     jm.store_job_data(jobs)
@@ -56,3 +51,48 @@ def test_parse_log(jm, initial_data, jobs_with_local_log, sample_resultset, mock
     # for the job artifact panel
 
     assert len(job_artifacts) >= 2
+
+
+def test_bug_suggestions_artifact(jm, initial_data, jobs_with_local_log,
+                                  sample_resultset, mock_send_request,
+                                  monkeypatch):
+    """
+    check that at least 2 job_artifacts get inserted when running
+    a parse_log task
+    """
+    from treeherder.log_parser.utils import utils as log_parser_utils
+    from treeherder.etl import common
+    def mock_get_bug_suggestions(*args, **kwargs):
+        return []
+
+    monkeypatch.setattr(log_parser_utils, 'get_bugs_for_search_term', mock_get_bug_suggestions)
+    # monkeypatch.setattr(common, 'get_remote_content', mock_get_bug_suggestions)
+
+    jm.store_result_set_data(sample_resultset)
+
+    jobs = jobs_with_local_log
+    for job in jobs:
+        # make this a failing job, so use error log processing
+        job['job']['result'] = "testfailed"
+        job['revision_hash'] = sample_resultset[0]['revision_hash']
+
+    jm.store_job_data(jobs)
+    jm.process_objects(1, raise_errors=True)
+
+    job_id = jm.get_jobs_dhub().execute(
+        proc="jobs_test.selects.row_by_guid",
+        placeholders=[jobs[0]['job']['job_guid']]
+    )[0]['id']
+
+    job_artifacts = jm.get_jobs_dhub().execute(
+        proc="jobs_test.selects.job_artifact",
+        placeholders=[job_id]
+    )
+
+    jm.disconnect()
+
+    # we must have at least 2 artifacts: one for the log viewer and another one
+    # for the job artifact panel
+
+    assert len(job_artifacts) >= 2
+    assert False, json.dumps(job_artifacts, indent=4)
