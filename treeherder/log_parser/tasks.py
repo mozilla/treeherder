@@ -122,6 +122,9 @@ def parse_log(project, job_log_url, job_guid, check_errors=False):
                             "bugs": bugs_cache[status][search_term]
                         })
 
+            artifact_list.append((job_guid, 'Open bugs', 'json', json.dumps(bug_suggestions['open'])))
+            artifact_list.append((job_guid, 'Closed bugs', 'json', json.dumps(bug_suggestions['closed'])))
+
             # store the artifacts generated
             tac = TreeherderArtifactCollection()
             for artifact in artifact_list:

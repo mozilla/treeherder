@@ -55,18 +55,19 @@ def test_parse_log(jm, initial_data, jobs_with_local_log, sample_resultset, mock
 
 def test_bug_suggestions_artifact(jm, initial_data, jobs_with_local_log,
                                   sample_resultset, mock_send_request,
-                                  monkeypatch):
+                                  # mock_get_bugs_for_search_term
+                                  ):
     """
     check that at least 2 job_artifacts get inserted when running
     a parse_log task
     """
-    from treeherder.log_parser.utils import utils as log_parser_utils
-    from treeherder.etl import common
-    def mock_get_bug_suggestions(*args, **kwargs):
-        return []
-
-    monkeypatch.setattr(log_parser_utils, 'get_bugs_for_search_term', mock_get_bug_suggestions)
-    # monkeypatch.setattr(common, 'get_remote_content', mock_get_bug_suggestions)
+    # from treeherder.log_parser import utils as log_parser_utils
+    # from treeherder.etl import common
+    # def mock_get_bug_suggestions(*args, **kwargs):
+    #     return []
+    #
+    # monkeypatch.setattr(log_parser_utils, 'get_bugs_for_search_term', mock_get_bug_suggestions)
+    # # monkeypatch.setattr(common, 'get_remote_content', mock_get_bug_suggestions)
 
     jm.store_result_set_data(sample_resultset)
 

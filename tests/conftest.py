@@ -348,3 +348,11 @@ def mock_send_request(monkeypatch, jm):
         return response
 
     monkeypatch.setattr(TreeherderRequest, 'send', _send)
+
+@pytest.fixture
+def mock_get_bugs_for_search_term(monkeypatch):
+    from treeherder.log_parser import utils as log_parser_utils
+    def _get_bugs_for_search_term(*args, **kwargs):
+        return {"foo": [], "bar": []}
+
+    monkeypatch.setattr(log_parser_utils, "get_bugs_for_search_term", _get_bugs_for_search_term)
