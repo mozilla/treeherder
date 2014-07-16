@@ -3,8 +3,6 @@ import urllib
 
 from django.conf import settings
 
-from treeherder.etl.common import get_remote_content
-
 
 def is_helpful_search_term(search_term):
     # Search terms that will match too many bug summaries
@@ -44,7 +42,7 @@ def get_error_search_term(error_line):
     in a full_text search.
     """
     if not error_line:
-        return []
+        return ""
 
     # this is STRONGLY inspired to
     # https://hg.mozilla.org/webtools/tbpl/file/tip/php/inc/AnnotatedSummaryGenerator.php#l73
@@ -76,7 +74,7 @@ def get_error_search_term(error_line):
 
         search_term = error_line
 
-    return search_term
+    return search_term or error_line
 
 
 def get_crash_signature(error_line):
@@ -96,6 +94,8 @@ def get_bugs_for_search_term(search, status, base_uri):
     Fetch the base_uri endpoint filtering on search and status.
     Status must be either 'open' or 'closed'
     """
+    from treeherder.etl.common import get_remote_content
+
     assert status in ('open', 'closed')
     params = {
         'search': search,
@@ -108,3 +108,9 @@ def get_bugs_for_search_term(search, status, base_uri):
     )
     return get_remote_content(url)
 
+mozharness_pattern = re.compile(
+    '^\d+:\d+:\d+[ ]+(?:DEBUG|INFO|WARNING|ERROR|CRITICAL|FATAL) - [ ]?'
+)
+
+def get_mozharness_substring(line):
+    return mozharness_pattern.sub('', line).strip()

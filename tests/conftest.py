@@ -349,14 +349,6 @@ def mock_send_request(monkeypatch, jm):
 
     monkeypatch.setattr(TreeherderRequest, 'send', _send)
 
-@pytest.fixture
-def mock_get_bugs_for_search_term(monkeypatch):
-    from treeherder.log_parser import utils as log_parser_utils
-    def _get_bugs_for_search_term(*args, **kwargs):
-        return {"foo": [], "bar": []}
-
-    monkeypatch.setattr(log_parser_utils, "get_bugs_for_search_term", _get_bugs_for_search_term)
-
 
 @pytest.fixture
 def mock_get_remote_content(monkeypatch):
@@ -367,6 +359,5 @@ def mock_get_remote_content(monkeypatch):
         else:
             return response.json
 
-    from treeherder.etl import common
-    monkeypatch.setattr(common,
-                        'get_remote_content', _get_remote_content)
+    import treeherder.etl.common
+    monkeypatch.setattr(treeherder.etl.common, 'get_remote_content', _get_remote_content)

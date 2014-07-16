@@ -2,6 +2,7 @@ import pytest
 import simplejson as json
 
 from ..sampledata import SampleData
+from treeherder.log_parser.utils import get_mozharness_substring
 
 
 @pytest.fixture
@@ -61,14 +62,6 @@ def test_bug_suggestions_artifact(jm, initial_data, jobs_with_local_log,
     check that at least 2 job_artifacts get inserted when running
     a parse_log task
     """
-    # from treeherder.log_parser import utils as log_parser_utils
-    # from treeherder.etl import common
-    # def mock_get_bug_suggestions(*args, **kwargs):
-    #     return []
-    #
-    # monkeypatch.setattr(log_parser_utils, 'get_bugs_for_search_term', mock_get_bug_suggestions)
-    # # monkeypatch.setattr(common, 'get_remote_content', mock_get_bug_suggestions)
-
     jm.store_result_set_data(sample_resultset)
 
     jobs = jobs_with_local_log
@@ -92,8 +85,25 @@ def test_bug_suggestions_artifact(jm, initial_data, jobs_with_local_log,
 
     jm.disconnect()
 
-    # we must have at least 2 artifacts: one for the log viewer and another one
-    # for the job artifact panel
+    # we must have at least 4 artifacts: one for the log viewer and another one
+    # for the job artifact panel, plus the open and closed bugs artifacts
 
-    assert len(job_artifacts) >= 2
-    assert False, json.dumps(job_artifacts, indent=4)
+    assert len(job_artifacts) >= 4
+
+    exp = []
+    closed = []
+    open = []
+
+    for artifact in job_artifacts:
+        if artifact["name"] == "Structured Log":
+            all_errors = json.loads(artifact["blob"])["step_data"]["all_errors"]
+            exp = [get_mozharness_substring(x['line']) for x in all_errors]
+            print json.dumps(all_errors, indent=4)
+        elif artifact["name"] == "Closed bugs":
+            closed = [x['search'] for x in json.loads(artifact["blob"])]
+            print json.dumps(closed, indent=4)
+        elif artifact["name"] == "Open bugs":
+            open = [x['search'] for x in json.loads(artifact["blob"])]
+
+    assert exp == closed
+    assert exp == open

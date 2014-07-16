@@ -21,7 +21,8 @@ from treeherder.log_parser.artifactbuildercollection import \
     ArtifactBuilderCollection
 from treeherder.log_parser.utils import (get_error_search_term,
                                          get_crash_signature,
-                                         get_bugs_for_search_term)
+                                         get_bugs_for_search_term,
+                                         get_mozharness_substring)
 
 from treeherder.etl.oauth_utils import OAuthCredentials
 
@@ -43,9 +44,6 @@ def parse_log(project, job_log_url, job_guid, check_errors=False):
 
     try:
         log_url = job_log_url['url']
-        mozharness_pattern = re.compile(
-            '^\d+:\d+:\d+[ ]+(?:DEBUG|INFO|WARNING|ERROR|CRITICAL|FATAL) - [ ]?'
-        )
 
         bugs_cache = {'open': {}, 'closed': {}}
         bug_suggestions = {'open': [], 'closed': []}
@@ -81,13 +79,12 @@ def parse_log(project, job_log_url, job_guid, check_errors=False):
 
                 for err in all_errors:
                     # remove the mozharness prefix
-                    clean_line = mozharness_pattern.sub('', err['line']).strip()
+                    clean_line = get_mozharness_substring(err['line'])
                     # get a meaningful search term out of the error line
                     search_term = get_error_search_term(clean_line)
                     # collect open and closed bugs suggestions
                     for status in ('open', 'closed'):
                         if not search_term:
-                            bug_suggestions[status].append([])
                             continue
                         if search_term not in bugs_cache[status]:
                             # retrieve the list of suggestions from the api
@@ -96,17 +93,6 @@ def parse_log(project, job_log_url, job_guid, check_errors=False):
                                 status,
                                 bugscache_uri
                             )
-                            # bugs_cache[status][search_term] = {
-                            #     "Preparing to abort run due to failed verify check.": [],
-                            #     "Dying due to failing verification": [],
-                            #     "Return code: 1": [],
-                            #     "Exiting -1": [],
-                            #     "Remote Device Error: Unhandled exception in cleanupDevice": [],
-                            #     "Running post_fatal callback...": [],
-                            #     "Caught Exception: Remote Device Error: unable to connect to panda-0415 after 5 attempts": []
-                            # }
-
-
                             # no suggestions, try to use the crash signature as search term
                             if not bugs_cache[status][search_term]:
                                 crash_signature = get_crash_signature(search_term)
@@ -154,7 +140,7 @@ def parse_log(project, job_log_url, job_guid, check_errors=False):
 
     except Exception, e:
         traceback.print_exc(file=sys.stdout)
-        print e
+        # print e
         parse_log.retry(exc=e)
         # send an update to job_log_url
         # the job_log_url status changes
