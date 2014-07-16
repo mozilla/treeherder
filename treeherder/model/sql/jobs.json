@@ -333,6 +333,17 @@
             "host":"read_host"
 
         },
+        "get_performance_artifact_list": {
+
+            "sql":"SELECT `id`, `job_id`, `series_signature`, `name`, `type`, `blob`
+                   FROM `performance_artifact`
+                   WHERE `active_status` = 'active'
+                   REP0
+                   ORDER BY id DESC, name",
+
+            "host":"read_host"
+
+        },
         "get_performance_series": {
 
             "sql":"SELECT `interval_seconds`, `series_signature`, `type`, `last_updated`, `blob`

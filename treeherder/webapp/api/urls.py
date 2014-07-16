@@ -1,7 +1,8 @@
 from django.conf.urls import patterns, include, url
 from treeherder.webapp.api import (refdata, objectstore, jobs, resultset,
                                    artifact, note, revision, bug, logslice,
-                                   performance_data, job_log_url)
+                                   performance_data, job_log_url,
+                                   performance_artifact)
 
 from rest_framework import routers
 
@@ -31,6 +32,12 @@ project_bound_router.register(
     r'artifact',
     artifact.ArtifactViewSet,
     base_name='artifact',
+)
+
+project_bound_router.register(
+    r'performance_artifact',
+    performance_artifact.PerformanceArtifactViewSet,
+    base_name='performance_artifact',
 )
 
 project_bound_router.register(

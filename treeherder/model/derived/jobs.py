@@ -123,8 +123,14 @@ class JobsModel(TreeherderModelBase):
             "job_id": "job_id",
             "name": "name",
             "type": "type"
+        },
+        "performance_artifact": {
+            "id": "id",
+            "job_id": "job_id",
+            "series_signature": "series_signature",
+            "name": "name",
+            "type": "type"
         }
-
     }
 
     OBJECTSTORE_CYCLE_TARGETS = [
@@ -404,6 +410,37 @@ class JobsModel(TreeherderModelBase):
             limit="{0},{1}".format(offset, limit),
             debug_show=self.DEBUG,
         )
+        for artifact in data:
+            if artifact["type"] == "json":
+                artifact["blob"] = json.loads(artifact["blob"])
+
+        return data
+
+    def get_performance_artifact_list(self, offset, limit, conditions=None):
+        """
+        Retrieve a list of performance artifacts. The conditions parameter is a
+        dict containing a set of conditions for each key. e.g.:
+        {
+            'job_id': set([('IN', (1, 2))])
+        }
+        """
+
+        replace_str, placeholders = self._process_conditions(
+            conditions, self.INDEXED_COLUMNS['performance_artifact']
+        )
+
+        repl = [replace_str]
+
+        proc = "jobs.selects.get_performance_artifact_list"
+
+        data = self.get_jobs_dhub().execute(
+            proc=proc,
+            replace=repl,
+            placeholders=placeholders,
+            limit="{0},{1}".format(offset, limit),
+            debug_show=self.DEBUG,
+        )
+
         for artifact in data:
             if artifact["type"] == "json":
                 artifact["blob"] = json.loads(artifact["blob"])
