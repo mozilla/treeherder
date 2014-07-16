@@ -55,7 +55,7 @@ def test_parse_log(jm, initial_data, jobs_with_local_log, sample_resultset, mock
 
 def test_bug_suggestions_artifact(jm, initial_data, jobs_with_local_log,
                                   sample_resultset, mock_send_request,
-                                  # mock_get_bugs_for_search_term
+                                  mock_get_remote_content
                                   ):
     """
     check that at least 2 job_artifacts get inserted when running

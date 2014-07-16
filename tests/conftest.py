@@ -356,3 +356,17 @@ def mock_get_bugs_for_search_term(monkeypatch):
         return {"foo": [], "bar": []}
 
     monkeypatch.setattr(log_parser_utils, "get_bugs_for_search_term", _get_bugs_for_search_term)
+
+
+@pytest.fixture
+def mock_get_remote_content(monkeypatch):
+    def _get_remote_content(url):
+        response = TestApp(application).get(url)
+        if response.status_int != 200:
+            return None
+        else:
+            return response.json
+
+    from treeherder.etl import common
+    monkeypatch.setattr(common,
+                        'get_remote_content', _get_remote_content)
