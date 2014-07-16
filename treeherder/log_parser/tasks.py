@@ -91,20 +91,20 @@ def parse_log(project, job_log_url, job_guid, check_errors=False):
                             continue
                         if search_term not in bugs_cache[status]:
                             # retrieve the list of suggestions from the api
-                            # bugs_cache[status][search_term] = get_bugs_for_search_term(
-                            #     search_term,
-                            #     status,
-                            #     bugscache_uri
-                            # )
-                            bugs_cache[status][search_term] = {
-                                "Preparing to abort run due to failed verify check.": [],
-                                "Dying due to failing verification": [],
-                                "Return code: 1": [],
-                                "Exiting -1": [],
-                                "Remote Device Error: Unhandled exception in cleanupDevice": [],
-                                "Running post_fatal callback...": [],
-                                "Caught Exception: Remote Device Error: unable to connect to panda-0415 after 5 attempts": []
-                            }
+                            bugs_cache[status][search_term] = get_bugs_for_search_term(
+                                search_term,
+                                status,
+                                bugscache_uri
+                            )
+                            # bugs_cache[status][search_term] = {
+                            #     "Preparing to abort run due to failed verify check.": [],
+                            #     "Dying due to failing verification": [],
+                            #     "Return code: 1": [],
+                            #     "Exiting -1": [],
+                            #     "Remote Device Error: Unhandled exception in cleanupDevice": [],
+                            #     "Running post_fatal callback...": [],
+                            #     "Caught Exception: Remote Device Error: unable to connect to panda-0415 after 5 attempts": []
+                            # }
 
 
                             # no suggestions, try to use the crash signature as search term
