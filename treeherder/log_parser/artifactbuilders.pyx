@@ -13,6 +13,7 @@ class ArtifactBuilderBase(object):
     the url to the log file to add to its own artifact.
 
     """
+    MAX_LINE_LENGTH = 500
 
     def __init__(self, url=None):
         """
@@ -30,6 +31,9 @@ class ArtifactBuilderBase(object):
 
     def parse_line(self, line):
         """Parse a single line of the log."""
+
+        # truncate the line to the max line-length
+        line = line[:self.MAX_LINE_LENGTH]
 
         for parser in self.parsers:
             if not parser.complete:

@@ -98,10 +98,8 @@ def test_bug_suggestions_artifact(jm, initial_data, jobs_with_local_log,
         if artifact["name"] == "Structured Log":
             all_errors = json.loads(artifact["blob"])["step_data"]["all_errors"]
             exp = [get_mozharness_substring(x['line']) for x in all_errors]
-            print json.dumps(all_errors, indent=4)
         elif artifact["name"] == "Closed bugs":
             closed = [x['search'] for x in json.loads(artifact["blob"])]
-            print json.dumps(closed, indent=4)
         elif artifact["name"] == "Open bugs":
             open = [x['search'] for x in json.loads(artifact["blob"])]
 

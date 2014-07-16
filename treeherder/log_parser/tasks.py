@@ -7,9 +7,7 @@ have a look at the canvas section in the docs
 http://docs.celeryproject.org/en/latest/userguide/canvas.html#guide-canvas
 """
 import simplejson as json
-import re
 import time
-import traceback, sys
 
 from celery import task
 from django.conf import settings

@@ -235,6 +235,12 @@ def test_xpcshell_timeout(initial_data):
         "xpcshell-timeout"
     )
 
+def test_extreme_log_line_length_truncation(initial_data):
+    """This log has lines that are huge.  Ensure we truncate the lines to 100"""
+    do_test(
+        "mozilla-central_ubuntu64_hw_test-androidx86-set-4-bm103-tests1-linux-build369"
+    )
+
 @slow
 def test_check_errors_false(initial_data, monkeypatch):
     """ensure that parse_line is not called on the error parser."""

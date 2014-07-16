@@ -16,6 +16,14 @@
         }
     },
     {
+        "pk": 3,
+        "model": "djcelery.intervalschedule",
+        "fields": {
+            "every": 1,
+            "period": "days"
+        }
+    },
+    {
         "pk": 1,
         "model": "djcelery.crontabschedule",
         "fields": {
@@ -235,6 +243,27 @@
             "kwargs": "{}",
             "date_changed": "2014-04-24T16:22:39",
             "description": "Compute pending and running eta times"
+        }
+    },
+    {
+        "pk": 11,
+        "model": "djcelery.periodictask",
+        "fields": {
+            "task": "fetch-bugs",
+            "name": "fetch-bugs",
+            "exchange": null,
+            "last_run_at": null,
+            "args": "[]",
+            "enabled": true,
+            "routing_key": null,
+            "crontab": null,
+            "interval": 3,
+            "queue": null,
+            "total_run_count": 0,
+            "expires": null,
+            "kwargs": "{}",
+            "date_changed": "2014-07-16T14:33:39",
+            "description": "Update list of bugs for bug suggestions"
         }
     }
 ]

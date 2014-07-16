@@ -1,0 +1,189 @@
+{
+    "header": {
+        "slave": "talos-linux64-ix-096", 
+        "buildid": "20140717073317", 
+        "builder": "mozilla-central_ubuntu64_hw_test-androidx86-set-4", 
+        "results": "warnings (1)", 
+        "starttime": "1405611918.8", 
+        "builduid": "bc9003254bc748bbb6890c140cca6eba", 
+        "revision": "75db55f6fd2c"
+    }, 
+    "step_data": {
+        "all_errors": [
+            {
+                "line": "09:14:00     INFO -  org.json.JSONException: Unterminated string at character 23963 of {\"reason\":\"android-anr-report\",\"slug\":\"5e99c087-ebb5-4091-b5c8-75bd0889509c\",\"payload\":{\"ver\":1,\"simpleMeasurements\":{\"uptime\":0},\"info\":{\"reason\":\"android-anr-report\",\"OS\":\"Android\",\"version\":\"17\",\"appID\":\"{aa3c5121-dab2-40e2-81ca-7ea25febc110}\",\"appVersion\":\"33.0a1\",\"appName\":\"Fennec\",\"appBuildID\":\"20140717073317\",\"appUpdateChannel\":\"default\",\"platformBuildID\":\"20140717073317\",\"locale\":\"en-US\",\"cpucount\":1,\"", 
+                "linenumber": 3544
+            }, 
+            {
+                "line": "09:14:00     INFO -  17 INFO TEST-UNEXPECTED-FAIL | testANRReporter | Exception caught - org.json.JSONException: Unterminated string at character 23963 of {\"reason\":\"android-anr-report\",\"slug\":\"5e99c087-ebb5-4091-b5c8-75bd0889509c\",\"payload\":{\"ver\":1,\"simpleMeasurements\":{\"uptime\":0},\"info\":{\"reason\":\"android-anr-report\",\"OS\":\"Android\",\"version\":\"17\",\"appID\":\"{aa3c5121-dab2-40e2-81ca-7ea25febc110}\",\"appVersion\":\"33.0a1\",\"appName\":\"Fennec\",\"appBuildID\":\"20140717073317\",\"appUpdateChannel\":\"default", 
+                "linenumber": 3571
+            }
+        ], 
+        "steps": [
+            {
+                "errors": [], 
+                "name": "set props: master", 
+                "started": "2014-07-17 08:45:18.801609", 
+                "started_linenumber": 8, 
+                "finished_linenumber": 10, 
+                "finished": "2014-07-17 08:45:18.802011", 
+                "error_count": 0, 
+                "duration": 0, 
+                "order": 0
+            }, 
+            {
+                "errors": [], 
+                "name": "set props: basedir", 
+                "started": "2014-07-17 08:45:18.802295", 
+                "started_linenumber": 12, 
+                "finished_linenumber": 56, 
+                "finished": "2014-07-17 08:45:18.854874", 
+                "error_count": 0, 
+                "duration": 0, 
+                "order": 1
+            }, 
+            {
+                "errors": [], 
+                "name": "downloading to buildprops.json", 
+                "started": "2014-07-17 08:45:18.855272", 
+                "started_linenumber": 58, 
+                "finished_linenumber": 59, 
+                "finished": "2014-07-17 08:45:18.904210", 
+                "error_count": 0, 
+                "duration": 0, 
+                "order": 2
+            }, 
+            {
+                "errors": [], 
+                "name": "'rm -rf ...'", 
+                "started": "2014-07-17 08:45:18.904577", 
+                "started_linenumber": 61, 
+                "finished_linenumber": 103, 
+                "finished": "2014-07-17 08:45:18.943479", 
+                "error_count": 0, 
+                "duration": 0, 
+                "order": 3
+            }, 
+            {
+                "errors": [], 
+                "name": "'rm -rf ...'", 
+                "started": "2014-07-17 08:45:18.943846", 
+                "started_linenumber": 105, 
+                "finished_linenumber": 147, 
+                "finished": "2014-07-17 08:45:19.043322", 
+                "error_count": 0, 
+                "duration": 0, 
+                "order": 4
+            }, 
+            {
+                "errors": [], 
+                "name": "'hg clone ...'", 
+                "started": "2014-07-17 08:45:19.043748", 
+                "started_linenumber": 149, 
+                "finished_linenumber": 198, 
+                "finished": "2014-07-17 08:45:21.830887", 
+                "error_count": 0, 
+                "duration": 3, 
+                "order": 5
+            }, 
+            {
+                "errors": [], 
+                "name": "'hg update ...'", 
+                "started": "2014-07-17 08:45:21.831343", 
+                "started_linenumber": 200, 
+                "finished_linenumber": 243, 
+                "finished": "2014-07-17 08:45:22.037742", 
+                "error_count": 0, 
+                "duration": 0, 
+                "order": 6
+            }, 
+            {
+                "errors": [], 
+                "name": "set props: script_repo_revision", 
+                "started": "2014-07-17 08:45:22.038178", 
+                "started_linenumber": 245, 
+                "finished_linenumber": 289, 
+                "finished": "2014-07-17 08:45:22.126650", 
+                "error_count": 0, 
+                "duration": 0, 
+                "order": 7
+            }, 
+            {
+                "errors": [], 
+                "name": "downloading to oauth.txt", 
+                "started": "2014-07-17 08:45:22.126969", 
+                "started_linenumber": 291, 
+                "finished_linenumber": 292, 
+                "finished": "2014-07-17 08:45:22.140342", 
+                "error_count": 0, 
+                "duration": 0, 
+                "order": 8
+            }, 
+            {
+                "errors": [], 
+                "name": "tinderboxprint_script_revlink", 
+                "started": "2014-07-17 08:45:22.140752", 
+                "started_linenumber": 294, 
+                "finished_linenumber": 296, 
+                "finished": "2014-07-17 08:45:22.141210", 
+                "error_count": 0, 
+                "duration": 0, 
+                "order": 9
+            }, 
+            {
+                "errors": [
+                    {
+                        "line": "09:14:00     INFO -  org.json.JSONException: Unterminated string at character 23963 of {\"reason\":\"android-anr-report\",\"slug\":\"5e99c087-ebb5-4091-b5c8-75bd0889509c\",\"payload\":{\"ver\":1,\"simpleMeasurements\":{\"uptime\":0},\"info\":{\"reason\":\"android-anr-report\",\"OS\":\"Android\",\"version\":\"17\",\"appID\":\"{aa3c5121-dab2-40e2-81ca-7ea25febc110}\",\"appVersion\":\"33.0a1\",\"appName\":\"Fennec\",\"appBuildID\":\"20140717073317\",\"appUpdateChannel\":\"default\",\"platformBuildID\":\"20140717073317\",\"locale\":\"en-US\",\"cpucount\":1,\"", 
+                        "linenumber": 3544
+                    }, 
+                    {
+                        "line": "09:14:00     INFO -  17 INFO TEST-UNEXPECTED-FAIL | testANRReporter | Exception caught - org.json.JSONException: Unterminated string at character 23963 of {\"reason\":\"android-anr-report\",\"slug\":\"5e99c087-ebb5-4091-b5c8-75bd0889509c\",\"payload\":{\"ver\":1,\"simpleMeasurements\":{\"uptime\":0},\"info\":{\"reason\":\"android-anr-report\",\"OS\":\"Android\",\"version\":\"17\",\"appID\":\"{aa3c5121-dab2-40e2-81ca-7ea25febc110}\",\"appVersion\":\"33.0a1\",\"appName\":\"Fennec\",\"appBuildID\":\"20140717073317\",\"appUpdateChannel\":\"default", 
+                        "linenumber": 3571
+                    }
+                ], 
+                "name": "'/tools/buildbot/bin/python scripts/scripts/android_emulator_unittest.py ...' warnings", 
+                "started": "2014-07-17 08:45:22.141524", 
+                "started_linenumber": 298, 
+                "finished_linenumber": 10231, 
+                "finished": "2014-07-17 09:18:15.066397", 
+                "error_count": 2, 
+                "duration": 1973, 
+                "order": 10
+            }, 
+            {
+                "errors": [], 
+                "name": "set props: blobber_manifest_url build_url", 
+                "started": "2014-07-17 09:18:15.071084", 
+                "started_linenumber": 10233, 
+                "finished_linenumber": 10279, 
+                "finished": "2014-07-17 09:18:15.266212", 
+                "error_count": 0, 
+                "duration": 0, 
+                "order": 11
+            }, 
+            {
+                "errors": [], 
+                "name": "'rm -f ...'", 
+                "started": "2014-07-17 09:18:15.266604", 
+                "started_linenumber": 10281, 
+                "finished_linenumber": 10323, 
+                "finished": "2014-07-17 09:18:15.290870", 
+                "error_count": 0, 
+                "duration": 0, 
+                "order": 12
+            }, 
+            {
+                "errors": [], 
+                "name": "reboot slave lost", 
+                "started": "2014-07-17 09:18:15.291165", 
+                "started_linenumber": 10325, 
+                "finished_linenumber": 10369, 
+                "finished": "2014-07-17 09:18:22.104200", 
+                "error_count": 0, 
+                "duration": 7, 
+                "order": 13
+            }
+        ]
+    }, 
+    "logurl": "file:///home/vagrant/treeherder-service/tests/sample_data/logs/mozilla-central_ubuntu64_hw_test-androidx86-set-4-bm103-tests1-linux-build369.txt.gz"
+}

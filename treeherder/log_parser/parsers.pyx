@@ -247,48 +247,53 @@ class TinderboxPrintParser(ParserBase):
                 self.artifact.append(artifact)
 
 
-
-RE_INFO = re.compile((
-        "^\d+:\d+:\d+[ ]+(?:INFO)(?: -  )"
-        "(TEST-|INFO TEST-)(INFO|PASS|START|END) "
-    ))
-
-
 IN_SEARCH_TERMS = (
-    "TEST-UNEXPECTED-PASS ",
-    "TEST-UNEXPECTED-FAIL ",
-    "TEST-TIMEOUT",
+    "TEST-UNEXPECTED-",
     "fatal error",
     "PROCESS-CRASH",
     "Assertion failure:",
     "Assertion failed:",
     "###!!! ABORT:",
+    "E\/GeckoLinker",
+    "SUMMARY: AddressSanitizer",
+    "SUMMARY: LeakSanitizer",
+    " error\([0-9]*\):",
+    ":[0-9]+: error:",
+    " error R?C[0-9]*:",
     "Automation Error:",
-    "Remote Device Error:",
     "command timed out:",
-    "ERROR 503:",
+    "ERROR [45]\d\d:"
     "wget: unable ",
 )
 
 RE_ERR_MATCH = re.compile((
     "^error: TEST FAILED"
     "|^g?make(?:\[\d+\])?: \*\*\*"
-    "|^\d+:\d+:\d+[ ]+(?:ERROR|CRITICAL|FATAL) - "
-    "|^[A-Za-z]+Error:"
-    "|^Output exceeded \d+ bytes"
-    "|^BaseException:"
+    "|^Remote Device Error:"
+    "|^[A-Za-z.]+Error: "
+    "|^[A-Za-z.]*Exception: "
     "|^remoteFailed:"
     "|^rm: cannot "
     "|^abort:"
+    "|^Output exceeded \d+ bytes"
     "|^The web-page 'stop build' button was pressed"
 ))
-
 
 RE_ERR_SEARCH = re.compile((
     " error\([0-9]*\):"
     "| error R?C[0-9]*:"
 ))
 
+RE_EXCLUDE_1_SEARCH = re.compile("TEST-(?:INFO|PASS) ")
+
+RE_EXCLUDE_2_SEARCH = re.compile(
+    "I[ \/](Gecko|Robocop|TestRunner).*TEST-UNEXPECTED-"
+    "|^TimeoutException: "
+    )
+
+RE_ERR_1_MATCH = re.compile("^\d+:\d+:\d+[ ]+(?:ERROR|CRITICAL|FATAL) - ")
+
+RE_MOZHARNESS_PREFIX = re.compile("^\d+:\d+:\d+[ ]+(?:DEBUG|INFO|WARNING) -[ ]+")
 
 class ErrorParser(ParserBase):
     """A generic error detection sub-parser"""
@@ -297,15 +302,30 @@ class ErrorParser(ParserBase):
         """A simple error detection sub-parser"""
         super(ErrorParser, self).__init__("errors")
 
+    def add(self, line, lineno):
+        self.artifact.append({
+            "linenumber": lineno,
+            "line": line.rstrip()
+        })
+
     def parse_line(self, line, lineno):
         """Check a single line for an error.  Keeps track of the linenumber"""
-        if not RE_INFO.match(line):
-            if any(term for term in IN_SEARCH_TERMS if term in line) or \
-                    RE_ERR_MATCH.match(line) or RE_ERR_SEARCH.search(line):
-                self.artifact.append({
-                    "linenumber": lineno,
-                    "line": line.rstrip()
-                })
+        if RE_EXCLUDE_1_SEARCH.search(line):
+            return
+
+        if RE_ERR_1_MATCH.match(line):
+            self.add(line, lineno)
+            return
+
+        #remove mozharness prefixes prior to matching
+        trimline = re.sub(RE_MOZHARNESS_PREFIX, "", line)
+
+        if RE_EXCLUDE_2_SEARCH.search(trimline):
+            return
+
+        if any(term for term in IN_SEARCH_TERMS if term in trimline) or \
+                RE_ERR_MATCH.match(trimline) or RE_ERR_SEARCH.search(trimline):
+            self.add(line, lineno)
 
 RE_TALOSDATA = re.compile('.*?TALOSDATA: (\[.*\])$')
 
