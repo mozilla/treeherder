@@ -22,10 +22,13 @@ class PerformanceDataViewSet(viewsets.ViewSet):
         """
 
         try:
-            props = json.loads(request.QUERY_PARAMS.get("properties", {}))
+            props = request.QUERY_PARAMS.dict("properties")
         except Exception as e:
             return Response("incorrect parameters", 400)
 
+        if not props:
+            return Response("no properties submitted", 400)
+            
         signatures = jm.get_signatures_from_properties(props)
 
         return Response(signatures)
@@ -52,4 +55,3 @@ class PerformanceDataViewSet(viewsets.ViewSet):
         data = jm.get_performance_series_from_signatures(signatures, interval_seconds)
 
         return Response(data)
-
