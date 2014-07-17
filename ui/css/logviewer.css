@@ -1,6 +1,6 @@
 body {
     padding: 20px;
-    padding-top: 270px;
+    padding-top: 284px;
     white-space: nowrap;
     float: left;
 }
@@ -27,7 +27,7 @@ body {
     position: absolute;
     overflow: auto;
     right: 0px;
-    top: 270px;
+    top: 284px;
     left: 0px;
     bottom: 0px;
     padding: 20px;
@@ -56,24 +56,26 @@ body {
 }
 
 .run-data {
-    height: 270px;
+    height: 284px;
     width: 100%;
     position: fixed;
     top: 0px;
     left: 0px;
     background-color: #FFF;
-    padding: 30px;
+    padding: 20px;
     border-bottom: 1px solid #EFEFEF;
 }
 
 .run-data .steps-data {
     height: 210px;
     overflow: auto;
-    border: 1px solid #EFEFEF;
-	padding: 10px;
+    border-color: #dddddd;
+    border-width: 1px;
+    border-style: solid none;
 }
 
 .logviewer-step {
+    border-radius: 2px;
     overflow: hidden;
     -webkit-user-select: text;
     -moz-user-select: text;
@@ -95,6 +97,22 @@ body {
     border-color: #d58512;
 }
 
+.logviewer-stepbar {
+    display: inline-block;
+    margin: 8px 8px 8px 0px;
+    padding: 6px 8px;
+    border: 1px solid #dddddd;
+}
+
+.logviewer-stepbar span {
+    color: #9fa3a5;
+}
+
+.logviewer-stepbar input[type="checkbox"] {
+    margin: 0;
+    vertical-align: middle;
+}
+
 .lv-line-no.label {
     border-radius: 0px;
     margin: 0em 0.6em 0em 0em;
@@ -102,7 +120,7 @@ body {
 
 .lv-log-loading {
     position: fixed;
-    top: 280px;
+    top: 284px;
     left: 50%;
     background: #FFF;
     color: #585858;

@@ -37,7 +37,14 @@
     </div>
 </div>
 
-<div ng-if="artifact && totalErrors() !== 0">
+<div class="logviewer-stepbar">
+    <a title="Open the raw log in a new window" target="_blank" href="{{artifact.logurl}}">
+        <span class="glyphicon glyphicon-align-left"></span>
+    </a>
+</div>
+
+<div ng-if="artifact && totalErrors() !== 0"
+     class="logviewer-stepbar">
     <input type="checkbox"
            ng-model="showSuccessful"
            ng-change="toggleSuccessfulSteps()" />
