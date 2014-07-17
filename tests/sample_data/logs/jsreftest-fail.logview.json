@@ -119,10 +119,6 @@
                 "linenumber": 89486
             }, 
             {
-                "line": "REFTEST TEST-PASS | file:///c:/talos-slave/mozilla-central_win7_test-jsreftest/build/jsreftest/tests/jsreftest.html?test=js1_5/Regress/regress-478314.js | Do not assert: Assertion failed: \"need a way to EOT now, since this is trace end\": 0  item 1", 
-                "linenumber": 89487
-            }, 
-            {
                 "line": "ReferenceError: a is not defined | undefined | 45", 
                 "linenumber": 89791
             }, 
@@ -217,10 +213,6 @@
             {
                 "line": "STATUS: Assertion failure: staticLevel == script->staticLevel, at ../jsobj.cpp", 
                 "linenumber": 93457
-            }, 
-            {
-                "line": "REFTEST TEST-PASS | file:///c:/talos-slave/mozilla-central_win7_test-jsreftest/build/jsreftest/tests/jsreftest.html?test=js1_8/regress/regress-532491.js | Assertion failure: staticLevel == script->staticLevel, at ../jsobj.cpp  item 1", 
-                "linenumber": 93458
             }
         ], 
         "steps": [
@@ -357,10 +349,6 @@
                         "linenumber": 89486
                     }, 
                     {
-                        "line": "REFTEST TEST-PASS | file:///c:/talos-slave/mozilla-central_win7_test-jsreftest/build/jsreftest/tests/jsreftest.html?test=js1_5/Regress/regress-478314.js | Do not assert: Assertion failed: \"need a way to EOT now, since this is trace end\": 0  item 1", 
-                        "linenumber": 89487
-                    }, 
-                    {
                         "line": "ReferenceError: a is not defined | undefined | 45", 
                         "linenumber": 89791
                     }, 
@@ -455,10 +443,6 @@
                     {
                         "line": "STATUS: Assertion failure: staticLevel == script->staticLevel, at ../jsobj.cpp", 
                         "linenumber": 93457
-                    }, 
-                    {
-                        "line": "REFTEST TEST-PASS | file:///c:/talos-slave/mozilla-central_win7_test-jsreftest/build/jsreftest/tests/jsreftest.html?test=js1_8/regress/regress-532491.js | Assertion failure: staticLevel == script->staticLevel, at ../jsobj.cpp  item 1", 
-                        "linenumber": 93458
                     }
                 ], 
                 "name": "'python mochitest/runtests.py ...' warnings", 
@@ -466,7 +450,7 @@
                 "started_linenumber": 16, 
                 "finished_linenumber": 99130, 
                 "finished": "2013-06-05 13:15:39.235146", 
-                "error_count": 53, 
+                "error_count": 51, 
                 "duration": 1244, 
                 "order": 2
             }, 
