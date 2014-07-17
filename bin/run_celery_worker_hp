@@ -1,0 +1,24 @@
+#!/bin/bash
+curr_dir=$( dirname "${BASH_SOURCE[0]}" )
+cd $( dirname $curr_dir)
+
+source /etc/profile.d/treeherder.sh
+
+if [[ ${NEW_RELIC_LICENSE_KEY+isset} = isset ]]; then
+    NEWRELIC_ADMIN="newrelic-admin run-program"
+fi
+
+if [ -f ../venv/bin/python ]; then
+    source ../venv/bin/activate
+    PYTHON=../venv/bin/python
+else
+    PYTHON=python
+fi
+
+LOGFILE=/var/log/celery/celery_worker_hp.log
+
+if [ ! -f $LOGFILE ]; then
+    touch $LOGFILE
+fi
+
+exec $NEWRELIC_ADMIN $PYTHON manage.py celeryd -c 1 -Q high_priority -E --maxtasksperchild=500 --logfile=$LOGFILE -l INFO
