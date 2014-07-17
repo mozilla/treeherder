@@ -1980,7 +1980,7 @@ class JobsModel(TreeherderModelBase):
 
         props_where_repl = [
             ' OR '.join(['(`property`=%s AND `value`=%s)'] * len(props)),
-            ' AND '.join(['SUM(`property`=%s AND `value`=%s) > 0'] * len(props))]
+            ' AND '.join(['SUM(`property`=%s AND `value`=%s) IS NOT NULL'] * len(props))]
 
         # convert to 1 dimentional list
         props = [el for x in props.items() for el in x]
