@@ -9,6 +9,43 @@ from treeherder.webapp.api.utils import (UrlQueryFilter, with_jobs,
                                          oauth_required, get_option,
                                          to_timestamp)
 
+PLATFORM_ORDER = {
+    "linux32": 0,
+    "linux64": 1,
+    "osx-10-6": 2,
+    "osx-10-8": 3,
+    "osx-10-9": 4,
+    "windowsxp": 5,
+    "windows7-32": 6,
+    "windows8-32": 7,
+    "windows2012-64": 8,
+    "android-2-2-armv6": 9,
+    "android-2-2": 10,
+    "android-2-3-armv6": 11,
+    "android-2-3": 12,
+    "android-4-0": 13,
+    "android-4-2-x86": 14,
+    "b2g-linux32": 15,
+    "b2g-linux64": 16,
+    "b2g-osx": 17,
+    "b2g-win32": 18,
+    "b2g-emu-ics": 19,
+    "b2g-emu-jb": 20,
+    "b2g-emu-kk": 21,
+    "b2g-device-image" : 22,
+    "mulet-linux32" : 23,
+    "mulet-linux64" : 24,
+    "mulet-osx": 25,
+    "mulet-win32": 26,
+    "other": 28
+}
+
+OPT_ORDER = {
+    "opt": 0,
+    "pgo": 1,
+    "asan": 2,
+    "debug": 3,
+}
 
 class ResultSetViewSet(viewsets.ViewSet):
     """
@@ -137,11 +174,11 @@ class ResultSetViewSet(viewsets.ViewSet):
         rs_grouper = lambda rsg: rsg["result_set_id"]
         # the main grouper for a result set is the combination of
         # platform and options
-        platform_grouper = lambda pg: "{0} {1}".format(
-            pg["platform"],
-            get_option(pg, option_collections)
-
+        platform_grouper = lambda pg: (
+            PLATFORM_ORDER.get(pg["platform"], 100),
+            OPT_ORDER.get(get_option(pg, option_collections), 100)
         )
+
         job_group_grouper = lambda jgg: jgg["job_group_symbol"]
         job_type_grouper = lambda jtg: jtg['job_type_symbol']
 
