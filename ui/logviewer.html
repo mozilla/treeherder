@@ -13,7 +13,14 @@
             <div class="col-md-6">
                 <table class="table table-condensed">
                     <tr ng-repeat="(label, value) in artifact.header">
-                        <th>{{label}}</th><td>{{value}}</td>
+                        <th>{{label}}</th>
+                        <td ng-if="label == 'revision'">
+                            <a href="{{logRevisionFilterUrl}}"
+                               title="open resultset in new tab"
+                               target="_blank"
+                               class="repo-link">{{value}}</a>
+                        </td>
+                        <td ng-if="label != 'revision'">{{value}}</td>
                     </tr>
                 </table>
             </div>
@@ -29,27 +36,38 @@
 
 
     <!-- build:js js/logviewer.min.js -->
+    <script src="vendor/jquery-2.0.3.js"></script>
     <script src="vendor/angular/angular.js"></script>
     <script src="vendor/angular/angular-route.js"></script>
     <script src="vendor/angular/angular-resource.js"></script>
     <script src="vendor/angular/angular-cookies.js"></script>
     <script src="vendor/angular-local-storage.min.js"></script>
-    <script src="vendor/underscore-min.js"></script>
-    <script src="vendor/ui-bootstrap-tpls-0.10.0.min.js"></script>
-    <script src="vendor/jquery-2.0.3.js"></script>
-    <script src="vendor/bootstrap.js"></script>
     <script src="vendor/angular/angular-sanitize.min.js"></script>
-    <script src="js/config/local.conf.js"></script>
+    <script src="vendor/ui-bootstrap-tpls-0.10.0.min.js"></script>
+    <script src="vendor/bootstrap.js"></script>
+    <script src="vendor/socket.io.js"></script>
+    <script src="vendor/underscore-min.js"></script>
+
     <script src="js/app.js"></script>
-    <script src="js/services/main.js"></script>
-    <script src="js/services/log.js"></script>
-    <script src="js/models/job_artifact.js"></script>
-    <script src="js/models/log_slice.js"></script>
+    <script src="js/config/local.conf.js"></script>
     <script src="js/providers.js"></script>
-    <script src="js/controllers/logviewer.js"></script>
+
+    <!-- Directives -->
     <script src="js/directives/log_viewer_infinite_scroll.js"></script>
     <script src="js/directives/log_viewer_lines.js"></script>
     <script src="js/directives/log_viewer_steps.js"></script>
+
+    <!-- Main services -->
+    <script src="js/services/main.js"></script>
+    <script src="js/services/log.js"></script>
+
+    <!-- Model services -->
+    <script src="js/models/job_artifact.js"></script>
+    <script src="js/models/log_slice.js"></script>
+
+    <!-- Controllers -->
+    <script src="js/controllers/logviewer.js"></script>
     <!-- endbuild -->
+
     </body>
 </html>
