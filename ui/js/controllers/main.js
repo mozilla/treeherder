@@ -54,9 +54,15 @@ treeherder.controller('MainCtrl', [
                         thEvents.selectPreviousUnclassifiedFailure
                     );
 
-                } else if (ev.keyCode === 83) {
-                    //Select/deselect active build or changeset, keys:s
-                    $rootScope.$broadcast(thEvents.jobPin, $rootScope.selectedJob);
+                } else if (ev.keyCode === 32) {
+                    // If a job is selected add it otherwise
+                    // let the browser handle the spacebar
+                    if ($scope.selectedJob) {
+                        // Pin selected job to pinboard, key:[spacebar]
+                        // and prevent page down propagating to the jobs panel
+                        ev.preventDefault();
+                        $rootScope.$broadcast(thEvents.jobPin, $rootScope.selectedJob);
+                    }
 
                 } else if (ev.keyCode === 85) {
                     //display only unclassified failures, keys:u
