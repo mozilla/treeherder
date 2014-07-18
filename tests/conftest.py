@@ -348,3 +348,16 @@ def mock_send_request(monkeypatch, jm):
         return response
 
     monkeypatch.setattr(TreeherderRequest, 'send', _send)
+
+
+@pytest.fixture
+def mock_get_remote_content(monkeypatch):
+    def _get_remote_content(url):
+        response = TestApp(application).get(url)
+        if response.status_int != 200:
+            return None
+        else:
+            return response.json
+
+    import treeherder.etl.common
+    monkeypatch.setattr(treeherder.etl.common, 'get_remote_content', _get_remote_content)

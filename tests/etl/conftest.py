@@ -5,7 +5,6 @@ from webtest.app import TestApp
 from treeherder.etl.mixins import JsonLoaderMixin, OAuthLoaderMixin
 from treeherder.etl.oauth_utils import OAuthCredentials
 from treeherder.webapp.wsgi import application
-from treeherder.etl import common
 
 from thclient import TreeherderRequest
 from tests.sampledata import SampleData
@@ -41,15 +40,3 @@ def mock_post_json_data(monkeypatch, jm):
 
     monkeypatch.setattr(OAuthLoaderMixin, 'load', _post_json_data)
 
-
-@pytest.fixture
-def mock_get_remote_content(monkeypatch):
-    def _get_remote_content(url):
-        response = TestApp(application).get(url)
-        if response.status_int != 200:
-            return None
-        else:
-            return response.json
-
-    monkeypatch.setattr(common,
-                        'get_remote_content', _get_remote_content)

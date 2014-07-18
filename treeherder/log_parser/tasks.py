@@ -7,7 +7,6 @@ have a look at the canvas section in the docs
 http://docs.celeryproject.org/en/latest/userguide/canvas.html#guide-canvas
 """
 import simplejson as json
-import re
 import time
 
 from celery import task
@@ -20,7 +19,8 @@ from treeherder.log_parser.artifactbuildercollection import \
     ArtifactBuilderCollection
 from treeherder.log_parser.utils import (get_error_search_term,
                                          get_crash_signature,
-                                         get_bugs_for_search_term)
+                                         get_bugs_for_search_term,
+                                         get_mozharness_substring)
 
 from treeherder.etl.oauth_utils import OAuthCredentials
 
@@ -42,12 +42,9 @@ def parse_log(project, job_log_url, job_guid, check_errors=False):
 
     try:
         log_url = job_log_url['url']
-        mozharness_pattern = re.compile(
-            '^\d+:\d+:\d+[ ]+(?:DEBUG|INFO|WARNING|ERROR|CRITICAL|FATAL) - [ ]?'
-        )
 
         bugs_cache = {'open': {}, 'closed': {}}
-        bug_suggestions = {'open': {}, 'closed': {}}
+        bug_suggestions = {'open': [], 'closed': []}
 
 
         # return the resultset with the job id to identify if the UI wants
@@ -80,13 +77,12 @@ def parse_log(project, job_log_url, job_guid, check_errors=False):
 
                 for err in all_errors:
                     # remove the mozharness prefix
-                    clean_line = mozharness_pattern.sub('', err['line']).strip()
+                    clean_line = get_mozharness_substring(err['line'])
                     # get a meaningful search term out of the error line
                     search_term = get_error_search_term(clean_line)
                     # collect open and closed bugs suggestions
                     for status in ('open', 'closed'):
                         if not search_term:
-                            bug_suggestions[status][clean_line] = []
                             continue
                         if search_term not in bugs_cache[status]:
                             # retrieve the list of suggestions from the api
@@ -104,7 +100,14 @@ def parse_log(project, job_log_url, job_guid, check_errors=False):
                                         status,
                                         bugscache_uri
                                     )
-                        bug_suggestions[status][clean_line] = bugs_cache[status][search_term]
+
+                        bug_suggestions[status].append({
+                            "search": clean_line,
+                            "bugs": bugs_cache[status][search_term]
+                        })
+
+            artifact_list.append((job_guid, 'Open bugs', 'json', json.dumps(bug_suggestions['open'])))
+            artifact_list.append((job_guid, 'Closed bugs', 'json', json.dumps(bug_suggestions['closed'])))
 
             # store the artifacts generated
             tac = TreeherderArtifactCollection()
