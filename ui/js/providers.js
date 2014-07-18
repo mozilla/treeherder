@@ -184,7 +184,7 @@ treeherder.provider('thEvents', function() {
             // fired when the job details are loaded
             jobDetailLoaded: "job-detail-loaded-EVT",
 
-            // fired when a job is shift-clicked
+            // fired with a selected job on ctrl-click or spacebar
             jobPin: "job-pin-EVT",
 
             // fired when the user middle-clicks on a job to view the log
