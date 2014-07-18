@@ -37,29 +37,31 @@ treeherder.controller('MainCtrl', [
                 return;
             }
 
-            if( (ev.keyCode === 73) ){
-                // toggle display in-progress jobs(pending/running), key:i
-                $scope.toggleInProgress();
+            if (!ev.metaKey) {
+                if ((ev.keyCode === 73)) {
+                    // toggle display in-progress jobs(pending/running), key:i
+                    $scope.toggleInProgress();
 
-            }else if( (ev.keyCode === 74) || (ev.keyCode === 78) ){
-                //Highlight next unclassified failure keys:j/n
-                $rootScope.$broadcast(
-                    thEvents.selectNextUnclassifiedFailure
+                } else if ((ev.keyCode === 74) || (ev.keyCode === 78)) {
+                    //Highlight next unclassified failure keys:j/n
+                    $rootScope.$broadcast(
+                        thEvents.selectNextUnclassifiedFailure
                     );
 
-            }else if( (ev.keyCode === 75) || (ev.keyCode === 80) ){
-                //Highlight previous unclassified failure keys:k/p
-                $rootScope.$broadcast(
-                    thEvents.selectPreviousUnclassifiedFailure
+                } else if ((ev.keyCode === 75) || (ev.keyCode === 80)) {
+                    //Highlight previous unclassified failure keys:k/p
+                    $rootScope.$broadcast(
+                        thEvents.selectPreviousUnclassifiedFailure
                     );
 
-            }else if(ev.keyCode === 83){
-                //Select/deselect active build or changeset, keys:s
-                $rootScope.$broadcast(thEvents.jobPin, $rootScope.selectedJob);
+                } else if (ev.keyCode === 83) {
+                    //Select/deselect active build or changeset, keys:s
+                    $rootScope.$broadcast(thEvents.jobPin, $rootScope.selectedJob);
 
-            }else if(ev.keyCode === 85){
-                //display only unclassified failures, keys:u
-                $scope.toggleUnclassifiedFailures();
+                } else if (ev.keyCode === 85) {
+                    //display only unclassified failures, keys:u
+                    $scope.toggleUnclassifiedFailures();
+                }
             }
         };
 

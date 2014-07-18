@@ -13,20 +13,19 @@ treeherder.controller('BugsPluginCtrl', [
 
         var timeout_promise = null;
 
-        var update_bugs = function(newValue, oldValue){
-            $scope.bugs = {};
+        var update_bugs = function(newValue, oldValue) {
+            $scope.bugs = [];
             $scope.visible = "open";
             $scope.show_all = false;
             $scope.selected_bugs = {};
             $scope.classification = null;
 
 
-
             // fetch artifacts only if the job is finished
-            if(newValue){
+            if (newValue) {
                 $scope.tabs.failure_summary.is_loading = true;
                 // if there's a ongoing request, abort it
-                if(timeout_promise !== null){
+                if (timeout_promise !== null) {
                     timeout_promise.resolve();
                 }
                 timeout_promise = $q.defer();
@@ -35,21 +34,28 @@ treeherder.controller('BugsPluginCtrl', [
                     "type": "json",
                     job_id: newValue
                 }, {timeout: timeout_promise})
-                .then(function(response){
+                .then(function (response) {
                     // iterate to retrieve the total num of failures
-                    angular.forEach(response, function(artifact){
+                    var searchIdx = {},
+                        idx = 0;
+
+                    angular.forEach(response, function (artifact) {
                         var open_closed = artifact.name === "Open bugs" ? "open" : "closed";
-                        angular.forEach(artifact.blob, function(failures, error){
-                            if(!_.has($scope.bugs, error)){
-                                var error_prefix_re = /^\d+:\d+:\d+[ ]+(?:DEBUG|INFO|WARNING|ERROR|CRITICAL|FATAL) - [ ]?/;
-                                error = error.replace(error_prefix_re, '');
-                                $scope.bugs[error] = {'open':[], 'closed':[]};
+
+                        // the new format is to use an array
+                        _.each(artifact.blob, function (failure) {
+                            if (!_.has(searchIdx, failure.search)) {
+                                $scope.bugs.push({'search': failure.search,
+                                                  'open': [],
+                                                  'closed': []});
+                                searchIdx[failure.search] = idx;
+                                idx++;
                             }
-                            $scope.bugs[error][open_closed] = failures;
+                            $scope.bugs[searchIdx[failure.search]][open_closed] = failure.bugs;
                         });
                     });
                 })
-                .finally(function(){
+                .finally(function () {
                     $scope.tabs.failure_summary.is_loading = false;
                 });
             }
