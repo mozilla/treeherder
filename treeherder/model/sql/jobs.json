@@ -326,7 +326,7 @@
 
             "sql": "SELECT `series_signature`, `blob` FROM `performance_series`
                     WHERE `series_signature` IN (REP0) AND `interval_seconds` = ?",
-                    
+
              "host":"read_host"
 
         },
