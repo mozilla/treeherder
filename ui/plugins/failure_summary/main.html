@@ -2,7 +2,7 @@
     <ul class="list-unstyled failure-summary-list">
 
         <li ng-repeat="failure in bugs">
-            <div class="failure-summary-line"><strong>{{failure.search}}</strong></div>
+            <div class="failure-summary-line"><strong ng-bind="failure.search"></strong></div>
             <span ng-repeat="visible in ['open','closed']">
                 <ul class="list-unstyled">
                     <li ng-repeat="bug in failure[visible] | orderBy:bug.relevance:reverse"
