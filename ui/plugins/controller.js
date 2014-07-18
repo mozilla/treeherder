@@ -62,7 +62,7 @@ treeherder.controller('PluginCtrl', [
                         _.forEach(data, function(item) {
                             $scope.artifacts[item.name] = item;
                         });
-                        $scope.visibleFields.Buildername = $scope.artifacts.buildapi.blob.buildername;
+                        $scope.visibleFields["Buildbot Job Name"] = $scope.artifacts.buildapi.blob.buildername;
                         $log.debug("buildapi artifacts", $scope.artifacts);
                     }
                 });
@@ -99,7 +99,7 @@ treeherder.controller('PluginCtrl', [
                              $scope.job.build_os || undef
                 };
                 if (_.has($scope.artifacts, "buildapi")) {
-                    $scope.visibleFields.Buildername = $scope.artifacts.buildapi.blob.buildername;
+                    $scope.visibleFields["Buildbot Job Name"] = $scope.artifacts.buildapi.blob.buildername;
                 }
         };
 
