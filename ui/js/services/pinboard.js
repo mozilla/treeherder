@@ -88,12 +88,12 @@ treeherder.factory('thPinboard', [
             api.count.numRelatedBugs = _.size(relatedBugs);
         },
 
-        // open form to create a new note
+        // open form to create a new note. default to intermittent
         createNewClassification: function() {
             return new ThJobClassificationModel({
                 note: "",
                 who: null,
-                failure_classification_id: -1
+                failure_classification_id: 4
             });
         },
 
