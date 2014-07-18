@@ -27,6 +27,14 @@ treeherder.controller('PluginCtrl', [
                 $scope.job_detail_loading = true;
                 $scope.job = newValue;
 
+                $scope.visibleFields = {
+                    "Job Name": $scope.job.job_type_name,
+                    "Start time": "",
+                    "Duration":  "",
+                    "Machine ": "",
+                    "Build": ""
+                };
+
                 if(timeout_promise !== null){
                     $log.debug("timing out previous job request");
                     timeout_promise.resolve();
@@ -54,6 +62,7 @@ treeherder.controller('PluginCtrl', [
                         _.forEach(data, function(item) {
                             $scope.artifacts[item.name] = item;
                         });
+                        $scope.visibleFields.Buildername = $scope.artifacts.buildapi.blob.buildername;
                         $log.debug("buildapi artifacts", $scope.artifacts);
                     }
                 });
@@ -63,13 +72,6 @@ treeherder.controller('PluginCtrl', [
                     $scope.job_log_urls = data;
                 });
 
-                $scope.visibleFields = {
-                    "Job Name": $scope.job.job_type_name,
-                    "Start time": "",
-                    "Duration":  "",
-                    "Machine ": "",
-                    "Build": ""
-                };
                 $scope.lvUrl = thUrl.getLogViewerUrl($scope.job.id);
                 $scope.resultStatusShading = "result-status-shading-" + thResultStatus($scope.job);
 
@@ -96,6 +98,9 @@ treeherder.controller('PluginCtrl', [
                              $scope.job.build_platform  + " " +
                              $scope.job.build_os || undef
                 };
+                if (_.has($scope.artifacts, "buildapi")) {
+                    $scope.visibleFields.Buildername = $scope.artifacts.buildapi.blob.buildername;
+                }
         };
 
         $scope.getCountPinnedJobs = function() {
