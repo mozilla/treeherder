@@ -180,7 +180,7 @@ treeherder.controller('PluginCtrl', [
 
         $scope.bug_job_map_list = [];
 
-        $scope.classificationTypes = thClassificationTypes.classifications;
+        $scope.classificationTypes = thClassificationTypes;
 
         // load the list of existing classifications (including possibly a new one just
         // added).

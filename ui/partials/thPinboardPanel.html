@@ -36,8 +36,8 @@
         <div class="header"><i class="fa fa-star"></i> classification</div>
         <div class="content">
             <form ng-submit="saveNewClassification()" class="form">
-                <select ng-model="classification.failure_classification_id">
-                    <option ng-repeat="(value, star) in classificationTypes" value="{{value}}">{{star.name}}</option>
+                <select ng-model="classification.failure_classification_id"
+                        ng-options="item.id as item.name for item in classificationTypes.classificationOptions">
                 </select>
                 <textarea class="comment" ng-model="classification.note"/>
             </form>

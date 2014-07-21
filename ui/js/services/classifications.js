@@ -5,6 +5,7 @@ treeherder.factory('thClassificationTypes', [
     function($http, thUrl) {
 
     var classifications = {};
+    var classificationOptions = [];
 
     var classificationColors = {
         1: "",                 // not classified
@@ -20,6 +21,7 @@ treeherder.factory('thClassificationTypes', [
             name: cl.name,
             star: classificationColors[cl.id]
         };
+        classificationOptions.push(cl);
     };
 
     var load = function() {
@@ -31,6 +33,7 @@ treeherder.factory('thClassificationTypes', [
 
     return {
         classifications: classifications,
+        classificationOptions: classificationOptions,
         load: load
     };
 }]);
