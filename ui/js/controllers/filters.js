@@ -1,11 +1,11 @@
 "use strict";
 
 treeherder.controller('FilterPanelCtrl', [
-    '$scope', '$rootScope', '$routeParams', '$location', 'ThLog',
+    '$scope', '$rootScope', '$route', '$routeParams', '$location', 'ThLog',
     'localStorageService', 'thResultStatusList', 'thEvents', 'thJobFilters',
     'thClassificationTypes',
     function FilterPanelCtrl(
-        $scope, $rootScope, $routeParams, $location, ThLog,
+        $scope, $rootScope, $route, $routeParams, $location, ThLog,
         localStorageService, thResultStatusList, thEvents, thJobFilters,
         thClassificationTypes) {
 
@@ -215,6 +215,34 @@ treeherder.controller('FilterPanelCtrl', [
 
         updateToggleFilters();
 
+        /*
+         * We need to prevent reloading the route under certain conditions.
+         * Like when we change the filter params on the url.  So we have set
+         * the route to skip ``reloadOnSearch`` changes.  We can't simply
+         * turn it to skip before the ``$location.search("key", val)`` call
+         * and then turn it back to not skip after the call because the event
+         * chain that happens with changing the location and the ``$routeUpdate``
+         * won't have happened until after we have turned off the skipping.
+         * Thereby it will never skip, and always reload the route.
+         *
+         * So what we must do is tell it to skip the "next" one before each
+         * search change and then when it's skipped, it will turn skipping back
+         * off each time.
+         */
+        $rootScope.skipNextSearchChangeReload = false;
+        $scope.$on('$routeUpdate', function(){
+            if (!$rootScope.skipNextSearchChangeReload) {
+                $route.reload();
+            } else {
+                $rootScope.skipNextSearchChangeReload = false;
+            }
+        });
+
+        var updateSearchWithoutReload = function(key, values) {
+            $rootScope.skipNextSearchChangeReload = true;
+            $location.search(key, values);
+        };
+
         $scope.$on(thEvents.globalFilterChanged, function() {
             updateToggleFilters();
 
@@ -225,6 +253,7 @@ treeherder.controller('FilterPanelCtrl', [
             // remove any field filters
             _.each($location.search(), function(filterVal, filterKey) {
                 if (filterKey.slice(0, filterPrefixLen) === filterPrefix) {
+                    $rootScope.skipNextSearchChangeReload = true;
                     $location.search(filterKey, null);
                 }
             });
@@ -239,17 +268,17 @@ treeherder.controller('FilterPanelCtrl', [
                             values = _.map(values, function(item) {return item.toString();});
                         }
                         $log.debug("not defaults, setting check query strings", key, values);
-                        $location.search(key, values);
+                        updateSearchWithoutReload(key, values);
                     }
 
                 } else {
                     $log.debug("setting field query strings", key, values);
-                    $location.search(filterPrefix + key, values);
+                    updateSearchWithoutReload(filterPrefix + key, values);
                 }
             });
 
             if ($rootScope.searchQuery && typeof $rootScope.searchQuery === 'string'){
-                $location.search("searchQuery", $rootScope.searchQuery);
+                updateSearchWithoutReload("searchQuery", $rootScope.searchQuery);
             }
 
         });
@@ -314,6 +343,8 @@ treeherder.controller('SearchCtrl', [
                 $rootScope.searchQuery = $scope.searchQuery;
 
                 var queryString = $rootScope.searchQuery? $rootScope.searchQuery: null;
+
+                $rootScope.skipNextSearchChangeReload = true;
                 $location.search("searchQuery", queryString);
 
                 $rootScope.$broadcast(
