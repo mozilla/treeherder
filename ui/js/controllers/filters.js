@@ -10,6 +10,9 @@ treeherder.controller('FilterPanelCtrl', [
         thClassificationTypes) {
 
         var $log = new ThLog(this.constructor.name);
+        var filterPrefix = "field-";
+        var filterPrefixLen = filterPrefix.length;
+
 
         $scope.filterOptions = thResultStatusList.all();
 
@@ -32,6 +35,41 @@ treeherder.controller('FilterPanelCtrl', [
         };
 
         $scope.resultStatusFilters = {};
+
+        // field filters
+        $scope.newFieldFilter = null;
+        $scope.fieldFilters = [];
+        $scope.fieldChoices = {
+            job_type_name: {
+                name: "job name",
+                matchType: thJobFilters.matchType.substr
+            },
+            job_type_symbol: {
+                name: "job symbol",
+                matchType: thJobFilters.matchType.exactstr
+            },
+            job_group_name: {
+                name: "group name",
+                matchType: thJobFilters.matchType.substr
+            },
+            job_group_symbol: {
+                name: "group symbol",
+                matchType: thJobFilters.matchType.exactstr
+            },
+            machine_name: {
+                name: "machine name",
+                matchType: thJobFilters.matchType.substr
+            },
+            platform: {
+                name: "platform",
+                matchType: thJobFilters.matchType.substr
+            },
+            failure_classification_id: {
+                name: "failure classification",
+                matchType: thJobFilters.matchType.choice,
+                choices: thClassificationTypes.classifications
+            }
+        };
 
         /**
          * Handle checking the "all" button for a result status group
@@ -118,7 +156,7 @@ treeherder.controller('FilterPanelCtrl', [
             return value;
         };
 
-        $scope.addFieldFilter = function() {
+        $scope.addFieldFilter = function(quiet) {
             $log.debug("adding filter", $scope.newFieldFilter.field);
             var value = $scope.newFieldFilter.value;
 
@@ -128,7 +166,8 @@ treeherder.controller('FilterPanelCtrl', [
             thJobFilters.addFilter(
                 $scope.newFieldFilter.field,
                 value,
-                $scope.fieldChoices[$scope.newFieldFilter.field].matchType
+                $scope.fieldChoices[$scope.newFieldFilter.field].matchType,
+                quiet
             );
             $scope.fieldFilters.push({
                 field: $scope.newFieldFilter.field,
@@ -145,6 +184,7 @@ treeherder.controller('FilterPanelCtrl', [
 
         $scope.removeFilter = function(index) {
             $log.debug("removing index", index);
+
             thJobFilters.removeFilter(
                 $scope.fieldFilters[index].field,
                 $scope.fieldFilters[index].value
@@ -177,48 +217,92 @@ treeherder.controller('FilterPanelCtrl', [
 
         $scope.$on(thEvents.globalFilterChanged, function() {
             updateToggleFilters();
+
+            // update the url search params accordingly
+            $location.search("isClassified", null);
+            $location.search("resultStatus", null);
+            $location.search("searchQuery", null);
+            // remove any field filters
+            _.each($location.search(), function(filterVal, filterKey) {
+                if (filterKey.slice(0, filterPrefixLen) === filterPrefix) {
+                    $location.search(filterKey, null);
+                }
+            });
+
+            _.each(thJobFilters.filters, function(val, key) {
+                var values = _.uniq(val.values);
+                if (key === "resultStatus" || key === "isClassified") {
+                    // don't add to query string if it matches the defaults
+                    $log.debug("set query string checks", key, values);
+                    if (!thJobFilters.matchesDefaults(key, values)) {
+                        if (key === "isClassified") {
+                            values = _.map(values, function(item) {return item.toString();});
+                        }
+                        $log.debug("not defaults, setting check query strings", key, values);
+                        $location.search(key, values);
+                    }
+
+                } else {
+                    $log.debug("setting field query strings", key, values);
+                    $location.search(filterPrefix + key, values);
+                }
+            });
+
+            if ($rootScope.searchQuery && typeof $rootScope.searchQuery === 'string'){
+                $location.search("searchQuery", $rootScope.searchQuery);
+            }
+
         });
 
-        // field filters
-        $scope.newFieldFilter = null;
-        $scope.fieldFilters = [];
-        $scope.fieldChoices = {
-            job_type_name: {
-                name: "job name",
-                matchType: thJobFilters.matchType.substr
-            },
-            job_type_symbol: {
-                name: "job symbol",
-                matchType: thJobFilters.matchType.exactstr
-            },
-            job_group_name: {
-                name: "group name",
-                matchType: thJobFilters.matchType.substr
-            },
-            job_group_symbol: {
-                name: "group symbol",
-                matchType: thJobFilters.matchType.exactstr
-            },
-            machine_name: {
-                name: "machine name",
-                matchType: thJobFilters.matchType.substr
-            },
-            platform: {
-                name: "platform",
-                matchType: thJobFilters.matchType.substr
-            },
-            failure_classification_id: {
-                name: "failure classification",
-                matchType: thJobFilters.matchType.choice,
-                choices: thClassificationTypes.classifications
-            }
+        /**
+         * When the page first loads, check the query string params for
+         * filters and apply them.
+         */
+        var loadFiltersFromQueryString = function() {
+            // field filters
+            var search = _.clone($location.search());
+            $log.debug("query string params", $location.search());
+
+            _.each(search, function (filterVal, filterKey) {
+                $log.debug("field filter", filterKey, filterVal);
+                if (filterKey.slice(0, filterPrefixLen) === filterPrefix) {
+                    $log.debug("adding field filter", filterKey, filterVal);
+                    $scope.newFieldFilter = {
+                        field: filterKey.slice(filterPrefixLen),
+                        value: filterVal
+
+                    };
+                    $scope.addFieldFilter(true);
+
+                } else if (filterKey === "resultStatus" || filterKey === "isClassified") {
+                    $log.debug("adding check filter", filterKey, filterVal);
+                    if (!_.isArray(filterVal)) {
+                        filterVal = [filterVal];
+                    }
+                    // these will come through as strings, so convert to actual booleans
+                    if (filterKey === "isClassified") {
+                        filterVal = _.map(filterVal, function(item) {return item !== "false";});
+                    }
+                    thJobFilters.setCheckFilterValues(filterKey, _.uniq(filterVal), true);
+                } else if (filterKey === "searchQuery") {
+                    filterVal = _.isArray(filterVal)? filterVal[0]: filterVal;
+                    $log.debug("searchQuery added", filterVal);
+                    $rootScope.searchQuery = filterVal;
+                }
+            });
+            $log.debug("done with loadFiltersFromQueryString", thJobFilters.filters);
+            $rootScope.$broadcast(thEvents.globalFilterChanged);
+
         };
+
+        loadFiltersFromQueryString();
+
     }
 ]);
 
 treeherder.controller('SearchCtrl', [
-    '$scope', '$rootScope', 'thEvents',
-    function SearchCtrl($scope, $rootScope, thEvents){
+    '$scope', '$rootScope', 'thEvents', '$location',
+    function SearchCtrl($scope, $rootScope, thEvents, $location){
 
         $rootScope.searchQuery = "";
 
@@ -228,6 +312,9 @@ treeherder.controller('SearchCtrl', [
                 ($scope.searchQuery === "") ){
 
                 $rootScope.searchQuery = $scope.searchQuery;
+
+                var queryString = $rootScope.searchQuery? $rootScope.searchQuery: null;
+                $location.search("searchQuery", queryString);
 
                 $rootScope.$broadcast(
                     thEvents.searchPage,
