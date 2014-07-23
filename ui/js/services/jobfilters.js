@@ -24,11 +24,11 @@
 treeherder.factory('thJobFilters', [
     'thResultStatusList', 'ThLog', '$rootScope',
     'ThResultSetModel', 'thPinboard', 'thNotify', 'thEvents',
-    'thResultStatus', 'ThRepositoryModel',
+    'thResultStatus', 'ThRepositoryModel', 'thPlatformNameMap',
     function(
         thResultStatusList, ThLog, $rootScope,
         ThResultSetModel, thPinboard, thNotify, thEvents,
-        thResultStatus, ThRepositoryModel) {
+        thResultStatus, ThRepositoryModel, thPlatformNameMap) {
 
     var $log = new ThLog("thJobFilters");
 
@@ -157,9 +157,9 @@ treeherder.factory('thJobFilters', [
     var getJobFieldValue = function(job, field) {
         var result = job[field];
         if (field === 'platform') {
-            var platform = Config.OSNames[result];
+            var platform = thPlatformNameMap[result];
             if (!platform) {
-                // if it's not actually found in Config.OSNames, then return
+                // if it's not found, then return
                 // the original string
                 platform = result;
             }

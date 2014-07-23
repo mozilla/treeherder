@@ -13,18 +13,18 @@ treeherder.filter('showOrHide', function() {
     };
 });
 
-treeherder.filter('platformName', function() {
+treeherder.filter('platformName', ['thPlatformNameMap', function(thPlatformNameMap) {
     // fix the platform name from the raw name in the db, with the more
-    // "human read-able" one from Config.js
+    // "human read-able" one
     return function(input, name) {
-            var newName = Config.OSNames[name];
+            var newName = platformNameMap[name];
             if (newName) {
                 return newName;
             }
-            // if it's not found in Config.js, then return it unchanged.
+            // if it's not found, then return it unchanged.
             return name;
     };
-});
+}]);
 
 treeherder.filter('stripHtml', function() {
     return function(input) {

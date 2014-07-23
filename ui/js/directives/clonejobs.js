@@ -5,12 +5,12 @@ treeherder.directive('thCloneJobs', [
     '$rootScope', '$http', 'ThLog', 'thUrl', 'thCloneHtml',
     'thServiceDomain', 'thResultStatusInfo', 'thEvents', 'thAggregateIds',
     'thJobFilters', 'thResultStatusObject', 'ThResultSetModel',
-    'ThJobModel', 'linkifyBugsFilter', 'thResultStatus',
+    'ThJobModel', 'linkifyBugsFilter', 'thResultStatus', 'thPlatformNameMap',
     function(
         $rootScope, $http, ThLog, thUrl, thCloneHtml,
         thServiceDomain, thResultStatusInfo, thEvents, thAggregateIds,
         thJobFilters, thResultStatusObject, ThResultSetModel,
-        ThJobModel, linkifyBugsFilter, thResultStatus){
+        ThJobModel, linkifyBugsFilter, thResultStatus, thPlatformNameMap){
 
     var $log = new ThLog("thCloneJobs");
 
@@ -608,7 +608,7 @@ treeherder.directive('thCloneJobs', [
 
     var getPlatformName = function(name){
 
-        var platformName = Config.OSNames[name];
+        var platformName = thPlatformNameMap[name];
 
         if(platformName === undefined){
             platformName = name;
