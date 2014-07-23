@@ -17,7 +17,7 @@
             <span ng-show="user.is_staff">
                 <span class="btn btn-view-nav"
                       ng-class="{'active': (isSheriffPanelShowing)}"
-                      ng-click="isSheriffPanelShowing=!isSheriffPanelShowing"><span>Sheriffing</span>
+                      ng-click="setSheriffPanelShowing(!isSheriffPanelShowing)"><span>Sheriffing</span>
                     <i class="glyphicon glyphicon-chevron-down lightgray"
                        ng-hide="isSheriffPanelShowing"></i>
                     <i class="glyphicon glyphicon-chevron-up lightgray"
@@ -35,7 +35,7 @@
                 </span>
                 <span class="btn btn-view-nav"
                       ng-class="{'active': (isFilterPanelShowing)}"
-                      ng-click="isFilterPanelShowing=!isFilterPanelShowing"><span>Filters</span>
+                      ng-click="setFilterPanelShowing(!isFilterPanelShowing)"><span>Filters</span>
                     <i class="glyphicon glyphicon-chevron-down lightgray"
                        ng-hide="isFilterPanelShowing"></i>
                     <i class="glyphicon glyphicon-chevron-up lightgray"
@@ -46,7 +46,7 @@
                 <!--TODO: change this condition to enable the settings panel-->
                 <span ng-show="false" class="btn btn-view-nav"
                       ng-class="{'active': (isSettingsPanelShowing)}"
-                      ng-click="isSettingsPanelShowing=!isSettingsPanelShowing"><span>Settings</span>
+                      ng-click="setSettingsPanelShowing(!isSettingsPanelShowing)"><span>Settings</span>
                     <i class="glyphicon glyphicon-chevron-down lightgray"
                        ng-hide="isSettingsPanelShowing"></i>
                     <i class="glyphicon glyphicon-chevron-up lightgray"
@@ -54,7 +54,7 @@
                 </span>
                 <persona-buttons></persona-buttons>
             </span>
-
+        </span>
 
         </div>
         <ng-include class="watched-repo-navbar" src="'partials/thWatchedRepoNavPanel.html'" ng-show="locationPath==='jobs'">

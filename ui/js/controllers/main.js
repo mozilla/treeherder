@@ -67,6 +67,13 @@ treeherder.controller('MainCtrl', [
                 } else if (ev.keyCode === 85) {
                     //display only unclassified failures, keys:u
                     $scope.toggleUnclassifiedFailures();
+                } else if (ev.keyCode === 27) {
+                    // escape key closes any open top-panel and clears selected job
+                    $scope.setRepoPanelShowing(false);
+                    $scope.setFilterPanelShowing(false);
+                    $scope.setSettingsPanelShowing(false);
+                    $scope.setSheriffPanelShowing(false);
+                    $scope.clearJob();
                 }
             }
         };
@@ -200,9 +207,23 @@ treeherder.controller('MainCtrl', [
         });
 
         $scope.isRepoPanelShowing = false;
-
         $scope.setRepoPanelShowing = function(tf) {
             $scope.isRepoPanelShowing = tf;
+        };
+
+        $scope.isFilterPanelShowing = false;
+        $scope.setFilterPanelShowing = function(tf) {
+            $scope.isFilterPanelShowing = tf;
+        };
+
+        $scope.isSettingsPanelShowing = false;
+        $scope.setSettingsPanelShowing = function(tf) {
+            $scope.isSettingsPanelShowing = tf;
+        };
+
+        $scope.isSheriffPanelShowing = false;
+        $scope.setSheriffPanelShowing = function(tf) {
+            $scope.isSheriffPanelShowing = tf;
         };
 
         $scope.changeRepo = function(repo_name) {
@@ -211,8 +232,9 @@ treeherder.controller('MainCtrl', [
             $rootScope.selectedJob = null;
             thPinboard.unPinAll();
 
+            $location.search("repo", repo_name);
+            $location.search("revision", null);
             $scope.repoModel.setCurrent(repo_name);
-            $location.search({repo: repo_name});
 
         };
 
