@@ -21,7 +21,6 @@ treeherder.factory('thResultSets', [
     var resultSetResponseTransformer = function(data, headersGetter){
 
         var responseData = angular.fromJson(data);
-
         var r = 0;
         for(; r<responseData.results.length; r++){
 
