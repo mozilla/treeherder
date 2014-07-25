@@ -7,7 +7,8 @@ from rest_framework.reverse import reverse
 from treeherder.model.derived import DatasetNotFoundError
 from treeherder.webapp.api.utils import (UrlQueryFilter, with_jobs,
                                          oauth_required, get_option,
-                                         to_timestamp)
+                                         to_timestamp, get_job_value_list,
+                                         JOB_PROPERTY_RETURN_KEY)
 
 PLATFORM_ORDER = {
     "linux32": 0,
@@ -60,7 +61,6 @@ class ResultSetViewSet(viewsets.ViewSet):
         GET method for list of ``resultset`` records with revisions
 
         """
-
         # make a mutable copy of these params
         filter_params = request.QUERY_PARAMS.copy()
 
@@ -113,7 +113,9 @@ class ResultSetViewSet(viewsets.ViewSet):
         )
 
         if with_jobs:
-            results = self.get_resultsets_with_jobs(jm, objs, full, {})
+            debug = request.QUERY_PARAMS.get('debug', None)
+            results = self.get_resultsets_with_jobs(
+                jm, objs, full, {}, debug)
         else:
             results = objs
 
@@ -122,7 +124,8 @@ class ResultSetViewSet(viewsets.ViewSet):
 
         return Response({
             'meta': meta,
-            'results': results
+            'results': results,
+            'job_property_names': JOB_PROPERTY_RETURN_KEY
         })
 
     @with_jobs
@@ -136,7 +139,8 @@ class ResultSetViewSet(viewsets.ViewSet):
 
         objs = jm.get_result_set_list(0, 1, full, filter.conditions)
         if objs:
-            rs = self.get_resultsets_with_jobs(jm, objs, full, {})
+            debug = request.QUERY_PARAMS.get('debug', None)
+            rs = self.get_resultsets_with_jobs(jm, objs, full, {}, debug)
             return Response(rs[0])
         else:
             return Response("No resultset with id: {0}".format(pk), 404)
@@ -151,7 +155,7 @@ class ResultSetViewSet(viewsets.ViewSet):
         return Response(objs)
 
     @staticmethod
-    def get_resultsets_with_jobs(jm, rs_list, full, filter_kwargs):
+    def get_resultsets_with_jobs(jm, rs_list, full, filter_kwargs, debug):
         """Convert db result of resultsets in a list to JSON"""
 
         # Fetch the job results all at once, then parse them out in memory.
@@ -219,21 +223,21 @@ class ResultSetViewSet(viewsets.ViewSet):
 
                     by_job_type = sorted(list(jg_group), key=job_type_grouper)
 
+                    job_list = []
                     groups.append({
                         "symbol": jg_symbol,
                         "name": by_job_type[0]["job_group_name"],
-                        "jobs": by_job_type
+                        "jobs": job_list
                     })
 
                     # build the uri ref for each job
                     for job in by_job_type:
-                        job["id"] = job["job_id"]
-                        del(job["job_id"])
-                        del(job["option_collection_hash"])
 
-                        job["platform_option"] = platform_option
-                        job["resource_uri"] = reverse("jobs-detail",
-                            kwargs={"project": jm.project, "pk": job["id"]})
+                        job_list.append(
+                            get_job_value_list(
+                                job, platform_option, jm.project, debug
+                            )
+                        )
 
                         if job["state"] == "completed":
                             job_counts[job["result"]] += 1

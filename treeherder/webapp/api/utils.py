@@ -6,10 +6,54 @@ import simplejson as json
 import oauth2 as oauth
 from django.conf import settings
 from rest_framework.response import Response
+from rest_framework.reverse import reverse
 
 from treeherder.model.derived import JobsModel
 from treeherder.etl.oauth_utils import OAuthCredentials
 
+# To add a new property to the job object returned,
+# where the database column name is identical to
+# the property name, just add the column name to this
+# structure.
+JOB_PROPERTIES = {
+    "submit_timestamp": 0,
+    "machine_name": 1,
+    "job_group_symbol": 2,
+    "job_group_name": 3,
+    "platform_option": 4,
+    "job_type_description": 5,
+    "result_set_id": 6,
+    "result": 7,
+    "id": 8,
+    "machine_platform_architecture": 9,
+    "end_timestamp": 10,
+    "build_platform": 11,
+    "job_guid": 12,
+    "job_type_name": 13,
+    "platform": 14,
+    "state": 15,
+    "running_eta": 16,
+    "pending_eta": 17,
+    "build_os": 18,
+    "who": 19,
+    "failure_classification_id": 20,
+    "job_type_symbol": 21,
+    "reason": 22,
+    "job_group_description": 23,
+    "job_coalesced_to_guid": 24,
+    "machine_platform_os": 25,
+    "start_timestamp": 26,
+    "build_architecture": 27,
+    "build_platform_id": 28,
+    "resource_uri": 29,
+    "option_collection_hash": 30
+}
+
+# This list can maps the array indexes to the
+# corresponding property names
+JOB_PROPERTY_RETURN_KEY = [None]*len(JOB_PROPERTIES)
+for k, v in JOB_PROPERTIES.iteritems():
+    JOB_PROPERTY_RETURN_KEY[v] = k
 
 class UrlQueryFilter(object):
     """
@@ -213,3 +257,39 @@ def to_timestamp(datestr):
         datestr,
         "%Y-%m-%d"
         ).timetuple())
+
+def get_job_value_list(job, platform_option, project, debug):
+
+    if debug:
+        # If debug is specified return a dictionary for each
+        # job where the key is the full property name
+        job_values = {}
+    else:
+        # By default don't return all of the job property names
+        # with each job to reduce the size of the data structure
+        # returned
+        job_values = [None]*len(JOB_PROPERTIES)
+
+    for p in JOB_PROPERTIES:
+
+        key = JOB_PROPERTIES[p]
+        if debug:
+            key = p
+
+        if p == "id":
+            job_values[key] = job["job_id"]
+        elif p == "platform_option":
+            job_values[key] = platform_option
+        elif p == "resource_uri":
+            job_values[key] = reverse(
+                "jobs-detail",
+                kwargs={"project": project, "pk": job["job_id"]}
+                )
+        else:
+            job_values[key] = job[p]
+
+    return job_values
+
+
+
+
