@@ -259,40 +259,40 @@ describe('ThResultSetModel', function(){
                         {
                             "symbol": "?",
                             "jobs": [
-                                {
-                                    "machine_name": "bld-centos6-hp-031",
-                                    "job_group_symbol": "?",
-                                    "job_type_name": "Build",
-                                    "job_group_name": "unknown",
-                                    "platform_option": "debug",
-                                    "reason": "scheduler",
-                                    "failure_classification_id": 1,
-                                    "job_type_symbol": "B",
-                                    "platform": "linux64",
-                                    "state": "pending",
-                                    "result_set_id": id,
-                                    "result": "unknown",
-                                    "job_coalesced_to_guid": null,
-                                    "id": 590604,
-                                    "resource_uri": "/api/project/try/jobs/590604/"
-                                },
-                                {
-                                    "machine_name": "try-linux64-spot-129",
-                                    "job_group_symbol": "?",
-                                    "job_type_name": "Static Checking Build",
-                                    "job_group_name": "unknown",
-                                    "platform_option": "debug",
-                                    "reason": "scheduler",
-                                    "failure_classification_id": 1,
-                                    "job_type_symbol": "S",
-                                    "platform": "linux64",
-                                    "state": "completed",
-                                    "result_set_id": id,
-                                    "result": "success",
-                                    "job_coalesced_to_guid": null,
-                                    "id": 590599,
-                                    "resource_uri": "/api/project/try/jobs/590599/"
-                                }
+                               [
+                                    "bld-centos6-hp-031",
+                                    "?",
+                                    "Build",
+                                    "unknown",
+                                    "debug",
+                                    "scheduler",
+                                    1,
+                                    "B",
+                                    "linux64",
+                                    "pending",
+                                    id,
+                                    "unknown",
+                                    null,
+                                    590604,
+                                    "/api/project/try/jobs/590604/"
+                                ],
+                                [
+                                    "try-linux64-spot-129",
+                                    "?",
+                                    "Static Checking Build",
+                                    "unknown",
+                                    "debug",
+                                    "scheduler",
+                                    1,
+                                    "S",
+                                    "linux64",
+                                    "completed",
+                                    id,
+                                    "success",
+                                    null,
+                                    590599,
+                                    "/api/project/try/jobs/590599/"
+                                ]
                             ],
                             "name": "unknown"
                         }
@@ -316,6 +316,23 @@ describe('ThResultSetModel', function(){
                 },
                 "repository": "mozilla-central"
             },
+            "job_property_names":[
+                "machine_name",
+                "job_group_symbol",
+                "job_type_name",
+                "job_group_name",
+                "platform_option",
+                "reason",
+                "failure_classification_id",
+                "job_type_symbol",
+                "platform",
+                "state",
+                "result_set_id",
+                "result",
+                "job_coalesced_to_guid",
+                "id",
+                "resource_uri"
+            ],
             "results": [rs]
         };
     };

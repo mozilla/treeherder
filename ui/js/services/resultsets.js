@@ -1,8 +1,51 @@
 'use strict';
 
+
 treeherder.factory('thResultSets', [
     '$http', '$location', 'thUrl', 'thServiceDomain', 'ThLog',
     function($http, $location, thUrl, thServiceDomain, ThLog) {
+
+    var getJobObj = function(job, jobPropertyNames){
+        //Map the job property names to their corresponding
+        //values in a job object
+        var jobObj = {};
+        var j = 0;
+        for(; j < jobPropertyNames.length; j++){
+            jobObj[ jobPropertyNames[j] ] = job[j];
+        }
+        return jobObj;
+    };
+
+    // Convert jobs value array into into an associative array
+    // with property names
+    var resultSetResponseTransformer = function(data, headersGetter){
+
+        var responseData = angular.fromJson(data);
+        var r = 0;
+        for(; r<responseData.results.length; r++){
+
+            if(responseData.results[r].platforms === undefined){
+                continue;
+            }
+
+            var p = 0;
+            for(; p < responseData.results[r].platforms.length; p++){
+                var g = 0;
+                for(; g < responseData.results[r].platforms[p].groups.length; g++){
+                    var j = 0;
+                    for(; j < responseData.results[r].platforms[p].groups[g].jobs.length; j++){
+
+                        responseData.results[r].platforms[p].groups[g].jobs[j] = getJobObj(
+                                responseData.results[r].platforms[p].groups[g].jobs[j],
+                                responseData.job_property_names
+                            );
+                    }
+                }
+            }
+        }
+
+        return responseData;
+    };
 
     var $log = new ThLog("thResultSets");
 
@@ -64,8 +107,12 @@ treeherder.factory('thResultSets', [
                     id__in: resultsetlist.join()
                 });
             }
-            return $http.get(thUrl.getProjectUrl("/resultset/", repoName),
-                             {params: params}
+            return $http.get(
+                thUrl.getProjectUrl("/resultset/", repoName),
+                {
+                    params: params,
+                    transformResponse:resultSetResponseTransformer
+                }
             );
         },
         get: function(uri) {

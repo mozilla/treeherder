@@ -226,6 +226,7 @@ treeherder.factory('ThResultSetModel', [
                 }
             }
         }
+
         $log.debug("sorting", repoName, repositories[repoName]);
         repositories[repoName].resultSets.sort(rsCompare);
 
