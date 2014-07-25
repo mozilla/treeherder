@@ -54,7 +54,7 @@ def test_resultset_list_full_false(webapp, eleven_jobs_processed, jm):
     """
     resp = webapp.get(
         reverse("resultset-list", kwargs={"project": jm.project}),
-                {"full": False}
+                {"full": False, "debug": True}
     )
 
     results = resp.json['results']
@@ -81,7 +81,7 @@ def test_resultset_list_full_false(webapp, eleven_jobs_processed, jm):
 
     assert(meta == {
         u'count': 10,
-        u'filter_params': {u'full': u'False'},
+        u'filter_params': {u'full': u'False', u'debug': u'True'},
         u'repository':
         u'test_treeherder'
     })
