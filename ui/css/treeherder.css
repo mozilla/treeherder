@@ -517,9 +517,8 @@ div#bottom-panel.with-pinboard #bottom-center-panel{
     overflow: auto;
 }
 
-ul.failure-summary-list li{
-    padding: 1px 0 1px 5px ;
-
+ul.failure-summary-list li {
+    padding: 0px 0px 0px 8px;
 }
 
 ul.failure-summary-list li .btn-xs{
@@ -527,8 +526,17 @@ ul.failure-summary-list li .btn-xs{
 }
 
 .failure-summary-line {
-    background-color: rgba(169, 169, 169, 0.47);
+    padding: 7px 0px 3px;
     color: #444444;
+}
+
+.failure-summary-bugs {
+    padding: 0px 0px 0px 14px;
+}
+
+.failure-summary-bugs button {
+    padding: 2px 5px 2px 4px;
+    margin: 0px 0px 1px;
 }
 
 .shadowed-panel {
