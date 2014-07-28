@@ -180,9 +180,43 @@ class StepParser(ParserBase):
         return self.steps[self.stepnum]
 
 
-RE_TINDERBOXPRINT = re.compile('.*?TinderboxPrint: (.*)$')
+RE_TINDERBOXPRINT = re.compile('.*TinderboxPrint: (?P<line>.*)$')
 
-RE_UPLOADED_TO = re.compile("<a href='(http://[A-Za-z/\.0-9\-_]+)'>([A-Za-z/\.0-9\-_]+)</a>")
+RE_UPLOADED_TO = re.compile(
+    "<a href=['\"](?P<url>http(s)?://.*)['\"]>(?P<value>.+)</a>: uploaded"
+)
+RE_LINK_HTML = re.compile(
+    ("((?P<title>[A-Za-z/\.0-9\-_]+): )?"
+     "<a .*href=['\"](?P<url>http(s)?://.+)['\"].*>(?P<value>.+)</a>")
+)
+RE_LINK_TEXT = re.compile(
+    "((?P<title>[A-Za-z/\.0-9\-_]+): )?(?P<url>http(s)?://.*)"
+)
+
+TINDERBOX_REGEXP_TUPLE = (
+    {
+        're': RE_UPLOADED_TO,
+        'base_dict': {
+            "content_type": "link",
+            "title": "artifact uploaded"
+        },
+        'duplicates_fields': {}
+    },
+    {
+        're': RE_LINK_HTML,
+        'base_dict': {
+            "content_type": "link"
+        },
+        'duplicates_fields': {}
+    },
+    {
+        're': RE_LINK_TEXT,
+        'base_dict': {
+            "content_type": "link"
+        },
+        'duplicates_fields': { 'value': 'url'}
+    }
+)
 
 class TinderboxPrintParser(ParserBase):
 
@@ -190,61 +224,52 @@ class TinderboxPrintParser(ParserBase):
         """Setup the artifact to hold the job details."""
         super(TinderboxPrintParser, self).__init__("job_details")
 
+
     def parse_line(self, line, lineno):
         """Parse a single line of the log"""
-        if "TinderboxPrint: " in line:
-            match = RE_TINDERBOXPRINT.match(line)
-            if match:
-                artifact = {}
-                line = match.group(1)
-                if "<a href='http://graphs.mozilla.org" in line:
+        match = RE_TINDERBOXPRINT.match(line) if line else None
+        if match:
+            line = match.group('line')
+
+            if line.startswith("TalosResult: "):
+                title, value = line.split(": ", 1)
+                self.artifact.append({
+                    "title": title,
+                    "content_type": "TalosResult",
+                    "value": value
+                })
+                return
+
+            for regexp_item in TINDERBOX_REGEXP_TUPLE:
+                match =  regexp_item['re'].match(line)
+                if match:
+                    artifact = match.groupdict()
+                    # handle duplicate fields
+                    for to_field, from_field in \
+                        regexp_item['duplicates_fields'].items():
+                        # if to_field not present or None copy form from_field
+                        if to_field not in artifact or artifact[to_field] is None:
+                            artifact[to_field] = artifact[from_field]
+                    artifact.update(regexp_item['base_dict'])
+                    self.artifact.append(artifact)
                     return
-                # by default use the whole line
-                title = line
-                value = ""
-                content_type = "text"
-                url = None
-                splitters = (": ", "<br/>")
 
-                splitters_used = [s for s in splitters if s in line]
+            # default case: consider it html content
+            # try to detect title/value splitting on <br/>
+            artifact = {"content_type": "html",}
+            if "<br/>" in line:
+                title, value = line.split("<br/>", 1)
+                artifact["title"] = title
+                artifact["value"] = value
+            else:
+                artifact["value"] = line
+            self.artifact.append(artifact)
 
-                if splitters_used:
-                    title, value = line.split(splitters_used[0], 1)
 
-                # if it's a json string, return it as is.
-                try:
-                    artifact["value"] = json.loads(value)
-                    if "TalosResult" in title:
-                        # we need special handling for talos results
-                        artifact["content_type"] = "TalosResult"
-                    else:
-                        artifact["content_type"] = "object"
-                    artifact["title"] = title
-                except ValueError:
-                    # if it's not a json string, let's parse it
-                    if "link" in title:
-                        content_type = "link"
-                        url = value
-                    if "uploaded" in value:
-                        uploaded_to_chunks = RE_UPLOADED_TO.match(title)
-                        if uploaded_to_chunks:
-                            title = "artifact uploaded"
-                            value = uploaded_to_chunks.group(2)
-                            url = uploaded_to_chunks.group(1)
-                            content_type = "link"
-
-                    if splitters_used:
-                        if (splitters_used[0] == "<br/>" or
-                                ("<" in splitters_used[0]) or
-                                ("<" in value)):
-                            content_type = "html"
-
-                    artifact["title"] = title
-                    artifact["value"] = value
-                    artifact["content_type"] = content_type
-                    artifact["url"] = url
-
-                self.artifact.append(artifact)
+RE_INFO = re.compile((
+        "^\d+:\d+:\d+[ ]+(?:INFO)(?: -  )"
+        "(TEST-|INFO TEST-)(INFO|PASS|START|END) "
+    ))
 
 
 IN_SEARCH_TERMS = (
