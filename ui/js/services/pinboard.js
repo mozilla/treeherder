@@ -58,6 +58,10 @@ treeherder.factory('thPinboard', [
             }
         },
 
+        pinJobs: function(jobsToPin) {
+            _.forEach(jobsToPin, api.pinJob);
+        },
+
         unPinJob: function(id) {
             delete pinnedJobs[id];
             api.count.numPinnedJobs = _.size(pinnedJobs);

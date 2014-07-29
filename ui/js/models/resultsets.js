@@ -2,10 +2,10 @@
 
 treeherder.factory('ThResultSetModel', [
     '$rootScope', '$location', 'thResultSets', 'thSocket', 'ThJobModel',
-    'thEvents', 'thAggregateIds', 'ThLog', 'thNotify',
+    'thEvents', 'thAggregateIds', 'ThLog', 'thNotify', 'thJobFilters',
     function(
         $rootScope, $location, thResultSets, thSocket, ThJobModel, thEvents,
-        thAggregateIds, ThLog, thNotify) {
+        thAggregateIds, ThLog, thNotify, thJobFilters) {
 
     var $log = new ThLog("ThResultSetModel");
 
@@ -26,11 +26,18 @@ treeherder.factory('ThResultSetModel', [
     var repositories = {};
 
     var updateQueueInterval = 10000;
-    var FAILURE_RESULTS = {"testfailed":1, "busted": 1, "exception": 1}
+    var FAILURE_RESULTS = {"testfailed":1, "busted": 1, "exception": 1};
 
     var addRepository = function(repoName){
         //Initialize a new repository in the repositories structure
-        var locationSearch = _.clone($location.search());
+
+        // only base the locationSearch on params that are NOT filters,
+        // because filters don't effect the server side fetching of
+        // jobs.
+        var locationSearch = thJobFilters.removeFiltersFromQueryString(
+            _.clone($location.search())
+        );
+
         $log.debug("locationSearch", locationSearch);
 
         if(_.isEmpty(repositories[repoName]) ||
@@ -121,6 +128,29 @@ treeherder.factory('ThResultSetModel', [
                 }
             });
         }
+    };
+
+    var getAllShownJobs = function(repoName, maxSize, resultsetId, resultStatusFilters) {
+        var shownJobs = [];
+
+        var addIfShown = function(jMap) {
+            if (resultsetId && jMap.job_obj.result_set_id !== resultsetId) {
+                return;
+            }
+            if (jMap.job_obj.visible) {
+                shownJobs.push(jMap.job_obj);
+            }
+            if (_.size(shownJobs) === maxSize) {
+                thNotify.send("Max size reached.  Using the first " + maxSize,
+                              "danger",
+                              true);
+                return true;
+            }
+            return false;
+        };
+        _.detect(getJobMap(repoName), addIfShown);
+
+        return shownJobs;
     };
 
     var getJobMapKey = function(job) {
@@ -712,6 +742,7 @@ treeherder.factory('ThResultSetModel', [
         fetchJobs: fetchJobs,
         fetchNewResultSets: fetchNewResultSets,
         fetchResultSets: fetchResultSets,
+        getAllShownJobs: getAllShownJobs,
         getJobMap: getJobMap,
         getLoadingStatus: getLoadingStatus,
         getPlatformKey: getPlatformKey,

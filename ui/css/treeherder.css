@@ -285,6 +285,7 @@ body {
     font-size: 12px;
     padding-left: 0;
     padding-right: 5px;
+    min-width: 110px;
 }
 
 .result-set {

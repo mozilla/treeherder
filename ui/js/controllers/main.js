@@ -157,6 +157,8 @@ treeherder.controller('MainCtrl', [
             thJobFilters.toggleInProgress();
         };
 
+        thJobFilters.buildFiltersFromQueryString();
+
         $scope.allExpanded = function(cls) {
             var fullList = $("." + cls);
             var visibleList = $("." + cls + ":visible");
@@ -232,10 +234,11 @@ treeherder.controller('MainCtrl', [
             $rootScope.selectedJob = null;
             thPinboard.unPinAll();
 
-            $location.search("repo", repo_name);
+            $rootScope.skipNextSearchChangeReload = true;
             $location.search("revision", null);
+            $rootScope.skipNextSearchChangeReload = false;
+            $location.search("repo", repo_name);
             $scope.repoModel.setCurrent(repo_name);
-
         };
 
         $scope.pinboardCount = thPinboard.count;

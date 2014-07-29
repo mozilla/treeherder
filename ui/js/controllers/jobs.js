@@ -73,12 +73,12 @@ treeherder.controller('ResultSetCtrl', [
     '$scope', '$rootScope', '$http', 'ThLog', '$location',
     'thUrl', 'thServiceDomain', 'thResultStatusInfo',
     'ThResultSetModel', 'thEvents', 'thJobFilters', 'thNotify',
-    'thBuildApi',
+    'thBuildApi', 'thPinboard',
     function ResultSetCtrl(
         $scope, $rootScope, $http, ThLog, $location,
         thUrl, thServiceDomain, thResultStatusInfo,
         ThResultSetModel, thEvents, thJobFilters, thNotify,
-        thBuildApi) {
+        thBuildApi, thPinboard) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -130,8 +130,32 @@ treeherder.controller('ResultSetCtrl', [
 
         };
 
+        /**
+         * Pin all jobs that pass the GLOBAL filters.  Ignores toggling at
+         * the result set level.
+         *
+         * If optional resultsetId is passed in, then only pin jobs from that
+         * resultset.
+         */
         $scope.pinAllShownJobs = function() {
-            thJobFilters.pinAllShownJobs($scope.resultset.id, $scope.resultStatusFilters);
+            if (!thPinboard.spaceRemaining()) {
+                thNotify.send("Pinboard is full.  Can not pin any more jobs.",
+                    "danger",
+                    true);
+                return;
+            }
+            var shownJobs = ThResultSetModel.getAllShownJobs(
+                $rootScope.repoName,
+                thPinboard.spaceRemaining(),
+                $scope.resultset.id,
+                $scope.resultStatusFilters
+            );
+            thPinboard.pinJobs(shownJobs);
+
+            if (!$rootScope.selectedJob) {
+                $scope.viewJob(shownJobs[0]);
+            }
+
         };
 
         /**
