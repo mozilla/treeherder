@@ -85,7 +85,6 @@ treeherder.controller('PinboardCtrl', [
         $scope.saveEnteredBugNumber = function() {
             $log.debug("new bug number to be saved: ", $scope.newEnteredBugNumber);
             thPinboard.addBug({id:$scope.newEnteredBugNumber});
-            $scope.newEnteredBugNumber = null;
             $scope.toggleEnterBugNumber();
         };
 
