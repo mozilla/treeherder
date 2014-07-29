@@ -2,15 +2,15 @@
     <ul class="list-unstyled failure-summary-list">
 
         <li ng-repeat="failure in bugs">
-            <div class="failure-summary-line"><strong ng-bind="failure.search"></strong></div>
+            <div class="failure-summary-line"><span ng-bind="failure.search"></span></div>
             <span ng-repeat="visible in ['open','closed']">
-                <ul class="list-unstyled">
+                <ul class="list-unstyled failure-summary-bugs">
                     <li ng-repeat="bug in failure[visible] | orderBy:bug.relevance:reverse"
                         ng-show="$index<3 || show_all">
                         <button class="btn btn-xs btn-default"
                                 ng-click="pinboard_service.addBug(bug, selectedJob)"
                                 title="add to list of bugs to associate with all pinned jobs">
-                            <i class="fa fa-plus"></i>
+                            <i class="glyphicon glyphicon-pushpin"></i>
                         </button>
                         <a href="https://bugzilla.mozilla.org/show_bug.cgi?id={{bug.id}}"
                            ng-class="{'deleted': bug.resolution != ''}">{{bug.id}}</a>
