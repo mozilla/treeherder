@@ -631,6 +631,17 @@ ul.failure-summary-list li .btn-xs{
     background-color: #FFFFFF;
 }
 
+/* Spin button suppression on chrome */
+#pinboard-related-bugs form input[type=number]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Spin button suppression on firefox */
+#pinboard-related-bugs form input[type=number] {
+    -moz-appearance: textfield;
+}
+
 #pinboard-classification{
     position: absolute;
     top: 2px;
