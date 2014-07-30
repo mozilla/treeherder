@@ -99,7 +99,7 @@ TINDERBOX_TEST_CASES = (
             '<em class="testfail">CRASH</em>'
         ),
         [{
-            'content_type': 'html',
+            'content_type': 'raw_html',
             'title': 'xpcshell-xpcshell',
             'value': (
                 '2153/<em class="testfail">1</em>&nbsp;'

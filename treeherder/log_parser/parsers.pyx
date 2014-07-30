@@ -256,7 +256,7 @@ class TinderboxPrintParser(ParserBase):
 
             # default case: consider it html content
             # try to detect title/value splitting on <br/>
-            artifact = {"content_type": "html",}
+            artifact = {"content_type": "raw_html",}
             if "<br/>" in line:
                 title, value = line.split("<br/>", 1)
                 artifact["title"] = title
