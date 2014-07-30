@@ -1,0 +1,6 @@
+uses:
+    - django
+    - celery
+ignore-paths:
+    - docs
+    - vendor
