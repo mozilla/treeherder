@@ -660,6 +660,16 @@ ul.failure-summary-list li .btn-xs{
     height: 40px;
 }
 
+#pinboard-controls-header {
+    position: absolute;
+    top: 2px;
+    right: 10px;
+}
+
+#pinboard-controls-header a {
+    color: #9fa3a5;
+}
+
 #pinboard-controls{
     position: absolute;
     top: 21px;
