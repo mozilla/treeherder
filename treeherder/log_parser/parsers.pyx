@@ -232,7 +232,12 @@ class TinderboxPrintParser(ParserBase):
             line = match.group('line')
 
             if line.startswith("TalosResult: "):
-                title, value = line.split(": ", 1)
+                title, json_value = line.split(": ", 1)
+                try:
+                    value = json.loads(json_value)
+                except ValueError:
+                    value = "talos data unreadable"
+
                 self.artifact.append({
                     "title": title,
                     "content_type": "TalosResult",
