@@ -22,12 +22,12 @@
  * must match at least one value in every field.
  */
 treeherder.factory('thJobFilters', [
-    'thResultStatusList', 'ThLog', '$rootScope',
-    'ThResultSetModel', 'thPinboard', 'thNotify', 'thEvents',
+    'thResultStatusList', 'ThLog', '$rootScope', '$location',
+    'thNotify', 'thEvents',
     'thResultStatus', 'ThRepositoryModel', 'thPlatformNameMap',
     function(
-        thResultStatusList, ThLog, $rootScope,
-        ThResultSetModel, thPinboard, thNotify, thEvents,
+        thResultStatusList, ThLog, $rootScope, $location,
+        thNotify, thEvents,
         thResultStatus, ThRepositoryModel, thPlatformNameMap) {
 
     var $log = new ThLog("thJobFilters");
@@ -75,6 +75,9 @@ treeherder.factory('thJobFilters', [
     // filters you had before so that when you untoggle from them, you get
     // back to where you were
     var stashedStatusFilterValues = {};
+
+    var urlFilterPrefix = "field-";
+    var urlFilterPrefixLen = urlFilterPrefix.length;
 
     // This object will look like:
     //
@@ -411,40 +414,6 @@ treeherder.factory('thJobFilters', [
         return 0;
     };
 
-    /**
-     * Pin all jobs that pass the GLOBAL filters.  Ignores toggling at
-     * the result set level.
-     *
-     * If optional resultsetId is passed in, then only pin jobs from that
-     * resultset.
-     */
-    var pinAllShownJobs = function(resultsetId, resultStatusFilters) {
-        var jobs = ThResultSetModel.getJobMap($rootScope.repoName);
-        var jobsToPin = [];
-
-        var queuePinIfShown = function(jMap) {
-            if (resultsetId && jMap.job_obj.result_set_id !== resultsetId) {
-                return;
-            }
-            if (api.showJob(jMap.job_obj, resultStatusFilters)) {
-                jobsToPin.push(jMap.job_obj);
-            }
-        };
-        _.forEach(jobs, queuePinIfShown);
-
-        if (_.size(jobsToPin) > thPinboard.spaceRemaining()) {
-            jobsToPin = jobsToPin.splice(0, thPinboard.spaceRemaining());
-            thNotify.send("Pinboard max size exceeded.  Pinning only the first " + thPinboard.spaceRemaining(),
-                          "danger",
-                          true);
-        }
-
-        if (!$rootScope.selectedJob) {
-            $rootScope.selectedJob = jobsToPin[0];
-        }
-        _.forEach(jobsToPin, thPinboard.pinJob);
-    };
-
     $rootScope.$on(thEvents.showUnclassifiedFailures, function() {
         showUnclassifiedFailures();
     });
@@ -512,11 +481,31 @@ treeherder.factory('thJobFilters', [
      * so the user sees everything.  Doesn't affect the field filters.  This
      * is used to undo the call to ``showUnclassifiedFailures``.
      */
-    var resetNonFieldFilters = function() {
+    var resetNonFieldFilters = function(quiet) {
         filters.resultStatus.values = thResultStatusList.defaultFilters();
         filters.isClassified.values = [true, false];
-        $rootScope.$broadcast(thEvents.globalFilterChanged);
+        if (!quiet) {
+            $rootScope.$broadcast(thEvents.globalFilterChanged);
+        }
+    };
 
+    /**
+     * reset all filters, taking us back to the default state.  But does not
+     * replace ``filters`` so the reference remains intact where used.
+     */
+    var resetAllFilters = function(quiet) {
+        filters.resultStatus.values = thResultStatusList.defaultFilters();
+        filters.isClassified.values = [true, false];
+        _.each(filters, function(value, key) {
+            if (key !== "isClassified" && key !== "resultStatus") {
+                delete filters[key];
+            }
+        });
+        filterKeys = _.keys(filters);
+
+        if (!quiet) {
+            $rootScope.$broadcast(thEvents.globalFilterChanged);
+        }
     };
 
     /**
@@ -543,8 +532,100 @@ treeherder.factory('thJobFilters', [
         return _.intersection(defaults[field].values, values).length === defaults[field].values.length;
     };
 
+    /**
+     * When the page first loads, check the query string params for
+     * filters and apply them.
+     */
+    var buildFiltersFromQueryString = function(quiet) {
+        // field filters
+        resetAllFilters(true);
+        var search = _.clone($location.search());
+        $log.debug("query string params", $location.search());
+
+        _.each(search, function (filterVal, filterKey) {
+            $log.debug("field filter", filterKey, filterVal);
+            if (filterKey.slice(0, urlFilterPrefixLen) === urlFilterPrefix) {
+                $log.debug("adding field filter", filterKey, filterVal);
+                addFilter(filterKey.slice(urlFilterPrefixLen), filterVal, true);
+
+            } else if (filterKey === "resultStatus" || filterKey === "isClassified") {
+                $log.debug("adding check filter", filterKey, filterVal);
+                if (!_.isArray(filterVal)) {
+                    filterVal = [filterVal];
+                }
+                // these will come through as strings, so convert to actual booleans
+                if (filterKey === "isClassified") {
+                    filterVal = _.map(filterVal, function(item) {return item !== "false";});
+                }
+                setCheckFilterValues(filterKey, _.uniq(filterVal), true);
+            } else if (filterKey === "searchQuery") {
+                filterVal = _.isArray(filterVal)? filterVal[0]: filterVal;
+                $log.debug("searchQuery added", filterVal);
+                $rootScope.searchQuery = filterVal;
+            }
+        });
+        $log.debug("done with loadFiltersFromQueryString", filters);
+        if (!quiet) {
+            $rootScope.$broadcast(thEvents.globalFilterChanged);
+        }
+    };
+
+    var removeFiltersFromQueryString = function(locationSearch) {
+        delete locationSearch.isClassified;
+        delete locationSearch.resultStatus;
+        delete locationSearch.searchQuery;
+
+        // update the url search params accordingly
+        // remove any field filters
+        _.each(locationSearch, function(filterVal, filterKey) {
+            if (filterKey.slice(0, urlFilterPrefixLen) === urlFilterPrefix) {
+                delete locationSearch[filterKey];
+            }
+        });
+        return locationSearch;
+    };
+
+    var buildQueryStringFromFilters = function() {
+        var newSearchValues = removeFiltersFromQueryString(
+            _.clone($location.search()));
+
+        _.each(filters, function(val, key) {
+            var values = _.uniq(val.values);
+            if (key === "resultStatus" || key === "isClassified") {
+                // don't add to query string if it matches the defaults
+                $log.debug("set query string checks", key, values);
+                if (!matchesDefaults(key, values)) {
+                    if (key === "isClassified") {
+                        values = _.map(values, function(item) {
+                            return item.toString();
+                        });
+                    }
+                    $log.debug("not defaults, setting check query strings",
+                               key,
+                               values);
+                    newSearchValues[key] = values;
+                }
+
+            } else {
+                $log.debug("setting field query strings", key, values);
+                newSearchValues[urlFilterPrefix + key] = values;
+            }
+        });
+
+        if ($rootScope.searchQuery && typeof $rootScope.searchQuery === 'string'){
+            newSearchValues.searchQuery = $rootScope.searchQuery;
+        }
+
+        $rootScope.skipNextSearchChangeReload = true;
+        $location.search(newSearchValues);
+
+    };
+
+
     var api = {
         addFilter: addFilter,
+        buildFiltersFromQueryString: buildFiltersFromQueryString,
+        buildQueryStringFromFilters: buildQueryStringFromFilters,
         copyResultStatusFilters: copyResultStatusFilters,
         excludedJobs: excludedJobs,
         filters: filters,
@@ -553,9 +634,10 @@ treeherder.factory('thJobFilters', [
         isSkippingExclusionProfiles: isSkippingExclusionProfiles,
         isUnclassifiedFailures: isUnclassifiedFailures,
         matchesDefaults: matchesDefaults,
-        pinAllShownJobs: pinAllShownJobs,
         removeAllFilters: removeAllFilters,
         removeFilter: removeFilter,
+        removeFiltersFromQueryString: removeFiltersFromQueryString,
+        resetAllFilters: resetAllFilters,
         resetNonFieldFilters: resetNonFieldFilters,
         revertNonFieldFilters: revertNonFieldFilters,
 
