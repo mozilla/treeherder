@@ -176,7 +176,7 @@ treeherder.controller('FilterPanelCtrl', [
 
         $scope.removeAllFieldFilters = function() {
             $scope.fieldFilters = [];
-            thJobFilters.removeAllFilters();
+            thJobFilters.removeAllFieldFilters();
         };
 
         $scope.removeFilter = function(index) {

@@ -235,21 +235,21 @@ treeherder.factory('thJobFilters', [
             if(idx > -1) {
                 $log.debug("removing ", value);
                 filters[field].values.splice(idx, 1);
+
+                // if this filer no longer has any values, then remove it
+                // unless it has the ``allowEmpty`` setting
+                if (filters[field].removeWhenEmpty && filters[field].values.length === 0) {
+                    delete filters[field];
+                }
+                filterKeys = _.keys(filters);
                 $rootScope.$broadcast(thEvents.globalFilterChanged);
             }
         }
 
-        // if this filer no longer has any values, then remove it
-        // unless it has the ``allowEmpty`` setting
-        if (filters[field].removeWhenEmpty && filters[field].values.length === 0) {
-            delete filters[field];
-        }
-
-        filterKeys = _.keys(filters);
         $log.debug("filters", filters);
     };
 
-    var removeAllFilters = function() {
+    var removeAllFieldFilters = function() {
         var someRemoved = false;
         $log.debug("removeAllFilters", filters, filterKeys);
         var removeAll = function(field) {
@@ -634,7 +634,7 @@ treeherder.factory('thJobFilters', [
         isSkippingExclusionProfiles: isSkippingExclusionProfiles,
         isUnclassifiedFailures: isUnclassifiedFailures,
         matchesDefaults: matchesDefaults,
-        removeAllFilters: removeAllFilters,
+        removeAllFieldFilters: removeAllFieldFilters,
         removeFilter: removeFilter,
         removeFiltersFromQueryString: removeFiltersFromQueryString,
         resetAllFilters: resetAllFilters,
