@@ -115,7 +115,7 @@ class ResultSetViewSet(viewsets.ViewSet):
             )
 
         if with_jobs:
-            results = get_resultsets_with_jobs(
+            results = self.get_resultsets_with_jobs(
                 jm, objs, full, {}, debug)
         else:
 
@@ -150,7 +150,7 @@ class ResultSetViewSet(viewsets.ViewSet):
         objs = jm.get_result_set_list(0, 1, full, filter.conditions)
         if objs:
             debug = request.QUERY_PARAMS.get('debug', None)
-            rs = get_resultsets_with_jobs(jm, objs, full, {}, debug)
+            rs = self.get_resultsets_with_jobs(jm, objs, full, {}, debug)
             return Response(rs[0])
         else:
             return Response("No resultset with id: {0}".format(pk), 404)
@@ -197,7 +197,8 @@ class ResultSetViewSet(viewsets.ViewSet):
         jm, rs_list, full, filter_kwargs, debug, sort_key='push_timestamp'):
         """Convert db result of resultsets in a list to JSON"""
 
-        del filter_kwargs['result_set_ids']
+        if 'result_set_ids' in filter_kwargs:
+            del filter_kwargs['result_set_ids']
 
         rs_map = {}
         for rs in rs_list:
