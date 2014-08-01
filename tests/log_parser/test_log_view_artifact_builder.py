@@ -45,7 +45,7 @@ def do_test(log, check_errors=True):
     # should look like.
     del(exp["logurl"])
 
-    assert act == exp, diff(exp, act)
+    assert act == exp#, diff(exp, act)
 
     # :: Use this assert when creating new tests and you want to get the actual
     # returned artifact:

@@ -35,7 +35,11 @@ def do_test(log):
     # assert act == exp, diff(exp, act)
 
     # if you want to gather results for a new test, use this
-    assert act == exp, json.dumps(act, indent=4)
+    assert len(act) == len(exp)
+    for index, artifact in act.items():
+        assert artifact == exp[index]
+
+    # assert act == exp#, json.dumps(act, indent=4)
 
 
 def test_crashtest_passing(initial_data):

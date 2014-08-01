@@ -1,6 +1,6 @@
 {
     "job_details": [
-        {"url": null, "content_type": "html", "value": "31776/<em class=\"testfail\">2</em>/40", "title": "mochitest-browser-chrome"}
+        {"content_type": "raw_html", "value": "31776/<em class=\"testfail\">2</em>/40", "title": "mochitest-browser-chrome"}
     ],
     "logurl": "file:///home/vagrant/treeherder-service/tests/sample_data/logs/mozilla-esr17_xp_test_pgo-mochitest-browser-chrome-bm74-tests1-windows-build12.txt.gz"
 }

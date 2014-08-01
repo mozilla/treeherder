@@ -7,8 +7,7 @@
             "title": "mozharness_revlink"
         },
         {
-            "url": null,
-            "content_type": "html",
+            "content_type": "raw_html",
             "value": "810/0/22",
             "title": "crashtest"
         }
