@@ -2,8 +2,8 @@
 
 
 treeherder.factory('thResultSets', [
-    '$rootScope', '$http', '$location', '$q', 'thUrl', 'thEvents', 'thServiceDomain', 'ThLog',
-    function($rootScope, $http, $location, $q, thUrl, thEvents, thServiceDomain, ThLog) {
+    '$rootScope', '$http', '$location', '$q', 'thUrl', 'thEvents', 'thServiceDomain', 'ThLog', 'thNotify',
+    function($rootScope, $http, $location, $q, thUrl, thEvents, thServiceDomain, ThLog, thNotify) {
 
     var getJobObj = function(job, jobPropertyNames){
         //Map the job property names to their corresponding
@@ -150,6 +150,10 @@ treeherder.factory('thResultSets', [
                             }else{
                                 // Send notification with response.status to
                                 // UI here
+                                thNotify.send(
+                                    "Error retrieing job data! response status " + response.status,
+                                    "danger",
+                                    true);
                             }
                     }) //Close then
 
