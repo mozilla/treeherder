@@ -3,16 +3,13 @@
 treeherder.controller('FilterPanelCtrl', [
     '$scope', '$rootScope', '$route', '$routeParams', '$location', 'ThLog',
     'localStorageService', 'thResultStatusList', 'thEvents', 'thJobFilters',
-    'thClassificationTypes',
+    'thClassificationTypes', 'ThResultSetModel', 'thPinboard', 'thNotify',
     function FilterPanelCtrl(
         $scope, $rootScope, $route, $routeParams, $location, ThLog,
         localStorageService, thResultStatusList, thEvents, thJobFilters,
-        thClassificationTypes) {
+        thClassificationTypes, ThResultSetModel, thPinboard, thNotify) {
 
         var $log = new ThLog(this.constructor.name);
-        var filterPrefix = "field-";
-        var filterPrefixLen = filterPrefix.length;
-
 
         $scope.filterOptions = thResultStatusList.all();
 
@@ -179,7 +176,7 @@ treeherder.controller('FilterPanelCtrl', [
 
         $scope.removeAllFieldFilters = function() {
             $scope.fieldFilters = [];
-            thJobFilters.removeAllFilters();
+            thJobFilters.removeAllFieldFilters();
         };
 
         $scope.removeFilter = function(index) {
@@ -192,12 +189,31 @@ treeherder.controller('FilterPanelCtrl', [
             $scope.fieldFilters.splice(index, 1);
         };
 
+        $scope.pinAllShownJobs = function() {
+            if (!thPinboard.spaceRemaining()) {
+                thNotify.send("Pinboard is full.  Can not pin any more jobs.",
+                    "danger",
+                    true);
+                return;
+            }
+            var shownJobs = ThResultSetModel.getAllShownJobs(
+                $rootScope.repoName,
+                thPinboard.spaceRemaining()
+            );
+            thPinboard.pinJobs(shownJobs);
+
+            if (!$rootScope.selectedJob) {
+                $rootScope.selectedJob = shownJobs[0];
+            }
+        };
+
         $scope.thJobFilters = thJobFilters;
 
         var updateToggleFilters = function() {
             for (var i = 0; i < $scope.filterOptions.length; i++) {
                 var opt = $scope.filterOptions[i];
-                $scope.resultStatusFilters[opt] = _.contains(thJobFilters.filters.resultStatus.values, opt);
+                $scope.resultStatusFilters[opt] = _.contains(
+                    thJobFilters.filters.resultStatus.values, opt);
             }
 
             // whether or not to show classified jobs
@@ -231,100 +247,29 @@ treeherder.controller('FilterPanelCtrl', [
          */
         $rootScope.skipNextSearchChangeReload = false;
         $scope.$on('$routeUpdate', function(){
+            $log.debug("route updated", $location.search());
             if (!$rootScope.skipNextSearchChangeReload) {
+                // when switching repos via the repos panel, you click a link
+                // that is a new route.  So it comes here, and we reload
+                // the route.  But the filters will be left on in thJobFilters
+                // but not in the URL.  So we reset all the filters here.
+                // If we wanted to retain the filters (like set to unclassified
+                // failures only) then we'd take out the next line and rebuild
+                // the url from the filters that are set.  Possibly just with
+                // a broadcast of ``globalFilterChanged``.
+                thJobFilters.buildFiltersFromQueryString();
+                $log.debug("route reloading");
                 $route.reload();
             } else {
-                $rootScope.skipNextSearchChangeReload = false;
+                $log.debug("route NOT reloading");
             }
+            $rootScope.skipNextSearchChangeReload = false;
         });
-
-        var updateSearchWithoutReload = function(key, values) {
-            $rootScope.skipNextSearchChangeReload = true;
-            $location.search(key, values);
-        };
 
         $scope.$on(thEvents.globalFilterChanged, function() {
             updateToggleFilters();
-
-            // update the url search params accordingly
-            $location.search("isClassified", null);
-            $location.search("resultStatus", null);
-            $location.search("searchQuery", null);
-            // remove any field filters
-            _.each($location.search(), function(filterVal, filterKey) {
-                if (filterKey.slice(0, filterPrefixLen) === filterPrefix) {
-                    $rootScope.skipNextSearchChangeReload = true;
-                    $location.search(filterKey, null);
-                }
-            });
-
-            _.each(thJobFilters.filters, function(val, key) {
-                var values = _.uniq(val.values);
-                if (key === "resultStatus" || key === "isClassified") {
-                    // don't add to query string if it matches the defaults
-                    $log.debug("set query string checks", key, values);
-                    if (!thJobFilters.matchesDefaults(key, values)) {
-                        if (key === "isClassified") {
-                            values = _.map(values, function(item) {return item.toString();});
-                        }
-                        $log.debug("not defaults, setting check query strings", key, values);
-                        updateSearchWithoutReload(key, values);
-                    }
-
-                } else {
-                    $log.debug("setting field query strings", key, values);
-                    updateSearchWithoutReload(filterPrefix + key, values);
-                }
-            });
-
-            if ($rootScope.searchQuery && typeof $rootScope.searchQuery === 'string'){
-                updateSearchWithoutReload("searchQuery", $rootScope.searchQuery);
-            }
-
+            thJobFilters.buildQueryStringFromFilters();
         });
-
-        /**
-         * When the page first loads, check the query string params for
-         * filters and apply them.
-         */
-        var loadFiltersFromQueryString = function() {
-            // field filters
-            var search = _.clone($location.search());
-            $log.debug("query string params", $location.search());
-
-            _.each(search, function (filterVal, filterKey) {
-                $log.debug("field filter", filterKey, filterVal);
-                if (filterKey.slice(0, filterPrefixLen) === filterPrefix) {
-                    $log.debug("adding field filter", filterKey, filterVal);
-                    $scope.newFieldFilter = {
-                        field: filterKey.slice(filterPrefixLen),
-                        value: filterVal
-
-                    };
-                    $scope.addFieldFilter(true);
-
-                } else if (filterKey === "resultStatus" || filterKey === "isClassified") {
-                    $log.debug("adding check filter", filterKey, filterVal);
-                    if (!_.isArray(filterVal)) {
-                        filterVal = [filterVal];
-                    }
-                    // these will come through as strings, so convert to actual booleans
-                    if (filterKey === "isClassified") {
-                        filterVal = _.map(filterVal, function(item) {return item !== "false";});
-                    }
-                    thJobFilters.setCheckFilterValues(filterKey, _.uniq(filterVal), true);
-                } else if (filterKey === "searchQuery") {
-                    filterVal = _.isArray(filterVal)? filterVal[0]: filterVal;
-                    $log.debug("searchQuery added", filterVal);
-                    $rootScope.searchQuery = filterVal;
-                }
-            });
-            $log.debug("done with loadFiltersFromQueryString", thJobFilters.filters);
-            $rootScope.$broadcast(thEvents.globalFilterChanged);
-
-        };
-
-        loadFiltersFromQueryString();
 
     }
 ]);

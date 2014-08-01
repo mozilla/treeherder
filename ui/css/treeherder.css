@@ -285,6 +285,7 @@ body {
     font-size: 12px;
     padding-left: 0;
     padding-right: 5px;
+    min-width: 110px;
 }
 
 .result-set {
@@ -517,9 +518,8 @@ div#bottom-panel.with-pinboard #bottom-center-panel{
     overflow: auto;
 }
 
-ul.failure-summary-list li{
-    padding: 1px 0 1px 5px ;
-
+ul.failure-summary-list li {
+    padding: 0px 0px 0px 8px;
 }
 
 ul.failure-summary-list li .btn-xs{
@@ -527,8 +527,17 @@ ul.failure-summary-list li .btn-xs{
 }
 
 .failure-summary-line {
-    background-color: rgba(169, 169, 169, 0.47);
+    padding: 7px 0px 3px;
     color: #444444;
+}
+
+.failure-summary-bugs {
+    padding: 0px 0px 0px 14px;
+}
+
+.failure-summary-bugs button {
+    padding: 2px 5px 2px 4px;
+    margin: 0px 0px 1px;
 }
 
 .shadowed-panel {
@@ -623,6 +632,17 @@ ul.failure-summary-list li .btn-xs{
     background-color: #FFFFFF;
 }
 
+/* Spin button suppression on chrome */
+#pinboard-related-bugs form input[type=number]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Spin button suppression on firefox */
+#pinboard-related-bugs form input[type=number] {
+    -moz-appearance: textfield;
+}
+
 #pinboard-classification{
     position: absolute;
     top: 2px;
@@ -638,6 +658,16 @@ ul.failure-summary-list li .btn-xs{
     width: 177px;
     margin-top: 5px;
     height: 40px;
+}
+
+#pinboard-controls-header {
+    position: absolute;
+    top: 2px;
+    right: 10px;
+}
+
+#pinboard-controls-header a {
+    color: #9fa3a5;
 }
 
 #pinboard-controls{

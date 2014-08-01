@@ -198,7 +198,6 @@ treeherder.directive('thCloneJobs', [
     var addJobBtnEls = function(
         jgObj, jobBtnInterpolator, jobTdEl, resultStatusFilters, jobCounts){
 
-        var showJob = false;
         var jobsShown = 0;
 
         var lastJobSelected = ThResultSetModel.getSelectedJob(
@@ -206,6 +205,7 @@ treeherder.directive('thCloneJobs', [
             );
 
         var hText, key, resultState, job, jobStatus, jobBtn, l;
+        var jobBtnArray = [];
 
         for(l=0; l<jgObj.jobs.length; l++){
 
@@ -221,7 +221,7 @@ treeherder.directive('thCloneJobs', [
             job.searchableStr = getPlatformName(job.platform) + ' ' +
                 job.platform_option + ' ' + job.job_group_name + ' ' +
                 job.job_group_symbol + ' ' + job.job_type_name + ' ' +
-                job.machine_name + ' ' + job.job_type_symbol;
+                job.job_type_symbol + ' ' + job.machine_name;
 
             //Make sure that filtering doesn't effect the resultset counts
             //displayed
@@ -230,12 +230,10 @@ treeherder.directive('thCloneJobs', [
                 //way down stream job consumers don't need to repeatedly
                 //call showJob
                 job.visible = false;
-                continue;
+            } else {
+                jobsShown++;
+                job.visible = true;
             }
-
-            jobsShown++;
-
-            job.visible = true;
 
             hText = getHoverText(job);
             key = getJobMapKey(job);
@@ -252,10 +250,10 @@ treeherder.directive('thCloneJobs', [
 
             jobStatus.title = hText;
 
+            jobBtn = $( jobBtnInterpolator(jobStatus));
+            jobBtnArray.push(jobBtn);
 
-            jobStatus.btnClass = jobStatus.btnClass;
-
-            jobBtn = $( jobBtnInterpolator(jobStatus) );
+            showHideJob(jobBtn, job.visible);
 
             //If the job is currently selected make sure to re-apply
             //the job selection styles
@@ -268,9 +266,8 @@ treeherder.directive('thCloneJobs', [
                 ThResultSetModel.setSelectedJob(
                     $rootScope.repoName, jobBtn, job);
             }
-
-            jobTdEl.append(jobBtn);
         }
+        jobTdEl.append(jobBtnArray);
 
         return jobsShown;
     };
@@ -507,10 +504,6 @@ treeherder.directive('thCloneJobs', [
 
         var resultSetMap = ThResultSetModel.getResultSetsMap($rootScope.repoName);
 
-        //If at least one job is visible we need to display the platform
-        //otherwise hide it
-        var jobsShownTotal = 0;
-
         var jobCounts = thResultStatusObject.getResultStatusObject();
 
         //Reset counts for the platform every time we render the
@@ -531,21 +524,11 @@ treeherder.directive('thCloneJobs', [
 
                 // Add the job btn spans
                 jobsShown = addJobBtnEls(
-                    jgObj, jobBtnInterpolator, jobTdEl, resultStatusFilters,
+                    jgObj, jobBtnInterpolator, jobGroup.find(".job-group-list"),
+                    resultStatusFilters,
                     jobCounts
                     );
-
-                if(jobsShown > 0){
-                    // Add the job group closure span
-                    jobTdEl.append(
-                        $( thCloneHtml.get('jobGroupEndClone').text )
-                        );
-
-                }else {
-                    // No jobs were displayed in the group, hide
-                    // the group symbol
-                    jobGroup.hide();
-                }
+                jobGroup.css("display", jobsShown? "inline": "none");
 
             }else{
 
@@ -556,18 +539,9 @@ treeherder.directive('thCloneJobs', [
                     );
 
             }
-            //Keep track of all of the jobs shown in a row
-            jobsShownTotal += jobsShown;
         }
-
-        if(jobsShownTotal === 0){
-            //No jobs shown hide the whole row
-            row.hide();
-        }else{
-            row.show();
-        }
-
         row.append(jobTdEl);
+        filterPlatform(row);
 
         //reset the resultset counts for the platformKey
         resultSetMap[resultsetId].platforms[platformKey].job_counts = jobCounts;
@@ -577,38 +551,65 @@ treeherder.directive('thCloneJobs', [
     };
 
     var filterJobs = function(element, resultStatusFilters){
+        $log.debug("filterJobs", element, resultStatusFilters);
 
         if(this.resultset.platforms === undefined){
             return;
         }
 
-        var platformId, platformKey, rowEl, tdEls, i;
+        var job, jmKey, show;
+        var jobMap = ThResultSetModel.getJobMap($rootScope.repoName);
 
-        for(i=0; i<this.resultset.platforms.length; i++){
+        element.find('.job-list .job-btn').each(function internalFilterJob() {
+            // using jquery to do these things was quite a bit slower,
+            // so just using raw JS for speed.
+            jmKey = this.dataset.jmkey;
+            job = jobMap[jmKey].job_obj;
+            show = thJobFilters.showJob(job, resultStatusFilters);
+            job.visible = show;
 
-            platformId = thAggregateIds.getPlatformRowId(
-                $rootScope.repoName,
-                this.resultset.id,
-                this.resultset.platforms[i].name,
-                this.resultset.platforms[i].option
-                );
+            showHideJob($(this), show);
+        });
 
-            rowEl = $( document.getElementById(platformId) );
+        // hide platforms and groups where all jobs are hidden
+        element.find(".platform").each(function internalFilterPlatform() {
+            var platform = $(this.parentNode);
+            filterPlatform(platform);
+        });
 
-            tdEls = rowEl.find('td');
-            // tdEls[0] is the platform <td> and
-            // tdEls[1] is the jobs <td>
-
-            platformKey = ThResultSetModel.getPlatformKey(
-                this.resultset.platforms[i].name, this.resultset.platforms[i].option
-                );
-
-            renderJobTableRow(
-                rowEl, $(tdEls[1]), this.resultset.platforms[i].groups,
-                resultStatusFilters, this.resultset.id, platformKey
-                );
+    };
+    var showHideJob = function(job, show) {
+        // Note: I was using
+        //    jobEl.style.display = "inline";
+        //    jobEl.className += " filter-shown";
+        // but that didn't work reliably with the jquery selectors
+        // when it came to hiding/showing platforms and groups.  Jquery
+        // couldn't detect that I'd added or removed ``filter-shown`` in
+        // all cases.  So, while this is a bit slower, it's reliable.
+        if (show) {
+            job.css("display", "inline");
+            job.addClass("filter-shown");
+        } else {
+            job.css("display", "none");
+            job.removeClass("filter-shown");
         }
+    };
 
+    var filterPlatform = function(platform) {
+        var showPlt = platform.find('.filter-shown').length !== 0;
+        var showGrp;
+
+        if (showPlt) {
+            platform.css("display", "table-row");
+            platform.find(".platform-group").each(function internalFilterGroup() {
+                var grp = $(this);
+                showGrp = grp.find('.filter-shown').length !== 0;
+                grp.css("display", showGrp? "inline": "none");
+            });
+
+        } else {
+            platform.css("display", "none");
+        }
     };
 
     var getPlatformName = function(name){

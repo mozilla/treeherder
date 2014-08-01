@@ -66,12 +66,31 @@
         </li>
 
     </ul>
-    <ul class="nav navbar-nav tab-headers">
-        <li ng-repeat="(tab_id, tab) in tabs" ng-class="{'active': tab.active}">
-            <a title="show {{ tab.title }}" href="" ng-click="show_tab(tab)">{{ tab.title }}</a>
-        </li>
 
+    <ul class="nav navbar-nav tab-headers">
+        <li ng-class="{'active': tabs.failure_summary.active}">
+            <a title="show Failure summary"
+               href=""
+               ng-click="show_tab(tabs.failure_summary)">
+               Failure summary
+            </a>
+        </li>
+        <li ng-class="{'active': tabs.annotations.active}">
+            <a title="show Annotations"
+               href=""
+               ng-click="show_tab(tabs.annotations)">
+               Annotations
+            </a>
+        </li>
+        <li ng-class="{'active': tabs.similar_jobs.active}">
+            <a title="show Similar jobs"
+               href=""
+               ng-click="show_tab(tabs.similar_jobs)">
+               Similar jobs
+            </a>
+        </li>
     </ul>
+
     <ul class="nav navbar-nav pull-right">
         <li>
             <a href="" ng-click="togglePinboardVisibility()">
