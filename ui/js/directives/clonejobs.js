@@ -347,6 +347,7 @@ treeherder.directive('thCloneJobs', [
             $(ulEl).empty();
 
             var revision, revisionHtml, userTokens, i;
+
             for(i=0; i<resultset.revisions.length; i++){
 
                 revision = resultset.revisions[i];
@@ -576,6 +577,10 @@ treeherder.directive('thCloneJobs', [
     };
 
     var filterJobs = function(element, resultStatusFilters){
+
+        if(this.resultset.platforms === undefined){
+            return;
+        }
 
         var platformId, platformKey, rowEl, tdEls, i;
 
@@ -953,6 +958,21 @@ treeherder.directive('thCloneJobs', [
                     _.bind(updateJobs, scope, platformData)();
                 }
             });
+
+        $rootScope.$on(
+            thEvents.applyNewJobs, function(ev, resultSetId){
+                if(scope.resultset.id === resultSetId){
+                    //Could call generateJobElements here if
+                    //we cannot get the apply to run
+                    if(!scope.$$phase){
+                        scope.$apply();
+                    }
+                }
+            });
+    };
+
+    var generateJobElements = function(element){
+
     };
 
     var linker = function(scope, element, attrs){
@@ -964,7 +984,7 @@ treeherder.directive('thCloneJobs', [
         element.on('mousedown', _.bind(jobMouseDown, scope));
         element.on('mouseover', _.bind(updateJobTitle, scope));
 
-        registerCustomEventCallbacks(scope, element, attrs);
+        registerCustomEventCallbacks(scope, element);
 
         //Clone the target html
         var resultsetAggregateId = thAggregateIds.getResultsetTableId(
@@ -977,6 +997,16 @@ treeherder.directive('thCloneJobs', [
 
         //Retrieve table el for appending
         var tableEl = targetEl.find('table');
+
+        addRevisions(scope.resultset, targetEl);
+
+        if(scope.resultset.platforms === undefined){
+            element.append(targetEl);
+            return {
+                link:linker,
+                replace:true
+            };
+        }
 
         var name, option, platformId, platformKey, row, platformTd, jobTdEl,
             statusList, j;
@@ -1022,13 +1052,11 @@ treeherder.directive('thCloneJobs', [
                 scope.resultStatusFilters, scope.resultset.id,
                 platformKey, true
                 );
-
+console.log(['appending', row]);
             tableEl.append(row);
         }
 
         element.append(targetEl);
-
-        addRevisions(scope.resultset, element);
     };
 
     return {

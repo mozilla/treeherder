@@ -28,6 +28,25 @@ treeherder.factory('ThResultSetModel', [
     var updateQueueInterval = 10000;
     var FAILURE_RESULTS = {"testfailed":1, "busted": 1, "exception": 1}
 
+    $rootScope.$on(thEvents.mapResultSetJobs, function(ev, repoName, data){
+
+        var i;
+        for(i=0; i<repositories[repoName].resultSets.length; i++){
+
+            if(repositories[repoName].resultSets[i].id === data.id){
+
+                _.extend(
+                    repositories[repoName].resultSets[i],
+                    data );
+
+                mapPlatforms(
+                    repoName, repositories[repoName].resultSets[i]);
+            }
+        }
+
+        $rootScope.$broadcast(thEvents.applyNewJobs, data.id);
+    });
+
     var addRepository = function(repoName){
         //Initialize a new repository in the repositories structure
         var locationSearch = _.clone($location.search());
@@ -182,48 +201,8 @@ treeherder.factory('ThResultSetModel', [
             }
 
             // platforms
-            for (var pl_i = 0; pl_i < rs_obj.platforms.length; pl_i++) {
-                var pl_obj = rs_obj.platforms[pl_i];
-
-                var plMapElement = {
-                    pl_obj: pl_obj,
-                    parent: repositories[repoName].rsMap[rs_obj.id],
-                    groups: {}
-                };
-                var platformKey = getPlatformKey(pl_obj.name, pl_obj.option);
-                repositories[repoName].rsMap[rs_obj.id].platforms[platformKey] = plMapElement;
-
-                // groups
-                for (var gp_i = 0; gp_i < pl_obj.groups.length; gp_i++) {
-                    var gr_obj = pl_obj.groups[gp_i];
-
-                    var grMapElement = {
-                        grp_obj: gr_obj,
-                        parent: plMapElement,
-                        jobs: {}
-                    };
-                    plMapElement.groups[gr_obj.name] = grMapElement;
-
-                    // jobs
-                    for (var j_i = 0; j_i < gr_obj.jobs.length; j_i++) {
-                        var job_obj = gr_obj.jobs[j_i];
-                        var key = getJobMapKey(job_obj);
-
-                        var jobMapElement = {
-                            job_obj: job_obj,
-                            parent: grMapElement
-                        };
-                        grMapElement.jobs[key] = jobMapElement;
-                        repositories[repoName].jobMap[key] = jobMapElement;
-                        updateUnclassifiedFailureMap(repoName, job_obj);
-
-                        // track oldest job id
-                        if (!repositories[repoName].jobMapOldestId ||
-                            (repositories[repoName].jobMapOldestId > job_obj.id)) {
-                            repositories[repoName].jobMapOldestId = job_obj.id;
-                        }
-                    }
-                }
+            if(rs_obj.platforms != undefined){
+                mapPlatforms(repoName, rs_obj);
             }
         }
 
@@ -233,6 +212,53 @@ treeherder.factory('ThResultSetModel', [
         $log.debug("oldest job: ", repositories[repoName].jobMapOldestId);
         $log.debug("oldest result set: ", repositories[repoName].rsMapOldestTimestamp);
         $log.debug("done mapping:", repositories[repoName].rsMap);
+    };
+
+    var mapPlatforms = function(repoName, rs_obj){
+
+        for (var pl_i = 0; pl_i < rs_obj.platforms.length; pl_i++) {
+            var pl_obj = rs_obj.platforms[pl_i];
+
+            var plMapElement = {
+                pl_obj: pl_obj,
+                parent: repositories[repoName].rsMap[rs_obj.id],
+                groups: {}
+            };
+            var platformKey = getPlatformKey(pl_obj.name, pl_obj.option);
+            repositories[repoName].rsMap[rs_obj.id].platforms[platformKey] = plMapElement;
+
+            // groups
+            for (var gp_i = 0; gp_i < pl_obj.groups.length; gp_i++) {
+                var gr_obj = pl_obj.groups[gp_i];
+
+                var grMapElement = {
+                    grp_obj: gr_obj,
+                    parent: plMapElement,
+                    jobs: {}
+                };
+                plMapElement.groups[gr_obj.name] = grMapElement;
+
+                // jobs
+                for (var j_i = 0; j_i < gr_obj.jobs.length; j_i++) {
+                    var job_obj = gr_obj.jobs[j_i];
+                    var key = getJobMapKey(job_obj);
+
+                    var jobMapElement = {
+                        job_obj: job_obj,
+                        parent: grMapElement
+                    };
+                    grMapElement.jobs[key] = jobMapElement;
+                    repositories[repoName].jobMap[key] = jobMapElement;
+                    updateUnclassifiedFailureMap(repoName, job_obj);
+
+                    // track oldest job id
+                    if (!repositories[repoName].jobMapOldestId ||
+                        (repositories[repoName].jobMapOldestId > job_obj.id)) {
+                        repositories[repoName].jobMapOldestId = job_obj.id;
+                    }
+                }
+            }
+        }
     };
 
     var isUnclassifiedFailure = function(job) {
@@ -677,6 +703,7 @@ treeherder.factory('ThResultSetModel', [
         if(resultsetList.length > 0){
             repositories[repoName].loadingStatus.prepending = true;
             thResultSets.getResultSets(repoName, 0, resultsetList.length, resultsetList).
+
             success( _.bind(prependResultSets, $rootScope, repoName) ).
             error(function(data) {
                 thNotify.send("Error retrieving job data!", "danger", true);
@@ -692,16 +719,24 @@ treeherder.factory('ThResultSetModel', [
          * @param count How many to fetch
          */
         repositories[repoName].loadingStatus.appending = true;
+
         thResultSets.getResultSets(
             repoName,
             repositories[repoName].rsOffsetId,
-            count).
-            success( _.bind(appendResultSets, $rootScope, repoName)).
-            error(function(data) {
-                thNotify.send("Error retrieving job data!", "danger", true);
-                $log.error(data);
-                appendResultSets(repoName, {results: []});
-            });
+            count,
+            undefined,
+            false).
+                success( _.bind(appendResultSets, $rootScope, repoName)).
+                    error(function(data) {
+                        thNotify.send("Error retrieving job data!", "danger", true);
+                        $log.error(data);
+                        appendResultSets(repoName, {results: []});
+
+                    }).then(function(resultSets){
+
+                        thResultSets.getResultSetJobs(resultSets, repoName);
+
+                    });
     };
 
     //Public interface
