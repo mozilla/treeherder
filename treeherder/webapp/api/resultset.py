@@ -105,28 +105,38 @@ class ResultSetViewSet(viewsets.ViewSet):
         full = filter.pop('full', 'true').lower() == 'true'
         with_jobs = filter.pop('with_jobs', 'true').lower() == 'true'
 
+        debug = request.QUERY_PARAMS.get('debug', None)
+
         objs = jm.get_result_set_list(
             offset_id,
             count,
             full,
             filter.conditions
-        )
+            )
 
         if with_jobs:
-            debug = request.QUERY_PARAMS.get('debug', None)
             results = self.get_resultsets_with_jobs(
                 jm, objs, full, {}, debug)
         else:
+
+            for rs in objs:
+                rs["revisions_uri"] = reverse("resultset-revisions",
+                    kwargs={"project": jm.project, "pk": rs["id"]})
+
             results = objs
 
         meta['count'] = len(results)
         meta['repository'] = project
 
-        return Response({
+        resp = {
             'meta': meta,
             'results': results,
-            'job_property_names': JOB_PROPERTY_RETURN_KEY
-        })
+            }
+
+        if with_jobs:
+            resp['job_property_names'] = JOB_PROPERTY_RETURN_KEY
+
+        return Response(resp)
 
     @with_jobs
     def retrieve(self, request, project, jm, pk=None):
@@ -154,12 +164,42 @@ class ResultSetViewSet(viewsets.ViewSet):
         objs = jm.get_resultset_revisions_list(pk)
         return Response(objs)
 
+    @link()
+    @with_jobs
+    def get_resultset_jobs(self, request, project, jm, pk=None):
+
+        result_set_ids = request.QUERY_PARAMS.getlist('result_set_ids') or []
+        debug = request.QUERY_PARAMS.get('debug', None)
+
+        filter_params = request.QUERY_PARAMS.copy()
+
+        # adapt the result_set_ids to the get_result_set_list
+        # return structure
+        objs = []
+        map(lambda r_id:objs.append({'id':int(r_id)}), result_set_ids)
+
+        results = self.get_resultsets_with_jobs(
+                jm, objs, True, filter_params, debug, 'id')
+
+        meta = {}
+        meta['count'] = len(results)
+        meta['repository'] = project
+
+        return Response({
+            'meta': meta,
+            'results': results,
+            'job_property_names': JOB_PROPERTY_RETURN_KEY
+        })
+
+
     @staticmethod
-    def get_resultsets_with_jobs(jm, rs_list, full, filter_kwargs, debug):
+    def get_resultsets_with_jobs(
+        jm, rs_list, full, filter_kwargs, debug, sort_key='push_timestamp'):
         """Convert db result of resultsets in a list to JSON"""
 
-        # Fetch the job results all at once, then parse them out in memory.
-        # organize the resultsets into an obj by key for lookups
+        if 'result_set_ids' in filter_kwargs:
+            del filter_kwargs['result_set_ids']
+
         rs_map = {}
         for rs in rs_list:
             rs_map[rs["id"]] = rs
@@ -267,9 +307,10 @@ class ResultSetViewSet(viewsets.ViewSet):
                     jm.RESULTS + jm.INCOMPLETE_STATES + ["total"], 0),
             })
             resultsets.append(rs)
+
         return sorted(
             resultsets,
-            key=lambda x: x["push_timestamp"],
+            key=lambda x: x[sort_key],
             reverse=True)
 
 
@@ -291,3 +332,4 @@ class ResultSetViewSet(viewsets.ViewSet):
             jm.disconnect()
 
         return Response({"message": "well-formed JSON stored"})
+
