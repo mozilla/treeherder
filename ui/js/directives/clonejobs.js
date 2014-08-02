@@ -141,7 +141,7 @@ treeherder.directive('thCloneJobs', [
 
         var jobKey = getJobMapKey(job);
         var jobEl = $('.' + jobKey);
-console.log(['selectJob', jobKey, jobEl, job]);
+
         clickJobCb({}, jobEl, job);
         scrollToElement(jobEl);
 
@@ -152,7 +152,7 @@ console.log(['selectJob', jobKey, jobEl, job]);
     };
 
     var setSelectJobStyles = function(el){
-console.log(['setSelectJobStyles', el]);
+
         var lastJobSelected = ThResultSetModel.getSelectedJob(
             $rootScope.repoName);
 
