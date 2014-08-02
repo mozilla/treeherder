@@ -150,6 +150,7 @@
             <ul class="list-unstyled"></ul>
         </span>
         <span class="job-list col-xs-8 job-list-pad-left">
+            <span class="fa fa-refresh fa-spin"></span>
             <table id="{{ aggregateId }}" class="table-hover"></table>
         </span>
     </div>
@@ -181,7 +182,7 @@
 <!-- Job Btn span -->
 <script type="'text/ng-template'" id="jobBtnClone.html">
     <span style="margin-right:1px;"
-          class="btn job-btn btn-xs {{ btnClass }}"
+          class="btn job-btn btn-xs {{ btnClass }} {{ key }}"
           data-jmkey="{{ key }}"
           title="{{ title }}">{{ value }}</span>
 </script>

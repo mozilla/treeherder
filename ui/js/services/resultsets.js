@@ -2,8 +2,8 @@
 
 
 treeherder.factory('thResultSets', [
-    '$http', '$location', 'thUrl', 'thServiceDomain', 'ThLog',
-    function($http, $location, thUrl, thServiceDomain, ThLog) {
+    '$rootScope', '$http', '$location', '$q', 'thUrl', 'thEvents', 'thServiceDomain', 'ThLog', 'thNotify',
+    function($rootScope, $http, $location, $q, thUrl, thEvents, thServiceDomain, ThLog, thNotify) {
 
     var getJobObj = function(job, jobPropertyNames){
         //Map the job property names to their corresponding
@@ -117,6 +117,50 @@ treeherder.factory('thResultSets', [
         },
         get: function(uri) {
             return $http.get(thServiceDomain + uri, {params: {format: "json"}});
-        }
+        },
+        getResultSetJobs: function(resultSets, repoName){
+
+            var uri = '1/get_resultset_jobs'
+            var fullUrl = thUrl.getProjectUrl("/resultset/", repoName) + uri;
+
+            $q.all( _.each(
+                    resultSets.data.results,
+                    function(rs, index){
+
+                        return $http.get(
+                            fullUrl, {
+                                params: {
+                                    format: "json",
+                                    result_set_ids:rs.id
+                                },
+                                transformResponse:resultSetResponseTransformer
+                            }
+                        ).then( function(response){
+                            if(response.status === 200){
+
+                                if(response.data.results.length > 0){
+
+                                    $rootScope.$broadcast(
+                                        thEvents.mapResultSetJobs,
+                                        repoName,
+                                        response.data.results[0]
+                                        );
+                                }
+
+                            }else{
+                                // Send notification with response.status to
+                                // UI here
+                                thNotify.send(
+                                    "Error retrieing job data! response status " + response.status,
+                                    "danger",
+                                    true);
+                            }
+                    }) //Close then
+
+                }) //Close each
+
+            ); //Close all
+
+        } //Close getResultSetJobs
     };
 }]);
