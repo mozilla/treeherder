@@ -1,8 +1,11 @@
 body {
-    padding: 20px;
-    padding-top: 284px;
-    white-space: nowrap;
-    float: left;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    min-width: 240px;
+    padding-top: 15px;
 }
 
 /*Log Viewer*/
@@ -22,20 +25,17 @@ body {
 }
 
 .lv-log-container {
-    height: auto;
+    height: 100%;
     width: 100%;
-    position: absolute;
     overflow: auto;
-    right: 0px;
-    top: 284px;
-    left: 0px;
-    bottom: 0px;
-    padding: 20px;
+    bottom: 0;
+    padding: 20px 15px 0;
+    white-space: nowrap;
     background: #EFEFEF;
 }
 
 .lv-log-line {
-    width: auto;
+    width: 100%;
 }
 
 .lv-line-number {
@@ -56,18 +56,14 @@ body {
 }
 
 .run-data {
-    height: 284px;
     width: 100%;
-    position: fixed;
-    top: 0px;
-    left: 0px;
     background-color: #FFF;
-    padding: 20px;
-    border-bottom: 1px solid #EFEFEF;
+    padding: 20px 5px 4px;
+    display: table-row;
 }
 
 .run-data .steps-data {
-    height: 210px;
+    max-height: 210px;
     overflow: auto;
     border-color: #dddddd;
     border-width: 1px;

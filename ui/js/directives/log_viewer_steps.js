@@ -23,14 +23,14 @@ treeherder.directive('lvLogSteps', ['$timeout', '$parse', function ($timeout) {
                     $timeout(function () {
                         var raw = $('.lv-log-container')[0];
                         var line = $('.lv-log-line[line="' + linenumber + '"]');
-                        raw.scrollTop += line.offset().top - $('.run-data').outerHeight(); 
+                        raw.scrollTop += line.offset().top - $('.run-data').outerHeight() - 15 ;
                     });
                 });
 
                 if (scope.displayedStep && scope.displayedStep.order === step.order) {
                     $event.stopPropagation();
                 }
-            }; 
+            };
 
             scope.toggleSuccessfulSteps = function() {
                 scope.showSuccessful = !scope.showSuccessful;
@@ -57,7 +57,7 @@ treeherder.directive('lvLogSteps', ['$timeout', '$parse', function ($timeout) {
                     $timeout(function () {
                         var raw = $('.lv-log-container')[0];
                         var line = $('.lv-log-line[line="' + step.started_linenumber + '"]');
-                        raw.scrollTop += line.offset().top - $('.run-data').outerHeight(); 
+                        raw.scrollTop += line.offset().top - $('.run-data').outerHeight() - 15 ;
                     });
                 });
             };
