@@ -353,7 +353,7 @@ body {
 }
 
 .selected-job {
-    border: 5px solid black;
+    border: 5px solid;
 }
 
 .job-group {
@@ -799,8 +799,11 @@ ul.failure-summary-list li .btn-xs{
  * CUSTOM BUTTONS
  */
 
- .job-btn.btn-dkgray, .job-btn.btn-ltgray, .job-btn.btn-green,
- .job-btn.btn-dkblue, .job-btn.btn-pink {
+ .job-btn.btn-dkgray,
+ .job-btn.btn-ltgray,
+ .job-btn.btn-green,
+ .job-btn.btn-dkblue,
+ .job-btn.btn-pink {
     margin: 0 -5px 0 0;
  }
 
@@ -963,6 +966,7 @@ fieldset[disabled] .btn-red.active {
 .btn-dkblue:focus,
 .btn-dkblue:active,
 .btn-dkblue.active {
+  border-color: #263fc3;
   background-color: #263fc3;
   color: white;
   font-weight: bold;
