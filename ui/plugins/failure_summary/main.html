@@ -1,31 +1,57 @@
 <div class="full-height" ng-controller="BugsPluginCtrl">
     <ul class="list-unstyled failure-summary-list">
 
-        <li ng-repeat="failure in bugs">
-            <div class="failure-summary-line"><span ng-bind="failure.search"></span></div>
-            <span ng-repeat="visible in ['open','closed']">
-                <ul class="list-unstyled failure-summary-bugs">
-                    <li ng-repeat="bug in failure[visible] | orderBy:bug.relevance:reverse"
-                        ng-show="$index<3 || show_all">
-                        <button class="btn btn-xs btn-default"
-                                ng-click="pinboard_service.addBug(bug, selectedJob)"
-                                title="add to list of bugs to associate with all pinned jobs">
-                            <i class="glyphicon glyphicon-pushpin"></i>
-                        </button>
-                        <a href="https://bugzilla.mozilla.org/show_bug.cgi?id={{bug.id}}"
-                           ng-class="{'deleted': bug.resolution != ''}">{{bug.id}}</a>
-                        <span ng-bind-html="bug.summary | escapeHTML | highlightCommonTerms:failure.search"
-                              title="{{bug.summary}}"
-                              ng-class="{'deleted': bug.resolution != ''}">
-                        </span>
-                    </li>
-                    <li>
-                        <a href="" ng-click="show_all=true"
-                           ng-show="!show_all && bug_list[visible].length > 3">Show more</a>
-                        <a href="" ng-click="show_all=false" ng-show="show_all">Show less</a>
-                    </li>
-                </ul>
-            </span>
+        <li ng-repeat="suggestion in suggestions">
+            <div class="failure-summary-line">
+                <span ng-bind="suggestion.search"></span>
+            </div>
+            <!--Open recent bugs-->
+            <ul ng-if="! suggestion.bugs.open_recent_hidden" class="list-unstyled failure-summary-bugs">
+                <li ng-repeat="bug in suggestion.bugs.open_recent">
+                    <button class="btn btn-xs btn-default"
+                            ng-click="pinboard_service.addBug(bug, selectedJob)"
+                            title="add to list of bugs to associate with all pinned jobs">
+                        <i class="glyphicon glyphicon-pushpin"></i>
+                    </button>
+                    <a href="https://bugzilla.mozilla.org/show_bug.cgi?id={{bug.id}}"
+                       ng-class="{'deleted': bug.resolution != ''}">{{bug.id}}</a>
+                    <span ng-bind-html="bug.summary | escapeHTML | highlightCommonTerms:suggestion.search"
+                          title="{{bug.summary}}"
+                          ng-class="{'deleted': bug.resolution != ''}">
+                        {{bug.summary}}
+                    </span>
+                </li>
+            </ul>
+
+
+
+            <!--All other bugs-->
+            <a ng-if="!suggestion.all_others_hidden"
+               href=""
+               ng-click="suggestion.open_others = suggestion.open_others === true ? false : true"
+               class="failure-summary-bugs">Show/Hide more</a>
+
+            <ul ng-if="!suggestion.all_others_hidden && suggestion.open_others"
+                class="list-unstyled failure-summary-bugs">
+                <li ng-repeat="bug in suggestion.bugs.all_others">
+                    <button class="btn btn-xs btn-default"
+                            ng-click="pinboard_service.addBug(bug, selectedJob)"
+                            title="add to list of bugs to associate with all pinned jobs">
+                        <i class="glyphicon glyphicon-pushpin"></i>
+                    </button>
+                    <a href="https://bugzilla.mozilla.org/show_bug.cgi?id={{bug.id}}"
+                       ng-class="{'deleted': bug.resolution != ''}">{{bug.id}}</a>
+                    <span ng-bind-html="bug.summary | escapeHTML | highlightCommonTerms:suggestion.search"
+                          title="{{bug.summary}}"
+                          ng-class="{'deleted': bug.resolution != ''}">
+                        {{bug.summary}}
+                    </span>
+                </li>
+            </ul>
+
+            <mark ng-if="suggestion.bugs.too_many_open_recent && suggestion.bugs.too_many_all_others"
+                    >Exceeded max bug suggestions</mark>
+
         </li>
     </ul>
     <div ng-if="tabs.failure_summary.is_loading" class="overlay">
