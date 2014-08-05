@@ -493,3 +493,15 @@ def test_get_bugscache(refdata, sample_bugs):
         assert len(suggestions['all_others']) > 0
 
     refdata.disconnect()
+
+
+def test_delete_bugscache(refdata, sample_bugs):
+    bug_list = sample_bugs['bugs']
+    refdata.update_bugscache(bug_list)
+
+    refdata.delete_bugs([bug["id"] for bug in bug_list])
+    row_data = refdata.dhub.execute(
+        proc='refdata_test.selects.test_bugscache',
+        return_type='tuple'
+    )
+    assert len(row_data) == 0

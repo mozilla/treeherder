@@ -1295,9 +1295,8 @@ class RefDataManager(object):
         self.dhub.execute(
             proc='reference.deletes.delete_bugs',
             debug_show=self.DEBUG,
-            replacement=["%s"] * len(bug_ids),
-            placeholders=bug_ids,
-            return_type='set')
+            replace=[",".join(["%s"] * len(bug_ids))],
+            placeholders=bug_ids)
 
     def update_bugscache(self, bug_list):
         """
