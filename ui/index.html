@@ -169,7 +169,7 @@
 
 <!-- Start span for job groups -->
 <script type="'text/ng-template'" id="jobGroupBeginClone.html">
-    <span style="margin-right:2px;" class="platform-group">
+    <span class="platform-group">
         <span class="disabled job-group" title="{{ name }}">{{ symbol }}(</span>
         <span class="job-group-list"></span>)
     </span>
@@ -177,8 +177,7 @@
 
 <!-- Job Btn span -->
 <script type="'text/ng-template'" id="jobBtnClone.html">
-    <span style="margin-right:1px;"
-          class="btn job-btn btn-xs {{ btnClass }} {{ key }}"
+    <span class="btn job-btn btn-xs {{ btnClass }} {{ key }}"
           data-jmkey="{{ key }}"
           title="{{ title }}">{{ value }}</span>
 </script>

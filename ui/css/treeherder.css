@@ -286,11 +286,14 @@ body {
     padding-left: 0;
     padding-right: 5px;
     width: 14.5em;
+    min-width: 14.5em;
     overflow: hidden;
 }
 
 .job-row {
     display: table-cell;
+    white-space: normal;
+    word-break: normal;
 
 }
 
@@ -354,11 +357,10 @@ body {
 }
 
 .job-group {
-    margin: 0 -2px 0 0;
+    margin: 0 -5px 0 3px;
 }
 
 .job-btn {
-  margin: 0 -3px 0 0;
   padding: 0 2px 0 2px;
 }
 
@@ -797,6 +799,15 @@ ul.failure-summary-list li .btn-xs{
  * CUSTOM BUTTONS
  */
 
+ .job-btn.btn-dkgray, .job-btn.btn-ltgray, .job-btn.btn-green,
+ .job-btn.btn-dkblue, .job-btn.btn-pink {
+    margin: 0 -5px 0 0;
+ }
+
+/*.job-wrap-spacer {*/
+    /*margin: 0;*/
+/*}*/
+
 .btn-view-nav {
   background-color: rgba(75, 86, 93, 0.56);
   border-color: #22282d;
@@ -947,7 +958,6 @@ fieldset[disabled] .btn-red.active {
 .btn-dkblue {
   color: #283aa2;
   font-weight: bold;
-  margin: 0 -3px;
 }
 .btn-dkblue:hover,
 .btn-dkblue:focus,
@@ -981,7 +991,6 @@ fieldset[disabled] .btn-dkblue.active {
 .btn-green {
   color: rgba(2, 130, 51, 0.75);
   font-weight: bold;
-  margin: 0 -3px;
 }
 .btn-green:hover,
 .btn-green:focus,
@@ -1056,7 +1065,6 @@ fieldset[disabled] .btn-purple.active {
 .btn-yellow {
   color: #cdce1d;
   font-weight: bold;
-  margin: 0 -3px;
 }
 .btn-yellow:hover,
 .btn-yellow:focus,
@@ -1090,7 +1098,6 @@ fieldset[disabled] .btn-yellow.active {
 }
 .btn-ltgray {
   color: #e0e0e0;
-  margin: 0 -3px;
 }
 .btn-ltgray:hover,
 .btn-ltgray:focus,
@@ -1154,7 +1161,6 @@ fieldset[disabled] .btn-mdgray.active {
 
 .btn-dkgray {
   color: #7c7a7d;
-  margin: 0 -3px;
 }
 .btn-dkgray:hover,
 .btn-dkgray:focus,
@@ -1248,7 +1254,6 @@ fieldset[disabled] .btn-black.active {
 .btn-pink {
   color: rgba(250, 115, 172, 0.63);
   font-weight: bold;
-  margin: 0 -3px;
 }
 .btn-pink:hover,
 .btn-pink:focus,
