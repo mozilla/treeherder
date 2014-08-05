@@ -158,13 +158,13 @@
 <!-- Clone target for each platform -->
 <script type="'text/ng-template'" id="platformClone.html">
     <td class="platform">
-        <span>{{ name }} {{ option }}</span>
+        <span title="{{ name }} {{ option }}">{{ name }} {{ option }}</span>
     </td>
 </script>
 
 <!-- Table column for jobs -->
 <script type="'text/ng-template'" id="jobTdClone.html">
-    <td class="col-xs-10"></td>
+    <td class="job-row"></td>
 </script>
 
 <!-- Start span for job groups -->
@@ -173,10 +173,6 @@
         <span class="disabled job-group" title="{{ name }}">{{ symbol }}(</span>
         <span class="job-group-list"></span>)
     </span>
-</script>
-<!-- Close span for job groups -->
-<script type="'text/ng-template'" id="jobGroupEndClone.html">
-    <span class="job-group-r-paren">)</span>
 </script>
 
 <!-- Job Btn span -->

@@ -252,6 +252,8 @@ treeherder.directive('thCloneJobs', [
 
             jobBtn = $( jobBtnInterpolator(jobStatus));
             jobBtnArray.push(jobBtn);
+            // add a zero-width space between spans so they can wrap
+            jobBtnArray.push('&#x200b;');
 
             showHideJob(jobBtn, job.visible);
 
