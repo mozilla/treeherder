@@ -1,6 +1,7 @@
 import os
 from hashlib import sha1
 import time
+from datetime import timedelta, datetime
 import urllib2
 from django.conf import settings
 from datasource.bases.BaseHub import BaseHub
@@ -1282,21 +1283,40 @@ class RefDataManager(object):
             debug_show=self.DEBUG,
             return_type='iter')
 
+    def get_bug_numbers_list(self):
+        return self.dhub.execute(
+            proc='reference.selects.get_all_bug_numbers',
+            debug_show=self.DEBUG,
+            return_type='iter')
+
+    def delete_bugs(self, bug_ids):
+        """delete a list of bugs given the ids"""
+
+        self.dhub.execute(
+            proc='reference.deletes.delete_bugs',
+            debug_show=self.DEBUG,
+            replacement=["%s"] * len(bug_ids),
+            placeholders=bug_ids,
+            return_type='set')
 
     def update_bugscache(self, bug_list):
         """
-        Add content to the bugscache, updating/inserting
+        Add content to the bugscache, updating/deleting/inserting
         when necessary.
         """
+        bugs_stored = set(bug["id"] for bug in self.get_bug_numbers_list())
+        old_bugs = bugs_stored.difference(set(bug['id']
+                                              for bug in bug_list))
+        if old_bugs:
+            self.delete_bugs(old_bugs)
+
         placeholders = []
-        bug_list = bug_list or []
-        # create a list of placeholders from a list of dictionary
         for bug in bug_list:
             # keywords come as a list of values, we need a string instead
             bug['keywords'] = ",".join(bug['keywords'])
             placeholders.append([bug.get(field, None) for field in (
                     'id', 'status', 'resolution', 'summary',
-                    'cf_crash_signature', 'keywords', 'op_sys', 'id')])
+                    'cf_crash_signature', 'keywords', 'op_sys', 'last_change_time', 'id')])
 
         self.dhub.execute(
             proc='reference.inserts.create_bugscache',
@@ -1313,15 +1333,37 @@ class RefDataManager(object):
             executemany=True,
             debug_show=self.DEBUG)
 
-    def get_bug_suggestions(self, search_term, open_bugs=True, limit=10):
 
-        replacement = "=" if open_bugs else "<>"
+    def get_bug_suggestions(self, search_term):
+        """
+        Retrieves two groups of bugs:
+        1) "Open recent bugs" (ie bug is not resolved & was modified in last 3 months)
+        2) "All other bugs" (ie all closed bugs + open bugs that were not modified in the last 3 months).
+        """
 
-        return self.dhub.execute(
-            proc='reference.selects.get_bug_suggestions',
-            placeholders=[search_term] * 2 + [limit],
-            debug_show=self.DEBUG,
-            replace=[replacement])
+        max_size = 50
+        # 90 days ago
+        time_limit = datetime.now() - timedelta(days=90)
+
+        #prefix all the words in this string with +'s
+        # to perform a "all words" search
+        words = search_term.split(" ")
+        search_term = "+"
+        search_term += " +".join(words)
+
+
+        open_recent = self.dhub.execute(
+            proc='reference.selects.get_open_recent_bugs',
+            placeholders=[search_term, search_term, time_limit, max_size + 1],
+            debug_show=self.DEBUG)
+
+        all_others = self.dhub.execute(
+            proc='reference.selects.get_all_others_bugs',
+            placeholders=[search_term, search_term, time_limit, max_size + 1],
+            debug_show=self.DEBUG)
+
+        return dict(open_recent=open_recent, all_others=all_others)
+
 
     def get_reference_data_signature(self, signature_properties):
 

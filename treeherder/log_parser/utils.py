@@ -89,17 +89,15 @@ def get_crash_signature(error_line):
     return search_term
 
 
-def get_bugs_for_search_term(search, status, base_uri):
+def get_bugs_for_search_term(search, base_uri):
     """
     Fetch the base_uri endpoint filtering on search and status.
     Status must be either 'open' or 'closed'
     """
     from treeherder.etl.common import get_remote_content
 
-    assert status in ('open', 'closed')
     params = {
-        'search': search,
-        'status': status
+        'search': search
     }
     query_string = urllib.urlencode(params)
     url = '{0}?{1}'.format(
