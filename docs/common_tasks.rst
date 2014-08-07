@@ -32,15 +32,14 @@ To add a new repository, the following steps are needed:
 
 * Create a new datasource for the given repository:
 
+    Note::
+
+    This will clear the appropriate keys from memcache.
+
+
   .. code-block:: bash
 
      > python manage.py init_datasources
-
-* Restart memcached to clean any previously cached datasource
-
-  .. code-block:: bash
-
-     > sudo /etc/init.d/memcached restart
 
 * Generate a new oauth credentials file:
 

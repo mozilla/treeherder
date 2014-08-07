@@ -23,6 +23,7 @@ from treeherder import path
 
 # the cache key is specific to the database name we're pulling the data from
 SOURCES_CACHE_KEY = "treeherder-datasources"
+REPOSITORIES_CACHE_KEY = "treeherder-repositories"
 
 SQL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'sql')
 
@@ -211,6 +212,7 @@ class Datasource(models.Model):
     @classmethod
     def reset_cache(cls):
         cache.delete(SOURCES_CACHE_KEY)
+        cache.delete(REPOSITORIES_CACHE_KEY)
         cls.objects.cached()
 
     @classmethod

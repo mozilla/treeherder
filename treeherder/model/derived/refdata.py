@@ -3,8 +3,11 @@ from hashlib import sha1
 import time
 import urllib2
 from django.conf import settings
+from django.core.cache import cache
+
 from datasource.bases.BaseHub import BaseHub
 from datasource.DataHub import DataHub
+from treeherder.model import models
 
 
 class RefDataManager(object):
@@ -1266,21 +1269,63 @@ class RefDataManager(object):
 
     def get_repository_info(self, repository_id):
         """retrieves all the attributes of a repository"""
+        repositories = self.get_all_repository_info()
+        try:
+            return [x for x in repositories if x['id'] == repository_id][0]
 
-        repo = self.dhub.execute(
-            proc='reference.selects.get_repository_info',
-            placeholders=[repository_id],
-            debug_show=self.DEBUG,
-            return_type='iter')
-        # retrieve the first elem from DataIterator
-        for r in repo:
-            return r
+        except IndexError:
+            repo_iter = self.dhub.execute(
+                proc='reference.selects.get_repository_info',
+                placeholders=[repository_id],
+                debug_show=self.DEBUG,
+                return_type='iter')
 
-    def get_all_repository_info(self):
-        return self.dhub.execute(
-            proc='reference.selects.get_all_repository_info',
-            debug_show=self.DEBUG,
-            return_type='iter')
+            if len(repo_iter):
+                repo = repo_iter[0]
+                repositories.append(repo)
+                cache.set(models.REPOSITORIES_CACHE_KEY, repositories)
+                return repo
+
+    def get_repository_info_by_name(self, repository_name):
+        """retrieves all the attributes of a repository by name"""
+        repositories = self.get_all_repository_info()
+        try:
+            return [x for x in repositories if x['name'] == repository_name][0]
+
+        except IndexError:
+            # it's not in the cache, so update the repository cache and try
+            # again.
+            repositories = self.get_all_repository_info(False)
+            try:
+                return [x for x in repositories if x['name'] == repository_name][0]
+
+            except IndexError:
+                # we can't find this repository, so just return the name
+                return {
+                    "name": repository_name,
+                    "description": "Not found in reference database"
+                    }
+
+    def get_all_repository_info(self, use_cache=True):
+        """
+        Return repositories list from memcache.
+
+        If memcache isn't populated already, then populate it.
+        if ``use_cache`` is True, then try to read from memcache.  If False,
+        then read from DB and refresh memcache with latest values.
+        """
+        repositories = []
+        if use_cache:
+            repositories = cache.get(models.REPOSITORIES_CACHE_KEY)
+
+        if not repositories:
+            repositories = self.dhub.execute(
+                proc='reference.selects.get_all_repository_info',
+                debug_show=self.DEBUG,
+                return_type='iter')
+            cache.set(models.REPOSITORIES_CACHE_KEY, repositories)
+
+        return repositories
 
 
     def update_bugscache(self, bug_list):
