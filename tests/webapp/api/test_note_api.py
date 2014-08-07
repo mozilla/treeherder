@@ -120,10 +120,10 @@ def test_note_detail_bad_project(webapp, jm):
 
 def test_create_note(webapp, eleven_jobs_processed, mock_message_broker, jm):
     """
-    test creating a single note via endpoint as staff
+    test creating a single note via endpoint when authenticated
     """
     client = APIClient()
-    user = User.objects.create(username="MyName", is_staff=True)
+    user = User.objects.create(username="MyName", email="foo@bar.com")
     client.force_authenticate(user=user)
 
     job = jm.get_job_list(0, 1)[0]
@@ -148,23 +148,24 @@ def test_create_note(webapp, eleven_jobs_processed, mock_message_broker, jm):
     del(note_list[0]["note_timestamp"])
 
     assert note_list[0] == {
-        u'job_id': 1,
-        u'who': u'kelly clarkson',
-        u'failure_classification_id': 2,
+        u'job_id': 1L,
+        u'who': u'foo@bar.com',
+        u'failure_classification_id': 2L,
         u'note': u'you look like a man-o-lantern',
         u'active_status': u'active',
-        u'id': 1
+        u'id': 1L
     }
 
     jm.disconnect()
+
 
 def test_create_note_no_auth(eleven_jobs_processed, jm):
     """
-    test creating a single note via endpoint when not staff: still succeeds
+    test creating a single note via endpoint when not authenticated
+    gets a 403 Forbidden
     """
     client = APIClient()
-    user = User.objects.create(username="MyName", is_staff=False)
-    client.force_authenticate(user=user)
+    user = User.objects.create(username="MyName")
 
     job = jm.get_job_list(0, 1)[0]
     resp = client.post(
@@ -179,24 +180,8 @@ def test_create_note_no_auth(eleven_jobs_processed, jm):
 
     user.delete()
 
-    assert resp.status_code == 200
+    assert resp.status_code == 403
 
-    content = json.loads(resp.content)
-    assert content['message'] == 'note stored for job 1'
-
-    note_list = jm.get_job_note_list(job_id=job["id"])
-    del(note_list[0]["note_timestamp"])
-
-    assert note_list[0] == {
-        u'job_id': 1,
-        u'who': u'kelly clarkson',
-        u'failure_classification_id': 2,
-        u'note': u'you look like a man-o-lantern',
-        u'active_status': u'active',
-        u'id': 1
-    }
-
-    jm.disconnect()
 
 def test_delete_note(webapp, sample_notes, mock_message_broker, jm):
     """

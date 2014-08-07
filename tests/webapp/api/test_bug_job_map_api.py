@@ -35,15 +35,15 @@ def test_create_bug_job_map(eleven_jobs_processed, mock_message_broker, jm):
     """
 
     client = APIClient()
-    user = User.objects.create(username="MyName", is_staff=True)
+    user = User.objects.create(username="MyName", email="foo@bar.com")
     client.force_authenticate(user=user)
 
     job = jm.get_job_list(0, 1)[0]
 
     bug_job_map_obj = {
-        "job_id": job["id"],
-        "bug_id": 1,
-        "type": "manual"
+        u"job_id": job["id"],
+        u"bug_id": 1L,
+        u"type": u"manual"
     }
 
     resp = client.post(
@@ -51,9 +51,7 @@ def test_create_bug_job_map(eleven_jobs_processed, mock_message_broker, jm):
         bug_job_map_obj
     )
 
-
-
-    bug_job_map_obj["who"] = "MyName"
+    bug_job_map_obj["who"] = user.email
 
     user.delete()
 
@@ -71,15 +69,15 @@ def test_create_bug_job_map_dupe(eleven_jobs_processed, mock_message_broker, jm)
     """
 
     client = APIClient()
-    user = User.objects.create(username="MyName", is_staff=True)
+    user = User.objects.create(username="MyName", email="foo@bar.com")
     client.force_authenticate(user=user)
 
     job = jm.get_job_list(0, 1)[0]
 
     bug_job_map_obj = {
-        "job_id": job["id"],
-        "bug_id": 1,
-        "type": "manual",
+        u"job_id": job["id"],
+        u"bug_id": 1L,
+        u"type": u"manual",
     }
 
     client.post(
@@ -92,7 +90,7 @@ def test_create_bug_job_map_dupe(eleven_jobs_processed, mock_message_broker, jm)
         bug_job_map_obj
     )
 
-    bug_job_map_obj["who"] = "MyName"
+    bug_job_map_obj["who"] = user.email
 
     user.delete()
 

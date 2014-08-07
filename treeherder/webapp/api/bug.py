@@ -4,13 +4,13 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 
 from rest_framework.authentication import SessionAuthentication
-from treeherder.webapp.api.permissions import IsStaffOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from treeherder.webapp.api.utils import (UrlQueryFilter, with_jobs)
 
 
 class BugJobMapViewSet(viewsets.ViewSet):
     authentication_classes = (SessionAuthentication,)
-    permission_classes = (IsStaffOrReadOnly,)
+    permission_classes = (IsAuthenticatedOrReadOnly, )
 
     @with_jobs
     def create(self, request, project, jm):
@@ -22,7 +22,7 @@ class BugJobMapViewSet(viewsets.ViewSet):
 
         try:
             jm.insert_bug_job_map(job_id, bug_id, request.DATA['type'],
-                                  int(time()), request.user.username)
+                                  int(time()), request.user.email)
         except JobDataIntegrityError as e:
             if "Duplicate" in e.message:
                 return Response(

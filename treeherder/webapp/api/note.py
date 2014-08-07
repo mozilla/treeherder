@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import ParseError
 
 from rest_framework.authentication import SessionAuthentication
-from treeherder.webapp.api.permissions import IsStaffOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from treeherder.webapp.api.utils import with_jobs
 from treeherder.events.publisher import JobClassificationPublisher
@@ -13,6 +13,7 @@ from treeherder.model.tasks import unclassified_failure_count
 
 class NoteViewSet(viewsets.ViewSet):
     authentication_classes = (SessionAuthentication,)
+    permission_classes = (IsAuthenticatedOrReadOnly, )
 
     """
     This viewset is responsible for the note endpoint.
@@ -20,7 +21,7 @@ class NoteViewSet(viewsets.ViewSet):
     @with_jobs
     def retrieve(self, request, project, jm, pk=None):
         """
-        GET method implementation for an artifact blob
+        GET method implementation for a note detail
 
         """
         obj = jm.get_job_note(pk)
@@ -55,7 +56,7 @@ class NoteViewSet(viewsets.ViewSet):
         jm.insert_job_note(
             int(request.DATA['job_id']),
             int(request.DATA['failure_classification_id']),
-            request.DATA['who'],
+            request.user.email,
             request.DATA.get('note', '')
         )
 
