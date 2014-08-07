@@ -1343,13 +1343,7 @@ class RefDataManager(object):
         max_size = 50
         # 90 days ago
         time_limit = datetime.now() - timedelta(days=90)
-
-        #prefix all the words in this string with +'s
-        # to perform a "all words" search
-        words = search_term.split(" ")
-        search_term = "+"
-        search_term += " +".join(words)
-
+        search_term = search_term.join('""')
 
         open_recent = self.dhub.execute(
             proc='reference.selects.get_open_recent_bugs',
