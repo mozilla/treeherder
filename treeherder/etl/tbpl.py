@@ -1,9 +1,12 @@
 from datetime import datetime
+import logging
+
 import requests
 from treeherder.model.derived import JobsModel
 from treeherder.model.models import FailureClassification
 from django.conf import settings
 
+logger = logging.getLogger(__name__)
 
 class OrangeFactorBugRequest(object):
 
@@ -61,6 +64,7 @@ class OrangeFactorBugRequest(object):
         tbpl_host = settings.TBPL_HOST
         tbpl_script = "/php/starcomment.php"
         tbpl_url = "".join([tbpl_host, tbpl_script])
+        logger.info("Sending data to %s: %s", tbpl_url, self.body)
         r = requests.post(tbpl_url, data=self.body)
         r.raise_for_status()
 
@@ -119,5 +123,6 @@ class TbplBugRequest(object):
         tbpl_host = settings.TBPL_HOST
         tbpl_script = "/php/submitBuildStar.php"
         tbpl_url = "".join([tbpl_host, tbpl_script])
+        logger.info("Sending data to %s: %s", tbpl_url, self.body)
         r = requests.post(tbpl_url, data=self.body)
         r.raise_for_status()
