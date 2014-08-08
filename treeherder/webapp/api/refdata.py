@@ -1,6 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.authentication import SessionAuthentication
+from rest_framework_extensions.cache.mixins import CacheResponseMixin
 
 from django.contrib.auth.models import User
 
@@ -34,7 +35,8 @@ class JobGroupViewSet(viewsets.ReadOnlyModelViewSet):
     model = models.JobGroup
 
 
-class RepositoryViewSet(viewsets.ReadOnlyModelViewSet):
+class RepositoryViewSet(CacheResponseMixin,
+                        viewsets.ReadOnlyModelViewSet):
     """ViewSet for the refdata Repository model"""
     model = models.Repository
     serializer_class = th_serializers.RepositorySerializer
@@ -91,7 +93,8 @@ class JobTypeViewSet(viewsets.ReadOnlyModelViewSet):
     model = models.JobType
 
 
-class FailureClassificationViewSet(viewsets.ReadOnlyModelViewSet):
+class FailureClassificationViewSet(CacheResponseMixin,
+                                   viewsets.ReadOnlyModelViewSet):
     """ViewSet for the refdata FailureClassification model"""
     model = models.FailureClassification
 

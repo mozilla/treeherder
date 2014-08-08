@@ -134,6 +134,7 @@ INSTALLED_APPS = [
     'djcelery',
     'south',
     'rest_framework',
+    'rest_framework_extensions',
     'rest_framework_swagger',
     'corsheaders',
     'django_browserid',
