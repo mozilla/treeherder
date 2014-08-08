@@ -24,7 +24,7 @@ treeherder.controller('BugsPluginCtrl', [
                     timeout_promise.resolve();
                 }
                 timeout_promise = $q.defer();
-                
+
                 ThJobArtifactModel.get_list({
                     name: "Bug suggestions",
                     "type": "json",

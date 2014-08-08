@@ -23,10 +23,8 @@
                 </li>
             </ul>
 
-
-
             <!--All other bugs-->
-            <a ng-if="!suggestion.all_others_hidden"
+            <a ng-if="!suggestion.all_others_hidden && !suggestion.open_recent_hidden"
                href=""
                ng-click="suggestion.open_others = suggestion.open_others === true ? false : true"
                class="failure-summary-bugs">Show/Hide more</a>
