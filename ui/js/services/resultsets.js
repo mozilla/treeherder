@@ -120,11 +120,11 @@ treeherder.factory('thResultSets', [
         },
         getResultSetJobs: function(resultSets, repoName){
 
-            var uri = '1/get_resultset_jobs'
+            var uri = '1/get_resultset_jobs';
             var fullUrl = thUrl.getProjectUrl("/resultset/", repoName) + uri;
 
             $q.all( _.each(
-                    resultSets.data.results,
+                    resultSets.results,
                     function(rs, index){
 
                         return $http.get(
@@ -155,7 +155,7 @@ treeherder.factory('thResultSets', [
                                     "danger",
                                     true);
                             }
-                    }) //Close then
+                    }); //Close then
 
                 }) //Close each
 

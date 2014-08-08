@@ -25,12 +25,9 @@ treeherder.controller('JobsCtrl', [
             $rootScope.repoName = "mozilla-central";
         }
 
-        // load the list of repos into $rootScope, and set the current repo.
-        ThRepositoryModel.load($scope.repoName);
-        $scope.setRepoPanelShowing(false);
-
         ThResultSetModel.addRepository($scope.repoName);
 
+        $scope.setRepoPanelShowing(false);
         $scope.isLoadingRsBatch = ThResultSetModel.getLoadingStatus($scope.repoName);
         $scope.result_sets = ThResultSetModel.getResultSetsArray($scope.repoName);
         $scope.job_map = ThResultSetModel.getJobMap($scope.repoName);
