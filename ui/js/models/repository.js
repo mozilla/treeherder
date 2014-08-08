@@ -120,7 +120,7 @@ treeherder.factory('ThRepositoryModel', [
     var load = function(name) {
 
         if (!$rootScope.repos) {
-            get_list().
+            return get_list().
                 success(function (data) {
                     $rootScope.repos = data;
                     $rootScope.groupedRepos = getByGroup();

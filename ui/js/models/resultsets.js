@@ -1,11 +1,13 @@
 'use strict';
 
 treeherder.factory('ThResultSetModel', [
-    '$rootScope', '$location', 'thResultSets', 'thSocket', 'ThJobModel',
+    '$rootScope', '$q', '$location', 'thResultSets', 'thSocket', 'ThJobModel',
     'thEvents', 'thAggregateIds', 'ThLog', 'thNotify', 'thJobFilters',
+    'ThRepositoryModel',
     function(
-        $rootScope, $location, thResultSets, thSocket, ThJobModel, thEvents,
-        thAggregateIds, ThLog, thNotify, thJobFilters) {
+        $rootScope, $q, $location, thResultSets, thSocket,
+        ThJobModel, thEvents, thAggregateIds, ThLog, thNotify, thJobFilters,
+        ThRepositoryModel) {
 
     var $log = new ThLog("ThResultSetModel");
 
@@ -231,7 +233,7 @@ treeherder.factory('ThResultSetModel', [
             }
 
             // platforms
-            if(rs_obj.platforms != undefined){
+            if(rs_obj.platforms !== undefined){
                 mapPlatforms(repoName, rs_obj);
             }
         }
@@ -749,24 +751,30 @@ treeherder.factory('ThResultSetModel', [
          * @param count How many to fetch
          */
         repositories[repoName].loadingStatus.appending = true;
+        var resultsets;
+        var loadRepositories = ThRepositoryModel.load(repoName);
+        var loadResultsets = thResultSets.getResultSets(repoName,
+                                       repositories[repoName].rsOffsetId,
+                                       count,
+                                       undefined,
+                                       false).
+            then(function(data) {
+                resultsets = data.data;
+            });
 
-        thResultSets.getResultSets(
-            repoName,
-            repositories[repoName].rsOffsetId,
-            count,
-            undefined,
-            false).
-                success( _.bind(appendResultSets, $rootScope, repoName)).
-                    error(function(data) {
-                        thNotify.send("Error retrieving job data!", "danger", true);
-                        $log.error(data);
-                        appendResultSets(repoName, {results: []});
-
-                    }).then(function(resultSets){
-
-                        thResultSets.getResultSetJobs(resultSets, repoName);
-
-                    });
+        $q.all([loadRepositories, loadResultsets]).
+            then(
+                function() {
+                    appendResultSets(repoName, resultsets);
+                },
+                function(data) {
+                    thNotify.send("Error retrieving job data!", "danger", true);
+                    $log.error(data);
+                    appendResultSets(repoName, {results: []});
+                }).
+            then(function(){
+                thResultSets.getResultSetJobs(resultsets, repoName);
+            });
     };
 
     //Public interface

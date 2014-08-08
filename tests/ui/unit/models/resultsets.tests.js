@@ -19,10 +19,41 @@ describe('ThResultSetModel', function(){
         $httpBackend = $injector.get('$httpBackend');
         jasmine.getJSONFixtures().fixturesPath='base/test/mock';
 
+        $httpBackend.whenGET('https://treestatus.mozilla.org/foreground-repo?format=json').respond(
+            {
+                "status": "approval required",
+                "message_of_the_day": "I before E",
+                "tree": "foreground-repo",
+                "reason": ""
+            }
+        );
+
+        $httpBackend.whenGET('https://treestatus.mozilla.org/background-repo?format=json').respond(
+            {
+                "status": "approval required",
+                "message_of_the_day": "I before E",
+                "tree": "background-repo",
+                "reason": ""
+            }
+        );
+
+        $httpBackend.whenGET('https://treeherder.mozilla.org/api/project/background-repo/jobs/0/unclassified_failure_count/').respond(
+            {
+                "unclassified_failure_count": 1152,
+                "repository": "mozilla-central"
+            }
+        );
+
+        $httpBackend.whenGET('https://treeherder.mozilla.org/api/project/foreground-repo/jobs/0/unclassified_failure_count/').respond(
+            {
+                "unclassified_failure_count": 1152,
+                "repository": "mozilla-central"
+            }
+        );
+
         $httpBackend.whenGET(foregroundPrefix + '/resultset/?count=10&format=json&full=true&with_jobs=false').respond(
             getResultSet(1)
         );
-
 
         $httpBackend.whenGET(backgroundPrefix + '/resultset/?count=10&format=json&full=true&with_jobs=false').respond(
             getResultSet(10)
@@ -43,6 +74,12 @@ describe('ThResultSetModel', function(){
         $httpBackend.whenGET(backgroundPrefix + '/resultset/1/get_resultset_jobs?format=json&result_set_ids=10').respond(
             getResultSet(10)
         );
+
+        $httpBackend.whenGET('https://treeherder.mozilla.org/api/repository/').respond(
+            getJSONFixture('repositories.json')
+        );
+
+
 
         rootScope = $rootScope.$new();
         rootScope.repoName = foregroundRepo;
