@@ -123,43 +123,41 @@ treeherder.factory('thResultSets', [
             var uri = '1/get_resultset_jobs';
             var fullUrl = thUrl.getProjectUrl("/resultset/", repoName) + uri;
 
-            $q.all( _.each(
-                    resultSets.results,
-                    function(rs, index){
+            _.each(
+                resultSets.results,
+                function(rs, index){
 
-                        return $http.get(
-                            fullUrl, {
-                                params: {
-                                    format: "json",
-                                    result_set_ids:rs.id
-                                },
-                                transformResponse:resultSetResponseTransformer
+                    return $http.get(
+                        fullUrl, {
+                            params: {
+                                format: "json",
+                                result_set_ids:rs.id
+                            },
+                            transformResponse:resultSetResponseTransformer
+                        }
+                    ).then( function(response){
+                        if(response.status === 200){
+
+                            if(response.data.results.length > 0){
+
+                                $rootScope.$broadcast(
+                                    thEvents.mapResultSetJobs,
+                                    repoName,
+                                    response.data.results[0]
+                                    );
                             }
-                        ).then( function(response){
-                            if(response.status === 200){
 
-                                if(response.data.results.length > 0){
+                        }else{
+                            // Send notification with response.status to
+                            // UI here
+                            thNotify.send(
+                                "Error retrieing job data! response status " + response.status,
+                                "danger",
+                                true);
+                        }
+                }); //Close then
 
-                                    $rootScope.$broadcast(
-                                        thEvents.mapResultSetJobs,
-                                        repoName,
-                                        response.data.results[0]
-                                        );
-                                }
-
-                            }else{
-                                // Send notification with response.status to
-                                // UI here
-                                thNotify.send(
-                                    "Error retrieing job data! response status " + response.status,
-                                    "danger",
-                                    true);
-                            }
-                    }); //Close then
-
-                }) //Close each
-
-            ); //Close all
+            }); //Close each
 
         } //Close getResultSetJobs
     };
