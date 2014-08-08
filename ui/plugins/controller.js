@@ -28,7 +28,7 @@ treeherder.controller('PluginCtrl', [
                 $scope.job = newValue;
 
                 $scope.visibleFields = {
-                    "Job Name": $scope.job.job_type_name,
+                    "Job name": $scope.job.job_type_name,
                     "Start time": "",
                     "Duration":  "",
                     "Machine ": "",
@@ -62,7 +62,7 @@ treeherder.controller('PluginCtrl', [
                         _.forEach(data, function(item) {
                             $scope.artifacts[item.name] = item;
                         });
-                        $scope.visibleFields["Buildbot Job Name"] = $scope.artifacts.buildapi.blob.buildername;
+                        $scope.visibleFields["Buildbot job name"] = $scope.artifacts.buildapi.blob.buildername;
                         $log.debug("buildapi artifacts", $scope.artifacts);
                     }
                 });
@@ -85,11 +85,11 @@ treeherder.controller('PluginCtrl', [
                 // fields that will show in the job detail panel
                 var duration = ($scope.job.end_timestamp-$scope.job.start_timestamp)/60;
                 if (duration) {
-                    duration = numberFilter(duration, 0) + " minutes";
+                    duration = numberFilter(duration, 0) + " minute(s)";
                 }
 
                 $scope.visibleFields = {
-                    "Job Name": $scope.job.job_type_name || undef,
+                    "Job name": $scope.job.job_type_name || undef,
                     "Start time": dateFilter($scope.job.start_timestamp*1000, 'short') || undef,
                     "Duration":  duration || undef,
                     "Machine ": $scope.job.machine_platform_architecture + " " +
@@ -99,7 +99,7 @@ treeherder.controller('PluginCtrl', [
                              $scope.job.build_os || undef
                 };
                 if (_.has($scope.artifacts, "buildapi")) {
-                    $scope.visibleFields["Buildbot Job Name"] = $scope.artifacts.buildapi.blob.buildername;
+                    $scope.visibleFields["Buildbot job name"] = $scope.artifacts.buildapi.blob.buildername;
                 }
         };
 
