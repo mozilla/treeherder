@@ -357,7 +357,7 @@ body {
 }
 
 .job-group {
-    margin: 0 -5px 0 3px;
+    margin: 0 -3px 0 3px;
     vertical-align: bottom;
 }
 
@@ -805,7 +805,13 @@ ul.failure-summary-list li .btn-xs{
  .job-btn.btn-green,
  .job-btn.btn-dkblue,
  .job-btn.btn-pink {
-    margin: 0 -5px 0 0;
+    margin: 0 -5px 0 -1px;
+ }
+
+ .job-btn.btn-red,
+ .job-btn.btn-orange,
+ .job-btn.btn-purple {
+    margin: 0 -3px 0 0;
  }
 
 /*.job-wrap-spacer {*/
