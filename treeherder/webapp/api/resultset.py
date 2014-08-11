@@ -126,7 +126,7 @@ class ResultSetViewSet(viewsets.ViewSet):
             results = objs
 
         meta['count'] = len(results)
-        meta['repository'] = project
+        meta['repository'] = jm.refdata_model.get_repository_info_by_name(project)
 
         resp = {
             'meta': meta,
