@@ -151,7 +151,7 @@ treeherder.factory('thResultSets', [
                             // Send notification with response.status to
                             // UI here
                             thNotify.send(
-                                "Error retrieing job data! response status " + response.status,
+                                "Error retrieving job data! response status " + response.status,
                                 "danger",
                                 true);
                         }
