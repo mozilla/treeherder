@@ -19,7 +19,6 @@ from warnings import filterwarnings, resetwarnings
 from jsonfield import JSONField
 
 from treeherder import path
-from treeherder.webapp.api import refdata
 
 
 # the cache key is specific to the database name we're pulling the data from
