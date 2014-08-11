@@ -244,9 +244,6 @@ treeherder.controller('MainCtrl', [
         $scope.pinboardCount = thPinboard.count;
         $scope.pinnedJobs = thPinboard.pinnedJobs;
 
-        $scope.user = angular.fromJson(localStorageService.get("user")) || {};
-        $scope.user.loggedin = angular.isDefined($scope.user.email) && $scope.user.email !== null;
-
         // get a cached version of the exclusion profiles
         ThExclusionProfileModel.get_list({}, true).then(function(profiles){
             $scope.exclusion_profiles = profiles;
