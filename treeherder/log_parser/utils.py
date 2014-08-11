@@ -32,8 +32,8 @@ def is_helpful_search_term(search_term):
     return len(search_term) > 4 and not (search_term in blacklist)
 
 
-leak_re = re.compile('\d+ bytes leaked \((.+)\)$')
-crash_re = re.compile('application crashed \[@ (.+)\]$')
+LEAK_RE = re.compile('\d+ bytes leaked \((.+)\)$')
+CRASH_RE = re.compile('.+ application crashed \[@ (.+)\]$')
 
 
 def get_error_search_term(error_line):
@@ -57,9 +57,9 @@ def get_error_search_term(error_line):
 
         # Leak failure messages are of the form:
         # leakcheck | .*leaked \d+ bytes (Object-1, Object-2, Object-3, ...)
-        match = leak_re.match(message)
+        match = LEAK_RE.match(message)
         if match:
-            search_term = match.group(0)
+            search_term = match.group(1)
         else:
             for splitter in ("/", "\\"):
                 # if this is a path, we are interested in the last part
@@ -83,9 +83,9 @@ def get_crash_signature(error_line):
     and return it if it's a helpful search term
     """
     search_term = None
-    match = crash_re.match(error_line)
-    if match and is_helpful_search_term(match.group(0)):
-        search_term = match.group(0)
+    match = CRASH_RE.match(error_line)
+    if match and is_helpful_search_term(match.group(1)):
+        search_term = match.group(1)
     return search_term
 
 
