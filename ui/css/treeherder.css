@@ -358,6 +358,7 @@ body {
 
 .job-group {
     margin: 0 -5px 0 3px;
+    vertical-align: bottom;
 }
 
 .job-btn {
@@ -1407,8 +1408,3 @@ div.similar_jobs .left_panel table tr{cursor: pointer;}
 }
 
 div.logviewer-step{ padding:6px 6px;}
-
-th-watched-repo {
-    display: block;
-    float: left;
-}
