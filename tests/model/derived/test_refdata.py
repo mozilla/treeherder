@@ -2,14 +2,12 @@ import os
 import time
 import urllib2
 import json
+from datetime import datetime, timedelta
 
 import pytest
 from mock import Mock
 from django.core.management import call_command
-from django.conf import settings
-from django.db import connection
 
-from datasource.bases.BaseHub import BaseHub
 from treeherder.model.models import (RepositoryGroup,
                                      Repository, RepositoryVersion)
 
@@ -458,25 +456,102 @@ def test_update_bugscache(refdata, sample_bugs):
     assert len(bug_list) == len(row_data)
 
 
-def test_get_bugscache(refdata, sample_bugs):
+def test_get_open_recent_bug_right_term(refdata, sample_bugs):
     """
-    Test that at least one result is retrieved
-    for the right search terms
+    Test that we can retrieve open recent bugs given the right search term
     """
+    search_term = "test_popup_preventdefault_chrome.xul"
+
+    bug_list = sample_bugs['bugs']
+
+    fifty_days_ago = datetime.now() - timedelta(days=50)
+    # update the last_change date so that they will be
+    # placed in the open_recent bucket
+    for bug in bug_list:
+        bug['last_change_time'] = fifty_days_ago
+    refdata.update_bugscache(bug_list)
+
+    suggestions = refdata.get_bug_suggestions(search_term)
+
+    # we got open recent bugs suggested
+    assert len(suggestions['open_recent']) > 0
+    # we don't have any old bug suggested
+    assert len(suggestions['all_others']) == 0
+
+
+def test_get_open_recent_bug_wrong_term(refdata, sample_bugs):
+    """
+    Test that we can retrieve open recent bugs given the right search term
+    """
+    search_term = "test_popup_preventdefault_chrome.xul foo bar"
+
+    bug_list = sample_bugs['bugs']
+
+    fifty_days_ago = datetime.now() - timedelta(days=50)
+    # update the last_change date so that they will be
+    # placed in the open_recent bucket
+    for bug in bug_list:
+        bug['last_change_time'] = fifty_days_ago
+    refdata.update_bugscache(bug_list)
+
+    suggestions = refdata.get_bug_suggestions(search_term)
+    # we got open recent bugs suggested
+    assert len(suggestions['open_recent']) == 0
+    # we don't have any old bug suggested
+    assert len(suggestions['all_others']) == 0
+
+
+def test_get_all_other_bugs_right_term(refdata, sample_bugs):
+    """
+    Test that we can retrieve open recent bugs given the right search term
+    """
+    search_term = "test_popup_preventdefault_chrome.xul"
+
+    bug_list = sample_bugs['bugs']
+
+    ninetyfive_days_ago = datetime.now() - timedelta(days=95)
+    # update the last_change date so that they will be
+    # placed in the open_recent bucket
+    for bug in bug_list:
+        bug['last_change_time'] = ninetyfive_days_ago
+    refdata.update_bugscache(bug_list)
+
+    suggestions = refdata.get_bug_suggestions(search_term)
+    # we got open recent bugs suggested
+    assert len(suggestions['open_recent']) == 0
+    # we don't have any old bug suggested
+    assert len(suggestions['all_others']) > 0
+
+
+def test_get_all_other_bugs_wrong_term(refdata, sample_bugs):
+    """
+    Test that we can retrieve open recent bugs given the right search term
+    """
+    search_term = "test_popup_preventdefault_chrome.xul foo bar"
+
+    bug_list = sample_bugs['bugs']
+
+    ninetyfive_days_ago = datetime.now() - timedelta(days=95)
+    # update the last_change date so that they will be
+    # placed in the all_others bucket
+    for bug in bug_list:
+        bug['last_change_time'] = ninetyfive_days_ago
+    refdata.update_bugscache(bug_list)
+
+    suggestions = refdata.get_bug_suggestions(search_term)
+    # we got open recent bugs suggested
+    assert len(suggestions['open_recent']) == 0
+    # we don't have any old bug suggested
+    assert len(suggestions['all_others']) == 0
+
+
+def test_delete_bugscache(refdata, sample_bugs):
     bug_list = sample_bugs['bugs']
     refdata.update_bugscache(bug_list)
+
+    refdata.delete_bugs([bug["id"] for bug in bug_list])
     row_data = refdata.dhub.execute(
         proc='refdata_test.selects.test_bugscache',
         return_type='tuple'
     )
-
-    search_terms = ['few-pixel',
-                    'nsDirEnumerator',
-                    'WinFileAttributes tests - TEST-UNEXPECTED-FAIL | Test '
-                    'Win Attribs: GetFileAttributesWin attributed did not match. (2)']
-
-    for search_term in search_terms:
-        suggestions = refdata.get_bug_suggestions(search_term)
-        assert len(suggestions) >= 0
-
-    refdata.disconnect()
+    assert len(row_data) == 0

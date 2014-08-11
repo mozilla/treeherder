@@ -52,23 +52,15 @@ class BugscacheViewSet(viewsets.ReadOnlyModelViewSet):
     def list(self, request):
         """
         Retrieves a list of bugs from the bugs cache
-
         search -- Mandatory term of search
-        status -- Optional filter on the status. Can be 'open' or 'closed'. Open by default
         """
         search_term = request.QUERY_PARAMS.get("search", None)
         if not search_term:
             return Response({"message": "the 'search' parameter is mandatory"}, status=400)
 
-        status = request.QUERY_PARAMS.get("status", "open")
-        if not status in ("open", "closed"):
-            return Response({"message": "status must be 'open' or 'closed'"}, status=400)
-
-        open_only = True if status == "open" else False
-
         rdm = RefDataManager()
         try:
-            suggested_bugs = rdm.get_bug_suggestions(search_term, open_only)
+            suggested_bugs = rdm.get_bug_suggestions(search_term)
         finally:
             rdm.disconnect()
         return Response(suggested_bugs)

@@ -85,23 +85,20 @@ def test_bug_suggestions_artifact(jm, initial_data, jobs_with_local_log,
 
     jm.disconnect()
 
-    # we must have at least 4 artifacts: one for the log viewer and another one
-    # for the job artifact panel, plus the open and closed bugs artifacts
+    # we must have at least 3 artifacts:
+    # 1 for the log viewer
+    # 1 for the job artifact panel
+    # 1 for the bug suggestions
+    assert len(job_artifacts) >= 3
 
-    assert len(job_artifacts) >= 4
+    structured_log_artifact = [artifact for artifact in job_artifacts
+                               if artifact["name"] == "Structured Log"][0]
+    bug_suggestions_artifact = [artifact for artifact in job_artifacts
+                                if artifact["name"] == "Bug suggestions"][0]
+    structured_log = json.loads(structured_log_artifact["blob"])
 
-    exp = []
-    closed = []
-    open = []
+    all_errors = structured_log["step_data"]["all_errors"]
+    bug_suggestions = json.loads(bug_suggestions_artifact["blob"])
 
-    for artifact in job_artifacts:
-        if artifact["name"] == "Structured Log":
-            all_errors = json.loads(artifact["blob"])["step_data"]["all_errors"]
-            exp = [get_mozharness_substring(x['line']) for x in all_errors]
-        elif artifact["name"] == "Closed bugs":
-            closed = [x['search'] for x in json.loads(artifact["blob"])]
-        elif artifact["name"] == "Open bugs":
-            open = [x['search'] for x in json.loads(artifact["blob"])]
-
-    assert exp == closed
-    assert exp == open
+    # we must have one line per error in bug_suggestions
+    assert len(all_errors) == len(bug_suggestions)

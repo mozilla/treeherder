@@ -25,6 +25,8 @@ from treeherder.log_parser.utils import (get_error_search_term,
 from treeherder.etl.oauth_utils import OAuthCredentials
 
 
+
+
 @task(name='parse-log', max_retries=3)
 def parse_log(project, job_log_url, job_guid, check_errors=False):
     """
@@ -42,31 +44,23 @@ def parse_log(project, job_log_url, job_guid, check_errors=False):
 
     try:
         log_url = job_log_url['url']
-
-        bugs_cache = {'open': {}, 'closed': {}}
-        bug_suggestions = {'open': [], 'closed': []}
-
-
-        # return the resultset with the job id to identify if the UI wants
-        # to fetch the whole thing.
-
+        bug_suggestions = []
         bugscache_uri = '{0}{1}'.format(
             settings.API_HOSTNAME,
             reverse("bugscache-list")
         )
+        terms_requested = {}
 
         if log_url:
             # parse a log given its url
-            artifact_bc = ArtifactBuilderCollection(
-                log_url,
-                check_errors=check_errors,
-            )
+            artifact_bc = ArtifactBuilderCollection(log_url,
+                                                    check_errors=check_errors)
             artifact_bc.parse()
 
             artifact_list = []
             for name, artifact in artifact_bc.artifacts.items():
-                artifact_list.append((job_guid, name, 'json', json.dumps(artifact)))
-
+                artifact_list.append((job_guid, name, 'json',
+                                      json.dumps(artifact)))
             if check_errors:
                 all_errors = artifact_bc.artifacts.get(
                     'Structured Log', {}
@@ -80,34 +74,41 @@ def parse_log(project, job_log_url, job_guid, check_errors=False):
                     clean_line = get_mozharness_substring(err['line'])
                     # get a meaningful search term out of the error line
                     search_term = get_error_search_term(clean_line)
-                    # collect open and closed bugs suggestions
-                    for status in ('open', 'closed'):
-                        if not search_term:
-                            continue
-                        if search_term not in bugs_cache[status]:
-                            # retrieve the list of suggestions from the api
-                            bugs_cache[status][search_term] = get_bugs_for_search_term(
-                                search_term,
-                                status,
-                                bugscache_uri
-                            )
-                            # no suggestions, try to use the crash signature as search term
-                            if not bugs_cache[status][search_term]:
-                                crash_signature = get_crash_signature(search_term)
-                                if crash_signature:
-                                    bugs_cache[status][search_term] = get_bugs_for_search_term(
-                                        search_term,
-                                        status,
-                                        bugscache_uri
-                                    )
+                    # collect open recent and all other bugs suggestions
+                    if not search_term:
+                        continue
 
-                        bug_suggestions[status].append({
-                            "search": clean_line,
-                            "bugs": bugs_cache[status][search_term]
-                        })
+                    if not search_term in terms_requested:
+                        # retrieve the list of suggestions from the api
+                        bugs = get_bugs_for_search_term(
+                            search_term,
+                            bugscache_uri
+                        )
+                        terms_requested[search_term] = bugs
+                    else:
+                        bugs = terms_requested[search_term]
 
-            artifact_list.append((job_guid, 'Open bugs', 'json', json.dumps(bug_suggestions['open'])))
-            artifact_list.append((job_guid, 'Closed bugs', 'json', json.dumps(bug_suggestions['closed'])))
+                    if not bugs or not (bugs['open_recent']
+                                        or bugs['all_others']):
+                        # no suggestions, try to use
+                        # the crash signature as search term
+                        crash_signature = get_crash_signature(clean_line)
+                        if crash_signature:
+                            if not crash_signature in terms_requested:
+                                bugs = get_bugs_for_search_term(
+                                    search_term,
+                                    bugscache_uri
+                                )
+                                terms_requested[crash_signature] = bugs
+                            else:
+                                bugs = terms_requested[crash_signature]
+
+                    bug_suggestions.append({
+                        "search": clean_line,
+                        "bugs": bugs
+                    })
+
+            artifact_list.append((job_guid, 'Bug suggestions', 'json', json.dumps(bug_suggestions)))
 
             # store the artifacts generated
             tac = TreeherderArtifactCollection()
