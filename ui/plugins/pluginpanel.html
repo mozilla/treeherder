@@ -126,9 +126,15 @@
         <li>by <em>{{classifications[0].who}}</em> on {{ classifications[0].note_timestamp*1000|date:'medium' }}</li>
     </ul>
     <ul class="list-unstyled">
-        <li class="small {{resultStatusShading}}">
-            <label>Result:</label>
-            <span>{{ job.result }}</span>
+        <li id="result-status-pane" class="small {{resultStatusShading}}">
+            <div>
+                <label>Result:</label>
+                <span>{{ job.result }}</span>
+            </div>
+            <div>
+                <label>State:</label>
+                <span>{{ job.state }}</span>
+            </div>
         </li>
     </ul>
     <ul>
