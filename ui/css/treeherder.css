@@ -501,6 +501,7 @@ div#bottom-panel.with-pinboard #bottom-center-panel{
 
 #bottom-left-panel ul li label{
     padding: 0;
+    margin: 2px 0px;
 }
 
 #bottom-left-panel em.testfail{ color:red;}
