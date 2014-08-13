@@ -245,6 +245,24 @@
 
                 "host":"master_host"
         },
+        "cancel_all":{
+
+            "sql":"UPDATE `job`
+                   SET    `state` = 'completed', `result` = 'usercancel'
+                   WHERE  `result_set_id` = ?
+                   AND `state` <> 'completed'",
+
+                "host":"master_host"
+        },
+        "cancel_job":{
+
+            "sql":"UPDATE `job`
+                   SET    `state` = 'completed', `result` = 'usercancel'
+                   WHERE  `job_guid` = ?
+                   AND `state` <> 'completed'",
+
+                "host":"master_host"
+        },
         "update_job_data":{
             "sql":"
                 UPDATE `job`
@@ -493,6 +511,15 @@
             "host":"read_host"
         },
 
+        "get_incomplete_job_guids": {
+            "sql": "SELECT j.job_guid, j.result_set_id, rs.push_timestamp as result_set_push_timestamp
+                    FROM job as j
+                    LEFT JOIN result_set as rs
+                      ON j.result_set_id = rs.id
+                    WHERE j.state <> 'completed'
+                    AND j.result_set_id = ?",
+            "host":"read_host"
+        },
 
         "get_job":{
             "sql":"SELECT

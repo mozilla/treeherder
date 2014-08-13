@@ -364,6 +364,48 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG
         )
 
+    def get_incomplete_job_guids(self, resultset_id):
+        """Get list of ids for jobs of resultset that are not in complete state."""
+        return self.get_jobs_dhub().execute(
+            proc='jobs.selects.get_incomplete_job_guids',
+            placeholders=[resultset_id],
+            debug_show=self.DEBUG,
+            return_type='dict',
+            key_column='job_guid'
+        )
+
+
+    def cancel_all_resultset_jobs(self, resultset_id):
+        """Set all pending/running jobs in resultset to usercancel."""
+        jobs = list(self.get_incomplete_job_guids(resultset_id))
+
+        self.get_jobs_dhub().execute(
+            proc='jobs.updates.cancel_all',
+            placeholders=[resultset_id],
+            debug_show=self.DEBUG
+        )
+        status_publisher = JobStatusPublisher(settings.BROKER_URL)
+        try:
+            status_publisher.publish(jobs, self.project, 'processed')
+        finally:
+            status_publisher.disconnect()
+
+
+    def cancel_job(self, job_guid):
+        """Set job to usercancel."""
+
+        self.get_jobs_dhub().execute(
+            proc='jobs.updates.cancel_job',
+            placeholders=[job_guid],
+            debug_show=self.DEBUG
+        )
+        status_publisher = JobStatusPublisher(settings.BROKER_URL)
+        try:
+            status_publisher.publish([job_guid], self.project, 'processed')
+        finally:
+            status_publisher.disconnect()
+
+
     def get_log_references(self, job_id):
         """Return the log references for the given ``job_id``."""
         data = self.get_jobs_dhub().execute(

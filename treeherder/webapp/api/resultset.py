@@ -2,8 +2,9 @@ import itertools
 
 from rest_framework import viewsets
 from rest_framework.response import Response
-from rest_framework.decorators import link
+from rest_framework.decorators import link, action
 from rest_framework.reverse import reverse
+from rest_framework.permissions import IsAuthenticated
 from treeherder.model.derived import DatasetNotFoundError
 from treeherder.webapp.api.utils import (UrlQueryFilter, with_jobs,
                                          oauth_required, get_option,
@@ -313,6 +314,22 @@ class ResultSetViewSet(viewsets.ViewSet):
             key=lambda x: x[sort_key],
             reverse=True)
 
+    @action(permission_classes=[IsAuthenticated])
+    @with_jobs
+    def cancel_all(self, request, project, jm, pk=None):
+        """
+        Cancel all pending and running jobs in this resultset
+        """
+
+        if not pk:  # pragma nocover
+            return Response({"message": "resultset id required"}, status=400)
+
+        try:
+            jm.cancel_all_resultset_jobs(pk)
+            return Response({"message": "pending and running jobs canceled for resultset '{0}'".format(pk)})
+
+        except Exception as ex:
+            return Response("Exception: {0}".format(ex), 404)
 
     @with_jobs
     @oauth_required

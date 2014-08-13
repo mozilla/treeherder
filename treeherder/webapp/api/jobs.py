@@ -2,6 +2,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action, link
 from rest_framework.reverse import reverse
+from rest_framework.permissions import IsAuthenticated
 
 from django.core.cache import cache
 
@@ -86,9 +87,8 @@ class JobsViewSet(viewsets.ViewSet):
 
         return Response(objs)
 
-    @action()
+    @action(permission_classes=[IsAuthenticated])
     @with_jobs
-    @oauth_required
     def update_state(self, request, project, jm, pk=None):
         """
         Change the state of a job.
@@ -113,6 +113,20 @@ class JobsViewSet(viewsets.ViewSet):
         if obj:
             jm.set_state(pk, state)
             return Response({"message": "state updated to '{0}'".format(state)})
+        else:
+            return Response("No job with id: {0}".format(pk), 404)
+
+    @action(permission_classes=[IsAuthenticated])
+    @with_jobs
+    def cancel(self, request, project, jm, pk=None):
+        """
+        Change the state of a job.
+        """
+
+        obj = jm.get_job(pk)
+        if obj:
+            jm.cancel_job(obj[0]['job_guid'])
+            return Response({"message": "canceled job '{0}'".format(obj[0]['job_guid'])})
         else:
             return Response("No job with id: {0}".format(pk), 404)
 
