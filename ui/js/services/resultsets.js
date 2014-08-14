@@ -159,6 +159,10 @@ treeherder.factory('thResultSets', [
 
             }); //Close each
 
-        } //Close getResultSetJobs
+        }, //Close getResultSetJobs
+        cancelAll: function(resultset_id, repoName) {
+            var uri = resultset_id + '/cancel_all/';
+            return $http.post(thUrl.getProjectUrl("/resultset/", repoName) + uri);
+        }
     };
 }]);

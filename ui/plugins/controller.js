@@ -146,7 +146,9 @@ treeherder.controller('PluginCtrl', [
         };
 
         $scope.cancelJob = function() {
-            thBuildApi.cancelJob($scope.repoName, getRequestId());
+            thBuildApi.cancelJob($scope.repoName, getRequestId()).then(function() {
+                ThJobModel.cancel($scope.repoName, $scope.job.id);
+            });
         };
 
         $scope.cancelAll = function(resultsetId) {

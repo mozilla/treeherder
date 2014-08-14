@@ -70,12 +70,12 @@ treeherder.controller('ResultSetCtrl', [
     '$scope', '$rootScope', '$http', 'ThLog', '$location',
     'thUrl', 'thServiceDomain', 'thResultStatusInfo',
     'ThResultSetModel', 'thEvents', 'thJobFilters', 'thNotify',
-    'thBuildApi', 'thPinboard',
+    'thBuildApi', 'thPinboard', 'thResultSets',
     function ResultSetCtrl(
         $scope, $rootScope, $http, ThLog, $location,
         thUrl, thServiceDomain, thResultStatusInfo,
         ThResultSetModel, thEvents, thJobFilters, thNotify,
-        thBuildApi, thPinboard) {
+        thBuildApi, thPinboard, thResultSets) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -192,7 +192,9 @@ treeherder.controller('ResultSetCtrl', [
 
 
         $scope.cancelAllJobs = function(revision) {
-            thBuildApi.cancelAll($scope.repoName, revision);
+            thBuildApi.cancelAll($scope.repoName, revision).then(function() {
+                thResultSets.cancelAll($scope.resultset.id, $scope.repoName);
+            });
         };
 
         $scope.revisionResultsetFilterUrl = $scope.urlBasePath + "?repo=" + $scope.repoName + "&revision=" + $scope.resultset.revision;

@@ -43,5 +43,17 @@ treeherder.factory('ThJobModel', [
         });
     };
 
+    ThJobModel.cancel = function(repoName, pk, config) {
+        // a static method to retrieve a single instance of ThJobModel
+        config = config || {};
+        var timeout = config.timeout || null;
+
+        return $http.post(ThJobModel.get_uri(repoName)+pk+"/cancel/",
+            {timeout:timeout})
+            .then(function(response) {
+            return new ThJobModel(response.data);
+        });
+    };
+
     return ThJobModel;
 }]);

@@ -3,14 +3,14 @@
             ng-click="changeRepo(name)"
             type="button"
             title="{{titleText|stripHtml}}"
-            class="watched-repo-main-btn btn btn-sm btn-view-nav">
+            class="watched-repo-main-btn btn btn-sm {{btnClass}}">
         <i class="fa {{statusIcon}} {{statusColor}}"></i> {{name}}
         <span class="watched-repo-spacer"></span>
         <span ng-show="adjustedUnclassifiedFailureCount > 0">
             <strong>{{ adjustedUnclassifiedFailureCount }}</strong>
         </span>
     </button>
-    <button class="watched-repo-info-btn btn btn-sm btn-view-nav dropdown-toggle"
+    <button class="watched-repo-info-btn btn btn-sm {{btnClass}} dropdown-toggle"
             ng-class="{'active': name===repoName}"
             data-toggle="dropdown"
             title="{{name}} info"

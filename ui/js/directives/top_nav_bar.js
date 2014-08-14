@@ -22,19 +22,23 @@ treeherder.directive('thWatchedRepo', [
     var statusInfo = {
         "open": {
             icon: "fa-circle-o",
-            color: "treeOpen"
+            color: "treeOpen",
+            btnClass: "btn-view-nav"
         },
         "approval required": {
             icon: "fa-lock",
-            color: "treeApproval"
+            color: "treeApproval",
+            btnClass: "btn-view-nav"
         },
         "closed": {
             icon: "fa-times-circle",
-            color: "treeClosed"
+            color: "treeClosed",
+            btnClass: "btn-view-nav-closed"
         },
         "unavailable": {
             icon: "",
-            color: "treeUnavailable"
+            color: "treeUnavailable",
+            btnClass: "btn-view-nav"
         }
     };
 
@@ -68,6 +72,7 @@ treeherder.directive('thWatchedRepo', [
                     $log.debug("updated treeStatus", newVal.treeStatus.status);
                     scope.statusIcon = statusInfo[newVal.treeStatus.status].icon;
                     scope.statusColor = statusInfo[newVal.treeStatus.status].color;
+                    scope.btnClass = statusInfo[newVal.treeStatus.status].btnClass;
                     scope.updateCount();
                     scope.updateTitleText();
                 }

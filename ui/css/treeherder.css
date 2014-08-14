@@ -823,10 +823,6 @@ ul.failure-summary-list li .btn-xs{
     margin: 0 -3px 0 0;
  }
 
-/*.job-wrap-spacer {*/
-    /*margin: 0;*/
-/*}*/
-
 .btn-view-nav {
   background-color: rgba(75, 86, 93, 0.56);
   border-color: #22282d;
@@ -856,6 +852,39 @@ fieldset[disabled] .btn-view-nav:hover,
 fieldset[disabled] .btn-view-nav:focus,
 fieldset[disabled] .btn-view-nav:active,
 fieldset[disabled] .btn-view-nav.active {
+  color: #e0e0e0;
+  border-color: #e0e0e0;
+}
+
+.btn-view-nav-closed {
+  background-color: rgba(107, 4, 4, 0.53);
+  border-color: #22282d;
+  color: lightgray;
+  border-radius: 0;
+  border-bottom: 0;
+  border-top: 0;
+  border-left: 0;
+}
+.btn-view-nav-closed:hover,
+.btn-view-nav-closed:focus,
+.btn-view-nav-closed:active,
+.btn-view-nav-closed.active {
+  background-color: rgba(107, 4, 4, 0.53);
+  border-color: #1a1d20;
+  color: white;
+}
+.btn-view-nav-closed.disabled:hover,
+.btn-view-nav-closed.disabled:focus,
+.btn-view-nav-closed.disabled:active,
+.btn-view-nav-closed.disabled.active,
+.btn-view-nav-closed[disabled]:hover,
+.btn-view-nav-closed[disabled]:focus,
+.btn-view-nav-closed[disabled]:active,
+.btn-view-nav-closed[disabled].active,
+fieldset[disabled] .btn-view-nav-closed:hover,
+fieldset[disabled] .btn-view-nav-closed:focus,
+fieldset[disabled] .btn-view-nav-closed:active,
+fieldset[disabled] .btn-view-nav-closed.active {
   color: #e0e0e0;
   border-color: #e0e0e0;
 }
