@@ -1,6 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.authentication import SessionAuthentication
+from rest_framework_extensions.mixins import CacheResponseAndETAGMixin
 
 from django.contrib.auth.models import User
 
@@ -34,10 +35,14 @@ class JobGroupViewSet(viewsets.ReadOnlyModelViewSet):
     model = models.JobGroup
 
 
-class RepositoryViewSet(viewsets.ReadOnlyModelViewSet):
+class RepositoryViewSet(CacheResponseAndETAGMixin,
+                        viewsets.ReadOnlyModelViewSet):
     """ViewSet for the refdata Repository model"""
     model = models.Repository
     serializer_class = th_serializers.RepositorySerializer
+
+    def list_cache_key_func(self, **kwargs):
+        return models.REPOSITORY_LIST_CACHE_KEY
 
 
 class MachinePlatformViewSet(viewsets.ReadOnlyModelViewSet):
@@ -91,10 +96,13 @@ class JobTypeViewSet(viewsets.ReadOnlyModelViewSet):
     model = models.JobType
 
 
-class FailureClassificationViewSet(viewsets.ReadOnlyModelViewSet):
+class FailureClassificationViewSet(CacheResponseAndETAGMixin,
+                                   viewsets.ReadOnlyModelViewSet):
     """ViewSet for the refdata FailureClassification model"""
     model = models.FailureClassification
 
+    def list_cache_key_func(self, **kwargs):
+        return models.FAILURE_CLASSIFICAION_LIST_CACHE_KEY
 
 #############################
 # User and exclusion profiles

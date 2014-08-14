@@ -134,6 +134,7 @@ INSTALLED_APPS = [
     'djcelery',
     'south',
     'rest_framework',
+    'rest_framework_extensions',
     'rest_framework_swagger',
     'corsheaders',
     'django_browserid',
@@ -311,3 +312,7 @@ def obtain_username(email):
 BROWSERID_USERNAME_ALGO = obtain_username
 
 SWAGGER_SETTINGS = {"enabled_methods": ['get',]}
+
+REST_FRAMEWORK_EXTENSIONS = {
+    'DEFAULT_CACHE_RESPONSE_TIMEOUT': 60 * 15
+}
