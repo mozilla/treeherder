@@ -183,7 +183,7 @@ describe('ThResultSetModel', function(){
             }
         };
 
-        $httpBackend.whenGET(foregroundPrefix + '/jobs/?job_guid__in=123').respond(
+        $httpBackend.whenGET(foregroundPrefix + '/jobs/?count=40&job_guid__in=123').respond(
             getJob(123, {result_set_id: 1})
         );
 
@@ -209,7 +209,7 @@ describe('ThResultSetModel', function(){
             }
         };
 
-        $httpBackend.whenGET(foregroundPrefix + '/jobs/?job_guid__in=590604').respond(
+        $httpBackend.whenGET(foregroundPrefix + '/jobs/?count=40&job_guid__in=590604').respond(
             getJob(590604, {result_set_id: 1})
         );
 
@@ -235,7 +235,7 @@ describe('ThResultSetModel', function(){
             }
         };
 
-        $httpBackend.whenGET(backgroundPrefix + '/jobs/?job_guid__in=123').respond(
+        $httpBackend.whenGET(backgroundPrefix + '/jobs/?count=40&job_guid__in=123').respond(
             getJob(123, {result_set_id: 10})
         );
 
@@ -261,7 +261,7 @@ describe('ThResultSetModel', function(){
             }
         };
 
-        $httpBackend.whenGET(backgroundPrefix + '/jobs/?job_guid__in=590604').respond(
+        $httpBackend.whenGET(backgroundPrefix + '/jobs/?count=40&job_guid__in=590604').respond(
             getJob(590604, {result_set_id: 10})
         );
 

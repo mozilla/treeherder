@@ -441,21 +441,33 @@ treeherder.factory('ThResultSetModel', [
 
         // we could potentially have very large lists of jobs.  So we need
         // to chunk this fetching.
-        var offset = 0;
         var count = 40;
         var error_callback = function(data) {
             $log.error("Error fetching jobs: " + data);
         };
-
-        while (offset < jobFetchList.length) {
-            var jobFetchSlice = jobFetchList.slice(offset, offset+count);
-            offset += count;
+        var unavailableJobs = [];
+        while (jobFetchList.length > 0) {
+            var jobFetchSlice = jobFetchList.splice(0, count);
             ThJobModel.get_list(repoName, {
-                job_guid__in: jobFetchSlice.join()
-            }).then(
-                _.bind(updateJobs, $rootScope, repoName),
-                error_callback);
+                job_guid__in: jobFetchSlice.join(),
+                count: count
+            })
+            .then(function(jobsFetched){
+                // if there are jobs unfetched, enqueue them for the next run
+                var guids_fetched = _.pluck(jobsFetched, "job_guid");
+                var guids_unfetched = _.difference(jobFetchSlice, guids_fetched);
+                if(guids_unfetched.length > 0){
+                    $log.debug("re-adding " +
+                        guids_unfetched.length + "job to the fetch queue");
+                    unavailableJobs.push.apply(unavailableJobs, guids_unfetched);
+                }
+                return jobsFetched;
+            },error_callback)
+            .then(_.bind(updateJobs, $rootScope, repoName));
         }
+        // retry to fetch the unfetched jobs later
+        _.delay(fetchJobs, 10000, repoName, unavailableJobs);
+
     };
     var aggregateJobPlatform = function(repoName, job, platformData){
 
