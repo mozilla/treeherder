@@ -337,7 +337,7 @@ body {
 }
 
 .revision-list {
-    overflow: auto;
+    overflow: hidden;
     white-space: nowrap;
 }
 
