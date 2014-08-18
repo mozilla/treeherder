@@ -51,6 +51,11 @@ class BzApiBugProcess(JsonExtractorMixin):
                 offset += limit
 
         if bug_list:
+
+            for bug in bug_list:
+                # drop the timezone indicator to avoid issues with mysql
+                bug["last_change_time"] = bug["last_change_time"][0:19]
+
             rdm = RefDataManager()
             try:
                 rdm.update_bugscache(bug_list)
