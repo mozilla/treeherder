@@ -636,5 +636,18 @@
         "repository_group": 5,
         "description": ""
     }
+},
+{
+    "pk": 53,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "hg",
+        "name": "mozilla-b2g32_v2_0",
+        "url": "https://hg.mozilla.org/releases/mozilla-b2g32_v2_0",
+        "active_status": "active",
+        "codebase": "gecko",
+        "repository_group": 2,
+        "description": ""
+    }
 }
 ]
