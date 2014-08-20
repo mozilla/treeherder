@@ -5,7 +5,7 @@ from django_browserid.admin import site as browserid_admin
 
 
 class JobTypeAdmin(admin.ModelAdmin):
-    list_display = ['name', 'job_group', 'symbol', 'active_status']
+    list_display = ['name', 'job_group', 'symbol', 'description', 'active_status']
     list_editable = ['symbol', 'job_group']
 
 
