@@ -34,24 +34,6 @@ class JobLogUrlViewSet(viewsets.ViewSet):
         except ValueError:
             raise ParseError(detail="The job_id parameter must be an integer")
 
-        job_note_list = jm.get_job_log_url_list(job_id=job_id)
-        return Response(job_note_list)
-
-    @with_jobs
-    def list(self, request, project, jm):
-        """
-        GET method implementation for list view
-        job_id -- Mandatory filter indicating which job these log belongs to.
-        """
-
-        job_id = request.QUERY_PARAMS.get('job_id')
-        if not job_id:
-            raise ParseError(detail="The job_id parameter is mandatory for this endpoint")
-        try:
-            job_id = int(job_id)
-        except ValueError:
-            raise ParseError(detail="The job_id parameter must be an integer")
-
         # get_job_log_url_list takes a lost of job ids
         job_log_url_list = jm.get_job_log_url_list([job_id])
         return Response(job_log_url_list)
