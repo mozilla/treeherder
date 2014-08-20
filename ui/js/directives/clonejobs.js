@@ -90,6 +90,10 @@ treeherder.directive('thCloneJobs', [
             result = result + " - " + duration + " mins";
         }
 
+        if (job.job_type_description !== "fill me") {
+            result = result + " (" + job.job_type_description + ")";
+        }
+
         return result;
     };
 
