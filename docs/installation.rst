@@ -90,5 +90,5 @@ Installation
 
 
 .. _project repo: https://github.com/mozilla/treeherder-service
-.. _Vagrant: http://downloads.vagrantup.com
+.. _Vagrant: https://www.vagrantup.com
 .. _Virtualbox: https://www.virtualbox.org
