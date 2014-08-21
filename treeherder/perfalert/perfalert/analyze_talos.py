@@ -625,6 +625,10 @@ class AnalysisRunner:
                 if pusher != ('', ''):
                     pusher = email.utils.formataddr(pusher)
 
+                if author in ('B2G Bumper Bot <release+b2gbumper@mozilla.com>',):
+                    log.debug("Skipping whitelisted author %s, author)
+                    continue
+
                 if author not in author_addresses:
                     log.debug("Adding author %s to recipients", author)
                     author_addresses.append(author)
