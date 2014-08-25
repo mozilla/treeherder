@@ -81,7 +81,7 @@ CREATE TABLE `reference_data_signatures` (
   `first_submission_timestamp` int(10) unsigned NOT NULL,
   `review_timestamp` int(10) unsigned DEFAULT NULL,
   `review_status` enum('reviewed', 'not_reviewed', 'on_hold') COLLATE utf8_bin DEFAULT 'not_reviewed',
-  UNIQUE KEY `uni_name_build_type_repository` (`name`, `build_system_type`, `repository`),
+  UNIQUE KEY `uni_name_signature_build_type_repository` (`name`, `signature`, `build_system_type`, `repository`),
   KEY `idx_id` (`id`),
   KEY `idx_signature` (`signature`),
   KEY `idx_build_os_name` (`build_os_name`),

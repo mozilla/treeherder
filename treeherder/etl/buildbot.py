@@ -795,3 +795,16 @@ def get_symbol(name, bn):
     if nummatch:
         n = nummatch.group(1)
     return "{0}{1}".format(s, n)
+
+
+def get_device_or_unknown(job_name, vm):
+    """
+    retrieve the device name or unknown if no device is detected
+    """
+    position = job_name.find("Device")
+    if position > 0:
+        return job_name[0: position-1]
+    elif vm is True:
+        return "vm"
+    else:
+        return "unknown"

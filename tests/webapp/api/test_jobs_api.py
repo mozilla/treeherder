@@ -26,6 +26,7 @@ def test_job_list(webapp, eleven_jobs_processed, jm):
         "job_guid",
         "state",
         "result",
+        "device_name",
         "build_platform_id",
         "job_coalesced_to_guid",
         "end_timestamp",
