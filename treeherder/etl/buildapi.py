@@ -145,9 +145,10 @@ class Builds4hTransformerMixin(object):
             platform_info = buildbot.extract_platform_info(prop['buildername'])
             job_name_info = buildbot.extract_name_info(prop['buildername'])
 
-            device_name = 'unknown'
-            if platform_info['vm'] == True:
-                device_name = 'vm'
+            device_name = buildbot.get_device_or_unknown(
+                job_name_info.get('name', ''),
+                platform_info['vm']
+            )
 
             if 'log_url' in prop:
                 log_reference = [{
@@ -299,7 +300,13 @@ class PendingTransformerMixin(object):
                     }
 
                     platform_info = buildbot.extract_platform_info(pending_job['buildername'])
+
                     job_name_info = buildbot.extract_name_info(pending_job['buildername'])
+
+                    device_name = buildbot.get_device_or_unknown(
+                        job_name_info.get('name', ''),
+                        platform_info['vm']
+                    )
 
                     new_job = {
                         'job_guid': common.generate_job_guid(pending_job['id'], pending_job['submitted_at']),
@@ -323,6 +330,7 @@ class PendingTransformerMixin(object):
                             'architecture': platform_info['arch'],
                             'vm': platform_info['vm']
                         },
+                        'device_name': device_name,
                         'who': 'unknown',
 
                         'option_collection': {
@@ -352,9 +360,9 @@ class PendingTransformerMixin(object):
                     treeherder_data['job'] = new_job
 
                     if project not in th_collections:
-                        th_collections[ project ] = TreeherderJobCollection(
+                        th_collections[project] = TreeherderJobCollection(
                             job_type='update'
-                            )
+                        )
 
                     # get treeherder job instance and add the job instance
                     # to the collection instance
@@ -404,6 +412,10 @@ class RunningTransformerMixin(object):
 
                     platform_info = buildbot.extract_platform_info(running_job['buildername'])
                     job_name_info = buildbot.extract_name_info(running_job['buildername'])
+                    device_name = buildbot.get_device_or_unknown(
+                        job_name_info.get('name', ''),
+                        platform_info['vm']
+                    )
 
                     new_job = {
                         'job_guid': common.generate_job_guid(
@@ -430,6 +442,7 @@ class RunningTransformerMixin(object):
                             'architecture': platform_info['arch'],
                             'vm': platform_info['vm']
                         },
+                        'device_name': device_name,
                         'who': 'unknown',
 
                         'option_collection': {

@@ -224,7 +224,8 @@ class RefDataManager(object):
 
             placeholders = [name, signature]
             placeholders.extend(reference_data)
-            placeholders.extend([int(time.time()), name, build_system_type, repository])
+            placeholders.extend([int(time.time()), name, signature,
+                                 build_system_type, repository])
             self.build_signature_placeholders.append(placeholders)
 
             self.reference_data_signature_lookup[signature] = reference_data

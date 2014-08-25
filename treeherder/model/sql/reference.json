@@ -10,9 +10,9 @@
                     SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
                     FROM DUAL
                     WHERE NOT EXISTS (
-                    SELECT `name`, `build_system_type`, `repository`
+                    SELECT `name`, `signature`, `build_system_type`, `repository`
                     FROM `reference_data_signatures`
-                    WHERE `name` = ? AND `build_system_type` = ? AND `repository` = ?
+                    WHERE `name` = ? AND `signature` = ? AND `build_system_type` = ? AND `repository` = ?
                     )",
             "host":"master_host"
         },

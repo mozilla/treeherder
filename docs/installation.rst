@@ -1,9 +1,15 @@
 Installation
 ================
 
-* Clone the `project repo`_ on Github
+* Clone the `treeherder-service repo`_ from Github.
 
 * Install Virtualbox_ and Vagrant_ if not present.
+
+* Either follow the :doc:`ui_integration` steps, or comment out this line in the Vagrantfile:
+
+  .. code-block:: ruby
+     
+     config.vm.synced_folder "../treeherder-ui", "/home/vagrant/treeherder-ui", type: "nfs"
 
 * Open a shell, cd into the root of the project you just cloned and type
 
@@ -89,6 +95,6 @@ Installation
 
 
 
-.. _project repo: https://github.com/mozilla/treeherder-service
-.. _Vagrant: http://downloads.vagrantup.com
+.. _treeherder-service repo: https://github.com/mozilla/treeherder-service
+.. _Vagrant: https://www.vagrantup.com
 .. _Virtualbox: https://www.virtualbox.org
