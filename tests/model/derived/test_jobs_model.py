@@ -66,6 +66,18 @@ def test_ingest_all_sample_jobs(jm, refdata, sample_data, initial_data, sample_r
     jm.disconnect()
     refdata.disconnect()
 
+def test_get_inserted_row_ids(jm, sample_resultset):
+
+    data = jm.store_result_set_data(sample_resultset)
+
+    max_id = jm.get_jobs_dhub().execute(
+        proc='generic.selects.get_max_result_set_id',
+        return_type='iter').get_column_data('max_id')
+
+    rs_ids_len = len(data['inserted_result_set_ids'])
+
+    assert data['inserted_result_set_ids'][ rs_ids_len - 1 ] == max_id
+    assert rs_ids_len == len(sample_resultset)
 
 def test_ingest_running_to_retry_sample_job(jm, refdata, sample_data, initial_data,
                                   mock_log_parser, sample_resultset):

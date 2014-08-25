@@ -136,6 +136,13 @@
 
             "host":"master_host"
         },
+        "set_result_set_with_ignore":{
+
+            "sql":"INSERT IGNORE INTO `result_set` (`author`, `revision_hash`,`push_timestamp`)
+                VALUES (?, ?, ?)",
+
+            "host":"master_host"
+        },
         "set_revision":{
 
             "sql":"INSERT INTO `revision` (

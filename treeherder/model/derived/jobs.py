@@ -2373,9 +2373,12 @@ class JobsModel(TreeherderModelBase):
         # revision_map structures
         revision_to_rhash_lookup = dict()
 
+        dhub = self.get_jobs_dhub()
+
         # TODO: Confirm whether we need to do a lookup in this loop in the
         #   memcache to reduce query overhead
         for result in result_sets:
+
             revision_hash_placeholders.append(
                 [
                     result.get('author', 'unknown@somewhere.com'),
@@ -2429,17 +2432,39 @@ class JobsModel(TreeherderModelBase):
                 rev_where_in_list.append('%s')
                 revision_to_rhash_lookup[rev_datum['revision']] = result['revision_hash']
 
+        # NOTE: This introduces the possibility of a race condition
+        #       in the determination of the result_sets inserted if
+        #       more than one process is inserting result_sets
+        #       simultaneously.
+        before_max_id = dhub.execute(
+            proc='generic.selects.get_max_result_set_id',
+            debug_show=self.DEBUG,
+            return_type='iter'
+            ).get_column_data('max_id') or 0
+
         # Insert new result sets
-        self.get_jobs_dhub().execute(
+        dhub.execute(
             proc='jobs.inserts.set_result_set',
             placeholders=revision_hash_placeholders,
             executemany=True,
             debug_show=self.DEBUG
             )
 
+        after_max_id = dhub.execute(
+            proc='generic.selects.get_max_result_set_id',
+            debug_show=self.DEBUG,
+            return_type='iter'
+            ).get_column_data('max_id') or 0
+
+        inserted_result_set_ids = []
+        if after_max_id > before_max_id:
+            inserted_result_set_ids.extend(
+                list( range( before_max_id + 1, after_max_id + 1) )
+                )
+
         # Retrieve new result set ids
         where_in_clause = ','.join(where_in_list)
-        result_set_id_lookup = self.get_jobs_dhub().execute(
+        result_set_id_lookup = dhub.execute(
             proc='jobs.selects.get_result_set_ids',
             placeholders=unique_revision_hashes,
             replace=[where_in_clause],
@@ -2449,7 +2474,7 @@ class JobsModel(TreeherderModelBase):
             )
 
         # Insert new revisions
-        self.get_jobs_dhub().execute(
+        dhub.execute(
             proc='jobs.inserts.set_revision',
             placeholders=revision_placeholders,
             executemany=True,
@@ -2459,7 +2484,7 @@ class JobsModel(TreeherderModelBase):
         # Retrieve new revision ids
         rev_where_in_clause = ','.join(rev_where_in_list)
         select_proc = 'get_revision_ids'
-        revision_id_lookup = self.get_jobs_dhub().execute(
+        revision_id_lookup = dhub.execute(
             proc='jobs.selects.get_revisions',
             placeholders=all_revisions,
             replace=[rev_where_in_clause],
@@ -2484,16 +2509,20 @@ class JobsModel(TreeherderModelBase):
                 )
 
         # Insert new revision_map entries
-        self.get_jobs_dhub().execute(
+        dhub.execute(
             proc='jobs.inserts.set_revision_map',
             placeholders=revision_map_placeholders,
             executemany=True,
             debug_show=self.DEBUG
             )
 
+        self.submit_publish_to_pulse_tasks(
+            inserted_result_set_ids, 'resultsets')
+
         return {
             'result_set_ids':result_set_id_lookup,
-            'revision_ids':revision_id_lookup
+            'revision_ids':revision_id_lookup,
+            'inserted_result_set_ids':inserted_result_set_ids
             }
 
     def get_revision_timestamp(self, rev):
