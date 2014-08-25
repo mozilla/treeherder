@@ -168,9 +168,25 @@ treeherder.directive('thCloneJobs', [
 
     };
 
+    var clearSelectJobStyles = function(el) {
+        var lastJobSelected = ThResultSetModel.getSelectedJob(
+            $rootScope.repoName);
+
+        if (!_.isEmpty(lastJobSelected.el)) {
+            lastJobSelected.el.removeClass(selectedBtnCls);
+            lastJobSelected.el.removeClass(largeBtnCls);
+            lastJobSelected.el.addClass(btnCls);
+        }
+    };
+
     var clickJobCb = function(ev, el, job){
         setSelectJobStyles(el);
         $rootScope.$broadcast(thEvents.jobClick, job);
+    };
+
+    var clearJobCb = function(ev, el, job) {
+        clearSelectJobStyles(el);
+        $rootScope.$broadcast(thEvents.jobClear, job);
     };
 
     var togglePinJobCb = function(ev, el, job){
@@ -330,6 +346,12 @@ treeherder.directive('thCloneJobs', [
             }
 
             ThResultSetModel.setSelectedJob($rootScope.repoName, el, job);
+
+        } else {
+            // If user didn't select a job or anchor clear the selected job
+            if (el.prop("tagName") !== "A") {
+                _.bind(clearJobCb, this, ev, el, job)();
+            }
         }
     };
 

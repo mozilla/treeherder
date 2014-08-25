@@ -181,6 +181,9 @@ treeherder.provider('thEvents', function() {
             // fired (surprisingly) when a job is clicked
             jobClick: "job-click-EVT",
 
+            // fired on click outside a job element
+            jobClear: "job-clear-EVT",
+
             // fired when the job details are loaded
             jobDetailLoaded: "job-detail-loaded-EVT",
 
