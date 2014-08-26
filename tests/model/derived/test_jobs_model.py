@@ -66,18 +66,29 @@ def test_ingest_all_sample_jobs(jm, refdata, sample_data, initial_data, sample_r
     jm.disconnect()
     refdata.disconnect()
 
-def test_get_inserted_row_ids(jm, sample_resultset):
+def test_get_inserted_row_ids(jm, sample_resultset, test_repository):
 
-    data = jm.store_result_set_data(sample_resultset)
+    slice_limit = 8
+    sample_slice = sample_resultset[0:slice_limit]
+    new_id_set = set( range(1, len(sample_slice) + 1) )
 
-    max_id = jm.get_jobs_dhub().execute(
-        proc='generic.selects.get_max_result_set_id',
-        return_type='iter').get_column_data('max_id')
+    data = jm.store_result_set_data(sample_slice)
 
-    rs_ids_len = len(data['inserted_result_set_ids'])
+    # Confirm the range of ids matches for the sample_resultset slice
+    assert set(data['inserted_result_set_ids']) == new_id_set
 
-    assert data['inserted_result_set_ids'][ rs_ids_len - 1 ] == max_id
-    assert rs_ids_len == len(sample_resultset)
+    second_pass_data = jm.store_result_set_data(sample_slice)
+
+    # Confirm if we store the same data twice we don't identify new
+    # result set ids
+    assert second_pass_data['inserted_result_set_ids'] == []
+
+    third_pass_data = jm.store_result_set_data(sample_resultset)
+
+    # Confirm if we store a mix of new result sets and already stored
+    # result sets we store/identify the new ones
+    assert len(third_pass_data['inserted_result_set_ids']) == \
+        len(sample_resultset) - slice_limit
 
 def test_ingest_running_to_retry_sample_job(jm, refdata, sample_data, initial_data,
                                   mock_log_parser, sample_resultset):

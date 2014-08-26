@@ -104,10 +104,13 @@ def publish_to_pulse(project, ids, data_type):
 
     # Get appropriate data for data_type
     # using the ids provided
+    data = []
+    if data_type == 'result_set':
+        data = jm.get_result_set_list_by_ids(ids)
 
     jm.disconnect()
 
-    # publish the data to pulse
+    # TODO: publish the data to pulse
 
 
 

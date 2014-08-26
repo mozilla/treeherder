@@ -200,7 +200,13 @@ def sample_resultset(sample_data):
 @pytest.fixture
 def test_repository():
     from django.conf import settings
-    from treeherder.model.models import Repository
+    from treeherder.model.models import Repository, RepositoryGroup
+
+    RepositoryGroup.objects.create(
+        name = "development",
+        active_status = "active",
+        description = ""
+    )
 
     return Repository.objects.create(
         dvcs_type = "hg",

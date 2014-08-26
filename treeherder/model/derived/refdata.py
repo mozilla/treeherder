@@ -1185,7 +1185,6 @@ class RefDataManager(object):
 
     def get_repository_id(self, name):
         """get the id for the given repository"""
-
         id_iter = self.dhub.execute(
             proc='reference.selects.get_repository_id',
             placeholders=[name],

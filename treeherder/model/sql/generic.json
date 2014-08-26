@@ -22,13 +22,6 @@
             "host":"master_host"
         },
 
-        "get_max_result_set_id":{
-
-            "sql":"SELECT MAX(id) AS max_id FROM result_set",
-
-            "host":"master_host"
-        },
-
         "get_db_size":{
             "sql":"SELECT table_schema as db_name,
                 round(sum( data_length + index_length ) / 1024 / 1024, 2) as size_mb
