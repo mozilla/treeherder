@@ -42,7 +42,7 @@ def get_error_search_term(error_line):
     in a full_text search.
     """
     if not error_line:
-        return ""
+        return None
 
     # this is STRONGLY inspired to
     # https://hg.mozilla.org/webtools/tbpl/file/tip/php/inc/AnnotatedSummaryGenerator.php#l73
