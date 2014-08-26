@@ -96,7 +96,7 @@ def parse_log(project, job_log_url, job_guid, check_errors=False):
                         if crash_signature:
                             if not crash_signature in terms_requested:
                                 bugs = get_bugs_for_search_term(
-                                    search_term,
+                                    crash_signature,
                                     bugscache_uri
                                 )
                                 terms_requested[crash_signature] = bugs
