@@ -100,5 +100,7 @@ def test_bug_suggestions_artifact(jm, initial_data, jobs_with_local_log,
     all_errors = structured_log["step_data"]["all_errors"]
     bug_suggestions = json.loads(bug_suggestions_artifact["blob"])
 
-    # we must have one line per error in bug_suggestions
+    # we must have one bugs item per error in bug_suggestions.
+    # errors with no bug suggestions will just have an empty
+    # bugs list
     assert len(all_errors) == len(bug_suggestions)
