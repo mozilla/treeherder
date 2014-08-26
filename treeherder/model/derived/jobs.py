@@ -2486,6 +2486,8 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG
             )
 
+        lastrowid = dhub.connection['master_host']['cursor'].lastrowid
+
         # Retrieve new result set ids
         result_set_id_lookup = dhub.execute(
             proc='jobs.selects.get_result_set_ids',
@@ -2503,7 +2505,11 @@ class JobsModel(TreeherderModelBase):
             )
 
         inserted_result_set_ids = []
-        if inserted_result_sets:
+
+        # If cursor.lastrowid is > 0 rows were inserted on this
+        # cursor. When new rows are inserted, determine the new
+        # result_set ids and submit publish to pulse tasks.
+        if inserted_result_sets and lastrowid > 0:
 
             for revision_hash in inserted_result_sets:
                 inserted_result_set_ids.append(
@@ -2555,7 +2561,7 @@ class JobsModel(TreeherderModelBase):
 
         if len(inserted_result_set_ids) > 0:
             self.submit_publish_to_pulse_tasks(
-                inserted_result_set_ids, 'resultsets')
+                inserted_result_set_ids, 'result_set')
 
         return {
             'result_set_ids':result_set_id_lookup,
