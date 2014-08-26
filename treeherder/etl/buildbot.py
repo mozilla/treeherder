@@ -184,7 +184,7 @@ PLATFORMS_BUILDERNAME = [
         'attributes': {
             'os': 'android',
             'os_platform': 'android-4-0',
-            'arch': 'x86',
+            'arch': 'armv7',
         }
     },
     {
@@ -192,7 +192,7 @@ PLATFORMS_BUILDERNAME = [
         'attributes': {
             'os': 'android',
             'os_platform': 'android-2-3-armv6',
-            'arch': 'x86',
+            'arch': 'armv6',
         }
     },
     {
@@ -200,7 +200,7 @@ PLATFORMS_BUILDERNAME = [
         'attributes': {
             'os': 'android',
             'os_platform': 'android-2-3',
-            'arch': 'x86',
+            'arch': 'armv7',
         }
     },
     {
@@ -216,7 +216,7 @@ PLATFORMS_BUILDERNAME = [
         'attributes': {
             'os': 'android',
             'os_platform': 'android-2-2',
-            'arch': 'x86',
+            'arch': 'armv7',
         }
     },
 
@@ -227,7 +227,7 @@ PLATFORMS_BUILDERNAME = [
         'attributes': {
             'os': 'b2g',
             'os_platform': 'b2g-emu-kk',
-            'arch': 'x86',
+            'arch': 'armv7',
         }
     },
     {
@@ -235,7 +235,7 @@ PLATFORMS_BUILDERNAME = [
         'attributes': {
             'os': 'b2g',
             'os_platform': 'b2g-emu-jb',
-            'arch': 'x86',
+            'arch': 'armv7',
         }
     },
     {
@@ -243,7 +243,7 @@ PLATFORMS_BUILDERNAME = [
         'attributes': {
             'os': 'b2g',
             'os_platform': 'b2g-emu-ics',
-            'arch': 'x86',
+            'arch': 'armv7',
         }
     },
     {
@@ -251,7 +251,7 @@ PLATFORMS_BUILDERNAME = [
         'attributes': {
             'os': 'b2g',
             'os_platform': 'b2g-device-image',
-            'arch': 'x86',
+            'arch': 'armv7',
         }
     }
 ]

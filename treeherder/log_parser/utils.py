@@ -42,7 +42,7 @@ def get_error_search_term(error_line):
     in a full_text search.
     """
     if not error_line:
-        return ""
+        return None
 
     # this is STRONGLY inspired to
     # https://hg.mozilla.org/webtools/tbpl/file/tip/php/inc/AnnotatedSummaryGenerator.php#l73
@@ -68,13 +68,12 @@ def get_error_search_term(error_line):
 
     # If the failure line was not in the pipe symbol delimited format or the search term
     # will likely return too many (or irrelevant) results (eg: too short or matches terms
-    # on the blacklist), then we fall back to searching for the entire failure line.
-    if not (search_term and is_helpful_search_term(search_term)) \
-       and is_helpful_search_term(error_line):
+    # on the blacklist), then we fall back to searching for the entire failure line if
+    # it is suitable.
+    if not (search_term and is_helpful_search_term(search_term)):
+       search_term = error_line if is_helpful_search_term(error_line) else None
 
-        search_term = error_line
-
-    return search_term or error_line
+    return search_term
 
 
 def get_crash_signature(error_line):
