@@ -66,6 +66,29 @@ def test_ingest_all_sample_jobs(jm, refdata, sample_data, initial_data, sample_r
     jm.disconnect()
     refdata.disconnect()
 
+def test_get_inserted_row_ids(jm, sample_resultset, test_repository):
+
+    slice_limit = 8
+    sample_slice = sample_resultset[0:slice_limit]
+    new_id_set = set( range(1, len(sample_slice) + 1) )
+
+    data = jm.store_result_set_data(sample_slice)
+
+    # Confirm the range of ids matches for the sample_resultset slice
+    assert set(data['inserted_result_set_ids']) == new_id_set
+
+    second_pass_data = jm.store_result_set_data(sample_slice)
+
+    # Confirm if we store the same data twice we don't identify new
+    # result set ids
+    assert second_pass_data['inserted_result_set_ids'] == []
+
+    third_pass_data = jm.store_result_set_data(sample_resultset)
+
+    # Confirm if we store a mix of new result sets and already stored
+    # result sets we store/identify the new ones
+    assert len(third_pass_data['inserted_result_set_ids']) == \
+        len(sample_resultset) - slice_limit
 
 def test_ingest_running_to_retry_sample_job(jm, refdata, sample_data, initial_data,
                                   mock_log_parser, sample_resultset):

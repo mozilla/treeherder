@@ -333,8 +333,8 @@ class JobsModel(TreeherderModelBase):
         replace_str = ""
         if conditions:
             for column, condition in conditions.items():
-                if allowed_fields is None or column in allowed_fields.keys():
-                    if column in allowed_fields.keys():
+                if allowed_fields is None or column in allowed_fields:
+                    if column in allowed_fields:
                         # we need to get the db column string from the passed
                         # in querystring column.  It could be the same, but
                         # often it will have a table prefix for the column.
@@ -353,6 +353,7 @@ class JobsModel(TreeherderModelBase):
                         else:
                             replace_str += " %s "
                             placeholders.append(value)
+
         return replace_str, placeholders
 
     def set_state(self, job_id, state):
@@ -893,6 +894,30 @@ class JobsModel(TreeherderModelBase):
 
         return result_set_id_lookup
 
+    def get_result_set_list_by_ids(self, result_set_ids):
+
+        conditions = { 'id': set([( 'IN', tuple(result_set_ids) )]) }
+
+        replace_str, placeholders = self._process_conditions(
+            conditions, self.INDEXED_COLUMNS['result_set']
+        )
+
+        proc = "jobs.selects.get_result_set_list_by_ids"
+
+        result_set_ids = self.get_jobs_dhub().execute(
+            proc=proc,
+            replace=[replace_str],
+            placeholders=placeholders,
+            debug_show=self.DEBUG,
+        )
+
+        aggregate_details = self.get_result_set_details(result_set_ids)
+
+        return_list = self._merge_result_set_details(
+            result_set_ids, aggregate_details, True)
+
+        return return_list
+
     def get_result_set_list(
         self, offset_id, limit, full=True, conditions=None):
         """
@@ -921,6 +946,13 @@ class JobsModel(TreeherderModelBase):
         )
 
         aggregate_details = self.get_result_set_details(result_set_ids)
+
+        return_list = self._merge_result_set_details(
+            result_set_ids, aggregate_details, full)
+
+        return return_list
+
+    def _merge_result_set_details(self, result_set_ids, aggregate_details, full):
 
         # Construct the return dataset, include all revisions associated
         # with each result_set in the revisions attribute
@@ -2373,9 +2405,12 @@ class JobsModel(TreeherderModelBase):
         # revision_map structures
         revision_to_rhash_lookup = dict()
 
+        dhub = self.get_jobs_dhub()
+
         # TODO: Confirm whether we need to do a lookup in this loop in the
         #   memcache to reduce query overhead
         for result in result_sets:
+
             revision_hash_placeholders.append(
                 [
                     result.get('author', 'unknown@somewhere.com'),
@@ -2429,17 +2464,31 @@ class JobsModel(TreeherderModelBase):
                 rev_where_in_list.append('%s')
                 revision_to_rhash_lookup[rev_datum['revision']] = result['revision_hash']
 
+        # Retrieve a list of revision_hashes that have already been stored
+        # in the list of unique_revision_hashes. Use it to determine the new
+        # result_sets found to publish to pulse.
+        where_in_clause = ','.join(where_in_list)
+        result_set_ids_before = dhub.execute(
+            proc='jobs.selects.get_result_set_ids',
+            placeholders=unique_revision_hashes,
+            replace=[where_in_clause],
+            key_column='revision_hash',
+            return_type='set',
+            debug_show=self.DEBUG
+            )
+
         # Insert new result sets
-        self.get_jobs_dhub().execute(
+        dhub.execute(
             proc='jobs.inserts.set_result_set',
             placeholders=revision_hash_placeholders,
             executemany=True,
             debug_show=self.DEBUG
             )
 
-        # Retrieve new result set ids
-        where_in_clause = ','.join(where_in_list)
-        result_set_id_lookup = self.get_jobs_dhub().execute(
+        lastrowid = dhub.connection['master_host']['cursor'].lastrowid
+
+        # Retrieve new and already existing result set ids
+        result_set_id_lookup = dhub.execute(
             proc='jobs.selects.get_result_set_ids',
             placeholders=unique_revision_hashes,
             replace=[where_in_clause],
@@ -2448,18 +2497,36 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG
             )
 
-        # Insert new revisions
-        self.get_jobs_dhub().execute(
-            proc='jobs.inserts.set_revision',
-            placeholders=revision_placeholders,
-            executemany=True,
-            debug_show=self.DEBUG
+        # identify the newly inserted result sets
+        result_set_ids_after = set( result_set_id_lookup.keys() )
+        inserted_result_sets = result_set_ids_after.difference(
+            result_set_ids_before
             )
+
+        inserted_result_set_ids = []
+
+        # If cursor.lastrowid is > 0 rows were inserted on this
+        # cursor. When new rows are inserted, determine the new
+        # result_set ids and submit publish to pulse tasks.
+        if inserted_result_sets and lastrowid > 0:
+
+            for revision_hash in inserted_result_sets:
+                inserted_result_set_ids.append(
+                    result_set_id_lookup[revision_hash]['id']
+                    )
+
+            # Insert new revisions
+            dhub.execute(
+                proc='jobs.inserts.set_revision',
+                placeholders=revision_placeholders,
+                executemany=True,
+                debug_show=self.DEBUG
+                )
 
         # Retrieve new revision ids
         rev_where_in_clause = ','.join(rev_where_in_list)
         select_proc = 'get_revision_ids'
-        revision_id_lookup = self.get_jobs_dhub().execute(
+        revision_id_lookup = dhub.execute(
             proc='jobs.selects.get_revisions',
             placeholders=all_revisions,
             replace=[rev_where_in_clause],
@@ -2484,16 +2551,21 @@ class JobsModel(TreeherderModelBase):
                 )
 
         # Insert new revision_map entries
-        self.get_jobs_dhub().execute(
+        dhub.execute(
             proc='jobs.inserts.set_revision_map',
             placeholders=revision_map_placeholders,
             executemany=True,
             debug_show=self.DEBUG
             )
 
+        if len(inserted_result_set_ids) > 0:
+            self.submit_publish_to_pulse_tasks(
+                inserted_result_set_ids, 'result_set')
+
         return {
             'result_set_ids':result_set_id_lookup,
-            'revision_ids':revision_id_lookup
+            'revision_ids':revision_id_lookup,
+            'inserted_result_set_ids':inserted_result_set_ids
             }
 
     def get_revision_timestamp(self, rev):
