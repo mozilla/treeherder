@@ -68,11 +68,10 @@ def get_error_search_term(error_line):
 
     # If the failure line was not in the pipe symbol delimited format or the search term
     # will likely return too many (or irrelevant) results (eg: too short or matches terms
-    # on the blacklist), then we fall back to searching for the entire failure line.
-    if not (search_term and is_helpful_search_term(search_term)) \
-       and is_helpful_search_term(error_line):
-
-        search_term = error_line
+    # on the blacklist), then we fall back to searching for the entire failure line if
+    # it is suitable.
+    if not (search_term and is_helpful_search_term(search_term)):
+       search_term = error_line if is_helpful_search_term(error_line) else None
 
     return search_term
 
