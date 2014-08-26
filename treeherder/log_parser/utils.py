@@ -74,7 +74,7 @@ def get_error_search_term(error_line):
 
         search_term = error_line
 
-    return search_term or error_line
+    return search_term
 
 
 def get_crash_signature(error_line):
