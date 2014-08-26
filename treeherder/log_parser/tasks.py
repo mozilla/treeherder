@@ -74,19 +74,19 @@ def parse_log(project, job_log_url, job_guid, check_errors=False):
                     clean_line = get_mozharness_substring(err['line'])
                     # get a meaningful search term out of the error line
                     search_term = get_error_search_term(clean_line)
-                    # collect open recent and all other bugs suggestions
-                    if not search_term:
-                        continue
+                    bugs = None
 
-                    if not search_term in terms_requested:
-                        # retrieve the list of suggestions from the api
-                        bugs = get_bugs_for_search_term(
-                            search_term,
-                            bugscache_uri
-                        )
-                        terms_requested[search_term] = bugs
-                    else:
-                        bugs = terms_requested[search_term]
+                    # collect open recent and all other bugs suggestions
+                    if search_term:
+                        if not search_term in terms_requested:
+                            # retrieve the list of suggestions from the api
+                            bugs = get_bugs_for_search_term(
+                                search_term,
+                                bugscache_uri
+                            )
+                            terms_requested[search_term] = bugs
+                        else:
+                            bugs = terms_requested[search_term]
 
                     if not bugs or not (bugs['open_recent']
                                         or bugs['all_others']):
