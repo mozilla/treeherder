@@ -2464,10 +2464,9 @@ class JobsModel(TreeherderModelBase):
                 rev_where_in_list.append('%s')
                 revision_to_rhash_lookup[rev_datum['revision']] = result['revision_hash']
 
-        # NOTE: This introduces the possibility of a race condition
-        #       in the determination of the result_sets inserted if
-        #       more than one process is inserting result_sets
-        #       simultaneously.
+        # Retrieve a list of revision_hashes that have already been stored
+        # in the list of unique_revision_hashes. Use it to determine the new
+        # result_sets found to publish to pulse.
         where_in_clause = ','.join(where_in_list)
         result_set_ids_before = dhub.execute(
             proc='jobs.selects.get_result_set_ids',
@@ -2488,7 +2487,7 @@ class JobsModel(TreeherderModelBase):
 
         lastrowid = dhub.connection['master_host']['cursor'].lastrowid
 
-        # Retrieve new result set ids
+        # Retrieve new and already existing result set ids
         result_set_id_lookup = dhub.execute(
             proc='jobs.selects.get_result_set_ids',
             placeholders=unique_revision_hashes,
