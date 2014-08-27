@@ -1,3 +1,0 @@
-# requirements specific to the docs, used by readthedocs.org
-Sphinx>=1.2.2
-sphinxcontrib-httpdomain==1.1.7
