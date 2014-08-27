@@ -45,6 +45,11 @@ body {
     min-width: 970px;
 }
 
+th-watched-repo {
+    display: block;
+    float: left;
+}
+
 .watched-repo-main-btn {
     border-right: 0;
     padding-right: 5px;
