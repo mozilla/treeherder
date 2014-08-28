@@ -25,8 +25,8 @@ treeherder.directive('thCloneJobs', [
     var selectedBtnCls = 'selected-job';
     var largeBtnCls = 'btn-lg';
 
-    var col4Cls = 'col-xs-4';
-    var col8Cls = 'col-xs-8';
+    var col5Cls = 'col-xs-5';
+    var col7Cls = 'col-xs-7';
     var col12Cls = 'col-xs-12';
     var jobListNoPadCls = 'job-list-nopad';
     var jobListPadLeftCls = 'job-list-pad-left';
@@ -311,7 +311,6 @@ treeherder.directive('thCloneJobs', [
 
         var el = $(ev.target);
         var key = el.attr(jobKeyAttr);
-
         //Confirm user selected a job
         if(key && !_.isEmpty(this.job_map[key])){
 
@@ -354,7 +353,7 @@ treeherder.directive('thCloneJobs', [
         } else {
             // If user didn't select a job or anchor clear the selected job
             if (el.prop("tagName") !== "A") {
-                _.bind(clearJobCb, this, ev, el, job)();
+                _.bind(clearJobCb, this, ev, el)();
             }
         }
     };
@@ -495,26 +494,26 @@ treeherder.directive('thCloneJobs', [
 
     var toggleRevisionsSpanOnWithJobs = function(el){
         el.css('display', 'block');
-        el.addClass(col4Cls);
+        el.addClass(col5Cls);
     };
     var toggleRevisionsSpanOnWithoutJobs = function(el){
         el.css('display', 'block');
-        el.removeClass(col4Cls);
+        el.removeClass(col5Cls);
     };
     var toggleRevisionsSpanOff = function(el){
         el.css('display', 'none');
-        el.removeClass(col4Cls);
+        el.removeClass(col5Cls);
     };
     var toggleJobsSpanOnWithRevisions = function(el){
         el.css('display', 'block');
         el.removeClass(jobListNoPadCls);
         el.removeClass(col12Cls);
-        el.addClass(col8Cls);
+        el.addClass(col7Cls);
         el.addClass(jobListPadLeftCls);
     };
     var toggleJobsSpanOnWithoutRevisions = function(el){
         el.css('display', 'block');
-        el.removeClass(col8Cls);
+        el.removeClass(col7Cls);
         el.removeClass(jobListPadLeftCls);
         el.addClass(jobListNoPadCls);
         el.addClass(col12Cls);

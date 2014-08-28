@@ -1,7 +1,7 @@
 body {
     padding-top: 61px;
     /*padding-bottom: 500px;*/
-    min-width: 970px;
+    min-width: 768px;
     width: auto !important;
     width: 1300px;
     line-height: initial; /* override bootstrap */
@@ -17,11 +17,11 @@ body {
 }
 
 .th-navbar {
-    min-width: 970px;
+    min-width: 768px;
 }
 
 .navbar {
-    min-width: 970px;
+    min-width: 768px;
     min-height: 36px;
 }
 
@@ -39,7 +39,7 @@ body {
 
 .th-global-navbar {
     border-bottom: 1px solid black;
-    min-width: 970px;
+    min-width: 768px;
 }
 
 th-watched-repo {
@@ -84,7 +84,7 @@ th-watched-repo {
 
 .th-context-navbar {
     background-color: #354048;
-    min-width: 970px;
+    min-width: 768px;
     overflow: visible;
 }
 
@@ -111,7 +111,7 @@ th-watched-repo {
 .th-content {
     display: inline-block;
     overflow: hidden;
-    min-width: 970px;
+    min-width: 768px;
     width: 100%;
     margin-bottom: 301px;
     white-space: nowrap;
