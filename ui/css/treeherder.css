@@ -4,6 +4,7 @@ body {
     min-width: 970px;
     width: auto !important;
     width: 1300px;
+    line-height: initial; /* override bootstrap */
 }
 
 .pagination, .carousel, .panel-title a {
@@ -550,7 +551,7 @@ ul.failure-summary-list li .btn-xs{
 }
 
 .failure-summary-line {
-    padding: 7px 0px 3px;
+    padding: 2px 2px 0px;
     color: #444444;
 }
 
