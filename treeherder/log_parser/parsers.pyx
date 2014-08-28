@@ -283,7 +283,7 @@ IN_SEARCH_TERMS = (
     "Assertion failure:",
     "Assertion failed:",
     "###!!! ABORT:",
-    "E\/GeckoLinker",
+    "E/GeckoLinker",
     "SUMMARY: AddressSanitizer",
     "SUMMARY: LeakSanitizer",
     "Automation Error:",
