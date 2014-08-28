@@ -306,9 +306,9 @@ RE_ERR_MATCH = re.compile((
 ))
 
 RE_ERR_SEARCH = re.compile((
-    " error\([0-9]*\):"
-    "|:[0-9]+: error:"
-    "| error R?C[0-9]*:"
+    " error\(\d*\):"
+    "|:\d+: error:"
+    "| error R?C\d*:"
     "|ERROR [45]\d\d:"
     "|mozmake\.exe(?:\[\d+\])?: \*\*\*"
 ))
@@ -316,14 +316,14 @@ RE_ERR_SEARCH = re.compile((
 RE_EXCLUDE_1_SEARCH = re.compile("TEST-(?:INFO|PASS) ")
 
 RE_EXCLUDE_2_SEARCH = re.compile(
-    "I[ \/](Gecko|Robocop|TestRunner).*TEST-UNEXPECTED-"
+    "I[ /](Gecko|Robocop|TestRunner).*TEST-UNEXPECTED-"
     "|^TimeoutException: "
     "^ImportError: No module named pygtk$"
     )
 
-RE_ERR_1_MATCH = re.compile("^\d+:\d+:\d+[ ]+(?:ERROR|CRITICAL|FATAL) - ")
+RE_ERR_1_MATCH = re.compile("^\d+:\d+:\d+ +(?:ERROR|CRITICAL|FATAL) - ")
 
-RE_MOZHARNESS_PREFIX = re.compile("^\d+:\d+:\d+[ ]+(?:DEBUG|INFO|WARNING) -[ ]+")
+RE_MOZHARNESS_PREFIX = re.compile("^\d+:\d+:\d+ +(?:DEBUG|INFO|WARNING) - +")
 
 
 class ErrorParser(ParserBase):
