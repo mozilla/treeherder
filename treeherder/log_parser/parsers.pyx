@@ -214,16 +214,16 @@ TINDERBOX_REGEXP_TUPLE = (
         'base_dict': {
             "content_type": "link"
         },
-        'duplicates_fields': { 'value': 'url'}
+        'duplicates_fields': {'value': 'url'}
     }
 )
+
 
 class TinderboxPrintParser(ParserBase):
 
     def __init__(self):
         """Setup the artifact to hold the job details."""
         super(TinderboxPrintParser, self).__init__("job_details")
-
 
     def parse_line(self, line, lineno):
         """Parse a single line of the log"""
@@ -246,12 +246,11 @@ class TinderboxPrintParser(ParserBase):
                 return
 
             for regexp_item in TINDERBOX_REGEXP_TUPLE:
-                match =  regexp_item['re'].match(line)
+                match = regexp_item['re'].match(line)
                 if match:
                     artifact = match.groupdict()
                     # handle duplicate fields
-                    for to_field, from_field in \
-                        regexp_item['duplicates_fields'].items():
+                    for to_field, from_field in regexp_item['duplicates_fields'].items():
                         # if to_field not present or None copy form from_field
                         if to_field not in artifact or artifact[to_field] is None:
                             artifact[to_field] = artifact[from_field]
@@ -261,7 +260,7 @@ class TinderboxPrintParser(ParserBase):
 
             # default case: consider it html content
             # try to detect title/value splitting on <br/>
-            artifact = {"content_type": "raw_html",}
+            artifact = {"content_type": "raw_html", }
             if "<br/>" in line:
                 title, value = line.split("<br/>", 1)
                 artifact["title"] = title
@@ -272,9 +271,9 @@ class TinderboxPrintParser(ParserBase):
 
 
 RE_INFO = re.compile((
-        "^\d+:\d+:\d+[ ]+(?:INFO)(?: -  )"
-        "(TEST-|INFO TEST-)(INFO|PASS|START|END) "
-    ))
+    "^\d+:\d+:\d+[ ]+(?:INFO)(?: -  )"
+    "(TEST-|INFO TEST-)(INFO|PASS|START|END) "
+))
 
 
 IN_SEARCH_TERMS = (
@@ -325,6 +324,7 @@ RE_ERR_1_MATCH = re.compile("^\d+:\d+:\d+[ ]+(?:ERROR|CRITICAL|FATAL) - ")
 
 RE_MOZHARNESS_PREFIX = re.compile("^\d+:\d+:\d+[ ]+(?:DEBUG|INFO|WARNING) -[ ]+")
 
+
 class ErrorParser(ParserBase):
     """A generic error detection sub-parser"""
 
@@ -347,7 +347,7 @@ class ErrorParser(ParserBase):
             self.add(line, lineno)
             return
 
-        #remove mozharness prefixes prior to matching
+        # Remove mozharness prefixes prior to matching
         trimline = re.sub(RE_MOZHARNESS_PREFIX, "", line)
 
         if RE_EXCLUDE_2_SEARCH.search(trimline):
@@ -358,6 +358,7 @@ class ErrorParser(ParserBase):
             self.add(line, lineno)
 
 RE_TALOSDATA = re.compile('.*?TALOSDATA: (\[.*\])$')
+
 
 class TalosParser(ParserBase):
     """a sub-parser to find TALOSDATA"""
@@ -372,5 +373,5 @@ class TalosParser(ParserBase):
         if "TALOSDATA: " in line and match:
             try:
                 self.artifact = json.loads(match.group(1))
-            except ValueError, e:
+            except ValueError:
                 self.artifact.append(match.group(1))
