@@ -13,6 +13,7 @@ def is_helpful_search_term(search_term):
         'automation.py',
         'remoteautomation.py',
         'Shutdown',
+        'undefined',
         'Main app process exited normally',
         'Traceback (most recent call last):',
         'Return code: 0',

@@ -279,6 +279,7 @@ RE_INFO = re.compile((
 IN_SEARCH_TERMS = (
     "TEST-UNEXPECTED-",
     "fatal error",
+    "FATAL ERROR",
     "PROCESS-CRASH",
     "Assertion failure:",
     "Assertion failed:",
@@ -309,6 +310,7 @@ RE_ERR_SEARCH = re.compile((
     "|:[0-9]+: error:"
     "| error R?C[0-9]*:"
     "|ERROR [45]\d\d:"
+    "|mozmake\.exe(?:\[\d+\])?: \*\*\*"
 ))
 
 RE_EXCLUDE_1_SEARCH = re.compile("TEST-(?:INFO|PASS) ")
@@ -316,6 +318,7 @@ RE_EXCLUDE_1_SEARCH = re.compile("TEST-(?:INFO|PASS) ")
 RE_EXCLUDE_2_SEARCH = re.compile(
     "I[ \/](Gecko|Robocop|TestRunner).*TEST-UNEXPECTED-"
     "|^TimeoutException: "
+    "^ImportError: No module named pygtk$"
     )
 
 RE_ERR_1_MATCH = re.compile("^\d+:\d+:\d+[ ]+(?:ERROR|CRITICAL|FATAL) - ")
