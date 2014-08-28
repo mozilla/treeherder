@@ -15,10 +15,6 @@ body {
     visibility: hidden;
 }
 
-.full-height {
-    height: 100%;
-}
-
 .th-navbar {
     min-width: 970px;
 }
@@ -393,6 +389,10 @@ div#bottom-panel {
     right: 0px;
     font-size: 12px;
 
+    display: -webkit-flex;
+    display:         flex;
+    -webkit-flex-flow: column;
+    flex-flow: column;
 }
 
 div#bottom-panel .navbar{
@@ -404,6 +404,7 @@ div#bottom-panel .navbar{
     margin:0;
     font-size:12px;
     min-height: 33px;
+    min-width: initial;
 
 }
 
@@ -422,7 +423,6 @@ div#bottom-panel .navbar-nav > li > a.disabled {
 }
 
 div#bottom-panel ul.bottom-panel-controls{
-    width:401px;
     border-right: 1px solid #42484F;
 }
 
@@ -467,16 +467,25 @@ div#bottom-panel .navbar-nav.pull-right li a:focus{
     line-height: 8px;
 }
 
-#bottom-left-panel, #bottom-center-panel{
-    height: calc(100% - 33px);
-    overflow-y: auto;
-    position: relative;
-    background-color: #FCFCFC;
+#bottom-panel-content {
+   display: -webkit-flex;
+   display:         flex;
+   -webkit-flex-flow: row;
+           flex-flow: row;
+    height: 100%;
 }
 
-div#bottom-panel.with-pinboard #bottom-left-panel,
-div#bottom-panel.with-pinboard #bottom-center-panel{
-    height: calc(100% - 120px);
+#bottom-left-panel, #bottom-center-panel{
+    overflow-y: auto;
+    background-color: #FCFCFC;
+    display: -webkit-flex;
+    display:         flex;
+    -webkit-flex-flow: column;
+    flex-flow: column;
+}
+
+#bottom-left-top, #bottom-center-top {
+    min-height: 33px;
 }
 
 .pinned-job-count {
@@ -484,12 +493,11 @@ div#bottom-panel.with-pinboard #bottom-center-panel{
 }
 
 #bottom-left-panel {
-    width:400px;
-    float:left;
+    width:260px;
     overflow-y: auto;
 }
 
-#bottom-left-panel > ul{
+#bottom-left-bottom > ul{
     margin: 0px;
     padding: 0px;
     line-height:12px;
@@ -513,10 +521,14 @@ div#bottom-panel.with-pinboard #bottom-center-panel{
 
 #bottom-left-panel .printlines{padding-bottom: 5px;}
 
+#bottom-left-bottom { overflow: auto; }
+
 #bottom-center-panel {
-    margin-left: 401px;
+    -webkit-flex: 1 6;
+    flex: 1 6;
     background-color: #FCFCFC;
     padding:0px;
+    min-width: 500px;
 }
 
 #bottom-panel nav.navbar.navbar-sub{
@@ -1397,17 +1409,24 @@ fieldset[disabled] .btn-repo.active {
 
 .plugin_controls{ margin: 5px;}
 
-div.similar_jobs .right_panel{position:absolute; top:0px; right:0px; width:300px; border: 1px solid #101010;}
+.similar_jobs {
+   display: -webkit-flex;
+   display:         flex;
+   -webkit-flex-flow: row;
+           flex-flow: row;
+}
+
+div.similar_jobs .right_panel{ min-width:300px; border: 1px solid #101010; }
 div.similar_jobs .right_panel form{height:42px; background-color: #D3D3D3;}
-div.similar_jobs .right_panel .similar_job_detail{width:300px; border-top: 1px solid #101010; }
+div.similar_jobs .right_panel .similar_job_detail{ min-width:300px; border-top: 1px solid #101010; }
 div.similar_jobs .right_panel .similar_job_detail table{ width: inherit;}
 div.similar_jobs .right_panel .similar_job_detail ul.error_list li{
-    width: 296px;
+    min-width: 296px;
     overflow-x: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
 }
-div.similar_jobs .left_panel{margin-right:300px; margin-bottom: 15px;}
+div.similar_jobs .left_panel{ margin-bottom: 15px;}
 div.similar_jobs .left_panel table{ margin-bottom: 5px;}
 div.similar_jobs .left_panel table tr.active>td{background-color: #D3D3D3;}
 div.similar_jobs .left_panel table tr{cursor: pointer;}

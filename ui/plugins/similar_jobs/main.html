@@ -1,4 +1,41 @@
 <div class="similar_jobs" ng-controller="SimilarJobsPluginCtrl">
+            <div class="left_panel">
+                <table class="table table-super-condensed table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>Job</th><th>Push timestamp</th><th>Author</th><th>Revision</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-click="show_job_info(similar_job)"
+                            ng-class="{'active': similar_job_selected.id===similar_job.id}"
+                            ng-repeat="similar_job in similar_jobs">
+                            <td>
+                                <button
+                                        class="btn btn-similar-jobs btn-xs"
+                                        ng-class="button_class(similar_job)">
+                                    {{ similar_job.job_type_symbol }}
+                                    <span ng-if="similar_job.failure_classification_id>1">
+                                        *
+                                    </span>
+                                </button>
+                            </td>
+                            <td>{{ similar_job.push_timestamp*1000|date:'medium' }}</td>
+                            <td>
+                                <a href="{{ similar_job.authorResultsetFilterUrl }}">
+                                    {{ similar_job.result_set.author }}
+                                </a>
+                            </td>
+                            <td>
+                                <a href="{{ similar_job.revisionResultsetFilterUrl }}">
+                                    {{ similar_job.result_set.revisions[0].revision }}
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <a ng-if="has_next_page" href="" ng-click="show_next()">Show previous jobs</a>
+            </div>
             <div class="right_panel">
                 <form role="form" class="form form-inline">
                     <div class="checkbox">
@@ -81,44 +118,6 @@
                     </table>
                 </div>
             </div>
-            <div class="left_panel">
-                <table class="table table-super-condensed table-bordered table-hover">
-                    <thead>
-                        <tr>
-                            <th>Job</th><th>Push timestamp</th><th>Author</th><th>Revision</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-click="show_job_info(similar_job)"
-                            ng-class="{'active': similar_job_selected.id===similar_job.id}"
-                            ng-repeat="similar_job in similar_jobs">
-                            <td>
-                                <button
-                                        class="btn btn-similar-jobs btn-xs"
-                                        ng-class="button_class(similar_job)">
-                                    {{ similar_job.job_type_symbol }}
-                                    <span ng-if="similar_job.failure_classification_id>1">
-                                        *
-                                    </span>
-                                </button>
-                            </td>
-                            <td>{{ similar_job.push_timestamp*1000|date:'medium' }}</td>
-                            <td>
-                                <a href="{{ similar_job.authorResultsetFilterUrl }}">
-                                    {{ similar_job.result_set.author }}
-                                </a>
-                            </td>
-                            <td>
-                                <a href="{{ similar_job.revisionResultsetFilterUrl }}">
-                                    {{ similar_job.result_set.revisions[0].revision }}
-                                </a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <a ng-if="has_next_page" href="" ng-click="show_next()">Show previous jobs</a>
-            </div>
-
     <div ng-if="tabs.similar_jobs.is_loading" class="overlay">
         <div>
             <span class="fa fa-refresh fa-spin"></span>
