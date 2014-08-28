@@ -8,6 +8,7 @@
 
         <!-- build:css css/index.min.css -->
         <link href="css/bootstrap.css" rel="stylesheet" media="screen">
+        <link href="css/bootstrap-non-responsive.css" rel="stylesheet" media="screen">
         <link href="css/font-awesome.min.css" rel="stylesheet" media="screen">
         <link href="css/treeherder.css" rel="stylesheet" media="screen">
         <link href="css/persona-buttons.css" rel="stylesheet" media="screen">
@@ -31,12 +32,9 @@
         <div ng-controller="PluginCtrl"
              id="bottom-panel"
              ng-show="selectedJob"
-             ng-class="{'with-pinboard':isPinboardVisible}">
+             ng-class="{'with-pinboard':isPinboardVisible}"
+             ng-include src="'plugins/pluginpanel.html'">
             <resizable-panel position="top"></resizable-panel>
-
-            <div class="full-height"
-                 ng-include src="'plugins/pluginpanel.html'">
-            </div>
         </div>
 
         <th-notification-box></th-notification-box>
