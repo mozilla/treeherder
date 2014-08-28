@@ -74,7 +74,7 @@ def parse_log(project, job_log_url, job_guid, check_errors=False):
                     clean_line = get_mozharness_substring(err['line'])
                     # get a meaningful search term out of the error line
                     search_term = get_error_search_term(clean_line)
-                    bugs = None
+                    bugs = dict(open_recent=[], all_others=[])
 
                     # collect open recent and all other bugs suggestions
                     if search_term:
