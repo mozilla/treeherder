@@ -278,16 +278,19 @@ treeherder.controller('SearchCtrl', [
     '$scope', '$rootScope', 'thEvents', '$location',
     function SearchCtrl($scope, $rootScope, thEvents, $location){
 
-        $rootScope.searchQuery = "";
-
         $scope.search = function(ev){
+
+            if($scope.searchQueryStr === ""){
+               $rootScope.searchQuery = [];
+               $rootScope.searchQueryStr = "";
+            }
+
             //User hit enter
             if( (ev.keyCode === 13) ||
-                ($scope.searchQuery === "") ){
+                ($scope.searchQuery.length === 0) ){
 
-                $rootScope.searchQuery = $scope.searchQuery;
-
-                var queryString = $rootScope.searchQuery? $rootScope.searchQuery: null;
+                var queryString = $scope.searchQueryStr.replace(/ +(?= )/g, ' ').toLowerCase();
+                $rootScope.searchQuery = queryString.split(' ');
 
                 $rootScope.skipNextSearchChangeReload = true;
                 $location.search("searchQuery", queryString);

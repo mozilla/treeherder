@@ -311,11 +311,21 @@ treeherder.factory('thJobFilters', [
                 return false;
             }
         }
-        if(typeof $rootScope.searchQuery === 'string'){
-            //Confirm job matches search query
-            if(job.searchableStr.toLowerCase().indexOf(
-                $rootScope.searchQuery.toLowerCase()
-                ) === -1){
+
+        var matchTargetCount = $rootScope.searchQuery.length;
+
+        if( matchTargetCount > 0 ){
+
+            var searchableStrLc = job.searchableStr.toLowerCase();
+            var matches = 0;
+            var j = 0;
+
+            for(; j<matchTargetCount; j++){
+                if(searchableStrLc.indexOf($rootScope.searchQuery[j]) != -1){
+                    matches++;
+                }
+            }
+            if(matches != matchTargetCount){
                 return false;
             }
         }
@@ -542,8 +552,14 @@ treeherder.factory('thJobFilters', [
         var search = _.clone($location.search());
         $log.debug("query string params", $location.search());
 
+        if($rootScope.searchQuery === undefined){
+            $rootScope.searchQuery = [];
+            $rootScope.searchQueryStr = "";
+        }
+
         _.each(search, function (filterVal, filterKey) {
             $log.debug("field filter", filterKey, filterVal);
+
             if (filterKey.slice(0, urlFilterPrefixLen) === urlFilterPrefix) {
                 $log.debug("adding field filter", filterKey, filterVal);
                 addFilter(filterKey.slice(urlFilterPrefixLen), filterVal, true);
@@ -561,7 +577,9 @@ treeherder.factory('thJobFilters', [
             } else if (filterKey === "searchQuery") {
                 filterVal = _.isArray(filterVal)? filterVal[0]: filterVal;
                 $log.debug("searchQuery added", filterVal);
-                $rootScope.searchQuery = filterVal;
+
+                $rootScope.searchQuery = filterVal.replace(/ +(?= )/g, ' ').toLowerCase().split(' ');
+                $rootScope.searchQueryStr = filterVal;
             }
         });
         $log.debug("done with loadFiltersFromQueryString", filters);
@@ -586,6 +604,7 @@ treeherder.factory('thJobFilters', [
     };
 
     var buildQueryStringFromFilters = function() {
+
         var newSearchValues = removeFiltersFromQueryString(
             _.clone($location.search()));
 
@@ -612,7 +631,7 @@ treeherder.factory('thJobFilters', [
             }
         });
 
-        if ($rootScope.searchQuery && typeof $rootScope.searchQuery === 'string'){
+        if ($rootScope.searchQuery.length > 0){
             newSearchValues.searchQuery = $rootScope.searchQuery;
         }
 
