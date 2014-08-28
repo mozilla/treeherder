@@ -38,8 +38,16 @@ treeherder.filter('linkifyBugs', function() {
         var re = new RegExp('(?:Bug (\\d+))', 'ig');
         var str = input || '';
         return str.replace(re,
-            '<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=$1" target="_blank">Bug $1</a>'
+            '<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=$1" target="_blank" title="Bug $1">$1</a>'
         );
+    };
+});
+
+treeherder.filter('initials', function() {
+    return function(input) {
+        var str = input || '';
+        var initials = str.replace(/[^A-Z]/g, '');
+        return '<span class="label label-initials">' + initials + '</span>';
     };
 });
 

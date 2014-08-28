@@ -115,20 +115,13 @@
 <script type="'text/ng-template'" id="revisionsClone.html">
 
     <li>
-        <span class="revision">
-            <a href="{{urlBasePath}}?repo={{currentRepo.name}}&revision={{revision}}"
-               target="_blank"
-               title="open resultsets that contain revision {{revision}}"
-               >{{revision}}</a>
+        <span class="revision patchTitle">
             <a href="{{currentRepo.url}}/rev/{{revision}}"
                target="_blank"
-               class="btn btn-default btn-xs"
                title="open revision {{revision}} on {{currentRepo.url}}"
-               >
-                <i class="fa fa-external-link-square"></i>
-            </a>
-            <span title="{{name}}: {{email}}">{{name}}</span>
-            <span title="{{comments}}"><em>"{{comments_bug_link}}"</em></span>
+               >{{revision}}</a>
+            <span title="{{name}}: {{email}}">{{name|initials}}</span>
+            <span title="{{comments}}"><em>{{comments_bug_link}}</em></span>
         </span>
     </li>
 

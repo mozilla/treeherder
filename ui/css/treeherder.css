@@ -1377,6 +1377,12 @@ fieldset[disabled] .btn-repo.active {
   color: white;
 }
 
+.label-initials {
+  border: 1px solid #999999;
+  background-color: white;
+  color: #999999;
+}
+
 .white, .white a {
     color: white;
 }
