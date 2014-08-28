@@ -476,7 +476,7 @@ class RefDataManager(object):
         if machine_name not in self.machine_name_lookup:
 
             machine_name = machine_name or 'unknown'
-            timestame = timestamp or time.time()
+            timestamp = timestamp or time.time()
 
             machine_name = machine_name[0:50]
 
