@@ -30,9 +30,10 @@ treeherder.controller('MainCtrl', [
         };
         $scope.processKeyboardInput = function(ev){
 
-            //Only listen to key commands when the body has focus. Otherwise
-            //html input elements won't work correctly.
-            if( (document.activeElement.nodeName !== 'BODY') ||
+            // If we are putting stuff into a form element or the user
+            // is pressing shift (FIXME: explain?), then disable keyboard
+            // events
+            if( (document.activeElement.nodeName === 'INPUT') ||
                 (ev.keyCode === 16) ){
                 return;
             }
