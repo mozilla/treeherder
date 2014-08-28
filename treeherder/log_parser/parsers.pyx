@@ -286,12 +286,8 @@ IN_SEARCH_TERMS = (
     "E\/GeckoLinker",
     "SUMMARY: AddressSanitizer",
     "SUMMARY: LeakSanitizer",
-    " error\([0-9]*\):",
-    ":[0-9]+: error:",
-    " error R?C[0-9]*:",
     "Automation Error:",
     "command timed out:",
-    "ERROR [45]\d\d:"
     "wget: unable ",
 )
 
@@ -310,7 +306,9 @@ RE_ERR_MATCH = re.compile((
 
 RE_ERR_SEARCH = re.compile((
     " error\([0-9]*\):"
+    "|:[0-9]+: error:"
     "| error R?C[0-9]*:"
+    "|ERROR [45]\d\d:"
 ))
 
 RE_EXCLUDE_1_SEARCH = re.compile("TEST-(?:INFO|PASS) ")
