@@ -1,10 +1,7 @@
 body {
     padding-top: 61px;
-    /*padding-bottom: 500px;*/
     min-width: 768px;
-    width: auto !important;
-    width: 1300px;
-    line-height: initial; /* override bootstrap */
+    line-height: inherit; /* override bootstrap */
 }
 
 .pagination, .carousel, .panel-title a {
@@ -106,6 +103,8 @@ th-watched-repo {
 
 #platform-job-text-search-field {
     height:28px;
+    width: inherit;
+    display: inherit;
 }
 
 .th-content {
