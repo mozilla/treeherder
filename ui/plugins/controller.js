@@ -29,8 +29,6 @@ treeherder.controller('PluginCtrl', [
 
                 $scope.visibleFields = {
                     "Job name": $scope.job.job_type_name,
-                    "Start time": "",
-                    "Duration":  "",
                     "Machine ": "",
                     "Build": ""
                 };
@@ -81,17 +79,11 @@ treeherder.controller('PluginCtrl', [
         };
 
         var updateVisibleFields = function() {
-                var undef = "";
+                var undef = "",
+                    duration = "";
                 // fields that will show in the job detail panel
-                var duration = ($scope.job.end_timestamp-$scope.job.start_timestamp)/60;
-                if (duration) {
-                    duration = numberFilter(duration, 0) + " minute(s)";
-                }
-
                 $scope.visibleFields = {
                     "Job name": $scope.job.job_type_name || undef,
-                    "Start time": dateFilter($scope.job.start_timestamp*1000, 'short') || undef,
-                    "Duration":  duration || undef,
                     "Machine ": $scope.job.machine_platform_architecture + " " +
                                 $scope.job.machine_platform_os || undef,
                     "Build": $scope.job.build_architecture + " " +
@@ -101,6 +93,34 @@ treeherder.controller('PluginCtrl', [
                 if (_.has($scope.artifacts, "buildapi")) {
                     $scope.visibleFields["Buildbot job name"] = $scope.artifacts.buildapi.blob.buildername;
                 }
+
+                // time fields to show in detail panel, but that should be grouped together
+                $scope.visibleTimeFields = {
+                    requestTime: dateFilter($scope.job.submit_timestamp*1000, 'short')
+                };
+
+                /*
+                    display appropriate times and duration
+
+                    If start time is 0, then duration should be from requesttime to now
+                    If we have starttime and no endtime, then duration should be starttime to now
+                    If we have both starttime and endtime, then duration will be between those two
+                */
+                var endtime = $scope.job.end_timestamp || Date.now()/1000;
+                var starttime = $scope.job.start_timestamp || $scope.job.submit_timestamp;
+                duration = numberFilter((endtime-starttime)/60, 0) + " minute(s)";
+
+                $scope.visibleTimeFields.duration = duration;
+
+                if ($scope.job.start_timestamp) {
+                    $scope.visibleTimeFields.startTime = dateFilter(
+                        $scope.job.start_timestamp*1000, 'short');
+                }
+                if ($scope.job.end_timestamp) {
+                    $scope.visibleTimeFields.endTime = dateFilter(
+                        $scope.job.end_timestamp*1000, 'short');
+                }
+
         };
 
         $scope.getCountPinnedJobs = function() {

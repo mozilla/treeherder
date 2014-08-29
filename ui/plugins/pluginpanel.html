@@ -107,6 +107,18 @@
           <label>{{label}}:</label>
           <span title="{{value}}">{{value}}</span>
         </li>
+        <li class="small">
+          <label>Request Time:</label><span> {{visibleTimeFields.requestTime}}</span>
+        </li>
+        <li class="small" ng-show="visibleTimeFields.startTime">
+          <label>Start Time:</label><span> {{visibleTimeFields.startTime}}</span>
+        </li>
+        <li class="small" ng-show="visibleTimeFields.endTime">
+          <label>End Time:</label><span> {{visibleTimeFields.endTime}}</span>
+        </li>
+        <li class="small">
+          <label>Duration:</label><span> {{visibleTimeFields.duration}}</span>
+        </li>
         <li class="small" ng-repeat="job_log_url in job_log_urls">
           <label>Log parsing status:</label>
           <span>{{ job_log_url.parse_status }}</span>

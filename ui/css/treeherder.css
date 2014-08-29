@@ -359,11 +359,11 @@ th-watched-repo {
 
 .job-group {
     margin: 0 -3px 0 3px;
-    vertical-align: bottom;
 }
 
 .job-btn {
   padding: 0 2px 0 2px;
+  vertical-align: 0;
 }
 
 .table-super-condensed thead > tr > th,
