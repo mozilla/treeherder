@@ -10,14 +10,11 @@ treeherder.controller('BugsPluginCtrl', [
         $log.debug("bugs plugin initialized");
 
         var timeout_promise = null;
-        var failure_results = ["busted", "exception", "testfailed"];
         var bug_limit = 20;
 
         var update_bugs = function(newValue, oldValue) {
             $scope.suggestions = [];
-            // retrieve bug suggestions only if the job has failures
-            if(angular.isDefined(newValue) &&
-                    failure_results.indexOf($scope.job.result) !== -1){
+            if(angular.isDefined(newValue)){
                 $scope.tabs.failure_summary.is_loading = true;
                 // if there's a ongoing request, abort it
                 if (timeout_promise !== null) {
