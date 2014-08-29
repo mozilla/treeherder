@@ -30,11 +30,13 @@ treeherder.controller('MainCtrl', [
         };
         $scope.processKeyboardInput = function(ev){
 
-            // If we are putting stuff into a form element or the user
-            // is pressing shift (FIXME: explain?), then disable keyboard
-            // events
-            if( (document.activeElement.nodeName === 'INPUT') ||
-                (ev.keyCode === 16) ){
+            // If the user is in an editable element or the user is pressing
+            // shift, then disable keyboard events
+            var activeElement = document.activeElement;
+            if (activeElement.tagName === 'INPUT' ||
+                activeElement.tagName === 'SELECT' ||
+                activeElement.tagName === 'TEXTAREA' ||
+                activeElement.isContentEditable || ev.keyCode === 16) {
                 return;
             }
 
