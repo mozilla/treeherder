@@ -805,6 +805,8 @@ treeherder.directive('thCloneJobs', [
 
         var resultsets = ThResultSetModel.getResultSetsArray($rootScope.repoName);
 
+        var firstJob = null;
+        var foundJob = false;
         var startWatch = false;
         if(_.isEmpty(currentJob)){
             startWatch = true;
@@ -833,22 +835,28 @@ treeherder.directive('thCloneJobs', [
                             continue;
                         }
 
-                        if(startWatch){
+                        if(startWatch || !firstJob){
                             if( (jobs[j].visible === true) &&
                                 (classificationRequired[jobs[j].result] === 1) &&
                                 ( (parseInt(jobs[j].failure_classification_id, 10) === 1) ||
                                   (jobs[j].failure_classification_id === null)  )){
-
-                                selectJob(jobs[j]);
-
-                                //Next test failure found
-                                break superloop;
-
+                                if (startWatch) {
+                                    foundJob = true;
+                                    selectJob(jobs[j]);
+                                    return;
+                                } else {
+                                    firstJob = jobs[j];
+                                }
                             }
                         }
                     }
                 }
             }
+        }
+
+        if (!foundJob && firstJob) {
+          // we were at the last job, start again from the beginning
+          selectJob(firstJob);
         }
     };
 
@@ -856,6 +864,8 @@ treeherder.directive('thCloneJobs', [
 
         var resultsets = ThResultSetModel.getResultSetsArray($rootScope.repoName);
 
+        var foundJob = false;
+        var lastJob = null;
         var startWatch = false;
         if(_.isEmpty(currentJob)){
             startWatch = true;
@@ -877,28 +887,33 @@ treeherder.directive('thCloneJobs', [
                     jobs = groups[g].jobs;
                     var j;
                     for(j = jobs.length - 1; j >= 0; j--){
-
                         if(currentJob.id === jobs[j].id){
 
                             //This is the current selection, get the next
                             startWatch = true;
                             continue;
                         }
-                        if(startWatch){
+                        if(startWatch || !lastJob){
                             if( (jobs[j].visible === true) &&
                                 (classificationRequired[jobs[j].result] === 1) &&
                                 ( (parseInt(jobs[j].failure_classification_id, 10) === 1) ||
                                   (jobs[j].failure_classification_id === null)  )){
 
-                                selectJob(jobs[j]);
-
-                                //Previous test failure found
-                                break superloop;
+                                if (startWatch) {
+                                    selectJob(jobs[j]);
+                                    return;
+                                } else {
+                                    lastJob = jobs[j];
+                                }
                             }
                         }
                     }
                 }
             }
+        }
+        if (!foundJob && lastJob) {
+            // we were at the first job, go to the very end
+            selectJob(lastJob);
         }
     };
 
