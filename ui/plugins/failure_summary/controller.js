@@ -38,6 +38,12 @@ treeherder.controller('BugsPluginCtrl', [
                         var artifact = artifact_list[0];
                         angular.forEach(artifact.blob, function (suggestion) {
 
+                            // Workaround logs ingested prior to the fix for
+                            // bug 1059306 landing.
+                            if(!suggestion.bugs){
+                                suggestion.bugs = {"open_recent":[], "all_others":[]};
+                            }
+
                             if(suggestion.bugs.open_recent.length > bug_limit){
                                 suggestion.bugs.too_many_open_recent = true;
                             }else{
