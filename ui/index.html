@@ -113,7 +113,7 @@
 <script type="'text/ng-template'" id="revisionsClone.html">
 
     <li>
-        <span class="revision patchTitle">
+        <span class="revision">
             <a href="{{currentRepo.url}}/rev/{{revision}}"
                target="_blank"
                title="open revision {{revision}} on {{currentRepo.url}}"
@@ -140,10 +140,10 @@
 <script type="'text/ng-template'" id="resultsetClone.html">
     <div class="clearfix"></div>
     <div class="row result-set">
-        <span style="display:block;" class="revision-list col-xs-4">
+        <span style="display:block;" class="revision-list col-xs-5">
             <ul class="list-unstyled"></ul>
         </span>
-        <span class="job-list col-xs-8 job-list-pad-left">
+        <span class="job-list col-xs-7 job-list-pad-left">
             <span class="fa fa-refresh fa-spin"></span>
             <table id="{{ aggregateId }}" class="table-hover"></table>
         </span>
