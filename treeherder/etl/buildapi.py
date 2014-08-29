@@ -429,6 +429,7 @@ class RunningTransformerMixin(object):
                         'reference_data_name': running_job['buildername'],
                         'state': 'running',
                         'submit_timestamp': running_job['submitted_at'],
+                        'start_timestamp': running_job['start_time'],
                         'build_platform': {
                             'os_name': platform_info['os'],
                             'platform': platform_info['os_platform'],

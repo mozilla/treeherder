@@ -62,3 +62,46 @@ def test_ingest_pending_jobs(jm, initial_data,
 
     assert len(stored_obj) == 1
 
+
+def test_ingest_running_jobs(jm, initial_data,
+                                mock_buildapi_running_url,
+                                mock_post_json_data,
+                                mock_log_parser,
+                                mock_get_resultset,
+                                mock_get_remote_content):
+    """
+    a new buildapi running job creates a new obj in the job table
+    """
+    from treeherder.etl.buildapi import RunningJobsProcess
+    etl_process = RunningJobsProcess()
+    etl_process.run()
+
+    stored_obj = jm.get_jobs_dhub().execute(
+        proc="jobs_test.selects.jobs")
+
+    jm.disconnect()
+
+    assert len(stored_obj) == 1
+
+
+def test_ingest_running_job_fields(jm, initial_data,
+                                mock_buildapi_running_url,
+                                mock_post_json_data,
+                                mock_log_parser,
+                                mock_get_resultset,
+                                mock_get_remote_content):
+    """
+    a new buildapi running job creates a new obj in the job table
+    """
+    from treeherder.etl.buildapi import RunningJobsProcess
+    etl_process = RunningJobsProcess()
+    etl_process.run()
+
+    stored_obj = jm.get_jobs_dhub().execute(
+        proc="jobs_test.selects.jobs")
+
+    jm.disconnect()
+
+    assert len(stored_obj) == 1
+    assert stored_obj[0]["start_timestamp"] is not 0
+
