@@ -205,7 +205,7 @@ class Migration(SchemaMigration):
         db.send_create_signal(u'model', ['UserExclusionProfile'])
 
         # Adding model 'ExclusionProfileExclusions'
-        db.create_table(u'exclusionprofile_exclusions', (
+        db.create_table(u'exclusion_profile_exclusions', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('exclusionprofile', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['model.ExclusionProfile'])),
             ('jobexclusion', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['model.JobExclusion'])),
@@ -302,7 +302,7 @@ class Migration(SchemaMigration):
         db.delete_table(u'user_exclusion_profile')
 
         # Deleting model 'ExclusionProfileExclusions'
-        db.delete_table(u'exclusionprofile_exclusions')
+        db.delete_table(u'exclusion_profile_exclusions')
 
         # Deleting model 'ReferenceDataSignatures'
         db.delete_table(u'reference_data_signatures')
@@ -388,7 +388,7 @@ class Migration(SchemaMigration):
             'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '255'})
         },
         u'model.exclusionprofileexclusions': {
-            'Meta': {'object_name': 'ExclusionProfileExclusions', 'db_table': "u'exclusionprofile_exclusions'"},
+            'Meta': {'object_name': 'ExclusionProfileExclusions', 'db_table': "u'exclusion_profile_exclusions'"},
             'exclusionprofile': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['model.ExclusionProfile']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'jobexclusion': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['model.JobExclusion']"})

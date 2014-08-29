@@ -625,7 +625,7 @@ class ExclusionProfileExclusions(models.Model):
     jobexclusion = models.ForeignKey(JobExclusion)
 
     class Meta:
-        db_table = 'exclusionprofile_exclusions'
+        db_table = 'exclusion_profile_exclusions'
 
 
 class ReferenceDataSignatures(models.Model):
