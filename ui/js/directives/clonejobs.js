@@ -183,9 +183,17 @@ treeherder.directive('thCloneJobs', [
         }
     };
 
+    var broadcastJobChangedTimeout = null;
     var clickJobCb = function(ev, el, job){
         setSelectJobStyles(el);
-        $rootScope.$broadcast(thEvents.jobClick, job);
+        // delay switching right away, in case the user is switching rapidly
+        // between jobs
+        if (broadcastJobChangedTimeout) {
+          window.clearTimeout(broadcastJobChangedTimeout);
+        }
+        broadcastJobChangedTimeout = window.setTimeout(function() {
+          $rootScope.$broadcast(thEvents.jobClick, job);
+        }, 200);
     };
 
     var clearJobCb = function(ev, el, job) {
