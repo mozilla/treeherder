@@ -296,7 +296,7 @@ JOB_TYPE_BUILDERNAME = {
 }
 
 # from Data.js ``type`` Config.testNames and Config.buildNames
-TEST_NAME_BUILDERNAME = [
+JOB_NAME_BUILDERNAME = [
         #// ** Talos **
     {"regex": re.compile('talos remote-tcanvasmark$'), "desc": "Talos canvasmark"},
     {"regex": re.compile('talos chrome[z]?$'), "desc": "Talos chrome"},
@@ -758,7 +758,7 @@ def extract_name_info(source_string):
         "group_symbol": "?",
     }
 
-    for test_name in TEST_NAME_BUILDERNAME:
+    for test_name in JOB_NAME_BUILDERNAME:
         if test_name["regex"].search(source_string):
             name = test_name["desc"]
             group_name = GROUP_NAMES.get(name, "unknown")
