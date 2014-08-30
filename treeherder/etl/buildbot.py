@@ -24,7 +24,7 @@ RESULT_DICT = {
 # source for these is in ``Data.js.getMachine`` function.
 PLATFORMS_BUILDERNAME = [
 
-    #// ** Linux **
+    # ** Linux **
 
     {
         'regex': re.compile('^b2g.*_(?:linux|ubuntu)64', re.IGNORECASE),
@@ -75,7 +75,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
 
-    #// ** OS X **
+    # ** OS X **
 
     {
         'regex': re.compile('^b2g.*_macosx64', re.IGNORECASE),
@@ -118,7 +118,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
 
-    #// ** Windows **
+    # ** Windows **
 
     {
         'regex': re.compile('^b2g.*_win32', re.IGNORECASE),
@@ -169,7 +169,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
 
-    #// ** Android **
+    # ** Android **
 
     {
         'regex': re.compile('android 4\.2 x86', re.IGNORECASE),
@@ -220,7 +220,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
 
-    #// ** B2G **
+    # ** B2G **
 
     {
         'regex': re.compile('b2g.*_emulator-kk', re.IGNORECASE),
@@ -297,7 +297,7 @@ JOB_TYPE_BUILDERNAME = {
 
 # from Data.js ``type`` Config.testNames and Config.buildNames
 JOB_NAME_BUILDERNAME = [
-        #// ** Talos **
+    # ** Talos **
     {"regex": re.compile('talos remote-tcanvasmark$'), "desc": "Talos canvasmark"},
     {"regex": re.compile('talos chrome[z]?$'), "desc": "Talos chrome"},
     {"regex": re.compile('talos dromaeojs-metro$'), "desc": "Talos dromaeojs Metro"},
@@ -317,9 +317,7 @@ JOB_NAME_BUILDERNAME = [
     {"regex": re.compile('talos remote-tspaint$'), "desc": "Talos tspaint"},
     {"regex": re.compile('talos remote-ts$'), "desc": "Talos ts"},
     {"regex": re.compile('talos xperf$'), "desc": "Talos xperf"},
-        #// ** Unit tests **
-        #// These are generally sorted in the same order as how they are sorted in
-        #// Config.js, though some exceptions are needed to avoid false-positives.
+    # ** Unit tests **
     {"regex": re.compile('mozbase$'), "desc": "Mozbase Unit Tests"},
     {"regex": re.compile('mochitest-e10s-browser-chrome'), "desc": "Mochitest e10s Browser Chrome"},
     {"regex": re.compile('mochitest-e10s-devtools-chrome'), "desc": "Mochitest e10s DevTools Browser Chrome"},
@@ -364,8 +362,8 @@ JOB_NAME_BUILDERNAME = [
     {"regex": re.compile('androidx86-set'), "desc": "Android x86 Test Set"},
     {"regex": re.compile('xpcshell'), "desc": "XPCShell"},
     {"regex": re.compile('mozmill$'), "desc": "Mozmill"},
-        #// ** Builds **
-        #// If we start doing debug ASan tests, please kill these special build types
+    # ** Builds **
+    # If we start doing debug ASan tests, please kill these special build types
     {"regex": re.compile('debug asan nightly'), "desc": "AddressSanitizer Debug Nightly"},
     {"regex": re.compile('asan nightly'), "desc": "AddressSanitizer Opt Nightly"},
     {"regex": re.compile('-br-haz'), "desc": "Static Rooting Hazard Analysis, Full Browser"},
@@ -424,7 +422,7 @@ JOB_NAME_BUILDERNAME = [
     {"regex": re.compile('spidermonkey.*-exactroot'), "desc": "SpiderMonkey Exact Rooting Shell Build"},
     {"regex": re.compile('spidermonkey.*-generational'), "desc": "SpiderMonkey GGC Shell Build"},
     {"regex": re.compile('spidermonkey.*-rootanalysis'), "desc": "SpiderMonkey Root Analysis Build"},
-        #// If we start doing debug ASan tests, please kill these special build types
+    # If we start doing debug ASan tests, please kill these special build types
     {"regex": re.compile('debug asan build'), "desc": "AddressSanitizer Debug Build"},
     {"regex": re.compile('asan build'), "desc": "AddressSanitizer Opt Build"},
     {"regex": re.compile('non[-]?unified'), "desc": "Non-Unified Build"},
@@ -534,46 +532,46 @@ GROUP_NAMES = {
     "Talos tp nochrome": "Talos Performance",
     "Talos ts": "Talos Performance",
     "Talos tspaint": "Talos Performance",
-    "Talos xperf": "Talos Performance"
+    "Talos xperf": "Talos Performance",
 }
 
 # symbols displayed in the UI for all jobs and job groups
 # from ``buildNames`` and ``testNames`` in ``Config.js`` file
 SYMBOLS = {
-    # builds
+    # Builds
 
-    # // ** Dep Builds **
-    "Build" : "B",
+    # ** Dep Builds **
+    "Build": "B",
     "Non-Unified Build": "Bn",
-    "Static Checking Build" : "S",
-    "SpiderMonkey" : "SM",
-    "SpiderMonkey ARM Simulator Build" : "arm",
-    "SpiderMonkey DTrace Build" : "d",
-    "SpiderMonkey Fail-On-Warnings Build" : "e",
-    "SpiderMonkey Exact Rooting Shell Build" : "exr",
-    "SpiderMonkey GGC Shell Build" : "ggc",
-    "SpiderMonkey Root Analysis Build" : "r",
-    "Static Rooting Hazard Analysis, Full Browser" : "Hf",
-    "Static Rooting Hazard Analysis, JS Shell" : "Hs",
-    # // ** Nightly Builds **
-    "Nightly" : "N",
-    "DXR Index Build" : "Dxr",
+    "Static Checking Build": "S",
+    "SpiderMonkey": "SM",
+    "SpiderMonkey ARM Simulator Build": "arm",
+    "SpiderMonkey DTrace Build": "d",
+    "SpiderMonkey Fail-On-Warnings Build": "e",
+    "SpiderMonkey Exact Rooting Shell Build": "exr",
+    "SpiderMonkey GGC Shell Build": "ggc",
+    "SpiderMonkey Root Analysis Build": "r",
+    "Static Rooting Hazard Analysis, Full Browser": "Hf",
+    "Static Rooting Hazard Analysis, JS Shell": "Hs",
+    # ** Nightly Builds **
+    "Nightly": "N",
+    "DXR Index Build": "Dxr",
     "Valgrind Build": "V",
-    "XULRunner Nightly" : "Xr",
-    # // ** Special Builds **
-    # // If we start doing debug ASan tests, please
-    # // kill these special build types
+    "XULRunner Nightly": "Xr",
+    # ** Special Builds **
+    # If we start doing debug ASan tests, please
+    # kill these special build types
     "AddressSanitizer Opt Build": "Bo",
     "AddressSanitizer Debug Build": "Bd",
     "AddressSanitizer Opt Nightly": "No",
     "AddressSanitizer Debug Nightly": "Nd",
-    # // L10n nightlies are grouped above so they appear as N1, N2, etc.
-    "L10n Nightly" : "N",
+    # L10n nightlies are grouped above so they appear as N1, N2, etc.
+    "L10n Nightly": "N",
     "L10n Repack": "L10n",
     "B2G Emulator Image Build": "B",
     "B2G Emulator Image Non-Unified Build": "Bn",
     "B2G Emulator Image Nightly": "N",
-    # // B2G device image builds (grouped by device in the UI)
+    # B2G device image builds (grouped by device in the UI)
     "Dolphin Device Image": "Dolphin",
     "Dolphin Device Image Build": "B",
     "Dolphin Device Image Build (Engineering)": "Be",
@@ -627,87 +625,90 @@ SYMBOLS = {
     "Unknown B2G Device Image Build (Engineering)": "Be",
     "Unknown B2G Device Image Nightly": "N",
     "Unknown B2G Device Image Nightly (Engineering)": "Ne",
-    # tests
 
-    #// Mozbase is kind of a "glue" test suite between builds and all other tests,
-    #// so we list it first to make any bustage more obvious.
-    "Mozbase Unit Tests" : "Mb",
-    #// Mochitests and reftests come next since they're the most common tests
-    #// run across all platforms and therefore benefit from better vertical alignment.
-    "Mochitest" : "M",
-    "Mochitest Browser Chrome" : "bc",
-    "Mochitest DevTools Browser Chrome" : "dt",
-    "Mochitest Metro Browser Chrome" : "mc",
-    "Mochitest Other" : "oth",
-    "Mochitest WebGL" : "gl",
-    "Mochitest e10s" : "M-e10s",
-    "Mochitest e10s Browser Chrome" : "bc",
-    "Mochitest e10s DevTools Browser Chrome" : "dt",
-    "Mochitest e10s Other" : "oth",
+    # Tests
+
+    # Mozbase is kind of a "glue" test suite between builds and all other tests,
+    # so we list it first to make any bustage more obvious.
+    "Mozbase Unit Tests": "Mb",
+    # Mochitests and reftests come next since they're the most common tests
+    # run across all platforms and therefore benefit from better vertical alignment.
+    "Mochitest": "M",
+    "Mochitest Browser Chrome": "bc",
+    "Mochitest DevTools Browser Chrome": "dt",
+    "Mochitest Metro Browser Chrome": "mc",
+    "Mochitest Other": "oth",
+    "Mochitest WebGL": "gl",
+    "Mochitest e10s": "M-e10s",
+    "Mochitest e10s Browser Chrome": "bc",
+    "Mochitest e10s DevTools Browser Chrome": "dt",
+    "Mochitest e10s Other": "oth",
     "Mochitest OOP": "M-oop",
-    "Robocop" : "rc",
+    "Robocop": "rc",
     "Webapprt Content": "w",
     "Webapprt Chrome": "wc",
-    "Crashtest" : "C",
-    "Crashtest e10s" : "C",
-    "Crashtest IPC" : "Cipc",
-    "JSReftest" : "J",
-    "JSReftest e10s" : "J",
-    "Reftest" : "R",
-    "Reftest e10s" : "R-e10s",
-    "Reftest Sanity OOP" : "R-oop",
-    "Reftest IPC" : "Ripc",
-    "Reftest OMTC" : "Ro",
-    "Reftest Unaccelerated" : "Ru",
+    "Crashtest": "C",
+    "Crashtest e10s": "C",
+    "Crashtest IPC": "Cipc",
+    "JSReftest": "J",
+    "JSReftest e10s": "J",
+    "Reftest": "R",
+    "Reftest e10s": "R-e10s",
+    "Reftest Sanity OOP": "R-oop",
+    "Reftest IPC": "Ripc",
+    "Reftest OMTC": "Ro",
+    "Reftest Unaccelerated": "Ru",
 
-    #// All other unit tests, sorted alphabetically by TBPL symbol.
-    "CPP Unit Tests" : "Cpp",
-    "JIT Tests" : "Jit",
-    "Jetpack SDK Test" : "JP",
-    "Gaia Unit Test OOP" : "G-oop",
-    "Gaia Unit Test" : "G",
-    "Gaia Build Test" : "Gb",
-    "Gaia Integration Test OOP" : "Gi-oop",
-    "Gaia Integration Test" : "Gi",
-    "Gaia UI Test OOP" : "Gu-oop",
-    "Gaia UI Test" : "Gu",
-    "Linter Test" : "Li",
-    "Marionette Framework Unit Tests" : "Mn",
-    "Marionette WebAPI Tests" : "Mnw",
-    "Android x86 Test Set" : "S",
-    "Android x86 Test Combos" : "Sets",
-    "W3C Web Platform Tests" : "W",
-    "W3C Web Platform Reftests" : "Wr",
-    "XPCShell" : "X",
-    "Mozmill" : "Z",
+    # All other unit tests, sorted alphabetically by symbol.
+    "CPP Unit Tests": "Cpp",
+    "JIT Tests": "Jit",
+    "Jetpack SDK Test": "JP",
+    "Gaia Unit Test OOP": "G-oop",
+    "Gaia Unit Test": "G",
+    "Gaia Build Test": "Gb",
+    "Gaia Integration Test OOP": "Gi-oop",
+    "Gaia Integration Test": "Gi",
+    "Gaia UI Test OOP": "Gu-oop",
+    "Gaia UI Test": "Gu",
+    "Linter Test": "Li",
+    "Marionette Framework Unit Tests": "Mn",
+    "Marionette WebAPI Tests": "Mnw",
+    "Android x86 Test Set": "S",
+    "Android x86 Test Combos": "Sets",
+    "W3C Web Platform Tests": "W",
+    "W3C Web Platform Reftests": "Wr",
+    "XPCShell": "X",
+    "Mozmill": "Z",
 
-    #// Display talos perf tests after correctness tests.
-    "Talos Performance" : "T",
-    "Talos canvasmark" : "cm",
-    "Talos chrome" : "c",
-    "Talos dromaeojs" : "d",
-    "Talos dromaeojs Metro" : "d-m",
-    "Talos g1" : "g1",
-    "Talos other" : "o",
-    "Talos other Metro" : "o-m",
-    "Talos paint" : "p",
-    "Talos robocheck2" : "rck2",
-    "Talos robopan" : "rp",
-    "Talos roboprovider" : "rpr",
-    "Talos svg" : "s",
-    "Talos svg Metro" : "s-m",
-    "Talos tp" : "tp",
-    "Talos tp Metro" : "tp-m",
-    "Talos tp nochrome" : "tpn",
-    "Talos ts" : "ts",
-    "Talos tspaint" : "tsp",
-    "Talos xperf" : "x",
-    #// Sort unknown jobs after all others.
-    "Unknown Unit Test" : "U",
+    # Display talos perf tests after correctness tests.
+    "Talos Performance": "T",
+    "Talos canvasmark": "cm",
+    "Talos chrome": "c",
+    "Talos dromaeojs": "d",
+    "Talos dromaeojs Metro": "d-m",
+    "Talos g1": "g1",
+    "Talos other": "o",
+    "Talos other Metro": "o-m",
+    "Talos paint": "p",
+    "Talos robocheck2": "rck2",
+    "Talos robopan": "rp",
+    "Talos roboprovider": "rpr",
+    "Talos svg": "s",
+    "Talos svg Metro": "s-m",
+    "Talos tp": "tp",
+    "Talos tp Metro": "tp-m",
+    "Talos tp nochrome": "tpn",
+    "Talos ts": "ts",
+    "Talos tspaint": "tsp",
+    "Talos xperf": "x",
+    # Sort unknown jobs after all others.
+    "Unknown Unit Test": "U",
     "Unknown": "?",
 }
 
-NUMBER_RE = re.compile(".*(?:mochitest(?:-debug|-e10s|-devtools-chrome)?|reftest|crashtest|robocop|androidx86-set|browser-chrome|jittest)\-([0-9]+)", re.IGNORECASE)
+NUMBER_RE = re.compile(
+    ".*(?:mochitest(?:-debug|-e10s|-devtools-chrome)?|reftest|crashtest|robocop|androidx86-set|browser-chrome|jittest)\-([0-9]+)",
+    re.IGNORECASE)
 
 
 def extract_platform_info(source_string):
@@ -803,7 +804,7 @@ def get_device_or_unknown(job_name, vm):
     """
     position = job_name.find("Device")
     if position > 0:
-        return job_name[0: position-1]
+        return job_name[0: position - 1]
     elif vm is True:
         return "vm"
     else:
