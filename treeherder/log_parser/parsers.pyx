@@ -318,7 +318,7 @@ RE_EXCLUDE_1_SEARCH = re.compile("TEST-(?:INFO|PASS) ")
 RE_EXCLUDE_2_SEARCH = re.compile(
     "I[ /](Gecko|Robocop|TestRunner).*TEST-UNEXPECTED-"
     "|^TimeoutException: "
-    "^ImportError: No module named pygtk$"
+    "|^ImportError: No module named pygtk$"
     )
 
 RE_ERR_1_MATCH = re.compile("^\d+:\d+:\d+ +(?:ERROR|CRITICAL|FATAL) - ")
