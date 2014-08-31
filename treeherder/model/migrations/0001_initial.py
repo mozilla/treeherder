@@ -215,7 +215,7 @@ class Migration(SchemaMigration):
         # Adding model 'ReferenceDataSignatures'
         db.create_table(u'reference_data_signatures', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=150L)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=255L)),
             ('signature', self.gf('django.db.models.fields.CharField')(max_length=50L)),
             ('build_os_name', self.gf('django.db.models.fields.CharField')(max_length=25L)),
             ('build_platform', self.gf('django.db.models.fields.CharField')(max_length=25L)),
@@ -486,7 +486,7 @@ class Migration(SchemaMigration):
             'machine_architecture': ('django.db.models.fields.CharField', [], {'max_length': '25L'}),
             'machine_os_name': ('django.db.models.fields.CharField', [], {'max_length': '25L'}),
             'machine_platform': ('django.db.models.fields.CharField', [], {'max_length': '25L'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '150L'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '255L'}),
             'option_collection_hash': ('django.db.models.fields.CharField', [], {'max_length': '64L', 'blank': 'True'}),
             'review_status': ('django.db.models.fields.CharField', [], {'max_length': '12L', 'blank': 'True'}),
             'review_timestamp': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),

@@ -634,7 +634,7 @@ class ReferenceDataSignatures(models.Model):
     populated on data ingestion. signature is a hash of the data it refers to
     build_system_type is buildbot by default
     """
-    name = models.CharField(max_length=150L)
+    name = models.CharField(max_length=255L)
     signature = models.CharField(max_length=50L)
     build_os_name = models.CharField(max_length=25L)
     build_platform = models.CharField(max_length=25L)
