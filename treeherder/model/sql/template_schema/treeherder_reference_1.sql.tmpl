@@ -62,7 +62,7 @@ DROP TABLE IF EXISTS `reference_data_signatures`;
  **************************/
 CREATE TABLE `reference_data_signatures` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(150) COLLATE utf8_bin NOT NULL,
+  `name` varchar(255) COLLATE utf8_bin NOT NULL,
   `signature` varchar(50) COLLATE utf8_bin NOT NULL,
   `build_os_name` varchar(25) COLLATE utf8_bin NOT NULL,
   `build_platform` varchar(25) COLLATE utf8_bin NOT NULL,
