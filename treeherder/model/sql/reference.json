@@ -160,6 +160,11 @@
 
     },
     "selects":{
+        "get_reference_data_signature_names":{
+            "sql":"SELECT `name`, `signature` FROM `reference_data_signatures` WHERE `signature` IN (REP0)",
+
+            "host":"read_host"
+        },
         "get_reference_data_for_perf_signature":{
             "sql":"SELECT `signature`,
                           `build_os_name`,

@@ -831,6 +831,7 @@
                     j.`option_collection_hash`,
                     j.failure_classification_id,
                     j.job_coalesced_to_guid,
+                    j.signature,
                     m.`name` as machine_name,
                     mp.`platform` as platform,
                     jt.`name` as job_type_name,
@@ -860,6 +861,7 @@
             "sql":"SELECT
                     j.`job_guid`,
                     j.`job_coalesced_to_guid`,
+                    j.signature,
                     j.`build_platform_id`,
                     j.`option_collection_hash`,
                     j.failure_classification_id,

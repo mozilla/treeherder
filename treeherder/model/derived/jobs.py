@@ -1138,7 +1138,18 @@ class JobsModel(TreeherderModelBase):
             replace=repl,
         )
 
-        return data
+        signatures = set()
+
+        for job in data:
+            signatures.add(job['signature'])
+
+        reference_signature_names = self.refdata_model.get_reference_data_signature_names(
+            list(signatures));
+
+        return {
+            'job_list':data,
+            'reference_signature_names':reference_signature_names
+            }
 
     def get_push_timestamp_lookup(self, result_set_ids):
         """Get the push timestamp for a list of result_set."""

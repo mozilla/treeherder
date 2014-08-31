@@ -46,7 +46,8 @@ JOB_PROPERTIES = {
     "build_architecture": 27,
     "build_platform_id": 28,
     "resource_uri": 29,
-    "option_collection_hash": 30
+    "option_collection_hash": 30,
+    "ref_data_name": 31
 }
 
 # This list can maps the array indexes to the
@@ -258,7 +259,8 @@ def to_timestamp(datestr):
         "%Y-%m-%d"
         ).timetuple())
 
-def get_job_value_list(job, platform_option, project, debug):
+def get_job_value_list(
+    job, reference_signature_names, platform_option, project, debug):
 
     if debug:
         # If debug is specified return a dictionary for each
@@ -285,6 +287,11 @@ def get_job_value_list(job, platform_option, project, debug):
                 "jobs-detail",
                 kwargs={"project": project, "pk": job["job_id"]}
                 )
+        elif p == "ref_data_name":
+
+            job_values[key] = reference_signature_names.get(
+                job['signature'], {} ).get(
+                    'name', 'Unknown')
         else:
             job_values[key] = job.get(p, None)
 
