@@ -208,15 +208,19 @@ class ResultSetViewSet(viewsets.ViewSet):
             rs["revisions_uri"] = reverse("resultset-revisions",
                 kwargs={"project": jm.project, "pk": rs["id"]})
 
-        jobs_ungrouped = jm.get_result_set_job_list(
+        job_list = jm.get_result_set_job_list(
             rs_map.keys(),
             full,
             **filter_kwargs
         )
 
+        jobs_ungrouped = job_list['job_list']
+        reference_signature_names = job_list['reference_signature_names']
+
         option_collections = jm.refdata_model.get_all_option_collections()
 
         rs_grouper = lambda rsg: rsg["result_set_id"]
+
         # the main grouper for a result set is the combination of
         # platform and options
         platform_grouper = lambda pg: (
@@ -276,7 +280,8 @@ class ResultSetViewSet(viewsets.ViewSet):
 
                         job_list.append(
                             get_job_value_list(
-                                job, platform_option, jm.project, debug
+                                job, reference_signature_names,
+                                platform_option, jm.project, debug
                             )
                         )
 
