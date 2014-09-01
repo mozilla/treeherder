@@ -591,6 +591,7 @@ treeherder.factory('thJobFilters', [
         // field filters
         resetAllFilters(true);
         var search = _.clone($location.search());
+
         $log.debug("query string params", $location.search());
 
         if($rootScope.searchQuery === undefined){
@@ -617,10 +618,8 @@ treeherder.factory('thJobFilters', [
                 }
                 setCheckFilterValues(filterKey, _.uniq(filterVal), true);
             } else if ((filterKey === "searchQuery") || (filterKey === "jobname")) {
+
                 //jobname is for backwords compatibility with tbpl links
-
-                filterVal = _.isArray(filterVal)? filterVal[0]: filterVal;
-
                 if(filterVal === ""){
                     // Remove the parameter from the url if there are
                     // no search terms
