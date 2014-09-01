@@ -3,11 +3,11 @@
 treeherder.controller('FilterPanelCtrl', [
     '$scope', '$rootScope', '$route', '$routeParams', '$location', 'ThLog',
     'localStorageService', 'thResultStatusList', 'thEvents', 'thJobFilters',
-    'thClassificationTypes', 'ThResultSetModel', 'thPinboard', 'thNotify',
+    'ThResultSetModel', 'thPinboard', 'thNotify',
     function FilterPanelCtrl(
         $scope, $rootScope, $route, $routeParams, $location, ThLog,
         localStorageService, thResultStatusList, thEvents, thJobFilters,
-        thClassificationTypes, ThResultSetModel, thPinboard, thNotify) {
+        ThResultSetModel, thPinboard, thNotify) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -36,37 +36,8 @@ treeherder.controller('FilterPanelCtrl', [
         // field filters
         $scope.newFieldFilter = null;
         $scope.fieldFilters = [];
-        $scope.fieldChoices = {
-            job_type_name: {
-                name: "job name",
-                matchType: thJobFilters.matchType.substr
-            },
-            job_type_symbol: {
-                name: "job symbol",
-                matchType: thJobFilters.matchType.exactstr
-            },
-            job_group_name: {
-                name: "group name",
-                matchType: thJobFilters.matchType.substr
-            },
-            job_group_symbol: {
-                name: "group symbol",
-                matchType: thJobFilters.matchType.exactstr
-            },
-            machine_name: {
-                name: "machine name",
-                matchType: thJobFilters.matchType.substr
-            },
-            platform: {
-                name: "platform",
-                matchType: thJobFilters.matchType.substr
-            },
-            failure_classification_id: {
-                name: "failure classification",
-                matchType: thJobFilters.matchType.choice,
-                choices: thClassificationTypes.classifications
-            }
-        };
+
+        $scope.fieldChoices = thJobFilters.fieldChoices;
 
         /**
          * Handle checking the "all" button for a result status group
@@ -283,6 +254,8 @@ treeherder.controller('SearchCtrl', [
             if($scope.searchQueryStr === ""){
                $rootScope.searchQuery = [];
                $rootScope.searchQueryStr = "";
+               $location.search("searchQuery", null);
+               $location.search("jobname", null);
             }
 
             //User hit enter
@@ -293,7 +266,16 @@ treeherder.controller('SearchCtrl', [
                 $rootScope.searchQuery = queryString.split(' ');
 
                 $rootScope.skipNextSearchChangeReload = true;
-                $location.search("searchQuery", queryString);
+
+                if(queryString === ""){
+                    // Remove the parameter from the url if there are no
+                    // search terms
+                    $location.search("searchQuery", null);
+                    $location.search("jobname", null);
+                }else{
+                    $location.search("searchQuery", queryString);
+                    $location.search("jobname", null);
+                }
 
                 $rootScope.$broadcast(
                     thEvents.searchPage,

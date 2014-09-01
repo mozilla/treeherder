@@ -24,11 +24,13 @@
 treeherder.factory('thJobFilters', [
     'thResultStatusList', 'ThLog', '$rootScope', '$location',
     'thNotify', 'thEvents',
-    'thResultStatus', 'ThRepositoryModel', 'thPlatformNameMap',
+    'thResultStatus', 'thClassificationTypes', 'ThRepositoryModel',
+    'thPlatformNameMap',
     function(
         thResultStatusList, ThLog, $rootScope, $location,
         thNotify, thEvents,
-        thResultStatus, ThRepositoryModel, thPlatformNameMap) {
+        thResultStatus, thClassificationTypes, ThRepositoryModel,
+        thPlatformNameMap) {
 
     var $log = new ThLog("thJobFilters");
 
@@ -38,6 +40,42 @@ treeherder.factory('thJobFilters', [
         isnull: 'isnull',
         bool: 'bool',
         choice: 'choice'
+    };
+
+    var fieldChoices = {
+        ref_data_name: {
+            name: "buildername/jobname",
+            matchType: matchType.substr
+        },
+        job_type_name: {
+            name: "job name",
+            matchType: matchType.substr
+        },
+        job_type_symbol: {
+            name: "job symbol",
+            matchType: matchType.exactstr
+        },
+        job_group_name: {
+            name: "group name",
+            matchType: matchType.substr
+        },
+        job_group_symbol: {
+            name: "group symbol",
+            matchType: matchType.exactstr
+        },
+        machine_name: {
+            name: "machine name",
+            matchType: matchType.substr
+        },
+        platform: {
+            name: "platform",
+            matchType: matchType.substr
+        },
+        failure_classification_id: {
+            name: "failure classification",
+            matchType: matchType.choice,
+            choices: thClassificationTypes.classifications
+        }
     };
 
     // default filter values
@@ -108,6 +146,7 @@ treeherder.factory('thJobFilters', [
      * means it must have a value set, ``false`` means it must be null.
      */
     var checkFilter = function(field, job, resultStatusList) {
+
         if (field === api.resultStatus) {
             // resultStatus is a special case that spans two job fields
             var filterList = resultStatusList || filters[field].values;
@@ -136,6 +175,7 @@ treeherder.factory('thJobFilters', [
                     return _.contains(filters[field].values, jobFieldValue);
 
                 case api.matchType.substr:
+
                     return containsSubstr(filters[field].values, jobFieldValue.toLowerCase());
 
                 case api.matchType.exactstr:
@@ -195,6 +235,7 @@ treeherder.factory('thJobFilters', [
      *                    ``matchType`` to this value.
      */
     var addFilter = function(field, value, matchType, quiet) {
+
         if (_.isUndefined(matchType)) {
             matchType = api.matchType.exactstr;
         }
@@ -217,7 +258,6 @@ treeherder.factory('thJobFilters', [
         }
 
         filterKeys = _.keys(filters);
-
         $log.debug("added ", field, ": ", value);
         $log.debug("filters", filters, "filterkeys", filterKeys);
         if (!quiet) {
@@ -306,6 +346,7 @@ treeherder.factory('thJobFilters', [
      *        that can be used for individual resultsets
      */
     var showJob = function(job, resultStatusList) {
+
         for(var i = 0; i < filterKeys.length; i++) {
             if (!checkFilter(filterKeys[i], job, resultStatusList)) {
                 return false;
@@ -562,7 +603,8 @@ treeherder.factory('thJobFilters', [
 
             if (filterKey.slice(0, urlFilterPrefixLen) === urlFilterPrefix) {
                 $log.debug("adding field filter", filterKey, filterVal);
-                addFilter(filterKey.slice(urlFilterPrefixLen), filterVal, true);
+                var field = filterKey.slice(urlFilterPrefixLen);
+                addFilter(field, filterVal, fieldChoices[field].matchType);
 
             } else if (filterKey === "resultStatus" || filterKey === "isClassified") {
                 $log.debug("adding check filter", filterKey, filterVal);
@@ -574,12 +616,22 @@ treeherder.factory('thJobFilters', [
                     filterVal = _.map(filterVal, function(item) {return item !== "false";});
                 }
                 setCheckFilterValues(filterKey, _.uniq(filterVal), true);
-            } else if (filterKey === "searchQuery") {
-                filterVal = _.isArray(filterVal)? filterVal[0]: filterVal;
-                $log.debug("searchQuery added", filterVal);
+            } else if ((filterKey === "searchQuery") || (filterKey === "jobname")) {
+                //jobname is for backwords compatibility with tbpl links
 
-                $rootScope.searchQuery = filterVal.replace(/ +(?= )/g, ' ').toLowerCase().split(' ');
-                $rootScope.searchQueryStr = filterVal;
+                filterVal = _.isArray(filterVal)? filterVal[0]: filterVal;
+
+                if(filterVal === ""){
+                    // Remove the parameter from the url if there are
+                    // no search terms
+                    $location.search("searchQuery", null);
+                    $location.search("jobname", null);
+                }else{
+                    $log.debug("searchQuery added", filterVal);
+
+                    $rootScope.searchQuery = filterVal.replace(/ +(?= )/g, ' ').toLowerCase().split(' ');
+                    $rootScope.searchQueryStr = filterVal;
+                }
             }
         });
         $log.debug("done with loadFiltersFromQueryString", filters);
@@ -672,7 +724,8 @@ treeherder.factory('thJobFilters', [
         // CONSTANTS
         isClassified: "isClassified",
         resultStatus: "resultStatus",
-        matchType: matchType
+        matchType: matchType,
+        fieldChoices: fieldChoices
     };
 
     return api;

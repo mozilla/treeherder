@@ -249,7 +249,7 @@ treeherder.directive('thCloneJobs', [
             job.searchableStr = getPlatformName(job.platform) + ' ' +
                 job.platform_option + ' ' + job.job_group_name + ' ' +
                 job.job_group_symbol + ' ' + job.job_type_name + ' ' +
-                job.job_type_symbol + ' ' + job.machine_name;
+                job.job_type_symbol + ' ' + job.ref_data_name;
 
             //Make sure that filtering doesn't effect the resultset counts
             //displayed
