@@ -723,9 +723,8 @@ SYMBOLS = {
     "Unknown": "?",
 }
 
-NUMBER_RE = re.compile(
-    ".*(?:mochitest(?:-debug|-e10s|-devtools-chrome)?|reftest|crashtest|robocop|androidx86-set|browser-chrome|jittest)\-([0-9]+)",
-    re.IGNORECASE)
+# Match the job part number from buildernames such as "... mochitest-5"
+NUMBER_RE = re.compile(r".*-(\d+)$")
 
 
 def extract_platform_info(source_string):
