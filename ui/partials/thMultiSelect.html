@@ -6,7 +6,7 @@
         <div class="form-group">
             <select class="form-control" multiple ng-model="leftSelected">
                 <option value="{{ left_elem }}"
-                        ng-repeat="left_elem in leftList| filter: query">
+                        ng-repeat="left_elem in leftList track by $id(left_elem)| filter: query">
                     {{ left_elem }}
                 </option>
             </select>

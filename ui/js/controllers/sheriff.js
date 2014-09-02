@@ -15,6 +15,7 @@ treeherder.controller('SheriffCtrl', [
         ThJobExclusionModel.get_list().then(function(data) {
             $scope.exclusions = data;
             $scope.exclusions_map = _.indexBy($scope.exclusions, 'id');
+            console.log("job exclusions", data);
         });
 
         $scope.profiles = [];
@@ -35,9 +36,10 @@ treeherder.controller('SheriffCtrl', [
         ThBuildPlatformModel.get_list()
         .then(function(data) {
             for (var i = 0; i < data.length; i++) {
-                $scope.master_platforms.push(data[i].platform);
+                $scope.master_platforms.push(data[i].platform + " (" + data[i].architecture + ")");
             }
             $scope.form_platforms = angular.copy($scope.master_platforms);
+            console.log("form_platforms", $scope.form_platforms);
         });
 
         // initialize the list of job_types
@@ -144,6 +146,8 @@ treeherder.controller('SheriffCtrl', [
                     $scope['master_'+ elem], // this is the whole list
                     $scope.form_exclusion.info[elem] // this is what we got
                 );
+                console.log("form_exclusion", elem, $scope.form_exclusion.info[elem]);
+
             });
             $scope.switchView('job_exclusion_add');
         };

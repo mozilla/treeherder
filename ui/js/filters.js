@@ -46,7 +46,12 @@ treeherder.filter('linkifyBugs', function() {
 treeherder.filter('initials', function() {
     return function(input) {
         var str = input || '';
-        var initials = str.replace(/[^A-Z]/g, '');
+        var words = str.split(' ');
+        var first = words[0].replace(/[^A-Z]/gi, '')[0];
+        var last = words.slice(-1)[0].replace(/[^A-Z]/gi, '')[0];
+//        var allInitials = str.replace(/[^A-Z]/gi, '');
+        var initials = first + last;
+
         return '<span class="label label-initials">' + initials + '</span>';
     };
 });

@@ -54,7 +54,7 @@ treeherder.directive('thCloneJobs', [
         var jobStatus = thResultStatus(job);
         var result = job.job_type_name + " - " + jobStatus;
 
-        $log.debug("job timestamps", job, job.end_timestamp, job.submit_timestamp);
+//        $log.debug("job timestamps", job, job.end_timestamp, job.submit_timestamp);
 
         if( (jobStatus === 'pending') || (jobStatus === 'running') ){
 
@@ -367,7 +367,7 @@ treeherder.directive('thCloneJobs', [
     };
 
     var addRevisions = function(resultset, element){
-        $log.debug("addRevisions", resultset, element);
+//        $log.debug("addRevisions", resultset, element);
 
         if(resultset.revisions.length > 0){
 
