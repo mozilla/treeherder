@@ -623,11 +623,12 @@ treeherder.factory('thJobFilters', [
                 if(filterVal === ""){
                     // Remove the parameter from the url if there are
                     // no search terms
+                    $rootScope.skipNextSearchChangeReload = true;
                     $location.search("searchQuery", null);
                     $location.search("jobname", null);
+
                 }else{
                     $log.debug("searchQuery added", filterVal);
-
                     $rootScope.searchQuery = filterVal.replace(/ +(?= )/g, ' ').toLowerCase().split(' ');
                     $rootScope.searchQueryStr = filterVal;
                 }

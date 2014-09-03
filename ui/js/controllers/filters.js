@@ -252,12 +252,14 @@ treeherder.controller('SearchCtrl', [
         $scope.search = function(ev){
 
             if($scope.searchQueryStr === ""){
+
+               $rootScope.skipNextSearchChangeReload = true;
+
                $rootScope.searchQuery = [];
                $rootScope.searchQueryStr = "";
                $location.search("searchQuery", null);
                $location.search("jobname", null);
             }
-
             //User hit enter
             if( (ev.keyCode === 13) ||
                 ($scope.searchQuery.length === 0) ){
