@@ -34,6 +34,7 @@ treeherder.directive('focusMe', [
     }
   };
 }]);
+// Select all text input in an html element on click.
 treeherder.directive('selectOnClick', [
     function () {
         return {
@@ -42,9 +43,9 @@ treeherder.directive('selectOnClick', [
                 element.on('click', function () {
                 this.select();
                 });
-            }
-        };
-    } ] );
+        }
+    };
+}]);
 
 treeherder.directive('thNotificationBox', [
     'thNotify',
