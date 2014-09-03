@@ -802,15 +802,14 @@ def get_symbol(name, bn):
 
     s = SYMBOLS.get(name, "?")
 
-    # Mochitests, Mochitest-e10s and Mochitest OOP are the only ones
-    # that display as just a number (with no letters)
-    if s in ["M", "M-e10s", "M-oop"]:
-        s = ""
-
-    n = ""
     nummatch = NUMBER_RE.match(bn)
-    if nummatch:
-        n = nummatch.group(1)
+    n = nummatch.group(1) if nummatch else ""
+
+    # For multi-part Mochitest, Mochitest-e10s and Mochitest OOP jobs
+    # display only the job part number, and not the letters.
+    if n and s in ["M", "M-e10s", "M-oop"]:
+        return n
+
     return "{0}{1}".format(s, n)
 
 
