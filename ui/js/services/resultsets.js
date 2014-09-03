@@ -120,7 +120,7 @@ treeherder.factory('thResultSets', [
         },
         getResultSetJobs: function(resultSets, repoName){
 
-            var uri = '1/get_resultset_jobs';
+            var uri = '1/get_resultset_jobs/';
             var fullUrl = thUrl.getProjectUrl("/resultset/", repoName) + uri;
 
             _.each(

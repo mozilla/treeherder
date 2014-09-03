@@ -59,19 +59,19 @@ describe('ThResultSetModel', function(){
             getResultSet(10)
         );
 
-        $httpBackend.whenGET(foregroundPrefix + '/resultset/1/get_resultset_jobs?format=json&result_set_ids=1').respond(
+        $httpBackend.whenGET(foregroundPrefix + '/resultset/1/get_resultset_jobs/?format=json&result_set_ids=1').respond(
             getResultSet(1)
         );
 
-        $httpBackend.whenGET(foregroundPrefix + '/resultset/1/get_resultset_jobs?format=json&result_set_ids=10').respond(
+        $httpBackend.whenGET(foregroundPrefix + '/resultset/1/get_resultset_jobs/?format=json&result_set_ids=10').respond(
             getResultSet(10)
         );
 
-        $httpBackend.whenGET(backgroundPrefix + '/resultset/1/get_resultset_jobs?format=json&result_set_ids=1').respond(
+        $httpBackend.whenGET(backgroundPrefix + '/resultset/1/get_resultset_jobs/?format=json&result_set_ids=1').respond(
             getResultSet(1)
         );
 
-        $httpBackend.whenGET(backgroundPrefix + '/resultset/1/get_resultset_jobs?format=json&result_set_ids=10').respond(
+        $httpBackend.whenGET(backgroundPrefix + '/resultset/1/get_resultset_jobs/?format=json&result_set_ids=10').respond(
             getResultSet(10)
         );
 

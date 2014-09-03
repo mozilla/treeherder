@@ -22,43 +22,43 @@ describe('JobsCtrl', function(){
             getJSONFixture('resultset_list.json')
         );
 
-        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs?format=json&result_set_ids=28').respond(
+        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs/?format=json&result_set_ids=28').respond(
             getJSONFixture('resultset_list.json')
         );
 
-        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs?format=json&result_set_ids=27').respond(
+        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs/?format=json&result_set_ids=27').respond(
             getJSONFixture('resultset_list.json')
         );
 
-        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs?format=json&result_set_ids=26').respond(
+        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs/?format=json&result_set_ids=26').respond(
             getJSONFixture('resultset_list.json')
         );
 
-        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs?format=json&result_set_ids=25').respond(
+        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs/?format=json&result_set_ids=25').respond(
             getJSONFixture('resultset_list.json')
         );
 
-        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs?format=json&result_set_ids=24').respond(
+        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs/?format=json&result_set_ids=24').respond(
             getJSONFixture('resultset_list.json')
         );
 
-        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs?format=json&result_set_ids=23').respond(
+        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs/?format=json&result_set_ids=23').respond(
             getJSONFixture('resultset_list.json')
         );
 
-        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs?format=json&result_set_ids=22').respond(
+        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs/?format=json&result_set_ids=22').respond(
             getJSONFixture('resultset_list.json')
         );
 
-        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs?format=json&result_set_ids=21').respond(
+        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs/?format=json&result_set_ids=21').respond(
             getJSONFixture('resultset_list.json')
         );
 
-        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs?format=json&result_set_ids=20').respond(
+        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs/?format=json&result_set_ids=20').respond(
             getJSONFixture('resultset_list.json')
         );
 
-        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs?format=json&result_set_ids=19').respond(
+        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs/?format=json&result_set_ids=19').respond(
             getJSONFixture('resultset_list.json')
         );
 
