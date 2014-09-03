@@ -41,11 +41,29 @@ treeherder.directive('selectOnClick', [
             restrict: 'A',
             link: function (scope, element, attrs) {
                 element.on('click', function () {
-                this.select();
+                    this.select();
                 });
         }
     };
 }]);
+// Prevent default behavior on left mouse click. Useful
+// for html anchor's that need to do in application actions
+// on left click but default href type functionality on
+// middle or right mouse click.
+treeherder.directive('preventDefaultOnLeftClick', [
+    function(){
+        return {
+            restrict: 'A',
+            link: function(scope, element, attrs){
+                element.on('click', function(event){
+                    if(event.which === 1){
+                        event.preventDefault();
+                    }
+                });
+            }
+        }
+    }
+]);
 
 treeherder.directive('thNotificationBox', [
     'thNotify',

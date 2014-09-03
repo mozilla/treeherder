@@ -96,7 +96,7 @@
         </li>
       </ul>
       <ul>
-        <li><h6><a href="" ng-click="filterByBuildername(buildbotJobname)">{{ buildbotJobname }}</a></h6></li>
+        <li><h6><a href="{{ buildbotJobnameHref }}" ng-click="filterByBuildername(buildbotJobname);" target="_blank" prevent-default-on-left-click>{{ buildbotJobname }}</a></h6></li>
         <li class="small">
           <label>Machine name:</label>
           <a title="Open Buildbot Slave Health Report" target="_blank"

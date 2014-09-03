@@ -19,6 +19,21 @@ treeherder.controller('PluginCtrl', [
 
         var timeout_promise = null;
 
+        var setBuildernameHref = function(buildername){
+
+            var absUrl = $location.absUrl();
+            var delimiter = '?';
+
+            // If there are parameters the parameter delimiter &
+            // should be used
+            if(absUrl.indexOf('?') != -1){
+                delimiter = '&';
+            }
+
+            $scope.buildbotJobnameHref = absUrl + delimiter + 'searchQuery=' + buildername;
+
+        };
+
         var selectJob = function(newValue, oldValue) {
             $scope.artifacts = {};
 
@@ -61,7 +76,8 @@ treeherder.controller('PluginCtrl', [
                             $scope.artifacts[item.name] = item;
                         });
                         $scope.buildbotJobname = $scope.artifacts.buildapi.blob.buildername;
-                        //$scope.visibleFields["Buildbot job name"] = $scope.artifacts.buildapi.blob.buildername;
+                        setBuildernameHref($scope.buildbotJobname);
+
                         $log.debug("buildapi artifacts", $scope.artifacts);
                     }
                 });
@@ -91,7 +107,7 @@ treeherder.controller('PluginCtrl', [
                 };
                 if (_.has($scope.artifacts, "buildapi")) {
                     $scope.buildbotJobname = $scope.artifacts.buildapi.blob.buildername;
-                    //$scope.visibleFields["Buildbot job name"] = $scope.artifacts.buildapi.blob.buildername;
+                    setBuildernameHref($scope.buildbotJobname);
                 }
 
                 // time fields to show in detail panel, but that should be grouped together
