@@ -255,7 +255,7 @@ treeherder.controller('SearchCtrl', [
                 return thJobFilters.getSearchQuery().searchQueryStr;
             },
             function(searchQueryStr){
-                console.log(['watch', searchQueryStr]);
+
                 $scope.searchQueryStr = searchQueryStr;
 
                 $rootScope.skipNextSearchChangeReload = true;
