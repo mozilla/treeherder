@@ -246,45 +246,50 @@ treeherder.controller('FilterPanelCtrl', [
 ]);
 
 treeherder.controller('SearchCtrl', [
-    '$scope', '$rootScope', 'thEvents', '$location',
-    function SearchCtrl($scope, $rootScope, thEvents, $location){
+    '$scope', '$rootScope', 'thEvents', 'thJobFilters', '$location',
+    function SearchCtrl(
+        $scope, $rootScope, thEvents, thJobFilters, $location){
 
-        $scope.search = function(ev){
-
-            if($scope.searchQueryStr === ""){
-
-               $rootScope.skipNextSearchChangeReload = true;
-
-               $rootScope.searchQuery = [];
-               $rootScope.searchQueryStr = "";
-               $location.search("searchQuery", null);
-               $location.search("jobname", null);
-            }
-            //User hit enter
-            if( (ev.keyCode === 13) ||
-                ($scope.searchQuery.length === 0) ){
-
-                var queryString = $scope.searchQueryStr.replace(/ +(?= )/g, ' ').toLowerCase();
-                $rootScope.searchQuery = queryString.split(' ');
+        $scope.$watch(
+            function(){
+                return thJobFilters.getSearchQuery().searchQueryStr;
+            },
+            function(searchQueryStr){
+                console.log(['watch', searchQueryStr]);
+                $scope.searchQueryStr = searchQueryStr;
 
                 $rootScope.skipNextSearchChangeReload = true;
 
-                if(queryString === ""){
-                    // Remove the parameter from the url if there are no
-                    // search terms
+                if($scope.searchQueryStr === ""){
+
                     $location.search("searchQuery", null);
+
+                    //jobname here is for backwords compatibility with
+                    //tbpl url parameters
                     $location.search("jobname", null);
+
                 }else{
-                    $location.search("searchQuery", queryString);
+                    $location.search("searchQuery", searchQueryStr);
+
+                    //jobname here is for backwords compatibility with
+                    //tbpl url parameters
                     $location.search("jobname", null);
                 }
 
                 $rootScope.$broadcast(
                     thEvents.searchPage,
-                    {searchQuery: $scope.searchQuery}
+                    { searchQuery: thJobFilters.getSearchQuery() }
                     );
             }
-        };
+        );
 
+        $scope.search = function(ev){
+            //User hit enter
+            if( (ev.keyCode === 13) ||
+                ($scope.searchQueryStr === "") ){
+
+                thJobFilters.setSearchQuery($scope.searchQueryStr);
+            }
+        };
     }
 ]);

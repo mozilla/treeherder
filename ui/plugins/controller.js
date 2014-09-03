@@ -2,13 +2,13 @@
 
 treeherder.controller('PluginCtrl', [
     '$scope', '$rootScope', '$location', 'thUrl', 'ThJobClassificationModel',
-    'thClassificationTypes', 'ThJobModel', 'thEvents', 'dateFilter',
+    'thClassificationTypes', 'ThJobModel', 'thJobFilters', 'thEvents', 'dateFilter',
     'numberFilter', 'ThBugJobMapModel', 'thResultStatus', 'thSocket',
     'ThResultSetModel', 'ThLog', '$q', 'thPinboard', 'ThJobArtifactModel',
     'thBuildApi', 'thNotify', 'ThJobLogUrlModel',
     function PluginCtrl(
         $scope, $rootScope, $location, thUrl, ThJobClassificationModel,
-        thClassificationTypes, ThJobModel, thEvents, dateFilter,
+        thClassificationTypes, ThJobModel, thJobFilters, thEvents, dateFilter,
         numberFilter, ThBugJobMapModel, thResultStatus, thSocket,
         ThResultSetModel, ThLog, $q, thPinboard, ThJobArtifactModel,
         thBuildApi, thNotify, ThJobLogUrlModel) {
@@ -234,17 +234,7 @@ treeherder.controller('PluginCtrl', [
         };
 
         $scope.filterByBuildername = function(buildername){
-
-            // Double double toil and trouble
-            $rootScope.skipNextSearchChangeReload = true;
-            $rootScope.searchQueryStr = buildername;
-            $rootScope.searchQuery = buildername.replace(/ +(?= )/g, ' ').toLowerCase().split(' ');
-            var inputEl = $('#platform-job-text-search-field');
-            inputEl.val(buildername);
-
-            $location.search("searchQuery", buildername);
-            $rootScope.$broadcast( thEvents.searchPage, {} );
-
+            thJobFilters.setSearchQuery(buildername);
         };
 
         $scope.pinboard_service = thPinboard;
