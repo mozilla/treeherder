@@ -802,9 +802,9 @@ def get_symbol(name, bn):
 
     s = SYMBOLS.get(name, "?")
 
-    # Mochitests and Mochitest-e10s are the only ones that display
-    # only as a number, no letters
-    if s in ["M", "M-e10s"]:
+    # Mochitests, Mochitest-e10s and Mochitest OOP are the only ones
+    # that display as just a number (with no letters)
+    if s in ["M", "M-e10s", "M-oop"]:
         s = ""
 
     n = ""
