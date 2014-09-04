@@ -19,17 +19,18 @@ def jobs_with_local_log(initial_data):
     return [job]
 
 
-def test_parse_log(jm, initial_data, jobs_with_local_log, sample_resultset, mock_send_request):
+def test_parse_log(jm, initial_data, jobs_with_local_log, sample_resultset,
+                   mock_send_request, mock_get_remote_content):
     """
-    check that at least 2 job_artifacts get inserted when running
-    a parse_log task
+    check that at least 3 job_artifacts get inserted when running
+    a parse_log task for a successful job
     """
 
     jm.store_result_set_data(sample_resultset)
 
     jobs = jobs_with_local_log
     for job in jobs:
-        # make this a successful job, so no error log processing
+        # make this a successful job, to check it's still parsed for errors
         job['job']['result'] = "success"
         job['revision_hash'] = sample_resultset[0]['revision_hash']
 
@@ -48,10 +49,11 @@ def test_parse_log(jm, initial_data, jobs_with_local_log, sample_resultset, mock
 
     jm.disconnect()
 
-    # we must have at least 2 artifacts: one for the log viewer and another one
-    # for the job artifact panel
-
-    assert len(job_artifacts) >= 2
+    # we must have at least 3 artifacts:
+    # 1 for the log viewer
+    # 1 for the job artifact panel
+    # 1 for the bug suggestions
+    assert len(job_artifacts) >= 3
 
 
 def test_bug_suggestions_artifact(jm, initial_data, jobs_with_local_log,
@@ -59,14 +61,14 @@ def test_bug_suggestions_artifact(jm, initial_data, jobs_with_local_log,
                                   mock_get_remote_content
                                   ):
     """
-    check that at least 2 job_artifacts get inserted when running
-    a parse_log task
+    check that at least 3 job_artifacts get inserted when running
+    a parse_log task ofr a failed job, and that the number of
+    bug search terms/suggestions matches the number of error lines.
     """
     jm.store_result_set_data(sample_resultset)
 
     jobs = jobs_with_local_log
     for job in jobs:
-        # make this a failing job, so use error log processing
         job['job']['result'] = "testfailed"
         job['revision_hash'] = sample_resultset[0]['revision_hash']
 

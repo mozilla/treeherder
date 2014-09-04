@@ -34,7 +34,7 @@ def test_default_builders():
 
 
 def test_check_errors_false():
-    """test for passing case"""
+    """test for check errors disabled case"""
     abc = ArtifactBuilderCollection(
         "foo-url",
         check_errors=False

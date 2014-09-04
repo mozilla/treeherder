@@ -64,11 +64,10 @@ class JobLogUrlViewSet(viewsets.ViewSet):
         """
         log_obj = jm.get_job_log_url_detail(pk)
         job = jm.get_job(log_obj["job_id"])
-        has_failed = job["result"] in jm.FAILED_RESULTS
 
         from treeherder.log_parser.tasks import parse_log
 
         parse_log.delay(project, log_obj["url"],
                         job["job_guid"], job["resultset_id"],
-                        check_errors=has_failed)
+                        check_errors=True)
         return Response({"message": "Log parsing triggered successfully"})

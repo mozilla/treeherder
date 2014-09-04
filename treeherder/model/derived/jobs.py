@@ -1967,11 +1967,10 @@ class JobsModel(TreeherderModelBase):
                 task['job_guid'] = job_guid
                 task['log_url'] = log_ref[2]
                 task['result_set_id'] = result_set_id
+                task['check_errors'] = True
                 if result != 'success':
-                    task['check_errors'] = True
                     task['routing_key'] = 'parse_log.failures'
                 else:
-                    task['check_errors'] = False
                     task['routing_key'] = 'parse_log.success'
                 tasks.append(task)
 
