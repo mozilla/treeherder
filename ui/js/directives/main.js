@@ -34,6 +34,62 @@ treeherder.directive('focusMe', [
     }
   };
 }]);
+// Select all text input in an html element on click.
+treeherder.directive('selectOnClick', [
+    function () {
+        return {
+            restrict: 'A',
+            link: function (scope, element, attrs) {
+                element.on('click', function () {
+                    this.select();
+                });
+        }
+    };
+}]);
+// Prevent default behavior on left mouse click. Useful
+// for html anchor's that need to do in application actions
+// on left click but default href type functionality on
+// middle or right mouse click.
+treeherder.directive('preventDefaultOnLeftClick', [
+    function(){
+        return {
+            restrict: 'A',
+            link: function(scope, element, attrs){
+                element.on('click', function(event){
+                    if(event.which === 1){
+                        event.preventDefault();
+                    }
+                });
+            }
+        }
+    }
+]);
+treeherder.directive('thFilterByBuildername', [
+    'thJobFilters',
+    function(thJobFilters){
+        return {
+            restrict: 'A',
+            link: function(scope, element, attrs){
+                element.on('click', function(event){
+
+                    // Only execute the in page search if the
+                    // user does a left click
+                    if(event.which === 1){
+
+                        thJobFilters.setSearchQuery(scope.buildbotJobname || "");
+
+                        // Need to tell angular to run the digest cycle
+                        // to process the new values in
+                        // thJobFilters.searchQuery
+                        if(!scope.$$phase){
+                            scope.$apply();
+                        }
+                    }
+                });
+            }
+        }
+    }
+]);
 
 treeherder.directive('thNotificationBox', [
     'thNotify',

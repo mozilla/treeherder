@@ -499,9 +499,6 @@ div#bottom-panel .navbar-nav.pull-right li a:focus{
 }
 
 #bottom-left-panel ul li{
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
     padding: 0px 0px 0px 5px;
     line-height: 15px;
 }

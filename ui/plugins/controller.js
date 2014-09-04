@@ -1,13 +1,13 @@
 "use strict";
 
 treeherder.controller('PluginCtrl', [
-    '$scope', '$rootScope', 'thUrl', 'ThJobClassificationModel',
+    '$scope', '$rootScope', '$location', 'thUrl', 'ThJobClassificationModel',
     'thClassificationTypes', 'ThJobModel', 'thEvents', 'dateFilter',
     'numberFilter', 'ThBugJobMapModel', 'thResultStatus', 'thSocket',
     'ThResultSetModel', 'ThLog', '$q', 'thPinboard', 'ThJobArtifactModel',
     'thBuildApi', 'thNotify', 'ThJobLogUrlModel',
     function PluginCtrl(
-        $scope, $rootScope, thUrl, ThJobClassificationModel,
+        $scope, $rootScope, $location, thUrl, ThJobClassificationModel,
         thClassificationTypes, ThJobModel, thEvents, dateFilter,
         numberFilter, ThBugJobMapModel, thResultStatus, thSocket,
         ThResultSetModel, ThLog, $q, thPinboard, ThJobArtifactModel,
@@ -18,6 +18,21 @@ treeherder.controller('PluginCtrl', [
         $scope.job = {};
 
         var timeout_promise = null;
+
+        var setBuildernameHref = function(buildername){
+
+            var absUrl = $location.absUrl();
+            var delimiter = '?';
+
+            // If there are parameters the parameter delimiter &
+            // should be used
+            if(absUrl.indexOf('?') != -1){
+                delimiter = '&';
+            }
+
+            $scope.buildbotJobnameHref = absUrl + delimiter + 'searchQuery=' + buildername;
+
+        };
 
         var selectJob = function(newValue, oldValue) {
             $scope.artifacts = {};
@@ -60,7 +75,9 @@ treeherder.controller('PluginCtrl', [
                         _.forEach(data, function(item) {
                             $scope.artifacts[item.name] = item;
                         });
-                        $scope.visibleFields["Buildbot job name"] = $scope.artifacts.buildapi.blob.buildername;
+                        $scope.buildbotJobname = $scope.artifacts.buildapi.blob.buildername;
+                        setBuildernameHref($scope.buildbotJobname);
+
                         $log.debug("buildapi artifacts", $scope.artifacts);
                     }
                 });
@@ -84,14 +101,13 @@ treeherder.controller('PluginCtrl', [
                 // fields that will show in the job detail panel
                 $scope.visibleFields = {
                     "Job name": $scope.job.job_type_name || undef,
-                    "Machine ": $scope.job.machine_platform_architecture + " " +
-                                $scope.job.machine_platform_os || undef,
                     "Build": $scope.job.build_architecture + " " +
                              $scope.job.build_platform  + " " +
                              $scope.job.build_os || undef
                 };
                 if (_.has($scope.artifacts, "buildapi")) {
-                    $scope.visibleFields["Buildbot job name"] = $scope.artifacts.buildapi.blob.buildername;
+                    $scope.buildbotJobname = $scope.artifacts.buildapi.blob.buildername;
+                    setBuildernameHref($scope.buildbotJobname);
                 }
 
                 // time fields to show in detail panel, but that should be grouped together

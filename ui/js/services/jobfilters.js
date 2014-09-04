@@ -42,6 +42,9 @@ treeherder.factory('thJobFilters', [
         choice: 'choice'
     };
 
+    var searchQuery = [];
+    var searchQueryStr = "";
+
     var fieldChoices = {
         ref_data_name: {
             name: "buildername/jobname",
@@ -353,7 +356,7 @@ treeherder.factory('thJobFilters', [
             }
         }
 
-        var matchTargetCount = $rootScope.searchQuery.length;
+        var matchTargetCount = searchQuery.length;
 
         if( matchTargetCount > 0 ){
 
@@ -362,7 +365,7 @@ treeherder.factory('thJobFilters', [
             var j = 0;
 
             for(; j<matchTargetCount; j++){
-                if(searchableStrLc.indexOf($rootScope.searchQuery[j]) != -1){
+                if(searchableStrLc.indexOf(searchQuery[j]) != -1){
                     matches++;
                 }
             }
@@ -594,11 +597,6 @@ treeherder.factory('thJobFilters', [
 
         $log.debug("query string params", $location.search());
 
-        if($rootScope.searchQuery === undefined){
-            $rootScope.searchQuery = [];
-            $rootScope.searchQueryStr = "";
-        }
-
         _.each(search, function (filterVal, filterKey) {
             $log.debug("field filter", filterKey, filterVal);
 
@@ -618,19 +616,8 @@ treeherder.factory('thJobFilters', [
                 }
                 setCheckFilterValues(filterKey, _.uniq(filterVal), true);
             } else if ((filterKey === "searchQuery") || (filterKey === "jobname")) {
-
                 //jobname is for backwords compatibility with tbpl links
-                if(filterVal === ""){
-                    // Remove the parameter from the url if there are
-                    // no search terms
-                    $location.search("searchQuery", null);
-                    $location.search("jobname", null);
-                }else{
-                    $log.debug("searchQuery added", filterVal);
-
-                    $rootScope.searchQuery = filterVal.replace(/ +(?= )/g, ' ').toLowerCase().split(' ');
-                    $rootScope.searchQueryStr = filterVal;
-                }
+                setSearchQuery(filterVal);
             }
         });
         $log.debug("done with loadFiltersFromQueryString", filters);
@@ -682,8 +669,8 @@ treeherder.factory('thJobFilters', [
             }
         });
 
-        if ($rootScope.searchQuery.length > 0){
-            newSearchValues.searchQuery = $rootScope.searchQuery;
+        if (searchQueryStr != ""){
+            newSearchValues.searchQuery = searchQueryStr;
         }
 
         $rootScope.skipNextSearchChangeReload = true;
@@ -691,6 +678,23 @@ treeherder.factory('thJobFilters', [
 
     };
 
+    var getSearchQuery = function(){
+        return { searchQuery:searchQuery, searchQueryStr:searchQueryStr };
+    };
+
+    var setSearchQuery = function(queryStr){
+
+        if(typeof queryStr === "string"){
+            searchQueryStr = queryStr;
+
+            if(queryStr === ""){
+                searchQuery = [];
+            }else{
+                searchQuery = queryStr.replace(/ +(?= )/g, ' ').toLowerCase().split(' ');
+            }
+
+        }
+    };
 
     var api = {
         addFilter: addFilter,
@@ -720,11 +724,18 @@ treeherder.factory('thJobFilters', [
         toggleInProgress: toggleInProgress,
         toggleSkipExclusionProfiles: toggleSkipExclusionProfiles,
 
+        getSearchQuery: getSearchQuery,
+        setSearchQuery: setSearchQuery,
+
         // CONSTANTS
         isClassified: "isClassified",
         resultStatus: "resultStatus",
         matchType: matchType,
-        fieldChoices: fieldChoices
+        fieldChoices: fieldChoices,
+
+        searchQuery: searchQuery,
+        searchQueryStr: searchQueryStr
+
     };
 
     return api;
