@@ -512,7 +512,9 @@ div#bottom-panel .navbar-nav.pull-right li a:focus{
 
 #bottom-left-panel .printlines{padding-bottom: 5px;}
 
-#bottom-left-bottom { overflow: auto; }
+#bottom-left-bottom, #bottom-center-bottom {
+    overflow: auto;
+}
 
 #bottom-center-panel {
     -webkit-flex: 1 6;
