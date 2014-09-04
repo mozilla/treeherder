@@ -63,7 +63,7 @@ class HeaderParser(ParserBase):
                 self.artifact[key] = value
 
 
-PATTERN = ' (.*?) \(results: \d+, elapsed: .*?\) \(at (.*?)\)'
+PATTERN = r' (?P<name>.*?) \(results: \d+, elapsed: .*?\) \(at (?P<timestamp>.*?)\)'
 RE_STEP_START = re.compile('={9} Started' + PATTERN)
 RE_STEP_FINISH = re.compile('={9} Finished' + PATTERN)
 
@@ -123,8 +123,8 @@ class StepParser(ParserBase):
                 self.state = self.ST_STARTED
                 self.stepnum += 1
                 self.steps.append({
-                    "name": match.group(1),
-                    "started": match.group(2),
+                    "name": match.group('name'),
+                    "started": match.group('timestamp'),
                     "started_linenumber": lineno,
                     "order": self.stepnum,
                     "errors": [],
@@ -138,7 +138,7 @@ class StepParser(ParserBase):
                 self.state = self.ST_FINISHED
 
                 self.current_step.update({
-                    "finished": match.group(2),
+                    "finished": match.group('timestamp'),
                     "finished_linenumber": lineno,
                     "errors": self.sub_parser.get_artifact(),
                 })
