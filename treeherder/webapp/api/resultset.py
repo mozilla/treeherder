@@ -214,8 +214,8 @@ class ResultSetViewSet(viewsets.ViewSet):
             **filter_kwargs
         )
 
-        jobs_ungrouped = job_list['job_list']
-        reference_signature_names = job_list['reference_signature_names']
+        jobs_ungrouped = job_list.get('job_list', [])
+        reference_signature_names = job_list.get('reference_signature_names', {})
 
         option_collections = jm.refdata_model.get_all_option_collections()
 
