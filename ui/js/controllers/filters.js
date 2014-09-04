@@ -264,7 +264,7 @@ treeherder.controller('SearchCtrl', [
 
                     $location.search("searchQuery", null);
 
-                    //jobname here is for backwords compatibility with
+                    //jobname here is for backwards compatibility with
                     //tbpl url parameters
                     $location.search("jobname", null);
 
