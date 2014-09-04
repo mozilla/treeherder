@@ -2,6 +2,8 @@ import re
 import datetime
 import json
 
+from treeherder.etl.buildbot import RESULT_DICT
+
 
 class ParserBase(object):
     """
@@ -63,7 +65,7 @@ class HeaderParser(ParserBase):
                 self.artifact[key] = value
 
 
-PATTERN = r' (?P<name>.*?) \(results: \d+, elapsed: .*?\) \(at (?P<timestamp>.*?)\)'
+PATTERN = r' (?P<name>.*?) \(results: (?P<result>\d+), elapsed: .*?\) \(at (?P<timestamp>.*?)\)'
 RE_STEP_START = re.compile('={9} Started' + PATTERN)
 RE_STEP_FINISH = re.compile('={9} Finished' + PATTERN)
 
@@ -81,6 +83,7 @@ class StepParser(ParserBase):
             "started_linenumber": 8,
             "finished_linenumber": 10,
             "finished": "2013-06-05 12:39:57.839226",
+            "result": 0,
             "error_count": 0,
             "duration": 0.000699, # in seconds
             "order": 0  # the order the process came in the log file
@@ -127,6 +130,7 @@ class StepParser(ParserBase):
                     "started": match.group('timestamp'),
                     "started_linenumber": lineno,
                     "order": self.stepnum,
+                    "result": RESULT_DICT.get(int(match.group('result')), "unknown"),
                     "errors": [],
                 })
                 return
