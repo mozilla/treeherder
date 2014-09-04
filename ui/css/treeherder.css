@@ -1416,17 +1416,12 @@ fieldset[disabled] .btn-repo.active {
            flex-flow: row;
 }
 
-div.similar_jobs .right_panel{ min-width:300px; border: 1px solid #101010; }
+div.similar_jobs .right_panel{ border: 1px solid #101010; flex: 1 1; -webkit-flex: 1 1; }
 div.similar_jobs .right_panel form{height:42px; background-color: #D3D3D3;}
-div.similar_jobs .right_panel .similar_job_detail{ min-width:300px; border-top: 1px solid #101010; }
-div.similar_jobs .right_panel .similar_job_detail table{ width: inherit;}
-div.similar_jobs .right_panel .similar_job_detail ul.error_list li{
-    min-width: 296px;
-    overflow-x: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-}
-div.similar_jobs .left_panel{ margin-bottom: 15px;}
+div.similar_jobs .right_panel .similar_job_detail{ border-top: 1px solid #101010; }
+div.similar_jobs .right_panel .similar_job_detail table { width: 100%; overflow: hidden; }
+
+div.similar_jobs .left_panel{ margin-bottom: 15px; flex: 1 1; -webkit-flex: 1 1; }
 div.similar_jobs .left_panel table{ margin-bottom: 5px;}
 div.similar_jobs .left_panel table tr.active>td{background-color: #D3D3D3;}
 div.similar_jobs .left_panel table tr{cursor: pointer;}
