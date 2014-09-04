@@ -683,6 +683,7 @@ treeherder.factory('thJobFilters', [
     };
 
     var setSearchQuery = function(queryStr){
+
         if(typeof queryStr === "string"){
             searchQueryStr = queryStr;
 
@@ -691,6 +692,7 @@ treeherder.factory('thJobFilters', [
             }else{
                 searchQuery = queryStr.replace(/ +(?= )/g, ' ').toLowerCase().split(' ');
             }
+
         }
     };
 
@@ -722,14 +724,18 @@ treeherder.factory('thJobFilters', [
         toggleInProgress: toggleInProgress,
         toggleSkipExclusionProfiles: toggleSkipExclusionProfiles,
 
+        getSearchQuery: getSearchQuery,
+        setSearchQuery: setSearchQuery,
+
         // CONSTANTS
         isClassified: "isClassified",
         resultStatus: "resultStatus",
         matchType: matchType,
         fieldChoices: fieldChoices,
 
-        getSearchQuery: getSearchQuery,
-        setSearchQuery: setSearchQuery
+        searchQuery: searchQuery,
+        searchQueryStr: searchQueryStr
+
     };
 
     return api;

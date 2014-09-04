@@ -64,6 +64,32 @@ treeherder.directive('preventDefaultOnLeftClick', [
         }
     }
 ]);
+treeherder.directive('thFilterByBuildername', [
+    'thJobFilters',
+    function(thJobFilters){
+        return {
+            restrict: 'A',
+            link: function(scope, element, attrs){
+                element.on('click', function(event){
+
+                    // Only execute the in page search if the
+                    // user does a left click
+                    if(event.which === 1){
+
+                        thJobFilters.setSearchQuery(scope.buildbotJobname || "");
+
+                        // Need to tell angular to run the digest cycle
+                        // to process the new values in
+                        // thJobFilters.searchQuery
+                        if(!scope.$$phase){
+                            scope.$apply();
+                        }
+                    }
+                });
+            }
+        }
+    }
+]);
 
 treeherder.directive('thNotificationBox', [
     'thNotify',

@@ -2,13 +2,13 @@
 
 treeherder.controller('PluginCtrl', [
     '$scope', '$rootScope', '$location', 'thUrl', 'ThJobClassificationModel',
-    'thClassificationTypes', 'ThJobModel', 'thJobFilters', 'thEvents', 'dateFilter',
+    'thClassificationTypes', 'ThJobModel', 'thEvents', 'dateFilter',
     'numberFilter', 'ThBugJobMapModel', 'thResultStatus', 'thSocket',
     'ThResultSetModel', 'ThLog', '$q', 'thPinboard', 'ThJobArtifactModel',
     'thBuildApi', 'thNotify', 'ThJobLogUrlModel',
     function PluginCtrl(
         $scope, $rootScope, $location, thUrl, ThJobClassificationModel,
-        thClassificationTypes, ThJobModel, thJobFilters, thEvents, dateFilter,
+        thClassificationTypes, ThJobModel, thEvents, dateFilter,
         numberFilter, ThBugJobMapModel, thResultStatus, thSocket,
         ThResultSetModel, ThLog, $q, thPinboard, ThJobArtifactModel,
         thBuildApi, thNotify, ThJobLogUrlModel) {
@@ -247,10 +247,6 @@ treeherder.controller('PluginCtrl', [
                     $scope.bugs = response;
                 });
             }
-        };
-
-        $scope.filterByBuildername = function(buildername){
-            thJobFilters.setSearchQuery(buildername);
         };
 
         $scope.pinboard_service = thPinboard;
