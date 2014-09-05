@@ -264,11 +264,11 @@ VM_STATUS = [
 BUILD_TYPE_BUILDERNAME = [
     {
         'type': 'pgo',
-        'regex': re.compile('.+ pgo(?:[ ]|-).+'),
+        'regex': re.compile('.+ pgo[ -].+', re.IGNORECASE),
     },
     {
         'type': 'asan',
-        'regex': re.compile('.+ asan .+'),
+        'regex': re.compile('.+ asan .+', re.IGNORECASE),
     },
     {
         'type': 'debug',
@@ -752,7 +752,7 @@ def extract_vm_status(source_string):
 def extract_build_type(source_string):
     output = 'opt'
     for build_type in BUILD_TYPE_BUILDERNAME:
-        if build_type["regex"].search(source_string, re.IGNORECASE):
+        if build_type["regex"].search(source_string):
             output = build_type["type"]
             return output
     return output

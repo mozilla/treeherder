@@ -595,7 +595,7 @@ buildernames = [
                    'os_platform': 'osx-10-8',
                    'vm': False}}),
     ('Ubuntu ASAN VM 12.04 x64 mozilla-inbound opt test crashtest',
-    {'build_type': 'opt',
+    {'build_type': 'asan',
       'job_type': 'unittest',
       'name': {'group_name': 'Reftest',
                'group_symbol': 'R',
