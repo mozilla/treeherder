@@ -18,9 +18,10 @@
                 "started_linenumber": 8, 
                 "finished_linenumber": 10, 
                 "finished": "2013-06-05 12:55:02.794485", 
-                "error_count": 0, 
+                "result": "success", 
                 "duration": 0, 
-                "order": 0
+                "order": 0, 
+                "error_count": 0
             }, 
             {
                 "errors": [], 
@@ -29,9 +30,10 @@
                 "started_linenumber": 12, 
                 "finished_linenumber": 36, 
                 "finished": "2013-06-05 12:55:03.579905", 
-                "error_count": 0, 
+                "result": "success", 
                 "duration": 1, 
-                "order": 1
+                "order": 1, 
+                "error_count": 0
             }, 
             {
                 "errors": [], 
@@ -40,9 +42,10 @@
                 "started_linenumber": 38, 
                 "finished_linenumber": 39, 
                 "finished": "2013-06-05 12:55:05.429410", 
-                "error_count": 0, 
+                "result": "success", 
                 "duration": 2, 
-                "order": 2
+                "order": 2, 
+                "error_count": 0
             }, 
             {
                 "errors": [], 
@@ -51,9 +54,10 @@
                 "started_linenumber": 41, 
                 "finished_linenumber": 63, 
                 "finished": "2013-06-05 12:55:05.711713", 
-                "error_count": 0, 
+                "result": "success", 
                 "duration": 0, 
-                "order": 3
+                "order": 3, 
+                "error_count": 0
             }, 
             {
                 "errors": [], 
@@ -62,9 +66,10 @@
                 "started_linenumber": 65, 
                 "finished_linenumber": 87, 
                 "finished": "2013-06-05 12:55:05.951055", 
-                "error_count": 0, 
+                "result": "success", 
                 "duration": 0, 
-                "order": 4
+                "order": 4, 
+                "error_count": 0
             }, 
             {
                 "errors": [], 
@@ -73,9 +78,10 @@
                 "started_linenumber": 89, 
                 "finished_linenumber": 118, 
                 "finished": "2013-06-05 12:55:08.587665", 
-                "error_count": 0, 
+                "result": "success", 
                 "duration": 3, 
-                "order": 5
+                "order": 5, 
+                "error_count": 0
             }, 
             {
                 "errors": [], 
@@ -84,9 +90,10 @@
                 "started_linenumber": 120, 
                 "finished_linenumber": 143, 
                 "finished": "2013-06-05 12:55:09.070938", 
-                "error_count": 0, 
+                "result": "success", 
                 "duration": 0, 
-                "order": 6
+                "order": 6, 
+                "error_count": 0
             }, 
             {
                 "errors": [], 
@@ -95,9 +102,10 @@
                 "started_linenumber": 145, 
                 "finished_linenumber": 169, 
                 "finished": "2013-06-05 12:55:09.553968", 
-                "error_count": 0, 
+                "result": "success", 
                 "duration": 0, 
-                "order": 7
+                "order": 7, 
+                "error_count": 0
             }, 
             {
                 "errors": [], 
@@ -106,9 +114,10 @@
                 "started_linenumber": 171, 
                 "finished_linenumber": 173, 
                 "finished": "2013-06-05 12:55:09.555053", 
-                "error_count": 0, 
+                "result": "success", 
                 "duration": 0, 
-                "order": 8
+                "order": 8, 
+                "error_count": 0
             }, 
             {
                 "errors": [], 
@@ -117,9 +126,10 @@
                 "started_linenumber": 175, 
                 "finished_linenumber": 11552, 
                 "finished": "2013-06-05 13:02:38.681825", 
-                "error_count": 0, 
+                "result": "success", 
                 "duration": 449, 
-                "order": 9
+                "order": 9, 
+                "error_count": 0
             }, 
             {
                 "errors": [], 
@@ -128,9 +138,10 @@
                 "started_linenumber": 11554, 
                 "finished_linenumber": 11578, 
                 "finished": "2013-06-05 13:02:38.876303", 
-                "error_count": 0, 
+                "result": "success", 
                 "duration": 0, 
-                "order": 10
+                "order": 10, 
+                "error_count": 0
             }, 
             {
                 "errors": [], 
@@ -139,9 +150,10 @@
                 "started_linenumber": 11580, 
                 "finished_linenumber": 11609, 
                 "finished": "2013-06-05 13:03:00.115654", 
-                "error_count": 0, 
+                "result": "success", 
                 "duration": 21, 
-                "order": 11
+                "order": 11, 
+                "error_count": 0
             }
         ]
     }, 

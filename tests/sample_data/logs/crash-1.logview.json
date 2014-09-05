@@ -35,9 +35,10 @@
                 "started_linenumber": 8, 
                 "finished_linenumber": 10, 
                 "finished": "2013-06-05 12:51:48.768393", 
-                "error_count": 0, 
+                "result": "success", 
                 "duration": 0, 
-                "order": 0
+                "order": 0, 
+                "error_count": 0
             }, 
             {
                 "errors": [], 
@@ -46,9 +47,10 @@
                 "started_linenumber": 12, 
                 "finished_linenumber": 14, 
                 "finished": "2013-06-05 12:51:48.769473", 
-                "error_count": 0, 
+                "result": "success", 
                 "duration": 0, 
-                "order": 1
+                "order": 1, 
+                "error_count": 0
             }, 
             {
                 "errors": [
@@ -74,9 +76,10 @@
                 "started_linenumber": 16, 
                 "finished_linenumber": 39766, 
                 "finished": "2013-06-05 13:15:39.235146", 
-                "error_count": 4, 
+                "result": "testfailed", 
                 "duration": 1244, 
-                "order": 2
+                "order": 2, 
+                "error_count": 4
             }, 
             {
                 "errors": [], 
@@ -85,9 +88,10 @@
                 "started_linenumber": 39768, 
                 "finished_linenumber": 39812, 
                 "finished": "2013-06-05 13:16:04.014823", 
-                "error_count": 0, 
+                "result": "success", 
                 "duration": 25, 
-                "order": 3
+                "order": 3, 
+                "error_count": 0
             }, 
             {
                 "errors": [], 
@@ -96,9 +100,10 @@
                 "started_linenumber": 39814, 
                 "finished_linenumber": 39816, 
                 "finished": "2013-06-05 13:16:04.963614", 
-                "error_count": 0, 
+                "result": "success", 
                 "duration": 1, 
-                "order": 4
+                "order": 4, 
+                "error_count": 0
             }
         ]
     }, 
