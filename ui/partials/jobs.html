@@ -5,36 +5,35 @@
 
 <div ng-repeat="resultset in result_sets track by resultset.id | orderBy:'-push_timestamp'"
      ng-controller="ResultSetCtrl"
-     class="result-set col col-xs-12"
+     class="result-set"
      data-id="{{resultset.id}}">
 
-    <div class="result-set-title row">
-        <span class="col-xs-4 result-set-title-left">
-            <span class="btn btn-default btn-sm glyphicon glyphicon-download" ng-show="isLoadingJobs"></span>
-            <span class="timestamp-name">
-                <span>
-                    <a href="{{revisionResultsetFilterUrl}}"
-                       title="open this resultset in new tab"
-                       target="_blank">{{resultset.push_timestamp*1000|date:'medium'}}</a> - </span>
-                <th-author author="{{resultset.author}}"></th-author>
-            </span>
+    <div class="result-set-title">
+      <span class="result-set-title-left">
+        <span class="btn btn-default btn-sm glyphicon glyphicon-download" ng-show="isLoadingJobs"></span>
+        <span class="timestamp-name">
+          <span>
+            <a href="{{revisionResultsetFilterUrl}}"
+               title="open this resultset in new tab"
+               target="_blank">{{resultset.push_timestamp*1000|date:'medium'}}</a> - </span>
+          <th-author author="{{resultset.author}}"></th-author>
         </span>
-        <span class="col-xs-4 result-set-buttons">
-            <span class="revision-text">{{resultset.revision}}</span>
-            <span class="btn btn-default btn-sm"
-                  title="pin all visible jobs in this resultset"
-                  ng-click="pinAllShownJobs()">
-                <span class="glyphicon glyphicon-pushpin"></span>
-            </span>
-            <th-action-button ng-hide="isLoadingJobs"></th-action-button>
+      </span>
+      <span class="result-set-buttons">
+        <span class="revision-text">{{resultset.revision}}</span>
+        <span class="btn btn-default btn-sm"
+              title="pin all visible jobs in this resultset"
+              ng-click="pinAllShownJobs()">
+          <span class="glyphicon glyphicon-pushpin"></span>
         </span>
+        <th-action-button ng-hide="isLoadingJobs"></th-action-button>
+      </span>
 
-        <span class="col-xs-1 btn btn-default btn-sm revision-button"
-              ng-click="toggleRevisions()"
-              title="show revisions"><i class="fa fa-code-fork fa-lg"></i> {{resultset.revision_count}}</span>
-        <th-result-counts class="col-xs-4 result-counts"/>
+      <span class="btn btn-default btn-sm revision-button"
+            ng-click="toggleRevisions()"
+            title="show revisions"><i class="fa fa-code-fork fa-lg"></i> {{resultset.revision_count}}</span>
+      <th-result-counts class="result-counts"/>
     </div>
-
     <div th-clone-jobs ></div>
 </div>
 

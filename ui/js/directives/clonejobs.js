@@ -927,10 +927,14 @@ treeherder.directive('thCloneJobs', [
 
     var scrollToElement = function(el){
 
-        if(el.offset() !== undefined){
+        if(el.position() !== undefined){
+          var scrollPos = $('.th-content').scrollTop() +
+            el.parents('div.result-set.ng-scope').position().top +
+            el.position().top;
+
             //Scroll to the job element
-            $('html, body').animate({
-                scrollTop: el.offset().top - 250
+            $('.th-content').animate({
+                scrollTop: scrollPos
             }, 200);
         }
 
