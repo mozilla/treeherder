@@ -9,18 +9,21 @@ module.exports = function(grunt) {
         useminPrepare:{
             index: {
                 src:'webapp/app/index.html',
+                nonull: true,
                 options:{
                     dest:'dist'
                 }
             },
             help: {
                 src:'webapp/app/help.html',
+                nonull: true,
                 options:{
                     dest:'dist'
                 }
             },
             logviewer: {
                 src:'webapp/app/logviewer.html',
+                nonull: true,
                 options:{
                     dest:'dist'
                 }
@@ -33,9 +36,9 @@ module.exports = function(grunt) {
 
             main: {
                 files: [
-                    { src:'webapp/app/index.html', dest:'dist/index.html' },
-                    { src:'webapp/app/help.html', dest:'dist/help.html' },
-                    { src:'webapp/app/logviewer.html', dest:'dist/logviewer.html' },
+                    { src:'webapp/app/index.html', dest:'dist/index.html', nonull: true },
+                    { src:'webapp/app/help.html', dest:'dist/help.html', nonull: true },
+                    { src:'webapp/app/logviewer.html', dest:'dist/logviewer.html', nonull: true },
                 ]
             },
             // Copy img dir
@@ -43,6 +46,7 @@ module.exports = function(grunt) {
                 expand: true,
                 src: 'webapp/app/img/*',
                 dest: 'dist/img/',
+                nonull: true,
                 flatten: true
                 },
             // Copy html in partials
@@ -50,6 +54,7 @@ module.exports = function(grunt) {
                 expand: true,
                 src: 'webapp/app/partials/*',
                 dest: 'dist/partials/',
+                nonull: true,
                 flatten: true
                 },
             // Copy fonts
@@ -57,6 +62,7 @@ module.exports = function(grunt) {
                 expand: true,
                 src: 'webapp/app/fonts/*',
                 dest: 'dist/fonts/',
+                nonull: true,
                 flatten: true
                 },
             // Copy html in plugins, make sure not to flatten
@@ -67,6 +73,7 @@ module.exports = function(grunt) {
                 cwd: 'webapp/app/plugins/',
                 src: '**/*.html',
                 dest: 'dist/plugins/',
+                nonull: true,
                 flatten: false
                 }
         },
