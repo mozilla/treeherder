@@ -498,9 +498,10 @@ div#bottom-panel .navbar-nav.pull-right li a:focus{
     border-top: 1px solid #AAAAAA;
 }
 
-#bottom-left-panel ul li{
+#bottom-left-panel ul li {
     padding: 0px 0px 0px 5px;
     line-height: 15px;
+    word-wrap: break-word;
 }
 
 #bottom-left-panel ul li label{
