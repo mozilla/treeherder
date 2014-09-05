@@ -1109,7 +1109,7 @@ treeherder.directive('thCloneJobs', [
 
         element.append(targetEl);
 
-        if(scope.resultset.platforms != undefined){
+        if(scope.resultset.platforms !== undefined){
             generateJobElements(
                 resultsetAggregateId, scope.resultset, scope.resultStatusFilters
                 );
