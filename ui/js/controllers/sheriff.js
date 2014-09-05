@@ -2,11 +2,11 @@
 treeherder.controller('SheriffCtrl', [
     '$scope', '$rootScope', 'ThBuildPlatformModel', 'ThJobTypeModel',
     'thEvents', 'ThRepositoryModel', 'ThOptionModel', 'ThJobExclusionModel',
-    'ThExclusionProfileModel',
+    'ThExclusionProfileModel', 'thJobFilters',
     function SheriffController(
         $scope, $rootScope, ThBuildPlatformModel, ThJobTypeModel, thEvents,
         ThRepositoryModel, ThOptionModel, ThJobExclusionModel,
-        ThExclusionProfileModel) {
+        ThExclusionProfileModel, thJobFilters) {
 
         // fetch the reference data
         $scope.exclusions = [];
@@ -20,11 +20,25 @@ treeherder.controller('SheriffCtrl', [
 
         $scope.profiles = [];
 
-        // get a cached version of the model
-        ThExclusionProfileModel.get_list({}, true).then(function(data) {
-            $scope.profiles = data;
-        });
+        $scope.refreshExclusionProfileList = function() {
+            // this is a bit brute force for some circumstances.  But the list
+            // of flat_exclusions is generated on the server.  So if a profile
+            // or a job_exclusion that the profile contains changes, we need
+            // to regenerate that.
 
+            ThExclusionProfileModel.get_list({}, false).then(function(data) {
+                $scope.profiles = data;
+                thJobFilters.setActiveExclusionProfile(_.find(
+                    $scope.profiles,
+                    function(elem){
+                        return elem.is_default;
+                    }
+                ));
+            });
+
+        };
+
+        $scope.refreshExclusionProfileList();
 
         $scope.view = 'exclusion_profile_list';
         $scope.switchView = function(newView) {
@@ -36,7 +50,9 @@ treeherder.controller('SheriffCtrl', [
         ThBuildPlatformModel.get_list()
         .then(function(data) {
             for (var i = 0; i < data.length; i++) {
-                $scope.master_platforms.push(data[i].platform + " (" + data[i].architecture + ")");
+                $scope.master_platforms.push(
+                    thJobFilters.getJobComboField(data[i].platform, data[i].architecture)
+                );
             }
             $scope.form_platforms = angular.copy($scope.master_platforms);
             console.log("form_platforms", $scope.form_platforms);
@@ -47,7 +63,9 @@ treeherder.controller('SheriffCtrl', [
         ThJobTypeModel.get_list()
         .then(function(data) {
             for (var i = 0; i < data.length; i++) {
-                $scope.master_job_types.push(data[i].name + ' ('+ data[i].symbol + ')');
+                $scope.master_job_types.push(
+                    thJobFilters.getJobComboField(data[i].name, data[i].symbol)
+                );
             }
             $scope.form_job_types = angular.copy($scope.master_job_types);
         });
@@ -112,6 +130,7 @@ treeherder.controller('SheriffCtrl', [
                     $scope.switchView('job_exclusion_list');
                 }, null);
             }
+            $scope.refreshExclusionProfileList();
         };
 
         $scope.delete_exclusion = function(exclusion) {
@@ -129,6 +148,7 @@ treeherder.controller('SheriffCtrl', [
                 var index = $scope.exclusions.indexOf(exclusion);
                 $scope.exclusions.splice(index, 1);
             });
+            $scope.refreshExclusionProfileList();
         };
 
         // Init the exclusion add form
@@ -171,13 +191,14 @@ treeherder.controller('SheriffCtrl', [
                 //angular.extend(profile, $scope.form_profile);
                 profile.update().then(function() {
                     $scope.switchView('exclusion_profile_list');
+                    $scope.refreshExclusionProfileList();
                 }, null);
             }else {
                 profile = new ThExclusionProfileModel($scope.form_profile);
                 profile.create().then(
                     function() {
-                        $scope.profiles.push(profile);
                         $scope.switchView('exclusion_profile_list');
+                        $scope.refreshExclusionProfileList();
                     }, null);
             }
         };
@@ -197,8 +218,7 @@ treeherder.controller('SheriffCtrl', [
                         elem.is_default = false;
                     }
                 });
-                $rootScope.active_exclusion_profile = profile;
-                $rootScope.$broadcast(thEvents.globalFilterChanged, null);
+                thJobFilters.setActiveExclusionProfile(profile);
             }, null);
         };
 

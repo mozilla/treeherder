@@ -107,6 +107,8 @@ treeherder.factory('thJobFilters', [
 
     var filterKeys = _.keys(filters);
 
+    var activeExclusionProfile = {};
+
     // whether or not to skip the checks for the exclusion profiles.
     // an exclusion profile may be enabled, but this allows the user
     // to toggle it on or off.
@@ -365,18 +367,23 @@ treeherder.factory('thJobFilters', [
             var j = 0;
 
             for(; j<matchTargetCount; j++){
-                if(searchableStrLc.indexOf(searchQuery[j]) != -1){
+                if(searchableStrLc.indexOf(searchQuery[j]) !== -1){
                     matches++;
                 }
             }
-            if(matches != matchTargetCount){
+            if(matches !== matchTargetCount){
                 return false;
             }
         }
-        if($rootScope.active_exclusion_profile && !skipExclusionProfiles) {
+        if(activeExclusionProfile && !skipExclusionProfiles) {
             try{
-                if($rootScope.active_exclusion_profile.flat_exclusion[$rootScope.repoName]
-                    [job.platform][job.job_type_name][job.platform_option]){
+                var jobPlatformArch = getJobComboField(
+                    job.platform, job.machine_platform_architecture);
+                var jobNameSymbol = getJobComboField(
+                    job.job_type_name, job.job_type_symbol);
+
+                if(activeExclusionProfile.flat_exclusion[$rootScope.repoName]
+                    [jobPlatformArch][jobNameSymbol][job.platform_option]){
                     addExcludedJob(job);
                     return false;
                 }
@@ -575,6 +582,7 @@ treeherder.factory('thJobFilters', [
 
     var toggleSkipExclusionProfiles = function() {
         skipExclusionProfiles = !skipExclusionProfiles;
+        $rootScope.$broadcast(thEvents.globalFilterChanged);
     };
 
     var isSkippingExclusionProfiles = function() {
@@ -681,6 +689,14 @@ treeherder.factory('thJobFilters', [
     var getSearchQuery = function(){
         return { searchQuery:searchQuery, searchQueryStr:searchQueryStr };
     };
+    /**
+     * Used in more than one place, so this ensures the format remains
+     * consistent.  Critical because it's used when building the exclusion
+     * profiles in memory, and checking against them.
+     */
+    var getJobComboField = function(field1, field2) {
+        return field1 + " (" + field2 + ")";
+    };
 
     var setSearchQuery = function(queryStr){
 
@@ -696,6 +712,15 @@ treeherder.factory('thJobFilters', [
         }
     };
 
+    var getActiveExclusionProfile = function() {
+        return activeExclusionProfile;
+    };
+
+    var setActiveExclusionProfile = function(newProfile) {
+        activeExclusionProfile = newProfile;
+        $rootScope.$broadcast(thEvents.globalFilterChanged, null);
+    };
+
     var api = {
         addFilter: addFilter,
         buildFiltersFromQueryString: buildFiltersFromQueryString,
@@ -703,8 +728,10 @@ treeherder.factory('thJobFilters', [
         copyResultStatusFilters: copyResultStatusFilters,
         excludedJobs: excludedJobs,
         filters: filters,
+        getActiveExclusionProfile: getActiveExclusionProfile,
         getCountExcluded: getCountExcluded,
         getCountExcludedForRepo: getCountExcludedForRepo,
+        getJobComboField: getJobComboField,
         isSkippingExclusionProfiles: isSkippingExclusionProfiles,
         isUnclassifiedFailures: isUnclassifiedFailures,
         matchesDefaults: matchesDefaults,
@@ -715,6 +742,7 @@ treeherder.factory('thJobFilters', [
         resetNonFieldFilters: resetNonFieldFilters,
         revertNonFieldFilters: revertNonFieldFilters,
 
+        setActiveExclusionProfile: setActiveExclusionProfile,
         setCheckFilterValues: setCheckFilterValues,
         showCoalesced: showCoalesced,
         showJob: showJob,

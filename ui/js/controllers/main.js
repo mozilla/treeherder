@@ -250,15 +250,12 @@ treeherder.controller('MainCtrl', [
         // get a cached version of the exclusion profiles
         ThExclusionProfileModel.get_list({}, true).then(function(profiles){
             $scope.exclusion_profiles = profiles;
-            $rootScope.active_exclusion_profile = _.find(
+            thJobFilters.setActiveExclusionProfile(_.find(
                 $scope.exclusion_profiles,
                 function(elem){
                     return elem.is_default;
                 }
-            );
-            if($rootScope.active_exclusion_profile){
-                $scope.$broadcast(thEvents.globalFilterChanged, null);
-            }
+            ));
         }, null);
     }
 ]);

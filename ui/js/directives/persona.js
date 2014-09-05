@@ -13,8 +13,14 @@ treeherder.directive('personaButtons', [
             BrowserId.info.then(function(response){
                 $rootScope.user = {};
                 // if the user.email value is null, it means that he's not logged in
-                $rootScope.user.email = response.data.userEmail || null
-                $rootScope.user.loggedin = $rootScope.user.email === null ? false : true;
+                console.log("response", response, response.data);
+                $rootScope.user.email = response.data.userEmail || null;
+                $rootScope.user.loggedin = $rootScope.user.email !== null;
+                if ($rootScope.user.loggedin) {
+                    ThUserModel.get().then(function(user){
+                        angular.extend($rootScope.user, user);
+                    }, null);
+                }
             }).then(function(){
                 navigator.id.watch({
                     /*
@@ -43,7 +49,7 @@ treeherder.directive('personaButtons', [
                         }
                     }
                 });
-            })
+            });
 
 
             scope.login = function(){
