@@ -16,28 +16,23 @@
 
     </head>
     <body ng-controller="MainCtrl" ng-keydown="processKeyboardInput($event)">
-        <ng-include id="th-global-top-nav-panel" src="'partials/thGlobalTopNavPanel.html'"></ng-include>
+      <div id="global-container">
+        <div class="th-navbar">
+          <ng-include id="th-global-top-nav-panel" src="'partials/thGlobalTopNavPanel.html'"></ng-include>
+        </div>
         <div class="th-content">
-
             <span class="th-view-content" ng-cloak>
                 <ng-view ></ng-view>
             </span>
-
-        </div>
-
-        <!-- Footer -->
-        <div class="text-center">
-          <a href="https://github.com/mozilla/treeherder-ui" target="_blank">Source code</a> / <a href="https://wiki.mozilla.org/Auto-tools/Projects/Treeherder#Hacking" target="_blank">Hacking</a> / <a href="https://bugzilla.mozilla.org/enter_bug.cgi?product=Tree+Management&component=Treeherder" target="_blank">Bug report</a>
         </div>
         <div ng-controller="PluginCtrl"
              id="bottom-panel"
              ng-show="selectedJob"
              ng-class="{'with-pinboard':isPinboardVisible}"
              ng-include src="'plugins/pluginpanel.html'">
-            <resizable-panel position="top"></resizable-panel>
         </div>
+      </div>
 
-        <th-notification-box></th-notification-box>
 
         <!-- build:js js/index.min.js -->
         <script src="vendor/jquery-2.0.3.js"></script>

@@ -1,6 +1,18 @@
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+
 body {
-    padding-top: 61px;
     line-height: inherit; /* override bootstrap */
+}
+
+#global-container {
+    display: -webkit-flex;
+    display:         flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    height: 100%;
 }
 
 .pagination, .carousel, .panel-title a {
@@ -13,10 +25,15 @@ body {
 }
 
 .th-navbar {
+    background-color: #273038;
+    margin-bottom: 0px;
+    flex: 0 0 auto;
+    -webkit-flex: 0 0 auto;
 }
 
 .navbar {
     min-height: 36px;
+    margin-bottom: 0px;
 }
 
 .navbar-brand {
@@ -25,10 +42,6 @@ body {
 .navbar .dropdown-menu {
     max-height: 600px;
     overflow: auto;
-}
-
-.navbar-fixed-top {
-    background-color: #273038;
 }
 
 .th-global-navbar {
@@ -103,12 +116,10 @@ th-watched-repo {
 }
 
 .th-content {
-    display: inline-block;
-    overflow: hidden;
-    width: 100%;
-    margin-bottom: 301px;
-    white-space: nowrap;
-    padding-right: 5px;
+    flex: 1 1 auto;
+    -webkit-flex: 1 1 auto;
+    position: relative;/* need this to position inner content */
+    overflow-y: auto;
 }
 
 .nav-panel-help-text {
@@ -299,12 +310,26 @@ th-watched-repo {
     white-space: normal;
     width: 100%;
     border-top: 1px solid lightgrey;
+    padding-left: 15px;
+    padding-right: 15px;
+    position: relative;
+}
+
+.result-set-title-left, .result-set-buttons, .result-counts {
+    flex: 0 0 auto;
+    -webkit-flex: 0 0 auto;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 .result-set-title {
     border-top: 1px solid black;
     padding: 2px 0px 0px 0px;
     white-space: nowrap;
+    display: flex;
+    display: -webkit-flex;
+    -webkit-flex-flow: row wrap;
+    flex-flow: row wrap;
 }
 
 .result-set-title-left {
@@ -315,10 +340,6 @@ th-watched-repo {
     padding-left: 0;
 }
 
-.result-set-buttons {
-    width: 205px;
-    display: block;
-}
 .revision-text {
     overflow: hidden;
     text-overflow: ellipsis;
@@ -328,7 +349,7 @@ th-watched-repo {
 }
 
 .revision-button {
-    width: 60px;
+    flex: 0 0 60px;
 }
 
 .revision-list {
@@ -376,12 +397,11 @@ th-watched-repo {
 
 div#bottom-panel {
     background-color: #AAAAAA;
-    height:270px;
-    position:fixed;
-    bottom: 0px;
-    left: 0px;
-    right: 0px;
     font-size: 12px;
+
+    height: 270px;
+    flex: 0 0 auto;
+    -webkit-flex: 0 0 auto;
 
     display: -webkit-flex;
     display:         flex;
@@ -462,6 +482,7 @@ div#bottom-panel .navbar-nav.pull-right li a:focus{
 }
 
 #bottom-panel-content {
+   position: relative; /* So we can absolutely position the loading overlay */
    display: -webkit-flex;
    display:         flex;
    -webkit-flex-flow: row;
@@ -771,8 +792,6 @@ ul.failure-summary-list li .btn-xs{
 .result-status-count-group {
     font-size: 12px;
     white-space: nowrap;
-    display: inline-block;
-    width: 500px;
 }
 .result-status-count {
     padding: 5px 5px;
