@@ -47,6 +47,7 @@ nosetests.xml
 
 #local settings
 treeherder/settings/local.py
+treeherder/settings/pycharm_django_settings.py
 htmlcov/
 
 #static files in deployment

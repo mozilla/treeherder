@@ -566,13 +566,18 @@ class ExclusionProfile(models.Model):
     """
     name = models.CharField(max_length=255, unique=True)
     is_default = models.BooleanField(default=False)
-    exclusions = models.ManyToManyField(JobExclusion, related_name="profiles", through="ExclusionProfileExclusions")
+    exclusions = models.ManyToManyField(JobExclusion, related_name="profiles")
     flat_exclusion = JSONField(blank=True, default={})
     author = models.ForeignKey(User, related_name="exclusion_profiles_authored")
 
     def save(self, *args, **kwargs):
         super(ExclusionProfile, self).save(*args, **kwargs)
 
+        # update the old default profile
+        if self.is_default:
+            ExclusionProfile.objects.filter(is_default=True).exclude(id=self.id).update(is_default=False)
+
+    def update_flat_exclusions(self):
         # prepare the nested defaultdict structure for the flat exclusions
         # options should be stored in a set but sets are not serializable.
         # using a list instead
@@ -585,18 +590,12 @@ class ExclusionProfile(models.Model):
             combo = tuple(itertools.product(exclusion.info['repos'], exclusion.info['platforms'],
                                             exclusion.info['job_types'], exclusion.info['options']))
             for repo, platform, job_type, option in combo:
-                # strip the job type symbol appended in the ui
-                job_type = job_type[:job_type.rfind(" (")]
                 flat_exclusions[repo][platform][job_type][option] = 1
 
-        self.flat_exclusion = flat_exclusions
-        kwargs["force_insert"] = False
-        kwargs["force_update"] = True
-        super(ExclusionProfile, self).save(*args, **kwargs)
+        if cmp(self.flat_exclusion, flat_exclusions) != 0:
+            self.flat_exclusion = flat_exclusions
+            super(ExclusionProfile, self).save(force_insert=False, force_update=True)
 
-        # update the old default profile
-        if self.is_default:
-            ExclusionProfile.objects.filter(is_default=True).exclude(id=self.id).update(is_default=False)
 
     class Meta:
         db_table = 'exclusion_profile'
@@ -614,18 +613,6 @@ class UserExclusionProfile(models.Model):
 
     class Meta:
         db_table = 'user_exclusion_profile'
-
-
-class ExclusionProfileExclusions(models.Model):
-    """
-    A many to many entity for exclusion profiles and job exclusions
-    """
-
-    exclusionprofile = models.ForeignKey(ExclusionProfile)
-    jobexclusion = models.ForeignKey(JobExclusion)
-
-    class Meta:
-        db_table = 'exclusion_profile_exclusions'
 
 
 class ReferenceDataSignatures(models.Model):

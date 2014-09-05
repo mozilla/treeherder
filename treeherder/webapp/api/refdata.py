@@ -5,6 +5,9 @@ from rest_framework_extensions.mixins import CacheResponseAndETAGMixin
 
 from django.contrib.auth.models import User
 
+import itertools
+from collections import defaultdict
+
 from treeherder.model import models
 from treeherder.model.derived import RefDataManager
 from treeherder.webapp.api import serializers as th_serializers
@@ -162,3 +165,6 @@ class ExclusionProfileViewSet(viewsets.ModelViewSet):
         if "author" not in request.DATA:
             request.DATA["author"] = request.user.id
         return super(ExclusionProfileViewSet, self).create(request, *args, **kwargs)
+
+    def post_save(self, obj, created=False):
+        obj.update_flat_exclusions()
