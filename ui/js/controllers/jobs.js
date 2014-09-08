@@ -17,12 +17,13 @@ treeherder.controller('JobsCtrl', [
             ThResultSetModel.fetchResultSets($scope.repoName, count);
         };
 
-        // set the default repo to mozilla-inbound if not specified
+        // set the default repo to mozilla-central if not specified
         if ($routeParams.hasOwnProperty("repo") &&
             $routeParams.repo !== "") {
             $rootScope.repoName = $routeParams.repo;
         } else {
             $rootScope.repoName = "mozilla-central";
+            $location.search("repo", "mozilla-central");
         }
 
         ThResultSetModel.addRepository($scope.repoName);
