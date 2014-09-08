@@ -37,6 +37,14 @@
     <div th-clone-jobs ></div>
 </div>
 
+<div ng-show="result_sets.length == 0 && !isLoadingRsBatch.appending">
+  <span><br \>
+    <span><b>Unknown revision ID.</b></span>
+    <span>This could be because your push has not been processed yet, or the revision ID could be wrong.
+    This page will refresh occasionally, so your push should show up within a few minutes.</span>
+  <span>
+</div>
+
 <!-- END Revision clone target -->
 
 <div class="progress progress-striped active"
