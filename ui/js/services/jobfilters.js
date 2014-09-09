@@ -141,6 +141,7 @@ treeherder.factory('thJobFilters', [
     //            resultset_id2: ...
     //        }
     var excludedJobs = {};
+    var excludedUnclassifiedFailures = {};
 
     /**
      * If a custom resultStatusList is passed in (like for individual
@@ -391,6 +392,8 @@ treeherder.factory('thJobFilters', [
                 //do nothing
             }
             removeExcludedJob(job);
+        } else {
+            removeExcludedJob(job);
         }
         return true;
     };
@@ -419,6 +422,10 @@ treeherder.factory('thJobFilters', [
             --rs_excluded.counts[oldStatus];
         }
 
+        if (isJobUnclassifiedFailure(job)) {
+            excludedUnclassifiedFailures[job.job_guid] = job;
+        }
+
         // now we can do the increment, because we've decremented the old count
         // if one was there.
         rs_excluded.jobs[job.job_guid] = newStatus;
@@ -444,6 +451,8 @@ treeherder.factory('thJobFilters', [
                 rs_excluded.counts.total = _.size(rs_excluded.jobs);
             }
         }
+
+        delete excludedUnclassifiedFailures[job.job_guid];
     };
 
     /**
@@ -513,6 +522,11 @@ treeherder.factory('thJobFilters', [
         func(api.resultStatus, 'pending');
         func(api.resultStatus, 'running');
         $rootScope.$broadcast(thEvents.globalFilterChanged);
+    };
+
+    var isJobUnclassifiedFailure = function(job) {
+        return (_.contains(['busted', 'testfailed', 'exception'], job.result) &&
+            job.failure_classification_id === 1);
     };
 
     /**
@@ -725,6 +739,7 @@ treeherder.factory('thJobFilters', [
         buildQueryStringFromFilters: buildQueryStringFromFilters,
         copyResultStatusFilters: copyResultStatusFilters,
         excludedJobs: excludedJobs,
+        excludedUnclassifiedFailures: excludedUnclassifiedFailures,
         filters: filters,
         getActiveExclusionProfile: getActiveExclusionProfile,
         getCountExcluded: getCountExcluded,

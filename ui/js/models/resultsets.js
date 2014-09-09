@@ -310,7 +310,10 @@ treeherder.factory('ThResultSetModel', [
 
     var getUnclassifiedFailureCount = function(repoName) {
         if (_.has(repositories, repoName)) {
-            return _.size(repositories[repoName].unclassifiedFailureMap);
+
+            return _.size(repositories[repoName].unclassifiedFailureMap) -
+                   _.size(thJobFilters.excludedUnclassifiedFailures);
+
         }
         return 0;
     };
