@@ -15,7 +15,8 @@
                   class="th-repo-group-items">
                 <input type="checkbox"
                        ng-checked="repoModel.repos[repo.name].isWatched"
-                       ng-click="repoModel.toggleWatched(repo.name)">
+                       ng-click="repoModel.toggleWatched(repo.name)"
+                       ng-disabled="repo.name == repoName">
                 <a ng-href="./#/jobs?repo={{repo.name}}"
                    title="open repo"
                    class="repo-link">{{repo.name}}</a>
