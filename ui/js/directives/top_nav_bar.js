@@ -47,15 +47,17 @@ treeherder.directive('thWatchedRepo', [
         link: function(scope, element, attrs) {
 
             scope.updateCount = function() {
-                scope.adjustedUnclassifiedFailureCount = scope.getTimeWindowUnclassifiedFailureCount(
-                    scope.name);
+                if (scope.repoData.groupName !== "try") {
+                    scope.adjustedUnclassifiedFailureCount = scope.getTimeWindowUnclassifiedFailureCount(
+                        scope.name);
+                }
             };
 
             scope.updateTitleText = function() {
                 if (scope.repoData.treeStatus) {
                     scope.titleText = scope.repoData.treeStatus.status;
-
-                    if (scope.adjustedUnclassifiedFailureCount > 0) {
+                    if (scope.adjustedUnclassifiedFailureCount > 0 &&
+                        scope.repoData.groupName !== "try") {
                         scope.titleText = scope.titleText + ' - ' +
                             scope.adjustedUnclassifiedFailureCount +
                             " unclassified failures in last 24 hours";
