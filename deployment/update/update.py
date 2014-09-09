@@ -39,6 +39,14 @@ def update_code(ctx, tag):
         ctx.local("find . -type f -name '*.pyc' -delete")
 
 
+def rebuild(ctx):
+    with ctx.lcd(th_service_src):
+        # Collect the static files (eg for the Persona or Django admin UI)
+        ctx.local("python2.6 manage.py collectstatic --noinput --settings {0}".format(th_settings))
+        # Rebuild the Cython code (eg the log parser)
+        ctx.local("python2.6 setup.py build_ext --inplace")
+
+
 def update_oauth_credentials(ctx):
     with ctx.lcd(th_service_src):
         ctx.local(
@@ -58,18 +66,9 @@ def checkin_changes(ctx):
 
 
 def deploy_admin_node(ctx):
-    """
-    - Restart celerybeat
-    - Collect the static files
-    - Rebuild the cython code
-    """
+    # Restart celerybeat
     ctx.local(
         '{0}/service celerybeat restart'.format(settings.SBIN_DIR))
-
-    with ctx.lcd(th_service_src):
-        # this is primarily for the persona ui
-        ctx.local("python2.6 manage.py collectstatic --noinput --settings {0}".format(th_settings))
-        ctx.local("python2.6 setup.py build_ext --inplace")
 
 
 @hostgroups(
@@ -119,6 +118,7 @@ def pre_update(ctx, ref=settings.UPDATE_REF):
 
 @task
 def update(ctx):
+    rebuild(ctx)
     update_db(ctx)
     update_oauth_credentials(ctx)
 
