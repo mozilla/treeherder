@@ -89,8 +89,8 @@ treeherder.directive('thWatchedRepo', [
 }]);
 
 treeherder.directive('thRepoDropDown', [
-    'ThLog', 'ThRepositoryModel',
-    function (ThLog, ThRepositoryModel) {
+    'ThLog', 'ThRepositoryModel', 'treeStatus',
+    function (ThLog, ThRepositoryModel, treeStatus) {
 
     var $log = new ThLog("thRepoDropDown");
 
@@ -100,6 +100,9 @@ treeherder.directive('thRepoDropDown', [
         link: function(scope, element, attrs) {
 
             scope.name = attrs.name;
+            scope.treeStatus = treeStatus.getTreeStatusName(attrs.name);
+            var clobberer = scope.treeStatus.split('-');
+            scope.clobberer = clobberer[0] + "-" + clobberer[1];
             var repo_obj = ThRepositoryModel.getRepo(attrs.name);
             scope.pushlog = repo_obj.url +"/pushloghtml";
 
