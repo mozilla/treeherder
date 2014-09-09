@@ -27,7 +27,8 @@ treeherder.factory('treeStatus', [
     };
 
     return {
-        get: get
+        get: get,
+        getTreeStatusName: getTreeStatusName,
     };
 }]);
 
