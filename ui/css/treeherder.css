@@ -399,7 +399,6 @@ div#bottom-panel {
     background-color: #AAAAAA;
     font-size: 12px;
 
-    height: 270px;
     flex: 0 0 auto;
     -webkit-flex: 0 0 auto;
 
@@ -483,11 +482,15 @@ div#bottom-panel .navbar-nav.pull-right li a:focus{
 
 #bottom-panel-content {
    position: relative; /* So we can absolutely position the loading overlay */
+   height: 270px;
+
+   flex: 1 1 auto;
+   -webkit-flex: 1 1 auto;
+
    display: -webkit-flex;
    display:         flex;
    -webkit-flex-flow: row;
            flex-flow: row;
-    height: 100%;
 }
 
 #bottom-left-panel, #bottom-center-panel{
@@ -646,6 +649,14 @@ ul.failure-summary-list li .btn-xs{
     background-color: #252C33;
     color: #EEF0F2;
     padding: 0px 5px;
+
+    flex: 1 1 auto;
+    -webkit-flex: 1 1 auto;
+
+    display: flex;
+    display: -webkit-flex;
+    flex-flow: row;
+    -webkit-flex-flow: row;
 }
 
 #pinboard-panel .header{
@@ -653,24 +664,22 @@ ul.failure-summary-list li .btn-xs{
 }
 
 #pinned-job-list{
-    margin-right: 550px;
+    flex: 1 1 auto;
+    -webkit-flex: 1 1 auto;
 }
 
 #pinned-job-list .content{
     padding:2px;
     background-color: #FFFFFF;
-    height:66px;
 }
 
 #pinboard-related-bugs{
-    position: absolute;
-    top: 2px;
-    right: 322px;
+    flex: 0 0 auto;
+    -webkit-flex: 0 0 auto;
     width: 215px;
 }
 
 #pinboard-related-bugs .content{
-    height: 66px;
     background-color: #FFFFFF;
 }
 
@@ -686,9 +695,8 @@ ul.failure-summary-list li .btn-xs{
 }
 
 #pinboard-classification{
-    position: absolute;
-    top: 2px;
-    right:120px;
+    flex: 0 0 auto;
+    -webkit-flex: 0 0 auto;
     width: 185px;
 }
 
@@ -699,23 +707,18 @@ ul.failure-summary-list li .btn-xs{
 #pinboard-classification textarea {
     width: 177px;
     margin-top: 5px;
-    height: 40px;
 }
 
-#pinboard-controls-header {
-    position: absolute;
-    top: 2px;
-    right: 10px;
-}
-
-#pinboard-controls-header a {
+#pinboard-controls-close-button-container {
+    padding-left: 5px;
+    flex: 0 0 auto;
+    -webkit-flex: 0 0 auto;
     color: #9fa3a5;
 }
 
-#pinboard-controls{
-    position: absolute;
-    top: 21px;
-    right: 10px;
+#pinboard-controls {
+    flex: 0 0 auto;
+    -webkit-flex: 0 0 auto;
 }
 
 #pinboard-controls .dropdown-menu {
