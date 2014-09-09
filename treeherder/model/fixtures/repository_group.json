@@ -12,7 +12,7 @@
     "pk": 2, 
     "model": "model.repositorygroup", 
     "fields": {
-        "name": "release-stablization", 
+        "name": "release-stabilization", 
         "active_status": "active", 
         "description": ""
     }
