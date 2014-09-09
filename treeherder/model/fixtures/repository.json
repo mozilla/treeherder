@@ -216,7 +216,7 @@
         "url": "https://hg.mozilla.org/projects/ux",
         "active_status": "active",
         "codebase": "gecko",
-        "repository_group": 1,
+        "repository_group": 6,
         "description": ""
     }
 },
@@ -229,7 +229,7 @@
         "url": "https://hg.mozilla.org/projects/alder",
         "active_status": "active",
         "codebase": "gecko",
-        "repository_group": 1,
+        "repository_group": 6,
         "description": ""
     }
 },
@@ -242,7 +242,7 @@
         "url": "https://hg.mozilla.org/projects/ash",
         "active_status": "active",
         "codebase": "gecko",
-        "repository_group": 1,
+        "repository_group": 6,
         "description": ""
     }
 },
@@ -255,7 +255,7 @@
         "url": "https://hg.mozilla.org/projects/birch",
         "active_status": "active",
         "codebase": "gecko",
-        "repository_group": 1,
+        "repository_group": 6,
         "description": ""
     }
 },
@@ -268,7 +268,7 @@
         "url": "https://hg.mozilla.org/projects/cedar",
         "active_status": "active",
         "codebase": "gecko",
-        "repository_group": 1,
+        "repository_group": 6,
         "description": ""
     }
 },
@@ -281,7 +281,7 @@
         "url": "https://hg.mozilla.org/projects/cypress",
         "active_status": "active",
         "codebase": "gecko",
-        "repository_group": 1,
+        "repository_group": 6,
         "description": ""
     }
 },
@@ -294,7 +294,7 @@
         "url": "https://hg.mozilla.org/projects/date",
         "active_status": "active",
         "codebase": "gecko",
-        "repository_group": 1,
+        "repository_group": 6,
         "description": ""
     }
 },
@@ -307,7 +307,7 @@
         "url": "https://hg.mozilla.org/projects/elm",
         "active_status": "active",
         "codebase": "gecko",
-        "repository_group": 1,
+        "repository_group": 6,
         "description": ""
     }
 },
@@ -320,7 +320,7 @@
         "url": "https://hg.mozilla.org/projects/fig",
         "active_status": "active",
         "codebase": "gecko",
-        "repository_group": 1,
+        "repository_group": 6,
         "description": ""
     }
 },
@@ -333,7 +333,7 @@
         "url": "https://hg.mozilla.org/projects/gum",
         "active_status": "active",
         "codebase": "gecko",
-        "repository_group": 1,
+        "repository_group": 6,
         "description": ""
     }
 },
@@ -346,7 +346,7 @@
         "url": "https://hg.mozilla.org/projects/holly",
         "active_status": "active",
         "codebase": "gecko",
-        "repository_group": 1,
+        "repository_group": 6,
         "description": ""
     }
 },
@@ -359,7 +359,7 @@
         "url": "https://hg.mozilla.org/projects/jamun",
         "active_status": "active",
         "codebase": "gecko",
-        "repository_group": 1,
+        "repository_group": 6,
         "description": ""
     }
 },
@@ -372,7 +372,7 @@
         "url": "https://hg.mozilla.org/projects/larch",
         "active_status": "active",
         "codebase": "gecko",
-        "repository_group": 1,
+        "repository_group": 6,
         "description": ""
     }
 },
@@ -385,7 +385,7 @@
         "url": "https://hg.mozilla.org/projects/maple",
         "active_status": "active",
         "codebase": "gecko",
-        "repository_group": 1,
+        "repository_group": 6,
         "description": ""
     }
 },
@@ -398,7 +398,7 @@
         "url": "https://hg.mozilla.org/projects/oak",
         "active_status": "active",
         "codebase": "gecko",
-        "repository_group": 1,
+        "repository_group": 6,
         "description": ""
     }
 },
@@ -411,7 +411,7 @@
         "url": "https://hg.mozilla.org/projects/pine",
         "active_status": "active",
         "codebase": "gecko",
-        "repository_group": 1,
+        "repository_group": 6,
         "description": ""
     }
 },
@@ -489,7 +489,7 @@
         "url": "https://hg.mozilla.org/projects/accessibility",
         "active_status": "active",
         "codebase": "gecko",
-        "repository_group": 1,
+        "repository_group": 6,
         "description": ""
     }
 },

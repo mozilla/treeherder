@@ -43,5 +43,14 @@
         "active_status": "active", 
         "description": "Collection of test repositories for the qa group"
     }
+},
+{
+    "pk": 6, 
+    "model": "model.repositorygroup", 
+    "fields": {
+        "name": "project repositories", 
+        "active_status": "active", 
+        "description": "Collection of repositories for project branches"
+    }
 }
 ]
