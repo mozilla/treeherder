@@ -202,41 +202,6 @@ treeherder.controller('FilterPanelCtrl', [
 
         updateToggleFilters();
 
-        /*
-         * We need to prevent reloading the route under certain conditions.
-         * Like when we change the filter params on the url.  So we have set
-         * the route to skip ``reloadOnSearch`` changes.  We can't simply
-         * turn it to skip before the ``$location.search("key", val)`` call
-         * and then turn it back to not skip after the call because the event
-         * chain that happens with changing the location and the ``$routeUpdate``
-         * won't have happened until after we have turned off the skipping.
-         * Thereby it will never skip, and always reload the route.
-         *
-         * So what we must do is tell it to skip the "next" one before each
-         * search change and then when it's skipped, it will turn skipping back
-         * off each time.
-         */
-        $rootScope.skipNextSearchChangeReload = false;
-        $scope.$on('$routeUpdate', function(){
-            $log.debug("route updated", $location.search());
-            if (!$rootScope.skipNextSearchChangeReload) {
-                // when switching repos via the repos panel, you click a link
-                // that is a new route.  So it comes here, and we reload
-                // the route.  But the filters will be left on in thJobFilters
-                // but not in the URL.  So we reset all the filters here.
-                // If we wanted to retain the filters (like set to unclassified
-                // failures only) then we'd take out the next line and rebuild
-                // the url from the filters that are set.  Possibly just with
-                // a broadcast of ``globalFilterChanged``.
-                thJobFilters.buildFiltersFromQueryString();
-                $log.debug("route reloading");
-                $route.reload();
-            } else {
-                $log.debug("route NOT reloading");
-            }
-            $rootScope.skipNextSearchChangeReload = false;
-        });
-
         $scope.$on(thEvents.globalFilterChanged, function() {
             updateToggleFilters();
             thJobFilters.buildQueryStringFromFilters();
@@ -257,8 +222,6 @@ treeherder.controller('SearchCtrl', [
             function(searchQueryStr){
 
                 $scope.searchQueryStr = searchQueryStr;
-
-                $rootScope.skipNextSearchChangeReload = true;
 
                 if($scope.searchQueryStr === ""){
 

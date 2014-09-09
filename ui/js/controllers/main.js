@@ -3,12 +3,12 @@
 treeherder.controller('MainCtrl', [
     '$scope', '$rootScope', '$routeParams', '$location', 'ThLog',
     'localStorageService', 'ThRepositoryModel', 'thPinboard',
-    'thClassificationTypes', 'thEvents', '$interval',
+    'thClassificationTypes', 'thEvents', '$interval', '$window',
     'ThExclusionProfileModel', 'thJobFilters', 'ThResultSetModel',
     function MainController(
         $scope, $rootScope, $routeParams, $location, ThLog,
         localStorageService, ThRepositoryModel, thPinboard,
-        thClassificationTypes, thEvents, $interval,
+        thClassificationTypes, thEvents, $interval, $window,
         ThExclusionProfileModel, thJobFilters, ThResultSetModel) {
 
         var $log = new ThLog("MainCtrl");
@@ -97,9 +97,6 @@ treeherder.controller('MainCtrl', [
 
         // the repos the user has chosen to watch
         $scope.repoModel = ThRepositoryModel;
-
-        // update the repo status (treestatus) in an interval of every 2 minutes
-        $interval(ThRepositoryModel.updateAllWatchedRepoTreeStatus, 2 * 60 * 1000);
 
         $scope.getTopNavBarHeight = function() {
             return $("#th-global-top-nav-panel").find("#top-nav-main-panel").height();
@@ -200,16 +197,50 @@ treeherder.controller('MainCtrl', [
 
         };
 
+        var getRepoParam = function(urlStr) {
+            var tokens = urlStr.split("?");
+
+            if (tokens.length > 1) {
+                var params = tokens[1];
+                var paramArr = params.split("&");
+                var i;
+                for (i = 0; i < paramArr.length; i++) {
+                    var thisParam = paramArr[i].split("=");
+                    if (thisParam[0] === "repo") {
+                        return thisParam[1];
+                    }
+                }
+            }
+
+            return "";
+        };
+
+        $rootScope.locationPath = $location.path().replace('/', '');
+
+        // this is to avoid bad urls showing up
+        // when the app redirects internally
         $rootScope.urlBasePath = $location.absUrl().split('?')[0];
 
         // give the page a way to determine which nav toolbar to show
-        $rootScope.$on('$locationChangeSuccess', function(ev,newUrl) {
-            $rootScope.locationPath = $location.path().replace('/', '');
+        $rootScope.$on('$locationChangeSuccess', function(ev,newUrl, oldUrl) {
+            $log.debug("newUrl=", newUrl, "oldUrl=", oldUrl);
 
-            // this is to avoid bad urls showing up
-            // when the app redirects internally
-            $rootScope.urlBasePath = $location.absUrl().split('?')[0];
+            $log.debug("check for repo change", "old=", getRepoParam(oldUrl), "new=", getRepoParam(newUrl));
+            var newRepo = getRepoParam(newUrl);
+            if (getRepoParam(oldUrl) !== newRepo) {
+                $location.search({"repo": newRepo});
+                $window.location.reload();
+            } else {
+                thJobFilters.buildFiltersFromQueryString();
+            }
+
         });
+
+        $scope.changeRepo = function(repo_name) {
+            //clear all filter params and revisions...
+            $location.search({"repo": repo_name});
+        };
+
 
         $scope.isRepoPanelShowing = false;
         $scope.setRepoPanelShowing = function(tf) {
@@ -229,19 +260,6 @@ treeherder.controller('MainCtrl', [
         $scope.isSheriffPanelShowing = false;
         $scope.setSheriffPanelShowing = function(tf) {
             $scope.isSheriffPanelShowing = tf;
-        };
-
-        $scope.changeRepo = function(repo_name) {
-            // hide the repo panel if they chose to load one.
-            $scope.isRepoPanelShowing = false;
-            $rootScope.selectedJob = null;
-            thPinboard.unPinAll();
-
-            $rootScope.skipNextSearchChangeReload = true;
-            $location.search("revision", null);
-            $rootScope.skipNextSearchChangeReload = false;
-            $location.search("repo", repo_name);
-            $scope.repoModel.setCurrent(repo_name);
         };
 
         $scope.pinboardCount = thPinboard.count;

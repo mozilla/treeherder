@@ -5,16 +5,15 @@ describe('ThResultSetModel', function(){
     var $httpBackend,
         rootScope,
         model,
+        repoModel,
         foregroundRepo = "foreground-repo",
-        backgroundRepo = "background-repo",
         projectPrefix = 'https://treeherder.mozilla.org/api/project/',
-        foregroundPrefix = projectPrefix + 'foreground-repo',
-        backgroundPrefix = projectPrefix + 'background-repo';
+        foregroundPrefix = projectPrefix + 'foreground-repo';
 
     beforeEach(module('treeherder'));
 
     beforeEach(inject(function ($injector, $rootScope, $controller,
-                                ThResultSetModel) {
+                                ThResultSetModel, ThRepositoryModel) {
 
         $httpBackend = $injector.get('$httpBackend');
         jasmine.getJSONFixtures().fixturesPath='base/test/mock';
@@ -25,22 +24,6 @@ describe('ThResultSetModel', function(){
                 "message_of_the_day": "I before E",
                 "tree": "foreground-repo",
                 "reason": ""
-            }
-        );
-
-        $httpBackend.whenGET('https://treestatus.mozilla.org/background-repo?format=json').respond(
-            {
-                "status": "approval required",
-                "message_of_the_day": "I before E",
-                "tree": "background-repo",
-                "reason": ""
-            }
-        );
-
-        $httpBackend.whenGET('https://treeherder.mozilla.org/api/project/background-repo/jobs/0/unclassified_failure_count/').respond(
-            {
-                "unclassified_failure_count": 1152,
-                "repository": "mozilla-central"
             }
         );
 
@@ -55,23 +38,11 @@ describe('ThResultSetModel', function(){
             getResultSet(1)
         );
 
-        $httpBackend.whenGET(backgroundPrefix + '/resultset/?count=10&format=json&full=true&with_jobs=false').respond(
-            getResultSet(10)
-        );
-
         $httpBackend.whenGET(foregroundPrefix + '/resultset/1/get_resultset_jobs/?format=json&result_set_ids=1').respond(
             getResultSet(1)
         );
 
         $httpBackend.whenGET(foregroundPrefix + '/resultset/1/get_resultset_jobs/?format=json&result_set_ids=10').respond(
-            getResultSet(10)
-        );
-
-        $httpBackend.whenGET(backgroundPrefix + '/resultset/1/get_resultset_jobs/?format=json&result_set_ids=1').respond(
-            getResultSet(1)
-        );
-
-        $httpBackend.whenGET(backgroundPrefix + '/resultset/1/get_resultset_jobs/?format=json&result_set_ids=10').respond(
             getResultSet(10)
         );
 
@@ -88,8 +59,8 @@ describe('ThResultSetModel', function(){
         model.addRepository(rootScope.repoName);
         model.fetchResultSets(rootScope.repoName, 10);
 
-        model.addRepository(backgroundRepo);
-        model.fetchResultSets(backgroundRepo, 10);
+        repoModel = ThRepositoryModel;
+        repoModel.setCurrent(rootScope.repoName);
 
         $httpBackend.flush();
     }));
@@ -103,10 +74,6 @@ describe('ThResultSetModel', function(){
 
     it('should have id of 1 in foreground (current) repo', function() {
         expect(model.getResultSetsArray(rootScope.repoName)[0].id).toBe(1);
-    });
-
-    it('should have id of 10 in background repo', function() {
-        expect(model.getResultSetsArray(backgroundRepo)[0].id).toBe(10);
     });
 
     var newSocketEvent = function(repoName, data) {
@@ -137,36 +104,8 @@ describe('ThResultSetModel', function(){
         newSocketEvent(foregroundRepo, data);
 
         var resultsets = model.getResultSetsArray(foregroundRepo);
-        expect(model.getResultSetsArray(backgroundRepo).length).toBe(1);
         expect(resultsets.length).toBe(2);
         expect(_.pluck(resultsets, "id")).toEqual([2, 1]);
-    });
-
-    /**
-     * Test that events for new resultsets gets those job updates on a cached repo (not foreground)
-     */
-    it('should add new rs to a background repo', function() {
-        var rsValues = {id: 12, push_timestamp: 1396899074+1},
-            data = {
-                branch: backgroundRepo,
-                job_guids: {
-                    590604: {
-                        result_set_id: 12,
-                        result_set_push_timestamp: 1396899074+1
-                    }
-                }
-            };
-
-        $httpBackend.whenGET(backgroundPrefix + '/resultset/?count=1&format=json&full=true&id__in=12&offset=0&with_jobs=true').respond(
-            getResultSet(12, rsValues)
-        );
-
-        newSocketEvent(backgroundRepo, data);
-
-        var resultsets = model.getResultSetsArray(backgroundRepo);
-        expect(model.getResultSetsArray(foregroundRepo).length).toBe(1);
-        expect(resultsets.length).toBe(2);
-        expect(_.pluck(resultsets, "id")).toEqual([12, 10]);
     });
 
     /**
@@ -216,58 +155,6 @@ describe('ThResultSetModel', function(){
         newSocketEvent(foregroundRepo, data);
 
         var jobs = model.getResultSetsArray(foregroundRepo)[0].platforms[0].groups[0].jobs;
-        expect(jobs.length).toBe(2);
-        expect(_.pluck(jobs, "id")).toEqual([590604, 590599]);
-        expect(_.pluck(jobs, "state")).toEqual(["completed", "completed"]);
-    });
-
-    /**
-     * Test that events for new job in existing resultset gets those job updates on the background repo
-     */
-    it('should add new job to the background repo', function() {
-        var data = {
-            branch: backgroundRepo,
-            job_guids: {
-                123: {
-                    result_set_id: 10,
-                    result_set_push_timestamp: 1396899074
-                }
-            }
-        };
-
-        $httpBackend.whenGET(backgroundPrefix + '/jobs/?count=40&job_guid__in=123').respond(
-            getJob(123, {result_set_id: 10})
-        );
-
-        newSocketEvent(backgroundRepo, data);
-
-        var jobs = model.getResultSetsArray(backgroundRepo)[0].platforms[0].groups[0].jobs;
-        expect(jobs.length).toBe(3);
-        expect(_.pluck(jobs, "id")).toEqual([590604, 590599, 123]);
-        expect(_.pluck(jobs, "state")).toEqual(["pending", "completed", "completed"]);
-    });
-
-    /**
-     * Test that events for new job in existing resultset gets those job updates on the background repo
-     */
-    it('should update an existing job in the background repo to its new status', function() {
-        var data = {
-            branch: backgroundRepo,
-            job_guids: {
-                590604: {
-                    result_set_id: 10,
-                    result_set_push_timestamp: 1396899074
-                }
-            }
-        };
-
-        $httpBackend.whenGET(backgroundPrefix + '/jobs/?count=40&job_guid__in=590604').respond(
-            getJob(590604, {result_set_id: 10})
-        );
-
-        newSocketEvent(backgroundRepo, data);
-
-        var jobs = model.getResultSetsArray(backgroundRepo)[0].platforms[0].groups[0].jobs;
         expect(jobs.length).toBe(2);
         expect(_.pluck(jobs, "id")).toEqual([590604, 590599]);
         expect(_.pluck(jobs, "state")).toEqual(["completed", "completed"]);

@@ -628,7 +628,7 @@ treeherder.factory('thJobFilters', [
                 setSearchQuery(filterVal);
             }
         });
-        $log.debug("done with loadFiltersFromQueryString", filters);
+        $log.debug("done with buildFiltersFromQueryString", filters);
         if (!quiet) {
             $rootScope.$broadcast(thEvents.globalFilterChanged);
         }
@@ -677,13 +677,11 @@ treeherder.factory('thJobFilters', [
             }
         });
 
-        if (searchQueryStr != ""){
+        if (searchQueryStr !== ""){
             newSearchValues.searchQuery = searchQueryStr;
         }
 
-        $rootScope.skipNextSearchChangeReload = true;
         $location.search(newSearchValues);
-
     };
 
     var getSearchQuery = function(){

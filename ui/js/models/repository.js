@@ -1,10 +1,10 @@
 'use strict';
 
 treeherder.factory('ThRepositoryModel', [
-    '$http', 'thUrl', '$rootScope', 'ThLog',
+    '$http', 'thUrl', '$rootScope', 'ThLog', '$interval',
     'thSocket', 'treeStatus',
     function(
-        $http, thUrl, $rootScope, ThLog,
+        $http, thUrl, $rootScope, ThLog, $interval,
         thSocket, treeStatus) {
 
     var $log = new ThLog("ThRepositoryModel");
@@ -69,7 +69,7 @@ treeherder.factory('ThRepositoryModel', [
         };
         watchedRepos[repoName] = repos[repoName];
         updateTreeStatus(repoName);
-
+        watchedReposUpdated();
 
         // fetch the
         // current count of unclassified failures, rather than waiting
@@ -126,15 +126,25 @@ treeherder.factory('ThRepositoryModel', [
                     $rootScope.groupedRepos = getByGroup();
 
                     _.each(data, addRepoAsUnwatched);
+                    var storedWatched = JSON.parse(sessionStorage.getItem("thWatchedRepos"));
+                    if (_.isArray(storedWatched)) {
+                        _.each(storedWatched, function (repo) {
+                            watchRepo(repo);
+                        });
+                    }
 
                     if (name) {
                         setCurrent(name);
                     }
                     watchedReposUpdated();
+                    updateAllWatchedRepoTreeStatus();
                 });
         } else {
             setCurrent(name);
         }
+
+        // update the repo status (treestatus) in an interval of every 2 minutes
+        $interval(updateAllWatchedRepoTreeStatus, 2 * 60 * 1000);
     };
 
 
@@ -159,12 +169,8 @@ treeherder.factory('ThRepositoryModel', [
         $log.debug("repoModel", "setCurrent", name, "watchedRepos", repos);
     };
 
-    var watchedReposUpdated = function(repoName) {
-        if (repoName) {
-            updateTreeStatus(repoName);
-        } else {
-            updateAllWatchedRepoTreeStatus();
-        }
+    var watchedReposUpdated = function() {
+        sessionStorage.setItem("thWatchedRepos", JSON.stringify(_.keys(watchedRepos)));
     };
 
     var updateTreeStatus = function(repoName) {

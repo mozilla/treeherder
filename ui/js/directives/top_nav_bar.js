@@ -67,6 +67,8 @@ treeherder.directive('thWatchedRepo', [
                 }
             };
 
+            scope.btnClass = "btn-view-nav";
+
             scope.$watch('repoData', function(newVal) {
                 if (newVal.treeStatus) {
                     $log.debug("updated treeStatus", newVal.treeStatus.status);
