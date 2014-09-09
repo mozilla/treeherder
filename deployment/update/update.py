@@ -40,7 +40,6 @@ def update_code(ctx, tag):
 
 
 def update_oauth_credentials(ctx):
-
     with ctx.lcd(th_service_src):
         ctx.local(
             "python2.6 manage.py export_project_credentials --settings {0}".format(th_settings))
@@ -48,7 +47,6 @@ def update_oauth_credentials(ctx):
 
 def update_db(ctx):
     """Update the database schema, if necessary."""
-
     with ctx.lcd(th_service_src):
         ctx.local('python2.6 manage.py syncdb --settings {0}'.format(th_settings))
         ctx.local('python2.6 manage.py migrate --settings {0}'.format(th_settings))
@@ -69,7 +67,7 @@ def deploy_admin_node(ctx):
         '{0}/service celerybeat restart'.format(settings.SBIN_DIR))
 
     with ctx.lcd(th_service_src):
-        # this is primarely for the persona ui
+        # this is primarily for the persona ui
         ctx.local("python2.6 manage.py collectstatic --noinput --settings {0}".format(th_settings))
         ctx.local("python2.6 setup.py build_ext --inplace")
 
@@ -79,9 +77,9 @@ def deploy_admin_node(ctx):
 def deploy_web_app(ctx):
     """Call the remote update script to push changes to webheads."""
     ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
-    ctx.remote( '{0}/service httpd graceful'.format(settings.SBIN_DIR) )
-    ctx.remote( '{0}/service gunicorn restart'.format(settings.SBIN_DIR) )
-    ctx.remote( '{0}/service socketio-server restart'.format(settings.SBIN_DIR) )
+    ctx.remote('{0}/service httpd graceful'.format(settings.SBIN_DIR))
+    ctx.remote('{0}/service gunicorn restart'.format(settings.SBIN_DIR))
+    ctx.remote('{0}/service socketio-server restart'.format(settings.SBIN_DIR))
 
 
 @hostgroups(
@@ -96,7 +94,7 @@ def restart_celery_workers(ctx):
 The workers will finish their current tasks and safely shutdown.
 Supervisord will then start new workers to replace them.
 We need to do this because supervisorctl generates zombies
-everytime you ask it to restart a worker.
+every time you ask it to restart a worker.
 """
     with ctx.lcd(th_service_src):
         ctx.local("python2.6 manage.py shutdown_workers --settings {0}".format(th_settings))
@@ -110,7 +108,6 @@ def update_info(ctx):
         ctx.local('git log -3')
         ctx.local('git status')
         ctx.local('git submodule status')
-
         ctx.local('git rev-parse HEAD > treeherder/webapp/media/revision')
 
 
