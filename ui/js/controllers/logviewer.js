@@ -145,13 +145,22 @@ logViewer.controller('LogviewerCtrl', [
         $scope.init = function() {
             $log.log(ThJobArtifactModel.get_uri());
             ThJobArtifactModel.get_list({job_id: $scope.job_id, name: 'Structured Log'})
-            .then(function(artifact_list){
-                if(artifact_list.length > 0){
-                    $scope.artifact = artifact_list[0].blob;
+            .then(function(artifactList){
+                if(artifactList.length > 0){
+                    $scope.artifact = artifactList[0].blob;
 
                     var revision = $scope.artifact.header.revision.substr(0,12);
-                    $scope.logRevisionFilterUrl = $scope.urlBasePath + "index.html#/jobs?repo=" +
-                                                  $scope.repoName + "&revision=" + revision;
+                    $scope.logRevisionFilterUrl = $scope.urlBasePath
+                        + "index.html#/jobs?repo="
+                        + $scope.repoName + "&revision=" + revision;
+
+                    ThJobArtifactModel.get_list(
+                        {job_id: $scope.job_id, name:'buildapi'})
+                    .then(function(buildapiData){
+                        if(buildapiData.length > 0){
+                            $scope.artifact.header.builder = buildapiData[0].blob.buildername;
+                        }
+                    });
                 }
             });
         };
