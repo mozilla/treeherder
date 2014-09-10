@@ -112,7 +112,6 @@ treeherder.directive('thFaviconLink', [
         link: function(scope, element, attr) {
             scope.currentTreeStatus = ThRepositoryModel.getCurrentTreeStatus
             scope.$watch('currentTreeStatus()', function(newVal) {
-                console.log("favicon", "watch in directive", newVal);
                 if (newVal) {
                     scope.favicon = thFavicons[ThRepositoryModel.getCurrentTreeStatus()];
                 }
