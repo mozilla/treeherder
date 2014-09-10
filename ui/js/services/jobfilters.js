@@ -23,12 +23,12 @@
  */
 treeherder.factory('thJobFilters', [
     'thResultStatusList', 'ThLog', '$rootScope', '$location',
-    'thNotify', 'thEvents',
+    'thNotify', 'thEvents', 'thFailureResults',
     'thResultStatus', 'thClassificationTypes', 'ThRepositoryModel',
     'thPlatformNameMap',
     function(
         thResultStatusList, ThLog, $rootScope, $location,
-        thNotify, thEvents,
+        thNotify, thEvents, thFailureResults,
         thResultStatus, thClassificationTypes, ThRepositoryModel,
         thPlatformNameMap) {
 
@@ -496,7 +496,7 @@ treeherder.factory('thJobFilters', [
             resultStatus: filters.resultStatus.values,
             isClassified: filters.isClassified.values
         };
-        filters.resultStatus.values = ["busted", "testfailed", "exception"];
+        filters.resultStatus.values = thFailureResults.slice();
         filters.isClassified.values = [false];
         $rootScope.$broadcast(thEvents.globalFilterChanged);
     };
@@ -525,7 +525,7 @@ treeherder.factory('thJobFilters', [
     };
 
     var isJobUnclassifiedFailure = function(job) {
-        return (_.contains(['busted', 'testfailed', 'exception'], job.result) &&
+        return (_.contains(thFailureResults, job.result) &&
             job.failure_classification_id === 1);
     };
 
@@ -533,7 +533,7 @@ treeherder.factory('thJobFilters', [
      * check if we're in the state of showing only unclassified failures
      */
     var isUnclassifiedFailures = function() {
-        return (_.isEqual(filters.resultStatus.values, ["busted", "testfailed", "exception"]) &&
+        return (_.isEqual(filters.resultStatus.values, thFailureResults) &&
                 _.isEqual(filters.isClassified.values, [false]));
     };
 
@@ -745,6 +745,7 @@ treeherder.factory('thJobFilters', [
         getCountExcluded: getCountExcluded,
         getCountExcludedForRepo: getCountExcludedForRepo,
         getJobComboField: getJobComboField,
+        isJobUnclassifiedFailure: isJobUnclassifiedFailure,
         isSkippingExclusionProfiles: isSkippingExclusionProfiles,
         isUnclassifiedFailures: isUnclassifiedFailures,
         matchesDefaults: matchesDefaults,

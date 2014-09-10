@@ -3,11 +3,11 @@
 treeherder.controller('FilterPanelCtrl', [
     '$scope', '$rootScope', '$route', '$routeParams', '$location', 'ThLog',
     'localStorageService', 'thResultStatusList', 'thEvents', 'thJobFilters',
-    'ThResultSetModel', 'thPinboard', 'thNotify',
+    'ThResultSetModel', 'thPinboard', 'thNotify', 'thFailureResults',
     function FilterPanelCtrl(
         $scope, $rootScope, $route, $routeParams, $location, ThLog,
         localStorageService, thResultStatusList, thEvents, thJobFilters,
-        ThResultSetModel, thPinboard, thNotify) {
+        ThResultSetModel, thPinboard, thNotify, thFailureResults) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -17,7 +17,7 @@ treeherder.controller('FilterPanelCtrl', [
             failures: {
                 value: "failures",
                 name: "failures",
-                resultStatuses: ["testfailed", "busted", "exception"]
+                resultStatuses: thFailureResults.slice()
             },
             nonfailures: {
                 value: "nonfailures",

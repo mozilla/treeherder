@@ -28,7 +28,6 @@ treeherder.factory('ThResultSetModel', [
     var repositories = {};
 
     var updateQueueInterval = 10000;
-    var FAILURE_RESULTS = {"testfailed":1, "busted": 1, "exception": 1};
 
     $rootScope.$on(thEvents.mapResultSetJobs, function(ev, repoName, data){
 
@@ -293,15 +292,8 @@ treeherder.factory('ThResultSetModel', [
         }
     };
 
-    var isUnclassifiedFailure = function(job) {
-        if (_.has(FAILURE_RESULTS, job.result)) {
-            return job.failure_classification_id === 1;
-        }
-        return false;
-    };
-
     var updateUnclassifiedFailureMap = function(repoName, job) {
-        if (isUnclassifiedFailure(job)) {
+        if (thJobFilters.isJobUnclassifiedFailure(job)) {
             repositories[repoName].unclassifiedFailureMap[job.job_guid] = true;
         } else {
             delete repositories[repoName].unclassifiedFailureMap[job.job_guid];

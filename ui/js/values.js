@@ -31,3 +31,4 @@ treeherder.value("thPlatformNameMap", {
     "other": "Other"
 });
 
+treeherder.value("thFailureResults", ["testfailed", "busted", "exception"]);
