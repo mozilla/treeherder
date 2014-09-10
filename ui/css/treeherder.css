@@ -669,8 +669,12 @@ ul.failure-summary-list li .btn-xs{
 }
 
 #pinned-job-list .content{
-    padding:2px;
+    padding: 2px;
+    margin: 2px;
     background-color: #FFFFFF;
+    min-height: 60px;
+    max-height: 120px;
+    overflow: auto;
 }
 
 #pinboard-related-bugs{
@@ -679,8 +683,13 @@ ul.failure-summary-list li .btn-xs{
     width: 215px;
 }
 
-#pinboard-related-bugs .content{
+#pinboard-related-bugs .content {
+    padding: 2px;
+    margin: 2px;
     background-color: #FFFFFF;
+    min-height: 60px;
+    max-height: 120px;
+    overflow: auto;
 }
 
 /* Spin button suppression on chrome */
