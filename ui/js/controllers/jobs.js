@@ -34,11 +34,15 @@ treeherder.controller('JobsCtrl', [
         $scope.job_map = ThResultSetModel.getJobMap($scope.repoName);
         $scope.statusList = thResultStatusList.counts();
 
+        $scope.searchParams = $location.search();
+        $scope.locationHasSearchParam = function(prop) {
+            return _.has($scope.searchParams, prop);
+        }
+
         // determine how many resultsets to fetch.  default to 10.
         var count = 10;
-        var searchParams = $location.search();
-        if ((_.has(searchParams, "startdate") || _.has(searchParams, "fromchange") &&
-            (_.has(searchParams, "enddate")) || _.has(searchParams, "tochange"))) {
+        if ((_.has($scope.searchParams, "startdate") || _.has($scope.searchParams, "fromchange") &&
+            (_.has($scope.searchParams, "enddate")) || _.has($scope.searchParams, "tochange"))) {
             // just fetch all (up to 1000) the resultsets if an upper AND lower range is specified
 
             count = 1000;
