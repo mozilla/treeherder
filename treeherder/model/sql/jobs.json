@@ -917,11 +917,17 @@
 
             "host":"read_host"
         },
-        "get_bug_job_map":{
+        "get_bug_job_map_list":{
             "sql":"SELECT `job_id`, `bug_id`, `type`, `submit_timestamp`, `who`
                    FROM `bug_job_map`
                    WHERE 1
                    REP0",
+            "host": "read_host"
+        },
+        "get_bug_job_map_detail":{
+            "sql":"SELECT `job_id`, `bug_id`, `type`, `submit_timestamp`, `who`
+                   FROM `bug_job_map`
+                   WHERE job_id = ? and bug_id = ?",
             "host": "read_host"
         }
     }
