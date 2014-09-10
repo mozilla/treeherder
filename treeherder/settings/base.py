@@ -300,6 +300,9 @@ CELERY_IGNORE_RESULT = True
 
 API_HOSTNAME = SITE_URL
 
+# this is used to compose ui urls
+UI_PREFIX = "/ui"
+
 BROWSERID_AUDIENCES = [SITE_URL]
 
 

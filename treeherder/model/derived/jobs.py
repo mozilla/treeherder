@@ -597,7 +597,8 @@ class JobsModel(TreeherderModelBase):
                 if self.get_build_system_type() == 'buildbot':
                     # importing here to avoid an import loop
                     from treeherder.etl.tasks import (submit_star_comment,
-                                                      submit_build_star)
+                                                      submit_build_star,
+                                                      submit_bug_comment)
                     # submit bug association to tbpl
                     # using an async task
                     submit_star_comment.apply_async(
@@ -623,6 +624,14 @@ class JobsModel(TreeherderModelBase):
                         routing_key='high_priority'
                     )
 
+                    submit_bug_comment.apply_async(
+                        args=[
+                            self.project,
+                            job_id,
+                            bug_id,
+                        ],
+                        routing_key='high_priority'
+                    )
 
     def delete_bug_job_map(self, job_id, bug_id):
         """
@@ -636,7 +645,6 @@ class JobsModel(TreeherderModelBase):
             ],
             debug_show=self.DEBUG
         )
-
 
     def calculate_eta(self, sample_window_seconds, debug):
 
@@ -894,7 +902,7 @@ class JobsModel(TreeherderModelBase):
 
         repl = [replace_str]
 
-        proc = "jobs.selects.get_bug_job_map"
+        proc = "jobs.selects.get_bug_job_map_list"
 
         data = self.get_jobs_dhub().execute(
             proc=proc,
@@ -905,6 +913,21 @@ class JobsModel(TreeherderModelBase):
         )
         return data
 
+    def get_bug_job_map_detail(self, job_id, bug_id):
+        """
+        Returns a single instance of bug_job_map.
+        Raises a ObjectNotFoundException when no object is found
+        """
+
+        data = self.get_jobs_dhub().execute(
+            proc="jobs.selects.get_bug_job_map_detail",
+            placeholders=[job_id, bug_id],
+            debug_show=self.DEBUG,
+        )
+        if not data:
+            raise ObjectNotFoundException("bug_jib_map",
+                                          job_id=job_id, bug_id=bug_id)
+        return data[0]
 
     def get_result_set_ids(self, revision_hashes, where_in_list):
         """Return the  a dictionary of revision_hash to id mappings given
