@@ -104,6 +104,9 @@
             {{job.machine_name }}
           </a>
         </li>
+        <li class="small" ng-repeat="job_log_url in job_log_urls">
+          <a href="{{job_log_url.buildUrl}}" target="_blank">Go To Build Directory</a>
+        </li>
         <li class="small" ng-repeat="(label, value) in visibleFields">
           <label>{{label}}:</label>
           <span title="{{value}}">{{value}}</span>
