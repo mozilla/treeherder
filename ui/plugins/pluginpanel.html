@@ -1,4 +1,8 @@
-<ng-include src="'partials/thPinboardPanel.html'"></ng-include>
+<div ng-controller="PinboardCtrl"
+     id="pinboard-panel"
+     ng-show="isPinboardVisible"
+     ng-include src="'partials/thPinboardPanel.html'">
+</div>
 <div id="bottom-panel-content">
   <div id="bottom-left-panel">
     <div id="bottom-left-top">
