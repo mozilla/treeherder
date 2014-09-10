@@ -39,3 +39,12 @@ treeherder.value("thFavicons", {
     "approval required": "img/tree_open.png",
     "unavailable": "img/tree_open.png"
 });
+
+treeherder.value("thRepoGroupOrder", {
+    "development": 1,
+    "project repositories": 2,
+    "try": 3,
+    "release-stabilization": 4,
+    "taskcluster": 5,
+    "qa automation tests": 6
+});

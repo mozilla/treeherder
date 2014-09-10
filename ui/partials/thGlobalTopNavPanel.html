@@ -24,15 +24,29 @@
                        ng-show="isSheriffPanelShowing"></i>
                 </span>
             </span>
-            <span class="">
-                <span class="btn btn-view-nav"
-                      ng-class="{'active': (isRepoPanelShowing)}"
-                      ng-click="setRepoPanelShowing(!isRepoPanelShowing)"><span>Repos</span>
-                    <i class="fa fa-caret-down lightgray"
-                       ng-hide="isRepoPanelShowing"></i>
-                    <i class="fa fa-caret-up lightgray"
-                       ng-show="isRepoPanelShowing"></i>
-                </span>
+            <span ng-controller="RepositoryMenuCtrl">
+                <a class="dropdown-toggle btn btn-view-nav" data-toggle="dropdown" href="#">
+                    Repos
+                    <b class="fa fa-caret-down lightgray"></b>
+                </a>
+                <ul class="repo-menu-form dropdown-menu" role="menu" ng-click="$event.stopPropagation();">
+                    <span ng-repeat="(group_order, group) in groupedRepos()"
+                          ng-click="$event.stopPropagation();">
+                        <li role="presentation" class="divider" ng-hide="$first"></li>
+                        <li role="presentation" class="dropdown-header">{{group.name}}</li>
+                        <li ng-repeat="repo in group.repos | orderBy : 'name'" ng-click="$event.stopPropagation();">
+                            <input type="checkbox"
+                                   ng-checked="repoModel.watchedRepos[repo.name]"
+                                   ng-click="repoModel.toggleWatched(repo.name)"
+                                   title="toggle watching this repo"
+                                   ng-disabled="repo.name == repoName">
+                                <a ng-href="./#/jobs?repo={{repo.name}}"
+                                   title="open repo"
+                                   ng-click="$event.stopPropagation()"
+                                   class="repo-link">{{repo.name}}</a>
+                        </li>
+                    </span>
+                </ul>
                 <span class="btn btn-view-nav"
                       ng-class="{'active': (isFilterPanelShowing)}"
                       ng-click="setFilterPanelShowing(!isFilterPanelShowing)"><span>Filters</span>
@@ -62,5 +76,4 @@
     </div>
     <ng-include src="'partials/thSheriffPanel.html'" ng-show="isSheriffPanelShowing"></ng-include>
     <ng-include src="'partials/thFilterPanel.html'" ng-show="isFilterPanelShowing"></ng-include>
-    <ng-include src="'partials/thRepoPanel.html'" ng-show="isRepoPanelShowing"></ng-include>
 </nav>

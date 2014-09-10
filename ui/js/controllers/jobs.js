@@ -28,7 +28,6 @@ treeherder.controller('JobsCtrl', [
 
         ThResultSetModel.addRepository($scope.repoName);
 
-        $scope.setRepoPanelShowing(false);
         $scope.isLoadingRsBatch = ThResultSetModel.getLoadingStatus($scope.repoName);
         $scope.result_sets = ThResultSetModel.getResultSetsArray($scope.repoName);
         $scope.job_map = ThResultSetModel.getJobMap($scope.repoName);

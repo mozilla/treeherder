@@ -53,6 +53,13 @@ th-watched-repo {
     float: left;
 }
 
+.navbar .repo-menu-form {
+    padding: 5px 10px 0;
+    overflow-y: scroll;
+    top: inherit;
+    right: auto;
+}
+
 .watched-repo-main-btn {
     border-right: 0;
     padding-right: 5px;
@@ -193,29 +200,6 @@ th-watched-repo {
 }
 
 .field-filter-placeholder a {
-    cursor: pointer;
-}
-
-/**
-  repository panel
-*/
-
-.th-repo-group {
-    margin-bottom: 5px;
-}
-
-.th-repo-group-items {
-    display: inline-block;
-    margin: 5px 5px 0 5px;
-    min-width: 225px;
-}
-
-.th-repo-group-items .dropdown-menu {
-    top: inherit;
-    left: inherit;
-}
-
-.th-repo-group-items .dropdown-toggle {
     cursor: pointer;
 }
 
@@ -399,6 +383,7 @@ div#bottom-panel {
     background-color: #AAAAAA;
     font-size: 12px;
 
+    max-height: 35%;
     flex: 0 0 auto;
     -webkit-flex: 0 0 auto;
 

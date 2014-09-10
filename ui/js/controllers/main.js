@@ -72,7 +72,6 @@ treeherder.controller('MainCtrl', [
                     $scope.toggleUnclassifiedFailures();
                 } else if (ev.keyCode === 27) {
                     // escape key closes any open top-panel and clears selected job
-                    $scope.setRepoPanelShowing(false);
                     $scope.setFilterPanelShowing(false);
                     $scope.setSettingsPanelShowing(false);
                     $scope.setSheriffPanelShowing(false);
@@ -95,7 +94,6 @@ treeherder.controller('MainCtrl', [
             }
         };
 
-        // the repos the user has chosen to watch
         $scope.repoModel = ThRepositoryModel;
 
         $scope.getTopNavBarHeight = function() {
@@ -241,11 +239,6 @@ treeherder.controller('MainCtrl', [
             $location.search({"repo": repo_name});
         };
 
-
-        $scope.isRepoPanelShowing = false;
-        $scope.setRepoPanelShowing = function(tf) {
-            $scope.isRepoPanelShowing = tf;
-        };
 
         $scope.isFilterPanelShowing = false;
         $scope.setFilterPanelShowing = function(tf) {

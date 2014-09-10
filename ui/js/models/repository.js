@@ -2,16 +2,17 @@
 
 treeherder.factory('ThRepositoryModel', [
     '$http', 'thUrl', '$rootScope', 'ThLog', '$interval',
-    'thSocket', 'treeStatus',
+    'thSocket', 'treeStatus', 'thRepoGroupOrder',
     function(
         $http, thUrl, $rootScope, ThLog, $interval,
-        thSocket, treeStatus) {
+        thSocket, treeStatus, thRepoGroupOrder) {
 
     var $log = new ThLog("ThRepositoryModel");
 
     var new_failures = {};
     var repos = {};
     var watchedRepos = {};
+    var orderedRepoGroups = {};
 
     // get the repositories (aka trees)
     // sample: 'resources/menu.json'
@@ -31,25 +32,18 @@ treeherder.factory('ThRepositoryModel', [
     };
 
 
-    // get by category
-    var getByGroup = function() {
-        var groupedRepos = {};
-        var group = function(repo) {
-            if (!_.has(groupedRepos, repo.repository_group.name)) {
-                groupedRepos[repo.repository_group.name] = [];
-            }
-            groupedRepos[repo.repository_group.name].push(repo);
-        };
-
-        if (!groupedRepos.length) {
-            _.each($rootScope.repos, group);
+    var getOrderedRepoGroups = function() {
+        if (!orderedRepoGroups.length) {
+            var groups = _.groupBy($rootScope.repos, function(r) {return r.repository_group.name;});
+            _.each(groups, function(reposAr, gName) {
+                orderedRepoGroups[thRepoGroupOrder[gName] || gName] = {name: gName, repos: reposAr};
+            });
         }
-        return groupedRepos;
+        return orderedRepoGroups;
     };
 
     var addRepoAsUnwatched = function(repo) {
         repos[repo.name] = {
-            isWatched: false,
             treeStatus: null,
             unclassifiedFailureCount: 0,
             unclassifiedFailureCountExcluded: 0
@@ -61,12 +55,11 @@ treeherder.factory('ThRepositoryModel', [
      * want to get the treestatus for it
      */
     var watchRepo = function(repoName) {
-        repos[repoName] = {
-            isWatched: true,
+        _.extend(repos[repoName], {
             treeStatus: null,
             unclassifiedFailureCount: 0,
             unclassifiedFailureCountExcluded: 0
-        };
+        });
         watchedRepos[repoName] = repos[repoName];
         updateTreeStatus(repoName);
         watchedReposUpdated();
@@ -105,7 +98,6 @@ treeherder.factory('ThRepositoryModel', [
     var unwatchRepo = function(name) {
         $log.debug("unwatchRepo", name, watchedRepos);
         delete watchedRepos[name];
-        repos[name].isWatched = false;
         watchedReposUpdated();
     };
 
@@ -123,7 +115,6 @@ treeherder.factory('ThRepositoryModel', [
             return get_list().
                 success(function (data) {
                     $rootScope.repos = data;
-                    $rootScope.groupedRepos = getByGroup();
 
                     _.each(data, addRepoAsUnwatched);
                     var storedWatched = JSON.parse(sessionStorage.getItem("thWatchedRepos"));
@@ -174,7 +165,7 @@ treeherder.factory('ThRepositoryModel', [
     };
 
     var updateTreeStatus = function(repoName) {
-        if (repos[repoName].isWatched) {
+        if (watchedRepos[repoName]) {
             $log.debug("updateTreeStatus", "updating", repoName);
             treeStatus.get(repoName).then(function(data) {
                     repos[repoName].treeStatus = data.data;
@@ -198,7 +189,7 @@ treeherder.factory('ThRepositoryModel', [
 
     var toggleWatched = function(repoName) {
         $log.debug("toggleWatched", repoName, repos[repoName]);
-        if (repos[repoName].isWatched) {
+        if (watchedRepos[repoName]) {
             unwatchRepo(repoName);
         } else {
             watchRepo(repoName);
@@ -226,7 +217,7 @@ treeherder.factory('ThRepositoryModel', [
         // get a repo object without setting anything
         getRepo: getByName,
 
-        getByGroup: getByGroup,
+        getOrderedRepoGroups: getOrderedRepoGroups,
 
         getCurrentTreeStatus: getCurrentTreeStatus,
 

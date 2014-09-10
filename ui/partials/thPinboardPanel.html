@@ -71,7 +71,8 @@
 </div>
 
 <div id="pinboard-controls-close-button-container">
-  <a href="" ng-click="togglePinboardVisibility()">
+  <a ng-click="togglePinboardVisibility()"
+     prevent-default-on-left-click>
     <span title="Close the pinboard"
           class="glyphicon glyphicon-remove">
     </span>

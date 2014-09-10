@@ -197,7 +197,7 @@
 
         <ul class="nav navbar-nav pull-right">
           <li>
-            <a href="" ng-click="togglePinboardVisibility()">
+            <a href="#" prevent-default-on-left-click ng-click="togglePinboardVisibility()">
               <span ng-hide="isPinboardVisible"
                     title="Show the pinboard"
                     class="glyphicon glyphicon-chevron-down"></span>
@@ -207,7 +207,7 @@
             </a>
           </li>
           <li>
-            <a title="close panel" href="" ng-click="clearJob()">
+            <a prevent-default-on-left-click title="close panel" href="#" ng-click="clearJob()">
               <span class="glyphicon glyphicon-remove"></span>
             </a>
           </li>
