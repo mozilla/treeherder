@@ -74,6 +74,16 @@ def get_error_search_term(error_line):
     if not (search_term and is_helpful_search_term(search_term)):
        search_term = error_line if is_helpful_search_term(error_line) else None
 
+    # Searching for extremely long search terms is undesirable, since:
+    # a) Bugzilla's max summary length is 256 characters, and once "Intermittent "
+    # and platform/suite information is prefixed, there are even fewer characters
+    # left for us to use for the failure string against which we need to match.
+    # b) For long search terms, the additional length does little to prevent against
+    # false positives, but means we're more susceptible to false negatives due to
+    # run-to-run variances in the error messages (eg paths, process IDs).
+    if search_term:
+       search_term = search_term[:100]
+
     return search_term
 
 
