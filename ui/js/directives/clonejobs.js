@@ -205,24 +205,6 @@ treeherder.directive('thCloneJobs', [
         $rootScope.$broadcast(thEvents.jobPin, job);
     };
 
-    var jobContextmenuCb = function(ev, el, job){
-
-        ev.preventDefault();
-
-        $http.get(thServiceDomain + job.resource_uri).
-            success(function(data) {
-                if (data.hasOwnProperty("artifacts")) {
-                    data.artifacts.forEach(function(artifact) {
-                        if (artifact.name === "Structured Log") {
-                            window.open(thUrl.getLogViewerUrl(artifact.id));
-                        }
-                    });
-                } else {
-                    $log.warn("Job had no artifacts: " + job.resource_uri);
-                }
-            });
-    };
-
     var addJobBtnEls = function(
         jgObj, jobBtnInterpolator, jobTdEl, resultStatusFilters, jobCounts){
 
@@ -349,7 +331,6 @@ treeherder.directive('thCloneJobs', [
                     break;
                 case 3:
                     //Right mouse button pressed
-                    _.bind(jobContextmenuCb, this, ev, el, job)();
                     break;
                 default:
                     //strange mouse detected
