@@ -32,3 +32,10 @@ treeherder.value("thPlatformNameMap", {
 });
 
 treeherder.value("thFailureResults", ["testfailed", "busted", "exception"]);
+
+treeherder.value("thFavicons", {
+    "closed": "img/tree_closed.png",
+    "open": "img/tree_open.png",
+    "approval required": "img/tree_open.png",
+    "unavailable": "img/tree_open.png"
+});

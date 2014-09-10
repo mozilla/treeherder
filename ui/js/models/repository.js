@@ -188,6 +188,14 @@ treeherder.factory('ThRepositoryModel', [
         }
     };
 
+    var getCurrentTreeStatus = function() {
+        try {
+            return repos[$rootScope.repoName].treeStatus.status;
+        } catch(Exception) {
+            return "unavailable";
+        }
+    };
+
     var toggleWatched = function(repoName) {
         $log.debug("toggleWatched", repoName, repos[repoName]);
         if (repos[repoName].isWatched) {
@@ -219,6 +227,8 @@ treeherder.factory('ThRepositoryModel', [
         getRepo: getByName,
 
         getByGroup: getByGroup,
+
+        getCurrentTreeStatus: getCurrentTreeStatus,
 
         repos: repos,
 
