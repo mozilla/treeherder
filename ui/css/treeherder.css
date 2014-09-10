@@ -549,16 +549,21 @@ div#bottom-panel .navbar-nav.pull-right li a:focus{
 }
 
 ul.failure-summary-list li {
-    padding: 0px 0px 0px 8px;
+    padding: 0px 0px 0px 2px;
 }
 
-ul.failure-summary-list li .btn-xs{
-    font-size: 10px;
+ul.failure-summary-list li .btn-xs {
+    font-size: 8px;
+}
+
+.failure-summary-line-empty {
+    padding: 2px 2px 0px;
 }
 
 .failure-summary-line {
     padding: 2px 2px 0px;
-    color: #444444;
+    color: #b94a48;
+    background: #efefef;
 }
 
 .failure-summary-bugs {
@@ -566,8 +571,11 @@ ul.failure-summary-list li .btn-xs{
 }
 
 .failure-summary-bugs button {
-    padding: 2px 5px 2px 4px;
-    margin: 0px 0px 1px;
+    padding: 2px 3px 1px 3px;
+}
+
+.show-hide-more {
+    padding: 0px 0px 0px 34px;
 }
 
 .shadowed-panel {
