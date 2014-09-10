@@ -86,7 +86,7 @@ def run_builds4h_analyzer():
     process.run()
 
 
-@task(name="submit-star-comment", max_retries=3)
+@task(name="submit-star-comment", max_retries=3, time_limit=30)
 def submit_star_comment(project, job_id, bug_id, submit_timestamp, who):
     """
     Send a post request to tbpl's starcomment.php containing a bug association.
@@ -103,7 +103,7 @@ def submit_star_comment(project, job_id, bug_id, submit_timestamp, who):
         raise
 
 
-@task(name="submit-build-star", max_retries=3)
+@task(name="submit-build-star", max_retries=3, time_limit=30)
 def submit_build_star(project, job_id, who, bug_id=None, classification_id=None, note=None):
     """
     Send a post request to tbpl's submitBuildStar.php to mirror sheriff's activity
@@ -120,7 +120,7 @@ def submit_build_star(project, job_id, who, bug_id=None, classification_id=None,
         raise
 
 
-@task(name="submit-bug-comment", max_retries=3)
+@task(name="submit-bug-comment", max_retries=3, time_limit=30)
 def submit_bug_comment(project, job_id, bug_id):
     """
     Send a post request to tbpl's submitBugzillaComment.php
