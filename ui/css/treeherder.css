@@ -399,6 +399,7 @@ div#bottom-panel {
     background-color: #AAAAAA;
     font-size: 12px;
 
+    max-height: 30%;
     height: 270px;
     flex: 0 0 auto;
     -webkit-flex: 0 0 auto;
