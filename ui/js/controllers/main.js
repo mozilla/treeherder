@@ -17,11 +17,7 @@ treeherder.controller('MainCtrl', [
 
         $rootScope.getWindowTitle = function() {
             var ufc = $scope.getUnclassifiedFailureCount($rootScope.repoName);
-            var title = $rootScope.repoName;
-            if (ufc > 0) {
-                title = "[" + ufc + "] " + title;
-            }
-            return title;
+            return "[" + ufc + "] " + $rootScope.repoName;
         };
 
         $scope.clearJob = function() {
