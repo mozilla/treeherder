@@ -53,6 +53,9 @@ def update(ctx):
         ctx.local('python2.6 manage.py syncdb --settings {0}'.format(th_settings))
         ctx.local('python2.6 manage.py migrate --settings {0}'.format(th_settings))
 
+        # Update reference data & tasks config from the in-repo fixtures.
+        ctx.local('python2.6 manage.py load_initial_data --settings {0}'.format(th_settings))
+
         # Update oauth credentials.
         ctx.local("python2.6 manage.py export_project_credentials --settings {0}".format(th_settings))
 
