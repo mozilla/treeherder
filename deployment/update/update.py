@@ -40,25 +40,22 @@ def pre_update(ctx, ref=settings.UPDATE_REF):
         ctx.local("find . -type f -name '*.pyc' -delete")
 
 
-def rebuild(ctx):
+@task
+def update(ctx):
     with ctx.lcd(th_service_src):
         # Collect the static files (eg for the Persona or Django admin UI)
         ctx.local("python2.6 manage.py collectstatic --noinput --settings {0}".format(th_settings))
+
         # Rebuild the Cython code (eg the log parser)
         ctx.local("python2.6 setup.py build_ext --inplace")
 
-
-def update_oauth_credentials(ctx):
-    with ctx.lcd(th_service_src):
-        ctx.local(
-            "python2.6 manage.py export_project_credentials --settings {0}".format(th_settings))
-
-
-def update_db(ctx):
-    """Update the database schema, if necessary."""
-    with ctx.lcd(th_service_src):
+        # Update the database schema, if necessary.
         ctx.local('python2.6 manage.py syncdb --settings {0}'.format(th_settings))
         ctx.local('python2.6 manage.py migrate --settings {0}'.format(th_settings))
+
+        # Update oauth credentials.
+        ctx.local(
+            "python2.6 manage.py export_project_credentials --settings {0}".format(th_settings))
 
 
 def checkin_changes(ctx):
@@ -109,13 +106,6 @@ def update_info(ctx):
         ctx.local('git status')
         ctx.local('git submodule status')
         ctx.local('git rev-parse HEAD > treeherder/webapp/media/revision')
-
-
-@task
-def update(ctx):
-    rebuild(ctx)
-    update_db(ctx)
-    update_oauth_credentials(ctx)
 
 
 @task
