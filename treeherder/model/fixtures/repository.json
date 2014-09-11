@@ -648,5 +648,44 @@
         "repository_group": 2,
         "description": ""
     }
+},
+{
+    "pk": 54,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "hg",
+        "name": "mozilla-b2g28_v1_3t",
+        "url": "https://hg.mozilla.org/releases/mozilla-b2g28_v1_3t",
+        "active_status": "active",
+        "codebase": "gecko",
+        "repository_group": 2,
+        "description": ""
+    }
+},
+{
+    "pk": 55,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "hg",
+        "name": "staging-gaia-try",
+        "url": "https://hg.mozilla.org/users/jford_mozilla.com/gaia-try",
+        "active_status": "active",
+        "codebase": "gecko",
+        "repository_group": 3,
+        "description": ""
+    }
+},
+{
+    "pk": 56,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "hg",
+        "name": "mozilla-esr31",
+        "url": "https://hg.mozilla.org/releases/mozilla-esr31",
+        "active_status": "active",
+        "codebase": "gecko",
+        "repository_group": 2,
+        "description": ""
+    }
 }
 ]
