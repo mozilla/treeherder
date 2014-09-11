@@ -54,8 +54,7 @@ def update(ctx):
         ctx.local('python2.6 manage.py migrate --settings {0}'.format(th_settings))
 
         # Update oauth credentials.
-        ctx.local(
-            "python2.6 manage.py export_project_credentials --settings {0}".format(th_settings))
+        ctx.local("python2.6 manage.py export_project_credentials --settings {0}".format(th_settings))
 
 
 @task
@@ -64,11 +63,9 @@ def deploy(ctx):
     ctx.local(settings.DEPLOY_SCRIPT)
 
     # Restart celerybeat on the admin node.
-    ctx.local(
-        '{0}/service celerybeat restart'.format(settings.SBIN_DIR))
+    ctx.local('{0}/service celerybeat restart'.format(settings.SBIN_DIR))
 
-    @hostgroups(
-        settings.WEB_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
+    @hostgroups(settings.WEB_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
     def deploy_web_app(ctx):
         # Call the remote update script to push changes to webheads.
         ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
@@ -78,8 +75,7 @@ def deploy(ctx):
 
     deploy_web_app()
 
-    @hostgroups(
-        settings.CELERY_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
+    @hostgroups(settings.CELERY_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
     def deploy_workers(ctx):
         # Call the remote update script to push changes to workers.
         ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
