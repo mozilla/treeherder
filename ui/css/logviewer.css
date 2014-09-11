@@ -124,3 +124,14 @@ body {
     margin-left: -75px;
     font-size: 2em;
 }
+
+.lv-log-error {
+    position: fixed;
+    top: 284px;
+    left: 50%;
+    background: #FFF;
+    color: #585858;
+    width: 293px;
+    margin-left: -75px;
+    font-size: 2em;
+}

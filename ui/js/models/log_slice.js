@@ -28,7 +28,7 @@ treeherder.factory('ThLogSliceModel', [
             } else {
                 return false;
             }
-        }    
+        }
 
         return ret;
     };
@@ -36,7 +36,7 @@ treeherder.factory('ThLogSliceModel', [
     ThLogSliceModel.prototype.insert_into_buffer = function (options, res) {
         for (var i = options.start_line, j = 0; i < options.end_line; i += this.chunk_size, j++) {
             this.buffer[Math.floor(i/this.chunk_size)] = {
-                data: res.slice(j * this.chunk_size, (j+1) * this.chunk_size), 
+                data: res.slice(j * this.chunk_size, (j+1) * this.chunk_size),
                 used: Date.now()
             };
         }
@@ -90,8 +90,8 @@ treeherder.factory('ThLogSliceModel', [
             this.loading = true;
 
             this.get_line_range({
-                job_id: this.job_id, 
-                start_line: range.start, 
+                job_id: this.job_id,
+                start_line: range.start,
                 end_line: range.end
             }).then(function(data) {
                 var slicedData, length;
@@ -132,6 +132,7 @@ treeherder.factory('ThLogSliceModel', [
                 deferred.resolve();
             });
         } else {
+            $scope.loading = false;
             deferred.reject();
         }
 
@@ -143,12 +144,10 @@ treeherder.factory('ThLogSliceModel', [
         var timeout = config.timeout || null;
         var found = this.find_in_buffer(options);
         var self = this;
+        var deferred = $q.defer();
 
         if (found) {
-            var deferred = $q.defer();
-
             deferred.resolve(found);
-
             return deferred.promise;
         }
 
@@ -159,7 +158,10 @@ treeherder.factory('ThLogSliceModel', [
             self.insert_into_buffer(options, res.data);
 
             return res.data;
+        }, function (res) {
+            return $q.reject("Log not found");
         });
+
     };
 
     return ThLogSliceModel;

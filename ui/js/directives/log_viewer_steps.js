@@ -1,12 +1,12 @@
 'use strict';
 
-treeherder.directive('lvLogSteps', ['$timeout', '$parse', function ($timeout) {
+treeherder.directive('lvLogSteps', ['$timeout', '$q', function ($timeout, $q) {
     function getOffsetOfStep (order) {
         var el = $('.logviewer-step[order="' + order + '"]');
         var parentOffset = el.parent().offset();
 
-        return el.offset().top - 
-               parentOffset.top + el.parent().scrollTop() - 
+        return el.offset().top -
+               parentOffset.top + el.parent().scrollTop() -
                parseInt($('.steps-data').first().css('padding-bottom'));
     }
 
@@ -25,6 +25,9 @@ treeherder.directive('lvLogSteps', ['$timeout', '$parse', function ($timeout) {
                         var line = $('.lv-log-line[line="' + linenumber + '"]');
                         raw.scrollTop += line.offset().top - $('.run-data').outerHeight() - 15 ;
                     });
+                }, function () {
+                    // there is an error so bomb out
+                    return $q.reject();
                 });
 
                 if (scope.displayedStep && scope.displayedStep.order === step.order) {
