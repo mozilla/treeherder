@@ -1,55 +1,55 @@
 [
 {
-    "pk": 1, 
-    "model": "model.repositorygroup", 
+    "pk": 1,
+    "model": "model.repositorygroup",
     "fields": {
-        "name": "development", 
-        "active_status": "active", 
+        "name": "development",
+        "active_status": "active",
         "description": ""
     }
 },
 {
-    "pk": 2, 
-    "model": "model.repositorygroup", 
+    "pk": 2,
+    "model": "model.repositorygroup",
     "fields": {
-        "name": "release-stabilization", 
-        "active_status": "active", 
+        "name": "release-stabilization",
+        "active_status": "active",
         "description": ""
     }
 },
 {
-    "pk": 3, 
-    "model": "model.repositorygroup", 
+    "pk": 3,
+    "model": "model.repositorygroup",
     "fields": {
-        "name": "try", 
-        "active_status": "active", 
+        "name": "try",
+        "active_status": "active",
         "description": ""
     }
 },
 {
-    "pk": 4, 
-    "model": "model.repositorygroup", 
+    "pk": 4,
+    "model": "model.repositorygroup",
     "fields": {
-        "name": "taskcluster", 
-        "active_status": "active", 
+        "name": "taskcluster",
+        "active_status": "active",
         "description": "Collection of test repositories for taskcluster data"
     }
 },
 {
-    "pk": 5, 
-    "model": "model.repositorygroup", 
+    "pk": 5,
+    "model": "model.repositorygroup",
     "fields": {
-        "name": "qa automation tests", 
-        "active_status": "active", 
+        "name": "qa automation tests",
+        "active_status": "active",
         "description": "Collection of test repositories for the qa group"
     }
 },
 {
-    "pk": 6, 
-    "model": "model.repositorygroup", 
+    "pk": 6,
+    "model": "model.repositorygroup",
     "fields": {
-        "name": "project repositories", 
-        "active_status": "active", 
+        "name": "project repositories",
+        "active_status": "active",
         "description": "Collection of repositories for project branches"
     }
 }

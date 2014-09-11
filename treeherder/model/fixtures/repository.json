@@ -545,7 +545,6 @@
         "description": ""
     }
 },
-
 {
     "pk": 46,
     "model": "model.repository",
