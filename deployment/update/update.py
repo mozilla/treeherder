@@ -22,17 +22,18 @@ th_settings = 'treeherder.settings'
 sys.path.append(th_service_src)
 
 
-def update_code(ctx, tag):
+@task
+def pre_update(ctx, ref=settings.UPDATE_REF):
     """Update the code to a specific git reference (tag/sha/etc)."""
     with ctx.lcd(th_service_src):
-        ctx.local('git checkout %s' % tag)
+        ctx.local('git checkout %s' % ref)
         ctx.local('git pull -f')
         ctx.local('git submodule sync')
         ctx.local('git submodule update --init --recursive')
         ctx.local("find . -type f -name '*.pyc' -delete")
 
     with ctx.lcd(th_ui_src):
-        ctx.local('git checkout %s' % tag)
+        ctx.local('git checkout %s' % ref)
         ctx.local('git pull -f')
         ctx.local('git submodule sync')
         ctx.local('git submodule update --init --recursive')
@@ -108,12 +109,6 @@ def update_info(ctx):
         ctx.local('git status')
         ctx.local('git submodule status')
         ctx.local('git rev-parse HEAD > treeherder/webapp/media/revision')
-
-
-@task
-def pre_update(ctx, ref=settings.UPDATE_REF):
-    """Update code to pick up changes to this file."""
-    update_code(ctx, ref)
 
 
 @task
