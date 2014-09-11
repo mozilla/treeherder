@@ -302,7 +302,7 @@ class RefDataManager(object):
         group_symbol = group_symbol or '?'
 
         max_name = 100
-        max_symbol = 10
+        max_symbol = 25
 
         job_type = job_type[0:max_name]
         job_symbol = job_symbol[0:max_symbol]
