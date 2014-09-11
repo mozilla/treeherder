@@ -68,7 +68,7 @@
             "enabled": true,
             "routing_key": null,
             "crontab": null,
-            "interval": 1,
+            "interval": 2,
             "queue": null,
             "total_run_count": 0,
             "expires": null,
