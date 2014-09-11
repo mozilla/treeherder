@@ -550,6 +550,8 @@ div#bottom-panel .navbar-nav.pull-right li a:focus{
 
 ul.failure-summary-list li {
     padding: 0px 0px 0px 2px;
+    font-size: 11px;
+    background: #ccfaff;
 }
 
 ul.failure-summary-list li .btn-xs {
@@ -558,24 +560,30 @@ ul.failure-summary-list li .btn-xs {
 
 .failure-summary-line-empty {
     padding: 2px 2px 0px;
+    background: #ffffff;
 }
 
 .failure-summary-line {
     padding: 2px 2px 0px;
-    color: #b94a48;
-    background: #efefef;
 }
 
 .failure-summary-bugs {
     padding: 0px 0px 0px 14px;
 }
 
+/* We override global anchor color to replicate TBPL here */
+.failure-summary-bugs a {
+    color: #0000ee;
+}
+
 .failure-summary-bugs button {
     padding: 2px 3px 1px 3px;
 }
 
+/* We override global anchor color to replicate TBPL here */
 .show-hide-more {
-    padding: 0px 0px 0px 34px;
+    padding: 0px 0px 0px 35px;
+    color: #0000ee;
 }
 
 .shadowed-panel {
