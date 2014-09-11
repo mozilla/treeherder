@@ -136,7 +136,6 @@ INSTALLED_APPS = [
     'south',
     'rest_framework',
     'rest_framework_extensions',
-    'rest_framework_swagger',
     'corsheaders',
     'django_browserid',
     # treeherder apps

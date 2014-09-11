@@ -11,7 +11,7 @@ TREEHERDER_MEMCACHED_KEY_PREFIX = os.environ.get("TREEHERDER_MEMCACHED_KEY_PREFI
 
 # Applications useful for development, e.g. debug_toolbar, django_extensions.
 # Always empty in production
-LOCAL_APPS = []
+LOCAL_APPS = ["rest_framework_swagger"]
 
 DEBUG = os.environ.get("TREEHERDER_DEBUG") is not None
 
