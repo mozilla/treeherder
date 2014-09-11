@@ -41,8 +41,8 @@ class JobGroupViewSet(viewsets.ReadOnlyModelViewSet):
 class RepositoryViewSet(CacheResponseAndETAGMixin,
                         viewsets.ReadOnlyModelViewSet):
     """ViewSet for the refdata Repository model"""
-    model = models.Repository
     serializer_class = th_serializers.RepositorySerializer
+    queryset = models.Repository.objects.filter(active_status='active')
 
     def list_cache_key_func(self, **kwargs):
         return models.REPOSITORY_LIST_CACHE_KEY
