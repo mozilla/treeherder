@@ -6,9 +6,9 @@ describe('ThResultSetModel', function(){
         rootScope,
         model,
         repoModel,
-        foregroundRepo = "foreground-repo",
+        foregroundRepo = "mozilla-central",
         projectPrefix = 'https://treeherder.mozilla.org/api/project/',
-        foregroundPrefix = projectPrefix + 'foreground-repo';
+        foregroundPrefix = projectPrefix + foregroundRepo;
 
     beforeEach(module('treeherder'));
 
@@ -18,16 +18,18 @@ describe('ThResultSetModel', function(){
         $httpBackend = $injector.get('$httpBackend');
         jasmine.getJSONFixtures().fixturesPath='base/test/mock';
 
-        $httpBackend.whenGET('https://treestatus.mozilla.org/foreground-repo?format=json').respond(
+
+
+        $httpBackend.whenGET('https://treestatus.mozilla.org/mozilla-central?format=json').respond(
             {
                 "status": "approval required",
                 "message_of_the_day": "I before E",
-                "tree": "foreground-repo",
+                "tree": "mozilla-central",
                 "reason": ""
             }
         );
 
-        $httpBackend.whenGET('https://treeherder.mozilla.org/api/project/foreground-repo/jobs/0/unclassified_failure_count/').respond(
+        $httpBackend.whenGET(foregroundPrefix + '/jobs/0/unclassified_failure_count/').respond(
             {
                 "unclassified_failure_count": 1152,
                 "repository": "mozilla-central"
@@ -35,6 +37,10 @@ describe('ThResultSetModel', function(){
         );
 
         $httpBackend.whenGET(foregroundPrefix + '/resultset/?count=10&format=json&full=true&with_jobs=false').respond(
+            getResultSet(1)
+        );
+
+        $httpBackend.whenGET(foregroundPrefix + '/resultset/?count=1&format=json&full=true&id__in=1&offset=0&with_jobs=true').respond(
             getResultSet(1)
         );
 
@@ -55,12 +61,12 @@ describe('ThResultSetModel', function(){
         rootScope = $rootScope.$new();
         rootScope.repoName = foregroundRepo;
 
+        repoModel = ThRepositoryModel;
+        repoModel.load(rootScope.repoName);
+
         model = ThResultSetModel;
         model.addRepository(rootScope.repoName);
         model.fetchResultSets(rootScope.repoName, 10);
-
-        repoModel = ThRepositoryModel;
-        repoModel.setCurrent(rootScope.repoName);
 
         $httpBackend.flush();
     }));
