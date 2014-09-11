@@ -59,12 +59,12 @@ def update(ctx):
 
 
 def checkin_changes(ctx):
-    """Use the local, IT-written deploy script to check in changes."""
+    # Use the local, IT-written deploy script to check in changes.
     ctx.local(settings.DEPLOY_SCRIPT)
 
 
 def deploy_admin_node(ctx):
-    # Restart celerybeat
+    # Restart celerybeat on the admin node.
     ctx.local(
         '{0}/service celerybeat restart'.format(settings.SBIN_DIR))
 
@@ -72,7 +72,7 @@ def deploy_admin_node(ctx):
 @hostgroups(
     settings.WEB_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
 def deploy_web_app(ctx):
-    """Call the remote update script to push changes to webheads."""
+    # Call the remote update script to push changes to webheads.
     ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
     ctx.remote('{0}/service httpd graceful'.format(settings.SBIN_DIR))
     ctx.remote('{0}/service gunicorn restart'.format(settings.SBIN_DIR))
@@ -82,24 +82,23 @@ def deploy_web_app(ctx):
 @hostgroups(
     settings.CELERY_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
 def deploy_workers(ctx):
-    """Call the remote update script to push changes to workers."""
+    # Call the remote update script to push changes to workers.
     ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
 
 
 def restart_celery_workers(ctx):
-    """Send a warm shutdown event to all the workers in the cluster.
-The workers will finish their current tasks and safely shutdown.
-Supervisord will then start new workers to replace them.
-We need to do this because supervisorctl generates zombies
-every time you ask it to restart a worker.
-"""
     with ctx.lcd(th_service_src):
+        # Send a warm shutdown event to all the celery workers in the cluster.
+        # The workers will finish their current tasks and safely shutdown.
+        # Supervisord will then start new workers to replace them.
+        # We need to do this because supervisorctl generates zombies
+        # every time you ask it to restart a worker.
         ctx.local("python2.6 manage.py shutdown_workers --settings {0}".format(th_settings))
 
 
 def update_info(ctx):
-    """Write info about the current state to a publicly visible file."""
     with ctx.lcd(th_service_src):
+        # Write info about the current repository state to a publicly visible file.
         ctx.local('date')
         ctx.local('git branch')
         ctx.local('git log -3')
