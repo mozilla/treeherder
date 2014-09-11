@@ -319,6 +319,7 @@ treeherder.directive('thCloneJobs', [
                     break;
 
                 case 2:
+                    ev.preventDefault();
                     //Middle mouse button pressed
                     ThJobModel.get(this.repoName, job.id).then(function(data){
                         //Retrieve the job reference data and open a new
