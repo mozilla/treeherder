@@ -58,35 +58,34 @@ def update(ctx):
             "python2.6 manage.py export_project_credentials --settings {0}".format(th_settings))
 
 
-def checkin_changes(ctx):
+@task
+def deploy(ctx):
     # Use the local, IT-written deploy script to check in changes.
     ctx.local(settings.DEPLOY_SCRIPT)
 
-
-def deploy_admin_node(ctx):
     # Restart celerybeat on the admin node.
     ctx.local(
         '{0}/service celerybeat restart'.format(settings.SBIN_DIR))
 
+    @hostgroups(
+        settings.WEB_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
+    def deploy_web_app(ctx):
+        # Call the remote update script to push changes to webheads.
+        ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
+        ctx.remote('{0}/service httpd graceful'.format(settings.SBIN_DIR))
+        ctx.remote('{0}/service gunicorn restart'.format(settings.SBIN_DIR))
+        ctx.remote('{0}/service socketio-server restart'.format(settings.SBIN_DIR))
 
-@hostgroups(
-    settings.WEB_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
-def deploy_web_app(ctx):
-    # Call the remote update script to push changes to webheads.
-    ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
-    ctx.remote('{0}/service httpd graceful'.format(settings.SBIN_DIR))
-    ctx.remote('{0}/service gunicorn restart'.format(settings.SBIN_DIR))
-    ctx.remote('{0}/service socketio-server restart'.format(settings.SBIN_DIR))
+    deploy_web_app()
 
+    @hostgroups(
+        settings.CELERY_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
+    def deploy_workers(ctx):
+        # Call the remote update script to push changes to workers.
+        ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
 
-@hostgroups(
-    settings.CELERY_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
-def deploy_workers(ctx):
-    # Call the remote update script to push changes to workers.
-    ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
+    deploy_workers()
 
-
-def restart_celery_workers(ctx):
     with ctx.lcd(th_service_src):
         # Send a warm shutdown event to all the celery workers in the cluster.
         # The workers will finish their current tasks and safely shutdown.
@@ -95,9 +94,6 @@ def restart_celery_workers(ctx):
         # every time you ask it to restart a worker.
         ctx.local("python2.6 manage.py shutdown_workers --settings {0}".format(th_settings))
 
-
-def update_info(ctx):
-    with ctx.lcd(th_service_src):
         # Write info about the current repository state to a publicly visible file.
         ctx.local('date')
         ctx.local('git branch')
@@ -105,13 +101,3 @@ def update_info(ctx):
         ctx.local('git status')
         ctx.local('git submodule status')
         ctx.local('git rev-parse HEAD > treeherder/webapp/media/revision')
-
-
-@task
-def deploy(ctx):
-    checkin_changes(ctx)
-    deploy_admin_node(ctx)
-    deploy_web_app()
-    deploy_workers()
-    restart_celery_workers(ctx)
-    update_info(ctx)
