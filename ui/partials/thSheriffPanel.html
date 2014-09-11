@@ -1,11 +1,11 @@
 <div class="th-top-nav-options-panel" id="sheriff_panel" ng-controller="SheriffCtrl">
     <ul class="list-inline">
         <li>
-            <a href="" ng-if="view != 'exclusion_profile_list'" ng-click="switchView('exclusion_profile_list')">Visibility profiles</a>
+            <a href="" prevent-default-on-left-click  ng-if="view != 'exclusion_profile_list'" ng-click="switchView('exclusion_profile_list')">Visibility profiles</a>
             <span ng-if="view =='exclusion_profile_list'">Exclusion profiles</span>
         </li>
         <li>
-            <a href="" ng-if="view != 'job_exclusion_list'" ng-click="switchView('job_exclusion_list')">Job exclusions</a>
+            <a href="" prevent-default-on-left-click  ng-if="view != 'job_exclusion_list'" ng-click="switchView('job_exclusion_list')">Job exclusions</a>
             <span ng-if="view =='job_exclusion_list'">Job exclusions</span>
         </li>
     </ul>

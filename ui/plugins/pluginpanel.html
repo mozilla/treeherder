@@ -38,7 +38,7 @@
             <!--the first 3 items are in the same box-->
             <ul class="nav navbar-nav">
               <li>
-                <a href="" title="Add the selected job to the pinboard via ctrl/cmd+click or spacebar"
+                <a href="" prevent-default-on-left-click  title="Add the selected job to the pinboard via ctrl/cmd+click or spacebar"
                    ng-click="pinboard_service.pinJob(selectedJob)">
                   <span class="glyphicon glyphicon-pushpin"></span>
                   <span class="pinned-job-count"><strong>{{ getCountPinnedJobs() }}</strong></span>
@@ -49,7 +49,7 @@
           </li>
           <li ng-show="canCancel()">
             <a title="Cancel job"
-               href=""
+               href="" prevent-default-on-left-click
                target="_blank"
                ng-click="cancelJob()">
               <span class="fa fa-stop"></span>
@@ -57,7 +57,7 @@
           </li>
           <li ng-show="canRetrigger()">
             <a title="Retrigger job"
-               href=""
+               href="" prevent-default-on-left-click
                target="_blank"
                ng-click="retriggerJob()">
               <span class="fa fa-play"></span>
@@ -174,21 +174,21 @@
         <ul class="nav navbar-nav tab-headers">
           <li ng-class="{'active': tabs.failure_summary.active}">
             <a title="show Failure summary"
-               href=""
+               href="" prevent-default-on-left-click
                ng-click="show_tab(tabs.failure_summary)">
               Failure summary
             </a>
           </li>
           <li ng-class="{'active': tabs.annotations.active}">
             <a title="show Annotations"
-               href=""
+               href="" prevent-default-on-left-click
                ng-click="show_tab(tabs.annotations)">
               Annotations
             </a>
           </li>
           <li ng-class="{'active': tabs.similar_jobs.active}">
             <a title="show Similar jobs"
-               href=""
+               href="" prevent-default-on-left-click
                ng-click="show_tab(tabs.similar_jobs)">
               Similar jobs
             </a>
