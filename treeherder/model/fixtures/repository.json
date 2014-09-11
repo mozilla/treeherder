@@ -97,7 +97,7 @@
         "dvcs_type": "hg",
         "name": "mozilla-esr17",
         "url": "https://hg.mozilla.org/releases/mozilla-esr17",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gecko",
         "repository_group": 2,
         "description": ""
@@ -123,7 +123,7 @@
         "dvcs_type": "hg",
         "name": "mozilla-b2g18",
         "url": "https://hg.mozilla.org/releases/mozilla-b2g18",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gecko",
         "repository_group": 2,
         "description": ""
@@ -136,7 +136,7 @@
         "dvcs_type": "hg",
         "name": "mozilla-b2g18_v1_1_0_hd",
         "url": "https://hg.mozilla.org/releases/mozilla-b2g18_v1_1_0_hd",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gecko",
         "repository_group": 2,
         "description": ""
@@ -513,7 +513,7 @@
         "dvcs_type": "hg",
         "name": "mozilla-b2g26_v1_2",
         "url": "https://hg.mozilla.org/releases/mozilla-b2g26_v1_2",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gecko",
         "repository_group": 2,
         "description": ""
