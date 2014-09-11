@@ -38,15 +38,6 @@ body {
     width: 100%;
 }
 
-.lv-line-number {
-    background-color: #232323;
-    color: #EFEFEF;
-    padding: 2px 5px;
-    display: inline-block;
-    text-align: right;
-    min-width: 45px;
-}
-
 .text-danger .lv-line-number {
     background: #e74c3c !important;
 }
