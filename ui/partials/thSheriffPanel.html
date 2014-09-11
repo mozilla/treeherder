@@ -124,7 +124,20 @@
             Create/Update Job Exclusion
         </div>
         <div class="panel-body">
-            <form class="form">
+            <form class="form" name="thJobExclusionsForm">
+                <div class="form-group">
+                    <label>Name</label> <span class="text-danger">(required)</span>
+                    <input class="form-control input-sm"
+                           type="text"
+                           ng-model="form_exclusion.name"
+                           placeholder="Enter a name"
+                           required/>
+                </div>
+                <div class="form-group">
+                    <label class="sr-only control-label">Description</label>
+                    <textarea class="form-control input-sm" ng-model="form_exclusion.description" placeholder="Enter a description"></textarea>
+                </div>
+
                 <div class="form-group-inline">
                     <div class="form-group">
                         <label>Repositories</label>
@@ -143,21 +156,20 @@
                         <th-multi-select left-list="form_job_types" right-list="form_exclusion.info.job_types"></th-multi-select>
                     </div>
                     <div class="form-group">
-
-                        <div class="form-group">
-                            <label>Name</label>
-                            <input class="form-control input-sm" type="text" ng-model="form_exclusion.name" placeholder="Enter a name"/>
-                        </div>
-                        <div class="form-group">
-                            <label class="sr-only control-label">Description</label>
-                            <textarea class="form-control input-sm" ng-model="form_exclusion.description" placeholder="Enter a description"></textarea>
-                        </div>
                         <div class="form-group-inline">
                             <div class="form-group">
-                                <button ng-click="reset_exclusion()" type="submit" class="btn btn-sm btn-default pull right">reset</button>
+                                <a
+                                    ng-click="switchView('job_exclusion_list')"
+                                    class="btn btn-sm btn-default pull right">Back</a>
                             </div>
                             <div class="form-group">
-                                <button ng-click="save_exclusion(form_exclusion)" type="submit" class="btn btn-sm btn-default pull right">Save</button>
+                                <button ng-click="reset_exclusion()" type="submit" class="btn btn-sm btn-default pull right">Reset</button>
+                            </div>
+                            <div class="form-group">
+                                <button ng-click="thJobExclusionsForm.$valid && save_exclusion(form_exclusion)"
+                                        type="submit"
+                                        class="btn btn-sm btn-default pull right"
+                                        >Save</button>
                             </div>
                         </div>
                     </div>

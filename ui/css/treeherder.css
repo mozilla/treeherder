@@ -140,7 +140,7 @@ th-watched-repo {
     background-color: lightgray;
     padding: 10px;
     border: 1px solid black;
-    max-height: 300px;
+    max-height: 400px;
     overflow-y: auto;
 }
 
@@ -202,6 +202,11 @@ th-watched-repo {
 .field-filter-placeholder a {
     cursor: pointer;
 }
+
+/**
+  sheriff panel
+*/
+.add-new-exclusion input.ng-invalid.ng-dirty{border-color: #B94A48;}
 
 /**
   Failures

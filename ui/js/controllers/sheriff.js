@@ -53,6 +53,7 @@ treeherder.controller('SheriffCtrl', [
                     thJobFilters.getJobComboField(data[i].platform, data[i].architecture)
                 );
             }
+            $scope.master_platforms.sort()
             $scope.form_platforms = angular.copy($scope.master_platforms);
         });
 
@@ -65,6 +66,7 @@ treeherder.controller('SheriffCtrl', [
                     thJobFilters.getJobComboField(data[i].name, data[i].symbol)
                 );
             }
+            $scope.master_job_types.sort()
             $scope.form_job_types = angular.copy($scope.master_job_types);
         });
 
@@ -75,6 +77,7 @@ treeherder.controller('SheriffCtrl', [
                 for (var i = 0; i < data.length; i++) {
                     $scope.master_repos.push(data[i].name);
                 }
+                $scope.master_repos.sort()
                 $scope.form_repos = angular.copy($scope.master_repos);
             });
 
@@ -85,6 +88,7 @@ treeherder.controller('SheriffCtrl', [
                 for (var i = 0; i < data.length; i++) {
                     $scope.master_options.push(data[i].name);
                 }
+                $scope.master_options.sort()
                 $scope.form_options = angular.copy($scope.master_options);
             });
 
