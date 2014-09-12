@@ -2,7 +2,7 @@
 
 var treeherder = angular.module('treeherder',
     ['ngResource','ui.bootstrap', 'ngSanitize', 'ngCookies', 'ngRoute',
-     'LocalStorageModule']);
+     'LocalStorageModule', 'mc.resizer']);
 
 
 treeherder.config(function($routeProvider, $httpProvider, $logProvider) {

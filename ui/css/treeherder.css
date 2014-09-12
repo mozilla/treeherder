@@ -381,6 +381,18 @@ th-watched-repo {
 }
 
 /*
+ * resizer
+ */
+div#bottom-panel-resizer {
+    display: flex;
+    flex: 0 0 auto;
+    background-color: #42484F;
+    cursor: ns-resize;
+    height: 4px;
+}
+
+
+/*
  * bottom panel
  */
 
