@@ -22,6 +22,7 @@
       <span class="result-set-buttons">
         <span class="revision-text">{{resultset.revision}}</span>
         <span class="btn btn-default btn-sm"
+              tabindex="0" role="button"
               title="pin all visible jobs in this resultset"
               ng-click="pinAllShownJobs()">
           <span class="glyphicon glyphicon-pushpin"></span>
@@ -30,6 +31,7 @@
       </span>
 
       <span class="btn btn-default btn-sm revision-button"
+            tabindex="0" role="button"
             ng-click="toggleRevisions()"
             title="show revisions"><i class="fa fa-code-fork fa-lg"></i> {{resultset.revision_count}}</span>
       <th-result-counts class="result-counts"/>

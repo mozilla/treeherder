@@ -17,7 +17,9 @@
             <span ng-show="user.is_staff">
                 <span class="btn btn-view-nav"
                       ng-class="{'active': (isSheriffPanelShowing)}"
-                      ng-click="setSheriffPanelShowing(!isSheriffPanelShowing)"><span>Sheriffing</span>
+                      ng-click="setSheriffPanelShowing(!isSheriffPanelShowing)"
+                      tabindex="0"
+                      role="button"><span>Sheriffing</span>
                     <i class="fa fa-caret-down lightgray"
                        ng-hide="isSheriffPanelShowing"></i>
                     <i class="fa fa-caret-up lightgray"
@@ -49,7 +51,9 @@
                 </ul>
                 <span class="btn btn-view-nav"
                       ng-class="{'active': (isFilterPanelShowing)}"
-                      ng-click="setFilterPanelShowing(!isFilterPanelShowing)"><span>Filters</span>
+                      ng-click="setFilterPanelShowing(!isFilterPanelShowing)"
+                      tabindex="0"
+                      role="button"><span>Filters</span>
                     <i class="fa fa-caret-down lightgray"
                        ng-hide="isFilterPanelShowing"></i>
                     <i class="fa fa-caret-up lightgray"
@@ -60,7 +64,9 @@
                 <!--TODO: change this condition to enable the settings panel-->
                 <span ng-show="false" class="btn btn-view-nav"
                       ng-class="{'active': (isSettingsPanelShowing)}"
-                      ng-click="setSettingsPanelShowing(!isSettingsPanelShowing)"><span>Settings</span>
+                      ng-click="setSettingsPanelShowing(!isSettingsPanelShowing)"
+                      tabindex="0"
+                      role="button"><span>Settings</span>
                     <i class="fa fa-caret-down lightgray"
                        ng-hide="isSettingsPanelShowing"></i>
                     <i class="fa fa-caret-up lightgray"
