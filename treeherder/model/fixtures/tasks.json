@@ -19,8 +19,8 @@
     "pk": 3,
     "model": "djcelery.intervalschedule",
     "fields": {
-        "every": 1,
-        "period": "days"
+        "every": 60,
+        "period": "minutes"
     }
 },
 {
