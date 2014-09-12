@@ -672,6 +672,7 @@ ul.failure-summary-list li .btn-xs {
 #pinned-job-list{
     flex: 1 1 auto;
     -webkit-flex: 1 1 auto;
+    padding: 5px;
 }
 
 #pinned-job-list .content{
@@ -684,9 +685,11 @@ ul.failure-summary-list li .btn-xs {
 }
 
 #pinboard-related-bugs{
+    width: 215px;
+    padding: 5px;
     flex: 0 0 auto;
     -webkit-flex: 0 0 auto;
-    width: 215px;
+    min-width: 215px;
 }
 
 #pinboard-related-bugs .content {
@@ -713,6 +716,7 @@ ul.failure-summary-list li .btn-xs {
     flex: 0 0 auto;
     -webkit-flex: 0 0 auto;
     width: 185px;
+    padding: 5px;
 }
 
 #pinboard-classification select {
@@ -734,6 +738,8 @@ ul.failure-summary-list li .btn-xs {
 #pinboard-controls {
     flex: 0 0 auto;
     -webkit-flex: 0 0 auto;
+    padding: 10px;
+    margin: 13px;
 }
 
 #pinboard-controls .dropdown-menu {
