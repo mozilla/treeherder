@@ -69,6 +69,86 @@ treeherder.directive('thFailureClassification', [
     };
 }]);
 
+treeherder.directive('resizablePanel', [
+    '$document', 'ThLog',
+    function($document, ThLog) {
+    return {
+        restrict: "E",
+        link: function(scope, element, attr) {
+            var position  = attr.position || "top";
+            var start = {x: 0, y: 0};
+            var container = $(element.parent());
+
+            var css_properties  = {
+                position: 'absolute',
+                cursor:'row-resize',
+                'z-index': '100'
+            };
+
+            switch(position){
+                case 'top':
+                    css_properties.top = '-2px';
+                    css_properties.width = '100%';
+                    css_properties.height = '5px';
+                    break;
+                case 'bottom':
+                    css_properties.bottom = '-2px';
+                    css_properties.width = '100%';
+                    css_properties.height = '5px';
+                    break;
+                case 'left':
+                    css_properties.left = '-2px';
+                    css_properties.height = '100%';
+                    css_properties.width = '5px';
+                    break;
+                case 'right':
+                    css_properties.right = '-2px';
+                    css_properties.height = '100%';
+                    css_properties.width = '5px';
+                    break;
+            }
+
+            element.css(css_properties);
+
+            element.on('mousedown', function(event) {
+                // Prevent default dragging of selected content
+                event.preventDefault();
+                start.x = event.pageX;
+                start.y = event.pageY;
+                $document.on('mousemove', mousemove);
+                $document.on('mouseup', mouseup);
+            });
+
+            function mousemove(event) {
+                var distance = {
+                    x: start.x - event.pageX,
+                    y: start.y - event.pageY
+                };
+                switch(position){
+                    case 'top':
+                    case 'bottom':
+                        container.height(container.height() + distance.y);
+                        break;
+                    case 'left':
+                    case 'right':
+                        container.width(container.width() + distance.x);
+                        break;
+                }
+
+                start.x = event.pageX;
+                start.y = event.pageY;
+            }
+
+            function mouseup() {
+                $document.unbind('mousemove', mousemove);
+                $document.unbind('mouseup', mouseup);
+
+            }
+
+        }
+    };
+}]);
+
 treeherder.directive('thSimilarJobs', [
     'ThJobModel', 'ThLog',
     function(ThJobModel, ThLog){
