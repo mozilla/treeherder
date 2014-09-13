@@ -61,7 +61,7 @@ treeherder.factory('ThRepositoryModel', [
             unclassifiedFailureCount: 0,
             unclassifiedFailureCountExcluded: 0,
             groupName: repos[repoName].groupName
-        };
+        });
         watchedRepos[repoName] = repos[repoName];
         updateTreeStatus(repoName);
         watchedReposUpdated();
