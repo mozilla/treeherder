@@ -105,8 +105,6 @@ treeherder.directive('thRepoDropDown', [
 
             scope.name = attrs.name;
             scope.treeStatus = treeStatus.getTreeStatusName(attrs.name);
-            var clobberer = scope.treeStatus.split('-');
-            scope.clobberer = clobberer[0] + "-" + clobberer[1];
             var repo_obj = ThRepositoryModel.getRepo(attrs.name);
             scope.pushlog = repo_obj.url +"/pushloghtml";
 

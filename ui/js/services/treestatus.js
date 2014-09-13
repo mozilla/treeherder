@@ -9,13 +9,9 @@ treeherder.factory('treeStatus', [
     var getTreeStatusName = function(name) {
         // the thunderbird names in treestatus.mozilla.org don't match what
         // we use, so translate them.  pretty hacky, yes...
-        if (name.indexOf("thunderbird") >= 0) {
-            if (name === "thunderbird-trunk") {
-                return "comm-central-thunderbird";
-            } else {
-                var tokens = name.split("-");
-                return "comm-" + tokens[1] + "-" + tokens[0];
-            }
+        // TODO: Move these to the repository fixture in the service.
+        if (name.indexOf("comm-") >= 0 && name !== "try-comm-central") {
+            return name + "-thunderbird";
         }
         return name;
     };
