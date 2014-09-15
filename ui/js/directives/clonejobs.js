@@ -927,7 +927,7 @@ treeherder.directive('thCloneJobs', [
         //Register rootScope custom event listeners that require
         //access to the anguler level resultset scope
         //
-        //NOTE: These event listeners are registered 1 per resultets
+        //NOTE: These event listeners are registered 1 per resultset
         //      so make sure the callback is only called if the event
         //      is associated with the target result set. Some of these
         //      events are really at the level of the $rootScope but the
