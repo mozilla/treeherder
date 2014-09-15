@@ -500,7 +500,7 @@
         "dvcs_type": "hg",
         "name": "unknown",
         "url": "",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "",
         "repository_group": 1,
         "description": ""
