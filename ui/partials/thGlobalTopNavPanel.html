@@ -26,29 +26,36 @@
                        ng-show="isSheriffPanelShowing"></i>
                 </span>
             </span>
-            <span ng-controller="RepositoryMenuCtrl">
-                <a class="dropdown-toggle btn btn-view-nav" data-toggle="dropdown" href="#">
-                    Repos
-                    <b class="fa fa-caret-down lightgray"></b>
-                </a>
-                <ul class="repo-menu-form dropdown-menu" role="menu" ng-click="$event.stopPropagation();">
-                    <span ng-repeat="(group_order, group) in groupedRepos()"
-                          ng-click="$event.stopPropagation();">
-                        <li role="presentation" class="divider" ng-hide="$first"></li>
-                        <li role="presentation" class="dropdown-header">{{group.name}}</li>
-                        <li ng-repeat="repo in group.repos | orderBy : 'name'" ng-click="$event.stopPropagation();">
-                            <input type="checkbox"
-                                   ng-checked="repoModel.watchedRepos[repo.name]"
-                                   ng-click="repoModel.toggleWatched(repo.name)"
-                                   title="toggle watching this repo"
-                                   ng-disabled="repo.name == repoName">
-                                <a ng-href="./#/jobs?repo={{repo.name}}"
-                                   title="open repo"
-                                   ng-click="$event.stopPropagation()"
-                                   class="repo-link">{{repo.name}}</a>
-                        </li>
-                    </span>
-                </ul>
+
+            <span ng-controller="RepositoryMenuCtrl" >
+                <!--<span class="repo-menu dropdown keep-open">-->
+                <span class="repo-menu dropdown keep-open">
+                    <!-- Repo Button -->
+                    <button id="repoLabel" role="button" href="#" data-toggle="dropdown" data-target="#" class="btn btn-view-nav">
+                        Repos <b class="fa fa-caret-down lightgray"></b>
+                    </button>
+
+                    <!-- Repo Menu -->
+                    <ul class="dropdown-menu repo-dropdown-menu" role="menu" aria-labelledby="repoLabel">
+                        <span ng-repeat="(group_order, group) in groupedRepos()"
+                              ng-click="$event.stopPropagation();">
+                            <li role="presentation" class="divider" ng-hide="$first"></li>
+                            <li role="presentation" class="dropdown-header">{{group.name}}</li>
+                            <li ng-repeat="repo in group.repos | orderBy : 'name'" ng-click="$event.stopPropagation();">
+                                <input type="checkbox"
+                                       ng-checked="repoModel.watchedRepos[repo.name]"
+                                       ng-click="repoModel.toggleWatched(repo.name); $event.stopPropagation()"
+                                       title="toggle watching this repo"
+                                       ng-disabled="repo.name == repoName">
+                                    <a ng-href="./#/jobs?repo={{repo.name}}"
+                                       title="open repo"
+                                       ng-click="$event.stopPropagation()"
+                                       class="repo-link">{{repo.name}}</a>
+                            </li>
+                        </span>
+
+                    </ul>
+                </span>
                 <span class="btn btn-view-nav"
                       ng-class="{'active': (isFilterPanelShowing)}"
                       ng-click="setFilterPanelShowing(!isFilterPanelShowing)"
@@ -76,10 +83,8 @@
             </span>
         </span>
 
-        </div>
-        <ng-include class="watched-repo-navbar" src="'partials/thWatchedRepoNavPanel.html'" ng-show="locationPath==='jobs'">
-        </ng-include>
     </div>
+    <ng-include class="watched-repo-navbar" src="'partials/thWatchedRepoNavPanel.html'" ng-show="locationPath==='jobs'"></ng-include>
     <ng-include src="'partials/thSheriffPanel.html'" ng-show="isSheriffPanelShowing"></ng-include>
     <ng-include src="'partials/thFilterPanel.html'" ng-show="isFilterPanelShowing"></ng-include>
 </nav>
