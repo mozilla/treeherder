@@ -5,13 +5,13 @@ treeherder.controller('PluginCtrl', [
     'thClassificationTypes', 'ThJobModel', 'thEvents', 'dateFilter',
     'numberFilter', 'ThBugJobMapModel', 'thResultStatus', 'thSocket',
     'ThResultSetModel', 'ThLog', '$q', 'thPinboard', 'ThJobArtifactModel',
-    'thBuildApi', 'thNotify', 'ThJobLogUrlModel',
+    'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'thTabs',
     function PluginCtrl(
         $scope, $rootScope, $location, thUrl, ThJobClassificationModel,
         thClassificationTypes, ThJobModel, thEvents, dateFilter,
         numberFilter, ThBugJobMapModel, thResultStatus, thSocket,
         ThResultSetModel, ThLog, $q, thPinboard, ThJobArtifactModel,
-        thBuildApi, thNotify, ThJobLogUrlModel) {
+        thBuildApi, thNotify, ThJobLogUrlModel, thTabs) {
 
         var $log = new ThLog("PluginCtrl");
 
@@ -203,22 +203,15 @@ treeherder.controller('PluginCtrl', [
             }
         };
 
-        $rootScope.$on(thEvents.jobClick, function(event, job) {
+        $scope.$on(thEvents.jobClick, function(event, job) {
             selectJob(job, $rootScope.selectedJob);
             $rootScope.selectedJob = job;
+            thTabs.showTab(thTabs.selectedTab, job.id);
         });
 
-        $rootScope.$on(thEvents.jobClear, function(event, job) {
+        $scope.$on(thEvents.jobClear, function(event, job) {
             $rootScope.selectedJob = null;
             $scope.$digest();
-        });
-
-        $rootScope.$on(thEvents.jobsClassified, function(event, job) {
-            $scope.updateClassifications();
-        });
-
-        $rootScope.$on(thEvents.bugsAssociated, function(event, job) {
-            $scope.updateBugs();
         });
 
         $scope.bug_job_map_list = [];
@@ -230,14 +223,9 @@ treeherder.controller('PluginCtrl', [
         $scope.updateClassifications = function() {
             ThJobClassificationModel.get_list({job_id: $scope.job.id}).then(function(response) {
                 $scope.classifications = response;
+                $scope.job.note = $scope.classifications[0]
             });
         };
-        // when classifications comes in, then set the latest note for the job
-        $scope.$watch('classifications', function(newValue, oldValue) {
-            if (newValue && newValue.length > 0) {
-                $scope.job.note=newValue[0];
-            }
-        });
 
         // load the list of bug associations (including possibly new ones just
         // added).
@@ -249,108 +237,59 @@ treeherder.controller('PluginCtrl', [
             }
         };
 
+        $scope.$on(thEvents.jobsClassified, function(event, job) {
+            $scope.updateClassifications();
+        });
+
+        $scope.$on(thEvents.bugsAssociated, function(event, job) {
+            $scope.updateBugs();
+        });
+
         $scope.pinboard_service = thPinboard;
 
-        var updateClassification = function(classification){
-            if(classification.who !== $scope.user.email){
-                // get a fresh version of the job
-                ThJobModel.get_list($scope.repoName, {id:classification.id})
-                .then(function(job_list){
-                    if(job_list.length > 0){
-                        var job = job_list[0];
-                        // get the list of jobs we know about
-                        var jobMap  = ThResultSetModel.getJobMap(classification.branch);
-                        var map_key = "key"+job.id;
-                        if(jobMap.hasOwnProperty(map_key)){
-                            // update the old job with the new info
-                            _.extend(jobMap[map_key].job_obj,job);
-                            var params = { jobs: {}};
-                            params.jobs[job.id] = jobMap[map_key].job_obj;
-                            // broadcast the job classification event
-                            $rootScope.$broadcast(thEvents.jobsClassified, params);
-                        }
-                    }
-
-                });
-
-            }
-
-        };
-
-        thSocket.on("job_classification", updateClassification);
-
-        $scope.tabs = {
-            "failure_summary": {
-                title: "Failure summary",
-                content: "plugins/failure_summary/main.html",
-                active: true
-            },
-            "annotations": {
-                title: "Annotations",
-                content: "plugins/annotations/main.html"
-            },
-            "similar_jobs": {
-                title: "Similar jobs",
-                content: "plugins/similar_jobs/main.html"
-            }
-        };
-
-        $scope.show_tab = function(tab){
-            if(tab.active !== true){
-                angular.forEach($scope.tabs, function(v,k){
-                    v.active=false;
-                });
-                tab.active = true;
-            }
-        };
-
+        // expose the tab service properties on the scope
+        $scope.tabService = thTabs;
     }
 ]);
 
 treeherder.controller('JobDetailsPluginCtrl', [
-    '$scope', '$rootScope', 'ThLog', 'ThJobArtifactModel', '$q',
+    '$scope', '$rootScope', 'ThLog', 'ThJobArtifactModel',
+    '$q', 'thEvents',
     function JobDetails(
-        $scope, $rootScope, ThLog, ThJobArtifactModel, $q) {
+        $scope, $rootScope, ThLog, ThJobArtifactModel, $q, thEvents) {
 
         var $log = new ThLog(this.constructor.name);
 
         $log.debug("JobDetails plugin initialized");
         var timeout_promise = null;
 
-
-        var update_job_info = function(newValue, oldValue){
+        var update_job_info = function(event, job){
             $scope.job_details = [];
             $scope.job_details_parsed = [];
-
-            if(newValue){
-                $scope.is_loading = true;
-
-                if(timeout_promise !== null){
-                            timeout_promise.resolve();
-                }
-                timeout_promise = $q.defer();
-
-                ThJobArtifactModel.get_list({
-                    name: "Job Info",
-                    "type": "json",
-                    job_id: newValue
-                }, {timeout: timeout_promise})
-                .then(function(data){
-                    // ``artifacts`` is set as a result of a promise, so we must have
-                    // the watch have ``true`` as the last param to watch the value,
-                    // not just the reference.  We also must check for ``blob`` in ``Job Info``
-                    // because ``Job Info`` can exist without the blob as the promise is
-                    // fulfilled.
-                    if (data.length === 1 && _.has(data[0], 'blob')){
-                        $scope.job_details = data[0].blob.job_details;
-                    }
-
-                })
-                .finally(function(){
-                    $scope.is_loading = false;
-                });
+            $scope.is_loading = true;
+            if(timeout_promise !== null){
+                timeout_promise.resolve();
             }
+            timeout_promise = $q.defer();
+
+            ThJobArtifactModel.get_list({
+                name: "Job Info",
+                "type": "json",
+                job_id: job.id
+            }, {timeout: timeout_promise})
+            .then(function(data){
+                //We must check for ``blob`` in ``Job Info``
+                // because ``Job Info`` can exist without the blob as the promise is
+                // fulfilled.
+                if (data.length === 1 && _.has(data[0], 'blob')){
+                    $scope.job_details = data[0].blob.job_details;
+                }
+
+            })
+            .finally(function(){
+                $scope.is_loading = false;
+            });
         };
-        $scope.$watch("job.id", update_job_info, true);
+        $scope.$on(thEvents.jobClick, update_job_info);
     }
 ]);

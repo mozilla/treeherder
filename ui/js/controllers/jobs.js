@@ -4,10 +4,11 @@ treeherder.controller('JobsCtrl', [
     '$scope', '$http', '$rootScope', '$routeParams', 'ThLog', '$cookies',
     'localStorageService', 'thUrl', 'ThRepositoryModel', 'thSocket',
     'ThResultSetModel', 'thResultStatusList', '$location', 'thEvents',
+    'ThJobModel',
     function JobsCtrl(
         $scope, $http, $rootScope, $routeParams, ThLog, $cookies,
         localStorageService, thUrl, ThRepositoryModel, thSocket,
-        ThResultSetModel, thResultStatusList, $location, thEvents) {
+        ThResultSetModel, thResultStatusList, $location, thEvents, ThJobModel) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -64,6 +65,31 @@ treeherder.controller('JobsCtrl', [
                     $rootScope.$broadcast(thEvents.toggleRevisions, rs, expand);
                 });
             });
+
+        var updateClassification = function(classification){
+            if(classification.who !== $scope.user.email){
+                // get a fresh version of the job
+                ThJobModel.get($scope.repoName, classification.id)
+                .then(function(job){
+                    // get the list of jobs we know about
+                    var jobMap  = ThResultSetModel.getJobMap(classification.branch);
+                    var map_key = "key"+job.id;
+                    if(jobMap.hasOwnProperty(map_key)){
+                        // update the old job with the new info
+                        _.extend(jobMap[map_key].job_obj,job);
+                        var params = { jobs: {}};
+                        params.jobs[job.id] = jobMap[map_key].job_obj;
+                        // broadcast the job classification event
+                        $rootScope.$broadcast(thEvents.jobsClassified, params);
+                    }
+
+                });
+
+            }
+
+        };
+
+        thSocket.on("job_classification", updateClassification);
 
 
     }
