@@ -2,10 +2,10 @@
 
 treeherder.controller('AnnotationsPluginCtrl', [
     '$scope', '$rootScope', 'ThLog', 'ThJobClassificationModel', 'thNotify',
-    'thEvents', 'ThResultSetModel', 'ThBugJobMapModel',
+    'thEvents', 'ThResultSetModel', 'ThBugJobMapModel', 'thTabs',
     function AnnotationsPluginCtrl(
         $scope, $rootScope, ThLog, ThJobClassificationModel,
-        thNotify, thEvents, ThResultSetModel, ThBugJobMapModel) {
+        thNotify, thEvents, ThResultSetModel, ThBugJobMapModel, thTabs) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -13,7 +13,7 @@ treeherder.controller('AnnotationsPluginCtrl', [
 
         $scope.$watch('classifications', function(newValue, oldValue){
 
-            $scope.tabs.annotations.num_items = newValue ? $scope.classifications.length : 0;
+            thTabs.tabs.annotations.num_items = newValue ? $scope.classifications.length : 0;
         }, true);
 
         $scope.deleteClassification = function(classification) {

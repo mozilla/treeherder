@@ -4,10 +4,11 @@ treeherder.controller('SimilarJobsPluginCtrl', [
     '$scope', 'ThLog', '$rootScope', 'ThJobModel', 'thResultStatusInfo',
     'thEvents', 'numberFilter', 'dateFilter', 'thClassificationTypes',
     'thResultStatus', 'ThJobArtifactModel', 'thResultSets', 'thNotify',
+    'thTabs',
     function SimilarJobsPluginCtrl(
         $scope, ThLog, $rootScope, ThJobModel, thResultStatusInfo, thEvents,
         numberFilter, dateFilter, thClassificationTypes, thResultStatus,
-        ThJobArtifactModel, thResultSets, thNotify) {
+        ThJobArtifactModel, thResultSets, thNotify, thTabs) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -16,7 +17,7 @@ treeherder.controller('SimilarJobsPluginCtrl', [
         // do the jobs retrieval based on the user selection
         $scope.page_size = 20;
         $scope.get_similar_jobs = function(){
-            $scope.tabs.similar_jobs.is_loading = true;
+            thTabs.tabs.similarJobs.is_loading = true;
             var options = {
                     count: $scope.page_size +1,
                     offset: ($scope.page-1) * $scope.page_size,
@@ -59,7 +60,7 @@ treeherder.controller('SimilarJobsPluginCtrl', [
                                     if($scope.page === 1 && $scope.similar_jobs.length > 0){
                                         $scope.show_job_info($scope.similar_jobs[0]);
                                     }
-                                    $scope.tabs.similar_jobs.is_loading = false;
+                                    thTabs.tabs.similarJobs.is_loading = false;
                                 },
                                 function(){
                                     thNotify.send("Error fetching result sets for similar jobs","danger");
@@ -68,22 +69,26 @@ treeherder.controller('SimilarJobsPluginCtrl', [
                     });
         };
 
-        // reset the page counter and retrieve the list of jobs
-        $scope.update_similar_jobs = function(event) {
+        // update function triggered by the plugins controller
+
+        $scope.update_similar_jobs = function(){
             if($scope.job){
                 $scope.page = 1;
                 $scope.has_next_page = false;
                 $scope.similar_jobs = [];
                 $scope.similar_job_selected = null;
                 $scope.get_similar_jobs();
+
             }
-        };
+        }
+
+        // expose the update function on the tab service
+        thTabs.tabs.similarJobs.update = $scope.update_similar_jobs;
 
         $scope.similar_jobs = [];
 
         $scope.result_status_info = thResultStatusInfo;
 
-        $rootScope.$on(thEvents.jobDetailLoaded, $scope.update_similar_jobs);
         $scope.similar_jobs_filters = {
             "machine_id": false,
             "job_type_id": true,
