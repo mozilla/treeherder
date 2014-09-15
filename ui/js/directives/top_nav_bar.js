@@ -92,31 +92,39 @@ treeherder.directive('thWatchedRepo', [
     };
 }]);
 
-treeherder.directive('thRepoDropDown', [
-    'ThLog', 'ThRepositoryModel', 'treeStatus',
-    function (ThLog, ThRepositoryModel, treeStatus) {
+treeherder.directive('thRepoDropdownContainer', [
+    'ThLog', '$rootScope', 'thEvents',
+    function (ThLog, $rootScope, thEvents) {
 
-    var $log = new ThLog("thRepoDropDown");
+    var $log = new ThLog("thRepoDropdownContainer");
 
     return {
-        restrict: "E",
-        replace: true,
+        restrict: "A",
         link: function(scope, element, attrs) {
 
-            scope.name = attrs.name;
-            scope.treeStatus = treeStatus.getTreeStatusName(attrs.name);
-            var repo_obj = ThRepositoryModel.getRepo(attrs.name);
-            scope.pushlog = repo_obj.url +"/pushloghtml";
-
-            scope.$watch('repoData.treeStatus', function(newVal) {
-                if (newVal) {
-                    $log.debug("updated treeStatus", repo_obj, newVal);
-                    scope.reason = newVal.reason;
-                    scope.message_of_the_day = newVal.message_of_the_day;
+            scope.closeable = true;
+            $(element).on({
+                "hide.bs.dropdown": function(ev) {
+                    $log.debug("repo menu container", "hide.bs.dropdown", scope.closeable, ev.target.className);
+                    var closeable = scope.closeable;
+                    scope.closeable = true;
+                    return closeable;
                 }
-            }, true);
+            });
 
-        },
-        templateUrl: 'partials/thRepoDropDown.html'
+            $('.repo-dropdown-menu').on({
+                "click": function(ev) {
+                    if ($(ev.target).hasClass(".repo-link") || $(ev.target).hasClass(".repo-checkbox")) {
+                        scope.closeable = false;
+                    }
+                    $log.debug("repo menu dropdown", "click", scope.closeable, ev.target.className);
+                },
+                "mouseup": function(ev) {
+                    scope.closeable = false;
+                    $log.debug("repo menu dropdown", "mouseup", scope.closeable, ev.target.className);
+                }
+            });
+
+        }
     };
 }]);
