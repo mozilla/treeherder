@@ -1222,9 +1222,16 @@ class RefDataManager(object):
 
     def update_repository_version(self, repository_id):
         """update repository version with the latest information
-        avaliable. the only dvcs supported is hg"""
+        avaliable. the only dvcs supported is hg and the repo must
+        have an active_status of 'active'."""
+        # Imported here since doing so globally results in a ImportError
+        # TODO: Fix dependency loop and move this out.
+        from treeherder.model.derived.base import ObjectNotFoundException
 
         repository = self.get_repository_info(repository_id)
+
+        if not repository:
+            raise ObjectNotFoundException("repository", id=repository_id)
 
         if repository['dvcs_type'] != 'hg':
             # TODO: Add handling for git, for now do nothing and return

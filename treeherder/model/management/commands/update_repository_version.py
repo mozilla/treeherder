@@ -5,7 +5,7 @@ from treeherder.model.models import Repository
 
 
 class Command(BaseCommand):
-    help = """Update the given repository version. Only hg repositories are supported by now"""
+    help = """Update the given repository version. Only hg repositories are supported for now and the repo must have an active_status of 'active'."""
 
     option_list = BaseCommand.option_list + (
         make_option('--group',
@@ -26,7 +26,7 @@ class Command(BaseCommand):
     )
 
     def handle(self, *args, **options):
-        repositories = Repository.objects.all()
+        repositories = Repository.objects.filter(active_status='active')
         if options['repo_name']:
             repositories = repositories.filter(name=options['repo_name'])
         if options['codebase']:
