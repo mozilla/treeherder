@@ -28,17 +28,15 @@
             </span>
 
             <span ng-controller="RepositoryMenuCtrl" >
+                <!--<span class="repo-menu dropdown keep-open">-->
                 <span class="repo-menu dropdown keep-open">
                     <!-- Repo Button -->
-                    <button id="repoLabel" role="button" href="#"
-                       data-toggle="dropdown" data-target="#"
-                       class="btn btn-view-nav">
+                    <button id="repoLabel" role="button" href="#" data-toggle="dropdown" data-target="#" class="btn btn-view-nav">
                         Repos <b class="fa fa-caret-down lightgray"></b>
                     </button>
 
                     <!-- Repo Menu -->
-                    <ul class="dropdown-menu repo-dropdown-menu" role="menu"
-                        aria-labelledby="repoLabel">
+                    <ul class="dropdown-menu repo-dropdown-menu" role="menu" aria-labelledby="repoLabel">
                         <span ng-repeat="(group_order, group) in groupedRepos()"
                               ng-click="$event.stopPropagation();">
                             <li role="presentation" class="divider" ng-hide="$first"></li>
