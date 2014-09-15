@@ -26,6 +26,7 @@ logViewer.controller('LogviewerCtrl', [
 
         $scope.displayedLogLines = [];
         $scope.loading = false;
+        $scope.logError = false;
         $scope.currentLineNumber = 0;
         $scope.highestLine = 0;
         $scope.showSuccessful = true;
@@ -117,6 +118,10 @@ logViewer.controller('LogviewerCtrl', [
 
                     $scope.loading = false;
                     deferred.resolve();
+                }, function (error) {
+                    $scope.loading = false;
+                    $scope.logError = true;
+                    deferred.reject();
                 });
             } else {
                 deferred.reject();
