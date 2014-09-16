@@ -43,6 +43,8 @@ body {
     max-height: 600px;
     overflow: auto;
     margin-top: 10px;
+    padding-left: 8px;
+    padding-bottom: 8px;
 }
 
 .th-global-navbar {
