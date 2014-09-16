@@ -374,7 +374,8 @@ treeherder.directive('thCloneJobs', [
                     revision.email = userTokens[1];
                 }
                 revision.name = userTokens[0].trim();
-                revision.comments_bug_link = linkifyBugsFilter(revision.comments);
+                revision.escaped_comment = _.escape(revision.comments);
+                revision.comments_bug_link = linkifyBugsFilter(revision.escaped_comment);
                 revisionHtml = revisionInterpolator(revision);
                 ulEl.append(revisionHtml);
             }
