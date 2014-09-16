@@ -1,9 +1,9 @@
 "use strict";
 
 treeherder.controller('BugsPluginCtrl', [
-    '$scope', 'ThLog', 'ThJobArtifactModel','$q', '$rootScope', 'thTabs',
+    '$scope', 'ThLog', 'ThJobArtifactModel','$q', 'thTabs',
     function BugsPluginCtrl(
-        $scope, ThLog, ThJobArtifactModel, $q, $rootScope, thTabs) {
+        $scope, ThLog, ThJobArtifactModel, $q, thTabs) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -15,7 +15,7 @@ treeherder.controller('BugsPluginCtrl', [
 
         // update function triggered by the plugins controller
         thTabs.tabs.failureSummary.update = function(){
-            var newValue = $rootScope.selectedJob.id;
+            var newValue = thTabs.tabs.failureSummary.contentId;
             $scope.suggestions = [];
             if(angular.isDefined(newValue)){
                 thTabs.tabs.failureSummary.is_loading = true;
