@@ -539,7 +539,7 @@
         "dvcs_type": "hg",
         "name": "mozilla-b2g28_v1_3",
         "url": "https://hg.mozilla.org/releases/mozilla-b2g28_v1_3",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gecko",
         "repository_group": 2,
         "description": ""
