@@ -5,6 +5,7 @@ from thclient import TreeherderRequest, TreeherderResultSetCollection
 from .mixins import JsonExtractorMixin, OAuthLoaderMixin
 from treeherder.etl.common import generate_revision_hash
 
+PUSHLOG_CACHE_KEY = "{0}:last_push"
 
 class HgPushlogTransformerMixin(object):
 
@@ -61,7 +62,7 @@ class HgPushlogTransformerMixin(object):
 
         # cache the last push seen
         if last_push:
-            cache.set("{0}:last_push".format(repository), last_push)
+            cache.set(PUSHLOG_CACHE_KEY.format(repository), last_push)
 
         return th_collections
 
@@ -74,7 +75,7 @@ class HgPushlogProcess(JsonExtractorMixin,
 
         # get the last object seen from cache. this will
         # reduce the number of pushes processed every time
-        last_object = cache.get("{0}:last_push".format(repository))
+        last_object = cache.get(PUSHLOG_CACHE_KEY.format(repository))
         if last_object:
             source_url += "&startID=" + last_object
 
