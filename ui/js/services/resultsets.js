@@ -51,6 +51,18 @@ treeherder.factory('thResultSets', [
 
     // get the resultsets for this repo
     return {
+        getResultSetsFromChange: function(repoName, revision){
+            return $http.get(
+                thUrl.getProjectUrl("/resultset/", repoName),
+                {
+                    params: {
+                        fromchange:revision,
+                        format:'json',
+                        with_jobs:false
+                    }
+                }
+            );
+        },
         getResultSets: function(repoName, rsOffsetId, count, resultsetlist, with_jobs, full, keep_filters) {
             rsOffsetId = typeof rsOffsetId === 'undefined'?  0: rsOffsetId;
             count = typeof count === 'undefined'?  10: count;
