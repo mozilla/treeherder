@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = function(grunt) {
 
     grunt.initConfig({
@@ -32,13 +34,46 @@ module.exports = function(grunt) {
 
         usemin:{ html:['dist/index.html', 'dist/help.html', 'dist/logviewer.html'] },
 
+        'cache-busting': {
+            indexjs: {
+                replace: ['dist/**/*.html'],
+                replacement: 'index.min.js',
+                file: 'dist/js/index.min.js',
+                cleanup: true //Remove previously generated hashed files.
+            },
+            logviewerjs: {
+                replace: ['dist/**/*.html'],
+                replacement: 'logviewer.min.js',
+                file: 'dist/js/logviewer.min.js',
+                cleanup: true
+            },
+            indexcss: {
+                replace: ['dist/**/*.html'],
+                replacement: 'index.min.css',
+                file: 'dist/css/index.min.css',
+                cleanup: true
+            },
+            logviewercss: {
+                replace: ['dist/**/*.html'],
+                replacement: 'logviewer.min.css',
+                file: 'dist/css/logviewer.min.css',
+                cleanup: true
+            },
+            helpcss: {
+                replace: ['dist/**/*.html'],
+                replacement: 'help.min.css',
+                file: 'dist/css/help.min.css',
+                cleanup: true
+            }
+        },
+
         copy:{
 
             main: {
                 files: [
                     { src:'webapp/app/index.html', dest:'dist/index.html', nonull: true },
                     { src:'webapp/app/help.html', dest:'dist/help.html', nonull: true },
-                    { src:'webapp/app/logviewer.html', dest:'dist/logviewer.html', nonull: true },
+                    { src:'webapp/app/logviewer.html', dest:'dist/logviewer.html', nonull: true }
                 ]
             },
             // Copy img dir
@@ -93,6 +128,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-cssmin');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-usemin');
+    grunt.loadNpmTasks('grunt-cache-busting');
 
     // Default tasks
     grunt.registerTask('build', [
@@ -106,7 +142,8 @@ module.exports = function(grunt) {
         'concat',
         'cssmin',
         'uglify',
-        'usemin'
+        'usemin',
+        'cache-busting'
         ]);
 
 
