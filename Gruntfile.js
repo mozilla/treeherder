@@ -119,6 +119,13 @@ module.exports = function(grunt) {
                 // injection
                 mangle: false
             }
+        },
+        ngtemplates: {
+            app: {
+                cwd: 'app',
+                src: 'partials/**.html',
+                dest: 'templates.js'
+            }
         }
     });
 
@@ -129,6 +136,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-usemin');
     grunt.loadNpmTasks('grunt-cache-busting');
+    grunt.loadNpmTasks('grunt-angular-templates');
 
     // Default tasks
     grunt.registerTask('build', [
@@ -143,7 +151,8 @@ module.exports = function(grunt) {
         'cssmin',
         'uglify',
         'usemin',
-        'cache-busting'
+        'cache-busting',
+        'ngtemplates'
         ]);
 
 
