@@ -40,7 +40,7 @@ treeherder.controller('JobsCtrl', [
         }
 
         // determine how many resultsets to fetch.  default to 10.
-        var count = 10;
+        var count = ThResultSetModel.defaultResultSetCount;
         if ((_.has($scope.searchParams, "startdate") || _.has($scope.searchParams, "fromchange") &&
             (_.has($scope.searchParams, "enddate")) || _.has($scope.searchParams, "tochange"))) {
             // just fetch all (up to 1000) the resultsets if an upper AND lower range is specified

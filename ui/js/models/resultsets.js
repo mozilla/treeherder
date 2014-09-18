@@ -1,12 +1,12 @@
 'use strict';
 
 treeherder.factory('ThResultSetModel', [
-    '$rootScope', '$q', '$location', '$interval', '$timeout',
+    '$rootScope', '$q', '$location', '$interval',
     'thResultSets', 'thSocket', 'ThJobModel', 'thEvents',
     'thAggregateIds', 'ThLog', 'thNotify', 'thJobFilters',
     'ThRepositoryModel',
     function(
-        $rootScope, $q, $location, $interval, $timeout, thResultSets,
+        $rootScope, $q, $location, $interval, thResultSets,
         thSocket, ThJobModel, thEvents, thAggregateIds, ThLog, thNotify,
         thJobFilters, ThRepositoryModel) {
 
@@ -24,6 +24,8 @@ treeherder.factory('ThResultSetModel', [
     *     job queue
     *     job map
     */
+
+    var defaultResultSetCount = 10;
 
     // the primary data model
     var repositories = {};
@@ -46,20 +48,23 @@ treeherder.factory('ThResultSetModel', [
             // Register resultset poller if it's not registered
             $interval(function(){
 
-                if(repositories[$rootScope.repoName].resultSets.length > 0){
+                if( (repositories[$rootScope.repoName].resultSets.length > 0) &&
+                    (repositories[repoName].loadingStatus.prepending === false) ){
+
                     thResultSets.getResultSetsFromChange(
                         $rootScope.repoName,
                         repositories[$rootScope.repoName].resultSets[0].revision
 
                     ).then(function(data){
-                        var rsData = data.data;
-                        for(var i=0; i < rsData.results.length; i++){
-                            //Identify any resultsets we don't have
-                            if (repositories[$rootScope.repoName].rsMap[rsData.results[i].id] === undefined) {
-                                prependResultSets($rootScope.repoName, rsData);
-                            }
-                        }
+                        prependResultSets($rootScope.repoName, data.data);
                     });
+
+                } else if( (repositories[$rootScope.repoName].resultSets.length === 0) &&
+                           (repositories[$rootScope.repoName].loadingStatus.prepending === false) ){
+
+                    fetchResultSets(
+                        $rootScope.repoName, defaultResultSetCount);
+
                 }
             }, resultSetPollInterval);
         }
@@ -115,7 +120,7 @@ treeherder.factory('ThResultSetModel', [
             noPollingParameters, searchKeys);
 
         var poll = true;
-        if(keyIntersection.length != 0){
+        if(keyIntersection.length !== 0){
             poll = false;
         }
 
@@ -739,7 +744,6 @@ treeherder.factory('ThResultSetModel', [
 
     var prependResultSets = function(repoName, data) {
         // prepend the resultsets because they'll be newer.
-
         var added = [];
         for (var i = data.results.length - 1; i > -1; i--) {
             if (data.results[i].push_timestamp >= repositories[repoName].rsMapOldestTimestamp &&
@@ -764,6 +768,7 @@ treeherder.factory('ThResultSetModel', [
         if(data.results.length > 0){
 
             $log.debug("appendResultSets", data.results);
+
             Array.prototype.push.apply(
                 repositories[repoName].resultSets, data.results
                 );
@@ -924,7 +929,8 @@ treeherder.factory('ThResultSetModel', [
         processSocketData: processSocketData,
         processUpdateQueues: processUpdateQueues,
         setSelectedJob: setSelectedJob,
-        updateUnclassifiedFailureMap: updateUnclassifiedFailureMap
+        updateUnclassifiedFailureMap: updateUnclassifiedFailureMap,
+        defaultResultSetCount: defaultResultSetCount
 
     };
 
