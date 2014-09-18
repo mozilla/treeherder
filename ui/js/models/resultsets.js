@@ -1,13 +1,14 @@
 'use strict';
 
 treeherder.factory('ThResultSetModel', [
-    '$rootScope', '$q', '$location', 'thResultSets', 'thSocket', 'ThJobModel',
-    'thEvents', 'thAggregateIds', 'ThLog', 'thNotify', 'thJobFilters',
+    '$rootScope', '$q', '$location', '$interval',
+    'thResultSets', 'thSocket', 'ThJobModel', 'thEvents',
+    'thAggregateIds', 'ThLog', 'thNotify', 'thJobFilters',
     'ThRepositoryModel',
     function(
-        $rootScope, $q, $location, thResultSets, thSocket,
-        ThJobModel, thEvents, thAggregateIds, ThLog, thNotify, thJobFilters,
-        ThRepositoryModel) {
+        $rootScope, $q, $location, $interval, thResultSets,
+        thSocket, ThJobModel, thEvents, thAggregateIds, ThLog, thNotify,
+        thJobFilters, ThRepositoryModel) {
 
     var $log = new ThLog("ThResultSetModel");
 
@@ -24,10 +25,115 @@ treeherder.factory('ThResultSetModel', [
     *     job map
     */
 
+    var defaultResultSetCount = 10;
+
     // the primary data model
     var repositories = {};
 
     var updateQueueInterval = 10000;
+
+    var resultSetPollers = {};
+    var resultSetPollInterval = 30000;
+    var jobPollInterval = 30000;
+    var pollDelayMin = 1000;
+    var pollDelayMax = 10000;
+
+    var noPollingParameters = [
+        'fromchange', 'tochange', 'startdate', 'enddate', 'revision'
+    ];
+
+    var registerResultSetPollers = function(){
+
+        if( doResultSetPolling() ){
+            // Register resultset poller if it's not registered
+            $interval(function(){
+
+                if( (repositories[$rootScope.repoName].resultSets.length > 0) &&
+                    (repositories[$rootScope.repoName].loadingStatus.prepending === false) ){
+
+                    thResultSets.getResultSetsFromChange(
+                        $rootScope.repoName,
+                        repositories[$rootScope.repoName].resultSets[0].revision
+
+                    ).then(function(data){
+                        prependResultSets($rootScope.repoName, data.data);
+                    });
+
+                } else if( (repositories[$rootScope.repoName].resultSets.length === 0) &&
+                           (repositories[$rootScope.repoName].loadingStatus.prepending === false) ){
+
+                    fetchResultSets(
+                        $rootScope.repoName, defaultResultSetCount);
+
+                }
+            }, resultSetPollInterval);
+        }
+    };
+
+    var registerJobPollers = function(){
+
+        $interval(function(){
+
+            // The outer interval checks for new resultsets that
+            // need a poller registered for job retrieval
+            for(var i=0; i < repositories[$rootScope.repoName].resultSets.length; i++){
+
+                var rs = repositories[$rootScope.repoName].resultSets[i];
+                if(resultSetPollers[rs.id] === undefined) {
+
+                    /*************************
+                      Register new job retrieval poller if not
+                      already registered
+
+                      Spread the interval calls out over a min-max interval
+                      to avoid all web service http requests hitting
+                      simultaneously.
+
+                      Ideally it would be possible to detect when all jobs
+                      for a resultset are complete and stop polling for jobs
+                      but there is currently no way to do this safely.
+                     **************************/
+                    var delayInterval = getRandomDelayInterval(
+                        pollDelayMin, pollDelayMax);
+
+                    // Make an entry for the poller immediately to
+                    // avoid a race with the delayed interval.
+                    resultSetPollers[rs.id] = true;
+
+                    _.delay(function(rs){
+                        resultSetPollers[rs.id] = $interval(
+                            _.bind(updateResultSetJobs, {}, rs, $rootScope.repoName),
+                            jobPollInterval);
+
+                    }, delayInterval, rs);
+                }
+            }
+        }, pollDelayMax);
+    };
+
+    var doResultSetPolling = function(){
+
+        var searchObj = $location.search();
+        var searchKeys = _.keys(searchObj);
+
+        var keyIntersection = _.intersection(
+            noPollingParameters, searchKeys);
+
+        var poll = true;
+        if(keyIntersection.length !== 0){
+            poll = false;
+        }
+
+        return poll;
+    };
+
+    var getRandomDelayInterval = function(min, max){
+        return parseInt( Math.random() * (max - min) + min );
+    };
+
+    var updateResultSetJobs = function(rs, repoName){
+        thResultSets.getResultSetJobs({ results:[rs] }, repoName);
+    };
 
     $rootScope.$on(thEvents.mapResultSetJobs, function(ev, repoName, data){
 
@@ -334,6 +440,7 @@ treeherder.factory('ThResultSetModel', [
         var platformKey = getPlatformKey(newJob.platform, newJob.platform_option);
         var plMapElement = rsMapElement.platforms[platformKey];
         if (!plMapElement) {
+
             // this platform wasn't in the resultset, so add it.
             $log.debug("adding new platform");
 
@@ -344,15 +451,17 @@ treeherder.factory('ThResultSetModel', [
             };
 
             // add the new platform to the datamodel and resort
-            rsMapElement.rs_obj.platforms.push(pl_obj);
+            if(rsMapElement.rs_obj.hasOwnProperty('platforms')){
+                rsMapElement.rs_obj.platforms.push(pl_obj);
 
-            // add the new platform to the resultset map
-            rsMapElement.platforms[platformKey] = {
-                pl_obj: pl_obj,
-                parent: rsMapElement,
-                groups: {}
-            };
-            plMapElement = rsMapElement.platforms[platformKey];
+                // add the new platform to the resultset map
+                rsMapElement.platforms[platformKey] = {
+                    pl_obj: pl_obj,
+                    parent: rsMapElement,
+                    groups: {}
+                };
+                plMapElement = rsMapElement.platforms[platformKey];
+            }
         }
         return plMapElement;
     };
@@ -365,26 +474,30 @@ treeherder.factory('ThResultSetModel', [
      */
     var getOrCreateGroup = function(repoName, newJob) {
         var plMapElement = getOrCreatePlatform(repoName, newJob);
-        var grMapElement = plMapElement.groups[newJob.job_group_name];
-        if (!grMapElement) {
-            $log.debug("adding new group");
-            var grp_obj = {
-                symbol: newJob.job_group_symbol,
-                name: newJob.job_group_name,
-                jobs: []
-            };
 
-            // add the new group to the datamodel
-            plMapElement.pl_obj.groups.push(grp_obj);
+        if(plMapElement){
 
-            // add the new group to the platform map
-            plMapElement.groups[grp_obj.name] = {
-                grp_obj: grp_obj,
-                parent: plMapElement,
-                jobs: {}
-            };
+            var grMapElement = plMapElement.groups[newJob.job_group_name];
+            if (!grMapElement) {
+                $log.debug("adding new group");
+                var grp_obj = {
+                    symbol: newJob.job_group_symbol,
+                    name: newJob.job_group_name,
+                    jobs: []
+                };
 
-            grMapElement = plMapElement.groups[newJob.job_group_name];
+                // add the new group to the datamodel
+                plMapElement.pl_obj.groups.push(grp_obj);
+
+                // add the new group to the platform map
+                plMapElement.groups[grp_obj.name] = {
+                    grp_obj: grp_obj,
+                    parent: plMapElement,
+                    jobs: {}
+                };
+
+                grMapElement = plMapElement.groups[newJob.job_group_name];
+            }
         }
         return grMapElement;
     };
@@ -507,7 +620,12 @@ treeherder.factory('ThResultSetModel', [
                 platformKey = getPlatformKey(platformName, platformOption);
 
                 $log.debug("aggregateJobPlatform", repoName, resultsetId, platformKey, repositories);
-                jobGroups = repositories[repoName].rsMap[resultsetId].platforms[platformKey].pl_obj.groups;
+
+                jobGroups = [];
+                if(repositories[repoName].rsMap[resultsetId].platforms[platformKey] !== undefined){
+                    jobGroups = repositories[repoName].rsMap[resultsetId].platforms[platformKey].pl_obj.groups;
+                }
+
                 platformData[platformAggregateId] = {
                     platformName:platformName,
                     revision:revision,
@@ -517,7 +635,7 @@ treeherder.factory('ThResultSetModel', [
                     platformOption:platformOption,
                     jobGroups:jobGroups,
                     jobs:[]
-                    };
+                };
             }
         }
 
@@ -599,22 +717,26 @@ treeherder.factory('ThResultSetModel', [
 
             var grpMapElement = getOrCreateGroup(repoName, newJob);
 
-            // add the job mapping to the group
-            grpMapElement.jobs[key] = {
-                job_obj: newJob,
-                parent: grpMapElement
-            };
-            // add the job to the datamodel
-            grpMapElement.grp_obj.jobs.push(newJob);
+            if(grpMapElement){
 
-            // add job to the jobmap
-            var jobMapElement = {
-                job_obj: newJob,
-                parent: grpMapElement
-            };
-            repositories[repoName].jobMap[key] = jobMapElement;
+                // add the job mapping to the group
+                grpMapElement.jobs[key] = {
+                    job_obj: newJob,
+                    parent: grpMapElement
+                };
+                // add the job to the datamodel
+                grpMapElement.grp_obj.jobs.push(newJob);
 
+                // add job to the jobmap
+                var jobMapElement = {
+                    job_obj: newJob,
+                    parent: grpMapElement
+                };
+                repositories[repoName].jobMap[key] = jobMapElement;
+
+            }
         }
+
         updateUnclassifiedFailureMap(repoName, newJob);
 
         return true;
@@ -622,11 +744,11 @@ treeherder.factory('ThResultSetModel', [
 
     var prependResultSets = function(repoName, data) {
         // prepend the resultsets because they'll be newer.
-
         var added = [];
         for (var i = data.results.length - 1; i > -1; i--) {
             if (data.results[i].push_timestamp >= repositories[repoName].rsMapOldestTimestamp &&
-                isInResultSetRange(repoName, data.results[i].push_timestamp)) {
+                isInResultSetRange(repoName, data.results[i].push_timestamp) &&
+                repositories[repoName].rsMap[data.results[i].id] === undefined) {
 
                 $log.debug("prepending resultset: ", data.results[i].id);
                 repositories[repoName].resultSets.push(data.results[i]);
@@ -646,6 +768,7 @@ treeherder.factory('ThResultSetModel', [
         if(data.results.length > 0){
 
             $log.debug("appendResultSets", data.results);
+
             Array.prototype.push.apply(
                 repositories[repoName].resultSets, data.results
                 );
@@ -806,9 +929,13 @@ treeherder.factory('ThResultSetModel', [
         processSocketData: processSocketData,
         processUpdateQueues: processUpdateQueues,
         setSelectedJob: setSelectedJob,
-        updateUnclassifiedFailureMap: updateUnclassifiedFailureMap
+        updateUnclassifiedFailureMap: updateUnclassifiedFailureMap,
+        defaultResultSetCount: defaultResultSetCount
 
     };
+
+    registerResultSetPollers();
+    registerJobPollers();
 
     return api;
 

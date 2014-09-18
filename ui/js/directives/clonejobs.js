@@ -562,7 +562,9 @@ treeherder.directive('thCloneJobs', [
         filterPlatform(row);
 
         //reset the resultset counts for the platformKey
-        resultSetMap[resultsetId].platforms[platformKey].job_counts = jobCounts;
+        if(resultSetMap[resultsetId].platforms[platformKey] != undefined){
+            resultSetMap[resultsetId].platforms[platformKey].job_counts = jobCounts;
+        }
 
         //re-total the counts across platforms
         resetCounts(resultSetMap);
@@ -1006,12 +1008,23 @@ treeherder.directive('thCloneJobs', [
                 if(scope.resultset.id === resultSetId){
 
                     var rsMap = ThResultSetModel.getResultSetsMap($rootScope.repoName);
+
                     var resultsetAggregateId = thAggregateIds.getResultsetTableId(
                         $rootScope.repoName, scope.resultset.id, scope.resultset.revision
                         );
 
-                    generateJobElements(resultsetAggregateId, rsMap[resultSetId].rs_obj, scope.resultStatusFilters);
-
+                    /**************
+                      Resultset job pollers and socketio updates can
+                      trigger re-rendering rows at anytime during a
+                      session, this can give the appearance of sluggishness
+                      in the UI. Use defer to avoid rendering jankiness
+                      here.
+                     **************/
+                    _.defer(
+                        generateJobElements,
+                        resultsetAggregateId,
+                        rsMap[resultSetId].rs_obj,
+                        scope.resultStatusFilters);
                 }
             });
     };
@@ -1028,7 +1041,6 @@ treeherder.directive('thCloneJobs', [
             statusList, j;
         for(j=0; j<resultset.platforms.length; j++){
 
-            row = $('<tr></tr>');
             platformId = thAggregateIds.getPlatformRowId(
                 $rootScope.repoName,
                 resultset.id,
@@ -1036,7 +1048,17 @@ treeherder.directive('thCloneJobs', [
                 resultset.platforms[j].option
                 );
 
-            row.prop('id', platformId);
+            row = $('#' + platformId);
+
+            if( $(row).prop('tagName') != 'TR' ){
+                // First time the row is being created
+                row = $('<tr></tr>');
+                row.prop('id', platformId);
+            }else{
+                // Clear and re-write the div content if it
+                // already exists
+                $(row).empty();
+            }
 
             name = getPlatformName(resultset.platforms[j].name);
             option = resultset.platforms[j].option;
@@ -1100,6 +1122,11 @@ treeherder.directive('thCloneJobs', [
             generateJobElements(
                 resultsetAggregateId, scope.resultset, scope.resultStatusFilters
                 );
+        }else{
+            // Hide the job wait span, resultset has no jobs
+            var tableEl = $('#' + resultsetAggregateId);
+            var waitSpanEl = $(tableEl).prev();
+            $(waitSpanEl).css('display', 'none');
         }
 
         return {
