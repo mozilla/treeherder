@@ -16,6 +16,7 @@ treeherder.controller('PluginCtrl', [
         var $log = new ThLog("PluginCtrl");
 
         $scope.job = {};
+        $scope.artifacts = {}
 
         var timeout_promise = null;
 
@@ -34,64 +35,69 @@ treeherder.controller('PluginCtrl', [
 
         };
 
-        var selectJob = function(newValue, oldValue) {
-            $scope.artifacts = {};
-
-            // preferred way to get access to the selected job
-            if (newValue) {
+        var selectJob = function(job_id) {
+            // set the scope variables needed for the job detail panel
+            if (job_id) {
                 $scope.job_detail_loading = true;
-                $scope.job = newValue;
-
-                $scope.visibleFields = {
-                    "Job name": $scope.job.job_type_name,
-                    "Machine ": "",
-                    "Build": ""
-                };
-
                 if(timeout_promise !== null){
                     $log.debug("timing out previous job request");
                     timeout_promise.resolve();
                 }
                 timeout_promise = $q.defer();
 
-                // get the details of the current job
-                ThJobModel.get($scope.repoName, $scope.job.id, {
-                    timeout: timeout_promise
-                }).then(function(data){
-                    $scope.job = data;
-                    $rootScope.$broadcast(thEvents.jobDetailLoaded);
-                    updateVisibleFields();
-                    $scope.job_detail_loading = false;
-                    $scope.logs = data.logs;
-                });
+                var jobDetailPromise = ThJobModel.get(
+                    $scope.repoName, job_id,
+                    {timeout: timeout_promise});
 
-                ThJobArtifactModel.get_list({
-                    name: "buildapi",
-                    "type": "json",
-                    job_id: $scope.job.id
-                }, {timeout: timeout_promise})
-                .then(function(data) {
-                    if (data.length > 0 && _.has(data[0], 'blob')){
-                        _.forEach(data, function(item) {
-                            $scope.artifacts[item.name] = item;
-                        });
+                var buildapiArtifactPromise = ThJobArtifactModel.get_list(
+                    {name: "buildapi", "type": "json", job_id: job_id},
+                    {timeout: timeout_promise});
+
+                var jobInfoArtifactPromise = ThJobArtifactModel.get_list({
+                    name: "Job Info", "type": "json", job_id: job_id},
+                    {timeout: timeout_promise});
+
+                var jobLogUrlPromise = ThJobLogUrlModel.get_list(
+                    job_id,
+                    {timeout: timeout_promise});
+
+                return $q.all([
+                    jobDetailPromise,
+                    buildapiArtifactPromise,
+                    jobInfoArtifactPromise,
+                    jobLogUrlPromise
+                ]).then(function(results){
+                    //the first result comes from the job detail promise
+                    $scope.job = results[0];
+                    // the second result come from the buildapi artifact promise
+                    var buildapi_artifact = results[1];
+                    if (buildapi_artifact.length > 0 &&
+                        _.has(buildapi_artifact[0], 'blob')){
+                        // this is needed to cancel/retrigger jobs
+                        $scope.artifacts.buildapi = buildapi_artifact[0];
                         $scope.buildbotJobname = $scope.artifacts.buildapi.blob.buildername;
                         setBuildernameHref($scope.buildbotJobname);
-
-                        $log.debug("buildapi artifacts", $scope.artifacts);
                     }
+                    // the third result comes from the job info artifact promise
+                    var jobInfoArtifact = results[2];
+                    if (jobInfoArtifact.length > 0 &&
+                        _.has(jobInfoArtifact[0], 'blob')){
+                        $scope.job_details = jobInfoArtifact[0].blob.job_details;
+                    }
+                    //the fourth result comes form the jobLogUrl artifact
+                    $scope.job_log_urls = results[3];
+
+                    $scope.lvUrl = thUrl.getLogViewerUrl($scope.job.id);
+                    $scope.resultStatusShading = "result-status-shading-" + thResultStatus($scope.job);
+
+                    updateVisibleFields();
+                    $scope.updateClassifications();
+                    $scope.updateBugs();
+
+                    $scope.job_detail_loading = false;
                 });
 
-                ThJobLogUrlModel.get_list($scope.job.id)
-                .then(function(data){
-                    $scope.job_log_urls = data;
-                });
 
-                $scope.lvUrl = thUrl.getLogViewerUrl($scope.job.id);
-                $scope.resultStatusShading = "result-status-shading-" + thResultStatus($scope.job);
-
-                $scope.updateClassifications();
-                $scope.updateBugs();
             }
         };
 
@@ -204,9 +210,10 @@ treeherder.controller('PluginCtrl', [
         };
 
         $scope.$on(thEvents.jobClick, function(event, job) {
-            selectJob(job, $rootScope.selectedJob);
-            $rootScope.selectedJob = job;
+            $scope.jobLoadedPromise = selectJob(job.id);
             thTabs.showTab(thTabs.selectedTab, job.id);
+
+            $rootScope.selectedJob = job;
         });
 
         $scope.$on(thEvents.jobClear, function(event, job) {
@@ -249,47 +256,5 @@ treeherder.controller('PluginCtrl', [
 
         // expose the tab service properties on the scope
         $scope.tabService = thTabs;
-    }
-]);
-
-treeherder.controller('JobDetailsPluginCtrl', [
-    '$scope', '$rootScope', 'ThLog', 'ThJobArtifactModel',
-    '$q', 'thEvents',
-    function JobDetails(
-        $scope, $rootScope, ThLog, ThJobArtifactModel, $q, thEvents) {
-
-        var $log = new ThLog(this.constructor.name);
-
-        $log.debug("JobDetails plugin initialized");
-        var timeout_promise = null;
-
-        var update_job_info = function(event, job){
-            $scope.job_details = [];
-            $scope.job_details_parsed = [];
-            $scope.is_loading = true;
-            if(timeout_promise !== null){
-                timeout_promise.resolve();
-            }
-            timeout_promise = $q.defer();
-
-            ThJobArtifactModel.get_list({
-                name: "Job Info",
-                "type": "json",
-                job_id: job.id
-            }, {timeout: timeout_promise})
-            .then(function(data){
-                //We must check for ``blob`` in ``Job Info``
-                // because ``Job Info`` can exist without the blob as the promise is
-                // fulfilled.
-                if (data.length === 1 && _.has(data[0], 'blob')){
-                    $scope.job_details = data[0].blob.job_details;
-                }
-
-            })
-            .finally(function(){
-                $scope.is_loading = false;
-            });
-        };
-        $scope.$on(thEvents.jobClick, update_job_info);
     }
 ]);

@@ -18,18 +18,25 @@ treeherder.factory('ThJobLogUrlModel', [
         return url;
     };
 
-    ThJobLogUrlModel.get_list = function(job_id) {
+    ThJobLogUrlModel.get_list = function(job_id, config) {
         // a static method to retrieve a list of ThJobLogUrlModel
-        return $http.get(ThJobLogUrlModel.get_uri()+"?job_id="+job_id)
-            .then(function(response) {
-                var item_list = [];
-                angular.forEach(response.data, function(elem){
-                    var buildData = elem.url.split('/');
-                    var buildUrl = elem.url.slice(0, elem.url.lastIndexOf('/')) + "/"
-                    elem.buildUrl = buildUrl;
-                    item_list.push(new ThJobLogUrlModel(elem));
-                });
-                return item_list;
+        config = config || {};
+        var timeout = config.timeout || null;
+
+        var params = {job_id: job_id};
+        return $http.get(ThJobLogUrlModel.get_uri(), {
+            params: params,
+            timeout: timeout
+        })
+        .then(function(response) {
+            var item_list = [];
+            angular.forEach(response.data, function(elem){
+                var buildData = elem.url.split('/');
+                var buildUrl = elem.url.slice(0, elem.url.lastIndexOf('/')) + "/"
+                elem.buildUrl = buildUrl;
+                item_list.push(new ThJobLogUrlModel(elem));
+            });
+            return item_list;
         });
     };
 
