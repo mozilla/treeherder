@@ -49,7 +49,7 @@ treeherder.factory('ThResultSetModel', [
             $interval(function(){
 
                 if( (repositories[$rootScope.repoName].resultSets.length > 0) &&
-                    (repositories[repoName].loadingStatus.prepending === false) ){
+                    (repositories[$rootScope.repoName].loadingStatus.prepending === false) ){
 
                     thResultSets.getResultSetsFromChange(
                         $rootScope.repoName,
