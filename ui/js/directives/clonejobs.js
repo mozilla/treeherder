@@ -810,6 +810,10 @@ treeherder.directive('thCloneJobs', [
         for(r = 0; r < resultsets.length; r++){
 
             platforms = resultsets[r].platforms;
+            if(platforms === undefined){
+                continue;
+            }
+
             var p;
             for(p = 0; p < platforms.length; p++){
 
@@ -870,6 +874,10 @@ treeherder.directive('thCloneJobs', [
         for(r = resultsets.length - 1; r >= 0; r--){
 
             platforms = resultsets[r].platforms;
+            if(platforms === undefined){
+                continue;
+            }
+
             var p;
             for(p = platforms.length - 1; p >= 0; p--){
 
