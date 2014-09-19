@@ -33,10 +33,10 @@ treeherder.factory('ThResultSetModel', [
     var updateQueueInterval = 10000;
 
     var resultSetPollers = {};
-    var resultSetPollInterval = 30000;
-    var jobPollInterval = 30000;
+    var resultSetPollInterval = 60000;
+    var jobPollInterval = 90000;
     var pollDelayMin = 1000;
-    var pollDelayMax = 10000;
+    var pollDelayMax = 20000;
 
     var noPollingParameters = [
         'fromchange', 'tochange', 'startdate', 'enddate', 'revision'
@@ -108,7 +108,8 @@ treeherder.factory('ThResultSetModel', [
                     }, delayInterval, rs);
                 }
             }
-        }, pollDelayMax);
+        // Look for new resultsets to register every 5 seconds
+        }, 5000);
     };
 
     var doResultSetPolling = function(){
