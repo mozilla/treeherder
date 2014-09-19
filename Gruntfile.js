@@ -121,10 +121,43 @@ module.exports = function(grunt) {
             }
         },
         ngtemplates: {
-            app: {
-                cwd: 'app',
-                src: 'partials/**.html',
-                dest: 'templates.js'
+            treeherder: {
+                cwd: 'webapp/app',
+                src: ['partials/main/*.html', 'plugins/**/*.html'],
+                dest: 'dist/js/index.min.js',
+                options: {
+                    usemin: 'dist/js/index.min.js',
+                    append: true,
+                    htmlmin: {
+                        collapseBooleanAttributes:      true,
+                        collapseWhitespace:             true,
+                        removeAttributeQuotes:          true,
+                        removeComments:                 true,
+                        removeEmptyAttributes:          true,
+                        removeRedundantAttributes:      true,
+                        removeScriptTypeAttributes:     true,
+                        removeStyleLinkTypeAttributes:  true
+                    }
+                }
+            },
+            logViewer: {
+                cwd: 'webapp/app',
+                src: 'partials/logviewer/*.html',
+                dest: 'dist/js/logviewer.min.js',
+                options: {
+                    usemin: 'dist/js/logviewer.min.js',
+                    append: true,
+                    htmlmin: {
+                        collapseBooleanAttributes:      true,
+                        collapseWhitespace:             true,
+                        removeAttributeQuotes:          true,
+                        removeComments:                 true,
+                        removeEmptyAttributes:          true,
+                        removeRedundantAttributes:      true,
+                        removeScriptTypeAttributes:     true,
+                        removeStyleLinkTypeAttributes:  true
+                    }
+                }
             }
         }
     });
@@ -143,16 +176,14 @@ module.exports = function(grunt) {
         'clean',
         'copy:main',
         'copy:img',
-        'copy:partials',
         'copy:fonts',
-        'copy:plugins',
         'useminPrepare',
         'concat',
         'cssmin',
         'uglify',
         'usemin',
-        'cache-busting',
-        'ngtemplates'
+        'ngtemplates',
+        'cache-busting'
         ]);
 
 

@@ -76,6 +76,6 @@ treeherder.directive('personaButtons', [
                 });
             };
         },
-        templateUrl: 'partials/persona_buttons.html'
+        templateUrl: 'partials/main/persona_buttons.html'
     };
 }]);

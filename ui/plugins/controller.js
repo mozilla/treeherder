@@ -16,7 +16,7 @@ treeherder.controller('PluginCtrl', [
         var $log = new ThLog("PluginCtrl");
 
         $scope.job = {};
-        $scope.artifacts = {}
+        $scope.artifacts = {};
 
         var timeout_promise = null;
 

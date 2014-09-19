@@ -14,7 +14,7 @@ treeherder.directive('lvLogSteps', ['$timeout', '$q', function ($timeout, $q) {
 
     return {
         restrict: 'A',
-        templateUrl: 'partials/lvLogSteps.html',
+        templateUrl: 'partials/logviewer/lvLogSteps.html',
         link: function (scope, element, attr) {
             scope.scrollTo = function($event, step, linenumber) {
                 scope.currentLineNumber = linenumber;

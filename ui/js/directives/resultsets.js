@@ -6,7 +6,7 @@ treeherder.directive('thActionButton', [
 
     return {
         restrict: "E",
-        templateUrl: 'partials/thActionButton.html',
+        templateUrl: 'partials/main/thActionButton.html',
         link: function(scope, element, attrs) {
             var openRevisions = function() {
                 var interpolator = thCloneHtml.get('revisionUrlClone').interpolator;
@@ -46,7 +46,7 @@ treeherder.directive('thResultCounts', function () {
 
     return {
         restrict: "E",
-        templateUrl: 'partials/thResultCounts.html'
+        templateUrl: 'partials/main/thResultCounts.html'
     };
 });
 
@@ -98,7 +98,7 @@ treeherder.directive('thResultStatusCount', [
             });
 
         },
-        templateUrl: 'partials/thResultStatusCount.html'
+        templateUrl: 'partials/main/thResultStatusCount.html'
     };
 }]);
 
@@ -115,7 +115,7 @@ treeherder.directive('thRevision', [
                 }
             }, true);
         },
-        templateUrl: 'partials/thRevision.html'
+        templateUrl: 'partials/main/thRevision.html'
     };
 }]);
 

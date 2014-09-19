@@ -21,23 +21,23 @@ treeherder.config(function($routeProvider, $httpProvider, $logProvider) {
     $routeProvider.
         when('/jobs', {
             controller: 'JobsCtrl',
-            templateUrl: 'partials/jobs.html',
+            templateUrl: 'partials/main/jobs.html',
             // see controllers/filters.js ``skipNextSearchChangeReload`` for
             // why we set this to false.
             reloadOnSearch: false
         }).
         when('/jobs/:tree', {
             controller: 'JobsCtrl',
-            templateUrl: 'partials/jobs.html',
+            templateUrl: 'partials/main/jobs.html',
             reloadOnSearch: false
         }).
         when('/timeline', {
             controller: 'TimelineCtrl',
-            templateUrl: 'partials/timeline.html'
+            templateUrl: 'partials/main/timeline.html'
         }).
         when('/machines', {
             controller: 'MachinesCtrl',
-            templateUrl: 'partials/machines.html'
+            templateUrl: 'partials/main/machines.html'
         }).
         otherwise({redirectTo: '/jobs'});
 });

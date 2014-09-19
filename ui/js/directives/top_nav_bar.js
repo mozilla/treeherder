@@ -9,7 +9,7 @@ treeherder.directive('thFilterCheckbox', [
         link: function(scope, element, attrs) {
             scope.checkClass = thResultStatusInfo(scope.filterName).btnClass + "-count-classified";
         },
-        templateUrl: 'partials/thFilterCheckbox.html'
+        templateUrl: 'partials/main/thFilterCheckbox.html'
     };
 }]);
 
@@ -88,7 +88,7 @@ treeherder.directive('thWatchedRepo', [
             });
 
         },
-        templateUrl: 'partials/thWatchedRepo.html'
+        templateUrl: 'partials/main/thWatchedRepo.html'
     };
 }]);
 

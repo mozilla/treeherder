@@ -96,7 +96,7 @@ treeherder.directive('thNotificationBox', [
     function(thNotify){
     return {
         restrict: "E",
-        templateUrl: "partials/thNotificationsBox.html",
+        templateUrl: "partials/main/thNotificationsBox.html",
         link: function(scope, element, attr) {
             scope.notifier = thNotify
             scope.alert_class_prefix = "alert-"
@@ -147,7 +147,7 @@ treeherder.directive("thMultiSelect", [
     function($log){
     return {
         restrict: "E",
-        templateUrl: "partials/thMultiSelect.html",
+        templateUrl: "partials/main/thMultiSelect.html",
         scope: {
             leftList: "=",
             rightList: "="
