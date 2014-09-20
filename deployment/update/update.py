@@ -17,8 +17,6 @@ import commander_settings as settings
 th_service_src = os.path.join(settings.SRC_DIR, 'treeherder-service')
 th_ui_src = os.path.join(settings.SRC_DIR, 'treeherder-ui')
 
-th_settings = 'treeherder.settings'
-
 sys.path.append(th_service_src)
 
 
@@ -44,20 +42,20 @@ def pre_update(ctx, ref=settings.UPDATE_REF):
 def update(ctx):
     with ctx.lcd(th_service_src):
         # Collect the static files (eg for the Persona or Django admin UI)
-        ctx.local("python2.6 manage.py collectstatic --noinput --settings {0}".format(th_settings))
+        ctx.local("python2.6 manage.py collectstatic --noinput")
 
         # Rebuild the Cython code (eg the log parser)
         ctx.local("python2.6 setup.py build_ext --inplace")
 
         # Update the database schema, if necessary.
-        ctx.local('python2.6 manage.py syncdb --settings {0}'.format(th_settings))
-        ctx.local('python2.6 manage.py migrate --settings {0}'.format(th_settings))
+        ctx.local("python2.6 manage.py syncdb")
+        ctx.local("python2.6 manage.py migrate")
 
         # Update reference data & tasks config from the in-repo fixtures.
-        ctx.local('python2.6 manage.py load_initial_data --settings {0}'.format(th_settings))
+        ctx.local("python2.6 manage.py load_initial_data")
 
         # Update oauth credentials.
-        ctx.local("python2.6 manage.py export_project_credentials --settings {0}".format(th_settings))
+        ctx.local("python2.6 manage.py export_project_credentials")
 
 
 @task
@@ -91,7 +89,7 @@ def deploy(ctx):
         # Supervisord will then start new workers to replace them.
         # We need to do this because supervisorctl generates zombies
         # every time you ask it to restart a worker.
-        ctx.local("python2.6 manage.py shutdown_workers --settings {0}".format(th_settings))
+        ctx.local("python2.6 manage.py shutdown_workers")
 
         # Write info about the current repository state to a publicly visible file.
         ctx.local('date')
