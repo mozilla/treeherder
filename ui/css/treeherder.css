@@ -27,8 +27,8 @@ body {
 .th-navbar {
     background-color: #273038;
     margin-bottom: 0px;
-    flex: 0 0 auto;
-    -webkit-flex: 0 0 auto;
+    flex: none;
+    -webkit-flex: none;
 }
 
 .navbar {
@@ -126,8 +126,8 @@ th-watched-repo {
 }
 
 .th-content {
-    flex: 1 1 auto;
-    -webkit-flex: 1 1 auto;
+    flex: auto;
+    -webkit-flex: auto;
     position: relative;/* need this to position inner content */
     overflow-y: auto;
 }
@@ -308,8 +308,8 @@ th-watched-repo {
 }
 
 .result-set-title-left, .result-set-buttons, .result-counts {
-    flex: 0 0 auto;
-    -webkit-flex: 0 0 auto;
+    flex: none;
+    -webkit-flex: none;
     padding-left: 10px;
     padding-right: 10px;
 }
@@ -388,7 +388,8 @@ th-watched-repo {
  */
 div#bottom-panel-resizer {
     display: flex;
-    flex: 0 0 auto;
+    flex: none;
+    -webkit-flex: none;
     background-color: #42484F;
     cursor: ns-resize;
     height: 4px;
@@ -404,8 +405,8 @@ div#bottom-panel {
     font-size: 12px;
 
     max-height: 35%;
-    flex: 0 0 auto;
-    -webkit-flex: 0 0 auto;
+    flex: none;
+    -webkit-flex: none;
 
     display: -webkit-flex;
     display:         flex;
@@ -489,8 +490,8 @@ div#bottom-panel .navbar-nav.pull-right li a:focus{
    position: relative; /* So we can absolutely position the loading overlay */
    height: 270px;
 
-   flex: 1 1 auto;
-   -webkit-flex: 1 1 auto;
+   flex: auto;
+   -webkit-flex: auto;
 
    display: -webkit-flex;
    display:         flex;
@@ -671,8 +672,8 @@ ul.failure-summary-list li .btn-xs {
     color: #EEF0F2;
     padding: 0px 5px;
 
-    flex: 1 1 auto;
-    -webkit-flex: 1 1 auto;
+    flex: auto;
+    -webkit-flex: auto;
 
     display: flex;
     display: -webkit-flex;
@@ -685,8 +686,8 @@ ul.failure-summary-list li .btn-xs {
 }
 
 #pinned-job-list{
-    flex: 1 1 auto;
-    -webkit-flex: 1 1 auto;
+    flex: auto;
+    -webkit-flex: auto;
     padding: 5px;
 }
 
@@ -702,8 +703,8 @@ ul.failure-summary-list li .btn-xs {
 #pinboard-related-bugs{
     width: 215px;
     padding: 5px;
-    flex: 0 0 auto;
-    -webkit-flex: 0 0 auto;
+    flex: none;
+    -webkit-flex: none;
     min-width: 215px;
 }
 
@@ -728,8 +729,8 @@ ul.failure-summary-list li .btn-xs {
 }
 
 #pinboard-classification{
-    flex: 0 0 auto;
-    -webkit-flex: 0 0 auto;
+    flex: none;
+    -webkit-flex: none;
     width: 185px;
     padding: 5px;
 }
@@ -745,14 +746,14 @@ ul.failure-summary-list li .btn-xs {
 
 #pinboard-controls-close-button-container {
     padding-left: 5px;
-    flex: 0 0 auto;
-    -webkit-flex: 0 0 auto;
+    flex: none;
+    -webkit-flex: none;
     color: #9fa3a5;
 }
 
 #pinboard-controls {
-    flex: 0 0 auto;
-    -webkit-flex: 0 0 auto;
+    flex: none;
+    -webkit-flex: none;
     padding: 10px;
     margin: 13px;
 }
