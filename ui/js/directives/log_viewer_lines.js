@@ -5,11 +5,11 @@ treeherder.directive('lvLogLines', ['$timeout', '$parse', function ($timeout) {
         var el = $('.logviewer-step[order="' + order + '"]');
         var parentOffset = el.parent().offset();
 
-        return el.offset().top - 
-               parentOffset.top + el.parent().scrollTop() - 
+        return el.offset().top -
+               parentOffset.top + el.parent().scrollTop() -
                parseInt($('.steps-data').first().css('padding-bottom'));
     }
-        
+
     function onScroll ($scope) {
         var lines = $('.lv-log-line');
         var scrollTop = $('.lv-log-container').scrollTop();
@@ -20,7 +20,7 @@ treeherder.directive('lvLogLines', ['$timeout', '$parse', function ($timeout) {
                 var lineNumber = +$(lines[i]).attr('line');
 
                 for (var j = 0, ll = steps.length; j < ll; j++) {
-                    if (lineNumber > (steps[j].started_linenumber - 1) && 
+                    if (lineNumber > (steps[j].started_linenumber - 1) &&
                         lineNumber < (steps[j].finished_linenumber + 1)) {
                         // make sure we aren't updating when its already correct
                         if ($scope.displayedStep.order === steps[j].order) return;
@@ -37,14 +37,14 @@ treeherder.directive('lvLogLines', ['$timeout', '$parse', function ($timeout) {
                     }
                 }
             }
-        } 
+        }
     }
 
     /* -------------------------------------------------------------------- */
 
     return {
         restrict: 'A',
-        templateUrl: 'partials/lvLogLines.html',
+        templateUrl: 'partials/logviewer/lvLogLines.html',
         link: function (scope, element, attr) {
             $(element).scroll(onScroll.bind(this, scope));
         }

@@ -26,7 +26,7 @@ treeherder.directive('thPinnedJob', [
 
             }, true);
         },
-        templateUrl: 'partials/thPinnedJob.html'
+        templateUrl: 'partials/main/thPinnedJob.html'
     };
 }]);
 
@@ -34,7 +34,7 @@ treeherder.directive('thRelatedBugSaved', function () {
 
     return {
         restrict: "E",
-        templateUrl: 'partials/thRelatedBugSaved.html'
+        templateUrl: 'partials/main/thRelatedBugSaved.html'
     };
 });
 
@@ -42,7 +42,7 @@ treeherder.directive('thRelatedBugQueued', function () {
 
     return {
         restrict: "E",
-        templateUrl: 'partials/thRelatedBugQueued.html'
+        templateUrl: 'partials/main/thRelatedBugQueued.html'
     };
 });
 
@@ -74,7 +74,7 @@ treeherder.directive('thSimilarJobs', [
     function(ThJobModel, ThLog){
     return {
         restrict: "E",
-        templateUrl: "partials/similar_jobs.html",
+        templateUrl: "partials/main/similar_jobs.html",
         link: function(scope, element, attr) {
             scope.$watch('job', function(newVal, oldVal){
                 if(newVal){
@@ -105,6 +105,6 @@ treeherder.directive('thSimilarJobs', [
 treeherder.directive('thPinboardPanel', function(){
     return {
         restrict: "E",
-        templateUrl: "partials/thPinboardPanel.html"
+        templateUrl: "partials/main/thPinboardPanel.html"
     };
 });
