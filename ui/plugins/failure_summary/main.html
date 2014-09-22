@@ -54,13 +54,13 @@
                     >Exceeded max bug suggestions</mark>
 
         </li>
-        <li ng-if="!tabs.failure_summary.is_loading && suggestions.length == 0">
+        <li ng-if="!tabs.failureSummary.is_loading && suggestions.length == 0">
             <div class="failure-summary-line-empty">
                 <span>Failure summary is empty</span>
             </div>
         </li>
     </ul>
-    <div ng-if="tabs.failure_summary.is_loading" class="overlay">
+    <div ng-if="tabs.failureSummary.is_loading" class="overlay">
         <div>
             <span class="fa fa-refresh fa-spin"></span>
         </div>

@@ -11,7 +11,7 @@ treeherder.controller('BugsPluginCtrl', [
 
         var timeout_promise = null;
         var bug_limit = 20;
-
+        $scope.tabs = thTabs.tabs;
 
         // update function triggered by the plugins controller
         thTabs.tabs.failureSummary.update = function(){
@@ -44,31 +44,21 @@ treeherder.controller('BugsPluginCtrl', [
                                 suggestion.bugs = {"open_recent":[], "all_others":[]};
                             }
 
-                            if(suggestion.bugs.open_recent.length > bug_limit){
-                                suggestion.bugs.too_many_open_recent = true;
-                            }else{
-                                suggestion.bugs.too_many_open_recent  = false;
-                            }
+                            suggestion.bugs.too_many_open_recent = (
+                                suggestion.bugs.open_recent.length > bug_limit
+                            );
+                            suggestion.bugs.too_many_all_others = (
+                                suggestion.bugs.all_others.length > bug_limit
+                            );
+                            suggestion.open_recent_hidden = (
+                                suggestion.bugs.too_many_open_recent ||
+                                suggestion.bugs.open_recent.length === 0
+                            );
 
-                            if(suggestion.bugs.all_others.length > bug_limit){
-                                suggestion.bugs.too_many_all_others = true;
-                            }else{
-                                suggestion.bugs.too_many_all_others = false;
-                            }
-
-                            if(suggestion.bugs.too_many_open_recent
-                                || suggestion.bugs.open_recent.length == 0){
-                                suggestion.open_recent_hidden = true;
-                            }else{
-                                suggestion.open_recent_hidden = false;
-                            }
-
-                            if(suggestion.bugs.too_many_all_others
-                                || suggestion.bugs.all_others.length == 0){
-                                suggestion.all_others_hidden = true;
-                            }else{
-                                suggestion.all_others_hidden = false;
-                            }
+                            suggestion.all_others_hidden = (
+                                suggestion.bugs.too_many_all_others ||
+                                suggestion.bugs.all_others.length === 0
+                            );
 
                             suggestions.push(suggestion);
                         });
@@ -79,6 +69,6 @@ treeherder.controller('BugsPluginCtrl', [
                     thTabs.tabs.failureSummary.is_loading = false;
                 });
             }
-        }
+        };
     }
 ]);
