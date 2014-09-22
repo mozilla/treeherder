@@ -27,7 +27,7 @@ treeherder.controller('PluginCtrl', [
 
             // If there are parameters the parameter delimiter &
             // should be used
-            if(absUrl.indexOf('?') != -1){
+            if(absUrl.indexOf('?') !== -1){
                 delimiter = '&';
             }
 
@@ -86,6 +86,9 @@ treeherder.controller('PluginCtrl', [
                     }
                     //the fourth result comes form the jobLogUrl artifact
                     $scope.job_log_urls = results[3];
+                    $scope.jobLogsAllParsed = _.every($scope.job_log_urls, function(jlu) {
+                        return jlu.parse_status === 'parsed';
+                    });
 
                     $scope.lvUrl = thUrl.getLogViewerUrl($scope.job.id);
                     $scope.resultStatusShading = "result-status-shading-" + thResultStatus($scope.job);
@@ -230,7 +233,7 @@ treeherder.controller('PluginCtrl', [
         $scope.updateClassifications = function() {
             ThJobClassificationModel.get_list({job_id: $scope.job.id}).then(function(response) {
                 $scope.classifications = response;
-                $scope.job.note = $scope.classifications[0]
+                $scope.job.note = $scope.classifications[0];
             });
         };
 
