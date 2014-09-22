@@ -33,9 +33,23 @@
               <span class="glyphicon glyphicon-tasks"></span>
             </a>
           </li>
+          <li>
+            <a ng-if="!job_log_urls.length"
+               class="disabled"
+               title="No logs available for this job">
+              <span class="glyphicon glyphicon-tasks"></span>
+            </a>
+          </li>
 
           <li ng-repeat="job_log_url in job_log_urls">
             <a title="Open the raw log in a new window" target="_blank" href="{{ job_log_url.url }}">
+              <span class="glyphicon glyphicon-align-left"></span>
+            </a>
+          </li>
+          <li>
+            <a ng-if="!job_log_urls.length"
+               class="disabled"
+               title="No logs available for this job">
               <span class="glyphicon glyphicon-align-left"></span>
             </a>
           </li>
@@ -135,6 +149,10 @@
         <li class="small" ng-repeat="job_log_url in job_log_urls">
           <label>Log parsing status:</label>
           <span>{{ job_log_url.parse_status }}</span>
+        </li>
+        <li class="small" ng-if="!job_log_urls.length">
+          <label>Log parsing status:</label>
+          <span>No logs</span>
         </li>
       </ul>
       <div class="printlines">
