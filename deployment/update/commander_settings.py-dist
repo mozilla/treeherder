@@ -1,12 +1,12 @@
-SRC_DIR = ''
+SRC_DIR = '/data/treeherder/src/treeherder.mozilla.org/'
 BIN_DIR = '/usr/bin'
 SBIN_DIR = '/sbin'
 
-DEPLOY_SCRIPT = ''
-REMOTE_UPDATE_SCRIPT = ''
+DEPLOY_SCRIPT = '/data/treeherder/deploy -n treeherder.mozilla.org'
+REMOTE_UPDATE_SCRIPT = '/data/bin/update-www.sh'
 
-WEB_HOSTGROUP = ''
-CELERY_HOSTGROUP = ''
+WEB_HOSTGROUP = 'treeherder-web'
+CELERY_HOSTGROUP = 'treeherder-processors'
 
-UPDATE_REF = 'origin/master'
+UPDATE_REF = 'master'
 SSH_KEY = None
