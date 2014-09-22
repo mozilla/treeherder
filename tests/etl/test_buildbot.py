@@ -848,6 +848,17 @@ buildernames = [
                    'os': 'b2g',
                    'os_platform': 'b2g-device-image',
                    'vm': False}}),
+    ('jetpack-fx-team-ubuntu64-asan_vm-opt',
+     {'build_type': 'asan',
+      'job_type': 'unittest',
+      'name': {'group_name': 'unknown',
+               'group_symbol': '?',
+               'name': 'Jetpack SDK Test',
+               'job_symbol': 'JP'},
+      'platform': {'arch': 'x86_64',
+                   'os': 'linux',
+                   'os_platform': 'linux64',
+                   'vm': True}}),
 ]
 
 

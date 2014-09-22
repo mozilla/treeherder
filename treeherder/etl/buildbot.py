@@ -21,6 +21,10 @@ RESULT_DICT = {
 #         pulse stream these structures can be removed.
 ####
 
+# Buildernames use a mixture of spaces, underscores and hyphens as separators.
+# Since \b doesn't match against underscores, we need to supplement it.
+WORD_BOUNDARY_RE = r'(?:_|\b)'
+
 # source for these is in ``Data.js.getMachine`` function.
 PLATFORMS_BUILDERNAME = [
 
@@ -257,22 +261,21 @@ PLATFORMS_BUILDERNAME = [
 ]
 
 VM_STATUS = [
-    re.compile(' VM '),
-    re.compile('.*_vm ')
+    re.compile(WORD_BOUNDARY_RE + r'vm' + WORD_BOUNDARY_RE, re.IGNORECASE)
 ]
 
 BUILD_TYPE_BUILDERNAME = [
     {
         'type': 'pgo',
-        'regex': re.compile('.+ pgo[ -].+', re.IGNORECASE),
+        'regex': re.compile(WORD_BOUNDARY_RE + r'pgo', re.IGNORECASE),
     },
     {
         'type': 'asan',
-        'regex': re.compile('.+ asan .+', re.IGNORECASE),
+        'regex': re.compile(WORD_BOUNDARY_RE + r'asan', re.IGNORECASE),
     },
     {
         'type': 'debug',
-        'regex': re.compile('(?:debug|leak)', re.IGNORECASE),
+        'regex': re.compile(WORD_BOUNDARY_RE + r'(?:debug|leak test)', re.IGNORECASE),
     }
     # defaults to "opt" if not found
 ]
