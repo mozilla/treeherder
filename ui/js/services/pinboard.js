@@ -28,6 +28,7 @@ treeherder.factory('thPinboard', [
                     thNotify.send("classification saved for " + job.platform + ": " + job.job_type_name, "success");
                 }).error(function(data) {
                     thNotify.send("error saving classification for " + job.platform + ": " + job.job_type_name, "danger");
+                    $log("classification failed", data);
                 });
         }
     };

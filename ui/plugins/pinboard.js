@@ -49,7 +49,9 @@ treeherder.controller('PinboardCtrl', [
                     $scope.saveEnteredBugNumber();
                 }
                 $scope.classification.who = $scope.user.email;
-                thPinboard.save($scope.classification);
+                var classification = $scope.classification;
+                thPinboard.save(classification);
+                $scope.classification = thPinboard.createNewClassification();
                 $rootScope.selectedJob = null;
             } else {
                 thNotify.send("must be logged in to classify jobs", "danger");
