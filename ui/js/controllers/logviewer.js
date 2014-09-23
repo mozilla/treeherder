@@ -33,21 +33,21 @@ logViewer.controller('LogviewerCtrl', [
 
         $scope.$watch('artifact', function () {
             if (!$scope.artifact) return;
-            if ($scope.totalErrors() > 0) {
-                $scope.showSuccessful = false;
-            } else {
-                $scope.showSuccessful = true;
-            }
+            $scope.showSuccessful = !$scope.hasFailedSteps();
         });
 
-        $scope.totalErrors = function () {
-            return $scope.artifact.step_data.steps.reduce(function (prev, curr) {
-                if (prev.errors) {
-                    return prev.errors.length;
+        $scope.hasFailedSteps = function () {
+            var steps = $scope.artifact.step_data.steps;
+            for (var i = 0; i < steps.length; i++) {
+                // We only recently generated step results as part of ingestion,
+                // so we have to check the results property is present.
+                // TODO: Remove this when the old data has expired, so long as
+                // other data submitters also provide a step result.
+                if ('result' in steps[i] && steps[i].result !== "success") {
+                    return true;
                 }
-
-                return prev + curr.errors.length;
-            });
+            }
+            return false;
         };
 
         $scope.loadMore = function(bounds, element) {
