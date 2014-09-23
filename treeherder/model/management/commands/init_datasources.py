@@ -4,7 +4,9 @@ from django.utils.six.moves import input
 from django.conf import settings
 
 from django.core.management.base import BaseCommand, CommandError
+from django.core.cache import cache
 from treeherder.model.models import Datasource, Repository
+from treeherder.etl.pushlog import PUSHLOG_CACHE_KEY
 
 
 class Command(BaseCommand):
@@ -50,4 +52,6 @@ Type 'yes' to continue, or 'no' to cancel: """)
                     host=options['host'],
                     read_only_host=options['readonly_host']
                 )
+            # clear the pushlog cache
+            cache.delete(PUSHLOG_CACHE_KEY.format(project))
         Datasource.reset_cache()
