@@ -54,6 +54,9 @@ def update(ctx):
         # Update reference data & tasks config from the in-repo fixtures.
         ctx.local("python2.6 manage.py load_initial_data")
 
+        # Populate the datasource table and create the connected databases.
+        ctx.local("python2.6 manage.py init_datasources")
+
         # Update oauth credentials.
         ctx.local("python2.6 manage.py export_project_credentials")
 
