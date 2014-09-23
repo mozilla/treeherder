@@ -63,18 +63,18 @@ treeherder.directive('thCloneJobs', [
             var typicalMinutes = Math.round(
                 (parseInt(job.pending_eta) + parseInt(job.running_eta) )/60 );
 
-            var remainingMinutes =
+            var minutesOverdue =
                 Math.round( ( timestampSeconds - (
                     parseInt(job.submit_timestamp) + parseInt(job.pending_eta) +
                     parseInt(job.running_eta) ) )/60 );
 
-            if(remainingMinutes > 0){
+            if(minutesOverdue < 0){
 
+                var remainingMinutes = Math.abs(minutesOverdue);
                 result = result + ', ETA to completed, ' + remainingMinutes + ' mins';
 
-            }else if(remainingMinutes < 0){
+            }else if(minutesOverdue > 0){
 
-                var minutesOverdue = Math.abs(remainingMinutes);
                 result = result + ', ' + minutesOverdue + ' mins overdue, typically takes '
                     + typicalMinutes + ' mins';
 
