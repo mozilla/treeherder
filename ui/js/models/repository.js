@@ -207,7 +207,9 @@ treeherder.factory('ThRepositoryModel', [
 
     var updateAllWatchedRepoTreeStatus = function() {
         $log.debug("updateAllWatchedRepoTreeStatus", repos);
-        _.each(_.keys(repos), updateTreeStatus);
+        _.each(_.keys(repos), function(repo) {
+            _.defer(updateTreeStatus(repo));
+        });
     };
 
 
