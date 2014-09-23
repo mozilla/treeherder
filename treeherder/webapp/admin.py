@@ -23,20 +23,9 @@ class ReferenceDataSignatureAdmin(admin.ModelAdmin):
                     "job_type_name", "job_type_symbol", "option_collection_hash", "build_system_type"]
 
 
-class RepositoryAdmin(admin.ModelAdmin):
-    actions = ['clear_repo_cache']
-
-    def clear_repo_cache(self, request, queryset):
-        repo_list = queryset.values_list("name", flat=True)
-        cache_key_list = ["{0}:last_push".format(repo) for repo in repo_list]
-        cache.delete_many(cache_key_list)
-        self.message_user(request, "Pushlog cache successfully deleted.")
-    clear_repo_cache.short_description = "Clear the pushlog cache for selected repositories"
-
-
 # custom admin classes
 browserid_admin.register(JobType, JobTypeAdmin)
-browserid_admin.register(Repository, RepositoryAdmin)
+browserid_admin.register(Repository)
 browserid_admin.register(ReferenceDataSignatures, ReferenceDataSignatureAdmin)
 # default admin classes
 browserid_admin.register(Product)

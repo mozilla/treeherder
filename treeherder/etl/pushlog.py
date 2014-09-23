@@ -13,12 +13,6 @@ class HgPushlogTransformerMixin(object):
         # this contain the whole list of transformed pushes
         result_sets = []
 
-        # last push available
-        if pushlog:
-            last_push = max(pushlog.keys())
-        else:
-            last_push = None
-
         th_collections = {}
 
         # iterate over the pushes
@@ -59,10 +53,6 @@ class HgPushlogTransformerMixin(object):
             th_resultset = th_collections[ repository ].get_resultset(result_set)
             th_collections[ repository ].add(th_resultset)
 
-        # cache the last push seen
-        if last_push:
-            cache.set("{0}:last_push".format(repository), last_push)
-
         return th_collections
 
 
@@ -71,13 +61,6 @@ class HgPushlogProcess(JsonExtractorMixin,
                        OAuthLoaderMixin):
 
     def run(self, source_url, repository):
-
-        # get the last object seen from cache. this will
-        # reduce the number of pushes processed every time
-        last_object = cache.get("{0}:last_push".format(repository))
-        if last_object:
-            source_url += "&startID=" + last_object
-
         extracted_content = self.extract(source_url)
         if extracted_content:
             self.load(
