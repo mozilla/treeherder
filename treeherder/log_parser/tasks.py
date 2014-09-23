@@ -25,9 +25,7 @@ from treeherder.log_parser.utils import (get_error_search_term,
 from treeherder.etl.oauth_utils import OAuthCredentials
 
 
-
-
-@task(name='parse-log', max_retries=3)
+@task(name='parse-log', max_retries=10)
 def parse_log(project, job_log_url, job_guid, check_errors=False):
     """
     Call ArtifactBuilderCollection on the given job.
@@ -125,32 +123,31 @@ def parse_log(project, job_log_url, job_guid, check_errors=False):
 
             # send an update to job_log_url
             # the job_log_url status changes
-            # from pending to running
+            # from pending to parsed
             current_timestamp = time.time()
-            status = 'parsed'
             req.send(
                 update_endpoint,
                 method='POST',
                 data={
-                    'parse_status': status,
+                    'parse_status': 'parsed',
                     'parse_timestamp': current_timestamp
                 }
             )
 
     except Exception, e:
-        parse_log.retry(exc=e)
         # send an update to job_log_url
         # the job_log_url status changes
-        # from pending to running
+        # from pending/running to failed
         current_timestamp = time.time()
-        status = 'failed'
         req.send(
             update_endpoint,
             method='POST',
             data={
-                'parse_status': status,
+                'parse_status': 'failed',
                 'parse_timestamp': current_timestamp
             }
         )
-        # re raise the exception to leave a trace in the log
-        raise
+        # for every retry, set the countdown to 10 minutes
+        # .retry() raises a RetryTaskError exception,
+        # so nothing below this line will be executed.
+        parse_log.retry(exc=e, countdown=10*60)
