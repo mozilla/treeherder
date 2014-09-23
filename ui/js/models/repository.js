@@ -114,6 +114,12 @@ treeherder.factory('ThRepositoryModel', [
     var load = function(name) {
 
         if (!$rootScope.repos) {
+            // this is the first time this was called, so initiate the interval
+            // update the repo status (treestatus) in an interval of every 2 minutes
+            $log.debug("treestatus", "setting the interval");
+            $interval(updateAllWatchedRepoTreeStatus, 2 * 60 * 1000);
+
+            // return the promise of getting the repos
             return get_list().
                 success(function (data) {
                     $rootScope.repos = data;
@@ -135,9 +141,6 @@ treeherder.factory('ThRepositoryModel', [
         } else {
             setCurrent(name);
         }
-
-        // update the repo status (treestatus) in an interval of every 2 minutes
-        $interval(updateAllWatchedRepoTreeStatus, 2 * 60 * 1000);
     };
 
 
@@ -146,20 +149,23 @@ treeherder.factory('ThRepositoryModel', [
     };
 
     var setCurrent = function(name) {
-        $rootScope.currentRepo = getByName(name);
+        if (!$rootScope.currentRepo || $rootScope.currentRepo.name !== name) {
+            $rootScope.currentRepo = getByName(name);
 
-        // don't want to just replace the watchedRepos object because
-        // controllers, etc, are watching the reference to it, which would
-        // be lost by replacing.
-        if (_.size(watchedRepos) <= 1) {
-            _.each(watchedRepos, function(r, rname) {
-                unwatchRepo(rname);
-            });
+            // don't want to just replace the watchedRepos object because
+            // controllers, etc, are watching the reference to it, which would
+            // be lost by replacing.
+            if (_.size(watchedRepos) <= 1) {
+                _.each(watchedRepos, function (r, rname) {
+                    unwatchRepo(rname);
+                });
+            }
+            watchRepo(name);
+
+            $log.debug("setCurrent", name, "watchedRepos", $rootScope.currentRepo, repos);
+        } else {
+            $log.debug("setCurrent", "Skipping.  Current repo was already set to " + name, $rootScope.currentRepo);
         }
-        watchRepo(name);
-
-
-        $log.debug("repoModel", "setCurrent", name, "watchedRepos", repos);
     };
 
     var watchedReposUpdated = function() {
@@ -200,6 +206,7 @@ treeherder.factory('ThRepositoryModel', [
     };
 
     var updateAllWatchedRepoTreeStatus = function() {
+        $log.debug("updateAllWatchedRepoTreeStatus", repos);
         _.each(_.keys(repos), updateTreeStatus);
     };
 
