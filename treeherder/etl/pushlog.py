@@ -3,7 +3,7 @@ from django.core.cache import cache
 from thclient import TreeherderRequest, TreeherderResultSetCollection
 
 from .mixins import JsonExtractorMixin, OAuthLoaderMixin
-from treeherder.etl.common import generate_revision_hash
+from treeherder.etl.common import generate_revision_hash, generate_result_set_cache_key
 
 
 class HgPushlogTransformerMixin(object):
@@ -46,6 +46,15 @@ class HgPushlogTransformerMixin(object):
                 result_set['revisions'].append(revision)
 
             result_set['revision_hash'] = generate_revision_hash(rev_hash_components)
+
+            cached_revision_hash = cache.get(
+                generate_result_set_cache_key(
+                    repository, result_set['revision_hash']
+                    ) )
+
+            if cached_revision_hash == result_set['revision_hash']:
+                # Result set is already loaded
+                continue
 
             if repository not in th_collections:
                 th_collections[ repository ] = TreeherderResultSetCollection()
