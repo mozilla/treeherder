@@ -2601,17 +2601,17 @@ class JobsModel(TreeherderModelBase):
 
                 cache_data[key] = revision_hash
 
-            cache.set_many(
-                cache_data,
-                self.RESULT_SET_CACHE_TIMEOUT
-                )
-
             # Insert new revisions
             dhub.execute(
                 proc='jobs.inserts.set_revision',
                 placeholders=revision_placeholders,
                 executemany=True,
                 debug_show=self.DEBUG
+                )
+
+            cache.set_many(
+                cache_data,
+                self.RESULT_SET_CACHE_TIMEOUT
                 )
 
         # Retrieve new revision ids
