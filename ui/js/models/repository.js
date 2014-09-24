@@ -191,10 +191,12 @@ treeherder.factory('ThRepositoryModel', [
         }
     };
 
-    // if the repo isn't supported by treestatus, then these are the generic
-    // values to use for it.
-    // setting the value to 'unsupported' means that it won't bother checking
-    // treestatus again for that repo when the interval does the updates.
+    /**
+     * if the repo isn't supported by treestatus, then these are the generic
+     * values to use for it.
+     * setting the value to 'unsupported' means that it won't bother checking
+     * treestatus again for that repo when the interval does the updates.
+     */
     var getUnsupportedTreeStatus = function(repoName) {
         return {
             status: "unsupported",
@@ -205,16 +207,17 @@ treeherder.factory('ThRepositoryModel', [
         };
     };
 
-        /**
-         * Update the status for ``repoName``.  If it's not passed in,
-         * then update all ``watchedRepos`` status.
-         * @param repoName
-         * @returns a promise
-         */
+    /**
+     * Update the status for ``repoName``.  If it's not passed in,
+     * then update all ``watchedRepos`` status.
+     * @param repoName
+     * @returns a promise
+     */
     var updateTreeStatus = function(repoName) {
         var repoNames = repoName? [repoName]: _.keys(watchedRepos);
 
-        // filter out non-watched and unsupported repos
+        // filter out non-watched and unsupported repos to prevent repeatedly
+        // hitting an endpoint we know will never work.
         repoNames = _.filter(repoNames, function(repo) {
             if (watchedRepos[repo] && watchedRepos[repo].treeStatus.status !== 'unsupported') {
                 return repo;
