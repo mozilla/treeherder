@@ -159,6 +159,13 @@ logViewer.controller('LogviewerCtrl', [
                         + "index.html#/jobs?repo="
                         + $scope.repoName + "&revision=" + revision;
 
+                    // Store the artifact epoch date string in a real date object for use
+                    var startTime = $scope.artifact.header.starttime;
+                    var startDate = new Date(0);
+                    startDate.setUTCSeconds(startTime);
+
+                    $scope.logDisplayDate = startDate.toString();
+
                     ThJobArtifactModel.get_list(
                         {job_id: $scope.job_id, name:'buildapi'})
                     .then(function(buildapiData){

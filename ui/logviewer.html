@@ -21,7 +21,8 @@
                                target="_blank"
                                class="repo-link">{{value}}</a>
                         </td>
-                        <td ng-if="label != 'revision'">{{value}}</td>
+                        <td ng-if="label == 'starttime'">{{logDisplayDate}}</td>
+                        <td ng-if="label != 'revision' && label != 'starttime'">{{value}}</td>
                     </tr>
                 </table>
             </div>
