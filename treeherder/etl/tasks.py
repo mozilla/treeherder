@@ -65,7 +65,7 @@ def fetch_hg_push_log(repo_name, repo_url):
     Run a HgPushlog etl process
     """
     process = HgPushlogProcess()
-    process.run(repo_url+'/json-pushes/?full=1', repo_name)
+    process.run(repo_url+'/json-pushes/?full=1&maxhours=24', repo_name)
 
 
 @task(name='fetch-bugs', time_limit=60*5)
