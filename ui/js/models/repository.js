@@ -57,7 +57,7 @@ treeherder.factory('ThRepositoryModel', [
      */
     var watchRepo = function(repoName) {
         _.extend(repos[repoName], {
-            treeStatus: null,
+            treeStatus: {status: "not retrieved yet", message_of_the_day: ""},
             unclassifiedFailureCount: 0,
             unclassifiedFailureCountExcluded: 0,
             groupName: repos[repoName].groupName
@@ -117,7 +117,7 @@ treeherder.factory('ThRepositoryModel', [
             // this is the first time this was called, so initiate the interval
             // update the repo status (treestatus) in an interval of every 2 minutes
             $log.debug("treestatus", "setting the interval");
-            $interval(updateAllWatchedRepoTreeStatus, 2 * 60 * 1000);
+            $interval(updateTreeStatus, 2 * 60 * 1000);
 
             // return the promise of getting the repos
             return get_list().
@@ -136,7 +136,6 @@ treeherder.factory('ThRepositoryModel', [
                         setCurrent(name);
                     }
                     watchedReposUpdated();
-                    updateAllWatchedRepoTreeStatus();
                 });
         } else {
             setCurrent(name);
@@ -160,38 +159,13 @@ treeherder.factory('ThRepositoryModel', [
                     unwatchRepo(rname);
                 });
             }
-            watchRepo(name);
+            if (!_.has(watchedRepos, name)) {
+                watchRepo(name);
+            }
 
             $log.debug("setCurrent", name, "watchedRepos", $rootScope.currentRepo, repos);
         } else {
             $log.debug("setCurrent", "Skipping.  Current repo was already set to " + name, $rootScope.currentRepo);
-        }
-    };
-
-    var watchedReposUpdated = function() {
-        sessionStorage.setItem("thWatchedRepos", JSON.stringify(_.keys(watchedRepos)));
-    };
-
-    var updateTreeStatus = function(repoName) {
-        if (watchedRepos[repoName]) {
-            $log.debug("updateTreeStatus", "updating", repoName);
-            treeStatus.get(repoName).then(function(data) {
-                    repos[repoName].treeStatus = data.data;
-                }, function(data) {
-                    repos[repoName].treeStatus = {
-                        status: "unavailable",
-                        message_of_the_day: repoName +
-                            ' is not supported in <a href="https://treestatus.mozilla.org">treestatus.mozilla.org</a>'
-                    };
-                });
-        }
-    };
-
-    var getCurrentTreeStatus = function() {
-        try {
-            return repos[$rootScope.repoName].treeStatus.status;
-        } catch(Exception) {
-            return "unavailable";
         }
     };
 
@@ -205,13 +179,77 @@ treeherder.factory('ThRepositoryModel', [
 
     };
 
-    var updateAllWatchedRepoTreeStatus = function() {
-        $log.debug("updateAllWatchedRepoTreeStatus", repos);
-        _.each(_.keys(repos), function(repo) {
-            _.defer(updateTreeStatus(repo));
-        });
+    var watchedReposUpdated = function() {
+        sessionStorage.setItem("thWatchedRepos", JSON.stringify(_.keys(watchedRepos)));
     };
 
+    var getCurrentTreeStatus = function() {
+        try {
+            return repos[$rootScope.repoName].treeStatus.status;
+        } catch(Exception) {
+            return "unavailable";
+        }
+    };
+
+    // if the repo isn't supported by treestatus, then these are the generic
+    // values to use for it.
+    // setting the value to 'unsupported' means that it won't bother checking
+    // treestatus again for that repo when the interval does the updates.
+    var getUnsupportedTreeStatus = function(repoName) {
+        return {
+            status: "unsupported",
+            message_of_the_day: repoName +
+                ' is not supported in <a href="https://treestatus.mozilla.org">treestatus.mozilla.org</a>',
+            reason: "",
+            tree: repoName
+        };
+    };
+
+        /**
+         * Update the status for ``repoName``.  If it's not passed in,
+         * then update all ``watchedRepos`` status.
+         * @param repoName
+         * @returns a promise
+         */
+    var updateTreeStatus = function(repoName) {
+        var repoNames = repoName? [repoName]: _.keys(watchedRepos);
+
+        // filter out non-watched and unsupported repos
+        repoNames = _.filter(repoNames, function(repo) {
+            if (watchedRepos[repo] && watchedRepos[repo].treeStatus.status !== 'unsupported') {
+                return repo;
+            }
+        });
+        var newStatuses = {};
+
+        var getStatus = function(repo) {
+
+            $log.debug("updateTreeStatus", "getStatus", "updating", repo);
+            treeStatus.get(repo).then(
+                function(data) {
+                    newStatuses[repo] = data.data;
+                    updateStatusesIfDone();
+                }, function(data) {
+                    newStatuses[repo] = getUnsupportedTreeStatus(repo);
+                    updateStatusesIfDone();
+                });
+
+        };
+
+        var updateStatusesIfDone = function() {
+            if (_.size(newStatuses) === repoNames.length) {
+                // we've received all the statuses we expect to
+                _.defer(function() {
+                    _.each(newStatuses, function(status) {
+                        watchedRepos[status.tree].treeStatus = status;
+                        $log.debug("updateTreeStatus", "updateStatusesIfDone", status.tree, status.status);
+                    });
+                });
+            }
+        };
+        _.each(repoNames, getStatus);
+
+    };
 
     return {
         // load the list of repos into $rootScope, and set the current repo.
@@ -240,9 +278,7 @@ treeherder.factory('ThRepositoryModel', [
 
         unwatchRepo: unwatchRepo,
 
-        toggleWatched: toggleWatched,
-
-        updateAllWatchedRepoTreeStatus: updateAllWatchedRepoTreeStatus
+        toggleWatched: toggleWatched
 
     };
 }]);

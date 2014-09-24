@@ -35,7 +35,12 @@ treeherder.directive('thWatchedRepo', [
             color: "treeClosed",
             btnClass: "btn-view-nav-closed"
         },
-        "unavailable": {
+        "unsupported": {
+            icon: "",
+            color: "treeUnavailable",
+            btnClass: "btn-view-nav"
+        },
+        "not retrieved yet": {
             icon: "",
             color: "treeUnavailable",
             btnClass: "btn-view-nav"
