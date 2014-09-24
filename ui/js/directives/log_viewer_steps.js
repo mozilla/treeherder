@@ -39,7 +39,7 @@ treeherder.directive('lvLogSteps', ['$timeout', '$q', function ($timeout, $q) {
                 scope.showSuccessful = !scope.showSuccessful;
 
                 var firstError = scope.artifact.step_data.steps.filter(function(step){
-                    return step.errors && step.errors.length > 0;
+                    return step.result && step.result !== "success";
                 })[0];
 
                 if (!firstError) return;

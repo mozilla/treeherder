@@ -2,9 +2,9 @@
     <div ng-repeat="step in artifact.step_data.steps"
          ng-click="displayLog(step)"
          ng-class="{'selected': (displayedStep.order === step.order),
-                    'btn-success': (step.error_count === 0),
-                    'btn-warning': (step.error_count > 0)}"
-         ng-if="showSuccessful === true || step.error_count !== 0"
+                    'btn-success': (step.result === 'success'),
+                    'btn-warning': (step.result !== 'success')}"
+         ng-if="showSuccessful === true || step.result !== 'success'"
          class="btn btn-block logviewer-step clearfix"
          order="{{step.order}}">
         <span class="pull-left clearfix">
@@ -43,7 +43,7 @@
     </a>
 </div>
 
-<div ng-if="artifact && totalErrors() !== 0"
+<div ng-if="artifact && hasFailedSteps()"
      class="logviewer-stepbar">
     <input type="checkbox"
            ng-model="showSuccessful"
