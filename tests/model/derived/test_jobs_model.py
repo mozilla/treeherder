@@ -5,6 +5,9 @@ import itertools
 import pprint
 import copy
 
+from django.core.cache import cache
+from treeherder.etl.common import generate_result_set_cache_key
+
 from treeherder.model.derived.base import DatasetNotFoundError
 from tests.sample_data_generator import job_data, result_set
 from tests.sampledata import SampleData
@@ -355,6 +358,12 @@ def test_store_result_set_data(jm, initial_data, sample_resultset):
     # sample_resultset have been stored
     assert set(data['result_set_ids'].keys()) == revision_hashes
     assert set(data['revision_ids'].keys()) == revisions
+
+    # confirm all revision_hashes were stored in the cache
+    for target_revision_hash in data['result_set_ids'].keys():
+        key = generate_result_set_cache_key(jm.project, target_revision_hash)
+        revision_hash = cache.get(key)
+        assert revision_hash == target_revision_hash
 
     # Confirm the data structures returned match what's stored in
     # the database
