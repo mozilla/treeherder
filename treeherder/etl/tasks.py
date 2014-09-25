@@ -16,7 +16,7 @@ from .tbpl import OrangeFactorBugRequest, TbplBugRequest, BugzillaBugRequest
 from .pushlog import HgPushlogProcess
 
 
-@task(name='fetch-buildapi-pending', time_limit=60)
+@task(name='fetch-buildapi-pending', time_limit=3*60)
 def fetch_buildapi_pending():
     """
     Fetches the buildapi pending jobs api and load them to
@@ -25,7 +25,7 @@ def fetch_buildapi_pending():
     PendingJobsProcess().run()
 
 
-@task(name='fetch-buildapi-running', time_limit=60)
+@task(name='fetch-buildapi-running', time_limit=3*60)
 def fetch_buildapi_running():
     """
     Fetches the buildapi running jobs api and load them to
@@ -34,7 +34,7 @@ def fetch_buildapi_running():
     RunningJobsProcess().run()
 
 
-@task(name='fetch-buildapi-build4h', time_limit=120)
+@task(name='fetch-buildapi-build4h', time_limit=3*60)
 def fetch_buildapi_build4h():
     """
     Fetches the buildapi running jobs api and load them to
@@ -59,16 +59,16 @@ def fetch_push_logs():
         rdm.disconnect()
 
 
-@task(name='fetch-hg-push-logs', time_limit=60)
+@task(name='fetch-hg-push-logs', time_limit=3*60)
 def fetch_hg_push_log(repo_name, repo_url):
     """
     Run a HgPushlog etl process
     """
     process = HgPushlogProcess()
-    process.run(repo_url+'/json-pushes/?full=1&maxhours=24', repo_name)
+    process.run(repo_url+'/json-pushes/?full=1', repo_name)
 
 
-@task(name='fetch-bugs', time_limit=60*5)
+@task(name='fetch-bugs', time_limit=10*60)
 def fetch_bugs():
     """
     Run a BzApiBug process
@@ -86,7 +86,7 @@ def run_builds4h_analyzer():
     process.run()
 
 
-@task(name="submit-star-comment", max_retries=3, time_limit=30)
+@task(name="submit-star-comment", max_retries=10, time_limit=30)
 def submit_star_comment(project, job_id, bug_id, submit_timestamp, who):
     """
     Send a post request to tbpl's starcomment.php containing a bug association.
@@ -103,7 +103,7 @@ def submit_star_comment(project, job_id, bug_id, submit_timestamp, who):
         raise
 
 
-@task(name="submit-build-star", max_retries=3, time_limit=30)
+@task(name="submit-build-star", max_retries=10, time_limit=30)
 def submit_build_star(project, job_id, who, bug_id=None, classification_id=None, note=None):
     """
     Send a post request to tbpl's submitBuildStar.php to mirror sheriff's activity
@@ -120,7 +120,7 @@ def submit_build_star(project, job_id, who, bug_id=None, classification_id=None,
         raise
 
 
-@task(name="submit-bug-comment", max_retries=3, time_limit=30)
+@task(name="submit-bug-comment", max_retries=10, time_limit=30)
 def submit_bug_comment(project, job_id, bug_id):
     """
     Send a post request to tbpl's submitBugzillaComment.php

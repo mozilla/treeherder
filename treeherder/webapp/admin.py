@@ -1,7 +1,5 @@
 from django.contrib import admin
 from treeherder.model.models import *
-from django.core.cache import cache
-
 from django_browserid.admin import site as browserid_admin
 
 

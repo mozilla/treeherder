@@ -1,9 +1,10 @@
+from operator import itemgetter
 from django.core.cache import cache
 
 from thclient import TreeherderRequest, TreeherderResultSetCollection
 
 from .mixins import JsonExtractorMixin, OAuthLoaderMixin
-from treeherder.etl.common import generate_revision_hash, generate_result_set_cache_key
+from treeherder.etl.common import generate_revision_hash
 
 
 class HgPushlogTransformerMixin(object):
@@ -11,7 +12,6 @@ class HgPushlogTransformerMixin(object):
     def transform(self, pushlog,  repository):
 
         # this contain the whole list of transformed pushes
-        result_sets = []
 
         th_collections = {}
 
@@ -47,15 +47,6 @@ class HgPushlogTransformerMixin(object):
 
             result_set['revision_hash'] = generate_revision_hash(rev_hash_components)
 
-            cached_revision_hash = cache.get(
-                generate_result_set_cache_key(
-                    repository, result_set['revision_hash']
-                    ) )
-
-            if cached_revision_hash == result_set['revision_hash']:
-                # Result set is already loaded
-                continue
-
             if repository not in th_collections:
                 th_collections[ repository ] = TreeherderResultSetCollection()
 
@@ -70,16 +61,27 @@ class HgPushlogProcess(JsonExtractorMixin,
                        OAuthLoaderMixin):
 
     def run(self, source_url, repository):
+
+        # get the last object seen from cache. this will
+        # reduce the number of pushes processed every time
+        last_push = cache.get("{0}:last_push".format(repository))
+        if last_push:
+            source_url += "&fromchange=" + last_push
+
         extracted_content = self.extract(source_url)
         if extracted_content:
-            self.load(
-                self.transform(
-                    extracted_content,
-                    repository
-                )
+            sorted_pushlog = sorted(extracted_content.values(),
+                                    key=itemgetter('date'), reverse=True)
+            last_push = sorted_pushlog[0]
+            top_revision = last_push["changesets"][0]["node"]
+
+            transformed = self.transform(
+                extracted_content,
+                repository
             )
+            self.load(transformed)
 
-
+            cache.set("{0}:last_push".format(repository), top_revision)
 
 
 class GitPushlogTransformerMixin(object):

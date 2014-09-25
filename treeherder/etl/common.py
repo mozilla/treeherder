@@ -116,8 +116,6 @@ def generate_revision_hash(revisions):
 
     return sh.hexdigest()
 
-def generate_result_set_cache_key(project, revision_hash):
-    return "{0}-{1}".format(project, revision_hash)
 
 def generate_job_guid(request_id, request_time, endtime=None):
     """Converts a request_id and request_time into a guid"""
