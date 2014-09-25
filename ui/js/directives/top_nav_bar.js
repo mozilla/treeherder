@@ -133,3 +133,24 @@ treeherder.directive('thRepoDropdownContainer', [
         }
     };
 }]);
+
+treeherder.directive('thRepoMenuItem', [
+    'ThLog',
+    function (ThLog) {
+
+    var $log = new ThLog("thRepoDropdownContainer");
+
+    return {
+        restrict: "E",
+        replace: true,
+        link: function(scope, element, attrs) {
+            var elem = $(element);
+            elem.find('.repo-link').prop('href', "./#/jobs?repo=" +  scope.repo.name);
+            if (scope.repo.name === scope.repoName) {
+                elem.find('.repo-checkbox').prop('disabled', 'disabled');
+            }
+
+        },
+        templateUrl: 'partials/main/thRepoMenuItem.html'
+    };
+}]);

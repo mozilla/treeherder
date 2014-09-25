@@ -41,17 +41,7 @@
                               >
                             <li role="presentation" class="divider" ng-hide="$first"></li>
                             <li role="presentation" class="dropdown-header">{{group.name}}</li>
-                            <li ng-repeat="repo in group.repos | orderBy : 'name'" >
-                                <input type="checkbox"
-                                       class="repo-checkbox"
-                                       ng-checked="repoModel.watchedRepos[repo.name]"
-                                       ng-click="repoModel.toggleWatched(repo.name)"
-                                       title="toggle watching this repo"
-                                       ng-disabled="repo.name == repoName">
-                                    <a ng-href="./#/jobs?repo={{repo.name}}"
-                                       title="open repo"
-                                       class="repo-link">{{repo.name}}</a>
-                            </li>
+                            <th-repo-menu-item ng-repeat="repo in group.repos | orderBy : 'name'" ></th-repo-menu-item>
                         </span>
 
                     </ul>

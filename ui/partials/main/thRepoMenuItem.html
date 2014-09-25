@@ -1,0 +1,10 @@
+<li>
+    <input type="checkbox"
+           class="repo-checkbox"
+           ng-checked="repoModel.watchedRepos[repo.name]"
+           ng-click="repoModel.toggleWatched(repo.name)"
+           title="toggle watching this repo">
+        <a title="open repo"
+           class="repo-link"
+           ng-bind="repo.name"></a>
+</li>
