@@ -36,7 +36,9 @@ treeherder.controller('MainCtrl', [
                 return;
             }
 
-            if (!ev.metaKey) {
+            // test for key modifiers to allow browser shortcuts eg.
+            // console, new/private browsing window, history, print
+            if (!ev.metaKey && !ev.shiftKey && !ev.ctrlKey) {
                 if ((ev.keyCode === 73)) {
                     // toggle display in-progress jobs(pending/running), key:i
                     $scope.toggleInProgress();
