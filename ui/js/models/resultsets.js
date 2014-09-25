@@ -206,54 +206,6 @@ treeherder.factory('ThResultSetModel', [
                 search: locationSearch
             };
 
-            //Set up job update queue
-            setInterval(
-                _.bind(processUpdateQueues, $rootScope, repoName),
-                updateQueueInterval
-                );
-
-            //Set up the socket listener
-            thSocket.on(
-                "job",
-                _.bind(processSocketData, $rootScope, repoName)
-                );
-        }
-    };
-
-    var processSocketData = function(repoName, data){
-        /******
-         * Process a new ``job`` event notification.
-         * Check the job's ``result_set_id``.  If the id belongs to a resulset
-         * we already have in memory, add it to the ``jobUpdateQueue``.  If
-         * not, then check if the ``resultset_id`` is newer or older than the
-         * oldest rs_id we have in memory.  If it's newer, then add the
-         * ``resultset_id`` to ``rsUpdateQueue``.
-         *
-         * So basically, if we see a job belonging to a newer resultset we
-         * don't yet have loaded, then add it to the list of resultsets to
-         * fetch.  Fetching a resultset also gets all its jobs, so we don't
-         * need to add it to the ``jobUpdateQueue``.
-         */
-        if (data.branch === repoName) {
-            _.each(data.job_guids, function(rs, job_guid) {
-                if (rs.result_set_push_timestamp >= repositories[repoName].rsMapOldestTimestamp &&
-                    isInResultSetRange(repoName, rs.result_set_push_timestamp)) {
-
-                    // we want to load this job, one way or another
-                    if (repositories[repoName].rsMap[rs.result_set_id]) {
-                        // we already have this resultset loaded, so queue the job
-                        repositories[repoName].jobUpdateQueue[job_guid] = true;
-                    } else {
-                        // we haven't loaded this resultset yet, so queue it
-                        repositories[repoName].rsUpdateQueue[rs.result_set_id] = true;
-                    }
-                } else {
-                    $log.debug("Out of resultset range",
-                               repositories[repoName].rsMapOldestTimestamp,
-                               rs,
-                               job_guid);
-                }
-            });
         }
     };
 
@@ -503,44 +455,6 @@ treeherder.factory('ThResultSetModel', [
         return grMapElement;
     };
 
-    /******
-     * Socket.io handling for new and updated jobs and resultsets
-     *
-     * First we fetch new resultsets.  These may contain some of the jobs
-     * in the jobUpdateQueue.  So after getting the resultsets, we check
-     * if any of the jobs in the queue were fetched and remove them from
-     * the job queue before fetching them.
-     *
-     * Then we fetch the remaining jobs in a batch and add them to their
-     * appropriate resultset.
-     */
-    var processUpdateQueues = function(repoName) {
-        $log.debug("Processing update queue.  jobs: " +
-            _.size(repositories[repoName].jobUpdateQueue) +
-            ", resultsets: " +
-            _.size(repositories[repoName].rsUpdateQueue));
-        // clear the ``jobUpdateQueue`` so we won't miss items that get
-        // added while in the process of fetching the current queue items.
-        var rsFetchList = _.keys(repositories[repoName].rsUpdateQueue);
-        repositories[repoName].rsUpdateQueue = {};
-
-
-        var jobFetchList = _.keys(repositories[repoName].jobUpdateQueue);
-        repositories[repoName].jobUpdateQueue = {};
-
-        if (_.size(rsFetchList) > 0) {
-            // fetch these resultsets in a batch and put them into the model
-            $log.debug("processing the rsFetchList");
-            fetchNewResultSets(repoName, rsFetchList);
-        }
-
-        if (jobFetchList.length > 0) {
-            $log.debug("processing the jobFetchList", jobFetchList.length, jobFetchList);
-
-            // make an ajax call to get the job details
-            fetchJobs(repoName, jobFetchList);
-        }
-    };
     /**
      * Fetch the job objects for the ids in ``jobFetchList`` and update them
      * in the data model.
@@ -578,6 +492,7 @@ treeherder.factory('ThResultSetModel', [
         _.delay(fetchJobs, 10000, repoName, unavailableJobs);
 
     };
+
     var aggregateJobPlatform = function(repoName, job, platformData){
 
         var resultsetId, platformName, platformOption, platformAggregateId,
@@ -858,24 +773,6 @@ treeherder.factory('ThResultSetModel', [
         return _.isEmpty(repositories[repoName].rsMap);
     };
 
-    var fetchNewResultSets = function(repoName, resultsetList){
-        /**
-         * For fetching new resultsets via the web socket queue
-         * @param resultsetlist list of result set ids to fetch.
-         */
-        if(resultsetList.length > 0){
-            repositories[repoName].loadingStatus.prepending = true;
-            thResultSets.getResultSets(repoName, 0, resultsetList.length, resultsetList).
-
-            success( _.bind(prependResultSets, $rootScope, repoName) ).
-            error(function(data) {
-                thNotify.send("Error retrieving job data!", "danger", true);
-                $log.error(data);
-                prependResultSets(repoName, []);
-            });
-        }
-    };
-
     var fetchResultSets = function(repoName, count){
         /**
          * Get the next batch of resultsets based on our current offset.
@@ -914,7 +811,6 @@ treeherder.factory('ThResultSetModel', [
         addRepository: addRepository,
         aggregateJobPlatform: aggregateJobPlatform,
         fetchJobs: fetchJobs,
-        fetchNewResultSets: fetchNewResultSets,
         fetchResultSets: fetchResultSets,
         getAllShownJobs: getAllShownJobs,
         getJobMap: getJobMap,
@@ -927,8 +823,6 @@ treeherder.factory('ThResultSetModel', [
         getUnclassifiedFailureCount: getUnclassifiedFailureCount,
         isNotLoaded: isNotLoaded,
         loadRevisions: loadRevisions,
-        processSocketData: processSocketData,
-        processUpdateQueues: processUpdateQueues,
         setSelectedJob: setSelectedJob,
         updateUnclassifiedFailureMap: updateUnclassifiedFailureMap,
         defaultResultSetCount: defaultResultSetCount
