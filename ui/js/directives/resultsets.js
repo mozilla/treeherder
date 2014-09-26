@@ -73,51 +73,49 @@ treeherder.directive('thResultStatusCount', [
     'thJobFilters', '$rootScope', 'thEvents',
     function (thJobFilters, $rootScope, thEvents) {
 
-    var updateResultCount = function(scope) {
-        if(scope.resultset.job_counts === undefined){
-            scope.resultCount = 0;
-        } else{
+    var resultCount = 0;
+
+    var updateResultCount = function(scope, rsCountEl) {
+        if(scope.resultset.job_counts) {
+
             scope.resultCount = (scope.resultset.job_counts[scope.resultStatus] || 0) -
                             thJobFilters.getCountExcluded(scope.resultset.id, scope.resultStatus);
+            rsCountEl.find(".rs-count-number").html(scope.resultCount);
+
+            if (scope.resultCount) {
+                rsCountEl.removeClass(scope.classifiedClass);
+                rsCountEl.addClass(scope.unclassifiedClass);
+            } else {
+                rsCountEl.addClass(scope.classifiedClass);
+                rsCountEl.removeClass(scope.unclassifiedClass);
+            }
         }
     };
 
     return {
         restrict: "E",
         link: function(scope, element, attrs) {
-            var resultStatusCountClassPrefix = scope.getCountClass(scope.resultStatus);
+            scope.resultStatusCountClassPrefix = scope.getCountClass(scope.resultStatus);
+            scope.unclassifiedClass = scope.resultStatusCountClassPrefix + "-count-unclassified";
+            scope.classifiedClass = scope.resultStatusCountClassPrefix + "-count-classified";
+
             var resultCountText = scope.getCountText(scope.resultStatus);
             var resultCountTitleText = "toggle " + scope.resultStatus;
 
-            updateResultCount(scope);
-            scope.unclassifiedResultCount = scope.resultCount;
+            var rsCountEl = $(element).find(".result-status-count");
+            updateResultCount(scope, element);
 
-            var getCountAlertClass = function() {
-                if (scope.unclassifiedResultCount) {
-                    return resultStatusCountClassPrefix + "-count-unclassified";
-                } else {
-                    return resultStatusCountClassPrefix + "-count-classified";
-                }
-            };
-            scope.countAlertClass = getCountAlertClass();
-
-            scope.$watch("resultset.job_counts", function(newValue) {
-                updateResultCount(scope);
-                scope.unclassifiedResultCount = scope.resultCount;
-                scope.countAlertClass = getCountAlertClass();
-            }, true);
+            rsCountEl.prop('title', resultCountTitleText);
+            rsCountEl.find('.rs-count-text').html(resultCountText);
 
             // so that when you toggle skipping the exclusion profiles,
             // we update the counts to reflect what is seen.
             $rootScope.$on(thEvents.globalFilterChanged, function(evt) {
-                if (!thJobFilters.isSkippingExclusionProfiles()) {
-                    updateResultCount(scope);
-                }
+                updateResultCount(scope, rsCountEl);
             });
-
-            var rsCountEl = $(element).find(".result-status-count");
-            rsCountEl.prop('title', resultCountTitleText);
-            rsCountEl.find('.count-text').html(resultCountText);
+            $rootScope.$on(thEvents.applyNewJobs, function(evt) {
+                updateResultCount(scope, rsCountEl);
+            });
         },
         templateUrl: 'partials/main/thResultStatusCount.html'
     };
