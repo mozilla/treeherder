@@ -6,6 +6,7 @@ import json
 import pytest
 from django.core.management import call_command
 from webtest.app import TestApp
+import responses
 
 from thclient.client import TreeherderRequest
 
@@ -367,3 +368,14 @@ def mock_get_remote_content(monkeypatch):
 
     import treeherder.etl.common
     monkeypatch.setattr(treeherder.etl.common, 'get_remote_content', _get_remote_content)
+
+
+@pytest.fixture
+def activate_responses(request):
+
+    responses.start()
+
+    def fin():
+        responses.stop()
+
+    request.addfinalizer(fin)

@@ -133,6 +133,6 @@ class OAuthLoaderMixin(object):
 
             if not response or response.status != 200:
                 message = response.read()
-                logger.error("collection loading failed: {0}".format(message))
+                raise Exception('collection loading failed: {0}'.format(message))
 
 

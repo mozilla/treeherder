@@ -1,9 +1,11 @@
+from operator import itemgetter
 from django.core.cache import cache
-
+from django.conf import settings
+import requests
 from thclient import TreeherderRequest, TreeherderResultSetCollection
 
 from .mixins import JsonExtractorMixin, OAuthLoaderMixin
-from treeherder.etl.common import generate_revision_hash, generate_result_set_cache_key
+from treeherder.etl.common import generate_revision_hash
 
 
 class HgPushlogTransformerMixin(object):
@@ -11,7 +13,6 @@ class HgPushlogTransformerMixin(object):
     def transform(self, pushlog,  repository):
 
         # this contain the whole list of transformed pushes
-        result_sets = []
 
         th_collections = {}
 
@@ -47,15 +48,6 @@ class HgPushlogTransformerMixin(object):
 
             result_set['revision_hash'] = generate_revision_hash(rev_hash_components)
 
-            cached_revision_hash = cache.get(
-                generate_result_set_cache_key(
-                    repository, result_set['revision_hash']
-                    ) )
-
-            if cached_revision_hash == result_set['revision_hash']:
-                # Result set is already loaded
-                continue
-
             if repository not in th_collections:
                 th_collections[ repository ] = TreeherderResultSetCollection()
 
@@ -65,21 +57,49 @@ class HgPushlogTransformerMixin(object):
         return th_collections
 
 
-class HgPushlogProcess(JsonExtractorMixin,
-                       HgPushlogTransformerMixin,
+class HgPushlogProcess(HgPushlogTransformerMixin,
                        OAuthLoaderMixin):
 
+    def extract(self, url):
+        response = requests.get(url, timeout=settings.TREEHERDER_REQUESTS_TIMEOUT)
+        response.raise_for_status()
+        return response.json()
+
     def run(self, source_url, repository):
-        extracted_content = self.extract(source_url)
-        if extracted_content:
-            self.load(
-                self.transform(
-                    extracted_content,
-                    repository
+
+        # get the last object seen from cache. this will
+        # reduce the number of pushes processed every time
+        last_push = cache.get("{0}:last_push".format(repository))
+        if last_push:
+            try:
+                # make an attempt to use the last revision cached
+                extracted_content = self.extract(
+                    source_url+"&fromchange="+last_push
                 )
+            except requests.exceptions.HTTPError, e:
+                # in case of a 404 error, delete the cache key
+                # and try it without any parameter
+                if e.response.status_code == 404:
+                    cache.delete("{0}:last_push".format(repository))
+                    extracted_content = self.extract(source_url)
+                else:
+                    raise e
+        else:
+            extracted_content = self.extract(source_url)
+
+        if extracted_content:
+            sorted_pushlog = sorted(extracted_content.values(),
+                                    key=itemgetter('date'), reverse=True)
+            last_push = sorted_pushlog[0]
+            top_revision = last_push["changesets"][0]["node"]
+
+            transformed = self.transform(
+                extracted_content,
+                repository
             )
+            self.load(transformed)
 
-
+            cache.set("{0}:last_push".format(repository), top_revision)
 
 
 class GitPushlogTransformerMixin(object):

@@ -26,7 +26,6 @@ from .base import TreeherderModelBase, ObjectNotFoundException
 from datasource.DataHub import DataHub
 
 from treeherder.etl.perf_data_adapters import TalosDataAdapter
-from treeherder.etl.common import generate_result_set_cache_key
 
 logger = logging.getLogger(__name__)
 
@@ -60,9 +59,6 @@ class JobsModel(TreeherderModelBase):
     ]
     INCOMPLETE_STATES = ["running", "pending"]
     STATES = INCOMPLETE_STATES + ["completed", "coalesced"]
-
-    # Set timeout (seconds) to 48 hours
-    RESULT_SET_CACHE_TIMEOUT = (60 * 60) * 48
 
     # indexes of specific items in the ``job_placeholder`` objects
     JOB_PH_JOB_GUID = 0
@@ -2589,17 +2585,10 @@ class JobsModel(TreeherderModelBase):
         # result_set ids and submit publish to pulse tasks.
         if inserted_result_sets and lastrowid > 0:
 
-            cache_data = {}
             for revision_hash in inserted_result_sets:
                 inserted_result_set_ids.append(
                     result_set_id_lookup[revision_hash]['id']
                     )
-
-                key = generate_result_set_cache_key(
-                    self.project, revision_hash
-                    )
-
-                cache_data[key] = revision_hash
 
             # Insert new revisions
             dhub.execute(
@@ -2607,11 +2596,6 @@ class JobsModel(TreeherderModelBase):
                 placeholders=revision_placeholders,
                 executemany=True,
                 debug_show=self.DEBUG
-                )
-
-            cache.set_many(
-                cache_data,
-                self.RESULT_SET_CACHE_TIMEOUT
                 )
 
         # Retrieve new revision ids
