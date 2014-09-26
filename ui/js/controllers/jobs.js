@@ -2,12 +2,12 @@
 
 treeherder.controller('JobsCtrl', [
     '$scope', '$http', '$rootScope', '$routeParams', 'ThLog', '$cookies',
-    'localStorageService', 'thUrl', 'ThRepositoryModel', 'thSocket',
+    'localStorageService', 'thUrl', 'ThRepositoryModel',
     'ThResultSetModel', 'thResultStatusList', '$location', 'thEvents',
     'ThJobModel',
     function JobsCtrl(
         $scope, $http, $rootScope, $routeParams, ThLog, $cookies,
-        localStorageService, thUrl, ThRepositoryModel, thSocket,
+        localStorageService, thUrl, ThRepositoryModel,
         ThResultSetModel, thResultStatusList, $location, thEvents, ThJobModel) {
 
         var $log = new ThLog(this.constructor.name);
@@ -88,10 +88,6 @@ treeherder.controller('JobsCtrl', [
             }
 
         };
-
-//        thSocket.on("job_classification", updateClassification);
-
-
     }
 ]);
 

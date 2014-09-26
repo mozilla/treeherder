@@ -1022,7 +1022,7 @@ treeherder.directive('thCloneJobs', [
                         );
 
                     /**************
-                      Resultset job pollers and socketio updates can
+                      Resultset job pollers updates can
                       trigger re-rendering rows at anytime during a
                       session, this can give the appearance of sluggishness
                       in the UI. Use defer to avoid rendering jankiness

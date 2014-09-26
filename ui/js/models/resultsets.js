@@ -18,7 +18,6 @@ treeherder.factory('ThResultSetModel', [
     *
     * manages:
     *     resultset array
-    *     socket messages
     *     resultset queue
     *     resultset map
     *     job queue
@@ -181,11 +180,6 @@ treeherder.factory('ThResultSetModel', [
                 //This is set to the id of the last resultset loaded
                 //and used as the offset in paging
                 rsOffsetId:0,
-
-                // queues of updates that have come over socket.io.
-                // Processed at intervals
-                jobUpdateQueue:[],
-                rsUpdateQueue:[],
 
                 lastJobElSelected:{},
                 lastJobObjSelected:{},
