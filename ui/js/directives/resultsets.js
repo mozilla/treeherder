@@ -51,7 +51,7 @@ treeherder.directive('thResultCounts', [
 
             var setTotalCount = function() {
                 if (scope.resultset.job_counts) {
-                    $(element).find('.result-status-total-count').html(
+                    $(element).find('.result-status-total-value').html(
                         scope.resultset.job_counts.total - scope.totalExcluded()
                     );
                 }
