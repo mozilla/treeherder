@@ -2,12 +2,12 @@
 
 treeherder.factory('ThResultSetModel', [
     '$rootScope', '$q', '$location', '$interval',
-    'thResultSets', 'thSocket', 'ThJobModel', 'thEvents',
+    'thResultSets', 'ThJobModel', 'thEvents',
     'thAggregateIds', 'ThLog', 'thNotify', 'thJobFilters',
     'ThRepositoryModel',
     function(
         $rootScope, $q, $location, $interval, thResultSets,
-        thSocket, ThJobModel, thEvents, thAggregateIds, ThLog, thNotify,
+        ThJobModel, thEvents, thAggregateIds, ThLog, thNotify,
         thJobFilters, ThRepositoryModel) {
 
     var $log = new ThLog("ThResultSetModel");

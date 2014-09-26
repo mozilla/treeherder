@@ -38,6 +38,7 @@ body {
 
 .navbar-brand {
     line-height: 2px;
+    height: 32px;
 }
 .navbar .dropdown-menu {
     max-height: 600px;
