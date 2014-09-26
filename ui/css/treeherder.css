@@ -716,6 +716,7 @@ ul.failure-summary-list li .btn-xs {
     min-height: 60px;
     max-height: 120px;
     overflow: auto;
+    color: black;
 }
 
 /* Spin button suppression on chrome */

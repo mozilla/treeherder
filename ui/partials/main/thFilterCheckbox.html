@@ -2,6 +2,5 @@
     <input type="checkbox"
            id="{{filterName}}"
            ng-model="resultStatusFilters[filterName]"
-           ng-change="toggleResultStatusFilter(group, filterName)"
-           ng-bind="filterName">
+           ng-change="toggleResultStatusFilter(group, filterName)">{{filterName}}
 </label>
