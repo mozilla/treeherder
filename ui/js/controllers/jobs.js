@@ -89,7 +89,7 @@ treeherder.controller('JobsCtrl', [
 
         };
 
-        thSocket.on("job_classification", updateClassification);
+//        thSocket.on("job_classification", updateClassification);
 
 
     }

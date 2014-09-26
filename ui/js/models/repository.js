@@ -75,24 +75,24 @@ treeherder.factory('ThRepositoryModel', [
         });
 
         // Add a connect listener
-        thSocket.on('connect',function() {
-            // subscribe to all the events for this repo
-            thSocket.emit('subscribe', repoName);
-        });
+//        thSocket.on('connect',function() {
+//            // subscribe to all the events for this repo
+//            thSocket.emit('subscribe', repoName);
+//        });
 
         // setup to listen for the socket events that notify us of the
         // current count of unclassified failures.
-        thSocket.on(
-            "unclassified_failure_count",
-            function(data) {
-                if (data.branch === repoName) {
-
-                    $log.debug("event unclassified_failure_count", data);
-                    repos[repoName].unclassifiedFailureCount = data.count;
-                    repos[repoName].unclassifiedFailureCountExcluded = data.count_excluded;
-                }
-            }
-        );
+//        thSocket.on(
+//            "unclassified_failure_count",
+//            function(data) {
+//                if (data.branch === repoName) {
+//
+//                    $log.debug("event unclassified_failure_count", data);
+//                    repos[repoName].unclassifiedFailureCount = data.count;
+//                    repos[repoName].unclassifiedFailureCountExcluded = data.count_excluded;
+//                }
+//            }
+//        );
 
         $log.debug("watchedRepo", repoName, repos[repoName]);
     };

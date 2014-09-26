@@ -36,7 +36,7 @@ treeherder.factory('ThResultSetModel', [
     var resultSetPollInterval = 60000;
     var jobPollInterval = 90000;
     var pollDelayMin = 1000;
-    var pollDelayMax = 20000;
+    var pollDelayMax = 60000;
 
     var noPollingParameters = [
         'fromchange', 'tochange', 'startdate', 'enddate', 'revision'

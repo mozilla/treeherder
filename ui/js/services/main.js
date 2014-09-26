@@ -33,10 +33,10 @@ treeherder.factory('thSocket', [
 
     var $log = new ThLog("thSocket");
 
-    var socket = io.connect(thUrl.getSocketEventUrl());
-    socket.on('connect', function () {
-        $log.debug('socketio connected');
-    });
+//    var socket = io.connect(thUrl.getSocketEventUrl());
+//    socket.on('connect', function () {
+//        $log.debug('socketio connected');
+//    });
     return {
         on: function (eventName, callback) {
             socket.on(eventName, function () {
