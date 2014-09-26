@@ -528,6 +528,8 @@ GROUP_NAMES = {
     "SpiderMonkey GGC Shell Build": "SpiderMonkey",
     "SpiderMonkey Hazard Analysis Build": "SpiderMonkey",
     "SpiderMonkey Root Analysis Build": "SpiderMonkey",
+    "W3C Web Platform Tests": "W3C Web Platform Tests",
+    "W3C Web Platform Reftests": "W3C Web Platform Tests",
     "Talos Performance": "Talos Performance",
     "Talos canvasmark": "Talos Performance",
     "Talos chrome": "Talos Performance",
@@ -680,6 +682,8 @@ SYMBOLS = {
     "Reftest OMTC": "Ro",
     "Reftest Sanity": "Rs",
     "Reftest Unaccelerated": "Ru",
+    "W3C Web Platform Tests": "W",
+    "W3C Web Platform Reftests": "Wr",
 
     # All other unit tests, sorted alphabetically by symbol.
     "CPP Unit Tests": "Cpp",
@@ -698,8 +702,6 @@ SYMBOLS = {
     "Marionette WebAPI Tests": "Mnw",
     "Android x86 Test Set": "S",
     "Android x86 Test Combos": "Sets",
-    "W3C Web Platform Tests": "W",
-    "W3C Web Platform Reftests": "Wr",
     "XPCShell": "X",
     "Mozmill": "Z",
 
@@ -811,9 +813,9 @@ def get_symbol(name, bn):
     nummatch = NUMBER_RE.match(bn)
     n = nummatch.group(1) if nummatch else ""
 
-    # For multi-part Mochitest, Mochitest-e10s and Mochitest OOP jobs
-    # display only the job part number, and not the letters.
-    if n and s in ["M", "M-e10s", "M-oop"]:
+    # For multi-part Mochitest, Mochitest-e10s, Mochitest OOP & W3C Web Platform
+    # jobs, display only the job part number and not the letters.
+    if n and s in ["M", "M-e10s", "M-oop", "W"]:
         return n
 
     return "{0}{1}".format(s, n)
