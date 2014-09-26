@@ -5,10 +5,6 @@
             title="{{titleText|stripHtml}}"
             class="watched-repo-main-btn btn btn-sm {{btnClass}}">
         <i class="fa {{statusIcon}} {{statusColor}}"></i> {{name}}
-        <span class="watched-repo-spacer"></span>
-        <span ng-show="adjustedUnclassifiedFailureCount > 0">
-            <strong>{{ adjustedUnclassifiedFailureCount }}</strong>
-        </span>
     </button>
     <button class="watched-repo-info-btn btn btn-sm {{btnClass}} dropdown-toggle"
             ng-class="{'active': name===repoName}"
@@ -23,9 +19,9 @@
             ng-hide="name===repoName"
             ng-click="repoModel.unwatchRepo(name)"
             title="unwatch {{name}}"><span class="fa fa-times"></span></button>
-    <th-repo-drop-down name="{{name}}"
+    <th-watched-repo-info-drop-down name="{{name}}"
                        reason="{{repoData.treeStatus.reason}}"
                        message_of_the_day="{{repoData.treeStatus.message_of_the_day}}">
-    </th-repo-drop-down>
+    </th-watched-repo-info-drop-down>
 </span>
 

@@ -17,46 +17,10 @@ treeherder.factory('thUrl', [
         },
         getLogViewerUrl: function(job_id) {
             return "logviewer.html#?job_id=" + job_id + "&repo=" + $rootScope.repoName;
-        },
-        getSocketEventUrl: function() {
-            var port = thServiceDomain.indexOf("https:") !== -1 ? 443 :80;
-            return thServiceDomain + ':' + port + '/events';
         }
    };
    return thUrl;
 
-}]);
-
-treeherder.factory('thSocket', [
-    '$rootScope', 'ThLog', 'thUrl',
-    function ($rootScope, ThLog, thUrl) {
-
-    var $log = new ThLog("thSocket");
-
-    var socket = io.connect(thUrl.getSocketEventUrl());
-    socket.on('connect', function () {
-        $log.debug('socketio connected');
-    });
-    return {
-        on: function (eventName, callback) {
-            socket.on(eventName, function () {
-                var args = arguments;
-                $rootScope.$apply(function () {
-                    callback.apply(socket, args);
-                });
-            });
-        },
-        emit: function (eventName, data, callback) {
-            socket.emit(eventName, data, function () {
-                var args = arguments;
-                $rootScope.$apply(function () {
-                    if (callback) {
-                        callback.apply(socket, args);
-                    }
-                });
-            });
-        }
-    };
 }]);
 
 treeherder.factory('thCloneHtml', [

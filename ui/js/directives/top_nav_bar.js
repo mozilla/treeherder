@@ -51,22 +51,9 @@ treeherder.directive('thWatchedRepo', [
         restrict: "E",
         link: function(scope, element, attrs) {
 
-            scope.updateCount = function() {
-                if (scope.repoData.groupName !== "try") {
-                    scope.adjustedUnclassifiedFailureCount = scope.getTimeWindowUnclassifiedFailureCount(
-                        scope.name);
-                }
-            };
-
             scope.updateTitleText = function() {
                 if (scope.repoData.treeStatus) {
                     scope.titleText = scope.repoData.treeStatus.status;
-                    if (scope.adjustedUnclassifiedFailureCount > 0 &&
-                        scope.repoData.groupName !== "try") {
-                        scope.titleText = scope.titleText + ' - ' +
-                            scope.adjustedUnclassifiedFailureCount +
-                            " unclassified failures in last 24 hours";
-                    }
                     if (scope.repoData.treeStatus.message_of_the_day) {
                         scope.titleText = scope.titleText + ' - ' +
                             scope.repoData.treeStatus.message_of_the_day;
@@ -76,26 +63,44 @@ treeherder.directive('thWatchedRepo', [
 
             scope.btnClass = "btn-view-nav";
 
-            scope.$watch('repoData', function(newVal) {
-                if (newVal.treeStatus) {
-                    $log.debug("updated treeStatus", newVal.treeStatus.status);
-                    scope.statusIcon = statusInfo[newVal.treeStatus.status].icon;
-                    scope.statusColor = statusInfo[newVal.treeStatus.status].color;
-                    scope.btnClass = statusInfo[newVal.treeStatus.status].btnClass;
-                    scope.updateCount();
+            scope.$watch('repoData.treeStatus.status', function(newVal) {
+                if (newVal) {
+                    $log.debug("updated treeStatus", newVal);
+                    var si = statusInfo[newVal];
+                    scope.statusIcon = si.icon;
+                    scope.statusColor = si.color;
+                    scope.btnClass = si.btnClass;
                     scope.updateTitleText();
                 }
-            }, true);
-
-            scope.$watch('isSkippingExclusionProfiles()', function(newVal) {
-                scope.updateCount();
-                scope.updateTitleText();
             });
-
         },
         templateUrl: 'partials/main/thWatchedRepo.html'
     };
 }]);
+
+treeherder.directive('thWatchedRepoInfoDropDown', [
+    'ThLog', 'ThRepositoryModel', 'treeStatus',
+    function (ThLog, ThRepositoryModel, treeStatus) {
+
+    return {
+        restrict: "E",
+        replace: true,
+        link: function(scope, element, attrs) {
+            scope.name = attrs.name;
+            scope.treeStatus = treeStatus.getTreeStatusName(attrs.name);
+            var repo_obj = ThRepositoryModel.getRepo(attrs.name);
+            scope.pushlog = repo_obj.url + "/pushloghtml";
+            scope.$watch('repoData.treeStatus', function (newVal) {
+                if (newVal) {
+                    scope.reason = newVal.reason;
+                    scope.message_of_the_day = newVal.message_of_the_day;
+                }
+            }, true);
+        },
+        templateUrl: 'partials/main/thWatchedRepoInfoDropDown.html'
+    };
+}]);
+
 
 treeherder.directive('thRepoDropdownContainer', [
     'ThLog', '$rootScope', 'thEvents',
@@ -131,5 +136,26 @@ treeherder.directive('thRepoDropdownContainer', [
             });
 
         }
+    };
+}]);
+
+treeherder.directive('thRepoMenuItem', [
+    'ThLog',
+    function (ThLog) {
+
+    var $log = new ThLog("thRepoMenuItem");
+
+    return {
+        restrict: "E",
+        replace: true,
+        link: function(scope, element, attrs) {
+            var elem = $(element);
+            elem.find('.repo-link').prop('href', "./#/jobs?repo=" +  scope.repo.name);
+            if (scope.repo.name === scope.repoName) {
+                elem.find('.repo-checkbox').prop('disabled', 'disabled');
+            }
+
+        },
+        templateUrl: 'partials/main/thRepoMenuItem.html'
     };
 }]);

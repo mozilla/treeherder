@@ -2,10 +2,10 @@
 
 treeherder.factory('ThRepositoryModel', [
     '$http', 'thUrl', '$rootScope', 'ThLog', '$interval',
-    'thSocket', 'treeStatus', 'thRepoGroupOrder',
+    'treeStatus', 'thRepoGroupOrder',
     function(
         $http, thUrl, $rootScope, ThLog, $interval,
-        thSocket, treeStatus, thRepoGroupOrder) {
+        treeStatus, thRepoGroupOrder) {
 
     var $log = new ThLog("ThRepositoryModel");
 
@@ -65,34 +65,6 @@ treeherder.factory('ThRepositoryModel', [
         watchedRepos[repoName] = repos[repoName];
         updateTreeStatus(repoName);
         watchedReposUpdated();
-
-        // fetch the
-        // current count of unclassified failures, rather than waiting
-        // for the socket event to be published.
-        $http.get(thUrl.getProjectUrl("/jobs/0/unclassified_failure_count/", repoName)).then(function(response) {
-            repos[repoName].unclassifiedFailureCount = response.data.count;
-            repos[repoName].unclassifiedFailureCountExcluded = response.data.count_excluded;
-        });
-
-        // Add a connect listener
-        thSocket.on('connect',function() {
-            // subscribe to all the events for this repo
-            thSocket.emit('subscribe', repoName);
-        });
-
-        // setup to listen for the socket events that notify us of the
-        // current count of unclassified failures.
-        thSocket.on(
-            "unclassified_failure_count",
-            function(data) {
-                if (data.branch === repoName) {
-
-                    $log.debug("event unclassified_failure_count", data);
-                    repos[repoName].unclassifiedFailureCount = data.count;
-                    repos[repoName].unclassifiedFailureCountExcluded = data.count_excluded;
-                }
-            }
-        );
 
         $log.debug("watchedRepo", repoName, repos[repoName]);
     };

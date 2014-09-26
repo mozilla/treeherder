@@ -3,13 +3,13 @@
 treeherder.controller('PluginCtrl', [
     '$scope', '$rootScope', '$location', 'thUrl', 'ThJobClassificationModel',
     'thClassificationTypes', 'ThJobModel', 'thEvents', 'dateFilter',
-    'numberFilter', 'ThBugJobMapModel', 'thResultStatus', 'thSocket',
+    'numberFilter', 'ThBugJobMapModel', 'thResultStatus',
     'ThResultSetModel', 'ThLog', '$q', 'thPinboard', 'ThJobArtifactModel',
     'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'thTabs',
     function PluginCtrl(
         $scope, $rootScope, $location, thUrl, ThJobClassificationModel,
         thClassificationTypes, ThJobModel, thEvents, dateFilter,
-        numberFilter, ThBugJobMapModel, thResultStatus, thSocket,
+        numberFilter, ThBugJobMapModel, thResultStatus,
         ThResultSetModel, ThLog, $q, thPinboard, ThJobArtifactModel,
         thBuildApi, thNotify, ThJobLogUrlModel, thTabs) {
 

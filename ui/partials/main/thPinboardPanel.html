@@ -33,7 +33,7 @@
 </div>
 <div id="pinboard-classification">
   <div class="header"><i class="fa fa-star"></i> classification</div>
-  <div class="content">
+  <div id="pinboard-classification-content" class="content">
     <form ng-submit="saveNewClassification()" class="form">
       <select ng-model="classification.failure_classification_id"
               ng-options="item.id as item.name for item in classificationTypes.classificationOptions">
@@ -54,6 +54,7 @@
   <div class="btn-group"
        ng-show="hasPinnedJobs()">
     <button class="btn btn-default btn-xs save-btn"
+            type="button"
             title="save classification and bug associations"
             ng-click="save()">
       <span class="glyphicon glyphicon-floppy-disk pull-left"></span> save

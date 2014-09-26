@@ -193,15 +193,13 @@ treeherder.provider('thEvents', function() {
             // fired when the user middle-clicks on a job to view the log
             jobContextMenu: "job-context-menu-EVT",
 
-            // fired when jobs are either classified locally, or we are
-            // notified about a classification over socket.io
+            // fired when jobs are classified locally
             jobsClassified: "jobs-classified-EVT",
 
-            // fired when bugs are associated to jobs locally, or we are
-            // notified about a bug association over socket.io
+            // fired when bugs are associated to jobs locally
             bugsAssociated: "bugs-associated-EVT",
 
-            // after loading a group of jobs queued during socket.io events
+            // after loading a group of jobs
             jobsLoaded: "jobs-loaded-EVT",
 
             // fired when a global filter has changed

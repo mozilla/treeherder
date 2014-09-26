@@ -2,12 +2,12 @@
 
 treeherder.controller('JobsCtrl', [
     '$scope', '$http', '$rootScope', '$routeParams', 'ThLog', '$cookies',
-    'localStorageService', 'thUrl', 'ThRepositoryModel', 'thSocket',
+    'localStorageService', 'thUrl', 'ThRepositoryModel',
     'ThResultSetModel', 'thResultStatusList', '$location', 'thEvents',
     'ThJobModel',
     function JobsCtrl(
         $scope, $http, $rootScope, $routeParams, ThLog, $cookies,
-        localStorageService, thUrl, ThRepositoryModel, thSocket,
+        localStorageService, thUrl, ThRepositoryModel,
         ThResultSetModel, thResultStatusList, $location, thEvents, ThJobModel) {
 
         var $log = new ThLog(this.constructor.name);
@@ -37,7 +37,7 @@ treeherder.controller('JobsCtrl', [
         $scope.searchParams = $location.search();
         $scope.locationHasSearchParam = function(prop) {
             return _.has($scope.searchParams, prop);
-        }
+        };
 
         // determine how many resultsets to fetch.  default to 10.
         var count = ThResultSetModel.defaultResultSetCount;
@@ -88,10 +88,6 @@ treeherder.controller('JobsCtrl', [
             }
 
         };
-
-        thSocket.on("job_classification", updateClassification);
-
-
     }
 ]);
 
@@ -100,12 +96,12 @@ treeherder.controller('ResultSetCtrl', [
     '$scope', '$rootScope', '$http', 'ThLog', '$location',
     'thUrl', 'thServiceDomain', 'thResultStatusInfo',
     'ThResultSetModel', 'thEvents', 'thJobFilters', 'thNotify',
-    'thBuildApi', 'thPinboard', 'thResultSets',
+    'thBuildApi', 'thPinboard', 'thResultSets', 'dateFilter',
     function ResultSetCtrl(
         $scope, $rootScope, $http, ThLog, $location,
         thUrl, thServiceDomain, thResultStatusInfo,
         ThResultSetModel, thEvents, thJobFilters, thNotify,
-        thBuildApi, thPinboard, thResultSets) {
+        thBuildApi, thPinboard, thResultSets, dateFilter) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -228,6 +224,7 @@ treeherder.controller('ResultSetCtrl', [
         };
 
         $scope.revisionResultsetFilterUrl = $scope.urlBasePath + "?repo=" + $scope.repoName + "&revision=" + $scope.resultset.revision;
+        $scope.resultsetDateStr = dateFilter($scope.resultset.push_timestamp*1000, 'medium');
         $scope.authorResultsetFilterUrl = $scope.urlBasePath + "?repo=" + $scope.repoName + "&author=" + encodeURIComponent($scope.resultset.author);
 
         $scope.resultStatusFilters = thJobFilters.copyResultStatusFilters();

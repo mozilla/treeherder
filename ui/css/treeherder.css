@@ -38,6 +38,7 @@ body {
 
 .navbar-brand {
     line-height: 2px;
+    height: 32px;
 }
 .navbar .dropdown-menu {
     max-height: 600px;
@@ -715,6 +716,7 @@ ul.failure-summary-list li .btn-xs {
     min-height: 60px;
     max-height: 120px;
     overflow: auto;
+    color: black;
 }
 
 /* Spin button suppression on chrome */
@@ -735,6 +737,10 @@ ul.failure-summary-list li .btn-xs {
     padding: 5px;
 }
 
+#pinboard-classification-content {
+    color: black;
+}
+
 #pinboard-classification select {
     width: 177px;
 }
@@ -742,6 +748,7 @@ ul.failure-summary-list li .btn-xs {
 #pinboard-classification textarea {
     width: 177px;
     margin-top: 5px;
+    height: 37px;
 }
 
 #pinboard-controls-close-button-container {
@@ -764,6 +771,14 @@ ul.failure-summary-list li .btn-xs {
 
 #pinboard-controls .save-btn-dropdown {
     margin-left: -5px;
+    display: inline;
+    width: 18px;
+}
+
+#pinboard-controls .save-btn {
+    /*margin-left: -5px;*/
+    display: inline;
+    width: 70px;
 }
 
 
