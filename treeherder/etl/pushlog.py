@@ -1,6 +1,7 @@
 from operator import itemgetter
 from django.core.cache import cache
-
+from django.conf import settings
+import requests
 from thclient import TreeherderRequest, TreeherderResultSetCollection
 
 from .mixins import JsonExtractorMixin, OAuthLoaderMixin
@@ -56,9 +57,13 @@ class HgPushlogTransformerMixin(object):
         return th_collections
 
 
-class HgPushlogProcess(JsonExtractorMixin,
-                       HgPushlogTransformerMixin,
+class HgPushlogProcess(HgPushlogTransformerMixin,
                        OAuthLoaderMixin):
+
+    def extract(self, url):
+        response = requests.get(url, timeout=settings.TREEHERDER_REQUESTS_TIMEOUT)
+        response.raise_for_status()
+        return response.json()
 
     def run(self, source_url, repository):
 
@@ -66,9 +71,22 @@ class HgPushlogProcess(JsonExtractorMixin,
         # reduce the number of pushes processed every time
         last_push = cache.get("{0}:last_push".format(repository))
         if last_push:
-            source_url += "&fromchange=" + last_push
+            try:
+                # make an attempt to use the last revision cached
+                extracted_content = self.extract(
+                    source_url+"&fromchange="+last_push
+                )
+            except requests.exceptions.HTTPError, e:
+                # in case of a 404 error, delete the cache key
+                # and try it without any parameter
+                if e.response.status_code == 404:
+                    cache.delete("{0}:last_push".format(repository))
+                    extracted_content = self.extract(source_url)
+                else:
+                    raise e
+        else:
+            extracted_content = self.extract(source_url)
 
-        extracted_content = self.extract(source_url)
         if extracted_content:
             sorted_pushlog = sorted(extracted_content.values(),
                                     key=itemgetter('date'), reverse=True)
