@@ -31,7 +31,7 @@
     "fields": {
         "dvcs_type": "hg",
         "name": "b2g-inbound",
-        "url": "https://hg.mozilla.org/integration/b2g-inbound/",
+        "url": "https://hg.mozilla.org/integration/b2g-inbound",
         "active_status": "active",
         "codebase": "gecko",
         "repository_group": 1,
