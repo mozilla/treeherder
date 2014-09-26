@@ -99,7 +99,7 @@ treeherder.controller('MainCtrl', [
         $scope.setDropDownPull = function(event) {
             $log.debug("dropDown", event.target);
             var element = event.target.offsetParent;
-            if (element.offsetLeft > $scope.getWidth() / 2) {
+            if (element.offsetLeft > $(window).width() / 2) {
                 $(element).find(".dropdown-menu").addClass("pull-right");
             } else {
                 $(element).find(".dropdown-menu").removeClass("pull-right");
@@ -112,7 +112,6 @@ treeherder.controller('MainCtrl', [
         };
 
         $scope.getUnclassifiedFailureCount = function(repoName) {
-            // TODO  Not yet honoring excluded jobs
             return ThResultSetModel.getUnclassifiedFailureCount(repoName);
         };
 

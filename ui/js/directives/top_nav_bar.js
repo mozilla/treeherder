@@ -78,6 +78,30 @@ treeherder.directive('thWatchedRepo', [
     };
 }]);
 
+treeherder.directive('thWatchedRepoInfoDropDown', [
+    'ThLog', 'ThRepositoryModel', 'treeStatus',
+    function (ThLog, ThRepositoryModel, treeStatus) {
+
+    return {
+        restrict: "E",
+        replace: true,
+        link: function(scope, element, attrs) {
+            scope.name = attrs.name;
+            scope.treeStatus = treeStatus.getTreeStatusName(attrs.name);
+            var repo_obj = ThRepositoryModel.getRepo(attrs.name);
+            scope.pushlog = repo_obj.url + "/pushloghtml";
+            scope.$watch('repoData.treeStatus', function (newVal) {
+                if (newVal) {
+                    scope.reason = newVal.reason;
+                    scope.message_of_the_day = newVal.message_of_the_day;
+                }
+            }, true);
+        },
+        templateUrl: 'partials/main/thWatchedRepoInfoDropDown.html'
+    };
+}]);
+
+
 treeherder.directive('thRepoDropdownContainer', [
     'ThLog', '$rootScope', 'thEvents',
     function (ThLog, $rootScope, thEvents) {
@@ -119,7 +143,7 @@ treeherder.directive('thRepoMenuItem', [
     'ThLog',
     function (ThLog) {
 
-    var $log = new ThLog("thRepoDropdownContainer");
+    var $log = new ThLog("thRepoMenuItem");
 
     return {
         restrict: "E",
