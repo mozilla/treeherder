@@ -28,7 +28,15 @@
               ng-click="pinAllShownJobs()">
           <span class="glyphicon glyphicon-pushpin"></span>
         </span>
+
         <th-action-button ng-hide="isLoadingJobs"></th-action-button>
+
+        <span class="btn btn-default btn-sm"
+              tabindex="0" role="button"
+              title="cancel all jobs in this resultset"
+              ng-click="cancelAllJobs(resultset.revision)">
+          <span class="glyphicon glyphicon-minus-sign"></span>
+        </span>
       </span>
 
       <span class="btn btn-default btn-sm revision-button"

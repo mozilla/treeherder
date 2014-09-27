@@ -333,6 +333,11 @@ th-watched-repo {
     padding-left: 0;
 }
 
+/* Cancel all jobs custom icon size */
+.glyphicon-minus-sign {
+    font-size: 85%;
+}
+
 .revision-text {
     overflow: hidden;
     text-overflow: ellipsis;
