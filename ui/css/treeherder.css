@@ -1476,9 +1476,18 @@ fieldset[disabled] .btn-repo.active {
     color: lightgray;
 }
 
-#help.dt, #help.dd { text-align: center;}
-#help.panel {padding:5px;}
-#help{padding-top:10px;}
+#help {
+    padding: 10px 10px 0px;
+    overflow: auto;
+}
+
+#help.dt, #help.dd {
+    text-align: center;
+}
+
+#help.panel {
+    padding: 5px;
+}
 
 .waiter-small{ background: url("../img/waiter16.png") no-repeat center center; width: 16px; height: 16px; display: inline-block;}
 .waiter-medium{ background: url("../img/waiter32.png") no-repeat center center; width: 32px; height: 32px; display: inline-block;}
