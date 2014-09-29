@@ -176,22 +176,25 @@ treeherder.controller('MainCtrl', [
 
         };
 
-        var getRepoParam = function(urlStr) {
+        /**
+         * Extract the params from the querystring of this url that should
+         * trigger a reload of the page, because it requires new data from
+         * the repo
+         * @param urlStr a full Url as a string
+         * @returns Object containing only the params in ``reloadFields``
+         */
+        var getTriggerParams = function(urlStr) {
             var tokens = urlStr.split("?");
+            var triggerParams = {};
 
             if (tokens.length > 1) {
-                var params = tokens[1];
-                var paramArr = params.split("&");
-                var i;
-                for (i = 0; i < paramArr.length; i++) {
-                    var thisParam = paramArr[i].split("=");
-                    if (thisParam[0] === "repo") {
-                        return thisParam[1];
-                    }
-                }
+                triggerParams = _.pick(
+                    $.deparam(tokens[1]),
+                    ThResultSetModel.reloadOnChangeParameters
+                );
             }
 
-            return "";
+            return triggerParams;
         };
 
         $rootScope.locationPath = $location.path().replace('/', '');
@@ -202,12 +205,10 @@ treeherder.controller('MainCtrl', [
 
         // give the page a way to determine which nav toolbar to show
         $rootScope.$on('$locationChangeSuccess', function(ev,newUrl, oldUrl) {
-            $log.debug("newUrl=", newUrl, "oldUrl=", oldUrl);
+            $log.debug("reload", "newUrl=", newUrl, "oldUrl=", oldUrl);
 
-            $log.debug("check for repo change", "old=", getRepoParam(oldUrl), "new=", getRepoParam(newUrl));
-            var newRepo = getRepoParam(newUrl);
-            if (getRepoParam(oldUrl) !== newRepo) {
-                $location.search({"repo": newRepo});
+            if (!_.isEqual(getTriggerParams(oldUrl),
+                           getTriggerParams(newUrl))) {
                 $window.location.reload();
             } else {
                 thJobFilters.buildFiltersFromQueryString();

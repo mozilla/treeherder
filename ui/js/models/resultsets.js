@@ -37,8 +37,21 @@ treeherder.factory('ThResultSetModel', [
     var pollDelayMin = 1000;
     var pollDelayMax = 60000;
 
+    // if any of these params are in the url, don't poll for new data
     var noPollingParameters = [
         'fromchange', 'tochange', 'startdate', 'enddate', 'revision'
+    ];
+
+    // changes to the url for any of these fields should reload the page
+    // because it changes the query to the db
+    var reloadOnChangeParameters = [
+        'repo',
+        'revision',
+        'author',
+        'fromchange',
+        'tochange',
+        'startdate',
+        'enddate'
     ];
 
     var registerResultSetPollers = function(){
@@ -819,7 +832,8 @@ treeherder.factory('ThResultSetModel', [
         loadRevisions: loadRevisions,
         setSelectedJob: setSelectedJob,
         updateUnclassifiedFailureMap: updateUnclassifiedFailureMap,
-        defaultResultSetCount: defaultResultSetCount
+        defaultResultSetCount: defaultResultSetCount,
+        reloadOnChangeParameters: reloadOnChangeParameters
 
     };
 
