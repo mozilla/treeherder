@@ -377,6 +377,7 @@ th-watched-repo {
 .job-btn {
   padding: 0 2px 0 2px;
   vertical-align: 0;
+  line-height: 1.32;
 }
 
 .table-super-condensed thead > tr > th,
@@ -914,7 +915,7 @@ ul.failure-summary-list li .btn-xs {
  .job-btn.btn-red,
  .job-btn.btn-orange,
  .job-btn.btn-purple {
-    margin: 0 -3px 0 0;
+    margin: 0 -3px 1px 0;
  }
 
 .btn-view-nav {
