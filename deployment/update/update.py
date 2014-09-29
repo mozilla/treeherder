@@ -60,6 +60,9 @@ def update(ctx):
         # Update oauth credentials.
         ctx.local("python2.6 manage.py export_project_credentials")
 
+        # Clear the cache.
+        ctx.local("python2.6 manage.py clear_cache")
+
 
 @task
 def deploy(ctx):
