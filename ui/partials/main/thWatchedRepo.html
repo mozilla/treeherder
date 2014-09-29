@@ -14,7 +14,7 @@
             ng-click="setDropDownPull($event)">
         <span class="fa fa-info-circle"></span>
     </button>
-    <button class="watched-repo-unwatch-btn btn btn-sm btn-view-nav"
+    <button class="watched-repo-unwatch-btn btn btn-sm {{btnClass}}"
             ng-class="{'active': name===repoName}"
             ng-hide="name===repoName"
             ng-click="repoModel.unwatchRepo(name)"

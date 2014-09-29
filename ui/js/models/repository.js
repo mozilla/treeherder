@@ -186,7 +186,10 @@ treeherder.factory('ThRepositoryModel', [
      * @returns a promise
      */
     var updateTreeStatus = function(repoName) {
-        var repoNames = repoName? [repoName]: _.keys(watchedRepos);
+        // The $interval will pass in the number of times it was called,
+        // rather than a ``repoName``.  So repoName would equal 1, 2, 3.  So
+        // if repoName isn't a valid watched repo, we update all.
+        var repoNames = watchedRepos[repoName]? [repoName]: _.keys(watchedRepos);
 
         // filter out non-watched and unsupported repos to prevent repeatedly
         // hitting an endpoint we know will never work.
