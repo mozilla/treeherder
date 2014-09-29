@@ -1,4 +1,5 @@
 import itertools
+import re
 
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -228,8 +229,26 @@ class ResultSetViewSet(viewsets.ViewSet):
             OPT_ORDER.get(get_option(pg, option_collections), 100)
         )
 
+        def get_sortable_job_symbol(symbol):
+            """
+            Sort jobs by symbol.
+
+            Symbol could be something like 1, 2 or 3.  Or A, B, C or R1, R2, R10.
+            So this will pad the numeric portion with 0s like R001, R010, etc.
+            """
+            newsymbol = symbol
+            if symbol.isdigit():
+                newsymbol = symbol.zfill(3)
+            else:
+                x = re.split('(\d+)', symbol)
+                newsymbol = x[0]
+                if len(x) > 1:
+                    newsymbol += x[1].zfill(3)
+
+            return newsymbol
+
         job_group_grouper = lambda jgg: jgg["job_group_symbol"]
-        job_type_grouper = lambda jtg: jtg['job_type_symbol']
+        job_type_grouper = lambda jtg: (get_sortable_job_symbol(jtg['job_type_symbol']))
 
         rs_sorted = sorted(jobs_ungrouped, key=rs_grouper)
         resultsets = []
