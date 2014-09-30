@@ -379,6 +379,8 @@ JOB_NAME_BUILDERNAME = [
     {"regex": re.compile('marionette-webapi$'), "desc": "Marionette WebAPI Tests"},
     {"regex": re.compile('marionette$'), "desc": "Marionette Framework Unit Tests"},
     {"regex": re.compile('androidx86-set'), "desc": "Android x86 Test Set"},
+    {"regex": re.compile('instrumentation-background'), "desc": "Android Instrumentation Background"},
+    {"regex": re.compile('instrumentation-browser'), "desc": "Android Instrumentation Browser"},
     {"regex": re.compile('xpcshell'), "desc": "XPCShell"},
     {"regex": re.compile('mozmill$'), "desc": "Mozmill"},
     # ** Builds **
@@ -553,6 +555,8 @@ GROUP_NAMES = {
     "SpiderMonkey Root Analysis Build": "SpiderMonkey",
     "W3C Web Platform Tests": "W3C Web Platform Tests",
     "W3C Web Platform Reftests": "W3C Web Platform Tests",
+    "Android Instrumentation Background": "Android Instrumentation Tests",
+    "Android Instrumentation Browser": "Android Instrumentation Tests",
     "Talos Performance": "Talos Performance",
     "Talos canvasmark": "Talos Performance",
     "Talos chrome": "Talos Performance",
@@ -714,6 +718,9 @@ SYMBOLS = {
     "Reftest Unaccelerated": "Ru",
     "W3C Web Platform Tests": "W",
     "W3C Web Platform Reftests": "Wr",
+    "Android Instrumentation Tests": "I",
+    "Android Instrumentation Background": "Ba",
+    "Android Instrumentation Browser": "Br",
 
     # All other unit tests, sorted alphabetically by symbol.
     "CPP Unit Tests": "Cpp",
