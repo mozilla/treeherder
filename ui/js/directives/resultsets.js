@@ -12,9 +12,8 @@ treeherder.directive('thActionButton', [
                 var interpolator = thCloneHtml.get('revisionUrlClone').interpolator;
                 var htmlStr = '';
                 _.forEach(scope.resultset.revisions, function(revision) {
-                    htmlStr = htmlStr + interpolator(
-                        {repoUrl: scope.currentRepo.url, revision: revision}
-                    );
+                    htmlStr = interpolator({repoUrl: scope.currentRepo.url,
+                                  revision: revision}) + htmlStr;
                 });
                 var el = $compile(interpolator(scope))(scope, function(el, scope) {
                     var wnd = window.open(
