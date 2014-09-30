@@ -8,7 +8,6 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from treeherder.webapp.api.utils import with_jobs
 from treeherder.events.publisher import JobClassificationPublisher
-from treeherder.model.tasks import unclassified_failure_count
 
 
 class NoteViewSet(viewsets.ViewSet):
@@ -59,16 +58,6 @@ class NoteViewSet(viewsets.ViewSet):
             request.user.email,
             request.DATA.get('note', '')
         )
-
-        publisher = JobClassificationPublisher(settings.BROKER_URL)
-        try:
-            publisher.publish(int(request.DATA['job_id']),
-                              request.DATA['who'], project)
-        finally:
-            publisher.disconnect()
-
-        # refresh unclassified failure count and publish the socket event
-        unclassified_failure_count(projects=[project])
 
         return Response(
             {'message': 'note stored for job {0}'.format(
