@@ -48,3 +48,5 @@ treeherder.value("thRepoGroupOrder", {
     "taskcluster": 5,
     "qa automation tests": 6
 });
+
+treeherder.value("thDefaultRepo", "mozilla-central");

@@ -2,12 +2,12 @@
 
 treeherder.controller('JobsCtrl', [
     '$scope', '$http', '$rootScope', '$routeParams', 'ThLog', '$cookies',
-    'localStorageService', 'thUrl', 'ThRepositoryModel',
+    'localStorageService', 'thUrl', 'ThRepositoryModel', 'thDefaultRepo',
     'ThResultSetModel', 'thResultStatusList', '$location', 'thEvents',
     'ThJobModel',
     function JobsCtrl(
         $scope, $http, $rootScope, $routeParams, ThLog, $cookies,
-        localStorageService, thUrl, ThRepositoryModel,
+        localStorageService, thUrl, ThRepositoryModel, thDefaultRepo,
         ThResultSetModel, thResultStatusList, $location, thEvents, ThJobModel) {
 
         var $log = new ThLog(this.constructor.name);
@@ -23,8 +23,8 @@ treeherder.controller('JobsCtrl', [
             $routeParams.repo !== "") {
             $rootScope.repoName = $routeParams.repo;
         } else {
-            $rootScope.repoName = "mozilla-central";
-            $location.search("repo", "mozilla-central");
+            $rootScope.repoName = thDefaultRepo;
+            $location.search("repo", $rootScope.repoName);
         }
 
         ThResultSetModel.addRepository($scope.repoName);

@@ -5,11 +5,13 @@ treeherder.controller('MainCtrl', [
     'localStorageService', 'ThRepositoryModel', 'thPinboard',
     'thClassificationTypes', 'thEvents', '$interval', '$window',
     'ThExclusionProfileModel', 'thJobFilters', 'ThResultSetModel',
+    'thDefaultRepo',
     function MainController(
         $scope, $rootScope, $routeParams, $location, ThLog,
         localStorageService, ThRepositoryModel, thPinboard,
         thClassificationTypes, thEvents, $interval, $window,
-        ThExclusionProfileModel, thJobFilters, ThResultSetModel) {
+        ThExclusionProfileModel, thJobFilters, ThResultSetModel,
+        thDefaultRepo) {
 
         var $log = new ThLog("MainCtrl");
 
@@ -205,12 +207,17 @@ treeherder.controller('MainCtrl', [
         // when the app redirects internally
         $rootScope.urlBasePath = $location.absUrl().split('?')[0];
 
-        // give the page a way to determine which nav toolbar to show
+        // reload the page if certain params were changed in the URL.  For
+        // others, such as filtering, just re-filter without reload.
         $rootScope.$on('$locationChangeSuccess', function(ev,newUrl, oldUrl) {
-            $log.debug("reload", "newUrl=", newUrl, "oldUrl=", oldUrl);
+            $log.debug("check for reload", "newUrl=", newUrl, "oldUrl=", oldUrl);
 
-            if (!_.isEqual(getTriggerParams(oldUrl),
-                           getTriggerParams(newUrl))) {
+            var oldParams = getTriggerParams(oldUrl);
+            var newParams = getTriggerParams(newUrl);
+            // if we are just setting the repo to the default because none was
+            // set initially, then don't reload the page.
+            var defaulting = newParams.repo === thDefaultRepo && !oldParams.repo;
+            if (!_.isEqual(oldParams, newParams) && !defaulting) {
                 $window.location.reload();
             } else {
                 thJobFilters.buildFiltersFromQueryString();
