@@ -4,8 +4,6 @@ from rest_framework.decorators import action, link
 from rest_framework.reverse import reverse
 from rest_framework.permissions import IsAuthenticated
 
-from django.core.cache import cache
-
 from treeherder.webapp.api.utils import (UrlQueryFilter, with_jobs,
                                          oauth_required, get_option)
 
