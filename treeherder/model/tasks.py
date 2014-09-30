@@ -3,7 +3,6 @@ from django.conf import settings
 
 from treeherder.model.derived import JobsModel
 from treeherder.model.models import Datasource, Repository
-from treeherder.events.publisher import UnclassifiedFailureCountPublisher
 
 @task(name='process-objects')
 def process_objects(limit=None):
@@ -53,24 +52,6 @@ def cycle_data(max_iterations=50, debug=False):
                 cycle_iterations = 0
 
         jm.disconnect()
-
-@task(name='unclassified-failure-count', rate_limit='60/h')
-def unclassified_failure_count(projects=None):
-
-    if not projects:
-        projects = Repository.objects.all().values_list('name', flat=True)
-    unclassified_failure_publisher = UnclassifiedFailureCountPublisher(settings.BROKER_URL)
-
-    for project in projects:
-
-        jm = JobsModel(project)
-        count = jm.get_unclassified_failure_count()
-        count_excluded = jm.get_unclassified_failure_count_excluded()
-
-        unclassified_failure_publisher.publish(project, count, count_excluded)
-        jm.disconnect()
-
-    unclassified_failure_publisher.disconnect()
 
 @task(name='calculate-eta', rate_limit='1/h')
 def calculate_eta(sample_window_seconds=21600, debug=False):

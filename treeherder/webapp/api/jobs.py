@@ -16,25 +16,6 @@ class JobsViewSet(viewsets.ViewSet):
 
     """
 
-    @link()
-    @with_jobs
-    def unclassified_failure_count(self, request, project, jm, pk=None):
-        """
-        GET method for revisions of a resultset
-        """
-        count = cache.get(
-            "{0}:unclassified_failure_count".format(project)
-        )
-        count_excluded = cache.get(
-            "{0}:unclassified_failure_count_excluded".format(project)
-        )
-
-        return Response({
-            "repository": project,
-            "count": count or 0,
-            "count_excluded": count_excluded or 0
-        })
-
     @with_jobs
     def retrieve(self, request, project, jm, pk=None):
         """

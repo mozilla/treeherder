@@ -155,9 +155,6 @@ class JobsModel(TreeherderModelBase):
     # 6 months in seconds
     DATA_CYCLE_INTERVAL = 15552000
 
-    # last 24 hours in seconds
-    UNCLASSIFIED_FAILURE_RANGE = 86400
-
     @classmethod
     def create(cls, project, host=None):
         """
@@ -248,83 +245,6 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG,
         )
         return data
-
-
-    def get_unclassified_failure_count_excluded(self):
-        """
-        Get the count of unclassified failed jobs that are being hidden/excluded
-
-        this value can be subtracted from ``get_unclassified_failure_count``
-        to get the number that should be shown to the user when exclusions are
-        active.
-        """
-
-        flat_exclusions = ExclusionProfile.objects.filter(
-            is_default=1).values("flat_exclusion")
-        count = 0
-
-        try:
-            condition, values_list = utils.where_wolf(self.project, flat_exclusions)
-
-            repl = [
-                self.refdata_model.get_db_name(),
-                "'" + "','".join(self.FAILED_RESULTS) + "'",
-                condition
-            ]
-
-            placeholders = [
-                utils.get_now_timestamp() - self.UNCLASSIFIED_FAILURE_RANGE,
-            ]
-            placeholders.extend(values_list)
-
-            proc = "jobs.selects.get_unclassified_failure_count_excluded"
-            data = self.get_jobs_dhub().execute(
-                proc=proc,
-                replace=repl,
-                placeholders=placeholders,
-                debug_show=self.DEBUG,
-            )
-
-            if len(data):
-                count = data[0]["count_excluded"]
-                cache.set(
-                    "{0}:unclassified_failure_count_excluded".format(self.project),
-                    count)
-
-        except Exception as ex:
-            # there may be no exclusions for this repo/project
-            # pass and fall through to the zero count response.
-            pass
-
-        return count
-
-
-
-    def get_unclassified_failure_count(self):
-        """
-        Get the count of unclassified failed jobs ignoring exclusions
-        """
-
-        repl = ["'" + "','".join(self.FAILED_RESULTS) + "'"]
-        placeholders = [utils.get_now_timestamp() -
-                        self.UNCLASSIFIED_FAILURE_RANGE]
-
-        proc = "jobs.selects.get_unclassified_failure_count"
-        data = self.get_jobs_dhub().execute(
-            proc=proc,
-            replace=repl,
-            placeholders=placeholders,
-            debug_show=self.DEBUG,
-        )
-        count = 0
-        if len(data):
-            count = data[0]["count"]
-            cache.set(
-                "{0}:unclassified_failure_count".format(self.project),
-                count
-            )
-
-        return count
 
     def _process_conditions(self, conditions, allowed_fields=None):
         """Transform a list of conditions into a list of placeholders and
