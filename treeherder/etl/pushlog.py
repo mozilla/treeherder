@@ -1,4 +1,3 @@
-from operator import itemgetter
 from django.core.cache import cache
 from django.conf import settings
 import requests
@@ -88,9 +87,8 @@ class HgPushlogProcess(HgPushlogTransformerMixin,
             extracted_content = self.extract(source_url)
 
         if extracted_content:
-            sorted_pushlog = sorted(extracted_content.values(),
-                                    key=itemgetter('date'), reverse=True)
-            last_push = sorted_pushlog[0]
+            last_push_id = max(map(lambda x: int(x), extracted_content.keys()))
+            last_push = extracted_content[str(last_push_id)]
             top_revision = last_push["changesets"][0]["node"]
 
             transformed = self.transform(
