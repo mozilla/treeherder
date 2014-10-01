@@ -2769,7 +2769,7 @@ fieldset[disabled] .btn {
   opacity: .65;
 }
 .btn-default {
-  color: #666;
+  color: #333;
   background-color: #fff;
   border-color: #ccc;
 }
