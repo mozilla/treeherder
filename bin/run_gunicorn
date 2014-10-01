@@ -28,8 +28,8 @@ else
 fi
 
 exec $GUNICORN -w $NUM_WORKERS \
-    --max-requests=2000 \
+    --max-requests=50 \
     --access-logfile=$ACCESS_LOGFILE \
     --error-logfile=$ERROR_LOGFILE treeherder.webapp.wsgi:application \
-    --keep-alive=10 \
+    --keep-alive=2 \
     --log-level error
