@@ -11,6 +11,7 @@ from thclient import TreeherderRequest, TreeherderJobCollection
 
 from treeherder.etl import common, buildbot
 from treeherder.etl.mixins import JsonExtractorMixin, OAuthLoaderMixin
+from treeherder.etl.tasks import fetch_missing_push_logs
 from treeherder.model.models import Datasource
 
 
@@ -93,6 +94,7 @@ class Builds4hTransformerMixin(object):
         our restful api
         """
         revisions = defaultdict(list)
+        missing_revisions = defaultdict(list)
 
         projects = set(x.project for x in Datasource.objects.cached())
 
@@ -104,7 +106,7 @@ class Builds4hTransformerMixin(object):
                 continue
 
             if not prop['branch'] in projects:
-                logger.warning("skipping job on branch {0}".format(prop['branch']))
+                logger.warning("skipping job on unsupported branch {0}".format(prop['branch']))
                 continue
 
             prop['revision'] = prop.get('revision',
@@ -128,7 +130,15 @@ class Builds4hTransformerMixin(object):
             artifact_build = copy.deepcopy(build)
 
             try:
-                resultset = revisions_lookup[prop['branch']][prop['revision']]
+                branch = revisions_lookup[prop['branch']]
+                try:
+                    resultset = branch[prop['revision']]
+                except KeyError:
+                    # we don't have the resultset for this build/job yet
+                    # we need to queue fetching that resultset
+                    missing_revisions[prop['branch']].append(prop['revision'])
+
+                    continue
             except KeyError:
                 # this branch is not one of those we care about
                 continue
@@ -257,6 +267,8 @@ class Builds4hTransformerMixin(object):
             th_job = th_collections[project].get_job(treeherder_data)
             th_collections[project].add( th_job )
 
+        fetch_missing_push_logs.apply_async(args=[missing_revisions])
+
         return th_collections
 
 
@@ -270,6 +282,7 @@ class PendingTransformerMixin(object):
 
         projects = set(x.project for x in Datasource.objects.cached())
         revision_dict = defaultdict(list)
+        missing_revisions = defaultdict(list)
 
         # loop to catch all the revisions
         for project, revisions in data['pending'].items():
@@ -284,14 +297,27 @@ class PendingTransformerMixin(object):
 
         th_collections = {}
 
-        for project, revisions in revisions_lookup.items():
+        for project, revisions in data['pending'].items():
 
-            for revision in revisions:
+            for revision, jobs in revisions.items():
 
-                resultset = revisions[revision]
+                try:
+                    project = revisions_lookup[project]
+                    try:
+                        resultset = project[revision]
+                    except KeyError:
+                        # we don't have the resultset for this build/job yet
+                        # we need to queue fetching that resultset
+                        missing_revisions[project].append(revision)
+
+                        continue
+                except KeyError:
+                    # this branch is not one of those we care about
+                    continue
+
                 # using project and revision form the revision lookups
                 # to filter those jobs with unmatched revision
-                for pending_job in data['pending'][project][revision]:
+                for pending_job in jobs:
 
                     treeherder_data = {
                         'revision_hash': resultset['revision_hash'],
@@ -381,6 +407,7 @@ class RunningTransformerMixin(object):
         """
         projects = set(x.project for x in Datasource.objects.cached())
         revision_dict = defaultdict(list)
+        missing_revisions = defaultdict(list)
 
         # loop to catch all the revisions
         for project, revisions in data['running'].items():
@@ -396,14 +423,27 @@ class RunningTransformerMixin(object):
 
         th_collections = {}
 
-        for project, revisions in revisions_lookup.items():
+        for project, revisions in data['running'].items():
 
-            for revision in revisions:
+            for revision, jobs in revisions.items():
 
-                resultset = revisions[revision]
+                try:
+                    project = revisions_lookup[project]
+                    try:
+                        resultset = project[revision]
+                    except KeyError:
+                        # we don't have the resultset for this build/job yet
+                        # we need to queue fetching that resultset
+                        missing_revisions[project].append(revision)
+
+                        continue
+                except KeyError:
+                    # this branch is not one of those we care about
+                    continue
+
                 # using project and revision form the revision lookups
                 # to filter those jobs with unmatched revision
-                for running_job in data['running'][project][revision]:
+                for running_job in jobs:
                     treeherder_data = {
                         'revision_hash': resultset['revision_hash'],
                         'resultset_id': resultset['id'],
