@@ -23,14 +23,14 @@ class DetailSerializerMixin(object):
 
     def get_object(self, queryset=None):
         if queryset is None:
-            queryset = self.get_queryset_detail()
+            queryset = self.filter_queryset(self.get_queryset(is_for_detail=True))
         return super(DetailSerializerMixin, self).get_object(queryset=queryset)
 
-    def get_queryset_detail(self):
-        if self.queryset_detail is not None:
+    def get_queryset(self, is_for_detail=False):
+        if self.queryset_detail is not None and is_for_detail:
             return self.queryset_detail._clone()  # todo: test _clone()
         else:
-            return self.get_queryset()
+            return super(DetailSerializerMixin, self).get_queryset()
 
 
 class PaginateByMaxMixin(object):
