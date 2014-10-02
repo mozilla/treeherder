@@ -97,20 +97,66 @@ def populate_performance_series(project, series_type, series_data):
             )
     jm.disconnect()
 
+from exchanges import TreeherderPublisher
+from pulse_publisher import load_schemas
+import os
+
+# Load schemas for validation of messages published on pulse
+source_folder = os.path.dirname(os.path.realpath(__file__))
+schema_folder = os.path.join(source_folder, '..', '..', 'schemas')
+schemas = load_schemas(schema_folder)
+
+# Find an appropriate namespace to publish to under, this will be removed when
+# pulse guardian has multi-user, then we'll just not provide the namespace
+# property and the settings property will provide client_id and access_token
+# from which client_id will be the namespace.
+namespace = 'treeherder-local'
+if 'treeherder.allizom.org' in settings.SITE_URL:
+    namespace = 'treeherder-staging'
+elif 'treeherder.mozilla.org' in settings.SITE_URL:
+    namespace = 'treeherder'
+
+publisher = TreeherderPublisher(
+    client_id       = 'public',
+    access_token    = 'public',
+    schemas         = schemas,
+    namespace       = namespace
+)
+
 @task(name='publish-to-pulse')
 def publish_to_pulse(project, ids, data_type):
-
     jm = JobsModel(project)
 
-    # Get appropriate data for data_type
-    # using the ids provided
-    data = []
+    # Publish messages with new result-sets
     if data_type == 'result_set':
-        data = jm.get_result_set_list_by_ids(ids)
+        # Get appropriate data for data_type
+        # using the ids provided
+        for entry in jm.get_result_set_list_by_ids(ids):
+            # Don't expose these properties, they are internal, at least that's
+            # what I think without documentation I have no clue... what any of
+            # this is
+            del entry['revisions']      # Not really internal, but too big
+            del entry['repository_id']
+
+            # Set required properties
+            entry['version'] = 1
+            entry['project'] = project
+            # Property revision_hash should already be there, I suspect it is the
+            # result-set identifier...
+
+            # publish the data to pulse
+            publisher.new_result_set(
+                message         = entry,
+                revision_hash   = entry['revision_hash'],
+                project         = project
+            )
+
+        # Basically, I have no idea what context this runs and was inherently
+        # unable to make kombu with or without pyamqp, etc. confirm-publish,
+        # so we're stuck with this super ugly hack where we just close the
+        # connection so that if the process context is destroyed then at least
+        # messages will still get published... Well, assuming nothing goes
+        # wrong, because we're not using confirm channels for publishing...
+        publisher.connection.release()
 
     jm.disconnect()
-
-    # TODO: publish the data to pulse
-
-
-
