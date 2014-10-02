@@ -11,8 +11,8 @@ from thclient import TreeherderRequest, TreeherderJobCollection
 
 from treeherder.etl import common, buildbot
 from treeherder.etl.mixins import JsonExtractorMixin, OAuthLoaderMixin
-from treeherder.etl.tasks import fetch_missing_push_logs
 from treeherder.model.models import Datasource
+from .cleanup_tasks import fetch_missing_push_logs
 
 
 logger = logging.getLogger(__name__)
@@ -285,7 +285,7 @@ class PendingTransformerMixin(object):
         missing_revisions = defaultdict(list)
 
         # loop to catch all the revisions
-        for project, revisions in data['pending'].items():
+        for project, revisions in data['pending'].iteritems():
             # this skips those projects we don't care about
             if project not in projects:
                 continue
@@ -297,14 +297,14 @@ class PendingTransformerMixin(object):
 
         th_collections = {}
 
-        for project, revisions in data['pending'].items():
+        for project, revisions in data['pending'].iteritems():
 
             for revision, jobs in revisions.items():
 
                 try:
-                    project = revisions_lookup[project]
+                    branch = revisions_lookup[project]
                     try:
-                        resultset = project[revision]
+                        resultset = branch[revision]
                     except KeyError:
                         # we don't have the resultset for this build/job yet
                         # we need to queue fetching that resultset
@@ -385,6 +385,7 @@ class PendingTransformerMixin(object):
                     }
                     treeherder_data['job'] = new_job
 
+                    print project
                     if project not in th_collections:
                         th_collections[project] = TreeherderJobCollection(
                             job_type='update'
@@ -428,9 +429,9 @@ class RunningTransformerMixin(object):
             for revision, jobs in revisions.items():
 
                 try:
-                    project = revisions_lookup[project]
+                    branch = revisions_lookup[project]
                     try:
-                        resultset = project[revision]
+                        resultset = branch[revision]
                     except KeyError:
                         # we don't have the resultset for this build/job yet
                         # we need to queue fetching that resultset
