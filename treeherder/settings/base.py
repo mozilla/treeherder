@@ -191,6 +191,7 @@ CELERY_QUEUES = (
     Queue('log_parser', Exchange('default'), routing_key='parse_log.success'),
     # queue for mirroring the sheriffing activity to tbpl
     Queue('high_priority', Exchange('default'), routing_key='high_priority'),
+    Queue('pushlog', Exchange('default'), routing_key='pushlog'),
 )
 
 CELERY_ACCEPT_CONTENT = ['json']

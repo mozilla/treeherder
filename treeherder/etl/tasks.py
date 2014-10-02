@@ -51,10 +51,12 @@ def fetch_push_logs():
     rdm = RefDataManager()
     try:
         repos = filter(lambda x: x['url'], rdm.get_all_repository_info())
-        # create a group of subtasks and apply them
-        g = group(fetch_hg_push_log.si(repo['name'], repo['url'])
-                            for repo in repos if repo['dvcs_type'] == 'hg')
-        g()
+        for repo in repos:
+            if repo['dvcs_type'] == 'hg':
+                fetch_hg_push_log.apply_async(
+                    args=(repo['name'], repo['url']),
+                    routing_key='pushlog'
+                )
     finally:
         rdm.disconnect()
 

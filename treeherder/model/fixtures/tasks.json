@@ -69,7 +69,7 @@
         "routing_key": null,
         "crontab": null,
         "interval": 2,
-        "queue": null,
+        "queue": "pushlog",
         "total_run_count": 0,
         "expires": null,
         "kwargs": "{}",
