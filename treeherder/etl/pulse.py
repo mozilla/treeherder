@@ -16,7 +16,14 @@ from treeherder.etl import common
 from treeherder.etl import buildbot
 from treeherder.etl.mixins import OAuthLoaderMixin
 
-
+"""
+NOTE: This python library fails to load due to import conflicts with
+the new version of kombu that mozillapulse depends on. Leaving it
+here for now, the adaptation of the pulse data stream to the treeherder
+data structure might be useful in the future for ingesting data from pulse.
+At some point we should update mozillapulse or re-write this to work directly
+with rabbitmq or remove it entirely.
+"""
 
 
 class PulseDataAdapter(object):
