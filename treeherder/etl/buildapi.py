@@ -396,6 +396,8 @@ class PendingTransformerMixin(object):
                     th_job = th_collections[project].get_job(treeherder_data)
                     th_collections[project].add(th_job)
 
+        fetch_missing_push_logs.apply_async(args=[missing_revisions])
+
         return th_collections
 
 
@@ -522,6 +524,8 @@ class RunningTransformerMixin(object):
                     # to the collection instance
                     th_job = th_collections[project].get_job(treeherder_data)
                     th_collections[project].add(th_job)
+
+        fetch_missing_push_logs.apply_async(args=[missing_revisions])
 
         return th_collections
 
