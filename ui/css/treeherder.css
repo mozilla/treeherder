@@ -287,6 +287,7 @@ th-watched-repo {
     width: 14.5em;
     min-width: 14.5em;
     overflow: hidden;
+    vertical-align: top;
 }
 
 .job-row {
@@ -358,6 +359,14 @@ th-watched-repo {
 .result-set .job-list-pad-left {
     padding-left: 8;
     padding-right: 0;
+}
+
+.job-list-pad-left table tr {
+    border-bottom: 1px dotted lightgrey;
+}
+
+.job-list-pad-left table tr:nth-child(even) {
+    background: #f8f8f8;
 }
 
 .result-set .job-list-nopad {
