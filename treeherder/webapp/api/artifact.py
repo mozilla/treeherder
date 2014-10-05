@@ -59,8 +59,6 @@ class ArtifactViewSet(viewsets.ViewSet):
                         datum['name'],
                         datum['type'],
                         datum['blob'],
-                        job_id,
-                        datum['name'],
                     ))
 
         if artifact_data:

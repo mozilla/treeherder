@@ -44,6 +44,7 @@ def test_update_artifact(webapp, eleven_jobs_processed, sample_artifacts, jm):
     artifact = jm.get_job_artifact_references(job["id"])[0]
     artifact["job_guid"] = job["job_guid"]
     artifact["blob"] = "{}"
+    del artifact["id"]
 
     th_artifact = thclient.TreeherderArtifact(artifact)
     th_artifacts = thclient.TreeherderArtifactCollection([th_artifact])
@@ -51,13 +52,12 @@ def test_update_artifact(webapp, eleven_jobs_processed, sample_artifacts, jm):
 
     assert resp.status_int == 200
 
-    resp = webapp.get(
-        reverse("artifact-detail",
-                kwargs={"project": jm.project, "pk": int(artifact["id"])})
-    )
+    url = reverse("artifact-list", args=[jm.project])
+    final_url = url + "?job_id=" + str(job["id"]) + \
+            "&name=" + artifact["name"]
 
-    assert resp.json["blob"] == "{}"
-
+    resp = webapp.get(final_url)
+    assert len(resp.json) == 2
     jm.disconnect()
 
 def test_artifact_detail_not_found(webapp, jm):

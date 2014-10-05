@@ -18,7 +18,7 @@ def test_tbpl_bug_request_body(jm, eleven_jobs_processed):
     }
     placeholders = [
         [job["id"], "buildapi", "json",
-         json.dumps(sample_artifact), job["id"], "buildapi"]
+         json.dumps(sample_artifact)]
     ]
     jm.store_job_artifact(placeholders)
 
@@ -69,8 +69,7 @@ def test_tbpl_bugzilla_request_body(jm, eleven_jobs_processed):
 
     bug_suggestions_placeholders = [
         job['id'], 'Bug suggestions',
-        'json', json.dumps(bug_suggestions),
-        job['id'], 'Bug suggestions',
+        'json', json.dumps(bug_suggestions)
     ]
 
     jm.store_job_artifact([bug_suggestions_placeholders])
