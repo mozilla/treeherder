@@ -80,9 +80,16 @@ treeherder.controller('PluginCtrl', [
                     }
                     // the third result comes from the job info artifact promise
                     var jobInfoArtifact = results[2];
-                    if (jobInfoArtifact.length > 0 &&
-                        _.has(jobInfoArtifact[0], 'blob')){
-                        $scope.job_details = jobInfoArtifact[0].blob.job_details;
+                    if (jobInfoArtifact.length > 0) {
+                        // The job artifacts may have many "Job Info" blobs so
+                        // we merge them here to make displaying them in the UI
+                        // easier.
+                        $scope.job_details = jobInfoArtifact.reduce(function(result, artifact) {
+                          if (artifact.blob && Array.isArray(artifact.blob.job_details)) {
+                            result = result.concat(artifact.blob.job_details);
+                          }
+                          return result;
+                        }, []);
                     }
                     //the fourth result comes form the jobLogUrl artifact
                     $scope.job_log_urls = results[3];
