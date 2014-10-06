@@ -361,6 +361,10 @@ th-watched-repo {
     padding-right: 0;
 }
 
+.job-list-pad-left table {
+    width: 100%;
+}
+
 .job-list-pad-left table tr {
     border-bottom: 1px dotted lightgrey;
 }
