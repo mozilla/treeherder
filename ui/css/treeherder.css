@@ -324,10 +324,7 @@ th-watched-repo {
     display: -webkit-flex;
     -webkit-flex-flow: row wrap;
     flex-flow: row wrap;
-}
-
-.result-set-title-left {
-    padding-top: 5px;
+    align-items: center;
 }
 
 .result-set .revision-list {
