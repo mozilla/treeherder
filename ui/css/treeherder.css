@@ -1312,6 +1312,10 @@ fieldset[disabled] .btn-mdgray.active {
   color: #6f6d70;
 }
 
+.btn-resultset {
+    color: #666;
+}
+
 .btn-dkgray {
   color: #7c7a7d;
 }
