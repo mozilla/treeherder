@@ -4,8 +4,6 @@ from rest_framework.decorators import action, link
 from rest_framework.reverse import reverse
 from rest_framework.permissions import IsAuthenticated
 
-from django.core.cache import cache
-
 from treeherder.webapp.api.utils import (UrlQueryFilter, with_jobs,
                                          oauth_required, get_option)
 
@@ -15,25 +13,6 @@ class JobsViewSet(viewsets.ViewSet):
     This viewset is responsible for the jobs endpoint.
 
     """
-
-    @link()
-    @with_jobs
-    def unclassified_failure_count(self, request, project, jm, pk=None):
-        """
-        GET method for revisions of a resultset
-        """
-        count = cache.get(
-            "{0}:unclassified_failure_count".format(project)
-        )
-        count_excluded = cache.get(
-            "{0}:unclassified_failure_count_excluded".format(project)
-        )
-
-        return Response({
-            "repository": project,
-            "count": count or 0,
-            "count_excluded": count_excluded or 0
-        })
 
     @with_jobs
     def retrieve(self, request, project, jm, pk=None):
