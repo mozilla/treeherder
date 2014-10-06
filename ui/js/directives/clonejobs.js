@@ -600,12 +600,14 @@ treeherder.directive('thCloneJobs', [
     };
     var showHideJob = function(job, show) {
         // Note: I was using
-        //    jobEl.className += " filter-shown";
+        //     jobEl.style.display = "inline";
+        //     jobEl.className += " filter-shown";
         // but that didn't work reliably with the jquery selectors
         // when it came to hiding/showing platforms and groups.  Jquery
         // couldn't detect that I'd added or removed ``filter-shown`` in
         // all cases.  So, while this is a bit slower, it's reliable.
         if (show) {
+            job.css("display", "inline");
             job.addClass("filter-shown");
         } else {
             job.css("display", "none");
