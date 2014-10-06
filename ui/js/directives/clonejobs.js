@@ -607,7 +607,7 @@ treeherder.directive('thCloneJobs', [
         // couldn't detect that I'd added or removed ``filter-shown`` in
         // all cases.  So, while this is a bit slower, it's reliable.
         if (show) {
-            job.css("display", "inline");
+            job.css("display", "inline-block");
             job.addClass("filter-shown");
         } else {
             job.css("display", "none");
