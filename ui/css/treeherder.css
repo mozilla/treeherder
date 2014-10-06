@@ -334,6 +334,10 @@ th-watched-repo {
     padding-left: 0;
 }
 
+.wide-table {
+    width: 100%;
+}
+
 /* Cancel all jobs custom icon size */
 .glyphicon-minus-sign {
     font-size: 85%;
