@@ -36,10 +36,6 @@ def fetch_missing_hg_push_logs(repo_name, repo_url, revisions):
     changesetParam = urllib.urlencode({"changeset": revisions}, True)
     urlStr = repo_url + '/json-pushes/?full=1&' + changesetParam
 
-    print "<><>"
-    print revisions
-    print urlStr
-
     process.run(urlStr, repo_name)
 
 
