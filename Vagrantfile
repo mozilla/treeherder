@@ -8,7 +8,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Every Vagrant virtual environment requires a box to build off of.
   config.vm.box = "precise32"
   config.vm.box_url = "http://files.vagrantup.com/precise32.box"
-  
+
   config.vm.network "private_network", ip: "192.168.33.10"
 
   config.vm.synced_folder ".", "/home/vagrant/treeherder-service", type: "nfs"
@@ -21,7 +21,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provision :puppet do |puppet|
     puppet.manifests_path = "puppet/manifests"
     puppet.manifest_file = "vagrant.pp"
-    
+
     #uncomment in production to serve treeherder-ui from dist directory
     #puppet.manifest_file = "production.pp"
 

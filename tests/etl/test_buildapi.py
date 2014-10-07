@@ -1,6 +1,7 @@
 import os
 import pytest
 import responses
+import json
 
 from django.conf import settings
 
@@ -78,38 +79,39 @@ def test_ingest_pending_jobs(jm, initial_data,
     assert len(stored_obj) == 1
 
 
-def test_ingest_pending_jobs_1_missing_resultset(jm, initial_data,
+def test_ingest_pending_jobs_1_missing_resultset(jm, initial_data, sample_resultset,
                                 test_repository,
-                                test_base_dir,
                                 mock_buildapi_pending_missing1_url,
                                 mock_post_json_data,
-                                mock_log_parser,
                                 mock_get_resultset,
                                 mock_get_remote_content,
                                 activate_responses):
     """
     Ensure the job with the missing resultset is queued for refetching
     """
-    pushlog_content = {"33270": {
-        "date": 1378288232,
-        "changesets": [
-            {
-                "node": "4b40022e5c4cb344655ed7be9a408d2970a736c4",
-                "files": [
-                    "browser/base/content/browser.js"
-                ],
-                "tags": [],
-                "author": "John Doe <jdoe@mozilla.com>",
-                "branch": "default",
-                "desc": "bug 909264 - control characters in the location bar "
-                "should be %-encoded for visibility. r=gavin"
-            }
-        ],
-        "user": "jdoe@mozilla.com"
-    }}
-    pushlog_fake_url = "https://hg.mozilla.org/mozilla-central/json-pushes/?full=1&changeset=4b40022e5c4c"
+    new_revision = '222222222222'
+    pushlog_content = json.dumps(
+        {"33270": {
+            "date": 1378288232,
+            "changesets": [
+                {
+                    "node": new_revision + "b344655ed7be9a408d2970a736c4",
+                    "files": [
+                        "browser/base/content/browser.js"
+                    ],
+                    "tags": [],
+                    "author": "John Doe <jdoe@mozilla.com>",
+                    "branch": "default",
+                    "desc": "bug 909264 - control characters"
+                }
+            ],
+            "user": "jdoe@mozilla.com"
+        }}
+    )
+    pushlog_fake_url = "https://hg.mozilla.org/mozilla-central/json-pushes/?full=1&changeset=" + new_revision
     responses.add(responses.GET, pushlog_fake_url,
                   body=pushlog_content, status=200,
+                  match_querystring=True,
                   content_type='application/json')
 
     from treeherder.etl.buildapi import PendingJobsProcess
@@ -126,7 +128,12 @@ def test_ingest_pending_jobs_1_missing_resultset(jm, initial_data,
         return_type='tuple'
     )
 
-    assert len(revisions_stored) == 15
+    assert len(revisions_stored) == 20
+    was_stored = False
+    for rs in revisions_stored:
+        if str(rs['revision']) == new_revision:
+            was_stored = True
+    assert was_stored
 
     jm.disconnect()
 
