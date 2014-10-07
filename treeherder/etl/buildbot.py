@@ -133,7 +133,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile('^Windows.*Mulet', re.IGNORECASE),
+        'regex': re.compile('^Win32.*Mulet', re.IGNORECASE),
         'attributes': {
             'os': 'win',
             'os_platform': 'mulet-win32',
