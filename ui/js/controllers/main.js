@@ -201,16 +201,15 @@ treeherder.controller('MainCtrl', [
             return triggerParams;
         };
 
-        // this is to avoid bad urls showing up
-        // when the app redirects internally
-        $rootScope.urlBasePath = $location.absUrl().split('?')[0];
-
         // reload the page if certain params were changed in the URL.  For
         // others, such as filtering, just re-filter without reload.
         $rootScope.$on('$locationChangeSuccess', function(ev, newUrl, oldUrl) {
 
             // used to test for display of watched-repo-navbar and jobs menu
             $rootScope.locationPath = $location.path().replace('/', '');
+
+            // used to avoid bad urls when the app redirects internally
+            $rootScope.urlBasePath = $location.absUrl().split('?')[0];
 
             $log.debug("check for reload", "newUrl=", newUrl, "oldUrl=", oldUrl);
 
