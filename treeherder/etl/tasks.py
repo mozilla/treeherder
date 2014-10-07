@@ -1,12 +1,9 @@
 """
 This module contains
 """
-import time
-from datetime import timedelta, datetime
-from django.core.cache import cache
+import urllib
 from celery import task, group
-from treeherder.model.derived import RefDataManager, JobsModel
-from treeherder.model.models import ReferenceDataSignatures
+from treeherder.model.derived import RefDataManager
 from .buildapi import (RunningJobsProcess,
                        PendingJobsProcess,
                        Builds4hJobsProcess,
@@ -67,10 +64,10 @@ def fetch_hg_push_log(repo_name, repo_url):
     Run a HgPushlog etl process
     """
     process = HgPushlogProcess()
-    process.run(repo_url+'/json-pushes/?full=1', repo_name)
+    process.run(repo_url + '/json-pushes/?full=1', repo_name)
 
 
-@task(name='fetch-bugs', time_limit=10*60)
+@task(name='fetch-bugs', time_limit=10 * 60)
 def fetch_bugs():
     """
     Run a BzApiBug process

@@ -100,6 +100,28 @@ class HgPushlogProcess(HgPushlogTransformerMixin,
             cache.set("{0}:last_push".format(repository), top_revision)
 
 
+class MissingHgPushlogProcess(HgPushlogTransformerMixin,
+                       OAuthLoaderMixin):
+
+    def extract(self, url):
+        response = requests.get(url, timeout=settings.TREEHERDER_REQUESTS_TIMEOUT)
+        response.raise_for_status()
+        return response.json()
+
+    def run(self, source_url, repository):
+
+        extracted_content = self.extract(source_url)
+
+        if extracted_content:
+
+            transformed = self.transform(
+                extracted_content,
+                repository
+            )
+            self.load(transformed)
+
+
+
 class GitPushlogTransformerMixin(object):
     def transform(self, source_url):
         # TODO: implement git sources.xml transformation logic
