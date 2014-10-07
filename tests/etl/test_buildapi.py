@@ -1,5 +1,7 @@
 import os
 import pytest
+import responses
+
 from django.conf import settings
 
 
@@ -77,14 +79,39 @@ def test_ingest_pending_jobs(jm, initial_data,
 
 
 def test_ingest_pending_jobs_1_missing_resultset(jm, initial_data,
+                                test_repository,
+                                test_base_dir,
                                 mock_buildapi_pending_missing1_url,
                                 mock_post_json_data,
                                 mock_log_parser,
                                 mock_get_resultset,
-                                mock_get_remote_content):
+                                mock_get_remote_content,
+                                activate_responses):
     """
     Ensure the job with the missing resultset is queued for refetching
     """
+    pushlog_content = {"33270": {
+        "date": 1378288232,
+        "changesets": [
+            {
+                "node": "4b40022e5c4cb344655ed7be9a408d2970a736c4",
+                "files": [
+                    "browser/base/content/browser.js"
+                ],
+                "tags": [],
+                "author": "John Doe <jdoe@mozilla.com>",
+                "branch": "default",
+                "desc": "bug 909264 - control characters in the location bar "
+                "should be %-encoded for visibility. r=gavin"
+            }
+        ],
+        "user": "jdoe@mozilla.com"
+    }}
+    pushlog_fake_url = "https://hg.mozilla.org/mozilla-central/json-pushes/?full=1&changeset=4b40022e5c4c"
+    responses.add(responses.GET, pushlog_fake_url,
+                  body=pushlog_content, status=200,
+                  content_type='application/json')
+
     from treeherder.etl.buildapi import PendingJobsProcess
     etl_process = PendingJobsProcess()
     etl_process.run()
@@ -92,9 +119,16 @@ def test_ingest_pending_jobs_1_missing_resultset(jm, initial_data,
     stored_obj = jm.get_jobs_dhub().execute(
         proc="jobs_test.selects.jobs")
 
-    jm.disconnect()
+    assert len(stored_obj) == 1
 
-    assert len(stored_obj) == 2
+    revisions_stored = jm.get_jobs_dhub().execute(
+        proc="jobs_test.selects.revision_ids",
+        return_type='tuple'
+    )
+
+    assert len(revisions_stored) == 15
+
+    jm.disconnect()
 
 
 def test_ingest_running_jobs(jm, initial_data,
