@@ -410,6 +410,42 @@ class JobsModel(TreeherderModelBase):
 
         return data
 
+    def get_performance_series_summary(self, interval_seconds):
+
+        series_summary = {}
+
+        flat_proc = "jobs.selects.get_flat_perf_series_properties"
+
+        #Only retrieve signatures with property/values that have
+        #received data for the time interval requested
+        last_updated_limit = utils.get_now_timestamp() - interval_seconds
+
+        # get all property values except those directly related to
+        # test suite/tests
+        flat_data = self.get_jobs_dhub().execute(
+            proc=flat_proc,
+            placeholders=[last_updated_limit, interval_seconds],
+            debug_show=self.DEBUG,
+        )
+
+        for datum in flat_data:
+            series_summary[ datum['property'] ] = datum['value']
+
+        hierarchical_proc = "jobs.selects.get_hierarchical_perf_series_properties" 
+
+        #get all property/values for tes suite/test combinations
+        #and build a data structure that represents their relationships
+        hierarchical_data = self.get_jobs_dhub().execute(
+            proc=hierarchical_proc,
+            placeholders=[last_updated_limit, interval_seconds],
+            debug_show=self.DEBUG,
+        )
+
+        for datum in hierarchical_proc:
+
+            print datum
+
+
     def get_job_note(self, id):
         """Return the job note by id."""
         data = self.get_jobs_dhub().execute(

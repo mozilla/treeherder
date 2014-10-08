@@ -413,7 +413,6 @@ def test_store_performance_artifact(
 
     assert performance_artifact_signatures == series_signatures
 
-
 def test_remove_existing_jobs_single_existing(jm, sample_data, initial_data, refdata,
                                      mock_log_parser, sample_resultset):
     """Remove single existing job prior to loading"""
