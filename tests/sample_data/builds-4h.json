@@ -1,0 +1,1627 @@
+{
+  "builds": [
+    {
+      "builder_id": 177027,
+      "buildnumber": 5,
+      "endtime": 1376510970,
+      "id": 26553075,
+      "master_id": 81,
+      "properties": {
+        "basedir": "c:\\slave\\test",
+        "branch": "test_treeherder",
+        "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/try-builds/jcoppeard@mozilla.com-a0a0b3d23040/try-win64/firefox-26.0a1.en-US.win64-x86_64.zip",
+        "buildername": "win64_vm try opt test mochitest-other",
+        "buildid": "20130813092104",
+        "buildnumber": 5,
+        "builduid": "fb381cf2d050416cbf1566db838b1099",
+        "log_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/try-builds/jcoppeard@mozilla.com-a0a0b3d23040/try-win64/try_win64_vm_test-mochitest-other-bm72-tests1-windows-build5.txt.gz",
+        "master": "http://buildbot-master72.srv.releng.usw2.mozilla.com:8201/",
+        "platform": "win64",
+        "product": "firefox",
+        "project": "",
+        "repo_path": "try",
+        "repository": "",
+        "request_ids": [
+          27949897
+        ],
+        "request_times": {
+          "27949897": 1376416924
+        },
+        "revision": "45f8637cb9f7",
+        "scheduler": "tests-try-win64_vm-opt-unittest",
+        "script_repo_revision": "8d8602c57d3e",
+        "slavebuilddir": "test",
+        "slavename": "tst-w64-ec2-002",
+        "stage_platform": "win64"
+      },
+      "reason": "scheduler",
+      "request_ids": [
+        27949897
+      ],
+      "requesttime": 1376416924,
+      "result": 1,
+      "slave_id": 5021,
+      "starttime": 1376422786
+    },
+    {
+      "builder_id": 144581,
+      "buildnumber": 1467,
+      "endtime": 1376511335,
+      "id": 26553258,
+      "master_id": 75,
+      "properties": {
+        "appName": "Firefox",
+        "appVersion": "26.0a1",
+        "basedir": "/builds/slave/try-osx64-d-000000000000000000",
+        "branch": "test_treeherder",
+        "builddir": "try-osx64-d-000000000000000000",
+        "buildername": "OS X 10.7 64-bit try leak test build",
+        "buildid": "20130814082959",
+        "buildnumber": 1467,
+        "builduid": "caa1cec65c6844c18035ea32a2fa7f7b",
+        "comments": "try: -b d -p linux64,macosx64,win32 -u all[x64] -t none\n#try: -b o -p linux64,macosx64,win32 -u all[6.1] -t none\n#try: -b o -p win32 -u none -t none\n#try: -b do -p win32,linux64,macosx64,android -u all -t none\n#try: -b d -p macosx64 -u all -t none\n#pacing fs 6 try: -b do -p all -u all[win32] -t none\n#nss sync fs nss and psm serial 7 try: -b do -p win32,linux64,macosx64 -u all -t none\n#pacing fs 3 try: -b do -p linux64,win32 -u all -t none\n#try: -b do -p linux64,android,android-armv6,android-noion -u all -t none\n#try: -b do -p win32,linux64,macosx64,android -u all -t none\n#try: -b d -p macosx64 -u all -t none\n#nsitimer fully threadsafe try: -b do -p win32,linux64,macosx64 -u all -t tpn\n#try: -b o -p win32 -u none -t tpn\n#try: -b d -p linux -u mochitest-4 -t none\n#try: -b d -p linux -u all -t none\n#try: -b do -p linux64,win32 -u all -t none\n#try: -b d -p win32,linux64,macosx64 -u all -t none\n#try: -b d -p linux64 -u all -t none\n#try: -b o -p win32,linux,linux64,macosx64 -u none -t none\n#try: -b od -p macosx64 -",
+        "filepath": null,
+        "forced_clobber": false,
+        "got_revision": "982a89285fbd",
+        "hashType": "sha512",
+        "jsshellUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/try-builds/mcmanus@ducksong.com-982a89285fbd/try-macosx64-debug/jsshell-mac64.zip",
+        "log_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/try-builds/mcmanus@ducksong.com-982a89285fbd/try-macosx64-debug/try-macosx64-debug-bm55-try1-build1467.txt.gz",
+        "master": "http://buildbot-master55.srv.releng.use1.mozilla.com:8101/",
+        "packageFilename": "firefox-26.0a1.en-US.mac64.dmg",
+        "packageHash": "a0f78751479b599125981541a982374a598f5ce146d9b169fc23fb5e84ec1470228c14df65d4c6af3353bfb439cebb6a8d771f292e1c29319d0019f13c2301a4",
+        "packageSize": "41701875",
+        "packageUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/try-builds/mcmanus@ducksong.com-982a89285fbd/try-macosx64-debug/firefox-26.0a1.en-US.mac64.dmg",
+        "periodic_clobber": false,
+        "platform": "macosx64-debug",
+        "product": "firefox",
+        "project": "",
+        "purge_actual": "534.83GB",
+        "purge_target": "10GB",
+        "purged_clobber": false,
+        "repository": "",
+        "request_ids": [
+          27997895
+        ],
+        "request_times": {
+          "27997895": 1376494162
+        },
+        "revision": "45f8637cb9f7599786e7bdf2d4ec9ec25e08d330",
+        "scheduler": "try-firefox",
+        "slavebuilddir": "try-osx64-d-000000000000000000",
+        "slavename": "bld-lion-r5-017",
+        "stage_platform": "macosx64-debug",
+        "symbolsUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/try-builds/mcmanus@ducksong.com-982a89285fbd/try-macosx64-debug/firefox-26.0a1.en-US.mac64.crashreporter-symbols.zip",
+        "testsUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/try-builds/mcmanus@ducksong.com-982a89285fbd/try-macosx64-debug/firefox-26.0a1.en-US.mac64.tests.zip",
+        "toolsdir": "/builds/slave/try-osx64-d-000000000000000000/tools",
+        "who": "mcmanus@ducksong.com"
+      },
+      "reason": "scheduler",
+      "request_ids": [
+        27997895
+      ],
+      "requesttime": 1376494162,
+      "result": 1,
+      "slave_id": 2034,
+      "starttime": 1376494174
+    },
+    {
+      "builder_id": 144793,
+      "buildnumber": 34,
+      "endtime": 1376516293,
+      "id": 26555820,
+      "master_id": 86,
+      "properties": {
+        "appName": "Firefox",
+        "appVersion": "26.0a1",
+        "basedir": "e:/builds/moz2_slave/m-in-w32-pgo-00000000000000000",
+        "branch": "test_treeherder",
+        "builddir": "m-in-w32-pgo-00000000000000000",
+        "buildername": "WINNT 5.2 mozilla-inbound pgo-build",
+        "buildid": "20130814102526",
+        "buildnumber": 34,
+        "builduid": "8d99f0315dec42d89af091bf44b59ed5",
+        "comments": "",
+        "filepath": null,
+        "forced_clobber": false,
+        "got_revision": "355dcff578b6",
+        "hashType": "sha512",
+        "installerFilename": "firefox-26.0a1.en-US.win32.installer.exe",
+        "installerHash": "9d80a3197fd02d26b8b3fb04dc2c6d57e088f71dd98d3bd8ca887a6dc636128e072f70da6516d78fe0daba4c444a04ce591fbb6ed6c82e7f4555b59ba1c64ae2",
+        "installerSize": "26663984",
+        "jsshellUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-win32-pgo/1376501126/jsshell-win32.zip",
+        "log_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-win32-pgo/1376501126/mozilla-inbound-win32-pgo-bm63-build1-build34.txt.gz",
+        "master": "http://buildbot-master63.srv.releng.use1.mozilla.com:8001/",
+        "packageFilename": "firefox-26.0a1.en-US.win32.zip",
+        "packageHash": "1793d2fe3977506cf4f7c74541bbb3744a0c29d00f80382114b5491c3739e5b526792a99995546d7cfc830371c1bea59089f3c050aed85f88511fbf8095ce695",
+        "packageSize": "35345481",
+        "packageUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-win32-pgo/1376501126/firefox-26.0a1.en-US.win32.zip",
+        "periodic_clobber": false,
+        "platform": "win32",
+        "product": "firefox",
+        "project": "",
+        "purge_actual": "113.47GB",
+        "purge_target": "12GB",
+        "purged_clobber": true,
+        "repository": "",
+        "request_ids": [
+          28003842
+        ],
+        "request_times": {
+          "28003842": 1376501127
+        },
+        "revision": "45f8637cb9f7",
+        "slavebuilddir": "m-in-w32-pgo-00000000000000000",
+        "slavename": "w64-ix-slave18",
+        "sourcestamp": "355dcff578b6",
+        "stage_platform": "win32-pgo",
+        "symbolsUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-win32-pgo/1376501126/firefox-26.0a1.en-US.win32.crashreporter-symbols.zip",
+        "testresults": [
+          [
+            "libxul_link",
+            "libxul_link",
+            3365036032,
+            "3365036032"
+          ]
+        ],
+        "testsUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-win32-pgo/1376501126/firefox-26.0a1.en-US.win32.tests.zip",
+        "toolsdir": "e:/builds/moz2_slave/m-in-w32-pgo-00000000000000000/tools",
+        "vsize": 3365036032
+      },
+      "reason": "Self-serve: Requested by rvandermeulen@mozilla.com",
+      "request_ids": [
+        28003842
+      ],
+      "requesttime": 1376501127,
+      "result": 0,
+      "slave_id": 1323,
+      "starttime": 1376501182
+    },
+    {
+      "builder_id": 143785,
+      "buildnumber": 485,
+      "endtime": 1376511587,
+      "id": 26553385,
+      "master_id": 100,
+      "properties": {
+        "appName": "Firefox",
+        "appVersion": "26.0a1",
+        "basedir": "e:/builds/moz2_slave/m-in-w32-d-0000000000000000000",
+        "branch": "test_treeherder",
+        "builddir": "m-in-w32-d-0000000000000000000",
+        "buildername": "WINNT 5.2 mozilla-inbound leak test build",
+        "buildid": "20130814104121",
+        "buildnumber": 485,
+        "builduid": "56d1370353394fc487c082b6c96af781",
+        "comments": "No bug - Disable timeout-prone B2G crashtests.\nCLOSED TREE",
+        "filepath": null,
+        "forced_clobber": false,
+        "got_revision": "9df04b16a655",
+        "hashType": "sha512",
+        "installerFilename": "firefox-26.0a1.en-US.win32.installer.exe",
+        "installerHash": "1d15e90a3c9233769cde8d2443b6c2643147975a8e98e7c763ebe32fc619a5de4819e59e1ce9f1cf4bc765c85768c071e2357b8a557ef56d548aaf0602a24e9d",
+        "installerSize": "29664768",
+        "jsshellUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-win32-debug/1376502081/jsshell-win32.zip",
+        "log_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-win32-debug/1376502081/mozilla-inbound-win32-debug-bm65-build1-build485.txt.gz",
+        "master": "http://buildbot-master65.srv.releng.usw2.mozilla.com:8001/",
+        "packageFilename": "firefox-26.0a1.en-US.win32.zip",
+        "packageHash": "c54a36027c9a2987602960d08f9693b15dc91e462969cdbbaf76a191856b96e04ad89e46d44f525589520c4f61c0e1282cdf86bc804b317e0d50c2248385a502",
+        "packageSize": "41377368",
+        "packageUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-win32-debug/1376502081/firefox-26.0a1.en-US.win32.zip",
+        "periodic_clobber": false,
+        "platform": "win32-debug",
+        "product": "firefox",
+        "project": "",
+        "purge_actual": "93.23GB",
+        "purge_target": "9GB",
+        "purged_clobber": false,
+        "repository": "",
+        "request_ids": [
+          28004256
+        ],
+        "request_times": {
+          "28004256": 1376502082
+        },
+        "revision": "45f8637cb9f7",
+        "scheduler": "mozilla-inbound-firefox",
+        "slavebuilddir": "m-in-w32-d-0000000000000000000",
+        "slavename": "w64-ix-slave88",
+        "stage_platform": "win32-debug",
+        "symbolsUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-win32-debug/1376502081/firefox-26.0a1.en-US.win32.crashreporter-symbols.zip",
+        "testsUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-win32-debug/1376502081/firefox-26.0a1.en-US.win32.tests.zip",
+        "toolsdir": "e:/builds/moz2_slave/m-in-w32-d-0000000000000000000/tools"
+      },
+      "reason": "scheduler",
+      "request_ids": [
+        28004256
+      ],
+      "requesttime": 1376502082,
+      "result": 0,
+      "slave_id": 2455,
+      "starttime": 1376502091
+    },
+    {
+      "builder_id": 146267,
+      "buildnumber": 42,
+      "endtime": 1376517826,
+      "id": 26556531,
+      "master_id": 86,
+      "properties": {
+        "appName": "Firefox",
+        "appVersion": "25.0a2",
+        "basedir": "e:/builds/moz2_slave/m-aurora-w32-00000000000000000",
+        "branch": "test_treeherder",
+        "builddir": "m-aurora-w32-00000000000000000",
+        "buildername": "WINNT 5.2 mozilla-aurora build",
+        "buildid": "20130814104621",
+        "buildnumber": 42,
+        "builduid": "f377570e7b214e2185ad6a995fde8820",
+        "comments": "Bug 899095 - Switch from http://build.mozilla.org/talos to  http://talos-bundles.pvt.b.m.o for talos r=jmaher - a=testing",
+        "filepath": null,
+        "forced_clobber": false,
+        "got_revision": "932868752f82",
+        "hashType": "sha512",
+        "installerFilename": "firefox-25.0a2.en-US.win32.installer.exe",
+        "installerHash": "9cd666c45821d44954e7227cce95e8f612463fd11b7d7b11ba6c2f60245abd109df4ad5a0c1e5230f3388974d819a2c5cdc1262fb5164df0f7b3ab76787a499a",
+        "installerSize": "23609688",
+        "jsshellUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-aurora-win32/1376502381/jsshell-win32.zip",
+        "log_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-aurora-win32/1376502381/mozilla-aurora-win32-bm63-build1-build42.txt.gz",
+        "master": "http://buildbot-master63.srv.releng.use1.mozilla.com:8001/",
+        "packageFilename": "firefox-25.0a2.en-US.win32.zip",
+        "packageHash": "b897fc1226e4077fb7e3558438f5b220afa54619dfbf15c48c4922949a2ab0becbdbcd18ae36c606d73d44b0fdeb7d47cf2fef2cb6c2728232a5fdc40cf2d7a5",
+        "packageSize": "30159299",
+        "packageUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-aurora-win32/1376502381/firefox-25.0a2.en-US.win32.zip",
+        "periodic_clobber": false,
+        "platform": "win32",
+        "product": "firefox",
+        "project": "",
+        "purge_actual": "109.48GB",
+        "purge_target": "12GB",
+        "purged_clobber": false,
+        "repository": "",
+        "request_ids": [
+          28004430
+        ],
+        "request_times": {
+          "28004430": 1376502382
+        },
+        "revision": "45f8637cb9f7",
+        "scheduler": "mozilla-aurora-firefox",
+        "slavebuilddir": "m-aurora-w32-00000000000000000",
+        "slavename": "w64-ix-slave133",
+        "stage_platform": "win32",
+        "symbolsUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-aurora-win32/1376502381/firefox-25.0a2.en-US.win32.crashreporter-symbols.zip",
+        "testsUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-aurora-win32/1376502381/firefox-25.0a2.en-US.win32.tests.zip",
+        "toolsdir": "e:/builds/moz2_slave/m-aurora-w32-00000000000000000/tools"
+      },
+      "reason": "scheduler",
+      "request_ids": [
+        28004430
+      ],
+      "requesttime": 1376502382,
+      "result": 0,
+      "slave_id": 4459,
+      "starttime": 1376502386
+    },
+    {
+      "builder_id": 144677,
+      "buildnumber": 1313,
+      "endtime": 1376511244,
+      "id": 26553217,
+      "master_id": 75,
+      "properties": {
+        "appName": "Firefox",
+        "appVersion": "26.0a1",
+        "basedir": "e:/builds/moz2_slave/try-w32-d-00000000000000000000",
+        "branch": "test_treeherder",
+        "builddir": "try-w32-d-00000000000000000000",
+        "buildername": "WINNT 5.2 try leak test build",
+        "buildid": "20130814104704",
+        "buildnumber": 1313,
+        "builduid": "ba54de47161c422db105a19653b4f7ca",
+        "comments": "try: -b do -p linux,macosx64,win32 -u reftest,crashtest,mochitests -t none",
+        "filepath": null,
+        "forced_clobber": false,
+        "got_revision": "1a867785f92b",
+        "hashType": "sha512",
+        "installerFilename": "firefox-26.0a1.en-US.win32.installer.exe",
+        "installerHash": "d650fd4e71b53667eddd6cc5273c43ef7cff6ed7c47b03baa1b39b530e1c29023b8cd1c294d618c9b55b71c8c67d8a50f8e18f8310cec595d6db8d8d07f4185c",
+        "installerSize": "29632000",
+        "jsshellUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/try-builds/dholbert@mozilla.com-1a867785f92b/try-win32-debug/jsshell-win32.zip",
+        "log_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/try-builds/dholbert@mozilla.com-1a867785f92b/try-win32-debug/try-win32-debug-bm55-try1-build1313.txt.gz",
+        "master": "http://buildbot-master55.srv.releng.use1.mozilla.com:8101/",
+        "packageFilename": "firefox-26.0a1.en-US.win32.zip",
+        "packageHash": "2483a7be67a90078de7dac7fe44980946c9cb37c086abd1829d34ab44947175d19d6f160a27062a9fbcefc5b99241e452bd7e23252439062212f4c7d951b84e8",
+        "packageSize": "41382695",
+        "packageUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/try-builds/dholbert@mozilla.com-1a867785f92b/try-win32-debug/firefox-26.0a1.en-US.win32.zip",
+        "periodic_clobber": false,
+        "platform": "win32-debug",
+        "product": "firefox",
+        "project": "",
+        "purge_actual": "146.21GB",
+        "purge_target": "9GB",
+        "purged_clobber": false,
+        "repository": "",
+        "request_ids": [
+          28004432
+        ],
+        "request_times": {
+          "28004432": 1376502383
+        },
+        "revision": "45f8637cb9f7",
+        "scheduler": "try-firefox",
+        "slavebuilddir": "try-w32-d-00000000000000000000",
+        "slavename": "w64-ix-slave29",
+        "stage_platform": "win32-debug",
+        "symbolsUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/try-builds/dholbert@mozilla.com-1a867785f92b/try-win32-debug/firefox-26.0a1.en-US.win32.crashreporter-symbols.zip",
+        "testsUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/try-builds/dholbert@mozilla.com-1a867785f92b/try-win32-debug/firefox-26.0a1.en-US.win32.tests.zip",
+        "toolsdir": "e:/builds/moz2_slave/try-w32-d-00000000000000000000/tools",
+        "who": "dholbert@mozilla.com"
+      },
+      "reason": "scheduler",
+      "request_ids": [
+        28004432
+      ],
+      "requesttime": 1376502383,
+      "result": 0,
+      "slave_id": 1873,
+      "starttime": 1376502397
+    },
+    {
+      "builder_id": 132178,
+      "buildnumber": 63,
+      "endtime": 1376515463,
+      "id": 26555458,
+      "master_id": 86,
+      "properties": {
+        "appName": "Firefox",
+        "appVersion": "25.0a2",
+        "basedir": "/builds/slave/m-aurora-lx-000000000000000000",
+        "branch": "test_treeherder",
+        "builddir": "m-aurora-lx-000000000000000000",
+        "buildername": "Linux mozilla-aurora build",
+        "buildid": "20130814104621",
+        "buildnumber": 63,
+        "builduid": "f377570e7b214e2185ad6a995fde8820",
+        "comments": "Bug 899095 - Switch from http://build.mozilla.org/talos to  http://talos-bundles.pvt.b.m.o for talos r=jmaher - a=testing",
+        "filepath": null,
+        "forced_clobber": false,
+        "got_revision": "932868752f82",
+        "hashType": "sha512",
+        "jsshellUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-aurora-linux/1376502381/jsshell-linux-i686.zip",
+        "log_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-aurora-linux/1376502381/mozilla-aurora-linux-bm63-build1-build63.txt.gz",
+        "master": "http://buildbot-master63.srv.releng.use1.mozilla.com:8001/",
+        "num_ctors": 223,
+        "packageFilename": "firefox-25.0a2.en-US.linux-i686.tar.bz2",
+        "packageHash": "a87077316d24ba416d4ee6ad7792690835bba1bc67db3fd69d7c7909f0255dfd91f2ede50e554c90717d54c47c1a1c332a1d9db80c84776e8ac3e88a638dfd1f",
+        "packageSize": "34656741",
+        "packageUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-aurora-linux/1376502381/firefox-25.0a2.en-US.linux-i686.tar.bz2",
+        "periodic_clobber": false,
+        "platform": "linux",
+        "product": "firefox",
+        "project": "",
+        "purge_actual": "112.67GB",
+        "purge_target": "12GB",
+        "purged_clobber": true,
+        "repository": "",
+        "request_ids": [
+          28004424
+        ],
+        "request_times": {
+          "28004424": 1376502382
+        },
+        "revision": "45f8637cb9f7",
+        "scheduler": "mozilla-aurora-firefox",
+        "slavebuilddir": "m-aurora-lx-000000000000000000",
+        "slavename": "bld-linux64-ec2-048",
+        "sourcestamp": "932868752f82",
+        "stage_platform": "linux",
+        "symbolsUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-aurora-linux/1376502381/firefox-25.0a2.en-US.linux-i686.crashreporter-symbols.zip",
+        "testresults": [
+          [
+            "num_ctors",
+            "num_ctors",
+            223,
+            "223"
+          ]
+        ],
+        "testsUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-aurora-linux/1376502381/firefox-25.0a2.en-US.linux-i686.tests.zip",
+        "toolsdir": "/builds/slave/m-aurora-lx-000000000000000000/tools"
+      },
+      "reason": "scheduler",
+      "request_ids": [
+        28004424
+      ],
+      "requesttime": 1376502382,
+      "result": 0,
+      "slave_id": 2303,
+      "starttime": 1376502399
+    },
+    {
+      "builder_id": 137564,
+      "buildnumber": 48,
+      "endtime": 1376514783,
+      "id": 26555110,
+      "master_id": 77,
+      "properties": {
+        "appName": "Firefox",
+        "appVersion": "25.0a2",
+        "basedir": "/builds/slave/m-aurora-l64-00000000000000000",
+        "branch": "test_treeherder",
+        "builddir": "m-aurora-l64-00000000000000000",
+        "buildername": "Linux x86-64 mozilla-aurora build",
+        "buildid": "20130814104621",
+        "buildnumber": 48,
+        "builduid": "f377570e7b214e2185ad6a995fde8820",
+        "comments": "Bug 899095 - Switch from http://build.mozilla.org/talos to  http://talos-bundles.pvt.b.m.o for talos r=jmaher - a=testing",
+        "filepath": null,
+        "forced_clobber": false,
+        "got_revision": "932868752f82",
+        "hashType": "sha512",
+        "jsshellUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-aurora-linux64/1376502381/jsshell-linux-x86_64.zip",
+        "log_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-aurora-linux64/1376502381/mozilla-aurora-linux64-bm58-build1-build48.txt.gz",
+        "master": "http://buildbot-master58.srv.releng.usw2.mozilla.com:8001/",
+        "num_ctors": 223,
+        "packageFilename": "firefox-25.0a2.en-US.linux-x86_64.tar.bz2",
+        "packageHash": "4c5754e82baabb0833fb9fe061dd11e95fa858cd166a731d259acd00b33b4600e05466b9c8af613784e376f5a4ca1c2e15de4a8e99215482695fecba90126076",
+        "packageSize": "34834570",
+        "packageUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-aurora-linux64/1376502381/firefox-25.0a2.en-US.linux-x86_64.tar.bz2",
+        "periodic_clobber": false,
+        "platform": "linux64",
+        "product": "firefox",
+        "project": "",
+        "purge_actual": "145.23GB",
+        "purge_target": "14GB",
+        "purged_clobber": true,
+        "repository": "",
+        "request_ids": [
+          28004426
+        ],
+        "request_times": {
+          "28004426": 1376502382
+        },
+        "revision": "45f8637cb9f7",
+        "scheduler": "mozilla-aurora-firefox",
+        "slavebuilddir": "m-aurora-l64-00000000000000000",
+        "slavename": "bld-linux64-ec2-479",
+        "sourcestamp": "932868752f82",
+        "stage_platform": "linux64",
+        "symbolsUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-aurora-linux64/1376502381/firefox-25.0a2.en-US.linux-x86_64.crashreporter-symbols.zip",
+        "testresults": [
+          [
+            "num_ctors",
+            "num_ctors",
+            223,
+            "223"
+          ]
+        ],
+        "testsUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-aurora-linux64/1376502381/firefox-25.0a2.en-US.linux-x86_64.tests.zip",
+        "toolsdir": "/builds/slave/m-aurora-l64-00000000000000000/tools"
+      },
+      "reason": "scheduler",
+      "request_ids": [
+        28004426
+      ],
+      "requesttime": 1376502382,
+      "result": 0,
+      "slave_id": 4355,
+      "starttime": 1376502471
+    },
+    {
+      "builder_id": 132814,
+      "buildnumber": 166,
+      "endtime": 1376510965,
+      "id": 26553070,
+      "master_id": 90,
+      "properties": {
+        "basedir": "/builds/slave/talos-slave/test",
+        "branch": "test_treeherder",
+        "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/fx-team-macosx64-debug/1376499083/firefox-26.0a1.en-US.mac64.dmg",
+        "buildername": "Rev4 MacOSX Lion 10.7 fx-team debug test mochitest-browser-chrome",
+        "buildid": "20130814095123",
+        "buildnumber": 166,
+        "builduid": "e8c4556f1c404e6786b4d1e975cdf9c5",
+        "log_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/fx-team-macosx64-debug/1376499083/fx-team_lion-debug_test-mochitest-browser-chrome-bm79-tests1-macosx-build166.txt.gz",
+        "master": "http://buildbot-master79.srv.releng.usw2.mozilla.com:8201/",
+        "pgo_build": "False",
+        "platform": "macosx64",
+        "product": "firefox",
+        "project": "",
+        "repo_path": "integration/fx-team",
+        "repository": "",
+        "request_ids": [
+          28005070
+        ],
+        "request_times": {
+          "28005070": 1376502662
+        },
+        "revision": "45f8637cb9f7",
+        "scheduler": "tests-fx-team-lion-debug-unittest",
+        "script_repo_revision": "2f85052176f2",
+        "slavebuilddir": "test",
+        "slavename": "talos-r4-lion-020",
+        "stage_platform": "macosx64",
+        "symbols_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/fx-team-macosx64-debug/1376499083/firefox-26.0a1.en-US.mac64.crashreporter-symbols.zip"
+      },
+      "reason": "scheduler",
+      "request_ids": [
+        28005070
+      ],
+      "requesttime": 1376502662,
+      "result": 0,
+      "slave_id": 1627,
+      "starttime": 1376503174
+    },
+    {
+      "builder_id": 129034,
+      "buildnumber": 161,
+      "endtime": 1376511090,
+      "id": 26553130,
+      "master_id": 90,
+      "properties": {
+        "basedir": "/Users/cltbld/talos-slave/test",
+        "branch": "test_treeherder",
+        "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/fx-team-macosx64-debug/1376499083/firefox-26.0a1.en-US.mac64.dmg",
+        "buildername": "Rev4 MacOSX Snow Leopard 10.6 fx-team debug test mochitest-browser-chrome",
+        "buildid": "20130814095123",
+        "buildnumber": 161,
+        "builduid": "e8c4556f1c404e6786b4d1e975cdf9c5",
+        "log_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/fx-team-macosx64-debug/1376499083/fx-team_snowleopard-debug_test-mochitest-browser-chrome-bm79-tests1-macosx-build161.txt.gz",
+        "master": "http://buildbot-master79.srv.releng.usw2.mozilla.com:8201/",
+        "pgo_build": "False",
+        "platform": "macosx64",
+        "product": "firefox",
+        "project": "",
+        "repo_path": "integration/fx-team",
+        "repository": "",
+        "request_ids": [
+          28004999
+        ],
+        "request_times": {
+          "28004999": 1376502655
+        },
+        "revision": "45f8637cb9f7",
+        "scheduler": "tests-fx-team-snowleopard-debug-unittest",
+        "script_repo_revision": "2f85052176f2",
+        "slavebuilddir": "test",
+        "slavename": "talos-r4-snow-024",
+        "stage_platform": "macosx64",
+        "symbols_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/fx-team-macosx64-debug/1376499083/firefox-26.0a1.en-US.mac64.crashreporter-symbols.zip"
+      },
+      "reason": "scheduler",
+      "request_ids": [
+        28004999
+      ],
+      "requesttime": 1376502655,
+      "result": 0,
+      "slave_id": 1524,
+      "starttime": 1376503489
+    },
+    {
+      "builder_id": 140326,
+      "buildnumber": 439,
+      "endtime": 1376511019,
+      "id": 26553102,
+      "master_id": 71,
+      "properties": {
+        "basedir": "/home/cltbld/talos-slave/test",
+        "branch": "test_treeherder",
+        "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/try-builds/hurley@mozilla.com-f55b1a3d65a4/try-linux-debug/firefox-26.0a1.en-US.linux-i686.tar.bz2",
+        "buildername": "Rev3 Fedora 12 try debug test mochitest-browser-chrome",
+        "buildid": "20130814092605",
+        "buildnumber": 439,
+        "builduid": "738259f2cb844166af2e37e8e7e07bda",
+        "log_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/try-builds/hurley@mozilla.com-f55b1a3d65a4/try-linux-debug/try_fedora-debug_test-mochitest-browser-chrome-bm51-tests1-linux-build439.txt.gz",
+        "master": "http://buildbot-master51.srv.releng.use1.mozilla.com:8201/",
+        "platform": "linux",
+        "product": "firefox",
+        "project": "",
+        "repo_path": "try",
+        "repository": "",
+        "request_ids": [
+          28006073
+        ],
+        "request_times": {
+          "28006073": 1376503805
+        },
+        "revision": "45f8637cb9f7",
+        "scheduler": "tests-try-fedora-debug-unittest",
+        "script_repo_revision": "2f85052176f2",
+        "slavebuilddir": "test",
+        "slavename": "talos-r3-fed-028",
+        "stage_platform": "linux",
+        "symbols_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/try-builds/hurley@mozilla.com-f55b1a3d65a4/try-linux-debug/firefox-26.0a1.en-US.linux-i686.crashreporter-symbols.zip"
+      },
+      "reason": "scheduler",
+      "request_ids": [
+        28006073
+      ],
+      "requesttime": 1376503805,
+      "result": 1,
+      "slave_id": 440,
+      "starttime": 1376503812
+    },
+    {
+      "builder_id": 116117,
+      "buildnumber": 435,
+      "endtime": 1376510916,
+      "id": 26553044,
+      "master_id": 73,
+      "properties": {
+        "basedir": "/builds/slave/test",
+        "branch": "test_treeherder",
+        "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/try-builds/hurley@mozilla.com-f55b1a3d65a4/try-linux-debug/firefox-26.0a1.en-US.linux-i686.tar.bz2",
+        "buildername": "Ubuntu VM 12.04 try debug test reftest",
+        "buildid": "20130814092605",
+        "buildnumber": 435,
+        "builduid": "738259f2cb844166af2e37e8e7e07bda",
+        "log_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/try-builds/hurley@mozilla.com-f55b1a3d65a4/try-linux-debug/try_ubuntu32_vm-debug_test-reftest-bm54-tests1-linux-build435.txt.gz",
+        "master": "http://buildbot-master54.srv.releng.usw2.mozilla.com:8201/",
+        "platform": "linux",
+        "product": "firefox",
+        "project": "",
+        "repo_path": "try",
+        "repository": "",
+        "request_ids": [
+          28006074
+        ],
+        "request_times": {
+          "28006074": 1376503805
+        },
+        "revision": "45f8637cb9f7",
+        "scheduler": "tests-try-ubuntu32_vm-debug-unittest",
+        "script_repo_revision": "2f85052176f2",
+        "slavebuilddir": "test",
+        "slavename": "tst-linux32-ec2-315",
+        "stage_platform": "linux",
+        "symbols_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/try-builds/hurley@mozilla.com-f55b1a3d65a4/try-linux-debug/firefox-26.0a1.en-US.linux-i686.crashreporter-symbols.zip"
+      },
+      "reason": "scheduler",
+      "request_ids": [
+        28006074
+      ],
+      "requesttime": 1376503805,
+      "result": 1,
+      "slave_id": 3586,
+      "starttime": 1376503864
+    },
+    {
+      "builder_id": 119956,
+      "buildnumber": 1012,
+      "endtime": 1376511677,
+      "id": 26553425,
+      "master_id": 82,
+      "properties": {
+        "basedir": "/builds/slave/talos-slave/test",
+        "branch": "test_treeherder",
+        "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64-debug/1376500461/firefox-26.0a1.en-US.mac64.dmg",
+        "buildername": "Rev4 MacOSX Lion 10.7 mozilla-inbound debug test mochitest-browser-chrome",
+        "buildid": "20130814101421",
+        "buildnumber": 1012,
+        "builduid": "5e66a9f140074af7b494fe2c7c1d54af",
+        "log_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64-debug/1376500461/mozilla-inbound_lion-debug_test-mochitest-browser-chrome-bm75-tests1-macosx-build1012.txt.gz",
+        "master": "http://buildbot-master75.srv.releng.use1.mozilla.com:8201/",
+        "pgo_build": "False",
+        "platform": "macosx64",
+        "product": "firefox",
+        "project": "",
+        "repo_path": "integration/mozilla-inbound",
+        "repository": "",
+        "request_ids": [
+          28005220,
+          28006065
+        ],
+        "request_times": {
+          "28005220": 1376502844,
+          "28006065": 1376503803
+        },
+        "revision": "45f8637cb9f7",
+        "scheduler": "tests-mozilla-inbound-lion-debug-unittest",
+        "script_repo_revision": "2f85052176f2",
+        "slavebuilddir": "test",
+        "slavename": "talos-r4-lion-046",
+        "stage_platform": "macosx64",
+        "symbols_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64-debug/1376500461/firefox-26.0a1.en-US.mac64.crashreporter-symbols.zip"
+      },
+      "reason": "scheduler",
+      "request_ids": [
+        28005220,
+        28006065
+      ],
+      "requesttime": 1376502844,
+      "result": 0,
+      "slave_id": 1632,
+      "starttime": 1376503892
+    },
+    {
+      "builder_id": 119896,
+      "buildnumber": 1100,
+      "endtime": 1376511518,
+      "id": 26553358,
+      "master_id": 82,
+      "properties": {
+        "basedir": "/Users/cltbld/talos-slave/test",
+        "branch": "test_treeherder",
+        "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64-debug/1376500461/firefox-26.0a1.en-US.mac64.dmg",
+        "buildername": "Rev4 MacOSX Snow Leopard 10.6 mozilla-inbound debug test mochitest-browser-chrome",
+        "buildid": "20130814101421",
+        "buildnumber": 1100,
+        "builduid": "5e66a9f140074af7b494fe2c7c1d54af",
+        "log_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64-debug/1376500461/mozilla-inbound_snowleopard-debug_test-mochitest-browser-chrome-bm75-tests1-macosx-build1100.txt.gz",
+        "master": "http://buildbot-master75.srv.releng.use1.mozilla.com:8201/",
+        "pgo_build": "False",
+        "platform": "macosx64",
+        "product": "firefox",
+        "project": "",
+        "repo_path": "integration/mozilla-inbound",
+        "repository": "",
+        "request_ids": [
+          28005207,
+          28006052
+        ],
+        "request_times": {
+          "28005207": 1376502844,
+          "28006052": 1376503803
+        },
+        "revision": "45f8637cb9f7",
+        "scheduler": "tests-mozilla-inbound-snowleopard-debug-unittest",
+        "script_repo_revision": "2f85052176f2",
+        "slavebuilddir": "test",
+        "slavename": "talos-r4-snow-082",
+        "stage_platform": "macosx64",
+        "symbols_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64-debug/1376500461/firefox-26.0a1.en-US.mac64.crashreporter-symbols.zip"
+      },
+      "reason": "scheduler",
+      "request_ids": [
+        28005207,
+        28006052
+      ],
+      "requesttime": 1376502844,
+      "result": 1,
+      "slave_id": 1846,
+      "starttime": 1376503927
+    },
+    {
+      "builder_id": 141353,
+      "buildnumber": 373,
+      "endtime": 1376511001,
+      "id": 26553092,
+      "master_id": 80,
+      "properties": {
+        "basedir": "/home/cltbld/talos-slave/test",
+        "branch": "test_treeherder",
+        "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/try-builds/jcoppeard@mozilla.com-7cd16ff70711/try-linux-debug/firefox-26.0a1.en-US.linux-i686.tar.bz2",
+        "buildername": "Rev3 Fedora 12 try debug test mochitest-browser-chrome",
+        "buildid": "20130814093237",
+        "buildnumber": 373,
+        "builduid": "6d441a71ff4d49809832c35bf9613c82",
+        "log_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/try-builds/jcoppeard@mozilla.com-7cd16ff70711/try-linux-debug/try_fedora-debug_test-mochitest-browser-chrome-bm67-tests1-linux-build373.txt.gz",
+        "master": "http://buildbot-master67.srv.releng.use1.mozilla.com:8201/",
+        "platform": "linux",
+        "product": "firefox",
+        "project": "",
+        "repo_path": "try",
+        "repository": "",
+        "request_ids": [
+          28006094
+        ],
+        "request_times": {
+          "28006094": 1376503926
+        },
+        "revision": "45f8637cb9f7",
+        "scheduler": "tests-try-fedora-debug-unittest",
+        "script_repo_revision": "2f85052176f2",
+        "slavebuilddir": "test",
+        "slavename": "talos-r3-fed-011",
+        "stage_platform": "linux",
+        "symbols_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/try-builds/jcoppeard@mozilla.com-7cd16ff70711/try-linux-debug/firefox-26.0a1.en-US.linux-i686.crashreporter-symbols.zip"
+      },
+      "reason": "scheduler",
+      "request_ids": [
+        28006094
+      ],
+      "requesttime": 1376503926,
+      "result": 0,
+      "slave_id": 461,
+      "starttime": 1376503936
+    },
+    {
+      "builder_id": 150974,
+      "buildnumber": 1,
+      "endtime": 1376514420,
+      "id": 26554872,
+      "master_id": 100,
+      "properties": {
+        "basedir": "/e/builds/moz2_slave/rel-m-rel-w32_rpk_3-0000000000",
+        "branch": "test_treeherder",
+        "build_number": 1,
+        "builddir": "release-mozilla-release-win32_repack_3",
+        "buildername": "release-mozilla-release-win32_repack_3/10",
+        "buildid": "20130814063812",
+        "buildnumber": 1,
+        "builduid": "df292bc2d0934dd69bb8182448919107",
+        "locales": "el,en-GB,en-ZA,eo,es-AR,es-CL,es-ES,es-MX,et",
+        "log_url": "http://stage.mozilla.org/pub/mozilla.org/firefox/nightly/23.0.1-candidates/build1/logs/release-mozilla-release-win32_repack_3-bm65-build1-build1.txt.gz",
+        "master": "http://buildbot-master65.srv.releng.usw2.mozilla.com:8001/",
+        "platform": "win32",
+        "product": "firefox",
+        "products": "firefox",
+        "project": "",
+        "release_config": "mozilla/release-firefox-mozilla-release.py",
+        "repository": "",
+        "request_ids": [
+          28006144
+        ],
+        "request_times": {
+          "28006144": 1376503997
+        },
+        "revision": "45f8637cb9f7",
+        "scheduler": "release-mozilla-release-win32_repack",
+        "script_repo_revision": "97080c57a9ab",
+        "slavebuilddir": "rel-m-rel-w32_rpk_3-0000000000",
+        "slavename": "w64-ix-slave73",
+        "toolsdir": "/e/builds/moz2_slave/rel-m-rel-w32_rpk_3-0000000000/scripts",
+        "version": "23.0.1"
+      },
+      "reason": "Triggerable(release-mozilla-release-win32_repack)",
+      "request_ids": [
+        28006144
+      ],
+      "requesttime": 1376503997,
+      "result": 0,
+      "slave_id": 2147,
+      "starttime": 1376503997
+    },
+    {
+      "builder_id": 154329,
+      "buildnumber": 2,
+      "endtime": 1376513734,
+      "id": 26554459,
+      "master_id": 100,
+      "properties": {
+        "basedir": "/e/builds/moz2_slave/rel-m-rel-w32_rpk_2-0000000000",
+        "branch": "test_treeherder",
+        "build_number": 1,
+        "builddir": "release-mozilla-release-win32_repack_2",
+        "buildername": "release-mozilla-release-win32_repack_2/10",
+        "buildid": "20130814063812",
+        "buildnumber": 2,
+        "builduid": "df292bc2d0934dd69bb8182448919107",
+        "locales": "bn-IN,br,bs,ca,cs,csb,cy,da,de",
+        "log_url": "http://stage.mozilla.org/pub/mozilla.org/firefox/nightly/23.0.1-candidates/build1/logs/release-mozilla-release-win32_repack_2-bm65-build1-build2.txt.gz",
+        "master": "http://buildbot-master65.srv.releng.usw2.mozilla.com:8001/",
+        "platform": "win32",
+        "product": "firefox",
+        "products": "firefox",
+        "project": "",
+        "release_config": "mozilla/release-firefox-mozilla-release.py",
+        "repository": "",
+        "request_ids": [
+          28006143
+        ],
+        "request_times": {
+          "28006143": 1376503997
+        },
+        "revision": "45f8637cb9f7",
+        "scheduler": "release-mozilla-release-win32_repack",
+        "script_repo_revision": "97080c57a9ab",
+        "slavebuilddir": "rel-m-rel-w32_rpk_2-0000000000",
+        "slavename": "w64-ix-slave122",
+        "toolsdir": "/e/builds/moz2_slave/rel-m-rel-w32_rpk_2-0000000000/scripts",
+        "version": "23.0.1"
+      },
+      "reason": "Triggerable(release-mozilla-release-win32_repack)",
+      "request_ids": [
+        28006143
+      ],
+      "requesttime": 1376503997,
+      "result": 2,
+      "slave_id": 4467,
+      "starttime": 1376503997
+    },
+    {
+      "builder_id": 154470,
+      "buildnumber": 1,
+      "endtime": 1376514615,
+      "id": 26554997,
+      "master_id": 100,
+      "properties": {
+        "basedir": "/e/builds/moz2_slave/rel-m-rel-w32_rpk_1-0000000000",
+        "branch": "test_treeherder",
+        "build_number": 1,
+        "builddir": "release-mozilla-release-win32_repack_1",
+        "buildername": "release-mozilla-release-win32_repack_1/10",
+        "buildid": "20130814063812",
+        "buildnumber": 1,
+        "builduid": "df292bc2d0934dd69bb8182448919107",
+        "locales": "ach,af,ak,ar,as,ast,be,bg,bn-BD",
+        "log_url": "http://stage.mozilla.org/pub/mozilla.org/firefox/nightly/23.0.1-candidates/build1/logs/release-mozilla-release-win32_repack_1-bm65-build1-build1.txt.gz",
+        "master": "http://buildbot-master65.srv.releng.usw2.mozilla.com:8001/",
+        "platform": "win32",
+        "product": "firefox",
+        "products": "firefox",
+        "project": "",
+        "release_config": "mozilla/release-firefox-mozilla-release.py",
+        "repository": "",
+        "request_ids": [
+          28006142
+        ],
+        "request_times": {
+          "28006142": 1376503997
+        },
+        "revision": "45f8637cb9f7",
+        "scheduler": "release-mozilla-release-win32_repack",
+        "script_repo_revision": "97080c57a9ab",
+        "slavebuilddir": "rel-m-rel-w32_rpk_1-0000000000",
+        "slavename": "w64-ix-slave126",
+        "toolsdir": "/e/builds/moz2_slave/rel-m-rel-w32_rpk_1-0000000000/scripts",
+        "version": "23.0.1"
+      },
+      "reason": "Triggerable(release-mozilla-release-win32_repack)",
+      "request_ids": [
+        28006142
+      ],
+      "requesttime": 1376503997,
+      "result": 0,
+      "slave_id": 4460,
+      "starttime": 1376503997
+    },
+    {
+      "builder_id": 150967,
+      "buildnumber": 2,
+      "endtime": 1376514745,
+      "id": 26555079,
+      "master_id": 95,
+      "properties": {
+        "basedir": "/e/builds/moz2_slave/rel-m-rel-w32_rpk_6-0000000000",
+        "branch": "test_treeherder",
+        "build_number": 1,
+        "builddir": "release-mozilla-release-win32_repack_6",
+        "buildername": "release-mozilla-release-win32_repack_6/10",
+        "buildid": "20130814063812",
+        "buildnumber": 2,
+        "builduid": "df292bc2d0934dd69bb8182448919107",
+        "locales": "ja,kk,km,kn,ko,ku,lg,lij,lt",
+        "log_url": "http://stage.mozilla.org/pub/mozilla.org/firefox/nightly/23.0.1-candidates/build1/logs/release-mozilla-release-win32_repack_6-bm66-build1-build2.txt.gz",
+        "master": "http://buildbot-master66.srv.releng.usw2.mozilla.com:8001/",
+        "platform": "win32",
+        "product": "firefox",
+        "products": "firefox",
+        "project": "",
+        "release_config": "mozilla/release-firefox-mozilla-release.py",
+        "repository": "",
+        "request_ids": [
+          28006147
+        ],
+        "request_times": {
+          "28006147": 1376503997
+        },
+        "revision": "45f8637cb9f7",
+        "scheduler": "release-mozilla-release-win32_repack",
+        "script_repo_revision": "97080c57a9ab",
+        "slavebuilddir": "rel-m-rel-w32_rpk_6-0000000000",
+        "slavename": "w64-ix-slave116",
+        "toolsdir": "/e/builds/moz2_slave/rel-m-rel-w32_rpk_6-0000000000/scripts",
+        "version": "23.0.1"
+      },
+      "reason": "Triggerable(release-mozilla-release-win32_repack)",
+      "request_ids": [
+        28006147
+      ],
+      "requesttime": 1376503997,
+      "result": 0,
+      "slave_id": 4164,
+      "starttime": 1376504000
+    },
+    {
+      "builder_id": 181859,
+      "buildnumber": 0,
+      "endtime": 1376514500,
+      "id": 26554926,
+      "master_id": 95,
+      "properties": {
+        "basedir": "/e/builds/moz2_slave/rel-m-rel-w32_rpk_7-0000000000",
+        "branch": "test_treeherder",
+        "build_number": 1,
+        "builddir": "release-mozilla-release-win32_repack_7",
+        "buildername": "release-mozilla-release-win32_repack_7/10",
+        "buildid": "20130814063812",
+        "buildnumber": 0,
+        "builduid": "df292bc2d0934dd69bb8182448919107",
+        "locales": "lv,mai,mk,ml,mr,nb-NO,nl,nn-NO,nso",
+        "log_url": "http://stage.mozilla.org/pub/mozilla.org/firefox/nightly/23.0.1-candidates/build1/logs/release-mozilla-release-win32_repack_7-bm66-build1-build0.txt.gz",
+        "master": "http://buildbot-master66.srv.releng.usw2.mozilla.com:8001/",
+        "platform": "win32",
+        "product": "firefox",
+        "products": "firefox",
+        "project": "",
+        "release_config": "mozilla/release-firefox-mozilla-release.py",
+        "repository": "",
+        "request_ids": [
+          28006148
+        ],
+        "request_times": {
+          "28006148": 1376503997
+        },
+        "revision": "45f8637cb9f7",
+        "scheduler": "release-mozilla-release-win32_repack",
+        "script_repo_revision": "97080c57a9ab",
+        "slavebuilddir": "rel-m-rel-w32_rpk_7-0000000000",
+        "slavename": "w64-ix-slave112",
+        "toolsdir": "/e/builds/moz2_slave/rel-m-rel-w32_rpk_7-0000000000/scripts",
+        "version": "23.0.1"
+      },
+      "reason": "Triggerable(release-mozilla-release-win32_repack)",
+      "request_ids": [
+        28006148
+      ],
+      "requesttime": 1376503997,
+      "result": 0,
+      "slave_id": 4157,
+      "starttime": 1376504000
+    },
+    {
+      "builder_id": 150971,
+      "buildnumber": 1,
+      "endtime": 1376514161,
+      "id": 26554705,
+      "master_id": 99,
+      "properties": {
+        "basedir": "/e/builds/moz2_slave/rel-m-rel-w32_rpk_5-0000000000",
+        "branch": "test_treeherder",
+        "build_number": 1,
+        "builddir": "release-mozilla-release-win32_repack_5",
+        "buildername": "release-mozilla-release-win32_repack_5/10",
+        "buildid": "20130814063812",
+        "buildnumber": 1,
+        "builduid": "df292bc2d0934dd69bb8182448919107",
+        "locales": "gu-IN,he,hi-IN,hr,hu,hy-AM,id,is,it",
+        "log_url": "http://stage.mozilla.org/pub/mozilla.org/firefox/nightly/23.0.1-candidates/build1/logs/release-mozilla-release-win32_repack_5-bm62-build1-build1.txt.gz",
+        "master": "http://buildbot-master62.srv.releng.use1.mozilla.com:8001/",
+        "platform": "win32",
+        "product": "firefox",
+        "products": "firefox",
+        "project": "",
+        "release_config": "mozilla/release-firefox-mozilla-release.py",
+        "repository": "",
+        "request_ids": [
+          28006146
+        ],
+        "request_times": {
+          "28006146": 1376503997
+        },
+        "revision": "45f8637cb9f7",
+        "scheduler": "release-mozilla-release-win32_repack",
+        "script_repo_revision": "97080c57a9ab",
+        "slavebuilddir": "rel-m-rel-w32_rpk_5-0000000000",
+        "slavename": "w64-ix-slave13",
+        "toolsdir": "/e/builds/moz2_slave/rel-m-rel-w32_rpk_5-0000000000/scripts",
+        "version": "23.0.1"
+      },
+      "reason": "Triggerable(release-mozilla-release-win32_repack)",
+      "request_ids": [
+        28006146
+      ],
+      "requesttime": 1376503997,
+      "result": 0,
+      "slave_id": 1318,
+      "starttime": 1376504000
+    },
+    {
+      "builder_id": 181856,
+      "buildnumber": 0,
+      "endtime": 1376513757,
+      "id": 26554471,
+      "master_id": 95,
+      "properties": {
+        "basedir": "/e/builds/moz2_slave/rel-m-rel-w32_rpk_9-0000000000",
+        "branch": "test_treeherder",
+        "build_number": 1,
+        "builddir": "release-mozilla-release-win32_repack_9",
+        "buildername": "release-mozilla-release-win32_repack_9/10",
+        "buildid": "20130814063812",
+        "buildnumber": 0,
+        "builduid": "df292bc2d0934dd69bb8182448919107",
+        "locales": "sk,sl,son,sq,sr,sv-SE,ta,ta-LK",
+        "log_url": "http://stage.mozilla.org/pub/mozilla.org/firefox/nightly/23.0.1-candidates/build1/logs/release-mozilla-release-win32_repack_9-bm66-build1-build0.txt.gz",
+        "master": "http://buildbot-master66.srv.releng.usw2.mozilla.com:8001/",
+        "platform": "win32",
+        "product": "firefox",
+        "products": "firefox",
+        "project": "",
+        "release_config": "mozilla/release-firefox-mozilla-release.py",
+        "repository": "",
+        "request_ids": [
+          28006150
+        ],
+        "request_times": {
+          "28006150": 1376503997
+        },
+        "revision": "45f8637cb9f7",
+        "scheduler": "release-mozilla-release-win32_repack",
+        "script_repo_revision": "97080c57a9ab",
+        "slavebuilddir": "rel-m-rel-w32_rpk_9-0000000000",
+        "slavename": "w64-ix-slave75",
+        "toolsdir": "/e/builds/moz2_slave/rel-m-rel-w32_rpk_9-0000000000/scripts",
+        "version": "23.0.1"
+      },
+      "reason": "Triggerable(release-mozilla-release-win32_repack)",
+      "request_ids": [
+        28006150
+      ],
+      "requesttime": 1376503997,
+      "result": 0,
+      "slave_id": 2118,
+      "starttime": 1376504000
+    },
+    {
+      "builder_id": 181857,
+      "buildnumber": 0,
+      "endtime": 1376514096,
+      "id": 26554666,
+      "master_id": 95,
+      "properties": {
+        "basedir": "/e/builds/moz2_slave/rel-m-rel-w32_rpk_8-0000000000",
+        "branch": "test_treeherder",
+        "build_number": 1,
+        "builddir": "release-mozilla-release-win32_repack_8",
+        "buildername": "release-mozilla-release-win32_repack_8/10",
+        "buildid": "20130814063812",
+        "buildnumber": 0,
+        "builduid": "df292bc2d0934dd69bb8182448919107",
+        "locales": "or,pa-IN,pl,pt-BR,pt-PT,rm,ro,ru,si",
+        "log_url": "http://stage.mozilla.org/pub/mozilla.org/firefox/nightly/23.0.1-candidates/build1/logs/release-mozilla-release-win32_repack_8-bm66-build1-build0.txt.gz",
+        "master": "http://buildbot-master66.srv.releng.usw2.mozilla.com:8001/",
+        "platform": "win32",
+        "product": "firefox",
+        "products": "firefox",
+        "project": "",
+        "release_config": "mozilla/release-firefox-mozilla-release.py",
+        "repository": "",
+        "request_ids": [
+          28006149
+        ],
+        "request_times": {
+          "28006149": 1376503997
+        },
+        "revision": "45f8637cb9f7",
+        "scheduler": "release-mozilla-release-win32_repack",
+        "script_repo_revision": "97080c57a9ab",
+        "slavebuilddir": "rel-m-rel-w32_rpk_8-0000000000",
+        "slavename": "w64-ix-slave90",
+        "toolsdir": "/e/builds/moz2_slave/rel-m-rel-w32_rpk_8-0000000000/scripts",
+        "version": "23.0.1"
+      },
+      "reason": "Triggerable(release-mozilla-release-win32_repack)",
+      "request_ids": [
+        28006149
+      ],
+      "requesttime": 1376503997,
+      "result": 0,
+      "slave_id": 2459,
+      "starttime": 1376504001
+    },
+    {
+      "builder_id": 181855,
+      "buildnumber": 0,
+      "endtime": 1376513407,
+      "id": 26554270,
+      "master_id": 95,
+      "properties": {
+        "basedir": "/e/builds/moz2_slave/rel-m-rel-w32_rpk_10-000000000",
+        "branch": "test_treeherder",
+        "build_number": 1,
+        "builddir": "release-mozilla-release-win32_repack_10",
+        "buildername": "release-mozilla-release-win32_repack_10/10",
+        "buildid": "20130814063812",
+        "buildnumber": 0,
+        "builduid": "df292bc2d0934dd69bb8182448919107",
+        "locales": "te,th,tr,uk,vi,zh-CN,zh-TW,zu",
+        "log_url": "http://stage.mozilla.org/pub/mozilla.org/firefox/nightly/23.0.1-candidates/build1/logs/release-mozilla-release-win32_repack_10-bm66-build1-build0.txt.gz",
+        "master": "http://buildbot-master66.srv.releng.usw2.mozilla.com:8001/",
+        "platform": "win32",
+        "product": "firefox",
+        "products": "firefox",
+        "project": "",
+        "release_config": "mozilla/release-firefox-mozilla-release.py",
+        "repository": "",
+        "request_ids": [
+          28006151
+        ],
+        "request_times": {
+          "28006151": 1376503997
+        },
+        "revision": "45f8637cb9f7",
+        "scheduler": "release-mozilla-release-win32_repack",
+        "script_repo_revision": "97080c57a9ab",
+        "slavebuilddir": "rel-m-rel-w32_rpk_10-000000000",
+        "slavename": "w64-ix-slave07",
+        "toolsdir": "/e/builds/moz2_slave/rel-m-rel-w32_rpk_10-000000000/scripts",
+        "version": "23.0.1"
+      },
+      "reason": "Triggerable(release-mozilla-release-win32_repack)",
+      "request_ids": [
+        28006151
+      ],
+      "requesttime": 1376503997,
+      "result": 0,
+      "slave_id": 1330,
+      "starttime": 1376504001
+    },
+    {
+      "builder_id": 181858,
+      "buildnumber": 0,
+      "endtime": 1376514390,
+      "id": 26554852,
+      "master_id": 100,
+      "properties": {
+        "basedir": "/e/builds/moz2_slave/rel-m-rel-w32_rpk_4-0000000000",
+        "branch": "test_treeherder",
+        "build_number": 1,
+        "builddir": "release-mozilla-release-win32_repack_4",
+        "buildername": "release-mozilla-release-win32_repack_4/10",
+        "buildid": "20130814063812",
+        "buildnumber": 0,
+        "builduid": "df292bc2d0934dd69bb8182448919107",
+        "locales": "eu,fa,ff,fi,fr,fy-NL,ga-IE,gd,gl",
+        "log_url": "http://stage.mozilla.org/pub/mozilla.org/firefox/nightly/23.0.1-candidates/build1/logs/release-mozilla-release-win32_repack_4-bm65-build1-build0.txt.gz",
+        "master": "http://buildbot-master65.srv.releng.usw2.mozilla.com:8001/",
+        "platform": "win32",
+        "product": "firefox",
+        "products": "firefox",
+        "project": "",
+        "release_config": "mozilla/release-firefox-mozilla-release.py",
+        "repository": "",
+        "request_ids": [
+          28006145
+        ],
+        "request_times": {
+          "28006145": 1376503997
+        },
+        "revision": "45f8637cb9f7",
+        "scheduler": "release-mozilla-release-win32_repack",
+        "script_repo_revision": "97080c57a9ab",
+        "slavebuilddir": "rel-m-rel-w32_rpk_4-0000000000",
+        "slavename": "w64-ix-slave118",
+        "toolsdir": "/e/builds/moz2_slave/rel-m-rel-w32_rpk_4-0000000000/scripts",
+        "version": "23.0.1"
+      },
+      "reason": "Triggerable(release-mozilla-release-win32_repack)",
+      "request_ids": [
+        28006145
+      ],
+      "requesttime": 1376503997,
+      "result": 0,
+      "slave_id": 4151,
+      "starttime": 1376504004
+    },
+    {
+      "builder_id": 142056,
+      "buildnumber": 172,
+      "endtime": 1376511144,
+      "id": 26553157,
+      "master_id": 73,
+      "properties": {
+        "basedir": "/home/cltbld/talos-slave/test",
+        "branch": "test_treeherder",
+        "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/fx-team-linux-debug/1376499083/firefox-26.0a1.en-US.linux-i686.tar.bz2",
+        "buildername": "Rev3 Fedora 12 fx-team debug test mochitest-browser-chrome",
+        "buildid": "20130814095123",
+        "buildnumber": 172,
+        "builduid": "e8c4556f1c404e6786b4d1e975cdf9c5",
+        "log_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/fx-team-linux-debug/1376499083/fx-team_fedora-debug_test-mochitest-browser-chrome-bm54-tests1-linux-build172.txt.gz",
+        "master": "http://buildbot-master54.srv.releng.usw2.mozilla.com:8201/",
+        "pgo_build": "False",
+        "platform": "linux",
+        "product": "firefox",
+        "project": "",
+        "repo_path": "integration/fx-team",
+        "repository": "",
+        "request_ids": [
+          28006196
+        ],
+        "request_times": {
+          "28006196": 1376504041
+        },
+        "revision": "45f8637cb9f7",
+        "scheduler": "tests-fx-team-fedora-debug-unittest",
+        "script_repo_revision": "2f85052176f2",
+        "slavebuilddir": "test",
+        "slavename": "talos-r3-fed-074",
+        "stage_platform": "linux",
+        "symbols_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/fx-team-linux-debug/1376499083/firefox-26.0a1.en-US.linux-i686.crashreporter-symbols.zip"
+      },
+      "reason": "scheduler",
+      "request_ids": [
+        28006196
+      ],
+      "requesttime": 1376504041,
+      "result": 0,
+      "slave_id": 1734,
+      "starttime": 1376504047
+    },
+    {
+      "builder_id": 118025,
+      "buildnumber": 120,
+      "endtime": 1376510984,
+      "id": 26553082,
+      "master_id": 71,
+      "properties": {
+        "basedir": "/builds/slave/test",
+        "branch": "test_treeherder",
+        "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/fx-team-linux-debug/1376499083/firefox-26.0a1.en-US.linux-i686.tar.bz2",
+        "buildername": "Ubuntu VM 12.04 fx-team debug test reftest",
+        "buildid": "20130814095123",
+        "buildnumber": 120,
+        "builduid": "e8c4556f1c404e6786b4d1e975cdf9c5",
+        "log_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/fx-team-linux-debug/1376499083/fx-team_ubuntu32_vm-debug_test-reftest-bm51-tests1-linux-build120.txt.gz",
+        "master": "http://buildbot-master51.srv.releng.use1.mozilla.com:8201/",
+        "pgo_build": "False",
+        "platform": "linux",
+        "product": "firefox",
+        "project": "",
+        "repo_path": "integration/fx-team",
+        "repository": "",
+        "request_ids": [
+          28006189
+        ],
+        "request_times": {
+          "28006189": 1376504039
+        },
+        "revision": "45f8637cb9f7",
+        "scheduler": "tests-fx-team-ubuntu32_vm-debug-unittest",
+        "script_repo_revision": "2f85052176f2",
+        "slavebuilddir": "test",
+        "slavename": "tst-linux32-ec2-045",
+        "stage_platform": "linux",
+        "symbols_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/fx-team-linux-debug/1376499083/firefox-26.0a1.en-US.linux-i686.crashreporter-symbols.zip"
+      },
+      "reason": "scheduler",
+      "request_ids": [
+        28006189
+      ],
+      "requesttime": 1376504039,
+      "result": 0,
+      "slave_id": 3405,
+      "starttime": 1376504185
+    },
+    {
+      "builder_id": 141237,
+      "buildnumber": 1025,
+      "endtime": 1376511430,
+      "id": 26553313,
+      "master_id": 73,
+      "properties": {
+        "basedir": "/home/cltbld/talos-slave/test",
+        "branch": "test_treeherder",
+        "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux-debug/1376498063/firefox-26.0a1.en-US.linux-i686.tar.bz2",
+        "buildername": "Rev3 Fedora 12 mozilla-inbound debug test mochitest-browser-chrome",
+        "buildid": "20130814093423",
+        "buildnumber": 1025,
+        "builduid": "3abbb25a8451415ea08761a30789e73d",
+        "log_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux-debug/1376498063/mozilla-inbound_fedora-debug_test-mochitest-browser-chrome-bm54-tests1-linux-build1025.txt.gz",
+        "master": "http://buildbot-master54.srv.releng.usw2.mozilla.com:8201/",
+        "pgo_build": "False",
+        "platform": "linux",
+        "product": "firefox",
+        "project": "",
+        "repo_path": "integration/mozilla-inbound",
+        "repository": "",
+        "request_ids": [
+          28006530
+        ],
+        "request_times": {
+          "28006530": 1376504335
+        },
+        "revision": "45f8637cb9f7",
+        "scheduler": "tests-mozilla-inbound-fedora-debug-unittest",
+        "script_repo_revision": "2f85052176f2",
+        "slavebuilddir": "test",
+        "slavename": "talos-r3-fed-062",
+        "stage_platform": "linux",
+        "symbols_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-linux-debug/1376498063/firefox-26.0a1.en-US.linux-i686.crashreporter-symbols.zip"
+      },
+      "reason": "scheduler",
+      "request_ids": [
+        28006530
+      ],
+      "requesttime": 1376504335,
+      "result": 0,
+      "slave_id": 1267,
+      "starttime": 1376504341
+    },
+    {
+      "builder_id": 141353,
+      "buildnumber": 374,
+      "endtime": 1376511648,
+      "id": 26553414,
+      "master_id": 80,
+      "properties": {
+        "basedir": "/home/cltbld/talos-slave/test",
+        "branch": "test_treeherder",
+        "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/try-builds/hurley@mozilla.com-3beb9ebd1dd7/try-linux-debug/firefox-26.0a1.en-US.linux-i686.tar.bz2",
+        "buildername": "Rev3 Fedora 12 try debug test mochitest-browser-chrome",
+        "buildid": "20130814093938",
+        "buildnumber": 374,
+        "builduid": "0c05c1b2af1d4a39868d5d5e2076b60e",
+        "log_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/try-builds/hurley@mozilla.com-3beb9ebd1dd7/try-linux-debug/try_fedora-debug_test-mochitest-browser-chrome-bm67-tests1-linux-build374.txt.gz",
+        "master": "http://buildbot-master67.srv.releng.use1.mozilla.com:8201/",
+        "platform": "linux",
+        "product": "firefox",
+        "project": "",
+        "repo_path": "try",
+        "repository": "",
+        "request_ids": [
+          28006558
+        ],
+        "request_times": {
+          "28006558": 1376504346
+        },
+        "revision": "45f8637cb9f7",
+        "scheduler": "tests-try-fedora-debug-unittest",
+        "script_repo_revision": "2f85052176f2",
+        "slavebuilddir": "test",
+        "slavename": "talos-r3-fed-024",
+        "stage_platform": "linux",
+        "symbols_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/try-builds/hurley@mozilla.com-3beb9ebd1dd7/try-linux-debug/firefox-26.0a1.en-US.linux-i686.crashreporter-symbols.zip"
+      },
+      "reason": "scheduler",
+      "request_ids": [
+        28006558
+      ],
+      "requesttime": 1376504346,
+      "result": 1,
+      "slave_id": 448,
+      "starttime": 1376504348
+    },
+    {
+      "builder_id": 116007,
+      "buildnumber": 1612,
+      "endtime": 1376511215,
+      "id": 26553199,
+      "master_id": 75,
+      "properties": {
+        "appName": "Firefox",
+        "appVersion": "26.0a1",
+        "basedir": "/builds/slave/try-lx-d-000000000000000000000",
+        "branch": "test_treeherder",
+        "builddir": "try-lx-d-000000000000000000000",
+        "buildername": "Linux try leak test build",
+        "buildid": "20130814112248",
+        "buildnumber": 1612,
+        "builduid": "c0b481e67f354f998daa81617ac025e4",
+        "comments": "try: -b do -p linux,linux64,macosx64,win32,android,android-armv6,android-noion,android-x86,panda,unagi -u crashtest,crashtest-ipc,xpcshell -t none",
+        "filepath": null,
+        "forced_clobber": false,
+        "got_revision": "68d9343692ac",
+        "hashType": "sha512",
+        "jsshellUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/try-builds/gpascutto@mozilla.com-68d9343692ac/try-linux-debug/jsshell-linux-i686.zip",
+        "log_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/try-builds/gpascutto@mozilla.com-68d9343692ac/try-linux-debug/try-linux-debug-bm55-try1-build1612.txt.gz",
+        "master": "http://buildbot-master55.srv.releng.use1.mozilla.com:8101/",
+        "packageFilename": "firefox-26.0a1.en-US.linux-i686.tar.bz2",
+        "packageHash": "dc87e88cfd298f3680e7100a56e378d464575b8c5a9ecfafcd01de4984e538b58c8bfa1d0f3f22d9af515b28dec2cc2a676d6bf7d1d44a695a3a2ef7412f1b8d",
+        "packageSize": "36540660",
+        "packageUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/try-builds/gpascutto@mozilla.com-68d9343692ac/try-linux-debug/firefox-26.0a1.en-US.linux-i686.tar.bz2",
+        "periodic_clobber": false,
+        "platform": "linux-debug",
+        "product": "firefox",
+        "project": "",
+        "purge_actual": "19.90GB",
+        "purge_target": "14GB",
+        "purged_clobber": true,
+        "repository": "",
+        "request_ids": [
+          28006029
+        ],
+        "request_times": {
+          "28006029": 1376503770
+        },
+        "revision": "45f8637cb9f7",
+        "scheduler": "try-firefox",
+        "slavebuilddir": "try-lx-d-000000000000000000000",
+        "slavename": "try-linux64-ec2-003",
+        "stage_platform": "linux-debug",
+        "symbolsUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/try-builds/gpascutto@mozilla.com-68d9343692ac/try-linux-debug/firefox-26.0a1.en-US.linux-i686.crashreporter-symbols.zip",
+        "testsUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/try-builds/gpascutto@mozilla.com-68d9343692ac/try-linux-debug/firefox-26.0a1.en-US.linux-i686.tests.zip",
+        "toolsdir": "/builds/slave/try-lx-d-000000000000000000000/tools",
+        "who": "gpascutto@mozilla.com"
+      },
+      "reason": "scheduler",
+      "request_ids": [
+        28006029
+      ],
+      "requesttime": 1376503770,
+      "result": 1,
+      "slave_id": 2169,
+      "starttime": 1376504371
+    },
+    {
+      "builder_id": 120700,
+      "buildnumber": 915,
+      "endtime": 1376512220,
+      "id": 26553684,
+      "master_id": 87,
+      "properties": {
+        "basedir": "/builds/slave/talos-slave/test",
+        "branch": "test_treeherder",
+        "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64-debug/1376500942/firefox-26.0a1.en-US.mac64.dmg",
+        "buildername": "Rev4 MacOSX Lion 10.7 mozilla-inbound debug test mochitest-browser-chrome",
+        "buildid": "20130814102222",
+        "buildnumber": 915,
+        "builduid": "1b94f824176a48a59aeaf61252f53666",
+        "log_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64-debug/1376500942/mozilla-inbound_lion-debug_test-mochitest-browser-chrome-bm78-tests1-macosx-build915.txt.gz",
+        "master": "http://buildbot-master78.srv.releng.usw2.mozilla.com:8201/",
+        "pgo_build": "False",
+        "platform": "macosx64",
+        "product": "firefox",
+        "project": "",
+        "repo_path": "integration/mozilla-inbound",
+        "repository": "",
+        "request_ids": [
+          28006311
+        ],
+        "request_times": {
+          "28006311": 1376504104
+        },
+        "revision": "45f8637cb9f7",
+        "scheduler": "tests-mozilla-inbound-lion-debug-unittest",
+        "script_repo_revision": "2f85052176f2",
+        "slavebuilddir": "test",
+        "slavename": "talos-r4-lion-001",
+        "stage_platform": "macosx64",
+        "symbols_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-inbound-macosx64-debug/1376500942/firefox-26.0a1.en-US.mac64.crashreporter-symbols.zip"
+      },
+      "reason": "scheduler",
+      "request_ids": [
+        28006311
+      ],
+      "requesttime": 1376504104,
+      "result": 0,
+      "slave_id": 4231,
+      "starttime": 1376504428
+    },
+    {
+      "builder_id": 178191,
+      "buildnumber": 4,
+      "endtime": 1376523667,
+      "id": 26560898,
+      "master_id": 89,
+      "properties": {
+        "basedir": "c:\\slave\\test",
+        "branch": "test_treeherder",
+        "build_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/date-win64/1376488843/firefox-26.0a1.en-US.win64-x86_64.zip",
+        "buildername": "win64_vm date opt test mochitest-browser-chrome",
+        "buildid": "20130814070043",
+        "buildnumber": 4,
+        "builduid": "6cf450df1e4940298e09e24a1cc9a698",
+        "log_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/date-win64/1376488843/date_win64_vm_test-mochitest-browser-chrome-bm71-tests1-windows-build4.txt.gz",
+        "master": "http://buildbot-master71.srv.releng.use1.mozilla.com:8201/",
+        "pgo_build": "False",
+        "platform": "win64",
+        "product": "firefox",
+        "project": "",
+        "repo_path": "projects/date",
+        "repository": "",
+        "request_ids": [
+          27999325
+        ],
+        "request_times": {
+          "27999325": 1376495343
+        },
+        "revision": "45f8637cb9f7",
+        "scheduler": "tests-date-win64_vm-opt-unittest",
+        "script_repo_revision": "2f85052176f2",
+        "slavebuilddir": "test",
+        "slavename": "tst-w64-ec2-005",
+        "stage_platform": "win64"
+      },
+      "reason": "scheduler",
+      "request_ids": [
+        27999325
+      ],
+      "requesttime": 1376495343,
+      "result": 4,
+      "slave_id": 5023,
+      "starttime": 1376504436
+    }
+  ]
+}

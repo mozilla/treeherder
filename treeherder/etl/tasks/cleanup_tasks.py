@@ -1,7 +1,7 @@
 import urllib
 from celery import task, group
 from treeherder.model.derived import RefDataManager
-from .pushlog import MissingHgPushlogProcess
+from treeherder.etl.pushlog import MissingHgPushlogProcess
 
 
 @task(name='fetch-missing-push-logs')

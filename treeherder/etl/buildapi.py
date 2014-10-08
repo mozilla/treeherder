@@ -12,7 +12,7 @@ from thclient import TreeherderRequest, TreeherderJobCollection
 from treeherder.etl import common, buildbot
 from treeherder.etl.mixins import JsonExtractorMixin, OAuthLoaderMixin
 from treeherder.model.models import Datasource
-from .cleanup_tasks import fetch_missing_push_logs
+from treeherder.etl.tasks.cleanup_tasks import fetch_missing_push_logs
 
 
 logger = logging.getLogger(__name__)
@@ -110,8 +110,8 @@ class Builds4hTransformerMixin(object):
                 continue
 
             prop['revision'] = prop.get('revision',
-                                prop.get('got_revision',
-                                prop.get('sourcestamp', None)))
+                                        prop.get('got_revision',
+                                        prop.get('sourcestamp', None)))
 
             if not prop['revision']:
                 logger.warning("property 'revision' not found in build4h")
@@ -127,23 +127,25 @@ class Builds4hTransformerMixin(object):
 
         for build in data['builds']:
             prop = build['properties']
+            project = prop['branch']
+
             artifact_build = copy.deepcopy(build)
 
             try:
-                branch = revisions_lookup[prop['branch']]
+                branch = revisions_lookup[project]
                 try:
                     resultset = branch[prop['revision']]
+                    print "found " + prop['revision']
                 except KeyError:
                     # we don't have the resultset for this build/job yet
                     # we need to queue fetching that resultset
-                    missing_revisions[prop['branch']].append(prop['revision'])
+                    missing_revisions[project].append(prop['revision'])
+                    print "missing " + prop['revision']
 
                     continue
             except KeyError:
                 # this branch is not one of those we care about
                 continue
-
-            project = prop['branch']
 
             treeherder_data = {
                 'revision_hash': resultset['revision_hash'],
@@ -385,7 +387,6 @@ class PendingTransformerMixin(object):
                     }
                     treeherder_data['job'] = new_job
 
-                    print project
                     if project not in th_collections:
                         th_collections[project] = TreeherderJobCollection(
                             job_type='update'
