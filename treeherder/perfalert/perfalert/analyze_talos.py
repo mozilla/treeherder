@@ -189,7 +189,12 @@ class PushLog:
                 changesets = ["changeset=%s" % c for c in chunk]
                 base_url = self.base_url
                 url = "%s/%s/json-pushes?full=1&%s" % (base_url, repo_path, "&".join(changesets))
-                raw_data = urllib2.urlopen(url, timeout=300).read()
+                try:
+                    raw_data = urllib2.urlopen(url, timeout=300).read()
+                except:
+                    log.exception("Error fetching %s", url)
+                    continue
+
                 try:
                     data = json.loads(raw_data)
                     self._handleJson(branch, data)
@@ -218,7 +223,12 @@ class PushLog:
         log.debug("Fetching changesets from %s to %s", from_, to_)
         base_url = self.base_url
         url = "%s/%s/json-pushes?full=1&fromchange=%s&tochange=%s" % (base_url, repo_path, from_, to_)
-        raw_data = urllib2.urlopen(url, timeout=300).read()
+        try:
+            raw_data = urllib2.urlopen(url, timeout=300).read()
+        except:
+            log.exception("couldn't fetch %s", url)
+            return []
+
         try:
             data = json.loads(raw_data)
             self._handleJson(branch, data)
