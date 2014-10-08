@@ -280,6 +280,10 @@ th-watched-repo {
     text-overflow: ellipsis;
 }
 
+.revision-comment {
+    color: #777;
+}
+
 .platform {
     font-size: 12px;
     padding-left: 0;

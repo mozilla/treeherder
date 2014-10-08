@@ -121,7 +121,11 @@
                title="open revision {{revision}} on {{currentRepo.url}}"
                >{{revision}}</a>
             <span title="{{name}}: {{email}}">{{name|initials}}</span>
-            <span title="{{escaped_comment}}"><em>{{comments_bug_link}}</em></span>
+            <span title="{{escaped_comment}}">
+                <span class="revision-comment">
+                    <em>{{comments_bug_link}}</em>
+                </span>
+            </span>
         </span>
     </li>
 
