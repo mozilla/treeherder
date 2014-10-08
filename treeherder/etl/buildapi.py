@@ -135,12 +135,10 @@ class Builds4hTransformerMixin(object):
                 branch = revisions_lookup[project]
                 try:
                     resultset = branch[prop['revision']]
-                    print "found " + prop['revision']
                 except KeyError:
                     # we don't have the resultset for this build/job yet
                     # we need to queue fetching that resultset
                     missing_revisions[project].append(prop['revision'])
-                    print "missing " + prop['revision']
 
                     continue
             except KeyError:
@@ -269,7 +267,11 @@ class Builds4hTransformerMixin(object):
             th_job = th_collections[project].get_job(treeherder_data)
             th_collections[project].add( th_job )
 
-        fetch_missing_push_logs.apply_async(args=[missing_revisions])
+        if missing_revisions:
+            logger.error("Found builds4h jobs with missing pushlogs.  " +
+                         "Scheduling re-fetch: {0}".format(
+                            missing_revisions))
+            fetch_missing_push_logs.apply_async(args=[missing_revisions])
 
         return th_collections
 
@@ -397,7 +399,11 @@ class PendingTransformerMixin(object):
                     th_job = th_collections[project].get_job(treeherder_data)
                     th_collections[project].add(th_job)
 
-        fetch_missing_push_logs.apply_async(args=[missing_revisions])
+        if missing_revisions:
+            logger.error("Found pending jobs with missing pushlogs.  " +
+                         "Scheduling re-fetch: {0}".format(
+                            missing_revisions))
+            fetch_missing_push_logs.apply_async(args=[missing_revisions])
 
         return th_collections
 
@@ -526,7 +532,11 @@ class RunningTransformerMixin(object):
                     th_job = th_collections[project].get_job(treeherder_data)
                     th_collections[project].add(th_job)
 
-        fetch_missing_push_logs.apply_async(args=[missing_revisions])
+        if missing_revisions:
+            logger.error("Found running jobs with missing pushlogs.  " +
+                         "Scheduling re-fetch: {0}".format(
+                            missing_revisions))
+            fetch_missing_push_logs.apply_async(args=[missing_revisions])
 
         return th_collections
 
