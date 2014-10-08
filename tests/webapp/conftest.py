@@ -36,8 +36,6 @@ def sample_artifacts(jm, sample_data):
             "data_1",
             "json",
             json.dumps({"data_1":"This is an artifact test"}),
-            job_id,
-            "data_1"
             ])
 
     jm.store_job_artifact(artifact_placeholders)

@@ -191,15 +191,7 @@
                 `name`,
                 `type`,
                 `blob`
-                )
-                SELECT ?,?,?,?
-                FROM DUAL
-                WHERE NOT EXISTS (
-                    SELECT `job_id`
-                    FROM `job_artifact`
-                    WHERE `job_id` = ? and `name` = ?
-                )",
-
+                ) VALUES(?,?,?,?)",
             "host":"master_host"
         },
         "insert_note":{

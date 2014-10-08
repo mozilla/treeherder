@@ -1694,7 +1694,7 @@ class JobsModel(TreeherderModelBase):
 
                 if name and artifact_type and blob:
                     artifact_placeholders.append(
-                        [job_guid, name, artifact_type, blob, job_guid, name]
+                        [job_guid, name, artifact_type, blob]
                         )
 
         return job_guid
@@ -2224,7 +2224,6 @@ class JobsModel(TreeherderModelBase):
             job_id = job_id_lookup[
                 artifact_placeholders[index][0]]['id']
             artifact_placeholders[index][0] = job_id
-            artifact_placeholders[index][4] = job_id
 
         if artifact_placeholders:
             self.store_job_artifact(artifact_placeholders)

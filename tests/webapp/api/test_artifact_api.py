@@ -1,6 +1,9 @@
 import json
 import pytest
+import thclient
+
 from django.core.urlresolvers import reverse
+from tests import test_utils
 
 xfail = pytest.mark.xfail
 
@@ -33,6 +36,29 @@ def test_artifact_detail(webapp, eleven_jobs_processed, sample_artifacts, jm):
 
     jm.disconnect()
 
+def test_update_artifact(webapp, eleven_jobs_processed, sample_artifacts, jm):
+    """
+    Test updating the blob of a particular artifact.
+    """
+    job = jm.get_job_list(0, 1)[0]
+    artifact = jm.get_job_artifact_references(job["id"])[0]
+    artifact["job_guid"] = job["job_guid"]
+    artifact["blob"] = "{}"
+    del artifact["id"]
+
+    th_artifact = thclient.TreeherderArtifact(artifact)
+    th_artifacts = thclient.TreeherderArtifactCollection([th_artifact])
+    resp = test_utils.post_collection(jm.project, th_artifacts)
+
+    assert resp.status_int == 200
+
+    url = reverse("artifact-list", args=[jm.project])
+    final_url = url + "?job_id=" + str(job["id"]) + \
+            "&name=" + artifact["name"]
+
+    resp = webapp.get(final_url)
+    assert len(resp.json) == 2
+    jm.disconnect()
 
 def test_artifact_detail_not_found(webapp, jm):
     """
