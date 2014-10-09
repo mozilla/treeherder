@@ -5,7 +5,7 @@ django>=1.5,<1.6
 Celery==3.0.17
 django-celery==3.0.17
 celerymon==1.0.3
-kombu==2.4.7
+kombu>=3.0.22
 simplejson==3.3.0
 Cython==0.19.2
 gevent==1.0
