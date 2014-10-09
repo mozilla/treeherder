@@ -45,7 +45,7 @@
             title="show revisions"><i class="fa fa-code-fork fa-lg"></i> {{resultset.revision_count}}</span>
       <th-result-counts class="result-counts"/>
     </div>
-    <div th-clone-jobs ></div>
+    <div class="result-set-body" th-clone-jobs ></div>
 </div>
 
 <div ng-show="result_sets.length == 0 && !isLoadingRsBatch.appending && !isLoadingJobs && locationHasSearchParam('revision')">

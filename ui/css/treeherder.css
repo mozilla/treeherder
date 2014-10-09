@@ -304,21 +304,23 @@ th-watched-repo {
     white-space: normal;
     width: 100%;
     border-top: 1px solid lightgrey;
-    padding-left: 15px;
-    padding-right: 15px;
     position: relative;
+}
+
+.result-set-body {
+    padding-left: 15px;
+    padding-right: 25px;
 }
 
 .result-set-title-left, .result-set-buttons, .result-counts {
     flex: none;
     -webkit-flex: none;
-    padding-left: 10px;
     padding-right: 10px;
 }
 
 .result-set-title {
     border-top: 1px solid black;
-    padding: 2px 0px 0px 0px;
+    padding: 2px 0px 0px 14px;
     white-space: nowrap;
     display: flex;
     display: -webkit-flex;
@@ -346,6 +348,7 @@ th-watched-repo {
 
 .revision-button {
     flex: 0 0 60px;
+    margin-right: 2px;
 }
 
 .revision-list {
@@ -838,10 +841,6 @@ ul.failure-summary-list li .btn-xs {
  * RESULT STATUS COUNTS
  */
 
-.result-counts {
-    margin-left: -11px;
-}
-
 #result-status-pane div {
     display: inline-block;
 }
@@ -870,7 +869,7 @@ ul.failure-summary-list li .btn-xs {
     cursor: pointer;
 }
 .result-status-total-count {
-    width: 60px;
+    width: 64px;
 }
 .result-status-count-min-width {
     width: 28px;
