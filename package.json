@@ -15,6 +15,7 @@
     "grunt-contrib-cssmin": "^0.9.0",
     "grunt-contrib-uglify": "^0.4.0",
     "grunt-filerev": "^0.2.1",
+    "grunt-html-angular-validate": "^0.4.0",
     "grunt-usemin": "~2.1.1",
     "karma": ">=0.12.0",
     "karma-cli": "0.0.4",
