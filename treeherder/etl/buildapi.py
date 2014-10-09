@@ -12,7 +12,6 @@ from thclient import TreeherderRequest, TreeherderJobCollection
 from treeherder.etl import common, buildbot
 from treeherder.etl.mixins import JsonExtractorMixin, OAuthLoaderMixin
 from treeherder.model.models import Datasource
-from treeherder.etl.tasks.cleanup_tasks import fetch_missing_push_logs
 
 
 logger = logging.getLogger(__name__)
@@ -94,7 +93,7 @@ class Builds4hTransformerMixin(object):
         our restful api
         """
         revisions = defaultdict(list)
-        missing_revisions = defaultdict(list)
+        missing_revisions = defaultdict(set)
 
         projects = set(x.project for x in Datasource.objects.cached())
 
@@ -138,7 +137,7 @@ class Builds4hTransformerMixin(object):
                 except KeyError:
                     # we don't have the resultset for this build/job yet
                     # we need to queue fetching that resultset
-                    missing_revisions[project].append(prop['revision'])
+                    missing_revisions[project].add(prop['revision'])
 
                     continue
             except KeyError:
@@ -271,6 +270,7 @@ class Builds4hTransformerMixin(object):
             logger.error("Found builds4h jobs with missing pushlogs.  " +
                          "Scheduling re-fetch: {0}".format(
                             missing_revisions))
+            from treeherder.etl.tasks.cleanup_tasks import fetch_missing_push_logs
             fetch_missing_push_logs.apply_async(args=[missing_revisions])
 
         return th_collections
@@ -286,7 +286,7 @@ class PendingTransformerMixin(object):
 
         projects = set(x.project for x in Datasource.objects.cached())
         revision_dict = defaultdict(list)
-        missing_revisions = defaultdict(list)
+        missing_revisions = defaultdict(set)
 
         # loop to catch all the revisions
         for project, revisions in data['pending'].iteritems():
@@ -312,7 +312,7 @@ class PendingTransformerMixin(object):
                     except KeyError:
                         # we don't have the resultset for this build/job yet
                         # we need to queue fetching that resultset
-                        missing_revisions[project].append(revision)
+                        missing_revisions[project].add(revision)
 
                         continue
                 except KeyError:
@@ -403,6 +403,7 @@ class PendingTransformerMixin(object):
             logger.error("Found pending jobs with missing pushlogs.  " +
                          "Scheduling re-fetch: {0}".format(
                             missing_revisions))
+            from treeherder.etl.tasks.cleanup_tasks import fetch_missing_push_logs
             fetch_missing_push_logs.apply_async(args=[missing_revisions])
 
         return th_collections
@@ -417,7 +418,7 @@ class RunningTransformerMixin(object):
         """
         projects = set(x.project for x in Datasource.objects.cached())
         revision_dict = defaultdict(list)
-        missing_revisions = defaultdict(list)
+        missing_revisions = defaultdict(set)
 
         # loop to catch all the revisions
         for project, revisions in data['running'].items():
@@ -444,7 +445,7 @@ class RunningTransformerMixin(object):
                     except KeyError:
                         # we don't have the resultset for this build/job yet
                         # we need to queue fetching that resultset
-                        missing_revisions[project].append(revision)
+                        missing_revisions[project].add(revision)
 
                         continue
                 except KeyError:
@@ -536,6 +537,7 @@ class RunningTransformerMixin(object):
             logger.error("Found running jobs with missing pushlogs.  " +
                          "Scheduling re-fetch: {0}".format(
                             missing_revisions))
+            from treeherder.etl.tasks.cleanup_tasks import fetch_missing_push_logs
             fetch_missing_push_logs.apply_async(args=[missing_revisions])
 
         return th_collections
