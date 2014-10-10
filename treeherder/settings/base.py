@@ -3,11 +3,6 @@ import os
 import sys
 from treeherder import path
 
-# needed to setup celery
-import djcelery
-from celery.schedules import crontab
-djcelery.setup_loader()
-
 # Insure the vendor libraries are added to the python path
 # in production
 sys.path.append( path('..', 'vendor') )
@@ -132,8 +127,6 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     # 3rd party apps
     'south',
-    'djcelery',
-    'south',
     'rest_framework',
     'rest_framework_extensions',
     'corsheaders',
@@ -205,7 +198,62 @@ CELERY_DEFAULT_QUEUE = 'default'
 CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'
 CELERY_DEFAULT_ROUTING_KEY = 'default'
 
-CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
+from datetime import timedelta
+
+CELERYBEAT_SCHEDULE = {
+    'fetch-push-logs-every-minute': {
+        'task': 'fetch-push-logs',
+        'schedule': timedelta(minutes=1),
+        'options': {
+            "queue": "pushlog"
+        },
+        'relative': True
+    },
+    'fetch-buildapi-pending-every-minute': {
+        'task': 'fetch-buildapi-pending',
+        'schedule': timedelta(minutes=1),
+        'options': {
+            "queue": "buildapi"
+        },
+        'relative': True
+    },
+    'fetch-buildapi-running-every-minute': {
+        'task': 'fetch-buildapi-running',
+        'schedule': timedelta(minutes=1),
+        'options': {
+            "queue": "buildapi"
+        },
+        'relative': True
+    },
+    'fetch-buildapi-build4hr-every-3-minute': {
+        'task': 'fetch-buildapi-build4hr',
+        'schedule': timedelta(minutes=3),
+        'options': {
+            "queue": "buildapi"
+        },
+        'relative': True
+    },
+    'fetch-process-objects-every-minute': {
+        'task': 'process-objects',
+        'schedule': timedelta(minutes=1),
+        'relative': True
+    },
+    'cycle-data-every-day': {
+        'task': 'cycle-data',
+        'schedule': timedelta(days=1),
+        'relative': True
+    },
+    'calculate-eta-every-6-hours': {
+        'task': 'calculate-eta',
+        'schedule': timedelta(hours=6),
+        'relative': True
+    },
+    'fetch-bugs-every-hour': {
+        'task': 'fetch-bugs',
+        'schedule': timedelta(hours=1),
+        'relative': True
+    }
+}
 
 # rest-framework settings
 REST_FRAMEWORK = {
@@ -297,7 +345,6 @@ BROKER_URL = 'amqp://{0}:{1}@{2}:{3}/{4}'.format(
     RABBITMQ_VHOST
 )
 
-CELERY_RESULT_BACKEND = BROKER_URL
 CELERY_IGNORE_RESULT = True
 
 API_HOSTNAME = SITE_URL
