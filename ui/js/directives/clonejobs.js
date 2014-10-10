@@ -134,11 +134,12 @@ treeherder.directive('thCloneJobs', [
 
     });
 
-    $rootScope.$on(
-        thEvents.selectJob, function(ev, job){
+    $rootScope.$on(thEvents.selectJob, function(ev, job) {
+          selectJob(job);
+    });
 
-        selectJob(job);
-
+    $rootScope.$on(thEvents.clearJobStyles, function(ev, job) {
+          clearSelectJobStyles();
     });
 
     var selectJob = function(job){
@@ -172,7 +173,7 @@ treeherder.directive('thCloneJobs', [
 
     };
 
-    var clearSelectJobStyles = function(el) {
+    var clearSelectJobStyles = function() {
         var lastJobSelected = ThResultSetModel.getSelectedJob(
             $rootScope.repoName);
 
@@ -197,7 +198,11 @@ treeherder.directive('thCloneJobs', [
     };
 
     var clearJobCb = function(ev, el, job) {
-        clearSelectJobStyles(el);
+        clearSelectJobStyles();
+
+        // Reset selected job to null to initialize nav position
+        ThResultSetModel.setSelectedJob($rootScope.repoName);
+
         $rootScope.$broadcast(thEvents.jobClear, job);
     };
 
