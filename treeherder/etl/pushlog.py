@@ -1,10 +1,15 @@
 from django.core.cache import cache
 from django.conf import settings
 import requests
+import logging
+
 from thclient import TreeherderRequest, TreeherderResultSetCollection
 
 from .mixins import JsonExtractorMixin, OAuthLoaderMixin
 from treeherder.etl.common import generate_revision_hash
+
+
+logger = logging.getLogger(__name__)
 
 
 class HgPushlogTransformerMixin(object):
@@ -101,26 +106,36 @@ class HgPushlogProcess(HgPushlogTransformerMixin,
 
 
 class MissingHgPushlogProcess(HgPushlogTransformerMixin,
-                       OAuthLoaderMixin):
+                              OAuthLoaderMixin):
 
     def extract(self, url):
+        logger.info("extracting missing resultsets: {0}".format(url))
         response = requests.get(url, timeout=settings.TREEHERDER_REQUESTS_TIMEOUT)
         response.raise_for_status()
         return response.json()
 
     def run(self, source_url, repository):
 
-        extracted_content = self.extract(source_url)
+        try:
+            extracted_content = self.extract(source_url)
 
-        if extracted_content:
+            if extracted_content:
 
-            transformed = self.transform(
-                extracted_content,
-                repository
-            )
-            self.load(transformed)
-
-
+                transformed = self.transform(
+                    extracted_content,
+                    repository
+                )
+                logger.info("loading missing resultsets: {0}".format(transformed))
+                self.load(transformed)
+            else:
+                assert extracted_content, (
+                    "Got no content response for missing resultsets: {0}".format(
+                        source_url)
+                    )
+        except Exception as ex:
+            logger.error("error fetching missing resultsets: {0}".format(
+                ex
+            ))
 
 class GitPushlogTransformerMixin(object):
     def transform(self, source_url):

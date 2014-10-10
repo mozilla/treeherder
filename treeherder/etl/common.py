@@ -139,3 +139,24 @@ def get_guid_root(guid):
     if "_" in str(guid):
         return str(guid).split("_", 1)[0]
     return guid
+
+
+def fetch_missing_resultsets(source, missing_resultsets, logger):
+    """
+    Schedules refetch of resultsets based on ``missing_revisions``
+    """
+    for k, v in missing_resultsets.iteritems():
+        missing_resultsets[k] = list(v)
+
+    logger.error(
+        "Found {0} jobs with missing resultsets.  Scheduling re-fetch: {1}".format(
+            source,
+            missing_resultsets
+            )
+         )
+    from treeherder.etl.tasks.cleanup_tasks import fetch_missing_push_logs
+
+    try:
+        fetch_missing_push_logs.apply_async(args=[missing_resultsets])
+    except Exception as ex:
+        logger.error("error fetching missing resultsets: {0}".format(ex))

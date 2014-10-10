@@ -1,8 +1,11 @@
 import urllib
+import logging
+
 from celery import task, group
 from treeherder.model.derived import RefDataManager
 from treeherder.etl.pushlog import MissingHgPushlogProcess
 
+logger = logging.getLogger(__name__)
 
 @task(name='fetch-missing-push-logs')
 def fetch_missing_push_logs(missing_pushlogs):
@@ -12,20 +15,21 @@ def fetch_missing_push_logs(missing_pushlogs):
     rdm = RefDataManager()
     try:
         repos = filter(lambda x: x['url'], rdm.get_all_repository_info())
-        # create a group of subtasks and apply them
-        g = group(fetch_missing_hg_push_logs.si(
-            repo['name'],
-            repo['url'],
-            missing_pushlogs[repo['name']]
-            )
-            for repo in repos if repo['dvcs_type'] == 'hg' and repo['name'] in missing_pushlogs)
-        g()
+        for repo in repos:
+            if repo['dvcs_type'] == 'hg':
+                fetch_missing_hg_push_logs.apply_async(args=(
+                    repo['name'],
+                    repo['url'],
+                    missing_pushlogs[repo['name']]
+                    ),
+                    routing_key='pushlog'
+                )
     finally:
         rdm.disconnect()
 
 
 @task(name='fetch-missing-hg-push-logs', time_limit=3*60)
-def fetch_missing_hg_push_logs(repo_name, repo_url, revisions):
+def fetch_missing_hg_push_logs(repo_name, repo_url, resultsets):
     """
     Run a HgPushlog etl process
 
@@ -33,9 +37,10 @@ def fetch_missing_hg_push_logs(repo_name, repo_url, revisions):
     """
     process = MissingHgPushlogProcess()
 
-    changesetParam = urllib.urlencode({"changeset": revisions}, True)
-    urlStr = repo_url + '/json-pushes/?full=1&' + changesetParam
+    changesetParam = urllib.urlencode({"changeset": resultsets}, True)
+    url_str = repo_url + '/json-pushes/?full=1&' + changesetParam
 
-    process.run(urlStr, repo_name)
+    logger.info("fetching missing resultsets: {0}".format(url_str))
+    process.run(url_str, repo_name)
 
 
