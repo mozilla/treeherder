@@ -25,7 +25,8 @@ from .base import TreeherderModelBase, ObjectNotFoundException
 
 from datasource.DataHub import DataHub
 
-from treeherder.etl.perf_data_adapters import TalosDataAdapter
+from treeherder.etl.perf_data_adapters import (PerformanceDataAdapter,
+                                               TalosDataAdapter)
 
 logger = logging.getLogger(__name__)
 
@@ -1425,7 +1426,7 @@ class JobsModel(TreeherderModelBase):
         self._load_log_urls(log_placeholders, job_id_lookup,
                             job_results)
 
-        self._load_job_artifacts(artifact_placeholders, job_id_lookup)
+        self.load_job_artifacts(artifact_placeholders, job_id_lookup)
 
         # If there is already a job_id stored with pending/running status
         # we need to update the information for the complete job
@@ -2215,19 +2216,118 @@ class JobsModel(TreeherderModelBase):
                 debug_show=self.DEBUG,
                 placeholders=[lock_string])
 
-    def _load_job_artifacts(self, artifact_placeholders, job_id_lookup):
+    def load_job_artifacts(self, artifact_data, job_id_lookup):
         """
-        Store a list of job artifacts substituting job_guid with job_id
-        """
-        # Replace job_guid with id in artifact placeholders
-        for index, artifact in enumerate(artifact_placeholders):
-            job_id = job_id_lookup[
-                artifact_placeholders[index][0]]['id']
-            artifact_placeholders[index][0] = job_id
-            artifact_placeholders[index][4] = job_id
+        Determine what type of artifacts are contained in artifact_data and
+        store a list of job artifacts substituting job_guid with job_id. All
+        of the datums in artifact_data need to be of one of the three
+        different tasty "flavors" described below.
 
-        if artifact_placeholders:
-            self.store_job_artifact(artifact_placeholders)
+        artifact_placeholders:
+
+            Comes in through the web service as the "artifacts" property
+            in a job in a job collection
+            (https://github.com/mozilla/treeherder-client#job-collection)
+
+            A list of lists
+            [
+                [job_guid, name, artifact_type, blob, job_guid, name]
+            ]
+
+        job_artifact_collection:
+
+        performance_artifact:
+        """
+        artifact_placeholders_list = []
+        job_artifact_list = []
+
+        performance_artifact_list = []
+        performance_artifact_job_id_list = []
+
+        for index, artifact in enumerate(artifact_data):
+
+            artifact_placeholders = False
+            job_artifact_collection = False
+            performance_artifact_collection = False
+
+            # Determine what type of artifact we have received
+            if artifact:
+
+                if type(artifact) is list:
+                    artifact_placeholders = True
+                else:
+                    artifact_name = artifact['name']
+                    if artifact_name in PerformanceDataAdapter.performance_types:
+                        performance_artifact_collection = True
+                    else:
+                        job_artifact_collection = True
+
+            # Call the correct adapter for the data type
+            if artifact_placeholders:
+
+                self._adapt_job_artifact_placeholders(
+                    index, artifact_placeholders_list, job_id_lookup)
+
+            if job_artifact_collection:
+
+                self._adapt_job_artifact_collection(
+                    artifact, job_artifact_list, job_id_lookup)
+
+            if performance_artifact_collection:
+
+                self._adapt_performance_artifact_collection(
+                    artifact, performance_artifact_list,
+                    performance_artifact_job_id_list, job_id_lookup)
+
+        # Store the various artifact types if we collected them
+        if artifact_placeholders_list:
+            self.store_job_artifact(artifact_placeholders_list)
+
+        if job_artifact_list:
+            self.store_job_artifact(job_artifact_list)
+
+        if performance_artifact_list and performance_artifact_job_id_list:
+            self.store_performance_artifact(
+                performance_artifact_job_id_list, performance_artifact_list)
+
+    def _adapt_job_artifact_placeholders(
+        self, index, artifact_data, job_id_lookup):
+
+        job_guid = artifact[0]
+        job_id = job_id_lookup.get(job_guid, {}).get('id', None)
+
+        if job_id:
+            # Replace job_guid with id in artifact data
+            artifact_data[index][0] = job_id
+            artifact_data[index][4] = job_id
+
+    def _adapt_job_artifact_collection(
+        self, artifact, artifact_data, job_id_lookup):
+
+        job_id = job_id_lookup.get(
+            artifact['job_guid'], {}
+            ).get('id', None)
+
+        if job_id:
+            artifact_data.append((
+                job_id,
+                artifact['name'],
+                artifact['type'],
+                artifact['blob'],
+                job_id,
+                artifact['name'],
+                ))
+
+    def _adapt_performance_artifact_collection(
+        self, artifact, artifact_data, job_id_list, job_id_lookup):
+
+        job_id = job_id_lookup.get(
+            artifact['job_guid'], {}
+            ).get('id', None)
+
+        if job_id:
+            job_id_list.append(job_id)
+            artifact_data.append(artifact)
 
     def _get_last_insert_id(self, contenttype="jobs"):
         """Return last-inserted ID."""

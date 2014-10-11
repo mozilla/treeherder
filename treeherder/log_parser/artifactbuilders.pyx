@@ -33,7 +33,8 @@ class ArtifactBuilderBase(object):
         """Parse a single line of the log."""
 
         # truncate the line to the max line-length
-        line = line[:self.MAX_LINE_LENGTH]
+        if "TALOSDATA" not in line:
+            line = line[:self.MAX_LINE_LENGTH]
 
         for parser in self.parsers:
             if not parser.complete:

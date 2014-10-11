@@ -15,7 +15,8 @@ class PerformanceDataAdapter(object):
     """
 
     performance_types = set([
-        'performance'
+        'performance',
+        'talos_data'
     ])
 
     def __init__(self):
@@ -136,21 +137,23 @@ class TalosDataAdapter(PerformanceDataAdapter):
 
     def adapt_and_load(self, reference_data, job_data, datum):
 
-        datum['blob'] = json.loads(datum['blob'])
+        # Get just the talos datazilla structure for treeherder
+        target_datum = json.loads(datum['blob'])
+        talos_datum = target_datum['talos_data'][0]
 
-        validate(datum['blob'], self.datazilla_schema)
+        validate(talos_datum, self.datazilla_schema)
 
         _job_guid = datum["job_guid"]
         _name = datum["name"]
         _type = "performance"
-        _suite = datum["blob"]["testrun"]["suite"]
+        _suite = talos_datum["testrun"]["suite"]
 
         # data for performance series
         job_id = job_data[_job_guid]['id']
         result_set_id = job_data[_job_guid]['result_set_id']
         push_timestamp = job_data[_job_guid]['push_timestamp']
 
-        for _test in datum["blob"]["results"].keys():
+        for _test in talos_datum["results"].keys():
 
             signature_properties = {}
 
@@ -160,13 +163,15 @@ class TalosDataAdapter(PerformanceDataAdapter):
                 'test':_test
                 })
 
+            signature_prop_values = signature_properties.keys()
+            signature_prop_values.extend(signature_properties.values())
+
             series_signature = self.get_series_signature(
-                signature_properties.values()
-                )
+                signature_prop_values)
 
             series_data = self.calculate_series_data(
                 job_id, result_set_id, push_timestamp,
-                datum["blob"]["results"][_test]
+                talos_datum["results"][_test]
                 )
 
             obj = {
@@ -179,17 +184,17 @@ class TalosDataAdapter(PerformanceDataAdapter):
                     "performance_series": series_data,
                     "testsuite": _suite,
                     "test": _test,
-                    "replicates": datum["blob"]["results"][_test],
+                    "replicates": talos_datum["results"][_test],
                     "metadata":{}
                 }
             }
 
-            options = datum["blob"]["testrun"].get(
+            options = talos_datum["testrun"].get(
                 "options", {})
             if options:
                 obj['blob']['metadata']['options'] = options
 
-            test_aux = datum["blob"].get(
+            test_aux = talos_datum.get(
                 "test_aux", {})
             if test_aux:
                 obj['blob']['metadata']['auxiliary_data'] = test_aux
@@ -224,7 +229,7 @@ class TalosDataAdapter(PerformanceDataAdapter):
 
         sha = sha1()
 
-        sha.update(''.join(map(lambda x: str(x), signature_values)))
+        sha.update(''.join(map(lambda x: str(x), sorted(signature_values))))
 
         signature = sha.hexdigest()
 

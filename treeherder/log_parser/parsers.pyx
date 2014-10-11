@@ -364,7 +364,6 @@ class ErrorParser(ParserBase):
 
 RE_TALOSDATA = re.compile('.*?TALOSDATA: (\[.*\])$')
 
-
 class TalosParser(ParserBase):
     """a sub-parser to find TALOSDATA"""
 
@@ -375,7 +374,7 @@ class TalosParser(ParserBase):
         """check each line for TALOSDATA"""
 
         match = RE_TALOSDATA.match(line)
-        if "TALOSDATA: " in line and match:
+        if "TALOSDATA" in line and match:
             try:
                 self.artifact = json.loads(match.group(1))
             except ValueError:
