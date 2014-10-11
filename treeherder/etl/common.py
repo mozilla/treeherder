@@ -159,4 +159,7 @@ def fetch_missing_resultsets(source, missing_resultsets, logger):
     try:
         fetch_missing_push_logs.apply_async(args=[missing_resultsets])
     except Exception as ex:
-        logger.error("error fetching missing resultsets: {0}".format(ex))
+        logger.exception("error fetching missing resultsets: {0}, {1}".format(
+            missing_resultsets,
+            ex
+            ))

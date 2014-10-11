@@ -1,5 +1,6 @@
 from django.core.cache import cache
 from django.conf import settings
+import time
 import requests
 import logging
 
@@ -108,16 +109,40 @@ class HgPushlogProcess(HgPushlogTransformerMixin,
 class MissingHgPushlogProcess(HgPushlogTransformerMixin,
                               OAuthLoaderMixin):
 
-    def extract(self, url):
+    def extract(self, url, resultset):
+        # we will sometimes get here because builds4hr/pending/running have a
+        # job with a resultset that json-pushes doesn't know about.  Seems
+        # odd, but it happens.  So we just ingest
+
         logger.info("extracting missing resultsets: {0}".format(url))
         response = requests.get(url, timeout=settings.TREEHERDER_REQUESTS_TIMEOUT)
-        response.raise_for_status()
+        if response.status_code == 404:
+            # we want to make a "fake" resultset, because json-pushes doesn't
+            # know about it.  This is what TBPL does
+            return {
+                "00001": {
+                    "date": int(time.time()),
+                    "changesets": [
+                        {
+                            "node": resultset,
+                            "files": [],
+                            "tags": [],
+                            "author": "Unknown",
+                            "branch": "default",
+                            "desc": "Pushlog not found at {0}".format(url)
+                        }
+                    ],
+                    "user": "Unknown"
+                }
+            }
+        else:
+            response.raise_for_status()
         return response.json()
 
-    def run(self, source_url, repository):
+    def run(self, source_url, repository, resultset):
 
         try:
-            extracted_content = self.extract(source_url)
+            extracted_content = self.extract(source_url, resultset)
 
             if extracted_content:
 
@@ -125,16 +150,22 @@ class MissingHgPushlogProcess(HgPushlogTransformerMixin,
                     extracted_content,
                     repository
                 )
-                logger.info("loading missing resultsets: {0}".format(transformed))
+
+                for project, coll in transformed.iteritems():
+                    logger.info("loading missing resultsets for {0}: {1}".format(
+                        project,
+                        coll.to_json()))
+
                 self.load(transformed)
+                logger.info("done loading missing resultsets for {0}".format(repository))
             else:
                 assert extracted_content, (
                     "Got no content response for missing resultsets: {0}".format(
                         source_url)
                     )
         except Exception as ex:
-            logger.error("error fetching missing resultsets: {0}".format(
-                ex
+            logger.exception("error loading missing resultsets: {0}".format(
+                source_url
             ))
 
 class GitPushlogTransformerMixin(object):
