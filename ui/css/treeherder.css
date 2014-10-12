@@ -377,7 +377,8 @@ th-watched-repo {
 }
 
 .selected-job {
-    border: 5px solid;
+    border: 4px solid;
+    background-color: #fff;
 }
 
 .job-group {
@@ -937,6 +938,7 @@ ul.failure-summary-list li .btn-xs {
   border-top: 0;
   border-left: 0;
 }
+
 .btn-view-nav:hover,
 .btn-view-nav:focus,
 .btn-view-nav:active,
@@ -1023,11 +1025,17 @@ fieldset[disabled] .btn-unclassified-failures.active {
   border-color: #e0e0e0;
 }
 
-
-
+/* Transformed job buttons for main job block */
+.btn-lg-xform {
+    margin: -2px !important;
+    border: 2px solid;
+    border-radius: 3px;
+    font-size: 12px;
+    transform: scale(1.7, 1.7);
+}
 
 .btn-orange {
-  background-color: rgba(221, 102, 2, 0.56);
+  background-color: #eba870;
   border-color: #dd6602;
   color: white;
 }
@@ -1068,7 +1076,7 @@ fieldset[disabled] .btn-orange.active {
 }
 
 .btn-red {
-  background-color: rgba(144, 0, 0, 0.60);
+  background-color: #b86262;
   border-color: #a1020e;
   color: white;
 }
@@ -1174,7 +1182,7 @@ fieldset[disabled] .btn-green.active {
 }
 
 .btn-purple {
-  background-color: rgba(61, 2, 85, 0.50);
+  background-color: #9a7da6;
   border-color: #6f0296;
   font-weight: bold;
   color: white;
@@ -1346,7 +1354,7 @@ fieldset[disabled] .btn-dkgray.active {
 }
 
 .btn-black {
-  background-color: rgba(0, 0, 0, 0.71);
+  background-color: #4a4a4a;
   border-color: #000000;
   color: white;
 }
