@@ -45,7 +45,7 @@ def test_adapt_and_load():
 
         # Mimic production environment, the blobs are serialized
         # when the web service receives them
-        datum['blob'] = json.dumps(datum['blob'])
+        datum['blob'] = json.dumps({ 'talos_data':[ datum['blob'] ]})
         tda.adapt_and_load(reference_data, job_data, datum)
 
     assert result_count == len( tda.performance_artifact_placeholders )

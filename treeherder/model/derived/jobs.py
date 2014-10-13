@@ -2220,7 +2220,7 @@ class JobsModel(TreeherderModelBase):
         """
         Determine what type of artifacts are contained in artifact_data and
         store a list of job artifacts substituting job_guid with job_id. All
-        of the datums in artifact_data need to be of one of the three
+        of the datums in artifact_data need to be one of the three
         different tasty "flavors" described below.
 
         artifact_placeholders:
@@ -2236,7 +2236,24 @@ class JobsModel(TreeherderModelBase):
 
         job_artifact_collection:
 
+            Comes in  through the web service as an artifact collection.
+            (https://github.com/mozilla/treeherder-client#artifact-collection)
+
+            A list of job artifacts:
+            [
+                {
+                    'type': 'json',
+                    'name': 'my-artifact-name',
+                    # blob can be any kind of structured data
+                    'blob': { 'stuff': [1, 2, 3, 4, 5] },
+                    'job_guid': 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
+                }
+            ]
+
         performance_artifact:
+
+            Same structure as a job_artifact_collection but the blob contains
+            a specialized data structure designed for performance data.
         """
         artifact_placeholders_list = []
         job_artifact_list = []
@@ -2266,7 +2283,7 @@ class JobsModel(TreeherderModelBase):
             if artifact_placeholders:
 
                 self._adapt_job_artifact_placeholders(
-                    index, artifact_placeholders_list, job_id_lookup)
+                    artifact, artifact_placeholders_list, job_id_lookup)
 
             if job_artifact_collection:
 
@@ -2291,15 +2308,17 @@ class JobsModel(TreeherderModelBase):
                 performance_artifact_job_id_list, performance_artifact_list)
 
     def _adapt_job_artifact_placeholders(
-        self, index, artifact_data, job_id_lookup):
+        self, artifact, artifact_placeholders_list, job_id_lookup):
 
         job_guid = artifact[0]
         job_id = job_id_lookup.get(job_guid, {}).get('id', None)
 
         if job_id:
             # Replace job_guid with id in artifact data
-            artifact_data[index][0] = job_id
-            artifact_data[index][4] = job_id
+            artifact[0] = job_id
+            artifact[4] = job_id
+
+            artifact_placeholders_list.append(artifact)
 
     def _adapt_job_artifact_collection(
         self, artifact, artifact_data, job_id_lookup):
