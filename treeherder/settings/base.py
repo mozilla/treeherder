@@ -225,8 +225,8 @@ CELERYBEAT_SCHEDULE = {
         },
         'relative': True
     },
-    'fetch-buildapi-build4hr-every-3-minute': {
-        'task': 'fetch-buildapi-build4hr',
+    'fetch-buildapi-build4h-every-3-minute': {
+        'task': 'fetch-buildapi-build4h',
         'schedule': timedelta(minutes=3),
         'options': {
             "queue": "buildapi"
