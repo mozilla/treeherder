@@ -8,11 +8,11 @@ if [[ ${NEW_RELIC_LICENSE_KEY+isset} = isset ]]; then
     NEWRELIC_ADMIN="newrelic-admin run-program"
 fi
 
-if [ -f ../venv/bin/python ]; then
+if [ -f ../venv/bin/celery ]; then
     source ../venv/bin/activate
-    PYTHON=../venv/bin/python
+    CELERY=../venv/bin/celery
 else
-    PYTHON=python
+    CELERY=celery
 fi
 
 LOGFILE=/var/log/celery/celery_worker.log
@@ -21,4 +21,6 @@ if [ ! -f $LOGFILE ]; then
     touch $LOGFILE
 fi
 
-exec $NEWRELIC_ADMIN $PYTHON manage.py celeryd -c 3 -Q default,buildapi,pushlog -E --maxtasksperchild=500 --logfile=$LOGFILE -l INFO
+exec $NEWRELIC_ADMIN $CELERY -A treeherder worker -c 3 \
+     -Q default,buildapi,pushlog -E --maxtasksperchild=500 \
+     --logfile=$LOGFILE -l INFO -n default.%h
