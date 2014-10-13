@@ -2504,17 +2504,16 @@ class JobsModel(TreeherderModelBase):
                     result_set_id_lookup[revision_hash]['id']
                     )
 
-            # Insert new revisions
-            dhub.execute(
-                proc='jobs.inserts.set_revision',
-                placeholders=revision_placeholders,
-                executemany=True,
-                debug_show=self.DEBUG
-                )
+        # Insert new revisions
+        dhub.execute(
+            proc='jobs.inserts.set_revision',
+            placeholders=revision_placeholders,
+            executemany=True,
+            debug_show=self.DEBUG
+            )
 
         # Retrieve new revision ids
         rev_where_in_clause = ','.join(rev_where_in_list)
-        select_proc = 'get_revision_ids'
         revision_id_lookup = dhub.execute(
             proc='jobs.selects.get_revisions',
             placeholders=all_revisions,
