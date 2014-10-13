@@ -362,7 +362,11 @@ class ErrorParser(ParserBase):
                 RE_ERR_MATCH.match(trimline) or RE_ERR_SEARCH.search(trimline):
             self.add(line, lineno)
 
-RE_TALOSDATA = re.compile('.*?TALOSDATA: (\[.*\])$')
+##
+# Using $ in the regex as an end of line bounds causes the
+# regex to fail on windows logs
+##
+RE_TALOSDATA = re.compile('.*?TALOSDATA:\s+(\[.*\])')
 
 class TalosParser(ParserBase):
     """a sub-parser to find TALOSDATA"""
