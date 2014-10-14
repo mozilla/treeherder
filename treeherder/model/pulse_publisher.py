@@ -1,4 +1,5 @@
-import kombu, re, json, os, jsonschema
+import kombu, re, json, os, jsonschema, logging
+logger = logging.getLogger(__name__)
 
 def toCamelCase(input):
     def replace(match):
@@ -176,8 +177,9 @@ class PulsePublisher(object):
             setattr(self, name, publish)
 
     def error(self, error, exchange, routing_key, message):
-        print routing_key
-        print err
+        logger.error(
+            'Error publishing message to {0}'
+        ).format(exchange)
 
     def reference(self):
         """ Construct reference for this publisher"""

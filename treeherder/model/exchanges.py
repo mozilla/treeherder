@@ -1,4 +1,4 @@
-from pulse_publisher import PulsePublisher, Exchange, Key
+from treeherder.model.pulse_publisher import PulsePublisher, Exchange, Key
 
 class TreeherderPublisher(PulsePublisher):
     title = "TreeHerder Exchanges"

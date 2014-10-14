@@ -368,3 +368,7 @@ SWAGGER_SETTINGS = {"enabled_methods": ['get',]}
 REST_FRAMEWORK_EXTENSIONS = {
     'DEFAULT_CACHE_RESPONSE_TIMEOUT': 60 * 15
 }
+
+# Username and password for pulse
+PULSE_USERNAME = os.environ.get("PULSE_USERNAME", "")
+PULSE_PASSWORD = os.environ.get("PULSE_PASSWORD", "")
