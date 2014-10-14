@@ -11,11 +11,11 @@ fi
 
 source /etc/profile.d/treeherder.sh
 
-if [ -f ../venv/bin/python ]; then
+if [ -f ../venv/bin/celery ]; then
     source ../venv/bin/activate
-    PYTHON=../venv/bin/python
+    CELERY=../venv/bin/celery
 else
-    PYTHON=python
+    CELERY=celery
 fi
 
-exec $PYTHON manage.py celerybeat -f $LOGFILE
+exec $CELERY -A treeherder beat -f $LOGFILE

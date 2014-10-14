@@ -362,8 +362,12 @@ class ErrorParser(ParserBase):
                 RE_ERR_MATCH.match(trimline) or RE_ERR_SEARCH.search(trimline):
             self.add(line, lineno)
 
-RE_TALOSDATA = re.compile('.*?TALOSDATA: (\[.*\])$')
-
+##
+# Using $ in the regex as an end of line bounds causes the
+# regex to fail on windows logs. This is likely due to the
+# ^M character representation of the windows end of line.
+##
+RE_TALOSDATA = re.compile('.*?TALOSDATA:\s+(\[.*\])')
 
 class TalosParser(ParserBase):
     """a sub-parser to find TALOSDATA"""
@@ -375,7 +379,7 @@ class TalosParser(ParserBase):
         """check each line for TALOSDATA"""
 
         match = RE_TALOSDATA.match(line)
-        if "TALOSDATA: " in line and match:
+        if "TALOSDATA" in line and match:
             try:
                 self.artifact = json.loads(match.group(1))
             except ValueError:
