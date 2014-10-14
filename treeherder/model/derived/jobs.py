@@ -2263,38 +2263,27 @@ class JobsModel(TreeherderModelBase):
 
         for index, artifact in enumerate(artifact_data):
 
-            artifact_placeholders = False
-            job_artifact_collection = False
-            performance_artifact_collection = False
-
             # Determine what type of artifact we have received
             if artifact:
 
                 if type(artifact) is list:
-                    artifact_placeholders = True
+
+                    self._adapt_job_artifact_placeholders(
+                        artifact, artifact_placeholders_list, job_id_lookup)
+
                 else:
                     artifact_name = artifact['name']
+
                     if artifact_name in PerformanceDataAdapter.performance_types:
-                        performance_artifact_collection = True
+
+                        self._adapt_performance_artifact_collection(
+                            artifact, performance_artifact_list,
+                            performance_artifact_job_id_list, job_id_lookup)
+
                     else:
-                        job_artifact_collection = True
 
-            # Call the correct adapter for the data type
-            if artifact_placeholders:
-
-                self._adapt_job_artifact_placeholders(
-                    artifact, artifact_placeholders_list, job_id_lookup)
-
-            if job_artifact_collection:
-
-                self._adapt_job_artifact_collection(
-                    artifact, job_artifact_list, job_id_lookup)
-
-            if performance_artifact_collection:
-
-                self._adapt_performance_artifact_collection(
-                    artifact, performance_artifact_list,
-                    performance_artifact_job_id_list, job_id_lookup)
+                        self._adapt_job_artifact_collection(
+                            artifact, job_artifact_list, job_id_lookup)
 
         # Store the various artifact types if we collected them
         if artifact_placeholders_list:
