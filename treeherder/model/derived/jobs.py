@@ -2145,8 +2145,9 @@ class JobsModel(TreeherderModelBase):
 
         if lock[0]['lock'] != 1:
             logger.error(
-                'store_performance_series lock_string, {0}, timed out!'
-                ).format(lock_string)
+                'store_performance_series lock_string, '
+                '{0}, timed out!'.format(lock_string)
+                )
             return
 
         try:
@@ -2294,13 +2295,13 @@ class JobsModel(TreeherderModelBase):
 
                 if not job_id:
                     logger.error(
-                        'load_job_artifacts: No job_id for {0} job_guid {1}'
-                        ).format(self.project, job_guid)
+                        ('load_job_artifacts: No job_id for '
+                         '{0} job_guid {1}'.format(self.project, job_guid)))
 
             else:
                 logger.error(
-                    'load_job_artifacts: artifact not defined for {0}'
-                    ).format(self.project)
+                    ('load_job_artifacts: artifact not '
+                     'defined for {0}'.format(self.project)))
 
         # Store the various artifact types if we collected them
         if artifact_placeholders_list:
