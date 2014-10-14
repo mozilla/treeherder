@@ -32,7 +32,12 @@ class ArtifactBuilderBase(object):
     def parse_line(self, line):
         """Parse a single line of the log."""
 
-        # truncate the line to the max line-length
+        """
+        Talos data is stored in a json structure contained in
+        a single line, if the MAX_LINE_LENGTH is applied the
+        data structure could be truncated preventing it from
+        being ingested.
+        """
         if "TALOSDATA" not in line:
             line = line[:self.MAX_LINE_LENGTH]
 

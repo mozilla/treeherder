@@ -364,7 +364,8 @@ class ErrorParser(ParserBase):
 
 ##
 # Using $ in the regex as an end of line bounds causes the
-# regex to fail on windows logs
+# regex to fail on windows logs. This is likely due to the
+# ^M character representation of the windows end of line.
 ##
 RE_TALOSDATA = re.compile('.*?TALOSDATA:\s+(\[.*\])')
 

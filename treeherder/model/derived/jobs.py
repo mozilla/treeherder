@@ -2266,24 +2266,41 @@ class JobsModel(TreeherderModelBase):
             # Determine what type of artifact we have received
             if artifact:
 
+                job_id = None
+                job_guid = None
+
                 if type(artifact) is list:
 
+                    job_guid = artifact[0]
+                    job_id = job_id_lookup.get(job_guid, {}).get('id', None)
+
                     self._adapt_job_artifact_placeholders(
-                        artifact, artifact_placeholders_list, job_id_lookup)
+                        artifact, artifact_placeholders_list, job_id)
 
                 else:
                     artifact_name = artifact['name']
+                    job_guid = artifact.get('job_guid', None)
+                    job_id = job_id_lookup.get(
+                        artifact['job_guid'], {}
+                    ).get('id', None)
 
                     if artifact_name in PerformanceDataAdapter.performance_types:
-
                         self._adapt_performance_artifact_collection(
                             artifact, performance_artifact_list,
-                            performance_artifact_job_id_list, job_id_lookup)
-
+                            performance_artifact_job_id_list, job_id)
                     else:
-
                         self._adapt_job_artifact_collection(
-                            artifact, job_artifact_list, job_id_lookup)
+                            artifact, job_artifact_list, job_id)
+
+                if not job_id:
+                    logger.error(
+                        'load_job_artifacts: No job_id for {0} job_guid {1}'
+                        ).format(self.project, job_guid)
+
+            else:
+                logger.error(
+                    'load_job_artifacts: artifact not defined for {0}'
+                    ).format(self.project)
 
         # Store the various artifact types if we collected them
         if artifact_placeholders_list:
@@ -2297,10 +2314,7 @@ class JobsModel(TreeherderModelBase):
                 performance_artifact_job_id_list, performance_artifact_list)
 
     def _adapt_job_artifact_placeholders(
-        self, artifact, artifact_placeholders_list, job_id_lookup):
-
-        job_guid = artifact[0]
-        job_id = job_id_lookup.get(job_guid, {}).get('id', None)
+        self, artifact, artifact_placeholders_list, job_id):
 
         if job_id:
             # Replace job_guid with id in artifact data
@@ -2310,11 +2324,7 @@ class JobsModel(TreeherderModelBase):
             artifact_placeholders_list.append(artifact)
 
     def _adapt_job_artifact_collection(
-        self, artifact, artifact_data, job_id_lookup):
-
-        job_id = job_id_lookup.get(
-            artifact['job_guid'], {}
-            ).get('id', None)
+        self, artifact, artifact_data, job_id):
 
         if job_id:
             artifact_data.append((
@@ -2327,11 +2337,7 @@ class JobsModel(TreeherderModelBase):
                 ))
 
     def _adapt_performance_artifact_collection(
-        self, artifact, artifact_data, job_id_list, job_id_lookup):
-
-        job_id = job_id_lookup.get(
-            artifact['job_guid'], {}
-            ).get('id', None)
+        self, artifact, artifact_data, job_id_list, job_id):
 
         if job_id:
             job_id_list.append(job_id)
