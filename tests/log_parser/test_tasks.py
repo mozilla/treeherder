@@ -2,12 +2,12 @@ import pytest
 import simplejson as json
 
 from ..sampledata import SampleData
-from treeherder.log_parser.utils import get_mozharness_substring
 
 
 @pytest.fixture
 def jobs_with_local_log(initial_data):
-    log = "mozilla-inbound_ubuntu64_vm-debug_test-mochitest-other-bm53-tests1-linux-build122"
+    log = ("mozilla-inbound_ubuntu64_vm-debug_test-"
+           "mochitest-other-bm53-tests1-linux-build122")
     sample_data = SampleData()
     url = "file://{0}".format(
         sample_data.get_log_path("{0}.txt.gz".format(log)))

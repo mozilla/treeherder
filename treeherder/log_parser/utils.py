@@ -1,7 +1,12 @@
 import re
 import urllib
 
+import simplejson as json
 from django.conf import settings
+from django.core.urlresolvers import reverse
+
+from treeherder.log_parser.artifactbuildercollection import \
+    ArtifactBuilderCollection
 
 
 def is_helpful_search_term(search_term):
@@ -72,7 +77,10 @@ def get_error_search_term(error_line):
     # on the blacklist), then we fall back to searching for the entire failure line if
     # it is suitable.
     if not (search_term and is_helpful_search_term(search_term)):
-       search_term = error_line if is_helpful_search_term(error_line) else None
+        if is_helpful_search_term(error_line):
+            search_term = error_line
+        else:
+            search_term = None
 
     # Searching for extremely long search terms is undesirable, since:
     # a) Bugzilla's max summary length is 256 characters, and once "Intermittent "
@@ -82,7 +90,7 @@ def get_error_search_term(error_line):
     # false positives, but means we're more susceptible to false negatives due to
     # run-to-run variances in the error messages (eg paths, process IDs).
     if search_term:
-       search_term = search_term[:100]
+        search_term = search_term[:100]
 
     return search_term
 
@@ -120,5 +128,80 @@ mozharness_pattern = re.compile(
     '^\d+:\d+:\d+[ ]+(?:DEBUG|INFO|WARNING|ERROR|CRITICAL|FATAL) - [ ]?'
 )
 
+
 def get_mozharness_substring(line):
     return mozharness_pattern.sub('', line).strip()
+
+
+def extract_log_artifacts(log_url, job_guid, check_errors):
+    bug_suggestions = []
+    bugscache_uri = '{0}{1}'.format(
+        settings.API_HOSTNAME,
+        reverse("bugscache-list")
+    )
+    terms_requested = {}
+
+    # parse a log given its url
+    artifact_bc = ArtifactBuilderCollection(log_url,
+                                            check_errors=check_errors)
+    artifact_bc.parse()
+
+    artifact_list = []
+    for name, artifact in artifact_bc.artifacts.items():
+        artifact_list.append((job_guid, name, 'json',
+                              json.dumps(artifact)))
+    if check_errors:
+        all_errors = artifact_bc.artifacts\
+            .get('Structured Log', {})\
+            .get('step_data', {})\
+            .get('all_errors', [])
+
+        for err in all_errors:
+            # remove the mozharness prefix
+            clean_line = get_mozharness_substring(err['line'])
+            # get a meaningful search term out of the error line
+            search_term = get_error_search_term(clean_line)
+            bugs = dict(open_recent=[], all_others=[])
+
+            # collect open recent and all other bugs suggestions
+            if search_term:
+                if not search_term in terms_requested:
+                    # retrieve the list of suggestions from the api
+                    bugs = get_bugs_for_search_term(
+                        search_term,
+                        bugscache_uri
+                    )
+                    terms_requested[search_term] = bugs
+                else:
+                    bugs = terms_requested[search_term]
+
+            if not bugs or not (bugs['open_recent']
+                                or bugs['all_others']):
+                # no suggestions, try to use
+                # the crash signature as search term
+                crash_signature = get_crash_signature(clean_line)
+                if crash_signature:
+                    if not crash_signature in terms_requested:
+                        bugs = get_bugs_for_search_term(
+                            crash_signature,
+                            bugscache_uri
+                        )
+                        terms_requested[crash_signature] = bugs
+                    else:
+                        bugs = terms_requested[crash_signature]
+
+            bug_suggestions.append({
+                "search": clean_line,
+                "bugs": bugs
+            })
+
+    artifact_list.append(
+        (
+            job_guid,
+            'Bug suggestions',
+            'json',
+            json.dumps(bug_suggestions)
+        )
+    )
+
+    return artifact_list

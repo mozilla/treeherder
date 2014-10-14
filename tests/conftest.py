@@ -329,14 +329,12 @@ def eleven_jobs_processed(jm, mock_log_parser, eleven_jobs_stored):
 
 
 @pytest.fixture
-def mock_send_request(monkeypatch, jm):
+def set_oauth_credentials():
+    OAuthCredentials.set_credentials(SampleData.get_credentials())
+
+@pytest.fixture
+def mock_send_request(monkeypatch, set_oauth_credentials):
     def _send(th_request, endpoint,  method=None, data=None):
-
-        OAuthCredentials.set_credentials(SampleData.get_credentials())
-        credentials = OAuthCredentials.get_credentials(jm.project)
-
-        th_request.oauth_key = credentials['consumer_key']
-        th_request.oauth_secret = credentials['consumer_secret']
 
         if data and not isinstance(data, str):
             data = json.dumps(data)
@@ -367,7 +365,8 @@ def mock_get_remote_content(monkeypatch):
             return response.json
 
     import treeherder.etl.common
-    monkeypatch.setattr(treeherder.etl.common, 'get_remote_content', _get_remote_content)
+    monkeypatch.setattr(treeherder.etl.common,
+                        'get_remote_content', _get_remote_content)
 
 
 @pytest.fixture
