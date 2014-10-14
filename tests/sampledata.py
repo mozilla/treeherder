@@ -51,6 +51,9 @@ class SampleData(object):
         self.logs_dir = "{0}/sample_data/logs".format(
             os.path.dirname(__file__)
         )
+        self.performance_logs_dir = "{0}/sample_data/artifacts/performance/perf_logs".format(
+            os.path.dirname(__file__)
+        )
 
         with open("{0}/sample_data/artifacts/structured_log_artifact.json".format(
                   os.path.dirname(__file__))) as f:
@@ -92,6 +95,12 @@ class SampleData(object):
         """Returns the full path to a log file"""
         return "{0}/{1}".format(self.logs_dir, name)
 
+    def get_performance_logs(self):
+        """Returns a list of full paths to performance log files"""
+        files = os.listdir(self.performance_logs_dir)
+        for i, f in enumerate(files):
+            files[i] = 'file://{0}/{1}'.format(self.performance_logs_dir, f)
+        return files
 
 
 
