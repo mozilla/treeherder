@@ -412,6 +412,35 @@ class JobsModel(TreeherderModelBase):
         return data
 
     def get_performance_series_summary(self, interval_seconds):
+        """
+        Retrieve a summary of all of the property/value list pairs found
+        in the series_signature table. All properties will be flat
+        property/value pairs with the exception of property/value pairs
+        that hold test suite/test data which should be represented as
+        a hierarchy.
+
+        {
+            'property': [ value1, value2, ... ],
+
+            'tp5o_scroll': {
+                'job_group_symbol': 'T',
+                'job_group_name': 'Talos Performance',
+                'tests': [
+                    {
+                        'test': 'uol.com.br' ,
+                        'job_type_name': 'Talos chrome',
+                        'job_type_symbol': 'c'
+                    },
+                    {
+                        'test': 'beatonna.livejournal.com',
+                        'job_type_name': 'Talos svg',
+                        'job_type_symbol': 's'
+                    },
+                ] },
+
+        This data structure can be used to build a comprehensive set of
+        options to browse all available performance data in a repository.
+        """
 
         series_summary = {}
 
@@ -434,7 +463,7 @@ class JobsModel(TreeherderModelBase):
 
         hierarchical_proc = "jobs.selects.get_hierarchical_perf_series_properties" 
 
-        #get all property/values for tes suite/test combinations
+        #get all property/values for test suite/test combinations
         #and build a data structure that represents their relationships
         hierarchical_data = self.get_jobs_dhub().execute(
             proc=hierarchical_proc,
@@ -446,6 +475,10 @@ class JobsModel(TreeherderModelBase):
 
             print datum
 
+        """
+        Once the data structure is built it should be cached. This method
+        should be set up to run as a celery task.
+        """
 
     def get_job_note(self, id):
         """Return the job note by id."""
