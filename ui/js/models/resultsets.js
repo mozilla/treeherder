@@ -685,13 +685,21 @@ treeherder.factory('ThResultSetModel', [
                 return rs.id;
             });
 
+            // ensure we only append resultsets we don't already have.
+            // There could be overlap with fetching "next 10" because we use
+            // the latest ``push_timestamp`` and theoretically we could
+            // get
+            var newResultsets = [];
             _.each(data.results, function(rs) {
                 if (!_.contains(rsIds, rs.id)) {
-                    repositories[repoName].resultSets.push(rs);
+                    newResultsets.push(rs);
                 }
             });
 
-            mapResultSets(repoName, data.results);
+            Array.prototype.push.apply(
+                repositories[repoName].resultSets, newResultsets
+            );
+            mapResultSets(repoName, newResultsets);
 
             // only set the meta-data on the first pull for a repo.
             // because this will establish ranges from then-on for auto-updates.
