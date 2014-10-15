@@ -38,36 +38,10 @@ class ArtifactViewSet(viewsets.ViewSet):
     @with_jobs
     @oauth_required
     def create(self, request, project, jm):
-        artifact_data = []
-        performance_artifact_data = []
-        job_id_list = []
 
         job_guids = [x['job_guid'] for x in request.DATA]
         job_id_lookup = jm.get_job_ids_by_guid(job_guids)
 
-        for datum in request.DATA:
-
-            job_id = job_id_lookup.get( datum['job_guid'], {}).get('id', None)
-
-            if job_id:
-                if datum['type'] in PerformanceDataAdapter.performance_types:
-                    job_id_list.append(job_id)
-                    performance_artifact_data.append(datum)
-                else:
-                    artifact_data.append((
-                        job_id,
-                        datum['name'],
-                        datum['type'],
-                        datum['blob'],
-                        job_id,
-                        datum['name'],
-                    ))
-
-        if artifact_data:
-            jm.store_job_artifact(artifact_data)
-
-        if job_id_list and performance_artifact_data:
-            jm.store_performance_artifact(
-                job_id_list, performance_artifact_data)
+        jm.load_job_artifacts(request.DATA, job_id_lookup)
 
         return Response({'message': 'Artifacts stored successfully'})

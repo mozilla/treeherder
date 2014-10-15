@@ -376,6 +376,7 @@ def activate_responses(request):
     responses.start()
 
     def fin():
+        responses.reset()
         responses.stop()
 
     request.addfinalizer(fin)

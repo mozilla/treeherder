@@ -7,11 +7,11 @@ if [[ ${NEW_RELIC_LICENSE_KEY+isset} = isset ]]; then
     NEWRELIC_ADMIN="newrelic-admin run-program"
 fi
 
-if [ -f ../venv/bin/python ]; then
+if [ -f ../venv/bin/celery ]; then
     source ../venv/bin/activate
-    PYTHON=../venv/bin/python
+    CELERY=../venv/bin/celery
 else
-    PYTHON=python
+    CELERY=celery
 fi
 
 LOGFILE=/var/log/celery/celery_worker_buildapi.log
@@ -20,6 +20,7 @@ if [ ! -f $LOGFILE ]; then
     touch $LOGFILE
 fi
 
-exec $NEWRELIC_ADMIN $PYTHON manage.py celery worker -Q buildapi \
+exec $NEWRELIC_ADMIN $CELERY -A treeherder worker -Q buildapi \
     --concurrency=5 --logfile=$LOGFILE -l INFO \
-    --maxtasksperchild=500
+    --maxtasksperchild=500 -n buildapi.%h
+
