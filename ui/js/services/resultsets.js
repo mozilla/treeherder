@@ -63,12 +63,12 @@ treeherder.factory('thResultSets', [
                 }
             );
         },
-        getResultSets: function(repoName, rsOffsetId, count, resultsetlist, with_jobs, full, keep_filters) {
-            rsOffsetId = typeof rsOffsetId === 'undefined'?  0: rsOffsetId;
+        getResultSets: function(repoName, rsOffsetTimestamp, count, resultsetlist, with_jobs, full, keep_filters) {
+            rsOffsetTimestamp = typeof rsOffsetTimestamp === 'undefined'?  0: rsOffsetTimestamp;
             count = typeof count === 'undefined'?  10: count;
             with_jobs = _.isUndefined(with_jobs) ? true: with_jobs;
             full = _.isUndefined(full) ? true: full;
-            keep_filters = _.isUndefined(keep_filters) ? true : false;
+            keep_filters = _.isUndefined(keep_filters) ? true : keep_filters;
 
             var params = {
                 full: full,
@@ -80,8 +80,14 @@ treeherder.factory('thResultSets', [
                 params.count = count;
             }
 
-            if(rsOffsetId > 0){
-                params.id__lt = rsOffsetId;
+            if(rsOffsetTimestamp > 0){
+                params.push_timestamp__lte = rsOffsetTimestamp;
+                // we will likely re-fetch the oldest we already have, but
+                // that's not guaranteed.  There COULD be two resultsets
+                // with the same timestamp, theoretically.
+                if (params.count) {
+                    params.count++;
+                }
             }
 
             if(keep_filters){

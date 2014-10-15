@@ -190,10 +190,6 @@ treeherder.factory('ThResultSetModel', [
 
                 name:repoName,
 
-                //This is set to the id of the last resultset loaded
-                //and used as the offset in paging
-                rsOffsetId:0,
-
                 lastJobElSelected:{},
                 lastJobObjSelected:{},
 
@@ -202,6 +198,7 @@ treeherder.factory('ThResultSetModel', [
                 jobMap:{},
                 unclassifiedFailureMap: {},
                 jobMapOldestId:null,
+                //used as the offset in paging
                 rsMapOldestTimestamp:null,
                 resultSets:[],
 
@@ -288,13 +285,6 @@ treeherder.factory('ThResultSetModel', [
             if ( !repositories[repoName].rsMapOldestTimestamp ||
                  (repositories[repoName].rsMapOldestTimestamp > rs_obj.push_timestamp)) {
                 repositories[repoName].rsMapOldestTimestamp = rs_obj.push_timestamp;
-            }
-
-            //Keep track of the last resultset id for paging
-            var resultsetId = parseInt(rs_obj.id, 10);
-            if( (resultsetId < repositories[repoName].rsOffsetId) ||
-                (repositories[repoName].rsOffsetId === 0) ){
-                repositories[repoName].rsOffsetId = resultsetId;
             }
 
             // platforms
@@ -691,10 +681,15 @@ treeherder.factory('ThResultSetModel', [
         if(data.results.length > 0){
 
             $log.debug("appendResultSets", data.results);
+            var rsIds = _.map(repositories[repoName].resultSets, function(rs){
+                return rs.id;
+            });
 
-            Array.prototype.push.apply(
-                repositories[repoName].resultSets, data.results
-                );
+            _.each(data.results, function(rs) {
+                if (!_.contains(rsIds, rs.id)) {
+                    repositories[repoName].resultSets.push(rs);
+                }
+            });
 
             mapResultSets(repoName, data.results);
 
@@ -780,7 +775,7 @@ treeherder.factory('ThResultSetModel', [
         return _.isEmpty(repositories[repoName].rsMap);
     };
 
-    var fetchResultSets = function(repoName, count){
+    var fetchResultSets = function(repoName, count, keepFilters){
         /**
          * Get the next batch of resultsets based on our current offset.
          * @param count How many to fetch
@@ -789,10 +784,12 @@ treeherder.factory('ThResultSetModel', [
         var resultsets;
         var loadRepositories = ThRepositoryModel.load(repoName);
         var loadResultsets = thResultSets.getResultSets(repoName,
-                                       repositories[repoName].rsOffsetId,
+                                       repositories[repoName].rsMapOldestTimestamp,
                                        count,
                                        undefined,
-                                       false).
+                                       false,
+                                       true,
+                                       keepFilters).
             then(function(data) {
                 resultsets = data.data;
             });

@@ -14,8 +14,8 @@ treeherder.controller('JobsCtrl', [
 
         // load our initial set of resultsets
         // scope needs this function so it can be called directly by the user, too.
-        $scope.fetchResultSets = function(count) {
-            ThResultSetModel.fetchResultSets($scope.repoName, count);
+        $scope.fetchResultSets = function(count, keepFilters) {
+            ThResultSetModel.fetchResultSets($scope.repoName, count, keepFilters);
         };
 
         // set the default repo to mozilla-central if not specified
@@ -41,15 +41,15 @@ treeherder.controller('JobsCtrl', [
 
         // determine how many resultsets to fetch.  default to 10.
         var count = ThResultSetModel.defaultResultSetCount;
-        if ((_.has($scope.searchParams, "startdate") || _.has($scope.searchParams, "fromchange") &&
-            (_.has($scope.searchParams, "enddate")) || _.has($scope.searchParams, "tochange"))) {
-            // just fetch all (up to 1000) the resultsets if an upper AND lower range is specified
+        if ((_.has($scope.searchParams, "startdate") || _.has($scope.searchParams, "fromchange")) &&
+            (_.has($scope.searchParams, "enddate") || _.has($scope.searchParams, "tochange"))) {
+            // just fetch all (up to 100) the resultsets if an upper AND lower range is specified
 
-            count = 1000;
+            count = 100;
         }
         if(ThResultSetModel.isNotLoaded($scope.repoName)){
             // get our first set of resultsets
-            ThResultSetModel.fetchResultSets($scope.repoName, count);
+            ThResultSetModel.fetchResultSets($scope.repoName, count, true);
         }
 
         $rootScope.$on(
