@@ -1515,6 +1515,36 @@ fieldset[disabled] .btn-repo.active {
     padding: 5px;
 }
 
+.help-btn {
+    margin: 2px;
+    border: 2px solid;
+}
+
+.help-btn-comment {
+    border: none;
+    background-color: #fff;
+}
+
+.help-btn-orange {
+    border-color: #dd6602;
+}
+
+.help-btn-purple {
+    border-color: #6f0296;
+}
+
+.help-btn-red {
+    border-color: #a1020e;
+}
+
+.help-btn-black {
+    border-color: #000000;
+}
+
+.help-btn-bg {
+    background-color: #fff;
+}
+
 .waiter-small{ background: url("../img/waiter16.png") no-repeat center center; width: 16px; height: 16px; display: inline-block;}
 .waiter-medium{ background: url("../img/waiter32.png") no-repeat center center; width: 32px; height: 32px; display: inline-block;}
 .waiter-large{ background: url("../img/waiter64.png") no-repeat center center; width: 64px; height: 64px; display: inline-block;}

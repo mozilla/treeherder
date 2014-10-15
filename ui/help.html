@@ -27,26 +27,72 @@
             </div>
             <div class="panel-body">
                 <table id="legend-other">
-                    <tr><th>..*</th>
-                    <td>commented</td></tr>
-                    <tr><th class="pending"><button class="btn btn-ltgray">light gray</button></th>
-                    <td>pending</td></tr>
-                    <tr><th class="running"><button class="btn btn-dkgray">gray</button></th>
-                    <td>running</td></tr>
-                    <tr><th class="success"><button class="btn btn-green">green</button></th>
-                    <td>success</td></tr>
-                    <tr><th class="testfailed"><button class="btn btn-orange">orange</button></th>
-                    <td>tests failed</td></tr>
-                    <tr><th class="exception"><button class="btn btn-purple">purple</button></th>
-                    <td>infrastructure exception</td></tr>
-                    <tr><th class="busted"><button class="btn btn-red">red</button></th>
-                    <td>build error</td></tr>
-                    <tr><th class="retry"><button class="btn btn-dkblue">blue</button></th>
-                    <td>build has been restarted</td></tr>
-                    <tr><th class="usercancel"><button class="btn btn-pink">pink</button></th>
-                    <td>build was cancelled</td></tr>
-                    <tr><th class="unknown"><button class="btn btn-black">black</button></th>
-                    <td>unknown error</td></tr>
+                  <tr>
+                    <th class="jobgroup">
+                      <button class="btn btn-dkgray help-btn help-btn-comment">Th( )</button>
+                    </th>
+                    <td>Wrapped job group</td>
+                  </tr>
+                  <tr>
+                    <th class="annotation">
+                      <button class="btn btn-dkgray help-btn help-btn-comment">Th*</button>
+                    </th>
+                    <td>Asterisk, annotation</td>
+                  </tr>
+                  <tr>
+                    <th class="pending">
+                      <button class="btn btn-ltgray help-btn help-btn-bg">Th</button>
+                    </th>
+                    <td>Light gray, pending</td>
+                  </tr>
+                  <tr>
+                    <th class="running">
+                      <button class="btn btn-dkgray help-btn help-btn-bg">Th</button>
+                    </th>
+                    <td>Gray, running</td>
+                  </tr>
+                  <tr>
+                    <th class="success">
+                      <button class="btn btn-green help-btn help-btn-bg">Th</button>
+                    </th>
+                    <td>Green, success</td>
+                  </tr>
+                  <tr>
+                    <th class="testfailed">
+                      <button class="btn btn-orange help-btn help-btn-orange">Th</button>
+                    </th>
+                    <td>Orange, tests failed</td>
+                  </tr>
+                  <tr>
+                    <th class="exception">
+                      <button class="btn btn-purple help-btn help-btn-purple">Th</button>
+                    </th>
+                    <td>Purple, infrastructure exception</td>
+                  </tr>
+                  <tr>
+                    <th class="busted">
+                      <button class="btn btn-red help-btn help-btn-red">Th</button>
+                    </th>
+                    <td>Red, build error</td>
+                  </tr>
+                  <tr>
+                    <th class="retry">
+                      <button class="btn btn-dkblue help-btn help-btn-bg">Th</button>
+                    </th>
+                    <td>Blue, build restarted</td>
+                  </tr>
+                  <tr>
+                    <th class="usercancel">
+                      <button class="btn btn-pink help-btn help-btn-bg">Th</button>
+                    </th>
+                    <td>Pink, build cancelled</td>
+                  </tr>
+                  <tr>
+                    <th class="unknown">
+                      <button class="btn btn-black help-btn help-btn-black">Th</button>
+                    </th>
+                    <td>Black, unknown error</td>
+                  </tr>
                 </table>
             </div>
         </div>
