@@ -163,3 +163,40 @@ def fetch_missing_resultsets(source, missing_resultsets, logger):
             missing_resultsets,
             ex
             ))
+
+def get_resultset(project, revisions_lookup, revision, missing_resultsets, logger):
+    """
+    Get the resultset out of the revisions_lookup for the given revision.
+
+    This is a little complex due to our attempts to get missing resultsets
+    in case we see jobs that, for one reason or another, we didn't get the
+    resultset from json-pushes.
+
+    This may raise a KeyError if the project or revision isn't found in the
+    lookup..  This signals that the job should be skipped
+    """
+
+    branch = revisions_lookup[project]
+    # we can ingest resultsets that are not active for various
+    # reasons.  One would be that the data from pending/running/
+    # builds4hr may have a bad revision (from the wrong repo).
+    # in this case, we ingest the resultset as inactive so we
+    # don't keep re-trying to find it when we hit jobs like this.
+    # Or, the resultset could be inactive for other reasons.
+    # Either way, we don't want to ingest jobs for it.
+    if branch.get("active_status", "active") != "active":
+        logger.warn(("Skipping job for non-active "
+                     "resultset/revision: {0}").format(
+                        revision))
+    try:
+        resultset = branch[revision]
+    except KeyError as ex:
+        # we don't have the resultset for this build/job yet
+        # we need to queue fetching that resultset
+        if revision not in ["Unknown", None]:
+            missing_resultsets[project].add(revision)
+        raise ex
+
+    return resultset
+
+

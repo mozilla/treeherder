@@ -967,6 +967,16 @@ class JobsModel(TreeherderModelBase):
     def get_revision_resultset_lookup(self, revision_list):
         """
         Create a list of revision->resultset lookups from a list of revision
+
+        This will retrieve non-active resultsets as well.  Some of the data
+        ingested has mixed up revisions that show for jobs, but are not in
+        the right repository in builds4hr/running/pending.  So we ingest those
+        bad resultsets/revisions as non-active so that we don't keep trying
+        to re-ingest them.  Allowing this query to retrieve non ``active``
+        resultsets means we will avoid re-doing that work by detacting that
+        we've already ingested it.
+
+        But we skip ingesting the job, because the resultset is not active.
         """
 
         replacement = ",".join(["%s"] * len(revision_list))
@@ -2405,6 +2415,7 @@ class JobsModel(TreeherderModelBase):
                     result.get('author', 'unknown@somewhere.com'),
                     result['revision_hash'],
                     result['push_timestamp'],
+                    result.get('active_status', 'active'),
                     result['revision_hash']
                     ]
                 )

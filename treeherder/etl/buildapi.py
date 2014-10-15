@@ -131,18 +131,13 @@ class Builds4hTransformerMixin(object):
             artifact_build = copy.deepcopy(build)
 
             try:
-                branch = revisions_lookup[project]
-                try:
-                    resultset = branch[prop['revision']]
-                except KeyError:
-                    # we don't have the resultset for this build/job yet
-                    # we need to queue fetching that resultset
-                    if prop['revision'] not in ["Unknown", None]:
-                        missing_resultsets[project].add(prop['revision'])
-
-                    continue
+                resultset = common.get_resultset(project,
+                                                 revisions_lookup,
+                                                 prop['revision'],
+                                                 missing_resultsets,
+                                                 logger)
             except KeyError:
-                # this branch is not one of those we care about
+                # skip this job, at least at this point
                 continue
 
             treeherder_data = {
@@ -303,18 +298,13 @@ class PendingTransformerMixin(object):
             for revision, jobs in revisions.items():
 
                 try:
-                    branch = revisions_lookup[project]
-                    try:
-                        resultset = branch[revision]
-                    except KeyError:
-                        # we don't have the resultset for this build/job yet
-                        # we need to queue fetching that resultset
-                        if revision not in ["Unknown", None]:
-                            missing_resultsets[project].add(revision)
-
-                        continue
+                    resultset = common.get_resultset(project,
+                                                     revisions_lookup,
+                                                     revision,
+                                                     missing_resultsets,
+                                                     logger)
                 except KeyError:
-                    # this branch is not one of those we care about
+                    # skip this job, at least at this point
                     continue
 
                 # using project and revision form the revision lookups
@@ -433,18 +423,13 @@ class RunningTransformerMixin(object):
             for revision, jobs in revisions.items():
 
                 try:
-                    branch = revisions_lookup[project]
-                    try:
-                        resultset = branch[revision]
-                    except KeyError:
-                        # we don't have the resultset for this build/job yet
-                        # we need to queue fetching that resultset
-                        if revision not in ["Unknown", None]:
-                            missing_resultsets[project].add(revision)
-
-                        continue
+                    resultset = common.get_resultset(project,
+                                                     revisions_lookup,
+                                                     revision,
+                                                     missing_resultsets,
+                                                     logger)
                 except KeyError:
-                    # this branch is not one of those we care about
+                    # skip this job, at least at this point
                     continue
 
                 # using project and revision form the revision lookups

@@ -110,13 +110,14 @@ class MissingHgPushlogProcess(HgPushlogTransformerMixin,
                               OAuthLoaderMixin):
 
     def extract(self, url, resultset):
-        # we will sometimes get here because builds4hr/pending/running have a
-        # job with a resultset that json-pushes doesn't know about.  Seems
-        # odd, but it happens.  So we just ingest
-
         logger.info("extracting missing resultsets: {0}".format(url))
         response = requests.get(url, timeout=settings.TREEHERDER_REQUESTS_TIMEOUT)
         if response.status_code == 404:
+            # we will sometimes get here because builds4hr/pending/running have a
+            # job with a resultset that json-pushes doesn't know about.  Seems
+            # odd, but it happens.  So we just ingest
+            logger.error("no pushlog in json-pushes.  generating a placeholder: {0}".format(url))
+
             # we want to make a "fake" resultset, because json-pushes doesn't
             # know about it.  This is what TBPL does
             return {
@@ -132,7 +133,8 @@ class MissingHgPushlogProcess(HgPushlogTransformerMixin,
                             "desc": "Pushlog not found at {0}".format(url)
                         }
                     ],
-                    "user": "Unknown"
+                    "user": "Unknown",
+                    "active_status": "onhold"
                 }
             }
         else:
