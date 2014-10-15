@@ -196,7 +196,7 @@ class JobsModel(TreeherderModelBase):
         if not project:
             project = self.project
         build_systems = cache.get("build_system_by_repo", None)
-        if not build_systems:
+        if not build_systems or project not in build_systems:
             build_systems = dict((repo, build_system_type) for repo, build_system_type in
                 ReferenceDataSignatures.objects.order_by("repository"
                 ).values_list("repository", "build_system_type").distinct()
@@ -2694,13 +2694,13 @@ class JobsModel(TreeherderModelBase):
                     result_set_id_lookup[revision_hash]['id']
                     )
 
-            # Insert new revisions
-            dhub.execute(
-                proc='jobs.inserts.set_revision',
-                placeholders=revision_placeholders,
-                executemany=True,
-                debug_show=self.DEBUG
-                )
+        # Insert new revisions
+        dhub.execute(
+            proc='jobs.inserts.set_revision',
+            placeholders=revision_placeholders,
+            executemany=True,
+            debug_show=self.DEBUG
+            )
 
         # Retrieve new revision ids
         rev_where_in_clause = ','.join(rev_where_in_list)
