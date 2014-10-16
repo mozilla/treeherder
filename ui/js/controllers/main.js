@@ -22,10 +22,11 @@ treeherder.controller('MainCtrl', [
             return "[" + ufc + "] " + $rootScope.repoName;
         };
 
-        $scope.clearJob = function() {
-            // setting the selectedJob to null hides the bottom panel
+        $scope.closeJob = function() {
+            // setting the selectedJob to null closes the bottom panel
             $rootScope.selectedJob = null;
         };
+
         $scope.processKeyboardInput = function(ev){
 
             // If the user is in an editable element or the user is pressing
@@ -68,14 +69,18 @@ treeherder.controller('MainCtrl', [
                     }
 
                 } else if (ev.keyCode === 85) {
-                    //display only unclassified failures, keys:u
+                    // Display only unclassified failures, keys:u
                     $scope.toggleUnclassifiedFailures();
                 } else if (ev.keyCode === 27) {
-                    // escape key closes any open top-panel and clears selected job
+                    // Escape closes any open panels and clears the selected job
                     $scope.setFilterPanelShowing(false);
                     $scope.setSettingsPanelShowing(false);
                     $scope.setSheriffPanelShowing(false);
-                    $scope.clearJob();
+                    $scope.closeJob();
+                    $rootScope.$broadcast(thEvents.clearJobStyles, $rootScope.selectedJob);
+
+                    // Reset selected job to null to initialize nav position
+                    ThResultSetModel.setSelectedJob($rootScope.repoName);
                 }
             }
         };
