@@ -482,3 +482,37 @@ def test_bug_job_map_detail(jm, eleven_jobs_processed):
 
     assert actual == expected
 
+
+def test_ingest_job_with_updated_job_group(jm, refdata, sample_data, initial_data,
+                                  mock_log_parser, result_set_stored):
+    """
+    When a job_type is associated with a job group on data ingestion,
+    that association will not updated ingesting a new job with the same
+    job_type but different job_group
+    """
+    first_job = sample_data.job_data[0]
+    first_job["job"]["group_name"] = "first group name"
+    first_job["job"]["group_symbol"] = "1"
+    first_job["revision_hash"] = result_set_stored[0]["revision_hash"]
+    jm.load_job_data([first_job])
+    jm.process_objects(1)
+
+    second_job = copy.deepcopy(first_job)
+    # create a new guid to ingest the job again
+    second_job_guid = "a-unique-job-guid"
+    second_job["job"]["job_guid"] = second_job_guid
+    second_job["job"]["group_name"] = "second group name"
+    second_job["job"]["group_symbol"] = "2"
+    second_job["revision_hash"] = result_set_stored[0]["revision_hash"]
+
+    jm.load_job_data([second_job])
+    jm.process_objects(1)
+
+    second_job_lookup = jm.get_job_ids_by_guid([second_job_guid])
+    second_job_stored = jm.get_job(second_job_lookup[second_job_guid]["id"])
+
+    first_job_group_name = first_job["job"]["group_name"]
+
+    second_job_group_name = second_job_stored[0]["job_group_name"]
+
+    assert first_job_group_name == second_job_group_name
