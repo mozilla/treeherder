@@ -23,7 +23,7 @@ treeherder.directive('thCloneJobs', [
     // CSS classes
     var btnCls = 'btn-xs';
     var selectedBtnCls = 'selected-job';
-    var largeBtnCls = 'btn-lg';
+    var largeBtnCls = 'btn-lg-xform';
 
     var col5Cls = 'col-xs-5';
     var col7Cls = 'col-xs-7';
