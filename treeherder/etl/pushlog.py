@@ -7,7 +7,7 @@ import logging
 from thclient import TreeherderRequest, TreeherderResultSetCollection
 
 from .mixins import JsonExtractorMixin, OAuthLoaderMixin
-from treeherder.etl.common import generate_revision_hash
+from treeherder.etl.common import generate_revision_hash, get_not_found_onhold_push
 
 
 logger = logging.getLogger(__name__)
@@ -30,6 +30,8 @@ class HgPushlogTransformerMixin(object):
 
             # Author of the push/resultset
             result_set['author'] = push['user']
+
+            result_set['active_status'] = push.get('active_status', 'active')
 
             rev_hash_components = []
 
@@ -109,7 +111,7 @@ class HgPushlogProcess(HgPushlogTransformerMixin,
 class MissingHgPushlogProcess(HgPushlogTransformerMixin,
                               OAuthLoaderMixin):
 
-    def extract(self, url, resultset):
+    def extract(self, url, revision):
         logger.info("extracting missing resultsets: {0}".format(url))
         response = requests.get(url, timeout=settings.TREEHERDER_REQUESTS_TIMEOUT)
         if response.status_code == 404:
@@ -126,33 +128,20 @@ class MissingHgPushlogProcess(HgPushlogTransformerMixin,
             logger.warn(("no pushlog in json-pushes.  generating a dummy"
                           " onhold placeholder: {0}").format(url))
 
-            # we want to make a "fake" resultset, because json-pushes doesn't
-            # know about it.  This is what TBPL does
-            return {
-                "00001": {
-                    "date": int(time.time()),
-                    "changesets": [
-                        {
-                            "node": resultset,
-                            "files": [],
-                            "tags": [],
-                            "author": "Unknown",
-                            "branch": "default",
-                            "desc": "Pushlog not found at {0}".format(url)
-                        }
-                    ],
-                    "user": "Unknown",
-                    "active_status": "onhold"
-                }
-            }
+            # we want to make a "dummy" resultset that is "onhold",
+            # because json-pushes doesn't know about it.
+            # This is, in effect, what TBPL does.
+            # These won't show in the UI, because they only fetch "active"
+            # resultsets
+            return get_not_found_onhold_push(url, revision)
         else:
             response.raise_for_status()
         return response.json()
 
-    def run(self, source_url, repository, resultset):
+    def run(self, source_url, repository, revision):
 
         try:
-            extracted_content = self.extract(source_url, resultset)
+            extracted_content = self.extract(source_url, revision)
 
             if extracted_content:
 

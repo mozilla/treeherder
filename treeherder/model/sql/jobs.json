@@ -706,7 +706,7 @@
         "get_result_set_ids":{
             "sql":"SELECT `id`, `revision_hash`, `push_timestamp`
                    FROM `result_set`
-                   WHERE `active_status` = 'active' AND `revision_hash` IN (REP0)",
+                   WHERE `active_status` in ('active', 'onhold') AND `revision_hash` IN (REP0)",
             "host": "read_host"
         },
         "get_all_result_set_revision_hashes":{

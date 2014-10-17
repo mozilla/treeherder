@@ -2545,7 +2545,7 @@ class JobsModel(TreeherderModelBase):
                     repository_id = self.refdata_model.get_repository_id(
                         rev_datum['repository']
                         )
-                    repository_id_lookup[ rev_datum['repository'] ] = repository_id
+                    repository_id_lookup[rev_datum['repository']] = repository_id
 
                 # We may not have a commit timestamp in the push data
                 commit_timestamp = rev_datum.get(
@@ -2563,7 +2563,7 @@ class JobsModel(TreeherderModelBase):
                     )
                 file_str = ','.join(file_list)
 
-                repository_id = repository_id_lookup[ rev_datum['repository'] ]
+                repository_id = repository_id_lookup[rev_datum['repository']]
                 revision_placeholders.append(
                     [ rev_datum['revision'],
                       rev_datum['author'],

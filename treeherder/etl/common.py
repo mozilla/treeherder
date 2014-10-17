@@ -2,6 +2,7 @@ from collections import defaultdict
 import hashlib
 import urllib2
 import simplejson as json
+import time
 
 from django.core.urlresolvers import reverse
 from django.conf import settings
@@ -197,3 +198,21 @@ def get_resultset(project, revisions_lookup, revision, missing_resultsets, logge
     return resultset
 
 
+def get_not_found_onhold_push(url, revision):
+    return {
+        "00001": {
+            "date": int(time.time()),
+            "changesets": [
+                {
+                    "node": revision,
+                    "files": [],
+                    "tags": [],
+                    "author": "Unknown",
+                    "branch": "default",
+                    "desc": "Pushlog not found at {0}".format(url)
+                }
+            ],
+            "user": "Unknown",
+            "active_status": "onhold"
+        }
+    }
