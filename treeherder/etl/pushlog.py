@@ -123,7 +123,7 @@ class MissingHgPushlogProcess(HgPushlogTransformerMixin,
             # The effect of this is that we won't keep trying to re-fetch
             # the bogus pushlog, but the jobs are (correctly) not shown in the
             # UI, since they're bad data.
-            logger.error(("no pushlog in json-pushes.  generating a dummy"
+            logger.warn(("no pushlog in json-pushes.  generating a dummy"
                           " onhold placeholder: {0}").format(url))
 
             # we want to make a "fake" resultset, because json-pushes doesn't
@@ -177,6 +177,7 @@ class MissingHgPushlogProcess(HgPushlogTransformerMixin,
             logger.exception("error loading missing resultsets: {0}".format(
                 source_url
             ))
+            raise
 
 class GitPushlogTransformerMixin(object):
     def transform(self, source_url):

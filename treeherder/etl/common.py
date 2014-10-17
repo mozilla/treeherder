@@ -148,21 +148,15 @@ def fetch_missing_resultsets(source, missing_resultsets, logger):
     for k, v in missing_resultsets.iteritems():
         missing_resultsets[k] = list(v)
 
-    logger.error(
+    logger.warn(
         "Found {0} jobs with missing resultsets.  Scheduling re-fetch: {1}".format(
             source,
             missing_resultsets
             )
          )
     from treeherder.etl.tasks.cleanup_tasks import fetch_missing_push_logs
+    fetch_missing_push_logs.apply_async(args=[missing_resultsets])
 
-    try:
-        fetch_missing_push_logs.apply_async(args=[missing_resultsets])
-    except Exception as ex:
-        logger.exception("error fetching missing resultsets: {0}, {1}".format(
-            missing_resultsets,
-            ex
-            ))
 
 def get_resultset(project, revisions_lookup, revision, missing_resultsets, logger):
     """
@@ -176,20 +170,23 @@ def get_resultset(project, revisions_lookup, revision, missing_resultsets, logge
     lookup..  This signals that the job should be skipped
     """
 
-    branch = revisions_lookup[project]
-    # we can ingest resultsets that are not active for various
-    # reasons.  One would be that the data from pending/running/
-    # builds4hr may have a bad revision (from the wrong repo).
-    # in this case, we ingest the resultset as inactive so we
-    # don't keep re-trying to find it when we hit jobs like this.
-    # Or, the resultset could be inactive for other reasons.
-    # Either way, we don't want to ingest jobs for it.
-    if branch.get("active_status", "active") != "active":
-        logger.warn(("Skipping job for non-active "
-                     "resultset/revision: {0}").format(
-                        revision))
+    resultset_lookup = revisions_lookup[project]
     try:
-        resultset = branch[revision]
+        resultset = resultset_lookup[revision]
+
+        # we can ingest resultsets that are not active for various
+        # reasons.  One would be that the data from pending/running/
+        # builds4hr may have a bad revision (from the wrong repo).
+        # in this case, we ingest the resultset as inactive so we
+        # don't keep re-trying to find it when we hit jobs like this.
+        # Or, the resultset could be inactive for other reasons.
+        # Either way, we don't want to ingest jobs for it.
+        if resultset.get("active_status", "active") != "active":
+            logger.info(("Skipping job for non-active "
+                         "resultset/revision: {0}").format(
+                            revision))
+
+
     except KeyError as ex:
         # we don't have the resultset for this build/job yet
         # we need to queue fetching that resultset
