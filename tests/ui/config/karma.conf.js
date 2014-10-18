@@ -1,3 +1,9 @@
+'use strict';
+
+// NOTE:  IF TESTS WON'T RUN
+// angular-scenario.js in the vendor lib will prevent the
+// Karma tests from running.  Delete it when upgrading AngularJS.
+
 module.exports = function (config) {
     config.set({
         frameworks: ['jasmine'],
@@ -12,8 +18,6 @@ module.exports = function (config) {
             'app/vendor/jquery.ui.effect.js',
             'app/vendor/jquery.ui.effect-highlight.js',
             'app/vendor/bootstrap*.js',
-            'app/vendor/zeroclipboard/*.js',
-            'app/vendor/ng-clip*.js',
             'app/js/*.js',
             'app/js/controllers/**/*.js',
             'app/js/directives/**/*.js',
@@ -21,7 +25,6 @@ module.exports = function (config) {
             'app/js/services/**/*.js',
             'app/js/config/sample.local.conf.js',
             'app/plugins/**/*.js',
-            'test/vendor/angular/angular-mocks.js',
             'test/vendor/jasmine-jquery.js',
             'test/unit/**/*.js',
             'app/vendor/*.js',
