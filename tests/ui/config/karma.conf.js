@@ -18,8 +18,6 @@ module.exports = function (config) {
             'app/vendor/jquery.ui.effect.js',
             'app/vendor/jquery.ui.effect-highlight.js',
             'app/vendor/bootstrap*.js',
-            'app/vendor/zeroclipboard/*.js',
-            'app/vendor/ng-clip*.js',
             'app/js/*.js',
             'app/js/controllers/**/*.js',
             'app/js/directives/**/*.js',
