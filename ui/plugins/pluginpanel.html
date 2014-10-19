@@ -121,11 +121,15 @@
       <ul>
         <li><a href="{{ buildbotJobnameHref }}" target="_blank" prevent-default-on-left-click th-filter-by-buildername>{{ buildbotJobname }}</a></li>
         <li class="small">
-          <label>Machine name:</label>
-          <a title="Open Buildbot Slave Health Report" target="_blank"
-             href="https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name={{ job.machine_name }}">
-            {{job.machine_name }}
-          </a>
+        <label>Machine name:</label>
+          <span ng-switch on="job.machine_name"> 
+            <span ng-switch-when='unknown'>{{ job.machine_name }}</span>
+            <a title="Open Buildbot Slave Health Report" target="_blank"
+               href="https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name={{ job.machine_name }}"
+               ng-switch-default>
+               {{ job.machine_name }}
+            </a>
+          </span>
         </li>
         <li class="small" ng-repeat="job_log_url in job_log_urls">
           <a href="{{job_log_url.buildUrl}}" target="_blank">Go To Build Directory</a>
