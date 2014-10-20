@@ -1,7 +1,8 @@
 import os
 import json
 import responses
-from treeherder.etl.pushlog import HgPushlogProcess
+from treeherder.etl.pushlog import HgPushlogProcess, MissingHgPushlogProcess
+from treeherder.etl.common import get_not_found_onhold_push
 
 
 def test_ingest_hg_pushlog(jm, initial_data, test_base_dir,
@@ -87,3 +88,38 @@ def test_ingest_hg_pushlog_already_stored(jm, initial_data, test_base_dir,
     )
 
     assert len(pushes_stored) == 2
+
+
+def test_ingest_hg_pushlog_not_found_in_json_pushes(jm, initial_data, test_base_dir,
+                           test_repository, mock_post_json_data, activate_responses):
+    """
+    Ingest a pushlog that is not found in json-pushes.  So we ingest a
+    resultset that is "onhold"
+
+    """
+
+    pushlog_fake_url = "http://www.thisismypushlog.com"
+    responses.add(responses.GET, pushlog_fake_url,
+                  body="foo", status=404,
+                  content_type='application/json')
+
+    process = MissingHgPushlogProcess()
+
+    process.run(pushlog_fake_url, jm.project, "123456789012")
+
+    pushes_stored = jm.get_jobs_dhub().execute(
+        proc="jobs_test.selects.result_sets",
+        return_type='tuple'
+    )
+
+    assert len(pushes_stored) == 1
+    assert pushes_stored[0]['active_status'] == "onhold"
+
+    revisions_stored = jm.get_jobs_dhub().execute(
+        proc="jobs_test.selects.revision_ids",
+        return_type='tuple'
+    )
+
+    assert len(revisions_stored) == 1
+
+

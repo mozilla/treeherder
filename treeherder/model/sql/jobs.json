@@ -125,8 +125,8 @@
         },
         "set_result_set":{
 
-            "sql":"INSERT INTO `result_set` (`author`, `revision_hash`,`push_timestamp`)
-                SELECT ?,?,?
+            "sql":"INSERT INTO `result_set` (`author`, `revision_hash`,`push_timestamp`, `active_status`)
+                SELECT ?,?,?,?
                 FROM DUAL
                 WHERE NOT EXISTS (
                     SELECT `revision_hash`, `push_timestamp`
@@ -706,7 +706,7 @@
         "get_result_set_ids":{
             "sql":"SELECT `id`, `revision_hash`, `push_timestamp`
                    FROM `result_set`
-                   WHERE `active_status` = 'active' AND `revision_hash` IN (REP0)",
+                   WHERE `active_status` in ('active', 'onhold') AND `revision_hash` IN (REP0)",
             "host": "read_host"
         },
         "get_all_result_set_revision_hashes":{
@@ -760,6 +760,7 @@
                       rs.id,
                       rs.revision_hash,
                       rs.push_timestamp,
+                      rs.active_status,
                       revision.id as revision_id,
                       revision.revision
                    FROM result_set AS rs
@@ -767,7 +768,7 @@
                       ON rs.id = revision_map.result_set_id
                    INNER JOIN revision
                       ON revision_map.revision_id = revision.id
-                   WHERE rs.active_status = 'active'
+                   WHERE 1
                    REP0
                    ORDER BY rs.push_timestamp DESC
                    LIMIT ?,?

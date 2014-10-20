@@ -129,6 +129,7 @@ class OAuthLoaderMixin(object):
                 oauth_secret=credentials.get('consumer_secret', None)
             )
 
+            logger.info("collection loading request: {0}".format(th_request.get_uri(th_collections[project].endpoint_base)))
             response = th_request.post(th_collections[project])
 
             if not response or response.status != 200:

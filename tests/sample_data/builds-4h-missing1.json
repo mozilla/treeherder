@@ -1,0 +1,144 @@
+{
+  "builds": [
+    {
+      "builder_id": 274259,
+      "buildnumber": 42,
+      "endtime": 1412776103,
+      "id": 49799397,
+      "master_id": 132,
+      "properties": {
+        "base_bundle_urls": [
+          "https://ftp-ssl.mozilla.org/pub/mozilla.org/firefox/bundles"
+        ],
+        "base_mirror_urls": null,
+        "basedir": "/builds/slave/b2g_fx-team_emu-kk-d_nu-000000",
+        "branch": "test_treeherder",
+        "buildername": "b2g_fx-team_emulator-kk-debug_nonunified",
+        "buildid": "20141008023001",
+        "buildnumber": 42,
+        "builduid": "28d3ea4c5aa144b1b160670dc37d8d39",
+        "compare_locales_revision": "1fc4e9bc8287",
+        "gaia_revision": "0bc74ce502672cf0265b24cf3a25d117c3de5e71",
+        "gecko_revision": "9637293b166a",
+        "hgurl": "https://hg.mozilla.org/",
+        "log_url": "http://ftp.mozilla.org/pub/mozilla.org/b2g/tinderbox-builds/fx-team-emulator-kk-debug/1412760601/b2g_fx-team_emulator-kk-debug_nonunified-bm94-build1-build42.txt.gz",
+        "master": "http://buildbot-master94.srv.releng.use1.mozilla.com:8001/",
+        "mock_target": null,
+        "platform": "emulator-kk-debug",
+        "product": "b2g",
+        "project": "",
+        "repo_path": "integration/fx-team",
+        "repository": "",
+        "request_ids": [
+          52163682
+        ],
+        "request_times": {
+          "52163682": 1412760601
+        },
+        "revision": "45f8637cb9f7",
+        "scheduler": "b2g_fx-team periodic",
+        "script_repo_revision": "1b5e35f7a0ec",
+        "slavename": "bld-linux64-spot-007",
+        "tools_revision": "2469042323a6",
+        "tooltool_url_list": [
+          "http://runtime-binaries.pvt.build.mozilla.org/tooltool"
+        ],
+        "upload_ssh_key": "ffxbld_dsa",
+        "upload_ssh_server": "stage.mozilla.org",
+        "upload_ssh_user": "ffxbld"
+      },
+      "reason": "The Nightly scheduler named 'b2g_fx-team periodic' triggered this build",
+      "request_ids": [
+        52163682
+      ],
+      "requesttime": 1412760601,
+      "result": 0,
+      "slave_id": 6971,
+      "starttime": 1412761403
+    },
+    {
+      "builder_id": 202754,
+      "buildnumber": 76,
+      "endtime": 1412775820,
+      "id": 49799157,
+      "master_id": 106,
+      "properties": {
+        "appName": "Firefox",
+        "appVersion": "35.0a1",
+        "basedir": "c:/builds/moz2_slave/m-cen-w32-ntly-000000000000000",
+        "branch": "test_treeherder",
+        "builddir": "m-cen-w32-ntly-000000000000000",
+        "buildername": "WINNT 5.2 mozilla-central nightly",
+        "buildid": "20141008030202",
+        "buildnumber": 76,
+        "builduid": "4c3bcb4280a146869a709cd9c588fb6e",
+        "comments": "",
+        "completeMarFilename": "firefox-35.0a1.en-US.win32.complete.mar",
+        "completeMarHash": "8ed585ec103aec121af4f81633b1201994c9d8e9bb797cbdad1323f84f176c8086cb522d801cbb7c8dc8e18b6339fbb80211d9d0a8b9118c3a92969f23f59501",
+        "completeMarSize": "48921988",
+        "completeMarUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/2014/10/2014-10-08-03-02-02-mozilla-central/firefox-35.0a1.en-US.win32.complete.mar",
+        "completesnippetFilename": "build/obj-firefox/dist/update/complete.update.snippet",
+        "filepath": null,
+        "forced_clobber": false,
+        "hashType": "sha512",
+        "installerFilename": "firefox-35.0a1.en-US.win32.installer.exe",
+        "installerHash": "97d6149ff2649ac3ee63429376d4a0d0cfd6c4017071c16aedbaf1b73a6c181715e4b18779f19c5896de64d84b56cca7eac2f67b1c958b623707115ce9d10e74",
+        "installerSize": "40424984",
+        "jsshellUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-central-win32/1412762522/jsshell-win32.zip",
+        "log_url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/2014/10/2014-10-08-03-02-02-mozilla-central/mozilla-central-win32-nightly-bm85-build1-build76.txt.gz",
+        "master": "http://buildbot-master85.srv.releng.scl3.mozilla.com:8001/",
+        "nightly_build": true,
+        "packageFilename": "firefox-35.0a1.en-US.win32.zip",
+        "packageHash": "9f3f0b59d33b719c9c6b8d029c557e396f120b471db31b523289eacfee7268a2c8f50aca937dd2faf20fa6af7ba562e5d9c0e724bd361648be40e8e39147e19b",
+        "packageSize": "50571473",
+        "packageUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-central-win32/1412762522/firefox-35.0a1.en-US.win32.zip",
+        "partialInfo": [
+          {
+            "from_buildid": "20141007030202",
+            "hash": "97b74d6163fa92503dfeb4f6f116975b92ca815fa8e3bcedaef97f37868782062d801b5cdad656ff5c2eed08ee0739f4ad946036b92778b0edb3ef3f82beba55",
+            "size": "4203960",
+            "url": "http://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/2014/10/2014-10-08-03-02-02-mozilla-central/firefox-35.0a1.en-US.win32.partial.20141007030202-20141008030202.mar"
+          }
+        ],
+        "partialMarFilename": "firefox-35.0a1.en-US.win32.partial.20141007030202-20141008030202.mar",
+        "partialMarHash": "97b74d6163fa92503dfeb4f6f116975b92ca815fa8e3bcedaef97f37868782062d801b5cdad656ff5c2eed08ee0739f4ad946036b92778b0edb3ef3f82beba55",
+        "partialMarSize": "4203960",
+        "partialMarUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/2014/10/2014-10-08-03-02-02-mozilla-central/firefox-35.0a1.en-US.win32.partial.20141007030202-20141008030202.mar",
+        "partialsnippetFilename": "build/obj-firefox/dist/update/partial.update.snippet",
+        "periodic_clobber": false,
+        "platform": "win32",
+        "previousMarFilename": "firefox-35.0a1.en-US.win32.complete.mar",
+        "previous_buildid": "20141007030202",
+        "previous_inipath": "previous/application.ini",
+        "product": "firefox",
+        "project": "",
+        "purge_actual": "60.69GB",
+        "purge_target": "12GB",
+        "purged_clobber": true,
+        "repository": "",
+        "request_ids": [
+          52167028
+        ],
+        "request_times": {
+          "52167028": 1412762523
+        },
+        "revision": "222222222222902057b6f698a5ca9f78aea25d06",
+        "scheduler": "mozilla-central nightly",
+        "slavebuilddir": "m-cen-w32-ntly-000000000000000",
+        "slavename": "b-2008-ix-0140",
+        "stage_platform": "win32",
+        "symbolsUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-central-win32/1412762522/firefox-35.0a1.en-US.win32.crashreporter-symbols.zip",
+        "testsUrl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-central-win32/1412762522/firefox-35.0a1.en-US.win32.tests.zip",
+        "toolsdir": "c:/builds/moz2_slave/m-cen-w32-ntly-000000000000000/tools"
+      },
+      "reason": "The Nightly scheduler named 'mozilla-central nightly' triggered this build",
+      "request_ids": [
+        52167028
+      ],
+      "requesttime": 1412762523,
+      "result": 0,
+      "slave_id": 9671,
+      "starttime": 1412762525
+    }
+  ]
+}

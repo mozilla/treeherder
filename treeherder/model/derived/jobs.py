@@ -968,6 +968,16 @@ class JobsModel(TreeherderModelBase):
     def get_revision_resultset_lookup(self, revision_list):
         """
         Create a list of revision->resultset lookups from a list of revision
+
+        This will retrieve non-active resultsets as well.  Some of the data
+        ingested has mixed up revisions that show for jobs, but are not in
+        the right repository in builds4hr/running/pending.  So we ingest those
+        bad resultsets/revisions as non-active so that we don't keep trying
+        to re-ingest them.  Allowing this query to retrieve non ``active``
+        resultsets means we will avoid re-doing that work by detacting that
+        we've already ingested it.
+
+        But we skip ingesting the job, because the resultset is not active.
         """
 
         replacement = ",".join(["%s"] * len(revision_list))
@@ -1464,12 +1474,6 @@ class JobsModel(TreeherderModelBase):
                 "result_set_id": loaded_job[self.JOB_PH_RESULT_SET_ID],
                 "result_set_push_timestamp": push_timestamps[loaded_job[self.JOB_PH_RESULT_SET_ID]]
             }
-
-        status_publisher = JobStatusPublisher(settings.BROKER_URL)
-        try:
-            status_publisher.publish(loaded_job_guids, self.project, 'processed')
-        finally:
-            status_publisher.disconnect()
 
     def _remove_existing_jobs(self, data):
         """
@@ -2526,6 +2530,7 @@ class JobsModel(TreeherderModelBase):
                     result.get('author', 'unknown@somewhere.com'),
                     result['revision_hash'],
                     result['push_timestamp'],
+                    result.get('active_status', 'active'),
                     result['revision_hash']
                     ]
                 )
@@ -2540,7 +2545,7 @@ class JobsModel(TreeherderModelBase):
                     repository_id = self.refdata_model.get_repository_id(
                         rev_datum['repository']
                         )
-                    repository_id_lookup[ rev_datum['repository'] ] = repository_id
+                    repository_id_lookup[rev_datum['repository']] = repository_id
 
                 # We may not have a commit timestamp in the push data
                 commit_timestamp = rev_datum.get(
@@ -2558,7 +2563,7 @@ class JobsModel(TreeherderModelBase):
                     )
                 file_str = ','.join(file_list)
 
-                repository_id = repository_id_lookup[ rev_datum['repository'] ]
+                repository_id = repository_id_lookup[rev_datum['repository']]
                 revision_placeholders.append(
                     [ rev_datum['revision'],
                       rev_datum['author'],
@@ -2635,7 +2640,6 @@ class JobsModel(TreeherderModelBase):
 
         # Retrieve new revision ids
         rev_where_in_clause = ','.join(rev_where_in_list)
-        select_proc = 'get_revision_ids'
         revision_id_lookup = dhub.execute(
             proc='jobs.selects.get_revisions',
             placeholders=all_revisions,
