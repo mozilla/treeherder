@@ -1,0 +1,59 @@
+{
+  "builds": [
+    {
+      "builder_id": 274259,
+      "buildnumber": 42,
+      "endtime": 1412776103,
+      "id": 49799397,
+      "master_id": 132,
+      "properties": {
+        "base_bundle_urls": [
+          "https://ftp-ssl.mozilla.org/pub/mozilla.org/firefox/bundles"
+        ],
+        "base_mirror_urls": null,
+        "basedir": "/builds/slave/b2g_fx-team_emu-kk-d_nu-000000",
+        "buildername": "b2g_fx-team_emulator-kk-debug_nonunified",
+        "buildid": "20141008023001",
+        "buildnumber": 42,
+        "builduid": "28d3ea4c5aa144b1b160670dc37d8d39",
+        "compare_locales_revision": "1fc4e9bc8287",
+        "gaia_revision": "0bc74ce502672cf0265b24cf3a25d117c3de5e71",
+        "gecko_revision": "9637293b166a",
+        "hgurl": "https://hg.mozilla.org/",
+        "log_url": "http://ftp.mozilla.org/pub/mozilla.org/b2g/tinderbox-builds/fx-team-emulator-kk-debug/1412760601/b2g_fx-team_emulator-kk-debug_nonunified-bm94-build1-build42.txt.gz",
+        "master": "http://buildbot-master94.srv.releng.use1.mozilla.com:8001/",
+        "mock_target": null,
+        "platform": "emulator-kk-debug",
+        "product": "b2g",
+        "project": "",
+        "repo_path": "integration/fx-team",
+        "repository": "",
+        "request_ids": [
+          52163682
+        ],
+        "request_times": {
+          "52163682": 1412760601
+        },
+        "revision": "45f8637cb9f7",
+        "scheduler": "b2g_fx-team periodic",
+        "script_repo_revision": "1b5e35f7a0ec",
+        "slavename": "bld-linux64-spot-007",
+        "tools_revision": "2469042323a6",
+        "tooltool_url_list": [
+          "http://runtime-binaries.pvt.build.mozilla.org/tooltool"
+        ],
+        "upload_ssh_key": "ffxbld_dsa",
+        "upload_ssh_server": "stage.mozilla.org",
+        "upload_ssh_user": "ffxbld"
+      },
+      "reason": "The Nightly scheduler named 'b2g_fx-team periodic' triggered this build",
+      "request_ids": [
+        52163682
+      ],
+      "requesttime": 1412760601,
+      "result": 0,
+      "slave_id": 6971,
+      "starttime": 1412761403
+    }
+  ]
+}

@@ -84,6 +84,19 @@ def mock_buildapi_builds4h_missing1_url(monkeypatch):
                         "file://{0}".format(path))
 
 
+@pytest.fixture
+def mock_buildapi_builds4h_missing_branch_url(monkeypatch):
+    tests_folder = os.path.dirname(os.path.dirname(__file__))
+    path = os.path.join(
+        tests_folder,
+        "sample_data",
+        "builds-4h-missing_branch.json"
+    )
+    monkeypatch.setattr(settings,
+                        'BUILDAPI_BUILDS4H_URL',
+                        "file://{0}".format(path))
+
+
 def test_ingest_pending_jobs(jm, initial_data,
                                 mock_buildapi_pending_url,
                                 mock_post_json_data,
@@ -208,6 +221,25 @@ def test_ingest_builds4h_jobs_1_missing_resultset(jm, initial_data,
     from treeherder.etl.buildapi import Builds4hJobsProcess
     etl_process = Builds4hJobsProcess()
     _do_missing_resultset_test(jm, etl_process)
+
+
+def test_ingest_builds4h_jobs_missing_branch(jm, initial_data,
+        sample_resultset, test_repository, mock_buildapi_builds4h_missing_branch_url,
+        mock_post_json_data, mock_log_parser, mock_get_resultset,
+        mock_get_remote_content):
+    """
+    Ensure the builds4h job with the missing resultset is queued for refetching
+    """
+    from treeherder.etl.buildapi import Builds4hJobsProcess
+    etl_process = Builds4hJobsProcess()
+
+    etl_process.run()
+    jm.process_objects(2)
+
+    stored_obj = jm.get_jobs_dhub().execute(
+        proc="jobs_test.selects.jobs")
+
+    assert len(stored_obj) == 0
 
 
 def _do_missing_resultset_test(jm, etl_process):

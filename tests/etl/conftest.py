@@ -13,30 +13,31 @@ from tests.sampledata import SampleData
 def mock_post_json_data(monkeypatch, jm):
     def _post_json_data(url, data):
 
-        th_collection = data[jm.project]
+        if data:
+            th_collection = data[jm.project]
 
-        OAuthCredentials.set_credentials( SampleData.get_credentials() )
-        credentials = OAuthCredentials.get_credentials(jm.project)
+            OAuthCredentials.set_credentials( SampleData.get_credentials() )
+            credentials = OAuthCredentials.get_credentials(jm.project)
 
-        tr = TreeherderRequest(
-            protocol='http',
-            host='localhost',
-            project=jm.project,
-            oauth_key=credentials['consumer_key'],
-            oauth_secret=credentials['consumer_secret']
-            )
-        signed_uri = tr.oauth_client.get_signed_uri(
-            th_collection.to_json(),
-            tr.get_uri(th_collection.endpoint_base),
-            "POST"
-            )
+            tr = TreeherderRequest(
+                protocol='http',
+                host='localhost',
+                project=jm.project,
+                oauth_key=credentials['consumer_key'],
+                oauth_secret=credentials['consumer_secret']
+                )
+            signed_uri = tr.oauth_client.get_signed_uri(
+                th_collection.to_json(),
+                tr.get_uri(th_collection.endpoint_base),
+                "POST"
+                )
 
-        response = TestApp(application).post_json(
-            str(signed_uri), params=th_collection.get_collection_data()
-            )
+            response = TestApp(application).post_json(
+                str(signed_uri), params=th_collection.get_collection_data()
+                )
 
-        response.getcode = lambda: response.status_int
-        return response
+            response.getcode = lambda: response.status_int
+            return response
 
     monkeypatch.setattr(OAuthLoaderMixin, 'load', _post_json_data)
 
