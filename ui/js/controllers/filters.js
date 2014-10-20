@@ -37,6 +37,15 @@ treeherder.controller('FilterPanelCtrl', [
         $scope.newFieldFilter = null;
         $scope.fieldFilters = [];
 
+        $rootScope.$on('setFilters', function(event, data) {
+            $scope.fieldFilters = _.chain(data)
+                .map(function(val, key) {
+                    if (key.lastIndexOf('field-', 0) === 0) {
+                        return { field: key.replace('field-', ''), value: val };
+                    }
+                }).filter(function(i) { return i !== undefined; }).value();
+        });
+
         $scope.fieldChoices = thJobFilters.fieldChoices;
 
         /**

@@ -4,11 +4,12 @@ treeherder.controller('JobsCtrl', [
     '$scope', '$http', '$rootScope', '$routeParams', 'ThLog', '$cookies',
     'localStorageService', 'thUrl', 'ThRepositoryModel', 'thDefaultRepo',
     'ThResultSetModel', 'thResultStatusList', '$location', 'thEvents',
-    'ThJobModel',
+    'ThJobModel', '$timeout',
     function JobsCtrl(
         $scope, $http, $rootScope, $routeParams, ThLog, $cookies,
         localStorageService, thUrl, ThRepositoryModel, thDefaultRepo,
-        ThResultSetModel, thResultStatusList, $location, thEvents, ThJobModel) {
+        ThResultSetModel, thResultStatusList, $location, thEvents, ThJobModel,
+        $timeout) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -38,6 +39,8 @@ treeherder.controller('JobsCtrl', [
         $scope.locationHasSearchParam = function(prop) {
             return _.has($scope.searchParams, prop);
         };
+
+        $timeout(function() { $rootScope.$emit('setFilters', $scope.searchParams); });
 
         // determine how many resultsets to fetch.  default to 10.
         var count = ThResultSetModel.defaultResultSetCount;
@@ -82,11 +85,8 @@ treeherder.controller('JobsCtrl', [
                         // broadcast the job classification event
                         $rootScope.$broadcast(thEvents.jobsClassified, params);
                     }
-
                 });
-
             }
-
         };
     }
 ]);
