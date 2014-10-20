@@ -125,12 +125,10 @@ class Builds4hTransformerMixin(object):
         th_collections = {}
 
         for build in data['builds']:
-            prop = build['properties']
-            project = prop['branch']
-
-            artifact_build = copy.deepcopy(build)
-
             try:
+                prop = build['properties']
+                project = prop['branch']
+                artifact_build = copy.deepcopy(build)
                 resultset = common.get_resultset(project,
                                                  revisions_lookup,
                                                  prop['revision'],
