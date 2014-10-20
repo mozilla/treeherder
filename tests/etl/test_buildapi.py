@@ -147,10 +147,6 @@ def test_ingest_builds4h_jobs(jm, initial_data,
                                 mock_get_remote_content):
     """
     a new buildapi completed job creates a new obj in the job table
-
-    note, this includes a job that has a couple missing fields, which
-    should be skipped.  This is to also catch some of these errors that
-    sometimes show up in these files.
     """
     from treeherder.etl.buildapi import Builds4hJobsProcess
     etl_process = Builds4hJobsProcess()
@@ -212,6 +208,18 @@ def test_ingest_running_jobs_1_missing_resultset(jm, initial_data,
     """
     from treeherder.etl.buildapi import RunningJobsProcess
     etl_process = RunningJobsProcess()
+    _do_missing_resultset_test(jm, etl_process)
+
+
+def test_ingest_builds4h_jobs_1_missing_resultset(jm, initial_data,
+        sample_resultset, test_repository, mock_buildapi_builds4h_missing1_url,
+        mock_post_json_data, mock_get_resultset, mock_get_remote_content,
+        activate_responses):
+    """
+    Ensure the running job with the missing resultset is queued for refetching
+    """
+    from treeherder.etl.buildapi import Builds4hJobsProcess
+    etl_process = Builds4hJobsProcess()
     _do_missing_resultset_test(jm, etl_process)
 
 
