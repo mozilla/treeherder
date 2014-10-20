@@ -105,24 +105,28 @@ body {
     margin: 0em 0.6em 0em 0em;
 }
 
-.lv-log-loading {
+.lv-log-msg {
     position: fixed;
-    top: 284px;
-    left: 50%;
-    background: #FFF;
-    color: #585858;
-    width: 150px;
-    margin-left: -75px;
-    font-size: 2em;
+    top: 530px;
+    left: 3%;
+    font-weight: bold;
+}
+
+.lv-log-msg-step {
+    padding: 2px 5px;
+    background: #fff;
+    border: solid #f0ad4e;
+    border-width: 4px 2px 2px;
+    border-radius: 2px;
+}
+
+.lv-log-overlay {
+    padding: 6px;
+    border: 2px solid #4cae4c;
+    border-radius: 3px;
+    background: #fff;
 }
 
 .lv-log-error {
-    position: fixed;
-    top: 284px;
-    left: 50%;
-    background: #FFF;
-    color: #585858;
-    width: 293px;
-    margin-left: -75px;
-    font-size: 2em;
+    border: 2px solid #ff0000;
 }
