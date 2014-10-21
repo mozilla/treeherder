@@ -184,10 +184,26 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
+        'regex': re.compile('android (?:4\.0 )?armv7 api 10', re.IGNORECASE),
+        'attributes': {
+            'os': 'android',
+            'os_platform': 'android-4-0-armv7-api10',
+            'arch': 'armv7',
+        }
+    },
+    {
         'regex': re.compile('android 4\.0', re.IGNORECASE),
         'attributes': {
             'os': 'android',
             'os_platform': 'android-4-0',
+            'arch': 'armv7',
+        }
+    },
+    {
+        'regex': re.compile('android armv7 api 9', re.IGNORECASE),
+        'attributes': {
+            'os': 'android',
+            'os_platform': 'android-2-3-armv7-api9',
             'arch': 'armv7',
         }
     },
