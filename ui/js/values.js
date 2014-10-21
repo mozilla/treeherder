@@ -9,6 +9,7 @@ treeherder.value("thPlatformNameMap", {
     "windowsxp": "Windows XP",
     "windows7-32": "Windows 7",
     "windows8-32": "Windows 8",
+    "windows8-64": "Windows 8 x64",
     "windows2012-64": "Windows 2012 x64",
     "android-2-2-armv6": "Android 2.2 Armv6",
     "android-2-2": "Android 2.2",
