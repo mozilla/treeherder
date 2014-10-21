@@ -805,9 +805,10 @@ ul.failure-summary-list li .btn-xs {
     width: 70px;
 }
 
-
 .pinned-job {
-    padding: 1px 7px;
+    margin-bottom: 2px;
+    padding: 1px 2px;
+    width: 3.5em;
 }
 
 .pinned-job-close-btn {
