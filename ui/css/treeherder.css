@@ -513,7 +513,7 @@ div#bottom-panel .navbar-nav.pull-right li a:focus{
 
 #bottom-panel-content {
    position: relative; /* So we can absolutely position the loading overlay */
-   height: 270px;
+   height: 60%;
 
    flex: auto;
    -webkit-flex: auto;
