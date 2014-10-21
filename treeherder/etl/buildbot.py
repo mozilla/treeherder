@@ -149,7 +149,17 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile('WINNT 6\.1 x(?:86-)?64|win64', re.IGNORECASE),
+        # Windows x64 builds are created on Win Server 2k8, but for the sake
+        # of consistency, we display them on the same row as the Win8 x64 tests.
+        'regex': re.compile('WINNT 6\.1 x(?:86-)?64|Windows 8 64-bit', re.IGNORECASE),
+        'attributes': {
+            'os': 'win',
+            'os_platform': 'windows8-64',
+            'arch': 'x86_64',
+        }
+    },
+    {
+        'regex': re.compile('win64_vm', re.IGNORECASE),
         'attributes': {
             'os': 'win',
             'os_platform': 'windows2012-64',
