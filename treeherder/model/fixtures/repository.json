@@ -110,7 +110,7 @@
         "dvcs_type": "hg",
         "name": "mozilla-esr24",
         "url": "https://hg.mozilla.org/releases/mozilla-esr24",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gecko",
         "repository_group": 2,
         "description": ""
