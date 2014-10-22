@@ -474,7 +474,7 @@
         "dvcs_type": "hg",
         "name": "comm-esr24",
         "url": "https://hg.mozilla.org/releases/comm-esr24",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "comm",
         "repository_group": 2,
         "description": ""
