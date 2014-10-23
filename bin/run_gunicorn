@@ -32,4 +32,5 @@ exec $GUNICORN -w $NUM_WORKERS \
     --access-logfile=$ACCESS_LOGFILE \
     --error-logfile=$ERROR_LOGFILE treeherder.webapp.wsgi:application \
     --keep-alive=3 \
-    --log-level error
+    --log-level error \
+    --timeout=45
