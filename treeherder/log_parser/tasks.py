@@ -25,6 +25,11 @@ def parse_log(project, job_log_url, job_guid, check_errors=False):
     Call ArtifactBuilderCollection on the given job.
     """
 
+    # if parse_status is not available, consider it pending
+    parse_status = job_log_url.get("parse_status", "pending")
+    # don't parse a log if it's already been parsed
+    if parse_status == "parsed":
+        return
     hash_obj = md5()
     hash_obj.update(project)
     hash_obj.update(str(job_log_url['id']))

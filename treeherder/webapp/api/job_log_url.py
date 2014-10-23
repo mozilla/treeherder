@@ -1,10 +1,12 @@
+import logging
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.exceptions import ParseError
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
 
 from treeherder.webapp.api.utils import with_jobs, oauth_required
+
+logger = logging.getLogger(__name__)
 
 
 class JobLogUrlViewSet(viewsets.ViewSet):
@@ -28,14 +30,16 @@ class JobLogUrlViewSet(viewsets.ViewSet):
 
         job_id = request.QUERY_PARAMS.get('job_id')
         if not job_id:
-            raise ParseError(detail="The job_id parameter is mandatory for this endpoint")
+            raise ParseError(
+                detail="The job_id parameter is mandatory for this endpoint")
         try:
             job_id = int(job_id)
         except ValueError:
             raise ParseError(detail="The job_id parameter must be an integer")
 
-        # get_job_log_url_list takes a lost of job ids
+        # get_job_log_url_list takes a list of job ids
         job_log_url_list = jm.get_job_log_url_list([job_id])
+
         return Response(job_log_url_list)
 
     @action()
@@ -52,22 +56,26 @@ class JobLogUrlViewSet(viewsets.ViewSet):
             obj = jm.get_job_log_url_detail(pk)
             return Response(obj)
         except KeyError:
-            raise ParseError(detail=("The parse_status and parse_timestamp parameters"
-                                     " are mandatory for this endpoint"))
+            raise ParseError(detail=("The parse_status and parse_timestamp"
+                                     " parameters are mandatory for this"
+                                     " endpoint"))
 
-    @action(permission_classes=[IsAuthenticated])
+    @action()
     @with_jobs
     def parse(self, request, project, jm, pk=None):
-        """
-        Trigger an async task to parse this log. This can be requested by the ui
-        in case the log parsing had an intermittent failure
-        """
+        """Trigger an async task to parse this log."""
         log_obj = jm.get_job_log_url_detail(pk)
-        job = jm.get_job(log_obj["job_id"])
+        job = jm.get_job(log_obj["job_id"])[0]
 
+        logger.info("{0} has requested to parse log {1}".format(
+                    request.user.username, log_obj))
+
+        #importing here to avoid an import loop
         from treeherder.log_parser.tasks import parse_log
+        parse_log.apply_async(
+            args=[project, log_obj, job["job_guid"]],
+            kwargs={'check_errors': True},
+            routing_key='parse_log.high_priority'
+        )
 
-        parse_log.delay(project, log_obj["url"],
-                        job["job_guid"], job["resultset_id"],
-                        check_errors=True)
         return Response({"message": "Log parsing triggered successfully"})
