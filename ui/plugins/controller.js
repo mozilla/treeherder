@@ -5,20 +5,18 @@ treeherder.controller('PluginCtrl', [
     'thClassificationTypes', 'ThJobModel', 'thEvents', 'dateFilter',
     'numberFilter', 'ThBugJobMapModel', 'thResultStatus',
     'ThResultSetModel', 'ThLog', '$q', 'thPinboard', 'ThJobArtifactModel',
-    'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'thTabs',
+    'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'thTabs', '$timeout',
     function PluginCtrl(
         $scope, $rootScope, $location, thUrl, ThJobClassificationModel,
         thClassificationTypes, ThJobModel, thEvents, dateFilter,
         numberFilter, ThBugJobMapModel, thResultStatus,
         ThResultSetModel, ThLog, $q, thPinboard, ThJobArtifactModel,
-        thBuildApi, thNotify, ThJobLogUrlModel, thTabs) {
+        thBuildApi, thNotify, ThJobLogUrlModel, thTabs, $timeout) {
 
         var $log = new ThLog("PluginCtrl");
 
         $scope.job = {};
         $scope.artifacts = {};
-
-        var timeout_promise = null;
 
         var setBuildernameHref = function(buildername){
 
@@ -35,31 +33,42 @@ treeherder.controller('PluginCtrl', [
 
         };
 
+        // this promise will void all the ajax requests
+        // triggered by selectJob once resolved
+        var selectJobPromise = null;
+        var selectJobRetryPromise = null;
+
         var selectJob = function(job_id) {
             // set the scope variables needed for the job detail panel
             if (job_id) {
                 $scope.job_detail_loading = true;
-                if(timeout_promise !== null){
+                if(selectJobPromise !== null){
                     $log.debug("timing out previous job request");
-                    timeout_promise.resolve();
+                    selectJobPromise.resolve();
                 }
-                timeout_promise = $q.defer();
+                selectJobPromise = $q.defer();
 
+                if( selectJobRetryPromise !== null){
+                    $timeout.cancel(selectJobRetryPromise);
+                }
+                $scope.job = {};
+                $scope.artifacts = {};
+                $scope.job_details = [];
                 var jobDetailPromise = ThJobModel.get(
                     $scope.repoName, job_id,
-                    {timeout: timeout_promise});
+                    {timeout: selectJobPromise});
 
                 var buildapiArtifactPromise = ThJobArtifactModel.get_list(
                     {name: "buildapi", "type": "json", job_id: job_id},
-                    {timeout: timeout_promise});
+                    {timeout: selectJobPromise});
 
                 var jobInfoArtifactPromise = ThJobArtifactModel.get_list({
                     name: "Job Info", "type": "json", job_id: job_id},
-                    {timeout: timeout_promise});
+                    {timeout: selectJobPromise});
 
                 var jobLogUrlPromise = ThJobLogUrlModel.get_list(
                     job_id,
-                    {timeout: timeout_promise});
+                    {timeout: selectJobPromise});
 
                 return $q.all([
                     jobDetailPromise,
@@ -91,12 +100,34 @@ treeherder.controller('PluginCtrl', [
                           return result;
                         }, []);
                     }
-                    //the fourth result comes form the jobLogUrl artifact
+                    // the fourth result comes from the jobLogUrl artifact
                     $scope.job_log_urls = results[3];
+                    var logsNotParsed = [];
                     $scope.jobLogsAllParsed = _.every($scope.job_log_urls, function(jlu) {
-                        return jlu.parse_status === 'parsed';
+                        if(jlu.parse_status === 'pending'){
+                            logsNotParsed.push(jlu)
+                            return false;
+                        }else{
+                            return true
+                        }
                     });
-
+                    // retry to fetch the job info if a log hasn't been parsed yet
+                    if(logsNotParsed.length > 0){
+                        // first parse all the unparsed logs
+                        $q.all(_.map(logsNotParsed, function(log){return log.parse();}))
+                        .then(function(parseLogResponses){
+                            // then retry to fetch the job info if the parse requests
+                            // were successful
+                            if(_.every(
+                                parseLogResponses,
+                                function(parseLogResponse){return parseLogResponse.status == 200;}
+                            )){
+                                selectJobRetryPromise = $timeout(function(){
+                                    selectJobAndRender(job_id);
+                                }, 5000);
+                            }
+                        })
+                    }
                     $scope.lvUrl = thUrl.getLogViewerUrl($scope.job.id);
                     $scope.resultStatusShading = "result-status-shading-" + thResultStatus($scope.job);
 
@@ -106,8 +137,6 @@ treeherder.controller('PluginCtrl', [
 
                     $scope.job_detail_loading = false;
                 });
-
-
             }
         };
 
@@ -219,10 +248,15 @@ treeherder.controller('PluginCtrl', [
             }
         };
 
-        $scope.$on(thEvents.jobClick, function(event, job) {
-            $scope.jobLoadedPromise = selectJob(job.id);
-            thTabs.showTab(thTabs.selectedTab, job.id);
+        var selectJobAndRender = function(job_id){
+            $scope.jobLoadedPromise = selectJob(job_id);
+            $scope.jobLoadedPromise.then(function(){
+                thTabs.showTab(thTabs.selectedTab, job_id);
+            });
+        }
 
+        $scope.$on(thEvents.jobClick, function(event, job) {
+            selectJobAndRender(job.id);
             $rootScope.selectedJob = job;
         });
 
