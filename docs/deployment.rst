@@ -82,7 +82,7 @@ Securing the connection
 To put everything under a SSL connection you may want to use a SSL wrapper like stunnel_. Here is a bacis example
 of a stunnel configuration file:
 
-.. code-block:: INI
+.. code-block:: ini
 
   cert = /path-to-my-pem-file/credentials.pem
 
