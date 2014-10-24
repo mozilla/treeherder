@@ -210,7 +210,7 @@ treeherder.controller('MainCtrl', [
         // others, such as filtering, just re-filter without reload.
         $rootScope.$on('$locationChangeSuccess', function(ev, newUrl, oldUrl) {
 
-            // used to test for display of watched-repo-navbar and jobs menu
+            // used to test for display of watched-repo-navbar
             $rootScope.locationPath = $location.path().replace('/', '');
 
             // used to avoid bad urls when the app redirects internally

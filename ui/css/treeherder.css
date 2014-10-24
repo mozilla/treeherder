@@ -37,9 +37,16 @@ body {
 }
 
 .navbar-brand {
+    margin-bottom: 0px;
     line-height: 2px;
     height: 32px;
+    font-weight: normal;
 }
+
+.navbar-inverse .navbar-brand:hover {
+    color: #777;
+}
+
 .navbar .dropdown-menu {
     max-height: 600px;
     overflow: auto;
