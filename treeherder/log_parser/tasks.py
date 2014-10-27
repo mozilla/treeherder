@@ -1,28 +1,22 @@
-"""
-We should have only celery tasks in this module.
-To know how to call one of these tasks, see
-http://docs.celeryproject.org/en/latest/userguide/calling.html#guide-calling
-If you want to obtain some cool executions flows (e.g. mapreduce)
-have a look at the canvas section in the docs
-http://docs.celeryproject.org/en/latest/userguide/canvas.html#guide-canvas
-"""
-import simplejson as json
-import time
 
+import time
+from hashlib import md5
 from celery import task
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.core.cache import cache
 
 from thclient import TreeherderArtifactCollection, TreeherderRequest
 
-from treeherder.log_parser.artifactbuildercollection import \
-    ArtifactBuilderCollection
+
 from treeherder.log_parser.utils import (get_error_search_term,
                                          get_crash_signature,
                                          get_bugs_for_search_term,
-                                         get_mozharness_substring)
+                                         get_mozharness_substring,
+                                         extract_log_artifacts)
 
 from treeherder.etl.oauth_utils import OAuthCredentials
+
+LOCK_EXPIRE = 60 * 5
 
 
 @task(name='parse-log', max_retries=10)
@@ -30,84 +24,38 @@ def parse_log(project, job_log_url, job_guid, check_errors=False):
     """
     Call ArtifactBuilderCollection on the given job.
     """
-    credentials = OAuthCredentials.get_credentials(project)
-    req = TreeherderRequest(
-        protocol=settings.TREEHERDER_REQUEST_PROTOCOL,
-        host=settings.TREEHERDER_REQUEST_HOST,
-        project=project,
-        oauth_key=credentials.get('consumer_key', None),
-        oauth_secret=credentials.get('consumer_secret', None),
-    )
-    update_endpoint = 'job-log-url/{0}/update_parse_status'.format(job_log_url['id'])
 
-    try:
-        log_url = job_log_url['url']
-        bug_suggestions = []
-        bugscache_uri = '{0}{1}'.format(
-            settings.API_HOSTNAME,
-            reverse("bugscache-list")
-        )
-        terms_requested = {}
+    # if parse_status is not available, consider it pending
+    parse_status = job_log_url.get("parse_status", "pending")
+    # don't parse a log if it's already been parsed
+    if parse_status == "parsed":
+        return
+    hash_obj = md5()
+    hash_obj.update(project)
+    hash_obj.update(str(job_log_url['id']))
+    if check_errors:
+        hash_obj.update("failures")
+    lock_id = hash_obj.hexdigest()
 
-        if log_url:
-            # parse a log given its url
-            artifact_bc = ArtifactBuilderCollection(log_url,
-                                                    check_errors=check_errors)
-            artifact_bc.parse()
+    acquire_lock = lambda: cache.add(lock_id, 'true', LOCK_EXPIRE)
+    release_lock = lambda: cache.delete(lock_id)
 
-            artifact_list = []
-            for name, artifact in artifact_bc.artifacts.items():
-                artifact_list.append((job_guid, name, 'json',
-                                      json.dumps(artifact)))
-            if check_errors:
-                all_errors = artifact_bc.artifacts.get(
-                    'Structured Log', {}
-                    ).get(
-                        'step_data', {}
-                        ).get(
-                            'all_errors', [] )
+    if acquire_lock():
+        try:
+            credentials = OAuthCredentials.get_credentials(project)
+            req = TreeherderRequest(
+                protocol=settings.TREEHERDER_REQUEST_PROTOCOL,
+                host=settings.TREEHERDER_REQUEST_HOST,
+                project=project,
+                oauth_key=credentials.get('consumer_key', None),
+                oauth_secret=credentials.get('consumer_secret', None),
+            )
+            update_endpoint = 'job-log-url/{0}/update_parse_status'.format(
+                job_log_url['id']
+            )
 
-                for err in all_errors:
-                    # remove the mozharness prefix
-                    clean_line = get_mozharness_substring(err['line'])
-                    # get a meaningful search term out of the error line
-                    search_term = get_error_search_term(clean_line)
-                    bugs = dict(open_recent=[], all_others=[])
-
-                    # collect open recent and all other bugs suggestions
-                    if search_term:
-                        if not search_term in terms_requested:
-                            # retrieve the list of suggestions from the api
-                            bugs = get_bugs_for_search_term(
-                                search_term,
-                                bugscache_uri
-                            )
-                            terms_requested[search_term] = bugs
-                        else:
-                            bugs = terms_requested[search_term]
-
-                    if not bugs or not (bugs['open_recent']
-                                        or bugs['all_others']):
-                        # no suggestions, try to use
-                        # the crash signature as search term
-                        crash_signature = get_crash_signature(clean_line)
-                        if crash_signature:
-                            if not crash_signature in terms_requested:
-                                bugs = get_bugs_for_search_term(
-                                    crash_signature,
-                                    bugscache_uri
-                                )
-                                terms_requested[crash_signature] = bugs
-                            else:
-                                bugs = terms_requested[crash_signature]
-
-                    bug_suggestions.append({
-                        "search": clean_line,
-                        "bugs": bugs
-                    })
-
-            artifact_list.append((job_guid, 'Bug suggestions', 'json', json.dumps(bug_suggestions)))
-
+            artifact_list = extract_log_artifacts(job_log_url['url'],
+                                                  job_guid, check_errors)
             # store the artifacts generated
             tac = TreeherderArtifactCollection()
             for artifact in artifact_list:
@@ -122,8 +70,7 @@ def parse_log(project, job_log_url, job_guid, check_errors=False):
             req.post(tac)
 
             # send an update to job_log_url
-            # the job_log_url status changes
-            # from pending to parsed
+            # the job_log_url status changes from pending to parsed
             current_timestamp = time.time()
             req.send(
                 update_endpoint,
@@ -133,21 +80,21 @@ def parse_log(project, job_log_url, job_guid, check_errors=False):
                     'parse_timestamp': current_timestamp
                 }
             )
-
-    except Exception, e:
-        # send an update to job_log_url
-        # the job_log_url status changes
-        # from pending/running to failed
-        current_timestamp = time.time()
-        req.send(
-            update_endpoint,
-            method='POST',
-            data={
-                'parse_status': 'failed',
-                'parse_timestamp': current_timestamp
-            }
-        )
-        # for every retry, set the countdown to 10 minutes
-        # .retry() raises a RetryTaskError exception,
-        # so nothing below this line will be executed.
-        parse_log.retry(exc=e, countdown=10*60)
+        except Exception, e:
+            # send an update to job_log_url
+            #the job_log_url status changes from pending/running to failed
+            current_timestamp = time.time()
+            req.send(
+                update_endpoint,
+                method='POST',
+                data={
+                    'parse_status': 'failed',
+                    'parse_timestamp': current_timestamp
+                }
+            )
+            # for every retry, set the countdown to 10 minutes
+            # .retry() raises a RetryTaskError exception,
+            # so nothing below this line will be executed.
+            parse_log.retry(exc=e, countdown=10*60)
+        finally:
+            release_lock()
