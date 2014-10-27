@@ -1,3 +1,5 @@
+# Example Commander configuration file for Chief deployment.
+# Copy to commander_settings.py & adjust as required.
 SRC_DIR = '/data/treeherder/src/treeherder.mozilla.org/'
 BIN_DIR = '/usr/bin'
 SBIN_DIR = '/sbin'
@@ -6,7 +8,9 @@ DEPLOY_SCRIPT = '/data/treeherder/deploy -n treeherder.mozilla.org'
 REMOTE_UPDATE_SCRIPT = '/data/bin/update-www.sh'
 
 WEB_HOSTGROUP = 'treeherder-web'
-CELERY_HOSTGROUP = 'treeherder-processors'
+CELERY_HOSTGROUP = ['treeherder-processors',
+                    'treeherder-etl'
+                   ]
 
 UPDATE_REF = 'master'
-SSH_KEY = None
+SSH_KEY = '/root/.ssh/id_rsa_treeherder_updater'
