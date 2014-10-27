@@ -355,6 +355,7 @@ JOB_NAME_BUILDERNAME = [
     {"regex": re.compile('talos xperf$'), "desc": "Talos xperf"},
     # ** Unit tests **
     {"regex": re.compile('mozbase$'), "desc": "Mozbase Unit Tests"},
+    {"regex": re.compile('mochitest-csb'), "desc": "Mochitest csb"},
     {"regex": re.compile('mochitest-e10s-browser-chrome'), "desc": "Mochitest e10s Browser Chrome"},
     {"regex": re.compile('mochitest-e10s-devtools-chrome'), "desc": "Mochitest e10s DevTools Browser Chrome"},
     {"regex": re.compile('mochitest-e10s-other'), "desc": "Mochitest e10s Other"},
@@ -549,6 +550,7 @@ GROUP_NAMES = {
     "Mochitest e10s Browser Chrome": "Mochitest e10s",
     "Mochitest e10s DevTools Browser Chrome": "Mochitest e10s",
     "Mochitest e10s Other": "Mochitest e10s",
+    "Mochitest csb": "Mochitest csb",
     "Mochitest OOP": "Mochitest OOP",
     "Crashtest": "Reftest",
     "Crashtest IPC": "Reftest",
@@ -726,6 +728,7 @@ SYMBOLS = {
     "Mochitest e10s Browser Chrome": "bc",
     "Mochitest e10s DevTools Browser Chrome": "dt",
     "Mochitest e10s Other": "oth",
+    "Mochitest csb": "M-csb",
     "Mochitest OOP": "M-oop",
     "Robocop": "rc",
     "Webapprt Content": "w",
@@ -892,7 +895,7 @@ def get_symbol(name, bn):
 
     # For multi-part Mochitest, Mochitest-e10s, Mochitest OOP & W3C Web Platform
     # jobs, display only the job part number and not the letters.
-    if n and s in ["M", "M-e10s", "M-oop", "Gij", "Gij-oop", "W"]:
+    if n and s in ["M", "M-e10s", "M-csb", "M-oop", "Gij", "Gij-oop", "W"]:
         return n
 
     return "{0}{1}".format(s, n)
