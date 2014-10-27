@@ -528,7 +528,7 @@
         "url": "https://github.com/mozilla-b2g/gaia",
         "active_status": "active",
         "codebase": "gaia",
-        "repository_group": 3,
+        "repository_group": 4,
         "description": ""
     }
 },
@@ -554,7 +554,7 @@
         "url": "https://github.com/taskcluster/github-graph-example",
         "active_status": "active",
         "codebase": "taskcluster",
-        "repository_group": 3,
+        "repository_group": 4,
         "description": "taskcluster integration test dumping ground."
     }
 },
@@ -567,7 +567,7 @@
         "url": "https://github.com/mozilla-b2g/gaia",
         "active_status": "active",
         "codebase": "gaia",
-        "repository_group": 1,
+        "repository_group": 4,
         "description": "Gaia master branch"
     }
 },
@@ -578,9 +578,9 @@
         "dvcs_type": "git",
         "name": "gaia-v1_4",
         "url": "https://github.com/mozilla-b2g/gaia",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gaia",
-        "repository_group": 1,
+        "repository_group": 4,
         "description": ""
     }
 },
