@@ -1,7 +1,7 @@
 import time
 import json
-import datetime
-import sys
+import random
+from _mysql_exceptions import OperationalError
 
 
 def get_now_timestamp():
@@ -57,3 +57,24 @@ def where_wolf(project, flat_exclusions):
     condition = " (mp.platform = %s AND jt.name = %s AND opt.name = %s)"
     condition_list = " OR ".join([condition] * (len(values_list)/3))
     return " AND ({0})".format(condition_list), values_list
+
+
+def retry_execute(dhub, logger, **kwargs):
+    """Retry the query in the case of an OperationalError."""
+    try:
+        return dhub.execute(**kwargs)
+    except OperationalError:
+        retries = kwargs.get('retries', 0) + 1
+
+        if retries < 20:
+            sleep_time = round(random.random() * .05, 3)  # 0 to 50ms
+            if logger:
+                logger.info(
+                    "MySQL operational error hit.  Retry #{0} in {1}s: {2}".format(
+                        retries, sleep_time, kwargs
+                    ))
+            time.sleep(sleep_time)
+            kwargs['retries'] = retries
+            return retry_execute(dhub, **kwargs)
+        else:
+            raise

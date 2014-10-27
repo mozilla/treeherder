@@ -296,11 +296,6 @@
                     WHERE `name` = ?  AND `active_status` = 'active'",
             "host":"read_host"
         },
-        "get_row_by_id":{
-            "sql": "SELECT * FROM REP0
-                    WHERE `id` = ?",
-            "host":"read_host"
-        },
         "get_all_option_collections":{
             "sql":"SELECT option_collection_hash,
                         GROUP_CONCAT( name SEPARATOR ' ' ) as opt
