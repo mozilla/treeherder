@@ -116,7 +116,6 @@ class ResultSetsLoaderMixin(JsonLoaderMixin):
 class OAuthLoaderMixin(object):
 
     def load(self, th_collections):
-
         for project in th_collections:
 
             credentials = OAuthCredentials.get_credentials(project)
@@ -129,11 +128,12 @@ class OAuthLoaderMixin(object):
                 oauth_secret=credentials.get('consumer_secret', None)
             )
 
-            logger.info("collection loading request: {0}".format(th_request.get_uri(th_collections[project].endpoint_base)))
+            logger.info(
+                "collection loading request: {0}".format(
+                    th_request.get_uri(th_collections[project].endpoint_base)))
             response = th_request.post(th_collections[project])
 
             if not response or response.status != 200:
                 message = response.read()
-                raise Exception('collection loading failed: {0}'.format(message))
-
-
+                logger.error('[{0}]Error posting data to {1} : {2}'.format(
+                    project, th_collections[project].endpoint_base, message))
