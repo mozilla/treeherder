@@ -1531,6 +1531,27 @@ fieldset[disabled] .btn-repo.active {
     padding: 5px;
 }
 
+.panel-spacing table {
+    width: 100%;
+}
+
+.panel-spacing tr th:first-child {
+    padding-right: 2em;
+}
+
+.panel-spacing tr:nth-child(even) {
+    background-color: #f8f8f8;
+}
+
+.panel-spacing table tr {
+    border-bottom: 1px dotted lightgrey;
+}
+
+/* override th bold */
+#shortcuts tr th span {
+    font-weight: normal;
+}
+
 .help-btn {
     margin: 2px;
     border: 2px solid;
