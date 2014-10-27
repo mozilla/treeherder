@@ -193,6 +193,9 @@ class JobsModel(TreeherderModelBase):
         """Get the dhub for the objectstore"""
         return self.get_dhub(self.CT_OBJECTSTORE)
 
+    def os_execute(self, **kwargs):
+        return utils.retry_execute(self.get_os_dhub(), logger, **kwargs)
+
     def get_build_system_type(self, project=None):
         if not project:
             project = self.project
@@ -1178,7 +1181,7 @@ class JobsModel(TreeherderModelBase):
         if obj_placeholders:
             # this query inserts the object if its guid is not present,
             # otherwise it does nothing
-            self.get_os_dhub().execute(
+            self.os_execute(
                 proc='objectstore.inserts.store_json',
                 placeholders=obj_placeholders,
                 executemany=True,
@@ -1198,7 +1201,7 @@ class JobsModel(TreeherderModelBase):
 
         """
         proc = "objectstore.selects.get_unprocessed"
-        json_blobs = self.get_os_dhub().execute(
+        json_blobs = self.os_execute(
             proc=proc,
             placeholders=[limit],
             debug_show=self.DEBUG,
@@ -2407,7 +2410,7 @@ class JobsModel(TreeherderModelBase):
         # Note: this claims rows for processing. Failure to call load_job_data
         # on this data will result in some json blobs being stuck in limbo
         # until another worker comes along with the same connection ID.
-        self.get_os_dhub().execute(
+        self.os_execute(
             proc=proc_mark,
             placeholders=[limit],
             debug_show=self.DEBUG,
@@ -2417,7 +2420,7 @@ class JobsModel(TreeherderModelBase):
 
         # Return all JSON blobs claimed by this connection ID (could possibly
         # include orphaned rows from a previous run).
-        json_blobs = self.get_os_dhub().execute(
+        json_blobs = self.os_execute(
             proc=proc_get,
             debug_show=self.DEBUG,
             return_type='tuple'
@@ -2435,7 +2438,7 @@ class JobsModel(TreeherderModelBase):
                 ]
         """
         if object_placeholders:
-            self.get_os_dhub().execute(
+            self.os_execute(
                 proc="objectstore.updates.mark_complete",
                 placeholders=object_placeholders,
                 executemany=True,
@@ -2444,7 +2447,7 @@ class JobsModel(TreeherderModelBase):
 
     def mark_object_error(self, object_id, error):
         """ Call to database to mark the task completed """
-        self.get_os_dhub().execute(
+        self.os_execute(
             proc="objectstore.updates.mark_error",
             placeholders=[error, object_id],
             debug_show=self.DEBUG
@@ -2452,7 +2455,7 @@ class JobsModel(TreeherderModelBase):
 
     def get_json_blob_by_guid(self, guid):
         """retrieves a json_blob given its guid"""
-        data = self.get_os_dhub().execute(
+        data = self.os_execute(
             proc="objectstore.selects.get_json_blob_by_guid",
             placeholders=[guid],
             debug_show=self.DEBUG,
@@ -2465,7 +2468,7 @@ class JobsModel(TreeherderModelBase):
         Mainly used by the restful api to list the last blobs stored
         """
         proc = "objectstore.selects.get_json_blob_list"
-        json_blobs = self.get_os_dhub().execute(
+        json_blobs = self.os_execute(
             proc=proc,
             placeholders=[offset, limit],
             debug_show=self.DEBUG,
@@ -2519,8 +2522,6 @@ class JobsModel(TreeherderModelBase):
 
         # revision_map structures
         revision_to_rhash_lookup = dict()
-
-        dhub = self.get_jobs_dhub()
 
         # TODO: Confirm whether we need to do a lookup in this loop in the
         #   memcache to reduce query overhead
@@ -2584,7 +2585,7 @@ class JobsModel(TreeherderModelBase):
         # in the list of unique_revision_hashes. Use it to determine the new
         # result_sets found to publish to pulse.
         where_in_clause = ','.join(where_in_list)
-        result_set_ids_before = dhub.execute(
+        result_set_ids_before = self.jobs_execute(
             proc='jobs.selects.get_result_set_ids',
             placeholders=unique_revision_hashes,
             replace=[where_in_clause],
@@ -2594,17 +2595,17 @@ class JobsModel(TreeherderModelBase):
             )
 
         # Insert new result sets
-        dhub.execute(
+        self.jobs_execute(
             proc='jobs.inserts.set_result_set',
             placeholders=revision_hash_placeholders,
             executemany=True,
             debug_show=self.DEBUG
             )
 
-        lastrowid = dhub.connection['master_host']['cursor'].lastrowid
+        lastrowid = self.get_jobs_dhub().connection['master_host']['cursor'].lastrowid
 
         # Retrieve new and already existing result set ids
-        result_set_id_lookup = dhub.execute(
+        result_set_id_lookup = self.jobs_execute(
             proc='jobs.selects.get_result_set_ids',
             placeholders=unique_revision_hashes,
             replace=[where_in_clause],
@@ -2632,7 +2633,7 @@ class JobsModel(TreeherderModelBase):
                     )
 
         # Insert new revisions
-        dhub.execute(
+        self.jobs_execute(
             proc='jobs.inserts.set_revision',
             placeholders=revision_placeholders,
             executemany=True,
@@ -2641,7 +2642,7 @@ class JobsModel(TreeherderModelBase):
 
         # Retrieve new revision ids
         rev_where_in_clause = ','.join(rev_where_in_list)
-        revision_id_lookup = dhub.execute(
+        revision_id_lookup = self.jobs_execute(
             proc='jobs.selects.get_revisions',
             placeholders=all_revisions,
             replace=[rev_where_in_clause],
@@ -2666,7 +2667,7 @@ class JobsModel(TreeherderModelBase):
                 )
 
         # Insert new revision_map entries
-        dhub.execute(
+        self.jobs_execute(
             proc='jobs.inserts.set_revision_map',
             placeholders=revision_map_placeholders,
             executemany=True,

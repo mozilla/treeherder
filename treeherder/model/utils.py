@@ -75,6 +75,6 @@ def retry_execute(dhub, logger, **kwargs):
                     ))
             time.sleep(sleep_time)
             kwargs['retries'] = retries
-            return retry_execute(dhub, **kwargs)
+            return retry_execute(dhub, logger, **kwargs)
         else:
             raise
