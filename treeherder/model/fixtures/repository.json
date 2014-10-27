@@ -162,9 +162,9 @@
         "dvcs_type": "hg",
         "name": "build-system",
         "url": "https://hg.mozilla.org/projects/build-system",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gecko",
-        "repository_group": 1,
+        "repository_group": 6,
         "description": ""
     }
 },
@@ -201,9 +201,9 @@
         "dvcs_type": "hg",
         "name": "services-central",
         "url": "https://hg.mozilla.org/services/services-central",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gecko",
-        "repository_group": 1,
+        "repository_group": 6,
         "description": ""
     }
 },
@@ -253,7 +253,7 @@
         "dvcs_type": "hg",
         "name": "birch",
         "url": "https://hg.mozilla.org/projects/birch",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gecko",
         "repository_group": 6,
         "description": ""
