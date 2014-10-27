@@ -3,6 +3,11 @@
 access.
 
 """
+import time
+import random
+import logging
+
+from _mysql_exceptions import OperationalError
 from django.conf import settings
 
 from treeherder.model.models import Datasource
@@ -14,6 +19,7 @@ class TreeherderModelBase(object):
     Base model class for all derived models
 
     """
+    logger = logging.getLogger(__name__)
 
     def __init__(self, project):
         """Encapsulate the dataset access for this ``project`` """
@@ -59,6 +65,24 @@ class TreeherderModelBase(object):
 
             self.dhubs[contenttype] = datasource.dhub(procs_file_name)
         return self.dhubs[contenttype]
+
+    def retry_execute(self, dhub, **kwargs):
+        try:
+            return dhub.execute(**kwargs)
+        except OperationalError:
+            retries = kwargs.get('retries', 0) + 1
+
+            if retries < 20:
+                sleep_time = round(random.random() * .05, 3)  # 0 to 50ms
+                self.logger.info(
+                    "MySQL operational error hit.  Retry #{0} in {1}s: {2}".format(
+                        retries, sleep_time, kwargs
+                    ))
+                time.sleep(sleep_time)
+                kwargs['retries'] = retries
+                return self.retry_execute(dhub, **kwargs)
+            else:
+                raise
 
     def get_datasource(self, contenttype):
         """The datasource for this contenttype of the project."""

@@ -12,7 +12,6 @@ from django.conf import settings
 from django.core.cache import cache
 
 from treeherder.model.models import (Datasource,
-                                     ExclusionProfile,
                                      ReferenceDataSignatures)
 
 from treeherder.model import utils
@@ -22,8 +21,6 @@ from treeherder.events.publisher import JobStatusPublisher
 from treeherder.etl.common import get_guid_root
 
 from .base import TreeherderModelBase, ObjectNotFoundException
-
-from datasource.DataHub import DataHub
 
 from treeherder.etl.perf_data_adapters import (PerformanceDataAdapter,
                                                TalosDataAdapter)
@@ -209,7 +206,7 @@ class JobsModel(TreeherderModelBase):
     def get_job(self, id):
         """Return the job row for this ``job_id``"""
         repl = [self.refdata_model.get_db_name()]
-        data = self.get_jobs_dhub().execute(
+        data = self.retry_execute(self.get_jobs_dhub(),
             proc="jobs.selects.get_job",
             placeholders=[id],
             debug_show=self.DEBUG,
@@ -238,7 +235,7 @@ class JobsModel(TreeherderModelBase):
             proc = "jobs.selects.get_job_list_full"
         else:
             proc = "jobs.selects.get_job_list"
-        data = self.get_jobs_dhub().execute(
+        data = self.retry_execute(self.get_jobs_dhub(),
             proc=proc,
             replace=repl,
             placeholders=placeholders,
@@ -279,7 +276,7 @@ class JobsModel(TreeherderModelBase):
 
     def set_state(self, job_id, state):
         """Update the state of an existing job"""
-        self.get_jobs_dhub().execute(
+        self.retry_execute(self.get_jobs_dhub(),
             proc='jobs.updates.set_state',
             placeholders=[state, job_id],
             debug_show=self.DEBUG
@@ -287,7 +284,7 @@ class JobsModel(TreeherderModelBase):
 
     def get_incomplete_job_guids(self, resultset_id):
         """Get list of ids for jobs of resultset that are not in complete state."""
-        return self.get_jobs_dhub().execute(
+        return self.retry_execute(self.get_jobs_dhub(),
             proc='jobs.selects.get_incomplete_job_guids',
             placeholders=[resultset_id],
             debug_show=self.DEBUG,
@@ -300,7 +297,7 @@ class JobsModel(TreeherderModelBase):
         """Set all pending/running jobs in resultset to usercancel."""
         jobs = list(self.get_incomplete_job_guids(resultset_id))
 
-        self.get_jobs_dhub().execute(
+        self.retry_execute(self.get_jobs_dhub(),
             proc='jobs.updates.cancel_all',
             placeholders=[resultset_id],
             debug_show=self.DEBUG
@@ -315,7 +312,7 @@ class JobsModel(TreeherderModelBase):
     def cancel_job(self, job_guid):
         """Set job to usercancel."""
 
-        self.get_jobs_dhub().execute(
+        self.retry_execute(self.get_jobs_dhub(),
             proc='jobs.updates.cancel_job',
             placeholders=[job_guid],
             debug_show=self.DEBUG
@@ -329,7 +326,7 @@ class JobsModel(TreeherderModelBase):
 
     def get_log_references(self, job_id):
         """Return the log references for the given ``job_id``."""
-        data = self.get_jobs_dhub().execute(
+        data = self.retry_execute(self.get_jobs_dhub(),
             proc="jobs.selects.get_log_references",
             placeholders=[job_id],
             debug_show=self.DEBUG,
@@ -343,7 +340,7 @@ class JobsModel(TreeherderModelBase):
         This is everything about the artifact, but not the artifact blob
         itself.
         """
-        data = self.get_jobs_dhub().execute(
+        data = self.retry_execute(self.get_jobs_dhub(),
             proc="jobs.selects.get_job_artifact_references",
             placeholders=[job_id],
             debug_show=self.DEBUG,
@@ -367,7 +364,7 @@ class JobsModel(TreeherderModelBase):
 
         proc = "jobs.selects.get_job_artifact"
 
-        data = self.get_jobs_dhub().execute(
+        data = self.retry_execute(self.get_jobs_dhub(),
             proc=proc,
             replace=repl,
             placeholders=placeholders,
@@ -397,7 +394,7 @@ class JobsModel(TreeherderModelBase):
 
         proc = "jobs.selects.get_performance_artifact_list"
 
-        data = self.get_jobs_dhub().execute(
+        data = self.retry_execute(self.get_jobs_dhub(),
             proc=proc,
             replace=repl,
             placeholders=placeholders,
@@ -413,7 +410,7 @@ class JobsModel(TreeherderModelBase):
 
     def get_job_note(self, id):
         """Return the job note by id."""
-        data = self.get_jobs_dhub().execute(
+        data = self.retry_execute(self.get_jobs_dhub(),
             proc="jobs.selects.get_job_note",
             placeholders=[id],
             debug_show=self.DEBUG,
@@ -422,7 +419,7 @@ class JobsModel(TreeherderModelBase):
 
     def get_job_note_list(self, job_id):
         """Return the job notes by job_id."""
-        data = self.get_jobs_dhub().execute(
+        data = self.retry_execute(self.get_jobs_dhub(),
             proc="jobs.selects.get_job_note_list",
             placeholders=[job_id],
             debug_show=self.DEBUG,
@@ -436,7 +433,7 @@ class JobsModel(TreeherderModelBase):
         default value
         """
 
-        self.get_jobs_dhub().execute(
+        self.retry_execute(self.get_jobs_dhub(),
             proc='jobs.updates.update_last_job_classification',
             placeholders=[
                 job_id,
@@ -446,7 +443,7 @@ class JobsModel(TreeherderModelBase):
 
     def insert_job_note(self, job_id, failure_classification_id, who, note):
         """insert a new note for a job and updates its failure classification"""
-        self.get_jobs_dhub().execute(
+        self.retry_execute(self.get_jobs_dhub(),
             proc='jobs.inserts.insert_note',
             placeholders=[
                 job_id,
@@ -483,7 +480,7 @@ class JobsModel(TreeherderModelBase):
         Delete a job note and updates the failure classification for that job
         """
 
-        self.get_jobs_dhub().execute(
+        self.retry_execute(self.get_jobs_dhub(),
             proc='jobs.deletes.delete_note',
             placeholders=[
                 note_id,
@@ -498,7 +495,7 @@ class JobsModel(TreeherderModelBase):
         Store a new relation between the given job and bug ids.
         """
         try:
-            self.get_jobs_dhub().execute(
+            self.retry_execute(self.get_jobs_dhub(),
                 proc='jobs.inserts.insert_bug_job_map',
                 placeholders=[
                     job_id,
@@ -558,7 +555,7 @@ class JobsModel(TreeherderModelBase):
         """
         Delete a bug-job entry identified by bug_id and job_id
         """
-        self.get_jobs_dhub().execute(
+        self.retry_execute(self.get_jobs_dhub(),
             proc='jobs.deletes.delete_bug_job_map',
             placeholders=[
                 job_id,
@@ -570,7 +567,7 @@ class JobsModel(TreeherderModelBase):
     def calculate_eta(self, sample_window_seconds, debug):
 
         # Get the most recent timestamp from jobs
-        max_timestamp = self.get_jobs_dhub().execute(
+        max_timestamp = self.retry_execute(self.get_jobs_dhub(),
             proc='jobs.selects.get_max_job_submit_timestamp',
             return_type='iter',
             debug_show=self.DEBUG
@@ -580,7 +577,7 @@ class JobsModel(TreeherderModelBase):
 
             time_window = int(max_timestamp) - sample_window_seconds
 
-            eta_groups = self.get_jobs_dhub().execute(
+            eta_groups = self.retry_execute(self.get_jobs_dhub(),
                 proc='jobs.selects.get_eta_groups',
                 placeholders=[time_window],
                 key_column='signature',
@@ -632,7 +629,7 @@ class JobsModel(TreeherderModelBase):
                         submit_timestamp
                         ])
 
-            self.get_jobs_dhub().execute(
+            self.retry_execute(self.get_jobs_dhub(),
                 proc='jobs.inserts.set_job_eta',
                 placeholders=placeholders,
                 executemany=True,
@@ -663,7 +660,7 @@ class JobsModel(TreeherderModelBase):
         min_date = int(time.time() - self.DATA_CYCLE_INTERVAL)
 
         # Retrieve list of result sets to delete
-        result_set_data = self.get_jobs_dhub().execute(
+        result_set_data = self.retry_execute(self.get_jobs_dhub(),
             proc='jobs.selects.get_result_sets_to_cycle',
             placeholders=[min_date],
             debug_show=self.DEBUG
@@ -677,7 +674,7 @@ class JobsModel(TreeherderModelBase):
         rs_where_in_clause = [ ','.join( ['%s'] * len(rs_placeholders) ) ]
 
         # Retrieve list of revisions associated with result sets
-        revision_data = self.get_jobs_dhub().execute(
+        revision_data = self.retry_execute(self.get_jobs_dhub(),
             proc='jobs.selects.get_revision_ids_to_cycle',
             placeholders=rs_placeholders,
             replace=rs_where_in_clause,
@@ -688,7 +685,7 @@ class JobsModel(TreeherderModelBase):
         rev_where_in_clause = [ ','.join( ['%s'] * len(rev_placeholders) ) ]
 
         # Retrieve list of jobs associated with result sets
-        job_data = self.get_jobs_dhub().execute(
+        job_data = self.retry_execute(self.get_jobs_dhub(),
             proc='jobs.selects.get_jobs_to_cycle',
             placeholders=rs_placeholders,
             replace=rs_where_in_clause,
@@ -825,7 +822,7 @@ class JobsModel(TreeherderModelBase):
 
         proc = "jobs.selects.get_bug_job_map_list"
 
-        data = self.get_jobs_dhub().execute(
+        data = self.retry_execute(self.get_jobs_dhub(),
             proc=proc,
             replace=repl,
             placeholders=placeholders,
@@ -840,7 +837,7 @@ class JobsModel(TreeherderModelBase):
         Raises a ObjectNotFoundException when no object is found
         """
 
-        data = self.get_jobs_dhub().execute(
+        data = self.retry_execute(self.get_jobs_dhub(),
             proc="jobs.selects.get_bug_job_map_detail",
             placeholders=[job_id, bug_id],
             debug_show=self.DEBUG,
@@ -870,7 +867,7 @@ class JobsModel(TreeherderModelBase):
         result_set_id_lookup = {}
 
         if revision_hashes:
-            result_set_id_lookup = self.get_jobs_dhub().execute(
+            result_set_id_lookup = self.retry_execute(self.get_jobs_dhub(),
                 proc='jobs.selects.get_result_set_ids',
                 placeholders=revision_hashes,
                 replace=[where_in_list],
@@ -890,7 +887,7 @@ class JobsModel(TreeherderModelBase):
 
         proc = "jobs.selects.get_result_set_list_by_ids"
 
-        result_set_ids = self.get_jobs_dhub().execute(
+        result_set_ids = self.retry_execute(self.get_jobs_dhub(),
             proc=proc,
             replace=[replace_str],
             placeholders=placeholders,
@@ -923,7 +920,7 @@ class JobsModel(TreeherderModelBase):
 
         # Retrieve the filtered/limited list of result sets
         proc = "jobs.selects.get_result_set_list"
-        result_set_ids = self.get_jobs_dhub().execute(
+        result_set_ids = self.retry_execute(self.get_jobs_dhub(),
             proc=proc,
             replace=[replace_str],
             placeholders=placeholders,
@@ -984,7 +981,7 @@ class JobsModel(TreeherderModelBase):
         replacement = " AND revision IN ("+replacement+") "
 
         proc = "jobs.selects.get_revision_resultset_lookup"
-        lookups = self.get_jobs_dhub().execute(
+        lookups = self.retry_execute(self.get_jobs_dhub(),
             proc=proc,
             placeholders=revision_list+[0, len(revision_list)],
             debug_show=self.DEBUG,
@@ -1001,7 +998,7 @@ class JobsModel(TreeherderModelBase):
         """
 
         proc = "jobs.selects.get_result_set_details"
-        lookups = self.get_jobs_dhub().execute(
+        lookups = self.retry_execute(self.get_jobs_dhub(),
             proc=proc,
             debug_show=self.DEBUG,
             placeholders=[result_set_id],
@@ -1034,7 +1031,7 @@ class JobsModel(TreeherderModelBase):
 
         # Retrieve revision details associated with each result_set_id
         detail_proc = "jobs.selects.get_result_set_details"
-        result_set_details = self.get_jobs_dhub().execute(
+        result_set_details = self.retry_execute(self.get_jobs_dhub(),
             proc=detail_proc,
             placeholders=ids,
             debug_show=self.DEBUG,
@@ -1085,7 +1082,7 @@ class JobsModel(TreeherderModelBase):
             proc = "jobs.selects.get_result_set_job_list_full"
         else:
             proc = "jobs.selects.get_result_set_job_list"
-        data = self.get_jobs_dhub().execute(
+        data = self.retry_execute(self.get_jobs_dhub(),
             proc=proc,
             placeholders=result_set_ids,
             debug_show=self.DEBUG,
@@ -1116,7 +1113,7 @@ class JobsModel(TreeherderModelBase):
         repl.append(','.join(id_placeholders))
 
         proc = "jobs.selects.get_result_set_push_timestamp"
-        data = self.get_jobs_dhub().execute(
+        data = self.retry_execute(self.get_jobs_dhub(),
             proc=proc,
             placeholders=result_set_ids,
             debug_show=self.DEBUG,
@@ -1447,7 +1444,7 @@ class JobsModel(TreeherderModelBase):
                     get_guid_root(row[-1])
                     ]['id']
 
-            self.get_jobs_dhub().execute(
+            self.retry_execute(self.get_jobs_dhub(),
                 proc='jobs.updates.update_job_data',
                 debug_show=self.DEBUG,
                 placeholders=job_update_placeholders,
@@ -1459,7 +1456,7 @@ class JobsModel(TreeherderModelBase):
         # set the job_coalesced_to_guid column for any coalesced
         # job found
         if coalesced_job_guid_placeholders:
-            self.get_jobs_dhub().execute(
+            self.retry_execute(self.get_jobs_dhub(),
                 proc='jobs.updates.update_coalesced_guids',
                 debug_show=self.DEBUG,
                 placeholders=coalesced_job_guid_placeholders,
@@ -1533,7 +1530,7 @@ class JobsModel(TreeherderModelBase):
         replacement = ' OR '.join(state_clauses)
 
         if placeholders:
-            existing_guids = self.get_jobs_dhub().execute(
+            existing_guids = self.retry_execute(self.get_jobs_dhub(),
                 proc='jobs.selects.get_job_guids_in_states',
                 placeholders=placeholders,
                 replace=[replacement],
@@ -1835,7 +1832,7 @@ class JobsModel(TreeherderModelBase):
             return {}
 
         # Store job data
-        self.get_jobs_dhub().execute(
+        self.retry_execute(self.get_jobs_dhub(),
             proc='jobs.inserts.create_job_data',
             debug_show=self.DEBUG,
             placeholders=job_placeholders,
@@ -1852,7 +1849,7 @@ class JobsModel(TreeherderModelBase):
 
         rds_where_in_clause = ','.join( ['%s'] * len(reference_data_signatures) )
 
-        job_eta_data = self.get_jobs_dhub().execute(
+        job_eta_data = self.retry_execute(self.get_jobs_dhub(),
             proc='jobs.selects.get_last_eta_by_signatures',
             debug_show=self.DEBUG,
             replace=[rds_where_in_clause],
@@ -1877,7 +1874,7 @@ class JobsModel(TreeherderModelBase):
 
         job_guid_where_in_clause = ",".join(["%s"] * len(job_guid_list))
 
-        job_id_lookup = self.get_jobs_dhub().execute(
+        job_id_lookup = self.retry_execute(self.get_jobs_dhub(),
             proc='jobs.selects.get_job_ids_by_guids',
             debug_show=self.DEBUG,
             replace=[job_guid_where_in_clause],
@@ -1923,7 +1920,7 @@ class JobsModel(TreeherderModelBase):
                 tasks.append(task)
 
             # Store the log references
-            self.get_jobs_dhub().execute(
+            self.retry_execute(self.get_jobs_dhub(),
                 proc='jobs.inserts.set_job_log_url',
                 debug_show=self.DEBUG,
                 placeholders=log_placeholders,
@@ -1955,7 +1952,7 @@ class JobsModel(TreeherderModelBase):
                 )
 
     def get_job_log_url_detail(self, job_log_url_id):
-        obj = self.get_jobs_dhub().execute(
+        obj = self.retry_execute(self.get_jobs_dhub(),
             proc='jobs.selects.get_job_log_url_detail',
             debug_show=self.DEBUG,
             placeholders=[job_log_url_id])
@@ -1974,7 +1971,7 @@ class JobsModel(TreeherderModelBase):
         id_placeholders = ["%s"] * len(job_ids)
         replacement.append(','.join(id_placeholders))
 
-        data = self.get_jobs_dhub().execute(
+        data = self.retry_execute(self.get_jobs_dhub(),
             proc="jobs.selects.get_job_log_url_list",
             placeholders=job_ids,
             replace=replacement,
@@ -1985,7 +1982,7 @@ class JobsModel(TreeherderModelBase):
     def update_job_log_url_status(self, job_log_url_id,
                                   parse_status, parse_timestamp):
 
-        self.get_jobs_dhub().execute(
+        self.retry_execute(self.get_jobs_dhub(),
                 proc='jobs.updates.update_job_log_url',
                 debug_show=self.DEBUG,
                 placeholders=[parse_status, parse_timestamp, job_log_url_id])
@@ -1996,7 +1993,7 @@ class JobsModel(TreeherderModelBase):
         Store a list of job_artifacts given a list of placeholders
         """
 
-        self.get_jobs_dhub().execute(
+        self.retry_execute(self.get_jobs_dhub(),
             proc='jobs.inserts.set_job_artifact',
             debug_show=self.DEBUG,
             placeholders=artifact_placeholders,
@@ -2008,7 +2005,7 @@ class JobsModel(TreeherderModelBase):
         placeholders = signatures
         placeholders.append(str(interval_seconds))
 
-        data = self.get_jobs_dhub().execute(
+        data = self.retry_execute(self.get_jobs_dhub(),
             proc="jobs.selects.get_performance_series_from_signatures",
             debug_show=self.DEBUG,
             placeholders=placeholders,
@@ -2031,7 +2028,7 @@ class JobsModel(TreeherderModelBase):
         props = [el for x in props.items() for el in x]
         props.extend(props)
 
-        signatures = self.get_jobs_dhub().execute(
+        signatures = self.retry_execute(self.get_jobs_dhub(),
             proc="jobs.selects.get_signatures_from_properties",
             debug_show=self.DEBUG,
             placeholders=props,
@@ -2044,7 +2041,7 @@ class JobsModel(TreeherderModelBase):
 
         signatures_repl = [ ','.join( ['%s'] * len(signatures) ) ]
 
-        properties = self.get_jobs_dhub().execute(
+        properties = self.retry_execute(self.get_jobs_dhub(),
             proc="jobs.selects.get_all_properties_of_signatures",
             debug_show=self.DEBUG,
             placeholders=signatures,
@@ -2068,7 +2065,7 @@ class JobsModel(TreeherderModelBase):
 
             jobs_signatures_where_in_clause = [ ','.join( ['%s'] * len(job_ids) ) ]
 
-            job_data = self.get_jobs_dhub().execute(
+            job_data = self.retry_execute(self.get_jobs_dhub(),
                 proc='jobs.selects.get_signature_list_from_job_ids',
                 debug_show=self.DEBUG,
                 replace=jobs_signatures_where_in_clause,
@@ -2118,13 +2115,13 @@ class JobsModel(TreeherderModelBase):
             # adapt and load data into placeholder structures
             tda.adapt_and_load(ref_data, job_data, perf_data)
 
-        self.get_jobs_dhub().execute(
+        self.retry_execute(self.get_jobs_dhub(),
             proc="jobs.inserts.set_performance_artifact",
             debug_show=self.DEBUG,
             placeholders=tda.performance_artifact_placeholders,
             executemany=True)
 
-        self.get_jobs_dhub().execute(
+        self.retry_execute(self.get_jobs_dhub(),
             proc='jobs.inserts.set_series_signature',
             debug_show=self.DEBUG,
             placeholders=tda.signature_property_placeholders,
@@ -2142,7 +2139,7 @@ class JobsModel(TreeherderModelBase):
         # overwriting each other's blobs. The lock incorporates the time
         # interval and signature combination and is specific to a single
         # json blob.
-        lock = self.get_jobs_dhub().execute(
+        lock = self.retry_execute(self.get_jobs_dhub(),
             proc='generic.locks.get_lock',
             debug_show=self.DEBUG,
             placeholders=[lock_string, 60])
@@ -2164,13 +2161,13 @@ class JobsModel(TreeherderModelBase):
                 series_data_json, t_range, signature
                 ]
 
-            self.get_jobs_dhub().execute(
+            self.retry_execute(self.get_jobs_dhub(),
                 proc='jobs.inserts.set_performance_series',
                 debug_show=self.DEBUG,
                 placeholders=insert_placeholders)
 
             # Retrieve and update the series
-            performance_series = self.get_jobs_dhub().execute(
+            performance_series = self.retry_execute(self.get_jobs_dhub(),
                 proc='jobs.selects.get_performance_series',
                 debug_show=self.DEBUG,
                 placeholders=[t_range, signature])
@@ -2204,7 +2201,7 @@ class JobsModel(TreeherderModelBase):
                         t_range, signature
                     ]
 
-                    self.get_jobs_dhub().execute(
+                    self.retry_execute(self.get_jobs_dhub(),
                         proc='jobs.updates.update_performance_series',
                         debug_show=self.DEBUG,
                         placeholders=update_placeholders)
@@ -2216,7 +2213,7 @@ class JobsModel(TreeherderModelBase):
         finally:
             # Make sure we release the lock no matter what errors
             # are generated
-            self.get_jobs_dhub().execute(
+            self.retry_execute(self.get_jobs_dhub(),
                 proc='generic.locks.release_lock',
                 debug_show=self.DEBUG,
                 placeholders=[lock_string])
