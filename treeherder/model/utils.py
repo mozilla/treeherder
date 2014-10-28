@@ -59,12 +59,11 @@ def where_wolf(project, flat_exclusions):
     return " AND ({0})".format(condition_list), values_list
 
 
-def retry_execute(dhub, logger, **kwargs):
+def retry_execute(dhub, logger, retries=0, **kwargs):
     """Retry the query in the case of an OperationalError."""
     try:
         return dhub.execute(**kwargs)
     except OperationalError:
-        retries = kwargs.get('retries', 0) + 1
 
         if retries < 20:
             sleep_time = round(random.random() * .05, 3)  # 0 to 50ms
@@ -74,7 +73,6 @@ def retry_execute(dhub, logger, **kwargs):
                         retries, sleep_time, kwargs
                     ))
             time.sleep(sleep_time)
-            kwargs['retries'] = retries
-            return retry_execute(dhub, logger, **kwargs)
+            return retry_execute(dhub, logger, retries, **kwargs)
         else:
             raise
