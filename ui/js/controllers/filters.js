@@ -36,16 +36,6 @@ treeherder.controller('FilterPanelCtrl', [
         // field filters
         $scope.newFieldFilter = null;
         $scope.fieldFilters = [];
-
-        $rootScope.$on('setFilters', function(event, data) {
-            $scope.fieldFilters = _.chain(data)
-                .map(function(val, key) {
-                    if (key.lastIndexOf('field-', 0) === 0) {
-                        return { field: key.replace('field-', ''), value: val };
-                    }
-                }).filter(function(i) { return i !== undefined; }).value();
-        });
-
         $scope.fieldChoices = thJobFilters.fieldChoices;
 
         /**
@@ -220,9 +210,14 @@ treeherder.controller('FilterPanelCtrl', [
 
         $scope.$on(thEvents.globalFilterChanged, function() {
             updateToggleFilters();
+            $scope.fieldFilters = _.chain(thJobFilters.filters)
+                .map(function(val, key) {
+                    if (val.removeWhenEmpty) {
+                        return { field: key, value: val.values.join() };
+                    }
+                }).filter(function(i) { return i !== undefined; }).value();
             thJobFilters.buildQueryStringFromFilters();
         });
-
     }
 ]);
 
