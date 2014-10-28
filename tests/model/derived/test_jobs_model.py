@@ -516,3 +516,34 @@ def test_ingest_job_with_updated_job_group(jm, refdata, sample_data, initial_dat
     second_job_group_name = second_job_stored[0]["job_group_name"]
 
     assert first_job_group_name == second_job_group_name
+
+
+def test_retry_on_operational_failure(jm, initial_data, monkeypatch):
+    """Test that we retry 20 times on operational failures"""
+    from _mysql_exceptions import OperationalError
+    from treeherder.model import utils
+    from datasource.bases.SQLHub import SQLHub
+
+    orig_retry_execute = utils.retry_execute
+    retry_count = {'num': 0}
+
+    def retry_execute_mock(dhub, logger, retries=0, **kwargs):
+        retry_count['num'] = retries
+
+        #if it goes beyond 20, we may be in an infinite retry loop
+        assert retries <= 20
+        return orig_retry_execute(dhub, logger, retries, **kwargs)
+
+    monkeypatch.setattr(utils, "retry_execute", retry_execute_mock)
+
+    def execute_mock(*args, **kwargs):
+        raise OperationalError("got exception")
+
+    monkeypatch.setattr(SQLHub, "execute", execute_mock)
+
+    try:
+        jm.get_job_list(0, 10)
+    except OperationalError:
+        assert True
+
+    assert retry_count['num'] == 20

@@ -66,6 +66,7 @@ def retry_execute(dhub, logger, retries=0, **kwargs):
     except OperationalError:
 
         if retries < 20:
+            retries += 1
             sleep_time = round(random.random() * .05, 3)  # 0 to 50ms
             if logger:
                 logger.info(
