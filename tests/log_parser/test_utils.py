@@ -3,6 +3,47 @@ from treeherder.log_parser.utils import (get_error_search_term,
                                          get_crash_signature)
 
 
+PIPE_DELIMITED_LINE_TEST_CASES = (
+    (
+        (
+            '596 INFO TEST-UNEXPECTED-FAIL '
+            '| chrome://mochitests/content/browser/browser/components/loop/test/mochitest/browser_fxa_login.js '
+            '| Check settings tab URL - Got http://mochi.test:8888/browser/browser/components/loop/test/mochitest/loop_fxa.sjs'
+        ),
+        'browser_fxa_login.js'
+    ),
+    (
+        (
+            'REFTEST TEST-UNEXPECTED-FAIL '
+            '| file:///C:/slave/test/build/tests/reftest/tests/layout/reftests/layers/component-alpha-exit-1.html '
+            '| image comparison (==), max difference: 255, number of differing pixels: 251'
+        ),
+        'component-alpha-exit-1.html'
+    ),
+    (
+        (
+            '2423 INFO TEST-UNEXPECTED-FAIL '
+            '| /tests/dom/media/tests/mochitest/test_dataChannel_basicAudio.html '
+            '| undefined assertion name - Result logged after SimpleTest.finish()'
+        ),
+        'test_dataChannel_basicAudio.html'
+    ),
+    (
+        (
+            "TEST-UNEXPECTED-FAIL "
+            "| mainthreadio "
+            "| File 'c:\users\cltbld~1.t-w' was accessed and we were not expecting it: {'Count': 6, 'Duration': 0.112512, 'RunCount': 6}"
+        ),
+        'mainthreadio'
+    ),
+)
+
+@pytest.mark.parametrize(("line", "exp_search_term"), PIPE_DELIMITED_LINE_TEST_CASES)
+def test_get_delimited_search_term(line, exp_search_term):
+    """Test search term extraction for a pipe delimited error line"""
+    actual_search_term = get_error_search_term(line)
+    assert actual_search_term == exp_search_term
+
 LEAK_LINE_TEST_CASES = (
     (
         (
