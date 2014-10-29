@@ -3,7 +3,7 @@ from treeherder.log_parser.utils import (get_error_search_term,
                                          get_crash_signature)
 
 
-ERROR_LINE_TEST_CASES = (
+LEAK_LINE_TEST_CASES = (
     (
         (
             'TEST-UNEXPECTED-FAIL '
@@ -18,9 +18,9 @@ ERROR_LINE_TEST_CASES = (
     ),
 )
 
-@pytest.mark.parametrize(("line", "exp_search_term"), ERROR_LINE_TEST_CASES)
-def test_get_error_search_term(line, exp_search_term):
-    """tests the search term extracted from an error line is correct"""
+@pytest.mark.parametrize(("line", "exp_search_term"), LEAK_LINE_TEST_CASES)
+def test_get_leak_search_term(line, exp_search_term):
+    """tests the search term extracted from a leak error line is correct"""
     actual_search_term = get_error_search_term(line)
     assert actual_search_term == exp_search_term
 
