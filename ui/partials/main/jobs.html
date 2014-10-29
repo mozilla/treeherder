@@ -34,7 +34,7 @@
         <span class="btn btn-default btn-sm btn-resultset"
               tabindex="0" role="button"
               title="cancel all jobs in this resultset"
-              ng-show="currentRepo.repository_group.name == 'try'"
+              ng-show="currentRepo.repository_group.name == 'try' || user.is_staff"
               ng-click="cancelAllJobs(resultset.revision)">
           <span class="glyphicon glyphicon-minus-sign"></span>
         </span>
