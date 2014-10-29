@@ -411,6 +411,14 @@ class JobsModel(TreeherderModelBase):
 
         return data
 
+    def get_max_job_id(self):
+        """Get the maximum job id."""
+        data = self.get_jobs_dhub().execute(
+            proc="jobs.selects.get_max_job_id",
+            debug_show=self.DEBUG,
+        )
+        return int(data[0]['max_id'])
+
     def get_job_note(self, id):
         """Return the job note by id."""
         data = self.get_jobs_dhub().execute(
