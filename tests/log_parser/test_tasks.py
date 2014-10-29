@@ -62,7 +62,7 @@ def test_bug_suggestions_artifact(jm, initial_data, jobs_with_local_log,
                                   ):
     """
     check that at least 3 job_artifacts get inserted when running
-    a parse_log task ofr a failed job, and that the number of
+    a parse_log task for a failed job, and that the number of
     bug search terms/suggestions matches the number of error lines.
     """
     jm.store_result_set_data(sample_resultset)
