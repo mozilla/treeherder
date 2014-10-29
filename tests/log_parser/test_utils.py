@@ -65,6 +65,23 @@ def test_get_leak_search_term(line, exp_search_term):
     actual_search_term = get_error_search_term(line)
     assert actual_search_term == exp_search_term
 
+FULL_LINE_FALLBACK_TEST_CASES = (
+    (
+        'Automation Error: No crash directory (/mnt/sdcard/tests/profile/minidumps/) found on remote device',
+        'Automation Error: No crash directory (/mnt/sdcard/tests/profile/minidumps/) found on remote device'
+    ),
+    (
+        'PROCESS-CRASH | Automation Error: Missing end of test marker (process crashed?)',
+        'PROCESS-CRASH | Automation Error: Missing end of test marker (process crashed?)'
+    ),
+)
+
+@pytest.mark.parametrize(("line", "exp_search_term"), FULL_LINE_FALLBACK_TEST_CASES)
+def test_get_full_line_search_term(line, exp_search_term):
+    """Test that the full error line is used as a fall-back if no test name found"""
+    actual_search_term = get_error_search_term(line)
+    assert actual_search_term == exp_search_term
+
 LONG_LINE_TEST_CASES = (
     (
         (
