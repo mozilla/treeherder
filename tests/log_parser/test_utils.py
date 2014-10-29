@@ -108,3 +108,20 @@ def test_get_crash_signature(line, exp_search_term):
     """tests the search term extracted from an error line is correct"""
     actual_search_term = get_crash_signature(line)
     assert actual_search_term == exp_search_term
+
+BLACKLIST_TEST_CASES = (
+    (
+        'TEST-UNEXPECTED-FAIL | remoteautomation.py | application timed out after 330 seconds with no output',
+        'TEST-UNEXPECTED-FAIL | remoteautomation.py | application timed out after 330 seconds with no output'
+    ),
+    (
+        'Return code: 1',
+        None
+    ),
+)
+
+@pytest.mark.parametrize(("line", "exp_search_term"), BLACKLIST_TEST_CASES)
+def test_get_blacklisted_search_term(line, exp_search_term):
+    """Test search term extraction for lines that contain a blacklisted term"""
+    actual_search_term = get_error_search_term(line)
+    assert actual_search_term == exp_search_term
