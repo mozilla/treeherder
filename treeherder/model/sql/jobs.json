@@ -668,6 +668,10 @@
                    WHERE `job_id` = ?",
             "host": "read_host"
         },
+        "get_max_job_id":{
+            "sql":"SELECT max(`id`) as max_id from `job`",
+            "host": "read_host"
+        },
         "get_job_note":{
             "sql":"SELECT * from `job_note`
                    WHERE `id` = ?",

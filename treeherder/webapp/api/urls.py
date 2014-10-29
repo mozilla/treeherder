@@ -2,7 +2,7 @@ from django.conf.urls import patterns, include, url
 from treeherder.webapp.api import (refdata, objectstore, jobs, resultset,
                                    artifact, note, revision, bug, logslice,
                                    performance_data, job_log_url,
-                                   performance_artifact)
+                                   performance_artifact, projects)
 
 from rest_framework import routers
 
@@ -102,6 +102,8 @@ urlpatterns = patterns(
     '',
     url(r'^project/(?P<project>[\w-]{0,50})/',
         include(project_bound_router.urls)),
+    url(r'^project/(?P<project>[\w-]{0,50})/?',
+        projects.project_info, name='project_info'),
     url(r'^',
         include(default_router.urls)),
 )
