@@ -471,7 +471,8 @@ def test_get_open_recent_bug_right_term(refdata, sample_bugs, search_term, exp_b
     refdata.update_bugscache(bug_list)
 
     suggestions = refdata.get_bug_suggestions(search_term)
-    assert len(suggestions['open_recent']) > 0
+    open_recent_bugs = [b['id'] for b in suggestions['open_recent']]
+    assert open_recent_bugs == exp_bugs
     assert len(suggestions['all_others']) == 0
 
 
