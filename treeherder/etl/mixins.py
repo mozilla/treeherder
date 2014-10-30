@@ -117,9 +117,27 @@ class ResultSetsLoaderMixin(JsonLoaderMixin):
                 logger.error("ResultSet loading failed: {0}".format(message['message']))
 
 
+class CollectionNotLoadedException(Exception):
+
+    def __init__(self, error_list, *args, **kwargs):
+        """
+        error_list contains dictionaries, each containing
+        project, url and message
+        """
+        super(CollectionNotLoadedException, self).__init__(args, kwargs)
+        self.error_list = error_list
+
+    def __unicode__(self):
+        return "\n".join(
+            ["[{project}] Error posting data to {url}: {message}".format(
+                **error) for error in self.error_list]
+        )
+
+
 class OAuthLoaderMixin(object):
 
     def load(self, th_collections):
+        errors = []
         for project in th_collections:
 
             credentials = OAuthCredentials.get_credentials(project)
@@ -138,6 +156,10 @@ class OAuthLoaderMixin(object):
             response = th_request.post(th_collections[project])
 
             if not response or response.status != 200:
-                message = response.read()
-                logger.error('[{0}]Error posting data to {1} : {2}'.format(
-                    project, th_collections[project].endpoint_base, message))
+                errors.append({
+                    "project": project,
+                    "url": th_collections[project].endpoint_base,
+                    "message": response.read()
+                })
+        if errors:
+            raise CollectionNotLoadedException(errors)
