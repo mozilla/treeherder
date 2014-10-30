@@ -801,13 +801,15 @@ ul.failure-summary-list li .btn-xs {
 }
 
 #pinboard-controls .save-btn-dropdown {
-    margin-left: -5px;
+    margin-left: -1px;
+    padding-top:1px;
     display: inline;
-    width: 18px;
+    width: 24px;
+    float: right;
 }
 
 #pinboard-controls .save-btn {
-    /*margin-left: -5px;*/
+    float: left;
     display: inline;
     width: 70px;
 }

@@ -44,25 +44,23 @@
 
 
 <div id="pinboard-controls" class="btn-group-vertical">
-  <button class="btn btn-xs btn-default close-btn"
+  <span class="btn btn-xs btn-default close-btn"
           ng-show="hasPinnedJobs()"
           ng-click="unPinAll()">
-    <span class="fa fa-minus navbar-left btn-icon-top-margin"></span> un-pin all
-  </button>
+    <span class="fa fa-minus pull-left btn-icon-top-margin"></span> un-pin all
+  </span>
 
   <div class="btn-group"
        ng-show="hasPinnedJobs()">
-    <button class="btn btn-default btn-xs save-btn"
-            type="button"
-            title="save classification and bug associations"
-            ng-click="save()">
-      <span class="glyphicon glyphicon-floppy-disk pull-left"></span> save
-    </button>
-    <button type="button"
-            class="btn btn-default btn-xs dropdown-toggle save-btn-dropdown"
-            data-toggle="dropdown">
+    <span class="btn btn-default btn-xs save-btn"
+          title="save classification and bug associations"
+          ng-click="save()">
+      <span class="fa fa-floppy-o pull-left"></span> save
+    </span>
+    <span class="btn btn-default btn-xs dropdown-toggle save-btn-dropdown"
+          data-toggle="dropdown">
       <span class="caret"></span>
-    </button>
+    </span>
     <ul class="dropdown-menu pull-right" role="menu">
       <li><a ng-click="saveClassificationOnly()"><i class="fa fa-star"></i> classification only</a></li>
       <li><a ng-click="saveBugsOnly()"><i class="fa fa-bug"></i> bugs only</a></li>
