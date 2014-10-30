@@ -123,6 +123,10 @@ treeherder.controller('FilterPanelCtrl', [
             return value;
         };
 
+        var getFieldWithPrefix = function(field) {
+            return 'field-' + field;
+        };
+
         $scope.addFieldFilter = function(quiet) {
             $log.debug("adding filter", $scope.newFieldFilter.field);
 
@@ -132,7 +136,7 @@ treeherder.controller('FilterPanelCtrl', [
 
             var value = $scope.newFieldFilter.value;
             var field = $scope.newFieldFilter.field;
-            var fieldWithPrefix = 'field-' + field;
+            var fieldWithPrefix = getFieldWithPrefix(field);
 
             if (field === "" || value === "") {
                 return;
@@ -152,6 +156,9 @@ treeherder.controller('FilterPanelCtrl', [
         };
 
         $scope.removeAllFieldFilters = function() {
+            _.each($scope.fieldFilters, function(field) {
+                $location.search(getFieldWithPrefix(field), null);
+            });
             $scope.fieldFilters = [];
             thJobFilters.removeAllFieldFilters();
         };
@@ -210,12 +217,14 @@ treeherder.controller('FilterPanelCtrl', [
 
         $scope.$on(thEvents.globalFilterChanged, function() {
             updateToggleFilters();
-            $scope.fieldFilters = _.chain(thJobFilters.filters)
-                .map(function(val, key) {
-                    if (val.removeWhenEmpty) {
-                        return { field: key, value: val.values.join() };
-                    }
-                }).filter(function(i) { return i !== undefined; }).value();
+            _.each(thJobFilters.filters, function(val, key) {
+                if (val.removeWhenEmpty) {
+                    _.each(val.values, function(v) {
+                        $scope.fieldFilters.push({ field: key, value: v });
+                    });
+                }
+            });
+            $scope.fieldFilters = _.uniq($scope.fieldFilters, ['field', 'value']);
             thJobFilters.buildQueryStringFromFilters();
         });
     }
