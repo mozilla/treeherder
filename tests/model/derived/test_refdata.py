@@ -362,8 +362,7 @@ def test_update_repo_version_if_old(refdata, old_version_repository, mock_urllib
 
 
 def test_update_repo_version_unchanged(refdata, latest_version_repository, mock_urllib):
-    """test version is kept and version_timestamp is updated
-    if the version has not changed"""
+    """Test version is kept and version_timestamp updated if the version is unchanged."""
 
     time_now = time.time()
     repo_id, last_version = latest_version_repository
@@ -385,8 +384,7 @@ def test_update_repo_version_unchanged(refdata, latest_version_repository, mock_
 
 
 def test_update_repo_version_command(refdata, old_version_repository, initial_data, mock_urllib):
-    """Test the django command extension
-    update_repository_version without using filters"""
+    """Test the django command extension update_repository_version without filters."""
 
     repo_id, old_version = old_version_repository
 
@@ -400,8 +398,7 @@ def test_update_repo_version_command(refdata, old_version_repository, initial_da
 
 
 def test_update_repo_version_command_with_filters(refdata, old_version_repository, initial_data, mock_urllib):
-    """Test the django command extension
-    update_repository_version using all the filters"""
+    """Test the django command extension update_repository_version using filters."""
 
     repo_id, old_version = old_version_repository
 
@@ -428,9 +425,7 @@ def sample_bugs(test_base_dir):
 
 
 def test_update_bugscache(refdata, sample_bugs):
-    """
-    Test running twice update_bugscache inserts the rows just once
-    """
+    """Test running update_bugscache twice inserts the rows just once."""
 
     bug_list = sample_bugs['bugs']
 
@@ -457,9 +452,7 @@ def test_update_bugscache(refdata, sample_bugs):
 
 
 def test_get_open_recent_bug_right_term(refdata, sample_bugs):
-    """
-    Test that we can retrieve open recent bugs given the right search term
-    """
+    """Test that we can retrieve open recent bugs given the right search term."""
     search_term = "test_popup_preventdefault_chrome.xul"
 
     bug_list = sample_bugs['bugs']
@@ -475,14 +468,12 @@ def test_get_open_recent_bug_right_term(refdata, sample_bugs):
 
     # we got open recent bugs suggested
     assert len(suggestions['open_recent']) > 0
-    # we don't have any old bug suggested
+    # we don't have any old bugs suggested
     assert len(suggestions['all_others']) == 0
 
 
 def test_get_open_recent_bug_wrong_term(refdata, sample_bugs):
-    """
-    Test that we can retrieve open recent bugs given the right search term
-    """
+    """Test that we don't retrieve any recent bugs given the wrong search term."""
     search_term = "test_popup_preventdefault_chrome.xul foo bar"
 
     bug_list = sample_bugs['bugs']
@@ -495,16 +486,14 @@ def test_get_open_recent_bug_wrong_term(refdata, sample_bugs):
     refdata.update_bugscache(bug_list)
 
     suggestions = refdata.get_bug_suggestions(search_term)
-    # we got open recent bugs suggested
+    # we don't have any open recent bugs suggested
     assert len(suggestions['open_recent']) == 0
-    # we don't have any old bug suggested
+    # we don't have any old bugs suggested
     assert len(suggestions['all_others']) == 0
 
 
 def test_get_all_other_bugs_right_term(refdata, sample_bugs):
-    """
-    Test that we can retrieve open recent bugs given the right search term
-    """
+    """Test that we can retrieve old bugs given the right search term."""
     search_term = "test_popup_preventdefault_chrome.xul"
 
     bug_list = sample_bugs['bugs']
@@ -517,16 +506,14 @@ def test_get_all_other_bugs_right_term(refdata, sample_bugs):
     refdata.update_bugscache(bug_list)
 
     suggestions = refdata.get_bug_suggestions(search_term)
-    # we got open recent bugs suggested
+    # we don't have any open recent bugs suggested
     assert len(suggestions['open_recent']) == 0
-    # we don't have any old bug suggested
+    # we have old bugs suggested
     assert len(suggestions['all_others']) > 0
 
 
 def test_get_all_other_bugs_wrong_term(refdata, sample_bugs):
-    """
-    Test that we can retrieve open recent bugs given the right search term
-    """
+    """Test that we don't retrieve any old bugs given the wrong search term."""
     search_term = "test_popup_preventdefault_chrome.xul foo bar"
 
     bug_list = sample_bugs['bugs']
@@ -539,9 +526,9 @@ def test_get_all_other_bugs_wrong_term(refdata, sample_bugs):
     refdata.update_bugscache(bug_list)
 
     suggestions = refdata.get_bug_suggestions(search_term)
-    # we got open recent bugs suggested
+    # we don't have any open recent bugs suggested
     assert len(suggestions['open_recent']) == 0
-    # we don't have any old bug suggested
+    # we don't have any old bugs suggested
     assert len(suggestions['all_others']) == 0
 
 
