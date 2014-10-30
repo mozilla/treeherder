@@ -6,22 +6,22 @@
 <div ng-repeat="resultset in result_sets track by resultset.id | orderBy:'-push_timestamp'"
      ng-controller="ResultSetCtrl"
      class="result-set"
-     data-id="{{resultset.id}}">
+     data-id="{{::resultset.id}}">
 
     <div class="result-set-title">
       <span class="result-set-title-left">
         <span class="btn btn-default btn-sm glyphicon glyphicon-download" ng-show="isLoadingJobs"></span>
         <span class="timestamp-name">
           <span>
-            <a href="{{revisionResultsetFilterUrl}}"
+            <a href="{{::revisionResultsetFilterUrl}}"
                title="open this resultset in new tab"
                target="_blank"
                ng-bind="resultsetDateStr"></a> - </span>
-          <th-author author="{{resultset.author}}"></th-author>
+          <th-author author="{{::resultset.author}}"></th-author>
         </span>
       </span>
       <span class="result-set-buttons">
-        <span class="revision-text">{{resultset.revision}}</span>
+        <span class="revision-text">{{::resultset.revision}}</span>
         <span class="btn btn-default btn-sm btn-resultset"
               tabindex="0" role="button"
               title="pin all visible jobs in this resultset"
@@ -43,7 +43,7 @@
       <span class="btn btn-default btn-sm btn-resultset revision-button"
             tabindex="0" role="button"
             ng-click="toggleRevisions()"
-            title="show revisions"><i class="fa fa-code-fork fa-lg"></i> {{resultset.revision_count}}</span>
+            title="show revisions"><i class="fa fa-code-fork fa-lg"></i> {{::resultset.revision_count}}</span>
       <th-result-counts class="result-counts"/>
     </div>
     <div class="result-set-body" th-clone-jobs ></div>
@@ -62,7 +62,7 @@
   <span>
     <div><b>No resultsets found.</b></div>
     <span>No commit information could be loaded for this repository.
-      More information about this repository can be found <a href="{{currentRepo.url}}">here</a>.</span>
+      More information about this repository can be found <a href="{{::currentRepo.url}}">here</a>.</span>
   </span>
 </div>
 
@@ -90,7 +90,7 @@
     <div class="btn-group">
         <div class="btn btn-default btn-sm"
              ng-click="fetchResultSets(count, false)"
-             ng-repeat="count in [10, 20, 50]">{{count}}</div>
+             ng-repeat="count in [10, 20, 50]">{{::count}}</div>
         </div>
     </div>
 </div>

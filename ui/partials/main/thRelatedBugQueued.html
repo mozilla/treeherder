@@ -1,9 +1,9 @@
 <span class="btn-group">
     <a class="btn btn-default btn-xs pinboard-related-bug-button"
-       title="{{bug.summary}}"
-       href="https://bugzilla.mozilla.org/show_bug.cgi?id={{bug.id}}"
+       title="{{::bug.summary}}"
+       href="https://bugzilla.mozilla.org/show_bug.cgi?id={{::bug.id}}"
        target="_blank"
-       >{{bug.id}}</a>
+       >{{::bug.id}}</a>
     <span class="btn btn-ltgray btn-xs pinned-job-close-btn"
           ng-click="removeBug(bug.id)"
           title="remove this bug"><i class="fa fa-times"></i></span>
