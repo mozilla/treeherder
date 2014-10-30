@@ -7,6 +7,7 @@ import json
 import responses
 from treeherder.etl.pushlog import HgPushlogProcess, MissingHgPushlogProcess
 from treeherder.etl.common import get_not_found_onhold_push
+from django.core.cache import cache
 
 
 def test_ingest_hg_pushlog(jm, initial_data, test_base_dir,
@@ -127,3 +128,26 @@ def test_ingest_hg_pushlog_not_found_in_json_pushes(jm, initial_data, test_base_
     assert len(revisions_stored) == 1
 
 
+def test_ingest_hg_pushlog_cache_last_push(jm, initial_data, test_repository,
+                                           test_base_dir, mock_post_json_data,
+                                           activate_responses):
+    """
+    ingesting a number of pushes should cache the top revision of the last push
+    """
+
+    pushlog_path = os.path.join(test_base_dir, 'sample_data',
+                                'hg_pushlog.json')
+    pushlog_content = open(pushlog_path).read()
+    pushlog_fake_url = "http://www.thisismypushlog.com"
+    responses.add(responses.GET, pushlog_fake_url, body=pushlog_content,
+                  status=200, content_type='application/json')
+
+    process = HgPushlogProcess()
+    process.run(pushlog_fake_url, jm.project)
+
+    pushlog_dict = json.loads(pushlog_content)
+    max_push_id = max([int(k) for k in pushlog_dict.keys()])
+    last_push = pushlog_dict[str(max_push_id)]
+    last_push_revision = last_push["changesets"][0]["node"]
+
+    assert cache.get("test_treeherder:last_push") == last_push_revision
