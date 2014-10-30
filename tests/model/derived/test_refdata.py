@@ -480,23 +480,19 @@ def test_get_open_recent_bugs(refdata, sample_bugs, search_term, exp_bugs):
     assert len(suggestions['all_others']) == 0
 
 
-def test_get_all_other_bugs_right_term(refdata, sample_bugs):
-    """Test that we can retrieve old bugs given the right search term."""
-    search_term = "test_popup_preventdefault_chrome.xul"
-
+@pytest.mark.parametrize(("search_term", "exp_bugs"), SEARCH_TERMS)
+def test_get_all_other_bugs(refdata, sample_bugs, search_term, exp_bugs):
+    """Test that we retrieve the expected old bugs for a search term."""
     bug_list = sample_bugs['bugs']
-
     ninetyfive_days_ago = datetime.now() - timedelta(days=95)
-    # update the last_change date so that they will be
-    # placed in the open_recent bucket
+    # Update the last_change date so that all bugs will be placed in
+    # the all_others bucket, and none in open_recent.
     for bug in bug_list:
         bug['last_change_time'] = ninetyfive_days_ago
     refdata.update_bugscache(bug_list)
 
     suggestions = refdata.get_bug_suggestions(search_term)
-    # we don't have any open recent bugs suggested
     assert len(suggestions['open_recent']) == 0
-    # we have old bugs suggested
     assert len(suggestions['all_others']) > 0
 
 
