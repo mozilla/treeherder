@@ -497,26 +497,6 @@ def test_get_all_other_bugs(refdata, sample_bugs, search_term, exp_bugs):
     assert all_others_bugs == exp_bugs
 
 
-def test_get_all_other_bugs_wrong_term(refdata, sample_bugs):
-    """Test that we don't retrieve any old bugs given the wrong search term."""
-    search_term = "test_popup_preventdefault_chrome.xul foo bar"
-
-    bug_list = sample_bugs['bugs']
-
-    ninetyfive_days_ago = datetime.now() - timedelta(days=95)
-    # update the last_change date so that they will be
-    # placed in the all_others bucket
-    for bug in bug_list:
-        bug['last_change_time'] = ninetyfive_days_ago
-    refdata.update_bugscache(bug_list)
-
-    suggestions = refdata.get_bug_suggestions(search_term)
-    # we don't have any open recent bugs suggested
-    assert len(suggestions['open_recent']) == 0
-    # we don't have any old bugs suggested
-    assert len(suggestions['all_others']) == 0
-
-
 def test_delete_bugscache(refdata, sample_bugs):
     bug_list = sample_bugs['bugs']
     refdata.update_bugscache(bug_list)
