@@ -11,7 +11,6 @@
             "resolution": "",
             "op_sys": "All",
             "last_change_time": "2014-01-01 00:00:00"
-
         },
         {
             "status": "ASSIGNED",
@@ -120,6 +119,32 @@
             "resolution": "",
             "op_sys": "Linux",
             "last_change_time": "2014-01-01 00:00:00"
+        },
+        {
+            "status": "NEW",
+            "id": 1054669,
+            "summary": "Intermittent test_switch_frame.py TestSwitchFrame.test_should_be_able_to_carry_on_working_if_the_frame_is_deleted_from_under_us | TimeoutException: TimeoutException: Connection timed out",
+            "cf_crash_signature": "",
+            "keywords": [
+                "ateam-marionette-intermittent",
+                "intermittent-failure"
+            ],
+            "resolution": "",
+            "op_sys": "Gonk (Firefox OS)",
+            "last_change_time": "2014-08-17T23:15:38"
+        },
+        {
+            "status": "NEW",
+            "id": 1078237,
+            "summary": "Intermittent test_switch_frame.py TestSwitchFrame.test_should_be_able_to_carry_on_working_if_the_frame_is_deleted_from_under_us | AssertionError: 0 != 1",
+            "cf_crash_signature": "",
+            "keywords": [
+                "ateam-marionette-intermittent",
+                "intermittent-failure"
+            ],
+            "resolution": "",
+            "op_sys": "Windows 7",
+            "last_change_time": "2014-10-29T20:57:46"
         }
     ]
 }

@@ -39,8 +39,8 @@ def test_bz_api_process(mock_extract, refdata):
     refdata.disconnect()
 
     # the number of rows inserted should equal to the number of bugs
-    assert len(row_data) == 10
+    assert len(row_data) == 12
 
     # test that a second ingestion of the same bugs doesn't insert new rows
     process.run()
-    assert len(row_data) == 10
+    assert len(row_data) == 12
