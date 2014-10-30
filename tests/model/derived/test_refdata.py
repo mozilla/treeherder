@@ -493,7 +493,8 @@ def test_get_all_other_bugs(refdata, sample_bugs, search_term, exp_bugs):
 
     suggestions = refdata.get_bug_suggestions(search_term)
     assert len(suggestions['open_recent']) == 0
-    assert len(suggestions['all_others']) > 0
+    all_others_bugs = [b['id'] for b in suggestions['all_others']]
+    assert all_others_bugs == exp_bugs
 
 
 def test_get_all_other_bugs_wrong_term(refdata, sample_bugs):
