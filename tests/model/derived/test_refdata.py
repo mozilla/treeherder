@@ -451,7 +451,7 @@ def test_update_bugscache(refdata, sample_bugs):
     assert len(bug_list) == len(row_data)
 
 
-SEARCH_TERMS = (
+BUG_SEARCHES = (
     (
         "test_popup_preventdefault_chrome.xul",
         [455091]
@@ -463,7 +463,7 @@ SEARCH_TERMS = (
 )
 
 
-@pytest.mark.parametrize(("search_term", "exp_bugs"), SEARCH_TERMS)
+@pytest.mark.parametrize(("search_term", "exp_bugs"), BUG_SEARCHES)
 def test_get_open_recent_bugs(refdata, sample_bugs, search_term, exp_bugs):
     """Test that we retrieve the expected open recent bugs for a search term."""
     bug_list = sample_bugs['bugs']
@@ -480,7 +480,7 @@ def test_get_open_recent_bugs(refdata, sample_bugs, search_term, exp_bugs):
     assert len(suggestions['all_others']) == 0
 
 
-@pytest.mark.parametrize(("search_term", "exp_bugs"), SEARCH_TERMS)
+@pytest.mark.parametrize(("search_term", "exp_bugs"), BUG_SEARCHES)
 def test_get_all_other_bugs(refdata, sample_bugs, search_term, exp_bugs):
     """Test that we retrieve the expected old bugs for a search term."""
     bug_list = sample_bugs['bugs']
