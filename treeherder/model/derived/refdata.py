@@ -1,4 +1,5 @@
 import os
+import logging
 from hashlib import sha1
 import time
 from datetime import timedelta, datetime
@@ -7,6 +8,9 @@ from django.conf import settings
 from datasource.bases.BaseHub import BaseHub
 from datasource.DataHub import DataHub
 
+from treeherder.model import utils
+
+logger = logging.getLogger(__name__)
 
 class RefDataManager(object):
     """Model for reference data"""
@@ -98,6 +102,9 @@ class RefDataManager(object):
 
     def disconnect(self):
         self.dhub.disconnect()
+
+    def execute(self, **kwargs):
+        return utils.retry_execute(self.dhub, logger, **kwargs)
 
     def set_all_reference_data(self):
         """This method executes SQL to store data in all loaded reference
@@ -546,7 +553,7 @@ class RefDataManager(object):
 
         insert_proc = 'reference.inserts.create_reference_data_signature'
 
-        self.dhub.execute(
+        self.execute(
             proc=insert_proc,
             placeholders=self.build_signature_placeholders,
             executemany=True,
@@ -632,7 +639,7 @@ class RefDataManager(object):
 
         if update_placeholders:
             # Update the job types with the job group id
-            self.dhub.execute(
+            self.execute(
                 proc='reference.updates.update_job_type_group_id',
                 placeholders=update_placeholders,
                 executemany=True,
@@ -685,13 +692,13 @@ class RefDataManager(object):
         insert_proc = 'reference.inserts.create_machine'
         update_proc = 'reference.updates.update_machine_timestamp'
 
-        self.dhub.execute(
+        self.execute(
             proc=insert_proc,
             placeholders=self.machine_name_placeholders,
             executemany=True,
             debug_show=self.DEBUG)
 
-        name_lookup = self.dhub.execute(
+        name_lookup = self.execute(
             proc=select_proc,
             placeholders=self.machine_unique_names,
             replace=[where_in_clause],
@@ -719,7 +726,7 @@ class RefDataManager(object):
             the potential to mangle previous stored machine_ids. This would
             be bad...
         """
-        self.dhub.execute(
+        self.execute(
             proc=update_proc,
             placeholders=self.machine_timestamp_update_placeholders,
             executemany=True,
@@ -749,7 +756,7 @@ class RefDataManager(object):
         if not self.oc_placeholders:
             return {}
 
-        self.dhub.execute(
+        self.execute(
             proc='reference.inserts.create_option_collection',
             placeholders=self.oc_placeholders,
             executemany=True,
@@ -768,7 +775,7 @@ class RefDataManager(object):
 
         if where_filters:
 
-            self.dhub.execute(
+            self.execute(
                 proc=insert_proc,
                 placeholders=platform_placeholders,
                 executemany=True,
@@ -780,7 +787,7 @@ class RefDataManager(object):
             # NOTE: This query is using master_host to insure we don't have a
             # race condition with INSERT into master and SELECT new ids from
             # the slave.
-            data_retrieved = self.dhub.execute(
+            data_retrieved = self.execute(
                 proc=select_proc,
                 placeholders=unique_platforms,
                 replace=[where_in_clause],
@@ -811,13 +818,13 @@ class RefDataManager(object):
         # Convert WHERE filters to string
         where_in_clause = ",".join(where_in_list)
 
-        self.dhub.execute(
+        self.execute(
             proc=insert_proc,
             placeholders=name_placeholders,
             executemany=True,
             debug_show=self.DEBUG)
 
-        name_lookup = self.dhub.execute(
+        name_lookup = self.execute(
             proc=select_proc,
             placeholders=unique_names,
             replace=[where_in_clause],
@@ -837,7 +844,7 @@ class RefDataManager(object):
         """
         if where_filters:
 
-            self.dhub.execute(
+            self.execute(
                 proc=insert_proc,
                 placeholders=name_symbol_placeholders,
                 executemany=True,
@@ -846,7 +853,7 @@ class RefDataManager(object):
             # Convert WHERE filters to string
             where_in_clause = " OR ".join(where_filters)
 
-            data_retrieved = self.dhub.execute(
+            data_retrieved = self.execute(
                 proc=select_proc,
                 placeholders=names_and_symbols,
                 replace=[where_in_clause],
@@ -1128,13 +1135,13 @@ class RefDataManager(object):
         insert_proc = 'reference.inserts.create_option'
         select_proc='reference.selects.get_options'
 
-        self.dhub.execute(
+        self.execute(
             proc=insert_proc,
             placeholders=option_placeholders,
             executemany=True,
             debug_show=self.DEBUG)
 
-        option_lookup = self.dhub.execute(
+        option_lookup = self.execute(
             proc=select_proc,
             placeholders=unique_options,
             replace=[where_in_clause],
@@ -1147,17 +1154,6 @@ class RefDataManager(object):
     def get_db_name(self):
         """The name of the database holding the refdata tables"""
         return self.dhub.conf["default_db"]
-
-    def get_row_by_id(self, table_name, obj_id):
-        iter_obj = self.dhub.execute(
-            proc="reference.selects.get_row_by_id",
-            replace=[table_name],
-            placeholders=[obj_id],
-            debug_show=self.DEBUG,
-            return_type='iter',
-        )
-
-        return iter_obj
 
     def get_all_option_collections(self):
         """
@@ -1175,7 +1171,7 @@ class RefDataManager(object):
             ...
             }
         """
-        return self.dhub.execute(
+        return self.execute(
             proc='reference.selects.get_all_option_collections',
             debug_show=self.DEBUG,
             key_column='option_collection_hash',
@@ -1185,7 +1181,7 @@ class RefDataManager(object):
 
     def get_repository_id(self, name):
         """get the id for the given repository"""
-        id_iter = self.dhub.execute(
+        id_iter = self.execute(
             proc='reference.selects.get_repository_id',
             placeholders=[name],
             debug_show=self.DEBUG,
@@ -1196,7 +1192,7 @@ class RefDataManager(object):
     def get_repository_version_id(self, repository_id):
         """get the latest version available for the given repository"""
 
-        id_iter = self.dhub.execute(
+        id_iter = self.execute(
             proc='reference.selects.get_repository_version_id',
             placeholders=[repository_id],
             debug_show=self.DEBUG,
@@ -1207,7 +1203,7 @@ class RefDataManager(object):
     def get_or_create_repository_version(self, repository_id, version,
                                          version_timestamp):
 
-        self.dhub.execute(
+        self.execute(
             proc='reference.inserts.create_repository_version',
             placeholders=[
                 repository_id,
@@ -1247,7 +1243,7 @@ class RefDataManager(object):
                                               version, timestamp_now)
 
         # update the version_timestamp
-        self.dhub.execute(
+        self.execute(
             proc='reference.updates.update_version_timestamp',
             placeholders=[
                 timestamp_now,
@@ -1275,7 +1271,7 @@ class RefDataManager(object):
     def get_repository_info(self, repository_id):
         """retrieves all the attributes of a repository"""
 
-        repo = self.dhub.execute(
+        repo = self.execute(
             proc='reference.selects.get_repository_info',
             placeholders=[repository_id],
             debug_show=self.DEBUG,
@@ -1285,13 +1281,13 @@ class RefDataManager(object):
             return r
 
     def get_all_repository_info(self):
-        return self.dhub.execute(
+        return self.execute(
             proc='reference.selects.get_all_repository_info',
             debug_show=self.DEBUG,
             return_type='iter')
 
     def get_bug_numbers_list(self):
-        return self.dhub.execute(
+        return self.execute(
             proc='reference.selects.get_all_bug_numbers',
             debug_show=self.DEBUG,
             return_type='iter')
@@ -1299,7 +1295,7 @@ class RefDataManager(object):
     def delete_bugs(self, bug_ids):
         """delete a list of bugs given the ids"""
 
-        self.dhub.execute(
+        self.execute(
             proc='reference.deletes.delete_bugs',
             debug_show=self.DEBUG,
             replace=[",".join(["%s"] * len(bug_ids))],
@@ -1324,7 +1320,7 @@ class RefDataManager(object):
                     'id', 'status', 'resolution', 'summary',
                     'cf_crash_signature', 'keywords', 'op_sys', 'last_change_time', 'id')])
 
-        self.dhub.execute(
+        self.execute(
             proc='reference.inserts.create_bugscache',
             placeholders=placeholders,
             executemany=True,
@@ -1333,7 +1329,7 @@ class RefDataManager(object):
         # removing the first placeholder because is not used in the update query
         del placeholders[0]
 
-        self.dhub.execute(
+        self.execute(
             proc='reference.updates.update_bugscache',
             placeholders=placeholders,
             executemany=True,
@@ -1352,12 +1348,12 @@ class RefDataManager(object):
         time_limit = datetime.now() - timedelta(days=90)
         search_term = search_term.join('""')
 
-        open_recent = self.dhub.execute(
+        open_recent = self.execute(
             proc='reference.selects.get_open_recent_bugs',
             placeholders=[search_term, search_term, time_limit, max_size + 1],
             debug_show=self.DEBUG)
 
-        all_others = self.dhub.execute(
+        all_others = self.execute(
             proc='reference.selects.get_all_others_bugs',
             placeholders=[search_term, search_term, time_limit, max_size + 1],
             debug_show=self.DEBUG)
@@ -1382,7 +1378,7 @@ class RefDataManager(object):
                 ','.join( ['%s'] * len(signatures) )
                 ]
 
-            reference_data = self.dhub.execute(
+            reference_data = self.execute(
                 proc="reference.selects.get_reference_data_signature_names",
                 placeholders=signatures,
                 replace=reference_data_signatures_where_in_clause,
@@ -1400,7 +1396,7 @@ class RefDataManager(object):
 
             reference_data_signatures_where_in_clause = [ ','.join( ['%s'] * len(signatures) ) ]
 
-            reference_data = self.dhub.execute(
+            reference_data = self.execute(
                 proc="reference.selects.get_reference_data_for_perf_signature",
                 placeholders=signatures,
                 replace=reference_data_signatures_where_in_clause,

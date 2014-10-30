@@ -94,6 +94,10 @@ class TbplBugRequest(object):
                 'name': set([("=", "buildapi_complete")])
             })[0]
             job_data = jm.get_job(self.job_id)[0]
+        except IndexError:
+            logger.exception(("Unable to find buildapi_complete artifact for "
+                              "job_id: {0}").format(self.job_id))
+            raise
         finally:
             jm.disconnect()
 

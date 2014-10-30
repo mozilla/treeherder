@@ -3,6 +3,8 @@
 access.
 
 """
+import logging
+
 from django.conf import settings
 
 from treeherder.model.models import Datasource
@@ -14,6 +16,7 @@ class TreeherderModelBase(object):
     Base model class for all derived models
 
     """
+    logger = logging.getLogger(__name__)
 
     def __init__(self, project):
         """Encapsulate the dataset access for this ``project`` """
@@ -102,22 +105,6 @@ class TreeherderModelBase(object):
         publish_to_pulse.apply_async(
             args=[self.project, ids, data_type]
             )
-
-    def get_row_by_id(self, contenttype, table_name, obj_id):
-        """
-        Given an ``id`` get the row for that item.
-        Return none if not found
-        """
-        proc = "generic.selects.get_row_by_id"
-        iter_obj = self.get_dhub(contenttype).execute(
-            proc=proc,
-            replace=[table_name],
-            placeholders=[obj_id],
-            debug_show=self.DEBUG,
-            return_type='iter',
-        )
-        return self.as_single(iter_obj, table_name, id=obj_id)
-
 
     def disconnect(self):
         """Iterate over and disconnect all data sources."""
