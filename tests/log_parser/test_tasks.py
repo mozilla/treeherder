@@ -18,6 +18,17 @@ def jobs_with_local_log(initial_data):
     job['job']['log_references'][0]['url'] = url
     return [job]
 
+@pytest.fixture
+def jobs_with_local_talos_log(initial_data):
+    sample_data = SampleData()
+    url = sample_data.get_performance_logs()[0]
+
+    job = sample_data.job_data[0]
+
+    # substitute the log url with a local url
+    job['job']['log_references'][0]['url'] = url
+    return [job]
+
 
 def test_parse_log(jm, initial_data, jobs_with_local_log, sample_resultset,
                    mock_send_request, mock_get_remote_content):
@@ -55,6 +66,21 @@ def test_parse_log(jm, initial_data, jobs_with_local_log, sample_resultset,
     # 1 for the bug suggestions
     assert len(job_artifacts) >= 3
 
+def test_parse_talos_log(jm, initial_data, jobs_with_local_talos_log, sample_resultset,
+                         mock_send_request, mock_get_remote_content):
+    """
+    check that performance job_artifacts get inserted when running
+    a parse_log task for a talos job
+    """
+
+    jm.store_result_set_data(sample_resultset)
+
+    jobs = jobs_with_local_talos_log
+    jm.store_job_data(jobs)
+    jm.process_objects(1, raise_errors=True)
+
+    artifact_list = jm.get_performance_artifact_list(0, 10)
+    assert len(artifact_list) >= 1 # should parse out at least one perf artifact
 
 def test_bug_suggestions_artifact(jm, initial_data, jobs_with_local_log,
                                   sample_resultset, mock_send_request,
