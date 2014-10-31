@@ -237,15 +237,11 @@ class TinderboxPrintParser(ParserBase):
 
             if line.startswith("TalosResult: "):
                 title, json_value = line.split(": ", 1)
-                try:
-                    value = json.loads(json_value)
-                except ValueError:
-                    value = "talos data unreadable"
 
                 self.artifact.append({
                     "title": title,
                     "content_type": "TalosResult",
-                    "value": value
+                    "value": json.loads(json_value)
                 })
                 return
 
@@ -362,15 +358,15 @@ class ErrorParser(ParserBase):
                 RE_ERR_MATCH.match(trimline) or RE_ERR_SEARCH.search(trimline):
             self.add(line, lineno)
 
-##
-# Using $ in the regex as an end of line bounds causes the
-# regex to fail on windows logs. This is likely due to the
-# ^M character representation of the windows end of line.
-##
-RE_TALOSDATA = re.compile('.*?TALOSDATA:\s+(\[.*\])')
-
 class TalosParser(ParserBase):
     """a sub-parser to find TALOSDATA"""
+
+    ##
+    # Using $ in the regex as an end of line bounds causes the
+    # regex to fail on windows logs. This is likely due to the
+    # ^M character representation of the windows end of line.
+    ##
+    RE_TALOSDATA = re.compile('.*?TALOSDATA:\s+(\[.*\])')
 
     def __init__(self):
         super(TalosParser, self).__init__("talos_data")
@@ -378,9 +374,11 @@ class TalosParser(ParserBase):
     def parse_line(self, line, lineno):
         """check each line for TALOSDATA"""
 
-        match = RE_TALOSDATA.match(line)
-        if "TALOSDATA" in line and match:
-            try:
+        if "TALOSDATA" in line:
+            match = self.RE_TALOSDATA.match(line)
+            if match:
+                # this will throw an exception if the parsing breaks, but
+                # that's the behaviour we want
                 self.artifact = json.loads(match.group(1))
-            except ValueError:
-                self.artifact.append(match.group(1))
+            else:
+                raise ValueError('Invalid TALOSDATA: %s' % line)
