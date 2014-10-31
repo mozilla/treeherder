@@ -1346,16 +1346,20 @@ class RefDataManager(object):
         max_size = 50
         # 90 days ago
         time_limit = datetime.now() - timedelta(days=90)
-        search_term = search_term.join('""')
+        # Wrap search term so it is used as a phrase in the full-text search.
+        search_term_fulltext = search_term.join('""')
+        # Substitute escape and wildcard characters, so the search term is used
+        # literally in the LIKE statement.
+        search_term_like = search_term.replace('=', '==').replace('%', '=%').replace('_', '=_')
 
         open_recent = self.execute(
             proc='reference.selects.get_open_recent_bugs',
-            placeholders=[search_term, search_term, time_limit, max_size + 1],
+            placeholders=[search_term_fulltext, search_term_like, time_limit, max_size + 1],
             debug_show=self.DEBUG)
 
         all_others = self.execute(
             proc='reference.selects.get_all_others_bugs',
-            placeholders=[search_term, search_term, time_limit, max_size + 1],
+            placeholders=[search_term_fulltext, search_term_like, time_limit, max_size + 1],
             debug_show=self.DEBUG)
 
         return dict(open_recent=open_recent, all_others=all_others)

@@ -320,8 +320,7 @@
                     FROM bugscache
                     WHERE 1
                         AND resolution = ''
-                        AND MATCH (`summary`)
-                            AGAINST (? IN BOOLEAN MODE)
+                        AND `summary` LIKE CONCAT ('%%', ?, '%%') ESCAPE '='
                         AND modified >= ?
                     ORDER BY relevance DESC
                     LIMIT 0,?",
@@ -334,8 +333,7 @@
                         AGAINST (? IN BOOLEAN MODE) AS relevance
                     FROM bugscache
                     WHERE 1
-                        AND MATCH (`summary`)
-                            AGAINST (? IN BOOLEAN MODE)
+                        AND `summary` LIKE CONCAT ('%%', ?, '%%') ESCAPE '='
                         AND modified < ?
                     ORDER BY relevance DESC
                     LIMIT 0,?",
