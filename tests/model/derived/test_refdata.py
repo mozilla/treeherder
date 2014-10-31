@@ -464,6 +464,18 @@ BUG_SEARCHES = (
         "test_switch_frame.py TestSwitchFrame.test_should_be_able_to_carry_on_working_if_the_frame_is_deleted",
         [1054669, 1078237]
     ),
+    (
+        "should not be match_d",
+        []
+    ),
+    (
+        "should not be match%d",
+        []
+    ),
+    (
+        "should not be matche=d",
+        []
+    ),
 )
 
 

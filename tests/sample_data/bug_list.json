@@ -145,6 +145,18 @@
             "resolution": "",
             "op_sys": "Windows 7",
             "last_change_time": "2014-10-29T20:57:46"
+        },
+        {
+            "status": "NEW",
+            "id": 1,
+            "summary": "This bug should not be matched",
+            "cf_crash_signature": "",
+            "keywords": [
+                "intermittent-failure"
+            ],
+            "resolution": "",
+            "op_sys": "Windows 7",
+            "last_change_time": "2014-10-29T20:57:46"
         }
     ]
 }
