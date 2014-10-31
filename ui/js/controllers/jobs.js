@@ -218,6 +218,9 @@ treeherder.controller('ResultSetCtrl', [
 
 
         $scope.cancelAllJobs = function(revision) {
+            if (!window.confirm('This will cancel all pending and running jobs for revision ' + revision + '!\n\nAre you sure?')) {
+                return;
+            }
             thBuildApi.cancelAll($scope.repoName, revision).then(function() {
                 thResultSets.cancelAll($scope.resultset.id, $scope.repoName);
             });
