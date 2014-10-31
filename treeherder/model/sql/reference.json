@@ -334,7 +334,7 @@
                     FROM bugscache
                     WHERE 1
                         AND `summary` LIKE CONCAT ('%%', ?, '%%') ESCAPE '='
-                        AND modified < ?
+                        AND (modified < ? OR resolution <> '')
                     ORDER BY relevance DESC
                     LIMIT 0,?",
             "host": "read_host"

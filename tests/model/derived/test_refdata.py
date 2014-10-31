@@ -521,6 +521,25 @@ def test_get_all_other_bugs(refdata, sample_bugs, search_term, exp_bugs):
     assert all_others_bugs == exp_bugs
 
 
+def test_get_recent_resolved_bugs(refdata, sample_bugs):
+    """Test that we retrieve recent, but fixed bugs for a search term."""
+    search_term = "Recently modified resolved bugs should be returned in all_others"
+    exp_bugs = [100001]
+
+    bug_list = sample_bugs['bugs']
+    fifty_days_ago = datetime.now() - timedelta(days=50)
+    # Update the last_change date so that all bugs will be placed in
+    # the open_recent bucket, and none in all_others.
+    for bug in bug_list:
+        bug['last_change_time'] = fifty_days_ago
+    refdata.update_bugscache(bug_list)
+
+    suggestions = refdata.get_bug_suggestions(search_term)
+    assert len(suggestions['open_recent']) == 0
+    all_others_bugs = [b['id'] for b in suggestions['all_others']]
+    assert all_others_bugs == exp_bugs
+
+
 def test_delete_bugscache(refdata, sample_bugs):
     bug_list = sample_bugs['bugs']
     refdata.update_bugscache(bug_list)

@@ -1,6 +1,19 @@
 {
     "bugs":  [
         {
+            "status": "FIXED",
+            "id": 100001,
+            "summary": "Recently modified resolved bugs should be returned in all_others",
+            "cf_crash_signature": "",
+            "keywords": [
+                "intermittent-failure"
+            ],
+            "resolution": "RESOLVED",
+            "op_sys": "All",
+            "last_change_time": "2014-01-01 00:00:00"
+
+        },
+        {
             "status": "NEW",
             "id": 453969,
             "summary": "Intermittent test_bug382113.html | Child got load event - got false, expected true",
