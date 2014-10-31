@@ -15,7 +15,8 @@
           <span>
             <a href="{{::revisionResultsetFilterUrl}}"
                title="open this resultset in new tab"
-               target="_blank">{{::resultsetDateStr}}</a> - </span>
+               target="_blank"
+               ng-bind="resultsetDateStr"></a> - </span>
           <th-author author="{{::resultset.author}}"></th-author>
         </span>
       </span>

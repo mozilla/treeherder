@@ -3,7 +3,7 @@
 
         <li ng-repeat="suggestion in suggestions">
             <div class="failure-summary-line">
-                <span>{{::suggestion.search}}</span>
+                <span ng-bind="suggestion.search"></span>
             </div>
             <!--Open recent bugs-->
             <ul ng-if="! suggestion.bugs.open_recent_hidden"
