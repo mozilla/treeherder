@@ -21,14 +21,14 @@
                     <th>Profile name</th><th>Default</th><th>Exclusions</th><th>Actions</th>
                 </tr>
                 <tr ng-repeat="profile in profiles">
-                    <td>{{::profile.name}}</td>
+                    <td>{{profile.name}}</td>
                     <td class="text-center">
                         <span ng-if="profile.is_default" class="glyphicon glyphicon-ok-sign text-success">
                         </span>
                     </td>
                     <td>
                         <a ng-click="init_exclusion_update(exclusions_map[exclusion])" ng-repeat="exclusion in profile.exclusions">
-                            {{ ::exclusions_map[exclusion].name }}
+                            {{ exclusions_map[exclusion].name }}
                         </a>
                     </td>
                     <td>
@@ -62,8 +62,8 @@
                 <label>Select one or more exclusions to enable in your new profile</label>
                     <div ng-repeat="exclusion in exclusions" class="form-group">
                             <input type="checkbox" ng-model="form_profile_choices[exclusion.id]" />
-                            <span title="{{::exclusion.description}}">
-                                {{::exclusion.name}}
+                            <span title="{{exclusion.description}}">
+                                {{exclusion.name}}
                             </span>
                     </div>
             </form>
@@ -97,8 +97,8 @@
                     <th>Actions</th>
                 </tr>
                 <tr ng-repeat="exclusion in exclusions">
-                    <td>{{::exclusion.name}}</td>
-                    <td>{{::exclusion.description}}</td>
+                    <td>{{exclusion.name}}</td>
+                    <td>{{exclusion.description}}</td>
                     <td><th-truncated-list visible="2" elements="exclusion.info.repos" /></td>
                     <td><th-truncated-list visible="2" elements="exclusion.info.platforms" /></td>
                     <td><th-truncated-list visible="2" elements="exclusion.info.options" /></td>

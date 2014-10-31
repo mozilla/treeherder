@@ -1,7 +1,7 @@
 <ul id="notification_box" class="list-unstyled">
     <li ng-repeat="notification in notifier.notifications">
-        <div  class="alert alert-{{::notification.severity}}">
-            {{::notification.message}}
+        <div  class="alert alert-{{notification.severity}}">
+            {{notification.message}}
             <button ng-click="notifier.remove($index)" ng-if="notification.sticky" class="close">x</button>
         </div>
     </li>

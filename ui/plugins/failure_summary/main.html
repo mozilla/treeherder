@@ -14,12 +14,12 @@
                             title="add to list of bugs to associate with all pinned jobs">
                         <i class="glyphicon glyphicon-pushpin"></i>
                     </button>
-                    <a href="https://bugzilla.mozilla.org/show_bug.cgi?id={{::bug.id}}"
+                    <a href="https://bugzilla.mozilla.org/show_bug.cgi?id={{bug.id}}"
                        target="_blank"
-                       ng-class="{'deleted': bug.resolution != ''}">{{::bug.id}}
+                       ng-class="{'deleted': bug.resolution != ''}">{{bug.id}}
                         <span ng-bind-html="bug.summary | escapeHTML | highlightCommonTerms:suggestion.search"
-                              title="{{::bug.summary}}"
-                              ng-class="{'deleted': bug.resolution != ''}">{{::bug.summary}}
+                              title="{{bug.summary}}"
+                              ng-class="{'deleted': bug.resolution != ''}">{{bug.summary}}
                         </span>
                     </a>
                 </li>
@@ -39,12 +39,12 @@
                             title="add to list of bugs to associate with all pinned jobs">
                         <i class="glyphicon glyphicon-pushpin"></i>
                     </button>
-                    <a href="https://bugzilla.mozilla.org/show_bug.cgi?id={{::bug.id}}"
+                    <a href="https://bugzilla.mozilla.org/show_bug.cgi?id={{bug.id}}"
                        target="_blank"
-                       ng-class="{'deleted': bug.resolution != ''}">{{::bug.id}}
+                       ng-class="{'deleted': bug.resolution != ''}">{{bug.id}}
                         <span ng-bind-html="bug.summary | escapeHTML | highlightCommonTerms:suggestion.search"
-                              title="{{::bug.summary}}"
-                              ng-class="{'deleted': bug.resolution != ''}">{{::bug.summary}}
+                              title="{{bug.summary}}"
+                              ng-class="{'deleted': bug.resolution != ''}">{{bug.summary}}
                         </span>
                     </a>
                 </li>

@@ -8,14 +8,14 @@
          class="btn btn-block logviewer-step clearfix"
          order="{{step.order}}">
         <span class="pull-left clearfix">
-            {{::step.order+1}}. {{::step.name}}
+            {{step.order+1}}. {{step.name}}
         </span>
 
         <span ng-init="time=formatTime(step.duration)"
               ng-mouseover="time=displayTime(step.started, step.finished)"
               ng-mouseleave="time=formatTime(step.duration)"
               class="pull-right clearfix">
-            {{::time}}
+            {{time}}
         </span>
 
         <div ng-if="(step.error_count > 0)">
@@ -26,11 +26,11 @@
                  ng-click="scrollTo($event, step, error.linenumber);"
                  class="text-left pull-left lv-error-line">
                 <span class="label label-default lv-line-no">
-                    {{::error.linenumber}}
+                    {{error.linenumber}}
                 </span>
 
-                <span title="{{::error.line}}">
-                    {{::error.line}}
+                <span title="{{error.line}}">
+                    {{error.line}}
                 </span>
             </div>
         </div>
@@ -38,7 +38,7 @@
 </div>
 
 <div class="logviewer-stepbar">
-    <a title="Open the raw log in a new window" target="_blank" href="{{::artifact.logurl}}">
+    <a title="Open the raw log in a new window" target="_blank" href="{{artifact.logurl}}">
         <span class="glyphicon glyphicon-align-left"></span>
     </a>
 </div>

@@ -13,7 +13,7 @@
      ng-class="{'text-danger': (lv_line.hasError == true),
                 'lv-selected-lines': (displayedStep.order === lv_line.index)}"
      class="lv-log-line"
-     line="{{ ::lv_line.index }}">
+     line="{{ lv_line.index }}">
 
-     <span class="lv-line-text">{{ ::lv_line.text }}</span>
+     <span class="lv-line-text">{{ lv_line.text }}</span>
 </div>
