@@ -148,6 +148,18 @@
         },
         {
             "status": "NEW",
+            "id": 1054456,
+            "summary": "Intermittent Android talos command timed out: 3600 seconds without output running ['/tools/buildbot/bin/python', 'scripts/scripts/android_panda_talos.py', '--talos-suite', 'remote-tp4m_nochrome', '--cfg', 'android/android_panda_talos_releng.py', ' ...",
+            "cf_crash_signature": "",
+            "keywords": [
+                "intermittent-failure"
+            ],
+            "resolution": "",
+            "op_sys": "Android",
+            "last_change_time": "2014-10-23T13:35:06"
+        },
+        {
+            "status": "NEW",
             "id": 1,
             "summary": "This bug should not be matched",
             "cf_crash_signature": "",

@@ -465,6 +465,10 @@ BUG_SEARCHES = (
         [1054669, 1078237]
     ),
     (
+        "command timed out: 3600 seconds without output running ['/tools/buildbot/bin/python', 'scripts/scrip",
+        [1054456]
+    ),
+    (
         "should not be match_d",
         []
     ),
