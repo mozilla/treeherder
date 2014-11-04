@@ -28,8 +28,6 @@ class PerformanceDataViewSet(viewsets.ViewSet):
 
         signatures = jm.get_signatures_from_properties(props)
 
-        jm.disconnect()
-
         return Response(signatures)
 
     @link()
@@ -52,7 +50,5 @@ class PerformanceDataViewSet(viewsets.ViewSet):
             return Response("no signatures provided", 400)
 
         data = jm.get_performance_series_from_signatures(signatures, interval_seconds)
-
-        jm.disconnect()
 
         return Response(data)
