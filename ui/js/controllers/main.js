@@ -27,8 +27,14 @@ treeherder.controller('MainCtrl', [
         };
 
         $scope.closeJob = function() {
-            // setting the selectedJob to null closes the bottom panel
+            // Setting the selectedJob to null closes the bottom panel
             $rootScope.selectedJob = null;
+
+            // Clear the selected job display style
+            $rootScope.$broadcast(thEvents.clearJobStyles, $rootScope.selectedJob);
+
+            // Reset selected job to null to initialize nav position
+            ThResultSetModel.setSelectedJob($rootScope.repoName);
         };
 
         $scope.processKeyboardInput = function(ev){
@@ -81,10 +87,6 @@ treeherder.controller('MainCtrl', [
                     $scope.setSettingsPanelShowing(false);
                     $scope.setSheriffPanelShowing(false);
                     $scope.closeJob();
-                    $rootScope.$broadcast(thEvents.clearJobStyles, $rootScope.selectedJob);
-
-                    // Reset selected job to null to initialize nav position
-                    ThResultSetModel.setSelectedJob($rootScope.repoName);
                 }
             }
         };
