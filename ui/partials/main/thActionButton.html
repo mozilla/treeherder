@@ -3,8 +3,8 @@
             <b class="caret"></b>
         </a>
         <ul class="dropdown-menu pull-left">
-            <li><a target="_blank" href="https://tbpl.mozilla.org/mcmerge/?cset={{resultset.revision}}&tree={{repoName}}">mcMerge</a></li>
-            <li><a target="_blank" href="https://secure.pub.build.mozilla.org/buildapi/self-serve/{{repoName}}/rev/{{resultset.revision}}">BuildAPI</a></li>
+            <li><a target="_blank" href="https://tbpl.mozilla.org/mcmerge/?cset={{::resultset.revision}}&tree={{::repoName}}">mcMerge</a></li>
+            <li><a target="_blank" href="https://secure.pub.build.mozilla.org/buildapi/self-serve/{{::repoName}}/rev/{{::resultset.revision}}">BuildAPI</a></li>
             <li><a target="_blank" href="" prevent-default-on-left-click  ng-click="openRevisionListWindow()">Revision URL List</a></li>
         </ul>
     </span>

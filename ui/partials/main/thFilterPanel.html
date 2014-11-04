@@ -20,7 +20,7 @@
           class="panel panel-default th-option-group th-inline-option-group">
 
         <!--heading for each group-->
-        <div class="panel-heading th-option-heading">{{group.name}}
+        <div class="panel-heading th-option-heading">{{::group.name}}
             <span class="pull-right">
             <input type="checkbox"
                    ng-model="group.allChecked"
@@ -68,7 +68,7 @@
                 title="create new field filter">new</a> to filter by a specific job field</span>
             <h4>
                 <div class="label label-default field-filter"
-                     ng-repeat="filter in fieldFilters">{{fieldChoices[filter.field].name}}: "{{getFilterValue(filter.field, filter.value)}}"
+                     ng-repeat="filter in fieldFilters">{{::fieldChoices[filter.field].name}}: "{{::getFilterValue(filter.field, filter.value)}}"
                      <a ng-click="removeFilter($index)"
                         title="delete this filter"><i class="glyphicon glyphicon-remove"></i></a>
                 </div>
@@ -86,7 +86,7 @@
                             required>
                         <option value="" disabled selected>select filter field</option>
                         <option ng-repeat="(field, obj) in fieldChoices"
-                                value="{{field}}">{{obj.name}}</option>
+                                value="{{::field}}">{{::obj.name}}</option>
                     </select>
                     <label class="sr-only" for="jobFilterValue">Value</label>
                     <input ng-show="newFieldFilter.matchType!=='choice'"
@@ -102,7 +102,7 @@
                             id="jobFilterChoiceValue">
                         <option value="" disabled selected>select value</option>
                         <option ng-repeat="(fci, fci_obj) in newFieldFilter.choices"
-                                value="{{fci}}">{{fci_obj.name}}</option>
+                                value="{{::fci}}">{{::fci_obj.name}}</option>
                     </select>
                     <button type="submit"
                             class="btn btn-default btn-sm"

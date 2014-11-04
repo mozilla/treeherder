@@ -124,23 +124,6 @@ treeherder.directive('thResultStatusCount', [
     };
 }]);
 
-treeherder.directive('thRevision', [
-    '$parse',
-    function($parse) {
-
-    return {
-        restrict: "E",
-        link: function(scope, element, attrs) {
-            scope.$watch('resultset.revisions', function(newVal) {
-                if (newVal) {
-                    scope.revisionUrl = scope.currentRepo.url + "/rev/" + scope.revision.revision;
-                }
-            }, true);
-        },
-        templateUrl: 'partials/main/thRevision.html'
-    };
-}]);
-
 treeherder.directive('thAuthor', function () {
 
     return {

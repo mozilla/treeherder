@@ -7,16 +7,16 @@
             <tbody>
                 <tr ng-repeat="classification in classifications">
                     <td>
-                        {{ classification.note_timestamp*1000|date:'medium' }}
+                        {{ ::classification.note_timestamp*1000|date:'medium' }}
                     </td>
                     <td>
-                        {{classification.who}}
+                        {{::classification.who}}
                     </td>
                     <td>
                         <span th-failure-classification failure-id="classification.failure_classification_id"></span>
                     </td>
                     <td>
-                        {{classification.note}}
+                        {{::classification.note}}
                     </td>
                     <td>
                         <span ng-click="deleteClassification(classification)"

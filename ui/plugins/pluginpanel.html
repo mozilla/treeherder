@@ -18,7 +18,7 @@
             <a ng-if="job_log_url.parse_status == 'parsed'"
                title="Open the log viewer in a new window"
                target="_blank"
-               href="{{ lvUrl }}"
+               href="{{::lvUrl}}"
                class="">
               <span class="glyphicon glyphicon-tasks"></span>
             </a>
@@ -42,7 +42,7 @@
           </li>
 
           <li ng-repeat="job_log_url in job_log_urls">
-            <a title="Open the raw log in a new window" target="_blank" href="{{ job_log_url.url }}">
+            <a title="Open the raw log in a new window" target="_blank" href="{{::job_log_url.url}}">
               <span class="glyphicon glyphicon-align-left"></span>
             </a>
           </li>
@@ -85,7 +85,7 @@
           <li ng-show="isReftest()" ng-repeat="job_log_url in job_log_urls">
             <a title="Launch the Reftest Analyser in a new page"
                target="_blank"
-               href="http://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml#logurl={{ job_log_url.url }}&only_show_unexpected=1">
+               href="http://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml#logurl={{::job_log_url.url}}&only_show_unexpected=1">
               <span class="fa fa-bar-chart-o"></span>
             </a>
           </li>
@@ -98,9 +98,9 @@
           <span th-failure-classification failure-id="classifications[0].failure_classification_id"></span>
 
           <a target="_blank" class="btn btn-xs btn-default" ng-repeat="bug in bugs"
-             href="https://bugzilla.mozilla.org/show_bug.cgi?id={{bug.bug_id}}"
+             href="https://bugzilla.mozilla.org/show_bug.cgi?id={{::bug.bug_id}}"
              title="Open bug page on bugzilla.mozilla.org">
-            <span class="fa fa-bug"></span>{{bug.bug_id}}
+            <span class="fa fa-bug"></span>{{::bug.bug_id}}
           </a>
         </li>
         <li ng-if="classifications[0].note.length > 0"><em>{{classifications[0].note}}</em></li>
@@ -122,7 +122,7 @@
         <li><a href="{{ buildbotJobnameHref }}" target="_blank" prevent-default-on-left-click th-filter-by-buildername>{{ buildbotJobname }}</a></li>
         <li class="small">
         <label>Machine name:</label>
-          <span ng-switch on="job.machine_name"> 
+          <span ng-switch on="job.machine_name">
             <span ng-switch-when='unknown'>{{ job.machine_name }}</span>
             <a title="Open Buildbot Slave Health Report" target="_blank"
                href="https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name={{ job.machine_name }}"
@@ -135,7 +135,7 @@
           <a href="{{job_log_url.buildUrl}}" target="_blank">Go To Build Directory</a>
         </li>
         <li class="small" ng-repeat="(label, value) in visibleFields">
-          <label>{{label}}:</label>
+          <label>{{::label}}:</label>
           <span title="{{value}}">{{value}}</span>
         </li>
         <li class="small">
@@ -162,28 +162,28 @@
       <div class="printlines">
         <ul class="list-unstyled">
           <li ng-repeat="line in job_details" class="small">
-            <label>{{line.title}}</label>
+            <label>{{::line.title}}</label>
             <span ng-switch on="line.content_type">
-              <a ng-switch-when="link" title="{{line.value}}" href="{{line.url}}" target="_blank">{{line.value}}</a>
+              <a ng-switch-when="link" title="{{::line.value}}" href="{{::line.url}}" target="_blank">{{::line.value}}</a>
               <span ng-switch-when="raw_html" ng-bind-html="line.value"></span>
               <ul ng-switch-when="TalosResult">
                 <li>Datazilla:
                   <ul>
-                    <li ng-repeat="(k,v) in line.value.datazilla"><a href="{{v.url}}" target="_blank">{{k}}</a>
+                    <li ng-repeat="(k,v) in line.value.datazilla"><a href="{{::v.url}}" target="_blank">{{::k}}</a>
                     </li>
                   </ul>
                 </li>
 
                 <li>Graphserver:
                   <ul>
-                    <li ng-repeat="(k,v) in line.value.graphserver">{{k}}:<a href="{{v.url}}"
-                                                                             target="_blank">{{v.result}}</a>
+                    <li ng-repeat="(k,v) in line.value.graphserver">{{::k}}:<a href="{{::v.url}}"
+                                                                             target="_blank">{{::v.result}}</a>
                     </li>
                   </ul>
                 </li>
               </ul>
-              <span title="{{line.value}}" ng-switch-when="object">{{line.value}}</span>
-              <span title="{{line.value}}" ng-switch-default>{{line.value}}</span>
+              <span title="{{::line.value}}" ng-switch-when="object">{{::line.value}}</span>
+              <span title="{{::line.value}}" ng-switch-default>{{::line.value}}</span>
             </span>
           </li>
         </ul>
