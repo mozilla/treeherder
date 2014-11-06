@@ -38,7 +38,7 @@ class ArtifactBuilderBase(object):
         data structure could be truncated preventing it from
         being ingested.
         """
-        if "TALOSDATA" not in line:
+        if "TALOSDATA" not in line and 'TalosResult' not in line:
             line = line[:self.MAX_LINE_LENGTH]
 
         for parser in self.parsers:

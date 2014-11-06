@@ -164,16 +164,6 @@ TINDERBOX_TEST_CASES = (
         }]
 
     ),
-    (
-        'TinderboxPrint: TalosResult: foo{bar}',
-        [{
-            'content_type': 'TalosResult',
-            'title': 'TalosResult',
-            'value': 'talos data unreadable'
-
-        }]
-
-    ),
 )
 
 
@@ -183,3 +173,9 @@ def test_tinderbox_parser_output(line, artifact):
     parser.parse_line(line, 1)
 
     assert artifact == parser.get_artifact()
+
+def test_invalid_talosresult():
+    invalid_line = 'TinderboxPrint: TalosResult: foo{bar}'
+    parser = TinderboxPrintParser()
+    with pytest.raises(ValueError):
+        parser.parse_line(invalid_line, 1)
