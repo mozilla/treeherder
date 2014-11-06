@@ -43,6 +43,18 @@ treeherder.controller('JobsCtrl', [
             return _.has($scope.searchParams, prop);
         };
 
+        $scope.getSearchParamValue = function(param) {
+            var params = $location.search();
+            var searchParamValue = params[param];
+                // in the event the user manually strips off the search
+                // parameter and its = sign, which would return true
+                if (searchParamValue == true) {
+                    return "";
+                } else {
+                    return searchParamValue;
+                }
+        };
+
         // determine how many resultsets to fetch.  default to 10.
         var count = ThResultSetModel.defaultResultSetCount;
         if ((_.has($scope.searchParams, "startdate") || _.has($scope.searchParams, "fromchange")) &&
