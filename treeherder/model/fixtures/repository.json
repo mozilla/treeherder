@@ -713,5 +713,31 @@
         "repository_group": 2,
         "description": ""
     }
+},
+{
+    "pk": 59,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "git",
+        "name": "gelam",
+        "url": "https://github.com/mozilla-b2g/gaia-email-libs-and-more",
+        "active_status": "active",
+        "codebase": "gaia-email-libs-and-more",
+        "repository_group": 7,
+        "description": "FxOS Gaia email app's backend library"
+    }
+},
+{
+    "pk": 60,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "git",
+        "name": "gelam-pull-requests",
+        "url": "https://github.com/mozilla-b2g/gaia",
+        "active_status": "active",
+        "codebase": "gaia-email-libs-and-more",
+        "repository_group": 7,
+        "description": "Pull requests for Gaia email app's backend library"
+    }
 }
 ]
