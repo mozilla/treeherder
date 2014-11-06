@@ -5,7 +5,7 @@
     <div class="navbar-collapse collapse th-global-navbar">
         <!-- nav begin -->
         <span class="navbar-right">
-            <span >
+            <span ng-show="user.is_staff">
                 <span class="btn btn-view-nav"
                       ng-class="{'active': (isSheriffPanelShowing)}"
                       ng-click="setSheriffPanelShowing(!isSheriffPanelShowing)"
