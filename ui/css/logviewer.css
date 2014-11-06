@@ -12,6 +12,11 @@ body {
     padding-top: 15px;
 }
 
+/* Suppress selected angular templates until they compile */
+[ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+    display: none !important;
+}
+
 /*Log Viewer*/
 
 .lv-line-no {

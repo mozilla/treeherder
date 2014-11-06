@@ -15,15 +15,18 @@
             <div class="col-md-6">
                 <table class="table table-condensed">
                     <tr ng-repeat="(label, value) in artifact.header">
-                        <th>{{label}}</th>
+                        <th ng-cloak>{{label}}</th>
                         <td ng-if="label == 'revision'">
                             <a href="{{logRevisionFilterUrl}}"
                                title="open resultset in new tab"
                                target="_blank"
-                               class="repo-link">{{value}}</a>
+                               class="repo-link"
+                               ng-cloak>{{value}}</a>
                         </td>
-                        <td ng-if="label == 'starttime'">{{logDisplayDate}}</td>
-                        <td ng-if="label != 'revision' && label != 'starttime'">{{value}}</td>
+                        <td ng-if="label == 'starttime'"
+                            ng-cloak>{{logDisplayDate}}</td>
+                        <td ng-if="label != 'revision' && label != 'starttime'"
+                            ng-cloak>{{value}}</td>
                     </tr>
                 </table>
             </div>
