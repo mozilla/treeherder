@@ -40,7 +40,6 @@ treeherder.controller('FilterPanelCtrl', [
         // field filters
         $scope.newFieldFilter = null;
         $scope.fieldFilters = [];
-
         $scope.fieldChoices = thJobFilters.fieldChoices;
 
         /**
@@ -128,28 +127,42 @@ treeherder.controller('FilterPanelCtrl', [
             return value;
         };
 
+        var getFieldWithPrefix = function(field) {
+            return 'field-' + field;
+        };
+
         $scope.addFieldFilter = function(quiet) {
             $log.debug("adding filter", $scope.newFieldFilter.field);
-            var value = $scope.newFieldFilter.value;
 
-            if (!$scope.newFieldFilter || $scope.newFieldFilter.field === "" || value === "") {
+            if (!$scope.newFieldFilter) {
                 return;
             }
-            thJobFilters.addFilter(
-                $scope.newFieldFilter.field,
-                value,
-                $scope.fieldChoices[$scope.newFieldFilter.field].matchType,
-                quiet
-            );
-            $scope.fieldFilters.push({
-                field: $scope.newFieldFilter.field,
-                value: value
-            });
-            $scope.newFieldFilter = null;
 
+            var value = $scope.newFieldFilter.value;
+            var field = $scope.newFieldFilter.field;
+            var fieldWithPrefix = getFieldWithPrefix(field);
+
+            if (field === "" || value === "") {
+                return;
+            }
+
+            // Add the new filter to the URL query string and rely on it to
+            // actually do the filtering.
+            var newSearchQuery = $location.search();
+            newSearchQuery[fieldWithPrefix] = value;
+            $location.search(newSearchQuery);
+
+            // Add the field as a tag on the field filters panel.
+            $scope.fieldFilters.push({'field': field, 'value': value});
+
+            // Hide the new field filter form.
+            $scope.newFieldFilter = null;
         };
 
         $scope.removeAllFieldFilters = function() {
+            _.each($scope.fieldFilters, function(field) {
+                $location.search(getFieldWithPrefix(field), null);
+            });
             $scope.fieldFilters = [];
             thJobFilters.removeAllFieldFilters();
         };
@@ -208,9 +221,16 @@ treeherder.controller('FilterPanelCtrl', [
 
         $scope.$on(thEvents.globalFilterChanged, function() {
             updateToggleFilters();
+            _.each(thJobFilters.filters, function(val, key) {
+                if (val.removeWhenEmpty) {
+                    _.each(val.values, function(v) {
+                        $scope.fieldFilters.push({ field: key, value: v });
+                    });
+                }
+            });
+            $scope.fieldFilters = _.uniq($scope.fieldFilters, ['field', 'value']);
             thJobFilters.buildQueryStringFromFilters();
         });
-
     }
 ]);
 

@@ -98,11 +98,8 @@ treeherder.controller('JobsCtrl', [
                         // broadcast the job classification event
                         $rootScope.$broadcast(thEvents.jobsClassified, params);
                     }
-
                 });
-
             }
-
         };
     }
 ]);
