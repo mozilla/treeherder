@@ -197,7 +197,7 @@ treeherder.directive('thCloneJobs', [
           window.clearTimeout(broadcastJobChangedTimeout);
         }
         broadcastJobChangedTimeout = window.setTimeout(function() {
-          $rootScope.$broadcast(thEvents.jobClick, job);
+          $rootScope.$emit(thEvents.jobClick, job);
         }, 200);
     };
 
@@ -207,11 +207,11 @@ treeherder.directive('thCloneJobs', [
         // Reset selected job to null to initialize nav position
         ThResultSetModel.setSelectedJob($rootScope.repoName);
 
-        $rootScope.$broadcast(thEvents.jobClear, job);
+        $rootScope.$emit(thEvents.jobClear, job);
     };
 
     var togglePinJobCb = function(ev, el, job){
-        $rootScope.$broadcast(thEvents.jobPin, job);
+        $rootScope.$emit(thEvents.jobPin, job);
     };
 
     var addJobBtnEls = function(

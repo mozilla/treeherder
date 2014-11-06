@@ -8,11 +8,11 @@ treeherder.factory('ThResultSetModel', [
     '$rootScope', '$q', '$location', '$interval',
     'thResultSets', 'ThJobModel', 'thEvents',
     'thAggregateIds', 'ThLog', 'thNotify', 'thJobFilters',
-    'ThRepositoryModel',
+    'ThRepositoryModel', '$timeout',
     function(
         $rootScope, $q, $location, $interval, thResultSets,
         ThJobModel, thEvents, thAggregateIds, ThLog, thNotify,
-        thJobFilters, ThRepositoryModel) {
+        thJobFilters, ThRepositoryModel, $timeout) {
 
     var $log = new ThLog("ThResultSetModel");
 
@@ -168,7 +168,7 @@ treeherder.factory('ThResultSetModel', [
             }
         }
 
-        $rootScope.$broadcast(thEvents.applyNewJobs, data.id);
+        $rootScope.$emit(thEvents.applyNewJobs, data.id);
     });
 
     var addRepository = function(repoName){
@@ -576,7 +576,7 @@ treeherder.factory('ThResultSetModel', [
         }
 
         if(!_.isEmpty(platformData) && repoName === $rootScope.repoName){
-            $rootScope.$broadcast(thEvents.jobsLoaded, platformData);
+            $timeout($rootScope.$emit(thEvents.jobsLoaded, platformData));
         }
     };
 
@@ -730,7 +730,7 @@ treeherder.factory('ThResultSetModel', [
 
                     if (rs.revisions.length === 0) {
                         Array.prototype.push.apply(rs.revisions, data);
-                        $rootScope.$broadcast(thEvents.revisionsLoaded, rs);
+                        $timeout($rootScope.$emit(thEvents.revisionsLoaded, rs));
                     }
 
                 });

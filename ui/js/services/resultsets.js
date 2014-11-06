@@ -162,7 +162,7 @@ treeherder.factory('thResultSets', [
 
                             if(response.data.results.length > 0){
 
-                                $rootScope.$broadcast(
+                                $rootScope.$emit(
                                     thEvents.mapResultSetJobs,
                                     repoName,
                                     response.data.results[0]

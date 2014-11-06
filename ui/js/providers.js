@@ -173,7 +173,7 @@ treeherder.provider('thResultStatusInfo', function() {
 /**
  * The set of custom Treeherder events.
  *
- * These are/can be used via $rootScope.$broadcast.
+ * These are/can be used via $rootScope.$emit.
  */
 treeherder.provider('thEvents', function() {
     this.$get = function() {

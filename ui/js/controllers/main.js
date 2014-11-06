@@ -31,7 +31,7 @@ treeherder.controller('MainCtrl', [
             $rootScope.selectedJob = null;
 
             // Clear the selected job display style
-            $rootScope.$broadcast(thEvents.clearJobStyles, $rootScope.selectedJob);
+            $rootScope.$emit(thEvents.clearJobStyles, $rootScope.selectedJob);
 
             // Reset selected job to null to initialize nav position
             ThResultSetModel.setSelectedJob($rootScope.repoName);
@@ -58,13 +58,13 @@ treeherder.controller('MainCtrl', [
 
                 } else if ((ev.keyCode === 74) || (ev.keyCode === 78)) {
                     //Highlight next unclassified failure keys:j/n
-                    $rootScope.$broadcast(
+                    $rootScope.$emit(
                         thEvents.selectNextUnclassifiedFailure
                     );
 
                 } else if ((ev.keyCode === 75) || (ev.keyCode === 80)) {
                     //Highlight previous unclassified failure keys:k/p
-                    $rootScope.$broadcast(
+                    $rootScope.$emit(
                         thEvents.selectPreviousUnclassifiedFailure
                     );
 
@@ -75,7 +75,7 @@ treeherder.controller('MainCtrl', [
                         // Pin selected job to pinboard, key:[spacebar]
                         // and prevent page down propagating to the jobs panel
                         ev.preventDefault();
-                        $rootScope.$broadcast(thEvents.jobPin, $rootScope.selectedJob);
+                        $rootScope.$emit(thEvents.jobPin, $rootScope.selectedJob);
                     }
 
                 } else if (ev.keyCode === 85) {
@@ -167,17 +167,17 @@ treeherder.controller('MainCtrl', [
         $scope.toggleAllJobsAndRevisions = function() {
             var collapse = ($scope.allCollapsed("job-list") &&
                             $scope.allCollapsed("revision-list"));
-            $rootScope.$broadcast(
+            $rootScope.$emit(
                 thEvents.toggleAllJobs, collapse
             );
-            $rootScope.$broadcast(
+            $rootScope.$emit(
                 thEvents.toggleAllRevisions, collapse
             );
         };
 
         $scope.toggleAllJobs = function(collapse) {
             collapse = collapse || $scope.allCollapsed("job-list");
-            $rootScope.$broadcast(
+            $rootScope.$emit(
                 thEvents.toggleAllJobs, collapse
             );
 
@@ -185,7 +185,7 @@ treeherder.controller('MainCtrl', [
 
         $scope.toggleAllRevisions = function(collapse) {
             collapse = collapse || $scope.allCollapsed("revision-list");
-            $rootScope.$broadcast(
+            $rootScope.$emit(
                 thEvents.toggleAllRevisions, collapse
             );
 

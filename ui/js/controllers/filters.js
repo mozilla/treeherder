@@ -263,7 +263,7 @@ treeherder.controller('SearchCtrl', [
                     $location.search("jobname", null);
                 }
 
-                $rootScope.$broadcast(
+                $rootScope.$emit(
                     thEvents.searchPage,
                     { searchQuery: thJobFilters.getSearchQuery() }
                     );
