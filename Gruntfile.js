@@ -12,6 +12,16 @@ module.exports = function(grunt) {
 
         clean: ['dist/'],
 
+        htmlangular: {
+            options: {
+                reportpath: null
+            },
+            files: {
+                src: ['webapp/app/*.html'],
+                nonull: true
+            },
+        },
+
         useminPrepare:{
             index: {
                 src:'webapp/app/index.html',
@@ -177,6 +187,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-usemin');
     grunt.loadNpmTasks('grunt-cache-busting');
     grunt.loadNpmTasks('grunt-angular-templates');
+    grunt.loadNpmTasks('grunt-html-angular-validate');
 
     // Default tasks
     grunt.registerTask('build', [
@@ -192,6 +203,4 @@ module.exports = function(grunt) {
         'ngtemplates',
         'cache-busting'
         ]);
-
-
 };
