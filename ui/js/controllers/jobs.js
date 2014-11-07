@@ -239,9 +239,16 @@ treeherder.controller('ResultSetCtrl', [
             });
         };
 
-        $scope.revisionResultsetFilterUrl = $scope.urlBasePath + "?repo=" + $scope.repoName + "&revision=" + $scope.resultset.revision;
-        $scope.resultsetDateStr = dateFilter($scope.resultset.push_timestamp*1000, 'medium');
-        $scope.authorResultsetFilterUrl = $scope.urlBasePath + "?repo=" + $scope.repoName + "&author=" + encodeURIComponent($scope.resultset.author);
+        $scope.revisionResultsetFilterUrl = $scope.urlBasePath + "?repo=" +
+                                            $scope.repoName + "&revision=" +
+                                            $scope.resultset.revision;
+
+        $scope.resultsetDateStr = dateFilter($scope.resultset.push_timestamp*1000,
+                                             'EEE MMM d, H:mm:ss');
+
+        $scope.authorResultsetFilterUrl = $scope.urlBasePath + "?repo=" +
+                                          $scope.repoName + "&author=" +
+                                          encodeURIComponent($scope.resultset.author);
 
         $scope.resultStatusFilters = thJobFilters.copyResultStatusFilters();
 
