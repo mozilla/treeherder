@@ -55,16 +55,17 @@ class PerformanceDataAdapter(object):
                 "blob": {
                     "type": "object",
                     "properties": {
+                        "date": { "type": "integer" }, # time test was run
                         "series_properties": { "type": "object" },
                         "series_signature": {"type": "string"},
                         "testsuite": { "type": "string" },
                         "test": { "type": "string" },
                         "replicates": { "type": "array" },
                         "performance_series": {"type": "object"},
-                        "metadata": {"type": "object"} #added (holds 'options' from talos data & talos_aux [if present])
+                        "metadata": {"type": "object"} # (holds 'options' from talos data & various auxiliary data including 'test_aux', 'talox_aux', 'results_aux', and 'results_xperf')
                     },
                     "required": [
-                        "series_signature", "replicates", "testsuite",
+                        "date", "series_signature", "replicates", "testsuite",
                         "test"
                     ]
                 }
@@ -179,6 +180,7 @@ class TalosDataAdapter(PerformanceDataAdapter):
                 "name": _name,
                 "type": _type,
                 "blob": {
+                    "date": talos_datum["testrun"]["date"],
                     "series_signature": series_signature,
                     "signature_properties": signature_properties,
                     "performance_series": series_data,
@@ -194,10 +196,16 @@ class TalosDataAdapter(PerformanceDataAdapter):
             if options:
                 obj['blob']['metadata']['options'] = options
 
-            test_aux = talos_datum.get(
-                "test_aux", {})
-            if test_aux:
-                obj['blob']['metadata']['auxiliary_data'] = test_aux
+            for key in [ 'test_aux', 'talos_aux', 'results_aux',
+                         'results_xperf' ]:
+                aux_blob = talos_datum.get(key)
+                if aux_blob:
+                    obj['blob']['metadata'][key] = aux_blob
+
+            # test_build information (i.e. revision) just there to ease third
+            # party alert processing, since we should normally be able to get
+            # it by querying the job info
+            obj['blob']['metadata']['test_build'] = talos_datum["test_build"]
 
             validate(obj, self.treeherder_perf_test_schema)
 
