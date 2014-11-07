@@ -68,11 +68,42 @@ th-watched-repo {
     float: left;
 }
 
+.repo-menu {
+    margin-right: -4px;
+}
+
+.repo-dropdown-menu {
+    margin-right: 4px;
+}
+
 .navbar .repo-menu-form {
     padding: 5px 10px 0;
     overflow-y: scroll;
     top: inherit;
     right: auto;
+}
+
+.nav-repo-btn {
+    padding-left: 14px;
+    padding-right: 14px;
+}
+
+.nav-filter-btn {
+    margin-right: -4px;
+    padding-left: 14px;
+    padding-right: 14px;
+}
+
+.nav-help-btn {
+    margin-right: -9px;
+}
+
+.nav-help-icon {
+    font-size: 18px;
+}
+
+.nav-login-btn {
+    padding-left: 22px;
 }
 
 .watched-repo-main-btn {
@@ -104,10 +135,6 @@ th-watched-repo {
 
 .th-username {
     margin-right: 5px;
-}
-
-.th-help-link {
-    padding-top: 8px;
 }
 
 .th-context-navbar {
@@ -517,7 +544,7 @@ div#bottom-panel .navbar.navbar-dark .navbar-nav > li.active a:focus {
 
 div#bottom-panel .navbar-nav.pull-right li a,
 div#bottom-panel .navbar-nav.pull-right li a:hover,
-div#bottom-panel .navbar-nav.pull-right li a:focus{
+div#bottom-panel .navbar-nav.pull-right li a:focus {
     font-size: 12px;
     line-height: 8px;
 }
@@ -699,6 +726,7 @@ ul.failure-summary-list li .btn-xs {
 .btn-group + .btn + .save-btn-dropdown {
     margin-left: -5px;
 }
+
 /*
  * pinboard
  */
@@ -932,6 +960,21 @@ ul.failure-summary-list li .btn-xs {
  * CUSTOM BUTTONS
  */
 
+.btn-right-navbar {
+   font-size: 13px;
+}
+
+.btn-collapse-resultsets {
+   margin-top: -1px;
+   margin-bottom: -1px;
+   font-size: 14px;
+}
+
+.btn-jobs-revisions {
+   padding-left: 14px !important;
+   padding-right: 18px !important;
+}
+
  .job-btn.btn-dkgray,
  .job-btn.btn-ltgray,
  .job-btn.btn-green,
@@ -947,20 +990,20 @@ ul.failure-summary-list li .btn-xs {
  }
 
 .btn-view-nav {
-  background-color: rgba(75, 86, 93, 0.56);
-  border-color: #22282d;
+  background-color: transparent;
+  border-color: #373d40;
   color: lightgray;
   border-radius: 0;
   border-bottom: 0;
   border-top: 0;
-  border-left: 0;
+  border-right: 0;
 }
 
 .btn-view-nav:hover,
 .btn-view-nav:focus,
 .btn-view-nav:active,
 .btn-view-nav.active {
-  background-color: #25292b;
+  background-color: #2c3133;
   border-color: #1a1d20;
   color: white;
 }
@@ -1014,6 +1057,8 @@ fieldset[disabled] .btn-view-nav-closed.active {
 }
 
 .btn-unclassified-failures {
+  margin-top: 1px;
+  padding: 3px 10px;
   background-color: rgba(78, 93, 21, 0.56);
   border-color: #9fa01d;
   color: lightgray;
