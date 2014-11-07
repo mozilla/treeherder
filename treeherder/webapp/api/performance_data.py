@@ -34,6 +34,28 @@ class PerformanceDataViewSet(viewsets.ViewSet):
 
     @link()
     @with_jobs
+    def get_signature_properties(self, request, project, jm, pk=None):
+        """
+        GET method for signature
+
+        Input: Signature SHA1's
+        Output: List of signature properties
+        """
+        try:
+            signatures = request.QUERY_PARAMS.getlist("signatures")
+        except Exception as e:
+            return Response("incorrect parameters", 400)
+
+        if not signatures:
+            return Response("no signatures provided", 400)
+
+        data = jm.get_signature_properties(signatures)
+
+        return Response(data)
+
+
+    @link()
+    @with_jobs
     def get_performance_data(self, request, project, jm, pk=None):
         """
         GET method implementation for performance data

@@ -2072,6 +2072,30 @@ class JobsModel(TreeherderModelBase):
 
         return ret
 
+    def get_signature_properties(self, signatures):
+        signatures_repl = [ ','.join( ['%s'] * len(signatures) ) ]
+
+        properties = self.jobs_execute(
+            proc="jobs.selects.get_all_properties_of_signatures",
+            debug_show=self.DEBUG,
+            placeholders=signatures,
+            replace=signatures_repl)
+
+        sigdict = {}
+        for property in properties:
+            signature = property['signature']
+            if not sigdict.get(signature):
+                sigdict[signature] = {}
+            sigdict[signature][property['property']] = property['value']
+
+        ret = []
+        for signature in signatures:
+            if not sigdict[signature]:
+                return ObjectNotFoundException("signature", id=signature)
+            ret.append(sigdict[signature])
+
+        return ret
+
     def get_job_signatures_from_ids(self, job_ids):
 
         job_data = {}
