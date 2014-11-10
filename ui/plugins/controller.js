@@ -259,12 +259,12 @@ treeherder.controller('PluginCtrl', [
             });
         }
 
-        $scope.$on(thEvents.jobClick, function(event, job) {
+        $rootScope.$on(thEvents.jobClick, function(event, job) {
             selectJobAndRender(job.id);
             $rootScope.selectedJob = job;
         });
 
-        $scope.$on(thEvents.jobClear, function(event, job) {
+        $rootScope.$on(thEvents.jobClear, function(event, job) {
             $rootScope.selectedJob = null;
             $scope.$digest();
         });
@@ -292,11 +292,11 @@ treeherder.controller('PluginCtrl', [
             }
         };
 
-        $scope.$on(thEvents.jobsClassified, function(event, job) {
+        $rootScope.$on(thEvents.jobsClassified, function(event, job) {
             $scope.updateClassifications();
         });
 
-        $scope.$on(thEvents.bugsAssociated, function(event, job) {
+        $rootScope.$on(thEvents.bugsAssociated, function(event, job) {
             $scope.updateBugs();
         });
 

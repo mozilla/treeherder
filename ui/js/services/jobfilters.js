@@ -271,7 +271,7 @@ treeherder.factory('thJobFilters', [
         $log.debug("added ", field, ": ", value);
         $log.debug("filters", filters, "filterkeys", filterKeys);
         if (!quiet) {
-            $rootScope.$broadcast(thEvents.globalFilterChanged);
+            $rootScope.$emit(thEvents.globalFilterChanged);
         }
     };
 
@@ -292,7 +292,7 @@ treeherder.factory('thJobFilters', [
                     delete filters[field];
                 }
                 filterKeys = _.keys(filters);
-                $rootScope.$broadcast(thEvents.globalFilterChanged);
+                $rootScope.$emit(thEvents.globalFilterChanged);
             }
         }
 
@@ -323,7 +323,7 @@ treeherder.factory('thJobFilters', [
         $log.debug("filters", filters);
 
         if (someRemoved) {
-            $rootScope.$broadcast(thEvents.globalFilterChanged);
+            $rootScope.$emit(thEvents.globalFilterChanged);
         }
     };
 
@@ -340,7 +340,7 @@ treeherder.factory('thJobFilters', [
         for (var i = 0; i < values.length; i++) {
             action(field, values[i]);
         }
-        $rootScope.$broadcast(thEvents.globalFilterChanged);
+        $rootScope.$emit(thEvents.globalFilterChanged);
     };
 
     var copyResultStatusFilters = function() {
@@ -502,7 +502,7 @@ treeherder.factory('thJobFilters', [
         };
         filters.resultStatus.values = thFailureResults.slice();
         filters.isClassified.values = [false];
-        $rootScope.$broadcast(thEvents.globalFilterChanged);
+        $rootScope.$emit(thEvents.globalFilterChanged);
     };
 
     /**
@@ -515,7 +515,7 @@ treeherder.factory('thJobFilters', [
         };
         filters.resultStatus.values = ["coalesced"];
         filters.isClassified.values = [false, true];
-        $rootScope.$broadcast(thEvents.globalFilterChanged);
+        $rootScope.$emit(thEvents.globalFilterChanged);
     };
 
     var toggleInProgress = function() {
@@ -525,7 +525,7 @@ treeherder.factory('thJobFilters', [
         }
         func(api.resultStatus, 'pending');
         func(api.resultStatus, 'running');
-        $rootScope.$broadcast(thEvents.globalFilterChanged);
+        $rootScope.$emit(thEvents.globalFilterChanged);
     };
 
     var isJobUnclassifiedFailure = function(job) {
@@ -551,7 +551,7 @@ treeherder.factory('thJobFilters', [
         filters[field].values = values;
         $log.debug("setCheckFilterValues", field, values);
         if (!quiet) {
-            $rootScope.$broadcast(thEvents.globalFilterChanged);
+            $rootScope.$emit(thEvents.globalFilterChanged);
         }
     };
 
@@ -564,7 +564,7 @@ treeherder.factory('thJobFilters', [
         filters.resultStatus.values = thResultStatusList.defaultFilters();
         filters.isClassified.values = [true, false];
         if (!quiet) {
-            $rootScope.$broadcast(thEvents.globalFilterChanged);
+            $rootScope.$emit(thEvents.globalFilterChanged);
         }
     };
 
@@ -583,7 +583,7 @@ treeherder.factory('thJobFilters', [
         filterKeys = _.keys(filters);
 
         if (!quiet) {
-            $rootScope.$broadcast(thEvents.globalFilterChanged);
+            $rootScope.$emit(thEvents.globalFilterChanged);
         }
     };
 
@@ -594,13 +594,13 @@ treeherder.factory('thJobFilters', [
     var revertNonFieldFilters = function() {
         filters.resultStatus.values = stashedStatusFilterValues.resultStatus;
         filters.isClassified.values = stashedStatusFilterValues.isClassified;
-        $rootScope.$broadcast(thEvents.globalFilterChanged);
+        $rootScope.$emit(thEvents.globalFilterChanged);
 
     };
 
     var toggleSkipExclusionProfiles = function() {
         skipExclusionProfiles = !skipExclusionProfiles;
-        $rootScope.$broadcast(thEvents.globalFilterChanged);
+        $rootScope.$emit(thEvents.globalFilterChanged);
     };
 
     var isSkippingExclusionProfiles = function() {
@@ -648,7 +648,7 @@ treeherder.factory('thJobFilters', [
         });
         $log.debug("done with buildFiltersFromQueryString", filters);
         if (!quiet) {
-            $rootScope.$broadcast(thEvents.globalFilterChanged);
+            $rootScope.$emit(thEvents.globalFilterChanged);
         }
     };
 
@@ -734,7 +734,7 @@ treeherder.factory('thJobFilters', [
 
     var setActiveExclusionProfile = function(newProfile) {
         activeExclusionProfile = newProfile;
-        $rootScope.$broadcast(thEvents.globalFilterChanged, null);
+        $rootScope.$emit(thEvents.globalFilterChanged, null);
     };
 
     var api = {

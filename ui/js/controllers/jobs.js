@@ -71,14 +71,14 @@ treeherder.controller('JobsCtrl', [
         $rootScope.$on(
             thEvents.toggleAllJobs, function(ev, expand){
                 _.forEach($scope.result_sets, function(rs) {
-                    $rootScope.$broadcast(thEvents.toggleJobs, rs, expand);
+                    $rootScope.$emit(thEvents.toggleJobs, rs, expand);
                 });
             });
 
         $rootScope.$on(
             thEvents.toggleAllRevisions, function(ev, expand){
                 _.forEach($scope.result_sets, function(rs) {
-                    $rootScope.$broadcast(thEvents.toggleRevisions, rs, expand);
+                    $rootScope.$emit(thEvents.toggleRevisions, rs, expand);
                 });
             });
 
@@ -96,7 +96,7 @@ treeherder.controller('JobsCtrl', [
                         var params = { jobs: {}};
                         params.jobs[job.id] = jobMap[map_key].job_obj;
                         // broadcast the job classification event
-                        $rootScope.$broadcast(thEvents.jobsClassified, params);
+                        $rootScope.$emit(thEvents.jobsClassified, params);
                     }
                 });
             }
@@ -153,14 +153,14 @@ treeherder.controller('ResultSetCtrl', [
                 $rootScope.repoName, $scope.resultset.id
                 );
 
-            $rootScope.$broadcast(
+            $rootScope.$emit(
                 thEvents.toggleRevisions, $scope.resultset
                 );
 
         };
         $scope.toggleJobs = function() {
 
-            $rootScope.$broadcast(
+            $rootScope.$emit(
                 thEvents.toggleJobs, $scope.resultset
                 );
 
@@ -208,7 +208,7 @@ treeherder.controller('ResultSetCtrl', [
                 $scope.resultStatusFilters.splice(idx, 1);
             }
 
-            $rootScope.$broadcast(
+            $rootScope.$emit(
                 thEvents.resultSetFilterChanged, $scope.resultset
                 );
 
