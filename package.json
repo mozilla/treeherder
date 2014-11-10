@@ -17,11 +17,11 @@
     "grunt-filerev": "^0.2.1",
     "grunt-html-angular-validate": "^0.4.0",
     "grunt-usemin": "~2.1.1",
-    "karma": ">=0.12.0",
+    "karma": "~0.12.0",
     "karma-cli": "0.0.4",
     "karma-coverage": ">=0.2.0",
     "karma-firefox-launcher": ">=0.1.3",
-    "karma-jasmine": ">=0.1.5",
+    "karma-jasmine": "0.1.0",
     "karma-junit-reporter": ">=0.2.1",
     "karma-ng-scenario": ">=0.1.0"
   },
@@ -29,3 +29,4 @@
     "test": "karma start webapp/config/karma.conf.js --single-run --browsers Firefox"
   }
 }
+
