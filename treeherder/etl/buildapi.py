@@ -452,7 +452,7 @@ class RunningTransformerMixin(object):
 
                     new_job = {
                         'job_guid': common.generate_job_guid(
-                            ",".join(map(str, running_job['request_ids'])),
+                            running_job['request_ids'][0],
                             running_job['submitted_at']
                         ),
                         'name': job_name_info.get('name', ''),
