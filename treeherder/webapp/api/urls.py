@@ -106,7 +106,7 @@ urlpatterns = patterns(
     '',
     url(r'^project/(?P<project>[\w-]{0,50})/',
         include(project_bound_router.urls)),
-    url(r'^project/(?P<project>[\w-]{0,50})/?',
+    url(r'^project/(?P<project>[\w-]{0,50})/?$',
         projects.project_info, name='project_info'),
     url(r'^',
         include(default_router.urls)),
