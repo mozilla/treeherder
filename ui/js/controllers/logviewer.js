@@ -175,6 +175,12 @@ logViewer.controller('LogviewerCtrl', [
                     .then(function(buildapiData){
                         if(buildapiData.length > 0){
                             $scope.artifact.header.builder = buildapiData[0].blob.buildername;
+
+                            // Used with ng-bind to avoid template flicker
+                            $scope.getLogviewerTitle = function() {
+                                var ahb = $scope.artifact.header.builder
+                                return "Log viewer - " + ahb;
+                            };
                         }
                     });
                 }

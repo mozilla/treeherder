@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html ng-app="logViewer">
+<html ng-controller="LogviewerCtrl" ng-init="init()" ng-app="logViewer">
     <head>
         <meta charset="utf-8">
-        <title>Treeherder Log Viewer </title>
+        <title ng-bind="getLogviewerTitle()">Log viewer</title>
         <!-- build:css css/logviewer.min.css -->
         <link href="css/bootstrap.css" rel="stylesheet" media="screen">
         <link href="css/treeherder.css" rel="stylesheet" type="text/css">
@@ -10,7 +10,7 @@
         <!-- endbuild -->
         <link id="favicon" type="image/png" rel="shortcut icon" href="img/tree_open.png">
     </head>
-    <body ng-controller="LogviewerCtrl" ng-init="init()" class="body-logviewer">
+    <body class="body-logviewer">
         <div class="run-data">
             <div class="col-md-6">
                 <table class="table table-condensed">
