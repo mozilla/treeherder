@@ -327,6 +327,11 @@ th-watched-repo {
     padding-right: 25px;
 }
 
+/* Encompasses unknown push,resultset,repo */
+.unknown-message-body {
+    padding-top: 10px;
+}
+
 .result-set-title-left, .result-set-buttons, .result-counts {
     flex: none;
     -webkit-flex: none;
