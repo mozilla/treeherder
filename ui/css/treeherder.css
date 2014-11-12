@@ -445,6 +445,7 @@ div#bottom-panel {
     background-color: #AAAAAA;
     font-size: 12px;
 
+    height: 35%;
     max-height: 35%;
     flex: none;
     -webkit-flex: none;
