@@ -357,6 +357,10 @@
             "host":"read_host"
 
         },
+        "get_max_performance_artifact_id":{
+            "sql":"SELECT max(`id`) as max_id from `performance_artifact`",
+            "host": "read_host"
+        },
         "get_performance_artifact_list": {
 
             "sql":"SELECT `id`, `job_id`, `series_signature`, `name`, `type`, `blob`
