@@ -248,7 +248,7 @@ class Builds4hTransformerMixin(object):
                         'log_urls': [],
                         'blob': {
                             'buildername': build['properties']['buildername'],
-                            'request_id': request_ids[0]
+                            'request_id': max(request_ids)
                         }
                     },
                 ]
@@ -497,7 +497,7 @@ class RunningTransformerMixin(object):
                                 'log_urls': [],
                                 'blob': {
                                     'buildername': running_job['buildername'],
-                                    'request_id': running_job['request_ids'][0]
+                                    'request_id': max(running_job['request_ids'])
                                 }
                             },
                         ]
