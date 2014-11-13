@@ -3,52 +3,60 @@
     <div class="navbar-right">
         <span>
             <form role="search" class="form-inline">
+
+                <!--Unclassified Failures Button-->
                 <span class="btn btn-sm"
                       ng-click="toggleUnclassifiedFailures()"
-                      title="toggle filtering for unclassified failures - count of loaded failures"
+                      title="Loaded failures / Toggle filtering for unclassified failures"
                       tabindex="0" role="button"
                       ng-class="{'btn-unclassified-failures': getUnclassifiedFailureCount(repoName), 'btn-view-nav': getUnclassifiedFailureCount(repoName)===0}">
                     <span>{{ getUnclassifiedFailureCount(repoName) }}</span> unclassified
                 </span>
-                <span class="btn btn-view-nav btn-sm"
-                      title="toggle showing hidden jobs"
+
+                <!--Hidden Jobs Button-->
+                <span class="btn btn-view-nav btn-sm btn-right-navbar"
+                      title="Show/hide hidden jobs"
                       tabindex="0" role="button"
                       ng-click="toggleExcludedJobs()">
-                    <i class="fa fa=lg"
-                       ng-class="{'fa-eye': isSkippingExclusionProfiles(), 'fa-eye-slash': !isSkippingExclusionProfiles()}"></i>
+                    <i class="fa"
+                       ng-class="{'fa-square': isSkippingExclusionProfiles(), 'fa-square-o': !isSkippingExclusionProfiles()}"></i>
                 </span>
+
+                <!--Collapse Resultsets Button-->
                 <span class="btn-group">
-                    <span class="btn btn-view-nav btn-sm"
-                          title="collapse/expand all result sets"
+                    <span class="btn btn-view-nav btn-sm btn-collapse-resultsets"
+                          title="Collapse/expand all result sets"
                           tabindex="0" role="button"
-                          ng-click="toggleAllJobsAndRevisions()"><i class="fa fa-list fa-lg"></i>
+                          ng-click="toggleAllJobsAndRevisions()"><i class="fa fa-list"></i>
                     </span>
-                    <span class="btn btn-view-nav btn-sm dropdown-toggle save-btn-dropdown"
-                            data-toggle="dropdown"><i class="fa fa-caret-down"></i>
+
+                    <!--Jobs and Revisions Menu Button-->
+                    <span class="btn btn-view-nav btn-sm dropdown-toggle
+                                 save-btn-dropdown btn-jobs-revisions"
+                          title="Jobs and revisions"
+                          data-toggle="dropdown"><i class="fa fa-angle-down"></i>
                     </span>
                     <ul class="dropdown-menu pull-right" role="menu">
                         <li>
                             <a href="" prevent-default-on-left-click  ng-click="toggleAllRevisions(false)">
-                                <span class="fa fa-minus-square"></span>
                                 <span class="fa fa-code-fork"></span> Collapse all revisions</a>
                         </li>
                         <li>
                             <a href="" prevent-default-on-left-click  ng-click="toggleAllRevisions(true)">
-                            <span class="fa fa-plus-square"></span>
                             <span class="fa fa-code-fork"></span> Expand all revisions</a>
                         </li>
                         <li>
                             <a href="" prevent-default-on-left-click  ng-click="toggleAllJobs(false)">
-                                <span class="fa fa-minus-square"></span>
-                                <span class="fa fa-list"></span> Collapse all jobs</a>
+                                <span class="fa fa-ellipsis-v"></span> Collapse all jobs</a>
                         </li>
                         <li>
                             <a href="" prevent-default-on-left-click  ng-click="toggleAllJobs(true)">
-                            <span class="fa fa-plus-square"></span>
-                            <span class="fa fa-list"></span> Expand all jobs</a>
+                            <span class="fa fa-th"></span> Expand all jobs</a>
                         </li>
                     </ul>
                 </span>
+
+                <!--Search Field-->
                 <span ng-controller="SearchCtrl" class="form-group form-inline">
                     <input id="platform-job-text-search-field"
                            ng-model="searchQueryStr" ng-keyup="search($event)" type="text"

@@ -1,2 +1,9 @@
-<a class="btn btn-view-nav" ng-if="user.loggedin" ng-click="logout()"><span>Logout</span></a>
-<a class="btn btn-view-nav" ng-if="!user.loggedin" ng-click="login()"><span>Login / Register</span></a>
+<a class="btn btn-view-nav btn-right-navbar nav-login-btn"
+   ng-if="user.loggedin"
+   ng-click="logout()">
+   <span>Logout</span></a>
+
+<a class="btn btn-view-nav btn-right-navbar nav-login-btn"
+   title="Log in for additional functionality"
+   ng-if="!user.loggedin" ng-click="login()">
+   <span>Login / Register</span></a>

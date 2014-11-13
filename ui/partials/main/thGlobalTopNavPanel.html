@@ -11,9 +11,9 @@
                       ng-click="setSheriffPanelShowing(!isSheriffPanelShowing)"
                       tabindex="0"
                       role="button"><span>Sheriffing</span>
-                    <i class="fa fa-caret-down lightgray"
+                    <i class="fa fa-angle-down lightgray"
                        ng-hide="isSheriffPanelShowing"></i>
-                    <i class="fa fa-caret-up lightgray"
+                    <i class="fa fa-angle-up lightgray"
                        ng-show="isSheriffPanelShowing"></i>
                 </span>
             </span>
@@ -22,8 +22,10 @@
                 <!--<span class="repo-menu dropdown keep-open">-->
                 <span th-repo-dropdown-container class="repo-menu dropdown">
                     <!-- Repo Button -->
-                    <button id="repoLabel" role="button" href="#" data-toggle="dropdown" data-target="#" class="btn btn-view-nav">
-                        Repos <b class="fa fa-caret-down lightgray"></b>
+                    <button id="repoLabel" title="Watch a repo" role="button"
+                            href="#" data-toggle="dropdown" data-target="#"
+                            class="btn btn-view-nav btn-right-navbar nav-repo-btn">Repos
+                        <span class="fa fa-angle-down lightgray"></span>
                     </button>
 
                     <!-- Repo Menu -->
@@ -36,27 +38,35 @@
 
                     </ul>
                 </span>
-                <span class="btn btn-view-nav"
+
+                <!-- Global Filter Button -->
+                <span class="btn btn-view-nav btn-right-navbar nav-filter-btn"
+                      title="Global job filters"
                       ng-class="{'active': (isFilterPanelShowing)}"
                       ng-click="setFilterPanelShowing(!isFilterPanelShowing)"
                       tabindex="0"
                       role="button"><span>Filters</span>
-                    <i class="fa fa-caret-down lightgray"
+                    <i class="fa fa-angle-down lightgray"
                        ng-hide="isFilterPanelShowing"></i>
-                    <i class="fa fa-caret-up lightgray"
+                    <i class="fa fa-angle-up lightgray"
                        ng-show="isFilterPanelShowing"></i>
                 </span>
-                <a class="btn btn-view-nav" href="help.html" target="_blank">Help</a>
+
+                <!-- Help Button -->
+                <a class="btn btn-view-nav nav-help-btn"
+                   title="Treeherder help" href="help.html" target="_blank">
+                    <span class="fa fa-question-circle lightgray nav-help-icon"></span></a>
+
                 <span class="nav-text white th-username">{{user.email}}</span>
                 <!--TODO: change this condition to enable the settings panel-->
-                <span ng-show="false" class="btn btn-view-nav"
+                <span ng-show="false" class="btn btn-view-nav btn-right-navbar"
                       ng-class="{'active': (isSettingsPanelShowing)}"
                       ng-click="setSettingsPanelShowing(!isSettingsPanelShowing)"
                       tabindex="0"
                       role="button"><span>Settings</span>
-                    <i class="fa fa-caret-down lightgray"
+                    <i class="fa fa-angle-down lightgray"
                        ng-hide="isSettingsPanelShowing"></i>
-                    <i class="fa fa-caret-up lightgray"
+                    <i class="fa fa-angle-up lightgray"
                        ng-show="isSettingsPanelShowing"></i>
                 </span>
                 <persona-buttons></persona-buttons>
