@@ -81,6 +81,13 @@ treeherder.controller('MainCtrl', [
                 } else if (ev.keyCode === 85) {
                     // Display only unclassified failures, keys:u
                     $scope.toggleUnclassifiedFailures();
+
+                } else if (ev.keyCode === 82) {
+                    // Pin selected job to pinboard and add a related bug, key:r
+                    if ($scope.selectedJob) {
+                        $rootScope.$emit(thEvents.addRelatedBug, $rootScope.selectedJob);
+                    }
+
                 } else if (ev.keyCode === 27) {
                     // Escape closes any open panels and clears the selected job
                     $scope.setFilterPanelShowing(false);
