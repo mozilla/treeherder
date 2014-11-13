@@ -369,7 +369,7 @@ JOB_NAME_BUILDERNAME = [
     {"regex": re.compile('mochitest-jetpack'), "desc": "Mochitest Jetpack"},
     {"regex": re.compile('mochitest-metro-chrome'), "desc": "Mochitest Metro Browser Chrome"},
     {"regex": re.compile('mochitest-other'), "desc": "Mochitest Other"},
-    {"regex": re.compile('mochitest-(?:web)?gl$'), "desc": "Mochitest WebGL"},
+    {"regex": re.compile('mochitest-(?:web)?gl'), "desc": "Mochitest WebGL"},
     {"regex": re.compile('mochitest-oop'), "desc": "Mochitest OOP"},
     {"regex": re.compile('mochitest'), "desc": "Mochitest"},
     {"regex": re.compile('webapprt-chrome$'), "desc": "Webapprt Chrome"},
