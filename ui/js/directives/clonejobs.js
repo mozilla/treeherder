@@ -56,49 +56,22 @@ treeherder.directive('thCloneJobs', [
     var getHoverText = function(job) {
 
         var jobStatus = thResultStatus(job);
-        var result = job.job_type_name + " - " + jobStatus;
-
-//        $log.debug("job timestamps", job, job.end_timestamp, job.submit_timestamp);
+        var hoverText = job.job_type_name;
 
         if( (jobStatus === 'pending') || (jobStatus === 'running') ){
-
-            var timestampSeconds = new Date().getTime()/1000;
-
-            var typicalMinutes = Math.round(
-                (parseInt(job.pending_eta) + parseInt(job.running_eta) )/60 );
-
-            var minutesOverdue =
-                Math.round( ( timestampSeconds - (
-                    parseInt(job.submit_timestamp) + parseInt(job.pending_eta) +
-                    parseInt(job.running_eta) ) )/60 );
-
-            if(minutesOverdue < 0){
-
-                var remainingMinutes = Math.abs(minutesOverdue);
-                result = result + ', ETA to completed, ' + remainingMinutes + ' mins';
-
-            }else if(minutesOverdue > 0){
-
-                result = result + ', ' + minutesOverdue + ' mins overdue, typically takes '
-                    + typicalMinutes + ' mins';
-
-            }else {
-
-                result = result + ', ETA any minute now, typically takes ' +
-                    typicalMinutes + ' mins';
-            }
+            hoverText += " - still " + jobStatus + ", check the job detail panel for a ETA";
 
         }else {
             //The job is complete, compute duration
             var duration = Math.round((job.end_timestamp - job.submit_timestamp) / 60);
-            result = result + " - " + duration + " mins";
+            hoverText += jobStatus + " - " + duration + " mins";
         }
 
         if (job.job_type_description !== "fill me") {
-            result = result + " (" + job.job_type_description + ")";
+            hoverText += " (" + job.job_type_description + ")";
         }
 
-        return result;
+        return hoverText;
     };
 
     //Global event listeners
@@ -292,20 +265,7 @@ treeherder.directive('thCloneJobs', [
 
         return jobsShown;
     };
-    var updateJobTitle = function(ev){
 
-        var el = $(ev.target);
-        var key = el.attr(jobKeyAttr);
-
-        //Confirm user selected a job
-        if(!_.isEmpty(this)){
-            if(key && !_.isEmpty(this.job_map[key])){
-                var job = this.job_map[key].job_obj;
-                var title = getHoverText(job);
-                el.attr('title', title);
-            }
-        }
-    };
     var jobMouseDown = function(ev){
 
         var el = $(ev.target);
@@ -1118,7 +1078,6 @@ treeherder.directive('thCloneJobs', [
 
         //Register events callback
         element.on('mousedown', _.bind(jobMouseDown, scope));
-        element.on('mouseover', _.bind(updateJobTitle, scope));
 
         registerCustomEventCallbacks(scope, element);
 

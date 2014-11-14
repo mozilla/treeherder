@@ -116,6 +116,11 @@
             <label>State:</label>
             <span>{{ job.state }}</span>
           </div>
+          <div ng-if="job.state =='pending' || job.state =='running'">
+            <span ng-if="eta < 0">ETA to completed: ~ {{eta_abs}} minutes</span>
+            <span ng-if="eta > 0">{{eta}} mins overdue, tipically takes ~ {{tipical_eta}} mins</span>
+            <span ng-if="eta == 0">ETA any minute now, typically takes ~ {{tipical_eta}} mins</span>
+          </div>
         </li>
       </ul>
       <ul>

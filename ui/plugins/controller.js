@@ -82,6 +82,9 @@ treeherder.controller('PluginCtrl', [
                 ]).then(function(results){
                     //the first result comes from the job detail promise
                     $scope.job = results[0];
+                    $scope.eta = $scope.job.get_current_eta();
+                    $scope.eta_abs = Math.abs($scope.job.get_current_eta());
+                    $scope.typical_eta = $scope.job.get_typical_eta()
                     // the second result come from the buildapi artifact promise
                     var buildapi_artifact = results[1];
                     if (buildapi_artifact.length > 0 &&
