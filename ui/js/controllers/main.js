@@ -6,13 +6,13 @@
 
 treeherder.controller('MainCtrl', [
     '$scope', '$rootScope', '$routeParams', '$location', 'ThLog',
-    'localStorageService', 'ThRepositoryModel', 'thPinboard',
+    'ThRepositoryModel', 'thPinboard',
     'thClassificationTypes', 'thEvents', '$interval', '$window',
     'ThExclusionProfileModel', 'thJobFilters', 'ThResultSetModel',
     'thDefaultRepo',
     function MainController(
         $scope, $rootScope, $routeParams, $location, ThLog,
-        localStorageService, ThRepositoryModel, thPinboard,
+        ThRepositoryModel, thPinboard,
         thClassificationTypes, thEvents, $interval, $window,
         ThExclusionProfileModel, thJobFilters, ThResultSetModel,
         thDefaultRepo) {

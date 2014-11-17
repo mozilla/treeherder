@@ -6,11 +6,11 @@
 
 treeherder.controller('FilterPanelCtrl', [
     '$scope', '$rootScope', '$route', '$routeParams', '$location', 'ThLog',
-    'localStorageService', 'thResultStatusList', 'thEvents', 'thJobFilters',
+    'thResultStatusList', 'thEvents', 'thJobFilters',
     'ThResultSetModel', 'thPinboard', 'thNotify', 'thFailureResults',
     function FilterPanelCtrl(
         $scope, $rootScope, $route, $routeParams, $location, ThLog,
-        localStorageService, thResultStatusList, thEvents, thJobFilters,
+        thResultStatusList, thEvents, thJobFilters,
         ThResultSetModel, thPinboard, thNotify, thFailureResults) {
 
         var $log = new ThLog(this.constructor.name);

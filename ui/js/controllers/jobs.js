@@ -5,13 +5,13 @@
 "use strict";
 
 treeherder.controller('JobsCtrl', [
-    '$scope', '$http', '$rootScope', '$routeParams', 'ThLog', '$cookies',
-    'localStorageService', 'thUrl', 'ThRepositoryModel', 'thDefaultRepo',
+    '$scope', '$http', '$rootScope', '$routeParams', 'ThLog',
+    'thUrl', 'ThRepositoryModel', 'thDefaultRepo',
     'ThResultSetModel', 'thResultStatusList', '$location', 'thEvents',
     'ThJobModel',
     function JobsCtrl(
-        $scope, $http, $rootScope, $routeParams, ThLog, $cookies,
-        localStorageService, thUrl, ThRepositoryModel, thDefaultRepo,
+        $scope, $http, $rootScope, $routeParams, ThLog,
+        thUrl, ThRepositoryModel, thDefaultRepo,
         ThResultSetModel, thResultStatusList, $location, thEvents, ThJobModel) {
 
         var $log = new ThLog(this.constructor.name);

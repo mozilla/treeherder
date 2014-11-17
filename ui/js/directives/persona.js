@@ -5,10 +5,10 @@
 'use strict';
 
 treeherder.directive('personaButtons', [
-    '$http', '$q', '$log', '$rootScope', 'localStorageService',
+    '$http', '$q', '$log', '$rootScope',
     'thServiceDomain', 'BrowserId', 'ThUserModel',
     function(
-        $http, $q, $log, $rootScope, localStorageService, thServiceDomain,
+        $http, $q, $log, $rootScope, thServiceDomain,
         BrowserId, ThUserModel) {
 
     return {
