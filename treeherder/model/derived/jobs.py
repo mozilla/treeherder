@@ -427,6 +427,54 @@ class JobsModel(TreeherderModelBase):
         )
         return int(data[0]['max_id'])
 
+    def get_performance_series_summary(self, interval_seconds):
+        """
+        Retrieve a summary of all of the property/value list pairs found
+        in the series_signature table, organized by the signature summaries
+        that they belong to.
+
+        {
+            'signature1': {
+                            'property1': 'value1',
+                            'property2': 'value2',
+                            ...
+                          },
+            'signature2': {
+                            'property1': 'value1',
+                            'property2': 'value2',
+                            ...
+                          }
+            ...
+        }
+
+        This data structure can be used to build a comprehensive set of
+        options to browse all available performance data in a repository.
+        """
+
+        series_summary = {}
+
+        flat_proc = "jobs.selects.get_flat_perf_series_properties"
+
+        # Only retrieve signatures with property/values that have
+        # received data for the time interval requested
+        last_updated_limit = utils.get_now_timestamp() - interval_seconds
+
+        # get all property values except those directly related to
+        # test suite/tests (FIXME: this is probably expensive)
+        flat_data = self.get_jobs_dhub().execute(
+            proc=flat_proc,
+            placeholders=[last_updated_limit, interval_seconds],
+            debug_show=self.DEBUG,
+        )
+
+        for datum in flat_data:
+            series_summary[datum['signature']] = {}
+            for kv in datum['properties'].split(','):
+                (key, val) = kv.split('=')
+                series_summary[datum['signature']][key] = val
+
+        return series_summary
+
     def get_job_note(self, id):
         """Return the job note by id."""
         data = self.jobs_execute(

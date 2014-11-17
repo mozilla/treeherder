@@ -340,6 +340,20 @@
              "host":"read_host"
 
         },
+        "get_flat_perf_series_properties":{
+
+            "sql":"SELECT s.`signature`,
+                    GROUP_CONCAT(
+                        CONCAT_WS('=', s.`property`, s.`value`) SEPARATOR ',')
+                     AS 'properties'
+                   FROM series_signature AS s
+                   LEFT JOIN `performance_series` AS p
+                    ON s.`signature` = p.`series_signature`
+                   WHERE p.`last_updated` >= ? AND p.`interval_seconds` = ?
+                   GROUP BY s.`signature`",
+
+            "host":"read_host"
+        },
         "get_performance_series_from_signatures":{
 
             "sql": "SELECT `series_signature`, `blob` FROM `performance_series`
