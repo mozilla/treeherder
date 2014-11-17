@@ -126,6 +126,7 @@ treeherder.factory('thJobFilters', [
     var urlFilterPrefix = "field-";
     var urlFilterPrefixLen = urlFilterPrefix.length;
 
+
     // This object will look like:
     //
     //        {
@@ -199,52 +200,61 @@ treeherder.factory('thJobFilters', [
     };
 
     /**
-     * Get the field from the job.  In most cases, this is very simple.  But
-     * this function allows for some special cases, like ``platform`` which
-     * shows to the user as a different string than what is stored in the job
-     * object.
-     *
-     * @param job
-     * @param field
+     * Set (optionally) multiple values for a filter
+     * @param values_obj
      */
-    var getJobFieldValue = function(job, field) {
-        var result = job[field];
-        if (field === 'platform') {
-            var platform = thPlatformNameMap[result];
-            if (!platform) {
-                // if it's not found, then return
-                // the original string
-                platform = result;
+//    var _setFilters = function(values_obj) {
+//        $location.search
+//        _.each(values_obj, function(value, field) {
+//            addFilter(field, value);
+//        });
+//        buildFiltersFromQueryString();
+//    };
+
+    var addFilter = function(field, newVal) {
+        //check for existing value
+        var oldVal = $location.search()[field];
+        console.log("<><>oldVal", oldVal);
+
+        if (oldVal) {
+            // set the value to an array
+            if (!_.isArray(oldVal)) {
+                oldVal = [oldVal];
             }
-            result = platform + " " + job.platform_option;
+            oldVal.push(newVal);
+            $location.search(field, oldVal);
+        } else {
+            $location.search(field, newVal);
         }
-        return result;
+//        buildFiltersFromQueryString();
+
+        console.log("<><>newVal", $location.search()[field]);
+
     };
 
-    /**
-     * Check the array if any elements contain a match for the ``val`` as a
-     * substring.
-     * @param arr
-     * @param val
-     */
-    var containsSubstr = function(arr, val) {
-        for (var i = 0; i < arr.length; i++) {
-            if (val.indexOf(arr[i]) >= 0) {
-                return true;
-            }
+    var removeFilter = function(field, val) {
+        var oldVal = $location.search()[field];
+        // default to just removing the param completely
+        var newVal = null;
+
+        if (_.isArray(oldVal)) {
+            newVal = _.without(oldVal, val);
         }
-        return false;
+
+        console.log("setting " + field + " from " + oldVal + " to " + newVal);
+        $location.search(field, newVal);
+//        buildFiltersFromQueryString();
     };
 
     /**
      * Add a case-insensitive filter.
-     * @param field - the field in the job objec to check
+     * @param field - the field in the job object to check
      * @param value - the value to match
      * @param matchType - which type of filter to use.  Default: ``exactstr``
      *                    If the filter field already exists, update the
      *                    ``matchType`` to this value.
      */
-    var addFilter = function(field, value, matchType, quiet) {
+    var _addFilter = function(field, value, matchType, quiet) {
 
         if (_.isUndefined(matchType)) {
             matchType = api.matchType.exactstr;
@@ -275,7 +285,7 @@ treeherder.factory('thJobFilters', [
         }
     };
 
-    var removeFilter = function(field, value) {
+    var _removeFilter = function(field, value) {
         if (filters.hasOwnProperty(field)) {
             if (_.isString(value)) {
                 // the string types are case insensitive
@@ -325,6 +335,18 @@ treeherder.factory('thJobFilters', [
         if (someRemoved) {
             $rootScope.$emit(thEvents.globalFilterChanged);
         }
+    };
+
+    var getAllFieldFilters = function() {
+        var fieldFilters = [];
+        _.each(filters, function(filterObj, fieldName) {
+            if (!_.contains(['resultStatus', 'isClassified'], fieldName)) {
+                _.each(filterObj.values, function (val) {
+                    fieldFilters.push({field: fieldName, value: val});
+                });
+            }
+        });
+        return fieldFilters;
     };
 
     /**
@@ -439,58 +461,42 @@ treeherder.factory('thJobFilters', [
     };
 
     /**
-     * If an exclusion profile is changed, we need to modify the count
-     * excluded.
+     * Get the field from the job.  In most cases, this is very simple.  But
+     * this function allows for some special cases, like ``platform`` which
+     * shows to the user as a different string than what is stored in the job
+     * object.
+     *
      * @param job
+     * @param field
      */
-    var removeExcludedJob = function(job) {
-        if (_.has(excludedJobs, job.result_set_id)) {
-            var rs_excluded = excludedJobs[job.result_set_id];
-
-            if (_.has(rs_excluded.jobs, job.job_guid)) {
-
-                var status = rs_excluded.jobs[job.job_guid];
-                delete rs_excluded.jobs[job.job_guid];
-                --rs_excluded.counts[status];
-                rs_excluded.counts.total = _.size(rs_excluded.jobs);
+    var getJobFieldValue = function(job, field) {
+        var result = job[field];
+        if (field === 'platform') {
+            var platform = thPlatformNameMap[result];
+            if (!platform) {
+                // if it's not found, then return
+                // the original string
+                platform = result;
             }
+            result = platform + " " + job.platform_option;
         }
-
-        delete excludedUnclassifiedFailures[job.job_guid];
+        return result;
     };
 
     /**
-     * Get the count of this resultStatus that were excluded.  If
-     * skipping exclusion, then return 0.
-     * @param resultStatus
+     * Check the array if any elements contain a match for the ``val`` as a
+     * substring.
+     * @param arr
+     * @param val
      */
-    var getCountExcluded = function(resultset_id, resultStatus) {
-        if (skipExclusionProfiles) {
-            return 0;
-        } else {
-            if (_.has(excludedJobs, resultset_id)) {
-                return excludedJobs[resultset_id].counts[resultStatus] || 0;
-            }
-            return 0;
-        }
-    };
-
-    var getCountExcludedForRepo = function(repoName) {
-        var repoData = ThRepositoryModel.watchedRepos[repoName];
-
-        if (repoData) {
-            if (skipExclusionProfiles) {
-                return repoData.unclassifiedFailureCount;
-            } else {
-                return repoData.unclassifiedFailureCount - repoData.unclassifiedFailureCountExcluded;
+    var containsSubstr = function(arr, val) {
+        for (var i = 0; i < arr.length; i++) {
+            if (val.indexOf(arr[i]) >= 0) {
+                return true;
             }
         }
-        return 0;
+        return false;
     };
-
-    $rootScope.$on(thEvents.showUnclassifiedFailures, function() {
-        showUnclassifiedFailures();
-    });
 
     /**
      * Set the non-field filters so that we only view unclassified failures
@@ -547,12 +553,9 @@ treeherder.factory('thJobFilters', [
      * This can be done when loading the page, due to a query string from the
      * URL
      */
-    var setCheckFilterValues = function(field, values, quiet) {
-        filters[field].values = values;
+    var setCheckFilterValues = function(field, values) {
         $log.debug("setCheckFilterValues", field, values);
-        if (!quiet) {
-            $rootScope.$emit(thEvents.globalFilterChanged);
-        }
+        $location.search(field, values);
     };
 
     /**
@@ -561,11 +564,9 @@ treeherder.factory('thJobFilters', [
      * is used to undo the call to ``showUnclassifiedFailures``.
      */
     var resetNonFieldFilters = function(quiet) {
-        filters.resultStatus.values = thResultStatusList.defaultFilters();
-        filters.isClassified.values = [true, false];
-        if (!quiet) {
-            $rootScope.$emit(thEvents.globalFilterChanged);
-        }
+        $location.search("resultStatus", null);
+        $location.search("isClassified", null);
+        buildFiltersFromQueryString();
     };
 
     /**
@@ -598,15 +599,6 @@ treeherder.factory('thJobFilters', [
 
     };
 
-    var toggleSkipExclusionProfiles = function() {
-        skipExclusionProfiles = !skipExclusionProfiles;
-        $rootScope.$emit(thEvents.globalFilterChanged);
-    };
-
-    var isSkippingExclusionProfiles = function() {
-        return skipExclusionProfiles;
-    };
-
     var matchesDefaults = function(field, values) {
         $log.debug("matchesDefaults", field, values);
         return _.intersection(defaults[field].values, values).length === defaults[field].values.length;
@@ -627,9 +619,16 @@ treeherder.factory('thJobFilters', [
             $log.debug("field filter", filterKey, filterVal);
 
             if (filterKey.slice(0, urlFilterPrefixLen) === urlFilterPrefix) {
-                $log.debug("adding field filter", filterKey, filterVal);
-                var field = filterKey.slice(urlFilterPrefixLen);
-                addFilter(field, filterVal, fieldChoices[field].matchType);
+                // field filters can have multiple values, so handle each
+                // separately
+                if (!_.isArray(filterVal)) {
+                    filterVal = [filterVal];
+                }
+                _.each(filterVal, function(val) {
+                    $log.debug("adding field filter", filterKey, val);
+                    var field = filterKey.slice(urlFilterPrefixLen);
+                    _addFilter(field, val, fieldChoices[field].matchType);
+                });
 
             } else if (filterKey === "resultStatus" || filterKey === "isClassified") {
                 $log.debug("adding check filter", filterKey, filterVal);
@@ -652,6 +651,11 @@ treeherder.factory('thJobFilters', [
         }
     };
 
+
+    /***********************
+     * full-text search query
+     */
+
     var removeFiltersFromQueryString = function(locationSearch) {
         delete locationSearch.isClassified;
         delete locationSearch.resultStatus;
@@ -667,51 +671,8 @@ treeherder.factory('thJobFilters', [
         return locationSearch;
     };
 
-    var buildQueryStringFromFilters = function() {
-
-        var newSearchValues = removeFiltersFromQueryString(
-            _.clone($location.search()));
-
-        _.each(filters, function(val, key) {
-            var values = _.uniq(val.values);
-            if (key === "resultStatus" || key === "isClassified") {
-                // don't add to query string if it matches the defaults
-                $log.debug("set query string checks", key, values);
-                if (!matchesDefaults(key, values)) {
-                    if (key === "isClassified") {
-                        values = _.map(values, function(item) {
-                            return item.toString();
-                        });
-                    }
-                    $log.debug("not defaults, setting check query strings",
-                               key,
-                               values);
-                    newSearchValues[key] = values;
-                }
-
-            } else {
-                $log.debug("setting field query strings", key, values);
-                newSearchValues[urlFilterPrefix + key] = values;
-            }
-        });
-
-        if (searchQueryStr !== ""){
-            newSearchValues.searchQuery = searchQueryStr;
-        }
-
-        $location.search(newSearchValues);
-    };
-
     var getSearchQuery = function(){
         return { searchQuery:searchQuery, searchQueryStr:searchQueryStr };
-    };
-    /**
-     * Used in more than one place, so this ensures the format remains
-     * consistent.  Critical because it's used when building the exclusion
-     * profiles in memory, and checking against them.
-     */
-    var getJobComboField = function(field1, field2) {
-        return field1 + " (" + field2 + ")";
     };
 
     var setSearchQuery = function(queryStr){
@@ -728,6 +689,36 @@ treeherder.factory('thJobFilters', [
         }
     };
 
+
+    /***********************
+     * utility functions
+     */
+
+
+    /**
+     * Used in more than one place, so this ensures the format remains
+     * consistent.  Critical because it's used when building the exclusion
+     * profiles in memory, and checking against them.
+     */
+    var getJobComboField = function(field1, field2) {
+        return field1 + " (" + field2 + ")";
+    };
+
+
+
+    /*********************
+     * Exclusion profile calls -- soon to be removed/refactored
+     *********************/
+
+    var toggleSkipExclusionProfiles = function() {
+        skipExclusionProfiles = !skipExclusionProfiles;
+        $rootScope.$emit(thEvents.globalFilterChanged);
+    };
+
+    var isSkippingExclusionProfiles = function() {
+        return skipExclusionProfiles;
+    };
+
     var getActiveExclusionProfile = function() {
         return activeExclusionProfile;
     };
@@ -737,20 +728,70 @@ treeherder.factory('thJobFilters', [
         $rootScope.$emit(thEvents.globalFilterChanged, null);
     };
 
+    /**
+     * If an exclusion profile is changed, we need to modify the count
+     * excluded.
+     * @param job
+     */
+    var removeExcludedJob = function(job) {
+        if (_.has(excludedJobs, job.result_set_id)) {
+            var rs_excluded = excludedJobs[job.result_set_id];
+
+            if (_.has(rs_excluded.jobs, job.job_guid)) {
+
+                var status = rs_excluded.jobs[job.job_guid];
+                delete rs_excluded.jobs[job.job_guid];
+                --rs_excluded.counts[status];
+                rs_excluded.counts.total = _.size(rs_excluded.jobs);
+            }
+        }
+
+        delete excludedUnclassifiedFailures[job.job_guid];
+    };
+
+    /**
+     * Get the count of this resultStatus that were excluded.  If
+     * skipping exclusion, then return 0.
+     * @param resultStatus
+     */
+    var getCountExcluded = function(resultset_id, resultStatus) {
+        if (skipExclusionProfiles) {
+            return 0;
+        } else {
+            if (_.has(excludedJobs, resultset_id)) {
+                return excludedJobs[resultset_id].counts[resultStatus] || 0;
+            }
+            return 0;
+        }
+    };
+
+    var getCountExcludedForRepo = function(repoName) {
+        var repoData = ThRepositoryModel.watchedRepos[repoName];
+
+        if (repoData) {
+            if (skipExclusionProfiles) {
+                return repoData.unclassifiedFailureCount;
+            } else {
+                return repoData.unclassifiedFailureCount - repoData.unclassifiedFailureCountExcluded;
+            }
+        }
+        return 0;
+    };
+
+
+
+    /*********************************
+     * Externally available API fields
+     */
+
     var api = {
         addFilter: addFilter,
         buildFiltersFromQueryString: buildFiltersFromQueryString,
-        buildQueryStringFromFilters: buildQueryStringFromFilters,
+        getAllFieldFilters: getAllFieldFilters,
         copyResultStatusFilters: copyResultStatusFilters,
-        excludedJobs: excludedJobs,
-        excludedUnclassifiedFailures: excludedUnclassifiedFailures,
         filters: filters,
-        getActiveExclusionProfile: getActiveExclusionProfile,
-        getCountExcluded: getCountExcluded,
-        getCountExcludedForRepo: getCountExcludedForRepo,
         getJobComboField: getJobComboField,
         isJobUnclassifiedFailure: isJobUnclassifiedFailure,
-        isSkippingExclusionProfiles: isSkippingExclusionProfiles,
         isUnclassifiedFailures: isUnclassifiedFailures,
         matchesDefaults: matchesDefaults,
         removeAllFieldFilters: removeAllFieldFilters,
@@ -760,7 +801,6 @@ treeherder.factory('thJobFilters', [
         resetNonFieldFilters: resetNonFieldFilters,
         revertNonFieldFilters: revertNonFieldFilters,
 
-        setActiveExclusionProfile: setActiveExclusionProfile,
         setCheckFilterValues: setCheckFilterValues,
         showCoalesced: showCoalesced,
         showJob: showJob,
@@ -768,7 +808,6 @@ treeherder.factory('thJobFilters', [
 
         toggleFilters: toggleFilters,
         toggleInProgress: toggleInProgress,
-        toggleSkipExclusionProfiles: toggleSkipExclusionProfiles,
 
         getSearchQuery: getSearchQuery,
         setSearchQuery: setSearchQuery,
@@ -780,7 +819,17 @@ treeherder.factory('thJobFilters', [
         fieldChoices: fieldChoices,
 
         searchQuery: searchQuery,
-        searchQueryStr: searchQueryStr
+        searchQueryStr: searchQueryStr,
+
+        // EXCLUSION PROFILE
+        getActiveExclusionProfile: getActiveExclusionProfile,
+        setActiveExclusionProfile: setActiveExclusionProfile,
+        excludedJobs: excludedJobs,
+        excludedUnclassifiedFailures: excludedUnclassifiedFailures,
+        toggleSkipExclusionProfiles: toggleSkipExclusionProfiles,
+        getCountExcluded: getCountExcluded,
+        getCountExcludedForRepo: getCountExcludedForRepo,
+        isSkippingExclusionProfiles: isSkippingExclusionProfiles,
 
     };
 

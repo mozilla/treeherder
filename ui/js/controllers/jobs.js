@@ -48,7 +48,7 @@ treeherder.controller('JobsCtrl', [
             var searchParamValue = params[param];
                 // in the event the user manually strips off the search
                 // parameter and its = sign, which would return true
-                if (searchParamValue == true) {
+                if (searchParamValue === true) {
                     return "";
                 } else {
                     return searchParamValue;

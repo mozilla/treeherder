@@ -44,8 +44,6 @@ treeherder.controller('FilterPanelCtrl', [
 
         /**
          * Handle checking the "all" button for a result status group
-         *
-         * quiet - whether or not to broadcast a message about this change.
          */
         $scope.toggleResultStatusGroup = function(group) {
             var check = function(rs) {
@@ -96,7 +94,6 @@ treeherder.controller('FilterPanelCtrl', [
             // this function is called before the checkbox value has actually
             // changed the scope model value, so change to the inverse.
             var func = isChecked? thJobFilters.addFilter: thJobFilters.removeFilter;
-            var target = isClassified? "classified": "unclassified";
 
             func(field, isClassified, thJobFilters.matchType.bool);
         };
@@ -131,6 +128,11 @@ treeherder.controller('FilterPanelCtrl', [
             return 'field-' + field;
         };
 
+        var updateFieldFilterChicklets = function() {
+            $scope.fieldFilters = thJobFilters.getAllFieldFilters();
+            console.log("<><>fieldFilters", $scope.fieldFilters);
+        };
+
         $scope.addFieldFilter = function(quiet) {
             $log.debug("adding filter", $scope.newFieldFilter.field);
 
@@ -146,17 +148,11 @@ treeherder.controller('FilterPanelCtrl', [
                 return;
             }
 
-            // Add the new filter to the URL query string and rely on it to
-            // actually do the filtering.
-            var newSearchQuery = $location.search();
-            newSearchQuery[fieldWithPrefix] = value;
-            $location.search(newSearchQuery);
-
-            // Add the field as a tag on the field filters panel.
-            $scope.fieldFilters.push({'field': field, 'value': value});
+            thJobFilters.addFilter(fieldWithPrefix, value);
 
             // Hide the new field filter form.
             $scope.newFieldFilter = null;
+            updateFieldFilterChicklets();
         };
 
         $scope.removeAllFieldFilters = function() {
@@ -168,10 +164,12 @@ treeherder.controller('FilterPanelCtrl', [
         };
 
         $scope.removeFilter = function(index) {
-            $log.debug("removing index", index);
+            $log.debug("removing index", index,
+                       getFieldWithPrefix($scope.fieldFilters[index].field),
+                       $scope.fieldFilters[index].value);
 
             thJobFilters.removeFilter(
-                $scope.fieldFilters[index].field,
+                getFieldWithPrefix($scope.fieldFilters[index].field),
                 $scope.fieldFilters[index].value
             );
             $scope.fieldFilters.splice(index, 1);
@@ -218,18 +216,11 @@ treeherder.controller('FilterPanelCtrl', [
         };
 
         updateToggleFilters();
+        updateFieldFilterChicklets();
 
-        $scope.$on(thEvents.globalFilterChanged, function() {
+        $rootScope.$on(thEvents.globalFilterChanged, function() {
             updateToggleFilters();
-            _.each(thJobFilters.filters, function(val, key) {
-                if (val.removeWhenEmpty) {
-                    _.each(val.values, function(v) {
-                        $scope.fieldFilters.push({ field: key, value: v });
-                    });
-                }
-            });
-            $scope.fieldFilters = _.uniq($scope.fieldFilters, ['field', 'value']);
-            thJobFilters.buildQueryStringFromFilters();
+            updateFieldFilterChicklets();
         });
     }
 ]);

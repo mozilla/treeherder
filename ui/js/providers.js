@@ -231,10 +231,6 @@ treeherder.provider('thEvents', function() {
 
             searchPage: "search-page-EVT",
 
-            // throwing this event will filter jobs to only show failures
-            // that have no classification.
-            showUnclassifiedFailures: "show-unclassified-failures-EVT",
-
             selectJob: "select-job-EVT",
 
             mapResultSetJobs: "map-result-set-jobs-EVT",
