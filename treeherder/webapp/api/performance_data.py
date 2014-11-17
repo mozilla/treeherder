@@ -17,6 +17,24 @@ class PerformanceDataViewSet(viewsets.ViewSet):
 
     @link()
     @with_jobs
+    def get_performance_series_summary(self, request, project, jm, pk=None):
+        """
+        GET method implementation for listing signatures
+
+        Input: time interval
+        Output: all series signatures and their properties
+        """
+        try:
+            interval = int(request.QUERY_PARAMS.get('interval'))
+        except:
+            return Response("incorrect parameters", 400)
+
+        summary = jm.get_performance_series_summary(interval)
+
+        return Response(summary)
+
+    @link()
+    @with_jobs
     def get_signatures_from_properties(self, request, project, jm, pk=None):
         """
         GET method implementation for signature data
