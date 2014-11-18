@@ -8,7 +8,7 @@ A <a href="https://github.com/mozilla/treeherder-service" target=_newtab>treeher
 
 A <a href="https://github.com/mozilla/treeherder-client" target=_newtab>treeherder-client</a> for data submission.
 
-A <a href="https://github.com/lightsofapollo/treeherder-node" target=_newtab>treeherder-node</a> NodeJS interface.
+A <a href="https://github.com/mozilla/treeherder-node" target=_newtab>treeherder-node</a> NodeJS interface.
 
 
 #### Instances
