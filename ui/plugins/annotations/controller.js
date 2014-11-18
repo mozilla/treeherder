@@ -21,8 +21,7 @@ treeherder.controller('AnnotationsPluginCtrl', [
         }, true);
 
         $scope.deleteClassification = function(classification) {
-            var jcModel = new ThJobClassificationModel(classification);
-            jcModel.delete()
+            classification.delete()
                 .then(
                     function(){
                         thNotify.send("Classification successfully deleted", "success", false);
@@ -42,8 +41,7 @@ treeherder.controller('AnnotationsPluginCtrl', [
         };
 
         $scope.deleteBug = function(bug) {
-            var bjmModel = new ThBugJobMapModel(bug);
-            bjmModel.delete()
+            bug.delete()
                 .then(
                     function(){
                         thNotify.send("Association to bug " + bug.bug_id + " successfully deleted", "success", false);
