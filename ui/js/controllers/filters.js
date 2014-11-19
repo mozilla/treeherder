@@ -77,25 +77,14 @@ treeherder.controller('FilterPanelCtrl', [
          * Toggle the filters to show either unclassified or classified jobs,
          * neither or both.
          */
-        $scope.toggleClassificationFilter = function(isClassified) {
-            var isChecked = !(isClassified? $scope.classifiedFilter: $scope.unClassifiedFilter);
-            $scope.setClassificationFilter(isClassified, isChecked, false);
+        $scope.toggleClassifiedFilter = function() {
+            var func = $scope.classifiedFilter? thJobFilters.addFilter: thJobFilters.removeFilter;
+            console.log("toggling classified", func, $scope.classifiedFilter);
+            func(thJobFilters.classifiedState, 'classified');
         };
-
-        /**
-         * Toggle the filters to show either unclassified or classified jobs,
-         * neither or both.
-         * @param isClassified - whether to toggle the filter on/off for
-         *                       ``classified`` (when true) or ``unclassified``
-         *                       (when false)
-         */
-        $scope.setClassificationFilter = function(isClassified, isChecked) {
-            var field = "isClassified";
-            // this function is called before the checkbox value has actually
-            // changed the scope model value, so change to the inverse.
-            var func = isChecked? thJobFilters.addFilter: thJobFilters.removeFilter;
-
-            func(field, isClassified, thJobFilters.matchType.bool);
+        $scope.toggleUnClassifiedFilter = function() {
+            var func = $scope.unClassifiedFilter? thJobFilters.addFilter: thJobFilters.removeFilter;
+            func(thJobFilters.classifiedState, 'unclassified');
         };
 
         $scope.createFieldFilter = function() {
@@ -124,13 +113,8 @@ treeherder.controller('FilterPanelCtrl', [
             return value;
         };
 
-        var getFieldWithPrefix = function(field) {
-            return 'field-' + field;
-        };
-
         var updateFieldFilterChicklets = function() {
-            $scope.fieldFilters = thJobFilters.getAllFieldFilters();
-            console.log("<><>fieldFilters", $scope.fieldFilters);
+            $scope.fieldFilters = thJobFilters.getFieldFiltersArray();
         };
 
         $scope.addFieldFilter = function(quiet) {
@@ -142,13 +126,12 @@ treeherder.controller('FilterPanelCtrl', [
 
             var value = $scope.newFieldFilter.value;
             var field = $scope.newFieldFilter.field;
-            var fieldWithPrefix = getFieldWithPrefix(field);
 
             if (field === "" || value === "") {
                 return;
             }
 
-            thJobFilters.addFilter(fieldWithPrefix, value);
+            thJobFilters.addFilter(field, value);
 
             // Hide the new field filter form.
             $scope.newFieldFilter = null;
@@ -156,20 +139,17 @@ treeherder.controller('FilterPanelCtrl', [
         };
 
         $scope.removeAllFieldFilters = function() {
-            _.each($scope.fieldFilters, function(field) {
-                $location.search(getFieldWithPrefix(field), null);
-            });
             $scope.fieldFilters = [];
             thJobFilters.removeAllFieldFilters();
         };
 
         $scope.removeFilter = function(index) {
             $log.debug("removing index", index,
-                       getFieldWithPrefix($scope.fieldFilters[index].field),
+                       $scope.fieldFilters[index].field,
                        $scope.fieldFilters[index].value);
 
             thJobFilters.removeFilter(
-                getFieldWithPrefix($scope.fieldFilters[index].field),
+                $scope.fieldFilters[index].field,
                 $scope.fieldFilters[index].value
             );
             $scope.fieldFilters.splice(index, 1);
@@ -199,19 +179,19 @@ treeherder.controller('FilterPanelCtrl', [
             for (var i = 0; i < $scope.filterOptions.length; i++) {
                 var opt = $scope.filterOptions[i];
                 $scope.resultStatusFilters[opt] = _.contains(
-                    thJobFilters.filters.resultStatus.values, opt);
+                    thJobFilters.getResultStatusArray(), opt);
             }
 
             // whether or not to show classified jobs
             // these are a special case of filtering because we're not checking
             // for a value, just whether the job has any value set or not.
             // just a boolean check either way
-            $scope.classifiedFilter = _.contains(thJobFilters.filters.isClassified.values, true);
-            $scope.unClassifiedFilter = _.contains(thJobFilters.filters.isClassified.values, false);
+            $scope.classifiedFilter = _.contains(thJobFilters.getIsClassifiedArray(), 'classified');
+            $scope.unClassifiedFilter = _.contains(thJobFilters.getIsClassifiedArray(), 'unclassified');
 
             // update "all checked" boxes for groups
             _.each($scope.filterGroups, function(group) {
-                group.allChecked = _.difference(group.resultStatuses, thJobFilters.filters.resultStatus.values).length === 0;
+                group.allChecked = _.difference(group.resultStatuses, thJobFilters.getResultStatusArray()).length === 0;
             });
         };
 

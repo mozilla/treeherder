@@ -90,26 +90,10 @@ treeherder.factory('thJobFilters', [
         resultStatus: {
             values: thResultStatusList.defaultFilters()
         },
-        isClassified: {
-            values: [true, false]
+        classifiedState: {
+            values: ['classified', 'unclassified']
         }
     };
-
-    // filters
-    var filters = {
-        resultStatus: {
-            matchType: matchType.exactstr,
-            values: thResultStatusList.defaultFilters(),
-            removeWhenEmpty: false
-        },
-        isClassified: {
-            matchType: matchType.bool,
-            values: defaults.isClassified.values.slice(),
-            removeWhenEmpty: false
-        }
-    };
-
-    var filterKeys = _.keys(filters);
 
     var activeExclusionProfile = {};
 
@@ -123,9 +107,30 @@ treeherder.factory('thJobFilters', [
     // back to where you were
     var stashedStatusFilterValues = {};
 
-    var urlFilterPrefix = "field-";
-    var urlFilterPrefixLen = urlFilterPrefix.length;
+    var CLASSIFIED_STATE = "classifiedState";
+    var RESULT_STATUS = "resultStatus";
+    var SEARCH_QUERY = "searchQuery";
 
+    var prefix = "filter-";
+    var withPrefix = function(field) {
+        if (!field.startsWith(prefix)) {
+            return prefix+field;
+        } else {
+            return field;
+        }
+    };
+
+    var withoutPrefix = function(field) {
+        if (field.startsWith(prefix)) {
+            return field.replace(prefix, '');
+        } else {
+            return field;
+        }
+    };
+
+    var QS_CLASSIFIED_STATE = withPrefix(CLASSIFIED_STATE);
+    var QS_RESULT_STATUS = withPrefix(RESULT_STATUS);
+    var QS_SEARCH_QUERY = withPrefix(SEARCH_QUERY);
 
     // This object will look like:
     //
@@ -152,201 +157,174 @@ treeherder.factory('thJobFilters', [
      * If a custom resultStatusList is passed in (like for individual
      * resultSets, then use that.  Otherwise, fall back to the global one.
      *
-     * if the filter value is just ``true`` or ``false`` then simply check
-     * whether or not the field of ``job`` has a value set or not.  ``true``
-     * means it must have a value set, ``false`` means it must be null.
      */
-    var checkFilter = function(field, job, resultStatusList) {
+    var _checkFilters = function(job, resultStatusList) {
 
-        if (field === api.resultStatus) {
-            // resultStatus is a special case that spans two job fields
-            var filterList = resultStatusList || filters[field].values;
-            var resultState = thResultStatus(job);
-            return _.contains(filterList, resultState);
-        } else if (field === api.isClassified) {
-            // isClassified is a special case, too.  Where value of 1 in the
-            // job field of ``failure_classification_id`` is "not classified"
-            var fci_filters = filters[field].values;
-            if (_.contains(fci_filters, false) && (job.failure_classification_id === 1 ||
-                                                   job.failure_classification_id === null)) {
-                return true;
-            }
-            return _.contains(fci_filters, true) && job.failure_classification_id > 1;
-        } else {
-            var jobFieldValue = getJobFieldValue(job, field);
-            if (_.isUndefined(jobFieldValue)) {
-                // if a filter is added somehow, but the job object doesn't
-                // have that field, then don't filter.  Consider it a pass.
-                return true;
-            }
+        var rsFilters = resultStatusList ||
+                        toArray($location.search()[QS_RESULT_STATUS]) ||
+                        defaults.resultStatus;
 
-            switch (filters[field].matchType) {
-                case api.matchType.isnull:
-                    jobFieldValue = !_.isNull(jobFieldValue);
-                    return _.contains(filters[field].values, jobFieldValue);
-
-                case api.matchType.substr:
-
-                    return containsSubstr(filters[field].values, jobFieldValue.toLowerCase());
-
-                case api.matchType.exactstr:
-                    return _.contains(filters[field].values, jobFieldValue.toLowerCase());
-
-                case api.matchType.choice:
-                    return _.contains(filters[field].values, String(jobFieldValue).toLowerCase());
-
-            }
-        }
-    };
-
-    /**
-     * Set (optionally) multiple values for a filter
-     * @param values_obj
-     */
-//    var _setFilters = function(values_obj) {
-//        $location.search
-//        _.each(values_obj, function(value, field) {
-//            addFilter(field, value);
-//        });
-//        buildFiltersFromQueryString();
-//    };
-
-    var addFilter = function(field, newVal) {
-        //check for existing value
-        var oldVal = $location.search()[field];
-        console.log("<><>oldVal", oldVal);
-
-        if (oldVal) {
-            // set the value to an array
-            if (!_.isArray(oldVal)) {
-                oldVal = [oldVal];
-            }
-            oldVal.push(newVal);
-            $location.search(field, oldVal);
-        } else {
-            $location.search(field, newVal);
-        }
-//        buildFiltersFromQueryString();
-
-        console.log("<><>newVal", $location.search()[field]);
-
-    };
-
-    var removeFilter = function(field, val) {
-        var oldVal = $location.search()[field];
-        // default to just removing the param completely
-        var newVal = null;
-
-        if (_.isArray(oldVal)) {
-            newVal = _.without(oldVal, val);
+        if (!_.contains(rsFilters, thResultStatus(job))) {
+            return false;
         }
 
-        console.log("setting " + field + " from " + oldVal + " to " + newVal);
-        $location.search(field, newVal);
-//        buildFiltersFromQueryString();
-    };
+        var fciFilters = toArray($location.search()[QS_CLASSIFIED_STATE]) ||
+                         defaults.classifiedState.values;
 
-    /**
-     * Add a case-insensitive filter.
-     * @param field - the field in the job object to check
-     * @param value - the value to match
-     * @param matchType - which type of filter to use.  Default: ``exactstr``
-     *                    If the filter field already exists, update the
-     *                    ``matchType`` to this value.
-     */
-    var _addFilter = function(field, value, matchType, quiet) {
-
-        if (_.isUndefined(matchType)) {
-            matchType = api.matchType.exactstr;
+        var isClassified = isJobClassified(job);
+        if (!_.contains(fciFilters, 'unclassified') && !isClassified) {
+                return false;
         }
-        // always store in lower case so that comparisons are case insensitive
-        if (_.isString(value)) {
-            // the string types are case insensitive
-            value = value.toLowerCase();
-        }
-        if (filters.hasOwnProperty(field)) {
-            if (!_.contains(filters[field].values, value)) {
-                filters[field].values.push(value);
-                filters[field].matchType = matchType;
-            }
-        } else {
-            filters[field] = {
-                values: [value],
-                matchType: matchType,
-                removeWhenEmpty: true
-            };
+        if (!_.contains(fciFilters, 'classified') && isClassified) {
+                return false;
         }
 
-        filterKeys = _.keys(filters);
-        $log.debug("added ", field, ": ", value);
-        $log.debug("filters", filters, "filterkeys", filterKeys);
-        if (!quiet) {
-            $rootScope.$emit(thEvents.globalFilterChanged);
-        }
-    };
+        // todo: need to cache getAllFieldFilters
+        var fieldFilters = _getFieldFiltersObj();
 
-    var _removeFilter = function(field, value) {
-        if (filters.hasOwnProperty(field)) {
-            if (_.isString(value)) {
-                // the string types are case insensitive
-                value = value.toLowerCase();
-            }
-            var idx = filters[field].values.indexOf(value);
-            if(idx > -1) {
-                $log.debug("removing ", value);
-                filters[field].values.splice(idx, 1);
+        for (var qsField in fieldFilters) {
+            if (fieldFilters.hasOwnProperty(qsField)) {
+                var values = toArray(fieldFilters[qsField]);
+                var field = withoutPrefix(qsField);
 
-                // if this filer no longer has any values, then remove it
-                // unless it has the ``allowEmpty`` setting
-                if (filters[field].removeWhenEmpty && filters[field].values.length === 0) {
-                    delete filters[field];
+                var jobFieldValue = getJobFieldValue(job, field);
+
+                if (!_.isUndefined(jobFieldValue)) {
+                    // if a filter is added somehow, but the job object doesn't
+                    // have that field, then don't filter.  Consider it a pass.
+
+                    switch (fieldChoices[field].matchType) {
+                        case matchType.isnull:
+                            jobFieldValue = !_.isNull(jobFieldValue);
+                            if (!_.contains(values, jobFieldValue)) {
+                                return false;
+                            }
+                            break;
+
+                        case matchType.substr:
+
+                            if (!containsSubstr(values, jobFieldValue.toLowerCase())) {
+                                return false;
+                            }
+                            break;
+
+                        case matchType.exactstr:
+                            if (!_.contains(values, jobFieldValue.toLowerCase())) {
+                                return false;
+                            }
+                            break;
+
+                        case matchType.choice:
+                            if (!_.contains(values, String(jobFieldValue).toLowerCase())) {
+                                return false;
+                            }
+                            break;
+                    }
+
                 }
-                filterKeys = _.keys(filters);
-                $rootScope.$emit(thEvents.globalFilterChanged);
             }
         }
 
-        $log.debug("filters", filters);
+        return true;
+
+    };
+
+    var addFilter = function(field, value) {
+        //check for existing value
+        var oldQsVal = $location.search()[withPrefix(field)] ||
+                     defaults[field].values;
+        var newQsVal = null;
+
+        // todo: remove field, if it matches defaults
+        if (oldQsVal) {
+            // set the value to an array
+            newQsVal = toArray(oldQsVal);
+            newQsVal.push(value);
+            newQsVal = _.uniq(newQsVal);
+        } else {
+            newQsVal = value;
+        }
+        if (matchesDefaults(field, newQsVal)) {
+            newQsVal = null;
+        }
+        console.log("add set " + withPrefix(field) + " from " + oldQsVal + " to " + newQsVal);
+        $location.search(withPrefix(field), _.uniq(newQsVal));
+
+    };
+
+    var removeFilter = function(field, value) {
+        var oldQsVal = toArray($location.search()[withPrefix(field)]) ||
+                     defaults[field].values;
+        // default to just removing the param completely
+        var newQsVal = null;
+
+        if (oldQsVal && oldQsVal.length) {
+            newQsVal = _.without(oldQsVal, value);
+        }
+        if (!newQsVal || !newQsVal.length || matchesDefaults(field, newQsVal)) {
+            newQsVal = null;
+        }
+        console.log("remove set " + withPrefix(field) + " from " + oldQsVal + " to " + newQsVal);
+        $location.search(withPrefix(field), newQsVal);
+    };
+
+    /**
+     * Removes field filters from the passed in locationSearch without
+     * actually setting it in the location bar so that further actions
+     * can be taken without re-rendering jobs.
+     * @param locationSearch A result of $location.search()
+     * @returns the same obj passed in without field filters;
+     */
+    var stripFieldFilters = function(locationSearch) {
+        _.forEach(locationSearch, function (val, field) {
+            if (isFieldFilter(field)) {
+                delete locationSearch[field];
+            }
+        });
+        return locationSearch;
     };
 
     var removeAllFieldFilters = function() {
-        var someRemoved = false;
-        $log.debug("removeAllFilters", filters, filterKeys);
-        var removeAll = function(field) {
-            $log.debug("removeAllFilters", field, filters);
-            if (!_.contains(['resultStatus', 'isClassified'], field)) {
-                filters[field].values = [];
-                someRemoved = true;
-                $log.debug("removeAllFilters", "removed", field, filters);
-            }
-
-            // if this filer no longer has any values, then remove it
-            // if it has the ``removeWhenEmpty`` setting
-            if (filters[field].removeWhenEmpty) {
-                delete filters[field];
-            }
-        };
-
-        _.forEach(filterKeys, removeAll);
-
-        filterKeys = _.keys(filters);
-        $log.debug("filters", filters);
-
-        if (someRemoved) {
-            $rootScope.$emit(thEvents.globalFilterChanged);
-        }
+        var locationSearch = $location.search();
+        stripFieldFilters(locationSearch);
+        $location.search(locationSearch);
     };
 
-    var getAllFieldFilters = function() {
+    var isFieldFilter = function(field) {
+        return field.startsWith(prefix) &&
+               !_.contains(['resultStatus', 'classifiedState'], withoutPrefix(field));
+    };
+
+    var getIsClassifiedArray = function() {
+        return toArray($location.search()[QS_CLASSIFIED_STATE]) || defaults.classifiedState.values ;
+    };
+
+    var getResultStatusArray = function() {
+        return toArray($location.search()[QS_RESULT_STATUS]) || defaults.resultStatus.values;
+    };
+
+    var getFieldFiltersArray = function() {
         var fieldFilters = [];
-        _.each(filters, function(filterObj, fieldName) {
-            if (!_.contains(['resultStatus', 'isClassified'], fieldName)) {
-                _.each(filterObj.values, function (val) {
-                    fieldFilters.push({field: fieldName, value: val});
+
+        _.each($location.search(), function(values, fieldName) {
+            if (isFieldFilter(fieldName)) {
+                _.each(values, function (val) {
+                    fieldFilters.push({field: withoutPrefix(fieldName),
+                                       value: val});
                 });
             }
         });
         return fieldFilters;
+    };
+
+    var _getFieldFiltersObj = function() {
+        var locationSearch = _.clone($location.search());
+        _.each(locationSearch, function(values, fieldName) {
+            if (!isFieldFilter(fieldName)) {
+                delete locationSearch[fieldName];
+            }
+        });
+        return locationSearch;
     };
 
     /**
@@ -366,7 +344,9 @@ treeherder.factory('thJobFilters', [
     };
 
     var copyResultStatusFilters = function() {
-        return filters[api.resultStatus].values.slice();
+        var rsFilters = toArray($location.search()[QS_RESULT_STATUS]) ||
+                        defaults.resultStatus.values;
+        return rsFilters.slice();
     };
 
     /**
@@ -379,10 +359,8 @@ treeherder.factory('thJobFilters', [
      */
     var showJob = function(job, resultStatusList) {
 
-        for(var i = 0; i < filterKeys.length; i++) {
-            if (!checkFilter(filterKeys[i], job, resultStatusList)) {
-                return false;
-            }
+        if (!_checkFilters(job, resultStatusList)) {
+            return false;
         }
 
         var matchTargetCount = searchQuery.length;
@@ -498,64 +476,83 @@ treeherder.factory('thJobFilters', [
         return false;
     };
 
-    /**
-     * Set the non-field filters so that we only view unclassified failures
-     */
-    var showUnclassifiedFailures = function() {
-        stashedStatusFilterValues = {
-            resultStatus: filters.resultStatus.values,
-            isClassified: filters.isClassified.values
-        };
-        filters.resultStatus.values = thFailureResults.slice();
-        filters.isClassified.values = [false];
-        $rootScope.$emit(thEvents.globalFilterChanged);
+    var toArray = function(value) {
+        if (_.isUndefined(value)) {
+            return value;
+        }
+        if (!_.isArray(value)) {
+            return [value];
+        } else if (value.length === 0) {
+            return null;
+        }
+        return value;
     };
 
     /**
      * Set the non-field filters so that we only view coalesced jobs
      */
     var showCoalesced = function() {
-        stashedStatusFilterValues = {
-            resultStatus: filters.resultStatus.values,
-            isClassified: filters.isClassified.values
-        };
-        filters.resultStatus.values = ["coalesced"];
-        filters.isClassified.values = [false, true];
-        $rootScope.$emit(thEvents.globalFilterChanged);
+        stashStatusFilters();
+        var locationSearch = _.clone($location.search());
+        locationSearch[QS_RESULT_STATUS] = "coalesced";
+        locationSearch[QS_CLASSIFIED_STATE]= [false, true];
+        $location.search(locationSearch);
     };
 
     var toggleInProgress = function() {
-        var func = addFilter;
-        if (_.difference(['pending', 'running'], filters.resultStatus.values).length === 0) {
-            func = removeFilter;
+        var rsValues = toArray($location.search()[QS_RESULT_STATUS]);
+        var pendRun = ['pending', 'running'];
+        if (_.difference(pendRun, rsValues).length === 0) {
+            rsValues = _.without(rsValues, 'pending', 'running');
+        } else {
+            rsValues = _.uniq(_.flatten(rsValues, pendRun));
         }
-        func(api.resultStatus, 'pending');
-        func(api.resultStatus, 'running');
-        $rootScope.$emit(thEvents.globalFilterChanged);
+        $location.search(QS_RESULT_STATUS, rsValues);
     };
 
     var isJobUnclassifiedFailure = function(job) {
         return (_.contains(thFailureResults, job.result) &&
-            job.failure_classification_id === 1);
+            !isJobClassified(job));
+    };
+
+    var isJobClassified = function(job) {
+        return job.failure_classification_id !== 1;
+    };
+
+    var toggleUnclassifiedFailures = function() {
+        $log.debug("toggleUnclassifiedFailures");
+        if (isUnclassifiedFailures()) {
+            resetNonFieldFilters();
+        } else {
+            showUnclassifiedFailures();
+        }
+    };
+    var stashStatusFilters = function() {
+        var locationSearch = $location.search();
+        stashedStatusFilterValues = {
+            resultStatus: locationSearch[QS_RESULT_STATUS],
+            classifiedState: locationSearch[QS_CLASSIFIED_STATE]
+        };
+    };
+    /**
+     * Set the non-field filters so that we only view unclassified failures
+     */
+    var showUnclassifiedFailures = function() {
+        var locationSearch = _.clone($location.search()),
+            rs = withPrefix(api.resultStatus),
+            ic = withPrefix(api.classifiedState);
+        stashStatusFilters();
+        locationSearch[rs] = thFailureResults.slice();
+        locationSearch[ic] = ['unclassified'];
+        $location.search(locationSearch);
     };
 
     /**
      * check if we're in the state of showing only unclassified failures
      */
     var isUnclassifiedFailures = function() {
-        return (_.isEqual(filters.resultStatus.values, thFailureResults) &&
-                _.isEqual(filters.isClassified.values, [false]));
-    };
-
-    /**
-     * Set the list of resultStatus and classified filters.
-     *
-     * This can be done when loading the page, due to a query string from the
-     * URL
-     */
-    var setCheckFilterValues = function(field, values) {
-        $log.debug("setCheckFilterValues", field, values);
-        $location.search(field, values);
+        return (_.isEqual($location.search()[QS_RESULT_STATUS], thFailureResults) &&
+                _.isEqual($location.search()[QS_CLASSIFIED_STATE], ['unclassified']));
     };
 
     /**
@@ -563,10 +560,11 @@ treeherder.factory('thJobFilters', [
      * so the user sees everything.  Doesn't affect the field filters.  This
      * is used to undo the call to ``showUnclassifiedFailures``.
      */
-    var resetNonFieldFilters = function(quiet) {
-        $location.search("resultStatus", null);
-        $location.search("isClassified", null);
-        buildFiltersFromQueryString();
+    var resetNonFieldFilters = function() {
+        var locationSearch = _.clone($location.search());
+        delete locationSearch[QS_RESULT_STATUS];
+        delete locationSearch[QS_CLASSIFIED_STATE];
+        $location.search(locationSearch);
     };
 
     /**
@@ -574,29 +572,23 @@ treeherder.factory('thJobFilters', [
      * replace ``filters`` so the reference remains intact where used.
      */
     var resetAllFilters = function(quiet) {
-        filters.resultStatus.values = thResultStatusList.defaultFilters();
-        filters.isClassified.values = [true, false];
-        _.each(filters, function(value, key) {
-            if (key !== "isClassified" && key !== "resultStatus") {
-                delete filters[key];
-            }
-        });
-        filterKeys = _.keys(filters);
-
-        if (!quiet) {
-            $rootScope.$emit(thEvents.globalFilterChanged);
-        }
+        var locationSearch = _.clone($location.search());
+        delete locationSearch[QS_CLASSIFIED_STATE];
+        delete locationSearch[QS_RESULT_STATUS];
+        locationSearch = stripFieldFilters(locationSearch);
+        $location.search(locationSearch);
     };
 
     /**
      * Revert the filters back to what they were before one of the
      * showXXX functions was called.
      */
+    // todo: make this revert, rather than just go to default
     var revertNonFieldFilters = function() {
-        filters.resultStatus.values = stashedStatusFilterValues.resultStatus;
-        filters.isClassified.values = stashedStatusFilterValues.isClassified;
-        $rootScope.$emit(thEvents.globalFilterChanged);
-
+        var locationSearch = _.clone($location.search());
+        delete locationSearch[QS_CLASSIFIED_STATE];
+        delete locationSearch[QS_RESULT_STATUS];
+        $location.search(locationSearch);
     };
 
     var matchesDefaults = function(field, values) {
@@ -604,70 +596,18 @@ treeherder.factory('thJobFilters', [
         return _.intersection(defaults[field].values, values).length === defaults[field].values.length;
     };
 
-    /**
-     * When the page first loads, check the query string params for
-     * filters and apply them.
-     */
-    var buildFiltersFromQueryString = function(quiet) {
-        // field filters
-        resetAllFilters(true);
-        var search = _.clone($location.search());
-
-        $log.debug("query string params", $location.search());
-
-        _.each(search, function (filterVal, filterKey) {
-            $log.debug("field filter", filterKey, filterVal);
-
-            if (filterKey.slice(0, urlFilterPrefixLen) === urlFilterPrefix) {
-                // field filters can have multiple values, so handle each
-                // separately
-                if (!_.isArray(filterVal)) {
-                    filterVal = [filterVal];
-                }
-                _.each(filterVal, function(val) {
-                    $log.debug("adding field filter", filterKey, val);
-                    var field = filterKey.slice(urlFilterPrefixLen);
-                    _addFilter(field, val, fieldChoices[field].matchType);
-                });
-
-            } else if (filterKey === "resultStatus" || filterKey === "isClassified") {
-                $log.debug("adding check filter", filterKey, filterVal);
-                if (!_.isArray(filterVal)) {
-                    filterVal = [filterVal];
-                }
-                // these will come through as strings, so convert to actual booleans
-                if (filterKey === "isClassified") {
-                    filterVal = _.map(filterVal, function(item) {return item !== "false";});
-                }
-                setCheckFilterValues(filterKey, _.uniq(filterVal), true);
-            } else if ((filterKey === "searchQuery") || (filterKey === "jobname")) {
-                //jobname is for backwords compatibility with tbpl links
-                setSearchQuery(filterVal);
-            }
-        });
-        $log.debug("done with buildFiltersFromQueryString", filters);
-        if (!quiet) {
-            $rootScope.$emit(thEvents.globalFilterChanged);
-        }
-    };
-
-
     /***********************
      * full-text search query
      */
 
-    var removeFiltersFromQueryString = function(locationSearch) {
-        delete locationSearch.isClassified;
-        delete locationSearch.resultStatus;
-        delete locationSearch.searchQuery;
 
-        // update the url search params accordingly
-        // remove any field filters
-        _.each(locationSearch, function(filterVal, filterKey) {
-            if (filterKey.slice(0, urlFilterPrefixLen) === urlFilterPrefix) {
-                delete locationSearch[filterKey];
-            }
-        });
+    // todo: remove?  this should all be handled internally in this class
+    var stripFiltersFromQueryString = function(locationSearch) {
+        delete locationSearch[QS_CLASSIFIED_STATE];
+        delete locationSearch[QS_RESULT_STATUS];
+        delete locationSearch[QS_SEARCH_QUERY];
+
+        stripFieldFilters(locationSearch);
         return locationSearch;
     };
 
@@ -695,6 +635,11 @@ treeherder.factory('thJobFilters', [
      */
 
 
+
+    /*********************
+     * Exclusion profile calls -- soon to be removed/refactored
+     *********************/
+
     /**
      * Used in more than one place, so this ensures the format remains
      * consistent.  Critical because it's used when building the exclusion
@@ -703,12 +648,6 @@ treeherder.factory('thJobFilters', [
     var getJobComboField = function(field1, field2) {
         return field1 + " (" + field2 + ")";
     };
-
-
-
-    /*********************
-     * Exclusion profile calls -- soon to be removed/refactored
-     *********************/
 
     var toggleSkipExclusionProfiles = function() {
         skipExclusionProfiles = !skipExclusionProfiles;
@@ -786,36 +725,35 @@ treeherder.factory('thJobFilters', [
 
     var api = {
         addFilter: addFilter,
-        buildFiltersFromQueryString: buildFiltersFromQueryString,
-        getAllFieldFilters: getAllFieldFilters,
-        copyResultStatusFilters: copyResultStatusFilters,
-        filters: filters,
-        getJobComboField: getJobComboField,
-        isJobUnclassifiedFailure: isJobUnclassifiedFailure,
-        isUnclassifiedFailures: isUnclassifiedFailures,
-        matchesDefaults: matchesDefaults,
-        removeAllFieldFilters: removeAllFieldFilters,
         removeFilter: removeFilter,
-        removeFiltersFromQueryString: removeFiltersFromQueryString,
+        removeAllFieldFilters: removeAllFieldFilters,
+        stripFiltersFromQueryString: stripFiltersFromQueryString,
         resetAllFilters: resetAllFilters,
         resetNonFieldFilters: resetNonFieldFilters,
         revertNonFieldFilters: revertNonFieldFilters,
 
-        setCheckFilterValues: setCheckFilterValues,
+        getFieldFiltersArray: getFieldFiltersArray,
+        getIsClassifiedArray: getIsClassifiedArray,
+        getResultStatusArray: getResultStatusArray,
+        copyResultStatusFilters: copyResultStatusFilters,
+
+        isJobUnclassifiedFailure: isJobUnclassifiedFailure,
+        matchesDefaults: matchesDefaults,
+
         showCoalesced: showCoalesced,
         showJob: showJob,
         showUnclassifiedFailures: showUnclassifiedFailures,
 
         toggleFilters: toggleFilters,
         toggleInProgress: toggleInProgress,
+        toggleUnclassifiedFailures: toggleUnclassifiedFailures,
 
         getSearchQuery: getSearchQuery,
         setSearchQuery: setSearchQuery,
 
         // CONSTANTS
-        isClassified: "isClassified",
-        resultStatus: "resultStatus",
-        matchType: matchType,
+        classifiedState: CLASSIFIED_STATE,
+        resultStatus: RESULT_STATUS,
         fieldChoices: fieldChoices,
 
         searchQuery: searchQuery,
@@ -824,12 +762,13 @@ treeherder.factory('thJobFilters', [
         // EXCLUSION PROFILE
         getActiveExclusionProfile: getActiveExclusionProfile,
         setActiveExclusionProfile: setActiveExclusionProfile,
+        getJobComboField: getJobComboField,
         excludedJobs: excludedJobs,
         excludedUnclassifiedFailures: excludedUnclassifiedFailures,
         toggleSkipExclusionProfiles: toggleSkipExclusionProfiles,
         getCountExcluded: getCountExcluded,
         getCountExcludedForRepo: getCountExcludedForRepo,
-        isSkippingExclusionProfiles: isSkippingExclusionProfiles,
+        isSkippingExclusionProfiles: isSkippingExclusionProfiles
 
     };
 

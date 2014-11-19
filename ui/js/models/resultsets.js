@@ -177,7 +177,7 @@ treeherder.factory('ThResultSetModel', [
         // only base the locationSearch on params that are NOT filters,
         // because filters don't effect the server side fetching of
         // jobs.
-        var locationSearch = thJobFilters.removeFiltersFromQueryString(
+        var locationSearch = thJobFilters.stripFiltersFromQueryString(
             _.clone($location.search())
         );
 

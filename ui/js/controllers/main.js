@@ -138,20 +138,11 @@ treeherder.controller('MainCtrl', [
             thJobFilters.toggleSkipExclusionProfiles();
         };
 
-        $scope.toggleUnclassifiedFailures = function() {
-            $log.debug("toggleUnclassifiedFailures");
-            if (thJobFilters.isUnclassifiedFailures()) {
-                thJobFilters.resetNonFieldFilters();
-            } else {
-                thJobFilters.showUnclassifiedFailures();
-            }
-        };
+        $scope.toggleUnclassifiedFailures = thJobFilters.toggleUnclassifiedFailures;
 
         $scope.toggleInProgress = function() {
             thJobFilters.toggleInProgress();
         };
-
-        thJobFilters.buildFiltersFromQueryString();
 
         $scope.allExpanded = function(cls) {
             var fullList = $("." + cls);
@@ -232,7 +223,7 @@ treeherder.controller('MainCtrl', [
             if (!_.isEqual(oldParams, newParams) && !defaulting) {
                 $window.location.reload();
             } else {
-                thJobFilters.buildFiltersFromQueryString();
+                $rootScope.$emit(thEvents.globalFilterChanged);
             }
 
         });
