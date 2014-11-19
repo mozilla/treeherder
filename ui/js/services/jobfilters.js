@@ -61,6 +61,7 @@ treeherder.factory('thJobFilters', [
         choice: 'choice'
     };
 
+    // choices available for the field filters
     var FIELD_CHOICES = {
         ref_data_name: {
             name: "buildername/jobname",
@@ -97,17 +98,13 @@ treeherder.factory('thJobFilters', [
         }
     };
 
-
+    // todo: fetch these from the query string instead
     var searchQuery = [];
     var searchQueryStr = "";
 
+    // exclusion profile handling
     var activeExclusionProfile = {};
-
-    // whether or not to skip the checks for the exclusion profiles.
-    // an exclusion profile may be enabled, but this allows the user
-    // to toggle it on or off.
-    var skipExclusionProfiles = false;
-
+    var skipExclusionProfiles = false; // whether or not to reveal hidden jobs
     var excludedJobs = {};
     var excludedUnclassifiedFailures = {};
 
@@ -116,16 +113,19 @@ treeherder.factory('thJobFilters', [
      * Whether or not this job should be shown based on the current
      * filters.
      *
-     * @param job - the job we are checking against the filter
-     * @param resultStatusList - optional.  custom list of resultstatuses
-     *        that can be used for individual resultsets
+     * @param job - the job we are checking against the filters
+     * @param resultStatusList - optional.  Overrides the ``resultStatus``
+     *        values specified in the URL or defaults.  This is for the
+     *        per-resultset toggling.
      */
     var showJob = function(job, resultStatusList) {
 
+        // test against resultStatus, classifiedState and field filters
         if (!_checkFilters(job, resultStatusList)) {
             return false;
         }
 
+        // test against the searchQuery
         var matchTargetCount = searchQuery.length;
 
         if( matchTargetCount > 0 ){
@@ -143,6 +143,8 @@ treeherder.factory('thJobFilters', [
                 return false;
             }
         }
+
+        // test against the active exclusion profile
         if(activeExclusionProfile && !skipExclusionProfiles) {
             try{
                 var jobPlatformArch = getJobComboField(
@@ -175,14 +177,12 @@ treeherder.factory('thJobFilters', [
         var rsFilters = resultStatusList ||
                         _toArray($location.search()[QS_RESULT_STATUS]) ||
                         DEFAULTS.resultStatus.values;
-
         if (!_.contains(rsFilters, thResultStatus(job))) {
             return false;
         }
 
         var fciFilters = _toArray($location.search()[QS_CLASSIFIED_STATE]) ||
                          DEFAULTS.classifiedState.values;
-
         var isClassified = _isJobClassified(job);
         if (!_.contains(fciFilters, 'unclassified') && !isClassified) {
                 return false;
@@ -232,13 +232,11 @@ treeherder.factory('thJobFilters', [
                             }
                             break;
                     }
-
                 }
             }
         }
 
         return true;
-
     };
 
     var _getFieldFiltersObj = function() {
@@ -255,7 +253,7 @@ treeherder.factory('thJobFilters', [
     var addFilter = function(field, value) {
         //check for existing value
         var oldQsVal = $location.search()[_withPrefix(field)] ||
-                     DEFAULTS[field].values.slice();
+                       DEFAULTS[field].values.slice();
         var newQsVal = null;
 
         if (oldQsVal) {
@@ -271,12 +269,11 @@ treeherder.factory('thJobFilters', [
         }
         $log.debug("add set " + _withPrefix(field) + " from " + oldQsVal + " to " + newQsVal);
         $location.search(_withPrefix(field), _.uniq(newQsVal));
-
     };
 
     var removeFilter = function(field, value) {
         var oldQsVal = _toArray($location.search()[_withPrefix(field)]) ||
-                     DEFAULTS[field].values.slice();
+                       DEFAULTS[field].values.slice();
         // default to just removing the param completely
         var newQsVal = null;
 
@@ -364,9 +361,6 @@ treeherder.factory('thJobFilters', [
         $location.search(locationSearch);
     };
 
-
-
-
     var getClassifiedStateArray = function() {
         var arr = _toArray($location.search()[QS_CLASSIFIED_STATE]) ||
                DEFAULTS.classifiedState.values;
@@ -420,7 +414,6 @@ treeherder.factory('thJobFilters', [
     };
 
     var setSearchQuery = function(queryStr){
-
         if(typeof queryStr === "string"){
             searchQueryStr = queryStr;
 
@@ -429,7 +422,6 @@ treeherder.factory('thJobFilters', [
             }else{
                 searchQuery = queryStr.replace(/ +(?= )/g, ' ').toLowerCase().split(' ');
             }
-
         }
     };
 

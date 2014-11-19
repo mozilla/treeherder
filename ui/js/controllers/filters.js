@@ -151,7 +151,7 @@ treeherder.controller('FilterPanelCtrl', [
                 $scope.fieldFilters[index].field,
                 $scope.fieldFilters[index].value
             );
-            $scope.fieldFilters.splice(index, 1);
+//            $scope.fieldFilters.splice(index, 1);
         };
 
         $scope.pinAllShownJobs = function() {
@@ -210,6 +210,7 @@ treeherder.controller('SearchCtrl', [
     function SearchCtrl(
         $scope, $rootScope, thEvents, thJobFilters, $location){
 
+        // todo: add the $location.search() updates to thJobFilters
         $scope.$watch(
             function(){
                 return thJobFilters.getSearchQuery().searchQueryStr;
