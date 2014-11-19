@@ -934,13 +934,13 @@ treeherder.directive('thCloneJobs', [
 
         $rootScope.$on(
             thEvents.globalFilterChanged, function(ev, filterData){
-                scope.resultStatusFilters = thJobFilters.copyResultStatusFilters();
+                scope.resultStatusFilters = thJobFilters.getResultStatusArray();
                 _.bind(filterJobs, scope, element, scope.resultStatusFilters)();
             });
 
         $rootScope.$on(
             thEvents.searchPage, function(ev, searchData){
-                scope.resultStatusFilters = thJobFilters.copyResultStatusFilters();
+                scope.resultStatusFilters = thJobFilters.getResultStatusArray();
                 _.bind(filterJobs, scope, element, scope.resultStatusFilters)();
             });
 

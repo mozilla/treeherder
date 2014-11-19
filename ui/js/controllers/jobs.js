@@ -250,7 +250,7 @@ treeherder.controller('ResultSetCtrl', [
                                           $scope.repoName + "&author=" +
                                           encodeURIComponent($scope.resultset.author);
 
-        $scope.resultStatusFilters = thJobFilters.copyResultStatusFilters();
+        $scope.resultStatusFilters = thJobFilters.getResultStatusArray();
 
         $rootScope.$on(thEvents.jobContextMenu, function(event, job){
             $log.debug("caught", thEvents.jobContextMenu);

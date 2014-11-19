@@ -79,7 +79,6 @@ treeherder.controller('FilterPanelCtrl', [
          */
         $scope.toggleClassifiedFilter = function() {
             var func = $scope.classifiedFilter? thJobFilters.addFilter: thJobFilters.removeFilter;
-            console.log("toggling classified", func, $scope.classifiedFilter);
             func(thJobFilters.classifiedState, 'classified');
         };
         $scope.toggleUnClassifiedFilter = function() {
@@ -117,7 +116,7 @@ treeherder.controller('FilterPanelCtrl', [
             $scope.fieldFilters = thJobFilters.getFieldFiltersArray();
         };
 
-        $scope.addFieldFilter = function(quiet) {
+        $scope.addFieldFilter = function() {
             $log.debug("adding filter", $scope.newFieldFilter.field);
 
             if (!$scope.newFieldFilter) {
@@ -186,8 +185,9 @@ treeherder.controller('FilterPanelCtrl', [
             // these are a special case of filtering because we're not checking
             // for a value, just whether the job has any value set or not.
             // just a boolean check either way
-            $scope.classifiedFilter = _.contains(thJobFilters.getIsClassifiedArray(), 'classified');
-            $scope.unClassifiedFilter = _.contains(thJobFilters.getIsClassifiedArray(), 'unclassified');
+            var classifiedState = thJobFilters.getClassifiedStateArray();
+            $scope.classifiedFilter = _.contains(classifiedState, 'classified');
+            $scope.unClassifiedFilter = _.contains(classifiedState, 'unclassified');
 
             // update "all checked" boxes for groups
             _.each($scope.filterGroups, function(group) {
