@@ -153,7 +153,7 @@ treeherder.factory('thJobFilters', [
         if (tokens.length > 1) {
             var qsParams = $.deparam(tokens[1]);
             _.each(qsParams, function (value, field) {
-                if (field.startsWith(PREFIX)) {
+                if (_startsWith(field, PREFIX)) {
                     filterParams[field] = value;
                 }
             });
@@ -183,7 +183,6 @@ treeherder.factory('thJobFilters', [
                 }
             }
         });
-        console.log("<><>field filters", fieldFilters);
         return fieldFilters;
     };
 
@@ -450,6 +449,12 @@ treeherder.factory('thJobFilters', [
         return fieldFilters;
     };
 
+    var getFieldChoices = function() {
+        var choices = _.clone(FIELD_CHOICES);
+        delete choices.searchStr;
+        return choices;
+    };
+
     var getResultStatusArray = function() {
         var arr = _toArray($location.search()[QS_RESULT_STATUS]) ||
                   DEFAULTS.resultStatus.values;
@@ -487,7 +492,7 @@ treeherder.factory('thJobFilters', [
     };
 
     var _isFieldFilter = function(field) {
-        return field.startsWith(PREFIX) &&
+        return _startsWith(field, PREFIX) &&
                !_.contains(['resultStatus', 'classifiedState'], _withoutPrefix(field));
     };
 
@@ -528,7 +533,7 @@ treeherder.factory('thJobFilters', [
     };
 
     var _withPrefix = function(field) {
-        if (!field.startsWith(PREFIX)) {
+        if (!_startsWith(field, PREFIX)) {
             return PREFIX+field;
         } else {
             return field;
@@ -536,7 +541,7 @@ treeherder.factory('thJobFilters', [
     };
 
     var _withoutPrefix = function(field) {
-        if (field.startsWith(PREFIX)) {
+        if (_startsWith(field, PREFIX)) {
             return field.replace(PREFIX, '');
         } else {
             return field;
@@ -573,6 +578,10 @@ treeherder.factory('thJobFilters', [
             return [value];
         }
         return value;
+    };
+
+    var _startsWith = function(str, val) {
+        return str.indexOf(val) === 0;
     };
 
     /*********************
@@ -719,11 +728,11 @@ treeherder.factory('thJobFilters', [
         getResultStatusArray: getResultStatusArray,
         isJobUnclassifiedFailure: isJobUnclassifiedFailure,
         stripFiltersFromQueryString: stripFiltersFromQueryString,
+        getFieldChoices: getFieldChoices,
 
         // CONSTANTS
         classifiedState: CLASSIFIED_STATE,
         resultStatus: RESULT_STATUS,
-        fieldChoices: FIELD_CHOICES,
 
         // EXCLUSION PROFILE
         getActiveExclusionProfile: getActiveExclusionProfile,

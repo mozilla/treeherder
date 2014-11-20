@@ -40,7 +40,7 @@ treeherder.controller('FilterPanelCtrl', [
         // field filters
         $scope.newFieldFilter = null;
         $scope.fieldFilters = [];
-        $scope.fieldChoices = thJobFilters.fieldChoices;
+        $scope.fieldChoices = thJobFilters.getFieldChoices();
 
         /**
          * Handle checking the "all" button for a result status group
