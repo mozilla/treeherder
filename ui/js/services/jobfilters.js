@@ -35,8 +35,10 @@ treeherder.factory('thJobFilters', [
 
     var $log = new ThLog("thJobFilters");
 
+    // prefix for all filter query string params
     var PREFIX = "filter-";
 
+    // constants for specific types of filters
     var CLASSIFIED_STATE = "classifiedState";
     var RESULT_STATUS = "resultStatus";
     var SEARCH_STR = "searchStr";
@@ -45,7 +47,7 @@ treeherder.factory('thJobFilters', [
     var QS_RESULT_STATUS = PREFIX + RESULT_STATUS;
     var QS_SEARCH_STR = PREFIX + SEARCH_STR;
 
-    // default filter values
+    // default filter values, when a filter is not specified in the query string
     var DEFAULTS = {
         resultStatus: {
             values: thResultStatusList.defaultFilters()
@@ -55,12 +57,12 @@ treeherder.factory('thJobFilters', [
         }
     };
 
+    // used with field-filters to determine how to match the value against the
+    // job field.
     var MATCH_TYPE = {
         exactstr: 'exactstr',
-        // returns true if any values match the substring
-        substr: 'substr',
-        // returns true only if ALL the values match the substring
-        searchStr: 'searchStr',
+        substr: 'substr',       // returns true if any values match the substring
+        searchStr: 'searchStr', // returns true only if ALL the values match the substring
         choice: 'choice'
     };
 
@@ -119,6 +121,11 @@ treeherder.factory('thJobFilters', [
     var excludedUnclassifiedFailures = {};
 
 
+    /**
+     * Checks for a filter change and, if detected, updates the cached filter
+     * values from the query string.  Then publishes the global event
+     * to re-render jobs.
+     */
     $rootScope.$on('$locationChangeSuccess', function(ev, newUrl, oldUrl) {
 
         $log.debug("check for refilter", "newUrl=", newUrl, "oldUrl=", oldUrl);
@@ -170,10 +177,13 @@ treeherder.factory('thJobFilters', [
                     // we cache this one a little differently
                     fieldFilters[_withoutPrefix(field)] = values.replace(/ +(?= )/g, ' ').toLowerCase().split(' ');
                 } else {
-                    fieldFilters[_withoutPrefix(field)] = _toArray(values);
+                    var lowerVals = _.map(_toArray(values),
+                                          function(v) {return v.toLowerCase();});
+                    fieldFilters[_withoutPrefix(field)] = lowerVals;
                 }
             }
         });
+        console.log("<><>field filters", fieldFilters);
         return fieldFilters;
     };
 
@@ -428,7 +438,8 @@ treeherder.factory('thJobFilters', [
 
         _.each($location.search(), function(values, fieldName) {
             if (_isFieldFilter(fieldName)) {
-                _.each(values, function (val) {
+                var valArr = _toArray(values);
+                _.each(valArr, function (val) {
                     if (fieldName !== QS_SEARCH_STR) {
                         fieldFilters.push({field: _withoutPrefix(fieldName),
                                               value: val});
