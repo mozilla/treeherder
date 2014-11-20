@@ -9,6 +9,8 @@ import itertools
 import pprint
 import copy
 
+from django.conf import settings
+
 from treeherder.model.derived.base import DatasetNotFoundError
 from tests.sample_data_generator import job_data, result_set
 from tests.sampledata import SampleData
@@ -219,7 +221,8 @@ def test_cycle_all_data(jm, refdata, sample_data, initial_data, sample_resultset
     test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset, False)
 
     # build a date that will cause the data to be cycled
-    cycle_date_ts = int(time.time() - (jm.DATA_CYCLE_INTERVAL + 100000))
+    data_cycle_seconds = settings.DATA_CYCLE_INTERVAL.total_seconds()
+    cycle_date_ts = int(time.time() - (data_cycle_seconds + 100000))
 
     jm.get_dhub(jm.CT_JOBS).execute(
         proc="jobs_test.updates.set_result_sets_push_timestamp",
@@ -259,14 +262,16 @@ def test_cycle_one_job(jm, refdata, sample_data, initial_data, sample_resultset,
     test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset, False)
 
     # set all the result_sets to a non cycle time
-    non_cycle_date_ts = int(time.time() - (jm.DATA_CYCLE_INTERVAL - 100000))
+    data_cycle_seconds = settings.DATA_CYCLE_INTERVAL.total_seconds()
+    non_cycle_date_ts = int(time.time() - (data_cycle_seconds - 100000))
     jm.get_dhub(jm.CT_JOBS).execute(
         proc="jobs_test.updates.set_result_sets_push_timestamp",
         placeholders=[ non_cycle_date_ts ]
     )
 
     # build a date that will cause the data to be cycled
-    cycle_date_ts = int(time.time() - (jm.DATA_CYCLE_INTERVAL + 100000))
+    data_cycle_seconds = settings.DATA_CYCLE_INTERVAL.total_seconds()
+    cycle_date_ts = int(time.time() - (data_cycle_seconds + 100000))
 
     jm.get_dhub(jm.CT_JOBS).execute(
         proc="jobs_test.updates.set_one_result_set_push_timestamp",

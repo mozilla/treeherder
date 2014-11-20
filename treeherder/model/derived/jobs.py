@@ -155,9 +155,6 @@ class JobsModel(TreeherderModelBase):
         "jobs.deletes.cycle_result_set"
     ]
 
-    # 6 months in seconds
-    DATA_CYCLE_INTERVAL = 15552000
-
     @classmethod
     def create(cls, project, host=None):
         """
@@ -732,9 +729,11 @@ class JobsModel(TreeherderModelBase):
 
         return round( sorted_list[length / 2], 0 )
 
-    def cycle_data(self, sql_targets={}, execute_sleep=True):
-
-        min_date = int(time.time() - self.DATA_CYCLE_INTERVAL)
+    def cycle_data(self, sql_targets={}, execute_sleep=True, chunk_size=100):
+        td = settings.DATA_CYCLE_INTERVAL
+         # py26 doesn't support timedelta.total_seconds() :(
+        interval_seconds = td.seconds + td.days * 24 * 3600
+        min_date = int(time.time() - interval_seconds)
 
         # Retrieve list of result sets to delete
         result_set_data = self.jobs_execute(
