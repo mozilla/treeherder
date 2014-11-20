@@ -151,7 +151,6 @@ treeherder.controller('FilterPanelCtrl', [
                 $scope.fieldFilters[index].field,
                 $scope.fieldFilters[index].value
             );
-//            $scope.fieldFilters.splice(index, 1);
         };
 
         $scope.pinAllShownJobs = function() {
@@ -210,44 +209,18 @@ treeherder.controller('SearchCtrl', [
     function SearchCtrl(
         $scope, $rootScope, thEvents, thJobFilters, $location){
 
-        // todo: add the $location.search() updates to thJobFilters
-        $scope.$watch(
-            function(){
-                return thJobFilters.getSearchQuery().searchQueryStr;
-            },
-            function(searchQueryStr){
-
-                $scope.searchQueryStr = searchQueryStr;
-
-                if($scope.searchQueryStr === ""){
-
-                    $location.search("searchQuery", null);
-
-                    //jobname here is for backwards compatibility with
-                    //tbpl url parameters
-                    $location.search("jobname", null);
-
-                }else{
-                    $location.search("searchQuery", searchQueryStr);
-
-                    //jobname here is for backwards compatibility with
-                    //tbpl url parameters
-                    $location.search("jobname", null);
-                }
-
-                $rootScope.$emit(
-                    thEvents.searchPage,
-                    { searchQuery: thJobFilters.getSearchQuery() }
-                    );
-            }
-        );
+        $scope.searchQueryStr = thJobFilters.getFieldFiltersObj()["searchStr"];
 
         $scope.search = function(ev){
             //User hit enter
-            if( (ev.keyCode === 13) ||
-                ($scope.searchQueryStr === "") ){
+            if (ev.keyCode === 13) {
+                var filterVal = $scope.searchQueryStr;
 
-                thJobFilters.setSearchQuery($scope.searchQueryStr);
+                if($scope.searchQueryStr === "") {
+                    filterVal = null;
+                }
+
+                thJobFilters.replaceFilter("searchStr", filterVal);
             }
         };
     }

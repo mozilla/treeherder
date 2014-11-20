@@ -222,10 +222,7 @@ treeherder.controller('MainCtrl', [
             var defaulting = newParams.repo === thDefaultRepo && !oldParams.repo;
             if (!_.isEqual(oldParams, newParams) && !defaulting) {
                 $window.location.reload();
-            } else {
-                $rootScope.$emit(thEvents.globalFilterChanged);
             }
-
         });
 
         $scope.changeRepo = function(repo_name) {
