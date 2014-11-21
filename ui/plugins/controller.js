@@ -249,7 +249,7 @@ treeherder.controller('PluginCtrl', [
          */
         $scope.isReftest = function() {
             if ($scope.selectedJob) {
-                return $scope.selectedJob.job_group_symbol === "R";
+                return ($scope.selectedJob.job_group_name.indexOf("Reftest") != -1);
             } else {
                 return false;
             }
