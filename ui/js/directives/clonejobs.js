@@ -775,7 +775,7 @@ treeherder.directive('thCloneJobs', [
         }
 
         var platforms, groups, jobs, r;
-        superloop:
+
         for(r = 0; r < resultsets.length; r++){
 
             platforms = resultsets[r].platforms;
@@ -839,7 +839,6 @@ treeherder.directive('thCloneJobs', [
 
         var platforms, groups, jobs, r;
 
-        superloop:
         for(r = resultsets.length - 1; r >= 0; r--){
 
             platforms = resultsets[r].platforms;
