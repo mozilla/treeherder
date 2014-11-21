@@ -3,7 +3,7 @@
         "get_jobs_for_cycling": {
 
             "sql": "SELECT id FROM `job` WHERE `result_set_id` IN (
-                        SELECT id FROM result_set WHERE push_timestamp >= ?
+                        SELECT id FROM result_set WHERE push_timestamp < ?
                     )",
             "host": "master_host"
         },

@@ -1,12 +1,13 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
-
 from celery import task
+from django.core.management import call_command
 from django.conf import settings
 
 from treeherder.model.derived import JobsModel
 from treeherder.model.models import Datasource, Repository
+
 
 @task(name='process-objects')
 def process_objects(limit=None):
@@ -23,39 +24,12 @@ def process_objects(limit=None):
         finally:
             jm.disconnect()
 
+
 # Run a maximum of 1 per hour
 @task(name='cycle-data', rate_limit='1/h')
-def cycle_data(max_iterations=50, debug=False):
+def cycle_data():
+    call_command('cycle_data')
 
-    projects = Repository.objects.all().values_list('name', flat=True)
-
-    for project in projects:
-
-        jm = JobsModel(project)
-
-        sql_targets = {}
-
-        if debug:
-            print "Cycling Database: {0}".format(project)
-
-        cycle_iterations = max_iterations
-
-        while cycle_iterations > 0:
-
-            sql_targets = jm.cycle_data(sql_targets)
-
-            if debug:
-                print "Iterations: {0}".format(str(cycle_iterations))
-                print "sql_targets"
-                print sql_targets
-
-            cycle_iterations -= 1
-
-            # No more items to delete
-            if sql_targets['total_count'] == 0:
-                cycle_iterations = 0
-
-        jm.disconnect()
 
 @task(name='calculate-eta', rate_limit='1/h')
 def calculate_eta(sample_window_seconds=21600, debug=False):

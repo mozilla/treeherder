@@ -1,34 +1,77 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
-
 from optparse import make_option
+import datetime
 from django.core.management.base import BaseCommand
-from treeherder.model.models import Repository
 from treeherder.model.derived import JobsModel
-from treeherder.model.tasks import cycle_data
+from treeherder.model.models import Datasource
+from django.conf import settings
+
 
 class Command(BaseCommand):
     help = """Cycle data that exceeds the time constraint limit"""
 
     option_list = BaseCommand.option_list + (
 
-        make_option('--debug',
+        make_option(
+            '--debug',
             action='store_true',
             dest='debug',
-            default=None,
+            default=False,
             help='Write debug messages to stdout'),
 
-        make_option('--iterations',
+        make_option(
+            '--cycle-interval',
             action='store',
-            dest='iterations',
-            default=5,
-            help='Number of data cycle iterations to execute in a single run'),
+            dest='cycle_interval',
+            default=0,
+            type='int',
+            help='Data cycle interval expressed in days'),
+
+        make_option(
+            '--chunk-size',
+            action='store',
+            dest='chunk_size',
+            default=100,
+            type='int',
+            help=('Define the size of the chunks '
+                  'the target data will be divided in')),
+
+        make_option(
+            '--sleep-time',
+            action='store',
+            dest='sleep_time',
+            default=2,
+            type='int',
+            help='How many seconds to pause between each query'),
     )
 
     def handle(self, *args, **options):
+        self.is_debug = options['debug']
 
-        debug = options.get("debug", None)
-        max_iterations = int(options.get("iterations"))
+        if options['cycle_interval']:
+            cycle_interval = datetime.timedelta(days=options['cycle_interval'])
+        else:
+            cycle_interval = settings.DATA_CYCLE_INTERVAL
 
-        cycle_data(max_iterations, debug)
+        self.debug("cycle interval: {0}".format(cycle_interval))
+
+        projects = Datasource.objects\
+            .filter(contenttype='jobs')\
+            .values_list('project', flat=True)
+        for project in projects:
+            self.debug("Cycling Database: {0}".format(project))
+            jm = JobsModel(project)
+            try:
+                num_deleted = jm.cycle_data(cycle_interval,
+                                            options['chunk_size'],
+                                            options['sleep_time'])
+                self.debug("Deleted {0} resultsets from {1}".format(
+                           num_deleted, project))
+            finally:
+                jm.disconnect()
+
+    def debug(self, msg):
+        if self.is_debug:
+            self.stdout.write(msg)

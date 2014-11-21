@@ -495,7 +495,7 @@
         },
 
         "get_result_sets_to_cycle":{
-            "sql":"SELECT id FROM result_set WHERE push_timestamp < ? LIMIT 5000",
+            "sql":"SELECT id FROM result_set WHERE push_timestamp < ?",
             "host":"master_host"
         },
 

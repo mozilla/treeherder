@@ -10,6 +10,7 @@ import pprint
 import copy
 
 from django.conf import settings
+from django.core.management import call_command
 
 from treeherder.model.derived.base import DatasetNotFoundError
 from tests.sample_data_generator import job_data, result_set
@@ -213,46 +214,41 @@ def test_ingest_retry_sample_job_no_running(jm, refdata, sample_data, initial_da
     assert jl[0]['result'] == 'retry'
 
 
-def test_cycle_all_data(jm, refdata, sample_data, initial_data, sample_resultset, mock_log_parser):
+def test_cycle_all_data(jm, refdata, sample_data, initial_data,
+                        sample_resultset, mock_log_parser):
     """
     Test cycling the sample data
     """
     job_data = sample_data.job_data[:20]
     test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset, False)
 
-    # build a date that will cause the data to be cycled
-    data_cycle_seconds = settings.DATA_CYCLE_INTERVAL.total_seconds()
-    cycle_date_ts = int(time.time() - (data_cycle_seconds + 100000))
+    time_now = time.time()
+    cycle_date_ts = time_now - 7 * 24 * 3600
 
-    jm.get_dhub(jm.CT_JOBS).execute(
+    jm.jobs_execute(
         proc="jobs_test.updates.set_result_sets_push_timestamp",
         placeholders=[cycle_date_ts]
     )
 
-    jobs_to_be_deleted = jm.get_dhub(jm.CT_JOBS).execute(
+    jobs_to_be_deleted = jm.jobs_execute(
         proc="jobs_test.selects.get_jobs_for_cycling",
-        placeholders=[cycle_date_ts]
+        placeholders=[time_now - 24 * 3600]
     )
 
-    job_count = len(jobs_to_be_deleted)
+    jobs_before = jm.jobs_execute(proc="jobs_test.selects.jobs")
 
-    jobs_before = jm.get_dhub(jm.CT_JOBS).execute(proc="jobs_test.selects.jobs")
+    call_command('cycle_data', sleep_time=0, cycle_interval=1)
 
-    sql_targets = jm.cycle_data({}, False)
+    jobs_after = jm.jobs_execute(proc="jobs_test.selects.jobs")
 
-    jobs_after = jm.get_dhub(jm.CT_JOBS).execute(proc="jobs_test.selects.jobs")
-
-    jm.disconnect()
-    refdata.disconnect()
-
-    assert len(jobs_before) == job_count
+    assert len(jobs_after) == len(jobs_before) - len(jobs_to_be_deleted)
 
     # There should be no jobs after cycling
     assert len(jobs_after) == 0
 
-    assert sql_targets['jobs.deletes.cycle_job'] == job_count
 
-def test_cycle_one_job(jm, refdata, sample_data, initial_data, sample_resultset, mock_log_parser):
+def test_cycle_one_job(jm, refdata, sample_data, initial_data,
+                       sample_resultset, mock_log_parser):
     """
     Test cycling one job in a group of jobs to confirm there are no
     unexpected deletions
@@ -261,45 +257,75 @@ def test_cycle_one_job(jm, refdata, sample_data, initial_data, sample_resultset,
     job_data = sample_data.job_data[:20]
     test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset, False)
 
-    # set all the result_sets to a non cycle time
-    data_cycle_seconds = settings.DATA_CYCLE_INTERVAL.total_seconds()
-    non_cycle_date_ts = int(time.time() - (data_cycle_seconds - 100000))
-    jm.get_dhub(jm.CT_JOBS).execute(
+    time_now = time.time()
+    cycle_date_ts = int(time_now - 7 * 24 * 3600)
+
+    jm.jobs_execute(
         proc="jobs_test.updates.set_result_sets_push_timestamp",
-        placeholders=[ non_cycle_date_ts ]
+        placeholders=[time_now]
     )
 
-    # build a date that will cause the data to be cycled
-    data_cycle_seconds = settings.DATA_CYCLE_INTERVAL.total_seconds()
-    cycle_date_ts = int(time.time() - (data_cycle_seconds + 100000))
-
-    jm.get_dhub(jm.CT_JOBS).execute(
+    jm.jobs_execute(
         proc="jobs_test.updates.set_one_result_set_push_timestamp",
         placeholders=[cycle_date_ts]
     )
 
-    jobs_to_be_deleted = jm.get_dhub(jm.CT_JOBS).execute(
+    jobs_to_be_deleted = jm.jobs_execute(
         proc="jobs_test.selects.get_result_set_jobs",
         placeholders=[1]
     )
 
-    job_count = len(jobs_to_be_deleted)
+    jobs_before = jm.jobs_execute(proc="jobs_test.selects.jobs")
 
-    sql_targets = jm.cycle_data({}, False)
+    call_command('cycle_data', sleep_time=0, cycle_interval=1, debug=True)
 
-    assert sql_targets['jobs.deletes.cycle_job'] == job_count
+    jobs_after = jm.jobs_execute(proc="jobs_test.selects.jobs")
 
     #Confirm that the target result set has no jobs in the
     #jobs table
-    jobs_count_after_delete = jm.get_dhub(jm.CT_JOBS).execute(
+    jobs_to_be_deleted_after = jm.jobs_execute(
         proc="jobs_test.selects.get_result_set_jobs",
         placeholders=[1]
     )
 
-    assert len(jobs_count_after_delete) == 0
+    assert len(jobs_to_be_deleted_after) == 0
 
-    jm.disconnect()
-    refdata.disconnect()
+    assert len(jobs_after) == len(jobs_before) - len(jobs_to_be_deleted)
+
+
+def test_cycle_all_data_in_chunks(jm, refdata, sample_data, initial_data,
+                                  sample_resultset, mock_log_parser):
+    """
+    Test cycling the sample data in chunks.
+    """
+    job_data = sample_data.job_data[:20]
+    test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset, False)
+
+    # build a date that will cause the data to be cycled
+    time_now = time.time()
+    cycle_date_ts = int(time_now - 7 * 24 * 3600)
+
+    jm.jobs_execute(
+        proc="jobs_test.updates.set_result_sets_push_timestamp",
+        placeholders=[cycle_date_ts]
+    )
+
+    jobs_to_be_deleted = jm.jobs_execute(
+        proc="jobs_test.selects.get_jobs_for_cycling",
+        placeholders=[time_now - 24 * 3600]
+    )
+
+    jobs_before = jm.jobs_execute(proc="jobs_test.selects.jobs")
+
+    call_command('cycle_data', sleep_time=0, cycle_interval=1, chunk_size=3)
+
+    jobs_after = jm.jobs_execute(proc="jobs_test.selects.jobs")
+
+    assert len(jobs_after) == len(jobs_before) - len(jobs_to_be_deleted)
+
+    # There should be no jobs after cycling
+    assert len(jobs_after) == 0
+
 
 def test_bad_date_value_ingestion(jm, initial_data, mock_log_parser):
     """

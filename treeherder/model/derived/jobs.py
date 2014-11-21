@@ -6,6 +6,7 @@ import json
 import MySQLdb
 import time
 import logging
+from datetime import datetime
 
 from operator import itemgetter
 
@@ -180,6 +181,16 @@ class JobsModel(TreeherderModelBase):
     def get_jobs_dhub(self):
         """Get the dhub for jobs"""
         return self.get_dhub(self.CT_JOBS)
+
+    def execute(self, data_type, **kwargs):
+        """
+        Execute a query based on the data_type provided.
+        """
+        if data_type == 'jobs':
+            dhub = self.get_jobs_dhub()
+        else:
+            dhub = self.get_os_dhub()
+        return utils.retry_execute(dhub, logger, **kwargs)
 
     def jobs_execute(self, **kwargs):
         return utils.retry_execute(self.get_jobs_dhub(), logger, **kwargs)
@@ -729,157 +740,123 @@ class JobsModel(TreeherderModelBase):
 
         return round( sorted_list[length / 2], 0 )
 
-    def cycle_data(self, sql_targets={}, execute_sleep=True, chunk_size=100):
-        td = settings.DATA_CYCLE_INTERVAL
-         # py26 doesn't support timedelta.total_seconds() :(
-        interval_seconds = td.seconds + td.days * 24 * 3600
-        min_date = int(time.time() - interval_seconds)
+    def cycle_data(self, cycle_interval, chunk_size, sleep_time):
+        """Delete data older than cycle_interval, splitting the target data
+into chunks of chunk_size size. Returns the number of result sets deleted"""
 
+        max_date = datetime.now() - cycle_interval
+        max_timestamp = int(time.mktime(max_date.timetuple()))
         # Retrieve list of result sets to delete
         result_set_data = self.jobs_execute(
             proc='jobs.selects.get_result_sets_to_cycle',
-            placeholders=[min_date],
+            placeholders=[max_timestamp],
             debug_show=self.DEBUG
             )
+        if not result_set_data:
+            return 0
 
-        if len(result_set_data) == 0:
-            sql_targets['total_count'] = 0
-            return sql_targets
+        # group the result_set data in chunks
+        result_set_chunk_list = zip(*[iter(result_set_data)] * chunk_size)
+        # append the remaining result_set not fitting in a complete chunk
+        result_set_chunk_list.append(
+            result_set_data[-(len(result_set_data) % chunk_size):])
 
-        rs_placeholders = map( lambda x:x['id'], result_set_data )
-        rs_where_in_clause = [ ','.join( ['%s'] * len(rs_placeholders) ) ]
+        for result_set_chunks in result_set_chunk_list:
 
-        # Retrieve list of revisions associated with result sets
-        revision_data = self.jobs_execute(
-            proc='jobs.selects.get_revision_ids_to_cycle',
-            placeholders=rs_placeholders,
-            replace=rs_where_in_clause,
-            debug_show=self.DEBUG
-            )
+            # Retrieve list of revisions associated with result sets
+            rs_placeholders = [x['id'] for x in result_set_chunks]
+            rs_where_in_clause = [','.join(['%s'] * len(rs_placeholders))]
+            revision_data = self.jobs_execute(
+                proc='jobs.selects.get_revision_ids_to_cycle',
+                placeholders=rs_placeholders,
+                replace=rs_where_in_clause,
+                debug_show=self.DEBUG
+                )
 
-        rev_placeholders = map( lambda x:x['revision_id'], revision_data )
-        rev_where_in_clause = [ ','.join( ['%s'] * len(rev_placeholders) ) ]
+            # Retrieve list of jobs associated with result sets
+            rev_placeholders = [x['revision_id'] for x in revision_data]
+            rev_where_in_clause = [','.join(['%s'] * len(rev_placeholders))]
+            job_data = self.jobs_execute(
+                proc='jobs.selects.get_jobs_to_cycle',
+                placeholders=rs_placeholders,
+                replace=rs_where_in_clause,
+                debug_show=self.DEBUG
+                )
 
-        # Retrieve list of jobs associated with result sets
-        job_data = self.jobs_execute(
-            proc='jobs.selects.get_jobs_to_cycle',
-            placeholders=rs_placeholders,
-            replace=rs_where_in_clause,
-            debug_show=self.DEBUG
-            )
+            job_guid_dict = dict((d['id'], d['job_guid']) for d in job_data)
+            job_where_in_clause = [','.join(['%s'] * len(job_guid_dict))]
 
-        guid_placeholders = []
-        job_id_placeholders = []
+            # Associate placeholders and replace data with sql
+            obj_targets = []
+            for sql in self.OBJECTSTORE_CYCLE_TARGETS:
+                obj_targets.append({
+                    "proc": sql,
+                    "placeholders": job_guid_dict.values(),
+                    "replace": job_where_in_clause
+                })
 
-        for d in job_data:
-            guid_placeholders.append(d['job_guid'])
-            job_id_placeholders.append(d['id'])
+            jobs_targets = []
+            for proc in self.JOBS_CYCLE_TARGETS:
+                query_name = proc.split('.')[-1]
+                if query_name == 'cycle_revision':
+                    jobs_targets.append({
+                        "proc": proc,
+                        "placeholders": rev_placeholders,
+                        "replace": rev_where_in_clause
+                    })
 
-        jobs_where_in_clause = [ ','.join( ['%s'] * len(job_id_placeholders) ) ]
+                elif query_name == 'cycle_revision_map':
+                    jobs_targets.append({
+                        "proc": proc,
+                        "placeholders": rs_placeholders,
+                        "replace": rs_where_in_clause
+                    })
 
-        # Associate placeholders and replace data with sql
-        obj_targets = []
-        for sql in self.OBJECTSTORE_CYCLE_TARGETS:
-            obj_targets.append(
-                { "sql":sql,
-                  "placeholders":guid_placeholders,
-                  "replace":jobs_where_in_clause } )
+                elif query_name == 'cycle_result_set':
+                    jobs_targets.append({
+                        "proc": proc,
+                        "placeholders": rs_placeholders,
+                        "replace": rs_where_in_clause
+                    })
 
-        jobs_targets = []
-        for sql in self.JOBS_CYCLE_TARGETS:
+                else:
+                    jobs_targets.append({
+                        "proc": proc,
+                        "placeholders": job_guid_dict.keys(),
+                        "replace": job_where_in_clause
+                    })
 
-            if sql == 'cycle_revision':
+            # remove data from specified objectstore and jobs tables that is
+            # older than max_timestamp
+            self._execute_table_deletes(obj_targets, 'objectstore', sleep_time)
+            self._execute_table_deletes(jobs_targets, 'jobs', sleep_time)
 
-                jobs_targets.append(
-                    { "sql":sql,
-                      "placeholders":rev_placeholders,
-                      "replace":rev_where_in_clause } )
+        return len(result_set_data)
 
-            elif sql == 'cycle_revision_map':
-
-                jobs_targets.append(
-                    { "sql":sql,
-                      "placeholders":rs_placeholders,
-                      "replace":rs_where_in_clause } )
-
-            elif sql == 'cycle_result_set':
-
-                jobs_targets.append(
-                    { "sql":sql,
-                      "placeholders":rs_placeholders,
-                      "replace":rs_where_in_clause } )
-
-            else:
-
-                jobs_targets.append(
-                    { "sql":sql,
-                      "placeholders":job_id_placeholders,
-                      "replace":jobs_where_in_clause } )
-
-        sql_targets['total_count'] = 0
-
-        # remove data from specified objectstore and jobs tables that is
-        # older than 6 months
-        self._execute_table_deletes(
-            min_date, self.get_os_dhub(), obj_targets, sql_targets,
-            execute_sleep
-            )
-
-        self._execute_table_deletes(
-            min_date, self.get_jobs_dhub(), jobs_targets, sql_targets,
-            execute_sleep
-            )
-
-        return sql_targets
-
-    def _execute_table_deletes(
-        self, min_date, dhub, sql_to_execute, sql_targets, execute_sleep):
+    def _execute_table_deletes(self, sql_to_execute, data_type, sleep_time):
 
         for sql_obj in sql_to_execute:
 
-            sql = sql_obj['sql']
-            placeholders = sql_obj['placeholders']
-            replace = sql_obj['replace']
-
-            if sql not in sql_targets:
-                # First pass for sql
-                sql_targets[sql] = None
-
-            if len(placeholders) == 0:
-                sql_targets[sql] = 0
+            if not sql_obj['placeholders']:
                 continue
+            sql_obj['debug_show'] = self.DEBUG
 
-            if (sql_targets[sql] == None) or (sql_targets[sql] > 0):
+            # Disable foreign key checks to improve performance
+            self.execute(data_type,
+                         proc='generic.db_control.disable_foreign_key_checks',
+                         debug_show=self.DEBUG)
 
-                # Disable foreign key checks to improve performance
-                dhub.execute(
-                    proc='generic.db_control.disable_foreign_key_checks',
-                    debug_show=self.DEBUG
-                    )
+            self.execute(data_type, **sql_obj)
+            self.get_dhub(data_type).commit('master_host')
 
-                dhub.execute(
-                    proc=sql,
-                    placeholders=placeholders,
-                    replace=replace,
-                    debug_show=self.DEBUG,
-                    )
+            # Re-enable foreign key checks to improve performance
+            self.execute(data_type,
+                         proc='generic.db_control.enable_foreign_key_checks',
+                         debug_show=self.DEBUG)
 
-                row_count = dhub.connection['master_host']['cursor'].rowcount
-
-                dhub.commit('master_host')
-
-                # Re-enable foreign key checks to improve performance
-                dhub.execute(
-                    proc='generic.db_control.enable_foreign_key_checks',
-                    debug_show=self.DEBUG
-                    )
-
-                sql_targets[sql] = row_count
-                sql_targets['total_count'] += row_count
-
-                if execute_sleep:
-                    # Allow some time for other queries to get through
-                    time.sleep(5)
+            if sleep_time:
+                # Allow some time for other queries to get through
+                time.sleep(sleep_time)
 
     def get_bug_job_map_list(self, offset, limit, conditions=None):
         """
