@@ -142,6 +142,10 @@ treeherder.factory('thPinboard', [
             return !_.isEmpty(pinnedJobs);
         },
 
+        hasRelatedBugs: function() {
+            return !_.isEmpty(relatedBugs);
+        },
+
         spaceRemaining: function() {
             return api.maxNumPinned - api.count.numPinnedJobs;
         },

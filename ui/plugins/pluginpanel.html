@@ -229,18 +229,21 @@
 
         <ul class="nav navbar-nav pull-right">
           <li>
-            <a href="#" prevent-default-on-left-click ng-click="togglePinboardVisibility()">
+            <a href="#" prevent-default-on-left-click ng-click="togglePinboardVisibility()"
+               ng-class="{'pinboard-open-btn': isPinboardVisible}">
               <span ng-hide="isPinboardVisible"
-                    title="Show the pinboard"
-                    class="glyphicon glyphicon-chevron-down"></span>
+                    title="Open the pinboard">Open pinboard&nbsp
+                    <span class="fa fa-angle-up"></span>
+              </span>
               <span ng-show="isPinboardVisible"
-                    title="Hide the pinboard"
-                    class="glyphicon glyphicon-chevron-up"></span>
+                    title="Close the pinboard">Close pinboard&nbsp
+                    <span class="fa fa-angle-down"></span>
+              </span>
             </a>
           </li>
           <li>
-            <a prevent-default-on-left-click title="close panel" href="#" ng-click="closeJob()">
-              <span class="glyphicon glyphicon-remove"></span>
+            <a prevent-default-on-left-click title="Close the job panel" href="#" ng-click="closeJob()">
+              <span class="fa fa-times"></span>
             </a>
           </li>
         </ul>

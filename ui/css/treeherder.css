@@ -458,9 +458,9 @@ div#bottom-panel-resizer {
     display: flex;
     flex: none;
     -webkit-flex: none;
-    background-color: #42484F;
+    background-color: #919dad;
     cursor: ns-resize;
-    height: 4px;
+    height: 2px;
 }
 
 
@@ -546,13 +546,6 @@ div#bottom-panel .navbar.navbar-dark .navbar-nav > li.active a:hover,
 div#bottom-panel .navbar.navbar-dark .navbar-nav > li.active a:focus {
     background-color: #1A4666;
     color: #EEF0F2;
-}
-
-div#bottom-panel .navbar-nav.pull-right li a,
-div#bottom-panel .navbar-nav.pull-right li a:hover,
-div#bottom-panel .navbar-nav.pull-right li a:focus {
-    font-size: 12px;
-    line-height: 8px;
 }
 
 #bottom-panel-content {
@@ -738,9 +731,8 @@ ul.failure-summary-list li .btn-xs {
  */
 
 #pinboard-panel {
-    background-color: #252C33;
-    color: #EEF0F2;
-    padding: 0px 5px;
+    background-color: #e6eef5;
+    color: #252c33;
 
     flex: auto;
     -webkit-flex: auto;
@@ -752,7 +744,16 @@ ul.failure-summary-list li .btn-xs {
 }
 
 #pinboard-panel .header{
+    padding-left: 2px;
     height: 18px;
+}
+
+.pinboard-preload-txt {
+    color: #bfbfbf;
+}
+
+.pinboard-related-bug-preload-txt {
+    vertical-align: top;
 }
 
 #pinned-job-list{
@@ -765,7 +766,7 @@ ul.failure-summary-list li .btn-xs {
     padding: 2px;
     margin: 2px;
     background-color: #FFFFFF;
-    min-height: 60px;
+    min-height: 80px;
     max-height: 120px;
     overflow: auto;
 }
@@ -782,10 +783,40 @@ ul.failure-summary-list li .btn-xs {
     padding: 2px;
     margin: 2px;
     background-color: #FFFFFF;
-    min-height: 60px;
+    min-height: 80px;
     max-height: 120px;
-    overflow: auto;
+    overflow-x: hidden;
     color: black;
+}
+
+#pinboard-related-bugs a {
+    text-decoration: none;
+}
+
+.add-related-bugs-icon {
+    margin-right: 2px;
+    font-size: 17px;
+    color: #98c3da;
+}
+
+.add-related-bugs-form {
+    position: relative;
+    top: -18px;
+    left: 20px;
+}
+
+.add-related-bugs-input {
+    width: 12em;
+}
+
+.pinboard-open-btn {
+    margin-top: -1px;
+    background-color: #e6eef5 !important;
+    color: #252c33 !important;
+}
+
+.pinboard-related-bugs-btn {
+    margin-bottom: -1px;
 }
 
 /* Spin button suppression on chrome */
@@ -817,14 +848,7 @@ ul.failure-summary-list li .btn-xs {
 #pinboard-classification textarea {
     width: 177px;
     margin-top: 5px;
-    height: 37px;
-}
-
-#pinboard-controls-close-button-container {
-    padding-left: 5px;
-    flex: none;
-    -webkit-flex: none;
-    color: #9fa3a5;
+    height: 40px;
 }
 
 #pinboard-controls {

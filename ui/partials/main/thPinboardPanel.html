@@ -1,8 +1,8 @@
 <div id="pinned-job-list">
-  <div class="header">
-    <i class="glyphicon glyphicon-pushpin"></i> pinboard
-  </div>
   <div class="content">
+    <span class="pinboard-preload-txt"
+          ng-hide="hasPinnedJobs()">
+          press spacebar to pin a selected job</span>
     <span ng-repeat="job in pinnedJobs">
       <th-pinned-job></th-pinned-job>
     </span>
@@ -10,17 +10,20 @@
 </div>
 
 <div id="pinboard-related-bugs">
-  <div class="header">
-    <i class="fa fa-bug"></i> related bugs
-    <a ng-click="toggleEnterBugNumber()"
-       class="click-able-icon lightgray"
-       title="type in a bug number"><i class="fa fa-plus"></i>
-    </a>
-  </div>
   <div class="content">
-    <form ng-submit="saveEnteredBugNumber()">
+    <a ng-click="toggleEnterBugNumber()"
+       class="click-able-icon"
+       title="Add a related bug">
+       <i class="fa fa-plus-square add-related-bugs-icon"></i>
+    </a>
+    <span class="pinboard-preload-txt pinboard-related-bug-preload-txt"
+          ng-if="!hasRelatedBugs()">
+          click to add a related bug</span>
+    <form ng-submit="saveEnteredBugNumber()"
+          ng-show="enteringBugNumber"
+          class="add-related-bugs-form">
       <input type="number"
-             ng-show="enteringBugNumber"
+             class="add-related-bugs-input"
              ng-model="$parent.newEnteredBugNumber"
              placeholder="enter bug number"
              focus-me="focusInput">
@@ -30,8 +33,9 @@
     </span>
   </div>
 </div>
+
 <div id="pinboard-classification">
-  <div class="header"><i class="fa fa-star"></i> classification</div>
+  <div class="header">classification</div>
   <div id="pinboard-classification-content" class="content">
     <form ng-submit="saveNewClassification()" class="form">
       <select ng-model="classification.failure_classification_id"
@@ -66,14 +70,4 @@
       <li><a ng-click="saveBugsOnly()"><i class="fa fa-bug"></i> bugs only</a></li>
     </ul>
   </div>
-</div>
-
-<div id="pinboard-controls-close-button-container">
-  <a class="click-able-icon lightgray"
-     ng-click="togglePinboardVisibility()"
-     prevent-default-on-left-click>
-    <span title="Close the pinboard"
-          class="glyphicon glyphicon-remove">
-    </span>
-  </a>
 </div>
