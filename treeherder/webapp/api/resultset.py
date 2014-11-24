@@ -178,9 +178,19 @@ class ResultSetViewSet(viewsets.ViewSet):
     def get_resultset_jobs(self, request, project, jm, pk=None):
 
         result_set_ids = request.QUERY_PARAMS.getlist('result_set_ids') or []
+        exclusion_state = request.QUERY_PARAMS.get('exclusion_state', 'included')
+
+        # default to only included, if an invalid value passed in
+        if exclusion_state not in jm.EXCLUSION_STATES:
+            exclusion_state = 'included'
+
         debug = request.QUERY_PARAMS.get('debug', None)
 
         filter_params = request.QUERY_PARAMS.copy()
+        if 'result_set_ids' in filter_params:
+            del filter_params['result_set_ids']
+        if 'exclusion_state' in filter_params:
+            del filter_params['exclusion_state']
 
         # adapt the result_set_ids to the get_result_set_list
         # return structure
@@ -188,7 +198,7 @@ class ResultSetViewSet(viewsets.ViewSet):
         map(lambda r_id:objs.append({'id':int(r_id)}), result_set_ids)
 
         results = self.get_resultsets_with_jobs(
-                jm, objs, True, filter_params, debug, 'id')
+                jm, objs, True, filter_params, debug, exclusion_state, 'id')
 
         meta = {}
         meta['count'] = len(results)
@@ -203,11 +213,9 @@ class ResultSetViewSet(viewsets.ViewSet):
 
     @staticmethod
     def get_resultsets_with_jobs(
-        jm, rs_list, full, filter_kwargs, debug, sort_key='push_timestamp'):
+        jm, rs_list, full, filter_kwargs, debug, exclusion_state='included',
+        sort_key='push_timestamp'):
         """Convert db result of resultsets in a list to JSON"""
-
-        if 'result_set_ids' in filter_kwargs:
-            del filter_kwargs['result_set_ids']
 
         rs_map = {}
         for rs in rs_list:
@@ -219,6 +227,7 @@ class ResultSetViewSet(viewsets.ViewSet):
         job_list = jm.get_result_set_job_list(
             rs_map.keys(),
             full,
+            exclusion_state,
             **filter_kwargs
         )
 

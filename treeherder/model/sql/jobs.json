@@ -849,6 +849,7 @@
                     ON jt.`job_group_id` = jg.id
                   WHERE j.`result_set_id` IN (REP1)
                   REP2
+                  REP3
                   ",
             "host": "read_host"
         },
@@ -897,6 +898,7 @@
                     ON jt.`job_group_id` = jg.id
                   WHERE j.`result_set_id` IN (REP1)
                   REP2
+                  REP3
                   ",
             "host": "read_host"
         },

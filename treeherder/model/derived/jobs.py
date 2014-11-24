@@ -17,7 +17,8 @@ from django.conf import settings
 from django.core.cache import cache
 
 from treeherder.model.models import (Datasource,
-                                     ReferenceDataSignatures)
+                                     ReferenceDataSignatures,
+                                     ExclusionProfile)
 
 from treeherder.model import utils
 
@@ -63,6 +64,13 @@ class JobsModel(TreeherderModelBase):
     ]
     INCOMPLETE_STATES = ["running", "pending"]
     STATES = INCOMPLETE_STATES + ["completed", "coalesced"]
+
+    # based on an exclusion profile, which jobs to return
+    EXCLUSION_STATES = [
+        'excluded', # only jobs that are excluded
+        'included', # only jobs that are NOT excluded
+        'all' # both included and excluded jobs
+    ]
 
     # indexes of specific items in the ``job_placeholder`` objects
     JOB_PH_JOB_GUID = 0
@@ -1109,7 +1117,11 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         return aggregate_details
 
-    def get_result_set_job_list(self, result_set_ids, full=True, **kwargs):
+    def get_result_set_job_list(self,
+                                result_set_ids,
+                                full=True,
+                                exclusion_state='included',
+                                **kwargs):
         """
         Retrieve a list of ``jobs`` and results for a result_set.
 
@@ -1131,6 +1143,22 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         if "job_type_name" in kwargs:
             repl.append(" AND jt.`name` = '{0}'".format(kwargs["job_type_name"]))
 
+        if exclusion_state != 'all':
+            def_excl = ExclusionProfile.objects.filter(is_default=True)
+            if len(def_excl):
+                try:
+                    signatures = def_excl[0].flat_exclusion[self.project]
+                    # NOT IN if it's 'included' so we don't see excluded jobs
+                    # just IN if it's 'excluded' so we ONLY see excluded jobs
+                    negation = "NOT " if exclusion_state == 'included' else ''
+                    repl.append(" AND j.signature {0}IN ('{1}')".format(
+                                negation,
+                                "', '".join(signatures)
+                                ))
+                except KeyError:
+                    # this repo/project has no hidden signatures
+                    pass
+
         if full:
             proc = "jobs.selects.get_result_set_job_list_full"
         else:
@@ -1148,7 +1176,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             signatures.add(job['signature'])
 
         reference_signature_names = self.refdata_model.get_reference_data_signature_names(
-            list(signatures));
+            list(signatures))
 
         return {
             'job_list':data,
@@ -2077,7 +2105,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             ' AND '.join(['COALESCE(SUM(`property`=%s AND `value`=%s), 0) > 0']
                             * len(props))]
 
-        # convert to 1 dimentional list
+        # convert to 1 dimensional list
         props = [el for x in props.items() for el in x]
         props.extend(props)
 
