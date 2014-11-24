@@ -6,22 +6,37 @@
 treeherder.controller('SheriffCtrl', [
     '$scope', '$rootScope', 'ThBuildPlatformModel', 'ThJobTypeModel',
     'thEvents', 'ThRepositoryModel', 'ThOptionModel', 'ThJobExclusionModel',
-    'ThExclusionProfileModel', 'thJobFilters',
+    'ThExclusionProfileModel', 'thNotify',
     function SheriffController(
         $scope, $rootScope, ThBuildPlatformModel, ThJobTypeModel, thEvents,
         ThRepositoryModel, ThOptionModel, ThJobExclusionModel,
-        ThExclusionProfileModel, thJobFilters) {
+        ThExclusionProfileModel, thNotify) {
 
         // fetch the reference data
         $scope.exclusions = [];
         $scope.exclusions_map = {};
-
-        ThJobExclusionModel.get_list().then(function(data) {
-            $scope.exclusions = data;
-            $scope.exclusions_map = _.indexBy($scope.exclusions, 'id');
-        });
-
         $scope.profiles = [];
+
+        // load the values needed for this page.
+        // this won't be needed all that often, so we should
+        // only load it on-demand.
+        var init = function() {
+            // only load once, otherwise rely on refreshing
+            if (!$scope.initComplete) {
+                ThJobExclusionModel.get_list().then(function (data) {
+                    $scope.exclusions = data;
+                    $scope.exclusions_map = _.indexBy($scope.exclusions, 'id');
+                });
+                ThExclusionProfileModel.get_list({}, false).then(function (data) {
+                    $scope.profiles = data;
+                });
+                $scope.initComplete = true;
+            }
+        };
+
+        $rootScope.$on(thEvents.initSheriffPanel, function() {
+            init();
+        });
 
         $scope.refreshExclusionProfileList = function() {
             // this is a bit brute force for some circumstances.  But the list
@@ -31,17 +46,19 @@ treeherder.controller('SheriffCtrl', [
 
             ThExclusionProfileModel.get_list({}, false).then(function(data) {
                 $scope.profiles = data;
-                thJobFilters.setActiveExclusionProfile(_.find(
-                    $scope.profiles,
-                    function(elem){
-                        return elem.is_default;
-                    }
-                ));
+                // don't force the user to refresh, in case they want to make
+                // several changes.
+                thNotify.send("Refresh the page to see changes reflected.");
             });
-
         };
 
-        $scope.refreshExclusionProfileList();
+        /**
+         * Used to allow for selection of "platform (arch)" or
+         * "job_type (job_symbol)"
+         */
+        var getJobComboField = function(field1, field2) {
+            return field1 + " (" + field2 + ")";
+        };
 
         $scope.view = 'exclusion_profile_list';
         $scope.switchView = function(newView) {
@@ -54,10 +71,10 @@ treeherder.controller('SheriffCtrl', [
         .then(function(data) {
             for (var i = 0; i < data.length; i++) {
                 $scope.master_platforms.push(
-                    thJobFilters.getJobComboField(data[i].platform, data[i].architecture)
+                    getJobComboField(data[i].platform, data[i].architecture)
                 );
             }
-            $scope.master_platforms.sort()
+            $scope.master_platforms.sort();
             $scope.form_platforms = angular.copy($scope.master_platforms);
         });
 
@@ -67,10 +84,10 @@ treeherder.controller('SheriffCtrl', [
         .then(function(data) {
             for (var i = 0; i < data.length; i++) {
                 $scope.master_job_types.push(
-                    thJobFilters.getJobComboField(data[i].name, data[i].symbol)
+                    getJobComboField(data[i].name, data[i].symbol)
                 );
             }
-            $scope.master_job_types.sort()
+            $scope.master_job_types.sort();
             $scope.form_job_types = angular.copy($scope.master_job_types);
         });
 
@@ -81,7 +98,7 @@ treeherder.controller('SheriffCtrl', [
                 for (var i = 0; i < data.length; i++) {
                     $scope.master_repos.push(data[i].name);
                 }
-                $scope.master_repos.sort()
+                $scope.master_repos.sort();
                 $scope.form_repos = angular.copy($scope.master_repos);
             });
 
@@ -92,7 +109,7 @@ treeherder.controller('SheriffCtrl', [
                 for (var i = 0; i < data.length; i++) {
                     $scope.master_options.push(data[i].name);
                 }
-                $scope.master_options.sort()
+                $scope.master_options.sort();
                 $scope.form_options = angular.copy($scope.master_options);
             });
 
@@ -141,7 +158,7 @@ treeherder.controller('SheriffCtrl', [
 
         $scope.delete_exclusion = function(exclusion) {
             exclusion.delete().then(function() {
-                // update the visibility profiles
+                // update the exclusion profiles
                 // since some of them may keep an old relationship
                 // with the exclusion just deleted
                 ThExclusionProfileModel.get_list().then(function(data) {
@@ -217,13 +234,15 @@ treeherder.controller('SheriffCtrl', [
 
         $scope.set_default_profile = function(profile) {
             profile.is_default = true;
-            profile.update().then(function(data) {
+            profile.update().then(function() {
                 angular.forEach($scope.profiles, function(elem) {
                     if (elem.is_default && elem.id !== profile.id) {
                         elem.is_default = false;
                     }
                 });
-                thJobFilters.setActiveExclusionProfile(profile);
+                // don't force the user to refresh, in case they want to make
+                // several changes.
+                thNotify.send("Refresh the page to see changes reflected.");
             }, null);
         };
 

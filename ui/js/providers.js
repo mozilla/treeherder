@@ -237,7 +237,9 @@ treeherder.provider('thEvents', function() {
 
             mapResultSetJobs: "map-result-set-jobs-EVT",
 
-            applyNewJobs: "apply-new-jobs-EVT"
+            applyNewJobs: "apply-new-jobs-EVT",
+
+            initSheriffPanel: "init-sheriff-panel-EVT"
         };
     };
 });

@@ -225,11 +225,6 @@ treeherder.controller('ResultSetCtrl', [
             return thJobFilters.showJob(job, $scope.resultStatusFilters);
         };
 
-        $scope.totalExcluded = function() {
-            return thJobFilters.getCountExcluded($scope.resultset.id, "total");
-        };
-
-
         $scope.cancelAllJobs = function(revision) {
             if (!window.confirm('This will cancel all pending and running jobs for revision ' + revision + '!\n\nAre you sure?')) {
                 return;

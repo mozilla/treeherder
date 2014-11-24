@@ -85,7 +85,6 @@ treeherder.factory('ThExclusionProfileModel', [
             )
             .then(
                 function(response){
-                    angular.extend(exclusion_profile, response.data.id);
                     thNotify.send("Exclusion profile successfully updated", "success");
                 },
                 function(reason){

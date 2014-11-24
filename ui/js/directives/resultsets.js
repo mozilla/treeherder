@@ -55,7 +55,7 @@ treeherder.directive('thResultCounts', [
             var setTotalCount = function() {
                 if (scope.resultset.job_counts) {
                     $(element).find('.result-status-total-value').html(
-                        scope.resultset.job_counts.total - scope.totalExcluded()
+                        scope.resultset.job_counts.total
                     );
                 }
             };
@@ -81,8 +81,7 @@ treeherder.directive('thResultStatusCount', [
     var updateResultCount = function(scope, rsCountEl) {
         if(scope.resultset.job_counts) {
 
-            scope.resultCount = (scope.resultset.job_counts[scope.resultStatus] || 0) -
-                            thJobFilters.getCountExcluded(scope.resultset.id, scope.resultStatus);
+            scope.resultCount = (scope.resultset.job_counts[scope.resultStatus] || 0);
             rsCountEl.find(".rs-count-number").html(scope.resultCount);
 
             if (scope.resultCount) {
@@ -111,11 +110,6 @@ treeherder.directive('thResultStatusCount', [
             rsCountEl.prop('title', resultCountTitleText);
             rsCountEl.find('.rs-count-text').html(resultCountText);
 
-            // so that when you toggle skipping the exclusion profiles,
-            // we update the counts to reflect what is seen.
-            $rootScope.$on(thEvents.globalFilterChanged, function(evt) {
-                updateResultCount(scope, rsCountEl);
-            });
             $rootScope.$on(thEvents.applyNewJobs, function(evt) {
                 updateResultCount(scope, rsCountEl);
             });

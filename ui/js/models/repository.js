@@ -50,7 +50,6 @@ treeherder.factory('ThRepositoryModel', [
         repos[repo.name] = {
             treeStatus: null,
             unclassifiedFailureCount: 0,
-            unclassifiedFailureCountExcluded: 0,
             groupName: repo.repository_group.name
         };
     };
@@ -63,7 +62,6 @@ treeherder.factory('ThRepositoryModel', [
         _.extend(repos[repoName], {
             treeStatus: {status: "not retrieved yet", message_of_the_day: ""},
             unclassifiedFailureCount: 0,
-            unclassifiedFailureCountExcluded: 0,
             groupName: repos[repoName].groupName
         });
         watchedRepos[repoName] = repos[repoName];

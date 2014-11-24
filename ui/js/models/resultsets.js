@@ -55,7 +55,8 @@ treeherder.factory('ThResultSetModel', [
         'fromchange',
         'tochange',
         'startdate',
-        'enddate'
+        'enddate',
+        'exclusion_state'
     ];
 
     var registerResultSetPollers = function(){
@@ -363,8 +364,7 @@ treeherder.factory('ThResultSetModel', [
     var getUnclassifiedFailureCount = function(repoName) {
         if (_.has(repositories, repoName)) {
 
-            return _.size(repositories[repoName].unclassifiedFailureMap) -
-                   _.size(thJobFilters.excludedUnclassifiedFailures);
+            return _.size(repositories[repoName].unclassifiedFailureMap);
 
         }
         return 0;
@@ -794,6 +794,7 @@ treeherder.factory('ThResultSetModel', [
          */
         repositories[repoName].loadingStatus.appending = true;
         var resultsets;
+        var exclusion_state = $location.search().exclusion_state;
         var loadRepositories = ThRepositoryModel.load(repoName);
         var loadResultsets = thResultSets.getResultSets(repoName,
                                        repositories[repoName].rsMapOldestTimestamp,
@@ -817,7 +818,7 @@ treeherder.factory('ThResultSetModel', [
                     appendResultSets(repoName, {results: []});
                 }).
             then(function(){
-                thResultSets.getResultSetJobs(resultsets, repoName);
+                thResultSets.getResultSetJobs(resultsets, repoName, exclusion_state);
             });
     };
 

@@ -129,20 +129,18 @@ treeherder.controller('MainCtrl', [
 
         };
 
-        $scope.isSkippingExclusionProfiles = function() {
-            return thJobFilters.isSkippingExclusionProfiles();
-        };
-
         $scope.getUnclassifiedFailureCount = function(repoName) {
             return ThResultSetModel.getUnclassifiedFailureCount(repoName);
         };
 
-        $scope.getTimeWindowUnclassifiedFailureCount = function(repoName) {
-            return thJobFilters.getCountExcludedForRepo(repoName);
-        };
+        $scope.isSkippingExclusionProfiles = $location.search().exclusion_state === 'all';
 
         $scope.toggleExcludedJobs = function() {
-            thJobFilters.toggleSkipExclusionProfiles();
+            var newState = 'all';
+            if ($scope.isSkippingExclusionProfiles) {
+                newState = null;
+            }
+            $location.search('exclusion_state', newState);
         };
 
         $scope.toggleUnclassifiedFailures = thJobFilters.toggleUnclassifiedFailures;
@@ -250,21 +248,16 @@ treeherder.controller('MainCtrl', [
 
         $scope.isSheriffPanelShowing = false;
         $scope.setSheriffPanelShowing = function(tf) {
+            if (tf) {
+                // lazy fetching of exclusion profiles, because we don't
+                // need them unless you're editing them on this page
+                $rootScope.$emit(thEvents.initSheriffPanel);
+            }
             $scope.isSheriffPanelShowing = tf;
         };
 
         $scope.pinboardCount = thPinboard.count;
         $scope.pinnedJobs = thPinboard.pinnedJobs;
 
-        // get a cached version of the exclusion profiles
-        ThExclusionProfileModel.get_list({}, true).then(function(profiles){
-            $scope.exclusion_profiles = profiles;
-            thJobFilters.setActiveExclusionProfile(_.find(
-                $scope.exclusion_profiles,
-                function(elem){
-                    return elem.is_default;
-                }
-            ));
-        }, null);
     }
 ]);

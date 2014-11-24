@@ -114,13 +114,6 @@ treeherder.factory('thJobFilters', [
     var cachedClassifiedStateFilters = {};
     var cachedFieldFilters = {};
 
-    // exclusion profile handling
-    var activeExclusionProfile = {};
-    var skipExclusionProfiles = false; // whether or not to reveal hidden jobs
-    var excludedJobs = {};
-    var excludedUnclassifiedFailures = {};
-
-
     /**
      * Checks for a filter change and, if detected, updates the cached filter
      * values from the query string.  Then publishes the global event
@@ -216,27 +209,6 @@ treeherder.factory('thJobFilters', [
         }
         if (!_checkFieldFilters(job)) {
             return false;
-        }
-
-        // test against the active exclusion profile
-        if(activeExclusionProfile && !skipExclusionProfiles) {
-            try{
-                var jobPlatformArch = getJobComboField(
-                    job.platform, job.machine_platform_architecture);
-                var jobNameSymbol = getJobComboField(
-                    job.job_type_name, job.job_type_symbol);
-
-                if(activeExclusionProfile.flat_exclusion[$rootScope.repoName]
-                    [jobPlatformArch][jobNameSymbol][job.platform_option]){
-                    addExcludedJob(job);
-                    return false;
-                }
-            }catch (e){
-                //do nothing
-            }
-            removeExcludedJob(job);
-        } else {
-            removeExcludedJob(job);
         }
         return true;
     };
@@ -584,121 +556,6 @@ treeherder.factory('thJobFilters', [
         return str.indexOf(val) === 0;
     };
 
-    /*********************
-     * Exclusion profile functions -- soon to be refactored
-     *******************/
-
-    /**
-     * When a job is excluded, we add it to the ``excludedJobs`` object which
-     * keeps track of the counts of resultStatus values during exclusion.
-     * These values can then be used to modify the displayed counts per
-     * ``resultStatus`` in that directive if exclusion is enabled.
-     */
-    var addExcludedJob = function(job) {
-        var newStatus = thResultStatus(job);
-        if (!_.has(excludedJobs, job.result_set_id)) {
-            excludedJobs[job.result_set_id] = {
-                counts: {},
-                jobs: {}
-            };
-        }
-        var rs_excluded = excludedJobs[job.result_set_id];
-
-        if (_.has(rs_excluded.jobs, job.job_guid)) {
-            //we already have this in the map, but the status may be different
-            //so remove the old count value so we can add the new one
-            var oldStatus = rs_excluded.jobs[job.job_guid];
-            --rs_excluded.counts[oldStatus];
-        }
-
-        if (isJobUnclassifiedFailure(job)) {
-            excludedUnclassifiedFailures[job.job_guid] = job;
-        }
-
-        // now we can do the increment, because we've decremented the old count
-        // if one was there.
-        rs_excluded.jobs[job.job_guid] = newStatus;
-        rs_excluded.counts[newStatus] = rs_excluded.counts[newStatus] || 0;
-        ++rs_excluded.counts[newStatus];
-        rs_excluded.counts.total = _.size(rs_excluded.jobs);
-    };
-
-    /**
-     * Used in more than one place, so this ensures the format remains
-     * consistent.  Critical because it's used when building the exclusion
-     * profiles in memory, and checking against them.
-     */
-    var getJobComboField = function(field1, field2) {
-        return field1 + " (" + field2 + ")";
-    };
-
-    var toggleSkipExclusionProfiles = function() {
-        skipExclusionProfiles = !skipExclusionProfiles;
-        $rootScope.$emit(thEvents.globalFilterChanged);
-    };
-
-    var isSkippingExclusionProfiles = function() {
-        return skipExclusionProfiles;
-    };
-
-    var getActiveExclusionProfile = function() {
-        return activeExclusionProfile;
-    };
-
-    var setActiveExclusionProfile = function(newProfile) {
-        activeExclusionProfile = newProfile;
-        $rootScope.$emit(thEvents.globalFilterChanged, null);
-    };
-
-    /**
-     * If an exclusion profile is changed, we need to modify the count
-     * excluded.
-     */
-    var removeExcludedJob = function(job) {
-        if (_.has(excludedJobs, job.result_set_id)) {
-            var rs_excluded = excludedJobs[job.result_set_id];
-
-            if (_.has(rs_excluded.jobs, job.job_guid)) {
-
-                var status = rs_excluded.jobs[job.job_guid];
-                delete rs_excluded.jobs[job.job_guid];
-                --rs_excluded.counts[status];
-                rs_excluded.counts.total = _.size(rs_excluded.jobs);
-            }
-        }
-
-        delete excludedUnclassifiedFailures[job.job_guid];
-    };
-
-    /**
-     * Get the count of this resultStatus that were excluded.  If
-     * skipping exclusion, then return 0.
-     */
-    var getCountExcluded = function(resultset_id, resultStatus) {
-        if (skipExclusionProfiles) {
-            return 0;
-        } else {
-            if (_.has(excludedJobs, resultset_id)) {
-                return excludedJobs[resultset_id].counts[resultStatus] || 0;
-            }
-            return 0;
-        }
-    };
-
-    var getCountExcludedForRepo = function(repoName) {
-        var repoData = ThRepositoryModel.watchedRepos[repoName];
-
-        if (repoData) {
-            if (skipExclusionProfiles) {
-                return repoData.unclassifiedFailureCount;
-            } else {
-                return repoData.unclassifiedFailureCount - repoData.unclassifiedFailureCountExcluded;
-            }
-        }
-        return 0;
-    };
-
-
     // initialize caches on initial load
     _refreshFilterCaches();
 
@@ -732,19 +589,7 @@ treeherder.factory('thJobFilters', [
 
         // CONSTANTS
         classifiedState: CLASSIFIED_STATE,
-        resultStatus: RESULT_STATUS,
-
-        // EXCLUSION PROFILE
-        getActiveExclusionProfile: getActiveExclusionProfile,
-        setActiveExclusionProfile: setActiveExclusionProfile,
-        getJobComboField: getJobComboField,
-        excludedJobs: excludedJobs,
-        excludedUnclassifiedFailures: excludedUnclassifiedFailures,
-        toggleSkipExclusionProfiles: toggleSkipExclusionProfiles,
-        getCountExcluded: getCountExcluded,
-        getCountExcludedForRepo: getCountExcludedForRepo,
-        isSkippingExclusionProfiles: isSkippingExclusionProfiles
-
+        resultStatus: RESULT_STATUS
     };
     return api;
 }]);

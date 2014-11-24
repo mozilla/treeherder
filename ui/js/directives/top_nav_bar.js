@@ -163,3 +163,17 @@ treeherder.directive('thRepoMenuItem', [
         templateUrl: 'partials/main/thRepoMenuItem.html'
     };
 }]);
+
+// which class to show for the show/hide excluded jobs button.
+// this allows us to do one-time binding in the html.
+treeherder.directive('thExclusionState', function () {
+    return {
+        restrict: "A",
+        link: function(scope, element, attrs) {
+            scope.exclusionStateClass = 'fa-square-o';
+            if (scope.isSkippingExclusionProfiles) {
+                scope.exclusionStateClass = 'fa-square';
+            }
+        }
+    };
+});
