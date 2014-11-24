@@ -33,7 +33,9 @@ treeherder.directive('focusMe', [
             element[0].focus();
           }, 0);
         } else {
-          element[0].blur();
+          $timeout(function() {
+            element[0].blur();
+          }, 0);
         }
       });
     }
