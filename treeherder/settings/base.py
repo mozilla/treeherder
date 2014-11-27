@@ -5,6 +5,7 @@
 # Django settings for webapp project.
 import os
 import sys
+from datetime import timedelta
 from treeherder import path
 
 # Insure the vendor libraries are added to the python path
@@ -38,6 +39,8 @@ TREEHERDER_PERF_SERIES_TIME_RANGES = [
     { "seconds":5184000, "days":60 },
     { "seconds":7776000, "days":90 },
 ]
+
+DATA_CYCLE_INTERVAL = timedelta(days=30*6)
 
 RABBITMQ_USER = os.environ.get("TREEHERDER_RABBITMQ_USER", "")
 RABBITMQ_PASSWORD = os.environ.get("TREEHERDER_RABBITMQ_PASSWORD", "")
