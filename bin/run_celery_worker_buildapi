@@ -27,5 +27,5 @@ fi
 
 exec $NEWRELIC_ADMIN $CELERY -A treeherder worker -Q buildapi \
     --concurrency=5 --logfile=$LOGFILE -l INFO \
-    --maxtasksperchild=500 -n buildapi.%h
+    --maxtasksperchild=20 -n buildapi.%h
 
