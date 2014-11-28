@@ -359,7 +359,24 @@ th-watched-repo {
     padding-top: 10px;
 }
 
-.result-set-title-left, .result-set-buttons, .result-counts {
+.result-set-title-left {
+    flex: 0 0 23.5em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 10px;
+}
+
+.result-set-buttons {
+    flex: 0 0 13em;
+}
+
+.result-set-fa-icon {
+    float: left;
+    padding-top: 4px;
+    padding-right: 4px;
+}
+
+.result-counts {
     flex: none;
     -webkit-flex: none;
     padding-right: 10px;
@@ -388,7 +405,7 @@ th-watched-repo {
 .revision-text {
     overflow: hidden;
     text-overflow: ellipsis;
-    width: 95px;
+    width: 7.2em;
     display: inline-block;
     vertical-align: middle;
 }
@@ -890,12 +907,6 @@ ul.failure-summary-list li .btn-xs {
     margin-top: 0.3em;
 }
 
-.timestamp-name {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
 .annotations-panel {
     overflow: scroll;
     margin-right: 0;
@@ -909,10 +920,6 @@ ul.failure-summary-list li .btn-xs {
     list-style: none inside none;
     padding-left: 0;
 }
-
-
-
-
 
 /**
  * RESULT STATUS COUNTS

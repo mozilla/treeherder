@@ -11,13 +11,11 @@
     <div class="result-set-title">
       <span class="result-set-title-left">
         <span class="btn btn-default btn-sm glyphicon glyphicon-download" ng-show="isLoadingJobs"></span>
-        <span class="timestamp-name">
-          <span>
-            <a href="{{::revisionResultsetFilterUrl}}"
-               title="open this resultset in new tab"
-               target="_blank">{{::resultsetDateStr}}</a> - </span>
-          <th-author author="{{::resultset.author}}"></th-author>
-        </span>
+        <span>
+          <a href="{{::revisionResultsetFilterUrl}}"
+             title="open this resultset in new tab"
+             target="_blank">{{::resultsetDateStr}}</a> - </span>
+        <th-author author="{{::resultset.author}}"></th-author>
       </span>
       <span class="result-set-buttons">
         <span class="revision-text">{{::resultset.revision}}</span>
@@ -42,7 +40,10 @@
       <span class="btn btn-default btn-sm btn-resultset revision-button"
             tabindex="0" role="button"
             ng-click="toggleRevisions()"
-            title="show revisions"><i class="fa fa-code-fork fa-lg"></i> {{::resultset.revision_count}}</span>
+            title="show revisions">
+        <i class="fa fa-code-fork fa-lg
+                  result-set-fa-icon"></i> {{::resultset.revision_count}}
+      </span>
       <th-result-counts class="result-counts"/>
     </div>
     <div class="result-set-body" th-clone-jobs ></div>
