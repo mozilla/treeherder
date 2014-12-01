@@ -23,6 +23,12 @@ treeherder.controller('PinboardCtrl', [
             $scope.toggleEnterBugNumber();
         });
 
+        $rootScope.$on(thEvents.saveClassification, function(event) {
+            if ($scope.isPinboardVisible) {
+                $scope.save();
+            }
+        });
+
         $scope.pinJob = function(job) {
             thPinboard.pinJob(job);
             if (!$scope.selectedJob) {

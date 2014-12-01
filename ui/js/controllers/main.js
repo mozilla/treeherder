@@ -95,6 +95,12 @@ treeherder.controller('MainCtrl', [
                     $scope.setSheriffPanelShowing(false);
                     $scope.closeJob();
                 }
+
+            // Ctrl+Enter saves pinboard classification and related bugs
+            } else if (!ev.metaKey && !ev.altKey && !ev.shiftKey && ev.ctrlKey) {
+                if ((ev.keyCode == 13) && $scope.selectedJob) {
+                  $rootScope.$emit(thEvents.saveClassification);
+                }
             }
         };
 

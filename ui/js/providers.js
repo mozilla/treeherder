@@ -231,6 +231,8 @@ treeherder.provider('thEvents', function() {
 
             addRelatedBug: "add-related-bug-EVT",
 
+            saveClassification: "save-classification-EVT",
+
             searchPage: "search-page-EVT",
 
             selectJob: "select-job-EVT",
