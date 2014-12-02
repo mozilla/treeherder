@@ -606,9 +606,9 @@ div#bottom-panel .navbar.navbar-dark .navbar-nav > li.active a:focus {
     line-height:12px;
 }
 
-#bottom-left-panel ul:nth-child(2) {
-    padding-top: 4px;
-    border-top: 1px solid #AAAAAA;
+#bottom-left-panel .content-spacer {
+    padding-top: 2px;
+    padding-bottom: 4px;
 }
 
 #bottom-left-panel ul li {
@@ -620,6 +620,10 @@ div#bottom-panel .navbar.navbar-dark .navbar-nav > li.active a:focus {
 #bottom-left-panel ul li label{
     padding: 0;
     margin: 2px 0px;
+}
+
+#bottom-left-panel .star {
+    color: #f0ad4e;
 }
 
 #bottom-left-panel em.testfail{ color:red;}
