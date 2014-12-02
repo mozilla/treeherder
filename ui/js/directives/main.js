@@ -85,9 +85,8 @@ treeherder.directive('thFilterByBuildername', [
 
                         thJobFilters.setSearchQuery(scope.buildbotJobname || "");
 
-                        // Need to tell angular to run the digest cycle
-                        // to process the new values in
-                        // thJobFilters.searchQuery
+                        // Need to tell angular to run the digest cycle to
+                        // process the new values in thJobFilters.searchStr
                         if(!scope.$$phase){
                             scope.$apply();
                         }

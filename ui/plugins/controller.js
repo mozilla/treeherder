@@ -33,7 +33,8 @@ treeherder.controller('PluginCtrl', [
                 delimiter = '&';
             }
 
-            $scope.buildbotJobnameHref = absUrl + delimiter + 'searchQuery=' + buildername;
+            $scope.buildbotJobnameHref = absUrl + delimiter +
+                                         'filter-searchStr=' + buildername;
 
         };
 
