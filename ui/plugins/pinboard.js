@@ -18,6 +18,11 @@ treeherder.controller('PinboardCtrl', [
             }
         });
 
+        $rootScope.$on(thEvents.addRelatedBug, function(event, job) {
+            $scope.pinJob(job);
+            $scope.toggleEnterBugNumber();
+        });
+
         $scope.pinJob = function(job) {
             thPinboard.pinJob(job);
             if (!$scope.selectedJob) {
