@@ -22,7 +22,8 @@
     <form ng-submit="saveEnteredBugNumber()"
           ng-show="enteringBugNumber"
           class="add-related-bugs-form">
-      <input type="number"
+      <input id="related-bug-input"
+             type="number"
              class="add-related-bugs-input"
              ng-model="$parent.newEnteredBugNumber"
              placeholder="enter bug number"
@@ -35,13 +36,22 @@
 </div>
 
 <div id="pinboard-classification">
-  <div class="header">classification</div>
+  <div class="pinboard-label">classification</div>
   <div id="pinboard-classification-content" class="content">
-    <form ng-submit="saveNewClassification()" class="form">
+    <form ng-submit="completeClassification()" class="form">
       <select ng-model="classification.failure_classification_id"
               ng-options="item.id as item.name for item in classificationTypes.classificationOptions">
       </select>
-      <textarea class="comment" ng-model="classification.note"></textarea>
+      <div class="classification-comment-container">
+        <input id="classification-comment"
+               type="text"
+               class="form-control add-classification-input"
+               ng-model="classification.note"
+               focus-this blur-this></input>
+        <span class="pinboard-preload-txt classification-comment-preload-txt"
+              ng-if="!classification.note">
+              click to add comment</span>
+      </div>
     </form>
   </div>
 </div>

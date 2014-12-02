@@ -18,10 +18,34 @@ treeherder.directive('ngRightClick', [
     };
 }]);
 
-// allow an input on a form to request focus when the value it sets in its
-// ``focus-me`` directive is true.  You can set ``focus-me="focusInput"`` and
-// when ``$scope.focusInput`` changes to true, it will request focus on
-// the element with this directive.
+//Directive focusThis which applies focus to a specific element
+treeherder.directive('focusThis', ['$timeout', function($timeout) {
+  return function(scope, elem, attr) {
+      scope.$on('focus-this', function(event, id) {
+        if (attr.id == id) {
+          $timeout(function() {
+            elem[0].focus();
+          }, 0);
+        }
+      });
+  };
+}]);
+
+//Directive blurThis which removes focus from a specific element
+treeherder.directive('blurThis', ['$timeout', function($timeout) {
+  return function(scope, elem, attr) {
+      scope.$on('blur-this', function(event, id) {
+        if (attr.id == id) {
+          $timeout(function() {
+            elem[0].blur();
+          }, 0);
+        }
+      });
+  };
+}]);
+
+// Directive focusMe which sets a global focus state for elements
+// which listen to it via ''focus-me="focusInput'' in angular markup
 treeherder.directive('focusMe', [
   '$timeout',
   function($timeout) {
@@ -41,6 +65,7 @@ treeherder.directive('focusMe', [
     }
   };
 }]);
+
 // Select all text input in an html element on click.
 treeherder.directive('selectOnClick', [
     function () {
