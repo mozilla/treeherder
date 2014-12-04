@@ -171,22 +171,7 @@
             <span ng-switch on="line.content_type">
               <a ng-switch-when="link" title="{{::line.value}}" href="{{::line.url}}" target="_blank">{{::line.value}}</a>
               <span ng-switch-when="raw_html" ng-bind-html="line.value"></span>
-              <ul ng-switch-when="TalosResult">
-                <li>Datazilla:
-                  <ul>
-                    <li ng-repeat="(k,v) in line.value.datazilla"><a href="{{::v.url}}" target="_blank">{{::k}}</a>
-                    </li>
-                  </ul>
-                </li>
-
-                <li>Graphserver:
-                  <ul>
-                    <li ng-repeat="(k,v) in line.value.graphserver">{{::k}}:<a href="{{::v.url}}"
-                                                                             target="_blank">{{::v.result}}</a>
-                    </li>
-                  </ul>
-                </li>
-              </ul>
+              <span ng-switch-when="TalosResult">See talos panel</span>
               <span title="{{::line.value}}" ng-switch-when="object">{{::line.value}}</span>
               <span title="{{::line.value}}" ng-switch-default>{{::line.value}}</span>
             </span>
@@ -223,6 +208,14 @@
                href="" prevent-default-on-left-click
                ng-click="tabService.showTab('similarJobs', job.id)">
               Similar jobs
+            </a>
+          </li>
+          <li ng-if="tabService.tabs.talos.enabled" 
+              ng-class="{'active': tabService.selectedTab == 'talos'}">
+            <a title="show talos job details"
+               href="" prevent-default-on-left-click
+               ng-click="tabService.showTab('talos', job.id)">
+              Talos
             </a>
           </li>
         </ul>

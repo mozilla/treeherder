@@ -10,28 +10,39 @@ treeherder.factory('thTabs', [
             "tabs": {
                 "failureSummary": {
                     title: "Failure summary",
-                    content: "plugins/failure_summary/main.html"
+                    content: "plugins/failure_summary/main.html",
+                    enabled: true
                 },
                 "annotations": {
                     title: "Annotations",
-                    content: "plugins/annotations/main.html"
+                    content: "plugins/annotations/main.html",
+                    enabled: true
                 },
                 "similarJobs": {
                     title: "Similar jobs",
-                    content: "plugins/similar_jobs/main.html"
+                    content: "plugins/similar_jobs/main.html",
+                    enabled: true
+                },
+                "talos": {
+                    title: "Job Info",
+                    content: "plugins/talos/main.html",
+                    enabled: false
                 }
             },
             "selectedTab": "failureSummary",
             "showTab" : function(tab, contentId){
                 thTabs.selectedTab = tab;
+                if(!thTabs.tabs[thTabs.selectedTab].enabled){
+                    thTabs.selectedTab = 'failureSummary';
+                }
                 // if the tab exposes an update function, call it
                 // only refresh the tab if the content hasn't been loaded yet
                 // or we don't have an identifier for the content loaded
-                if(angular.isUndefined(thTabs.tabs[tab].contentId)
-                    || thTabs.tabs[tab].contentId != contentId){
-                    if(angular.isFunction(thTabs.tabs[tab].update)){
-                        thTabs.tabs[tab].contentId = contentId;
-                        thTabs.tabs[tab].update();
+                if(angular.isUndefined(thTabs.tabs[thTabs.selectedTab].contentId)
+                    || thTabs.tabs[thTabs.selectedTab].contentId != contentId){
+                    if(angular.isFunction(thTabs.tabs[thTabs.selectedTab].update)){
+                        thTabs.tabs[thTabs.selectedTab].contentId = contentId;
+                        thTabs.tabs[thTabs.selectedTab].update();
                     }
                 }
             }
