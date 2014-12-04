@@ -43,6 +43,7 @@ machine_history_size = 5
 
 # Who should emails be sent to
 #regression_emails = 
+#geomean_regression_emails = 
 
 # Who should machine issues be sent to
 #machine_emails = 

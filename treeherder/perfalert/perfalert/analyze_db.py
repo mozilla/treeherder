@@ -41,10 +41,13 @@ def connect(url):
     goodNameClause = db.machines.is_active == 1
 
 
-def getTestData(series, start_time):
+def getTestData(series, start_time, data_type):
+    if data_type == '' || data_type == None:
+        data_type = 'average'
+
     q = sa.select(
         [db.test_runs.id, db.test_runs.machine_id, db.builds.ref_build_id,
-            db.test_runs.date_run, db.test_runs.average,
+            db.test_runs.date_run, db.test_runs.average, db.test_runs.geomean,
             db.builds.ref_changeset, db.test_runs.run_number,
             db.builds.branch_id],
         sa.and_(
@@ -59,10 +62,10 @@ def getTestData(series, start_time):
 
     data = []
     for row in q.execute():
-        if row.average is None:
+        if row[data_type] is None:
             continue
         t = row.date_run
-        d = PerfDatum(row.id, row.machine_id, row.date_run, row.average, row.ref_build_id, t, row.ref_changeset)
+        d = PerfDatum(row.id, row.machine_id, row.date_run, row[data_type], row.ref_build_id, t, row.ref_changeset)
         d.run_number = row.run_number
         data.append(d)
     return data

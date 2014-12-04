@@ -13,7 +13,7 @@ class TestAnalysisRunner(unittest.TestCase):
         options, args = parse_options(['--start-time', '0'])
         options.config = 'analysis.cfg.template'
         config = get_config(options)
-        return AnalysisRunner(options, config)
+        return AnalysisRunner(options, config, 'average')
 
     def get_data(self):
         return [

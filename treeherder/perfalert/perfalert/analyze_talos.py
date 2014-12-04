@@ -249,9 +249,10 @@ class PushLog:
         return self.pushes[branch][rev]
 
 class AnalysisRunner:
-    def __init__(self, options, config):
+    def __init__(self, options, config, data_type):
         self.options = options
         self.config = config
+        self.data_type = data_type
 
         if not options.branches:
             options.branches = [s for s in config.sections() if s != "main"]
@@ -365,12 +366,17 @@ class AnalysisRunner:
         test_params = json.dumps(test_params, separators=(",",":"))
         #test_params = urllib.quote(test_params)
         base_url = self.config.get('main', 'base_graph_url')
+        graph_datatype = 'geo'
+        #TODO: delete these following two lines when we default to geomean
+        if self.data_type == 'average':
+            graph_datatype = 'running'
+
         if d is not None:
             start_time = (d.timestamp - 24*3600) * 1000
             end_time = (d.timestamp + 24*3600) * 1000
-            return "%(base_url)s/graph.html#tests=%(test_params)s&sel=%(start_time)s,%(end_time)s" % locals()
+            return "%(base_url)s/graph.html#tests=%(test_params)s&datatype=%(graph_datatype)s&sel=%(start_time)s,%(end_time)s" % locals()
         else:
-            return "%(base_url)s/graph.html#tests=%(test_params)s" % locals()
+            return "%(base_url)s/graph.html#tests=%(test_params)s&datatype=%(graph_datatype)s" % locals()
 
     def makeHgUrl(self, branch, good_rev, bad_rev):
         base_url = self.config.get('main', 'base_hg_url')
@@ -610,10 +616,15 @@ class AnalysisRunner:
             return
 
         if state == 'regression':
-            if self.config.has_option(branch, 'regression_emails'):
-                addresses.extend(self.config.get(branch, 'regression_emails').split(","))
-            elif self.config.has_option('main', 'regression_emails'):
-                addresses.extend(self.config.get('main', 'regression_emails').split(","))
+            option_field = 'geomean_regression_emails'
+            #TODO: delete these following two lines when we default to geomean
+            if self.data_type == 'average':
+                option_field = 'regression_emails'
+
+            if self.config.has_option(branch, option_field):
+                addresses.extend(self.config.get(branch, option_field).split(","))
+            elif self.config.has_option('main', option_field):
+                addresses.extend(self.config.get('main', option_field).split(","))
 
         if state == 'machine' and self.config.has_option('main', 'machine_emails'):
             addresses.extend(self.config.get('main', 'machine_emails').split(","))
@@ -765,7 +776,7 @@ class AnalysisRunner:
         if s.test_name not in importantTests:
             return
 
-        data = self.source.getTestData(s, sevenDaysAgo)
+        data = self.source.getTestData(s, sevenDaysAgo, self.data_type)
         if len(data) == 0:
             return
 
@@ -831,7 +842,7 @@ class AnalysisRunner:
 
         # Get all the test data for all machines running this combination
         t = time.time()
-        data = self.source.getTestData(s, options.start_time)
+        data = self.source.getTestData(s, options.start_time, self.data_type)
         log.debug("%.2f to fetch data", time.time() - t)
 
         if data:
@@ -1005,10 +1016,20 @@ def get_config(options):
 
     if options.addresses:
         config.set('main', 'regression_emails', ",".join(options.addresses))
+        config.set('main', 'geomean_regression_emails', ",".join(options.addresses))
     if options.machine_addresses:
         config.set('main', 'machine_emails', ",".join(options.machine_addresses))
 
     return config
+
+def runAnalysis(options, config, data_type):
+    runner = AnalysisRunner(options, config, data_type)
+    try:
+        runner.run()
+        runner.save()
+    except:
+        runner.save(errors=True)
+        raise
 
 if __name__ == "__main__":
     options, args = parse_options()
@@ -1024,10 +1045,8 @@ if __name__ == "__main__":
                 value = Template(value).substitute(vars)
                 config.set(section, option, value)
 
-    runner = AnalysisRunner(options, config)
-    try:
-        runner.run()
-        runner.save()
-    except:
-        runner.save(errors=True)
-        raise
+    runAnalysis(options, config, 'average')
+    #NOTE: we don't want to mail original patch authors twice, so only mail to the new list
+    config.set('main', 'max_email_authors', 0)
+    runAnalysis(options, config, 'geomean')
+
