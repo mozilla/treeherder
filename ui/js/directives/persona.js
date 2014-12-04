@@ -65,7 +65,6 @@ treeherder.directive('personaButtons', [
                     $rootScope.user.loggedin = true;
                     $rootScope.user.email = response.data.email;
                     // retrieve the current user's info from the api
-                    // including the exclusion profile
                     ThUserModel.get().then(function(user){
                         angular.extend($rootScope.user, user);
                     }, null);

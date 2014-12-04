@@ -140,7 +140,7 @@ treeherder.factory('thResultSets', [
         get: function(uri) {
             return $http.get(thServiceDomain + uri, {params: {format: "json"}});
         },
-        getResultSetJobs: function(resultSets, repoName){
+        getResultSetJobs: function(resultSets, repoName, exclusion_state){
 
             var uri = '1/get_resultset_jobs/';
             var fullUrl = thUrl.getProjectUrl("/resultset/", repoName) + uri;
@@ -148,13 +148,17 @@ treeherder.factory('thResultSets', [
             _.each(
                 resultSets.results,
                 function(rs, index){
+                    var params = {
+                        format: "json",
+                        result_set_ids:rs.id
+                    };
+                    if (exclusion_state) {
+                        params.exclusion_state = exclusion_state;
+                    }
 
                     return $http.get(
                         fullUrl, {
-                            params: {
-                                format: "json",
-                                result_set_ids:rs.id
-                            },
+                            params: params,
                             transformResponse:resultSetResponseTransformer
                         }
                     ).then( function(response){

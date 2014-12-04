@@ -19,7 +19,8 @@
                       tabindex="0" role="button"
                       ng-click="toggleExcludedJobs()">
                     <i class="fa"
-                       ng-class="{'fa-square': isSkippingExclusionProfiles(), 'fa-square-o': !isSkippingExclusionProfiles()}"></i>
+                       th-exclusion-state
+                       ng-class="::exclusionStateClass"></i>
                 </span>
 
                 <!--Collapse Resultsets Button-->
