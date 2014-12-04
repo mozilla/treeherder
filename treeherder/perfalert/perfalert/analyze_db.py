@@ -42,7 +42,7 @@ def connect(url):
 
 
 def getTestData(series, start_time, data_type):
-    if data_type == '' || data_type == None:
+    if not data_type:
         data_type = 'average'
 
     q = sa.select(
