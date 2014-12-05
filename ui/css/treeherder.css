@@ -88,14 +88,14 @@ th-watched-repo {
     padding-right: 14px;
 }
 
-.nav-filter-btn {
+.nav-menu-btn {
     margin-right: -4px;
     padding-left: 14px;
     padding-right: 14px;
 }
 
 .nav-help-btn {
-    margin-right: -9px;
+    margin-right: -4px;
 }
 
 .nav-help-icon {
@@ -133,8 +133,16 @@ th-watched-repo {
     overflow: visible;
 }
 
-.th-username {
-    margin-right: 5px;
+/* Unique navbar username styles */
+.th-username, th-username:hover {
+    padding-left: 18px;
+    cursor: default;
+    color: #777 !important;
+    border-color: #373d40;
+    border-radius: 0;
+    border-top: 0;
+    border-bottom: 0;
+    border-right: 0;
 }
 
 .th-context-navbar {
