@@ -66,9 +66,9 @@ treeherder.directive('thFailureClassification', [
                 }
             });
         },
-        template: '<span title="{{ hoverText }}">' +
+        template: '<span title="{{::hoverText}}">' +
                         '<i class="glyphicon glyphicon-star star"></i>' +
-                        '</span> {{ hoverText }}'
+                        '</span> {{::hoverText}}'
     };
 }]);
 

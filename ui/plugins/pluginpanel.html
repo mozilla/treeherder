@@ -104,9 +104,9 @@
         </li>
         <li ng-if="classifications[0].note.length > 0"><em>{{classifications[0].note}}</em></li>
         <li class="revision-comment">
-          {{classifications[0].note_timestamp*1000|date:'EEE MMM d, H:mm:ss'}}</li>
+          {{::classifications[0].note_timestamp*1000|date:'EEE MMM d, H:mm:ss'}}</li>
         <li class="revision-comment">
-          {{classifications[0].who}}</li>
+          {{::classifications[0].who}}</li>
       </ul>
       <ul class="list-unstyled">
         <li id="result-status-pane" class="small {{resultStatusShading}}">
@@ -129,18 +129,18 @@
         <li class="small">
           <label>Job:</label>
           <a title="Filter jobs like these in a new tab"
-             href="{{ buildbotJobnameHref }}" target="_blank"
+             href="{{::buildbotJobnameHref}}" target="_blank"
              prevent-default-on-left-click th-filter-by-buildername>
-            {{buildbotJobname}}</a>
+            {{::buildbotJobname}}</a>
         </li>
         <li class="small">
           <label>Machine name:</label>
           <span ng-switch on="job.machine_name">
-            <span ng-switch-when='unknown'>{{ job.machine_name }}</span>
+            <span ng-switch-when='unknown'>{{::job.machine_name}}</span>
             <a title="Open buildbot slave health report" target="_blank"
                href="https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name={{job.machine_name}}"
                ng-switch-default>
-               {{job.machine_name}}
+               {{::job.machine_name}}
             </a>
           </span>
         </li>
@@ -151,7 +151,7 @@
               <a ng-switch-when="Build"
                  ng-repeat="job_log_url in job_log_urls"
                  title="Open build directory in a new tab"
-                 href={{job_log_url.buildUrl}} target="_blank">{{value}}</a>
+                 href={{::job_log_url.buildUrl}} target="_blank">{{::value}}</a>
               <span ng-switch-default>{{::value}}</span>
           </span>
         </li>
