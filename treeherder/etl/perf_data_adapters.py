@@ -144,98 +144,97 @@ class TalosDataAdapter(PerformanceDataAdapter):
 
         # Get just the talos datazilla structure for treeherder
         target_datum = json.loads(datum['blob'])
-        talos_datum = target_datum['talos_data'][0]
+        for talos_datum in target_datum['talos_data']:
+            validate(talos_datum, self.datazilla_schema)
 
-        validate(talos_datum, self.datazilla_schema)
+            _job_guid = datum["job_guid"]
+            _name = datum["name"]
+            _type = "performance"
+            _suite = talos_datum["testrun"]["suite"]
 
-        _job_guid = datum["job_guid"]
-        _name = datum["name"]
-        _type = "performance"
-        _suite = talos_datum["testrun"]["suite"]
+            # data for performance series
+            job_id = job_data[_job_guid]['id']
+            result_set_id = job_data[_job_guid]['result_set_id']
+            push_timestamp = job_data[_job_guid]['push_timestamp']
 
-        # data for performance series
-        job_id = job_data[_job_guid]['id']
-        result_set_id = job_data[_job_guid]['result_set_id']
-        push_timestamp = job_data[_job_guid]['push_timestamp']
+            for _test in talos_datum["results"].keys():
 
-        for _test in talos_datum["results"].keys():
+                signature_properties = {}
 
-            signature_properties = {}
+                signature_properties.update(reference_data)
+                signature_properties.update({
+                    'suite':_suite,
+                    'test':_test
+                    })
 
-            signature_properties.update(reference_data)
-            signature_properties.update({
-                'suite':_suite,
-                'test':_test
-                })
+                signature_prop_values = signature_properties.keys()
+                signature_prop_values.extend(signature_properties.values())
 
-            signature_prop_values = signature_properties.keys()
-            signature_prop_values.extend(signature_properties.values())
+                series_signature = self.get_series_signature(
+                    signature_prop_values)
 
-            series_signature = self.get_series_signature(
-                signature_prop_values)
+                series_data = self.calculate_series_data(
+                    job_id, result_set_id, push_timestamp,
+                    talos_datum["results"][_test]
+                    )
 
-            series_data = self.calculate_series_data(
-                job_id, result_set_id, push_timestamp,
-                talos_datum["results"][_test]
-                )
-
-            obj = {
-                "job_guid": _job_guid,
-                "name": _name,
-                "type": _type,
-                "blob": {
-                    "date": talos_datum["testrun"]["date"],
-                    "series_signature": series_signature,
-                    "signature_properties": signature_properties,
-                    "performance_series": series_data,
-                    "testsuite": _suite,
-                    "test": _test,
-                    "replicates": talos_datum["results"][_test],
-                    "metadata":{}
+                obj = {
+                    "job_guid": _job_guid,
+                    "name": _name,
+                    "type": _type,
+                    "blob": {
+                        "date": talos_datum["testrun"]["date"],
+                        "series_signature": series_signature,
+                        "signature_properties": signature_properties,
+                        "performance_series": series_data,
+                        "testsuite": _suite,
+                        "test": _test,
+                        "replicates": talos_datum["results"][_test],
+                        "metadata":{}
+                    }
                 }
-            }
 
-            options = talos_datum["testrun"].get(
-                "options", {})
-            if options:
-                obj['blob']['metadata']['options'] = options
+                options = talos_datum["testrun"].get(
+                    "options", {})
+                if options:
+                    obj['blob']['metadata']['options'] = options
 
-            for key in [ 'test_aux', 'talos_aux', 'results_aux',
-                         'results_xperf' ]:
-                aux_blob = talos_datum.get(key)
-                if aux_blob:
-                    obj['blob']['metadata'][key] = aux_blob
+                for key in [ 'test_aux', 'talos_aux', 'results_aux',
+                             'results_xperf' ]:
+                    aux_blob = talos_datum.get(key)
+                    if aux_blob:
+                        obj['blob']['metadata'][key] = aux_blob
 
-            # test_build information (i.e. revision) just there to ease third
-            # party alert processing, since we should normally be able to get
-            # it by querying the job info
-            obj['blob']['metadata']['test_build'] = talos_datum["test_build"]
+                # test_build information (i.e. revision) just there to ease third
+                # party alert processing, since we should normally be able to get
+                # it by querying the job info
+                obj['blob']['metadata']['test_build'] = talos_datum["test_build"]
 
-            validate(obj, self.treeherder_perf_test_schema)
+                validate(obj, self.treeherder_perf_test_schema)
 
-            if series_signature not in self.signatures:
+                if series_signature not in self.signatures:
 
-                self.signatures[series_signature] = []
+                    self.signatures[series_signature] = []
 
-                for signature_property in signature_properties:
-                    self.signature_property_placeholders.append([
-                        series_signature,
-                        signature_property,
-                        signature_properties[signature_property],
-                        series_signature,
-                        signature_property,
-                        signature_properties[signature_property],
-                        ])
+                    for signature_property in signature_properties:
+                        self.signature_property_placeholders.append([
+                            series_signature,
+                            signature_property,
+                            signature_properties[signature_property],
+                            series_signature,
+                            signature_property,
+                            signature_properties[signature_property],
+                            ])
 
-            self.performance_artifact_placeholders.append([
-                job_id,
-                series_signature,
-                _name,
-                _test,
-                json.dumps(obj)
-                ])
+                self.performance_artifact_placeholders.append([
+                    job_id,
+                    series_signature,
+                    _name,
+                    _test,
+                    json.dumps(obj)
+                    ])
 
-            self.signatures[series_signature].append(series_data)
+                self.signatures[series_signature].append(series_data)
 
     def get_series_signature(self, signature_values):
 
