@@ -22,6 +22,7 @@ treeherder.value("thPlatformNameMap", {
     "android-2-3-armv7-api9": "Android 2.3 API9",
     "android-4-0": "Android 4.0",
     "android-4-0-armv7-api10": "Android 4.0 API10+",
+    "android-4-0-armv7-api11": "Android 4.0 API11+",
     "android-4-2-x86": "Android 4.2 x86",
     "android-4-2": "Android 4.2",
     "android-4-3": "Android 4.3",
