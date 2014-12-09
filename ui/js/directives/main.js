@@ -191,11 +191,12 @@ treeherder.directive("thTruncatedList", [
         restrict: "E",
         scope: {
             // number of visible elements
-            visible: "@",
+            numvisible: "@",
             elem_list: "=elements"
         },
         link: function(scope, element, attrs){
-            scope.visible = parseInt(scope.visible)
+            scope.visible = parseInt(scope.numvisible)
+
             if(typeof scope.visible !== 'number'
                 || scope.visible < 0
                 || isNaN(scope.visible)){
