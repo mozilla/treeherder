@@ -163,10 +163,10 @@ treeherder.controller('SheriffCtrl', [
             // reset the user choices
             $scope.form_exclusion = angular.copy($scope.master_exclusion);
             // and reset the available choices
-            $scope.form_platforms = angular.copy($scope.master_platforms);
-            $scope.form_job_types = angular.copy($scope.master_job_types);
-            $scope.form_option_collections = angular.copy($scope.master_option_collections);
-            $scope.form_repos = angular.copy($scope.master_repos);
+            $scope.form_platforms = angular.copy(_.uniq($scope.master_platforms));
+            $scope.form_job_types = angular.copy(_.uniq($scope.master_job_types));
+            $scope.form_option_collections = angular.copy(_.uniq($scope.master_option_collections));
+            $scope.form_repos = angular.copy(_.uniq($scope.master_repos));
         };
 
         $scope.save_exclusion = function(exclusion) {
