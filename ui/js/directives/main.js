@@ -82,14 +82,7 @@ treeherder.directive('thFilterByBuildername', [
                     // Only execute the in page search if the
                     // user does a left click
                     if(event.which === 1){
-
-                        thJobFilters.setSearchQuery(scope.buildbotJobname || "");
-
-                        // Need to tell angular to run the digest cycle to
-                        // process the new values in thJobFilters.searchStr
-                        if(!scope.$$phase){
-                            scope.$apply();
-                        }
+                        thJobFilters.replaceFilter('searchStr', scope.buildbotJobname || null);
                     }
                 });
             }

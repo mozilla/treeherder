@@ -129,9 +129,9 @@
         <li class="small">
           <label>Job:</label>
           <a title="Filter jobs like these in a new tab"
-             href="{{::buildbotJobnameHref}}" target="_blank"
+             href="{{buildbotJobnameHref}}"
              prevent-default-on-left-click th-filter-by-buildername>
-            {{::buildbotJobname}}</a>
+            {{buildbotJobname}}</a>
         </li>
         <li class="small">
           <label>Machine name:</label>
@@ -223,7 +223,7 @@
               Similar jobs
             </a>
           </li>
-          <li ng-if="tabService.tabs.talos.enabled" 
+          <li ng-if="tabService.tabs.talos.enabled"
               ng-class="{'active': tabService.selectedTab == 'talos'}">
             <a title="show talos job details"
                href="" prevent-default-on-left-click

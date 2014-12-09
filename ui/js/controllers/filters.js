@@ -209,7 +209,19 @@ treeherder.controller('SearchCtrl', [
     function SearchCtrl(
         $scope, $rootScope, thEvents, thJobFilters, $location){
 
-        $scope.searchQueryStr = thJobFilters.getFieldFiltersObj().searchStr;
+        var getSearchStr = function() {
+            var ss = thJobFilters.getFieldFiltersObj().searchStr;
+            if (ss) {
+                return ss.join(" ");
+            } else {
+                return "";
+            }
+        };
+
+        $scope.searchQueryStr = getSearchStr();
+        $rootScope.$on(thEvents.globalFilterChanged, function() {
+            $scope.searchQueryStr = getSearchStr();
+        });
 
         $scope.search = function(ev){
             //User hit enter
