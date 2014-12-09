@@ -80,7 +80,7 @@ treeherder.factory('ThJobExclusionModel', [
             )
             .then(
                 function(response){
-                    angular.extend(job_filter, response.data.id);
+                    angular.extend(job_filter, response.data);
                     thNotify.send("Job filter successfully updated", "success");
                 },
                 function(reason){

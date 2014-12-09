@@ -5,12 +5,12 @@
 'use strict';
 treeherder.controller('SheriffCtrl', [
     '$scope', '$rootScope', 'ThBuildPlatformModel', 'ThJobTypeModel',
-    'thEvents', 'ThRepositoryModel', 'ThOptionModel', 'ThJobExclusionModel',
-    'ThExclusionProfileModel', 'thNotify',
+    'thEvents', 'ThRepositoryModel', 'ThOptionModel', 'ThOptionCollectionModel',
+    'ThJobExclusionModel', 'ThExclusionProfileModel', 'thNotify', '$q',
     function SheriffController(
         $scope, $rootScope, ThBuildPlatformModel, ThJobTypeModel, thEvents,
-        ThRepositoryModel, ThOptionModel, ThJobExclusionModel,
-        ThExclusionProfileModel, thNotify) {
+        ThRepositoryModel, ThOptionModel, ThOptionCollectionModel,
+        ThJobExclusionModel, ThExclusionProfileModel, thNotify, $q) {
 
         // fetch the reference data
         $scope.exclusions = [];
@@ -102,16 +102,46 @@ treeherder.controller('SheriffCtrl', [
                 $scope.form_repos = angular.copy($scope.master_repos);
             });
 
-        // initialize the list of options
-        $scope.master_options = [];
-        ThOptionModel.get_list()
+        // initialize the list of option collections
+        $scope.master_option_collections = [];
+
+        var optDataMap = {},
+            optCollectionData,
+            optCollectionMap;
+
+        var optPromise = ThOptionModel.get_list()
             .then(function(data) {
-                for (var i = 0; i < data.length; i++) {
-                    $scope.master_options.push(data[i].name);
-                }
-                $scope.master_options.sort();
-                $scope.form_options = angular.copy($scope.master_options);
+                _.each(data, function(opt) {
+                   optDataMap[opt.id] = opt.name;
+                });
             });
+        var optCollPromise = ThOptionCollectionModel.get_list()
+            .then(function(data) { optCollectionData = data; });
+
+        $q.all([optPromise, optCollPromise])
+            .then(function(data) {
+                // gather the string representations of option collections
+                optCollectionMap = {};
+                _.each(optCollectionData, function(optColl) {
+                    var collectionValues = optCollectionMap[optColl.option_collection_hash] || [];
+                    collectionValues.push(optDataMap[optColl.option]);
+                    optCollectionMap[optColl.option_collection_hash] = collectionValues;
+                });
+                _.each(optCollectionMap, function(vals, key) {
+                    optCollectionMap[key] = _.uniq(vals).sort().join();
+                });
+
+                // the string representations of the option collections
+                $scope.master_option_collections = _.values(optCollectionMap);
+
+                // use this to get the hashes for submitting after the
+                // user has selected them by strings
+                $scope.option_collection_hash_map = _.invert(optCollectionMap);
+
+                $scope.master_option_collections.sort();
+                $scope.form_option_collections = angular.copy($scope.master_option_collections);
+            });
+
 
         // init the master properties for the forms
 
@@ -121,7 +151,7 @@ treeherder.controller('SheriffCtrl', [
         $scope.master_exclusion.info = {};
         $scope.master_exclusion.info.platforms = [];
         $scope.master_exclusion.info.job_types = [];
-        $scope.master_exclusion.info.options = [];
+        $scope.master_exclusion.info.option_collections = [];
         $scope.master_exclusion.info.repos = [];
 
         $scope.master_profile = {name: '', exclusions: []};
@@ -135,11 +165,20 @@ treeherder.controller('SheriffCtrl', [
             // and reset the available choices
             $scope.form_platforms = angular.copy($scope.master_platforms);
             $scope.form_job_types = angular.copy($scope.master_job_types);
-            $scope.form_options = angular.copy($scope.master_options);
+            $scope.form_option_collections = angular.copy($scope.master_option_collections);
             $scope.form_repos = angular.copy($scope.master_repos);
         };
 
         $scope.save_exclusion = function(exclusion) {
+
+            // convert option_collections to option_collection_hashes
+            exclusion.info.option_collection_hashes = [];
+            _.each(exclusion.info.option_collections, function(oc) {
+                exclusion.info.option_collection_hashes.push(
+                    $scope.option_collection_hash_map[oc]);
+            });
+
+
             if (exclusion.id) {
                 exclusion.update().then(function() {
                     $scope.switchView('job_exclusion_list');
@@ -183,7 +222,15 @@ treeherder.controller('SheriffCtrl', [
         // Init the exclusion change form
         $scope.init_exclusion_update = function(exclusion) {
             $scope.form_exclusion = exclusion;
-            angular.forEach(['platforms', 'job_types', 'options', 'repos'], function(elem) {
+
+            // todo: remove this once we've migrated.
+            // this is temporary while we migrate from the old form of
+            // job exclusions to this new form.
+            if ($scope.form_exclusion.info.options) {
+                $scope.form_exclusion.info.option_collections = $scope.form_exclusion.info.options;
+                delete $scope.form_exclusion.info.options;
+            }
+            angular.forEach(['platforms', 'job_types', 'option_collections', 'repos'], function(elem) {
                 // assign to the left selection the remaining items
                 $scope['form_'+ elem] = _.difference(
                     $scope['master_'+ elem], // this is the whole list
