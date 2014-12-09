@@ -583,12 +583,6 @@ class ExclusionProfile(models.Model):
                 id=self.id).update(is_default=False)
 
     def update_flat_exclusions(self):
-        oc_lookup = OptionCollection.objects.all().select_related(
-            "options__name")
-
-        def get_oc_hash(option):
-            return oc_lookup.get(option__name=option).option_collection_hash
-
         # this is necessary because the ``job_types`` come back in the form of
         # ``Mochitest (18)`` or ``Reftest IPC (Ripc)`` so we must split these
         # back out.
@@ -608,7 +602,7 @@ class ExclusionProfile(models.Model):
         query = None
         for exclusion in self.exclusions.all().select_related("info"):
             info = exclusion.info
-            option_collection_hashes = map(get_oc_hash, info['options'])
+            option_collection_hashes = info['option_collection_hashes']
             job_type_names, job_type_symbols = split_combo(info['job_types'])
             platform_names, platform_arch = split_combo(info['platforms'])
             new_query = Q(repository__in=info['repos'],
