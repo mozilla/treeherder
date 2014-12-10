@@ -160,7 +160,7 @@ logViewer.controller('LogviewerCtrl', [
 
                     var revision = $scope.artifact.header.revision.substr(0,12);
                     $scope.logRevisionFilterUrl = $scope.urlBasePath
-                        + "index.html#/jobs?repo="
+                        + "#/jobs?repo="
                         + $scope.repoName + "&revision=" + revision;
 
                     // Store the artifact epoch date string in a real date object for use
