@@ -56,6 +56,7 @@ OPT_ORDER = {
     "pgo": 1,
     "asan": 2,
     "debug": 3,
+    "cc": 4,
 }
 
 class ResultSetViewSet(viewsets.ViewSet):
