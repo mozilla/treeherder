@@ -372,7 +372,6 @@ else:
         'fanout_prefix': True,
         'fanout_patterns': True
     }
-    print(BROKER_URL)
 
 
 CELERY_IGNORE_RESULT = True
