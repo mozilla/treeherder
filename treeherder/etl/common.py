@@ -69,6 +69,7 @@ def retrieve_api_content(url):
 
 def get_remote_content(url):
     """A thin layer of abstraction over urllib. """
+    print('remote content', url)
     req = urllib2.Request(url)
     req.add_header('Accept', 'application/json')
     req.add_header('Content-Type', 'application/json')
