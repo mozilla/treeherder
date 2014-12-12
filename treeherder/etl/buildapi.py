@@ -254,6 +254,8 @@ class Builds4hTransformerMixin(object):
                 ]
             }
 
+            print('ATTEMPT TO COMPLETE JOB!')
+
             treeherder_data['job'] = job
 
             if project not in th_collections:
