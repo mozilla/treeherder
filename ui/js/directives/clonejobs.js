@@ -531,12 +531,10 @@ treeherder.directive('thCloneJobs', [
         filterPlatform(row);
 
         //reset the resultset counts for the platformKey
-        if(resultSetMap[resultsetId].platforms[platformKey] != undefined){
+        if(resultSetMap[resultsetId].platforms[platformKey] !== undefined){
             resultSetMap[resultsetId].platforms[platformKey].job_counts = jobCounts;
         }
 
-        //re-total the counts across platforms
-        resetCounts(resultSetMap);
     };
 
     var filterJobs = function(element, resultStatusFilters){
@@ -649,57 +647,50 @@ treeherder.directive('thCloneJobs', [
         }
     };
 
-    var resetCounts = function(resultSetMap){
+    /**
+     * Reset the counts on a single resultset.  This should happen once per
+     * resultset when the platforms in a resultset have been updated
+     * (by loading initial or updated data).
+     *
+     */
+    var resetCounts = function(resultSet){
+        var rsMap = ThResultSetModel.getResultSetsMap($rootScope.repoName)[resultSet.id];
+        var jobCounts = thResultStatusObject.getResultStatusObject();
 
-        var resultSets = ThResultSetModel.getResultSetsArray($rootScope.repoName);
+        var statusKeys = _.keys(jobCounts);
+        jobCounts.total = 0;
 
-        var platformName, platformOption, platformKey, resultsetId, i;
-
-        for(i=0; i<resultSets.length; i++){
-
-            var jobCounts = thResultStatusObject.getResultStatusObject();
-
-            var statusKeys = _.keys(jobCounts);
-            jobCounts.total = 0;
-
-            resultsetId = resultSets[i].id;
-
-            if(resultSets[i].platforms === undefined){
-                continue;
-            }
-
-            var j;
-            for(j=0; j<resultSets[i].platforms.length; j++){
-
-                platformName = resultSets[i].platforms[j].name;
-                platformOption = resultSets[i].platforms[j].option;
-
-                platformKey = ThResultSetModel.getPlatformKey(
-                    platformName, platformOption
-                    );
-
-                var statusPerPlatform = {};
-                if(!_.isEmpty(resultSetMap[ resultsetId ].platforms[platformKey])){
-                    statusPerPlatform = resultSetMap[ resultsetId ].platforms[platformKey].job_counts;
-                }
-
-                if(!_.isEmpty(statusPerPlatform)){
-
-                    var jobStatus, k;
-                    for(k=0; k<statusKeys.length; k++){
-                        jobStatus = statusKeys[k];
-                        jobCounts[jobStatus] += statusPerPlatform[jobStatus];
-                        jobCounts.total += statusPerPlatform[jobStatus];
-                    }
-                }
-            }
-
-            resultSets[i].job_counts = jobCounts;
+        if(resultSet.platforms === undefined){
+            return;
         }
+        var platformKey;
+        for(var j=0; j < resultSet.platforms.length; j++){
+
+            platformKey = ThResultSetModel.getPlatformKey(
+                resultSet.platforms[j].name,
+                resultSet.platforms[j].option
+                );
+
+            var statusPerPlatform = {};
+            if(!_.isEmpty(rsMap.platforms[platformKey])){
+                statusPerPlatform = rsMap.platforms[platformKey].job_counts;
+            }
+
+            if(!_.isEmpty(statusPerPlatform)){
+
+                var jobStatus, k;
+                for(k=0; k<statusKeys.length; k++){
+                    jobStatus = statusKeys[k];
+                    jobCounts[jobStatus] += statusPerPlatform[jobStatus];
+                    jobCounts.total += statusPerPlatform[jobStatus];
+                }
+            }
+        }
+
+        resultSet.job_counts = jobCounts;
     };
 
     var updateJobs = function(platformData){
-
         angular.forEach(platformData, function(value, platformId){
 
             if(value.resultsetId !== this.resultset.id){
@@ -1026,7 +1017,7 @@ treeherder.directive('thCloneJobs', [
 
             row = $('#' + platformId);
 
-            if( $(row).prop('tagName') != 'TR' ){
+            if( $(row).prop('tagName') !== 'TR' ){
                 // First time the row is being created
                 row = $('<tr></tr>');
                 row.prop('id', platformId);
@@ -1068,6 +1059,7 @@ treeherder.directive('thCloneJobs', [
 
             tableEl.append(row);
         }
+        resetCounts(resultset);
     };
 
     var linker = function(scope, element, attrs){
