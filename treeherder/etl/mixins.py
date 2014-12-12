@@ -139,6 +139,7 @@ class OAuthLoaderMixin(object):
     def load(self, th_collections):
         errors = []
         for project in th_collections:
+            print('update project', project)
 
             credentials = OAuthCredentials.get_credentials(project)
 
