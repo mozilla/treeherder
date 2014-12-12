@@ -153,6 +153,10 @@ class OAuthLoaderMixin(object):
             logger.info(
                 "collection loading request: {0}".format(
                     th_request.get_uri(th_collections[project].endpoint_base)))
+
+            print('update', th_collections[project].endpoint_base)
+            print(th_collections[project])
+
             response = th_request.post(th_collections[project])
 
             if not response or response.status != 200:
@@ -163,3 +167,5 @@ class OAuthLoaderMixin(object):
                 })
         if errors:
             raise CollectionNotLoadedException(errors)
+
+        print('updated records...')
