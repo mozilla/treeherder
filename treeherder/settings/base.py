@@ -50,6 +50,8 @@ RABBITMQ_VHOST = os.environ.get("TREEHERDER_RABBITMQ_VHOST", "")
 RABBITMQ_HOST = os.environ.get("TREEHERDER_RABBITMQ_HOST", "")
 RABBITMQ_PORT = os.environ.get("TREEHERDER_RABBITMQ_PORT", "")
 
+REDIS_URL = os.environ.get("TREEHERDER_REDIS_URL")
+
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = os.environ.get("TREEHERDER_DJANGO_SECRET_KEY", "my-secret-key")
 
@@ -354,13 +356,22 @@ CACHES = {
 KEY_PREFIX = TREEHERDER_MEMCACHED_KEY_PREFIX
 
 # celery broker setup
-BROKER_URL = 'amqp://{0}:{1}@{2}:{3}/{4}'.format(
-    RABBITMQ_USER,
-    RABBITMQ_PASSWORD,
-    RABBITMQ_HOST,
-    RABBITMQ_PORT,
-    RABBITMQ_VHOST
-)
+if REDIS_URL is None:
+    BROKER_URL = 'amqp://{0}:{1}@{2}:{3}/{4}'.format(
+        RABBITMQ_USER,
+        RABBITMQ_PASSWORD,
+        RABBITMQ_HOST,
+        RABBITMQ_PORT,
+        RABBITMQ_VHOST
+    )
+else:
+    BROKER_URL = REDIS_URL
+    BROKER_TRANSPORT_OPTIONS = {
+        'visibility_timeout': 3600,
+        'fanout_prefix': True,
+        'fanout_patterns': True
+    }
+
 
 CELERY_IGNORE_RESULT = True
 

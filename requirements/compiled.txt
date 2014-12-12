@@ -2,6 +2,7 @@
 MySQL-python
 gunicorn==17.5
 django>=1.5,<1.6
+redis==2.10.3
 celery==3.1.16
 kombu==3.0.23
 simplejson==3.3.0
