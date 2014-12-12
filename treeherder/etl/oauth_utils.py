@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
+import os
 import json
 from treeherder import path
 import copy
@@ -37,9 +38,13 @@ class OAuthCredentials():
 
     @classmethod
     def set_credentials(cls, credentials={}):
-
         # Only get the credentials once
         if not cls.credentials and not credentials:
+
+            credentials = os.environ.get('TREEHERDER_CREDENTIALS')
+            if credentials:
+                cls.credentials = json.loads(credentials)
+                return
 
             try:
                 with open(cls.credentials_file) as f:
