@@ -333,6 +333,28 @@ CACHES = {
 
 KEY_PREFIX = TREEHERDER_MEMCACHED_KEY_PREFIX
 
+from kombu import Exchange, Queue
+
+CELERY_QUEUES = (
+    Queue('default', Exchange('default'), routing_key='default'),
+    # queue for failed jobs/logs
+    Queue('log_parser_fail', Exchange('default'), routing_key='parse_log.failures'),
+    # queue for successful jobs/logs
+    Queue('log_parser', Exchange('default'), routing_key='parse_log.success'),
+    # this is used to give priority to some logs, for example when we need to
+    # parse a log on demand
+    Queue('log_parser_hp', Exchange('default'), routing_key='parse_log.high_priority'),
+    # queue for mirroring the sheriffing activity to tbpl
+    Queue('high_priority', Exchange('default'), routing_key='high_priority'),
+    Queue('pushlog', Exchange('default'), routing_key='pushlog'),
+    Queue('buildapi', Exchange('default'), routing_key='buildapi')
+)
+
+# default value when no task routing info is specified
+CELERY_DEFAULT_QUEUE = 'default'
+CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'
+CELERY_DEFAULT_ROUTING_KEY = 'default'
+
 # celery broker setup
 if REDIS_URL is None:
     BROKER_URL = 'amqp://{0}:{1}@{2}:{3}/{4}'.format(
@@ -342,29 +364,6 @@ if REDIS_URL is None:
         RABBITMQ_PORT,
         RABBITMQ_VHOST
     )
-
-    from kombu import Exchange, Queue
-
-    CELERY_QUEUES = (
-        Queue('default', Exchange('default'), routing_key='default'),
-        # queue for failed jobs/logs
-        Queue('log_parser_fail', Exchange('default'), routing_key='parse_log.failures'),
-        # queue for successful jobs/logs
-        Queue('log_parser', Exchange('default'), routing_key='parse_log.success'),
-        # this is used to give priority to some logs, for example when we need to
-        # parse a log on demand
-        Queue('log_parser_hp', Exchange('default'), routing_key='parse_log.high_priority'),
-        # queue for mirroring the sheriffing activity to tbpl
-        Queue('high_priority', Exchange('default'), routing_key='high_priority'),
-        Queue('pushlog', Exchange('default'), routing_key='pushlog'),
-        Queue('buildapi', Exchange('default'), routing_key='buildapi')
-    )
-
-    # default value when no task routing info is specified
-    CELERY_DEFAULT_QUEUE = 'default'
-    CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'
-    CELERY_DEFAULT_ROUTING_KEY = 'default'
-
 else:
     BROKER_URL = REDIS_URL
     BROKER_TRANSPORT_OPTIONS = {
