@@ -492,8 +492,8 @@ treeherder.factory('thJobFilters', [
      * check if we're in the state of showing only unclassified failures
      */
     var _isUnclassifiedFailures = function() {
-        return (_.isEqual($location.search()[QS_RESULT_STATUS], thFailureResults) &&
-                _.isEqual($location.search()[QS_CLASSIFIED_STATE], ['unclassified']));
+        return (_.isEqual(_toArray($location.search()[QS_RESULT_STATUS]), thFailureResults) &&
+                _.isEqual(_toArray($location.search()[QS_CLASSIFIED_STATE]), ['unclassified']));
     };
 
     var _matchesDefaults = function(field, values) {
