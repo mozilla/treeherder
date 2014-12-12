@@ -12,4 +12,4 @@ gevent==1.0
 git+git://github.com/abourget/gevent-socketio@0f9bd2744a
 gevent-websocket==0.9
 greenlet==0.4.1
-
+amqplib==1.0.2
