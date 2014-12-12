@@ -185,32 +185,10 @@ LOGGING = {
     }
 }
 
-from kombu import Exchange, Queue
-
-CELERY_QUEUES = (
-    Queue('default', Exchange('default'), routing_key='default'),
-    # queue for failed jobs/logs
-    Queue('log_parser_fail', Exchange('default'), routing_key='parse_log.failures'),
-    # queue for successful jobs/logs
-    Queue('log_parser', Exchange('default'), routing_key='parse_log.success'),
-    # this is used to give priority to some logs, for example when we need to
-    # parse a log on demand
-    Queue('log_parser_hp', Exchange('default'), routing_key='parse_log.high_priority'),
-    # queue for mirroring the sheriffing activity to tbpl
-    Queue('high_priority', Exchange('default'), routing_key='high_priority'),
-    Queue('pushlog', Exchange('default'), routing_key='pushlog'),
-    Queue('buildapi', Exchange('default'), routing_key='buildapi')
-)
 
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-
-
-# default value when no task routing info is specified
-CELERY_DEFAULT_QUEUE = 'default'
-CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'
-CELERY_DEFAULT_ROUTING_KEY = 'default'
 
 from datetime import timedelta
 
@@ -280,7 +258,7 @@ REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'treeherder.webapp.api.exceptions.exception_handler'
 }
 
-SITE_URL = "http://local.treeherder.mozilla.org"
+SITE_URL = os.environ.get("TREEHERDER_SITE_URL", "http://local.treeherder.mozilla.org")
 
 BUILDAPI_PENDING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-pending.js"
 BUILDAPI_RUNNING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-running.js"
@@ -364,6 +342,29 @@ if REDIS_URL is None:
         RABBITMQ_PORT,
         RABBITMQ_VHOST
     )
+
+    from kombu import Exchange, Queue
+
+    CELERY_QUEUES = (
+        Queue('default', Exchange('default'), routing_key='default'),
+        # queue for failed jobs/logs
+        Queue('log_parser_fail', Exchange('default'), routing_key='parse_log.failures'),
+        # queue for successful jobs/logs
+        Queue('log_parser', Exchange('default'), routing_key='parse_log.success'),
+        # this is used to give priority to some logs, for example when we need to
+        # parse a log on demand
+        Queue('log_parser_hp', Exchange('default'), routing_key='parse_log.high_priority'),
+        # queue for mirroring the sheriffing activity to tbpl
+        Queue('high_priority', Exchange('default'), routing_key='high_priority'),
+        Queue('pushlog', Exchange('default'), routing_key='pushlog'),
+        Queue('buildapi', Exchange('default'), routing_key='buildapi')
+    )
+
+    # default value when no task routing info is specified
+    CELERY_DEFAULT_QUEUE = 'default'
+    CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'
+    CELERY_DEFAULT_ROUTING_KEY = 'default'
+
 else:
     BROKER_URL = REDIS_URL
     BROKER_TRANSPORT_OPTIONS = {
@@ -371,6 +372,7 @@ else:
         'fanout_prefix': True,
         'fanout_patterns': True
     }
+    print(BROKER_URL)
 
 
 CELERY_IGNORE_RESULT = True
