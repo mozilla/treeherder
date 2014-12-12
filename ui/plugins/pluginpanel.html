@@ -99,14 +99,14 @@
           <span th-failure-classification failure-id="classifications[0].failure_classification_id"></span>
 
           <a target="_blank" ng-repeat="bug in bugs"
-             href="https://bugzilla.mozilla.org/show_bug.cgi?id={{::bug.bug_id}}"
-             title="Bug {{::bug.bug_id}}"><em> {{::bug.bug_id}}</em></a>
+             href="https://bugzilla.mozilla.org/show_bug.cgi?id={{bug.bug_id}}"
+             title="Bug {{bug.bug_id}}"><em> {{bug.bug_id}}</em></a>
         </li>
         <li ng-if="classifications[0].note.length > 0"><em>{{classifications[0].note}}</em></li>
         <li class="revision-comment">
-          {{::classifications[0].note_timestamp*1000|date:'EEE MMM d, H:mm:ss'}}</li>
+          {{classifications[0].note_timestamp*1000|date:'EEE MMM d, H:mm:ss'}}</li>
         <li class="revision-comment">
-          {{::classifications[0].who}}</li>
+          {{classifications[0].who}}</li>
       </ul>
       <ul class="list-unstyled">
         <li id="result-status-pane" class="small {{resultStatusShading}}">
@@ -136,23 +136,23 @@
         <li class="small">
           <label>Machine name:</label>
           <span ng-switch on="job.machine_name">
-            <span ng-switch-when='unknown'>{{::job.machine_name}}</span>
+            <span ng-switch-when='unknown'>{{job.machine_name}}</span>
             <a title="Open buildbot slave health report" target="_blank"
                href="https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name={{job.machine_name}}"
                ng-switch-default>
-               {{::job.machine_name}}
+               {{job.machine_name}}
             </a>
           </span>
         </li>
 
         <li class="small" ng-repeat="(label, value) in visibleFields">
-          <label>{{::label}}:</label>
+          <label>{{label}}:</label>
           <span ng-switch on="label">
               <a ng-switch-when="Build"
                  ng-repeat="job_log_url in job_log_urls"
                  title="Open build directory in a new tab"
-                 href={{::job_log_url.buildUrl}} target="_blank">{{::value}}</a>
-              <span ng-switch-default>{{::value}}</span>
+                 href={{job_log_url.buildUrl}} target="_blank">{{value}}</a>
+              <span ng-switch-default>{{value}}</span>
           </span>
         </li>
 
@@ -180,13 +180,13 @@
       <div class="printlines">
         <ul class="list-unstyled">
           <li ng-repeat="line in job_details" class="small">
-            <label>{{::line.title}}</label>
+            <label>{{line.title}}</label>
             <span ng-switch on="line.content_type">
-              <a ng-switch-when="link" title="{{::line.value}}" href="{{::line.url}}" target="_blank">{{::line.value}}</a>
+              <a ng-switch-when="link" title="{{line.value}}" href="{{line.url}}" target="_blank">{{line.value}}</a>
               <span ng-switch-when="raw_html" ng-bind-html="line.value"></span>
               <span ng-switch-when="TalosResult">See talos panel</span>
-              <span title="{{::line.value}}" ng-switch-when="object">{{::line.value}}</span>
-              <span title="{{::line.value}}" ng-switch-default>{{::line.value}}</span>
+              <span title="{{line.value}}" ng-switch-when="object">{{line.value}}</span>
+              <span title="{{line.value}}" ng-switch-default>{{line.value}}</span>
             </span>
           </li>
         </ul>
