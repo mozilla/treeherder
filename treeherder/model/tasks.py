@@ -68,6 +68,7 @@ schemas = load_schemas(schema_folder)
 # Create publisher, if username and password is present
 publisher = None
 if settings.PULSE_USERNAME and settings.PULSE_PASSWORD:
+    print('creating publisher....')
     publisher = TreeherderPublisher(
         client_id       = settings.PULSE_USERNAME,
         access_token    = settings.PULSE_PASSWORD,

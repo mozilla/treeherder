@@ -156,6 +156,7 @@ class PulsePublisher(object):
                                 self.exchange_prefix,
                                 exchange.exchange
                             )
+            print('publish to', exchange_path)
             producer = kombu.Producer(
                 channel       = self.connection,
                 exchange      = kombu.Exchange(
