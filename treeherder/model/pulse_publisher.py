@@ -156,7 +156,6 @@ class PulsePublisher(object):
                                 self.exchange_prefix,
                                 exchange.exchange
                             )
-            print('publish to', exchange_path)
             producer = kombu.Producer(
                 channel       = self.connection,
                 exchange      = kombu.Exchange(
@@ -174,6 +173,7 @@ class PulsePublisher(object):
             def publish(**kwargs):
                 message = exchange.message(**kwargs)
                 jsonschema.validate(message, self.schemas[exchange.schema])
+                print('publish to', exchange_path, exchange.routing(**kwargs))
                 publish_message(
                     body          = json.dumps(message),
                     routing_key   = exchange.routing(**kwargs),
