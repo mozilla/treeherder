@@ -113,45 +113,32 @@ treeherder.factory('thJobFilters', [
     var cachedResultStatusFilters = {};
     var cachedClassifiedStateFilters = {};
     var cachedFieldFilters = {};
+    var cachedFilterParams;
 
     /**
      * Checks for a filter change and, if detected, updates the cached filter
      * values from the query string.  Then publishes the global event
      * to re-render jobs.
      */
-    $rootScope.$on('$locationChangeSuccess', function(ev, newUrl, oldUrl) {
+    $rootScope.$on('$locationChangeSuccess', function() {
 
-        $log.debug("check for refilter", "newUrl=", newUrl, "oldUrl=", oldUrl);
+        var newFilterParams = getNewFilterParams();
 
-        var oldFilters = _getFilterParams(oldUrl);
-        var newFilters = _getFilterParams(newUrl);
-        if (!_.isEqual(oldFilters, newFilters)) {
+        if (!_.isEqual(cachedFilterParams, newFilterParams)) {
+            cachedFilterParams = newFilterParams;
             _refreshFilterCaches();
             $rootScope.$emit(thEvents.globalFilterChanged);
         }
 
     });
 
-    /**
-     * Take a url string and extract all the query string params that
-     * begin with the filter prefix.
-     *
-     * @param urlStr a full Url as a string
-     * @returns Object containing only the params with the PREFIX
-     */
-    var _getFilterParams = function(urlStr) {
-        var tokens = urlStr.split("?");
+    var getNewFilterParams = function() {
         var filterParams = {};
-
-        if (tokens.length > 1) {
-            var qsParams = $.deparam(tokens[1]);
-            _.each(qsParams, function (value, field) {
-                if (_startsWith(field, PREFIX)) {
-                    filterParams[field] = value;
-                }
-            });
-        }
-
+        _.each($location.search(), function (value, field) {
+            if (_startsWith(field, PREFIX)) {
+                filterParams[field] = value;
+            }
+        });
         return filterParams;
     };
 
@@ -557,6 +544,7 @@ treeherder.factory('thJobFilters', [
     };
 
     // initialize caches on initial load
+    cachedFilterParams = getNewFilterParams();
     _refreshFilterCaches();
 
     /*********************************
