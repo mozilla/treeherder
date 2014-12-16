@@ -74,15 +74,14 @@ def deploy(ctx):
     ctx.local(settings.DEPLOY_SCRIPT)
 
     # Restart celerybeat on the admin node.
-    ctx.local('{0}/service celerybeat restart'.format(settings.SBIN_DIR))
+    ctx.local('{0}/service run_celerybeat restart'.format(settings.SBIN_DIR))
 
     @hostgroups(settings.WEB_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
     def deploy_web_app(ctx):
         # Call the remote update script to push changes to webheads.
         ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
         ctx.remote('{0}/service httpd graceful'.format(settings.SBIN_DIR))
-        ctx.remote('{0}/service gunicorn restart'.format(settings.SBIN_DIR))
-        ctx.remote('{0}/service socketio-server restart'.format(settings.SBIN_DIR))
+        ctx.remote('{0}/service run_gunicorn restart'.format(settings.SBIN_DIR))
 
     deploy_web_app()
 
