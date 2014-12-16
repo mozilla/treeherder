@@ -74,7 +74,14 @@ def deploy(ctx):
     ctx.local(settings.DEPLOY_SCRIPT)
 
     # Restart celerybeat on the admin node.
-    ctx.local('{0}/service run_celerybeat restart'.format(settings.SBIN_DIR))
+    @hostgroups(settings.RABBIT_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
+    def deploy_rabbit(ctx):
+        ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
+        ctx.remote('{0}/service run_celerybeat restart'.format(settings.SBIN_DIR))
+        ctx.remote('{0}/service run_celery_worker restart'.format(settings.SBIN_DIR))
+        ctx.remote('{0}/service run_celery_worker_hp restart'.format(settings.SBIN_DIR))
+
+    deploy_rabbit()
 
     @hostgroups(settings.WEB_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
     def deploy_web_app(ctx):
@@ -85,21 +92,33 @@ def deploy(ctx):
 
     deploy_web_app()
 
-    @hostgroups(settings.CELERY_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
-    def deploy_workers(ctx):
+    @hostgroups(settings.ETL_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
+    def deploy_etl(ctx):
         # Call the remote update script to push changes to workers.
         ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
+        ctx.remote('{0}/service run_celery_worker_buildapi restart'.format(settings.SBIN_DIR))
+        ctx.remote('{0}/service run_celery_worker_pushlog restart'.format(settings.SBIN_DIR))
 
-    deploy_workers()
+    deploy_etl()
+
+    @hostgroups(settings.LOG_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
+    def deploy_log(ctx):
+        # Call the remote update script to push changes to workers.
+        ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
+        ctx.remote('{0}/service run_celery_worker_gevent restart'.format(settings.SBIN_DIR))
+
+    deploy_log()
 
     with ctx.lcd(th_service_src):
-        # Send a warm shutdown event to all the celery workers in the cluster.
-        # The workers will finish their current tasks and safely shutdown.
-        # Supervisord will then start new workers to replace them.
-        # We need to do this because supervisorctl generates zombies
-        # every time you ask it to restart a worker.
-        ctx.local("python2.6 manage.py shutdown_workers")
+        # Write info about the current repository state to a publicly visible file.
+        ctx.local('date')
+        ctx.local('git branch')
+        ctx.local('git log -3')
+        ctx.local('git status')
+        ctx.local('git submodule status')
+        ctx.local('git rev-parse HEAD > treeherder/webapp/media/revision')
 
+    with ctx.lcd(th_ui_src):
         # Write info about the current repository state to a publicly visible file.
         ctx.local('date')
         ctx.local('git branch')
