@@ -28,6 +28,14 @@ TEST_DB_PREFIX = ""
 
 SITE_URL = "http://local.treeherder.mozilla.org"
 
+# Set this to True to enable bug associations to tbpl (and then Orange Factor)
+TBPL_BUGS_TRANSFER_ENABLED = False
+
+# TBPLBOT is the Bugzilla account used to make the bug comments on
+# intermittent failure bugs when failures are classified.
+TBPLBOT_EMAIL = os.environ.get("TBPLBOT_EMAIL", "")
+TBPLBOT_PASSWORD = os.environ.get("TBPLBOT_PASSWORD", "")
+
 TREEHERDER_RO_DATABASE_USER     = os.environ.get("TREEHERDER_RO_DATABASE_USER", "TREEHERDER_DATABASE_USER")
 TREEHERDER_RO_DATABASE_PASSWORD = os.environ.get("TREEHERDER_RO_DATABASE_PASSWORD", "TREEHERDER_DATABASE_PASSWORD")
 

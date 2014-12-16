@@ -82,7 +82,6 @@ def test_tbpl_bugzilla_request_body(jm, eleven_jobs_processed):
     req.generate_request_body()
 
     expected = {
-        'id': bug_id,
         'comment': (u'submit_timestamp: {0}\n'
                     u'log: http://local.treeherder.mozilla.org/ui/'
                     u'logviewer.html#?repo=test_treeherder&job_id=1\n'

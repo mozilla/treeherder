@@ -5,6 +5,7 @@
 from datetime import datetime
 import logging
 
+import json
 import requests
 from treeherder.model.derived import JobsModel
 from django.conf import settings
@@ -83,7 +84,7 @@ class BugzillaBugRequest(object):
 
     def generate_request_body(self):
         """
-        Create the data structure required by tbpl's submitBugzillaComment.php script
+        Create a comment describing the failure, that will be posted to Bugzilla.
         This is triggered by a new bug-job association.
         """
         jm = JobsModel(self.project)
@@ -143,19 +144,19 @@ class BugzillaBugRequest(object):
         body_comment += '\n'.join(error_lines)
 
         self.body = {
-            "id": self.bug_id,
             "comment": body_comment
         }
 
     def send_request(self):
         """
-        send request to tbpl host
+        Post the bug comment to Bugzilla's REST API.
         """
         if not self.body:
             self.generate_request_body()
-        tbpl_host = settings.TBPL_HOST
-        tbpl_script = "/php/submitBugzillaComment.php"
-        tbpl_url = "".join([tbpl_host, tbpl_script])
-        logger.info("Sending data to %s: %s", tbpl_url, self.body)
-        r = requests.post(tbpl_url, data=self.body)
+        bz_comment_endpoint = "/rest/bug/%s/comment" % self.bug_id
+        api_url = "".join([settings.BZ_API_URL, bz_comment_endpoint])
+        credentials = {'login': settings.TBPLBOT_EMAIL, 'password': settings.TBPLBOT_PASSWORD}
+        headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
+        logger.info("Sending data to %s: %s", api_url, self.body)
+        r = requests.post(api_url, params=credentials, data=json.dumps(self.body), headers=headers)
         r.raise_for_status()
