@@ -10,11 +10,12 @@ access.
 import logging
 
 from django.conf import settings
+from django.utils.encoding import python_2_unicode_compatible
 
 from treeherder.model.models import Datasource
 from treeherder.model.derived.refdata import RefDataManager
 
-
+@python_2_unicode_compatible
 class TreeherderModelBase(object):
     """
     Base model class for all derived models
@@ -31,8 +32,8 @@ class TreeherderModelBase(object):
         self.DEBUG = settings.DEBUG
         self.refdata_model = RefDataManager()
 
-    def __unicode__(self):
-        """Unicode representation is project name."""
+    def __str__(self):
+        """String representation is project name."""
         return self.project
 
     @classmethod
@@ -132,19 +133,21 @@ class TreeherderModelBase(object):
         return candidate_sources[0]
 
 
+@python_2_unicode_compatible
 class DatasetNotFoundError(ValueError):
     def __init__(self, project, contenttype,  *args, **kwargs):
         super(DatasetNotFoundError, self).__init__(*args, **kwargs)
         self.project = project
         self.contenttype = contenttype
 
-        def __unicode__(self):
+        def __str__(self):
             return u"No dataset found for project {0} and contenttype '{1}'".format(
             self.project,
             self.contenttype,
             )
 
 
+@python_2_unicode_compatible
 class ObjectNotFoundException(Exception):
     """When querying for an object and it is not found """
 
@@ -153,7 +156,7 @@ class ObjectNotFoundException(Exception):
         self.table = table
         self.extra_info = kwargs
 
-    def __unicode__(self):
+    def __str__(self):
         return u"ObjectNotFoundException: For table '{0}': {1}".format(
             self.table,
             unicode(self.extra_info),
