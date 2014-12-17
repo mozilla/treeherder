@@ -67,3 +67,12 @@ A sample copy of this file is located here:
 ``webapp/app/js/config/sample.local.conf.js``
 
 Copy the sample file to ``local.conf.js`` and make your custom settings.
+If you want to run the UI using the node web server shipped with it, you need to change this line::
+    
+    window.thServiceDomain = "";
+
+to::
+
+    window.thServiceDomain = "https://treeherder.mozilla.org";
+
+If instead you want to run the whole application (service + UI) locally, you can leave the default value.

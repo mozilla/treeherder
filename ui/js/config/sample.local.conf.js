@@ -12,8 +12,8 @@
  * -  https://treeherder.allizom.org (stage)
  * -  https://treeherder.mozilla.org (production) */
 
-// By default the service looks to production
-window.thServiceDomain = "https://treeherder.mozilla.org";
+// By default the service domain is the current host name.
+window.thServiceDomain = "";
 
 //treeherder.config(['$logProvider', 'ThLogConfigProvider',
 //    function($logProvider, ThLogConfigProvider) {
