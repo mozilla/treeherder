@@ -11,7 +11,7 @@ describe('ThResultSetModel', function(){
         model,
         repoModel,
         foregroundRepo = "mozilla-central",
-        projectPrefix = 'https://treeherder.mozilla.org/api/project/',
+        projectPrefix = '/api/project/',
         foregroundPrefix = projectPrefix + foregroundRepo;
 
     beforeEach(module('treeherder'));
@@ -56,7 +56,7 @@ describe('ThResultSetModel', function(){
             getResultSet(10)
         );
 
-        $httpBackend.whenGET('https://treeherder.mozilla.org/api/repository/').respond(
+        $httpBackend.whenGET('/api/repository/').respond(
             getJSONFixture('repositories.json')
         );
 
