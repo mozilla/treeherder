@@ -10,6 +10,8 @@ import socket
 import signal
 import logging
 
+from django.utils.encoding import python_2_unicode_compatible
+
 from mozillapulse import consumers
 
 from thclient import TreeherderJobCollection
@@ -484,6 +486,7 @@ class TreeherderPulseDataAdapter(PulseDataAdapter, OAuthLoaderMixin):
             self.logger.error(e)
 
 
+@python_2_unicode_compatible
 class PulseMessageError(Exception):
     """Error base class for pulse messages"""
     def __init__(self, key, error):
@@ -498,6 +501,7 @@ class PulseDataAttributeError(PulseMessageError):
     pass
 
 
+@python_2_unicode_compatible
 class PulseMissingAttributesError(PulseMessageError):
     def __init__(self, missing_attributes, data, raw_data):
 

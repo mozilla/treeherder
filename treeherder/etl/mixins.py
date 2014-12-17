@@ -14,6 +14,7 @@ from thclient import TreeherderRequest
 
 from django.core.urlresolvers import reverse
 from django.conf import settings
+from django.utils.encoding import python_2_unicode_compatible
 from treeherder.etl.oauth_utils import OAuthCredentials
 
 
@@ -117,6 +118,7 @@ class ResultSetsLoaderMixin(JsonLoaderMixin):
                 logger.error("ResultSet loading failed: {0}".format(message['message']))
 
 
+@python_2_unicode_compatible
 class CollectionNotLoadedException(Exception):
 
     def __init__(self, error_list, *args, **kwargs):
@@ -127,7 +129,7 @@ class CollectionNotLoadedException(Exception):
         super(CollectionNotLoadedException, self).__init__(args, kwargs)
         self.error_list = error_list
 
-    def __unicode__(self):
+    def __str__(self):
         return "\n".join(
             ["[{project}] Error posting data to {url}: {message}".format(
                 **error) for error in self.error_list]

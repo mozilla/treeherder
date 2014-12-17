@@ -18,6 +18,7 @@ from django.core.cache import cache
 from django.db import models
 from django.db.models import Max, Q
 from django.contrib.auth.models import User
+from django.utils.encoding import python_2_unicode_compatible
 from warnings import filterwarnings, resetwarnings
 
 from jsonfield import JSONField
@@ -35,6 +36,7 @@ SQL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'sql')
 ACTIVE_STATUS_LIST = ['active', 'onhold', 'deleted']
 ACTIVE_STATUS_CHOICES = zip(ACTIVE_STATUS_LIST, ACTIVE_STATUS_LIST,)
 
+@python_2_unicode_compatible
 class Product(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50L)
@@ -44,10 +46,11 @@ class Product(models.Model):
     class Meta:
         db_table = 'product'
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
+@python_2_unicode_compatible
 class BuildPlatform(models.Model):
     id = models.AutoField(primary_key=True)
     os_name = models.CharField(max_length=25L)
@@ -58,11 +61,12 @@ class BuildPlatform(models.Model):
     class Meta:
         db_table = 'build_platform'
 
-    def __unicode__(self):
+    def __str__(self):
         return "{0} {1} {2}".format(
             self.os_name, self.platform, self.architecture)
 
 
+@python_2_unicode_compatible
 class Option(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50L)
@@ -72,10 +76,11 @@ class Option(models.Model):
     class Meta:
         db_table = 'option'
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
+@python_2_unicode_compatible
 class RepositoryGroup(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50L)
@@ -85,10 +90,11 @@ class RepositoryGroup(models.Model):
     class Meta:
         db_table = 'repository_group'
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
+@python_2_unicode_compatible
 class Repository(models.Model):
     id = models.AutoField(primary_key=True)
     repository_group = models.ForeignKey('RepositoryGroup')
@@ -102,11 +108,12 @@ class Repository(models.Model):
     class Meta:
         db_table = 'repository'
 
-    def __unicode__(self):
+    def __str__(self):
         return "{0} {1}".format(
             self.name, self.repository_group)
 
 
+@python_2_unicode_compatible
 class MachinePlatform(models.Model):
     id = models.AutoField(primary_key=True)
     os_name = models.CharField(max_length=25L)
@@ -117,11 +124,12 @@ class MachinePlatform(models.Model):
     class Meta:
         db_table = 'machine_platform'
 
-    def __unicode__(self):
+    def __str__(self):
         return "{0} {1} {2}".format(
             self.os_name, self.platform, self.architecture)
 
 
+@python_2_unicode_compatible
 class Bugscache(models.Model):
     id = models.AutoField(primary_key=True)
     status = models.CharField(max_length=64L, blank=True)
@@ -135,10 +143,11 @@ class Bugscache(models.Model):
     class Meta:
         db_table = 'bugscache'
 
-    def __unicode__(self):
+    def __str__(self):
         return "{0}".format(self.id)
 
 
+@python_2_unicode_compatible
 class Machine(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50L)
@@ -149,10 +158,11 @@ class Machine(models.Model):
     class Meta:
         db_table = 'machine'
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
+@python_2_unicode_compatible
 class MachineNote(models.Model):
     id = models.AutoField(primary_key=True)
     machine = models.ForeignKey(Machine)
@@ -164,7 +174,7 @@ class MachineNote(models.Model):
     class Meta:
         db_table = 'machine_note'
 
-    def __unicode__(self):
+    def __str__(self):
         return "Note {0} on {1} by {2}".format(
             self.id, self.machine, self.author)
 
@@ -192,6 +202,7 @@ class DatasourceManager(models.Manager):
             dataset=ds)
 
 
+@python_2_unicode_compatible
 class Datasource(models.Model):
     id = models.AutoField(primary_key=True)
     project = models.CharField(max_length=50L)
@@ -234,7 +245,7 @@ class Datasource(models.Model):
         return "{0} - {1} - {2}".format(
             self.project, self.contenttype, self.dataset)
 
-    def __unicode__(self):
+    def __str__(self):
         """Unicode representation is the project's unique key."""
         return unicode(self.key)
 
@@ -468,6 +479,7 @@ class Datasource(models.Model):
         conn.close()
 
 
+@python_2_unicode_compatible
 class JobGroup(models.Model):
     id = models.AutoField(primary_key=True)
     symbol = models.CharField(max_length=10L, default='?')
@@ -478,11 +490,12 @@ class JobGroup(models.Model):
     class Meta:
         db_table = 'job_group'
 
-    def __unicode__(self):
+    def __str__(self):
         return "{0} ({1})".format(
             self.name, self.symbol)
 
 
+@python_2_unicode_compatible
 class RepositoryVersion(models.Model):
     id = models.AutoField(primary_key=True)
     repository = models.ForeignKey(Repository)
@@ -493,11 +506,12 @@ class RepositoryVersion(models.Model):
     class Meta:
         db_table = 'repository_version'
 
-    def __unicode__(self):
+    def __str__(self):
         return "{0} version {1}".format(
             self.repository, self.version)
 
 
+@python_2_unicode_compatible
 class OptionCollection(models.Model):
     id = models.AutoField(primary_key=True)
     option_collection_hash = models.CharField(max_length=40L)
@@ -507,10 +521,11 @@ class OptionCollection(models.Model):
         db_table = 'option_collection'
         unique_together = ['option_collection_hash', 'option']
 
-    def __unicode__(self):
+    def __str__(self):
         return "{0}".format(self.option)
 
 
+@python_2_unicode_compatible
 class JobType(models.Model):
     id = models.AutoField(primary_key=True)
     job_group = models.ForeignKey(JobGroup, null=True, blank=True)
@@ -522,11 +537,12 @@ class JobType(models.Model):
     class Meta:
         db_table = 'job_type'
 
-    def __unicode__(self):
+    def __str__(self):
         return "{0} ({1})".format(
             self.name, self.symbol)
 
 
+@python_2_unicode_compatible
 class FailureClassification(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50L)
@@ -536,7 +552,7 @@ class FailureClassification(models.Model):
     class Meta:
         db_table = 'failure_classification'
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
