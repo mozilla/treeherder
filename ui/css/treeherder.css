@@ -1617,6 +1617,10 @@ fieldset[disabled] .btn-repo.active {
     color: lightgray;
 }
 
+.midgray, .midgray a {
+    color: gray;
+}
+
 #help {
     padding: 10px 10px 0px;
     overflow: auto;
@@ -1628,6 +1632,10 @@ fieldset[disabled] .btn-repo.active {
 
 #help.panel {
     padding: 5px;
+}
+
+.help-footer {
+    overflow: auto;
 }
 
 .panel-spacing table {
