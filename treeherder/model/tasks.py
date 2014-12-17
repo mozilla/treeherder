@@ -17,7 +17,7 @@ def process_objects(limit=None):
     """
     # default limit to 100
     limit = limit or 100
-    for ds in Datasource.objects.all():
+    for ds in Datasource.objects.filter(contenttype='objectstore'):
         jm = JobsModel(ds.project)
         try:
             jm.process_objects(limit)
