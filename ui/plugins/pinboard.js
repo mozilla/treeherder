@@ -103,6 +103,10 @@ treeherder.controller('PinboardCtrl', [
             $scope.focusInput = $scope.enteringBugNumber;
         };
 
+        $scope.completeClassification = function() {
+            $rootScope.$broadcast('blur-this', "classification-comment");
+        };
+
         $scope.saveEnteredBugNumber = function() {
             $log.debug("new bug number to be saved: ", $scope.newEnteredBugNumber);
             thPinboard.addBug({id:$scope.newEnteredBugNumber});

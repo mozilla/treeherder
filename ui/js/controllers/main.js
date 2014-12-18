@@ -85,7 +85,17 @@ treeherder.controller('MainCtrl', [
                 } else if (ev.keyCode === 82) {
                     // Pin selected job to pinboard and add a related bug, key:r
                     if ($scope.selectedJob) {
-                        $rootScope.$emit(thEvents.addRelatedBug, $rootScope.selectedJob);
+                        $rootScope.$emit(thEvents.addRelatedBug,
+                                         $rootScope.selectedJob);
+                        $rootScope.$broadcast('focus-this', "related-bug-input");
+                    }
+
+                } else if (ev.keyCode === 67) {
+                    // Pin selected job to pinboard and enter classification
+                    // key:c
+                    if ($scope.selectedJob) {
+                        $rootScope.$emit(thEvents.jobPin, $rootScope.selectedJob);
+                        $rootScope.$broadcast('focus-this', "classification-comment");
                     }
 
                 } else if (ev.keyCode === 27) {
