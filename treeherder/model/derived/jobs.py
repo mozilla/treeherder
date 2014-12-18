@@ -549,25 +549,6 @@ class JobsModel(TreeherderModelBase):
         )
         self.update_last_job_classification(job_id)
 
-        if settings.TBPL_BUGS_TRANSFER_ENABLED:
-            job = self.get_job(job_id)[0]
-            if job["state"] == "completed":
-                if self.get_build_system_type() == 'buildbot':
-                    # importing here to avoid an import loop
-                    from treeherder.etl.tasks import submit_build_star
-                    submit_build_star.apply_async(
-                        args=[
-                            self.project,
-                            int(job_id),
-                            who
-                        ],
-                        kwargs={
-                            'classification_id': int(failure_classification_id),
-                            'note': note
-                        },
-                        routing_key='high_priority'
-                    )
-
     def delete_job_note(self, note_id, job_id):
         """
         Delete a job note and updates the failure classification for that job
@@ -608,7 +589,6 @@ class JobsModel(TreeherderModelBase):
                 if self.get_build_system_type() == 'buildbot':
                     # importing here to avoid an import loop
                     from treeherder.etl.tasks import (submit_star_comment,
-                                                      submit_build_star,
                                                       submit_bug_comment)
                     # submit bug association to tbpl
                     # using an async task
@@ -620,18 +600,6 @@ class JobsModel(TreeherderModelBase):
                             submit_timestamp,
                             who
                         ],
-                        routing_key='high_priority'
-                    )
-
-                    submit_build_star.apply_async(
-                        args=[
-                            self.project,
-                            int(job_id),
-                            who
-                        ],
-                        kwargs={
-                            'bug_id': bug_id
-                        },
                         routing_key='high_priority'
                     )
 
