@@ -54,6 +54,7 @@ treeherder.controller('PinboardCtrl', [
 
         $scope.unPinAll = function() {
             thPinboard.unPinAll();
+            $scope.classification = thPinboard.createNewClassification();
         };
 
         $scope.save = function() {
