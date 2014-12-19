@@ -18,6 +18,11 @@
       "title":                "Revision Hash Identifier",
       "description":          "Identifier for the result-set that was created.",
       "type":                 "string"
+    },
+    "repository_url": {
+      "title":                "Repository URL",
+      "description":          "URL for the repository for the revision.",
+      "type":                 "string"
     }
   },
   "additionalProperties":     true,
