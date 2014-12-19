@@ -5,6 +5,7 @@
 from collections import defaultdict
 import time
 import datetime
+import functools
 
 import simplejson as json
 import oauth2 as oauth
@@ -145,6 +146,7 @@ class UrlQueryFilter(object):
 
 def oauth_required(func):
 
+    @functools.wraps(func)
     def wrap_oauth(cls, *args, **kwargs):
 
         # First argument must be request object
@@ -235,6 +237,7 @@ def with_jobs(model_func):
     ``func`` must take a jobsmodel object and return a response object
 
     """
+    @functools.wraps(model_func)
     def use_jobs_model(*args, **kwargs):
 
         project = kwargs["project"]
