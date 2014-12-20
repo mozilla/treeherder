@@ -57,7 +57,8 @@
             <!--the first 3 items are in the same box-->
             <ul class="nav navbar-nav">
               <li>
-                <a href="" prevent-default-on-left-click  title="Add the selected job to the pinboard via ctrl/cmd+click or spacebar"
+                <a href="" prevent-default-on-left-click
+                   title="Add this job to the pinboard"
                    ng-click="pinboard_service.pinJob(selectedJob)">
                   <span class="glyphicon glyphicon-pushpin"></span>
                   <span class="pinned-job-count"><strong>{{ getCountPinnedJobs() }}</strong></span>
@@ -67,19 +68,20 @@
             </ul>
           </li>
           <li ng-show="canCancel()">
-            <a title="Cancel job"
+            <a title="Cancel this job"
                href="" prevent-default-on-left-click
                target="_blank"
                ng-click="cancelJob()">
-              <span class="fa fa-stop"></span>
+              <span class="fa fa-times-circle cancel-job-icon dim-half"></span>
             </a>
           </li>
           <li ng-show="canRetrigger()">
-            <a title="Retrigger job"
+            <a title="Retrigger this job"
+               class="icon-green"
                href="" prevent-default-on-left-click
                target="_blank"
                ng-click="retriggerJob()">
-              <span class="fa fa-play"></span>
+              <span class="fa fa-repeat"></span>
             </a>
           </li>
           <li ng-show="isReftest()" ng-repeat="job_log_url in job_log_urls">

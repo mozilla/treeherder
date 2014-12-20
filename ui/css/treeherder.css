@@ -405,9 +405,20 @@ th-watched-repo {
     padding-left: 0;
 }
 
-/* Cancel all jobs custom icon size */
-.glyphicon-minus-sign {
-    font-size: 85%;
+.cancel-job-icon {
+    font-size: 13px;
+}
+
+.icon-green:hover {
+    color: #0de00d !important;
+}
+
+.dim-half {
+    opacity: 0.5;
+}
+
+.dim-quarter {
+    opacity: 0.75;
 }
 
 .revision-text {
