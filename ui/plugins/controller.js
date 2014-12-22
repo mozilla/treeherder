@@ -89,11 +89,14 @@ treeherder.controller('PluginCtrl', [
                     // this is a bit hacky but for now talos is the only exception we have
                     if($scope.job.job_group_name == 'Talos Performance'){
                         $scope.tabService.tabs.talos.enabled = true;
-                        $scope.tabService.selectedTab = 'talos';
+                        if(thResultStatus($scope.job) === 'success'){
+                            $scope.tabService.selectedTab = 'talos';
+                        }else{
+                            $scope.tabService.selectedTab = 'failureSummary';
+                        }
                     }else{
                         $scope.tabService.tabs.talos.enabled = false;
                     }
-
                     // the second result come from the buildapi artifact promise
                     var buildapi_artifact = results[1];
                     if (buildapi_artifact.length > 0 &&
