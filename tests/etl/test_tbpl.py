@@ -30,7 +30,7 @@ def test_tbpl_bug_request_body(jm, eleven_jobs_processed):
     who = "user@mozilla.com"
 
     req = OrangeFactorBugRequest(jm.project, job["id"],
-                         bug_id, submit_timestamp, who)
+                                 bug_id, submit_timestamp, who)
     req.generate_request_body()
 
     expected = {
@@ -42,13 +42,13 @@ def test_tbpl_bug_request_body(jm, eleven_jobs_processed):
         "date": "2013-11-13",
         "type": "B2G Emulator Image Build",
         "buildtype": "debug",
-        "starttime": 1384353553,
+        "starttime": "1384353553",
         "logfile": "00000000",
         "tree": "test_treeherder",
         "rev": "cdfe03e77e66",
-        "comment": "Bug {0}".format(bug_id),
+        "bug": str(bug_id),
         "who": who,
-        "timestamp": submit_timestamp
+        "timestamp": str(submit_timestamp)
     }
 
     assert req.body == expected, diff(expected, req.body)

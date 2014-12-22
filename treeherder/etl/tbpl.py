@@ -25,7 +25,7 @@ class OrangeFactorBugRequest(object):
 
     def generate_request_body(self):
         """
-        Create the data structure required by tbpl's starcomment.php script
+        Create the data structure that will be sent to ElasticSearch.
         """
         jm = JobsModel(self.project)
 
@@ -52,25 +52,27 @@ class OrangeFactorBugRequest(object):
             "buildtype": option_collection[
                 job_data["option_collection_hash"]
             ]["opt"],
-            "starttime": int(job_data["start_timestamp"]),
-            # "logfile": "",
+            # Intentionally using strings for starttime, bug, timestamp for compatibility
+            # with TBPL's legacy output format.
+            "starttime": str(job_data["start_timestamp"]),
             "tree": self.project,
             "rev": revision_list[0]["revision"],
-            "comment": "Bug {0}".format(self.bug_id),
+            "bug": str(self.bug_id),
             "who": self.who,
-            "timestamp": self.submit_timestamp,
+            "timestamp": str(self.submit_timestamp),
             "logfile": "00000000"
         }
 
     def send_request(self):
         """
-        send request to tbpl host
+        Send request to ElasticSearch.
         """
-        tbpl_host = settings.TBPL_HOST
-        tbpl_script = "/php/starcomment.php"
-        tbpl_url = "".join([tbpl_host, tbpl_script])
-        logger.info("Sending data to %s: %s", tbpl_url, self.body)
-        r = requests.post(tbpl_url, data=self.body)
+        es_host = settings.ES_HOST
+        es_endpoint = "/bugs/bug_info/"
+        es_url = "".join([es_host, es_endpoint])
+        logger.info("Sending data to %s: %s", es_url, self.body)
+        headers = {'Content-Type': 'text/plain', 'Connection': 'close'}
+        r = requests.post(es_url, data=json.dumps(self.body), headers=headers)
         r.raise_for_status()
 
 

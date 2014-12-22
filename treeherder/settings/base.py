@@ -302,9 +302,9 @@ ALLOWED_HOSTS = [".mozilla.org", ".allizom.org"]
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-# set this to True to enable bug associations to tbpl (and then Orange Factor)
+# Set this to True to submit bug associations to Bugzilla & OrangeFactor.
 TBPL_BUGS_TRANSFER_ENABLED = True
-TBPL_HOST = "https://tbpl.mozilla.org"
+ES_HOST = "http://elasticsearch-zlb.webapp.scl3.mozilla.com:9200"
 
 # TBPLBOT is the Bugzilla account used to make the bug comments on
 # intermittent failure bugs when failures are classified.

@@ -28,7 +28,7 @@ TEST_DB_PREFIX = ""
 
 SITE_URL = "http://local.treeherder.mozilla.org"
 
-# Set this to True to enable bug associations to tbpl (and then Orange Factor)
+# Set this to True to submit bug associations to Bugzilla & OrangeFactor.
 TBPL_BUGS_TRANSFER_ENABLED = False
 
 # TBPLBOT is the Bugzilla account used to make the bug comments on
