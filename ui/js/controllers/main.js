@@ -108,7 +108,7 @@ treeherder.controller('MainCtrl', [
 
             // Ctrl+Enter saves pinboard classification and related bugs
             } else if (!ev.metaKey && !ev.altKey && !ev.shiftKey && ev.ctrlKey) {
-                if ((ev.keyCode == 13) && $scope.selectedJob) {
+                if ((ev.keyCode === 13) && $scope.selectedJob) {
                   $rootScope.$emit(thEvents.saveClassification);
                 }
             }
@@ -203,30 +203,18 @@ treeherder.controller('MainCtrl', [
 
         };
 
-        /**
-         * Extract the params from the querystring of this url that should
-         * trigger a reload of the page, because it requires new data from
-         * the repo
-         * @param urlStr a full Url as a string
-         * @returns Object containing only the params in ``reloadFields``
-         */
-        var getTriggerParams = function(urlStr) {
-            var tokens = urlStr.split("?");
-            var triggerParams = {};
-
-            if (tokens.length > 1) {
-                triggerParams = _.pick(
-                    $.deparam(tokens[1]),
-                    ThResultSetModel.reloadOnChangeParameters
-                );
-            }
-
-            return triggerParams;
+        var getNewReloadTriggerParams = function() {
+            return _.pick(
+                $location.search(),
+                ThResultSetModel.reloadOnChangeParameters
+            );
         };
+
+        $scope.cachedReloadTriggerParams = getNewReloadTriggerParams();
 
         // reload the page if certain params were changed in the URL.  For
         // others, such as filtering, just re-filter without reload.
-        $rootScope.$on('$locationChangeSuccess', function(ev, newUrl, oldUrl) {
+        $rootScope.$on('$locationChangeSuccess', function() {
 
             // used to test for display of watched-repo-navbar
             $rootScope.locationPath = $location.path().replace('/', '');
@@ -234,15 +222,18 @@ treeherder.controller('MainCtrl', [
             // used to avoid bad urls when the app redirects internally
             $rootScope.urlBasePath = $location.absUrl().split('?')[0];
 
-            $log.debug("check for reload", "newUrl=", newUrl, "oldUrl=", oldUrl);
-
-            var oldParams = getTriggerParams(oldUrl);
-            var newParams = getTriggerParams(newUrl);
+            var newReloadTriggerParams = getNewReloadTriggerParams();
             // if we are just setting the repo to the default because none was
             // set initially, then don't reload the page.
-            var defaulting = newParams.repo === thDefaultRepo && !oldParams.repo;
-            if (!_.isEqual(oldParams, newParams) && !defaulting) {
+            var defaulting = newReloadTriggerParams.repo === thDefaultRepo &&
+                             !$scope.cachedReloadTriggerParams.repo;
+
+            if (!defaulting && $scope.cachedReloadTriggerParams &&
+                !_.isEqual(newReloadTriggerParams, $scope.cachedReloadTriggerParams)) {
+
                 $window.location.reload();
+            } else {
+                $scope.cachedReloadTriggerParams = newReloadTriggerParams;
             }
         });
 
