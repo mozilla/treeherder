@@ -85,9 +85,9 @@ treeherder.controller('PluginCtrl', [
                     $scope.job = results[0];
                     $scope.eta = $scope.job.get_current_eta();
                     $scope.eta_abs = Math.abs($scope.job.get_current_eta());
-                    $scope.typical_eta = $scope.job.get_typical_eta()
+                    $scope.typical_eta = $scope.job.get_typical_eta();
                     // this is a bit hacky but for now talos is the only exception we have
-                    if($scope.job.job_group_name == 'Talos Performance'){
+                    if($scope.job.job_group_name === 'Talos Performance'){
                         $scope.tabService.tabs.talos.enabled = true;
                         if(thResultStatus($scope.job) === 'success'){
                             $scope.tabService.selectedTab = 'talos';
@@ -124,10 +124,10 @@ treeherder.controller('PluginCtrl', [
                     var logsNotParsed = [];
                     $scope.jobLogsAllParsed = _.every($scope.job_log_urls, function(jlu) {
                         if(jlu.parse_status === 'pending'){
-                            logsNotParsed.push(jlu)
+                            logsNotParsed.push(jlu);
                             return false;
                         }else{
-                            return true
+                            return true;
                         }
                     });
                     // retry to fetch the job info if a log hasn't been parsed yet
@@ -139,13 +139,13 @@ treeherder.controller('PluginCtrl', [
                             // were successful
                             if(_.every(
                                 parseLogResponses,
-                                function(parseLogResponse){return parseLogResponse.status == 200;}
+                                function(parseLogResponse){return parseLogResponse.status === 200;}
                             )){
                                 selectJobRetryPromise = $timeout(function(){
                                     selectJobAndRender(job_id);
                                 }, 5000);
                             }
-                        })
+                        });
                     }
                     $scope.lvUrl = thUrl.getLogViewerUrl($scope.job.id);
                     $scope.resultStatusShading = "result-status-shading-" + thResultStatus($scope.job);
@@ -261,7 +261,7 @@ treeherder.controller('PluginCtrl', [
          */
         $scope.isReftest = function() {
             if ($scope.selectedJob) {
-                return ($scope.selectedJob.job_group_name.indexOf("Reftest") != -1);
+                return ($scope.selectedJob.job_group_name.indexOf("Reftest") !== -1);
             } else {
                 return false;
             }
@@ -272,7 +272,7 @@ treeherder.controller('PluginCtrl', [
             $scope.jobLoadedPromise.then(function(){
                 thTabs.showTab(thTabs.selectedTab, job_id);
             });
-        }
+        };
 
         $rootScope.$on(thEvents.jobClick, function(event, job) {
             selectJobAndRender(job.id);
