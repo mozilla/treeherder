@@ -374,10 +374,6 @@ th-watched-repo {
     padding-right: 10px;
 }
 
-.result-set-buttons {
-    flex: 0 0 13em;
-}
-
 .result-set-fa-icon {
     float: left;
     padding-top: 4px;
@@ -431,7 +427,8 @@ th-watched-repo {
 
 .revision-button {
     flex: 0 0 60px;
-    margin-right: 2px;
+    margin-right: 4px;
+    margin-left: 4px;
 }
 
 .revision-list {
