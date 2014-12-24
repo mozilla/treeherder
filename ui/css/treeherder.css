@@ -558,10 +558,6 @@ div#bottom-panel .navbar-nav > li > a.disabled {
     text-decoration: none;
 }
 
-div#bottom-panel ul.bottom-panel-controls{
-    border-right: 1px solid #42484F;
-}
-
 div#bottom-panel .navbar-nav > li.active a,
 div#bottom-panel .navbar-nav > li.active a:hover,
 div#bottom-panel .navbar-nav > li.active a:focus {
