@@ -401,6 +401,17 @@ th-watched-repo {
     padding-left: 0;
 }
 
+.logviewer-icon {
+    width: 14px;
+    height: 16px;
+    vertical-align: text-bottom;
+    opacity: 0.7;
+}
+
+.logviewer-icon:hover {
+    opacity: 0.9;
+}
+
 .cancel-job-icon {
     font-size: 13px;
 }
