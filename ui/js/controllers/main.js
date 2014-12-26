@@ -87,6 +87,9 @@ treeherder.controller('MainCtrl', [
                     if ($scope.selectedJob) {
                         $rootScope.$emit(thEvents.addRelatedBug,
                                          $rootScope.selectedJob);
+
+                        // Prevent shortcut key overflow during focus
+                        ev.preventDefault();
                         $rootScope.$broadcast('focus-this', "related-bug-input");
                     }
 
@@ -95,6 +98,9 @@ treeherder.controller('MainCtrl', [
                     // key:c
                     if ($scope.selectedJob) {
                         $rootScope.$emit(thEvents.jobPin, $rootScope.selectedJob);
+
+                        // Prevent shortcut key overflow during focus
+                        ev.preventDefault();
                         $rootScope.$broadcast('focus-this', "classification-comment");
                     }
 
