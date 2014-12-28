@@ -60,8 +60,11 @@
                 <a href="" prevent-default-on-left-click
                    title="Add this job to the pinboard"
                    ng-click="pinboard_service.pinJob(selectedJob)">
-                  <span class="glyphicon glyphicon-pushpin"></span>
-                  <span class="pinned-job-count"><strong>{{ getCountPinnedJobs() }}</strong></span>
+                  <span class="glyphicon glyphicon-pushpin"
+                        ng-class="{'icon-blue': (pinboard_service.count.numPinnedJobs > 0)}">
+                  </span>
+                  <span ng-show="pinboard_service.count.numPinnedJobs"
+                        class="pinned-job-count">{{getCountPinnedJobs()}}</span>
                 </a>
               </li>
 
