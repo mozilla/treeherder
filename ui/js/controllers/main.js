@@ -106,10 +106,16 @@ treeherder.controller('MainCtrl', [
                     $scope.closeJob();
                 }
 
-            // Ctrl+Enter saves pinboard classification and related bugs
+            // Clear the pinboard: Ctrl+Shift+u
+            } else if (!ev.metaKey && !ev.altKey && ev.shiftKey && ev.ctrlKey) {
+                if ((ev.keyCode === 85) && $scope.selectedJob) {
+                    $rootScope.$emit(thEvents.clearPinboard);
+                }
+
+            // Save pinboard classification and related bugs: Ctrl+Enter
             } else if (!ev.metaKey && !ev.altKey && !ev.shiftKey && ev.ctrlKey) {
                 if ((ev.keyCode === 13) && $scope.selectedJob) {
-                  $rootScope.$emit(thEvents.saveClassification);
+                    $rootScope.$emit(thEvents.saveClassification);
                 }
             }
         };

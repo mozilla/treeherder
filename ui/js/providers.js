@@ -233,6 +233,8 @@ treeherder.provider('thEvents', function() {
 
             saveClassification: "save-classification-EVT",
 
+            clearPinboard: "clear-pinboard-EVT",
+
             searchPage: "search-page-EVT",
 
             selectJob: "select-job-EVT",
