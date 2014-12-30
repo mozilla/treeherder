@@ -104,6 +104,16 @@ body {
     color: #9fa3a5;
 }
 
+.logviewer-stepbar a:hover,
+.logviewer-stepbar a:focus {
+    text-decoration: none;
+}
+
+.logviewer-stepbar .raw-log {
+    padding-right: 5px;
+    font-size: 12px;
+}
+
 .logviewer-stepbar input[type="checkbox"] {
     margin: 0;
     vertical-align: middle;
