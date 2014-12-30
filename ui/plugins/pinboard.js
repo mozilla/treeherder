@@ -29,6 +29,12 @@ treeherder.controller('PinboardCtrl', [
             }
         });
 
+        $rootScope.$on(thEvents.clearPinboard, function(event) {
+            if ($scope.isPinboardVisible) {
+                $scope.unPinAll();
+            }
+        });
+
         $scope.pinJob = function(job) {
             thPinboard.pinJob(job);
             if (!$scope.selectedJob) {
