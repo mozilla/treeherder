@@ -487,6 +487,11 @@ th-watched-repo {
   padding: 0 2px 0 2px;
   vertical-align: 0;
   line-height: 1.32;
+  display: none;
+}
+
+.filter-shown {
+    display: inline-block;
 }
 
 .table-super-condensed thead > tr > th,
