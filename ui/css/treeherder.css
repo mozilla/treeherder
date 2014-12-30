@@ -416,6 +416,10 @@ th-watched-repo {
     font-size: 13px;
 }
 
+.icon-blue {
+    color: #68aae2;
+}
+
 .icon-green:hover {
     color: #0de00d !important;
 }
