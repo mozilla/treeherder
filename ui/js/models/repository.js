@@ -100,7 +100,7 @@ treeherder.factory('ThRepositoryModel', [
 
                     _.each(data, addRepoAsUnwatched);
                     var storedWatched = JSON.parse(sessionStorage.getItem("thWatchedRepos"));
-                    if (_.isArray(storedWatched)) {
+                    if (_.isArray(storedWatched) && _.contains(storedWatched, name)) {
                         _.each(storedWatched, function (repo) {
                             watchRepo(repo);
                         });
