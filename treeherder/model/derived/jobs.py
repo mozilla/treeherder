@@ -2458,6 +2458,11 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             return_type='iter',
         ).get_column_data('id')
 
+    def get_num_unprocessed_objects(self):
+        data = self.os_execute(proc='objectstore.selects.get_num_unprocessed',
+                               debug_show=self.DEBUG)
+        return int(data[0]['count'])
+
     def process_objects(self, loadlimit, raise_errors=False):
         """Processes JSON blobs from the objectstore into jobs schema."""
         rows = self.claim_objects(loadlimit)
