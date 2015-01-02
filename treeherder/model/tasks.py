@@ -98,6 +98,9 @@ def publish_to_pulse(project, ids, data_type):
             # Get appropriate data for data_type
             # using the ids provided
             for entry in jm.get_result_set_list_by_ids(ids):
+                repository = jm.refdata_model.get_repository_info(entry['repository_id'])
+                entry['repository_url'] = repository['url']
+
                 # Don't expose these properties, they are internal, at least that's
                 # what I think without documentation I have no clue... what any of
                 # this is
