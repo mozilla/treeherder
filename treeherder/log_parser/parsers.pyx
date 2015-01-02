@@ -134,7 +134,6 @@ class StepParser(ParserBase):
                     "started": match.group('timestamp'),
                     "started_linenumber": lineno,
                     "order": self.stepnum,
-                    "result": RESULT_DICT.get(int(match.group('result')), "unknown"),
                     "errors": [],
                 })
                 return
@@ -148,6 +147,7 @@ class StepParser(ParserBase):
                 self.current_step.update({
                     "finished": match.group('timestamp'),
                     "finished_linenumber": lineno,
+                    "result": RESULT_DICT.get(int(match.group('result')), "unknown"),
                     "errors": self.sub_parser.get_artifact(),
                 })
                 self.set_duration()
