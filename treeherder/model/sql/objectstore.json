@@ -37,6 +37,16 @@
             "host":"master_host"
         },
 
+        "get_num_unprocessed":{
+
+            "sql":"SELECT   COUNT(*) as count
+                   FROM     `objectstore`
+                   WHERE    `processed_state` = 'ready'
+                   AND      `error` = 'N'",
+
+            "host":"master_host"
+        },
+
         "get_unprocessed":{
 
             "sql":"SELECT   `json_blob`, `id`

@@ -76,12 +76,12 @@ class HgPushlogProcess(HgPushlogTransformerMixin,
         response.raise_for_status()
         return response.json()
 
-    def run(self, source_url, repository):
+    def run(self, source_url, repository, changeset=None):
 
         # get the last object seen from cache. this will
         # reduce the number of pushes processed every time
         last_push = cache.get("{0}:last_push".format(repository))
-        if last_push:
+        if not changeset and last_push:
             try:
                 # make an attempt to use the last revision cached
                 extracted_content = self.extract(
@@ -96,7 +96,11 @@ class HgPushlogProcess(HgPushlogTransformerMixin,
                 else:
                     raise e
         else:
-            extracted_content = self.extract(source_url)
+            if changeset:
+                extracted_content = self.extract(source_url + "&changeset=" +
+                                                 changeset)
+            else:
+                extracted_content = self.extract(source_url)
 
         if extracted_content:
             last_push_id = max(map(lambda x: int(x), extracted_content.keys()))
@@ -109,7 +113,10 @@ class HgPushlogProcess(HgPushlogTransformerMixin,
             )
             self.load(transformed)
 
-            cache.set("{0}:last_push".format(repository), top_revision)
+            if not changeset:
+                # only cache the last push if we're not fetching a specific
+                # changeset
+                cache.set("{0}:last_push".format(repository), top_revision)
 
 
 class MissingHgPushlogProcess(HgPushlogTransformerMixin,

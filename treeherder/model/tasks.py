@@ -10,15 +10,22 @@ from treeherder.model.models import Datasource, Repository
 
 
 @task(name='process-objects')
-def process_objects(limit=None):
+def process_objects(limit=None, project=None):
     """
     Process a number of objects from the objectstore
     and load them to the jobs store
     """
     # default limit to 100
     limit = limit or 100
-    for ds in Datasource.objects.filter(contenttype='objectstore'):
-        jm = JobsModel(ds.project)
+
+    if project:
+        projects_to_process = [project]
+    else:
+        projects_to_process = Datasource.objects.values_list(
+            'project', flat=True).distinct()
+
+    for project in projects_to_process:
+        jm = JobsModel(project)
         try:
             jm.process_objects(limit)
         finally:

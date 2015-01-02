@@ -91,7 +91,7 @@ class Builds4hTransformerMixin(object):
 
         return job_guid_data
 
-    def transform(self, data):
+    def transform(self, data, filter_to_project=None, filter_to_revision=None):
         """
         transform the builds4h structure into something we can ingest via
         our restful api
@@ -110,6 +110,9 @@ class Builds4hTransformerMixin(object):
 
             if not prop['branch'] in projects:
                 logger.warning("skipping job on unsupported branch {0}".format(prop['branch']))
+                continue
+
+            if filter_to_project and prop['branch'] != filter_to_project:
                 continue
 
             prop['revision'] = prop.get('revision',
@@ -140,6 +143,8 @@ class Builds4hTransformerMixin(object):
                                                  logger)
             except KeyError:
                 # skip this job, at least at this point
+                continue
+            if filter_to_revision and filter_to_revision != resultset['revision']:
                 continue
 
             treeherder_data = {
@@ -264,7 +269,7 @@ class Builds4hTransformerMixin(object):
             th_job = th_collections[project].get_job(treeherder_data)
             th_collections[project].add( th_job )
 
-        if missing_resultsets:
+        if missing_resultsets and not filter_to_revision:
             common.fetch_missing_resultsets("builds4h", missing_resultsets, logger)
 
         return th_collections
@@ -272,7 +277,7 @@ class Builds4hTransformerMixin(object):
 
 class PendingTransformerMixin(object):
 
-    def transform(self, data):
+    def transform(self, data, filter_to_revision=None, filter_to_project=None):
         """
         transform the buildapi structure into something we can ingest via
         our restful api
@@ -286,6 +291,9 @@ class PendingTransformerMixin(object):
         for project, revisions in data['pending'].iteritems():
             # this skips those projects we don't care about
             if project not in projects:
+                continue
+
+            if filter_to_project and project != filter_to_project:
                 continue
 
             for rev, jobs in revisions.items():
@@ -307,6 +315,9 @@ class PendingTransformerMixin(object):
                                                      logger)
                 except KeyError:
                     # skip this job, at least at this point
+                    continue
+
+                if filter_to_revision and filter_to_revision != resultset['revision']:
                     continue
 
                 # using project and revision form the revision lookups
@@ -389,7 +400,7 @@ class PendingTransformerMixin(object):
                     th_job = th_collections[project].get_job(treeherder_data)
                     th_collections[project].add(th_job)
 
-        if missing_resultsets:
+        if missing_resultsets and not filter_to_revision:
             common.fetch_missing_resultsets("pending", missing_resultsets, logger)
 
         return th_collections
@@ -397,7 +408,7 @@ class PendingTransformerMixin(object):
 
 class RunningTransformerMixin(object):
 
-    def transform(self, data):
+    def transform(self, data, filter_to_revision=None, filter_to_project=None):
         """
         transform the buildapi structure into something we can ingest via
         our restful api
@@ -410,6 +421,9 @@ class RunningTransformerMixin(object):
         for project, revisions in data['running'].items():
             # this skips those projects we don't care about
             if project not in projects:
+                continue
+
+            if filter_to_project and project != filter_to_project:
                 continue
 
             for rev, jobs in revisions.items():
@@ -432,6 +446,9 @@ class RunningTransformerMixin(object):
                                                      logger)
                 except KeyError:
                     # skip this job, at least at this point
+                    continue
+
+                if filter_to_revision and filter_to_revision != resultset['revision']:
                     continue
 
                 # using project and revision form the revision lookups
@@ -515,7 +532,7 @@ class RunningTransformerMixin(object):
                     th_job = th_collections[project].get_job(treeherder_data)
                     th_collections[project].add(th_job)
 
-        if missing_resultsets:
+        if missing_resultsets and not filter_to_revision:
             common.fetch_missing_resultsets("running", missing_resultsets, logger)
 
         return th_collections
@@ -524,33 +541,39 @@ class RunningTransformerMixin(object):
 class Builds4hJobsProcess(JsonExtractorMixin,
                           Builds4hTransformerMixin,
                           OAuthLoaderMixin):
-    def run(self):
+    def run(self, filter_to_revision=None, filter_to_project=None):
         extracted_content = self.extract(settings.BUILDAPI_BUILDS4H_URL)
         if extracted_content:
             self.load(
-                self.transform(extracted_content)
+                self.transform(extracted_content,
+                               filter_to_revision=filter_to_revision,
+                               filter_to_project=filter_to_project)
             )
 
 
 class PendingJobsProcess(JsonExtractorMixin,
                          PendingTransformerMixin,
                          OAuthLoaderMixin):
-    def run(self):
+    def run(self, filter_to_revision=None, filter_to_project=None):
         extracted_content = self.extract(settings.BUILDAPI_PENDING_URL)
         if extracted_content:
             self.load(
-                self.transform(extracted_content)
+                self.transform(extracted_content,
+                               filter_to_revision=filter_to_revision,
+                               filter_to_project=filter_to_project)
             )
 
 
 class RunningJobsProcess(JsonExtractorMixin,
                          RunningTransformerMixin,
                          OAuthLoaderMixin):
-    def run(self):
+    def run(self, filter_to_revision=None, filter_to_project=None):
         extracted_content = self.extract(settings.BUILDAPI_RUNNING_URL)
         if extracted_content:
             self.load(
-                self.transform(extracted_content)
+                self.transform(extracted_content,
+                               filter_to_revision=filter_to_revision,
+                               filter_to_project=filter_to_project)
             )
 
 class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
