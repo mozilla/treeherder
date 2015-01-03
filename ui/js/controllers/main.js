@@ -52,6 +52,7 @@ treeherder.controller('MainCtrl', [
             // test for key modifiers to allow browser shortcuts eg.
             // console, new/private browsing window, history, print
             if (!ev.metaKey && !ev.shiftKey && !ev.ctrlKey) {
+
                 if (ev.keyCode === 73) {
                     // toggle display in-progress jobs(pending/running), key:i
                     $scope.toggleInProgress();
@@ -66,6 +67,18 @@ treeherder.controller('MainCtrl', [
                     //Highlight previous unclassified failure keys:k/p
                     $rootScope.$emit(
                         thEvents.selectPreviousUnclassifiedFailure
+                    );
+
+                }else if(ev.keyCode == 39){
+                    // Highlight next job, key: right arrow
+                    $rootScope.$emit(
+                        thEvents.selectNextJob
+                    );
+
+                }else if(ev.keyCode == 37){
+                    // Highlight next job, key: left arrow
+                    $rootScope.$emit(
+                        thEvents.selectPreviousJob
                     );
 
                 } else if (ev.keyCode === 32) {
