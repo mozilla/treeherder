@@ -11,6 +11,10 @@ body {
     line-height: inherit; /* override bootstrap */
 }
 
+a:visited {
+    color: #a842ca;
+}
+
 #global-container {
     display: -webkit-flex;
     display:         flex;
@@ -705,6 +709,9 @@ ul.failure-summary-list li .btn-xs {
 /* We override global anchor color to replicate TBPL here */
 .failure-summary-bugs a {
     color: #0000ee;
+}
+.failure-summary-bugs a:visited {
+    color: #a842ca;
 }
 
 .failure-summary-bugs button {
