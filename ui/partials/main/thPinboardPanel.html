@@ -1,3 +1,4 @@
+<!-- Pinboard -->
 <div id="pinned-job-list">
   <div class="content">
     <span class="pinboard-preload-txt"
@@ -9,6 +10,7 @@
   </div>
 </div>
 
+<!-- Related bugs -->
 <div id="pinboard-related-bugs">
   <div class="content">
     <a ng-click="toggleEnterBugNumber()"
@@ -35,6 +37,7 @@
   </div>
 </div>
 
+<!-- Classification dropdown -->
 <div id="pinboard-classification">
   <div class="pinboard-label">classification</div>
   <div id="pinboard-classification-content" class="content">
@@ -42,6 +45,7 @@
       <select ng-model="classification.failure_classification_id"
               ng-options="item.id as item.name for item in classificationTypes.classificationOptions">
       </select>
+      <!-- Classification comment -->
       <div class="classification-comment-container">
         <input id="classification-comment"
                type="text"
@@ -56,24 +60,28 @@
   </div>
 </div>
 
-
-<div id="pinboard-controls" class="btn-group-vertical">
+<!-- Save UI -->
+<div id="pinboard-controls" class="btn-group-vertical"
+     title="{{!hasPinnedJobs() ? 'No jobs pinned' : ''}}">
   <span class="btn btn-xs btn-default close-btn"
-          ng-show="hasPinnedJobs()"
-          ng-click="unPinAll()">
+        title="Clear the entire pinboard"
+        ng-disabled="!hasPinnedJobs()"
+        ng-click="unPinAll()">
     <span class="fa fa-minus pull-left btn-icon-top-margin
                  clear-all-spacer"></span> clear all
   </span>
 
-  <div class="btn-group"
-       ng-show="hasPinnedJobs()">
+  <div class="btn-group">
     <span class="btn btn-default btn-xs save-btn"
-          title="Save classification and related bugs"
-          ng-click="save()">
+          title="Save all classification data"
+          ng-click="save()"
+          ng-disabled="!hasPinnedJobs()">
       <span class="fa fa-floppy-o pull-left btn-icon-top-margin"></span> save
     </span>
     <span class="btn btn-default btn-xs dropdown-toggle save-btn-dropdown"
-          data-toggle="dropdown">
+          title="Save sub classifications"
+          data-toggle="dropdown"
+          ng-disabled="!hasPinnedJobs">
       <span class="caret"></span>
     </span>
     <ul class="dropdown-menu pull-right" role="menu">
