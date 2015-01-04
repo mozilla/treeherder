@@ -98,34 +98,35 @@ treeherder.directive('thCloneJobs', [
         var jobMap = ThResultSetModel.getJobMap($rootScope.repoName);
         var lastJobSelected = ThResultSetModel.getSelectedJob($rootScope.repoName);
         var el, key, job, step;
-        var step = 'nextElementSibling';
 
-        if(lastJobSelected.el == undefined || lastJobSelected.el[0] == undefined ){
+        step = 'nextElementSibling';
+
+        if (lastJobSelected.el == undefined || lastJobSelected.el[0] == undefined ) {
 
             var currentElement = document.getElementsByClassName('result-set')[0];
-            el = traceJob($(currentElement),step,'job-btn');
+            el = traceJob($(currentElement), step, 'job-btn');
 
-        }else{
+        } else {
 
             var currentElement = lastJobSelected.el[0];
 
             // Parsing for parent which satisy parameter mentioned in variable step
-            while(!currentElement[step] || $(currentElement[step]).css('display') == 'none'){
+            while (!currentElement[step] || $(currentElement[step]).css('display') == 'none') {
 
-                if(!currentElement[step]){
+                if (!currentElement[step]) {
                     currentElement = traceParent($(currentElement), 1)[0];
-                }else{
+                } else {
                     currentElement = currentElement[step];
                 }
 
             }
 
             // look through parent's sibling for element with class job-row
-            el = traceJob($(currentElement[step]),step,'job-btn');
+            el = traceJob($(currentElement[step]), step, 'job-btn');
 
         }
 
-        if(el != null){
+        if (el != null) {
 
             key = el.attr(jobKeyAttr);
             job = jobMap[key].job_obj;
@@ -139,42 +140,45 @@ treeherder.directive('thCloneJobs', [
 
         var jobMap = ThResultSetModel.getJobMap($rootScope.repoName);
         var lastJobSelected = ThResultSetModel.getSelectedJob($rootScope.repoName);
-        var el, key, job, jobsList, i, step, currentElement;
+        var el, key, job, jobsList, i, step, currentElement, resultsets;
 
         step = 'previousElementSibling';
         el = null;
 
-        if(lastJobSelected.el === undefined || lastJobSelected.el[0] === undefined){
+        if (lastJobSelected.el === undefined || lastJobSelected.el[0] === undefined) {
 
-            var resultsets = document.getElementsByClassName('result-set');
+            resultsets = document.getElementsByClassName('result-set');
             currentElement = resultsets[resultsets.length - 1];
-            el = traceJob($(currentElement),step,'job-btn');
+            el = traceJob($(currentElement), step, 'job-btn');
 
-        }else{
+        } else {
 
             currentElement = lastJobSelected.el[0];
 
-            while(!currentElement[step] ){
+            while (!currentElement[step]) {
                 currentElement = traceParent($(currentElement), 1)[0];
             }
 
-            el = traceJob($(currentElement[step]),step,'job-btn');
+            el = traceJob($(currentElement[step]), step, 'job-btn');
 
         }
 
-        while(el == null){
+        while (el == null) {
 
-            currentElement = traceParent($(currentElement),1)[0];
-            if(currentElement === undefined)
+            currentElement = traceParent($(currentElement), 1)[0];
+            if (currentElement === undefined) {
                 break;
-            el = traceJob($(currentElement[step]),step,'job-btn');
+            }
+            el = traceJob($(currentElement[step]), step, 'job-btn');
 
         }
-        if(el != null){
+
+        if (el != null) {
             key = el.attr(jobKeyAttr);
             job = jobMap[key].job_obj;
             selectJob(job);
         }
+
     });
 
     $rootScope.$on(
@@ -404,7 +408,7 @@ treeherder.directive('thCloneJobs', [
 
     var addRevisions = function(resultset, element){
 //        $log.debug("addRevisions", resultset, element);
-        
+
         if(resultset.revisions.length > 0){
 
             var revisionInterpolator = thCloneHtml.get('revisionsClone').interpolator;
@@ -867,7 +871,7 @@ treeherder.directive('thCloneJobs', [
             if(platforms === undefined){
                 continue;
             }
-            
+
             var p;
             for(p = 0; p < platforms.length; p++){
 
@@ -1156,11 +1160,12 @@ treeherder.directive('thCloneJobs', [
     };
     
     var traceParent = function(el, level){
-        
-        for(var i=0; i<level; i++){
+
+        var i;
+        for (i=0; i<level; i++) {
             el = el.parent();
         }
-        
+
         return el;
     }
 
@@ -1173,54 +1178,56 @@ treeherder.directive('thCloneJobs', [
         jobElem = null;
         reverseList = false;
 
-        while(!jobFound && elemsList.length>0){
-            
+        while (!jobFound && elemsList.length>0) {
+
             tempList = [];
 
-            angular.forEach(elemsList,function(tempElem){
+            angular.forEach(elemsList, function(tempElem) {
 
-                if(!jobFound){
+                if (!jobFound) {
 
-                    if(tempElem.hasClass(clss) && tempElem.css('display')!='none'){
+                    if (tempElem.hasClass(clss) && tempElem.css('display')!='none') {
 
                         jobFound = true;
                         jobElem = $(tempElem);
 
-                    }else{
+                    } else {
 
-                        if(tempElem.children().length>0){
+                        if (tempElem.children().length>0) {
 
-                            angular.forEach(tempElem.children(), function(tempChild){
+                            angular.forEach(tempElem.children(), function(tempChild) {
 
-                                if($(tempChild).hasClass('platform-group')){
+                                if ($(tempChild).hasClass('platform-group')) {
 
                                     jobsList = $($(tempChild).children()[1]).children();
-                                    for(var i=0; i<jobsList.length; i++){
+                                    for (var i=0; i<jobsList.length; i++) {
                                         tempList.push($(jobsList[i]));
                                     }
                                     
                                     reverseList = true;
 
-                                }else
-                                    tempList.push($(tempChild));        
+                                } else {
+                                    tempList.push($(tempChild));
+                                }
                                 
                             })
                         }
-                    }    
+                    }
                 }
-            })    
+            })
 
             elemsList = [];
 
             //reverseList for previous obj
-            if(reverseList && step=='previousElementSibling'){
+            if (reverseList && step=='previousElementSibling') {
 
                 elemsList = tempList.reverse();
                 reverseList = false;
 
-            }else{
+            } else {
                 elemsList = tempList;
             }
+            
         }
         return jobElem;
     }
