@@ -101,8 +101,10 @@ treeherder.directive('thCloneJobs', [
 
         step = 'nextElementSibling';
 
+        // No job is selected currently , no job is selected till now ( 2 different cases )
         if (lastJobSelected.el == undefined || lastJobSelected.el[0] == undefined ) {
 
+            // select first Job
             var currentElement = document.getElementsByClassName('result-set')[0];
             el = traceJob($(currentElement), step, 'job-btn');
 
@@ -126,13 +128,19 @@ treeherder.directive('thCloneJobs', [
 
         }
 
-        if (el != null) {
+        // reached end of elements, so element is null
+        if (el == null) {
 
-            key = el.attr(jobKeyAttr);
-            job = jobMap[key].job_obj;
-            selectJob(job);
+            // select first Job as a wrap up
+            var currentElement = document.getElementsByClassName('result-set')[0];
+            el = traceJob($(currentElement), step, 'job-btn');
 
         }
+
+        key = el.attr(jobKeyAttr);
+        job = jobMap[key].job_obj;
+        selectJob(job);
+
     });
 
     $rootScope.$on(
@@ -145,8 +153,10 @@ treeherder.directive('thCloneJobs', [
         step = 'previousElementSibling';
         el = null;
 
+        // No job is selected currently , no job is selected till now ( 2 different cases )
         if (lastJobSelected.el === undefined || lastJobSelected.el[0] === undefined) {
 
+            // select Last job as lastJobSelected is undefined
             resultsets = document.getElementsByClassName('result-set');
             currentElement = resultsets[resultsets.length - 1];
             el = traceJob($(currentElement), step, 'job-btn');
@@ -155,6 +165,7 @@ treeherder.directive('thCloneJobs', [
 
             currentElement = lastJobSelected.el[0];
 
+            // while loop till sibling is found
             while (!currentElement[step]) {
                 currentElement = traceParent($(currentElement), 1)[0];
             }
@@ -166,18 +177,24 @@ treeherder.directive('thCloneJobs', [
         while (el == null) {
 
             currentElement = traceParent($(currentElement), 1)[0];
+
+            // reached first element (i.e.) no more parent elements
             if (currentElement === undefined) {
+
+                // Select Last job as a wrap up
+                resultsets = document.getElementsByClassName('result-set');
+                currentElement = resultsets[resultsets.length - 1];
+                el = traceJob($(currentElement), step, 'job-btn');
                 break;
+
             }
             el = traceJob($(currentElement[step]), step, 'job-btn');
 
         }
 
-        if (el != null) {
-            key = el.attr(jobKeyAttr);
-            job = jobMap[key].job_obj;
-            selectJob(job);
-        }
+        key = el.attr(jobKeyAttr);
+        job = jobMap[key].job_obj;
+        selectJob(job);
 
     });
 
@@ -1228,7 +1245,7 @@ treeherder.directive('thCloneJobs', [
 
                 elemsList = tempList.reverse();
                 reverseList = false;
-                console.log(elemsList)
+
             } else {
                 elemsList = tempList;
             }
