@@ -1206,6 +1206,11 @@ treeherder.directive('thCloneJobs', [
                                     
                                     reverseList = true;
 
+                                } else if ($(tempChild).hasClass('job-btn')) {
+
+                                    tempList.push($(tempChild));
+                                    reverseList = true;
+
                                 } else {
                                     tempList.push($(tempChild));
                                 }
@@ -1223,7 +1228,7 @@ treeherder.directive('thCloneJobs', [
 
                 elemsList = tempList.reverse();
                 reverseList = false;
-
+                console.log(elemsList)
             } else {
                 elemsList = tempList;
             }
