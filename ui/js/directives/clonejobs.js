@@ -107,7 +107,7 @@ treeherder.directive('thCloneJobs', [
 
         }else{
 
-            var currentElement = lastJobSelected.el[0];    
+            var currentElement = lastJobSelected.el[0];
 
             // Parsing for parent which satisy parameter mentioned in variable step
             while(!currentElement[step] || $(currentElement[step]).css('display') == 'none'){
@@ -115,31 +115,28 @@ treeherder.directive('thCloneJobs', [
                 if(!currentElement[step]){
                     currentElement = traceParent($(currentElement), 1)[0];
                 }else{
-                    currentElement = currentElement[step];            
+                    currentElement = currentElement[step];
                 }
 
-            } 
+            }
 
             // look through parent's sibling for element with class job-row
             el = traceJob($(currentElement[step]),step,'job-btn');
 
         }
-        
-        
-        
-        
+
         if(el != null){
 
             key = el.attr(jobKeyAttr);
             job = jobMap[key].job_obj;
-            selectJob(job);    
+            selectJob(job);
 
         }
     });
 
     $rootScope.$on(
         thEvents.selectPreviousJob, function(ev){
-        
+
         var jobMap = ThResultSetModel.getJobMap($rootScope.repoName);
         var lastJobSelected = ThResultSetModel.getSelectedJob($rootScope.repoName);
         var el, key, job, jobsList, i, step, currentElement;
@@ -148,40 +145,38 @@ treeherder.directive('thCloneJobs', [
         el = null;
 
         if(lastJobSelected.el === undefined || lastJobSelected.el[0] === undefined){
-            
+
             var resultsets = document.getElementsByClassName('result-set');
             currentElement = resultsets[resultsets.length - 1];
             el = traceJob($(currentElement),step,'job-btn');
 
         }else{
-            
+
             currentElement = lastJobSelected.el[0];
 
             while(!currentElement[step] ){
-                currentElement = traceParent($(currentElement), 1)[0];    
-            }   
+                currentElement = traceParent($(currentElement), 1)[0];
+            }
 
-            el = traceJob($(currentElement[step]),step,'job-btn');                
+            el = traceJob($(currentElement[step]),step,'job-btn');
 
-        }  
-        
+        }
+
         while(el == null){
 
-            currentElement = traceParent($(currentElement),1)[0]; 
+            currentElement = traceParent($(currentElement),1)[0];
             if(currentElement === undefined)
                 break;
-            el = traceJob($(currentElement[step]),step,'job-btn');    
+            el = traceJob($(currentElement[step]),step,'job-btn');
 
         }
         if(el != null){
             key = el.attr(jobKeyAttr);
             job = jobMap[key].job_obj;
-            selectJob(job);         
+            selectJob(job);
         }
-        
-
-
     });
+
     $rootScope.$on(
         thEvents.selectPreviousUnclassifiedFailure, function(ev){
 
@@ -1215,7 +1210,7 @@ treeherder.directive('thCloneJobs', [
                 }
             })    
 
-            elemsList = []
+            elemsList = [];
 
             //reverseList for previous obj
             if(reverseList && step=='previousElementSibling'){
