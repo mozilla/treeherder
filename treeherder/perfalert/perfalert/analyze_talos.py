@@ -367,9 +367,6 @@ class AnalysisRunner:
         #test_params = urllib.quote(test_params)
         base_url = self.config.get('main', 'base_graph_url')
         graph_datatype = 'geo'
-        #TODO: delete these following two lines when we default to geomean
-        if self.data_type == 'average':
-            graph_datatype = 'running'
 
         if d is not None:
             start_time = (d.timestamp - 24*3600) * 1000
@@ -617,9 +614,6 @@ class AnalysisRunner:
 
         if state == 'regression':
             option_field = 'geomean_regression_emails'
-            #TODO: delete these following two lines when we default to geomean
-            if self.data_type == 'average':
-                option_field = 'regression_emails'
 
             if self.config.has_option(branch, option_field):
                 addresses.extend(self.config.get(branch, option_field).split(","))
@@ -1045,8 +1039,5 @@ if __name__ == "__main__":
                 value = Template(value).substitute(vars)
                 config.set(section, option, value)
 
-    runAnalysis(options, config, 'average')
-    #NOTE: we don't want to mail original patch authors twice, so only mail to the new list
-    config.set('main', 'max_email_authors', 0)
     runAnalysis(options, config, 'geomean')
 
