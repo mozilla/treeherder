@@ -51,7 +51,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile('(?:linux|ubuntu).*64|dxr', re.IGNORECASE),
+        'regex': re.compile('(?:linux|ubuntu).*64.+|dxr', re.IGNORECASE),
         'attributes': {
             'os': 'linux',
             'os_platform': 'linux64',
