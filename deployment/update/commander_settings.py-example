@@ -12,9 +12,9 @@ DEPLOY_SCRIPT = '/data/treeherder/deploy -n treeherder.mozilla.org'
 REMOTE_UPDATE_SCRIPT = '/data/bin/update-www.sh'
 
 WEB_HOSTGROUP = 'treeherder-web'
-CELERY_HOSTGROUP = ['treeherder-processors',
-                    'treeherder-etl'
-                   ]
+ETL_HOSTGROUP = 'treeherder-etl'
+LOG_HOSTGROUP = 'treeherder-processors'
+RABBIT_HOSTGROUP = 'treeherder-rabbit'
 
 UPDATE_REF = 'master'
 SSH_KEY = '/root/.ssh/id_rsa_treeherder_updater'
