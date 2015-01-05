@@ -273,7 +273,15 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
     ),
-    'EXCEPTION_HANDLER': 'treeherder.webapp.api.exceptions.exception_handler'
+    'EXCEPTION_HANDLER': 'treeherder.webapp.api.exceptions.exception_handler',
+    'DEFAULT_THROTTLE_CLASSES': (
+        'treeherder.webapp.api.throttling.OauthKeyThrottle',
+    ),
+    'DEFAULT_THROTTLE_RATES': {
+        'jobs': '120/minute',
+        'objectstore': '120/minute',
+        'resultset': '120/minute'
+    }
 }
 
 SITE_URL = "http://local.treeherder.mozilla.org"

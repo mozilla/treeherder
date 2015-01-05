@@ -100,7 +100,7 @@ def test_objectstore_with_bad_secret(job_sample, jm):
     tjc.add(tj)
 
     resp = test_utils.post_collection(
-        jm.project, tjc, status=403, consumer_secret='not so secret'
+        jm.project, tjc, status=403, consumer_secret='not-so-secret'
         )
 
     assert resp.status_int == 403
@@ -120,7 +120,7 @@ def test_objectstore_with_bad_key(job_sample, jm):
     tjc.add(tj)
 
     resp = test_utils.post_collection(
-        jm.project, tjc, status=403, consumer_key='wrong key'
+        jm.project, tjc, status=403, consumer_key='wrong-key'
         )
 
     assert resp.status_int == 403

@@ -314,7 +314,7 @@ def test_resultset_with_bad_key(sample_resultset, jm, initial_data):
         trsc.add(rs)
 
     resp = test_utils.post_collection(
-        jm.project, trsc, status=403, consumer_key="horrible key"
+        jm.project, trsc, status=403, consumer_key="horrible-key"
         )
 
     assert resp.status_int == 403

@@ -17,6 +17,7 @@ class ObjectstoreViewSet(viewsets.ViewSet):
     Update will not be implemented as JobModel will always do
     a conditional create and then an update.
     """
+    throttle_scope = 'objectstore'
 
     @with_jobs
     @oauth_required

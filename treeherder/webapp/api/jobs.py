@@ -17,6 +17,7 @@ class JobsViewSet(viewsets.ViewSet):
     This viewset is responsible for the jobs endpoint.
 
     """
+    throttle_scope = 'jobs'
 
     @with_jobs
     def retrieve(self, request, project, jm, pk=None):
