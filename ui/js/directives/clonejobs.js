@@ -97,20 +97,20 @@ treeherder.directive('thCloneJobs', [
 
         var jobMap = ThResultSetModel.getJobMap($rootScope.repoName);
         var lastJobSelected = ThResultSetModel.getSelectedJob($rootScope.repoName);
-        var el, key, job, step;
+        var el, key, job, step, currentElement;
 
         step = 'nextElementSibling';
 
         // No job is selected currently , no job is selected till now ( 2 different cases )
-        if (lastJobSelected.el == undefined || lastJobSelected.el[0] == undefined ) {
+        if (lastJobSelected.el === undefined || lastJobSelected.el[0] === undefined) {
 
             // select first Job
-            var currentElement = document.getElementsByClassName('result-set')[0];
+            currentElement = document.getElementsByClassName('result-set')[0];
             el = traceJob($(currentElement), step, 'job-btn');
 
         } else {
 
-            var currentElement = lastJobSelected.el[0];
+            currentElement = lastJobSelected.el[0];
 
             // Parsing for parent which satisy parameter mentioned in variable step
             while (!currentElement[step] || $(currentElement[step]).css('display') == 'none') {
@@ -123,16 +123,16 @@ treeherder.directive('thCloneJobs', [
 
             }
 
-            // look through parent's sibling for element with class job-row
+            // Look through parent's sibling for element with class job-row
             el = traceJob($(currentElement[step]), step, 'job-btn');
 
         }
 
-        // reached end of elements, so element is null
-        if (el == null) {
+        // Reached end of elements, so element is null
+        if (el === null) {
 
-            // select first Job as a wrap up
-            var currentElement = document.getElementsByClassName('result-set')[0];
+            // Select first Job as a wrap up
+            currentElement = document.getElementsByClassName('result-set')[0];
             el = traceJob($(currentElement), step, 'job-btn');
 
         }
@@ -148,7 +148,7 @@ treeherder.directive('thCloneJobs', [
 
         var jobMap = ThResultSetModel.getJobMap($rootScope.repoName);
         var lastJobSelected = ThResultSetModel.getSelectedJob($rootScope.repoName);
-        var el, key, job, jobsList, i, step, currentElement, resultsets;
+        var el, key, job, step, currentElement, resultsets;
 
         step = 'previousElementSibling';
         el = null;
@@ -156,7 +156,7 @@ treeherder.directive('thCloneJobs', [
         // No job is selected currently , no job is selected till now ( 2 different cases )
         if (lastJobSelected.el === undefined || lastJobSelected.el[0] === undefined) {
 
-            // select Last job as lastJobSelected is undefined
+            // Select Last job as lastJobSelected is undefined
             resultsets = document.getElementsByClassName('result-set');
             currentElement = resultsets[resultsets.length - 1];
             el = traceJob($(currentElement), step, 'job-btn');
@@ -174,7 +174,7 @@ treeherder.directive('thCloneJobs', [
 
         }
 
-        while (el == null) {
+        while (el === null) {
 
             currentElement = traceParent($(currentElement), 1)[0];
 
@@ -1179,23 +1179,23 @@ treeherder.directive('thCloneJobs', [
     var traceParent = function(el, level){
 
         var i;
-        for (i=0; i<level; i++) {
+        for (i = 0; i < level; i++) {
             el = el.parent();
         }
 
         return el;
-    }
+    };
 
     var traceJob = function(elem, step, clss){
 
-        var elemsList, jobFound, jobElem, reverseList, tempList, jobsList;
+        var elemsList, jobFound, jobElem, reverseList, tempList, jobsList, i;
 
         elemsList = [elem];
         jobFound = false;
         jobElem = null;
         reverseList = false;
 
-        while (!jobFound && elemsList.length>0) {
+        while (!jobFound && elemsList.length > 0) {
 
             tempList = [];
 
@@ -1203,21 +1203,21 @@ treeherder.directive('thCloneJobs', [
 
                 if (!jobFound) {
 
-                    if (tempElem.hasClass(clss) && tempElem.css('display')!='none') {
+                    if (tempElem.hasClass(clss) && tempElem.css('display') != 'none') {
 
                         jobFound = true;
                         jobElem = $(tempElem);
 
                     } else {
 
-                        if (tempElem.children().length>0) {
+                        if (tempElem.children().length > 0) {
 
                             angular.forEach(tempElem.children(), function(tempChild) {
 
                                 if ($(tempChild).hasClass('platform-group')) {
 
                                     jobsList = $($(tempChild).children()[1]).children();
-                                    for (var i=0; i<jobsList.length; i++) {
+                                    for (i = 0; i < jobsList.length; i++) {
                                         tempList.push($(jobsList[i]));
                                     }
                                     
@@ -1232,16 +1232,16 @@ treeherder.directive('thCloneJobs', [
                                     tempList.push($(tempChild));
                                 }
                                 
-                            })
+                            });
                         }
                     }
                 }
-            })
+            });
 
             elemsList = [];
 
             //reverseList for previous obj
-            if (reverseList && step=='previousElementSibling') {
+            if (reverseList && step == 'previousElementSibling') {
 
                 elemsList = tempList.reverse();
                 reverseList = false;
@@ -1252,7 +1252,7 @@ treeherder.directive('thCloneJobs', [
             
         }
         return jobElem;
-    }
+    };
 
     var linker = function(scope, element, attrs){
 
