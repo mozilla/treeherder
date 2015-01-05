@@ -221,8 +221,8 @@ treeherder.factory('ThRepositoryModel', [
                 // we've received all the statuses we expect to
                 _.defer(function() {
                     _.each(newStatuses, function(status) {
-                        watchedRepos[status.tree].treeStatus = status;
                         $log.debug("updateTreeStatus", "updateStatusesIfDone", status.tree, status.status);
+                        watchedRepos[treeStatus.getRepoName(status.tree)].treeStatus = status;
                     });
                 });
             }
