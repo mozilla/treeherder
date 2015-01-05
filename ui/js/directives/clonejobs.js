@@ -569,33 +569,33 @@ treeherder.directive('thCloneJobs', [
         // Note: I was using
         //     jobEl.style.display = "inline";
         //     jobEl.className += " filter-shown";
-        // but that didn't work reliably with the jquery selectors
+        // but the classname setting didn't work reliably with the jquery selectors
         // when it came to hiding/showing platforms and groups.  Jquery
         // couldn't detect that I'd added or removed ``filter-shown`` in
         // all cases.  So, while this is a bit slower, it's reliable.
+        //
+        // It would be great to be able to do this without adding/removing a class
         if (show) {
-            job.css("display", "inline-block");
-            job.addClass("filter-shown");
+            job[0].classList.add("filter-shown");
         } else {
-            job.css("display", "none");
-            job.removeClass("filter-shown");
+            job[0].classList.remove("filter-shown");
         }
     };
 
     var filterPlatform = function(platform) {
-        var showPlt = platform.find('.filter-shown').length !== 0;
+        var showPlt = platform.find('.job-row .filter-shown').length !== 0;
         var showGrp;
 
         if (showPlt) {
-            platform.css("display", "table-row");
+            platform[0].style.display ="table-row";
             platform.find(".platform-group").each(function internalFilterGroup() {
                 var grp = $(this);
-                showGrp = grp.find('.filter-shown').length !== 0;
-                grp.css("display", showGrp? "inline": "none");
+                showGrp = grp.find('.job-group-list .filter-shown').length !== 0;
+                grp[0].style.display = showGrp ? "inline" : "none";
             });
 
         } else {
-            platform.css("display", "none");
+            platform[0].style.display = "none";
         }
     };
 
