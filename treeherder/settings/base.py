@@ -40,7 +40,7 @@ TREEHERDER_PERF_SERIES_TIME_RANGES = [
     { "seconds":7776000, "days":90 },
 ]
 
-DATA_CYCLE_INTERVAL = timedelta(days=30*6)
+DATA_CYCLE_INTERVAL = timedelta(days=30*5)
 
 RABBITMQ_USER = os.environ.get("TREEHERDER_RABBITMQ_USER", "")
 RABBITMQ_PASSWORD = os.environ.get("TREEHERDER_RABBITMQ_PASSWORD", "")
