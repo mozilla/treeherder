@@ -28,15 +28,17 @@ sys.path.append(th_service_src)
 def pre_update(ctx, ref=settings.UPDATE_REF):
     """Update the code to a specific git reference (tag/sha/etc)."""
     with ctx.lcd(th_service_src):
+        ctx.local('git fetch --prune')
+        ctx.local('git reset FETCH_HEAD --hard')
         ctx.local('git checkout %s' % ref)
-        ctx.local('git pull -f')
         ctx.local('git submodule sync')
         ctx.local('git submodule update --init --recursive')
         ctx.local("find . -type f -name '*.pyc' -delete")
 
     with ctx.lcd(th_ui_src):
+        ctx.local('git fetch --prune')
+        ctx.local('git reset FETCH_HEAD --hard')
         ctx.local('git checkout %s' % ref)
-        ctx.local('git pull -f')
         ctx.local('git submodule sync')
         ctx.local('git submodule update --init --recursive')
         ctx.local("find . -type f -name '*.pyc' -delete")
