@@ -924,8 +924,8 @@ ul.failure-summary-list li .btn-xs {
 #pinboard-controls {
     flex: none;
     -webkit-flex: none;
-    padding: 10px;
-    margin: 10px;
+    height: 43px;
+    margin: 20px;
 }
 
 #pinboard-controls .dropdown-menu {
