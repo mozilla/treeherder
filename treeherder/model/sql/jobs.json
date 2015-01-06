@@ -576,7 +576,8 @@
                     j.`state`,
                     rs.push_timestamp as push_timestamp,
                     j.`pending_eta`,
-                    j.`running_eta`
+                    j.`running_eta`,
+                    j.`last_modified`
                   FROM `job` as j
                   LEFT JOIN `REP0`.`machine` as m
                     ON j.`machine_id` = m.id
@@ -630,7 +631,8 @@
                     j.`end_timestamp`,
                     j.`submit_timestamp`,
                     j.`pending_eta`,
-                    j.`running_eta`
+                    j.`running_eta`,
+                    j.`last_modified`
                   FROM `job` as j
                   LEFT JOIN `REP0`.`machine` as m
                     ON j.`machine_id` = m.id

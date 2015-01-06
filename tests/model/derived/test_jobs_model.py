@@ -127,7 +127,6 @@ def test_ingest_running_to_retry_sample_job(jm, refdata, sample_data, initial_da
     jm.process_objects(10, raise_errors=True)
 
     jl = jm.get_job_list(0, 10)
-    print json.dumps(jl, indent=4)
 
     jm.disconnect()
     refdata.disconnect()
@@ -175,7 +174,6 @@ def test_ingest_running_to_retry_to_success_sample_job(jm, refdata, sample_data,
 
 
     jl = jm.get_job_list(0, 10)
-    print json.dumps(jl, indent=4)
 
     jm.disconnect()
     refdata.disconnect()
@@ -205,7 +203,6 @@ def test_ingest_retry_sample_job_no_running(jm, refdata, sample_data, initial_da
     jm.process_objects(10, raise_errors=True)
 
     jl = jm.get_job_list(0, 10)
-    print json.dumps(jl, indent=4)
 
     jm.disconnect()
     refdata.disconnect()
@@ -457,11 +454,8 @@ def test_remove_existing_jobs_single_existing(jm, sample_data, initial_data, ref
     test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset)
 
     jl = jm.get_job_list(0, 10)
-    print 'JOBLIST before'
-    print json.dumps(jl, indent=4)
 
     data = jm._remove_existing_jobs(job_data)
-    # print data
     assert len(data) == 0
     jl = jm.get_job_list(0, 10)
     assert len(jl) == 1

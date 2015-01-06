@@ -114,7 +114,8 @@ class JobsModel(TreeherderModelBase):
             "state": "j.state",
             "submit_timestamp": "j.submit_timestamp",
             "start_timestamp": "j.start_timestamp",
-            "end_timestamp": "j.end_timestamp"
+            "end_timestamp": "j.end_timestamp",
+            "last_modified": "j.last_modified"
         },
         "result_set": {
             "id": "rs.id",
