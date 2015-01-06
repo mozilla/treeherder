@@ -12,23 +12,26 @@
     </head>
     <body class="body-logviewer">
         <div class="run-data">
-            <div class="col-md-6">
-                <table class="table table-condensed">
-                    <tr ng-repeat="(label, value) in artifact.header">
-                        <th ng-cloak>{{label}}</th>
-                        <td ng-if="label == 'revision'">
-                            <a href="{{logRevisionFilterUrl}}"
-                               title="open resultset in new tab"
-                               target="_blank"
-                               class="repo-link"
-                               ng-cloak>{{value}}</a>
-                        </td>
-                        <td ng-if="label == 'starttime'"
-                            ng-cloak>{{logDisplayDate}}</td>
-                        <td ng-if="label != 'revision' && label != 'starttime'"
-                            ng-cloak>{{value}}</td>
-                    </tr>
-                </table>
+            <div class="col-md-6" >
+                <div class="job-header">
+                    <table class="table table-condensed" >
+                        <tr ng-repeat="(label, value) in artifact.header">
+                            <th ng-cloak>{{label}}</th>
+                            <td ng-if="label == 'revision'" class="break-word">
+                                {{value}}
+                                <a href="{{logRevisionFilterUrl}}"
+                                   title="open resultset in new tab"
+                                   target="_blank"
+                                   class="repo-link"
+                                   ng-cloak>link</a>
+                            </td>
+                            <td ng-if="label == 'starttime'"
+                                ng-cloak class="break-word">{{logDisplayDate}}</td>
+                            <td ng-if="label != 'revision' && label != 'starttime'"
+                                ng-cloak class="break-word">{{value}}</td>
+                        </tr>
+                    </table>
+                </div>
             </div>
 
             <div class="col-md-6" lv-log-steps></div>
