@@ -82,6 +82,9 @@ class HgPushlogProcess(HgPushlogTransformerMixin,
         # reduce the number of pushes processed every time
         last_push = cache.get("{0}:last_push".format(repository))
         if not changeset and last_push:
+            logger.info("Extracted last push for '%s', '%s', from cache, "
+                        "attempting to get changes only from that point" %
+                        (repository, last_push))
             try:
                 # make an attempt to use the last revision cached
                 extracted_content = self.extract(
@@ -91,15 +94,22 @@ class HgPushlogProcess(HgPushlogTransformerMixin,
                 # in case of a 404 error, delete the cache key
                 # and try it without any parameter
                 if e.response.status_code == 404:
+                    logger.warning("Got a 404 fetching changes since '%s', "
+                                   "getting all changes for '%s' instead" %
+                                   (last_push, repository))
                     cache.delete("{0}:last_push".format(repository))
                     extracted_content = self.extract(source_url)
                 else:
                     raise e
         else:
             if changeset:
+                logger.info("Getting all pushes for '%s' corresponding to "
+                            "changeset '%s'" % (repository, changeset))
                 extracted_content = self.extract(source_url + "&changeset=" +
                                                  changeset)
             else:
+                logger.warning("Unable to get last push from cache for '%s', "
+                               "getting all pushes" % repository)
                 extracted_content = self.extract(source_url)
 
         if extracted_content:
