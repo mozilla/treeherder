@@ -114,10 +114,15 @@ treeherder.controller('PinboardCtrl', [
         };
 
         $scope.saveEnteredBugNumber = function() {
-            $log.debug("new bug number to be saved: ", $scope.newEnteredBugNumber);
-            thPinboard.addBug({id:$scope.newEnteredBugNumber});
-            $scope.toggleEnterBugNumber();
-            $scope.newEnteredBugNumber = "";
+            if (!$scope.newEnteredBugNumber) {
+                $scope.toggleEnterBugNumber();
+            } else {
+                $log.debug("new bug number to be saved: ",
+                           $scope.newEnteredBugNumber);
+                thPinboard.addBug({id:$scope.newEnteredBugNumber});
+                $scope.toggleEnterBugNumber();
+                $scope.newEnteredBugNumber = "";
+            }
         };
 
         $scope.viewJob = function(job) {
