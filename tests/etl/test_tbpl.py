@@ -83,7 +83,7 @@ def test_tbpl_bugzilla_request_body(jm, eleven_jobs_processed):
 
     expected = {
         'comment': (u'submit_timestamp: {0}\n'
-                    u'log: http://local.treeherder.mozilla.org/ui/'
+                    u'log: http://local.treeherder.mozilla.org/'
                     u'logviewer.html#?repo=test_treeherder&job_id=1\n'
                     u'repository: test_treeherder\n'
                     u'who: user[at]mozilla[dot]com\n'

@@ -123,9 +123,8 @@ class BugzillaBugRequest(object):
             'repository': self.project,
             'who': who,
             'submit_timestamp': submit_date,
-            'log': "{0}{1}/logviewer.html#?repo={2}&job_id={3}".format(
+            'log': "{0}/logviewer.html#?repo={1}&job_id={2}".format(
                 settings.SITE_URL,
-                settings.UI_PREFIX,
                 self.project,
                 self.job_id
             ),
