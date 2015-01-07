@@ -3,6 +3,7 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 
+import logging
 import time
 from celery import task
 from django.conf import settings
@@ -18,6 +19,8 @@ from treeherder.log_parser.utils import (get_error_search_term,
 
 from treeherder.etl.oauth_utils import OAuthCredentials
 
+
+logger = logging.getLogger(__name__)
 
 @task(name='parse-log', max_retries=10)
 def parse_log(project, job_log_url, job_guid, check_errors=False):
@@ -44,6 +47,9 @@ def parse_log(project, job_log_url, job_guid, check_errors=False):
             job_log_url['id']
         )
 
+        logger.debug("Downloading and extracting log information for guid "
+                     "'%s' (from %s)" % (job_guid, job_log_url['url']))
+
         artifact_list = extract_log_artifacts(job_log_url['url'],
                                               job_guid, check_errors)
         # store the artifacts generated
@@ -56,6 +62,9 @@ def parse_log(project, job_log_url, job_guid, check_errors=False):
                 "blob": artifact[3]
             })
             tac.add(ta)
+
+        logger.debug("Finished downloading and processing artifact for guid "
+                     "'%s'" % job_guid)
 
         req.post(tac)
 
@@ -70,9 +79,14 @@ def parse_log(project, job_log_url, job_guid, check_errors=False):
                 'parse_timestamp': current_timestamp
             }
         )
+
+        logger.debug("Finished posting artifact for guid '%s'" % job_guid)
+
     except Exception, e:
         # send an update to job_log_url
         #the job_log_url status changes from pending/running to failed
+        logger.warn("Failed to download and/or parse artifact for guid '%s'" %
+                    job_guid)
         current_timestamp = time.time()
         req.send(
             update_endpoint,
