@@ -55,6 +55,17 @@ export TREEHERDER_RABBITMQ_PORT='${RABBITMQ_PORT}'
 "
 }
 
+file {"/var/log/treeherder/":
+    ensure => "directory",
+    owner => "vagrant",
+    group => "adm",
+    mode => 750,
+}
+
+file {"${PROJ_DIR}/treeherder/settings/local.py":
+     content => template("${PROJ_DIR}/puppet/files/treeherder/local.production.py"),
+}
+
 class vagrant {
     class {
         init: before => Class["mysql"];
