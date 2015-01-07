@@ -65,6 +65,7 @@ class ResultSetViewSet(viewsets.ViewSet):
 
     ``result sets`` are synonymous with ``pushes`` in the ui
     """
+    throttle_scope = 'resultset'
 
     @with_jobs
     def list(self, request, project, jm):
