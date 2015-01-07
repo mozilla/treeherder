@@ -566,9 +566,7 @@ div#bottom-panel .navbar-nav > li > a.disabled {
 div#bottom-panel .navbar-nav > li.active a,
 div#bottom-panel .navbar-nav > li.active a:hover,
 div#bottom-panel .navbar-nav > li.active a:focus {
-    box-shadow: inset 0px 2px 0px;
     outline: 0;
-
 }
 
 div#bottom-panel .navbar > ul.tab-headers > li{
