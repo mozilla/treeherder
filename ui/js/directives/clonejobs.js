@@ -354,7 +354,6 @@ treeherder.directive('thCloneJobs', [
                 ulEl.append(pushlogInterpolator({
                     currentRepo: $rootScope.currentRepo,
                     revision: resultset.revision,
-                    diff: resultset.revision_count - resultset.revisions.length
                 }));
             }
         }
