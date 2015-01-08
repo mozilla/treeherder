@@ -321,7 +321,11 @@ CORS_ORIGIN_ALLOW_ALL = True
 # set ALLOWED_HOSTS to match your domain name.
 # An asterisk means everything but it's not secure.
 # IP addresses are also allowed. A dot is used to include all sub domains
-ALLOWED_HOSTS = [".mozilla.org", ".allizom.org"]
+if (os.environ.get('TREEHERDER_ALLOWED_HOSTS')):
+    ALLOWED_HOSTS = [os.environ.get('TREEHERDER_ALLOWED_HOSTS')]
+else:
+    ALLOWED_HOSTS = [".mozilla.org", ".allizom.org"]
+
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
