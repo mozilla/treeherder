@@ -26,19 +26,22 @@
             <a ng-if="job_log_url.parse_status == 'failed'"
                title="Log parsing has failed"
                class="disabled" >
-              <span class="glyphicon glyphicon-tasks"></span>
+              <img src="./img/logviewerIcon.svg"
+                   class="logviewer-icon"><img>
             </a>
             <a ng-if="job_log_url.parse_status == 'pending'"
                class="disabled"
                title="Log parsing in progress">
-              <span class="glyphicon glyphicon-tasks"></span>
+              <img src="./img/logviewerIcon.svg"
+                   class="logviewer-icon"><img>
             </a>
           </li>
           <li>
             <a ng-if="!job_log_urls.length"
                class="disabled"
                title="No logs available for this job">
-              <span class="glyphicon glyphicon-tasks"></span>
+              <img src="./img/logviewerIcon.svg"
+                   class="logviewer-icon"><img>
             </a>
           </li>
 
