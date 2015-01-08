@@ -20,7 +20,7 @@ treeherder.controller('PinboardCtrl', [
 
         $rootScope.$on(thEvents.addRelatedBug, function(event, job) {
             $scope.pinJob(job);
-            $scope.toggleEnterBugNumber();
+            $scope.toggleEnterBugNumber(true);
         });
 
         $rootScope.$on(thEvents.saveClassification, function(event) {
@@ -73,6 +73,7 @@ treeherder.controller('PinboardCtrl', [
                 $scope.classification.who = $scope.user.email;
                 var classification = $scope.classification;
                 thPinboard.save(classification);
+                $scope.completeClassification();
                 $scope.classification = thPinboard.createNewClassification();
             } else {
                 thNotify.send("must be logged in to save job classifications", "danger");
@@ -104,9 +105,9 @@ treeherder.controller('PinboardCtrl', [
             return thPinboard.hasRelatedBugs();
         };
 
-        $scope.toggleEnterBugNumber = function() {
-            $scope.enteringBugNumber = !$scope.enteringBugNumber;
-            $scope.focusInput = $scope.enteringBugNumber;
+        $scope.toggleEnterBugNumber = function(tf) {
+            $scope.enteringBugNumber = tf;
+            $scope.focusInput = tf;
         };
 
         $scope.completeClassification = function() {
@@ -114,14 +115,16 @@ treeherder.controller('PinboardCtrl', [
         };
 
         $scope.saveEnteredBugNumber = function() {
-            if (!$scope.newEnteredBugNumber) {
-                $scope.toggleEnterBugNumber();
-            } else {
-                $log.debug("new bug number to be saved: ",
-                           $scope.newEnteredBugNumber);
-                thPinboard.addBug({id:$scope.newEnteredBugNumber});
-                $scope.toggleEnterBugNumber();
-                $scope.newEnteredBugNumber = "";
+            if ($scope.enteringBugNumber) {
+                if (!$scope.newEnteredBugNumber) {
+                    $scope.toggleEnterBugNumber(false);
+                } else {
+                    $log.debug("new bug number to be saved: ",
+                               $scope.newEnteredBugNumber);
+                    thPinboard.addBug({id:$scope.newEnteredBugNumber});
+                    $scope.toggleEnterBugNumber(false);
+                    $scope.newEnteredBugNumber = "";
+                }
             }
         };
 

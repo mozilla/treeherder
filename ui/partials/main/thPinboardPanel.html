@@ -13,7 +13,7 @@
 <!-- Related bugs -->
 <div id="pinboard-related-bugs">
   <div class="content">
-    <a ng-click="toggleEnterBugNumber()"
+    <a ng-click="toggleEnterBugNumber(!enteringBugNumber)"
        class="click-able-icon"
        title="Add a related bug">
        <i class="fa fa-plus-square add-related-bugs-icon"></i>
@@ -26,7 +26,7 @@
           class="add-related-bugs-form">
       <input id="related-bug-input"
              type="number"
-             class="add-related-bugs-input"
+             class="add-related-bugs-input mousetrap"
              ng-model="$parent.newEnteredBugNumber"
              placeholder="enter bug number"
              focus-me="focusInput">
@@ -49,7 +49,7 @@
       <div class="classification-comment-container">
         <input id="classification-comment"
                type="text"
-               class="form-control add-classification-input"
+               class="form-control add-classification-input mousetrap"
                ng-model="classification.note"
                focus-this blur-this></input>
         <span class="pinboard-preload-txt classification-comment-preload-txt"
