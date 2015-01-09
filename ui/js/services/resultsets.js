@@ -20,6 +20,25 @@ treeherder.factory('thResultSets', [
         return jobObj;
     };
 
+    var convertDates = function(locationParams) {
+        // support date ranges.  we must convert the strings to a timezone
+        // appropriate timestamp
+        $log.debug("locationParams", locationParams);
+        if (_.has(locationParams, "startdate")) {
+            locationParams.push_timestamp__gte = Date.parse(
+                locationParams.startdate)/1000;
+
+            delete locationParams.startdate;
+        }
+        if (_.has(locationParams, "enddate")) {
+            locationParams.push_timestamp__lt = Date.parse(
+                locationParams.enddate)/1000 + 84600;
+
+            delete locationParams.enddate;
+        }
+        return locationParams;
+    };
+
     // Convert jobs value array into into an associative array
     // with property names
     var resultSetResponseTransformer = function(data, headersGetter){
@@ -55,16 +74,18 @@ treeherder.factory('thResultSets', [
 
     // get the resultsets for this repo
     return {
-        getResultSetsFromChange: function(repoName, revision){
+        // used for polling new resultsets after initial load
+        getResultSetsFromChange: function(repoName, revision, locationParams) {
+            locationParams = convertDates(locationParams);
+            _.extend(locationParams, {
+                fromchange:revision,
+                format:'json',
+                with_jobs:false
+            });
+
             return $http.get(
                 thUrl.getProjectUrl("/resultset/", repoName),
-                {
-                    params: {
-                        fromchange:revision,
-                        format:'json',
-                        with_jobs:false
-                    }
-                }
+                {params: locationParams}
             );
         },
         getResultSets: function(repoName, rsOffsetTimestamp, count, resultsetlist, with_jobs, full, keep_filters) {
@@ -102,21 +123,7 @@ treeherder.factory('thResultSets', [
                 var locationParams = _.clone($location.search());
                 delete locationParams.repo;
 
-                // support date ranges.  we must convert the strings to a timezone
-                // appropriate timestamp
-                $log.debug("locationParams", locationParams);
-                if (_.has(locationParams, "startdate")) {
-                    params.push_timestamp__gte = Date.parse(
-                        locationParams.startdate)/1000;
-
-                    delete locationParams.startdate;
-                }
-                if (_.has(locationParams, "enddate")) {
-                    params.push_timestamp__lt = Date.parse(
-                        locationParams.enddate)/1000 + 84600;
-
-                    delete locationParams.enddate;
-                }
+                locationParams = convertDates(locationParams);
 
                 $log.debug("updated params", params);
                 _.extend(params, locationParams);
