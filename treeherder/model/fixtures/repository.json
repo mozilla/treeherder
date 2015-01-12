@@ -726,5 +726,18 @@
         "repository_group": 2,
         "description": ""
     }
+},
+{
+    "pk": 60,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "hg",
+        "name": "mozilla-b2g37_v2_2",
+        "url": "https://hg.mozilla.org/releases/mozilla-b2g37_v2_2",
+        "active_status": "active",
+        "codebase": "gecko",
+        "repository_group": 2,
+        "description": ""
+    }
 }
 ]
