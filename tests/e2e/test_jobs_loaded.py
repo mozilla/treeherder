@@ -14,9 +14,9 @@ def test_pending_job_available(jm, initial_data, pending_jobs_stored):
     )
     jobs = resp.json
 
-    assert len(jobs) ==1
+    assert len(jobs['results']) ==1
 
-    assert jobs[0]['state'] == 'pending'
+    assert jobs['results'][0]['state'] == 'pending'
 
 
 def test_running_job_available(jm, initial_data, running_jobs_stored):
@@ -26,9 +26,9 @@ def test_running_job_available(jm, initial_data, running_jobs_stored):
     )
     jobs = resp.json
 
-    assert len(jobs) ==1
+    assert len(jobs['results']) == 1
 
-    assert jobs[0]['state'] == 'running'
+    assert jobs['results'][0]['state'] == 'running'
 
 
 def test_completed_job_available(jm, initial_data, completed_jobs_loaded):
@@ -38,8 +38,8 @@ def test_completed_job_available(jm, initial_data, completed_jobs_loaded):
     )
     jobs = resp.json
 
-    assert len(jobs) == 1
-    assert jobs[0]['state'] == 'completed'
+    assert len(jobs['results']) == 1
+    assert jobs['results'][0]['state'] == 'completed'
 
 
 def test_pending_stored_to_running_loaded(jm, initial_data, pending_jobs_stored, running_jobs_stored):
@@ -55,8 +55,8 @@ def test_pending_stored_to_running_loaded(jm, initial_data, pending_jobs_stored,
     )
     jobs = resp.json
 
-    assert len(jobs) == 1
-    assert jobs[0]['state'] == 'running'
+    assert len(jobs['results']) == 1
+    assert jobs['results'][0]['state'] == 'running'
 
 
 def test_finished_job_to_running(jm, initial_data, completed_jobs_loaded, running_jobs_stored):
@@ -69,8 +69,8 @@ def test_finished_job_to_running(jm, initial_data, completed_jobs_loaded, runnin
     )
     jobs = resp.json
 
-    assert len(jobs) == 1
-    assert jobs[0]['state'] == 'completed'
+    assert len(jobs['results']) == 1
+    assert jobs['results'][0]['state'] == 'completed'
 
 
 def test_running_job_to_pending(jm, initial_data, running_jobs_stored, pending_jobs_stored):
@@ -84,5 +84,5 @@ def test_running_job_to_pending(jm, initial_data, running_jobs_stored, pending_j
     )
     jobs = resp.json
 
-    assert len(jobs) == 1
-    assert jobs[0]['state'] == 'running'
+    assert len(jobs['results']) == 1
+    assert jobs['results'][0]['state'] == 'running'

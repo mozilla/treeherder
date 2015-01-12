@@ -246,7 +246,8 @@ class JobsModel(TreeherderModelBase):
         )
         return data
 
-    def get_job_list(self, offset, limit, full=True, conditions=None):
+    def get_job_list(self, offset, limit,
+                     conditions=None, exclusion_profile=None):
         """
         Retrieve a list of jobs. It's mainly used by the restful api to list
         the jobs. The conditions parameter is a dict containing a set of
@@ -261,14 +262,32 @@ class JobsModel(TreeherderModelBase):
             conditions, self.INDEXED_COLUMNS['job']
         )
 
-        repl = [self.refdata_model.get_db_name(), replace_str]
+        if exclusion_profile:
+            try:
+                if exclusion_profile is "default":
+                    profile = ExclusionProfile.objects.get(
+                        is_default=True
+                    )
+                else:
+                    profile = ExclusionProfile.objects.get(
+                        name=exclusion_profile
+                    )
+                signatures = profile.flat_exclusion[self.project]
+                replace_str += " AND j.signature NOT IN ({0})".format(
+                    ",".join(["%s"] * len(signatures))
+                )
+                placeholders += signatures
+            except KeyError:
+                # this repo/project has no hidden signatures
+                pass
+            except ExclusionProfile.DoesNotExist:
+                # Either there's no default profile setup or the profile
+                # specified is not availble
+                pass
 
-        if full:
-            proc = "jobs.selects.get_job_list_full"
-        else:
-            proc = "jobs.selects.get_job_list"
+        repl = [self.refdata_model.get_db_name(), replace_str]
         data = self.jobs_execute(
-            proc=proc,
+            proc="jobs.selects.get_job_list",
             replace=repl,
             placeholders=placeholders,
             limit="{0},{1}".format(offset, limit),
@@ -1083,72 +1102,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 })
 
         return aggregate_details
-
-    def get_result_set_job_list(self,
-                                result_set_ids,
-                                full=True,
-                                exclusion_state='included',
-                                **kwargs):
-        """
-        Retrieve a list of ``jobs`` and results for a result_set.
-
-        Mainly used by the restful api to list the job results in the UI
-        """
-        if not result_set_ids:
-            # No result sets provided
-            return {}
-
-        repl = [self.refdata_model.get_db_name()]
-
-        # Generate a list of result_set_ids
-        id_placeholders = []
-        for data in result_set_ids:
-            id_placeholders.append('%s')
-        repl.append(','.join(id_placeholders))
-
-        # filter by job_type if specified
-        if "job_type_name" in kwargs:
-            repl.append(" AND jt.`name` = '{0}'".format(kwargs["job_type_name"]))
-
-        if exclusion_state != 'all':
-            def_excl = ExclusionProfile.objects.filter(is_default=True)
-            if len(def_excl):
-                try:
-                    signatures = def_excl[0].flat_exclusion[self.project]
-                    # NOT IN if it's 'included' so we don't see excluded jobs
-                    # just IN if it's 'excluded' so we ONLY see excluded jobs
-                    negation = "NOT " if exclusion_state == 'included' else ''
-                    repl.append(" AND j.signature {0}IN ('{1}')".format(
-                                negation,
-                                "', '".join(signatures)
-                                ))
-                except KeyError:
-                    # this repo/project has no hidden signatures
-                    pass
-
-        if full:
-            proc = "jobs.selects.get_result_set_job_list_full"
-        else:
-            proc = "jobs.selects.get_result_set_job_list"
-        data = self.jobs_execute(
-            proc=proc,
-            placeholders=result_set_ids,
-            debug_show=self.DEBUG,
-            replace=repl,
-        )
-
-        signatures = set()
-
-        for job in data:
-            signatures.add(job['signature'])
-
-        reference_signature_names = self.refdata_model.get_reference_data_signature_names(
-            list(signatures))
-
-        return {
-            'job_list':data,
-            'reference_signature_names':reference_signature_names
-            }
 
     def get_push_timestamp_lookup(self, result_set_ids):
         """Get the push timestamp for a list of result_set."""

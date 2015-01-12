@@ -54,22 +54,36 @@ class JobsViewSet(viewsets.ViewSet):
     def list(self, request, project, jm):
         """
         GET method implementation for list view
-
+        Optional paramters (default):
+        - offset (0)
+        - count (10)
+        - return_type (dict)
         """
         filter = UrlQueryFilter(request.QUERY_PARAMS)
 
         offset = filter.pop("offset", 0)
-        count = min(int(filter.pop("count", 10)), 1000)
+        count = min(int(filter.pop("count", 10)), 2000)
+        return_type = filter.pop("return_type", "dict").lower()
+        exclusion_profile = filter.pop("exclusion_profile", "default")
+        if exclusion_profile in ('false', 'null'):
+            exclusion_profile = None
+        results = jm.get_job_list(offset, count, conditions=filter.conditions,
+                                  exclusion_profile=exclusion_profile)
 
-        full = filter.pop('full', 'true').lower() == 'true'
-        objs = jm.get_job_list(offset, count, full, filter.conditions)
-
-        if objs:
+        if results:
             option_collections = jm.refdata_model.get_all_option_collections()
-            for job in objs:
+            for job in results:
                 job["platform_option"] = get_option(job, option_collections)
 
-        return Response(objs)
+        response_body = dict(meta={"repository": project}, results=[])
+
+        if results and return_type == "list":
+            response_body["job_property_names"] = results[0].keys()
+            results = [job.values() for job in results]
+        response_body["results"] = results
+        response_body["meta"].update(offset=offset, count=count)
+
+        return Response(response_body)
 
     @action(permission_classes=[IsAuthenticated])
     @with_jobs
@@ -125,4 +139,3 @@ class JobsViewSet(viewsets.ViewSet):
         jm.load_job_data(request.DATA)
 
         return Response({'message': 'Job successfully updated'})
-

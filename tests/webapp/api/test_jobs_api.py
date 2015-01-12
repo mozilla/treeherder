@@ -15,9 +15,10 @@ def test_job_list(webapp, eleven_jobs_processed, jm):
                 kwargs={"project": jm.project})
     )
     assert resp.status_int == 200
-    assert isinstance(resp.json, list)
-    assert len(resp.json) == 10
-    jobs = resp.json
+    response_dict = resp.json
+    jobs = response_dict["results"]
+    assert isinstance(jobs, list)
+    assert len(jobs) == 10
     exp_keys = [
         "submit_timestamp",
         "start_timestamp",
@@ -75,8 +76,9 @@ def test_job_list_equals_filter(webapp, eleven_jobs_processed, jm):
                   kwargs={"project": jm.project})
     final_url = url + "?job_guid=f1c75261017c7c5ce3000931dce4c442fe0a1297"
 
-    resp = webapp.get(final_url)
-    assert len(resp.json) == 1
+    resp = webapp.get(final_url).json
+
+    assert len(resp['results']) == 1
 
 
 def test_job_list_in_filter(webapp, eleven_jobs_processed, jm):
@@ -89,9 +91,8 @@ def test_job_list_in_filter(webapp, eleven_jobs_processed, jm):
     "f1c75261017c7c5ce3000931dce4c442fe0a1297,"
     "9abb6f7d54a49d763c584926377f09835c5e1a32")
 
-    resp = webapp.get(final_url)
-    assert len(resp.json) == 2
-
+    resp = webapp.get(final_url).json
+    assert len(resp['results']) == 2
 
 
 def test_job_detail(webapp, eleven_jobs_processed, sample_artifacts, jm):
