@@ -9,7 +9,7 @@ treeherder.value("thPlatformNameMap", {
     "linux64": "Linux x64",
     "osx-10-6": "OS X 10.6",
     "osx-10-8": "OS X 10.8",
-    "osx-10-9": "OS X 10.9",
+    "osx-10-10": "OS X 10.10",
     "windowsxp": "Windows XP",
     "windows7-32": "Windows 7",
     "windows8-32": "Windows 8",
