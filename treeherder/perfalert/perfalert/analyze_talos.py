@@ -609,7 +609,7 @@ class AnalysisRunner:
 
         if self.config.has_option('main', 'high_percentage_threshold') and \
                 initial_value != 0 and \
-                not self.ignorePercentageForTest(test_name) and
+                not self.ignorePercentageForTest(test_name) and \
                 self.isHighPercentageTest(test_name):
             change = 100.0 * abs(new_value - initial_value) / float(initial_value)
             if change < self.config.getfloat('main', 'high_percentage_threshold'):
