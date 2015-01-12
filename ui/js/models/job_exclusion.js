@@ -18,7 +18,6 @@ treeherder.factory('ThJobExclusionModel', [
 
     ThJobExclusionModel.get_uri = function(){
         var url = thUrl.getRootUrl("/job-exclusion/");
-        $log.log(url);
         return url;
     };
 

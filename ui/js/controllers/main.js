@@ -8,13 +8,13 @@ treeherder.controller('MainCtrl', [
     '$scope', '$rootScope', '$routeParams', '$location', 'ThLog',
     'ThRepositoryModel', 'thPinboard',
     'thClassificationTypes', 'thEvents', '$interval', '$window',
-    'ThExclusionProfileModel', 'thJobFilters', 'ThResultSetModel',
+    'ThExclusionProfileModel', 'thJobFilters', 'ThResultSetStore',
     'thDefaultRepo',
     function MainController(
         $scope, $rootScope, $routeParams, $location, ThLog,
         ThRepositoryModel, thPinboard,
         thClassificationTypes, thEvents, $interval, $window,
-        ThExclusionProfileModel, thJobFilters, ThResultSetModel,
+        ThExclusionProfileModel, thJobFilters, ThResultSetStore,
         thDefaultRepo) {
 
         var $log = new ThLog("MainCtrl");
@@ -34,7 +34,7 @@ treeherder.controller('MainCtrl', [
             $rootScope.$emit(thEvents.clearJobStyles, $rootScope.selectedJob);
 
             // Reset selected job to null to initialize nav position
-            ThResultSetModel.setSelectedJob($rootScope.repoName);
+            ThResultSetStore.setSelectedJob($rootScope.repoName);
         };
 
         $scope.processKeyboardInput = function(ev){
@@ -158,18 +158,17 @@ treeherder.controller('MainCtrl', [
         };
 
         $scope.getUnclassifiedFailureCount = function(repoName) {
-            return ThResultSetModel.getUnclassifiedFailureCount(repoName);
+            return ThResultSetStore.getUnclassifiedFailureCount(repoName);
         };
-
-        $scope.isSkippingExclusionProfiles = $location.search().exclusion_state === 'all';
 
         $scope.toggleExcludedJobs = function() {
-            var newState = 'all';
-            if ($scope.isSkippingExclusionProfiles) {
-                newState = null;
+            if (location.search().exclusion_profile === 'false') {
+                $location.search('exclusion_profile', 'default');
+            }else{
+                $location.search('exclusion_profile', 'false');
             }
-            $location.search('exclusion_state', newState);
-        };
+            
+        }
 
         $scope.toggleUnclassifiedFailures = thJobFilters.toggleUnclassifiedFailures;
 
@@ -218,7 +217,7 @@ treeherder.controller('MainCtrl', [
         var getNewReloadTriggerParams = function() {
             return _.pick(
                 $location.search(),
-                ThResultSetModel.reloadOnChangeParameters
+                ThResultSetStore.reloadOnChangeParameters
             );
         };
 

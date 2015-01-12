@@ -7,19 +7,19 @@
 treeherder.controller('JobsCtrl', [
     '$scope', '$http', '$rootScope', '$routeParams', 'ThLog',
     'thUrl', 'ThRepositoryModel', 'thDefaultRepo',
-    'ThResultSetModel', 'thResultStatusList', '$location', 'thEvents',
+    'ThResultSetStore', 'thResultStatusList', '$location', 'thEvents',
     'ThJobModel',
     function JobsCtrl(
         $scope, $http, $rootScope, $routeParams, ThLog,
         thUrl, ThRepositoryModel, thDefaultRepo,
-        ThResultSetModel, thResultStatusList, $location, thEvents, ThJobModel) {
+        ThResultSetStore, thResultStatusList, $location, thEvents, ThJobModel) {
 
         var $log = new ThLog(this.constructor.name);
 
         // load our initial set of resultsets
         // scope needs this function so it can be called directly by the user, too.
         $scope.fetchResultSets = function(count, keepFilters) {
-            ThResultSetModel.fetchResultSets($scope.repoName, count, keepFilters);
+            ThResultSetStore.fetchResultSets($scope.repoName, count, keepFilters);
         };
 
         // set the default repo to mozilla-central if not specified
@@ -31,11 +31,11 @@ treeherder.controller('JobsCtrl', [
             $location.search("repo", $rootScope.repoName);
         }
 
-        ThResultSetModel.addRepository($scope.repoName);
+        ThResultSetStore.addRepository($scope.repoName);
 
-        $scope.isLoadingRsBatch = ThResultSetModel.getLoadingStatus($scope.repoName);
-        $scope.result_sets = ThResultSetModel.getResultSetsArray($scope.repoName);
-        $scope.job_map = ThResultSetModel.getJobMap($scope.repoName);
+        $scope.isLoadingRsBatch = ThResultSetStore.getLoadingStatus($scope.repoName);
+        $scope.result_sets = ThResultSetStore.getResultSetsArray($scope.repoName);
+        $scope.job_map = ThResultSetStore.getJobMap($scope.repoName);
         $scope.statusList = thResultStatusList.counts();
 
         $scope.searchParams = $location.search();
@@ -56,16 +56,16 @@ treeherder.controller('JobsCtrl', [
         };
 
         // determine how many resultsets to fetch.  default to 10.
-        var count = ThResultSetModel.defaultResultSetCount;
+        var count = ThResultSetStore.defaultResultSetCount;
         if ((_.has($scope.searchParams, "startdate") || _.has($scope.searchParams, "fromchange")) &&
             (_.has($scope.searchParams, "enddate") || _.has($scope.searchParams, "tochange"))) {
             // just fetch all (up to 100) the resultsets if an upper AND lower range is specified
 
             count = 100;
         }
-        if(ThResultSetModel.isNotLoaded($scope.repoName)){
+        if(ThResultSetStore.isNotLoaded($scope.repoName)){
             // get our first set of resultsets
-            ThResultSetModel.fetchResultSets($scope.repoName, count, true);
+            ThResultSetStore.fetchResultSets($scope.repoName, count, true);
         }
 
         $rootScope.$on(
@@ -88,7 +88,7 @@ treeherder.controller('JobsCtrl', [
                 ThJobModel.get($scope.repoName, classification.id)
                 .then(function(job){
                     // get the list of jobs we know about
-                    var jobMap  = ThResultSetModel.getJobMap(classification.branch);
+                    var jobMap  = ThResultSetStore.getJobMap(classification.branch);
                     var map_key = "key"+job.id;
                     if(jobMap.hasOwnProperty(map_key)){
                         // update the old job with the new info
@@ -108,13 +108,13 @@ treeherder.controller('JobsCtrl', [
 treeherder.controller('ResultSetCtrl', [
     '$scope', '$rootScope', '$http', 'ThLog', '$location',
     'thUrl', 'thServiceDomain', 'thResultStatusInfo',
-    'ThResultSetModel', 'thEvents', 'thJobFilters', 'thNotify',
-    'thBuildApi', 'thPinboard', 'thResultSets', 'dateFilter',
+    'ThResultSetStore', 'thEvents', 'thJobFilters', 'thNotify',
+    'thBuildApi', 'thPinboard', 'ThResultSetModel', 'dateFilter',
     function ResultSetCtrl(
         $scope, $rootScope, $http, ThLog, $location,
         thUrl, thServiceDomain, thResultStatusInfo,
-        ThResultSetModel, thEvents, thJobFilters, thNotify,
-        thBuildApi, thPinboard, thResultSets, dateFilter) {
+        ThResultSetStore, thEvents, thJobFilters, thNotify,
+        thBuildApi, thPinboard, ThResultSetModel, dateFilter) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -149,7 +149,7 @@ treeherder.controller('ResultSetCtrl', [
 
         $scope.toggleRevisions = function() {
 
-            ThResultSetModel.loadRevisions(
+            ThResultSetStore.loadRevisions(
                 $rootScope.repoName, $scope.resultset.id
                 );
 
@@ -180,7 +180,7 @@ treeherder.controller('ResultSetCtrl', [
                     true);
                 return;
             }
-            var shownJobs = ThResultSetModel.getAllShownJobs(
+            var shownJobs = ThResultSetStore.getAllShownJobs(
                 $rootScope.repoName,
                 thPinboard.spaceRemaining(),
                 $scope.resultset.id,
@@ -230,7 +230,7 @@ treeherder.controller('ResultSetCtrl', [
                 return;
             }
             thBuildApi.cancelAll($scope.repoName, revision).then(function() {
-                thResultSets.cancelAll($scope.resultset.id, $scope.repoName);
+                ThResultSetModel.cancelAll($scope.resultset.id, $scope.repoName);
             });
         };
 

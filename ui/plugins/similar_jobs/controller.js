@@ -7,12 +7,12 @@
 treeherder.controller('SimilarJobsPluginCtrl', [
     '$scope', 'ThLog', 'ThJobModel', 'thResultStatusInfo',
     'thEvents', 'numberFilter', 'dateFilter', 'thClassificationTypes',
-    'thResultStatus', 'ThJobArtifactModel', 'thResultSets', 'thNotify',
+    'thResultStatus', 'ThJobArtifactModel', 'ThResultSetModel', 'thNotify',
     'thTabs',
     function SimilarJobsPluginCtrl(
         $scope, ThLog, ThJobModel, thResultStatusInfo, thEvents,
         numberFilter, dateFilter, thClassificationTypes, thResultStatus,
-        ThJobArtifactModel, thResultSets, thNotify, thTabs) {
+        ThJobArtifactModel, ThResultSetModel, thNotify, thTabs) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -47,7 +47,7 @@ treeherder.controller('SimilarJobsPluginCtrl', [
                         );
 
                         // get resultsets and revisions for the given ids
-                        thResultSets.getResultSets(
+                        ThResultSetModel.getResultSets(
                             $scope.repoName, null, 100, result_set_ids, false, true, false
                             ).then(function(response){
                                 //decorate the list of jobs with their result sets

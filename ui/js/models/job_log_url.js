@@ -25,7 +25,6 @@ treeherder.factory('ThJobLogUrlModel', [
 
     ThJobLogUrlModel.get_uri = function(){
         var url = thUrl.getProjectUrl("/job-log-url/");
-        $log.log(url);
         return url;
     };
 

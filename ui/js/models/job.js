@@ -14,6 +14,7 @@ treeherder.factory('ThJobModel', [
         // using the provided properties
         angular.extend(this, data);
     };
+
     ThJobModel.prototype.get_current_eta = function(){
         var timestampSeconds = new Date().getTime()/1000;
         return Math.round( ( timestampSeconds - (
@@ -36,13 +37,22 @@ treeherder.factory('ThJobModel', [
 
         return $http.get(ThJobModel.get_uri(repoName),{
                 params: options,
-                timeout:timeout
-            })
-            .then(function(response) {
-                var item_list = [];
-                angular.forEach(response.data, function(elem){
-                    item_list.push(new ThJobModel(elem));
-                });
+                timeout: timeout
+            }).
+            then(function(response) {
+                var item_list;
+                if(_.has(response.data, 'job_property_names')){
+                    // the results came as list of fields
+                    //we need to convert them to objects
+                    item_list = _.map(response.data.results, function(elem){
+                        var job_obj = _.object(response.data.job_property_names, elem);
+                        return new ThJobModel(job_obj);
+                    });
+                }else{
+                    item_list = _.map(response.data.results, function(job_obj){
+                        return new ThJobModel(job_obj);
+                    });
+                }
                 return item_list;
         });
     };

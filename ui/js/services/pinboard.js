@@ -6,10 +6,10 @@
 
 treeherder.factory('thPinboard', [
     '$http', 'thUrl', 'ThJobClassificationModel', '$rootScope', 'thEvents',
-    'ThBugJobMapModel', 'thNotify', 'ThLog', 'ThResultSetModel',
+    'ThBugJobMapModel', 'thNotify', 'ThLog', 'ThResultSetStore',
     function(
         $http, thUrl, ThJobClassificationModel, $rootScope, thEvents,
-        ThBugJobMapModel, thNotify, ThLog, ThResultSetModel) {
+        ThBugJobMapModel, thNotify, ThLog, ThResultSetStore) {
 
     var $log = new ThLog("thPinboard");
 
@@ -24,7 +24,7 @@ treeherder.factory('thPinboard', [
             job.failure_classification_id = classification.failure_classification_id;
 
             // update the unclassified failure count for the page
-            ThResultSetModel.updateUnclassifiedFailureMap($rootScope.repoName, job);
+            ThResultSetStore.updateUnclassifiedFailureMap($rootScope.repoName, job);
 
             classification.job_id = job.id;
             classification.create().

@@ -26,43 +26,43 @@ describe('JobsCtrl', function(){
             getJSONFixture('resultset_list.json')
         );
 
-        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs/?format=json&result_set_ids=28').respond(
+        $httpBackend.whenGET(projectPrefix + 'jobs/?count=5000&result_set_id=28&return_type=list').respond(
             getJSONFixture('resultset_list.json')
         );
 
-        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs/?format=json&result_set_ids=27').respond(
+        $httpBackend.whenGET(projectPrefix + 'jobs/?count=5000&result_set_id=27&return_type=list').respond(
             getJSONFixture('resultset_list.json')
         );
 
-        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs/?format=json&result_set_ids=26').respond(
+        $httpBackend.whenGET(projectPrefix + 'jobs/?count=5000&result_set_id=26&return_type=list').respond(
             getJSONFixture('resultset_list.json')
         );
 
-        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs/?format=json&result_set_ids=25').respond(
+        $httpBackend.whenGET(projectPrefix + 'jobs/?count=5000&result_set_id=25&return_type=list').respond(
             getJSONFixture('resultset_list.json')
         );
 
-        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs/?format=json&result_set_ids=24').respond(
+        $httpBackend.whenGET(projectPrefix + 'jobs/?count=5000&result_set_id=24&return_type=list').respond(
             getJSONFixture('resultset_list.json')
         );
 
-        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs/?format=json&result_set_ids=23').respond(
+        $httpBackend.whenGET(projectPrefix + 'jobs/?count=5000&result_set_id=23&return_type=list').respond(
             getJSONFixture('resultset_list.json')
         );
 
-        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs/?format=json&result_set_ids=22').respond(
+        $httpBackend.whenGET(projectPrefix + 'jobs/?count=5000&result_set_id=22&return_type=list').respond(
             getJSONFixture('resultset_list.json')
         );
 
-        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs/?format=json&result_set_ids=21').respond(
+        $httpBackend.whenGET(projectPrefix + 'jobs/?count=5000&result_set_id=21&return_type=list').respond(
             getJSONFixture('resultset_list.json')
         );
 
-        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs/?format=json&result_set_ids=20').respond(
+        $httpBackend.whenGET(projectPrefix + 'jobs/?count=5000&result_set_id=20&return_type=list').respond(
             getJSONFixture('resultset_list.json')
         );
 
-        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs/?format=json&result_set_ids=19').respond(
+        $httpBackend.whenGET(projectPrefix + 'jobs/?count=5000&result_set_id=19&return_type=list').respond(
             getJSONFixture('resultset_list.json')
         );
 
@@ -80,6 +80,14 @@ describe('JobsCtrl', function(){
                 "unclassified_failure_count": 1152,
                 "repository": "mozilla-central"
             }
+        );
+
+        $httpBackend.whenGET('/api/jobtype/').respond(
+            getJSONFixture('job_type_list.json')
+        );
+
+        $httpBackend.whenGET('/api/jobgroup/').respond(
+            getJSONFixture('job_group_list.json')
         );
 
         jobScope = $rootScope.$new();

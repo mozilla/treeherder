@@ -4,7 +4,7 @@
 
 'use strict';
 
-describe('ThResultSetModel', function(){
+describe('ThResultSetStore', function(){
 
     var $httpBackend,
         rootScope,
@@ -17,7 +17,7 @@ describe('ThResultSetModel', function(){
     beforeEach(module('treeherder'));
 
     beforeEach(inject(function ($injector, $rootScope, $controller,
-                                ThResultSetModel, ThRepositoryModel) {
+                                ThResultSetStore, ThRepositoryModel) {
 
         $httpBackend = $injector.get('$httpBackend');
         jasmine.getJSONFixtures().fixturesPath='base/test/mock';
@@ -48,16 +48,24 @@ describe('ThResultSetModel', function(){
             getResultSet(1)
         );
 
-        $httpBackend.whenGET(foregroundPrefix + '/resultset/1/get_resultset_jobs/?format=json&result_set_ids=1').respond(
+        $httpBackend.whenGET(foregroundPrefix + '/jobs/?count=5000&result_set_id=1&return_type=list').respond(
             getResultSet(1)
         );
 
-        $httpBackend.whenGET(foregroundPrefix + '/resultset/1/get_resultset_jobs/?format=json&result_set_ids=10').respond(
+        $httpBackend.whenGET(foregroundPrefix + '/jobs/?count=5000&result_set_id=10&return_type=list').respond(
             getResultSet(10)
         );
 
         $httpBackend.whenGET('/api/repository/').respond(
             getJSONFixture('repositories.json')
+        );
+
+        $httpBackend.whenGET('/api/jobtype/').respond(
+            getJSONFixture('job_type_list.json')
+        );
+
+        $httpBackend.whenGET('/api/jobgroup/').respond(
+            getJSONFixture('job_group_list.json')
         );
 
 
@@ -68,7 +76,7 @@ describe('ThResultSetModel', function(){
         repoModel = ThRepositoryModel;
         repoModel.load(rootScope.repoName);
 
-        model = ThResultSetModel;
+        model = ThResultSetStore;
         model.addRepository(rootScope.repoName);
         model.fetchResultSets(rootScope.repoName, 10);
 
@@ -76,7 +84,7 @@ describe('ThResultSetModel', function(){
     }));
 
     /*
-        Tests ThResultSetModel
+        Tests ThResultSetStore
      */
     it('should have 1 resultset', function() {
         expect(model.getResultSetsArray(rootScope.repoName).length).toBe(1);

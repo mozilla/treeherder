@@ -7,11 +7,11 @@
 treeherder.controller('FilterPanelCtrl', [
     '$scope', '$rootScope', '$route', '$routeParams', '$location', 'ThLog',
     'thResultStatusList', 'thEvents', 'thJobFilters',
-    'ThResultSetModel', 'thPinboard', 'thNotify', 'thFailureResults',
+    'ThResultSetStore', 'thPinboard', 'thNotify', 'thFailureResults',
     function FilterPanelCtrl(
         $scope, $rootScope, $route, $routeParams, $location, ThLog,
         thResultStatusList, thEvents, thJobFilters,
-        ThResultSetModel, thPinboard, thNotify, thFailureResults) {
+        ThResultSetStore, thPinboard, thNotify, thFailureResults) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -160,7 +160,7 @@ treeherder.controller('FilterPanelCtrl', [
                     true);
                 return;
             }
-            var shownJobs = ThResultSetModel.getAllShownJobs(
+            var shownJobs = ThResultSetStore.getAllShownJobs(
                 $rootScope.repoName,
                 thPinboard.spaceRemaining()
             );

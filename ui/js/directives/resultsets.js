@@ -5,8 +5,8 @@
 'use strict';
 
 treeherder.directive('thActionButton', [
-    '$compile', 'thCloneHtml', 'ThResultSetModel',
-    function ($compile, thCloneHtml, ThResultSetModel) {
+    '$compile', 'thCloneHtml', 'ThResultSetStore',
+    function ($compile, thCloneHtml, ThResultSetStore) {
 
     return {
         restrict: "E",
@@ -31,7 +31,7 @@ treeherder.directive('thActionButton', [
 
             scope.openRevisionListWindow = function() {
                 if (!scope.resultset.revisions.length) {
-                    ThResultSetModel.loadRevisions(
+                    ThResultSetStore.loadRevisions(
                         scope.repoName, scope.resultset.id
                     ).then(function() {
                             openRevisions();
