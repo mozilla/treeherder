@@ -399,6 +399,9 @@ class AnalysisRunner:
     def ignorePercentageForTest(self, test_name):
         return self.testMatchesOption(test_name, 'ignore_percentage_tests')
 
+    def isHighPercentageTest(self, test_name):
+        return self.testMatchesOption(test_name, 'high_percentage_tests')
+
     def isTestReversed(self, test_name):
         return self.testMatchesOption(test_name, 'reverse_tests')
 
@@ -603,6 +606,15 @@ class AnalysisRunner:
             change = 100.0 * abs(new_value - initial_value) / float(initial_value)
             if change < self.config.getfloat('main', 'percentage_threshold'):
                 return False
+
+        if self.config.has_option('main', 'high_percentage_threshold') and \
+                initial_value != 0 and \
+                not self.ignorePercentageForTest(test_name) and
+                self.isHighPercentageTest(test_name):
+            change = 100.0 * abs(new_value - initial_value) / float(initial_value)
+            if change < self.config.getfloat('main', 'high_percentage_threshold'):
+                return False
+
         return True
 
     def emailWarning(self, series, d, state, last_good):

@@ -20,6 +20,10 @@ threshold = 7
 # What percentage difference is required to consider a change significant
 percentage_threshold = 2
 
+# For noisy tests, what percentage difference is required
+high_percentage_threshold = 10
+high_percentage_tests = Dromaeo.*
+
 # Ignore percentage_threshold for these tests (comma-separated list of regexps)
 ignore_percentage_tests = LibXUL Memory during link
 
