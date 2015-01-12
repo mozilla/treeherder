@@ -102,10 +102,10 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile('Mavericks', re.IGNORECASE),
+        'regex': re.compile('Yosemite', re.IGNORECASE),
         'attributes': {
             'os': 'mac',
-            'os_platform': 'osx-10-9',
+            'os_platform': 'osx-10-10',
             'arch': 'x86_64',
         }
     },
