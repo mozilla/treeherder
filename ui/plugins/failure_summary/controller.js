@@ -47,16 +47,17 @@ treeherder.controller('BugsPluginCtrl', [
                             suggestion.bugs.too_many_all_others = (
                                 suggestion.bugs.all_others.length > bug_limit
                             );
-                            suggestion.open_recent_hidden = (
-                                suggestion.bugs.too_many_open_recent ||
-                                suggestion.bugs.open_recent.length === 0
+                            suggestion.valid_open_recent = (
+                                suggestion.bugs.open_recent.length > 0 &&
+                                !suggestion.bugs.too_many_open_recent
                             );
-
-                            suggestion.all_others_hidden = (
-                                suggestion.bugs.too_many_all_others ||
-                                suggestion.bugs.all_others.length === 0
+                            suggestion.valid_all_others = (
+                                suggestion.bugs.all_others.length > 0 &&
+                                !suggestion.bugs.too_many_all_others &&
+                                // If we have too many open_recent bugs, we're unlikely to have
+                                // relevant all_others bugs, so don't show them either.
+                                !suggestion.bugs.too_many_open_recent
                             );
-
                             suggestions.push(suggestion);
                         });
                         $scope.suggestions = suggestions;
