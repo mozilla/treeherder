@@ -117,14 +117,12 @@ class BugzillaBugRequest(object):
         who = bug_job_map["who"]\
             .replace("@", "[at]")\
             .replace(".", "[dot]")
-        submit_date = datetime.fromtimestamp(bug_job_map["submit_timestamp"])\
-            .replace(microsecond=0)\
-            .isoformat()
+        start_time = datetime.fromtimestamp(job["start_timestamp"]).isoformat()
 
         job_description = {
             'repository': self.project,
             'who': who,
-            'submit_timestamp': submit_date,
+            'start_time': start_time,
             'log': "{0}/logviewer.html#?repo={1}&job_id={2}".format(
                 settings.SITE_URL,
                 self.project,

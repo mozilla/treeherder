@@ -63,7 +63,6 @@ def test_tbpl_bugzilla_request_body(jm, eleven_jobs_processed):
     job = jm.get_job_list(0, 1)[0]
 
     submit_timestamp = int(time())
-    submit_date = datetime.fromtimestamp(submit_timestamp).isoformat()
     who = "user@mozilla.com"
     jm.insert_bug_job_map(job['id'], bug_id, "manual", submit_timestamp, who)
 
@@ -82,15 +81,15 @@ def test_tbpl_bugzilla_request_body(jm, eleven_jobs_processed):
     req.generate_request_body()
 
     expected = {
-        'comment': (u'submit_timestamp: {0}\n'
-                    u'log: http://local.treeherder.mozilla.org/'
+        'comment': (u'log: http://local.treeherder.mozilla.org/'
                     u'logviewer.html#?repo=test_treeherder&job_id=1\n'
                     u'repository: test_treeherder\n'
+                    u'start_time: 2013-11-13T06:39:13\n'
                     u'who: user[at]mozilla[dot]com\n'
                     u'machine: bld-linux64-ec2-132\n'
                     u'revision: cdfe03e77e66\n\n'
                     u'First error line\n'
-                    u'Second error line').format(submit_date)
+                    u'Second error line')
     }
 
     assert req.body == expected
