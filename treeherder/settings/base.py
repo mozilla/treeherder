@@ -278,9 +278,9 @@ REST_FRAMEWORK = {
         'treeherder.webapp.api.throttling.OauthKeyThrottle',
     ),
     'DEFAULT_THROTTLE_RATES': {
-        'jobs': '120/minute',
-        'objectstore': '120/minute',
-        'resultset': '120/minute'
+        'jobs': '220/minute',
+        'objectstore': '220/minute',
+        'resultset': '220/minute'
     }
 }
 
