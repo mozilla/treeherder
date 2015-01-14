@@ -30,18 +30,24 @@ class OrangeFactorBugRequest(object):
         jm = JobsModel(self.project)
 
         try:
-            buildapi_artifact = jm.get_job_artifact_list(0, 1, {
-                'job_id': set([("=", self.job_id)]),
-                'name': set([("=", "buildapi")])
-            })[0]
             job_data = jm.get_job(self.job_id)[0]
             option_collection = jm.refdata_model.get_all_option_collections()
             revision_list = jm.get_resultset_revisions_list(job_data["result_set_id"])
+            buildapi_artifact = jm.get_job_artifact_list(0, 1, {
+                'job_id': set([("=", self.job_id)]),
+                'name': set([("=", "buildapi")])
+            })
+            if buildapi_artifact:
+                buildname = buildapi_artifact[0]["blob"]["buildername"]
+            else:
+                # OrangeFactor needs a buildname to be set or it skips the failure
+                # classification, so we make one up for non-buildbot jobs.
+                buildname = 'non-buildbot %s test %s' % (job_data["platform"], job_data["job_type_name"])
         finally:
             jm.disconnect()
 
         self.body = {
-            "buildname": buildapi_artifact["blob"]["buildername"],
+            "buildname": buildname,
             "machinename": job_data["machine_name"],
             "os": job_data["platform"],
             # I'm using the request time date here, as start time is not
@@ -134,7 +140,6 @@ class BugzillaBugRequest(object):
 
         if buildapi_info:
             job_description['buildname'] = buildapi_info[0]["blob"]["buildername"]
-
 
         body_comment = '\n'.join(
             ["{0}: {1}".format(k, v) for k, v in job_description.items()])

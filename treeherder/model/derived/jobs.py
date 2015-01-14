@@ -587,31 +587,29 @@ class JobsModel(TreeherderModelBase):
         if settings.TBPL_BUGS_TRANSFER_ENABLED:
             job = self.get_job(job_id)[0]
             if job["state"] == "completed":
-                if self.get_build_system_type() == 'buildbot':
-                    # importing here to avoid an import loop
-                    from treeherder.etl.tasks import (submit_star_comment,
-                                                      submit_bug_comment)
-                    # submit bug association to tbpl
-                    # using an async task
-                    submit_star_comment.apply_async(
-                        args=[
-                            self.project,
-                            job_id,
-                            bug_id,
-                            submit_timestamp,
-                            who
-                        ],
-                        routing_key='high_priority'
-                    )
-
-                    submit_bug_comment.apply_async(
-                        args=[
-                            self.project,
-                            job_id,
-                            bug_id,
-                        ],
-                        routing_key='high_priority'
-                    )
+                # importing here to avoid an import loop
+                from treeherder.etl.tasks import (submit_star_comment,
+                                                  submit_bug_comment)
+                # Submit bug associations to Bugzilla/ElasticSearch
+                # using async tasks.
+                submit_star_comment.apply_async(
+                    args=[
+                        self.project,
+                        job_id,
+                        bug_id,
+                        submit_timestamp,
+                        who
+                    ],
+                    routing_key='high_priority'
+                )
+                submit_bug_comment.apply_async(
+                    args=[
+                        self.project,
+                        job_id,
+                        bug_id,
+                    ],
+                    routing_key='high_priority'
+                )
 
     def delete_bug_job_map(self, job_id, bug_id):
         """
