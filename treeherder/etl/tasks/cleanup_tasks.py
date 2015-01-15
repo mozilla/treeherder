@@ -30,7 +30,7 @@ def fetch_missing_push_logs(missing_pushlogs):
                         repo['url'],
                         resultset
                         ),
-                        routing_key='pushlog'
+                        routing_key='fetch_missing_push_logs'
                 )
     finally:
         rdm.disconnect()

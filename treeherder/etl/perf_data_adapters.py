@@ -252,5 +252,6 @@ class TalosDataAdapter(PerformanceDataAdapter):
         from treeherder.model.tasks import populate_performance_series
 
         populate_performance_series.apply_async(
-            args=[project, 'talos_data', self.signatures]
+            args=[project, 'talos_data', self.signatures],
+            routing_key='populate_performance_series'
         )

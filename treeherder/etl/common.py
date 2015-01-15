@@ -160,7 +160,9 @@ def fetch_missing_resultsets(source, missing_resultsets, logger):
             )
          )
     from treeherder.etl.tasks.cleanup_tasks import fetch_missing_push_logs
-    fetch_missing_push_logs.apply_async(args=[missing_resultsets])
+    fetch_missing_push_logs.apply_async(
+        args=[missing_resultsets],
+        routing_key="fetch_missing_push_logs")
 
 
 def get_resultset(project, revisions_lookup, revision, missing_resultsets, logger):

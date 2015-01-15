@@ -197,7 +197,14 @@ CELERY_QUEUES = (
     # queue for mirroring the sheriffing activity to tbpl
     Queue('high_priority', Exchange('default'), routing_key='high_priority'),
     Queue('pushlog', Exchange('default'), routing_key='pushlog'),
-    Queue('buildapi', Exchange('default'), routing_key='buildapi')
+    Queue('fetch_missing_push_logs', Exchange('default'), routing_key='fetch_missing_push_logs'),
+    Queue('buildapi', Exchange('default'), routing_key='buildapi'),
+
+    Queue('process_objects', Exchange('default'), routing_key='process_objects'),
+    Queue('cycle_data', Exchange('default'), routing_key='cycle_data'),
+    Queue('calculate_eta', Exchange('default'), routing_key='calculate_eta'),
+    Queue('populate_performance_series', Exchange('default'), routing_key='populate_performance_series'),
+    Queue('fetch_bugs', Exchange('default'), routing_key='fetch_bugs')
 )
 
 CELERY_ACCEPT_CONTENT = ['json']
@@ -216,54 +223,66 @@ CELERYBEAT_SCHEDULE = {
     'fetch-push-logs-every-minute': {
         'task': 'fetch-push-logs',
         'schedule': timedelta(minutes=1),
+        'relative': True,
         'options': {
             "queue": "pushlog"
-        },
-        'relative': True
+        }
     },
     'fetch-buildapi-pending-every-minute': {
         'task': 'fetch-buildapi-pending',
         'schedule': timedelta(minutes=1),
+        'relative': True,
         'options': {
             "queue": "buildapi"
-        },
-        'relative': True
+        }
     },
     'fetch-buildapi-running-every-minute': {
         'task': 'fetch-buildapi-running',
         'schedule': timedelta(minutes=1),
+        'relative': True,
         'options': {
             "queue": "buildapi"
-        },
-        'relative': True
+        }
     },
     'fetch-buildapi-build4h-every-3-minute': {
         'task': 'fetch-buildapi-build4h',
         'schedule': timedelta(minutes=3),
+        'relative': True,
         'options': {
             "queue": "buildapi"
-        },
-        'relative': True
+        }
     },
     'fetch-process-objects-every-minute': {
         'task': 'process-objects',
         'schedule': timedelta(minutes=1),
-        'relative': True
+        'relative': True,
+        'options': {
+            'queue': 'process_objects'
+        }
     },
     'cycle-data-every-day': {
         'task': 'cycle-data',
         'schedule': timedelta(days=1),
-        'relative': True
+        'relative': True,
+        'options': {
+            'queue': 'cycle_data'
+        }
     },
     'calculate-eta-every-6-hours': {
         'task': 'calculate-eta',
         'schedule': timedelta(hours=6),
-        'relative': True
+        'relative': True,
+        'options': {
+            'queue': 'calculate_eta'
+        }
     },
     'fetch-bugs-every-hour': {
         'task': 'fetch-bugs',
         'schedule': timedelta(hours=1),
-        'relative': True
+        'relative': True,
+        'options': {
+            'queue': 'fetch_bugs'
+        }
     }
 }
 
