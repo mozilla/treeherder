@@ -3,10 +3,9 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 import pytest
-import json
 from webtest.app import TestApp
 
-from treeherder.etl.mixins import JsonLoaderMixin, OAuthLoaderMixin
+from treeherder.etl.mixins import OAuthLoaderMixin
 from treeherder.etl.oauth_utils import OAuthCredentials
 from treeherder.webapp.wsgi import application
 

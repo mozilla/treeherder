@@ -11,7 +11,7 @@ import copy
 
 from collections import defaultdict
 from django.conf import settings
-from thclient import TreeherderRequest, TreeherderJobCollection
+from thclient import TreeherderJobCollection
 
 from treeherder.etl import common, buildbot
 from treeherder.etl.mixins import JsonExtractorMixin, OAuthLoaderMixin

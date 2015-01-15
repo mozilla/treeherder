@@ -5,7 +5,6 @@
 from optparse import make_option
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
-import sys
 
 from treeherder.etl.pushlog import HgPushlogProcess
 from treeherder.model.derived import JobsModel, RefDataManager
@@ -14,6 +13,7 @@ from treeherder.etl.buildapi import (RunningJobsProcess,
                                      PendingJobsProcess,
                                      Builds4hJobsProcess)
 from cProfile import Profile
+
 
 class Command(BaseCommand):
     """Management command to ingest data from a single push."""

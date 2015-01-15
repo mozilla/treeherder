@@ -2,8 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-import json
-from datadiff import diff
 from jsonschema import validate
 
 from treeherder.etl.perf_data_adapters import TalosDataAdapter
@@ -11,7 +9,7 @@ from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderColle
 from treeherder.log_parser.artifactbuilders import BuildbotPerformanceDataArtifactBuilder
 
 from ..sampledata import SampleData
-from tests import test_utils
+
 
 def test_performance_log_parsing():
     """

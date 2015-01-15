@@ -11,8 +11,6 @@ import os
 import time
 from datetime import timedelta
 
-from treeherder.model import utils
-
 
 def ref_data_json():
     """Return reference data json structure"""

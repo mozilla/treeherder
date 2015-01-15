@@ -5,16 +5,12 @@
 import time
 import json
 import pytest
-import itertools
-import pprint
 import copy
 
-from django.conf import settings
 from django.core.management import call_command
 
 from treeherder.model.derived.base import DatasetNotFoundError
 from tests.sample_data_generator import job_data, result_set
-from tests.sampledata import SampleData
 from tests import test_utils
 
 slow = pytest.mark.slow

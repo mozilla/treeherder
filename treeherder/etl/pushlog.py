@@ -4,11 +4,10 @@
 
 from django.core.cache import cache
 from django.conf import settings
-import time
 import requests
 import logging
 
-from thclient import TreeherderRequest, TreeherderResultSetCollection
+from thclient import TreeherderResultSetCollection
 
 from .mixins import JsonExtractorMixin, OAuthLoaderMixin
 from treeherder.etl.common import generate_revision_hash, get_not_found_onhold_push

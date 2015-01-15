@@ -9,7 +9,6 @@ import subprocess
 import os
 
 from collections import defaultdict
-import itertools
 
 from datasource.bases.BaseHub import BaseHub
 from datasource.hubs.MySQL import MySQL

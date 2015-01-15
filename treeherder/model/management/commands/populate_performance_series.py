@@ -7,9 +7,8 @@ import sys
 
 from optparse import make_option
 from django.core.management.base import BaseCommand
-from treeherder.model.models import Repository
-from treeherder.model.derived import JobsModel
 from treeherder.model.tasks import populate_performance_series
+
 
 class Command(BaseCommand):
     help = """Poplate performance series data"""

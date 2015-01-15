@@ -4,12 +4,6 @@
 
 from treeherder.etl import buildbot
 import pytest
-import datetime
-import time
-import json
-
-from django.conf import settings
-from treeherder.etl import buildbot
 
 slow = pytest.mark.slow
 

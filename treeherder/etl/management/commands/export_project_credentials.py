@@ -8,9 +8,7 @@ import json
 from optparse import make_option
 from django.core.management.base import BaseCommand
 
-from treeherder.model.models import Datasource
 from treeherder.model.derived.base import TreeherderModelBase
-from treeherder.etl import buildapi
 
 
 class Command(BaseCommand):

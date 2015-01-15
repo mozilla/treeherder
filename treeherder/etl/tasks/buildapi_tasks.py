@@ -5,7 +5,7 @@
 """
 This module contains
 """
-from celery import task, group
+from celery import task
 from treeherder.model.derived import RefDataManager
 from treeherder.etl.buildapi import (RunningJobsProcess,
                                      PendingJobsProcess,

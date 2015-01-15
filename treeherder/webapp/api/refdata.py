@@ -9,9 +9,6 @@ from rest_framework_extensions.mixins import CacheResponseAndETAGMixin
 
 from django.contrib.auth.models import User
 
-import itertools
-from collections import defaultdict
-
 from treeherder.model import models
 from treeherder.model.derived import RefDataManager
 from treeherder.webapp.api import serializers as th_serializers

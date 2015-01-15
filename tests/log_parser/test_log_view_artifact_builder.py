@@ -2,9 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-import json
 import pytest
-from datadiff import diff
 from mock import MagicMock
 
 from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
@@ -15,6 +13,7 @@ from tests import test_utils
 from ..sampledata import SampleData
 
 slow = pytest.mark.slow
+
 
 def do_test(log, check_errors=True):
     """

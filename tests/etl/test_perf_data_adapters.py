@@ -7,9 +7,6 @@ import json
 from tests.sampledata import SampleData
 from treeherder.etl.perf_data_adapters import TalosDataAdapter
 
-from tests.sample_data_generator import job_data, result_set
-from tests.sampledata import SampleData
-from tests import test_utils
 
 def test_adapt_and_load():
 
@@ -53,4 +50,3 @@ def test_adapt_and_load():
         tda.adapt_and_load(reference_data, job_data, datum)
 
     assert result_count == len( tda.performance_artifact_placeholders )
-

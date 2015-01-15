@@ -4,7 +4,6 @@
 
 from rest_framework import viewsets
 from rest_framework.response import Response
-from treeherder.etl.perf_data_adapters import PerformanceDataAdapter
 from treeherder.webapp.api.utils import (UrlQueryFilter, with_jobs,
                                          oauth_required)
 

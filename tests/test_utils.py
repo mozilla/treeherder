@@ -4,7 +4,7 @@
 
 import json
 import itertools
-from webtest.app import TestApp, AppError
+from webtest.app import TestApp
 
 from treeherder.model.derived.refdata import RefDataManager
 from treeherder.etl.oauth_utils import OAuthCredentials

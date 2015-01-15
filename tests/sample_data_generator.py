@@ -12,8 +12,6 @@ import time
 from django.conf import settings
 from datetime import timedelta
 
-from treeherder.model import utils
-
 
 def ref_data_json():
     """Return reference data json structure"""

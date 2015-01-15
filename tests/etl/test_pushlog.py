@@ -6,7 +6,6 @@ import os
 import json
 import responses
 from treeherder.etl.pushlog import HgPushlogProcess, MissingHgPushlogProcess
-from treeherder.etl.common import get_not_found_onhold_push
 from django.core.cache import cache
 
 

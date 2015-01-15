@@ -3,10 +3,11 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 from kombu.mixins import ConsumerMixin
-from kombu import Connection, Exchange, Consumer, Queue
+from kombu import Exchange, Queue
 import logging
 
 logger = logging.getLogger(__name__)
+
 
 class EventsConsumer(ConsumerMixin):
     """

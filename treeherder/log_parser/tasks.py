@@ -9,18 +9,11 @@ from celery import task
 from django.conf import settings
 
 from thclient import TreeherderArtifactCollection, TreeherderRequest
-
-
-from treeherder.log_parser.utils import (get_error_search_term,
-                                         get_crash_signature,
-                                         get_bugs_for_search_term,
-                                         get_mozharness_substring,
-                                         extract_log_artifacts)
-
+from treeherder.log_parser.utils import (extract_log_artifacts)
 from treeherder.etl.oauth_utils import OAuthCredentials
 
-
 logger = logging.getLogger(__name__)
+
 
 @task(name='parse-log', max_retries=10)
 def parse_log(project, job_log_url, job_guid, check_errors=False):

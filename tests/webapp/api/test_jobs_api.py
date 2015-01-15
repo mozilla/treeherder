@@ -2,9 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-import json
-
 from django.core.urlresolvers import reverse
+
 
 def test_job_list(webapp, eleven_jobs_processed, jm):
     """

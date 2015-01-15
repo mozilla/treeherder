@@ -2,7 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-from collections import defaultdict
 import hashlib
 import urllib2
 import simplejson as json
@@ -10,6 +9,7 @@ import time
 
 from django.core.urlresolvers import reverse
 from django.conf import settings
+
 
 class JobDataError(ValueError):
     pass

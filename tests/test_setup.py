@@ -4,7 +4,6 @@
 
 import pytest
 from django.conf import settings
-from treeherder.model.models import Datasource
 import MySQLdb
 from django.core.cache import cache
 from celery import current_app

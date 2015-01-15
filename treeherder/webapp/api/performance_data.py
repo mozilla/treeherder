@@ -2,13 +2,12 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-import json
-
 from rest_framework import viewsets
 from rest_framework.response import Response
-from rest_framework.decorators import action, link
+from rest_framework.decorators import link
 
 from treeherder.webapp.api.utils import (with_jobs)
+
 
 class PerformanceDataViewSet(viewsets.ViewSet):
     """

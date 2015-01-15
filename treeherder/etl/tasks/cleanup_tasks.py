@@ -5,11 +5,12 @@
 import urllib
 import logging
 
-from celery import task, group
+from celery import task
 from treeherder.model.derived import RefDataManager
 from treeherder.etl.pushlog import MissingHgPushlogProcess
 
 logger = logging.getLogger(__name__)
+
 
 @task(name='fetch-missing-push-logs')
 def fetch_missing_push_logs(missing_pushlogs):
