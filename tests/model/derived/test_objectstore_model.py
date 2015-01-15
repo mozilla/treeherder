@@ -135,10 +135,6 @@ def test_ingest_sample_data(jm, sample_data, sample_resultset, mock_log_parser):
         blobs.append(job)
 
     jm.store_job_data(blobs)
-
-    # process 10 rows at a time
-    remaining = resultset_count
-
     jm.process_objects(resultset_count, raise_errors=True)
 
     job_rows = jm.get_jobs_dhub().execute(

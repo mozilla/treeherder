@@ -37,7 +37,7 @@ class JsonExtractorMixin(object):
                 handler = gzip.GzipFile(fileobj=buf)
 
             return json.loads(handler.read())
-        except Exception, e:
+        except Exception:
             logger.error('Error fetching {0}'.format(url), exc_info=True)
             return None
 

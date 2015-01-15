@@ -182,7 +182,7 @@ class MissingHgPushlogProcess(HgPushlogTransformerMixin,
                     "Got no content response for missing resultsets: {0}".format(
                         source_url)
                     )
-        except Exception as ex:
+        except Exception:
             logger.exception("error loading missing resultsets: {0}".format(
                 source_url
             ))

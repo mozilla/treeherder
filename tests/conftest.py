@@ -312,8 +312,6 @@ def eleven_jobs_stored(jm, sample_data, sample_resultset):
             resultset_index = 0
 
         # Modify job structure to sync with the resultset sample data
-        job_guid = blob['job']['job_guid']
-
         if 'sources' in blob:
             del blob['sources']
 

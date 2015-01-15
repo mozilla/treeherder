@@ -44,7 +44,7 @@ class PerformanceDataViewSet(viewsets.ViewSet):
 
         try:
             props = request.QUERY_PARAMS.dict()
-        except Exception as e:
+        except Exception:
             return Response("incorrect parameters", 400)
 
         signatures = jm.get_signatures_from_properties(props)
@@ -62,7 +62,7 @@ class PerformanceDataViewSet(viewsets.ViewSet):
         """
         try:
             signatures = request.QUERY_PARAMS.getlist("signatures")
-        except Exception as e:
+        except Exception:
             return Response("incorrect parameters", 400)
 
         if not signatures:
@@ -71,7 +71,6 @@ class PerformanceDataViewSet(viewsets.ViewSet):
         data = jm.get_signature_properties(signatures)
 
         return Response(data)
-
 
     @link()
     @with_jobs
@@ -86,7 +85,7 @@ class PerformanceDataViewSet(viewsets.ViewSet):
         try:
             signatures = request.QUERY_PARAMS.getlist("signatures")
             interval_seconds = abs(int(request.QUERY_PARAMS.get("interval_seconds", 0)))
-        except Exception as e:
+        except Exception:
             return Response("incorrect parameters", 400)
 
         if not signatures:

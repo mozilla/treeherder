@@ -12,10 +12,6 @@ def test_adapt_and_load():
 
     talos_perf_data = SampleData.get_talos_perf_data()
 
-    ref_data = {
-        "test": 1
-    }
-
     tda = TalosDataAdapter()
 
     result_count = 0

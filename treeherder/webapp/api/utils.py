@@ -170,7 +170,6 @@ def oauth_required(func):
         oauth_body_hash = parameters.get('oauth_body_hash', None)
         oauth_signature = parameters.get('oauth_signature', None)
         oauth_consumer_key = parameters.get('oauth_consumer_key', None)
-        oauth_token = parameters.get('oauth_token', None)
 
         if not oauth_body_hash or not oauth_signature or not oauth_consumer_key:
 

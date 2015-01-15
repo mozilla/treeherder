@@ -1558,7 +1558,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 # index this place in the ``data`` object
                 data_idx.append(job_guid)
 
-            except Exception as e:
+            except Exception:
                 data_idx.append("skipped")
                 # it will get caught later in ``load_job_data``
                 # adding the guid as "skipped" will mean it won't be found

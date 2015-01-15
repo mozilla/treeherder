@@ -352,8 +352,6 @@ def test_get_hg_repository_version(refdata, mock_urllib):
 
 def test_update_repo_version_if_old(refdata, old_version_repository, mock_urllib):
     """test repo version is updated if a new one is available"""
-
-    time_now = time.time()
     repo_id, old_version = old_version_repository
 
     refdata.update_repository_version(repo_id)

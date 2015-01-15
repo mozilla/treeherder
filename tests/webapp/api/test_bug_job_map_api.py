@@ -50,7 +50,7 @@ def test_create_bug_job_map(eleven_jobs_processed, mock_message_broker, jm):
         u"type": u"manual"
     }
 
-    resp = client.post(
+    client.post(
         reverse("bug-job-map-list", kwargs={"project": jm.project}),
         bug_job_map_obj
     )
