@@ -33,18 +33,15 @@ treeherder.factory('ThResultSetModel', [
     // the primary data model
     var repositories = {};
 
-    var updateQueueInterval = 10000;
-
     var resultSetPollers = {};
     var resultSetPollInterval = 60000;
     var jobPollInterval = 90000;
     var pollDelayMin = 1000;
     var pollDelayMax = 60000;
 
-    // if any of these params are in the url, don't poll for new data
-    var noPollingParameters = [
-        'fromchange', 'tochange', 'startdate', 'enddate', 'revision'
-    ];
+    // Keys that, if present on the url, must be passed into the resultset
+    // polling endpoint
+    var rsPollingKeys = ['tochange', 'enddate', 'revision', 'author'];
 
     // changes to the url for any of these fields should reload the page
     // because it changes the query to the db
@@ -59,32 +56,60 @@ treeherder.factory('ThResultSetModel', [
         'exclusion_state'
     ];
 
-    var registerResultSetPollers = function(){
+    var registerResultSetPollers = function() {
 
-        if( doResultSetPolling() ){
-            // Register resultset poller if it's not registered
-            $interval(function(){
+        // these params will be passed in each time we poll to remain
+        // within the constraints of the URL params
+        var rsPollingParams = _.pick($location.search(), rsPollingKeys);
 
-                if( (repositories[$rootScope.repoName].resultSets.length > 0) &&
-                    (repositories[$rootScope.repoName].loadingStatus.prepending === false) ){
+        // Register resultset poller if it's not registered
+        var resultSetPoller = $interval(function () {
+            // resultset data for the current repository
+            var rsData = repositories[$rootScope.repoName];
 
+            // This case is if we already have at least 1 resultset and we're
+            // polling for more.
+            // If we already have one, and the revision param is passed in,
+            // don't poll for more, because "there can be only one."
+
+            if ((rsData.resultSets.length > 0) &&
+                (!rsData.loadingStatus.prepending)) {
+                if (doResultSetPolling(rsPollingParams)) {
                     thResultSets.getResultSetsFromChange(
                         $rootScope.repoName,
-                        repositories[$rootScope.repoName].resultSets[0].revision
-
-                    ).then(function(data){
+                        rsData.resultSets[0].revision,
+                        rsPollingParams
+                    ).then(function(data) {
                         prependResultSets($rootScope.repoName, data.data);
                     });
-
-                } else if( (repositories[$rootScope.repoName].resultSets.length === 0) &&
-                           (repositories[$rootScope.repoName].loadingStatus.prepending === false) ){
-
-                    fetchResultSets(
-                        $rootScope.repoName, defaultResultSetCount);
-
+                } else {
+                    // cancel the interval for the polling, because
+                    // the parameters mean we can get no more result sets.
+                    $interval.cancel(resultSetPoller);
                 }
-            }, resultSetPollInterval);
+
+            } else if ((rsData.resultSets.length === 0) &&
+                       (rsData.loadingStatus.prepending === false)) {
+
+                fetchResultSets($rootScope.repoName, defaultResultSetCount);
+
+            }
+        }, resultSetPollInterval);
+    };
+
+    /**
+     * Some URL conditions will prevent polling after the initial set of
+     * result sets is loaded.
+     */
+    var doResultSetPolling = function(rsParams) {
+        if (_.has(rsParams, 'revision')) {
+            return false;
+        } else if (_.has(rsParams, "tochange") &&
+                   rsParams.tochange === repositories[$rootScope.repoName].resultSets[0].revision
+                  ) {
+            return false;
         }
+        return true;
     };
 
     var registerJobPollers = function(){
@@ -127,22 +152,6 @@ treeherder.factory('ThResultSetModel', [
             }
         // Look for new resultsets to register every 5 seconds
         }, 5000);
-    };
-
-    var doResultSetPolling = function(){
-
-        var searchObj = $location.search();
-        var searchKeys = _.keys(searchObj);
-
-        var keyIntersection = _.intersection(
-            noPollingParameters, searchKeys);
-
-        var poll = true;
-        if(keyIntersection.length !== 0){
-            poll = false;
-        }
-
-        return poll;
     };
 
     var getRandomDelayInterval = function(min, max){
