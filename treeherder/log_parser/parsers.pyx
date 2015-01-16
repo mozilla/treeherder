@@ -188,7 +188,7 @@ class StepParser(ParserBase):
         return self.steps[self.stepnum]
 
 
-RE_TINDERBOXPRINT = re.compile('.*TinderboxPrint: (?P<line>.*)$')
+RE_TINDERBOXPRINT = re.compile('.*TinderboxPrint: ?(?P<line>.*)$')
 
 RE_UPLOADED_TO = re.compile(
     "<a href=['\"](?P<url>http(s)?://.*)['\"]>(?P<value>.+)</a>: uploaded"
