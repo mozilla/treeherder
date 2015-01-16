@@ -894,8 +894,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
               ...
                 }
             """
-        where_in_clause = ','.join(where_in_list)
-
         result_set_id_lookup = {}
 
         if revision_hashes:
@@ -2175,13 +2173,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         tda = TalosDataAdapter()
 
         for perf_data in performance_artifact_placeholders:
-
             job_guid = perf_data["job_guid"]
-
-            job_id = job_data.get(
-                perf_data['job_guid'], {}
-                ).get('id', None)
-
             ref_data_signature = job_data[job_guid]['signature']
             ref_data = reference_data[ ref_data_signature ]
 

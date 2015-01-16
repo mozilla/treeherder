@@ -68,7 +68,7 @@ class Daemon(object):
 	def delpid(self):
 		try:
 			os.remove(self.pidfile)
-		except OSError, e:
+		except OSError:
 			pass
 
 	def start(self):
