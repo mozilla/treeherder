@@ -253,8 +253,8 @@ def with_jobs(model_func):
 def get_option(obj, option_collections):
     """Get the option, if there is one.  Otherwise, return None."""
     opt = obj.get("option_collection_hash", None)
-    if (opt):
-        return option_collections[opt]['opt']
+    if (opt and opt in option_collections):
+        return option_collections[opt].get('opt', None)
     else:
         return None
 
