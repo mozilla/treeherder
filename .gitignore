@@ -70,3 +70,4 @@ docs/_build/
 *.c
 
 treeherder/webapp/log_cache
+celerybeat-schedule
