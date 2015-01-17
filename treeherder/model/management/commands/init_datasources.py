@@ -44,7 +44,7 @@ Type 'yes' to continue, or 'no' to cancel: """)
                 for ds in Datasource.objects.all():
                     ds.delete()
 
-        projects = Repository.objects.all().values_list('name', flat=True)
+        projects = Repository.objects.filter(active_status='active').values_list('name', flat=True)
         for project in projects:
             for contenttype in ("jobs", "objectstore"):
                 Datasource.objects.get_or_create(
