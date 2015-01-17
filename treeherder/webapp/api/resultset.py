@@ -266,7 +266,7 @@ class ResultSetViewSet(viewsets.ViewSet):
             if symbol.isdigit():
                 newsymbol = symbol.zfill(3)
             else:
-                x = re.split('(\d+)', symbol)
+                x = re.split(r'(\d+)', symbol)
                 newsymbol = x[0]
                 if len(x) > 1:
                     newsymbol += x[1].zfill(3)

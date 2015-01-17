@@ -42,8 +42,8 @@ def is_helpful_search_term(search_term):
     return len(search_term) > 4 and not (search_term in blacklist)
 
 
-LEAK_RE = re.compile('\d+ bytes leaked \((.+)\)$')
-CRASH_RE = re.compile('.+ application crashed \[@ (.+)\]$')
+LEAK_RE = re.compile(r'\d+ bytes leaked \((.+)\)$')
+CRASH_RE = re.compile(r'.+ application crashed \[@ (.+)\]$')
 
 
 def get_error_search_term(error_line):
@@ -129,7 +129,7 @@ def get_bugs_for_search_term(search, base_uri):
     return get_remote_content(url)
 
 mozharness_pattern = re.compile(
-    '^\d+:\d+:\d+[ ]+(?:DEBUG|INFO|WARNING|ERROR|CRITICAL|FATAL) - [ ]?'
+    r'^\d+:\d+:\d+[ ]+(?:DEBUG|INFO|WARNING|ERROR|CRITICAL|FATAL) - [ ]?'
 )
 
 

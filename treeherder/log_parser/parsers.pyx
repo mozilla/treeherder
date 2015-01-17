@@ -33,8 +33,8 @@ class ParserBase(object):
         return self.artifact
 
 
-RE_HEADER_VALUE = re.compile('^(?P<key>[a-z]+): (?P<value>.*)$')
-RE_HEADER_START = re.compile("={9} Started (.*)$")
+RE_HEADER_VALUE = re.compile(r'^(?P<key>[a-z]+): (?P<value>.*)$')
+RE_HEADER_START = re.compile(r"={9} Started (.*)$")
 
 
 class HeaderParser(ParserBase):
@@ -70,8 +70,8 @@ class HeaderParser(ParserBase):
 
 
 PATTERN = r' (?P<name>.*?) \(results: (?P<result>\d+), elapsed: .*?\) \(at (?P<timestamp>.*?)\)'
-RE_STEP_START = re.compile('={9} Started' + PATTERN)
-RE_STEP_FINISH = re.compile('={9} Finished' + PATTERN)
+RE_STEP_START = re.compile(r'={9} Started' + PATTERN)
+RE_STEP_FINISH = re.compile(r'={9} Finished' + PATTERN)
 
 
 class StepParser(ParserBase):
@@ -192,17 +192,17 @@ class StepParser(ParserBase):
         return self.steps[self.stepnum]
 
 
-RE_TINDERBOXPRINT = re.compile('.*TinderboxPrint: ?(?P<line>.*)$')
+RE_TINDERBOXPRINT = re.compile(r'.*TinderboxPrint: ?(?P<line>.*)$')
 
 RE_UPLOADED_TO = re.compile(
-    "<a href=['\"](?P<url>http(s)?://.*)['\"]>(?P<value>.+)</a>: uploaded"
+    r"<a href=['\"](?P<url>http(s)?://.*)['\"]>(?P<value>.+)</a>: uploaded"
 )
 RE_LINK_HTML = re.compile(
-    ("((?P<title>[A-Za-z/\.0-9\-_]+): )?"
-     "<a .*href=['\"](?P<url>http(s)?://.+)['\"].*>(?P<value>.+)</a>")
+    (r"((?P<title>[A-Za-z/\.0-9\-_]+): )?"
+     r"<a .*href=['\"](?P<url>http(s)?://.+)['\"].*>(?P<value>.+)</a>")
 )
 RE_LINK_TEXT = re.compile(
-    "((?P<title>[A-Za-z/\.0-9\-_]+): )?(?P<url>http(s)?://.*)"
+    r"((?P<title>[A-Za-z/\.0-9\-_]+): )?(?P<url>http(s)?://.*)"
 )
 
 TINDERBOX_REGEXP_TUPLE = (
@@ -279,8 +279,8 @@ class TinderboxPrintParser(ParserBase):
 
 
 RE_INFO = re.compile((
-    "^\d+:\d+:\d+[ ]+(?:INFO)(?: -  )"
-    "(TEST-|INFO TEST-)(INFO|PASS|START|END) "
+    r"^\d+:\d+:\d+[ ]+(?:INFO)(?: -  )"
+    r"(TEST-|INFO TEST-)(INFO|PASS|START|END) "
 ))
 
 
@@ -301,37 +301,37 @@ IN_SEARCH_TERMS = (
 )
 
 RE_ERR_MATCH = re.compile((
-    "^error: TEST FAILED"
-    "|^g?make(?:\[\d+\])?: \*\*\*"
-    "|^Remote Device Error:"
-    "|^[A-Za-z.]+Error: "
-    "|^[A-Za-z.]*Exception: "
-    "|^remoteFailed:"
-    "|^rm: cannot "
-    "|^abort:"
-    "|^Output exceeded \d+ bytes"
-    "|^The web-page 'stop build' button was pressed"
+    r"^error: TEST FAILED"
+    r"|^g?make(?:\[\d+\])?: \*\*\*"
+    r"|^Remote Device Error:"
+    r"|^[A-Za-z.]+Error: "
+    r"|^[A-Za-z.]*Exception: "
+    r"|^remoteFailed:"
+    r"|^rm: cannot "
+    r"|^abort:"
+    r"|^Output exceeded \d+ bytes"
+    r"|^The web-page 'stop build' button was pressed"
 ))
 
 RE_ERR_SEARCH = re.compile((
-    " error\(\d*\):"
-    "|:\d+: error:"
-    "| error R?C\d*:"
-    "|ERROR [45]\d\d:"
-    "|mozmake\.exe(?:\[\d+\])?: \*\*\*"
+    r" error\(\d*\):"
+    r"|:\d+: error:"
+    r"| error R?C\d*:"
+    r"|ERROR [45]\d\d:"
+    r"|mozmake\.exe(?:\[\d+\])?: \*\*\*"
 ))
 
-RE_EXCLUDE_1_SEARCH = re.compile("TEST-(?:INFO|PASS) ")
+RE_EXCLUDE_1_SEARCH = re.compile(r"TEST-(?:INFO|PASS) ")
 
 RE_EXCLUDE_2_SEARCH = re.compile(
-    "I[ /](Gecko|Robocop|TestRunner).*TEST-UNEXPECTED-"
-    "|^TimeoutException: "
-    "|^ImportError: No module named pygtk$"
+    r"I[ /](Gecko|Robocop|TestRunner).*TEST-UNEXPECTED-"
+    r"|^TimeoutException: "
+    r"|^ImportError: No module named pygtk$"
     )
 
-RE_ERR_1_MATCH = re.compile("^\d+:\d+:\d+ +(?:ERROR|CRITICAL|FATAL) - ")
+RE_ERR_1_MATCH = re.compile(r"^\d+:\d+:\d+ +(?:ERROR|CRITICAL|FATAL) - ")
 
-RE_MOZHARNESS_PREFIX = re.compile("^\d+:\d+:\d+ +(?:DEBUG|INFO|WARNING) - +")
+RE_MOZHARNESS_PREFIX = re.compile(r"^\d+:\d+:\d+ +(?:DEBUG|INFO|WARNING) - +")
 
 
 class ErrorParser(ParserBase):
@@ -366,15 +366,14 @@ class ErrorParser(ParserBase):
                 RE_ERR_MATCH.match(trimline) or RE_ERR_SEARCH.search(trimline):
             self.add(line, lineno)
 
+
 class TalosParser(ParserBase):
     """a sub-parser to find TALOSDATA"""
 
-    ##
     # Using $ in the regex as an end of line bounds causes the
     # regex to fail on windows logs. This is likely due to the
     # ^M character representation of the windows end of line.
-    ##
-    RE_TALOSDATA = re.compile('.*?TALOSDATA:\s+(\[.*\])')
+    RE_TALOSDATA = re.compile(r'.*?TALOSDATA:\s+(\[.*\])')
 
     def __init__(self):
         super(TalosParser, self).__init__("talos_data")

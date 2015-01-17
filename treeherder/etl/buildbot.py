@@ -35,7 +35,7 @@ PLATFORMS_BUILDERNAME = [
     # ** Linux **
 
     {
-        'regex': re.compile('^b2g.*_(?:linux|ubuntu)64', re.IGNORECASE),
+        'regex': re.compile(r'^b2g.*_(?:linux|ubuntu)64', re.IGNORECASE),
         'attributes': {
             'os': 'linux',
             'os_platform': 'b2g-linux64',
@@ -43,7 +43,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile('^(?:Linux|Ubuntu).*64 Mulet', re.IGNORECASE),
+        'regex': re.compile(r'^(?:Linux|Ubuntu).*64 Mulet', re.IGNORECASE),
         'attributes': {
             'os': 'linux',
             'os_platform': 'mulet-linux64',
@@ -51,7 +51,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile('(?:linux|ubuntu).*64.+|dxr', re.IGNORECASE),
+        'regex': re.compile(r'(?:linux|ubuntu).*64.+|dxr', re.IGNORECASE),
         'attributes': {
             'os': 'linux',
             'os_platform': 'linux64',
@@ -59,7 +59,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile('^b2g.*_(?:linux|ubuntu)32', re.IGNORECASE),
+        'regex': re.compile(r'^b2g.*_(?:linux|ubuntu)32', re.IGNORECASE),
         'attributes': {
             'os': 'linux',
             'os_platform': 'b2g-linux32',
@@ -67,7 +67,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile('^(?:Linux|Ubuntu).*Mulet', re.IGNORECASE),
+        'regex': re.compile(r'^(?:Linux|Ubuntu).*Mulet', re.IGNORECASE),
         'attributes': {
             'os': 'linux',
             'os_platform': 'mulet-linux32',
@@ -75,7 +75,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile('linux|ubuntu', re.IGNORECASE),
+        'regex': re.compile(r'linux|ubuntu', re.IGNORECASE),
         'attributes': {
             'os': 'linux',
             'os_platform': 'linux32',
@@ -86,7 +86,7 @@ PLATFORMS_BUILDERNAME = [
     # ** OS X **
 
     {
-        'regex': re.compile('^b2g.*_macosx64', re.IGNORECASE),
+        'regex': re.compile(r'^b2g.*_macosx64', re.IGNORECASE),
         'attributes': {
             'os': 'mac',
             'os_platform': 'b2g-osx',
@@ -94,7 +94,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile('^OS X.*Mulet', re.IGNORECASE),
+        'regex': re.compile(r'^OS X.*Mulet', re.IGNORECASE),
         'attributes': {
             'os': 'mac',
             'os_platform': 'mulet-osx',
@@ -102,7 +102,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile('Yosemite', re.IGNORECASE),
+        'regex': re.compile(r'Yosemite', re.IGNORECASE),
         'attributes': {
             'os': 'mac',
             'os_platform': 'osx-10-10',
@@ -110,7 +110,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile('OS X 10\.7|lion', re.IGNORECASE),
+        'regex': re.compile(r'OS X 10\.7|lion', re.IGNORECASE),
         'attributes': {
             'os': 'mac',
             'os_platform': 'osx-10-8',
@@ -118,7 +118,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile('snow[ ]?leopard', re.IGNORECASE),
+        'regex': re.compile(r'snow[ ]?leopard', re.IGNORECASE),
         'attributes': {
             'os': 'mac',
             'os_platform': 'osx-10-6',
@@ -129,7 +129,7 @@ PLATFORMS_BUILDERNAME = [
     # ** Windows **
 
     {
-        'regex': re.compile('^b2g.*_win32', re.IGNORECASE),
+        'regex': re.compile(r'^b2g.*_win32', re.IGNORECASE),
         'attributes': {
             'os': 'win',
             'os_platform': 'b2g-win32',
@@ -137,7 +137,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile('^Win32.*Mulet', re.IGNORECASE),
+        'regex': re.compile(r'^Win32.*Mulet', re.IGNORECASE),
         'attributes': {
             'os': 'win',
             'os_platform': 'mulet-win32',
@@ -145,7 +145,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile('WINNT 5|-xp-|Windows XP 32-bit', re.IGNORECASE),
+        'regex': re.compile(r'WINNT 5|-xp-|Windows XP 32-bit', re.IGNORECASE),
         'attributes': {
             'os': 'win',
             'os_platform': 'windowsxp',
@@ -155,7 +155,7 @@ PLATFORMS_BUILDERNAME = [
     {
         # Windows x64 builds are created on Win Server 2k8, but for the sake
         # of consistency, we display them on the same row as the Win8 x64 tests.
-        'regex': re.compile('WINNT 6\.1 x(?:86-)?64|Windows 8 64-bit', re.IGNORECASE),
+        'regex': re.compile(r'WINNT 6\.1 x(?:86-)?64|Windows 8 64-bit', re.IGNORECASE),
         'attributes': {
             'os': 'win',
             'os_platform': 'windows8-64',
@@ -163,7 +163,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile('win64_vm', re.IGNORECASE),
+        'regex': re.compile(r'win64_vm', re.IGNORECASE),
         'attributes': {
             'os': 'win',
             'os_platform': 'windows2012-64',
@@ -171,7 +171,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile('WINNT 6\.1|win7|Windows 7 32-bit', re.IGNORECASE),
+        'regex': re.compile(r'WINNT 6\.1|win7|Windows 7 32-bit', re.IGNORECASE),
         'attributes': {
             'os': 'win',
             'os_platform': 'windows7-32',
@@ -179,7 +179,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile('WINNT 6\.2|win8', re.IGNORECASE),
+        'regex': re.compile(r'WINNT 6\.2|win8', re.IGNORECASE),
         'attributes': {
             'os': 'win',
             'os_platform': 'windows8-32',
@@ -190,7 +190,7 @@ PLATFORMS_BUILDERNAME = [
     # ** Android **
 
     {
-        'regex': re.compile('android 4\.2 x86', re.IGNORECASE),
+        'regex': re.compile(r'android 4\.2 x86', re.IGNORECASE),
         'attributes': {
             'os': 'android',
             'os_platform': 'android-4-2-x86',
@@ -198,7 +198,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile('android (?:4\.0 )?armv7 api 10', re.IGNORECASE),
+        'regex': re.compile(r'android (?:4\.0 )?armv7 api 10', re.IGNORECASE),
         'attributes': {
             'os': 'android',
             'os_platform': 'android-4-0-armv7-api10',
@@ -206,7 +206,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile('android (?:4\.0 )?armv7 api 11', re.IGNORECASE),
+        'regex': re.compile(r'android (?:4\.0 )?armv7 api 11', re.IGNORECASE),
         'attributes': {
             'os': 'android',
             'os_platform': 'android-4-0-armv7-api11',
@@ -214,7 +214,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile('android 4\.0', re.IGNORECASE),
+        'regex': re.compile(r'android 4\.0', re.IGNORECASE),
         'attributes': {
             'os': 'android',
             'os_platform': 'android-4-0',
@@ -222,7 +222,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile('android armv7 api 9', re.IGNORECASE),
+        'regex': re.compile(r'android armv7 api 9', re.IGNORECASE),
         'attributes': {
             'os': 'android',
             'os_platform': 'android-2-3-armv7-api9',
@@ -230,7 +230,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile('android 2\.3 armv6', re.IGNORECASE),
+        'regex': re.compile(r'android 2\.3 armv6', re.IGNORECASE),
         'attributes': {
             'os': 'android',
             'os_platform': 'android-2-3-armv6',
@@ -238,7 +238,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile('android 2\.3', re.IGNORECASE),
+        'regex': re.compile(r'android 2\.3', re.IGNORECASE),
         'attributes': {
             'os': 'android',
             'os_platform': 'android-2-3',
@@ -246,7 +246,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile('android 2\.2 armv6', re.IGNORECASE),
+        'regex': re.compile(r'android 2\.2 armv6', re.IGNORECASE),
         'attributes': {
             'os': 'android',
             'os_platform': 'android-2-2-armv6',
@@ -254,7 +254,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile('android 2\.2', re.IGNORECASE),
+        'regex': re.compile(r'android 2\.2', re.IGNORECASE),
         'attributes': {
             'os': 'android',
             'os_platform': 'android-2-2',
@@ -265,7 +265,7 @@ PLATFORMS_BUILDERNAME = [
     # ** B2G **
 
     {
-        'regex': re.compile('b2g.*_emulator-kk', re.IGNORECASE),
+        'regex': re.compile(r'b2g.*_emulator-kk', re.IGNORECASE),
         'attributes': {
             'os': 'b2g',
             'os_platform': 'b2g-emu-kk',
@@ -273,7 +273,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile('b2g.*_emulator-jb', re.IGNORECASE),
+        'regex': re.compile(r'b2g.*_emulator-jb', re.IGNORECASE),
         'attributes': {
             'os': 'b2g',
             'os_platform': 'b2g-emu-jb',
@@ -281,7 +281,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile('b2g.*_emulator(?:-ics)?', re.IGNORECASE),
+        'regex': re.compile(r'b2g.*_emulator(?:-ics)?', re.IGNORECASE),
         'attributes': {
             'os': 'b2g',
             'os_platform': 'b2g-emu-ics',
@@ -289,7 +289,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile('b2g.*_(?:dep|nightly|periodic)$', re.IGNORECASE),
+        'regex': re.compile(r'b2g.*_(?:dep|nightly|periodic)$', re.IGNORECASE),
         'attributes': {
             'os': 'b2g',
             'os_platform': 'b2g-device-image',
@@ -324,181 +324,181 @@ BUILD_TYPE_BUILDERNAME = [
 
 JOB_TYPE_BUILDERNAME = {
     'build': [
-        re.compile('.+build'),
-        re.compile('.+_dep'),
-        re.compile('.+(?<!l10n)[ _]nightly$'),
-        re.compile('.+ xulrunner$'),
-        re.compile('.+ code coverage$'),
-        re.compile('.*valgrind$'),
-        re.compile('.*non-unified'),
+        re.compile(r'.+build'),
+        re.compile(r'.+_dep'),
+        re.compile(r'.+(?<!l10n)[ _]nightly$'),
+        re.compile(r'.+ xulrunner$'),
+        re.compile(r'.+ code coverage$'),
+        re.compile(r'.*valgrind$'),
+        re.compile(r'.*non-unified'),
     ],
     'unittest': [
-        re.compile('jetpack.*(opt|debug)$'),
-        re.compile('.+(?<!leak) test .+'),
+        re.compile(r'jetpack.*(opt|debug)$'),
+        re.compile(r'.+(?<!leak) test .+'),
     ],
-    'talos': [re.compile('.+ talos .+')],
-    'repack': [re.compile('.+ l10n .+')],
+    'talos': [re.compile(r'.+ talos .+')],
+    'repack': [re.compile(r'.+ l10n .+')],
 }
 
 # from Data.js ``type`` Config.testNames and Config.buildNames
 JOB_NAME_BUILDERNAME = [
     # ** Talos **
-    {"regex": re.compile('talos remote-tcanvasmark$'), "desc": "Talos canvasmark"},
-    {"regex": re.compile('talos chromez(-snow)?-e10s$'), "desc": "Talos chrome e10s"},
-    {"regex": re.compile('talos chrome[z]?(-snow)?$'), "desc": "Talos chrome"},
-    {"regex": re.compile('talos dromaeojs-e10s$'), "desc": "Talos dromaeojs e10s"},
-    {"regex": re.compile('talos dromaeojs-metro$'), "desc": "Talos dromaeojs Metro"},
-    {"regex": re.compile('talos dromaeojs$'), "desc": "Talos dromaeojs"},
-    {"regex": re.compile('talos g1(-snow)?-e10s$'), "desc": "Talos g1 e10s"},
-    {"regex": re.compile('talos g1(-snow)?$'), "desc": "Talos g1"},
-    {"regex": re.compile('talos other-e10s'), "desc": "Talos other e10s"},
-    {"regex": re.compile('talos other-metro$'), "desc": "Talos other Metro"},
-    {"regex": re.compile('talos other'), "desc": "Talos other"},
-    {"regex": re.compile('talos dirtypaint$'), "desc": "Talos paint"},
-    {"regex": re.compile('talos remote-trobocheck2$'), "desc": "Talos robocheck2"},
-    {"regex": re.compile('talos remote-trobopan$'), "desc": "Talos robopan"},
-    {"regex": re.compile('talos remote-troboprovider$'), "desc": "Talos roboprovider"},
-    {"regex": re.compile('talos (?:remote-t)?svg[rx]?(-snow)?-e10s$'), "desc": "Talos svg e10s"},
-    {"regex": re.compile('talos (?:remote-t)?svg[rx]?-metro$'), "desc": "Talos svg Metro"},
-    {"regex": re.compile('talos (?:remote-t)?svg[rx]?(-snow)?$'), "desc": "Talos svg"},
-    {"regex": re.compile('talos tp5o-e10s$'), "desc": "Talos tp e10s"},
-    {"regex": re.compile('talos tp5o-metro$'), "desc": "Talos tp Metro"},
-    {"regex": re.compile('talos remote-tp4m_nochrome$'), "desc": "Talos tp nochrome"},
-    {"regex": re.compile('talos (?:remote-)?tp'), "desc": "Talos tp"},
-    {"regex": re.compile('talos remote-tspaint$'), "desc": "Talos tspaint"},
-    {"regex": re.compile('talos remote-ts$'), "desc": "Talos ts"},
-    {"regex": re.compile('talos xperf-e10s$'), "desc": "Talos xperf e10s"},
-    {"regex": re.compile('talos xperf$'), "desc": "Talos xperf"},
+    {"regex": re.compile(r'talos remote-tcanvasmark$'), "desc": "Talos canvasmark"},
+    {"regex": re.compile(r'talos chromez(-snow)?-e10s$'), "desc": "Talos chrome e10s"},
+    {"regex": re.compile(r'talos chrome[z]?(-snow)?$'), "desc": "Talos chrome"},
+    {"regex": re.compile(r'talos dromaeojs-e10s$'), "desc": "Talos dromaeojs e10s"},
+    {"regex": re.compile(r'talos dromaeojs-metro$'), "desc": "Talos dromaeojs Metro"},
+    {"regex": re.compile(r'talos dromaeojs$'), "desc": "Talos dromaeojs"},
+    {"regex": re.compile(r'talos g1(-snow)?-e10s$'), "desc": "Talos g1 e10s"},
+    {"regex": re.compile(r'talos g1(-snow)?$'), "desc": "Talos g1"},
+    {"regex": re.compile(r'talos other-e10s'), "desc": "Talos other e10s"},
+    {"regex": re.compile(r'talos other-metro$'), "desc": "Talos other Metro"},
+    {"regex": re.compile(r'talos other'), "desc": "Talos other"},
+    {"regex": re.compile(r'talos dirtypaint$'), "desc": "Talos paint"},
+    {"regex": re.compile(r'talos remote-trobocheck2$'), "desc": "Talos robocheck2"},
+    {"regex": re.compile(r'talos remote-trobopan$'), "desc": "Talos robopan"},
+    {"regex": re.compile(r'talos remote-troboprovider$'), "desc": "Talos roboprovider"},
+    {"regex": re.compile(r'talos (?:remote-t)?svg[rx]?(-snow)?-e10s$'), "desc": "Talos svg e10s"},
+    {"regex": re.compile(r'talos (?:remote-t)?svg[rx]?-metro$'), "desc": "Talos svg Metro"},
+    {"regex": re.compile(r'talos (?:remote-t)?svg[rx]?(-snow)?$'), "desc": "Talos svg"},
+    {"regex": re.compile(r'talos tp5o-e10s$'), "desc": "Talos tp e10s"},
+    {"regex": re.compile(r'talos tp5o-metro$'), "desc": "Talos tp Metro"},
+    {"regex": re.compile(r'talos remote-tp4m_nochrome$'), "desc": "Talos tp nochrome"},
+    {"regex": re.compile(r'talos (?:remote-)?tp'), "desc": "Talos tp"},
+    {"regex": re.compile(r'talos remote-tspaint$'), "desc": "Talos tspaint"},
+    {"regex": re.compile(r'talos remote-ts$'), "desc": "Talos ts"},
+    {"regex": re.compile(r'talos xperf-e10s$'), "desc": "Talos xperf e10s"},
+    {"regex": re.compile(r'talos xperf$'), "desc": "Talos xperf"},
     # ** Unit tests **
-    {"regex": re.compile('mozbase$'), "desc": "Mozbase Unit Tests"},
-    {"regex": re.compile('mochitest-csb'), "desc": "Mochitest csb"},
-    {"regex": re.compile('mochitest-e10s-browser-chrome'), "desc": "Mochitest e10s Browser Chrome"},
-    {"regex": re.compile('mochitest-e10s-devtools-chrome'), "desc": "Mochitest e10s DevTools Browser Chrome"},
-    {"regex": re.compile('mochitest-e10s-other'), "desc": "Mochitest e10s Other"},
-    {"regex": re.compile('mochitest-e10s'), "desc": "Mochitest e10s"},
-    {"regex": re.compile('mochitest-browser-chrome'), "desc": "Mochitest Browser Chrome"},
-    {"regex": re.compile('mochitest-devtools-chrome'), "desc": "Mochitest DevTools Browser Chrome"},
-    {"regex": re.compile('mochitest-jetpack'), "desc": "Mochitest Jetpack"},
-    {"regex": re.compile('mochitest-metro-chrome'), "desc": "Mochitest Metro Browser Chrome"},
-    {"regex": re.compile('mochitest-other'), "desc": "Mochitest Other"},
-    {"regex": re.compile('mochitest-(?:web)?gl'), "desc": "Mochitest WebGL"},
-    {"regex": re.compile('mochitest-oop'), "desc": "Mochitest OOP"},
-    {"regex": re.compile('mochitest'), "desc": "Mochitest"},
-    {"regex": re.compile('webapprt-chrome$'), "desc": "Webapprt Chrome"},
-    {"regex": re.compile('webapprt-content$'), "desc": "Webapprt Content"},
-    {"regex": re.compile('web-platform-tests-reftests$'), "desc": "W3C Web Platform Reftests"},
-    {"regex": re.compile('web-platform-tests'), "desc": "W3C Web Platform Tests"},
-    {"regex": re.compile('robocop'), "desc": "Robocop"},
-    {"regex": re.compile('crashtest-e10s'), "desc": "Crashtest e10s"},
-    {"regex": re.compile('crashtest-ipc'), "desc": "Crashtest IPC"},
-    {"regex": re.compile('crashtest'), "desc": "Crashtest"},
-    {"regex": re.compile('jsreftest-e10s'), "desc": "JSReftest e10s"},
-    {"regex": re.compile('jsreftest'), "desc": "JSReftest"},
-    {"regex": re.compile('reftest-e10s'), "desc": "Reftest e10s"},
-    {"regex": re.compile('reftest-sanity-oop$'), "desc": "Reftest Sanity OOP"},
-    {"regex": re.compile('reftest-sanity$'), "desc": "Reftest Sanity"},
-    {"regex": re.compile('reftest-ipc'), "desc": "Reftest IPC"},
-    {"regex": re.compile('reftest-omtc'), "desc": "Reftest OMTC"},
-    {"regex": re.compile('reftest-no-accel'), "desc": "Reftest Unaccelerated"},
-    {"regex": re.compile('reftest'), "desc": "Reftest"},
-    {"regex": re.compile('cppunit$'), "desc": "CPP Unit Tests"},
-    {"regex": re.compile('jittest'), "desc": "JIT Tests"},
-    {"regex": re.compile('jetpack'), "desc": "Jetpack SDK Test"},
-    {"regex": re.compile('gaia-build-unit$'), "desc": "Gaia Build Unit Test"},
-    {"regex": re.compile('gaia-build$'), "desc": "Gaia Build Test"},
-    {"regex": re.compile('gaia-unit-oop$'), "desc": "Gaia Unit Test OOP"},
-    {"regex": re.compile('gaia-unit$'), "desc": "Gaia Unit Test"},
-    {"regex": re.compile('gaia-(?:js-)?integration-oop'), "desc": "Gaia JS Integration Test OOP"},
-    {"regex": re.compile('gaia-(?:js-)?integration'), "desc": "Gaia JS Integration Test"},
-    {"regex": re.compile('gaia-ui-test-oop-accessibility'), "desc": "Gaia Python Accessibility Integration Tests OOP"},
-    {"regex": re.compile('gaia-ui-test-oop-functional'), "desc": "Gaia Python Functional Integration Tests OOP"},
-    {"regex": re.compile('gaia-ui-test-oop-unit'), "desc": "Gaia Python Integration Unit Tests OOP"},
-    {"regex": re.compile('gaia-ui-test-oop'), "desc": "Gaia Python Integration Tests OOP"},
-    {"regex": re.compile('gaia-ui-test-accessibility'), "desc": "Gaia Python Accessibility Integration Tests"},
-    {"regex": re.compile('gaia-ui-test-functional'), "desc": "Gaia Python Functional Integration Tests"},
-    {"regex": re.compile('gaia-ui-test-unit'), "desc": "Gaia Python Integration Unit Tests"},
-    {"regex": re.compile('gaia-ui-test'), "desc": "Gaia Python Integration Tests"},
-    {"regex": re.compile('linter$'), "desc": "Linter Test"},
-    {"regex": re.compile('marionette-webapi$'), "desc": "Marionette WebAPI Tests"},
-    {"regex": re.compile('marionette$'), "desc": "Marionette Framework Unit Tests"},
-    {"regex": re.compile('marionette-e10s$'), "desc": "Marionette Framework Unit Tests e10s"},
-    {"regex": re.compile('androidx86-set'), "desc": "Android x86 Test Set"},
-    {"regex": re.compile('instrumentation-background'), "desc": "Android Instrumentation Background"},
-    {"regex": re.compile('instrumentation-browser'), "desc": "Android Instrumentation Browser"},
-    {"regex": re.compile('xpcshell'), "desc": "XPCShell"},
-    {"regex": re.compile('mozmill$'), "desc": "Mozmill"},
+    {"regex": re.compile(r'mozbase$'), "desc": "Mozbase Unit Tests"},
+    {"regex": re.compile(r'mochitest-csb'), "desc": "Mochitest csb"},
+    {"regex": re.compile(r'mochitest-e10s-browser-chrome'), "desc": "Mochitest e10s Browser Chrome"},
+    {"regex": re.compile(r'mochitest-e10s-devtools-chrome'), "desc": "Mochitest e10s DevTools Browser Chrome"},
+    {"regex": re.compile(r'mochitest-e10s-other'), "desc": "Mochitest e10s Other"},
+    {"regex": re.compile(r'mochitest-e10s'), "desc": "Mochitest e10s"},
+    {"regex": re.compile(r'mochitest-browser-chrome'), "desc": "Mochitest Browser Chrome"},
+    {"regex": re.compile(r'mochitest-devtools-chrome'), "desc": "Mochitest DevTools Browser Chrome"},
+    {"regex": re.compile(r'mochitest-jetpack'), "desc": "Mochitest Jetpack"},
+    {"regex": re.compile(r'mochitest-metro-chrome'), "desc": "Mochitest Metro Browser Chrome"},
+    {"regex": re.compile(r'mochitest-other'), "desc": "Mochitest Other"},
+    {"regex": re.compile(r'mochitest-(?:web)?gl'), "desc": "Mochitest WebGL"},
+    {"regex": re.compile(r'mochitest-oop'), "desc": "Mochitest OOP"},
+    {"regex": re.compile(r'mochitest'), "desc": "Mochitest"},
+    {"regex": re.compile(r'webapprt-chrome$'), "desc": "Webapprt Chrome"},
+    {"regex": re.compile(r'webapprt-content$'), "desc": "Webapprt Content"},
+    {"regex": re.compile(r'web-platform-tests-reftests$'), "desc": "W3C Web Platform Reftests"},
+    {"regex": re.compile(r'web-platform-tests'), "desc": "W3C Web Platform Tests"},
+    {"regex": re.compile(r'robocop'), "desc": "Robocop"},
+    {"regex": re.compile(r'crashtest-e10s'), "desc": "Crashtest e10s"},
+    {"regex": re.compile(r'crashtest-ipc'), "desc": "Crashtest IPC"},
+    {"regex": re.compile(r'crashtest'), "desc": "Crashtest"},
+    {"regex": re.compile(r'jsreftest-e10s'), "desc": "JSReftest e10s"},
+    {"regex": re.compile(r'jsreftest'), "desc": "JSReftest"},
+    {"regex": re.compile(r'reftest-e10s'), "desc": "Reftest e10s"},
+    {"regex": re.compile(r'reftest-sanity-oop$'), "desc": "Reftest Sanity OOP"},
+    {"regex": re.compile(r'reftest-sanity$'), "desc": "Reftest Sanity"},
+    {"regex": re.compile(r'reftest-ipc'), "desc": "Reftest IPC"},
+    {"regex": re.compile(r'reftest-omtc'), "desc": "Reftest OMTC"},
+    {"regex": re.compile(r'reftest-no-accel'), "desc": "Reftest Unaccelerated"},
+    {"regex": re.compile(r'reftest'), "desc": "Reftest"},
+    {"regex": re.compile(r'cppunit$'), "desc": "CPP Unit Tests"},
+    {"regex": re.compile(r'jittest'), "desc": "JIT Tests"},
+    {"regex": re.compile(r'jetpack'), "desc": "Jetpack SDK Test"},
+    {"regex": re.compile(r'gaia-build-unit$'), "desc": "Gaia Build Unit Test"},
+    {"regex": re.compile(r'gaia-build$'), "desc": "Gaia Build Test"},
+    {"regex": re.compile(r'gaia-unit-oop$'), "desc": "Gaia Unit Test OOP"},
+    {"regex": re.compile(r'gaia-unit$'), "desc": "Gaia Unit Test"},
+    {"regex": re.compile(r'gaia-(?:js-)?integration-oop'), "desc": "Gaia JS Integration Test OOP"},
+    {"regex": re.compile(r'gaia-(?:js-)?integration'), "desc": "Gaia JS Integration Test"},
+    {"regex": re.compile(r'gaia-ui-test-oop-accessibility'), "desc": "Gaia Python Accessibility Integration Tests OOP"},
+    {"regex": re.compile(r'gaia-ui-test-oop-functional'), "desc": "Gaia Python Functional Integration Tests OOP"},
+    {"regex": re.compile(r'gaia-ui-test-oop-unit'), "desc": "Gaia Python Integration Unit Tests OOP"},
+    {"regex": re.compile(r'gaia-ui-test-oop'), "desc": "Gaia Python Integration Tests OOP"},
+    {"regex": re.compile(r'gaia-ui-test-accessibility'), "desc": "Gaia Python Accessibility Integration Tests"},
+    {"regex": re.compile(r'gaia-ui-test-functional'), "desc": "Gaia Python Functional Integration Tests"},
+    {"regex": re.compile(r'gaia-ui-test-unit'), "desc": "Gaia Python Integration Unit Tests"},
+    {"regex": re.compile(r'gaia-ui-test'), "desc": "Gaia Python Integration Tests"},
+    {"regex": re.compile(r'linter$'), "desc": "Linter Test"},
+    {"regex": re.compile(r'marionette-webapi$'), "desc": "Marionette WebAPI Tests"},
+    {"regex": re.compile(r'marionette$'), "desc": "Marionette Framework Unit Tests"},
+    {"regex": re.compile(r'marionette-e10s$'), "desc": "Marionette Framework Unit Tests e10s"},
+    {"regex": re.compile(r'androidx86-set'), "desc": "Android x86 Test Set"},
+    {"regex": re.compile(r'instrumentation-background'), "desc": "Android Instrumentation Background"},
+    {"regex": re.compile(r'instrumentation-browser'), "desc": "Android Instrumentation Browser"},
+    {"regex": re.compile(r'xpcshell'), "desc": "XPCShell"},
+    {"regex": re.compile(r'mozmill$'), "desc": "Mozmill"},
     # ** Builds **
     # If we start doing debug ASan tests, please kill these special build types
-    {"regex": re.compile('debug asan nightly'), "desc": "AddressSanitizer Debug Nightly"},
-    {"regex": re.compile('asan nightly'), "desc": "AddressSanitizer Opt Nightly"},
-    {"regex": re.compile('-sh-haz'), "desc": "SpiderMonkey Hazard Analysis Build"},
-    {"regex": re.compile('-haz'), "desc": "Hazard Analysis Build"},
-    {"regex": re.compile('xulrunner'), "desc": "XULRunner Nightly"},
-    {"regex": re.compile('b2g.*_dolphin_eng.*_nightly'), "desc": "Dolphin Device Image Nightly (Engineering)"},
-    {"regex": re.compile('b2g.*_flame-kk_eng.*_nightly'), "desc": "Flame KitKat Device Image Nightly (Engineering)"},
-    {"regex": re.compile('b2g.*_flame_eng.*_nightly'), "desc": "Flame Device Image Nightly (Engineering)"},
-    {"regex": re.compile('b2g.*_hamachi_eng.*_nightly'), "desc": "Hamachi Device Image Nightly (Engineering)"},
-    {"regex": re.compile('b2g.*_helix_eng.*_nightly'), "desc": "Helix Device Image Nightly (Engineering)"},
-    {"regex": re.compile('b2g.*_inari_eng.*_nightly'), "desc": "Inari Device Image Nightly (Engineering)"},
-    {"regex": re.compile('b2g.*_leo_eng.*_nightly'), "desc": "Leo Device Image Nightly (Engineering)"},
-    {"regex": re.compile('b2g.*_nexus-4_eng.*_nightly'), "desc": "Nexus 4 Device Image Nightly (Engineering)"},
-    {"regex": re.compile('b2g.*_tarako_eng.*_nightly'), "desc": "Tarako Device Image Nightly (Engineering)"},
-    {"regex": re.compile('b2g.*_unagi_eng.*_nightly'), "desc": "Unagi Device Image Nightly (Engineering)"},
-    {"regex": re.compile('b2g.*_eng.*_nightly'), "desc": "Unknown B2G Device Image Nightly (Engineering)"},
-    {"regex": re.compile('b2g.*_emulator.*_nightly'), "desc": "B2G Emulator Image Nightly"},
-    {"regex": re.compile('b2g.*_dolphin.*_nightly'), "desc": "Dolphin Device Image Nightly"},
-    {"regex": re.compile('b2g.*_flame-kk.*_nightly'), "desc": "Flame KitKat Device Image Nightly"},
-    {"regex": re.compile('b2g.*_flame.*_nightly'), "desc": "Flame Device Image Nightly"},
-    {"regex": re.compile('b2g.*_hamachi.*_nightly'), "desc": "Hamachi Device Image Nightly"},
-    {"regex": re.compile('b2g.*_helix.*_nightly'), "desc": "Helix Device Image Nightly"},
-    {"regex": re.compile('b2g.*_inari.*_nightly'), "desc": "Inari Device Image Nightly"},
-    {"regex": re.compile('b2g.*_leo.*_nightly'), "desc": "Leo Device Image Nightly"},
-    {"regex": re.compile('b2g.*_nexus-4.*_nightly'), "desc": "Nexus 4 Device Image Nightly"},
-    {"regex": re.compile('b2g.*_tarako.*_nightly'), "desc": "Tarako Device Image Nightly"},
-    {"regex": re.compile('b2g.*_unagi.*_nightly'), "desc": "Unagi Device Image Nightly"},
-    {"regex": re.compile('b2g.*_wasabi.*_nightly'), "desc": "Wasabi Device Image Nightly"},
-    {"regex": re.compile('b2g.*_nightly'), "desc": "Unknown B2G Device Image Nightly"},
-    {"regex": re.compile('(?:l10n|localizer) nightly'), "desc": "L10n Nightly"},
-    {"regex": re.compile('nightly'), "desc": "Nightly"},
-    {"regex": re.compile('b2g.*_dolphin_eng.*_(?:dep|periodic)'), "desc": "Dolphin Device Image Build (Engineering)"},
-    {"regex": re.compile('b2g.*_flame-kk_eng.*_(?:dep|periodic)'), "desc": "Flame KitKat Device Image Build (Engineering)"},
-    {"regex": re.compile('b2g.*_flame_eng.*_(?:dep|periodic)'), "desc": "Flame Device Image Build (Engineering)"},
-    {"regex": re.compile('b2g.*_hamachi_eng.*_(?:dep|periodic)'), "desc": "Hamachi Device Image Build (Engineering)"},
-    {"regex": re.compile('b2g.*_helix_eng.*_(?:dep|periodic)'), "desc": "Helix Device Image Build (Engineering)"},
-    {"regex": re.compile('b2g.*_inari_eng.*_(?:dep|periodic)'), "desc": "Inari Device Image Build (Engineering)"},
-    {"regex": re.compile('b2g.*_leo_eng.*_(?:dep|periodic)'), "desc": "Leo Device Image Build (Engineering)"},
-    {"regex": re.compile('b2g.*_nexus-4_eng.*_(?:dep|periodic)'), "desc": "Nexus 4 Device Image Build (Engineering)"},
-    {"regex": re.compile('b2g.*_tarako_eng.*_(?:dep|periodic)'), "desc": "Tarako Device Image Build (Engineering)"},
-    {"regex": re.compile('b2g.*_unagi_eng.*_(?:dep|periodic)'), "desc": "Unagi Device Image Build (Engineering)"},
-    {"regex": re.compile('b2g.*_eng.*_(?:dep|periodic)'), "desc": "Unknown B2G Device Image Build (Engineering)"},
-    {"regex": re.compile('b2g.*_emulator.*_nonunified'), "desc": "B2G Emulator Image Non-Unified Build"},
-    {"regex": re.compile('b2g.*_emulator.*_(?:dep|periodic)'), "desc": "B2G Emulator Image Build"},
-    {"regex": re.compile('b2g.*_dolphin.*_(?:dep|periodic)'), "desc": "Dolphin Device Image Build"},
-    {"regex": re.compile('b2g.*_flame-kk.*_(?:dep|periodic)'), "desc": "Flame KitKat Device Image Build"},
-    {"regex": re.compile('b2g.*_flame.*_(?:dep|periodic)'), "desc": "Flame Device Image Build"},
-    {"regex": re.compile('b2g.*_hamachi.*_(?:dep|periodic)'), "desc": "Hamachi Device Image Build"},
-    {"regex": re.compile('b2g.*_helix.*_(?:dep|periodic)'), "desc": "Helix Device Image Build"},
-    {"regex": re.compile('b2g.*_inari.*_(?:dep|periodic)'), "desc": "Inari Device Image Build"},
-    {"regex": re.compile('b2g.*_leo.*_(?:dep|periodic)'), "desc": "Leo Device Image Build"},
-    {"regex": re.compile('b2g.*_nexus-4.*_(?:dep|periodic)'), "desc": "Nexus 4 Device Image Build"},
-    {"regex": re.compile('b2g.*_tarako.*_(?:dep|periodic)'), "desc": "Tarako Device Image Build"},
-    {"regex": re.compile('b2g.*_unagi.*_(?:dep|periodic)'), "desc": "Unagi Device Image Build"},
-    {"regex": re.compile('b2g.*_wasabi.*_(?:dep|periodic)'), "desc": "Wasabi Device Image Build"},
-    {"regex": re.compile('b2g.*_(?:dep|periodic)'), "desc": "Unknown B2G Device Image Build"},
-    {"regex": re.compile('spidermonkey.*-arm-sim'), "desc": "SpiderMonkey ARM Simulator Build"},
-    {"regex": re.compile('spidermonkey.*-dtrace'), "desc": "SpiderMonkey DTrace Build"},
-    {"regex": re.compile('spidermonkey.*-warnaserr'), "desc": "SpiderMonkey Fail-On-Warnings Build"},
-    {"regex": re.compile('spidermonkey.*-exactroot'), "desc": "SpiderMonkey Exact Rooting Shell Build"},
-    {"regex": re.compile('spidermonkey.*-generational'), "desc": "SpiderMonkey GGC Shell Build"},
-    {"regex": re.compile('spidermonkey.*-rootanalysis'), "desc": "SpiderMonkey Root Analysis Build"},
+    {"regex": re.compile(r'debug asan nightly'), "desc": "AddressSanitizer Debug Nightly"},
+    {"regex": re.compile(r'asan nightly'), "desc": "AddressSanitizer Opt Nightly"},
+    {"regex": re.compile(r'-sh-haz'), "desc": "SpiderMonkey Hazard Analysis Build"},
+    {"regex": re.compile(r'-haz'), "desc": "Hazard Analysis Build"},
+    {"regex": re.compile(r'xulrunner'), "desc": "XULRunner Nightly"},
+    {"regex": re.compile(r'b2g.*_dolphin_eng.*_nightly'), "desc": "Dolphin Device Image Nightly (Engineering)"},
+    {"regex": re.compile(r'b2g.*_flame-kk_eng.*_nightly'), "desc": "Flame KitKat Device Image Nightly (Engineering)"},
+    {"regex": re.compile(r'b2g.*_flame_eng.*_nightly'), "desc": "Flame Device Image Nightly (Engineering)"},
+    {"regex": re.compile(r'b2g.*_hamachi_eng.*_nightly'), "desc": "Hamachi Device Image Nightly (Engineering)"},
+    {"regex": re.compile(r'b2g.*_helix_eng.*_nightly'), "desc": "Helix Device Image Nightly (Engineering)"},
+    {"regex": re.compile(r'b2g.*_inari_eng.*_nightly'), "desc": "Inari Device Image Nightly (Engineering)"},
+    {"regex": re.compile(r'b2g.*_leo_eng.*_nightly'), "desc": "Leo Device Image Nightly (Engineering)"},
+    {"regex": re.compile(r'b2g.*_nexus-4_eng.*_nightly'), "desc": "Nexus 4 Device Image Nightly (Engineering)"},
+    {"regex": re.compile(r'b2g.*_tarako_eng.*_nightly'), "desc": "Tarako Device Image Nightly (Engineering)"},
+    {"regex": re.compile(r'b2g.*_unagi_eng.*_nightly'), "desc": "Unagi Device Image Nightly (Engineering)"},
+    {"regex": re.compile(r'b2g.*_eng.*_nightly'), "desc": "Unknown B2G Device Image Nightly (Engineering)"},
+    {"regex": re.compile(r'b2g.*_emulator.*_nightly'), "desc": "B2G Emulator Image Nightly"},
+    {"regex": re.compile(r'b2g.*_dolphin.*_nightly'), "desc": "Dolphin Device Image Nightly"},
+    {"regex": re.compile(r'b2g.*_flame-kk.*_nightly'), "desc": "Flame KitKat Device Image Nightly"},
+    {"regex": re.compile(r'b2g.*_flame.*_nightly'), "desc": "Flame Device Image Nightly"},
+    {"regex": re.compile(r'b2g.*_hamachi.*_nightly'), "desc": "Hamachi Device Image Nightly"},
+    {"regex": re.compile(r'b2g.*_helix.*_nightly'), "desc": "Helix Device Image Nightly"},
+    {"regex": re.compile(r'b2g.*_inari.*_nightly'), "desc": "Inari Device Image Nightly"},
+    {"regex": re.compile(r'b2g.*_leo.*_nightly'), "desc": "Leo Device Image Nightly"},
+    {"regex": re.compile(r'b2g.*_nexus-4.*_nightly'), "desc": "Nexus 4 Device Image Nightly"},
+    {"regex": re.compile(r'b2g.*_tarako.*_nightly'), "desc": "Tarako Device Image Nightly"},
+    {"regex": re.compile(r'b2g.*_unagi.*_nightly'), "desc": "Unagi Device Image Nightly"},
+    {"regex": re.compile(r'b2g.*_wasabi.*_nightly'), "desc": "Wasabi Device Image Nightly"},
+    {"regex": re.compile(r'b2g.*_nightly'), "desc": "Unknown B2G Device Image Nightly"},
+    {"regex": re.compile(r'(?:l10n|localizer) nightly'), "desc": "L10n Nightly"},
+    {"regex": re.compile(r'nightly'), "desc": "Nightly"},
+    {"regex": re.compile(r'b2g.*_dolphin_eng.*_(?:dep|periodic)'), "desc": "Dolphin Device Image Build (Engineering)"},
+    {"regex": re.compile(r'b2g.*_flame-kk_eng.*_(?:dep|periodic)'), "desc": "Flame KitKat Device Image Build (Engineering)"},
+    {"regex": re.compile(r'b2g.*_flame_eng.*_(?:dep|periodic)'), "desc": "Flame Device Image Build (Engineering)"},
+    {"regex": re.compile(r'b2g.*_hamachi_eng.*_(?:dep|periodic)'), "desc": "Hamachi Device Image Build (Engineering)"},
+    {"regex": re.compile(r'b2g.*_helix_eng.*_(?:dep|periodic)'), "desc": "Helix Device Image Build (Engineering)"},
+    {"regex": re.compile(r'b2g.*_inari_eng.*_(?:dep|periodic)'), "desc": "Inari Device Image Build (Engineering)"},
+    {"regex": re.compile(r'b2g.*_leo_eng.*_(?:dep|periodic)'), "desc": "Leo Device Image Build (Engineering)"},
+    {"regex": re.compile(r'b2g.*_nexus-4_eng.*_(?:dep|periodic)'), "desc": "Nexus 4 Device Image Build (Engineering)"},
+    {"regex": re.compile(r'b2g.*_tarako_eng.*_(?:dep|periodic)'), "desc": "Tarako Device Image Build (Engineering)"},
+    {"regex": re.compile(r'b2g.*_unagi_eng.*_(?:dep|periodic)'), "desc": "Unagi Device Image Build (Engineering)"},
+    {"regex": re.compile(r'b2g.*_eng.*_(?:dep|periodic)'), "desc": "Unknown B2G Device Image Build (Engineering)"},
+    {"regex": re.compile(r'b2g.*_emulator.*_nonunified'), "desc": "B2G Emulator Image Non-Unified Build"},
+    {"regex": re.compile(r'b2g.*_emulator.*_(?:dep|periodic)'), "desc": "B2G Emulator Image Build"},
+    {"regex": re.compile(r'b2g.*_dolphin.*_(?:dep|periodic)'), "desc": "Dolphin Device Image Build"},
+    {"regex": re.compile(r'b2g.*_flame-kk.*_(?:dep|periodic)'), "desc": "Flame KitKat Device Image Build"},
+    {"regex": re.compile(r'b2g.*_flame.*_(?:dep|periodic)'), "desc": "Flame Device Image Build"},
+    {"regex": re.compile(r'b2g.*_hamachi.*_(?:dep|periodic)'), "desc": "Hamachi Device Image Build"},
+    {"regex": re.compile(r'b2g.*_helix.*_(?:dep|periodic)'), "desc": "Helix Device Image Build"},
+    {"regex": re.compile(r'b2g.*_inari.*_(?:dep|periodic)'), "desc": "Inari Device Image Build"},
+    {"regex": re.compile(r'b2g.*_leo.*_(?:dep|periodic)'), "desc": "Leo Device Image Build"},
+    {"regex": re.compile(r'b2g.*_nexus-4.*_(?:dep|periodic)'), "desc": "Nexus 4 Device Image Build"},
+    {"regex": re.compile(r'b2g.*_tarako.*_(?:dep|periodic)'), "desc": "Tarako Device Image Build"},
+    {"regex": re.compile(r'b2g.*_unagi.*_(?:dep|periodic)'), "desc": "Unagi Device Image Build"},
+    {"regex": re.compile(r'b2g.*_wasabi.*_(?:dep|periodic)'), "desc": "Wasabi Device Image Build"},
+    {"regex": re.compile(r'b2g.*_(?:dep|periodic)'), "desc": "Unknown B2G Device Image Build"},
+    {"regex": re.compile(r'spidermonkey.*-arm-sim'), "desc": "SpiderMonkey ARM Simulator Build"},
+    {"regex": re.compile(r'spidermonkey.*-dtrace'), "desc": "SpiderMonkey DTrace Build"},
+    {"regex": re.compile(r'spidermonkey.*-warnaserr'), "desc": "SpiderMonkey Fail-On-Warnings Build"},
+    {"regex": re.compile(r'spidermonkey.*-exactroot'), "desc": "SpiderMonkey Exact Rooting Shell Build"},
+    {"regex": re.compile(r'spidermonkey.*-generational'), "desc": "SpiderMonkey GGC Shell Build"},
+    {"regex": re.compile(r'spidermonkey.*-rootanalysis'), "desc": "SpiderMonkey Root Analysis Build"},
     # If we start doing debug ASan tests, please kill these special build types
-    {"regex": re.compile('debug asan build'), "desc": "AddressSanitizer Debug Build"},
-    {"regex": re.compile('asan build'), "desc": "AddressSanitizer Opt Build"},
-    {"regex": re.compile('non[-]?unified'), "desc": "Non-Unified Build"},
-    {"regex": re.compile('static analysis'), "desc": "Static Checking Build"},
-    {"regex": re.compile('valgrind'), "desc": "Valgrind Build"},
-    {"regex": re.compile('dxr'), "desc": "DXR Index Build"},
-    {"regex": re.compile('(build|dep|periodic)$'), "desc": "Build"},
+    {"regex": re.compile(r'debug asan build'), "desc": "AddressSanitizer Debug Build"},
+    {"regex": re.compile(r'asan build'), "desc": "AddressSanitizer Opt Build"},
+    {"regex": re.compile(r'non[-]?unified'), "desc": "Non-Unified Build"},
+    {"regex": re.compile(r'static analysis'), "desc": "Static Checking Build"},
+    {"regex": re.compile(r'valgrind'), "desc": "Valgrind Build"},
+    {"regex": re.compile(r'dxr'), "desc": "DXR Index Build"},
+    {"regex": re.compile(r'(build|dep|periodic)$'), "desc": "Build"},
 ]
 
 # map test names to group names as "<testname>": "<groupname>"
