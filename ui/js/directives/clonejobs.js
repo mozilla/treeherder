@@ -104,7 +104,7 @@ treeherder.directive('thCloneJobs', [
         idx = idx+1 > _.size(jobs)-1 ? 0: idx+1;
         el = $(jobs[idx]);
 
-        while(el.css('display') == 'none'){
+        while (el.css('display') == 'none') {
             idx = idx+1 > _.size(jobs)-1 ? 0: idx+1;
             el = $(jobs[idx]);
         }
@@ -127,7 +127,7 @@ treeherder.directive('thCloneJobs', [
         idx = idx-1 < 0 ? _.size(jobs)-1 : idx-1;
         el = $(jobs[idx]);
 
-        while(el.css('display') == 'none'){
+        while (el.css('display') == 'none') {
             idx = idx-1 < 0 ? _.size(jobs)-1 : idx-1;
             el = $(jobs[idx]);
         }
@@ -1114,84 +1114,6 @@ treeherder.directive('thCloneJobs', [
 
             tableEl.append(row);
         }
-    };
-    
-    var traceParent = function(el, level){
-
-        var i;
-        for (i = 0; i < level; i++) {
-            el = el.parent();
-        }
-
-        return el;
-    };
-
-    var traceJob = function(elem, step, clss){
-
-        var elemsList, jobFound, jobElem, reverseList, tempList, jobsList, i;
-
-        elemsList = [elem];
-        jobFound = false;
-        jobElem = null;
-        reverseList = false;
-
-        while (!jobFound && elemsList.length > 0) {
-
-            tempList = [];
-
-            angular.forEach(elemsList, function(tempElem) {
-
-                if (!jobFound) {
-
-                    if (tempElem.hasClass(clss) && tempElem.css('display') != 'none') {
-
-                        jobFound = true;
-                        jobElem = $(tempElem);
-
-                    } else {
-
-                        if (tempElem.children().length > 0) {
-
-                            angular.forEach(tempElem.children(), function(tempChild) {
-
-                                if ($(tempChild).hasClass('platform-group')) {
-
-                                    jobsList = $($(tempChild).children()[1]).children();
-                                    for (i = 0; i < jobsList.length; i++) {
-                                        tempList.push($(jobsList[i]));
-                                    }
-                                    
-                                    reverseList = true;
-
-                                } else if ($(tempChild).hasClass('job-btn')) {
-
-                                    tempList.push($(tempChild));
-                                    reverseList = true;
-
-                                } else {
-                                    tempList.push($(tempChild));
-                                }
-                                
-                            });
-                        }
-                    }
-                }
-            });
-
-            elemsList = [];
-
-            //reverseList for previous obj
-            if (reverseList && step == 'previousElementSibling') {
-
-                elemsList = tempList.reverse();
-                reverseList = false;
-
-            } else {
-                elemsList = tempList;
-            }
-            
-        }
-        return jobElem;
     };
 
     var linker = function(scope, element, attrs){
