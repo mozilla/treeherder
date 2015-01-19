@@ -96,45 +96,17 @@ treeherder.directive('thCloneJobs', [
         thEvents.selectNextJob, function(ev){
 
         var jobMap = ThResultSetModel.getJobMap($rootScope.repoName);
-        var lastJobSelected = ThResultSetModel.getSelectedJob($rootScope.repoName);
-        var el, key, job, step, currentElement;
+        var el, key, job, jobs;
 
-        step = 'nextElementSibling';
+        jobs = $(".th-view-content .job-btn");
+        var idx = jobs.index(jobs.filter(".selected-job"));
 
-        // No job is selected currently , no job is selected till now ( 2 different cases )
-        if (lastJobSelected.el === undefined || lastJobSelected.el[0] === undefined) {
+        idx = idx+1 > _.size(jobs)-1 ? 0: idx+1;
+        el = $(jobs[idx]);
 
-            // select first Job
-            currentElement = document.getElementsByClassName('result-set')[0];
-            el = traceJob($(currentElement), step, 'job-btn');
-
-        } else {
-
-            currentElement = lastJobSelected.el[0];
-
-            // Parsing for parent which satisy parameter mentioned in variable step
-            while (!currentElement[step] || $(currentElement[step]).css('display') == 'none') {
-
-                if (!currentElement[step]) {
-                    currentElement = traceParent($(currentElement), 1)[0];
-                } else {
-                    currentElement = currentElement[step];
-                }
-
-            }
-
-            // Look through parent's sibling for element with class job-row
-            el = traceJob($(currentElement[step]), step, 'job-btn');
-
-        }
-
-        // Reached end of elements, so element is null
-        if (el === null) {
-
-            // Select first Job as a wrap up
-            currentElement = document.getElementsByClassName('result-set')[0];
-            el = traceJob($(currentElement), step, 'job-btn');
-
+        while(el.css('display') == 'none'){
+            idx = idx+1 > _.size(jobs)-1 ? 0: idx+1;
+            el = $(jobs[idx]);
         }
 
         key = el.attr(jobKeyAttr);
@@ -147,49 +119,17 @@ treeherder.directive('thCloneJobs', [
         thEvents.selectPreviousJob, function(ev){
 
         var jobMap = ThResultSetModel.getJobMap($rootScope.repoName);
-        var lastJobSelected = ThResultSetModel.getSelectedJob($rootScope.repoName);
-        var el, key, job, step, currentElement, resultsets;
+        var el, key, job, jobs;
 
-        step = 'previousElementSibling';
-        el = null;
+        jobs = $(".th-view-content .job-btn");
+        var idx = jobs.index(jobs.filter(".selected-job"));
 
-        // No job is selected currently , no job is selected till now ( 2 different cases )
-        if (lastJobSelected.el === undefined || lastJobSelected.el[0] === undefined) {
+        idx = idx-1 < 0 ? _.size(jobs)-1 : idx-1;
+        el = $(jobs[idx]);
 
-            // Select Last job as lastJobSelected is undefined
-            resultsets = document.getElementsByClassName('result-set');
-            currentElement = resultsets[resultsets.length - 1];
-            el = traceJob($(currentElement), step, 'job-btn');
-
-        } else {
-
-            currentElement = lastJobSelected.el[0];
-
-            // while loop till sibling is found
-            while (!currentElement[step]) {
-                currentElement = traceParent($(currentElement), 1)[0];
-            }
-
-            el = traceJob($(currentElement[step]), step, 'job-btn');
-
-        }
-
-        while (el === null) {
-
-            currentElement = traceParent($(currentElement), 1)[0];
-
-            // reached first element (i.e.) no more parent elements
-            if (currentElement === undefined) {
-
-                // Select Last job as a wrap up
-                resultsets = document.getElementsByClassName('result-set');
-                currentElement = resultsets[resultsets.length - 1];
-                el = traceJob($(currentElement), step, 'job-btn');
-                break;
-
-            }
-            el = traceJob($(currentElement[step]), step, 'job-btn');
-
+        while(el.css('display') == 'none'){
+            idx = idx-1 < 0 ? _.size(jobs)-1 : idx-1;
+            el = $(jobs[idx]);
         }
 
         key = el.attr(jobKeyAttr);
