@@ -19,6 +19,7 @@
                title="Open the log viewer in a new window"
                target="_blank"
                href="{{::lvUrl}}"
+               copy-value="{{::lvFullUrl}}"
                class="">
               <img src="./img/logviewerIcon.svg"
                    class="logviewer-icon"><img>
@@ -46,7 +47,10 @@
           </li>
 
           <li ng-repeat="job_log_url in job_log_urls">
-            <a title="Open the raw log in a new window" target="_blank" href="{{::job_log_url.url}}">
+            <a title="Open the raw log in a new window"
+               target="_blank"
+               href="{{::job_log_url.url}}"
+               copy-value="{{::job_log_url.url}}">
               <span class="glyphicon glyphicon-align-left"></span>
             </a>
           </li>
@@ -274,3 +278,4 @@
     </div>
   </div>
 </div>
+<div id="clipboard-container"><textarea id="clipboard"></textarea></div>

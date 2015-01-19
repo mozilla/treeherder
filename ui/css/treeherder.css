@@ -28,6 +28,23 @@ body {
     visibility: hidden;
 }
 
+#clipboard-container {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 0px;
+    height: 0px;
+    z-index: 100;
+    display: none;
+    opacity: 0;
+}
+
+#clipboard {
+    width: 1px;
+    height: 1px;
+    padding: 0px;
+}
+
 .th-navbar {
     background-color: #273038;
     margin-bottom: 0px;

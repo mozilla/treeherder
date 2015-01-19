@@ -148,6 +148,7 @@ treeherder.controller('PluginCtrl', [
                         });
                     }
                     $scope.lvUrl = thUrl.getLogViewerUrl($scope.job.id);
+                    $scope.lvFullUrl = location.origin + "/ui/" + $scope.lvUrl;
                     $scope.resultStatusShading = "result-status-shading-" + thResultStatus($scope.job);
 
                     updateVisibleFields();
