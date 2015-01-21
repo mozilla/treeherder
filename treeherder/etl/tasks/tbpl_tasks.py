@@ -20,7 +20,9 @@ def submit_star_comment(project, job_id, bug_id, submit_timestamp, who):
         req.generate_request_body()
         req.send_request()
     except Exception, e:
-        submit_star_comment.retry(exc=e)
+        # Initially retry after 1 minute, then for each subsequent retry
+        # lengthen the retry time by another minute.
+        submit_star_comment.retry(exc=e, countdown=(1 + submit_star_comment.request.retries) * 60)
         # this exception will be raised once the number of retries
         # exceeds max_retries
         raise
@@ -37,7 +39,9 @@ def submit_bug_comment(project, job_id, bug_id):
         req.generate_request_body()
         req.send_request()
     except Exception, e:
-        submit_bug_comment.retry(exc=e)
+        # Initially retry after 1 minute, then for each subsequent retry
+        # lengthen the retry time by another minute.
+        submit_bug_comment.retry(exc=e, countdown=(1 + submit_bug_comment.request.retries) * 60)
         # this exception will be raised once the number of retries
         # exceeds max_retries
         raise
