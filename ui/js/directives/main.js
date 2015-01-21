@@ -78,6 +78,30 @@ treeherder.directive('selectOnClick', [
         }
     };
 }]);
+
+// Allow copy to system clipboard during hover
+treeherder.directive('copyValue', [
+    function() {
+        return {
+            restrict: 'A',
+            link: function(scope, element, attrs) {
+                var cont = document.getElementById('clipboard-container'),
+                    clip = document.getElementById('clipboard');
+                element.on('mouseenter', function() {
+                    cont.style.display = 'block';
+                    clip.value = attrs.copyValue;
+                    clip.focus();
+                    clip.select();
+                });
+                element.on('mouseleave', function() {
+                    cont.style.display = 'none';
+                    clip.value = '';
+                });
+            }
+        }
+    }
+]);
+
 // Prevent default behavior on left mouse click. Useful
 // for html anchor's that need to do in application actions
 // on left click but default href type functionality on
