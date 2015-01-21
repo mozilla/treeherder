@@ -2760,6 +2760,22 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             "push_timestamp"
             ]
 
+    def get_resultset_status(self, resultset_id):
+        resulset_status_list = self.jobs_execute(
+            proc='jobs.selects.get_resultset_status',
+            placeholders=[resultset_id],
+            debug_show=self.DEBUG)
+        num_coalesced = 0
+        resultset_status_dict = {}
+        for rs in resulset_status_list:
+            num_coalesced += rs['num_coalesced'] if rs['num_coalesced'] else 0
+            if rs['state'] == 'completed':
+                resultset_status_dict[rs['result']] = int(rs['total']) - rs['num_coalesced']
+            else:
+                resultset_status_dict[rs['result']] = rs['state']
+        resultset_status_dict['coalesced'] = num_coalesced
+        return resultset_status_dict
+
 
 class JobDataError(ValueError):
     pass

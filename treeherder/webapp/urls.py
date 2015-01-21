@@ -8,6 +8,7 @@ from django.views.generic import RedirectView
 from django.contrib import admin
 
 from .api import urls as api_urls
+from treeherder.embed import urls as embed_urls
 
 admin.autodiscover()
 
@@ -16,6 +17,7 @@ browserid_admin.copy_registry(admin.site)
 
 urlpatterns = patterns('',
     url(r'^api/', include(api_urls)),
+    url(r'^embed/', include(embed_urls)),
 )
 
 # make swagger available only if it's installed in INSTALLED_APPS

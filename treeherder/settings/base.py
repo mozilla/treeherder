@@ -144,6 +144,7 @@ INSTALLED_APPS = [
     'treeherder.log_parser',
     'treeherder.etl',
     'treeherder.workers',
+    'treeherder.embed',
 
 ]
 
