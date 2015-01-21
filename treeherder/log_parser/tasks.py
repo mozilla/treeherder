@@ -89,7 +89,8 @@ def parse_log(project, job_log_url, job_guid, check_errors=False):
                 'parse_timestamp': current_timestamp
             }
         )
-        # for every retry, set the countdown to 10 minutes
+        # Initially retry after 1 minute, then for each subsequent retry
+        # lengthen the retry time by another minute.
+        parse_log.retry(exc=e, countdown=(1 + parse_log.request.retries) * 60)
         # .retry() raises a RetryTaskError exception,
         # so nothing below this line will be executed.
-        parse_log.retry(exc=e, countdown=10*60)
