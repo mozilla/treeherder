@@ -16,3 +16,10 @@
     </li>
   </ul>
 </span>
+
+<ul>
+  <li ng-repeat="line in job_details"
+      ng-if="line.content_type == 'link' && line.value.substr(-8) == '.sps.zip'">
+    <a href="http://people.mozilla.com/~bgirard/cleopatra/?zippedProfile={{line.url}}">Open {{line.value}} in Cleopatra</a>
+  </li>
+</ul>
