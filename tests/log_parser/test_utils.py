@@ -56,10 +56,16 @@ LEAK_LINE_TEST_CASES = (
             '(BackstagePass, CallbackObject, DOMEventTargetHelper, '
             'EventListenerManager, EventTokenBucket, ...)'
         ),
+        'BackstagePass, CallbackObject, DOMEventTargetHelper, EventListenerManager, EventTokenBucket, ...'
+    ),
+    (
         (
-            'BackstagePass, CallbackObject, DOMEventTargetHelper, '
-            'EventListenerManager, EventTokenBucket, ...'
-        )
+            'TEST-UNEXPECTED-FAIL '
+            '| leakcheck | tab process: 44330 bytes leaked '
+            '(AsyncLatencyLogger, AsyncTransactionTrackersHolder, AudioOutputObserver, '
+            'BufferRecycleBin, CipherSuiteChangeObserver, ...)'
+        ),
+        'AsyncLatencyLogger, AsyncTransactionTrackersHolder, AudioOutputObserver, BufferRecycleBin, CipherSui'
     ),
 )
 

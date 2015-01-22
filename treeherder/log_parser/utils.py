@@ -67,7 +67,7 @@ def get_error_search_term(error_line):
 
         # Leak failure messages are of the form:
         # leakcheck | .*leaked \d+ bytes (Object-1, Object-2, Object-3, ...)
-        match = LEAK_RE.match(message)
+        match = LEAK_RE.search(message)
         if match:
             search_term = match.group(1)
         else:
