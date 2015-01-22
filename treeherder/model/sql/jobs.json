@@ -47,6 +47,11 @@
 
             "sql":"DELETE FROM result_set WHERE id IN (REP0)",
             "host_type": "master_host"
+        },
+        "cycle_performance_artifact":{
+
+            "sql":"DELETE FROM performance_artifact WHERE job_id IN (REP0)",
+            "host_type": "master_host"
         }
     },
     "inserts":{

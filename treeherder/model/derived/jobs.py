@@ -162,7 +162,8 @@ class JobsModel(TreeherderModelBase):
         "jobs.deletes.cycle_job",
         "jobs.deletes.cycle_revision",
         "jobs.deletes.cycle_revision_map",
-        "jobs.deletes.cycle_result_set"
+        "jobs.deletes.cycle_result_set",
+        "jobs.deletes.cycle_performance_artifact"
     ]
 
     @classmethod
