@@ -79,7 +79,11 @@ class OrangeFactorBugRequest(object):
         logger.info("Sending data to %s: %s", es_url, self.body)
         headers = {'Content-Type': 'text/plain', 'Connection': 'close'}
         r = requests.post(es_url, data=json.dumps(self.body), headers=headers)
-        r.raise_for_status()
+        try:
+            r.raise_for_status()
+        except requests.exceptions.HTTPError:
+            logger.error("HTTPError %s submitting to %s: %s", r.status_code, es_url, r.text)
+            raise
 
 
 class BugzillaBugRequest(object):
@@ -163,4 +167,8 @@ class BugzillaBugRequest(object):
         headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
         logger.info("Sending data to %s: %s", api_url, self.body)
         r = requests.post(api_url, params=credentials, data=json.dumps(self.body), headers=headers)
-        r.raise_for_status()
+        try:
+            r.raise_for_status()
+        except requests.exceptions.HTTPError:
+            logger.error("HTTPError %s submitting to %s: %s", r.status_code, api_url, r.text)
+            raise
