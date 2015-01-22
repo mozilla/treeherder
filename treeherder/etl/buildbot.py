@@ -351,7 +351,7 @@ JOB_NAME_BUILDERNAME = [
     {"regex": re.compile(r'talos dromaeojs$'), "desc": "Talos dromaeojs"},
     {"regex": re.compile(r'talos g1(-snow)?-e10s$'), "desc": "Talos g1 e10s"},
     {"regex": re.compile(r'talos g1(-snow)?$'), "desc": "Talos g1"},
-    {"regex": re.compile(r'talos other-e10s'), "desc": "Talos other e10s"},
+    {"regex": re.compile(r'talos other(-snow)?-e10s'), "desc": "Talos other e10s"},
     {"regex": re.compile(r'talos other-metro$'), "desc": "Talos other Metro"},
     {"regex": re.compile(r'talos other'), "desc": "Talos other"},
     {"regex": re.compile(r'talos dirtypaint$'), "desc": "Talos paint"},
