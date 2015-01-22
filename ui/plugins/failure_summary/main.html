@@ -39,12 +39,20 @@
                        title="add to list of bugs to associate with all pinned jobs">
                       <i class="glyphicon glyphicon-pushpin"></i>
                     </a>
-                    <a href="https://bugzilla.mozilla.org/show_bug.cgi?id={{::bug.id}}"
-                       target="_blank"
-                       ng-class="{'deleted': bug.resolution != ''}">{{::bug.id}}
+                    <a ng-if="bug.resolution === ''"
+                       href="https://bugzilla.mozilla.org/show_bug.cgi?id={{::bug.id}}"
+                       target="_blank">{{::bug.id}}
                         <span ng-bind-html="bug.summary | escapeHTML | highlightCommonTerms:suggestion.search"
-                              title="{{::bug.summary}}"
-                              ng-class="{'deleted': bug.resolution != ''}">{{::bug.summary}}
+                              title="{{::bug.summary}}">{{::bug.summary}}
+                        </span>
+                    </a>
+                    <a ng-if="bug.resolution !== ''"
+                       href="https://bugzilla.mozilla.org/show_bug.cgi?id={{::bug.id}}"
+                       target="_blank"
+                       class="deleted">{{::bug.id}}
+                        <span ng-bind-html="bug.summary | escapeHTML | highlightCommonTerms:suggestion.search"
+                              title="{{::bug.resolution}} - {{::bug.summary}}"
+                              class="deleted">{{::bug.summary}}
                         </span>
                     </a>
                 </li>
