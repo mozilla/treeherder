@@ -48,16 +48,6 @@ treeherder.controller('MainCtrl', [
                 activeElement.isContentEditable || ev.keyCode === 16) {
                 return;
             }
-            
-            // Shortcut: highlight previous job
-            Mousetrap.bind(['left'], function() {
-                $rootScope.$emit(thEvents.selectPreviousJob);
-            });
-
-            // Shortcut: highlight next job
-            Mousetrap.bind(['right'], function() {
-                $rootScope.$emit(thEvents.selectNextJob);
-            });
 
             // test for key modifiers to allow browser shortcuts eg.
             // console, new/private browsing window, history, print
@@ -87,6 +77,18 @@ treeherder.controller('MainCtrl', [
                         ev.preventDefault();
                         $rootScope.$emit(thEvents.jobPin, $rootScope.selectedJob);
                     }
+
+                } else if(ev.keyCode == 39) {
+                    // Highlight next job, key: right arrow
+                    $rootScope.$emit(
+                        thEvents.selectNextJob
+                    );
+
+                } else if(ev.keyCode == 37) {
+                    // Highlight previous job, key: left arrow
+                    $rootScope.$emit(
+                        thEvents.selectPreviousJob
+                    );
 
                 } else if (ev.keyCode === 85) {
                     // Display only unclassified failures, keys:u
