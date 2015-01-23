@@ -928,6 +928,19 @@
                    FROM `bug_job_map`
                    WHERE job_id = ? and bug_id = ?",
             "host": "read_host"
+        },
+        "get_resultset_status":{
+            "sql":"SELECT
+                        id,
+                        state,
+                        result,
+                        SUM(IF(job_coalesced_to_guid is NULL, 0, 1)) as num_coalesced,
+                        count(*) as total
+                   FROM job
+                   WHERE result_set_id = ?
+                   group by state, result
+                   ",
+            "host": "read_host"
         }
     }
 }
