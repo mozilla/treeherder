@@ -31,6 +31,11 @@ class RefDataManager(object):
                     "user": settings.DATABASES['default']['USER'],
                     "passwd": settings.DATABASES['default']['PASSWORD']
                 },
+                "read_host": {
+                    "host": settings.DATABASES['read_only']['HOST'],
+                    "user": settings.DATABASES['read_only']['USER'],
+                    "passwd": settings.DATABASES['read_only']['PASSWORD']
+                },
                 "default_db": settings.DATABASES['default']['NAME'],
                 "procs": [procs_path]
             }
