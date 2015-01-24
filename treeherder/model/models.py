@@ -332,6 +332,11 @@ class Datasource(models.Model):
                     "user": settings.TREEHERDER_DATABASE_USER,
                     "passwd": settings.TREEHERDER_DATABASE_PASSWORD,
                 },
+                "read_host": {
+                    "host": self.read_only_host,
+                    "user": settings.TREEHERDER_RO_DATABASE_USER,
+                    "passwd": settings.TREEHERDER_RO_DATABASE_PASSWORD,
+                },
                 "default_db": self.name,
                 "procs": [
                     os.path.join(SQL_PATH, procs_file_name),
@@ -339,13 +344,6 @@ class Datasource(models.Model):
                 ],
             }
         }
-
-        if self.read_only_host:
-            data_source[self.key]['read_host'] = {
-                "host": self.read_only_host,
-                "user": settings.TREEHERDER_RO_DATABASE_USER,
-                "passwd": settings.TREEHERDER_RO_DATABASE_PASSWORD,
-            }
 
         BaseHub.add_data_source(data_source)
         # @@@ the datahub class should depend on self.type
