@@ -170,6 +170,7 @@ def jobs_ds():
         dataset=1,
         contenttype="jobs",
         host=settings.TREEHERDER_DATABASE_HOST,
+        read_only_host=settings.TREEHERDER_RO_DATABASE_HOST,
     )
 
 
@@ -182,6 +183,7 @@ def objectstore_ds():
         dataset=1,
         contenttype="objectstore",
         host=settings.TREEHERDER_DATABASE_HOST,
+        read_only_host=settings.TREEHERDER_RO_DATABASE_HOST,
     )
 
 

@@ -19,6 +19,7 @@ def create_datasource(model, **kwargs):
         "dataset": dataset_num,
         "contenttype": "jobs",
         "host": settings.TREEHERDER_DATABASE_HOST,
+        "read_only_host": settings.TREEHERDER_RO_DATABASE_HOST,
         "type": "MySQL-InnoDB",
         "creation_date": datetime.datetime.now(),
     }

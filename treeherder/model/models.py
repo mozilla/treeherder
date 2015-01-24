@@ -269,6 +269,7 @@ class Datasource(models.Model):
             contenttype=self.contenttype,
             dataset=dataset,
             host=self.datasource.host,
+            read_only_host=self.datasource.read_only_host,
             db_type=self.datasource.type,
             schema_file=schema_file,
         )

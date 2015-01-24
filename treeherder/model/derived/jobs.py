@@ -166,7 +166,7 @@ class JobsModel(TreeherderModelBase):
     ]
 
     @classmethod
-    def create(cls, project, host=None):
+    def create(cls, project, host=None, read_only_host=None):
         """
         Create all the datasource tables for this project.
 
@@ -174,6 +174,8 @@ class JobsModel(TreeherderModelBase):
 
         if not host:
             host = settings.DATABASES['default']['HOST']
+        if not read_only_host:
+            read_only_host = settings.DATABASES['read_only']['HOST']
 
         for ct in [cls.CT_JOBS, cls.CT_OBJECTSTORE]:
             dataset = Datasource.get_latest_dataset(project, ct)
@@ -182,6 +184,7 @@ class JobsModel(TreeherderModelBase):
                 contenttype=ct,
                 dataset=dataset or 1,
                 host=host,
+                read_only_host=read_only_host,
             )
             source.save()
 
