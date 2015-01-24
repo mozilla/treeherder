@@ -24,7 +24,7 @@ class Command(BaseCommand):
         make_option('--readonly-host',
             action='store',
             dest='readonly_host',
-            default=settings.TREEHERDER_DATABASE_HOST,
+            default=settings.TREEHERDER_RO_DATABASE_HOST,
             help='Readonly host to associate the datasource to'),
         make_option('--reset',
             action='store_true',
