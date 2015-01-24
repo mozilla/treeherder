@@ -113,8 +113,8 @@
             "host_type":"read_host"
         },
         "test_bugscache": {
-            "sql": "SELECT * FROM `bugscache`"
-        },
-        "host_type": "read_host"
+            "sql": "SELECT * FROM `bugscache`",
+            "host_type": "read_host"
+        }
     }
 }
