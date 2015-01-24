@@ -4,13 +4,13 @@
 
             "sql":"SET FOREIGN_KEY_CHECKS = 0",
 
-            "host":"master_host"
+            "host_type":"master_host"
         },
         "enable_foreign_key_checks":{
 
             "sql":"SET FOREIGN_KEY_CHECKS = 1",
 
-            "host":"master_host"
+            "host_type":"master_host"
 
         }
     },
@@ -19,7 +19,7 @@
 
             "sql":"SELECT LAST_INSERT_ID() AS `id`",
 
-            "host":"master_host"
+            "host_type":"master_host"
         },
 
         "get_db_size":{
@@ -29,7 +29,7 @@
                 WHERE TABLE_SCHEMA like ?
                 GROUP BY TABLE_SCHEMA",
 
-            "host":"read_host"
+            "host_type":"read_host"
         }
     },
     "locks": {
@@ -37,13 +37,13 @@
 
             "sql":"SELECT GET_LOCK(?, ?) AS 'lock'",
 
-            "host":"master_host"
+            "host_type":"master_host"
         },
         "release_lock": {
 
             "sql":"SELECT RELEASE_LOCK(?) AS 'release_lock'",
 
-            "host":"master_host"
+            "host_type":"master_host"
         }
     }
 }

@@ -14,7 +14,7 @@
                     FROM `reference_data_signatures`
                     WHERE `name` = ? AND `signature` = ? AND `build_system_type` = ? AND `repository` = ?
                     )",
-            "host":"master_host"
+            "host_type":"master_host"
         },
         "create_build_platform":{
             "sql": "INSERT INTO `build_platform` (`os_name`, `platform`, `architecture`)
@@ -25,7 +25,7 @@
                     FROM `build_platform`
                     WHERE `os_name` = ? AND `platform` = ? AND `architecture` = ?
                     )",
-            "host":"master_host"
+            "host_type":"master_host"
         },
 
         "create_job_group":{
@@ -37,7 +37,7 @@
                     FROM `job_group`
                     WHERE `name` = ? AND `symbol` = ?
                     )",
-            "host":"master_host"
+            "host_type":"master_host"
         },
 
         "create_job_type":{
@@ -49,7 +49,7 @@
                     FROM `job_type`
                     WHERE `name` = ? AND `symbol` = ?
                     )",
-            "host":"master_host"
+            "host_type":"master_host"
         },
 
         "create_machine" : {
@@ -61,7 +61,7 @@
                     FROM `machine`
                     WHERE `name` = ?
                     )",
-            "host":"master_host"
+            "host_type":"master_host"
         },
 
         "create_machine_platform":{
@@ -73,7 +73,7 @@
                     FROM `machine_platform`
                     WHERE `os_name` = ? AND `platform` = ? AND `architecture` = ?
                     )",
-            "host":"master_host"
+            "host_type":"master_host"
         },
 
         "create_option":{
@@ -85,7 +85,7 @@
                     FROM `option`
                     WHERE `name` = ?
                     )",
-            "host":"master_host"
+            "host_type":"master_host"
         },
 
         "create_option_collection":{
@@ -97,7 +97,7 @@
                     FROM `option_collection`
                     WHERE `option_collection_hash` = ? AND `option_id` = ?
                     )",
-            "host":"master_host"
+            "host_type":"master_host"
         },
 
         "create_product":{
@@ -109,7 +109,7 @@
                     FROM `product`
                     WHERE `name` = ?
                     )",
-            "host":"master_host"
+            "host_type":"master_host"
         },
 
         "create_device":{
@@ -121,7 +121,7 @@
                     FROM `device`
                     WHERE `name` = ?
                     )",
-            "host":"master_host"
+            "host_type":"master_host"
         },
 
         "create_repository_version":{
@@ -133,7 +133,7 @@
                     FROM `repository_version`
                     WHERE `repository_id` = ? AND `version` = ?
                     )",
-            "host":"master_host"
+            "host_type":"master_host"
         },
         "create_repository_group":{
             "sql":"INSERT INTO `repository_group` (`name`, `description`)
@@ -144,7 +144,7 @@
                     FROM `repository_group`
                     WHERE `name` = ?
                     )",
-            "host":"master_host"
+            "host_type":"master_host"
         },
         "create_bugscache":{
             "sql":"INSERT INTO `bugscache` (`id`, `status`, `resolution`, `summary`, `crash_signature`, `keywords`, `os`, `modified`)
@@ -155,7 +155,7 @@
                     FROM `bugscache`
                     WHERE `id` = ?
                     )",
-            "host":"master_host"
+            "host_type":"master_host"
         }
 
     },
@@ -163,7 +163,7 @@
         "get_reference_data_signature_names":{
             "sql":"SELECT `name`, `signature` FROM `reference_data_signatures` WHERE `signature` IN (REP0)",
 
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "get_reference_data_for_perf_signature":{
             "sql":"SELECT `signature`,
@@ -183,52 +183,52 @@
                           `repository`
                     FROM reference_data_signatures WHERE signature IN (REP0)",
 
-            "host": "read_host"
+            "host_type": "read_host"
         },
         "get_build_platforms":{
             "sql": "SELECT `id`, `os_name`, `platform`, `architecture`
                     FROM `build_platform`
                     WHERE `active_status` = 'active' AND (REP0)",
-            "host":"master_host"
+            "host_type":"master_host"
         },
         "get_job_groups":{
             "sql": "SELECT `id`, `name`, `symbol`
                     FROM `job_group`
                     WHERE `active_status` = 'active' AND (REP0)",
 
-            "host":"master_host"
+            "host_type":"master_host"
         },
         "get_job_types":{
             "sql": "SELECT `id`, `name`, `symbol`, `job_group_id`
                     FROM `job_type`
                     WHERE `active_status` = 'active' AND (REP0)",
 
-            "host":"master_host"
+            "host_type":"master_host"
         },
         "get_machines":{
             "sql": "SELECT `id`, `name`
                     FROM `machine`
                     WHERE `active_status` = 'active' AND `name` IN (REP0)",
 
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "get_machine_platforms":{
             "sql": "SELECT `id`, `os_name`, `platform`, `architecture`
                     FROM `machine_platform`
                     WHERE `active_status` = 'active' AND (REP0)",
-            "host":"master_host"
+            "host_type":"master_host"
         },
         "get_options":{
             "sql": "SELECT `id`, `name`
                     FROM `option`
                     WHERE `active_status` = 'active' AND `name` IN (REP0)",
 
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "get_max_collection_hash":{
             "sql": "SELECT MAX(`option_collection_hash`) as 'max_id'
                     FROM `option_collection`",
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "get_option_collection_hash":{
             "sql": "SELECT `option_collection_hash`
@@ -237,7 +237,7 @@
                     GROUP BY `option_collection_hash`
                     HAVING
                         GROUP_CONCAT(o.name ORDER BY o.name ASC SEPARATOR ',') = ?",
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "get_option_names":{
             "sql": "SELECT o.`name`
@@ -245,27 +245,27 @@
                     INNER JOIN `option_collection` oc
                         on o.id = oc.option_id
                     WHERE oc.option_collection_hash = ?",
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "get_products":{
             "sql": "SELECT `id`, `name`
                     FROM `product`
                     WHERE `active_status` = 'active' AND `name` IN (REP0)",
 
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "get_devices":{
             "sql": "SELECT `id`, `name`
                     FROM `device`
                     WHERE `active_status` = 'active' AND `name` IN (REP0)",
 
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "get_repository_id":{
             "sql": "SELECT `id`
                     FROM `repository`
                     WHERE `name` = ?",
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "get_repository_version_id":{
             "sql": "SELECT `id`
@@ -275,26 +275,26 @@
                     AND `active_status` = 'active'
                     ORDER BY `id` DESC
                     LIMIT 0,1",
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "get_repository_info":{
             "sql": "SELECT *
                     FROM `repository`
                     WHERE `id` = ?  AND `active_status` = 'active'",
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "get_all_repository_info":{
             "sql": "SELECT *
                     FROM `repository`
                     WHERE
                         `active_status` = 'active'",
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "get_repository_group_id":{
             "sql": "SELECT `id`
                     FROM `repository_group`
                     WHERE `name` = ?  AND `active_status` = 'active'",
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "get_all_option_collections":{
             "sql":"SELECT option_collection_hash,
@@ -304,14 +304,14 @@
                         ON o.id = oc.option_id
                    WHERE o.active_status = 'active'
                    GROUP BY oc.option_collection_hash",
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "get_all_repository_info":{
             "sql": "SELECT *
                     FROM `repository`
                     WHERE
                         `active_status` = 'active'",
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "get_open_recent_bugs": {
             "sql": "SELECT id, summary, crash_signature, keywords, os, resolution,
@@ -324,7 +324,7 @@
                         AND modified >= ?
                     ORDER BY relevance DESC
                     LIMIT 0,?",
-            "host": "read_host"
+            "host_type": "read_host"
 
         },
         "get_all_others_bugs": {
@@ -337,12 +337,12 @@
                         AND (modified < ? OR resolution <> '')
                     ORDER BY relevance DESC
                     LIMIT 0,?",
-            "host": "read_host"
+            "host_type": "read_host"
 
         },
         "get_all_bug_numbers": {
             "sql": "SELECT id from bugscache",
-            "host": "read_host"
+            "host_type": "read_host"
         }
     },
     "updates":{
@@ -350,13 +350,13 @@
             "sql": "UPDATE `repository_version`
                     SET `version_timestamp` = ?
                     WHERE `repository_id` = ? AND `version` = ?",
-            "host":"master_host"
+            "host_type":"master_host"
         },
         "update_machine_timestamp":{
             "sql": "UPDATE `machine`
                     SET `last_timestamp` = ?
                     WHERE `name` = ?",
-            "host":"master_host"
+            "host_type":"master_host"
         },
         "update_bugscache":{
             "sql": "UPDATE `bugscache`
@@ -369,7 +369,7 @@
                         `os` = ?,
                         `modified` = ?
                     WHERE `id` = ?",
-            "host":"master_host"
+            "host_type":"master_host"
         },
         "update_job_type_group_id":{
 
@@ -378,7 +378,7 @@
                    WHERE `name` = ? AND `symbol` = ?",
 
 
-            "host":"master_host"
+            "host_type":"master_host"
         },
         "update_job_type_group_id":{
 
@@ -386,13 +386,13 @@
                    SET `job_group_id` = ?
                    WHERE `name` = ? AND `symbol` = ?",
 
-            "host":"master_host"
+            "host_type":"master_host"
         }
     },
     "deletes": {
         "delete_bugs": {
             "sql": "DELETE FROM bugscache WHERE id in (REP0)",
-            "host": "master_host"
+            "host_type": "master_host"
         }
     }
 }

@@ -5,28 +5,28 @@
                     FROM   `objectstore`
                     WHERE  processed_state = 'loading'
                    ",
-            "host": "master_host"
+            "host_type": "master_host"
         },
         "complete": {
             "sql": "SELECT COUNT(`id`) AS complete_count
                     FROM   `objectstore`
                     WHERE  processed_state = 'complete'
                    ",
-            "host": "master_host"
+            "host_type": "master_host"
         }
     },
     "selects": {
         "all": {
             "sql": "SELECT * FROM `objectstore`",
-            "host": "master_host"
+            "host_type": "master_host"
         },
         "row": {
             "sql": "SELECT * FROM `objectstore` WHERE id = ?",
-            "host": "master_host"
+            "host_type": "master_host"
         },
         "row_by_guid": {
             "sql": "SELECT * FROM `objectstore` WHERE `job_guid` = ?",
-            "host": "master_host"
+            "host_type": "master_host"
         }
     }
 }

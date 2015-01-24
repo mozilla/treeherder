@@ -3,49 +3,49 @@
     "selects":{
         "test_reference_data_signatures":{
             "sql": "SELECT * FROM `reference_data_signatures`",
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "test_build_platform":{
             "sql": "SELECT `platform`, `os_name`, `architecture`, `active_status`
                     FROM `build_platform`
                     WHERE `id` = ?",
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "test_all_build_platforms":{
             "sql": "SELECT `platform`, `os_name`, `architecture`, `active_status`
                     FROM `build_platform`",
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "test_all_machine_platforms":{
             "sql": "SELECT `platform`, `os_name`, `architecture`, `active_status`
                     FROM `machine_platform`",
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "test_all_machines":{
             "sql": "SELECT `name` FROM `machine`",
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "test_all_options":{
             "sql": "SELECT `name` FROM `option`",
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "test_all_job_types":{
             "sql": "SELECT `name` FROM `job_type`",
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "test_all_job_group_ids":{
             "sql": "SELECT `name`, `symbol`, `job_group_id` FROM `job_type` ORDER BY `id` ASC",
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "test_all_products":{
             "sql": "SELECT `name` FROM `product`",
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "test_job_group":{
             "sql": "SELECT `symbol`, `name`, `description`, `active_status`
                     FROM `job_group`
                     WHERE `id` = ?",
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "test_job_type":{
             "sql": "SELECT
@@ -58,28 +58,28 @@
                     INNER JOIN `job_group` jg
                         on jg.id = jt.job_group_id
                     WHERE jt.`id` = ?",
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "test_machine":{
             "sql": "SELECT `name`, `first_timestamp`, `last_timestamp`, `active_status`
                     FROM `machine`
                     WHERE
                         `id` = ?",
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "test_machine_platform":{
             "sql": "SELECT `platform`, `os_name`, `architecture`, `active_status`
                     FROM `machine_platform`
                     WHERE 
                         `id` = ?",
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "test_option":{
             "sql": "SELECT `name`, `description`, `active_status`
                     FROM `option`
                     WHERE 
                         `id` = ?",
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "test_option_collection":{
             "sql": "SELECT o.`name`
@@ -89,32 +89,32 @@
                     WHERE 
                         oc.`option_collection_hash` = ?
                     ORDER BY o.`name`",
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "test_product":{
             "sql": "SELECT `name`, `description`, `active_status`
                     FROM `product`
                     WHERE 
                         `id` = ?",
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "test_repository_group":{
             "sql": "SELECT `name`, `description`, `active_status`
                     FROM `repository_group`
                     WHERE 
                         `id` = ?",
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "test_repository_version":{
             "sql": "SELECT `repository_id`, `version`, `version_timestamp`, `active_status`
                     FROM `repository_version`
                     WHERE 
                         `id` = ?",
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "test_bugscache": {
             "sql": "SELECT * FROM `bugscache`"
         },
-        "host": "read_host"
+        "host_type": "read_host"
     }
 }

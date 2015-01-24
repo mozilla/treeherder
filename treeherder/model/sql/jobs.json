@@ -2,51 +2,51 @@
     "deletes":{
         "delete_bug_job_map":{
             "sql":"DELETE FROM bug_job_map WHERE job_id = ? and bug_id = ?",
-            "host": "master_host"
+            "host_type": "master_host"
         },
         "delete_note":{
             "sql":"DELETE FROM job_note WHERE id = ?",
-            "host": "master_host"
+            "host_type": "master_host"
         },
         "cycle_job_artifact":{
 
             "sql":"DELETE FROM job_artifact WHERE job_id IN (REP0)",
-            "host": "master_host"
+            "host_type": "master_host"
         },
         "cycle_job_log_url":{
 
             "sql":"DELETE FROM job_log_url WHERE job_id IN (REP0)",
-            "host": "master_host"
+            "host_type": "master_host"
         },
         "cycle_job_note":{
 
             "sql":"DELETE FROM job_note WHERE job_id IN (REP0)",
-            "host": "master_host"
+            "host_type": "master_host"
         },
         "cycle_bug_job_map":{
 
             "sql":"DELETE FROM bug_job_map WHERE job_id IN (REP0)",
-            "host": "master_host"
+            "host_type": "master_host"
         },
         "cycle_job":{
 
             "sql":"DELETE FROM job WHERE id IN (REP0)",
-            "host": "master_host"
+            "host_type": "master_host"
         },
         "cycle_revision":{
 
             "sql":"DELETE FROM revision WHERE id IN (REP0)",
-            "host": "master_host"
+            "host_type": "master_host"
         },
         "cycle_revision_map":{
 
             "sql":"DELETE FROM revision_map WHERE result_set_id IN (REP0)",
-            "host": "master_host"
+            "host_type": "master_host"
         },
         "cycle_result_set":{
 
             "sql":"DELETE FROM result_set WHERE id IN (REP0)",
-            "host": "master_host"
+            "host_type": "master_host"
         }
     },
     "inserts":{
@@ -80,13 +80,13 @@
                     OR `job_guid` = ?
                 )",
 
-            "host":"master_host"
+            "host_type":"master_host"
         },
         "set_performance_artifact":{
             "sql":"INSERT INTO `performance_artifact` (`job_id`, `series_signature`, `name`, `type`, `blob`)
                    VALUES (?,?,?,?,?)",
 
-            "host":"master_host"
+            "host_type":"master_host"
         },
         "set_series_signature":{
             "sql":"INSERT INTO `series_signature` (`signature`, `property`, `value`)
@@ -96,7 +96,7 @@
                         FROM `series_signature`
                         WHERE `signature` = ? AND `property` = ? AND `value` = ?
                    )",
-            "host":"master_host"
+            "host_type":"master_host"
         },
         "set_performance_series":{
             "sql":"INSERT INTO `performance_series` (`interval_seconds`, `series_signature`, `type`, `last_updated`, `blob`)
@@ -106,7 +106,7 @@
                         FROM `performance_series`
                         WHERE `interval_seconds` = ? AND `series_signature` = ?
                    )",
-            "host":"master_host"
+            "host_type":"master_host"
         },
         "set_job_eta":{
             "sql":"INSERT INTO `job_eta` (
@@ -121,7 +121,7 @@
                     `submit_timestamp`)
                    VALUES (?,?,?,?,?,?,?,?,?)",
 
-            "host":"master_host"
+            "host_type":"master_host"
         },
         "set_result_set":{
 
@@ -134,7 +134,7 @@
                     WHERE `revision_hash` = ?
                 )",
 
-            "host":"master_host"
+            "host_type":"master_host"
         },
         "set_revision":{
 
@@ -154,7 +154,7 @@
                     WHERE `revision` = ? AND `repository_id` = ?
                 )",
 
-            "host":"master_host"
+            "host_type":"master_host"
         },
         "set_revision_map":{
 
@@ -170,7 +170,7 @@
                     WHERE `revision_id` = ? AND `result_set_id` = ?
                 )",
 
-            "host":"master_host"
+            "host_type":"master_host"
         },
         "set_job_log_url":{
 
@@ -182,7 +182,7 @@
                 )
             VALUES (?,?,?,?)",
 
-            "host":"master_host"
+            "host_type":"master_host"
         },
         "set_job_artifact":{
 
@@ -200,7 +200,7 @@
                     WHERE `job_id` = ? and `name` = ?
                 )",
 
-            "host":"master_host"
+            "host_type":"master_host"
         },
         "insert_note":{
 
@@ -212,7 +212,7 @@
                 `note_timestamp`)
             VALUES (?,?,?,?,?)",
 
-            "host":"master_host"
+            "host_type":"master_host"
         },
         "insert_bug_job_map":{
             "sql":"INSERT INTO `bug_job_map` (
@@ -223,7 +223,7 @@
                 `who`,
                 `active_status`)
             VALUES (?,?,?,?,?,'active')",
-            "host":"master_host"
+            "host_type":"master_host"
         }
 
 
@@ -234,7 +234,7 @@
             "sql":"UPDATE `performance_series`
                    SET `last_updated` = ?, `blob` = ?
                    WHERE `interval_seconds` = ? AND `series_signature` = ?",
-            "host":"master_host"
+            "host_type":"master_host"
         },
         "set_state":{
 
@@ -243,7 +243,7 @@
                 WHERE  `id` = ?
                 AND `state` <> 'completed'",
 
-                "host":"master_host"
+                "host_type":"master_host"
         },
         "cancel_all":{
 
@@ -252,7 +252,7 @@
                    WHERE  `result_set_id` = ?
                    AND `state` <> 'completed'",
 
-                "host":"master_host"
+                "host_type":"master_host"
         },
         "cancel_job":{
 
@@ -261,7 +261,7 @@
                    WHERE  `job_guid` = ?
                    AND `state` <> 'completed'",
 
-                "host":"master_host"
+                "host_type":"master_host"
         },
         "update_job_data":{
             "sql":"
@@ -285,14 +285,14 @@
                 AND ? <> 'pending'
                 AND `id` = ?",
 
-            "host":"master_host"
+            "host_type":"master_host"
         },
         "update_coalesced_guids":{
             "sql":"UPDATE `job`
                    SET `job_coalesced_to_guid` = ?
                    WHERE `job_guid` = ?",
 
-            "host":"master_host"
+            "host_type":"master_host"
         },
         "update_last_job_classification":{
             "sql":"update job j
@@ -310,7 +310,7 @@
 	                where j.id = ?
             ",
 
-            "host":"master_host"
+            "host_type":"master_host"
         },
         "update_job_log_url":{
 
@@ -318,7 +318,7 @@
                 SET    `parse_status` = ?, `parse_timestamp` = ?
                 WHERE  `id` = ?
                 AND `active_status` = 'active'",
-            "host":"master_host"
+            "host_type":"master_host"
         }
     },
     "selects":{
@@ -329,7 +329,7 @@
                     GROUP BY `signature`
                     HAVING (REP1)",
 
-             "host":"read_host"
+             "host_type":"read_host"
 
         },
         "get_all_properties_of_signatures":{
@@ -337,7 +337,7 @@
             "sql": "SELECT `property`, `value`, `signature` FROM `series_signature`
                     WHERE `signature` IN (REP0)",
 
-             "host":"read_host"
+             "host_type":"read_host"
 
         },
         "get_flat_perf_series_properties":{
@@ -352,14 +352,14 @@
                    WHERE p.`last_updated` >= ? AND p.`interval_seconds` = ?
                    GROUP BY s.`signature`",
 
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "get_performance_series_from_signatures":{
 
             "sql": "SELECT `series_signature`, `blob` FROM `performance_series`
                     WHERE `series_signature` IN (REP0) AND `interval_seconds` = ?",
 
-             "host":"read_host"
+             "host_type":"read_host"
 
         },
         "get_performance_artifact":{
@@ -368,12 +368,12 @@
                    FROM `performance_artifact`
                    WHERE `job_id` IN (REP0) AND `active_status` = 'active'",
 
-            "host":"read_host"
+            "host_type":"read_host"
 
         },
         "get_max_performance_artifact_id":{
             "sql":"SELECT max(`id`) as max_id from `performance_artifact`",
-            "host": "read_host"
+            "host_type": "read_host"
         },
         "get_performance_artifact_list": {
 
@@ -383,7 +383,7 @@
                    REP0
                    ORDER BY id DESC, name",
 
-            "host":"read_host"
+            "host_type":"read_host"
 
         },
         "get_performance_series": {
@@ -392,7 +392,7 @@
                    FROM `performance_series`
                    WHERE `interval_seconds` = ? AND `series_signature` = ?",
 
-            "host":"read_host"
+            "host_type":"read_host"
 
         },
         "get_all_series_signatures": {
@@ -404,14 +404,14 @@
                    FROM `series_signature`
                    GROUP BY `signature`",
 
-            "host":"read_host"
+            "host_type":"read_host"
 
         },
         "get_max_job_submit_timestamp":{
 
             "sql": "SELECT MAX(`submit_timestamp`) AS 'submit_timestamp' FROM `job`",
 
-            "host":"master_host"
+            "host_type":"master_host"
 
         },
         "get_eta_groups":{
@@ -451,7 +451,7 @@
                          start_timestamp > 0 AND end_timestamp > 0
                    GROUP BY signature",
 
-            "host":"read_host"
+            "host_type":"read_host"
 
         },
         "get_signature_list_from_job_ids":{
@@ -465,7 +465,7 @@
                    JOIN result_set AS r
                     ON j.result_set_id = r.id
                    WHERE j.id IN (REP0)",
-            "host":"read_host"
+            "host_type":"read_host"
 
         },
         "get_last_eta_by_signatures":{
@@ -482,21 +482,21 @@
                     WHERE signature IN (REP0)
                     GROUP BY signature, state
                     ORDER BY submit_timestamp DESC",
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "get_revision_ids_to_cycle":{
             "sql":"SELECT revision_id FROM revision_map WHERE result_set_id IN (REP0)",
-            "host":"master_host"
+            "host_type":"master_host"
         },
 
         "get_jobs_to_cycle":{
             "sql":"SELECT id, job_guid FROM job WHERE result_set_id IN (REP0)",
-            "host":"master_host"
+            "host_type":"master_host"
         },
 
         "get_result_sets_to_cycle":{
             "sql":"SELECT id FROM result_set WHERE push_timestamp < ?",
-            "host":"master_host"
+            "host_type":"master_host"
         },
 
         "get_incomplete_job_guids": {
@@ -506,7 +506,7 @@
                       ON j.result_set_id = rs.id
                     WHERE j.state <> 'completed'
                     AND j.result_set_id = ?",
-            "host":"read_host"
+            "host_type":"read_host"
         },
 
         "get_job":{
@@ -556,7 +556,7 @@
                     ON jt.`job_group_id` = jg.id
                   WHERE j.id = ?",
 
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "get_job_list":{
             "sql":"SELECT
@@ -598,7 +598,7 @@
                     mp.platform ASC
                   ",
 
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "get_job_list_full":{
             "sql":"SELECT
@@ -649,27 +649,27 @@
                   WHERE 1
                   REP1",
 
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "get_log_references":{
             "sql":"SELECT `name`, `url`
                    FROM `job_log_url`
                    WHERE job_id = ?",
 
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "get_job_log_url_detail":{
             "sql": "SELECT `id`, `job_id`, `name`, `url`, `parse_status`, `parse_timestamp`
                     FROM job_log_url
                     WHERE id = ? and active_status = 'active'",
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "get_job_log_url_list":{
             "sql": "SELECT `id`, `job_id`, `name`, `url`, `parse_status`, `parse_timestamp`
                     FROM job_log_url
                     WHERE job_id in (REP0)
                     and active_status='active'",
-            "host": "read_host"
+            "host_type": "read_host"
         },
         "get_job_artifact":{
             "sql":"SELECT
@@ -683,34 +683,34 @@
                    REP0
                    ORDER BY id DESC, name
                    ",
-            "host": "read_host"
+            "host_type": "read_host"
         },
         "get_job_artifact_references":{
             "sql":"SELECT `id`, `name`, `type` from `job_artifact`
                    WHERE `job_id` = ?",
-            "host": "read_host"
+            "host_type": "read_host"
         },
         "get_max_job_id":{
             "sql":"SELECT max(`id`) as max_id from `job`",
-            "host": "read_host"
+            "host_type": "read_host"
         },
         "get_job_note":{
             "sql":"SELECT * from `job_note`
                    WHERE `id` = ?",
-            "host": "read_host"
+            "host_type": "read_host"
         },
         "get_job_note_list":{
             "sql":"SELECT * from `job_note`
                    WHERE `job_id` = ?
                    ORDER BY `note_timestamp` DESC
                    ",
-            "host": "read_host"
+            "host_type": "read_host"
         },
         "get_job_ids_by_guids":{
             "sql":"SELECT `id`, `job_guid`, `result_set_id`, `state`, `result`
                    FROM `job`
                    WHERE `active_status` = 'active' AND `job_guid` IN (REP0)",
-            "host": "read_host"
+            "host_type": "read_host"
         },
         "get_job_guids_in_states":{
             "sql":"SELECT `job_guid`
@@ -718,7 +718,7 @@
                    WHERE
                    REP0
                    ",
-            "host": "read_host"
+            "host_type": "read_host"
         },
         "get_jobs_by_coalesced_guids":{
 
@@ -726,32 +726,32 @@
                    FROM `job`
                    WHERE `job_coalesced_to_guid` IN (REP0)",
 
-            "host": "read_host"
+            "host_type": "read_host"
 
         },
         "get_result_set_ids":{
             "sql":"SELECT `id`, `revision_hash`, `push_timestamp`
                    FROM `result_set`
                    WHERE `active_status` in ('active', 'onhold') AND `revision_hash` IN (REP0)",
-            "host": "read_host"
+            "host_type": "read_host"
         },
         "get_all_result_set_revision_hashes":{
             "sql":"SELECT `revision_hash`
                    FROM `result_set`
                    WHERE `active_status` = 'active'",
-            "host": "read_host"
+            "host_type": "read_host"
         },
         "get_revisions":{
             "sql":"SELECT `id`, `revision` FROM `revision`
                    WHERE `active_status` = 'active' AND `revision` IN (REP0)",
 
-            "host": "read_host"
+            "host_type": "read_host"
         },
         "get_revision_map_id":{
             "sql":"SELECT `id` FROM `revision_map`
                    WHERE `revision_id` = ?
                     AND `result_set_id` = ?",
-            "host": "read_host"
+            "host_type": "read_host"
         },
         "get_result_set_list_by_ids":{
             "sql":"SELECT rs.id,
@@ -762,7 +762,7 @@
                    WHERE rs.active_status = 'active' REP0
                    ORDER BY rs.push_timestamp DESC
                    ",
-            "host": "read_host"
+            "host_type": "read_host"
         },
         "get_result_set_list":{
             "sql":"SELECT DISTINCT
@@ -779,7 +779,7 @@
                    REP0
                    ORDER BY rs.push_timestamp DESC
                    ",
-            "host": "read_host"
+            "host_type": "read_host"
         },
         "get_revision_resultset_lookup":{
             "sql":"SELECT
@@ -799,7 +799,7 @@
                    ORDER BY rs.push_timestamp DESC
                    LIMIT ?,?
                    ",
-            "host": "read_host"
+            "host_type": "read_host"
         },
         "get_result_set_details":{
             "sql":"SELECT
@@ -814,13 +814,13 @@
                    WHERE r.active_status = 'active' AND rm.result_set_id IN (REP0)
                    ORDER BY r.id DESC",
 
-            "host": "read_host"
+            "host_type": "read_host"
         },
         "get_result_set_push_timestamp":{
             "sql":"SELECT id, push_timestamp
                    FROM result_set
                    WHERE id IN (REP0)",
-            "host": "read_host"
+            "host_type": "read_host"
         },
         "get_result_set_job_list":{
             "sql":"SELECT
@@ -853,7 +853,7 @@
                   REP2
                   REP3
                   ",
-            "host": "read_host"
+            "host_type": "read_host"
         },
         "get_result_set_job_list_full":{
             "sql":"SELECT
@@ -902,32 +902,32 @@
                   REP2
                   REP3
                   ",
-            "host": "read_host"
+            "host_type": "read_host"
         },
         "get_all_log_urls":{
 
             "sql":"SELECT `url` FROM `job_log_url`",
 
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "get_all_artifacts":{
 
             "sql":"SELECT `name`, `type`, `blob`  FROM `job_artifact`",
 
-            "host":"read_host"
+            "host_type":"read_host"
         },
         "get_bug_job_map_list":{
             "sql":"SELECT `job_id`, `bug_id`, `type`, `submit_timestamp`, `who`
                    FROM `bug_job_map`
                    WHERE 1
                    REP0",
-            "host": "read_host"
+            "host_type": "read_host"
         },
         "get_bug_job_map_detail":{
             "sql":"SELECT `job_id`, `bug_id`, `type`, `submit_timestamp`, `who`
                    FROM `bug_job_map`
                    WHERE job_id = ? and bug_id = ?",
-            "host": "read_host"
+            "host_type": "read_host"
         },
         "get_resultset_status":{
             "sql":"SELECT
@@ -940,7 +940,7 @@
                    WHERE result_set_id = ?
                    group by state, result
                    ",
-            "host": "read_host"
+            "host_type": "read_host"
         }
     }
 }

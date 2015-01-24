@@ -4,7 +4,7 @@
 
             "sql":"DELETE FROM objectstore WHERE job_guid IN (REP0)",
 
-            "host": "master_host"
+            "host_type": "master_host"
         }
     },
     "inserts":{
@@ -21,7 +21,7 @@
                     SELECT `job_guid` from `objectstore`
                     WHERE `job_guid` = ?
                   )",
-            "host":"master_host"
+            "host_type":"master_host"
         }
     },
 
@@ -34,7 +34,7 @@
                    AND      `processed_state` = 'loading'
                    AND      `error` = 'N'",
 
-            "host":"master_host"
+            "host_type":"master_host"
         },
 
         "get_num_unprocessed":{
@@ -44,7 +44,7 @@
                    WHERE    `processed_state` = 'ready'
                    AND      `error` = 'N'",
 
-            "host":"master_host"
+            "host_type":"master_host"
         },
 
         "get_unprocessed":{
@@ -55,7 +55,7 @@
                    AND      `error` = 'N'
                    LIMIT ?",
 
-            "host":"master_host"
+            "host_type":"master_host"
         },
 
         "get_all_errors":{
@@ -65,7 +65,7 @@
                 WHERE    `error` = 'Y'
                 AND loaded_timestamp BETWEEN ? AND ?",
 
-            "host":"read_host"
+            "host_type":"read_host"
         },
 
         "get_error_metadata":{
@@ -75,7 +75,7 @@
                 WHERE    `error` = 'Y'
                 AND loaded_timestamp BETWEEN ? AND ?",
 
-            "host":"read_host"
+            "host_type":"read_host"
         },
 
         "get_json_blob":{
@@ -88,7 +88,7 @@
                           job_guid
                    FROM `objectstore` WHERE `id` = ?",
 
-            "host":"read_host"
+            "host_type":"read_host"
         },
 
         "get_json_blob_by_guid":{
@@ -101,7 +101,7 @@
                           job_guid
                    FROM `objectstore` WHERE `job_guid` = ?",
 
-            "host":"read_host"
+            "host_type":"read_host"
         },
 
         "get_json_blob_list":{
@@ -114,7 +114,7 @@
                      FROM `objectstore`
                      ORDER BY loaded_timestamp DESC
                      LIMIT ?,?",
-            "host":"read_host"
+            "host_type":"read_host"
         },
 
         "get_json_blob_for_test_run":{
@@ -123,7 +123,7 @@
                    FROM `objectstore`
                    WHERE `job_guid` IN (REP0)",
 
-            "host":"read_host"
+            "host_type":"read_host"
         },
 
         "get_error_counts":{
@@ -139,7 +139,7 @@
                 AND loaded_timestamp BETWEEN REP0 AND REP1
                 GROUP BY message",
 
-            "host":"read_host"
+            "host_type":"read_host"
         }
 
     },
@@ -156,7 +156,7 @@
                    LIMIT ?
                   ",
 
-            "host":"master_host"
+            "host_type":"master_host"
 
         },
 
@@ -170,7 +170,7 @@
                    AND      `worker_id` = CONNECTION_ID()
                   ",
 
-            "host":"master_host"
+            "host_type":"master_host"
 
         },
 
@@ -186,7 +186,7 @@
                    AND      `worker_id` = CONNECTION_ID()
                   ",
 
-            "host":"master_host"
+            "host_type":"master_host"
 
         },
 
@@ -198,7 +198,7 @@
                       `error` = ?,
                       `error_msg` = ?
                   WHERE `job_guid` = ?",
-            "host":"master_host"
+            "host_type":"master_host"
         }
     }
 }
