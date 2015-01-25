@@ -31,14 +31,24 @@ Setting up Vagrant
 
      >vagrant ssh
 
-Setting up Treeherder
----------------------
-
 * A python virtual environment will be activated on login, all that is left to do is cd into the project directory:
 
   .. code-block:: bash
 
      (venv)vagrant@precise32:~$ cd treeherder-service
+
+* Build the log parser Cython files, since they are required for both running the tests and a local Treeherder instance
+
+  .. code-block:: bash
+
+     (venv)vagrant@precise32:~/treeherder-service$ python setup.py build_ext --inplace
+
+  NB: If you change something in the treeherder/log_parser folder, remember to repeat this step, otherwise the changes will not take effect.
+
+Running the tests
+-----------------
+
+* The tests can be run without following the local instance steps below.
 
 * You can run the py.test suite with
 
@@ -46,32 +56,35 @@ Setting up Treeherder
 
      (venv)vagrant@precise32:~/treeherder-service$ ./runtests.sh
 
+Setting up a local Treeherder instance
+--------------------------------------
+
 * Initialize the master database
 
   .. code-block:: bash
 
-     (venv)vagrant@precise32:~/treeherder-service$ python manage.py init_master_db
+     (venv)vagrant@precise32:~/treeherder-service$ ./manage.py init_master_db
 
 * Populate the database with repository data sources
 
   .. code-block:: bash
 
-     (venv)vagrant@precise32:~/treeherder-service$ python manage.py init_datasources
+     (venv)vagrant@precise32:~/treeherder-service$ ./manage.py init_datasources
 
 * Export oauth credentials for all data source projects
 
   .. code-block:: bash
 
-     (venv)vagrant@precise32:~/treeherder-service$ python manage.py export_project_credentials
+     (venv)vagrant@precise32:~/treeherder-service$ ./manage.py export_project_credentials
 
-* And an entry to your host machine /etc/hosts so that you can point your browser to local.treeherder.mozilla.org to reach it
-
-Viewing the local server
-------------------------
+* And an entry to your **host** machine's /etc/hosts so that you can point your browser to local.treeherder.mozilla.org to reach it
 
   .. code-block:: bash
 
      192.168.33.10    local.treeherder.mozilla.org
+
+Viewing the local server
+------------------------
 
 * Start a gunicorn instance listening on port 8000
 
@@ -81,37 +94,37 @@ Viewing the local server
 
   all the request sent to local.treeherder.mozilla.org will be proxied to it by varnish/apache.
 
-
-* For development you can use the django runserver instead of gunicorn:
+* Or for development you can use the django runserver instead of gunicorn:
 
   .. code-block:: bash
 
-     (venv)vagrant@precise32:~/treeherder-service$ python manage.py runserver
+     (venv)vagrant@precise32:~/treeherder-service$ ./manage.py runserver
 
-  this is more convenient because it automatically refreshes every time there's a change in the code.
+  this is more convenient because it automatically refreshes every time there's a change in the code. However it can consume too much memory when under load (eg due to data ingestion), causing the OS to kill it.
+
+* Visit http://local.treeherder.mozilla.org in your browser. Note: There will be no data to display until the ingestion tasks are run.
 
 Running the ingestion tasks
 ---------------------------
 
-* Start up one or more celery worker to process async tasks:
+Ingestion tasks populate the database with version control push logs, queued/running/completed buildbot jobs & output from log parsing, as well as maintain a list of job etas and cache of intermittent failure bugs. To run these:
+
+* Ensure the django runserver or gunicorn instance is running first (see "Viewing the local server" above).
+
+* In another Vagrant SSH session, start up a celery worker to process async tasks:
 
   .. code-block:: bash
 
      (venv)vagrant@precise32:~/treeherder-service$ celery -A treeherder worker -B
 
   The "-B" option tells the celery worker to startup a beat service, so that periodic tasks can be executed.
-  You only need one worker with the beat service enabled. Multiple beat services will result in periodic tasks being executed multiple times
+  You only need one worker with the beat service enabled. Multiple beat services will result in periodic tasks being executed multiple times.
 
-Building changes to the log parsers
------------------------------------
-
-* The log parser shipped with treeherder makes use of cython. If you change something in the treeherder/log_parser folder, remember to re-build the c extensions with:
+* Alternatively, instead of running a full ingestion task, you can process just the jobs associated with a single push in a synchronous manner. This is ideal for testing.
 
   .. code-block:: bash
 
-     (venv)vagrant@precise32:~/treeherder-service$ python setup.py build_ext --inplace
-
-
+     (venv)vagrant@precise32:~/treeherder-service$ ./manage.py ingest_push mozilla-central 63f8a47cfdf5
 
 
 .. _treeherder-service repo: https://github.com/mozilla/treeherder-service
