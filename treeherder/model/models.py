@@ -337,6 +337,7 @@ class Datasource(models.Model):
                     "user": settings.TREEHERDER_RO_DATABASE_USER,
                     "passwd": settings.TREEHERDER_RO_DATABASE_PASSWORD,
                 },
+                "require_host_type": True,
                 "default_db": self.name,
                 "procs": [
                     os.path.join(SQL_PATH, procs_file_name),
