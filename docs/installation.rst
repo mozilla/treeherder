@@ -56,6 +56,22 @@ Running the tests
 
      (venv)vagrant@precise32:~/treeherder-service$ ./runtests.sh
 
+* Or for more control, run py.test directly
+
+  .. code-block:: bash
+
+     (venv)vagrant@precise32:~/treeherder-service$ py.test tests/
+     (venv)vagrant@precise32:~/treeherder-service$ py.test tests/log_parser/test_utils.py
+     (venv)vagrant@precise32:~/treeherder-service$ py.test tests/etl/test_buildapi.py -k test_ingest_builds4h_jobs
+
+* To run all tests, including slow tests that are normally skipped, use
+
+  .. code-block:: bash
+
+     (venv)vagrant@precise32:~/treeherder-service$ py.test --runslow tests/
+
+* For more options, see |py.test --help| or http://pytest.org/latest/usage.html
+
 Setting up a local Treeherder instance
 --------------------------------------
 
