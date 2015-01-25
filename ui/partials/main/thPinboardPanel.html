@@ -19,15 +19,17 @@
        <i class="fa fa-plus-square add-related-bugs-icon"></i>
     </a>
     <span class="pinboard-preload-txt pinboard-related-bug-preload-txt"
-          ng-if="!hasRelatedBugs()">
+          ng-if="!hasRelatedBugs()"
+          ng-click="toggleEnterBugNumber()">
           click to add a related bug</span>
     <form ng-submit="saveEnteredBugNumber()"
           ng-show="enteringBugNumber"
           class="add-related-bugs-form">
       <input id="related-bug-input"
-             type="number"
+             data-bug-input
              class="add-related-bugs-input"
              ng-model="$parent.newEnteredBugNumber"
+             ng-keypress="$parent.checkCancelEnterBugNumber($event)"
              placeholder="enter bug number"
              focus-me="focusInput">
     </form>
