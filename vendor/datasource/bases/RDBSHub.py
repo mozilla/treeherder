@@ -359,6 +359,8 @@ class RDBSHub(BaseHub):
             ####
             host_type = kwargs['host_type']
         elif not host_type:
+            if self.conf.get('require_host_type', False):
+                raise RDBSHubExecuteError("host_type is required, but none was specified")
             ##No host type in proc file or in kwargs, set default
             host_type = self.default_host_type
 

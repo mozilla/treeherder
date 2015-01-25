@@ -27,7 +27,7 @@ httplib2==0.7.4
 
 jsonfield==0.9.20
 
-git+git://github.com/jeads/datasource@143ac08d11
+git+git://github.com/jeads/datasource@fab643e0d5
 git+git://github.com/mozilla/treeherder-client@be6cb763dc
 git+git://github.com/Julian/jsonschema@1976689051
 

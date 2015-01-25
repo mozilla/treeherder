@@ -16,6 +16,9 @@
                                  "user":"username",
                                  "passwd":"passwd" },
 
+                  # Optional. If set, host_type is mandatory.
+                  "require_host_type": false,
+
                   ##Not required, if set execute uses this db as a default##
                   "default_db": "test",
 

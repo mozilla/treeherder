@@ -52,7 +52,13 @@ class MySQL(SQLHub):
             self.try_to_connect(host_type, db)
 
         if db and db != self.connection[host_type]['db']:
-            self.connection[host_type]['con_obj'].select_db(db)
+            try:
+                self.connection[host_type]['con_obj'].select_db(db)
+            except OperationalError:
+                ##Connection is corrupt, reconnect.
+                ##Meant to deal with OperationalError 2006
+                ##MySQL server has gone away errors with Django 1.6
+                self.connect(host_type, db)
             self.connection[host_type]['db'] = db
     """
     Private Methods
