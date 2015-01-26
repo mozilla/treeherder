@@ -96,7 +96,9 @@
     <div class="progress-bar"  role="progressbar" style="width: 100%"></div>
 </div>
 
-<div class="well" ng-if="result_sets.length > 1">
+<!-- Get next resultsets footer -->
+<div class="well getnext-footer" ng-if="result_sets.length > 1"
+     ng-click="closeJob()">
      get next:
     <div class="btn-group">
         <div class="btn btn-default btn-sm"
@@ -104,4 +106,9 @@
              ng-repeat="count in [10, 20, 50]">{{::count}}</div>
         </div>
     </div>
+</div>
+
+<!-- Footer spacer -->
+<div class="footer-spacer"
+     ng-click="closeJob()">
 </div>
