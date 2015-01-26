@@ -25,7 +25,7 @@ LOGGING = {
         'syslog': {
             'level': 'DEBUG',
             'class': 'logging.handlers.SysLogHandler',
-            'formatter': 'default',
+            'formatter': 'standard',
             'facility': logging.handlers.SysLogHandler.LOG_LOCAL7,
         }
     },
