@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html ng-app="perf">
+<head>
+    <title>Perfherder Graphs</title>
+    <!-- build:css css/perf.min.css -->
+    <link href="css/bootstrap.css" rel="stylesheet" media="screen">
+    <link href="css/perf.css" rel="stylesheet" media="screen">
+    <!-- endbuild -->
+    <link id="favicon" type="image/png" rel="shortcut icon" href="img/tree_open.png">
+    <style>
+    </style>
+</head>
+<body>
+
+  <section ui-view>
+  </section>
+
+  <!-- build:js js/perf.min.js -->
+  <script src="vendor/jquery-2.0.3.js"></script>
+  <script src="vendor/underscore-min.js"></script>
+  <script src="vendor/angular/angular.js"></script>
+  <script src="vendor/angular/angular-route.js"></script>
+  <script src="vendor/angular/angular-resource.js"></script>
+  <script src="vendor/angular/angular-ui-router.js"></script>
+  <script src="vendor/ui-bootstrap-tpls-0.11.2.min.js"></script>
+  <script src="vendor/bootstrap.js"></script>
+  <script src="vendor/typeahead.bundle.js"></script>
+  <script src="vendor/jquery.flot.js"></script>
+  <script src="vendor/jquery.flot.time.js"></script>
+  <script src="js/config/local.conf.js"></script>
+  <script src="js/perf.js"></script>
+  <!-- endbuild -->
+
+</body>
+</html>
