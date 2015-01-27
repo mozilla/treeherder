@@ -128,6 +128,10 @@ class HgPushlogProcess(HgPushlogTransformerMixin,
                 # changeset
                 cache.set("{0}:last_push".format(repository), top_revision)
 
+            return top_revision
+
+        return None
+
 
 class MissingHgPushlogProcess(HgPushlogTransformerMixin,
                               OAuthLoaderMixin):
