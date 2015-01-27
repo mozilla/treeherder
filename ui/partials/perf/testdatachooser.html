@@ -7,7 +7,8 @@
   <select class="form-control" ng-change="updateTestInput()" ng-model="selectedProject" ng-options="project.name for project in projects">
   </select>
   <h4>Test</h4>
-  <input my-input class="typeahead" type="text" placeholder="Enter test keywords (e.g. 'tp5o linux')"></input>
+  <p class="blink" ng-show="loadingTestData">Loading series data...</p>
+  <input my-input ng-hide="loadingTestData" class="typeahead" type="text" placeholder="Enter test keywords (e.g. 'tp5o linux')"></input>
 </div>
 <div class="modal-footer">
   <button class="btn btn-primary" ng-click="addTestData()" ng-disabled="addTestDataDisabled" ng-model="addTestDataDisabled"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add</button>

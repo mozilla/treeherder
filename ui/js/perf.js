@@ -319,6 +319,7 @@ perf.controller('TestChooserCtrl', function ($scope, $modalInstance, $http,
   $scope.timeRange = timeRange;
   $scope.projects = projects;
   $scope.selectedProject = projects[0];
+  $scope.loadingTestData = false;
 
   var testInputCreated = false;
 
@@ -334,6 +335,7 @@ perf.controller('TestChooserCtrl', function ($scope, $modalInstance, $http,
 
   $scope.updateTestInput = function() {
     $scope.addTestDataDisabled = true;
+    $scope.loadingTestData = true;
     $http.get(thServiceDomain + '/api/project/' + $scope.selectedProject.name +
               '/performance-data/0/get_performance_series_summary/?interval=' +
               $scope.timeRange).then(
@@ -370,6 +372,7 @@ perf.controller('TestChooserCtrl', function ($scope, $modalInstance, $http,
                     $scope.addTestDataDisabled = false;
                   });
                   testInputCreated = true;
+                  $scope.loadingTestData = false;
                 });
   };
 

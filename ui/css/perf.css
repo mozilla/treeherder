@@ -2,6 +2,19 @@
 * License, v. 2.0. If a copy of the MPL was not distributed with this
 * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+.blink {
+animation: blink 1s ease-in-out infinite alternate;
+-webkit-animation: blink 1s ease-in-out infinite alternate;
+}
+@keyframes blink {
+from { opacity: 1; }
+to { opacity: 0; }
+}
+@-webkit-keyframes blink {
+from { opacity: 1; }
+to { opacity: 0; }
+}
+
 .typeahead,
 .tt-query,
 .tt-hint {
