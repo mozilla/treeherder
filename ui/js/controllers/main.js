@@ -37,6 +37,17 @@ treeherder.controller('MainCtrl', [
             ThResultSetStore.setSelectedJob($rootScope.repoName);
         };
 
+        // Clear the job if it occurs in a particular area
+        $scope.clearJobOnClick = function(event) {
+            var element = event.target;
+            // Suppress for various UI elements so selection is preserved
+            var ignoreClear = element.hasAttribute("ignore-job-clear-on-click");
+
+            if (!ignoreClear) {
+                $scope.closeJob();
+            }
+        };
+
         $scope.processKeyboardInput = function(ev){
 
             // If the user is in an editable element or the user is pressing

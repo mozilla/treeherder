@@ -42,15 +42,18 @@ treeherder.filter('linkifyBugs', function() {
         var str = input || '';
         var bug_matches = /.*-- ([0-9]+)|.*bug-([0-9]+)|.*Bug ([0-9]+)/ig.exec(str);
         var pr_matches = /PR#([0-9]+)/i.exec(str);
+        var clear_attr = 'ignore-job-clear-on-click';
         if (pr_matches) {
             var pr_url = "https://github.com/mozilla-b2g/gaia/pull/" + pr_matches[1];
-            var pr_hyperlink = '<a href="' + pr_url + '">' + pr_matches[1] + '</a>';
+            var pr_hyperlink = '<a href="' + pr_url + '" ' + clear_attr + '>' +
+                               pr_matches[1] + '</a>';
             str = str.replace(pr_matches[1], pr_hyperlink);
         }
         if (bug_matches) {
             var bug_match = bug_matches[1] || bug_matches[2] || bug_matches[3];
             var bug_url = "https://bugzilla.mozilla.org/show_bug.cgi?id=" + bug_match;
-            var bug_hyperlink = '<a href="' + bug_url + '">' + bug_match + '</a>';
+            var bug_hyperlink = '<a href="' + bug_url + '" ' + clear_attr + '>' +
+                                bug_match + '</a>';
             str = str.replace(bug_match, bug_hyperlink);
         }
         return str;
