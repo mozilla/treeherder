@@ -135,8 +135,8 @@ to { opacity: 0; }
 #graph-tooltip .tip {
     display: block;
     height: 10px;
-    background: url(tip.png) no-repeat center top;
+    background: url("../img/tip.png") no-repeat center top;
 }
 #graph-tooltip.locked .tip {
-    background-image: url(tip-locked.png);
+    background-image: url("../img/tip-locked.png");
 }

@@ -314,8 +314,9 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
     }
   }]);
 
-perf.controller('TestChooserCtrl', function ($scope, $modalInstance, $http,
-                                             projects, timeRange, seriesSummary) {
+perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
+                                            projects, timeRange, thServiceDomain,
+                                            seriesSummary) {
   $scope.timeRange = timeRange;
   $scope.projects = projects;
   $scope.selectedProject = projects[0];
