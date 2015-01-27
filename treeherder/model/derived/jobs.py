@@ -446,9 +446,7 @@ class JobsModel(TreeherderModelBase):
             proc="jobs.selects.get_max_performance_artifact_id",
             debug_show=self.DEBUG,
         )
-        if data[0]['max_id'] is None:
-            return 0
-        return int(data[0]['max_id'])
+        return int(data[0]['max_id'] or 0)
 
     def get_max_job_id(self):
         """Get the maximum job id."""
@@ -456,7 +454,7 @@ class JobsModel(TreeherderModelBase):
             proc="jobs.selects.get_max_job_id",
             debug_show=self.DEBUG,
         )
-        return int(data[0]['max_id'])
+        return int(data[0]['max_id'] or 0)
 
     def get_performance_series_summary(self, interval_seconds):
         """
