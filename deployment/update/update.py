@@ -23,6 +23,7 @@ th_ui_src = os.path.join(settings.SRC_DIR, 'treeherder-ui')
 
 sys.path.append(th_service_src)
 
+is_prod = 'treeherder.mozilla.org' in settings.SRC_DIR
 
 @task
 def pre_update(ctx, ref=settings.UPDATE_REF):
@@ -79,9 +80,6 @@ def deploy(ctx):
     @hostgroups(settings.RABBIT_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
     def deploy_rabbit(ctx):
         ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
-        ctx.remote('{0}/service run_celerybeat restart'.format(settings.SBIN_DIR))
-        ctx.remote('{0}/service run_celery_worker restart'.format(settings.SBIN_DIR))
-        ctx.remote('{0}/service run_celery_worker_hp restart'.format(settings.SBIN_DIR))
 
     deploy_rabbit()
 
@@ -90,7 +88,6 @@ def deploy(ctx):
         # Call the remote update script to push changes to webheads.
         ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
         ctx.remote('{0}/service httpd graceful'.format(settings.SBIN_DIR))
-        ctx.remote('{0}/service run_gunicorn restart'.format(settings.SBIN_DIR))
 
     deploy_web_app()
 
@@ -98,8 +95,6 @@ def deploy(ctx):
     def deploy_etl(ctx):
         # Call the remote update script to push changes to workers.
         ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
-        ctx.remote('{0}/service run_celery_worker_buildapi restart'.format(settings.SBIN_DIR))
-        ctx.remote('{0}/service run_celery_worker_pushlog restart'.format(settings.SBIN_DIR))
 
     deploy_etl()
 
@@ -107,9 +102,11 @@ def deploy(ctx):
     def deploy_log(ctx):
         # Call the remote update script to push changes to workers.
         ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
-        ctx.remote('{0}/service run_celery_worker_gevent restart'.format(settings.SBIN_DIR))
 
     deploy_log()
+
+    env_flag = '-p' if is_prod else '-s'
+    ctx.local('/root/bin/restart-jobs %s all' % env_flag)
 
     with ctx.lcd(th_service_src):
         # Write info about the current repository state to a publicly visible file.
