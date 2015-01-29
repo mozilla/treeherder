@@ -24,6 +24,7 @@ th_ui_src = os.path.join(settings.SRC_DIR, 'treeherder-ui')
 sys.path.append(th_service_src)
 
 is_prod = 'treeherder.mozilla.org' in settings.SRC_DIR
+env_flag = '-p' if is_prod else '-s'
 
 @task
 def pre_update(ctx, ref=settings.UPDATE_REF):
@@ -80,6 +81,7 @@ def deploy(ctx):
     @hostgroups(settings.RABBIT_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
     def deploy_rabbit(ctx):
         ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
+        ctx.local('/root/bin/restart-jobs %s rabbit' % env_flag)
 
     deploy_rabbit()
 
@@ -88,6 +90,7 @@ def deploy(ctx):
         # Call the remote update script to push changes to webheads.
         ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
         ctx.remote('{0}/service httpd graceful'.format(settings.SBIN_DIR))
+        ctx.local('/root/bin/restart-jobs %s web' % env_flag)
 
     deploy_web_app()
 
@@ -95,6 +98,7 @@ def deploy(ctx):
     def deploy_etl(ctx):
         # Call the remote update script to push changes to workers.
         ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
+        ctx.local('/root/bin/restart-jobs %s etl' % env_flag)
 
     deploy_etl()
 
@@ -102,11 +106,9 @@ def deploy(ctx):
     def deploy_log(ctx):
         # Call the remote update script to push changes to workers.
         ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
+        ctx.local('/root/bin/restart-jobs %s log' % env_flag)
 
     deploy_log()
-
-    env_flag = '-p' if is_prod else '-s'
-    ctx.local('/root/bin/restart-jobs %s all' % env_flag)
 
     with ctx.lcd(th_service_src):
         # Write info about the current repository state to a publicly visible file.
