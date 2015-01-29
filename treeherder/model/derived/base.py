@@ -147,8 +147,8 @@ class DatasetNotFoundError(ValueError):
         self.project = project
         self.contenttype = contenttype
 
-        def __str__(self):
-            return u"No dataset found for project {0} and contenttype '{1}'".format(
+    def __str__(self):
+        return u"No dataset found for project {0} and contenttype '{1}'".format(
             self.project,
             self.contenttype,
             )

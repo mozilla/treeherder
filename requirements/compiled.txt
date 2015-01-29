@@ -1,7 +1,7 @@
 # Dependencies with compiled extensions
 MySQL-python
 gunicorn==17.5
-django>=1.5,<1.6
+django>=1.7,<1.8
 celery==3.1.16
 kombu==3.0.23
 simplejson==3.3.0

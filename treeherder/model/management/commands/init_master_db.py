@@ -69,11 +69,7 @@ Type 'yes' to continue, or 'no' to cancel: """ % connection.settings_dict['NAME'
                     cursor.close()
                 print "Sql files executed successfully."
 
-            #flush all the apps not under south
-            call_command("syncdb", interactive=False,)
-            #fake the first migration because manually generated
-            call_command("migrate", 'model', '0001_initial', fake=True)
-            #safely apply all the other migrations
+            #safely apply all migrations
             call_command("migrate")
             #load initial fixtures for reference data
             # the order of this list of fixtures is important

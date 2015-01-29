@@ -134,7 +134,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.admin',
     # 3rd party apps
-    'south',
     'rest_framework',
     'rest_framework_extensions',
     'corsheaders',
@@ -182,6 +181,8 @@ LOGGING = {
         }
     }
 }
+
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 from kombu import Exchange, Queue
 
