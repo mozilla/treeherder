@@ -4,7 +4,6 @@
 
 language: python
 python:
-  - "2.6"
   - "2.7"
 env:
   global:
@@ -21,7 +20,7 @@ env:
     - TREEHERDER_RABBITMQ_HOST='127.0.0.1'
     - TREEHERDER_RABBITMQ_PORT='5672'
 before_script:
-   - mysql -e 'create database treeherder;' 
+   - mysql -e 'create database treeherder;'
 services:
   - rabbitmq
   - memcached
