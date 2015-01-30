@@ -303,8 +303,13 @@ class ResultSetViewSet(viewsets.ViewSet):
                 by_job_group = sorted(list(platform_group), key=job_group_grouper)
 
                 platform_name = by_job_group[0]["platform"]
-                platform_option = option_collections[
-                    by_job_group[0]["option_collection_hash"]]['opt']
+
+                platform_option_types = option_collections.get(
+                    by_job_group[0]["option_collection_hash"],
+                    { 'opt': None }
+                )
+
+                platform_option = platform_option_types['opt'];
 
                 groups = []
                 for jg_symbol, jg_group in itertools.groupby(
