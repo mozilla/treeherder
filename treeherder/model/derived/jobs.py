@@ -881,22 +881,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         )
         return data
 
-    def get_bug_job_map_detail(self, job_id, bug_id):
-        """
-        Returns a single instance of bug_job_map.
-        Raises a ObjectNotFoundException when no object is found
-        """
-
-        data = self.jobs_execute(
-            proc="jobs.selects.get_bug_job_map_detail",
-            placeholders=[job_id, bug_id],
-            debug_show=self.DEBUG,
-        )
-        if not data:
-            raise ObjectNotFoundException("bug_jib_map",
-                                          job_id=job_id, bug_id=bug_id)
-        return data[0]
-
     def get_result_set_ids(self, revision_hashes, where_in_list):
         """Return the  a dictionary of revision_hash to id mappings given
            a list of revision_hashes and a where_in_list.

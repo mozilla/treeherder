@@ -482,32 +482,6 @@ def test_ingesting_skip_existing(jm, sample_data, initial_data, refdata,
     assert len(jl) == 2
 
 
-def test_bug_job_map_detail(jm, eleven_jobs_processed):
-    """
-    test retrieving a single bug_job_map row
-    """
-    job_id = jm.get_job_list(0, 1)[0]["id"]
-    bug_id = 123456
-
-    submit_timestamp = int(time.time())
-    who = "user@mozilla.com"
-    try:
-        jm.insert_bug_job_map(job_id, bug_id, "manual", submit_timestamp, who)
-
-        actual = jm.get_bug_job_map_detail(job_id, bug_id)
-    finally:
-        jm.disconnect()
-
-    expected = {
-        "job_id": job_id,
-        "bug_id": bug_id,
-        "type": "manual",
-        "submit_timestamp": submit_timestamp,
-        "who": who}
-
-    assert actual == expected
-
-
 def test_ingest_job_with_updated_job_group(jm, refdata, sample_data, initial_data,
                                   mock_log_parser, result_set_stored):
     """

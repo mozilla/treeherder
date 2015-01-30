@@ -886,12 +886,6 @@
                    REP0",
             "host_type": "read_host"
         },
-        "get_bug_job_map_detail":{
-            "sql":"SELECT `job_id`, `bug_id`, `type`, `submit_timestamp`, `who`
-                   FROM `bug_job_map`
-                   WHERE job_id = ? and bug_id = ?",
-            "host_type": "read_host"
-        },
         "get_resultset_status":{
             "sql":"SELECT
                         id,
