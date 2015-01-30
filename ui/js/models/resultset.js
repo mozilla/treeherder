@@ -129,7 +129,7 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location', '$q'
                         count: 5000
                     };
                     if(exclusionProfile){
-                        params.exclusionProfile = exclusionProfile;
+                        params.exclusion_profile = exclusionProfile;
                     }
                     jobsPromiseList.push(ThJobModel.get_list(repoName, params));
                 }
