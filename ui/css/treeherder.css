@@ -27,10 +27,6 @@ a:visited {
     margin-bottom: 0;
 }
 
-.footer-spacer {
-    height: 300px;
-}
-
 .pagination, .carousel, .panel-title a {
     cursor: pointer;
 }
