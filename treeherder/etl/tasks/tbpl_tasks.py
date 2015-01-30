@@ -29,13 +29,13 @@ def submit_star_comment(project, job_id, bug_id, submit_timestamp, who):
 
 
 @task(name="submit-bug-comment", max_retries=10, time_limit=30)
-def submit_bug_comment(project, job_id, bug_id):
+def submit_bug_comment(project, job_id, bug_id, who):
     """
     Send a post request to tbpl's submitBugzillaComment.php
     to add a new comment to the associated bug on bugzilla.
     """
     try:
-        req = BugzillaBugRequest(project, job_id, bug_id)
+        req = BugzillaBugRequest(project, job_id, bug_id, who)
         req.generate_request_body()
         req.send_request()
     except Exception, e:

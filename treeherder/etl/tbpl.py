@@ -88,10 +88,11 @@ class OrangeFactorBugRequest(object):
 
 class BugzillaBugRequest(object):
 
-    def __init__(self, project, job_id, bug_id):
+    def __init__(self, project, job_id, bug_id, who):
         self.project = project
         self.job_id = job_id
         self.bug_id = bug_id
+        self.who = who
         self.body = ""
 
     def generate_request_body(self):
@@ -111,7 +112,6 @@ class BugzillaBugRequest(object):
                 # a bug suggestion aritfact looks like this:
                 # [{ "search": "my-error-line", "bugs": ....}]
                 error_lines += [line["search"] for line in artifact["blob"]]
-            bug_job_map = jm.get_bug_job_map_detail(self.job_id, self.bug_id)
 
             revision_list = jm.get_resultset_revisions_list(
                 job["result_set_id"]
@@ -124,7 +124,7 @@ class BugzillaBugRequest(object):
         finally:
             jm.disconnect()
 
-        who = bug_job_map["who"]\
+        who = self.who \
             .replace("@", "[at]")\
             .replace(".", "[dot]")
         start_time = datetime.fromtimestamp(job["start_timestamp"]).isoformat()

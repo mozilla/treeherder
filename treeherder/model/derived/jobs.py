@@ -628,6 +628,7 @@ class JobsModel(TreeherderModelBase):
                         self.project,
                         job_id,
                         bug_id,
+                        who,
                     ],
                     routing_key='high_priority'
                 )

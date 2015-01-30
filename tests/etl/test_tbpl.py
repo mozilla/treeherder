@@ -60,10 +60,7 @@ def test_tbpl_bugzilla_request_body(jm, eleven_jobs_processed):
 
     bug_id = 12345678
     job = jm.get_job_list(0, 1)[0]
-
-    submit_timestamp = int(time())
     who = "user@mozilla.com"
-    jm.insert_bug_job_map(job['id'], bug_id, "manual", submit_timestamp, who)
 
     bug_suggestions = []
     bug_suggestions.append({"search": "First error line", "bugs": []})
@@ -76,7 +73,7 @@ def test_tbpl_bugzilla_request_body(jm, eleven_jobs_processed):
     ]
 
     jm.store_job_artifact([bug_suggestions_placeholders])
-    req = BugzillaBugRequest(jm.project, job["id"], bug_id)
+    req = BugzillaBugRequest(jm.project, job["id"], bug_id, who)
     req.generate_request_body()
 
     expected = {
