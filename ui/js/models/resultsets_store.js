@@ -51,7 +51,7 @@ treeherder.factory('ThResultSetStore', [
         'tochange',
         'startdate',
         'enddate',
-        'exclusion_state'
+        'exclusion_profile'
     ];
 
     var registerResultSetPollers = function() {

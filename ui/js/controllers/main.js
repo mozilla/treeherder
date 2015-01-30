@@ -161,13 +161,14 @@ treeherder.controller('MainCtrl', [
             return ThResultSetStore.getUnclassifiedFailureCount(repoName);
         };
 
+        $scope.isSkippingExclusionProfiles = $location.search().exclusion_profile === 'false';
+
         $scope.toggleExcludedJobs = function() {
-            if (location.search().exclusion_profile === 'false') {
-                $location.search('exclusion_profile', 'default');
+            if ($location.search().exclusion_profile === 'false') {
+                $location.search('exclusion_profile', null);
             }else{
                 $location.search('exclusion_profile', 'false');
             }
-            
         }
 
         $scope.toggleUnclassifiedFailures = thJobFilters.toggleUnclassifiedFailures;
