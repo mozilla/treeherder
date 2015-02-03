@@ -93,47 +93,18 @@ treeherder.directive('thCloneJobs', [
     });
 
     $rootScope.$on(
-        thEvents.selectNextJob, function(ev){
-
+        thEvents.changeSelection, function(ev, param){
         var jobMap = ThResultSetModel.getJobMap($rootScope.repoName);
         var el, key, job, jobs;
 
         jobs = $(".th-view-content .job-btn");
         var idx = jobs.index(jobs.filter(".selected-job"));
-
-        idx = idx+1 > _.size(jobs)-1 ? 0: idx+1;
-        el = $(jobs[idx]);
-
-        while (el.css('display') == 'none') {
-            idx = idx+1 > _.size(jobs)-1 ? 0: idx+1;
-            el = $(jobs[idx]);
-        }
+        el = getIndex(idx, jobs, param);
 
         key = el.attr(jobKeyAttr);
         job = jobMap[key].job_obj;
-        selectJob(job);
+        console.log(job)
 
-    });
-
-    $rootScope.$on(
-        thEvents.selectPreviousJob, function(ev){
-
-        var jobMap = ThResultSetModel.getJobMap($rootScope.repoName);
-        var el, key, job, jobs;
-
-        jobs = $(".th-view-content .job-btn");
-        var idx = jobs.index(jobs.filter(".selected-job"));
-
-        idx = idx-1 < 0 ? _.size(jobs)-1 : idx-1;
-        el = $(jobs[idx]);
-
-        while (el.css('display') == 'none') {
-            idx = idx-1 < 0 ? _.size(jobs)-1 : idx-1;
-            el = $(jobs[idx]);
-        }
-
-        key = el.attr(jobKeyAttr);
-        job = jobMap[key].job_obj;
         selectJob(job);
 
     });
@@ -1115,6 +1086,31 @@ treeherder.directive('thCloneJobs', [
             tableEl.append(row);
         }
     };
+
+    var getIndex = function(idx, jobs, param){
+
+        var el;
+        if (param == 'next') {
+
+            idx = idx+1 > _.size(jobs)-1 ? 0: idx+1;
+            el = $(jobs[idx]);
+            while (el.css('display') == 'none') {
+                idx = idx+1 > _.size(jobs)-1 ? 0: idx+1;
+                el = $(jobs[idx]);
+            }
+
+        } else if (param == 'previous') {
+
+            idx = idx-1 < 0 ? _.size(jobs)-1 : idx-1;
+            el = $(jobs[idx]);
+            while (el.css('display') == 'none') {
+                idx = idx-1 < 0 ? _.size(jobs)-1 : idx-1;
+                el = $(jobs[idx]);
+            }
+
+        }
+        return el;
+    }
 
     var linker = function(scope, element, attrs){
 

@@ -81,13 +81,13 @@ treeherder.controller('MainCtrl', [
                 } else if(ev.keyCode == 39) {
                     // Highlight next job, key: right arrow
                     $rootScope.$emit(
-                        thEvents.selectNextJob
+                        thEvents.changeSelection,'next'
                     );
 
                 } else if(ev.keyCode == 37) {
                     // Highlight previous job, key: left arrow
                     $rootScope.$emit(
-                        thEvents.selectPreviousJob
+                        thEvents.changeSelection,'previous'
                     );
 
                 } else if (ev.keyCode === 85) {
