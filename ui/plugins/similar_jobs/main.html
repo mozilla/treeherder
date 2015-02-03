@@ -20,7 +20,7 @@
                                     </span>
                                 </button>
                             </td>
-                            <td>{{ ::similar_job.push_timestamp*1000|date:'medium' }}</td>
+                            <td>{{ ::similar_job.result_set.push_timestamp*1000|date:'medium' }}</td>
                             <td>
                                 <a href="{{ ::similar_job.authorResultsetFilterUrl }}">
                                     {{ ::similar_job.result_set.author }}
