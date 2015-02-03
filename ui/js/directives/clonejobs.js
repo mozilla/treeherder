@@ -94,6 +94,7 @@ treeherder.directive('thCloneJobs', [
 
     $rootScope.$on(
         thEvents.changeSelection, function(ev, param){
+
         var jobMap = ThResultSetModel.getJobMap($rootScope.repoName);
         var el, key, job, jobs;
 
@@ -103,8 +104,6 @@ treeherder.directive('thCloneJobs', [
 
         key = el.attr(jobKeyAttr);
         job = jobMap[key].job_obj;
-        console.log(job)
-
         selectJob(job);
 
     });
