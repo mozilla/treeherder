@@ -95,6 +95,23 @@ class OptionCollectionViewSet(viewsets.ReadOnlyModelViewSet):
     model = models.OptionCollection
 
 
+class OptionCollectionHashViewSet(viewsets.ViewSet):
+    """ViewSet for the virtual OptionCollectionHash model"""
+
+    def list(self, request):
+        rdm = RefDataManager()
+        try:
+            option_collection_hash = rdm.get_all_option_collections()
+        finally:
+            rdm.disconnect()
+
+        ret = []
+        for (option_hash, val) in option_collection_hash.iteritems():
+            ret.append({ 'option_collection_hash': option_hash,
+                         'options': [{'name': name } for
+                                     name in val['opt'].split()] })
+        return Response(ret)
+
 class JobTypeViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for the refdata JobType model"""
     model = models.JobType
