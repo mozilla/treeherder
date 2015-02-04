@@ -113,6 +113,12 @@ treeherder.controller('PinboardCtrl', [
             $rootScope.$broadcast('blur-this', "classification-comment");
         };
 
+        $scope.checkCancelEnterBugNumber = function(event) {
+            if (event.keyCode == 27) { // DOM_VK_ESCAPE
+                $scope.toggleEnterBugNumber();
+            }
+        }
+
         $scope.saveEnteredBugNumber = function() {
             if (!$scope.newEnteredBugNumber) {
                 $scope.toggleEnterBugNumber();

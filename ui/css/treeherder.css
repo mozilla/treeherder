@@ -917,6 +917,17 @@ ul.failure-summary-list li .btn-xs {
     margin-bottom: -1px;
 }
 
+.pinboard-related-bugs-btn > .pinboard-related-bugs-link,
+.pinboard-related-bugs-btn:hover > .pinboard-related-bugs-link:hover {
+    border-top-right-radius: 3px !important;
+    border-bottom-right-radius: 3px !important;
+}
+
+.pinboard-related-bugs-btn:hover > .pinboard-related-bugs-link {
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
 /* Spin button suppression on chrome */
 #pinboard-related-bugs form input[type=number]::-webkit-inner-spin-button {
     -webkit-appearance: none;
@@ -984,6 +995,7 @@ ul.failure-summary-list li .btn-xs {
 
 .pinned-job-close-btn {
     padding: 1px 2px 1px 2px;
+    border-color: #fafafa #fafafa #fafafa transparent;
 }
 
 .btn-icon-top-margin {
