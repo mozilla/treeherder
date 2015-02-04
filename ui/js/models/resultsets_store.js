@@ -125,10 +125,15 @@ treeherder.factory('ThResultSetStore', [
             lastModified
         ).then(function(jobList){
             if(jobList.length > 0){
-                var resultSetJobList = _.values(
+                var jobListByResultSet = _.values(
                     _.groupBy(jobList, 'result_set_id')
                 );
-                mapResultSetJobs($rootScope.repoName, resultSetJobList);
+                _.each(
+                    jobListByResultSet,
+                    function(singleResultSetJobList){
+                        mapResultSetJobs($rootScope.repoName, singleResultSetJobList);
+                    }
+                );
             }
         });
         lastModified = newLastModified;
