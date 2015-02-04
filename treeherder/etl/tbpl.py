@@ -27,9 +27,7 @@ class OrangeFactorBugRequest(object):
         """
         Create the data structure that will be sent to ElasticSearch.
         """
-        jm = JobsModel(self.project)
-
-        try:
+        with JobsModel(self.project) as jm:
             job_data = jm.get_job(self.job_id)[0]
             option_collection = jm.refdata_model.get_all_option_collections()
             revision_list = jm.get_resultset_revisions_list(job_data["result_set_id"])
@@ -43,8 +41,6 @@ class OrangeFactorBugRequest(object):
                 # OrangeFactor needs a buildname to be set or it skips the failure
                 # classification, so we make one up for non-buildbot jobs.
                 buildname = 'non-buildbot %s test %s' % (job_data["platform"], job_data["job_type_name"])
-        finally:
-            jm.disconnect()
 
         self.body = {
             "buildname": buildname,
@@ -100,8 +96,7 @@ class BugzillaBugRequest(object):
         Create a comment describing the failure, that will be posted to Bugzilla.
         This is triggered by a new bug-job association.
         """
-        jm = JobsModel(self.project)
-        try:
+        with JobsModel(self.project) as jm:
             job = jm.get_job(self.job_id)[0]
             failures_artifacts = jm.get_job_artifact_list(0, 1, {
                 'job_id': set([('=', job['id'])]),
@@ -121,8 +116,6 @@ class BugzillaBugRequest(object):
                 'job_id': set([("=", self.job_id)]),
                 'name': set([("=", "buildapi")])
             })
-        finally:
-            jm.disconnect()
 
         who = self.who \
             .replace("@", "[at]")\

@@ -113,6 +113,12 @@ class RefDataManager(object):
     def disconnect(self):
         self.dhub.disconnect()
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.disconnect()
+
     def execute(self, **kwargs):
         return utils.retry_execute(self.dhub, logger, **kwargs)
 

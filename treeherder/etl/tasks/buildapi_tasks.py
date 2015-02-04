@@ -46,8 +46,7 @@ def fetch_push_logs():
     """
     Run several fetch_hg_push_log subtasks, one per repository
     """
-    rdm = RefDataManager()
-    try:
+    with RefDataManager() as rdm:
         repos = filter(lambda x: x['url'], rdm.get_all_repository_info())
         for repo in repos:
             if repo['dvcs_type'] == 'hg':
@@ -55,9 +54,6 @@ def fetch_push_logs():
                     args=(repo['name'], repo['url']),
                     routing_key='pushlog'
                 )
-
-    finally:
-        rdm.disconnect()
 
 
 @task(name='fetch-hg-push-logs', time_limit=3*60)

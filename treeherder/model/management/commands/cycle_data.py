@@ -62,15 +62,12 @@ class Command(BaseCommand):
             .values_list('project', flat=True)
         for project in projects:
             self.debug("Cycling Database: {0}".format(project))
-            jm = JobsModel(project)
-            try:
+            with JobsModel(project) as jm:
                 num_deleted = jm.cycle_data(cycle_interval,
                                             options['chunk_size'],
                                             options['sleep_time'])
                 self.debug("Deleted {0} resultsets from {1}".format(
                            num_deleted, project))
-            finally:
-                jm.disconnect()
 
     def debug(self, msg):
         if self.is_debug:

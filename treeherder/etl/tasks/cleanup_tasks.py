@@ -17,8 +17,7 @@ def fetch_missing_push_logs(missing_pushlogs):
     """
     Run several fetch_hg_push_log subtasks, one per repository
     """
-    rdm = RefDataManager()
-    try:
+    with RefDataManager() as rdm:
         repos = filter(lambda x: x['url'], rdm.get_all_repository_info())
         for repo in repos:
             if repo['dvcs_type'] == 'hg' and repo['name'] in missing_pushlogs:
@@ -32,8 +31,6 @@ def fetch_missing_push_logs(missing_pushlogs):
                         ),
                         routing_key='fetch_missing_push_logs'
                 )
-    finally:
-        rdm.disconnect()
 
 
 @task(name='fetch-missing-hg-push-logs', time_limit=3*60)

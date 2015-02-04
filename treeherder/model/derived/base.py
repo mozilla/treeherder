@@ -32,6 +32,12 @@ class TreeherderModelBase(object):
         self.DEBUG = settings.DEBUG
         self.refdata_model = RefDataManager()
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.disconnect()
+
     def __str__(self):
         """String representation is project name."""
         return self.project

@@ -60,8 +60,5 @@ class BzApiBugProcess(JsonExtractorMixin):
                 # drop the timezone indicator to avoid issues with mysql
                 bug["last_change_time"] = bug["last_change_time"][0:19]
 
-            rdm = RefDataManager()
-            try:
+            with RefDataManager() as rdm:
                 rdm.update_bugscache(bug_list)
-            finally:
-                rdm.disconnect()

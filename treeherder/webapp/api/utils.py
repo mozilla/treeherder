@@ -240,11 +240,8 @@ def with_jobs(model_func):
     def use_jobs_model(*args, **kwargs):
 
         project = kwargs["project"]
-        jm = JobsModel(project)
-        try:
+        with JobsModel(project) as jm:
             return model_func(*args, jm=jm, **kwargs)
-        finally:
-            jm.disconnect()
 
     return use_jobs_model
 

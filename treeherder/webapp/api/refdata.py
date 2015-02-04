@@ -67,12 +67,8 @@ class BugscacheViewSet(viewsets.ReadOnlyModelViewSet):
         if not search_term:
             return Response({"message": "the 'search' parameter is mandatory"}, status=400)
 
-        rdm = RefDataManager()
-        try:
-            suggested_bugs = rdm.get_bug_suggestions(search_term)
-        finally:
-            rdm.disconnect()
-        return Response(suggested_bugs)
+        with RefDataManager() as rdm:
+            return Response(rdm.get_bug_suggestions(search_term))
 
 
 class MachineViewSet(viewsets.ReadOnlyModelViewSet):
@@ -99,11 +95,8 @@ class OptionCollectionHashViewSet(viewsets.ViewSet):
     """ViewSet for the virtual OptionCollectionHash model"""
 
     def list(self, request):
-        rdm = RefDataManager()
-        try:
+        with RefDataManager() as rdm:
             option_collection_hash = rdm.get_all_option_collections()
-        finally:
-            rdm.disconnect()
 
         ret = []
         for (option_hash, val) in option_collection_hash.iteritems():
