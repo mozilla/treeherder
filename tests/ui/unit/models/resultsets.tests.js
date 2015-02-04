@@ -48,11 +48,11 @@ describe('ThResultSetStore', function(){
             getResultSet(1)
         );
 
-        $httpBackend.whenGET(foregroundPrefix + '/jobs/?count=5000&result_set_id=1&return_type=list').respond(
+        $httpBackend.whenGET(foregroundPrefix + '/jobs/?count=2000&result_set_id=1&return_type=list').respond(
             getResultSet(1)
         );
 
-        $httpBackend.whenGET(foregroundPrefix + '/jobs/?count=5000&result_set_id=10&return_type=list').respond(
+        $httpBackend.whenGET(foregroundPrefix + '/jobs/?count=2000&result_set_id=10&return_type=list').respond(
             getResultSet(10)
         );
 

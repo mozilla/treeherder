@@ -107,15 +107,14 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location', '$q'
         getResultSetJobsUpdates: function(resultSetIdList, repoName, exclusionProfile, lastModified){
             var params = {
                 result_set_id__in: resultSetIdList.join(","),
-                full: "true",
-                count: 5000,
+                count: 2000,
                 last_modified__gt: lastModified,
-                return_type: "list",
+                return_type: "list"
             };
             if(exclusionProfile){
                 params.exclusion_profile = exclusionProfile;
             }
-            return ThJobModel.get_list(repoName, params);
+            return ThJobModel.get_list(repoName, params, {fetch_all: true});
         },
 
         getResultSetJobs: function(resultSets, repoName, exclusionProfile){
@@ -126,12 +125,12 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location', '$q'
                     var params = {
                         return_type: "list",
                         result_set_id:rs.id,
-                        count: 5000
+                        count: 2000
                     };
                     if(exclusionProfile){
                         params.exclusion_profile = exclusionProfile;
                     }
-                    jobsPromiseList.push(ThJobModel.get_list(repoName, params));
+                    jobsPromiseList.push(ThJobModel.get_list(repoName, params, {fetch_all: true}));
                 }
             );
             return jobsPromiseList;

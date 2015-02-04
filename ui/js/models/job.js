@@ -5,8 +5,8 @@
 'use strict';
 
 treeherder.factory('ThJobModel', [
-    '$http', 'ThLog', 'thUrl',
-    function($http, ThLog, thUrl) {
+    '$http', 'ThLog', 'thUrl', '$q',
+    function($http, ThLog, thUrl, $q) {
     // ThJobModel is the js counterpart of job
 
     var ThJobModel = function(data) {
@@ -34,6 +34,7 @@ treeherder.factory('ThJobModel', [
         // a static method to retrieve a list of ThJobModel
         config = config || {};
         var timeout = config.timeout || null;
+        var fetch_all = config.timeout || false;
 
         return $http.get(ThJobModel.get_uri(repoName),{
                 params: options,
@@ -41,6 +42,16 @@ treeherder.factory('ThJobModel', [
             }).
             then(function(response) {
                 var item_list;
+                var next_pages_jobs = [];
+                // if the number of elements returned equals the page size, fetch the next pages
+                if(fetch_all && (response.data.results.length == response.data.meta.count)){
+                    var current_offset = parseInt(response.data.meta.offset);
+                    var page_size = parseInt(response.data.meta.count);
+                    var new_options = angular.copy(options);
+                    new_options.offset = page_size + current_offset;
+                    new_options.count = page_size;
+                    next_pages_jobs = ThJobModel.get_list(repoName, new_options, config);
+                }
                 if(_.has(response.data, 'job_property_names')){
                     // the results came as list of fields
                     //we need to convert them to objects
@@ -53,7 +64,11 @@ treeherder.factory('ThJobModel', [
                         return new ThJobModel(job_obj);
                     });
                 }
-                return item_list;
+                // next_pages_jobs is wrapped in a $q.when call because it could be
+                // either a promise or a value
+                return $q.when(next_pages_jobs).then(function(maybe_job_list){
+                    return  item_list.concat(maybe_job_list);
+                })
         });
     };
 
