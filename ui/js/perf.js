@@ -76,11 +76,12 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
       $scope.resetTooltipContent(s.thSeries);
       $http.get(thServiceDomain + '/api/project/mozilla-central/resultset/' +
                 s.resultSetData[i]).then(function(response) {
-                  $scope.tooltipContent.revision = response.data.revisions[0].revision;
+                  var revision = response.data.revisions[0].revision;
+                  $scope.tooltipContent.revision = revision;
                   $scope.projects.forEach(function(project) {
-                    if (project.name == s.thSeries.branch) {
+                    if (project.name == s.thSeries.projectName) {
                       $scope.tooltipContent.revisionHref = project.url + "/rev/" +
-                        $scope.revision;
+                        revision;
                     }
                   });
                 });
