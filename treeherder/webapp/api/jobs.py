@@ -61,7 +61,7 @@ class JobsViewSet(viewsets.ViewSet):
         """
         filter = UrlQueryFilter(request.QUERY_PARAMS)
 
-        offset = filter.pop("offset", 0)
+        offset = int(filter.pop("offset", 0))
         count = min(int(filter.pop("count", 10)), 2000)
         return_type = filter.pop("return_type", "dict").lower()
         exclusion_profile = filter.pop("exclusion_profile", "default")
