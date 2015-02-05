@@ -24,7 +24,7 @@ perf.factory('seriesSummary', ['seriesColors', function(seriesColors) {
     var platform = signatureProps.machine_platform + " " +
       signatureProps.machine_architecture;
     var testName = signatureProps.suite + " " + signatureProps.test;
-    var signatureName =  testName + " " + platform;
+    var signatureName =  testName;
     return { name: signatureName, signature: signature, platform: platform,
              testName: testName, projectName: projectName, color: seriesColors[number] };
   };
@@ -338,42 +338,64 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
   $scope.updateTestInput = function() {
     $scope.addTestDataDisabled = true;
     $scope.loadingTestData = true;
+    $scope.platformList = [];
+
     $http.get(thServiceDomain + '/api/project/' + $scope.selectedProject.name +
               '/performance-data/0/get_performance_series_summary/?interval=' +
               $scope.timeRange).then(
                 function(response) {
                   var data = response.data;
-                  var signatureList = [];
+                  var seriesList = [];
                   var i = 0;
                   Object.keys(data).forEach(function(signature) {
-                    signatureList.push(seriesSummary(signature, data[signature],
-                                                     $scope.selectedProject.name, i));
+                    var series = seriesSummary(
+                      signature, data[signature],
+                      $scope.selectedProject.name, i)
+
+                    var platform = series.platform;
+                    if ($scope.platformList.indexOf(platform) === -1) {
+                      $scope.platformList.push(platform);
+                    }
+
+                    seriesList.push(series);
+
                     i++;
                   });
+                  $scope.platformList.sort();
+                  $scope.selectedPlatform = $scope.platformList[0];
 
-                  var signatures = new Bloodhound({
-                    datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
-                    queryTokenizer: Bloodhound.tokenizers.whitespace,
-                    limit: 10,
-                    local: signatureList
-                  });
+                  $scope.updateTestSelector = function() {
+                    var filteredSeriesList = seriesList.filter(
+                      function(series) {
+                        return (series.platform === $scope.selectedPlatform);
+                      });
 
-                  // kicks off the loading/processing of `local` and `prefetch`
-                  signatures.initialize();
+                    var signatures = new Bloodhound({
+                      datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+                      queryTokenizer: Bloodhound.tokenizers.whitespace,
+                      limit: 10,
+                      local: filteredSeriesList
+                    });
 
-                  if (testInputCreated) {
-                    $('.typeahead').typeahead('destroy');
+                    // kicks off the loading/processing of `local` and `prefetch`
+                    signatures.initialize();
+
+                    if (testInputCreated) {
+                      $('.typeahead').typeahead('destroy');
+                    }
+
+                    $('.typeahead').typeahead(null, {
+                      name: 'signatures',
+                      displayKey: 'name',
+                      source: signatures.ttAdapter()
+                    }).on('typeahead:selected', function(obj, datum) {
+                      $scope.selectedSeries = datum;
+                      $scope.addTestDataDisabled = false;
+                    });
+                    testInputCreated = true;
                   }
+                  $scope.updateTestSelector();
 
-                  $('.typeahead').typeahead(null, {
-                    name: 'signatures',
-                    displayKey: 'name',
-                    source: signatures.ttAdapter()
-                  }).on('typeahead:selected', function(obj, datum) {
-                    $scope.selectedSeries = datum;
-                    $scope.addTestDataDisabled = false;
-                  });
-                  testInputCreated = true;
                   $scope.loadingTestData = false;
                 });
   };
