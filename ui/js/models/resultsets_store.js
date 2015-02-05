@@ -143,23 +143,41 @@ treeherder.factory('ThResultSetStore', [
     };
 
     var mapResultSetJobs = function(repoName, jobList){
-        
-        var sortAndGroupJobs = _.compose(
-            sortGroupedJobs,
-            groupJobByPlatform
-        );
-        return sortAndGroupJobs(jobList).then(function(groupedJobs){
-            for(var i=0; i<repositories[repoName].resultSets.length; i++){
-                if(repositories[repoName].resultSets[i].id === groupedJobs.id){
-                    _.extend(repositories[repoName].resultSets[i], groupedJobs);
-                    mapPlatforms(
-                        repoName,
-                        repositories[repoName].resultSets[i]
-                    );
-                    $rootScope.$emit(thEvents.applyNewJobs, groupedJobs.id);
-                }
+        if(jobList.length > 0){
+            // jobList contains jobs belonging to the same resultset,
+            // so we can pick the result_set_id from the first job
+            var resultSetId = jobList[0].result_set_id;
+            var resultSet = _.findWhere(
+                repositories[repoName].resultSets, {id: resultSetId}
+            );
+            if(_.isUndefined(resultSet)){ return $q.defer().resolve(); }
+            if(_.has(resultSet, 'jobList')){
+                // get the new job ids
+                var jobIds = _.pluck(jobList, 'id');
+                // remove the elements that need to be updated
+                resultSet.jobList = _.filter(resultSet.jobList, function(job){
+                    return _.indexOf(jobIds, job.id) === -1;
+                });
+                resultSet.jobList = resultSet.jobList.concat(jobList);
+            }else{
+                resultSet.jobList = jobList;
             }
-        });
+            var sortAndGroupJobs = _.compose(
+                sortGroupedJobs,
+                groupJobByPlatform
+            );
+            return sortAndGroupJobs(resultSet.jobList).
+            then(function(groupedJobs){
+                _.extend(resultSet, groupedJobs);
+                mapPlatforms(
+                    repoName,
+                    resultSet
+                );
+                $rootScope.$emit(thEvents.applyNewJobs, resultSetId);
+            });
+        }else{
+            return $q.defer().resolve();
+        }
     };
 
     var addRepository = function(repoName){
