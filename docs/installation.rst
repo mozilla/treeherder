@@ -70,7 +70,7 @@ Running the tests
 
      (venv)vagrant@precise32:~/treeherder-service$ py.test --runslow tests/
 
-* For more options, see |py.test --help| or http://pytest.org/latest/usage.html
+* For more options, see ``py.test --help`` or http://pytest.org/latest/usage.html
 
 Setting up a local Treeherder instance
 --------------------------------------
