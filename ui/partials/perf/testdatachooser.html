@@ -12,7 +12,9 @@
   </select>
   <h4>Test</h4>
   <p class="blink" ng-show="loadingTestData">Loading series data...</p>
-  <input my-input ng-hide="loadingTestData" class="typeahead" type="text" placeholder="Enter test keywords (e.g. 'tp5o')"></input>
+  <div id="scrollable-dropdown-menu">
+    <input my-input ng-hide="loadingTestData" class="typeahead" type="text" placeholder="Enter test keywords (e.g. 'tp5o')"></input>
+  </div>
 </div>
 <div class="modal-footer">
   <button class="btn btn-primary" ng-click="addTestData()" ng-disabled="addTestDataDisabled" ng-model="addTestDataDisabled"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add</button>

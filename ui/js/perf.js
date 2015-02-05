@@ -368,12 +368,12 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
                     var filteredSeriesList = seriesList.filter(
                       function(series) {
                         return (series.platform === $scope.selectedPlatform);
-                      });
+                      }).sort(function(a, b) { return a.name > b.name; });
 
                     var signatures = new Bloodhound({
                       datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
                       queryTokenizer: Bloodhound.tokenizers.whitespace,
-                      limit: 10,
+                      limit: 100,
                       local: filteredSeriesList
                     });
 
@@ -387,7 +387,8 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
                     $('.typeahead').typeahead(null, {
                       name: 'signatures',
                       displayKey: 'name',
-                      source: signatures.ttAdapter()
+                      source: signatures.ttAdapter(),
+                      limit: 100
                     }).on('typeahead:selected', function(obj, datum) {
                       $scope.selectedSeries = datum;
                       $scope.addTestDataDisabled = false;

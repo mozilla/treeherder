@@ -140,3 +140,7 @@ to { opacity: 0; }
 #graph-tooltip.locked .tip {
     background-image: url("../img/tip-locked.png");
 }
+#scrollable-dropdown-menu .tt-dropdown-menu {
+  max-height: 150px;
+  overflow-y: auto;
+}
