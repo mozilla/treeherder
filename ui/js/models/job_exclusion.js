@@ -100,7 +100,7 @@ treeherder.factory('ThJobExclusionModel', [
 
     // an instance method to delete a ThJobExclusionModel object
     ThJobExclusionModel.prototype.delete = function(){
-        $log.log(this);
+        $log.debug(this);
         var pk = this.id;
         return $http.delete(ThJobExclusionModel.get_uri()+pk+"/")
             .then(
