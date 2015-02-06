@@ -26,6 +26,7 @@ sys.path.append(th_service_src)
 is_prod = 'treeherder.mozilla.org' in settings.SRC_DIR
 env_flag = '-p' if is_prod else '-s'
 
+
 @task
 def pre_update(ctx, ref=settings.UPDATE_REF):
     """Update the code to a specific git reference (tag/sha/etc)."""
@@ -77,38 +78,41 @@ def deploy(ctx):
     # Use the local, IT-written deploy script to check in changes.
     ctx.local(settings.DEPLOY_SCRIPT)
 
+    def restart_jobs(ctx, type):
+        ctx.local('/root/bin/restart-jobs %s %s' % (env_flag, type))
+
     # Restart celerybeat on the admin node.
     @hostgroups(settings.RABBIT_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
     def deploy_rabbit(ctx):
         ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
-        ctx.local('/root/bin/restart-jobs %s rabbit' % env_flag)
 
     deploy_rabbit()
+    restart_jobs(ctx, 'rabbit')
 
     @hostgroups(settings.WEB_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
     def deploy_web_app(ctx):
         # Call the remote update script to push changes to webheads.
         ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
         ctx.remote('{0}/service httpd graceful'.format(settings.SBIN_DIR))
-        ctx.local('/root/bin/restart-jobs %s web' % env_flag)
 
     deploy_web_app()
+    restart_jobs(ctx, 'web')
 
     @hostgroups(settings.ETL_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
     def deploy_etl(ctx):
         # Call the remote update script to push changes to workers.
         ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
-        ctx.local('/root/bin/restart-jobs %s etl' % env_flag)
 
     deploy_etl()
+    restart_jobs(ctx, 'etl')
 
     @hostgroups(settings.LOG_HOSTGROUP, remote_kwargs={'ssh_key': settings.SSH_KEY})
     def deploy_log(ctx):
         # Call the remote update script to push changes to workers.
         ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
-        ctx.local('/root/bin/restart-jobs %s log' % env_flag)
 
     deploy_log()
+    restart_jobs(ctx, 'log')
 
     with ctx.lcd(th_service_src):
         # Write info about the current repository state to a publicly visible file.
