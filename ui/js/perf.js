@@ -20,10 +20,16 @@ perf.provider('thServiceDomain', function() {
 perf.value('seriesColors', [ 'red', 'green', 'blue', 'orange', 'purple' ]);
 
 perf.factory('seriesSummary', ['seriesColors', function(seriesColors) {
-  return function(signature, signatureProps, projectName, number) {
+  return function(signature, signatureProps, projectName, optionCollectionMap,
+                  number) {
     var platform = signatureProps.machine_platform + " " +
       signatureProps.machine_architecture;
-    var testName = signatureProps.suite + " " + signatureProps.test;
+    var extra = "";
+    if (signatureProps.job_group_symbol === "T-e10s") {
+      extra = " e10s";
+    }
+    var testName = signatureProps.suite + " " + signatureProps.test +
+      " " + optionCollectionMap[signatureProps.option_collection_hash] + extra;
     var signatureName =  testName;
     return { name: signatureName, signature: signature, platform: platform,
              testName: testName, projectName: projectName, color: seriesColors[number] };
@@ -139,7 +145,6 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
     };
 
     $scope.lockTooltip = function() {
-      console.log("Locking");
       $scope.ttLocked = true;
       $scope.$digest();
     };
@@ -228,95 +233,108 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
       $scope.reload();
     };
 
-    $http.get(thServiceDomain + '/api/repository/').then(function(response) {
-      $scope.projects = response.data;
+    var optionCollectionMap = {};
 
-      $scope.addTestData = function() {
-        var modalInstance = $modal.open({
-          templateUrl: 'partials/perf/testdatachooser.html',
-          controller: 'TestChooserCtrl',
-          resolve: {
-            projects: function() {
-              return $scope.projects;
-            },
-            timeRange: function() {
-              return $scope.myTimerange.value;
-            }
-          }
+    $http.get(thServiceDomain + '/api/optioncollectionhash').then(
+      function(response) {
+        response.data.forEach(function(dict) {
+          optionCollectionMap[dict.option_collection_hash] =
+            dict.options.map(function(option) {
+              return option.name; }).join(" ");
         });
-
-        modalInstance.opened.then(function () {
-          window.setTimeout(function () { modalInstance.updateTestInput(); }, 0);
-        });
-
-        modalInstance.result.then(function(series) {
-          $scope.seriesList.push(series);
-          $scope.reload();
-        });
-      };
-    });
-
-    if (!$scope.seriesList) {
-      // loading for first time
-      if ($stateParams.seriesList) {
-        $scope.seriesList = [];
-        var seriesPairs = JSON.parse($stateParams.seriesList);
-        var propsHash = {}
-        $q.all(seriesPairs.map(
-          function(seriesPair) {
-            return $http.get(thServiceDomain + '/api/project/' +
-                             seriesPair[0] + '/performance-data/0/' +
-                             'get_signature_properties/?signatures=' +
-                             seriesPair[1]).then(function(response) {
-                               var data = response.data;
-                               if (!propsHash[seriesPair[0]]) {
-                                 propsHash[seriesPair[0]] = {};
-                               }
-                               propsHash[seriesPair[0]][seriesPair[1]] = data[0];
-                             });
-          })).then(function() {
-            Object.keys(propsHash).forEach(function(projectName) {
-              var i = 0;
-              Object.keys(propsHash[projectName]).forEach(function(signature) {
-                $scope.seriesList.push(seriesSummary(
-                  signature, propsHash[projectName][signature], projectName, i));
-                i++;
-              });
-            });
-            $q.all($scope.seriesList.map(function(series) {
+      }).then(function() {
+        if ($stateParams.seriesList) {
+          $scope.seriesList = [];
+          var seriesPairs = JSON.parse($stateParams.seriesList);
+          var propsHash = {}
+          $q.all(seriesPairs.map(
+            function(seriesPair) {
               return $http.get(thServiceDomain + '/api/project/' +
-                               series.projectName +
-                               '/performance-data/0/get_performance_data/' +
-                               '?interval_seconds=' + $scope.myTimerange.value +
-                               '&signatures=' + series.signature).then(
-                                 function(response) {
-                                   var flotSeries = {
-                                     lines: { show: false },
-                                     points: { show: true },
-                                     label: series.projectName + " " + series.testName,
-                                     data: [],
-                                     resultSetData: [],
-                                     thSeries: jQuery.extend({}, series)
-                                   }
-                                   response.data[0].blob.forEach(function(dataPoint) {
-                                     flotSeries.data.push([
-                                       new Date(dataPoint.push_timestamp*1000),
-                                       dataPoint.mean]);
-                                     flotSeries.resultSetData.push(dataPoint.result_set_id);
-                                     flotSeries.data.sort(function(a,b) { return a[0] > b[0]; });
+                               seriesPair[0] + '/performance-data/0/' +
+                               'get_signature_properties/?signatures=' +
+                               seriesPair[1]).then(function(response) {
+                                 var data = response.data;
+                                 if (!propsHash[seriesPair[0]]) {
+                                   propsHash[seriesPair[0]] = {};
+                                 }
+                                 propsHash[seriesPair[0]][seriesPair[1]] = data[0];
+                               });
+            })).then(function() {
+              Object.keys(propsHash).forEach(function(projectName) {
+                var i = 0;
+                Object.keys(propsHash[projectName]).forEach(function(signature) {
+                  $scope.seriesList.push(seriesSummary(
+                    signature, propsHash[projectName][signature], projectName,
+                    optionCollectionMap, i));
+                  i++;
+                });
+              });
+              $q.all($scope.seriesList.map(function(series) {
+                return $http.get(thServiceDomain + '/api/project/' +
+                                 series.projectName +
+                                 '/performance-data/0/get_performance_data/' +
+                                 '?interval_seconds=' + $scope.myTimerange.value +
+                                 '&signatures=' + series.signature).then(
+                                   function(response) {
+                                     var flotSeries = {
+                                       lines: { show: false },
+                                       points: { show: true },
+                                       label: series.projectName + " " + series.testName,
+                                       data: [],
+                                       resultSetData: [],
+                                       thSeries: jQuery.extend({}, series)
+                                     }
+                                     response.data[0].blob.forEach(function(dataPoint) {
+                                       flotSeries.data.push([
+                                         new Date(dataPoint.push_timestamp*1000),
+                                         dataPoint.mean]);
+                                       flotSeries.resultSetData.push(dataPoint.result_set_id);
+                                       flotSeries.data.sort(function(a,b) { return a[0] > b[0]; });
+                                     });
+                                     series.flotSeries = flotSeries;
                                    });
-                                   series.flotSeries = flotSeries;
-                                 });
-            })).then(function() { plotGraph(); });
-          });
-      } else {
-        $scope.seriesList = [];
-      }
-    }
+              })).then(function() { plotGraph(); });
+            });
+        } else {
+          $scope.seriesList = [];
+        }
+
+        $http.get(thServiceDomain + '/api/repository/').then(function(response) {
+          $scope.projects = response.data;
+
+          $scope.addTestData = function() {
+            var modalInstance = $modal.open({
+              templateUrl: 'partials/perf/testdatachooser.html',
+              controller: 'TestChooserCtrl',
+              resolve: {
+                projects: function() {
+                  return $scope.projects;
+                },
+                optionCollectionMap: function() {
+                  return optionCollectionMap;
+                },
+                timeRange: function() {
+                  return $scope.myTimerange.value;
+                }
+              }
+            });
+
+            modalInstance.opened.then(function () {
+              window.setTimeout(function () { modalInstance.updateTestInput(); }, 0);
+            });
+
+            modalInstance.result.then(function(series) {
+              $scope.seriesList.push(series);
+              $scope.reload();
+            });
+          };
+        });
+      });
   }]);
 
 perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
-                                            projects, timeRange, thServiceDomain,
+                                            projects, optionCollectionMap,
+                                            timeRange, thServiceDomain,
                                             seriesSummary) {
   $scope.timeRange = timeRange;
   $scope.projects = projects;
@@ -350,7 +368,7 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
                   Object.keys(data).forEach(function(signature) {
                     var series = seriesSummary(
                       signature, data[signature],
-                      $scope.selectedProject.name, i)
+                      $scope.selectedProject.name, optionCollectionMap, i)
 
                     var platform = series.platform;
                     if ($scope.platformList.indexOf(platform) === -1) {
