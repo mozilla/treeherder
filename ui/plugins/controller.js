@@ -7,13 +7,13 @@
 treeherder.controller('PluginCtrl', [
     '$scope', '$rootScope', '$location', 'thUrl', 'ThJobClassificationModel',
     'thClassificationTypes', 'ThJobModel', 'thEvents', 'dateFilter',
-    'numberFilter', 'ThBugJobMapModel', 'thResultStatus',
+    'numberFilter', 'ThBugJobMapModel', 'thResultStatus', 'thJobFilters',
     'ThResultSetModel', 'ThLog', '$q', 'thPinboard', 'ThJobArtifactModel',
     'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'thTabs', '$timeout',
     function PluginCtrl(
         $scope, $rootScope, $location, thUrl, ThJobClassificationModel,
         thClassificationTypes, ThJobModel, thEvents, dateFilter,
-        numberFilter, ThBugJobMapModel, thResultStatus,
+        numberFilter, ThBugJobMapModel, thResultStatus, thJobFilters,
         ThResultSetModel, ThLog, $q, thPinboard, ThJobArtifactModel,
         thBuildApi, thNotify, ThJobLogUrlModel, thTabs, $timeout) {
 
@@ -36,6 +36,10 @@ treeherder.controller('PluginCtrl', [
             $scope.buildbotJobnameHref = absUrl + delimiter +
                                          'filter-searchStr=' + buildername;
 
+        };
+
+        $scope.filterByBuildername = function(buildbotJobname) {
+            thJobFilters.replaceFilter('searchStr', buildbotJobname || null);
         };
 
         // this promise will void all the ajax requests

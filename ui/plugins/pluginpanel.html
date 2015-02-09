@@ -143,7 +143,8 @@
           <label>Job:</label>
           <a title="Filter jobs like these in a new tab"
              href="{{buildbotJobnameHref}}"
-             prevent-default-on-left-click th-filter-by-buildername>
+             prevent-default-on-left-click
+             ng-click="filterByBuildername(buildbotJobname)">
             {{buildbotJobname}}</a>
         </li>
         <li class="small">
