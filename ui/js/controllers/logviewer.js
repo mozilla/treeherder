@@ -152,7 +152,7 @@ logViewer.controller('LogviewerCtrl', [
         };
 
         $scope.init = function() {
-            $log.log(ThJobArtifactModel.get_uri());
+            $log.debug(ThJobArtifactModel.get_uri());
             ThJobArtifactModel.get_list({job_id: $scope.job_id, name: 'Structured Log'})
             .then(function(artifactList){
                 if(artifactList.length > 0){
