@@ -16,7 +16,7 @@ $libxml2 = $operatingsystem ? {
 
 $site_packages = $operatingsystem ? {
     ubuntu => "lib/python2.7/site-packages",
-    default => "lib64/python2.6/site-packages",
+    default => "lib64/python2.7/site-packages",
 }
 
 class python {

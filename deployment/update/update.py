@@ -51,26 +51,25 @@ def pre_update(ctx, ref=settings.UPDATE_REF):
 def update(ctx):
     with ctx.lcd(th_service_src):
         # Collect the static files (eg for the Persona or Django admin UI)
-        ctx.local("python2.6 manage.py collectstatic --noinput")
+        ctx.local("python2.7 manage.py collectstatic --noinput")
 
         # Rebuild the Cython code (eg the log parser)
-        ctx.local("python2.6 setup.py build_ext --inplace")
+        ctx.local("python2.7 setup.py build_ext --inplace")
 
         # Update the database schema, if necessary.
-        ctx.local("python2.6 manage.py syncdb")
-        ctx.local("python2.6 manage.py migrate")
+        ctx.local("python2.7 manage.py migrate")
 
         # Update reference data & tasks config from the in-repo fixtures.
-        ctx.local("python2.6 manage.py load_initial_data")
+        ctx.local("python2.7 manage.py load_initial_data")
 
         # Populate the datasource table and create the connected databases.
-        ctx.local("python2.6 manage.py init_datasources")
+        ctx.local("python2.7 manage.py init_datasources")
 
         # Update oauth credentials.
-        ctx.local("python2.6 manage.py export_project_credentials")
+        ctx.local("python2.7 manage.py export_project_credentials")
 
         # Clear the cache.
-        ctx.local("python2.6 manage.py clear_cache")
+        ctx.local("python2.7 manage.py clear_cache")
 
 
 @task
