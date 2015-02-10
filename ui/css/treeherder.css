@@ -551,7 +551,7 @@ div#bottom-panel {
     font-size: 12px;
 
     height: 35%;
-    max-height: 35%;
+    max-height: 75%;
     flex: none;
     -webkit-flex: none;
 
@@ -836,36 +836,37 @@ ul.failure-summary-list li .btn-xs {
 }
 
 #pinned-job-list{
+    position: relative;
     flex: auto;
     -webkit-flex: auto;
-    padding: 5px;
+    margin: 7px 7px 10px;
 }
 
 #pinned-job-list .content{
+    position: absolute;
+    width: 100%;
+    height: 100%;
     padding: 2px;
-    margin: 2px;
-    background-color: #FFFFFF;
-    min-height: 80px;
-    max-height: 120px;
     overflow: auto;
+    background-color: #FFFFFF;
 }
 
 #pinboard-related-bugs{
-    width: 215px;
-    padding: 5px;
+    position: relative;
+    width: 200px;
     flex: none;
     -webkit-flex: none;
-    min-width: 215px;
+    margin: 7px 7px 10px;
 }
 
 #pinboard-related-bugs .content {
+    position: absolute;
+    height: 100%;
+    width: 200px;
     padding: 2px;
-    margin: 2px;
-    background-color: #FFFFFF;
-    min-height: 80px;
-    max-height: 120px;
     overflow-x: hidden;
     color: black;
+    background-color: #FFFFFF;
 }
 
 #pinboard-related-bugs a {
