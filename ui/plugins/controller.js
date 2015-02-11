@@ -284,11 +284,6 @@ treeherder.controller('PluginCtrl', [
             $rootScope.selectedJob = job;
         });
 
-        $rootScope.$on(thEvents.jobClear, function(event, job) {
-            $rootScope.selectedJob = null;
-            $scope.$digest();
-        });
-
         $scope.bug_job_map_list = [];
 
         $scope.classificationTypes = thClassificationTypes;

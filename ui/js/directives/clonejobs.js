@@ -174,15 +174,6 @@ treeherder.directive('thCloneJobs', [
         }, 200);
     };
 
-    var clearJobCb = function(ev, el, job) {
-        clearSelectJobStyles();
-
-        // Reset selected job to null to initialize nav position
-        ThResultSetStore.setSelectedJob($rootScope.repoName);
-
-        $rootScope.$emit(thEvents.jobClear, job);
-    };
-
     var togglePinJobCb = function(ev, el, job){
         $rootScope.$emit(thEvents.jobPin, job);
     };
@@ -309,11 +300,6 @@ treeherder.directive('thCloneJobs', [
 
             ThResultSetStore.setSelectedJob($rootScope.repoName, el, job);
 
-        } else {
-            // If user didn't select a job or anchor clear the selected job
-            if (el.prop("tagName") !== "A") {
-                _.bind(clearJobCb, this, ev, el)();
-            }
         }
     };
 

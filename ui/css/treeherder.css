@@ -23,10 +23,6 @@ a:visited {
     height: 100%;
 }
 
-.getnext-footer {
-    margin-bottom: 0;
-}
-
 .pagination, .carousel, .panel-title a {
     cursor: pointer;
 }

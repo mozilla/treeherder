@@ -13,7 +13,8 @@
         <span class="btn btn-default btn-sm glyphicon glyphicon-download" ng-show="isLoadingJobs"></span>
         <span>
           <a href="{{::revisionResultsetFilterUrl}}"
-             title="open this resultset">{{::resultsetDateStr}}</a> - </span>
+             title="open this resultset"
+             ignore-job-clear-on-click>{{::resultsetDateStr}}</a> - </span>
         <th-author author="{{::resultset.author}}"></th-author>
       </span>
       <span>
@@ -21,8 +22,10 @@
         <span class="btn btn-default btn-sm btn-resultset"
               tabindex="0" role="button"
               title="pin all visible jobs in this resultset"
+              ignore-job-clear-on-click
               ng-click="pinAllShownJobs()">
-          <span class="glyphicon glyphicon-pushpin"></span>
+          <span class="glyphicon glyphicon-pushpin"
+                ignore-job-clear-on-click></span>
         </span>
 
         <th-action-button ng-hide="isLoadingJobs"></th-action-button>
@@ -31,18 +34,22 @@
               tabindex="0" role="button"
               title="cancel all jobs in this resultset"
               ng-show="currentRepo.repository_group.name == 'try' || user.is_staff"
+              ignore-job-clear-on-click
               ng-click="cancelAllJobs(resultset.revision)">
-          <span class="fa fa-times-circle cancel-job-icon dim-quarter"></span>
+          <span class="fa fa-times-circle cancel-job-icon dim-quarter"
+                ignore-job-clear-on-click></span>
         </span>
       </span>
 
       <span class="btn btn-default btn-sm btn-resultset revision-button"
             tabindex="0" role="button"
-            ng-click="toggleRevisions()"
-            title="show revisions">
-        <i class="fa fa-code-fork fa-lg
-                  result-set-fa-icon"></i>
-        <span ng-if="resultset.revision_count <= 20">{{::resultset.revision_count}}</span>
+            title="show revisions"
+            ignore-job-clear-on-click
+            ng-click="toggleRevisions()">
+        <i class="fa fa-code-fork fa-lg" ignore-job-clear-on-click
+           result-set-fa-icon"></i>
+        <span ng-if="resultset.revision_count <= 20" ignore-job-clear-on-click>
+            {{::resultset.revision_count}}</span>
         <span ng-if="resultset.revision_count > 20">&gt20</span>
       </span>
       <th-result-counts class="result-counts"/>
@@ -97,8 +104,7 @@
 </div>
 
 <!-- Get next resultsets footer -->
-<div class="well getnext-footer" ng-if="result_sets.length > 1"
-     ng-click="closeJob()">
+<div class="well" ng-if="result_sets.length > 1">
      get next:
     <div class="btn-group">
         <div class="btn btn-default btn-sm"
