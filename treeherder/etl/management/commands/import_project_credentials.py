@@ -3,7 +3,7 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 import os
-import json
+import simplejson as json
 
 from django.core.management.base import BaseCommand, CommandError
 from treeherder.model.models import Datasource

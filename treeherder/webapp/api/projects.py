@@ -4,7 +4,7 @@
 
 from django.http import HttpResponse, HttpResponseNotFound
 from treeherder.model.derived import DatasetNotFoundError
-import json
+import simplejson as json
 
 from treeherder.model.derived import JobsModel
 

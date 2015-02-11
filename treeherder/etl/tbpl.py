@@ -5,7 +5,7 @@
 from datetime import datetime
 import logging
 
-import json
+import simplejson as json
 import requests
 from treeherder.model.derived import JobsModel
 from django.conf import settings

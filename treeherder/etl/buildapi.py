@@ -5,7 +5,7 @@
 import logging
 import time
 import datetime
-import json
+import simplejson as json
 import os
 import copy
 

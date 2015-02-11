@@ -2,8 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-import json
-from json import encoder
+import simplejson as json
+from simplejson import encoder
 
 from hashlib import sha1
 import math

@@ -3,7 +3,7 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 import time
-import json
+import simplejson as json
 import random
 from _mysql_exceptions import OperationalError
 
