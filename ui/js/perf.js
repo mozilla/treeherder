@@ -303,6 +303,13 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
           $scope.projects = response.data;
 
           $scope.addTestData = function() {
+            var defaultProjectName, defaultPlatform;
+            if ($scope.seriesList.length > 0) {
+              var lastSeries = $scope.seriesList.slice(-1)[0];
+              defaultProjectName = lastSeries.projectName;
+              defaultPlatform = lastSeries.platform;
+            }
+
             var modalInstance = $modal.open({
               templateUrl: 'partials/perf/testdatachooser.html',
               controller: 'TestChooserCtrl',
@@ -315,7 +322,9 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
                 },
                 timeRange: function() {
                   return $scope.myTimerange.value;
-                }
+                },
+                defaultProjectName: function() { return defaultProjectName; },
+                defaultPlatform: function() { return defaultPlatform; }
               }
             });
 
@@ -335,10 +344,15 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
 perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
                                             projects, optionCollectionMap,
                                             timeRange, thServiceDomain,
-                                            seriesSummary) {
+                                            seriesSummary, defaultProjectName,
+                                            defaultPlatform) {
   $scope.timeRange = timeRange;
   $scope.projects = projects;
-  $scope.selectedProject = projects[0];
+  if (defaultProjectName) {
+    $scope.selectedProject = _.findWhere(projects, {name: defaultProjectName});
+  } else {
+    $scope.selectedProject = projects[0];
+  }
   $scope.loadingTestData = false;
 
   var testInputCreated = false;
@@ -380,7 +394,8 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
                     i++;
                   });
                   $scope.platformList.sort();
-                  $scope.selectedPlatform = $scope.platformList[0];
+                  $scope.selectedPlatform = defaultPlatform ||
+                    $scope.platformList[0];
 
                   $scope.updateTestSelector = function() {
                     var filteredSeriesList = seriesList.filter(
