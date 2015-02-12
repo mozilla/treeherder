@@ -304,7 +304,6 @@ treeherder.directive('thCloneJobs', [
     };
 
     var addRevisions = function(resultset, element){
-//        $log.debug("addRevisions", resultset, element);
 
         if(resultset.revisions.length > 0){
 
@@ -339,7 +338,7 @@ treeherder.directive('thCloneJobs', [
                 var pushlogInterpolator = thCloneHtml.get('pushlogRevisionsClone').interpolator;
                 ulEl.append(pushlogInterpolator({
                     currentRepo: $rootScope.currentRepo,
-                    revision: resultset.revision,
+                    revision: resultset.revision
                 }));
             }
         }
@@ -361,7 +360,7 @@ treeherder.directive('thCloneJobs', [
         var rowEl = revisionsEl.parent();
         rowEl.css('display', 'block');
 
-        if(on){
+        if(on) {
 
             ThResultSetStore.loadRevisions(
                 $rootScope.repoName, this.resultset.id
@@ -376,7 +375,7 @@ treeherder.directive('thCloneJobs', [
                 toggleRevisionsSpanOnWithoutJobs(revisionsEl);
             }
 
-        }else{
+        } else {
             toggleRevisionsSpanOff(revisionsEl);
 
             if(jobsElDisplayState === 'block'){

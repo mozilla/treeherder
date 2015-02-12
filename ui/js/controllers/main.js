@@ -180,7 +180,7 @@ treeherder.controller('MainCtrl', [
             }else{
                 $location.search('exclusion_profile', 'false');
             }
-        }
+        };
 
         $scope.toggleUnclassifiedFailures = thJobFilters.toggleUnclassifiedFailures;
 

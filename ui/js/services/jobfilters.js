@@ -123,7 +123,6 @@ treeherder.factory('thJobFilters', [
     $rootScope.$on('$locationChangeSuccess', function() {
 
         var newFilterParams = getNewFilterParams();
-
         if (!_.isEqual(cachedFilterParams, newFilterParams)) {
             cachedFilterParams = newFilterParams;
             _refreshFilterCaches();

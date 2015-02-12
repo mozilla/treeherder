@@ -861,7 +861,7 @@ treeherder.factory('ThResultSetStore', [
             },
             thResultStatusObject.getResultStatusObject()
         );
-    }
+    };
     /*
     * Convert a flat list of jobs into a structure grouped by
     * platform and job_group. this is mainly to keep compatibility
@@ -873,16 +873,16 @@ treeherder.factory('ThResultSetStore', [
             job_counts: getJobCount(jobList)
         };
 
-        if(jobList.length == 0){return groupedJobs;}
+        if(jobList.length === 0){return groupedJobs;}
         groupedJobs.id = jobList[0].result_set_id;
         var lastModified = "";
         for(var i=0; i<jobList.length; i++){
             // search for the right platform
             var job = jobList[i];
             var platform = _.find(groupedJobs.platforms, function(platform){
-                return job.build_platform == platform.name &&
-                 job.platform_option == platform.option;
-            })
+                return job.build_platform === platform.name &&
+                 job.platform_option === platform.option;
+            });
             if(_.isUndefined(platform)){
                 platform = {
                     name: job.build_platform,
@@ -893,9 +893,9 @@ treeherder.factory('ThResultSetStore', [
             }
             // search for the right group
             var group = _.find(platform.groups, function(group){
-                return job.job_group_name == group.name &&
-                job.job_group_symbol == group.symbol;
-            })
+                return job.job_group_name === group.name &&
+                job.job_group_symbol === group.symbol;
+            });
             if(_.isUndefined(group)){
                 group = {
                     name: job.job_group_name,
@@ -937,7 +937,7 @@ treeherder.factory('ThResultSetStore', [
             var outputOrderMap = {};
             _.each(paddedJobSymbolList, function(paddedJob, index){
                 outputOrderMap[symbolMap[paddedJob]] = index;
-            })
+            });
             return outputOrderMap;
         });
     var jobGroupOrderPromise = ThJobGroupModel.get_list().
@@ -964,7 +964,7 @@ treeherder.factory('ThResultSetStore', [
                     group.jobs = _.sortBy(group.jobs, function(job){
                         return jobTypeOrder[job.job_type_symbol];
                     });
-                })
+                });
                 platform.groups = _.sortBy(platform.groups, function(group){
                     return jobGroupOrder[group.symbol];
                 });
@@ -974,8 +974,8 @@ treeherder.factory('ThResultSetStore', [
                 thOptionOrder[platform.option];
             });
             return groupedJobs;
-        })
-    }
+        });
+    };
 
     //Public interface
     var api = {
