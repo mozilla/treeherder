@@ -62,32 +62,28 @@ class Builds4hTransformerMixin(object):
                     prop["branch"], build))
                 raise e
 
-        request_ids_str = ",".join(map(str, request_ids))
-        request_time_list = []
-
-        if type(request_times) == dict:
-            for request_id in request_ids:
-                request_time_list.append(
-                    request_times[str(request_id)])
-            request_times_str = ','.join(
-                map(str, request_time_list))
-        else:
-            request_times_str = str(request_times)
+        request_id = request_ids[-1]
+        request_time = request_times[str(request_id)]
 
         job_guid_data = {'job_guid': '', 'coalesced': []}
 
         if len(request_ids) > 1:
-            # coallesced job detected, generate the coalesced
-            # job guids
-            for index, r_id in enumerate(request_ids):
-                #skip if buildbot doesn't have a matching number of ids and times
-                if len(request_time_list) > index:
+            # coallesced job detected, generate the coalesced job guids
+
+            # build the list of job_guids that were coalesced.  But skip
+            # the last request_id, which is the current job, because
+            # it was not, itself, coalesced.  The other requests were
+            # coalesced to it.
+            for r_id in request_ids[:-1]:
+                try:
                     job_guid_data['coalesced'].append(
-                        common.generate_job_guid(
-                            str(r_id), request_time_list[index]))
+                        common.generate_job_guid(r_id, request_times[r_id]))
+                except KeyError:
+                    # if this r_id doesn't have a corresponding time, then skip
+                    pass
 
         job_guid_data['job_guid'] = common.generate_job_guid(
-            request_ids_str, request_times_str, endtime)
+            request_id, request_time, endtime)
 
         return job_guid_data
 
@@ -253,7 +249,7 @@ class Builds4hTransformerMixin(object):
                         'log_urls': [],
                         'blob': {
                             'buildername': build['properties']['buildername'],
-                            'request_id': max(request_ids)
+                            'request_id': request_ids[-1]
                         }
                     },
                 ]
@@ -469,7 +465,7 @@ class RunningTransformerMixin(object):
 
                     new_job = {
                         'job_guid': common.generate_job_guid(
-                            running_job['request_ids'][0],
+                            running_job['request_ids'][-1],
                             running_job['submitted_at']
                         ),
                         'name': job_name_info.get('name', ''),
@@ -514,7 +510,7 @@ class RunningTransformerMixin(object):
                                 'log_urls': [],
                                 'blob': {
                                     'buildername': running_job['buildername'],
-                                    'request_id': max(running_job['request_ids'])
+                                    'request_id': running_job['request_ids'][-1]
                                 }
                             },
                         ]
