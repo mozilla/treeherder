@@ -166,7 +166,7 @@ treeherder.factory('thJobFilters', [
     };
 
     var _getFiltersOrDefaults = function(field) {
-        var filters = $location.search()[_withPrefix(field)];
+        var filters = _.clone($location.search()[_withPrefix(field)]);
         if (filters) {
             return _toArray(filters);
         } else if (DEFAULTS.hasOwnProperty(field)) {
@@ -485,7 +485,8 @@ treeherder.factory('thJobFilters', [
     var _matchesDefaults = function(field, values) {
         $log.debug("_matchesDefaults", field, values);
         if (DEFAULTS.hasOwnProperty(field)) {
-            return _.intersection(DEFAULTS[field].values, values).length === DEFAULTS[field].values.length;
+            return values.length === DEFAULTS[field].values.length &&
+                   _.intersection(DEFAULTS[field].values, values).length === DEFAULTS[field].values.length;
         }
         return false;
     };
