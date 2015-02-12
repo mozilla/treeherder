@@ -86,6 +86,7 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 1,
                         btnClass: "btn-red",
+                        btnClassClassified: "btn-red-classified",
                         jobButtonIcon: "glyphicon glyphicon-fire",
                         countText: "busted"
                     };
@@ -94,6 +95,7 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 2,
                         btnClass: "btn-purple",
+                        btnClassClassified: "btn-purple-classified",
                         jobButtonIcon: "glyphicon glyphicon-fire",
                         countText: "exception"
                     };
@@ -102,6 +104,7 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 3,
                         btnClass: "btn-orange",
+                        btnClassClassified: "btn-orange-classified",
                         jobButtonIcon: "glyphicon glyphicon-warning-sign",
                         countText: "failed"
                     };
@@ -110,6 +113,7 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 4,
                         btnClass: "btn-black",
+                        btnClassClassified: "btn-black-classified",
                         jobButtonIcon: "",
                         countText: "unknown"
                     };

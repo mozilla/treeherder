@@ -227,7 +227,13 @@ treeherder.directive('thCloneJobs', [
             jobStatus.key = key;
             if(parseInt(job.failure_classification_id, 10) > 1){
                 jobStatus.value = job.job_type_symbol + '*';
-            }else{
+                if (jobStatus.btnClassClassified) {
+                    // For result types that are displayed more prominently
+                    // when unclassified, switch to the more subtle classified
+                    // style.
+                    jobStatus.btnClass = jobStatus.btnClassClassified;
+                }
+            } else {
                 jobStatus.value = job.job_type_symbol;
             }
 

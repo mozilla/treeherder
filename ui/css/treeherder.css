@@ -1242,6 +1242,33 @@ fieldset[disabled] .btn-orange.active {
   border-color: #dd6602;
 }
 
+.btn-orange-classified {
+  color: #dd6602;
+}
+.btn-orange-classified:hover,
+.btn-orange-classified:focus,
+.btn-orange-classified:active,
+.btn-orange-classified.active {
+  background-color: #c45a02;
+  border-color: #aa4f02;
+  color: white;
+}
+.btn-orange-classified.disabled:hover,
+.btn-orange-classified.disabled:focus,
+.btn-orange-classified.disabled:active,
+.btn-orange-classified.disabled.active,
+.btn-orange-classified[disabled]:hover,
+.btn-orange-classified[disabled]:focus,
+.btn-orange-classified[disabled]:active,
+.btn-orange-classified[disabled].active,
+fieldset[disabled] .btn-orange-classified:hover,
+fieldset[disabled] .btn-orange-classified:focus,
+fieldset[disabled] .btn-orange-classified:active,
+fieldset[disabled] .btn-orange-classified.active {
+  background-color: #dd6602;
+  border-color: #dd6602;
+}
+
 .btn-orange-count-classified {
   background-color: white;
   border-color: #bfbfbf;
@@ -1281,6 +1308,34 @@ fieldset[disabled] .btn-red:active,
 fieldset[disabled] .btn-red.active {
   background-color: #c2020e;
   border-color: #c2020e;
+}
+
+.btn-red-classified {
+  color: #90010a;
+}
+.btn-red-classified:hover,
+.btn-red-classified:focus,
+.btn-red-classified:active,
+.btn-red-classified.active {
+  background-color: #a9020c;
+  border-color: #90010a;
+  color: white;
+}
+.btn-red-classified.disabled:hover,
+.btn-red-classified.disabled:focus,
+.btn-red-classified.disabled:active,
+.btn-red-classified.disabled.active,
+.btn-red-classified[disabled]:hover,
+.btn-red-classified[disabled]:focus,
+.btn-red-classified[disabled]:active,
+.btn-red-classified[disabled].active,
+fieldset[disabled] .btn-red-classified:hover,
+fieldset[disabled] .btn-red-classified:focus,
+fieldset[disabled] .btn-red-classified:active,
+fieldset[disabled] .btn-red-classified.active {
+  background-color: #c2020e;
+  border-color: #c2020e;
+  color: white;
 }
 
 .btn-red-count-classified {
@@ -1385,6 +1440,34 @@ fieldset[disabled] .btn-purple:hover,
 fieldset[disabled] .btn-purple:focus,
 fieldset[disabled] .btn-purple:active,
 fieldset[disabled] .btn-purple.active {
+  background-color: #9002c2;
+  border-color: #9002c2;
+  color: white;
+}
+
+.btn-purple-classified {
+  color: #6f0296;
+}
+.btn-purple-classified:hover,
+.btn-purple-classified:focus,
+.btn-purple-classified:active,
+.btn-purple-classified.active {
+  background-color: #7d02a9;
+  border-color: #6b0190;
+  color: white;
+}
+.btn-purple-classified.disabled:hover,
+.btn-purple-classified.disabled:focus,
+.btn-purple-classified.disabled:active,
+.btn-purple-classified.disabled.active,
+.btn-purple-classified[disabled]:hover,
+.btn-purple-classified[disabled]:focus,
+.btn-purple-classified[disabled]:active,
+.btn-purple-classified[disabled].active,
+fieldset[disabled] .btn-purple-classified:hover,
+fieldset[disabled] .btn-purple-classified:focus,
+fieldset[disabled] .btn-purple-classified:active,
+fieldset[disabled] .btn-purple-classified.active {
   background-color: #9002c2;
   border-color: #9002c2;
   color: white;
