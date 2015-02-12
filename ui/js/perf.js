@@ -149,6 +149,11 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
       $scope.$digest();
     };
 
+    Mousetrap.bind('escape', function() {
+      $scope.ttLocked = false;
+      $scope.hideTooltip();
+    });
+
     function plotGraph() {
       $scope.plot = $.plot($("#graph"),
                         $scope.seriesList.map(
