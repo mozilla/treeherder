@@ -23,38 +23,13 @@
                        ng-class="::exclusionStateClass"></i>
                 </span>
 
-                <!--Collapse Resultsets Button-->
+                <!--Toggle Revisions Button-->
                 <span class="btn-group">
                     <span class="btn btn-view-nav btn-sm btn-collapse-resultsets"
-                          title="Collapse/expand all result sets"
+                          title="Show/hide revision list"
                           tabindex="0" role="button"
-                          ng-click="toggleAllJobsAndRevisions()"><i class="fa fa-list"></i>
+                          ng-click="toggleAllRevisions()"><i class="fa fa-code-fork"></i>
                     </span>
-
-                    <!--Jobs and Revisions Menu Button-->
-                    <span class="btn btn-view-nav btn-sm dropdown-toggle
-                                 save-btn-dropdown btn-jobs-revisions"
-                          title="Jobs and revisions"
-                          data-toggle="dropdown"><i class="fa fa-angle-down"></i>
-                    </span>
-                    <ul class="dropdown-menu pull-right" role="menu">
-                        <li>
-                            <a href="" prevent-default-on-left-click  ng-click="toggleAllRevisions(false)">
-                                <span class="fa fa-code-fork"></span> Collapse all revisions</a>
-                        </li>
-                        <li>
-                            <a href="" prevent-default-on-left-click  ng-click="toggleAllRevisions(true)">
-                            <span class="fa fa-code-fork"></span> Expand all revisions</a>
-                        </li>
-                        <li>
-                            <a href="" prevent-default-on-left-click  ng-click="toggleAllJobs(false)">
-                                <span class="fa fa-ellipsis-v"></span> Collapse all jobs</a>
-                        </li>
-                        <li>
-                            <a href="" prevent-default-on-left-click  ng-click="toggleAllJobs(true)">
-                            <span class="fa fa-th"></span> Expand all jobs</a>
-                        </li>
-                    </ul>
                 </span>
 
                 <!--Search Field-->

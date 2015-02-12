@@ -1,11 +1,9 @@
     <span class="btn btn-default btn-sm btn-resultset result-status-total-count"
           tabindex="0" role="button"
-          title="total job count - toggle jobs"
-          ignore-job-clear-on-click
-          ng-click="toggleJobs()">
-        <i class="fa fa-list fa-lg result-set-fa-icon" ignore-job-clear-on-click></i>
-        <span class="result-status-total-value" ignore-job-clear-on-click></span>
+          title="total job count - toggle jobs">
+            <i class="fa fa-list fa-lg result-set-fa-icon"></i>
+            <span class="result-status-total-value"></span>
     </span>
-    <span class="result-status-count-group" ignore-job-clear-on-click>
+    <span class="result-status-count-group">
         <th-result-status-count ng-repeat="resultStatus in statusList"/>
     </span>

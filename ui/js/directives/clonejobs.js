@@ -376,68 +376,11 @@ treeherder.directive('thCloneJobs', [
                 toggleRevisionsSpanOnWithJobs(revisionsEl);
                 //Make sure the jobs span has correct styles
                 toggleJobsSpanOnWithRevisions(jobsEl);
-
-            }else{
-                toggleRevisionsSpanOnWithoutJobs(revisionsEl);
             }
 
         } else {
             toggleRevisionsSpanOff(revisionsEl);
-
-            if(jobsElDisplayState === 'block'){
-                toggleJobsSpanOnWithoutRevisions(jobsEl);
-            }else{
-                //Nothing is displayed, hide the row to
-                //prevent a double border from displaying
-                rowEl.css('display', 'none');
-            }
-        }
-
-    };
-    /**
-     * Toggle the jobs of a resultset expanded or collapsed
-     * @param element - The element to expand/collapse
-     * @param expand - whether to force either expanding or collapsing.  If 'undefined' then
-     *                 just toggle.  If set to true, the expand if it isn't already.  Supports
-     *                 an expand/collapse all button.
-     */
-    var toggleJobs = function(element, expand){
-
-
-        var revisionsEl = element.find('ul').parent();
-        var jobsEl = element.find('table').parent();
-
-        var revElDisplayState = revisionsEl.css('display') || 'block';
-        var jobsElDisplayState = jobsEl.css('display') || 'block';
-
-        var on = jobsElDisplayState !== 'block';
-        if (!_.isUndefined(expand)) {
-            on = expand;
-        }
-
-        var rowEl = revisionsEl.parent();
-        rowEl.css('display', 'block');
-
-        if(on){
-
-            if(revElDisplayState === 'block'){
-                toggleJobsSpanOnWithRevisions(jobsEl);
-                //Make sure the revisions span has correct styles
-                toggleRevisionsSpanOnWithJobs(revisionsEl);
-            }else{
-                toggleJobsSpanOnWithoutRevisions(jobsEl);
-            }
-
-        }else{
-            toggleJobsSpanOff(jobsEl);
-
-            if(revElDisplayState === 'block'){
-                toggleRevisionsSpanOnWithoutJobs(revisionsEl);
-            }else{
-                //Nothing is displayed, hide the row to
-                //prevent a double border from displaying
-                rowEl.css('display', 'none');
-            }
+            toggleJobsSpanOnWithoutRevisions(jobsEl);
         }
 
     };
@@ -445,10 +388,6 @@ treeherder.directive('thCloneJobs', [
     var toggleRevisionsSpanOnWithJobs = function(el){
         el.css('display', 'block');
         el.addClass(col5Cls);
-    };
-    var toggleRevisionsSpanOnWithoutJobs = function(el){
-        el.css('display', 'block');
-        el.removeClass(col5Cls);
     };
     var toggleRevisionsSpanOff = function(el){
         el.css('display', 'none');
@@ -467,9 +406,6 @@ treeherder.directive('thCloneJobs', [
         el.removeClass(jobListPadLeftCls);
         el.addClass(jobListNoPadCls);
         el.addClass(col12Cls);
-    };
-    var toggleJobsSpanOff = function(el){
-        el.css('display', 'none');
     };
 
     var renderJobTableRow = function(
