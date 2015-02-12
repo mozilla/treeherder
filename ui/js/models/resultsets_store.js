@@ -852,10 +852,10 @@ treeherder.factory('ThResultSetStore', [
         return _.reduce(
             jobList,
             function(memo, job){
-                if(job.state == "pending" || job.state == "running"){
+
+                // don't count coalesced
+                if (!job.job_coalesced_to_guid) {
                     memo[job.state]++;
-                }else{
-                    memo[job.result]++;
                 }
                 return memo;
             },

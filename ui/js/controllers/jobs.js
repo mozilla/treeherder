@@ -36,7 +36,6 @@ treeherder.controller('JobsCtrl', [
         $scope.isLoadingRsBatch = ThResultSetStore.getLoadingStatus($scope.repoName);
         $scope.result_sets = ThResultSetStore.getResultSetsArray($scope.repoName);
         $scope.job_map = ThResultSetStore.getJobMap($scope.repoName);
-        $scope.statusList = thResultStatusList.counts();
 
         $scope.searchParams = $location.search();
         $scope.locationHasSearchParam = function(prop) {

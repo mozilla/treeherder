@@ -19,10 +19,6 @@ treeherder.provider('thResultStatusList', function() {
         return ['success', 'testfailed', 'busted', 'exception', 'retry', 'usercancel', 'running', 'pending', 'coalesced'];
     };
 
-    var counts = function() {
-        return ['success', 'testfailed', 'busted', 'exception', 'retry', 'running', 'pending', 'coalesced'];
-    };
-
     var defaultFilters = function() {
         return ['success', 'testfailed', 'busted', 'exception', 'retry', 'usercancel', 'running', 'pending'];
     };
@@ -30,7 +26,6 @@ treeherder.provider('thResultStatusList', function() {
     this.$get = function() {
         return {
             all: all,
-            counts: counts,
             defaultFilters: defaultFilters
         };
     };
@@ -53,14 +48,9 @@ treeherder.provider('thResultStatus', function() {
 treeherder.provider('thResultStatusObject', function() {
     var getResultStatusObject = function(){
         return {
-            'success':0,
-            'testfailed':0,
-            'busted':0,
-            'exception':0,
-            'retry':0,
             'running':0,
             'pending':0,
-            'coalesced': 0
+            'completed':0
             };
     };
 

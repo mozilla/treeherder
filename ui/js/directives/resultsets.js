@@ -51,70 +51,24 @@ treeherder.directive('thResultCounts', [
     return {
         restrict: "E",
         link: function(scope, element, attrs) {
-
             var setTotalCount = function() {
                 if (scope.resultset.job_counts) {
-                    $(element).find('.result-status-total-value').html(
-                        scope.resultset.job_counts.total
-                    );
+
+                    scope.inProgress = scope.resultset.job_counts.pending +
+                                       scope.resultset.job_counts.running;
+                    var total = scope.resultset.job_counts.completed + scope.inProgress;
+                    scope.percentComplete = ((scope.resultset.job_counts.completed / total) * 100).toFixed(0);
                 }
             };
 
-            $rootScope.$on(thEvents.globalFilterChanged, function(evt) {
-                setTotalCount();
-            });
-            $rootScope.$on(thEvents.applyNewJobs, function(evt) {
-                setTotalCount();
+            $rootScope.$on(thEvents.applyNewJobs, function(evt, resultSetId) {
+                if (resultSetId === scope.resultset.id) {
+                    setTotalCount();
+                }
             });
 
         },
         templateUrl: 'partials/main/thResultCounts.html'
-    };
-}]);
-
-treeherder.directive('thResultStatusCount', [
-    'thJobFilters', '$rootScope', 'thEvents',
-    function (thJobFilters, $rootScope, thEvents) {
-
-    var resultCount = 0;
-
-    var updateResultCount = function(scope, rsCountEl) {
-        if(scope.resultset.job_counts) {
-
-            scope.resultCount = (scope.resultset.job_counts[scope.resultStatus] || 0);
-            rsCountEl.find(".rs-count-number").html(scope.resultCount);
-
-            if (scope.resultCount) {
-                rsCountEl.removeClass(scope.classifiedClass);
-                rsCountEl.addClass(scope.unclassifiedClass);
-            } else {
-                rsCountEl.addClass(scope.classifiedClass);
-                rsCountEl.removeClass(scope.unclassifiedClass);
-            }
-        }
-    };
-
-    return {
-        restrict: "E",
-        link: function(scope, element, attrs) {
-            scope.resultStatusCountClassPrefix = scope.getCountClass(scope.resultStatus);
-            scope.unclassifiedClass = scope.resultStatusCountClassPrefix + "-count-unclassified";
-            scope.classifiedClass = scope.resultStatusCountClassPrefix + "-count-classified";
-
-            var resultCountText = scope.getCountText(scope.resultStatus);
-            var resultCountTitleText = "toggle " + scope.resultStatus;
-
-            var rsCountEl = $(element).find(".result-status-count");
-            updateResultCount(scope, element);
-
-            rsCountEl.prop('title', resultCountTitleText);
-            rsCountEl.find('.rs-count-text').html(resultCountText);
-
-            $rootScope.$on(thEvents.applyNewJobs, function(evt) {
-                updateResultCount(scope, rsCountEl);
-            });
-        },
-        templateUrl: 'partials/main/thResultStatusCount.html'
     };
 }]);
 

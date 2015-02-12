@@ -179,7 +179,7 @@ treeherder.directive('thCloneJobs', [
     };
 
     var addJobBtnEls = function(
-        jgObj, jobBtnInterpolator, jobTdEl, resultStatusFilters, jobCounts){
+        jgObj, jobBtnInterpolator, jobTdEl, resultStatusFilters){
 
         var jobsShown = 0;
 
@@ -196,10 +196,6 @@ treeherder.directive('thCloneJobs', [
 
             //Set the resultState
             resultState = thResultStatus(job);
-
-            //Increment the jobCounts here so they're not modified by
-            //filtering
-            jobCounts[resultState] += 1;
 
             job.searchStr = getPlatformName(job.platform) + ' ' +
                 job.platform_option + ' ' + job.job_group_name + ' ' +
@@ -417,12 +413,6 @@ treeherder.directive('thCloneJobs', [
 
         var resultSetMap = ThResultSetStore.getResultSetsMap($rootScope.repoName);
 
-        var jobCounts = thResultStatusObject.getResultStatusObject();
-
-        //Reset counts for the platform every time we render the
-        //row. This is required to account for job coallescing.
-        //Coallesced jobs cause the pending/running counts to be
-        //incorrect.
         var jgObj, jobGroup, jobsShown, i;
         for(i=0; i<jobGroups.length; i++){
 
@@ -438,8 +428,7 @@ treeherder.directive('thCloneJobs', [
                 // Add the job btn spans
                 jobsShown = addJobBtnEls(
                     jgObj, jobBtnInterpolator, jobGroup.find(".job-group-list"),
-                    resultStatusFilters,
-                    jobCounts
+                    resultStatusFilters
                     );
                 jobGroup.css("display", jobsShown? "inline": "none");
 
@@ -447,20 +436,12 @@ treeherder.directive('thCloneJobs', [
 
                 // Add the job btn spans
                 jobsShown = addJobBtnEls(
-                    jgObj, jobBtnInterpolator, jobTdEl, resultStatusFilters,
-                    jobCounts
-                    );
+                    jgObj, jobBtnInterpolator, jobTdEl, resultStatusFilters);
 
             }
         }
         row.append(jobTdEl);
         filterPlatform(row);
-
-        //reset the resultset counts for the platformKey
-        if(resultSetMap[resultsetId].platforms[platformKey] !== undefined){
-            resultSetMap[resultsetId].platforms[platformKey].job_counts = jobCounts;
-        }
-
     };
 
     var filterJobs = function(element, resultStatusFilters){
@@ -571,49 +552,6 @@ treeherder.directive('thCloneJobs', [
         }else{
             $(tableEl).append(rowEl);
         }
-    };
-
-    /**
-     * Reset the counts on a single resultset.  This should happen once per
-     * resultset when the platforms in a resultset have been updated
-     * (by loading initial or updated data).
-     *
-     */
-    var resetCounts = function(resultSet){
-        var rsMap = ThResultSetStore.getResultSetsMap($rootScope.repoName)[resultSet.id];
-        var jobCounts = thResultStatusObject.getResultStatusObject();
-
-        var statusKeys = _.keys(jobCounts);
-        jobCounts.total = 0;
-
-        if(resultSet.platforms === undefined){
-            return;
-        }
-        var platformKey;
-        for(var j=0; j < resultSet.platforms.length; j++){
-
-            platformKey = ThResultSetStore.getPlatformKey(
-                resultSet.platforms[j].name,
-                resultSet.platforms[j].option
-                );
-
-            var statusPerPlatform = {};
-            if(!_.isEmpty(rsMap.platforms[platformKey])){
-                statusPerPlatform = rsMap.platforms[platformKey].job_counts;
-            }
-
-            if(!_.isEmpty(statusPerPlatform)){
-
-                var jobStatus, k;
-                for(k=0; k<statusKeys.length; k++){
-                    jobStatus = statusKeys[k];
-                    jobCounts[jobStatus] += statusPerPlatform[jobStatus];
-                    jobCounts.total += statusPerPlatform[jobStatus];
-                }
-            }
-        }
-
-        resultSet.job_counts = jobCounts;
     };
 
     var updateJobs = function(platformData){
@@ -985,7 +923,6 @@ treeherder.directive('thCloneJobs', [
 
             tableEl.append(row);
         }
-        resetCounts(resultset);
     };
 
     var linker = function(scope, element, attrs){
