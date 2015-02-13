@@ -2,17 +2,18 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-from treeherder.etl.tbpl import OrangeFactorBugRequest, BugzillaBugRequest
 import json
 from time import time
 from datadiff import diff
+
+from django.conf import settings
+from treeherder.etl.tbpl import OrangeFactorBugRequest, BugzillaBugRequest
 
 
 def test_tbpl_bug_request_body(jm, eleven_jobs_processed):
     """
     Test the request body is created correctly
     """
-
     bug_id = 12345678
     job = jm.get_job_list(0, 1)[0]
     sample_artifact = {
@@ -49,7 +50,6 @@ def test_tbpl_bug_request_body(jm, eleven_jobs_processed):
         "who": who,
         "timestamp": str(submit_timestamp)
     }
-
     assert req.body == expected, diff(expected, req.body)
 
 
@@ -57,7 +57,6 @@ def test_tbpl_bugzilla_request_body(jm, eleven_jobs_processed):
     """
     Test the request body is created correctly
     """
-
     bug_id = 12345678
     job = jm.get_job_list(0, 1)[0]
     who = "user@mozilla.com"
@@ -87,5 +86,30 @@ def test_tbpl_bugzilla_request_body(jm, eleven_jobs_processed):
                     u'First error line\n'
                     u'Second error line')
     }
-
     assert req.body == expected
+
+
+def test_tbpl_bugzilla_comment_length_capped(jm, eleven_jobs_processed):
+    """
+    Test that the total number of characters in the comment is capped correctly.
+    """
+    bug_id = 12345678
+    job = jm.get_job_list(0, 1)[0]
+    who = "user@mozilla.com"
+
+    # Create an error line with length equal to the max comment length.
+    # Once the job metadata has been added, the total comment length
+    # will exceed the max length, unless correctly truncated.
+    bug_suggestions = [{"search": "a" * settings.BZ_MAX_COMMENT_LENGTH, "bugs": []}]
+
+    bug_suggestions_placeholders = [
+        job['id'], 'Bug suggestions',
+        'json', json.dumps(bug_suggestions),
+        job['id'], 'Bug suggestions',
+    ]
+
+    jm.store_job_artifact([bug_suggestions_placeholders])
+    req = BugzillaBugRequest(jm.project, job["id"], bug_id, who)
+    req.generate_request_body()
+
+    assert len(req.body['comment']) == settings.BZ_MAX_COMMENT_LENGTH

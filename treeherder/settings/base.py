@@ -333,6 +333,11 @@ ES_HOST = "http://elasticsearch-zlb.webapp.scl3.mozilla.com:9200"
 TBPLBOT_EMAIL = os.environ.get("TBPLBOT_EMAIL", "")
 TBPLBOT_PASSWORD = os.environ.get("TBPLBOT_PASSWORD", "")
 
+# Bugzilla comments cannot be longer than 65535 characters, so we must ensure the
+# comment length does not exceed this, or the comment will be rejected. We truncate
+# to a length lower than the real limit, to reduce the amount of spam in bugs.
+BZ_MAX_COMMENT_LENGTH = 40000
+
 # timeout for requests to external sources
 # like ftp.mozilla.org or hg.mozilla.org
 TREEHERDER_REQUESTS_TIMEOUT = 30

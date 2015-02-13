@@ -144,6 +144,12 @@ class BugzillaBugRequest(object):
         body_comment += '\n\n'
         body_comment += '\n'.join(error_lines)
 
+        # Truncate the comment to ensure it is not rejected for exceeding the max
+        # Bugzilla comment length and to reduce the amount of spam in bugs. We should
+        # rarely hit this given the number of error lines are capped during ingestion.
+        if len(body_comment) > settings.BZ_MAX_COMMENT_LENGTH:
+            body_comment = body_comment[:settings.BZ_MAX_COMMENT_LENGTH - 3] + '...'
+
         self.body = {
             "comment": body_comment
         }
