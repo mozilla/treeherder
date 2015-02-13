@@ -763,6 +763,7 @@
         "active_status": "active",
         "codebase": "taskcluster",
         "repository_group": 4,
+        "description": "A suite of tests to check the quality of the BMO codebase."
     }
 }
 ]
