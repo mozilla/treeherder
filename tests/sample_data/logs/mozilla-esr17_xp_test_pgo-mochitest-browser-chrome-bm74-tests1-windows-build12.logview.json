@@ -305,7 +305,8 @@
                 "order": 22, 
                 "error_count": 0
             }
-        ]
+        ], 
+        "errors_truncated": false
     }, 
     "logurl": "file:///home/vagrant/treeherder-service/tests/sample_data/logs/mozilla-esr17_xp_test_pgo-mochitest-browser-chrome-bm74-tests1-windows-build12.txt.gz"
 }

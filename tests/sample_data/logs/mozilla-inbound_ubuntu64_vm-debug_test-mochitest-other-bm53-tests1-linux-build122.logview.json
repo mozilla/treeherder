@@ -253,7 +253,8 @@
                 "order": 11, 
                 "error_count": 0
             }
-        ]
+        ], 
+        "errors_truncated": false
     }, 
     "logurl": "file:///home/vagrant/treeherder-service/tests/sample_data/logs/mozilla-inbound_ubuntu64_vm-debug_test-mochitest-other-bm53-tests1-linux-build122.txt.gz"
 }

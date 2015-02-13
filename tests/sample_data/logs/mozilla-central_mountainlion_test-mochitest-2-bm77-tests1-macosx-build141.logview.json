@@ -155,7 +155,8 @@
                 "order": 11, 
                 "error_count": 0
             }
-        ]
+        ], 
+        "errors_truncated": false
     }, 
     "logurl": "file:///home/vagrant/treeherder-service/tests/sample_data/logs/mozilla-central_mountainlion_test-mochitest-2-bm77-tests1-macosx-build141.txt.gz"
 }

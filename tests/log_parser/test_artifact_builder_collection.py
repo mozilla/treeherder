@@ -65,7 +65,8 @@ def test_all_builders_complete():
             "header": {},
             "step_data": {
                 "all_errors": [],
-                "steps": []
+                "steps": [],
+                "errors_truncated": False
             },
         },
         "Job Info": {

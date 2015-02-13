@@ -6,6 +6,7 @@ import re
 import datetime
 import json
 
+from django.conf import settings
 from treeherder.etl.buildbot import RESULT_DICT
 
 
@@ -110,7 +111,8 @@ class StepParser(ParserBase):
         self.stepnum = -1
         self.artifact = {
             "steps": [],
-            "all_errors": []
+            "all_errors": [],
+            "errors_truncated": False
         }
         self.check_errors = check_errors
         # even if ``check_errors`` is false, we still want to instantiate
@@ -143,6 +145,9 @@ class StepParser(ParserBase):
             self.state = self.ST_FINISHED
             step_errors = self.sub_parser.get_artifact()
             step_error_count = len(step_errors)
+            if step_error_count > settings.PARSER_MAX_STEP_ERROR_LINES:
+                step_errors = step_errors[:settings.PARSER_MAX_STEP_ERROR_LINES]
+                self.artifact["errors_truncated"] = True
             self.current_step.update({
                 "finished": match.group('timestamp'),
                 "finished_linenumber": lineno,

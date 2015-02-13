@@ -671,7 +671,8 @@
                 "order": 54, 
                 "error_count": 0
             }
-        ]
+        ], 
+        "errors_truncated": false
     }, 
     "logurl": "file:///home/vagrant/treeherder-service/tests/sample_data/logs/mozilla-central-win32-pgo-bm85-build1-build111.txt.gz"
 }

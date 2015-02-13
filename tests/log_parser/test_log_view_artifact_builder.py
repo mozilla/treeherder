@@ -251,6 +251,13 @@ def test_extreme_log_line_length_truncation(initial_data):
     )
 
 
+def test_too_many_error_lines_truncation(initial_data):
+    """This log has a large number of lines that match the error regex. Ensure we truncate to 100 lines."""
+    do_test(
+        "large-number-of-error-lines"
+    )
+
+
 @slow
 def test_check_errors_false(initial_data, monkeypatch):
     """ensure that parse_line is not called on the error parser."""

@@ -311,6 +311,8 @@ BUILDAPI_PENDING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson
 BUILDAPI_RUNNING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-running.js"
 BUILDAPI_BUILDS4H_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-4hr.js.gz"
 
+PARSER_MAX_STEP_ERROR_LINES = 100
+
 BZ_API_URL = "https://bugzilla.mozilla.org"
 
 # this setting allows requests from any host
