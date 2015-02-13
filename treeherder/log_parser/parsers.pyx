@@ -143,19 +143,18 @@ class StepParser(ParserBase):
             match = RE_STEP_FINISH.match(line)
             if match:
                 self.state = self.ST_FINISHED
-
+                step_errors = self.sub_parser.get_artifact()
+                step_error_count = len(step_errors)
                 self.current_step.update({
                     "finished": match.group('timestamp'),
                     "finished_linenumber": lineno,
                     "result": RESULT_DICT.get(int(match.group('result')), "unknown"),
-                    "errors": self.sub_parser.get_artifact(),
+                    "errors": step_errors,
+                    "error_count": step_error_count
                 })
                 self.set_duration()
                 # Append errors from current step to "all_errors" field
-                self.artifact["all_errors"].extend(
-                    self.sub_parser.get_artifact())
-                self.current_step["error_count"] = len(
-                    self.current_step["errors"])
+                self.artifact["all_errors"].extend(step_errors)
 
                 # reset the sub_parser for the next step
                 self.sub_parser.clear()
