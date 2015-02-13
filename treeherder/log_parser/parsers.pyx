@@ -122,8 +122,7 @@ class StepParser(ParserBase):
 
     def parse_line(self, line, lineno):
         """Parse a single non-header line of the log"""
-
-        # check if it's the start of a step
+        # Check if we're waiting for a step start line.
         if not self.state == self.ST_STARTED:
             match = RE_STEP_START.match(line)
             if match:
@@ -136,31 +135,31 @@ class StepParser(ParserBase):
                     "order": self.stepnum,
                     "errors": [],
                 })
-                return
+            return
 
-        # check if it's the end of a step
-        if self.state == self.ST_STARTED:
-            match = RE_STEP_FINISH.match(line)
-            if match:
-                self.state = self.ST_FINISHED
-                step_errors = self.sub_parser.get_artifact()
-                step_error_count = len(step_errors)
-                self.current_step.update({
-                    "finished": match.group('timestamp'),
-                    "finished_linenumber": lineno,
-                    "result": RESULT_DICT.get(int(match.group('result')), "unknown"),
-                    "errors": step_errors,
-                    "error_count": step_error_count
-                })
-                self.set_duration()
-                # Append errors from current step to "all_errors" field
-                self.artifact["all_errors"].extend(step_errors)
+        # Check if it's the end of a step.
+        match = RE_STEP_FINISH.match(line)
+        if match:
+            self.state = self.ST_FINISHED
+            step_errors = self.sub_parser.get_artifact()
+            step_error_count = len(step_errors)
+            self.current_step.update({
+                "finished": match.group('timestamp'),
+                "finished_linenumber": lineno,
+                "result": RESULT_DICT.get(int(match.group('result')), "unknown"),
+                "errors": step_errors,
+                "error_count": step_error_count
+            })
+            self.set_duration()
+            # Append errors from current step to "all_errors" field
+            self.artifact["all_errors"].extend(step_errors)
+            # reset the sub_parser for the next step
+            self.sub_parser.clear()
+            return
 
-                # reset the sub_parser for the next step
-                self.sub_parser.clear()
-                return
-            if self.check_errors:
-                self.sub_parser.parse_line(line, lineno)
+        # Otherwise just parse the line, since we're in the middle of a step.
+        if self.check_errors:
+            self.sub_parser.parse_line(line, lineno)
 
     def parsetime(self, match):
         """Convert a string date into a datetime."""
