@@ -739,5 +739,31 @@
         "repository_group": 2,
         "description": ""
     }
+},
+{
+    "pk": 61,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "git",
+        "name": "Bugzilla"
+        "url": "https://github.com/bugzilla/bugzilla",
+        "active_status": "active",
+        "codebase": "taskcluster",
+        "repository_group": 4,
+        "description": "A suite of tests to check the quality of the Bugzilla codebase."
+    }
+},
+{
+    "pk": 62,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "git",
+        "name": "BMO"
+        "url": "https://github.com/mozilla/webtools-bmo-bugzilla",
+        "active_status": "active",
+        "codebase": "taskcluster",
+        "repository_group": 4,
+        "description": "A suite of tests to check the quality of the BMO codebase."
+    }
 }
 ]
