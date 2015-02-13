@@ -54,8 +54,8 @@ htmlcov/
 treeherder/webapp/static/
 
 #media files in deployment
-treeherder/webapp/media/builds4hanalysis/builds4h_analysis.json
-treeherder/webapp/media/builds4hanalysis/builds4h_report.txt
+treeherder/webapp/media/builds4h_analysis.json
+treeherder/webapp/media/builds4h_report.txt
 
 #etl data files
 treeherder/etl/data/credentials.json
@@ -71,3 +71,4 @@ docs/_build/
 
 treeherder/webapp/log_cache
 celerybeat-schedule
+!.gitkeep

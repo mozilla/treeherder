@@ -572,13 +572,75 @@ class RunningJobsProcess(JsonExtractorMixin,
                                filter_to_project=filter_to_project)
             )
 
+
 class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
 
     def __init__(self):
-
         # builds4h deserialized json
         self.raw_data = []
-        self.blacklist = set()
+        self.blacklist = set([
+            "fuzzer-linux",
+            "fuzzer-macosx64-lion",
+            "fuzzer-win64",
+            "release-comm-esr24-final_verification",
+            "release-comm-esr24-push_to_mirrors",
+            "release-comm-esr24-ready_for_releasetest_testing",
+            "release-comm-esr24-start_uptake_monitoring",
+            "release-mozilla-beta-almost_ready_for_release",
+            "release-mozilla-beta-android_repack_1/10",
+            "release-mozilla-beta-android_repack_10/10",
+            "release-mozilla-beta-android_repack_2/10",
+            "release-mozilla-beta-android_repack_3/10",
+            "release-mozilla-beta-android_repack_4/10",
+            "release-mozilla-beta-android_repack_5/10",
+            "release-mozilla-beta-android_repack_6/10",
+            "release-mozilla-beta-android_repack_7/10",
+            "release-mozilla-beta-android_repack_8/10",
+            "release-mozilla-beta-android_repack_9/10",
+            "release-mozilla-beta-antivirus",
+            "release-mozilla-beta-fennec_source",
+            "release-mozilla-beta-final_verification",
+            "release-mozilla-beta-linux64_update_verify_3/6",
+            "release-mozilla-beta-linux_update_verify_3/6",
+            "release-mozilla-beta-linux_update_verify_6/6",
+            "release-mozilla-beta-macosx64_update_verify_1/6",
+            "release-mozilla-beta-macosx64_update_verify_2/6",
+            "release-mozilla-beta-macosx64_update_verify_3/6",
+            "release-mozilla-beta-macosx64_update_verify_4/6",
+            "release-mozilla-beta-macosx64_update_verify_5/6",
+            "release-mozilla-beta-macosx64_update_verify_6/6",
+            "release-mozilla-beta-push_to_mirrors",
+            "release-mozilla-beta-ready_for_releasetest_testing",
+            "release-mozilla-beta-start_uptake_monitoring",
+            "release-mozilla-beta-win32_update_verify_1/6",
+            "release-mozilla-beta-win32_update_verify_2/6",
+            "release-mozilla-beta-win32_update_verify_3/6",
+            "release-mozilla-beta-win32_update_verify_4/6",
+            "release-mozilla-beta-win32_update_verify_5/6",
+            "release-mozilla-beta-win32_update_verify_6/6",
+            "release-mozilla-esr24-postrelease",
+            "Firefox mozilla-aurora linux l10n dep",
+            "Firefox mozilla-aurora linux64 l10n dep",
+            "Firefox mozilla-aurora macosx64 l10n dep",
+            "Firefox mozilla-aurora win32 l10n dep",
+            "Firefox mozilla-central linux l10n dep",
+            "Firefox mozilla-central linux64 l10n dep",
+            "Firefox mozilla-central macosx64 l10n dep",
+            "Firefox mozilla-central win32 l10n dep",
+            "Thunderbird comm-aurora linux l10n dep",
+            "Thunderbird comm-aurora linux64 l10n dep",
+            "Thunderbird comm-aurora macosx64 l10n dep",
+            "Thunderbird comm-aurora win32 l10n dep",
+            "Thunderbird comm-central linux l10n dep",
+            "Thunderbird comm-central linux64 l10n dep",
+            "Thunderbird comm-central macosx64 l10n dep",
+            "Thunderbird comm-central win32 l10n dep",
+            "Firefox birch win32 l10n nightly",
+            "release-mozilla-beta-android-armv6_build",
+            "release-mozilla-beta-android-x86_build",
+            "release-mozilla-beta-android_build",
+            "Firefox mozilla-central win32 l10n nightly"
+        ])
 
         self.t_stamp = int(time.time())
         self.readable_time = datetime.datetime.fromtimestamp(
@@ -645,18 +707,15 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
                     'get_func':self.get_objects_missing_buildernames,
                     },
                 },
-
             'guids': {}
-
-            }
+        }
 
         # load last analysis data
         self.data_path = os.path.join(
             os.path.dirname(os.path.dirname(__file__)),
             'treeherder',
-            settings.MEDIA_ROOT,
-            'builds4hanalysis'
-            )
+            settings.MEDIA_ROOT
+        )
 
         # file that stores the json data
         self.builds4h_analysis_file_path = os.path.join(
@@ -671,19 +730,14 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
             self.data_path, 'blacklist.json')
 
     def run(self):
-
-        self.get_blacklist()
         self.get_analysis_file()
-
         self.raw_data = self.extract(settings.BUILDAPI_BUILDS4H_URL)
 
         for build in self.raw_data['builds']:
-
             buildername = build['properties'].get('buildername', None)
 
             if buildername in self.blacklist:
                 continue
-
 
             job_guid_data = self.find_job_guid(build)
 
@@ -695,7 +749,6 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
 
                 self._increment_buildername_total_count(
                     analysis_type, buildername, job_guid_data['job_guid'])
-
 
             if job_guid_data['job_guid']:
                 self.report_obj['guids'][job_guid_data['job_guid']] = True
@@ -709,7 +762,6 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
         self.write_report()
 
     def get_analysis_file(self):
-
         if os.path.isfile(self.builds4h_analysis_file_path):
             # Set the data attribute in the report object to whats
             # found in the analysis file
@@ -727,20 +779,7 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
                         self.report_obj['analyzers'][analysis_type]['data'] = \
                             deserialized_data['analyzers'][analysis_type]
 
-    def get_blacklist(self):
-
-        if os.path.isfile(self.builds4h_blacklist_file_path):
-            with open(self.builds4h_blacklist_file_path) as f:
-                data = f.read()
-
-                deserialized_data = []
-                if data:
-                    deserialized_data = json.loads(data)
-
-                self.blacklist = set(deserialized_data)
-
     def write_report(self):
-
         report_fh = open(self.builds4h_report_file_path, 'w')
         divider = "------------------------------------------------------\n"
 
