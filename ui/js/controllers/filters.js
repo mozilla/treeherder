@@ -62,10 +62,9 @@ treeherder.controller('FilterPanelCtrl', [
          * Handle toggling one of the individual result status filters in
          * the filter panel.
          *
-         * @param group
          * @param filter
          */
-        $scope.toggleResultStatusFilter = function(group, filter) {
+        $scope.toggleResultStatusFilter = function(filter) {
             if (!$scope.resultStatusFilters[filter]) {
                 thJobFilters.removeFilter(thJobFilters.resultStatus, filter);
             } else {
