@@ -36,6 +36,7 @@ treeherder.factory('ThResultSetStore', [
     var resultSetPollers = {};
     var resultSetPollInterval = 60000;
     var jobPollInterval = 60000;
+    var lastJobUpdate = null;
 
     // Keys that, if present on the url, must be passed into the resultset
     // polling endpoint
@@ -109,22 +110,23 @@ treeherder.factory('ThResultSetStore', [
         return true;
     };
 
-
-    var lastModified = new Date();
     var pollJobs = function(){
         var resultSetIdList = _.pluck(
             repositories[$rootScope.repoName].resultSets,
             'id'
         );
         var exclusionProfile = $location.search().exclusion_profile;
-        var newLastModified = new Date();
         ThResultSetModel.getResultSetJobsUpdates(
             resultSetIdList,
             $rootScope.repoName,
             exclusionProfile,
-            lastModified
+            lastJobUpdate
         ).then(function(jobList){
             if(jobList.length > 0){
+                var lastModifiedJob = getLastModifiedJob(jobList);
+                if(lastModifiedJob != null){
+                    lastJobUpdate = new Date(lastModifiedJob.last_modified);
+                }
                 var jobListByResultSet = _.values(
                     _.groupBy(jobList, 'result_set_id')
                 );
@@ -136,7 +138,6 @@ treeherder.factory('ThResultSetStore', [
                 );
             }
         });
-        lastModified = newLastModified;
     };
     var registerJobsPoller = function(){
         $interval(pollJobs, jobPollInterval);
@@ -830,6 +831,18 @@ treeherder.factory('ThResultSetStore', [
                     repoName,
                     exclusionProfile
                 );
+                $q.all(jobsPromiseList).then(function(resultSetJobList){
+                    // get the last modified of each resultset
+                    var lastJobUpdateList = _.map(resultSetJobList, getLastModifiedJob);
+                    // and then get the last modified of them
+                    var lastJobModified = getLastModifiedJob(lastJobUpdateList);
+                    if(lastJobModified){
+                        lastJobUpdate = new Date(lastJobModified.last_modified);
+                        // subtract 3 seconds to take in account a possible delay
+                        // between the job requests
+                        lastJobUpdate.setSeconds(lastJobUpdate.getSeconds()-3);
+                    }
+                });
                 /*
                 * this list of promises will tell us when the
                 * mapResultSetJobs function will be applied to all the jobs
@@ -846,6 +859,14 @@ treeherder.factory('ThResultSetStore', [
                     registerJobsPoller();
                 });
             });
+    };
+
+    var getLastModifiedJob = function(jobList){
+        if(jobList.length > 0){
+            var sortedJobs = _.sortBy(jobList, 'last_modified');
+            return sortedJobs[sortedJobs.length-1]
+        }
+        return null;
     };
 
     var getJobCount = function(jobList){
