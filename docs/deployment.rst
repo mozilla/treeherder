@@ -38,7 +38,6 @@ manifest like this inside the puppet directory:
     export TREEHERDER_DATABASE_USER='${DB_USER}'
     export TREEHERDER_DATABASE_PASSWORD='${DB_PASS}'
     export TREEHERDER_DATABASE_HOST='${DB_HOST}'
-    export TREEHERDER_DATABASE_PORT='${DB_PORT}'
     export TREEHERDER_DEBUG='1'
     export TREEHERDER_DJANGO_SECRET_KEY='${DJANGO_SECRET_KEY}'
     export TREEHERDER_MEMCACHED='127.0.0.1:11211'
