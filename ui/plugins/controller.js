@@ -222,37 +222,64 @@ treeherder.controller('PluginCtrl', [
             }
         });
 
-        $scope.canRetrigger = function() {
-            return ($scope.job && $scope.artifacts && _.has($scope.artifacts, "buildapi"));
-        };
-
         $scope.canCancel = function() {
-            return $scope.job && $scope.artifacts && _.has($scope.artifacts, "buildapi") &&
-                ($scope.job.state === "pending" || $scope.job.state === "running");
+            return $scope.job &&
+                   ($scope.job.state === "pending" || $scope.job.state === "running");
         };
 
         /**
          * Get the build_id needed to cancel or retrigger from the currently
          * selected job.
          */
-        var getRequestId = function() {
+        var getBuildbotRequestId = function() {
             if ($scope.artifacts.buildapi) {
                 return $scope.artifacts.buildapi.blob.request_id;
-            } else {
-                // this is super unlikely since we'd need to have at least one of those
-                // artifacts to even create the job in treeherder.  This is just a fallback...
-                thNotify.send("Unable to get request id for retrigger/cancel", "danger", true);
-                return null;
             }
         };
 
         $scope.retriggerJob = function() {
-            thBuildApi.retriggerJob($scope.repoName, getRequestId());
+            // The logic here is somewhat complicated because we need to support
+            // two use cases the first is the case where we notify a system
+            // other then buildbot that a retrigger has been requested. The
+            // second is when we have the buildapi id and need to send a request
+            // to the self serve api (which does not listen over pulse!).
+            ThJobModel.retrigger($scope.repoName, $scope.job.id).then(function() {
+                // XXX: Remove this after 1134929 is resolved.
+                var requestId = getBuildbotRequestId();
+                if (requestId) {
+                    return thBuildApi.retriggerJob($scope.repoName, requestId);
+                }
+            }).catch(function(e){
+              // Always send a message even if we have no idea what the error
+              // is.
+              var message = "Unable to send retrigger"
+
+              // If we can figure out something from the server return that.
+              if (e && e.data && e.data.detail) {
+                  message += ': ' + e.data.detail;
+              }
+
+              thNotify.send(message, "danger", true)
+            });
         };
 
         $scope.cancelJob = function() {
-            thBuildApi.cancelJob($scope.repoName, getRequestId()).then(function() {
-                ThJobModel.cancel($scope.repoName, $scope.job.id);
+            // See note in retrigger logic.
+            ThJobModel.cancel($scope.repoName, $scope.job.id).then(function() {
+              // XXX: Remove this after 1134929 is resolved.
+              var requestId = getBuildbotRequestId();
+              if (requestId) {
+                return thBuildApi.cancelJob($scope.repoName, requestId);
+              }
+            }).catch(function(e) {
+              var message = "Unable to cancel job"
+
+              // If we can figure out something from the server return that.
+              if (e && e.data && e.data.detail) {
+                  message += ': ' + e.data.detail;
+              }
+
+              thNotify.send(message, "danger", true)
             });
         };
 
