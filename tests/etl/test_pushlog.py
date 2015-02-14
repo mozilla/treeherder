@@ -10,12 +10,14 @@ from django.core.cache import cache
 
 
 def test_ingest_hg_pushlog(jm, initial_data, test_base_dir,
-                           test_repository, mock_post_json_data, activate_responses):
+                           test_repository, mock_post_json_data,
+                           activate_responses, pulse_resultset_consumer):
     """ingesting a number of pushes should populate result set and revisions"""
 
     pushlog_path = os.path.join(test_base_dir, 'sample_data', 'hg_pushlog.json')
     pushlog_content = open(pushlog_path).read()
     pushlog_fake_url = "http://www.thisismypushlog.com"
+    push_num = 10
     responses.add(responses.GET, pushlog_fake_url,
                   body=pushlog_content, status=200,
                   content_type='application/json')
@@ -29,7 +31,20 @@ def test_ingest_hg_pushlog(jm, initial_data, test_base_dir,
         return_type='tuple'
     )
 
-    assert len(pushes_stored) == 10
+    assert len(pushes_stored) == push_num
+
+    rev_to_push = set()
+    for push in json.loads(pushlog_content).values():
+        # Add each rev to the set remember we shorten them all down to 12 chars
+        rev_to_push.add(push['changesets'][-1]['node'][0:12])
+
+    # Ensure for each push we sent a pulse notification...
+    for _ in range(0, push_num):
+        message = pulse_resultset_consumer.get(block=True, timeout=2)
+        content = json.loads(message.body)
+        assert content['revision'] in rev_to_push
+        # Ensure we don't match the same revision twice...
+        rev_to_push.remove(content['revision'])
 
     revisions_stored = jm.get_jobs_dhub().execute(
         proc="jobs_test.selects.revision_ids",

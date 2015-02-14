@@ -414,6 +414,12 @@ REST_FRAMEWORK_EXTENSIONS = {
     'DEFAULT_CACHE_RESPONSE_TIMEOUT': 60 * 15
 }
 
-# Username and password for pulse
-PULSE_USERNAME = os.environ.get("PULSE_USERNAME", "")
-PULSE_PASSWORD = os.environ.get("PULSE_PASSWORD", "")
+# Build the default pulse uri this is passed to kombu
+PULSE_URI = 'amqps://{}:{}@pulse.mozilla.org/'.format(
+    os.environ.get('PULSE_USERNAME', 'guest'),
+    os.environ.get('PULSE_PASSWORD', 'guest')
+)
+
+# Note we will never publish any pulse messages unless the exchange namespace is
+# set this normally is your pulse username.
+PULSE_EXCHANGE_NAMESPACE = None

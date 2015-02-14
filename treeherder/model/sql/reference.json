@@ -165,7 +165,7 @@
 
             "host_type":"read_host"
         },
-        "get_reference_data_for_perf_signature":{
+        "get_reference_data":{
             "sql":"SELECT `signature`,
                           `build_os_name`,
                           `build_platform`,

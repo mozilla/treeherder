@@ -7,6 +7,7 @@ from os.path import dirname
 import sys
 import json
 
+import kombu
 import pytest
 from django.core.management import call_command
 from webtest.app import TestApp
@@ -55,6 +56,9 @@ def pytest_sessionstart(session):
 
     settings.TBPL_BUGS_TRANSFER_ENABLED = False
 
+    # Reconfigure pulse to operate on default vhost of rabbitmq
+    settings.PULSE_URI = settings.BROKER_URL
+    settings.PULSE_EXCHANGE_NAMESPACE = 'test'
 
 def pytest_sessionfinish(session):
     """Tear down the test environment, including databases."""
@@ -292,6 +296,38 @@ def mock_message_broker(monkeypatch):
     from django.conf import settings
     monkeypatch.setattr(settings, 'BROKER_URL', 'memory://')
 
+@pytest.fixture
+def resultset_with_three_jobs(jm, sample_data, sample_resultset):
+    """
+    Stores a number of jobs in the same resultset.
+    """
+    num_jobs = 3
+    resultset = sample_resultset[0]
+    jobs = sample_data.job_data[0:num_jobs]
+
+    # Only store data for the first resultset....
+    resultset_creation = jm.store_result_set_data([resultset])
+
+    blobs = []
+    for index, blob in enumerate(jobs):
+        # Modify job structure to sync with the resultset sample data
+        if 'sources' in blob:
+            del blob['sources']
+
+        # Skip log references since they do not work correctly in pending state.
+        if 'log_references' in blob['job']:
+            del blob['job']['log_references']
+
+        blob['revision_hash'] = resultset['revision_hash']
+        blob['job']['state'] = 'pending'
+        blobs.append(blob)
+
+    # Store and process the jobs so they are present in the tables.
+    jm.store_job_data(blobs)
+    jm.process_objects(num_jobs, raise_errors=True)
+    return resultset_creation['inserted_result_set_ids'][0]
+
+
 
 @pytest.fixture
 def eleven_jobs_stored(jm, sample_data, sample_resultset):
@@ -382,3 +418,44 @@ def activate_responses(request):
         responses.stop()
 
     request.addfinalizer(fin)
+
+def pulse_consumer(exchange, request):
+    from django.conf import settings
+
+    exchange_name = 'exchange/{}/v1/{}'.format(
+        settings.PULSE_EXCHANGE_NAMESPACE,
+        exchange
+    )
+
+    connection = kombu.Connection(settings.PULSE_URI)
+
+    exchange = kombu.Exchange(
+            name = exchange_name,
+            type='topic'
+            )
+
+    queue = kombu.Queue(
+            no_ack=True,
+            exchange=exchange, # Exchange name
+            routing_key='#', # Bind to all messages
+            auto_delete=True, # Delete after each test
+            exclusive=False) # Disallow multiple consumers
+
+    simpleQueue = connection.SimpleQueue(
+            name = queue,
+            channel=connection,
+            no_ack=True)
+
+    def fin():
+        connection.release()
+
+    request.addfinalizer(fin)
+    return simpleQueue
+
+@pytest.fixture
+def pulse_resultset_consumer(request):
+    return pulse_consumer('new-result-set', request)
+
+@pytest.fixture
+def pulse_action_consumer(request):
+    return pulse_consumer('job-actions', request)

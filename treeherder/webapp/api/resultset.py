@@ -126,7 +126,7 @@ class ResultSetViewSet(viewsets.ViewSet):
             return Response({"message": "resultset id required"}, status=400)
 
         try:
-            jm.cancel_all_resultset_jobs(pk)
+            jm.cancel_all_resultset_jobs(request.user.email, pk)
             return Response({"message": "pending and running jobs canceled for resultset '{0}'".format(pk)})
 
         except Exception as ex:

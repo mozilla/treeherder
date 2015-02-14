@@ -3,11 +3,14 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 from django.core.urlresolvers import reverse
+from rest_framework.test import APIClient
+from django.contrib.auth.models import User
 
 from thclient import TreeherderResultSetCollection
 from tests import test_utils
 
 from treeherder.webapp.api import utils
+import json
 
 
 def test_resultset_list(webapp, eleven_jobs_processed, jm):
@@ -281,3 +284,36 @@ def test_resultset_with_bad_key(sample_resultset, jm, initial_data):
     assert resp.status_int == 403
     assert resp.json['response'] == "access_denied"
     assert resp.json['detail'] == "oauth_consumer_key does not match project, {0}, credentials".format(jm.project)
+
+def test_resultset_cancel_all(jm, resultset_with_three_jobs, pulse_action_consumer):
+    """
+    Issue cancellation of a resultset with three unfinished jobs.
+    """
+    client = APIClient()
+    email = "foo@example.com"
+    user = User.objects.create(username="user", email="foo-cancel@example.com")
+    client.force_authenticate(user=user)
+
+    # Ensure all jobs are pending..
+    jobs = jm.get_job_list(0, 3)
+    for job in jobs:
+        assert job['state'] == 'pending'
+
+    url = reverse("resultset-cancel-all",
+                  kwargs={"project": jm.project, "pk": resultset_with_three_jobs })
+    resp = client.post(url)
+
+    # Ensure all jobs are pending..
+    jobs = jm.get_job_list(0, 3)
+    for job in jobs:
+        assert job['state'] == 'completed'
+        assert job['result'] == 'usercancel'
+
+    for _ in range(0, 3):
+        message = pulse_action_consumer.get(block=True, timeout=2)
+        content = json.loads(message.body)
+
+        assert content['action'] == 'cancel'
+        assert content['project'] == jm.project
+
+    user.delete();

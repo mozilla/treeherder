@@ -1409,16 +1409,16 @@ class RefDataManager(object):
 
         return reference_data
 
-    def get_reference_data_for_perf_signature(self, signatures):
+    def get_reference_data(self, signatures):
         # use job_id to map to reference data
         reference_data = {}
 
         if signatures:
 
-            reference_data_signatures_where_in_clause = [','.join(['%s'] * len(signatures))]
+            reference_data_signatures_where_in_clause = [ ','.join( ['%s'] * len(signatures) ) ]
 
             reference_data = self.execute(
-                proc="reference.selects.get_reference_data_for_perf_signature",
+                proc="reference.selects.get_reference_data",
                 placeholders=signatures,
                 replace=reference_data_signatures_where_in_clause,
                 debug_show=self.DEBUG,

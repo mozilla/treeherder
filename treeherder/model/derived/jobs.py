@@ -21,6 +21,8 @@ from treeherder.model.models import (Datasource,
                                      ExclusionProfile)
 
 from treeherder.model import utils
+from treeherder.model.tasks import (publish_resultset,
+                                    publish_job_action)
 
 from treeherder.events.publisher import JobStatusPublisher
 
@@ -244,6 +246,15 @@ class JobsModel(TreeherderModelBase):
         )
         return data
 
+    def get_job_reference_data(self, signature):
+        # Retrieve associated data in reference_data_signatures
+        result = self.refdata_model.get_reference_data([signature])
+        if result and signature in result:
+            return result[signature];
+
+        return None
+
+
     def get_job_list(self, offset, limit,
                      conditions=None, exclusion_profile=None):
         """
@@ -341,32 +352,74 @@ class JobsModel(TreeherderModelBase):
             key_column='job_guid'
         )
 
-    def cancel_all_resultset_jobs(self, resultset_id):
+    def cancel_all_resultset_jobs(self, requester, resultset_id):
         """Set all pending/running jobs in resultset to usercancel."""
-        jobs = list(self.get_incomplete_job_guids(resultset_id))
+        job_guids = list(self.get_incomplete_job_guids(resultset_id))
+        jobs = self.get_job_ids_by_guid(job_guids).values()
 
+        # Cancel all the jobs in the database...
         self.jobs_execute(
             proc='jobs.updates.cancel_all',
             placeholders=[resultset_id],
             debug_show=self.DEBUG
         )
+
+        # Notify the build systems which created these jobs...
+        for job in jobs:
+            self._job_action_event(job, 'cancel', requester)
+
+        # Notify the UI.
         status_publisher = JobStatusPublisher(settings.BROKER_URL)
         try:
-            status_publisher.publish(jobs, self.project, 'processed')
+            status_publisher.publish(job_guids, self.project, 'processed')
         finally:
             status_publisher.disconnect()
 
-    def cancel_job(self, job_guid):
-        """Set job to usercancel."""
+    def _job_action_event(self, job, action, requester):
+        """
+        Helper for issuing an 'action' for a given job (such as
+        cancel/retrigger)
+
+        :param job dict: The job which this action was issued to.
+        :param action str: Name of the action (cancel, etc..).
+        :param requester str: Email address of the user who caused action.
+        """
+        publish_job_action.apply_async(
+            args=[self.project, action, job['id'], requester],
+            routing_key='high_priority'
+        )
+
+
+    def retrigger(self, requester, job):
+        """
+        Issue a retrigger to the given job
+
+        :param requester str: The email address associated with the user who
+                              made this request
+        :param job dict: A job object (typically a result of get_job)
+        """
+        self._job_action_event(job, 'retrigger', requester)
+
+    def cancel_job(self, requester, job):
+        """
+        Cancel the given job and send an event to notify the build_system type
+        who created it to do the actual work.
+
+        :param requester str: The email address associated with the user who
+                              made this request
+        :param job dict: A job object (typically a result of get_job)
+        """
+
+        self._job_action_event(job, 'cancel', requester)
 
         self.jobs_execute(
             proc='jobs.updates.cancel_job',
-            placeholders=[job_guid],
+            placeholders=[job['job_guid']],
             debug_show=self.DEBUG
         )
         status_publisher = JobStatusPublisher(settings.BROKER_URL)
         try:
-            status_publisher.publish([job_guid], self.project, 'processed')
+            status_publisher.publish([job['job_guid']], self.project, 'processed')
         finally:
             status_publisher.disconnect()
 
@@ -2089,7 +2142,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         )
 
         # Retrieve associated data in reference_data_signatures
-        reference_data = self.refdata_model.get_reference_data_for_perf_signature(
+        reference_data = self.refdata_model.get_reference_data(
             list(job_ref_data_signatures))
 
         tda = TalosDataAdapter()
@@ -2663,8 +2716,11 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         )
 
         if len(inserted_result_set_ids) > 0:
-            self.submit_publish_to_pulse_tasks(
-                inserted_result_set_ids, 'result_set')
+            # Queue an event to notify pulse of these new resultsets
+            publish_resultset.apply_async(
+                args=[self.project, inserted_result_set_ids],
+                routing_key='high_priority'
+            )
 
         return {
             'result_set_ids': result_set_id_lookup,
