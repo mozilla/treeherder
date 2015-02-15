@@ -2,6 +2,7 @@ from rest_framework import throttling
 
 
 class OauthKeyThrottle(throttling.ScopedRateThrottle):
+
     def get_cache_key(self, request, view):
         """
         If `view.throttle_scope` is not set, don't apply this throttle.

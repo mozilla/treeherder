@@ -13,20 +13,20 @@ class Command(BaseCommand):
 
     option_list = BaseCommand.option_list + (
         make_option('--group',
-            action='store',
-            dest='group',
-            default=None,
-            help='Filter the repositories to update by group name'),
+                    action='store',
+                    dest='group',
+                    default=None,
+                    help='Filter the repositories to update by group name'),
         make_option('--repo-name',
-            action='store',
-            dest='repo_name',
-            default=None,
-            help='Filter the repositories to update by name'),
+                    action='store',
+                    dest='repo_name',
+                    default=None,
+                    help='Filter the repositories to update by name'),
         make_option('--codebase',
-            action='store',
-            dest='codebase',
-            default=None,
-            help='Filter the repositories to update by codebase'),
+                    action='store',
+                    dest='codebase',
+                    default=None,
+                    help='Filter the repositories to update by codebase'),
     )
 
     def handle(self, *args, **options):
@@ -40,8 +40,8 @@ class Command(BaseCommand):
                 repository_group__name=options['group'])
 
         repo_ids = repositories.values_list('id', flat=True)
-        
+
         refdata = RefDataManager()
-        
+
         for repo_id in repo_ids:
             refdata.update_repository_version(repo_id)

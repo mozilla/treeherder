@@ -13,6 +13,7 @@ from treeherder.webapp.api.utils import (UrlQueryFilter, with_jobs,
 
 
 class JobsViewSet(viewsets.ViewSet):
+
     """
     This viewset is responsible for the jobs endpoint.
 
@@ -31,7 +32,7 @@ class JobsViewSet(viewsets.ViewSet):
         if obj:
             job = obj[0]
             job["resource_uri"] = reverse("jobs-detail",
-                kwargs={"project": jm.project, "pk": job["id"]})
+                                          kwargs={"project": jm.project, "pk": job["id"]})
             job["logs"] = jm.get_log_references(pk)
 
             # make artifact ids into uris

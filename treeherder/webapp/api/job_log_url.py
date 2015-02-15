@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class JobLogUrlViewSet(viewsets.ViewSet):
+
     """
     A job_log_url object holds a reference to a job log.
     """
@@ -74,7 +75,7 @@ class JobLogUrlViewSet(viewsets.ViewSet):
         logger.info("{0} has requested to parse log {1}".format(
                     request.user.username, log_obj))
 
-        #importing here to avoid an import loop
+        # importing here to avoid an import loop
         from treeherder.log_parser.tasks import parse_log
         parse_log.apply_async(
             args=[project, log_obj, job["job_guid"]],

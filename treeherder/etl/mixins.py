@@ -22,6 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 class JsonExtractorMixin(object):
+
     def extract(self, url):
         """
         Deserializes a json string contained a given file, uncompressing it if needed
@@ -43,7 +44,9 @@ class JsonExtractorMixin(object):
 
 
 class JsonLoaderMixin(object):
+
     """This mixin posts a json serializable object to the given url"""
+
     def load(self, url, data):
         req = urllib2.Request(url)
         req.add_header('Content-Type', 'application/json')
@@ -110,7 +113,7 @@ class ResultSetsLoaderMixin(JsonLoaderMixin):
             url = "{0}/{1}/".format(
                 settings.API_HOSTNAME.strip('/'),
                 endpoint.strip('/')
-                )
+            )
             response = super(ResultSetsLoaderMixin, self).load(url, result_sets)
 
             if not response or response.getcode() != 200:

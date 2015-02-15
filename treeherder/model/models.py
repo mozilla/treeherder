@@ -35,6 +35,7 @@ SQL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'sql')
 ACTIVE_STATUS_LIST = ['active', 'onhold', 'deleted']
 ACTIVE_STATUS_CHOICES = zip(ACTIVE_STATUS_LIST, ACTIVE_STATUS_LIST,)
 
+
 @python_2_unicode_compatible
 class Product(models.Model):
     id = models.AutoField(primary_key=True)
@@ -179,6 +180,7 @@ class MachineNote(models.Model):
 
 
 class DatasourceManager(models.Manager):
+
     def cached(self):
         """
         Return all datasources, caching the results.
@@ -281,14 +283,14 @@ class Datasource(models.Model):
         if inserting or kwargs.get('force_insert', False):
             if not self.name:
                 self.name = "{0}_{1}_{2}".format(
-                    self.project.replace("-","_"),
+                    self.project.replace("-", "_"),
                     self.contenttype,
                     self.dataset
                 )
 
             # a database name cannot contain the dash character
             if '-' in self.name:
-                self.name = self.name.replace('-','_')
+                self.name = self.name.replace('-', '_')
 
             if not self.type:
                 self.type = "mysql"
@@ -558,6 +560,7 @@ class FailureClassification(models.Model):
 # exclusion profiles models
 
 class JobExclusion(models.Model):
+
     """
     A filter represents a collection of properties
     that you want to filter jobs on. These properties along with their values
@@ -580,6 +583,7 @@ class JobExclusion(models.Model):
 
 
 class ExclusionProfile(models.Model):
+
     """
     An exclusion profile represents a list of job exclusions that can be associated with a user profile.
     """
@@ -637,19 +641,20 @@ class ExclusionProfile(models.Model):
 
             # group the signatures by repo, so the queries don't have to be
             # so long when getting jobs
-            for repo,sig in signatures:
+            for repo, sig in signatures:
                 self.flat_exclusion[repo].append(sig)
 
         super(ExclusionProfile, self).save(
             force_insert=False,
             force_update=True
-            )
+        )
 
     class Meta:
         db_table = 'exclusion_profile'
 
 
 class UserExclusionProfile(models.Model):
+
     """
     An extension to the standard user model that keeps the exclusion
     profile relationship.
@@ -664,6 +669,7 @@ class UserExclusionProfile(models.Model):
 
 
 class ReferenceDataSignatures(models.Model):
+
     """
     A collection of all the possible combinations of reference data,
     populated on data ingestion. signature is a hash of the data it refers to

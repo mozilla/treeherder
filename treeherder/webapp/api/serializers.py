@@ -42,6 +42,7 @@ class ExclusionProfileSerializer(serializers.ModelSerializer):
 
 
 class RepositoryGroupSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = models.RepositoryGroup
         fields = ('name', 'description')

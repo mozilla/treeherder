@@ -10,6 +10,7 @@ from treeherder.webapp.api.utils import (with_jobs)
 
 
 class PerformanceDataViewSet(viewsets.ViewSet):
+
     """
     This view serves performance charts data
     """

@@ -70,10 +70,11 @@ schemas = load_schemas(schema_folder)
 publisher = None
 if settings.PULSE_USERNAME and settings.PULSE_PASSWORD:
     publisher = TreeherderPublisher(
-        client_id       = settings.PULSE_USERNAME,
-        access_token    = settings.PULSE_PASSWORD,
-        schemas         = schemas
+        client_id=settings.PULSE_USERNAME,
+        access_token=settings.PULSE_PASSWORD,
+        schemas=schemas
     )
+
 
 @task(name='publish-to-pulse')
 def publish_to_pulse(project, ids, data_type):
@@ -107,9 +108,9 @@ def publish_to_pulse(project, ids, data_type):
 
                 # publish the data to pulse
                 publisher.new_result_set(
-                    message         = entry,
-                    revision_hash   = entry['revision_hash'],
-                    project         = project
+                    message=entry,
+                    revision_hash=entry['revision_hash'],
+                    project=project
                 )
 
             # Basically, I have no idea what context this runs and was inherently

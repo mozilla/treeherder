@@ -17,20 +17,20 @@ class Command(BaseCommand):
 
     option_list = BaseCommand.option_list + (
         make_option('--host',
-            action='store',
-            dest='host',
-            default=settings.TREEHERDER_DATABASE_HOST,
-            help='Host to associate the datasource to'),
+                    action='store',
+                    dest='host',
+                    default=settings.TREEHERDER_DATABASE_HOST,
+                    help='Host to associate the datasource to'),
         make_option('--readonly-host',
-            action='store',
-            dest='readonly_host',
-            default=settings.TREEHERDER_RO_DATABASE_HOST,
-            help='Readonly host to associate the datasource to'),
+                    action='store',
+                    dest='readonly_host',
+                    default=settings.TREEHERDER_RO_DATABASE_HOST,
+                    help='Readonly host to associate the datasource to'),
         make_option('--reset',
-            action='store_true',
-            dest='reset',
-            default=False,
-            help='Reset the datasources if they already exists'),
+                    action='store_true',
+                    dest='reset',
+                    default=False,
+                    help='Reset the datasources if they already exists'),
     )
 
     def handle(self, *args, **options):

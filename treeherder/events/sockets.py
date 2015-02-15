@@ -8,6 +8,7 @@ from socketio.namespace import BaseNamespace
 
 logger = logging.getLogger(__name__)
 
+
 class EventsNamespace(BaseNamespace):
 
     def __init__(self, *args, **kwargs):

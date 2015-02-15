@@ -82,6 +82,3 @@ def test_all_builders_complete():
     del(act["Structured Log"]["logurl"])
 
     assert exp == lpc.artifacts, diff(exp, lpc.artifacts)
-
-
-

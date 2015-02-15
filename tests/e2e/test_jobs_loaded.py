@@ -14,7 +14,7 @@ def test_pending_job_available(jm, initial_data, pending_jobs_stored):
     )
     jobs = resp.json
 
-    assert len(jobs['results']) ==1
+    assert len(jobs['results']) == 1
 
     assert jobs['results'][0]['state'] == 'pending'
 

@@ -16,31 +16,31 @@ class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
 
         make_option('--debug',
-            action='store_true',
-            dest='debug',
-            default=None,
-            help='Write debug messages to stdout'),
+                    action='store_true',
+                    dest='debug',
+                    default=None,
+                    help='Write debug messages to stdout'),
 
         make_option('--result_set_id',
-            dest='result_set_id',
-            default=None,
-            help='Increment result_set id to test adding to one set of structure'),
+                    dest='result_set_id',
+                    default=None,
+                    help='Increment result_set id to test adding to one set of structure'),
 
         make_option('--push_timestamp',
-            dest='push_timestamp',
-            default=None,
-            help='Specify the push_timestamp for the default data structure'),
+                    dest='push_timestamp',
+                    default=None,
+                    help='Specify the push_timestamp for the default data structure'),
 
         make_option('--project',
-            dest='project',
-            default='mozilla-inbound',
-            help='Project name to store data in.'),
+                    dest='project',
+                    default='mozilla-inbound',
+                    help='Project name to store data in.'),
 
         make_option('--show_default_data',
-            action='store_true',
-            dest='show_default_data',
-            default=None,
-            help='Write default data structure to stdout'),
+                    action='store_true',
+                    dest='show_default_data',
+                    default=None,
+                    help='Write default data structure to stdout'),
 
     )
 
@@ -50,37 +50,37 @@ class Command(BaseCommand):
              'min': 2474.0, 'max': 2642.0, 'median': '2525.000000',
              'total_replicates': 10, 'push_timestamp': 1402944547,
              'mean': '2524.7'}
-            ],
+        ],
         '930295ab2dedff613f888c002cc471e055cf89ee': [
             {'std': '35.0', 'result_set_id': 11, 'job_id': 1121,
              'min': 1156.0, 'max': 1359.0, 'median': '1228.000000',
              'total_replicates': 10, 'push_timestamp': 1402944547,
              'mean': '1228.0'}
-            ],
+        ],
         '843a5600f1d4b964526fde76e073c50a8e69497f': [
             {'std': '29.3', 'result_set_id': 11, 'job_id': 1121,
              'min': 827.0, 'max': 880.0, 'median': '861.000000',
              'total_replicates': 10, 'push_timestamp': 1402944547,
              'mean': '860.6'}
-            ],
+        ],
         'e07ff2a8e874e066ad680a4c61d65486877ef5a3': [
             {'std': '44.9', 'result_set_id': 11, 'job_id': 1121,
              'min': 1935.0, 'max': 2540.0, 'median': '2020.000000',
              'total_replicates': 10, 'push_timestamp': 1402944547,
              'mean': '2020.1'}
-            ],
+        ],
         'b8d07a1a082d93f87cde13cbd9c571259d5b30cb': [
             {'std': '26.0', 'result_set_id': 11, 'job_id': 1121,
              'min': 636.0, 'max': 934.0, 'median': '675.000000',
              'total_replicates': 10, 'push_timestamp': 1402944547,
              'mean': '675.1'}
-            ],
+        ],
         '3b7fc925aeedffaecd8344b52e551c36833ee426': [
             {'std': '54.2', 'result_set_id': 11, 'job_id': 1121,
              'min': 2876.0, 'max': 3022.0, 'median': '2932.000000',
              'total_replicates': 10, 'push_timestamp': 1402944547,
              'mean': '2932.4'}
-            ],
+        ],
         '824dbda856e33a97a85213c1e02f39b7e31103f1': [
             {'std': '43.8', 'result_set_id': 11, 'job_id': 1121,
              'min': 1879.0, 'max': 1976.0, 'median': '1916.000000',

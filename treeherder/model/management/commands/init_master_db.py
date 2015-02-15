@@ -18,26 +18,26 @@ class Command(BaseCommand):
 
     option_list = BaseCommand.option_list + (
         make_option('--noinput', action='store_false', dest='interactive', default=True,
-            help='Tells Django to NOT prompt the user for input of any kind.'
-        ),
+                    help='Tells Django to NOT prompt the user for input of any kind.'
+                    ),
         make_option('--engine',
-            action='store',
-            dest='engine',
-            default='InnoDB',
-            help='Define the db engine to use.',
-        ),
+                    action='store',
+                    dest='engine',
+                    default='InnoDB',
+                    help='Define the db engine to use.',
+                    ),
         make_option('--template-path',
-            action='store',
-            dest='template_path',
-            default=path('model', 'sql', 'template_schema'),
-            help='Directory containing the sql templates',
-        ),
+                    action='store',
+                    dest='template_path',
+                    default=path('model', 'sql', 'template_schema'),
+                    help='Directory containing the sql templates',
+                    ),
         make_option('--skip-fixtures',
-            action='store_true',
-            dest='skip_fixtures',
-            default=False,
-            help='Tell this command to NOT load initial fixtures',
-        ),
+                    action='store_true',
+                    dest='skip_fixtures',
+                    default=False,
+                    help='Tell this command to NOT load initial fixtures',
+                    ),
 
     )
 
@@ -69,9 +69,9 @@ Type 'yes' to continue, or 'no' to cancel: """ % connection.settings_dict['NAME'
                     cursor.close()
                 print "Sql files executed successfully."
 
-            #safely apply all migrations
+            # safely apply all migrations
             call_command("migrate")
-            #load initial fixtures for reference data
+            # load initial fixtures for reference data
             # the order of this list of fixtures is important
             # to avoid integrity errors
             if not options['skip_fixtures']:

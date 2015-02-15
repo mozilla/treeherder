@@ -28,12 +28,12 @@ def fetch_missing_push_logs(missing_pushlogs):
                         repo['name'],
                         repo['url'],
                         resultset
-                        ),
+                    ),
                         routing_key='fetch_missing_push_logs'
-                )
+                    )
 
 
-@task(name='fetch-missing-hg-push-logs', time_limit=3*60)
+@task(name='fetch-missing-hg-push-logs', time_limit=3 * 60)
 def fetch_missing_hg_push_logs(repo_name, repo_url, resultset):
     """
     Run a HgPushlog etl process
@@ -47,5 +47,3 @@ def fetch_missing_hg_push_logs(repo_name, repo_url, resultset):
 
     logger.info("fetching missing resultsets: {0}".format(url_str))
     process.run(url_str, repo_name, resultset)
-
-

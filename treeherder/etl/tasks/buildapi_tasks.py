@@ -14,7 +14,7 @@ from treeherder.etl.buildapi import (RunningJobsProcess,
 from treeherder.etl.pushlog import HgPushlogProcess
 
 
-@task(name='fetch-buildapi-pending', time_limit=3*60)
+@task(name='fetch-buildapi-pending', time_limit=3 * 60)
 def fetch_buildapi_pending():
     """
     Fetches the buildapi pending jobs api and load them to
@@ -23,7 +23,7 @@ def fetch_buildapi_pending():
     PendingJobsProcess().run()
 
 
-@task(name='fetch-buildapi-running', time_limit=3*60)
+@task(name='fetch-buildapi-running', time_limit=3 * 60)
 def fetch_buildapi_running():
     """
     Fetches the buildapi running jobs api and load them to
@@ -32,7 +32,7 @@ def fetch_buildapi_running():
     RunningJobsProcess().run()
 
 
-@task(name='fetch-buildapi-build4h', time_limit=3*60)
+@task(name='fetch-buildapi-build4h', time_limit=3 * 60)
 def fetch_buildapi_build4h():
     """
     Fetches the buildapi running jobs api and load them to
@@ -56,7 +56,7 @@ def fetch_push_logs():
                 )
 
 
-@task(name='fetch-hg-push-logs', time_limit=3*60)
+@task(name='fetch-hg-push-logs', time_limit=3 * 60)
 def fetch_hg_push_log(repo_name, repo_url):
     """
     Run a HgPushlog etl process
@@ -72,5 +72,3 @@ def run_builds4h_analyzer():
     """
     process = Builds4hAnalyzer()
     process.run()
-
-

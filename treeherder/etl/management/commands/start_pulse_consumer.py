@@ -10,6 +10,7 @@ from treeherder.etl.pulse import TreeherderPulseDataAdapter, TreeherderPulseDaem
 
 
 class Command(BaseCommand):
+
     """Management command to run mozilla pulse consumer."""
 
     help = (
@@ -105,8 +106,8 @@ class Command(BaseCommand):
                 th_daemon.start()
 
             else:
-                #Run the pulse consumer without becoming
-                #a daemon
+                # Run the pulse consumer without becoming
+                # a daemon
                 tda.start()
 
         else:

@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
 from django.contrib.auth.models import User
 
+
 def test_note_list(webapp, sample_notes, jm):
     """
     test retrieving a list of notes from the note-list endpoint
@@ -20,7 +21,6 @@ def test_note_list(webapp, sample_notes, jm):
     assert resp.status_int == 200
     assert isinstance(resp.json, list)
     note_list = resp.json
-
 
     assert set(note_list[0].keys()) == set([
         'note_timestamp',
@@ -107,6 +107,7 @@ def test_note_detail_not_found(webapp, jm):
 
     jm.disconnect()
 
+
 def test_note_detail_bad_project(webapp, jm):
     """
     test retrieving a HTTP 404 from the note-detail
@@ -121,6 +122,7 @@ def test_note_detail_bad_project(webapp, jm):
     assert resp.json == {"detail": "No project with name foo"}
 
     jm.disconnect()
+
 
 def test_create_note(webapp, eleven_jobs_processed, mock_message_broker, jm):
     """
@@ -206,6 +208,6 @@ def test_delete_note(webapp, sample_notes, mock_message_broker, jm):
 
     assert resp.status_code == 200, resp
 
-    assert len(new_notes) == len(notes)-1
+    assert len(new_notes) == len(notes) - 1
 
     jm.disconnect()

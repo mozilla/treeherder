@@ -42,6 +42,7 @@ PIPE_DELIMITED_LINE_TEST_CASES = (
     ),
 )
 
+
 @pytest.mark.parametrize(("line", "exp_search_term"), PIPE_DELIMITED_LINE_TEST_CASES)
 def test_get_delimited_search_term(line, exp_search_term):
     """Test search term extraction for a pipe delimited error line"""
@@ -69,6 +70,7 @@ LEAK_LINE_TEST_CASES = (
     ),
 )
 
+
 @pytest.mark.parametrize(("line", "exp_search_term"), LEAK_LINE_TEST_CASES)
 def test_get_leak_search_term(line, exp_search_term):
     """tests the search term extracted from a leak error line is correct"""
@@ -85,6 +87,7 @@ FULL_LINE_FALLBACK_TEST_CASES = (
         'PROCESS-CRASH | Automation Error: Missing end of test marker (process crashed?)'
     ),
 )
+
 
 @pytest.mark.parametrize(("line", "exp_search_term"), FULL_LINE_FALLBACK_TEST_CASES)
 def test_get_full_line_search_term(line, exp_search_term):
@@ -119,7 +122,8 @@ LONG_LINE_TEST_CASES = (
     ),
 )
 
-#command timed out: 2400 seconds without output running ['/tools/buildbot/bin/python', 'scripts/scripts/android_emulator_unittest.py', '--cfg', 'android/androidx86.py', '--test-suite', 'robocop-1', '--test-suite', 'robocop-2', '--test-suite', 'robocop-3', '--test-suite', 'xpcshell', '--blob-upload-branch', 'b2g-inbound', '--download-symbols', 'ondemand'], attempting to kill
+# command timed out: 2400 seconds without output running ['/tools/buildbot/bin/python', 'scripts/scripts/android_emulator_unittest.py', '--cfg', 'android/androidx86.py', '--test-suite', 'robocop-1', '--test-suite', 'robocop-2', '--test-suite', 'robocop-3', '--test-suite', 'xpcshell', '--blob-upload-branch', 'b2g-inbound', '--download-symbols', 'ondemand'], attempting to kill
+
 
 @pytest.mark.parametrize(("line", "exp_search_term"), LONG_LINE_TEST_CASES)
 def test_get_long_search_term(line, exp_search_term):
@@ -138,6 +142,7 @@ CRASH_LINE_TEST_CASES = (
     ),
 )
 
+
 @pytest.mark.parametrize(("line", "exp_search_term"), CRASH_LINE_TEST_CASES)
 def test_get_crash_signature(line, exp_search_term):
     """tests the search term extracted from an error line is correct"""
@@ -154,6 +159,7 @@ BLACKLIST_TEST_CASES = (
         None
     ),
 )
+
 
 @pytest.mark.parametrize(("line", "exp_search_term"), BLACKLIST_TEST_CASES)
 def test_get_blacklisted_search_term(line, exp_search_term):

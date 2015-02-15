@@ -25,7 +25,6 @@ def mock_extract(monkeypatch):
         content = json.loads(open(bug_list_path).read())
         return content
 
-
     monkeypatch.setattr(BzApiBugProcess,
                         'extract',
                         extract)

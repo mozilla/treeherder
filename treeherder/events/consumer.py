@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 class EventsConsumer(ConsumerMixin):
+
     """
     A specialized message consumer for the 'events' exchange.
 
@@ -28,6 +29,7 @@ class EventsConsumer(ConsumerMixin):
     try.*
     try.job_failure
     """
+
     def __init__(self, connection):
         self.connection = connection
         self.exchange = Exchange("events", type="topic")

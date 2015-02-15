@@ -11,7 +11,9 @@ from treeherder.webapp.api.utils import (UrlQueryFilter, with_jobs,
                                          oauth_required,
                                          to_timestamp)
 
+
 class ResultSetViewSet(viewsets.ViewSet):
+
     """
     View for ``resultset`` records
 
@@ -73,11 +75,11 @@ class ResultSetViewSet(viewsets.ViewSet):
             count,
             full,
             filter.conditions
-            )
+        )
 
         for rs in results:
             rs["revisions_uri"] = reverse("resultset-revisions",
-                kwargs={"project": jm.project, "pk": rs["id"]})
+                                          kwargs={"project": jm.project, "pk": rs["id"]})
 
         meta['count'] = len(results)
         meta['repository'] = project
@@ -85,7 +87,7 @@ class ResultSetViewSet(viewsets.ViewSet):
         resp = {
             'meta': meta,
             'results': results
-            }
+        }
 
         return Response(resp)
 
@@ -148,4 +150,3 @@ class ResultSetViewSet(viewsets.ViewSet):
             jm.disconnect()
 
         return Response({"message": "well-formed JSON stored"})
-

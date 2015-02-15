@@ -51,6 +51,7 @@ def test_artifact_detail_not_found(webapp, jm):
 
     jm.disconnect()
 
+
 def test_artifact_detail_bad_project(webapp, jm):
     """
     test retrieving a HTTP 404 from the artifact-detail
@@ -65,4 +66,3 @@ def test_artifact_detail_bad_project(webapp, jm):
     assert resp.json == {"detail": "No project with name foo"}
 
     jm.disconnect()
-

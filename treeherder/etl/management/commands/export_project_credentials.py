@@ -12,6 +12,7 @@ from treeherder.model.derived.base import TreeherderModelBase
 
 
 class Command(BaseCommand):
+
     """Management command to export project credentials."""
 
     help = "Exports the objectstore Oauth keys for etl data import tasks"
@@ -24,8 +25,8 @@ class Command(BaseCommand):
             default=False,
             dest='safe',
             help="Don't overwrite credentials file if it exists."
-            ),
-        )
+        ),
+    )
 
     def handle(self, *args, **options):
 
@@ -35,7 +36,7 @@ class Command(BaseCommand):
             os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
             'data',
             'credentials.json'
-            )
+        )
 
         if not os.path.isfile(file_path):
 
@@ -47,12 +48,10 @@ class Command(BaseCommand):
             if not safe:
                 write_credentials(file_path)
 
+
 def write_credentials(file_path):
 
     immutable_credentials = TreeherderModelBase.get_oauth_credentials()
     keys_fh = open(file_path, 'w')
     keys_fh.write(json.dumps(immutable_credentials))
     keys_fh.close()
-
-
-

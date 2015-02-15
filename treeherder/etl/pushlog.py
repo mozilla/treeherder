@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 class HgPushlogTransformerMixin(object):
 
-    def transform(self, pushlog,  repository):
+    def transform(self, pushlog, repository):
 
         # this contain the whole list of transformed pushes
 
@@ -60,10 +60,10 @@ class HgPushlogTransformerMixin(object):
             result_set['revision_hash'] = generate_revision_hash(rev_hash_components)
 
             if repository not in th_collections:
-                th_collections[ repository ] = TreeherderResultSetCollection()
+                th_collections[repository] = TreeherderResultSetCollection()
 
-            th_resultset = th_collections[ repository ].get_resultset(result_set)
-            th_collections[ repository ].add(th_resultset)
+            th_resultset = th_collections[repository].get_resultset(result_set)
+            th_collections[repository].add(th_resultset)
 
         return th_collections
 
@@ -88,7 +88,7 @@ class HgPushlogProcess(HgPushlogTransformerMixin,
             try:
                 # make an attempt to use the last revision cached
                 extracted_content = self.extract(
-                    source_url+"&fromchange="+last_push
+                    source_url + "&fromchange=" + last_push
                 )
             except requests.exceptions.HTTPError, e:
                 # in case of a 404 error, delete the cache key
@@ -151,7 +151,7 @@ class MissingHgPushlogProcess(HgPushlogTransformerMixin,
             # the bogus pushlog, but the jobs are (correctly) not shown in the
             # UI, since they're bad data.
             logger.warn(("no pushlog in json-pushes.  generating a dummy"
-                          " onhold placeholder: {0}").format(url))
+                         " onhold placeholder: {0}").format(url))
 
             # we want to make a "dummy" resultset that is "onhold",
             # because json-pushes doesn't know about it.
@@ -186,14 +186,16 @@ class MissingHgPushlogProcess(HgPushlogTransformerMixin,
                 assert extracted_content, (
                     "Got no content response for missing resultsets: {0}".format(
                         source_url)
-                    )
+                )
         except Exception:
             logger.exception("error loading missing resultsets: {0}".format(
                 source_url
             ))
             raise
 
+
 class GitPushlogTransformerMixin(object):
+
     def transform(self, source_url):
         # TODO: implement git sources.xml transformation logic
         pass
@@ -202,6 +204,7 @@ class GitPushlogTransformerMixin(object):
 class GitPushlogProcess(JsonExtractorMixin,
                         GitPushlogTransformerMixin,
                         OAuthLoaderMixin):
+
     def run(self, source_url, project):
         # TODO: implement the whole sources.xml ingestion process
         pass

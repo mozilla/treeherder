@@ -16,7 +16,9 @@ from treeherder.model import utils
 
 logger = logging.getLogger(__name__)
 
+
 class RefDataManager(object):
+
     """Model for reference data"""
 
     def __init__(self):
@@ -73,7 +75,7 @@ class RefDataManager(object):
         self.job_type_placeholders = []
         self.job_type_names_and_symbols = []
 
-        #Use this structure to map the job to the group id
+        # Use this structure to map the job to the group id
         self.job_type_to_group_lookup = {}
 
         # Support structures for building product SQL
@@ -232,6 +234,7 @@ class RefDataManager(object):
     methods allow a caller to iterate through a single list of
     job data structures, generating cumulative sets of reference data.
     """
+
     def add_reference_data_signature(self, name, build_system_type,
                                      repository, reference_data):
 
@@ -281,7 +284,7 @@ class RefDataManager(object):
             self.build_platform_placeholders,
             self.build_unique_platforms,
             self.build_where_filters
-            )
+        )
 
         return key
 
@@ -311,7 +314,7 @@ class RefDataManager(object):
             self.machine_platform_placeholders,
             self.machine_unique_platforms,
             self.machine_where_filters
-            )
+        )
 
         return key
 
@@ -337,27 +340,27 @@ class RefDataManager(object):
             group_name, group_symbol, self.job_group_names_and_symbols,
             self.job_group_placeholders, self.job_group_lookup,
             self.job_group_where_filters
-            )
+        )
 
         self._add_name_and_symbol(
             job_type, job_symbol, self.job_type_names_and_symbols,
             self.job_type_placeholders, self.job_type_lookup,
             self.job_type_where_filters
-            )
+        )
 
         job_key = RefDataManager.get_name_symbol_key(
             job_type, job_symbol
-            )
+        )
 
         group_key = RefDataManager.get_name_symbol_key(
             group_name, group_symbol
-            )
+        )
 
-        #Use this structure to map the job to the group id
+        # Use this structure to map the job to the group id
         self.job_type_to_group_lookup[job_key] = {
-            'group_key':group_key, 'job_type':job_type,
-            'job_symbol':job_symbol
-            }
+            'group_key': group_key, 'job_type': job_type,
+            'job_symbol': job_symbol
+        }
 
         return job_key
 
@@ -371,7 +374,7 @@ class RefDataManager(object):
         self._add_name(
             product, self.product_lookup, self.product_placeholders,
             self.unique_products, self.product_where_in_list
-            )
+        )
 
     def add_device(self, device):
         """Add device names"""
@@ -383,15 +386,15 @@ class RefDataManager(object):
         self._add_name(
             device, self.device_lookup, self.device_placeholders,
             self.unique_devices, self.device_where_in_list
-            )
+        )
 
     def _add_platform(
-        self,
-        os_name, platform, arch,
-        platform_lookup,
-        platform_placeholders,
-        unique_platforms,
-        where_filters):
+            self,
+            os_name, platform, arch,
+            platform_lookup,
+            platform_placeholders,
+            unique_platforms,
+            where_filters):
         """
         Internal method for adding platform information, the platform
         could be a build or machine platform. The caller must provide
@@ -404,34 +407,34 @@ class RefDataManager(object):
 
             # Placeholders for the INSERT/SELECT SQL query
             platform_placeholders.append(
-                [ os_name, platform, arch, os_name, platform, arch ]
-                )
+                [os_name, platform, arch, os_name, platform, arch]
+            )
 
             # Placeholders for the id retrieval SELECT
             unique_platforms.extend(
-                [ os_name, platform, arch ]
-                )
+                [os_name, platform, arch]
+            )
 
             # Initializing return data structure
             platform_lookup[key] = {
-                'id':0,
-                'os_name':os_name,
-                'platform':platform,
-                'architecture':arch
-                }
+                'id': 0,
+                'os_name': os_name,
+                'platform': platform,
+                'architecture': arch
+            }
 
             # WHERE clause for the retrieval SELECT
             where_filters.append(
                 "(`os_name` = %s  AND `platform` = %s  AND `architecture` = %s)".format(
                     os_name, platform, arch
-                    )
                 )
+            )
 
         return key
 
     def _add_name(
-        self, name, name_lookup, name_placeholders, unique_names,
-        where_in_list):
+            self, name, name_lookup, name_placeholders, unique_names,
+            where_in_list):
         """
         Internal method for adding reference data that consists of a single
         name. The caller must provide the appropriate instance data
@@ -443,18 +446,18 @@ class RefDataManager(object):
 
             # Placeholders for the INSERT/SELECT SQL query
             name_placeholders.append(
-                [ name, name ]
-                )
+                [name, name]
+            )
 
             # Placeholders for the id retrieval SELECT
-            unique_names.append( name )
+            unique_names.append(name)
 
             # WHERE clause for the retrieval SELECT
             where_in_list.append('%s')
 
     def _add_name_and_symbol(
-        self, name, symbol, unique_names_and_symbols, name_placeholders,
-        name_symbol_lookup, where_filters):
+            self, name, symbol, unique_names_and_symbols, name_placeholders,
+            name_symbol_lookup, where_filters):
         """
         Internal method for adding reference data that consists of a single
         name and associated character symbol. The caller must provide the
@@ -466,25 +469,25 @@ class RefDataManager(object):
 
             # Placeholders for the INSERT/SELECT SQL query
             name_placeholders.append(
-                [ name, symbol, name, symbol ]
-                )
+                [name, symbol, name, symbol]
+            )
 
             # Placeholders for the id retrieval SELECT
             unique_names_and_symbols.extend(
-                [ name, symbol ]
-                )
+                [name, symbol]
+            )
 
             # Initializing return data structure
             name_symbol_lookup[key] = {
-                'id':0,
-                'name':name,
-                'symbol':symbol
-                }
+                'id': 0,
+                'name': name,
+                'symbol': symbol
+            }
 
             # WHERE clause for the retrieval SELECT
             where_filters.append(
                 "(`name` = %s  AND `symbol` = %s)".format(name, symbol)
-                )
+            )
 
         return key
 
@@ -509,11 +512,11 @@ class RefDataManager(object):
             self.machine_name_placeholders.append(
                 # machine_name, first_timestamp, last_timestamp,
                 # machine_name
-                [ machine_name, timestamp, timestamp, machine_name ]
-                )
+                [machine_name, timestamp, timestamp, machine_name]
+            )
 
             # Placeholders for the id retrieval SELECT
-            self.machine_unique_names.append( machine_name )
+            self.machine_unique_names.append(machine_name)
 
             # WHERE clause for the retrieval SELECT
             self.machine_where_in_list.append('%s')
@@ -526,7 +529,7 @@ class RefDataManager(object):
             #   approximate time a particular machine last reported.
             self.machine_timestamp_update_placeholders.append(
                 [timestamp, machine_name]
-                )
+            )
 
     def add_option_collection(self, option_set):
         """
@@ -551,8 +554,8 @@ class RefDataManager(object):
                 self.o_where_in_list.append('%s')
 
         option_collection_hash = self.get_option_collection_hash(
-             option_set
-            )
+            option_set
+        )
 
         if option_collection_hash not in self.oc_hash_lookup:
             # Build list of unique option collections
@@ -565,6 +568,7 @@ class RefDataManager(object):
     of SQL generation and execution using the class instance reference
     data structures.
     """
+
     def process_reference_data_signatures(self):
 
         insert_proc = 'reference.inserts.create_reference_data_signature'
@@ -591,7 +595,7 @@ class RefDataManager(object):
             self.build_platform_placeholders,
             self.build_unique_platforms,
             self.build_where_filters
-            )
+        )
 
     def process_machine_platforms(self):
         """
@@ -607,7 +611,7 @@ class RefDataManager(object):
             self.machine_platform_placeholders,
             self.machine_unique_platforms,
             self.machine_where_filters
-            )
+        )
 
     def process_job_groups(self):
         """
@@ -623,7 +627,7 @@ class RefDataManager(object):
             self.job_group_placeholders,
             self.job_group_names_and_symbols,
             self.job_group_where_filters
-            )
+        )
 
     def process_job_types(self):
         """
@@ -639,7 +643,7 @@ class RefDataManager(object):
             self.job_type_placeholders,
             self.job_type_names_and_symbols,
             self.job_type_where_filters
-            )
+        )
 
         update_placeholders = []
 
@@ -648,10 +652,10 @@ class RefDataManager(object):
 
             if not job_type_lookup[job_key]['job_group_id']:
                 job_data = self.job_type_to_group_lookup[job_key]
-                group_id = self.job_group_lookup[ job_data['group_key'] ]['id']
+                group_id = self.job_group_lookup[job_data['group_key']]['id']
                 update_placeholders.append(
-                    [ group_id, job_data['job_type'], job_data['job_symbol'] ]
-                    )
+                    [group_id, job_data['job_type'], job_data['job_symbol']]
+                )
 
         if update_placeholders:
             # Update the job types with the job group id
@@ -669,14 +673,14 @@ class RefDataManager(object):
         """
 
         insert_proc = 'reference.inserts.create_product'
-        select_proc='reference.selects.get_products'
+        select_proc = 'reference.selects.get_products'
 
         return self._process_names(
             insert_proc, select_proc,
             self.product_where_in_list,
             self.product_placeholders,
             self.unique_products
-            )
+        )
 
     def process_devices(self):
         """
@@ -684,14 +688,14 @@ class RefDataManager(object):
         """
 
         insert_proc = 'reference.inserts.create_device'
-        select_proc='reference.selects.get_devices'
+        select_proc = 'reference.selects.get_devices'
 
         return self._process_names(
             insert_proc, select_proc,
             self.device_where_in_list,
             self.device_placeholders,
             self.unique_devices
-            )
+        )
 
     def process_machines(self):
         """
@@ -704,7 +708,7 @@ class RefDataManager(object):
         # Convert WHERE filters to string
         where_in_clause = ",".join(self.machine_where_in_list)
 
-        select_proc='reference.selects.get_machines'
+        select_proc = 'reference.selects.get_machines'
         insert_proc = 'reference.inserts.create_machine'
         update_proc = 'reference.updates.update_machine_timestamp'
 
@@ -759,7 +763,7 @@ class RefDataManager(object):
         o_where_in_clause = ",".join(self.o_where_in_list)
         option_id_lookup = self._get_or_create_options(
             self.o_placeholders, self.o_unique_options, o_where_in_clause
-            )
+        )
 
         # Get the list of option collection placeholders
         for oc_hash in self.oc_hash_lookup:
@@ -767,7 +771,7 @@ class RefDataManager(object):
                 self.oc_placeholders.append([
                     oc_hash, option_id_lookup[o]['id'], oc_hash,
                     option_id_lookup[o]['id']
-                    ])
+                ])
 
         if not self.oc_placeholders:
             return {}
@@ -781,8 +785,8 @@ class RefDataManager(object):
         return self.oc_hash_lookup
 
     def _process_platforms(
-        self, insert_proc, select_proc, platform_lookup,
-        platform_placeholders, unique_platforms, where_filters):
+            self, insert_proc, select_proc, platform_lookup,
+            platform_placeholders, unique_platforms, where_filters):
         """
         Internal method for processing either build or machine platforms.
         The caller is required to provide the appropriate data structures
@@ -813,15 +817,15 @@ class RefDataManager(object):
 
                 key = RefDataManager.get_platform_key(
                     data['os_name'], data['platform'], data['architecture']
-                    )
+                )
 
                 platform_lookup[key]['id'] = int(data['id'])
 
         return platform_lookup
 
     def _process_names(
-        self, insert_proc, select_proc, where_in_list, name_placeholders,
-        unique_names):
+            self, insert_proc, select_proc, where_in_list, name_placeholders,
+            unique_names):
         """
         Internal method for processing reference data names. The caller is
         required to provide the appropriate data structures for the target
@@ -851,8 +855,8 @@ class RefDataManager(object):
         return name_lookup
 
     def _process_names_and_symbols(
-        self, insert_proc, select_proc, name_symbol_lookup,
-        name_symbol_placeholders, names_and_symbols, where_filters):
+            self, insert_proc, select_proc, name_symbol_lookup,
+            name_symbol_placeholders, names_and_symbols, where_filters):
         """
         Internal method for processing reference data names and their associated
         symbols. The caller is required to provide the appropriate data
@@ -879,7 +883,7 @@ class RefDataManager(object):
 
                 key = RefDataManager.get_name_symbol_key(
                     data['name'], data['symbol']
-                    )
+                )
 
                 name_symbol_lookup[key] = data
                 name_symbol_lookup[key]['id'] = int(data['id'])
@@ -901,7 +905,7 @@ class RefDataManager(object):
             self.build_platform_placeholders,
             self.build_unique_platforms,
             self.build_where_filters
-            )
+        )
 
     def get_or_create_machine_platforms(self, platform_data):
         """
@@ -918,12 +922,12 @@ class RefDataManager(object):
             self.machine_platform_placeholders,
             self.machine_unique_platforms,
             self.machine_where_filters
-            )
+        )
 
     def _get_or_create_platforms(
-        self, platform_data, insert_proc, select_proc,
-        platform_lookup, platform_placeholders, unique_platforms,
-        where_filters):
+            self, platform_data, insert_proc, select_proc,
+            platform_lookup, platform_placeholders, unique_platforms,
+            where_filters):
         """
         Takes a list of lists of os_name, platform, and architecture
         columns and returns a dictionary to be used as a lookup for each
@@ -959,7 +963,7 @@ class RefDataManager(object):
                 item[0], item[1], item[2],
                 platform_lookup, platform_placeholders,
                 unique_platforms, where_filters
-                )
+            )
 
         return self._process_platforms(
             insert_proc, select_proc,
@@ -967,7 +971,7 @@ class RefDataManager(object):
             platform_placeholders,
             unique_platforms,
             where_filters
-            )
+        )
 
     @classmethod
     def get_platform_key(cls, os_name, platform, architecture):
@@ -984,14 +988,14 @@ class RefDataManager(object):
         """
 
         insert_proc = 'reference.inserts.create_job_group'
-        select_proc='reference.selects.get_job_groups'
+        select_proc = 'reference.selects.get_job_groups'
 
         return self._get_or_create_names_and_symbols(
-                    names, insert_proc, select_proc,
-                    self.job_group_names_and_symbols,
-                    self.job_group_placeholders,
-                    self.job_group_lookup,
-                    self.job_group_where_filters)
+            names, insert_proc, select_proc,
+            self.job_group_names_and_symbols,
+            self.job_group_placeholders,
+            self.job_group_lookup,
+            self.job_group_where_filters)
 
     def get_or_create_job_types(self, names):
         """
@@ -1000,14 +1004,14 @@ class RefDataManager(object):
         """
 
         insert_proc = 'reference.inserts.create_job_type'
-        select_proc='reference.selects.get_job_types'
+        select_proc = 'reference.selects.get_job_types'
 
         return self._get_or_create_names_and_symbols(
-                    names, insert_proc, select_proc,
-                    self.job_type_names_and_symbols,
-                    self.job_type_placeholders,
-                    self.job_type_lookup,
-                    self.job_type_where_filters)
+            names, insert_proc, select_proc,
+            self.job_type_names_and_symbols,
+            self.job_type_placeholders,
+            self.job_type_lookup,
+            self.job_type_where_filters)
 
     def get_or_create_products(self, names):
         """
@@ -1016,12 +1020,12 @@ class RefDataManager(object):
         """
 
         insert_proc = 'reference.inserts.create_product'
-        select_proc='reference.selects.get_products'
+        select_proc = 'reference.selects.get_products'
 
         return self._get_or_create_names(
-                    names, insert_proc, select_proc,
-                    self.product_lookup, self.product_placeholders,
-                    self.unique_products, self.product_where_in_list)
+            names, insert_proc, select_proc,
+            self.product_lookup, self.product_placeholders,
+            self.unique_products, self.product_where_in_list)
 
     def get_or_create_devices(self, names):
         """
@@ -1030,12 +1034,12 @@ class RefDataManager(object):
         """
 
         insert_proc = 'reference.inserts.create_device'
-        select_proc='reference.selects.get_devices'
+        select_proc = 'reference.selects.get_devices'
 
         return self._get_or_create_names(
-                    names, insert_proc, select_proc,
-                    self.device_lookup, self.device_placeholders,
-                    self.unique_devices, self.device_where_in_list)
+            names, insert_proc, select_proc,
+            self.device_lookup, self.device_placeholders,
+            self.unique_devices, self.device_where_in_list)
 
     def get_or_create_machines(self, names_and_timestamps):
         """
@@ -1064,8 +1068,8 @@ class RefDataManager(object):
         return self.process_machines()
 
     def _get_or_create_names(self,
-        names, insert_proc, select_proc,
-        name_lookup, where_in_list, name_placeholders, unique_names):
+                             names, insert_proc, select_proc,
+                             name_lookup, where_in_list, name_placeholders, unique_names):
         """
         Takes a list of names and returns a dictionary to be used as a
         lookup for each name's id. Any names not found are inserted into
@@ -1080,16 +1084,16 @@ class RefDataManager(object):
             self._add_name(
                 name, name_lookup, name_placeholders,
                 unique_names, where_in_list
-                )
+            )
 
         return self._process_names(
             insert_proc, select_proc, where_in_list, name_placeholders,
             unique_names
-            )
+        )
 
     def _get_or_create_names_and_symbols(
-        self, data, insert_proc, select_proc, names_and_symbols, placeholders,
-        name_symbol_lookup, where_filters):
+            self, data, insert_proc, select_proc, names_and_symbols, placeholders,
+            name_symbol_lookup, where_filters):
         """
         Takes a list of names and returns a dictionary to be used as a
         lookup for each name's id. Any names not found are inserted into
@@ -1109,12 +1113,12 @@ class RefDataManager(object):
             self._add_name_and_symbol(
                 name_symbol[0], name_symbol[1], names_and_symbols,
                 placeholders, name_symbol_lookup, where_filters
-                )
+            )
 
         return self._process_names_and_symbols(
             insert_proc, select_proc, name_symbol_lookup, placeholders,
             names_and_symbols, where_filters
-            )
+        )
 
     def get_option_collection_hash(self, options):
         """returns an option_collection_hash given a list of options"""
@@ -1143,13 +1147,13 @@ class RefDataManager(object):
         return self.process_option_collections()
 
     def _get_or_create_options(
-        self, option_placeholders, unique_options, where_in_clause):
+            self, option_placeholders, unique_options, where_in_clause):
 
         if not option_placeholders:
             return {}
 
         insert_proc = 'reference.inserts.create_option'
-        select_proc='reference.selects.get_options'
+        select_proc = 'reference.selects.get_options'
 
         self.execute(
             proc=insert_proc,
@@ -1193,7 +1197,6 @@ class RefDataManager(object):
             key_column='option_collection_hash',
             return_type='dict'
         )
-
 
     def get_repository_id(self, name):
         """get the id for the given repository"""
@@ -1280,7 +1283,7 @@ class RefDataManager(object):
             version_url,
             timeout=settings.TREEHERDER_REQUESTS_TIMEOUT)
         for line in response:
-            #go to the last line
+            # go to the last line
             pass
         return line.strip()
 
@@ -1333,8 +1336,8 @@ class RefDataManager(object):
             # keywords come as a list of values, we need a string instead
             bug['keywords'] = ",".join(bug['keywords'])
             placeholders.append([bug.get(field, None) for field in (
-                    'id', 'status', 'resolution', 'summary',
-                    'cf_crash_signature', 'keywords', 'op_sys', 'last_change_time', 'id')])
+                'id', 'status', 'resolution', 'summary',
+                'cf_crash_signature', 'keywords', 'op_sys', 'last_change_time', 'id')])
 
         self.execute(
             proc='reference.inserts.create_bugscache',
@@ -1350,7 +1353,6 @@ class RefDataManager(object):
             placeholders=placeholders,
             executemany=True,
             debug_show=self.DEBUG)
-
 
     def get_bug_suggestions(self, search_term):
         """
@@ -1380,11 +1382,10 @@ class RefDataManager(object):
 
         return dict(open_recent=open_recent, all_others=all_others)
 
-
     def get_reference_data_signature(self, signature_properties):
 
         sh = sha1()
-        sh.update(''.join(map(lambda x: str(x), signature_properties)) )
+        sh.update(''.join(map(lambda x: str(x), signature_properties)))
 
         return sh.hexdigest()
 
@@ -1395,8 +1396,8 @@ class RefDataManager(object):
         if signatures:
 
             reference_data_signatures_where_in_clause = [
-                ','.join( ['%s'] * len(signatures) )
-                ]
+                ','.join(['%s'] * len(signatures))
+            ]
 
             reference_data = self.execute(
                 proc="reference.selects.get_reference_data_signature_names",
@@ -1414,7 +1415,7 @@ class RefDataManager(object):
 
         if signatures:
 
-            reference_data_signatures_where_in_clause = [ ','.join( ['%s'] * len(signatures) ) ]
+            reference_data_signatures_where_in_clause = [','.join(['%s'] * len(signatures))]
 
             reference_data = self.execute(
                 proc="reference.selects.get_reference_data_for_perf_signature",

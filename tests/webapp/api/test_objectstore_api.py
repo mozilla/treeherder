@@ -64,7 +64,7 @@ def test_objectstore_detail(webapp, eleven_jobs_stored, sample_data, jm):
 
     resp = webapp.get(
         reverse('objectstore-detail',
-                kwargs={'project': jm.project, 'pk': job_guid })
+                kwargs={'project': jm.project, 'pk': job_guid})
     )
 
     assert resp.status_int == 200
@@ -101,11 +101,12 @@ def test_objectstore_with_bad_secret(job_sample, jm):
 
     resp = test_utils.post_collection(
         jm.project, tjc, status=403, consumer_secret='not-so-secret'
-        )
+    )
 
     assert resp.status_int == 403
     assert resp.json['detail'] == "Client authentication failed for project, {0}".format(jm.project)
     assert resp.json['response'] == "invalid_client"
+
 
 def test_objectstore_with_bad_key(job_sample, jm):
     """
@@ -121,7 +122,7 @@ def test_objectstore_with_bad_key(job_sample, jm):
 
     resp = test_utils.post_collection(
         jm.project, tjc, status=403, consumer_key='wrong-key'
-        )
+    )
 
     assert resp.status_int == 403
     assert resp.json['response'] == "access_denied"

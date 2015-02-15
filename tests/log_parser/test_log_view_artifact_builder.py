@@ -48,7 +48,7 @@ def do_test(log, check_errors=True):
     # should look like.
     del(exp["logurl"])
 
-    assert act == exp#, diff(exp, act)
+    assert act == exp  # , diff(exp, act)
 
     # :: Use this assert when creating new tests and you want to get the actual
     # returned artifact:
@@ -62,6 +62,7 @@ def test_crashtest_passing(initial_data):
         "mozilla-central_fedora-b2g_test-crashtest-1-bm54-tests1-linux-build50"
     )
 
+
 def test_mochitest_pass(initial_data):
     """Process a job with a single log reference."""
 
@@ -69,10 +70,13 @@ def test_mochitest_pass(initial_data):
         "mozilla-central_mountainlion_test-mochitest-2-bm77-tests1-macosx-build141"
     )
 
+
 def test_duration_gt_1hr(initial_data):
     do_test(
         "mozilla-central-win32-pgo-bm85-build1-build111"
     )
+
+
 @slow
 def test_mochitest_fail(initial_data):
     """Process a job with a single log reference."""
@@ -88,6 +92,7 @@ def test_mochitest_process_crash(initial_data):
     do_test(
         "mozilla-inbound_ubuntu64_vm-debug_test-mochitest-other-bm53-tests1-linux-build122"
     )
+
 
 @slow
 def test_jetpack_fail(initial_data):
@@ -238,11 +243,13 @@ def test_xpcshell_timeout(initial_data):
         "xpcshell-timeout"
     )
 
+
 def test_extreme_log_line_length_truncation(initial_data):
     """This log has lines that are huge.  Ensure we truncate the lines to 100"""
     do_test(
         "mozilla-central_ubuntu64_hw_test-androidx86-set-4-bm103-tests1-linux-build369"
     )
+
 
 @slow
 def test_check_errors_false(initial_data, monkeypatch):
@@ -256,6 +263,7 @@ def test_check_errors_false(initial_data, monkeypatch):
         check_errors=False
     )
     assert mock_pl.called is False
+
 
 def test_check_errors_true(initial_data, monkeypatch):
     """ensure that parse_line is called on the error parser."""

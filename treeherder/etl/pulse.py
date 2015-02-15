@@ -33,6 +33,7 @@ with rabbitmq or remove it entirely.
 
 
 class PulseDataAdapter(object):
+
     """Base class for adapting the pulse stream to a consumable data structure"""
 
     def __init__(self, rawdata=None, outfile=None, durable=False,
@@ -41,14 +42,14 @@ class PulseDataAdapter(object):
         self.data = {}
 
         ####
-        #TODO: Put appropriate data in logdir
+        # TODO: Put appropriate data in logdir
         ####
         self.logdir = logdir
         self.context = context
         self.durable = durable
         self.rawdata = rawdata
 
-        #Set the output stream to write to
+        # Set the output stream to write to
         self.outstream = None
 
         if outfile:
@@ -59,7 +60,7 @@ class PulseDataAdapter(object):
 
             self.outstream = outfile
 
-        #Setup signal handler
+        # Setup signal handler
         signal.signal(signal.SIGINT, self.signal_handler)
         signal.signal(signal.SIGTERM, self.signal_handler)
 
@@ -137,10 +138,10 @@ class PulseDataAdapter(object):
             }
         }
 
-        #Build list of required attributes for data validation
+        # Build list of required attributes for data validation
         self.required_attributes = set(
-            #These are attributes set outside of the attr_table's in
-            #self.data_attributes
+            # These are attributes set outside of the attr_table's in
+            # self.data_attributes
             ['os', 'os_platform', 'arch', 'vm', 'buildtype', 'test_name']
         )
 
@@ -152,31 +153,31 @@ class PulseDataAdapter(object):
         # TODO: This list of routing key strings were excluded from
         #       processing in the current PulseBuildbotTranslator. Confirm
         #       if we need to exclude any of these and then use or remove
-        #self.exclude_routing_key_regex = re.compile(
+        # self.exclude_routing_key_regex = re.compile(
         #    r'[schedulers|tag|submitter|final_verification|fuzzer|source|repack|jetpack|finished]'
         #    )
 
-        #set pulse consumer labels
+        # set pulse consumer labels
         app_label_base = 'pulse-{0}-consumer-{1}-{2}'
 
         self.buildapp_label = app_label_base.format(
             'build', self.context, socket.gethostname()
         )
 
-        #initialize consumers
+        # initialize consumers
         self.pulse = consumers.BuildConsumer(
             applabel=self.buildapp_label
         )
 
-        #configure consumers
+        # configure consumers
         self.pulse.configure(
             #####
-            #TODO: Register a specialized adapter for #.finished
+            # TODO: Register a specialized adapter for #.finished
             #      to record the heartbeat of the push. This will
             #      require adding the request_ids and request_times
             #      to the .finished data structure.
             #
-            #topic=['#.finished', '#.log_uploaded'],
+            # topic=['#.finished', '#.log_uploaded'],
             #####
             topic=['#.log_uploaded'],
             callback=self.process_data,
@@ -191,7 +192,7 @@ class PulseDataAdapter(object):
     def signal_handler(self, signal, frame):
         """POSIX signal handler"""
 
-        #close outstream if we have one
+        # close outstream if we have one
         if self.outstream:
             self.outstream.close()
 
@@ -208,16 +209,16 @@ class PulseDataAdapter(object):
 
         for attr_key in self.data_attributes:
 
-            #retrieve raw_data reference by the attr_key
+            # retrieve raw_data reference by the attr_key
             pulse_data_target = self._get_data(attr_key, raw_data)
 
-            #call the data processor
+            # call the data processor
             self.data_attributes[attr_key]['processor'](
                 self.data_attributes[attr_key]['attr_table'],
                 pulse_data_target, data
             )
 
-        #Validate data
+        # Validate data
         missing_attributes = self.required_attributes.difference(
             set(data.keys())
         )
@@ -225,7 +226,7 @@ class PulseDataAdapter(object):
         if missing_attributes:
 
             ####
-            #TODO: We will need to develop a logging strategy here
+            # TODO: We will need to develop a logging strategy here
             #      not exactly sure what it should be. Need to get
             #      more of the required data into the pulse stream
             #      before we can determine what should be logged.
@@ -234,11 +235,11 @@ class PulseDataAdapter(object):
             #      /dev/null, program will die silently in this conditional.
             #
             raise PulseMissingAttributesError(
-               missing_attributes, data, raw_data
+                missing_attributes, data, raw_data
             )
 
-        #Carry out data processing that requires all of the
-        #attributes being populated
+        # Carry out data processing that requires all of the
+        # attributes being populated
         data = self.adapt_data(data)
 
         if self.outstream:
@@ -303,17 +304,17 @@ class PulseDataAdapter(object):
     def get_buildername_data(self, attr, value, data):
         """Callback function for the buildername property in the pulse stream"""
 
-        #set buildername
+        # set buildername
         data[attr] = value
 
-        #extend data with platform attributes
+        # extend data with platform attributes
         platform_info = buildbot.extract_platform_info(value)
         data.update(platform_info)
 
-        #extend data with build type attributes
+        # extend data with build type attributes
         data['buildtype'] = buildbot.extract_build_type(value)
 
-        #extend data with job type data
+        # extend data with job type data
         data['jobtype'] = buildbot.extract_job_type(value)
 
         job_name_info = buildbot.extract_name_info(value)
@@ -339,7 +340,7 @@ class PulseDataAdapter(object):
 
     def get_routing_key_data(self, attr, value, data):
         """Callback function for the routing_key property"""
-        #set buildername
+        # set buildername
         data[attr] = value
 
     def _get_data(self, attribute_key, raw_data):
@@ -364,6 +365,7 @@ class PulseDataAdapter(object):
 
 
 class TreeherderPulseDataAdapter(PulseDataAdapter, OAuthLoaderMixin):
+
     """Data adapter class that converts the PulseDataAdapter
        structure into the data structure accepted by treeherder."""
 
@@ -384,7 +386,7 @@ class TreeherderPulseDataAdapter(PulseDataAdapter, OAuthLoaderMixin):
         treeherder_data = resultset[data['branch']][data['revision']]
         treeherder_data['project'] = data['branch']
         ####
-        #TODO: This is a temporary fix, this data will not be located
+        # TODO: This is a temporary fix, this data will not be located
         #      in the sourceStamp in the pulse stream. It will likely
         #      be in other build properties but for now this will work.
         #      Once the new properties are added they need to be incorporated
@@ -394,10 +396,10 @@ class TreeherderPulseDataAdapter(PulseDataAdapter, OAuthLoaderMixin):
         request_id = data['request_ids'][0]
         job = {
             'job_guid': common.generate_job_guid(
-                #The keys in this dict are unicode but the values in
-                #request_ids are not, this explicit cast could cause
-                #problems if the data added to the pulse stream is
-                #modified
+                # The keys in this dict are unicode but the values in
+                # request_ids are not, this explicit cast could cause
+                # problems if the data added to the pulse stream is
+                # modified
                 request_id, data['request_times'][unicode(request_id)]
             ),
             'revision_hash': treeherder_data.pop('revision_hash'),
@@ -405,18 +407,18 @@ class TreeherderPulseDataAdapter(PulseDataAdapter, OAuthLoaderMixin):
             'product_name': data['product'],
             'state': 'completed',
 
-            #Do we need to map this to the strings in the sample structure?
-            'result': buildbot.RESULT_DICT.get(int(data['results']),'unknown'),
+            # Do we need to map this to the strings in the sample structure?
+            'result': buildbot.RESULT_DICT.get(int(data['results']), 'unknown'),
             'reason': data['reason'],
 
-            #There is both a who and blame that appear to be identical in the
-            #pulse stream, is who the way to go?
+            # There is both a who and blame that appear to be identical in the
+            # pulse stream, is who the way to go?
             'who': data['who'],
 
-            #This assumes the 0 element in request_ids is the id for the
-            #job which is not always true if there are coalesced jobs. This will need
-            #to be updated when https://bugzilla.mozilla.org/show_bug.cgi?id=862633
-            #is resolved.
+            # This assumes the 0 element in request_ids is the id for the
+            # job which is not always true if there are coalesced jobs. This will need
+            # to be updated when https://bugzilla.mozilla.org/show_bug.cgi?id=862633
+            # is resolved.
             'submit_timestamp': data['request_times'][unicode(request_id)],
             'start_timestamp': data['times']['start_timestamp'],
 
@@ -431,7 +433,7 @@ class TreeherderPulseDataAdapter(PulseDataAdapter, OAuthLoaderMixin):
                 'architecture': data['arch'],
                 'vm': data['vm']
             },
-            #where are we going to get this data from?
+            # where are we going to get this data from?
             'machine_platform': {
                 'os_name': data['os'],
                 'platform': data['os_platform'],
@@ -444,8 +446,8 @@ class TreeherderPulseDataAdapter(PulseDataAdapter, OAuthLoaderMixin):
             },
             'log_references': [{
                 'url': data['log_url'],
-                #using the jobtype as a name for now, the name allows us
-                #to have different log types with their own processing
+                # using the jobtype as a name for now, the name allows us
+                # to have different log types with their own processing
                 'name': data['jobtype']
             }],
 
@@ -488,7 +490,9 @@ class TreeherderPulseDataAdapter(PulseDataAdapter, OAuthLoaderMixin):
 
 @python_2_unicode_compatible
 class PulseMessageError(Exception):
+
     """Error base class for pulse messages"""
+
     def __init__(self, key, error):
         self.key = key
         self.error = error
@@ -503,6 +507,7 @@ class PulseDataAttributeError(PulseMessageError):
 
 @python_2_unicode_compatible
 class PulseMissingAttributesError(PulseMessageError):
+
     def __init__(self, missing_attributes, data, raw_data):
 
         self.missing_attributes = missing_attributes

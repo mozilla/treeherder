@@ -22,7 +22,7 @@ class BugJobMapViewSet(viewsets.ViewSet):
         Add a new relation between a job and a bug
         """
         job_id, bug_id = map(int, (request.DATA['job_id'],
-                             request.DATA['bug_id']))
+                                   request.DATA['bug_id']))
 
         try:
             jm.insert_bug_job_map(job_id, bug_id, request.DATA['type'],
@@ -66,8 +66,6 @@ class BugJobMapViewSet(viewsets.ViewSet):
             return Response(obj[0])
         else:
             return Response("Object not found", 404)
-
-
 
     @with_jobs
     def list(self, request, project, jm):

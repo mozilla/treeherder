@@ -8,13 +8,14 @@ import simplejson as json
 
 from treeherder.model.derived import JobsModel
 
+
 def project_info(request, project):
     try:
         jm = JobsModel(project)
         return HttpResponse(content=json.dumps({'max_job_id': jm.get_max_job_id(),
-                                        'max_performance_artifact_id':
-                                        jm.get_max_performance_artifact_id()}
-                                   ),
+                                                'max_performance_artifact_id':
+                                                jm.get_max_performance_artifact_id()}
+                                               ),
                             content_type='application/json'
                             )
     except DatasetNotFoundError:

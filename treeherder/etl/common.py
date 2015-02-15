@@ -16,6 +16,7 @@ class JobDataError(ValueError):
 
 
 class JobData(dict):
+
     """
     Encapsulates data access from incoming test data structure.
 
@@ -157,8 +158,8 @@ def fetch_missing_resultsets(source, missing_resultsets, logger):
         "Found {0} jobs with missing resultsets.  Scheduling re-fetch: {1}".format(
             source,
             missing_resultsets
-            )
-         )
+        )
+    )
     from treeherder.etl.tasks.cleanup_tasks import fetch_missing_push_logs
     fetch_missing_push_logs.apply_async(
         args=[missing_resultsets],
@@ -191,8 +192,7 @@ def get_resultset(project, revisions_lookup, revision, missing_resultsets, logge
         if resultset.get("active_status", "active") != "active":
             logger.info(("Skipping job for non-active "
                          "resultset/revision: {0}").format(
-                            revision))
-
+                revision))
 
     except KeyError as ex:
         # we don't have the resultset for this build/job yet

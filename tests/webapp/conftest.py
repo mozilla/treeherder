@@ -38,10 +38,10 @@ def sample_artifacts(jm, sample_data):
             job_id,
             "data_1",
             "json",
-            json.dumps({"data_1":"This is an artifact test"}),
+            json.dumps({"data_1": "This is an artifact test"}),
             job_id,
             "data_1"
-            ])
+        ])
 
     jm.store_job_artifact(artifact_placeholders)
 
@@ -60,4 +60,3 @@ def sample_notes(jm, sample_data, eleven_jobs_processed):
                 "kellyclarkson",
                 "you look like a man-o-lantern"
             )
-

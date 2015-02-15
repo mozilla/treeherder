@@ -48,6 +48,7 @@ def test_crashtest_passing(initial_data):
 
     do_test("mozilla-central_fedora-b2g_test-crashtest-1-bm54-tests1-linux-build50")
 
+
 def test_opt_test_failing(initial_data):
     """Process log with printlines and errors"""
     do_test("mozilla-central_mountainlion_test-mochitest-2-bm80-tests1-macosx-build138")

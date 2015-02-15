@@ -39,7 +39,7 @@ class BzApiBugProcess(JsonExtractorMixin):
         # fetch new pages no more than 30 times
         # this is a safe guard to not generate an infinite loop
         # in case something went wrong
-        for i in range(1, 30+1):
+        for i in range(1, 30 + 1):
             # fetch the bugzilla service until we have an empty result
             paginated_url = "{0}&offset={1}&limit={2}".format(
                 get_bz_source_url(),

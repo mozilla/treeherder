@@ -7,6 +7,7 @@ from treeherder.etl import buildapi
 
 
 class Command(BaseCommand):
+
     """Management command to run mozilla pulse consumer."""
 
     help = (
@@ -18,4 +19,3 @@ class Command(BaseCommand):
 
         ba = buildapi.Builds4hAnalyzer()
         ba.run()
-

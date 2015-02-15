@@ -23,7 +23,7 @@ class OAuthCredentials():
         'oauth_version',
         'oauth_token',
         'user'
-        ])
+    ])
 
     credentials_file = path('etl', 'data', 'credentials.json')
 
@@ -66,10 +66,11 @@ class OAuthCredentials():
 
     @classmethod
     def get_consumer_secret(cls, project):
-        return copy.deepcopy(cls.credentials.get(project, {}) )
+        return copy.deepcopy(cls.credentials.get(project, {}))
 
 
 class OAuthLoaderError(Exception):
+
     def __init__(self, msg, Errors):
         Exception.__init__(self, msg)
         self.Errors = Errors

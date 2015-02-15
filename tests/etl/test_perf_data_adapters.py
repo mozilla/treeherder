@@ -26,23 +26,23 @@ def test_adapt_and_load():
 
         job_data = {
             "oqiwy0q847365qiu": {
-                "id":1,
-                "result_set_id":1,
-                "push_timestamp":1402692388
+                "id": 1,
+                "result_set_id": 1,
+                "push_timestamp": 1402692388
             }
         }
 
         reference_data = {
-            "property1":"value1",
-            "property2":"value2",
-            "property3":"value3"
+            "property1": "value1",
+            "property2": "value2",
+            "property3": "value3"
         }
 
         result_count += len(datum['blob']["results"])
 
         # Mimic production environment, the blobs are serialized
         # when the web service receives them
-        datum['blob'] = json.dumps({ 'talos_data':[ datum['blob'] ]})
+        datum['blob'] = json.dumps({'talos_data': [datum['blob']]})
         tda.adapt_and_load(reference_data, job_data, datum)
 
-    assert result_count == len( tda.performance_artifact_placeholders )
+    assert result_count == len(tda.performance_artifact_placeholders)

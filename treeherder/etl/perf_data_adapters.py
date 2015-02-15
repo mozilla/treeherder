@@ -14,6 +14,7 @@ encoder.FLOAT_REPR = lambda o: format(o, '.2f')
 
 
 class PerformanceDataAdapter(object):
+
     """
     Base class for translating different performance data structures into
     treeherder performance artifacts.
@@ -31,12 +32,12 @@ class PerformanceDataAdapter(object):
 
             "type": "object",
 
-            "properties" : {
-                "test_machine": { "type" : "object" },
-                "testrun": { "type": "object" },
-                "results": { "type": "object" },
-                "test_build": { "type": "object" },
-                "test_aux": { "type": "object" }
+            "properties": {
+                "test_machine": {"type": "object"},
+                "testrun": {"type": "object"},
+                "results": {"type": "object"},
+                "test_build": {"type": "object"},
+                "test_aux": {"type": "object"}
             },
 
             "required": ["results", "test_build", "testrun", "test_machine"]
@@ -53,21 +54,21 @@ class PerformanceDataAdapter(object):
 
             "type": "object",
 
-            "properties" : {
-                "job_guid": { "type" : "string" },
-                "name": { "type": "string" },
-                "type": { "type": "string" },
+            "properties": {
+                "job_guid": {"type": "string"},
+                "name": {"type": "string"},
+                "type": {"type": "string"},
                 "blob": {
                     "type": "object",
                     "properties": {
-                        "date": { "type": "integer" }, # time test was run
-                        "series_properties": { "type": "object" },
+                        "date": {"type": "integer"},  # time test was run
+                        "series_properties": {"type": "object"},
                         "series_signature": {"type": "string"},
-                        "testsuite": { "type": "string" },
-                        "test": { "type": "string" },
-                        "replicates": { "type": "array" },
+                        "testsuite": {"type": "string"},
+                        "test": {"type": "string"},
+                        "replicates": {"type": "array"},
                         "performance_series": {"type": "object"},
-                        "metadata": {"type": "object"} # (holds 'options' from talos data & various auxiliary data including 'test_aux', 'talox_aux', 'results_aux', and 'results_xperf')
+                        "metadata": {"type": "object"}  # (holds 'options' from talos data & various auxiliary data including 'test_aux', 'talox_aux', 'results_aux', and 'results_xperf')
                     },
                     "required": [
                         "date", "series_signature", "replicates", "testsuite",
@@ -78,9 +79,8 @@ class PerformanceDataAdapter(object):
             "required": ["blob", "job_guid", "name", "type"]
         }
 
-
     def calculate_series_data(
-        self, job_id, result_set_id, push_timestamp, replicates):
+            self, job_id, result_set_id, push_timestamp, replicates):
 
         replicates.sort()
         r = replicates
@@ -95,39 +95,40 @@ class PerformanceDataAdapter(object):
             "result_set_id": result_set_id,
             "push_timestamp": push_timestamp,
             "total_replicates": r_len,
-            "min": float( precision % round( min(r), 2 ) ),
-            "max": float( precision % round( max(r), 2 ) ),
+            "min": float(precision % round(min(r), 2)),
+            "max": float(precision % round(max(r), 2)),
             "mean": 0,
             "std": 0,
             "median": 0
-            }
+        }
 
         if r_len > 0:
 
             def avg(s):
                 return float(sum(r)) / r_len
 
-            mean = round( float(sum(r))/r_len, 2 )
-            variance = map( lambda x: (x - mean)**2, replicates )
+            mean = round(float(sum(r)) / r_len, 2)
+            variance = map(lambda x: (x - mean) ** 2, replicates)
 
-            series_data["mean"] = float( precision % mean )
+            series_data["mean"] = float(precision % mean)
             series_data["std"] = float(
-                precision % round( math.sqrt(avg(variance)), 2 )
+                precision % round(math.sqrt(avg(variance)), 2)
             )
 
             if len(r) % 2 == 1:
                 series_data["median"] = float(
                     precision % round(
-                    r[int(math.floor(len(r)/2))], 2 )
+                        r[int(math.floor(len(r) / 2))], 2)
                 )
 
             else:
                 series_data["median"] = float(
                     precision % round(
-                        avg([r[(len(r)/2) - 1], r[len(r)/2]]), 2 )
+                        avg([r[(len(r) / 2) - 1], r[len(r) / 2]]), 2)
                 )
 
         return series_data
+
 
 class TalosDataAdapter(PerformanceDataAdapter):
 
@@ -164,9 +165,9 @@ class TalosDataAdapter(PerformanceDataAdapter):
 
                 signature_properties.update(reference_data)
                 signature_properties.update({
-                    'suite':_suite,
-                    'test':_test
-                    })
+                    'suite': _suite,
+                    'test': _test
+                })
 
                 signature_prop_values = signature_properties.keys()
                 signature_prop_values.extend(signature_properties.values())
@@ -177,7 +178,7 @@ class TalosDataAdapter(PerformanceDataAdapter):
                 series_data = self.calculate_series_data(
                     job_id, result_set_id, push_timestamp,
                     talos_datum["results"][_test]
-                    )
+                )
 
                 obj = {
                     "job_guid": _job_guid,
@@ -191,7 +192,7 @@ class TalosDataAdapter(PerformanceDataAdapter):
                         "testsuite": _suite,
                         "test": _test,
                         "replicates": talos_datum["results"][_test],
-                        "metadata":{}
+                        "metadata": {}
                     }
                 }
 
@@ -200,8 +201,8 @@ class TalosDataAdapter(PerformanceDataAdapter):
                 if options:
                     obj['blob']['metadata']['options'] = options
 
-                for key in [ 'test_aux', 'talos_aux', 'results_aux',
-                             'results_xperf' ]:
+                for key in ['test_aux', 'talos_aux', 'results_aux',
+                            'results_xperf']:
                     aux_blob = talos_datum.get(key)
                     if aux_blob:
                         obj['blob']['metadata'][key] = aux_blob
@@ -225,7 +226,7 @@ class TalosDataAdapter(PerformanceDataAdapter):
                             series_signature,
                             signature_property,
                             signature_properties[signature_property],
-                            ])
+                        ])
 
                 self.performance_artifact_placeholders.append([
                     job_id,
@@ -233,7 +234,7 @@ class TalosDataAdapter(PerformanceDataAdapter):
                     _name,
                     _test,
                     json.dumps(obj)
-                    ])
+                ])
 
                 self.signatures[series_signature].append(series_data)
 

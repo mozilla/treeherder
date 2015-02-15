@@ -16,6 +16,7 @@ from cProfile import Profile
 
 
 class Command(BaseCommand):
+
     """Management command to ingest data from a single push."""
 
     help = "Ingests a single push into treeherder"
@@ -23,10 +24,10 @@ class Command(BaseCommand):
 
     option_list = BaseCommand.option_list + (
         make_option('--profile-file',
-            action='store',
-            dest='profile_file',
-            default=None,
-            help='Profile command and write result to profile file'),
+                    action='store',
+                    dest='profile_file',
+                    default=None,
+                    help='Profile command and write result to profile file'),
     )
 
     def _process_all_objects_for_project(self, project):

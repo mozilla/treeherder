@@ -13,16 +13,16 @@ class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
 
         make_option('--debug',
-            action='store_true',
-            dest='debug',
-            default=None,
-            help='Write debug messages to stdout'),
+                    action='store_true',
+                    dest='debug',
+                    default=None,
+                    help='Write debug messages to stdout'),
 
         make_option('--sample_window_size',
-            action='store',
-            dest='sample_window_size',
-            default=12,
-            help='Number of hours to include in the sample window, defaults to 12'),
+                    action='store',
+                    dest='sample_window_size',
+                    default=12,
+                    help='Number of hours to include in the sample window, defaults to 12'),
     )
 
     def handle(self, *args, **options):
@@ -30,6 +30,6 @@ class Command(BaseCommand):
         debug = options.get("debug", None)
         sample_window_size = int(options.get("sample_window_size"))
 
-        sample_window_seconds = 60*60*sample_window_size
+        sample_window_seconds = 60 * 60 * sample_window_size
 
         calculate_eta(sample_window_seconds, debug)

@@ -96,8 +96,6 @@ def pytest_runtest_teardown(item):
     call_command("migrate", 'model', '0001_initial')
 
 
-
-
 def increment_cache_key_prefix():
     """Increment a cache prefix to effectively clear the cache."""
     from django.core.cache import cache
@@ -116,6 +114,7 @@ def initial_data():
     from django.core.management import call_command
 
     call_command('load_initial_data')
+
 
 @pytest.fixture(scope='function')
 def jm(request):
@@ -207,19 +206,19 @@ def test_repository():
     from treeherder.model.models import Repository, RepositoryGroup
 
     RepositoryGroup.objects.create(
-        name = "development",
-        active_status = "active",
-        description = ""
+        name="development",
+        active_status="active",
+        description=""
     )
 
     return Repository.objects.create(
-        dvcs_type = "hg",
-        name = settings.DATABASES["default"]["TEST_NAME"],
-        url = "https://hg.mozilla.org/mozilla-central",
-        active_status = "active",
-        codebase = "gecko",
-        repository_group_id = 1,
-        description = ""
+        dvcs_type="hg",
+        name=settings.DATABASES["default"]["TEST_NAME"],
+        url="https://hg.mozilla.org/mozilla-central",
+        active_status="active",
+        codebase="gecko",
+        repository_group_id=1,
+        description=""
     )
 
 
@@ -262,6 +261,7 @@ def mock_get_resultset(monkeypatch, result_set_stored):
 
     monkeypatch.setattr(common, 'lookup_revisions', _get_resultset)
 
+
 @pytest.fixture(scope='function')
 def refdata(request):
     """returns a patched RefDataManager for testing purpose"""
@@ -285,6 +285,7 @@ def refdata(request):
     request.addfinalizer(fin)
 
     return refdata
+
 
 @pytest.fixture
 def mock_message_broker(monkeypatch):
@@ -333,9 +334,10 @@ def eleven_jobs_processed(jm, mock_log_parser, eleven_jobs_stored):
 def set_oauth_credentials():
     OAuthCredentials.set_credentials(SampleData.get_credentials())
 
+
 @pytest.fixture
 def mock_send_request(monkeypatch, set_oauth_credentials):
-    def _send(th_request, endpoint,  method=None, data=None):
+    def _send(th_request, endpoint, method=None, data=None):
 
         if data and not isinstance(data, str):
             data = json.dumps(data)

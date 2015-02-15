@@ -89,8 +89,8 @@ def test_job_list_in_filter(webapp, eleven_jobs_processed, jm):
     url = reverse("jobs-list",
                   kwargs={"project": jm.project})
     final_url = url + ("?job_guid__in="
-    "f1c75261017c7c5ce3000931dce4c442fe0a1297,"
-    "9abb6f7d54a49d763c584926377f09835c5e1a32")
+                       "f1c75261017c7c5ce3000931dce4c442fe0a1297,"
+                       "9abb6f7d54a49d763c584926377f09835c5e1a32")
 
     resp = webapp.get(final_url).json
     assert len(resp['results']) == 2
@@ -127,6 +127,7 @@ def test_job_detail_bad_project(webapp, eleven_jobs_processed, jm):
     webapp.get(badurl, status=404)
 
     jm.disconnect()
+
 
 def test_job_detail_not_found(webapp, jm):
     """

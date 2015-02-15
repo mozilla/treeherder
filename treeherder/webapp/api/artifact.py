@@ -9,6 +9,7 @@ from treeherder.webapp.api.utils import (UrlQueryFilter, with_jobs,
 
 
 class ArtifactViewSet(viewsets.ViewSet):
+
     """
     This viewset is responsible for the artifact endpoint.
     """

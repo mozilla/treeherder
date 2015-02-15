@@ -102,11 +102,11 @@ def mock_buildapi_builds4h_missing_branch_url(monkeypatch):
 
 
 def test_ingest_pending_jobs(jm, initial_data,
-                                mock_buildapi_pending_url,
-                                mock_post_json_data,
-                                mock_log_parser,
-                                mock_get_resultset,
-                                mock_get_remote_content):
+                             mock_buildapi_pending_url,
+                             mock_post_json_data,
+                             mock_log_parser,
+                             mock_get_resultset,
+                             mock_get_remote_content):
     """
     a new buildapi pending job creates a new obj in the job table
     """
@@ -123,11 +123,11 @@ def test_ingest_pending_jobs(jm, initial_data,
 
 
 def test_ingest_running_jobs(jm, initial_data,
-                                mock_buildapi_running_url,
-                                mock_post_json_data,
-                                mock_log_parser,
-                                mock_get_resultset,
-                                mock_get_remote_content):
+                             mock_buildapi_running_url,
+                             mock_post_json_data,
+                             mock_log_parser,
+                             mock_get_resultset,
+                             mock_get_remote_content):
     """
     a new buildapi running job creates a new obj in the job table
     """
@@ -144,11 +144,11 @@ def test_ingest_running_jobs(jm, initial_data,
 
 
 def test_ingest_builds4h_jobs(jm, initial_data,
-                                mock_buildapi_builds4h_url,
-                                mock_post_json_data,
-                                mock_log_parser,
-                                mock_get_resultset,
-                                mock_get_remote_content):
+                              mock_buildapi_builds4h_url,
+                              mock_post_json_data,
+                              mock_log_parser,
+                              mock_get_resultset,
+                              mock_get_remote_content):
     """
     a new buildapi completed job creates a new obj in the job table
     """
@@ -166,11 +166,11 @@ def test_ingest_builds4h_jobs(jm, initial_data,
 
 
 def test_ingest_running_job_fields(jm, initial_data,
-                                mock_buildapi_running_url,
-                                mock_post_json_data,
-                                mock_log_parser,
-                                mock_get_resultset,
-                                mock_get_remote_content):
+                                   mock_buildapi_running_url,
+                                   mock_post_json_data,
+                                   mock_log_parser,
+                                   mock_get_resultset,
+                                   mock_get_remote_content):
     """
     a new buildapi running job creates a new obj in the job table
     """
@@ -192,9 +192,9 @@ def test_ingest_running_job_fields(jm, initial_data,
 
 
 def test_ingest_pending_jobs_1_missing_resultset(jm, initial_data,
-        sample_resultset, test_repository, mock_buildapi_pending_missing1_url,
-        mock_post_json_data, mock_get_resultset, mock_get_remote_content,
-        activate_responses):
+                                                 sample_resultset, test_repository, mock_buildapi_pending_missing1_url,
+                                                 mock_post_json_data, mock_get_resultset, mock_get_remote_content,
+                                                 activate_responses):
     """
     Ensure the pending job with the missing resultset is queued for refetching
     """
@@ -204,9 +204,9 @@ def test_ingest_pending_jobs_1_missing_resultset(jm, initial_data,
 
 
 def test_ingest_running_jobs_1_missing_resultset(jm, initial_data,
-        sample_resultset, test_repository, mock_buildapi_running_missing1_url,
-        mock_post_json_data, mock_get_resultset, mock_get_remote_content,
-        activate_responses):
+                                                 sample_resultset, test_repository, mock_buildapi_running_missing1_url,
+                                                 mock_post_json_data, mock_get_resultset, mock_get_remote_content,
+                                                 activate_responses):
     """
     Ensure the running job with the missing resultset is queued for refetching
     """
@@ -216,9 +216,9 @@ def test_ingest_running_jobs_1_missing_resultset(jm, initial_data,
 
 
 def test_ingest_builds4h_jobs_1_missing_resultset(jm, initial_data,
-        sample_resultset, test_repository, mock_buildapi_builds4h_missing1_url,
-        mock_post_json_data, mock_log_parser, mock_get_resultset,
-        mock_get_remote_content):
+                                                  sample_resultset, test_repository, mock_buildapi_builds4h_missing1_url,
+                                                  mock_post_json_data, mock_log_parser, mock_get_resultset,
+                                                  mock_get_remote_content):
     """
     Ensure the builds4h job with the missing resultset is queued for refetching
     """
@@ -228,9 +228,9 @@ def test_ingest_builds4h_jobs_1_missing_resultset(jm, initial_data,
 
 
 def test_ingest_builds4h_jobs_missing_branch(jm, initial_data,
-        sample_resultset, test_repository, mock_buildapi_builds4h_missing_branch_url,
-        mock_post_json_data, mock_log_parser, mock_get_resultset,
-        mock_get_remote_content):
+                                             sample_resultset, test_repository, mock_buildapi_builds4h_missing_branch_url,
+                                             mock_post_json_data, mock_log_parser, mock_get_resultset,
+                                             mock_get_remote_content):
     """
     Ensure the builds4h job with the missing resultset is queued for refetching
     """
@@ -291,4 +291,3 @@ def _do_missing_resultset_test(jm, etl_process):
         if str(rs['revision']) == new_revision:
             was_stored = True
     assert was_stored
-

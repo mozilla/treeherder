@@ -12,6 +12,7 @@ from treeherder.webapp.wsgi import application
 from thclient import TreeherderRequest
 from tests.sampledata import SampleData
 
+
 @pytest.fixture
 def mock_post_json_data(monkeypatch, jm):
     def _post_json_data(url, data):
@@ -19,7 +20,7 @@ def mock_post_json_data(monkeypatch, jm):
         if data:
             th_collection = data[jm.project]
 
-            OAuthCredentials.set_credentials( SampleData.get_credentials() )
+            OAuthCredentials.set_credentials(SampleData.get_credentials())
             credentials = OAuthCredentials.get_credentials(jm.project)
 
             tr = TreeherderRequest(
@@ -28,19 +29,18 @@ def mock_post_json_data(monkeypatch, jm):
                 project=jm.project,
                 oauth_key=credentials['consumer_key'],
                 oauth_secret=credentials['consumer_secret']
-                )
+            )
             signed_uri = tr.oauth_client.get_signed_uri(
                 th_collection.to_json(),
                 tr.get_uri(th_collection.endpoint_base),
                 "POST"
-                )
+            )
 
             response = TestApp(application).post_json(
                 str(signed_uri), params=th_collection.get_collection_data()
-                )
+            )
 
             response.getcode = lambda: response.status_int
             return response
 
     monkeypatch.setattr(OAuthLoaderMixin, 'load', _post_json_data)
-

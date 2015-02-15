@@ -35,6 +35,7 @@ logger = logging.getLogger(__name__)
 
 
 class JobsModel(TreeherderModelBase):
+
     """
     Represent a job repository with objectstore
 
@@ -67,9 +68,9 @@ class JobsModel(TreeherderModelBase):
 
     # based on an exclusion profile, which jobs to return
     EXCLUSION_STATES = [
-        'excluded', # only jobs that are excluded
-        'included', # only jobs that are NOT excluded
-        'all' # both included and excluded jobs
+        'excluded',  # only jobs that are excluded
+        'included',  # only jobs that are NOT excluded
+        'all'  # both included and excluded jobs
     ]
 
     # indexes of specific items in the ``job_placeholder`` objects
@@ -91,7 +92,6 @@ class JobsModel(TreeherderModelBase):
     JOB_PH_END_TIMESTAMP = 17
     JOB_PH_PENDING_AVG = 18
     JOB_PH_RUNNING_AVG = 19
-
 
     # list of searchable columns, i.e. those who have an index
     # it would be nice to get this directly from the db and cache it
@@ -227,13 +227,11 @@ class JobsModel(TreeherderModelBase):
         build_systems = cache.get("build_system_by_repo", None)
         if not build_systems or project not in build_systems:
             build_systems = dict((repo, build_system_type) for repo, build_system_type in
-                ReferenceDataSignatures.objects.order_by("repository"
-                ).values_list("repository", "build_system_type").distinct()
-            )
+                                 ReferenceDataSignatures.objects.order_by("repository"
+                                                                          ).values_list("repository", "build_system_type").distinct()
+                                 )
             cache.set("build_system_by_repo", build_systems)
         return build_systems[project]
-
-
 
     def get_job(self, id):
         """Return the job row for this ``job_id``"""
@@ -343,7 +341,6 @@ class JobsModel(TreeherderModelBase):
             key_column='job_guid'
         )
 
-
     def cancel_all_resultset_jobs(self, resultset_id):
         """Set all pending/running jobs in resultset to usercancel."""
         jobs = list(self.get_incomplete_job_guids(resultset_id))
@@ -359,7 +356,6 @@ class JobsModel(TreeherderModelBase):
         finally:
             status_publisher.disconnect()
 
-
     def cancel_job(self, job_guid):
         """Set job to usercancel."""
 
@@ -373,7 +369,6 @@ class JobsModel(TreeherderModelBase):
             status_publisher.publish([job_guid], self.project, 'processed')
         finally:
             status_publisher.disconnect()
-
 
     def get_log_references(self, job_id):
         """Return the log references for the given ``job_id``."""
@@ -653,7 +648,7 @@ class JobsModel(TreeherderModelBase):
             proc='jobs.selects.get_max_job_submit_timestamp',
             return_type='iter',
             debug_show=self.DEBUG
-            ).get_column_data('submit_timestamp')
+        ).get_column_data('submit_timestamp')
 
         if max_timestamp:
 
@@ -665,22 +660,22 @@ class JobsModel(TreeherderModelBase):
                 key_column='signature',
                 return_type='dict',
                 debug_show=self.DEBUG
-                )
+            )
 
             placeholders = []
-            submit_timestamp = int( time.time() )
+            submit_timestamp = int(time.time())
             for signature in eta_groups:
 
                 pending_samples = map(
                     lambda x: int(x or 0),
-                    eta_groups[signature]['pending_samples'].split(',') )
+                    eta_groups[signature]['pending_samples'].split(','))
 
                 pending_median = self.get_median_from_sorted_list(
                     sorted(pending_samples))
 
                 running_samples = map(
                     lambda x: int(x or 0),
-                    eta_groups[signature]['running_samples'].split(',') )
+                    eta_groups[signature]['running_samples'].split(','))
 
                 running_median = self.get_median_from_sorted_list(
                     sorted(running_samples))
@@ -696,7 +691,7 @@ class JobsModel(TreeherderModelBase):
                         eta_groups[signature]['pending_std'],
                         len(pending_samples),
                         submit_timestamp
-                        ])
+                    ])
 
                 placeholders.append(
                     [
@@ -709,14 +704,14 @@ class JobsModel(TreeherderModelBase):
                         eta_groups[signature]['running_std'],
                         len(running_samples),
                         submit_timestamp
-                        ])
+                    ])
 
             self.jobs_execute(
                 proc='jobs.inserts.set_job_eta',
                 placeholders=placeholders,
                 executemany=True,
                 debug_show=self.DEBUG
-                )
+            )
 
     def get_median_from_sorted_list(self, sorted_list):
 
@@ -733,9 +728,9 @@ class JobsModel(TreeherderModelBase):
         elif not length % 2:
             return round(
                 (sorted_list[length / 2] + sorted_list[length / 2 - 1]) / 2, 0
-                    )
+            )
 
-        return round( sorted_list[length / 2], 0 )
+        return round(sorted_list[length / 2], 0)
 
     def cycle_data(self, cycle_interval, chunk_size, sleep_time):
         """Delete data older than cycle_interval, splitting the target data
@@ -748,7 +743,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             proc='jobs.selects.get_result_sets_to_cycle',
             placeholders=[max_timestamp],
             debug_show=self.DEBUG
-            )
+        )
         if not result_set_data:
             return 0
 
@@ -768,7 +763,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 placeholders=rs_placeholders,
                 replace=rs_where_in_clause,
                 debug_show=self.DEBUG
-                )
+            )
 
             # Retrieve list of jobs associated with result sets
             rev_placeholders = [x['revision_id'] for x in revision_data]
@@ -778,7 +773,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 placeholders=rs_placeholders,
                 replace=rs_where_in_clause,
                 debug_show=self.DEBUG
-                )
+            )
 
             job_guid_dict = dict((d['id'], d['job_guid']) for d in job_data)
             job_where_in_clause = [','.join(['%s'] * len(job_guid_dict))]
@@ -911,7 +906,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
     def get_result_set_list_by_ids(self, result_set_ids):
 
-        conditions = { 'id': set([( 'IN', tuple(result_set_ids) )]) }
+        conditions = {'id': set([('IN', tuple(result_set_ids))])}
 
         replace_str, placeholders = self._process_conditions(
             conditions, self.INDEXED_COLUMNS['result_set']
@@ -934,7 +929,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         return return_list
 
     def get_result_set_list(
-        self, offset_id, limit, full=True, conditions=None):
+            self, offset_id, limit, full=True, conditions=None):
         """
         Retrieve a list of ``result_sets`` (also known as ``pushes``)
         If ``full`` is set to ``True`` then return revisions, too.
@@ -1010,19 +1005,18 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         """
 
         replacement = ",".join(["%s"] * len(revision_list))
-        replacement = " AND revision IN ("+replacement+") "
+        replacement = " AND revision IN (" + replacement + ") "
 
         proc = "jobs.selects.get_revision_resultset_lookup"
         lookups = self.jobs_execute(
             proc=proc,
-            placeholders=revision_list+[0, len(revision_list)],
+            placeholders=revision_list + [0, len(revision_list)],
             debug_show=self.DEBUG,
             replace=[replacement],
             return_type="dict",
             key_column="revision"
         )
         return lookups
-
 
     def get_resultset_revisions_list(self, result_set_id):
         """
@@ -1037,7 +1031,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             replace=["%s"],
         )
         return lookups
-
 
     def get_result_set_details(self, result_set_ids):
         """
@@ -1075,15 +1068,15 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         for detail in result_set_details:
 
             if detail['result_set_id'] not in aggregate_details:
-                aggregate_details[ detail['result_set_id'] ] = []
+                aggregate_details[detail['result_set_id']] = []
 
-            aggregate_details[ detail['result_set_id'] ].append(
+            aggregate_details[detail['result_set_id']].append(
                 {
-                    'revision':detail['revision'],
-                    'author':detail['author'],
-                    'repository_id':detail['repository_id'],
-                    'comments':detail['comments'],
-                    'commit_timestamp':detail['commit_timestamp']
+                    'revision': detail['revision'],
+                    'author': detail['author'],
+                    'repository_id': detail['repository_id'],
+                    'comments': detail['comments'],
+                    'commit_timestamp': detail['commit_timestamp']
                 })
 
         return aggregate_details
@@ -1165,7 +1158,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 placeholders=obj_placeholders,
                 executemany=True,
                 debug_show=self.DEBUG
-                )
+            )
 
         return response
 
@@ -1336,30 +1329,30 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     log_placeholders,
                     artifact_placeholders,
                     retry_job_guids
-                    )
+                )
 
                 if 'id' in datum:
                     object_placeholders.append(
-                        [ revision_hash, datum['id'] ]
-                        )
+                        [revision_hash, datum['id']]
+                    )
 
                 for coalesced_guid in coalesced:
                     coalesced_job_guid_placeholders.append(
                         # coalesced to guid, coalesced guid
-                        [ job_guid, coalesced_guid ]
-                        )
+                        [job_guid, coalesced_guid]
+                    )
 
         # Store all reference data and retrieve associated ids
         id_lookups = self.refdata_model.set_all_reference_data()
 
         job_eta_times = self.get_job_eta_times(
             id_lookups['reference_data_signatures']
-            )
+        )
 
         # Store all revision hashes and retrieve result_set_ids
         result_set_ids = self.get_result_set_ids(
             unique_revision_hashes, rh_where_in
-            )
+        )
 
         job_update_placeholders = []
         job_guid_list = []
@@ -1379,11 +1372,11 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 result_set_ids,
                 job_eta_times,
                 push_timestamps
-                )
+            )
 
         job_id_lookup = self._load_jobs(
             job_placeholders, job_guid_where_in_list, job_guid_list
-            )
+        )
 
         # For each of these ``retry_job_guids`` the job_id_lookup will
         # either contain the retry guid, or the root guid (based on whether we
@@ -1408,7 +1401,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 retry_job = job_id_lookup[retry_guid_root]
                 job_id_lookup[retry_guid] = retry_job
 
-
         # Need to iterate over log references separately since they could
         # be a different length. Replace job_guid with id in log url
         # placeholders
@@ -1428,13 +1420,13 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             for row in job_update_placeholders:
                 row[-1] = job_id_lookup[
                     get_guid_root(row[-1])
-                    ]['id']
+                ]['id']
 
             self.jobs_execute(
                 proc='jobs.updates.update_job_data',
                 debug_show=self.DEBUG,
                 placeholders=job_update_placeholders,
-                executemany=True )
+                executemany=True)
 
         # Mark job status
         self.mark_objects_complete(object_placeholders)
@@ -1510,8 +1502,8 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 state_clauses.append(
                     "(`state` = %s AND `job_guid` IN ({0}))".format(
                         ",".join(["%s"] * len(guids))
-                        )
                     )
+                )
 
         replacement = ' OR '.join(state_clauses)
 
@@ -1523,7 +1515,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 key_column='job_guid',
                 return_type='set',
                 debug_show=self.DEBUG,
-                )
+            )
 
             # build a new list of jobs without those we already have loaded
             for i, guid in enumerate(data_idx):
@@ -1532,12 +1524,11 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         return new_data
 
-
     def _load_ref_and_job_data_structs(
         self, job, revision_hash, revision_hash_lookup,
         unique_revision_hashes, rh_where_in, job_placeholders,
         log_placeholders, artifact_placeholders, retry_job_guids
-        ):
+    ):
         """
         Take the raw job object after etl and convert it to job_placeholders.
 
@@ -1564,7 +1555,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         build_platform_key = self.refdata_model.add_build_platform(
             build_os_name, build_platform, build_architecture
-            )
+        )
 
         machine_os_name = job.get(
             'machine_platform', {}).get('os_name', 'unknown')
@@ -1575,17 +1566,17 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         machine_platform_key = self.refdata_model.add_machine_platform(
             machine_os_name, machine_platform, machine_architecture
-            )
+        )
 
         option_collection_hash = self.refdata_model.add_option_collection(
             job.get('option_collection', [])
-            )
+        )
 
         machine = job.get('machine', 'unknown')
         self.refdata_model.add_machine(
             machine,
             long(job.get("end_timestamp", time.time()))
-            )
+        )
 
         device_name = job.get('device_name', 'unknown')
         self.refdata_model.add_device(device_name)
@@ -1598,7 +1589,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         job_type_key = self.refdata_model.add_job_type(
             job_type, job_symbol, group_name, group_symbol
-            )
+        )
 
         product = job.get('product_name', 'unknown')
         if len(product.strip()) == 0:
@@ -1627,11 +1618,11 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         signature = self.refdata_model.add_reference_data_signature(
             reference_data_name, build_system_type, self.project,
-            [ build_system_type, self.project,  build_os_name, build_platform, build_architecture,
-              machine_os_name, machine_platform, machine_architecture,
-              device_name, group_name, group_symbol, job_type, job_symbol,
-              option_collection_hash ]
-            )
+            [build_system_type, self.project, build_os_name, build_platform, build_architecture,
+             machine_os_name, machine_platform, machine_architecture,
+             device_name, group_name, group_symbol, job_type, job_symbol,
+             option_collection_hash]
+        )
 
         job_placeholders.append([
             job_guid,
@@ -1642,21 +1633,21 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             machine_platform_key,   # idx:5, replace with machine_platform_id
             machine,                # idx:6, replace with machine_id
             device_name,            # idx:7, replace with device_id
-            option_collection_hash, # idx:8
+            option_collection_hash,  # idx:8
             job_type_key,           # idx:9, replace with job_type_id
             product,                # idx:10, replace with product_id
             who,
             reason,
-            job.get('result', 'unknown'), # idx:13, this is typically an int
+            job.get('result', 'unknown'),  # idx:13, this is typically an int
             state,
-            self.get_number( job.get('submit_timestamp') ),
-            self.get_number( job.get('start_timestamp') ),
-            self.get_number( job.get('end_timestamp') ),
+            self.get_number(job.get('submit_timestamp')),
+            self.get_number(job.get('start_timestamp')),
+            self.get_number(job.get('end_timestamp')),
             0,                      # idx:18, replace with pending_avg_sec
             0,                      # idx:19, replace with running_avg_sec
             job_guid,
-            get_guid_root(job_guid) # will be the same except for ``retry`` jobs
-            ])
+            get_guid_root(job_guid)  # will be the same except for ``retry`` jobs
+        ])
 
         log_refs = job.get('log_references', [])
         if log_refs:
@@ -1683,7 +1674,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 if name and artifact_type and blob:
                     artifact_placeholders.append(
                         [job_guid, name, artifact_type, blob, job_guid, name]
-                        )
+                    )
 
         return job_guid
 
@@ -1697,7 +1688,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         self, index, job_placeholders, id_lookups,
         job_guid_list, job_guid_where_in_list, job_update_placeholders,
         result_set_ids, job_eta_times, push_timestamps
-        ):
+    ):
         """
         Supplant ref data with ids and create update placeholders
 
@@ -1768,7 +1759,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         job_placeholders[index][
             self.JOB_PH_PRODUCT_TYPE] = id_lookups['products'][product_type]['id']
 
-
         job_guid_list.append(job_guid)
 
         # for retry jobs, we may have a different job_guid than the root of job_guid
@@ -1808,11 +1798,11 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 end_timestamp,
                 job_state,
                 get_guid_root(job_guid)
-                ] )
+            ])
 
     def _load_jobs(
         self, job_placeholders, job_guid_where_in_list, job_guid_list
-        ):
+    ):
 
         if not job_placeholders:
             return {}
@@ -1822,7 +1812,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             proc='jobs.inserts.create_job_data',
             debug_show=self.DEBUG,
             placeholders=job_placeholders,
-            executemany=True )
+            executemany=True)
 
         return self.get_job_ids_by_guid(job_guid_list)
 
@@ -1833,7 +1823,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         if len(reference_data_signatures) == 0:
             return eta_lookup
 
-        rds_where_in_clause = ','.join( ['%s'] * len(reference_data_signatures) )
+        rds_where_in_clause = ','.join(['%s'] * len(reference_data_signatures))
 
         job_eta_data = self.jobs_execute(
             proc='jobs.selects.get_last_eta_by_signatures',
@@ -1847,12 +1837,12 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             state = eta_data['state']
 
             if signature not in eta_lookup:
-                eta_lookup[ signature ] = {}
+                eta_lookup[signature] = {}
 
-            if state not in eta_lookup[ signature ]:
-                eta_lookup[ signature ][ state ] = {}
+            if state not in eta_lookup[signature]:
+                eta_lookup[signature][state] = {}
 
-            eta_lookup[ signature ][ state ] = eta_data['avg_sec']
+            eta_lookup[signature][state] = eta_data['avg_sec']
 
         return eta_lookup
 
@@ -1869,7 +1859,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             return_type='dict')
 
         return job_id_lookup
-
 
     def _load_log_urls(self, log_placeholders, job_id_lookup,
                        job_results):
@@ -1924,7 +1913,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             job_log_url_list = self.get_job_log_url_list(job_ids)
 
             log_url_lookup = dict([(jlu['url'], jlu)
-                                  for jlu in job_log_url_list])
+                                   for jlu in job_log_url_list])
 
             for task in tasks:
                 parse_log.apply_async(
@@ -1969,10 +1958,9 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                                   parse_status, parse_timestamp):
 
         self.jobs_execute(
-                proc='jobs.updates.update_job_log_url',
-                debug_show=self.DEBUG,
-                placeholders=[parse_status, parse_timestamp, job_log_url_id])
-
+            proc='jobs.updates.update_job_log_url',
+            debug_show=self.DEBUG,
+            placeholders=[parse_status, parse_timestamp, job_log_url_id])
 
     def store_job_artifact(self, artifact_placeholders):
         """
@@ -1987,7 +1975,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
     def get_performance_series_from_signatures(self, signatures, interval_seconds):
 
-        repl = [ ','.join( ['%s'] * len(signatures) ) ]
+        repl = [','.join(['%s'] * len(signatures))]
         placeholders = signatures
         placeholders.append(str(interval_seconds))
 
@@ -2002,13 +1990,12 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         return data
 
-
     def get_signatures_from_properties(self, props):
 
         props_where_repl = [
             ' OR '.join(['(`property`=%s AND `value`=%s)'] * len(props)),
             ' AND '.join(['COALESCE(SUM(`property`=%s AND `value`=%s), 0) > 0']
-                            * len(props))]
+                         * len(props))]
 
         # convert to 1 dimensional list
         props = [el for x in props.items() for el in x]
@@ -2025,14 +2012,13 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         signatures = [x.get("signature") for x in signatures]
 
-        signatures_repl = [ ','.join( ['%s'] * len(signatures) ) ]
+        signatures_repl = [','.join(['%s'] * len(signatures))]
 
         properties = self.jobs_execute(
             proc="jobs.selects.get_all_properties_of_signatures",
             debug_show=self.DEBUG,
             placeholders=signatures,
             replace=signatures_repl)
-
 
         ret = {}
         for d in properties:
@@ -2044,7 +2030,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         return ret
 
     def get_signature_properties(self, signatures):
-        signatures_repl = [ ','.join( ['%s'] * len(signatures) ) ]
+        signatures_repl = [','.join(['%s'] * len(signatures))]
 
         properties = self.jobs_execute(
             proc="jobs.selects.get_all_properties_of_signatures",
@@ -2073,7 +2059,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         if job_ids:
 
-            jobs_signatures_where_in_clause = [ ','.join( ['%s'] * len(job_ids) ) ]
+            jobs_signatures_where_in_clause = [','.join(['%s'] * len(job_ids))]
 
             job_data = self.jobs_execute(
                 proc='jobs.selects.get_signature_list_from_job_ids',
@@ -2086,7 +2072,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         return job_data
 
     def store_performance_artifact(
-        self, job_ids, performance_artifact_placeholders):
+            self, job_ids, performance_artifact_placeholders):
         """
         Store the performance data
         """
@@ -2098,9 +2084,9 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         map(
             lambda job_guid: job_ref_data_signatures.add(
                 job_data[job_guid]['signature']
-                ),
+            ),
             job_data.keys()
-            )
+        )
 
         # Retrieve associated data in reference_data_signatures
         reference_data = self.refdata_model.get_reference_data_for_perf_signature(
@@ -2111,7 +2097,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         for perf_data in performance_artifact_placeholders:
             job_guid = perf_data["job_guid"]
             ref_data_signature = job_data[job_guid]['signature']
-            ref_data = reference_data[ ref_data_signature ]
+            ref_data = reference_data[ref_data_signature]
 
             if 'signature' in ref_data:
                 del ref_data['signature']
@@ -2134,7 +2120,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         tda.submit_tasks(self.project)
 
     def store_performance_series(
-        self, t_range, series_type, signature, series_data):
+            self, t_range, series_type, signature, series_data):
 
         lock_string = "sps_{0}_{1}_{2}".format(
             t_range, series_type, signature)
@@ -2152,7 +2138,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             logger.error(
                 'store_performance_series lock_string, '
                 '{0}, timed out!'.format(lock_string)
-                )
+            )
             return
 
         try:
@@ -2163,7 +2149,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             insert_placeholders = [
                 t_range, signature, series_type, now_timestamp,
                 series_data_json, t_range, signature
-                ]
+            ]
 
             self.jobs_execute(
                 proc='jobs.inserts.set_performance_series',
@@ -2320,7 +2306,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 performance_artifact_job_id_list, performance_artifact_list)
 
     def _adapt_job_artifact_placeholders(
-        self, artifact, artifact_placeholders_list, job_id):
+            self, artifact, artifact_placeholders_list, job_id):
 
         if job_id:
             # Replace job_guid with id in artifact data
@@ -2330,7 +2316,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             artifact_placeholders_list.append(artifact)
 
     def _adapt_job_artifact_collection(
-        self, artifact, artifact_data, job_id):
+            self, artifact, artifact_data, job_id):
 
         if job_id:
             artifact_data.append((
@@ -2340,10 +2326,10 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 artifact['blob'],
                 job_id,
                 artifact['name'],
-                ))
+            ))
 
     def _adapt_performance_artifact_collection(
-        self, artifact, artifact_data, job_id_list, job_id):
+            self, artifact, artifact_data, job_id_list, job_id):
 
         if job_id:
             job_id_list.append(job_id)
@@ -2536,8 +2522,8 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     result['push_timestamp'],
                     result.get('active_status', 'active'),
                     result['revision_hash']
-                    ]
-                )
+                ]
+            )
             where_in_list.append('%s')
             unique_revision_hashes.append(result['revision_hash'])
 
@@ -2548,36 +2534,36 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 if rev_datum['repository'] not in repository_id_lookup:
                     repository_id = self.refdata_model.get_repository_id(
                         rev_datum['repository']
-                        )
+                    )
                     repository_id_lookup[rev_datum['repository']] = repository_id
 
                 # We may not have a commit timestamp in the push data
                 commit_timestamp = rev_datum.get(
                     'commit_timestamp', None
-                    )
+                )
 
                 # We may not have a comment in the push data
                 comment = rev_datum.get(
                     'comment', None
-                    )
+                )
 
                 # Convert the file list to a comma delimited string
                 file_list = rev_datum.get(
                     'files', []
-                    )
+                )
                 file_str = ','.join(file_list)
 
                 repository_id = repository_id_lookup[rev_datum['repository']]
                 revision_placeholders.append(
-                    [ rev_datum['revision'],
-                      rev_datum['author'],
-                      comment,
-                      file_str,
-                      commit_timestamp,
-                      repository_id,
-                      rev_datum['revision'],
-                      repository_id ]
-                    )
+                    [rev_datum['revision'],
+                     rev_datum['author'],
+                     comment,
+                     file_str,
+                     commit_timestamp,
+                     repository_id,
+                     rev_datum['revision'],
+                     repository_id]
+                )
 
                 all_revisions.append(rev_datum['revision'])
                 rev_where_in_list.append('%s')
@@ -2594,7 +2580,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             key_column='revision_hash',
             return_type='set',
             debug_show=self.DEBUG
-            )
+        )
 
         # Insert new result sets
         self.jobs_execute(
@@ -2602,7 +2588,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             placeholders=revision_hash_placeholders,
             executemany=True,
             debug_show=self.DEBUG
-            )
+        )
 
         lastrowid = self.get_jobs_dhub().connection['master_host']['cursor'].lastrowid
 
@@ -2614,13 +2600,13 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             key_column='revision_hash',
             return_type='dict',
             debug_show=self.DEBUG
-            )
+        )
 
         # identify the newly inserted result sets
-        result_set_ids_after = set( result_set_id_lookup.keys() )
+        result_set_ids_after = set(result_set_id_lookup.keys())
         inserted_result_sets = result_set_ids_after.difference(
             result_set_ids_before
-            )
+        )
 
         inserted_result_set_ids = []
 
@@ -2632,7 +2618,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             for revision_hash in inserted_result_sets:
                 inserted_result_set_ids.append(
                     result_set_id_lookup[revision_hash]['id']
-                    )
+                )
 
         # Insert new revisions
         self.jobs_execute(
@@ -2640,7 +2626,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             placeholders=revision_placeholders,
             executemany=True,
             debug_show=self.DEBUG
-            )
+        )
 
         # Retrieve new revision ids
         rev_where_in_clause = ','.join(rev_where_in_list)
@@ -2651,7 +2637,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             key_column='revision',
             return_type='dict',
             debug_show=self.DEBUG
-            )
+        )
 
         # Build placeholders for revision_map
         revision_map_placeholders = []
@@ -2662,11 +2648,11 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             result_set_id = result_set_id_lookup[revision_hash]['id']
 
             revision_map_placeholders.append(
-                [ revision_id,
-                  result_set_id,
-                  revision_id,
-                  result_set_id ]
-                )
+                [revision_id,
+                 result_set_id,
+                 revision_id,
+                 result_set_id]
+            )
 
         # Insert new revision_map entries
         self.jobs_execute(
@@ -2674,23 +2660,23 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             placeholders=revision_map_placeholders,
             executemany=True,
             debug_show=self.DEBUG
-            )
+        )
 
         if len(inserted_result_set_ids) > 0:
             self.submit_publish_to_pulse_tasks(
                 inserted_result_set_ids, 'result_set')
 
         return {
-            'result_set_ids':result_set_id_lookup,
-            'revision_ids':revision_id_lookup,
-            'inserted_result_set_ids':inserted_result_set_ids
-            }
+            'result_set_ids': result_set_id_lookup,
+            'revision_ids': revision_id_lookup,
+            'inserted_result_set_ids': inserted_result_set_ids
+        }
 
     def get_revision_timestamp(self, rev):
         """Get the push timestamp of the resultset for a revision"""
         return self.get_revision_resultset_lookup([rev])[rev][
             "push_timestamp"
-            ]
+        ]
 
     def get_resultset_status(self, resultset_id):
         resulset_status_list = self.jobs_execute(
@@ -2718,6 +2704,7 @@ class JobDataIntegrityError(IntegrityError):
 
 
 class JobData(dict):
+
     """
     Encapsulates data access from incoming test data structure.
 
@@ -2727,6 +2714,7 @@ class JobData(dict):
     key, but the full parent-key context as well.
 
     """
+
     def __init__(self, data, context=None):
         """Initialize ``JobData`` with a data dict and a context list."""
         self.context = context or []

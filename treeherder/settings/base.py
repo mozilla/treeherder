@@ -10,7 +10,7 @@ from treeherder import path
 
 # Insure the vendor libraries are added to the python path
 # in production
-sys.path.append( path('..', 'vendor') )
+sys.path.append(path('..', 'vendor'))
 
 
 # These settings can all be optionally set via env vars, or in local.py:
@@ -32,15 +32,15 @@ TREEHERDER_REQUEST_PROTOCOL = os.environ.get("TREEHERDER_REQUEST_PROTOCOL", "htt
 TREEHERDER_REQUEST_HOST = os.environ.get("TREEHERDER_REQUEST_HOST", "local.treeherder.mozilla.org")
 
 TREEHERDER_PERF_SERIES_TIME_RANGES = [
-    { "seconds":86400, "days":1 },
-    { "seconds":604800, "days":7 },
-    { "seconds":1209600, "days":14 },
-    { "seconds":2592000, "days":30 },
-    { "seconds":5184000, "days":60 },
-    { "seconds":7776000, "days":90 },
+    {"seconds": 86400, "days": 1},
+    {"seconds": 604800, "days": 7},
+    {"seconds": 1209600, "days": 14},
+    {"seconds": 2592000, "days": 30},
+    {"seconds": 5184000, "days": 60},
+    {"seconds": 7776000, "days": 90},
 ]
 
-DATA_CYCLE_INTERVAL = timedelta(days=30*4)
+DATA_CYCLE_INTERVAL = timedelta(days=30 * 4)
 
 RABBITMQ_USER = os.environ.get("TREEHERDER_RABBITMQ_USER", "")
 RABBITMQ_PASSWORD = os.environ.get("TREEHERDER_RABBITMQ_PASSWORD", "")
@@ -89,9 +89,9 @@ TEMPLATE_DIRS = [
 ]
 
 TEMPLATE_CONTEXT_PROCESSORS = (
-   'django.contrib.auth.context_processors.auth',
-   'django_browserid.context_processors.browserid',
-   'django.contrib.messages.context_processors.messages'
+    'django.contrib.auth.context_processors.auth',
+    'django_browserid.context_processors.browserid',
+    'django.contrib.messages.context_processors.messages'
 )
 
 MIDDLEWARE_CLASSES = [
@@ -106,8 +106,8 @@ MIDDLEWARE_CLASSES = [
 ]
 
 AUTHENTICATION_BACKENDS = (
-   'django.contrib.auth.backends.ModelBackend',
-   'django_browserid.auth.BrowserIDBackend',
+    'django.contrib.auth.backends.ModelBackend',
+    'django_browserid.auth.BrowserIDBackend',
 )
 
 # this tells browserid to not create users.
@@ -406,7 +406,7 @@ API_HOSTNAME = SITE_URL
 
 BROWSERID_AUDIENCES = [SITE_URL]
 
-SWAGGER_SETTINGS = {"enabled_methods": ['get',]}
+SWAGGER_SETTINGS = {"enabled_methods": ['get', ]}
 
 REST_FRAMEWORK_EXTENSIONS = {
     'DEFAULT_CACHE_RESPONSE_TIMEOUT': 60 * 15

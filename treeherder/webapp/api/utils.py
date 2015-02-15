@@ -57,11 +57,13 @@ JOB_PROPERTIES = {
 
 # This list can maps the array indexes to the
 # corresponding property names
-JOB_PROPERTY_RETURN_KEY = [None]*len(JOB_PROPERTIES)
+JOB_PROPERTY_RETURN_KEY = [None] * len(JOB_PROPERTIES)
 for k, v in JOB_PROPERTIES.iteritems():
     JOB_PROPERTY_RETURN_KEY[v] = k
 
+
 class UrlQueryFilter(object):
+
     """
     This class converts a set of querystring parameters
     to a set of where conditions. It should be generic enough to
@@ -174,53 +176,53 @@ def oauth_required(func):
         if not oauth_body_hash or not oauth_signature or not oauth_consumer_key:
 
             msg = {
-                'response':"invalid_request",
-                'detail':"Required oauth parameters not provided in the uri"
-                }
+                'response': "invalid_request",
+                'detail': "Required oauth parameters not provided in the uri"
+            }
 
             return Response(msg, 500)
 
         if oauth_consumer_key != project_credentials['consumer_key']:
             msg = {
-                'response':"access_denied",
-                'detail':"oauth_consumer_key does not match project, {0}, credentials".format(project)
-                }
+                'response': "access_denied",
+                'detail': "oauth_consumer_key does not match project, {0}, credentials".format(project)
+            }
 
             return Response(msg, 403)
 
         uri = '{0}://{1}{2}'.format(
             settings.TREEHERDER_REQUEST_PROTOCOL, request.get_host(),
             request.path
-            )
+        )
 
-        #Construct the OAuth request based on the django request object
+        # Construct the OAuth request based on the django request object
         req_obj = oauth.Request(
             method=request.method,
             url=uri,
             parameters=parameters,
             body=json.dumps(request.DATA),
-            )
+        )
 
         server = oauth.Server()
         token = oauth.Token(key='', secret='')
 
-        #Get the consumer object
+        # Get the consumer object
         cons_obj = oauth.Consumer(
             oauth_consumer_key,
             project_credentials['consumer_secret']
-            )
+        )
 
-        #Set the signature method
+        # Set the signature method
         server.add_signature_method(oauth.SignatureMethod_HMAC_SHA1())
 
         try:
-            #verify oauth django request and consumer object match
+            # verify oauth django request and consumer object match
             server.verify_request(req_obj, cons_obj, token)
         except oauth.Error:
             msg = {
-                'response':"invalid_client",
-                'detail':"Client authentication failed for project, {0}".format(project)
-                }
+                'response': "invalid_client",
+                'detail': "Client authentication failed for project, {0}".format(project)
+            }
 
             return Response(msg, 403)
 
@@ -260,10 +262,11 @@ def to_timestamp(datestr):
     return time.mktime(datetime.datetime.strptime(
         datestr,
         "%Y-%m-%d"
-        ).timetuple())
+    ).timetuple())
+
 
 def get_job_value_list(
-    job, reference_signature_names, platform_option, project, debug):
+        job, reference_signature_names, platform_option, project, debug):
 
     if debug:
         # If debug is specified return a dictionary for each
@@ -273,7 +276,7 @@ def get_job_value_list(
         # By default don't return all of the job property names
         # with each job to reduce the size of the data structure
         # returned
-        job_values = [None]*len(JOB_PROPERTIES)
+        job_values = [None] * len(JOB_PROPERTIES)
 
     for p in JOB_PROPERTIES:
 
@@ -289,17 +292,13 @@ def get_job_value_list(
             job_values[key] = reverse(
                 "jobs-detail",
                 kwargs={"project": project, "pk": job["job_id"]}
-                )
+            )
         elif p == "ref_data_name":
 
             job_values[key] = reference_signature_names.get(
-                job['signature'], {} ).get(
+                job['signature'], {}).get(
                     'name', 'Unknown')
         else:
             job_values[key] = job.get(p, None)
 
     return job_values
-
-
-
-

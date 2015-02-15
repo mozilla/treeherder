@@ -59,7 +59,7 @@ def where_wolf(project, flat_exclusions):
                     values_list.extend([platform, job, opt])
 
     condition = " (mp.platform = %s AND jt.name = %s AND opt.name = %s)"
-    condition_list = " OR ".join([condition] * (len(values_list)/3))
+    condition_list = " OR ".join([condition] * (len(values_list) / 3))
     return " AND ({0})".format(condition_list), values_list
 
 

@@ -1,11 +1,13 @@
 import pytest
 from treeherder.log_parser.parsers import TalosParser
 
+
 def test_valid_talosdata():
     valid_line = '10:27:39     INFO -  INFO : TALOSDATA: [ { "json": "blob" } ]'
     parser = TalosParser()
     parser.parse_line(valid_line, 1)
     assert parser.artifact[0].keys()[0] == 'json'
+
 
 def test_invalid_talosdata():
     invalid_line = '10:27:39     INFO -  INFO : TALOSDATA: [ { "json"'

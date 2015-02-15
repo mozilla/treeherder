@@ -15,8 +15,10 @@ from django.utils.encoding import python_2_unicode_compatible
 from treeherder.model.models import Datasource
 from treeherder.model.derived.refdata import RefDataManager
 
+
 @python_2_unicode_compatible
 class TreeherderModelBase(object):
+
     """
     Base model class for all derived models
 
@@ -53,10 +55,10 @@ class TreeherderModelBase(object):
                source.oauth_consumer_key and \
                source.oauth_consumer_secret:
 
-                credentials[ source.project ] = {
+                credentials[source.project] = {
                     'consumer_key': source.oauth_consumer_key,
                     'consumer_secret': source.oauth_consumer_secret
-                    }
+                }
 
         return credentials
 
@@ -83,7 +85,6 @@ class TreeherderModelBase(object):
         return self.sources[contenttype]
 
     def get_inserted_row_ids(self, dhub):
-
         """
         InnoDB guarantees sequential numbers for AUTO INCREMENT when doing
         bulk inserts, provided innodb_autoinc_lock_mode is set to 0
@@ -105,8 +106,8 @@ class TreeherderModelBase(object):
         if row_count > 0:
             last_id = dhub.connection['master_host']['cursor'].lastrowid
             ids.extend(
-                list( range(last_id - (row_count - 1), last_id + 1 ) )
-                )
+                list(range(last_id - (row_count - 1), last_id + 1))
+            )
 
         return ids
 
@@ -116,7 +117,7 @@ class TreeherderModelBase(object):
         publish_to_pulse.apply_async(
             args=[self.project, ids, data_type],
             routing_key='high_priority'
-            )
+        )
 
     def disconnect(self):
         """Iterate over and disconnect all data sources."""
@@ -142,7 +143,8 @@ class TreeherderModelBase(object):
 
 @python_2_unicode_compatible
 class DatasetNotFoundError(ValueError):
-    def __init__(self, project, contenttype,  *args, **kwargs):
+
+    def __init__(self, project, contenttype, *args, **kwargs):
         super(DatasetNotFoundError, self).__init__(*args, **kwargs)
         self.project = project
         self.contenttype = contenttype
@@ -151,11 +153,12 @@ class DatasetNotFoundError(ValueError):
         return u"No dataset found for project {0} and contenttype '{1}'".format(
             self.project,
             self.contenttype,
-            )
+        )
 
 
 @python_2_unicode_compatible
 class ObjectNotFoundException(Exception):
+
     """When querying for an object and it is not found """
 
     def __init__(self, table, *args, **kwargs):
@@ -167,4 +170,4 @@ class ObjectNotFoundException(Exception):
         return u"ObjectNotFoundException: For table '{0}': {1}".format(
             self.table,
             unicode(self.extra_info),
-            )
+        )

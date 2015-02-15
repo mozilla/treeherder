@@ -8,7 +8,9 @@ from kombu import Connection, Exchange, Producer
 
 logger = logging.getLogger(__name__)
 
+
 class EventsPublisher(object):
+
     """Generic publisher class that specific publishers inherit from."""
 
     def __init__(self, connection_url, routing_key=None):

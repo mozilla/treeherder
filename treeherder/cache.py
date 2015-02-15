@@ -6,6 +6,7 @@ from django.core.cache.backends import memcached
 
 
 class MemcachedCache(memcached.MemcachedCache):
+
     """
 A subclass of Django's built-in Memcached backend that fixes some issues.
 
@@ -13,6 +14,7 @@ A subclass of Django's built-in Memcached backend that fixes some issues.
 - Returns the return value of set() to allow for error-checking.
 
 """
+
     def _get_memcache_timeout(self, timeout):
         if timeout is None:
             timeout = self.default_timeout

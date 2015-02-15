@@ -105,6 +105,7 @@ def test_create_bug_job_map_dupe(eleven_jobs_processed, mock_message_broker, jm)
 
     jm.disconnect()
 
+
 def test_bug_job_map_list(webapp, jm, eleven_jobs_processed):
     """
     test retrieving a list of bug_job_map
@@ -136,6 +137,7 @@ def test_bug_job_map_list(webapp, jm, eleven_jobs_processed):
         assert v == resp.json[i]
 
     jm.disconnect()
+
 
 def test_bug_job_map_detail(webapp, jm, eleven_jobs_processed):
     """
@@ -222,8 +224,6 @@ def test_bug_job_map_delete_no_auth(jm, eleven_jobs_processed):
                           submit_timestamp, who)
 
     pk = "{0}-{1}".format(job_id, bug_id)
-
-
 
     resp = client.delete(
         reverse("bug-job-map-detail", kwargs={

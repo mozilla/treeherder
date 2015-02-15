@@ -21,4 +21,3 @@ class RevisionLookupSetViewSet(viewsets.ViewSet):
         revision_list = revision_filter.split(",")
 
         return Response(jm.get_revision_resultset_lookup(revision_list))
-

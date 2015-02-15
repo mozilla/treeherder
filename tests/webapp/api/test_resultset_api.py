@@ -78,6 +78,7 @@ def test_resultset_list_empty_rs_still_show(webapp, initial_data,
 
     jm.disconnect()
 
+
 def test_resultset_list_filter_by_revision(webapp, eleven_jobs_processed, jm):
     """
     test retrieving a resultset list, filtered by a date range
@@ -92,8 +93,8 @@ def test_resultset_list_filter_by_revision(webapp, eleven_jobs_processed, jm):
     meta = resp.json['meta']
     assert len(results) == 4
     assert set([rs["revision"] for rs in results]) == set(
-        ["909f55c626a8","71d49fee325a","bb57e9f67223","21fb3eed1b5f"]
-        )
+        ["909f55c626a8", "71d49fee325a", "bb57e9f67223", "21fb3eed1b5f"]
+    )
     assert(meta == {
         u'count': 4,
         u'fromchange': u'21fb3eed1b5f',
@@ -128,8 +129,8 @@ def test_resultset_list_filter_by_date(webapp, initial_data,
     meta = resp.json['meta']
     assert len(results) == 4
     assert set([rs["revision"] for rs in results]) == set(
-        ["909f55c626a8","71d49fee325a","bb57e9f67223","668424578a0d"]
-        )
+        ["909f55c626a8", "71d49fee325a", "bb57e9f67223", "668424578a0d"]
+    )
     assert(meta == {
         u'count': 4,
         u'enddate': u'2013-08-13',
@@ -145,7 +146,7 @@ def test_resultset_list_filter_by_date(webapp, initial_data,
 
 
 def test_resultset_list_without_jobs(webapp, initial_data,
-                                       sample_resultset, jm):
+                                     sample_resultset, jm):
     """
     test retrieving a resultset list without jobs
     """
@@ -172,6 +173,7 @@ def test_resultset_list_without_jobs(webapp, initial_data,
     }
 
     jm.disconnect()
+
 
 def test_resultset_detail(webapp, eleven_jobs_processed, jm):
     """
@@ -248,6 +250,7 @@ def test_resultset_create(sample_resultset, jm, initial_data):
 
     jm.disconnect()
 
+
 def test_resultset_with_bad_secret(sample_resultset, jm, initial_data):
 
     trsc = TreeherderResultSetCollection()
@@ -257,11 +260,12 @@ def test_resultset_with_bad_secret(sample_resultset, jm, initial_data):
 
     resp = test_utils.post_collection(
         jm.project, trsc, status=403, consumer_secret="horrible secret"
-        )
+    )
 
     assert resp.status_int == 403
     assert resp.json['detail'] == "Client authentication failed for project, {0}".format(jm.project)
     assert resp.json['response'] == "invalid_client"
+
 
 def test_resultset_with_bad_key(sample_resultset, jm, initial_data):
 
@@ -272,7 +276,7 @@ def test_resultset_with_bad_key(sample_resultset, jm, initial_data):
 
     resp = test_utils.post_collection(
         jm.project, trsc, status=403, consumer_key="horrible-key"
-        )
+    )
 
     assert resp.status_int == 403
     assert resp.json['response'] == "access_denied"

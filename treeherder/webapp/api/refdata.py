@@ -19,28 +19,34 @@ from treeherder.webapp.api.permissions import (IsStaffOrReadOnly,
 # Refdata ViewSets
 #####################
 
+
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
+
     """ViewSet for the refdata Product model"""
     model = models.Product
 
 
 class BuildPlatformViewSet(viewsets.ReadOnlyModelViewSet):
+
     """ViewSet for the refdata BuildPlatform model"""
     model = models.BuildPlatform
 
 
 class OptionViewSet(viewsets.ReadOnlyModelViewSet):
+
     """ViewSet for the refdata Option model"""
     model = models.Option
 
 
 class JobGroupViewSet(viewsets.ReadOnlyModelViewSet):
+
     """ViewSet for the refdata JobGroup model"""
     model = models.JobGroup
 
 
 class RepositoryViewSet(CacheResponseAndETAGMixin,
                         viewsets.ReadOnlyModelViewSet):
+
     """ViewSet for the refdata Repository model"""
     serializer_class = th_serializers.RepositorySerializer
     queryset = models.Repository.objects.filter(active_status='active')
@@ -50,11 +56,13 @@ class RepositoryViewSet(CacheResponseAndETAGMixin,
 
 
 class MachinePlatformViewSet(viewsets.ReadOnlyModelViewSet):
+
     """ViewSet for the refdata MachinePlatform model"""
     model = models.MachinePlatform
 
 
 class BugscacheViewSet(viewsets.ReadOnlyModelViewSet):
+
     """ViewSet for the refdata Bugscache model"""
     model = models.Bugscache
 
@@ -72,26 +80,31 @@ class BugscacheViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class MachineViewSet(viewsets.ReadOnlyModelViewSet):
+
     """ViewSet for the refdata Machine model"""
     model = models.Machine
 
 
 class MachineNoteViewSet(viewsets.ReadOnlyModelViewSet):
+
     """ViewSet for the refdata MachineNote model"""
     model = models.MachineNote
 
 
 class RepositoryVersionViewSet(viewsets.ReadOnlyModelViewSet):
+
     """ViewSet for the refdata RepositoryVersion model"""
     model = models.RepositoryVersion
 
 
 class OptionCollectionViewSet(viewsets.ReadOnlyModelViewSet):
+
     """ViewSet for the refdata OptionCollection model"""
     model = models.OptionCollection
 
 
 class OptionCollectionHashViewSet(viewsets.ViewSet):
+
     """ViewSet for the virtual OptionCollectionHash model"""
 
     def list(self, request):
@@ -100,18 +113,21 @@ class OptionCollectionHashViewSet(viewsets.ViewSet):
 
         ret = []
         for (option_hash, val) in option_collection_hash.iteritems():
-            ret.append({ 'option_collection_hash': option_hash,
-                         'options': [{'name': name } for
-                                     name in val['opt'].split()] })
+            ret.append({'option_collection_hash': option_hash,
+                        'options': [{'name': name} for
+                                    name in val['opt'].split()]})
         return Response(ret)
 
+
 class JobTypeViewSet(viewsets.ReadOnlyModelViewSet):
+
     """ViewSet for the refdata JobType model"""
     model = models.JobType
 
 
 class FailureClassificationViewSet(CacheResponseAndETAGMixin,
                                    viewsets.ReadOnlyModelViewSet):
+
     """ViewSet for the refdata FailureClassification model"""
     model = models.FailureClassification
 
@@ -124,6 +140,7 @@ class FailureClassificationViewSet(CacheResponseAndETAGMixin,
 
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
+
     """
     Info about a logged-in user.
     Used by treeherder-ui to inspect user properties like the exclusion profile
@@ -160,6 +177,7 @@ class JobExclusionViewSet(viewsets.ModelViewSet):
 
 
 class ExclusionProfileViewSet(viewsets.ModelViewSet):
+
     """
 
     """

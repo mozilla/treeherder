@@ -69,11 +69,12 @@ def test_ingest_all_sample_jobs(jm, refdata, sample_data, initial_data, sample_r
     jm.disconnect()
     refdata.disconnect()
 
+
 def test_get_inserted_row_ids(jm, sample_resultset, test_repository):
 
     slice_limit = 8
     sample_slice = sample_resultset[0:slice_limit]
-    new_id_set = set( range(1, len(sample_slice) + 1) )
+    new_id_set = set(range(1, len(sample_slice) + 1))
 
     data = jm.store_result_set_data(sample_slice)
 
@@ -93,8 +94,9 @@ def test_get_inserted_row_ids(jm, sample_resultset, test_repository):
     assert len(third_pass_data['inserted_result_set_ids']) == \
         len(sample_resultset) - slice_limit
 
+
 def test_ingest_running_to_retry_sample_job(jm, refdata, sample_data, initial_data,
-                                  mock_log_parser, sample_resultset):
+                                            mock_log_parser, sample_resultset):
     """Process a single job structure in the job_data.txt file"""
     job_data = copy.deepcopy(sample_data.job_data[:1])
     job = job_data[0]['job']
@@ -111,7 +113,6 @@ def test_ingest_running_to_retry_sample_job(jm, refdata, sample_data, initial_da
 
     jl = jm.get_job_list(0, 1)
     initial_job_id = jl[0]["id"]
-
 
     # now we simulate the complete version of the job coming in
     job['state'] = 'completed'
@@ -133,7 +134,7 @@ def test_ingest_running_to_retry_sample_job(jm, refdata, sample_data, initial_da
 
 
 def test_ingest_running_to_retry_to_success_sample_job(jm, refdata, sample_data, initial_data,
-                                  mock_log_parser, sample_resultset):
+                                                       mock_log_parser, sample_resultset):
     """Process a single job structure in the job_data.txt file"""
     job_data = copy.deepcopy(sample_data.job_data[:1])
     job = job_data[0]['job']
@@ -158,7 +159,6 @@ def test_ingest_running_to_retry_to_success_sample_job(jm, refdata, sample_data,
     jm.store_job_data(job_data)
     jm.process_objects(10, raise_errors=True)
 
-
     # now we simulate the complete SUCCESS version of the job coming in
     job['state'] = 'completed'
     job['result'] = 'success'
@@ -167,7 +167,6 @@ def test_ingest_running_to_retry_to_success_sample_job(jm, refdata, sample_data,
 
     jm.store_job_data(job_data)
     jm.process_objects(10, raise_errors=True)
-
 
     jl = jm.get_job_list(0, 10)
 
@@ -181,7 +180,7 @@ def test_ingest_running_to_retry_to_success_sample_job(jm, refdata, sample_data,
 
 
 def test_ingest_retry_sample_job_no_running(jm, refdata, sample_data, initial_data,
-                                  mock_log_parser, sample_resultset):
+                                            mock_log_parser, sample_resultset):
     """Process a single job structure in the job_data.txt file"""
     job_data = copy.deepcopy(sample_data.job_data[:1])
     job = job_data[0]['job']
@@ -274,8 +273,8 @@ def test_cycle_one_job(jm, refdata, sample_data, initial_data,
 
     jobs_after = jm.jobs_execute(proc="jobs_test.selects.jobs")
 
-    #Confirm that the target result set has no jobs in the
-    #jobs table
+    # Confirm that the target result set has no jobs in the
+    # jobs table
     jobs_to_be_deleted_after = jm.jobs_execute(
         proc="jobs_test.selects.get_result_set_jobs",
         placeholders=[1]
@@ -343,6 +342,7 @@ def test_bad_date_value_ingestion(jm, initial_data, mock_log_parser):
 
     assert last_error == False
 
+
 def get_objectstore_last_error(jm):
     row_id = jm._get_last_insert_id("objectstore")
 
@@ -394,34 +394,36 @@ def test_store_result_set_data(jm, initial_data, sample_resultset):
     assert data['result_set_ids'] == result_set_ids
     assert data['revision_ids'] == revision_ids
 
+
 def test_get_job_data(jm, refdata, sample_data, initial_data,
-                                  mock_log_parser, sample_resultset):
+                      mock_log_parser, sample_resultset):
 
     target_len = 10
     job_data = sample_data.job_data[:target_len]
     test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset)
 
-    job_data = jm.get_job_signatures_from_ids(range(1,11))
+    job_data = jm.get_job_signatures_from_ids(range(1, 11))
 
     assert len(job_data) is target_len
 
+
 def test_store_performance_artifact(
-    jm, refdata, sample_data, sample_resultset, initial_data,
-    mock_log_parser):
+        jm, refdata, sample_data, sample_resultset, initial_data,
+        mock_log_parser):
 
     tp_data = test_utils.ingest_talos_performance_data(
         jm, refdata, sample_data, sample_resultset
-        )
+    )
 
     job_ids = tp_data['job_ids']
     perf_data = tp_data['perf_data']
 
     for index, d in enumerate(perf_data):
-        perf_data[index]['blob'] = json.dumps({ 'talos_data':[ d['blob'] ]})
+        perf_data[index]['blob'] = json.dumps({'talos_data': [d['blob']]})
 
     jm.store_performance_artifact(job_ids, perf_data)
 
-    replace = [ ','.join( ['%s'] * len(job_ids) ) ]
+    replace = [','.join(['%s'] * len(job_ids))]
 
     performance_artifact_signatures = jm.get_jobs_dhub().execute(
         proc="jobs.selects.get_performance_artifact",
@@ -443,7 +445,7 @@ def test_store_performance_artifact(
 
 
 def test_remove_existing_jobs_single_existing(jm, sample_data, initial_data, refdata,
-                                     mock_log_parser, sample_resultset):
+                                              mock_log_parser, sample_resultset):
     """Remove single existing job prior to loading"""
 
     job_data = sample_data.job_data[:1]
@@ -458,7 +460,7 @@ def test_remove_existing_jobs_single_existing(jm, sample_data, initial_data, ref
 
 
 def test_remove_existing_jobs_one_existing_one_new(jm, sample_data, initial_data, refdata,
-                                     mock_log_parser, sample_resultset):
+                                                   mock_log_parser, sample_resultset):
     """Remove single existing job prior to loading"""
 
     job_data = sample_data.job_data[:1]
@@ -470,7 +472,7 @@ def test_remove_existing_jobs_one_existing_one_new(jm, sample_data, initial_data
 
 
 def test_ingesting_skip_existing(jm, sample_data, initial_data, refdata,
-                                     mock_log_parser, sample_resultset):
+                                 mock_log_parser, sample_resultset):
     """Remove single existing job prior to loading"""
 
     job_data = sample_data.job_data[:1]
@@ -483,7 +485,7 @@ def test_ingesting_skip_existing(jm, sample_data, initial_data, refdata,
 
 
 def test_ingest_job_with_updated_job_group(jm, refdata, sample_data, initial_data,
-                                  mock_log_parser, result_set_stored):
+                                           mock_log_parser, result_set_stored):
     """
     When a job_type is associated with a job group on data ingestion,
     that association will not updated ingesting a new job with the same
@@ -529,7 +531,7 @@ def test_retry_on_operational_failure(jm, initial_data, monkeypatch):
     def retry_execute_mock(dhub, logger, retries=0, **kwargs):
         retry_count['num'] = retries
 
-        #if it goes beyond 20, we may be in an infinite retry loop
+        # if it goes beyond 20, we may be in an infinite retry loop
         assert retries <= 20
         return orig_retry_execute(dhub, logger, retries, **kwargs)
 

@@ -23,6 +23,7 @@ from treeherder.events.sockets import EventsNamespace
 
 
 class Application(object):
+
     """wsgi application with socketio enabled"""
 
     def __init__(self):

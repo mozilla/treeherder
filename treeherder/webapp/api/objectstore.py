@@ -11,6 +11,7 @@ from treeherder.webapp.api.utils import (with_jobs,
 
 
 class ObjectstoreViewSet(viewsets.ViewSet):
+
     """
     This view is responsible for the objectstore endpoint.
     Only create, list and detail will be implemented.
@@ -57,4 +58,3 @@ class ObjectstoreViewSet(viewsets.ViewSet):
         count = min(int(request.QUERY_PARAMS.get('count', 10)), 1000)
         objs = jm.get_json_blob_list(offset, count)
         return Response([json.loads(obj['json_blob']) for obj in objs])
-

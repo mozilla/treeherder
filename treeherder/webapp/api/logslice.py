@@ -17,7 +17,9 @@ import logging
 
 filesystem = cache.get_cache('filesystem')
 
+
 class LogSliceView(viewsets.ViewSet):
+
     """
     This view serves slices of the log
     """
@@ -67,8 +69,10 @@ class LogSliceView(viewsets.ViewSet):
                 lines = []
 
                 for i, line in enumerate(gz_file):
-                    if i < start_line: continue
-                    elif i >= end_line: break
+                    if i < start_line:
+                        continue
+                    elif i >= end_line:
+                        break
 
                     lines.append({"text": line, "index": i})
 

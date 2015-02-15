@@ -14,10 +14,10 @@ class SampleData(object):
 
         credentials = {
             'test_treeherder': {
-                'consumer_key':'8de17836-4a9b-45f5-824c-5ada76713334',
-                'consumer_secret':'0f71d011-d773-4831-9f1c-17b237207467'
-                }
+                'consumer_key': '8de17836-4a9b-45f5-824c-5ada76713334',
+                'consumer_secret': '0f71d011-d773-4831-9f1c-17b237207467'
             }
+        }
 
         return credentials
 
@@ -25,7 +25,7 @@ class SampleData(object):
     def get_talos_perf_data(cls):
         talos_perf_data = []
         with open("{0}/sample_data/artifacts/performance/talos_perf.json".format(
-            os.path.dirname(__file__))) as f:
+                os.path.dirname(__file__))) as f:
             talos_perf_data = json.loads(f.read())
 
         return talos_perf_data
@@ -34,7 +34,7 @@ class SampleData(object):
     def get_b2g_perf_data(cls):
         b2g_perf_data = []
         with open("{0}/sample_data/artifacts/performance/b2g_perf.json".format(
-            os.path.dirname(__file__))) as f:
+                os.path.dirname(__file__))) as f:
             b2g_perf_data = json.loads(f.read())
 
         return b2g_perf_data
@@ -105,6 +105,3 @@ class SampleData(object):
         for i, f in enumerate(files):
             files[i] = 'file://{0}/{1}'.format(self.performance_logs_dir, f)
         return files
-
-
-

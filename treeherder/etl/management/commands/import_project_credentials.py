@@ -8,7 +8,9 @@ import simplejson as json
 from django.core.management.base import BaseCommand, CommandError
 from treeherder.model.models import Datasource
 
+
 class Command(BaseCommand):
+
     """Management command to import project credentials."""
 
     help = "Import the objectstore Oauth keys for etl data import tasks"

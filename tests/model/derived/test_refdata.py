@@ -27,6 +27,7 @@ def mock_urllib():
     )
     urllib2.urlopen = mock
 
+
 @pytest.fixture
 def repository_id():
     repo_group = RepositoryGroup.objects.create(name='mygroup')
@@ -58,67 +59,67 @@ def latest_version_repository(repository_id):
                                                version_timestamp=time.time())
     return repository_id, version.id
 
-time_now = int( time.time() )
+time_now = int(time.time())
 test_params = [
     {
         'func': 'get_or_create_build_platforms',
 
         'input': [
             ['linux', 'Fedora 12', 'x86_64'],
-            #Duplicate input to test aggregation
+            # Duplicate input to test aggregation
             ['linux', 'Fedora 12', 'x86_64'],
             ['linux', 'Fedora 13', 'x86_64'],
             ['linux', 'Fedora 14', 'x86'],
-            ],
+        ],
 
         'expected': {
-            'linux-Fedora 12-x86_64':{
-                'id':1, 'os_name':'linux', 'platform': 'Fedora 12',
-                'architecture':'x86_64',
-                },
-            'linux-Fedora 13-x86_64':{
-                'id':2, 'os_name':'linux', 'platform': 'Fedora 13',
-                'architecture':'x86_64',
-                },
-            'linux-Fedora 14-x86':{
-                'id':3, 'os_name':'linux', 'platform': 'Fedora 14',
-                'architecture':'x86',
-                },
+            'linux-Fedora 12-x86_64': {
+                'id': 1, 'os_name': 'linux', 'platform': 'Fedora 12',
+                'architecture': 'x86_64',
+            },
+            'linux-Fedora 13-x86_64': {
+                'id': 2, 'os_name': 'linux', 'platform': 'Fedora 13',
+                'architecture': 'x86_64',
+            },
+            'linux-Fedora 14-x86': {
+                'id': 3, 'os_name': 'linux', 'platform': 'Fedora 14',
+                'architecture': 'x86',
+            },
         }
     },
     {
         'func': 'get_or_create_job_groups',
         'input': [
-            #Duplicate group to test aggregation
+            # Duplicate group to test aggregation
             ['mygroup1', 'MG1'],
             ['mygroup2', 'MG2'],
             ['mygroup3', 'MG3'],
             ['mygroup4', 'MG4'],
             ['mygroup4', 'MG4']
-            ],
+        ],
         'expected': {
-            'mygroup1-MG1':{'id':1, 'name':'mygroup1', 'symbol':'MG1'},
-            'mygroup2-MG2':{'id':2, 'name':'mygroup2', 'symbol':'MG2'},
-            'mygroup3-MG3':{'id':3, 'name':'mygroup3', 'symbol':'MG3'},
-            'mygroup4-MG4':{'id':4, 'name':'mygroup4', 'symbol':'MG4'},
-            }
+            'mygroup1-MG1': {'id': 1, 'name': 'mygroup1', 'symbol': 'MG1'},
+            'mygroup2-MG2': {'id': 2, 'name': 'mygroup2', 'symbol': 'MG2'},
+            'mygroup3-MG3': {'id': 3, 'name': 'mygroup3', 'symbol': 'MG3'},
+            'mygroup4-MG4': {'id': 4, 'name': 'mygroup4', 'symbol': 'MG4'},
+        }
     },
     {
         'func': 'get_or_create_job_types',
-        #Duplicate type to test aggregation
+        # Duplicate type to test aggregation
         'input': [
             ['mytype1', 'MT1', 'mygroup1', 'MG1'],
             ['mytype2', 'MT2', 'mygroup2', 'MG2'],
             ['mytype3', 'MT3', 'mygroup3', 'MG3'],
             ['mytype4', 'MT4', 'mygroup4', 'MG4'],
             ['mytype4', 'MT4', 'mygroup4', 'MG4']
-            ],
+        ],
         'expected': {
-            'mytype1-MT1':{'id':1, 'name':'mytype1', 'symbol':'MT1', 'job_group_id':None},
-            'mytype2-MT2':{'id':2, 'name':'mytype2', 'symbol':'MT2', 'job_group_id':None},
-            'mytype3-MT3':{'id':3, 'name':'mytype3', 'symbol':'MT3', 'job_group_id':None},
-            'mytype4-MT4':{'id':4, 'name':'mytype4', 'symbol':'MT4', 'job_group_id':None},
-            }
+            'mytype1-MT1': {'id': 1, 'name': 'mytype1', 'symbol': 'MT1', 'job_group_id': None},
+            'mytype2-MT2': {'id': 2, 'name': 'mytype2', 'symbol': 'MT2', 'job_group_id': None},
+            'mytype3-MT3': {'id': 3, 'name': 'mytype3', 'symbol': 'MT3', 'job_group_id': None},
+            'mytype4-MT4': {'id': 4, 'name': 'mytype4', 'symbol': 'MT4', 'job_group_id': None},
+        }
     },
     {
         'func': 'get_or_create_machines',
@@ -128,13 +129,13 @@ test_params = [
             ['machine3', time_now],
             ['machine4', time_now],
             ['machine4', time_now]
-            ],
+        ],
         'expected': {
-            'machine1':{'id':1, 'name':'machine1'},
-            'machine2':{'id':2, 'name':'machine2'},
-            'machine3':{'id':3, 'name':'machine3'},
-            'machine4':{'id':4, 'name':'machine4'},
-            }
+            'machine1': {'id': 1, 'name': 'machine1'},
+            'machine2': {'id': 2, 'name': 'machine2'},
+            'machine3': {'id': 3, 'name': 'machine3'},
+            'machine4': {'id': 4, 'name': 'machine4'},
+        }
     },
     {
         'func': 'get_or_create_machine_platforms',
@@ -143,21 +144,21 @@ test_params = [
             ['linux', 'Fedora 12', 'x86_64'],
             ['linux', 'Fedora 13', 'x86_64'],
             ['linux', 'Fedora 14', 'x86'],
-            ],
+        ],
 
         'expected': {
-            'linux-Fedora 12-x86_64':{
-                'id':1, 'os_name':'linux', 'platform': 'Fedora 12',
-                'architecture':'x86_64',
-                },
-            'linux-Fedora 13-x86_64':{
-                'id':2, 'os_name':'linux', 'platform': 'Fedora 13',
-                'architecture':'x86_64',
-                },
-            'linux-Fedora 14-x86':{
-                'id':3, 'os_name':'linux', 'platform': 'Fedora 14',
-                'architecture':'x86',
-                },
+            'linux-Fedora 12-x86_64': {
+                'id': 1, 'os_name': 'linux', 'platform': 'Fedora 12',
+                'architecture': 'x86_64',
+            },
+            'linux-Fedora 13-x86_64': {
+                'id': 2, 'os_name': 'linux', 'platform': 'Fedora 13',
+                'architecture': 'x86_64',
+            },
+            'linux-Fedora 14-x86': {
+                'id': 3, 'os_name': 'linux', 'platform': 'Fedora 14',
+                'architecture': 'x86',
+            },
         }
     },
     {
@@ -167,44 +168,44 @@ test_params = [
             ['option3', 'option4', 'option5'],
             ['option1', 'option2'],
             ['option2', 'option5'],
-            ],
+        ],
         'expected': {
             '14e81a0976d78ebd9e6a8c140dd31ce109393972': [
                 'option1', 'option2'
-                ],
+            ],
             '56b4b90c6b25d206a113dccdcd777311503ab672': [
                 'option3', 'option4', 'option5'
-                ],
+            ],
             '5ec4709b5c552e335f9570369d15cc62b5ef18b3': [
                 'option2', 'option5'
-                ]
-            }
+            ]
+        }
     },
     {
 
         'func': 'get_or_create_products',
         'input': [
             'product1', 'product2', 'product3', 'product4', 'product4'
-            ],
+        ],
         'expected': {
-            'product1':{'id':1, 'name':'product1'},
-            'product2':{'id':2, 'name':'product2'},
-            'product3':{'id':3, 'name':'product3'},
-            'product4':{'id':4, 'name':'product4'},
-            }
+            'product1': {'id': 1, 'name': 'product1'},
+            'product2': {'id': 2, 'name': 'product2'},
+            'product3': {'id': 3, 'name': 'product3'},
+            'product4': {'id': 4, 'name': 'product4'},
+        }
     },
     {
 
         'func': 'get_or_create_devices',
         'input': [
             'device1', 'device2', 'device3', 'device4', 'device4'
-            ],
+        ],
         'expected': {
-            'device1':{'id':1, 'name':'device1'},
-            'device2':{'id':2, 'name':'device2'},
-            'device3':{'id':3, 'name':'device3'},
-            'device4':{'id':4, 'name':'device4'},
-            }
+            'device1': {'id': 1, 'name': 'device1'},
+            'device2': {'id': 2, 'name': 'device2'},
+            'device3': {'id': 3, 'name': 'device3'},
+            'device4': {'id': 4, 'name': 'device4'},
+        }
     }
 
 ]
@@ -224,33 +225,34 @@ def test_refdata_manager(refdata, params):
 def test_reference_data_signatures(refdata):
 
     reference_data_sample = [
-        [ 'buildername 1', 'buildbot', 'myrepo', [
+        ['buildername 1', 'buildbot', 'myrepo', [
             'buildbot', 'myrepo', 'macosx', '10.8', 'x64', 'macosx', '10.8', 'x64', 'device1',
-            'Mochitest', 'M', 'mochitest-1', 'M-1', 'asdfasdfasdf' ] ],
+            'Mochitest', 'M', 'mochitest-1', 'M-1', 'asdfasdfasdf']],
 
-        [ 'buildername 2', 'buildbot', 'myrepo', [
+        ['buildername 2', 'buildbot', 'myrepo', [
             'buildbot', 'myrepo', 'macosx', '10.8', 'x64', 'macosx', '10.8', 'x64', 'device2',
-            'Mochitest', 'M', 'mochitest-2', 'M-2', 'asdfasdfasdf' ] ],
+            'Mochitest', 'M', 'mochitest-2', 'M-2', 'asdfasdfasdf']],
 
-        [ 'buildername 3', 'buildbot', 'myrepo', [
+        ['buildername 3', 'buildbot', 'myrepo', [
             'buildbot', 'myrepo', 'macosx', '10.8', 'x64', 'macosx', '10.8', 'x64', 'device3',
-            'Mochitest', 'M', 'mochitest-3', 'M-2', 'asdfasdfasdf' ] ] ]
+            'Mochitest', 'M', 'mochitest-3', 'M-2', 'asdfasdfasdf']]]
 
     expected_signatures = []
     for d in reference_data_sample:
         expected_signatures.append(
-            refdata.add_reference_data_signature(d[0], d[1], d[2], d[3]) )
+            refdata.add_reference_data_signature(d[0], d[1], d[2], d[3]))
 
     refdata.process_reference_data_signatures()
 
     row_data = refdata.dhub.execute(
         proc='refdata_test.selects.test_reference_data_signatures'
-        )
+    )
 
     refdata.disconnect()
 
     for row, expected_signature in zip(row_data, expected_signatures):
         assert row['signature'] == expected_signature
+
 
 def test_add_job_type(refdata):
 
@@ -267,25 +269,25 @@ def test_add_job_type(refdata):
         ['?', '?', '?', '?'],
         ['B2G Emulator Image Build', 'B', None, '?'],
         [None, 'B', None, '?'],
-        ]
+    ]
 
     expected = (
-        { 'name':'mytype1', 'symbol':'MT1', 'job_group_id':1 },
-        { 'name':'mytype2', 'symbol':'MT2', 'job_group_id':2 },
-        { 'name':'mytype3', 'symbol':'MT3', 'job_group_id':3 },
-        { 'name':'mytype4', 'symbol':'MT4', 'job_group_id':4 },
-        { 'name':'mytype4', 'symbol':'?', 'job_group_id':5 },
-        { 'name':'unknown', 'symbol':'?', 'job_group_id':6 },
-        { 'name':'?', 'symbol':'?', 'job_group_id':7 },
-        { 'name':'B2G Emulator Image Build', 'symbol':'B', 'job_group_id':6 },
-        { 'name':'unknown', 'symbol':'B', 'job_group_id':6 },
-        )
+        {'name': 'mytype1', 'symbol': 'MT1', 'job_group_id': 1},
+        {'name': 'mytype2', 'symbol': 'MT2', 'job_group_id': 2},
+        {'name': 'mytype3', 'symbol': 'MT3', 'job_group_id': 3},
+        {'name': 'mytype4', 'symbol': 'MT4', 'job_group_id': 4},
+        {'name': 'mytype4', 'symbol': '?', 'job_group_id': 5},
+        {'name': 'unknown', 'symbol': '?', 'job_group_id': 6},
+        {'name': '?', 'symbol': '?', 'job_group_id': 7},
+        {'name': 'B2G Emulator Image Build', 'symbol': 'B', 'job_group_id': 6},
+        {'name': 'unknown', 'symbol': 'B', 'job_group_id': 6},
+    )
 
     keys = []
     for data in job_data:
         key = refdata.add_job_type(
             data[0], data[1], data[2], data[3]
-            )
+        )
         keys.append(key)
 
     refdata.process_job_groups()
@@ -296,11 +298,12 @@ def test_add_job_type(refdata):
 
     row_data = refdata.dhub.execute(
         proc='refdata_test.selects.test_all_job_group_ids'
-        )
+    )
 
     refdata.disconnect()
 
     assert row_data == expected
+
 
 def test_get_or_create_repository_version(refdata, repository_id):
 
@@ -384,7 +387,6 @@ def test_update_repo_version_unchanged(refdata, latest_version_repository, mock_
     assert row_data.get_column_data('version_timestamp') >= long(time_now)
 
 
-
 def test_update_repo_version_command(refdata, old_version_repository, initial_data, mock_urllib):
     """Test the django command extension update_repository_version without filters."""
 
@@ -431,7 +433,7 @@ def test_update_bugscache(refdata, sample_bugs):
 
     bug_list = sample_bugs['bugs']
 
-    #first iteration, inserts
+    # first iteration, inserts
     refdata.update_bugscache(bug_list)
     row_data = refdata.dhub.execute(
         proc='refdata_test.selects.test_bugscache',

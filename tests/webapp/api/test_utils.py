@@ -75,6 +75,7 @@ def test_get_single_value():
 
     assert actual == expected
 
+
 def test_get_default_value():
     input = {
         "name": "john",

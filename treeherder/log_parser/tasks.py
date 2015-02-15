@@ -77,7 +77,7 @@ def parse_log(project, job_log_url, job_guid, check_errors=False):
 
     except Exception, e:
         # send an update to job_log_url
-        #the job_log_url status changes from pending/running to failed
+        # the job_log_url status changes from pending/running to failed
         logger.warn("Failed to download and/or parse artifact for guid '%s'" %
                     job_guid)
         current_timestamp = time.time()

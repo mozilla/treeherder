@@ -20,9 +20,9 @@ class ReferenceDataSignatureAdmin(admin.ModelAdmin):
                     "first_submission_timestamp", "review_timestamp", "review_status"]
 
     search_fields = ["name", "signature", "build_os_name", "build_platform",
-                    "build_architecture", "machine_os_name", "machine_platform",
-                    "machine_architecture", "device_name", "job_group_name", "job_group_symbol",
-                    "job_type_name", "job_type_symbol", "option_collection_hash", "build_system_type"]
+                     "build_architecture", "machine_os_name", "machine_platform",
+                     "machine_architecture", "device_name", "job_group_name", "job_group_symbol",
+                     "job_type_name", "job_type_symbol", "option_collection_hash", "build_system_type"]
 
 
 # custom admin classes

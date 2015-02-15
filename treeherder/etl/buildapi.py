@@ -23,7 +23,6 @@ logger = logging.getLogger(__name__)
 
 class Builds4hTransformerMixin(object):
 
-
     def find_job_guid(self, build):
         """
         returns the job_guid, based on request id and request time.
@@ -113,7 +112,7 @@ class Builds4hTransformerMixin(object):
 
             prop['revision'] = prop.get('revision',
                                         prop.get('got_revision',
-                                        prop.get('sourcestamp', None)))
+                                                 prop.get('sourcestamp', None)))
 
             if not prop['revision']:
                 logger.warning("property 'revision' not found in build4h")
@@ -171,7 +170,7 @@ class Builds4hTransformerMixin(object):
             try:
                 job_guid_data = self.find_job_guid(build)
                 request_ids = build['properties'].get('request_ids',
-                                      build['request_ids'])
+                                                      build['request_ids'])
             except KeyError:
                 continue
 
@@ -198,7 +197,6 @@ class Builds4hTransformerMixin(object):
             del(artifact_build['starttime'])
             del(artifact_build['endtime'])
 
-
             job = {
                 'job_guid': job_guid_data['job_guid'],
                 'name': job_name_info.get('name', ''),
@@ -210,17 +208,17 @@ class Builds4hTransformerMixin(object):
                 'state': 'completed',
                 'result': buildbot.RESULT_DICT[build['result']],
                 'reason': build['reason'],
-                #scheduler, if 'who' property is not present
+                # scheduler, if 'who' property is not present
                 'who': prop.get('who', prop.get('scheduler', '')),
                 'submit_timestamp': build['requesttime'],
                 'start_timestamp': build['starttime'],
                 'end_timestamp': build['endtime'],
                 'machine': prop.get('slavename', 'unknown'),
-                #build_url not present in all builds
+                # build_url not present in all builds
                 'build_url': prop.get('build_url', ''),
-                #build_platform same as machine_platform
+                # build_platform same as machine_platform
                 'build_platform': {
-                    #platform attributes sometimes parse without results
+                    # platform attributes sometimes parse without results
                     'os_name': platform_info.get('os', ''),
                     'platform': platform_info.get('os_platform', ''),
                     'architecture': platform_info.get('arch', '')
@@ -231,7 +229,7 @@ class Builds4hTransformerMixin(object):
                     'architecture': platform_info.get('arch', '')
                 },
                 'device_name': device_name,
-                #pgo or non-pgo dependent on buildername parsing
+                # pgo or non-pgo dependent on buildername parsing
                 'option_collection': {
                     buildbot.extract_build_type(prop['buildername']): True
                 },
@@ -258,12 +256,12 @@ class Builds4hTransformerMixin(object):
             treeherder_data['job'] = job
 
             if project not in th_collections:
-                th_collections[ project ] = TreeherderJobCollection()
+                th_collections[project] = TreeherderJobCollection()
 
             # get treeherder job instance and add the job instance
             # to the collection instance
             th_job = th_collections[project].get_job(treeherder_data)
-            th_collections[project].add( th_job )
+            th_collections[project].add(th_job)
 
         if missing_resultsets and not filter_to_revision:
             common.fetch_missing_resultsets("builds4h", missing_resultsets, logger)
@@ -350,7 +348,7 @@ class PendingTransformerMixin(object):
                             'architecture': platform_info['arch'],
                             'vm': platform_info['vm']
                         },
-                        #where are we going to get this data from?
+                        # where are we going to get this data from?
                         'machine_platform': {
                             'os_name': platform_info['os'],
                             'platform': platform_info['os_platform'],
@@ -482,7 +480,7 @@ class RunningTransformerMixin(object):
                             'architecture': platform_info['arch'],
                             'vm': platform_info['vm']
                         },
-                        #where are we going to get this data from?
+                        # where are we going to get this data from?
                         'machine_platform': {
                             'os_name': platform_info['os'],
                             'platform': platform_info['os_platform'],
@@ -519,9 +517,9 @@ class RunningTransformerMixin(object):
                     treeherder_data['job'] = new_job
 
                     if project not in th_collections:
-                        th_collections[ project ] = TreeherderJobCollection(
+                        th_collections[project] = TreeherderJobCollection(
                             job_type='update'
-                            )
+                        )
 
                     # get treeherder job instance and add the job instance
                     # to the collection instance
@@ -537,6 +535,7 @@ class RunningTransformerMixin(object):
 class Builds4hJobsProcess(JsonExtractorMixin,
                           Builds4hTransformerMixin,
                           OAuthLoaderMixin):
+
     def run(self, filter_to_revision=None, filter_to_project=None):
         extracted_content = self.extract(settings.BUILDAPI_BUILDS4H_URL)
         if extracted_content:
@@ -550,6 +549,7 @@ class Builds4hJobsProcess(JsonExtractorMixin,
 class PendingJobsProcess(JsonExtractorMixin,
                          PendingTransformerMixin,
                          OAuthLoaderMixin):
+
     def run(self, filter_to_revision=None, filter_to_project=None):
         extracted_content = self.extract(settings.BUILDAPI_PENDING_URL)
         if extracted_content:
@@ -563,6 +563,7 @@ class PendingJobsProcess(JsonExtractorMixin,
 class RunningJobsProcess(JsonExtractorMixin,
                          RunningTransformerMixin,
                          OAuthLoaderMixin):
+
     def run(self, filter_to_revision=None, filter_to_project=None):
         extracted_content = self.extract(settings.BUILDAPI_RUNNING_URL)
         if extracted_content:
@@ -648,65 +649,65 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
 
         # data structures for missing attributes
         self.report_obj = {
-            'analyzers':{
+            'analyzers': {
                 'branch_misses': {
-                    'title':'{0} Objects Missing Branch Attribute',
-                    'data':{},
-                    'all_misses':0,
-                    'get_func':self.get_branch_misses
-                    },
-                'log_url_misses': {
-                    'title':'{0} Objects Missing log_url Attribute',
-                    'data':{},
-                    'all_misses':0,
-                    'get_func':self.get_log_url_misses
-                    },
-                'slavename_misses': {
-                    'title':'{0} Objects Missing slavename Attribute',
-                    'data':{},
-                    'all_misses':0,
-                    'get_func':self.get_slavename_misses
-                    },
-                'job_guid_misses': {
-                    'title':'{0} Objects Missing Job Guids or Request Ids',
-                    'data':{},
-                    'all_misses':0,
-                    'get_func':self.get_job_guid_misses,
-                    },
-                'platform_regex_misses':{
-                    'title':('{0} Buildernames Not Found '
-                             'By Platform Regular Expressions'),
-                    'data':{},
-                    'all_misses':0,
-                    'get_func':self.get_platform_regex_misses,
-                    },
-                'job_type_regex_misses':{
-                    'title':('{0} Buildernames Not Found By Job Type '
-                             'Regular Expressions (Defaults to Build)'),
-                    'data':{},
-                    'all_misses':0,
-                    'get_func':self.get_job_type_regex_misses,
-                    },
-                'test_name_regex_misses':{
-                    'title':('{0} Buildernames Not Found By Test Name '
-                             'Regular Expressions'),
-                    'data':{},
-                    'all_misses':0,
-                    'get_func':self.get_test_name_regex_misses,
-                    },
-                'revision_misses': {
-                    'title':'{0} Objects Missing Revisions',
-                    'data':{},
-                    'all_misses':0,
-                    'get_func':self.get_revision_misses,
-                    },
-                'objects_missing_buildernames': {
-                    'title':'{0} Objects With No Buildername',
-                    'data':{},
-                    'all_misses':0,
-                    'get_func':self.get_objects_missing_buildernames,
-                    },
+                    'title': '{0} Objects Missing Branch Attribute',
+                    'data': {},
+                    'all_misses': 0,
+                    'get_func': self.get_branch_misses
                 },
+                'log_url_misses': {
+                    'title': '{0} Objects Missing log_url Attribute',
+                    'data': {},
+                    'all_misses': 0,
+                    'get_func': self.get_log_url_misses
+                },
+                'slavename_misses': {
+                    'title': '{0} Objects Missing slavename Attribute',
+                    'data': {},
+                    'all_misses': 0,
+                    'get_func': self.get_slavename_misses
+                },
+                'job_guid_misses': {
+                    'title': '{0} Objects Missing Job Guids or Request Ids',
+                    'data': {},
+                    'all_misses': 0,
+                    'get_func': self.get_job_guid_misses,
+                },
+                'platform_regex_misses': {
+                    'title': ('{0} Buildernames Not Found '
+                              'By Platform Regular Expressions'),
+                    'data': {},
+                    'all_misses': 0,
+                    'get_func': self.get_platform_regex_misses,
+                },
+                'job_type_regex_misses': {
+                    'title': ('{0} Buildernames Not Found By Job Type '
+                              'Regular Expressions (Defaults to Build)'),
+                    'data': {},
+                    'all_misses': 0,
+                    'get_func': self.get_job_type_regex_misses,
+                },
+                'test_name_regex_misses': {
+                    'title': ('{0} Buildernames Not Found By Test Name '
+                              'Regular Expressions'),
+                    'data': {},
+                    'all_misses': 0,
+                    'get_func': self.get_test_name_regex_misses,
+                },
+                'revision_misses': {
+                    'title': '{0} Objects Missing Revisions',
+                    'data': {},
+                    'all_misses': 0,
+                    'get_func': self.get_revision_misses,
+                },
+                'objects_missing_buildernames': {
+                    'title': '{0} Objects With No Buildername',
+                    'data': {},
+                    'all_misses': 0,
+                    'get_func': self.get_objects_missing_buildernames,
+                },
+            },
             'guids': {}
         }
 
@@ -753,7 +754,7 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
             if job_guid_data['job_guid']:
                 self.report_obj['guids'][job_guid_data['job_guid']] = True
 
-        ##Add up all misses here
+        # Add up all misses here
         for analysis_type in self.report_obj['analyzers']:
             for buildername in self.report_obj['analyzers'][analysis_type]['data']:
                 self.report_obj['analyzers'][analysis_type]['all_misses'] += \
@@ -788,7 +789,7 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
         report_fh.write(header_line)
         report_fh.write(divider)
 
-        data_to_write = { 'analyzers':{}, 'guids':{} }
+        data_to_write = {'analyzers': {}, 'guids': {}}
         data_to_write['guids'] = self.report_obj['guids']
 
         for analyzer in sorted(self.report_obj['analyzers']):
@@ -810,15 +811,15 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
                     'title', '{0} Needs Title')
                 report_fh.write(
                     "{0}\n".format(title.format(str(all_misses)))
-                    )
+                )
                 report_fh.write(divider)
             else:
                 continue
 
             # Write out display report
             for k, v in sorted(
-                self.report_obj['analyzers'][analyzer]['data'].iteritems(),
-                key=lambda (k,v): (v['first_seen'], k)):
+                    self.report_obj['analyzers'][analyzer]['data'].iteritems(),
+                    key=lambda (k, v): (v['first_seen'], k)):
 
                 if k in self.blacklist:
                     continue
@@ -849,7 +850,7 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
         f.close()
 
     def get_objects_missing_buildernames(
-        self, analysis_type, build, buildername, job_guid):
+            self, analysis_type, build, buildername, job_guid):
 
         if not buildername:
             b_id = str(build.get('builder_id', 'No id attribute found'))
@@ -857,7 +858,7 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
                 analysis_type, b_id, job_guid, build)
 
     def get_branch_misses(
-        self, analysis_type, build, buildername, job_guid):
+            self, analysis_type, build, buildername, job_guid):
 
         if not buildername:
             return
@@ -866,10 +867,10 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
         if 'branch' not in build['properties']:
             self._load_missed_buildername(
                 analysis_type, buildername, job_guid
-                )
+            )
 
     def get_log_url_misses(
-        self, analysis_type, build, buildername, job_guid):
+            self, analysis_type, build, buildername, job_guid):
 
         if not buildername:
             return
@@ -879,10 +880,10 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
         if not log_url:
             self._load_missed_buildername(
                 analysis_type, buildername, job_guid, build
-                )
+            )
 
     def get_slavename_misses(
-        self, analysis_type, build, buildername, job_guid):
+            self, analysis_type, build, buildername, job_guid):
 
         if not buildername:
             return
@@ -892,25 +893,25 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
         if not slavename:
             self._load_missed_buildername(
                 analysis_type, buildername, job_guid, build
-                )
+            )
 
     def get_revision_misses(
-        self, analysis_type, build, buildername, job_guid):
+            self, analysis_type, build, buildername, job_guid):
 
         if not buildername:
             return
 
         revision = build['properties'].get('revision',
-            build['properties'].get('got_revision',
-            build['properties'].get('sourcestamp', None)))
+                                           build['properties'].get('got_revision',
+                                                                   build['properties'].get('sourcestamp', None)))
 
         if not revision:
             self._load_missed_buildername(
                 analysis_type, buildername, job_guid, build
-                )
+            )
 
     def get_job_guid_misses(
-        self, analysis_type, build, buildername, job_guid):
+            self, analysis_type, build, buildername, job_guid):
 
         if not buildername:
             return
@@ -920,10 +921,10 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
         if not job_guid_data['job_guid']:
             self._load_missed_buildername(
                 analysis_type, buildername, job_guid, build
-                )
+            )
 
     def get_platform_regex_misses(
-        self, analysis_type, build, buildername, job_guid):
+            self, analysis_type, build, buildername, job_guid):
 
         if not buildername:
             return
@@ -934,10 +935,10 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
         if platform_target['os'] == 'unknown':
             self._load_missed_buildername(
                 analysis_type, buildername, job_guid
-                )
+            )
 
     def get_job_type_regex_misses(
-        self, analysis_type, build, buildername, job_guid):
+            self, analysis_type, build, buildername, job_guid):
 
         if not buildername:
             return
@@ -948,10 +949,10 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
         if not job_type_target:
             self._load_missed_buildername(
                 analysis_type, buildername, job_guid
-                )
+            )
 
     def get_test_name_regex_misses(
-        self, analysis_type, build, buildername, job_guid):
+            self, analysis_type, build, buildername, job_guid):
 
         if not buildername:
             return
@@ -961,10 +962,10 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
         if name_info['name'] == 'unknown':
             self._load_missed_buildername(
                 analysis_type, buildername, job_guid
-                )
+            )
 
     def _increment_buildername_total_count(
-        self, key, buildername, job_guid):
+            self, key, buildername, job_guid):
 
         self._initialize_buildername(key, buildername)
 
@@ -972,7 +973,7 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
             self.report_obj['analyzers'][key]['data'][buildername]['total_count'] += 1
 
     def _load_missed_buildername(
-        self, key, buildername, job_guid, build=None):
+            self, key, buildername, job_guid, build=None):
 
         self._initialize_buildername(key, buildername)
 
@@ -996,4 +997,4 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
                 'missed_count': 0,
                 'total_count': 0,
                 'objects': []
-                }
+            }

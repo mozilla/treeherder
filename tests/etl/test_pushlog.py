@@ -40,7 +40,7 @@ def test_ingest_hg_pushlog(jm, initial_data, test_base_dir,
 
 
 def test_ingest_hg_pushlog_already_stored(jm, initial_data, test_base_dir,
-                           test_repository, mock_post_json_data, activate_responses):
+                                          test_repository, mock_post_json_data, activate_responses):
     """test that trying to ingest a push already stored doesn't doesn't affect
     all the pushes in the request,
     e.g. trying to store [A,B] with A already stored, B will be stored"""
@@ -77,7 +77,7 @@ def test_ingest_hg_pushlog_already_stored(jm, initial_data, test_base_dir,
     second_push
     responses.add(
         responses.GET,
-        pushlog_fake_url+"&fromchange=2c25d2bbbcd6ddbd45962606911fd429e366b8e1",
+        pushlog_fake_url + "&fromchange=2c25d2bbbcd6ddbd45962606911fd429e366b8e1",
         body=first_and_second_push_json,
         status=200, content_type='application/json',
         match_querystring=True)
@@ -95,7 +95,7 @@ def test_ingest_hg_pushlog_already_stored(jm, initial_data, test_base_dir,
 
 
 def test_ingest_hg_pushlog_not_found_in_json_pushes(jm, initial_data, test_base_dir,
-                           test_repository, mock_post_json_data, activate_responses):
+                                                    test_repository, mock_post_json_data, activate_responses):
     """
     Ingest a pushlog that is not found in json-pushes.  So we ingest a
     resultset that is "onhold"

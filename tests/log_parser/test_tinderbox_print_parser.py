@@ -136,7 +136,7 @@ TINDERBOX_TEST_CASES = (
             'content_type': 'TalosResult',
             'title': 'TalosResult',
             'value': {
-                'datazilla':{
+                'datazilla': {
                     'tcanvasmark': {
                         'url': ('https://datazilla.mozilla.org?'
                                 'product=Firefox&x86=false&repository=Try-Non-PGO'
@@ -177,6 +177,7 @@ def test_tinderbox_parser_output(line, artifact):
     parser.parse_line(line, 1)
 
     assert artifact == parser.get_artifact()
+
 
 def test_invalid_talosresult():
     invalid_line = 'TinderboxPrint: TalosResult: foo{bar}'

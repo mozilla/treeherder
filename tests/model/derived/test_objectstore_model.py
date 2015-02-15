@@ -10,6 +10,7 @@ from tests.sample_data_generator import result_set
 
 slow = pytest.mark.slow
 
+
 def test_claim_objects(jm, sample_data):
     """``claim_objects`` claims & returns unclaimed rows up to a limit."""
 
@@ -17,7 +18,7 @@ def test_claim_objects(jm, sample_data):
     blob_lookup = set()
     for job in sample_data.job_data[:3]:
         blobs.append(job)
-        blob_lookup.add( json.dumps(job) )
+        blob_lookup.add(json.dumps(job))
 
     jm.store_job_data(blobs)
 
@@ -43,7 +44,6 @@ def test_claim_objects(jm, sample_data):
     for r in rows1 + rows2:
         assert r['json_blob'] in blob_lookup
 
-
     # the blobs are all marked as "loading" in the database
     assert loading_rows == 3
 
@@ -57,7 +57,7 @@ def test_mark_object_complete(jm):
 
     object_placeholders = [
         [revision_hash, row_id]
-        ]
+    ]
 
     jm.mark_objects_complete(object_placeholders)
 
@@ -122,6 +122,7 @@ def test_process_objects_unknown_error(jm):
 
     assert row_id == 0
     assert response == exp_resp
+
 
 def test_ingest_sample_data(jm, sample_data, sample_resultset, mock_log_parser):
     """Process all job structures in the job_data.txt file"""
