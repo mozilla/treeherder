@@ -44,14 +44,6 @@ class Builds4hTransformerMixin(object):
                 prop["branch"], build))
             raise e
 
-        try:
-            request_times = build['properties'].get('request_times',
-                                                    build['requesttime'])
-        except KeyError as e:
-            logger.error("({0})request_time not found in {1}".format(
-                prop["branch"], build))
-            raise e
-
         endtime = None
         if buildbot.RESULT_DICT[build['result']] == 'retry':
             try:
@@ -62,7 +54,20 @@ class Builds4hTransformerMixin(object):
                 raise e
 
         request_id = request_ids[-1]
-        request_time = request_times[str(request_id)]
+
+        # build['properties']['request_times'] is sometimes missing,
+        # so we have to fall back to the top level requesttime property,
+        # even though it doesn't always correspond to the request_id.
+        request_times = prop.get('request_times')
+        if request_times:
+            request_time = request_times[str(request_id)]
+        else:
+            try:
+                request_time = build['requesttime']
+            except KeyError as e:
+                logger.error("({0})request_time not found in {1}".format(
+                    prop["branch"], build))
+                raise e
 
         job_guid_data = {'job_guid': '', 'coalesced': []}
 
