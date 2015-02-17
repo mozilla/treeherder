@@ -44,14 +44,19 @@ class LogSliceView(viewsets.ViewSet):
         handle = None
         gz_file = None
 
+        start_line = request.QUERY_PARAMS.get("start_line")
+        end_line = request.QUERY_PARAMS.get("end_line")
+        if not start_line or not end_line:
+            return Response("``start_line`` and ``end_line`` parameters are both required", 400)
+
         try:
-            start_line = abs(int(request.QUERY_PARAMS.get("start_line", 0)))
-            end_line = abs(int(request.QUERY_PARAMS.get("end_line", 0)))
-        except Exception as e:
+            start_line = abs(int(start_line))
+            end_line = abs(int(end_line))
+        except ValueError:
             return Response("parameters could not be converted to integers", 400)
 
         if start_line >= end_line:
-            return Response("end_line must be larger than start_line", 400)
+            return Response("``end_line`` must be larger than ``start_line``", 400)
 
         if len(log) > 0:
             try:
