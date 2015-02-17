@@ -4,7 +4,8 @@
 
 from rest_framework import viewsets
 from rest_framework.response import Response
-from django.core import cache
+from django.core.cache import caches
+from django.utils.six import BytesIO
 
 from treeherder.webapp.api.utils import (with_jobs)
 from treeherder.webapp.api.exceptions import ResourceNotFoundException
@@ -12,10 +13,8 @@ from django.conf import settings
 
 import urllib2
 import gzip
-import io
-import logging
 
-filesystem = cache.get_cache('filesystem')
+filesystem = caches['filesystem']
 
 
 class LogSliceView(viewsets.ViewSet):
@@ -61,7 +60,7 @@ class LogSliceView(viewsets.ViewSet):
 
                 if not gz_file:
                     handle = self.get_log_handle(url)
-                    gz_file = gzip.GzipFile(fileobj=io.BytesIO(handle.read()))
+                    gz_file = gzip.GzipFile(fileobj=BytesIO(handle.read()))
                     filesystem.set(url, gz_file.fileobj)
                 else:
                     gz_file = gzip.GzipFile(fileobj=gz_file)
