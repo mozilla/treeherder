@@ -265,8 +265,8 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
                                  propsHash[seriesPair[0]][seriesPair[1]] = data[0];
                                });
             })).then(function() {
+              var i = 0;
               Object.keys(propsHash).forEach(function(projectName) {
-                var i = 0;
                 Object.keys(propsHash[projectName]).forEach(function(signature) {
                   $scope.seriesList.push(seriesSummary(
                     signature, propsHash[projectName][signature], projectName,
