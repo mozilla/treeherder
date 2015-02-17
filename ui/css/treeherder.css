@@ -12,7 +12,7 @@ body {
 }
 
 a:visited {
-    color: #purple;
+    color: purple;
 }
 
 #global-container {
@@ -751,7 +751,7 @@ ul.failure-summary-list li .btn-xs {
     color: #0000ee;
 }
 .failure-summary-bugs a:visited {
-    color: #purple;
+    color: purple;
 }
 
 .failure-summary-bugs button {
