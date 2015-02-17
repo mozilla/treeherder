@@ -78,10 +78,6 @@ class LogSliceView(viewsets.ViewSet):
 
                 return Response(lines)
 
-            except Exception as e:
-                logging.error(e)
-                raise ResourceNotFoundException("log file not found")
-
             finally:
                 if handle:
                     handle.close()
