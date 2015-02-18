@@ -27,7 +27,6 @@ module.exports = function (config) {
             'app/js/directives/**/*.js',
             'app/js/models/**/*.js',
             'app/js/services/**/*.js',
-            'app/js/config/sample.local.conf.js',
             'app/plugins/**/*.js',
             'test/vendor/jasmine-jquery.js',
             'test/unit/**/*.js',
