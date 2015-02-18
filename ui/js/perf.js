@@ -112,6 +112,11 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
     $scope.showTooltip = function(x, y) {
       if ($scope.ttLocked) return;
 
+      if ($scope.ttHideTimer) {
+        clearTimeout($scope.ttHideTimer);
+        $scope.ttHideTimer = null;
+      }
+
       var tip = $('#graph-tooltip'),
         w = tip.width(),
         h = tip.height(),
@@ -132,14 +137,16 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
     $scope.hideTooltip = function(now) {
       if ($scope.ttLocked) return;
 
-      if (!$scope.ttHideTimer) {
+      var tip = $('#graph-tooltip');
+
+      if (!$scope.ttHideTimer && tip.css('visibility') == 'visible') {
         $scope.ttHideTimer = setTimeout(function() {
           $scope.ttHideTimer = null;
           $scope.plot.unhighlight();
-          $('#graph-tooltip').animate({ opacity: 0, top: '+=10' },
-                                250, 'linear', function() {
-                                  $(this).css({ visibility: 'hidden' });
-                                });
+          tip.animate({ opacity: 0, top: '+=10' },
+                      250, 'linear', function() {
+                        $(this).css({ visibility: 'hidden' });
+                      });
         }, now ? 0 : 250);
       }
     };
@@ -182,6 +189,8 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
       }
 
       $("#graph").bind("plothover", function (event, pos, item) {
+        $('#graph').css({ cursor: item ? 'pointer' : 'default' });
+
         if (item && item.series.thSeries) {
           if (item.seriesIndex != $scope.prevSeriesIndex ||
               item.dataIndex != $scope.prevDataIndex) {
@@ -191,6 +200,10 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
             $scope.prevSeriesIndex = item.seriesIndex;
             $scope.prevDataIndex = item.dataIndex;
           }
+        } else {
+          $scope.hideTooltip();
+          $scope.prevSeriesIndex = null;
+          $scope.prevDataIndex = null;
         }
       });
 
