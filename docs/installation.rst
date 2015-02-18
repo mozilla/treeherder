@@ -23,6 +23,13 @@ Setting up Vagrant
 
      >vagrant up
 
+  Note: If you encounter an error saying "It appears your machine doesn't support NFS, or there is not an
+  adapter to enable NFS on this machine for Vagrant.", then you need to install ``nfs-kernel-server`` using the commnad: 
+
+  .. code-block:: bash
+
+    apt-get install nfs-kernel-server
+    
 * Go grab a tea or coffee, it will take a few minutes to setup the environment.
 
 * Once the virtual machine is set up, you can log into it with
