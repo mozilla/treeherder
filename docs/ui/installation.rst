@@ -1,42 +1,54 @@
 Installation
 ============
 
-You can run the webserver locally.  For now, static data is loaded for testing
-and development.
+You can work on the UI without needing a VM, by using web-server.js.
+There are a few limitations, since URL rewriting is not supported (and so some links will be broken), but it works well enough for quick testing. For instructions on how to serve the UI with working URL rewriting, use the treeherder-service Vagrant instructions.
 
+Cloning the Repo
+----------------
+
+* Clone the `treeherder-ui repo`_ from Github.
 
 Requirements
 ------------
 
-* node.js: http://nodejs.org/download/
+* Node.js_
 
-Execution::
+Running the web-server
+----------------------
 
-    cd webapp
-    ./scripts/web-server.js
+* Open a shell, cd into the root of the repository you just cloned and type:
 
+  .. code-block:: bash
 
-Endpoints
----------
+     cd webapp
+     cp app/js/config/sample.local.conf.js app/js/config/local.conf.js
+     ./scripts/web-server.js
 
-Once the server is running, you can nav to:
+Viewing the UI
+--------------
 
-* Jobs list: http://localhost:8000/app/index.html?tree=Try#/jobs
-* Log Viewer: http://localhost:8000/app/logviewer.html
+Once the server is running, you can navigate to:
+`<http://localhost:8000/app/index.html>`_
 
+Configuration
+=============
+
+The sample configuration makes the UI load job/push data from the production service API. If you wish to test the UI against stage/dev's service instead, adjust ``thServiceDomain`` in the config file created as part of installation:
+``webapp/app/js/config/local.conf.js``
+
+If you wish to run the full treeherder-service Vagrant project (service + UI), remember to remove local.conf.js or else change ``thServiceDomain`` within it to refer to ``vagrant``, so the UI will use the local Vagrant service API.
 
 Running the unit tests
 ======================
 
 The unit tests run with Karma: http://karma-runner.github.io/0.8/config/configuration-file.html
 
-
 Requirements
 ------------
 
-* [node.js](http://nodejs.org/download/)
+* Node.js_
 * karma: ``sudo npm install -g karma``
-
 
 Execution::
 
@@ -44,7 +56,7 @@ Execution::
     ./scripts/test.sh
 
 Build
------
+=====
 * Install grunt ``sudo npm install grunt``
 * Install the ``devDependencies`` in ``package.json``
 * Run the following command in ``treeherder-ui``:
@@ -54,25 +66,5 @@ Build::
 
 This will create a ``dist`` directory in ``treeherder-ui`` where concatenated and minified js, css, and application assets can be served from.
 
-Configuration
-=============
-
-You can either run the treeherder service locally, or use a remote server.
-This setting is specified in this file:
-
-``webapp/app/js/config/local.conf.js``
-
-A sample copy of this file is located here:
-
-``webapp/app/js/config/sample.local.conf.js``
-
-Copy the sample file to ``local.conf.js`` and make your custom settings.
-If you want to run the UI using the node web server shipped with it, you need to change this line::
-    
-    window.thServiceDomain = "";
-
-to::
-
-    window.thServiceDomain = "https://treeherder.mozilla.org";
-
-If instead you want to run the whole application (service + UI) locally, you can leave the default value.
+.. _treeherder-ui repo: https://github.com/mozilla/treeherder-ui
+.. _Node.js: http://nodejs.org/download/
