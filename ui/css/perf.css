@@ -95,6 +95,11 @@ to { opacity: 0; }
 
 .graph-legend { padding: 4px; text-overflow: ellipsis; table-layout:fixed; font-size: 12px; }
 
+.graph-legend-table .show-hide-check{
+  float:right;
+  margin-top: -20px;
+}
+
 .graph-right-padding { flex: none; width: 120px; }
 
 #graph-tooltip {
@@ -144,3 +149,4 @@ to { opacity: 0; }
   max-height: 150px;
   overflow-y: auto;
 }
+

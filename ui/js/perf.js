@@ -238,6 +238,14 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
       $scope.reload();
     };
 
+    $scope.hideSeries = function(signature){
+      var plotdata = $scope.plot.getData();
+      var datumToHide = _.find(plotdata, function(datum) { return datum.thSeries.signature == signature });
+      datumToHide.points.show = !datumToHide.points.show;
+      $scope.plot.setData(plotdata);
+      $scope.plot.draw();
+    }
+
     var optionCollectionMap = {};
 
     $http.get(thServiceDomain + '/api/optioncollectionhash').then(
