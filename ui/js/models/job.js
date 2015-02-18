@@ -34,7 +34,7 @@ treeherder.factory('ThJobModel', [
         // a static method to retrieve a list of ThJobModel
         config = config || {};
         var timeout = config.timeout || null;
-        var fetch_all = fetch_all || false;
+        var fetch_all = config.fetch_all || false;
 
         return $http.get(ThJobModel.get_uri(repoName),{
                 params: options,
