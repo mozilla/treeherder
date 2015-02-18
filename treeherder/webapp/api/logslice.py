@@ -4,7 +4,8 @@
 
 from rest_framework import viewsets
 from rest_framework.response import Response
-from django.core import cache
+from django.core.cache import caches
+from django.utils.six import BytesIO
 
 from treeherder.webapp.api.utils import (with_jobs)
 from treeherder.webapp.api.exceptions import ResourceNotFoundException
@@ -12,10 +13,8 @@ from django.conf import settings
 
 import urllib2
 import gzip
-import io
-import logging
 
-filesystem = cache.get_cache('filesystem')
+filesystem = caches['filesystem']
 
 
 class LogSliceView(viewsets.ViewSet):
@@ -45,14 +44,19 @@ class LogSliceView(viewsets.ViewSet):
         handle = None
         gz_file = None
 
+        start_line = request.QUERY_PARAMS.get("start_line")
+        end_line = request.QUERY_PARAMS.get("end_line")
+        if not start_line or not end_line:
+            return Response("``start_line`` and ``end_line`` parameters are both required", 400)
+
         try:
-            start_line = abs(int(request.QUERY_PARAMS.get("start_line", 0)))
-            end_line = abs(int(request.QUERY_PARAMS.get("end_line", 0)))
-        except Exception as e:
+            start_line = abs(int(start_line))
+            end_line = abs(int(end_line))
+        except ValueError:
             return Response("parameters could not be converted to integers", 400)
 
         if start_line >= end_line:
-            return Response("end_line must be larger than start_line", 400)
+            return Response("``end_line`` must be larger than ``start_line``", 400)
 
         if len(log) > 0:
             try:
@@ -61,7 +65,7 @@ class LogSliceView(viewsets.ViewSet):
 
                 if not gz_file:
                     handle = self.get_log_handle(url)
-                    gz_file = gzip.GzipFile(fileobj=io.BytesIO(handle.read()))
+                    gz_file = gzip.GzipFile(fileobj=BytesIO(handle.read()))
                     filesystem.set(url, gz_file.fileobj)
                 else:
                     gz_file = gzip.GzipFile(fileobj=gz_file)
@@ -77,10 +81,6 @@ class LogSliceView(viewsets.ViewSet):
                     lines.append({"text": line, "index": i})
 
                 return Response(lines)
-
-            except Exception as e:
-                logging.error(e)
-                raise ResourceNotFoundException("log file not found")
 
             finally:
                 if handle:
