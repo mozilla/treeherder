@@ -190,6 +190,14 @@ PLATFORMS_BUILDERNAME = [
     # ** Android **
 
     {
+        'regex': re.compile(r'android 4\.4 armv7 api 11', re.IGNORECASE),
+        'attributes': {
+            'os': 'android',
+            'os_platform': 'android-4-4-armv7-api11',
+            'arch': 'armv7',
+        }
+    },
+    {
         'regex': re.compile(r'android 4\.2 x86', re.IGNORECASE),
         'attributes': {
             'os': 'android',
