@@ -233,9 +233,12 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
 
     $scope.reload = function() {
       $state.go('graphs', { 'timerange': $scope.myTimerange.value,
-                            'seriesList': JSON.stringify(
+                            'series':
                               $scope.seriesList.map(function(series) {
-                                return [series.projectName, series.signature]; }))
+                                return encodeURIComponent(
+                                  JSON.stringify(
+                                    { project: series.projectName,
+                                      signature: series.signature})); })
                           });
     };
 
@@ -269,21 +272,25 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
               return option.name; }).join(" ");
         });
       }).then(function() {
-        if ($stateParams.seriesList) {
+        if ($stateParams.series) {
           $scope.seriesList = [];
-          var seriesPairs = JSON.parse($stateParams.seriesList);
+          // we only store the signature + project name in the url, we need to
+          // fetch everything else from the server
+          var partialSeriesList = $stateParams.series.map(function(encodedSeries) {
+            return JSON.parse(decodeURIComponent(encodedSeries));
+          });
           var propsHash = {}
-          $q.all(seriesPairs.map(
-            function(seriesPair) {
+          $q.all(partialSeriesList.map(
+            function(partialSeries) {
               return $http.get(thServiceDomain + '/api/project/' +
-                               seriesPair[0] + '/performance-data/0/' +
+                               partialSeries.project + '/performance-data/0/' +
                                'get_signature_properties/?signatures=' +
-                               seriesPair[1]).then(function(response) {
+                               partialSeries.signature).then(function(response) {
                                  var data = response.data;
-                                 if (!propsHash[seriesPair[0]]) {
-                                   propsHash[seriesPair[0]] = {};
+                                 if (!propsHash[partialSeries.project]) {
+                                   propsHash[partialSeries.project] = {};
                                  }
-                                 propsHash[seriesPair[0]][seriesPair[1]] = data[0];
+                                 propsHash[partialSeries.project][partialSeries.signature] = data[0];
                                });
             })).then(function() {
               var i = 0;
@@ -466,7 +473,7 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
 perf.config(function($stateProvider, $urlRouterProvider) {
   $stateProvider.state('graphs', {
     templateUrl: 'partials/perf/perfctrl.html',
-    url: '/graphs?timerange&seriesList',
+    url: '/graphs?timerange&series',
     controller: 'PerfCtrl'
   });
 
