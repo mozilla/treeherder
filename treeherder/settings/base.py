@@ -9,8 +9,8 @@ from datetime import timedelta
 from treeherder import path
 
 # Insure the vendor libraries are added to the python path
-# in production
-sys.path.append(path('..', 'vendor'))
+# in production, and before the site-packages entry.
+sys.path.insert(1, path('..', 'vendor'))
 
 
 # These settings can all be optionally set via env vars, or in local.py:
