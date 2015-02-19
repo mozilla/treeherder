@@ -1,8 +1,8 @@
 {
   "meta": {
-    "count": 2000,
+    "count": 2,
     "repository": "mozilla-central",
-    "offset": 0
+    "offset": 2
   },
   "job_property_names": [
     "submit_timestamp",
@@ -49,7 +49,7 @@
       "fill me",
       1,
       "unknown",
-      2123473,
+      3,
       "x86",
       0,
       "linux32",
@@ -73,41 +73,6 @@
       "x86",
       "unknown",
       "2015-01-18T15:06:03",
-      17
-    ],
-    [
-      1424270698,
-      "bld-linux64-spot-423",
-      "?",
-      "unknown",
-      "debug",
-      "fill me",
-      1,
-      "success",
-      2123474,
-      "x86",
-      1424272397,
-      "linux32",
-      "c63409cac418eb147286dfde9f773de6b2ad14b0",
-      "Build",
-      "Linux mozilla-inbound leak test build",
-      "linux32",
-      "completed",
-      1775,
-      209,
-      "linux",
-      "32faaecac742100f7753f0c1d0aa0add01b4046b",
-      "mozilla-inbound-firefox",
-      1,
-      "B",
-      "scheduler",
-      "fill me",
-      null,
-      "linux",
-      1424270703,
-      "x86",
-      "unknown",
-      "2015-01-18T15:19:17",
       17
     ]
   ]

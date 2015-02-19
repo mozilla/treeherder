@@ -1,6 +1,6 @@
 {
   "meta": {
-    "count": 2000,
+    "count": 2,
     "repository": "mozilla-central",
     "offset": 0
   },
@@ -49,7 +49,7 @@
       "fill me",
       1,
       "unknown",
-      2123473,
+      1,
       "x86",
       0,
       "linux32",
@@ -84,7 +84,7 @@
       "fill me",
       1,
       "success",
-      2123474,
+      2,
       "x86",
       1424272397,
       "linux32",
