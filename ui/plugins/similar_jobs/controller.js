@@ -59,7 +59,7 @@ treeherder.controller('SimilarJobsPluginCtrl', [
                                     obj.authorResultsetFilterUrl = $scope.urlBasePath + "?repo=" +
                                         $scope.repoName + "&author=" + encodeURIComponent(obj.result_set.author);
                                 });
-                                $scope.similar_jobs = data;
+                                $scope.similar_jobs = $.merge($scope.similar_jobs, data);
                                 // on the first page show the first element info by default
                                 if($scope.page === 1 && $scope.similar_jobs.length > 0){
                                     $scope.show_job_info($scope.similar_jobs[0]);
@@ -78,6 +78,7 @@ treeherder.controller('SimilarJobsPluginCtrl', [
         $scope.update_similar_jobs = function(){
             if(angular.isDefined($scope.jobLoadedPromise)){
                 $scope.jobLoadedPromise.then(function(){
+                    $scope.similar_jobs = [];
                     $scope.page = 1;
                     $scope.similar_job_selected = null;
                     $scope.get_similar_jobs();
