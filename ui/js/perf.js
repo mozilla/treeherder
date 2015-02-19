@@ -80,8 +80,8 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
       s = item.series;
 
       $scope.resetTooltipContent(s.thSeries);
-      $http.get(thServiceDomain + '/api/project/mozilla-central/resultset/' +
-                s.resultSetData[i]).then(function(response) {
+      $http.get(thServiceDomain + '/api/project/' + s.thSeries.projectName +
+                '/resultset/' + s.resultSetData[i]).then(function(response) {
                   var revision = response.data.revisions[0].revision;
                   $scope.tooltipContent.revision = revision;
                   $scope.projects.forEach(function(project) {
