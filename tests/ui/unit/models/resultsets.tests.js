@@ -41,19 +41,16 @@ describe('ThResultSetStore', function(){
         );
 
         $httpBackend.whenGET(foregroundPrefix + '/resultset/?count=10&format=json&full=true&with_jobs=false').respond(
-            getResultSet(1)
+            getJSONFixture('resultset_list.json')
         );
 
-        $httpBackend.whenGET(foregroundPrefix + '/resultset/?count=1&format=json&full=true&id__in=1&offset=0&with_jobs=true').respond(
-            getResultSet(1)
-        );
-
+        
         $httpBackend.whenGET(foregroundPrefix + '/jobs/?count=2000&result_set_id=1&return_type=list').respond(
-            getResultSet(1)
+            getJSONFixture('job_list/job_1.json')
         );
 
-        $httpBackend.whenGET(foregroundPrefix + '/jobs/?count=2000&result_set_id=10&return_type=list').respond(
-            getResultSet(10)
+        $httpBackend.whenGET(foregroundPrefix + '/jobs/?count=2000&result_set_id=2&return_type=list').respond(
+            getJSONFixture('job_list/job_2.json')
         );
 
         $httpBackend.whenGET('/api/repository/').respond(
@@ -86,168 +83,11 @@ describe('ThResultSetStore', function(){
     /*
         Tests ThResultSetStore
      */
-    it('should have 1 resultset', function() {
-        expect(model.getResultSetsArray(rootScope.repoName).length).toBe(1);
+    it('should have 2 resultset', function() {
+        expect(model.getResultSetsArray(rootScope.repoName).length).toBe(2);
     });
 
     it('should have id of 1 in foreground (current) repo', function() {
         expect(model.getResultSetsArray(rootScope.repoName)[0].id).toBe(1);
     });
-
-
-    /********************************************
-     * Data constructors
-     */
-
-    /**
-     * Return a single length array of one resultset.  Replace fields with
-     * those contained in ``values``
-     * @param values
-     * @returns {*[]}
-     */
-    var getResultSet = function(id, values) {
-        values = values || {};
-
-        var rs =  {
-            "repository_id": 4,
-            "job_counts": {
-                "exception": 0,
-                "retry": 0,
-                "success": 2,
-                "unknown": 0,
-                "usercancel": 0,
-                "running": 0,
-                "busted": 0,
-                "testfailed": 0,
-                "total": 4,
-                "pending": 0
-            },
-            "revision_hash": "05c298c5ae3bcc37fd00397511646135bf2416f6",
-            "revision_count": 2,
-            "author": "Brian Grinstead <test@mozilla.com>",
-            "platforms": [
-                {
-                    "name": "linux64",
-                    "groups": [
-                        {
-                            "symbol": "?",
-                            "jobs": [
-                               [
-                                    "bld-centos6-hp-031",
-                                    "?",
-                                    "Build",
-                                    "unknown",
-                                    "debug",
-                                    "scheduler",
-                                    1,
-                                    "B",
-                                    "linux64",
-                                    "pending",
-                                    id,
-                                    "unknown",
-                                    null,
-                                    590604,
-                                    "/api/project/try/jobs/590604/"
-                                ],
-                                [
-                                    "try-linux64-spot-129",
-                                    "?",
-                                    "Static Checking Build",
-                                    "unknown",
-                                    "debug",
-                                    "scheduler",
-                                    1,
-                                    "S",
-                                    "linux64",
-                                    "completed",
-                                    id,
-                                    "success",
-                                    null,
-                                    590599,
-                                    "/api/project/try/jobs/590599/"
-                                ]
-                            ],
-                            "name": "unknown"
-                        }
-                    ],
-                    "option": "debug"
-                }
-            ],
-            "revisions_uri": "/api/project/try/resultset/4939/revisions/",
-            push_timestamp: 1396899074,
-            id: id,
-            "revision": "793611be6b26"
-        };
-        _.extend(rs, values);
-        return {
-            "meta": {
-                "count": 1,
-                "filter_params": {
-                    "count": "10",
-                    "full": "false",
-                    "format": "json"
-                },
-                "repository": "mozilla-central"
-            },
-            "job_property_names":[
-                "machine_name",
-                "job_group_symbol",
-                "job_type_name",
-                "job_group_name",
-                "platform_option",
-                "reason",
-                "failure_classification_id",
-                "job_type_symbol",
-                "platform",
-                "state",
-                "result_set_id",
-                "result",
-                "job_coalesced_to_guid",
-                "id",
-                "resource_uri"
-            ],
-            "results": [rs]
-        };
-    };
-
-    var getJob = function(id, values) {
-        values = values || {};
-
-        var job = {
-            "submit_timestamp": 1396899126,
-            "machine_name": "bld-centos6-hp-031",
-            "job_group_symbol": "?",
-            "job_group_name": "unknown",
-            "platform_option": "debug",
-            "job_type_description": "fill me",
-            "result_set_id": 4939,
-            "result": "success",
-            "id": id,
-            "machine_platform_architecture": "x86_64",
-            "end_timestamp": 1396901922,
-            "build_platform": "linux64",
-            "job_guid": "1cb281fce9b62d27423dfbe31d50a9744f4fc0d6",
-            "job_type_name": "Build",
-            "platform": "linux64",
-            "state": "completed",
-            "build_os": "linux",
-            "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-            "who": "bgrinstead@mozilla.com",
-            "failure_classification_id": 1,
-            "job_type_symbol": "B",
-            "reason": "scheduler",
-            "job_group_description": "fill me",
-            "job_coalesced_to_guid": null,
-            "machine_platform_os": "linux",
-            "start_timestamp": 1396899181,
-            "build_architecture": "x86_64",
-            "build_platform_id": 10,
-            "machine_id": 346,
-            "resource_uri": "/api/project/try/jobs/590604/"
-        };
-
-        _.extend(job, values);
-        return [job];
-
-    };
 });
