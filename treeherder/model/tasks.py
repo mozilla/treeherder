@@ -1,13 +1,28 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
+import os
 from celery import task
 from django.core.management import call_command
 from django.conf import settings
 
-from treeherder.model.derived import JobsModel
 from treeherder.model.models import Datasource, Repository
+from treeherder.model.exchanges import TreeherderPublisher
+from treeherder.model.pulse_publisher import load_schemas
 
+# Load schemas for validation of messages published on pulse
+source_folder = os.path.dirname(os.path.realpath(__file__))
+schema_folder = os.path.join(source_folder, '..', '..', 'schemas')
+schemas = load_schemas(schema_folder)
+
+# Create publisher, if username and password is present
+publisher = None
+if settings.PULSE_EXCHANGE_NAMESPACE:
+    publisher = TreeherderPublisher(
+        namespace = settings.PULSE_EXCHANGE_NAMESPACE,
+        uri = settings.PULSE_URI,
+        schemas = schemas
+    )
 
 @task(name='process-objects')
 def process_objects(limit=None, project=None):
@@ -15,6 +30,8 @@ def process_objects(limit=None, project=None):
     Process a number of objects from the objectstore
     and load them to the jobs store
     """
+    from treeherder.model.derived.jobs import JobsModel
+
     # default limit to 100
     limit = limit or 100
 
@@ -37,6 +54,7 @@ def cycle_data():
 
 @task(name='calculate-eta', rate_limit='1/h')
 def calculate_eta(sample_window_seconds=21600, debug=False):
+    from treeherder.model.derived.jobs import JobsModel
 
     projects = Repository.objects.filter(active_status='active').values_list('name', flat=True)
 
@@ -48,6 +66,7 @@ def calculate_eta(sample_window_seconds=21600, debug=False):
 
 @task(name='populate-performance-series')
 def populate_performance_series(project, series_type, series_data):
+    from treeherder.model.derived.jobs import JobsModel
 
     with JobsModel(project) as jm:
         for t_range in settings.TREEHERDER_PERF_SERIES_TIME_RANGES:
@@ -57,27 +76,41 @@ def populate_performance_series(project, series_type, series_data):
                     series_data[signature]
                 )
 
-from treeherder.model.exchanges import TreeherderPublisher
-from treeherder.model.pulse_publisher import load_schemas
-import os
+@task(name='publish-job-action')
+def publish_job_action(project, action, job_id, requester):
+    """
+    Generic task to issue pulse notifications when jobs actions occur
+    (retrigger/cancel)
 
-# Load schemas for validation of messages published on pulse
-source_folder = os.path.dirname(os.path.realpath(__file__))
-schema_folder = os.path.join(source_folder, '..', '..', 'schemas')
-schemas = load_schemas(schema_folder)
+    :param project str: The name of the project this action was requested for.
+    :param action str: The type of action performed (retrigger/cancel/etc..)
+    :param job_id str: The job id the action was requested for.
+    :param requester str: The email address associated with the request.
+    """
+    if not publisher:
+        return
 
-# Create publisher, if username and password is present
-publisher = None
-if settings.PULSE_USERNAME and settings.PULSE_PASSWORD:
-    publisher = TreeherderPublisher(
-        client_id=settings.PULSE_USERNAME,
-        access_token=settings.PULSE_PASSWORD,
-        schemas=schemas
-    )
+    from treeherder.model.derived.jobs import JobsModel
+
+    with JobsModel(project) as jm:
+        job = jm.get_job(job_id)[0]
+        refdata = jm.get_job_reference_data(job['signature'])
+
+        publisher.job_action(
+            version = 1,
+            build_system_type = refdata['build_system_type'],
+            project = project,
+            action = action,
+            job_guid = job['job_guid'],
+            # Job id is included for convenience as you need it in some cases
+            # instead of job_guid...
+            job_id = job['id'],
+            requester = requester
+        )
 
 
-@task(name='publish-to-pulse')
-def publish_to_pulse(project, ids, data_type):
+@task(name='publish-resultset')
+def publish_resultset(project, ids):
     # If we don't have a publisher (because of missing configs), then we can't
     # publish any pulse messages. This is okay, local installs etc. doesn't
     # need to publish on pulse, and requiring a pulse user is adding more
@@ -85,33 +118,32 @@ def publish_to_pulse(project, ids, data_type):
     if not publisher:
         return
 
+    from treeherder.model.derived.jobs import JobsModel
+
     with JobsModel(project) as jm:
         # Publish messages with new result-sets
-        if data_type == 'result_set':
-            # Get appropriate data for data_type
-            # using the ids provided
-            for entry in jm.get_result_set_list_by_ids(ids):
-                repository = jm.refdata_model.get_repository_info(entry['repository_id'])
-                entry['repository_url'] = repository['url']
+        for entry in jm.get_result_set_list_by_ids(ids):
+            repository = jm.refdata_model.get_repository_info(entry['repository_id'])
 
-                # Don't expose these properties, they are internal, at least that's
-                # what I think without documentation I have no clue... what any of
-                # this is
-                del entry['revisions']      # Not really internal, but too big
-                del entry['repository_id']
+            if repository is None:
+                return
 
-                # Set required properties
-                entry['version'] = 1
-                entry['project'] = project
-                # Property revision_hash should already be there, I suspect it is the
-                # result-set identifier...
+            entry['repository_url'] = repository['url']
 
-                # publish the data to pulse
-                publisher.new_result_set(
-                    message=entry,
-                    revision_hash=entry['revision_hash'],
-                    project=project
-                )
+            # Don't expose these properties, they are internal, at least that's
+            # what I think without documentation I have no clue... what any of
+            # this is
+            del entry['revisions']      # Not really internal, but too big
+            del entry['repository_id']
+
+            # Set required properties
+            entry['version'] = 1
+            entry['project'] = project
+            # Property revision_hash should already be there, I suspect it is the
+            # result-set identifier...
+
+            # publish the data to pulse
+            publisher.new_result_set(**entry)
 
             # Basically, I have no idea what context this runs and was inherently
             # unable to make kombu with or without pyamqp, etc. confirm-publish,

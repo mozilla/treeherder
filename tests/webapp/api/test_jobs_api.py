@@ -3,7 +3,10 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 from django.core.urlresolvers import reverse
+from rest_framework.test import APIClient
+from django.contrib.auth.models import User
 
+import json
 
 def test_job_list(webapp, eleven_jobs_processed, jm):
     """
@@ -113,6 +116,63 @@ def test_job_detail(webapp, eleven_jobs_processed, sample_artifacts, jm):
 
     jm.disconnect()
 
+
+def test_job_retrigger_unauthorized(webapp, eleven_jobs_processed, jm):
+    """
+    Validate that only authenticated users can hit this endpoint.
+    """
+    job = jm.get_job_list(0, 1)[0]
+    url = reverse("jobs-retrigger",
+                  kwargs={"project": jm.project, "pk": job["id"]})
+    webapp.post(url, status=403)
+
+def test_job_retrigger_authorized(webapp, eleven_jobs_processed, jm,
+        pulse_action_consumer):
+    """
+    Validate that only authenticated users can hit this endpoint.
+    """
+    client = APIClient()
+    email = "foo-retrigger@example.com"
+    user = User.objects.create(username="retrigger-fail", email=email)
+    client.force_authenticate(user=user)
+
+    job = jm.get_job_list(0, 1)[0]
+    url = reverse("jobs-retrigger",
+                  kwargs={"project": jm.project, "pk": job["id"]})
+    client.post(url)
+
+    message = pulse_action_consumer.get(block=True, timeout=2)
+    content = json.loads(message.body)
+
+    assert content['project'] == jm.project
+    assert content['action'] == 'retrigger'
+    assert content['job_guid'] == job['job_guid']
+    assert content['requester'] == email
+    user.delete()
+
+def test_job_cancel_authorized(webapp, eleven_jobs_processed, jm,
+        pulse_action_consumer):
+    """
+    Validate that only authenticated users can hit this endpoint.
+    """
+    client = APIClient()
+    email = "cancel@example.com"
+    user = User.objects.create(username="retrigger", email=email)
+    client.force_authenticate(user=user)
+
+    job = jm.get_job_list(0, 1)[0]
+    url = reverse("jobs-cancel",
+                  kwargs={"project": jm.project, "pk": job["id"]})
+    client.post(url)
+
+    message = pulse_action_consumer.get(block=True, timeout=2)
+    content = json.loads(message.body)
+
+    assert content['project'] == jm.project
+    assert content['action'] == 'cancel'
+    assert content['job_guid'] == job['job_guid']
+    assert content['requester'] == email
+    user.delete()
 
 def test_job_detail_bad_project(webapp, eleven_jobs_processed, jm):
     """

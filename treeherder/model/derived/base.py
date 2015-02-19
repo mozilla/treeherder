@@ -111,14 +111,6 @@ class TreeherderModelBase(object):
 
         return ids
 
-    def submit_publish_to_pulse_tasks(self, ids, data_type):
-
-        from treeherder.model.tasks import publish_to_pulse
-        publish_to_pulse.apply_async(
-            args=[self.project, ids, data_type],
-            routing_key='high_priority'
-        )
-
     def disconnect(self):
         """Iterate over and disconnect all data sources."""
         self.refdata_model.disconnect()

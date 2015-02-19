@@ -121,11 +121,24 @@ class JobsViewSet(viewsets.ViewSet):
         """
         Change the state of a job.
         """
+        job = jm.get_job(pk)
+        if job:
+            jm.cancel_job(request.user.email, job[0])
+            return Response({"message": "canceled job '{0}'".format(job[0]['job_guid'])})
+        else:
+            return Response("No job with id: {0}".format(pk), 404)
 
-        obj = jm.get_job(pk)
-        if obj:
-            jm.cancel_job(obj[0]['job_guid'])
-            return Response({"message": "canceled job '{0}'".format(obj[0]['job_guid'])})
+    @action(permission_classes=[IsAuthenticated])
+    @with_jobs
+    def retrigger(self, request, project, jm, pk=None):
+        """
+        Issue a "retrigger" to the underlying build_system_type by scheduling a
+        pulse message.
+        """
+        job = jm.get_job(pk)
+        if job:
+            jm.retrigger(request.user.email, job[0])
+            return Response({"message": "retriggered job '{0}'".format(job[0]['job_guid'])})
         else:
             return Response("No job with id: {0}".format(pk), 404)
 
