@@ -125,7 +125,7 @@ treeherder.factory('ThResultSetStore', [
             if(jobList.length > 0){
                 var lastModifiedJob = getLastModifiedJob(jobList);
                 if(lastModifiedJob != null){
-                    lastJobUpdate = new Date(lastModifiedJob.last_modified);
+                    lastJobUpdate = new Date(lastModifiedJob.last_modified+'Z');
                 }
                 var jobListByResultSet = _.values(
                     _.groupBy(jobList, 'result_set_id')
@@ -837,7 +837,7 @@ treeherder.factory('ThResultSetStore', [
                     // and then get the last modified of them
                     var lastJobModified = getLastModifiedJob(lastJobUpdateList);
                     if(lastJobModified){
-                        lastJobUpdate = new Date(lastJobModified.last_modified);
+                        lastJobUpdate = new Date(lastJobModified.last_modified+'Z');
                         // subtract 3 seconds to take in account a possible delay
                         // between the job requests
                         lastJobUpdate.setSeconds(lastJobUpdate.getSeconds()-3);
