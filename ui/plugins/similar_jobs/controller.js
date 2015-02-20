@@ -23,9 +23,8 @@ treeherder.controller('SimilarJobsPluginCtrl', [
         $scope.get_similar_jobs = function(){
             thTabs.tabs.similarJobs.is_loading = true;
             var options = {
-                    count: $scope.page_size +1,
-                    offset: ($scope.page-1) * $scope.page_size,
-                    full: false
+                    count: $scope.page_size + 1,
+                    offset: ($scope.page - 1) * $scope.page_size
                 };
             angular.forEach($scope.similar_jobs_filters, function(value, key){
                 if(value){
