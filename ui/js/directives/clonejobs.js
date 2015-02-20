@@ -93,14 +93,30 @@ treeherder.directive('thCloneJobs', [
     });
 
     $rootScope.$on(
-        thEvents.changeSelection, function(ev, param){
+        thEvents.changeSelection, function(ev, direction){
 
         var jobMap = ThResultSetModel.getJobMap($rootScope.repoName);
-        var el, key, job, jobs;
+        var el, key, job, jobs, getIndex;
+
+        if (direction === 'next') {
+            getIndex = function(idx, jobs) {
+                return idx+1 > _.size(jobs)-1 ? 0: idx+1;
+            }
+        } else if (direction === 'previous') {
+            getIndex = function(idx, jobs) {
+                return idx-1 < 0 ? _.size(jobs)-1 : idx-1;
+            }
+        }
 
         jobs = $(".th-view-content .job-btn");
         var idx = jobs.index(jobs.filter(".selected-job"));
-        el = getIndex(idx, jobs, param);
+        idx = getIndex(idx, jobs);
+
+        el = $(jobs[idx]);
+        while (el.css('display') === 'none') {
+            idx = getIndex(idx, jobs);
+            el = $(jobs[idx]);
+        }
 
         key = el.attr(jobKeyAttr);
         job = jobMap[key].job_obj;
@@ -1085,31 +1101,6 @@ treeherder.directive('thCloneJobs', [
             tableEl.append(row);
         }
     };
-
-    var getIndex = function(idx, jobs, param){
-
-        var el;
-        if (param == 'next') {
-
-            idx = idx+1 > _.size(jobs)-1 ? 0: idx+1;
-            el = $(jobs[idx]);
-            while (el.css('display') == 'none') {
-                idx = idx+1 > _.size(jobs)-1 ? 0: idx+1;
-                el = $(jobs[idx]);
-            }
-
-        } else if (param == 'previous') {
-
-            idx = idx-1 < 0 ? _.size(jobs)-1 : idx-1;
-            el = $(jobs[idx]);
-            while (el.css('display') == 'none') {
-                idx = idx-1 < 0 ? _.size(jobs)-1 : idx-1;
-                el = $(jobs[idx]);
-            }
-
-        }
-        return el;
-    }
 
     var linker = function(scope, element, attrs){
 
