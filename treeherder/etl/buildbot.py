@@ -273,6 +273,14 @@ PLATFORMS_BUILDERNAME = [
     # ** B2G **
 
     {
+        'regex': re.compile(r'b2g.*_emulator-l', re.IGNORECASE),
+        'attributes': {
+            'os': 'b2g',
+            'os_platform': 'b2g-emu-l',
+            'arch': 'armv7',
+        }
+    },
+    {
         'regex': re.compile(r'b2g.*_emulator-kk', re.IGNORECASE),
         'attributes': {
             'os': 'b2g',
