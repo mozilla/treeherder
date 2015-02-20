@@ -1,7 +1,7 @@
 Integrating the ui
 ==================
 
-If you want to develop both the ui and the service side by side it may be convenient to load the ui in the vagrant environment.
+If you want to develop both the ui and the service side by side it may be convenient to load the ui from the vagrant environment.
 
 * Make sure the `treeherder-ui repo`_ is cloned in the same parent folder as treeherder-service (and with the directory name 'treeherder-ui').
 

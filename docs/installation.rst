@@ -11,7 +11,7 @@ Setting up Vagrant
 
 * Install Virtualbox_ and Vagrant_ if not present.
 
-* Either follow the :doc:`ui_integration` steps, or comment out this line in the Vagrantfile:
+* Either follow the :doc:`ui_integration` steps (the most common setup) to develop both the service and the ui together, or to develop only the service comment out this line in the Vagrantfile:
 
   .. code-block:: ruby
 
