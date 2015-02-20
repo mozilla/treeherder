@@ -48,10 +48,17 @@ treeherder.controller('MainCtrl', [
             }
         };
 
-        $scope.processKeyboardInput = function(ev){
+        // Disable single key shortcuts in specified shortcut events
+        $scope.allowKeys = function() {
+            Mousetrap.unbind(['i', 'j', 'n', 'k', 'p', 'space', 'u', 'r', 'c']);
+        };
 
-            // If the user is in an editable element or the user is pressing
-            // shift, then disable keyboard events
+        // Process shortcut events
+        $scope.processKeyboardInput = function(ev) {
+
+            /* If the user is in an editable element or pressing shift
+             * then disable keyboard events, unless otherwise enabled
+             * in inputs by the 'mousetrap' class in markup */
             var activeElement = document.activeElement;
             if (activeElement.tagName === 'INPUT' ||
                 activeElement.tagName === 'SELECT' ||
@@ -60,81 +67,106 @@ treeherder.controller('MainCtrl', [
                 return;
             }
 
-            // test for key modifiers to allow browser shortcuts eg.
-            // console, new/private browsing window, history, print
-            if (!ev.metaKey && !ev.shiftKey && !ev.ctrlKey) {
-                if (ev.keyCode === 73) {
-                    // toggle display in-progress jobs(pending/running), key:i
-                    $scope.toggleInProgress();
+            /* In some cases we need to handle the digest cycle otherwise
+             * we will see interaction delays. Where needed we use $scope.$evalAsync
+             * for optimization but may use $timeout or $digest if required */
 
-                } else if ((ev.keyCode === 74) || (ev.keyCode === 78)) {
-                    //Highlight next unclassified failure keys:j/n
-                    $rootScope.$emit(
-                        thEvents.selectNextUnclassifiedFailure
+            // Shortcut: toggle display in-progress jobs (pending/running)
+            Mousetrap.bind('i', function() {
+                $scope.$evalAsync($scope.toggleInProgress());
+            });
+
+            // Shortcut: select previous job (upcoming feature, PR326)
+            // Mousetrap.bind('left', function() {
+            //     $rootScope.$emit(thEvents.selectPreviousJob);
+            // });
+
+            // Shortcut: select next job (upcoming feature, PR326)
+            // Mousetrap.bind('right', function() {
+            //     $rootScope.$emit(thEvents.selectNextJob);
+            // });
+
+            // Shortcut: select next unclassified failure
+            Mousetrap.bind(['j', 'n'], function() {
+                $rootScope.$emit(thEvents.selectNextUnclassifiedFailure);
+            });
+
+            // Shortcut: select previous unclassified failure
+            Mousetrap.bind(['k', 'p'], function() {
+                $rootScope.$emit(thEvents.selectPreviousUnclassifiedFailure);
+            });
+
+            // Shortcut: pin selected job to pinboard
+            Mousetrap.bind('space', function(ev) {
+                // If a job is selected add it otherwise
+                // let the browser handle the spacebar
+                if ($scope.selectedJob) {
+                    // Prevent page down propagating to the jobs panel
+                    ev.preventDefault();
+
+                    $scope.$evalAsync(
+                        $rootScope.$emit(thEvents.jobPin, $rootScope.selectedJob)
+                    );
+                }
+            });
+
+            // Shortcut: display only unclassified failures
+            Mousetrap.bind('u', function() {
+                $scope.$evalAsync($scope.toggleUnclassifiedFailures);
+            });
+
+            // Shortcut: pin selected job to pinboard and add a related bug
+            Mousetrap.bind('r', function(ev) {
+                if ($scope.selectedJob) {
+                    $rootScope.$emit(thEvents.addRelatedBug,
+                                     $rootScope.selectedJob);
+
+                    // Prevent shortcut key overflow during focus
+                    ev.preventDefault();
+
+                    $scope.$evalAsync(
+                        $rootScope.$broadcast('focus-this', "related-bug-input")
+                    );
+                }
+            });
+
+            // Shortcut: pin selected job to pinboard and enter classification
+            Mousetrap.bind('c', function(ev) {
+                if ($scope.selectedJob) {
+                    $scope.$evalAsync(
+                        $rootScope.$emit(thEvents.jobPin, $rootScope.selectedJob)
                     );
 
-                } else if ((ev.keyCode === 75) || (ev.keyCode === 80)) {
-                    //Highlight previous unclassified failure keys:k/p
-                    $rootScope.$emit(
-                        thEvents.selectPreviousUnclassifiedFailure
+                    // Prevent shortcut key overflow during focus
+                    ev.preventDefault();
+
+                    $scope.$evalAsync(
+                        $rootScope.$broadcast('focus-this', "classification-comment")
                     );
 
-                } else if (ev.keyCode === 32) {
-                    // If a job is selected add it otherwise
-                    // let the browser handle the spacebar
-                    if ($scope.selectedJob) {
-                        // Pin selected job to pinboard, key:[spacebar]
-                        // and prevent page down propagating to the jobs panel
-                        ev.preventDefault();
-                        $rootScope.$emit(thEvents.jobPin, $rootScope.selectedJob);
-                    }
-
-                } else if (ev.keyCode === 85) {
-                    // Display only unclassified failures, keys:u
-                    $scope.toggleUnclassifiedFailures();
-
-                } else if (ev.keyCode === 82) {
-                    // Pin selected job to pinboard and add a related bug, key:r
-                    if ($scope.selectedJob) {
-                        $rootScope.$emit(thEvents.addRelatedBug,
-                                         $rootScope.selectedJob);
-
-                        // Prevent shortcut key overflow during focus
-                        ev.preventDefault();
-                        $rootScope.$broadcast('focus-this', "related-bug-input");
-                    }
-
-                } else if (ev.keyCode === 67) {
-                    // Pin selected job to pinboard and enter classification
-                    // key:c
-                    if ($scope.selectedJob) {
-                        $rootScope.$emit(thEvents.jobPin, $rootScope.selectedJob);
-
-                        // Prevent shortcut key overflow during focus
-                        ev.preventDefault();
-                        $rootScope.$broadcast('focus-this', "classification-comment");
-                    }
-
-                } else if (ev.keyCode === 27) {
-                    // Escape closes any open panels and clears the selected job
-                    $scope.setFilterPanelShowing(false);
-                    $scope.setSettingsPanelShowing(false);
-                    $scope.setSheriffPanelShowing(false);
-                    $scope.closeJob();
+                    // Unbind all shortcut keys during input
+                    $scope.$evalAsync($scope.allowKeys());
                 }
+            });
 
-            // Clear the pinboard: Ctrl+Shift+u
-            } else if (!ev.metaKey && !ev.altKey && ev.shiftKey && ev.ctrlKey) {
-                if ((ev.keyCode === 85) && $scope.selectedJob) {
-                    $rootScope.$emit(thEvents.clearPinboard);
-                }
+            // Shortcut: escape closes any open panels and clears selected job
+            Mousetrap.bind('escape', function() {
+                $scope.$evalAsync($scope.setFilterPanelShowing(false));
+                $scope.$evalAsync($scope.setSettingsPanelShowing(false));
+                $scope.$evalAsync($scope.setSheriffPanelShowing(false));
+                $scope.$evalAsync($scope.closeJob());
+            });
 
-            // Save pinboard classification and related bugs: Ctrl+Enter
-            } else if (!ev.metaKey && !ev.altKey && !ev.shiftKey && ev.ctrlKey) {
-                if ((ev.keyCode === 13) && $scope.selectedJob) {
-                    $rootScope.$emit(thEvents.saveClassification);
-                }
-            }
+            // Shortcut: clear the pinboard
+            Mousetrap.bind('ctrl+shift+u', function() {
+                $scope.$evalAsync($rootScope.$emit(thEvents.clearPinboard));
+            });
+
+            // Shortcut: save pinboard classification and related bugs
+            Mousetrap.bind('ctrl+enter', function() {
+                $scope.$evalAsync($rootScope.$emit(thEvents.saveClassification));
+            });
+
         };
 
         $scope.repoModel = ThRepositoryModel;
