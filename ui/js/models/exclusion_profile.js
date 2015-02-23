@@ -51,7 +51,7 @@ treeherder.factory('ThExclusionProfileModel', [
             .then(
                 function(response){
                     angular.extend(exclusion_profile, response.data);
-                    $log.log(exclusion_profile);
+                    $log.debug(exclusion_profile);
                     thNotify.send("Exclusion profile successfully created", "success");
                 },
                 function(reason){
@@ -105,7 +105,7 @@ treeherder.factory('ThExclusionProfileModel', [
 
     // an instance method to delete a ThExclusionProfileModel object
     ThExclusionProfileModel.prototype.delete = function(){
-        $log.log(this);
+        $log.debug(this);
         var pk = this.id;
         return $http.delete(ThExclusionProfileModel.get_uri()+pk+"/")
             .then(

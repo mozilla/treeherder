@@ -1,0 +1,65 @@
+<nav class="navbar navbar-default" role="navigation">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#">Perfherder Graphs</a>
+    </div>
+  </div>
+</nav>
+
+<div class="ph-horizontal-layout">
+  <div id="graph-chooser">
+    <table class="table table-bordered graph-legend-table">
+      <tr ng-repeat="series in seriesList">
+        <td>
+          <button class="close" ng-click="removeSeries(series.signature)">
+            <span aria-hidden="true">&times;</span>
+            <span class="sr-only">Remove series</span>
+          </button>
+          <table>
+            <tr>
+              <td width="10px" class="graph-legend" style="padding: 4px; background-color: {{series.color}}"></td>
+              <td class="graph-legend">
+                <b>{{series.testName}}</b><br/>
+                {{series.projectName}}<br/>
+                {{series.platform}}
+              </td>
+            </tr>
+          </table>
+          <input title="Show/Hide series" type="checkbox" class="show-hide-check" ng-click="hideSeries(series.signature)" checked>
+        </td>
+      </tr>
+    </table>
+    <button class="btn btn-primary" ng-click="addTestData()">
+      <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add more test data</button>
+  </div>
+  <div id="graphs">
+    <select ng-model="myTimerange" ng-options="timerange.text for timerange in timeranges track by timerange.value" ng-change="timeRangeChanged()">
+    </select>
+    <hr/>
+    <div id="graph"></div>
+  </div>
+  <div class="graph-right-padding"></div>
+</div>
+
+
+<div id="graph-tooltip" ng-class="{locked: ttLocked}">
+  <div class="body">
+    <div>
+      <p id="tt-series"><span ng-bind="tooltipContent.test"/>
+        (<span ng-bind="tooltipContent.branch"/>)</p>
+      <p id="tt-series2" class="small"><span ng-bind="tooltipContent.platform"/>
+        (<span ng-bind="tooltipContent.machine"/>)</p>
+    </div>
+    <div>
+      <p id="tt-v" ng-bind="tooltipContent.value"></p>
+      <p id="tt-dv" class="small">&Delta; <span ng-bind="tooltipContent.deltaValue"/>
+      (<span ng-bind="tooltipContent.deltaPercentValue"/>%)</p>
+    </div>
+    <div>
+      <p><a id="tt-cset" ng-href="{{tooltipContent.revisionHref}}" target="_blank"><span ng-bind="tooltipContent.revision"></span></a></p>
+      <p id="tt-t" class="small" ng-bind="tooltipContent.date"></p>
+    </div>
+    <span ng-hide="ttLocked">Click to lock</button>
+  </div>
+  <div class="tip"></div>
+</div>

@@ -61,7 +61,17 @@ body {
     padding: 20px 5px 4px;
     display: table-row;
 }
+.run-data .break-word{
+    -ms-word-break: break-all;
+    word-break: break-all;
 
+    /* Non standard for webkit */
+    word-break: break-word;
+
+    -webkit-hyphens: auto;
+    -moz-hyphens: auto;
+    hyphens: auto;
+}
 .run-data .steps-data {
     max-height: 210px;
     overflow: auto;
@@ -78,6 +88,7 @@ body {
     -ms-user-select: text;
     -o-user-select: text;
     user-select: text;
+    white-space: normal;
 }
 
 .logviewer-step.selected {
@@ -104,6 +115,16 @@ body {
     color: #9fa3a5;
 }
 
+.logviewer-stepbar a:hover,
+.logviewer-stepbar a:focus {
+    text-decoration: none;
+}
+
+.logviewer-stepbar .raw-log {
+    padding-right: 5px;
+    font-size: 12px;
+}
+
 .logviewer-stepbar input[type="checkbox"] {
     margin: 0;
     vertical-align: middle;
@@ -115,9 +136,7 @@ body {
 }
 
 .lv-log-msg {
-    position: fixed;
-    top: 530px;
-    left: 3%;
+    position: relative;
     font-weight: bold;
 }
 
@@ -138,4 +157,9 @@ body {
 
 .lv-log-error {
     border: 2px solid #ff0000;
+}
+.job-header{
+    max-height:270px;
+    overflow-y:auto;
+    margin-bottom:20px;
 }

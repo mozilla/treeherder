@@ -8,12 +8,12 @@
 treeherder.directive('thCloneJobs', [
     '$rootScope', '$http', 'ThLog', 'thUrl', 'thCloneHtml',
     'thServiceDomain', 'thResultStatusInfo', 'thEvents', 'thAggregateIds',
-    'thJobFilters', 'thResultStatusObject', 'ThResultSetModel',
+    'thJobFilters', 'thResultStatusObject', 'ThResultSetStore',
     'ThJobModel', 'linkifyBugsFilter', 'thResultStatus', 'thPlatformNameMap',
     function(
         $rootScope, $http, ThLog, thUrl, thCloneHtml,
         thServiceDomain, thResultStatusInfo, thEvents, thAggregateIds,
-        thJobFilters, thResultStatusObject, ThResultSetModel,
+        thJobFilters, thResultStatusObject, ThResultSetStore,
         ThJobModel, linkifyBugsFilter, thResultStatus, thPlatformNameMap){
 
     var $log = new ThLog("thCloneJobs");
@@ -78,8 +78,8 @@ treeherder.directive('thCloneJobs', [
     $rootScope.$on(
         thEvents.selectNextUnclassifiedFailure, function(ev){
 
-            var jobMap = ThResultSetModel.getJobMap($rootScope.repoName);
-            var lastJobSelected = ThResultSetModel.getSelectedJob($rootScope.repoName);
+            var jobMap = ThResultSetStore.getJobMap($rootScope.repoName);
+            var lastJobSelected = ThResultSetStore.getSelectedJob($rootScope.repoName);
 
             var targetEl, jobKey;
             if(!_.isEmpty(lastJobSelected.el)){
@@ -127,9 +127,9 @@ treeherder.directive('thCloneJobs', [
     $rootScope.$on(
         thEvents.selectPreviousUnclassifiedFailure, function(ev){
 
-            var jobMap = ThResultSetModel.getJobMap($rootScope.repoName);
+            var jobMap = ThResultSetStore.getJobMap($rootScope.repoName);
 
-            var lastJobSelected = ThResultSetModel.getSelectedJob($rootScope.repoName);
+            var lastJobSelected = ThResultSetStore.getSelectedJob($rootScope.repoName);
 
             var targetEl, jobKey;
             if(!_.isEmpty(lastJobSelected.el)){
@@ -159,7 +159,7 @@ treeherder.directive('thCloneJobs', [
         clickJobCb({}, jobEl, job);
         scrollToElement(jobEl);
 
-        ThResultSetModel.setSelectedJob(
+        ThResultSetStore.setSelectedJob(
             $rootScope.repoName, jobEl, job
             );
 
@@ -167,7 +167,7 @@ treeherder.directive('thCloneJobs', [
 
     var setSelectJobStyles = function(el){
 
-        var lastJobSelected = ThResultSetModel.getSelectedJob(
+        var lastJobSelected = ThResultSetStore.getSelectedJob(
             $rootScope.repoName);
 
         if(!_.isEmpty(lastJobSelected.el)){
@@ -183,7 +183,7 @@ treeherder.directive('thCloneJobs', [
     };
 
     var clearSelectJobStyles = function() {
-        var lastJobSelected = ThResultSetModel.getSelectedJob(
+        var lastJobSelected = ThResultSetStore.getSelectedJob(
             $rootScope.repoName);
 
         if (!_.isEmpty(lastJobSelected.el)) {
@@ -206,25 +206,16 @@ treeherder.directive('thCloneJobs', [
         }, 200);
     };
 
-    var clearJobCb = function(ev, el, job) {
-        clearSelectJobStyles();
-
-        // Reset selected job to null to initialize nav position
-        ThResultSetModel.setSelectedJob($rootScope.repoName);
-
-        $rootScope.$emit(thEvents.jobClear, job);
-    };
-
     var togglePinJobCb = function(ev, el, job){
         $rootScope.$emit(thEvents.jobPin, job);
     };
 
     var addJobBtnEls = function(
-        jgObj, jobBtnInterpolator, jobTdEl, resultStatusFilters, jobCounts){
+        jgObj, jobBtnInterpolator, jobTdEl, resultStatusFilters){
 
         var jobsShown = 0;
 
-        var lastJobSelected = ThResultSetModel.getSelectedJob(
+        var lastJobSelected = ThResultSetStore.getSelectedJob(
             $rootScope.repoName
             );
 
@@ -237,10 +228,6 @@ treeherder.directive('thCloneJobs', [
 
             //Set the resultState
             resultState = thResultStatus(job);
-
-            //Increment the jobCounts here so they're not modified by
-            //filtering
-            jobCounts[resultState] += 1;
 
             job.searchStr = getPlatformName(job.platform) + ' ' +
                 job.platform_option + ' ' + job.job_group_name + ' ' +
@@ -268,7 +255,13 @@ treeherder.directive('thCloneJobs', [
             jobStatus.key = key;
             if(parseInt(job.failure_classification_id, 10) > 1){
                 jobStatus.value = job.job_type_symbol + '*';
-            }else{
+                if (jobStatus.btnClassClassified) {
+                    // For result types that are displayed more prominently
+                    // when unclassified, switch to the more subtle classified
+                    // style.
+                    jobStatus.btnClass = jobStatus.btnClassClassified;
+                }
+            } else {
                 jobStatus.value = job.job_type_symbol;
             }
 
@@ -289,7 +282,7 @@ treeherder.directive('thCloneJobs', [
                 setSelectJobStyles(jobBtn);
 
                 //Update the selected job element to the current one
-                ThResultSetModel.setSelectedJob(
+                ThResultSetStore.setSelectedJob(
                     $rootScope.repoName, jobBtn, job);
             }
         }
@@ -339,18 +332,12 @@ treeherder.directive('thCloneJobs', [
                     _.bind(clickJobCb, this, ev, el, job)();
             }
 
-            ThResultSetModel.setSelectedJob($rootScope.repoName, el, job);
+            ThResultSetStore.setSelectedJob($rootScope.repoName, el, job);
 
-        } else {
-            // If user didn't select a job or anchor clear the selected job
-            if (el.prop("tagName") !== "A") {
-                _.bind(clearJobCb, this, ev, el)();
-            }
         }
     };
 
     var addRevisions = function(resultset, element){
-//        $log.debug("addRevisions", resultset, element);
 
         if(resultset.revisions.length > 0){
 
@@ -375,8 +362,9 @@ treeherder.directive('thCloneJobs', [
                     revision.email = userTokens[1];
                 }
                 revision.name = userTokens[0].trim();
-                revision.escaped_comment = _.escape(revision.comments);
-                revision.comments_bug_link = linkifyBugsFilter(revision.escaped_comment);
+                // Only use the first line of the full commit message.
+                revision.escaped_comment = _.escape(revision.comments.split('\n')[0]);
+                revision.escaped_comment_linkified = linkifyBugsFilter(revision.escaped_comment);
                 revisionHtml = revisionInterpolator(revision);
                 ulEl.append(revisionHtml);
             }
@@ -385,8 +373,7 @@ treeherder.directive('thCloneJobs', [
                 var pushlogInterpolator = thCloneHtml.get('pushlogRevisionsClone').interpolator;
                 ulEl.append(pushlogInterpolator({
                     currentRepo: $rootScope.currentRepo,
-                    revision: resultset.revision,
-                    diff: resultset.revision_count - resultset.revisions.length
+                    revision: resultset.revision
                 }));
             }
         }
@@ -408,9 +395,9 @@ treeherder.directive('thCloneJobs', [
         var rowEl = revisionsEl.parent();
         rowEl.css('display', 'block');
 
-        if(on){
+        if(on) {
 
-            ThResultSetModel.loadRevisions(
+            ThResultSetStore.loadRevisions(
                 $rootScope.repoName, this.resultset.id
             );
 
@@ -418,68 +405,11 @@ treeherder.directive('thCloneJobs', [
                 toggleRevisionsSpanOnWithJobs(revisionsEl);
                 //Make sure the jobs span has correct styles
                 toggleJobsSpanOnWithRevisions(jobsEl);
-
-            }else{
-                toggleRevisionsSpanOnWithoutJobs(revisionsEl);
             }
 
-        }else{
+        } else {
             toggleRevisionsSpanOff(revisionsEl);
-
-            if(jobsElDisplayState === 'block'){
-                toggleJobsSpanOnWithoutRevisions(jobsEl);
-            }else{
-                //Nothing is displayed, hide the row to
-                //prevent a double border from displaying
-                rowEl.css('display', 'none');
-            }
-        }
-
-    };
-    /**
-     * Toggle the jobs of a resultset expanded or collapsed
-     * @param element - The element to expand/collapse
-     * @param expand - whether to force either expanding or collapsing.  If 'undefined' then
-     *                 just toggle.  If set to true, the expand if it isn't already.  Supports
-     *                 an expand/collapse all button.
-     */
-    var toggleJobs = function(element, expand){
-
-
-        var revisionsEl = element.find('ul').parent();
-        var jobsEl = element.find('table').parent();
-
-        var revElDisplayState = revisionsEl.css('display') || 'block';
-        var jobsElDisplayState = jobsEl.css('display') || 'block';
-
-        var on = jobsElDisplayState !== 'block';
-        if (!_.isUndefined(expand)) {
-            on = expand;
-        }
-
-        var rowEl = revisionsEl.parent();
-        rowEl.css('display', 'block');
-
-        if(on){
-
-            if(revElDisplayState === 'block'){
-                toggleJobsSpanOnWithRevisions(jobsEl);
-                //Make sure the revisions span has correct styles
-                toggleRevisionsSpanOnWithJobs(revisionsEl);
-            }else{
-                toggleJobsSpanOnWithoutRevisions(jobsEl);
-            }
-
-        }else{
-            toggleJobsSpanOff(jobsEl);
-
-            if(revElDisplayState === 'block'){
-                toggleRevisionsSpanOnWithoutJobs(revisionsEl);
-            }else{
-                //Nothing is displayed, hide the row to
-                //prevent a double border from displaying
-                rowEl.css('display', 'none');
-            }
+            toggleJobsSpanOnWithoutRevisions(jobsEl);
         }
 
     };
@@ -487,10 +417,6 @@ treeherder.directive('thCloneJobs', [
     var toggleRevisionsSpanOnWithJobs = function(el){
         el.css('display', 'block');
         el.addClass(col5Cls);
-    };
-    var toggleRevisionsSpanOnWithoutJobs = function(el){
-        el.css('display', 'block');
-        el.removeClass(col5Cls);
     };
     var toggleRevisionsSpanOff = function(el){
         el.css('display', 'none');
@@ -510,9 +436,6 @@ treeherder.directive('thCloneJobs', [
         el.addClass(jobListNoPadCls);
         el.addClass(col12Cls);
     };
-    var toggleJobsSpanOff = function(el){
-        el.css('display', 'none');
-    };
 
     var renderJobTableRow = function(
         row, jobTdEl, jobGroups, resultStatusFilters, resultsetId,
@@ -521,14 +444,8 @@ treeherder.directive('thCloneJobs', [
         //Empty the job column before populating it
         jobTdEl.empty();
 
-        var resultSetMap = ThResultSetModel.getResultSetsMap($rootScope.repoName);
+        var resultSetMap = ThResultSetStore.getResultSetsMap($rootScope.repoName);
 
-        var jobCounts = thResultStatusObject.getResultStatusObject();
-
-        //Reset counts for the platform every time we render the
-        //row. This is required to account for job coallescing.
-        //Coallesced jobs cause the pending/running counts to be
-        //incorrect.
         var jgObj, jobGroup, jobsShown, i;
         for(i=0; i<jobGroups.length; i++){
 
@@ -544,8 +461,7 @@ treeherder.directive('thCloneJobs', [
                 // Add the job btn spans
                 jobsShown = addJobBtnEls(
                     jgObj, jobBtnInterpolator, jobGroup.find(".job-group-list"),
-                    resultStatusFilters,
-                    jobCounts
+                    resultStatusFilters
                     );
                 jobGroup.css("display", jobsShown? "inline": "none");
 
@@ -553,22 +469,12 @@ treeherder.directive('thCloneJobs', [
 
                 // Add the job btn spans
                 jobsShown = addJobBtnEls(
-                    jgObj, jobBtnInterpolator, jobTdEl, resultStatusFilters,
-                    jobCounts
-                    );
+                    jgObj, jobBtnInterpolator, jobTdEl, resultStatusFilters);
 
             }
         }
         row.append(jobTdEl);
         filterPlatform(row);
-
-        //reset the resultset counts for the platformKey
-        if(resultSetMap[resultsetId].platforms[platformKey] != undefined){
-            resultSetMap[resultsetId].platforms[platformKey].job_counts = jobCounts;
-        }
-
-        //re-total the counts across platforms
-        resetCounts(resultSetMap);
     };
 
     var filterJobs = function(element, resultStatusFilters){
@@ -579,7 +485,7 @@ treeherder.directive('thCloneJobs', [
         }
 
         var job, jmKey, show;
-        var jobMap = ThResultSetModel.getJobMap($rootScope.repoName);
+        var jobMap = ThResultSetStore.getJobMap($rootScope.repoName);
 
         element.find('.job-list .job-btn').each(function internalFilterJob() {
             // using jquery to do these things was quite a bit slower,
@@ -603,33 +509,33 @@ treeherder.directive('thCloneJobs', [
         // Note: I was using
         //     jobEl.style.display = "inline";
         //     jobEl.className += " filter-shown";
-        // but that didn't work reliably with the jquery selectors
+        // but the classname setting didn't work reliably with the jquery selectors
         // when it came to hiding/showing platforms and groups.  Jquery
         // couldn't detect that I'd added or removed ``filter-shown`` in
         // all cases.  So, while this is a bit slower, it's reliable.
+        //
+        // It would be great to be able to do this without adding/removing a class
         if (show) {
-            job.css("display", "inline-block");
-            job.addClass("filter-shown");
+            job[0].classList.add("filter-shown");
         } else {
-            job.css("display", "none");
-            job.removeClass("filter-shown");
+            job[0].classList.remove("filter-shown");
         }
     };
 
     var filterPlatform = function(platform) {
-        var showPlt = platform.find('.filter-shown').length !== 0;
+        var showPlt = platform.find('.job-row .filter-shown').length !== 0;
         var showGrp;
 
         if (showPlt) {
-            platform.css("display", "table-row");
+            platform[0].style.display ="table-row";
             platform.find(".platform-group").each(function internalFilterGroup() {
                 var grp = $(this);
-                showGrp = grp.find('.filter-shown').length !== 0;
-                grp.css("display", showGrp? "inline": "none");
+                showGrp = grp.find('.job-group-list .filter-shown').length !== 0;
+                grp[0].style.display = showGrp ? "inline" : "none";
             });
 
         } else {
-            platform.css("display", "none");
+            platform[0].style.display = "none";
         }
     };
 
@@ -681,57 +587,7 @@ treeherder.directive('thCloneJobs', [
         }
     };
 
-    var resetCounts = function(resultSetMap){
-
-        var resultSets = ThResultSetModel.getResultSetsArray($rootScope.repoName);
-
-        var platformName, platformOption, platformKey, resultsetId, i;
-
-        for(i=0; i<resultSets.length; i++){
-
-            var jobCounts = thResultStatusObject.getResultStatusObject();
-
-            var statusKeys = _.keys(jobCounts);
-            jobCounts.total = 0;
-
-            resultsetId = resultSets[i].id;
-
-            if(resultSets[i].platforms === undefined){
-                continue;
-            }
-
-            var j;
-            for(j=0; j<resultSets[i].platforms.length; j++){
-
-                platformName = resultSets[i].platforms[j].name;
-                platformOption = resultSets[i].platforms[j].option;
-
-                platformKey = ThResultSetModel.getPlatformKey(
-                    platformName, platformOption
-                    );
-
-                var statusPerPlatform = {};
-                if(!_.isEmpty(resultSetMap[ resultsetId ].platforms[platformKey])){
-                    statusPerPlatform = resultSetMap[ resultsetId ].platforms[platformKey].job_counts;
-                }
-
-                if(!_.isEmpty(statusPerPlatform)){
-
-                    var jobStatus, k;
-                    for(k=0; k<statusKeys.length; k++){
-                        jobStatus = statusKeys[k];
-                        jobCounts[jobStatus] += statusPerPlatform[jobStatus];
-                        jobCounts.total += statusPerPlatform[jobStatus];
-                    }
-                }
-            }
-
-            resultSets[i].job_counts = jobCounts;
-        }
-    };
-
     var updateJobs = function(platformData){
-
         angular.forEach(platformData, function(value, platformId){
 
             if(value.resultsetId !== this.resultset.id){
@@ -744,7 +600,7 @@ treeherder.directive('thCloneJobs', [
 
             platformName = getPlatformName(value.platformName);
 
-            platformKey = ThResultSetModel.getPlatformKey(
+            platformKey = ThResultSetStore.getPlatformKey(
                 value.platformName, value.platformOption
                 );
 
@@ -797,7 +653,7 @@ treeherder.directive('thCloneJobs', [
 
     var getNextUnclassifiedFailure = function(currentJob){
 
-        var resultsets = ThResultSetModel.getResultSetsArray($rootScope.repoName);
+        var resultsets = ThResultSetStore.getResultSetsArray($rootScope.repoName);
 
         var firstJob = null;
         var foundJob = false;
@@ -860,7 +716,7 @@ treeherder.directive('thCloneJobs', [
 
     var getPreviousUnclassifiedFailure = function(currentJob){
 
-        var resultsets = ThResultSetModel.getResultSetsArray($rootScope.repoName);
+        var resultsets = ThResultSetStore.getResultSetsArray($rootScope.repoName);
 
         var foundJob = false;
         var lastJob = null;
@@ -1000,7 +856,7 @@ treeherder.directive('thCloneJobs', [
                     if (pinnedJobs.jobs.hasOwnProperty(jid)) {
                         //Only update the target resultset id
                         if(pinnedJobs.jobs[jid].result_set_id === scope.resultset.id){
-                            ThResultSetModel.aggregateJobPlatform(
+                            ThResultSetStore.aggregateJobPlatform(
                                 $rootScope.repoName, pinnedJobs.jobs[jid], platformData
                                 );
                         }
@@ -1015,7 +871,7 @@ treeherder.directive('thCloneJobs', [
             thEvents.applyNewJobs, function(ev, resultSetId){
                 if(scope.resultset.id === resultSetId){
 
-                    var rsMap = ThResultSetModel.getResultSetsMap($rootScope.repoName);
+                    var rsMap = ThResultSetStore.getResultSetsMap($rootScope.repoName);
 
                     var resultsetAggregateId = thAggregateIds.getResultsetTableId(
                         $rootScope.repoName, scope.resultset.id, scope.resultset.revision
@@ -1058,7 +914,7 @@ treeherder.directive('thCloneJobs', [
 
             row = $('#' + platformId);
 
-            if( $(row).prop('tagName') != 'TR' ){
+            if( $(row).prop('tagName') !== 'TR' ){
                 // First time the row is being created
                 row = $('<tr></tr>');
                 row.prop('id', platformId);
@@ -1088,7 +944,7 @@ treeherder.directive('thCloneJobs', [
             // Render the row of job data
             jobTdEl = $( thCloneHtml.get('jobTdClone').text );
 
-            platformKey = ThResultSetModel.getPlatformKey(
+            platformKey = ThResultSetStore.getPlatformKey(
                 resultset.platforms[j].name, resultset.platforms[j].option
                 );
 

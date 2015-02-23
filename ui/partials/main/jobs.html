@@ -9,42 +9,43 @@
      data-id="{{::resultset.id}}">
 
     <div class="result-set-title">
-      <span class="result-set-title-left">
-        <span class="btn btn-default btn-sm glyphicon glyphicon-download" ng-show="isLoadingJobs"></span>
-        <span>
-          <a href="{{::revisionResultsetFilterUrl}}"
-             title="open this resultset in new tab"
-             target="_blank">{{::resultsetDateStr}}</a> - </span>
-        <th-author author="{{::resultset.author}}"></th-author>
-      </span>
-      <span class="result-set-buttons">
+      <span class="result-set-left">
+        <span class="result-set-title-left">
+          <span class="btn btn-default btn-sm glyphicon glyphicon-download" ng-show="isLoadingJobs"></span>
+          <span>
+            <a href="{{::revisionResultsetFilterUrl}}"
+               title="open this resultset"
+               ignore-job-clear-on-click>{{::resultsetDateStr}}</a> - </span>
+          <th-author author="{{::resultset.author}}"></th-author>
+        </span>
         <span class="revision-text">{{::resultset.revision}}</span>
-        <span class="btn btn-default btn-sm btn-resultset"
+      </span>
+      <th-result-counts class="result-counts"></th-result-counts>
+      <span class="result-set-buttons">
+
+        <span class="btn btn-sm btn-resultset"
+              tabindex="0" role="button"
+              title="cancel all jobs in this resultset"
+              ng-show="currentRepo.repository_group.name == 'try' || user.is_staff"
+              ignore-job-clear-on-click
+              ng-click="cancelAllJobs(resultset.revision)">
+          <span class="fa fa-times-circle cancel-job-icon dim-quarter"
+                ignore-job-clear-on-click></span>
+        </span>
+
+        <span class="btn btn-sm btn-resultset"
               tabindex="0" role="button"
               title="pin all visible jobs in this resultset"
+              ignore-job-clear-on-click
               ng-click="pinAllShownJobs()">
-          <span class="glyphicon glyphicon-pushpin"></span>
+          <span class="glyphicon glyphicon-pushpin"
+                ignore-job-clear-on-click></span>
         </span>
 
         <th-action-button ng-hide="isLoadingJobs"></th-action-button>
 
-        <span class="btn btn-default btn-sm btn-resultset"
-              tabindex="0" role="button"
-              title="cancel all jobs in this resultset"
-              ng-show="currentRepo.repository_group.name == 'try' || user.is_staff"
-              ng-click="cancelAllJobs(resultset.revision)">
-          <span class="glyphicon glyphicon-minus-sign"></span>
-        </span>
       </span>
 
-      <span class="btn btn-default btn-sm btn-resultset revision-button"
-            tabindex="0" role="button"
-            ng-click="toggleRevisions()"
-            title="show revisions">
-        <i class="fa fa-code-fork fa-lg
-                  result-set-fa-icon"></i> {{::resultset.revision_count}}
-      </span>
-      <th-result-counts class="result-counts"/>
     </div>
     <div class="result-set-body" th-clone-jobs ></div>
 </div>
@@ -95,6 +96,7 @@
     <div class="progress-bar"  role="progressbar" style="width: 100%"></div>
 </div>
 
+<!-- Get next resultsets footer -->
 <div class="well" ng-if="result_sets.length > 1">
      get next:
     <div class="btn-group">

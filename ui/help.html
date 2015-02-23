@@ -16,13 +16,13 @@
 
     <h5>
       Want to contribute?
-      <a href="https://bugzilla.mozilla.org/enter_bug.cgi?product=Tree+Management&amp;component=Treeherder" target="_blank">File a bug</a> /
-      <a href="https://github.com/mozilla/treeherder-ui" target="_blank">UI source</a> /
-      <a href="https://github.com/mozilla/treeherder-service" target="_blank">Backend source</a> /
-      <a href="https://wiki.mozilla.org/Auto-tools/Projects/Treeherder#Contributing" target="_blank">Contributing</a>
+      <a href="https://bugzilla.mozilla.org/enter_bug.cgi?product=Tree+Management&amp;component=Treeherder">File a bug</a> /
+      <a href="https://github.com/mozilla/treeherder-ui">UI source</a> /
+      <a href="https://github.com/mozilla/treeherder-service">Backend source</a> /
+      <a href="https://wiki.mozilla.org/Auto-tools/Projects/Treeherder#Contributing">Contributing</a>
     </h5>
     For anything else visit our
-    <a href="https://wiki.mozilla.org/Auto-tools/Projects/Treeherder" target="_blank">Project Wiki</a>
+    <a href="https://wiki.mozilla.org/Auto-tools/Projects/Treeherder">Project Wiki</a>
     or ask us on IRC in
     <a href="irc://irc.mozilla.org/treeherder">#treeherder</a>
 </div>
@@ -42,10 +42,10 @@
                     <td>Wrapped job group</td>
                   </tr>
                   <tr>
-                    <th class="annotation">
+                    <th class="classified">
                       <button class="btn btn-dkgray help-btn help-btn-comment">Th*</button>
                     </th>
-                    <td>Asterisk, annotation</td>
+                    <td>Asterisk, classified</td>
                   </tr>
                   <tr>
                     <th class="pending">
@@ -115,21 +115,27 @@
                     <tr><th>esc</th>
                     <td>Close all open job or filter panels</td></tr>
                     <tr><th>j<span> or </span>n</th>
-                    <td>Highlight next unstarred failure</td></tr>
+                    <td>Highlight next unclassified failure</td></tr>
                     <tr><th>k<span> or </span>p</th>
-                    <td>Highlight previous unstarred failure</td></tr>
-                    <tr><th>u</th>
-                    <td>Show only unstarred failures</td></tr>
+                    <td>Highlight previous unclassified failure</td></tr>
                     <tr><th>ctrl<span> or </span>cmd</span></th>
                     <td>Add job to the pinboard during selection</td></tr>
                     <tr><th>spacebar</th>
                     <td>Add a selected job to the pinboard</td></tr>
                     <tr><th>r</th>
                     <td>Add a selected job to the pinboard + enter related bug</td></tr>
-                    <tr><th>ctrl<span> + </span>enter</th>
+                    <tr><th>c</th>
+                    <td>Add a selected job to the pinboard + enter classification</td></tr>
+                    <tr><th>ctrl<span>+</span>enter</th>
                     <td>Save pinboard classification and related bugs</td></tr>
+                    <tr><th>ctrl<span>+</span>shift<span>+</span>u</th>
+                    <td>Clear the pinboard</td></tr>
                     <tr><th>i</th>
                     <td>Toggle in-progress (running/pending) jobs</td></tr>
+                    <tr><th>u</th>
+                    <td>Show only unclassified failures</td></tr>
+                    <tr><th><span>(hover) + </span>ctrl/cmd<span>+</span>c</th>
+                    <td>Copy logviewer or raw log icon links to clipboard</td></tr>
                 </table>
             </div>
         </div>
@@ -145,30 +151,34 @@
             <table id="legend-builds">
                 <tr><th>B</th>
                 <td>Build</td></tr>
+                <tr><th>Bn</th>
+                <td>Non-Unified Build</td></tr>
                 <tr><th>S</th>
                 <td>Static Checking Build</td></tr>
                 <tr><th>SM</th>
                 <td>SpiderMonkey</td></tr>
+                <tr><th>arm</th>
+                <td>SpiderMonkey ARM Simulator Build</td></tr>
                 <tr><th>d</th>
                 <td>SpiderMonkey DTrace Build</td></tr>
-                <tr><th>r</th>
-                <td>SpiderMonkey --enable-root-analysis Build</td></tr>
                 <tr><th>e</th>
-                <td>SpiderMonkey --enable-sm-fail-on-warnings Build</td></tr>
-                <tr><th>ggc</th>
-                <td>SpiderMonkey GGC Shell Build</td></tr>
+                <td>SpiderMonkey Fail-On-Warnings Build</td></tr>
                 <tr><th>exr</th>
                 <td>SpiderMonkey Exact Rooting Shell Build</td></tr>
-                <tr><th>Hs</th>
-                <td>Static Rooting Hazard Analysis, JS Shell</td></tr>
-                <tr><th>Hf</th>
-                <td>Static Rooting Hazard Analysis, Full Browser</td></tr>
+                <tr><th>ggc</th>
+                <td>SpiderMonkey GGC Shell Build</td></tr>
+                <tr><th>H</th>
+                <td>SpiderMonkey Hazard Analysis Build</td></tr>
+                <tr><th>r</th>
+                <td>SpiderMonkey Root Analysis Build</td></tr>
                 <tr><th>N</th>
                 <td>Nightly</td></tr>
                 <tr><th>Dxr</th>
                 <td>DXR Index Build</td></tr>
+                <tr><th>H</th>
+                <td>Hazard Analysis Build</td></tr>
                 <tr><th>V</th>
-                <td>Valgrind Nightly</td></tr>
+                <td>Valgrind Build</td></tr>
                 <tr><th>Xr</th>
                 <td>XULRunner Nightly</td></tr>
                 <tr><th>Bo</th>
@@ -185,20 +195,50 @@
                 <td>L10n Repack</td></tr>
                 <tr><th>B</th>
                 <td>B2G Emulator Image Build</td></tr>
+                <tr><th>Bn</th>
+                <td>B2G Emulator Image Non-Unified Build</td></tr>
+                <tr><th>N</th>
+                <td>B2G Emulator Image Nightly</td></tr>
+                <tr><th>Dolphin</th>
+                <td>Dolphin Device Image</td></tr>
+                <tr><th>B</th>
+                <td>Dolphin Device Image Build</td></tr>
+                <tr><th>Be</th>
+                <td>Dolphin Device Image Build (Engineering)</td></tr>
+                <tr><th>N</th>
+                <td>Dolphin Device Image Nightly</td></tr>
+                <tr><th>Ne</th>
+                <td>Dolphin Device Image Nightly (Engineering)</td></tr>
+                <tr><th>Flame</th>
+                <td>Flame Device Image</td></tr>
+                <tr><th>B</th>
+                <td>Flame Device Image Build</td></tr>
+                <tr><th>Be</th>
+                <td>Flame Device Image Build (Engineering)</td></tr>
+                <tr><th>N</th>
+                <td>Flame Device Image Nightly</td></tr>
+                <tr><th>Ne</th>
+                <td>Flame Device Image Nightly (Engineering)</td></tr>
+                <tr><th>Flame-KK</th>
+                <td>Flame KitKat Device Image</td></tr>
+                <tr><th>B</th>
+                <td>Flame KitKat Device Image Build</td></tr>
+                <tr><th>Be</th>
+                <td>Flame KitKat Device Image Build (Engineering)</td></tr>
+                <tr><th>N</th>
+                <td>Flame KitKat Device Image Nightly</td></tr>
+                <tr><th>Ne</th>
+                <td>Flame KitKat Device Image Nightly (Engineering)</td></tr>
                 <tr><th>Buri/Hamachi</th>
                 <td>Buri/Hamachi Device Image</td></tr>
                 <tr><th>B</th>
                 <td>Hamachi Device Image Build</td></tr>
                 <tr><th>Be</th>
                 <td>Hamachi Device Image Build (Engineering)</td></tr>
-                <tr><th>Bm</th>
-                <td>Buri Limited Memory Device Image Build</td></tr>
                 <tr><th>N</th>
                 <td>Hamachi Device Image Nightly</td></tr>
                 <tr><th>Ne</th>
                 <td>Hamachi Device Image Nightly (Engineering)</td></tr>
-                <tr><th>Nm</th>
-                <td>Buri Limited Memory Device Image Nightly</td></tr>
                 <tr><th>Helix</th>
                 <td>Helix Device Image</td></tr>
                 <tr><th>B</th>
@@ -233,8 +273,22 @@
                 <td>Nexus 4 Device Image</td></tr>
                 <tr><th>B</th>
                 <td>Nexus 4 Device Image Build</td></tr>
+                <tr><th>Be</th>
+                <td>Nexus 4 Device Image Build (Engineering)</td></tr>
                 <tr><th>N</th>
                 <td>Nexus 4 Device Image Nightly</td></tr>
+                <tr><th>Ne</th>
+                <td>Nexus 4 Device Image Nightly (Engineering)</td></tr>
+                <tr><th>Tarako</th>
+                <td>Tarako Device Image</td></tr>
+                <tr><th>B</th>
+                <td>Tarako Device Image Build</td></tr>
+                <tr><th>Be</th>
+                <td>Tarako Device Image Build (Engineering)</td></tr>
+                <tr><th>N</th>
+                <td>Tarako Device Image Nightly</td></tr>
+                <tr><th>Ne</th>
+                <td>Tarako Device Image Nightly (Engineering)</td></tr>
                 <tr><th>Unagi</th>
                 <td>Unagi Device Image</td></tr>
                 <tr><th>B</th>
@@ -249,6 +303,8 @@
                 <td>Wasabi Device Image</td></tr>
                 <tr><th>B</th>
                 <td>Wasabi Device Image Build</td></tr>
+                <tr><th>N</th>
+                <td>Wasabi Device Image Nightly</td></tr>
                 <tr><th>Unknown</th>
                 <td>Unknown Device Image</td></tr>
                 <tr><th>B</th>
@@ -270,74 +326,120 @@
         <div class="panel-heading"><h3>Tests</h3></div>
         <div class="panel-body panel-spacing">
             <table id="legend-tests">
+                <tr><th>Mb</th>
+                <td>Mozbase Unit Tests</td></tr>
                 <tr><th>M</th>
                 <td>Mochitest</td></tr>
-                <tr><th>gl</th>
-                <td>Mochitest WebGL</td></tr>
                 <tr><th>bc</th>
                 <td>Mochitest Browser Chrome</td></tr>
+                <tr><th>dt</th>
+                <td>Mochitest DevTools Browser Chrome</td></tr>
+                <tr><th>gl</th>
+                <td>Mochitest WebGL</td></tr>
+                <tr><th>JP</th>
+                <td>Mochitest Jetpack</td></tr>
                 <tr><th>mc</th>
                 <td>Mochitest Metro Browser Chrome</td></tr>
                 <tr><th>oth</th>
                 <td>Mochitest Other</td></tr>
+                <tr><th>M-e10s</th>
+                <td>Mochitest e10s</td></tr>
+                <tr><th>M-csb</th>
+                <td>Mochitest csb</td></tr>
+                <tr><th>M-oop</th>
+                <td>Mochitest OOP</td></tr>
                 <tr><th>rc</th>
                 <td>Robocop</td></tr>
-                <tr><th>Cipc</th>
-                <td>Crashtest-IPC</td></tr>
+                <tr><th>w</th>
+                <td>Webapprt Content</td></tr>
+                <tr><th>wc</th>
+                <td>Webapprt Chrome</td></tr>
                 <tr><th>C</th>
                 <td>Crashtest</td></tr>
-                <tr><th>Ru</th>
-                <td>Reftest Unaccelerated</td></tr>
-                <tr><th>Ripc</th>
-                <td>Reftest-IPC</td></tr>
-                <tr><th>R</th>
-                <td>Reftest</td></tr>
+                <tr><th>Cipc</th>
+                <td>Crashtest IPC</td></tr>
                 <tr><th>J</th>
                 <td>JSReftest</td></tr>
+                <tr><th>R</th>
+                <td>Reftest</td></tr>
+                <tr><th>R-e10s</th>
+                <td>Reftest e10s</td></tr>
+                <tr><th>Rs-oop</th>
+                <td>Reftest Sanity OOP</td></tr>
+                <tr><th>Ripc</th>
+                <td>Reftest IPC</td></tr>
+                <tr><th>Ro</th>
+                <td>Reftest OMTC</td></tr>
+                <tr><th>Rs</th>
+                <td>Reftest Sanity</td></tr>
+                <tr><th>Ru</th>
+                <td>Reftest Unaccelerated</td></tr>
+                <tr><th>W</th>
+                <td>W3C Web Platform Tests</td></tr>
+                <tr><th>Wr</th>
+                <td>W3C Web Platform Reftests</td></tr>
+                <tr><th>I</th>
+                <td>Android Instrumentation Tests</td></tr>
+                <tr><th>Ba</th>
+                <td>Android Instrumentation Background</td></tr>
+                <tr><th>Br</th>
+                <td>Android Instrumentation Browser</td></tr>
                 <tr><th>Cpp</th>
                 <td>CPP Unit Tests</td></tr>
                 <tr><th>Jit</th>
                 <td>JIT Tests</td></tr>
-                <tr><th>Mnw</th>
-                <td>Marionette WebAPI Tests</td></tr>
+                <tr><th>JP</th>
+                <td>Jetpack SDK Test</td></tr>
+                <tr><th>Gb</th>
+                <td>Gaia Build Test</td></tr>
+                <tr><th>Gbu</th>
+                <td>Gaia Build Unit Test</td></tr>
+                <tr><th>Gij</th>
+                <td>Gaia JS Integration Test</td></tr>
+                <tr><th>Gij-oop</th>
+                <td>Gaia JS Integration Test OOP</td></tr>
+                <tr><th>Gip</th>
+                <td>Gaia Python Integration Tests</td></tr>
+                <tr><th>a</th>
+                <td>Gaia Python Accessibility Integration Tests</td></tr>
+                <tr><th>f</th>
+                <td>Gaia Python Functional Integration Tests</td></tr>
+                <tr><th>u</th>
+                <td>Gaia Python Integration Unit Tests</td></tr>
+                <tr><th>Gip-oop</th>
+                <td>Gaia Python Integration Tests OOP</td></tr>
+                <tr><th>Gu</th>
+                <td>Gaia Unit Test</td></tr>
+                <tr><th>Gu-oop</th>
+                <td>Gaia Unit Test OOP</td></tr>
+                <tr><th>Li</th>
+                <td>Linter Test</td></tr>
                 <tr><th>Mn</th>
                 <td>Marionette Framework Unit Tests</td></tr>
-                <tr><th>Gi</th>
-                <td>Gaia Integration Test</td></tr>
-                <tr><th>Gu</th>
-                <td>Gaia UI Test</td></tr>
-                <tr><th>G</th>
-                <td>Gaia Unit Test</td></tr>
-                <tr><th>X</th>
-                <td>XPCShellTest</td></tr>
-                <tr><th>Sets</th>
-                <td>Android x86 Test Combos</td></tr>
+                <tr><th>Mnw</th>
+                <td>Marionette WebAPI Tests</td></tr>
                 <tr><th>S</th>
                 <td>Android x86 Test Set</td></tr>
+                <tr><th>Sets</th>
+                <td>Android x86 Test Combos</td></tr>
+                <tr><th>X</th>
+                <td>XPCShell</td></tr>
+                <tr><th>Z</th>
+                <td>Mozmill</td></tr>
                 <tr><th>T</th>
                 <td>Talos Performance</td></tr>
+                <tr><th>T-e10s</th>
+                <td>Talos Performance e10s</td></tr>
                 <tr><th>cm</th>
                 <td>Talos canvasmark</td></tr>
                 <tr><th>c</th>
                 <td>Talos chrome</td></tr>
                 <tr><th>d</th>
                 <td>Talos dromaeojs</td></tr>
-                <tr><th>d-m</th>
-                <td>Talos dromaeojs Metro</td></tr>
-                <tr><th>s</th>
-                <td>Talos svg</td></tr>
-                <tr><th>s-m</th>
-                <td>Talos svg Metro</td></tr>
-                <tr><th>tp</th>
-                <td>Talos tp</td></tr>
-                <tr><th>tp-m</th>
-                <td>Talos tp Metro</td></tr>
-                <tr><th>tpn</th>
-                <td>Talos tp nochrome</td></tr>
+                <tr><th>g1</th>
+                <td>Talos g1</td></tr>
                 <tr><th>o</th>
                 <td>Talos other</td></tr>
-                <tr><th>o-m</th>
-                <td>Talos other Metro</td></tr>
                 <tr><th>p</th>
                 <td>Talos paint</td></tr>
                 <tr><th>rck2</th>
@@ -346,16 +448,18 @@
                 <td>Talos robopan</td></tr>
                 <tr><th>rpr</th>
                 <td>Talos roboprovider</td></tr>
+                <tr><th>s</th>
+                <td>Talos svg</td></tr>
+                <tr><th>tp</th>
+                <td>Talos tp</td></tr>
+                <tr><th>tpn</th>
+                <td>Talos tp nochrome</td></tr>
                 <tr><th>ts</th>
                 <td>Talos ts</td></tr>
                 <tr><th>tsp</th>
                 <td>Talos tspaint</td></tr>
                 <tr><th>x</th>
                 <td>Talos xperf</td></tr>
-                <tr><th>JP</th>
-                <td>Jetpack SDK Test</td></tr>
-                <tr><th>Z</th>
-                <td>Mozmill</td></tr>
                 <tr><th>U</th>
                 <td>Unknown Unit Test</td></tr>
                 <tr><th>?</th>
@@ -365,7 +469,22 @@
     </div>
 </div>
 </div>
+
+<div class="panel-footer help-footer">
+  <div class="col-xs-6">
+    <div>Some icons by
+      <a href="http://www.freepik.com" title="Freepik">Freepik</a> from
+      <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> licensed under
+      <a href="http://creativecommons.org/licenses/by/3.0/"
+         title="Creative Commons BY 3.0">CC BY 3.0</a>
+    </div>
+  </div>
+  <div class="col-xs-6">
+    <a class="midgray pull-right"
+       href="../media/revision">Build</a>
+  </div>
 </div>
 
+</div>
 </body>
 </html>

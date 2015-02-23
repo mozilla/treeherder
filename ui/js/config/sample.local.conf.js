@@ -4,16 +4,15 @@
 
 'use strict';
 
-/* window.thServiceDomain holds a reference to a backend service
- * for result data. This can be one of:
- *
- * -  http://local.treeherder.mozilla.org (local vagrant)
- * -  http://treeherder-dev.allizom.org (dev)
- * -  https://treeherder.allizom.org (stage)
- * -  https://treeherder.mozilla.org (production) */
+/* window.thServiceDomain holds a reference to a back-end service
+ * used to retrieve job result data. Valid settings are  */
+var production = "https://treeherder.mozilla.org";
+var stage = "https://treeherder.allizom.org";
+var dev = "http://treeherder-dev.allizom.org";
+var vagrant = "";
 
-// By default the service looks to production
-window.thServiceDomain = "https://treeherder.mozilla.org";
+// Set the service
+window.thServiceDomain = production;
 
 //treeherder.config(['$logProvider', 'ThLogConfigProvider',
 //    function($logProvider, ThLogConfigProvider) {

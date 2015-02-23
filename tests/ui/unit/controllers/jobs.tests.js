@@ -7,18 +7,17 @@
 /* jasmine specs for controllers go here */
 
 describe('JobsCtrl', function(){
-    var $httpBackend, createResultSetCtrl, jobScope, resultsetScope;
+    var $httpBackend, controller, jobsScope;
 
     beforeEach(module('treeherder'));
 
-    beforeEach(inject(function ($injector, $rootScope, $controller
-    ) {
-        var projectPrefix = 'https://treeherder.mozilla.org/api/project/mozilla-central/';
+    beforeEach(inject(function ($injector, $rootScope, $controller) {
+        var projectPrefix = '/api/project/mozilla-central/';
 
         $httpBackend = $injector.get('$httpBackend');
         jasmine.getJSONFixtures().fixturesPath='base/test/mock';
 
-        $httpBackend.whenGET('https://treeherder.mozilla.org/api/repository/').respond(
+        $httpBackend.whenGET('/api/repository/').respond(
             getJSONFixture('repositories.json')
         );
 
@@ -26,44 +25,12 @@ describe('JobsCtrl', function(){
             getJSONFixture('resultset_list.json')
         );
 
-        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs/?format=json&result_set_ids=28').respond(
-            getJSONFixture('resultset_list.json')
+        $httpBackend.whenGET(projectPrefix + 'jobs/?count=2000&result_set_id=1&return_type=list').respond(
+            getJSONFixture('job_list/job_1.json')
         );
 
-        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs/?format=json&result_set_ids=27').respond(
-            getJSONFixture('resultset_list.json')
-        );
-
-        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs/?format=json&result_set_ids=26').respond(
-            getJSONFixture('resultset_list.json')
-        );
-
-        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs/?format=json&result_set_ids=25').respond(
-            getJSONFixture('resultset_list.json')
-        );
-
-        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs/?format=json&result_set_ids=24').respond(
-            getJSONFixture('resultset_list.json')
-        );
-
-        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs/?format=json&result_set_ids=23').respond(
-            getJSONFixture('resultset_list.json')
-        );
-
-        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs/?format=json&result_set_ids=22').respond(
-            getJSONFixture('resultset_list.json')
-        );
-
-        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs/?format=json&result_set_ids=21').respond(
-            getJSONFixture('resultset_list.json')
-        );
-
-        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs/?format=json&result_set_ids=20').respond(
-            getJSONFixture('resultset_list.json')
-        );
-
-        $httpBackend.whenGET(projectPrefix + 'resultset/1/get_resultset_jobs/?format=json&result_set_ids=19').respond(
-            getJSONFixture('resultset_list.json')
+        $httpBackend.whenGET(projectPrefix + 'jobs/?count=2000&result_set_id=2&return_type=list').respond(
+            getJSONFixture('job_list/job_2.json')
         );
 
         $httpBackend.whenGET('https://treestatus.mozilla.org/mozilla-central?format=json').respond(
@@ -75,54 +42,84 @@ describe('JobsCtrl', function(){
             }
         );
 
-        $httpBackend.whenGET('https://treeherder.mozilla.org/api/project/mozilla-central/jobs/0/unclassified_failure_count/').respond(
+        $httpBackend.whenGET('/api/project/mozilla-central/jobs/0/unclassified_failure_count/').respond(
             {
                 "unclassified_failure_count": 1152,
                 "repository": "mozilla-central"
             }
         );
 
-        jobScope = $rootScope.$new();
-        jobScope.setRepoPanelShowing = function(tf) {
-            // no op in the tests.
+        $httpBackend.whenGET('/api/jobtype/').respond(
+            getJSONFixture('job_type_list.json')
+        );
+
+        $httpBackend.whenGET('/api/jobgroup/').respond(
+            getJSONFixture('job_group_list.json')
+        );
+
+        jobsScope = $rootScope.$new();
+        jobsScope.setRepoPanelShowing = function(tf) {
+                // no op in the tests.
         };
-
-        //setting attributes derived from the parent controller
-        jobScope.mru_repos = [];
-        $rootScope.new_failures = [];
-
-        $controller('JobsCtrl', {'$scope': jobScope});
-
-        resultsetScope = jobScope.$new();
-        createResultSetCtrl = function(resultset) {
-            resultsetScope.resultset = resultset;
-            return $controller('ResultSetCtrl', {'$scope': resultsetScope});
-        };
-        $httpBackend.flush();
+        $controller('JobsCtrl', {'$scope': jobsScope});
     }));
 
     /*
         Tests JobsCtrl
      */
+    it('should have 2 resultsets', function() {
+        $httpBackend.flush();
+        expect(jobsScope.result_sets).toBeDefined();
+        expect(jobsScope.result_sets.length).toBe(2);
+    });
 
-    it('should have 10 resultsets', function() {
-        expect(jobScope.result_sets.length).toBe(10);
+    it('should have a job_map', function(){
+        $httpBackend.flush();
+        expect(jobsScope.job_map).toBeDefined();
+    });
+
+    it('should know when it\'s loading the initial data', function() {
+        expect(jobsScope.isLoadingRsBatch).toEqual(
+            {appending: true, prepending: false }
+        );
+        $httpBackend.flush();
+        expect(jobsScope.isLoadingRsBatch).toEqual(
+            {appending: false, prepending: false }
+        );
+    });
+
+    it('should have 2 platforms in resultset 1', function() {
+        $httpBackend.flush()
+        expect(jobsScope.result_sets[0].platforms.length).toBe(2);
     });
 
     /*
         Tests ResultSetCtrl
      */
+    describe('ResultSetCtrl', function(){
+        var resultSetScopeList;
 
-    it('should have 31 platforms in resultset 8', function() {
-        createResultSetCtrl(jobScope.result_sets[8]);
-        expect(resultsetScope.resultset.platforms.length).toBe(31);
-    });
+        beforeEach(inject(function ($rootScope, $controller) {
+            /*
+            * ResultSetCtrl is created insided a ng-repeat
+            * so we should have a list of resultSetscope
+            */
+            $httpBackend.flush();
+            resultSetScopeList = [];
+            for(var i=0; i<jobsScope.result_sets.length; i++){
+                var resultSetScope = jobsScope.$new();
+                resultSetScope.resultset = jobsScope.result_sets[i];
+                $controller('ResultSetCtrl', {'$scope': resultSetScope});
+                resultSetScopeList.push(resultSetScope);
+            }
+        }));
 
-    it('should set the selectedJob in scope when calling viewJob()', function() {
-        createResultSetCtrl(jobScope.result_sets[8]);
-        var job = resultsetScope.resultset.platforms[0].groups[0].jobs[0];
-        resultsetScope.viewJob(job);
-        expect(resultsetScope.selectedJob).toBe(job);
+        it('should set the selectedJob in scope when calling viewJob()', function() {
+            var job = resultSetScopeList[0].resultset.platforms[0].groups[0].jobs[0];
+            var resultSetScope = resultSetScopeList[0];
+            resultSetScope.viewJob(job);
+            expect(resultSetScope.selectedJob).toBe(job);
+        });
     });
 
 });

@@ -18,10 +18,34 @@ treeherder.directive('ngRightClick', [
     };
 }]);
 
-// allow an input on a form to request focus when the value it sets in its
-// ``focus-me`` directive is true.  You can set ``focus-me="focusInput"`` and
-// when ``$scope.focusInput`` changes to true, it will request focus on
-// the element with this directive.
+//Directive focusThis which applies focus to a specific element
+treeherder.directive('focusThis', ['$timeout', function($timeout) {
+  return function(scope, elem, attr) {
+      scope.$on('focus-this', function(event, id) {
+        if (attr.id == id) {
+          $timeout(function() {
+            elem[0].focus();
+          }, 0);
+        }
+      });
+  };
+}]);
+
+//Directive blurThis which removes focus from a specific element
+treeherder.directive('blurThis', ['$timeout', function($timeout) {
+  return function(scope, elem, attr) {
+      scope.$on('blur-this', function(event, id) {
+        if (attr.id == id) {
+          $timeout(function() {
+            elem[0].blur();
+          }, 0);
+        }
+      });
+  };
+}]);
+
+// Directive focusMe which sets a global focus state for elements
+// which listen to it via ''focus-me="focusInput'' in angular markup
 treeherder.directive('focusMe', [
   '$timeout',
   function($timeout) {
@@ -41,6 +65,7 @@ treeherder.directive('focusMe', [
     }
   };
 }]);
+
 // Select all text input in an html element on click.
 treeherder.directive('selectOnClick', [
     function () {
@@ -53,6 +78,30 @@ treeherder.directive('selectOnClick', [
         }
     };
 }]);
+
+// Allow copy to system clipboard during hover
+treeherder.directive('copyValue', [
+    function() {
+        return {
+            restrict: 'A',
+            link: function(scope, element, attrs) {
+                var cont = document.getElementById('clipboard-container'),
+                    clip = document.getElementById('clipboard');
+                element.on('mouseenter', function() {
+                    cont.style.display = 'block';
+                    clip.value = attrs.copyValue;
+                    clip.focus();
+                    clip.select();
+                });
+                element.on('mouseleave', function() {
+                    cont.style.display = 'none';
+                    clip.value = '';
+                });
+            }
+        }
+    }
+]);
+
 // Prevent default behavior on left mouse click. Useful
 // for html anchor's that need to do in application actions
 // on left click but default href type functionality on
@@ -65,31 +114,6 @@ treeherder.directive('preventDefaultOnLeftClick', [
                 element.on('click', function(event){
                     if(event.which === 1){
                         event.preventDefault();
-                    }
-                });
-            }
-        }
-    }
-]);
-treeherder.directive('thFilterByBuildername', [
-    'thJobFilters',
-    function(thJobFilters){
-        return {
-            restrict: 'A',
-            link: function(scope, element, attrs){
-                element.on('click', function(event){
-
-                    // Only execute the in page search if the
-                    // user does a left click
-                    if(event.which === 1){
-
-                        thJobFilters.setSearchQuery(scope.buildbotJobname || "");
-
-                        // Need to tell angular to run the digest cycle to
-                        // process the new values in thJobFilters.searchStr
-                        if(!scope.$$phase){
-                            scope.$apply();
-                        }
                     }
                 });
             }
@@ -191,11 +215,12 @@ treeherder.directive("thTruncatedList", [
         restrict: "E",
         scope: {
             // number of visible elements
-            visible: "@",
+            numvisible: "@",
             elem_list: "=elements"
         },
         link: function(scope, element, attrs){
-            scope.visible = parseInt(scope.visible)
+            scope.visible = parseInt(scope.numvisible)
+
             if(typeof scope.visible !== 'number'
                 || scope.visible < 0
                 || isNaN(scope.visible)){

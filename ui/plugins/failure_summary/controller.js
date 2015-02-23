@@ -41,29 +41,23 @@ treeherder.controller('BugsPluginCtrl', [
                     if(artifact_list.length > 0){
                         var artifact = artifact_list[0];
                         angular.forEach(artifact.blob, function (suggestion) {
-
-                            // Workaround logs ingested prior to the fix for
-                            // bug 1059306 landing.
-                            if(!suggestion.bugs){
-                                suggestion.bugs = {"open_recent":[], "all_others":[]};
-                            }
-
                             suggestion.bugs.too_many_open_recent = (
                                 suggestion.bugs.open_recent.length > bug_limit
                             );
                             suggestion.bugs.too_many_all_others = (
                                 suggestion.bugs.all_others.length > bug_limit
                             );
-                            suggestion.open_recent_hidden = (
-                                suggestion.bugs.too_many_open_recent ||
-                                suggestion.bugs.open_recent.length === 0
+                            suggestion.valid_open_recent = (
+                                suggestion.bugs.open_recent.length > 0 &&
+                                !suggestion.bugs.too_many_open_recent
                             );
-
-                            suggestion.all_others_hidden = (
-                                suggestion.bugs.too_many_all_others ||
-                                suggestion.bugs.all_others.length === 0
+                            suggestion.valid_all_others = (
+                                suggestion.bugs.all_others.length > 0 &&
+                                !suggestion.bugs.too_many_all_others &&
+                                // If we have too many open_recent bugs, we're unlikely to have
+                                // relevant all_others bugs, so don't show them either.
+                                !suggestion.bugs.too_many_open_recent
                             );
-
                             suggestions.push(suggestion);
                         });
                         $scope.suggestions = suggestions;

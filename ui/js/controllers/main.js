@@ -8,13 +8,13 @@ treeherder.controller('MainCtrl', [
     '$scope', '$rootScope', '$routeParams', '$location', 'ThLog',
     'ThRepositoryModel', 'thPinboard',
     'thClassificationTypes', 'thEvents', '$interval', '$window',
-    'ThExclusionProfileModel', 'thJobFilters', 'ThResultSetModel',
+    'ThExclusionProfileModel', 'thJobFilters', 'ThResultSetStore',
     'thDefaultRepo',
     function MainController(
         $scope, $rootScope, $routeParams, $location, ThLog,
         ThRepositoryModel, thPinboard,
         thClassificationTypes, thEvents, $interval, $window,
-        ThExclusionProfileModel, thJobFilters, ThResultSetModel,
+        ThExclusionProfileModel, thJobFilters, ThResultSetStore,
         thDefaultRepo) {
 
         var $log = new ThLog("MainCtrl");
@@ -34,13 +34,31 @@ treeherder.controller('MainCtrl', [
             $rootScope.$emit(thEvents.clearJobStyles, $rootScope.selectedJob);
 
             // Reset selected job to null to initialize nav position
-            ThResultSetModel.setSelectedJob($rootScope.repoName);
+            ThResultSetStore.setSelectedJob($rootScope.repoName);
         };
 
-        $scope.processKeyboardInput = function(ev){
+        // Clear the job if it occurs in a particular area
+        $scope.clearJobOnClick = function(event) {
+            var element = event.target;
+            // Suppress for various UI elements so selection is preserved
+            var ignoreClear = element.hasAttribute("ignore-job-clear-on-click");
 
-            // If the user is in an editable element or the user is pressing
-            // shift, then disable keyboard events
+            if (!ignoreClear) {
+                $scope.closeJob();
+            }
+        };
+
+        // Disable single key shortcuts in specified shortcut events
+        $scope.allowKeys = function() {
+            Mousetrap.unbind(['i', 'j', 'n', 'k', 'p', 'space', 'u', 'r', 'c']);
+        };
+
+        // Process shortcut events
+        $scope.processKeyboardInput = function(ev) {
+
+            /* If the user is in an editable element or pressing shift
+             * then disable keyboard events, unless otherwise enabled
+             * in inputs by the 'mousetrap' class in markup */
             var activeElement = document.activeElement;
             if (activeElement.tagName === 'INPUT' ||
                 activeElement.tagName === 'SELECT' ||
@@ -49,71 +67,107 @@ treeherder.controller('MainCtrl', [
                 return;
             }
 
-            // test for key modifiers to allow browser shortcuts eg.
-            // console, new/private browsing window, history, print
-            if (!ev.metaKey && !ev.shiftKey && !ev.ctrlKey) {
-                if (ev.keyCode === 73) {
-                    // toggle display in-progress jobs(pending/running), key:i
-                    $scope.toggleInProgress();
+            /* In some cases we need to handle the digest cycle otherwise
+             * we will see interaction delays. Where needed we use $scope.$evalAsync
+             * for optimization but may use $timeout or $digest if required */
 
-                } else if ((ev.keyCode === 74) || (ev.keyCode === 78)) {
-                    //Highlight next unclassified failure keys:j/n
-                    $rootScope.$emit(
-                        thEvents.selectNextUnclassifiedFailure
+            // Shortcut: toggle display in-progress jobs (pending/running)
+            Mousetrap.bind('i', function() {
+                $scope.$evalAsync($scope.toggleInProgress());
+            });
+
+            // Shortcut: select previous job (upcoming feature, PR326)
+            // Mousetrap.bind('left', function() {
+            //     $rootScope.$emit(thEvents.selectPreviousJob);
+            // });
+
+            // Shortcut: select next job (upcoming feature, PR326)
+            // Mousetrap.bind('right', function() {
+            //     $rootScope.$emit(thEvents.selectNextJob);
+            // });
+
+            // Shortcut: select next unclassified failure
+            Mousetrap.bind(['j', 'n'], function() {
+                $rootScope.$emit(thEvents.selectNextUnclassifiedFailure);
+            });
+
+            // Shortcut: select previous unclassified failure
+            Mousetrap.bind(['k', 'p'], function() {
+                $rootScope.$emit(thEvents.selectPreviousUnclassifiedFailure);
+            });
+
+            // Shortcut: pin selected job to pinboard
+            Mousetrap.bind('space', function(ev) {
+                // If a job is selected add it otherwise
+                // let the browser handle the spacebar
+                if ($scope.selectedJob) {
+                    // Prevent page down propagating to the jobs panel
+                    ev.preventDefault();
+
+                    $scope.$evalAsync(
+                        $rootScope.$emit(thEvents.jobPin, $rootScope.selectedJob)
                     );
-
-                } else if ((ev.keyCode === 75) || (ev.keyCode === 80)) {
-                    //Highlight previous unclassified failure keys:k/p
-                    $rootScope.$emit(
-                        thEvents.selectPreviousUnclassifiedFailure
-                    );
-
-                } else if (ev.keyCode === 32) {
-                    // If a job is selected add it otherwise
-                    // let the browser handle the spacebar
-                    if ($scope.selectedJob) {
-                        // Pin selected job to pinboard, key:[spacebar]
-                        // and prevent page down propagating to the jobs panel
-                        ev.preventDefault();
-                        $rootScope.$emit(thEvents.jobPin, $rootScope.selectedJob);
-                    }
-
-                } else if(ev.keyCode == 39) {
-                    // Highlight next job, key: right arrow
-                    $rootScope.$emit(
-                        thEvents.changeSelection,'next'
-                    );
-
-                } else if(ev.keyCode == 37) {
-                    // Highlight previous job, key: left arrow
-                    $rootScope.$emit(
-                        thEvents.changeSelection,'previous'
-                    );
-
-                } else if (ev.keyCode === 85) {
-                    // Display only unclassified failures, keys:u
-                    $scope.toggleUnclassifiedFailures();
-
-                } else if (ev.keyCode === 82) {
-                    // Pin selected job to pinboard and add a related bug, key:r
-                    if ($scope.selectedJob) {
-                        $rootScope.$emit(thEvents.addRelatedBug, $rootScope.selectedJob);
-                    }
-
-                } else if (ev.keyCode === 27) {
-                    // Escape closes any open panels and clears the selected job
-                    $scope.setFilterPanelShowing(false);
-                    $scope.setSettingsPanelShowing(false);
-                    $scope.setSheriffPanelShowing(false);
-                    $scope.closeJob();
                 }
+            });
 
-            // Ctrl+Enter saves pinboard classification and related bugs
-            } else if (!ev.metaKey && !ev.altKey && !ev.shiftKey && ev.ctrlKey) {
-                if ((ev.keyCode == 13) && $scope.selectedJob) {
-                  $rootScope.$emit(thEvents.saveClassification);
+            // Shortcut: display only unclassified failures
+            Mousetrap.bind('u', function() {
+                $scope.$evalAsync($scope.toggleUnclassifiedFailures);
+            });
+
+            // Shortcut: pin selected job to pinboard and add a related bug
+            Mousetrap.bind('r', function(ev) {
+                if ($scope.selectedJob) {
+                    $rootScope.$emit(thEvents.addRelatedBug,
+                                     $rootScope.selectedJob);
+
+                    // Prevent shortcut key overflow during focus
+                    ev.preventDefault();
+
+                    $scope.$evalAsync(
+                        $rootScope.$broadcast('focus-this', "related-bug-input")
+                    );
                 }
-            }
+            });
+
+            // Shortcut: pin selected job to pinboard and enter classification
+            Mousetrap.bind('c', function(ev) {
+                if ($scope.selectedJob) {
+                    $scope.$evalAsync(
+                        $rootScope.$emit(thEvents.jobPin, $rootScope.selectedJob)
+                    );
+
+
+                    // Prevent shortcut key overflow during focus
+                    ev.preventDefault();
+
+                    $scope.$evalAsync(
+                        $rootScope.$broadcast('focus-this', "classification-comment")
+                    );
+
+                    // Unbind all shortcut keys during input
+                    $scope.$evalAsync($scope.allowKeys());
+                }
+            });
+
+            // Shortcut: escape closes any open panels and clears selected job
+            Mousetrap.bind('escape', function() {
+                $scope.$evalAsync($scope.setFilterPanelShowing(false));
+                $scope.$evalAsync($scope.setSettingsPanelShowing(false));
+                $scope.$evalAsync($scope.setSheriffPanelShowing(false));
+                $scope.$evalAsync($scope.closeJob());
+            });
+
+            // Shortcut: clear the pinboard
+            Mousetrap.bind('ctrl+shift+u', function() {
+                $scope.$evalAsync($rootScope.$emit(thEvents.clearPinboard));
+            });
+
+            // Shortcut: save pinboard classification and related bugs
+            Mousetrap.bind('ctrl+enter', function() {
+                $scope.$evalAsync($rootScope.$emit(thEvents.saveClassification));
+            });
+
         };
 
         $scope.repoModel = ThRepositoryModel;
@@ -148,17 +202,17 @@ treeherder.controller('MainCtrl', [
         };
 
         $scope.getUnclassifiedFailureCount = function(repoName) {
-            return ThResultSetModel.getUnclassifiedFailureCount(repoName);
+            return ThResultSetStore.getUnclassifiedFailureCount(repoName);
         };
 
-        $scope.isSkippingExclusionProfiles = $location.search().exclusion_state === 'all';
+        $scope.isSkippingExclusionProfiles = $location.search().exclusion_profile === 'false';
 
         $scope.toggleExcludedJobs = function() {
-            var newState = 'all';
-            if ($scope.isSkippingExclusionProfiles) {
-                newState = null;
+            if ($location.search().exclusion_profile === 'false') {
+                $location.search('exclusion_profile', null);
+            }else{
+                $location.search('exclusion_profile', 'false');
             }
-            $location.search('exclusion_state', newState);
         };
 
         $scope.toggleUnclassifiedFailures = thJobFilters.toggleUnclassifiedFailures;
@@ -205,30 +259,18 @@ treeherder.controller('MainCtrl', [
 
         };
 
-        /**
-         * Extract the params from the querystring of this url that should
-         * trigger a reload of the page, because it requires new data from
-         * the repo
-         * @param urlStr a full Url as a string
-         * @returns Object containing only the params in ``reloadFields``
-         */
-        var getTriggerParams = function(urlStr) {
-            var tokens = urlStr.split("?");
-            var triggerParams = {};
-
-            if (tokens.length > 1) {
-                triggerParams = _.pick(
-                    $.deparam(tokens[1]),
-                    ThResultSetModel.reloadOnChangeParameters
-                );
-            }
-
-            return triggerParams;
+        var getNewReloadTriggerParams = function() {
+            return _.pick(
+                $location.search(),
+                ThResultSetStore.reloadOnChangeParameters
+            );
         };
+
+        $scope.cachedReloadTriggerParams = getNewReloadTriggerParams();
 
         // reload the page if certain params were changed in the URL.  For
         // others, such as filtering, just re-filter without reload.
-        $rootScope.$on('$locationChangeSuccess', function(ev, newUrl, oldUrl) {
+        $rootScope.$on('$locationChangeSuccess', function() {
 
             // used to test for display of watched-repo-navbar
             $rootScope.locationPath = $location.path().replace('/', '');
@@ -236,15 +278,18 @@ treeherder.controller('MainCtrl', [
             // used to avoid bad urls when the app redirects internally
             $rootScope.urlBasePath = $location.absUrl().split('?')[0];
 
-            $log.debug("check for reload", "newUrl=", newUrl, "oldUrl=", oldUrl);
-
-            var oldParams = getTriggerParams(oldUrl);
-            var newParams = getTriggerParams(newUrl);
+            var newReloadTriggerParams = getNewReloadTriggerParams();
             // if we are just setting the repo to the default because none was
             // set initially, then don't reload the page.
-            var defaulting = newParams.repo === thDefaultRepo && !oldParams.repo;
-            if (!_.isEqual(oldParams, newParams) && !defaulting) {
+            var defaulting = newReloadTriggerParams.repo === thDefaultRepo &&
+                             !$scope.cachedReloadTriggerParams.repo;
+
+            if (!defaulting && $scope.cachedReloadTriggerParams &&
+                !_.isEqual(newReloadTriggerParams, $scope.cachedReloadTriggerParams)) {
+
                 $window.location.reload();
+            } else {
+                $scope.cachedReloadTriggerParams = newReloadTriggerParams;
             }
         });
 

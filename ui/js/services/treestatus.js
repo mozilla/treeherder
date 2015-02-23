@@ -20,6 +20,12 @@ treeherder.factory('treeStatus', [
         return name;
     };
 
+    // the inverse of getTreeStatusName.  Seems like overhead to put this one
+    // line here, but it keeps the logic to do/undo all in one place.
+    var getRepoName = function(name) {
+        return name.replace("-thunderbird", "");
+    };
+
     var get = function(repoName) {
         var url = urlBase + getTreeStatusName(repoName);
 
@@ -29,6 +35,7 @@ treeherder.factory('treeStatus', [
     return {
         get: get,
         getTreeStatusName: getTreeStatusName,
+        getRepoName: getRepoName
     };
 }]);
 

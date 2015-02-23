@@ -43,10 +43,17 @@ module.exports = function(grunt) {
                 options:{
                     dest:'dist'
                 }
-            }
+            },
+            perf: {
+                src:'webapp/app/perf.html',
+                nonull: true,
+                options:{
+                    dest:'dist'
+                }
+            },
         },
 
-        usemin:{ html:['dist/index.html', 'dist/help.html', 'dist/logviewer.html'] },
+        usemin:{ html:['dist/index.html', 'dist/help.html', 'dist/logviewer.html', 'dist/perf.html'] },
 
         'cache-busting': {
             indexjs: {
@@ -73,6 +80,12 @@ module.exports = function(grunt) {
                 file: 'dist/css/logviewer.min.css',
                 cleanup: true
             },
+            perfcss: {
+                replace: ['dist/**/*.html'],
+                replacement: 'perf.min.css',
+                file: 'dist/css/perf.min.css',
+                cleanup: true
+            },
             helpcss: {
                 replace: ['dist/**/*.html'],
                 replacement: 'help.min.css',
@@ -87,7 +100,8 @@ module.exports = function(grunt) {
                 files: [
                     { src:'webapp/app/index.html', dest:'dist/index.html', nonull: true },
                     { src:'webapp/app/help.html', dest:'dist/help.html', nonull: true },
-                    { src:'webapp/app/logviewer.html', dest:'dist/logviewer.html', nonull: true }
+                    { src:'webapp/app/logviewer.html', dest:'dist/logviewer.html', nonull: true },
+                    { src:'webapp/app/perf.html', dest:'dist/perf.html', nonull: true }
                 ]
             },
             // Copy img dir
@@ -162,6 +176,26 @@ module.exports = function(grunt) {
                 dest: 'dist/js/logviewer.min.js',
                 options: {
                     usemin: 'dist/js/logviewer.min.js',
+                    append: true,
+                    htmlmin: {
+                        collapseBooleanAttributes:      true,
+                        collapseWhitespace:             true,
+                        removeAttributeQuotes:          true,
+                        removeComments:                 true,
+                        removeEmptyAttributes:          true,
+                        removeRedundantAttributes:      true,
+                        removeScriptTypeAttributes:     true,
+                        removeStyleLinkTypeAttributes:  true,
+                        keepClosingSlash: true
+                    }
+                }
+            },
+            perf: {
+                cwd: 'webapp/app',
+                src: 'partials/perf/*.html',
+                dest: 'dist/js/perf.min.js',
+                options: {
+                    usemin: 'dist/js/perf.min.js',
                     append: true,
                     htmlmin: {
                         collapseBooleanAttributes:      true,

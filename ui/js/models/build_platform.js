@@ -18,7 +18,6 @@ treeherder.factory('ThBuildPlatformModel', [
 
     ThBuildPlatformModel.get_uri = function(){
         var url = thUrl.getRootUrl("/buildplatform/");
-        $log.log(url);
         return url;
     };
 

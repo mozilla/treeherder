@@ -7,7 +7,7 @@
          ng-if="showSuccessful === true || step.result !== 'success'"
          class="btn btn-block logviewer-step clearfix"
          order="{{step.order}}">
-        <span class="pull-left clearfix">
+        <span class="pull-left clearfix text-left">
             {{::step.order+1}}. {{::step.name}}
         </span>
 
@@ -25,7 +25,7 @@
                  ng-class="{'lv-line-highlight': check}"
                  ng-click="scrollTo($event, step, error.linenumber);"
                  class="text-left pull-left lv-error-line">
-                <span class="label label-default lv-line-no">
+                <span class="label label-default lv-line-no text-left">
                     {{::error.linenumber}}
                 </span>
 
@@ -38,8 +38,9 @@
 </div>
 
 <div class="logviewer-stepbar">
-    <a title="Open the raw log in a new window" target="_blank" href="{{::artifact.logurl}}">
-        <span class="glyphicon glyphicon-align-left"></span>
+    <a href="{{::artifact.logurl}}">
+        <span class="glyphicon glyphicon-align-left raw-log"></span>
+        <span>open raw log</span>
     </a>
 </div>
 

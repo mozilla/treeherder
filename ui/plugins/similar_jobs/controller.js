@@ -7,12 +7,12 @@
 treeherder.controller('SimilarJobsPluginCtrl', [
     '$scope', 'ThLog', 'ThJobModel', 'thResultStatusInfo',
     'thEvents', 'numberFilter', 'dateFilter', 'thClassificationTypes',
-    'thResultStatus', 'ThJobArtifactModel', 'thResultSets', 'thNotify',
+    'thResultStatus', 'ThJobArtifactModel', 'ThResultSetModel', 'thNotify',
     'thTabs',
     function SimilarJobsPluginCtrl(
         $scope, ThLog, ThJobModel, thResultStatusInfo, thEvents,
         numberFilter, dateFilter, thClassificationTypes, thResultStatus,
-        ThJobArtifactModel, thResultSets, thNotify, thTabs) {
+        ThJobArtifactModel, ThResultSetModel, thNotify, thTabs) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -23,9 +23,8 @@ treeherder.controller('SimilarJobsPluginCtrl', [
         $scope.get_similar_jobs = function(){
             thTabs.tabs.similarJobs.is_loading = true;
             var options = {
-                    count: $scope.page_size +1,
-                    offset: ($scope.page-1) * $scope.page_size,
-                    full: false
+                    count: $scope.page_size + 1,
+                    offset: ($scope.page - 1) * $scope.page_size
                 };
             angular.forEach($scope.similar_jobs_filters, function(value, key){
                 if(value){
@@ -47,7 +46,7 @@ treeherder.controller('SimilarJobsPluginCtrl', [
                         );
 
                         // get resultsets and revisions for the given ids
-                        thResultSets.getResultSets(
+                        ThResultSetModel.getResultSets(
                             $scope.repoName, null, 100, result_set_ids, false, true, false
                             ).then(function(response){
                                 //decorate the list of jobs with their result sets
@@ -59,7 +58,7 @@ treeherder.controller('SimilarJobsPluginCtrl', [
                                     obj.authorResultsetFilterUrl = $scope.urlBasePath + "?repo=" +
                                         $scope.repoName + "&author=" + encodeURIComponent(obj.result_set.author);
                                 });
-                                $scope.similar_jobs = data;
+                                $scope.similar_jobs = $.merge($scope.similar_jobs, data);
                                 // on the first page show the first element info by default
                                 if($scope.page === 1 && $scope.similar_jobs.length > 0){
                                     $scope.show_job_info($scope.similar_jobs[0]);
@@ -78,6 +77,7 @@ treeherder.controller('SimilarJobsPluginCtrl', [
         $scope.update_similar_jobs = function(){
             if(angular.isDefined($scope.jobLoadedPromise)){
                 $scope.jobLoadedPromise.then(function(){
+                    $scope.similar_jobs = [];
                     $scope.page = 1;
                     $scope.similar_job_selected = null;
                     $scope.get_similar_jobs();

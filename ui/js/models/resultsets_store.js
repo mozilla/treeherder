@@ -4,17 +4,17 @@
 
 'use strict';
 
-treeherder.factory('ThResultSetModel', [
-    '$rootScope', '$q', '$location', '$interval',
-    'thResultSets', 'ThJobModel', 'thEvents',
-    'thAggregateIds', 'ThLog', 'thNotify', 'thJobFilters',
-    'ThRepositoryModel', '$timeout',
+treeherder.factory('ThResultSetStore', [
+    '$rootScope', '$q', '$location', '$interval', 'thPlatformOrder',
+    'ThResultSetModel', 'ThJobModel', 'thEvents', 'thResultStatusObject',
+    'thAggregateIds', 'ThLog', 'thNotify', 'thJobFilters', 'thOptionOrder',
+    'ThRepositoryModel', '$timeout', 'ThJobTypeModel', 'ThJobGroupModel',
     function(
-        $rootScope, $q, $location, $interval, thResultSets,
-        ThJobModel, thEvents, thAggregateIds, ThLog, thNotify,
-        thJobFilters, ThRepositoryModel, $timeout) {
+        $rootScope, $q, $location, $interval, thPlatformOrder, ThResultSetModel,
+        ThJobModel, thEvents, thResultStatusObject, thAggregateIds, ThLog, thNotify,
+        thJobFilters, thOptionOrder, ThRepositoryModel, $timeout, ThJobTypeModel, ThJobGroupModel) {
 
-    var $log = new ThLog("ThResultSetModel");
+    var $log = new ThLog("ThResultSetStore");
 
    /******
     * Handle updating the resultset datamodel based on a queue of jobs
@@ -33,18 +33,14 @@ treeherder.factory('ThResultSetModel', [
     // the primary data model
     var repositories = {};
 
-    var updateQueueInterval = 10000;
-
     var resultSetPollers = {};
     var resultSetPollInterval = 60000;
-    var jobPollInterval = 90000;
-    var pollDelayMin = 1000;
-    var pollDelayMax = 60000;
+    var jobPollInterval = 60000;
+    var lastJobUpdate = null;
 
-    // if any of these params are in the url, don't poll for new data
-    var noPollingParameters = [
-        'fromchange', 'tochange', 'startdate', 'enddate', 'revision'
-    ];
+    // Keys that, if present on the url, must be passed into the resultset
+    // polling endpoint
+    var rsPollingKeys = ['tochange', 'enddate', 'revision', 'author'];
 
     // changes to the url for any of these fields should reload the page
     // because it changes the query to the db
@@ -56,121 +52,134 @@ treeherder.factory('ThResultSetModel', [
         'tochange',
         'startdate',
         'enddate',
-        'exclusion_state'
+        'exclusion_profile'
     ];
 
-    var registerResultSetPollers = function(){
+    var registerResultSetPollers = function() {
 
-        if( doResultSetPolling() ){
-            // Register resultset poller if it's not registered
-            $interval(function(){
+        // these params will be passed in each time we poll to remain
+        // within the constraints of the URL params
+        var rsPollingParams = _.pick($location.search(), rsPollingKeys);
 
-                if( (repositories[$rootScope.repoName].resultSets.length > 0) &&
-                    (repositories[$rootScope.repoName].loadingStatus.prepending === false) ){
+        // Register resultset poller if it's not registered
+        var resultSetPoller = $interval(function () {
+            // resultset data for the current repository
+            var rsData = repositories[$rootScope.repoName];
 
-                    thResultSets.getResultSetsFromChange(
+            // This case is if we already have at least 1 resultset and we're
+            // polling for more.
+            // If we already have one, and the revision param is passed in,
+            // don't poll for more, because "there can be only one."
+            if ((rsData.resultSets.length > 0) &&
+                (!rsData.loadingStatus.prepending)) {
+                if (doResultSetPolling(rsPollingParams)) {
+                    ThResultSetModel.getResultSetsFromChange(
                         $rootScope.repoName,
-                        repositories[$rootScope.repoName].resultSets[0].revision
-
-                    ).then(function(data){
+                        rsData.resultSets[0].revision,
+                        rsPollingParams
+                    ).then(function(data) {
                         prependResultSets($rootScope.repoName, data.data);
                     });
-
-                } else if( (repositories[$rootScope.repoName].resultSets.length === 0) &&
-                           (repositories[$rootScope.repoName].loadingStatus.prepending === false) ){
-
-                    fetchResultSets(
-                        $rootScope.repoName, defaultResultSetCount);
-
+                } else {
+                    // cancel the interval for the polling, because
+                    // the parameters mean we can get no more result sets.
+                    $interval.cancel(resultSetPoller);
                 }
-            }, resultSetPollInterval);
-        }
-    };
 
-    var registerJobPollers = function(){
+            } else if ((rsData.resultSets.length === 0) &&
+                       (rsData.loadingStatus.prepending === false)) {
 
-        $interval(function(){
+                fetchResultSets($rootScope.repoName, defaultResultSetCount);
 
-            // The outer interval checks for new resultsets that
-            // need a poller registered for job retrieval
-            for(var i=0; i < repositories[$rootScope.repoName].resultSets.length; i++){
-
-                var rs = repositories[$rootScope.repoName].resultSets[i];
-                if(resultSetPollers[rs.id] === undefined) {
-
-                    /*************************
-                      Register new job retrieval poller if not
-                      already registered
-
-                      Spread the interval calls out over a min-max interval
-                      to avoid all web service http requests hitting
-                      simultaneously.
-
-                      Ideally it would be possible to detect when all jobs
-                      for a resultset are complete and stop polling for jobs
-                      but there is currently no way to do this safely.
-                     **************************/
-                    var delayInterval = getRandomDelayInterval(
-                        pollDelayMin, pollDelayMax);
-
-                    // Make an entry for the poller immediately to
-                    // avoid a race with the delayed interval.
-                    resultSetPollers[rs.id] = true;
-
-                    _.delay(function(rs){
-                        resultSetPollers[rs.id] = $interval(
-                            _.bind(updateResultSetJobs, {}, rs, $rootScope.repoName),
-                            jobPollInterval);
-
-                    }, delayInterval, rs);
-                }
             }
-        // Look for new resultsets to register every 5 seconds
-        }, 5000);
+        }, resultSetPollInterval);
     };
 
-    var doResultSetPolling = function(){
-
-        var searchObj = $location.search();
-        var searchKeys = _.keys(searchObj);
-
-        var keyIntersection = _.intersection(
-            noPollingParameters, searchKeys);
-
-        var poll = true;
-        if(keyIntersection.length !== 0){
-            poll = false;
+    /**
+     * Some URL conditions will prevent polling after the initial set of
+     * result sets is loaded.
+     */
+    var doResultSetPolling = function(rsParams) {
+        if (_.has(rsParams, 'revision')) {
+            return false;
+        } else if (_.has(rsParams, "tochange") &&
+                   rsParams.tochange === repositories[$rootScope.repoName].resultSets[0].revision
+                  ) {
+            return false;
         }
-
-        return poll;
+        return true;
     };
 
-    var getRandomDelayInterval = function(min, max){
-        return parseInt( Math.random() * (max - min) + min );
+    var pollJobs = function(){
+        var resultSetIdList = _.pluck(
+            repositories[$rootScope.repoName].resultSets,
+            'id'
+        );
+        var exclusionProfile = $location.search().exclusion_profile;
+        ThResultSetModel.getResultSetJobsUpdates(
+            resultSetIdList,
+            $rootScope.repoName,
+            exclusionProfile,
+            lastJobUpdate
+        ).then(function(jobList){
+            if(jobList.length > 0){
+                var lastModifiedJob = getLastModifiedJob(jobList);
+                if(lastModifiedJob != null){
+                    lastJobUpdate = new Date(lastModifiedJob.last_modified+'Z');
+                }
+                var jobListByResultSet = _.values(
+                    _.groupBy(jobList, 'result_set_id')
+                );
+                _.each(
+                    jobListByResultSet,
+                    function(singleResultSetJobList){
+                        mapResultSetJobs($rootScope.repoName, singleResultSetJobList);
+                    }
+                );
+            }
+        });
+    };
+    var registerJobsPoller = function(){
+        $interval(pollJobs, jobPollInterval);
     };
 
-    var updateResultSetJobs = function(rs, repoName){
-        thResultSets.getResultSetJobs({ results:[rs] }, repoName);
-    };
-
-    $rootScope.$on(thEvents.mapResultSetJobs, function(ev, repoName, data){
-
-        var i;
-        for(i=0; i<repositories[repoName].resultSets.length; i++){
-
-            if(repositories[repoName].resultSets[i].id === data.id){
-
-                _.extend(
-                    repositories[repoName].resultSets[i],
-                    data );
-
+    var mapResultSetJobs = function(repoName, jobList){
+        if(jobList.length > 0){
+            // jobList contains jobs belonging to the same resultset,
+            // so we can pick the result_set_id from the first job
+            var resultSetId = jobList[0].result_set_id;
+            var resultSet = _.findWhere(
+                repositories[repoName].resultSets, {id: resultSetId}
+            );
+            if(_.isUndefined(resultSet)){ return $q.defer().resolve(); }
+            if(_.has(resultSet, 'jobList')){
+                // get the new job ids
+                var jobIds = _.pluck(jobList, 'id');
+                // remove the elements that need to be updated
+                resultSet.jobList = _.filter(resultSet.jobList, function(job){
+                    return _.indexOf(jobIds, job.id) === -1;
+                });
+                resultSet.jobList = resultSet.jobList.concat(jobList);
+            }else{
+                resultSet.jobList = jobList;
+            }
+            var sortAndGroupJobs = _.compose(
+                sortGroupedJobs,
+                groupJobByPlatform
+            );
+            return sortAndGroupJobs(resultSet.jobList).
+            then(function(groupedJobs){
+                _.extend(resultSet, groupedJobs);
                 mapPlatforms(
-                    repoName, repositories[repoName].resultSets[i]);
-            }
+                    repoName,
+                    resultSet
+                );
+                $rootScope.$emit(thEvents.applyNewJobs, resultSetId);
+            });
+        }else{
+            return $q.defer().resolve();
         }
-
-        $rootScope.$emit(thEvents.applyNewJobs, data.id);
-    });
+    };
 
     var addRepository = function(repoName){
         //Initialize a new repository in the repositories structure
@@ -190,7 +199,6 @@ treeherder.factory('ThResultSetModel', [
                 "fetching new resultset list with parameters:",
                 locationSearch
                 );
-
             repositories[repoName] = {
 
                 name:repoName,
@@ -725,7 +733,7 @@ treeherder.factory('ThResultSetModel', [
         if (rs && rs.revisions.length === 0) {
             $log.debug("loadRevisions: check out to load revisions", rs, repoName);
             // these revisions have never been loaded; do so now.
-            return thResultSets.get(rs.revisions_uri).
+            return ThResultSetModel.get(rs.revisions_uri).
                 success(function(data) {
 
                     if (rs.revisions.length === 0) {
@@ -794,9 +802,9 @@ treeherder.factory('ThResultSetModel', [
          */
         repositories[repoName].loadingStatus.appending = true;
         var resultsets;
-        var exclusion_state = $location.search().exclusion_state;
+        var exclusionProfile = $location.search().exclusion_profile;
         var loadRepositories = ThRepositoryModel.load(repoName);
-        var loadResultsets = thResultSets.getResultSets(repoName,
+        var loadResultsets = ThResultSetModel.getResultSets(repoName,
                                        repositories[repoName].rsMapOldestTimestamp,
                                        count,
                                        undefined,
@@ -813,13 +821,181 @@ treeherder.factory('ThResultSetModel', [
                     appendResultSets(repoName, resultsets);
                 },
                 function(data) {
-                    thNotify.send("Error retrieving job data!", "danger", true);
+                    thNotify.send("Error retrieving resultset data!", "danger", true);
                     $log.error(data);
                     appendResultSets(repoName, {results: []});
                 }).
             then(function(){
-                thResultSets.getResultSetJobs(resultsets, repoName, exclusion_state);
+                var jobsPromiseList = ThResultSetModel.getResultSetJobs(
+                    resultsets,
+                    repoName,
+                    exclusionProfile
+                );
+                $q.all(jobsPromiseList).then(function(resultSetJobList){
+                    // get the last modified of each resultset
+                    var lastJobUpdateList = _.map(resultSetJobList, getLastModifiedJob);
+                    // and then get the last modified of them
+                    var lastJobModified = getLastModifiedJob(lastJobUpdateList);
+                    if(lastJobModified){
+                        lastJobUpdate = new Date(lastJobModified.last_modified+'Z');
+                        // subtract 3 seconds to take in account a possible delay
+                        // between the job requests
+                        lastJobUpdate.setSeconds(lastJobUpdate.getSeconds()-3);
+                    }
+                });
+                /*
+                * this list of promises will tell us when the
+                * mapResultSetJobs function will be applied to all the jobs
+                * ie when we can register the job poller
+                */
+                var mapResultSetJobsPromiseList = _.map(
+                    jobsPromiseList,
+                    function(jobsPromise){
+                        return jobsPromise.then(function(jobs){
+                            return mapResultSetJobs(repoName, jobs);
+                        });
+                });
+                $q.all(mapResultSetJobsPromiseList).then(function(){
+                    registerJobsPoller();
+                });
             });
+    };
+
+    var getLastModifiedJob = function(jobList){
+        if(jobList.length > 0){
+            var sortedJobs = _.sortBy(jobList, 'last_modified');
+            return sortedJobs[sortedJobs.length-1]
+        }
+        return null;
+    };
+
+    var getJobCount = function(jobList){
+        return _.reduce(
+            jobList,
+            function(memo, job){
+
+                // don't count coalesced
+                if (!job.job_coalesced_to_guid) {
+                    memo[job.state]++;
+                }
+                return memo;
+            },
+            thResultStatusObject.getResultStatusObject()
+        );
+    };
+    /*
+    * Convert a flat list of jobs into a structure grouped by
+    * platform and job_group. this is mainly to keep compatibility
+    * with the previous data structure returned by the api
+    */
+    var groupJobByPlatform = function(jobList){
+        var groupedJobs = {
+            platforms:[],
+            job_counts: getJobCount(jobList)
+        };
+
+        if(jobList.length === 0){return groupedJobs;}
+        groupedJobs.id = jobList[0].result_set_id;
+        var lastModified = "";
+        for(var i=0; i<jobList.length; i++){
+            // search for the right platform
+            var job = jobList[i];
+            var platform = _.find(groupedJobs.platforms, function(platform){
+                return job.build_platform === platform.name &&
+                 job.platform_option === platform.option;
+            });
+            if(_.isUndefined(platform)){
+                platform = {
+                    name: job.build_platform,
+                    option: job.platform_option,
+                    groups: []
+                };
+                groupedJobs.platforms.push(platform);
+            }
+            // search for the right group
+            var group = _.find(platform.groups, function(group){
+                return job.job_group_name === group.name &&
+                job.job_group_symbol === group.symbol;
+            });
+            if(_.isUndefined(group)){
+                group = {
+                    name: job.job_group_name,
+                    symbol: job.job_group_symbol,
+                    jobs: []
+                };
+                platform.groups.push(group);
+            }
+            group.jobs.push(job);
+        }
+        groupedJobs.lastModified = lastModified;
+        return groupedJobs;
+    };
+
+    var jobTypeOrderPromise = ThJobTypeModel.get_list().
+        then(function(jobTypeList){
+            var jobSymbolList = _.uniq(_.pluck(jobTypeList, 'symbol'));
+            /*
+            * Symbol could be something like 1, 2 or 3. Or A, B, C or R1, R2, R10.
+            * So this will pad the numeric portion with 0s like R001, R010, etc.
+            */
+            var paddedJobSymbolList = _.map(
+                jobSymbolList, function(jobSymbol){
+                    return jobSymbol.replace(
+                        /([\D]*)([\d]*)/g,
+                        function(matcher, s1, s2){
+                            if(s2 !== ""){
+                                s2 = "00" + s2;
+                                s2 = s2.slice(-3);
+                                return s1 + s2;
+                            }
+                            return matcher;
+                        }
+                    );
+                }
+            );
+            var symbolMap = _.object(paddedJobSymbolList, jobSymbolList);
+            paddedJobSymbolList.sort();
+            var outputOrderMap = {};
+            _.each(paddedJobSymbolList, function(paddedJob, index){
+                outputOrderMap[symbolMap[paddedJob]] = index;
+            });
+            return outputOrderMap;
+        });
+    var jobGroupOrderPromise = ThJobGroupModel.get_list().
+        then(function(jobGroupList){
+            var jobGroupSymbolList = _.uniq(_.pluck(jobGroupList, 'symbol'));
+            jobGroupSymbolList.sort();
+            return _.object(
+                jobGroupSymbolList,
+                _.range(0, jobGroupSymbolList.length)
+            );
+        });
+
+    /*
+    * This function returns a promise because it requires
+    * jobTypeOrderPromise and jobGroupOrderPromise to be fulfilled
+    */
+    var sortGroupedJobs = function(groupedJobs){
+        return $q.all([jobTypeOrderPromise, jobGroupOrderPromise]).
+        then(function(promises){
+            var jobTypeOrder = promises[0];
+            var jobGroupOrder = promises[1];
+            _.each(groupedJobs.platforms, function(platform){
+                _.each(platform.groups, function(group){
+                    group.jobs = _.sortBy(group.jobs, function(job){
+                        return jobTypeOrder[job.job_type_symbol];
+                    });
+                });
+                platform.groups = _.sortBy(platform.groups, function(group){
+                    return jobGroupOrder[group.symbol];
+                });
+            });
+            groupedJobs.platforms = _.sortBy(groupedJobs.platforms, function(platform){
+                return thPlatformOrder[platform.name]*100 +
+                thOptionOrder[platform.option];
+            });
+            return groupedJobs;
+        });
     };
 
     //Public interface
@@ -848,7 +1024,6 @@ treeherder.factory('ThResultSetModel', [
     };
 
     registerResultSetPollers();
-    registerJobPollers();
 
     return api;
 

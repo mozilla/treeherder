@@ -19,10 +19,6 @@ treeherder.provider('thResultStatusList', function() {
         return ['success', 'testfailed', 'busted', 'exception', 'retry', 'usercancel', 'running', 'pending', 'coalesced'];
     };
 
-    var counts = function() {
-        return ['success', 'testfailed', 'busted', 'exception', 'retry', 'running', 'pending', 'coalesced'];
-    };
-
     var defaultFilters = function() {
         return ['success', 'testfailed', 'busted', 'exception', 'retry', 'usercancel', 'running', 'pending'];
     };
@@ -30,7 +26,6 @@ treeherder.provider('thResultStatusList', function() {
     this.$get = function() {
         return {
             all: all,
-            counts: counts,
             defaultFilters: defaultFilters
         };
     };
@@ -53,14 +48,9 @@ treeherder.provider('thResultStatus', function() {
 treeherder.provider('thResultStatusObject', function() {
     var getResultStatusObject = function(){
         return {
-            'success':0,
-            'testfailed':0,
-            'busted':0,
-            'exception':0,
-            'retry':0,
             'running':0,
             'pending':0,
-            'coalesced': 0
+            'completed':0
             };
     };
 
@@ -86,6 +76,7 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 1,
                         btnClass: "btn-red",
+                        btnClassClassified: "btn-red-classified",
                         jobButtonIcon: "glyphicon glyphicon-fire",
                         countText: "busted"
                     };
@@ -94,6 +85,7 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 2,
                         btnClass: "btn-purple",
+                        btnClassClassified: "btn-purple-classified",
                         jobButtonIcon: "glyphicon glyphicon-fire",
                         countText: "exception"
                     };
@@ -102,6 +94,7 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 3,
                         btnClass: "btn-orange",
+                        btnClassClassified: "btn-orange-classified",
                         jobButtonIcon: "glyphicon glyphicon-warning-sign",
                         countText: "failed"
                     };
@@ -110,6 +103,7 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 4,
                         btnClass: "btn-black",
+                        btnClassClassified: "btn-black-classified",
                         jobButtonIcon: "",
                         countText: "unknown"
                     };
@@ -185,9 +179,6 @@ treeherder.provider('thEvents', function() {
             // fired (surprisingly) when a job is clicked
             jobClick: "job-click-EVT",
 
-            // fired on click outside a job element
-            jobClear: "job-clear-EVT",
-
             // fired when the job details are loaded
             jobDetailLoaded: "job-detail-loaded-EVT",
 
@@ -234,6 +225,8 @@ treeherder.provider('thEvents', function() {
             addRelatedBug: "add-related-bug-EVT",
 
             saveClassification: "save-classification-EVT",
+
+            clearPinboard: "clear-pinboard-EVT",
 
             searchPage: "search-page-EVT",
 

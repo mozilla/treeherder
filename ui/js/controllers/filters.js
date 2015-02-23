@@ -7,11 +7,11 @@
 treeherder.controller('FilterPanelCtrl', [
     '$scope', '$rootScope', '$route', '$routeParams', '$location', 'ThLog',
     'thResultStatusList', 'thEvents', 'thJobFilters',
-    'ThResultSetModel', 'thPinboard', 'thNotify', 'thFailureResults',
+    'ThResultSetStore', 'thPinboard', 'thNotify', 'thFailureResults',
     function FilterPanelCtrl(
         $scope, $rootScope, $route, $routeParams, $location, ThLog,
         thResultStatusList, thEvents, thJobFilters,
-        ThResultSetModel, thPinboard, thNotify, thFailureResults) {
+        ThResultSetStore, thPinboard, thNotify, thFailureResults) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -62,10 +62,9 @@ treeherder.controller('FilterPanelCtrl', [
          * Handle toggling one of the individual result status filters in
          * the filter panel.
          *
-         * @param group
          * @param filter
          */
-        $scope.toggleResultStatusFilter = function(group, filter) {
+        $scope.toggleResultStatusFilter = function(filter) {
             if (!$scope.resultStatusFilters[filter]) {
                 thJobFilters.removeFilter(thJobFilters.resultStatus, filter);
             } else {
@@ -160,7 +159,7 @@ treeherder.controller('FilterPanelCtrl', [
                     true);
                 return;
             }
-            var shownJobs = ThResultSetModel.getAllShownJobs(
+            var shownJobs = ThResultSetStore.getAllShownJobs(
                 $rootScope.repoName,
                 thPinboard.spaceRemaining()
             );
@@ -209,7 +208,19 @@ treeherder.controller('SearchCtrl', [
     function SearchCtrl(
         $scope, $rootScope, thEvents, thJobFilters, $location){
 
-        $scope.searchQueryStr = thJobFilters.getFieldFiltersObj().searchStr;
+        var getSearchStr = function() {
+            var ss = thJobFilters.getFieldFiltersObj().searchStr;
+            if (ss) {
+                return ss.join(" ");
+            } else {
+                return "";
+            }
+        };
+
+        $scope.searchQueryStr = getSearchStr();
+        $rootScope.$on(thEvents.globalFilterChanged, function() {
+            $scope.searchQueryStr = getSearchStr();
+        });
 
         $scope.search = function(ev){
             //User hit enter

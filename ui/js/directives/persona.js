@@ -19,6 +19,7 @@ treeherder.directive('personaButtons', [
                 // if the user.email value is null, it means that he's not logged in
                 $rootScope.user.email = response.data.userEmail || null;
                 $rootScope.user.loggedin = $rootScope.user.email !== null;
+
                 if ($rootScope.user.loggedin) {
                     ThUserModel.get().then(function(user){
                         angular.extend($rootScope.user, user);

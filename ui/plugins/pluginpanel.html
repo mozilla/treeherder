@@ -12,37 +12,45 @@
   <div id="bottom-left-panel">
     <div id="bottom-left-top">
       <nav class="navbar navbar-dark">
-        <ul class="nav navbar-nav bottom-panel-controls">
+        <ul class="nav navbar-nav">
 
           <li ng-repeat="job_log_url in job_log_urls">
             <a ng-if="job_log_url.parse_status == 'parsed'"
                title="Open the log viewer in a new window"
                target="_blank"
                href="{{::lvUrl}}"
+               copy-value="{{::lvFullUrl}}"
                class="">
-              <span class="glyphicon glyphicon-tasks"></span>
+              <img src="./img/logviewerIcon.svg"
+                   class="logviewer-icon"><img>
             </a>
             <a ng-if="job_log_url.parse_status == 'failed'"
                title="Log parsing has failed"
                class="disabled" >
-              <span class="glyphicon glyphicon-tasks"></span>
+              <img src="./img/logviewerIcon.svg"
+                   class="logviewer-icon"><img>
             </a>
             <a ng-if="job_log_url.parse_status == 'pending'"
                class="disabled"
                title="Log parsing in progress">
-              <span class="glyphicon glyphicon-tasks"></span>
+              <img src="./img/logviewerIcon.svg"
+                   class="logviewer-icon"><img>
             </a>
           </li>
           <li>
             <a ng-if="!job_log_urls.length"
                class="disabled"
                title="No logs available for this job">
-              <span class="glyphicon glyphicon-tasks"></span>
+              <img src="./img/logviewerIcon.svg"
+                   class="logviewer-icon"><img>
             </a>
           </li>
 
           <li ng-repeat="job_log_url in job_log_urls">
-            <a title="Open the raw log in a new window" target="_blank" href="{{::job_log_url.url}}">
+            <a title="Open the raw log in a new window"
+               target="_blank"
+               href="{{::job_log_url.url}}"
+               copy-value="{{::job_log_url.url}}">
               <span class="glyphicon glyphicon-align-left"></span>
             </a>
           </li>
@@ -57,29 +65,34 @@
             <!--the first 3 items are in the same box-->
             <ul class="nav navbar-nav">
               <li>
-                <a href="" prevent-default-on-left-click  title="Add the selected job to the pinboard via ctrl/cmd+click or spacebar"
+                <a href="" prevent-default-on-left-click
+                   title="Add this job to the pinboard"
                    ng-click="pinboard_service.pinJob(selectedJob)">
-                  <span class="glyphicon glyphicon-pushpin"></span>
-                  <span class="pinned-job-count"><strong>{{ getCountPinnedJobs() }}</strong></span>
+                  <span class="glyphicon glyphicon-pushpin"
+                        ng-class="{'icon-blue': (pinboard_service.count.numPinnedJobs > 0)}">
+                  </span>
+                  <span ng-show="pinboard_service.count.numPinnedJobs"
+                        class="pinned-job-count">{{getCountPinnedJobs()}}</span>
                 </a>
               </li>
 
             </ul>
           </li>
           <li ng-show="canCancel()">
-            <a title="Cancel job"
+            <a title="Cancel this job"
                href="" prevent-default-on-left-click
                target="_blank"
                ng-click="cancelJob()">
-              <span class="fa fa-stop"></span>
+              <span class="fa fa-times-circle cancel-job-icon dim-half"></span>
             </a>
           </li>
-          <li ng-show="canRetrigger()">
-            <a title="Retrigger job"
+          <li>
+            <a title="Retrigger this job"
+               class="icon-green"
                href="" prevent-default-on-left-click
                target="_blank"
                ng-click="retriggerJob()">
-              <span class="fa fa-play"></span>
+              <span class="fa fa-repeat"></span>
             </a>
           </li>
           <li ng-show="isReftest()" ng-repeat="job_log_url in job_log_urls">
@@ -99,14 +112,14 @@
           <span th-failure-classification failure-id="classifications[0].failure_classification_id"></span>
 
           <a target="_blank" ng-repeat="bug in bugs"
-             href="https://bugzilla.mozilla.org/show_bug.cgi?id={{::bug.bug_id}}"
-             title="Bug {{::bug.bug_id}}"><em> {{::bug.bug_id}}</em></a>
+             href="https://bugzilla.mozilla.org/show_bug.cgi?id={{bug.bug_id}}"
+             title="Bug {{bug.bug_id}}"><em> {{bug.bug_id}}</em></a>
         </li>
         <li ng-if="classifications[0].note.length > 0"><em>{{classifications[0].note}}</em></li>
         <li class="revision-comment">
-          {{::classifications[0].note_timestamp*1000|date:'EEE MMM d, H:mm:ss'}}</li>
+          {{classifications[0].note_timestamp*1000|date:'EEE MMM d, H:mm:ss'}}</li>
         <li class="revision-comment">
-          {{::classifications[0].who}}</li>
+          {{classifications[0].who}}</li>
       </ul>
       <ul class="list-unstyled">
         <li id="result-status-pane" class="small {{resultStatusShading}}">
@@ -129,30 +142,31 @@
         <li class="small">
           <label>Job:</label>
           <a title="Filter jobs like these in a new tab"
-             href="{{::buildbotJobnameHref}}" target="_blank"
-             prevent-default-on-left-click th-filter-by-buildername>
-            {{::buildbotJobname}}</a>
+             href="{{buildbotJobnameHref}}"
+             prevent-default-on-left-click
+             ng-click="filterByBuildername(buildbotJobname)">
+            {{buildbotJobname}}</a>
         </li>
         <li class="small">
           <label>Machine name:</label>
           <span ng-switch on="job.machine_name">
-            <span ng-switch-when='unknown'>{{::job.machine_name}}</span>
+            <span ng-switch-when='unknown'>{{job.machine_name}}</span>
             <a title="Open buildbot slave health report" target="_blank"
                href="https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name={{job.machine_name}}"
                ng-switch-default>
-               {{::job.machine_name}}
+               {{job.machine_name}}
             </a>
           </span>
         </li>
 
         <li class="small" ng-repeat="(label, value) in visibleFields">
-          <label>{{::label}}:</label>
+          <label>{{label}}:</label>
           <span ng-switch on="label">
               <a ng-switch-when="Build"
                  ng-repeat="job_log_url in job_log_urls"
                  title="Open build directory in a new tab"
-                 href={{::job_log_url.buildUrl}} target="_blank">{{::value}}</a>
-              <span ng-switch-default>{{::value}}</span>
+                 href={{job_log_url.buildUrl}} target="_blank">{{value}}</a>
+              <span ng-switch-default>{{value}}</span>
           </span>
         </li>
 
@@ -180,13 +194,13 @@
       <div class="printlines">
         <ul class="list-unstyled">
           <li ng-repeat="line in job_details" class="small">
-            <label>{{::line.title}}</label>
+            <label>{{line.title}}</label>
             <span ng-switch on="line.content_type">
-              <a ng-switch-when="link" title="{{::line.value}}" href="{{::line.url}}" target="_blank">{{::line.value}}</a>
+              <a ng-switch-when="link" title="{{line.value}}" href="{{line.url}}" target="_blank">{{line.value}}</a>
               <span ng-switch-when="raw_html" ng-bind-html="line.value"></span>
               <span ng-switch-when="TalosResult">See talos panel</span>
-              <span title="{{::line.value}}" ng-switch-when="object">{{::line.value}}</span>
-              <span title="{{::line.value}}" ng-switch-default>{{::line.value}}</span>
+              <span title="{{line.value}}" ng-switch-when="object">{{line.value}}</span>
+              <span title="{{line.value}}" ng-switch-default>{{line.value}}</span>
             </span>
           </li>
         </ul>
@@ -223,7 +237,7 @@
               Similar jobs
             </a>
           </li>
-          <li ng-if="tabService.tabs.talos.enabled" 
+          <li ng-if="tabService.tabs.talos.enabled"
               ng-class="{'active': tabService.selectedTab == 'talos'}">
             <a title="show talos job details"
                href="" prevent-default-on-left-click
@@ -265,3 +279,4 @@
     </div>
   </div>
 </div>
+<div id="clipboard-container"><textarea id="clipboard"></textarea></div>

@@ -7,13 +7,13 @@
 treeherder.controller('PluginCtrl', [
     '$scope', '$rootScope', '$location', 'thUrl', 'ThJobClassificationModel',
     'thClassificationTypes', 'ThJobModel', 'thEvents', 'dateFilter',
-    'numberFilter', 'ThBugJobMapModel', 'thResultStatus',
+    'numberFilter', 'ThBugJobMapModel', 'thResultStatus', 'thJobFilters',
     'ThResultSetModel', 'ThLog', '$q', 'thPinboard', 'ThJobArtifactModel',
     'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'thTabs', '$timeout',
     function PluginCtrl(
         $scope, $rootScope, $location, thUrl, ThJobClassificationModel,
         thClassificationTypes, ThJobModel, thEvents, dateFilter,
-        numberFilter, ThBugJobMapModel, thResultStatus,
+        numberFilter, ThBugJobMapModel, thResultStatus, thJobFilters,
         ThResultSetModel, ThLog, $q, thPinboard, ThJobArtifactModel,
         thBuildApi, thNotify, ThJobLogUrlModel, thTabs, $timeout) {
 
@@ -36,6 +36,10 @@ treeherder.controller('PluginCtrl', [
             $scope.buildbotJobnameHref = absUrl + delimiter +
                                          'filter-searchStr=' + buildername;
 
+        };
+
+        $scope.filterByBuildername = function(buildbotJobname) {
+            thJobFilters.replaceFilter('searchStr', buildbotJobname || null);
         };
 
         // this promise will void all the ajax requests
@@ -85,15 +89,18 @@ treeherder.controller('PluginCtrl', [
                     $scope.job = results[0];
                     $scope.eta = $scope.job.get_current_eta();
                     $scope.eta_abs = Math.abs($scope.job.get_current_eta());
-                    $scope.typical_eta = $scope.job.get_typical_eta()
+                    $scope.typical_eta = $scope.job.get_typical_eta();
                     // this is a bit hacky but for now talos is the only exception we have
-                    if($scope.job.job_group_name == 'Talos Performance'){
+                    if($scope.job.job_group_name.indexOf('Talos') !== -1){
                         $scope.tabService.tabs.talos.enabled = true;
-                        $scope.tabService.selectedTab = 'talos';
+                        if(thResultStatus($scope.job) === 'success'){
+                            $scope.tabService.selectedTab = 'talos';
+                        }else{
+                            $scope.tabService.selectedTab = 'failureSummary';
+                        }
                     }else{
                         $scope.tabService.tabs.talos.enabled = false;
                     }
-
                     // the second result come from the buildapi artifact promise
                     var buildapi_artifact = results[1];
                     if (buildapi_artifact.length > 0 &&
@@ -121,10 +128,10 @@ treeherder.controller('PluginCtrl', [
                     var logsNotParsed = [];
                     $scope.jobLogsAllParsed = _.every($scope.job_log_urls, function(jlu) {
                         if(jlu.parse_status === 'pending'){
-                            logsNotParsed.push(jlu)
+                            logsNotParsed.push(jlu);
                             return false;
                         }else{
-                            return true
+                            return true;
                         }
                     });
                     // retry to fetch the job info if a log hasn't been parsed yet
@@ -136,15 +143,16 @@ treeherder.controller('PluginCtrl', [
                             // were successful
                             if(_.every(
                                 parseLogResponses,
-                                function(parseLogResponse){return parseLogResponse.status == 200;}
+                                function(parseLogResponse){return parseLogResponse.status === 200;}
                             )){
                                 selectJobRetryPromise = $timeout(function(){
                                     selectJobAndRender(job_id);
                                 }, 5000);
                             }
-                        })
+                        });
                     }
                     $scope.lvUrl = thUrl.getLogViewerUrl($scope.job.id);
+                    $scope.lvFullUrl = location.origin + "/" + $scope.lvUrl;
                     $scope.resultStatusShading = "result-status-shading-" + thResultStatus($scope.job);
 
                     updateVisibleFields();
@@ -214,37 +222,64 @@ treeherder.controller('PluginCtrl', [
             }
         });
 
-        $scope.canRetrigger = function() {
-            return ($scope.job && $scope.artifacts && _.has($scope.artifacts, "buildapi"));
-        };
-
         $scope.canCancel = function() {
-            return $scope.job && $scope.artifacts && _.has($scope.artifacts, "buildapi") &&
-                ($scope.job.state === "pending" || $scope.job.state === "running");
+            return $scope.job &&
+                   ($scope.job.state === "pending" || $scope.job.state === "running");
         };
 
         /**
          * Get the build_id needed to cancel or retrigger from the currently
          * selected job.
          */
-        var getRequestId = function() {
+        var getBuildbotRequestId = function() {
             if ($scope.artifacts.buildapi) {
                 return $scope.artifacts.buildapi.blob.request_id;
-            } else {
-                // this is super unlikely since we'd need to have at least one of those
-                // artifacts to even create the job in treeherder.  This is just a fallback...
-                thNotify.send("Unable to get request id for retrigger/cancel", "danger", true);
-                return null;
             }
         };
 
         $scope.retriggerJob = function() {
-            thBuildApi.retriggerJob($scope.repoName, getRequestId());
+            // The logic here is somewhat complicated because we need to support
+            // two use cases the first is the case where we notify a system
+            // other then buildbot that a retrigger has been requested. The
+            // second is when we have the buildapi id and need to send a request
+            // to the self serve api (which does not listen over pulse!).
+            ThJobModel.retrigger($scope.repoName, $scope.job.id).then(function() {
+                // XXX: Remove this after 1134929 is resolved.
+                var requestId = getBuildbotRequestId();
+                if (requestId) {
+                    return thBuildApi.retriggerJob($scope.repoName, requestId);
+                }
+            }).catch(function(e){
+              // Always send a message even if we have no idea what the error
+              // is.
+              var message = "Unable to send retrigger"
+
+              // If we can figure out something from the server return that.
+              if (e && e.data && e.data.detail) {
+                  message += ': ' + e.data.detail;
+              }
+
+              thNotify.send(message, "danger", true)
+            });
         };
 
         $scope.cancelJob = function() {
-            thBuildApi.cancelJob($scope.repoName, getRequestId()).then(function() {
-                ThJobModel.cancel($scope.repoName, $scope.job.id);
+            // See note in retrigger logic.
+            ThJobModel.cancel($scope.repoName, $scope.job.id).then(function() {
+              // XXX: Remove this after 1134929 is resolved.
+              var requestId = getBuildbotRequestId();
+              if (requestId) {
+                return thBuildApi.cancelJob($scope.repoName, requestId);
+              }
+            }).catch(function(e) {
+              var message = "Unable to cancel job"
+
+              // If we can figure out something from the server return that.
+              if (e && e.data && e.data.detail) {
+                  message += ': ' + e.data.detail;
+              }
+
+              thNotify.send(message, "danger", true)
             });
         };
 
@@ -258,7 +293,7 @@ treeherder.controller('PluginCtrl', [
          */
         $scope.isReftest = function() {
             if ($scope.selectedJob) {
-                return ($scope.selectedJob.job_group_name.indexOf("Reftest") != -1);
+                return ($scope.selectedJob.job_group_name.indexOf("Reftest") !== -1);
             } else {
                 return false;
             }
@@ -269,16 +304,11 @@ treeherder.controller('PluginCtrl', [
             $scope.jobLoadedPromise.then(function(){
                 thTabs.showTab(thTabs.selectedTab, job_id);
             });
-        }
+        };
 
         $rootScope.$on(thEvents.jobClick, function(event, job) {
             selectJobAndRender(job.id);
             $rootScope.selectedJob = job;
-        });
-
-        $rootScope.$on(thEvents.jobClear, function(event, job) {
-            $rootScope.selectedJob = null;
-            $scope.$digest();
         });
 
         $scope.bug_job_map_list = [];

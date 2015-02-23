@@ -152,7 +152,7 @@ logViewer.controller('LogviewerCtrl', [
         };
 
         $scope.init = function() {
-            $log.log(ThJobArtifactModel.get_uri());
+            $log.debug(ThJobArtifactModel.get_uri());
             ThJobArtifactModel.get_list({job_id: $scope.job_id, name: 'Structured Log'})
             .then(function(artifactList){
                 if(artifactList.length > 0){
@@ -160,7 +160,7 @@ logViewer.controller('LogviewerCtrl', [
 
                     var revision = $scope.artifact.header.revision.substr(0,12);
                     $scope.logRevisionFilterUrl = $scope.urlBasePath
-                        + "index.html#/jobs?repo="
+                        + "#/jobs?repo="
                         + $scope.repoName + "&revision=" + revision;
 
                     // Store the artifact epoch date string in a real date object for use

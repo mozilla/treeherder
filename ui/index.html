@@ -21,7 +21,8 @@
             <div class="th-navbar">
                 <ng-include id="th-global-top-nav-panel" src="'partials/main/thGlobalTopNavPanel.html'"></ng-include>
             </div>
-            <div class="th-content">
+            <div class="th-content"
+                 ng-click="clearJobOnClick($event)">
                 <span class="th-view-content" ng-cloak>
                     <ng-view ></ng-view>
                 </span>
@@ -38,7 +39,6 @@
 
         <!-- build:js js/index.min.js -->
         <script src="vendor/jquery-2.0.3.js"></script>
-        <script src="vendor/jquery.deparam.js"></script>
         <script src="vendor/angular/angular.js"></script>
         <script src="vendor/angular/angular-route.js"></script>
         <script src="vendor/angular/angular-resource.js"></script>
@@ -47,12 +47,12 @@
         <script src="vendor/bootstrap.js"></script>
         <script src="vendor/angular/angular-sanitize.min.js"></script>
         <script src="vendor/angular-local-storage.min.js"></script>
+        <script src="vendor/mousetrap.min.js"></script>
         <script src="vendor/underscore-min.js"></script>
         <script src="vendor/resizer.js"></script>
 
         <script src="js/app.js"></script>
         <script src="js/services/log.js"></script>
-        <script src="js/config/local.conf.js"></script>
         <script src="js/providers.js"></script>
         <script src="js/values.js"></script>
         <!-- Directives -->
@@ -68,10 +68,10 @@
         <script src="js/services/classifications.js"></script>
         <script src="js/services/jobfilters.js"></script>
         <script src="js/services/pinboard.js"></script>
-        <script src="js/services/resultsets.js"></script>
         <script src="js/services/treestatus.js"></script>
         <!-- Model services -->
-        <script src="js/models/resultsets.js"></script>
+        <script src="js/models/resultset.js"></script>
+        <script src="js/models/resultsets_store.js"></script>
         <script src="js/models/job_artifact.js"></script>
         <script src="js/models/repository.js"></script>
         <script src="js/models/bug_job_map.js"></script>
@@ -81,6 +81,7 @@
         <script src="js/models/exclusion_profile.js"></script>
         <script src="js/models/build_platform.js"></script>
         <script src="js/models/job_type.js"></script>
+        <script src="js/models/job_group.js"></script>
         <script src="js/models/job_log_url.js"></script>
         <script src="js/models/option.js"></script>
         <script src="js/models/option_collection.js"></script>
@@ -105,6 +106,7 @@
         <script src="js/filters.js"></script>
         <!-- endbuild -->
 
+        <script src="js/config/local.conf.js"></script>
         <script src="https://login.persona.org/include.js"></script>
 
         <!-- Clone targets -->
@@ -115,13 +117,13 @@
             <li>
                 <span class="revision">
                     <a href="{{currentRepo.url}}/rev/{{revision}}"
-                       target="_blank"
                        title="open revision {{revision}} on {{currentRepo.url}}"
+                       ignore-job-clear-on-click
                        >{{revision}}</a>
                     <span title="{{name}}: {{email}}">{{name|initials}}</span>
                     <span title="{{escaped_comment}}">
                         <span class="revision-comment">
-                            <em>{{comments_bug_link}}</em>
+                            <em>{{escaped_comment_linkified}}</em>
                         </span>
                     </span>
                 </span>
@@ -131,7 +133,9 @@
         <!-- Clone target for "more" link for large revision sets -->
         <script type="'text/ng-template'" id="pushlogRevisionsClone.html">
             <li>
-                <a href="{{currentRepo.url}}/pushloghtml?changeset={{revision}}" target="_blank"> ...and {{diff}} more
+                <a href="{{currentRepo.url}}/pushloghtml?changeset={{revision}}"
+                   ignore-job-clear-on-click
+                   target="_blank"> ...and more
                     <i class="fa fa-external-link-square"></i>
                 </a>
             </li>
@@ -174,6 +178,7 @@
         <script type="'text/ng-template'" id="jobBtnClone.html">
             <span class="btn job-btn btn-xs {{ btnClass }} {{ key }}"
                   data-jmkey="{{ key }}"
+                  ignore-job-clear-on-click
                   title="{{ title }}">{{ value }}</span>
         </script>
 

@@ -27,14 +27,13 @@ module.exports = function (config) {
             'app/js/directives/**/*.js',
             'app/js/models/**/*.js',
             'app/js/services/**/*.js',
-            'app/js/config/sample.local.conf.js',
             'app/plugins/**/*.js',
             'test/vendor/jasmine-jquery.js',
             'test/unit/**/*.js',
             'app/vendor/*.js',
 
             // fixtures
-            {pattern: 'test/mock/*.json', watched: true, served: true, included: false}
+            {pattern: 'test/mock/**/*.json', watched: true, served: true, included: false}
         ],
 
         autoWatch: false,

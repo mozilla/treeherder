@@ -1,3 +1,4 @@
+<!-- Pinboard -->
 <div id="pinned-job-list">
   <div class="content">
     <span class="pinboard-preload-txt"
@@ -9,9 +10,10 @@
   </div>
 </div>
 
+<!-- Related bugs -->
 <div id="pinboard-related-bugs">
   <div class="content">
-    <a ng-click="toggleEnterBugNumber()"
+    <a ng-click="toggleEnterBugNumber(!enteringBugNumber); allowKeys()"
        class="click-able-icon"
        title="Add a related bug">
        <i class="fa fa-plus-square add-related-bugs-icon"></i>
@@ -22,7 +24,8 @@
     <form ng-submit="saveEnteredBugNumber()"
           ng-show="enteringBugNumber"
           class="add-related-bugs-form">
-      <input type="number"
+      <input id="related-bug-input"
+             type="number"
              class="add-related-bugs-input"
              ng-model="$parent.newEnteredBugNumber"
              placeholder="enter bug number"
@@ -34,35 +37,52 @@
   </div>
 </div>
 
+<!-- Classification dropdown -->
 <div id="pinboard-classification">
-  <div class="header">classification</div>
+  <div class="pinboard-label">classification</div>
   <div id="pinboard-classification-content" class="content">
-    <form ng-submit="saveNewClassification()" class="form">
+    <form ng-submit="completeClassification()" class="form">
       <select ng-model="classification.failure_classification_id"
               ng-options="item.id as item.name for item in classificationTypes.classificationOptions">
       </select>
-      <textarea class="comment" ng-model="classification.note"></textarea>
+      <!-- Classification comment -->
+      <div class="classification-comment-container">
+        <input id="classification-comment"
+               type="text"
+               class="form-control add-classification-input mousetrap"
+               ng-model="classification.note"
+               ng-click="allowKeys()"
+               focus-this blur-this></input>
+        <span class="pinboard-preload-txt classification-comment-preload-txt"
+              ng-if="!classification.note">
+              click to add comment</span>
+      </div>
     </form>
   </div>
 </div>
 
-
-<div id="pinboard-controls" class="btn-group-vertical">
+<!-- Save UI -->
+<div id="pinboard-controls" class="btn-group-vertical"
+     title="{{!hasPinnedJobs() ? 'No jobs pinned' : ''}}">
   <span class="btn btn-xs btn-default close-btn"
-          ng-show="hasPinnedJobs()"
-          ng-click="unPinAll()">
-    <span class="fa fa-minus pull-left btn-icon-top-margin"></span> un-pin all
+        title="Clear the entire pinboard"
+        ng-disabled="!hasPinnedJobs()"
+        ng-click="unPinAll()">
+    <span class="fa fa-minus pull-left btn-icon-top-margin
+                 clear-all-spacer"></span> clear all
   </span>
 
-  <div class="btn-group"
-       ng-show="hasPinnedJobs()">
+  <div class="btn-group">
     <span class="btn btn-default btn-xs save-btn"
-          title="Save classification and related bugs"
-          ng-click="save()">
+          title="Save all classification data"
+          ng-click="save()"
+          ng-disabled="!hasPinnedJobs()">
       <span class="fa fa-floppy-o pull-left btn-icon-top-margin"></span> save
     </span>
     <span class="btn btn-default btn-xs dropdown-toggle save-btn-dropdown"
-          data-toggle="dropdown">
+          title="Save sub classifications"
+          data-toggle="dropdown"
+          ng-disabled="!hasPinnedJobs">
       <span class="caret"></span>
     </span>
     <ul class="dropdown-menu pull-right" role="menu">

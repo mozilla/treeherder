@@ -18,7 +18,6 @@ treeherder.factory('ThJobExclusionModel', [
 
     ThJobExclusionModel.get_uri = function(){
         var url = thUrl.getRootUrl("/job-exclusion/");
-        $log.log(url);
         return url;
     };
 
@@ -101,7 +100,7 @@ treeherder.factory('ThJobExclusionModel', [
 
     // an instance method to delete a ThJobExclusionModel object
     ThJobExclusionModel.prototype.delete = function(){
-        $log.log(this);
+        $log.debug(this);
         var pk = this.id;
         return $http.delete(ThJobExclusionModel.get_uri()+pk+"/")
             .then(
