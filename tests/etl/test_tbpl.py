@@ -15,21 +15,21 @@ def test_tbpl_bug_request_body(jm, eleven_jobs_processed):
     Test the request body is created correctly
     """
     bug_id = 12345678
-    job = jm.get_job_list(0, 1)[0]
+    job_id = 1
     sample_artifact = {
         "build_id": 39953854,
         "buildername": "b2g_emulator_vm mozilla-inbound opt test crashtest-2"
     }
     placeholders = [
-        [job["id"], "buildapi", "json",
-         json.dumps(sample_artifact), job["id"], "buildapi"]
+        [job_id, "buildapi", "json",
+         json.dumps(sample_artifact), job_id, "buildapi"]
     ]
     jm.store_job_artifact(placeholders)
 
     submit_timestamp = int(time())
     who = "user@mozilla.com"
 
-    req = OrangeFactorBugRequest(jm.project, job["id"],
+    req = OrangeFactorBugRequest(jm.project, job_id,
                                  bug_id, submit_timestamp, who)
     req.generate_request_body()
 
@@ -58,7 +58,7 @@ def test_tbpl_bugzilla_request_body(jm, eleven_jobs_processed):
     Test the request body is created correctly
     """
     bug_id = 12345678
-    job = jm.get_job_list(0, 1)[0]
+    job_id = 1
     who = "user@mozilla.com"
 
     bug_suggestions = []
@@ -66,13 +66,13 @@ def test_tbpl_bugzilla_request_body(jm, eleven_jobs_processed):
     bug_suggestions.append({"search": "Second error line", "bugs": []})
 
     bug_suggestions_placeholders = [
-        job['id'], 'Bug suggestions',
+        job_id, 'Bug suggestions',
         'json', json.dumps(bug_suggestions),
-        job['id'], 'Bug suggestions',
+        job_id, 'Bug suggestions',
     ]
 
     jm.store_job_artifact([bug_suggestions_placeholders])
-    req = BugzillaBugRequest(jm.project, job["id"], bug_id, who)
+    req = BugzillaBugRequest(jm.project, job_id, bug_id, who)
     req.generate_request_body()
 
     expected = {
@@ -94,7 +94,7 @@ def test_tbpl_bugzilla_comment_length_capped(jm, eleven_jobs_processed):
     Test that the total number of characters in the comment is capped correctly.
     """
     bug_id = 12345678
-    job = jm.get_job_list(0, 1)[0]
+    job_id = 1
     who = "user@mozilla.com"
 
     # Create an error line with length equal to the max comment length.
@@ -103,13 +103,13 @@ def test_tbpl_bugzilla_comment_length_capped(jm, eleven_jobs_processed):
     bug_suggestions = [{"search": "a" * settings.BZ_MAX_COMMENT_LENGTH, "bugs": []}]
 
     bug_suggestions_placeholders = [
-        job['id'], 'Bug suggestions',
+        job_id, 'Bug suggestions',
         'json', json.dumps(bug_suggestions),
-        job['id'], 'Bug suggestions',
+        job_id, 'Bug suggestions',
     ]
 
     jm.store_job_artifact([bug_suggestions_placeholders])
-    req = BugzillaBugRequest(jm.project, job["id"], bug_id, who)
+    req = BugzillaBugRequest(jm.project, job_id, bug_id, who)
     req.generate_request_body()
 
     assert len(req.body['comment']) == settings.BZ_MAX_COMMENT_LENGTH

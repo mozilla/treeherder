@@ -148,13 +148,13 @@ def test_create_note(webapp, eleven_jobs_processed, mock_message_broker, jm):
     assert resp.status_code == 200
 
     content = json.loads(resp.content)
-    assert content['message'] == 'note stored for job 1'
+    assert content['message'] == 'note stored for job %s' % job["id"]
 
     note_list = jm.get_job_note_list(job_id=job["id"])
     del(note_list[0]["note_timestamp"])
 
     assert note_list[0] == {
-        u'job_id': 1L,
+        u'job_id': job["id"],
         u'who': u'foo@bar.com',
         u'failure_classification_id': 2L,
         u'note': u'you look like a man-o-lantern',

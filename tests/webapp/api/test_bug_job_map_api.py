@@ -133,8 +133,8 @@ def test_bug_job_map_list(webapp, jm, eleven_jobs_processed):
     resp = webapp.get(
         reverse("bug-job-map-list", kwargs={"project": jm.project}))
 
-    for i, v in enumerate(expected):
-        assert v == resp.json[i]
+    # The order of the bug-job-map list is not guaranteed.
+    assert sorted(resp.json) == sorted(expected)
 
     jm.disconnect()
 
