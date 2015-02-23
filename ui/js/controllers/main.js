@@ -76,12 +76,12 @@ treeherder.controller('MainCtrl', [
                 $scope.$evalAsync($scope.toggleInProgress());
             });
 
-            // Shortcut: select previous job (upcoming feature, PR326)
+            // Shortcut: select previous job
             Mousetrap.bind('left', function() {
                 $rootScope.$emit(thEvents.changeSelection,'previous');
             });
 
-            // Shortcut: select next job (upcoming feature, PR326)
+            // Shortcut: select next job
             Mousetrap.bind('right', function() {
                 $rootScope.$emit(thEvents.changeSelection,'next');
             });
