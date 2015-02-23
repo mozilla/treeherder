@@ -93,6 +93,38 @@ treeherder.directive('thCloneJobs', [
     });
 
     $rootScope.$on(
+        thEvents.changeSelection, function(ev, direction){
+
+        var jobMap = ThResultSetStore.getJobMap($rootScope.repoName);
+        var el, key, job, jobs, getIndex;
+
+        if (direction === 'next') {
+            getIndex = function(idx, jobs) {
+                return idx+1 > _.size(jobs)-1 ? 0: idx+1;
+            }
+        } else if (direction === 'previous') {
+            getIndex = function(idx, jobs) {
+                return idx-1 < 0 ? _.size(jobs)-1 : idx-1;
+            }
+        }
+
+        jobs = $(".th-view-content .job-btn");
+        var idx = jobs.index(jobs.filter(".selected-job"));
+        idx = getIndex(idx, jobs);
+
+        el = $(jobs[idx]);
+        while (el.css('display') === 'none') {
+            idx = getIndex(idx, jobs);
+            el = $(jobs[idx]);
+        }
+
+        key = el.attr(jobKeyAttr);
+        job = jobMap[key].job_obj;
+        selectJob(job);
+
+    });
+
+    $rootScope.$on(
         thEvents.selectPreviousUnclassifiedFailure, function(ev){
 
             var jobMap = ThResultSetStore.getJobMap($rootScope.repoName);

@@ -220,6 +220,8 @@ treeherder.provider('thEvents', function() {
 
             selectPreviousUnclassifiedFailure: "previous-unclassified-failure-EVT",
 
+            changeSelection: "next-previous-job-EVT",
+
             addRelatedBug: "add-related-bug-EVT",
 
             saveClassification: "save-classification-EVT",
