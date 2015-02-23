@@ -62,44 +62,46 @@
                     <table class="table table-super-condensed" ng-if="similar_job_selected">
                         <tr>
                             <th>Result</th>
-                            <td>{{ ::similar_job_selected.result_status }}</td>
+                            <td>{{ similar_job_selected.result_status }}</td>
                         </tr>
                         <tr>
                             <th>Machine name</th>
                             <td>
-                                <a target="_blank" href="https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name={{ ::similar_job_selected.machine_name }}">
-                                    {{ ::similar_job_selected.machine_name }}
+                                <a target="_blank" href="https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name={{ similar_job_selected.machine_name }}">
+                                    {{ similar_job_selected.machine_name }}
                                 </a>
                             </td>
                         </tr>
                         <tr>
                             <th>Build</th>
                             <td>
-                                {{ ::similar_job_selected.build_architecture }} {{ ::similar_job_selected.build_platform }} {{ ::similar_job_selected.build_os }}
+                                {{ similar_job_selected.build_architecture }} {{ similar_job_selected.build_platform }} {{ similar_job_selected.build_os }}
                             </td>
                         </tr>
                         <tr>
                             <th>Options</th>
                             <td>
-                                {{ ::similar_job_selected.platform_option }}
+                                {{ similar_job_selected.platform_option }}
                             </td>
                         </tr>
                         <tr>
                             <th>Duration</th>
-                            <td>{{ ::similar_job_selected.duration }}</td>
+                            <td>
+                                {{ similar_job_selected.duration >= 0 ? similar_job_selected.duration + ' minute(s)' : 'unknown' }}
+                            </td>
                         </tr>
-                        <tr><th>Job Name</th><td>{{ ::similar_job_selected.job_type_name }}</td></tr>
+                        <tr><th>Job Name</th><td>{{ similar_job_selected.job_type_name }}</td></tr>
                         <tr>
                             <th>Start time</th>
                             <td>
-                                {{ ::similar_job_selected.start_time }}
+                                {{ similar_job_selected.start_time }}
                             </td>
                         </tr>
                         <tr>
                             <th>Classification</th>
                             <td>
-                                <label class="label {{::similar_job_selected.failure_classification.star}}">
-                                    {{ ::similar_job_selected.failure_classification.name }}
+                                <label class="label {{ similar_job_selected.failure_classification.star }}">
+                                    {{ similar_job_selected.failure_classification.name }}
                                 </label>
                             </td>
                         </tr>

@@ -123,7 +123,7 @@ treeherder.controller('SimilarJobsPluginCtrl', [
                     $scope.similar_job_selected.end_timestamp - $scope.similar_job_selected.start_timestamp
                  )/60;
                 if (duration) {
-                    duration = numberFilter(duration, 0) + " minute(s)";
+                    duration = numberFilter(duration, 0);
                 }
                 $scope.similar_job_selected.duration = duration;
                 $scope.similar_job_selected.start_time = $scope.similar_job_selected.start_timestamp !== 0 ? dateFilter(
