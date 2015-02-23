@@ -77,14 +77,14 @@ treeherder.controller('MainCtrl', [
             });
 
             // Shortcut: select previous job (upcoming feature, PR326)
-            // Mousetrap.bind('left', function() {
-            //     $rootScope.$emit(thEvents.selectPreviousJob);
-            // });
+            Mousetrap.bind('left', function() {
+                $rootScope.$emit(thEvents.changeSelection,'previous');
+            });
 
             // Shortcut: select next job (upcoming feature, PR326)
-            // Mousetrap.bind('right', function() {
-            //     $rootScope.$emit(thEvents.selectNextJob);
-            // });
+            Mousetrap.bind('right', function() {
+                $rootScope.$emit(thEvents.changeSelection,'next');
+            });
 
             // Shortcut: select next unclassified failure
             Mousetrap.bind(['j', 'n'], function() {
