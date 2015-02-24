@@ -35,9 +35,10 @@
                 <!--Search Field-->
                 <span ng-controller="SearchCtrl" class="form-group form-inline">
                     <input id="platform-job-text-search-field"
-                           ng-model="searchQueryStr" ng-keyup="search($event)" type="text"
+                           ng-model="searchQueryStr" ng-keydown="search($event)" type="text"
                            class="form-control input-sm"
-                           placeholder="Filter platforms & jobs" select-on-click>
+                           placeholder="Filter platforms & jobs"
+                           click-this blur-this select-on-click>
                 </span>
             </form>
         </span>
