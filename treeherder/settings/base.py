@@ -343,6 +343,18 @@ BZ_MAX_COMMENT_LENGTH = 40000
 # like ftp.mozilla.org or hg.mozilla.org
 TREEHERDER_REQUESTS_TIMEOUT = 30
 
+# Build the default pulse uri this is passed to kombu
+PULSE_URI = 'amqps://{}:{}@pulse.mozilla.org/'.format(
+    os.environ.get('PULSE_USERNAME', 'guest'),
+    os.environ.get('PULSE_PASSWORD', 'guest')
+)
+
+# Note we will never publish any pulse messages unless the exchange namespace is
+# set this normally is your pulse username.
+PULSE_EXCHANGE_NAMESPACE = None
+
+# Note: All the configs below this import will take precedence over what is
+# defined in local.py!
 try:
     from .local import *
 except ImportError:
@@ -413,13 +425,3 @@ SWAGGER_SETTINGS = {"enabled_methods": ['get', ]}
 REST_FRAMEWORK_EXTENSIONS = {
     'DEFAULT_CACHE_RESPONSE_TIMEOUT': 60 * 15
 }
-
-# Build the default pulse uri this is passed to kombu
-PULSE_URI = 'amqps://{}:{}@pulse.mozilla.org/'.format(
-    os.environ.get('PULSE_USERNAME', 'guest'),
-    os.environ.get('PULSE_PASSWORD', 'guest')
-)
-
-# Note we will never publish any pulse messages unless the exchange namespace is
-# set this normally is your pulse username.
-PULSE_EXCHANGE_NAMESPACE = None
