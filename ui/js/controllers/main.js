@@ -127,6 +127,12 @@ treeherder.controller('MainCtrl', [
                     $scope.$evalAsync(
                         $rootScope.$broadcast('focus-this', "related-bug-input")
                     );
+
+                    /* Treat single key shortcuts as regular text during input.
+                     * This prevents invocation of single key hotkeys like 'c'
+                     * during bug number entry, which would cross focus the
+                     * comments field. We validate numbers via the markup. */
+                    $scope.$evalAsync($scope.allowKeys());
                 }
             });
 
@@ -145,7 +151,7 @@ treeherder.controller('MainCtrl', [
                         $rootScope.$broadcast('focus-this', "classification-comment")
                     );
 
-                    // Unbind all shortcut keys during input
+                    // Treat single key shortcuts as regular text during input
                     $scope.$evalAsync($scope.allowKeys());
                 }
             });
