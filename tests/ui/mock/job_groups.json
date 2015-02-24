@@ -188,8 +188,20 @@
         }, 
         {
             "description": "", 
+            "jobtype__name": "spidermonkey.*-plain", 
+            "jobtype__symbol": "p", 
+            "symbol": "SM"
+        },
+        {
+            "description": "", 
             "jobtype__name": "spidermonkey.*-generational", 
             "jobtype__symbol": "ggc", 
+            "symbol": "SM"
+        },
+        {
+            "description": "", 
+            "jobtype__name": "spidermonkey.*-compacting", 
+            "jobtype__symbol": "cgc", 
             "symbol": "SM"
         }
     ], 
