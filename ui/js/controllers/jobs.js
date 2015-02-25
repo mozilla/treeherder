@@ -109,11 +109,12 @@ treeherder.controller('ResultSetCtrl', [
     'thUrl', 'thServiceDomain', 'thResultStatusInfo',
     'ThResultSetStore', 'thEvents', 'thJobFilters', 'thNotify',
     'thBuildApi', 'thPinboard', 'ThResultSetModel', 'dateFilter',
+    'ThModelErrors',
     function ResultSetCtrl(
         $scope, $rootScope, $http, ThLog, $location,
         thUrl, thServiceDomain, thResultStatusInfo,
         ThResultSetStore, thEvents, thJobFilters, thNotify,
-        thBuildApi, thPinboard, ThResultSetModel, dateFilter) {
+        thBuildApi, thPinboard, ThResultSetModel, dateFilter, ThModelErrors) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -228,9 +229,15 @@ treeherder.controller('ResultSetCtrl', [
             if (!window.confirm('This will cancel all pending and running jobs for revision ' + revision + '!\n\nAre you sure?')) {
                 return;
             }
-            thBuildApi.cancelAll($scope.repoName, revision).then(function() {
-                ThResultSetModel.cancelAll($scope.resultset.id, $scope.repoName);
-            });
+
+            ThResultSetModel.cancelAll($scope.resultset.id, $scope.repoName).then(function() {
+                return thBuildApi.cancelAll($scope.repoName, revision);
+            }).catch(function(e) {
+                thNotify.send(
+                    ThModelErrors.format(e, "Failed to cancel all jobs"),
+                    'danger', true
+                );
+            })
         };
 
         $scope.revisionResultsetFilterUrl = $scope.urlBasePath + "?repo=" +

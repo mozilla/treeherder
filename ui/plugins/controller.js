@@ -9,13 +9,14 @@ treeherder.controller('PluginCtrl', [
     'thClassificationTypes', 'ThJobModel', 'thEvents', 'dateFilter',
     'numberFilter', 'ThBugJobMapModel', 'thResultStatus', 'thJobFilters',
     'ThResultSetModel', 'ThLog', '$q', 'thPinboard', 'ThJobArtifactModel',
-    'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'thTabs', '$timeout',
+    'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'ThModelErrors', 'thTabs',
+    '$timeout',
     function PluginCtrl(
         $scope, $rootScope, $location, thUrl, ThJobClassificationModel,
         thClassificationTypes, ThJobModel, thEvents, dateFilter,
         numberFilter, ThBugJobMapModel, thResultStatus, thJobFilters,
         ThResultSetModel, ThLog, $q, thPinboard, ThJobArtifactModel,
-        thBuildApi, thNotify, ThJobLogUrlModel, thTabs, $timeout) {
+        thBuildApi, thNotify, ThJobLogUrlModel, ThModelErrors, thTabs, $timeout) {
 
         var $log = new ThLog("PluginCtrl");
 
@@ -250,16 +251,10 @@ treeherder.controller('PluginCtrl', [
                     return thBuildApi.retriggerJob($scope.repoName, requestId);
                 }
             }).catch(function(e){
-              // Always send a message even if we have no idea what the error
-              // is.
-              var message = "Unable to send retrigger"
-
-              // If we can figure out something from the server return that.
-              if (e && e.data && e.data.detail) {
-                  message += ': ' + e.data.detail;
-              }
-
-              thNotify.send(message, "danger", true)
+                thNotify.send(
+                    ThModelErrors.format(e, "Unable to send retrigger"),
+                    "danger", true
+                );
             });
         };
 
@@ -272,14 +267,10 @@ treeherder.controller('PluginCtrl', [
                 return thBuildApi.cancelJob($scope.repoName, requestId);
               }
             }).catch(function(e) {
-              var message = "Unable to cancel job"
-
-              // If we can figure out something from the server return that.
-              if (e && e.data && e.data.detail) {
-                  message += ': ' + e.data.detail;
-              }
-
-              thNotify.send(message, "danger", true)
+                thNotify.send(
+                    ThModelErrors.format(e, "Unable to cancel job"),
+                    "danger", true
+                );
             });
         };
 
