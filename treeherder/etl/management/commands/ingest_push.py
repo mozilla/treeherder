@@ -28,6 +28,13 @@ class Command(BaseCommand):
                     dest='profile_file',
                     default=None,
                     help='Profile command and write result to profile file'),
+
+        make_option('--filter-job-group',
+                    action='store',
+                    dest='filter_job_group',
+                    default=None,
+                    help="Only process jobs in specified group symbol "
+                    "(e.g. 'T')")
     )
 
     def _process_all_objects_for_project(self, project):
@@ -65,11 +72,14 @@ class Command(BaseCommand):
         self._process_all_objects_for_project(project)
 
         Builds4hJobsProcess().run(filter_to_project=project,
-                                  filter_to_revision=push_sha)
+                                  filter_to_revision=push_sha,
+                                  filter_to_job_group=options['filter_job_group'])
         PendingJobsProcess().run(filter_to_project=project,
-                                 filter_to_revision=push_sha)
+                                 filter_to_revision=push_sha,
+                                 filter_to_job_group=options['filter_job_group'])
         RunningJobsProcess().run(filter_to_project=project,
-                                 filter_to_revision=push_sha)
+                                 filter_to_revision=push_sha,
+                                 filter_to_job_group=options['filter_job_group'])
 
         self._process_all_objects_for_project(project)
 

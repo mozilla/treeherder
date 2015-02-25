@@ -90,7 +90,8 @@ class Builds4hTransformerMixin(object):
 
         return job_guid_data
 
-    def transform(self, data, filter_to_project=None, filter_to_revision=None):
+    def transform(self, data, filter_to_project=None, filter_to_revision=None,
+                  filter_to_job_group=None):
         """
         transform the builds4h structure into something we can ingest via
         our restful api
@@ -146,15 +147,20 @@ class Builds4hTransformerMixin(object):
             if filter_to_revision and filter_to_revision != resultset['revision']:
                 continue
 
+            platform_info = buildbot.extract_platform_info(prop['buildername'])
+            job_name_info = buildbot.extract_name_info(prop['buildername'])
+
+            if (filter_to_job_group and
+                job_name_info.get('group_symbol', '').lower() !=
+                filter_to_job_group.lower()):
+                continue
+
             treeherder_data = {
                 'revision_hash': resultset['revision_hash'],
                 'resultset_id': resultset['id'],
                 'project': project,
                 'coalesced': []
             }
-
-            platform_info = buildbot.extract_platform_info(prop['buildername'])
-            job_name_info = buildbot.extract_name_info(prop['buildername'])
 
             device_name = buildbot.get_device_or_unknown(
                 job_name_info.get('name', ''),
@@ -275,7 +281,8 @@ class Builds4hTransformerMixin(object):
 
 class PendingTransformerMixin(object):
 
-    def transform(self, data, filter_to_revision=None, filter_to_project=None):
+    def transform(self, data, filter_to_revision=None, filter_to_project=None,
+                  filter_to_job_group=None):
         """
         transform the buildapi structure into something we can ingest via
         our restful api
@@ -331,6 +338,11 @@ class PendingTransformerMixin(object):
                     platform_info = buildbot.extract_platform_info(pending_job['buildername'])
 
                     job_name_info = buildbot.extract_name_info(pending_job['buildername'])
+
+                    if (filter_to_job_group and
+                        job_name_info.get('group_symbol', '').lower() !=
+                        filter_to_job_group.lower()):
+                        continue
 
                     device_name = buildbot.get_device_or_unknown(
                         job_name_info.get('name', ''),
@@ -406,7 +418,8 @@ class PendingTransformerMixin(object):
 
 class RunningTransformerMixin(object):
 
-    def transform(self, data, filter_to_revision=None, filter_to_project=None):
+    def transform(self, data, filter_to_revision=None, filter_to_project=None,
+                  filter_to_job_group=None):
         """
         transform the buildapi structure into something we can ingest via
         our restful api
@@ -460,6 +473,12 @@ class RunningTransformerMixin(object):
 
                     platform_info = buildbot.extract_platform_info(running_job['buildername'])
                     job_name_info = buildbot.extract_name_info(running_job['buildername'])
+
+                    if (filter_to_job_group and
+                        job_name_info.get('group_symbol', '').lower() !=
+                        filter_to_job_group.lower()):
+                        continue
+
                     device_name = buildbot.get_device_or_unknown(
                         job_name_info.get('name', ''),
                         platform_info['vm']
@@ -540,13 +559,15 @@ class Builds4hJobsProcess(JsonExtractorMixin,
                           Builds4hTransformerMixin,
                           OAuthLoaderMixin):
 
-    def run(self, filter_to_revision=None, filter_to_project=None):
+    def run(self, filter_to_revision=None, filter_to_project=None,
+            filter_to_job_group=None):
         extracted_content = self.extract(settings.BUILDAPI_BUILDS4H_URL)
         if extracted_content:
             self.load(
                 self.transform(extracted_content,
                                filter_to_revision=filter_to_revision,
-                               filter_to_project=filter_to_project)
+                               filter_to_project=filter_to_project,
+                               filter_to_job_group=filter_to_job_group)
             )
 
 
@@ -554,13 +575,15 @@ class PendingJobsProcess(JsonExtractorMixin,
                          PendingTransformerMixin,
                          OAuthLoaderMixin):
 
-    def run(self, filter_to_revision=None, filter_to_project=None):
+    def run(self, filter_to_revision=None, filter_to_project=None,
+            filter_to_job_group=None):
         extracted_content = self.extract(settings.BUILDAPI_PENDING_URL)
         if extracted_content:
             self.load(
                 self.transform(extracted_content,
                                filter_to_revision=filter_to_revision,
-                               filter_to_project=filter_to_project)
+                               filter_to_project=filter_to_project,
+                               filter_to_job_group=filter_to_job_group)
             )
 
 
@@ -574,7 +597,8 @@ class RunningJobsProcess(JsonExtractorMixin,
             self.load(
                 self.transform(extracted_content,
                                filter_to_revision=filter_to_revision,
-                               filter_to_project=filter_to_project)
+                               filter_to_project=filter_to_project,
+                               filter_to_job_group=filter_to_job_group)
             )
 
 
