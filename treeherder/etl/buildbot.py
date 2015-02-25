@@ -43,6 +43,14 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
+        'regex': re.compile(r'^graphene.*_linux64', re.IGNORECASE),
+        'attributes': {
+            'os': 'linux',
+            'os_platform': 'graphene-linux64',
+            'arch': 'x86_64',
+        }
+    },
+    {
         'regex': re.compile(r'^(?:Linux|Ubuntu).*64 Mulet', re.IGNORECASE),
         'attributes': {
             'os': 'linux',
@@ -55,14 +63,6 @@ PLATFORMS_BUILDERNAME = [
         'attributes': {
             'os': 'linux',
             'os_platform': 'linux64',
-            'arch': 'x86_64',
-        }
-    },
-    {
-        'regex': re.compile(r'^graphene.*_linux64', re.IGNORECASE),
-        'attributes': {
-            'os': 'linux',
-            'os_platform': 'graphene-linux64',
             'arch': 'x86_64',
         }
     },
@@ -102,6 +102,14 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
+        'regex': re.compile(r'^graphene.*_macosx64', re.IGNORECASE),
+        'attributes': {
+            'os': 'mac',
+            'os_platform': 'graphene-osx',
+            'arch': 'x86_64',
+        }
+    },
+    {
         'regex': re.compile(r'^OS X.*Mulet', re.IGNORECASE),
         'attributes': {
             'os': 'mac',
@@ -133,14 +141,6 @@ PLATFORMS_BUILDERNAME = [
             'arch': 'x86_64',
         }
     },
-    {
-        'regex': re.compile(r'^graphene.*_macosx64', re.IGNORECASE),
-        'attributes': {
-            'os': 'mac',
-            'os_platform': 'graphene-osx',
-            'arch': 'x86_64',
-        }
-    },
 
     # ** Windows **
 
@@ -166,6 +166,14 @@ PLATFORMS_BUILDERNAME = [
             'os': 'win',
             'os_platform': 'windowsxp',
             'arch': 'x86',
+        }
+    },
+    {
+        'regex': re.compile(r'^graphene.*_win64', re.IGNORECASE),
+        'attributes': {
+            'os': 'win',
+            'os_platform': 'graphene-win64',
+            'arch': 'x86_64',
         }
     },
     {
@@ -200,14 +208,6 @@ PLATFORMS_BUILDERNAME = [
             'os': 'win',
             'os_platform': 'windows8-32',
             'arch': 'x86',
-        }
-    },
-    {
-        'regex': re.compile(r'^graphene.*_win64', re.IGNORECASE),
-        'attributes': {
-            'os': 'win',
-            'os_platform': 'graphene-win64',
-            'arch': 'x86_64',
         }
     },
 
