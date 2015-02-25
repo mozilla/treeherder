@@ -44,6 +44,9 @@ treeherder.value("thPlatformNameMap", {
     "mulet-linux64" : "Mulet Linux x64",
     "mulet-osx": "Mulet OS X",
     "mulet-win32": "Mulet Windows",
+    "graphene-linux64": "Graphene Linux x64",
+    "graphene-osx": "Graphene OS X",
+    "graphene-win64": "Graphene Windows x64",
     "other": "Other"
 });
 
@@ -87,7 +90,10 @@ treeherder.value("thPlatformOrder", {
     "mulet-linux64" : 36,
     "mulet-osx": 37,
     "mulet-win32": 38,
-    "other": 39
+    "graphene-linux64": 39,
+    "graphene-osx": 40,
+    "graphene-win64": 41,
+    "other": 99,
 });
 
 treeherder.value("thOptionOrder", {
