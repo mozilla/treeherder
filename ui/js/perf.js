@@ -28,11 +28,15 @@ perf.factory('seriesSummary', ['seriesColors', function(seriesColors) {
     if (signatureProps.job_group_symbol === "T-e10s") {
       extra = " e10s";
     }
-    var testName = signatureProps.suite + " " + signatureProps.test +
+    var testName = signatureProps.test;
+    if (testName === undefined)
+      testName = "summary";
+
+    var name = signatureProps.suite + " " + testName +
       " " + optionCollectionMap[signatureProps.option_collection_hash] + extra;
-    var signatureName =  testName;
-    return { name: signatureName, signature: signature, platform: platform,
-             testName: testName, projectName: projectName, color: seriesColors[number] };
+    var signatureName = name;
+    return { name: name, signature: signature, platform: platform,
+             projectName: projectName, color: seriesColors[number] };
   };
 }]);
 
@@ -312,15 +316,19 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
                                      var flotSeries = {
                                        lines: { show: false },
                                        points: { show: true },
-                                       label: series.projectName + " " + series.testName,
+                                       label: series.projectName + " " + series.name,
                                        data: [],
                                        resultSetData: [],
                                        thSeries: jQuery.extend({}, series)
                                      }
                                      response.data[0].blob.forEach(function(dataPoint) {
+                                       var mean = dataPoint.mean;
+                                       if (mean === undefined)
+                                         mean = dataPoint.geomean;
+
                                        flotSeries.data.push([
                                          new Date(dataPoint.push_timestamp*1000),
-                                         dataPoint.mean]);
+                                         mean]);
                                        flotSeries.resultSetData.push(dataPoint.result_set_id);
                                        flotSeries.data.sort(function(a,b) { return a[0] > b[0]; });
                                      });
