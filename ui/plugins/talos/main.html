@@ -1,5 +1,6 @@
-<span ng-repeat="line in job_details">
-  <ul ng-if="line.content_type == 'TalosResult'">
+<span ng-repeat="line in job_details"
+      ng-if="line.content_type == 'TalosResult'">
+  <ul>
     <li>Datazilla:
       <ul>
         <li ng-repeat="(k,v) in line.value.datazilla"><a href="{{::v.url}}" target="_blank">{{::k}}</a>

@@ -659,6 +659,7 @@ div#bottom-panel .navbar.navbar-dark .navbar-nav > li.active a:focus {
 
 #bottom-left-top, #bottom-center-top {
     min-height: 33px;
+    overflow-y: auto;
 }
 
 .pinned-job-count {
@@ -717,20 +718,38 @@ div#bottom-panel .navbar.navbar-dark .navbar-nav > li.active a:focus {
 
 #bottom-center-bottom {
     max-height: calc(100% - 33px);
+    -webkit-flex: 1;
+    flex: 1;
+    display: -webkit-flex;
+    display: flex;
 }
 
 #bottom-center-bottom > * {
-    height: 100%;
+    -webkit-flex: 1;
+    flex: 1;
+    display: -webkit-flex;
+    display: flex;
+}
+
+#bottom-center-bottom > * > * {
+    -webkit-flex: 1;
+    flex: 1;
+    display: -webkit-flex;
+    display: flex;
 }
 
 #bottom-center-bottom > * > * > * {
-    height: 100%;
+    -webkit-flex: 1;
+    flex: 1;
+    display: -webkit-flex;
+    display: flex;
 }
 
 #bottom-center-panel ul.failure-summary-list{
-    padding-left: 0px;
-    height: 100%;
+    padding-left: 0;
     overflow: auto;
+    width: 100%;
+    margin-bottom: 0;
 }
 
 ul.failure-summary-list li {
@@ -1770,12 +1789,14 @@ fieldset[disabled] .btn-repo.active {
            flex-flow: row;
 }
 
-div.similar_jobs .right_panel{ overflow-y: auto; flex: 1 1; -webkit-flex: 1 1; }
-div.similar_jobs .right_panel form{ height:36px; background-color: #D3D3D3;}
+
+div.similar_jobs .right_panel{ border-left: 1px solid #101010; margin-right: 1px; overflow-y: auto; flex: 1 1; -webkit-flex: 1 1; }
+div.similar_jobs .right_panel form { overflow: hidden; background-color: #D3D3D3; }
+div.similar_jobs .right_panel form .checkbox input[type="checkbox"] { margin-left: 0px; position: relative; }
 div.similar_jobs .right_panel .similar_job_detail{ border-top: 1px solid #101010; }
 div.similar_jobs .right_panel .similar_job_detail table { width: 100%; overflow: hidden; }
 
-div.similar_jobs .left_panel{ overflow-y: auto; flex: 1 1; -webkit-flex: 1 1; }
+div.similar_jobs .left_panel{ overflow: auto; flex: 1 1; -webkit-flex: 1 1; }
 div.similar_jobs .left_panel table{ margin-bottom: 7px;}
 div.similar_jobs .left_panel table tr.active>td{ background-color: #D3D3D3; }
 div.similar_jobs .left_panel table tr{ cursor: pointer; }
