@@ -53,5 +53,5 @@ def write_credentials(file_path):
 
     immutable_credentials = TreeherderModelBase.get_oauth_credentials()
     keys_fh = open(file_path, 'w')
-    keys_fh.write(json.dumps(immutable_credentials))
+    keys_fh.write(json.dumps(immutable_credentials, indent=4))
     keys_fh.close()
