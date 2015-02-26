@@ -291,7 +291,6 @@ def test_resultset_cancel_all(jm, resultset_with_three_jobs, pulse_action_consum
     Issue cancellation of a resultset with three unfinished jobs.
     """
     client = APIClient()
-    email = "foo@example.com"
     user = User.objects.create(username="user", email="foo-cancel@example.com")
     client.force_authenticate(user=user)
 
@@ -302,9 +301,9 @@ def test_resultset_cancel_all(jm, resultset_with_three_jobs, pulse_action_consum
 
     url = reverse("resultset-cancel-all",
                   kwargs={"project": jm.project, "pk": resultset_with_three_jobs})
-    resp = client.post(url)
+    client.post(url)
 
-    # Ensure all jobs are pending..
+    # Ensure all jobs are cancelled..
     jobs = jm.get_job_list(0, 3)
     for job in jobs:
         assert job['state'] == 'completed'
