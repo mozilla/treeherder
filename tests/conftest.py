@@ -13,8 +13,6 @@ from django.core.management import call_command
 from webtest.app import TestApp
 import responses
 
-from thclient.client import TreeherderRequest
-
 from tests.sampledata import SampleData
 from treeherder.etl.oauth_utils import OAuthCredentials
 from treeherder.webapp.wsgi import application
@@ -392,6 +390,7 @@ def mock_send_request(monkeypatch, set_oauth_credentials):
         response.getcode = lambda: response.status_int
         return response
 
+    from thclient.client import TreeherderRequest
     monkeypatch.setattr(TreeherderRequest, 'send', _send)
 
 
