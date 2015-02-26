@@ -16,19 +16,25 @@ Treeherder exists on three instances, <a href="http://treeherder-dev.allizom.org
 
 
 #### Development
-The easiest way to run treeherder-ui locally is to simply clone this repo, make a copy of the config described <a href="https://treeherder-ui.readthedocs.org/en/latest/installation.html#configuration" target=_newtab>here</a> which will pull in production result data, and start your local server:
+The easiest way to run treeherder-ui locally is to simply clone this repo, install [Node.js](http://nodejs.org/download/) and then from the root of the repo:
 
 ```
 cd webapp
+cp app/js/config/sample.local.conf.js app/js/config/local.conf.js
 ./scripts/web-server.js
 ```
+
+The UI can then be viewed at [http://localhost:8000/app/index.html](http://localhost:8000/app/index.html).
+
+Data will be pulled from the production instance API by default. See the [installation docs](https://treeherder-ui.readthedocs.org/en/latest/installation.html) for more options, how to run the tests & using the Vagrant project for a more robust environment that also allows you to run the back-end locally.
+
 
 #### Links
 
 Visit our project tracking Wiki at:  
 https://wiki.mozilla.org/Auto-tools/Projects/Treeherder
 
-Visit our **readthedocs** page for setup and other configuration at:  
+Visit our **readthedocs** page for more detailed documentation at:  
 https://treeherder-ui.readthedocs.org/en/latest/index.html
 
 File any bugs you may encounter [here](https://bugzilla.mozilla.org/enter_bug.cgi?product=Tree+Management&component=Treeherder).
