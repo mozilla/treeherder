@@ -5,23 +5,21 @@ treeherder-service
 
 
 #### Description
-<strong><a href="https://treeherder.mozilla.org" target=_newtab>Treeherder</a></strong> is a reporting dashboard for Mozilla checkins. It allows users to see the results of automatic builds and their respective tests. **Treeherder-service** manages the etl layer for data ingestion, web services, and the data model behind Treeherder.
+[Treeherder](https://treeherder.mozilla.org) is a reporting dashboard for Mozilla checkins. It allows users to see the results of automatic builds and their respective tests. **Treeherder-service** manages the etl layer for data ingestion, web services, and the data model behind Treeherder.
 
 Treeherder is comprised of this repo for providing those back end services, and several other component repos:
 
-A <a href="https://github.com/mozilla/treeherder-ui" target=_newtab>treeherder-ui</a> repo for the front end UI.
-
-A <a href="https://github.com/mozilla/treeherder-client" target=_newtab>treeherder-client</a> for data submission.
-
-A <a href="https://github.com/mozilla/treeherder-node" target=_newtab>treeherder-node</a> NodeJS interface.
+* [treeherder-ui](https://github.com/mozilla/treeherder-ui) for the front end UI.
+* [treeherder-client](https://github.com/mozilla/treeherder-client) for data submission.
+* [treeherder-node](https://github.com/mozilla/treeherder-node) NodeJS interface.
 
 
 #### Instances
-Treeherder exists on three instances, <a href="http://treeherder-dev.allizom.org" target=_newtab>dev</a> for treeherder development, <a href="https://treeherder.allizom.org" target=_newtab>stage</a> for pre-deployment validation, and <a href="https://treeherder.mozilla.org" target=_newtab>production</a> for actual use.
+Treeherder exists on three instances, [dev](http://treeherder-dev.allizom.org) for treeherder development, [stage](https://treeherder.allizom.org) for pre-deployment validation, and [production](https://treeherder.mozilla.org) for actual use.
 
 
 #### Installation
-The steps to install the treeherder-service are provided <a href="https://treeherder-service.readthedocs.org/en/latest/installation.html" target=_newtab>here</a>.
+The steps to install the treeherder-service are provided [here](https://treeherder-service.readthedocs.org/en/latest/installation.html).
 
 
 #### Links
