@@ -70,7 +70,7 @@ class TreeherderModelBase(object):
         if not procs_file_name:  # pragma: no cover
             procs_file_name = "{0}.json".format(contenttype)
 
-        if not contenttype in self.dhubs.keys():
+        if contenttype not in self.dhubs.keys():
             datasource = self.get_datasource(contenttype)
 
             self.dhubs[contenttype] = datasource.dhub(procs_file_name)
@@ -79,7 +79,7 @@ class TreeherderModelBase(object):
     def get_datasource(self, contenttype):
         """The datasource for this contenttype of the project."""
 
-        if not contenttype in self.sources.keys():
+        if contenttype not in self.sources.keys():
             self.sources[contenttype] = self._get_datasource(contenttype)
 
         return self.sources[contenttype]

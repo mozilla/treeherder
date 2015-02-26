@@ -2045,8 +2045,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         props_where_repl = [
             ' OR '.join(['(`property`=%s AND `value`=%s)'] * len(props)),
-            ' AND '.join(['COALESCE(SUM(`property`=%s AND `value`=%s), 0) > 0']
-                         * len(props))]
+            ' AND '.join(['COALESCE(SUM(`property`=%s AND `value`=%s), 0) > 0'] * len(props))]
 
         # convert to 1 dimensional list
         props = [el for x in props.items() for el in x]

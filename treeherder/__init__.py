@@ -8,4 +8,7 @@ import os
 from .celery import app as celery_app  # noqa
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
-path = lambda *a: os.path.join(PROJECT_DIR, *a)
+
+
+def path(*subdirectories):
+    return os.path.join(PROJECT_DIR, *subdirectories)

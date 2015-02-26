@@ -104,11 +104,11 @@ class Builds4hTransformerMixin(object):
         for build in data['builds']:
             prop = build['properties']
 
-            if not 'branch' in prop:
+            if 'branch' not in prop:
                 logger.warning("property 'branch' not found in build4h")
                 continue
 
-            if not prop['branch'] in projects:
+            if prop['branch'] not in projects:
                 logger.warning("skipping job on unsupported branch {0}".format(prop['branch']))
                 continue
 

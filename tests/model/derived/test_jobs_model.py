@@ -340,7 +340,7 @@ def test_bad_date_value_ingestion(jm, initial_data, mock_log_parser):
 
     jm.disconnect()
 
-    assert last_error == False
+    assert not last_error
 
 
 def get_objectstore_last_error(jm):

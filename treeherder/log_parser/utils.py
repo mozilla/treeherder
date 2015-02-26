@@ -179,8 +179,8 @@ def extract_log_artifacts(log_url, job_guid, check_errors):
                 else:
                     bugs = terms_requested[search_term]
 
-            if not bugs or not (bugs['open_recent']
-                                or bugs['all_others']):
+            if not bugs or not (bugs['open_recent'] or
+                                bugs['all_others']):
                 # no suggestions, try to use
                 # the crash signature as search term
                 crash_signature = get_crash_signature(clean_line)
