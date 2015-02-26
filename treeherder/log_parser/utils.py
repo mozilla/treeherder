@@ -169,7 +169,7 @@ def extract_log_artifacts(log_url, job_guid, check_errors):
 
             # collect open recent and all other bugs suggestions
             if search_term:
-                if not search_term in terms_requested:
+                if search_term not in terms_requested:
                     # retrieve the list of suggestions from the api
                     bugs = get_bugs_for_search_term(
                         search_term,
@@ -185,7 +185,7 @@ def extract_log_artifacts(log_url, job_guid, check_errors):
                 # the crash signature as search term
                 crash_signature = get_crash_signature(clean_line)
                 if crash_signature:
-                    if not crash_signature in terms_requested:
+                    if crash_signature not in terms_requested:
                         bugs = get_bugs_for_search_term(
                             crash_signature,
                             bugscache_uri

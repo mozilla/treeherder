@@ -53,7 +53,7 @@ class OAuthCredentials():
 
                 logger.error(msg)
 
-            except Exception, e:
+            except Exception as e:
                 logger.error(e)
                 raise e
 

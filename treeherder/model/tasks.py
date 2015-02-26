@@ -19,10 +19,11 @@ schemas = load_schemas(schema_folder)
 publisher = None
 if settings.PULSE_EXCHANGE_NAMESPACE:
     publisher = TreeherderPublisher(
-        namespace = settings.PULSE_EXCHANGE_NAMESPACE,
-        uri = settings.PULSE_URI,
-        schemas = schemas
+        namespace=settings.PULSE_EXCHANGE_NAMESPACE,
+        uri=settings.PULSE_URI,
+        schemas=schemas
     )
+
 
 @task(name='process-objects')
 def process_objects(limit=None, project=None):
@@ -76,6 +77,7 @@ def populate_performance_series(project, series_type, series_data):
                     series_data[signature]
                 )
 
+
 @task(name='publish-job-action')
 def publish_job_action(project, action, job_id, requester):
     """
@@ -97,15 +99,15 @@ def publish_job_action(project, action, job_id, requester):
         refdata = jm.get_job_reference_data(job['signature'])
 
         publisher.job_action(
-            version = 1,
-            build_system_type = refdata['build_system_type'],
-            project = project,
-            action = action,
-            job_guid = job['job_guid'],
+            version=1,
+            build_system_type=refdata['build_system_type'],
+            project=project,
+            action=action,
+            job_guid=job['job_guid'],
             # Job id is included for convenience as you need it in some cases
             # instead of job_guid...
-            job_id = job['id'],
-            requester = requester
+            job_id=job['id'],
+            requester=requester
         )
 
 

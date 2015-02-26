@@ -30,7 +30,7 @@ def load_schemas(folder):
         # Read file and insert into schemas
         with open(os.path.join(folder, filename)) as f:
             data = json.load(f)
-            assert data.has_key('id'), "JSON schemas must have an 'id' property"
+            assert 'id' in data, "JSON schemas must have an 'id' property"
             schemas[data['id']] = data
 
     # Return schemas loaded
@@ -109,6 +109,7 @@ class Key(object):
 
 
 class PulsePublisher(object):
+
     def _generate_publish(self, name, exchange):
         # Create producer for the exchange
         exchange_path = "exchange/%s/%s%s" % (
@@ -117,18 +118,18 @@ class PulsePublisher(object):
                             exchange.exchange
                         )
         producer = kombu.Producer(
-            channel       = self.connection,
-            exchange      = kombu.Exchange(
-                                name            = exchange_path,
-                                type            = 'topic',
-                                durable         = True,
-                                delivery_mode   = 'persistent'
+            channel=self.connection,
+            exchange=kombu.Exchange(
+                                name=exchange_path,
+                                type='topic',
+                                durable=True,
+                                delivery_mode='persistent'
                             ),
-            auto_declare  = True
+            auto_declare=True
         )
 
         publish_message = self.connection.ensure(
-            producer, producer.publish, max_retries = 3
+            producer, producer.publish, max_retries=3
         )
 
         # Create publication method for the exchange
@@ -136,9 +137,9 @@ class PulsePublisher(object):
             message = exchange.message(kwargs)
             jsonschema.validate(message, self.schemas[exchange.schema])
             publish_message(
-                body          = json.dumps(message),
-                routing_key   = exchange.routing(**kwargs),
-                content_type  = 'application/json'
+                body=json.dumps(message),
+                routing_key=exchange.routing(**kwargs),
+                content_type='application/json'
             )
 
         return publish
@@ -153,6 +154,7 @@ class PulsePublisher(object):
 
         Additional properties of type `Exchange` will be declared as exchanges.
     """
+
     def __init__(self, namespace, uri, schemas):
         """
         Create publisher, requires a connection_string and a mapping from
@@ -168,10 +170,10 @@ class PulsePublisher(object):
         assert hasattr(self, 'exchange_prefix'), "exchange_prefix is required"
 
         # Set attributes
-        self.schemas        = schemas
-        self.namespace      = namespace
-        self.exchanges      = []
-        self.connection     = kombu.Connection(uri)
+        self.schemas = schemas
+        self.namespace = namespace
+        self.exchanges = []
+        self.connection = kombu.Connection(uri)
 
         # Find exchanges
         for name in dir(self):

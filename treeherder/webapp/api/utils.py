@@ -140,7 +140,7 @@ class UrlQueryFilter(object):
             value = self.get(key)
             self.delete(key)
             return value
-        except KeyError, e:
+        except KeyError as e:
             if default is not None:
                 return default
             raise e

@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 
 import json
 
+
 def test_job_list(webapp, eleven_jobs_processed, jm):
     """
     test retrieving a list of ten json blobs from the jobs-list
@@ -131,8 +132,9 @@ def test_job_retrigger_unauthorized(webapp, eleven_jobs_processed, jm):
                   kwargs={"project": jm.project, "pk": job["id"]})
     webapp.post(url, status=403)
 
+
 def test_job_retrigger_authorized(webapp, eleven_jobs_processed, jm,
-        pulse_action_consumer):
+                                  pulse_action_consumer):
     """
     Validate that only authenticated users can hit this endpoint.
     """
@@ -155,8 +157,9 @@ def test_job_retrigger_authorized(webapp, eleven_jobs_processed, jm,
     assert content['requester'] == email
     user.delete()
 
+
 def test_job_cancel_authorized(webapp, eleven_jobs_processed, jm,
-        pulse_action_consumer):
+                               pulse_action_consumer):
     """
     Validate that only authenticated users can hit this endpoint.
     """
@@ -178,6 +181,7 @@ def test_job_cancel_authorized(webapp, eleven_jobs_processed, jm,
     assert content['job_guid'] == job['job_guid']
     assert content['requester'] == email
     user.delete()
+
 
 def test_job_detail_bad_project(webapp, eleven_jobs_processed, jm):
     """

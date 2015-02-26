@@ -64,7 +64,7 @@ class Builds4hTransformerMixin(object):
         request_ids_str = ",".join(map(str, request_ids))
         request_time_list = []
 
-        if type(request_times) == dict:
+        if isinstance(request_times, dict):
             for request_id in request_ids:
                 request_time_list.append(
                     request_times[str(request_id)])
@@ -79,7 +79,7 @@ class Builds4hTransformerMixin(object):
             # coallesced job detected, generate the coalesced
             # job guids
             for index, r_id in enumerate(request_ids):
-                #skip if buildbot doesn't have a matching number of ids and times
+                # skip if buildbot doesn't have a matching number of ids and times
                 if len(request_time_list) > index:
                     job_guid_data['coalesced'].append(
                         common.generate_job_guid(
@@ -848,7 +848,7 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
             # Write out display report
             for k, v in sorted(
                     self.report_obj['analyzers'][analyzer]['data'].iteritems(),
-                    key=lambda (k, v): (v['first_seen'], k)):
+                    key=lambda k_v: (k_v[1]['first_seen'], k_v[0])):
 
                 if k in self.blacklist:
                     continue

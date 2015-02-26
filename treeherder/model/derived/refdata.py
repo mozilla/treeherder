@@ -245,7 +245,7 @@ class RefDataManager(object):
             # No reference_data_name was provided use the signature
             # in it's place, in the case of buildbot this will be the
             # buildername
-            if name == None:
+            if name is None:
                 name = signature
 
             placeholders = [name, signature]
@@ -1415,7 +1415,7 @@ class RefDataManager(object):
 
         if signatures:
 
-            reference_data_signatures_where_in_clause = [ ','.join( ['%s'] * len(signatures) ) ]
+            reference_data_signatures_where_in_clause = [','.join(['%s'] * len(signatures))]
 
             reference_data = self.execute(
                 proc="reference.selects.get_reference_data",

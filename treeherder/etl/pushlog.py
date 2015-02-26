@@ -90,7 +90,7 @@ class HgPushlogProcess(HgPushlogTransformerMixin,
                 extracted_content = self.extract(
                     source_url + "&fromchange=" + last_push
                 )
-            except requests.exceptions.HTTPError, e:
+            except requests.exceptions.HTTPError as e:
                 # in case of a 404 error, delete the cache key
                 # and try it without any parameter
                 if e.response.status_code == 404:

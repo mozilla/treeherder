@@ -60,6 +60,7 @@ def pytest_sessionstart(session):
     settings.PULSE_URI = settings.BROKER_URL
     settings.PULSE_EXCHANGE_NAMESPACE = 'test'
 
+
 def pytest_sessionfinish(session):
     """Tear down the test environment, including databases."""
     session.django_runner.teardown_test_environment()
@@ -155,7 +156,7 @@ def add_test_procs_file(dhub, key, filename):
     )
     del dhub.procs[key]
     proclist = dhub.data_sources[key]["procs"]
-    if not test_proc_file in proclist:
+    if test_proc_file not in proclist:
         proclist.append(test_proc_file)
     dhub.data_sources[key]["procs"] = proclist
     dhub.load_procs(key)
@@ -296,6 +297,7 @@ def mock_message_broker(monkeypatch):
     from django.conf import settings
     monkeypatch.setattr(settings, 'BROKER_URL', 'memory://')
 
+
 @pytest.fixture
 def resultset_with_three_jobs(jm, sample_data, sample_resultset):
     """
@@ -326,7 +328,6 @@ def resultset_with_three_jobs(jm, sample_data, sample_resultset):
     jm.store_job_data(blobs)
     jm.process_objects(num_jobs, raise_errors=True)
     return resultset_creation['inserted_result_set_ids'][0]
-
 
 
 @pytest.fixture
@@ -419,6 +420,7 @@ def activate_responses(request):
 
     request.addfinalizer(fin)
 
+
 def pulse_consumer(exchange, request):
     from django.conf import settings
 
@@ -430,19 +432,19 @@ def pulse_consumer(exchange, request):
     connection = kombu.Connection(settings.PULSE_URI)
 
     exchange = kombu.Exchange(
-            name = exchange_name,
+            name=exchange_name,
             type='topic'
             )
 
     queue = kombu.Queue(
             no_ack=True,
-            exchange=exchange, # Exchange name
-            routing_key='#', # Bind to all messages
-            auto_delete=True, # Delete after each test
-            exclusive=False) # Disallow multiple consumers
+            exchange=exchange,  # Exchange name
+            routing_key='#',  # Bind to all messages
+            auto_delete=True,  # Delete after each test
+            exclusive=False)  # Disallow multiple consumers
 
     simpleQueue = connection.SimpleQueue(
-            name = queue,
+            name=queue,
             channel=connection,
             no_ack=True)
 
@@ -452,9 +454,11 @@ def pulse_consumer(exchange, request):
     request.addfinalizer(fin)
     return simpleQueue
 
+
 @pytest.fixture
 def pulse_resultset_consumer(request):
     return pulse_consumer('new-result-set', request)
+
 
 @pytest.fixture
 def pulse_action_consumer(request):

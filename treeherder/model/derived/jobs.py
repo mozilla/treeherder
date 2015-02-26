@@ -250,10 +250,9 @@ class JobsModel(TreeherderModelBase):
         # Retrieve associated data in reference_data_signatures
         result = self.refdata_model.get_reference_data([signature])
         if result and signature in result:
-            return result[signature];
+            return result[signature]
 
         return None
-
 
     def get_job_list(self, offset, limit,
                      conditions=None, exclusion_profile=None):
@@ -388,7 +387,6 @@ class JobsModel(TreeherderModelBase):
             args=[self.project, action, job['id'], requester],
             routing_key='high_priority'
         )
-
 
     def retrigger(self, requester, job):
         """
@@ -2314,7 +2312,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 job_id = None
                 job_guid = None
 
-                if type(artifact) is list:
+                if isinstance(artifact, list):
 
                     job_guid = artifact[0]
                     job_id = job_id_lookup.get(job_guid, {}).get('id', None)

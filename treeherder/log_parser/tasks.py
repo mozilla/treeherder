@@ -75,7 +75,7 @@ def parse_log(project, job_log_url, job_guid, check_errors=False):
 
         logger.debug("Finished posting artifact for guid '%s'" % job_guid)
 
-    except Exception, e:
+    except Exception as e:
         # send an update to job_log_url
         # the job_log_url status changes from pending/running to failed
         logger.warn("Failed to download and/or parse artifact for guid '%s'" %

@@ -285,6 +285,7 @@ def test_resultset_with_bad_key(sample_resultset, jm, initial_data):
     assert resp.json['response'] == "access_denied"
     assert resp.json['detail'] == "oauth_consumer_key does not match project, {0}, credentials".format(jm.project)
 
+
 def test_resultset_cancel_all(jm, resultset_with_three_jobs, pulse_action_consumer):
     """
     Issue cancellation of a resultset with three unfinished jobs.
@@ -300,7 +301,7 @@ def test_resultset_cancel_all(jm, resultset_with_three_jobs, pulse_action_consum
         assert job['state'] == 'pending'
 
     url = reverse("resultset-cancel-all",
-                  kwargs={"project": jm.project, "pk": resultset_with_three_jobs })
+                  kwargs={"project": jm.project, "pk": resultset_with_three_jobs})
     resp = client.post(url)
 
     # Ensure all jobs are pending..
@@ -316,4 +317,4 @@ def test_resultset_cancel_all(jm, resultset_with_three_jobs, pulse_action_consum
         assert content['action'] == 'cancel'
         assert content['project'] == jm.project
 
-    user.delete();
+    user.delete()

@@ -63,7 +63,7 @@ Type 'yes' to continue, or 'no' to cancel: """ % connection.settings_dict['NAME'
                 try:
                     rendered_sql = sql.format(engine=options['engine'])
                     cursor.execute(rendered_sql)
-                except Exception, e:
+                except Exception as e:
                     print "Error on sql execution:{0}".format(e)
                 finally:
                     cursor.close()

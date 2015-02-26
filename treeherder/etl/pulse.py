@@ -265,7 +265,7 @@ class PulseDataAdapter(object):
             if cb:
                 cb(attr, pulse_value, data)
             else:
-                if (type(pulse_value) == list) and (len(pulse_value) > 0):
+                if (isinstance(pulse_value, list)) and (len(pulse_value) > 0):
                     data[attr] = pulse_value[0]
                 else:
                     data[attr] = pulse_value
@@ -292,7 +292,7 @@ class PulseDataAdapter(object):
 
     def process_sourcestamp_changes_list(self, attr_table, pulse_data, data):
         """Process sourcestamp changes list"""
-        if (type(pulse_data) == list) and (len(pulse_data) > 0):
+        if (isinstance(pulse_data, list)) and (len(pulse_data) > 0):
             self.process_raw_data_dict(attr_table, pulse_data[0], data)
 
     def adapt_data(self, data):
