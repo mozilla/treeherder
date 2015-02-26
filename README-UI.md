@@ -2,17 +2,16 @@ treeherder-ui
 =============
 
 #### Description
-<strong><a href="https://treeherder.mozilla.org" target=_newtab>Treeherder</a></strong> is a reporting dashboard for Mozilla checkins. It allows users to see the results of automatic builds and their respective tests. It is comprised of this repo for the front end, and several other component repos.
+[Treeherder](https://treeherder.mozilla.org) is a reporting dashboard for Mozilla checkins. It allows users to see the results of automatic builds and their respective tests. It is comprised of several repos:
 
-A <a href="https://github.com/mozilla/treeherder-service" target=_newtab>treeherder-service</a> repo for backend services.
-
-A <a href="https://github.com/mozilla/treeherder-client" target=_newtab>treeherder-client</a> for data submission.
-
-A <a href="https://github.com/mozilla/treeherder-node" target=_newtab>treeherder-node</a> NodeJS interface.
+* [treeherder-ui](https://github.com/mozilla/treeherder-ui) for the front end.
+* [treeherder-service](https://github.com/mozilla/treeherder-service) for the back end services/API.
+* [treeherder-client](https://github.com/mozilla/treeherder-client) for data submission.
+* [treeherder-node](https://github.com/mozilla/treeherder-node) NodeJS interface.
 
 
 #### Instances
-Treeherder exists on three instances, <a href="http://treeherder-dev.allizom.org" target=_newtab>dev</a> for treeherder development, <a href="https://treeherder.allizom.org" target=_newtab>stage</a> for pre-deployment validation, and <a href="https://treeherder.mozilla.org" target=_newtab>production</a> for actual use.
+Treeherder exists on three instances, [dev](http://treeherder-dev.allizom.org) for treeherder development, [stage](https://treeherder.allizom.org) for pre-deployment validation, and [production](https://treeherder.mozilla.org) for actual use.
 
 
 #### Development
