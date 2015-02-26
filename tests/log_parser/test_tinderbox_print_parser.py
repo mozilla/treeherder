@@ -109,10 +109,9 @@ TINDERBOX_TEST_CASES = (
                 '2153/<em class="testfail">1</em>&nbsp;'
                 '<em class="testfail">CRASH</em>'
             )
-
         }]
-
     ),
+
     (
         (
             'TinderboxPrint: TalosResult: '
@@ -166,7 +165,22 @@ TINDERBOX_TEST_CASES = (
                 }
             }
         }]
+    ),
 
+    (
+        (
+            'TinderboxPrint: hazard results: '
+            'https://ftp-ssl.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/'
+            'mozilla-central-linux64-br-haz/20150226025813'
+        ),
+        [{
+            'content_type': 'link',
+            'title': 'hazard results',
+            'url': 'https://ftp-ssl.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/'
+                   'mozilla-central-linux64-br-haz/20150226025813',
+            'value': 'https://ftp-ssl.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/'
+                     'mozilla-central-linux64-br-haz/20150226025813'
+        }]
     ),
 )
 

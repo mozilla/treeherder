@@ -201,11 +201,11 @@ RE_UPLOADED_TO = re.compile(
     r"<a href=['\"](?P<url>http(s)?://.*)['\"]>(?P<value>.+)</a>: uploaded"
 )
 RE_LINK_HTML = re.compile(
-    (r"((?P<title>[A-Za-z/\.0-9\-_]+): )?"
+    (r"((?P<title>[A-Za-z/\.0-9\-_ ]+): )?"
      r"<a .*href=['\"](?P<url>http(s)?://.+)['\"].*>(?P<value>.+)</a>")
 )
 RE_LINK_TEXT = re.compile(
-    r"((?P<title>[A-Za-z/\.0-9\-_]+): )?(?P<url>http(s)?://.*)"
+    r"((?P<title>[A-Za-z/\.0-9\-_ ]+): )?(?P<url>http(s)?://.*)"
 )
 
 TINDERBOX_REGEXP_TUPLE = (
