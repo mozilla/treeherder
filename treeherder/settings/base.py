@@ -6,6 +6,8 @@
 import os
 import sys
 from datetime import timedelta
+
+from kombu import Exchange, Queue
 from treeherder import path
 
 # Insure the vendor libraries are added to the python path
@@ -182,8 +184,6 @@ LOGGING = {
 
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
-from kombu import Exchange, Queue
-
 CELERY_QUEUES = (
     Queue('default', Exchange('default'), routing_key='default'),
     # queue for failed jobs/logs
@@ -214,8 +214,6 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_DEFAULT_QUEUE = 'default'
 CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'
 CELERY_DEFAULT_ROUTING_KEY = 'default'
-
-from datetime import timedelta
 
 CELERYBEAT_SCHEDULE = {
     'fetch-push-logs-every-minute': {

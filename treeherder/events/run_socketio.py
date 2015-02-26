@@ -1,25 +1,25 @@
+#!/usr/bin/env python
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-#!/usr/bin/env python
 import sys
 import argparse
+import logging
 from os.path import dirname
 import gevent
 from gevent import monkey
-monkey.patch_all()
+monkey.patch_all()  # noqa
 from socketio.server import SocketIOServer
 from socketio import socketio_manage
 from kombu import Connection
-import logging
 
-logger = logging.getLogger("treeherder.events")
-
-sys.path.append(dirname(dirname(dirname(__file__))))
+sys.path.append(dirname(dirname(dirname(__file__))))  # noqa
 
 from treeherder.events.consumer import EventsConsumer
 from treeherder.events.sockets import EventsNamespace
+
+logger = logging.getLogger("treeherder.events")
 
 
 class Application(object):
