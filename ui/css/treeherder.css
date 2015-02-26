@@ -587,6 +587,7 @@ div#bottom-panel .navbar{
     font-size:12px;
     min-height: 33px;
     min-width: initial;
+    overflow: hidden;
     z-index: 100;
 }
 
