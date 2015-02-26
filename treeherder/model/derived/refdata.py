@@ -959,7 +959,7 @@ class RefDataManager(object):
         for item in platform_data:
 
             self._add_platform(
-                #os_name, platform, architecture
+                # os_name, platform, architecture
                 item[0], item[1], item[2],
                 platform_lookup, platform_placeholders,
                 unique_platforms, where_filters
@@ -1250,7 +1250,7 @@ class RefDataManager(object):
 
         if repository['dvcs_type'] != 'hg':
             # TODO: Add handling for git, for now do nothing and return
-            #raise NotImplementedError
+            # raise NotImplementedError
             return
         else:
             version = self.get_hg_repository_version(repository['url'])

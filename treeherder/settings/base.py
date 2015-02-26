@@ -12,7 +12,6 @@ from treeherder import path
 # in production, and before the site-packages entry.
 sys.path.insert(1, path('..', 'vendor'))
 
-
 # These settings can all be optionally set via env vars, or in local.py:
 
 TREEHERDER_DATABASE_NAME = os.environ.get("TREEHERDER_DATABASE_NAME", "")
@@ -76,7 +75,7 @@ STATICFILES_DIRS = []
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
-    #"django.contrib.staticfiles.finders.DefaultStorageFinder",
+    # "django.contrib.staticfiles.finders.DefaultStorageFinder",
 ]
 
 TEMPLATE_LOADERS = [
@@ -210,7 +209,6 @@ CELERY_QUEUES = (
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-
 
 # default value when no task routing info is specified
 CELERY_DEFAULT_QUEUE = 'default'
