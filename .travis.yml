@@ -26,8 +26,8 @@ services:
   - rabbitmq
   - memcached
 install:
-  - pip install -r requirements/compiled.txt --use-mirrors
-  - pip install -r requirements/dev.txt --use-mirrors
+  - pip install -r requirements/compiled.txt
+  - pip install -r requirements/dev.txt
   - python setup.py build_ext --inplace
 script:
   - py.test tests/$* --runslow --cov-report term-missing --cov treeherder
