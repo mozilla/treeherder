@@ -10,8 +10,6 @@ from django.contrib import admin
 from .api import urls as api_urls
 from treeherder.embed import urls as embed_urls
 
-admin.autodiscover()
-
 from django_browserid.admin import site as browserid_admin
 browserid_admin.copy_registry(admin.site)
 
