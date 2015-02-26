@@ -31,6 +31,6 @@ before_script:
   - python setup.py build_ext --inplace
   - mysql -e 'create database treeherder;'
 script:
-  - py.test tests/$* --runslow --cov-report term-missing --cov treeherder
+  - py.test tests/$* --runslow
 notifications:
   email: false
