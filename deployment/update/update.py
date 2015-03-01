@@ -24,16 +24,27 @@ env_flag = '-p' if is_prod else '-s'
 
 @task
 def pre_update(ctx, ref=settings.UPDATE_REF):
-    # Update the code to a specific git reference (branch/tag/sha)
+    # Update the code to a specific git reference (branch/tag/sha) and write
+    # info about the current repository state to a publicly visible file.
     with ctx.lcd(th_service_src):
         ctx.local('git fetch --quiet origin %s' % ref)
         ctx.local('git reset --hard FETCH_HEAD')
         ctx.local("find . -type f -name '*.pyc' -delete")
+        ctx.local('date')
+        ctx.local('git branch')
+        ctx.local('git log -3')
+        ctx.local('git status')
+        ctx.local('git rev-parse HEAD > treeherder/webapp/media/revision')
 
     with ctx.lcd(th_ui_src):
         ctx.local('git fetch --quiet origin %s' % ref)
         ctx.local('git reset --hard FETCH_HEAD')
         ctx.local("find . -type f -name '*.pyc' -delete")
+        ctx.local('date')
+        ctx.local('git branch')
+        ctx.local('git log -3')
+        ctx.local('git status')
+        ctx.local('git rev-parse HEAD >> ../treeherder-service/treeherder/webapp/media/revision')
 
 
 @task
@@ -101,19 +112,3 @@ def deploy(ctx):
 
     deploy_log()
     restart_jobs(ctx, 'log')
-
-    with ctx.lcd(th_service_src):
-        # Write info about the current repository state to a publicly visible file.
-        ctx.local('date')
-        ctx.local('git branch')
-        ctx.local('git log -3')
-        ctx.local('git status')
-        ctx.local('git rev-parse HEAD > treeherder/webapp/media/revision')
-
-    with ctx.lcd(th_ui_src):
-        # Write info about the current repository state to a publicly visible file.
-        ctx.local('date')
-        ctx.local('git branch')
-        ctx.local('git log -3')
-        ctx.local('git status')
-        ctx.local('git rev-parse HEAD >> ../treeherder-service/treeherder/webapp/media/revision')
