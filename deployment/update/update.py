@@ -24,19 +24,17 @@ env_flag = '-p' if is_prod else '-s'
 
 @task
 def pre_update(ctx, ref=settings.UPDATE_REF):
-    """Update the code to a specific git reference (tag/sha/etc)."""
+    # Update the code to a specific git reference (branch/tag/sha)
     with ctx.lcd(th_service_src):
-        ctx.local('git fetch --prune')
-        ctx.local('git reset FETCH_HEAD --hard')
-        ctx.local('git checkout %s' % ref)
+        ctx.local('git fetch --quiet origin %s' % ref)
+        ctx.local('git reset --hard FETCH_HEAD')
         ctx.local('git submodule sync')
         ctx.local('git submodule update --init --recursive')
         ctx.local("find . -type f -name '*.pyc' -delete")
 
     with ctx.lcd(th_ui_src):
-        ctx.local('git fetch --prune')
-        ctx.local('git reset FETCH_HEAD --hard')
-        ctx.local('git checkout %s' % ref)
+        ctx.local('git fetch --quiet origin %s' % ref)
+        ctx.local('git reset --hard FETCH_HEAD')
         ctx.local('git submodule sync')
         ctx.local('git submodule update --init --recursive')
         ctx.local("find . -type f -name '*.pyc' -delete")
