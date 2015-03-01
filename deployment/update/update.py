@@ -30,20 +30,14 @@ def pre_update(ctx, ref=settings.UPDATE_REF):
         ctx.local('git fetch --quiet origin %s' % ref)
         ctx.local('git reset --hard FETCH_HEAD')
         ctx.local("find . -type f -name '*.pyc' -delete")
-        ctx.local('date')
-        ctx.local('git branch')
-        ctx.local('git log -3')
-        ctx.local('git status')
+        ctx.local('git status -s')
         ctx.local('git rev-parse HEAD > treeherder/webapp/media/revision')
 
     with ctx.lcd(th_ui_src):
         ctx.local('git fetch --quiet origin %s' % ref)
         ctx.local('git reset --hard FETCH_HEAD')
         ctx.local("find . -type f -name '*.pyc' -delete")
-        ctx.local('date')
-        ctx.local('git branch')
-        ctx.local('git log -3')
-        ctx.local('git status')
+        ctx.local('git status -s')
         ctx.local('git rev-parse HEAD >> ../treeherder-service/treeherder/webapp/media/revision')
 
 
