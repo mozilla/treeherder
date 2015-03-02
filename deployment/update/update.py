@@ -11,9 +11,12 @@ Requires commander_ which is installed on the systems that need it.
 """
 
 import os
+import sys
 
 from commander.deploy import task, hostgroups
-import commander_settings as settings
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+import commander_settings as settings  # noqa
 
 th_service_src = os.path.join(settings.SRC_DIR, 'treeherder-service')
 th_ui_src = os.path.join(settings.SRC_DIR, 'treeherder-ui')
