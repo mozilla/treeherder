@@ -104,6 +104,6 @@ def deploy_nodes(ctx, hostgroup, node_type):
             # TODO: Move this to the restart-jobs script.
             ctx.remote('{0}/service httpd graceful'.format(settings.SBIN_DIR))
 
-    rsync_code(ctx, node_type)
+    rsync_code(node_type)
     env_flag = '-p' if is_prod else '-s'
     ctx.local('/root/bin/restart-jobs %s %s' % (env_flag, node_type))
