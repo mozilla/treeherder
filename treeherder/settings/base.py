@@ -364,6 +364,10 @@ try:
 except ImportError:
     pass
 
+# Override the local config to disable pulse publishing.
+# Remove me when bug 1138400 is fixed.
+PULSE_EXCHANGE_NAMESPACE = None
+
 INSTALLED_APPS += LOCAL_APPS
 
 TEMPLATE_DEBUG = DEBUG
