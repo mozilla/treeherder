@@ -28,15 +28,11 @@ def pre_update(ctx, ref=settings.UPDATE_REF):
     with ctx.lcd(th_service_src):
         ctx.local('git fetch --quiet origin %s' % ref)
         ctx.local('git reset --hard FETCH_HEAD')
-        ctx.local('git submodule sync')
-        ctx.local('git submodule update --init --recursive')
         ctx.local("find . -type f -name '*.pyc' -delete")
 
     with ctx.lcd(th_ui_src):
         ctx.local('git fetch --quiet origin %s' % ref)
         ctx.local('git reset --hard FETCH_HEAD')
-        ctx.local('git submodule sync')
-        ctx.local('git submodule update --init --recursive')
         ctx.local("find . -type f -name '*.pyc' -delete")
 
 
@@ -112,7 +108,6 @@ def deploy(ctx):
         ctx.local('git branch')
         ctx.local('git log -3')
         ctx.local('git status')
-        ctx.local('git submodule status')
         ctx.local('git rev-parse HEAD > treeherder/webapp/media/revision')
 
     with ctx.lcd(th_ui_src):
@@ -121,5 +116,4 @@ def deploy(ctx):
         ctx.local('git branch')
         ctx.local('git log -3')
         ctx.local('git status')
-        ctx.local('git submodule status')
         ctx.local('git rev-parse HEAD >> ../treeherder-service/treeherder/webapp/media/revision')
