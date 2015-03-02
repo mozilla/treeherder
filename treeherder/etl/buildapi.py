@@ -591,7 +591,8 @@ class RunningJobsProcess(JsonExtractorMixin,
                          RunningTransformerMixin,
                          OAuthLoaderMixin):
 
-    def run(self, filter_to_revision=None, filter_to_project=None):
+    def run(self, filter_to_revision=None, filter_to_project=None,
+            filter_to_job_group=None):
         extracted_content = self.extract(settings.BUILDAPI_RUNNING_URL)
         if extracted_content:
             self.load(
