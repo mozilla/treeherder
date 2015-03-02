@@ -22,3 +22,5 @@ virtualenv==1.7.1.2
 
 #for celery auto-reloading
 pyinotify==0.9.4
+
+flake8

@@ -31,6 +31,7 @@ before_script:
   - python setup.py build_ext --inplace
   - mysql -e 'create database treeherder;'
 script:
+  - flake8 --show-source
   - py.test tests/$* --runslow
 notifications:
   email: false
