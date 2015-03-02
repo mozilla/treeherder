@@ -69,10 +69,10 @@ def deploy(ctx):
     # Rsync the updated code to the nodes & restart processes. These are
     # separated out into their own functions, since the IRC bot output includes
     # the task function name which is useful given how long these steps take.
-    deploy_rabbit(ctx)
-    deploy_web_app(ctx)
-    deploy_etl(ctx)
-    deploy_log(ctx)
+    deploy_rabbit()
+    deploy_web_app()
+    deploy_etl()
+    deploy_log()
 
 
 @task
