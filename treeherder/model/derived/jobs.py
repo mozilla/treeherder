@@ -563,8 +563,10 @@ class JobsModel(TreeherderModelBase):
 
         for datum in flat_data:
             series_summary[datum['signature']] = {}
-            for kv in datum['properties'].split(','):
+            for kv in datum['properties'].split('\n'):
                 (key, val) = kv.split('=')
+                if key == 'subtest_signatures':
+                    val = json.loads(val)
                 series_summary[datum['signature']][key] = val
 
         return series_summary
