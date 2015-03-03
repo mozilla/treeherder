@@ -50,7 +50,7 @@ treeherder.controller('MainCtrl', [
 
         // Disable single key shortcuts in specified shortcut events
         $scope.allowKeys = function() {
-            Mousetrap.unbind(['i', 'j', 'n', 'k', 'p', 'space', 'u', 'r', 'c']);
+            Mousetrap.unbind(['i', 'j', 'n', 'k', 'p', 'space', 'u', 'r', 'c', 'f']);
         };
 
         // Process shortcut events
@@ -143,7 +143,6 @@ treeherder.controller('MainCtrl', [
                         $rootScope.$emit(thEvents.jobPin, $rootScope.selectedJob)
                     );
 
-
                     // Prevent shortcut key overflow during focus
                     ev.preventDefault();
 
@@ -154,6 +153,14 @@ treeherder.controller('MainCtrl', [
                     // Treat single key shortcuts as regular text during input
                     $scope.$evalAsync($scope.allowKeys());
                 }
+            });
+
+            // Shortcut: enter a custom job or platform filter
+            Mousetrap.bind('f', function(ev) {
+                // Prevent shortcut key overflow during focus
+                ev.preventDefault();
+
+                angular.element('#platform-job-text-search-field').trigger('click');
             });
 
             // Shortcut: escape closes any open panels and clears selected job

@@ -15,6 +15,14 @@ a:visited {
     color: purple;
 }
 
+input:focus::-webkit-input-placeholder {
+    color: transparent;
+}
+
+input:focus::-moz-placeholder {
+    color: transparent;
+}
+
 #global-container {
     display: -webkit-flex;
     display:         flex;
