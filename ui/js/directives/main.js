@@ -44,19 +44,6 @@ treeherder.directive('blurThis', ['$timeout', function($timeout) {
   };
 }]);
 
-// Directive clickThis which synthesizes a click in a specific element
-treeherder.directive('clickThis', ['$timeout', function($timeout) {
-  return function(scope, elem, attr) {
-      scope.$on('click-this', function(event, id) {
-        if (attr.id == id) {
-          $timeout(function() {
-            elem[0].click();
-          }, 0);
-        }
-      });
-  };
-}]);
-
 // Directive focusMe which sets a global focus state for elements
 // which listen to it via ''focus-me="focusInput'' in angular markup
 treeherder.directive('focusMe', [

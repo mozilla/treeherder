@@ -154,9 +154,7 @@ treeherder.controller('MainCtrl', [
                 // Prevent shortcut key overflow during focus
                 ev.preventDefault();
 
-                $scope.$evalAsync(
-                    $rootScope.$broadcast('click-this', "platform-job-text-search-field")
-                );
+                angular.element('#platform-job-text-search-field').trigger('click');
             });
 
             // Shortcut: escape closes any open panels and clears selected job
