@@ -48,23 +48,33 @@ treeherder.controller('MainCtrl', [
             }
         };
 
-        // Disable single key shortcuts in specified shortcut events
+        // Single key shortcuts to allow in ui events (usually inputs)
+        var mousetrapExclusions = [
+            'i',     // Toggle display in-progress jobs (pending/running)
+            'j',     // Select next unclassified failure
+            'n',     // Select next unclassified failure
+            'k',     // Select previous unclassified failure
+            'p',     // Select previous unclassified failure
+            'r',     // Retrigger selected job
+            'space', // Pin selected job to pinboard
+            'u',     // Display only unclassified failures
+            'b',     // Pin selected job and add related bug
+            'c',     // Pin selected job and add classification
+            'f',     // Enter a custom job or platform filter
+            'left',  // Select previous job
+            'right'  // Select next job
+        ];
+
+        // Make the single key exclusions available
         $scope.allowKeys = function() {
-            Mousetrap.unbind([
-                'i',     // Toggle display in-progress jobs (pending/running)
-                'j',     // Select next unclassified failure
-                'n',     // Select next unclassified failure
-                'k',     // Select previous unclassified failure
-                'p',     // Select previous unclassified failure
-                'r',     // Retrigger selected job
-                'space', // Pin selected job to pinboard
-                'u',     // Display only unclassified failures
-                'b',     // Pin selected job and add related bug
-                'c',     // Pin selected job and add classification
-                'f',     // Enter a custom job or platform filter
-                'left',  // Select previous job
-                'right'  // Select next job
-            ]);
+            Mousetrap.unbind(mousetrapExclusions);
+        };
+
+        /* Unique settings for the classification dropdown to allow 'c'
+         * and 'b' and invoke those shortcuts while focused. Since we
+         * conveniently don't have those classification Names at present */
+        $scope.allowKeysClassificationDropdown = function() {
+            Mousetrap.unbind(_.without(mousetrapExclusions, 'c', 'b'));
         };
 
         // Process shortcut events

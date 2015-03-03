@@ -43,7 +43,8 @@
   <div class="pinboard-label">classification</div>
   <div id="pinboard-classification-content" class="content">
     <form ng-submit="completeClassification()" class="form">
-      <select ng-model="classification.failure_classification_id"
+      <select class="mousetrap" ng-click="allowKeysClassificationDropdown()"
+              ng-model="classification.failure_classification_id"
               ng-options="item.id as item.name for item in classificationTypes.classificationOptions">
       </select>
       <!-- Classification comment -->
