@@ -300,20 +300,22 @@
             "host_type":"master_host"
         },
         "update_last_job_classification":{
-            "sql":"update job j
-                    set failure_classification_id = (
-	                    select
-	                        IF(failure_classification_id IS NOT NULL, failure_classification_id, 1)
-	                    from
-	                        job_note jn
-	                    where
-	                        jn.job_id = j.id
-	                    order by
-	                        note_timestamp DESC
-	                    limit 0,1
-	                )
-	                where j.id = ?
-            ",
+            "sql":"UPDATE job j
+                    SET failure_classification_id = ( 
+                        SELECT
+                            IFNULL(
+                                ( SELECT
+                                    failure_classification_id
+                                FROM
+                                    job_note jn
+                                WHERE
+                                    jn.job_id = j.id
+                                ORDER BY
+                                    note_timestamp DESC
+                                LIMIT 0,1 ), 1
+                            )
+                        )
+                    WHERE j.id = ?",
 
             "host_type":"master_host"
         },
