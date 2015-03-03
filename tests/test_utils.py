@@ -354,12 +354,12 @@ def load_exp(filename):
     development.
     """
     path = SampleData().get_log_path(filename)
-    exp_str = open(path, "a+").read()
-    try:
-        return json.loads(exp_str)
-    except ValueError:
-        # if it's not parse-able, return an empty dict
-        return {}
+    with open(path, "a+") as f:
+        try:
+            return json.loads(f.read())
+        except ValueError:
+            # if it's not parse-able, return an empty dict
+            return {}
 
 
 def unicode_keys(d):

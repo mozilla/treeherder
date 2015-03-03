@@ -11,33 +11,31 @@ from thclient import (TreeherderJobCollection)
 
 from tests import test_utils
 
+base_dir = os.path.dirname(__file__)
+
 
 @pytest.fixture
 def pending_jobs():
     """returns a list of buildapi pending jobs"""
-    return json.loads(open(
-        os.path.join(os.path.dirname(__file__), "pending.json")
-    ).read())
+    with open(os.path.join(base_dir, "pending.json")) as f:
+        return json.loads(f.read())
 
 
 @pytest.fixture
 def running_jobs():
     """returns a list of buildapi running jobs"""
-    return json.loads(open(
-        os.path.join(os.path.dirname(__file__), "running.json")
-    ).read())
+    with open(os.path.join(base_dir, "running.json")) as f:
+        return json.loads(f.read())
 
 
 @pytest.fixture
 def completed_jobs(sample_data):
     """returns a list of pulse completed jobs"""
-    base_dir = os.path.dirname(__file__)
-    content = open(
-        os.path.join(os.path.dirname(__file__), "finished.json")
-    ).read()
-    t = Template(content)
-    c = Context({"base_dir": base_dir})
-    return json.loads(t.render(c))
+    with open(os.path.join(base_dir, "finished.json")) as f:
+        content = f.read()
+        t = Template(content)
+        c = Context({"base_dir": base_dir})
+        return json.loads(t.render(c))
 
 
 @pytest.fixture

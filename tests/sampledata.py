@@ -23,21 +23,15 @@ class SampleData(object):
 
     @classmethod
     def get_talos_perf_data(cls):
-        talos_perf_data = []
         with open("{0}/sample_data/artifacts/performance/talos_perf.json".format(
                 os.path.dirname(__file__))) as f:
-            talos_perf_data = json.loads(f.read())
-
-        return talos_perf_data
+            return json.loads(f.read())
 
     @classmethod
     def get_b2g_perf_data(cls):
-        b2g_perf_data = []
         with open("{0}/sample_data/artifacts/performance/b2g_perf.json".format(
                 os.path.dirname(__file__))) as f:
-            b2g_perf_data = json.loads(f.read())
-
-        return b2g_perf_data
+            return json.loads(f.read())
 
     def __init__(self):
 
@@ -80,7 +74,6 @@ class SampleData(object):
                 self.job_data.append(json.loads(line.strip()))
 
         with open(self.resultset_data_file) as f:
-
             self.resultset_data = json.loads(f.read())
 
             # ensure that the repository values for all the revisions have the
@@ -91,9 +84,9 @@ class SampleData(object):
                     rev["repository"] = settings.DATABASES["default"]["TEST_NAME"]
 
         with open(self.raw_pulse_data_file) as f:
-            for line in f.readlines():
-                line = str(line)
-                self.raw_pulse_data.append(json.loads(line.strip()))
+            for line in f:
+                line = str(line).strip()
+                self.raw_pulse_data.append(json.loads(line))
 
     def get_log_path(self, name):
         """Returns the full path to a log file"""

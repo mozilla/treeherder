@@ -15,17 +15,12 @@ from datetime import timedelta
 
 def ref_data_json():
     """Return reference data json structure"""
-
     filename = os.path.join(
         os.path.abspath(os.path.dirname(__file__)),
         "ref_data.json",
     )
-
-    json_data = ""
     with open(filename) as f:
-        json_data = f.read()
-
-    return json_data
+        return f.read()
 
 
 def job_json(**kwargs):
@@ -175,7 +170,8 @@ def result_set(**kwargs):
         "resultset_data.json"
     )
 
-    defaults = json.loads(open(source_file).read())[0]
+    with open(source_file) as f:
+        defaults = json.loads(f.read())[0]
     defaults.update(kwargs)
 
     # ensure that the repository values for all the revisions have the

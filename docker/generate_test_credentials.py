@@ -40,7 +40,9 @@ while current_try < RETRIES:
         continue
 
     # Load and process the json...
-    content = json.loads(open(CREDENTIALS).read())
+    with open(CREDENTIALS) as f:
+        content = json.loads(f.read())
+
     print('Projects:', content.keys())
 
     # It is possible we have a database setup but no fixtures imported if this

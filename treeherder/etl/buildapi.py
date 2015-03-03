@@ -807,73 +807,70 @@ class Builds4hAnalyzer(JsonExtractorMixin, Builds4hTransformerMixin):
                             deserialized_data['analyzers'][analysis_type]
 
     def write_report(self):
-        report_fh = open(self.builds4h_report_file_path, 'w')
-        divider = "------------------------------------------------------\n"
+        with open(self.builds4h_report_file_path, 'w') as report_fh:
+            divider = "------------------------------------------------------\n"
 
-        header_line = "Builds4h Report Last Run Time {0}\n".format(
-            self.readable_time)
-        report_fh.write(header_line)
-        report_fh.write(divider)
-
-        data_to_write = {'analyzers': {}, 'guids': {}}
-        data_to_write['guids'] = self.report_obj['guids']
-
-        for analyzer in sorted(self.report_obj['analyzers']):
-
-            # Set data for json structure
-            data_to_write['analyzers'][analyzer] = \
-                self.report_obj['analyzers'][analyzer]['data']
-
-            # Remove any blacklist names found
-            for exclude_name in self.blacklist:
-                if exclude_name in self.report_obj['analyzers'][analyzer]['data']:
-                    del self.report_obj['analyzers'][analyzer]['data'][exclude_name]
-
-            # Write the title line
-            all_misses = self.report_obj['analyzers'][analyzer]['all_misses']
-
-            if all_misses > 0:
-                title = self.report_obj['analyzers'][analyzer].get(
-                    'title', '{0} Needs Title')
-                report_fh.write(
-                    "{0}\n".format(title.format(str(all_misses)))
-                )
-                report_fh.write(divider)
-            else:
-                continue
-
-            # Write out display report
-            for k, v in sorted(
-                    self.report_obj['analyzers'][analyzer]['data'].iteritems(),
-                    key=lambda k_v: (k_v[1]['first_seen'], k_v[0])):
-
-                if k in self.blacklist:
-                    continue
-
-                if v['missed_count'] == 0:
-                    continue
-
-                readable_time = datetime.datetime.fromtimestamp(
-                    v['first_seen']).strftime('%Y-%m-%d')
-
-                line = "{0}\t{1}\t{2}/{3}\n".format(
-                    str(k), readable_time, str(v['missed_count']),
-                    str(v['total_count']))
-
-                report_fh.write(line)
-
-                if len(v['objects']) > 0:
-                    for o in v['objects']:
-                        report_fh.write("\n{0}\n\n".format(o))
-
+            header_line = "Builds4h Report Last Run Time {0}\n".format(
+                self.readable_time)
+            report_fh.write(header_line)
             report_fh.write(divider)
 
-        report_fh.close()
+            data_to_write = {'analyzers': {}, 'guids': {}}
+            data_to_write['guids'] = self.report_obj['guids']
+
+            for analyzer in sorted(self.report_obj['analyzers']):
+
+                # Set data for json structure
+                data_to_write['analyzers'][analyzer] = \
+                    self.report_obj['analyzers'][analyzer]['data']
+
+                # Remove any blacklist names found
+                for exclude_name in self.blacklist:
+                    if exclude_name in self.report_obj['analyzers'][analyzer]['data']:
+                        del self.report_obj['analyzers'][analyzer]['data'][exclude_name]
+
+                # Write the title line
+                all_misses = self.report_obj['analyzers'][analyzer]['all_misses']
+
+                if all_misses > 0:
+                    title = self.report_obj['analyzers'][analyzer].get(
+                        'title', '{0} Needs Title')
+                    report_fh.write(
+                        "{0}\n".format(title.format(str(all_misses)))
+                    )
+                    report_fh.write(divider)
+                else:
+                    continue
+
+                # Write out display report
+                for k, v in sorted(
+                        self.report_obj['analyzers'][analyzer]['data'].iteritems(),
+                        key=lambda k_v: (k_v[1]['first_seen'], k_v[0])):
+
+                    if k in self.blacklist:
+                        continue
+
+                    if v['missed_count'] == 0:
+                        continue
+
+                    readable_time = datetime.datetime.fromtimestamp(
+                        v['first_seen']).strftime('%Y-%m-%d')
+
+                    line = "{0}\t{1}\t{2}/{3}\n".format(
+                        str(k), readable_time, str(v['missed_count']),
+                        str(v['total_count']))
+
+                    report_fh.write(line)
+
+                    if len(v['objects']) > 0:
+                        for o in v['objects']:
+                            report_fh.write("\n{0}\n\n".format(o))
+
+                report_fh.write(divider)
 
         # Write out the data json
-        f = open(self.builds4h_analysis_file_path, 'w')
-        f.write(json.dumps(data_to_write))
-        f.close()
+        with open(self.builds4h_analysis_file_path, 'w') as f:
+            f.write(json.dumps(data_to_write))
 
     def get_objects_missing_buildernames(
             self, analysis_type, build, buildername, job_guid):

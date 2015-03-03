@@ -41,7 +41,6 @@ def do_test(log, check_errors=True):
     # :: use to create the ``exp`` files, if you're making a lot of them
     # with open(SampleData().get_log_path("{0}.logview.json".format(log)), "w") as f:
     #     f.write(json.dumps(act, indent=4))
-    #     f.close()
 
     # log urls won't match in tests, since they're machine specific
     # but leave it in the exp file as an example of what the real structure

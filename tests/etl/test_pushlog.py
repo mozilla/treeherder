@@ -15,7 +15,8 @@ def test_ingest_hg_pushlog(jm, initial_data, test_base_dir,
     """ingesting a number of pushes should populate result set and revisions"""
 
     pushlog_path = os.path.join(test_base_dir, 'sample_data', 'hg_pushlog.json')
-    pushlog_content = open(pushlog_path).read()
+    with open(pushlog_path) as f:
+        pushlog_content = f.read()
     pushlog_fake_url = "http://www.thisismypushlog.com"
     push_num = 10
     responses.add(responses.GET, pushlog_fake_url,
@@ -61,7 +62,8 @@ def test_ingest_hg_pushlog_already_stored(jm, initial_data, test_base_dir,
     e.g. trying to store [A,B] with A already stored, B will be stored"""
 
     pushlog_path = os.path.join(test_base_dir, 'sample_data', 'hg_pushlog.json')
-    pushlog_content = open(pushlog_path).read()
+    with open(pushlog_path) as f:
+        pushlog_content = f.read()
     pushes = json.loads(pushlog_content).values()
     first_push, second_push = pushes[0:2]
 
@@ -151,7 +153,8 @@ def test_ingest_hg_pushlog_cache_last_push(jm, initial_data, test_repository,
 
     pushlog_path = os.path.join(test_base_dir, 'sample_data',
                                 'hg_pushlog.json')
-    pushlog_content = open(pushlog_path).read()
+    with open(pushlog_path) as f:
+        pushlog_content = f.read()
     pushlog_fake_url = "http://www.thisismypushlog.com"
     responses.add(responses.GET, pushlog_fake_url, body=pushlog_content,
                   status=200, content_type='application/json')

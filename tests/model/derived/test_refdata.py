@@ -425,7 +425,8 @@ def sample_bugs(test_base_dir):
         'sample_data',
         'bug_list.json'
     )
-    return json.loads(open(filename).read())
+    with open(filename) as f:
+        return json.loads(f.read())
 
 
 def test_update_bugscache(refdata, sample_bugs):
