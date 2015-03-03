@@ -150,9 +150,8 @@ class Builds4hTransformerMixin(object):
             platform_info = buildbot.extract_platform_info(prop['buildername'])
             job_name_info = buildbot.extract_name_info(prop['buildername'])
 
-            if (filter_to_job_group and
-                job_name_info.get('group_symbol', '').lower() !=
-                filter_to_job_group.lower()):
+            if (filter_to_job_group and job_name_info.get('group_symbol', '').lower() !=
+                    filter_to_job_group.lower()):
                 continue
 
             treeherder_data = {
@@ -339,9 +338,8 @@ class PendingTransformerMixin(object):
 
                     job_name_info = buildbot.extract_name_info(pending_job['buildername'])
 
-                    if (filter_to_job_group and
-                        job_name_info.get('group_symbol', '').lower() !=
-                        filter_to_job_group.lower()):
+                    if (filter_to_job_group and job_name_info.get('group_symbol', '').lower() !=
+                            filter_to_job_group.lower()):
                         continue
 
                     device_name = buildbot.get_device_or_unknown(
@@ -474,9 +472,8 @@ class RunningTransformerMixin(object):
                     platform_info = buildbot.extract_platform_info(running_job['buildername'])
                     job_name_info = buildbot.extract_name_info(running_job['buildername'])
 
-                    if (filter_to_job_group and
-                        job_name_info.get('group_symbol', '').lower() !=
-                        filter_to_job_group.lower()):
+                    if (filter_to_job_group and job_name_info.get('group_symbol', '').lower() !=
+                            filter_to_job_group.lower()):
                         continue
 
                     device_name = buildbot.get_device_or_unknown(
