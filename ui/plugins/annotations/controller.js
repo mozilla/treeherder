@@ -6,10 +6,10 @@
 
 treeherder.controller('AnnotationsPluginCtrl', [
     '$scope', '$rootScope', 'ThLog', 'ThJobClassificationModel', 'thNotify',
-    'thEvents', 'ThResultSetModel', 'ThBugJobMapModel', 'thTabs',
+    'thEvents', 'ThResultSetStore', 'ThBugJobMapModel', 'thTabs',
     function AnnotationsPluginCtrl(
         $scope, $rootScope, ThLog, ThJobClassificationModel,
-        thNotify, thEvents, ThResultSetModel, ThBugJobMapModel, thTabs) {
+        thNotify, thEvents, ThResultSetStore, ThBugJobMapModel, thTabs) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -21,6 +21,14 @@ treeherder.controller('AnnotationsPluginCtrl', [
         }, true);
 
         $scope.deleteClassification = function(classification) {
+
+            var key = "key" + classification.job_id;
+            var jobMap = ThResultSetStore.getJobMap($rootScope.repoName);
+            var job = jobMap[key].job_obj;
+
+            job.failure_classification_id = 1;
+            ThResultSetStore.updateUnclassifiedFailureMap($rootScope.repoName, job);
+
             classification.delete()
                 .then(
                     function(){
@@ -30,7 +38,7 @@ treeherder.controller('AnnotationsPluginCtrl', [
 
                         // also be sure the job object in question gets updated to the latest
                         // classification state (in case one was added or removed).
-                        ThResultSetModel.fetchJobs($scope.repoName, [$scope.job.id]);
+                        ThResultSetStore.fetchJobs($scope.repoName, [$scope.job.id]);
 
                         $rootScope.$emit(thEvents.jobsClassified, {jobs: jobs});
                     },
