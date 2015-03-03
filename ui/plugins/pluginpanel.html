@@ -270,11 +270,8 @@
       </nav>
     </div>
     <div id="bottom-center-bottom">
-      <div ng-repeat="(tabId, tab) in tabService.tabs">
-
-          <div ng-show="tabId == tabService.selectedTab">
+      <div ng-repeat="(tabId, tab) in tabService.tabs" ng-show="tabId == tabService.selectedTab">
           <ng-include src="tab.content"></ng-include>
-        </div>
       </div>
     </div>
   </div>

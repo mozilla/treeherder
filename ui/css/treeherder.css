@@ -650,8 +650,7 @@ div#bottom-panel .navbar.navbar-dark .navbar-nav > li.active a:focus {
            flex-flow: row;
 }
 
-#bottom-left-panel, #bottom-center-panel{
-    overflow-y: auto;
+#bottom-left-panel, #bottom-center-panel {
     background-color: #FCFCFC;
     display: -webkit-flex;
     display:         flex;
@@ -661,6 +660,7 @@ div#bottom-panel .navbar.navbar-dark .navbar-nav > li.active a:focus {
 
 #bottom-left-top, #bottom-center-top {
     min-height: 33px;
+    overflow-y: auto;
 }
 
 .pinned-job-count {
@@ -669,7 +669,6 @@ div#bottom-panel .navbar.navbar-dark .navbar-nav > li.active a:focus {
 
 #bottom-left-panel {
     width:260px;
-    overflow-y: auto;
 }
 
 #bottom-left-bottom > ul {
@@ -702,7 +701,7 @@ div#bottom-panel .navbar.navbar-dark .navbar-nav > li.active a:focus {
 
 #bottom-left-panel .printlines{padding-bottom: 5px;}
 
-#bottom-left-bottom, #bottom-center-bottom {
+#bottom-left-bottom {
     overflow: auto;
 }
 
@@ -718,14 +717,44 @@ div#bottom-panel .navbar.navbar-dark .navbar-nav > li.active a:focus {
     border-top: none;
 }
 
-#bottom-center-panel  ul.failure-summary-list{
-    padding-left: 0px;
-    height:100%;
+#bottom-center-bottom {
+    max-height: calc(100% - 33px);
+    -webkit-flex: 1;
+    flex: 1;
+    display: -webkit-flex;
+    display: flex;
+}
+
+#bottom-center-bottom > * {
+    -webkit-flex: 1;
+    flex: 1;
+    display: -webkit-flex;
+    display: flex;
+}
+
+#bottom-center-bottom > * > * {
+    -webkit-flex: 1;
+    flex: 1;
+    display: -webkit-flex;
+    display: flex;
+}
+
+#bottom-center-bottom > * > * > * {
+    -webkit-flex: 1;
+    flex: 1;
+    display: -webkit-flex;
+    display: flex;
+}
+
+#bottom-center-panel ul.failure-summary-list{
+    padding-left: 0;
     overflow: auto;
+    width: 100%;
+    margin-bottom: 0;
 }
 
 ul.failure-summary-list li {
-    padding: 0px 0px 0px 2px;
+    padding-left: 2px;
     font-size: 11px;
     background: #ccfaff;
 }
@@ -1009,7 +1038,7 @@ ul.failure-summary-list li .btn-xs {
 }
 
 .annotations-panel {
-    overflow: scroll;
+    overflow: auto;
     margin-right: 0;
 }
 
@@ -1761,16 +1790,17 @@ fieldset[disabled] .btn-repo.active {
            flex-flow: row;
 }
 
-div.similar_jobs .right_panel{ border: 1px solid #101010; flex: 1 1; -webkit-flex: 1 1; }
-div.similar_jobs .right_panel form{height:42px; background-color: #D3D3D3;}
+
+div.similar_jobs .right_panel{ border-left: 1px solid #101010; margin-right: 1px; overflow-y: auto; flex: 1 1; -webkit-flex: 1 1; }
+div.similar_jobs .right_panel form { overflow: hidden; background-color: #D3D3D3; }
+div.similar_jobs .right_panel form .checkbox input[type="checkbox"] { margin-left: 0px; position: relative; }
 div.similar_jobs .right_panel .similar_job_detail{ border-top: 1px solid #101010; }
 div.similar_jobs .right_panel .similar_job_detail table { width: 100%; overflow: hidden; }
 
-div.similar_jobs .left_panel{ margin-bottom: 15px; flex: 1 1; -webkit-flex: 1 1; }
-div.similar_jobs .left_panel table{ margin-bottom: 5px;}
-div.similar_jobs .left_panel table tr.active>td{background-color: #D3D3D3;}
-div.similar_jobs .left_panel table tr{cursor: pointer;}
-
+div.similar_jobs .left_panel{ overflow: auto; flex: 1 1; -webkit-flex: 1 1; }
+div.similar_jobs .left_panel table{ margin-bottom: 7px;}
+div.similar_jobs .left_panel table tr.active>td{ background-color: #D3D3D3; }
+div.similar_jobs .left_panel table tr{ cursor: pointer; }
 
 #notification_box{
     position:fixed;
