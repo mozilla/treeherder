@@ -1753,6 +1753,25 @@ fieldset[disabled] .btn-repo.active {
     font-weight: normal;
 }
 
+.help-btn-sm tr > th > button {
+    font-size: 13px;
+    padding: 0px 2px;
+    margin-top: 1px;
+    border: 1px solid;
+    border-radius: 3px;
+    color: #b3b3b3;
+    cursor: auto;
+    background: #fff;
+}
+
+.help-btn-sm tr > th > button:focus {
+    outline: 0;
+}
+
+.help-btn-desc tr > td {
+    vertical-align: bottom;
+}
+
 .help-btn {
     margin: 2px;
     border: 2px solid;
