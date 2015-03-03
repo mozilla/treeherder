@@ -78,7 +78,6 @@ class PerformanceDataAdapter(object):
             "required": ["blob", "job_guid", "name", "type"]
         }
 
-
     @staticmethod
     def _round(num):
         # Use a precision of .2f for all numbers stored
@@ -86,10 +85,8 @@ class PerformanceDataAdapter(object):
         # that inflate the size of the stored data structure
         return round(num, 2)
 
-
     @staticmethod
-    def _calculate_summary_data(job_id, result_set_id, push_timestamp,
-                               results):
+    def _calculate_summary_data(job_id, result_set_id, push_timestamp, results):
         values = []
         for test in results:
             values += results[test]
@@ -106,7 +103,6 @@ class PerformanceDataAdapter(object):
             "push_timestamp": push_timestamp,
             "geomean": PerformanceDataAdapter._round(geomean)
         }
-
 
     @staticmethod
     def _calculate_test_data(job_id, result_set_id, push_timestamp,
@@ -132,7 +128,7 @@ class PerformanceDataAdapter(object):
                 return float(sum(r)) / r_len
 
             mean = float(sum(r))/r_len
-            variance = map( lambda x: (x - mean)**2, replicates )
+            variance = map(lambda x: (x - mean)**2, replicates)
 
             series_data["mean"] = PerformanceDataAdapter._round(mean)
             series_data["std"] = PerformanceDataAdapter._round(
@@ -147,7 +143,6 @@ class PerformanceDataAdapter(object):
 
         return series_data
 
-
     @staticmethod
     def _get_series_signature(signature_properties):
         signature_prop_values = signature_properties.keys()
@@ -157,7 +152,6 @@ class PerformanceDataAdapter(object):
         sha.update(''.join(map(lambda x: str(x), sorted(signature_prop_values))))
 
         return sha.hexdigest()
-
 
     def _add_performance_artifact(self, job_id, series_signature,
                                   signature_properties, obj,
@@ -197,7 +191,6 @@ class TalosDataAdapter(PerformanceDataAdapter):
         self.performance_artifact_placeholders = []
         self.signature_property_placeholders = []
 
-
     @staticmethod
     def _get_base_perf_obj(job_guid, name, type, talos_datum, series_signature,
                            signature_properties, series_data):
@@ -215,7 +208,7 @@ class TalosDataAdapter(PerformanceDataAdapter):
                 "signature_properties": signature_properties,
                 "performance_series": series_data,
                 "testsuite": talos_datum["testrun"]["suite"],
-                "metadata":{ 'test_build': talos_datum['test_build'] }
+                "metadata": {'test_build': talos_datum['test_build']}
             }
         }
         options = talos_datum["testrun"].get("options")
@@ -247,8 +240,8 @@ class TalosDataAdapter(PerformanceDataAdapter):
             for _test in talos_datum["results"].keys():
 
                 signature_properties = {
-                    'suite':_suite,
-                    'test':_test
+                    'suite': _suite,
+                    'test': _test
                 }
                 signature_properties.update(reference_data)
 
@@ -282,7 +275,7 @@ class TalosDataAdapter(PerformanceDataAdapter):
 
             # summary series
             summary_properties = {
-                'suite':_suite,
+                'suite': _suite,
                 'subtest_signatures': json.dumps(subtest_signatures)
             }
             summary_properties.update(reference_data)
