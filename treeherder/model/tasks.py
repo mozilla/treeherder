@@ -22,26 +22,21 @@ class LazyPublisher():
     """
 
     def __init__(self):
-        self.publisher = False
+        self.publisher = None
 
     def get_publisher(self):
         """
         Attempt to get the publisher.
         """
-
-        if self.publisher is not False:
-            return self.publisher;
-
         # Create publisher, if username and password is present
-        publisher = None
-        if settings.PULSE_EXCHANGE_NAMESPACE:
+        if not self.publisher and settings.PULSE_EXCHANGE_NAMESPACE:
             self.publisher = TreeherderPublisher(
                 namespace=settings.PULSE_EXCHANGE_NAMESPACE,
                 uri=settings.PULSE_URI,
                 schemas=PULSE_SCHEMAS
             )
-        else:
-            self.publisher = None
+
+        return self.publisher
 
 pulse_connection = LazyPublisher()
 
