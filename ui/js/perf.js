@@ -242,7 +242,8 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
                                 return encodeURIComponent(
                                   JSON.stringify(
                                     { project: series.projectName,
-                                      signature: series.signature})); })
+                                      signature: series.signature,
+                                      visibility: series.visibility})); })
                           });
     };
 
@@ -258,12 +259,10 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
       $scope.reload();
     };
 
-    $scope.hideSeries = function(signature){
-      var plotdata = $scope.plot.getData();
-      var datumToHide = _.find(plotdata, function(datum) { return datum.thSeries.signature == signature });
-      datumToHide.points.show = !datumToHide.points.show;
-      $scope.plot.setData(plotdata);
-      $scope.plot.draw();
+    $scope.showHideSeries = function(signature){
+      var seriesToToggle = _.find($scope.seriesList, function(series) { return series.signature == signature });
+      seriesToToggle.visibility = !seriesToToggle.visibility;
+      $scope.reload();
     }
 
     var optionCollectionMap = {};
@@ -298,14 +297,16 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
                                    propsHash[partialSeries.project] = {};
                                  }
                                  propsHash[partialSeries.project][partialSeries.signature] = data[0];
+                                 propsHash[partialSeries.project][partialSeries.signature]['visibility'] = partialSeries.visibility;
                                });
             })).then(function() {
               var i = 0;
               Object.keys(propsHash).forEach(function(projectName) {
                 Object.keys(propsHash[projectName]).forEach(function(signature) {
-                  $scope.seriesList.push(seriesSummary(
-                    signature, propsHash[projectName][signature], projectName,
-                    optionCollectionMap, i));
+                  var series_summary = seriesSummary(signature, propsHash[projectName][signature], projectName,
+                                                    optionCollectionMap, i);
+                  series_summary['visibility'] = propsHash[projectName][signature]['visibility'];
+                  $scope.seriesList.push(series_summary);
                   i++;
                 });
               });
@@ -337,7 +338,17 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
                                      });
                                      series.flotSeries = flotSeries;
                                    });
-              })).then(function() { plotGraph(); });
+              })).then(function() {
+                      $scope.seriesList.forEach(function(series) {
+                        if (series.visibility) {
+                          $('#check-'+series.signature).prop('checked', true);
+                        } else {
+                            $('#check-'+series.signature).prop('checked', false);
+                            series.flotSeries.points.show = false;
+                        }
+                      });
+                      plotGraph();
+                });
             });
         } else {
           $scope.seriesList = [];
@@ -377,6 +388,7 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
             });
 
             modalInstance.result.then(function(series) {
+              series.visibility = true;
               $scope.seriesList.push(series);
               $scope.reload();
             });
