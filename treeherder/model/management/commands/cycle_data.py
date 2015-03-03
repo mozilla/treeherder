@@ -33,7 +33,7 @@ class Command(BaseCommand):
             '--chunk-size',
             action='store',
             dest='chunk_size',
-            default=100,
+            default=10,
             type='int',
             help=('Define the size of the chunks '
                   'the target data will be divided in')),
