@@ -278,6 +278,9 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
       }).then(function() {
         if ($stateParams.series) {
           $scope.seriesList = [];
+          if (_.isString($stateParams.series)) {
+            $stateParams.series = [$stateParams.series];
+          }
           // we only store the signature + project name in the url, we need to
           // fetch everything else from the server
           var partialSeriesList = $stateParams.series.map(function(encodedSeries) {
