@@ -11,18 +11,39 @@ from treeherder.model.exchanges import TreeherderPublisher
 from treeherder.model.pulse_publisher import load_schemas
 
 # Load schemas for validation of messages published on pulse
-source_folder = os.path.dirname(os.path.realpath(__file__))
-schema_folder = os.path.join(source_folder, '..', '..', 'schemas')
-schemas = load_schemas(schema_folder)
+SOURCE_FOLDER = os.path.dirname(os.path.realpath(__file__))
+SCHEMA_FOLDER = os.path.join(SOURCE_FOLDER, '..', '..', 'schemas')
+PULSE_SCHEMAS = load_schemas(SCHEMA_FOLDER)
 
-# Create publisher, if username and password is present
-publisher = None
-if settings.PULSE_EXCHANGE_NAMESPACE:
-    publisher = TreeherderPublisher(
-        namespace=settings.PULSE_EXCHANGE_NAMESPACE,
-        uri=settings.PULSE_URI,
-        schemas=schemas
-    )
+
+class LazyPublisher():
+    """
+    Singleton for lazily connecting to the pulse publisher.
+    """
+
+    def __init__(self):
+        self.publisher = False
+
+    def get_publisher(self):
+        """
+        Attempt to get the publisher.
+        """
+
+        if self.publisher is not False:
+            return self.publisher;
+
+        # Create publisher, if username and password is present
+        publisher = None
+        if settings.PULSE_EXCHANGE_NAMESPACE:
+            self.publisher = TreeherderPublisher(
+                namespace=settings.PULSE_EXCHANGE_NAMESPACE,
+                uri=settings.PULSE_URI,
+                schemas=PULSE_SCHEMAS
+            )
+        else:
+            self.publisher = None
+
+pulse_connection = LazyPublisher()
 
 
 @task(name='process-objects')
@@ -89,6 +110,7 @@ def publish_job_action(project, action, job_id, requester):
     :param job_id str: The job id the action was requested for.
     :param requester str: The email address associated with the request.
     """
+    publisher = pulse_connection.get_publisher()
     if not publisher:
         return
 
@@ -117,6 +139,7 @@ def publish_resultset(project, ids):
     # publish any pulse messages. This is okay, local installs etc. doesn't
     # need to publish on pulse, and requiring a pulse user is adding more
     # overhead to an already large development setup process.
+    publisher = pulse_connection.get_publisher()
     if not publisher:
         return
 
