@@ -13,6 +13,7 @@ from django.conf import settings
 
 import urllib2
 import gzip
+import json
 
 filesystem = caches['filesystem']
 
@@ -38,8 +39,8 @@ class LogSliceView(viewsets.ViewSet):
         Receives a line range and job_id and returns those lines
         """
         job_id = request.QUERY_PARAMS.get("job_id")
-
-        log = jm.get_log_references(job_id)
+        log_name = request.QUERY_PARAMS.get("name", "buildbot_text")
+        format = 'json' if log_name == 'mozlog_json' else 'text'
 
         handle = None
         gz_file = None
@@ -58,35 +59,46 @@ class LogSliceView(viewsets.ViewSet):
         if start_line >= end_line:
             return Response("``end_line`` must be larger than ``start_line``", 400)
 
-        if len(log) > 0:
-            try:
-                url = log[0].get("url")
-                gz_file = filesystem.get(url)
+        # @todo: remove once Bug 1139517 is addressed
+        if log_name == "buildbot_text":
+            log_name = 'builds-4h'
 
-                if not gz_file:
-                    handle = self.get_log_handle(url)
-                    gz_file = gzip.GzipFile(fileobj=BytesIO(handle.read()))
-                    filesystem.set(url, gz_file.fileobj)
+        # get only the log that matches the ``log_name``
+        logs = jm.get_log_references(job_id)
+
+        try:
+            log = next(log for log in logs if log["name"] == log_name)
+        except StopIteration:
+            raise ResourceNotFoundException("job_artifact {0} not found".format(job_id))
+
+        try:
+            url = log.get("url")
+            gz_file = filesystem.get(url)
+
+            if not gz_file:
+                handle = self.get_log_handle(url)
+                gz_file = gzip.GzipFile(fileobj=BytesIO(handle.read()))
+                filesystem.set(url, gz_file.fileobj)
+            else:
+                gz_file = gzip.GzipFile(fileobj=gz_file)
+
+            lines = []
+
+            for i, line in enumerate(gz_file):
+                if i < start_line:
+                    continue
+                elif i >= end_line:
+                    break
+
+                if format == 'json':
+                    lines.append({"data": json.loads(line), "index": i})
                 else:
-                    gz_file = gzip.GzipFile(fileobj=gz_file)
-
-                lines = []
-
-                for i, line in enumerate(gz_file):
-                    if i < start_line:
-                        continue
-                    elif i >= end_line:
-                        break
-
                     lines.append({"text": line, "index": i})
 
-                return Response(lines)
+            return Response(lines)
 
-            finally:
-                if handle:
-                    handle.close()
-                if gz_file:
-                    gz_file.close()
-
-        else:
-            raise ResourceNotFoundException("job_artifact {0} not found".format(job_id))
+        finally:
+            if handle:
+                handle.close()
+            if gz_file:
+                gz_file.close()
