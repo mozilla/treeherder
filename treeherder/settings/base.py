@@ -308,6 +308,7 @@ BUILDAPI_RUNNING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson
 BUILDAPI_BUILDS4H_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-4hr.js.gz"
 
 PARSER_MAX_STEP_ERROR_LINES = 100
+PARSER_MAX_SUMMARY_LINES = 200
 
 BZ_API_URL = "https://bugzilla.mozilla.org"
 

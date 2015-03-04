@@ -7,7 +7,8 @@ import logging
 
 from celery import task
 
-from treeherder.log_parser.utils import (extract_log_artifacts,
+from treeherder.log_parser.utils import (extract_text_log_artifacts,
+                                         extract_json_log_artifacts,
                                          post_log_artifacts,
                                          is_parsed
                                          )
@@ -29,10 +30,25 @@ def parse_log(project, job_log_url, job_guid, check_errors=False):
                        job_guid,
                        job_log_url,
                        parse_log,
-                       extract_log_artifacts,
+                       extract_text_log_artifacts,
                        check_errors
                        )
 
 
+@task(name='parse-json-log', max_retries=10)
+def parse_json_log(project, job_log_url, job_guid, check_errors=False):
+    """
+    Apply the Structured Log Fault Formatter to the structured log for a job.
+    """
 
+    # don't parse a log if it's already been parsed
+    if is_parsed(job_log_url):
+        return
 
+    post_log_artifacts(project,
+                       job_guid,
+                       job_log_url,
+                       parse_json_log,
+                       extract_json_log_artifacts,
+                       check_errors
+                       )

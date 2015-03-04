@@ -13,6 +13,8 @@ from django.core.urlresolvers import reverse
 
 from treeherder.log_parser.artifactbuildercollection import \
     ArtifactBuilderCollection
+from treeherder.log_parser.artifactbuilders import MozlogArtifactBuilder
+
 from thclient import TreeherderArtifactCollection, TreeherderRequest
 from treeherder.etl.oauth_utils import OAuthCredentials
 
@@ -222,6 +224,18 @@ def extract_text_log_artifacts(log_url, job_guid, check_errors):
     )
 
     return artifact_list
+
+
+def extract_json_log_artifacts(log_url, job_guid, check_errors):
+    """ Generate a summary artifact for the mozlog json log. """
+    logger.debug("Parsing JSON log at url: {0}".format(log_url))
+
+    ab = MozlogArtifactBuilder(log_url)
+    ab.parse_log()
+
+    return [(job_guid, ab.name, "json", json.dumps(ab.get_artifact()))]
+
+
 def post_log_artifacts(project,
                        job_guid,
                        job_log_url,
@@ -229,7 +243,6 @@ def post_log_artifacts(project,
                        extract_artifacts_cb,
                        check_errors=False):
     """Post a list of artifacts to a job."""
-
     try:
         credentials = OAuthCredentials.get_credentials(project)
         req = TreeherderRequest(

@@ -1917,7 +1917,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                        job_results):
 
         # importing here to avoid an import loop
-        from treeherder.log_parser.tasks import parse_log
+        from treeherder.log_parser.tasks import parse_log, parse_json_log
 
         tasks = []
 
@@ -1937,15 +1937,24 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 log_placeholders[index][0] = job_id
                 log_placeholders[index].append(time_now)
                 task = dict()
-                task['job_guid'] = job_guid
-                task['log_url'] = log_ref[2]
-                task['result_set_id'] = result_set_id
-                task['check_errors'] = True
-                if result != 'success':
-                    task['routing_key'] = 'parse_log.failures'
+
+                if log_ref[1] == 'mozlog_json':
+                    # don't parse structured logs for passing tests
+                    if result != 'success':
+                        task['routing_key'] = 'parse_log.json'
+
                 else:
-                    task['routing_key'] = 'parse_log.success'
-                tasks.append(task)
+                    if result != 'success':
+                        task['routing_key'] = 'parse_log.failures'
+                    else:
+                        task['routing_key'] = 'parse_log.success'
+
+                if 'routing_key' in task:
+                    task['job_guid'] = job_guid
+                    task['log_url'] = log_ref[2]
+                    task['result_set_id'] = result_set_id
+                    task['check_errors'] = True
+                    tasks.append(task)
 
             # Store the log references
             self.jobs_execute(
@@ -1969,7 +1978,11 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                                    for jlu in job_log_url_list])
 
             for task in tasks:
-                parse_log.apply_async(
+                parse_log_task = parse_log
+                if task['routing_key'] == "parse_log.json":
+                    parse_log_task = parse_json_log
+
+                parse_log_task.apply_async(
                     args=[
                         self.project,
                         log_url_lookup[task['log_url']],
