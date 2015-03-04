@@ -25,6 +25,7 @@ oauth2==1.5.211
 httplib2==0.7.4
 
 jsonfield==0.9.20
+mozlog==2.10
 
 git+git://github.com/jeads/datasource@2f09c9cc87
 git+git://github.com/mozilla/treeherder-client@be6cb763dc
