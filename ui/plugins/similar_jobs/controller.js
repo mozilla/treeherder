@@ -136,7 +136,7 @@ treeherder.controller('SimilarJobsPluginCtrl', [
 
                 //retrieve the list of error lines
                 ThJobArtifactModel.get_list({
-                    name: "Structured Log",
+                    name: "text_log_summary",
                     job_id: $scope.similar_job_selected.id
                 })
                 .then(function(artifact_list){

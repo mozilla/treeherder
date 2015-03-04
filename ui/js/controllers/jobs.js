@@ -136,7 +136,7 @@ treeherder.controller('ResultSetCtrl', [
                 success(function(data) {
                     if (data.hasOwnProperty("artifacts")) {
                         data.artifacts.forEach(function(artifact) {
-                            if (artifact.name === "Structured Log") {
+                            if (artifact.name === "text_log_summary") {
                                 window.open(thUrl.getLogViewerUrl(artifact.id));
                             }
                         });
