@@ -4,6 +4,11 @@
 
 import pytest
 import simplejson as json
+import urllib2
+from django.conf import settings
+import gzip
+
+from django.utils.six import BytesIO
 
 from ..sampledata import SampleData
 
@@ -33,6 +38,38 @@ def jobs_with_local_talos_log(initial_data):
     # substitute the log url with a local url
     job['job']['log_references'][0]['url'] = url
     return [job]
+
+
+@pytest.fixture
+def jobs_with_local_mozlog_log(initial_data):
+    log = ("plain-chunked_raw.log")
+    sample_data = SampleData()
+    url = "file://{0}".format(
+        sample_data.get_log_path("{0}.gz".format(log)))
+
+    # sample url to test with a real log, during development
+    # url = "http://mozilla-releng-blobs.s3.amazonaws.com/blobs/try/sha512/6a690d565effa5a485a9385cc62eccd59feaa93fa6bb167073f012a105dc33aeaa02233daf081426b5363cd9affd007e42aea2265f47ddbc334a4493de1879b5"
+    job = sample_data.job_data[0]
+
+    # substitute the log url with a local url
+    job['job']['log_references'][0]['url'] = url
+    job['job']['log_references'][0]['name'] = 'mozlog_json'
+    return [job]
+
+
+@pytest.fixture
+def mock_mozlog_get_log_handler(monkeypatch):
+
+    def _get_log_handle(mockself, url):
+        response = urllib2.urlopen(
+               url,
+               timeout=settings.TREEHERDER_REQUESTS_TIMEOUT
+        )
+        return gzip.GzipFile(fileobj=BytesIO(response.read()))
+
+    import treeherder.etl.common
+    monkeypatch.setattr(treeherder.log_parser.artifactbuilders.MozlogArtifactBuilder,
+                        'get_log_handle', _get_log_handle)
 
 
 def test_parse_log(jm, initial_data, jobs_with_local_log, sample_resultset,
@@ -70,6 +107,50 @@ def test_parse_log(jm, initial_data, jobs_with_local_log, sample_resultset,
     # 1 for the job artifact panel
     # 1 for the bug suggestions
     assert len(job_artifacts) >= 3
+
+
+def test_parse_mozlog_log(jm, initial_data, jobs_with_local_mozlog_log,
+                          sample_resultset, mock_send_request,
+                          mock_get_remote_content,
+                          mock_mozlog_get_log_handler
+                          ):
+    """
+    check parsing the structured log creates a ``structured-faults`` artifact
+    """
+
+    jm.store_result_set_data(sample_resultset)
+
+    jobs = jobs_with_local_mozlog_log
+    for job in jobs:
+        job['job']['result'] = "testfailed"
+        job['revision_hash'] = sample_resultset[0]['revision_hash']
+
+    jm.store_job_data(jobs)
+    jm.process_objects(1, raise_errors=True)
+
+    job_id = jm.get_jobs_dhub().execute(
+        proc="jobs_test.selects.row_by_guid",
+        placeholders=[jobs[0]['job']['job_guid']]
+    )[0]['id']
+
+    job_artifacts = jm.get_jobs_dhub().execute(
+        proc="jobs_test.selects.job_artifact",
+        placeholders=[job_id]
+    )
+
+    jm.disconnect()
+
+    artifact = [x for x in job_artifacts if x['name'] == 'json_log_summary']
+    assert len(artifact) >= 1
+
+    all_errors = json.loads(artifact[0]['blob'])['all_errors']
+    warnings = [x for x in all_errors if
+                x['action'] == 'log' and x['level'] == "WARNING"]
+    fails = [x for x in all_errors if
+             x['action'] == 'test_status' and x['status'] == "FAIL"]
+
+    assert len(warnings) == 106
+    assert len(fails) == 3
 
 
 def test_parse_talos_log(jm, initial_data, jobs_with_local_talos_log, sample_resultset,
