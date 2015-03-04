@@ -4,6 +4,8 @@
 
 import re
 import urllib
+import logging
+import time
 
 import simplejson as json
 from django.conf import settings
@@ -11,6 +13,10 @@ from django.core.urlresolvers import reverse
 
 from treeherder.log_parser.artifactbuildercollection import \
     ArtifactBuilderCollection
+from thclient import TreeherderArtifactCollection, TreeherderRequest
+from treeherder.etl.oauth_utils import OAuthCredentials
+
+logger = logging.getLogger(__name__)
 
 
 def is_helpful_search_term(search_term):
@@ -137,7 +143,14 @@ def get_mozharness_substring(line):
     return mozharness_pattern.sub('', line).strip()
 
 
-def extract_log_artifacts(log_url, job_guid, check_errors):
+def is_parsed(job_log_url):
+    # if parse_status is not available, consider it pending
+    parse_status = job_log_url.get("parse_status", "pending")
+    return parse_status == "parsed"
+
+
+def extract_text_log_artifacts(log_url, job_guid, check_errors):
+    """Generate a summary artifact for the raw text log."""
     bug_suggestions = []
     bugscache_uri = '{0}{1}'.format(
         settings.API_HOSTNAME,
@@ -209,3 +222,78 @@ def extract_log_artifacts(log_url, job_guid, check_errors):
     )
 
     return artifact_list
+def post_log_artifacts(project,
+                       job_guid,
+                       job_log_url,
+                       retry_task,
+                       extract_artifacts_cb,
+                       check_errors=False):
+    """Post a list of artifacts to a job."""
+
+    try:
+        credentials = OAuthCredentials.get_credentials(project)
+        req = TreeherderRequest(
+            protocol=settings.TREEHERDER_REQUEST_PROTOCOL,
+            host=settings.TREEHERDER_REQUEST_HOST,
+            project=project,
+            oauth_key=credentials.get('consumer_key', None),
+            oauth_secret=credentials.get('consumer_secret', None),
+        )
+        update_endpoint = 'job-log-url/{0}/update_parse_status'.format(
+            job_log_url['id']
+        )
+
+        logger.debug("Downloading and extracting log information for guid "
+                     "'%s' (from %s)" % (job_guid, job_log_url['url']))
+
+        artifact_list = extract_artifacts_cb(job_log_url['url'],
+                                             job_guid, check_errors)
+        # store the artifacts generated
+        tac = TreeherderArtifactCollection()
+        for artifact in artifact_list:
+            ta = tac.get_artifact({
+                "job_guid": artifact[0],
+                "name": artifact[1],
+                "type": artifact[2],
+                "blob": artifact[3]
+            })
+            tac.add(ta)
+
+        logger.debug("Finished downloading and processing artifact for guid "
+                     "'%s'" % job_guid)
+
+        req.post(tac)
+
+        # send an update to job_log_url
+        # the job_log_url status changes from pending to parsed
+        current_timestamp = time.time()
+        req.send(
+            update_endpoint,
+            method='POST',
+            data={
+                'parse_status': 'parsed',
+                'parse_timestamp': current_timestamp
+            }
+        )
+
+        logger.debug("Finished posting artifact for guid '%s'" % job_guid)
+
+    except Exception as e:
+        # send an update to job_log_url
+        # the job_log_url status changes from pending/running to failed
+        logger.warn("Failed to download and/or parse artifact for guid '%s'" %
+                    job_guid)
+        current_timestamp = time.time()
+        req.send(
+            update_endpoint,
+            method='POST',
+            data={
+                'parse_status': 'failed',
+                'parse_timestamp': current_timestamp
+            }
+        )
+        # Initially retry after 1 minute, then for each subsequent retry
+        # lengthen the retry time by another minute.
+        retry_task.retry(exc=e, countdown=(1 + retry_task.request.retries) * 60)
+        # .retry() raises a RetryTaskError exception,
+        # so nothing below this line will be executed.
