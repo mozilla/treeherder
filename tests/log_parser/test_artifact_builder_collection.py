@@ -61,7 +61,7 @@ def test_all_builders_complete():
 
     lpc.parse()
     exp = {
-        "Structured Log": {
+        "text_log_summary": {
             "header": {},
             "step_data": {
                 "all_errors": [],
@@ -77,9 +77,9 @@ def test_all_builders_complete():
 
     # we can't compare the "logurl" field, because it's a fully qualified url,
     # so it will be different depending on the config it's run in.
-    assert "logurl" in act["Structured Log"]
+    assert "logurl" in act["text_log_summary"]
     assert "logurl" in act["Job Info"]
     del(act["Job Info"]["logurl"])
-    del(act["Structured Log"]["logurl"])
+    del(act["text_log_summary"]["logurl"])
 
     assert exp == lpc.artifacts, diff(exp, lpc.artifacts)

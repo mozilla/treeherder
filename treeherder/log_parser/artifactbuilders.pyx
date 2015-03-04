@@ -86,7 +86,7 @@ class BuildbotLogViewArtifactBuilder(ArtifactBuilderBase):
             HeaderParser(),
             StepParser(check_errors=check_errors)
         ]
-        self.name = "Structured Log"
+        self.name = "text_log_summary"
 
 class BuildbotPerformanceDataArtifactBuilder(ArtifactBuilderBase):
     """Makes the artifact for performance data."""

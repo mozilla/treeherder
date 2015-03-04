@@ -127,7 +127,7 @@ def test_bug_suggestions_artifact(jm, initial_data, jobs_with_local_log,
     assert len(job_artifacts) >= 3
 
     structured_log_artifact = [artifact for artifact in job_artifacts
-                               if artifact["name"] == "Structured Log"][0]
+                               if artifact["name"] == "text_log_summary"][0]
     bug_suggestions_artifact = [artifact for artifact in job_artifacts
                                 if artifact["name"] == "Bug suggestions"][0]
     structured_log = json.loads(structured_log_artifact["blob"])

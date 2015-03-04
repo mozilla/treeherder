@@ -156,7 +156,7 @@ def extract_log_artifacts(log_url, job_guid, check_errors):
                               json.dumps(artifact)))
     if check_errors:
         all_errors = artifact_bc.artifacts\
-            .get('Structured Log', {})\
+            .get('text_log_summary', {})\
             .get('step_data', {})\
             .get('all_errors', [])
 

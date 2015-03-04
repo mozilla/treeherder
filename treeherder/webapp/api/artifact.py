@@ -31,7 +31,16 @@ class ArtifactViewSet(viewsets.ViewSet):
         """
         return a list of job artifacts
         """
-        filter = UrlQueryFilter(request.QUERY_PARAMS)
+        # @todo: remove after old data expires from this change on 3/5/2015
+        qparams = request.QUERY_PARAMS.copy()
+        name = qparams.get('name', None)
+        if name and name == 'text_log_summary':
+            qparams['name__in'] = 'text_log_summary,Structured Log'
+            del(qparams['name'])
+        # end remove block
+
+        # @todo: change ``qparams`` back to ``request.QUERY_PARAMS``
+        filter = UrlQueryFilter(qparams)
 
         offset = filter.pop("offset", 0)
         count = min(int(filter.pop("count", 10)), 1000)
