@@ -93,8 +93,6 @@ default_router.register(r'jobgroup', refdata.JobGroupViewSet)
 default_router.register(r'jobtype', refdata.JobTypeViewSet)
 default_router.register(r'repository', refdata.RepositoryViewSet)
 default_router.register(r'repositoryversion', refdata.RepositoryVersionViewSet)
-default_router.register(r'option', refdata.OptionViewSet)
-default_router.register(r'optioncollection', refdata.OptionCollectionViewSet)
 default_router.register(r'optioncollectionhash', refdata.OptionCollectionHashViewSet,
                         base_name='optioncollectionhash')
 default_router.register(r'bugscache', refdata.BugscacheViewSet)

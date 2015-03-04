@@ -32,12 +32,6 @@ class BuildPlatformViewSet(viewsets.ReadOnlyModelViewSet):
     model = models.BuildPlatform
 
 
-class OptionViewSet(viewsets.ReadOnlyModelViewSet):
-
-    """ViewSet for the refdata Option model"""
-    model = models.Option
-
-
 class JobGroupViewSet(viewsets.ReadOnlyModelViewSet):
 
     """ViewSet for the refdata JobGroup model"""
@@ -95,12 +89,6 @@ class RepositoryVersionViewSet(viewsets.ReadOnlyModelViewSet):
 
     """ViewSet for the refdata RepositoryVersion model"""
     model = models.RepositoryVersion
-
-
-class OptionCollectionViewSet(viewsets.ReadOnlyModelViewSet):
-
-    """ViewSet for the refdata OptionCollection model"""
-    model = models.OptionCollection
 
 
 class OptionCollectionHashViewSet(viewsets.ViewSet):
