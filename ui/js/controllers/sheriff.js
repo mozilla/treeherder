@@ -5,11 +5,11 @@
 'use strict';
 treeherder.controller('SheriffCtrl', [
     '$scope', '$rootScope', 'ThBuildPlatformModel', 'ThJobTypeModel',
-    'thEvents', 'ThRepositoryModel', 'ThOptionModel', 'ThOptionCollectionModel',
+    'thEvents', 'ThRepositoryModel', 'ThOptionCollectionModel',
     'ThJobExclusionModel', 'ThExclusionProfileModel', 'thNotify', '$q',
     function SheriffController(
         $scope, $rootScope, ThBuildPlatformModel, ThJobTypeModel, thEvents,
-        ThRepositoryModel, ThOptionModel, ThOptionCollectionModel,
+        ThRepositoryModel, ThOptionCollectionModel,
         ThJobExclusionModel, ThExclusionProfileModel, thNotify, $q) {
 
         // fetch the reference data
@@ -105,43 +105,27 @@ treeherder.controller('SheriffCtrl', [
         // initialize the list of option collections
         $scope.master_option_collections = [];
 
-        var optDataMap = {},
-            optCollectionData,
-            optCollectionMap;
+        ThOptionCollectionModel.get_list()
+           .success(function(optCollectionData) {
+             // gather the string representations of option collections
+             var optCollectionMap = {};
+             _.each(optCollectionData, function(optColl) {
+               optCollectionMap[optColl.option_collection_hash] =
+                 _.uniq(_.map(optColl.options, function(option) {
+                   return option.name;
+                 })).sort().join();
+             });
 
-        var optPromise = ThOptionModel.get_list()
-            .then(function(data) {
-                _.each(data, function(opt) {
-                   optDataMap[opt.id] = opt.name;
-                });
-            });
-        var optCollPromise = ThOptionCollectionModel.get_list()
-            .then(function(data) { optCollectionData = data; });
+             // the string representations of the option collections
+             $scope.master_option_collections = _.values(optCollectionMap);
 
-        $q.all([optPromise, optCollPromise])
-            .then(function(data) {
-                // gather the string representations of option collections
-                optCollectionMap = {};
-                _.each(optCollectionData, function(optColl) {
-                    var collectionValues = optCollectionMap[optColl.option_collection_hash] || [];
-                    collectionValues.push(optDataMap[optColl.option]);
-                    optCollectionMap[optColl.option_collection_hash] = collectionValues;
-                });
-                _.each(optCollectionMap, function(vals, key) {
-                    optCollectionMap[key] = _.uniq(vals).sort().join();
-                });
+             // use this to get the hashes for submitting after the
+             // user has selected them by strings
+             $scope.option_collection_hash_map = _.invert(optCollectionMap);
 
-                // the string representations of the option collections
-                $scope.master_option_collections = _.values(optCollectionMap);
-
-                // use this to get the hashes for submitting after the
-                // user has selected them by strings
-                $scope.option_collection_hash_map = _.invert(optCollectionMap);
-
-                $scope.master_option_collections.sort();
-                $scope.form_option_collections = angular.copy($scope.master_option_collections);
-            });
-
+             $scope.master_option_collections.sort();
+             $scope.form_option_collections = angular.copy($scope.master_option_collections);
+           });
 
         // init the master properties for the forms
 
