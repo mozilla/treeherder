@@ -50,7 +50,20 @@ treeherder.controller('MainCtrl', [
 
         // Disable single key shortcuts in specified shortcut events
         $scope.allowKeys = function() {
-            Mousetrap.unbind(['i', 'j', 'n', 'k', 'p', 'space', 'u', 'r', 'c', 'f']);
+            Mousetrap.unbind([
+                'i',     // Toggle display in-progress jobs (pending/running)
+                'j',     // Select next unclassified failure
+                'n',     // Select next unclassified failure
+                'k',     // Select previous unclassified failure
+                'p',     // Select previous unclassified failure
+                'space', // Pin selected job to pinboard
+                'u',     // Display only unclassified failures
+                'r',     // Pin selected job and add related bug
+                'c',     // Pin selected job and add classification
+                'f',     // Enter a custom job or platform filter
+                'left',  // Select previous job
+                'right'  // Select next job
+            ]);
         };
 
         // Process shortcut events
