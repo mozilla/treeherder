@@ -98,12 +98,9 @@ def deploy_log(ctx):
 def deploy_nodes(ctx, hostgroup, node_type):
     # Run the remote update script on each node in the specified hostgroup.
     @hostgroups(hostgroup, remote_kwargs={'ssh_key': settings.SSH_KEY})
-    def rsync_code(ctx, node_type):
+    def rsync_code(ctx):
         ctx.remote(settings.REMOTE_UPDATE_SCRIPT)
-        if node_type == 'web':
-            # TODO: Move this to the restart-jobs script.
-            ctx.remote('{0}/service httpd graceful'.format(settings.SBIN_DIR))
 
-    rsync_code(node_type)
+    rsync_code()
     env_flag = '-p' if is_prod else '-s'
     ctx.local('/root/bin/restart-jobs %s %s' % (env_flag, node_type))
