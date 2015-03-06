@@ -274,6 +274,9 @@ class TalosDataAdapter(PerformanceDataAdapter):
                                                _name, _test, series_data)
 
             # summary series
+            # (skipping for now because of issues with size of property
+            # tables)
+            return
             summary_properties = {
                 'suite': _suite,
                 'subtest_signatures': json.dumps(subtest_signatures)
@@ -288,7 +291,7 @@ class TalosDataAdapter(PerformanceDataAdapter):
             obj = self._get_base_perf_obj(_job_guid, _name, _type,
                                           talos_datum,
                                           summary_signature,
-                                          signature_properties,
+                                          summary_properties,
                                           summary_data)
             validate(obj, self.treeherder_perf_test_schema)
             self._add_performance_artifact(job_id, summary_signature,
