@@ -6,14 +6,14 @@
 
 treeherder.controller('PluginCtrl', [
     '$scope', '$rootScope', '$location', 'thUrl', 'ThJobClassificationModel',
-    'thClassificationTypes', 'ThJobModel', 'thEvents', 'dateFilter',
+    'thClassificationTypes', 'ThJobModel', 'thEvents', 'dateFilter', 'thDateFormat',
     'numberFilter', 'ThBugJobMapModel', 'thResultStatus', 'thJobFilters',
     'ThResultSetModel', 'ThLog', '$q', 'thPinboard', 'ThJobArtifactModel',
     'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'ThModelErrors', 'thTabs',
     '$timeout',
     function PluginCtrl(
         $scope, $rootScope, $location, thUrl, ThJobClassificationModel,
-        thClassificationTypes, ThJobModel, thEvents, dateFilter,
+        thClassificationTypes, ThJobModel, thEvents, dateFilter, thDateFormat,
         numberFilter, ThBugJobMapModel, thResultStatus, thJobFilters,
         ThResultSetModel, ThLog, $q, thPinboard, ThJobArtifactModel,
         thBuildApi, thNotify, ThJobLogUrlModel, ThModelErrors, thTabs, $timeout) {
@@ -182,7 +182,8 @@ treeherder.controller('PluginCtrl', [
 
                 // time fields to show in detail panel, but that should be grouped together
                 $scope.visibleTimeFields = {
-                    requestTime: dateFilter($scope.job.submit_timestamp*1000, 'short')
+                    requestTime: dateFilter($scope.job.submit_timestamp*1000,
+                                            thDateFormat)
                 };
 
                 /*
@@ -200,11 +201,11 @@ treeherder.controller('PluginCtrl', [
 
                 if ($scope.job.start_timestamp) {
                     $scope.visibleTimeFields.startTime = dateFilter(
-                        $scope.job.start_timestamp*1000, 'short');
+                        $scope.job.start_timestamp*1000, thDateFormat);
                 }
                 if ($scope.job.end_timestamp) {
                     $scope.visibleTimeFields.endTime = dateFilter(
-                        $scope.job.end_timestamp*1000, 'short');
+                        $scope.job.end_timestamp*1000, thDateFormat);
                 }
 
         };

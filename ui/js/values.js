@@ -123,3 +123,5 @@ treeherder.value("thRepoGroupOrder", {
 });
 
 treeherder.value("thDefaultRepo", "mozilla-central");
+
+treeherder.value("thDateFormat", "EEE MMM d, H:mm:ss");

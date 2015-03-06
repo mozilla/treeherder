@@ -106,13 +106,13 @@ treeherder.controller('JobsCtrl', [
 
 treeherder.controller('ResultSetCtrl', [
     '$scope', '$rootScope', '$http', 'ThLog', '$location',
-    'thUrl', 'thServiceDomain', 'thResultStatusInfo',
+    'thUrl', 'thServiceDomain', 'thResultStatusInfo', 'thDateFormat',
     'ThResultSetStore', 'thEvents', 'thJobFilters', 'thNotify',
     'thBuildApi', 'thPinboard', 'ThResultSetModel', 'dateFilter',
     'ThModelErrors',
     function ResultSetCtrl(
         $scope, $rootScope, $http, ThLog, $location,
-        thUrl, thServiceDomain, thResultStatusInfo,
+        thUrl, thServiceDomain, thResultStatusInfo, thDateFormat,
         ThResultSetStore, thEvents, thJobFilters, thNotify,
         thBuildApi, thPinboard, ThResultSetModel, dateFilter, ThModelErrors) {
 
@@ -245,7 +245,7 @@ treeherder.controller('ResultSetCtrl', [
                                             $scope.resultset.revision;
 
         $scope.resultsetDateStr = dateFilter($scope.resultset.push_timestamp*1000,
-                                             'EEE MMM d, H:mm:ss');
+                                             thDateFormat);
 
         $scope.authorResultsetFilterUrl = $scope.urlBasePath + "?repo=" +
                                           $scope.repoName + "&author=" +

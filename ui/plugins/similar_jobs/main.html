@@ -20,7 +20,7 @@
                                     </span>
                                 </button>
                             </td>
-                            <td>{{ ::similar_job.result_set.push_timestamp*1000|date:'medium' }}</td>
+                            <td>{{ ::similar_job.result_set.push_timestamp*1000 | date:'EEE MMM d, H:mm:ss' }}</td>
                             <td>
                                 <a href="{{ ::similar_job.authorResultsetFilterUrl }}">
                                     {{ ::similar_job.result_set.author }}
@@ -94,7 +94,7 @@
                         <tr>
                             <th>Start time</th>
                             <td>
-                                {{ similar_job_selected.start_time }}
+                                {{ similar_job_selected.start_timestamp*1000 | date:'EEE MMM d, H:mm:ss' }}
                             </td>
                         </tr>
                         <tr>
