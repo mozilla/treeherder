@@ -103,7 +103,7 @@ treeherder.factory('ThRepositoryModel', [
                         setCurrent(name);
                     }
 
-                    var storedWatched = JSON.parse(sessionStorage.getItem("thWatchedRepos"));
+                    var storedWatched = loadWatchedRepos();
                     if (_.isArray(storedWatched) && _.contains(storedWatched, name)) {
                         _.each(storedWatched, function (repo) {
                             watchRepo(repo);
@@ -153,8 +153,21 @@ treeherder.factory('ThRepositoryModel', [
 
     };
 
+    var loadWatchedRepos = function() {
+        try {
+            return JSON.parse(sessionStorage.getItem("thWatchedRepos"));
+        } catch (e) {
+            // sessionStorage is disabled/not supported.
+            return {};
+        }
+    };
+
     var watchedReposUpdated = function() {
-        sessionStorage.setItem("thWatchedRepos", JSON.stringify(_.keys(watchedRepos)));
+        try {
+            sessionStorage.setItem("thWatchedRepos", JSON.stringify(_.keys(watchedRepos)));
+        } catch (e) {
+            // sessionStorage is disabled/not supported.
+        }
     };
 
     var getCurrentTreeStatus = function() {
@@ -253,6 +266,8 @@ treeherder.factory('ThRepositoryModel', [
         repos: repos,
 
         watchedRepos: watchedRepos,
+
+        loadWatchedRepos: loadWatchedRepos,
 
         watchedReposUpdated: watchedReposUpdated,
 
