@@ -66,7 +66,7 @@ treeherder.factory('ThRepositoryModel', [
         });
         watchedRepos[repoName] = repos[repoName];
         updateTreeStatus(repoName);
-        watchedReposUpdated();
+        saveWatchedRepos();
 
         $log.debug("watchedRepo", repoName, repos[repoName]);
     };
@@ -74,7 +74,7 @@ treeherder.factory('ThRepositoryModel', [
     var unwatchRepo = function(name) {
         $log.debug("unwatchRepo", name, watchedRepos);
         delete watchedRepos[name];
-        watchedReposUpdated();
+        saveWatchedRepos();
     };
 
     var get_uri = function(){
@@ -109,7 +109,7 @@ treeherder.factory('ThRepositoryModel', [
                             watchRepo(repo);
                         });
                     }
-                    watchedReposUpdated();
+                    saveWatchedRepos();
                 });
         } else {
             setCurrent(name);
@@ -162,7 +162,7 @@ treeherder.factory('ThRepositoryModel', [
         }
     };
 
-    var watchedReposUpdated = function() {
+    var saveWatchedRepos = function() {
         try {
             sessionStorage.setItem("thWatchedRepos", JSON.stringify(_.keys(watchedRepos)));
         } catch (e) {
@@ -269,7 +269,7 @@ treeherder.factory('ThRepositoryModel', [
 
         loadWatchedRepos: loadWatchedRepos,
 
-        watchedReposUpdated: watchedReposUpdated,
+        saveWatchedRepos: saveWatchedRepos,
 
         unwatchRepo: unwatchRepo,
 
