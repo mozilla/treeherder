@@ -106,7 +106,7 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
       $scope.tooltipContent.value = Math.round(v*1000)/1000;
       $scope.tooltipContent.deltaValue = dv.toFixed(1);
       $scope.tooltipContent.deltaPercentValue = (100 * dvp).toFixed(1);
-      $scope.tooltipContent.date = $.plot.formatDate(new Date(t), '%b %d, %y %H:%M');
+      $scope.tooltipContent.date = $.plot.formatDate(new Date(t), '%a %b %d, %H:%M:%S');
       $scope.$digest();
 
       this.plot.unhighlight();
