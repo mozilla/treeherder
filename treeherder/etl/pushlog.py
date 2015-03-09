@@ -115,7 +115,7 @@ class HgPushlogProcess(HgPushlogTransformerMixin,
         if extracted_content:
             last_push_id = max(map(lambda x: int(x), extracted_content.keys()))
             last_push = extracted_content[str(last_push_id)]
-            top_revision = last_push["changesets"][0]["node"]
+            top_revision = last_push["changesets"][-1]["node"]
 
             transformed = self.transform(
                 extracted_content,
