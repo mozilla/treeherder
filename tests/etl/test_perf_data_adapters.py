@@ -38,8 +38,7 @@ def test_adapt_and_load():
             "property3": "value3"
         }
 
-        # one extra result for the summary series
-        result_count += (len(datum['blob']["results"]) + 1)
+        result_count += len(datum['blob']["results"])
 
         # Mimic production environment, the blobs are serialized
         # when the web service receives them
