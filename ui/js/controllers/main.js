@@ -43,7 +43,7 @@ treeherder.controller('MainCtrl', [
             // Suppress for various UI elements so selection is preserved
             var ignoreClear = element.hasAttribute("ignore-job-clear-on-click");
 
-            if (!ignoreClear) {
+            if (!ignoreClear && !thPinboard.hasPinnedJobs()) {
                 $scope.closeJob();
             }
         };
