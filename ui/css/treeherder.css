@@ -1027,10 +1027,6 @@ ul.failure-summary-list li .btn-xs {
     width: 70px;
 }
 
-#pinboard-controls .clear-all-spacer {
-    width: 3px;
-}
-
 .pinned-job {
     margin-bottom: 2px;
     padding: 1px 2px;
@@ -1039,10 +1035,6 @@ ul.failure-summary-list li .btn-xs {
 
 .pinned-job-close-btn {
     padding: 1px 2px 1px 2px;
-}
-
-.btn-icon-top-margin {
-    margin-top: 0.3em;
 }
 
 .annotations-panel {

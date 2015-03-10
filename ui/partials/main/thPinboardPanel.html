@@ -64,30 +64,22 @@
 <!-- Save UI -->
 <div id="pinboard-controls" class="btn-group-vertical"
      title="{{!hasPinnedJobs() ? 'No jobs pinned' : ''}}">
-  <span class="btn btn-xs btn-default close-btn"
-        title="Clear the entire pinboard"
-        ng-disabled="!hasPinnedJobs()"
-        ng-click="unPinAll()">
-    <span class="fa fa-minus pull-left btn-icon-top-margin
-                 clear-all-spacer"></span> clear all
-  </span>
-
   <div class="btn-group">
     <span class="btn btn-default btn-xs save-btn"
           title="Save all classification data"
           ng-click="save()"
-          ng-disabled="!hasPinnedJobs()">
-      <span class="fa fa-floppy-o pull-left btn-icon-top-margin"></span> save
+          ng-disabled="!hasPinnedJobs()">save
     </span>
     <span class="btn btn-default btn-xs dropdown-toggle save-btn-dropdown"
-          title="Save sub classifications"
-          data-toggle="dropdown"
-          ng-disabled="!hasPinnedJobs">
+          title="Additional pinboard functions"
+          ng-disabled="!hasPinnedJobs() && !hasRelatedBugs()"
+          data-toggle="dropdown">
       <span class="caret"></span>
     </span>
     <ul class="dropdown-menu pull-right" role="menu">
-      <li><a ng-click="saveClassificationOnly()"><i class="fa fa-star"></i> classification only</a></li>
-      <li><a ng-click="saveBugsOnly()"><i class="fa fa-bug"></i> bugs only</a></li>
+      <li><a ng-click="saveClassificationOnly()">Save classification only</a></li>
+      <li><a ng-click="saveBugsOnly()">Save bugs only</a></li>
+      <li><a ng-click="unPinAll()">Clear all</a></li>
     </ul>
   </div>
 </div>
