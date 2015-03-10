@@ -68,6 +68,12 @@ module.exports = function(grunt) {
                 file: 'dist/js/logviewer.min.js',
                 cleanup: true
             },
+            perfjs: {
+                replace: ['dist/**/*.html'],
+                replacement: 'perf.min.js',
+                file: 'dist/js/perf.min.js',
+                cleanup: true
+            },
             indexcss: {
                 replace: ['dist/**/*.html'],
                 replacement: 'index.min.css',
