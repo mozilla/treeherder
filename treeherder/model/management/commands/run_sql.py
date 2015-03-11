@@ -30,7 +30,8 @@ class Command(BaseCommand):
             dest='data_type',
             default='jobs',
             choices=['jobs', 'objectstore'],
-            help='The target data-type of the sql code'),
+            help=('The target data-type of the sql code (jobs or objectstore, '
+                  'default jobs)')),
 
         make_option(
             '-f', '--file',

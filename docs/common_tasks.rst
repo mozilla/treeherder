@@ -57,3 +57,22 @@ You may want to restart varnish after a change in the ui. To do so type
   .. code-block:: bash
 
      > sudo /etc/init.d/varnish restart
+
+Executing arbitrary SQL
+-----------------------
+
+As part of a larger change, you may want to execute some arbitrary SQL
+on the server. You can do this with the `run_sql` management command.
+
+Example:
+
+  .. code-block:: bash
+
+     > ./manage.py run_sql -f <sqlfile>
+
+By default, this will run the sql against the `jobs` database for each
+project. If you want to run against the object store or only against a
+specific datasource, you can do that with that `--datasources` and
+`--data-type` options. Run `./manage.py run_sql --help` for more
+details.
+
