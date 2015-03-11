@@ -302,12 +302,11 @@ DROP TABLE IF EXISTS `series_signature`;
 CREATE TABLE `series_signature` (
   `signature` varchar(50) COLLATE utf8_bin NOT NULL,
   `property` varchar(50) COLLATE utf8_bin NOT NULL,
-  `value` varchar(150) COLLATE utf8_bin NOT NULL,
+  `value` text COLLATE utf8_bin NOT NULL,
   `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
   KEY `idx_signature` (`signature`),
   KEY `idx_property` (`property`),
-  KEY `idx_value` (`value`),
-  UNIQUE KEY `idx_series` (`signature`, `property`, `value`)
+  UNIQUE KEY `idx_series` (`signature`, `property`)
 ) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

@@ -268,9 +268,6 @@ class TalosDataAdapter(PerformanceDataAdapter):
                                                _name, _test, series_data)
 
             # summary series
-            # (skipping for now because of issues with size of property
-            # tables)
-            return
             summary_properties = {
                 'suite': _suite,
                 'subtest_signatures': json.dumps(subtest_signatures)
