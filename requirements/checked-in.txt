@@ -19,9 +19,9 @@ django-cors-headers==0.11
 git+git://github.com/mozilla/django-browserid@e8d1d57145
 
 # requirements for django-browserid
-requests>=0.9.1
+requests==2.4.1
 fancy-tag==0.2.0
-six>=1.3
+six==1.8.0
 
 # requirements for oauth
 oauth2==1.5.211

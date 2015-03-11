@@ -1,7 +1,7 @@
 # Dependencies with compiled extensions
-MySQL-python
+MySQL-python==1.2.5
 gunicorn==17.5
-django>=1.7,<1.8
+Django==1.7.4
 celery==3.1.16
 kombu==3.0.23
 simplejson==3.3.0
@@ -11,4 +11,3 @@ gevent==1.0
 git+git://github.com/abourget/gevent-socketio@0f9bd2744a
 gevent-websocket==0.9
 greenlet==0.4.1
-
