@@ -1,7 +1,6 @@
 # Dependencies that do not require compilation
 # and are saved into vendor/ by generate-vendor-lib.py
 
-argparse>=1.1
 python-memcached==1.48
 
 # requirements for mozillapulse
