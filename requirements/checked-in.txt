@@ -15,7 +15,7 @@ drf-extensions==0.2.5
 
 django-cors-headers==0.11
 
-https://github.com/mozilla/django-browserid/archive/e8d1d57145401cf3f42993fe84edc32e29e5903f.zip
+https://github.com/mozilla/django-browserid/archive/e8d1d57145401cf3f42993fe84edc32e29e5903f.zip#egg=django-browserid
 
 # requirements for django-browserid
 requests==2.4.1
@@ -29,5 +29,5 @@ httplib2==0.7.4
 jsonfield==0.9.20
 mozlog==2.10
 
-https://github.com/jeads/datasource/archive/2f09c9cc8700be71c1e63bc4f34c6cc05ffc5a66.zip
-https://github.com/mozilla/treeherder-client/archive/be6cb763dce2d4c72c1a5c327890753f8820864e.zip
+https://github.com/jeads/datasource/archive/2f09c9cc8700be71c1e63bc4f34c6cc05ffc5a66.zip#egg=datasource
+https://github.com/mozilla/treeherder-client/archive/be6cb763dce2d4c72c1a5c327890753f8820864e.zip#egg=treeherder-client
