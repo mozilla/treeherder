@@ -431,6 +431,7 @@ JOB_NAME_BUILDERNAME = [
     {"regex": re.compile(r'mochitest-other'), "desc": "Mochitest Other"},
     {"regex": re.compile(r'mochitest-(?:web)?gl'), "desc": "Mochitest WebGL"},
     {"regex": re.compile(r'mochitest-oop'), "desc": "Mochitest OOP"},
+    {"regex": re.compile(r'mochitest-chrome'), "desc": "Mochitest Chrome"},
     {"regex": re.compile(r'mochitest'), "desc": "Mochitest"},
     {"regex": re.compile(r'webapprt-chrome$'), "desc": "Webapprt Chrome"},
     {"regex": re.compile(r'webapprt-content$'), "desc": "Webapprt Content"},
@@ -619,6 +620,7 @@ GROUP_NAMES = {
     "Android x86 Test Set": "Android x86 Test Combos",
     "Mochitest": "Mochitest",
     "Mochitest Browser Chrome": "Mochitest",
+    "Mochitest Chrome": "Mochitest",
     "Mochitest DevTools Browser Chrome": "Mochitest",
     "Mochitest WebGL": "Mochitest",
     "Mochitest Jetpack": "Mochitest",
@@ -810,6 +812,7 @@ SYMBOLS = {
     # run across all platforms and therefore benefit from better vertical alignment.
     "Mochitest": "M",
     "Mochitest Browser Chrome": "bc",
+    "Mochitest Chrome": "c",
     "Mochitest DevTools Browser Chrome": "dt",
     "Mochitest WebGL": "gl",
     "Mochitest Jetpack": "JP",
