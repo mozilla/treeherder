@@ -1,3 +1,6 @@
+# Dependencies that do not require compilation
+# and are saved into vendor/ by generate-vendor-lib.py
+
 argparse>=1.1
 python-memcached==1.48
 
@@ -30,4 +33,3 @@ mozlog==2.10
 git+git://github.com/jeads/datasource@2f09c9cc87
 git+git://github.com/mozilla/treeherder-client@be6cb763dc
 git+git://github.com/Julian/jsonschema@1976689051
-

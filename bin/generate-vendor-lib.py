@@ -6,7 +6,7 @@
 
 """
 (Re)-generate the vendor library in ``vendor/`` from the requirements listed
-in ``requirements/pure.txt``.
+in ``requirements/checked-in.txt``.
 
 This script will destroy everything in ``vendor/`` and replace it! You've been
 warned.
@@ -26,7 +26,7 @@ from virtualenv import create_environment
 def generate_vendor_lib():
     base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     target = os.path.join(base, "vendor")
-    reqs = os.path.join(base, "requirements", "pure.txt")
+    reqs = os.path.join(base, "requirements", "checked-in.txt")
 
     venv = tempfile.mkdtemp("-generate-vendor-lib")
 
