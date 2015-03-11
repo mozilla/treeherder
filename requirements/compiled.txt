@@ -8,6 +8,6 @@ simplejson==3.3.0
 Cython==0.19.2
 gevent==1.0
 # gevent-socketio 3.6 hasn't been released yet
-git+git://github.com/abourget/gevent-socketio@0f9bd2744a
+https://github.com/abourget/gevent-socketio/archive/0f9bd2744af033b7cba57bfd5b82106592e9f667.zip
 gevent-websocket==0.9
 greenlet==0.4.1
