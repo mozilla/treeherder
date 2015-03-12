@@ -1,3 +1,18 @@
-# in order to be able to build the documentation
-Sphinx>=1.2.2
-sphinxcontrib-httpdomain==1.1.7
+# Dependencies for building the documentation, intended to be used standalone
+# since Read the Docs does not need all of the requirements in common.txt
+Sphinx==1.3
+sphinxcontrib-httpdomain==1.3.0
+
+# Required by Sphinx
+alabaster==0.7.2
+Babel==1.3
+docutils==0.12
+Jinja2==2.7.3
+MarkupSafe==0.23
+Pygments==2.0.2
+pytz==2014.10
+snowballstemmer==1.2.0
+sphinx-rtd-theme==0.1.7
+
+# Required by Sphinx & sphinxcontrib-httpdomain
+six==1.9.0
