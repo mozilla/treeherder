@@ -262,12 +262,6 @@ class TalosDataAdapter(PerformanceDataAdapter):
                 obj['test'] = _test
                 obj['replicates'] = talos_datum["results"][_test]
 
-                for key in ['test_aux', 'talos_aux', 'results_aux',
-                            'results_xperf']:
-                    aux_blob = talos_datum.get(key)
-                    if aux_blob:
-                        obj['blob']['metadata'][key] = aux_blob
-
                 validate(obj, self.treeherder_perf_test_schema)
                 self._add_performance_artifact(job_id, series_signature,
                                                signature_properties, obj,
@@ -293,6 +287,15 @@ class TalosDataAdapter(PerformanceDataAdapter):
                                           summary_signature,
                                           summary_properties,
                                           summary_data)
+            # FIXME: this stuff is pretty big and it's unclear how useful it
+            # might be. consider adding it at some point in the future
+            # (see: https://bugzilla.mozilla.org/show_bug.cgi?id=1142631)
+            # for key in ['test_aux', 'talos_aux', 'results_aux',
+            #             'results_xperf']:
+            #     aux_blob = talos_datum.get(key)
+            #     if aux_blob:
+            #         obj['blob']['metadata'][key] = aux_blob
+
             validate(obj, self.treeherder_perf_test_schema)
             self._add_performance_artifact(job_id, summary_signature,
                                            summary_properties, obj,
