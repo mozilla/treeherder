@@ -910,6 +910,7 @@
                         count(*) as total
                    FROM job
                    WHERE result_set_id = ?
+                   REP0
                    group by state, result
                    ",
             "host_type": "read_host"

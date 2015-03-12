@@ -2746,10 +2746,46 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             "push_timestamp"
         ]
 
-    def get_resultset_status(self, resultset_id):
+    def get_exclusion_profile_signatures(self, exclusion_profile):
+        """Retrieve the reference data signatures associates to an exclusion profile"""
+        signatures = []
+        try:
+            if exclusion_profile == "default":
+                profile = ExclusionProfile.objects.get(
+                    is_default=True
+                )
+            else:
+                profile = ExclusionProfile.objects.get(
+                    name=exclusion_profile
+                )
+            signatures = profile.flat_exclusion[self.project]
+        except KeyError:
+            # this repo/project has no hidden signatures
+            pass
+        except ExclusionProfile.DoesNotExist:
+            # Either there's no default profile setup or the profile
+            # specified is not availble
+            pass
+        return signatures
+
+    def get_resultset_status(self, resultset_id, exclusion_profile="default"):
+        """Retrieve an aggregated job count for the given resultset.
+        If an exclusion profile is provided, the job counted will be filtered accordingly"""
+        replace = []
+        placeholders = [resultset_id]
+        if exclusion_profile:
+            signature_list = self.get_exclusion_profile_signatures(exclusion_profile)
+            if signature_list:
+                signatures_replacement = ",".join(["%s"] * len(signature_list))
+                replace.append(
+                    "AND signature NOT IN ({0})".format(signatures_replacement)
+                )
+                placeholders += signature_list
+
         resulset_status_list = self.jobs_execute(
             proc='jobs.selects.get_resultset_status',
-            placeholders=[resultset_id],
+            placeholders=placeholders,
+            replace=replace,
             debug_show=self.DEBUG)
         num_coalesced = 0
         resultset_status_dict = {}
