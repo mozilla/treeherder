@@ -125,8 +125,8 @@ treeherder.controller('PluginCtrl', [
                         }, []);
                     }
                     // the fourth result comes from the jobLogUrl artifact
-                    // filter to only the builds-4h logs
-                    $scope.job_log_urls = _.where(results[3], {name: 'builds-4h'});
+                    // exclude the json log URLs
+                    $scope.job_log_urls = _.reject(results[3], {name: 'mozlog_json'});
 
                     var logsNotParsed = [];
                     $scope.jobLogsAllParsed = _.every($scope.job_log_urls, function(jlu) {
