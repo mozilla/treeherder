@@ -55,7 +55,7 @@ class python {
     ],
     user => "${APP_USER}",
     cwd => '/tmp',
-    command => "${VENV_DIR}/bin/pip install --download-cache=/home/${APP_USER}/pip_cache -r ${PROJ_DIR}/requirements/compiled.txt",
+    command => "${VENV_DIR}/bin/pip install --download-cache=/home/${APP_USER}/pip_cache -r ${PROJ_DIR}/requirements/common.txt",
     timeout => 1800,
   }
 

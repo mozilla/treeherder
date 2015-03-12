@@ -27,7 +27,7 @@ services:
   - rabbitmq
   - memcached
 install:
-  - pip install -r requirements/compiled.txt
+  - pip install -r requirements/common.txt
   - pip install -r requirements/dev.txt
 before_script:
   - python setup.py build_ext --inplace

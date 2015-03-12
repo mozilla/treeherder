@@ -4,7 +4,7 @@ RUN virtualenv /venv
 ENV PATH /venv/bin:$PATH
 WORKDIR /app
 RUN apt-get update && apt-get install -yq --force-yes mysql-client
-COPY ./requirements/compiled.txt /app/requirements.txt
+COPY ./requirements/common.txt /app/requirements.txt
 RUN pip install -r requirements.txt
 
 COPY ./docker/etc/profile.d/treeherder.sh /etc/profile.d/treeherder.sh

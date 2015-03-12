@@ -1,4 +1,5 @@
 # Dependencies that are pip installed and not checked in
+# and are shared between deployment and dev environments
 gunicorn==17.5
 Django==1.7.4
 celery==3.1.16
