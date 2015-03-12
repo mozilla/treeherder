@@ -1,1 +1,10 @@
 newrelic==2.44.0.36
+newrelic-plugin-agent==1.3.0
+
+# Required by newrelic-plugin-agent
+helper==2.4.1
+PyYAML==3.11
+# requests is already listed in checked-in.txt, however newrelic-plugin-agent
+# cannot use the copy in vendor/. Once the packages in checked-in.txt are
+# moved to common.txt we can remove this duplication.
+requests==2.5.1
