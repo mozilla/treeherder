@@ -1,5 +1,4 @@
-# Dependencies with compiled extensions
-MySQL-python==1.2.5
+# Dependencies that are pip installed and not checked in
 gunicorn==17.5
 Django==1.7.4
 celery==3.1.16
@@ -10,4 +9,27 @@ gevent==1.0
 # gevent-socketio 3.6 hasn't been released yet
 https://github.com/abourget/gevent-socketio/archive/0f9bd2744af033b7cba57bfd5b82106592e9f667.zip#egg=gevent-socketio
 gevent-websocket==0.9
+
+# Required by gevent
 greenlet==0.4.1
+
+# Required by datasource
+MySQL-python==1.2.5
+
+# Required by celery
+billiard==3.3.0.19
+
+# Required by celery & MozillaPulse
+pytz==2014.10
+
+# Required by kombu
+amqp==1.4.6
+
+# Required by kombu & carrot
+anyjson==0.3.3
+
+# Required by carrot
+amqplib==1.0.2
+
+# Required by mozlog
+blessings==1.6

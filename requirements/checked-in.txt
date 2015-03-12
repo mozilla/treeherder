@@ -2,32 +2,36 @@
 # and are saved into vendor/ by generate-vendor-lib.py
 
 python-memcached==1.48
-
-# requirements for mozillapulse
 MozillaPulse==0.61
-carrot==0.10.7
 jsonschema==2.4.0
 
 djangorestframework==2.3.12
-Unipath==1.0
 django-rest-swagger==0.1.11
 drf-extensions==0.2.5
-
 django-cors-headers==0.11
 
 https://github.com/mozilla/django-browserid/archive/e8d1d57145401cf3f42993fe84edc32e29e5903f.zip#egg=django-browserid
 
-# requirements for django-browserid
-requests==2.4.1
-fancy-tag==0.2.0
-six==1.8.0
-
-# requirements for oauth
 oauth2==1.5.211
-httplib2==0.7.4
 
 jsonfield==0.9.20
 mozlog==2.10
 
 https://github.com/jeads/datasource/archive/2f09c9cc8700be71c1e63bc4f34c6cc05ffc5a66.zip#egg=datasource
 https://github.com/mozilla/treeherder-client/archive/be6cb763dce2d4c72c1a5c327890753f8820864e.zip#egg=treeherder-client
+
+# Required by MozillaPulse
+carrot==0.10.7
+
+# Required by django-rest-swagger
+Unipath==1.0
+
+# Required by django-browserid & responses
+requests==2.4.1
+fancy-tag==0.2.0
+
+# Required by django-extensions & responses
+six==1.8.0
+
+# Required by oauth2
+httplib2==0.7.4
