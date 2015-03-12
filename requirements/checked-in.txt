@@ -30,8 +30,5 @@ Unipath==1.0
 requests==2.4.1
 fancy-tag==0.2.0
 
-# Required by django-extensions & responses
-six==1.8.0
-
 # Required by oauth2
 httplib2==0.7.4

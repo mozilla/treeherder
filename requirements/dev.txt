@@ -33,6 +33,9 @@ coverage==3.5.2
 # Required by WebTest
 WebOb==1.2
 
+# Required by django-extensions & responses
+six==1.8.0
+
 # Required by flake8
 mccabe==0.3
 pep8==1.5.7
