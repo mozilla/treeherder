@@ -1626,15 +1626,15 @@ fieldset[disabled] .btn-black.active {
 }
 
 .btn-pink {
-  color: rgba(250, 115, 172, 0.63);
+  color: #ff40d9;
   font-weight: bold;
 }
 .btn-pink:hover,
 .btn-pink:focus,
 .btn-pink:active,
 .btn-pink.active {
-  background-color: #f95a9d;
-  border-color: #f8428f;
+  background-color: #ff40d9;
+  border-color: #ff40d9;
   color: white;
 }
 .btn-pink.disabled:hover,
@@ -1649,8 +1649,8 @@ fieldset[disabled] .btn-pink:hover,
 fieldset[disabled] .btn-pink:focus,
 fieldset[disabled] .btn-pink:active,
 fieldset[disabled] .btn-pink.active {
-  background-color: #fa73ac;
-  border-color: #fa73ac;
+  background-color: #ff80e5;
+  border-color: #ff80e5;
 }
 
 .btn-repo {
