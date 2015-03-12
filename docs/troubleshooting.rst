@@ -30,6 +30,5 @@ Where are my log files?
 You can find the various services log files under
   * /var/log/celery
   * /var/log/gunicorn
-  * /var/log/socketio
 
 You may also want to inspect the main treeherder log file ~/treeherder-service/treeherder.log

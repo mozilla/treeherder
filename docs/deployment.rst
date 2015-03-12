@@ -70,7 +70,7 @@ You can run this file with the following command
   
   (venv)vagrant@precise32:~/treeherder-service$ sudo puppet apply puppet/your_manifest_file.pp
 
-Once puppet has finished, the only thing left to do is to start all the treeherder services (gunicorn, socketio, celery, etc).
+Once puppet has finished, the only thing left to do is to start all the treeherder services (gunicorn, celery, etc).
 The easiest way to do it is via supervisord.
 A supervisord configuration file is included in the repo under deployment/supervisord/treeherder.conf.
 

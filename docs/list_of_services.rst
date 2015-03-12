@@ -15,18 +15,6 @@ Gunicorn
 A wsgi server in charge of serving the restful api and the django admin.
 All the requests to this server are proxied through varnish and apache.
 
-Gevent-socketio
----------------
-
-A gevent-based implementation of a `socket.io`_ server that can send soft-realtime updates to the clients.
-It only serves socketio-related request, typically namespaced with /socket.io.
-When executing, it consumes messages from rabbitmq using a "events.#" routing key.
-As soon as a new event is detected, it's sent down to the consumers who subscribed to it.
-To separate the socket.io connection from the standard http ones we use varnish with the following configuration
-
-.. literalinclude:: ../puppet/files/varnish/default.vcl
-   :lines: 14-26
-
 Celery task worker
 ------------------
 
@@ -48,7 +36,3 @@ Celerymon task monitor
 
 This process provides an interface to the status of the worker and the running tasks. It can be used to provide such informations
 to monitoring tools like munin.
-
-
-
-.. _socket.io: http://socket.io

@@ -27,7 +27,6 @@ class treeherder {
     file { [
       "/var/log/gunicorn",
       "/var/log/celery",
-      "/var/log/socketio"
       ]:
       ensure => "directory",
       owner  => "${APP_USER}",
