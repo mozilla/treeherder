@@ -17,8 +17,6 @@ perf.provider('thServiceDomain', function() {
     };
 });
 
-perf.value('seriesColors', [ 'red', 'green', 'blue', 'orange', 'purple' ]);
-
 perf.factory('getSeriesSummary', [ function() {
   return function(signature, signatureProps, optionCollectionMap) {
     var platform = signatureProps.machine_platform + " " +
@@ -35,15 +33,18 @@ perf.factory('getSeriesSummary', [ function() {
       " " + optionCollectionMap[signatureProps.option_collection_hash] + extra;
     var signatureName = name;
 
-    return { name: name, signature: signature, platform: platform };
+    return { name: name, signature: signature, platform: platform,
+             subtestSignatures: subtestSignatures };
   };
 }]);
 
 perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', '$location',
                               '$modal', 'thServiceDomain', '$http', '$q', 'getSeriesSummary',
-                              'seriesColors',
   function PerfCtrl($state, $stateParams, $scope, $rootScope, $location, $modal,
-                    thServiceDomain, $http, $q, getSeriesSummary, seriesColors) {
+                    thServiceDomain, $http, $q, getSeriesSummary) {
+
+    var availableColors = [ 'red', 'green', 'blue', 'orange', 'purple' ];
+
     $scope.timeranges = [
       { "value":86400, "text": "Last day" },
       { "value":604800, "text": "Last 7 days" },
@@ -179,7 +180,6 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
                              series: { shadowSize: 0 },
                              lines: { show: false },
                              points: { show: true },
-                             colors: seriesColors,
                              legend: { show: false },
                              grid: {
                                color: '#cdd6df',
@@ -267,6 +267,7 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
                            var flotSeries = {
                              lines: { show: false },
                              points: { show: series.visible },
+                             color: series.color,
                              label: series.projectName + " " + series.name,
                              data: [],
                              resultSetData: [],
@@ -294,6 +295,9 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
       $scope.seriesList.forEach(function(series) {
         if (series.signature !== signature) {
           newSeriesList.push(series);
+        } else {
+          // add the color back to the list of available colors
+          availableColors.push(series.color);
         }
       });
       $scope.seriesList = newSeriesList;
@@ -350,7 +354,7 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
                   optionCollectionMap);
                 seriesSummary.projectName = partialSeries.project;
                 seriesSummary.visible = partialSeries.visible;
-                seriesSummary.color = seriesColors[i++];
+                seriesSummary.color = availableColors.pop();
 
                 $scope.seriesList.push(seriesSummary);
               });
@@ -397,7 +401,7 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
 
             modalInstance.result.then(function(series) {
               series.visible = true;
-              series.color = seriesColors[$scope.seriesList.length];
+              series.color = availableColors.pop();
 
               $scope.seriesList.push(series);
               updateURL();
