@@ -33,8 +33,7 @@ perf.factory('getSeriesSummary', [ function() {
       " " + optionCollectionMap[signatureProps.option_collection_hash] + extra;
     var signatureName = name;
 
-    return { name: name, signature: signature, platform: platform,
-             subtestSignatures: subtestSignatures };
+    return { name: name, signature: signature, platform: platform };
   };
 }]);
 
