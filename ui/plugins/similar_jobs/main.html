@@ -3,7 +3,7 @@
                 <table class="table table-super-condensed table-bordered table-hover">
                     <thead>
                         <tr>
-                            <th>Job</th><th>Push timestamp</th><th>Author</th><th>Revision</th>
+                            <th>Job</th><th>Pushed</th><th>Author</th><th>Revision</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -79,22 +79,22 @@
                             </td>
                         </tr>
                         <tr>
-                            <th>Options</th>
+                            <th>Build option</th>
                             <td>
                                 {{ similar_job_selected.platform_option }}
+                            </td>
+                        </tr>
+                        <tr><th>Job name</th><td>{{ similar_job_selected.job_type_name }}</td></tr>
+                        <tr>
+                            <th>Started</th>
+                            <td>
+                                {{ similar_job_selected.start_timestamp*1000 | date:'EEE MMM d, H:mm:ss' }}
                             </td>
                         </tr>
                         <tr>
                             <th>Duration</th>
                             <td>
                                 {{ similar_job_selected.duration >= 0 ? similar_job_selected.duration + ' minute(s)' : 'unknown' }}
-                            </td>
-                        </tr>
-                        <tr><th>Job Name</th><td>{{ similar_job_selected.job_type_name }}</td></tr>
-                        <tr>
-                            <th>Start time</th>
-                            <td>
-                                {{ similar_job_selected.start_timestamp*1000 | date:'EEE MMM d, H:mm:ss' }}
                             </td>
                         </tr>
                         <tr>
