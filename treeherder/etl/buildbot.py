@@ -476,6 +476,7 @@ JOB_NAME_BUILDERNAME = [
     {"regex": re.compile(r'instrumentation-browser'), "desc": "Android Instrumentation Browser"},
     {"regex": re.compile(r'xpcshell'), "desc": "XPCShell"},
     {"regex": re.compile(r'mozmill$'), "desc": "Mozmill"},
+    {"regex": re.compile(r'luciddream'), "desc": "Luciddream"},
     # ** Builds **
     # If we start doing debug ASan tests, please kill these special build types
     {"regex": re.compile(r'debug asan nightly'), "desc": "AddressSanitizer Debug Nightly"},
@@ -863,6 +864,7 @@ SYMBOLS = {
     "Gaia Python Integration Unit Tests OOP": "u",
     "Gaia Unit Test": "Gu",
     "Gaia Unit Test OOP": "Gu-oop",
+    "Luciddream": "Ld",
     "Linter Test": "Li",
     "Marionette Framework Unit Tests": "Mn",
     "Marionette Framework Unit Tests e10s": "Mn-e10s",
