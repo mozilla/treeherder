@@ -52,32 +52,7 @@ Setting up Vagrant
 
   NB: If you change something in the treeherder/log_parser folder, remember to repeat this step, otherwise the changes will not take effect.
 
-Running the tests
------------------
-
-* The tests can be run without following the local instance steps below.
-
-* You can run the py.test suite with
-
-  .. code-block:: bash
-
-     (venv)vagrant@precise32:~/treeherder-service$ ./runtests.sh
-
-* Or for more control, run py.test directly
-
-  .. code-block:: bash
-
-     (venv)vagrant@precise32:~/treeherder-service$ py.test tests/
-     (venv)vagrant@precise32:~/treeherder-service$ py.test tests/log_parser/test_utils.py
-     (venv)vagrant@precise32:~/treeherder-service$ py.test tests/etl/test_buildapi.py -k test_ingest_builds4h_jobs
-
-* To run all tests, including slow tests that are normally skipped, use
-
-  .. code-block:: bash
-
-     (venv)vagrant@precise32:~/treeherder-service$ py.test --runslow tests/
-
-* For more options, see ``py.test --help`` or http://pytest.org/latest/usage.html
+* If you just wish to :ref:`run the tests <running-tests>`, you can stop now without performing the remaining steps below.
 
 Setting up a local Treeherder instance
 --------------------------------------

@@ -18,6 +18,33 @@ In order to make the various services aware of a change in the code you need to 
 
    > sudo /etc/init.d/supervisord restart
 
+.. _running-tests:
+
+Running the tests
+-----------------
+
+* You can run the py.test suite with
+
+  .. code-block:: bash
+
+     (venv)vagrant@precise32:~/treeherder-service$ ./runtests.sh
+
+* Or for more control, run py.test directly
+
+  .. code-block:: bash
+
+     (venv)vagrant@precise32:~/treeherder-service$ py.test tests/
+     (venv)vagrant@precise32:~/treeherder-service$ py.test tests/log_parser/test_utils.py
+     (venv)vagrant@precise32:~/treeherder-service$ py.test tests/etl/test_buildapi.py -k test_ingest_builds4h_jobs
+
+* To run all tests, including slow tests that are normally skipped, use
+
+  .. code-block:: bash
+
+     (venv)vagrant@precise32:~/treeherder-service$ py.test --runslow tests/
+
+* For more options, see ``py.test --help`` or http://pytest.org/latest/usage.html
+
 Add a new repository
 --------------------
 
