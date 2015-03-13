@@ -30,10 +30,10 @@ install:
   - pip install -r requirements/common.txt
   - pip install -r requirements/dev.txt
 before_script:
+  - flake8 --show-source
   - python setup.py build_ext --inplace
   - mysql -e 'create database treeherder;'
 script:
-  - flake8 --show-source
   - py.test tests/$* --runslow
 notifications:
   email:
