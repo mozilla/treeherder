@@ -1,39 +1,46 @@
 # Dependencies (both pure-Python and compiled) needed only in development
 
 # for the test suite and coverage metrics
-pytest==2.3.4
-pytest-cov==1.6
-datadiff==1.1.5
+pytest==2.6.4
+pytest-cov==1.8.1
+datadiff==1.1.6
 
-WebTest==1.3.4
+WebTest==2.0.18
 
-mock==1.0b1
-responses==0.2.2
+mock==1.0.1
+responses==0.3.0
 
-django-extensions==1.3.3
+django-extensions==1.5.1
 
 # in order to be able to run bin/generate-vendor-lib.py
-virtualenv==1.7.1.2
+virtualenv==12.0.7
 
 #for celery auto-reloading
-pyinotify==0.9.4
+pyinotify==0.9.5
 
 flake8==2.4.0
 
 # Required by pytest
-py==1.4.12
+py==1.4.26
 
 # Required by pytest-cov
-cov-core==1.6
+cov-core==1.15.0
 
 # Required by cov-core
-coverage==3.5.2
+coverage==3.7.1
 
 # Required by WebTest
-WebOb==1.2
+beautifulsoup4==4.3.2
+waitress==0.8.9
+WebOb==1.4
+# Whilst 'requests' is in checked-in.txt, we need to use it in conftest.py
+# before the vendor directory gets added to the Python path.
+# This can be removed once we migrate from the vendor directory to
+# putting everything there in requirements/common.txt
+requests==2.4.1
 
-# Required by django-extensions & responses
-six==1.8.0
+# Required by django-extensions, WebTest & responses
+six==1.9.0
 
 # Required by flake8
 mccabe==0.3
