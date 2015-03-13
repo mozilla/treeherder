@@ -25,7 +25,7 @@
               </td>
             </tr>
           </table>
-          <input title="Show/Hide series" type="checkbox" id="check-{{series.signature}}" class="show-hide-check" ng-click="showHideSeries(series.signature)">
+          <input title="Show/Hide series" type="checkbox" ng-model="series.visible" class="show-hide-check" ng-click="showHideSeries(series.signature)">
         </td>
       </tr>
     </table>

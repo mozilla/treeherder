@@ -19,9 +19,8 @@ perf.provider('thServiceDomain', function() {
 
 perf.value('seriesColors', [ 'red', 'green', 'blue', 'orange', 'purple' ]);
 
-perf.factory('seriesSummary', ['seriesColors', function(seriesColors) {
-  return function(signature, signatureProps, projectName, optionCollectionMap,
-                  number) {
+perf.factory('getSeriesSummary', [ function() {
+  return function(signature, signatureProps, optionCollectionMap) {
     var platform = signatureProps.machine_platform + " " +
       signatureProps.machine_architecture;
     var extra = "";
@@ -35,16 +34,16 @@ perf.factory('seriesSummary', ['seriesColors', function(seriesColors) {
     var name = signatureProps.suite + " " + testName +
       " " + optionCollectionMap[signatureProps.option_collection_hash] + extra;
     var signatureName = name;
-    return { name: name, signature: signature, platform: platform,
-             projectName: projectName, color: seriesColors[number] };
+
+    return { name: name, signature: signature, platform: platform };
   };
 }]);
 
 perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', '$location',
-                              '$modal', 'thServiceDomain', '$http', '$q', 'seriesSummary',
+                              '$modal', 'thServiceDomain', '$http', '$q', 'getSeriesSummary',
                               'seriesColors',
   function PerfCtrl($state, $stateParams, $scope, $rootScope, $location, $modal,
-                    thServiceDomain, $http, $q, seriesSummary, seriesColors) {
+                    thServiceDomain, $http, $q, getSeriesSummary, seriesColors) {
     $scope.timeranges = [
       { "value":86400, "text": "Last day" },
       { "value":604800, "text": "Last 7 days" },
@@ -166,6 +165,11 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
     });
 
     function plotGraph() {
+      // synchronize series visibility with flot, in case it's changed
+      $scope.seriesList.forEach(function(series) {
+        series.flotSeries.points.show = series.visible;
+      });
+      // plot the actual graph
       $scope.plot = $.plot($("#graph"),
                         $scope.seriesList.map(
                           function(series) { return series.flotSeries }),
@@ -230,22 +234,60 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
     }
 
     $scope.timeRangeChanged = function() {
-      $state.go('graphs', { 'timerange': $scope.myTimerange.value });
+      updateURL();
+      // refetch and re-render all graph data
+      $q.all($scope.seriesList.map(getSeriesData)).then(function() {
+        plotGraph();
+      });
     }
 
     $scope.repoName = $stateParams.projectId;
 
-    $scope.reload = function() {
-      $state.go('graphs', { 'timerange': $scope.myTimerange.value,
+    function updateURL() {
+      $state.transitionTo('graphs', { 'timerange': $scope.myTimerange.value,
                             'series':
-                              $scope.seriesList.map(function(series) {
-                                return encodeURIComponent(
-                                  JSON.stringify(
-                                    { project: series.projectName,
-                                      signature: series.signature,
-                                      visibility: series.visibility})); })
-                          });
-    };
+                            $scope.seriesList.map(function(series) {
+                              return encodeURIComponent(
+                                JSON.stringify(
+                                  { project: series.projectName,
+                                    signature: series.signature,
+                                    visible: series.visible})); })
+                                    },
+                {location: true, inherit: true, relative: $state.$current,
+                 notify: false});
+    }
+
+    function getSeriesData(series) {
+      return $http.get(thServiceDomain + '/api/project/' +
+                       series.projectName +
+                       '/performance-data/0/get_performance_data/' +
+                       '?interval_seconds=' + $scope.myTimerange.value +
+                       '&signatures=' + series.signature).then(
+                         function(response) {
+                           var flotSeries = {
+                             lines: { show: false },
+                             points: { show: series.visible },
+                             label: series.projectName + " " + series.name,
+                             data: [],
+                             resultSetData: [],
+                             thSeries: jQuery.extend({}, series)
+                           }
+                           response.data[0].blob.forEach(function(dataPoint) {
+                             var mean = dataPoint.mean;
+                             if (mean === undefined)
+                               mean = dataPoint.geomean;
+
+                             flotSeries.data.push([
+                               new Date(dataPoint.push_timestamp*1000),
+                               mean]);
+                             flotSeries.resultSetData.push(
+                               dataPoint.result_set_id);
+                             flotSeries.data.sort(function(a,b) {
+                               return a[0] > b[0]; });
+                           });
+                           series.flotSeries = flotSeries;
+                         });
+    }
 
     $scope.removeSeries = function(signature) {
       var newSeriesList = [];
@@ -256,13 +298,13 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
       });
       $scope.seriesList = newSeriesList;
 
-      $scope.reload();
+      updateURL();
+      plotGraph();
     };
 
-    $scope.showHideSeries = function(signature){
-      var seriesToToggle = _.find($scope.seriesList, function(series) { return series.signature == signature });
-      seriesToToggle.visibility = !seriesToToggle.visibility;
-      $scope.reload();
+    $scope.showHideSeries = function(signature) {
+      updateURL();
+      plotGraph();
     }
 
     var optionCollectionMap = {};
@@ -297,58 +339,24 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
                                    propsHash[partialSeries.project] = {};
                                  }
                                  propsHash[partialSeries.project][partialSeries.signature] = data[0];
-                                 propsHash[partialSeries.project][partialSeries.signature]['visibility'] = partialSeries.visibility;
                                });
             })).then(function() {
+              // create a new seriesList in the correct order
               var i = 0;
-              Object.keys(propsHash).forEach(function(projectName) {
-                Object.keys(propsHash[projectName]).forEach(function(signature) {
-                  var series_summary = seriesSummary(signature, propsHash[projectName][signature], projectName,
-                                                    optionCollectionMap, i);
-                  series_summary['visibility'] = propsHash[projectName][signature]['visibility'];
-                  $scope.seriesList.push(series_summary);
-                  i++;
-                });
-              });
-              $q.all($scope.seriesList.map(function(series) {
-                return $http.get(thServiceDomain + '/api/project/' +
-                                 series.projectName +
-                                 '/performance-data/0/get_performance_data/' +
-                                 '?interval_seconds=' + $scope.myTimerange.value +
-                                 '&signatures=' + series.signature).then(
-                                   function(response) {
-                                     var flotSeries = {
-                                       lines: { show: false },
-                                       points: { show: true },
-                                       label: series.projectName + " " + series.name,
-                                       data: [],
-                                       resultSetData: [],
-                                       thSeries: jQuery.extend({}, series)
-                                     }
-                                     response.data[0].blob.forEach(function(dataPoint) {
-                                       var mean = dataPoint.mean;
-                                       if (mean === undefined)
-                                         mean = dataPoint.geomean;
+              partialSeriesList.forEach(function(partialSeries) {
+                var seriesSummary = getSeriesSummary(
+                  partialSeries.signature,
+                  propsHash[partialSeries.project][partialSeries.signature],
+                  optionCollectionMap);
+                seriesSummary.projectName = partialSeries.project;
+                seriesSummary.visible = partialSeries.visible;
+                seriesSummary.color = seriesColors[i++];
 
-                                       flotSeries.data.push([
-                                         new Date(dataPoint.push_timestamp*1000),
-                                         mean]);
-                                       flotSeries.resultSetData.push(dataPoint.result_set_id);
-                                       flotSeries.data.sort(function(a,b) { return a[0] > b[0]; });
-                                     });
-                                     series.flotSeries = flotSeries;
-                                   });
-              })).then(function() {
-                      $scope.seriesList.forEach(function(series) {
-                        if (series.visibility) {
-                          $('#check-'+series.signature).prop('checked', true);
-                        } else {
-                            $('#check-'+series.signature).prop('checked', false);
-                            series.flotSeries.points.show = false;
-                        }
-                      });
-                      plotGraph();
-                });
+                $scope.seriesList.push(seriesSummary);
+              });
+              $q.all($scope.seriesList.map(getSeriesData)).then(function() {
+                plotGraph();
+              });
             });
         } else {
           $scope.seriesList = [];
@@ -388,9 +396,14 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
             });
 
             modalInstance.result.then(function(series) {
-              series.visibility = true;
+              series.visible = true;
+              series.color = seriesColors[$scope.seriesList.length];
+
               $scope.seriesList.push(series);
-              $scope.reload();
+              updateURL();
+              getSeriesData(series).then(function() {
+                plotGraph();
+              });
             });
           };
         });
@@ -400,7 +413,7 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
 perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
                                             projects, optionCollectionMap,
                                             timeRange, thServiceDomain,
-                                            seriesSummary, defaultProjectName,
+                                            getSeriesSummary, defaultProjectName,
                                             defaultPlatform) {
   $scope.timeRange = timeRange;
   $scope.projects = projects;
@@ -434,20 +447,17 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
                 function(response) {
                   var data = response.data;
                   var seriesList = [];
-                  var i = 0;
                   Object.keys(data).forEach(function(signature) {
-                    var series = seriesSummary(
-                      signature, data[signature],
-                      $scope.selectedProject.name, optionCollectionMap, i)
+                    var seriesSummary = getSeriesSummary(signature,
+                                                         data[signature],
+                                                         optionCollectionMap);
 
-                    var platform = series.platform;
+                    var platform = seriesSummary.platform;
                     if ($scope.platformList.indexOf(platform) === -1) {
                       $scope.platformList.push(platform);
                     }
 
-                    seriesList.push(series);
-
-                    i++;
+                    seriesList.push(seriesSummary);
                   });
                   $scope.platformList.sort();
                   $scope.selectedPlatform = defaultPlatform ||
@@ -494,6 +504,8 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
 });
 
 perf.config(function($stateProvider, $urlRouterProvider) {
+  $urlRouterProvider.deferIntercept(); // so we don't reload on url change
+
   $stateProvider.state('graphs', {
     templateUrl: 'partials/perf/perfctrl.html',
     url: '/graphs?timerange&series',
@@ -501,5 +513,20 @@ perf.config(function($stateProvider, $urlRouterProvider) {
   });
 
   $urlRouterProvider.otherwise('/graphs');
-});
+})
+  // define the interception
+  .run(function ($rootScope, $urlRouter, $location, $state) {
+    $rootScope.$on('$locationChangeSuccess', function(e, newUrl, oldUrl) {
+      // Prevent $urlRouter's default handler from firing
+      e.preventDefault();
+      if ($state.current.name !== 'graphs') {
+        // here for first time, synchronize
+        $urlRouter.sync();
+      }
+    });
+
+    // Configures $urlRouter's listener *after* custom listener
+    $urlRouter.listen();
+  })
+
 
