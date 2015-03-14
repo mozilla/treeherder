@@ -23,7 +23,7 @@ In order to make the various services aware of a change in the code you need to 
 Running the tests
 -----------------
 
-* You can run the py.test suite with
+* You can run flake8 and the py.test suite using
 
   .. code-block:: bash
 
@@ -44,6 +44,12 @@ Running the tests
      (venv)vagrant@precise32:~/treeherder-service$ py.test --runslow tests/
 
 * For more options, see ``py.test --help`` or http://pytest.org/latest/usage.html
+
+* To run flake8 on its own, use
+
+  .. code-block:: bash
+
+     (venv)vagrant@precise32:~/treeherder-service$ flake8
 
 Add a new repository
 --------------------
