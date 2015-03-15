@@ -64,11 +64,11 @@ class python {
     user => "${APP_USER}",
   }
 
-  exec{"pip-install-compiled":
+  exec{"peep-install-compiled":
     require => Exec['create-virtualenv'],
     user => "${APP_USER}",
     cwd => '/tmp',
-    command => "${VENV_DIR}/bin/pip install -r ${PROJ_DIR}/requirements/common.txt",
+    command => "${VENV_DIR}/bin/python ${PROJ_DIR}/bin/peep.py install -r ${PROJ_DIR}/requirements/common.txt",
     timeout => 1800,
   }
 

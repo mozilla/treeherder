@@ -34,13 +34,14 @@ def generate_vendor_lib():
         shutil.rmtree(target)
         os.mkdir(target)
         create_environment(venv, site_packages=False)
-        pip = os.path.join(venv, "bin", "pip")
+        venv_python = os.path.join(venv, "bin", "python")
+        peep = os.path.join(base, "bin", "peep.py")
 
         subprocess.check_call(
-            "{0} install --no-deps -r {1} "
-            '--install-option="--install-purelib={2}" '
-            '--install-option="--install-data={2}"'.format(
-                pip, reqs, target),
+            "{0} {1} install --no-deps -r {2} "
+            '--install-option="--install-purelib={3}" '
+            '--install-option="--install-data={3}"'.format(
+                venv_python, peep, reqs, target),
             shell=True,
         )
     finally:

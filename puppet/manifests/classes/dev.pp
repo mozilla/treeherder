@@ -3,10 +3,10 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 class dev{
-  exec{"pip-install-dev":
+  exec{"peep-install-dev":
     user => "${APP_USER}",
     cwd => '/tmp',
-    command => "${VENV_DIR}/bin/pip install -r ${PROJ_DIR}/requirements/dev.txt",
+    command => "${VENV_DIR}/bin/python ${PROJ_DIR}/bin/peep.py install -r ${PROJ_DIR}/requirements/dev.txt",
     timeout => 1800,
   }
 
