@@ -19,6 +19,18 @@
                 </span>
             </span>
 
+            <!-- Infra Menu -->
+            <span class="repo-menu dropdown">
+                <button id="infraLabel" title="Infrastructure Status" role="button"
+                        href="#" data-toggle="dropdown" data-target="#"
+                        class="btn btn-view-nav btn-right-navbar nav-repo-btn">Infra
+                    <span class="fa fa-angle-down lightgray"></span>
+                </button>
+                <ul class="dropdown-menu repo-dropdown-menu" role="menu" aria-labelledby="infraLabel"
+                    ng-include="'partials/main/thInfraMenu.html'">
+                </ul>
+            </span>
+
             <!-- Repos Menu -->
             <span ng-controller="RepositoryMenuCtrl" >
                 <!--<span class="repo-menu dropdown keep-open">-->
