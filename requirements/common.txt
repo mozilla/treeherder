@@ -1,33 +1,49 @@
 # Dependencies that are pip installed and not checked in
 # and are shared between deployment and dev environments
+
+# sha256: yMvuXERhj0nnt8b5RabHSI5ah2V8oZp6a7Lm_ea6Dmg
 gunicorn==17.5
+# sha256: QgAgZcyYvJm1uuAITdsToK1hGhcdza9bqWcxk12nRKQ
 Django==1.7.4
+# sha256: 6ESYN2-wUkFQQGlrefsPGF48cycpZwEJtPHiMDvmyfU
 celery==3.1.16
+# sha256: sZX6jrUgwymU2LvRY3AA3j0JZTKy5FGDgy28tlwhHo4
 kombu==3.0.23
+# sha256: eopr2C4RGXausGE4MWqxCEet9hKSUHLq_4USIovPmh8
 simplejson==3.3.0
+# sha256: xbVbC9QOI6nLzSwb3v6XcfxYNpOKzvdyeVgTpvZDLEg
 Cython==0.19.2
+# sha256: v6nYRtuRp9i2o26HNT7tZBx-Pn0L-guZdXltIn8ttOs
 gevent==1.0
 
 # Required by gevent
+# sha256: 6mcVkvhGBUEoaxM-1Gps9TEaa3UFHMMbU-K8OJkrd1o
 greenlet==0.4.1
 
 # Required by datasource
+# sha256: gRBAtkfl1WhvhNtBXv1pfmJQAIsRK2kJunesBZ4UDHQ
 MySQL-python==1.2.5
 
 # Required by celery
+# sha256: bmuOxuRbiTiQUXN8fmIV2OVag4lutiEvpybKdugMehk
 billiard==3.3.0.19
 
 # Required by celery & MozillaPulse
+# sha256: VDjXSekjyRR0H-KkELUoq-JwUwAPv4eLxDdCjQiuCrE
 pytz==2014.10
 
 # Required by kombu
+# sha256: 406XZaYSD0ZkwSD0GYp4bDmg-35KWb0ZotbjqIS2OIk
 amqp==1.4.6
 
 # Required by kombu & carrot
+# sha256: N4Ethjya0-NcBzTELgvwMgzow77YLNIK1UyzTRWBV7o
 anyjson==0.3.3
 
 # Required by carrot
+# sha256: hD1ptoGmCv0h-_UPMQQE7Gf8350T389unUHztFYhfls
 amqplib==1.0.2
 
 # Required by mozlog
+# sha256: 7cVxMGHxCWYEi_a0DZpRSzgeC6hJxk4DTE72wYR9MAc
 blessings==1.6

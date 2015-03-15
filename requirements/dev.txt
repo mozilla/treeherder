@@ -1,48 +1,69 @@
 # Dependencies (both pure-Python and compiled) needed only in development
 
 # for the test suite and coverage metrics
+# sha256: VQiDuYGEzvbLuYDU2QBRMwrq5BB1CS-Y7wIVcZr47zM
 pytest==2.6.4
+# sha256: MeUZjAbykOHoE9MN3QY6BAHZ46aYEpykQmd4FnOnEoU
 pytest-cov==1.8.1
+# sha256: 8UAnAQY5mPanBgl4mq6NwFcD860KNIgvYZllNlTFVUM
 datadiff==1.1.6
 
+# sha256: vrVp5tcHy0zYLCJsl7fh9BzWK65lbYnmhxB-74N2x_0
 WebTest==2.0.18
 
+# sha256: uDndLZwRfHAUMMFJlWkYpCOphjtIsJyQ4wpgE-fS9E8
 mock==1.0.1
+# sha256: bF65Fbz3Y7Z3uOUc22jIR0EnqbYOSebiQLBexeRJxDs
 responses==0.3.0
 
+# sha256: P8n8hnJTAsWCGUO4veTde4L6PRY2VeLhQHSbmhZgcYE
 django-extensions==1.5.1
 
 # in order to be able to run bin/generate-vendor-lib.py
+# sha256: _XeKxeX_6HCj-3fW2A6BguCl8_xA2R-DVwYQRLeERDU
 virtualenv==12.0.7
 
 #for celery auto-reloading
+# sha256: 58UqnzbO4nxdCTHs-SlZzQIjF7AJAb007wXs5KKlyxs
 pyinotify==0.9.5
 
+# sha256: wEJTewVQLw7kQNlQ1fONWjwROwPMpHPDnqkAAb2ayFc
 flake8==2.4.0
 
 # Required by pytest
+# sha256: KN0LkNKbOGr7VS78TjVciJ9GOc6TZYp4cqIVDs4ou4k
 py==1.4.26
 
 # Required by pytest-cov
+# sha256: ShTGfVIP2p1CsNphNGOFeMquHTdLm7Ri2N4AWH26dkw
 cov-core==1.15.0
 
 # Required by cov-core
+# sha256: 0a6hxKphuDZtakLdNlBiL7-cY07STq9_N5yLlw5e1E4
 coverage==3.7.1
 
 # Required by WebTest
+# sha256: orKb0EjKL-VKBGspdwlkc4hyqXRwA6NxNEqT7t961Y4
 beautifulsoup4==4.3.2
+# sha256: gmUn3J0zTtTtds2uZy_cu8z2FBhmV9txZ5q1jfhpRYo
 waitress==0.8.9
+# sha256: CBmDggTipoI-Qr8iJ4mP3z8wb3YZvzKOJYVaDRyiA5k
 WebOb==1.4
 # Whilst 'requests' is in checked-in.txt, we need to use it in conftest.py
 # before the vendor directory gets added to the Python path.
 # This can be removed once we migrate from the vendor directory to
 # putting everything there in requirements/common.txt
+# sha256: uePBDlCStES7TBsLM39X5sPXaArXxRkvWX6E3ZMftZg
 requests==2.4.1
 
 # Required by django-extensions, WebTest & responses
+# sha256: QYqTw5en7asj5ViNvAZ6x0pyPts9VBvUk295R252Rdo
 six==1.9.0
 
 # Required by flake8
+# sha256: ic9r9P9kT_i5EuL6fiq7aNV6jn6Rjjk8coQNMNLrzws
 mccabe==0.3
+# sha256: Yuh_1UU1-5MrSk2Uho21IyV6EDHIvGvTWMIBVDPmRts
 pep8==1.5.7
+# sha256: rEVxaVwQzhU2vNuhopS58tPmzJ0OoXG2fVCghkzj4EI
 pyflakes==0.8.1
