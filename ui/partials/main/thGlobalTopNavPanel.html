@@ -5,6 +5,7 @@
     <div class="navbar-collapse collapse th-global-navbar">
         <!-- nav begin -->
         <span class="navbar-right">
+            <!-- Sheriffing Button -->
             <span ng-show="user.is_staff">
                 <span class="btn btn-view-nav btn-right-navbar nav-menu-btn"
                       ng-class="{'active': (isSheriffPanelShowing)}"
@@ -18,24 +19,21 @@
                 </span>
             </span>
 
+            <!-- Repos Menu -->
             <span ng-controller="RepositoryMenuCtrl" >
                 <!--<span class="repo-menu dropdown keep-open">-->
                 <span th-repo-dropdown-container class="repo-menu dropdown">
-                    <!-- Repo Button -->
                     <button id="repoLabel" title="Watch a repo" role="button"
                             href="#" data-toggle="dropdown" data-target="#"
                             class="btn btn-view-nav btn-right-navbar nav-repo-btn">Repos
                         <span class="fa fa-angle-down lightgray"></span>
                     </button>
-
-                    <!-- Repo Menu -->
                     <ul class="dropdown-menu repo-dropdown-menu" role="menu" aria-labelledby="repoLabel">
                         <span ng-repeat="(group_order, group) in groupedRepos()">
                             <li role="presentation" class="divider" ng-hide="$first"></li>
                             <li role="presentation" class="dropdown-header">{{::group.name}}</li>
                             <th-repo-menu-item ng-repeat="repo in group.repos | orderBy : 'name'" ></th-repo-menu-item>
                         </span>
-
                     </ul>
                 </span>
             </span>
