@@ -38,46 +38,46 @@
 
                     </ul>
                 </span>
-
-                <!-- Global Filter Button -->
-                <span class="btn btn-view-nav btn-right-navbar nav-menu-btn"
-                      title="Global job filters"
-                      ng-class="{'active': (isFilterPanelShowing)}"
-                      ng-click="setFilterPanelShowing(!isFilterPanelShowing)"
-                      tabindex="0"
-                      role="button"><span>Filters</span>
-                    <i class="fa fa-angle-down lightgray"
-                       ng-hide="isFilterPanelShowing"></i>
-                    <i class="fa fa-angle-up lightgray"
-                       ng-show="isFilterPanelShowing"></i>
-                </span>
-
-                <!-- Help Button -->
-                <a class="btn btn-view-nav nav-help-btn"
-                   title="Treeherder help" href="help.html" target="_blank">
-                    <span class="fa fa-question-circle lightgray nav-help-icon"></span></a>
-
-                <!-- Settings Button - currently suppressed -->
-                <span ng-show="false"
-                      class="btn btn-view-nav btn-right-navbar nav-menu-btn"
-                      ng-class="{'active': (isSettingsPanelShowing)}"
-                      ng-click="setSettingsPanelShowing(!isSettingsPanelShowing)"
-                      tabindex="0"
-                      role="button"><span>Settings</span>
-                    <i class="fa fa-angle-down lightgray"
-                       ng-hide="isSettingsPanelShowing"></i>
-                    <i class="fa fa-angle-up lightgray"
-                       ng-show="isSettingsPanelShowing"></i>
-                </span>
-
-                <!-- User Field if logged in -->
-                <span class="btn btn-right-navbar th-username"
-                      ng-if="user.email">
-                    {{user.email}}</span>
-
-                <!-- Login/Register Button -->
-                <persona-buttons></persona-buttons>
             </span>
+
+            <!-- Global Filter Button -->
+            <span class="btn btn-view-nav btn-right-navbar nav-menu-btn"
+                  title="Global job filters"
+                  ng-class="{'active': (isFilterPanelShowing)}"
+                  ng-click="setFilterPanelShowing(!isFilterPanelShowing)"
+                  tabindex="0"
+                  role="button"><span>Filters</span>
+                <i class="fa fa-angle-down lightgray"
+                   ng-hide="isFilterPanelShowing"></i>
+                <i class="fa fa-angle-up lightgray"
+                   ng-show="isFilterPanelShowing"></i>
+            </span>
+
+            <!-- Help Button -->
+            <a class="btn btn-view-nav nav-help-btn"
+               title="Treeherder help" href="help.html" target="_blank">
+                <span class="fa fa-question-circle lightgray nav-help-icon"></span></a>
+
+            <!-- Settings Button - currently suppressed -->
+            <span ng-show="false"
+                  class="btn btn-view-nav btn-right-navbar nav-menu-btn"
+                  ng-class="{'active': (isSettingsPanelShowing)}"
+                  ng-click="setSettingsPanelShowing(!isSettingsPanelShowing)"
+                  tabindex="0"
+                  role="button"><span>Settings</span>
+                <i class="fa fa-angle-down lightgray"
+                   ng-hide="isSettingsPanelShowing"></i>
+                <i class="fa fa-angle-up lightgray"
+                   ng-show="isSettingsPanelShowing"></i>
+            </span>
+
+            <!-- User Field if logged in -->
+            <span class="btn btn-right-navbar th-username"
+                  ng-if="user.email">
+                {{user.email}}</span>
+
+            <!-- Login/Register Button -->
+            <persona-buttons></persona-buttons>
         </span>
 
     </div>
