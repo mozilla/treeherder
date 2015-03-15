@@ -58,12 +58,12 @@ treeherder.directive('thCloneJobs', [
         var jobStatus = thResultStatus(job);
         var hoverText = job.job_type_name;
 
-        if( (jobStatus === 'pending') || (jobStatus === 'running') ){
+        if ((jobStatus === 'pending') || (jobStatus === 'running')) {
             hoverText += " - still " + jobStatus + ", check the job detail panel for a ETA";
 
-        }else {
+        } else {
             //The job is complete, compute duration
-            var duration = Math.round((job.end_timestamp - job.submit_timestamp) / 60);
+            var duration = Math.round((job.end_timestamp - job.start_timestamp) / 60);
             hoverText += jobStatus + " - " + duration + " mins";
         }
 
