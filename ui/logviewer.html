@@ -18,11 +18,10 @@
                         <tr ng-repeat="(label, value) in artifact.header">
                             <th ng-cloak>{{label}}</th>
                             <td ng-if="label == 'revision'" class="break-word">
-                                {{value}}
                                 <a href="{{logRevisionFilterUrl}}"
-                                   title="open resultset"
+                                   title="Open resultset"
                                    class="repo-link"
-                                   ng-cloak>link</a>
+                                   ng-cloak>{{value}}</a>
                             </td>
                             <td ng-if="label == 'starttime'"
                                 ng-cloak class="break-word">{{logDisplayDate}}</td>

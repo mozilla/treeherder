@@ -66,7 +66,9 @@ body {
     background-color: #FFF;
     padding: 20px 5px 4px;
     display: table-row;
+    font-size: 12px;
 }
+
 .run-data .break-word{
     -ms-word-break: break-all;
     word-break: break-all;
@@ -95,6 +97,7 @@ body {
     -o-user-select: text;
     user-select: text;
     white-space: normal;
+    font-size: 12px;
 }
 
 .logviewer-step.selected {
@@ -128,12 +131,10 @@ body {
 
 .logviewer-stepbar .raw-log {
     padding-right: 5px;
-    font-size: 12px;
 }
 
 .logviewer-stepbar input[type="checkbox"] {
     margin: 0;
-    vertical-align: middle;
 }
 
 .lv-line-no.label {
@@ -146,7 +147,7 @@ body {
     padding: 26px 0 0 20px;
     font-weight: bold;
     font-family: sans-serif;
-    font-size: 14px;
+    font-size: 12px;
 }
 
 .lv-log-msg-step {
@@ -170,5 +171,4 @@ body {
 .job-header{
     max-height:270px;
     overflow-y:auto;
-    margin-bottom:20px;
 }
