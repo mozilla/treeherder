@@ -109,6 +109,7 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
       $scope.$digest();
 
       this.plot.unhighlight();
+      highlightDataPoints();
       this.plot.highlight(s, item.datapoint);
     };
 
@@ -146,6 +147,7 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
         $scope.ttHideTimer = setTimeout(function() {
           $scope.ttHideTimer = null;
           $scope.plot.unhighlight();
+          highlightDataPoints();
           tip.animate({ opacity: 0, top: '+=10' },
                       250, 'linear', function() {
                         $(this).css({ visibility: 'hidden' });
@@ -163,6 +165,19 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
       $scope.ttLocked = false;
       $scope.hideTooltip();
     });
+
+    // Highlight the points persisted in the url
+    function highlightDataPoints() {
+      $scope.seriesList.forEach(function(series, i) {
+        if (series.highlighted) {
+          if (series.highlighted.length > 0 && series.visible) {
+            $scope.resetHighlightButton = true;
+            $scope.revisionToHighlight = series.highlighted[1];
+            $scope.plot.highlight(i, series.highlighted[0]);
+          }
+        }
+      });
+    }
 
     function plotGraph() {
       // synchronize series visibility with flot, in case it's changed
@@ -189,6 +204,8 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
                                autoHighlight: false
                              }
                            });
+
+      highlightDataPoints();
 
       function getDateStr(timestamp) {
         var date = new Date(parseInt(timestamp));
@@ -250,7 +267,8 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
                                 JSON.stringify(
                                   { project: series.projectName,
                                     signature: series.signature,
-                                    visible: series.visible})); })
+                                    visible: series.visible})); }),
+                                'highlightedRevision': $scope.highlightedRevision
                                     },
                 {location: true, inherit: true, relative: $state.$current,
                  notify: false});
@@ -301,6 +319,10 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
       });
       $scope.seriesList = newSeriesList;
 
+      if ($scope.seriesList.length == 0) {
+        $scope.resetHighlight();
+      }
+      $scope.highlightRevision();
       updateURL();
       plotGraph();
     };
@@ -308,6 +330,52 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
     $scope.showHideSeries = function(signature) {
       updateURL();
       plotGraph();
+      $scope.highlightRevision();
+    }
+
+    $scope.resetHighlight = function() {
+      $scope.seriesList.forEach(function(series) {
+        series.highlighted = [];
+      });
+      $scope.highlightedRevision = '';
+      $scope.revisionToHighlight = "";
+      $scope.resetHighlightButton = false;
+      updateURL();
+      plotGraph();
+    }
+
+    $scope.addHighlightedRevision = function() {
+      var rev = $scope.revisionToHighlight;
+      if (rev.length == 12) {
+        $scope.highlightedRevision = rev;
+        $scope.highlightRevision();
+      } else {
+        $scope.resetHighlight();
+      }
+    }
+
+    $scope.highlightRevision = function() {
+      var rev = $scope.highlightedRevision;
+      if (rev.length == 12) {
+        $q.all($scope.seriesList.map(function(series, i) {
+          if (series.visible) {
+           return $http.get(thServiceDomain + "/api/project/" + series.projectName +
+             "/resultset/?format=json&revision=" + rev + "&with_jobs=false").then(
+            function(response) {
+              if (response.data.results.length > 0) {
+                var result_set_id = response.data.results[0].id;
+                var j = series.flotSeries.resultSetData.indexOf(result_set_id);
+                var seriesToaddHighlight = _.find($scope.seriesList, function(sr) { return sr.signature == series.signature });
+                seriesToaddHighlight.highlighted = [j, rev];
+              }
+            });
+          }
+          return null;
+        })).then(function() {
+              updateURL();
+              plotGraph();
+        });
+      } 
     }
 
     var optionCollectionMap = {};
@@ -324,6 +392,11 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
           $scope.seriesList = [];
           if (_.isString($stateParams.series)) {
             $stateParams.series = [$stateParams.series];
+          }
+          if ($stateParams.highlightedRevision) {
+            $scope.highlightedRevision = $stateParams.highlightedRevision;
+          } else {
+            $scope.highlightedRevision = '';
           }
           // we only store the signature + project name in the url, we need to
           // fetch everything else from the server
@@ -354,10 +427,12 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
                 seriesSummary.projectName = partialSeries.project;
                 seriesSummary.visible = partialSeries.visible;
                 seriesSummary.color = availableColors.pop();
+                seriesSummary.highlighted = partialSeries.highlighted;
 
                 $scope.seriesList.push(seriesSummary);
               });
               $q.all($scope.seriesList.map(getSeriesData)).then(function() {
+                $scope.highlightRevision();
                 plotGraph();
               });
             });
@@ -399,13 +474,18 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
             });
 
             modalInstance.result.then(function(series) {
+              series.highlighted = [];
               series.visible = true;
               series.color = availableColors.pop();
 
               $scope.seriesList.push(series);
+              if( !$scope.highlightedRevision ) {
+                $scope.highlightedRevision = '';
+              }
               updateURL();
               getSeriesData(series).then(function() {
                 plotGraph();
+                $scope.highlightRevision();
               });
             });
           };
@@ -511,7 +591,7 @@ perf.config(function($stateProvider, $urlRouterProvider) {
 
   $stateProvider.state('graphs', {
     templateUrl: 'partials/perf/perfctrl.html',
-    url: '/graphs?timerange&series',
+    url: '/graphs?timerange&series&highlightedRevision',
     controller: 'PerfCtrl'
   });
 

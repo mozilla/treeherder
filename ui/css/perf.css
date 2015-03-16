@@ -89,7 +89,7 @@ to { opacity: 0; }
 
 #graphs { flex: auto; }
 
-#graph { width: 100%; height: 300px; }
+#graph { width: 100%; height: 300px; margin-bottom: 30px; }
 
 .graph-legend-table { table-layout:fixed; }
 
@@ -148,5 +148,11 @@ to { opacity: 0; }
 #scrollable-dropdown-menu .tt-dropdown-menu {
   max-height: 150px;
   overflow-y: auto;
+}
+
+.reset-highlight-button {
+  display: inline-block;
+  margin-left: -20px;
+  cursor: pointer;
 }
 
