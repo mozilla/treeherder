@@ -18,7 +18,7 @@ jsonfield==0.9.20
 mozlog==2.10
 
 https://github.com/jeads/datasource/archive/2f09c9cc8700be71c1e63bc4f34c6cc05ffc5a66.zip#egg=datasource
-https://github.com/mozilla/treeherder-client/archive/be6cb763dce2d4c72c1a5c327890753f8820864e.zip#egg=treeherder-client
+https://github.com/mozilla/treeherder-client/archive/f236a3487eb042638836d4d9c9f79d51cab2a362.zip#egg=treeherder-client
 
 # Required by MozillaPulse
 carrot==0.10.7
