@@ -185,6 +185,9 @@ treeherder.provider('thEvents', function() {
             // fired with a selected job on ctrl/cmd-click or spacebar
             jobPin: "job-pin-EVT",
 
+            // fired with a selected job on 'r'
+            jobRetrigger: "job-retrigger-EVT",
+
             // fired when the user middle-clicks on a job to view the log
             jobContextMenu: "job-context-menu-EVT",
 

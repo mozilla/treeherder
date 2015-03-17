@@ -56,9 +56,10 @@ treeherder.controller('MainCtrl', [
                 'n',     // Select next unclassified failure
                 'k',     // Select previous unclassified failure
                 'p',     // Select previous unclassified failure
+                'r',     // Retrigger selected job
                 'space', // Pin selected job to pinboard
                 'u',     // Display only unclassified failures
-                'r',     // Pin selected job and add related bug
+                'b',     // Pin selected job and add related bug
                 'c',     // Pin selected job and add classification
                 'f',     // Enter a custom job or platform filter
                 'left',  // Select previous job
@@ -109,6 +110,16 @@ treeherder.controller('MainCtrl', [
                 $rootScope.$emit(thEvents.selectPreviousUnclassifiedFailure);
             });
 
+            // Shortcut: retrigger selected job
+            Mousetrap.bind('r', function() {
+                if ($scope.selectedJob) {
+                    $scope.$evalAsync(
+                        $rootScope.$emit(thEvents.jobRetrigger,
+                                         $rootScope.selectedJob)
+                    );
+                }
+            });
+
             // Shortcut: pin selected job to pinboard
             Mousetrap.bind('space', function(ev) {
                 // If a job is selected add it otherwise
@@ -129,7 +140,7 @@ treeherder.controller('MainCtrl', [
             });
 
             // Shortcut: pin selected job to pinboard and add a related bug
-            Mousetrap.bind('r', function(ev) {
+            Mousetrap.bind('b', function(ev) {
                 if ($scope.selectedJob) {
                     $rootScope.$emit(thEvents.addRelatedBug,
                                      $rootScope.selectedJob);
