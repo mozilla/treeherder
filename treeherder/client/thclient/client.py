@@ -1,7 +1,6 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 from __future__ import unicode_literals
 
 import httplib
@@ -634,11 +633,12 @@ class TreeherderRequest(object):
 
     def __init__(
         self, protocol='', host='', project='', oauth_key='',
-        oauth_secret=''):
+        oauth_secret='', timeout=120):
         """
         - host : treeherder host to post to
         - project : name of the project in treeherder
         - oauth_key, oauth_secret : oauth credentials
+        - timeout : maximum timeout for requests
         """
         self.host = host
         self.project = project
@@ -653,6 +653,7 @@ class TreeherderRequest(object):
             raise AssertionError('Protocol "%s" not supported; please use one of %s' %
                                  (protocol, ', '.join(self.protocols)))
         self.protocol = protocol
+        self.timeout = timeout
 
         # ensure the required parameters are given
         if not self.project:
@@ -728,9 +729,9 @@ class TreeherderRequest(object):
         # Make the request
         conn = None
         if self.protocol == 'http':
-            conn = httplib.HTTPConnection(self.host)
+            conn = httplib.HTTPConnection(self.host, timeout=self.timeout)
         else:
-            conn = httplib.HTTPSConnection(self.host)
+            conn = httplib.HTTPSConnection(self.host, timeout=self.timeout)
 
         conn.request(method, uri, serialized_body, headers)
 
