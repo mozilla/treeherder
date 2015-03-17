@@ -10,7 +10,7 @@ If you changed something in the log parser, you need to do a compilation step:
 
 .. code-block:: bash
 
-   > python setup.py build_ext --inplace
+   > ./setup.py build_ext --inplace
 
 In order to make the various services aware of a change in the code you need to restart supervisor:
 

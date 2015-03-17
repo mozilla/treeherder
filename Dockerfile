@@ -9,5 +9,5 @@ RUN pip install -r requirements.txt
 
 COPY ./docker/etc/profile.d/treeherder.sh /etc/profile.d/treeherder.sh
 COPY . /app
-RUN python setup.py build_ext --inplace
+RUN setup.py build_ext --inplace
 RUN mkdir -p /var/log/gunicorn && mkdir -p /var/log/treeherder/

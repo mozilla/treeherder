@@ -24,12 +24,12 @@ Setting up Vagrant
      >vagrant up
 
   Note: If you encounter an error saying "It appears your machine doesn't support NFS, or there is not an
-  adapter to enable NFS on this machine for Vagrant.", then you need to install ``nfs-kernel-server`` using the commnad: 
+  adapter to enable NFS on this machine for Vagrant.", then you need to install ``nfs-kernel-server`` using the command:
 
   .. code-block:: bash
 
     apt-get install nfs-kernel-server
-    
+
 * Go grab a tea or coffee, it will take a few minutes to setup the environment.
 
 * Once the virtual machine is set up, you can log into it with
@@ -48,7 +48,7 @@ Setting up Vagrant
 
   .. code-block:: bash
 
-     (venv)vagrant@precise32:~/treeherder-service$ python setup.py build_ext --inplace
+     (venv)vagrant@precise32:~/treeherder-service$ ./setup.py build_ext --inplace
 
   NB: If you change something in the treeherder/log_parser folder, remember to repeat this step, otherwise the changes will not take effect.
 
