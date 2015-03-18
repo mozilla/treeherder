@@ -32,7 +32,7 @@ treeherder.factory('thBuildApi', [
     return {
         retriggerJob: function(repoName, requestId) {
 
-            $http({
+            return $http({
                 url: selfServeUrl + repoName + "/request",
                 method: "POST",
                 data: "request_id=" + requestId,
@@ -40,12 +40,6 @@ treeherder.factory('thBuildApi', [
                     "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
                 },
                 withCredentials: true
-            }).
-            success(function(data, status) {
-                notify(status, "retrigger");
-            }).
-            error(function(data, status) {
-                notify(status, "retrigger");
             });
         },
         cancelJob: function(repoName, requestId) {
