@@ -179,6 +179,75 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
       });
     }
 
+    function plotOverviewGraph() {
+      // We want to show lines for series in the overview plot, if they are visible
+      $scope.seriesList.forEach(function(series) {
+        series.flotSeries.points.show = false;
+        series.flotSeries.lines.show = series.visible;
+      });
+
+      $scope.overviewPlot = $.plot($("#overview-plot"),
+                              $scope.seriesList.map(
+                                function(series) {
+                                 return series.flotSeries }),
+                                 {
+                                   xaxis: { mode: 'time' },
+                                   selection: { mode: 'x', color: '#97c6e5' },
+                                   series: { shadowSize: 0 },
+                                   lines: { show: true },
+                                   points: { show: false },
+                                   legend: { show: false },
+                                   grid: {
+                                     color: '#cdd6df',
+                                     borderWidth: 2,
+                                     backgroundColor: '#fff',
+                                     hoverable: true,
+                                     clickable: true,
+                                     autoHighlight: false
+                                   }
+                                 });
+      // Reset $scope.seriesList with lines.show = false
+      $scope.seriesList.forEach(function(series) {
+        series.flotSeries.points.show = series.visible;
+        series.flotSeries.lines.show = false;
+      });
+
+      $("#overview-plot").bind("plotselected", function (event, ranges) {
+        $.each($scope.plot.getXAxes(), function(_, axis) {
+          var opts = axis.options;
+          opts.min = ranges.xaxis.from;
+          opts.max = ranges.xaxis.to;
+        });
+
+        $scope.zoom = [ranges.xaxis.from, ranges.xaxis.to];
+        $scope.plot.setupGrid();
+        $scope.plot.draw();
+        updateURL()
+      });
+    }
+
+    function zoomGraph() {
+      if ($scope.zoom) {
+        if (_.find($scope.seriesList, function(series) { return series.visible; })) {  
+          $.each($scope.plot.getXAxes(), function(_, axis) {
+            var opts = axis.options;
+            opts.min = $scope.zoom[0];
+            opts.max = $scope.zoom[1];
+          });
+          $scope.plot.setupGrid();
+          $scope.overviewPlot.setSelection({
+            xaxis: {
+              from: $scope.zoom[0],
+              to: $scope.zoom[1]
+            }
+          });
+          $scope.overviewPlot.draw();
+          $scope.plot.draw();
+        }
+      }
+
+    }
+
     function plotGraph() {
       // synchronize series visibility with flot, in case it's changed
       $scope.seriesList.forEach(function(series) {
@@ -190,7 +259,6 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
                           function(series) { return series.flotSeries }),
                            {
                              xaxis: { mode: 'time' },
-                             selection: { mode: 'xy', color: '#97c6e5' },
                              series: { shadowSize: 0 },
                              lines: { show: false },
                              points: { show: true },
@@ -206,6 +274,8 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
                            });
 
       highlightDataPoints();
+      plotOverviewGraph();
+      zoomGraph();
 
       function getDateStr(timestamp) {
         var date = new Date(parseInt(timestamp));
@@ -250,6 +320,7 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
     }
 
     $scope.timeRangeChanged = function() {
+      $scope.zoom = [];
       updateURL();
       // refetch and re-render all graph data
       $q.all($scope.seriesList.map(getSeriesData)).then(function() {
@@ -268,8 +339,8 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
                                   { project: series.projectName,
                                     signature: series.signature,
                                     visible: series.visible})); }),
-                                'highlightedRevision': $scope.highlightedRevision
-                                    },
+                            'highlightedRevision': $scope.highlightedRevision,
+                            'zoom': JSON.stringify($scope.zoom)},
                 {location: true, inherit: true, relative: $state.$current,
                  notify: false});
     }
@@ -321,6 +392,7 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
 
       if ($scope.seriesList.length == 0) {
         $scope.resetHighlight();
+        $scope.zoom = [];
       }
       $scope.highlightRevision();
       updateURL();
@@ -397,6 +469,12 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
             $scope.highlightedRevision = $stateParams.highlightedRevision;
           } else {
             $scope.highlightedRevision = '';
+          }
+
+          if ($stateParams.zoom) {
+            $scope.zoom = JSON.parse($stateParams.zoom);
+          } else {
+            $scope.zoom = [];
           }
           // we only store the signature + project name in the url, we need to
           // fetch everything else from the server
@@ -591,7 +669,7 @@ perf.config(function($stateProvider, $urlRouterProvider) {
 
   $stateProvider.state('graphs', {
     templateUrl: 'partials/perf/perfctrl.html',
-    url: '/graphs?timerange&series&highlightedRevision',
+    url: '/graphs?timerange&series&highlightedRevision&zoom',
     controller: 'PerfCtrl'
   });
 
