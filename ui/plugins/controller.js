@@ -330,6 +330,10 @@ treeherder.controller('PluginCtrl', [
             }
         };
 
+        $rootScope.$on(thEvents.jobRetrigger, function(event, job) {
+            $scope.retriggerJob();
+        });
+
         $rootScope.$on(thEvents.jobsClassified, function(event, job) {
             $scope.updateClassifications();
         });
