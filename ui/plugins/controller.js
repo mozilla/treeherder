@@ -253,6 +253,8 @@ treeherder.controller('PluginCtrl', [
                 if (requestId) {
                     return thBuildApi.retriggerJob($scope.repoName, requestId);
                 }
+            }).then(function() {
+              thNotify.send("Retrigger success");
             }).catch(function(e){
                 thNotify.send(
                     ThModelErrors.format(e, "Unable to send retrigger"),
