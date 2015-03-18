@@ -45,6 +45,7 @@ def test_job_list(webapp, eleven_jobs_processed, jm):
         "job_group_name",
         "job_type_description",
         "build_architecture",
+        "build_system_type",
         "job_type_symbol",
         "platform",
         "job_group_description",
