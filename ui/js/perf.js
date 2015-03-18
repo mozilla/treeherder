@@ -300,9 +300,9 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
                                mean]);
                              flotSeries.resultSetData.push(
                                dataPoint.result_set_id);
-                             flotSeries.data.sort(function(a,b) {
-                               return a[0] > b[0]; });
                            });
+                           flotSeries.data.sort(function(a,b) {
+                             return a[0] < b[0]; });
                            series.flotSeries = flotSeries;
                          });
     }
