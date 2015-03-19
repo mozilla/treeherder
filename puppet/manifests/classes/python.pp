@@ -52,7 +52,7 @@ class python {
     "create-virtualenv":
     cwd => "/home/${APP_USER}",
     user => "${APP_USER}",
-    command => "virtualenv --no-site-packages ${VENV_DIR}",
+    command => "virtualenv ${VENV_DIR}",
     creates => "${VENV_DIR}",
     require => Exec["install-virtualenv"],
   }
