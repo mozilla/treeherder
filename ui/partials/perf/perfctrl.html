@@ -39,7 +39,7 @@
     <div id="overview-plot"></div>
     <div id="graph"></div>
     <div id="graph-bottom" ng-show="seriesList.length > 0">
-        Highlight revision: <input type="text" ng-change="addHighlightedRevision()" placeholder="12 character hg revision" ng-model="revisionToHighlight">
+        Highlight revision: <input type="text" maxlength="12" ng-change="addHighlightedRevision()" placeholder="12 character hg revision" ng-model="revisionToHighlight">
         <div class="reset-highlight-button" ng-show="resetHighlightButton" ng-click="resetHighlight()">&#10006;</div>
     </div>
   </div>
