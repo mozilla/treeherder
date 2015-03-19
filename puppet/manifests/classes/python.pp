@@ -23,12 +23,29 @@ class python {
 
   package{[$python_devel,
            "gcc",
-           "python-setuptools",
-           "python-pip",
-           "python-virtualenv",
+           "curl",
            "git",
            $libxml2]:
     ensure => installed;
+  }
+
+  exec { "install-pip":
+    cwd => "/tmp",
+    user => "${APP_USER}",
+    command => "curl https://bootstrap.pypa.io/get-pip.py | sudo python -",
+    creates => "/usr/local/bin/pip",
+    require => [
+      Package[curl],
+      Package[$python_devel],
+    ],
+  }
+
+  exec { "install-virtualenv":
+    cwd => "/tmp",
+    user => "${APP_USER}",
+    command => "sudo pip install virtualenv",
+    creates => "/usr/local/bin/virtualenv",
+    require => Exec["install-pip"],
   }
 
   exec {
@@ -37,7 +54,7 @@ class python {
     user => "${APP_USER}",
     command => "virtualenv --no-site-packages ${VENV_DIR}",
     creates => "${VENV_DIR}",
-    require => Package["python-virtualenv"],
+    require => Exec["install-virtualenv"],
   }
 
   exec {"activate-venv-on-login":
@@ -51,7 +68,6 @@ class python {
     require => [
       Exec['create-virtualenv'],
       File[ "/home/${APP_USER}/pip_cache"],
-      Exec['update-distribute']
     ],
     user => "${APP_USER}",
     cwd => '/tmp',
@@ -71,13 +87,5 @@ class python {
     content => "$PROJ_DIR/vendor/",
     require => Exec["create-virtualenv"],
   }
-
-  exec { "update-distribute":
-        command => "${VENV_DIR}/bin/pip install --upgrade distribute",
-        require => [
-            Package['python-pip'],
-            Exec['create-virtualenv']
-        ]
-    }
 
 }
