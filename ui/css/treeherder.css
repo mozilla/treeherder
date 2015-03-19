@@ -1724,6 +1724,20 @@ fieldset[disabled] .btn-repo.active {
     overflow: auto;
 }
 
+/* Used in Help but for general use */
+.kbd {
+    display: inline-block;
+    padding: 3px 5px;
+    font: 11px/10px Consolas,"Liberation Mono",Menlo,Courier,monospace;
+    color: #555;
+    vertical-align: middle;
+    background-color: #fcfcfc;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #ccc #ccc #bbb;
+    border-radius: 3px;
+}
+
 .panel-spacing table {
     width: 100%;
 }
