@@ -243,38 +243,58 @@ def post_log_artifacts(project,
                        extract_artifacts_cb,
                        check_errors=False):
     """Post a list of artifacts to a job."""
+    def _retry(e):
+        # Initially retry after 1 minute, then for each subsequent retry
+        # lengthen the retry time by another minute.
+        retry_task.retry(exc=e, countdown=(1 + retry_task.request.retries) * 60)
+        # .retry() raises a RetryTaskError exception,
+        # so nothing after this function will be executed
+
+    credentials = OAuthCredentials.get_credentials(project)
+    update_endpoint = 'job-log-url/{0}/update_parse_status'.format(
+        job_log_url['id']
+    )
+
+    logger.debug("Downloading and extracting log information for guid "
+                 "'%s' (from %s)", job_guid, job_log_url['url'])
+
+    req = TreeherderRequest(
+        protocol=settings.TREEHERDER_REQUEST_PROTOCOL,
+        host=settings.TREEHERDER_REQUEST_HOST,
+        project=project,
+        oauth_key=credentials.get('consumer_key', None),
+        oauth_secret=credentials.get('consumer_secret', None),
+    )
+
     try:
-        credentials = OAuthCredentials.get_credentials(project)
-        req = TreeherderRequest(
-            protocol=settings.TREEHERDER_REQUEST_PROTOCOL,
-            host=settings.TREEHERDER_REQUEST_HOST,
-            project=project,
-            oauth_key=credentials.get('consumer_key', None),
-            oauth_secret=credentials.get('consumer_secret', None),
-        )
-        update_endpoint = 'job-log-url/{0}/update_parse_status'.format(
-            job_log_url['id']
-        )
-
-        logger.debug("Downloading and extracting log information for guid "
-                     "'%s' (from %s)" % (job_guid, job_log_url['url']))
-
         artifact_list = extract_artifacts_cb(job_log_url['url'],
                                              job_guid, check_errors)
-        # store the artifacts generated
-        tac = TreeherderArtifactCollection()
-        for artifact in artifact_list:
-            ta = tac.get_artifact({
-                "job_guid": artifact[0],
-                "name": artifact[1],
-                "type": artifact[2],
-                "blob": artifact[3]
-            })
-            tac.add(ta)
+    except Exception as e:
+        logger.error("Failed to download and/or parse artifact for guid '%s': "
+                     "%s", job_guid, e)
+        current_timestamp = time.time()
+        req.send(
+            update_endpoint,
+            method='POST',
+            data={
+                'parse_status': 'failed',
+                'parse_timestamp': current_timestamp
+            }
+        )
+        _retry(e)
 
-        logger.debug("Finished downloading and processing artifact for guid "
-                     "'%s'" % job_guid)
+    # store the artifacts generated
+    tac = TreeherderArtifactCollection()
+    for artifact in artifact_list:
+        ta = tac.get_artifact({
+            "job_guid": artifact[0],
+            "name": artifact[1],
+            "type": artifact[2],
+            "blob": artifact[3]
+        })
+        tac.add(ta)
 
+    try:
         req.post(tac)
 
         # send an update to job_log_url
@@ -288,25 +308,8 @@ def post_log_artifacts(project,
                 'parse_timestamp': current_timestamp
             }
         )
-
         logger.debug("Finished posting artifact for guid '%s'" % job_guid)
-
     except Exception as e:
-        # send an update to job_log_url
-        # the job_log_url status changes from pending/running to failed
-        logger.warn("Failed to download and/or parse artifact for guid '%s'" %
-                    job_guid)
-        current_timestamp = time.time()
-        req.send(
-            update_endpoint,
-            method='POST',
-            data={
-                'parse_status': 'failed',
-                'parse_timestamp': current_timestamp
-            }
-        )
-        # Initially retry after 1 minute, then for each subsequent retry
-        # lengthen the retry time by another minute.
-        retry_task.retry(exc=e, countdown=(1 + retry_task.request.retries) * 60)
-        # .retry() raises a RetryTaskError exception,
-        # so nothing below this line will be executed.
+        logger.error("Failed to upload parsed artifact for guid '%s': %s",
+                     job_guid, e)
+        _retry(e)
