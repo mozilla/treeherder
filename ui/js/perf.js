@@ -421,8 +421,10 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
       if (rev.length == 12) {
         $scope.highlightedRevision = rev;
         $scope.highlightRevision();
-      } else {
+      } else if (rev.length == 0) {
         $scope.resetHighlight();
+      } else {
+        $scope.plot.unhighlight();
       }
     }
 
