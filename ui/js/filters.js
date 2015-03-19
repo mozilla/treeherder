@@ -40,22 +40,32 @@ treeherder.filter('stripHtml', function() {
 treeherder.filter('linkifyBugs', function() {
     return function(input) {
         var str = input || '';
-        var bug_matches = /.*-- ([0-9]+)|.*bug-([0-9]+)|.*Bug ([0-9]+)/ig.exec(str);
-        var pr_matches = /PR#([0-9]+)/i.exec(str);
         var clear_attr = 'ignore-job-clear-on-click';
-        if (pr_matches) {
-            var pr_url = "https://github.com/mozilla-b2g/gaia/pull/" + pr_matches[1];
-            var pr_hyperlink = '<a href="' + pr_url + '" ' + clear_attr + '>' +
-                               pr_matches[1] + '</a>';
-            str = str.replace(pr_matches[1], pr_hyperlink);
-        }
+
+        var bug_matches = str.match(/-- ([0-9]+)|bug.([0-9]+)/ig);
+        var pr_matches = str.match(/PR#([0-9]+)/ig);
+
+        // Settings
+        var bug_title = 'bugzilla.mozilla.org';
+        var bug_url = '<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=$1" ' +
+            'data-bugid=$1 ' + 'title=' + bug_title + '>$1</a>';
+        var pr_title = 'github.com';
+        var pr_url = '<a href="https://github.com/mozilla-b2g/gaia/pull/$1" ' +
+            'data-prid=$1 ' + 'title=' + pr_title + '>$1</a>';
+
         if (bug_matches) {
-            var bug_match = bug_matches[1] || bug_matches[2] || bug_matches[3];
-            var bug_url = "https://bugzilla.mozilla.org/show_bug.cgi?id=" + bug_match;
-            var bug_hyperlink = '<a href="' + bug_url + '" ' + clear_attr + '>' +
-                                bug_match + '</a>';
-            str = str.replace(bug_match, bug_hyperlink);
+            // Separate passes to preserve prefix
+            str = str.replace(/Bug ([0-9]+)/g, "Bug " + bug_url);
+            str = str.replace(/bug ([0-9]+)/g, "bug " + bug_url);
+            str = str.replace(/-- ([0-9]+)/g, "-- " + bug_url);
         }
+
+        if (pr_matches) {
+            // Separate passes to preserve prefix
+            str = str.replace(/PR#([0-9]+)/g, "PR#" + pr_url);
+            str = str.replace(/pr#([0-9]+)/g, "pr#" + pr_url);
+        }
+
         return str;
     };
 });
