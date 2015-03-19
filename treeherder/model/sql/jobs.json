@@ -546,7 +546,8 @@
                     j.`submit_timestamp`,
                     j.`pending_eta`,
                     j.`running_eta`,
-                    rds.`name` as ref_data_name
+                    rds.`name` as ref_data_name,
+                    rds.`build_system_type` as build_system_type
                   FROM `job` as j
                   LEFT JOIN `REP0`.`machine` as m
                     ON j.`machine_id` = m.id
@@ -598,7 +599,8 @@
                     j.`pending_eta`,
                     j.`running_eta`,
                     j.`last_modified`,
-                    rds.`name` as ref_data_name
+                    rds.`name` as ref_data_name,
+                    rds.`build_system_type` as build_system_type
                   FROM `job` as j
                   LEFT JOIN `REP0`.`machine` as m
                     ON j.`machine_id` = m.id

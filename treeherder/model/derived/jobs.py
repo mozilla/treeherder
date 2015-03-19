@@ -105,6 +105,7 @@ class JobsModel(TreeherderModelBase):
             "job_coalesced_to_guid": "j.job_coalesced_to_guid",
             "result_set_id": "j.result_set_id",
             "build_platform_id": "j.build_platform_id",
+            "build_system_type": "j.build_system_type",
             "machine_platform_id": "j.machine_platform_id",
             "machine_id": "j.machine_id",
             "option_collection_hash": "j.option_collection_hash",
