@@ -7,6 +7,7 @@ from simplejson import encoder
 
 from hashlib import sha1
 import math
+import zlib
 
 from jsonschema import validate
 
@@ -174,7 +175,7 @@ class PerformanceDataAdapter(object):
             series_signature,
             name,
             testname,
-            json.dumps(obj)
+            zlib.compress(json.dumps(obj))
         ])
         self.signatures[series_signature].append(testdata)
 

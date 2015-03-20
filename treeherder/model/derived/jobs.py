@@ -6,6 +6,7 @@ import simplejson as json
 import MySQLdb
 import time
 import logging
+import zlib
 from collections import defaultdict
 from datetime import datetime
 
@@ -471,6 +472,12 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG,
         )
         for artifact in data:
+            # new blobs are gzip'ed to save space, old ones may not be
+            try:
+                artifact["blob"] = zlib.decompress(artifact["blob"])
+            except zlib.error:
+                pass
+
             if artifact["type"] == "json":
                 artifact["blob"] = json.loads(artifact["blob"])
 
@@ -502,8 +509,14 @@ class JobsModel(TreeherderModelBase):
         )
 
         for artifact in data:
-            if artifact["type"] == "json":
-                artifact["blob"] = json.loads(artifact["blob"])
+            # new blobs are gzip'ed to save space, old ones may not be
+            try:
+                artifact["blob"] = zlib.decompress(artifact["blob"])
+            except zlib.error:
+                pass
+
+            # performance artifacts are always json encoded
+            artifact["blob"] = json.loads(artifact["blob"])
 
         return data
 
@@ -2387,7 +2400,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 job_id,
                 artifact['name'],
                 artifact['type'],
-                artifact['blob'],
+                zlib.compress(artifact['blob']),
                 job_id,
                 artifact['name'],
             ))

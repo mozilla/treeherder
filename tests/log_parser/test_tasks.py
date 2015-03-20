@@ -7,6 +7,7 @@ import simplejson as json
 import urllib2
 from django.conf import settings
 import gzip
+import zlib
 
 from django.utils.six import BytesIO
 
@@ -143,7 +144,7 @@ def test_parse_mozlog_log(jm, initial_data, jobs_with_local_mozlog_log,
     artifact = [x for x in job_artifacts if x['name'] == 'json_log_summary']
     assert len(artifact) >= 1
 
-    all_errors = json.loads(artifact[0]['blob'])['all_errors']
+    all_errors = json.loads(zlib.decompress(artifact[0]['blob']))['all_errors']
     warnings = [x for x in all_errors if
                 x['action'] == 'log' and x['level'] == "WARNING"]
     fails = [x for x in all_errors if
@@ -211,10 +212,10 @@ def test_bug_suggestions_artifact(jm, initial_data, jobs_with_local_log,
                                if artifact["name"] == "text_log_summary"][0]
     bug_suggestions_artifact = [artifact for artifact in job_artifacts
                                 if artifact["name"] == "Bug suggestions"][0]
-    structured_log = json.loads(structured_log_artifact["blob"])
+    structured_log = json.loads(zlib.decompress(structured_log_artifact["blob"]))
 
     all_errors = structured_log["step_data"]["all_errors"]
-    bug_suggestions = json.loads(bug_suggestions_artifact["blob"])
+    bug_suggestions = json.loads(zlib.decompress(bug_suggestions_artifact["blob"]))
 
     # we must have one bugs item per error in bug_suggestions.
     # errors with no bug suggestions will just have an empty
