@@ -62,8 +62,8 @@ def test_tbpl_bugzilla_request_body(jm, eleven_jobs_processed):
     who = "user@mozilla.com"
 
     bug_suggestions = []
-    bug_suggestions.append({"search": "First error line", "bugs": []})
-    bug_suggestions.append({"search": "Second error line", "bugs": []})
+    bug_suggestions.append({"search": "First error line", "search_terms": [], "bugs": []})
+    bug_suggestions.append({"search": "Second error line", "search_terms": [], "bugs": []})
 
     bug_suggestions_placeholders = [
         job_id, 'Bug suggestions',
@@ -100,7 +100,10 @@ def test_tbpl_bugzilla_comment_length_capped(jm, eleven_jobs_processed):
     # Create an error line with length equal to the max comment length.
     # Once the job metadata has been added, the total comment length
     # will exceed the max length, unless correctly truncated.
-    bug_suggestions = [{"search": "a" * settings.BZ_MAX_COMMENT_LENGTH, "bugs": []}]
+    bug_suggestions = [{"search": "a" * settings.BZ_MAX_COMMENT_LENGTH,
+                        "search_terms": [],
+                        "bugs": []
+                        }]
 
     bug_suggestions_placeholders = [
         job_id, 'Bug suggestions',

@@ -178,12 +178,14 @@ def extract_text_log_artifacts(log_url, job_guid, check_errors):
         for err in all_errors:
             # remove the mozharness prefix
             clean_line = get_mozharness_substring(err['line'])
+            search_terms = []
             # get a meaningful search term out of the error line
             search_term = get_error_search_term(clean_line)
             bugs = dict(open_recent=[], all_others=[])
 
             # collect open recent and all other bugs suggestions
             if search_term:
+                search_terms.append(search_term)
                 if search_term not in terms_requested:
                     # retrieve the list of suggestions from the api
                     bugs = get_bugs_for_search_term(
@@ -200,6 +202,7 @@ def extract_text_log_artifacts(log_url, job_guid, check_errors):
                 # the crash signature as search term
                 crash_signature = get_crash_signature(clean_line)
                 if crash_signature:
+                    search_terms.append(crash_signature)
                     if crash_signature not in terms_requested:
                         bugs = get_bugs_for_search_term(
                             crash_signature,
@@ -209,8 +212,11 @@ def extract_text_log_artifacts(log_url, job_guid, check_errors):
                     else:
                         bugs = terms_requested[crash_signature]
 
+            # TODO: Rename 'search' to 'error_text' or similar, since that's
+            # closer to what it actually represents (bug 1091060).
             bug_suggestions.append({
                 "search": clean_line,
+                "search_terms": search_terms,
                 "bugs": bugs
             })
 

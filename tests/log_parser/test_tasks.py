@@ -221,3 +221,9 @@ def test_bug_suggestions_artifact(jm, initial_data, jobs_with_local_log,
     # errors with no bug suggestions will just have an empty
     # bugs list
     assert len(all_errors) == len(bug_suggestions)
+
+    # We really need to add some tests that check the values of each entry
+    # in bug_suggestions, but for now this is better than nothing.
+    expected_keys = set(["search", "search_terms", "bugs"])
+    for failure_line in bug_suggestions:
+        assert set(failure_line.keys()) == expected_keys

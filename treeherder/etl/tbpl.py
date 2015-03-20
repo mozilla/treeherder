@@ -105,7 +105,7 @@ class BugzillaBugRequest(object):
             error_lines = []
             for artifact in failures_artifacts:
                 # a bug suggestion aritfact looks like this:
-                # [{ "search": "my-error-line", "bugs": ....}]
+                # [{ "search": "my-error-line", "search_terms": [], "bugs": ....}]
                 error_lines += [line["search"] for line in artifact["blob"]]
 
             revision_list = jm.get_resultset_revisions_list(
