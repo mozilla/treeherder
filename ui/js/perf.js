@@ -576,6 +576,9 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
               if( !$scope.highlightedRevision ) {
                 $scope.highlightedRevision = '';
               }
+              if (!$scope.zoom) {
+                $scope.zoom = {};
+              }
               updateURL();
               getSeriesData(series).then(function() {
                 plotGraph();
