@@ -2102,7 +2102,12 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             signature = property['signature']
             if not sigdict.get(signature):
                 sigdict[signature] = {}
-            sigdict[signature][property['property']] = property['value']
+
+            (key, val) = (property['property'], property['value'])
+            if key == 'subtest_signatures':
+                val = json.loads(val)
+
+            sigdict[signature][key] = val
 
         ret = []
         for signature in signatures:
