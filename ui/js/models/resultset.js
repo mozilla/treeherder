@@ -105,6 +105,9 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location', '$q'
             return $http.get(thServiceDomain + uri, {params: {format: "json"}});
         },
         getResultSetJobsUpdates: function(resultSetIdList, repoName, exclusionProfile, lastModified){
+            if(angular.isDate(lastModified)){
+                lastModified = lastModified.toISOString().replace("Z","");
+            }
             var params = {
                 result_set_id__in: resultSetIdList.join(","),
                 count: 2000,
