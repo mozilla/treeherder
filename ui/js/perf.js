@@ -192,7 +192,7 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
                                  return series.flotSeries }),
                                  {
                                    xaxis: { mode: 'time' },
-                                   selection: { mode: 'x', color: '#97c6e5' },
+                                   selection: { mode: 'xy', color: '#97c6e5' },
                                    series: { shadowSize: 0 },
                                    lines: { show: true },
                                    points: { show: false },
@@ -218,8 +218,12 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
           opts.min = ranges.xaxis.from;
           opts.max = ranges.xaxis.to;
         });
-
-        $scope.zoom = [ranges.xaxis.from, ranges.xaxis.to];
+        $.each($scope.plot.getYAxes(), function(_, axis) {
+          var opts = axis.options;
+          opts.min = ranges.yaxis.from;
+          opts.max = ranges.yaxis.to;
+        });
+        $scope.zoom = {'x': [ranges.xaxis.from, ranges.xaxis.to], 'y': [ranges.yaxis.from, ranges.yaxis.to]};
         $scope.plot.setupGrid();
         $scope.plot.draw();
         updateURL()
@@ -227,18 +231,28 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
     }
 
     function zoomGraph() {
-      if ($scope.zoom) {
+      // If either x or y exists then there is zoom set in the variable
+      if ($scope.zoom['x']) {
         if (_.find($scope.seriesList, function(series) { return series.visible; })) {  
           $.each($scope.plot.getXAxes(), function(_, axis) {
             var opts = axis.options;
-            opts.min = $scope.zoom[0];
-            opts.max = $scope.zoom[1];
+            opts.min = $scope.zoom['x'][0];
+            opts.max = $scope.zoom['x'][1];
+          });
+          $.each($scope.plot.getYAxes(), function(_, axis) {
+            var opts = axis.options;
+            opts.min = $scope.zoom['y'][0];
+            opts.max = $scope.zoom['y'][1];
           });
           $scope.plot.setupGrid();
           $scope.overviewPlot.setSelection({
             xaxis: {
-              from: $scope.zoom[0],
-              to: $scope.zoom[1]
+              from: $scope.zoom['x'][0],
+              to: $scope.zoom['x'][1]
+            },
+            yaxis: {
+              from: $scope.zoom['y'][0],
+              to: $scope.zoom['y'][1]
             }
           });
           $scope.overviewPlot.draw();
@@ -320,7 +334,7 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
     }
 
     $scope.timeRangeChanged = function() {
-      $scope.zoom = [];
+      $scope.zoom = {};
       updateURL();
       // refetch and re-render all graph data
       $q.all($scope.seriesList.map(getSeriesData)).then(function() {
@@ -392,7 +406,7 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
 
       if ($scope.seriesList.length == 0) {
         $scope.resetHighlight();
-        $scope.zoom = [];
+        $scope.zoom = {};
       }
       $scope.highlightRevision();
       updateURL();
@@ -476,7 +490,7 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
           if ($stateParams.zoom) {
             $scope.zoom = JSON.parse($stateParams.zoom);
           } else {
-            $scope.zoom = [];
+            $scope.zoom = {};
           }
           // we only store the signature + project name in the url, we need to
           // fetch everything else from the server
