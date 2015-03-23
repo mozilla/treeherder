@@ -17,6 +17,7 @@ from _mysql_exceptions import IntegrityError
 from warnings import filterwarnings, resetwarnings
 from django.conf import settings
 from django.core.cache import cache
+from django.core.exceptions import ObjectDoesNotExist
 
 from treeherder.model.models import (Datasource,
                                      ReferenceDataSignatures,
@@ -120,7 +121,8 @@ class JobsModel(TreeherderModelBase):
             "submit_timestamp": "j.submit_timestamp",
             "start_timestamp": "j.start_timestamp",
             "end_timestamp": "j.end_timestamp",
-            "last_modified": "j.last_modified"
+            "last_modified": "j.last_modified",
+            "tier": "j.tier"
         },
         "result_set": {
             "id": "rs.id",
@@ -1338,6 +1340,22 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         retry_job_guids = []
 
+        # get the tier-2 data signatures for this project.
+        # if there are none, then just return an empty list
+        tier_2_signatures = []
+        try:
+            tier_2 = ExclusionProfile.objects.get(name="Tier-2")
+            # tier_2_blob = json.loads(tier_2['flat_exclusion'])
+            tier_2_signatures = set(tier_2.flat_exclusion[self.project])
+        except KeyError:
+            # may be no tier 2 jobs for the current project
+            # and that's ok.
+            pass
+        except ObjectDoesNotExist:
+            # if this profile doesn't exist, then no second tier jobs
+            # and that's ok.
+            pass
+
         for datum in data:
             # Make sure we can deserialize the json object
             # without raising an exception
@@ -1388,7 +1406,8 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     job_placeholders,
                     log_placeholders,
                     artifact_placeholders,
-                    retry_job_guids
+                    retry_job_guids,
+                    tier_2_signatures
                 )
 
                 if 'id' in datum:
@@ -1587,7 +1606,8 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
     def _load_ref_and_job_data_structs(
         self, job, revision_hash, revision_hash_lookup,
         unique_revision_hashes, rh_where_in, job_placeholders,
-        log_placeholders, artifact_placeholders, retry_job_guids
+        log_placeholders, artifact_placeholders, retry_job_guids,
+        tier_2_signatures
     ):
         """
         Take the raw job object after etl and convert it to job_placeholders.
@@ -1684,6 +1704,8 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
              option_collection_hash]
         )
 
+        tier = 2 if signature in tier_2_signatures else 1
+
         job_placeholders.append([
             job_guid,
             signature,
@@ -1705,6 +1727,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             self.get_number(job.get('end_timestamp')),
             0,                      # idx:18, replace with pending_avg_sec
             0,                      # idx:19, replace with running_avg_sec
+            tier,
             job_guid,
             get_guid_root(job_guid)  # will be the same except for ``retry`` jobs
         ])

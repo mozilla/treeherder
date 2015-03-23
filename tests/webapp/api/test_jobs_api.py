@@ -56,6 +56,7 @@ def test_job_list(webapp, eleven_jobs_processed, jm):
         "failure_classification_id",
         "pending_eta",
         "running_eta",
+        "tier",
         "last_modified",
         "ref_data_name"
     ]

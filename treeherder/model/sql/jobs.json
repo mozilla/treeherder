@@ -76,8 +76,9 @@
                 `start_timestamp`,
                 `end_timestamp`,
                 `pending_eta`,
-                `running_eta`)
-                SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
+                `running_eta`,
+                `tier`)
+                SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
                 FROM DUAL WHERE NOT EXISTS (
                     SELECT `job_guid`
                     FROM `job`
@@ -301,7 +302,7 @@
         },
         "update_last_job_classification":{
             "sql":"UPDATE job j
-                    SET failure_classification_id = ( 
+                    SET failure_classification_id = (
                         SELECT
                             IFNULL(
                                 ( SELECT
@@ -546,6 +547,8 @@
                     j.`submit_timestamp`,
                     j.`pending_eta`,
                     j.`running_eta`,
+                    j.`last_modified`,
+                    j.`tier`,
                     rds.`name` as ref_data_name,
                     rds.`build_system_type` as build_system_type
                   FROM `job` as j
@@ -599,6 +602,7 @@
                     j.`pending_eta`,
                     j.`running_eta`,
                     j.`last_modified`,
+                    j.`tier`,
                     rds.`name` as ref_data_name,
                     rds.`build_system_type` as build_system_type
                   FROM `job` as j
