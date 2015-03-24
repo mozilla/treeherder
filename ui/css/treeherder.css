@@ -762,7 +762,6 @@ div#bottom-panel .navbar.navbar-dark .navbar-nav > li.active a:focus {
 }
 
 ul.failure-summary-list li {
-    padding-left: 2px;
     font-size: 11px;
     background: #ccfaff;
 }
@@ -772,16 +771,16 @@ ul.failure-summary-list li .btn-xs {
 }
 
 .failure-summary-line-empty {
-    padding: 2px 2px 0px;
+    padding: 2px 4px 0px;
     background: #ffffff;
 }
 
 .failure-summary-line {
-    padding: 2px 2px 0px;
+    padding: 2px 4px 0px;
 }
 
 .failure-summary-bugs {
-    padding: 0px 0px 0px 14px;
+    padding: 0px 0px 0px 18px;
 }
 
 /* We override global anchor color to replicate TBPL here */
@@ -798,7 +797,7 @@ ul.failure-summary-list li .btn-xs {
 
 /* We override global anchor color to replicate TBPL here */
 .show-hide-more {
-    padding: 0px 0px 0px 35px;
+    padding: 0px 0px 0px 37px;
     color: #0000ee;
 }
 
