@@ -87,7 +87,7 @@ to { opacity: 0; }
 
 #graph-chooser { flex: none; width: 240px; padding: 8px; }
 
-#graphs { flex: auto; }
+#data-display { flex: auto; }
 
 #graph { width: 100%; height: 300px; margin-bottom: 30px; }
 
@@ -100,12 +100,13 @@ to { opacity: 0; }
   margin-top: -20px;
 }
 
-.graph-right-padding { flex: none; width: 120px; }
+.graph-right-padding { flex: none; width: 200px; }
 
 #graph-tooltip {
     position: absolute;
     visibility: hidden;
     pointer-events: none;
+    min-width: 200px;
 }
 #graph-tooltip.locked {
     pointer-events: auto;
@@ -161,4 +162,12 @@ to { opacity: 0; }
   margin-bottom: 10px;
   width: 100%;
   height: 100px;
+}
+
+
+.subtest-result button {
+    display: none;
+}
+.subtest-result:hover button {
+    display: inline-block;
 }

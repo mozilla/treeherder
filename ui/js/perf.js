@@ -26,21 +26,24 @@ perf.factory('getSeriesSummary', [ function() {
       extra = " e10s";
     }
     var testName = signatureProps.test;
-    if (testName === undefined)
+    var subtestSignatures;
+    if (testName === undefined) {
       testName = "summary";
-
+      subtestSignatures = signatureProps.subtest_signatures;
+    }
     var name = signatureProps.suite + " " + testName +
       " " + optionCollectionMap[signatureProps.option_collection_hash] + extra;
     var signatureName = name;
 
-    return { name: name, signature: signature, platform: platform };
+    return { name: name, signature: signature, platform: platform,
+             subtestSignatures: subtestSignatures };
   };
 }]);
 
 perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', '$location',
-                              '$modal', 'thServiceDomain', '$http', '$q', 'getSeriesSummary',
+                              '$modal', 'thServiceDomain', '$http', '$q', '$timeout', 'getSeriesSummary',
   function PerfCtrl($state, $stateParams, $scope, $rootScope, $location, $modal,
-                    thServiceDomain, $http, $q, getSeriesSummary) {
+                    thServiceDomain, $http, $q, $timeout, getSeriesSummary) {
 
     var availableColors = [ 'red', 'green', 'blue', 'orange', 'purple' ];
 
@@ -62,112 +65,134 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
       }
     }
 
-
-    $scope.resetTooltipContent = function(thSeries) {
-      $scope.tooltipContent = { revision: "(loading revision...)",
-                                revisionHref:  "",
-                                branch: thSeries.projectName,
-                                test: thSeries.name,
-                                platform: thSeries.platform,
-                                machine: thSeries.machine || 'mean' };
-      $scope.$digest();
-    };
-
     $scope.ttHideTimer = null;
-    $scope.ttLocked = false;
 
-    $scope.updateTooltip = function(item) {
-      if ($scope.ttLocked) return;
+    $scope.selectedDataPoint = null;
 
-      var i = item.dataIndex,
-      s = item.series;
+    function getSeriesDataPoint(flotItem) {
+      // gets universal elements of a series given a flot item
 
-      $scope.resetTooltipContent(s.thSeries);
-      $http.get(thServiceDomain + '/api/project/' + s.thSeries.projectName +
-                '/resultset/' + s.resultSetData[i]).then(function(response) {
-                  var revision = response.data.revisions[0].revision;
-                  $scope.tooltipContent.revision = revision;
-                  $scope.projects.forEach(function(project) {
-                    if (project.name == s.thSeries.projectName) {
-                      $scope.tooltipContent.revisionHref = project.url + "/rev/" +
-                        revision;
-                    }
-                  });
-                });
+      // sometimes we have multiple results with the same result id, in
+      // which case we need to calculate an offset to it (I guess
+      // technically even this is subject to change in the case of
+      // retriggers but oh well, hopefully this will work for 99%
+      // of cases)
+      var resultSetId = flotItem.series.resultSetData[flotItem.dataIndex];
 
-      var index = 1;
-      var t = item.datapoint[0],
-      v = item.datapoint[1],
-      v0 = i ? s.data[i - 1][index] : v,
-      dv = v - v0,
-      dvp = v / v0 - 1;
+      return {
+        projectName: flotItem.series.thSeries.projectName,
+        signature: flotItem.series.thSeries.signature,
+        resultSetId: resultSetId,
+        flotDataOffset: (flotItem.dataIndex -
+                         flotItem.series.resultSetData.indexOf(resultSetId))
+      };
+    }
 
-      $scope.tooltipContent.value = Math.round(v*1000)/1000;
-      $scope.tooltipContent.deltaValue = dv.toFixed(1);
-      $scope.tooltipContent.deltaPercentValue = (100 * dvp).toFixed(1);
-      $scope.tooltipContent.date = $.plot.formatDate(new Date(t), '%a %b %d, %H:%M:%S');
-      $scope.$digest();
-
-      this.plot.unhighlight();
-      highlightDataPoints();
-      this.plot.highlight(s, item.datapoint);
-    };
-
-    $scope.showTooltip = function(x, y) {
-      if ($scope.ttLocked) return;
+    function showTooltip(dataPoint) {
 
       if ($scope.ttHideTimer) {
         clearTimeout($scope.ttHideTimer);
         $scope.ttHideTimer = null;
       }
 
-      var tip = $('#graph-tooltip'),
-        w = tip.width(),
-        h = tip.height(),
-        left = x - w / 2,
-        top = y - h - 10;
+      var phSeriesIndex = _.findIndex(
+        $scope.seriesList,
+        function(s) {
+          return s.projectName == dataPoint.projectName &&
+            s.signature == dataPoint.signature;
+        });
+      var phSeries = $scope.seriesList[phSeriesIndex];
 
-      tip.stop(true);
+      // we need the flot data for calculating values/deltas and to know where
+      // on the graph to position the tooltip
+      var flotData = {
+        series: _.find($scope.plot.getData(), function(fs) {
+          return fs.thSeries.projectName == dataPoint.projectName &&
+            fs.thSeries.signature == dataPoint.signature;
+        }),
+        pointIndex: phSeries.flotSeries.resultSetData.indexOf(
+          dataPoint.resultSetId) + dataPoint.flotDataOffset
+      };
 
-      if (tip.css('visibility') == 'hidden') {
-        tip.css({ opacity: 0, visibility: 'visible', left: left,
-                  top: top + 10 });
-        tip.animate({ opacity: 1, top: top }, 250);
-      } else {
-        tip.css({ opacity: 1, left: left, top: top });
-      }
+      var prevDataPointIndex = (flotData.pointIndex - dataPoint.flotDataOffset - 1);
+      var flotSeriesData = flotData.series.data;
+
+      var t = flotSeriesData[flotData.pointIndex][0],
+          v = flotSeriesData[flotData.pointIndex][1],
+          v0 = (prevDataPointIndex >= 0) ? flotSeriesData[prevDataPointIndex][1] : v,
+          dv = v - v0,
+          dvp = v / v0 - 1;
+
+      $scope.tooltipContent = {
+        revision: "(loading revision...)",
+        revisionHref:  "",
+        branch: dataPoint.projectName,
+        test: phSeries.name,
+        platform: phSeries.platform,
+        machine: phSeries.machine || 'mean',
+        value: Math.round(v*1000)/1000,
+        deltaValue: dv.toFixed(1),
+        deltaPerfcentValue: (100 * dvp).toFixed(1),
+        date: $.plot.formatDate(new Date(t), '%a %b %d, %H:%M:%S')
+      };
+
+      $http.get(thServiceDomain + '/api/project/' + phSeries.projectName +
+                '/resultset/' + dataPoint.resultSetId).then(
+                  function(response) {
+                    var revision = response.data.revisions[0].revision;
+                    $scope.tooltipContent.revision = revision;
+                    var project = _.findWhere($scope.projects,
+                                              { name: phSeries.projectName });
+                    $scope.tooltipContent.revisionHref = (project.url +
+                                                          "/rev/" + revision);
+                  });
+
+      // now position it
+      $timeout(function() {
+        var x = parseInt(flotData.series.xaxis.p2c(t) +
+                         $scope.plot.offset().left);
+        var y = parseInt(flotData.series.yaxis.p2c(v) +
+                         $scope.plot.offset().top);
+
+        var tip = $('#graph-tooltip');
+        function getTipPosition(tip, x, y, yoffset) {
+          return {
+            left: x - tip.width() / 2,
+            top: y - tip.height() - yoffset
+          };
+        }
+
+        tip.stop(true);
+
+        // first, reposition tooltip (width/height won't be calculated correctly
+        // in all cases otherwise)
+        var tipPosition = getTipPosition(tip, x, y, 10);
+        tip.css({ left: tipPosition.left, top: tipPosition.top });
+
+        // get new tip position after transform
+        var tipPosition = getTipPosition(tip, x, y, 10);
+        if (tip.css('visibility') == 'hidden') {
+          tip.css({ opacity: 0, visibility: 'visible', left: tipPosition.left,
+                    top: tipPosition.top + 10 });
+          tip.animate({ opacity: 1, left: tipPosition.left,
+                        top: tipPosition.top }, 250);
+        } else {
+          tip.css({ opacity: 1, left: tipPosition.left, top: tipPosition.top });
+        }
+      });
     }
 
-    $scope.hideTooltip = function(now) {
-      if ($scope.ttLocked) return;
-
-      var tip = $('#graph-tooltip');
-
-      if (!$scope.ttHideTimer && tip.css('visibility') == 'visible') {
-        $scope.ttHideTimer = setTimeout(function() {
-          $scope.ttHideTimer = null;
-          $scope.plot.unhighlight();
-          highlightDataPoints();
-          tip.animate({ opacity: 0, top: '+=10' },
-                      250, 'linear', function() {
-                        $(this).css({ visibility: 'hidden' });
-                      });
-        }, now ? 0 : 250);
-      }
-    };
-
-    $scope.lockTooltip = function() {
-      $scope.ttLocked = true;
-      $scope.$digest();
-    };
-
     Mousetrap.bind('escape', function() {
-      $scope.ttLocked = false;
-      $scope.hideTooltip();
+      $scope.selectedDataPoint = null;
+      $scope.$digest();
     });
 
     // Highlight the points persisted in the url
     function highlightDataPoints() {
+      $scope.plot.unhighlight();
+
+      // if we have a highlighted revision, highlight all points that
+      // correspond to that
       $scope.seriesList.forEach(function(series, i) {
         if (series.highlighted) {
           if (series.highlighted.length > 0 && series.visible) {
@@ -177,6 +202,20 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
           }
         }
       });
+
+      // also highlighted the selected item (if there is one)
+      if ($scope.selectedDataPoint) {
+        var selectedSeriesIndex = _.findIndex(
+          $scope.seriesList,
+          function(s) {
+            return s.projectName == $scope.selectedDataPoint.projectName &&
+              s.signature == $scope.selectedDataPoint.signature;
+          });
+        var selectedSeries = $scope.seriesList[selectedSeriesIndex];
+        var flotDataPoint = selectedSeries.flotSeries.resultSetData.indexOf(
+          $scope.selectedDataPoint.resultSetId) + $scope.selectedDataPoint.flotDataOffset;
+        $scope.plot.highlight(selectedSeriesIndex, flotDataPoint);
+      }
     }
 
     function plotOverviewGraph() {
@@ -259,7 +298,6 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
           $scope.plot.draw();
         }
       }
-
     }
 
     function plotGraph() {
@@ -287,6 +325,7 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
                              }
                            });
 
+      updateSelectedItem(null);
       highlightDataPoints();
       plotOverviewGraph();
       zoomGraph();
@@ -296,35 +335,123 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
         return date.toUTCString();
       }
 
+      function hideTooltip(now) {
+        var tip = $('#graph-tooltip');
+
+        if (!$scope.ttHideTimer && tip.css('visibility') == 'visible') {
+          $scope.ttHideTimer = setTimeout(function() {
+            $scope.ttHideTimer = null;
+            tip.animate({ opacity: 0, top: '+=10' },
+                        250, 'linear', function() {
+                          $(this).css({ visibility: 'hidden' });
+                        });
+          }, now ? 0 : 250);
+        }
+      }
+
+      function updateSelectedItem() {
+        $scope.subtestResults = null;
+
+        if (!$scope.selectedDataPoint) {
+          hideTooltip();
+          return;
+        }
+
+        // if we have an item with subtest signatures, fetch data for that and
+        // display it
+        var selectedSeriesIndex = _.findIndex(
+          $scope.seriesList,
+          function(s) {
+            return s.projectName == $scope.selectedDataPoint.projectName &&
+              s.signature == $scope.selectedDataPoint.signature;
+          });
+        var selectedSeries = $scope.seriesList[selectedSeriesIndex];
+        if (selectedSeries.subtestSignatures) {
+          var uri = thServiceDomain + '/api/project/' +
+              selectedSeries.projectName + '/performance-data/0/' +
+              'get_signature_properties/?';
+          selectedSeries.subtestSignatures.forEach(function(signature) {
+            uri += ('signatures=' + signature + '&');
+          });
+          var subtestResultsMap = {};
+          $http.get(uri).then(function(response) {
+            // first initialize the subtest result map
+            var i = 0;
+            selectedSeries.subtestSignatures.forEach(function(signature) {
+              subtestResultsMap[signature] = { test: response.data[i].test,
+                                               signature: signature,
+                                               projectName: selectedSeries.projectName };
+              i++;
+            });
+            var uri2 = thServiceDomain + '/api/project/' +
+                selectedSeries.projectName + '/performance-data/0/' +
+                'get_performance_data/?interval_seconds=' + $scope.myTimerange.value;
+            selectedSeries.subtestSignatures.forEach(function(signature) {
+              uri2 += ('&signatures=' + signature);
+            });
+            $http.get(uri2).then(function(response) {
+              var prev = null;
+              response.data.forEach(function(data) {
+                var perfData = data.blob;
+                var i = _.findIndex(perfData, function(v) {
+                  return v.result_set_id == $scope.selectedDataPoint.resultSetId;
+                });
+                var v = perfData[i].mean;
+                var v0 = i ? perfData[i-1].mean : v;
+                var dv = v - v0;
+                var dvp = v / v0 - 1;
+                subtestResultsMap[data.series_signature] = jQuery.extend(
+                  { value: v.toFixed(2),
+                    dvalue: dv.toFixed(2),
+                    dpercent: (100 * dvp).toFixed(1) },
+                  subtestResultsMap[data.series_signature]);
+              });
+              $scope.subtestResults = Object.keys(subtestResultsMap).map(function(k) {
+                return subtestResultsMap[k];
+              }).sort(function(a,b) {
+                return parseFloat(a.dpercent) < parseFloat(b.dpercent);
+              });
+            });
+          });
+        }
+      }
+
       $("#graph").bind("plothover", function (event, pos, item) {
+
+        // if examining an item, disable this behaviour
+        if ($scope.selectedDataPoint)
+          return;
+
         $('#graph').css({ cursor: item ? 'pointer' : 'default' });
 
         if (item && item.series.thSeries) {
           if (item.seriesIndex != $scope.prevSeriesIndex ||
               item.dataIndex != $scope.prevDataIndex) {
+            var seriesDataPoint = getSeriesDataPoint(item);
 
-            $scope.updateTooltip(item);
-            $scope.showTooltip(item.pageX, item.pageY);
+            showTooltip(seriesDataPoint);
             $scope.prevSeriesIndex = item.seriesIndex;
             $scope.prevDataIndex = item.dataIndex;
           }
         } else {
-          $scope.hideTooltip();
+          hideTooltip();
           $scope.prevSeriesIndex = null;
           $scope.prevDataIndex = null;
         }
       });
 
       $('#graph').bind('plotclick', function(e, pos, item) {
-        $scope.ttLocked = false;
         if (item) {
-          $scope.updateTooltip(item);
-          $scope.showTooltip(item.pageX, item.pageY);
-          $scope.ttLocked = true;
+          $scope.selectedDataPoint = getSeriesDataPoint(item);
+          showTooltip($scope.selectedDataPoint);
+          updateSelectedItem();
         } else {
-          $scope.hideTooltip();
+          $scope.selectedDataPoint = null;
+          hideTooltip();
+          $scope.$digest();
         }
-        $scope.$digest();
+
+        highlightDataPoints();
       });
     }
 
@@ -392,14 +519,59 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
                          });
     }
 
-    $scope.removeSeries = function(signature) {
+    $scope.addSeriesList = function(partialSeriesList) {
+      var propsHash = {}
+      return $q.all(partialSeriesList.map(
+        function(partialSeries) {
+          return $http.get(thServiceDomain + '/api/project/' +
+                           partialSeries.project + '/performance-data/0/' +
+                           'get_signature_properties/?signatures=' +
+                           partialSeries.signature).then(function(response) {
+                             var data = response.data;
+                             if (!propsHash[partialSeries.project]) {
+                               propsHash[partialSeries.project] = {};
+                             }
+                             propsHash[partialSeries.project][partialSeries.signature] = data[0];
+                           });
+        })).then(function() {
+          // create a new seriesList in the correct order
+          partialSeriesList.forEach(function(partialSeries) {
+            var seriesSummary = getSeriesSummary(
+              partialSeries.signature,
+              propsHash[partialSeries.project][partialSeries.signature],
+              optionCollectionMap);
+            seriesSummary.projectName = partialSeries.project;
+            seriesSummary.visible = partialSeries.visible;
+            seriesSummary.color = availableColors.pop();
+            seriesSummary.highlighted = partialSeries.highlighted;
+
+            $scope.seriesList.push(seriesSummary);
+          });
+          $q.all($scope.seriesList.map(getSeriesData)).then(function() {
+            $scope.highlightRevision();
+            plotGraph();
+            if ($scope.selectedDataPoint) {
+              showTooltip($scope.selectedDataPoint);
+            }
+          });
+        });
+    };
+
+    $scope.removeSeries = function(projectName, signature) {
       var newSeriesList = [];
       $scope.seriesList.forEach(function(series) {
-        if (series.signature !== signature) {
+        if (series.signature !== signature ||
+            series.projectName !== projectName) {
           newSeriesList.push(series);
         } else {
           // add the color back to the list of available colors
           availableColors.push(series.color);
+
+          // deselect datapoint if no longer valid
+          if ($scope.selectedDataPoint.signature === signature &&
+              $scope.selectedDataPoint.projectName === projectName) {
+            $scope.selectedDataPoint = null;
+          }
         }
       });
       $scope.seriesList = newSeriesList;
@@ -411,6 +583,9 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
       $scope.highlightRevision();
       updateURL();
       plotGraph();
+      if ($scope.selectedDataPoint) {
+        showTooltip($scope.selectedDataPoint);
+      }
     };
 
     $scope.showHideSeries = function(signature) {
@@ -460,11 +635,17 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
           }
           return null;
         })).then(function() {
-              updateURL();
-              plotGraph();
+          updateURL();
+          plotGraph();
         });
-      } 
+      }
     }
+
+    $scope.addSeries = function(project, signature) {
+      $scope.addSeriesList([{ project: project, signature: signature,
+                              visible: true }]);
+      updateURL();
+    };
 
     var optionCollectionMap = {};
 
@@ -497,39 +678,7 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
           var partialSeriesList = $stateParams.series.map(function(encodedSeries) {
             return JSON.parse(decodeURIComponent(encodedSeries));
           });
-          var propsHash = {}
-          $q.all(partialSeriesList.map(
-            function(partialSeries) {
-              return $http.get(thServiceDomain + '/api/project/' +
-                               partialSeries.project + '/performance-data/0/' +
-                               'get_signature_properties/?signatures=' +
-                               partialSeries.signature).then(function(response) {
-                                 var data = response.data;
-                                 if (!propsHash[partialSeries.project]) {
-                                   propsHash[partialSeries.project] = {};
-                                 }
-                                 propsHash[partialSeries.project][partialSeries.signature] = data[0];
-                               });
-            })).then(function() {
-              // create a new seriesList in the correct order
-              var i = 0;
-              partialSeriesList.forEach(function(partialSeries) {
-                var seriesSummary = getSeriesSummary(
-                  partialSeries.signature,
-                  propsHash[partialSeries.project][partialSeries.signature],
-                  optionCollectionMap);
-                seriesSummary.projectName = partialSeries.project;
-                seriesSummary.visible = partialSeries.visible;
-                seriesSummary.color = availableColors.pop();
-                seriesSummary.highlighted = partialSeries.highlighted;
-
-                $scope.seriesList.push(seriesSummary);
-              });
-              $q.all($scope.seriesList.map(getSeriesData)).then(function() {
-                $scope.highlightRevision();
-                plotGraph();
-              });
-            });
+          $scope.addSeriesList(partialSeriesList);
         } else {
           $scope.seriesList = [];
         }

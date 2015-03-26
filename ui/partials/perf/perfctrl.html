@@ -11,7 +11,7 @@
     <table class="table table-bordered graph-legend-table">
       <tr ng-repeat="series in seriesList">
         <td>
-          <button class="close" ng-click="removeSeries(series.signature)">
+          <button class="close" ng-click="removeSeries(series.projectName, series.signature)">
             <span aria-hidden="true">&times;</span>
             <span class="sr-only">Remove series</span>
           </button>
@@ -32,7 +32,7 @@
     <button class="btn btn-primary" ng-click="addTestData()">
       <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add more test data</button>
   </div>
-  <div id="graphs">
+  <div id="data-display">
     <select ng-model="myTimerange" ng-options="timerange.text for timerange in timeranges track by timerange.value" ng-change="timeRangeChanged()">
     </select>
     <hr/>
@@ -42,12 +42,31 @@
         Highlight revision: <input type="text" maxlength="12" ng-change="addHighlightedRevision()" placeholder="12 character hg revision" ng-model="revisionToHighlight">
         <div class="reset-highlight-button" ng-show="resetHighlightButton" ng-click="resetHighlight()">&#10006;</div>
     </div>
+    <hr/>
+    <div id="datapoint-detail" ng-show="subtestResults">
+      <div id="subtest-summary">
+        <h4>Subtest Summary</h4>
+        <p class="help-block">Hover over each entry for more options.</p>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Page</th><th>Mean</th><th>Change</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="subtest-result" ng-repeat="subtestResult in subtestResults">
+              <td>{{subtestResult.test}} <button class="btn btn-xs" ng-click="addSeries(subtestResult.projectName, subtestResult.signature)"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add series to graph</button></td><td>{{subtestResult.value}}</td><td>{{subtestResult.dvalue}} ({{subtestResult.dpercent}}%)</td>
+            </tr>
+          </tbody>
+        </table>
+     </div>
+    </div>
   </div>
   <div class="graph-right-padding"></div>
 </div>
 
 
-<div id="graph-tooltip" ng-class="{locked: ttLocked}">
+<div id="graph-tooltip" ng-class="{locked: selectedDataPoint}">
   <div class="body">
     <div>
       <p id="tt-series"><span ng-bind="tooltipContent.test"/>
@@ -64,7 +83,8 @@
       <p><a id="tt-cset" ng-href="{{tooltipContent.revisionHref}}" target="_blank"><span ng-bind="tooltipContent.revision"></span></a></p>
       <p id="tt-t" class="small" ng-bind="tooltipContent.date"></p>
     </div>
-    <span ng-hide="ttLocked">Click to lock</button>
+    <span ng-hide="detailDisclosed">Click for detail</span>
+    <span ng-show="detailDisclosed">&nbsp;</span>
   </div>
   <div class="tip"></div>
 </div>
