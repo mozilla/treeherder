@@ -43,7 +43,7 @@
         <div class="reset-highlight-button" ng-show="resetHighlightButton" ng-click="resetHighlight()">&#10006;</div>
     </div>
     <hr/>
-    <div id="datapoint-detail" ng-show="subtestResults">
+    <div id="datapoint-detail" ng-show="subtestResults && selectedDataPoint">
       <div id="subtest-summary">
         <h4>Subtest Summary</h4>
         <p class="help-block">Hover over each entry for more options.</p>
@@ -83,8 +83,8 @@
       <p><a id="tt-cset" ng-href="{{tooltipContent.revisionHref}}" target="_blank"><span ng-bind="tooltipContent.revision"></span></a></p>
       <p id="tt-t" class="small" ng-bind="tooltipContent.date"></p>
     </div>
-    <span ng-hide="detailDisclosed">Click for detail</span>
-    <span ng-show="detailDisclosed">&nbsp;</span>
+    <span ng-hide="selectedDataPoint">Click for detail</span>
+    <span ng-show="selectedDataPoint">&nbsp;</span>
   </div>
   <div class="tip"></div>
 </div>

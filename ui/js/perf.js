@@ -88,8 +88,13 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
       };
     }
 
-    function showTooltip(dataPoint) {
+    function deselectDataPoint() {
+      $timeout(function() {
+        $scope.selectedDataPoint = null;
+      });
+    }
 
+    function showTooltip(dataPoint) {
       if ($scope.ttHideTimer) {
         clearTimeout($scope.ttHideTimer);
         $scope.ttHideTimer = null;
@@ -182,9 +187,22 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
       });
     }
 
+    function hideTooltip(now) {
+      var tip = $('#graph-tooltip');
+
+      if (!$scope.ttHideTimer && tip.css('visibility') == 'visible') {
+        $scope.ttHideTimer = setTimeout(function() {
+          $scope.ttHideTimer = null;
+          tip.animate({ opacity: 0, top: '+=10' },
+                      250, 'linear', function() {
+                        $(this).css({ visibility: 'hidden' });
+                      });
+        }, now ? 0 : 250);
+      }
+    }
+
     Mousetrap.bind('escape', function() {
-      $scope.selectedDataPoint = null;
-      $scope.$digest();
+      deselectDataPoint();
     });
 
     // Highlight the points persisted in the url
@@ -252,6 +270,9 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
       });
 
       $("#overview-plot").bind("plotselected", function (event, ranges) {
+        deselectDataPoint();
+        hideTooltip();
+
         $.each($scope.plot.getXAxes(), function(_, axis) {
           var opts = axis.options;
           opts.min = ranges.xaxis.from;
@@ -263,9 +284,10 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
           opts.max = ranges.yaxis.to;
         });
         $scope.zoom = {'x': [ranges.xaxis.from, ranges.xaxis.to], 'y': [ranges.yaxis.from, ranges.yaxis.to]};
+
         $scope.plot.setupGrid();
         $scope.plot.draw();
-        updateURL()
+        updateURL();
       });
     }
 
@@ -333,20 +355,6 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
       function getDateStr(timestamp) {
         var date = new Date(parseInt(timestamp));
         return date.toUTCString();
-      }
-
-      function hideTooltip(now) {
-        var tip = $('#graph-tooltip');
-
-        if (!$scope.ttHideTimer && tip.css('visibility') == 'visible') {
-          $scope.ttHideTimer = setTimeout(function() {
-            $scope.ttHideTimer = null;
-            tip.animate({ opacity: 0, top: '+=10' },
-                        250, 'linear', function() {
-                          $(this).css({ visibility: 'hidden' });
-                        });
-          }, now ? 0 : 250);
-        }
       }
 
       function updateSelectedItem() {
@@ -462,6 +470,8 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
 
     $scope.timeRangeChanged = function() {
       $scope.zoom = {};
+      deselectDataPoint();
+
       updateURL();
       // refetch and re-render all graph data
       $q.all($scope.seriesList.map(getSeriesData)).then(function() {
