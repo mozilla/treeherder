@@ -761,7 +761,6 @@ div#bottom-panel .navbar.navbar-dark .navbar-nav > li.active a:focus {
 }
 
 #bottom-center-panel ul.failure-summary-list{
-    padding-left: 0;
     overflow: auto;
     width: 100%;
     margin-bottom: 0;
