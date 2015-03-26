@@ -124,7 +124,7 @@ treeherder.factory('ThResultSetStore', [
         ).then(function(jobList){
             if(jobList.length > 0){
                 var lastModifiedJob = getLastModifiedJob(jobList);
-                if(lastModifiedJob != null){
+                if(lastModifiedJob !== null){
                     lastJobUpdate = new Date(lastModifiedJob.last_modified+'Z');
                 }
                 var jobListByResultSet = _.values(
@@ -436,15 +436,18 @@ treeherder.factory('ThResultSetStore', [
      */
     var getOrCreateGroup = function(repoName, newJob) {
         var plMapElement = getOrCreatePlatform(repoName, newJob);
+        var grMapElement;
 
         if(plMapElement){
 
-            var grMapElement = plMapElement.groups[newJob.job_group_name];
+            var groupInfo = getJobGroupInfo(newJob);
+
+            grMapElement = plMapElement.groups[groupInfo.name];
             if (!grMapElement) {
                 $log.debug("adding new group");
                 var grp_obj = {
-                    symbol: newJob.job_group_symbol,
-                    name: newJob.job_group_name,
+                    symbol: groupInfo.symbol,
+                    name: groupInfo.name,
                     jobs: []
                 };
 
@@ -458,7 +461,7 @@ treeherder.factory('ThResultSetStore', [
                     jobs: {}
                 };
 
-                grMapElement = plMapElement.groups[newJob.job_group_name];
+                grMapElement = plMapElement.groups[groupInfo.name];
             }
         }
         return grMapElement;
@@ -883,6 +886,24 @@ treeherder.factory('ThResultSetStore', [
             thResultStatusObject.getResultStatusObject()
         );
     };
+
+    /*
+     * If the job's Tier is other than 1, then use the Tier string as the group
+     * name rather than the group itself.
+     */
+    var getJobGroupInfo = function(job) {
+
+        var name = job.job_group_name;
+        var symbol = job.job_group_symbol;
+        if (job.tier && job.tier !== 1) {
+            var tierLabel = "Tier-" + job.tier;
+            name = tierLabel;
+            symbol = tierLabel;
+        }
+
+        return {name: name, symbol: symbol};
+    };
+
     /*
     * Convert a flat list of jobs into a structure grouped by
     * platform and job_group. this is mainly to keep compatibility
@@ -912,15 +933,17 @@ treeherder.factory('ThResultSetStore', [
                 };
                 groupedJobs.platforms.push(platform);
             }
+
+            var groupInfo = getJobGroupInfo(job);
             // search for the right group
             var group = _.find(platform.groups, function(group){
-                return job.job_group_name === group.name &&
-                job.job_group_symbol === group.symbol;
+                return groupInfo.name === group.name &&
+                groupInfo.symbol === group.symbol;
             });
             if(_.isUndefined(group)){
                 group = {
-                    name: job.job_group_name,
-                    symbol: job.job_group_symbol,
+                    name: groupInfo.name,
+                    symbol: groupInfo.symbol,
                     jobs: []
                 };
                 platform.groups.push(group);
