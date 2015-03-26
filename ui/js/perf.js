@@ -146,6 +146,7 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
                   function(response) {
                     var revision = response.data.revisions[0].revision;
                     $scope.tooltipContent.revision = revision;
+                    dataPoint.revision = revision;
                     var project = _.findWhere($scope.projects,
                                               { name: phSeries.projectName });
                     $scope.tooltipContent.revisionHref = (project.url +
