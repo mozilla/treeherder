@@ -14,8 +14,9 @@
           <span class="btn btn-default btn-sm glyphicon glyphicon-download" ng-show="isLoadingJobs"></span>
           <span>
             <a href="{{::revisionResultsetFilterUrl}}"
-               title="open this resultset"
-               ignore-job-clear-on-click>{{::resultsetDateStr}}</a> - </span>
+               title="View only this resultset"
+               ignore-job-clear-on-click>{{::resultsetDateStr}}
+              <span class="fa fa-external-link result-set-superscript"></span></a> - </span>
           <th-author author="{{::resultset.author}}"></th-author>
         </span>
         <span class="revision-text">{{::resultset.revision}}</span>

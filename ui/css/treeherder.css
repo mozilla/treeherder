@@ -376,6 +376,12 @@ th-watched-repo {
 
 }
 
+.result-set-superscript {
+    vertical-align: super;
+    font-size: 0.625em;
+    margin-left: -0.2em;
+}
+
 .result-set {
     padding-bottom: 0px;
     margin-left: 0;
@@ -397,7 +403,7 @@ th-watched-repo {
 }
 
 .result-set-title-left {
-    flex: 0 0 23.5em;
+    flex: 0 0 24.2em;
     overflow: hidden;
     text-overflow: ellipsis;
     padding-right: 10px;
