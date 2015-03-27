@@ -57,8 +57,8 @@ Execution::
 
 Build
 =====
-* Install grunt ``sudo npm install grunt``
-* Install the ``devDependencies`` in ``package.json``
+* Install grunt ``sudo npm install grunt-cli -g``
+* Install the ``devDependencies`` in ``package.json`` by running ``npm install`` from the project root
 * Run the following command in ``treeherder-ui``:
 
 Build::
