@@ -579,7 +579,8 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
           availableColors.push(series.color);
 
           // deselect datapoint if no longer valid
-          if ($scope.selectedDataPoint.signature === signature &&
+          if ($scope.selectedDataPoint &&
+              $scope.selectedDataPoint.signature === signature &&
               $scope.selectedDataPoint.projectName === projectName) {
             $scope.selectedDataPoint = null;
           }
