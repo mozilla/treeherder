@@ -833,15 +833,6 @@ treeherder.directive('thCloneJobs', [
             });
 
         $rootScope.$on(
-            thEvents.resultSetFilterChanged, function(ev, rs){
-                if(rs.id === scope.resultset.id){
-                    _.bind(
-                        filterJobs, scope, element, scope.resultStatusFilters
-                        )();
-                }
-            });
-
-        $rootScope.$on(
             thEvents.jobsLoaded, function(ev, platformData){
                 _.bind(updateJobs, scope, platformData)();
             });

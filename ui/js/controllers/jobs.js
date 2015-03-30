@@ -167,8 +167,7 @@ treeherder.controller('ResultSetCtrl', [
         };
 
         /**
-         * Pin all jobs that pass the GLOBAL filters.  Ignores toggling at
-         * the result set level.
+         * Pin all jobs that pass the global filters.
          *
          * If optional resultsetId is passed in, then only pin jobs from that
          * resultset.
@@ -195,30 +194,7 @@ treeherder.controller('ResultSetCtrl', [
         };
 
         /**
-         * When the user clicks one of the resultStates on the resultset line,
-         * then toggle what is showing for just this resultset.
-         *
-         * @param resultStatus - Which resultStatus to toggle.
-         */
-        $scope.toggleResultSetResultStatusFilter = function(resultStatus) {
-            var idx = $scope.resultStatusFilters.indexOf(resultStatus);
-            if (idx < 0) {
-                $scope.resultStatusFilters.push(resultStatus);
-            } else {
-                $scope.resultStatusFilters.splice(idx, 1);
-            }
-
-            $rootScope.$emit(
-                thEvents.resultSetFilterChanged, $scope.resultset
-                );
-
-            $log.debug("toggled: ", resultStatus);
-            $log.debug("resultStatusFilters", $scope.resultStatusFilters);
-        };
-
-        /**
-         * Whether or not a job should be shown based on the global and local
-         * filters.
+         * Whether or not a job should be shown based on the global filters.
          * @param job
          */
         $scope.showJob = function(job) {
