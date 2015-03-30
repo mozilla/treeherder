@@ -1,7 +1,17 @@
-<a class="btn btn-view-nav btn-right-navbar nav-login-btn"
-   ng-if="user.loggedin"
-   ng-click="logout()">
-   <span>Logout</span></a>
+<span class="dropdown"
+      ng-if="user.loggedin">
+  <button id="logoutLabel" title="Logged in as: {{user.email}}" role="button"
+          href="#" data-toggle="dropdown" data-target="#"
+          class="btn btn-view-nav btn-right-navbar nav-repo-btn">
+    <div class="nav-user-icon">
+      <span class="fa fa-user pull-left"></span>
+    </div>
+    <span class="fa fa-angle-down lightgray"></span>
+  </button>
+  <ul class="dropdown-menu" role="menu" aria-labelledby="logoutLabel"
+      ng-include="'partials/main/thLogoutMenu.html'">
+  </ul>
+</span>
 
 <a class="btn btn-view-nav btn-right-navbar nav-login-btn"
    title="Log in for additional functionality"

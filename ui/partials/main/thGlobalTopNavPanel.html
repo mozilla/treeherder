@@ -21,7 +21,7 @@
 
             <!-- Infra Menu -->
             <span class="repo-menu dropdown">
-                <button id="infraLabel" title="Infrastructure Status" role="button"
+                <button id="infraLabel" title="Infrastructure status" role="button"
                         href="#" data-toggle="dropdown" data-target="#"
                         class="btn btn-view-nav btn-right-navbar nav-repo-btn">Infra
                     <span class="fa fa-angle-down lightgray"></span>
@@ -80,11 +80,6 @@
                 <i class="fa fa-angle-up lightgray"
                    ng-show="isSettingsPanelShowing"></i>
             </span>
-
-            <!-- User Field if logged in -->
-            <span class="btn btn-right-navbar th-username"
-                  ng-if="user.email">
-                {{user.email}}</span>
 
             <!-- Login/Register Button -->
             <persona-buttons></persona-buttons>

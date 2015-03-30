@@ -105,6 +105,11 @@ th-watched-repo {
     margin-right: 4px;
 }
 
+/* Override bootstrap for flush right navbar menus */
+.navbar-collapse {
+    padding-right: 0;
+}
+
 .navbar .repo-menu-form {
     padding: 5px 10px 0;
     overflow-y: scroll;
@@ -131,8 +136,24 @@ th-watched-repo {
     font-size: 18px;
 }
 
+.nav-user-icon {
+    display: inline-block;
+    margin-right: 4px;
+    padding: 3px 4px;
+    vertical-align: text-bottom;
+    border-radius: 1px;
+    background: linear-gradient(#44adf3, #287cc2);
+}
+
+.nav-user-icon span:first-child {
+    margin: 0 auto;
+    font-size: 12px;
+    color: #fff;
+}
+
 .nav-login-btn {
     padding-left: 22px;
+    padding-right: 27px;
 }
 
 .watched-repo-main-btn {
