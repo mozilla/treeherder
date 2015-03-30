@@ -253,6 +253,7 @@ treeherder.controller('MainCtrl', [
         };
 
         $scope.toggleUnclassifiedFailures = thJobFilters.toggleUnclassifiedFailures;
+        $scope.toggleTier1Only = thJobFilters.toggleTier1Only;
 
         $scope.toggleInProgress = function() {
             thJobFilters.toggleInProgress();

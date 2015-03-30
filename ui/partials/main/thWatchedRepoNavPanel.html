@@ -13,6 +13,12 @@
                     <span>{{ getUnclassifiedFailureCount(repoName) }}</span> unclassified
                 </span>
 
+                <!--Toggle Tier-1 jobs only Button-->
+                <span class="btn btn-view-nav btn-sm"
+                      title="Toggle Tier-1 jobs only mode"
+                      tabindex="0" role="button"
+                      ng-click="toggleTier1Only()">1</span>
+
                 <!--Hidden Jobs Button-->
                 <span class="btn btn-view-nav btn-sm btn-right-navbar"
                       title="Show/hide excluded jobs"

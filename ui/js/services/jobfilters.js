@@ -96,6 +96,10 @@ treeherder.factory('thJobFilters', [
             name: "platform",
             matchType: MATCH_TYPE.substr
         },
+        tier: {
+            name: "tier",
+            matchType: MATCH_TYPE.exactstr
+        },
         failure_classification_id: {
             name: "failure classification",
             matchType: MATCH_TYPE.choice,
@@ -359,6 +363,15 @@ treeherder.factory('thJobFilters', [
         }
     };
 
+    var toggleTier1Only = function() {
+        $log.debug("toggleTier1Only");
+        if (_.contains(_getFiltersOrDefaults('tier'), '1')) {
+            removeFilter('tier', '1');
+        } else {
+            addFilter('tier', '1');
+        }
+    };
+
     /**
      * Set the non-field filters so that we only view unclassified failures
      */
@@ -471,7 +484,7 @@ treeherder.factory('thJobFilters', [
             }
             result = platform + " " + job.platform_option;
         }
-        return result;
+        return String(result);
     };
 
     /**
@@ -564,6 +577,7 @@ treeherder.factory('thJobFilters', [
         toggleFilters: toggleFilters,
         toggleInProgress: toggleInProgress,
         toggleUnclassifiedFailures: toggleUnclassifiedFailures,
+        toggleTier1Only: toggleTier1Only,
         setOnlyCoalesced: setOnlyCoalesced,
 
         // filter data read-only accessors
