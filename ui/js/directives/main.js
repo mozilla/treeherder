@@ -151,6 +151,23 @@ treeherder.directive('thFaviconLink', [
     }
 }]);
 
+treeherder.directive('bugInput', function() {
+    return {
+        restrict: 'A',
+        link: function(scope, elem, attrs, ctrl) {
+            elem.on('invalid', function(event) {
+                event.target.setCustomValidity('Please enter a bug number');
+            });
+            elem.on('input', function(event) {
+                event.target.setCustomValidity('');
+                event.target.value = event.target.value.trim();
+            });
+            elem.attr('type', 'text');
+            elem.attr('pattern', '\\s*\\d+\\s*');
+        }
+    }
+});
+
 treeherder.directive('numbersOnly', function(){
    return {
      require: 'ngModel',

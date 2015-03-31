@@ -5,9 +5,9 @@
 "use strict";
 
 treeherder.controller('PinboardCtrl', [
-    '$scope', '$rootScope', 'thEvents', 'thPinboard', 'thNotify', 'ThLog',
+    '$scope', '$rootScope', '$document', '$timeout','thEvents', 'thPinboard', 'thNotify', 'ThLog',
     function PinboardCtrl(
-        $scope, $rootScope, thEvents, thPinboard, thNotify, ThLog) {
+        $scope, $rootScope, $document, $timeout, thEvents, thPinboard, thNotify, ThLog) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -105,9 +105,37 @@ treeherder.controller('PinboardCtrl', [
             return thPinboard.hasRelatedBugs();
         };
 
+        function handleRelatedBugDocumentClick(event) {
+            if (!$(event.target).hasClass("add-related-bugs-input")) {
+                $scope.$apply(function() {
+                    $scope.toggleEnterBugNumber(false);
+                });
+            }
+        }
+
         $scope.toggleEnterBugNumber = function(tf) {
             $scope.enteringBugNumber = tf;
             $scope.focusInput = tf;
+
+            $document.off('click', handleRelatedBugDocumentClick);
+            if (tf) {
+                // Rebind escape to canceling the bug entry, pressing escape
+                // again will close the pinboard as usual.
+                Mousetrap.bind('escape', function() {
+                  var cancel = _.bind($scope.toggleEnterBugNumber, $scope, false);
+                  $scope.$evalAsync(cancel);
+                });
+
+                // Install a click handler on the document so that clicking
+                // outside of the input field will close it. A blur handler
+                // can't be used because it would have timing issues with the
+                // click handler on the + icon.
+                $timeout(function() {
+                    $document.on('click', handleRelatedBugDocumentClick);
+                }, 0);
+            } else {
+                $scope.newEnteredBugNumber = '';
+            }
         };
 
         $scope.completeClassification = function() {
@@ -123,7 +151,6 @@ treeherder.controller('PinboardCtrl', [
                                $scope.newEnteredBugNumber);
                     thPinboard.addBug({id:$scope.newEnteredBugNumber});
                     $scope.toggleEnterBugNumber(false);
-                    $scope.newEnteredBugNumber = "";
                 }
             }
         };
