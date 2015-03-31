@@ -206,9 +206,6 @@ treeherder.provider('thEvents', function() {
             // fired when a global filter has changed
             globalFilterChanged: "status-filter-changed-EVT",
 
-            // fired when filtering on a specific resultset has changed
-            resultSetFilterChanged: "resultset-filter-changed-EVT",
-
             toggleRevisions: "toggle-revisions-EVT",
 
             toggleAllRevisions: "toggle-all-revisions-EVT",
