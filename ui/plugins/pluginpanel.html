@@ -144,7 +144,8 @@
           <a title="Filter jobs like these"
              href="{{buildbotJobnameHref}}"
              prevent-default-on-left-click
-             ng-click="filterByBuildername(buildbotJobname)">
+             ng-click="filterByBuildername(buildbotJobname)"
+             copy-value="{{buildbotJobname}}">
             {{buildbotJobname}}</a>
         </li>
         <li class="small">

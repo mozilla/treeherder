@@ -1845,6 +1845,20 @@ fieldset[disabled] .btn-repo.active {
     background-color: #fff;
 }
 
+#help-job-name {
+    color: #428bca;
+}
+
+#help-raw-log-icon {
+    font-size: 13px;
+    color: #9fa3a5;
+}
+
+#help-logviewer-icon {
+    vertical-align: text-bottom;
+    width: 15px;
+}
+
 .waiter-small{ background: url("../img/waiter16.png") no-repeat center center; width: 16px; height: 16px; display: inline-block;}
 .waiter-medium{ background: url("../img/waiter32.png") no-repeat center center; width: 32px; height: 32px; display: inline-block;}
 .waiter-large{ background: url("../img/waiter64.png") no-repeat center center; width: 64px; height: 64px; display: inline-block;}

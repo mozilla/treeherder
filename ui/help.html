@@ -145,13 +145,32 @@
                     <td>Toggle in-progress (running/pending) jobs</td></tr>
                     <tr><td class="kbd">u</td>
                     <td>Show only unclassified failures</td></tr>
-                    <tr><td><span class="kbd">ctrl/cmd</span>+<span class="kbd">c</td>
-                    <td>Copy logviewer or raw log icon links on hover</td></tr>
+                </table>
+            </div>
+            <div class="panel-heading"><h3>Copy values on hover</h3></div>
+            <div class="panel-body panel-spacing">
+                <table id="shortcuts">
+                    <tr>
+                      <td><span class="kbd">ctrl/cmd</span>+<span class="kbd">c</td>
+                      <td>Copy job details
+                        <img src="./img/logviewerIconHelp.svg" id="help-logviewer-icon">
+                        </span> logviewer url on hover</td>
+                    </tr>
+                    <tr>
+                      <td><span class="kbd">ctrl/cmd</span>+<span class="kbd">c</td>
+                      <td>Copy job details
+                        <span id="help-raw-log-icon" class="glyphicon glyphicon-align-left">
+                        </span> raw log url on hover</td>
+                    </tr>
+                    <tr>
+                      <td><span class="kbd">ctrl/cmd</span>+<span class="kbd">c</td>
+                      <td>Copy job details <span class="small"><label>Job:</label>
+                        <span id="help-job-name">name</span></span> as raw text on hover
+                      </td>
+                    </tr>
                 </table>
             </div>
         </div>
-
-
     </div>
 </div>
 
