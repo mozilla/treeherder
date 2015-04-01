@@ -2830,7 +2830,8 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 resultset_status_dict[rs['result']] = int(rs['total']) - rs['num_coalesced']
             else:
                 resultset_status_dict[rs['state']] = int(rs['total'])
-        resultset_status_dict['coalesced'] = num_coalesced
+        if num_coalesced:
+            resultset_status_dict['coalesced'] = num_coalesced
         return resultset_status_dict
 
 
