@@ -896,7 +896,10 @@ treeherder.factory('ThResultSetStore', [
         var name = job.job_group_name;
         var symbol = job.job_group_symbol;
         if (job.tier && job.tier !== 1) {
-            var tierLabel = "Tier-" + job.tier;
+            if (symbol === "?") {
+                symbol = "";
+            }
+            var tierLabel = symbol + "[Tier-" + job.tier + "]";
             name = tierLabel;
             symbol = tierLabel;
         }
