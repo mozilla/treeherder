@@ -12,6 +12,8 @@
                 <li class="btn-{{status}}">
                     <a href="https://treeherder.mozilla.org/#/jobs?repo={{repository}}&revision={{revision}}&filter-resultStatus={{status}}">{{status}}</a>: {{ tot }}
                 </li>
+            {% empty%}
+                <li>No jobs stored for this push yet. Please wait.</li>
             {% endfor %}
         </ul>
         See it on <a href="https://treeherder.mozilla.org/#/jobs?repo={{repository}}&revision={{revision}}"
