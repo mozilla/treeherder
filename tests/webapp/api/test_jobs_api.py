@@ -58,7 +58,8 @@ def test_job_list(webapp, eleven_jobs_processed, jm):
         "running_eta",
         "tier",
         "last_modified",
-        "ref_data_name"
+        "ref_data_name",
+        "signature"
     ]
     for job in jobs:
         assert set(job.keys()) == set(exp_keys)

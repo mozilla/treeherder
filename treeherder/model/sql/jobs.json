@@ -573,6 +573,7 @@
             "sql":"SELECT
                     j.id,
                     j.`job_guid`,
+                    j.`signature`,
                     j.`job_coalesced_to_guid`,
                     j.`build_platform_id`,
                     j.`option_collection_hash`,

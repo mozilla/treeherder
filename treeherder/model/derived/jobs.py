@@ -122,6 +122,7 @@ class JobsModel(TreeherderModelBase):
             "start_timestamp": "j.start_timestamp",
             "end_timestamp": "j.end_timestamp",
             "last_modified": "j.last_modified",
+            "signature": "j.signature",
             "tier": "j.tier"
         },
         "result_set": {
