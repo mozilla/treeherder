@@ -18,5 +18,9 @@ class ResultsetStatusView(TemplateView):
                     kwargs['revision']))
             result_set_id = resultset_list[kwargs['revision']]['id']
             resultset_status_dict = jm.get_resultset_status(result_set_id)
+            update_needed = (('pending' in resultset_status_dict) or
+                             ('running' in resultset_status_dict) or
+                             not resultset_status_dict)
+            context['update_needed'] = update_needed
             context['resultset_status_dict'] = resultset_status_dict
             return context

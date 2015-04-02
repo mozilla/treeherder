@@ -5,6 +5,13 @@
         <link rel="stylesheet" href="{% static "embed/css/embed.css" %}" media="screen"/>
         <base target="_blank" />
     </head>
+    {% if update_needed %}
+    <script type="text/javascript">
+        setTimeout(function(){
+            window.location.reload()
+        },60*1000);
+    </script>
+    {% endif %}
 <body>
     <div id="resultset_status">
         <ul >
