@@ -171,3 +171,10 @@ to { opacity: 0; }
 .subtest-result:hover button {
     display: inline-block;
 }
+
+.graph-legend .signature {
+    display: inline-block;
+    max-width: 100px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
