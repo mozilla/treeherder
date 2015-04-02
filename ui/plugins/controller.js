@@ -242,25 +242,28 @@ treeherder.controller('PluginCtrl', [
         };
 
         $scope.retriggerJob = function() {
-            // The logic here is somewhat complicated because we need to support
-            // two use cases the first is the case where we notify a system
-            // other then buildbot that a retrigger has been requested. The
-            // second is when we have the buildapi id and need to send a request
-            // to the self serve api (which does not listen over pulse!).
-            ThJobModel.retrigger($scope.repoName, $scope.job.id).then(function() {
-                // XXX: Remove this after 1134929 is resolved.
-                var requestId = getBuildbotRequestId();
-                if (requestId) {
-                    return thBuildApi.retriggerJob($scope.repoName, requestId);
-                }
-            }).then(function() {
-              thNotify.send("Retrigger success");
-            }).catch(function(e){
-                thNotify.send(
-                    ThModelErrors.format(e, "Unable to send retrigger"),
-                    "danger", true
-                );
-            });
+            if ($scope.user.loggedin) {
+                // The logic here is somewhat complicated because we need to support
+                // two use cases the first is the case where we notify a system
+                // other then buildbot that a retrigger has been requested. The
+                // second is when we have the buildapi id and need to send a request
+                // to the self serve api (which does not listen over pulse!).
+                ThJobModel.retrigger($scope.repoName, $scope.job.id).then(function() {
+                    // XXX: Remove this after 1134929 is resolved.
+                    var requestId = getBuildbotRequestId();
+                    if (requestId) {
+                        return thBuildApi.retriggerJob($scope.repoName, requestId);
+                    }
+                }).then(function() {
+                    thNotify.send("Retrigger success");
+                }).catch(function(e) {
+                    thNotify.send(
+                        ThModelErrors.format(e, "Unable to send retrigger"),
+                                             'danger', true);
+                });
+            } else {
+                thNotify.send("Must be logged in to retrigger a job", 'danger')
+            }
         };
 
         $scope.cancelJob = function() {
