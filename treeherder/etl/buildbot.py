@@ -118,7 +118,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile(r'Yosemite', re.IGNORECASE),
+        'regex': re.compile(r'Yosemite|macosx64', re.IGNORECASE),
         'attributes': {
             'os': 'mac',
             'os_platform': 'osx-10-10',
@@ -179,7 +179,7 @@ PLATFORMS_BUILDERNAME = [
     {
         # Windows x64 builds are created on Win Server 2k8, but for the sake
         # of consistency, we display them on the same row as the Win8 x64 tests.
-        'regex': re.compile(r'WINNT 6\.1 x(?:86-)?64|Windows 8 64-bit', re.IGNORECASE),
+        'regex': re.compile(r'WINNT 6\.1 x(?:86-)?64|Windows 8 64-bit|win64', re.IGNORECASE),
         'attributes': {
             'os': 'win',
             'os_platform': 'windows8-64',
@@ -203,7 +203,7 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile(r'WINNT 6\.2|win8', re.IGNORECASE),
+        'regex': re.compile(r'WINNT 6\.2|win8|win32', re.IGNORECASE),
         'attributes': {
             'os': 'win',
             'os_platform': 'windows8-32',
@@ -512,7 +512,7 @@ JOB_NAME_BUILDERNAME = [
     {"regex": re.compile(r'b2g.*_unagi.*_nightly'), "desc": "Unagi Device Image Nightly"},
     {"regex": re.compile(r'b2g.*_wasabi.*_nightly'), "desc": "Wasabi Device Image Nightly"},
     {"regex": re.compile(r'b2g.*_nightly'), "desc": "Unknown B2G Device Image Nightly"},
-    {"regex": re.compile(r'(?:l10n|localizer) nightly'), "desc": "L10n Nightly"},
+    {"regex": re.compile(r'nightly l10n|(?:l10n|localizer) nightly'), "desc": "L10n Nightly"},
     {"regex": re.compile(r'nightly'), "desc": "Nightly"},
     {"regex": re.compile(r'b2g.*_dolphin-512_eng.*_(?:dep|periodic)'), "desc": "Dolphin-512 Device Image Build (Engineering)"},
     {"regex": re.compile(r'b2g.*_dolphin_eng.*_(?:dep|periodic)'), "desc": "Dolphin Device Image Build (Engineering)"},
@@ -914,8 +914,8 @@ SYMBOLS = {
     "Unknown": "?",
 }
 
-# Match the job part number from buildernames such as "... mochitest-5"
-NUMBER_RE = re.compile(r".*-(\d+)$")
+# Match the job part number from buildernames such as "... mochitest-5" or "l10n 2/3"
+NUMBER_RE = re.compile(r"[ -](\d+)(?:/\d+)?$")
 
 
 def extract_platform_info(source_string):
@@ -993,7 +993,7 @@ def get_symbol(name, bn):
 
     s = SYMBOLS.get(name, "?")
 
-    nummatch = NUMBER_RE.match(bn)
+    nummatch = NUMBER_RE.search(bn)
     n = nummatch.group(1) if nummatch else ""
 
     # For multi-part Mochitest, Mochitest-e10s, Mochitest OOP & W3C Web Platform
