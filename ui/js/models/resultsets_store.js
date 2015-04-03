@@ -52,7 +52,8 @@ treeherder.factory('ThResultSetStore', [
         'tochange',
         'startdate',
         'enddate',
-        'exclusion_profile'
+        'exclusion_profile',
+        'nojobs'
     ];
 
     var registerResultSetPollers = function() {
@@ -829,6 +830,13 @@ treeherder.factory('ThResultSetStore', [
                     appendResultSets(repoName, {results: []});
                 }).
             then(function(){
+                // if ``nojobs`` is on the query string, then don't load jobs.
+                // this allows someone to more quickly load ranges of revisions
+                // when they don't care about the specific jobs and results.
+                if ($location.search().nojobs) {
+                    return;
+                }
+
                 var jobsPromiseList = ThResultSetModel.getResultSetJobs(
                     resultsets,
                     repoName,
