@@ -190,7 +190,7 @@ treeherder.factory('thNotify', [
                 sticky: sticky
             });
             if(!sticky){
-                $timeout(thNotify.shift, 5000, true);
+                $timeout(thNotify.shift, 4000, true);
             }
         },
 
