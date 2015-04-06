@@ -161,7 +161,8 @@ treeherder.controller('FilterPanelCtrl', [
             }
             var shownJobs = ThResultSetStore.getAllShownJobs(
                 $rootScope.repoName,
-                thPinboard.spaceRemaining()
+                thPinboard.spaceRemaining(),
+                thPinboard.maxNumPinned
             );
             thPinboard.pinJobs(shownJobs);
 

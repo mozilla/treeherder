@@ -182,6 +182,7 @@ treeherder.controller('ResultSetCtrl', [
             var shownJobs = ThResultSetStore.getAllShownJobs(
                 $rootScope.repoName,
                 thPinboard.spaceRemaining(),
+                thPinboard.maxNumPinned,
                 $scope.resultset.id,
                 $scope.resultStatusFilters
             );
