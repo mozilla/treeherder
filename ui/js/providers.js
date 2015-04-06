@@ -242,16 +242,22 @@ treeherder.provider('thEvents', function() {
 });
 
 treeherder.provider('thAggregateIds', function() {
+
+    var escape = function(id) {
+        return id.replace(/(:|\.|\[|\]|,)/g, "\\$1").replace(/\s+/g, '');
+    };
+
     var getPlatformRowId = function(
-        repoName, resultsetId, platformName, platformOptions){
-        return  repoName +
-                resultsetId +
-                platformName +
-                platformOptions;
+        repoName, resultsetId, platformName, platformOptions) {
+        // ensure there are no invalid characters in the id (like spaces, etc)
+        return escape(repoName +
+                      resultsetId +
+                      platformName +
+                      platformOptions);
     };
 
     var getResultsetTableId = function(repoName, resultsetId, revision){
-        return repoName + resultsetId + revision;
+        return escape(repoName + resultsetId + revision);
     };
 
     this.$get = function() {
