@@ -215,3 +215,24 @@ treeherder.factory('thNotify', [
     return thNotify;
 
 }]);
+
+treeherder.factory('thPlatformName', [
+    'thPlatformNameMap',
+    function(thPlatformNameMap) {
+
+        return function(name) {
+            return thPlatformNameMap[name] || name;
+        };
+}]);
+
+treeherder.factory('thJobSearchStr', [
+    'thPlatformName',
+    function(thPlatformName) {
+
+        return function(job) {
+            return thPlatformName(job.platform) + ' ' +
+                job.platform_option + ' ' + job.job_group_name + ' ' +
+                job.job_group_symbol + ' ' + job.job_type_name + ' ' +
+                job.job_type_symbol;
+        };
+}]);

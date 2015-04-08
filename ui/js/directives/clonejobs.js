@@ -9,12 +9,14 @@ treeherder.directive('thCloneJobs', [
     '$rootScope', '$http', 'ThLog', 'thUrl', 'thCloneHtml',
     'thServiceDomain', 'thResultStatusInfo', 'thEvents', 'thAggregateIds',
     'thJobFilters', 'thResultStatusObject', 'ThResultSetStore',
-    'ThJobModel', 'linkifyBugsFilter', 'thResultStatus', 'thPlatformNameMap',
+    'ThJobModel', 'linkifyBugsFilter', 'thResultStatus', 'thPlatformName',
+    'thJobSearchStr',
     function(
         $rootScope, $http, ThLog, thUrl, thCloneHtml,
         thServiceDomain, thResultStatusInfo, thEvents, thAggregateIds,
         thJobFilters, thResultStatusObject, ThResultSetStore,
-        ThJobModel, linkifyBugsFilter, thResultStatus, thPlatformNameMap){
+        ThJobModel, linkifyBugsFilter, thResultStatus, thPlatformName,
+        thJobSearchStr){
 
     var $log = new ThLog("thCloneJobs");
 
@@ -97,11 +99,11 @@ treeherder.directive('thCloneJobs', [
         if (direction === 'next') {
             getIndex = function(idx, jobs) {
                 return idx+1 > _.size(jobs)-1 ? 0: idx+1;
-            }
+            };
         } else if (direction === 'previous') {
             getIndex = function(idx, jobs) {
                 return idx-1 < 0 ? _.size(jobs)-1 : idx-1;
-            }
+            };
         }
 
         jobs = $(".th-view-content .job-btn");
@@ -225,10 +227,8 @@ treeherder.directive('thCloneJobs', [
             //Set the resultState
             resultState = thResultStatus(job);
 
-            job.searchStr = getPlatformName(job.platform) + ' ' +
-                job.platform_option + ' ' + job.job_group_name + ' ' +
-                job.job_group_symbol + ' ' + job.job_type_name + ' ' +
-                job.job_type_symbol + ' ' + job.ref_data_name;
+            job.searchStr = thJobSearchStr(job) + ' ' + job.ref_data_name  + ' ' +
+                job.signature;
 
             //Make sure that filtering doesn't effect the resultset counts
             //displayed
@@ -535,17 +535,6 @@ treeherder.directive('thCloneJobs', [
         }
     };
 
-    var getPlatformName = function(name){
-
-        var platformName = thPlatformNameMap[name];
-
-        if(platformName === undefined){
-            platformName = name;
-        }
-
-        return platformName;
-    };
-
     var appendPlatformRow = function(tableEl, rowEl, platformName){
 
         var tableRows = $(tableEl).find('tr');
@@ -594,7 +583,7 @@ treeherder.directive('thCloneJobs', [
             var tdEls, rowEl, platformTdEl, jobTdEl,
                 platformKey, platformName, option, tableRows;
 
-            platformName = getPlatformName(value.platformName);
+            platformName = thPlatformName(value.platformName);
 
             platformKey = ThResultSetStore.getPlatformKey(
                 value.platformName, value.platformOption
@@ -911,7 +900,7 @@ treeherder.directive('thCloneJobs', [
                 $(row).empty();
             }
 
-            name = getPlatformName(resultset.platforms[j].name);
+            name = thPlatformName(resultset.platforms[j].name);
             option = resultset.platforms[j].option;
 
             //Add platforms
