@@ -10,20 +10,21 @@ treeherder.controller('PluginCtrl', [
     'numberFilter', 'ThBugJobMapModel', 'thResultStatus', 'thJobFilters',
     'ThResultSetModel', 'ThLog', '$q', 'thPinboard', 'ThJobArtifactModel',
     'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'ThModelErrors', 'thTabs',
-    '$timeout',
+    '$timeout', 'thJobSearchStr',
     function PluginCtrl(
         $scope, $rootScope, $location, thUrl, ThJobClassificationModel,
         thClassificationTypes, ThJobModel, thEvents, dateFilter, thDateFormat,
         numberFilter, ThBugJobMapModel, thResultStatus, thJobFilters,
         ThResultSetModel, ThLog, $q, thPinboard, ThJobArtifactModel,
-        thBuildApi, thNotify, ThJobLogUrlModel, ThModelErrors, thTabs, $timeout) {
+        thBuildApi, thNotify, ThJobLogUrlModel, ThModelErrors, thTabs,
+        $timeout, thJobSearchStr) {
 
         var $log = new ThLog("PluginCtrl");
 
         $scope.job = {};
         $scope.artifacts = {};
 
-        var setBuildernameHref = function(buildername){
+        var getJobSearchStrHref = function(jobSearchStr){
 
             var absUrl = $location.absUrl();
             var delimiter = '?';
@@ -34,13 +35,11 @@ treeherder.controller('PluginCtrl', [
                 delimiter = '&';
             }
 
-            $scope.buildbotJobnameHref = absUrl + delimiter +
-                                         'filter-searchStr=' + buildername;
-
+            return absUrl + delimiter + 'filter-searchStr=' + jobSearchStr;
         };
 
-        $scope.filterByBuildername = function(buildbotJobname) {
-            thJobFilters.replaceFilter('searchStr', buildbotJobname || null);
+        $scope.filterByJobSearchStr = function(jobSearchStr) {
+            thJobFilters.replaceFilter('searchStr', jobSearchStr || null);
         };
 
         // this promise will void all the ajax requests
@@ -104,13 +103,20 @@ treeherder.controller('PluginCtrl', [
                     }
                     // the second result come from the buildapi artifact promise
                     var buildapi_artifact = results[1];
+
+                    // if this is a buildbot job use the buildername for searching
                     if (buildapi_artifact.length > 0 &&
                         _.has(buildapi_artifact[0], 'blob')){
                         // this is needed to cancel/retrigger jobs
                         $scope.artifacts.buildapi = buildapi_artifact[0];
-                        $scope.buildbotJobname = $scope.artifacts.buildapi.blob.buildername;
-                        setBuildernameHref($scope.buildbotJobname);
                     }
+
+                    // filtering values for data fields and signature
+                    $scope.jobSearchStr = thJobSearchStr($scope.job);
+                    $scope.jobSearchSignature = $scope.job.signature;
+                    $scope.jobSearchStrHref = getJobSearchStrHref($scope.jobSearchStr);
+                    $scope.jobSearchSignatureHref = getJobSearchStrHref($scope.job.signature);
+
                     // the third result comes from the job info artifact promise
                     var jobInfoArtifact = results[2];
                     if (jobInfoArtifact.length > 0) {
@@ -177,9 +183,10 @@ treeherder.controller('PluginCtrl', [
                              $scope.job.build_platform  + " " +
                              $scope.job.build_os || undef
                 };
-                if (_.has($scope.artifacts, "buildapi")) {
-                    $scope.buildbotJobname = $scope.artifacts.buildapi.blob.buildername;
-                    setBuildernameHref($scope.buildbotJobname);
+
+                // if the buildername exists, add it as a field
+                if ($scope.artifacts.buildapi) {
+                    $scope.visibleFields.Buildername = $scope.artifacts.buildapi.blob.buildername;
                 }
 
                 // time fields to show in detail panel, but that should be grouped together

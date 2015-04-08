@@ -141,12 +141,13 @@
       <ul class="content-spacer">
         <li class="small">
           <label>Job:</label>
-          <a title="Filter jobs like these"
-             href="{{buildbotJobnameHref}}"
+          <a title="Filter by job data strings"
+             href="{{jobSearchStrHref}}"
              prevent-default-on-left-click
-             ng-click="filterByBuildername(buildbotJobname)"
-             copy-value="{{buildbotJobname}}">
-            {{buildbotJobname}}</a>
+             ng-click="filterByJobSearchStr(jobSearchStr)"
+             copy-value="{{jobSearchStr}}">
+            {{jobSearchStr}}</a>
+        </li>
         </li>
         <li class="small">
           <label>Machine name:</label>
