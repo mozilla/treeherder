@@ -31,7 +31,7 @@ treeherderApp.controller('MainCtrl', [
             $rootScope.selectedJob = null;
 
             // Clear the selected job display style
-            $rootScope.$emit(thEvents.clearJobStyles, $rootScope.selectedJob);
+            $rootScope.$emit(thEvents.clearSelectedJob, $rootScope.selectedJob);
 
             // Reset selected job to null to initialize nav position
             ThResultSetStore.setSelectedJob($rootScope.repoName);

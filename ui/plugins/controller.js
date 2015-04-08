@@ -159,6 +159,10 @@ treeherder.controller('PluginCtrl', [
                                 }, 5000);
                             }
                         });
+                    } else {
+                        // if all logs are parsed, then update the failure summary tab
+                        // because there may now be failures or bug suggestions
+                        thTabs.tabs.failureSummary.update();
                     }
                     $scope.lvUrl = thUrl.getLogViewerUrl($scope.job.id);
                     $scope.lvFullUrl = location.origin + "/" + $scope.lvUrl;
@@ -315,6 +319,15 @@ treeherder.controller('PluginCtrl', [
         $rootScope.$on(thEvents.jobClick, function(event, job) {
             selectJobAndRender(job.id);
             $rootScope.selectedJob = job;
+        });
+
+        $rootScope.$on(thEvents.clearSelectedJob, function(event, job) {
+            if(selectJobPromise !== null){
+                $timeout.cancel(selectJobPromise);
+            }
+            if( selectJobRetryPromise !== null){
+                $timeout.cancel(selectJobRetryPromise);
+            }
         });
 
         $scope.bug_job_map_list = [];

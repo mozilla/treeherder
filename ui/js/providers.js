@@ -201,7 +201,7 @@ treeherder.provider('thEvents', function() {
             jobsLoaded: "jobs-loaded-EVT",
 
             // after deselecting a job via click outside/esc
-            clearJobStyles: "clear-job-styles-EVT",
+            clearSelectedJob: "clear-selected-job-EVT",
 
             // fired when a global filter has changed
             globalFilterChanged: "status-filter-changed-EVT",

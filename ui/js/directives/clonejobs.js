@@ -145,7 +145,7 @@ treeherder.directive('thCloneJobs', [
           selectJob(job);
     });
 
-    $rootScope.$on(thEvents.clearJobStyles, function(ev, job) {
+    $rootScope.$on(thEvents.clearSelectedJob, function(ev, job) {
           clearSelectJobStyles();
     });
 
