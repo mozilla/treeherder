@@ -148,6 +148,14 @@
              copy-value="{{jobSearchStr}}">
             {{jobSearchStr}}</a>
         </li>
+        <li class="small">
+          <label>Filter:</label>
+          <a title="Filter by job signature SHA (more precise)"
+             href="{{jobSearchSignatureHref}}"
+             prevent-default-on-left-click
+             ng-click="filterByJobSearchStr(jobSearchSignature)"
+             copy-value="{{jobSearchSignature}}">
+            signature</a>
         </li>
         <li class="small">
           <label>Machine name:</label>
