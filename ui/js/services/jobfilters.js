@@ -158,7 +158,7 @@ treeherder.factory('thJobFilters', [
             if (_isFieldFilter(field)) {
                 if (field === QS_SEARCH_STR) {
                     // we cache this one a little differently
-                    fieldFilters[_withoutPrefix(field)] = values.replace(/ +(?= )/g, ' ').toLowerCase().split(' ');
+                    fieldFilters[_withoutPrefix(field)] = decodeURIComponent(values).replace(/ +(?= )/g, ' ').toLowerCase().split(' ');
                 } else {
                     var lowerVals = _.map(_toArray(values),
                                           function(v) {return v.toLowerCase();});
