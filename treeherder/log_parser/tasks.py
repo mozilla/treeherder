@@ -40,6 +40,11 @@ def parse_json_log(project, job_log_url, job_guid, check_errors=False):
     """
     Apply the Structured Log Fault Formatter to the structured log for a job.
     """
+    # The parse-json-log task has suddenly started taking 80x longer that it used to,
+    # which is causing a backlog in normal log parsing tasks too. The output of this
+    # task is not being used yet, so skip parsing until this is resolved.
+    # See bug 1152681.
+    return
 
     # don't parse a log if it's already been parsed
     if is_parsed(job_log_url):
