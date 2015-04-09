@@ -686,7 +686,7 @@ div#bottom-panel .navbar.navbar-dark .navbar-nav > li.active a:focus {
 }
 
 #bottom-left-panel, #bottom-center-panel {
-    background-color: #FCFCFC;
+    background-color: #fff;
     display: -webkit-flex;
     display:         flex;
     -webkit-flex-flow: column;
@@ -743,7 +743,6 @@ div#bottom-panel .navbar.navbar-dark .navbar-nav > li.active a:focus {
 #bottom-center-panel {
     -webkit-flex: 1 6;
     flex: 1 6;
-    background-color: #FCFCFC;
     padding:0px;
     min-width: 500px;
 }
@@ -1131,6 +1130,11 @@ ul.failure-summary-list li .btn-xs {
 .btn-jobs-revisions {
    padding-left: 14px !important;
    padding-right: 18px !important;
+}
+
+.btn-similar-jobs {
+    background: #fff;
+    cursor: default;
 }
 
  .job-btn.btn-dkgray,
@@ -1880,7 +1884,6 @@ fieldset[disabled] .btn-repo.active {
            flex-flow: row;
 }
 
-
 div.similar_jobs .right_panel{ border-left: 1px solid #101010; margin-right: 1px; overflow-y: auto; flex: 1 1; -webkit-flex: 1 1; }
 div.similar_jobs .right_panel form { overflow: hidden; background-color: #D3D3D3; }
 div.similar_jobs .right_panel form .checkbox input[type="checkbox"] { margin-left: 0px; position: relative; }
@@ -1889,8 +1892,25 @@ div.similar_jobs .right_panel .similar_job_detail table { width: 100%; overflow:
 
 div.similar_jobs .left_panel{ overflow: auto; flex: 1 1; -webkit-flex: 1 1; }
 div.similar_jobs .left_panel table{ margin-bottom: 7px;}
-div.similar_jobs .left_panel table tr.active>td{ background-color: #D3D3D3; }
-div.similar_jobs .left_panel table tr{ cursor: pointer; }
+
+/* We override bootstrap table style for cleaner layout */
+div.similar_jobs .left_panel table tr > td {
+    vertical-align: middle;
+    border-top: 1px solid lightgrey;
+    border-bottom: 0;
+    border-right: 0;
+    border-left: 0;
+}
+
+/* Selected Similar Job row in blue */
+div.similar_jobs .left_panel table tr.active > td {
+    background: #e2ebfa;
+    border-top: 1px solid darkgrey;
+    border-bottom: 1px solid darkgrey;
+}
+
+/* Avoid using the hand pointer unless we are on a link */
+div.similar_jobs .left_panel table tr { cursor: default; }
 
 #notification_box{
     position:fixed;
