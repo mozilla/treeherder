@@ -4,7 +4,7 @@
 
 "use strict";
 
-treeherder.controller('JobsCtrl', [
+treeherderApp.controller('JobsCtrl', [
     '$scope', '$http', '$rootScope', '$routeParams', 'ThLog',
     'thUrl', 'ThRepositoryModel', 'thDefaultRepo',
     'ThResultSetStore', 'thResultStatusList', '$location', 'thEvents',
@@ -104,7 +104,7 @@ treeherder.controller('JobsCtrl', [
 ]);
 
 
-treeherder.controller('ResultSetCtrl', [
+treeherderApp.controller('ResultSetCtrl', [
     '$scope', '$rootScope', '$http', 'ThLog', '$location',
     'thUrl', 'thServiceDomain', 'thResultStatusInfo', 'thDateFormat',
     'ThResultSetStore', 'thEvents', 'thJobFilters', 'thNotify',

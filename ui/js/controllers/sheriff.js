@@ -3,7 +3,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict';
-treeherder.controller('SheriffCtrl', [
+treeherderApp.controller('SheriffCtrl', [
     '$scope', '$rootScope', 'ThBuildPlatformModel', 'ThJobTypeModel',
     'thEvents', 'ThRepositoryModel', 'ThOptionCollectionModel',
     'ThJobExclusionModel', 'ThExclusionProfileModel', 'thNotify', '$q',

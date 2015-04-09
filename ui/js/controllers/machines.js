@@ -4,7 +4,7 @@
 
 "use strict";
 
-treeherder.controller('MachinesCtrl', [
+treeherderApp.controller('MachinesCtrl', [
     '$scope',
     function MachinesCtrl($scope){}
 ]);

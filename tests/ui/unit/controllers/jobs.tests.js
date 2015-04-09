@@ -9,7 +9,7 @@
 describe('JobsCtrl', function(){
     var $httpBackend, controller, jobsScope;
 
-    beforeEach(module('treeherder'));
+    beforeEach(module('treeherder.app'));
 
     beforeEach(inject(function ($injector, $rootScope, $controller) {
         var projectPrefix = '/api/project/mozilla-central/';

@@ -4,7 +4,7 @@
 
 "use strict";
 
-treeherder.controller('MainCtrl', [
+treeherderApp.controller('MainCtrl', [
     '$scope', '$rootScope', '$routeParams', '$location', 'ThLog',
     'ThRepositoryModel', 'thPinboard',
     'thClassificationTypes', 'thEvents', '$interval', '$window',

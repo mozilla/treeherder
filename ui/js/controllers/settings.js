@@ -3,7 +3,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 "use strict";
-treeherder.controller('SettingsCtrl', [
+treeherderApp.controller('SettingsCtrl', [
     '$scope', '$log',
     function SheriffController($scope, $log){
     }

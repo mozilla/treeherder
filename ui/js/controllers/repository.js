@@ -4,7 +4,7 @@
 
 "use strict";
 
-treeherder.controller('RepositoryMenuCtrl', [
+treeherderApp.controller('RepositoryMenuCtrl', [
     '$scope', 'ThRepositoryModel',
     function RepositoryMenuCtrl(
         $scope, ThRepositoryModel) {

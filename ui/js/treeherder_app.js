@@ -4,12 +4,11 @@
 
 'use strict';
 
-var treeherder = angular.module('treeherder',
-    ['ngResource','ui.bootstrap', 'ngSanitize', 'ngCookies', 'ngRoute',
-     'LocalStorageModule', 'mc.resizer']);
+var treeherderApp = angular.module('treeherder.app',
+                                   ['treeherder', 'ui.bootstrap', 'ngRoute',
+                                    'mc.resizer']);
 
-
-treeherder.config(function($routeProvider, $httpProvider, $logProvider) {
+treeherderApp.config(function($routeProvider, $httpProvider, $logProvider) {
 
     // enable or disable debug messages using $log.
     // comment out the next line to enable them
@@ -45,5 +44,3 @@ treeherder.config(function($routeProvider, $httpProvider, $logProvider) {
         }).
         otherwise({redirectTo: '/jobs'});
 });
-
-var logViewer = angular.module('logViewer',['treeherder']);

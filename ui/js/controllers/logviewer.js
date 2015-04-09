@@ -4,7 +4,7 @@
 
 'use strict';
 
-logViewer.controller('LogviewerCtrl', [
+logViewerApp.controller('LogviewerCtrl', [
     '$anchorScroll', '$http', '$location', '$q', '$rootScope', '$scope',
     '$timeout', 'ThJobArtifactModel', 'ThLog', 'ThLogSliceModel',
     function Logviewer(

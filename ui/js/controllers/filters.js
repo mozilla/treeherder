@@ -4,7 +4,7 @@
 
 "use strict";
 
-treeherder.controller('FilterPanelCtrl', [
+treeherderApp.controller('FilterPanelCtrl', [
     '$scope', '$rootScope', '$route', '$routeParams', '$location', 'ThLog',
     'thResultStatusList', 'thEvents', 'thJobFilters',
     'ThResultSetStore', 'thPinboard', 'thNotify', 'thFailureResults',
@@ -204,7 +204,7 @@ treeherder.controller('FilterPanelCtrl', [
     }
 ]);
 
-treeherder.controller('SearchCtrl', [
+treeherderApp.controller('SearchCtrl', [
     '$scope', '$rootScope', 'thEvents', 'thJobFilters', '$location',
     function SearchCtrl(
         $scope, $rootScope, thEvents, thJobFilters, $location){

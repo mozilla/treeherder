@@ -4,18 +4,7 @@
 
 "use strict";
 
-var perf = angular.module("perf", ['ui.router', 'ui.bootstrap']);
-
-/* Copied from providers.js */
-perf.provider('thServiceDomain', function() {
-    this.$get = function() {
-        if (window.thServiceDomain) {
-            return window.thServiceDomain;
-        } else {
-            return "";
-        }
-    };
-});
+var perf = angular.module("perf", ['ui.router', 'ui.bootstrap', 'treeherder']);
 
 perf.factory('getSeriesSummary', [ function() {
   return function(signature, signatureProps, optionCollectionMap) {
