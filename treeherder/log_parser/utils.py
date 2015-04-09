@@ -261,8 +261,8 @@ def post_log_artifacts(project,
         job_log_url['id']
     )
 
-    logger.debug("Downloading and extracting log information for guid "
-                 "'%s' (from %s)", job_guid, job_log_url['url'])
+    log_description = "%s %s (%s)" % (project, job_guid, job_log_url['url'])
+    logger.debug("Downloading/parsing log for %s", log_description)
 
     req = TreeherderRequest(
         protocol=settings.TREEHERDER_REQUEST_PROTOCOL,
@@ -276,8 +276,7 @@ def post_log_artifacts(project,
         artifact_list = extract_artifacts_cb(job_log_url['url'],
                                              job_guid, check_errors)
     except Exception as e:
-        logger.error("Failed to download and/or parse artifact for guid '%s': "
-                     "%s", job_guid, e)
+        logger.error("Failed to download/parse log for %s: %s", log_description, e)
         current_timestamp = time.time()
         req.send(
             update_endpoint,
@@ -314,8 +313,7 @@ def post_log_artifacts(project,
                 'parse_timestamp': current_timestamp
             }
         )
-        logger.debug("Finished posting artifact for guid '%s'" % job_guid)
+        logger.debug("Finished posting artifact for %s %s", project, job_guid)
     except Exception as e:
-        logger.error("Failed to upload parsed artifact for guid '%s': %s",
-                     job_guid, e)
+        logger.error("Failed to upload parsed artifact for %s: %s", log_description, e)
         _retry(e)
