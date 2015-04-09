@@ -110,6 +110,8 @@ def test_parse_log(jm, initial_data, jobs_with_local_log, sample_resultset,
     assert len(job_artifacts) >= 3
 
 
+# json-log parsing is disabled due to bug 1152681.
+@pytest.mark.xfail
 def test_parse_mozlog_log(jm, initial_data, jobs_with_local_mozlog_log,
                           sample_resultset, mock_send_request,
                           mock_get_remote_content,
