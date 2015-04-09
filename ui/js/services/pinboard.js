@@ -29,9 +29,9 @@ treeherder.factory('thPinboard', [
             classification.job_id = job.id;
             classification.create().
                 success(function(data) {
-                    thNotify.send("classification saved for " + job.platform + ": " + job.job_type_name, "success");
+                    thNotify.send("Classification saved for " + job.platform + ": " + job.job_type_name, "success");
                 }).error(function(data) {
-                    thNotify.send("error saving classification for " + job.platform + ": " + job.job_type_name, "danger");
+                    thNotify.send("Error saving classification for " + job.platform + ": " + job.job_type_name, "danger");
                     $log.debug("classification failed", data);
                 });
         }
@@ -46,9 +46,9 @@ treeherder.factory('thPinboard', [
             });
             bjm.create().
             success(function(data) {
-                thNotify.send("bug association saved for " + job.platform + ": " + job.job_type_name, "success");
+                thNotify.send("Bug association saved for " + job.platform + ": " + job.job_type_name, "success");
             }).error(function(data) {
-                thNotify.send("error saving bug association for " + job.platform + ": " + job.job_type_name, "danger");
+                thNotify.send("Error saving bug association for " + job.platform + ": " + job.job_type_name, "danger");
             });
         });
     };
