@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html ng-app="compare">
+<head>
+    <meta charset="iso-8859-1" />
+    <title>Compare Performance</title>
+    <!-- build:css css/perf.min.css -->
+    <link href="css/bootstrap.css" rel="stylesheet" media="screen">
+    <link href="css/perf.css" rel="stylesheet" media="screen">
+    <!-- endbuild -->
+    <link id="favicon" type="image/png" rel="shortcut icon" href="img/tree_open.png">
+    <style>
+    </style>
+</head>
+<body>
+
+  <section ui-view>
+  </section>
+
+  <script src="js/config/local.conf.js"></script>
+
+  <!-- build:js js/compare.min.js -->
+  <script src="vendor/jquery-2.0.3.js"></script>
+  <script src="vendor/underscore-min.js"></script>
+  <script src="vendor/angular/angular.js"></script>
+  <script src="vendor/angular/angular-route.js"></script>
+  <script src="vendor/angular/angular-resource.js"></script>
+  <script src="vendor/angular/angular-cookies.js"></script>
+  <script src="vendor/angular/angular-ui-router.js"></script>
+  <script src="vendor/angular/angular-sanitize.min.js"></script>
+  <script src="vendor/angular-local-storage.min.js"></script>
+  <script src="vendor/ui-bootstrap-tpls-0.11.2.min.js"></script>
+  <script src="vendor/bootstrap.js"></script>
+  <script src="vendor/mousetrap.min.js"></script>
+  <script src="js/treeherder.js"></script>
+  <script src="js/providers.js"></script>
+  <script src="js/compareperf.js"></script>
+  <!-- endbuild -->
+
+</body>
+</html>

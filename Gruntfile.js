@@ -51,9 +51,17 @@ module.exports = function(grunt) {
                     dest:'dist'
                 }
             },
+            compare: {
+                src:'webapp/app/compare.html',
+                nonull: true,
+                options:{
+                    dest:'dist'
+                }
+            },
         },
 
-        usemin:{ html:['dist/index.html', 'dist/help.html', 'dist/logviewer.html', 'dist/perf.html'] },
+        usemin:{ html:['dist/index.html', 'dist/help.html', 'dist/logviewer.html',
+                       'dist/perf.html', 'dist/compare.html'] },
 
         'cache-busting': {
             indexjs: {
@@ -72,6 +80,12 @@ module.exports = function(grunt) {
                 replace: ['dist/**/*.html'],
                 replacement: 'perf.min.js',
                 file: 'dist/js/perf.min.js',
+                cleanup: true
+            },
+            comparejs: {
+                replace: ['dist/**/*.html'],
+                replacement: 'compare.min.js',
+                file: 'dist/js/compare.min.js',
                 cleanup: true
             },
             indexcss: {
@@ -107,7 +121,8 @@ module.exports = function(grunt) {
                     { src:'webapp/app/index.html', dest:'dist/index.html', nonull: true },
                     { src:'webapp/app/help.html', dest:'dist/help.html', nonull: true },
                     { src:'webapp/app/logviewer.html', dest:'dist/logviewer.html', nonull: true },
-                    { src:'webapp/app/perf.html', dest:'dist/perf.html', nonull: true }
+                    { src:'webapp/app/perf.html', dest:'dist/perf.html', nonull: true },
+                    { src:'webapp/app/compare.html', dest:'dist/compare.html', nonull: true }
                 ]
             },
             // Copy img dir
@@ -202,6 +217,26 @@ module.exports = function(grunt) {
                 dest: 'dist/js/perf.min.js',
                 options: {
                     usemin: 'dist/js/perf.min.js',
+                    append: true,
+                    htmlmin: {
+                        collapseBooleanAttributes:      true,
+                        collapseWhitespace:             true,
+                        removeAttributeQuotes:          true,
+                        removeComments:                 true,
+                        removeEmptyAttributes:          true,
+                        removeRedundantAttributes:      true,
+                        removeScriptTypeAttributes:     true,
+                        removeStyleLinkTypeAttributes:  true,
+                        keepClosingSlash: true
+                    }
+                }
+            },
+            compare: {
+                cwd: 'webapp/app',
+                src: 'partials/perf/*.html',
+                dest: 'dist/js/compare.min.js',
+                options: {
+                    usemin: 'dist/js/compare.min.js',
                     append: true,
                     htmlmin: {
                         collapseBooleanAttributes:      true,
