@@ -7,7 +7,7 @@ from time import time
 from datadiff import diff
 
 from django.conf import settings
-from treeherder.etl.classification_mirroring import OrangeFactorBugRequest, BugzillaBugRequest
+from treeherder.etl.classification_mirroring import ElasticsearchDocRequest, BugzillaCommentRequest
 
 
 def test_tbpl_bug_request_body(jm, eleven_jobs_processed):
@@ -29,8 +29,7 @@ def test_tbpl_bug_request_body(jm, eleven_jobs_processed):
     submit_timestamp = int(time())
     who = "user@mozilla.com"
 
-    req = OrangeFactorBugRequest(jm.project, job_id,
-                                 bug_id, submit_timestamp, who)
+    req = ElasticsearchDocRequest(jm.project, job_id, bug_id, submit_timestamp, who)
     req.generate_request_body()
 
     expected = {
@@ -72,7 +71,7 @@ def test_tbpl_bugzilla_request_body(jm, eleven_jobs_processed):
     ]
 
     jm.store_job_artifact([bug_suggestions_placeholders])
-    req = BugzillaBugRequest(jm.project, job_id, bug_id, who)
+    req = BugzillaCommentRequest(jm.project, job_id, bug_id, who)
     req.generate_request_body()
 
     expected = {
@@ -112,7 +111,7 @@ def test_tbpl_bugzilla_comment_length_capped(jm, eleven_jobs_processed):
     ]
 
     jm.store_job_artifact([bug_suggestions_placeholders])
-    req = BugzillaBugRequest(jm.project, job_id, bug_id, who)
+    req = BugzillaCommentRequest(jm.project, job_id, bug_id, who)
     req.generate_request_body()
 
     assert len(req.body['comment']) == settings.BZ_MAX_COMMENT_LENGTH

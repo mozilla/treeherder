@@ -6,7 +6,7 @@
 This module contains
 """
 from celery import task
-from treeherder.etl.classification_mirroring import OrangeFactorBugRequest, BugzillaBugRequest
+from treeherder.etl.classification_mirroring import ElasticsearchDocRequest, BugzillaCommentRequest
 
 
 @task(name="submit-star-comment", max_retries=10, time_limit=30)
@@ -16,7 +16,7 @@ def submit_star_comment(project, job_id, bug_id, submit_timestamp, who):
     starcomment.php proxies then the request to orange factor
     """
     try:
-        req = OrangeFactorBugRequest(project, job_id, bug_id, submit_timestamp, who)
+        req = ElasticsearchDocRequest(project, job_id, bug_id, submit_timestamp, who)
         req.generate_request_body()
         req.send_request()
     except Exception as e:
@@ -35,7 +35,7 @@ def submit_bug_comment(project, job_id, bug_id, who):
     to add a new comment to the associated bug on bugzilla.
     """
     try:
-        req = BugzillaBugRequest(project, job_id, bug_id, who)
+        req = BugzillaCommentRequest(project, job_id, bug_id, who)
         req.generate_request_body()
         req.send_request()
     except Exception as e:
