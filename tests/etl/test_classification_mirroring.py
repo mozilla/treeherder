@@ -10,7 +10,7 @@ from django.conf import settings
 from treeherder.etl.classification_mirroring import ElasticsearchDocRequest, BugzillaCommentRequest
 
 
-def test_tbpl_bug_request_body(jm, eleven_jobs_processed):
+def test_elasticsearch_doc_request_body(jm, eleven_jobs_processed):
     """
     Test the request body is created correctly
     """
@@ -52,7 +52,7 @@ def test_tbpl_bug_request_body(jm, eleven_jobs_processed):
     assert req.body == expected, diff(expected, req.body)
 
 
-def test_tbpl_bugzilla_request_body(jm, eleven_jobs_processed):
+def test_bugzilla_comment_request_body(jm, eleven_jobs_processed):
     """
     Test the request body is created correctly
     """
@@ -88,7 +88,7 @@ def test_tbpl_bugzilla_request_body(jm, eleven_jobs_processed):
     assert req.body == expected
 
 
-def test_tbpl_bugzilla_comment_length_capped(jm, eleven_jobs_processed):
+def test_bugzilla_comment_length_capped(jm, eleven_jobs_processed):
     """
     Test that the total number of characters in the comment is capped correctly.
     """
