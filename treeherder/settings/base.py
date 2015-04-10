@@ -194,7 +194,7 @@ CELERY_QUEUES = (
     # parse a log on demand
     Queue('log_parser_hp', Exchange('default'), routing_key='parse_log.high_priority'),
     Queue('log_parser_json', Exchange('default'), routing_key='parse_log.json'),
-    # queue for mirroring the sheriffing activity to tbpl
+    # Queue for mirroring the failure classification activity to Bugzilla/Elasticsearch
     Queue('high_priority', Exchange('default'), routing_key='high_priority'),
     Queue('pushlog', Exchange('default'), routing_key='pushlog'),
     Queue('fetch_missing_push_logs', Exchange('default'), routing_key='fetch_missing_push_logs'),
@@ -327,7 +327,7 @@ else:
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-# Set this to True to submit bug associations to Bugzilla & OrangeFactor.
+# Set this to True to submit bug associations to Bugzilla & Elasticsearch.
 TBPL_BUGS_TRANSFER_ENABLED = True
 ES_HOST = "http://elasticsearch-zlb.webapp.scl3.mozilla.com:9200"
 
