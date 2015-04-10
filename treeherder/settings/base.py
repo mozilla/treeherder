@@ -329,7 +329,7 @@ USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Set this to True to submit bug associations to Bugzilla & Elasticsearch.
-TBPL_BUGS_TRANSFER_ENABLED = True
+MIRROR_CLASSIFICATIONS = True
 ES_HOST = "http://elasticsearch-zlb.webapp.scl3.mozilla.com:9200"
 
 # TBPLBOT is the Bugzilla account used to make the bug comments on
