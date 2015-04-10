@@ -391,7 +391,7 @@ class JobsModel(TreeherderModelBase):
         """
         publish_job_action.apply_async(
             args=[self.project, action, job['id'], requester],
-            routing_key='high_priority'
+            routing_key='publish_to_pulse'
         )
 
     def retrigger(self, requester, job):
@@ -678,7 +678,7 @@ class JobsModel(TreeherderModelBase):
                         submit_timestamp,
                         who
                     ],
-                    routing_key='high_priority'
+                    routing_key='classification_mirroring'
                 )
                 submit_bugzilla_comment.apply_async(
                     args=[
@@ -687,7 +687,7 @@ class JobsModel(TreeherderModelBase):
                         bug_id,
                         who,
                     ],
-                    routing_key='high_priority'
+                    routing_key='classification_mirroring'
                 )
 
     def delete_bug_job_map(self, job_id, bug_id):
@@ -2766,7 +2766,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             # Queue an event to notify pulse of these new resultsets
             publish_resultset.apply_async(
                 args=[self.project, inserted_result_set_ids],
-                routing_key='high_priority'
+                routing_key='publish_to_pulse'
             )
 
         return {

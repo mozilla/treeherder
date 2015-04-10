@@ -27,5 +27,5 @@ if [ ! -f $LOGFILE ]; then
 fi
 
 exec $NEWRELIC_ADMIN $CELERY -A treeherder worker -c 1 \
-     -Q high_priority -E --maxtasksperchild=500 \
+     -Q classification_mirroring,publish_to_pulse -E --maxtasksperchild=500 \
      --logfile=$LOGFILE -l INFO -n hp.%h
