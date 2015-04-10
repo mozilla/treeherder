@@ -3,8 +3,8 @@
 
 # sha256: yMvuXERhj0nnt8b5RabHSI5ah2V8oZp6a7Lm_ea6Dmg
 gunicorn==17.5
-# sha256: QgAgZcyYvJm1uuAITdsToK1hGhcdza9bqWcxk12nRKQ
-Django==1.7.4
+# sha256: 7sV9MhlQHsbmhWRoJvLrjndoepP-N0p-aZRJBSDbCT4
+Django==1.7.7
 # sha256: 6ESYN2-wUkFQQGlrefsPGF48cycpZwEJtPHiMDvmyfU
 celery==3.1.16
 # sha256: sZX6jrUgwymU2LvRY3AA3j0JZTKy5FGDgy28tlwhHo4
