@@ -513,7 +513,7 @@ JOB_NAME_BUILDERNAME = [
     {"regex": re.compile(r'b2g.*_unagi.*_nightly'), "desc": "Unagi Device Image Nightly"},
     {"regex": re.compile(r'b2g.*_wasabi.*_nightly'), "desc": "Wasabi Device Image Nightly"},
     {"regex": re.compile(r'b2g.*_nightly'), "desc": "Unknown B2G Device Image Nightly"},
-    {"regex": re.compile(r'nightly l10n|(?:l10n|localizer) nightly'), "desc": "L10n Nightly"},
+    {"regex": re.compile(r'(?:l10n|localizer) nightly'), "desc": "L10n Nightly"},
     {"regex": re.compile(r'nightly'), "desc": "Nightly"},
     {"regex": re.compile(r'b2g.*_dolphin-512_eng.*_(?:dep|periodic)'), "desc": "Dolphin-512 Device Image Build (Engineering)"},
     {"regex": re.compile(r'b2g.*_dolphin_eng.*_(?:dep|periodic)'), "desc": "Dolphin Device Image Build (Engineering)"},
@@ -917,8 +917,8 @@ SYMBOLS = {
     "Unknown": "?",
 }
 
-# Match the job part number from buildernames such as "... mochitest-5" or "l10n 2/3"
-NUMBER_RE = re.compile(r"[ -](\d+)(?:/\d+)?$")
+# Match the job part number from buildernames such as "... mochitest-5"
+NUMBER_RE = re.compile(r".*-(\d+)$")
 
 
 def extract_platform_info(source_string):
@@ -996,7 +996,7 @@ def get_symbol(name, bn):
 
     s = SYMBOLS.get(name, "?")
 
-    nummatch = NUMBER_RE.search(bn)
+    nummatch = NUMBER_RE.match(bn)
     n = nummatch.group(1) if nummatch else ""
 
     # For multi-part Mochitest, Mochitest-e10s, Mochitest OOP & W3C Web Platform
