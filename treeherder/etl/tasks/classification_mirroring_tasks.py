@@ -6,7 +6,7 @@
 This module contains
 """
 from celery import task
-from treeherder.etl.tbpl import OrangeFactorBugRequest, BugzillaBugRequest
+from treeherder.etl.classification_mirroring import OrangeFactorBugRequest, BugzillaBugRequest
 
 
 @task(name="submit-star-comment", max_retries=10, time_limit=30)

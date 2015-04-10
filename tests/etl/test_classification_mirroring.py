@@ -7,7 +7,7 @@ from time import time
 from datadiff import diff
 
 from django.conf import settings
-from treeherder.etl.tbpl import OrangeFactorBugRequest, BugzillaBugRequest
+from treeherder.etl.classification_mirroring import OrangeFactorBugRequest, BugzillaBugRequest
 
 
 def test_tbpl_bug_request_body(jm, eleven_jobs_processed):
