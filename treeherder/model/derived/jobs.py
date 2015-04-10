@@ -663,7 +663,7 @@ class JobsModel(TreeherderModelBase):
         except IntegrityError as e:
             raise JobDataIntegrityError(e)
 
-        if settings.TBPL_BUGS_TRANSFER_ENABLED:
+        if settings.MIRROR_CLASSIFICATIONS:
             job = self.get_job(job_id)[0]
             if job["state"] == "completed":
                 # importing here to avoid an import loop

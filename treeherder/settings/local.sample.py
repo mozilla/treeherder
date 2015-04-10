@@ -31,8 +31,8 @@ TEST_DB_PREFIX = ""
 
 SITE_URL = "http://local.treeherder.mozilla.org"
 
-# Set this to True to submit bug associations to Bugzilla & OrangeFactor.
-TBPL_BUGS_TRANSFER_ENABLED = False
+# Set this to True to submit bug associations to Bugzilla & Elasticsearch.
+MIRROR_CLASSIFICATIONS = False
 
 # TBPLBOT is the Bugzilla account used to make the bug comments on
 # intermittent failure bugs when failures are classified.

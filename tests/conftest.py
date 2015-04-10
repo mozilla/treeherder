@@ -52,7 +52,8 @@ def pytest_sessionstart(session):
     settings.CELERY_ALWAYS_EAGER = True
     settings.CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 
-    settings.TBPL_BUGS_TRANSFER_ENABLED = False
+    # Don't attempt to submit bug associations to Bugzilla & Elasticsearch.
+    settings.MIRROR_CLASSIFICATIONS = False
 
     # Reconfigure pulse to operate on default vhost of rabbitmq
     settings.PULSE_URI = settings.BROKER_URL
