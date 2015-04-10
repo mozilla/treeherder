@@ -48,7 +48,7 @@ BuildbotLogViewArtifactBuilder
 
 BuildbotJobArtifactBuilder
 -------------
-* Builds an artifact for the TBPL main UI panel
+* Builds an artifact for the Treeherder job details panel
 * Parsers:
 * ErrorParser
 * TinderboxPrintParser

@@ -62,7 +62,7 @@ def get_error_search_term(error_line):
     if not error_line:
         return None
 
-    # this is STRONGLY inspired to
+    # This is strongly inspired by
     # https://hg.mozilla.org/webtools/tbpl/file/tip/php/inc/AnnotatedSummaryGenerator.php#l73
 
     tokens = error_line.split(" | ")

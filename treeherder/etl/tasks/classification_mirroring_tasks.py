@@ -2,9 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-"""
-This module contains
-"""
 from celery import task
 from treeherder.etl.classification_mirroring import ElasticsearchDocRequest, BugzillaCommentRequest
 
@@ -12,8 +9,8 @@ from treeherder.etl.classification_mirroring import ElasticsearchDocRequest, Bug
 @task(name="submit-star-comment", max_retries=10, time_limit=30)
 def submit_star_comment(project, job_id, bug_id, submit_timestamp, who):
     """
-    Send a post request to tbpl's starcomment.php containing a bug association.
-    starcomment.php proxies then the request to orange factor
+    Mirror the classification to Elasticsearch using a post request, until
+    OrangeFactor is rewritten to use Treeherder's API directly.
     """
     try:
         req = ElasticsearchDocRequest(project, job_id, bug_id, submit_timestamp, who)
@@ -31,8 +28,9 @@ def submit_star_comment(project, job_id, bug_id, submit_timestamp, who):
 @task(name="submit-bug-comment", max_retries=10, time_limit=30)
 def submit_bug_comment(project, job_id, bug_id, who):
     """
-    Send a post request to tbpl's submitBugzillaComment.php
-    to add a new comment to the associated bug on bugzilla.
+    Send a post request to Bugzilla's REST API to add a new comment to the associated bug.
+    In the future this will be removed in favour of periodic (eg once a week) summary comments
+    on intermittent failure bugs, made by OrangeFactor v2 or similar.
     """
     try:
         req = BugzillaCommentRequest(project, job_id, bug_id, who)

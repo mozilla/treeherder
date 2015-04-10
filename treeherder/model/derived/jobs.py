@@ -669,8 +669,7 @@ class JobsModel(TreeherderModelBase):
                 # importing here to avoid an import loop
                 from treeherder.etl.tasks import (submit_star_comment,
                                                   submit_bug_comment)
-                # Submit bug associations to Bugzilla/ElasticSearch
-                # using async tasks.
+                # Submit bug associations to Bugzilla/Elasticsearch using async tasks.
                 submit_star_comment.apply_async(
                     args=[
                         self.project,

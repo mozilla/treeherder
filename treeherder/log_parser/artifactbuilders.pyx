@@ -72,9 +72,7 @@ class BuildbotJobArtifactBuilder(ArtifactBuilderBase):
     """
     Gather error and details for this job.
 
-    This parser gathers the data that shows on the bottom panel of the main
-    TBPL page.
-
+    This parser gathers the data that shows in the job details panel.
     """
 
     def __init__(self, url=None):

@@ -25,7 +25,7 @@ class ElasticsearchDocRequest(object):
 
     def generate_request_body(self):
         """
-        Create the data structure that will be sent to ElasticSearch.
+        Create the data structure that will be sent to Elasticsearch.
         """
         with JobsModel(self.project) as jm:
             job_data = jm.get_job(self.job_id)[0]
@@ -67,7 +67,7 @@ class ElasticsearchDocRequest(object):
 
     def send_request(self):
         """
-        Send request to ElasticSearch.
+        Send request to Elasticsearch.
         """
         es_host = settings.ES_HOST
         es_endpoint = "/bugs/bug_info/"
