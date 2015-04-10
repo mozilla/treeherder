@@ -13,7 +13,7 @@ from django.conf import settings
 logger = logging.getLogger(__name__)
 
 
-class OrangeFactorBugRequest(object):
+class ElasticsearchDocRequest(object):
 
     def __init__(self, project, job_id, bug_id, submit_timestamp, who):
         self.project = project
@@ -82,7 +82,7 @@ class OrangeFactorBugRequest(object):
             raise
 
 
-class BugzillaBugRequest(object):
+class BugzillaCommentRequest(object):
 
     def __init__(self, project, job_id, bug_id, who):
         self.project = project
