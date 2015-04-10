@@ -432,6 +432,7 @@ JOB_NAME_BUILDERNAME = [
     {"regex": re.compile(r'mochitest-(?:web)?gl'), "desc": "Mochitest WebGL"},
     {"regex": re.compile(r'mochitest-oop'), "desc": "Mochitest OOP"},
     {"regex": re.compile(r'mochitest-chrome'), "desc": "Mochitest Chrome"},
+    {"regex": re.compile(r'mochitest-push'), "desc": "Mochitest Push"},
     {"regex": re.compile(r'mochitest'), "desc": "Mochitest"},
     {"regex": re.compile(r'webapprt-chrome$'), "desc": "Webapprt Chrome"},
     {"regex": re.compile(r'webapprt-content$'), "desc": "Webapprt Content"},
@@ -622,6 +623,7 @@ GROUP_NAMES = {
     "L10n Nightly": "L10n Repack",
     "Android x86 Test Set": "Android x86 Test Combos",
     "Mochitest": "Mochitest",
+    "Mochitest Push": "Mochitest",
     "Mochitest Browser Chrome": "Mochitest",
     "Mochitest Chrome": "Mochitest",
     "Mochitest DevTools Browser Chrome": "Mochitest",
@@ -818,6 +820,7 @@ SYMBOLS = {
     # Mochitests and reftests come next since they're the most common tests
     # run across all platforms and therefore benefit from better vertical alignment.
     "Mochitest": "M",
+    "Mochitest Push": "p",
     "Mochitest Browser Chrome": "bc",
     "Mochitest Chrome": "c",
     "Mochitest DevTools Browser Chrome": "dt",
