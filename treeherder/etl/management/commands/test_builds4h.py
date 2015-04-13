@@ -8,7 +8,7 @@ from treeherder.etl import buildapi
 
 class Command(BaseCommand):
 
-    """Management command to run mozilla pulse consumer."""
+    """Management command to run the builds-4hr analyser."""
 
     help = (
         "Tests the buildernames and data structures in the builds4h.js"

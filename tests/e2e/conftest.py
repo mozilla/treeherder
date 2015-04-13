@@ -30,7 +30,7 @@ def running_jobs():
 
 @pytest.fixture
 def completed_jobs(sample_data):
-    """returns a list of pulse completed jobs"""
+    """returns a list of buildapi completed jobs"""
     with open(os.path.join(base_dir, "finished.json")) as f:
         content = f.read()
         t = Template(content)

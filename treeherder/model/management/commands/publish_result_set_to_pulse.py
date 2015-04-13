@@ -8,7 +8,7 @@ from treeherder.model.tasks import publish_to_pulse
 
 
 class Command(BaseCommand):
-    help = """Cycle data that exceeds the time constraint limit"""
+    help = """Publish specified result sets to Pulse"""
 
     option_list = BaseCommand.option_list + (
 
