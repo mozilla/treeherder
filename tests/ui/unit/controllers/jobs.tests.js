@@ -12,7 +12,8 @@ describe('JobsCtrl', function(){
     beforeEach(module('treeherder.app'));
 
     beforeEach(inject(function ($injector, $rootScope, $controller) {
-        var projectPrefix = '/api/project/mozilla-central/';
+        var activeRepo = 'mozilla-central';
+        var projectPrefix = '/api/project/' + activeRepo + '/';
 
         $httpBackend = $injector.get('$httpBackend');
         jasmine.getJSONFixtures().fixturesPath='base/test/mock';
@@ -58,6 +59,7 @@ describe('JobsCtrl', function(){
         );
 
         jobsScope = $rootScope.$new();
+        jobsScope.repoName = activeRepo;
         jobsScope.setRepoPanelShowing = function(tf) {
                 // no op in the tests.
         };
