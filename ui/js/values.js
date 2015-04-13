@@ -122,6 +122,6 @@ treeherder.value("thRepoGroupOrder", {
     "qa automation tests": 6
 });
 
-treeherder.value("thDefaultRepo", "mozilla-central");
+treeherder.value("thDefaultRepo", "mozilla-inbound");
 
 treeherder.value("thDateFormat", "EEE MMM d, H:mm:ss");

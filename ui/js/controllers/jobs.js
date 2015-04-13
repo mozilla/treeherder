@@ -22,7 +22,7 @@ treeherderApp.controller('JobsCtrl', [
             ThResultSetStore.fetchResultSets($scope.repoName, count, keepFilters);
         };
 
-        // set the default repo to mozilla-central if not specified
+        // set to the default repo if one not specified
         if ($routeParams.hasOwnProperty("repo") &&
             $routeParams.repo !== "") {
             $rootScope.repoName = $routeParams.repo;
