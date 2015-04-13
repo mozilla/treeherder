@@ -28,7 +28,6 @@ fi
 
 exec $NEWRELIC_ADMIN $CELERY -A treeherder worker \
     -Q pushlog,fetch_missing_push_logs \
-    -P gevent \
     --concurrency=5 --logfile=$LOGFILE -l INFO \
     --maxtasksperchild=500 -n pushlog.%h
 
