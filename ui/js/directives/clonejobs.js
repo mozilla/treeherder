@@ -56,19 +56,11 @@ treeherder.directive('thCloneJobs', [
         };
 
     var getHoverText = function(job) {
-
-        var jobStatus = thResultStatus(job);
-        var hoverText = job.job_type_name + " - " + jobStatus;
-
+        var hoverText = job.job_type_name + " - " + thResultStatus(job);
         if (job.state === 'completed') {
             var duration = Math.round((job.end_timestamp - job.start_timestamp) / 60);
-            hoverText += " - " + duration + " mins";
+            hoverText += " (" + duration + " mins)";
         }
-
-        if (job.job_type_description !== "fill me") {
-            hoverText += " (" + job.job_type_description + ")";
-        }
-
         return hoverText;
     };
 

@@ -176,6 +176,8 @@
                  ng-repeat="job_log_url in job_log_urls"
                  title="Open build directory in a new tab"
                  href={{job_log_url.buildUrl}} target="_blank">{{value}}</a>
+              <span ng-switch-when="Job name"
+                 title="{{job.job_type_description}}">{{value}}</span>
               <span ng-switch-default>{{value}}</span>
           </span>
         </li>
