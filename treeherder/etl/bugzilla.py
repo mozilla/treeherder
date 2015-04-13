@@ -14,6 +14,7 @@ def get_bz_source_url():
     hostname = settings.BZ_API_URL
     params = {
         'keywords': 'intermittent-failure',
+        'chfieldfrom': '-1y',
         'include_fields': ('id,summary,status,resolution,'
                            'op_sys,cf_crash_signature, '
                            'keywords, last_change_time')
