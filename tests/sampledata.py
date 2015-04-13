@@ -34,7 +34,6 @@ class SampleData(object):
             return json.loads(f.read())
 
     def __init__(self):
-
         self.job_data_file = "{0}/sample_data/job_data.txt".format(
             os.path.dirname(__file__)
         )
@@ -43,9 +42,6 @@ class SampleData(object):
             os.path.dirname(__file__)
         )
 
-        self.raw_pulse_data_file = "{0}/sample_data/raw_pulse_data.txt".format(
-            os.path.dirname(__file__)
-        )
         self.logs_dir = "{0}/sample_data/logs".format(
             os.path.dirname(__file__)
         )
@@ -62,13 +58,11 @@ class SampleData(object):
             self.job_artifact = f.readlines()
 
         self.job_data = []
-        self.raw_pulse_data = []
         self.resultset_data = []
 
         self.initialize_data()
 
     def initialize_data(self):
-
         with open(self.job_data_file) as f:
             for line in f.readlines():
                 self.job_data.append(json.loads(line.strip()))
@@ -82,11 +76,6 @@ class SampleData(object):
             for rs in self.resultset_data:
                 for rev in rs["revisions"]:
                     rev["repository"] = settings.DATABASES["default"]["TEST_NAME"]
-
-        with open(self.raw_pulse_data_file) as f:
-            for line in f:
-                line = str(line).strip()
-                self.raw_pulse_data.append(json.loads(line))
 
     def get_log_path(self, name):
         """Returns the full path to a log file"""
