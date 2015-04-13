@@ -19,12 +19,6 @@ Celery task worker
 ------------------
 
 This service executes asynchronous tasks that can be by triggered by the celerybeat task scheduler or by another worker.
-In a typical treeherder deployment you will have two different pools of workers:
-
-*  a gevent based pool, generally good for I/O bound tasks
-* a pre-fork based pool, generally good for CPU bound tasks
-
-In the bin directory of treeherder-service there's a script to run both these type of pools.
 
 Celerybeat task scheduler
 -------------------------
