@@ -13,12 +13,6 @@ kombu==3.0.23
 simplejson==3.3.0
 # sha256: xbVbC9QOI6nLzSwb3v6XcfxYNpOKzvdyeVgTpvZDLEg
 Cython==0.19.2
-# sha256: v6nYRtuRp9i2o26HNT7tZBx-Pn0L-guZdXltIn8ttOs
-gevent==1.0
-
-# Required by gevent
-# sha256: 6mcVkvhGBUEoaxM-1Gps9TEaa3UFHMMbU-K8OJkrd1o
-greenlet==0.4.1
 
 # Required by datasource
 # sha256: gRBAtkfl1WhvhNtBXv1pfmJQAIsRK2kJunesBZ4UDHQ
