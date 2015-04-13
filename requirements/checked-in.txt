@@ -3,17 +3,19 @@
 
 # sha256: ZrvGLZUZ-dUxsfd-aH2fL15SHLkG8f1yMfQDmX4BEMQ
 python-memcached==1.48
-# sha256: JBCxLff2m0vMGqsRQdocAj3upJkyx1wsElnelirzjUM
-MozillaPulse==0.61
+
 # sha256: WvNmhsJxCX8l7AI1RsOXy5m8Z6XbODblLms3vbRcoh4
 jsonschema==2.4.0
 
 # sha256: bepaymikSS98VG-BpYKor6B1iVsgaNpQlsaWtnp9IRQ
 djangorestframework==2.3.12
+
 # sha256: unxvfRm1wULqarib4wZvS4WVP3dAqBQH-D79uLDhucg
 django-rest-swagger==0.1.11
+
 # sha256: 8u-vP9Q2RPHMpK2_IzTmTBZ5QCV-BRLG_7W81vsxcDc
 drf-extensions==0.2.5
+
 # sha256: K4vVpzVtJqYxx0mHxxkr4PmTT-zym6or5e6e8kfCtU0
 django-cors-headers==0.11
 
@@ -25,17 +27,15 @@ oauth2==1.5.211
 
 # sha256: ypUhfKaLiyr3zomc5t2J9KIVYqiIqYFCBXbtyHJJEXE
 jsonfield==0.9.20
+
 # sha256: HYBs6IKx3VBrKM04OI_9AhHx2ASI7eeJLEwmMF1e7GA
 mozlog==2.10
 
 # sha256: ImrtF9QIcMI8Ivl_3KZPtrDs557NAbzNptFgD5uEFkA
 https://github.com/jeads/datasource/archive/2f09c9cc8700be71c1e63bc4f34c6cc05ffc5a66.zip#egg=datasource
+
 # sha256: W3vd4fNt2t-31K2-CEk-jTDF0BsjaZfWOQmwLlpC_nw
 https://github.com/mozilla/treeherder-client/archive/f236a3487eb042638836d4d9c9f79d51cab2a362.zip#egg=treeherder-client
-
-# Required by MozillaPulse
-# sha256: y0Y3TzyIPFgNFCp50mCYg3E6hnzIbgUUFjrc54TOJGg
-carrot==0.10.7
 
 # Required by django-rest-swagger
 # sha256: 7wE5rDCRO0Po04ij53blNKIvgZdZZpaNKDaewDOKabc
