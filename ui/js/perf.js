@@ -30,9 +30,9 @@ perf.factory('getSeriesSummary', [ function() {
 }]);
 
 perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', '$location',
-                              '$modal', 'thServiceDomain', '$http', '$q', '$timeout', 'getSeriesSummary',
+                              '$modal', 'thServiceDomain', '$http', '$q', '$timeout', 'getSeriesSummary', 'ThOptionCollectionModel',
   function PerfCtrl($state, $stateParams, $scope, $rootScope, $location, $modal,
-                    thServiceDomain, $http, $q, $timeout, getSeriesSummary) {
+                    thServiceDomain, $http, $q, $timeout, getSeriesSummary, ThOptionCollectionModel) {
 
     var availableColors = [ 'red', 'green', 'blue', 'orange', 'purple' ];
 
@@ -650,12 +650,14 @@ perf.controller('PerfCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', 
 
     var optionCollectionMap = {};
 
-    $http.get(thServiceDomain + '/api/optioncollectionhash').then(
-      function(response) {
-        response.data.forEach(function(dict) {
-          optionCollectionMap[dict.option_collection_hash] =
-            dict.options.map(function(option) {
-              return option.name; }).join(" ");
+    ThOptionCollectionModel.get_list().success(
+      function(optCollectionData) {
+          // gather the string representations of option collections
+        _.each(optCollectionData, function(optColl) {
+          optionCollectionMap[optColl.option_collection_hash] =
+            _.uniq(_.map(optColl.options, function(option) {
+              return option.name;
+            })).sort().join();
         });
       }).then(function() {
         if ($stateParams.series) {
