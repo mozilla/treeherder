@@ -205,6 +205,12 @@ def sample_resultset(sample_data):
 
 
 @pytest.fixture
+def test_project():
+    from django.conf import settings
+    return settings.DATABASES["default"]["TEST_NAME"]
+
+
+@pytest.fixture
 def test_repository():
     from django.conf import settings
     from treeherder.model.models import Repository, RepositoryGroup

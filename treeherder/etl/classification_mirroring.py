@@ -7,7 +7,7 @@ import logging
 
 import simplejson as json
 import requests
-from treeherder.model.derived import JobsModel
+from treeherder.model.derived import JobsModel, ArtifactsModel
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
@@ -27,11 +27,11 @@ class ElasticsearchDocRequest(object):
         """
         Create the data structure that will be sent to Elasticsearch.
         """
-        with JobsModel(self.project) as jm:
-            job_data = jm.get_job(self.job_id)[0]
-            option_collection = jm.refdata_model.get_all_option_collections()
-            revision_list = jm.get_resultset_revisions_list(job_data["result_set_id"])
-            buildapi_artifact = jm.get_job_artifact_list(0, 1, {
+        with JobsModel(self.project) as jobs_model, ArtifactsModel(self.project) as artifacts_model:
+            job_data = jobs_model.get_job(self.job_id)[0]
+            option_collection = jobs_model.refdata_model.get_all_option_collections()
+            revision_list = jobs_model.get_resultset_revisions_list(job_data["result_set_id"])
+            buildapi_artifact = artifacts_model.get_job_artifact_list(0, 1, {
                 'job_id': set([("=", self.job_id)]),
                 'name': set([("=", "buildapi")])
             })
@@ -96,9 +96,9 @@ class BugzillaCommentRequest(object):
         Create a comment describing the failure, that will be posted to Bugzilla.
         This is triggered by a new bug-job association.
         """
-        with JobsModel(self.project) as jm:
-            job = jm.get_job(self.job_id)[0]
-            failures_artifacts = jm.get_job_artifact_list(0, 1, {
+        with JobsModel(self.project) as jobs_model, ArtifactsModel(self.project) as artifacts_model:
+            job = jobs_model.get_job(self.job_id)[0]
+            failures_artifacts = artifacts_model.get_job_artifact_list(0, 1, {
                 'job_id': set([('=', job['id'])]),
                 'name': set([('=', 'Bug suggestions')]),
             })
@@ -108,11 +108,11 @@ class BugzillaCommentRequest(object):
                 # [{ "search": "my-error-line", "search_terms": [], "bugs": ....}]
                 error_lines += [line["search"] for line in artifact["blob"]]
 
-            revision_list = jm.get_resultset_revisions_list(
+            revision_list = jobs_model.get_resultset_revisions_list(
                 job["result_set_id"]
             )
 
-            buildapi_info = jm.get_job_artifact_list(0, 1, {
+            buildapi_info = artifacts_model.get_job_artifact_list(0, 1, {
                 'job_id': set([("=", self.job_id)]),
                 'name': set([("=", "buildapi")])
             })

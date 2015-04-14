@@ -6,7 +6,6 @@ import simplejson as json
 import MySQLdb
 import time
 import logging
-import zlib
 from collections import defaultdict
 from datetime import datetime
 
@@ -32,9 +31,8 @@ from treeherder.events.publisher import JobStatusPublisher
 from treeherder.etl.common import get_guid_root
 
 from .base import TreeherderModelBase, ObjectNotFoundException
+from .artifacts import ArtifactsModel
 
-from treeherder.etl.perf_data_adapters import (PerformanceDataAdapter,
-                                               TalosDataAdapter)
 
 logger = logging.getLogger(__name__)
 
@@ -138,19 +136,6 @@ class JobsModel(TreeherderModelBase):
             "type": "type",
             "who": "who",
             "submit_timestamp": "submit_timestamp"
-        },
-        "job_artifact": {
-            "id": "id",
-            "job_id": "job_id",
-            "name": "name",
-            "type": "type"
-        },
-        "performance_artifact": {
-            "id": "id",
-            "job_id": "job_id",
-            "series_signature": "series_signature",
-            "name": "name",
-            "type": "type"
         }
     }
 
@@ -309,36 +294,6 @@ class JobsModel(TreeherderModelBase):
         )
         return data
 
-    def _process_conditions(self, conditions, allowed_fields=None):
-        """Transform a list of conditions into a list of placeholders and
-        replacement strings to feed a datahub.execute statement."""
-        placeholders = []
-        replace_str = ""
-        if conditions:
-            for column, condition in conditions.items():
-                if allowed_fields is None or column in allowed_fields:
-                    if column in allowed_fields:
-                        # we need to get the db column string from the passed
-                        # in querystring column.  It could be the same, but
-                        # often it will have a table prefix for the column.
-                        # This allows us to have where clauses on joined fields
-                        # of the query.
-                        column = allowed_fields[column]
-                    for operator, value in condition:
-                        replace_str += "AND {0} {1}".format(column, operator)
-                        if operator == "IN":
-                            # create a list of placeholders of the same length
-                            # as the list of values
-                            replace_str += "({0})".format(
-                                ",".join(["%s"] * len(value))
-                            )
-                            placeholders += value
-                        else:
-                            replace_str += " %s "
-                            placeholders.append(value)
-
-        return replace_str, placeholders
-
     def set_state(self, job_id, state):
         """Update the state of an existing job"""
         self.jobs_execute(
@@ -435,101 +390,6 @@ class JobsModel(TreeherderModelBase):
             debug_show=self.DEBUG,
         )
         return data
-
-    def get_job_artifact_references(self, job_id):
-        """
-        Return the job artifact references for the given ``job_id``.
-
-        This is everything about the artifact, but not the artifact blob
-        itself.
-        """
-        data = self.jobs_execute(
-            proc="jobs.selects.get_job_artifact_references",
-            placeholders=[job_id],
-            debug_show=self.DEBUG,
-        )
-        return data
-
-    def get_job_artifact_list(self, offset, limit, conditions=None):
-        """
-        Retrieve a list of job artifacts. The conditions parameter is a
-        dict containing a set of conditions for each key. e.g.:
-        {
-            'job_id': set([('IN', (1, 2))])
-        }
-        """
-
-        replace_str, placeholders = self._process_conditions(
-            conditions, self.INDEXED_COLUMNS['job_artifact']
-        )
-
-        repl = [replace_str]
-
-        proc = "jobs.selects.get_job_artifact"
-
-        data = self.jobs_execute(
-            proc=proc,
-            replace=repl,
-            placeholders=placeholders,
-            limit="{0},{1}".format(offset, limit),
-            debug_show=self.DEBUG,
-        )
-        for artifact in data:
-            # new blobs are gzip'ed to save space, old ones may not be
-            try:
-                artifact["blob"] = zlib.decompress(artifact["blob"])
-            except zlib.error:
-                pass
-
-            if artifact["type"] == "json":
-                artifact["blob"] = json.loads(artifact["blob"])
-
-        return data
-
-    def get_performance_artifact_list(self, offset, limit, conditions=None):
-        """
-        Retrieve a list of performance artifacts. The conditions parameter is a
-        dict containing a set of conditions for each key. e.g.:
-        {
-            'job_id': set([('IN', (1, 2))])
-        }
-        """
-
-        replace_str, placeholders = self._process_conditions(
-            conditions, self.INDEXED_COLUMNS['performance_artifact']
-        )
-
-        repl = [replace_str]
-
-        proc = "jobs.selects.get_performance_artifact_list"
-
-        data = self.jobs_execute(
-            proc=proc,
-            replace=repl,
-            placeholders=placeholders,
-            limit="{0},{1}".format(offset, limit),
-            debug_show=self.DEBUG,
-        )
-
-        for artifact in data:
-            # new blobs are gzip'ed to save space, old ones may not be
-            try:
-                artifact["blob"] = zlib.decompress(artifact["blob"])
-            except zlib.error:
-                pass
-
-            # performance artifacts are always json encoded
-            artifact["blob"] = json.loads(artifact["blob"])
-
-        return data
-
-    def get_max_performance_artifact_id(self):
-        """Get the maximum performance artifact id."""
-        data = self.get_jobs_dhub().execute(
-            proc="jobs.selects.get_max_performance_artifact_id",
-            debug_show=self.DEBUG,
-        )
-        return int(data[0]['max_id'] or 0)
 
     def get_max_job_id(self):
         """Get the maximum job id."""
@@ -1490,7 +1350,8 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         self._load_log_urls(log_placeholders, job_id_lookup,
                             job_results)
 
-        self.load_job_artifacts(artifact_placeholders, job_id_lookup)
+        with ArtifactsModel(self.project) as artifacts_model:
+            artifacts_model.load_job_artifacts(artifact_placeholders, job_id_lookup)
 
         # If there is already a job_id stored with pending/running status
         # we need to update the information for the complete job
@@ -1746,18 +1607,9 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         artifacts = job.get('artifacts', [])
         if artifacts:
-            for artifact in artifacts:
-                name = artifact.get('name')
-                artifact_type = artifact.get('type')
-
-                blob = artifact.get('blob')
-                if (artifact_type == 'json') and (not isinstance(blob, str)):
-                    blob = json.dumps(blob)
-
-                if name and artifact_type and blob:
-                    artifact_placeholders.append(
-                        [job_guid, name, artifact_type, blob, job_guid, name]
-                    )
+            ArtifactsModel.populate_placeholders(artifacts,
+                                                 artifact_placeholders,
+                                                 job_guid)
 
         return job_guid
 
@@ -2058,17 +1910,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             debug_show=self.DEBUG,
             placeholders=[parse_status, parse_timestamp, job_log_url_id])
 
-    def store_job_artifact(self, artifact_placeholders):
-        """
-        Store a list of job_artifacts given a list of placeholders
-        """
-
-        self.jobs_execute(
-            proc='jobs.inserts.set_job_artifact',
-            debug_show=self.DEBUG,
-            placeholders=artifact_placeholders,
-            executemany=True)
-
     def get_performance_series_from_signatures(self, signatures, interval_seconds):
 
         repl = [','.join(['%s'] * len(signatures))]
@@ -2152,72 +1993,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             ret.append(sigdict[signature])
 
         return ret
-
-    def get_job_signatures_from_ids(self, job_ids):
-
-        job_data = {}
-
-        if job_ids:
-
-            jobs_signatures_where_in_clause = [','.join(['%s'] * len(job_ids))]
-
-            job_data = self.jobs_execute(
-                proc='jobs.selects.get_signature_list_from_job_ids',
-                debug_show=self.DEBUG,
-                replace=jobs_signatures_where_in_clause,
-                key_column='job_guid',
-                return_type='dict',
-                placeholders=job_ids)
-
-        return job_data
-
-    def store_performance_artifact(
-            self, job_ids, performance_artifact_placeholders):
-        """
-        Store the performance data
-        """
-
-        # Retrieve list of job signatures associated with the jobs
-        job_data = self.get_job_signatures_from_ids(job_ids)
-
-        job_ref_data_signatures = set()
-        map(
-            lambda job_guid: job_ref_data_signatures.add(
-                job_data[job_guid]['signature']
-            ),
-            job_data.keys()
-        )
-
-        # Retrieve associated data in reference_data_signatures
-        reference_data = self.refdata_model.get_reference_data(
-            list(job_ref_data_signatures))
-
-        tda = TalosDataAdapter()
-
-        for perf_data in performance_artifact_placeholders:
-            job_guid = perf_data["job_guid"]
-            ref_data_signature = job_data[job_guid]['signature']
-            ref_data = reference_data[ref_data_signature]
-
-            if 'signature' in ref_data:
-                del ref_data['signature']
-
-            # adapt and load data into placeholder structures
-            tda.adapt_and_load(ref_data, job_data, perf_data)
-
-        self.jobs_execute(
-            proc="jobs.inserts.set_performance_artifact",
-            debug_show=self.DEBUG,
-            placeholders=tda.performance_artifact_placeholders,
-            executemany=True)
-
-        self.jobs_execute(
-            proc='jobs.inserts.set_series_signature',
-            debug_show=self.DEBUG,
-            placeholders=tda.signature_property_placeholders,
-            executemany=True)
-
-        tda.submit_tasks(self.project)
 
     def store_performance_series(
             self, t_range, series_type, signature, series_data):
@@ -2307,133 +2082,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 proc='generic.locks.release_lock',
                 debug_show=self.DEBUG,
                 placeholders=[lock_string])
-
-    def load_job_artifacts(self, artifact_data, job_id_lookup):
-        """
-        Determine what type of artifacts are contained in artifact_data and
-        store a list of job artifacts substituting job_guid with job_id. All
-        of the datums in artifact_data need to be one of the three
-        different tasty "flavors" described below.
-
-        artifact_placeholders:
-
-            Comes in through the web service as the "artifacts" property
-            in a job in a job collection
-            (https://github.com/mozilla/treeherder-client#job-collection)
-
-            A list of lists
-            [
-                [job_guid, name, artifact_type, blob, job_guid, name]
-            ]
-
-        job_artifact_collection:
-
-            Comes in  through the web service as an artifact collection.
-            (https://github.com/mozilla/treeherder-client#artifact-collection)
-
-            A list of job artifacts:
-            [
-                {
-                    'type': 'json',
-                    'name': 'my-artifact-name',
-                    # blob can be any kind of structured data
-                    'blob': { 'stuff': [1, 2, 3, 4, 5] },
-                    'job_guid': 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
-                }
-            ]
-
-        performance_artifact:
-
-            Same structure as a job_artifact_collection but the blob contains
-            a specialized data structure designed for performance data.
-        """
-        artifact_placeholders_list = []
-        job_artifact_list = []
-
-        performance_artifact_list = []
-        performance_artifact_job_id_list = []
-
-        for index, artifact in enumerate(artifact_data):
-
-            # Determine what type of artifact we have received
-            if artifact:
-
-                job_id = None
-                job_guid = None
-
-                if isinstance(artifact, list):
-
-                    job_guid = artifact[0]
-                    job_id = job_id_lookup.get(job_guid, {}).get('id', None)
-
-                    self._adapt_job_artifact_placeholders(
-                        artifact, artifact_placeholders_list, job_id)
-
-                else:
-                    artifact_name = artifact['name']
-                    job_guid = artifact.get('job_guid', None)
-                    job_id = job_id_lookup.get(
-                        artifact['job_guid'], {}
-                    ).get('id', None)
-
-                    if artifact_name in PerformanceDataAdapter.performance_types:
-                        self._adapt_performance_artifact_collection(
-                            artifact, performance_artifact_list,
-                            performance_artifact_job_id_list, job_id)
-                    else:
-                        self._adapt_job_artifact_collection(
-                            artifact, job_artifact_list, job_id)
-
-                if not job_id:
-                    logger.error(
-                        ('load_job_artifacts: No job_id for '
-                         '{0} job_guid {1}'.format(self.project, job_guid)))
-
-            else:
-                logger.error(
-                    ('load_job_artifacts: artifact not '
-                     'defined for {0}'.format(self.project)))
-
-        # Store the various artifact types if we collected them
-        if artifact_placeholders_list:
-            self.store_job_artifact(artifact_placeholders_list)
-
-        if job_artifact_list:
-            self.store_job_artifact(job_artifact_list)
-
-        if performance_artifact_list and performance_artifact_job_id_list:
-            self.store_performance_artifact(
-                performance_artifact_job_id_list, performance_artifact_list)
-
-    def _adapt_job_artifact_placeholders(
-            self, artifact, artifact_placeholders_list, job_id):
-
-        if job_id:
-            # Replace job_guid with id in artifact data
-            artifact[0] = job_id
-            artifact[4] = job_id
-
-            artifact_placeholders_list.append(artifact)
-
-    def _adapt_job_artifact_collection(
-            self, artifact, artifact_data, job_id):
-
-        if job_id:
-            artifact_data.append((
-                job_id,
-                artifact['name'],
-                artifact['type'],
-                zlib.compress(artifact['blob']),
-                job_id,
-                artifact['name'],
-            ))
-
-    def _adapt_performance_artifact_collection(
-            self, artifact, artifact_data, job_id_list, job_id):
-
-        if job_id:
-            job_id_list.append(job_id)
-            artifact_data.append(artifact)
 
     def _get_last_insert_id(self, contenttype="jobs"):
         """Return last-inserted ID."""

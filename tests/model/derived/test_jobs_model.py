@@ -10,6 +10,7 @@ import copy
 from django.core.management import call_command
 
 from treeherder.model.derived.base import DatasetNotFoundError
+from treeherder.model.derived import ArtifactsModel
 from tests.sample_data_generator import job_data, result_set
 from tests import test_utils
 
@@ -395,20 +396,21 @@ def test_store_result_set_data(jm, initial_data, sample_resultset):
     assert data['revision_ids'] == revision_ids
 
 
-def test_get_job_data(jm, refdata, sample_data, initial_data,
+def test_get_job_data(jm, test_project, refdata, sample_data, initial_data,
                       mock_log_parser, sample_resultset):
 
     target_len = 10
     job_data = sample_data.job_data[:target_len]
     test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset)
 
-    job_data = jm.get_job_signatures_from_ids(range(1, 11))
+    with ArtifactsModel(test_project) as artifacts_model:
+        job_data = artifacts_model.get_job_signatures_from_ids(range(1, 11))
 
     assert len(job_data) is target_len
 
 
 def test_store_performance_artifact(
-        jm, refdata, sample_data, sample_resultset, initial_data,
+        jm, test_project, refdata, sample_data, sample_resultset, initial_data,
         mock_log_parser):
 
     tp_data = test_utils.ingest_talos_performance_data(
@@ -421,7 +423,8 @@ def test_store_performance_artifact(
     for index, d in enumerate(perf_data):
         perf_data[index]['blob'] = json.dumps({'talos_data': [d['blob']]})
 
-    jm.store_performance_artifact(job_ids, perf_data)
+    with ArtifactsModel(test_project) as artifacts_model:
+        artifacts_model.store_performance_artifact(job_ids, perf_data)
 
     replace = [','.join(['%s'] * len(job_ids))]
 

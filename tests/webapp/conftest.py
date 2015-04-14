@@ -4,6 +4,7 @@
 
 import json
 from treeherder.webapp import wsgi
+from treeherder.model.derived import ArtifactsModel
 from tests.sample_data_generator import job_data
 import pytest
 from webtest.app import TestApp
@@ -43,7 +44,8 @@ def sample_artifacts(jm, sample_data):
             "data_1"
         ])
 
-    jm.store_job_artifact(artifact_placeholders)
+    with ArtifactsModel(jm.project) as artifacts_model:
+        artifacts_model.store_job_artifact(artifact_placeholders)
 
 
 @pytest.fixture
