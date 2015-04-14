@@ -1,15 +1,2 @@
 # sha256: Nz068-nwwjOTLdzwJPl47tO9bOrulWOu22XAKff5src
 newrelic==2.44.0.36
-# sha256: ThBmatepcTB0lC6wQJ90c8__WifvyrPZcHXLkPTqK4E
-newrelic-plugin-agent==1.3.0
-
-# Required by newrelic-plugin-agent
-# sha256: TjPd5CrU3zD7d5Bon5PXclLP8mpWVhDQP_LkNIZaU6I
-helper==2.4.1
-# sha256: w2yTiocuX_SUk4szsUqqFWy0OexnVI_Ks1Nbt4sIRug
-PyYAML==3.11
-# requests is already listed in checked-in.txt, however newrelic-plugin-agent
-# cannot use the copy in vendor/. Once the packages in checked-in.txt are
-# moved to common.txt we can remove this duplication.
-# sha256: HwRtz17HEu076GhLnzPJW3bijNHIJdsPXhVXv9h7N0U
-requests==2.5.1
