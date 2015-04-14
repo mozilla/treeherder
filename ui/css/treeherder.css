@@ -500,8 +500,8 @@ th-watched-repo {
     color: #0de00d !important;
 }
 
-.dim-half {
-    opacity: 0.5;
+.icon-red:hover {
+    color: #fa4444 !important;
 }
 
 .dim-quarter {
