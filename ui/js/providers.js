@@ -244,7 +244,7 @@ treeherder.provider('thEvents', function() {
 treeherder.provider('thAggregateIds', function() {
 
     var escape = function(id) {
-        return id.replace(/(:|\.|\[|\]|,)/g, "\\$1").replace(/\s+/g, '');
+        return id.replace(/(:|\[|\]|\?|,|\.|\s+)/g, '-');
     };
 
     var getPlatformRowId = function(
