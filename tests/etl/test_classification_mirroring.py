@@ -8,9 +8,10 @@ from datadiff import diff
 
 from django.conf import settings
 from treeherder.etl.classification_mirroring import ElasticsearchDocRequest, BugzillaCommentRequest
+from treeherder.model.derived import ArtifactsModel
 
 
-def test_elasticsearch_doc_request_body(jm, eleven_jobs_processed):
+def test_elasticsearch_doc_request_body(test_project, eleven_jobs_processed):
     """
     Test the request body is created correctly
     """
@@ -24,12 +25,13 @@ def test_elasticsearch_doc_request_body(jm, eleven_jobs_processed):
         [job_id, "buildapi", "json",
          json.dumps(sample_artifact), job_id, "buildapi"]
     ]
-    jm.store_job_artifact(placeholders)
+    with ArtifactsModel(test_project) as artifacts_model:
+        artifacts_model.store_job_artifact(placeholders)
 
     submit_timestamp = int(time())
     who = "user@mozilla.com"
 
-    req = ElasticsearchDocRequest(jm.project, job_id, bug_id, submit_timestamp, who)
+    req = ElasticsearchDocRequest(test_project, job_id, bug_id, submit_timestamp, who)
     req.generate_request_body()
 
     expected = {
@@ -52,7 +54,7 @@ def test_elasticsearch_doc_request_body(jm, eleven_jobs_processed):
     assert req.body == expected, diff(expected, req.body)
 
 
-def test_bugzilla_comment_request_body(jm, eleven_jobs_processed):
+def test_bugzilla_comment_request_body(test_project, eleven_jobs_processed):
     """
     Test the request body is created correctly
     """
@@ -70,8 +72,10 @@ def test_bugzilla_comment_request_body(jm, eleven_jobs_processed):
         job_id, 'Bug suggestions',
     ]
 
-    jm.store_job_artifact([bug_suggestions_placeholders])
-    req = BugzillaCommentRequest(jm.project, job_id, bug_id, who)
+    with ArtifactsModel(test_project) as artifacts_model:
+        artifacts_model.store_job_artifact([bug_suggestions_placeholders])
+
+    req = BugzillaCommentRequest(test_project, job_id, bug_id, who)
     req.generate_request_body()
 
     expected = {
@@ -88,7 +92,7 @@ def test_bugzilla_comment_request_body(jm, eleven_jobs_processed):
     assert req.body == expected
 
 
-def test_bugzilla_comment_length_capped(jm, eleven_jobs_processed):
+def test_bugzilla_comment_length_capped(test_project, eleven_jobs_processed):
     """
     Test that the total number of characters in the comment is capped correctly.
     """
@@ -110,8 +114,9 @@ def test_bugzilla_comment_length_capped(jm, eleven_jobs_processed):
         job_id, 'Bug suggestions',
     ]
 
-    jm.store_job_artifact([bug_suggestions_placeholders])
-    req = BugzillaCommentRequest(jm.project, job_id, bug_id, who)
+    with ArtifactsModel(test_project) as artifacts_model:
+        artifacts_model.store_job_artifact([bug_suggestions_placeholders])
+    req = BugzillaCommentRequest(test_project, job_id, bug_id, who)
     req.generate_request_body()
 
     assert len(req.body['comment']) == settings.BZ_MAX_COMMENT_LENGTH

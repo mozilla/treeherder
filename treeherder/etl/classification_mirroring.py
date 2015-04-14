@@ -7,7 +7,7 @@ import logging
 
 import simplejson as json
 import requests
-from treeherder.model.derived import JobsModel
+from treeherder.model.derived import JobsModel, ArtifactsModel
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
@@ -27,11 +27,11 @@ class ElasticsearchDocRequest(object):
         """
         Create the data structure that will be sent to Elasticsearch.
         """
-        with JobsModel(self.project) as jm:
+        with JobsModel(self.project) as jm, ArtifactsModel(self.project) as am:
             job_data = jm.get_job(self.job_id)[0]
             option_collection = jm.refdata_model.get_all_option_collections()
             revision_list = jm.get_resultset_revisions_list(job_data["result_set_id"])
-            buildapi_artifact = jm.get_job_artifact_list(0, 1, {
+            buildapi_artifact = am.get_job_artifact_list(0, 1, {
                 'job_id': set([("=", self.job_id)]),
                 'name': set([("=", "buildapi")])
             })
@@ -96,9 +96,9 @@ class BugzillaCommentRequest(object):
         Create a comment describing the failure, that will be posted to Bugzilla.
         This is triggered by a new bug-job association.
         """
-        with JobsModel(self.project) as jm:
+        with JobsModel(self.project) as jm, ArtifactsModel(self.project) as am:
             job = jm.get_job(self.job_id)[0]
-            failures_artifacts = jm.get_job_artifact_list(0, 1, {
+            failures_artifacts = am.get_job_artifact_list(0, 1, {
                 'job_id': set([('=', job['id'])]),
                 'name': set([('=', 'Bug suggestions')]),
             })
@@ -112,7 +112,7 @@ class BugzillaCommentRequest(object):
                 job["result_set_id"]
             )
 
-            buildapi_info = jm.get_job_artifact_list(0, 1, {
+            buildapi_info = am.get_job_artifact_list(0, 1, {
                 'job_id': set([("=", self.job_id)]),
                 'name': set([("=", "buildapi")])
             })

@@ -111,6 +111,36 @@ class TreeherderModelBase(object):
 
         return ids
 
+    def _process_conditions(self, conditions, allowed_fields=None):
+        """Transform a list of conditions into a list of placeholders and
+        replacement strings to feed a datahub.execute statement."""
+        placeholders = []
+        replace_str = ""
+        if conditions:
+            for column, condition in conditions.items():
+                if allowed_fields is None or column in allowed_fields:
+                    if column in allowed_fields:
+                        # we need to get the db column string from the passed
+                        # in querystring column.  It could be the same, but
+                        # often it will have a table prefix for the column.
+                        # This allows us to have where clauses on joined fields
+                        # of the query.
+                        column = allowed_fields[column]
+                    for operator, value in condition:
+                        replace_str += "AND {0} {1}".format(column, operator)
+                        if operator == "IN":
+                            # create a list of placeholders of the same length
+                            # as the list of values
+                            replace_str += "({0})".format(
+                                ",".join(["%s"] * len(value))
+                            )
+                            placeholders += value
+                        else:
+                            replace_str += " %s "
+                            placeholders.append(value)
+
+        return replace_str, placeholders
+
     def disconnect(self):
         """Iterate over and disconnect all data sources."""
         self.refdata_model.disconnect()
