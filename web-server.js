@@ -43,7 +43,7 @@ HttpServer.prototype.start = function(port) {
   console.log("Starting web server at http://localhost:" + port + "/");
   this.server.listen(port).on('error', function(err) {
     if (err.code === "EADDRINUSE") {
-      console.error("\033[31mPort %d is already in use, can't start web server.", port);
+      console.error("\033[31mPort %d is already in use, can't start web server.\033[0m", port);
     }
   });
 };
