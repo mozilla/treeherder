@@ -47,6 +47,25 @@ def pre_update(ctx, ref=settings.UPDATE_REF):
 
 @task
 def update(ctx):
+    # Create/populate a virtualenv that will be rsynced later along with the source.
+    with ctx.lcd(settings.SRC_DIR):
+        activate_script = os.path.join(settings.SRC_DIR, 'venv', 'bin', 'activate_this.py')
+        # Peep doesn't yet cache downloaded files, so we reuse the virtualenv to speed up deploys.
+        if not os.path.exists(activate_script):
+            ctx.local('virtualenv --python=python2.7 venv')
+        # Activate virtualenv.
+        execfile(activate_script, dict(__file__=activate_script))
+        # Install requirements using peep, so hashes are verified.
+        with ctx.lcd(th_service_src):
+            ctx.local('python2.7 bin/peep.py install -r requirements/common.txt')
+            ctx.local('python2.7 bin/peep.py install -r requirements/prod.txt')
+        # Make the virtualenv relocatable since paths are hard-coded by default.
+        ctx.local('virtualenv --relocatable venv')
+        # Fix lib64 symlink to be relative instead of absolute.
+        with ctx.lcd('venv'):
+            ctx.local('rm -f lib64')
+            ctx.local('ln -s lib lib64')
+
     with ctx.lcd(th_service_src):
         # Collect the static files (eg for the Persona or Django admin UI)
         ctx.local("python2.7 manage.py collectstatic --noinput")
