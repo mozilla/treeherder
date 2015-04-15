@@ -230,21 +230,21 @@
       <nav class="navbar navbar-dark">
         <ul class="nav navbar-nav tab-headers">
           <li ng-class="{'active': tabService.selectedTab == 'failureSummary'}">
-            <a title="show Failure summary"
+            <a title="Show failure summary"
                href="" prevent-default-on-left-click
                ng-click="tabService.showTab('failureSummary', job.id)">
               Failure summary
             </a>
           </li>
           <li ng-class="{'active': tabService.selectedTab == 'annotations'}">
-            <a title="show Annotations"
+            <a title="Show annotations"
                href="" prevent-default-on-left-click
                ng-click="tabService.showTab('annotations', job.id)">
               Annotations
             </a>
           </li>
           <li ng-class="{'active': tabService.selectedTab == 'similarJobs'}">
-            <a title="show Similar jobs"
+            <a title="Show similar jobs"
                href="" prevent-default-on-left-click
                ng-click="tabService.showTab('similarJobs', job.id)">
               Similar jobs
@@ -252,7 +252,7 @@
           </li>
           <li ng-if="tabService.tabs.talos.enabled"
               ng-class="{'active': tabService.selectedTab == 'talos'}">
-            <a title="show talos job details"
+            <a title="Show Talos job details"
                href="" prevent-default-on-left-click
                ng-click="tabService.showTab('talos', job.id)">
               Talos
