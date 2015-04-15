@@ -7,17 +7,13 @@
 SRC_DIR=$(dirname "$(dirname "${BASH_SOURCE[0]}")")
 cd $SRC_DIR
 
+PROJECT_ROOT=$(readlink -f ../)
+PATH=$PROJECT_ROOT/venv/bin:$PATH
+
 source /etc/profile.d/treeherder.sh
 
 if [[ ${NEW_RELIC_LICENSE_KEY+isset} = isset ]]; then
     NEWRELIC_ADMIN="newrelic-admin run-program"
-fi
-
-if [ -f ../venv/bin/celery ]; then
-    source ../venv/bin/activate
-    CELERY=../venv/bin/celery
-else
-    CELERY=celery
 fi
 
 LOGFILE=/var/log/celery/celery_worker_hp.log
@@ -26,6 +22,6 @@ if [ ! -f $LOGFILE ]; then
     touch $LOGFILE
 fi
 
-exec $NEWRELIC_ADMIN $CELERY -A treeherder worker -c 1 \
+exec $NEWRELIC_ADMIN celery -A treeherder worker -c 1 \
      -Q classification_mirroring,publish_to_pulse -E --maxtasksperchild=500 \
      --logfile=$LOGFILE -l INFO -n hp.%h

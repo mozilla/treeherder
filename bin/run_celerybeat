@@ -7,6 +7,9 @@
 SRC_DIR=$(dirname "$(dirname "${BASH_SOURCE[0]}")")
 cd $SRC_DIR
 
+PROJECT_ROOT=$(readlink -f ../)
+PATH=$PROJECT_ROOT/venv/bin:$PATH
+
 LOGFILE=/var/log/celery/celerybeat.log
 
 if [ ! -f $LOGFILE ]; then
@@ -15,11 +18,4 @@ fi
 
 source /etc/profile.d/treeherder.sh
 
-if [ -f ../venv/bin/celery ]; then
-    source ../venv/bin/activate
-    CELERY=../venv/bin/celery
-else
-    CELERY=celery
-fi
-
-exec $CELERY -A treeherder beat -f $LOGFILE
+exec celery -A treeherder beat -f $LOGFILE
