@@ -184,12 +184,18 @@ treeherder.factory('thNotify', [
             $log.debug("received message", message);
             var severity = severity || 'info';
             var sticky = sticky || false;
+            var maxNsNotifications = 5;
             thNotify.notifications.push({
                 message: message,
                 severity: severity,
                 sticky: sticky
             });
-            if(!sticky){
+
+            if (!sticky) {
+                if (thNotify.notifications.length > maxNsNotifications) {
+                    $timeout(thNotify.shift);
+                    return;
+                }
                 $timeout(thNotify.shift, 4000, true);
             }
         },
