@@ -15,11 +15,6 @@ from thclient import (TreeherderJob, TreeherderJobCollection,
     TreeherderClientError, TreeherderRequest, TreeherderArtifact,
     TreeherderArtifactCollection)
 
-try:
-    import json
-except ImportError:
-    import simplejson as json
-
 class DataSetup(unittest.TestCase):
 
     def setUp(self):

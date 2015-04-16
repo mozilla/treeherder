@@ -6,13 +6,6 @@ from setuptools import setup
 
 version = '1.0'
 
-deps = ['oauth2']
-
-try:
-    import json
-except ImportError:
-    deps.append('simplejson')
-
 setup(name='treeherder-client',
       version=version,
       description="Python library to submit data to treeherder-service",
@@ -26,7 +19,7 @@ setup(name='treeherder-client',
       license='MPL',
       packages=['thclient'],
       zip_safe=False,
-      install_requires=deps,
+      install_requires=['oauth2'],
       test_suite='thclient.tests',
       tests_require=["mock"],
       )

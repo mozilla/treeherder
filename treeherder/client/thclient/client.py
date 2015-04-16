@@ -10,10 +10,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-try:
-    import json
-except ImportError:
-    import simplejson as json
+import json
 
 class ValidatorMixin(object):
 
