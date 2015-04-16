@@ -44,8 +44,8 @@ class ArtifactViewSet(viewsets.ViewSet):
         offset = filter.pop("offset", 0)
         count = min(int(filter.pop("count", 10)), 1000)
 
-        with ArtifactsModel(project) as artifactModel:
-            objs = artifactModel.get_job_artifact_list(
+        with ArtifactsModel(project) as artifacts_model:
+            objs = artifacts_model.get_job_artifact_list(
                 offset,
                 count,
                 filter.conditions
@@ -56,9 +56,9 @@ class ArtifactViewSet(viewsets.ViewSet):
     def create(self, request, project):
 
         job_guids = [x['job_guid'] for x in request.DATA]
-        with JobsModel(project) as jobsModel, ArtifactsModel(project) as artifactModel:
+        with JobsModel(project) as jobsModel, ArtifactsModel(project) as artifacts_model:
 
             job_id_lookup = jobsModel.get_job_ids_by_guid(job_guids)
-            artifactModel.load_job_artifacts(request.DATA, job_id_lookup)
+            artifacts_model.load_job_artifacts(request.DATA, job_id_lookup)
 
             return Response({'message': 'Artifacts stored successfully'})

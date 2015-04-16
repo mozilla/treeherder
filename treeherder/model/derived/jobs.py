@@ -136,19 +136,6 @@ class JobsModel(TreeherderModelBase):
             "type": "type",
             "who": "who",
             "submit_timestamp": "submit_timestamp"
-        },
-        "job_artifact": {
-            "id": "id",
-            "job_id": "job_id",
-            "name": "name",
-            "type": "type"
-        },
-        "performance_artifact": {
-            "id": "id",
-            "job_id": "job_id",
-            "series_signature": "series_signature",
-            "name": "name",
-            "type": "type"
         }
     }
 
@@ -1363,8 +1350,8 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         self._load_log_urls(log_placeholders, job_id_lookup,
                             job_results)
 
-        with ArtifactsModel(self.project) as am:
-            am.load_job_artifacts(artifact_placeholders, job_id_lookup)
+        with ArtifactsModel(self.project) as artifacts_model:
+            artifacts_model.load_job_artifacts(artifact_placeholders, job_id_lookup)
 
         # If there is already a job_id stored with pending/running status
         # we need to update the information for the complete job
