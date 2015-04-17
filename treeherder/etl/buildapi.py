@@ -170,7 +170,7 @@ class Builds4hTransformerMixin(object):
             if 'log_url' in prop:
                 log_reference.append({
                     'url': prop['log_url'],
-                    'name': 'builds-4h'
+                    'name': 'buildbot_text'
                 })
 
             # add structured logs to the list of log references

@@ -156,7 +156,7 @@
             'log_references': [
                 {
                     'url': 'http://ftp.mozilla.org/pub/mozilla.org/b2g/tinderbox-builds/mozilla-b2g26_v1_2-emulator-jb-debug/1384274430/b2g_mozilla-b2g26_v1_2_emulator-jb-debug_dep-bm57-build1-build11.txt.gz',
-                    'name': 'builds-4h'
+                    'name': 'buildbot_text'
                 }
             ],
             'job_guid': 'c74d2f19cee8fc4dc5deab94c15c201350c1a723',
@@ -204,7 +204,7 @@
             'log_references': [
                 {
                     'url': 'http://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/mozilla-b2g26_v1_2-macosx64-debug/1384270711/mozilla-b2g26_v1_2_lion-debug_test-mochitest-browser-chrome-bm78-tests1-macosx-build6.txt.gz',
-                    'name': 'builds-4h'
+                    'name': 'buildbot_text'
                 }
             ],
             'job_guid': '4dc8b79752b5e8a7d5d5558d8b341cdf811c57f4',

@@ -42,7 +42,7 @@ def mock_buildapi_builds4h_url(monkeypatch):
     path = os.path.join(
         tests_folder,
         "sample_data",
-        "builds-4h.json"
+        "buildbot_text.json"
     )
     monkeypatch.setattr(settings,
                         'BUILDAPI_BUILDS4H_URL',
@@ -81,7 +81,7 @@ def mock_buildapi_builds4h_missing1_url(monkeypatch):
     path = os.path.join(
         tests_folder,
         "sample_data",
-        "builds-4h-missing1.json"
+        "buildbot_text-missing1.json"
     )
     monkeypatch.setattr(settings,
                         'BUILDAPI_BUILDS4H_URL',
@@ -94,7 +94,7 @@ def mock_buildapi_builds4h_missing_branch_url(monkeypatch):
     path = os.path.join(
         tests_folder,
         "sample_data",
-        "builds-4h-missing_branch.json"
+        "buildbot_text-missing_branch.json"
     )
     monkeypatch.setattr(settings,
                         'BUILDAPI_BUILDS4H_URL',
