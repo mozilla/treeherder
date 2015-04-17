@@ -12,8 +12,10 @@ Requires commander_ which is installed on the systems that need it.
 
 import os
 import sys
-
+import urllib
+import urllib2
 from commander.deploy import task, hostgroups
+
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import commander_settings as settings  # noqa
@@ -73,6 +75,7 @@ def deploy(ctx):
     deploy_web_app()
     deploy_etl()
     deploy_log()
+    ping_newrelic()
 
 
 @task
@@ -104,3 +107,21 @@ def deploy_nodes(ctx, hostgroup, node_type):
     rsync_code()
     env_flag = '-p' if is_prod else '-s'
     ctx.local('/root/bin/restart-jobs %s %s' % (env_flag, node_type))
+
+
+@task
+def ping_newrelic(ctx):
+    if settings.NEW_RELIC_API_KEY and settings.NEW_RELIC_APP_ID:
+
+        print 'Post deployment to New Relic'
+        data = urllib.urlencode({
+            'deployment[revision]': settings.UPDATE_REF,
+            'deployment[app_id]': settings.NEW_RELIC_APP_ID
+        })
+        headers = {'x-api-key': settings.NEW_RELIC_API_KEY}
+        try:
+            request = urllib2.Request('https://rpm.newrelic.com/deployments.xml',
+                                      data, headers)
+            urllib2.urlopen(request)
+        except urllib.URLError as exp:
+            print 'Error notifying New Relic: {0}'.format(exp)
