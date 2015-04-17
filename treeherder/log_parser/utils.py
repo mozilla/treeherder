@@ -257,9 +257,6 @@ def post_log_artifacts(project,
         # so nothing after this function will be executed
 
     credentials = OAuthCredentials.get_credentials(project)
-    update_endpoint = 'job-log-url/{0}/update_parse_status'.format(
-        job_log_url['id']
-    )
 
     log_description = "%s %s (%s)" % (project, job_guid, job_log_url['url'])
     logger.debug("Downloading/parsing log for %s", log_description)
@@ -277,15 +274,7 @@ def post_log_artifacts(project,
                                              job_guid, check_errors)
     except Exception as e:
         logger.error("Failed to download/parse log for %s: %s", log_description, e)
-        current_timestamp = time.time()
-        req.send(
-            update_endpoint,
-            method='POST',
-            data={
-                'parse_status': 'failed',
-                'parse_timestamp': current_timestamp
-            }
-        )
+        update_parse_status(req, job_log_url, 'failed')
         _retry(e)
 
     # store the artifacts generated
@@ -301,19 +290,21 @@ def post_log_artifacts(project,
 
     try:
         req.post(tac)
-
-        # send an update to job_log_url
-        # the job_log_url status changes from pending to parsed
-        current_timestamp = time.time()
-        req.send(
-            update_endpoint,
-            method='POST',
-            data={
-                'parse_status': 'parsed',
-                'parse_timestamp': current_timestamp
-            }
-        )
+        update_parse_status(req, job_log_url, 'parsed')
         logger.debug("Finished posting artifact for %s %s", project, job_guid)
     except Exception as e:
         logger.error("Failed to upload parsed artifact for %s: %s", log_description, e)
         _retry(e)
+
+
+def update_parse_status(req, job_log_url, parse_status):
+    update_endpoint = 'job-log-url/{}/update_parse_status'.format(job_log_url['id'])
+    current_timestamp = time.time()
+    req.send(
+        update_endpoint,
+        method='POST',
+        data={
+            'parse_status': parse_status,
+            'parse_timestamp': current_timestamp
+        }
+    )
