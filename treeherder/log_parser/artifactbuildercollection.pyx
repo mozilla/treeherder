@@ -2,9 +2,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-import urllib2
-import gzip
 import io
+import urllib2
+import zlib
 from contextlib import closing
 from django.conf import settings
 
@@ -101,30 +101,46 @@ BuildbotPerformanceDataArtifactBuilder
 
         Stream lines from the gzip file and run each parser against it,
         building the ``artifact`` as we go.
-
         """
+        with closing(self.get_log_handle(self.url)) as lh:
 
-        handle = None
-        gz_file = None
-        with closing(self.get_log_handle(self.url)) as handle:
-
-            # using BytesIO is a workaround. Apparently this is fixed in
-            # Python 3.2, but not in the 2.x versions. GzipFile wants the
-            # methods seek() and tell(), which don't exist on a normal
-            # fileobj.
-            # interesting write-up here:
-            # http://www.enricozini.org/2011/cazzeggio/python-gzip/
-            with closing(gzip.GzipFile(fileobj=io.BytesIO(handle.read()))) as gz_file:
-                for line in gz_file:
+            def _parse_lines(f, readpos, end=False):
+                f.seek(readpos)
+                for line in f:
+                    if '\n' not in line and not end:
+                        return f.tell() - len(line)
                     # run each parser on each line of the log
                     for builder in self.builders:
                         builder.parse_line(line)
 
-                # gather the artifacts from all builders
-                for builder in self.builders:
-                    artifact = builder.get_artifact()
-                    if builder.name == 'talos_data':
-                        if len(artifact[builder.name]) > 0:
-                            self.artifacts[builder.name] = artifact
+                return f.tell()
+
+            # decompress the gzip file and process lines while we're downloading
+            # We can't just use GzipFile, because that wants the
+            # methods seek() and tell(), which don't exist on a normal
+            # fileobj (at least in Python 2.x, apparently it does in Python 3.2).
+            # interesting write-up here:
+            # http://www.enricozini.org/2011/cazzeggio/python-gzip/
+
+            zip = zlib.decompressobj(16 + zlib.MAX_WBITS) # gzip window size
+            with closing(io.BytesIO()) as f:
+                readpos = 0
+                while True:
+                    bytes = lh.read(4096)
+                    if not bytes:
+                        f.write(zip.flush())
+                        break
                     else:
+                        f.write(zip.decompress(bytes))
+                        readpos = _parse_lines(f, readpos)
+                        f.seek(0, 2)
+                _parse_lines(f, readpos, end=True)
+
+            # gather the artifacts from all builders
+            for builder in self.builders:
+                artifact = builder.get_artifact()
+                if builder.name == 'talos_data':
+                    if len(artifact[builder.name]) > 0:
                         self.artifacts[builder.name] = artifact
+                else:
+                    self.artifacts[builder.name] = artifact
