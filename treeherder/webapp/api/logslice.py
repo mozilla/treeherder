@@ -59,10 +59,6 @@ class LogSliceView(viewsets.ViewSet):
         if start_line >= end_line:
             return Response("``end_line`` must be larger than ``start_line``", 400)
 
-        # @todo: remove once Bug 1139517 is addressed
-        if log_name == "buildbot_text":
-            log_name = 'builds-4h'
-
         # get only the log that matches the ``log_name``
         logs = jm.get_log_references(job_id)
 
