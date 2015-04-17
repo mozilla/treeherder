@@ -1,103 +1,36 @@
 <nav class="navbar navbar-default" role="navigation">
   <div class="container-fluid">
     <div class="navbar-header">
-<<<<<<< HEAD
-<<<<<<< HEAD
       <a class="navbar-brand" href="#">Perfherder Compare</a>
-=======
-      <a class="navbar-brand" href="#">Perfherder Compare Talos</a>
->>>>>>> initial work to get compare-talos stood up inside of perfherder
-=======
-      <a class="navbar-brand" href="#">Perfherder Compare</a>
->>>>>>> addressed review feedback: whitespace, blank lines, s/compare.js/compareperf.js/, cleaned up angular classes and extra <div>'s, reduced a forEach(..) call to a _.where(...) call, etc.
     </div>
   </div>
 </nav>
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 <div class="container-fluid">
-    <div id="datapoint-detail" ng-show="originalRevision && newRevision">
-      <div ng-if="dataLoading">
-        Loading all results, please wait a minute...
-        <img src="img/dancing_cat.gif" />
-      </div>
-      <div id="subtest-summary" ng-if="!dataLoading">
-        <h4>Compare all data for revision {{newProject}}: {{newRevision}} to {{originalProject}}: {{originalRevision}}</h4>
-        <p class="help-block">Hover over each entry for more options.</p>
-        <table class="table">
-          <tbody>
-            <tr ng-class="{'subtest-header': compareResult.headerColumns==2, 'subtest-empty': compareResult.isEmpty && !compareResult.headerColumns==2, 'subtest-empty': (hideMinorChanges && compareResult.isMinor)}" ng-repeat="compareResult in compareResults">
-              <td colspan="{{compareResult.headerColumns}}">{{compareResult.name}}</td>
-              <td ng-class="{'subtest-empty': compareResult.headerColumns==2}"><a ng-href="{{compareResult.detailsLink}}">Details</a></td>
-              <td ng-attr-title="runs: {{compareResult.originalRuns}}">{{compareResult.originalGeoMean}}</td>
-              <td>+/-{{compareResult.originalStddev}} ({{compareResult.originalStddevPct}}%)</td>
-              <td ng-attr-title="runs: {{compareResult.newRuns}}">{{compareResult.newGeoMean}}</td>
-              <td>+/-{{compareResult.newStddev}} ({{compareResult.newStddevPct}}%)</td>
-              <td ng-class="{'subtest-regression': compareResult.isRegression, 'subtest-improvement':  compareResult.isImprovement}">{{compareResult.delta}}</td>
-              <td ng-class="{'subtest-regression': compareResult.isRegression, 'subtest-improvement': compareResult.isImprovement}">{{compareResult.deltaPercentage}}%</td>
-=======
-<div class="ph-horizontal-layout">
-  <div id="revision-chooser">
-   &nbsp;
-  </div>
-  <div id="data-display">
-=======
-<div class="container-fluid">
->>>>>>> addressed review feedback: whitespace, blank lines, s/compare.js/compareperf.js/, cleaned up angular classes and extra <div>'s, reduced a forEach(..) call to a _.where(...) call, etc.
-    <div id="datapoint-detail" ng-show="originalRevision && newRevision">
-      <div ng-if="dataLoading">
-        Loading all results, please wait a minute...
-        <img src="img/dancing_cat.gif" />
-      </div>
-      <div id="subtest-summary" ng-if="!dataLoading">
-        <h4>Compare all data for revision {{newProject}}: {{newRevision}} to {{originalProject}}: {{originalRevision}}</h4>
-        <p class="help-block">Hover over each entry for more options.</p>
-        <table class="table">
-          <tbody>
-<<<<<<< HEAD
-            <tr ng-class="{'subtest-header': compareResult.isHeader, 'subtest-empty': compareResult.isEmpty && !compareResult.isHeader}" ng-repeat="compareResult in compareResults">
-              <td><a ng-class="{'subtest-empty': compareResult.isHeader}" ng-href="{{compareResult.detailsLink}}">Details</a></td>
-              <td>{{compareResult.name}}</td>
-<<<<<<< HEAD
-              <td ng-attr-title="runs: {{compareResult.originalRuns}}">{{compareResult.originalGeoMean}}</td><td>{{compareResult.originalVariation}}</td>
-              <td ng-attr-title="runs: {{compareResult.newRuns}}">{{compareResult.newGeoMean}}</td><td>{{compareResult.newVariation}}</td>
-              <td ng-style="compareResult.type === 'regression' && {'background-color': 'red', 'color': 'white', 'font-weight': 'bold'} ||
-                             compareResult.type === 'improvement' && {'background-color': 'green', 'color': 'white', 'font-weight': 'bold'}">{{compareResult.delta}}</td>
-              <td ng-style="compareResult.type === 'regression' && {'background-color': 'red', 'color': 'white', 'font-weight': 'bold'} ||
-                             compareResult.type === 'improvement' && {'background-color': 'green', 'color': 'white', 'font-weight': 'bold'}">{{compareResult.deltaPercentage}}</td>
->>>>>>> initial work to get compare-talos stood up inside of perfherder
-=======
-=======
-            <tr ng-class="{'subtest-header': compareResult.headerColumns==2, 'subtest-empty': compareResult.isEmpty && !compareResult.headerColumns==2, 'subtest-empty': (hideMinorChanges && compareResult.isMinor)}" ng-repeat="compareResult in compareResults">
-              <td colspan="{{compareResult.headerColumns}}">{{compareResult.name}}</td>
-              <td ng-class="{'subtest-empty': compareResult.headerColumns==2}"><a ng-href="{{compareResult.detailsLink}}">Details</a></td>
->>>>>>> additional cleanup: details after name, header column for testname is colspan=2, support url param hideMinorChanges
-              <td ng-attr-title="runs: {{compareResult.originalRuns}}">{{compareResult.originalGeoMean}}</td>
-              <td>+/-{{compareResult.originalStddev}} ({{compareResult.originalStddevPct}}%)</td>
-              <td ng-attr-title="runs: {{compareResult.newRuns}}">{{compareResult.newGeoMean}}</td>
-              <td>+/-{{compareResult.newStddev}} ({{compareResult.newStddevPct}}%)</td>
-<<<<<<< HEAD
-              <td ng-class="{'subtest-regression': compareResult.isRegression, 'subtest-improvement':  compareResult.isImprovement, 'subtest-header': compareResult.isHeader}">{{compareResult.delta}}</td>
-              <td ng-class="{'subtest-regression': compareResult.isRegression, 'subtest-improvement': compareResult.isImprovement, 'subtest-header': compareResult.isHeader}">{{compareResult.deltaPercentage}}%</td>
->>>>>>> addressed all feedback except a common library, a few TODO items left in the code
-=======
-              <td ng-class="{'subtest-regression': compareResult.isRegression, 'subtest-improvement':  compareResult.isImprovement}">{{compareResult.delta}}</td>
-              <td ng-class="{'subtest-regression': compareResult.isRegression, 'subtest-improvement': compareResult.isImprovement}">{{compareResult.deltaPercentage}}%</td>
->>>>>>> additional cleanup: details after name, header column for testname is colspan=2, support url param hideMinorChanges
-            </tr>
-          </tbody>
-        </table>
-     </div>
+  <div id="datapoint-detail" ng-show="originalRevision && newRevision">
+    <div ng-if="dataLoading">
+      Loading all results, please wait a minute...
+      <img src="img/dancing_cat.gif" />
     </div>
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
+    <div id="subtest-summary" ng-if="!dataLoading">
+      <h4>Compare all data for revision {{newProject}}: {{newRevision}} to {{originalProject}}: {{originalRevision}}</h4>
+      <p class="help-block">Hover over each entry for more options.</p>
+      <table class="table">
+        <tbody>
+          <tr ng-class="{'subtest-header': compareResult.headerColumns==2, 'subtest-empty': compareResult.isEmpty && !compareResult.headerColumns==2, 'subtest-empty': (hideMinorChanges && compareResult.isMinor)}" ng-repeat="compareResult in compareResults">
+            <td colspan="{{compareResult.headerColumns}}">{{compareResult.name}}</td>
+            <td ng-class="{'subtest-empty': compareResult.headerColumns==2}"><a ng-href="{{compareResult.detailsLink}}">Details</a></td>
+            <td ng-attr-title="runs: {{compareResult.originalRuns}}">{{compareResult.originalGeoMean}}</td>
+            <td>+/-{{compareResult.originalStddev}} ({{compareResult.originalStddevPct}}%)</td>
+            <td ng-attr-title="runs: {{compareResult.newRuns}}">{{compareResult.newGeoMean}}</td>
+            <td>+/-{{compareResult.newStddev}} ({{compareResult.newStddevPct}}%)</td>
+            <td ng-class="{'subtest-regression': compareResult.isRegression, 'subtest-improvement':  compareResult.isImprovement}">{{compareResult.delta}}</td>
+            <td ng-class="{'subtest-regression': compareResult.isRegression, 'subtest-improvement': compareResult.isImprovement}">{{compareResult.deltaPercentage}}%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
-  <div class="graph-right-padding"></div>
->>>>>>> initial work to get compare-talos stood up inside of perfherder
-=======
->>>>>>> addressed review feedback: whitespace, blank lines, s/compare.js/compareperf.js/, cleaned up angular classes and extra <div>'s, reduced a forEach(..) call to a _.where(...) call, etc.
 </div>
 
 

@@ -164,64 +164,28 @@ to { opacity: 0; }
   height: 100px;
 }
 
-
-<<<<<<< HEAD
-<<<<<<< HEAD
 .subtest-header {
-=======
-.subtestheader {
->>>>>>> initial work to get compare-talos stood up inside of perfherder
-=======
-.subtest-header {
->>>>>>> addressed all feedback except a common library, a few TODO items left in the code
     background-image: linear-gradient(to bottom, #6A7B86, #424F5A);
     color: white;
     font-weight: bold;
 }
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> addressed all feedback except a common library, a few TODO items left in the code
-=======
-
->>>>>>> addressed review feedback: whitespace, blank lines, s/compare.js/compareperf.js/, cleaned up angular classes and extra <div>'s, reduced a forEach(..) call to a _.where(...) call, etc.
 .subtest-improvement {
     background-color: green;
     color: white;
     font-weight: bold;
 }
-<<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> addressed all feedback except a common library, a few TODO items left in the code
-=======
-
->>>>>>> addressed review feedback: whitespace, blank lines, s/compare.js/compareperf.js/, cleaned up angular classes and extra <div>'s, reduced a forEach(..) call to a _.where(...) call, etc.
 .subtest-regression {
     background-color: red;
     color: white;
     font-weight: bold;
 }
-<<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> addressed all feedback except a common library, a few TODO items left in the code
-=======
-
->>>>>>> addressed review feedback: whitespace, blank lines, s/compare.js/compareperf.js/, cleaned up angular classes and extra <div>'s, reduced a forEach(..) call to a _.where(...) call, etc.
 .subtest-empty {
     display: none;
 }
 
-<<<<<<< HEAD
-=======
->>>>>>> initial work to get compare-talos stood up inside of perfherder
-=======
->>>>>>> addressed all feedback except a common library, a few TODO items left in the code
 .subtest-result button {
     display: none;
 }
