@@ -4,6 +4,7 @@
 
 import re
 import urllib
+import urllib2
 import logging
 import time
 
@@ -256,11 +257,10 @@ def post_log_artifacts(project,
         # .retry() raises a RetryTaskError exception,
         # so nothing after this function will be executed
 
-    credentials = OAuthCredentials.get_credentials(project)
-
     log_description = "%s %s (%s)" % (project, job_guid, job_log_url['url'])
     logger.debug("Downloading/parsing log for %s", log_description)
 
+    credentials = OAuthCredentials.get_credentials(project)
     req = TreeherderRequest(
         protocol=settings.TREEHERDER_REQUEST_PROTOCOL,
         host=settings.TREEHERDER_REQUEST_HOST,
@@ -273,8 +273,11 @@ def post_log_artifacts(project,
         artifact_list = extract_artifacts_cb(job_log_url['url'],
                                              job_guid, check_errors)
     except Exception as e:
-        logger.error("Failed to download/parse log for %s: %s", log_description, e)
         update_parse_status(req, job_log_url, 'failed')
+        if isinstance(e, urllib2.HTTPError) and e.code == 404:
+            logger.debug("Log not found for %s", log_description)
+            return
+        logger.error("Failed to download/parse log for %s: %s", log_description, e)
         _retry(e)
 
     # store the artifacts generated
