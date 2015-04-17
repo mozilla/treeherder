@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html ng-app="compare">
+<html ng-app="compareperf">
 <head>
     <meta charset="iso-8859-1" />
     <title>Compare Performance</title>
-    <!-- build:css css/perf.min.css -->
+    <!-- build:css css/compareperf.min.css -->
     <link href="css/bootstrap.css" rel="stylesheet" media="screen">
     <link href="css/perf.css" rel="stylesheet" media="screen">
     <!-- endbuild -->
@@ -18,7 +18,9 @@
 
   <script src="js/config/local.conf.js"></script>
 
-  <!-- build:js js/compare.min.js -->
+  <!-- build:js js/compareperf2.min.js -->
+  <!-- Note appending 2 to aggregated file because apparently grunt is
+       unable to deal with two files which have the same ending... -->
   <script src="vendor/jquery-2.0.3.js"></script>
   <script src="vendor/underscore-min.js"></script>
   <script src="vendor/angular/angular.js"></script>

@@ -35,10 +35,10 @@ function stddev(values, avg) {
 // -------------------------------------------------------------------------
 
 
-var compare = angular.module("compare", ['ui.router', 'ui.bootstrap', 'treeherder']);
+var comparePerf = angular.module("compareperf", ['ui.router', 'ui.bootstrap', 'treeherder']);
 
 //TODO: make getSeriesSummary part of a common library
-compare.factory('getSeriesSummary', [ function() {
+comparePerf.factory('getSeriesSummary', [ function() {
   return function(signature, signatureProps, optionCollectionMap, pgo, e10s) {
     var platform = signatureProps.machine_platform + " " +
       signatureProps.machine_architecture;
@@ -77,7 +77,7 @@ compare.factory('getSeriesSummary', [ function() {
   };
 }]);
 
-compare.controller('CompareCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', '$location',
+comparePerf.controller('CompareCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', '$location',
                               'thServiceDomain', '$http', '$q', '$timeout', 'getSeriesSummary',
   function CompareCtrl($state, $stateParams, $scope, $rootScope, $location,
                     thServiceDomain, $http, $q, $timeout, getSeriesSummary) {
@@ -370,7 +370,7 @@ compare.controller('CompareCtrl', [ '$state', '$stateParams', '$scope', '$rootSc
   }]);
 
 
-compare.config(function($stateProvider, $urlRouterProvider) {
+comparePerf.config(function($stateProvider, $urlRouterProvider) {
   $urlRouterProvider.deferIntercept(); // so we don't reload on url change
 
   $stateProvider.state('compare', {

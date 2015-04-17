@@ -51,8 +51,8 @@ module.exports = function(grunt) {
                     dest:'dist'
                 }
             },
-            compare: {
-                src:'webapp/app/compare.html',
+            compareperf: {
+                src:'webapp/app/compareperf.html',
                 nonull: true,
                 options:{
                     dest:'dist'
@@ -61,7 +61,7 @@ module.exports = function(grunt) {
         },
 
         usemin:{ html:['dist/index.html', 'dist/help.html', 'dist/logviewer.html',
-                       'dist/perf.html', 'dist/compare.html'] },
+                       'dist/perf.html', 'dist/compareperf.html'] },
 
         'cache-busting': {
             indexjs: {
@@ -82,10 +82,10 @@ module.exports = function(grunt) {
                 file: 'dist/js/perf.min.js',
                 cleanup: true
             },
-            comparejs: {
+            compareperfjs: {
                 replace: ['dist/**/*.html'],
-                replacement: 'compare.min.js',
-                file: 'dist/js/compare.min.js',
+                replacement: 'compareperf2.min.js',
+                file: 'dist/js/compareperf2.min.js',
                 cleanup: true
             },
             indexcss: {
@@ -106,6 +106,12 @@ module.exports = function(grunt) {
                 file: 'dist/css/perf.min.css',
                 cleanup: true
             },
+            compareperfcss: {
+                replace: ['dist/**/*.html'],
+                replacement: 'compareperf.min.css',
+                file: 'dist/css/compareperf.min.css',
+                cleanup: true
+            },
             helpcss: {
                 replace: ['dist/**/*.html'],
                 replacement: 'help.min.css',
@@ -122,7 +128,7 @@ module.exports = function(grunt) {
                     { src:'webapp/app/help.html', dest:'dist/help.html', nonull: true },
                     { src:'webapp/app/logviewer.html', dest:'dist/logviewer.html', nonull: true },
                     { src:'webapp/app/perf.html', dest:'dist/perf.html', nonull: true },
-                    { src:'webapp/app/compare.html', dest:'dist/compare.html', nonull: true }
+                    { src:'webapp/app/compareperf.html', dest:'dist/compareperf.html', nonull: true }
                 ]
             },
             // Copy img dir
@@ -231,12 +237,12 @@ module.exports = function(grunt) {
                     }
                 }
             },
-            compare: {
+            compareperf: {
                 cwd: 'webapp/app',
                 src: 'partials/perf/*.html',
-                dest: 'dist/js/compare.min.js',
+                dest: 'dist/js/compareperf2.min.js',
                 options: {
-                    usemin: 'dist/js/compare.min.js',
+                    usemin: 'dist/js/compareperf2.min.js',
                     append: true,
                     htmlmin: {
                         collapseBooleanAttributes:      true,
