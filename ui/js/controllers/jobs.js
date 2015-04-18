@@ -175,8 +175,7 @@ treeherderApp.controller('ResultSetCtrl', [
         $scope.pinAllShownJobs = function() {
             if (!thPinboard.spaceRemaining()) {
                 thNotify.send("Pinboard is full.  Can not pin any more jobs.",
-                    "danger",
-                    true);
+                              "danger");
                 return;
             }
             var shownJobs = ThResultSetStore.getAllShownJobs(

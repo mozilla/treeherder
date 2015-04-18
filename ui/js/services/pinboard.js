@@ -59,7 +59,8 @@ treeherder.factory('thPinboard', [
                 pinnedJobs[job.id] = job;
                 api.count.numPinnedJobs = _.size(pinnedJobs);
             } else {
-                thNotify.send("Pinboard is already at maximum size of " + api.maxNumPinned, "danger", true);
+                thNotify.send("Pinboard is already at maximum size of " + api.maxNumPinned,
+                              "danger");
             }
         },
 

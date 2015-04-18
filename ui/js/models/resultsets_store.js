@@ -240,7 +240,7 @@ treeherder.factory('ThResultSetStore', [
             }
             if (_.size(shownJobs) === spaceRemaining) {
                 thNotify.send("Max pinboard size of " + maxSize + " reached.",
-                              "danger", true);
+                              "danger");
                 return true;
             }
             return false;
