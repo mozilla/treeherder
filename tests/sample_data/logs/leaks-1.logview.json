@@ -124,5 +124,5 @@
         ], 
         "errors_truncated": false
     }, 
-    "logurl": "file:///home/vagrant/treeherder-service/tests/sample_data/logs/leaks-1.txt.gz"
+    "logurl": "file:///home/vagrant/treeherder/tests/sample_data/logs/leaks-1.txt.gz"
 }

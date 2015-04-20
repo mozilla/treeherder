@@ -31,4 +31,4 @@ You can find the various services log files under
   * /var/log/celery
   * /var/log/gunicorn
 
-You may also want to inspect the main treeherder log file ~/treeherder-service/treeherder.log
+You may also want to inspect the main treeherder log file ~/treeherder/treeherder.log

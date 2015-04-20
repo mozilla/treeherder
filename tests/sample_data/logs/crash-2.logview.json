@@ -132,5 +132,5 @@
         ], 
         "errors_truncated": false
     }, 
-    "logurl": "file:///home/vagrant/treeherder-service/tests/sample_data/logs/crash-2.txt.gz"
+    "logurl": "file:///home/vagrant/treeherder/tests/sample_data/logs/crash-2.txt.gz"
 }

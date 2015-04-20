@@ -3,5 +3,5 @@
         {"content_type": "raw_html", "value": "<a href=http://hg.mozilla.org/projects/ux/rev/546ccc10a18f title=\"Built from revision 546ccc10a18f\">rev:546ccc10a18f</a>"},
         {"content_type": "raw_html", "value": "7270/6", "title": "jetpack"}
     ],
-    "logurl": "file:///home/vagrant/treeherder-service/tests/sample_data/logs/ux_ubuntu32_vm_test-jetpack-bm67-tests1-linux-build16.txt.gz"
+    "logurl": "file:///home/vagrant/treeherder/tests/sample_data/logs/ux_ubuntu32_vm_test-jetpack-bm67-tests1-linux-build16.txt.gz"
 }

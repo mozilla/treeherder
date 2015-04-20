@@ -996,5 +996,5 @@
         ], 
         "errors_truncated": true
     }, 
-    "logurl": "file:///home/vagrant/treeherder-service/tests/sample_data/logs/large-number-of-error-lines.txt.gz"
+    "logurl": "file:///home/vagrant/treeherder/tests/sample_data/logs/large-number-of-error-lines.txt.gz"
 }

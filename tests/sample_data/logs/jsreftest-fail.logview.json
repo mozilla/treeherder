@@ -484,5 +484,5 @@
         ], 
         "errors_truncated": false
     }, 
-    "logurl": "file:///home/vagrant/treeherder-service/tests/sample_data/logs/jsreftest-fail.txt.gz"
+    "logurl": "file:///home/vagrant/treeherder/tests/sample_data/logs/jsreftest-fail.txt.gz"
 }

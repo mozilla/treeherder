@@ -12,5 +12,5 @@
             "title": "crashtest"
         }
     ],
-    "logurl": "file:///home/vagrant/treeherder-service/tests/sample_data/logs/mozilla-central_fedora-b2g_test-crashtest-1-bm54-tests1-linux-build50.txt.gz"
+    "logurl": "file:///home/vagrant/treeherder/tests/sample_data/logs/mozilla-central_fedora-b2g_test-crashtest-1-bm54-tests1-linux-build50.txt.gz"
 }

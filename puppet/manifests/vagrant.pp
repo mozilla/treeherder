@@ -8,7 +8,7 @@ import "classes/*.pp"
 $APP_URL="local.treeherder.mozilla.org"
 $APP_USER="vagrant"
 $APP_GROUP="vagrant"
-$PROJ_DIR = "/home/${APP_USER}/treeherder-service"
+$PROJ_DIR = "/home/${APP_USER}/treeherder"
 $VENV_DIR = "/home/${APP_USER}/venv"
 # Serve ui from app directory
 $APP_UI="webapp/app"

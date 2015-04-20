@@ -12,7 +12,7 @@ manifest like this inside the puppet directory:
     $APP_URL="your.webapp.url"
     $APP_USER="your_app_user"
     $APP_GROUP="your_app_group"
-    $PROJ_DIR = "/home/${APP_USER}/treeherder-service"
+    $PROJ_DIR = "/home/${APP_USER}/treeherder"
     $VENV_DIR = "/home/${APP_USER}/venv"
     # You can make these less generic if you like, but these are box-specific
     # so it's not required.
@@ -68,7 +68,7 @@ You can run this file with the following command
 
 .. code-block:: bash
   
-  (venv)vagrant@precise32:~/treeherder-service$ sudo puppet apply puppet/your_manifest_file.pp
+  (venv)vagrant@precise32:~/treeherder$ sudo puppet apply puppet/your_manifest_file.pp
 
 Once puppet has finished, the only thing left to do is to start all the treeherder services (gunicorn, celery, etc).
 The easiest way to do it is via supervisord.
@@ -99,7 +99,7 @@ To serve the UI from the ``treeherder-ui/dist`` directory, in the ``treeherder-u
 
   (venv)vagrant@precise32:~/treeherder-ui$ grunt build
 
-This will build the UI by concatenating and minifying the js and css and move all required assets to a directory called ``dist`` in the repository root of ``treeherder-ui``. In ``treeherder-service/Vagrantfile`` uncomment this line:
+This will build the UI by concatenating and minifying the js and css and move all required assets to a directory called ``dist`` in the repository root of ``treeherder-ui``. In ``treeherder/Vagrantfile`` uncomment this line:
 
 .. code-block:: ruby
 

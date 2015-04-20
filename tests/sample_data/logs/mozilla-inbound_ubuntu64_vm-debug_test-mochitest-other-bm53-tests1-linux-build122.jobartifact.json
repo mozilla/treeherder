@@ -5,5 +5,5 @@
         {"content_type": "raw_html", "value": "<em class=\"testfail\">T-FAIL</em>&nbsp;<em class=\"testfail\">CRASH</em>", "title": "mochitest-a11y"},
         {"content_type": "raw_html", "value": "<em class=\"testfail\">T-FAIL</em>&nbsp;<em class=\"testfail\">CRASH</em>", "title": "mochitest-plugins"}
     ],
-    "logurl": "file:///home/vagrant/treeherder-service/tests/sample_data/logs/mozilla-inbound_ubuntu64_vm-debug_test-mochitest-other-bm53-tests1-linux-build122.txt.gz"
+    "logurl": "file:///home/vagrant/treeherder/tests/sample_data/logs/mozilla-inbound_ubuntu64_vm-debug_test-mochitest-other-bm53-tests1-linux-build122.txt.gz"
 }

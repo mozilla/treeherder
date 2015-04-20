@@ -31,8 +31,8 @@ class apache {
     ensure => present
   }
 
-  file { "${apache_vhost_path}/treeherder-service.conf":
-    content => template("${PROJ_DIR}/puppet/files/apache/treeherder-service.conf"),
+  file { "${apache_vhost_path}/treeherder.conf":
+    content => template("${PROJ_DIR}/puppet/files/apache/treeherder.conf"),
     owner => "root", group => "root", mode => 0644,
     require => [Package[$apache_devel]],
     notify => Service[$apache_service],
@@ -49,7 +49,7 @@ class apache {
     ensure => running,
     enable => true,
     require => [
-      File["${apache_vhost_path}/treeherder-service.conf"]
+      File["${apache_vhost_path}/treeherder.conf"]
     ],
   }
 
