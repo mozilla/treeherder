@@ -52,7 +52,7 @@
 </div>
 
 <div ng-show="result_sets.length == 0 && !isLoadingRsBatch.appending &&
-              !isLoadingJobs && locationHasSearchParam('revision')"
+              !isLoadingJobs && locationHasSearchParam('revision') && currentRepo.url"
               class="result-set-body unknown-message-body">
   <span ng-init="revision=getSearchParamValue('revision')">
       <span>Waiting for a push with revision <strong>{{revision}}</strong></span>
@@ -77,8 +77,7 @@
 </div>
 
 <div ng-show="result_sets.length == 0 && !isLoadingRsBatch.appending &&
-              !isLoadingJobs && !locationHasSearchParam('revision') &&
-              locationHasSearchParam('repo') && !currentRepo.url"
+              !isLoadingJobs && locationHasSearchParam('repo') && !currentRepo.url"
               class="result-set-body unknown-message-body">
   <span>
     <div><b>Unknown repository.</b></div>
