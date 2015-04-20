@@ -10,6 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from treeherder.webapp.api.utils import (UrlQueryFilter, with_jobs,
                                          oauth_required, get_option)
+from treeherder.model.derived import ArtifactsModel
 
 
 class JobsViewSet(viewsets.ViewSet):
@@ -36,7 +37,9 @@ class JobsViewSet(viewsets.ViewSet):
             job["logs"] = jm.get_log_references(pk)
 
             # make artifact ids into uris
-            artifact_refs = jm.get_job_artifact_references(pk)
+
+            with ArtifactsModel(project) as artifacts_model:
+                artifact_refs = artifacts_model.get_job_artifact_references(pk)
             job["artifacts"] = []
             for art in artifact_refs:
                 ref = reverse("artifact-detail",
