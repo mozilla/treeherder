@@ -116,11 +116,11 @@ def ping_newrelic(ctx):
         print 'Post deployment to New Relic'
         data = urllib.urlencode({
             'deployment[revision]': settings.UPDATE_REF,
-            'deployment[app_id]': settings.NEW_RELIC_APP_ID
+            'deployment[application_id]': settings.NEW_RELIC_APP_ID
         })
         headers = {'x-api-key': settings.NEW_RELIC_API_KEY}
         try:
-            request = urllib2.Request('https://rpm.newrelic.com/deployments.xml',
+            request = urllib2.Request('https://api.newrelic.com/deployments.xml',
                                       data, headers)
             urllib2.urlopen(request)
         except urllib2.URLError as exp:
