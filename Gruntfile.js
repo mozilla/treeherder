@@ -197,7 +197,7 @@ module.exports = function(grunt) {
                     }
                 }
             },
-            logViewer: {
+            logviewer: {
                 cwd: 'webapp/app',
                 src: 'partials/logviewer/*.html',
                 dest: 'dist/js/logviewer.min.js',

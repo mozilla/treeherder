@@ -4,4 +4,4 @@
 
 'use strict';
 
-var logViewerApp = angular.module('logviewer.app', ['treeherder']);
+var logViewerApp = angular.module('logviewer', ['treeherder']);
