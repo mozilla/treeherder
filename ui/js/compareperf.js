@@ -34,50 +34,7 @@ function stddev(values, avg) {
 // End Utility Functions
 // -------------------------------------------------------------------------
 
-
-var comparePerf = angular.module("compareperf", ['ui.router', 'ui.bootstrap', 'treeherder']);
-
-//TODO: make getSeriesSummary part of a common library
-comparePerf.factory('getSeriesSummary', [ function() {
-  return function(signature, signatureProps, optionCollectionMap, pgo, e10s) {
-    var platform = signatureProps.machine_platform + " " +
-      signatureProps.machine_architecture;
-    var extra = "";
-    if (signatureProps.job_group_symbol === "T-e10s") {
-      extra = " e10s";
-    }
-    var testName = signatureProps.test;
-    var subtestSignatures;
-    if (testName === undefined) {
-      testName = "summary";
-      subtestSignatures = signatureProps.subtest_signatures;
-    }
-    var name = signatureProps.suite + " " + testName +
-      " " + optionCollectionMap[signatureProps.option_collection_hash] + extra;
-
-    //Only keep summary signatures, filter in/out e10s and pgo
-    if (name.indexOf('summary') <= 0) {
-        return null;
-    }
-    if (e10s && (name.indexOf('e10s') <= 0)) {
-        return null;
-    } else if (!e10s && (name.indexOf('e10s') > 0)) {
-        return null;
-    }
-
-    //TODO: pgo is linux/windows only- what about osx and android
-    if (pgo && (name.indexOf('pgo') <= 1)) {
-        return null;
-    } else if (!pgo && (name.indexOf('pgo') > 0)) {
-        return null;
-    }
-
-    return { name: name, signature: signature, platform: platform,
-             subtestSignatures: subtestSignatures };
-  };
-}]);
-
-comparePerf.controller('CompareChooserCtrl', [ '$state', '$stateParams',
+perf.controller('CompareChooserCtrl', [ '$state', '$stateParams',
                                                '$scope',
                                                '$rootScope', '$location',
                                                'thServiceDomain', '$http',
@@ -98,7 +55,7 @@ comparePerf.controller('CompareChooserCtrl', [ '$state', '$stateParams',
     });
   }]);
 
-comparePerf.controller('CompareResultsCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', '$location',
+perf.controller('CompareResultsCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', '$location',
                               'thServiceDomain', '$http', '$q', '$timeout', 'getSeriesSummary',
   function CompareResultsCtrl($state, $stateParams, $scope, $rootScope, $location,
                     thServiceDomain, $http, $q, $timeout, getSeriesSummary) {
@@ -109,103 +66,93 @@ comparePerf.controller('CompareResultsCtrl', [ '$state', '$stateParams', '$scope
       $scope.testList = [];
       $scope.platformList = [];
 
-      var signatureURL = thServiceDomain + '/api/project/' + $scope.originalProject + 
+      function getSeriesData(projectName, e10s, pgo) {
+        var signatureURL = thServiceDomain + '/api/project/' + projectName + 
           '/performance-data/0/get_performance_series_summary/?interval=' +
           $scope.timeRange;
-
-      $http.get(signatureURL).then(
-        function(response) {
+        return $http.get(signatureURL).then(function(response) {
           var seriesList = [];
+          var platformList = [];
+          var testList = [];
 
           Object.keys(response.data).forEach(function(signature) {
             var seriesSummary = getSeriesSummary(signature,
                                                  response.data[signature],
-                                                 optionCollectionMap,
-                                                 $stateParams.pgo,
-                                                 $stateParams.e10s);
+                                                 optionCollectionMap);
 
-            if (seriesSummary != null && seriesSummary.signature !== undefined) {
+            // Only keep summary signatures, filter in/out e10s and pgo
+            if (!seriesSummary.subtestSignatures ||
+                (e10s && !_.contains(seriesSummary.options, 'e10s')) ||
+                (!e10s && _.contains(seriesSummary.options, 'e10s')) ||
+                (pgo && !_.contains(seriesSummary.options, 'pgo')) ||
+                (!pgo && _.contains(seriesSummary.options, 'pgo'))) {
+              return; // skip, not valid
+            } else {
               seriesList.push(seriesSummary);
 
-              if ($scope.platformList.indexOf(seriesSummary.platform) === -1) {
-                $scope.platformList.push(seriesSummary.platform);
+              // add test/platform to lists if not yet present
+              if (!_.contains(platformList, seriesSummary.platform)) {
+                platformList.push(seriesSummary.platform);
               }
-
-              if ($scope.testList.indexOf(seriesSummary.name) === -1) {
-                $scope.testList.push(seriesSummary.name);
+              if (!_.contains(testList, seriesSummary.name)) {
+               testList.push(seriesSummary.name);
               }
             }
           });
 
-          // find summary results for all tests/platforms for the original rev
-          var signatureURL = thServiceDomain + '/api/project/' +
-              $scope.originalProject + '/performance-data/0/' +
-              'get_performance_data/?interval_seconds=' + $scope.timeRange;
+          return {
+            seriesList: seriesList,
+            platformList: platformList,
+            testList: testList
+          };
+        });
+      }
 
-          // TODO: figure how how to reduce these maps
-          var rawResultsMap = {};
+      function getResultsMap(projectName, seriesList, timeRange, resultSetId) {
+        var baseURL = thServiceDomain + '/api/project/' +
+          projectName + '/performance-data/0/' +
+          'get_performance_data/?interval_seconds=' + timeRange;
 
-          $q.all(seriesList.map(function(series) {
-            return $http.get(signatureURL + "&signatures=" + series.signature).then(function(response) {
+        var resultsMap = {};
+        return $q.all(seriesList.map(function(series) {
+          return $http.get(baseURL + "&signatures=" + series.signature).then(
+            function(response) {
               response.data.forEach(function(data) {
-                rawResultsMap[data.series_signature] = calculateStats(data.blob, $scope.originalResultSetID);
-                rawResultsMap[data.series_signature].name = series.name;
-                rawResultsMap[data.series_signature].platform = series.platform;
+                resultsMap[data.series_signature] = calculateStats(
+                  data.blob, resultSetId);
+                resultsMap[data.series_signature].name = series.name;
+                resultsMap[data.series_signature].platform = series.platform;
               });
+            })
+        })).then(function() {
+          return resultsMap;
+        });
+      }
+
+      getSeriesData($scope.originalProject, $scope.e10s, $scope.pgo).then(
+        function(originalSeriesData) {
+          $scope.platformList = originalSeriesData.platformList;
+          $scope.testList = originalSeriesData.platformList;
+          return getResultsMap($scope.originalProject,
+                               originalSeriesData.seriesList,
+                               $scope.timeRange,
+                               $scope.originalResultSetID);
+        }).then(function(originalResultsMap) {
+          getSeriesData($scope.newProject, $scope.e10s, $scope.pgo).then(
+            function(newSeriesData) {
+              $scope.platformList = _.union($scope.platformList,
+                                            newSeriesData.platformList).sort();
+              $scope.testList = _.union($scope.testList,
+                                        newSeriesData.testList).sort();
+              return getResultsMap($scope.newProject,
+                                   newSeriesData.seriesList,
+                                   $scope.timeRange,
+                                   $scope.newResultSetID);
+            }).then(function(newResultsMap) {
+              $scope.dataLoading = false;
+              displayResults(originalResultsMap, newResultsMap);
             });
-          })).then(function () {
-            // find summary results for all tests/platforms for the original rev
-            var signatureURL = thServiceDomain + '/api/project/' +
-                           $scope.newProject + '/performance-data/0/' +
-                           'get_performance_data/?interval_seconds=' + $scope.timeRange;
-
-            //ok, now get the new revision
-            var signatureListURL = thServiceDomain + '/api/project/' + $scope.newProject + 
-              '/performance-data/0/get_performance_series_summary/?interval=' +
-              $scope.timeRange;
-
-            var newRawResultsMap = {};
-            var newSeriesList = [];
-
-            $http.get(signatureListURL).then(function(response) {
-              Object.keys(response.data).forEach(function(signature) {
-                var seriesSummary = getSeriesSummary(signature,
-                                                     response.data[signature],
-                                                     optionCollectionMap,
-                                                     $stateParams.pgo,
-                                                     $stateParams.e10s);
-
-                if (seriesSummary != null && seriesSummary.signature !== undefined) {
-                  newSeriesList.push(seriesSummary);
-
-                  if ($scope.platformList.indexOf(seriesSummary.platform) === -1) {
-                    $scope.platformList.push(seriesSummary.platform);
-                  }
-
-                  if ($scope.testList.indexOf(seriesSummary.name) === -1) {
-                    $scope.testList.push(seriesSummary.name);
-                  }
-                }
-              });
-              $scope.testList.sort();
-              $scope.platformList.sort();
-
-              $q.all(newSeriesList.map(function(series) {
-                return $http.get(signatureURL + "&signatures=" + series.signature).then(function(response) {
-                  response.data.forEach(function(data) {
-                    newRawResultsMap[data.series_signature] = calculateStats(data.blob, $scope.newResultSetID);
-                    newRawResultsMap[data.series_signature].name = series.name;
-                    newRawResultsMap[data.series_signature].platform = series.platform;
-                  });
-                });
-              })).then(function () {
-                $scope.dataLoading = false;
-                displayResults(rawResultsMap, newRawResultsMap);
-              });
-            });
-          });
-        }
-      );
+        });
     }
 
     //TODO: put this into a generic library
@@ -381,18 +328,3 @@ comparePerf.controller('CompareResultsCtrl', [ '$state', '$stateParams', '$scope
       displayComparision();
       });
   }]);
-
-
-comparePerf.config(function($stateProvider, $urlRouterProvider) {
-  $stateProvider.state('compare', {
-    templateUrl: 'partials/perf/comparectrl.html',
-    url: '/compare?originalProject&originalRevision&newProject&newRevision&hideMinorChanges&e10s&pgo',
-    controller: 'CompareResultsCtrl'
-  }).state('comparechooser', {
-    templateUrl: 'partials/perf/comparechooserctrl.html',
-    url: '/comparechooser',
-    controller: 'CompareChooserCtrl'
-  });
-
-  $urlRouterProvider.otherwise('/comparechooser');
-});
