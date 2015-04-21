@@ -66,19 +66,6 @@ treeherder.directive('focusMe', [
   };
 }]);
 
-// Select all text input in an html element on click.
-treeherder.directive('selectOnClick', [
-    function () {
-        return {
-            restrict: 'A',
-            link: function (scope, element, attrs) {
-                element.on('click', function () {
-                    this.select();
-                });
-        }
-    };
-}]);
-
 // Allow copy to system clipboard during hover
 treeherder.directive('copyValue', [
     function() {
