@@ -77,9 +77,30 @@ comparePerf.factory('getSeriesSummary', [ function() {
   };
 }]);
 
-comparePerf.controller('CompareCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', '$location',
+comparePerf.controller('CompareChooserCtrl', [ '$state', '$stateParams',
+                                               '$scope',
+                                               '$rootScope', '$location',
+                                               'thServiceDomain', '$http',
+                                               '$q', '$timeout', 'ThRepositoryModel',
+  function CompareChooserCtrl($state, $stateParams, $scope, $rootScope, $location,
+                    thServiceDomain, $http, $q, $timeout, ThRepositoryModel) {
+    ThRepositoryModel.get_list().success(function(projects) {
+      $scope.projects = projects;
+      $scope.originalProject = $scope.newProject = projects[0];
+
+      $scope.runCompare = function() {
+        $state.go('compare', {
+          originalProject: $scope.originalProject.name,
+          originalRevision: $scope.originalRevision,
+          newProject: $scope.newProject.name,
+          newRevision: $scope.newRevision });
+      };
+    });
+  }]);
+
+comparePerf.controller('CompareResultsCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', '$location',
                               'thServiceDomain', '$http', '$q', '$timeout', 'getSeriesSummary',
-  function CompareCtrl($state, $stateParams, $scope, $rootScope, $location,
+  function CompareResultsCtrl($state, $stateParams, $scope, $rootScope, $location,
                     thServiceDomain, $http, $q, $timeout, getSeriesSummary) {
 
     function displayComparision() {
@@ -321,14 +342,6 @@ comparePerf.controller('CompareCtrl', [ '$state', '$stateParams', '$scope', '$ro
       });
     }
 
-    function updateURL() {
-      $state.transitionTo('compare', { 'originalProject': $scope.originalProject,
-                            'originalRevision': $scope.originalRevision,
-                            'newProject': $scope.newProject,
-                            'newRevision': $scope.newRevision},
-                {location: true, inherit: true, notify: false, relative: $state.$current});
-    }
-
     var optionCollectionMap = {};
     $scope.dataLoading = true;
 
@@ -371,29 +384,15 @@ comparePerf.controller('CompareCtrl', [ '$state', '$stateParams', '$scope', '$ro
 
 
 comparePerf.config(function($stateProvider, $urlRouterProvider) {
-  $urlRouterProvider.deferIntercept(); // so we don't reload on url change
-
   $stateProvider.state('compare', {
     templateUrl: 'partials/perf/comparectrl.html',
     url: '/compare?originalProject&originalRevision&newProject&newRevision&hideMinorChanges&e10s&pgo',
-    controller: 'CompareCtrl'
+    controller: 'CompareResultsCtrl'
+  }).state('comparechooser', {
+    templateUrl: 'partials/perf/comparechooserctrl.html',
+    url: '/comparechooser',
+    controller: 'CompareChooserCtrl'
   });
 
-  $urlRouterProvider.otherwise('/compare');
-})
-  // define the interception
-  .run(function ($rootScope, $urlRouter, $location, $state) {
-    $rootScope.$on('$locationChangeSuccess', function(e, newUrl, oldUrl) {
-      // Prevent $urlRouter's default handler from firing
-      e.preventDefault();
-      if ($state.current.name !== 'compare') {
-        // here for first time, synchronize
-        $urlRouter.sync();
-      }
-    });
-
-    // Configures $urlRouter's listener *after* custom listener
-    $urlRouter.listen();
-  })
-
-
+  $urlRouterProvider.otherwise('/comparechooser');
+});

@@ -201,6 +201,31 @@ to { opacity: 0; }
     overflow: hidden;
 }
 
+/* Compare interface stuff */
+
+.compare-form {
+  align: center;
+  display: flex;
+  flex-flow: column;
+}
+
+.compare-form .form-group {
+  display: flex;
+  flex-flow: row;
+  flex: none;
+}
+
+.compare-form .form-group .panel {
+  flex: none;
+  width: 280px;
+  margin-right: 15px;
+  margin-bottom: 0px;
+}
+
+.compare-form .button-container {
+  width: 575px;
+}
+
 .compare-improvement {
   background-color: green;
   color: white;

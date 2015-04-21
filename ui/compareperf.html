@@ -13,8 +13,18 @@
 </head>
 <body>
 
-  <section ui-view>
-  </section>
+  <nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="#">Perfherder Compare</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid">
+    <section ui-view>
+    </section>
+  </div>
 
   <script src="js/config/local.conf.js"></script>
 
@@ -34,7 +44,12 @@
   <script src="vendor/bootstrap.js"></script>
   <script src="vendor/mousetrap.min.js"></script>
   <script src="js/treeherder.js"></script>
+  <script src="js/services/treestatus.js"></script>
   <script src="js/providers.js"></script>
+  <script src="js/values.js"></script>
+  <script src="js/services/main.js"></script>
+  <script src="js/services/log.js"></script>
+  <script src="js/models/repository.js"></script>
   <script src="js/compareperf.js"></script>
   <!-- endbuild -->
 
