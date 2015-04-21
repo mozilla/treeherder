@@ -24,5 +24,5 @@ fi
 
 exec $NEWRELIC_ADMIN celery -A treeherder worker \
     -Q log_parser_fail,log_parser,log_parser_hp,log_parser_json \
-    --logfile=$LOGFILE -l INFO \
+    --concurrency=5 --logfile=$LOGFILE -l INFO \
     --maxtasksperchild=500 -n log_parser.%h
