@@ -155,14 +155,14 @@ treeherder.controller('PluginCtrl', [
                                 function(parseLogResponse){return parseLogResponse.status === 200;}
                             )){
                                 selectJobRetryPromise = $timeout(function(){
+                                    // the failure summary tab update must also be triggered here,
+                                    // otherwise it will never update.
+                                    thTabs.tabs.failureSummary.update();
+                                    // refetch the job data details
                                     selectJobAndRender(job_id);
                                 }, 5000);
                             }
                         });
-                    } else {
-                        // if all logs are parsed, then update the failure summary tab
-                        // because there may now be failures or bug suggestions
-                        thTabs.tabs.failureSummary.update();
                     }
                     $scope.lvUrl = thUrl.getLogViewerUrl($scope.job.id);
                     $scope.lvFullUrl = location.origin + "/" + $scope.lvUrl;
