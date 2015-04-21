@@ -63,7 +63,8 @@ class LogSliceView(viewsets.ViewSet):
         logs = jm.get_log_references(job_id)
 
         try:
-            log = next(log for log in logs if log["name"] == log_name)
+            # @todo: remove after no more logs named 'builds-4h' exist in the db.  Should be after Aug 30, 2015.
+            log = next(log for log in logs if log["name"] in [log_name, 'builds-4h'])
         except StopIteration:
             raise ResourceNotFoundException("job_artifact {0} not found".format(job_id))
 
