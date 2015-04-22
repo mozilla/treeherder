@@ -78,7 +78,7 @@ https://github.com/mozilla/treeherder-client/archive/f236a3487eb042638836d4d9c9f
 # sha256: 7wE5rDCRO0Po04ij53blNKIvgZdZZpaNKDaewDOKabc
 Unipath==1.0
 
-# Required by django-browserid & responses
+# Required by django-browserid, WebTest & responses
 # sha256: uePBDlCStES7TBsLM39X5sPXaArXxRkvWX6E3ZMftZg
 requests==2.4.1
 

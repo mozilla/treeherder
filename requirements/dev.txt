@@ -49,12 +49,6 @@ beautifulsoup4==4.3.2
 waitress==0.8.9
 # sha256: CBmDggTipoI-Qr8iJ4mP3z8wb3YZvzKOJYVaDRyiA5k
 WebOb==1.4
-# Whilst 'requests' is in checked-in.txt, we need to use it in conftest.py
-# before the vendor directory gets added to the Python path.
-# This can be removed once we migrate from the vendor directory to
-# putting everything there in requirements/common.txt
-# sha256: uePBDlCStES7TBsLM39X5sPXaArXxRkvWX6E3ZMftZg
-requests==2.4.1
 
 # Required by django-extensions, WebTest & responses
 # sha256: QYqTw5en7asj5ViNvAZ6x0pyPts9VBvUk295R252Rdo
