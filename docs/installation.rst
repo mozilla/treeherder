@@ -121,7 +121,9 @@ Ingestion tasks populate the database with version control push logs, queued/run
   The "-B" option tells the celery worker to startup a beat service, so that periodic tasks can be executed.
   You only need one worker with the beat service enabled. Multiple beat services will result in periodic tasks being executed multiple times.
 
-* Alternatively, instead of running a full ingestion task, you can process just the jobs associated with a single push in a synchronous manner. This is ideal for testing.
+* Alternatively, instead of running a full ingestion task, you can process just the jobs associated with any single push generated in the last 4 hours (builds-4h_), in a synchronous manner. This is ideal for testing.
+
+  .. _builds-4h: http://builddata.pub.build.mozilla.org/buildjson/
 
   .. code-block:: bash
 
