@@ -19,10 +19,6 @@ responses==0.3.0
 # sha256: P8n8hnJTAsWCGUO4veTde4L6PRY2VeLhQHSbmhZgcYE
 django-extensions==1.5.1
 
-# in order to be able to run bin/generate-vendor-lib.py
-# sha256: _XeKxeX_6HCj-3fW2A6BguCl8_xA2R-DVwYQRLeERDU
-virtualenv==12.0.7
-
 #for celery auto-reloading
 # sha256: 58UqnzbO4nxdCTHs-SlZzQIjF7AJAb007wXs5KKlyxs
 pyinotify==0.9.5
