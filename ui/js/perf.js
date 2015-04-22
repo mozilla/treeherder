@@ -28,3 +28,26 @@ perf.factory('getSeriesSummary', [ function() {
              options: options, subtestSignatures: subtestSignatures };
   };
 }]);
+
+perf.factory('math', [ function() {
+  return {
+    /**
+     * Compute the standard deviation for an array of values.
+     *
+     * @param values
+     *        An array of numbers.
+     * @param avg
+     *        Average of the values.
+     * @return a number (the standard deviation)
+     */
+    stddev: function(values, avg) {
+      if (values.length <= 1) {
+        return 0;
+      }
+
+      return Math.sqrt(
+        values.map(function (v) { return Math.pow(v - avg, 2); })
+          .reduce(function (a, b) { return a + b; }) / (values.length - 1));
+    }
+  };
+}]);

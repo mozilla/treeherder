@@ -4,43 +4,10 @@
 
 "use strict";
 
-
-// -------------------------------------------------------------------------
-// Utility Functions
-// -------------------------------------------------------------------------
-
-
-/**
- * Compute the standard deviation for an array of values.
- * 
- * @param values
- *        An array of numbers.
- * @param avg
- *        Average of the values.
- * @return a number (the standard deviation)
- */
-function stddev(values, avg) {
-  if (values.length <= 1) {
-    return 0;
-  }
-
-  return Math.sqrt(
-    values.map(function (v) { return Math.pow(v - avg, 2); })
-          .reduce(function (a, b) { return a + b; }) / (values.length - 1));
-}
-
-
-// -------------------------------------------------------------------------
-// End Utility Functions
-// -------------------------------------------------------------------------
-
-perf.controller('CompareChooserCtrl', [ '$state', '$stateParams',
-                                               '$scope',
-                                               '$rootScope', '$location',
-                                               'thServiceDomain', '$http',
-                                               '$q', '$timeout', 'ThRepositoryModel',
-  function CompareChooserCtrl($state, $stateParams, $scope, $rootScope, $location,
-                    thServiceDomain, $http, $q, $timeout, ThRepositoryModel) {
+perf.controller('CompareChooserCtrl', [
+  '$state', '$stateParams', '$scope', 'ThRepositoryModel',
+  function CompareChooserCtrl($state, $stateParams, $scope,
+                              ThRepositoryModel) {
     ThRepositoryModel.get_list().success(function(projects) {
       $scope.projects = projects;
       $scope.originalProject = $scope.newProject = projects[0];
@@ -55,11 +22,14 @@ perf.controller('CompareChooserCtrl', [ '$state', '$stateParams',
     });
   }]);
 
-perf.controller('CompareResultsCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', '$location',
-                              'thServiceDomain', '$http', '$q', '$timeout', 'getSeriesSummary',
-  function CompareResultsCtrl($state, $stateParams, $scope, $rootScope, $location,
-                    thServiceDomain, $http, $q, $timeout, getSeriesSummary) {
-
+perf.controller('CompareResultsCtrl', [
+  '$state', '$stateParams', '$scope', '$rootScope', '$location',
+  'thServiceDomain', '$http', '$q', '$timeout', 'getSeriesSummary', 'math',
+  function CompareResultsCtrl($state, $stateParams, $scope,
+                              $rootScope, $location,
+                              thServiceDomain, $http, $q,
+                              $timeout, getSeriesSummary,
+                              math) {
     function displayComparision() {
       //TODO: determine the dates of the two revisions and only grab what we need
       $scope.timeRange = 2592000; // last 30 days
@@ -165,7 +135,7 @@ perf.controller('CompareResultsCtrl', [ '$state', '$stateParams', '$scope', '$ro
       });
 
       var avg = total / geomeans.length;
-      var sigma = stddev(geomeans, avg);
+      var sigma = math.stddev(geomeans, avg);
       return {geomean: avg.toFixed(2), stddev: sigma.toFixed(2), runs: geomeans.length};
     }
 
