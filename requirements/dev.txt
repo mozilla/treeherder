@@ -1,4 +1,4 @@
-# Dependencies (both pure-Python and compiled) needed only in development
+# Dependencies needed only for development/testing.
 
 # for the test suite and coverage metrics
 # sha256: VQiDuYGEzvbLuYDU2QBRMwrq5BB1CS-Y7wIVcZr47zM

@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-# Install python and compiled modules for project
+# Install python and common packages for project
 
 $python_devel = $operatingsystem ? {
     ubuntu => "python-dev",
@@ -64,7 +64,7 @@ class python {
     user => "${APP_USER}",
   }
 
-  exec{"peep-install-compiled":
+  exec{"peep-install-common":
     require => Exec['create-virtualenv'],
     user => "${APP_USER}",
     cwd => '/tmp',
