@@ -4,15 +4,10 @@
 
 # Django settings for webapp project.
 import os
-import sys
 from datetime import timedelta
 
 from kombu import Exchange, Queue
 from treeherder import path
-
-# Insure the vendor libraries are added to the python path
-# in production, and before the site-packages entry.
-sys.path.insert(1, path('..', 'vendor'))
 
 # These settings can all be optionally set via env vars, or in local.py:
 

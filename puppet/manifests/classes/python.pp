@@ -72,11 +72,4 @@ class python {
     timeout => 1800,
   }
 
-  file { "vendor.pth":
-    path => "${VENV_DIR}/${site_packages}/vendor.pth",
-    ensure => present,
-    content => "$PROJ_DIR/vendor/",
-    require => Exec["create-virtualenv"],
-  }
-
 }
