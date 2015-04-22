@@ -11,8 +11,6 @@ uses:
 requirements:
     - requirements/common.txt
     - requirements/dev.txt
-ignore-paths:
-    - vendor
 
 # We run flake8 (pep8 + pyflakes) as part of the Travis run,
 # so it's unnecessary to run them again here.
