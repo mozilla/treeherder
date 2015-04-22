@@ -135,7 +135,6 @@ def ping_newrelic(ctx):
         print 'Post deployment to New Relic'
         data = urllib.urlencode({
             'deployment[user]': 'Chief',
-            'deployment[revision]': settings.UPDATE_REF,
             'deployment[application_id]': settings.NEW_RELIC_APP_ID
         })
         headers = {'x-api-key': settings.NEW_RELIC_API_KEY}
