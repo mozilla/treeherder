@@ -6,6 +6,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from treeherder.webapp.api.utils import UrlQueryFilter, oauth_required
 from treeherder.model.derived import JobsModel, ArtifactsModel
+from treeherder.model.bug_suggestions import generate_bug_suggestions_artifacts
 
 
 class ArtifactViewSet(viewsets.ViewSet):
@@ -57,6 +58,9 @@ class ArtifactViewSet(viewsets.ViewSet):
 
         job_guids = [x['job_guid'] for x in request.DATA]
         with JobsModel(project) as jobsModel, ArtifactsModel(project) as artifacts_model:
+
+            # create an accompanying ``Bug suggestions`` artifact for any eligible artifacts
+            generate_bug_suggestions_artifacts(project, request.DATA)
 
             job_id_lookup = jobsModel.get_job_ids_by_guid(job_guids)
             artifacts_model.load_job_artifacts(request.DATA, job_id_lookup)
