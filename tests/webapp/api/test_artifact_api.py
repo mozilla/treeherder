@@ -3,8 +3,13 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 import pytest
-from django.core.urlresolvers import reverse
 from treeherder.model.derived import ArtifactsModel
+import json
+import thclient
+
+from django.core.urlresolvers import reverse
+from treeherder.etl.oauth_utils import OAuthCredentials
+
 
 xfail = pytest.mark.xfail
 
@@ -13,7 +18,7 @@ xfail = pytest.mark.xfail
 
 def test_artifact_detail(webapp, test_project, eleven_jobs_processed, sample_artifacts, jm):
     """
-    test retrieving a single job from the jobs-detail
+    test retrieving a single artifact from the artifact-detail
     endpoint.
     """
     job = jm.get_job_list(0, 1)[0]
@@ -66,5 +71,54 @@ def test_artifact_detail_bad_project(webapp, jm):
     )
     assert resp.status_int == 404
     assert resp.json == {"detail": "No project with name foo"}
+
+    jm.disconnect()
+
+
+def test_artifact_create_text_log_summary(webapp, eleven_jobs_processed,
+                                          mock_send_request, monkeypatch,
+                                          sample_data, jm):
+    """
+    test creating a single artifact with bug suggestions
+    """
+    from treeherder.model import bug_suggestions
+
+    def _get_bug_suggestions(params):
+        return ["foo", "bar"]
+
+    monkeypatch.setattr(bug_suggestions, "get_bug_suggestions", _get_bug_suggestions)
+
+    credentials = OAuthCredentials.get_credentials(jm.project)
+
+    job = jm.get_job_list(0, 1)[0]
+    tls = sample_data.text_log_summary
+
+    tac = thclient.TreeherderArtifactCollection()
+    ta = thclient.TreeherderArtifact({
+        'type': 'json',
+        'name': 'text_log_summary',
+        'blob': json.dumps(tls['blob']),
+        'job_guid': job['job_guid']
+    })
+    tac.add(ta)
+
+    req = thclient.TreeherderRequest(
+        protocol='http',
+        host='treeherder.mozilla.org',
+        project=jm.project,
+        oauth_key=credentials['consumer_key'],
+        oauth_secret=credentials['consumer_secret']
+        )
+
+    # Post the request to treeherder
+    resp = req.post(tac)
+    assert resp.status_int == 200
+    assert resp.body == '{"message": "Artifacts stored successfully"}'
+
+    with ArtifactsModel(jm.project) as artifacts_model:
+        artifacts = artifacts_model.get_job_artifact_references(job["id"])
+
+    artifact_names = [x['name'] for x in artifacts]
+    assert set(artifact_names) == set(['Bug suggestions', 'text_log_summary'])
 
     jm.disconnect()
