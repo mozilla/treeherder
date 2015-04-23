@@ -182,6 +182,3 @@ class ExclusionProfileViewSet(viewsets.ModelViewSet):
         if "author" not in request.DATA:
             request.DATA["author"] = request.user.id
         return super(ExclusionProfileViewSet, self).create(request, *args, **kwargs)
-
-    def post_save(self, obj, created=False):
-        obj.update_flat_exclusions()

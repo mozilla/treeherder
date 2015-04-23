@@ -596,6 +596,8 @@ class ExclusionProfile(models.Model):
     def save(self, *args, **kwargs):
         super(ExclusionProfile, self).save(*args, **kwargs)
 
+        self.update_flat_exclusions()
+
         # update the old default profile
         if self.is_default:
             ExclusionProfile.objects.filter(is_default=True).exclude(
