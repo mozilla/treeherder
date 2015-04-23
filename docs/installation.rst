@@ -84,6 +84,15 @@ Setting up a local Treeherder instance
 
      192.168.33.10    local.treeherder.mozilla.org
 
+* If not already present, copy the example service configuration file to one read by default by Treeherder
+
+  .. code-block:: bash
+
+     (venv)vagrant@precise32:~/treeherder$ cp app/js/config/sample.local.conf.js app/js/config/local.conf.js
+
+  and edit local.conf.js and set ``window.thServiceDomain = vagrant;`` to pull data from your local backend service.
+
+
 Viewing the local server
 ------------------------
 
