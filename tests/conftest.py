@@ -395,6 +395,7 @@ def mock_send_request(monkeypatch, set_oauth_credentials):
         )
 
         response.getcode = lambda: response.status_int
+        response.read = lambda: response.body
         return response
 
     from thclient.client import TreeherderRequest

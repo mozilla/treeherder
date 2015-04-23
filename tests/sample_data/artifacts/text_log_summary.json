@@ -1,0 +1,262 @@
+{
+    "blob": {
+        "header": {
+            "slave": "t-snow-r4-0001",
+            "buildid": "20150415030206",
+            "builder": "mozilla-central_snowleopard_test-mochitest-2",
+            "results": "warnings (1)",
+            "starttime": "1429100703.17",
+            "builduid": "8ad46455f18545abbdff94ba9dce402e",
+            "revision": "a6f7a33731bc3fe22073129bba83fc7480e387e2"
+        },
+        "step_data": {
+            "all_errors": [
+                {
+                    "line": "05:35:49     INFO -  2018 INFO TEST-UNEXPECTED-FAIL | dom/indexedDB/test/test_transaction_lifetimes.html | Should be able to get objectStore - expected PASS",
+                    "linenumber": 8151
+                },
+                {
+                    "line": "05:35:49     INFO -  2019 INFO TEST-UNEXPECTED-FAIL | dom/indexedDB/test/test_transaction_lifetimes.html | Should be able to get index - expected PASS",
+                    "linenumber": 8152
+                },
+                {
+                    "line": "05:35:49     INFO -  2023 INFO TEST-UNEXPECTED-FAIL | dom/indexedDB/test/test_transaction_lifetimes.html | Ordering is correct. - expected PASS",
+                    "linenumber": 8156
+                },
+                {
+                    "line": "05:35:49     INFO -  2024 INFO TEST-UNEXPECTED-FAIL | dom/indexedDB/test/test_transaction_lifetimes.html | Worker: uncaught exception [http://mochi.test:8888/tests/dom/indexedDB/test/unit/test_transaction_lifetimes.js:45]: ': InvalidStateError: An attempt was made to use an object that is not, or is no longer, usable' - expected PASS",
+                    "linenumber": 8157
+                }
+            ],
+            "steps": [
+                {
+                    "errors": [ ],
+                    "name": "set props: master",
+                    "started": "2015-04-15 05:25:03.168328",
+                    "started_linenumber": 8,
+                    "finished_linenumber": 10,
+                    "finished": "2015-04-15 05:25:03.168795",
+                    "error_count": 0,
+                    "duration": 0,
+                    "order": 0,
+                    "result": "success"
+                },
+                {
+                    "errors": [ ],
+                    "name": "set props: basedir",
+                    "started": "2015-04-15 05:25:03.169099",
+                    "started_linenumber": 12,
+                    "finished_linenumber": 40,
+                    "finished": "2015-04-15 05:25:03.597219",
+                    "error_count": 0,
+                    "duration": 0,
+                    "order": 1,
+                    "result": "success"
+                },
+                {
+                    "errors": [ ],
+                    "name": "downloading to buildprops.json",
+                    "started": "2015-04-15 05:25:03.597542",
+                    "started_linenumber": 42,
+                    "finished_linenumber": 43,
+                    "finished": "2015-04-15 05:25:03.726142",
+                    "error_count": 0,
+                    "duration": 0,
+                    "order": 2,
+                    "result": "success"
+                },
+                {
+                    "errors": [ ],
+                    "name": "'rm -rf ...'",
+                    "started": "2015-04-15 05:25:03.726523",
+                    "started_linenumber": 45,
+                    "finished_linenumber": 71,
+                    "finished": "2015-04-15 05:25:03.777120",
+                    "error_count": 0,
+                    "duration": 0,
+                    "order": 3,
+                    "result": "success"
+                },
+                {
+                    "errors": [ ],
+                    "name": "set props: script_repo_url",
+                    "started": "2015-04-15 05:25:03.777445",
+                    "started_linenumber": 73,
+                    "finished_linenumber": 75,
+                    "finished": "2015-04-15 05:25:03.777817",
+                    "error_count": 0,
+                    "duration": 0,
+                    "order": 4,
+                    "result": "success"
+                },
+                {
+                    "errors": [ ],
+                    "name": "'bash -c ...'",
+                    "started": "2015-04-15 05:25:03.778747",
+                    "started_linenumber": 77,
+                    "finished_linenumber": 114,
+                    "finished": "2015-04-15 05:25:03.945448",
+                    "error_count": 0,
+                    "duration": 0,
+                    "order": 5,
+                    "result": "success"
+                },
+                {
+                    "errors": [ ],
+                    "name": "set props: script_repo_revision script_repo_url",
+                    "started": "2015-04-15 05:25:03.945809",
+                    "started_linenumber": 116,
+                    "finished_linenumber": 146,
+                    "finished": "2015-04-15 05:25:04.682022",
+                    "error_count": 0,
+                    "duration": 1,
+                    "order": 6,
+                    "result": "success"
+                },
+                {
+                    "errors": [ ],
+                    "name": "'rm -rf ...'",
+                    "started": "2015-04-15 05:25:04.682572",
+                    "started_linenumber": 148,
+                    "finished_linenumber": 174,
+                    "finished": "2015-04-15 05:25:05.278125",
+                    "error_count": 0,
+                    "duration": 1,
+                    "order": 7,
+                    "result": "success"
+                },
+                {
+                    "errors": [ ],
+                    "name": "'hg clone ...'",
+                    "started": "2015-04-15 05:25:05.278437",
+                    "started_linenumber": 176,
+                    "finished_linenumber": 210,
+                    "finished": "2015-04-15 05:25:11.964370",
+                    "error_count": 0,
+                    "duration": 7,
+                    "order": 8,
+                    "result": "success"
+                },
+                {
+                    "errors": [ ],
+                    "name": "'hg update ...'",
+                    "started": "2015-04-15 05:25:11.964712",
+                    "started_linenumber": 212,
+                    "finished_linenumber": 239,
+                    "finished": "2015-04-15 05:25:12.506740",
+                    "error_count": 0,
+                    "duration": 1,
+                    "order": 9,
+                    "result": "success"
+                },
+                {
+                    "errors": [ ],
+                    "name": "set props: script_repo_revision",
+                    "started": "2015-04-15 05:25:12.507514",
+                    "started_linenumber": 241,
+                    "finished_linenumber": 269,
+                    "finished": "2015-04-15 05:25:12.700263",
+                    "error_count": 0,
+                    "duration": 0,
+                    "order": 10,
+                    "result": "success"
+                },
+                {
+                    "errors": [ ],
+                    "name": "downloading to oauth.txt",
+                    "started": "2015-04-15 05:25:12.700568",
+                    "started_linenumber": 271,
+                    "finished_linenumber": 272,
+                    "finished": "2015-04-15 05:25:12.730239",
+                    "error_count": 0,
+                    "duration": 0,
+                    "order": 11,
+                    "result": "success"
+                },
+                {
+                    "errors": [ ],
+                    "name": "tinderboxprint_script_revlink",
+                    "started": "2015-04-15 05:25:12.730485",
+                    "started_linenumber": 274,
+                    "finished_linenumber": 276,
+                    "finished": "2015-04-15 05:25:12.730832",
+                    "error_count": 0,
+                    "duration": 0,
+                    "order": 12,
+                    "result": "success"
+                },
+                {
+                    "errors": [
+                        {
+                            "line": "05:35:49     INFO -  2018 INFO TEST-UNEXPECTED-FAIL | dom/indexedDB/test/test_transaction_lifetimes.html | Should be able to get objectStore - expected PASS",
+                            "linenumber": 8151
+                        },
+                        {
+                            "line": "05:35:49     INFO -  2019 INFO TEST-UNEXPECTED-FAIL | dom/indexedDB/test/test_transaction_lifetimes.html | Should be able to get index - expected PASS",
+                            "linenumber": 8152
+                        },
+                        {
+                            "line": "05:35:49     INFO -  2023 INFO TEST-UNEXPECTED-FAIL | dom/indexedDB/test/test_transaction_lifetimes.html | Ordering is correct. - expected PASS",
+                            "linenumber": 8156
+                        },
+                        {
+                            "line": "05:35:49     INFO -  2024 INFO TEST-UNEXPECTED-FAIL | dom/indexedDB/test/test_transaction_lifetimes.html | Worker: uncaught exception [http://mochi.test:8888/tests/dom/indexedDB/test/unit/test_transaction_lifetimes.js:45]: ': InvalidStateError: An attempt was made to use an object that is not, or is no longer, usable' - expected PASS",
+                            "linenumber": 8157
+                        }
+                    ],
+                    "name": "'/tools/buildbot/bin/python scripts/scripts/desktop_unittest.py ...' warnings",
+                    "started": "2015-04-15 05:25:12.731202",
+                    "started_linenumber": 278,
+                    "finished_linenumber": 9248,
+                    "finished": "2015-04-15 05:36:51.808779",
+                    "error_count": 4,
+                    "duration": 699,
+                    "order": 13,
+                    "result": "testfailed"
+                },
+                {
+                    "errors": [ ],
+                    "name": "set props: build_url blobber_files",
+                    "started": "2015-04-15 05:36:51.812718",
+                    "started_linenumber": 9250,
+                    "finished_linenumber": 9280,
+                    "finished": "2015-04-15 05:36:51.871786",
+                    "error_count": 0,
+                    "duration": 0,
+                    "order": 14,
+                    "result": "success"
+                },
+                {
+                    "errors": [ ],
+                    "name": "'rm -f ...'",
+                    "started": "2015-04-15 05:36:51.872124",
+                    "started_linenumber": 9282,
+                    "finished_linenumber": 9308,
+                    "finished": "2015-04-15 05:36:51.927004",
+                    "error_count": 0,
+                    "duration": 0,
+                    "order": 15,
+                    "result": "success"
+                },
+                {
+                    "errors": [ ],
+                    "name": "reboot skipped",
+                    "started": "2015-04-15 05:36:51.927332",
+                    "started_linenumber": 9310,
+                    "finished_linenumber": 9311,
+                    "finished": "2015-04-15 05:36:51.927750",
+                    "error_count": 0,
+                    "duration": 0,
+                    "order": 16,
+                    "result": "skipped"
+                }
+            ],
+            "errors_truncated": false
+        },
+        "logurl": "http://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/2015/04/2015-04-15-03-02-06-mozilla-central/mozilla-central_snowleopard_test-mochitest-2-bm107-tests1-macosx-build128.txt.gz"
+    },
+    "type": "json",
+    "id": 8217463,
+    "name": "text_log_summary",
+    "job_id": 1330578
+}
