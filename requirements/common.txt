@@ -79,8 +79,8 @@ treeherder-client==1.1
 Unipath==1.0
 
 # Required by django-browserid, WebTest & responses
-# sha256: uePBDlCStES7TBsLM39X5sPXaArXxRkvWX6E3ZMftZg
-requests==2.4.1
+# sha256: jw9WgT-C0MJ9lXgiEmismvSPB2xx7mlpMwXOymyjVb0
+requests==2.6.2
 
 # Required by django-browserid
 # sha256: akF58qKszaKyc7_Ybeb3AkzuIDBDzJp8BA_nswa74SA
