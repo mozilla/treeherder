@@ -71,8 +71,8 @@ mozlog==2.10
 # sha256: ImrtF9QIcMI8Ivl_3KZPtrDs557NAbzNptFgD5uEFkA
 https://github.com/jeads/datasource/archive/2f09c9cc8700be71c1e63bc4f34c6cc05ffc5a66.zip#egg=datasource
 
-# sha256: W3vd4fNt2t-31K2-CEk-jTDF0BsjaZfWOQmwLlpC_nw
-https://github.com/mozilla/treeherder-client/archive/f236a3487eb042638836d4d9c9f79d51cab2a362.zip#egg=treeherder-client
+# sha256: G9t_FDD0NgPDFK2yU-V94CECNCVgoWA9nfhlMGfhppk
+treeherder-client==1.1
 
 # Required by django-rest-swagger
 # sha256: 7wE5rDCRO0Po04ij53blNKIvgZdZZpaNKDaewDOKabc
