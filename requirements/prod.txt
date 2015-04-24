@@ -1,2 +1,2 @@
-# sha256: Nz068-nwwjOTLdzwJPl47tO9bOrulWOu22XAKff5src
-newrelic==2.44.0.36
+# sha256: _d1HqNBI4MX0Lu5RGoqvNYkcmW1slZVTx77Is6x0s8s
+newrelic==2.50.0.39
