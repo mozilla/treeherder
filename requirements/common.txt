@@ -15,8 +15,8 @@ kombu==3.0.23
 # sha256: eopr2C4RGXausGE4MWqxCEet9hKSUHLq_4USIovPmh8
 simplejson==3.3.0
 
-# sha256: xbVbC9QOI6nLzSwb3v6XcfxYNpOKzvdyeVgTpvZDLEg
-Cython==0.19.2
+# sha256: FDB-emmvmg0OACTURq9-UcwOPk0N-xDTa6g35eWEQBU
+Cython==0.22
 
 # Required by datasource
 # sha256: gRBAtkfl1WhvhNtBXv1pfmJQAIsRK2kJunesBZ4UDHQ
