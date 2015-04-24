@@ -3,10 +3,12 @@
 var util = require('util'),
     http = require('http'),
     fs = require('fs'),
+    path = require('path'),
     url = require('url'),
     events = require('events');
 
 var DEFAULT_PORT = 8000;
+var APP_ROOT = path.join(__dirname, "..");
 
 function main(argv) {
   new HttpServer({
@@ -91,7 +93,7 @@ StaticServlet.MimeMap = {
 
 StaticServlet.prototype.handleRequest = function(req, res) {
   var self = this;
-  var path = ('./' + req.url.pathname).replace('//','/').replace(/%(..)/g, function(match, hex){
+  var path = (APP_ROOT + req.url.pathname).replace('//','/').replace(/%(..)/g, function(match, hex){
     return String.fromCharCode(parseInt(hex, 16));
   });
   var parts = path.split('/');
@@ -243,6 +245,25 @@ StaticServlet.prototype.writeDirectoryIndex_ = function(req, res, path, files) {
   res.write('</ol>');
   res.end();
 };
+
+function isFile(filename) {
+  try {
+    if (!fs.statSync(filename).isFile())
+      throw("not a file");
+  } catch (e) {
+    return false;
+  }
+  return true;
+}
+
+
+// All the HTML files include the config file directly but none of them warns
+// if it doesn't exist, so when starting the server is a good time to warn.
+var confFile = path.join(APP_ROOT, "app/js/config/local.conf.js");
+if (!isFile(confFile)) {
+  console.log("Missing config file '" + confFile + "'.\n" +
+              "Consider copying it from 'sample.local.conf.js' at the same directory.");
+}
 
 // Must be last,
 main(process.argv);
