@@ -12,8 +12,8 @@ celery==3.1.16
 # sha256: sZX6jrUgwymU2LvRY3AA3j0JZTKy5FGDgy28tlwhHo4
 kombu==3.0.23
 
-# sha256: eopr2C4RGXausGE4MWqxCEet9hKSUHLq_4USIovPmh8
-simplejson==3.3.0
+# sha256: KjGJ950ce4ohSaDng8C0IX-tmzCm59YEUPJVPcLA5X4
+simplejson==3.6.5
 
 # sha256: FDB-emmvmg0OACTURq9-UcwOPk0N-xDTa6g35eWEQBU
 Cython==0.22
