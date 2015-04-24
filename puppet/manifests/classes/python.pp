@@ -21,12 +21,15 @@ $site_packages = $operatingsystem ? {
 
 class python {
 
-  package{[$python_devel,
+  # Python2.7 is already installed, but we need to update it to the
+  # latest version from the third party PPA.
+  package{["python2.7",
+           $python_devel,
            "gcc",
            "curl",
            "git",
            $libxml2]:
-    ensure => installed;
+    ensure => "latest",
   }
 
   exec { "install-pip":
