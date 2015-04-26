@@ -141,22 +141,20 @@
       </ul>
       <ul class="content-spacer">
         <li class="small">
-          <label>Job:</label>
-          <a title="Filter by job data strings"
+          <label>Job </label>
+          <a title="Filter jobs with this unique SHA signature"
+             href="{{jobSearchSignatureHref}}"
+             prevent-default-on-left-click
+             ng-click="filterByJobSearchStr(jobSearchSignature)"
+             copy-value="{{jobSearchSignature}}">
+            (sig) <span class="fa fa-pencil-square-o icon-superscript"></span></a>
+          <label>: </label>
+          <a title="Filter jobs containing these keywords"
              href="{{jobSearchStrHref}}"
              prevent-default-on-left-click
              ng-click="filterByJobSearchStr(jobSearchStr)"
              copy-value="{{jobSearchStr}}">
             {{jobSearchStr}}</a>
-        </li>
-        <li class="small">
-          <label>Filter:</label>
-          <a title="Filter by job signature SHA (more precise)"
-             href="{{jobSearchSignatureHref}}"
-             prevent-default-on-left-click
-             ng-click="filterByJobSearchStr(jobSearchSignature)"
-             copy-value="{{jobSearchSignature}}">
-            signature</a>
         </li>
         <li class="small">
           <label>Machine name:</label>
