@@ -59,15 +59,12 @@ class LogSliceView(viewsets.ViewSet):
         if start_line >= end_line:
             return Response("``end_line`` must be larger than ``start_line``", 400)
 
-        # @todo: remove once Bug 1139517 is addressed
-        if log_name == "buildbot_text":
-            log_name = 'builds-4h'
-
         # get only the log that matches the ``log_name``
         logs = jm.get_log_references(job_id)
 
         try:
-            log = next(log for log in logs if log["name"] == log_name)
+            # @todo: remove after no more logs named 'builds-4h' exist in the db.  Should be after Aug 30, 2015.
+            log = next(log for log in logs if log["name"] in [log_name, 'builds-4h'])
         except StopIteration:
             raise ResourceNotFoundException("job_artifact {0} not found".format(job_id))
 
