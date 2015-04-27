@@ -86,7 +86,6 @@ TEMPLATE_DIRS = [
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth',
-    'django_browserid.context_processors.browserid',
     'django.contrib.messages.context_processors.messages'
 )
 
