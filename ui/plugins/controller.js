@@ -35,7 +35,8 @@ treeherder.controller('PluginCtrl', [
                 delimiter = '&';
             }
 
-            return absUrl + delimiter + 'filter-searchStr=' + jobSearchStr;
+            return absUrl + delimiter + 'filter-searchStr=' +
+                   encodeURIComponent(jobSearchStr);
         };
 
         $scope.filterByJobSearchStr = function(jobSearchStr) {
