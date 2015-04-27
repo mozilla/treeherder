@@ -91,7 +91,10 @@ describe('JobsCtrl', function(){
     });
 
     it('should have 2 platforms in resultset 1', function() {
-        $httpBackend.flush()
+        // because some http requests are deferred to after first
+        // ingestion, we need to flush twice
+        $httpBackend.flush();
+        $httpBackend.flush();
         expect(jobsScope.result_sets[0].platforms.length).toBe(2);
     });
 
@@ -106,6 +109,9 @@ describe('JobsCtrl', function(){
             * ResultSetCtrl is created insided a ng-repeat
             * so we should have a list of resultSetscope
             */
+            // because some http requests are deferred to after first
+            // ingestion, we need to flush twice
+            $httpBackend.flush();
             $httpBackend.flush();
             resultSetScopeList = [];
             for(var i=0; i<jobsScope.result_sets.length; i++){

@@ -20,6 +20,7 @@ treeherderApp.config(function($routeProvider, $httpProvider, $logProvider) {
 
     $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
     $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+    $httpProvider.useApplyAsync(true);
 
     $routeProvider.
         when('/jobs', {
