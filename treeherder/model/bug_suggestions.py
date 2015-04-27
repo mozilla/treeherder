@@ -31,9 +31,9 @@ def generate_bug_suggestions_artifacts(project, artifact_list):
     tac = TreeherderArtifactCollection()
 
     for artifact in artifact_list:
-        # this is the only artifact name eligible to trigger generation of bug suggestions.
-        if artifact['name'] != 'text_log_summary':
-            continue
+        # this is the only artifact name eligible to trigger generation of bug
+        # suggestions.
+        assert artifact['name'] == 'text_log_summary'
 
         all_errors = get_all_errors(artifact)
         if all_errors:
