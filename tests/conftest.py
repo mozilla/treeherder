@@ -394,9 +394,19 @@ def mock_send_request(monkeypatch, set_oauth_credentials):
             content_type='application/json'
         )
 
-        response.getcode = lambda: response.status_int
-        response.read = lambda: response.body
-        return response
+        class FakeResponse(object):
+            pass
+
+        print "status int"
+        print response.status_int
+
+        fake_response = FakeResponse()
+        fake_response.getcode = lambda: response.status_int
+        fake_response.status = response.status_int
+        fake_response.status_int = response.status_int
+        fake_response.read = lambda: response.body
+        fake_response.body = response.body
+        return fake_response
 
     from thclient.client import TreeherderRequest
     monkeypatch.setattr(TreeherderRequest, 'send', _send)

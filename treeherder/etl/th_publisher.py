@@ -40,8 +40,8 @@ def post_treeherder_collections(th_collections):
         # a better fix would be to use ``requests`` in th_client: Bug 1144417
         # when that gets fixed, we can just check the in value here directly:
         #
-        #     if not response or response.status == 200:
-        if not response or response.status not in [200, "200 OK"]:
+        if not response or response.status == 200:
+        # if not response or response.status not in [200, "200 OK"]:
             errors.append({
                 "project": project,
                 "url": th_collections[project].endpoint_base,
