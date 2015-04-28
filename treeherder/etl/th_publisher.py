@@ -30,18 +30,7 @@ def post_treeherder_collections(th_collections):
                 th_request.get_uri(th_collections[project].endpoint_base)))
         response = th_request.post(th_collections[project])
 
-        # th_client uses ``httplib`` which has the ``status`` param as an int.
-        # WebTest in our unit tests expects responses to have ``status`` as a
-        # string and ``status_int`` is the int.  But if I mocked out ``status``
-        # as an int in WebTest, then it failed internally on the response
-        # within WebTest.
-        # So I had to check for both values of ``status`` for the tests to pass.
-
-        # a better fix would be to use ``requests`` in th_client: Bug 1144417
-        # when that gets fixed, we can just check the in value here directly:
-        #
         if not response or response.status == 200:
-        # if not response or response.status not in [200, "200 OK"]:
             errors.append({
                 "project": project,
                 "url": th_collections[project].endpoint_base,

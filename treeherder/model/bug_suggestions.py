@@ -6,29 +6,21 @@ import json
 from django.core.urlresolvers import reverse
 from django.conf import settings
 
-from thclient import TreeherderArtifactCollection
-from treeherder.etl import th_publisher
 
 logger = logging.getLogger(__name__)
 
 
-def generate_bug_suggestions_artifacts(project, artifact_list):
+def get_bug_suggestions_artifacts(artifact_list):
     """
     Create bug suggestions artifact(s) for any text_log_summary artifacts.
 
     ``artifact_list`` here is a list of artifacts that may contain one or more
         ``text_log_artifact`` objects.  If it does, we extract the error lines
         from it.  If there ARE error lines, then we generate the
-        ``bug suggestions`` artifact from them and post it.
+        ``bug suggestions`` artifacts and return them.
     """
 
-    # The clever dolphins among you may notice that even ``Bug suggestions``
-    # artifacts can get to this point.  However, they'll quickly be dismissed
-    # in the first check of the for-loop below because the name will be wrong.
-    # I figured that was a pretty small cpu sink considering it keeps the
-    # code simpler than creating a second endpoint or flag that must be set
-    # to determine whether or not to try this function.
-    tac = TreeherderArtifactCollection()
+    bug_suggestion_artifacts = []
 
     for artifact in artifact_list:
         # this is the only artifact name eligible to trigger generation of bug
@@ -37,16 +29,14 @@ def generate_bug_suggestions_artifacts(project, artifact_list):
 
         all_errors = get_all_errors(artifact)
         if all_errors:
-            ta = tac.get_artifact({
+            bug_suggestion_artifacts.append({
                 "job_guid": artifact['job_guid'],
                 "name": 'Bug suggestions',
                 "type": 'json',
                 "blob": json.dumps(get_bug_suggestions(all_errors))
             })
-            tac.add(ta)
 
-    if tac.get_collection_data():
-        th_publisher.post_treeherder_collections({project: tac})
+    return bug_suggestion_artifacts
 
 
 def get_all_errors(artifact):

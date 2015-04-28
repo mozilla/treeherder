@@ -6,7 +6,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from treeherder.webapp.api.utils import UrlQueryFilter, oauth_required
 from treeherder.model.derived import JobsModel, ArtifactsModel
-from treeherder.model.bug_suggestions import generate_bug_suggestions_artifacts
+from treeherder.model.bug_suggestions import get_bug_suggestions_artifacts
 
 
 class ArtifactViewSet(viewsets.ViewSet):
@@ -55,17 +55,20 @@ class ArtifactViewSet(viewsets.ViewSet):
 
     @oauth_required
     def create(self, request, project):
+        artifacts = request.DATA
 
-        job_guids = [x['job_guid'] for x in request.DATA]
-        with JobsModel(project) as jobsModel, ArtifactsModel(project) as artifacts_model:
+        job_guids = [x['job_guid'] for x in artifacts]
+        with JobsModel(project) as jobs_model, ArtifactsModel(project) as artifacts_model:
 
             # create an accompanying ``Bug suggestions`` artifact for any
             # eligible artifacts.
-            tls_list = [x for x in request.DATA if x['name'] == 'text_log_summary']
-            if tls_list:
-                generate_bug_suggestions_artifacts(project, tls_list)
+            tls_list = [x for x in artifacts if x['name'] == 'text_log_summary']
+            bsa = get_bug_suggestions_artifacts(tls_list)
 
-            job_id_lookup = jobsModel.get_job_ids_by_guid(job_guids)
-            artifacts_model.load_job_artifacts(request.DATA, job_id_lookup)
+            if bsa:
+                artifacts.extend(bsa)
+
+            job_id_lookup = jobs_model.get_job_ids_by_guid(job_guids)
+            artifacts_model.load_job_artifacts(artifacts, job_id_lookup)
 
             return Response({'message': 'Artifacts stored successfully'})
