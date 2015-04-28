@@ -397,9 +397,6 @@ def mock_send_request(monkeypatch, set_oauth_credentials):
         class FakeResponse(object):
             pass
 
-        print "status int"
-        print response.status_int
-
         fake_response = FakeResponse()
         fake_response.getcode = lambda: response.status_int
         fake_response.status = response.status_int
