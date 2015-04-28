@@ -43,8 +43,8 @@ coverage==3.7.1
 beautifulsoup4==4.3.2
 # sha256: gmUn3J0zTtTtds2uZy_cu8z2FBhmV9txZ5q1jfhpRYo
 waitress==0.8.9
-# sha256: CBmDggTipoI-Qr8iJ4mP3z8wb3YZvzKOJYVaDRyiA5k
-WebOb==1.4
+# sha256: Evi5g5C-_EczbSwOW62cxIYJ2Ajquz-GddwQJ6Op6ds
+WebOb==1.4.1
 
 # Required by django-extensions, WebTest & responses
 # sha256: QYqTw5en7asj5ViNvAZ6x0pyPts9VBvUk295R252Rdo
