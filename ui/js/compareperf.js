@@ -59,7 +59,7 @@ perf.controller('CompareResultsCtrl', [
           var originalResultsMap = resultMaps[$scope.originalResultSetID];
           var newResultsMap = resultMaps[$scope.newResultSetID];
 
-          // Optimization - collect all data in a single pass
+          // Optimization - we collected all data in a single pass
           if (newResultsMap) {
             $scope.dataLoading = false;
             displayResults(originalResultsMap, newResultsMap);
@@ -80,7 +80,8 @@ perf.controller('CompareResultsCtrl', [
                                    newSeriesData.seriesList,
                                    timeRange,
                                    [$scope.newResultSetID]);
-            }).then(function(newResultsMap) {
+            }).then(function(resultMaps) {
+              var newResultsMap = resultMaps[$scope.newResultSetID];
               $scope.dataLoading = false;
               displayResults(originalResultsMap, newResultsMap);
             });
@@ -116,6 +117,7 @@ perf.controller('CompareResultsCtrl', [
 
           cmap.detailsLink = detailsLink;
           cmap.name = platform;
+          cmap.hideMinorChanges = $scope.hideMinorChanges;
           $scope.compareResults[testName].push(cmap);
         });
       });
@@ -143,8 +145,9 @@ perf.controller('CompareResultsCtrl', [
       });
     }
 
-    var optionCollectionMap = {};
     $scope.dataLoading = true;
+    var optionCollectionMap = {};
+    $scope.getCompareClasses = PhCompare.getCompareClasses;
 
     $http.get(thServiceDomain + '/api/optioncollectionhash').then(
       function(response) {
@@ -221,11 +224,23 @@ perf.controller('CompareSubtestResultsCtrl', [
         $scope.titles[testName] = testName.replace('summary ', '');
         $scope.compareResults[testName] = [];
 
+        $scope.pageList.sort();
         $scope.pageList.forEach(function(page) {
-          var oldSig = _.find(Object.keys(rawResultsMap), function (sig) {
-            return (rawResultsMap[sig].name == page)});
-          var newSig = _.find(Object.keys(newRawResultsMap), function (sig) {
-            return (newRawResultsMap[sig].name == page)});
+          var mapsigs = [];
+          [rawResultsMap, newRawResultsMap].forEach(function(resultsMap) {
+            // If no data for a given platform, or test, display N/A in table
+            if (resultsMap) {
+              var tempsig = _.find(Object.keys(resultsMap), function (sig) {
+                return (resultsMap[sig].name == page)});
+            } else {
+              var tempsig = 'undefined';
+              resultsMap = {};
+              resultsMap[tempsig] = {};
+            }
+            mapsigs.push(tempsig);
+          });
+          var oldSig = mapsigs[0];
+          var newSig = mapsigs[1];
 
           var cmap = PhCompare.getCounterMap(testName, rawResultsMap[oldSig], newRawResultsMap[newSig]);
 
@@ -250,12 +265,15 @@ perf.controller('CompareSubtestResultsCtrl', [
 
           cmap.detailsLink = detailsLink;
           cmap.name = page;
+          cmap.hideMinorChanges = $scope.hideMinorChanges;
           $scope.compareResults[testName].push(cmap);
         });
       });
     }
 
+    $scope.dataLoading = true;
     var optionCollectionMap = {};
+    $scope.getCompareClasses = PhCompare.getCompareClasses;
 
     $http.get(thServiceDomain + '/api/optioncollectionhash').then(
       function(response) {
@@ -272,6 +290,7 @@ perf.controller('CompareSubtestResultsCtrl', [
         $scope.originalRevision = $stateParams.originalRevision;
         $scope.originalSignature = $stateParams.originalSignature;
         $scope.newSignature = $stateParams.newSignature;
+        $scope.hideMinorChanges = Boolean($stateParams.hideMinorChanges);
         if (!$scope.originalProject ||
             !$scope.newProject ||
             !$scope.originalRevision ||
@@ -311,14 +330,20 @@ perf.controller('CompareSubtestResultsCtrl', [
               }).then(function(seriesMaps) {
                   var originalSeriesMap = seriesMaps[$scope.originalResultSetID];
                   var newSeriesMap = seriesMaps[$scope.newResultSetID];
-                  Object.keys(originalSeriesMap).forEach(function(series) {
-                    if (!_.contains($scope.pageList, originalSeriesMap[series].name)) {
-                      $scope.pageList.push(originalSeriesMap[series].name);
+                  [originalSeriesMap, newSeriesMap].forEach(function (seriesMap) {
+                    // If there is no data for a given signature, handle it gracefully
+                    if (seriesMap) {
+                      Object.keys(seriesMap).forEach(function(series) {
+                        if (!_.contains($scope.pageList, seriesMap[series].name)) {
+                          $scope.pageList.push(seriesMap[series].name);
+                        }
+                      });
                     }
                   });
 
                   // Optimization- collect all data in a single pass
                   if (newSeriesMap) {
+                    $scope.dataLoading = false;
                     displayResults(originalSeriesMap, newSeriesMap, timeRange);
                     return;
                   }
@@ -326,19 +351,30 @@ perf.controller('CompareSubtestResultsCtrl', [
                   PhSeries.getSubtestSummaries($scope.newProject,
                                 timeRange,
                                 optionCollectionMap,
-                                $scope.originalSignature).then(
+                                $scope.newSignature).then(
                     function (newSeriesData) {
+                      $scope.platformList = _.union($scope.platformList,
+                                                    newSeriesData.platformList).sort();
+                      $scope.testList = _.union($scope.testList,
+                                                newSeriesData.testList).sort();
+
                       return PhCompare.getResultsMap($scope.newProject,
                                            newSeriesData.seriesList,
                                            timeRange,
                                            [$scope.newResultSetID]);
                   }).then(function(newSeriesMaps) {
                     var newSeriesMap = newSeriesMaps[$scope.newResultSetID];
-                    Object.keys(newSeriesMap).forEach(function(series) {
-                      if (!_.contains($scope.pageList, newSeriesMap[series].name)) {
-                        $scope.pageList.push(newSeriesMap[series].name);
-                      }
-                    });
+                    // There is a chance that we haven't received data for the given signature/resultSet yet
+                    if (newSeriesMap) {
+                      Object.keys(newSeriesMap).forEach(function(series) {
+                        if (!_.contains($scope.pageList, newSeriesMap[series].name)) {
+                          $scope.pageList.push(newSeriesMap[series].name);
+                        }
+                      });
+                    } else {
+                      newSeriesMap = {};
+                    }
+                    $scope.dataLoading = false;
                     displayResults(originalSeriesMap, newSeriesMap, timeRange);
                   });
               });
