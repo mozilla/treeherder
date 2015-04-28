@@ -23,6 +23,14 @@ Setting up Vagrant
 
      >vagrant up
 
+  **Troubleshooting**: The Vagrant provisioning process during ``vagrant up`` assumes the presence of a stable internet connection. In the event of a connection interruption during provision, you may see errors similar to *"Temporary failure resolving.."* or *"E: Unable to fetch some archives.."* after the process has completed. In that situation, you can attempt to re-provision using the command:
+
+  .. code-block:: bash
+
+     >vagrant provision
+
+  If that is still unsuccessful, you should attempt a ``vagrant destroy`` followed by another ``vagrant up``.
+
   **Troubleshooting**: If you encounter an error saying *"It appears your machine doesn't support NFS, or there is not an adapter to enable NFS on this machine for Vagrant."*, then you need to install ``nfs-kernel-server`` using the command:
 
   .. code-block:: bash
@@ -33,7 +41,11 @@ Setting up Vagrant
 
   .. _guide: http://www.sysprobs.com/disable-enable-virtualization-technology-bios
 
-* Once to this point in the installation, it will typically take 5 to 30 minutes for the vagrant up to complete, depending on your network performance.
+  For the full list of available Vagrant commands, please see their command line documentation_.
+
+  .. _documentation: http://docs.vagrantup.com/v2/cli/
+
+* It will typically take 5 to 30 minutes for the vagrant up to complete, depending on your network performance.
 
 * Once the virtual machine is set up, in any shell, cd into your project root and log into it with
 
