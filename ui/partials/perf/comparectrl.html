@@ -21,7 +21,7 @@
       <table class="table">
         <tbody ng-repeat="testName in testList">
           <tr class="subtest-header">
-            <td>{{titles[testName]}}</td><td>Old Geomean</td><td>Old StdDev</td><td>New Geomean</td><td>New StdDev</td><td>Delta</td><td>Delta %</td>
+            <td>{{titles[testName]}}</td><td>Old Geomean</td><td>Old StdDev</td><td>New Geomean</td><td>New StdDev</td><td>Delta</td><td>Delta %</td><td></td>
           </tr>
           <tr ng-class="{'subtest-empty': compareResult.isEmpty, 'subtest-empty': (hideMinorChanges && compareResult.isMinor)}" ng-repeat="compareResult in compareResults[testName]">
             <td>{{compareResult.name}} (<a ng-href="{{compareResult.detailsLink}}">Details</a>)</td>
@@ -31,6 +31,7 @@
             <td>+/-{{compareResult.newStddev|displayPrecision}} ({{compareResult.newStddevPct|displayPrecision}}%)</td>
             <td ng-class="{'subtest-regression': compareResult.isRegression, 'subtest-improvement':  compareResult.isImprovement}">{{compareResult.delta|displayPrecision}}</td>
             <td ng-class="{'subtest-regression': compareResult.isRegression, 'subtest-improvement': compareResult.isImprovement}">{{compareResult.deltaPercentage|displayPrecision}}%</td>
+            <td width="20%"><div ng-class="{'bar-regression': compareResult.isRegression, 'bar-improvement': compareResult.isImprovement}" style="margin-{{compareResult.marginDirection}}: {{compareResult.barGraphMargin}}%;"></div></td>
           </tr>
         </tbody>
       </table>

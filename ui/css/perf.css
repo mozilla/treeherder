@@ -237,3 +237,16 @@ to { opacity: 0; }
   color: white;
   font-weight: bold;
 }
+    
+.bar-improvement {
+  background-color: green;
+  margin-left: 50%;
+  height: 1em;
+  margin-bottom: 5px;
+}
+.bar-regression {
+  background-color: red;
+  margin-right: 50%;
+  height: 1em;
+  margin-bottom: 5px;
+}

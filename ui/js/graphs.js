@@ -6,30 +6,15 @@
 
 perf.controller('GraphsCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', '$location',
                               '$modal', 'thServiceDomain', '$http', '$q', '$timeout', 'PhSeries',
-                              'ThOptionCollectionModel',
+                              'ThOptionCollectionModel', 'phTimeRanges',
   function GraphsCtrl($state, $stateParams, $scope, $rootScope, $location, $modal,
                     thServiceDomain, $http, $q, $timeout, PhSeries,
-                    ThOptionCollectionModel) {
+                    ThOptionCollectionModel, phTimeRanges) {
 
     var availableColors = [ 'red', 'green', 'blue', 'orange', 'purple' ];
 
-    $scope.timeranges = [
-      { "value":86400, "text": "Last day" },
-      { "value":604800, "text": "Last 7 days" },
-      { "value":1209600, "text": "Last 14 days" },
-      { "value":2592000, "text": "Last 30 days" },
-      { "value":5184000, "text": "Last 60 days" },
-      { "value":7776000, "text": "Last 90 days" } ];
-
-    if ($stateParams.timerange) {
-      for (var i in $scope.timeranges) {
-        var timerange = $scope.timeranges[i];
-        if (timerange.value == $stateParams.timerange) {
-          $scope.myTimerange = timerange;
-          break;
-        }
-      }
-    }
+    $scope.timeranges = phTimeRanges;
+    $scope.myTimerange = _.find(phTimeRanges, {'value': parseInt($stateParams.timerange)});
 
     $scope.ttHideTimer = null;
     $scope.selectedDataPoint = null;

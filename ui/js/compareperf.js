@@ -32,13 +32,19 @@ perf.controller('CompareResultsCtrl', [
                               $timeout, PhSeries, math,
                               isReverseTest, PhCompare) {
     function displayComparision() {
-      //TODO: determine the dates of the two revisions and only grab what we need
-      $scope.timeRange = 2592000; // last 30 days
       $scope.testList = [];
       $scope.platformList = [];
 
+      var timeRange = PhCompare.getInterval($scope.originalTimestamp, $scope.newTimestamp);
+      var resultSetIds = [$scope.originalResultSetID];
+
+      // Optimization - if old/new branches are the same collect data in one pass
+      if ($scope.originalProject == $scope.newProject) {
+        resultSetIds = [$scope.originalResultSetID, $scope.newResultSetID];
+      }
+
       PhSeries.getSeriesSummaries($scope.originalProject,
-                    $scope.timeRange,
+                    timeRange,
                     optionCollectionMap,
                     {e10s: $scope.e10s,
                      pgo: $scope.pgo}).then(
@@ -47,11 +53,21 @@ perf.controller('CompareResultsCtrl', [
           $scope.testList = originalSeriesData.testList;
           return PhCompare.getResultsMap($scope.originalProject,
                                originalSeriesData.seriesList,
-                               $scope.timeRange,
-                               $scope.originalResultSetID);
-        }).then(function(originalResultsMap) {
+                               timeRange,
+                               resultSetIds);
+        }).then(function(resultMaps) {
+          var originalResultsMap = resultMaps[$scope.originalResultSetID];
+          var newResultsMap = resultMaps[$scope.newResultSetID];
+
+          // Optimization - collect all data in a single pass
+          if (newResultsMap) {
+            $scope.dataLoading = false;
+            displayResults(originalResultsMap, newResultsMap);
+            return;
+          }
+
           PhSeries.getSeriesSummaries($scope.newProject,
-                        $scope.timeRange,
+                        timeRange,
                         optionCollectionMap,
                         {e10s: $scope.e10s,
                          pgo: $scope.pgo}).then(
@@ -62,8 +78,8 @@ perf.controller('CompareResultsCtrl', [
                                         newSeriesData.testList).sort();
               return PhCompare.getResultsMap($scope.newProject,
                                    newSeriesData.seriesList,
-                                   $scope.timeRange,
-                                   $scope.newResultSetID);
+                                   timeRange,
+                                   [$scope.newResultSetID]);
             }).then(function(newResultsMap) {
               $scope.dataLoading = false;
               displayResults(originalResultsMap, newResultsMap);
@@ -118,8 +134,10 @@ perf.controller('CompareResultsCtrl', [
           //TODO: this is a bit hacky to pass in 'original' as a text string
           if (rsid == 'original') {
             $scope.originalResultSetID = results[0].id;
+            $scope.originalTimestamp = results[0].push_timestamp;
           } else {
             $scope.newResultSetID = results[0].id;
+            $scope.newTimestamp = results[0].push_timestamp;
           }
         }
       });
@@ -153,15 +171,14 @@ perf.controller('CompareResultsCtrl', [
           return;
         }
 
-
         verifyRevision($scope.originalProject, $scope.originalRevision, "original").then(function () {
           verifyRevision($scope.newProject, $scope.newRevision, "new").then(function () {
             $http.get(thServiceDomain + '/api/repository/').then(function(response) {
               $scope.projects = response.data;
+              displayComparision();
             });
           });
         });
-      displayComparision();
       });
   }]);
 
@@ -187,14 +204,16 @@ perf.controller('CompareSubtestResultsCtrl', [
           //TODO: this is a bit hacky to pass in 'original' as a text string
           if (rsid == 'original') {
             $scope.originalResultSetID = results[0].id;
+            $scope.originalTimestamp = results[0].push_timestamp;
           } else {
             $scope.newResultSetID = results[0].id;
+            $scope.newTimestamp = results[0].push_timestamp;
           }
         }
       });
     }
 
-    function displayResults(rawResultsMap, newRawResultsMap) {
+    function displayResults(rawResultsMap, newRawResultsMap, timeRange) {
       $scope.compareResults = {};
       $scope.titles = {};
 
@@ -222,7 +241,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                           visible: true}));
 
           var detailsLink = thServiceDomain + '/perf.html#/graphs?timerange=' +
-              $scope.timeRange + '&series=' + newSeries;
+              timeRange + '&series=' + newSeries;
 
           if (oldSig != newSig) {
             detailsLink += '&series=' + originalSeries;
@@ -247,7 +266,6 @@ perf.controller('CompareSubtestResultsCtrl', [
         });
       }).then(function() {
         // TODO: validate projects and revisions
-        $scope.timeRange = 2592000; // last 30 days
         $scope.originalProject = $stateParams.originalProject;
         $scope.newProject = $stateParams.newProject;
         $scope.newRevision = $stateParams.newRevision;
@@ -270,8 +288,17 @@ perf.controller('CompareSubtestResultsCtrl', [
             $http.get(thServiceDomain + '/api/repository/').then(function(response) {
               $scope.projects = response.data;
               $scope.pageList = [];
+
+              var timeRange = PhCompare.getInterval($scope.originalTimestamp, $scope.newTimestamp);
+              var resultSetIds = [$scope.originalResultSetID];
+
+              // Optimization - if old/new branches are the same collect data in one pass
+              if ($scope.originalProject == $scope.newProject) {
+                resultSetIds = [$scope.originalResultSetID, $scope.newResultSetID];
+              }
+
               PhSeries.getSubtestSummaries($scope.originalProject,
-                            $scope.timeRange,
+                            timeRange,
                             optionCollectionMap,
                             $scope.originalSignature).then(
                 function (originalSeriesData) {
@@ -279,30 +306,40 @@ perf.controller('CompareSubtestResultsCtrl', [
                   $scope.platformList = originalSeriesData.platformList;
                   return PhCompare.getResultsMap($scope.originalProject,
                                        originalSeriesData.seriesList,
-                                       $scope.timeRange,
-                                       $scope.originalResultSetID);
-              }).then(function(originalSeriesMap) {
+                                       timeRange,
+                                       resultSetIds);
+              }).then(function(seriesMaps) {
+                  var originalSeriesMap = seriesMaps[$scope.originalResultSetID];
+                  var newSeriesMap = seriesMaps[$scope.newResultSetID];
                   Object.keys(originalSeriesMap).forEach(function(series) {
                     if (!_.contains($scope.pageList, originalSeriesMap[series].name)) {
                       $scope.pageList.push(originalSeriesMap[series].name);
                     }
                   });
+
+                  // Optimization- collect all data in a single pass
+                  if (newSeriesMap) {
+                    displayResults(originalSeriesMap, newSeriesMap, timeRange);
+                    return;
+                  }
+
                   PhSeries.getSubtestSummaries($scope.newProject,
-                                $scope.timeRange,
+                                timeRange,
                                 optionCollectionMap,
                                 $scope.originalSignature).then(
                     function (newSeriesData) {
                       return PhCompare.getResultsMap($scope.newProject,
                                            newSeriesData.seriesList,
-                                           $scope.timeRange,
-                                           $scope.newResultSetID);
-                  }).then(function(newSeriesMap) {
+                                           timeRange,
+                                           [$scope.newResultSetID]);
+                  }).then(function(newSeriesMaps) {
+                    var newSeriesMap = newSeriesMaps[$scope.newResultSetID];
                     Object.keys(newSeriesMap).forEach(function(series) {
                       if (!_.contains($scope.pageList, newSeriesMap[series].name)) {
                         $scope.pageList.push(newSeriesMap[series].name);
                       }
                     });
-                    displayResults(originalSeriesMap, newSeriesMap);
+                    displayResults(originalSeriesMap, newSeriesMap, timeRange);
                   });
               });
             });

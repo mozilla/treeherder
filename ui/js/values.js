@@ -125,3 +125,11 @@ treeherder.value("thRepoGroupOrder", {
 treeherder.value("thDefaultRepo", "mozilla-inbound");
 
 treeherder.value("thDateFormat", "EEE MMM d, H:mm:ss");
+
+treeherder.value("phTimeRanges", [
+      { "value":86400, "text": "Last day" },
+      { "value":604800, "text": "Last 7 days" },
+      { "value":1209600, "text": "Last 14 days" },
+      { "value":2592000, "text": "Last 30 days" },
+      { "value":5184000, "text": "Last 60 days" },
+      { "value":7776000, "text": "Last 90 days" } ]);

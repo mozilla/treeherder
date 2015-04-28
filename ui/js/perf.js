@@ -163,13 +163,14 @@ perf.factory('isReverseTest', [ function() {
 }]);
 
 
-perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries', 'math', 'isReverseTest',
-  function($q, $http, thServiceDomain, PhSeries, math, isReverseTest) {
+perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
+             'math', 'isReverseTest', 'phTimeRanges',
+  function($q, $http, thServiceDomain, PhSeries, math, isReverseTest, phTimeRanges) {
   return {
     getCounterMap: function(testName, originalData, newData) {
       var cmap = {originalGeoMean: NaN, originalRuns: 0, originalStddev: NaN,
-                  newGeoMean: NaN, newRuns: 0, newStddev: NaN,
-                  delta: NaN, deltaPercentage: NaN, isEmpty: false,
+                  newGeoMean: NaN, newRuns: 0, newStddev: NaN, delta: NaN,
+                  deltaPercentage: NaN, barGraphMargin: 0, isEmpty: false,
                   isRegression: false, isImprovement: false, isMinor: true};
 
       if (originalData) {
@@ -192,6 +193,20 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries', 'math'
       } else {
         cmap.delta = (cmap.newGeoMean - cmap.originalGeoMean);
         cmap.deltaPercentage = (cmap.delta / cmap.originalGeoMean * 100);
+        cmap.barGraphMargin = 50 - Math.min(50, Math.abs(Math.round(cmap.deltaPercentage) / 2));
+
+        cmap.marginDirection = 'right';
+        if (cmap.deltaPercentage > 0) {
+          cmap.marginDirection = 'left';
+        }
+        if (isReverseTest(testName)) {
+         if (cmap.marginDirection == 'left') {
+            cmap.marginDirection = 'right';
+          } else {
+            cmap.marginDirection = 'left';
+          }
+        }
+
         if (cmap.deltaPercentage > 2.0) {
           cmap.isMinor = false;
           isReverseTest(testName) ? cmap.isImprovement = true : cmap.isRegression = true;
@@ -203,35 +218,56 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries', 'math'
       return cmap;
     },
 
-    getResultsMap: function(projectName, seriesList, timeRange, resultSetId) {
+    getInterval: function(oldTimestamp, newTimestamp) {
+      var now = (new Date()).getTime() / 1000;
+      var timeRange = Math.min(oldTimestamp, newTimestamp);
+      timeRange = Math.round(now - timeRange);
+
+      //now figure out which predefined set of data we can query from
+      var timeRange = _.find(phTimeRanges, function(i) { return timeRange <= i.value });
+      return timeRange.value;
+    },
+
+    getResultsMap: function(projectName, seriesList, timeRange, resultSetIds) {
       var baseURL = thServiceDomain + '/api/project/' +
         projectName + '/performance-data/0/' +
         'get_performance_data/?interval_seconds=' + timeRange;
 
       var resultsMap = {};
-      return $q.all(seriesList.map(function(series) {
-        return $http.get(baseURL + "&signatures=" + series.signature).then(
+      return $q.all(_.chunk(seriesList, 20).map(function(seriesChunk) {
+        var signatures = "";
+        seriesChunk.forEach(function(series) {
+            signatures += "&signatures=" + series.signature;
+        });
+        return $http.get(baseURL + signatures).then(
           function(response) {
-            response.data.forEach(function(data) {
-              var means = [];
-              _.where(data.blob, { result_set_id: resultSetId }).forEach(function(pdata) {
-                //summary series have geomean, individual pages have mean
-                if (pdata.geomean === undefined) {
-                  means.push(pdata.mean);
-                } else {
-                  means.push(pdata.geomean);
-                }
+            resultSetIds.forEach(function(resultSetId) {
+              if (resultsMap[resultSetId] === undefined) {
+                resultsMap[resultSetId] = {};
+              }
+              response.data.forEach(function(data) {
+                var means = [];
+                _.where(data.blob, { result_set_id: resultSetId }).forEach(function(pdata) {
+                  //summary series have geomean, individual pages have mean
+                  if (pdata.geomean === undefined) {
+                    means.push(pdata.mean);
+                  } else {
+                    means.push(pdata.geomean);
+                  }
+                });
+
+                var seriesData = _.find(seriesChunk, {'signature': data.series_signature});
+
+                var total = _.reduce(means, function(mean, total) { return total + mean; })
+                var avg = total / means.length;
+                var sigma = math.stddev(means, avg);
+
+                resultsMap[resultSetId][data.series_signature] = {geomean: avg,
+                                               stddev: sigma,
+                                               runs: means.length,
+                                               name: seriesData.name,
+                                               platform: seriesData.platform};
               });
-
-              var total = _.reduce(means, function(mean, total) { return total + mean; })
-              var avg = total / means.length;
-              var sigma = math.stddev(means, avg);
-
-              resultsMap[data.series_signature] = {geomean: avg,
-                                                   stddev: sigma,
-                                                   runs: means.length,
-                                                   name: series.name,
-                                                   platform: series.platform};
             });
           })
       })).then(function() {
