@@ -49,7 +49,30 @@ The most critical part of each resultset is the `revision_hash`.  This is used a
 
 ##Job Collection
 
-Job collections can contain test results from any kind of test. The `revision_hash` provided should match the associated `revision_hash` in the resultset structure. The `job_guid` provided can be any unique string of 50 characters at most. A job collection has the following data structure.
+Job collections can contain test results from any kind of test. The 
+`revision_hash` provided should match the associated `revision_hash` 
+in the resultset structure. The `job_guid` provided can be any unique 
+string of 50 characters at most. 
+
+
+###Parsing your own logs
+
+It is now possible to post jobs with log references that you have already
+parsed.  You are then responsible for submitting an artifact named 
+``text_log_summary``.  This artifact is what would normally be the result of
+Treeherder's internal log parsing.  
+
+To do this, add ``parse_status: 'parsed'`` to the applicable ``log_reference`` 
+object (shown below).  When you then post your artifact named ``text_log_summary``, 
+Treeherder will automatically generate the applicable ``Bug suggestions`` 
+artifact for it.
+
+If the ``parse_status`` of a ``log_reference`` is not specified, it defaults to
+``pending`` and will, therefore, be parsed by Treeherder.  Treeherder will then
+generate the ``text_log_summary`` and ``Bug suggestions`` artifacts.
+
+
+A job collection has the following data structure.
 
 ```python
     [
@@ -103,6 +126,7 @@ Job collections can contain test results from any kind of test. The `revision_ha
                     {
                         'url': 'http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/...',
                         'name': 'builds-4h'
+                        'parse_status': 'parsed'
                         }
                     ],
 
@@ -242,7 +266,8 @@ If you want to use `TreeherderJobCollection` to build up the job data structures
 
         tj.add_option_collection( data['option_collection'] )
 
-        tj.add_log_reference( 'builds-4h', data['log_reference'] )
+        # parse_status can be one of 'pending', 'parsed' or 'failed'. Default: 'pending'
+        tj.add_log_reference( 'builds-4h', data['log_reference'], 'pending' )
 
         # data['artifact'] is a list of artifacts
         for artifact_data in data['artifact']:

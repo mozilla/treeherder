@@ -365,6 +365,12 @@ class TreeherderJobTest(DataSetup, unittest.TestCase):
             tj = TreeherderJob(job)
             tj.validate()
 
+    def test_bad_parse_status(self):
+
+        tj = TreeherderJob()
+        self.assertRaises(TreeherderClientError, tj.add_log_reference,
+                          'foo', 'bar', 'baz')
+
 
 class TreeherderRequestTest(DataSetup, unittest.TestCase):
 

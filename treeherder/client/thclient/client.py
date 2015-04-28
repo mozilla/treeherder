@@ -131,6 +131,8 @@ class TreeherderData(object):
 
 class TreeherderJob(TreeherderData, ValidatorMixin):
 
+    PARSE_STATUSES = {'pending', 'parsed', 'error'}
+
     def __init__(self, data={}):
 
         super(TreeherderJob, self).__init__(data)
@@ -215,10 +217,21 @@ class TreeherderJob(TreeherderData, ValidatorMixin):
         if option_collection:
             self.data['job']['option_collection'].update(option_collection)
 
-    def add_log_reference(self, name, url):
+    def add_log_reference(self, name, url, parse_status='pending'):
+        """
+        parse_status - one of 'pending', 'parsed' or 'error'
+        """
+        if parse_status not in self.PARSE_STATUSES:
+            msg = "{0}: Invalid parse_status '{1}': must be one of: {2}".format(
+                self.__class__.__name__,
+                parse_status,
+                ', '.join(self.PARSE_STATUSES)
+                )
+            raise TreeherderClientError(msg, [])
+
         if name and url:
             self.data['job']['log_references'].append(
-                {'url': url, 'name': name}
+                {'url': url, 'name': name, 'parse_status': parse_status}
                 )
 
     def add_artifact(self, name, artifact_type, blob):
