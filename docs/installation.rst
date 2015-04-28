@@ -35,7 +35,7 @@ Setting up Vagrant
 
 * Once to this point in the installation, it will typically take 5 to 30 minutes for the vagrant up to complete, depending on your network performance.
 
-* Once the virtual machine is set up, you can log into it with
+* Once the virtual machine is set up, in any shell, cd into your project root and log into it with
 
   .. code-block:: bash
 
