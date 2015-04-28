@@ -184,9 +184,10 @@
                 `job_id`,
                 `name`,
                 `url`,
+                `parse_status`,
                 `parse_timestamp`
                 )
-            VALUES (?,?,?,?)",
+            VALUES (?,?,?,?,?)",
 
             "host_type":"master_host"
         },

@@ -1603,7 +1603,10 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 url = log.get('url', 'unknown')
                 url = url[0:255]
 
-                log_placeholders.append([job_guid, name, url])
+                # the parsing status of this log.  'pending' or 'parsed'
+                parse_status = log.get('parse_status', 'pending')
+
+                log_placeholders.append([job_guid, name, url, parse_status])
 
         artifacts = job.get('artifacts', [])
         if artifacts:
@@ -1820,16 +1823,21 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 log_placeholders[index].append(time_now)
                 task = dict()
 
-                if log_ref[1] == 'mozlog_json':
-                    # don't parse structured logs for passing tests
-                    if result != 'success':
-                        task['routing_key'] = 'parse_log.json'
+                # a log can be submitted already parsed.  So only schedule
+                # a parsing task if it's ``pending``
+                # the submitter is then responsible for submitting the
+                # text_log_summary artifact
+                if log_ref[3] == 'pending':
+                    if log_ref[1] == 'mozlog_json':
+                        # don't parse structured logs for passing tests
+                        if result != 'success':
+                            task['routing_key'] = 'parse_log.json'
 
-                else:
-                    if result != 'success':
-                        task['routing_key'] = 'parse_log.failures'
                     else:
-                        task['routing_key'] = 'parse_log.success'
+                        if result != 'success':
+                            task['routing_key'] = 'parse_log.failures'
+                        else:
+                            task['routing_key'] = 'parse_log.success'
 
                 if 'routing_key' in task:
                     task['job_guid'] = job_guid
