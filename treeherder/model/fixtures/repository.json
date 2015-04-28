@@ -765,5 +765,31 @@
         "repository_group": 4,
         "description": "A suite of tests to check the quality of the BMO codebase."
     }
+},
+{
+    "pk": 63,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "hg",
+        "name": "mozilla-esr38",
+        "url": "https://hg.mozilla.org/releases/mozilla-esr38",
+        "active_status": "active",
+        "codebase": "gecko",
+        "repository_group": 2,
+        "description": ""
+    }
+},
+{
+    "pk": 64,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "hg",
+        "name": "comm-esr38",
+        "url": "https://hg.mozilla.org/releases/comm-esr38",
+        "active_status": "active",
+        "codebase": "comm",
+        "repository_group": 2,
+        "description": ""
+    }
 }
 ]
