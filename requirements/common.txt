@@ -72,7 +72,7 @@ mozlog==2.10
 https://github.com/jeads/datasource/archive/v0.6.tar.gz#egg=datasource
 
 # sha256: G9t_FDD0NgPDFK2yU-V94CECNCVgoWA9nfhlMGfhppk
-treeherder-client==1.1
+treeherder-client==1.2
 
 # Required by django-rest-swagger
 # sha256: 7wE5rDCRO0Po04ij53blNKIvgZdZZpaNKDaewDOKabc
