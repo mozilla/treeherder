@@ -30,7 +30,7 @@ def post_treeherder_collections(th_collections):
                 th_request.get_uri(th_collections[project].endpoint_base)))
         response = th_request.post(th_collections[project])
 
-        if not response or response.status == 200:
+        if not response or response.status != 200:
             errors.append({
                 "project": project,
                 "url": th_collections[project].endpoint_base,
