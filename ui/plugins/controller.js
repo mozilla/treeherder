@@ -270,7 +270,7 @@ treeherder.controller('PluginCtrl', [
                             return thBuildApi.retriggerJob($scope.repoName, requestId);
                         }
                     }).then(function() {
-                        thNotify.send("Retriggered job (" + $scope.job.job_type_symbol + ")",
+                        thNotify.send("Retriggered job: " + $scope.jobSearchStr,
                                       'success');
                     }).catch(function(e) {
                         // Generic error eg. the user doesn't have LDAP access
