@@ -156,8 +156,7 @@ def test_resultset_list_without_jobs(webapp, initial_data,
     jm.store_result_set_data(sample_resultset)
 
     resp = webapp.get(
-        reverse("resultset-list", kwargs={"project": jm.project}),
-        {"with_jobs": "false"}
+        reverse("resultset-list", kwargs={"project": jm.project})
     )
     assert resp.status_int == 200
 
@@ -169,9 +168,7 @@ def test_resultset_list_without_jobs(webapp, initial_data,
 
     assert meta == {
         u'count': len(results),
-        u'filter_params': {
-            u"with_jobs": u"false",
-        },
+        u'filter_params': {},
         u'repository': u'test_treeherder'
     }
 
