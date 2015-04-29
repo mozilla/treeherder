@@ -40,7 +40,7 @@ describe('ThResultSetStore', function(){
             }
         );
 
-        $httpBackend.whenGET(foregroundPrefix + '/resultset/?count=10&format=json&full=true&with_jobs=false').respond(
+        $httpBackend.whenGET(foregroundPrefix + '/resultset/?count=10&format=json&full=true').respond(
             getJSONFixture('resultset_list.json')
         );
 

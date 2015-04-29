@@ -38,8 +38,7 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location', '$q'
             locationParams = convertDates(locationParams);
             _.extend(locationParams, {
                 fromchange:revision,
-                format:'json',
-                with_jobs:false
+                format:'json'
             });
 
             return $http.get(
@@ -48,17 +47,15 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location', '$q'
             );
         },
 
-        getResultSets: function(repoName, rsOffsetTimestamp, count, resultsetlist, with_jobs, full, keep_filters) {
+        getResultSets: function(repoName, rsOffsetTimestamp, count, resultsetlist, full, keep_filters) {
             rsOffsetTimestamp = typeof rsOffsetTimestamp === 'undefined'?  0: rsOffsetTimestamp;
             count = typeof count === 'undefined'?  10: count;
-            with_jobs = _.isUndefined(with_jobs) ? true: with_jobs;
             full = _.isUndefined(full) ? true: full;
             keep_filters = _.isUndefined(keep_filters) ? true : keep_filters;
 
             var params = {
                 full: full,
-                format: "json",
-                with_jobs: with_jobs
+                format: "json"
             };
 
             if (count > 0) {

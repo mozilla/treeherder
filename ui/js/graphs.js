@@ -585,7 +585,7 @@ perf.controller('GraphsCtrl', [ '$state', '$stateParams', '$scope', '$rootScope'
         $q.all($scope.seriesList.map(function(series, i) {
           if (series.visible) {
            return $http.get(thServiceDomain + "/api/project/" + series.projectName +
-             "/resultset/?format=json&revision=" + rev + "&with_jobs=false").then(
+             "/resultset/?format=json&revision=" + rev).then(
             function(response) {
               if (response.data.results.length > 0) {
                 var result_set_id = response.data.results[0].id;

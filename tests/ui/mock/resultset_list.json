@@ -4,7 +4,6 @@
     "filter_params": {
       "count": "10",
       "full": "true",
-      "with_jobs": "false",
       "format": "json"
     },
     "repository": "mozilla-inbound"

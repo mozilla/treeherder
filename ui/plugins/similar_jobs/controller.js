@@ -47,7 +47,7 @@ treeherder.controller('SimilarJobsPluginCtrl', [
 
                         // get resultsets and revisions for the given ids
                         ThResultSetModel.getResultSets(
-                            $scope.repoName, null, 100, result_set_ids, false, true, false
+                            $scope.repoName, null, 100, result_set_ids, true, false
                             ).then(function(response){
                                 //decorate the list of jobs with their result sets
                                 var resultsets = _.indexBy(response.data.results, "id");

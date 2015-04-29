@@ -812,7 +812,6 @@ treeherder.factory('ThResultSetStore', [
                                        repositories[repoName].rsMapOldestTimestamp,
                                        count,
                                        undefined,
-                                       false,
                                        true,
                                        keepFilters).
             then(function(data) {
