@@ -4,7 +4,7 @@
 
 from setuptools import setup
 
-version = '1.1'
+version = '1.2'
 
 setup(name='treeherder-client',
       version=version,
@@ -27,7 +27,7 @@ setup(name='treeherder-client',
       license='MPL',
       packages=['thclient'],
       zip_safe=False,
-      install_requires=['oauth2'],
+      install_requires=['oauth2', 'requests'],
       test_suite='thclient.tests',
       tests_require=["mock"],
       )
