@@ -4,13 +4,13 @@
 from __future__ import unicode_literals
 
 import httplib
+import logging
+import json
 import oauth2 as oauth
 import time
-import logging
 
 logger = logging.getLogger(__name__)
 
-import json
 
 class ValidatorMixin(object):
 
@@ -27,7 +27,8 @@ class ValidatorMixin(object):
 
             {
                 'len':optional, some int, max allowed len of property value
-                'type':optional, some data type, required type of property value
+                'type':optional, some data type, required type of property
+                       value
                 'cb': some function reference, called with
                       list of keys, list of values, required_properties key
             }
@@ -88,27 +89,30 @@ class ValidatorMixin(object):
                     missing_keys.append(k)
 
         if missing_keys:
-            property_errors += '\tThe required Property, {0}, is missing\n'.format(
-                '.'.join(missing_keys))
+            property_errors += ('\tThe required Property, {0}, is '
+                                'missing\n'.format('.'.join(missing_keys)))
 
         if not v:
-            property_errors += '\tValue not defined for {0}\n'.format(property_key)
-        else:
-            if ('type' in values) and (not isinstance(v, values['type'])):
-                property_errors += '\tThe value type, {0}, should be {1}\n'.format(
-                    type(v), values['type'])
+            property_errors += '\tValue not defined for {0}\n'.format(
+                property_key)
+        elif ('type' in values) and (not isinstance(v, values['type'])):
+            property_errors += ('\tThe value type, {0}, should be '
+                                '{1}\n'.format(type(v), values['type']))
 
         max_limit = values.get('len', None)
         if v and max_limit and (len(v) > max_limit):
-            property_errors += '\tValue length exceeds maximum {0} char limit: {1}\n'.format(
-                str(max_limit), str(v))
+            property_errors += ('\tValue length exceeds maximum {0} char '
+                                'limit: {1}\n'.format(str(max_limit), str(v)))
 
         if property_errors:
 
-            msg = '{0} structure validation errors detected for property:{1}\n{2}\n{3}\n'.format(
-                self.__class__.__name__, property_key, property_errors, json.dumps(self.data))
+            msg = ('{0} structure validation errors detected for property:{1}'
+                   '\n{2}\n{3}\n'.format(
+                       self.__class__.__name__, property_key, property_errors,
+                       json.dumps(self.data)))
 
             raise TreeherderClientError(msg, [])
+
 
 class TreeherderData(object):
 
@@ -124,6 +128,7 @@ class TreeherderData(object):
     def to_json(self):
         return json.dumps(self.data)
 
+
 class TreeherderJob(TreeherderData, ValidatorMixin):
 
     def __init__(self, data={}):
@@ -132,10 +137,10 @@ class TreeherderJob(TreeherderData, ValidatorMixin):
 
         # Provide minimal json structure validation
         self.required_properties = {
-            'revision_hash':{ 'len':50, 'cb':self.validate_existence },
-            'project':{ 'cb':self.validate_existence },
-            'job':{ 'type':dict, 'cb':self.validate_existence },
-            'job.job_guid':{ 'len':50, 'cb':self.validate_existence }
+            'revision_hash': {'len': 50, 'cb': self.validate_existence},
+            'project': {'cb': self.validate_existence},
+            'job': {'type': dict, 'cb': self.validate_existence},
+            'job.job_guid': {'len': 50, 'cb': self.validate_existence}
             }
 
     def add_revision_hash(self, revision_hash):
@@ -213,7 +218,7 @@ class TreeherderJob(TreeherderData, ValidatorMixin):
     def add_log_reference(self, name, url):
         if name and url:
             self.data['job']['log_references'].append(
-                { 'url':url, 'name':name }
+                {'url': url, 'name': name}
                 )
 
     def add_artifact(self, name, artifact_type, blob):
@@ -288,26 +293,26 @@ class TreeherderJob(TreeherderData, ValidatorMixin):
                 # treeherder_reference_1.build_platform.os_name,
                 # treeherder_reference_1.build_platform.platform,
                 # treeherder_reference_1.build_platform.architecture,
-                'build_platform':{
-                    'os_name': '', 'platform': '', 'architecture': '' },
+                'build_platform': {
+                    'os_name': '', 'platform': '', 'architecture': ''},
 
                 # Stored in:
                 # treeherder_reference_1.machine_platform.os_name,
                 # treeherder_reference_1.machine_platform.platform,
                 # treeherder_reference_1.machine_platform.architecture,
-                'machine_platform':{
-                    'os_name': '', 'platform': '', 'architecture': '' },
+                'machine_platform': {
+                    'os_name': '', 'platform': '', 'architecture': ''},
 
                 # Stored in treeherder_reference_1.option_collection and
                 # treeherder_reference_1.option
                 # Ex: 'debug | pgo | asan | opt': True
-                'option_collection': { },
+                'option_collection': {},
 
                 # Stored in project_jobs_1.job_log_url
                 # Example:
                 # log_references: [
-                #    { url:'http://ftp.mozilla.org/pub/mozilla.org/firefox..gz',
-                #      name:'unittest' },
+                #    { url: 'http://ftp.mozilla.org/mozilla.org/firefox.gz',
+                #      name: 'unittest' },
                 'log_references': [],
 
                 # Stored in
@@ -317,12 +322,13 @@ class TreeherderJob(TreeherderData, ValidatorMixin):
                 'artifacts': []
             },
 
-        # List of job_guids that were coallesced to this job
-        # Stored in project_jobs_1.job.coalesced_job_guid
-        # Where the value of coalesced_job_guid is set to job_guid
-        # for the list of job_guids provided in coalesced
-        'coalesced': [ ]
+            # List of job_guids that were coallesced to this job
+            # Stored in project_jobs_1.job.coalesced_job_guid
+            # Where the value of coalesced_job_guid is set to job_guid
+            # for the list of job_guids provided in coalesced
+            'coalesced': []
             }
+
 
 class TreeherderRevision(TreeherderData, ValidatorMixin):
     """
@@ -336,9 +342,9 @@ class TreeherderRevision(TreeherderData, ValidatorMixin):
 
         # Provide minimal json structure validation
         self.required_properties = {
-            'revision':{ 'len':50, 'cb':self.validate_existence },
-            'repository':{ 'cb':self.validate_existence },
-            'files':{ 'type':list, 'cb':self.validate_existence },
+            'revision': {'len': 50, 'cb': self.validate_existence},
+            'repository': {'cb': self.validate_existence},
+            'files': {'type': list, 'cb': self.validate_existence},
             }
 
     def init_data(self):
@@ -376,6 +382,7 @@ class TreeherderRevision(TreeherderData, ValidatorMixin):
     def add_revision(self, revision):
         self.data['revision'] = revision
 
+
 class TreeherderResultSet(TreeherderData, ValidatorMixin):
     """
     Supports building a treeherder result set
@@ -386,9 +393,9 @@ class TreeherderResultSet(TreeherderData, ValidatorMixin):
         super(TreeherderResultSet, self).__init__(data)
 
         self.required_properties = {
-            'revision_hash':{ 'len':50, 'cb':self.validate_existence },
-            'revisions':{ 'type':list, 'cb':self.validate_existence },
-            'author':{ 'len':150, 'cb':self.validate_existence }
+            'revision_hash': {'len': 50, 'cb': self.validate_existence},
+            'revisions': {'type': list, 'cb': self.validate_existence},
+            'author': {'len': 150, 'cb': self.validate_existence}
             }
 
     def init_data(self):
@@ -516,7 +523,7 @@ class TreeherderCollection(object):
         """
         Convert list of data objects to json
         """
-        return json.dumps( self.get_collection_data() )
+        return json.dumps(self.get_collection_data())
 
     def add(self, datum_instance):
         """
@@ -530,6 +537,7 @@ class TreeherderCollection(object):
         """
         for d in self.data:
             d.validate()
+
 
 class TreeherderJobCollection(TreeherderCollection):
     """
@@ -549,6 +557,7 @@ class TreeherderJobCollection(TreeherderCollection):
 
         return TreeherderJob(data)
 
+
 class TreeherderResultSetCollection(TreeherderCollection):
     """
     Collection of result set objects
@@ -563,6 +572,7 @@ class TreeherderResultSetCollection(TreeherderCollection):
     def get_resultset(self, data={}):
 
         return TreeherderResultSet(data)
+
 
 class TreeherderArtifactCollection(TreeherderCollection):
     """
@@ -610,7 +620,7 @@ class OauthClient(object):
                 url=uri,
                 parameters=parameters
             )
-        except AssertionError, e:
+        except AssertionError:
             logger.error('uri: %s' % uri)
             logger.error('body: %s' % serialized_body)
             raise
@@ -626,11 +636,11 @@ class TreeherderRequest(object):
     Treeherder request object that manages test submission.
     """
 
-    protocols = set(['http', 'https']) # supported protocols
+    protocols = set(['http', 'https'])  # supported protocols
 
     def __init__(
-        self, protocol='', host='', project='', oauth_key='',
-        oauth_secret='', timeout=120):
+            self, protocol='', host='', project='', oauth_key='',
+            oauth_secret='', timeout=120):
         """
         - host : treeherder host to post to
         - project : name of the project in treeherder
@@ -644,17 +654,20 @@ class TreeherderRequest(object):
         self.use_oauth = bool(self.oauth_key and self.oauth_secret)
         self.oauth_client = None
         if self.use_oauth:
-            self.oauth_client = OauthClient(oauth_key, oauth_secret, self.project)
+            self.oauth_client = OauthClient(oauth_key, oauth_secret,
+                                            self.project)
 
         if protocol not in self.protocols:
-            raise AssertionError('Protocol "%s" not supported; please use one of %s' %
-                                 (protocol, ', '.join(self.protocols)))
+            raise AssertionError('Protocol "%s" not supported; please use one '
+                                 'of %s' % (protocol,
+                                            ', '.join(self.protocols)))
         self.protocol = protocol
         self.timeout = timeout
 
         # ensure the required parameters are given
         if not self.project:
-            msg = "{0}: project required for posting".format(self.__class__.__name__)
+            msg = "{0}: project required for posting".format(
+                self.__class__.__name__)
             raise TreeherderClientError(msg, [])
 
     def post(self, collection_inst):
@@ -666,7 +679,8 @@ class TreeherderRequest(object):
 
         if not isinstance(collection_inst, TreeherderCollection):
 
-            msg = '{0} should be an instance of TreeherderCollection'.format(type(collection_inst))
+            msg = '{0} should be an instance of TreeherderCollection'.format(
+                type(collection_inst))
 
             raise TreeherderClientError(msg, [])
 
@@ -721,7 +735,8 @@ class TreeherderRequest(object):
         uri = self.get_uri(endpoint)
 
         if self.use_oauth:
-            uri = self.oauth_client.get_signed_uri(serialized_body, uri, method)
+            uri = self.oauth_client.get_signed_uri(serialized_body, uri,
+                                                   method)
 
         # Make the request
         conn = None

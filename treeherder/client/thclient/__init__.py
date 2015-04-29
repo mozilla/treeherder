@@ -3,6 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 from .client import (TreeherderJob, TreeherderJobCollection,
-    TreeherderRevision, TreeherderResultSet, TreeherderResultSetCollection,
-    TreeherderArtifact, TreeherderArtifactCollection,
-    TreeherderClientError, TreeherderRequest)
+                     TreeherderRevision, TreeherderResultSet,
+                     TreeherderResultSetCollection, TreeherderArtifact,
+                     TreeherderArtifactCollection, TreeherderClientError,
+                     TreeherderRequest)
