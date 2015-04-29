@@ -9,7 +9,7 @@ from treeherder.etl.mixins import OAuthLoaderMixin
 from treeherder.etl.oauth_utils import OAuthCredentials
 from treeherder.webapp.wsgi import application
 
-from thclient import TreeherderRequest
+from treeherder.client import TreeherderRequest
 from tests.sampledata import SampleData
 
 

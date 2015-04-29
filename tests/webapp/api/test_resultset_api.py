@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
 from django.contrib.auth.models import User
 
-from thclient import TreeherderResultSetCollection
+from treeherder.client import TreeherderResultSetCollection
 from tests import test_utils
 
 from treeherder.webapp.api import utils

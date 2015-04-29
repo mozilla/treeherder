@@ -4,7 +4,7 @@
 
 from django.core.urlresolvers import reverse
 
-from thclient import TreeherderJobCollection
+from treeherder.client import TreeherderJobCollection
 
 from tests import test_utils
 
