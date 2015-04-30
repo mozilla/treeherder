@@ -68,20 +68,24 @@ perf.controller('GraphsCtrl', [ '$state', '$stateParams', '$scope', '$rootScope'
         pointIndex: phSeries.flotSeries.resultSetData.indexOf(
           dataPoint.resultSetId) + dataPoint.flotDataOffset
       };
-
-      var prevDataPointIndex = (flotData.pointIndex - dataPoint.flotDataOffset - 1);
+      var prevResultSetId = _.find(phSeries.flotSeries.resultSetData,
+                                   function(resultSetId) {
+                                     return (resultSetId < dataPoint.resultSetId);
+                                   });
+      var prevFlotDataPointIndex = (flotData.pointIndex -
+                                    dataPoint.flotDataOffset - 1);
       var flotSeriesData = flotData.series.data;
 
       var t = flotSeriesData[flotData.pointIndex][0],
           v = flotSeriesData[flotData.pointIndex][1],
-          v0 = (prevDataPointIndex >= 0) ? flotSeriesData[prevDataPointIndex][1] : v,
+          v0 = ((prevFlotDataPointIndex >= 0) ?
+                flotSeriesData[prevFlotDataPointIndex][1] : v),
           dv = v - v0,
           dvp = v / v0 - 1;
 
       $scope.tooltipContent = {
-        revision: "(loading revision...)",
-        revisionHref:  "",
-        branch: dataPoint.projectName,
+        project: _.findWhere($scope.projects,
+                             { name: phSeries.projectName }),
         test: phSeries.name,
         platform: phSeries.platform,
         machine: phSeries.machine || 'mean',
@@ -97,10 +101,12 @@ perf.controller('GraphsCtrl', [ '$state', '$stateParams', '$scope', '$rootScope'
                     var revision = response.data.revisions[0].revision;
                     $scope.tooltipContent.revision = revision;
                     dataPoint.revision = revision;
-                    var project = _.findWhere($scope.projects,
-                                              { name: phSeries.projectName });
-                    $scope.tooltipContent.revisionHref = (project.url +
-                                                          "/rev/" + revision);
+                  });
+      $http.get(thServiceDomain + '/api/project/' + phSeries.projectName +
+                '/resultset/' + prevResultSetId).then(
+                  function(response) {
+                    var prevRevision = response.data.revisions[0].revision;
+                    $scope.tooltipContent.prevRevision = prevRevision;
                   });
 
       // now position it
@@ -309,8 +315,6 @@ perf.controller('GraphsCtrl', [ '$state', '$stateParams', '$scope', '$rootScope'
       }
 
       function updateSelectedItem() {
-        $scope.subtestResults = null;
-
         if (!$scope.selectedDataPoint) {
           hideTooltip();
           return;
@@ -480,7 +484,7 @@ perf.controller('GraphsCtrl', [ '$state', '$stateParams', '$scope', '$rootScope'
                          });
     }
 
-    $scope.addSeriesList = function(partialSeriesList) {
+    function addSeriesList(partialSeriesList) {
       var propsHash = {}
       return $q.all(partialSeriesList.map(
         function(partialSeries) {
@@ -603,12 +607,6 @@ perf.controller('GraphsCtrl', [ '$state', '$stateParams', '$scope', '$rootScope'
       }
     }
 
-    $scope.addSeries = function(project, signature) {
-      $scope.addSeriesList([{ project: project, signature: signature,
-                              visible: true }]);
-      updateURL();
-    };
-
     var optionCollectionMap = {};
 
     ThOptionCollectionModel.get_list().success(
@@ -642,7 +640,7 @@ perf.controller('GraphsCtrl', [ '$state', '$stateParams', '$scope', '$rootScope'
           var partialSeriesList = $stateParams.series.map(function(encodedSeries) {
             return JSON.parse(decodeURIComponent(encodedSeries));
           });
-          $scope.addSeriesList(partialSeriesList);
+          addSeriesList(partialSeriesList);
         } else {
           $scope.seriesList = [];
         }
