@@ -87,7 +87,7 @@ perf.controller('GraphsCtrl', [ '$state', '$stateParams', '$scope', '$rootScope'
         machine: phSeries.machine || 'mean',
         value: Math.round(v*1000)/1000,
         deltaValue: dv.toFixed(1),
-        deltaPerfcentValue: (100 * dvp).toFixed(1),
+        deltaPercentValue: (100 * dvp).toFixed(1),
         date: $.plot.formatDate(new Date(t), '%a %b %d, %H:%M:%S')
       };
 
