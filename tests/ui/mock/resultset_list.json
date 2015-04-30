@@ -3,8 +3,7 @@
     "count": 10,
     "filter_params": {
       "count": "10",
-      "full": "true",
-      "format": "json"
+      "full": "true"
     },
     "repository": "mozilla-inbound"
   },

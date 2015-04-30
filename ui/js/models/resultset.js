@@ -37,8 +37,7 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location', '$q'
         getResultSetsFromChange: function(repoName, revision, locationParams) {
             locationParams = convertDates(locationParams);
             _.extend(locationParams, {
-                fromchange:revision,
-                format:'json'
+                fromchange:revision
             });
 
             return $http.get(
@@ -54,8 +53,7 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location', '$q'
             keep_filters = _.isUndefined(keep_filters) ? true : keep_filters;
 
             var params = {
-                full: full,
-                format: "json"
+                full: full
             };
 
             if (count > 0) {
@@ -99,7 +97,7 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location', '$q'
             );
         },
         get: function(uri) {
-            return $http.get(thServiceDomain + uri, {params: {format: "json"}});
+            return $http.get(thServiceDomain + uri);
         },
         getResultSetJobsUpdates: function(resultSetIdList, repoName, exclusionProfile, lastModified){
             if(angular.isDate(lastModified)){

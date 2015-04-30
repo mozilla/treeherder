@@ -126,7 +126,7 @@ perf.controller('CompareResultsCtrl', [
     //TODO: duplicated in comparesubtestctrl
     function verifyRevision(project, revision, rsid) {
       var uri = thServiceDomain + '/api/project/' + project +
-          '/resultset/?format=json&full=false&revision=' +
+          '/resultset/?full=false&revision=' +
           revision;
 
       return $http.get(uri).then(function(response) {
@@ -197,7 +197,7 @@ perf.controller('CompareSubtestResultsCtrl', [
     //TODO: duplicated from comparectrl
     function verifyRevision(project, revision, rsid) {
       var uri = thServiceDomain + '/api/project/' + project +
-          '/resultset/?format=json&full=false&revision=' +
+          '/resultset/?full=false&revision=' +
           revision;
 
       return $http.get(uri).then(function(response) {
