@@ -13,7 +13,7 @@ from treeherder.log_parser.artifactbuildercollection import \
     ArtifactBuilderCollection
 from treeherder.log_parser.artifactbuilders import MozlogArtifactBuilder
 
-from thclient import TreeherderArtifactCollection, TreeherderRequest
+from treeherder.client import TreeherderArtifactCollection, TreeherderRequest
 from treeherder.etl.oauth_utils import OAuthCredentials
 
 logger = logging.getLogger(__name__)

@@ -7,7 +7,7 @@ from django.conf import settings
 import requests
 import logging
 
-from thclient import TreeherderResultSetCollection
+from treeherder.client import TreeherderResultSetCollection
 
 from .mixins import JsonExtractorMixin, OAuthLoaderMixin
 from treeherder.etl.common import generate_revision_hash, get_not_found_onhold_push

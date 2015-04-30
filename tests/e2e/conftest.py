@@ -7,7 +7,7 @@ import os
 import pytest
 import simplejson as json
 from django.template import Context, Template
-from thclient import (TreeherderJobCollection)
+from treeherder.client import TreeherderJobCollection
 
 from tests import test_utils
 
