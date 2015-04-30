@@ -25,7 +25,8 @@ def get_bug_suggestions_artifacts(artifact_list):
     for artifact in artifact_list:
         # this is the only artifact name eligible to trigger generation of bug
         # suggestions.
-        assert artifact['name'] == 'text_log_summary'
+        if artifact['name'] != 'text_log_summary':
+            continue
 
         all_errors = get_all_errors(artifact)
         if all_errors:
