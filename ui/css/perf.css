@@ -106,7 +106,7 @@ to { opacity: 0; }
     position: absolute;
     visibility: hidden;
     pointer-events: none;
-    min-width: 200px;
+    width: 280px;
 }
 #graph-tooltip.locked {
     pointer-events: auto;
