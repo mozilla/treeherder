@@ -73,7 +73,7 @@ perf.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thServiceD
         var seriesList = [];
         var platformList = [];
         var subtestSignatures = [];
-        var suiteName = "";
+        var suiteName;
 
         //Given a signature, find the series and get subtest signatures
         var seriesSummary = _.find(lists.seriesList,
@@ -99,10 +99,15 @@ perf.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thServiceD
           }
         });
 
+        var testList = [];
+        if (suiteName) {
+          testList = [suiteName];
+        }
+
         return {
           seriesList: seriesList,
           platformList: platformList,
-          testList: [suiteName]
+          testList: testList
         };
       });
     },
@@ -166,11 +171,53 @@ perf.factory('isReverseTest', [ function() {
 perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
              'math', 'isReverseTest', 'phTimeRanges',
   function($q, $http, thServiceDomain, PhSeries, math, isReverseTest, phTimeRanges) {
+  var getClassName = function(baselineMin, baselineMax, baselineAvg, currentAvg, test) {
+    var range = math.trimFloat((baselineMax - baselineMin) / 2);
+    if (isReverseTest(test)) {
+      if (currentAvg < baselineAvg - range) {
+        if (currentAvg < baselineMin) {
+          return "compare-regression";
+        }
+        // Still more than the min value we got out of the baseline, so we could
+        // be OK still, but there could be a regression here too.
+        return "compare-notsure";
+      }
+      else if (currentAvg > baselineMax) {
+        return "compare-improvement";
+      }
+      return "";
+    }
+
+    // We have a 'smaller is better' test.
+    if (currentAvg > baselineAvg + range) {
+      if (currentAvg > baselineMax) {
+        return "compare-regression";
+      }
+      // Still less than the max value we got out of the baseline, so we could be
+      // OK still, but there could be a regression here.
+      return "compare-notsure";
+    }
+    else if (currentAvg < baselineMin) {
+      return "compare-improvement";
+    }
+    return "";
+  };
+
   return {
+    getCompareClasses: function(cr, type) {
+      if (cr.hideMinorChanges && cr.isMinor) return 'subtest-empty';
+      if (cr.isEmpty) return 'subtest-empty';
+      if (type == 'row') return '';
+      if (type == 'bar' && cr.isRegression) return 'bar-regression';
+      if (type == 'bar' && cr.isImprovement) return 'bar-improvement';
+      if (type == 'bar') return '';
+      return cr.className;
+    },
+
     getCounterMap: function(testName, originalData, newData) {
-      var cmap = {originalGeoMean: NaN, originalRuns: 0, originalStddev: NaN,
-                  newGeoMean: NaN, newRuns: 0, newStddev: NaN, delta: NaN,
-                  deltaPercentage: NaN, barGraphMargin: 0, isEmpty: false,
+      var cmap = {originalGeoMean: 0, originalRuns: 0, originalStddev: 0,
+                  newGeoMean: 0, newRuns: 0, newStddev: 0, delta: 0,
+                  deltaPercentage: 0, barGraphMargin: 0, isEmpty: false,
                   isRegression: false, isImprovement: false, isMinor: true};
 
       if (originalData) {
@@ -178,19 +225,23 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
          cmap.originalRuns = originalData.runs;
          cmap.originalStddev = originalData.stddev;
          cmap.originalStddevPct = ((originalData.stddev / originalData.geomean) * 100);
+         cmap.originalMin = originalData.minVal;
+         cmap.originalMax = originalData.maxVal;
       }
       if (newData) {
          cmap.newGeoMean = newData.geomean;
          cmap.newRuns = newData.runs;
          cmap.newStddev = newData.stddev;
          cmap.newStddevPct = ((newData.stddev / newData.geomean) * 100);
+         cmap.newMin = newData.minVal;
+         cmap.newMax = newData.maxVal;
       }
 
       if ((cmap.originalRuns == 0 && cmap.newRuns == 0) ||
           (testName == 'tp5n summary opt')) {
         // We don't generate numbers for tp5n, just counters
         cmap.isEmpty = true;
-      } else {
+      } else if (cmap.newGeoMean > 0 && cmap.originalGeoMean > 0) {
         cmap.delta = (cmap.newGeoMean - cmap.originalGeoMean);
         cmap.deltaPercentage = (cmap.delta / cmap.originalGeoMean * 100);
         cmap.barGraphMargin = 50 - Math.min(50, Math.abs(Math.round(cmap.deltaPercentage) / 2));
@@ -207,13 +258,9 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
           }
         }
 
-        if (cmap.deltaPercentage > 2.0) {
-          cmap.isMinor = false;
-          isReverseTest(testName) ? cmap.isImprovement = true : cmap.isRegression = true;
-        } else if (cmap.deltaPercentage < -2.0) {
-          cmap.isMinor = false;
-          isReverseTest(testName) ? cmap.isRegression = true : cmap.isImprovement = true;
-        }
+        cmap.className = getClassName(cmap.originalMin, cmap.originalMax, cmap.originalGeoMean, cmap.newGeoMean, testName);
+        cmap.isRegression = (cmap.className == 'compare-regression')
+        cmap.isImprovement = (cmap.className == 'compare-improvement')
       }
       return cmap;
     },
@@ -263,6 +310,8 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                 var sigma = math.stddev(means, avg);
 
                 resultsMap[resultSetId][data.series_signature] = {geomean: avg,
+                                               minVal: Math.min.apply(Math, means),
+                                               maxVal: Math.max.apply(Math, means),
                                                stddev: sigma,
                                                runs: means.length,
                                                name: seriesData.name,
@@ -297,6 +346,12 @@ perf.factory('math', [ function() {
       return Math.sqrt(
         values.map(function (v) { return Math.pow(v - avg, 2); })
           .reduce(function (a, b) { return a + b; }) / (values.length - 1));
+    },
+
+    trimFloat: function(number) {
+      if (number === undefined)
+        return 'N/A';
+      return Math.round(number * 100) / 100;
     }
   };
 }]);
@@ -305,7 +360,7 @@ perf.factory('math', [ function() {
 perf.filter('displayPrecision', function() {
   return function(input) {
     if (!input) {
-      return "NaN";
+      return "N/A";
     }
 
     return parseFloat(input).toFixed(2);

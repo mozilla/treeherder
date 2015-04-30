@@ -165,21 +165,21 @@ to { opacity: 0; }
 }
 
 .subtest-header {
-    background-image: linear-gradient(to bottom, #6A7B86, #424F5A);
-    color: white;
-    font-weight: bold;
+  background-image: linear-gradient(to bottom, #6A7B86, #424F5A);
+  color: white;
+  font-weight: bold;
 }
 
 .subtest-improvement {
-    background-color: green;
-    color: white;
-    font-weight: bold;
+  background: green;
+  color: white;
+  font-weight: bold;
 }
 
 .subtest-regression {
-    background-color: red;
-    color: white;
-    font-weight: bold;
+  background: red;
+  color: white;
+  font-weight: bold;
 }
 
 .subtest-empty {
@@ -227,17 +227,21 @@ to { opacity: 0; }
 }
 
 .compare-improvement {
-  background-color: green;
+  background-image: linear-gradient(to bottom, #80BB2E, #547D1C);
   color: white;
   font-weight: bold;
 }
 
 .compare-regression {
-  background-color: red;
+  background-image: linear-gradient(to bottom, #B20000, #940000);
   color: white;
   font-weight: bold;
 }
-    
+
+.compare-notsure {
+  background-image: linear-gradient(to bottom, #FF9500, #FFCB00);
+}
+
 .bar-improvement {
   background-color: green;
   margin-left: 50%;
