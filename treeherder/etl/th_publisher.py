@@ -3,7 +3,7 @@ import logging
 from django.utils.encoding import python_2_unicode_compatible
 from django.conf import settings
 
-from thclient import TreeherderRequest
+from treeherder.client import TreeherderRequest
 
 from treeherder.etl.oauth_utils import OAuthCredentials
 

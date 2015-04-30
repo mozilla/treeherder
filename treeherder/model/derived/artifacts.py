@@ -213,7 +213,6 @@ class ArtifactsModel(TreeherderModelBase):
 
             Comes in through the web service as the "artifacts" property
             in a job in a job collection
-            (https://github.com/mozilla/treeherder-client#job-collection)
 
             A list of lists
             [
@@ -223,7 +222,6 @@ class ArtifactsModel(TreeherderModelBase):
         job_artifact_collection:
 
             Comes in  through the web service as an artifact collection.
-            (https://github.com/mozilla/treeherder-client#artifact-collection)
 
             A list of job artifacts:
             [

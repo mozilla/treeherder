@@ -7,7 +7,7 @@ import pytest
 
 from django.core.urlresolvers import reverse
 
-import thclient
+from treeherder import client
 
 from treeherder.etl.oauth_utils import OAuthCredentials
 from treeherder.model.derived import ArtifactsModel
@@ -97,8 +97,8 @@ def test_artifact_create_text_log_summary(webapp, eleven_jobs_processed,
     job = jm.get_job_list(0, 1)[0]
     tls = sample_data.text_log_summary
 
-    tac = thclient.TreeherderArtifactCollection()
-    ta = thclient.TreeherderArtifact({
+    tac = client.TreeherderArtifactCollection()
+    ta = client.TreeherderArtifact({
         'type': 'json',
         'name': 'text_log_summary',
         'blob': json.dumps(tls['blob']),
@@ -106,7 +106,7 @@ def test_artifact_create_text_log_summary(webapp, eleven_jobs_processed,
     })
     tac.add(ta)
 
-    req = thclient.TreeherderRequest(
+    req = client.TreeherderRequest(
         protocol='http',
         host='localhost',
         project=jm.project,

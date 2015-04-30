@@ -10,11 +10,12 @@ import json
 
 from mock import patch
 
-from thclient import (TreeherderJob, TreeherderJobCollection,
-                      TreeherderRevision, TreeherderResultSet,
-                      TreeherderResultSetCollection, TreeherderClientError,
-                      TreeherderRequest, TreeherderArtifact,
-                      TreeherderArtifactCollection)
+from treeherder.client import (TreeherderJob, TreeherderJobCollection,
+                               TreeherderRevision, TreeherderResultSet,
+                               TreeherderResultSetCollection,
+                               TreeherderClientError, TreeherderRequest,
+                               TreeherderArtifact,
+                               TreeherderArtifactCollection)
 
 
 class DataSetup(unittest.TestCase):
@@ -452,9 +453,9 @@ class TreeherderRequestTest(DataSetup, unittest.TestCase):
             mock_send.call_args_list[0][1]["data"]
         )
 
-    @patch("thclient.client.oauth.generate_nonce")
-    @patch("thclient.client.oauth.time.time")
-    @patch("thclient.client.requests.post")
+    @patch("treeherder.client.client.oauth.generate_nonce")
+    @patch("treeherder.client.client.oauth.time.time")
+    @patch("treeherder.client.client.requests.post")
     def test_send(self, mock_post, mock_time, mock_generate_nonce):
 
         """Can send data to the server."""
@@ -494,9 +495,9 @@ class TreeherderRequestTest(DataSetup, unittest.TestCase):
             'application/json',
             )
 
-    @patch("thclient.client.oauth.generate_nonce")
-    @patch("thclient.client.oauth.time.time")
-    @patch("thclient.client.requests.post")
+    @patch("treeherder.client.client.oauth.generate_nonce")
+    @patch("treeherder.client.client.oauth.time.time")
+    @patch("treeherder.client.client.requests.post")
     def test_send_without_oauth(self, mock_post, mock_time,
                                 mock_generate_nonce):
 

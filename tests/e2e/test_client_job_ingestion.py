@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-import thclient
+from treeherder import client
 
 from treeherder.etl.oauth_utils import OAuthCredentials
 from treeherder.model.derived import JobsModel
@@ -17,8 +17,8 @@ def test_post_job_with_parsed_log(test_project, result_set_stored,
 
     credentials = OAuthCredentials.get_credentials(test_project)
 
-    tjc = thclient.TreeherderJobCollection()
-    tj = thclient.TreeherderJob({
+    tjc = client.TreeherderJobCollection()
+    tj = client.TreeherderJob({
         'project': test_project,
         'revision_hash': result_set_stored[0]['revision_hash'],
         'job': {
@@ -34,7 +34,7 @@ def test_post_job_with_parsed_log(test_project, result_set_stored,
 
     tjc.add(tj)
 
-    req = thclient.TreeherderRequest(
+    req = client.TreeherderRequest(
         protocol='http',
         host='localhost',
         project=test_project,

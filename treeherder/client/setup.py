@@ -27,7 +27,5 @@ setup(name='treeherder-client',
       license='MPL',
       packages=['thclient'],
       zip_safe=False,
-      install_requires=['oauth2', 'requests'],
-      test_suite='thclient.tests',
-      tests_require=["mock"],
+      install_requires=['oauth2', 'requests']
       )

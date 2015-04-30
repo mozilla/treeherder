@@ -10,9 +10,7 @@ treeherder-service
 Treeherder is comprised of this repo for providing those back end services, and several other component repos:
 
 * [treeherder-ui](https://github.com/mozilla/treeherder-ui) for the front end UI.
-* [treeherder-client](https://github.com/mozilla/treeherder-client) for data submission.
-* [treeherder-node](https://github.com/mozilla/treeherder-node) NodeJS interface.
-
+* [treeherder-node](https://github.com/mozilla/treeherder-node) NodeJS interface for submitting data to Treeherder (a python interface is maintained inside this repository, see the documentation for more information)
 
 #### Instances
 Treeherder exists on three instances, [dev](http://treeherder-dev.allizom.org) for treeherder development, [stage](https://treeherder.allizom.org) for pre-deployment validation, and [production](https://treeherder.mozilla.org) for actual use.

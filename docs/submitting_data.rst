@@ -1,15 +1,37 @@
-#treeherder-client
+Submitting Data
+===============
 
-A set of client libraries to support data submission to https://github.com/mozilla/treeherder-service. There are two types of data
-structures supported: job and resultset collections. Both classes have support methods for building a data structure that https://github.com/mozilla/treeherder-service accepts. Data structures can be extended with new properties as needed, there is a minimal validation protocol applied that confirms the bare minimum parts of the structures are defined.
+Treeherder Python Client Library
+--------------------------------
 
-##Resultset Collection
+We provide a library, called treeherder-client, to support data
+submission to the treeherder service. It is maintained inside the
+treeherder repository, but you can install your own copy from pypi
+using pip:
 
+.. code-block:: bash
 
-Resultset collections contain meta data associated with a github pull request or a push to mercurial or any event that requires tests to be run on a repository.
-The most critical part of each resultset is the `revision_hash`.  This is used as an identifier to associate test job data with. It can be any unique string of 50 characters at most. A resultset collection has the following data structure
+    pip install treeherder-client
 
-```python
+There are two types of data structures you can submit with this
+library: job and resultset collections. The library provides methods
+for building a data structure that treeherder will accept. Data
+structures can be extended with new properties as needed, there is a
+minimal validation protocol applied that confirms the bare minimum
+parts of the structures are defined.
+
+Resultset Collections
+---------------------
+
+Resultset collections contain meta data associated with a github pull request
+or a push to mercurial or any event that requires tests to be run on a
+repository.  The most critical part of each resultset is the `revision_hash`.
+This is used as an identifier to associate test job data with. It can be any
+unique string of 50 characters at most. A resultset collection has the
+following data structure:
+
+.. code-block:: python
+
     [
         {
             # unique identifier for a result set, can be any unique character string no longer than 50 characters
@@ -45,36 +67,17 @@ The most critical part of each resultset is the `revision_hash`.  This is used a
             }
         }
     ]
-```
 
-##Job Collection
+Job Collections
+---------------
 
-Job collections can contain test results from any kind of test. The 
-`revision_hash` provided should match the associated `revision_hash` 
-in the resultset structure. The `job_guid` provided can be any unique 
-string of 50 characters at most. 
+Job collections can contain test results from any kind of test. The
+`revision_hash` provided should match the associated `revision_hash` in the
+resultset structure. The `job_guid` provided can be any unique string of 50
+characters at most. A job collection has the following data structure.
 
+.. code-block:: python
 
-###Parsing your own logs
-
-It is now possible to post jobs with log references that you have already
-parsed.  You are then responsible for submitting an artifact named 
-``text_log_summary``.  This artifact is what would normally be the result of
-Treeherder's internal log parsing.  
-
-To do this, add ``parse_status: 'parsed'`` to the applicable ``log_reference`` 
-object (shown below).  When you then post your artifact named ``text_log_summary``, 
-Treeherder will automatically generate the applicable ``Bug suggestions`` 
-artifact for it.
-
-If the ``parse_status`` of a ``log_reference`` is not specified, it defaults to
-``pending`` and will, therefore, be parsed by Treeherder.  Treeherder will then
-generate the ``text_log_summary`` and ``Bug suggestions`` artifacts.
-
-
-A job collection has the following data structure.
-
-```python
     [
         {
             'project': 'mozilla-inbound',
@@ -126,7 +129,6 @@ A job collection has the following data structure.
                     {
                         'url': 'http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/...',
                         'name': 'builds-4h'
-                        'parse_status': 'parsed'
                         }
                     ],
 
@@ -142,13 +144,16 @@ A job collection has the following data structure.
             },
             ...
     ]
-```
 
-##Artifact Collection
+Artifact Collections
+--------------------
 
-Artifact collections contain arbitrary data associated with a job. This is usually a json blob of structured data produced by the build system during the job execution.
+Artifact collections contain arbitrary data associated with a job. This is
+usually a json blob of structured data produced by the build system during the
+job execution.
 
-```python
+.. code-block:: python
+
     [
         {
             'type': 'json',
@@ -158,13 +163,15 @@ Artifact collections contain arbitrary data associated with a job. This is usual
             'job_guid': 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
         }
     ]
-```
 
-###Usage
+Usage
+-----
 
-If you want to use `TreeherderResultSetCollection` to build up the resultset data structures to send, do something like this.
+If you want to use `TreeherderResultSetCollection` to build up the resultset
+data structures to send, do something like this.
 
-```python
+.. code-block:: python
+
     from thclient import TreeherderRequest, TreeherderResultSetCollection, TreeherderClientError
 
     trsc = TreeherderResultSetCollection()
@@ -209,17 +216,19 @@ If you want to use `TreeherderResultSetCollection` to build up the resultset dat
     # data structure validation is automatically performed here, if validation
     # fails a TreeherderClientError is raised
     req.post(trc)
-```
 
-At any time in building a data structure, you can examine what has been created by looking at the `data` property.
-You can also call the `validate` method at any time before sending a collection.
-All treeherder data classes have `validate` methods that can be used for testing.
-The `validate` method is called on every structure in a collection when a `send` is called on a `TreeherderRequest`.
-If validation fails a `TreeherderClientError` is raised.
+At any time in building a data structure, you can examine what has been
+created by looking at the `data` property.  You can also call the `validate`
+method at any time before sending a collection.  All treeherder data classes
+have `validate` methods that can be used for testing.  The `validate` method
+is called on every structure in a collection when a `send` is called on a
+`TreeherderRequest`.  If validation fails a `TreeherderClientError` is raised.
 
-If you want to use `TreeherderJobCollection` to build up the job data structures to send, do something like this.
+If you want to use `TreeherderJobCollection` to build up the job data
+structures to send, do something like this:
 
-```python
+.. code-block:: python
+
     from thclient import TreeherderRequest, TreeherderJobCollection, TreeherderClientError
 
     #####
@@ -266,8 +275,7 @@ If you want to use `TreeherderJobCollection` to build up the job data structures
 
         tj.add_option_collection( data['option_collection'] )
 
-        # parse_status can be one of 'pending', 'parsed' or 'failed'. Default: 'pending'
-        tj.add_log_reference( 'builds-4h', data['log_reference'], 'pending' )
+        tj.add_log_reference( 'builds-4h', data['log_reference'] )
 
         # data['artifact'] is a list of artifacts
         for artifact_data in data['artifact']:
@@ -290,11 +298,12 @@ If you want to use `TreeherderJobCollection` to build up the job data structures
     # data structure validation is automatically performed here, if validation
     # fails a TreeherderClientError is raised
     req.post(tjc)
-```
 
-If you want to use `TreeherderArtifactCollection` to build up the job artifacts data structures to send, do something like this.
+If you want to use `TreeherderArtifactCollection` to build up the job
+artifacts data structures to send, do something like this:
 
-```python
+.. code-block:: python
+
     from thclient import TreeherderRequest, TreeherderArtifactCollection, TreeherderClientError
 
     tac = TreeherderArtifactCollection()
@@ -324,12 +333,13 @@ If you want to use `TreeherderArtifactCollection` to build up the job artifacts 
     # data structure validation is automatically performed here, if validation
     # fails a TreeherderClientError is raised
     req.post(tac)
-```
 
-If you don't want to use `TreeherderResultCollection` or `TreeherderJobCollection` to build up the data structure
-to send, build the data structures directly and add them to the collection.
+If you don't want to use `TreeherderResultCollection` or
+`TreeherderJobCollection` to build up the data structure to send, build the
+data structures directly and add them to the collection.
 
-```python
+.. code-block:: python
+
     from thclient import TreeherderRequest, TreeherderResultSetCollection
 
     trc = TreeherderResultSetCollection()
@@ -378,11 +388,13 @@ to send, build the data structures directly and add them to the collection.
     # data structure validation is automatically performed here, if validation
     # fails a TreeherderClientError is raised
     req.post(tjc)
-```
 
-In the same way, if you don't want to use `TreeherderArtifactCollection` to build up the data structure to send, build the data structures directly and add them to the collection.
+In the same way, if you don't want to use `TreeherderArtifactCollection` to
+build up the data structure to send, build the data structures directly and
+add them to the collection.
 
-```python
+.. code-block:: python
+
     from thclient import TreeherderRequest, TreeherderArtifactCollection
 
     tac = TreeherderArtifactCollection()
@@ -405,64 +417,60 @@ In the same way, if you don't want to use `TreeherderArtifactCollection` to buil
 
     # Post the request to treeherder
     req.post(tac)
-```
 
-##Job artifacts format
+Job artifacts format
+--------------------
 
-Artifacts can have name, type and blob. The blob property can contain any valid data structure accordingly to type attribute.
-For example if you use the json type, your blob must be json-serializable to be valid.
-The name attribute can be any arbitrary string identifying the artifact.
-Here is an example of what a job artifact looks like in the context of a job object:
+Artifacts can have name, type and blob. The blob property can contain any
+valid data structure accordingly to type attribute.  For example if you use
+the json type, your blob must be json-serializable to be valid.  The name
+attribute can be any arbitrary string identifying the artifact.  Here is an
+example of what a job artifact looks like in the context of a job object:
 
-```python
-[
-    {
-        'project': 'mozilla-inbound',
+.. code-block:: python
 
-        'revision_hash': '4317d9e5759d58852485a7a808095a44bc806e19',
+    [
+        {
+            'project': 'mozilla-inbound',
+            'revision_hash': '4317d9e5759d58852485a7a808095a44bc806e19',
+            'job': {
+                'job_guid': 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33',
+                # ...
+                # other job properties here
+                # ...
 
-        'job': {
-
-            'job_guid': 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33',
-
-            # ...
-            # other job properties here
-            # ...
-             
-            'artifacts': [
-            {
-                "type": "json",
-                "name": "my first artifact",
-                'blob': { 
-                    k1:v1,
-                    k2: v2,
-                    ...
+                'artifacts': [
+                {
+                    "type": "json",
+                    "name": "my first artifact",
+                    'blob': {
+                        k1: v1,
+                        k2: v2,
+                        ...
+                    }
+                },
+                {
+                    'type': 'json',
+                    'name': 'my second artifact',
+                    'blob': {
+                        k1: v1,
+                        k2: v2,
+                        ...
+                    }
                 }
-            },
-            {
-                'type': 'json',
-                'name': 'my second artifact',
-                'blob': {
-                  
-                    k1:v1,
-                    k2: v2,
-                    ...
-                }
+                ]
             }
-            ]
-        }
-    },
-    ...
-]
+        },
+        ...
+    ]
 
-```
+A special case of job artifact is a "Job Info" artifact. This kind of artifact
+will be retrieved by the UI and rendered in the job detail panel. This
+is what a Job Info artifact looks like:
 
-A special case of job artifact is a "Job Info" artifact. This kind of artifact will be retrieved by the UI
-(see https://github.com/mozilla/treeherder-ui) and rendered in the job detail panel.
-This is what a Job Info artifact looks like:
+.. code-block:: python
 
-```python
-{
+  {
 
     "blob": {
         "job_details": [
@@ -486,35 +494,29 @@ This is what a Job Info artifact looks like:
     },
     "type": "json",
     "name": "Job Info"
-}
-```
+  }
 
-All the elements in the job_details attribute of this artifact have a mandatory title attribute and a set of optional attributes depending on ``content_type``. 
-The ``content_type`` drives the way this kind of artifact will be rendered. Here are the possible values:
+All the elements in the job_details attribute of this artifact have a
+mandatory title attribute and a set of optional attributes depending on
+`content_type`.  The `content_type` drives the way this kind of artifact
+will be rendered. Here are the possible values:
 
-* **Text** - This is the simplest content type you can render and is the one used by default if the content type
-    specified is not recognised or is missing.
+* **Text** - This is the simplest content type you can render and is the one
+  used by default if the content type specified is not recognised or is missing.
 
     This content type renders as:
 
-    ```html
-    <label>{{title}}</label><span>{{value}}</span>
-    ```
+    .. code-block:: html
 
-* **Link** - This content type renders as an anchor html tag with the following format:
+      <label>{{title}}</label><span>{{value}}</span>
 
-    ```html
-    {{title}}: <a title="{{value}}" href="{{url}}" target="_blank">{{value}}</a>
-    ```
+* **Link** - This content type renders as an anchor html tag with the
+  following format:
 
-* **Raw Html** - The last resource for when you need to show some formatted content.
+    .. code-block:: html
 
+      {{title}}: <a title="{{value}}" href="{{url}}" target="_blank">{{value}}</a>
 
+* **Raw Html** - The last resource for when you need to show some formatted
+  content.
 
-##Development
-
-To run the `treeherder-client` test suite, run `python setup.py test`.
-
-If you have `python2.5`, `python2.6`, or `python2.7` available on your system
-under those names, you can also `pip install tox` and then run `tox` to test
-`treeherder-client` under all of those Python versions.
