@@ -9,16 +9,19 @@ import subprocess
 import os
 
 from collections import defaultdict
+from contextlib import closing
 
 from datasource.bases.BaseHub import BaseHub
 from datasource.hubs.MySQL import MySQL
 from django.conf import settings
 from django.core.cache import cache
-from django.db import models
+from django.db import models, connection
 from django.db.models import Max, Q
 from django.contrib.auth.models import User
 from django.utils.encoding import python_2_unicode_compatible
 from warnings import filterwarnings, resetwarnings
+
+import MySQLdb
 
 from jsonfield import JSONField
 
@@ -352,6 +355,7 @@ class Datasource(models.Model):
         # @@@ the datahub class should depend on self.type
         return MySQL(self.key)
 
+
     def create_db(self, schema_file=None):
         """
         Create the database for this source, using given SQL schema file.
@@ -364,10 +368,8 @@ class Datasource(models.Model):
         ``DATABASE_PASSWORD`` exists on it and has permissions to
         create databases.
         """
-        from django.conf import settings
         import MySQLdb
-        DB_USER = settings.DATABASES["default"]["USER"]
-        DB_PASS = settings.DATABASES["default"]["PASSWORD"]
+
         if self.type.lower().startswith("mysql-"):
             engine = self.type[len("mysql-"):]
         elif self.type.lower() == "mysql":
@@ -384,63 +386,69 @@ class Datasource(models.Model):
                 "project_{0}_1.sql.tmpl".format(self.contenttype),
             )
 
-        conn = MySQLdb.connect(
-            host=self.host,
-            user=DB_USER,
-            passwd=DB_PASS,
-        )
         filterwarnings('ignore', category=MySQLdb.Warning)
-        cur = conn.cursor()
-        cur.execute("CREATE DATABASE IF NOT EXISTS {0}".format(self.name))
-        conn.close()
+        with closing(connection.cursor()) as cursor:
+            cursor.execute("CREATE DATABASE IF NOT EXISTS {0}".format(self.name))
+            cursor.execute("USE {0}".format(self.name))
+            try:
+                with open(schema_file) as f:
+                # set the engine to use
+                    sql = f.read().format(engine=engine)
+                    statement_list = sql.split(";")
+                    for statement in statement_list:
+                        cursor.execute(statement)
+            finally:
+                cursor.execute("USE {0}".format(
+                    settings.TREEHERDER_DATABASE_NAME
+                ))
+
         resetwarnings()
 
         # MySQLdb provides no way to execute an entire SQL file in bulk, so we
         # have to shell out to the commandline client.
-        with open(schema_file) as f:
-            # set the engine to use
-            sql = f.read().format(engine=engine)
 
-        args = [
-            "mysql",
-            "--host={0}".format(self.host),
-            "--user={0}".format(DB_USER),
-        ]
-        if DB_PASS:
-            args.append(
-                "--password={0}".format(
-                    DB_PASS)
-            )
-        args.append(self.name)
-        proc = subprocess.Popen(
-            args,
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-        )
-        (output, _) = proc.communicate(sql)
-        if proc.returncode:
-            raise IOError(
-                "Unable to set up schema for datasource {0}: "
-                "mysql returned code {1}, output follows:\n\n{2}".format(
-                    self.key, proc.returncode, output
-                )
-            )
+
+
+
+
+
+
+
+
+
+
+
+
+        # args = [
+        #     "mysql",
+        #     "--host={0}".format(self.host),
+        #     "--user={0}".format(DB_USER),
+        # ]
+        # if DB_PASS:
+        #     args.append(
+        #         "--password={0}".format(
+        #             DB_PASS)
+        #     )
+        # args.append(self.name)
+        # proc = subprocess.Popen(
+        #     args,
+        #     stdin=subprocess.PIPE,
+        #     stdout=subprocess.PIPE,
+        #     stderr=subprocess.STDOUT,
+        # )
+        # (output, _) = proc.communicate(sql)
+        # if proc.returncode:
+        #     raise IOError(
+        #         "Unable to set up schema for datasource {0}: "
+        #         "mysql returned code {1}, output follows:\n\n{2}".format(
+        #             self.key, proc.returncode, output
+        #         )
+        #     )
 
     def delete_db(self):
-        from django.conf import settings
-        import MySQLdb
-        DB_USER = settings.DATABASES["default"]["USER"]
-        DB_PASS = settings.DATABASES["default"]["PASSWORD"]
-        conn = MySQLdb.connect(
-            host=self.host,
-            user=DB_USER,
-            passwd=DB_PASS,
-        )
+        with closing(connection.cursor()) as cursor:
+            cursor.execute("DROP DATABASE {0}".format(self.name))
 
-        cur = conn.cursor()
-        cur.execute("DROP DATABASE {0}".format(self.name))
-        conn.close()
 
     def delete(self, *args, **kwargs):
         self.delete_db()
@@ -451,33 +459,18 @@ class Datasource(models.Model):
         Truncate all tables in the db self refers to.
         Skip_list is a list of table names to skip truncation.
         """
-        from django.conf import settings
-        import MySQLdb
-
         skip_list = set(skip_list or [])
 
-        DB_USER = settings.DATABASES["default"]["USER"]
-        DB_PASS = settings.DATABASES["default"]["PASSWORD"]
-
-        conn = MySQLdb.connect(
-            host=self.host,
-            user=DB_USER,
-            passwd=DB_PASS,
-            db=self.name,
-        )
-        cur = conn.cursor()
-        cur.execute("SET FOREIGN_KEY_CHECKS = 0")
-        cur.execute("SHOW TABLES")
-
-        for table, in cur.fetchall():
-            # if there is a skip_list, then skip any table with matching name
-            if table.lower() not in skip_list:
-                # needed to use backticks around table name, because if the
-                # table name is a keyword (like "option") then this will fail
-                cur.execute("TRUNCATE TABLE `{0}`".format(table))
-
-        cur.execute("SET FOREIGN_KEY_CHECKS = 1")
-        conn.close()
+        with closing(connection.cursor()) as cursor:
+            cursor.execute("SET FOREIGN_KEY_CHECKS = 0")
+            cursor.execute("SHOW TABLES")
+            for table, in cursor.fetchall():
+                # if there is a skip_list, then skip any table with matching name
+                if table.lower() not in skip_list:
+                    # needed to use backticks around table name, because if the
+                    # table name is a keyword (like "option") then this will fail
+                    cursor.execute("TRUNCATE TABLE `{0}`".format(table))
+            cursor.execute("SET FOREIGN_KEY_CHECKS = 1")
 
 
 @python_2_unicode_compatible
