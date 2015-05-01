@@ -123,14 +123,17 @@ perf.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thServiceD
 
       return _getAllSeries(projectName, timeRange, optionMap).then(function(lists) {
         lists.seriesList.forEach(function(seriesSummary) {
-          // Only keep summary signatures, filter in/out e10s and pgo
+          // Only keep summary signatures, filter in/out e10s
+
           if (!seriesSummary.subtestSignatures ||
               (userOptions.e10s && !_.contains(seriesSummary.options, 'e10s')) ||
-              (!userOptions.e10s && _.contains(seriesSummary.options, 'e10s')) ||
-              (userOptions.pgo && !_.contains(seriesSummary.options, 'pgo')) ||
-              (!userOptions.pgo && _.contains(seriesSummary.options, 'pgo'))) {
+              (!userOptions.e10s && _.contains(seriesSummary.options, 'e10s'))) {
               return;
           } else {
+            // We don't generate number for tp5n, this is xperf and we collect counters
+            if (_.contains(seriesSummary.name, "tp5n"))
+              return
+
             seriesList.push(seriesSummary);
 
             // add test/platform to lists if not yet present
@@ -237,9 +240,7 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
          cmap.newMax = newData.maxVal;
       }
 
-      if ((cmap.originalRuns == 0 && cmap.newRuns == 0) ||
-          (testName == 'tp5n summary opt')) {
-        // We don't generate numbers for tp5n, just counters
+      if (cmap.originalRuns == 0 && cmap.newRuns == 0) {
         cmap.isEmpty = true;
       } else if (cmap.newGeoMean > 0 && cmap.originalGeoMean > 0) {
         cmap.delta = (cmap.newGeoMean - cmap.originalGeoMean);
@@ -259,8 +260,9 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
         }
 
         cmap.className = getClassName(cmap.originalMin, cmap.originalMax, cmap.originalGeoMean, cmap.newGeoMean, testName);
-        cmap.isRegression = (cmap.className == 'compare-regression')
-        cmap.isImprovement = (cmap.className == 'compare-improvement')
+        cmap.isRegression = (cmap.className == 'compare-regression');
+        cmap.isImprovement = (cmap.className == 'compare-improvement');
+        cmap.isMinor = (cmap.className == "");
       }
       return cmap;
     },
@@ -273,6 +275,31 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
       //now figure out which predefined set of data we can query from
       var timeRange = _.find(phTimeRanges, function(i) { return timeRange <= i.value });
       return timeRange.value;
+    },
+
+    validateInput: function(originalProject, newProject,
+                            originalRevision, newRevision,
+                            originalSignature, newSignature) {
+
+      var errors = [];
+      if (!originalProject) errors.push('Missing input: originalProject');
+      if (!newProject) errors.push('Missing input: newProject');
+      if (!originalRevision) errors.push('Missing input: originalRevision');
+      if (!newRevision) errors.push('Missing input: newRevision');
+
+      if (originalSignature && newSignature) {
+        if (!originalSignature) errors.push('Missing input: originalSignature');
+        if (!newSignature) errors.push('Missing input: newSignature');
+      }
+
+      $http.get(thServiceDomain + '/api/repository/').then(function(response) {
+        if (!_.find(response.data, {'name': originalProject}))
+          errors.push("Invalid project, doesn't exist: " + originalProject);
+
+        if (!_.find(response.data, {'name': newProject}))
+          errors.push("Invalid project, doesn't exist: " + newProject);
+      });
+      return errors;
     },
 
     getResultsMap: function(projectName, seriesList, timeRange, resultSetIds) {

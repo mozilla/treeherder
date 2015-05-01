@@ -14,7 +14,10 @@
     Loading all results, please wait a minute...
     <img src="img/dancing_cat.gif" />
   </div>
-  <div id="subtest-summary" ng-if="!dataLoading">
+  <div id="error" ng-if="!dataLoading && errors.length" ng-repeat="error in errors">
+    <div>{{error}}</div>
+  </div>
+  <div id="subtest-summary" ng-if="!dataLoading && !errors.length">
     <h4>Subtest Summary for {{originalProject}}: {{originalRevision}} compared to {{newProject}}: {{newRevision}}, <a href="perf.html#/compare?originalProject={{originalProject}}&originalRevision={{originalRevision}}&newProject={{newProject}}&newRevision={{newRevision}}">click here</a> to see all tests and platforms</h4>
     <p class="help-block">Hover over each entry for more options.</p>
       <table class="table">
