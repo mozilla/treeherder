@@ -18,6 +18,11 @@ treeherder.factory('thTabs', [
                     content: "plugins/annotations/main.html",
                     enabled: true
                 },
+                "jobDetails": {
+                    title: "Job details",
+                    content: "plugins/job_details/main.html",
+                    enabled: true
+                },
                 "similarJobs": {
                     title: "Similar jobs",
                     content: "plugins/similar_jobs/main.html",

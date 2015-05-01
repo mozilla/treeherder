@@ -126,11 +126,17 @@ treeherder.controller('PluginCtrl', [
                         // easier.
                         $scope.job_details = jobInfoArtifact.reduce(function(result, artifact) {
                           if (artifact.blob && Array.isArray(artifact.blob.job_details)) {
-                            result = result.concat(artifact.blob.job_details);
+                              result = result.concat(artifact.blob.job_details);
+                          }
+                          if ($scope.artifacts.buildapi) {
+                              $scope.artifacts.buildapi.blob.title = "Buildername";
+                              $scope.artifacts.buildapi.blob.value = $scope.artifacts.buildapi.blob.buildername;
+                              result = result.concat($scope.artifacts.buildapi.blob);
                           }
                           return result;
                         }, []);
                     }
+
                     // the fourth result comes from the jobLogUrl artifact
                     // exclude the json log URLs
                     $scope.job_log_urls = _.reject(results[3], {name: 'mozlog_json'});
@@ -189,11 +195,6 @@ treeherder.controller('PluginCtrl', [
                              $scope.job.build_os || undef
                 };
 
-                // if the buildername exists, add it as a field
-                if ($scope.artifacts.buildapi) {
-                    $scope.visibleFields.Buildername = $scope.artifacts.buildapi.blob.buildername;
-                }
-
                 // time fields to show in detail panel, but that should be grouped together
                 $scope.visibleTimeFields = {
                     requestTime: dateFilter($scope.job.submit_timestamp*1000,
@@ -221,7 +222,6 @@ treeherder.controller('PluginCtrl', [
                     $scope.visibleTimeFields.endTime = dateFilter(
                         $scope.job.end_timestamp*1000, thDateFormat);
                 }
-
         };
 
         $scope.getCountPinnedJobs = function() {

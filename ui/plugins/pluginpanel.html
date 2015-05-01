@@ -167,7 +167,6 @@
             </a>
           </span>
         </li>
-
         <li class="small" ng-repeat="(label, value) in visibleFields">
           <label>{{label}}:</label>
           <span ng-switch on="label">
@@ -176,11 +175,10 @@
                  title="Open build directory in a new tab"
                  href={{job_log_url.buildUrl}} target="_blank">{{value}}</a>
               <span ng-switch-when="Job name"
-                 title="{{job.job_type_description}}">{{value}}</span>
+                    title="{{job.job_type_description}}">{{value}}</span>
               <span ng-switch-default>{{value}}</span>
           </span>
         </li>
-
         <li class="small">
           <label>Requested:</label><span> {{visibleTimeFields.requestTime}}</span>
         </li>
@@ -202,20 +200,7 @@
           <span>No logs</span>
         </li>
       </ul>
-      <div class="printlines">
-        <ul class="list-unstyled">
-          <li ng-repeat="line in job_details" class="small">
-            <label>{{line.title}}</label>
-            <span ng-switch on="line.content_type">
-              <a ng-switch-when="link" title="{{line.value}}" href="{{line.url}}" target="_blank">{{line.value}}</a>
-              <span ng-switch-when="raw_html" ng-bind-html="line.value"></span>
-              <span ng-switch-when="TalosResult">See talos panel</span>
-              <span title="{{line.value}}" ng-switch-when="object">{{line.value}}</span>
-              <span title="{{line.value}}" ng-switch-default>{{line.value}}</span>
-            </span>
-          </li>
-        </ul>
-      </div>
+
       <div ng-if="job_detail_loading" class="overlay">
         <div>
           <span class="fa fa-refresh fa-spin"></span>
@@ -239,6 +224,13 @@
                href="" prevent-default-on-left-click
                ng-click="tabService.showTab('annotations', job.id)">
               Annotations
+            </a>
+          </li>
+          <li ng-class="{'active': tabService.selectedTab == 'jobDetails'}">
+            <a title="Show additional job information"
+               href="" prevent-default-on-left-click
+               ng-click="tabService.showTab('jobDetails', job.id)">
+              Job details
             </a>
           </li>
           <li ng-class="{'active': tabService.selectedTab == 'similarJobs'}">
@@ -281,7 +273,9 @@
       </nav>
     </div>
     <div id="bottom-center-bottom">
-      <div ng-repeat="(tabId, tab) in tabService.tabs" ng-show="tabId == tabService.selectedTab">
+      <div ng-repeat="(tabId, tab) in tabService.tabs"
+           ng-show="tabId == tabService.selectedTab"
+           class="job-tabs-divider">
           <ng-include src="tab.content"></ng-include>
       </div>
     </div>
