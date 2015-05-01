@@ -361,6 +361,8 @@ INSTALLED_APPS += LOCAL_APPS
 
 TEMPLATE_DEBUG = DEBUG
 
+
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
@@ -377,6 +379,17 @@ DATABASES = {
         "HOST": TREEHERDER_RO_DATABASE_HOST,
     }
 }
+
+# Setup ssl connection for aws rds.
+if 'IS_HEROKU' in os.environ:
+    ca_path = '/app/deployment/aws/combined-ca-bundle.pem'.format(
+    )
+    for db_name in DATABASES:
+        DATABASES[db_name]['OPTIONS'] = {
+            'ssl': {
+                'ca': ca_path
+            }
+        }
 
 # TREEHERDER_MEMCACHED is a string of comma-separated address:port pairs
 MEMCACHED_LOCATION = TREEHERDER_MEMCACHED.strip(',').split(',')
@@ -399,6 +412,7 @@ CACHES = {
         }
     }
 }
+
 
 KEY_PREFIX = TREEHERDER_MEMCACHED_KEY_PREFIX
 
