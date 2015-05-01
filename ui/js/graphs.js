@@ -607,18 +607,8 @@ perf.controller('GraphsCtrl', [ '$state', '$stateParams', '$scope', '$rootScope'
       }
     }
 
-    var optionCollectionMap = {};
-
-    ThOptionCollectionModel.get_list().success(
-      function(optCollectionData) {
-          // gather the string representations of option collections
-        _.each(optCollectionData, function(optColl) {
-          optionCollectionMap[optColl.option_collection_hash] =
-            _.uniq(_.map(optColl.options, function(option) {
-              return option.name;
-            })).sort().join();
-        });
-      }).then(function() {
+    ThOptionCollectionModel.get_map().then(
+      function(optionCollectionMap) {
         if ($stateParams.series) {
           $scope.seriesList = [];
           if (_.isString($stateParams.series)) {

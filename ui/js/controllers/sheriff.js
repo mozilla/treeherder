@@ -105,17 +105,7 @@ treeherderApp.controller('SheriffCtrl', [
         // initialize the list of option collections
         $scope.master_option_collections = [];
 
-        ThOptionCollectionModel.get_list()
-           .success(function(optCollectionData) {
-             // gather the string representations of option collections
-             var optCollectionMap = {};
-             _.each(optCollectionData, function(optColl) {
-               optCollectionMap[optColl.option_collection_hash] =
-                 _.uniq(_.map(optColl.options, function(option) {
-                   return option.name;
-                 })).sort().join();
-             });
-
+        ThOptionCollectionModel.get_map().then(function(optCollectionMap) {
              // the string representations of the option collections
              $scope.master_option_collections = _.values(optCollectionMap);
 
