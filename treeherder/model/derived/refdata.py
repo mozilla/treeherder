@@ -25,24 +25,34 @@ class RefDataManager(object):
         procs_path = os.path.join(
             os.path.dirname(os.path.dirname(__file__)),
             'sql', 'reference.json')
+
+        master_host_config = {
+            "host": settings.DATABASES['default']['HOST'],
+            "user": settings.DATABASES['default']['USER'],
+            "passwd": settings.DATABASES['default']['PASSWORD']
+        }
+        if 'OPTIONS' in settings.DATABASES['default']:
+            master_host_config.update(settings.DATABASES['default']['OPTIONS'])
+
+        read_host_config = {
+            "host": settings.DATABASES['read_only']['HOST'],
+            "user": settings.DATABASES['read_only']['USER'],
+            "passwd": settings.DATABASES['read_only']['PASSWORD']
+        }
+        if 'OPTIONS' in settings.DATABASES['read_only']:
+            read_host_config.update(settings.DATABASES['read_only']['OPTIONS'])
+
         data_source = {
             'reference': {
                 "hub": "MySQL",
-                "master_host": {
-                    "host": settings.DATABASES['default']['HOST'],
-                    "user": settings.DATABASES['default']['USER'],
-                    "passwd": settings.DATABASES['default']['PASSWORD']
-                },
-                "read_host": {
-                    "host": settings.DATABASES['read_only']['HOST'],
-                    "user": settings.DATABASES['read_only']['USER'],
-                    "passwd": settings.DATABASES['read_only']['PASSWORD']
-                },
+                "master_host": master_host_config,
+                "read_host": read_host_config,
                 "require_host_type": True,
                 "default_db": settings.DATABASES['default']['NAME'],
                 "procs": [procs_path]
             }
         }
+
         BaseHub.add_data_source(data_source)
         self.dhub = DataHub.get("reference")
         self.DEBUG = settings.DEBUG

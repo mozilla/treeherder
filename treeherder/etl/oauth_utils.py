@@ -3,6 +3,7 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 import simplejson as json
+import os
 from treeherder import path
 import copy
 import logging
@@ -40,25 +41,27 @@ class OAuthCredentials():
 
         # Only get the credentials once
         if not cls.credentials and not credentials:
+            credentials_string = os.environ.get('TREEHERDER_CREDENTIALS', None)
+            if credentials_string:
+                credentials = json.loads(credentials_string)
+            else:
+                try:
+                    with open(cls.credentials_file) as f:
+                        credentials_string = f.read()
+                        credentials = json.loads(credentials_string)
 
-            try:
-                with open(cls.credentials_file) as f:
-                    credentials = f.read()
-                    cls.credentials = json.loads(credentials)
+                except IOError:
+                    msg = ('Credentials file not found at {0}.'
+                           ' Try running `manage.py export_project_credentials`'
+                           ' to generate them').format(cls.credentials_file)
 
-            except IOError:
-                msg = ('Credentials file not found at {0}.'
-                       ' Try running `manage.py export_project_credentials`'
-                       ' to generate them').format(cls.credentials_file)
+                    logger.error(msg)
 
-                logger.error(msg)
+                except Exception as e:
+                    logger.error(e)
+                    raise e
 
-            except Exception as e:
-                logger.error(e)
-                raise e
-
-        else:
-            cls.credentials = credentials
+        cls.credentials = credentials
 
     @classmethod
     def get_credentials(cls, project):

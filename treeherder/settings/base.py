@@ -298,7 +298,7 @@ REST_FRAMEWORK = {
     }
 }
 
-SITE_URL = "http://local.treeherder.mozilla.org"
+SITE_URL = os.environ.get("TREEHERDER_SITE_URL", "http://local.treeherder.mozilla.org")
 
 BUILDAPI_PENDING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-pending.js"
 BUILDAPI_RUNNING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-running.js"
@@ -379,6 +379,16 @@ DATABASES = {
     }
 }
 
+# Setup ssl connection for aws rds.
+if 'IS_HEROKU' in os.environ:
+    ca_path = '/app/deployment/aws/combined-ca-bundle.pem'
+    for db_name in DATABASES:
+        DATABASES[db_name]['OPTIONS'] = {
+            'ssl': {
+                'ca': ca_path
+            }
+        }
+
 # TREEHERDER_MEMCACHED is a string of comma-separated address:port pairs
 MEMCACHED_LOCATION = TREEHERDER_MEMCACHED.strip(',').split(',')
 
@@ -411,6 +421,18 @@ BROKER_URL = 'amqp://{0}:{1}@{2}:{3}/{4}'.format(
     RABBITMQ_PORT,
     RABBITMQ_VHOST
 )
+
+# This code handles the memcachier service on heroku.
+if "IS_HEROKU" in os.environ:
+    from memcacheify import memcacheify
+    CACHES['default'].update(
+        memcacheify().get('default')
+    )
+
+if "CLOUDAMQP_URL" in os.environ:
+    BROKER_URL = os.environ["CLOUDAMQP_URL"]
+    BROKER_POOL_LIMIT = 1
+
 
 CELERY_IGNORE_RESULT = True
 
