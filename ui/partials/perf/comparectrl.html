@@ -15,8 +15,12 @@
       Loading all results, please wait a minute...
       <img src="img/dancing_cat.gif" />
     </div>
-    <div id="subtest-summary" ng-if="!dataLoading">
+    <div id="error" ng-if="!dataLoading && errors.length" ng-repeat="error in errors">
+      <div>{{error}}</div>
+    </div>
+    <div id="subtest-summary" ng-if="!dataLoading && !errors.length">
       <h4>Compare all data for revision {{newProject}}: {{newRevision}} to {{originalProject}}: {{originalRevision}}</h4>
+      <p ng-if="testNoResults"> tests with no results: {{testNoResults}}</p>
       <p class="help-block">Hover over each entry for more options.</p>
       <table class="table">
         <tbody ng-repeat="testName in testList">
