@@ -23,6 +23,7 @@ from treeherder.model.models import (Datasource,
                                      ExclusionProfile)
 
 from treeherder.model import utils
+from treeherder.model.bug_suggestions import get_bug_suggestions_artifacts
 from treeherder.model.tasks import (publish_resultset,
                                     publish_job_action)
 
@@ -1609,6 +1610,12 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 log_placeholders.append([job_guid, name, url, parse_status])
 
         artifacts = job.get('artifacts', [])
+
+        # the artifacts in this list could be ones that should have
+        # bug suggestions generated for them.  If so, add them in.
+        bug_suggestion_artifacts = get_bug_suggestions_artifacts(artifacts)
+        artifacts.extend(bug_suggestion_artifacts)
+
         if artifacts:
             ArtifactsModel.populate_placeholders(artifacts,
                                                  artifact_placeholders,
