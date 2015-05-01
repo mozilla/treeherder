@@ -4,12 +4,14 @@
 
 "use strict";
 
-perf.controller('GraphsCtrl', [ '$state', '$stateParams', '$scope', '$rootScope', '$location',
-                              '$modal', 'thServiceDomain', '$http', '$q', '$timeout', 'PhSeries',
-                              'ThOptionCollectionModel', 'phTimeRanges',
-  function GraphsCtrl($state, $stateParams, $scope, $rootScope, $location, $modal,
-                    thServiceDomain, $http, $q, $timeout, PhSeries,
-                    ThOptionCollectionModel, phTimeRanges) {
+perf.controller('GraphsCtrl', [
+  '$state', '$stateParams', '$scope', '$rootScope', '$location', '$modal',
+  'thServiceDomain', '$http', '$q', '$timeout', 'PhSeries',
+  'ThRepositoryModel', 'ThOptionCollectionModel', 'phTimeRanges',
+  function GraphsCtrl($state, $stateParams, $scope, $rootScope, $location,
+                      $modal, thServiceDomain, $http, $q, $timeout, PhSeries,
+                      ThRepositoryModel, ThOptionCollectionModel,
+                      phTimeRanges) {
 
     var availableColors = [ 'red', 'green', 'blue', 'orange', 'purple' ];
 
@@ -635,7 +637,7 @@ perf.controller('GraphsCtrl', [ '$state', '$stateParams', '$scope', '$rootScope'
           $scope.seriesList = [];
         }
 
-        $http.get(thServiceDomain + '/api/repository/').then(function(response) {
+        ThRepositoryModel.get_list().then(function(response) {
           $scope.projects = response.data;
 
           $scope.addTestData = function() {

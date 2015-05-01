@@ -24,13 +24,13 @@ perf.controller('CompareChooserCtrl', [
 
 perf.controller('CompareResultsCtrl', [
   '$state', '$stateParams', '$scope', '$rootScope', '$location',
-  'thServiceDomain', '$http', '$q', '$timeout', 'PhSeries', 'math',
-  'isReverseTest', 'PhCompare',
+  'thServiceDomain', 'ThOptionCollectionModel', '$http', '$q', '$timeout',
+  'PhSeries', 'math', 'isReverseTest', 'PhCompare',
   function CompareResultsCtrl($state, $stateParams, $scope,
                               $rootScope, $location,
-                              thServiceDomain, $http, $q,
-                              $timeout, PhSeries, math,
-                              isReverseTest, PhCompare) {
+                              thServiceDomain, ThOptionCollectionModel, $http,
+                              $q, $timeout, PhSeries, math, isReverseTest,
+                              PhCompare) {
     function displayComparison() {
       $scope.testList = [];
       $scope.platformList = [];
@@ -151,17 +151,12 @@ perf.controller('CompareResultsCtrl', [
     }
 
     $scope.dataLoading = true;
-    var optionCollectionMap = {};
     $scope.getCompareClasses = PhCompare.getCompareClasses;
 
-    $http.get(thServiceDomain + '/api/optioncollectionhash').then(
-      function(response) {
-        response.data.forEach(function(dict) {
-          optionCollectionMap[dict.option_collection_hash] =
-            dict.options.map(function(option) {
-              return option.name; }).join(" ");
-        });
-      }).then(function() {
+    var optionCollectionMap = {};
+    ThOptionCollectionModel.get_map().then(function(_optionCollectionMap) {
+      optionCollectionMap = _optionCollectionMap;
+    }).then(function() {
         $scope.errors = PhCompare.validateInput($stateParams.originalProject, $stateParams.newProject,
                                                 $stateParams.originalRevision, $stateParams.originalProject);
 
@@ -191,13 +186,14 @@ perf.controller('CompareResultsCtrl', [
 
 perf.controller('CompareSubtestResultsCtrl', [
   '$state', '$stateParams', '$scope', '$rootScope', '$location',
-  'thServiceDomain', '$http', '$q', '$timeout', 'PhSeries', 'math',
+  'thServiceDomain', 'ThRepositoryModel', 'ThOptionCollectionModel', '$http',
+  '$q', '$timeout', 'PhSeries', 'math',
   'isReverseTest', 'PhCompare',
   function CompareSubtestResultsCtrl($state, $stateParams, $scope, $rootScope,
-                                     $location, thServiceDomain, $http, $q,
-                                     $timeout, PhSeries, math,
+                                     $location, thServiceDomain,
+                                     ThRepositoryModel, ThOptionCollectionModel,
+                                     $http, $q, $timeout, PhSeries, math,
                                      isReverseTest, PhCompare) {
-
     //TODO: duplicated from comparectrl
     function verifyRevision(project, revision, rsid) {
       var uri = thServiceDomain + '/api/project/' + project +
@@ -282,17 +278,13 @@ perf.controller('CompareSubtestResultsCtrl', [
     }
 
     $scope.dataLoading = true;
-    var optionCollectionMap = {};
     $scope.getCompareClasses = PhCompare.getCompareClasses;
 
-    $http.get(thServiceDomain + '/api/optioncollectionhash').then(
-      function(response) {
-        response.data.forEach(function(dict) {
-          optionCollectionMap[dict.option_collection_hash] =
-            dict.options.map(function(option) {
-              return option.name; }).join(" ");
-        });
-      }).then(function() {
+    var optionCollectionMap = {};
+    ThOptionCollectionModel.get_map().then(function(_optionCollectionMap) {
+      optionCollectionMap = _optionCollectionMap;
+    }).then(
+      function() {
         $scope.errors = PhCompare.validateInput($stateParams.originalProject, $stateParams.newProject,
                                                 $stateParams.originalRevision, $stateParams.newRevision,
                                                 $stateParams.originalSignature, $stateParams.newSignature);
