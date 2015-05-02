@@ -117,7 +117,7 @@
             <div class="clearfix"></div>
             <li>
                 <span class="revision">
-                    <a href="{{currentRepo.url}}/rev/{{revision}}"
+                    <a href="{{currentRepo.getRevisionHref(revision)}}"
                        title="open revision {{revision}} on {{currentRepo.url}}"
                        ignore-job-clear-on-click
                        >{{revision}}</a>
@@ -134,7 +134,7 @@
         <!-- Clone target for "more" link for large revision sets -->
         <script type="'text/ng-template'" id="pushlogRevisionsClone.html">
             <li>
-                <a href="{{currentRepo.url}}/pushloghtml?changeset={{revision}}"
+                <a href="{{currentRepo.getPushLogHref(revision)}}"
                    ignore-job-clear-on-click
                    target="_blank"> ...and more
                     <i class="fa fa-external-link-square"></i>
@@ -185,7 +185,7 @@
 
         <!-- revision url window -->
         <script type="'text/ng-template'" id="revisionUrlClone.html">
-            <div>{{repoUrl}}/rev/{{revision.revision}}</div>
+            <div>{{revisionUrl}}</div>
         </script>
 
         <!-- Tooltip for job info-->

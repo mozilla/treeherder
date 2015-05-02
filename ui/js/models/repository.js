@@ -95,8 +95,39 @@ treeherder.factory('ThRepositoryModel', [
 
             // return the promise of getting the repos
             return get_list().
-                success(function (data) {
-                    $rootScope.repos = data;
+                success(function(data) {
+                    // FIXME: only supporting github + hg for now for pushlog
+                    // + revision info (we also assume dvcs_type git==github)
+                    function Repo(props) {
+                        _.assign(this, props);
+                        if (this.dvcs_type == 'git') {
+                            // FIXME: assuming master branch, which may not
+                            // always be right -- unfortunately fixing this
+                            // requires backend changes as we're not storing
+                            // such info explicitly right now
+                            this.pushlogURL = this.url + "/commits/master";
+                        } else {
+                            this.pushlogURL = this.url + "/pushloghtml";
+                        }
+                    };
+                    Repo.prototype = {
+                        getRevisionHref: function(revision) {
+                            if (this.dvcs_type == 'git') {
+                                return this.url + '/commit/' + revision;
+                            }
+                            return this.url + '/rev/' + revision;
+                        },
+                        getPushLogHref: function(revision) {
+                            if (this.url.indexOf('github') >= 0) {
+                                return this.getRevisionHref(revision);
+                            }
+                            return this.url + '?changeset=' + revision;
+                        }
+                    };
+
+                    $rootScope.repos = _.map(data, function(datum) {
+                        return new Repo(datum);
+                    });
 
                     _.each(data, addRepoAsUnwatched);
                     if (name) {

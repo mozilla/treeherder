@@ -93,7 +93,7 @@ treeherder.directive('thWatchedRepoInfoDropDown', [
             scope.name = attrs.name;
             scope.treeStatus = treeStatus.getTreeStatusName(attrs.name);
             var repo_obj = ThRepositoryModel.getRepo(attrs.name);
-            scope.pushlog = repo_obj.url + "/pushloghtml";
+            scope.pushlog = repo_obj.pushlogURL;
             scope.$watch('repoData.treeStatus', function (newVal) {
                 if (newVal) {
                     scope.reason = newVal.reason;
