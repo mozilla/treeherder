@@ -118,7 +118,7 @@ treeherder.factory('ThRepositoryModel', [
                             return this.url + '/rev/' + revision;
                         },
                         getPushLogHref: function(revision) {
-                            if (this.url.indexOf('github') >= 0) {
+                            if (this.dvcs_type == 'git') {
                                 return this.getRevisionHref(revision);
                             }
                             return this.url + '?changeset=' + revision;
