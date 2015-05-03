@@ -455,8 +455,8 @@ class TreeherderRequestTest(DataSetup, unittest.TestCase):
 
     @patch("treeherder.client.client.oauth.generate_nonce")
     @patch("treeherder.client.client.oauth.time.time")
-    @patch("treeherder.client.client.requests.post")
-    def test_send(self, mock_post, mock_time, mock_generate_nonce):
+    @patch("treeherder.client.client.httplib.HTTPConnection")
+    def test_send(self, mock_HTTPConnection, mock_time, mock_generate_nonce):
 
         """Can send data to the server."""
         mock_time.return_value = 1342229050
@@ -472,7 +472,9 @@ class TreeherderRequestTest(DataSetup, unittest.TestCase):
             oauth_secret='secret',
             )
 
-        mock_response = mock_post.return_value
+        mock_conn = mock_HTTPConnection.return_value
+        mock_request = mock_conn.request
+        mock_response = mock_conn.getresponse.return_value
 
         tjc = TreeherderJobCollection()
 
@@ -480,25 +482,31 @@ class TreeherderRequestTest(DataSetup, unittest.TestCase):
 
         response = req.post(tjc)
 
+        self.assertEqual(mock_HTTPConnection.call_count, 1)
+        self.assertEqual(mock_HTTPConnection.call_args[0][0], host)
         self.assertEqual(mock_response, response)
-        self.assertEqual(mock_post.call_count, 1)
+        self.assertEqual(mock_request.call_count, 1)
 
-        path, resp = mock_post.call_args
+        req.get_uri(tjc)
 
-        deserialized_data = json.loads(resp['data'])
+        method, path, data, header = mock_request.call_args[0]
+
+        self.assertEqual(method, "POST")
+
+        deserialized_data = json.loads(data)
         self.assertEqual(
             deserialized_data,
             tjc.get_collection_data()
             )
         self.assertEqual(
-            resp['headers']['Content-Type'],
+            header['Content-Type'],
             'application/json',
             )
 
     @patch("treeherder.client.client.oauth.generate_nonce")
     @patch("treeherder.client.client.oauth.time.time")
-    @patch("treeherder.client.client.requests.post")
-    def test_send_without_oauth(self, mock_post, mock_time,
+    @patch("treeherder.client.client.httplib.HTTPConnection")
+    def test_send_without_oauth(self, mock_HTTPConnection, mock_time,
                                 mock_generate_nonce):
 
         """Can send data to the server."""
@@ -515,7 +523,9 @@ class TreeherderRequestTest(DataSetup, unittest.TestCase):
             oauth_secret=None,
             )
 
-        mock_response = mock_post.return_value
+        mock_conn = mock_HTTPConnection.return_value
+        mock_request = mock_conn.request
+        mock_response = mock_conn.getresponse.return_value
 
         tjc = TreeherderJobCollection()
 
@@ -526,18 +536,24 @@ class TreeherderRequestTest(DataSetup, unittest.TestCase):
 
         response = req.post(tjc)
 
+        self.assertEqual(mock_HTTPConnection.call_count, 1)
+        self.assertEqual(mock_HTTPConnection.call_args[0][0], host)
         self.assertEqual(mock_response, response)
-        self.assertEqual(mock_post.call_count, 1)
+        self.assertEqual(mock_request.call_count, 1)
 
-        path, resp = mock_post.call_args
+        req.get_uri(tjc)
 
-        deserialized_data = json.loads(resp['data'])
+        method, path, data, header = mock_request.call_args[0]
+        self.assertEqual(method, "POST")
+
+        deserialized_data = json.loads(data)
         self.assertEqual(
             deserialized_data,
             tjc.get_collection_data()
             )
+
         self.assertEqual(
-            resp['headers']['Content-Type'],
+            header['Content-Type'],
             'application/json',
             )
 
