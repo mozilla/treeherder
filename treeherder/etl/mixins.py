@@ -10,7 +10,7 @@ from collections import defaultdict
 
 import simplejson as json
 
-from thclient import TreeherderRequest
+from treeherder.client import TreeherderRequest
 
 from django.core.urlresolvers import reverse
 from django.conf import settings
