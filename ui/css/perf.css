@@ -182,6 +182,10 @@ to { opacity: 0; }
   font-weight: bold;
 }
 
+.subtest-highlighted {
+  font-weight: bold;
+}
+
 .subtest-empty {
     display: none;
 }
