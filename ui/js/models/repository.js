@@ -85,7 +85,8 @@ treeherder.factory('ThRepositoryModel', [
         return $http.get(get_uri(), {cache: true});
     };
 
-    var load = function(name) {
+    var load = function(options) {
+        options = options || {};
 
         if (!$rootScope.repos) {
             // this is the first time this was called, so initiate the interval
@@ -130,20 +131,23 @@ treeherder.factory('ThRepositoryModel', [
                     });
 
                     _.each(data, addRepoAsUnwatched);
-                    if (name) {
-                        setCurrent(name);
+                    if (options.name) {
+                        setCurrent(options.name);
                     }
-
-                    var storedWatched = loadWatchedRepos();
-                    if (_.isArray(storedWatched) && _.contains(storedWatched, name)) {
-                        _.each(storedWatched, function (repo) {
-                            watchRepo(repo);
-                        });
+                    if (options.watchRepos) {
+                        var storedWatched = loadWatchedRepos();
+                        if (_.isArray(storedWatched) && _.contains(storedWatched, name)) {
+                            _.each(storedWatched, function (repo) {
+                                watchRepo(repo);
+                            });
+                        }
+                        saveWatchedRepos();
                     }
-                    saveWatchedRepos();
                 });
         } else {
-            setCurrent(name);
+            if (options.name) {
+                setCurrent(name);
+            }
         }
     };
 

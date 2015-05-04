@@ -8,7 +8,7 @@ perf.config(function($stateProvider, $urlRouterProvider) {
   $urlRouterProvider.deferIntercept(); // so we don't reload on url change
 
   $stateProvider.state('graphs', {
-    templateUrl: 'partials/perf/perfctrl.html',
+    templateUrl: 'partials/perf/graphsctrl.html',
     url: '/graphs?timerange&series&highlightedRevision&zoom',
     controller: 'GraphsCtrl'
   }).state('compare', {
@@ -36,6 +36,8 @@ perf.config(function($stateProvider, $urlRouterProvider) {
       // if we're not in graphs, or we're viewing the graphs for for first
       // time, synchronize (for graphs we want to be able to update the
       // url without reloading the controller)
+      // note that this will trigger an apparently harmless javascript
+      // exception (TODO: not sure if there's a way of fixing this atm)
       if ($state.current.name !== 'graphs' ||
           newUrl.indexOf('graphs') === -1) {
         $urlRouter.sync();

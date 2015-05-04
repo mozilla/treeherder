@@ -24,11 +24,12 @@ perf.controller('CompareChooserCtrl', [
 
 perf.controller('CompareResultsCtrl', [
   '$state', '$stateParams', '$scope', '$rootScope', '$location',
-  'thServiceDomain', 'ThOptionCollectionModel', '$http', '$q', '$timeout',
-  'PhSeries', 'math', 'isReverseTest', 'PhCompare',
+  'thServiceDomain', 'ThOptionCollectionModel', 'ThRepositoryModel', '$http',
+    '$q', '$timeout', 'PhSeries', 'math', 'isReverseTest', 'PhCompare',
   function CompareResultsCtrl($state, $stateParams, $scope,
                               $rootScope, $location,
-                              thServiceDomain, ThOptionCollectionModel, $http,
+                              thServiceDomain, ThOptionCollectionModel,
+                              ThRepositoryModel, $http,
                               $q, $timeout, PhSeries, math, isReverseTest,
                               PhCompare) {
     function displayComparison() {
@@ -39,18 +40,18 @@ perf.controller('CompareResultsCtrl', [
       var resultSetIds = [$scope.originalResultSetID];
 
       // Optimization - if old/new branches are the same collect data in one pass
-      if ($scope.originalProject == $scope.newProject) {
+      if (_.isEqual($scope.originalProject, $scope.newProject)) {
         resultSetIds = [$scope.originalResultSetID, $scope.newResultSetID];
       }
 
-      PhSeries.getSeriesSummaries($scope.originalProject,
+      PhSeries.getSeriesSummaries($scope.originalProject.name,
                     timeRange,
                     optionCollectionMap,
                     {e10s: $scope.e10s}).then(
         function(originalSeriesData) {
           $scope.platformList = originalSeriesData.platformList;
           $scope.testList = originalSeriesData.testList;
-          return PhCompare.getResultsMap($scope.originalProject,
+          return PhCompare.getResultsMap($scope.originalProject.name,
                                originalSeriesData.seriesList,
                                timeRange,
                                resultSetIds);
@@ -65,7 +66,7 @@ perf.controller('CompareResultsCtrl', [
             return;
           }
 
-          PhSeries.getSeriesSummaries($scope.newProject,
+          PhSeries.getSeriesSummaries($scope.newProject.name,
                         timeRange,
                         optionCollectionMap,
                         {e10s: $scope.e10s}).then(
@@ -74,7 +75,7 @@ perf.controller('CompareResultsCtrl', [
                                             newSeriesData.platformList).sort();
               $scope.testList = _.union($scope.testList,
                                         newSeriesData.testList).sort();
-              return PhCompare.getResultsMap($scope.newProject,
+              return PhCompare.getResultsMap($scope.newProject.name,
                                    newSeriesData.seriesList,
                                    timeRange,
                                    [$scope.newResultSetID]);
@@ -106,11 +107,14 @@ perf.controller('CompareResultsCtrl', [
           }
 
           var detailsLink = 'perf.html#/comparesubtest?';
-          ['originalProject', 'originalRevision', 'newProject', 'newRevision'].forEach(
-            function(p) {
-              detailsLink += p + "=" + $scope[p] + "&";
-            });
-          detailsLink += "originalSignature=" + oldSig + "&newSignature=" + newSig;
+          detailsLink += _.map(_.pairs({
+            originalProject: $scope.originalProject.name,
+            originalRevision: $scope.originalRevision,
+            newProject: $scope.newProject.name,
+            newRevision: $scope.newRevision,
+            originalSignature: oldSig,
+            newSignature: newSig
+          }), function(kv) { return kv[0]+"="+kv[1] }).join("&");
 
           cmap.detailsLink = detailsLink;
           cmap.name = platform;
@@ -129,7 +133,7 @@ perf.controller('CompareResultsCtrl', [
 
     //TODO: duplicated in comparesubtestctrl
     function verifyRevision(project, revision, rsid) {
-      var uri = thServiceDomain + '/api/project/' + project +
+      var uri = thServiceDomain + '/api/project/' + project.name +
           '/resultset/?full=false&revision=' +
           revision;
 
@@ -154,11 +158,16 @@ perf.controller('CompareResultsCtrl', [
     $scope.getCompareClasses = PhCompare.getCompareClasses;
 
     var optionCollectionMap = {};
-    ThOptionCollectionModel.get_map().then(function(_optionCollectionMap) {
-      optionCollectionMap = _optionCollectionMap;
-    }).then(function() {
-        $scope.errors = PhCompare.validateInput($stateParams.originalProject, $stateParams.newProject,
-                                                $stateParams.originalRevision, $stateParams.originalProject);
+    var loadRepositories = ThRepositoryModel.load();
+    var loadOptions = ThOptionCollectionModel.get_map().then(
+      function(_optionCollectionMap) {
+        optionCollectionMap = _optionCollectionMap;
+      });
+    $q.all([loadRepositories, loadOptions]).then(function() {
+        $scope.errors = PhCompare.validateInput($stateParams.originalProject,
+                                                $stateParams.newProject,
+                                                $stateParams.originalRevision,
+                                                $stateParams.originalProject);
 
         if ($scope.errors.length > 0) {
           $scope.dataLoading = false;
@@ -167,8 +176,10 @@ perf.controller('CompareResultsCtrl', [
 
         $stateParams.e10s = Boolean($stateParams.e10s);
         $scope.hideMinorChanges = Boolean($stateParams.hideMinorChanges);
-        $scope.originalProject = $stateParams.originalProject;
-        $scope.newProject = $stateParams.newProject;
+        $scope.originalProject = ThRepositoryModel.getRepo(
+          $stateParams.originalProject);
+        $scope.newProject = ThRepositoryModel.getRepo(
+          $stateParams.newProject);
         $scope.newRevision = $stateParams.newRevision;
         $scope.originalRevision = $stateParams.originalRevision;
 
@@ -186,20 +197,20 @@ perf.controller('CompareResultsCtrl', [
 
 perf.controller('CompareSubtestResultsCtrl', [
   '$state', '$stateParams', '$scope', '$rootScope', '$location',
-  'thServiceDomain', 'ThRepositoryModel', 'ThOptionCollectionModel', '$http',
+  'thServiceDomain', 'ThOptionCollectionModel', 'ThRepositoryModel', '$http',
   '$q', '$timeout', 'PhSeries', 'math',
   'isReverseTest', 'PhCompare',
   function CompareSubtestResultsCtrl($state, $stateParams, $scope, $rootScope,
                                      $location, thServiceDomain,
-                                     ThRepositoryModel, ThOptionCollectionModel,
-                                     $http, $q, $timeout, PhSeries, math,
-                                     isReverseTest, PhCompare) {
+                                     ThOptionCollectionModel,
+                                     ThRepositoryModel, $http, $q, $timeout,
+                                     PhSeries, math, isReverseTest,
+                                     PhCompare) {
     //TODO: duplicated from comparectrl
     function verifyRevision(project, revision, rsid) {
-      var uri = thServiceDomain + '/api/project/' + project +
+      var uri = thServiceDomain + '/api/project/' + project.name +
           '/resultset/?full=false&revision=' +
           revision;
-
       return $http.get(uri).then(function(response) {
         var results = response.data.results;
         if (results.length > 0) {
@@ -222,9 +233,9 @@ perf.controller('CompareSubtestResultsCtrl', [
       $scope.compareResults = {};
       $scope.titles = {};
 
-      var subtestTitle = $scope.platformList[0].split(' ')[0];
-      subtestTitle += " " + $scope.testList[0].split(' ')[0];
-      window.document.title = subtestTitle + " subtest comparison";
+      $scope.subtestTitle = ($scope.platformList[0].split(' ')[0] + " " +
+                             $scope.testList[0].split(' ')[0]);
+      window.document.title = $scope.subtestTitle + " subtest comparison";
 
       $scope.testList.forEach(function(testName) {
         $scope.titles[testName] = testName.replace('summary ', '');
@@ -252,12 +263,12 @@ perf.controller('CompareSubtestResultsCtrl', [
 
           //TODO: Can we have >1 highlighted revision?
           var originalSeries = encodeURIComponent(JSON.stringify(
-                        { project: $scope.originalProject,
+                        { project: $scope.originalProject.name,
                           signature: oldSig,
                           visible: true}));
 
           var newSeries = encodeURIComponent(JSON.stringify(
-                        { project: $scope.newProject,
+                        { project: $scope.newProject.name,
                           signature: newSig,
                           visible: true}));
 
@@ -281,13 +292,19 @@ perf.controller('CompareSubtestResultsCtrl', [
     $scope.getCompareClasses = PhCompare.getCompareClasses;
 
     var optionCollectionMap = {};
-    ThOptionCollectionModel.get_map().then(function(_optionCollectionMap) {
-      optionCollectionMap = _optionCollectionMap;
-    }).then(
+    var loadRepositories = ThRepositoryModel.load();
+    var loadOptions = ThOptionCollectionModel.get_map().then(
+      function(_optionCollectionMap) {
+        optionCollectionMap = _optionCollectionMap;
+      });
+    $q.all([loadRepositories, loadOptions]).then(
       function() {
-        $scope.errors = PhCompare.validateInput($stateParams.originalProject, $stateParams.newProject,
-                                                $stateParams.originalRevision, $stateParams.newRevision,
-                                                $stateParams.originalSignature, $stateParams.newSignature);
+        $scope.errors = PhCompare.validateInput($stateParams.originalProject,
+                                                $stateParams.newProject,
+                                                $stateParams.originalRevision,
+                                                $stateParams.newRevision,
+                                                $stateParams.originalSignature,
+                                                $stateParams.newSignature);
 
         if ($scope.errors.length > 0) {
           $scope.dataLoading = false;
@@ -295,8 +312,10 @@ perf.controller('CompareSubtestResultsCtrl', [
         }
 
         $scope.hideMinorChanges = Boolean($stateParams.hideMinorChanges);
-        $scope.originalProject = $stateParams.originalProject;
-        $scope.newProject = $stateParams.newProject;
+        $scope.originalProject = ThRepositoryModel.getRepo(
+          $stateParams.originalProject);
+        $scope.newProject = ThRepositoryModel.getRepo(
+          $stateParams.newProject);
         $scope.newRevision = $stateParams.newRevision;
         $scope.originalRevision = $stateParams.originalRevision;
         $scope.originalSignature = $stateParams.originalSignature;
@@ -319,14 +338,14 @@ perf.controller('CompareSubtestResultsCtrl', [
               resultSetIds = [$scope.originalResultSetID, $scope.newResultSetID];
             }
 
-            PhSeries.getSubtestSummaries($scope.originalProject,
+            PhSeries.getSubtestSummaries($scope.originalProject.name,
                           timeRange,
                           optionCollectionMap,
                           $scope.originalSignature).then(
               function (originalSeriesData) {
                 $scope.testList = originalSeriesData.testList;
                 $scope.platformList = originalSeriesData.platformList;
-                return PhCompare.getResultsMap($scope.originalProject,
+                return PhCompare.getResultsMap($scope.originalProject.name,
                                      originalSeriesData.seriesList,
                                      timeRange,
                                      resultSetIds);

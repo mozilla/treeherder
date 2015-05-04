@@ -14,6 +14,7 @@ perf.controller('GraphsCtrl', [
                       phTimeRanges) {
 
     var availableColors = [ 'red', 'green', 'blue', 'orange', 'purple' ];
+    var optionCollectionMap = null;
 
     $scope.timeranges = phTimeRanges;
     $scope.myTimerange = _.find(phTimeRanges, {'value': parseInt($stateParams.timerange)});
@@ -610,7 +611,9 @@ perf.controller('GraphsCtrl', [
     }
 
     ThOptionCollectionModel.get_map().then(
-      function(optionCollectionMap) {
+      function(_optionCollectionMap) {
+        optionCollectionMap = _optionCollectionMap;
+
         if ($stateParams.series) {
           $scope.seriesList = [];
           if (_.isString($stateParams.series)) {

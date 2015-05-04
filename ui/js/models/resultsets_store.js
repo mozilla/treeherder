@@ -807,7 +807,8 @@ treeherder.factory('ThResultSetStore', [
         repositories[repoName].loadingStatus.appending = true;
         var resultsets;
         var exclusionProfile = $location.search().exclusion_profile;
-        var loadRepositories = ThRepositoryModel.load(repoName);
+        var loadRepositories = ThRepositoryModel.load({name: repoName,
+                                                       watchRepos: true});
         var loadResultsets = ThResultSetModel.getResultSets(repoName,
                                        repositories[repoName].rsMapOldestTimestamp,
                                        count,

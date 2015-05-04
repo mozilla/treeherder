@@ -19,9 +19,15 @@
       <div>{{error}}</div>
     </div>
     <div id="subtest-summary" ng-if="!dataLoading && !errors.length">
-      <h4>Compare all data for revision {{newProject}}: {{newRevision}} to {{originalProject}}: {{originalRevision}}</h4>
+      <h1>Perfherder Compare Revisions<br/>
+      <small>Compare all data for revision
+        <a href="{{originalProject.getRevisionHref(originalRevision)}}">
+          {{originalRevision}}</a> ({{originalProject.name}}) to
+        <a href="{{newProject.getRevisionHref(newRevision)}}">
+          {{newRevision}}</a> ({{newProject.name}})
+        </small>
+      </h1>
       <p ng-if="testNoResults"> tests with no results: {{testNoResults}}</p>
-      <p class="help-block">Hover over each entry for more options.</p>
       <table class="table">
         <tbody ng-repeat="testName in testList">
           <tr class="subtest-header">
