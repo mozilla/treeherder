@@ -2,20 +2,35 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
+import pytest
+
 import thclient
 
 from treeherder.etl.oauth_utils import OAuthCredentials
 from treeherder.model.derived import JobsModel, ArtifactsModel
 
 
+@pytest.fixture
+def oauth_treeherder_request(test_project):
+    """returns a list of buildapi pending jobs"""
+    credentials = OAuthCredentials.get_credentials(test_project)
+    req = thclient.TreeherderRequest(
+        protocol='http',
+        host='localhost',
+        project=test_project,
+        oauth_key=credentials['consumer_key'],
+        oauth_secret=credentials['consumer_secret']
+        )
+    return req
+
 def test_post_job_with_parsed_log(test_project, result_set_stored,
-                                  mock_send_request):
+                                  mock_send_request,
+                                  oauth_treeherder_request):
     """
     test submitting a job with a pre-parsed log gets the right job_log_url
     parse_status value.
     """
 
-    credentials = OAuthCredentials.get_credentials(test_project)
 
     tjc = thclient.TreeherderJobCollection()
     tj = thclient.TreeherderJob({
@@ -34,16 +49,8 @@ def test_post_job_with_parsed_log(test_project, result_set_stored,
 
     tjc.add(tj)
 
-    req = thclient.TreeherderRequest(
-        protocol='http',
-        host='localhost',
-        project=test_project,
-        oauth_key=credentials['consumer_key'],
-        oauth_secret=credentials['consumer_secret']
-        )
-
     # Post the request to treeherder
-    resp = req.post(tjc)
+    resp = oauth_treeherder_request.post(tjc)
     assert resp.status_int == 200
     assert resp.body == '{"message": "well-formed JSON stored"}'
 
@@ -59,13 +66,12 @@ def test_post_job_with_parsed_log(test_project, result_set_stored,
 
 def test_post_job_with_text_log_summary_artifact(test_project,
                                                  result_set_stored,
-                                                 mock_send_request):
+                                                 mock_send_request,
+                                                 oauth_treeherder_request):
     """
     test submitting a job with a pre-parsed log gets the right job_log_url
     parse_status value.
     """
-
-    credentials = OAuthCredentials.get_credentials(test_project)
 
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
     tjc = thclient.TreeherderJobCollection()
@@ -75,6 +81,11 @@ def test_post_job_with_text_log_summary_artifact(test_project,
         'job': {
             'job_guid': job_guid,
             'state': 'completed',
+            'log_references': [{
+                'url': 'http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/...',
+                'name': 'builbot_text',
+                'parse_status': 'parsed'
+            }],
             'artifacts': [{
                 "blob": """
                     {
@@ -102,25 +113,16 @@ def test_post_job_with_text_log_summary_artifact(test_project,
 
     tjc.add(tj)
 
-    req = thclient.TreeherderRequest(
-        protocol='http',
-        host='localhost',
-        project=test_project,
-        oauth_key=credentials['consumer_key'],
-        oauth_secret=credentials['consumer_secret']
-        )
-
     # Post the request to treeherder
-    resp = req.post(tjc)
+    resp = oauth_treeherder_request.post(tjc)
     assert resp.status_int == 200
     assert resp.body == '{"message": "well-formed JSON stored"}'
 
-    with JobsModel(test_project) as jobs_model, \
-            ArtifactsModel(test_project) as artifacts_model:
-
+    with JobsModel(test_project) as jobs_model:
         jobs_model.process_objects(10)
-
         job_ids = [x['id'] for x in jobs_model.get_job_list(0, 20)]
+
+    with ArtifactsModel(test_project) as artifacts_model:
         artifacts = artifacts_model.get_job_artifact_references(job_ids[0])
         artifact_names = {x['name'] for x in artifacts}
         assert {'Bug suggestions', 'text_log_summary'} == artifact_names
