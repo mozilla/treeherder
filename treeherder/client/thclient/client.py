@@ -3,7 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 from __future__ import unicode_literals
 
-import httplib
+import requests
 import logging
 import json
 import oauth2 as oauth
@@ -649,7 +649,8 @@ class TreeherderRequest(object):
     Treeherder request object that manages test submission.
     """
 
-    protocols = set(['http', 'https'])  # supported protocols
+    PROTOCOLS = {'http', 'https'}  # supported protocols
+    HEADERS = {'Content-Type': 'application/json'}
 
     def __init__(
             self, protocol='', host='', project='', oauth_key='',
@@ -670,10 +671,10 @@ class TreeherderRequest(object):
             self.oauth_client = OauthClient(oauth_key, oauth_secret,
                                             self.project)
 
-        if protocol not in self.protocols:
+        if protocol not in self.PROTOCOLS:
             raise AssertionError('Protocol "%s" not supported; please use one '
                                  'of %s' % (protocol,
-                                            ', '.join(self.protocols)))
+                                            ', '.join(self.PROTOCOLS)))
         self.protocol = protocol
         self.timeout = timeout
 
@@ -687,7 +688,7 @@ class TreeherderRequest(object):
         """Shortcut method to send a treeherder collection via POST
 
         :param collection_inst: a TreeherderCollection instance
-        :returns: an httplib Response object
+        :returns: a requests Response object
         """
 
         if not isinstance(collection_inst, TreeherderCollection):
@@ -723,18 +724,10 @@ class TreeherderRequest(object):
         :param endpoint: the target endpoint for this request
         :param method: can be one of GET,POST,PUT
         :param data: the body of this request
-        :returns: an httplib Response object
+        :returns: a requests Response object
         """
 
-        if method not in ("GET", "POST", "PUT"):
-            msg = "{0}: {1} is not a supported method".format(
-                self.__class__.__name__,
-                method
-            )
-            raise TreeherderClientError(msg, [])
-
-        # Build the header
-        headers = {'Content-Type': 'application/json'}
+        req_method = self._get_requests_method(method)
 
         if data:
             if not isinstance(data, str):
@@ -748,19 +741,31 @@ class TreeherderRequest(object):
         uri = self.get_uri(endpoint)
 
         if self.use_oauth:
-            uri = self.oauth_client.get_signed_uri(serialized_body, uri,
-                                                   method)
+            uri = self.oauth_client.get_signed_uri(serialized_body, uri, method)
 
         # Make the request
-        conn = None
-        if self.protocol == 'http':
-            conn = httplib.HTTPConnection(self.host, timeout=self.timeout)
-        else:
-            conn = httplib.HTTPSConnection(self.host, timeout=self.timeout)
+        response = req_method(uri,
+                              data=serialized_body,
+                              headers=self.HEADERS,
+                              timeout=self.timeout
+                              )
 
-        conn.request(method, uri, serialized_body, headers)
+        return response
 
-        return conn.getresponse()
+    def _get_requests_method(self, method):
+        try:
+            methods = {
+                "GET": requests.get,
+                "POST": requests.post,
+                "PUT": requests.put
+            }
+            return methods[method]
+        except KeyError:
+            msg = "{0}: {1} is not a supported method".format(
+                self.__class__.__name__,
+                method
+            )
+            raise TreeherderClientError(msg, [])
 
     def get_uri(self, endpoint):
 
