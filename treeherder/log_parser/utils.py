@@ -274,8 +274,8 @@ def post_log_artifacts(project,
                                              job_guid, check_errors)
     except Exception as e:
         update_parse_status(req, job_log_url, 'failed')
-        if isinstance(e, urllib2.HTTPError) and e.code == 404:
-            logger.debug("Log not found for %s", log_description)
+        if isinstance(e, urllib2.HTTPError) and e.code in (403, 404):
+            logger.debug("Unable to retrieve log for %s: %s", log_description, e)
             return
         logger.error("Failed to download/parse log for %s: %s", log_description, e)
         _retry(e)
