@@ -7,11 +7,12 @@
 perf.controller('GraphsCtrl', [
   '$state', '$stateParams', '$scope', '$rootScope', '$location', '$modal',
   'thServiceDomain', '$http', '$q', '$timeout', 'PhSeries',
-  'ThRepositoryModel', 'ThOptionCollectionModel', 'phTimeRanges',
+  'ThRepositoryModel', 'ThOptionCollectionModel', 'ThResultSetModel',
+  'phTimeRanges',
   function GraphsCtrl($state, $stateParams, $scope, $rootScope, $location,
                       $modal, thServiceDomain, $http, $q, $timeout, PhSeries,
                       ThRepositoryModel, ThOptionCollectionModel,
-                      phTimeRanges) {
+                      ThResultSetModel, phTimeRanges) {
 
     var availableColors = [ 'red', 'green', 'blue', 'orange', 'purple' ];
     var optionCollectionMap = null;
@@ -98,19 +99,22 @@ perf.controller('GraphsCtrl', [
         date: $.plot.formatDate(new Date(t), '%a %b %d, %H:%M:%S')
       };
 
-      $http.get(thServiceDomain + '/api/project/' + phSeries.projectName +
-                '/resultset/' + dataPoint.resultSetId).then(
-                  function(response) {
-                    var revision = response.data.revisions[0].revision;
-                    $scope.tooltipContent.revision = revision;
-                    dataPoint.revision = revision;
-                  });
-      $http.get(thServiceDomain + '/api/project/' + phSeries.projectName +
-                '/resultset/' + prevResultSetId).then(
-                  function(response) {
-                    var prevRevision = response.data.revisions[0].revision;
-                    $scope.tooltipContent.prevRevision = prevRevision;
-                  });
+      // Get revision information for both this datapoint and the previous
+      // one
+      _.each([{ resultSetId: dataPoint.resultSetId,
+                scopeKey: 'revision' },
+              { resultSetId: prevResultSetId,
+                scopeKey: 'prevRevision' }],
+             function(resultRevision) {
+               ThResultSetModel.getRevisions(
+                 phSeries.projectName, resultRevision.resultSetId).then(
+                   function(revisions) {
+                     $scope.tooltipContent[resultRevision.scopeKey] =
+                       revisions[0];
+                   }, function(error) {
+                     console.log("Failed to get revision: " + error.reason);
+                   });
+             });
 
       // now position it
       $timeout(function() {
@@ -589,18 +593,18 @@ perf.controller('GraphsCtrl', [
     $scope.highlightRevision = function() {
       var rev = $scope.highlightedRevision;
       if (rev.length == 12) {
-        $q.all($scope.seriesList.map(function(series, i) {
+        $q.all($scope.seriesList.map(function(series) {
           if (series.visible) {
-           return $http.get(thServiceDomain + "/api/project/" + series.projectName +
-             "/resultset/?revision=" + rev).then(
-            function(response) {
-              if (response.data.results.length > 0) {
-                var result_set_id = response.data.results[0].id;
-                var j = series.flotSeries.resultSetData.indexOf(result_set_id);
-                var seriesToaddHighlight = _.find($scope.seriesList, function(sr) { return sr.signature == series.signature });
-                seriesToaddHighlight.highlighted = [j, rev];
-              }
-            });
+            return ThResultSetModel.getResultSetsFromRevision(
+              series.projectName, rev).then(
+                function(resultSets) {
+                  var resultSetId = resultSets[0].id
+                  var j = series.flotSeries.resultSetData.indexOf(resultSetId);
+                  var seriesToaddHighlight = _.find(
+                    $scope.seriesList, function(sr) {
+                      return sr.signature == series.signature });
+                  seriesToaddHighlight.highlighted = [j, rev];
+                });
           }
           return null;
         })).then(function() {

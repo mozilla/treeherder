@@ -24,12 +24,13 @@ perf.controller('CompareChooserCtrl', [
 
 perf.controller('CompareResultsCtrl', [
   '$state', '$stateParams', '$scope', '$rootScope', '$location',
-  'thServiceDomain', 'ThOptionCollectionModel', 'ThRepositoryModel', '$http',
-    '$q', '$timeout', 'PhSeries', 'math', 'isReverseTest', 'PhCompare',
+  'thServiceDomain', 'ThOptionCollectionModel', 'ThRepositoryModel',
+  'ThResultSetModel', '$http', '$q', '$timeout', 'PhSeries', 'math',
+  'isReverseTest', 'PhCompare',
   function CompareResultsCtrl($state, $stateParams, $scope,
                               $rootScope, $location,
                               thServiceDomain, ThOptionCollectionModel,
-                              ThRepositoryModel, $http,
+                              ThRepositoryModel, ThResultSetModel, $http,
                               $q, $timeout, PhSeries, math, isReverseTest,
                               PhCompare) {
     function displayComparison() {
@@ -133,25 +134,20 @@ perf.controller('CompareResultsCtrl', [
 
     //TODO: duplicated in comparesubtestctrl
     function verifyRevision(project, revision, rsid) {
-      var uri = thServiceDomain + '/api/project/' + project.name +
-          '/resultset/?full=false&revision=' +
-          revision;
-
-      return $http.get(uri).then(function(response) {
-        var results = response.data.results;
-        if (results.length > 0) {
+      return ThResultSetModel.getResultSetsFromRevision(project.name, revision).then(
+        function(resultSets) {
+          var resultSet = resultSets[0];
           //TODO: this is a bit hacky to pass in 'original' as a text string
           if (rsid == 'original') {
-            $scope.originalResultSetID = results[0].id;
-            $scope.originalTimestamp = results[0].push_timestamp;
+            $scope.originalResultSetID = resultSet.id;
+            $scope.originalTimestamp = resultSet.push_timestamp;
           } else {
-            $scope.newResultSetID = results[0].id;
-            $scope.newTimestamp = results[0].push_timestamp;
+            $scope.newResultSetID = resultSet.id;
+            $scope.newTimestamp = resultSet.push_timestamp;
           }
-        } else {
-          $scope.errors.push("No results found for revision " + revision + " on branch " + project);
-        }
-      });
+        }, function(error) {
+          $scope.errors.push(error);
+        });
     }
 
     $scope.dataLoading = true;
@@ -197,36 +193,31 @@ perf.controller('CompareResultsCtrl', [
 
 perf.controller('CompareSubtestResultsCtrl', [
   '$state', '$stateParams', '$scope', '$rootScope', '$location',
-  'thServiceDomain', 'ThOptionCollectionModel', 'ThRepositoryModel', '$http',
-  '$q', '$timeout', 'PhSeries', 'math',
+  'thServiceDomain', 'ThOptionCollectionModel', 'ThRepositoryModel',
+  'ThResultSetModel', '$http', '$q', '$timeout', 'PhSeries', 'math',
   'isReverseTest', 'PhCompare',
   function CompareSubtestResultsCtrl($state, $stateParams, $scope, $rootScope,
                                      $location, thServiceDomain,
                                      ThOptionCollectionModel,
-                                     ThRepositoryModel, $http, $q, $timeout,
-                                     PhSeries, math, isReverseTest,
-                                     PhCompare) {
+                                     ThRepositoryModel, ThResultSetModel,
+                                     $http, $q, $timeout, PhSeries, math,
+                                     isReverseTest, PhCompare) {
     //TODO: duplicated from comparectrl
     function verifyRevision(project, revision, rsid) {
-      var uri = thServiceDomain + '/api/project/' + project.name +
-          '/resultset/?full=false&revision=' +
-          revision;
-      return $http.get(uri).then(function(response) {
-        var results = response.data.results;
-        if (results.length > 0) {
-
+      return ThResultSetModel.getResultSetsFromRevision(project.name, revision).then(
+        function(resultSets) {
+          var resultSet = resultSets[0];
           //TODO: this is a bit hacky to pass in 'original' as a text string
           if (rsid == 'original') {
-            $scope.originalResultSetID = results[0].id;
-            $scope.originalTimestamp = results[0].push_timestamp;
+            $scope.originalResultSetID = resultSet.id;
+            $scope.originalTimestamp = resultSet.push_timestamp;
           } else {
-            $scope.newResultSetID = results[0].id;
-            $scope.newTimestamp = results[0].push_timestamp;
+            $scope.newResultSetID = resultSet.id;
+            $scope.newTimestamp = resultSet.push_timestamp;
           }
-        } else {
-          $scope.errors.push("No results found for revision " + revision + " on branch " + project);
-        }
-      });
+        }, function(error) {
+          $scope.errors.push(error);
+        });
     }
 
     function displayResults(rawResultsMap, newRawResultsMap, timeRange) {

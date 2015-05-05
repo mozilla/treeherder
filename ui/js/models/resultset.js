@@ -133,6 +133,36 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location', '$q'
             );
             return jobsPromiseList;
         },
+
+        getRevisions: function(projectName, resultSetId) {
+            return $http.get(thUrl.getProjectUrl(
+                "/resultset/" + resultSetId, projectName)).then(
+                    function(response) {
+                        if (response.data.revisions.length > 0) {
+                            return _.map(response.data.revisions, function(r) {
+                                return r.revision;
+                            });
+                        } else {
+                          return $q.reject("No revisions found for result set " +
+                                           resultSetId + " in project " + projectName);
+                        }
+                    });
+        },
+
+        getResultSetsFromRevision: function(projectName, revision) {
+            return $http.get(thUrl.getProjectUrl(
+                "/resultset/?revision=" + revision, projectName)).then(
+                    function(response) {
+                        if (response.data.results.length > 0) {
+                            return response.data.results;
+                        } else {
+                            return $q.reject('No results found for revision ' +
+                                             revision + " on project " +
+                                             projectName);
+                        }
+                    });
+        },
+
         cancelAll: function(resultset_id, repoName) {
             var uri = resultset_id + '/cancel_all/';
             return $http.post(thUrl.getProjectUrl("/resultset/", repoName) + uri);
