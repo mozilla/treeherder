@@ -73,7 +73,11 @@ class HgPushlogProcess(HgPushlogTransformerMixin,
 
     def extract(self, url):
         response = requests.get(url, timeout=settings.TREEHERDER_REQUESTS_TIMEOUT)
-        response.raise_for_status()
+        try:
+            response.raise_for_status()
+        except requests.exceptions.HTTPError:
+            logger.warning("HTTPError %s fetching: %s", response.status_code, url)
+            raise
         return response.json()
 
     def run(self, source_url, repository, changeset=None):
@@ -160,7 +164,11 @@ class MissingHgPushlogProcess(HgPushlogTransformerMixin,
             # resultsets
             return get_not_found_onhold_push(url, revision)
         else:
-            response.raise_for_status()
+            try:
+                response.raise_for_status()
+            except requests.exceptions.HTTPError:
+                logger.warning("HTTPError %s fetching: %s", response.status_code, url)
+                raise
         return response.json()
 
     def run(self, source_url, repository, revision):
