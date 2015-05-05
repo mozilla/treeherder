@@ -1,20 +1,13 @@
-{% load staticfiles %}
 <!DOCTYPE html>
 <html>
     <head>
+        {% load staticfiles %}
         <link rel="stylesheet" href="{% static "embed/css/embed.css" %}" media="screen"/>
         <base target="_blank" />
     </head>
-    {% if update_needed %}
-    <script type="text/javascript">
-        setTimeout(function(){
-            window.location.reload()
-        },60*1000);
-    </script>
-    {% endif %}
 <body>
     <div id="resultset_status">
-        <ul >
+        <ul>
             {% for status, tot in resultset_status_dict.items %}
                 <li class="btn-{{status}}">
                     <a href="https://treeherder.mozilla.org/#/jobs?repo={{repository}}&revision={{revision}}&filter-resultStatus={{status}}">{{status}}</a>: {{ tot }}
@@ -26,5 +19,12 @@
         See it on <a href="https://treeherder.mozilla.org/#/jobs?repo={{repository}}&revision={{revision}}"
                      title="Push {{revision}} on Treeherder" target="_blank">Treeherder</a>
     </div>
+    {% if update_needed %}
+    <script type="text/javascript">
+        setTimeout(function(){
+            window.location.reload()
+        },60*1000);
+    </script>
+    {% endif %}
 </body>
 </html>
