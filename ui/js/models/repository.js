@@ -136,7 +136,8 @@ treeherder.factory('ThRepositoryModel', [
                     }
                     if (options.watchRepos) {
                         var storedWatched = loadWatchedRepos();
-                        if (_.isArray(storedWatched) && _.contains(storedWatched, name)) {
+                        if (_.isArray(storedWatched) &&
+                            _.contains(storedWatched, options.name)) {
                             _.each(storedWatched, function (repo) {
                                 watchRepo(repo);
                             });
