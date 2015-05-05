@@ -76,14 +76,27 @@ perf.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thServiceD
         var suiteName;
 
         //Given a signature, find the series and get subtest signatures
-        var seriesSummary = _.find(lists.seriesList,
+        var series = _.find(lists.seriesList,
           function(series) {
             return series.signature == targetSignature;
           });
 
-        if (seriesSummary) {
-          subtestSignatures = seriesSummary.subtestSignatures;
-          suiteName = seriesSummary.name;
+        if (series) {
+          // if it is not a summary series, then find the summary series
+          // corresponding to it (could be more than one) and use that
+          if (!series.subtestSignatures) {
+            series = _.filter(lists.seriesList,
+              function(s) {
+                return _.find(s.subtestSignatures, function(signature) {
+                  return signature == targetSignature;
+                });
+              });
+          } else {
+            // make this a list of series to work with _.map below
+            series = [series];
+          }
+          subtestSignatures = _.union(_.map(series, 'subtestSignatures' ))[0];
+          suiteName = _.union(_.map(series, 'name'))[0];
         }
 
         //For each subtest, find the matching series in the list and store it
@@ -210,6 +223,7 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
     getCompareClasses: function(cr, type) {
       if (cr.hideMinorChanges && cr.isMinor) return 'subtest-empty';
       if (cr.isEmpty) return 'subtest-empty';
+      if (type == 'row' && cr.highlightedTest) return 'active subtest-highlighted';
       if (type == 'row') return '';
       if (type == 'bar' && cr.isRegression) return 'bar-regression';
       if (type == 'bar' && cr.isImprovement) return 'bar-improvement';
@@ -355,6 +369,7 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
 
 
 perf.factory('math', [ function() {
+
   return {
     /**
      * Compute the standard deviation for an array of values.

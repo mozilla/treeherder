@@ -260,6 +260,12 @@ perf.controller('CompareSubtestResultsCtrl', [
           var newSig = mapsigs[1];
 
           var cmap = PhCompare.getCounterMap(testName, rawResultsMap[oldSig], newRawResultsMap[newSig]);
+          if (oldSig == $scope.originalSignature ||
+              oldSig == $scope.newSignature ||
+              newSig == $scope.originalSignature ||
+              newSig == $scope.newSignature) {
+            cmap.highlightedTest = true;
+          }
 
           //TODO: Can we have >1 highlighted revision?
           var originalSeries = encodeURIComponent(JSON.stringify(
