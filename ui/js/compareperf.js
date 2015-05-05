@@ -278,7 +278,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                           signature: newSig,
                           visible: true}));
 
-          var detailsLink = thServiceDomain + '/perf.html#/graphs?timerange=' +
+          var detailsLink = 'perf.html#/graphs?timerange=' +
               timeRange + '&series=' + newSeries;
 
           if (oldSig != newSig) {
