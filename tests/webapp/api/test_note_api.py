@@ -22,7 +22,7 @@ def test_note_list(webapp, sample_notes, jm):
     assert isinstance(resp.json, list)
     note_list = resp.json
 
-    assert set(note_list[0].keys()) == set([
+    assert set(note_list[0].keys()) == {
         'note_timestamp',
         'job_id',
         'who',
@@ -30,7 +30,7 @@ def test_note_list(webapp, sample_notes, jm):
         'note',
         'active_status',
         'id'
-    ])
+    }
 
     # remove fields we don't want to compare
     for note in note_list:
