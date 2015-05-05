@@ -10,6 +10,8 @@ from django.conf import settings
 from treeherder.model.models import Datasource, Repository
 from treeherder.model.exchanges import TreeherderPublisher
 from treeherder.model.pulse_publisher import load_schemas
+from treeherder.model.error_summary import load_error_summary
+
 
 # Load schemas for validation of messages published on pulse
 SOURCE_FOLDER = os.path.dirname(os.path.realpath(__file__))
@@ -173,3 +175,16 @@ def publish_resultset(project, ids):
             # messages will still get published... Well, assuming nothing goes
             # wrong, because we're not using confirm channels for publishing...
             publisher.connection.release()
+
+
+@task(name='populate-error-summary')
+def populate_error_summary(project, artifacts, job_id_lookup):
+    """
+    Create bug suggestions artifact(s) for any text_log_summary artifacts.
+
+    ``artifacts`` here is a list of one or more ``text_log_summary`` artifacts.
+    If any of them have ``error_lines``, then we generate the
+    ``bug suggestions`` artifact from them.
+    """
+
+    load_error_summary(project, artifacts, job_id_lookup)

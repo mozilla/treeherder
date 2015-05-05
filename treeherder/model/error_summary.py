@@ -197,6 +197,20 @@ def get_bugs_for_search_term(search, base_uri):
     return get_remote_content(url)
 
 
+def get_artifacts_that_need_bug_suggestions(artifact_list):
+    """
+    Return a list of ``text_log_summary`` that don't have ``Bug suggestions``
+    """
+
+    bs_guid_list = [x['job_guid'] for x in artifact_list if
+                    x['name'] == 'Bug suggestions']
+
+    tls_list = [x for x in artifact_list if
+                x['name'] == 'text_log_summary' and
+                x['job_guid'] not in bs_guid_list]
+    return tls_list
+
+
 def get_error_summary_artifacts(artifact_list):
     """
     Create bug suggestions artifact(s) for any text_log_summary artifacts.
@@ -232,3 +246,13 @@ def get_all_errors(artifact):
     artifact_blob = json.loads(artifact['blob'])
     if isinstance(artifact_blob, dict):
         return artifact_blob.get('step_data', {}).get('all_errors', [])
+
+
+def load_error_summary(project, artifacts, job_id_lookup):
+    """Load new bug suggestions artifacts if we generate them."""
+    from treeherder.model.derived import ArtifactsModel
+
+    bsa = get_error_summary_artifacts(artifacts)
+    if bsa:
+        with ArtifactsModel(project) as artifacts_model:
+            artifacts_model.load_job_artifacts(bsa, job_id_lookup)
