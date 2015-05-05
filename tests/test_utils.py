@@ -192,14 +192,11 @@ def do_job_ingestion(jm, refdata, job_data, sample_resultset, verify_data=True):
         verify_artifacts(jm, artifacts_ref)
         verify_coalesced(jm, coalesced_job_guids, coalesced_replacements)
 
-    # Default verification confirms we loaded all of the objects
-    complete_count = jm.get_os_dhub().execute(
-        proc="objectstore_test.counts.complete")[0]["complete_count"]
-    loading_count = jm.get_os_dhub().execute(
-        proc="objectstore_test.counts.loading")[0]["loading_count"]
+    objectstore_count = jm.get_os_dhub().execute(
+        proc="objectstore_test.counts.all")[0]["all_count"]
 
-    assert complete_count == len(job_data)
-    assert loading_count == 0
+    # If all objects were successfully loaded, none should remain in the objectstore.
+    assert objectstore_count == 0
 
 
 def grouper(iterable, n, fillvalue=None):

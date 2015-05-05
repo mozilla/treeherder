@@ -348,11 +348,13 @@ def get_objectstore_last_error(jm):
     row_id = jm._get_last_insert_id("objectstore")
 
     row_data = jm.get_dhub(jm.CT_OBJECTSTORE).execute(
-        proc="objectstore_test.selects.row", placeholders=[row_id])[0]
+        proc="objectstore_test.selects.row", placeholders=[row_id])
 
     jm.disconnect()
 
-    return row_data['error_msg']
+    # If the job wasn't found, it was removed from the objectstore after
+    # successful ingestion.
+    return row_data[0]['error_msg'] if row_data else None
 
 
 def test_store_result_set_data(jm, initial_data, sample_resultset):

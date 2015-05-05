@@ -7,10 +7,9 @@
                    ",
             "host_type": "master_host"
         },
-        "complete": {
-            "sql": "SELECT COUNT(`id`) AS complete_count
+        "all": {
+            "sql": "SELECT COUNT(`id`) AS all_count
                     FROM   `objectstore`
-                    WHERE  processed_state = 'complete'
                    ",
             "host_type": "master_host"
         }

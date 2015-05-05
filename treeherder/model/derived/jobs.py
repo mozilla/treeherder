@@ -1271,9 +1271,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 )
 
                 if 'id' in datum:
-                    object_placeholders.append(
-                        [revision_hash, datum['id']]
-                    )
+                    object_placeholders.append([datum['id']])
 
                 for coalesced_guid in coalesced:
                     coalesced_job_guid_placeholders.append(
@@ -1368,9 +1366,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 placeholders=job_update_placeholders,
                 executemany=True)
 
-        # Mark job status
-        self.mark_objects_complete(object_placeholders)
-
         # set the job_coalesced_to_guid column for any coalesced
         # job found
         if coalesced_job_guid_placeholders:
@@ -1379,6 +1374,9 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 debug_show=self.DEBUG,
                 placeholders=coalesced_job_guid_placeholders,
                 executemany=True)
+
+        # Remove the completed tasks from the objectstore.
+        self.delete_completed_objects(object_placeholders)
 
     def _remove_existing_jobs(self, data):
         """
@@ -2162,8 +2160,8 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         return json_blobs
 
-    def mark_objects_complete(self, object_placeholders):
-        """ Call to database to mark the task completed
+    def delete_completed_objects(self, object_placeholders):
+        """ Call to database to delete the tasks now they are completed.
 
             object_placeholders = [
                 [ revision_hash, object_id ],
@@ -2173,7 +2171,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         """
         if object_placeholders:
             self.os_execute(
-                proc="objectstore.updates.mark_complete",
+                proc="objectstore.deletes.delete_completed",
                 placeholders=object_placeholders,
                 executemany=True,
                 debug_show=self.DEBUG
