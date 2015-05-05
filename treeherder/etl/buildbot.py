@@ -126,10 +126,18 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
-        'regex': re.compile(r'OS X 10\.7|lion', re.IGNORECASE),
+        'regex': re.compile(r'OS X 10\.8|mountain lion', re.IGNORECASE),
         'attributes': {
             'os': 'mac',
             'os_platform': 'osx-10-8',
+            'arch': 'x86_64',
+        }
+    },
+    {
+        'regex': re.compile(r'OS X 10\.7|lion', re.IGNORECASE),
+        'attributes': {
+            'os': 'mac',
+            'os_platform': 'osx-10-7',
             'arch': 'x86_64',
         }
     },
