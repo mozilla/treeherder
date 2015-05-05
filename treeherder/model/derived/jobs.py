@@ -1380,16 +1380,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 placeholders=coalesced_job_guid_placeholders,
                 executemany=True)
 
-        # send socket.io events for the newly loaded jobs
-        # get all the job_guids for the insertions and updates
-        # the 0th element of both lists is the job_guid.
-        loaded_job_guids = {}
-        for loaded_job in job_placeholders:
-            loaded_job_guids[loaded_job[self.JOB_PH_JOB_GUID]] = {
-                "result_set_id": loaded_job[self.JOB_PH_RESULT_SET_ID],
-                "result_set_push_timestamp": push_timestamps[loaded_job[self.JOB_PH_RESULT_SET_ID]]
-            }
-
     def _remove_existing_jobs(self, data):
         """
         Remove jobs from data where we already have them in the same state.
