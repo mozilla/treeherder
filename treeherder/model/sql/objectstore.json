@@ -1,5 +1,10 @@
 {
     "deletes":{
+        "delete_completed":{
+            "sql":"DELETE FROM objectstore WHERE `id` = ?",
+            "host_type":"master_host"
+        },
+
         "cycle_objectstore":{
 
             "sql":"DELETE FROM objectstore WHERE job_guid IN (REP0)",
@@ -160,20 +165,6 @@
 
         },
 
-        "mark_complete":{
-
-            "sql":"UPDATE   `objectstore`
-                   SET      `processed_state` = 'complete',
-                            `revision_hash` = ?
-                   WHERE    `processed_state` = 'loading'
-                   AND      `id` = ?
-                   AND      `worker_id` = CONNECTION_ID()
-                  ",
-
-            "host_type":"master_host"
-
-        },
-
         "mark_error":{
 
             "sql":"UPDATE   `objectstore`
@@ -188,18 +179,6 @@
 
             "host_type":"master_host"
 
-        },
-
-        "update_json":{
-
-            "sql":"UPDATE  `objectstore`
-                  SET `loaded_timestamp` = ?,
-                      `json_blob` = ?,
-                      `error` = ?,
-                      `error_msg` = ?
-                  WHERE `job_guid` = ?",
-            "host_type":"master_host"
         }
     }
 }
-

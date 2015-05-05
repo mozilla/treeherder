@@ -48,26 +48,23 @@ def test_claim_objects(jm, sample_data):
     assert loading_rows == 3
 
 
-def test_mark_object_complete(jm):
-    """Marks claimed row complete and records run id."""
+def test_delete_completed_objects(jm):
+    """Deletes processed job from the objectstore."""
     jm.store_job_data([job_data()])
     row_id = jm.claim_objects(1)[0]["id"]
 
-    revision_hash = "fakehash"
-
     object_placeholders = [
-        [revision_hash, row_id]
+        [row_id]
     ]
 
-    jm.mark_objects_complete(object_placeholders)
+    jm.delete_completed_objects(object_placeholders)
 
     row_data = jm.get_dhub(jm.CT_OBJECTSTORE).execute(
-        proc="objectstore_test.selects.row", placeholders=[row_id])[0]
+        proc="objectstore_test.selects.row", placeholders=[row_id])
 
     jm.disconnect()
 
-    assert row_data["revision_hash"] == revision_hash
-    assert row_data["processed_state"] == "complete"
+    assert len(row_data) == 0
 
 
 def test_process_objects(jm, initial_data, mock_log_parser):
@@ -97,14 +94,14 @@ def test_process_objects(jm, initial_data, mock_log_parser):
     date_set = set([r['submit_timestamp'] for r in test_run_rows])
     expected_dates = set([1330454755, 1330454756, 1330454757])
 
-    complete_count = jm.get_dhub(jm.CT_OBJECTSTORE).execute(
-        proc="objectstore_test.counts.complete")[0]["complete_count"]
+    objectstore_count = jm.get_dhub(jm.CT_OBJECTSTORE).execute(
+        proc="objectstore_test.counts.all")[0]["all_count"]
     loading_count = jm.get_dhub(jm.CT_OBJECTSTORE).execute(
         proc="objectstore_test.counts.loading")[0]["loading_count"]
 
     jm.disconnect()
 
-    assert complete_count == 2
+    assert objectstore_count == 1
     assert loading_count == 0
     assert date_set.issubset(expected_dates)
     assert len(date_set) == 2
@@ -141,15 +138,12 @@ def test_ingest_sample_data(jm, sample_data, sample_resultset, mock_log_parser):
     job_rows = jm.get_jobs_dhub().execute(
         proc="jobs_test.selects.jobs")
 
-    complete_count = jm.get_os_dhub().execute(
-        proc="objectstore_test.counts.complete")[0]["complete_count"]
-    loading_count = jm.get_os_dhub().execute(
-        proc="objectstore_test.counts.loading")[0]["loading_count"]
+    objectstore_count = jm.get_os_dhub().execute(
+        proc="objectstore_test.counts.all")[0]["all_count"]
 
     jm.disconnect()
 
-    assert complete_count == resultset_count
-    assert loading_count == 0
+    assert objectstore_count == 0
     assert len(job_rows) == resultset_count
 
 

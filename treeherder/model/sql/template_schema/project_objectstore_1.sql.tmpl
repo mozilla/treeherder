@@ -41,10 +41,9 @@ DROP TABLE IF EXISTS `objectstore`;
  *  job_guid - Referenced project_jobs_1.job.guid
  *  revision_hash - Hash of any number of revisions associated with the result set.
  *  loaded_timestamp - Timestamp when the structure was first loaded.
- *  processed_state - ready | loading | complete
+ *  processed_state - ready | loading
  *                  ready - Object ready for processing
  *                  loading - Object in the process of loading
- *                  complete - Object processing is complete.
  *  error - N | Y, if yes there may be a error_msg
  *  error_msg - Any error messages associated with processing the JSON into
  *              the reference and project job schemas.
@@ -56,7 +55,7 @@ CREATE TABLE `objectstore` (
   `job_guid` varchar(50) COLLATE utf8_bin NOT NULL,
   `revision_hash` varchar(50) COLLATE utf8_bin DEFAULT NULL,
   `loaded_timestamp` int(11) unsigned NOT NULL,
-  `processed_state` enum('ready','loading','complete') COLLATE utf8_bin DEFAULT 'ready',
+  `processed_state` enum('ready','loading') COLLATE utf8_bin DEFAULT 'ready',
   `error` enum('N','Y') COLLATE utf8_bin DEFAULT 'N',
   `error_msg` mediumtext COLLATE utf8_bin,
   `json_blob` mediumblob,
