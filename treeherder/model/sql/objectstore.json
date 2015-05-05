@@ -188,18 +188,6 @@
 
             "host_type":"master_host"
 
-        },
-
-        "update_json":{
-
-            "sql":"UPDATE  `objectstore`
-                  SET `loaded_timestamp` = ?,
-                      `json_blob` = ?,
-                      `error` = ?,
-                      `error_msg` = ?
-                  WHERE `job_guid` = ?",
-            "host_type":"master_host"
         }
     }
 }
-
