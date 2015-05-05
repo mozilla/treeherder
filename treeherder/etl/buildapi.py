@@ -126,6 +126,15 @@ class Builds4hTransformerMixin(object):
                 continue
 
             prop['revision'] = prop['revision'][0:12]
+
+            if prop['revision'] == prop.get('l10n_revision', None):
+                # Some l10n jobs specify the l10n repo revision under 'revision', rather
+                # than the gecko revision. If we did not skip these, it would result in
+                # fetch_missing_resultsets requests that were guaranteed to 404.
+                # This needs to be fixed upstream in builds-4hr by bug 1125433.
+                logger.warning("skipping builds-4hr job since revision refers to wrong repo: %s", prop['buildername'])
+                continue
+
             revisions[prop['branch']].append(prop['revision'])
 
         revisions_lookup = common.lookup_revisions(revisions)
