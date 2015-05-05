@@ -23,9 +23,10 @@ from django.core.exceptions import ObjectDoesNotExist
 from treeherder.model.models import (Datasource,
                                      ExclusionProfile)
 
-from treeherder.model import utils
+from treeherder.model import utils, error_summary
 from treeherder.model.tasks import (publish_resultset,
-                                    publish_job_action)
+                                    publish_job_action,
+                                    populate_error_summary)
 
 from treeherder.events.publisher import JobStatusPublisher
 
@@ -1180,6 +1181,8 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         retry_job_guids = []
 
+        async_error_summary_list = []
+
         # get the tier-2 data signatures for this project.
         # if there are none, then just return an empty list
         tier_2_signatures = []
@@ -1245,7 +1248,8 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     log_placeholders,
                     artifact_placeholders,
                     retry_job_guids,
-                    tier_2_signatures
+                    tier_2_signatures,
+                    async_error_summary_list
                 )
 
                 if 'id' in datum:
@@ -1339,6 +1343,14 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         with ArtifactsModel(self.project) as artifacts_model:
             artifacts_model.load_job_artifacts(artifact_placeholders, job_id_lookup)
+
+        # schedule the generation of ``Bug suggestions`` artifacts
+        # asynchronously now that the jobs have been created
+        if async_error_summary_list:
+            populate_error_summary.apply_async(
+                args=[self.project, async_error_summary_list, job_id_lookup],
+                routing_key='error_summary'
+            )
 
         # If there is already a job_id stored with pending/running status
         # we need to update the information for the complete job
@@ -1445,7 +1457,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         self, job, revision_hash, revision_hash_lookup,
         unique_revision_hashes, rh_where_in, job_placeholders,
         log_placeholders, artifact_placeholders, retry_job_guids,
-        tier_2_signatures
+        tier_2_signatures, async_artifact_list
     ):
         """
         Take the raw job object after etl and convert it to job_placeholders.
@@ -1585,7 +1597,15 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 log_placeholders.append([job_guid, name, url, parse_status])
 
         artifacts = job.get('artifacts', [])
+
         if artifacts:
+            # the artifacts in this list could be ones that should have
+            # bug suggestions generated for them.  If so, queue them to be
+            # scheduled for asynchronous generation.
+            tls_list = error_summary.get_artifacts_that_need_bug_suggestions(
+                artifacts)
+            async_artifact_list.extend(tls_list)
+
             ArtifactsModel.populate_placeholders(artifacts,
                                                  artifact_placeholders,
                                                  job_guid)

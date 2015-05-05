@@ -6,6 +6,8 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from treeherder.webapp.api.utils import UrlQueryFilter, oauth_required
 from treeherder.model.derived import JobsModel, ArtifactsModel
+from treeherder.model.tasks import populate_error_summary
+from treeherder.model.error_summary import get_artifacts_that_need_bug_suggestions
 
 
 class ArtifactViewSet(viewsets.ViewSet):
@@ -54,11 +56,35 @@ class ArtifactViewSet(viewsets.ViewSet):
 
     @oauth_required
     def create(self, request, project):
+        artifacts = request.DATA
 
-        job_guids = [x['job_guid'] for x in request.DATA]
-        with JobsModel(project) as jobsModel, ArtifactsModel(project) as artifacts_model:
+        job_guids = [x['job_guid'] for x in artifacts]
+        with JobsModel(project) as jobs_model, ArtifactsModel(project) as artifacts_model:
 
-            job_id_lookup = jobsModel.get_job_ids_by_guid(job_guids)
-            artifacts_model.load_job_artifacts(request.DATA, job_id_lookup)
+            job_id_lookup = jobs_model.get_job_ids_by_guid(job_guids)
+
+            artifacts_model.load_job_artifacts(artifacts, job_id_lookup)
+
+            # If a ``text_log_summary`` and ``Bug suggestions`` artifact are
+            # posted here together, for the same ``job_guid``, then just load
+            # them.  This is how it is done internally in our log parser
+            # so there is no delay in creation and the bug suggestions show
+            # as soon as the log is parsed.
+            #
+            # If a ``text_log_summary`` is posted WITHOUT an accompanying
+            # ``Bug suggestions`` artifact, then schedule to create it
+            # asynchronously so that this api does not take too long.
+
+            tls_list = get_artifacts_that_need_bug_suggestions(artifacts)
+
+            # tls_list will contain all ``text_log_summary`` artifacts that
+            # do NOT have an accompanying ``Bug suggestions`` artifact in this
+            # current list of artifacts.  If it's empty, then we don't need
+            # to schedule anything.
+            if tls_list:
+                populate_error_summary.apply_async(
+                    args=[project, tls_list, job_id_lookup],
+                    routing_key='error_summary'
+                )
 
             return Response({'message': 'Artifacts stored successfully'})
