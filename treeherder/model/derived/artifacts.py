@@ -254,7 +254,6 @@ class ArtifactsModel(TreeherderModelBase):
                 job_guid = None
 
                 if isinstance(artifact, list):
-
                     job_guid = artifact[0]
                     job_id = job_id_lookup.get(job_guid, {}).get('id', None)
 
