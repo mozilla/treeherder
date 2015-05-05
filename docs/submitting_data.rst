@@ -466,3 +466,39 @@ will be rendered. Here are the possible values:
 * **Raw Html** - The last resource for when you need to show some formatted
   content.
 
+
+
+Some Specific Collection POSTing Rules
+--------------------------------------
+
+Treeherder will detect what data is submitted in in the ``TreeherderCollection``
+and generate the necessary artifacts accordingly.  The outline below describes
+what artifacts *Treeherder* will generate depending on what has been submitted.
+
+
+JobCollections
+^^^^^^^^^^^^^^
+Via the ``/jobs`` endpoint:
+
+1. Submit a Log URL with no ``parse_status`` or ``parse_status`` set to "pending"
+    * This will generate ``text_log_summary`` and ``Bug suggestions`` artifacts
+    * Current *Buildbot* workflow
+
+2. Submit a Log URL with ``parse_status`` set to "parsed" and a ``text_log_summary`` artifact
+    * Will generate a ``Bug suggestions`` artifact only
+    * Desired future state of *Task Cluster*
+
+3. Submit a Log URL with ``parse_status`` of "parsed", with ``text_log_summary`` and ``Bug suggestions`` artifacts
+    * Will generate nothing
+
+
+ArtifactCollections
+^^^^^^^^^^^^^^^^^^^
+Via the ``/artifact`` endpoint:
+
+1. Submit a ``text_log_summary`` artifact
+    * Will generate a ``Bug suggestions`` artifact if it does not already exist for that job.
+
+2. Submit ``text_log_summary`` and ``Bug suggestions`` artifacts
+    * Will generate nothing
+    * This is *Treeherder's* current internal log parser workflow
