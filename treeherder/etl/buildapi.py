@@ -105,11 +105,13 @@ class Builds4hTransformerMixin(object):
             prop = build['properties']
 
             if 'branch' not in prop:
-                logger.warning("property 'branch' not found in build4h")
+                logger.warning("skipping builds-4hr job since no branch found: %s", prop['buildername'])
                 continue
 
             if prop['branch'] not in projects:
-                logger.warning("skipping job on unsupported branch {0}".format(prop['branch']))
+                # Fuzzer jobs specify a branch of 'idle', and we intentionally don't display them.
+                if prop['branch'] != 'idle':
+                    logger.warning("skipping builds-4hr job on unknown branch %s: %s", prop['branch'], prop['buildername'])
                 continue
 
             if filter_to_project and prop['branch'] != filter_to_project:
@@ -120,7 +122,7 @@ class Builds4hTransformerMixin(object):
                                                  prop.get('sourcestamp', None)))
 
             if not prop['revision']:
-                logger.warning("property 'revision' not found in build4h")
+                logger.warning("skipping builds-4hr job since no revision found: %s", prop['buildername'])
                 continue
 
             prop['revision'] = prop['revision'][0:12]
