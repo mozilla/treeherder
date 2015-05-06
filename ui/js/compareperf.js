@@ -275,7 +275,8 @@ perf.controller('CompareSubtestResultsCtrl', [
           if (oldSig != newSig) {
             detailsLink += '&series=' + originalSeries;
           }
-          detailsLink += '&highlightedRevision=' + $scope.newRevision;
+          detailsLink += '&highlightedRevisions=' + $scope.originalRevision;
+          detailsLink += '&highlightedRevisions=' + $scope.newRevision;
 
           cmap.detailsLink = detailsLink;
           cmap.name = page;

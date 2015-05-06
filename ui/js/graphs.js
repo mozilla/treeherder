@@ -17,6 +17,7 @@ perf.controller('GraphsCtrl', [
     var availableColors = [ 'red', 'green', 'blue', 'orange', 'purple' ];
     var optionCollectionMap = null;
 
+    $scope.highlightedRevisions = [ undefined, undefined ];
     $scope.timeranges = phTimeRanges;
     $scope.myTimerange = _.find(phTimeRanges, {'value': parseInt($stateParams.timerange)});
 
@@ -173,15 +174,13 @@ perf.controller('GraphsCtrl', [
     function highlightDataPoints() {
       $scope.plot.unhighlight();
 
-      // if we have a highlighted revision, highlight all points that
+      // if we have a highlighted revision(s), highlight all points that
       // correspond to that
       $scope.seriesList.forEach(function(series, i) {
-        if (series.highlighted) {
-          if (series.highlighted.length > 0 && series.visible) {
-            $scope.resetHighlightButton = true;
-            $scope.revisionToHighlight = series.highlighted[1];
-            $scope.plot.highlight(i, series.highlighted[0]);
-          }
+        if (series.visible && series.highlightedPoints.length) {
+          _.forEach(series.highlightedPoints, function(highlightedPoint) {
+            $scope.plot.highlight(i, highlightedPoint);
+          });
         }
       });
 
@@ -291,79 +290,109 @@ perf.controller('GraphsCtrl', [
       $scope.seriesList.forEach(function(series) {
         series.flotSeries.points.show = series.visible;
       });
-      // plot the actual graph
-      $scope.plot = $.plot($("#graph"),
-                        $scope.seriesList.map(
-                          function(series) { return series.flotSeries }),
-                           {
-                             xaxis: { mode: 'time' },
-                             series: { shadowSize: 0 },
-                             lines: { show: false },
-                             points: { show: true },
-                             legend: { show: false },
-                             grid: {
-                               color: '#cdd6df',
-                               borderWidth: 2,
-                               backgroundColor: '#fff',
-                               hoverable: true,
-                               clickable: true,
-                               autoHighlight: false
-                             }
-                           });
 
-      updateSelectedItem(null);
-      highlightDataPoints();
-      plotOverviewGraph();
-      zoomGraph();
+      // reset highlights
+      $scope.seriesList.forEach(function(series) {
+        series.highlightedPoints = [];
+      });
 
-      function getDateStr(timestamp) {
-        var date = new Date(parseInt(timestamp));
-        return date.toUTCString();
-      }
-
-      function updateSelectedItem() {
-        if (!$scope.selectedDataPoint) {
-          hideTooltip();
-          return;
-        }
-      }
-
-      $("#graph").bind("plothover", function (event, pos, item) {
-
-        // if examining an item, disable this behaviour
-        if ($scope.selectedDataPoint)
-          return;
-
-        $('#graph').css({ cursor: item ? 'pointer' : 'default' });
-
-        if (item && item.series.thSeries) {
-          if (item.seriesIndex != $scope.prevSeriesIndex ||
-              item.dataIndex != $scope.prevDataIndex) {
-            var seriesDataPoint = getSeriesDataPoint(item);
-
-            showTooltip(seriesDataPoint);
-            $scope.prevSeriesIndex = item.seriesIndex;
-            $scope.prevDataIndex = item.dataIndex;
-          }
-        } else {
-          hideTooltip();
-          $scope.prevSeriesIndex = null;
-          $scope.prevDataIndex = null;
+      // highlight each revision on visible serii
+      var highlightPromises = [];
+      _.each($scope.highlightedRevisions, function(rev) {
+        if (rev && rev.length == 12) {
+          highlightPromises = _.union(
+            highlightPromises, $scope.seriesList.map(function(series) {
+              if (series.visible) {
+                return ThResultSetModel.getResultSetsFromRevision(
+                  series.projectName, rev).then(
+                    function(resultSets) {
+                      var resultSetId = resultSets[0].id
+                      var j = series.flotSeries.resultSetData.indexOf(resultSetId);
+                      var seriesToaddHighlight = _.find(
+                        $scope.seriesList, function(sr) {
+                          return sr.signature == series.signature });
+                      seriesToaddHighlight.highlightedPoints.push(j);
+                    });
+              }
+              return null;
+            }));
         }
       });
 
-      $('#graph').bind('plotclick', function(e, pos, item) {
-        if (item) {
-          $scope.selectedDataPoint = getSeriesDataPoint(item);
-          showTooltip($scope.selectedDataPoint);
-          updateSelectedItem();
-        } else {
-          $scope.selectedDataPoint = null;
-          hideTooltip();
-          $scope.$digest();
+      $q.all(highlightPromises).then(function() {
+        // plot the actual graph
+        $scope.plot = $.plot($("#graph"),
+                             $scope.seriesList.map(
+                               function(series) { return series.flotSeries }),
+                             {
+                               xaxis: { mode: 'time' },
+                               series: { shadowSize: 0 },
+                               lines: { show: false },
+                               points: { show: true },
+                               legend: { show: false },
+                               grid: {
+                                 color: '#cdd6df',
+                                 borderWidth: 2,
+                                 backgroundColor: '#fff',
+                                 hoverable: true,
+                                 clickable: true,
+                                 autoHighlight: false
+                               }
+                             });
+
+        updateSelectedItem(null);
+        highlightDataPoints();
+        plotOverviewGraph();
+        zoomGraph();
+
+        function getDateStr(timestamp) {
+          var date = new Date(parseInt(timestamp));
+          return date.toUTCString();
         }
 
-        highlightDataPoints();
+        function updateSelectedItem() {
+          if (!$scope.selectedDataPoint) {
+            hideTooltip();
+            return;
+          }
+        }
+
+        $("#graph").bind("plothover", function (event, pos, item) {
+          // if examining an item, disable this behaviour
+          if ($scope.selectedDataPoint)
+            return;
+
+          $('#graph').css({ cursor: item ? 'pointer' : 'default' });
+
+          if (item && item.series.thSeries) {
+            if (item.seriesIndex != $scope.prevSeriesIndex ||
+                item.dataIndex != $scope.prevDataIndex) {
+              var seriesDataPoint = getSeriesDataPoint(item);
+
+              showTooltip(seriesDataPoint);
+              $scope.prevSeriesIndex = item.seriesIndex;
+              $scope.prevDataIndex = item.dataIndex;
+            }
+          } else {
+            hideTooltip();
+            $scope.prevSeriesIndex = null;
+            $scope.prevDataIndex = null;
+          }
+        });
+
+        $('#graph').bind('plotclick', function(e, pos, item) {
+          if (item) {
+            $scope.selectedDataPoint = getSeriesDataPoint(item);
+            showTooltip($scope.selectedDataPoint);
+            updateSelectedItem();
+          } else {
+            $scope.selectedDataPoint = null;
+            hideTooltip();
+            $scope.$digest();
+          }
+
+          highlightDataPoints();
+        });
       });
     }
 
@@ -386,18 +415,23 @@ perf.controller('GraphsCtrl', [
     $scope.repoName = $stateParams.projectId;
 
     function updateURL() {
-      $state.transitionTo('graphs', { 'timerange': $scope.myTimerange.value,
-                            'series':
-                            $scope.seriesList.map(function(series) {
-                              return encodeURIComponent(
-                                JSON.stringify(
-                                  { project: series.projectName,
-                                    signature: series.signature,
-                                    visible: series.visible})); }),
-                            'highlightedRevision': $scope.highlightedRevision,
-                            'zoom': JSON.stringify($scope.zoom)},
-                {location: true, inherit: true, relative: $state.$current,
-                 notify: false});
+      $state.transitionTo('graphs', {
+        timerange: $scope.myTimerange.value,
+        series: $scope.seriesList.map(function(series) {
+          return encodeURIComponent(
+            JSON.stringify(
+              { project: series.projectName,
+                signature: series.signature,
+                visible: series.visible})); }),
+        highlightedRevisions: _.filter($scope.highlightedRevisions,
+                                       function(highlight) {
+                                         return (highlight &&
+                                                 highlight.length == 12);
+                                       }),
+        zoom: JSON.stringify($scope.zoom)
+      }, {location: true, inherit: true,
+          relative: $state.$current,
+          notify: false});
     }
 
     function getSeriesData(series) {
@@ -462,7 +496,6 @@ perf.controller('GraphsCtrl', [
             $scope.seriesList.push(seriesSummary);
           });
           $q.all($scope.seriesList.map(getSeriesData)).then(function() {
-            $scope.highlightRevision();
             plotGraph();
             if ($scope.selectedDataPoint) {
               showTooltip($scope.selectedDataPoint);
@@ -506,55 +539,18 @@ perf.controller('GraphsCtrl', [
     $scope.showHideSeries = function(signature) {
       updateURL();
       plotGraph();
-      $scope.highlightRevision();
     }
 
-    $scope.resetHighlight = function() {
-      $scope.seriesList.forEach(function(series) {
-        series.highlighted = [];
-      });
-      $scope.highlightedRevision = '';
-      $scope.revisionToHighlight = "";
-      $scope.resetHighlightButton = false;
+    $scope.resetHighlight = function(i) {
+      $scope.highlightedRevisions[i] = ''
+      $scope.updateHighlightedRevisions();
+    }
+
+    $scope.updateHighlightedRevisions = function() {
+      // update url
       updateURL();
       plotGraph();
-    }
-
-    $scope.addHighlightedRevision = function() {
-      var rev = $scope.revisionToHighlight;
-      if (rev.length == 12) {
-        $scope.highlightedRevision = rev;
-        $scope.highlightRevision();
-      } else if (rev.length == 0) {
-        $scope.resetHighlight();
-      } else {
-        $scope.plot.unhighlight();
-      }
-    }
-
-    $scope.highlightRevision = function() {
-      var rev = $scope.highlightedRevision;
-      if (rev.length == 12) {
-        $q.all($scope.seriesList.map(function(series) {
-          if (series.visible) {
-            return ThResultSetModel.getResultSetsFromRevision(
-              series.projectName, rev).then(
-                function(resultSets) {
-                  var resultSetId = resultSets[0].id
-                  var j = series.flotSeries.resultSetData.indexOf(resultSetId);
-                  var seriesToaddHighlight = _.find(
-                    $scope.seriesList, function(sr) {
-                      return sr.signature == series.signature });
-                  seriesToaddHighlight.highlighted = [j, rev];
-                });
-          }
-          return null;
-        })).then(function() {
-          updateURL();
-          plotGraph();
-        });
-      }
-    }
+    };
 
     ThOptionCollectionModel.get_map().then(
       function(_optionCollectionMap) {
@@ -565,10 +561,14 @@ perf.controller('GraphsCtrl', [
           if (_.isString($stateParams.series)) {
             $stateParams.series = [$stateParams.series];
           }
-          if ($stateParams.highlightedRevision) {
-            $scope.highlightedRevision = $stateParams.highlightedRevision;
+          if ($stateParams.highlightedRevisions) {
+            if (typeof($stateParams.highlightedRevisions) === 'string') {
+              $scope.highlightedRevisions = [$stateParams.highlightedRevisions];
+            } else {
+              $scope.highlightedRevisions = $stateParams.highlightedRevisions;
+            }
           } else {
-            $scope.highlightedRevision = '';
+            $scope.highlightedRevisions = ['', ''];
           }
 
           if ($stateParams.zoom) {
@@ -620,7 +620,7 @@ perf.controller('GraphsCtrl', [
             });
 
             modalInstance.result.then(function(series) {
-              series.highlighted = [];
+              series.highlightedPoints = [];
               series.visible = true;
               series.color = availableColors.pop();
 
@@ -634,7 +634,6 @@ perf.controller('GraphsCtrl', [
               updateURL();
               getSeriesData(series).then(function() {
                 plotGraph();
-                $scope.highlightRevision();
               });
             });
           };

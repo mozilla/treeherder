@@ -154,6 +154,7 @@ to { opacity: 0; }
 .reset-highlight-button {
   display: inline-block;
   margin-left: -20px;
+  width: 17px;
   cursor: pointer;
 }
 

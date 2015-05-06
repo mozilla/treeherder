@@ -136,7 +136,7 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location', '$q'
 
         getRevisions: function(projectName, resultSetId) {
             return $http.get(thUrl.getProjectUrl(
-                "/resultset/" + resultSetId, projectName)).then(
+                "/resultset/" + resultSetId, projectName), {cache: true}).then(
                     function(response) {
                         if (response.data.revisions.length > 0) {
                             return _.map(response.data.revisions, function(r) {
@@ -151,7 +151,8 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location', '$q'
 
         getResultSetsFromRevision: function(projectName, revision) {
             return $http.get(thUrl.getProjectUrl(
-                "/resultset/?revision=" + revision, projectName)).then(
+                "/resultset/?revision=" + revision, projectName),
+                             {cache: true}).then(
                     function(response) {
                         if (response.data.results.length > 0) {
                             return response.data.results;
