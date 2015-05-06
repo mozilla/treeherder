@@ -1003,27 +1003,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         return aggregate_details
 
-    def get_push_timestamp_lookup(self, result_set_ids):
-        """Get the push timestamp for a list of result_set."""
-
-        # Generate a list of result_set_ids
-        id_placeholders = []
-        repl = []
-        for data in result_set_ids:
-            id_placeholders.append('%s')
-        repl.append(','.join(id_placeholders))
-
-        proc = "jobs.selects.get_result_set_push_timestamp"
-        data = self.jobs_execute(
-            proc=proc,
-            placeholders=result_set_ids,
-            debug_show=self.DEBUG,
-            replace=repl,
-            return_type="dict",
-            key_column="id"
-        )
-        return data
-
     ##################
     #
     # Objectstore functionality
