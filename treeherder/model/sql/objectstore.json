@@ -1,12 +1,16 @@
 {
     "deletes":{
         "cycle_objectstore":{
-
-            "sql":"DELETE FROM objectstore WHERE job_guid IN (REP0)",
-
+            "sql":"DELETE
+                   FROM objectstore
+                   WHERE `processed_state` = 'complete'
+                   AND `loaded_timestamp` < ?
+                   ORDER BY `id`
+                   LIMIT ?",
             "host_type": "master_host"
         }
     },
+
     "inserts":{
         "store_json":{
 

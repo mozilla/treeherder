@@ -22,12 +22,29 @@ class Command(BaseCommand):
             help='Write debug messages to stdout'),
 
         make_option(
+            '--objectstore-cycle-interval',
+            action='store',
+            dest='os_cycle_interval',
+            default=0,
+            type='int',
+            help='Data cycle interval for the objectstore, expressed in days'),
+
+        make_option(
             '--cycle-interval',
             action='store',
             dest='cycle_interval',
             default=0,
             type='int',
             help='Data cycle interval expressed in days'),
+
+        make_option(
+            '--objectstore-chunk-size',
+            action='store',
+            dest='os_chunk_size',
+            default=1000,
+            type='int',
+            help=('Define the size of the chunks '
+                  'the objectstore data will be divided in')),
 
         make_option(
             '--chunk-size',
@@ -50,12 +67,18 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.is_debug = options['debug']
 
+        if options['os_cycle_interval']:
+            os_cycle_interval = datetime.timedelta(days=options['os_cycle_interval'])
+        else:
+            os_cycle_interval = settings.DATA_CYCLE_INTERVAL
+
         if options['cycle_interval']:
             cycle_interval = datetime.timedelta(days=options['cycle_interval'])
         else:
             cycle_interval = settings.DATA_CYCLE_INTERVAL
 
-        self.debug("cycle interval: {0}".format(cycle_interval))
+        self.debug("cycle interval... objectstore: {}, jobs: {}".format(os_cycle_interval,
+                                                                        cycle_interval))
 
         projects = Datasource.objects\
             .filter(contenttype='jobs')\
@@ -63,7 +86,9 @@ class Command(BaseCommand):
         for project in projects:
             self.debug("Cycling Database: {0}".format(project))
             with JobsModel(project) as jm:
-                num_deleted = jm.cycle_data(cycle_interval,
+                num_deleted = jm.cycle_data(os_cycle_interval,
+                                            cycle_interval,
+                                            options['os_chunk_size'],
                                             options['chunk_size'],
                                             options['sleep_time'])
                 self.debug("Deleted {0} resultsets from {1}".format(

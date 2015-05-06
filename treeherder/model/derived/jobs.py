@@ -116,10 +116,6 @@ class JobsModel(TreeherderModelBase):
         }
     }
 
-    OBJECTSTORE_CYCLE_TARGETS = [
-        "objectstore.deletes.cycle_objectstore"
-    ]
-
     # jobs cycle targets
     # NOTE: There is an order dependency here, cycle_job and
     # cycle_result_set should be after any tables with foreign keys
@@ -619,9 +615,23 @@ class JobsModel(TreeherderModelBase):
 
         return round(sorted_list[length / 2], 0)
 
-    def cycle_data(self, cycle_interval, chunk_size, sleep_time):
+    def cycle_data(self, os_cycle_interval, cycle_interval, os_chunk_size, chunk_size, sleep_time):
         """Delete data older than cycle_interval, splitting the target data
 into chunks of chunk_size size. Returns the number of result sets deleted"""
+
+        os_max_timestamp = self._get_max_timestamp(os_cycle_interval)
+        while True:
+            self.os_execute(
+                proc='objectstore.deletes.cycle_objectstore',
+                placeholders=[os_max_timestamp, os_chunk_size],
+                debug_show=self.DEBUG
+            )
+            rows_deleted = self.get_os_dhub().connection['master_host']['cursor'].rowcount
+            if rows_deleted < os_chunk_size:
+                break
+            if sleep_time:
+                # Allow some time for other queries to get through
+                time.sleep(sleep_time)
 
         jobs_max_timestamp = self._get_max_timestamp(cycle_interval)
         # Retrieve list of result sets to delete
@@ -665,14 +675,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             job_where_in_clause = [','.join(['%s'] * len(job_guid_dict))]
 
             # Associate placeholders and replace data with sql
-            obj_targets = []
-            for sql in self.OBJECTSTORE_CYCLE_TARGETS:
-                obj_targets.append({
-                    "proc": sql,
-                    "placeholders": job_guid_dict.values(),
-                    "replace": job_where_in_clause
-                })
-
             jobs_targets = []
             for proc in self.JOBS_CYCLE_TARGETS:
                 query_name = proc.split('.')[-1]
@@ -704,9 +706,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                         "replace": job_where_in_clause
                     })
 
-            # remove data from specified objectstore and jobs tables that is
-            # older than max_timestamp
-            self._execute_table_deletes(obj_targets, 'objectstore', sleep_time)
+            # remove data from specified jobs tables that is older than max_timestamp
             self._execute_table_deletes(jobs_targets, 'jobs', sleep_time)
 
         return len(result_set_data)
