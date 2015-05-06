@@ -42,6 +42,10 @@ application = get_wsgi_application()
 if newrelic:
     application = newrelic.agent.wsgi_application()(application)
 
+# Fix django closing connection to MemCachier after every request (#11331)
+from django.core.cache.backends.memcached import BaseMemcachedCache
+BaseMemcachedCache.close = lambda self, **kwargs: None
+
 # Apply WSGI middleware here.
 # from helloworld.wsgi import HelloWorldApplication
 # application = HelloWorldApplication(application)
