@@ -13,6 +13,7 @@
   <div ng-if="dataLoading">
     Loading all results, please wait a minute...
     <img src="img/dancing_cat.gif" />
+    <img src="img/dancing_cat.gif" ng-repeat="x in [0,1,2,3]" style="transform:scale(0.5); margin-left:-40px; margin-top:40px;"/>
   </div>
   <div id="subtest-summary" ng-if="!dataLoading && !errors.length">
     <h1>{{subtestTitle}} subtest summary<br/>
