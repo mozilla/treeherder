@@ -30,22 +30,23 @@ class Builds4hTransformerMixin(object):
         # this is reused in the transformer and the analyzer, so reverting
         # the field getters to this function.
 
-        # request_id and request_time are mandatory
-        # and they can be found in a couple of different places
         prop = build['properties']
+
         try:
-            request_ids = build['properties'].get('request_ids',
-                                                  build['request_ids'])
+            # request_ids can be found in a couple of different places
+            request_ids = prop.get('request_ids', build['request_ids'])
+            # By experimentation we've found that the last id in the list
+            # corresponds to the request that was used to schedule the job.
+            request_id = request_ids[-1]
         except KeyError as e:
             logger.error("({0})request_id not found in {1}".format(
                 prop["branch"], build))
             raise e
 
         try:
-            request_times = build['properties'].get('request_times',
-                                                    build['requesttime'])
+            buildername = prop['buildername']
         except KeyError as e:
-            logger.error("({0})request_time not found in {1}".format(
+            logger.error("({0})buildername not found in {1}".format(
                 prop["branch"], build))
             raise e
 
@@ -58,32 +59,18 @@ class Builds4hTransformerMixin(object):
                     prop["branch"], build))
                 raise e
 
-        request_ids_str = ",".join(map(str, request_ids))
-        request_time_list = []
-
-        if isinstance(request_times, dict):
-            for request_id in request_ids:
-                request_time_list.append(
-                    request_times[str(request_id)])
-            request_times_str = ','.join(
-                map(str, request_time_list))
-        else:
-            request_times_str = str(request_times)
-
         job_guid_data = {'job_guid': '', 'coalesced': []}
 
-        if len(request_ids) > 1:
-            # coallesced job detected, generate the coalesced
-            # job guids
-            for index, r_id in enumerate(request_ids):
-                # skip if buildbot doesn't have a matching number of ids and times
-                if len(request_time_list) > index:
-                    job_guid_data['coalesced'].append(
-                        common.generate_job_guid(
-                            str(r_id), request_time_list[index]))
+        # If request_ids contains more than one element, then jobs were coalesced into
+        # this one. In that case, the last element corresponds to the request id of
+        # the job that actually ran (ie this one), and the rest are for the pending
+        # jobs that were coalesced. We must generate guids for these coalesced jobs,
+        # so they can be marked as coalesced, and not left as orphaned pending jobs.
+        coalesced_requests = request_ids[:-1]
+        for request_id in coalesced_requests:
+            job_guid_data['coalesced'].append(common.generate_job_guid(request_id, buildername))
 
-        job_guid_data['job_guid'] = common.generate_job_guid(
-            request_ids_str, request_times_str, endtime)
+        job_guid_data['job_guid'] = common.generate_job_guid(request_id, buildername, endtime)
 
         return job_guid_data
 
@@ -195,12 +182,13 @@ class Builds4hTransformerMixin(object):
                             'name': 'mozlog_json'
                         })
 
-            # request_id and request_time are mandatory
-            # and they can be found in a couple of different places
             try:
                 job_guid_data = self.find_job_guid(build)
-                request_ids = build['properties'].get('request_ids',
-                                                      build['request_ids'])
+                # request_ids is mandatory, but can be found in several places.
+                request_ids = prop.get('request_ids', build['request_ids'])
+                # The last element in request_ids corresponds to the request id of this job,
+                # the others are for the requests that were coalesced into this one.
+                request_id = request_ids[-1]
             except KeyError:
                 continue
 
@@ -277,7 +265,7 @@ class Builds4hTransformerMixin(object):
                         'log_urls': [],
                         'blob': {
                             'buildername': build['properties']['buildername'],
-                            'request_id': max(request_ids)
+                            'request_id': request_id
                         }
                     },
                 ]
@@ -363,11 +351,10 @@ class PendingRunningTransformerMixin(object):
 
                     if source == 'pending':
                         request_id = job['id']
-                        artifacts_request_id = request_id
                     elif source == 'running':
-                        request_id = job['request_ids'][0]
-                        # This inconsistency will be cleaned up by bug 1093743.
-                        artifacts_request_id = max(job['request_ids'])
+                        # The last element in request_ids corresponds to the request id of this job,
+                        # the others are for the requests that were coalesced into this one.
+                        request_id = job['request_ids'][-1]
 
                     device_name = buildbot.get_device_or_unknown(
                         job_name_info.get('name', ''),
@@ -377,7 +364,7 @@ class PendingRunningTransformerMixin(object):
                     new_job = {
                         'job_guid': common.generate_job_guid(
                             request_id,
-                            job['submitted_at']
+                            job['buildername']
                         ),
                         'name': job_name_info.get('name', ''),
                         'job_symbol': job_name_info.get('job_symbol', ''),
@@ -419,7 +406,7 @@ class PendingRunningTransformerMixin(object):
                                 'log_urls': [],
                                 'blob': {
                                     'buildername': job['buildername'],
-                                    'request_id': artifacts_request_id
+                                    'request_id': request_id
                                 }
                             },
                         ]

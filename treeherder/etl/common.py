@@ -122,12 +122,12 @@ def generate_revision_hash(revisions):
     return sh.hexdigest()
 
 
-def generate_job_guid(request_id, request_time, endtime=None):
-    """Converts a request_id and request_time into a guid"""
+def generate_job_guid(request_id, buildername, endtime=None):
+    """Converts a request_id and buildername into a guid"""
     sh = hashlib.sha1()
 
     sh.update(str(request_id))
-    sh.update(str(request_time))
+    sh.update(str(buildername))
     job_guid = sh.hexdigest()
 
     # for some jobs (I'm looking at you, ``retry``) we need the endtime to be
