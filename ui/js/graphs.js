@@ -326,64 +326,6 @@ perf.controller('GraphsCtrl', [
           hideTooltip();
           return;
         }
-
-        // if we have an item with subtest signatures, fetch data for that and
-        // display it
-        var selectedSeriesIndex = _.findIndex(
-          $scope.seriesList,
-          function(s) {
-            return s.projectName == $scope.selectedDataPoint.projectName &&
-              s.signature == $scope.selectedDataPoint.signature;
-          });
-        var selectedSeries = $scope.seriesList[selectedSeriesIndex];
-        if (selectedSeries.subtestSignatures) {
-          var uri = thServiceDomain + '/api/project/' +
-              selectedSeries.projectName + '/performance-data/0/' +
-              'get_signature_properties/?';
-          selectedSeries.subtestSignatures.forEach(function(signature) {
-            uri += ('signatures=' + signature + '&');
-          });
-          var subtestResultsMap = {};
-          $http.get(uri).then(function(response) {
-            // first initialize the subtest result map
-            var i = 0;
-            selectedSeries.subtestSignatures.forEach(function(signature) {
-              subtestResultsMap[signature] = { test: response.data[i].test,
-                                               signature: signature,
-                                               projectName: selectedSeries.projectName };
-              i++;
-            });
-            var uri2 = thServiceDomain + '/api/project/' +
-                selectedSeries.projectName + '/performance-data/0/' +
-                'get_performance_data/?interval_seconds=' + $scope.myTimerange.value;
-            selectedSeries.subtestSignatures.forEach(function(signature) {
-              uri2 += ('&signatures=' + signature);
-            });
-            $http.get(uri2).then(function(response) {
-              var prev = null;
-              response.data.forEach(function(data) {
-                var perfData = data.blob;
-                var i = _.findIndex(perfData, function(v) {
-                  return v.result_set_id == $scope.selectedDataPoint.resultSetId;
-                });
-                var v = perfData[i].mean;
-                var v0 = i ? perfData[i-1].mean : v;
-                var dv = v - v0;
-                var dvp = v / v0 - 1;
-                subtestResultsMap[data.series_signature] = jQuery.extend(
-                  { value: v.toFixed(2),
-                    dvalue: dv.toFixed(2),
-                    dpercent: (100 * dvp).toFixed(1) },
-                  subtestResultsMap[data.series_signature]);
-              });
-              $scope.subtestResults = Object.keys(subtestResultsMap).map(function(k) {
-                return subtestResultsMap[k];
-              }).sort(function(a,b) {
-                return parseFloat(a.dpercent) < parseFloat(b.dpercent);
-              });
-            });
-          });
-        }
       }
 
       $("#graph").bind("plothover", function (event, pos, item) {
