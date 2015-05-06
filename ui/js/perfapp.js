@@ -29,6 +29,7 @@ perf.config(function($stateProvider, $urlRouterProvider) {
 })
   // define the interception
   .run(function ($rootScope, $urlRouter, $location, $state) {
+    $rootScope.$state = $state;
     $rootScope.$on('$locationChangeSuccess', function(e, newUrl, oldUrl) {
       // Prevent $urlRouter's default handler from firing
       e.preventDefault();
