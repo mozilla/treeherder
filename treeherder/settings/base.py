@@ -412,6 +412,12 @@ CACHES = {
     }
 }
 
+# This code handles the memcachier service on heroku.
+if "IS_HEROKU" in os.environ:
+    from memcacheify import memcacheify
+    CACHES['default'].update(
+        memcacheify().get('default')
+    )
 
 KEY_PREFIX = TREEHERDER_MEMCACHED_KEY_PREFIX
 
