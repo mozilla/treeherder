@@ -1912,23 +1912,29 @@ div.similar_jobs .left_panel table tr.active > td {
 /* Avoid using the hand pointer unless we are on a link */
 div.similar_jobs .left_panel table tr { cursor: default; }
 
-#notification_box {
+#notification-box {
     position: fixed;
     top: 105px;
     left: 10px;
     z-index: 1100;
 }
 
-#notification_box div.alert {
+#notification-box div.alert {
     padding: 10px 16px 10px 10px;
     margin-bottom: 5px;
 }
 
-#notification_box button.close {
+#notification-box button.close {
     position: relative;
     top: -4px;
     right: -8px;
     color: inherit;
+}
+
+/* Notification icon */
+#notification-box div span:first-child {
+    display: inline-block;
+    width: 22px;
 }
 
 .add-new-filter .form-group{
