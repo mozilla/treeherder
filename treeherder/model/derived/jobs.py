@@ -623,12 +623,11 @@ class JobsModel(TreeherderModelBase):
         """Delete data older than cycle_interval, splitting the target data
 into chunks of chunk_size size. Returns the number of result sets deleted"""
 
-        max_date = datetime.now() - cycle_interval
-        max_timestamp = int(time.mktime(max_date.timetuple()))
+        jobs_max_timestamp = self._get_max_timestamp(cycle_interval)
         # Retrieve list of result sets to delete
         result_set_data = self.jobs_execute(
             proc='jobs.selects.get_result_sets_to_cycle',
-            placeholders=[max_timestamp],
+            placeholders=[jobs_max_timestamp],
             debug_show=self.DEBUG
         )
         if not result_set_data:
@@ -711,6 +710,10 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             self._execute_table_deletes(jobs_targets, 'jobs', sleep_time)
 
         return len(result_set_data)
+
+    def _get_max_timestamp(self, cycle_interval):
+        max_date = datetime.now() - cycle_interval
+        return int(time.mktime(max_date.timetuple()))
 
     def _execute_table_deletes(self, sql_to_execute, data_type, sleep_time):
 
