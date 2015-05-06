@@ -620,6 +620,7 @@ class JobsModel(TreeherderModelBase):
 into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         os_max_timestamp = self._get_max_timestamp(os_cycle_interval)
+        os_deletes = 0
         while True:
             self.os_execute(
                 proc='objectstore.deletes.cycle_objectstore',
@@ -629,6 +630,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             rows_deleted = self.get_os_dhub().connection['master_host']['cursor'].rowcount
             if rows_deleted < os_chunk_size:
                 break
+            os_deletes += rows_deleted
             if sleep_time:
                 # Allow some time for other queries to get through
                 time.sleep(sleep_time)
@@ -641,7 +643,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             debug_show=self.DEBUG
         )
         if not result_set_data:
-            return 0
+            return (os_deletes, 0)
 
         # group the result_set data in chunks
         result_set_chunk_list = zip(*[iter(result_set_data)] * chunk_size)
@@ -709,7 +711,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             # remove data from specified jobs tables that is older than max_timestamp
             self._execute_table_deletes(jobs_targets, 'jobs', sleep_time)
 
-        return len(result_set_data)
+        return (os_deletes, len(result_set_data))
 
     def _get_max_timestamp(self, cycle_interval):
         max_date = datetime.now() - cycle_interval

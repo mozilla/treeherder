@@ -86,13 +86,13 @@ class Command(BaseCommand):
         for project in projects:
             self.debug("Cycling Database: {0}".format(project))
             with JobsModel(project) as jm:
-                num_deleted = jm.cycle_data(os_cycle_interval,
-                                            cycle_interval,
-                                            options['os_chunk_size'],
-                                            options['chunk_size'],
-                                            options['sleep_time'])
-                self.debug("Deleted {0} resultsets from {1}".format(
-                           num_deleted, project))
+                os_deleted, rs_deleted = jm.cycle_data(os_cycle_interval,
+                                                       cycle_interval,
+                                                       options['os_chunk_size'],
+                                                       options['chunk_size'],
+                                                       options['sleep_time'])
+                self.debug("Deleted {} objectstore rows and {} resultsets from {}".format(
+                           os_deleted, rs_deleted, project))
 
     def debug(self, msg):
         if self.is_debug:
