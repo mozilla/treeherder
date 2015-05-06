@@ -104,6 +104,10 @@ class Builds4hTransformerMixin(object):
         for build in data['builds']:
             prop = build['properties']
 
+            if 'buildername' not in prop:
+                logger.warning("skipping builds-4hr job since no buildername found")
+                continue
+
             if 'branch' not in prop:
                 logger.warning("skipping builds-4hr job since no branch found: %s", prop['buildername'])
                 continue
