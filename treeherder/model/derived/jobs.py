@@ -15,11 +15,9 @@ from _mysql_exceptions import IntegrityError
 
 from warnings import filterwarnings, resetwarnings
 from django.conf import settings
-from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 
 from treeherder.model.models import (Datasource,
-                                     ReferenceDataSignatures,
                                      ExclusionProfile)
 
 from treeherder.model import utils
@@ -213,18 +211,6 @@ class JobsModel(TreeherderModelBase):
 
     def os_execute(self, **kwargs):
         return utils.retry_execute(self.get_os_dhub(), logger, **kwargs)
-
-    def get_build_system_type(self, project=None):
-        if not project:
-            project = self.project
-        build_systems = cache.get("build_system_by_repo", None)
-        if not build_systems or project not in build_systems:
-            build_systems = dict((repo, build_system_type) for repo, build_system_type in
-                                 ReferenceDataSignatures.objects.order_by("repository"
-                                                                          ).values_list("repository", "build_system_type").distinct()
-                                 )
-            cache.set("build_system_by_repo", build_systems)
-        return build_systems[project]
 
     def get_job(self, id):
         """Return the job row for this ``job_id``"""
