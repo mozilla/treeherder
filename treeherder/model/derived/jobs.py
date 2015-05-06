@@ -49,30 +49,9 @@ class JobsModel(TreeherderModelBase):
     # content types that every project will have
     CT_JOBS = "jobs"
     CT_OBJECTSTORE = "objectstore"
-    CONTENT_TYPES = [CT_JOBS, CT_OBJECTSTORE]
-    RESULTS = [
-        "busted",
-        "exception",
-        "testfailed",
-        "unknown",
-        "usercancel",
-        "retry",
-        "success",
-    ]
-    FAILED_RESULTS = [
-        "busted",
-        "exception",
-        "testfailed",
-    ]
+
     INCOMPLETE_STATES = ["running", "pending"]
     STATES = INCOMPLETE_STATES + ["completed", "coalesced"]
-
-    # based on an exclusion profile, which jobs to return
-    EXCLUSION_STATES = [
-        'excluded',  # only jobs that are excluded
-        'included',  # only jobs that are NOT excluded
-        'all'  # both included and excluded jobs
-    ]
 
     # indexes of specific items in the ``job_placeholder`` objects
     JOB_PH_JOB_GUID = 0
