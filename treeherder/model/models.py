@@ -327,21 +327,29 @@ class Datasource(models.Model):
         Return a configured ``DataHub`` using the given SQL procs file.
 
         """
+        master_host_config = {
+            "host": self.host,
+            "user": settings.TREEHERDER_DATABASE_USER,
+            "passwd": settings.TREEHERDER_DATABASE_PASSWORD,
+        }
+        if 'OPTIONS' in settings.DATABASES['default']:
+            master_host_config.update(settings.DATABASES['default']['OPTIONS'])
+
+        read_host_config = {
+            "host": self.read_only_host,
+            "user": settings.TREEHERDER_RO_DATABASE_USER,
+            "passwd": settings.TREEHERDER_RO_DATABASE_PASSWORD,
+        }
+        if 'OPTIONS' in settings.DATABASES['read_only']:
+            read_host_config.update(settings.DATABASES['read_only']['OPTIONS'])
+
         data_source = {
             self.key: {
                 # @@@ this should depend on self.type
                 # @@@ shouldn't have to specify this here and below
                 "hub": "MySQL",
-                "master_host": {
-                    "host": self.host,
-                    "user": settings.TREEHERDER_DATABASE_USER,
-                    "passwd": settings.TREEHERDER_DATABASE_PASSWORD,
-                },
-                "read_host": {
-                    "host": self.read_only_host,
-                    "user": settings.TREEHERDER_RO_DATABASE_USER,
-                    "passwd": settings.TREEHERDER_RO_DATABASE_PASSWORD,
-                },
+                "master_host": master_host_config,
+                "read_host": read_host_config,
                 "require_host_type": True,
                 "default_db": self.name,
                 "procs": [
@@ -387,7 +395,7 @@ class Datasource(models.Model):
             )
 
         filterwarnings('ignore', category=MySQLdb.Warning)
-        with closing(connection.cursor()) as cursor:
+        with connection.cursor() as cursor:
             cursor.execute("CREATE DATABASE IF NOT EXISTS {0}".format(self.name))
             cursor.execute("USE {0}".format(self.name))
             try:
@@ -404,49 +412,8 @@ class Datasource(models.Model):
 
         resetwarnings()
 
-        # MySQLdb provides no way to execute an entire SQL file in bulk, so we
-        # have to shell out to the commandline client.
-
-
-
-
-
-
-
-
-
-
-
-
-
-        # args = [
-        #     "mysql",
-        #     "--host={0}".format(self.host),
-        #     "--user={0}".format(DB_USER),
-        # ]
-        # if DB_PASS:
-        #     args.append(
-        #         "--password={0}".format(
-        #             DB_PASS)
-        #     )
-        # args.append(self.name)
-        # proc = subprocess.Popen(
-        #     args,
-        #     stdin=subprocess.PIPE,
-        #     stdout=subprocess.PIPE,
-        #     stderr=subprocess.STDOUT,
-        # )
-        # (output, _) = proc.communicate(sql)
-        # if proc.returncode:
-        #     raise IOError(
-        #         "Unable to set up schema for datasource {0}: "
-        #         "mysql returned code {1}, output follows:\n\n{2}".format(
-        #             self.key, proc.returncode, output
-        #         )
-        #     )
-
     def delete_db(self):
-        with closing(connection.cursor()) as cursor:
+        with connection.cursor() as cursor:
             cursor.execute("DROP DATABASE {0}".format(self.name))
 
 
@@ -461,7 +428,7 @@ class Datasource(models.Model):
         """
         skip_list = set(skip_list or [])
 
-        with closing(connection.cursor()) as cursor:
+        with connection.cursor() as cursor:
             cursor.execute("SET FOREIGN_KEY_CHECKS = 0")
             cursor.execute("SHOW TABLES")
             for table, in cursor.fetchall():
