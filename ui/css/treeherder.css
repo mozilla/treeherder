@@ -223,7 +223,7 @@ th-watched-repo {
 }
 
 .th-content {
-    flex: auto;
+    flex: 1; /* Not using auto because it causes unnecessary reflows, see https://bugzilla.mozilla.org/show_bug.cgi?id=1162725 */
     -webkit-flex: auto;
     position: relative;/* need this to position inner content */
     overflow-y: auto;
