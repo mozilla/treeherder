@@ -147,7 +147,7 @@ treeherder.factory('ThRepositoryModel', [
                 });
         } else {
             if (options.name) {
-                setCurrent(name);
+                setCurrent(options.name);
             }
         }
     };
