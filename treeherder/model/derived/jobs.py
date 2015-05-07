@@ -628,9 +628,9 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 debug_show=self.DEBUG
             )
             rows_deleted = self.get_os_dhub().connection['master_host']['cursor'].rowcount
+            os_deletes += rows_deleted
             if rows_deleted < os_chunk_size:
                 break
-            os_deletes += rows_deleted
             if sleep_time:
                 # Allow some time for other queries to get through
                 time.sleep(sleep_time)
