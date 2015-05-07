@@ -11,6 +11,12 @@ from django.core.management.base import BaseCommand
 from treeherder.model.derived.base import TreeherderModelBase
 
 
+DEFAULT_CREDENTIALS_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+    'data',
+    'credentials.json'
+)
+
 class Command(BaseCommand):
     """Management command to export project credentials."""
     help = "Exports the objectstore Oauth keys for etl data import tasks"
@@ -23,27 +29,28 @@ class Command(BaseCommand):
             dest='safe',
             help="Don't overwrite credentials file if it exists."
         ),
+        make_option(
+            '--destination',
+            action='store',
+            default=DEFAULT_CREDENTIALS_PATH,
+            dest='destination',
+            help="Don't overwrite credentials file if it exists."
+        ),
+
     )
 
     def handle(self, *args, **options):
-        safe = options.get("safe")
-
-        file_path = os.path.join(
-            os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
-            'data',
-            'credentials.json'
-        )
-
-        if not os.path.isfile(file_path):
-            # If it doesn't exist create it
-            write_credentials(file_path)
+        safe = options.get('safe')
+        file_path = options.get('destination')
+        if file_path == 'stdout':
+            write_credentials(self.stdout)
         else:
-            # File already exists, if safe is specified don't do anything
-            if not safe:
-                write_credentials(file_path)
+            if not os.path.isfile(file_path) or not safe:
+                with open(file_path, 'w') as fh:
+                    write_credentials(fh)
 
 
-def write_credentials(file_path):
+
+def write_credentials(fh):
     immutable_credentials = TreeherderModelBase.get_oauth_credentials()
-    with open(file_path, 'w') as keys_fh:
-        keys_fh.write(json.dumps(immutable_credentials, indent=4))
+    fh.write(json.dumps(immutable_credentials))
