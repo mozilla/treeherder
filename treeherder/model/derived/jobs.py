@@ -1479,13 +1479,13 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         job_guid = job['job_guid']
         job_guid = job_guid[0:50]
 
-        who = job.get('who', 'unknown')
+        who = job.get('who') or 'unknown'
         who = who[0:50]
 
-        reason = job.get('reason', 'unknown')
+        reason = job.get('reason') or 'unknown'
         reason = reason[0:125]
 
-        state = job.get('state', 'unknown')
+        state = job.get('state') or 'unknown'
         state = state[0:25]
 
         if job.get('result', 'unknown') == 'retry':
@@ -1535,11 +1535,10 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         log_refs = job.get('log_references', [])
         if log_refs:
             for log in log_refs:
-
-                name = log.get('name', 'unknown')
+                name = log.get('name') or 'unknown'
                 name = name[0:50]
 
-                url = log.get('url', 'unknown')
+                url = log.get('url') or 'unknown'
                 url = url[0:255]
 
                 # the parsing status of this log.  'pending' or 'parsed'
