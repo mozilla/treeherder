@@ -413,13 +413,6 @@ CACHES = {
     }
 }
 
-# This code handles the memcachier service on heroku.
-if "IS_HEROKU" in os.environ:
-    from memcacheify import memcacheify
-    CACHES['default'].update(
-        memcacheify().get('default')
-    )
-
 KEY_PREFIX = TREEHERDER_MEMCACHED_KEY_PREFIX
 
 # celery broker setup
@@ -430,6 +423,18 @@ BROKER_URL = 'amqp://{0}:{1}@{2}:{3}/{4}'.format(
     RABBITMQ_PORT,
     RABBITMQ_VHOST
 )
+
+# This code handles the memcachier service on heroku.
+if "IS_HEROKU" in os.environ:
+    from memcacheify import memcacheify
+    CACHES['default'].update(
+        memcacheify().get('default')
+    )
+
+if "CLOUDAMQP_URL" in os.environ:
+    BROKER_URL = os.environ["CLOUDAMQP_URL"]
+    BROKER_POOL_LIMIT = 1
+
 
 CELERY_IGNORE_RESULT = True
 
