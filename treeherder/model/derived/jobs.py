@@ -15,6 +15,7 @@ from _mysql_exceptions import IntegrityError
 
 from warnings import filterwarnings, resetwarnings
 from django.conf import settings
+from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 
 from treeherder.model.models import (Datasource,
@@ -360,6 +361,10 @@ class JobsModel(TreeherderModelBase):
         )
         return int(data[0]['max_id'] or 0)
 
+    def _get_performance_series_cache_key(self, interval_seconds):
+        return 'performance-series-summary-%s-%s' % (self.project,
+                                                     interval_seconds)
+
     def get_performance_series_summary(self, interval_seconds):
         """
         Retrieve a summary of all of the property/value list pairs found
@@ -388,17 +393,25 @@ class JobsModel(TreeherderModelBase):
         # received data for the time interval requested
         last_updated_limit = utils.get_now_timestamp() - interval_seconds
 
-        data = self.get_jobs_dhub().execute(
-            proc="jobs.selects.get_perf_series_properties",
-            placeholders=[last_updated_limit, interval_seconds],
-            debug_show=self.DEBUG,
-        )
-        series_summary = defaultdict(lambda: {})
-        for datum in data:
-            (key, val) = (datum['property'], datum['value'])
-            if key == 'subtest_signatures':
-                val = json.loads(val)
-            series_summary[datum['signature']][key] = val
+        cache_key = self._get_performance_series_cache_key(interval_seconds)
+        series_summary = cache.get(cache_key, None)
+        if series_summary:
+            series_summary = json.loads(series_summary)
+        else:
+            data = self.get_jobs_dhub().execute(
+                proc="jobs.selects.get_perf_series_properties",
+                placeholders=[last_updated_limit, interval_seconds],
+                debug_show=self.DEBUG,
+            )
+
+            series_summary = defaultdict(lambda: {})
+            for datum in data:
+                (key, val) = (datum['property'], datum['value'])
+                if key == 'subtest_signatures':
+                    val = json.loads(val)
+                series_summary[datum['signature']][key] = val
+
+            cache.set(cache_key, json.dumps(series_summary))
 
         return series_summary
 
@@ -1965,6 +1978,10 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         try:
             now_timestamp = int(time.time())
+
+            # delete any previous instance of the cached copy of the perf
+            # series summary, since it's now out of date
+            cache.delete(self._get_performance_series_cache_key(t_range))
 
             # If we don't have this t_range/signature combination create it
             series_data_json = json.dumps(series_data)
