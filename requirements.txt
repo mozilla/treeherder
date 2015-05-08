@@ -1,3 +1,4 @@
 -r requirements/common.txt
 -r requirements/heroku.txt
+-r requirements/prod.txt
 pylibmc==1.4.2
