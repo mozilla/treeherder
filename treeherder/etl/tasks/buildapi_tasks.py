@@ -9,8 +9,7 @@ from celery import task
 from treeherder.model.derived import RefDataManager
 from treeherder.etl.buildapi import (RunningJobsProcess,
                                      PendingJobsProcess,
-                                     Builds4hJobsProcess,
-                                     Builds4hAnalyzer)
+                                     Builds4hJobsProcess)
 from treeherder.etl.pushlog import HgPushlogProcess
 
 
@@ -63,12 +62,3 @@ def fetch_hg_push_log(repo_name, repo_url):
     """
     process = HgPushlogProcess()
     process.run(repo_url + '/json-pushes/?full=1', repo_name)
-
-
-@task(name='run-builds4h-analyzer')
-def run_builds4h_analyzer():
-    """
-    Run a Builds4h Analysis process
-    """
-    process = Builds4hAnalyzer()
-    process.run()
