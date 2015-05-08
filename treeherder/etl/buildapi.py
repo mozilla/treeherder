@@ -310,13 +310,13 @@ class PendingTransformerMixin(object):
         transform the buildapi structure into something we can ingest via
         our restful api
         """
-
+        source = 'pending'
         projects = set(x.project for x in Datasource.objects.cached())
         revision_dict = defaultdict(list)
         missing_resultsets = defaultdict(set)
 
         # loop to catch all the revisions
-        for project, revisions in data['pending'].iteritems():
+        for project, revisions in data[source].iteritems():
             # this skips those projects we don't care about
             if project not in projects:
                 continue
@@ -326,12 +326,13 @@ class PendingTransformerMixin(object):
 
             for rev, jobs in revisions.items():
                 revision_dict[project].append(rev)
+
         # retrieving the revision->resultset lookups
         revisions_lookup = common.lookup_revisions(revision_dict)
 
         th_collections = {}
 
-        for project, revisions in data['pending'].iteritems():
+        for project, revisions in data[source].iteritems():
 
             for revision, jobs in revisions.items():
 
@@ -351,7 +352,6 @@ class PendingTransformerMixin(object):
                 # using project and revision form the revision lookups
                 # to filter those jobs with unmatched revision
                 for pending_job in jobs:
-
                     treeherder_data = {
                         'revision_hash': resultset['revision_hash'],
                         'resultset_id': resultset['id'],
@@ -359,7 +359,6 @@ class PendingTransformerMixin(object):
                     }
 
                     platform_info = buildbot.extract_platform_info(pending_job['buildername'])
-
                     job_name_info = buildbot.extract_name_info(pending_job['buildername'])
 
                     if (filter_to_job_group and job_name_info.get('group_symbol', '').lower() !=
@@ -378,7 +377,7 @@ class PendingTransformerMixin(object):
                         'group_name': job_name_info.get('group_name', ''),
                         'group_symbol': job_name_info.get('group_symbol', ''),
                         'reference_data_name': pending_job['buildername'],
-                        'state': 'pending',
+                        'state': source,
                         'submit_timestamp': pending_job['submitted_at'],
                         'build_platform': {
                             'os_name': platform_info['os'],
@@ -404,7 +403,7 @@ class PendingTransformerMixin(object):
                         'artifacts': [
                             {
                                 'type': 'json',
-                                'name': 'buildapi_pending',
+                                'name': 'buildapi_%s' % source,
                                 'log_urls': [],
                                 'blob': pending_job
                             },
@@ -418,8 +417,8 @@ class PendingTransformerMixin(object):
                                 }
                             },
                         ]
-
                     }
+
                     treeherder_data['job'] = new_job
 
                     if project not in th_collections:
@@ -433,7 +432,7 @@ class PendingTransformerMixin(object):
                     th_collections[project].add(th_job)
 
         if missing_resultsets and not filter_to_revision:
-            common.fetch_missing_resultsets("pending", missing_resultsets, logger)
+            common.fetch_missing_resultsets(source, missing_resultsets, logger)
 
         return th_collections
 
@@ -446,12 +445,13 @@ class RunningTransformerMixin(object):
         transform the buildapi structure into something we can ingest via
         our restful api
         """
+        source = 'running'
         projects = set(x.project for x in Datasource.objects.cached())
         revision_dict = defaultdict(list)
         missing_resultsets = defaultdict(set)
 
         # loop to catch all the revisions
-        for project, revisions in data['running'].items():
+        for project, revisions in data[source].items():
             # this skips those projects we don't care about
             if project not in projects:
                 continue
@@ -467,7 +467,7 @@ class RunningTransformerMixin(object):
 
         th_collections = {}
 
-        for project, revisions in data['running'].items():
+        for project, revisions in data[source].items():
 
             for revision, jobs in revisions.items():
 
@@ -515,7 +515,7 @@ class RunningTransformerMixin(object):
                         'group_name': job_name_info.get('group_name', ''),
                         'group_symbol': job_name_info.get('group_symbol', ''),
                         'reference_data_name': running_job['buildername'],
-                        'state': 'running',
+                        'state': source,
                         'submit_timestamp': running_job['submitted_at'],
                         'start_timestamp': running_job['start_time'],
                         'build_platform': {
@@ -542,7 +542,7 @@ class RunningTransformerMixin(object):
                         'artifacts': [
                             {
                                 'type': 'json',
-                                'name': 'buildapi_running',
+                                'name': 'buildapi_%s' % source,
                                 'log_urls': [],
                                 'blob': running_job
                             },
@@ -571,7 +571,7 @@ class RunningTransformerMixin(object):
                     th_collections[project].add(th_job)
 
         if missing_resultsets and not filter_to_revision:
-            common.fetch_missing_resultsets("running", missing_resultsets, logger)
+            common.fetch_missing_resultsets(source, missing_resultsets, logger)
 
         return th_collections
 
