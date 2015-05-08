@@ -365,6 +365,9 @@ class PendingTransformerMixin(object):
                             filter_to_job_group.lower()):
                         continue
 
+                    request_id = job['id']
+                    artifacts_request_id = request_id
+
                     device_name = buildbot.get_device_or_unknown(
                         job_name_info.get('name', ''),
                         platform_info['vm']
@@ -372,7 +375,7 @@ class PendingTransformerMixin(object):
 
                     new_job = {
                         'job_guid': common.generate_job_guid(
-                            job['id'],
+                            request_id,
                             job['submitted_at']
                         ),
                         'name': job_name_info.get('name', ''),
@@ -397,7 +400,6 @@ class PendingTransformerMixin(object):
                         },
                         'device_name': device_name,
                         'who': 'unknown',
-
                         'option_collection': {
                             # build_type contains an option name, eg. PGO
                             buildbot.extract_build_type(job['buildername']): True
@@ -416,7 +418,7 @@ class PendingTransformerMixin(object):
                                 'log_urls': [],
                                 'blob': {
                                     'buildername': job['buildername'],
-                                    'request_id': job['id']
+                                    'request_id': artifacts_request_id
                                 }
                             },
                         ]
@@ -503,6 +505,9 @@ class RunningTransformerMixin(object):
                             filter_to_job_group.lower()):
                         continue
 
+                    request_id = job['request_ids'][0]
+                    artifacts_request_id = max(job['request_ids'])
+
                     device_name = buildbot.get_device_or_unknown(
                         job_name_info.get('name', ''),
                         platform_info['vm']
@@ -510,7 +515,7 @@ class RunningTransformerMixin(object):
 
                     new_job = {
                         'job_guid': common.generate_job_guid(
-                            job['request_ids'][0],
+                            request_id,
                             job['submitted_at']
                         ),
                         'name': job_name_info.get('name', ''),
@@ -520,7 +525,6 @@ class RunningTransformerMixin(object):
                         'reference_data_name': job['buildername'],
                         'state': source,
                         'submit_timestamp': job['submitted_at'],
-                        'start_timestamp': job['start_time'],
                         'build_platform': {
                             'os_name': platform_info['os'],
                             'platform': platform_info['os_platform'],
@@ -536,7 +540,6 @@ class RunningTransformerMixin(object):
                         },
                         'device_name': device_name,
                         'who': 'unknown',
-
                         'option_collection': {
                             # build_type contains an option name, eg. PGO
                             buildbot.extract_build_type(job['buildername']): True
@@ -555,11 +558,13 @@ class RunningTransformerMixin(object):
                                 'log_urls': [],
                                 'blob': {
                                     'buildername': job['buildername'],
-                                    'request_id': max(job['request_ids'])
+                                    'request_id': artifacts_request_id
                                 }
                             },
                         ]
                     }
+
+                    new_job['start_timestamp'] = job['start_time']
 
                     treeherder_data['job'] = new_job
 
