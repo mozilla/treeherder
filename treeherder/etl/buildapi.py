@@ -302,15 +302,14 @@ class Builds4hTransformerMixin(object):
         return th_collections
 
 
-class PendingTransformerMixin(object):
+class PendingRunningTransformerMixin(object):
 
-    def transform(self, data, filter_to_revision=None, filter_to_project=None,
+    def transform(self, data, source, filter_to_revision=None, filter_to_project=None,
                   filter_to_job_group=None):
         """
         transform the buildapi structure into something we can ingest via
         our restful api
         """
-        source = 'pending'
         projects = set(x.project for x in Datasource.objects.cached())
         revision_dict = defaultdict(list)
         missing_resultsets = defaultdict(set)
@@ -365,8 +364,13 @@ class PendingTransformerMixin(object):
                             filter_to_job_group.lower()):
                         continue
 
-                    request_id = job['id']
-                    artifacts_request_id = request_id
+                    if source == 'pending':
+                        request_id = job['id']
+                        artifacts_request_id = request_id
+                    elif source == 'running':
+                        request_id = job['request_ids'][0]
+                        # This inconsistency will be cleaned up by bug 1093743.
+                        artifacts_request_id = max(job['request_ids'])
 
                     device_name = buildbot.get_device_or_unknown(
                         job_name_info.get('name', ''),
@@ -424,147 +428,8 @@ class PendingTransformerMixin(object):
                         ]
                     }
 
-                    treeherder_data['job'] = new_job
-
-                    if project not in th_collections:
-                        th_collections[project] = TreeherderJobCollection(
-                            job_type='update'
-                        )
-
-                    # get treeherder job instance and add the job instance
-                    # to the collection instance
-                    th_job = th_collections[project].get_job(treeherder_data)
-                    th_collections[project].add(th_job)
-
-        if missing_resultsets and not filter_to_revision:
-            common.fetch_missing_resultsets(source, missing_resultsets, logger)
-
-        return th_collections
-
-
-class RunningTransformerMixin(object):
-
-    def transform(self, data, filter_to_revision=None, filter_to_project=None,
-                  filter_to_job_group=None):
-        """
-        transform the buildapi structure into something we can ingest via
-        our restful api
-        """
-        source = 'running'
-        projects = set(x.project for x in Datasource.objects.cached())
-        revision_dict = defaultdict(list)
-        missing_resultsets = defaultdict(set)
-
-        # loop to catch all the revisions
-        for project, revisions in data[source].iteritems():
-            # this skips those projects we don't care about
-            if project not in projects:
-                continue
-
-            if filter_to_project and project != filter_to_project:
-                continue
-
-            for rev, jobs in revisions.items():
-                revision_dict[project].append(rev)
-
-        # retrieving the revision->resultset lookups
-        revisions_lookup = common.lookup_revisions(revision_dict)
-
-        th_collections = {}
-
-        for project, revisions in data[source].iteritems():
-
-            for revision, jobs in revisions.items():
-
-                try:
-                    resultset = common.get_resultset(project,
-                                                     revisions_lookup,
-                                                     revision,
-                                                     missing_resultsets,
-                                                     logger)
-                except KeyError:
-                    # skip this job, at least at this point
-                    continue
-
-                if filter_to_revision and filter_to_revision != resultset['revision']:
-                    continue
-
-                # using project and revision form the revision lookups
-                # to filter those jobs with unmatched revision
-                for job in jobs:
-                    treeherder_data = {
-                        'revision_hash': resultset['revision_hash'],
-                        'resultset_id': resultset['id'],
-                        'project': project,
-                    }
-
-                    platform_info = buildbot.extract_platform_info(job['buildername'])
-                    job_name_info = buildbot.extract_name_info(job['buildername'])
-
-                    if (filter_to_job_group and job_name_info.get('group_symbol', '').lower() !=
-                            filter_to_job_group.lower()):
-                        continue
-
-                    request_id = job['request_ids'][0]
-                    artifacts_request_id = max(job['request_ids'])
-
-                    device_name = buildbot.get_device_or_unknown(
-                        job_name_info.get('name', ''),
-                        platform_info['vm']
-                    )
-
-                    new_job = {
-                        'job_guid': common.generate_job_guid(
-                            request_id,
-                            job['submitted_at']
-                        ),
-                        'name': job_name_info.get('name', ''),
-                        'job_symbol': job_name_info.get('job_symbol', ''),
-                        'group_name': job_name_info.get('group_name', ''),
-                        'group_symbol': job_name_info.get('group_symbol', ''),
-                        'reference_data_name': job['buildername'],
-                        'state': source,
-                        'submit_timestamp': job['submitted_at'],
-                        'build_platform': {
-                            'os_name': platform_info['os'],
-                            'platform': platform_info['os_platform'],
-                            'architecture': platform_info['arch'],
-                            'vm': platform_info['vm']
-                        },
-                        # where are we going to get this data from?
-                        'machine_platform': {
-                            'os_name': platform_info['os'],
-                            'platform': platform_info['os_platform'],
-                            'architecture': platform_info['arch'],
-                            'vm': platform_info['vm']
-                        },
-                        'device_name': device_name,
-                        'who': 'unknown',
-                        'option_collection': {
-                            # build_type contains an option name, eg. PGO
-                            buildbot.extract_build_type(job['buildername']): True
-                        },
-                        'log_references': [],
-                        'artifacts': [
-                            {
-                                'type': 'json',
-                                'name': 'buildapi_%s' % source,
-                                'log_urls': [],
-                                'blob': job
-                            },
-                            {
-                                'type': 'json',
-                                'name': 'buildapi',
-                                'log_urls': [],
-                                'blob': {
-                                    'buildername': job['buildername'],
-                                    'request_id': artifacts_request_id
-                                }
-                            },
-                        ]
-                    }
-
-                    new_job['start_timestamp'] = job['start_time']
+                    if source == 'running':
+                        new_job['start_timestamp'] = job['start_time']
 
                     treeherder_data['job'] = new_job
 
@@ -601,7 +466,7 @@ class Builds4hJobsProcess(JsonExtractorMixin,
 
 
 class PendingJobsProcess(JsonExtractorMixin,
-                         PendingTransformerMixin,
+                         PendingRunningTransformerMixin,
                          OAuthLoaderMixin):
 
     def run(self, filter_to_revision=None, filter_to_project=None,
@@ -610,6 +475,7 @@ class PendingJobsProcess(JsonExtractorMixin,
         if extracted_content:
             self.load(
                 self.transform(extracted_content,
+                               'pending',
                                filter_to_revision=filter_to_revision,
                                filter_to_project=filter_to_project,
                                filter_to_job_group=filter_to_job_group)
@@ -617,7 +483,7 @@ class PendingJobsProcess(JsonExtractorMixin,
 
 
 class RunningJobsProcess(JsonExtractorMixin,
-                         RunningTransformerMixin,
+                         PendingRunningTransformerMixin,
                          OAuthLoaderMixin):
 
     def run(self, filter_to_revision=None, filter_to_project=None,
@@ -626,6 +492,7 @@ class RunningJobsProcess(JsonExtractorMixin,
         if extracted_content:
             self.load(
                 self.transform(extracted_content,
+                               'running',
                                filter_to_revision=filter_to_revision,
                                filter_to_project=filter_to_project,
                                filter_to_job_group=filter_to_job_group)
