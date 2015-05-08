@@ -456,7 +456,7 @@ class RunningTransformerMixin(object):
         missing_resultsets = defaultdict(set)
 
         # loop to catch all the revisions
-        for project, revisions in data[source].items():
+        for project, revisions in data[source].iteritems():
             # this skips those projects we don't care about
             if project not in projects:
                 continue
@@ -472,7 +472,7 @@ class RunningTransformerMixin(object):
 
         th_collections = {}
 
-        for project, revisions in data[source].items():
+        for project, revisions in data[source].iteritems():
 
             for revision, jobs in revisions.items():
 
