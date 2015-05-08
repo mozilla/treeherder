@@ -351,15 +351,15 @@ class PendingTransformerMixin(object):
 
                 # using project and revision form the revision lookups
                 # to filter those jobs with unmatched revision
-                for pending_job in jobs:
+                for job in jobs:
                     treeherder_data = {
                         'revision_hash': resultset['revision_hash'],
                         'resultset_id': resultset['id'],
                         'project': project,
                     }
 
-                    platform_info = buildbot.extract_platform_info(pending_job['buildername'])
-                    job_name_info = buildbot.extract_name_info(pending_job['buildername'])
+                    platform_info = buildbot.extract_platform_info(job['buildername'])
+                    job_name_info = buildbot.extract_name_info(job['buildername'])
 
                     if (filter_to_job_group and job_name_info.get('group_symbol', '').lower() !=
                             filter_to_job_group.lower()):
@@ -371,14 +371,17 @@ class PendingTransformerMixin(object):
                     )
 
                     new_job = {
-                        'job_guid': common.generate_job_guid(pending_job['id'], pending_job['submitted_at']),
+                        'job_guid': common.generate_job_guid(
+                            job['id'],
+                            job['submitted_at']
+                        ),
                         'name': job_name_info.get('name', ''),
                         'job_symbol': job_name_info.get('job_symbol', ''),
                         'group_name': job_name_info.get('group_name', ''),
                         'group_symbol': job_name_info.get('group_symbol', ''),
-                        'reference_data_name': pending_job['buildername'],
+                        'reference_data_name': job['buildername'],
                         'state': source,
-                        'submit_timestamp': pending_job['submitted_at'],
+                        'submit_timestamp': job['submitted_at'],
                         'build_platform': {
                             'os_name': platform_info['os'],
                             'platform': platform_info['os_platform'],
@@ -397,7 +400,7 @@ class PendingTransformerMixin(object):
 
                         'option_collection': {
                             # build_type contains an option name, eg. PGO
-                            buildbot.extract_build_type(pending_job['buildername']): True
+                            buildbot.extract_build_type(job['buildername']): True
                         },
                         'log_references': [],
                         'artifacts': [
@@ -405,15 +408,15 @@ class PendingTransformerMixin(object):
                                 'type': 'json',
                                 'name': 'buildapi_%s' % source,
                                 'log_urls': [],
-                                'blob': pending_job
+                                'blob': job
                             },
                             {
                                 'type': 'json',
                                 'name': 'buildapi',
                                 'log_urls': [],
                                 'blob': {
-                                    'buildername': pending_job['buildername'],
-                                    'request_id': pending_job['id']
+                                    'buildername': job['buildername'],
+                                    'request_id': job['id']
                                 }
                             },
                         ]
@@ -486,15 +489,15 @@ class RunningTransformerMixin(object):
 
                 # using project and revision form the revision lookups
                 # to filter those jobs with unmatched revision
-                for running_job in jobs:
+                for job in jobs:
                     treeherder_data = {
                         'revision_hash': resultset['revision_hash'],
                         'resultset_id': resultset['id'],
                         'project': project,
                     }
 
-                    platform_info = buildbot.extract_platform_info(running_job['buildername'])
-                    job_name_info = buildbot.extract_name_info(running_job['buildername'])
+                    platform_info = buildbot.extract_platform_info(job['buildername'])
+                    job_name_info = buildbot.extract_name_info(job['buildername'])
 
                     if (filter_to_job_group and job_name_info.get('group_symbol', '').lower() !=
                             filter_to_job_group.lower()):
@@ -507,17 +510,17 @@ class RunningTransformerMixin(object):
 
                     new_job = {
                         'job_guid': common.generate_job_guid(
-                            running_job['request_ids'][0],
-                            running_job['submitted_at']
+                            job['request_ids'][0],
+                            job['submitted_at']
                         ),
                         'name': job_name_info.get('name', ''),
                         'job_symbol': job_name_info.get('job_symbol', ''),
                         'group_name': job_name_info.get('group_name', ''),
                         'group_symbol': job_name_info.get('group_symbol', ''),
-                        'reference_data_name': running_job['buildername'],
+                        'reference_data_name': job['buildername'],
                         'state': source,
-                        'submit_timestamp': running_job['submitted_at'],
-                        'start_timestamp': running_job['start_time'],
+                        'submit_timestamp': job['submitted_at'],
+                        'start_timestamp': job['start_time'],
                         'build_platform': {
                             'os_name': platform_info['os'],
                             'platform': platform_info['os_platform'],
@@ -536,7 +539,7 @@ class RunningTransformerMixin(object):
 
                         'option_collection': {
                             # build_type contains an option name, eg. PGO
-                            buildbot.extract_build_type(running_job['buildername']): True
+                            buildbot.extract_build_type(job['buildername']): True
                         },
                         'log_references': [],
                         'artifacts': [
@@ -544,15 +547,15 @@ class RunningTransformerMixin(object):
                                 'type': 'json',
                                 'name': 'buildapi_%s' % source,
                                 'log_urls': [],
-                                'blob': running_job
+                                'blob': job
                             },
                             {
                                 'type': 'json',
                                 'name': 'buildapi',
                                 'log_urls': [],
                                 'blob': {
-                                    'buildername': running_job['buildername'],
-                                    'request_id': max(running_job['request_ids'])
+                                    'buildername': job['buildername'],
+                                    'request_id': max(job['request_ids'])
                                 }
                             },
                         ]
