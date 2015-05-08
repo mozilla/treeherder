@@ -122,7 +122,7 @@ treeherder.factory('ThRepositoryModel', [
                             if (this.dvcs_type == 'git') {
                                 return this.getRevisionHref(revision);
                             }
-                            return this.url + '?changeset=' + revision;
+                            return this.pushlogURL + '?changeset=' + revision;
                         }
                     };
 
