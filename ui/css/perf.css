@@ -85,6 +85,13 @@ to { opacity: 0; }
   flex-flow: row;
 }
 
+#perf-logo {
+    padding: 15px;
+    border: none;
+    color: #555;
+    background: #f8f8f8;
+}
+
 #graph-chooser { flex: none; width: 240px; padding: 8px; }
 
 #data-display { flex: auto; }

@@ -69,17 +69,6 @@ input:focus::-moz-placeholder {
     margin-bottom: 0px;
 }
 
-.navbar-brand {
-    margin-bottom: 0px;
-    line-height: 2px;
-    height: 32px;
-    font-weight: normal;
-}
-
-.navbar-inverse .navbar-brand:hover {
-    color: #777;
-}
-
 .navbar .dropdown-menu {
     max-height: 600px;
     overflow: auto;
@@ -89,7 +78,13 @@ input:focus::-moz-placeholder {
 }
 
 .th-global-navbar {
+    padding-left: 0;
     border-bottom: 1px solid black;
+}
+
+#th-logo {
+    padding-left: 14px;
+    border-left: 0;
 }
 
 th-watched-repo {

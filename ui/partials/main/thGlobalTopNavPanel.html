@@ -1,9 +1,16 @@
 <nav class="navbar navbar-inverse">
-    <div class="navbar-header">
-        <label class="navbar-brand">Treeherder</label>
-    </div>
     <div class="navbar-collapse collapse th-global-navbar">
-        <!-- nav begin -->
+        <!-- Logo Menu -->
+        <span class="dropdown">
+            <button id="th-logo" title="Treeherder services" role="button"
+                    href="#" data-toggle="dropdown" data-target="#"
+                    class="btn btn-view-nav">Treeherder
+              <span class="fa fa-angle-down lightgray"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="th-logo">
+              <li><a href="perf.html">Perfherder</a></li>
+            </ul>
+        </span>
         <span class="navbar-right">
             <!-- Sheriffing Button -->
             <span ng-show="user.is_staff">
