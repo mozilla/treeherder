@@ -2017,7 +2017,8 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
             # delete any previous instance of the cached copy of the perf
             # series summary, since it's now out of date
-            cache.delete(self._get_performance_series_cache_key(t_range))
+            cache.delete(self.get_performance_series_cache_key(self.project,
+                                                               t_range))
 
             # Retrieve and update the series
             performance_series = self.jobs_execute(
