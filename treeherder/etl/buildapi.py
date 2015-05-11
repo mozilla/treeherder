@@ -67,8 +67,8 @@ class Builds4hTransformerMixin(object):
         # jobs that were coalesced. We must generate guids for these coalesced jobs,
         # so they can be marked as coalesced, and not left as orphaned pending jobs.
         coalesced_requests = request_ids[:-1]
-        for request_id in coalesced_requests:
-            job_guid_data['coalesced'].append(common.generate_job_guid(request_id, buildername))
+        for coalesced_request_id in coalesced_requests:
+            job_guid_data['coalesced'].append(common.generate_job_guid(coalesced_request_id, buildername))
 
         job_guid_data['job_guid'] = common.generate_job_guid(request_id, buildername, endtime)
 
