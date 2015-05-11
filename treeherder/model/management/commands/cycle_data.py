@@ -70,7 +70,7 @@ class Command(BaseCommand):
         if options['os_cycle_interval']:
             os_cycle_interval = datetime.timedelta(days=options['os_cycle_interval'])
         else:
-            os_cycle_interval = settings.DATA_CYCLE_INTERVAL
+            os_cycle_interval = settings.OBJECTSTORE_CYCLE_INTERVAL
 
         if options['cycle_interval']:
             cycle_interval = datetime.timedelta(days=options['cycle_interval'])
