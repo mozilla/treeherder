@@ -2171,7 +2171,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             )
 
     def mark_object_error(self, object_id, error):
-        """ Call to database to mark the task completed """
+        """ Call to database to mark the task as errored """
         self.os_execute(
             proc="objectstore.updates.mark_error",
             placeholders=[error, object_id],
