@@ -97,11 +97,12 @@ Executing arbitrary SQL
 As part of a larger change, you may want to execute some arbitrary SQL
 on the server. You can do this with the `run_sql` management command.
 
-Example:
+Examples:
 
   .. code-block:: bash
 
-     > ./manage.py run_sql -f <sqlfile>
+     > ./manage.py run_sql -s <sql-statement>
+     > ./manage.py run_sql -f <path-to-sql-file>
 
 By default, this will run the sql against the `jobs` database for each
 project. If you want to run against the object store or only against a

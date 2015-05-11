@@ -34,6 +34,13 @@ class Command(BaseCommand):
                   'default jobs)')),
 
         make_option(
+            '-s', '--sql-statement',
+            action='store',
+            dest='sql_statement',
+            help='Sql statement',
+            default=''),
+
+        make_option(
             '-f', '--file',
             dest='sql_file',
             help='Sql source file',
@@ -44,9 +51,17 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        if not options["sql_file"]:
-            self.stderr.write("No sql file provided!")
-            return
+        sql_code = options["sql_statement"]
+
+        if not sql_code:
+            if options["sql_file"]:
+                with open(options["sql_file"]) as sql_file:
+                    sql_code = sql_file.read()
+            else:
+                self.stderr.write("Either a SQL statement or file must be specified! See --help.")
+                return
+
+        self.stdout.write("SQL command: {}".format(sql_code))
 
         datasources = Datasource.objects.filter(contenttype=options['data_type'])
         if options['datasources'] != 'all':
@@ -57,27 +72,25 @@ class Command(BaseCommand):
                 datasources = datasources.filter(
                     project=options['datasources'])
 
-        with open(options["sql_file"]) as sql_file:
-            sql_code = sql_file.read()
+        self.stdout.write("{0} datasource found".format(
+            len(datasources)
+        ))
 
-            self.stdout.write("{0} datasource found".format(
-                len(datasources)
-            ))
-            for datasource in datasources:
-                self.stdout.write("--------------------------")
-                db = MySQLdb.connect(
-                    host=datasource.host,
-                    db=datasource.name,
-                    user=settings.TREEHERDER_DATABASE_USER,
-                    passwd=settings.TREEHERDER_DATABASE_PASSWORD)
-                try:
-                    cursor = db.cursor()
-                    cursor.execute(sql_code)
-                    self.stdout.write("Sql code executed on {0}".format(datasource))
-                except Exception as e:
-                    error_string = "!!! Sql code execution failed on {0} !!!"
-                    self.stderr.write(error_string.format(datasource))
-                    self.stderr.write("{0}".format(e))
-                finally:
-                    if cursor:
-                        cursor.close()
+        for datasource in datasources:
+            self.stdout.write("--------------------------")
+            db = MySQLdb.connect(
+                host=datasource.host,
+                db=datasource.name,
+                user=settings.TREEHERDER_DATABASE_USER,
+                passwd=settings.TREEHERDER_DATABASE_PASSWORD)
+            try:
+                cursor = db.cursor()
+                cursor.execute(sql_code)
+                self.stdout.write("Sql code executed on {0}".format(datasource))
+            except Exception as e:
+                error_string = "!!! Sql code execution failed on {0} !!!"
+                self.stderr.write(error_string.format(datasource))
+                self.stderr.write("{0}".format(e))
+            finally:
+                if cursor:
+                    cursor.close()
