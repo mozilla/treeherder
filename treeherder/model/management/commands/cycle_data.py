@@ -41,7 +41,7 @@ class Command(BaseCommand):
             '--objectstore-chunk-size',
             action='store',
             dest='os_chunk_size',
-            default=1000,
+            default=10000,
             type='int',
             help=('Define the size of the chunks '
                   'the objectstore data will be divided in')),
