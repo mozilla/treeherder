@@ -20,7 +20,7 @@ class PerformanceDataViewSet(viewsets.ViewSet):
     """
 
     def _calculate_etag(view_instance, view_method,
-                       request, args, kwargs):
+                        request, args, kwargs):
         project, interval = (kwargs.get('project'),
                              request.QUERY_PARAMS.get('interval'))
         if project and interval:
@@ -28,7 +28,6 @@ class PerformanceDataViewSet(viewsets.ViewSet):
                 project, interval, hash=True))
 
         return None
-
 
     @link()
     @etag(etag_func=_calculate_etag)
