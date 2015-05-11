@@ -35,7 +35,10 @@ treeherder.provider('thResultStatus', function() {
     this.$get = function() {
         return function(job) {
             var rs = job.result;
-            if (job.job_coalesced_to_guid !== null) {
+            // Coalesced jobs are marked as pending by the API, this will be fixed by bug 1132546.
+            // We're also temporarily checking a job hasn't been marked as coalesced into itself,
+            // due to bug 1163496.
+            if (job.job_coalesced_to_guid !== null && job.job_coalesced_to_guid !== job.job_guid) {
                 rs = 'coalesced';
             } else if (job.state !== "completed") {
                 rs = job.state;
