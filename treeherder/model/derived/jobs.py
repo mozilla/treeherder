@@ -9,6 +9,7 @@ import logging
 import zlib
 from collections import defaultdict
 from datetime import datetime
+from hashlib import sha1
 
 from operator import itemgetter
 
@@ -362,9 +363,15 @@ class JobsModel(TreeherderModelBase):
         )
         return int(data[0]['max_id'] or 0)
 
-    def _get_performance_series_cache_key(self, interval_seconds):
-        return 'performance-series-summary-%s-%s' % (self.project,
-                                                     interval_seconds)
+    @staticmethod
+    def get_performance_series_cache_key(project, interval_seconds,
+                                         hash=False):
+        key = 'performance-series-summary-%s-%s' % (project,
+                                                    interval_seconds)
+        if hash:
+            key += '-hash'
+
+        return key
 
     def get_performance_series_summary(self, interval_seconds):
         """
@@ -394,7 +401,9 @@ class JobsModel(TreeherderModelBase):
         # received data for the time interval requested
         last_updated_limit = utils.get_now_timestamp() - interval_seconds
 
-        cache_key = self._get_performance_series_cache_key(interval_seconds)
+        cache_key = self.get_performance_series_cache_key(self.project,
+                                                          interval_seconds)
+
         series_summary = cache.get(cache_key, None)
         if series_summary:
             series_summary = json.loads(zlib.decompress(series_summary))
@@ -414,7 +423,13 @@ class JobsModel(TreeherderModelBase):
 
             # HACK: take this out when we're using pylibmc and can use
             # compression automatically
-            cache.set(cache_key, zlib.compress(json.dumps(series_summary)))
+            series_summary_json = json.dumps(series_summary)
+            cache.set(cache_key, zlib.compress(series_summary_json))
+            sha = sha1()
+            sha.update(series_summary_json)
+            hash_cache_key = self.get_performance_series_cache_key(
+                self.project, interval_seconds, hash=True)
+            cache.set(hash_cache_key, sha.hexdigest())
 
         return series_summary
 
