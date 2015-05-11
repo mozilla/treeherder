@@ -2,10 +2,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
+from django.core.cache import cache
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import link
+from rest_framework_extensions.etag.decorators import etag
 
+
+from treeherder.model.derived.jobs import JobsModel
 from treeherder.webapp.api.utils import (with_jobs)
 
 
@@ -15,7 +19,17 @@ class PerformanceDataViewSet(viewsets.ViewSet):
     This view serves performance charts data
     """
 
+    def _calculate_etag(view_instance, view_method,
+                       request, args, kwargs):
+        if not kwargs.get('project') or request.QUERY_PARAMS.get('interval'):
+            return None
+
+        return cache.get(JobsModel.get_performance_series_cache_key(
+            kwargs['project'], request.QUERY_PARAMS.get('interval'),
+            hash=True))
+
     @link()
+    @etag(etag_func=_calculate_etag)
     @with_jobs
     def get_performance_series_summary(self, request, project, jm, pk=None):
         """
