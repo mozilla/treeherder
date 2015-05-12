@@ -10,6 +10,8 @@ body {
     left: 0;
     min-width: 240px;
     padding-top: 15px;
+    display: flex;
+    flex-flow: column;
 }
 
 /* Suppress selected angular templates until they compile */
@@ -34,13 +36,10 @@ body {
 }
 
 .lv-log-container {
-    height: 100%;
-    width: 100%;
+    flex: 1;
     overflow: auto;
-    bottom: 0;
     font-family: monospace;
     font-size: small;
-    white-space: nowrap;
     background: #f8f8f8;
 }
 
@@ -49,7 +48,6 @@ body {
 }
 
 .lv-log-line {
-    width: 100%;
     padding: 0 18px;
 }
 
@@ -63,6 +61,7 @@ body {
 
 .run-data {
     width: 100%;
+    flex: none;
     background-color: #FFF;
     padding: 20px 5px 4px;
     display: table-row;
