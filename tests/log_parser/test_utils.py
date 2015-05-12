@@ -3,8 +3,8 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 import pytest
-from treeherder.log_parser.utils import (get_error_search_term,
-                                         get_crash_signature)
+from treeherder.model.error_summary import (get_error_search_term,
+                                            get_crash_signature)
 
 
 PIPE_DELIMITED_LINE_TEST_CASES = (
