@@ -9,7 +9,7 @@ from treeherder.model.derived import JobsModel
 
 
 def test_post_job_with_parsed_log(test_project, result_set_stored,
-                                  mock_send_request):
+                                  mock_post_collection):
     """
     test submitting a job with a pre-parsed log gets the right job_log_url
     parse_status value.
@@ -34,18 +34,15 @@ def test_post_job_with_parsed_log(test_project, result_set_stored,
 
     tjc.add(tj)
 
-    req = client.TreeherderRequest(
-        protocol='http',
-        host='localhost',
-        project=test_project,
-        oauth_key=credentials['consumer_key'],
-        oauth_secret=credentials['consumer_secret']
-        )
+    cli = client.TreeherderClient(protocol='http',
+                                  host='localhost',
+                                  oauth_key=credentials['consumer_key'],
+                                  oauth_secret=credentials['consumer_secret'])
 
     # Post the request to treeherder
-    resp = req.post(tjc)
-    assert resp.status_int == 200
-    assert resp.body == '{"message": "well-formed JSON stored"}'
+    cli.post_collection(test_project, tjc)
+
+    # assume if there were no exceptions we're ok
 
     with JobsModel(test_project) as jm:
         jm.process_objects(10)

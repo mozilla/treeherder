@@ -172,7 +172,7 @@ data structures to send, do something like this.
 
 .. code-block:: python
 
-    from thclient import TreeherderRequest, TreeherderResultSetCollection, TreeherderClientError
+    from thclient import TreeherderClient, TreeherderResultSetCollection, TreeherderClientError
 
     trsc = TreeherderResultSetCollection()
 
@@ -203,26 +203,24 @@ data structures to send, do something like this.
 
     # The OAuth key and secret for your project should be supplied to you by the
     # treeherder-service administrator.
-    req = TreeherderRequest(
-        protocol='https',
-        host='treeherder.mozilla.org',
-        project='project',
-        oauth_key='oauth-key',
-        oauth_secret='oauth-secret',
-        )
+    client = TreeherderClient(
+                 protocol='https',
+                 host='treeherder.mozilla.org',
+                 oauth_key='oauth-key',
+                 oauth_secret='oauth-secret')
 
-    # Post the result collection
+    # Post the result collection to a project
     #
     # data structure validation is automatically performed here, if validation
     # fails a TreeherderClientError is raised
-    req.post(trc)
+    client.post_collection('mozilla-central', trc)
 
 At any time in building a data structure, you can examine what has been
 created by looking at the `data` property.  You can also call the `validate`
 method at any time before sending a collection.  All treeherder data classes
 have `validate` methods that can be used for testing.  The `validate` method
-is called on every structure in a collection when a `send` is called on a
-`TreeherderRequest`.  If validation fails a `TreeherderClientError` is raised.
+is called on every structure in a collection when `post_collection` is
+called. If validation fails a `TreeherderClientError` is raised.
 
 If you want to use `TreeherderJobCollection` to build up the job data
 structures to send, do something like this:
@@ -284,27 +282,19 @@ structures to send, do something like this:
                 )
         tjc.add(tj)
 
-    # Send the collection to treeherder
-    req = TreeherderRequest(
-        protocol='https',
-        host='treeherder.mozilla.org',
-        project='project',
-        oauth_key='oauth-key',
-        oauth_secret='oauth-secret',
-        )
-
-    # Post the job collection
-    #
-    # data structure validation is automatically performed here, if validation
-    # fails a TreeherderClientError is raised
-    req.post(tjc)
+    client = TreeherderClient(
+                 protocol='https',
+                 host='treeherder.mozilla.org',
+                 oauth_key='oauth-key',
+                 oauth_secret='oauth-secret')
+    client.post_collection('mozilla-central', tjc)
 
 If you want to use `TreeherderArtifactCollection` to build up the job
 artifacts data structures to send, do something like this:
 
 .. code-block:: python
 
-    from thclient import TreeherderRequest, TreeherderArtifactCollection, TreeherderClientError
+    from thclient import TreeherderClient, TreeherderArtifactCollection, TreeherderClientError
 
     tac = TreeherderArtifactCollection()
 
@@ -320,19 +310,13 @@ artifacts data structures to send, do something like this:
         tac.add(ta)
 
     # Send the collection to treeherder
-    req = TreeherderRequest(
+    client = TreeherderClient(
         protocol='https',
         host='treeherder.mozilla.org',
-        project='project',
         oauth_key='oauth-key',
         oauth_secret='oauth-secret',
         )
-
-    # Post the artifact collection
-    #
-    # data structure validation is automatically performed here, if validation
-    # fails a TreeherderClientError is raised
-    req.post(tac)
+    client.post_collection('mozilla-central', tac)
 
 If you don't want to use `TreeherderResultCollection` or
 `TreeherderJobCollection` to build up the data structure to send, build the
@@ -352,16 +336,15 @@ data structures directly and add them to the collection.
         # add resultset to collection
         trc.add(trs)
 
-    req = TreeherderRequest(
+    client = TreeherderClient(
         protocol='https',
         host='treeherder.mozilla.org',
-        project='project',
         oauth_key='oauth-key',
         oauth_secret='oauth-secret',
         )
+    client.post_collection('mozilla-central', trc)
 
-    # Post the request to treeherder
-    req.post(trc)
+.. code-block:: python
 
     from thclient import TreeherderRequest, TreeherderJobCollection
 
@@ -375,19 +358,13 @@ data structures directly and add them to the collection.
         # add job to collection
         tjc.add(tj)
 
-    req = TreeherderRequest(
+    client = TreeherderClient(
         protocol='https',
         host='treeherder.mozilla.org',
-        project='project',
         oauth_key='oauth-key',
         oauth_secret='oauth-secret',
         )
-
-    # Post the request to treeherder
-    #
-    # data structure validation is automatically performed here, if validation
-    # fails a TreeherderClientError is raised
-    req.post(tjc)
+    client.post_collection('mozilla-central', tjc)
 
 In the same way, if you don't want to use `TreeherderArtifactCollection` to
 build up the data structure to send, build the data structures directly and
@@ -407,16 +384,13 @@ add them to the collection.
         # add artifact to collection
         tac.add(ta)
 
-    req = TreeherderRequest(
+    client = TreeherderClient(
         protocol='https',
         host='treeherder.mozilla.org',
-        project='project',
         oauth_key='oauth-key',
         oauth_secret='oauth-secret',
         )
-
-    # Post the request to treeherder
-    req.post(tac)
+    client.post_collection('mozilla-central', tac)
 
 Job artifacts format
 --------------------
