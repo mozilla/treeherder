@@ -86,7 +86,9 @@ class Command(BaseCommand):
             try:
                 cursor = db.cursor()
                 cursor.execute(sql_code)
-                self.stdout.write("Sql code executed on {0}".format(datasource))
+                self.stdout.write("Sql code executed on {}:".format(datasource))
+                for row in cursor:
+                    self.stdout.write("  {}".format(row))
             except Exception as e:
                 error_string = "!!! Sql code execution failed on {0} !!!"
                 self.stderr.write(error_string.format(datasource))
