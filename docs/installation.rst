@@ -37,6 +37,15 @@ Setting up Vagrant
 
     apt-get install nfs-kernel-server
 
+  **Troubleshooting**: If you encounter an error saying *"mount.nfs: requested NFS version or transport protocol is not supported"*, you should restart the kernel server service using this sequence of commands:
+
+  .. code-block:: bash
+
+    systemctl stop nfs-kernel-server.service
+    systemctl disable nfs-kernel-server.service
+    systemctl enable nfs-kernel-server.service
+    systemctl start nfs-kernel-server.service
+
   **Troubleshooting**: If you encounter an error saying *"The guest machine entered an invalid state while waiting for it to boot. Valid states are 'starting, running'. The machine is in the 'poweroff' state. Please verify everything is configured properly and try again."* you should should check your host machine's virtualization technology (vt-x) is enabled in the BIOS (see this guide_), then continue with ``vagrant up``.
 
   .. _guide: http://www.sysprobs.com/disable-enable-virtualization-technology-bios
