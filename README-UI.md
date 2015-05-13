@@ -11,7 +11,7 @@ treeherder-ui
 
 
 #### Instances
-Treeherder exists on three instances, [dev](http://treeherder-dev.allizom.org) for treeherder development, [stage](https://treeherder.allizom.org) for pre-deployment validation, and [production](https://treeherder.mozilla.org) for actual use.
+Treeherder exists on two instances, [stage](https://treeherder.allizom.org) for pre-deployment validation, and [production](https://treeherder.mozilla.org) for actual use.
 
 
 #### Development
