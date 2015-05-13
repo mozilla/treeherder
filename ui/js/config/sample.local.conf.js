@@ -8,7 +8,6 @@
  * used to retrieve job result data. Valid settings are  */
 var production = "https://treeherder.mozilla.org";
 var stage = "https://treeherder.allizom.org";
-var dev = "http://treeherder-dev.allizom.org";
 var vagrant = "";
 
 // Set the service
