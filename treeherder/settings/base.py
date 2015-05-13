@@ -341,6 +341,11 @@ BZ_MAX_COMMENT_LENGTH = 40000
 # like ftp.mozilla.org or hg.mozilla.org
 TREEHERDER_REQUESTS_TIMEOUT = 30
 
+# the max size of a posted request to treeherder client.
+# If TreeherderCollections are larger, they will be chunked
+# to this size.
+TREEHERDER_CLIENT_CHUNK_SIZE = 50
+
 # Build the default pulse uri this is passed to kombu
 PULSE_URI = 'amqps://{}:{}@pulse.mozilla.org/'.format(
     os.environ.get('PULSE_USERNAME', 'guest'),
