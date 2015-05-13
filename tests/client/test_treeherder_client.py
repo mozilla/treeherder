@@ -248,6 +248,29 @@ class TreeherderArtifactCollectionTest(DataSetup, unittest.TestCase):
 
         self.assertTrue(len(self.artifact_data) == len(tac.data))
 
+    def test_collection_chunking(self):
+        tac = TreeherderArtifactCollection()
+
+        for artifact in self.artifact_data:
+            ta = TreeherderArtifact(artifact)
+            tac.add(ta)
+
+        # reconstruct the chunks and make sure we have the same data
+        rebuilt_data = []
+        chunk_num = 0
+        for chunk in tac.get_chunks(3):
+            chunk_data = chunk.get_collection_data()
+            rebuilt_data.extend(chunk_data)
+
+            chunk_num += 1
+            # the last one should be the "remainder" in an uneven size
+            if chunk_num == 4:
+                assert len(chunk_data) == 1
+            else:
+                assert len(chunk_data) == 3
+
+        assert rebuilt_data == tac.get_collection_data()
+
 
 class TreeherderJobCollectionTest(DataSetup, unittest.TestCase):
 

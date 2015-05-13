@@ -15,8 +15,8 @@ from tests.sampledata import SampleData
 
 @pytest.fixture
 def mock_post_json_data(monkeypatch, jm):
-    def _post_json_data(url, data):
-
+    def _post_json_data(url, data, chunk_size=1):
+        # does not do any chunking in this test
         if data:
             th_collection = data[jm.project]
 

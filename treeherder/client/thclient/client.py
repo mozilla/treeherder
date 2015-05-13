@@ -552,6 +552,19 @@ class TreeherderCollection(object):
         for d in self.data:
             d.validate()
 
+    def get_chunks(self, chunk_size):
+        """
+        Return a generator of new collections broken into chunks of size ``chunk_size``.
+
+        Each chunk will be a ``TreeherderCollection`` of the same
+        type as the original with a max of ``chunk_size`` count of
+        ``TreeherderData`` objects.
+
+        Each collection must then be POSTed individually.
+        """
+        for i in range(0, len(self.data), chunk_size):
+            yield self.__class__(self.data[i:i + chunk_size])
+
 
 class TreeherderJobCollection(TreeherderCollection):
     """
