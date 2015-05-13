@@ -3,6 +3,7 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 import logging
+import requests
 
 from django.utils.encoding import python_2_unicode_compatible
 from django.conf import settings
@@ -14,8 +15,9 @@ from treeherder.etl.oauth_utils import OAuthCredentials
 logger = logging.getLogger(__name__)
 
 
-def post_treeherder_collections(th_collections):
+def post_treeherder_collections(th_collections, chunk_size=1):
     errors = []
+
     for project in th_collections:
 
         credentials = OAuthCredentials.get_credentials(project)
@@ -31,14 +33,20 @@ def post_treeherder_collections(th_collections):
         logger.info(
             "collection loading request: {0}".format(
                 th_request.get_uri(th_collections[project].endpoint_base)))
-        response = th_request.post(th_collections[project])
 
-        if not response or response.status_code != 200:
-            errors.append({
-                "project": project,
-                "url": th_collections[project].endpoint_base,
-                "message": response.text
-            })
+        collection_chunks = th_collections[project].get_chunks(chunk_size)
+
+        for collection in collection_chunks:
+            response = th_request.post(collection)
+
+            try:
+                response.raise_for_status()
+            except requests.exceptions.HTTPError:
+                errors.append({
+                    "project": project,
+                    "url": th_collections[project].endpoint_base,
+                    "message": response.text
+                })
 
     if errors:
         raise CollectionNotLoadedException(errors)

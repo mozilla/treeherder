@@ -445,7 +445,8 @@ class Builds4hJobsProcess(JsonExtractorMixin,
                 self.transform(extracted_content,
                                filter_to_revision=filter_to_revision,
                                filter_to_project=filter_to_project,
-                               filter_to_job_group=filter_to_job_group)
+                               filter_to_job_group=filter_to_job_group),
+                chunk_size=settings.BUILDAPI_BUILDS4H_CHUNK_SIZE
             )
 
 
@@ -462,7 +463,8 @@ class PendingJobsProcess(JsonExtractorMixin,
                                'pending',
                                filter_to_revision=filter_to_revision,
                                filter_to_project=filter_to_project,
-                               filter_to_job_group=filter_to_job_group)
+                               filter_to_job_group=filter_to_job_group),
+                chunk_size=settings.BUILDAPI_PENDING_CHUNK_SIZE
             )
 
 
@@ -479,5 +481,6 @@ class RunningJobsProcess(JsonExtractorMixin,
                                'running',
                                filter_to_revision=filter_to_revision,
                                filter_to_project=filter_to_project,
-                               filter_to_job_group=filter_to_job_group)
+                               filter_to_job_group=filter_to_job_group),
+                chunk_size=settings.BUILDAPI_RUNNING_CHUNK_SIZE
             )
