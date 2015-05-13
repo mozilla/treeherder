@@ -314,6 +314,7 @@ RE_ERR_MATCH = re.compile((
     r"|^abort:"
     r"|^Output exceeded \d+ bytes"
     r"|^The web-page 'stop build' button was pressed"
+    r"|.*\.js: line \d+, col \d+, Error -"
 ))
 
 RE_ERR_SEARCH = re.compile((
