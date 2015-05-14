@@ -645,32 +645,24 @@ class OauthClient(object):
         return req.to_url()
 
 
-class TreeherderRequest(object):
+class TreeherderClient(object):
     """
-    Treeherder request object that manages test submission.
+    Treeherder client class
     """
 
     PROTOCOLS = {'http', 'https'}  # supported protocols
-    HEADERS = {'Content-Type': 'application/json'}
+
+    UPDATE_ENDPOINT = 'job-log-url/{}/update_parse_status'
 
     def __init__(
-            self, protocol='', host='', project='', oauth_key='',
-            oauth_secret='', timeout=120):
+            self, protocol='https', host='treeherder.mozilla.org',
+            timeout=120):
         """
-        - host : treeherder host to post to
-        - project : name of the project in treeherder
-        - oauth_key, oauth_secret : oauth credentials
-        - timeout : maximum timeout for requests
+        :param protocol: protocol to use (http or https)
+        :param host: treeherder host to post to
+        :param timeout: maximum time it can take for a request to complete
         """
         self.host = host
-        self.project = project
-        self.oauth_key = oauth_key
-        self.oauth_secret = oauth_secret
-        self.use_oauth = bool(self.oauth_key and self.oauth_secret)
-        self.oauth_client = None
-        if self.use_oauth:
-            self.oauth_client = OauthClient(oauth_key, oauth_secret,
-                                            self.project)
 
         if protocol not in self.PROTOCOLS:
             raise AssertionError('Protocol "%s" not supported; please use one '
@@ -679,17 +671,46 @@ class TreeherderRequest(object):
         self.protocol = protocol
         self.timeout = timeout
 
-        # ensure the required parameters are given
-        if not self.project:
-            msg = "{0}: project required for posting".format(
-                self.__class__.__name__)
-            raise TreeherderClientError(msg, [])
+    def _get_uri(self, project, endpoint, data=None, oauth_key=None,
+                 oauth_secret=None, method='GET'):
 
-    def post(self, collection_inst):
-        """Shortcut method to send a treeherder collection via POST
+        uri = '{0}://{1}/api/project/{2}/{3}/'.format(
+            self.protocol, self.host, project, endpoint
+            )
 
+        if oauth_key and oauth_secret:
+            oauth_client = OauthClient(oauth_key, oauth_secret, project)
+            uri = oauth_client.get_signed_uri(data, uri, method)
+
+        return uri
+
+    def _post_json(self, project, endpoint, oauth_key, oauth_secret, jsondata,
+                   timeout):
+        if timeout is None:
+            timeout = self.timeout
+
+        if not oauth_key or not oauth_secret:
+            raise TreeherderClientError("Must provide oauth key and secret "
+                                        "to post to treeherder!", [])
+
+        uri = self._get_uri(project, endpoint, data=jsondata, oauth_key=oauth_key,
+                            oauth_secret=oauth_secret, method='POST')
+
+        resp = requests.post(uri, data=jsondata,
+                             headers={'Content-Type': 'application/json'},
+                             timeout=timeout)
+        resp.raise_for_status()
+
+    def post_collection(self, project, oauth_key, oauth_secret,
+                        collection_inst, timeout=None):
+        """
+        Sends a treeherder collection to the server
+
+        :param project: project to submit data for
+        :param oauth_key: oauth key credential
+        :param oauth_secret: oauth secret credential
         :param collection_inst: a TreeherderCollection instance
-        :returns: a requests Response object
+        :param timeout: custom timeout in seconds (defaults to class timeout)
         """
 
         if not isinstance(collection_inst, TreeherderCollection):
@@ -715,66 +736,33 @@ class TreeherderRequest(object):
 
         collection_inst.validate()
 
-        return self.send(collection_inst.endpoint_base,
-                         method="POST",
-                         data=collection_inst.to_json())
+        self._post_json(project, collection_inst.endpoint_base, oauth_key,
+                        oauth_secret, collection_inst.to_json(),
+                        timeout=timeout)
 
-    def send(self, endpoint, method=None, data=None):
-        """send data to the given endpoint with the given http method.
-
-        :param endpoint: the target endpoint for this request
-        :param method: can be one of GET,POST,PUT
-        :param data: the body of this request
-        :returns: a requests Response object
+    def update_parse_status(self, project, oauth_key, oauth_secret,
+                            job_log_url_id, parse_status, timestamp=None,
+                            timeout=None):
         """
+        Updates the parsing status of a treeherder job
 
-        req_method = self._get_requests_method(method)
+        :param project: project to submit data for
+        :param oauth_key: oauth key credential
+        :param oauth_secret: oauth secret credential
+        :param parse_status: string representing parse status of a treeherder
+                             job
+        :param timestamp: timestamp of when parse status was updated (defaults
+                          to now)
+        :param timeout: custom timeout in seconds (defaults to class timeout)
+        """
+        if timestamp is None:
+            timestamp = time.time()
 
-        if data:
-            if not isinstance(data, str):
-                # if the body is not serialized yet, do it now
-                serialized_body = json.dumps(data)
-            else:
-                serialized_body = data
-        else:
-            serialized_body = None
-
-        uri = self.get_uri(endpoint)
-
-        if self.use_oauth:
-            uri = self.oauth_client.get_signed_uri(serialized_body, uri, method)
-
-        # Make the request
-        response = req_method(uri,
-                              data=serialized_body,
-                              headers=self.HEADERS,
-                              timeout=self.timeout
-                              )
-
-        return response
-
-    def _get_requests_method(self, method):
-        try:
-            methods = {
-                "GET": requests.get,
-                "POST": requests.post,
-                "PUT": requests.put
-            }
-            return methods[method]
-        except KeyError:
-            msg = "{0}: {1} is not a supported method".format(
-                self.__class__.__name__,
-                method
-            )
-            raise TreeherderClientError(msg, [])
-
-    def get_uri(self, endpoint):
-
-        uri = '{0}://{1}/api/project/{2}/{3}/'.format(
-            self.protocol, self.host, self.project, endpoint
-            )
-
-        return uri
+        self._post_json(project, self.UPDATE_ENDPOINT.format(job_log_url_id),
+                        oauth_key, oauth_secret,
+                        json.dumps({'parse_status': parse_status,
+                                    'parse_timestamp': timestamp}),
+                        timeout=timeout)
 
 
 class TreeherderClientError(Exception):
