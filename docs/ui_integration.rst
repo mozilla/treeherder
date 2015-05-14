@@ -10,7 +10,7 @@ If you want to develop both the ui and the service side by side it may be conven
 * If you have an existing Vagrant environment set up, you will need to reload it using:
 
   .. code-block:: bash
-     
+
      >vagrant reload
 
 You should now be able to access the ui on http://local.treeherder.mozilla.org/ui/

@@ -132,7 +132,7 @@ characters at most. A job collection has the following data structure.
                         }
                     ],
 
-                # The artifact can contain any kind of structured data associated with a test. 
+                # The artifact can contain any kind of structured data associated with a test.
                 'artifacts': [{
                     'type': 'json',
                     'name': '',

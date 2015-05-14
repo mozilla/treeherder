@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 /* This file contains {engine} markers that must be replaced
    before it is sent to MySQL.
 */
@@ -32,7 +36,7 @@ DROP TABLE IF EXISTS `datasource`;
  *  Holds the complete list of projects and their associated RDBS hosts
  *  managed by treeherder.
  *
- * Population Method: manual by admin 
+ * Population Method: manual by admin
  *
  * Example Data:
  *
@@ -40,10 +44,10 @@ DROP TABLE IF EXISTS `datasource`;
  *              try, alder, holly, mozilla-aurora, treeherder in treeherder_reference_1.sql.tmpl
  *            This string becomes the location field in the url for related web service methods.
  *
- *  contenttype - A string describing the content type associated with the database. 
+ *  contenttype - A string describing the content type associated with the database.
  *              jobs in project_jobs_1.sql.tmpl, reference in treeherder_reference_1.sql.tmpl
  *              A project can have any number of contenttypes associated with it.
- *    
+ *
  *  dataset -  An integer that can be enumerated. This allows more than one database to exist
  *             for the same project/contenttype pair.
  *
@@ -58,7 +62,7 @@ DROP TABLE IF EXISTS `datasource`;
  *         to the template schema when a user runs a manage command that creates a database
  *         schema. There is currently support for MariaDB and MySQL storage engines.
  *
- *  oauth_consumer_key - The OAuth consumer key. This is automatically added when a new datasource 
+ *  oauth_consumer_key - The OAuth consumer key. This is automatically added when a new datasource
                          is added.
  *
  *  oauth_consumer_secret - The OAuth consumer secret. This is automatically added when a new datasource
@@ -66,7 +70,7 @@ DROP TABLE IF EXISTS `datasource`;
  *
  *  creation_date - Date the database was created.
  *
- *  cron_batch - The cron interval to use when running cron jobs on this database. 
+ *  cron_batch - The cron interval to use when running cron jobs on this database.
  **************************/
 CREATE TABLE `datasource` (
   `id` int(11) NOT NULL AUTO_INCREMENT,

@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 /* This file contains {engine} markers that must be replaced
    before it is sent to MySQL.
 */
@@ -161,7 +165,7 @@ DROP TABLE IF EXISTS `build_platform`;
  *
  * A list of build platforms associated with project test data.
  *
- * Population Method: dynamic from incoming data. 
+ * Population Method: dynamic from incoming data.
  *
  * Example Data:
  *
@@ -200,7 +204,7 @@ DROP TABLE IF EXISTS `failure_classification`;
  *
  * Example Data:
  *
- *  name - broken | clobber-needed | infrastructure | intermittent | needs-filing | other | ... 
+ *  name - broken | clobber-needed | infrastructure | intermittent | needs-filing | other | ...
  **************************/
 CREATE TABLE `failure_classification` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -366,7 +370,7 @@ DROP TABLE IF EXISTS `machine_note`;
 /**************************
  * Table: machine_note
  *
- * A list of notes associated with particular machines. Notes can be set by a sheriff to record 
+ * A list of notes associated with particular machines. Notes can be set by a sheriff to record
  * a repeated pattern of failures.
  *
  * Population Method: manual by admin
@@ -406,7 +410,7 @@ DROP TABLE IF EXISTS `machine_platform`;
  *
  * A list of machine platforms associated with project test data.
  *
- * Population Method: dynamic from incoming data. 
+ * Population Method: dynamic from incoming data.
  *
  * Example Data:
  *
@@ -604,7 +608,7 @@ DROP TABLE IF EXISTS `repository_group`;
  * List of repository group names.
  *
  * Population Method: manual by admin
- * 
+ *
  * Example Data:
  *
  *  name - train | development | ...
