@@ -13,7 +13,7 @@ from mock import patch
 from treeherder.client import (TreeherderJob, TreeherderJobCollection,
                                TreeherderRevision, TreeherderResultSet,
                                TreeherderResultSetCollection,
-                               TreeherderClientError, TreeherderRequest,
+                               TreeherderClient, TreeherderClientError,
                                TreeherderArtifact,
                                TreeherderArtifactCollection)
 
@@ -373,11 +373,20 @@ class TreeherderJobTest(DataSetup, unittest.TestCase):
                           'foo', 'bar', 'baz')
 
 
-class TreeherderRequestTest(DataSetup, unittest.TestCase):
+class TreeherderClientTest(DataSetup, unittest.TestCase):
 
-    @patch.object(TreeherderRequest, 'send')
-    def test_send_job_collection(self, mock_send):
+    @staticmethod
+    def _expected_response_return_object():
+        class Mock(object):
+            pass
+        ret = Mock()
+        setattr(ret, 'raise_for_status', lambda: None)
+        return ret
+
+    @patch("treeherder.client.client.requests.post")
+    def test_post_job_collection(self, mock_post):
         """Can add a treeherder collections to a TreeherderRequest."""
+        mock_post.return_value = self._expected_response_return_object()
 
         tjc = TreeherderJobCollection()
 
@@ -385,25 +394,25 @@ class TreeherderRequestTest(DataSetup, unittest.TestCase):
 
             tjc.add(tjc.get_job(job))
 
-        req = TreeherderRequest(
+        client = TreeherderClient(
             protocol='http',
             host='host',
-            project='project',
-            oauth_key='key',
-            oauth_secret='secret',
             )
 
-        req.post(tjc)
+        client.post_collection('project', 'key', 'secret', tjc)
 
-        self.assertEqual(mock_send.call_count, 1)
+        path, resp = mock_post.call_args
+
+        self.assertEqual(mock_post.call_count, 1)
         self.assertEqual(
             tjc.to_json(),
-            mock_send.call_args_list[0][1]['data']
+            resp['data']
             )
 
-    @patch.object(TreeherderRequest, 'send')
-    def test_send_result_collection(self, mock_send):
+    @patch("treeherder.client.client.requests.post")
+    def test_send_result_collection(self, mock_post):
         """Can add a treeherder collections to a TreeherderRequest."""
+        mock_post.return_value = self._expected_response_return_object()
 
         trc = TreeherderResultSetCollection()
 
@@ -411,25 +420,25 @@ class TreeherderRequestTest(DataSetup, unittest.TestCase):
 
             trc.add(trc.get_resultset(resultset))
 
-        req = TreeherderRequest(
+        client = TreeherderClient(
             protocol='http',
             host='host',
-            project='project',
-            oauth_key='key',
-            oauth_secret='secret',
             )
 
-        req.post(trc)
+        client.post_collection('project', 'key', 'secret', trc)
 
-        self.assertEqual(mock_send.call_count, 1)
+        path, resp = mock_post.call_args
+
+        self.assertEqual(mock_post.call_count, 1)
         self.assertEqual(
             trc.to_json(),
-            mock_send.call_args_list[0][1]['data']
+            resp['data']
             )
 
-    @patch.object(TreeherderRequest, 'send')
-    def test_send_artifact_collection(self, mock_send):
+    @patch("treeherder.client.client.requests.post")
+    def test_send_artifact_collection(self, mock_post):
         """Can add a artifact collections to a TreeherderRequest."""
+        mock_post.return_value = self._expected_response_return_object()
 
         tac = TreeherderArtifactCollection()
 
@@ -437,85 +446,36 @@ class TreeherderRequestTest(DataSetup, unittest.TestCase):
 
             tac.add(tac.get_artifact(artifact))
 
-        req = TreeherderRequest(
+        client = TreeherderClient(
             protocol='http',
             host='host',
-            project='project',
-            oauth_key='key',
-            oauth_secret='secret',
-        )
-
-        req.post(tac)
-
-        self.assertEqual(mock_send.call_count, 1)
-        self.assertEqual(
-            tac.to_json(),
-            mock_send.call_args_list[0][1]["data"]
-        )
-
-    @patch("treeherder.client.client.oauth.generate_nonce")
-    @patch("treeherder.client.client.oauth.time.time")
-    @patch("treeherder.client.client.requests.post")
-    def test_send(self, mock_post, mock_time, mock_generate_nonce):
-
-        """Can send data to the server."""
-        mock_time.return_value = 1342229050
-        mock_generate_nonce.return_value = "46810593"
-
-        host = 'host'
-
-        req = TreeherderRequest(
-            protocol='http',
-            host=host,
-            project='project',
-            oauth_key='key',
-            oauth_secret='secret',
             )
 
-        mock_response = mock_post.return_value
-
-        tjc = TreeherderJobCollection()
-
-        tjc.add(tjc.get_job(self.job_data[0]))
-
-        response = req.post(tjc)
-
-        self.assertEqual(mock_response, response)
-        self.assertEqual(mock_post.call_count, 1)
+        client.post_collection('project', 'key', 'secret', tac)
 
         path, resp = mock_post.call_args
 
-        deserialized_data = json.loads(resp['data'])
+        self.assertEqual(mock_post.call_count, 1)
         self.assertEqual(
-            deserialized_data,
-            tjc.get_collection_data()
-            )
-        self.assertEqual(
-            resp['headers']['Content-Type'],
-            'application/json',
+            tac.to_json(),
+            resp['data']
             )
 
     @patch("treeherder.client.client.oauth.generate_nonce")
     @patch("treeherder.client.client.oauth.time.time")
     @patch("treeherder.client.client.requests.post")
-    def test_send_without_oauth(self, mock_post, mock_time,
-                                mock_generate_nonce):
+    def test_send_with_oauth(self, mock_post, mock_time,
+                             mock_generate_nonce):
 
-        """Can send data to the server."""
+        """Tests that oauth data is sent to server"""
         mock_time.return_value = 1342229050
         mock_generate_nonce.return_value = "46810593"
+        mock_post.return_value = self._expected_response_return_object()
 
-        host = 'host'
-
-        req = TreeherderRequest(
+        client = TreeherderClient(
             protocol='http',
-            host=host,
-            project='project',
-            oauth_key=None,
-            oauth_secret=None,
+            host='host',
             )
-
-        mock_response = mock_post.return_value
 
         tjc = TreeherderJobCollection()
 
@@ -524,22 +484,12 @@ class TreeherderRequestTest(DataSetup, unittest.TestCase):
             tjc.add(tjc.get_job(job))
             break
 
-        response = req.post(tjc)
+        client.post_collection('project', 'key', 'secret', tjc)
 
-        self.assertEqual(mock_response, response)
         self.assertEqual(mock_post.call_count, 1)
 
         path, resp = mock_post.call_args
-
-        deserialized_data = json.loads(resp['data'])
-        self.assertEqual(
-            deserialized_data,
-            tjc.get_collection_data()
-            )
-        self.assertEqual(
-            resp['headers']['Content-Type'],
-            'application/json',
-            )
+        self.assertEqual(path[0], "http://host/api/project/project/objectstore/?oauth_body_hash=C4jFXK8TBoFeh9wHOu1IkU7tERw%3D&oauth_nonce=46810593&oauth_timestamp=1342229050&oauth_consumer_key=key&oauth_signature_method=HMAC-SHA1&oauth_version=1.0&oauth_token=&user=project&oauth_signature=hNqHsAd7sdGyDLfWf7n9Bb%2B2rzM%3D")
 
 if __name__ == '__main__':
     unittest.main()

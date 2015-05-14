@@ -9,7 +9,7 @@ from treeherder.etl.mixins import OAuthLoaderMixin
 from treeherder.etl.oauth_utils import OAuthCredentials
 from treeherder.webapp.wsgi import application
 
-from treeherder.client import TreeherderRequest
+from treeherder.client import TreeherderClient
 from tests.sampledata import SampleData
 
 
@@ -23,18 +23,14 @@ def mock_post_json_data(monkeypatch, jm):
             OAuthCredentials.set_credentials(SampleData.get_credentials())
             credentials = OAuthCredentials.get_credentials(jm.project)
 
-            tr = TreeherderRequest(
-                protocol='http',
-                host='localhost',
-                project=jm.project,
-                oauth_key=credentials['consumer_key'],
-                oauth_secret=credentials['consumer_secret']
-            )
-            signed_uri = tr.oauth_client.get_signed_uri(
-                th_collection.to_json(),
-                tr.get_uri(th_collection.endpoint_base),
-                "POST"
-            )
+            cli = TreeherderClient(protocol='http',
+                                   host='localhost')
+
+            signed_uri = cli._get_uri(jm.project, th_collection.endpoint_base,
+                                      data=th_collection.to_json(),
+                                      oauth_key=credentials['consumer_key'],
+                                      oauth_secret=credentials['consumer_secret'],
+                                      method='POST')
 
             response = TestApp(application).post_json(
                 str(signed_uri), params=th_collection.get_collection_data()

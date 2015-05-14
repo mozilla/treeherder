@@ -72,7 +72,8 @@ def running_jobs_stored(
 
 @pytest.fixture
 def completed_jobs_stored(
-        jm, completed_jobs, result_set_stored, mock_send_request):
+        jm, completed_jobs, result_set_stored, mock_post_collection,
+        mock_update_parse_status):
     """
     stores a list of buildapi completed jobs into the objectstore
     """
