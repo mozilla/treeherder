@@ -78,14 +78,15 @@ class Command(BaseCommand):
 
         for datasource in datasources:
             self.stdout.write("--------------------------")
-            db = MySQLdb.connect(
+            conn = MySQLdb.connect(
                 host=datasource.host,
                 db=datasource.name,
                 user=settings.TREEHERDER_DATABASE_USER,
                 passwd=settings.TREEHERDER_DATABASE_PASSWORD)
             try:
-                cursor = db.cursor()
+                cursor = conn.cursor()
                 cursor.execute(sql_code)
+                conn.commit()
                 self.stdout.write("Sql code executed on {}:".format(datasource))
                 for row in cursor:
                     self.stdout.write("  {}".format(row))
@@ -96,3 +97,4 @@ class Command(BaseCommand):
             finally:
                 if cursor:
                     cursor.close()
+                conn.close()
