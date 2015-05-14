@@ -5,13 +5,14 @@
 import os
 from os.path import dirname
 import sys
-import json
 
+import json
 import kombu
 import pytest
 from django.core.management import call_command
 from webtest.app import TestApp
 import responses
+import time
 
 from tests.sampledata import SampleData
 from treeherder.etl.oauth_utils import OAuthCredentials
@@ -378,27 +379,51 @@ def set_oauth_credentials():
 
 
 @pytest.fixture
-def mock_send_request(monkeypatch, set_oauth_credentials):
-    def _send(th_request, endpoint, method=None, data=None):
+def mock_post_collection(monkeypatch, set_oauth_credentials):
+    def _post_collection(th_client, project, collection_inst):
 
-        if data and not isinstance(data, str):
-            data = json.dumps(data)
+        jsondata = collection_inst.to_json()
 
-        signed_uri = th_request.oauth_client.get_signed_uri(
-            data, th_request.get_uri(endpoint), method
-        )
+        signed_uri = th_client._get_uri(project, collection_inst.endpoint_base,
+                                        jsondata)
 
-        response = getattr(TestApp(application), method.lower())(
+        response = getattr(TestApp(application), 'post')(
             str(signed_uri),
-            params=data,
+            params=jsondata,
             content_type='application/json'
         )
 
         response.getcode = lambda: response.status_int
         return response
 
-    from treeherder.client import TreeherderRequest
-    monkeypatch.setattr(TreeherderRequest, 'send', _send)
+    from treeherder.client import TreeherderClient
+    monkeypatch.setattr(TreeherderClient, 'post_collection', _post_collection)
+
+
+@pytest.fixture
+def mock_update_parse_status(monkeypatch, set_oauth_credentials):
+    def _update_parse_status(th_client, project, job_log_url_id, parse_status,
+                             timestamp=None):
+        if timestamp is None:
+            timestamp = time.time()
+        jsondata = json.dumps({'parse_status': parse_status,
+                               'parse_timestamp': timestamp})
+        signed_uri = th_client._get_uri(
+            project,
+            th_client.UPDATE_ENDPOINT.format(job_log_url_id),
+            jsondata)
+
+        response = getattr(TestApp(application), 'post')(
+            str(signed_uri),
+            params=jsondata,
+            content_type='application/json'
+        )
+
+        response.getcode = lambda: response.status_int
+        return response
+
+    from treeherder.client import TreeherderClient
+    monkeypatch.setattr(TreeherderClient, 'update_parse_status', _update_parse_status)
 
 
 @pytest.fixture
