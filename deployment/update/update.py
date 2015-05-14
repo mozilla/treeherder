@@ -141,6 +141,6 @@ def ping_newrelic(ctx):
         try:
             request = urllib2.Request('https://api.newrelic.com/deployments.xml',
                                       data, headers)
-            urllib2.urlopen(request)
+            urllib2.urlopen(request, timeout=30)
         except urllib2.URLError as exp:
             print 'Error notifying New Relic: {0}'.format(exp)
