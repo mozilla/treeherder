@@ -31,7 +31,7 @@ class JsonExtractorMixin(object):
         req.add_header('Accept', 'application/json')
         req.add_header('Content-Type', 'application/json')
         try:
-            handler = urllib2.urlopen(req)
+            handler = urllib2.urlopen(req, timeout=settings.TREEHERDER_REQUESTS_TIMEOUT)
             encoding = handler.info().get('Content-Encoding')
             if encoding and 'gzip' in encoding:
                 buf = StringIO(handler.read())
@@ -48,7 +48,7 @@ class JsonLoaderMixin(object):
     """This mixin posts a json serializable object to the given url"""
 
     def load(self, url, data):
-        req = urllib2.Request(url)
+        req = urllib2.Request(url, timeout=settings.TREEHERDER_REQUESTS_TIMEOUT)
         req.add_header('Content-Type', 'application/json')
         if not data:
             data = None
