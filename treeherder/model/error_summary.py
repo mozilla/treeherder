@@ -193,6 +193,20 @@ def get_bugs_for_search_term(search, base_uri):
     return get_remote_content(url)
 
 
+def get_artifacts_that_need_bug_suggestions(artifact_list):
+    """
+    Return a list of ``text_log_summary`` that don't have ``Bug suggestions``
+    """
+
+    bs_guid_list = [x['job_guid'] for x in artifact_list if
+                    x['name'] == 'Bug suggestions']
+
+    tls_list = [x for x in artifact_list if
+                x['name'] == 'text_log_summary' and
+                x['job_guid'] not in bs_guid_list]
+    return tls_list
+
+
 def get_error_summary_artifacts(artifact_list):
     """
     Create bug suggestions artifact(s) for any text_log_summary artifacts.
@@ -219,6 +233,7 @@ def get_error_summary_artifacts(artifact_list):
             "blob": json.dumps(get_error_summary(all_errors))
         })
 
+    print "<><> generated bs artifacts: {}".format(bug_suggestion_artifacts)
     return bug_suggestion_artifacts
 
 

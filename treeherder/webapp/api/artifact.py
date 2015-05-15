@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from treeherder.webapp.api.utils import UrlQueryFilter, oauth_required
 from treeherder.model.derived import JobsModel, ArtifactsModel
 from treeherder.model.tasks import populate_error_summary
+from treeherder.model.error_summary import get_artifacts_that_need_bug_suggestions
 
 
 class ArtifactViewSet(viewsets.ViewSet):
@@ -72,12 +73,7 @@ class ArtifactViewSet(viewsets.ViewSet):
             # ``Bug suggestions`` artifact, then schedule to create it
             # asynchronously so that this api does not take too long.
 
-            bs_guid_list = [x['job_guid'] for x in artifacts if
-                            x['name'] == 'Bug suggestions']
-
-            tls_list = [x for x in artifacts if
-                        x['name'] == 'text_log_summary' and
-                        x['job_guid'] not in bs_guid_list]
+            tls_list = get_artifacts_that_need_bug_suggestions(artifacts)
 
             # tls_list will contain all ``text_log_summary`` artifacts that
             # do NOT have an accompanying ``Bug suggestions`` artifact in this

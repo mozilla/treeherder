@@ -10,7 +10,7 @@ from django.core.urlresolvers import reverse
 from treeherder.client import thclient
 
 from treeherder.etl.oauth_utils import OAuthCredentials
-from treeherder.model.derived import ArtifactsModel
+from treeherder.model.derived import ArtifactsModel, JobsModel
 
 
 xfail = pytest.mark.xfail
@@ -77,16 +77,17 @@ def test_artifact_detail_bad_project(webapp, jm):
     jm.disconnect()
 
 
-def test_artifact_create_text_log_summary(webapp, eleven_jobs_processed,
+def test_artifact_create_text_log_summary(webapp, test_project,eleven_jobs_processed,
                                           mock_send_request, mock_error_summary,
-                                          sample_data, jm):
+                                          sample_data):
     """
     test creating a text_log_summary artifact which auto-generates bug suggestions
     """
 
-    credentials = OAuthCredentials.get_credentials(jm.project)
+    credentials = OAuthCredentials.get_credentials(test_project)
 
-    job = jm.get_job_list(0, 1)[0]
+    with JobsModel(test_project) as jobs_model:
+        job = jobs_model.get_job_list(0, 1)[0]
     tls = sample_data.text_log_summary
 
     tac = thclient.TreeherderArtifactCollection()
@@ -101,7 +102,7 @@ def test_artifact_create_text_log_summary(webapp, eleven_jobs_processed,
     req = thclient.TreeherderRequest(
         protocol='http',
         host='localhost',
-        project=jm.project,
+        project=test_project,
         oauth_key=credentials['consumer_key'],
         oauth_secret=credentials['consumer_secret']
         )
@@ -111,7 +112,7 @@ def test_artifact_create_text_log_summary(webapp, eleven_jobs_processed,
     assert resp.status_int == 200
     assert resp.body == '{"message": "Artifacts stored successfully"}'
 
-    with ArtifactsModel(jm.project) as artifacts_model:
+    with ArtifactsModel(test_project) as artifacts_model:
         artifacts = artifacts_model.get_job_artifact_list(0, 10, conditions={
             'job_id': {('=', job["id"])}
         })
@@ -122,4 +123,64 @@ def test_artifact_create_text_log_summary(webapp, eleven_jobs_processed,
     assert set(artifact_names) == {'Bug suggestions', 'text_log_summary'}
     assert mock_error_summary == act_bs_obj
 
-    jm.disconnect()
+
+def test_artifact_create_text_log_summary_and_bug_suggestions(
+        webapp, test_project,eleven_jobs_processed,
+        mock_send_request, mock_error_summary,
+        sample_data):
+    """
+    test creating a text_log_summary and ``Bug suggestions`` artifact
+
+    This should NOT generate a Bug suggestions artifact, just post the one
+    here.
+    """
+
+    credentials = OAuthCredentials.get_credentials(test_project)
+
+    with JobsModel(test_project) as jobs_model:
+        job = jobs_model.get_job_list(0, 1)[0]
+    tls = sample_data.text_log_summary
+    bs_blob = ["flim", "flam"]
+
+    tac = thclient.TreeherderArtifactCollection()
+    tac.add(thclient.TreeherderArtifact({
+        'type': 'json',
+        'name': 'text_log_summary',
+        'blob': json.dumps(tls['blob']),
+        'job_guid': job['job_guid']
+    }))
+    tac.add(thclient.TreeherderArtifact({
+        'type': 'json',
+        'name': 'Bug suggestions',
+        'blob': json.dumps(bs_blob),
+        'job_guid': job['job_guid']
+    }))
+
+    req = thclient.TreeherderRequest(
+        protocol='http',
+        host='localhost',
+        project=test_project,
+        oauth_key=credentials['consumer_key'],
+        oauth_secret=credentials['consumer_secret']
+        )
+
+    # Post the request to treeherder
+    resp = req.post(tac)
+    assert resp.status_int == 200
+    assert resp.body == '{"message": "Artifacts stored successfully"}'
+
+    with ArtifactsModel(test_project) as artifacts_model:
+        artifacts = artifacts_model.get_job_artifact_list(0, 10, conditions={
+            'job_id': {('=', job["id"])}
+        })
+
+    assert len(artifacts) == 2
+    artifact_names = {x['name'] for x in artifacts}
+    act_bs_obj = [x['blob'] for x in artifacts if x['name'] == 'Bug suggestions'][0]
+
+    print act_bs_obj
+    assert False
+
+    assert set(artifact_names) == {'Bug suggestions', 'text_log_summary'}
+    assert bs_blob == act_bs_obj
+

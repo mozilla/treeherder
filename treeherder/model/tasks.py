@@ -186,4 +186,5 @@ def populate_error_summary(project, artifacts, job_id_lookup):
     ``bug suggestions`` artifact from them.
     """
 
+    print "creating bs for {}".format(artifacts)
     load_error_summary(project, artifacts, job_id_lookup)

@@ -23,7 +23,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from treeherder.model.models import (Datasource,
                                      ExclusionProfile)
 
-from treeherder.model import utils
+from treeherder.model import utils, error_summary
 from treeherder.model.tasks import (publish_resultset,
                                     publish_job_action,
                                     populate_error_summary)
@@ -1602,7 +1602,8 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             # the artifacts in this list could be ones that should have
             # bug suggestions generated for them.  If so, queue them to be
             # scheduled for asynchronous generation.
-            tls_list = [x for x in artifacts if x['name'] == 'text_log_summary']
+            tls_list = error_summary.get_artifacts_that_need_bug_suggestions(
+                artifacts)
             async_artifact_list.extend(tls_list)
 
             ArtifactsModel.populate_placeholders(artifacts,
