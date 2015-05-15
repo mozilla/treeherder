@@ -617,7 +617,7 @@
         "dvcs_type": "hg",
         "name": "mozilla-b2g30_v1_4",
         "url": "https://hg.mozilla.org/releases/mozilla-b2g30_v1_4",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gecko",
         "repository_group": 2,
         "description": ""
