@@ -4,6 +4,9 @@ import pytest
 from treeherder.model.derived import ArtifactsModel, JobsModel
 
 
+xfail = pytest.mark.xfail
+
+
 def test_load_single_artifact(
         test_project, eleven_jobs_processed,
         mock_send_request, mock_error_summary,
@@ -12,7 +15,6 @@ def test_load_single_artifact(
     test loading a single artifact
 
     """
-
 
     with JobsModel(test_project) as jobs_model:
         job = jobs_model.get_job_list(0, 1)[0]
