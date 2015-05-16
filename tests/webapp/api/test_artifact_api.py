@@ -77,7 +77,7 @@ def test_artifact_detail_bad_project(webapp, jm):
     jm.disconnect()
 
 
-def test_artifact_create_text_log_summary(webapp, test_project,eleven_jobs_processed,
+def test_artifact_create_text_log_summary(webapp, test_project, eleven_jobs_processed,
                                           mock_send_request, mock_error_summary,
                                           sample_data):
     """
@@ -125,7 +125,7 @@ def test_artifact_create_text_log_summary(webapp, test_project,eleven_jobs_proce
 
 
 def test_artifact_create_text_log_summary_and_bug_suggestions(
-        webapp, test_project,eleven_jobs_processed,
+        webapp, test_project, eleven_jobs_processed,
         mock_send_request, mock_error_summary,
         sample_data):
     """
@@ -180,4 +180,3 @@ def test_artifact_create_text_log_summary_and_bug_suggestions(
 
     assert set(artifact_names) == {'Bug suggestions', 'text_log_summary'}
     assert bs_blob == act_bs_obj
-

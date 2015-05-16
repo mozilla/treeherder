@@ -26,6 +26,7 @@ def oauth_treeherder_request(test_project):
         )
     return req
 
+
 @pytest.fixture
 def artifact_blob():
     return {
@@ -262,7 +263,6 @@ def test_post_job_parsed_log_doesnt_parse(test_project,
 
     # ensure the parsing didn't happen
     assert mock_parse.called is False
-
 
 
 def test_post_job_with_text_log_summary_and_bug_suggestions_artifact(
