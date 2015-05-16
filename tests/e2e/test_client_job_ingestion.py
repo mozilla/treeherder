@@ -3,11 +3,13 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 import pytest
+from mock import MagicMock
 import json
 
 from treeherder.client.thclient import client
 
 from treeherder.etl.oauth_utils import OAuthCredentials
+from treeherder.log_parser.parsers import StepParser
 from treeherder.model.derived import JobsModel, ArtifactsModel
 
 
@@ -154,6 +156,9 @@ def test_post_job_with_text_log_summary_artifact_pending(
     parse_status value.
     """
 
+    mock_parse = MagicMock(name="parse_line")
+    monkeypatch.setattr(StepParser, 'parse_line', mock_parse)
+
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
     tjc = client.TreeherderJobCollection()
     tj = client.TreeherderJob({
@@ -194,16 +199,19 @@ def test_post_job_with_text_log_summary_artifact_pending(
         })
 
         assert len(artifacts) == 2
-        assert False
 
         artifact_names = {x['name'] for x in artifacts}
         act_bs_obj = [x['blob'] for x in artifacts if x['name'] == 'Bug suggestions'][0]
 
-        assert set(artifact_names) == {'Bug suggestions', 'text_log_summary'}
-        assert mock_error_summary == act_bs_obj
+    assert set(artifact_names) == {'Bug suggestions', 'text_log_summary'}
+    assert mock_error_summary == act_bs_obj
+
+    # ensure the parsing didn't happen
+    assert mock_parse.called is False
 
 
 def test_post_job_parsed_log_doesnt_parse(test_project,
+                                          monkeypatch,
                                           result_set_stored,
                                           mock_send_request,
                                           mock_error_summary,
@@ -215,6 +223,8 @@ def test_post_job_parsed_log_doesnt_parse(test_project,
 
     Also ensure that the log was not parsed because no artifacts were created.
     """
+    mock_parse = MagicMock(name="parse_line")
+    monkeypatch.setattr(StepParser, 'parse_line', mock_parse)
 
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
     tjc = client.TreeherderJobCollection()
@@ -248,7 +258,11 @@ def test_post_job_parsed_log_doesnt_parse(test_project,
             'job_id': {('=', job_id)}
         })
 
-        assert len(artifacts) == 0
+    assert len(artifacts) == 0
+
+    # ensure the parsing didn't happen
+    assert mock_parse.called is False
+
 
 
 def test_post_job_with_text_log_summary_and_bug_suggestions_artifact(

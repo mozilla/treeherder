@@ -176,7 +176,7 @@ def publish_resultset(project, ids):
             publisher.connection.release()
 
 
-@task(name='populate-bug-suggestions')
+@task(name='populate-error-summary')
 def populate_error_summary(project, artifacts, job_id_lookup):
     """
     Create bug suggestions artifact(s) for any text_log_summary artifacts.
@@ -186,5 +186,4 @@ def populate_error_summary(project, artifacts, job_id_lookup):
     ``bug suggestions`` artifact from them.
     """
 
-    print "creating bs for {}".format(artifacts)
     load_error_summary(project, artifacts, job_id_lookup)

@@ -233,7 +233,6 @@ def get_error_summary_artifacts(artifact_list):
             "blob": json.dumps(get_error_summary(all_errors))
         })
 
-    print "<><> generated bs artifacts: {}".format(bug_suggestion_artifacts)
     return bug_suggestion_artifacts
 
 

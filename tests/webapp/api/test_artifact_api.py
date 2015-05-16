@@ -178,9 +178,6 @@ def test_artifact_create_text_log_summary_and_bug_suggestions(
     artifact_names = {x['name'] for x in artifacts}
     act_bs_obj = [x['blob'] for x in artifacts if x['name'] == 'Bug suggestions'][0]
 
-    print act_bs_obj
-    assert False
-
     assert set(artifact_names) == {'Bug suggestions', 'text_log_summary'}
     assert bs_blob == act_bs_obj
 

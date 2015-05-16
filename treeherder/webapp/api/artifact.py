@@ -63,6 +63,8 @@ class ArtifactViewSet(viewsets.ViewSet):
 
             job_id_lookup = jobs_model.get_job_ids_by_guid(job_guids)
 
+            artifacts_model.load_job_artifacts(artifacts, job_id_lookup)
+
             # If a ``text_log_summary`` and ``Bug suggestions`` artifact are
             # posted here together, for the same ``job_guid``, then just load
             # them.  This is how it is done internally in our log parser
@@ -78,13 +80,11 @@ class ArtifactViewSet(viewsets.ViewSet):
             # tls_list will contain all ``text_log_summary`` artifacts that
             # do NOT have an accompanying ``Bug suggestions`` artifact in this
             # current list of artifacts.  If it's empty, then we don't need
-            # to schedule anything.  Just load them.
+            # to schedule anything.
             if tls_list:
                 populate_error_summary.apply_async(
                     args=[project, tls_list, job_id_lookup],
                     routing_key='error_summary'
                 )
-
-            artifacts_model.load_job_artifacts(artifacts, job_id_lookup)
 
             return Response({'message': 'Artifacts stored successfully'})

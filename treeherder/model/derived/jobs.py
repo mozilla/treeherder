@@ -1181,7 +1181,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         retry_job_guids = []
 
-        async_artifact_list = []
+        async_error_summary_list = []
 
         # get the tier-2 data signatures for this project.
         # if there are none, then just return an empty list
@@ -1249,7 +1249,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     artifact_placeholders,
                     retry_job_guids,
                     tier_2_signatures,
-                    async_artifact_list
+                    async_error_summary_list
                 )
 
                 if 'id' in datum:
@@ -1346,9 +1346,9 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         # schedule the generation of ``Bug suggestions`` artifacts
         # asynchronously now that the jobs have been created
-        if async_artifact_list:
+        if async_error_summary_list:
             populate_error_summary.apply_async(
-                args=[self.project, async_artifact_list, job_id_lookup],
+                args=[self.project, async_error_summary_list, job_id_lookup],
                 routing_key='error_summary'
             )
 

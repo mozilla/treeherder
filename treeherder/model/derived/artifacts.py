@@ -147,8 +147,6 @@ class ArtifactsModel(TreeherderModelBase):
         """
         Store a list of job_artifacts given a list of placeholders
         """
-        print ""
-        print "artifact_placeholders: {}".format(artifact_placeholders)
         self.jobs_execute(
             proc='jobs.inserts.set_job_artifact',
             debug_show=self.DEBUG,
@@ -253,10 +251,8 @@ class ArtifactsModel(TreeherderModelBase):
 
                 job_id = None
                 job_guid = None
-                print ""
 
                 if isinstance(artifact, list):
-                    print "yep, list {}".format(artifact)
                     job_guid = artifact[0]
                     job_id = job_id_lookup.get(job_guid, {}).get('id', None)
 
@@ -264,7 +260,6 @@ class ArtifactsModel(TreeherderModelBase):
                         artifact, artifact_placeholders_list, job_id)
 
                 else:
-                    print "nope, not list {}".format(artifact)
                     artifact_name = artifact['name']
                     job_guid = artifact.get('job_guid', None)
                     job_id = job_id_lookup.get(
@@ -294,7 +289,6 @@ class ArtifactsModel(TreeherderModelBase):
             self.store_job_artifact(artifact_placeholders_list)
 
         if job_artifact_list:
-            print "storing job artifact list"
             self.store_job_artifact(job_artifact_list)
 
         if performance_artifact_list and performance_artifact_job_id_list:
