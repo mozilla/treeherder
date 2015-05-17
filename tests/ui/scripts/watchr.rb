@@ -5,7 +5,7 @@
 # run: watch watchr.rb
 # note: make sure that you have jstd server running (server.sh) and a browser captured
 
-log_file = File.expand_path(File.dirname(__FILE__) + '/../logs/jstd.log')
+log_file = File.expand_path(File.dirname(__FILE__) + '/../jstd.log')
 
 `cd ..`
 `touch #{log_file}`
