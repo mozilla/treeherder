@@ -52,3 +52,6 @@ docs/_build/
 
 node_modules
 .tmp/
+webapp/coverage/
+webapp/logs/
+!.gitkeep
