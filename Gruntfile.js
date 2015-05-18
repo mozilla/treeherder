@@ -17,35 +17,35 @@ module.exports = function(grunt) {
                 reportpath: null
             },
             files: {
-                src: ['webapp/app/*.html'],
+                src: ['ui/*.html'],
                 nonull: true
             },
         },
 
         useminPrepare:{
             index: {
-                src:'webapp/app/index.html',
+                src:'ui/index.html',
                 nonull: true,
                 options:{
                     dest:'dist'
                 }
             },
             help: {
-                src:'webapp/app/help.html',
+                src:'ui/help.html',
                 nonull: true,
                 options:{
                     dest:'dist'
                 }
             },
             logviewer: {
-                src:'webapp/app/logviewer.html',
+                src:'ui/logviewer.html',
                 nonull: true,
                 options:{
                     dest:'dist'
                 }
             },
             perf: {
-                src:'webapp/app/perf.html',
+                src:'ui/perf.html',
                 nonull: true,
                 options:{
                     dest:'dist'
@@ -105,16 +105,16 @@ module.exports = function(grunt) {
 
             main: {
                 files: [
-                    { src:'webapp/app/index.html', dest:'dist/index.html', nonull: true },
-                    { src:'webapp/app/help.html', dest:'dist/help.html', nonull: true },
-                    { src:'webapp/app/logviewer.html', dest:'dist/logviewer.html', nonull: true },
-                    { src:'webapp/app/perf.html', dest:'dist/perf.html', nonull: true }
+                    { src:'ui/index.html', dest:'dist/index.html', nonull: true },
+                    { src:'ui/help.html', dest:'dist/help.html', nonull: true },
+                    { src:'ui/logviewer.html', dest:'dist/logviewer.html', nonull: true },
+                    { src:'ui/perf.html', dest:'dist/perf.html', nonull: true }
                 ]
             },
             // Copy img dir
             img:{
                 expand: true,
-                src: 'webapp/app/img/*',
+                src: 'ui/img/*',
                 dest: 'dist/img/',
                 nonull: true,
                 flatten: true
@@ -122,7 +122,7 @@ module.exports = function(grunt) {
             // Copy html in partials
             partials:{
                 expand: true,
-                src: 'webapp/app/partials/*',
+                src: 'ui/partials/*',
                 dest: 'dist/partials/',
                 nonull: true,
                 flatten: true
@@ -130,7 +130,7 @@ module.exports = function(grunt) {
             // Copy fonts
             fonts:{
                 expand: true,
-                src: 'webapp/app/fonts/*',
+                src: 'ui/fonts/*',
                 dest: 'dist/fonts/',
                 nonull: true,
                 flatten: true
@@ -140,7 +140,7 @@ module.exports = function(grunt) {
             // and make paths relative with cwd definition.
             plugins:{
                 expand: true,
-                cwd: 'webapp/app/plugins/',
+                cwd: 'ui/plugins/',
                 src: '**/*.html',
                 dest: 'dist/plugins/',
                 nonull: true,
@@ -157,7 +157,7 @@ module.exports = function(grunt) {
         },
         ngtemplates: {
             treeherder: {
-                cwd: 'webapp/app',
+                cwd: 'ui',
                 src: ['partials/main/*.html', 'plugins/**/*.html'],
                 dest: 'dist/js/index.min.js',
                 options: {
@@ -178,7 +178,7 @@ module.exports = function(grunt) {
                 }
             },
             logviewer: {
-                cwd: 'webapp/app',
+                cwd: 'ui',
                 src: 'partials/logviewer/*.html',
                 dest: 'dist/js/logviewer.min.js',
                 options: {
@@ -198,7 +198,7 @@ module.exports = function(grunt) {
                 }
             },
             perf: {
-                cwd: 'webapp/app',
+                cwd: 'ui',
                 src: 'partials/perf/*.html',
                 dest: 'dist/js/perf.min.js',
                 options: {

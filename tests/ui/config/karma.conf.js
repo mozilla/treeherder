@@ -12,33 +12,33 @@ module.exports = function (config) {
     config.set({
         frameworks: ['jasmine'],
 
-        basePath: '../',
+        basePath: '../../../',
 
         files: [
-            'app/vendor/angular/angular.js',
-            'app/vendor/angular/angular-*.js',
-            'app/vendor/ui-bootstrap-*.js',
-            'app/vendor/jquery-*.js',
-            'app/vendor/jquery.ui.effect.js',
-            'app/vendor/jquery.ui.effect-highlight.js',
-            'app/vendor/bootstrap*.js',
-            'app/js/treeherder.js',
-            'app/js/filters.js',
-            'app/js/providers.js',
-            'app/js/values.js',
-            'app/js/logviewer.js',
-            'app/js/treeherder_app.js',
-            'app/js/controllers/**/*.js',
-            'app/js/directives/**/*.js',
-            'app/js/models/**/*.js',
-            'app/js/services/**/*.js',
-            'app/plugins/**/*.js',
-            'test/vendor/jasmine-jquery.js',
-            'test/unit/**/*.js',
-            'app/vendor/*.js',
+            'ui/vendor/angular/angular.js',
+            'ui/vendor/angular/angular-*.js',
+            'ui/vendor/ui-bootstrap-*.js',
+            'ui/vendor/jquery-*.js',
+            'ui/vendor/jquery.ui.effect.js',
+            'ui/vendor/jquery.ui.effect-highlight.js',
+            'ui/vendor/bootstrap*.js',
+            'ui/js/treeherder.js',
+            'ui/js/filters.js',
+            'ui/js/providers.js',
+            'ui/js/values.js',
+            'ui/js/logviewer.js',
+            'ui/js/treeherder_app.js',
+            'ui/js/controllers/**/*.js',
+            'ui/js/directives/**/*.js',
+            'ui/js/models/**/*.js',
+            'ui/js/services/**/*.js',
+            'ui/plugins/**/*.js',
+            'tests/ui/vendor/jasmine-jquery.js',
+            'tests/ui/unit/**/*.js',
+            'ui/vendor/*.js',
 
             // fixtures
-            {pattern: 'test/mock/**/*.json', watched: true, served: true, included: false}
+            {pattern: 'tests/ui/mock/**/*.json', watched: true, served: true, included: false}
         ],
 
         autoWatch: false,
@@ -55,7 +55,7 @@ module.exports = function (config) {
 
         reporters: ['progress', 'coverage'],
         preprocessors: {
-            'app/js/**/*.js': ['coverage']
+            'ui/js/**/*.js': ['coverage']
         }
     });
 };

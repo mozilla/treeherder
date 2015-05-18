@@ -6,14 +6,13 @@ module.exports = function (config) {
     config.set({
         frameworks: ['ng-scenario'],
 
-        basePath: '../',
+        basePath: '../../../',
 
         files: [
-            'test/e2e/**/*.js',
-            'https://tbpl.mozilla.org/js/Config.js',
+            'tests/ui/e2e/**/*.js',
 
             // fixtures
-            {pattern: 'test/mock/*.json', watched: true, served: true, included: false}
+            {pattern: 'tests/ui/mock/*.json', watched: true, served: true, included: false}
         ],
 
         autoWatch: false,

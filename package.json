@@ -26,7 +26,7 @@
     "karma-ng-scenario": ">=0.1.0"
   },
   "scripts": {
-    "test": "karma start webapp/config/karma.conf.js --single-run --browsers Firefox"
+    "test": "karma start tests/ui/config/karma.conf.js --single-run --browsers Firefox"
   }
 }
 

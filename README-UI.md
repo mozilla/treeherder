@@ -13,8 +13,8 @@ Treeherder exists on two instances, [stage](https://treeherder.allizom.org) for 
 The easiest way to run Treeherder's UI locally is to simply clone this repo, install [Node.js](http://nodejs.org/download/) and then from the root of the repo:
 
 ```
-cp webapp/app/js/config/sample.local.conf.js webapp/app/js/config/local.conf.js
-./webapp/scripts/web-server.js
+cp ui/js/config/sample.local.conf.js ui/js/config/local.conf.js
+./web-server.js
 ```
 
 The UI can then be viewed at [http://localhost:8000/index.html](http://localhost:8000/index.html).

@@ -6,7 +6,7 @@ of that job.  You can add your own tab to that panel in the form of a
 ``plugin``.
 
 The existing ``Jobs Detail`` tab is, itself, a plugin.  So it is a good example
-to follow.  See ``webapp/app/plugins/jobdetail``.
+to follow.  See ``ui/plugins/jobdetail``.
 
 To create a new plugin the following steps are required:
 

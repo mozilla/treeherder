@@ -10,8 +10,8 @@ $APP_USER="vagrant"
 $APP_GROUP="vagrant"
 $PROJ_DIR = "/home/${APP_USER}/treeherder"
 $VENV_DIR = "/home/${APP_USER}/venv"
-# Serve ui from app directory
-$APP_UI="webapp/app"
+# Serve ui from the non-minified directory
+$APP_UI="ui"
 # You can make these less generic if you like, but these are box-specific
 # so it's not required.
 $DB_NAME = "treeherder"

@@ -21,8 +21,8 @@ Running the web-server
 
   .. code-block:: bash
 
-     cp webapp/app/js/config/sample.local.conf.js webapp/app/js/config/local.conf.js
-     ./webapp/scripts/web-server.js
+     cp ui/js/config/sample.local.conf.js ui/js/config/local.conf.js
+     ./web-server.js
 
 Viewing the UI
 --------------
@@ -34,7 +34,7 @@ Configuration
 =============
 
 The sample configuration makes the UI load job/push data from the production service API. If you wish to test the UI against stage/dev's service instead, adjust ``thServiceDomain`` in the config file created as part of installation:
-``webapp/app/js/config/local.conf.js``
+``ui/js/config/local.conf.js``
 
 If you wish to run the full treeherder-service Vagrant project (service + UI), remember to remove local.conf.js or else change ``thServiceDomain`` within it to refer to ``vagrant``, so the UI will use the local Vagrant service API.
 
@@ -51,8 +51,7 @@ Requirements
 
 Execution::
 
-    cd webapp
-    ./scripts/test.sh
+    ./tests/ui/scripts/test.sh
 
 Build
 =====

@@ -8,7 +8,7 @@ var util = require('util'),
     events = require('events');
 
 var DEFAULT_PORT = 8000;
-var APP_ROOT = path.join(__dirname, "..", "app");
+var APP_ROOT = path.join(__dirname, "ui");
 
 function main(argv) {
   new HttpServer({
