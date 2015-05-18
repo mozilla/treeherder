@@ -8,6 +8,11 @@ treeherder.factory('thTabs', [
     function() {
         var thTabs = {
             "tabs": {
+                "jobDetails": {
+                    title: "Job details",
+                    content: "plugins/job_details/main.html",
+                    enabled: true
+                },
                 "failureSummary": {
                     title: "Failure summary",
                     content: "plugins/failure_summary/main.html",
@@ -16,11 +21,6 @@ treeherder.factory('thTabs', [
                 "annotations": {
                     title: "Annotations",
                     content: "plugins/annotations/main.html",
-                    enabled: true
-                },
-                "jobDetails": {
-                    title: "Job details",
-                    content: "plugins/job_details/main.html",
                     enabled: true
                 },
                 "similarJobs": {
@@ -34,11 +34,11 @@ treeherder.factory('thTabs', [
                     enabled: false
                 }
             },
-            "selectedTab": "failureSummary",
+            "selectedTab": "jobDetails",
             "showTab" : function(tab, contentId){
                 thTabs.selectedTab = tab;
                 if(!thTabs.tabs[thTabs.selectedTab].enabled){
-                    thTabs.selectedTab = 'failureSummary';
+                    thTabs.selectedTab = 'jobDetails';
                 }
                 // if the tab exposes an update function, call it
                 // only refresh the tab if the content hasn't been loaded yet

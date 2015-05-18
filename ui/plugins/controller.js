@@ -91,17 +91,26 @@ treeherder.controller('PluginCtrl', [
                     $scope.eta = $scope.job.get_current_eta();
                     $scope.eta_abs = Math.abs($scope.job.get_current_eta());
                     $scope.typical_eta = $scope.job.get_typical_eta();
-                    // this is a bit hacky but for now talos is the only exception we have
-                    if($scope.job.job_group_name.indexOf('Talos') !== -1){
+
+                    // we handle which tab gets presented in the job details panel
+                    // and a special set of rules for talos
+                    if ($scope.job.job_group_name.indexOf('Talos') !== -1) {
                         $scope.tabService.tabs.talos.enabled = true;
-                        if(thResultStatus($scope.job) === 'success'){
+                        if (thResultStatus($scope.job) === 'success') {
                             $scope.tabService.selectedTab = 'talos';
-                        }else{
+                        } else {
                             $scope.tabService.selectedTab = 'failureSummary';
                         }
-                    }else{
+                    } else {
+                        // tab presentation for any other (non-talos) job
                         $scope.tabService.tabs.talos.enabled = false;
+                        if (thResultStatus($scope.job) === 'success') {
+                            $scope.tabService.selectedTab = 'jobDetails';
+                        } else {
+                            $scope.tabService.selectedTab = 'failureSummary';
+                        }
                     }
+
                     // the second result come from the buildapi artifact promise
                     var buildapi_artifact = results[1];
 

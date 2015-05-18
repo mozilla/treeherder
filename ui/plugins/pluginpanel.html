@@ -212,6 +212,12 @@
     <div id="bottom-center-top">
       <nav class="navbar navbar-dark">
         <ul class="nav navbar-nav tab-headers">
+          <li ng-class="{'active': tabService.selectedTab == 'jobDetails'}">
+            <a title="Show additional job information"
+               href="" prevent-default-on-left-click
+               ng-click="tabService.showTab('jobDetails', job.id)">
+              Job details
+            </a>
           <li ng-class="{'active': tabService.selectedTab == 'failureSummary'}">
             <a title="Show failure summary"
                href="" prevent-default-on-left-click
@@ -226,12 +232,6 @@
               Annotations
             </a>
           </li>
-          <li ng-class="{'active': tabService.selectedTab == 'jobDetails'}">
-            <a title="Show additional job information"
-               href="" prevent-default-on-left-click
-               ng-click="tabService.showTab('jobDetails', job.id)">
-              Job details
-            </a>
           </li>
           <li ng-class="{'active': tabService.selectedTab == 'similarJobs'}">
             <a title="Show similar jobs"
