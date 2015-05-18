@@ -9,7 +9,6 @@
 # Packages
 *.egg
 *.egg-info
-dist
 build
 eggs
 parts
@@ -38,6 +37,9 @@ nosetests.xml
 # Translations
 *.mo
 
+#pycharm files
+.idea/
+
 # Mr Developer
 .mr.developer.cfg
 .project
@@ -49,6 +51,8 @@ nosetests.xml
 deployment/update/commander_settings.py
 treeherder/settings/local.py
 treeherder/settings/pycharm_django_settings.py
+ui/js/config/local.conf.js
+
 htmlcov/
 
 #static files in deployment
@@ -71,4 +75,8 @@ docs/_build/
 
 treeherder/webapp/log_cache
 celerybeat-schedule
+
+node_modules
+.tmp/
+
 !.gitkeep
