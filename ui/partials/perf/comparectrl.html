@@ -20,7 +20,7 @@
       <table class="table">
         <tbody ng-repeat="testName in testList">
           <tr class="subtest-header">
-            <td>{{titles[testName]}}</td><td>Old Geomean</td><td>Old StdDev</td><td>New Geomean</td><td>New StdDev</td><td>Delta</td><td>Delta %</td><td></td>
+            <td>{{titles[testName]}}</td><td>Old Geomean</td><td>Old StdDev</td><td>New Geomean</td><td>New StdDev</td><td>Delta</td><td>Delta %</td><td></td><td>Confidence</td>
           </tr>
           <tr ng-class="getCompareClasses(compareResult, 'row')" ng-repeat="compareResult in compareResults[testName]">
             <td>{{compareResult.name}} (<a ng-href="{{compareResult.detailsLink}}">Details</a>)</td>
@@ -34,6 +34,7 @@
             <td ng-class="getCompareClasses(compareResult)">{{compareResult.deltaPercentage|displayPrecision}}%</td>
             <td ng-if="compareResult.delta" width="20%"><div ng-class="getCompareClasses(compareResult, 'bar')" style="margin-{{compareResult.marginDirection}}: {{compareResult.barGraphMargin}}%;"></div></td>
             <td ng-if="!compareResult.delta"></td>
+          <td><span ng-show="compareResult.confidenceText">{{compareResult.confidence|displayPrecision}} ({{compareResult.confidenceText}})</span></td>
           </tr>
         </tbody>
       </table>
