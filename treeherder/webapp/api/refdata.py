@@ -131,7 +131,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
     """
     Info about a logged-in user.
-    Used by treeherder-ui to inspect user properties like the exclusion profile
+    Used by Treeherder's UI to inspect user properties like the exclusion profile
     """
     model = User
     serializer_class = th_serializers.UserSerializer

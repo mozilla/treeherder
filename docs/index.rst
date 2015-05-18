@@ -14,7 +14,6 @@ Contents:
    installation
    dataload
    deployment
-   ui_integration
    list_of_services
    common_tasks
    submitting_data

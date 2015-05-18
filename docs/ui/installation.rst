@@ -2,12 +2,12 @@ Installation
 ============
 
 You can work on the UI without needing a VM, by using web-server.js.
-There are a few limitations, since URL rewriting is not supported (and so some links will be broken), but it works well enough for quick testing. For instructions on how to serve the UI with working URL rewriting, use the treeherder-service Vagrant instructions.
+There are a few limitations, since URL rewriting is not supported (and so some links will be broken), but it works well enough for quick testing. For instructions on how to serve the UI with working URL rewriting, see the Vagrant instructions.
 
 Cloning the Repo
 ----------------
 
-* Clone the `treeherder-ui repo`_ from Github.
+* Clone the `treeherder repo`_ from Github.
 
 Requirements
 ------------
@@ -58,12 +58,12 @@ Build
 =====
 * Install grunt ``sudo npm install grunt-cli -g``
 * Install the ``devDependencies`` in ``package.json`` by running ``npm install`` from the project root
-* Run the following command in ``treeherder-ui``:
+* Run the following command in the repo root:
 
 Build::
     grunt build
 
-This will create a ``dist`` directory in ``treeherder-ui`` where concatenated and minified js, css, and application assets can be served from.
+This will create a ``dist`` directory in the repo root, where concatenated and minified js, css, and application assets can be served from.
 
-.. _treeherder-ui repo: https://github.com/mozilla/treeherder-ui
+.. _treeherder repo: https://github.com/mozilla/treeherder
 .. _Node.js: http://nodejs.org/download/

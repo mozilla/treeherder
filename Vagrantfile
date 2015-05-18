@@ -17,7 +17,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.network "private_network", ip: "192.168.33.10"
 
   config.vm.synced_folder ".", "/home/vagrant/treeherder", type: "nfs"
-  config.vm.synced_folder "../treeherder-ui", "/home/vagrant/treeherder-ui", type: "nfs"
 
   config.vm.provider "virtualbox" do |vb|
     vb.customize ["modifyvm", :id, "--memory", "1024"]
@@ -27,7 +26,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     puppet.manifests_path = "puppet/manifests"
     puppet.manifest_file = "vagrant.pp"
 
-    #uncomment in production to serve treeherder-ui from dist directory
+    #uncomment in production to serve the ui from the dist directory
     #puppet.manifest_file = "production.pp"
 
     # enable this to see verbose and debug puppet output

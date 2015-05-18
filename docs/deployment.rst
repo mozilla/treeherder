@@ -93,13 +93,13 @@ of a stunnel configuration file:
 
 Serving the UI build from the distribution directory
 ----------------------------------------------------
-To serve the UI from the ``treeherder-ui/dist`` directory, in the ``treeherder-ui`` directory run:
+To serve the UI from the ``dist`` directory, run:
 
 .. code-block:: bash
 
-  (venv)vagrant@precise32:~/treeherder-ui$ grunt build
+  (venv)vagrant@precise32:~/treeherder$ grunt build
 
-This will build the UI by concatenating and minifying the js and css and move all required assets to a directory called ``dist`` in the repository root of ``treeherder-ui``. In ``treeherder/Vagrantfile`` uncomment this line:
+This will build the UI by concatenating and minifying the js and css and move all required assets to a directory called ``dist`` in the repository root. In ``Vagrantfile`` uncomment this line:
 
 .. code-block:: ruby
 

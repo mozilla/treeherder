@@ -21,7 +21,6 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import commander_settings as settings  # noqa
 
 th_service_src = os.path.join(settings.SRC_DIR, 'treeherder-service')
-th_ui_src = os.path.join(settings.SRC_DIR, 'treeherder-ui')
 
 is_prod = 'treeherder.mozilla.org' in settings.SRC_DIR
 
@@ -36,12 +35,6 @@ def pre_update(ctx, ref=settings.UPDATE_REF):
         ctx.local('find . -type f \( -name "*.pyc" -o -name "*.c" -o -name "*.so" \) -delete')
         ctx.local('git status -s')
         ctx.local('git rev-parse HEAD > treeherder/webapp/media/revision')
-
-    with ctx.lcd(th_ui_src):
-        ctx.local('git fetch --quiet origin %s' % ref)
-        ctx.local('git reset --hard FETCH_HEAD')
-        ctx.local('git status -s')
-        ctx.local('git rev-parse HEAD >> ../treeherder-service/treeherder/webapp/media/revision')
 
 
 @task

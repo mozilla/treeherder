@@ -3,7 +3,7 @@
   "description": "The UI portion of Mozilla Treeherder",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mozilla/treeherder-ui.git"
+    "url": "https://github.com/mozilla/treeherder.git"
   },
   "devDependencies": {
     "grunt": "~0.4.4",
