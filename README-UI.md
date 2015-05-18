@@ -18,12 +18,11 @@ Treeherder exists on two instances, [stage](https://treeherder.allizom.org) for 
 The easiest way to run treeherder-ui locally is to simply clone this repo, install [Node.js](http://nodejs.org/download/) and then from the root of the repo:
 
 ```
-cd webapp
-cp app/js/config/sample.local.conf.js app/js/config/local.conf.js
-./scripts/web-server.js
+cp webapp/app/js/config/sample.local.conf.js webapp/app/js/config/local.conf.js
+./webapp/scripts/web-server.js
 ```
 
-The UI can then be viewed at [http://localhost:8000/app/index.html](http://localhost:8000/app/index.html).
+The UI can then be viewed at [http://localhost:8000/index.html](http://localhost:8000/index.html).
 
 Data will be pulled from the production instance API by default. See the [installation docs](https://treeherder-ui.readthedocs.org/en/latest/installation.html) for more options, how to run the tests & using the Vagrant project for a more robust environment that also allows you to run the back-end locally.
 

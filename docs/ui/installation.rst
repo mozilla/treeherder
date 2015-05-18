@@ -21,15 +21,14 @@ Running the web-server
 
   .. code-block:: bash
 
-     cd webapp
-     cp app/js/config/sample.local.conf.js app/js/config/local.conf.js
-     ./scripts/web-server.js
+     cp webapp/app/js/config/sample.local.conf.js webapp/app/js/config/local.conf.js
+     ./webapp/scripts/web-server.js
 
 Viewing the UI
 --------------
 
 Once the server is running, you can navigate to:
-`<http://localhost:8000/app/index.html>`_
+`<http://localhost:8000/index.html>`_
 
 Configuration
 =============

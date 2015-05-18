@@ -8,7 +8,7 @@ var util = require('util'),
     events = require('events');
 
 var DEFAULT_PORT = 8000;
-var APP_ROOT = path.join(__dirname, "..");
+var APP_ROOT = path.join(__dirname, "..", "app");
 
 function main(argv) {
   new HttpServer({
@@ -259,7 +259,7 @@ function isFile(filename) {
 
 // All the HTML files include the config file directly but none of them warns
 // if it doesn't exist, so when starting the server is a good time to warn.
-var confFile = path.join(APP_ROOT, "app/js/config/local.conf.js");
+var confFile = path.join(APP_ROOT, "js", "config", "local.conf.js");
 if (!isFile(confFile)) {
   console.log("Missing config file '" + confFile + "'.\n" +
               "Consider copying it from 'sample.local.conf.js' at the same directory.");
