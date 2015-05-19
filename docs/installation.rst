@@ -39,7 +39,7 @@ Setting up Vagrant
 
   **Troubleshooting**: If you encounter an error saying *"mount.nfs: requested NFS version or transport protocol is not supported"*, you should restart the kernel server service using this sequence of commands:
 
-  .. code-block:: bash
+  .. code-block:: none
 
     systemctl stop nfs-kernel-server.service
     systemctl disable nfs-kernel-server.service
