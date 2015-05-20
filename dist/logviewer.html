@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html ng-controller="LogviewerCtrl" ng-init="init()" ng-app="logviewer">
+    <head>
+        <meta charset="utf-8">
+        <title ng-bind="getLogviewerTitle()">Log viewer</title>
+        <link rel="stylesheet" href="css/logviewer.min-c87506a0382e9218867411f010aed632.css" media="screen">
+        <link id="favicon" type="image/png" rel="shortcut icon" href="img/tree_open.png">
+    </head>
+    <body class="body-logviewer">
+        <div class="run-data">
+            <div class="col-md-6" >
+                <div class="job-header">
+                    <table class="table table-condensed" >
+                        <tr ng-repeat="(label, value) in artifact.header">
+                            <th ng-cloak>{{label}}</th>
+                            <td ng-if="label == 'revision'" class="break-word">
+                                <a href="{{logRevisionFilterUrl}}"
+                                   title="Open resultset"
+                                   class="repo-link"
+                                   ng-cloak>{{value}}</a>
+                            </td>
+                            <td ng-if="label == 'starttime'"
+                                ng-cloak class="break-word">{{logDisplayDate}}</td>
+                            <td ng-if="label != 'revision' && label != 'starttime'"
+                                ng-cloak class="break-word">{{value}}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="col-md-6" lv-log-steps></div>
+        </div>
+
+        <div class="lv-log-container"
+             lv-infinite-scroll
+             lv-log-lines="displayedLogLines">
+        </div>
+
+        <script src="js/logviewer.min-1a9073fbe7732133de64ef3a7af7a13c.js"></script>
+
+        <script src="js/config/local.conf.js"></script>
+
+    </body>
+</html>
