@@ -162,6 +162,73 @@ th-watched-repo {
    font-size: 14px;
 }
 
+.btn-filter-chicklets {
+    background-color: white;
+    border-color: #a9a9a9;
+    color: white;
+}
+
+.btn-nav-filter {
+    padding: 7px 2px;
+}
+
+.chicklet-off {
+    text-decoration: line-through;
+    opacity: 0.5;
+}
+
+.btn-filter-chicklet-orange,
+.btn-filter-chicklet-orange:hover {
+    color: #dd6602;
+}
+
+.btn-filter-chicklet-red,
+.btn-filter-chicklet-red:hover {
+    color: #c03a44;
+}
+
+.btn-filter-chicklet-purple,
+.btn-filter-chicklet-purple:hover {
+    color: #77438d;
+}
+
+.btn-filter-chicklet-green,
+.btn-filter-chicklet-green:hover {
+    color: rgba(2, 130, 51, 0.75);
+}
+
+.btn-filter-chicklet-dkblue,
+.btn-filter-chicklet-dkblue:hover {
+    color: #3656ff;
+}
+
+.btn-filter-chicklet-pink,
+.btn-filter-chicklet-pink:hover {
+    color: rgba(250, 115, 172, 0.82);
+}
+
+.btn-filter-chicklet-yellow,
+.btn-filter-chicklet-yellow:hover {
+    color: #cdce1d;
+}
+
+.btn-filter-chicklet-ltgray,
+.btn-filter-chicklet-ltgray:hover {
+    color: #e0e0e0;
+}
+
+.btn-filter-chicklet-dkgray,
+.btn-filter-chicklet-dkgray:hover {
+    color: #7c7a7d;
+}
+
+.btn-filter-chicklet-black,
+.btn-filter-chicklet-black:hover {
+    color: black;
+}
+
+
+
 /*
  * Quick Filter
  */

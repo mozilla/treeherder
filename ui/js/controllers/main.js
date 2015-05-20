@@ -344,6 +344,10 @@ treeherderApp.controller('MainCtrl', [
             $location.search("group_state", newGroupState);
         };
 
+        $scope.toggleCompactMode = function() {
+            $rootScope.isCompactMode = !$rootScope.isCompactMode;
+        };
+
         var getNewReloadTriggerParams = function() {
             return _.pick(
                 $location.search(),
@@ -414,6 +418,10 @@ treeherderApp.controller('MainCtrl', [
         $scope.setOnscreenShortcutsShowing = function(tf) {
             $scope.onscreenShortcutsShowing = tf;
             $scope.onscreenOverlayShowing = tf;
+        };
+
+        $scope.isFilterDefaults = function() {
+            thJobFilters.isDefaults();
         };
 
         $scope.isFilterPanelShowing = false;

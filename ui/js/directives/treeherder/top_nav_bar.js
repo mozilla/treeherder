@@ -182,3 +182,16 @@ treeherder.directive('thExclusionState', function () {
         }
     };
 });
+
+treeherder.directive('thResultStatusChicklet', [
+    'thResultStatusInfo',
+    function (thResultStatusInfo) {
+
+    return {
+        restrict: "E",
+        link: function(scope, element, attrs) {
+            scope.chickletClass = thResultStatusInfo(scope.filterName).chickletClass;
+        },
+        templateUrl: 'partials/main/thResultStatusChicklet.html'
+    };
+}]);
