@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html ng-controller="LogviewerCtrl" ng-init="init()" ng-app="logviewer">
+    <head>
+        <meta charset="utf-8">
+        <title ng-bind="getLogviewerTitle()">Log viewer</title>
+        <!-- build:css css/logviewer.min.css -->
+        <link href="css/bootstrap.css" rel="stylesheet" media="screen">
+        <link href="css/treeherder.css" rel="stylesheet" type="text/css">
+        <link href="css/logviewer.css" rel="stylesheet" type="text/css">
+        <!-- endbuild -->
+        <link id="favicon" type="image/png" rel="shortcut icon" href="img/tree_open.png">
+    </head>
+    <body class="body-logviewer">
+        <div class="run-data">
+            <div class="col-md-6" >
+                <div class="job-header">
+                    <table class="table table-condensed" >
+                        <tr ng-repeat="(label, value) in artifact.header">
+                            <th ng-cloak>{{label}}</th>
+                            <td ng-if="label == 'revision'" class="break-word">
+                                <a href="{{logRevisionFilterUrl}}"
+                                   title="Open resultset"
+                                   class="repo-link"
+                                   ng-cloak>{{value}}</a>
+                            </td>
+                            <td ng-if="label == 'starttime'"
+                                ng-cloak class="break-word">{{logDisplayDate}}</td>
+                            <td ng-if="label != 'revision' && label != 'starttime'"
+                                ng-cloak class="break-word">{{value}}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="col-md-6" lv-log-steps></div>
+        </div>
+
+        <div class="lv-log-container"
+             lv-infinite-scroll
+             lv-log-lines="displayedLogLines">
+        </div>
+
+        <!-- build:js js/logviewer.min.js -->
+        <script src="vendor/jquery-2.1.3.js"></script>
+        <script src="vendor/angular/angular.js"></script>
+        <script src="vendor/angular/angular-route.js"></script>
+        <script src="vendor/angular/angular-resource.js"></script>
+        <script src="vendor/angular/angular-cookies.js"></script>
+        <script src="vendor/angular-local-storage.min.js"></script>
+        <script src="vendor/angular/angular-sanitize.min.js"></script>
+        <script src="vendor/ui-bootstrap-tpls-0.10.0.min.js"></script>
+        <script src="vendor/bootstrap.js"></script>
+        <script src="vendor/lodash.min.js"></script>
+        <script src="vendor/resizer.js"></script>
+
+        <script src="js/treeherder.js"></script>
+        <script src="js/logviewer.js"></script>
+        <script src="js/providers.js"></script>
+
+        <!-- Directives -->
+        <script src="js/directives/log_viewer_infinite_scroll.js"></script>
+        <script src="js/directives/log_viewer_lines.js"></script>
+        <script src="js/directives/log_viewer_steps.js"></script>
+
+        <!-- Main services -->
+        <script src="js/services/main.js"></script>
+        <script src="js/services/log.js"></script>
+
+        <!-- Model services -->
+        <script src="js/models/job_artifact.js"></script>
+        <script src="js/models/log_slice.js"></script>
+
+        <!-- Controllers -->
+        <script src="js/controllers/logviewer.js"></script>
+        <!-- endbuild -->
+
+        <script src="js/config/local.conf.js"></script>
+
+    </body>
+</html>

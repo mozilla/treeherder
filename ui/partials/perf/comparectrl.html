@@ -1,0 +1,43 @@
+<div class="container-fluid">
+  <div id="datapoint-detail" ng-show="originalRevision && newRevision">
+    <div ng-if="dataLoading">
+      Loading all results, please wait a minute...
+      <img src="img/dancing_cat.gif" />
+    </div>
+    <div id="error" ng-if="!dataLoading && errors.length" ng-repeat="error in errors">
+      <div>{{error}}</div>
+    </div>
+    <div id="subtest-summary" ng-if="!dataLoading && !errors.length">
+      <h1>Perfherder Compare Revisions<br/>
+      <small>Compare all data for revision
+        <a href="{{originalProject.getRevisionHref(originalRevision)}}">
+          {{originalRevision}}</a> ({{originalProject.name}}) to
+        <a href="{{newProject.getRevisionHref(newRevision)}}">
+          {{newRevision}}</a> ({{newProject.name}})
+        </small>
+      </h1>
+      <p ng-if="testNoResults"> tests with no results: {{testNoResults}}</p>
+      <table class="table">
+        <tbody ng-repeat="testName in testList">
+          <tr class="subtest-header">
+            <td>{{titles[testName]}}</td><td>Old Geomean</td><td>Old StdDev</td><td>New Geomean</td><td>New StdDev</td><td>Delta</td><td>Delta %</td><td></td><td>Confidence</td>
+          </tr>
+          <tr ng-class="getCompareClasses(compareResult, 'row')" ng-repeat="compareResult in compareResults[testName]">
+            <td>{{compareResult.name}} (<a ng-href="{{compareResult.detailsLink}}">Details</a>)</td>
+            <td ng-attr-title="runs: {{compareResult.originalRuns}}">{{compareResult.originalGeoMean|displayPrecision}}</td>
+            <td ng-if="compareResult.originalStddev">+/-{{compareResult.originalStddev|displayPrecision}} ({{compareResult.originalStddevPct|displayPrecision}}%)</td>
+            <td ng-if="!compareResult.originalStddev">N/A</td>
+            <td ng-attr-title="runs: {{compareResult.newRuns}}">{{compareResult.newGeoMean|displayPrecision}}</td>
+            <td ng-if="compareResult.newStddev">+/-{{compareResult.newStddev|displayPrecision}} ({{compareResult.newStddevPct|displayPrecision}}%)</td>
+            <td ng-if="!compareResult.newStddev">N/A</td>
+            <td ng-class="getCompareClasses(compareResult)">{{compareResult.delta|displayPrecision}}</td>
+            <td ng-class="getCompareClasses(compareResult)">{{compareResult.deltaPercentage|displayPrecision}}%</td>
+            <td ng-if="compareResult.delta" width="20%"><div ng-class="getCompareClasses(compareResult, 'bar')" style="margin-{{compareResult.marginDirection}}: {{compareResult.barGraphMargin}}%;"></div></td>
+            <td ng-if="!compareResult.delta"></td>
+          <td><span ng-show="compareResult.confidenceText">{{compareResult.confidence|displayPrecision}} ({{compareResult.confidenceText}})</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

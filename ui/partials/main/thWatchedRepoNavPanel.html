@@ -1,0 +1,52 @@
+<div class="th-context-navbar watched-repo-navbar clearfix" >
+    <th-watched-repo ng-repeat="(name, repoData) in repoModel.watchedRepos"></th-watched-repo>
+    <div class="navbar-right">
+        <span>
+            <form role="search" class="form-inline">
+
+                <!--Unclassified Failures Button-->
+                <span class="btn btn-sm"
+                      ng-click="toggleUnclassifiedFailures()"
+                      title="Loaded failures / Toggle filtering for unclassified failures"
+                      tabindex="0" role="button"
+                      ng-class="{'btn-unclassified-failures': getUnclassifiedFailureCount(repoName), 'btn-view-nav': getUnclassifiedFailureCount(repoName)===0}">
+                    <span>{{ getUnclassifiedFailureCount(repoName) }}</span> unclassified
+                </span>
+
+                <!--Toggle Tier-1 jobs only Button-->
+                <span class="btn btn-view-nav btn-sm"
+                      title="Toggle Tier-1 jobs only mode"
+                      tabindex="0" role="button"
+                      ng-click="toggleTier1Only()">1</span>
+
+                <!--Hidden Jobs Button-->
+                <span class="btn btn-view-nav btn-sm btn-right-navbar"
+                      title="Show/hide excluded jobs"
+                      tabindex="0" role="button"
+                      ng-click="toggleExcludedJobs()">
+                    <i class="fa"
+                       th-exclusion-state
+                       ng-class="::exclusionStateClass"></i>
+                </span>
+
+                <!--Toggle Revisions Button-->
+                <span class="btn-group">
+                    <span class="btn btn-view-nav btn-sm btn-collapse-resultsets"
+                          title="Show/hide revision list"
+                          tabindex="0" role="button"
+                          ng-click="toggleAllRevisions()"><i class="fa fa-code-fork"></i>
+                    </span>
+                </span>
+
+                <!--Search Field-->
+                <span ng-controller="SearchCtrl" class="form-group form-inline">
+                    <input id="platform-job-text-search-field"
+                           ng-model="searchQueryStr" ng-keydown="search($event)" type="text"
+                           class="form-control input-sm"
+                           placeholder="Filter platforms & jobs"
+                           blur-this>
+                </span>
+            </form>
+        </span>
+    </div>
+</div>

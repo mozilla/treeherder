@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html ng-app="treeherder.app">
+    <head>
+        <meta charset="utf-8">
+        <title ng-bind="getWindowTitle()">Treeherder</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link id="favicon" type="image/png" rel="shortcut icon" href="img/tree_open.png">
+        <th-favicon-link></th-favicon-link>
+
+        <!-- build:css css/index.min.css -->
+        <link href="css/bootstrap.css" rel="stylesheet" media="screen">
+        <link href="css/bootstrap-non-responsive.css" rel="stylesheet" media="screen">
+        <link href="css/font-awesome.min.css" rel="stylesheet" media="screen">
+        <link href="css/treeherder.css" rel="stylesheet" media="screen">
+        <link href="css/persona-buttons.css" rel="stylesheet" media="screen">
+        <!-- endbuild -->
+
+    </head>
+    <body ng-controller="MainCtrl" ng-keydown="processKeyboardInput($event)">
+        <div id="global-container">
+            <div class="th-navbar">
+                <ng-include id="th-global-top-nav-panel" src="'partials/main/thGlobalTopNavPanel.html'"></ng-include>
+            </div>
+            <div class="th-content"
+                 ng-click="clearJobOnClick($event)">
+                <span class="th-view-content" ng-cloak>
+                    <ng-view ></ng-view>
+                </span>
+            </div>
+            <div ng-controller="PluginCtrl"
+                 id="bottom-panel"
+                 ng-show="selectedJob"
+                 ng-class="{'with-pinboard':isPinboardVisible}"
+                 ng-include src="'plugins/pluginpanel.html'">
+            </div>
+        </div>
+
+        <th-notification-box></th-notification-box>
+
+        <!-- build:js js/index.min.js -->
+        <script src="vendor/jquery-2.1.3.js"></script>
+        <script src="vendor/angular/angular.js"></script>
+        <script src="vendor/angular/angular-route.js"></script>
+        <script src="vendor/angular/angular-resource.js"></script>
+        <script src="vendor/angular/angular-cookies.js"></script>
+        <script src="vendor/ui-bootstrap-tpls-0.10.0.min.js"></script>
+        <script src="vendor/bootstrap.js"></script>
+        <script src="vendor/angular/angular-sanitize.min.js"></script>
+        <script src="vendor/angular-local-storage.min.js"></script>
+        <script src="vendor/mousetrap.min.js"></script>
+        <script src="vendor/lodash.min.js"></script>
+        <script src="vendor/resizer.js"></script>
+
+        <script src="js/treeherder.js"></script>
+        <script src="js/treeherder_app.js"></script>
+        <script src="js/services/log.js"></script>
+        <script src="js/providers.js"></script>
+        <script src="js/values.js"></script>
+        <!-- Directives -->
+        <script src="js/directives/main.js"></script>
+        <script src="js/directives/clonejobs.js"></script>
+        <script src="js/directives/persona.js"></script>
+        <script src="js/directives/resultsets.js"></script>
+        <script src="js/directives/top_nav_bar.js"></script>
+        <script src="js/directives/bottom_nav_panel.js"></script>
+        <!-- Main services -->
+        <script src="js/services/main.js"></script>
+        <script src="js/services/buildapi.js"></script>
+        <script src="js/services/classifications.js"></script>
+        <script src="js/services/jobfilters.js"></script>
+        <script src="js/services/pinboard.js"></script>
+        <script src="js/services/treestatus.js"></script>
+        <!-- Model services -->
+        <script src="js/models/resultset.js"></script>
+        <script src="js/models/resultsets_store.js"></script>
+        <script src="js/models/job_artifact.js"></script>
+        <script src="js/models/repository.js"></script>
+        <script src="js/models/bug_job_map.js"></script>
+        <script src="js/models/classification.js"></script>
+        <script src="js/models/job.js"></script>
+        <script src="js/models/job_exclusion.js"></script>
+        <script src="js/models/exclusion_profile.js"></script>
+        <script src="js/models/build_platform.js"></script>
+        <script src="js/models/job_type.js"></script>
+        <script src="js/models/job_group.js"></script>
+        <script src="js/models/job_log_url.js"></script>
+        <script src="js/models/option_collection.js"></script>
+        <script src="js/models/user.js"></script>
+        <script src="js/models/error.js"></script>
+        <!-- Controllers -->
+        <script src="js/controllers/main.js"></script>
+        <script src="js/controllers/sheriff.js"></script>
+        <script src="js/controllers/settings.js"></script>
+        <script src="js/controllers/repository.js"></script>
+        <script src="js/controllers/filters.js"></script>
+        <script src="js/controllers/jobs.js"></script>
+        <script src="js/controllers/machines.js"></script>
+        <script src="js/controllers/timeline.js"></script>
+        <!-- Plugins -->
+        <script src="plugins/tabs.js"></script>
+        <script src="plugins/controller.js"></script>
+        <script src="plugins/pinboard.js"></script>
+        <script src="plugins/annotations/controller.js"></script>
+        <script src="plugins/failure_summary/controller.js"></script>
+        <script src="plugins/similar_jobs/controller.js"></script>
+
+        <script src="js/filters.js"></script>
+        <!-- endbuild -->
+
+        <script src="js/config/local.conf.js"></script>
+        <script src="https://login.persona.org/include.js"></script>
+
+        <!-- Clone targets -->
+
+        <!-- Clone target for each revision -->
+        <script type="'text/ng-template'" id="revisionsClone.html">
+            <div class="clearfix"></div>
+            <li>
+                <span class="revision">
+                    <a href="{{currentRepo.getRevisionHref(revision)}}"
+                       title="open revision {{revision}} on {{currentRepo.url}}"
+                       ignore-job-clear-on-click
+                       >{{revision}}</a>
+                    <span title="{{name}}: {{email}}">{{name|initials}}</span>
+                    <span title="{{escaped_comment}}">
+                        <span class="revision-comment">
+                            <em>{{escaped_comment_linkified}}</em>
+                        </span>
+                    </span>
+                </span>
+            </li>
+        </script>
+
+        <!-- Clone target for "more" link for large revision sets -->
+        <script type="'text/ng-template'" id="pushlogRevisionsClone.html">
+            <li>
+                <a href="{{currentRepo.getPushLogHref(revision)}}"
+                   ignore-job-clear-on-click
+                   target="_blank"> ...and more
+                    <i class="fa fa-external-link-square"></i>
+                </a>
+            </li>
+        </script>
+
+        <!-- Clone target for each result set -->
+        <script type="'text/ng-template'" id="resultsetClone.html">
+            <div class="clearfix"></div>
+            <div class="row result-set">
+                <span style="display:block;" class="revision-list col-xs-5">
+                    <ul class="list-unstyled"></ul>
+                </span>
+                <span class="job-list col-xs-7 job-list-pad-left">
+                    <span class="fa fa-refresh fa-spin"></span>
+                    <table id="{{ aggregateId }}" class="table-hover"></table>
+                </span>
+            </div>
+        </script>
+        <!-- Clone target for each platform -->
+        <script type="'text/ng-template'" id="platformClone.html">
+            <td class="platform">
+                <span title="{{ name }} {{ option }}">{{ name }} {{ option }}</span>
+            </td>
+        </script>
+
+        <!-- Table column for jobs -->
+        <script type="'text/ng-template'" id="jobTdClone.html">
+            <td class="job-row"></td>
+        </script>
+
+        <!-- Start span for job groups -->
+        <script type="'text/ng-template'" id="jobGroupBeginClone.html">
+            <span class="platform-group">
+                <span class="disabled job-group" title="{{ name }}">{{ symbol }}(</span>
+                <span class="job-group-list"></span>)
+            </span>
+        </script>
+
+        <!-- Job Btn span -->
+        <script type="'text/ng-template'" id="jobBtnClone.html">
+            <span class="btn job-btn btn-xs {{ btnClass }} {{ key }}"
+                  data-jmkey="{{ key }}"
+                  ignore-job-clear-on-click
+                  title="{{ title }}">{{ value }}</span>
+        </script>
+
+        <!-- revision url window -->
+        <script type="'text/ng-template'" id="revisionUrlClone.html">
+            <div>{{revisionUrl}}</div>
+        </script>
+
+        <!-- Tooltip for job info-->
+        <script type="'text/ng-template'" id="jobInfoTooltip.html">
+            <div>
+                <table class="table-super-condensed table-striped">
+                    <tr>
+                        <th class="small">Result</th>
+                        <td class="small {{ resultStatusClass }}">{{ job.result }}</td>
+                    </tr>
+                    <tr>
+                        <th class="small">Machine name</th>
+                        <td class="small">
+                            <a target="_blank" href="https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name={{ job.machine_name }}">{{ job.machine_name }}</a>
+                        </td>
+                    </tr>
+                    <tr ng-repeat="(label, value) in visibleFields"><th>{{label}}</th><td>{{ value }}</td></tr>
+                </table>
+            </div>
+        </script>
+    </body>
+</html>

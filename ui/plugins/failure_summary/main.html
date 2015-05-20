@@ -1,0 +1,93 @@
+<div ng-controller="BugsPluginCtrl">
+    <ul class="list-unstyled failure-summary-list">
+
+        <li ng-repeat="suggestion in suggestions">
+            <div class="job-tabs-content">
+                <span>{{::suggestion.search}}</span>
+            </div>
+            <!--Open recent bugs-->
+            <ul ng-if="suggestion.valid_open_recent"
+                class="list-unstyled failure-summary-bugs">
+                <li ng-repeat="bug in suggestion.bugs.open_recent">
+                    <a class="btn btn-xs btn-default"
+                       prevent-default-on-left-click
+                       ng-click="pinboard_service.addBug(bug, selectedJob)"
+                       title="add to list of bugs to associate with all pinned jobs">
+                      <i class="glyphicon glyphicon-pushpin"></i>
+                    </a>
+                    <a href="https://bugzilla.mozilla.org/show_bug.cgi?id={{::bug.id}}"
+                       target="_blank">{{::bug.id}}
+                        <span ng-bind-html="bug.summary | escapeHTML | highlightCommonTerms:suggestion.search"
+                              title="{{::bug.summary}}">{{::bug.summary}}
+                        </span>
+                    </a>
+                </li>
+            </ul>
+
+            <!--All other bugs-->
+            <a ng-if="suggestion.valid_all_others && suggestion.valid_open_recent"
+               href="" prevent-default-on-left-click
+               ng-click="suggestion.clicked_show_more = (suggestion.clicked_show_more === true ? false : true)"
+               class="show-hide-more">Show / Hide more</a>
+
+            <ul ng-if="suggestion.valid_all_others && (suggestion.clicked_show_more || !suggestion.valid_open_recent)"
+                class="list-unstyled failure-summary-bugs">
+                <li ng-repeat="bug in suggestion.bugs.all_others">
+                    <a class="btn btn-xs btn-default"
+                       prevent-default-on-left-click
+                       ng-click="pinboard_service.addBug(bug, selectedJob)"
+                       title="add to list of bugs to associate with all pinned jobs">
+                      <i class="glyphicon glyphicon-pushpin"></i>
+                    </a>
+                    <a ng-if="bug.resolution === ''"
+                       href="https://bugzilla.mozilla.org/show_bug.cgi?id={{::bug.id}}"
+                       target="_blank">{{::bug.id}}
+                        <span ng-bind-html="bug.summary | escapeHTML | highlightCommonTerms:suggestion.search"
+                              title="{{::bug.summary}}">{{::bug.summary}}
+                        </span>
+                    </a>
+                    <a ng-if="bug.resolution !== ''"
+                       href="https://bugzilla.mozilla.org/show_bug.cgi?id={{::bug.id}}"
+                       target="_blank"
+                       class="deleted">{{::bug.id}}
+                        <span ng-bind-html="bug.summary | escapeHTML | highlightCommonTerms:suggestion.search"
+                              title="{{::bug.resolution}} - {{::bug.summary}}"
+                              class="deleted">{{::bug.summary}}
+                        </span>
+                    </a>
+                </li>
+            </ul>
+
+            <mark ng-if="suggestion.bugs.too_many_open_recent || (suggestion.bugs.too_many_all_others && !suggestion.valid_open_recent)"
+                    >Exceeded max bug suggestions</mark>
+
+        </li>
+
+        <li ng-if="!tabs.failureSummary.is_loading && jobLogsAllParsed && job_log_urls.length && suggestions.length == 0">
+            <div class="failure-summary-line-empty">
+                <span>Failure summary is empty</span>
+            </div>
+        </li>
+
+        <li ng-if="!tabs.failureSummary.is_loading && !jobLogsAllParsed"
+            ng-repeat="job_log_url in job_log_urls">
+          <div class="failure-summary-line-empty">
+            <span>Log parsing in progress. The</span>
+            <a title="Open the raw log in a new window"
+               target="_blank"
+               href="{{::job_log_url.url}}">raw log</a>
+            <span>is available. This panel will automatically recheck every 5 seconds.</span>
+          </div>
+        </li>
+        <li ng-if="!tabs.failureSummary.is_loading && !job_log_urls.length">
+            <div class="failure-summary-line-empty">
+                <span>No logs available for this job</span>
+            </div>
+        </li>
+    </ul>
+    <div ng-if="tabs.failureSummary.is_loading" class="overlay">
+        <div>
+            <span class="fa fa-refresh fa-spin"></span>
+        </div>
+    </div>
+</div>

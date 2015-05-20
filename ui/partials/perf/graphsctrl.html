@@ -1,0 +1,78 @@
+<div class="container-fluid">
+  <div class="ph-horizontal-layout">
+    <div id="graph-chooser">
+      <table class="table table-bordered graph-legend-table">
+        <tr ng-repeat="series in seriesList">
+          <td>
+            <button class="close" ng-click="removeSeries(series.projectName, series.signature)">
+              <span aria-hidden="true">&times;</span>
+              <span class="sr-only">Remove series</span>
+            </button>
+            <table>
+              <tr>
+                <td width="10px" class="graph-legend" style="padding: 4px; background-color: {{series.color}}"></td>
+                <td class="graph-legend">
+                  <b>{{series.name}}</b><br/>
+                  {{series.projectName}}<br/>
+                  {{series.platform}}<br/>
+                  <div class="signature"><small>{{series.signature}}</small></div>
+                </td>
+              </tr>
+            </table>
+            <input title="Show/Hide series" type="checkbox" ng-model="series.visible" class="show-hide-check" ng-click="showHideSeries(series.signature)">
+          </td>
+        </tr>
+      </table>
+      <button class="btn btn-primary" ng-click="addTestData()">
+        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add more test data</button>
+    </div>
+    <div id="data-display">
+      <select ng-model="myTimerange" ng-options="timerange.text for timerange in timeranges track by timerange.value" ng-change="timeRangeChanged()">
+      </select>
+      <hr/>
+      <div id="overview-plot"></div>
+      <div id="graph"></div>
+      <div id="graph-bottom" ng-show="seriesList.length > 0">
+        Highlight revisions:
+        <input type="text" maxlength="12" ng-change="updateHighlightedRevisions()" placeholder="12 character hg revision" ng-model="highlightedRevisions[0]">
+        </input>
+        <span class="reset-highlight-button" ng-show="highlightedRevisions[0].length > 0" ng-click="resetHighlight(0)">&#10006;</span>
+        &nbsp;&nbsp;
+        <input type="text" maxlength="12" ng-change="updateHighlightedRevisions()" placeholder="12 character hg revision" ng-model="highlightedRevisions[1]">
+        </input>
+        <span class="reset-highlight-button" ng-show="highlightedRevisions[1].length > 0" ng-click="resetHighlight(1)">&#10006;</span>
+      </div>
+    </div>
+    <div class="graph-right-padding"></div>
+  </div>
+
+  <div id="graph-tooltip" ng-class="{locked: selectedDataPoint}">
+    <div class="body">
+      <div>
+        <p id="tt-series"><span ng-bind="tooltipContent.test"/>
+          (<span ng-bind="tooltipContent.project.name"/>)</p>
+        <p id="tt-series2" class="small"><span ng-bind="tooltipContent.platform"/>
+          (<span ng-bind="tooltipContent.machine"/>)</p>
+      </div>
+      <div>
+        <p id="tt-v" ng-bind="tooltipContent.value"></p>
+        <p id="tt-dv" class="small">&Delta; <span ng-bind="tooltipContent.deltaValue"/>
+          (<span ng-bind="tooltipContent.deltaPercentValue"/>%)</p>
+      </div>
+      <div>
+        <p ng-show="tooltipContent.revision">
+          <a id="tt-cset" ng-href="{{tooltipContent.project.url}}/rev/{{tooltipContent.revision}}" target="_blank"><span ng-bind="tooltipContent.revision"></span></a>
+          <span ng-show="tooltipContent.prevRevision && tooltipContent.revision">
+            (<a id="tt-cset" ng-href="{{tooltipContent.project.url}}/pushloghtml?fromchange={{tooltipContent.prevRevision}}&tochange={{tooltipContent.revision}}" target="_blank">pushlog</a>,
+            <a ng-href="#/comparesubtest?originalProject={{tooltipContent.project.name}}&newProject={{tooltipContent.project.name}}&originalRevision={{tooltipContent.prevRevision}}&newRevision={{tooltipContent.revision}}&originalSignature={{selectedDataPoint.signature}}&newSignature={{selectedDataPoint.signature}}" target="_blank">compare</a>)
+          </span>
+        </p>
+        <p ng-hide="tooltipContent.revision">Loading revision...</p>
+        <p id="tt-t" class="small" ng-bind="tooltipContent.date"></p>
+      </div>
+      <span ng-hide="selectedDataPoint">Click to lock</span>
+      <span ng-show="selectedDataPoint">&nbsp;</span>
+    </div>
+    <div class="tip"></div>
+  </div>
+</div>

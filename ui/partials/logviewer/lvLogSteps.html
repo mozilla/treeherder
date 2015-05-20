@@ -1,0 +1,54 @@
+<div class="steps-data">
+    <div ng-repeat="step in artifact.step_data.steps"
+         ng-click="displayLog(step)"
+         ng-class="{'selected': (displayedStep.order === step.order),
+                    'btn-success': (step.result === 'success'),
+                    'btn-warning': (step.result !== 'success')}"
+         ng-if="showSuccessful === true || step.result !== 'success'"
+         class="btn btn-block logviewer-step clearfix"
+         order="{{step.order}}">
+        <span class="pull-left clearfix text-left">
+            {{::step.order+1}}. {{::step.name}}
+        </span>
+
+        <span ng-init="time=formatTime(step.duration)"
+              ng-mouseover="time=displayTime(step.started, step.finished)"
+              ng-mouseleave="time=formatTime(step.duration)"
+              class="pull-right clearfix">
+            {{::time}}
+        </span>
+
+        <div ng-if="(step.error_count > 0)">
+            <div ng-repeat="error in step.errors"
+                 ng-mouseover="check=(step==displayedStep)"
+                 ng-mouseleave="check=false"
+                 ng-class="{'lv-line-highlight': check}"
+                 ng-click="scrollTo($event, step, error.linenumber);"
+                 class="text-left pull-left lv-error-line">
+                <span class="label label-default lv-line-no text-left">
+                    {{::error.linenumber}}
+                </span>
+
+                <span title="{{::error.line}}">
+                    {{::error.line}}
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="logviewer-stepbar">
+    <a href="{{::artifact.logurl}}">
+        <span class="glyphicon glyphicon-align-left raw-log"></span>
+        <span>open raw log</span>
+    </a>
+</div>
+
+<div ng-if="artifact && hasFailedSteps()"
+     class="logviewer-stepbar">
+    <input type="checkbox"
+           ng-model="showSuccessful"
+           ng-change="toggleSuccessfulSteps()" />
+
+    <span>show successful steps</span>
+</div>

@@ -1,0 +1,1971 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    line-height: inherit; /* override bootstrap */
+}
+
+a:visited {
+    color: purple;
+}
+
+input:focus::-webkit-input-placeholder {
+    color: transparent;
+}
+
+input:focus::-moz-placeholder {
+    color: transparent;
+}
+
+#global-container {
+    display: -webkit-flex;
+    display:         flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    height: 100%;
+}
+
+.pagination, .carousel, .panel-title a {
+    cursor: pointer;
+}
+
+.hidden {
+    display: none;
+    visibility: hidden;
+}
+
+#clipboard-container {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 0px;
+    height: 0px;
+    z-index: 100;
+    display: none;
+    opacity: 0;
+}
+
+#clipboard {
+    width: 1px;
+    height: 1px;
+    padding: 0px;
+}
+
+.th-navbar {
+    background-color: #273038;
+    margin-bottom: 0px;
+    flex: none;
+    -webkit-flex: none;
+}
+
+.navbar {
+    min-height: 36px;
+    margin-bottom: 0px;
+}
+
+.navbar .dropdown-menu {
+    max-height: 600px;
+    overflow: auto;
+    margin-top: 10px;
+    padding-left: 8px;
+    padding-bottom: 8px;
+}
+
+.th-global-navbar {
+    padding-left: 0;
+    border-bottom: 1px solid black;
+}
+
+#th-logo {
+    padding-left: 14px;
+    border-left: 0;
+}
+
+th-watched-repo {
+    display: block;
+    float: left;
+}
+
+.repo-menu {
+    margin-right: -4px;
+}
+
+.repo-dropdown-menu {
+    margin-right: 4px;
+}
+
+/* Override bootstrap for flush right navbar menus */
+.navbar-collapse {
+    padding-right: 0;
+}
+
+.navbar .repo-menu-form {
+    padding: 5px 10px 0;
+    overflow-y: scroll;
+    top: inherit;
+    right: auto;
+}
+
+.nav-repo-btn {
+    padding-left: 14px;
+    padding-right: 14px;
+}
+
+.nav-menu-btn {
+    margin-right: -4px;
+    padding-left: 14px;
+    padding-right: 14px;
+}
+
+.nav-help-btn {
+    margin-right: -4px;
+}
+
+.nav-help-icon {
+    font-size: 18px;
+}
+
+.nav-user-icon {
+    display: inline-block;
+    margin-right: 4px;
+    padding: 3px 4px;
+    vertical-align: text-bottom;
+    border-radius: 1px;
+    background: linear-gradient(#44adf3, #287cc2);
+}
+
+.nav-user-icon span:first-child {
+    margin: 0 auto;
+    font-size: 12px;
+    color: #fff;
+}
+
+.nav-login-btn {
+    padding-left: 22px;
+    padding-right: 27px;
+}
+
+.watched-repo-main-btn {
+    border-right: 0;
+    padding-right: 5px;
+}
+
+.watched-repo-spacer {
+    padding-right: 7px;
+}
+
+.watched-repo-info-btn {
+    border-right: 0
+}
+
+.watched-repo-unwatch-btn {
+}
+
+.watched-repo-dropdown-item {
+    margin: 0px 10px;
+}
+.watched-repo-dropdown-item > a {
+    white-space: normal;
+}
+
+.watched-repo-navbar {
+    overflow: visible;
+}
+
+/* Unique navbar username styles */
+.th-username, th-username:hover {
+    padding-left: 18px;
+    cursor: default;
+    color: #777 !important;
+    border-color: #373d40;
+    border-radius: 0;
+    border-top: 0;
+    border-bottom: 0;
+    border-right: 0;
+}
+
+.th-context-navbar {
+    background-color: #354048;
+    overflow: visible;
+}
+
+.treeClosed {
+    color: rgb(161, 52, 53);
+}
+
+.treeOpen {
+    color: green;
+}
+
+.treeApproval {
+    color: #fb9910;
+}
+
+.treeUnavailable {
+    color: lightgray;
+}
+
+#platform-job-text-search-field {
+    height:28px;
+    width: inherit;
+    display: inherit;
+}
+
+.th-content {
+    flex: 1; /* Not using auto because it causes unnecessary reflows, see https://bugzilla.mozilla.org/show_bug.cgi?id=1162725 */
+    -webkit-flex: auto;
+    position: relative;/* need this to position inner content */
+    overflow-y: auto;
+}
+
+.nav-panel-help-text {
+    color: #2b393f;
+    margin-bottom: 10px;
+}
+
+/* Options drop-downs*/
+
+.th-top-nav-options-panel {
+    background-color: lightgray;
+    padding: 10px;
+    border: 1px solid black;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.th-top-nav-options-panel .th-option-heading {
+    padding: 3px 10px;
+    background-color: #354048;;
+    color: white;
+}
+
+.th-inline-option-group {
+    display: inline-block;
+}
+
+.th-stacked-option-group {
+    display: block;
+}
+
+.th-option-group {
+    margin-right: 5px;
+    border: 1px solid #101010;
+    -moz-border-radius:5px;
+    -webkit-border-radius:5px;
+    border-radius:5px;
+}
+
+.th-option-heading .th-panel-heading{
+    padding: 5px 10px;
+    background-color: #354048;
+}
+
+#jobFilterValue {
+    width: 150px;
+}
+
+#jobFilterChoiceValue {
+    width: 150px;
+}
+
+#jobFilterField {
+    width: 200px;
+}
+
+.field-filter-form {
+    border-top: 2px solid lightgray;
+    margin-top: 5px;
+    padding: 3px;
+    background-color: lightgray;
+}
+
+.field-filter {
+    margin: 3px;
+}
+
+.field-filter a, .th-option-heading a {
+    color: white;
+    cursor: pointer;
+}
+
+.field-filter-placeholder a {
+    cursor: pointer;
+}
+
+/**
+  sheriff panel
+*/
+.add-new-exclusion input.ng-invalid.ng-dirty{border-color: #B94A48;}
+
+/**
+  Failures
+*/
+
+.th-failures-box {
+    position: fixed;
+    top: 46px;
+    right:0px;
+    padding:2px;
+}
+
+.th-failures-box li{
+    background-color: #222;
+    color: #999;
+    border-color: #080808;
+}
+.th-failures-box li a{
+    color: #428bca;
+}
+
+.view-nav {
+    background-color: #353f47;
+}
+
+.view-nav a {
+    color: lightgray;
+
+}
+
+/*
+    Resultsets
+*/
+
+.th-revision-btn {
+    margin-left: 10px;
+    width: calc(100% - 170px);
+}
+
+.th-action-button span.dropdown:hover ul.dropdown-menu{
+    display: block;
+}
+
+.th-action-button:after {
+  content: none;
+}
+
+.th-rs-loading {
+    width: 50px;
+    display: inline-block;
+    height: 35px;
+    margin-bottom: -14px;
+    margin-left: 5px;
+}
+
+.revision {
+    font-size: 12px;
+    padding-top: 2px;
+    overflow: auto;
+}
+
+.revision > a:first-child {
+    float: left;
+    width: 7.5em;
+    padding-top: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.revision-comment {
+    color: #777;
+}
+
+.platform {
+    font-size: 12px;
+    padding-left: 0;
+    padding-right: 5px;
+    width: 14.5em;
+    min-width: 14.5em;
+    overflow: hidden;
+    vertical-align: top;
+}
+
+.job-row {
+    display: table-cell;
+    white-space: normal;
+    word-break: normal;
+
+}
+
+.icon-superscript {
+    vertical-align: super;
+    font-size: 0.625em;
+    margin-left: -0.2em;
+}
+
+.result-set {
+    padding-bottom: 0px;
+    margin-left: 0;
+    margin-top: 2px;
+    white-space: normal;
+    width: 100%;
+    border-top: 1px solid lightgrey;
+    position: relative;
+}
+
+.result-set-body {
+    padding-left: 15px;
+    padding-right: 25px;
+}
+
+/* Encompasses unknown push,resultset,repo */
+.unknown-message-body {
+    padding-top: 10px;
+}
+
+.result-set-title-left {
+    flex: 0 0 24.2em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 10px;
+}
+
+.result-set-fa-icon {
+    float: left;
+    padding-top: 4px;
+    padding-right: 4px;
+}
+
+.result-counts {
+    flex: none;
+    -webkit-flex: none;
+    padding-right: 10px;
+}
+
+.result-set-title {
+    border-top: 1px solid black;
+    padding: 2px 0px 0px 14px;
+    white-space: nowrap;
+    display: flex;
+    display: -webkit-flex;
+    -webkit-flex-flow: row wrap;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.result-set-left {
+    display: flex;
+    display: -webkit-flex;
+    -webkit-flex-flow: row wrap;
+    flex-flow: row wrap;
+    flex: auto;
+    align-items: center;
+}
+
+.result-set-progress {
+    color: #6f6d70;
+    font-style: italic;
+    margin-left: 10px;
+}
+
+.result-set-buttons {
+    margin-right: 25px;
+}
+
+.result-set .revision-list {
+    padding-left: 0;
+}
+
+.logviewer-icon {
+    width: 14px;
+    height: 16px;
+    vertical-align: text-bottom;
+    opacity: 0.7;
+}
+
+.logviewer-icon:hover {
+    opacity: 0.9;
+}
+
+.cancel-job-icon {
+    font-size: 13px;
+}
+
+.icon-blue {
+    color: #68aae2;
+}
+
+.icon-green:hover {
+    color: #0de00d !important;
+}
+
+.icon-red:hover {
+    color: #fa4444 !important;
+}
+
+.dim-quarter {
+    opacity: 0.75;
+}
+
+.revision-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 7.2em;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.revision-button {
+    flex: 0 0 60px;
+    margin-right: 4px;
+    margin-left: 4px;
+}
+
+.revision-list {
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.result-set .job-list-pad-left {
+    padding-left: 8;
+    padding-right: 0;
+}
+
+.job-list-pad-left table {
+    width: 100%;
+}
+
+.job-list-pad-left table tr {
+    border-bottom: 1px dotted lightgrey;
+}
+
+.job-list-pad-left table tr:nth-child(even) {
+    background: #f8f8f8;
+}
+
+.result-set .job-list-nopad {
+    padding-left: 0;
+    padding-right: 0;
+    display: block;
+}
+
+.selected-job {
+    border: 4px solid;
+    background-color: #fff;
+}
+
+.job-group {
+    margin: 0 -3px 0 3px;
+}
+
+.job-btn {
+  padding: 0 2px 0 2px;
+  vertical-align: 0;
+  line-height: 1.32;
+  display: none;
+}
+
+.filter-shown {
+    display: inline-block;
+}
+
+.table-super-condensed thead > tr > th,
+.table-super-condensed tbody > tr > th,
+.table-super-condensed tfoot > tr > th,
+.table-super-condensed thead > tr > td,
+.table-super-condensed tbody > tr > td,
+.table-super-condensed tfoot > tr > td {
+    padding: 2px;
+    font-size: .9em;
+}
+
+/*
+ * resizer
+ */
+div#bottom-panel-resizer {
+    display: flex;
+    flex: none;
+    -webkit-flex: none;
+    background-color: #919dad;
+    cursor: ns-resize;
+    height: 2px;
+}
+
+
+/*
+ * bottom panel
+ */
+
+div#bottom-panel {
+    background-color: #AAAAAA;
+    font-size: 12px;
+
+    height: 35%;
+    max-height: 75%;
+    flex: none;
+    -webkit-flex: none;
+
+    display: -webkit-flex;
+    display:         flex;
+    -webkit-flex-flow: column;
+    flex-flow: column;
+}
+
+div#bottom-panel .navbar{
+    border-radius: 0px;
+    border-style: solid;
+    border-color: #42484F;
+    border-width:1px 0;
+    height:33px;
+    margin:0;
+    font-size:12px;
+    min-height: 33px;
+    min-width: initial;
+    overflow: hidden;
+    z-index: 100;
+}
+
+div#bottom-panel .navbar-nav > ul{
+    height:32px;
+}
+
+div#bottom-panel .navbar-nav > li > a{
+    padding: 6px 15px;
+    line-height: 19px;
+}
+
+div#bottom-panel .navbar-nav > li > a.disabled {
+    cursor: not-allowed;
+    text-decoration: none;
+}
+
+div#bottom-panel .navbar-nav > li.active a,
+div#bottom-panel .navbar-nav > li.active a:hover,
+div#bottom-panel .navbar-nav > li.active a:focus {
+    outline: 0;
+}
+
+div#bottom-panel .navbar > ul.tab-headers > li{
+    border-right: 1px solid #42484F;
+}
+
+.navbar.navbar-dark{
+    background-color: #252C33;
+    color: #CED3D9;
+}
+
+.navbar.navbar-dark .navbar-nav > li > a{
+    color: #9FA3A5;
+}
+
+.navbar.navbar-dark .navbar-nav > li > a:hover,
+.navbar.navbar-dark .navbar-nav > li > a:focus {
+    background-color: #1E252B;
+    color: #D3D8DA;
+}
+
+div#bottom-panel .navbar.navbar-dark .navbar-nav > li.active a,
+div#bottom-panel .navbar.navbar-dark .navbar-nav > li.active a:hover,
+div#bottom-panel .navbar.navbar-dark .navbar-nav > li.active a:focus {
+    background-color: #1A4666;
+    color: #EEF0F2;
+}
+
+#bottom-panel-content {
+   position: relative; /* So we can absolutely position the loading overlay */
+   height: 60%;
+
+   flex: auto;
+   -webkit-flex: auto;
+
+   display: -webkit-flex;
+   display:         flex;
+   -webkit-flex-flow: row;
+           flex-flow: row;
+}
+
+#bottom-left-panel, #bottom-center-panel {
+    background-color: #fff;
+    display: -webkit-flex;
+    display:         flex;
+    -webkit-flex-flow: column;
+    flex-flow: column;
+}
+
+#bottom-left-top, #bottom-center-top {
+    min-height: 33px;
+    overflow-y: auto;
+}
+
+.pinned-job-count {
+    margin-left: 5px;
+}
+
+#bottom-left-panel {
+    width:260px;
+}
+
+#bottom-left-bottom > ul {
+    margin: 0px;
+    padding: 0px;
+    line-height:12px;
+}
+
+#bottom-left-panel .content-spacer {
+    padding-top: 2px;
+    padding-bottom: 4px;
+}
+
+#bottom-left-panel ul li {
+    padding: 0px 0px 0px 5px;
+    line-height: 15px;
+    word-wrap: break-word;
+}
+
+#bottom-left-panel ul li label{
+    padding: 0;
+    margin: 2px 0px;
+}
+
+#bottom-left-panel .star {
+    color: #f0ad4e;
+}
+
+#bottom-left-panel em.testfail{ color:red;}
+
+#bottom-left-bottom {
+    overflow: auto;
+}
+
+#bottom-center-panel {
+    -webkit-flex: 1 6;
+    flex: 1 6;
+    padding:0px;
+    min-width: 500px;
+}
+
+#bottom-panel nav.navbar.navbar-sub{
+    border-top: none;
+}
+
+#bottom-center-bottom {
+    max-height: calc(100% - 33px);
+    -webkit-flex: 1;
+    flex: 1;
+    display: -webkit-flex;
+    display: flex;
+    overflow: auto;
+}
+
+#bottom-center-bottom > * {
+    -webkit-flex: 1;
+    flex: 1;
+    display: -webkit-flex;
+    display: flex;
+}
+
+#bottom-center-bottom > * > * {
+    -webkit-flex: 1;
+    flex: 1;
+    display: -webkit-flex;
+    display: flex;
+}
+
+#bottom-center-bottom > * > * > * {
+    -webkit-flex: 1;
+    flex: 1;
+    display: -webkit-flex;
+    display: flex;
+}
+
+#bottom-center-panel ul.failure-summary-list{
+    width: 100%;
+    margin-bottom: 0;
+}
+
+ul.failure-summary-list li {
+    font-size: 11px;
+    background: #ccfaff;
+}
+
+ul.failure-summary-list li .btn-xs {
+    font-size: 8px;
+}
+
+.failure-summary-line-empty {
+    padding: 2px 4px 0px;
+    background: #ffffff;
+}
+
+.job-tabs-content {
+    padding: 2px 4px 0px;
+}
+
+.job-tabs-divider {
+    border-left: 1px solid lightgrey;
+}
+
+.failure-summary-bugs {
+    padding: 0px 0px 0px 18px;
+}
+
+/* We override global anchor color to replicate TBPL here */
+.failure-summary-bugs a {
+    color: #0000ee;
+}
+.failure-summary-bugs a:visited {
+    color: purple;
+}
+
+.failure-summary-bugs button {
+    padding: 2px 3px 1px 3px;
+}
+
+/* We override global anchor color to replicate TBPL here */
+.show-hide-more {
+    padding: 0px 0px 0px 37px;
+    color: #0000ee;
+}
+
+.shadowed-panel {
+    box-shadow: 0px 1px 0px rgba(255, 255, 255, 0.1), 0px 0px 2px 0px rgba(0, 0, 0, 0.8) inset;
+    margin:0;
+}
+
+/*#bottom-menu {position: absolute; right:0; width: 104px}*/
+
+.overlay{
+    position:absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width:100%;
+    height:100%;
+    background-color: rgba(242, 242, 242, 0.25);
+    z-index: 9999;
+    font-size: 30px;
+}
+
+.overlay > div{
+    position: relative;
+    height:100%;
+    width:100%;
+}
+
+.overlay > div > span{
+    position:absolute;
+    top: 40%;
+    left:45%;
+}
+
+.bottom-shadowed-panel-with-pinboard {
+    height: calc(100% - 75px);
+}
+
+.bottom-shadowed-panel-without-pinboard {
+    height: calc(100% - 20px);
+}
+
+.bottom-menu-group {
+    width: 98px;
+    margin-bottom: 5px;
+}
+
+.save-btn {
+    width: 81px;
+}
+
+.save-btn-dropdown {
+    width: 18px;
+}
+
+.btn-group + .btn + .save-btn-dropdown {
+    margin-left: -5px;
+}
+
+/*
+ * pinboard
+ */
+
+#pinboard-panel {
+    background-color: #e6eef5;
+    color: #252c33;
+
+    flex: auto;
+    -webkit-flex: auto;
+
+    display: flex;
+    display: -webkit-flex;
+    flex-flow: row;
+    -webkit-flex-flow: row;
+}
+
+#pinboard-panel .header{
+    padding-left: 2px;
+    height: 18px;
+}
+
+.pinboard-preload-txt {
+    color: #bfbfbf;
+}
+
+.pinboard-related-bug-preload-txt {
+    vertical-align: top;
+}
+
+#pinned-job-list{
+    position: relative;
+    flex: auto;
+    -webkit-flex: auto;
+    margin: 7px 7px 10px;
+}
+
+#pinned-job-list .content{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    padding: 2px;
+    overflow: auto;
+    background-color: #FFFFFF;
+}
+
+#pinboard-related-bugs{
+    position: relative;
+    width: 200px;
+    flex: none;
+    -webkit-flex: none;
+    margin: 7px 7px 10px;
+}
+
+#pinboard-related-bugs .content {
+    position: absolute;
+    height: 100%;
+    width: 200px;
+    padding: 2px;
+    overflow-x: hidden;
+    color: black;
+    background-color: #FFFFFF;
+}
+
+#pinboard-related-bugs a {
+    text-decoration: none;
+}
+
+.add-related-bugs-icon {
+    margin-right: 2px;
+    font-size: 17px;
+    color: #98c3da;
+}
+
+.add-related-bugs-form {
+    position: relative;
+    top: -18px;
+    left: 20px;
+}
+
+.add-related-bugs-input {
+    width: 12em;
+}
+
+.classification-comment-container {
+    margin-top: 5px;
+}
+
+.classification-comment-preload-txt {
+    position: relative;
+    top: -17px;
+    left: 5px;
+    pointer-events: none;
+}
+
+.add-classification-input {
+    width: 177px;
+    height: 20px;
+    padding: 0 0 0 3px;
+    border-radius: 0;
+    font-size: 12px;
+}
+
+.pinboard-open-btn {
+    margin-top: -1px;
+    background-color: #e6eef5 !important;
+    color: #252c33 !important;
+}
+
+.pinboard-related-bugs-btn {
+    margin-bottom: -1px;
+}
+
+.pinboard-related-bugs-btn > .pinboard-related-bugs-link,
+.pinboard-related-bugs-btn:hover > .pinboard-related-bugs-link:hover {
+    border-top-right-radius: 3px !important;
+    border-bottom-right-radius: 3px !important;
+}
+
+.pinboard-related-bugs-btn:hover > .pinboard-related-bugs-link {
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+/* Spin button suppression on chrome */
+#pinboard-related-bugs form input[type=number]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Spin button suppression on firefox */
+#pinboard-related-bugs form input[type=number] {
+    -moz-appearance: textfield;
+}
+
+.pinboard-label {
+    color: #777;
+}
+
+#pinboard-classification{
+    flex: none;
+    -webkit-flex: none;
+    width: 185px;
+    padding: 5px;
+}
+
+#pinboard-classification-content {
+    color: black;
+}
+
+#pinboard-classification select {
+    width: 177px;
+}
+
+#pinboard-controls {
+    flex: none;
+    -webkit-flex: none;
+    height: 43px;
+    margin: 20px;
+}
+
+#pinboard-controls .dropdown-menu {
+    z-index: 2000;
+}
+
+#pinboard-controls .save-btn-dropdown {
+    margin-left: -1px;
+    padding-top:1px;
+    display: inline;
+    width: 24px;
+    float: right;
+}
+
+#pinboard-controls .save-btn {
+    float: left;
+    display: inline;
+    width: 70px;
+}
+
+.pinned-job {
+    margin-bottom: 2px;
+    padding: 1px 2px;
+    width: 3.5em;
+}
+
+.pinned-job-close-btn {
+    padding: 1px 2px 1px 2px;
+    border-color: #fafafa #fafafa #fafafa transparent;
+}
+
+.annotations-panel {
+    overflow: auto;
+    margin-right: 0;
+}
+
+.classifications-panel {
+    border-right: solid 1px lightgray;
+}
+
+.bug-list {
+    list-style: none inside none;
+    padding-left: 0;
+}
+
+/**
+ * RESULT STATUS COUNTS
+ */
+
+#result-status-pane div {
+    display: inline-block;
+}
+
+#result-status-pane div:first-child {
+    width: 11.25em;
+}
+
+.result-status-shading-success {background-color: rgba(2, 131, 44, 0.24);}
+.result-status-shading-testfailed {background-color: rgba(221, 102, 2, 0.25);}
+.result-status-shading-busted {background-color: rgba(144, 0, 0, 0.25);}
+.result-status-shading-exception {background-color: rgba(61, 2, 85, 0.25);}
+.result-status-shading-retry {background-color: rgba(38, 63, 195, 0.25);}
+.result-status-shading-usercancel {background-color: rgba(250, 115, 172, 0.25);}
+.result-status-shading-pending {background-color: rgba(160, 160, 160, 0.2);}
+.result-status-shading-running {background-color: rgba(70, 70, 70, 0.25);}
+.result-status-shading-coalesced {background-color: white;}
+
+.click-able-icon, .nav-tabs li {
+    cursor: pointer;
+}
+
+/**
+ * CUSTOM BUTTONS
+ */
+
+.btn-right-navbar {
+   font-size: 13px;
+}
+
+.btn-collapse-resultsets {
+   margin-top: -1px;
+   margin-bottom: -1px;
+   font-size: 14px;
+}
+
+.btn-jobs-revisions {
+   padding-left: 14px !important;
+   padding-right: 18px !important;
+}
+
+.btn-similar-jobs {
+    background: #fff;
+    cursor: default;
+}
+
+ .job-btn.btn-dkgray,
+ .job-btn.btn-ltgray,
+ .job-btn.btn-green,
+ .job-btn.btn-dkblue,
+ .job-btn.btn-pink {
+    margin: 0 -5px 0 -1px;
+ }
+
+ .job-btn.btn-red,
+ .job-btn.btn-orange,
+ .job-btn.btn-purple {
+    margin: 0 -3px 1px 0;
+ }
+
+.btn-view-nav {
+  background-color: transparent;
+  border-color: #373d40;
+  color: lightgray;
+  border-radius: 0;
+  border-bottom: 0;
+  border-top: 0;
+  border-right: 0;
+}
+
+.btn-view-nav:hover,
+.btn-view-nav:focus,
+.btn-view-nav:active,
+.btn-view-nav.active {
+  background-color: #2c3133;
+  border-color: #1a1d20;
+  color: white;
+}
+.btn-view-nav.disabled:hover,
+.btn-view-nav.disabled:focus,
+.btn-view-nav.disabled:active,
+.btn-view-nav.disabled.active,
+.btn-view-nav[disabled]:hover,
+.btn-view-nav[disabled]:focus,
+.btn-view-nav[disabled]:active,
+.btn-view-nav[disabled].active,
+fieldset[disabled] .btn-view-nav:hover,
+fieldset[disabled] .btn-view-nav:focus,
+fieldset[disabled] .btn-view-nav:active,
+fieldset[disabled] .btn-view-nav.active {
+  color: #e0e0e0;
+  border-color: #e0e0e0;
+}
+
+.btn-view-nav-closed {
+  background-color: rgba(107, 4, 4, 0.53);
+  border-color: #22282d;
+  color: lightgray;
+  border-radius: 0;
+  border-bottom: 0;
+  border-top: 0;
+  border-left: 0;
+}
+.btn-view-nav-closed:hover,
+.btn-view-nav-closed:focus,
+.btn-view-nav-closed:active,
+.btn-view-nav-closed.active {
+  background-color: rgba(107, 4, 4, 0.53);
+  border-color: #1a1d20;
+  color: white;
+}
+.btn-view-nav-closed.disabled:hover,
+.btn-view-nav-closed.disabled:focus,
+.btn-view-nav-closed.disabled:active,
+.btn-view-nav-closed.disabled.active,
+.btn-view-nav-closed[disabled]:hover,
+.btn-view-nav-closed[disabled]:focus,
+.btn-view-nav-closed[disabled]:active,
+.btn-view-nav-closed[disabled].active,
+fieldset[disabled] .btn-view-nav-closed:hover,
+fieldset[disabled] .btn-view-nav-closed:focus,
+fieldset[disabled] .btn-view-nav-closed:active,
+fieldset[disabled] .btn-view-nav-closed.active {
+  color: #e0e0e0;
+  border-color: #e0e0e0;
+}
+
+.btn-unclassified-failures {
+  margin-top: 1px;
+  padding: 3px 10px;
+  background-color: rgba(78, 93, 21, 0.56);
+  border-color: #9fa01d;
+  color: lightgray;
+}
+.btn-unclassified-failures:hover,
+.btn-unclassified-failures:focus,
+.btn-unclassified-failures:active,
+.btn-unclassified-failures.active {
+  background-color: #25292b;
+  border-color: #cdce1d;
+  color: white;
+}
+.btn-unclassified-failures.disabled:hover,
+.btn-unclassified-failures.disabled:focus,
+.btn-unclassified-failures.disabled:active,
+.btn-unclassified-failures.disabled.active,
+.btn-unclassified-failures[disabled]:hover,
+.btn-unclassified-failures[disabled]:focus,
+.btn-unclassified-failures[disabled]:active,
+.btn-unclassified-failures[disabled].active,
+fieldset[disabled] .btn-unclassified-failures:hover,
+fieldset[disabled] .btn-unclassified-failures:focus,
+fieldset[disabled] .btn-unclassified-failures:active,
+fieldset[disabled] .btn-unclassified-failures.active {
+  color: #e0e0e0;
+  border-color: #e0e0e0;
+}
+
+/* Transformed job buttons for main job block */
+.btn-lg-xform {
+    margin: -2px !important;
+    border: 2px solid;
+    border-radius: 3px;
+    font-size: 12px;
+    transform: scale(1.7, 1.7);
+}
+
+
+.btn-orange {
+  background-color: #eba870;
+  border-color: #dd6602;
+  color: white;
+}
+.btn-orange:hover,
+.btn-orange:focus,
+.btn-orange:active,
+.btn-orange.active {
+  background-color: #c45a02;
+  border-color: #aa4f02;
+  color: white;
+}
+.btn-orange.disabled:hover,
+.btn-orange.disabled:focus,
+.btn-orange.disabled:active,
+.btn-orange.disabled.active,
+.btn-orange[disabled]:hover,
+.btn-orange[disabled]:focus,
+.btn-orange[disabled]:active,
+.btn-orange[disabled].active,
+fieldset[disabled] .btn-orange:hover,
+fieldset[disabled] .btn-orange:focus,
+fieldset[disabled] .btn-orange:active,
+fieldset[disabled] .btn-orange.active {
+  background-color: #dd6602;
+  border-color: #dd6602;
+}
+
+.btn-orange-classified {
+  color: #dd6602;
+}
+.btn-orange-classified:hover,
+.btn-orange-classified:focus,
+.btn-orange-classified:active,
+.btn-orange-classified.active {
+  background-color: #c45a02;
+  border-color: #aa4f02;
+  color: white;
+}
+.btn-orange-classified.disabled:hover,
+.btn-orange-classified.disabled:focus,
+.btn-orange-classified.disabled:active,
+.btn-orange-classified.disabled.active,
+.btn-orange-classified[disabled]:hover,
+.btn-orange-classified[disabled]:focus,
+.btn-orange-classified[disabled]:active,
+.btn-orange-classified[disabled].active,
+fieldset[disabled] .btn-orange-classified:hover,
+fieldset[disabled] .btn-orange-classified:focus,
+fieldset[disabled] .btn-orange-classified:active,
+fieldset[disabled] .btn-orange-classified.active {
+  background-color: #dd6602;
+  border-color: #dd6602;
+}
+
+
+.btn-red {
+  background-color: #b86262;
+  border-color: #a1020e;
+  color: white;
+}
+.btn-red:hover,
+.btn-red:focus,
+.btn-red:active,
+.btn-red.active {
+  background-color: #a9020c;
+  border-color: #90010a;
+  color: white;
+}
+.btn-red.disabled:hover,
+.btn-red.disabled:focus,
+.btn-red.disabled:active,
+.btn-red.disabled.active,
+.btn-red[disabled]:hover,
+.btn-red[disabled]:focus,
+.btn-red[disabled]:active,
+.btn-red[disabled].active,
+fieldset[disabled] .btn-red:hover,
+fieldset[disabled] .btn-red:focus,
+fieldset[disabled] .btn-red:active,
+fieldset[disabled] .btn-red.active {
+  background-color: #c2020e;
+  border-color: #c2020e;
+}
+
+.btn-red-classified {
+  color: #90010a;
+}
+.btn-red-classified:hover,
+.btn-red-classified:focus,
+.btn-red-classified:active,
+.btn-red-classified.active {
+  background-color: #a9020c;
+  border-color: #90010a;
+  color: white;
+}
+.btn-red-classified.disabled:hover,
+.btn-red-classified.disabled:focus,
+.btn-red-classified.disabled:active,
+.btn-red-classified.disabled.active,
+.btn-red-classified[disabled]:hover,
+.btn-red-classified[disabled]:focus,
+.btn-red-classified[disabled]:active,
+.btn-red-classified[disabled].active,
+fieldset[disabled] .btn-red-classified:hover,
+fieldset[disabled] .btn-red-classified:focus,
+fieldset[disabled] .btn-red-classified:active,
+fieldset[disabled] .btn-red-classified.active {
+  background-color: #c2020e;
+  border-color: #c2020e;
+  color: white;
+}
+
+.btn-dkblue {
+  color: #283aa2;
+  font-weight: bold;
+}
+.btn-dkblue:hover,
+.btn-dkblue:focus,
+.btn-dkblue:active,
+.btn-dkblue.active {
+  border-color: #263fc3;
+  background-color: #263fc3;
+  color: white;
+  font-weight: bold;
+}
+.btn-dkblue.disabled:hover,
+.btn-dkblue.disabled:focus,
+.btn-dkblue.disabled:active,
+.btn-dkblue.disabled.active,
+.btn-dkblue[disabled]:hover,
+.btn-dkblue[disabled]:focus,
+.btn-dkblue[disabled]:active,
+.btn-dkblue[disabled].active,
+fieldset[disabled] .btn-dkblue:hover,
+fieldset[disabled] .btn-dkblue:focus,
+fieldset[disabled] .btn-dkblue:active,
+fieldset[disabled] .btn-dkblue.active {
+  background-color: #2d48d6;
+  border-color: #2d48d6;
+}
+
+.btn-green {
+  color: rgba(2, 130, 51, 0.75);
+  font-weight: bold;
+}
+.btn-green:hover,
+.btn-green:focus,
+.btn-green:active,
+.btn-green.active {
+  border-color: #019029;
+  background-color: #019029;
+  color: white;
+}
+.btn-green.disabled:hover,
+.btn-green.disabled:focus,
+.btn-green.disabled:active,
+.btn-green.disabled.active,
+.btn-green[disabled]:hover,
+.btn-green[disabled]:focus,
+.btn-green[disabled]:active,
+.btn-green[disabled].active,
+fieldset[disabled] .btn-green:hover,
+fieldset[disabled] .btn-green:focus,
+fieldset[disabled] .btn-green:active,
+fieldset[disabled] .btn-green.active {
+  border-color: #02c238;
+}
+
+.btn-purple {
+  background-color: #9a7da6;
+  border-color: #6f0296;
+  color: white;
+}
+.btn-purple:hover,
+.btn-purple:focus,
+.btn-purple:active,
+.btn-purple.active {
+  background-color: #7d02a9;
+  border-color: #6b0190;
+  color: white;
+}
+.btn-purple.disabled:hover,
+.btn-purple.disabled:focus,
+.btn-purple.disabled:active,
+.btn-purple.disabled.active,
+.btn-purple[disabled]:hover,
+.btn-purple[disabled]:focus,
+.btn-purple[disabled]:active,
+.btn-purple[disabled].active,
+fieldset[disabled] .btn-purple:hover,
+fieldset[disabled] .btn-purple:focus,
+fieldset[disabled] .btn-purple:active,
+fieldset[disabled] .btn-purple.active {
+  background-color: #9002c2;
+  border-color: #9002c2;
+  color: white;
+}
+
+.btn-purple-classified {
+  color: #6f0296;
+}
+.btn-purple-classified:hover,
+.btn-purple-classified:focus,
+.btn-purple-classified:active,
+.btn-purple-classified.active {
+  background-color: #7d02a9;
+  border-color: #6b0190;
+  color: white;
+}
+.btn-purple-classified.disabled:hover,
+.btn-purple-classified.disabled:focus,
+.btn-purple-classified.disabled:active,
+.btn-purple-classified.disabled.active,
+.btn-purple-classified[disabled]:hover,
+.btn-purple-classified[disabled]:focus,
+.btn-purple-classified[disabled]:active,
+.btn-purple-classified[disabled].active,
+fieldset[disabled] .btn-purple-classified:hover,
+fieldset[disabled] .btn-purple-classified:focus,
+fieldset[disabled] .btn-purple-classified:active,
+fieldset[disabled] .btn-purple-classified.active {
+  background-color: #9002c2;
+  border-color: #9002c2;
+  color: white;
+}
+
+.btn-yellow {
+  color: #cdce1d;
+  font-weight: bold;
+}
+.btn-yellow:hover,
+.btn-yellow:focus,
+.btn-yellow:active,
+.btn-yellow.active {
+  border-color: #cdce1d;
+  color: #cdce1d;
+}
+.btn-yellow.disabled:hover,
+.btn-yellow.disabled:focus,
+.btn-yellow.disabled:active,
+.btn-yellow.disabled.active,
+.btn-yellow[disabled]:hover,
+.btn-yellow[disabled]:focus,
+.btn-yellow[disabled]:active,
+.btn-yellow[disabled].active,
+fieldset[disabled] .btn-yellow:hover,
+fieldset[disabled] .btn-yellow:focus,
+fieldset[disabled] .btn-yellow:active,
+fieldset[disabled] .btn-yellow.active {
+  border-color: #cdce1d;
+}
+
+.btn-ltgray {
+  color: #e0e0e0;
+}
+.btn-ltgray:hover,
+.btn-ltgray:focus,
+.btn-ltgray:active,
+.btn-ltgray.active {
+  border-color: #808080;
+  color: #808080;
+}
+.btn-ltgray.disabled:hover,
+.btn-ltgray.disabled:focus,
+.btn-ltgray.disabled:active,
+.btn-ltgray.disabled.active,
+.btn-ltgray[disabled]:hover,
+.btn-ltgray[disabled]:focus,
+.btn-ltgray[disabled]:active,
+.btn-ltgray[disabled].active,
+fieldset[disabled] .btn-ltgray:hover,
+fieldset[disabled] .btn-ltgray:focus,
+fieldset[disabled] .btn-ltgray:active,
+fieldset[disabled] .btn-ltgray.active {
+  color: #e0e0e0;
+  border-color: #e0e0e0;
+}
+
+.btn-mdgray {
+  background-color: #bfbfbf;
+  border-color: #bfbfbf;
+}
+.btn-mdgray:hover,
+.btn-mdgray:focus,
+.btn-mdgray:active,
+.btn-mdgray.active {
+  background-color: #b2b2b2;
+  border-color: #a6a6a6;
+}
+.btn-mdgray.disabled:hover,
+.btn-mdgray.disabled:focus,
+.btn-mdgray.disabled:active,
+.btn-mdgray.disabled.active,
+.btn-mdgray[disabled]:hover,
+.btn-mdgray[disabled]:focus,
+.btn-mdgray[disabled]:active,
+.btn-mdgray[disabled].active,
+fieldset[disabled] .btn-mdgray:hover,
+fieldset[disabled] .btn-mdgray:focus,
+fieldset[disabled] .btn-mdgray:active,
+fieldset[disabled] .btn-mdgray.active {
+  background-color: #bfbfbf;
+  border-color: #bfbfbf;
+}
+
+.btn-resultset {
+  color: #666;
+}
+.btn-resultset:hover{
+  background-color: #6f6d70;
+  color: white;
+}
+.btn-resultset.disabled:hover,
+.btn-resultset.disabled:active,
+.btn-resultset.disabled.active,
+.btn-resultset[disabled]:hover,
+.btn-resultset[disabled]:active,
+.btn-resultset[disabled].active,
+fieldset[disabled] .btn-resultset:hover {
+  background-color: #7c7a7d;
+  border-color: #7c7a7d;
+  color: white;
+}
+
+.btn-dkgray {
+  color: #7c7a7d;
+}
+.btn-dkgray:hover,
+.btn-dkgray:focus,
+.btn-dkgray:active,
+.btn-dkgray.active {
+  background-color: #6f6d70;
+  border-color: #626163;
+  color: white;
+}
+.btn-dkgray.disabled:hover,
+.btn-dkgray.disabled:focus,
+.btn-dkgray.disabled:active,
+.btn-dkgray.disabled.active,
+.btn-dkgray[disabled]:hover,
+.btn-dkgray[disabled]:focus,
+.btn-dkgray[disabled]:active,
+.btn-dkgray[disabled].active,
+fieldset[disabled] .btn-dkgray:hover,
+fieldset[disabled] .btn-dkgray:focus,
+fieldset[disabled] .btn-dkgray:active,
+fieldset[disabled] .btn-dkgray.active {
+  background-color: #7c7a7d;
+  border-color: #7c7a7d;
+  color: white;
+}
+
+.btn-black {
+  background-color: #4a4a4a;
+  border-color: #000000;
+  color: white;
+}
+.btn-black:hover,
+.btn-black:focus,
+.btn-black:active,
+.btn-black.active {
+  background-color: #000000;
+  border-color: #000000;
+  color: white;
+}
+.btn-black.disabled:hover,
+.btn-black.disabled:focus,
+.btn-black.disabled:active,
+.btn-black.disabled.active,
+.btn-black[disabled]:hover,
+.btn-black[disabled]:focus,
+.btn-black[disabled]:active,
+.btn-black[disabled].active,
+fieldset[disabled] .btn-black:hover,
+fieldset[disabled] .btn-black:focus,
+fieldset[disabled] .btn-black:active,
+fieldset[disabled] .btn-black.active {
+  background-color: #000000;
+  border-color: #000000;
+}
+
+.btn-black:hover,
+.btn-black:focus,
+.btn-black:active,
+.btn-black.active {
+  background-color: #000000;
+  border-color: #000000;
+  color: white;
+}
+.btn-black.disabled:hover,
+.btn-black.disabled:focus,
+.btn-black.disabled:active,
+.btn-black.disabled.active,
+.btn-black[disabled]:hover,
+.btn-black[disabled]:focus,
+.btn-black[disabled]:active,
+.btn-black[disabled].active,
+fieldset[disabled] .btn-black:hover,
+fieldset[disabled] .btn-black:focus,
+fieldset[disabled] .btn-black:active,
+fieldset[disabled] .btn-black.active {
+  background-color: #000000;
+  border-color: #000000;
+}
+
+.btn-pink {
+  color: #ff40d9;
+  font-weight: bold;
+}
+.btn-pink:hover,
+.btn-pink:focus,
+.btn-pink:active,
+.btn-pink.active {
+  background-color: #ff40d9;
+  border-color: #ff40d9;
+  color: white;
+}
+.btn-pink.disabled:hover,
+.btn-pink.disabled:focus,
+.btn-pink.disabled:active,
+.btn-pink.disabled.active,
+.btn-pink[disabled]:hover,
+.btn-pink[disabled]:focus,
+.btn-pink[disabled]:active,
+.btn-pink[disabled].active,
+fieldset[disabled] .btn-pink:hover,
+fieldset[disabled] .btn-pink:focus,
+fieldset[disabled] .btn-pink:active,
+fieldset[disabled] .btn-pink.active {
+  background-color: #ff80e5;
+  border-color: #ff80e5;
+}
+
+.btn-repo {
+  border-color: #c3c3c3;
+  color: #7c7a7d;
+  background-color: #eaeaea;
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+}
+.btn-repo:hover,
+.btn-repo:focus,
+.btn-repo:active,
+.btn-repo.active {
+  background-color: #6f6d70;
+  border-color: #626163;
+  color: white;
+}
+.btn-repo.disabled:hover,
+.btn-repo.disabled:focus,
+.btn-repo.disabled:active,
+.btn-repo.disabled.active,
+.btn-repo[disabled]:hover,
+.btn-repo[disabled]:focus,
+.btn-repo[disabled]:active,
+.btn-repo[disabled].active,
+fieldset[disabled] .btn-repo:hover,
+fieldset[disabled] .btn-repo:focus,
+fieldset[disabled] .btn-repo:active,
+fieldset[disabled] .btn-repo.active {
+  background-color: #7c7a7d;
+  border-color: #7c7a7d;
+  color: white;
+}
+
+.label-initials {
+  display: inline-block;
+  margin-right: 0.2em;
+  padding: 0.2em 0.3em;
+  width: 2.5em;
+  border: 1px solid #999999;
+  background-color: white;
+  color: #999999;
+}
+
+.white, .white a {
+    color: white;
+}
+
+.lightgray, .lightgray a {
+    color: lightgray;
+}
+
+.midgray, .midgray a {
+    color: gray;
+}
+
+#help {
+    padding: 10px 10px 0px;
+    overflow: auto;
+}
+
+#help.dt, #help.dd {
+    text-align: center;
+}
+
+#help.panel {
+    padding: 5px;
+}
+
+.help-footer {
+    overflow: auto;
+}
+
+/* Used in Help but for general use */
+.kbd {
+    display: inline-block;
+    padding: 3px 5px;
+    font: 11px/10px Consolas,"Liberation Mono",Menlo,Courier,monospace;
+    color: #555;
+    vertical-align: middle;
+    background-color: #fcfcfc;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #ccc #ccc #bbb;
+    border-radius: 3px;
+}
+
+.queryparam {
+    display: inline-block;
+    font: 12px Consolas,"Liberation Mono",Menlo,Courier,monospace;
+    color: #555;
+}
+
+.panel-spacing table {
+    width: 100%;
+}
+
+.panel-spacing tr th:first-child {
+    padding-right: 2em;
+}
+
+.panel-spacing tr:nth-child(even) {
+    background-color: #f8f8f8;
+}
+
+.panel-spacing table tr {
+    border-bottom: 1px dotted lightgrey;
+}
+
+/* override th bold */
+#shortcuts tr th span {
+    font-weight: normal;
+}
+
+.help-btn-sm tr > th > button {
+    font-size: 13px;
+    padding: 0px 2px;
+    margin-top: 1px;
+    border: 1px solid;
+    border-radius: 3px;
+    color: #b3b3b3;
+    cursor: auto;
+    background: #fff;
+}
+
+.help-btn-sm tr > th > button:focus {
+    outline: 0;
+}
+
+.help-btn-desc tr > td {
+    vertical-align: bottom;
+}
+
+.help-btn {
+    margin: 2px;
+    border: 2px solid;
+}
+
+.help-btn-comment {
+    border: none;
+    background-color: #fff;
+}
+
+.help-btn-orange {
+    border-color: #dd6602;
+}
+
+.help-btn-purple {
+    border-color: #6f0296;
+}
+
+.help-btn-red {
+    border-color: #a1020e;
+}
+
+.help-btn-black {
+    border-color: #000000;
+}
+
+.help-btn-bg {
+    background-color: #fff;
+}
+
+#help-job-name {
+    color: #428bca;
+}
+
+#help-raw-log-icon {
+    font-size: 13px;
+    color: #9fa3a5;
+}
+
+#help-logviewer-icon {
+    vertical-align: text-bottom;
+    width: 15px;
+}
+
+.waiter-small{ background: url("../img/waiter16.png") no-repeat center center; width: 16px; height: 16px; display: inline-block;}
+.waiter-medium{ background: url("../img/waiter32.png") no-repeat center center; width: 32px; height: 32px; display: inline-block;}
+.waiter-large{ background: url("../img/waiter64.png") no-repeat center center; width: 64px; height: 64px; display: inline-block;}
+
+.deleted{ text-decoration: line-through;}
+
+.plugin_controls{ margin: 5px;}
+
+.similar_jobs {
+   display: -webkit-flex;
+   display:         flex;
+   -webkit-flex-flow: row;
+           flex-flow: row;
+}
+
+div.similar_jobs .right_panel{ border-left: 1px solid #101010; margin-right: 1px; overflow-y: auto; flex: 1 1; -webkit-flex: 1 1; }
+div.similar_jobs .right_panel form { overflow: hidden; background-color: #D3D3D3; }
+div.similar_jobs .right_panel form .checkbox input[type="checkbox"] { margin-left: 0px; position: relative; }
+div.similar_jobs .right_panel .similar_job_detail{ border-top: 1px solid #101010; }
+div.similar_jobs .right_panel .similar_job_detail table { width: 100%; overflow: hidden; }
+
+div.similar_jobs .left_panel{ overflow: auto; flex: 1 1; -webkit-flex: 1 1; }
+div.similar_jobs .left_panel table{ margin-bottom: 7px;}
+
+/* We override bootstrap table style for cleaner layout */
+div.similar_jobs .left_panel table tr > td {
+    vertical-align: middle;
+    border-top: 1px solid lightgrey;
+    border-bottom: 0;
+    border-right: 0;
+    border-left: 0;
+}
+
+/* Selected Similar Job row in blue */
+div.similar_jobs .left_panel table tr.active > td {
+    background: #e2ebfa;
+    border-top: 1px solid darkgrey;
+    border-bottom: 1px solid darkgrey;
+}
+
+/* Avoid using the hand pointer unless we are on a link */
+div.similar_jobs .left_panel table tr { cursor: default; }
+
+#notification-box {
+    position: fixed;
+    top: 105px;
+    left: 10px;
+    z-index: 1100;
+}
+
+#notification-box div.alert {
+    padding: 10px 16px 10px 10px;
+    margin-bottom: 5px;
+}
+
+#notification-box button.close {
+    position: relative;
+    top: -4px;
+    right: -8px;
+    color: inherit;
+}
+
+/* Notification icon */
+#notification-box div span:first-child {
+    display: inline-block;
+    width: 22px;
+}
+
+.add-new-filter .form-group{
+    margin-bottom: 5px;
+}
+
+.th-multi-select input[type=text]{
+    width:534px;
+}
+
+.th-multi-select select{
+    width:250px;
+    font-size: 12px;
+}
+
+.th-multi-select button{
+    width:30px;
+}
+
+.form-group-inline>.form-group{
+    display: inline-block;
+    vertical-align: top;
+}
+
+.nowrap{
+    overflow-x: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;overflow-x: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+div.logviewer-step{ padding:6px 6px;}
+
+div.talos-panel {
+  display: block !important; /* the important can be removed if/when bug 1094466 is fixed */
+}

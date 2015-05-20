@@ -1,0 +1,13 @@
+<ul id="notification-box" class="list-unstyled">
+  <li ng-repeat="notification in notifier.notifications">
+    <div ng-switch on="notification.severity" class="alert alert-{{::notification.severity}}">
+      <span ng-switch-when="danger" class="fa fa-ban"></span>
+      <span ng-switch-when="warning" class="fa fa-warning"></span>
+      <span ng-switch-when="info" class="fa fa-info-circle"></span>
+      <span ng-switch-when="success" class="fa fa-check"></span>
+      <span ng-switch-default></span>
+      {{::notification.message}}
+      <button ng-click="notifier.remove($index)" ng-if="notification.sticky" class="close">x</button>
+    </div>
+  </li>
+</ul>
