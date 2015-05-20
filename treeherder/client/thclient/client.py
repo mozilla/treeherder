@@ -654,6 +654,8 @@ class TreeherderClient(object):
 
     UPDATE_ENDPOINT = 'job-log-url/{}/update_parse_status'
 
+    API_ROOT = "https://treeherder.mozilla.org/api/project"
+
     def __init__(
             self, protocol='https', host='treeherder.mozilla.org',
             timeout=120):
@@ -684,6 +686,14 @@ class TreeherderClient(object):
 
         return uri
 
+    def _get_revision_id(self, repo_name, revision):
+        """
+        Return the id of a given revision from treeherder
+        """
+        url = "%s/%s/resultset/?revision=%s" % (self.API_ROOT, repo_name, revision)
+        req = requests.get(url).json()
+        return req["results"][0]["id"]
+
     def _post_json(self, project, endpoint, oauth_key, oauth_secret, jsondata,
                    timeout):
         if timeout is None:
@@ -700,6 +710,16 @@ class TreeherderClient(object):
                              headers={'Content-Type': 'application/json'},
                              timeout=timeout)
         resp.raise_for_status()
+
+    def get_revision_jobs(self, repo_name, revision):
+        """
+        Return all the jobs for a given revision from treeherder
+        """
+        revision_id = self._get_revision_id(repo_name, revision)
+        url = "%s/%s/jobs/?count=2000&result_set_id=%s" \
+              % (self.API_ROOT, repo_name, revision_id)
+        req = requests.get(url).json()
+        return req["results"]
 
     def post_collection(self, project, oauth_key, oauth_secret,
                         collection_inst, timeout=None):
