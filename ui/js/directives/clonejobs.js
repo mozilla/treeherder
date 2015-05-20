@@ -35,7 +35,7 @@ treeherder.directive('thCloneJobs', [
     var col7Cls = 'col-xs-7';
     var col12Cls = 'col-xs-12';
     var jobListNoPadCls = 'job-list-nopad';
-    var jobListPadLeftCls = 'job-list-pad-left';
+    var jobListPadCls = 'job-list-pad';
 
     // Custom Attributes
     var jobKeyAttr = 'data-jmkey';
@@ -415,12 +415,12 @@ treeherder.directive('thCloneJobs', [
         el.removeClass(jobListNoPadCls);
         el.removeClass(col12Cls);
         el.addClass(col7Cls);
-        el.addClass(jobListPadLeftCls);
+        el.addClass(jobListPadCls);
     };
     var toggleJobsSpanOnWithoutRevisions = function(el){
         el.css('display', 'block');
         el.removeClass(col7Cls);
-        el.removeClass(jobListPadLeftCls);
+        el.removeClass(jobListPadCls);
         el.addClass(jobListNoPadCls);
         el.addClass(col12Cls);
     };

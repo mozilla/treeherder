@@ -528,20 +528,19 @@ th-watched-repo {
     white-space: nowrap;
 }
 
-.result-set .job-list-pad-left {
-    padding-left: 8;
+.result-set .job-list-pad {
     padding-right: 0;
 }
 
-.job-list-pad-left table {
+.job-list table {
     width: 100%;
 }
 
-.job-list-pad-left table tr {
+.job-list table tr {
     border-bottom: 1px dotted lightgrey;
 }
 
-.job-list-pad-left table tr:nth-child(even) {
+.job-list table tr:nth-child(even) {
     background: #f8f8f8;
 }
 
