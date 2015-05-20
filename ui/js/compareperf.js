@@ -91,8 +91,8 @@ perf.controller('CompareResultsCtrl', [
     function displayResults(rawResultsMap, newRawResultsMap) {
       $scope.compareResults = {};
       $scope.titles = {};
-      window.document.title = ("Comparison between " + $scope.originalRevision + 
-                              " (" + $scope.originalProject.name + ") " + 
+      window.document.title = ("Comparison between " + $scope.originalRevision +
+                              " (" + $scope.originalProject.name + ") " +
                               "and " + $scope.newRevision + " (" + $scope.newProject.name + ")");
 
       $scope.testList.forEach(function(testName) {
@@ -109,6 +109,7 @@ perf.controller('CompareResultsCtrl', [
             return;
           }
 
+          // Construct the details link to the subtest for each row
           var detailsLink = 'perf.html#/comparesubtest?';
           detailsLink += _.map(_.pairs({
             originalProject: $scope.originalProject.name,
@@ -119,6 +120,29 @@ perf.controller('CompareResultsCtrl', [
             newSignature: newSig
           }), function(kv) { return kv[0]+"="+kv[1] }).join("&");
 
+
+          // Construct the graph link for each row
+          var originalSeries = encodeURIComponent(JSON.stringify(
+                        { project: $scope.originalProject.name,
+                          signature: oldSig,
+                          visible: true}));
+
+          var newSeries = encodeURIComponent(JSON.stringify(
+                        { project: $scope.newProject.name,
+                          signature: newSig,
+                          visible: true}));
+
+          var timeRange = PhCompare.getInterval($scope.originalTimestamp, $scope.newTimestamp);
+          var graphLink = 'perf.html#/graphs?timerange=' + timeRange +
+                          '&series=' + newSeries;
+
+          if (oldSig != newSig) {
+              graphLink += '&series=' + originalSeries;
+          }
+          graphLink += '&highlightedRevisions=' + $scope.originalRevision;
+          graphLink += '&highlightedRevisions=' + $scope.newRevision;
+
+          cmap.graphLink = graphLink;
           cmap.detailsLink = detailsLink;
           cmap.name = platform;
           cmap.hideMinorChanges = $scope.hideMinorChanges;
@@ -271,16 +295,16 @@ perf.controller('CompareSubtestResultsCtrl', [
                           signature: newSig,
                           visible: true}));
 
-          var detailsLink = 'perf.html#/graphs?timerange=' +
+          var graphLink = 'perf.html#/graphs?timerange=' +
               timeRange + '&series=' + newSeries;
 
           if (oldSig != newSig) {
-            detailsLink += '&series=' + originalSeries;
+            graphLink += '&series=' + originalSeries;
           }
-          detailsLink += '&highlightedRevisions=' + $scope.originalRevision;
-          detailsLink += '&highlightedRevisions=' + $scope.newRevision;
+          graphLink += '&highlightedRevisions=' + $scope.originalRevision;
+          graphLink += '&highlightedRevisions=' + $scope.newRevision;
 
-          cmap.detailsLink = detailsLink;
+          cmap.graphLink = graphLink;
           cmap.name = page;
           cmap.hideMinorChanges = $scope.hideMinorChanges;
           $scope.compareResults[testName].push(cmap);
