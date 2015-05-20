@@ -36,6 +36,7 @@ treeherderApp.controller('FilterPanelCtrl', [
         };
 
         $scope.resultStatusFilters = {};
+        $scope.orderedFilters = _.flatten(_.pluck($scope.filterGroups, "resultStatuses"));
 
         // field filters
         $scope.newFieldFilter = null;
@@ -68,6 +69,21 @@ treeherderApp.controller('FilterPanelCtrl', [
             if (!$scope.resultStatusFilters[filter]) {
                 thJobFilters.removeFilter(thJobFilters.resultStatus, filter);
             } else {
+                thJobFilters.addFilter(thJobFilters.resultStatus, filter);
+            }
+        };
+
+        /**
+         * Handle toggling one of the individual result status filter chicklets
+         * on the nav bar
+         */
+        $scope.toggleResultStatusFilterChicklet = function(filter) {
+            console.log("$scope.resultStatusFilters", $scope.resultStatusFilters);
+            if ($scope.resultStatusFilters[filter]) {
+                $scope.resultStatusFilters[filter] = false;
+                thJobFilters.removeFilter(thJobFilters.resultStatus, filter);
+            } else {
+                $scope.resultStatusFilters[filter] = true;
                 thJobFilters.addFilter(thJobFilters.resultStatus, filter);
             }
         };

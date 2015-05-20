@@ -77,6 +77,7 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 1,
                         btnClass: "btn-red",
+                        chickletClass: "btn-filter-chicklet-red",
                         btnClassClassified: "btn-red-classified",
                         jobButtonIcon: "glyphicon glyphicon-fire",
                         countText: "busted"
@@ -86,6 +87,7 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 2,
                         btnClass: "btn-purple",
+                        chickletClass: "btn-filter-chicklet-purple",
                         btnClassClassified: "btn-purple-classified",
                         jobButtonIcon: "glyphicon glyphicon-fire",
                         countText: "exception"
@@ -95,6 +97,7 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 3,
                         btnClass: "btn-orange",
+                        chickletClass: "btn-filter-chicklet-orange",
                         btnClassClassified: "btn-orange-classified",
                         jobButtonIcon: "glyphicon glyphicon-warning-sign",
                         countText: "failed"
@@ -104,6 +107,7 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 4,
                         btnClass: "btn-black",
+                        chickletClass: "btn-filter-chicklet-black",
                         btnClassClassified: "btn-black-classified",
                         jobButtonIcon: "",
                         countText: "unknown"
@@ -113,6 +117,7 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 5,
                         btnClass: "btn-pink",
+                        chickletClass: "btn-filter-chicklet-pink",
                         jobButtonIcon: "",
                         countText: "cancel"
                     };
@@ -121,6 +126,7 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 6,
                         btnClass: "btn-dkblue",
+                        chickletClass: "btn-filter-chicklet-dkblue",
                         jobButtonIcon: "",
                         countText: "retry"
                     };
@@ -129,6 +135,7 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 7,
                         btnClass: "btn-green",
+                        chickletClass: "btn-filter-chicklet-green",
                         jobButtonIcon: "",
                         countText: "success"
                     };
@@ -137,6 +144,7 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 8,
                         btnClass: "btn-dkgray",
+                        chickletClass: "btn-filter-chicklet-dkgray",
                         jobButtonIcon: "",
                         countText: "running"
                     };
@@ -145,6 +153,7 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 100,
                         btnClass: "btn-ltgray",
+                        chickletClass: "btn-filter-chicklet-ltgray",
                         jobButtonIcon: "",
                         countText: "pending"
                     };
@@ -153,6 +162,7 @@ treeherder.provider('thResultStatusInfo', function() {
                     resultStatusInfo = {
                         severity: 101,
                         btnClass: "btn-yellow",
+                        chickletClass: "btn-filter-chicklet-yellow",
                         jobButtonIcon: "",
                         countText: "coalesced"
                     };
