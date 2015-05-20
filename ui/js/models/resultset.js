@@ -12,6 +12,9 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location', '$q'
 
     var $log = new ThLog("ThResultSetModel");
 
+    var MAX_RESULTSET_FETCH_SIZE = 100;
+    var MAX_RESULTSET_FETCH_SIZE_NOJOBS = 300;
+
     var convertDates = function(locationParams) {
         // support date ranges.  we must convert the strings to a timezone
         // appropriate timestamp
@@ -77,6 +80,23 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location', '$q'
                 // service at this time, but it could be confusing.
                 var locationParams = _.clone($location.search());
                 delete locationParams.repo;
+
+                // if they submit an offset timestamp, then they have resultsets
+                // and are fetching more.  So don't honor the fromchange/tochange
+                // or else we won't be able to fetch more resultsets.
+                if (rsOffsetTimestamp) {
+                    delete locationParams.tochange;
+                    delete locationParams.fromchange;
+                }
+
+                // if fromchange is requested without a tochange, then
+                // allow the user to fetch up to the limit of 100.  Or 300
+                // if the ``nojobs`` param is passed.
+                if (locationParams.fromchange && !locationParams.tochange ||
+                    locationParams.startdate && !locationParams.enddate) {
+
+                    params.count = locationParams.nojobs ? MAX_RESULTSET_FETCH_SIZE_NOJOBS : MAX_RESULTSET_FETCH_SIZE;
+                }
 
                 locationParams = convertDates(locationParams);
 

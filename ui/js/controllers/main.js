@@ -332,13 +332,18 @@ treeherderApp.controller('MainCtrl', [
             var defaulting = newReloadTriggerParams.repo === thDefaultRepo &&
                              !$scope.cachedReloadTriggerParams.repo;
 
+            console.log("skipPageReload before check", $scope.skipNextPageReload);
             if (!defaulting && $scope.cachedReloadTriggerParams &&
-                !_.isEqual(newReloadTriggerParams, $scope.cachedReloadTriggerParams)) {
+                !_.isEqual(newReloadTriggerParams, $scope.cachedReloadTriggerParams) &&
+                !$rootScope.skipNextPageReload) {
 
+//                console.log("oh man, I was going to reload the page", $scope.skipPageReload);
                 $window.location.reload();
             } else {
                 $scope.cachedReloadTriggerParams = newReloadTriggerParams;
             }
+            $rootScope.skipNextPageReload = false;
+
         });
 
         $scope.changeRepo = function(repo_name) {

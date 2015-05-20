@@ -18,8 +18,26 @@ treeherderApp.controller('JobsCtrl', [
 
         // load our initial set of resultsets
         // scope needs this function so it can be called directly by the user, too.
-        $scope.fetchResultSets = function(count, keepFilters) {
-            ThResultSetStore.fetchResultSets($scope.repoName, count, keepFilters);
+        $scope.getNextResultSets = function(count, keepFilters) {
+            var revision = $location.search().revision;
+            if (revision) {
+                $rootScope.skipNextPageReload = true;
+                console.log("set skip page", $scope.skipNextPageReload);
+                $location.search('revision', null);
+                $location.search('tochange', revision);
+            }
+            ThResultSetStore.fetchResultSets($scope.repoName, count, keepFilters).
+                then(function() {
+
+                    // since we fetched more resultsets, we need to persist the
+                    // resultset state in the URL.
+                    $rootScope.skipNextPageReload = true;
+                    console.log("setting location");
+                    var rsArray = ThResultSetStore.getResultSetsArray($scope.repoName)
+//                    $location.search('tochange', _.first(rsArray).revision);
+                    $location.search('fromchange', _.last(rsArray).revision);
+                });
+
         };
 
         // set to the default repo if one not specified
@@ -213,7 +231,7 @@ treeherderApp.controller('ResultSetCtrl', [
                     ThModelErrors.format(e, "Failed to cancel all jobs"),
                     'danger', true
                 );
-            })
+            });
         };
 
         $scope.revisionResultsetFilterUrl = $scope.urlBasePath + "?repo=" +

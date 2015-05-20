@@ -211,7 +211,6 @@ treeherder.factory('ThResultSetStore', [
                 rsMap:{},
                 jobMap:{},
                 unclassifiedFailureMap: {},
-                jobMapOldestId:null,
                 //used as the offset in paging
                 rsMapOldestTimestamp:null,
                 resultSets:[],
@@ -294,13 +293,6 @@ treeherder.factory('ThResultSetStore', [
             };
             repositories[repoName].rsMap[rs_obj.id] = rsMapElement;
 
-            // keep track of the oldest push_timestamp, so we don't auto-fetch resultsets
-            // that are out of the range we care about.
-            if ( !repositories[repoName].rsMapOldestTimestamp ||
-                 (repositories[repoName].rsMapOldestTimestamp > rs_obj.push_timestamp)) {
-                repositories[repoName].rsMapOldestTimestamp = rs_obj.push_timestamp;
-            }
-
             // platforms
             if(rs_obj.platforms !== undefined){
                 mapPlatforms(repoName, rs_obj);
@@ -310,7 +302,8 @@ treeherder.factory('ThResultSetStore', [
         $log.debug("sorting", repoName, repositories[repoName]);
         repositories[repoName].resultSets.sort(rsCompare);
 
-        $log.debug("oldest job: ", repositories[repoName].jobMapOldestId);
+        repositories[repoName].rsMapOldestTimestamp = _.last(repositories[repoName].resultSets).push_timestamp;
+
         $log.debug("oldest result set: ", repositories[repoName].rsMapOldestTimestamp);
         $log.debug("done mapping:", repositories[repoName].rsMap);
     };
@@ -351,12 +344,6 @@ treeherder.factory('ThResultSetStore', [
                     grMapElement.jobs[key] = jobMapElement;
                     repositories[repoName].jobMap[key] = jobMapElement;
                     updateUnclassifiedFailureMap(repoName, job_obj);
-
-                    // track oldest job id
-                    if (!repositories[repoName].jobMapOldestId ||
-                        (repositories[repoName].jobMapOldestId > job_obj.id)) {
-                        repositories[repoName].jobMapOldestId = job_obj.id;
-                    }
                 }
             }
         }
@@ -819,7 +806,7 @@ treeherder.factory('ThResultSetStore', [
                 resultsets = data.data;
             });
 
-        $q.all([loadRepositories, loadResultsets]).
+        return $q.all([loadRepositories, loadResultsets]).
             then(
                 function() {
                     appendResultSets(repoName, resultsets);
