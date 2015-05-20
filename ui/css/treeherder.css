@@ -790,6 +790,7 @@ ul.failure-summary-list li .btn-xs {
 
 .failure-summary-line-empty {
     padding: 2px 4px 0px;
+    font-size: 12px;
     background: #ffffff;
 }
 
@@ -1082,6 +1083,11 @@ ul.failure-summary-list li .btn-xs {
 .bug-list {
     list-style: none inside none;
     padding-left: 0;
+}
+
+.bug-header {
+    margin-top: 8px;
+    margin-bottom: 8px;
 }
 
 /**
