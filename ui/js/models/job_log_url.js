@@ -19,9 +19,9 @@ treeherder.factory('ThJobLogUrlModel', [
         if(!this.hasOwnProperty("id")){
             throw "The id property is required in order to parse a log";
         }
-        var uri = ThJobLogUrlModel.get_uri()+this.id+"/parse/"
+        var uri = ThJobLogUrlModel.get_uri()+this.id+"/parse/";
         return $http.post(uri);
-    }
+    };
 
     ThJobLogUrlModel.get_uri = function(){
         var url = thUrl.getProjectUrl("/job-log-url/");
@@ -42,7 +42,7 @@ treeherder.factory('ThJobLogUrlModel', [
             var item_list = [];
             angular.forEach(response.data, function(elem){
                 var buildData = elem.url.split("/");
-                var buildUrl = elem.url.slice(0, elem.url.lastIndexOf("/")) + "/"
+                var buildUrl = elem.url.slice(0, elem.url.lastIndexOf("/")) + "/";
                 elem.buildUrl = buildUrl;
                 item_list.push(new ThJobLogUrlModel(elem));
             });

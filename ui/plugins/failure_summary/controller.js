@@ -18,10 +18,10 @@ treeherder.controller('BugsPluginCtrl', [
         $scope.tabs = thTabs.tabs;
 
         // update function triggered by the plugins controller
-        thTabs.tabs.failureSummary.update = function(){
+        thTabs.tabs.failureSummary.update = function() {
             var newValue = thTabs.tabs.failureSummary.contentId;
             $scope.suggestions = [];
-            if(angular.isDefined(newValue)){
+            if(angular.isDefined(newValue)) {
                 thTabs.tabs.failureSummary.is_loading = true;
                 // if there's a ongoing request, abort it
                 if (timeout_promise !== null) {
