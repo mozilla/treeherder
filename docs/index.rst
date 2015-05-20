@@ -19,6 +19,7 @@ Contents:
    common_tasks
    submitting_data
    troubleshooting
+   ui/index
 
 
 Indices and tables
