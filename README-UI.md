@@ -19,7 +19,7 @@ cp ui/js/config/sample.local.conf.js ui/js/config/local.conf.js
 
 The UI can then be viewed at [http://localhost:8000/index.html](http://localhost:8000/index.html).
 
-Data will be pulled from the production instance API by default. See the [installation docs](https://treeherder-service.readthedocs.org/en/latest/installation.html) for more options, how to run the tests & using the Vagrant project for a more robust environment that also allows you to run the back-end locally.
+Data will be pulled from the production instance API by default. See the [installation docs](https://treeherder.readthedocs.org/installation.html) for more options, how to run the tests & using the Vagrant project for a more robust environment that also allows you to run the back-end locally.
 
 
 #### Links
@@ -28,6 +28,6 @@ Visit our project tracking Wiki at:
 https://wiki.mozilla.org/Auto-tools/Projects/Treeherder
 
 Visit our **readthedocs** page for more detailed documentation at:  
-https://treeherder-service.readthedocs.org/en/latest/index.html
+https://treeherder.readthedocs.org/
 
 File any bugs you may encounter [here](https://bugzilla.mozilla.org/enter_bug.cgi?product=Tree+Management&component=Treeherder).

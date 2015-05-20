@@ -1,7 +1,7 @@
 Common tasks
 ============
 
-This is a list of maintenance tasks you may have to execute on a treeherder-service deployment
+This is a list of maintenance tasks you may have to execute on a treeherder deployment
 
 Apply a change in the code
 --------------------------

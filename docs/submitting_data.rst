@@ -202,7 +202,7 @@ data structures to send, do something like this.
     # Send the collection to treeherder
 
     # The OAuth key and secret for your project should be supplied to you by the
-    # treeherder-service administrator.
+    # treeherder administrator.
     client = TreeherderClient(protocol='https', host='treeherder.mozilla.org')
 
     # Post the result collection to a project

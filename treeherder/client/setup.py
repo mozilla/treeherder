@@ -8,7 +8,7 @@ version = '1.2'
 
 setup(name='treeherder-client',
       version=version,
-      description="Python library to submit data to treeherder-service",
+      description="Python library to submit data to the Treeherder API",
       long_description="""\
 """,
       classifiers=[
@@ -23,7 +23,7 @@ setup(name='treeherder-client',
       keywords='',
       author='Mozilla Automation and Testing Team',
       author_email='tools@lists.mozilla.org',
-      url='https://github.com/mozilla/treeherder-client',
+      url='https://github.com/mozilla/treeherder',
       license='MPL',
       packages=['thclient'],
       zip_safe=False,
