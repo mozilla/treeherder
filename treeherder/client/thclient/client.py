@@ -9,6 +9,7 @@ import logging
 import json
 import oauth2 as oauth
 import time
+import copy
 
 logger = logging.getLogger(__name__)
 
@@ -551,6 +552,33 @@ class TreeherderCollection(object):
         """
         for d in self.data:
             d.validate()
+
+    def get_chunks(self, chunk_size):
+        """
+        Return a generator of new collections broken into chunks of size ``chunk_size``.
+
+        Each chunk will be a ``TreeherderCollection`` of the same
+        type as the original with a max of ``chunk_size`` count of
+        ``TreeherderData`` objects.
+
+        Each collection must then be POSTed individually.
+        """
+        for i in range(0, len(self.data), chunk_size):
+            # we must copy not only the data chunk,
+            # but also the endpoint_base.  In the case of
+            # a TreeherderJobCollection, this is passed in
+            # to the constructor.
+            chunk = copy.copy(self)
+            chunk.data = self.data[i:i + chunk_size]
+            yield chunk
+
+        # artifact_collections = []
+        # data_chunks = [self.data[o:o + chunk_size] for o
+        #                in range(0, len(self.data), chunk_size)]
+        # for datum in data_chunks:
+        #     artifact_collections.append(self.__class__(datum))
+        #
+        # return artifact_collections
 
 
 class TreeherderJobCollection(TreeherderCollection):

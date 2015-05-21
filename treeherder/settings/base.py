@@ -306,6 +306,14 @@ BUILDAPI_PENDING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson
 BUILDAPI_RUNNING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-running.js"
 BUILDAPI_BUILDS4H_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-4hr.js.gz"
 
+# the max size of a posted request to treeherder client during Buildbot
+# data job ingestion.
+# If TreeherderCollections are larger, they will be chunked
+# to this size.
+BUILDAPI_PENDING_CHUNK_SIZE = 50
+BUILDAPI_RUNNING_CHUNK_SIZE = 50
+BUILDAPI_BUILDS4H_CHUNK_SIZE = 50
+
 PARSER_MAX_STEP_ERROR_LINES = 100
 PARSER_MAX_SUMMARY_LINES = 200
 

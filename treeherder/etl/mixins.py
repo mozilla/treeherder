@@ -121,5 +121,5 @@ class ResultSetsLoaderMixin(JsonLoaderMixin):
 
 class OAuthLoaderMixin(object):
 
-    def load(self, th_collections):
-        th_publisher.post_treeherder_collections(th_collections)
+    def load(self, th_collections, chunk_size=1):
+        th_publisher.post_treeherder_collections(th_collections, chunk_size)

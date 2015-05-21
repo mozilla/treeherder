@@ -165,6 +165,54 @@ def test_ingest_builds4h_jobs(jm, initial_data,
     assert len(stored_obj) == 20
 
 
+def test_ingest_running_to_complete_job(jm, initial_data,
+                                        mock_buildapi_running_url,
+                                        mock_buildapi_builds4h_url,
+                                        mock_post_json_data,
+                                        mock_log_parser,
+                                        mock_get_resultset,
+                                        mock_get_remote_content):
+    """
+    a new buildapi running job transitions to a new completed job
+
+    Also ensure that a running job does NOT go through the objectstore.
+    """
+    from treeherder.etl.buildapi import RunningJobsProcess
+    from treeherder.etl.buildapi import Builds4hJobsProcess
+
+    etl_process = RunningJobsProcess()
+    etl_process.run()
+
+    stored_running = jm.get_jobs_dhub().execute(
+        proc="jobs_test.selects.jobs")
+
+    stored_objectstore = jm.get_os_dhub().execute(
+        proc="objectstore_test.selects.all")
+
+    # ensure running jobs do not go to the objectstore, but go directly
+    # to the jobs table without needing process_objects
+    assert len(stored_objectstore) == 0
+    assert len(stored_running) == 1
+
+    # the first job in the sample data should overwrite the running job
+    # we just ingested.  Leaving us with only 20 jobs, not 21.
+    etl_process = Builds4hJobsProcess()
+    etl_process.run()
+    jm.process_objects(20)
+
+    stored_obj = jm.get_jobs_dhub().execute(
+        proc="jobs_test.selects.jobs")
+
+    jm.disconnect()
+
+    assert len(stored_obj) == 20
+
+    # all jobs should be completed, including the original one which
+    # transitioned from running.
+    for job in stored_obj:
+        assert job['state'] == 'completed'
+
+
 def test_ingest_running_job_fields(jm, initial_data,
                                    mock_buildapi_running_url,
                                    mock_post_json_data,
