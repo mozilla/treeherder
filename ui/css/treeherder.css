@@ -213,8 +213,14 @@ th-watched-repo {
 
 #platform-job-text-search-field {
     height:28px;
-    width: inherit;
+    width: 150px;
     display: inherit;
+    transition: width 0.2s;
+}
+
+#platform-job-text-search-field:focus,
+#platform-job-text-search-field:valid {
+    width: 300px !important;
 }
 
 .th-content {
