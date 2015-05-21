@@ -136,7 +136,12 @@ Ingestion tasks populate the database with version control push logs, queued/run
   The "-B" option tells the celery worker to startup a beat service, so that periodic tasks can be executed.
   You only need one worker with the beat service enabled. Multiple beat services will result in periodic tasks being executed multiple times.
 
-* Alternatively, instead of running a full ingestion task, you can process just the jobs associated with any single push generated in the last 4 hours (builds-4h_), in a synchronous manner. This is ideal for testing.
+Ingesting a single push (at a time)
+-----------------------------------
+
+Alternatively, instead of running a full ingestion task, you can process just
+the jobs associated with any single push generated in the last 4 hours
+(builds-4h_), in a synchronous manner. This is ideal for testing.
 
   .. _builds-4h: http://builddata.pub.build.mozilla.org/buildjson/
 
@@ -144,6 +149,21 @@ Ingestion tasks populate the database with version control push logs, queued/run
 
      (venv)vagrant@precise32:~/treeherder$ ./manage.py ingest_push mozilla-central 63f8a47cfdf5
 
+You can further restrict the amount of data to a specific type of job
+with the "--filter-job-group" parameter. For example, to process only
+talos jobs for a particular push, try:
+
+  .. code-block:: bash
+
+     (venv)vagrant@precise32:~/treeherder$ ./manage.py ingest_push --filter-job-group T mozilla-central 63f8a47cfdf
+
+Note that some types of data (e.g. performance) are not processed immediately, and you
+will thus need to start a celery worker to handle them. You don't need
+to enable the beat service for this though, so you can omit the "-B":
+
+  .. code-block:: bash
+
+     (venv)vagrant@precise32:~/treeherder$ celery -A treeherder worker
 
 .. _treeherder repo: https://github.com/mozilla/treeherder
 .. _Vagrant: https://www.vagrantup.com
