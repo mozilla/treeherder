@@ -3,40 +3,37 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 import pytest
+import json
 from webtest.app import TestApp
+from urllib2 import HTTPError
 
-from treeherder.etl.mixins import OAuthLoaderMixin
-from treeherder.etl.oauth_utils import OAuthCredentials
 from treeherder.webapp.wsgi import application
 
-from treeherder.client import TreeherderClient
-from tests.sampledata import SampleData
+from treeherder import client
 
 
 @pytest.fixture
-def mock_post_json_data(monkeypatch, jm):
-    def _post_json_data(url, data):
+def mock_post_json_data(monkeypatch, set_oauth_credentials):
 
-        if data:
-            th_collection = data[jm.project]
+    def _mock_post_json(thisone, project, endpoint, oauth_key, oauth_secret, jsondata, timeout):
 
-            OAuthCredentials.set_credentials(SampleData.get_credentials())
-            credentials = OAuthCredentials.get_credentials(jm.project)
+        thisone.protocol = 'http'
+        thisone.host = 'localhost'
 
-            cli = TreeherderClient(protocol='http',
-                                   host='localhost')
+        uri = thisone._get_uri(project, endpoint, data=jsondata,
+                               oauth_key=oauth_key,
+                               oauth_secret=oauth_secret,
+                               method='POST')
 
-            signed_uri = cli._get_uri(jm.project, th_collection.endpoint_base,
-                                      data=th_collection.to_json(),
-                                      oauth_key=credentials['consumer_key'],
-                                      oauth_secret=credentials['consumer_secret'],
-                                      method='POST')
+        resp = TestApp(application).post_json(
+            str(uri), params=json.loads(jsondata)
+        )
 
-            response = TestApp(application).post_json(
-                str(signed_uri), params=th_collection.get_collection_data()
-            )
+        if resp.status_int != 200:
+            raise HTTPError(uri,
+                            resp.status_int,
+                            "Bad status in mock: {}".format(resp.status_int),
+                            None,
+                            jsondata)
 
-            response.getcode = lambda: response.status_int
-            return response
-
-    monkeypatch.setattr(OAuthLoaderMixin, 'load', _post_json_data)
+    monkeypatch.setattr(client.TreeherderClient, "_post_json", _mock_post_json)

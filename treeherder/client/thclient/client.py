@@ -516,9 +516,10 @@ class TreeherderCollection(object):
     Base class for treeherder data collections
     """
 
-    def __init__(self, data=[]):
+    def __init__(self, endpoint_base, data=[]):
 
         self.data = []
+        self.endpoint_base = endpoint_base
 
         if data:
             self.data = data
@@ -552,6 +553,26 @@ class TreeherderCollection(object):
         for d in self.data:
             d.validate()
 
+    def get_chunks(self, chunk_size):
+        """
+        Return a generator of new collections broken into chunks of size ``chunk_size``.
+
+        Each chunk will be a ``TreeherderCollection`` of the same
+        type as the original with a max of ``chunk_size`` count of
+        ``TreeherderData`` objects.
+
+        Each collection must then be POSTed individually.
+        """
+        for i in range(0, len(self.data), chunk_size):
+            # we must copy not only the data chunk,
+            # but also the endpoint_base or any other field of the
+            # collection.  In the case of a TreeherderJobCollection,
+            # this is determined in the constructor.
+
+            chunk = self.__class__(self.data[i:i + chunk_size])
+            chunk.endpoint_base = self.endpoint_base
+            yield chunk
+
 
 class TreeherderJobCollection(TreeherderCollection):
     """
@@ -560,12 +581,12 @@ class TreeherderJobCollection(TreeherderCollection):
 
     def __init__(self, data=[], job_type=''):
 
-        super(TreeherderJobCollection, self).__init__(data)
-
         if job_type == 'update':
-            self.endpoint_base = 'jobs'
+            endpoint_base = 'jobs'
         else:
-            self.endpoint_base = 'objectstore'
+            endpoint_base = 'objectstore'
+
+        super(TreeherderJobCollection, self).__init__(endpoint_base, data)
 
     def get_job(self, data={}):
 
@@ -579,9 +600,7 @@ class TreeherderResultSetCollection(TreeherderCollection):
 
     def __init__(self, data=[]):
 
-        super(TreeherderResultSetCollection, self).__init__(data)
-
-        self.endpoint_base = 'resultset'
+        super(TreeherderResultSetCollection, self).__init__('resultset', data)
 
     def get_resultset(self, data={}):
 
@@ -595,9 +614,7 @@ class TreeherderArtifactCollection(TreeherderCollection):
 
     def __init__(self, data=[]):
 
-        super(TreeherderArtifactCollection, self).__init__(data)
-
-        self.endpoint_base = 'artifact'
+        super(TreeherderArtifactCollection, self).__init__('artifact', data)
 
     def get_artifact(self, data={}):
 
