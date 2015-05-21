@@ -13,7 +13,9 @@ treeherder.controller('BugsPluginCtrl', [
 
         $log.debug("bugs plugin initialized");
 
-        var timeout_promise = null;
+        var timeoutPromise = null;
+        var requestPromise = null;
+
         var bug_limit = 20;
         $scope.tabs = thTabs.tabs;
 
@@ -23,17 +25,22 @@ treeherder.controller('BugsPluginCtrl', [
             $scope.suggestions = [];
             if(angular.isDefined(newValue)) {
                 thTabs.tabs.failureSummary.is_loading = true;
-                // if there's a ongoing request, abort it
-                if (timeout_promise !== null) {
-                    timeout_promise.resolve();
+                // if there's an ongoing timeout, cancel it
+                if (timeoutPromise !== null) {
+                    $timeout.cancel(timeoutPromise);
                 }
-                timeout_promise = $q.defer();
+                // if there's a ongoing request, abort it
+                if (requestPromise !== null) {
+                    requestPromise.resolve();
+                }
+
+                requestPromise = $q.defer();
 
                 ThJobArtifactModel.get_list({
                     name: "Bug suggestions",
                     "type": "json",
                     job_id: newValue
-                }, {timeout: timeout_promise})
+                }, {timeout: requestPromise})
                 .then(function(artifact_list){
                     // using a temporary array here to not trigger a
                     // dirty check for every element pushed
@@ -62,11 +69,10 @@ treeherder.controller('BugsPluginCtrl', [
                         });
                         $scope.suggestions = suggestions;
                         $scope.bugSuggestionsLoaded = true;
-                    } else {
+                    } else if ($scope.selectedJob) {
                         $scope.bugSuggestionsLoaded = false;
-
                         // set a timer to re-run update() after 5 seconds
-                        $timeout(thTabs.tabs.failureSummary.update, 5000);
+                        timeoutPromise = $timeout(thTabs.tabs.failureSummary.update, 5000);
                     }
                 })
                 .finally(function () {
