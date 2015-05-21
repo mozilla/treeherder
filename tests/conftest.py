@@ -490,3 +490,17 @@ def pulse_resultset_consumer(request):
 @pytest.fixture
 def pulse_action_consumer(request):
     return pulse_consumer('job-actions', request)
+
+
+@pytest.fixture
+def mock_error_summary(monkeypatch):
+    bs_obj = ["foo", "bar"]
+
+    from treeherder.model import error_summary
+
+    def _get_error_summary(params):
+        return bs_obj
+
+    monkeypatch.setattr(error_summary, "get_error_summary", _get_error_summary)
+
+    return bs_obj
