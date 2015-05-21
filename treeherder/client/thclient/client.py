@@ -563,9 +563,9 @@ class TreeherderJobCollection(TreeherderCollection):
         super(TreeherderJobCollection, self).__init__(data)
 
         if job_type == 'update':
-            self.endpoint_base = 'jobs'
+            self.endpoint_base = 'jobs/'
         else:
-            self.endpoint_base = 'objectstore'
+            self.endpoint_base = 'objectstore/'
 
     def get_job(self, data={}):
 
@@ -581,7 +581,7 @@ class TreeherderResultSetCollection(TreeherderCollection):
 
         super(TreeherderResultSetCollection, self).__init__(data)
 
-        self.endpoint_base = 'resultset'
+        self.endpoint_base = 'resultset/'
 
     def get_resultset(self, data={}):
 
@@ -597,7 +597,7 @@ class TreeherderArtifactCollection(TreeherderCollection):
 
         super(TreeherderArtifactCollection, self).__init__(data)
 
-        self.endpoint_base = 'artifact'
+        self.endpoint_base = 'artifact/'
 
     def get_artifact(self, data={}):
 
@@ -652,7 +652,7 @@ class TreeherderClient(object):
 
     PROTOCOLS = {'http', 'https'}  # supported protocols
 
-    UPDATE_ENDPOINT = 'job-log-url/{}/update_parse_status'
+    UPDATE_ENDPOINT = 'job-log-url/{}/update_parse_status/'
 
     def __init__(
             self, protocol='https', host='treeherder.mozilla.org',
@@ -674,7 +674,7 @@ class TreeherderClient(object):
     def _get_uri(self, project, endpoint, data=None, oauth_key=None,
                  oauth_secret=None, method='GET'):
 
-        uri = '{0}://{1}/api/project/{2}/{3}/'.format(
+        uri = '{0}://{1}/api/project/{2}/{3}'.format(
             self.protocol, self.host, project, endpoint
             )
 
@@ -683,6 +683,15 @@ class TreeherderClient(object):
             uri = oauth_client.get_signed_uri(data, uri, method)
 
         return uri
+
+    def _get_json(self, project, endpoint, timeout):
+        if timeout is None:
+            timeout = self.timeout
+
+        uri = self._get_uri(project, endpoint)
+        resp = requests.get(uri, timeout=timeout)
+        resp.raise_for_status
+        return resp.json()
 
     def _post_json(self, project, endpoint, oauth_key, oauth_secret, jsondata,
                    timeout):

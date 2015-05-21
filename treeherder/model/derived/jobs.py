@@ -2008,6 +2008,21 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         return ret
 
+    def set_series_signature(self, signature_hash, signature_props):
+        signature_property_placeholders = []
+        for (k, v) in signature_props.iteritems():
+            if k == 'subtest_signatures':
+                v = json.dumps(v)
+            signature_property_placeholders.append([
+                str(signature_hash), str(k), str(v),
+                str(signature_hash), str(k), str(v),
+            ])
+
+        self.jobs_execute(
+            proc='jobs.inserts.set_series_signature',
+            placeholders=signature_property_placeholders,
+            executemany=True)
+
     def store_performance_series(
             self, t_range, series_type, signature, series_data):
 
