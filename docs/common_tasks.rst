@@ -51,6 +51,42 @@ Running the tests
 
      (venv)vagrant@precise32:~/treeherder$ flake8
 
+
+Look up credentials for a project
+---------------------------------
+
+To submit data to an existing project, you need corresponding OAuth credentials, even if you're submitting to your local server.
+
+Prerequisite: you must have previously exported credentials for all data source projects. This is part of the usual Treeherder setup process.
+
+  .. code-block:: bash
+
+      > ./manage.py export_project_credentials
+
+The above command writes all project credentials to ``treeherder/etl/data/
+credentials.json`` for use by the Treeherder service.
+
+If you are implementing data submission with ``TreeherderClient`` and testing
+that locally, it is useful to work with your own copy of ``credentials.json``.
+You can export the credentials wherever you need with the ``--destination``
+option.
+
+  .. code-block:: bash
+
+      > ./manage.py export_project_credentials --destination /some/path
+
+Within Treeherder, you can look up the credentials for a project like ``mozilla
+-centrals`` as follows:
+
+  .. code-block:: python
+
+      from treeherder.etl.oauth_utils import OAuthCredentials
+      credentials = OAuthCredentials.get_credentials('mozilla-central')
+
+The call to ``get_credentials`` obtains data directly from the
+previously-generated ``treeherder/etl/data/credentials.json``.
+
+
 Add a new repository
 --------------------
 
