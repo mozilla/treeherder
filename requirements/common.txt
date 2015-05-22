@@ -48,14 +48,14 @@ python-memcached==1.48
 # sha256: WvNmhsJxCX8l7AI1RsOXy5m8Z6XbODblLms3vbRcoh4
 jsonschema==2.4.0
 
-# sha256: bepaymikSS98VG-BpYKor6B1iVsgaNpQlsaWtnp9IRQ
-djangorestframework==2.3.12
+# sha256: IvfBJQ8MAom2HaZlS1HhRzM7q3ed4ZMng3a9_WpSe0Y
+djangorestframework==2.4.5
 
 # sha256: unxvfRm1wULqarib4wZvS4WVP3dAqBQH-D79uLDhucg
 django-rest-swagger==0.1.11
 
-# sha256: 8u-vP9Q2RPHMpK2_IzTmTBZ5QCV-BRLG_7W81vsxcDc
-drf-extensions==0.2.5
+# sha256: IHlImDhx2hyv_q93vj9WSOyfcxNCpPKjB8SZaPu64zs
+drf-extensions==0.2.7
 
 # sha256: K4vVpzVtJqYxx0mHxxkr4PmTT-zym6or5e6e8kfCtU0
 django-cors-headers==0.11
