@@ -98,26 +98,22 @@ treeherder.directive('thCloneJobs', [
 
     });
 
-    $rootScope.$on(thEvents.selectJob, function(ev, job) {
-          selectJob(job);
+    $rootScope.$on(thEvents.selectJob, function(ev, job, job_selection_type) {
+          selectJob(job, job_selection_type);
     });
 
     $rootScope.$on(thEvents.clearSelectedJob, function(ev, job) {
           clearSelectJobStyles();
     });
 
-    var selectJob = function(job){
-
+    var selectJob = function(job, job_selection_type) {
         var jobKey = getJobMapKey(job);
         var jobEl = $('.' + jobKey);
 
-        clickJobCb({}, jobEl, job);
+        clickJobCb({}, jobEl, job, job_selection_type);
         scrollToElement(jobEl);
 
-        ThResultSetStore.setSelectedJob(
-            $rootScope.repoName, jobEl, job
-            );
-
+        ThResultSetStore.setSelectedJob($rootScope.repoName, jobEl, job);
     };
 
     var setSelectJobStyles = function(el){
@@ -149,7 +145,7 @@ treeherder.directive('thCloneJobs', [
     };
 
     var broadcastJobChangedTimeout = null;
-    var clickJobCb = function(ev, el, job){
+    var clickJobCb = function(ev, el, job, job_selection_type){
         setSelectJobStyles(el);
         // delay switching right away, in case the user is switching rapidly
         // between jobs
@@ -157,7 +153,7 @@ treeherder.directive('thCloneJobs', [
           window.clearTimeout(broadcastJobChangedTimeout);
         }
         broadcastJobChangedTimeout = window.setTimeout(function() {
-          $rootScope.$emit(thEvents.jobClick, job);
+          $rootScope.$emit(thEvents.jobClick, job, job_selection_type);
         }, 200);
     };
 
