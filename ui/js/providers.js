@@ -227,6 +227,8 @@ treeherder.provider('thEvents', function() {
 
             saveClassification: "save-classification-EVT",
 
+            deleteClassification: "delete-classification-EVT",
+
             clearPinboard: "clear-pinboard-EVT",
 
             searchPage: "search-page-EVT",

@@ -215,6 +215,13 @@ treeherderApp.controller('MainCtrl', [
                 $scope.$evalAsync($rootScope.$emit(thEvents.saveClassification));
             });
 
+            // Shortcut: delete classification and related bugs
+            Mousetrap.bind('ctrl+backspace', function() {
+                if ($scope.selectedJob) {
+                    $scope.$evalAsync($rootScope.$emit(thEvents.deleteClassification));
+                }
+            });
+
         };
 
         $scope.repoModel = ThRepositoryModel;

@@ -15,10 +15,23 @@ treeherder.controller('AnnotationsPluginCtrl', [
 
         $log.debug("annotations plugin initialized");
 
-        $scope.$watch('classifications', function(newValue, oldValue){
-
+        $scope.$watch('classifications', function(newValue, oldValue) {
             thTabs.tabs.annotations.num_items = newValue ? $scope.classifications.length : 0;
         }, true);
+
+        $rootScope.$on(thEvents.deleteClassification, function(event) {
+            if ($scope.classifications[0]) {
+                $scope.deleteClassification($scope.classifications[0]);
+                // Delete any number of bugs if they exist
+                for (var i = 0; i < $scope.bugs.length; i++) {
+                    $scope.deleteBug($scope.bugs[i]);
+                }
+            } else {
+                thNotify.send("No classification on this job to delete", 'warning');
+            }
+            // We reselect job in place ensuring a correct state for other actions
+            $rootScope.$emit(thEvents.selectJob, $rootScope.selectedJob);
+        });
 
         $scope.deleteClassification = function(classification) {
 
