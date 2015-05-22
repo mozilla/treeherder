@@ -41,6 +41,10 @@ def test_adapt_and_load():
         # one extra result for the summary series
         result_count += (len(datum['blob']["results"]) + 1)
 
+        # we create one per counter
+        if 'talos_counters' in datum['blob']:
+            result_count += (len(datum['blob']["talos_counters"]))
+
         # Mimic production environment, the blobs are serialized
         # when the web service receives them
         datum['blob'] = json.dumps({'talos_data': [datum['blob']]})

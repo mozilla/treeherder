@@ -11,6 +11,9 @@ import zlib
 
 from jsonschema import validate
 
+import logging
+logger = logging.getLogger(__name__)
+
 encoder.FLOAT_REPR = lambda o: format(o, '.2f')
 
 
@@ -219,7 +222,6 @@ class TalosDataAdapter(PerformanceDataAdapter):
         return obj
 
     def adapt_and_load(self, reference_data, job_data, datum):
-
         # Get just the talos datazilla structure for treeherder
         target_datum = json.loads(datum['blob'])
         for talos_datum in target_datum['talos_data']:
@@ -234,6 +236,54 @@ class TalosDataAdapter(PerformanceDataAdapter):
             job_id = job_data[_job_guid]['id']
             result_set_id = job_data[_job_guid]['result_set_id']
             push_timestamp = job_data[_job_guid]['push_timestamp']
+
+            # counters will not be part of the summary series
+            # counters have a json obj {'stat': val} instead of [val1, val2, ...]
+            if 'talos_counters' in talos_datum:
+                for _test in talos_datum["talos_counters"].keys():
+                    signature_properties = {
+                        'suite': _suite,
+                        'test': _test
+                    }
+                    signature_properties.update(reference_data)
+
+                    series_signature = self._get_series_signature(
+                        signature_properties)
+
+                    series_data = {
+                        "job_id": job_id,
+                        "result_set_id": result_set_id,
+                        "push_timestamp": push_timestamp,
+                        "total_replicates": 1,
+                        "min": 0,
+                        "max": 0,
+                        "mean": 0,
+                        "std": 0,
+                        "median": 0
+                    }
+                    for stat in ['min', 'max', 'mean', 'median', 'std', 'total_replicates']:
+                        if stat in talos_datum["talos_counters"][_test]:
+                            # in case we have non int/float data, lets ignore it
+                            try:
+                                series_data[stat] = float(talos_datum["talos_counters"][_test][stat])
+                            except:
+                                logger.info("Talos counters for job %s, "
+                                            "result_set %s, and counter named %s "
+                                            "have an unknown value: %s" %
+                                            (job_id, result_set_id, _test,
+                                             talos_datum["talos_counters"][_test]))
+                                continue
+
+                    obj = self._get_base_perf_obj(_job_guid, _name, _type,
+                                                  talos_datum,
+                                                  series_signature,
+                                                  signature_properties,
+                                                  series_data)
+                    obj['test'] = _test
+                    validate(obj, self.treeherder_perf_test_schema)
+                    self._add_performance_artifact(job_id, series_signature,
+                                                   signature_properties, obj,
+                                                   _name, _test, series_data)
 
             subtest_signatures = []
 
@@ -268,36 +318,29 @@ class TalosDataAdapter(PerformanceDataAdapter):
                                                signature_properties, obj,
                                                _name, _test, series_data)
 
-            # summary series
-            summary_properties = {
-                'suite': _suite,
-                'subtest_signatures': json.dumps(subtest_signatures)
-            }
-            summary_properties.update(reference_data)
-            summary_signature = self._get_series_signature(
-                summary_properties)
+            if subtest_signatures != []:
+                # summary series
+                summary_properties = {
+                    'suite': _suite,
+                    'subtest_signatures': json.dumps(subtest_signatures)
+                }
+                summary_properties.update(reference_data)
+                summary_signature = self._get_series_signature(
+                    summary_properties)
 
-            summary_data = self._calculate_summary_data(
-                job_id, result_set_id, push_timestamp, talos_datum["results"])
+                summary_data = self._calculate_summary_data(
+                    job_id, result_set_id, push_timestamp, talos_datum["results"])
 
-            obj = self._get_base_perf_obj(_job_guid, _name, _type,
-                                          talos_datum,
-                                          summary_signature,
-                                          summary_properties,
-                                          summary_data)
-            # FIXME: this stuff is pretty big and it's unclear how useful it
-            # might be. consider adding it at some point in the future
-            # (see: https://bugzilla.mozilla.org/show_bug.cgi?id=1142631)
-            # for key in ['test_aux', 'talos_aux', 'results_aux',
-            #             'results_xperf']:
-            #     aux_blob = talos_datum.get(key)
-            #     if aux_blob:
-            #         obj['blob']['metadata'][key] = aux_blob
+                obj = self._get_base_perf_obj(_job_guid, _name, _type,
+                                              talos_datum,
+                                              summary_signature,
+                                              summary_properties,
+                                              summary_data)
 
-            validate(obj, self.treeherder_perf_test_schema)
-            self._add_performance_artifact(job_id, summary_signature,
-                                           summary_properties, obj,
-                                           _name, 'summary', summary_data)
+                validate(obj, self.treeherder_perf_test_schema)
+                self._add_performance_artifact(job_id, summary_signature,
+                                               summary_properties, obj,
+                                               _name, 'summary', summary_data)
 
     def get_series_signature(self, signature_values):
 
