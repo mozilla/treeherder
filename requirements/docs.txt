@@ -3,21 +3,12 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 # Dependencies for building the documentation, intended to be used standalone
-# since Read the Docs does not need all of the requirements in common.txt
+# since doc generation does not need all of the requirements in common.txt.
+# These are intentionally not version-pinned & have implicit dependencies,
+# since otherwise we play tug of war with the Read the Docs build process
+# every time they update Sphinx versions. If this file were just for Read the
+# Docs, we could omit the Sphinx entry since they provide it, however that
+# would not help those who wish to build the docs locally.
 
-Sphinx==1.3
-sphinxcontrib-httpdomain==1.3.0
-
-# Required by Sphinx
-alabaster==0.7.2
-Babel==1.3
-docutils==0.12
-Jinja2==2.7.3
-MarkupSafe==0.23
-Pygments==2.0.2
-pytz==2014.10
-snowballstemmer==1.2.0
-sphinx-rtd-theme==0.1.7
-
-# Required by Sphinx & sphinxcontrib-httpdomain
-six==1.9.0
+Sphinx
+sphinxcontrib-httpdomain
