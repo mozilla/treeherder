@@ -23,6 +23,7 @@ perf.controller('GraphsCtrl', [
 
     $scope.ttHideTimer = null;
     $scope.selectedDataPoint = null;
+    $scope.showToolTipTimeout = null;
 
     function getSeriesDataPoint(flotItem) {
       // gets universal elements of a series given a flot item
@@ -50,6 +51,11 @@ perf.controller('GraphsCtrl', [
     }
 
     function showTooltip(dataPoint) {
+      if ($scope.showToolTipTimeout){
+         window.clearTimeout($scope.showToolTipTimeout)
+      }
+
+      $scope.showToolTipTimeout = window.setTimeout(function() {
       if ($scope.ttHideTimer) {
         clearTimeout($scope.ttHideTimer);
         $scope.ttHideTimer = null;
@@ -150,6 +156,7 @@ perf.controller('GraphsCtrl', [
           tip.css({ opacity: 1, left: tipPosition.left, top: tipPosition.top });
         }
       });
+     },400);
     }
 
     function hideTooltip(now) {

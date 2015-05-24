@@ -134,9 +134,10 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location', '$q'
             return jobsPromiseList;
         },
 
+
         getRevisions: function(projectName, resultSetId) {
             return $http.get(thUrl.getProjectUrl(
-                "/resultset/" + resultSetId, projectName), {cache: true}).then(
+                "/resultset/" + resultSetId + "/", projectName), {cache: true}).then(
                     function(response) {
                         if (response.data.revisions.length > 0) {
                             return _.map(response.data.revisions, function(r) {
