@@ -581,11 +581,6 @@ perf.controller('GraphsCtrl', [
             $scope.highlightedRevisions = ['', ''];
           }
 
-          if ($stateParams.zoom) {
-            $scope.zoom = JSON.parse($stateParams.zoom);
-          } else {
-            $scope.zoom = {};
-          }
           // we only store the signature + project name in the url, we need to
           // fetch everything else from the server
           var partialSeriesList = $stateParams.series.map(function(encodedSeries) {
@@ -594,6 +589,12 @@ perf.controller('GraphsCtrl', [
           addSeriesList(partialSeriesList);
         } else {
           $scope.seriesList = [];
+          addSeriesList([]);
+        }
+        if ($stateParams.zoom) {
+          $scope.zoom = JSON.parse($stateParams.zoom);
+        } else {
+          $scope.zoom = {};
         }
 
         ThRepositoryModel.get_list().then(function(response) {

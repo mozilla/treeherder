@@ -1,6 +1,9 @@
 <div class="container-fluid">
   <div class="ph-horizontal-layout">
     <div id="graph-chooser">
+      <div ng-show="seriesList.length == 0">
+          <p>Nothing here yet</p>
+      </div>
       <table class="table table-bordered graph-legend-table">
         <tr ng-repeat="series in seriesList">
           <td>
@@ -24,7 +27,7 @@
         </tr>
       </table>
       <button class="btn btn-primary" ng-click="addTestData()">
-        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add more test data</button>
+        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add <span ng-show="seriesList.length > 0">more</span> test data</button>
     </div>
     <div id="data-display">
       <select ng-model="myTimerange" ng-options="timerange.text for timerange in timeranges track by timerange.value" ng-change="timeRangeChanged()">
