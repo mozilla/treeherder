@@ -85,6 +85,37 @@ to { opacity: 0; }
   flex-flow: row;
 }
 
+.panel-center-layout{
+  display:flex;
+  display:-webkit-flex;
+  height:100%;
+  width:100%;
+  position:absolute;
+  top:0;
+  left:0;
+  -webkit-align-items: center;
+  -webkit-align-content: center;
+  -webkit-justify-content: center;
+  align-items: center;
+  justify-content: center;
+}
+.panel-info{
+    flex-align:center;
+    width:500px;
+    height:200px;
+    -webkit-flex-align:center;
+}
+.panel-content p{
+    text-align:center;
+    font-size:25px;
+    padding-bottom:40px;
+    padding-top:15px;
+    
+}
+.panel-content button{
+    text-align:middle;
+    font-size:35px;
+}
 #perf-logo {
     padding: 15px;
     border: none;

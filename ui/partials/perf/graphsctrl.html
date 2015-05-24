@@ -23,11 +23,20 @@
           </td>
         </tr>
       </table>
-      <button class="btn btn-primary" ng-click="addTestData()">
+      <button class="btn btn-primary" ng-click="addTestData()" ng-hide="seriesList.length == 0">
         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add more test data</button>
     </div>
-    <div id="data-display">
-      <select ng-model="myTimerange" ng-options="timerange.text for timerange in timeranges track by timerange.value" ng-change="timeRangeChanged()">
+        <div class="panel-center-layout">
+          <div class="panel panel-info" ng-show="seriesList.length == 0">
+            <div class="panel-heading">No graphs date</div>
+            <div class="panel-content">
+            <p >Without any graphs been specified</p>
+            <button type="button" class="btn btn-primary btn-lg btn-block" ng-click="addTestData()"> Add more test </button>
+            </div>
+          </div>
+        </div>
+    <div id="date-display">
+      <select ng-model="myTimerange" ng-options="timerange.text for timerange in timeranges track by timerange.value" ng-change="timeRangeChanged()" ng-hide="seriesList.length == 0">
       </select>
       <hr/>
       <div id="overview-plot"></div>
