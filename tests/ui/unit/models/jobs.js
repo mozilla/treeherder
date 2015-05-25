@@ -14,7 +14,7 @@ describe('ThJobModel', function(){
     beforeEach(inject(function ($injector) {
         $httpBackend = $injector.get('$httpBackend');
         $timeout = $injector.get('$timeout');
-        jasmine.getJSONFixtures().fixturesPath='base/test/mock';
+        jasmine.getJSONFixtures().fixturesPath='base/tests/ui/mock';
         ThJobModel = $injector.get('ThJobModel');
         ThJobModel.get_uri = function(){
             return foregroundPrefix+"/jobs/";

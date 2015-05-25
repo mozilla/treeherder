@@ -20,7 +20,7 @@ describe('ThResultSetStore', function(){
                                 ThResultSetStore, ThRepositoryModel) {
 
         $httpBackend = $injector.get('$httpBackend');
-        jasmine.getJSONFixtures().fixturesPath='base/test/mock';
+        jasmine.getJSONFixtures().fixturesPath='base/tests/ui/mock';
 
 
 

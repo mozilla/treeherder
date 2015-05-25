@@ -16,7 +16,7 @@ describe('JobsCtrl', function(){
         var projectPrefix = '/api/project/' + activeRepo + '/';
 
         $httpBackend = $injector.get('$httpBackend');
-        jasmine.getJSONFixtures().fixturesPath='base/test/mock';
+        jasmine.getJSONFixtures().fixturesPath='base/tests/ui/mock';
 
         $httpBackend.whenGET('/api/repository/').respond(
             getJSONFixture('repositories.json')
