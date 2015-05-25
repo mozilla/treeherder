@@ -950,10 +950,6 @@ ul.failure-summary-list li .btn-xs {
     background-color: #FFFFFF;
 }
 
-#pinboard-related-bugs a {
-    text-decoration: none;
-}
-
 .add-related-bugs-icon {
     margin-right: 2px;
     font-size: 17px;
@@ -999,15 +995,9 @@ ul.failure-summary-list li .btn-xs {
     margin-bottom: -1px;
 }
 
-.pinboard-related-bugs-btn > .pinboard-related-bugs-link,
-.pinboard-related-bugs-btn:hover > .pinboard-related-bugs-link:hover {
-    border-top-right-radius: 3px !important;
-    border-bottom-right-radius: 3px !important;
-}
-
-.pinboard-related-bugs-btn:hover > .pinboard-related-bugs-link {
-    border-top-right-radius: 0 !important;
-    border-bottom-right-radius: 0 !important;
+.pinboard-related-bugs-btn:hover > .related-bugs-link {
+    color: #2a6496;
+    text-decoration: underline;
 }
 
 /* Spin button suppression on chrome */
@@ -1081,18 +1071,48 @@ ul.failure-summary-list li .btn-xs {
     margin-right: 0;
 }
 
-.classifications-panel {
+.classifications-pane {
     border-right: solid 1px lightgray;
 }
 
-.bug-list {
+/* Annotation tab classification headers */
+.classifications-pane table tr th {
+    padding-right: 16px;
+    padding-bottom: 4px;
+}
+
+/* Annotation tab classification fields */
+.classifications-pane table tr td {
+    padding-right: 16px;
+}
+
+/* Annotations tab classification trash can */
+.classifications-pane table tr td:last-child {
+    padding-left: 16px;
+}
+
+/* Override bootstrap row highlighting */
+.classifications-pane table tr:hover td {
+    background: #fff;
+}
+
+.annotations-bug-list {
     list-style: none inside none;
     padding-left: 0;
 }
 
-.bug-header {
-    margin-top: 8px;
-    margin-bottom: 8px;
+.annotations-bug-header {
+    margin-top: 4px;
+    margin-bottom: 2px;
+    font-size: 0.9em;
+}
+
+.annotations-bug {
+    padding-top: 2px;
+    padding-bottom: 0;
+    padding-left: 0;
+    border: none;
+    font-size: 0.9em;
 }
 
 /**

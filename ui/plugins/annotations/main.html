@@ -1,13 +1,13 @@
 <div ng-controller="AnnotationsPluginCtrl" class="annotations-panel">
-    <div class="col-xs-10 classifications-panel job-tabs-content">
-        <table class="table-condensed table-hover">
+    <div class="col-xs-10 classifications-pane job-tabs-content">
+        <table class="table-super-condensed table-hover">
             <thead ng-hide="classifications.length < 1">
-                <tr><th>Datetime</th><th>Author</th><th>Failure type</th><th>Note</th></tr>
+                <tr><th>Classified</th><th>Author</th><th>Classification</th><th>Comment</th></tr>
             </thead>
             <tbody>
                 <tr ng-repeat="classification in classifications">
                     <td>
-                        {{ ::classification.note_timestamp*1000|date:'medium' }}
+                        {{ ::classification.note_timestamp*1000|date:'EEE MMM d, H:mm:ss' }}
                     </td>
                     <td>
                         {{::classification.who}}
@@ -20,8 +20,8 @@
                     </td>
                     <td>
                         <span ng-click="deleteClassification(classification)"
-                              class="click-able-icon"
-                              title="delete this classification">
+                              class="btn-ltgray click-able-icon"
+                              title="Delete this classification">
                             <i class="fa fa-trash-o"></i>
                         </span>
                     </td>
@@ -30,9 +30,9 @@
         </table>
         <div ng-show="classifications.length < 1">This job has not been classified</div>
     </div>
-    <div class="col-xs-2 bug-list-panel">
-        <h6 class="bug-header" ng-hide="classifications.length < 1"><strong>Bugs</strong></h6>
-        <ul class="bug-list">
+    <div class="col-xs-2 bug-list-pane">
+        <div class="annotations-bug-header" ng-hide="classifications.length < 1"><strong>Bugs</strong></div>
+        <ul class="annotations-bug-list">
             <li ng-repeat="bug in bugs">
                 <th-related-bug-saved></th-related-bug-saved>
             </li>
