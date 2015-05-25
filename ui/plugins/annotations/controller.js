@@ -30,7 +30,7 @@ treeherder.controller('AnnotationsPluginCtrl', [
                 thNotify.send("No classification on this job to delete", 'warning');
             }
             // We reselect job in place ensuring a correct state for other actions
-            $rootScope.$emit(thEvents.selectJob, $rootScope.selectedJob);
+            $rootScope.$emit(thEvents.selectJob, $rootScope.selectedJob, 'passive');
         });
 
         $scope.deleteClassification = function(classification) {

@@ -79,7 +79,7 @@ treeherder.controller('PinboardCtrl', [
                 thNotify.send("Must be logged in to save job classifications", "danger");
             }
             // We reselect job in place ensuring a correct state for other actions
-            $rootScope.$emit(thEvents.selectJob, $rootScope.selectedJob);
+            $rootScope.$emit(thEvents.selectJob, $rootScope.selectedJob, 'passive');
         };
 
         $scope.saveClassificationOnly = function() {

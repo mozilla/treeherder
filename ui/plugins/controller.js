@@ -48,7 +48,14 @@ treeherder.controller('PluginCtrl', [
         var selectJobPromise = null;
         var selectJobRetryPromise = null;
 
-        var selectJob = function(job_id) {
+        var selectJob = function(job_id, job_selection_type) {
+            // All selection in treeherder is generally 'active' via omission
+            // of the job_selection_type param but we set it here to not leave
+            // it undefined
+            if (!job_selection_type) {
+                // Currently unused
+                job_selection_type = 'active';
+            }
             // set the scope variables needed for the job detail panel
             if (job_id) {
                 $scope.job_detail_loading = true;
@@ -92,22 +99,27 @@ treeherder.controller('PluginCtrl', [
                     $scope.eta_abs = Math.abs($scope.job.get_current_eta());
                     $scope.typical_eta = $scope.job.get_typical_eta();
 
-                    // we handle which tab gets presented in the job details panel
-                    // and a special set of rules for talos
-                    if ($scope.job.job_group_name.indexOf('Talos') !== -1) {
-                        $scope.tabService.tabs.talos.enabled = true;
-                        if (thResultStatus($scope.job) === 'success') {
-                            $scope.tabService.selectedTab = 'talos';
+                    // During save or delete classification we reselect the same
+                    // job to update correct tab contents and job state, but we
+                    // don't want to trigger this tab switch in that scenario
+                    if (job_selection_type != 'passive') {
+                        // we handle which tab gets presented in the job details panel
+                        // and a special set of rules for talos
+                        if ($scope.job.job_group_name.indexOf('Talos') !== -1) {
+                            $scope.tabService.tabs.talos.enabled = true;
+                            if (thResultStatus($scope.job) === 'success') {
+                                $scope.tabService.selectedTab = 'talos';
+                            } else {
+                                $scope.tabService.selectedTab = 'failureSummary';
+                            }
                         } else {
-                            $scope.tabService.selectedTab = 'failureSummary';
-                        }
-                    } else {
-                        // tab presentation for any other (non-talos) job
-                        $scope.tabService.tabs.talos.enabled = false;
-                        if (thResultStatus($scope.job) === 'success') {
-                            $scope.tabService.selectedTab = 'jobDetails';
-                        } else {
-                            $scope.tabService.selectedTab = 'failureSummary';
+                            // tab presentation for any other (non-talos) job
+                            $scope.tabService.tabs.talos.enabled = false;
+                            if (thResultStatus($scope.job) === 'success') {
+                                $scope.tabService.selectedTab = 'jobDetails';
+                            } else {
+                                $scope.tabService.selectedTab = 'failureSummary';
+                            }
                         }
                     }
 
