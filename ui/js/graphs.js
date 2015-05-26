@@ -52,115 +52,118 @@ perf.controller('GraphsCtrl', [
 
     function showTooltip(dataPoint) {
       if ($scope.showToolTipTimeout){
-         window.clearTimeout($scope.showToolTipTimeout)
+        window.clearTimeout($scope.showToolTipTimeout)
       }
 
       $scope.showToolTipTimeout = window.setTimeout(function() {
-      if ($scope.ttHideTimer) {
-        clearTimeout($scope.ttHideTimer);
-        $scope.ttHideTimer = null;
-      }
-
-      var phSeriesIndex = _.findIndex(
-        $scope.seriesList,
-        function(s) {
-          return s.projectName == dataPoint.projectName &&
-            s.signature == dataPoint.signature;
+        if ($scope.ttHideTimer) {
+          clearTimeout($scope.ttHideTimer);
+          $scope.ttHideTimer = null;
+        }
+  
+        var phSeriesIndex = _.findIndex(
+          $scope.seriesList,
+          function(s) {
+            return s.projectName == dataPoint.projectName &&
+              s.signature == dataPoint.signature;
+          });
+        var phSeries = $scope.seriesList[phSeriesIndex];
+  
+        // we need the flot data for calculating values/deltas and to know where
+        // on the graph to position the tooltip
+        var flotData = {
+          series: _.find($scope.plot.getData(), function(fs) {
+            return fs.thSeries.projectName == dataPoint.projectName &&
+              fs.thSeries.signature == dataPoint.signature;
+          }),
+          pointIndex: phSeries.flotSeries.resultSetData.indexOf(
+            dataPoint.resultSetId) + dataPoint.flotDataOffset
+        };
+        var prevResultSetId = _.find(phSeries.flotSeries.resultSetData,
+                                     function(resultSetId) {
+                                       return (resultSetId < dataPoint.resultSetId);
+                                     });
+        var prevFlotDataPointIndex = (flotData.pointIndex -
+                                      dataPoint.flotDataOffset - 1);
+        var flotSeriesData = flotData.series.data;
+  
+        var t = flotSeriesData[flotData.pointIndex][0],
+            v = flotSeriesData[flotData.pointIndex][1],
+            v0 = ((prevFlotDataPointIndex >= 0) ?
+                  flotSeriesData[prevFlotDataPointIndex][1] : v),
+            dv = v - v0,
+            dvp = v / v0 - 1;
+  
+        $scope.tooltipContent = {
+          project: _.findWhere($scope.projects,
+                               { name: phSeries.projectName }),
+          test: phSeries.name,
+          platform: phSeries.platform,
+          machine: phSeries.machine || 'mean',
+          value: Math.round(v*1000)/1000,
+          deltaValue: dv.toFixed(1),
+          deltaPercentValue: (100 * dvp).toFixed(1),
+          date: $.plot.formatDate(new Date(t), '%a %b %d, %H:%M:%S')
+        };
+  
+        // Get revision information for both this datapoint and the previous
+        // one
+        _.each([{ resultSetId: dataPoint.resultSetId,
+                  scopeKey: 'revision' },
+                { resultSetId: prevResultSetId,
+                  scopeKey: 'prevRevision' }],
+               function(resultRevision) {
+                 ThResultSetModel.getRevisions(
+                   phSeries.projectName, resultRevision.resultSetId).then(
+                     function(revisions) {
+                       $scope.tooltipContent[resultRevision.scopeKey] =
+                         revisions[0];
+                     }, function(error) {
+                       console.log("Failed to get revision: " + error.reason);
+                     });
+               });
+  
+        // now position it
+        $timeout(function() {
+          var x = parseInt(flotData.series.xaxis.p2c(t) +
+                           $scope.plot.offset().left);
+          var y = parseInt(flotData.series.yaxis.p2c(v) +
+                           $scope.plot.offset().top);
+  
+          var tip = $('#graph-tooltip');
+          function getTipPosition(tip, x, y, yoffset) {
+            return {
+              left: x - tip.width() / 2,
+              top: y - tip.height() - yoffset
+            };
+          }
+  
+          tip.stop(true);
+  
+          // first, reposition tooltip (width/height won't be calculated correctly
+          // in all cases otherwise)
+          var tipPosition = getTipPosition(tip, x, y, 10);
+          tip.css({ left: tipPosition.left, top: tipPosition.top });
+  
+          // get new tip position after transform
+          var tipPosition = getTipPosition(tip, x, y, 10);
+          if (tip.css('visibility') == 'hidden') {
+            tip.css({ opacity: 0, visibility: 'visible', left: tipPosition.left,
+                      top: tipPosition.top + 10 });
+            tip.animate({ opacity: 1, left: tipPosition.left,
+                          top: tipPosition.top }, 250);
+          } else {
+            tip.css({ opacity: 1, left: tipPosition.left, top: tipPosition.top });
+          }
         });
-      var phSeries = $scope.seriesList[phSeriesIndex];
-
-      // we need the flot data for calculating values/deltas and to know where
-      // on the graph to position the tooltip
-      var flotData = {
-        series: _.find($scope.plot.getData(), function(fs) {
-          return fs.thSeries.projectName == dataPoint.projectName &&
-            fs.thSeries.signature == dataPoint.signature;
-        }),
-        pointIndex: phSeries.flotSeries.resultSetData.indexOf(
-          dataPoint.resultSetId) + dataPoint.flotDataOffset
-      };
-      var prevResultSetId = _.find(phSeries.flotSeries.resultSetData,
-                                   function(resultSetId) {
-                                     return (resultSetId < dataPoint.resultSetId);
-                                   });
-      var prevFlotDataPointIndex = (flotData.pointIndex -
-                                    dataPoint.flotDataOffset - 1);
-      var flotSeriesData = flotData.series.data;
-
-      var t = flotSeriesData[flotData.pointIndex][0],
-          v = flotSeriesData[flotData.pointIndex][1],
-          v0 = ((prevFlotDataPointIndex >= 0) ?
-                flotSeriesData[prevFlotDataPointIndex][1] : v),
-          dv = v - v0,
-          dvp = v / v0 - 1;
-
-      $scope.tooltipContent = {
-        project: _.findWhere($scope.projects,
-                             { name: phSeries.projectName }),
-        test: phSeries.name,
-        platform: phSeries.platform,
-        machine: phSeries.machine || 'mean',
-        value: Math.round(v*1000)/1000,
-        deltaValue: dv.toFixed(1),
-        deltaPercentValue: (100 * dvp).toFixed(1),
-        date: $.plot.formatDate(new Date(t), '%a %b %d, %H:%M:%S')
-      };
-
-      // Get revision information for both this datapoint and the previous
-      // one
-      _.each([{ resultSetId: dataPoint.resultSetId,
-                scopeKey: 'revision' },
-              { resultSetId: prevResultSetId,
-                scopeKey: 'prevRevision' }],
-             function(resultRevision) {
-               ThResultSetModel.getRevisions(
-                 phSeries.projectName, resultRevision.resultSetId).then(
-                   function(revisions) {
-                     $scope.tooltipContent[resultRevision.scopeKey] =
-                       revisions[0];
-                   }, function(error) {
-                     console.log("Failed to get revision: " + error.reason);
-                   });
-             });
-
-      // now position it
-      $timeout(function() {
-        var x = parseInt(flotData.series.xaxis.p2c(t) +
-                         $scope.plot.offset().left);
-        var y = parseInt(flotData.series.yaxis.p2c(v) +
-                         $scope.plot.offset().top);
-
-        var tip = $('#graph-tooltip');
-        function getTipPosition(tip, x, y, yoffset) {
-          return {
-            left: x - tip.width() / 2,
-            top: y - tip.height() - yoffset
-          };
-        }
-
-        tip.stop(true);
-
-        // first, reposition tooltip (width/height won't be calculated correctly
-        // in all cases otherwise)
-        var tipPosition = getTipPosition(tip, x, y, 10);
-        tip.css({ left: tipPosition.left, top: tipPosition.top });
-
-        // get new tip position after transform
-        var tipPosition = getTipPosition(tip, x, y, 10);
-        if (tip.css('visibility') == 'hidden') {
-          tip.css({ opacity: 0, visibility: 'visible', left: tipPosition.left,
-                    top: tipPosition.top + 10 });
-          tip.animate({ opacity: 1, left: tipPosition.left,
-                        top: tipPosition.top }, 250);
-        } else {
-          tip.css({ opacity: 1, left: tipPosition.left, top: tipPosition.top });
-        }
-      });
-     },400);
+      }, 250);
     }
 
     function hideTooltip(now) {
       var tip = $('#graph-tooltip');
+      if ($scope.showToolTipTimeout){
+        window.clearTimeout($scope.showToolTipTimeout)
+      }
 
       if (!$scope.ttHideTimer && tip.css('visibility') == 'visible') {
         $scope.ttHideTimer = setTimeout(function() {
