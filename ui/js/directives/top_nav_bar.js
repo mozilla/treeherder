@@ -154,7 +154,7 @@ treeherder.directive('thRepoMenuItem', [
         replace: true,
         link: function(scope, element, attrs) {
             var elem = $(element);
-            elem.find('.repo-link').prop('href', "./#/jobs?repo=" +  scope.repo.name);
+            elem.find('.repo-link').prop('href', scope.urlBasePath + "?repo=" + scope.repo.name);
             if (scope.repo.name === scope.repoName) {
                 elem.find('.repo-checkbox').prop('disabled', 'disabled');
             }
