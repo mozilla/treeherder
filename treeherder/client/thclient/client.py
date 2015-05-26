@@ -701,6 +701,15 @@ class TreeherderClient(object):
 
         return uri
 
+    def _get_json(self, project, endpoint, timeout, **params):
+        if timeout is None:
+            timeout = self.timeout
+
+        uri = self._get_uri(project, endpoint)
+        resp = requests.get(uri, timeout=timeout, params=params)
+        resp.raise_for_status
+        return resp.json()
+
     def _post_json(self, project, endpoint, oauth_key, oauth_secret, jsondata,
                    timeout):
         if timeout is None:

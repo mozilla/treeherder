@@ -72,6 +72,9 @@ jsonfield==0.9.20
 # sha256: HYBs6IKx3VBrKM04OI_9AhHx2ASI7eeJLEwmMF1e7GA
 mozlog==2.10
 
+# sha256: ImnQ8PfxhxMzeMZknae86g-jPdJ2kQo5Ii2SQ8AVY1E
+futures==3.0.2
+
 # sha256: nnifUs_v5v9XxzD-_XayNXIzZOVCB12Z34M7zdrOV9c
 https://github.com/jeads/datasource/archive/v0.7.tar.gz#egg=datasource
 
