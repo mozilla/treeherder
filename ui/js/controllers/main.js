@@ -314,6 +314,10 @@ treeherderApp.controller('MainCtrl', [
             );
         };
 
+        $scope.setLocationSearchParam = function(param, value) {
+            $location.search(param, value);
+        };
+
         $scope.cachedReloadTriggerParams = getNewReloadTriggerParams();
 
         // reload the page if certain params were changed in the URL.  For
