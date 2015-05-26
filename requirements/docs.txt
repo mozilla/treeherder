@@ -11,4 +11,5 @@
 # would not help those who wish to build the docs locally.
 
 Sphinx
+sphinx-rtd-theme
 sphinxcontrib-httpdomain
