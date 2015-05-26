@@ -67,15 +67,15 @@ def retry_execute(dhub, logger, retries=0, **kwargs):
     """Retry the query in the case of an OperationalError."""
     try:
         return dhub.execute(**kwargs)
-    except OperationalError:
+    except OperationalError, e:
 
         if retries < 20:
             retries += 1
             sleep_time = round(random.random() * .05, 3)  # 0 to 50ms
             if logger:
                 logger.info(
-                    "MySQL operational error hit.  Retry #{0} in {1}s: {2}".format(
-                        retries, sleep_time, kwargs
+                    "MySQL operational error `{0}` hit.  Retry #{1} in {2}s: {3}".format(
+                        str(e), retries, sleep_time, kwargs
                     ))
             time.sleep(sleep_time)
             return retry_execute(dhub, logger, retries, **kwargs)
