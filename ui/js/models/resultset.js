@@ -60,7 +60,7 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location', '$q'
                 params.count = count;
             }
 
-            if(rsOffsetTimestamp > 0){
+            if(rsOffsetTimestamp){
                 params.push_timestamp__lte = rsOffsetTimestamp;
                 // we will likely re-fetch the oldest we already have, but
                 // that's not guaranteed.  There COULD be two resultsets
@@ -70,7 +70,7 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location', '$q'
                 }
             }
 
-            if(keep_filters){
+            if (keep_filters) {
                 // if there are any search params on the url line, they should
                 // pass directly to the set of resultsets.
                 // with the exception of ``repo``.  That has no effect on the

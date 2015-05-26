@@ -213,7 +213,7 @@ treeherderApp.controller('ResultSetCtrl', [
                     ThModelErrors.format(e, "Failed to cancel all jobs"),
                     'danger', true
                 );
-            })
+            });
         };
 
         $scope.revisionResultsetFilterUrl = $scope.urlBasePath + "?repo=" +
