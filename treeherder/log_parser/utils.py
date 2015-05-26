@@ -85,13 +85,21 @@ def post_log_artifacts(project,
         host=settings.TREEHERDER_REQUEST_HOST
     )
 
+    def _update_parse_status(status):
+        try:
+            client.update_parse_status(project,
+                                       credentials.get('consumer_key'),
+                                       credentials.get('consumer_secret'),
+                                       job_log_url['id'], status)
+        except Exception as e:
+            logger.error("Unable to update parse status ('%s') for %s: %s",
+                         status, log_description, e)
+
     try:
         artifact_list = extract_artifacts_cb(job_log_url['url'],
                                              job_guid, check_errors)
     except Exception as e:
-        client.update_parse_status(project, credentials.get('consumer_key'),
-                                   credentials.get('consumer_secret'),
-                                   job_log_url['id'], 'failed')
+        _update_parse_status('failed')
         if isinstance(e, urllib2.HTTPError) and e.code in (403, 404):
             logger.debug("Unable to retrieve log for %s: %s", log_description, e)
             return
@@ -108,9 +116,7 @@ def post_log_artifacts(project,
         client.post_collection(project, credentials.get('consumer_key'),
                                credentials.get('consumer_secret'),
                                tac)
-        client.update_parse_status(project, credentials.get('consumer_key'),
-                                   credentials.get('consumer_secret'),
-                                   job_log_url['id'], 'parsed')
+        _update_parse_status('parsed')
         logger.debug("Finished posting artifact for %s %s", project, job_guid)
     except Exception as e:
         logger.error("Failed to upload parsed artifact for %s: %s", log_description, e)
