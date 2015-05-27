@@ -9,6 +9,7 @@ var util = require('util'),
 
 var DEFAULT_PORT = 8000;
 var APP_ROOT = path.join(__dirname, "ui");
+var INDEX_FILE = 'index.html';
 
 function main(argv) {
   new HttpServer({
@@ -115,7 +116,14 @@ StaticServlet.prototype.handleDirectoryRequest_ = function(req, res, path) {
     var redirectUrl = url.format(url.parse(url.format(req.url)));
     return self.sendRedirect_(req, res, redirectUrl);
   }
-  return self.sendDirectory_(req, res, path);
+  // Check if there is an index file (eg index.html) we can serve.
+  var indexpath = path + INDEX_FILE;
+  fs.stat(indexpath, function(err, stat) {
+    if (stat && stat.isFile())
+      return self.sendFile_(req, res, indexpath);
+    // Otherwise just display the directory listing.
+    return self.sendDirectory_(req, res, path);
+  });
 };
 
 StaticServlet.prototype.sendError_ = function(req, res, error) {
