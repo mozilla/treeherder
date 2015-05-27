@@ -806,7 +806,7 @@ treeherder.factory('ThResultSetStore', [
                 resultsets = data.data;
             });
 
-        $q.all([loadRepositories, loadResultsets]).
+        return $q.all([loadRepositories, loadResultsets]).
             then(
                 function() {
                     appendResultSets(repoName, resultsets);
