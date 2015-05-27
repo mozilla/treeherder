@@ -97,11 +97,11 @@
 </div>
 
 <!-- Get next resultsets footer -->
-<div class="well" ng-if="result_sets.length > 1">
+<div class="well">
      get next:
     <div class="btn-group">
         <div class="btn btn-default btn-sm"
-             ng-click="fetchResultSets(count, true)"
+             ng-click="getNextResultSets(count, true)"
              ng-repeat="count in [10, 20, 50]">{{::count}}</div>
         </div>
     </div>

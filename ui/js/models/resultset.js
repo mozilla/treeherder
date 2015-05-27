@@ -12,6 +12,8 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location', '$q'
 
     var $log = new ThLog("ThResultSetModel");
 
+    var MAX_RESULTSET_FETCH_SIZE = 100;
+
     var convertDates = function(locationParams) {
         // support date ranges.  we must convert the strings to a timezone
         // appropriate timestamp
@@ -31,6 +33,16 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location', '$q'
         return locationParams;
     };
 
+    var hasLowerRange = function (locationParams) {
+        // return whether an OLDEST resultset range is set.
+        return locationParams.fromchange || locationParams.startdate;
+    };
+
+    var hasUpperRange = function (locationParams) {
+        // return whether an NEWEST resultset range is set.
+        return locationParams.tochange || locationParams.enddate;
+    };
+
     // get the resultsets for this repo
     return {
         // used for polling new resultsets after initial load
@@ -48,7 +60,6 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location', '$q'
 
         getResultSets: function(repoName, rsOffsetTimestamp, count, resultsetlist, full, keep_filters) {
             rsOffsetTimestamp = typeof rsOffsetTimestamp === 'undefined'?  0: rsOffsetTimestamp;
-            count = typeof count === 'undefined'?  10: count;
             full = _.isUndefined(full) ? true: full;
             keep_filters = _.isUndefined(keep_filters) ? true : keep_filters;
 
@@ -56,18 +67,15 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location', '$q'
                 full: full
             };
 
-            if (count > 0) {
-                params.count = count;
-            }
+            // count defaults to 10, but can be no larger than the max.
+            params.count = !count ? 10 : Math.min(count, MAX_RESULTSET_FETCH_SIZE);
 
             if(rsOffsetTimestamp){
                 params.push_timestamp__lte = rsOffsetTimestamp;
                 // we will likely re-fetch the oldest we already have, but
                 // that's not guaranteed.  There COULD be two resultsets
                 // with the same timestamp, theoretically.
-                if (params.count) {
-                    params.count++;
-                }
+                params.count++;
             }
 
             if (keep_filters) {
@@ -77,6 +85,23 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location', '$q'
                 // service at this time, but it could be confusing.
                 var locationParams = _.clone($location.search());
                 delete locationParams.repo;
+
+                // if they submit an offset timestamp, then they have resultsets
+                // and are fetching more.  So don't honor the fromchange/tochange
+                // or else we won't be able to fetch more resultsets.
+
+                // we DID already check for rsOffsetTimestamp above, but that was
+                // not within the ``keep_filters`` check.  If we don't
+                // keep filters, we don't need to clone the $location.search().
+                if (rsOffsetTimestamp) {
+                    delete locationParams.tochange;
+                    delete locationParams.fromchange;
+                } else {
+                    // fetch the maximum number of resultsets if an upper or lower range is specified
+                    if ((hasUpperRange(locationParams) || hasLowerRange(locationParams))) {
+                        params.count = MAX_RESULTSET_FETCH_SIZE;
+                    }
+                }
 
                 locationParams = convertDates(locationParams);
 

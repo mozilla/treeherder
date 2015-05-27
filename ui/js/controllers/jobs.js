@@ -18,8 +18,23 @@ treeherderApp.controller('JobsCtrl', [
 
         // load our initial set of resultsets
         // scope needs this function so it can be called directly by the user, too.
-        $scope.fetchResultSets = function(count, keepFilters) {
-            ThResultSetStore.fetchResultSets($scope.repoName, count, keepFilters);
+        $scope.getNextResultSets = function(count, keepFilters) {
+            var revision = $location.search().revision;
+            if (revision) {
+                $rootScope.skipNextPageReload = true;
+                $location.search('revision', null);
+                $location.search('tochange', revision);
+            }
+            ThResultSetStore.fetchResultSets($scope.repoName, count, keepFilters).
+                then(function() {
+
+                    // since we fetched more resultsets, we need to persist the
+                    // resultset state in the URL.
+                    $rootScope.skipNextPageReload = true;
+                    var rsArray = ThResultSetStore.getResultSetsArray($scope.repoName);
+                    $location.search('fromchange', _.last(rsArray).revision);
+                });
+
         };
 
         // set to the default repo if one not specified
@@ -54,17 +69,12 @@ treeherderApp.controller('JobsCtrl', [
                 }
         };
 
-        // determine how many resultsets to fetch.  default to 10.
-        var count = ThResultSetStore.defaultResultSetCount;
-        if ((_.has($scope.searchParams, "startdate") || _.has($scope.searchParams, "fromchange")) &&
-            (_.has($scope.searchParams, "enddate") || _.has($scope.searchParams, "tochange"))) {
-            // just fetch all (up to 100) the resultsets if an upper AND lower range is specified
-
-            count = 100;
-        }
         if(ThResultSetStore.isNotLoaded($scope.repoName)){
             // get our first set of resultsets
-            ThResultSetStore.fetchResultSets($scope.repoName, count, true);
+            ThResultSetStore.fetchResultSets(
+                $scope.repoName,
+                ThResultSetStore.defaultResultSetCount,
+                true);
         }
 
         $rootScope.$on(
