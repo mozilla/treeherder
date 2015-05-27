@@ -4,39 +4,11 @@
 
 import os
 
-TREEHERDER_DATABASE_NAME = os.environ.get("TREEHERDER_DATABASE_NAME", "")
-TREEHERDER_DATABASE_USER = os.environ.get("TREEHERDER_DATABASE_USER", "")
-TREEHERDER_DATABASE_PASSWORD = os.environ.get("TREEHERDER_DATABASE_PASSWORD", "")
-TREEHERDER_DATABASE_HOST = os.environ.get("TREEHERDER_DATABASE_HOST", "localhost")
-
-TREEHERDER_RO_DATABASE_USER = os.environ.get("TREEHERDER_RO_DATABASE_USER", TREEHERDER_DATABASE_USER)
-TREEHERDER_RO_DATABASE_PASSWORD = os.environ.get("TREEHERDER_RO_DATABASE_PASSWORD", TREEHERDER_DATABASE_PASSWORD)
-TREEHERDER_RO_DATABASE_HOST = os.environ.get("TREEHERDER_RO_DATABASE_HOST", TREEHERDER_DATABASE_HOST)
-
-TREEHERDER_MEMCACHED = os.environ.get("TREEHERDER_MEMCACHED", "")
-TREEHERDER_MEMCACHED_KEY_PREFIX = os.environ.get("TREEHERDER_MEMCACHED_KEY_PREFIX", "treeherder")
-
 # Applications useful for development, e.g. debug_toolbar, django_extensions.
 # Always empty in production
 LOCAL_APPS = ["rest_framework_swagger"]
 
 DEBUG = os.environ.get("TREEHERDER_DEBUG") is not None
 
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = os.environ.get("TREEHERDER_DJANGO_SECRET_KEY", "")
-
-SITE_URL = "http://local.treeherder.mozilla.org"
-
 # Set this to True to submit bug associations to Bugzilla & Elasticsearch.
 MIRROR_CLASSIFICATIONS = False
-
-# TBPLBOT is the Bugzilla account used to make the bug comments on
-# intermittent failure bugs when failures are classified.
-TBPLBOT_EMAIL = os.environ.get("TBPLBOT_EMAIL", "")
-TBPLBOT_PASSWORD = os.environ.get("TBPLBOT_PASSWORD", "")
-
-TREEHERDER_REQUEST_PROTOCOL = os.environ.get("TREEHERDER_REQUEST_PROTOCOL", "http")
-TREEHERDER_REQUEST_HOST = os.environ.get("TREEHERDER_REQUEST_HOST", "local.treeherder.mozilla.org")
-
-PULSE_USERNAME = os.environ.get("PULSE_USERNAME", "")
-PULSE_PASSWORD = os.environ.get("PULSE_PASSWORD", "")
