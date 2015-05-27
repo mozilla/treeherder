@@ -11,9 +11,9 @@ from treeherder import path
 
 # These settings can all be optionally set via env vars, or in local.py:
 
-TREEHERDER_DATABASE_NAME = os.environ.get("TREEHERDER_DATABASE_NAME", "")
-TREEHERDER_DATABASE_USER = os.environ.get("TREEHERDER_DATABASE_USER", "")
-TREEHERDER_DATABASE_PASSWORD = os.environ.get("TREEHERDER_DATABASE_PASSWORD", "")
+TREEHERDER_DATABASE_NAME = os.environ.get("TREEHERDER_DATABASE_NAME", "treeherder")
+TREEHERDER_DATABASE_USER = os.environ.get("TREEHERDER_DATABASE_USER", "treeherder_user")
+TREEHERDER_DATABASE_PASSWORD = os.environ.get("TREEHERDER_DATABASE_PASSWORD", "treeherder_pass")
 TREEHERDER_DATABASE_HOST = os.environ.get("TREEHERDER_DATABASE_HOST", "localhost")
 
 TREEHERDER_RO_DATABASE_USER = os.environ.get("TREEHERDER_RO_DATABASE_USER", TREEHERDER_DATABASE_USER)

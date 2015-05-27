@@ -12,11 +12,8 @@ cache:
     - node_modules
 env:
   global:
-    - DB=mysql
-    - TREEHERDER_DATABASE_NAME='treeherder'
     - TREEHERDER_DATABASE_USER='root'
     - TREEHERDER_DATABASE_PASSWORD=''
-    - TREEHERDER_DATABASE_HOST='localhost'
     - TREEHERDER_MEMCACHED='127.0.0.1:11211'
     - TREEHERDER_MEMCACHED_KEY_PREFIX='treeherder'
     - TREEHERDER_RABBITMQ_USER='guest'

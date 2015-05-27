@@ -41,21 +41,20 @@ class mysql {
     }
   }
 
-
-  exec { "create-${DB_NAME}-db":
-    unless => "mysql -uroot ${DB_NAME}",
-    command => "mysql -uroot -e \"create database ${DB_NAME};\"",
+  exec { "create-db":
+    unless => "mysql -uroot treeherder",
+    command => "mysql -uroot -e \"create database treeherder;\"",
     require => Service[$mysqlservice],
   }
 
-  exec { "grant-${DB_USER}-db":
+  exec { "grant-db-privs":
     unless => "mysql -u${DB_USER} -p${DB_PASS}",
     command =>  "mysql -uroot -e \"
      CREATE USER '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASS}';
      CREATE USER '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASS}';
      GRANT ALL PRIVILEGES ON *.* to '${DB_USER}'@'%';
      GRANT ALL PRIVILEGES ON *.* to '${DB_USER}'@'localhost';\"",
-    require => [Service[$mysqlservice], Exec["create-${DB_NAME}-db"]]
+    require => [Service[$mysqlservice], Exec["create-db"]]
   }
 
 }
