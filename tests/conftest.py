@@ -44,10 +44,8 @@ def pytest_sessionstart(session):
     session.django_runner = DiscoverRunner()
     # this provides templates-rendered debugging info and locmem mail storage
     session.django_runner.setup_test_environment()
-    # support custom db prefix for tests for the main datazilla datasource
-    # as well as for the testproj and testpushlog dbs
-    prefix = getattr(settings, "TEST_DB_PREFIX", "")
-    settings.DATABASES["default"]["TEST_NAME"] = "{0}test_treeherder".format(prefix)
+
+    settings.DATABASES["default"]["TEST_NAME"] = "test_treeherder"
 
     # this makes celery calls synchronous, useful for unit testing
     settings.CELERY_ALWAYS_EAGER = True
