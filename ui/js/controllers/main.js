@@ -102,22 +102,28 @@ treeherderApp.controller('MainCtrl', [
 
             // Shortcut: select previous job
             Mousetrap.bind('left', function() {
-                $rootScope.$emit(thEvents.changeSelection,'previous');
+                $rootScope.$emit(thEvents.changeSelection,'previous', ".th-view-content .job-btn");
             });
 
             // Shortcut: select next job
             Mousetrap.bind('right', function() {
-                $rootScope.$emit(thEvents.changeSelection,'next');
+                $rootScope.$emit(thEvents.changeSelection,'next', ".th-view-content .job-btn");
             });
 
             // Shortcut: select next unclassified failure
             Mousetrap.bind(['j', 'n'], function() {
-                $rootScope.$emit(thEvents.selectNextUnclassifiedFailure);
+                $rootScope.$emit(
+                    thEvents.changeSelection,
+                    'next',
+                    ".selected-job, .th-view-content .job-btn.btn-red, .th-view-content .job-btn.btn-orange, .th-view-content .job-btn.btn-purple");
             });
 
             // Shortcut: select previous unclassified failure
             Mousetrap.bind(['k', 'p'], function() {
-                $rootScope.$emit(thEvents.selectPreviousUnclassifiedFailure);
+                $rootScope.$emit(
+                    thEvents.changeSelection,
+                    'previous',
+                    ".selected-job, .th-view-content .job-btn.btn-red, .th-view-content .job-btn.btn-orange, .th-view-content .job-btn.btn-purple");
             });
 
             // Shortcut: retrigger selected job

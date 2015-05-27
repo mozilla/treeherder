@@ -66,24 +66,7 @@ treeherder.directive('thCloneJobs', [
 
     //Global event listeners
     $rootScope.$on(
-        thEvents.selectNextUnclassifiedFailure, function(ev){
-
-            var jobMap = ThResultSetStore.getJobMap($rootScope.repoName);
-            var lastJobSelected = ThResultSetStore.getSelectedJob($rootScope.repoName);
-
-            var targetEl, jobKey;
-            if(!_.isEmpty(lastJobSelected.el)){
-                jobKey = getJobMapKey(lastJobSelected.job);
-                getNextUnclassifiedFailure(jobMap[jobKey].job_obj);
-
-            }else{
-                //Select the first unclassified failure
-                getNextUnclassifiedFailure({});
-            }
-    });
-
-    $rootScope.$on(
-        thEvents.changeSelection, function(ev, direction){
+        thEvents.changeSelection, function(ev, direction, selector){
 
         var jobMap = ThResultSetStore.getJobMap($rootScope.repoName);
         var el, key, job, jobs, getIndex;
@@ -98,7 +81,7 @@ treeherder.directive('thCloneJobs', [
             };
         }
 
-        jobs = $(".th-view-content .job-btn");
+        jobs = $(selector);
         var idx = jobs.index(jobs.filter(".selected-job"));
         idx = getIndex(idx, jobs);
 
@@ -111,25 +94,6 @@ treeherder.directive('thCloneJobs', [
         key = el.attr(jobKeyAttr);
         job = jobMap[key].job_obj;
         selectJob(job);
-
-    });
-
-    $rootScope.$on(
-        thEvents.selectPreviousUnclassifiedFailure, function(ev){
-
-            var jobMap = ThResultSetStore.getJobMap($rootScope.repoName);
-
-            var lastJobSelected = ThResultSetStore.getSelectedJob($rootScope.repoName);
-
-            var targetEl, jobKey;
-            if(!_.isEmpty(lastJobSelected.el)){
-                jobKey = getJobMapKey(lastJobSelected.job);
-                getPreviousUnclassifiedFailure(jobMap[jobKey].job_obj);
-
-            }else{
-                //Select the first unclassified failure
-                getPreviousUnclassifiedFailure({});
-            }
 
     });
 
@@ -628,129 +592,6 @@ treeherder.directive('thCloneJobs', [
         }, this);
     };
 
-    var getNextUnclassifiedFailure = function(currentJob){
-
-        var resultsets = ThResultSetStore.getResultSetsArray($rootScope.repoName);
-
-        var firstJob = null;
-        var foundJob = false;
-        var startWatch = false;
-        if(_.isEmpty(currentJob)){
-            startWatch = true;
-        }
-
-        var platforms, groups, jobs, r;
-
-        for(r = 0; r < resultsets.length; r++){
-
-            platforms = resultsets[r].platforms;
-            if(platforms === undefined){
-                continue;
-            }
-
-            var p;
-            for(p = 0; p < platforms.length; p++){
-
-                groups = platforms[p].groups;
-                var g;
-                for(g = 0; g < groups.length; g++){
-
-                    jobs = groups[g].jobs;
-                    var j;
-                    for(j = 0; j < jobs.length; j++){
-
-                        if(currentJob.id === jobs[j].id){
-
-                            //This is the current selection, get the next
-                            startWatch = true;
-                            continue;
-                        }
-
-                        if(startWatch || !firstJob){
-                            if( (jobs[j].visible === true) &&
-                                (classificationRequired[jobs[j].result] === 1) &&
-                                ( (parseInt(jobs[j].failure_classification_id, 10) === 1) ||
-                                  (jobs[j].failure_classification_id === null)  )){
-                                if (startWatch) {
-                                    foundJob = true;
-                                    selectJob(jobs[j]);
-                                    return;
-                                } else {
-                                    firstJob = jobs[j];
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        if (!foundJob && firstJob) {
-          // we were at the last job, start again from the beginning
-          selectJob(firstJob);
-        }
-    };
-
-    var getPreviousUnclassifiedFailure = function(currentJob){
-
-        var resultsets = ThResultSetStore.getResultSetsArray($rootScope.repoName);
-
-        var foundJob = false;
-        var lastJob = null;
-        var startWatch = false;
-        if(_.isEmpty(currentJob)){
-            startWatch = true;
-        }
-
-        var platforms, groups, jobs, r;
-
-        for(r = resultsets.length - 1; r >= 0; r--){
-
-            platforms = resultsets[r].platforms;
-            if(platforms === undefined){
-                continue;
-            }
-
-            var p;
-            for(p = platforms.length - 1; p >= 0; p--){
-
-                groups = platforms[p].groups;
-                var g;
-                for(g = groups.length - 1; g >= 0; g--){
-
-                    jobs = groups[g].jobs;
-                    var j;
-                    for(j = jobs.length - 1; j >= 0; j--){
-                        if(currentJob.id === jobs[j].id){
-
-                            //This is the current selection, get the next
-                            startWatch = true;
-                            continue;
-                        }
-                        if(startWatch || !lastJob){
-                            if( (jobs[j].visible === true) &&
-                                (classificationRequired[jobs[j].result] === 1) &&
-                                ( (parseInt(jobs[j].failure_classification_id, 10) === 1) ||
-                                  (jobs[j].failure_classification_id === null)  )){
-
-                                if (startWatch) {
-                                    selectJob(jobs[j]);
-                                    return;
-                                } else {
-                                    lastJob = jobs[j];
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        if (!foundJob && lastJob) {
-            // we were at the first job, go to the very end
-            selectJob(lastJob);
-        }
-    };
-
     var scrollToElement = function(el){
 
         if(el.position() !== undefined){
@@ -787,13 +628,6 @@ treeherder.directive('thCloneJobs', [
             thEvents.toggleRevisions, function(ev, rs, expand){
                 if(rs.id === scope.resultset.id){
                     _.bind(toggleRevisions, scope, element, expand)();
-                }
-            });
-
-        $rootScope.$on(
-            thEvents.toggleJobs, function(ev, rs, expand){
-                if(rs.id === scope.resultset.id){
-                    _.bind(toggleJobs, scope, element, expand)();
                 }
             });
 
