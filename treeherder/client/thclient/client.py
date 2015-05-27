@@ -240,7 +240,8 @@ class TreeherderJob(TreeherderData, ValidatorMixin):
             self.data['job']['artifacts'].append({
                 'name': name,
                 'type': artifact_type,
-                'blob': blob
+                'blob': blob,
+                'job_guid': self.data['job']['job_guid']
             })
 
     def init_data(self):

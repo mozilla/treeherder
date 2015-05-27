@@ -276,3 +276,74 @@ def test_post_job_with_text_log_summary_and_bug_suggestions_artifact(
 
     assert mock_parse.called is False
     assert mock_get_error_summary.called is False
+
+
+def test_post_job_artifacts_by_add_artifact(
+        test_project,
+        monkeypatch,
+        result_set_stored,
+        mock_post_collection,
+        mock_error_summary,
+        text_log_summary_blob,
+        ):
+    """
+    test submitting a job with artifacts added by ``add_artifact``
+
+    This has pre-parsed logs.  Verify parse_status of "parsed" and that it
+    doesn't parse the logs.
+
+    Submitted ``text_log_artifact`` should still trigger generation of the
+    bug suggestions.
+    """
+
+    mock_parse = MagicMock(name="parse_line")
+    monkeypatch.setattr(StepParser, 'parse_line', mock_parse)
+
+    job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
+    tjc = client.TreeherderJobCollection()
+    tj = client.TreeherderJob({
+        'project': test_project,
+        'revision_hash': result_set_stored[0]['revision_hash'],
+        "job": {
+            "artifacts": [],
+            "job_guid": job_guid,
+            "log_references": [
+                {
+                    "name": "autophone-nexus-one-1.log",
+                    "parse_status": "parsed",
+                    "url": "https://autophone-dev.s3.amazonaws.com/pub/mozilla.org/mobile/tinderbox-builds/mozilla-inbound-android-api-9/1432676531/en-US/autophone-autophone-s1s2-s1s2-nytimes-local.ini-1-nexus-one-1.log"
+                }
+            ],
+            "state": "completed",
+        },
+    })
+
+    tls_blob = json.dumps({
+        "logurl": "https://autophone-dev.s3.amazonaws.com/pub/mozilla.org/mobile/tinderbox-builds/mozilla-inbound-android-api-9/1432676531/en-US/autophone-autophone-s1s2-s1s2-nytimes-local.ini-1-nexus-one-1.log",
+        "step_data": {
+            "all_errors": [
+                {"line": "TEST_UNEXPECTED_FAIL | /sdcard/tests/autophone/s1s2test/nytimes.com/index.html | Failed to get uncached measurement.", "linenumber": 64435},
+            ],
+            "steps": [{"buncha": "info"}]
+        }
+    })
+
+    ji_blob = json.dumps({"job_details": [{"foo": "fah"}]})
+    bapi_blob = json.dumps({"buildername": "merd"})
+    pb_blob = json.dumps({"build_url": "feh", "chunk": 1, "config_file": "mah"})
+
+    tj.add_artifact("text_log_summary", "json", json.dumps(tls_blob))
+    tj.add_artifact("Job Info", "json", ji_blob)
+    tj.add_artifact("buildapi", "json", bapi_blob)
+    tj.add_artifact("privatebuild", "json", pb_blob)
+
+    tjc.add(tj)
+
+    do_post_collection(test_project, tjc)
+
+    check_artifacts(test_project, job_guid, 'parsed', 5,
+                    {'Bug suggestions', 'text_log_summary', 'Job Info',
+                     'privatebuild', 'buildapi'}, mock_error_summary)
+
+    # ensure the parsing didn't happen
+    assert mock_parse.called is False

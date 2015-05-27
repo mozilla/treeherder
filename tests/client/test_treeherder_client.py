@@ -523,7 +523,7 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
         self.assertEqual(mock_post.call_count, 1)
 
         path, resp = mock_post.call_args
-        self.assertEqual(path[0], "http://host/api/project/project/objectstore/?oauth_body_hash=C4jFXK8TBoFeh9wHOu1IkU7tERw%3D&oauth_nonce=46810593&oauth_timestamp=1342229050&oauth_consumer_key=key&oauth_signature_method=HMAC-SHA1&oauth_version=1.0&oauth_token=&user=project&oauth_signature=hNqHsAd7sdGyDLfWf7n9Bb%2B2rzM%3D")
+        self.assertEqual(path[0], "http://host/api/project/project/objectstore/?oauth_body_hash=IKbDoi5GvTRaqjRTCDyKIN5wWiY%3D&oauth_nonce=46810593&oauth_timestamp=1342229050&oauth_consumer_key=key&oauth_signature_method=HMAC-SHA1&oauth_version=1.0&oauth_token=&user=project&oauth_signature=uq%2BrkJCRPyPUdXExSasm25ab8m4%3D")
 
 if __name__ == '__main__':
     unittest.main()
