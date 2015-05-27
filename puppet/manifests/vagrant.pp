@@ -24,11 +24,9 @@ $APP_UI = $serve_minified_ui ? {
 $DB_USER = "treeherder_user"
 $DB_PASS = "treeherder_pass"
 $DJANGO_SECRET_KEY = "5up3r53cr3t"
-$RABBITMQ_USER = 'rabbituser'
-$RABBITMQ_PASSWORD = 'rabbitpass'
-$RABBITMQ_VHOST = 'treeherder'
-$RABBITMQ_HOST = 'localhost'
-$RABBITMQ_PORT = '5672'
+$RABBITMQ_USER = 'guest'
+$RABBITMQ_PASSWORD = 'guest'
+$RABBITMQ_VHOST = '/'
 
 # We need to force output on_failure, since we're using Puppet 2.x which
 # does not have the fix for https://projects.puppetlabs.com/issues/10907
@@ -47,11 +45,6 @@ file {"/etc/profile.d/treeherder.sh":
     content => "
 export TREEHERDER_DEBUG='1'
 export TREEHERDER_DJANGO_SECRET_KEY='${DJANGO_SECRET_KEY}'
-export TREEHERDER_RABBITMQ_USER='${RABBITMQ_USER}'
-export TREEHERDER_RABBITMQ_PASSWORD='${RABBITMQ_PASSWORD}'
-export TREEHERDER_RABBITMQ_VHOST='${RABBITMQ_VHOST}'
-export TREEHERDER_RABBITMQ_HOST='${RABBITMQ_HOST}'
-export TREEHERDER_RABBITMQ_PORT='${RABBITMQ_PORT}'
 "
 }
 

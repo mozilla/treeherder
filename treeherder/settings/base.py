@@ -39,11 +39,11 @@ TREEHERDER_PERF_SERIES_TIME_RANGES = [
 DATA_CYCLE_INTERVAL = timedelta(days=30 * 4)
 OBJECTSTORE_CYCLE_INTERVAL = timedelta(days=1)
 
-RABBITMQ_USER = os.environ.get("TREEHERDER_RABBITMQ_USER", "")
-RABBITMQ_PASSWORD = os.environ.get("TREEHERDER_RABBITMQ_PASSWORD", "")
-RABBITMQ_VHOST = os.environ.get("TREEHERDER_RABBITMQ_VHOST", "")
-RABBITMQ_HOST = os.environ.get("TREEHERDER_RABBITMQ_HOST", "")
-RABBITMQ_PORT = os.environ.get("TREEHERDER_RABBITMQ_PORT", "")
+RABBITMQ_USER = os.environ.get("TREEHERDER_RABBITMQ_USER", "guest")
+RABBITMQ_PASSWORD = os.environ.get("TREEHERDER_RABBITMQ_PASSWORD", "guest")
+RABBITMQ_VHOST = os.environ.get("TREEHERDER_RABBITMQ_VHOST", "/")
+RABBITMQ_HOST = os.environ.get("TREEHERDER_RABBITMQ_HOST", "localhost")
+RABBITMQ_PORT = os.environ.get("TREEHERDER_RABBITMQ_PORT", "5672")
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = os.environ.get("TREEHERDER_DJANGO_SECRET_KEY", "my-secret-key")
