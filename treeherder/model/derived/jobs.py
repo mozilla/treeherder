@@ -424,7 +424,7 @@ class JobsModel(TreeherderModelBase):
 
             # HACK: take this out when we're using pylibmc and can use
             # compression automatically
-            series_summary_json = json.dumps(series_summary)
+            series_summary_json = json.dumps(series_summary, sort_keys=True)
             cache.set(cache_key, zlib.compress(series_summary_json))
             sha = sha1()
             sha.update(series_summary_json)
