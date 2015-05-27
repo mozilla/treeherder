@@ -103,10 +103,20 @@ StaticServlet.prototype.handleRequest = function(req, res) {
     if (err)
       return self.sendMissing_(req, res, path);
     if (stat.isDirectory())
-      return self.sendDirectory_(req, res, path);
+      return self.handleDirectoryRequest_(req, res, path);
     return self.sendFile_(req, res, path);
   });
-}
+};
+
+StaticServlet.prototype.handleDirectoryRequest_ = function(req, res, path) {
+  var self = this;
+  if (path.match(/[^\/]$/)) {
+    req.url.pathname += '/';
+    var redirectUrl = url.format(url.parse(url.format(req.url)));
+    return self.sendRedirect_(req, res, redirectUrl);
+  }
+  return self.sendDirectory_(req, res, path);
+};
 
 StaticServlet.prototype.sendError_ = function(req, res, error) {
   res.writeHead(500, {
@@ -192,11 +202,6 @@ StaticServlet.prototype.sendFile_ = function(req, res, path) {
 
 StaticServlet.prototype.sendDirectory_ = function(req, res, path) {
   var self = this;
-  if (path.match(/[^\/]$/)) {
-    req.url.pathname += '/';
-    var redirectUrl = url.format(url.parse(url.format(req.url)));
-    return self.sendRedirect_(req, res, redirectUrl);
-  }
   fs.readdir(path, function(err, files) {
     if (err)
       return self.sendError_(req, res, error);
