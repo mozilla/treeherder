@@ -14,7 +14,7 @@ def _add_series(project, time_interval, signature_hash, signature_props,
                 mysql_debug, verbose):
     with JobsModel(project) as jm:
         if verbose:
-            print "%s:%s" % (signature_hash, time_interval)
+            print("{}:{}".format(signature_hash, time_interval))
         jm.DEBUG = mysql_debug
         jm.set_series_signature(signature_hash, signature_props)
 
@@ -73,12 +73,13 @@ class Command(BaseCommand):
             project,
             time_interval=PerformanceTimeInterval.NINETY_DAYS)
 
-        for kv in options['filter_props']:
-            if ':' not in kv or len(kv) < 3:
-                raise CommandError("Must specify --filter-props as "
-                                   "'key:value'")
-            k, v = kv.split(':')
-            signatures = signatures.filter((k, v))
+        if options['filter_props']:
+            for kv in options['filter_props']:
+                if ':' not in kv or len(kv) < 3:
+                    raise CommandError("Must specify --filter-props as "
+                                       "'key:value'")
+                k, v = kv.split(':')
+                signatures = signatures.filter((k, v))
 
         if options['time_interval'] is None:
             time_intervals = PerformanceTimeInterval.all_valid_time_intervals()

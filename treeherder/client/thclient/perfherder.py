@@ -145,7 +145,6 @@ class PerfherderClient(TreeherderClient):
         results = self._get_json(project, self.PERFORMANCE_DATA_ENDPOINT, timeout,
                                  signatures=signature_list,
                                  interval_seconds=time_interval)
-        print results
         if len(results) != len(signature_list):
             raise TreeherderClientError(
                 "Expected {0} results for call to '{1}', got '{2}'".format(
