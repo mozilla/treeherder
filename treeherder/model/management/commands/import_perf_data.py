@@ -6,6 +6,7 @@ from django.core.management.base import BaseCommand, CommandError
 from optparse import make_option
 from treeherder.client import PerfherderClient, PerformanceTimeInterval
 from treeherder.model.derived.jobs import JobsModel
+from urlparse import urlparse
 
 import concurrent.futures
 
@@ -29,7 +30,7 @@ def _add_series(project, time_interval, signature_hash, signature_props,
 class Command(BaseCommand):
 
     help = "Pre-populate performance data from an external source"
-    args = '<project> <time interval>'
+    args = '<project>'
 
     option_list = BaseCommand.option_list + (
         make_option('--server',
@@ -68,7 +69,10 @@ class Command(BaseCommand):
             raise CommandError("Need to (only) specify project/branch")
         project = args[0]
 
-        pc = PerfherderClient()
+        server_params = urlparse(options['server'])
+
+        pc = PerfherderClient(protocol=server_params.scheme,
+                              host=server_params.netloc)
         signatures = pc.get_performance_signatures(
             project,
             time_interval=PerformanceTimeInterval.NINETY_DAYS)
