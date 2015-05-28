@@ -99,10 +99,12 @@ To serve the UI from the ``dist`` directory, run:
 
   (venv)vagrant@precise32:~/treeherder$ grunt build
 
-This will build the UI by concatenating and minifying the js and css and move all required assets to a directory called ``dist`` in the repository root. In ``Vagrantfile`` uncomment this line:
+This will build the UI by concatenating and minifying the js and css and move all required assets to a directory called ``dist`` in the repository root. Then in ``Vagrantfile`` change ``serve_minified_ui`` to true:
 
 .. code-block:: ruby
 
-  puppet.manifest_file = "production.pp"
+  puppet.facter = {
+    "serve_minified_ui" => "true"
+  }
 
-The ``production.pp`` manifest sets the web application directory to the ``dist`` directory.
+You will need to run ``vagrant provision`` to pick up those changes, if the Vagrant environment was already created.
