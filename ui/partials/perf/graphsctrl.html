@@ -13,11 +13,15 @@
             </button>
             <table>
               <tr>
-                <td width="10px" class="graph-legend" style="padding: 4px; background-color: {{series.color}}"></td>
+                <td width="10px" class="graph-legend" style="padding: 4px; background-color: {{series.mycolor}}"></td>
                 <td class="graph-legend">
                   <b>{{series.name}}</b><br/>
                   {{series.projectName}}<br/>
                   {{series.platform}}<br/>
+                  <div ng-show="series.inactive">
+                  Inactive:<span ng-repeat="inactive in series.inactive track by $index">
+                  {{inactive}}</span>
+                  </div>
                   <div class="signature"><small>{{series.signature}}</small></div>
                 </td>
               </tr>
@@ -31,6 +35,12 @@
     </div>
     <div id="data-display">
       <select ng-model="myTimerange" ng-options="timerange.text for timerange in timeranges track by timerange.value" ng-change="timeRangeChanged()" ng-disabled="seriesList.length == 0">
+      </select>
+      <select ng-model="myMeasure" ng-change="myMeasureChanged()">
+        <option value="mean">Mean</option>
+        <option value="min">Minimum</option>
+        <option value="max">Maximum</option>
+        <option value="median">Median</option>
       </select>
       <hr/>
       <div id="overview-plot"></div>
