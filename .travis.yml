@@ -29,8 +29,7 @@ services:
   - memcached
 install:
   - npm install
-  - ./bin/peep.py install -r requirements/common.txt
-  - ./bin/peep.py install -r requirements/dev.txt
+  - ./bin/peep.py install -r requirements/common.txt -r requirements/dev.txt
 before_script:
   - flake8 --show-source
   # Required for Karma tests (http://docs.travis-ci.com/user/gui-and-headless-browsers/)
