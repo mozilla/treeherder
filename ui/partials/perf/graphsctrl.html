@@ -32,6 +32,11 @@
     <div id="data-display">
       <select ng-model="myTimerange" ng-options="timerange.text for timerange in timeranges track by timerange.value" ng-change="timeRangeChanged()" ng-disabled="seriesList.length == 0">
       </select>
+      <select ng-model="myMeasure" ng-change="myMeasureChanged()"  ng-init="myMeasure=mean">
+        <option value="mean" selected="selected">Mean</option>
+        <option value="min">Minimum</option>
+        <option value="max">Maximum</option>      
+      </select>
       <hr/>
       <div id="overview-plot"></div>
       <div id="graph"></div>

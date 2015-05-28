@@ -421,6 +421,16 @@ perf.controller('GraphsCtrl', [
         plotGraph();
       });
     }
+    
+    $scope.myMeasureChanged = function() {
+      $scope.zoom = {};
+      deselectDataPoint();
+      
+      updateDocument();
+      $q.all($scope.seriesList.map(getSeriesData)).then(function(){
+        plotGraph();
+      });
+    }
 
     $scope.repoName = $stateParams.projectId;
 
@@ -468,16 +478,22 @@ perf.controller('GraphsCtrl', [
                              label: series.projectName + " " + series.name,
                              data: [],
                              resultSetData: [],
+                             customeasure:$scope.myMeasure,
                              thSeries: jQuery.extend({}, series)
                            }
                            response.data[0].blob.forEach(function(dataPoint) {
-                             var mean = dataPoint.mean;
-                             if (mean === undefined)
-                               mean = dataPoint.geomean;
-
+                              var measurement = dataPoint.geomean
+                              if (flotSeries.customeasure === "min") {
+                                measurement = dataPoint.min
+                              } else if (flotSeries.customeasure === "max") {
+                                measurement = dataPoint.max
+                              } else if (flotSeries.customeasure === "mean"){
+                                measurement = dataPoint.mean
+                              }
+                       
                              flotSeries.data.push([
                                new Date(dataPoint.push_timestamp*1000),
-                               mean]);
+                               measurement]);
                              flotSeries.resultSetData.push(
                                dataPoint.result_set_id);
                            });
