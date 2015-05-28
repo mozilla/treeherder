@@ -20,7 +20,7 @@ perf.controller('GraphsCtrl', [
     $scope.highlightedRevisions = [ undefined, undefined ];
     $scope.timeranges = phTimeRanges;
     $scope.myTimerange = _.find(phTimeRanges, {'value': parseInt($stateParams.timerange)});
-
+    $scope.myMeasure = "mean";
     $scope.ttHideTimer = null;
     $scope.selectedDataPoint = null;
     $scope.showToolTipTimeout = null;
@@ -299,12 +299,14 @@ perf.controller('GraphsCtrl', [
     function plotGraph() {
       // synchronize series visibility with flot, in case it's changed
       $scope.seriesList.forEach(function(series) {
-        series.flotSeries.points.show = series.visible;
+          series.flotSeries.points.show = series.visible;
+          series.active = (!series.subtestSignatures || $scope.myMeasure === 'mean');
+          series.blockColor = series.active ? series.color : "grey";
       });
 
       // reset highlights
       $scope.seriesList.forEach(function(series) {
-        series.highlightedPoints = [];
+          series.highlightedPoints = [];
       });
 
       // highlight each revision on visible serii
@@ -422,6 +424,16 @@ perf.controller('GraphsCtrl', [
         plotGraph();
       });
     }
+    
+    $scope.myMeasureChanged = function() {
+        $scope.zoom = {};
+        deselectDataPoint();
+      
+        updateDocument();
+        $q.all($scope.seriesList.map(getSeriesData)).then(function() {
+            plotGraph();
+      });
+    }
 
     $scope.repoName = $stateParams.projectId;
     
@@ -481,13 +493,22 @@ perf.controller('GraphsCtrl', [
                              thSeries: jQuery.extend({}, series)
                            }
                            response.data[0].blob.forEach(function(dataPoint) {
-                             var mean = dataPoint.mean;
-                             if (mean === undefined)
-                               mean = dataPoint.geomean;
-
+                              var measure = dataPoint.mean;
+                              if ($scope.myMeasure === "min") {
+                                  measure = dataPoint.min;
+                              } else if ($scope.myMeasure === "max") {
+                                  measure = dataPoint.max;
+                              } else if ($scope.myMeasure === "median") {
+                                  measure = dataPoint.median;
+                              } else if ($scope.myMeasure === "mean") {
+                                  measure = dataPoint.mean;
+                                if (measure === undefined) {
+                                    measure = dataPoint.geomean;
+                                }
+                              }
                              flotSeries.data.push([
                                new Date(dataPoint.push_timestamp*1000),
-                               mean]);
+                               measure]);
                              flotSeries.resultSetData.push(
                                dataPoint.result_set_id);
                            });
@@ -506,12 +527,14 @@ perf.controller('GraphsCtrl', [
                            'get_signature_properties/?signatures=' +
                            partialSeries.signature).then(function(response) {
                              var data = response.data;
+                             var subtest_signatures = data[0].subtest_signatures;
                              if (!propsHash[partialSeries.project]) {
                                propsHash[partialSeries.project] = {};
                              }
                              propsHash[partialSeries.project][partialSeries.signature] = data[0];
+                             return subtest_signatures;
                            });
-        })).then(function() {
+        })).then(function(subtest_signatures) {
           // create a new seriesList in the correct order
           partialSeriesList.forEach(function(partialSeries) {
             var seriesSummary = PhSeries.getSeriesSummary(
@@ -522,7 +545,7 @@ perf.controller('GraphsCtrl', [
             seriesSummary.visible = partialSeries.visible;
             seriesSummary.color = availableColors.pop();
             seriesSummary.highlighted = partialSeries.highlighted;
-
+            seriesSummary.subtest_signatures = subtest_signatures;
             $scope.seriesList.push(seriesSummary);
           });
           $q.all($scope.seriesList.map(getSeriesData)).then(function() {
