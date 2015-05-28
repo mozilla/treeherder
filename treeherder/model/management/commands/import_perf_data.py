@@ -11,20 +11,22 @@ from urlparse import urlparse
 import concurrent.futures
 
 
-def _add_series(project, time_interval, signature_hash, signature_props,
-                mysql_debug, verbose):
+def _add_series(server_params, project, time_intervals, signature_hash,
+                signature_props, mysql_debug, verbose):
     with JobsModel(project) as jm:
-        if verbose:
-            print("{}:{}".format(signature_hash, time_interval))
         jm.DEBUG = mysql_debug
-        jm.set_series_signature(signature_hash, signature_props)
+        if verbose:
+            print(signature_hash)
 
-        pc = PerfherderClient()
-        series = pc.get_performance_series(project, signature_hash,
-                                           time_interval=time_interval)
-        jm.store_performance_series(time_interval, 'talos_data',
-                                    str(signature_hash),
-                                    series)
+        jm.set_series_signature(signature_hash, signature_props)
+        for time_interval in time_intervals:
+            pc = PerfherderClient(protocol=server_params.scheme,
+                                  host=server_params.netloc)
+            series = pc.get_performance_series(project, signature_hash,
+                                               time_interval=time_interval)
+            jm.store_performance_series(time_interval, 'talos_data',
+                                        str(signature_hash),
+                                        series)
 
 
 class Command(BaseCommand):
@@ -95,14 +97,13 @@ class Command(BaseCommand):
             futures = []
 
             for signature_hash in signatures.get_signature_hashes():
-                for time_interval in time_intervals:
-                    signature_props = signatures[signature_hash]
-                    futures.append(executor.submit(_add_series, project,
-                                                   time_interval,
-                                                   signature_hash,
-                                                   signature_props,
-                                                   options['mysql_debug'],
-                                                   options['verbose']))
+                futures.append(executor.submit(_add_series, server_params,
+                                               project,
+                                               time_intervals,
+                                               signature_hash,
+                                               signatures[signature_hash],
+                                               options['mysql_debug'],
+                                               options['verbose']))
             for future in futures:
                 try:
                     future.result()
