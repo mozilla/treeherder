@@ -423,22 +423,31 @@ perf.controller('GraphsCtrl', [
     }
 
     $scope.repoName = $stateParams.projectId;
-
+    
     function updateDocument() {
       $state.transitionTo('graphs', {
         timerange: $scope.myTimerange.value,
         series: $scope.seriesList.map(function(series) {
-          return encodeURIComponent(
-            JSON.stringify(
-              { project: series.projectName,
-                signature: series.signature,
-                visible: series.visible})); }),
+          return "[" + series.projectName + "," + series.signature + "," + (series.visible ? 1 : 0) + "]"
+        }),
         highlightedRevisions: _.filter($scope.highlightedRevisions,
                                        function(highlight) {
                                          return (highlight &&
                                                  highlight.length == 12);
                                        }),
-        zoom: JSON.stringify($scope.zoom)
+        zoom: (function() {
+          if ((typeof $scope.zoom.x != "undefined") 
+              && (typeof $scope.zoom.y != "undefined")
+              && ($scope.zoom.x != 0 && $scope.zoom.y != 0)) {
+            var modifiedZoom = ("[" + ($scope.zoom['x'].toString() 
+                    + ',' + $scope.zoom['y'].toString()) + "]").replace(/[\[\{\}\]"]+/g, '');
+            return modifiedZoom 
+          }
+          else {
+            $scope.zoom = [] 
+            return $scope.zoom 
+          }
+        })(),
       }, {location: true, inherit: true,
           relative: $state.$current,
           notify: false});
@@ -577,9 +586,15 @@ perf.controller('GraphsCtrl', [
         optionCollectionMap = _optionCollectionMap;
 
         if ($stateParams.zoom) {
-          $scope.zoom = JSON.parse($stateParams.zoom);
+          var zoomString = decodeURIComponent($stateParams.zoom).replace(/[\[\{\}\]"]+/g, '')  
+          var zoomArray = zoomString.split(",")
+          var zoomObject = {
+            "x": zoomArray.slice(0,2),
+            "y": zoomArray.slice(2,4)
+          }
+          $scope.zoom = (zoomString) ? zoomObject : []
         } else {
-          $scope.zoom = {};
+          $scope.zoom = [];
         }
 
         if ($stateParams.series) {
@@ -600,8 +615,15 @@ perf.controller('GraphsCtrl', [
           // we only store the signature + project name in the url, we need to
           // fetch everything else from the server
           var partialSeriesList = $stateParams.series.map(function(encodedSeries) {
-            return JSON.parse(decodeURIComponent(encodedSeries));
-          });
+            var partialSeriesString = decodeURIComponent(encodedSeries).replace(/[\[\]"]/g, '');
+            var partialSeriesArray = partialSeriesString.split(",");
+            var partialSeriesObject = {
+                "project":  partialSeriesArray[0],
+                "signature":  partialSeriesArray[1],
+                "visible": (partialSeriesArray[2] == 0) ? false : true
+            }
+            return partialSeriesObject;
+          });    
           addSeriesList(partialSeriesList);
         } else {
           $scope.seriesList = [];
