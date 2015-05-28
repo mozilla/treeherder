@@ -423,6 +423,19 @@ perf.controller('GraphsCtrl', [
     }
 
     $scope.repoName = $stateParams.projectId;
+    
+    var zoomStringify = function(){
+        if ((typeof $scope.zoom.x != "undefined") && (typeof $scope.zoom.y != "undefined")){
+          var modifiedZoom = ("[" + ($scope.zoom['x'].toString() + ',' + $scope.zoom['y'].toString()) + "]").replace(/[\"]+/g, '')
+          return modifiedZoom 
+        }
+        else 
+        {
+          return $scope.zoom
+        }
+    }
+
+
 
     function updateDocument() {
       $state.transitionTo('graphs', {
@@ -430,15 +443,15 @@ perf.controller('GraphsCtrl', [
         series: $scope.seriesList.map(function(series) {
           return encodeURIComponent(
             JSON.stringify(
-              { project: series.projectName,
-                signature: series.signature,
-                visible: series.visible})); }),
+              [ series.projectName,
+                series.signature,
+                series.visible])); }),
         highlightedRevisions: _.filter($scope.highlightedRevisions,
                                        function(highlight) {
                                          return (highlight &&
                                                  highlight.length == 12);
                                        }),
-        zoom: JSON.stringify($scope.zoom)
+        zoom: encodeURIComponent(JSON.stringify(zoomStringify()))
       }, {location: true, inherit: true,
           relative: $state.$current,
           notify: false});
@@ -577,7 +590,12 @@ perf.controller('GraphsCtrl', [
         optionCollectionMap = _optionCollectionMap;
 
         if ($stateParams.zoom) {
-          $scope.zoom = JSON.parse($stateParams.zoom);
+          var zoomString = decodeURIComponent($stateParams.zoom).replace(/[\[\]"]+/g, '')  
+          var zoomArray = zoomString.split(",")
+          var zoomObject = Object.create(null)
+          zoomObject["x"] = zoomArray.slice(0,2)
+          zoomObject["y"] = zoomArray.slice(2,4)
+          $scope.zoom = zoomObject
         } else {
           $scope.zoom = {};
         }
@@ -599,9 +617,15 @@ perf.controller('GraphsCtrl', [
 
           // we only store the signature + project name in the url, we need to
           // fetch everything else from the server
-          var partialSeriesList = $stateParams.series.map(function(encodedSeries) {
-            return JSON.parse(decodeURIComponent(encodedSeries));
-          });
+          
+          var partialSeriesString = decodeURIComponent($stateParams.series.pop());
+          partialSeriesString = partialSeriesString.replace(/[\[\]"]/g, ''); 
+          var partialSeriesArray = partialSeriesString.split(",");
+          var partialSeriesList = Object.create(null)
+          partialSeriesList["project"] = partialSeriesArray[0]
+          partialSeriesList["signature"] = partialSeriesArray[1]
+          partialSeriesList["visible"] = (partialSeriesArray[2]) ? partialSeriesArray[2] : true 
+          partialSeriesList = $.makeArray(partialSeriesList)
           addSeriesList(partialSeriesList);
         } else {
           $scope.seriesList = [];
