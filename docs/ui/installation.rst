@@ -47,9 +47,14 @@ Requirements
 ------------
 
 * Node.js_
-* karma: ``sudo npm install -g karma``
 
 Execution::
+
+First run ``npm install`` at the root to install local dependencies
+(if you haven't already done so). To avoid a bunch of path mangling,
+you also want to install karma-cli globally (``sudo npm install -g karma-cli``).
+
+Once that's done, you can just run this shell script to execute the tests:
 
     ./tests/ui/scripts/test.sh
 
