@@ -5,19 +5,35 @@
 "use strict";
 
 perf.controller('CompareChooserCtrl', [
-  '$state', '$stateParams', '$scope', 'ThRepositoryModel',
+  '$state', '$stateParams', '$scope', 'ThRepositoryModel', 'ThResultSetModel',
   function CompareChooserCtrl($state, $stateParams, $scope,
-                              ThRepositoryModel) {
+                              ThRepositoryModel, ThResultSetModel) {
     ThRepositoryModel.get_list().success(function(projects) {
       $scope.projects = projects;
       $scope.originalProject = $scope.newProject = projects[0];
 
       $scope.runCompare = function() {
-        $state.go('compare', {
-          originalProject: $scope.originalProject.name,
-          originalRevision: $scope.originalRevision,
-          newProject: $scope.newProject.name,
-          newRevision: $scope.newRevision });
+        ThResultSetModel.getResultSetsFromRevision($scope.originalProject.name, $scope.originalRevision).then(
+          function(resultSets) {
+            $scope.originalRevisionError = undefined;
+
+        }, function(error) {
+            $scope.originalRevisionError = error;
+        });
+        
+        ThResultSetModel.getResultSetsFromRevision($scope.newProject.name, $scope.newRevision).then(
+              function(resultSets) {
+               $scope.newRevisionError = undefined;
+               if($scope.originalRevisionError == undefined && $scope.newRevisionError == undefined) {
+                $state.go('compare', {
+                originalProject: $scope.originalProject.name,
+                originalRevision: $scope.originalRevision,
+                newProject: $scope.newProject.name,
+                newRevision: $scope.newRevision });        
+                }
+        }, function(error) {
+                $scope.newRevisionError = error;
+        });
       };
     });
   }]);
