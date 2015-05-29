@@ -874,7 +874,7 @@ treeherder.factory('ThResultSetStore', [
     var getLastModifiedJob = function(jobList){
         if(jobList.length > 0){
             var sortedJobs = _.sortBy(jobList, 'last_modified');
-            return sortedJobs[sortedJobs.length-1]
+            return sortedJobs[sortedJobs.length-1];
         }
         return null;
     };
