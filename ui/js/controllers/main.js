@@ -280,25 +280,6 @@ treeherderApp.controller('MainCtrl', [
             return visibleList.length === 0;
         };
 
-        $scope.toggleAllJobsAndRevisions = function() {
-            var collapse = ($scope.allCollapsed("job-list") &&
-                            $scope.allCollapsed("revision-list"));
-            $rootScope.$emit(
-                thEvents.toggleAllJobs, collapse
-            );
-            $rootScope.$emit(
-                thEvents.toggleAllRevisions, collapse
-            );
-        };
-
-        $scope.toggleAllJobs = function(collapse) {
-            collapse = collapse || $scope.allCollapsed("job-list");
-            $rootScope.$emit(
-                thEvents.toggleAllJobs, collapse
-            );
-
-        };
-
         $scope.toggleAllRevisions = function(collapse) {
             collapse = collapse || $scope.allCollapsed("revision-list");
             $rootScope.$emit(

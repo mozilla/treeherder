@@ -68,13 +68,6 @@ treeherderApp.controller('JobsCtrl', [
         }
 
         $rootScope.$on(
-            thEvents.toggleAllJobs, function(ev, expand){
-                _.forEach($scope.result_sets, function(rs) {
-                    $rootScope.$emit(thEvents.toggleJobs, rs, expand);
-                });
-            });
-
-        $rootScope.$on(
             thEvents.toggleAllRevisions, function(ev, expand){
                 _.forEach($scope.result_sets, function(rs) {
                     $rootScope.$emit(thEvents.toggleRevisions, rs, expand);
@@ -155,13 +148,6 @@ treeherderApp.controller('ResultSetCtrl', [
 
             $rootScope.$emit(
                 thEvents.toggleRevisions, $scope.resultset
-                );
-
-        };
-        $scope.toggleJobs = function() {
-
-            $rootScope.$emit(
-                thEvents.toggleJobs, $scope.resultset
                 );
 
         };
