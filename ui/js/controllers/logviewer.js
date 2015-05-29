@@ -158,17 +158,25 @@ logViewerApp.controller('LogviewerCtrl', [
                 if(artifactList.length > 0){
                     $scope.artifact = artifactList[0].blob;
 
-                    var revision = $scope.artifact.header.revision.substr(0,12);
-                    $scope.logRevisionFilterUrl = $scope.urlBasePath
-                        + "#/jobs?repo="
-                        + $scope.repoName + "&revision=" + revision;
+                    $scope.logProperties = _.map(
+                        _.keys($scope.artifact.header).sort(), function(label) {
+                            var value = $scope.artifact.header[label];
+                            if (label === 'starttime') {
+                                // present start time as a human readable date
+                                var startDate = new Date(0);
+                                startDate.setUTCSeconds(value);
+                                value = startDate.toString();
+                            }
+                            return {label: label, value: value}
+                        });
 
-                    // Store the artifact epoch date string in a real date object for use
-                    var startTime = $scope.artifact.header.starttime;
-                    var startDate = new Date(0);
-                    startDate.setUTCSeconds(startTime);
-
-                    $scope.logDisplayDate = startDate.toString();
+                    // linkify revision
+                    if ($scope.artifact.header.revision) {
+                        var revision = $scope.artifact.header.revision.substr(0,12);
+                        $scope.logRevisionFilterUrl = $scope.urlBasePath
+                            + "#/jobs?repo="
+                            + $scope.repoName + "&revision=" + revision;
+                    }
 
                     ThJobArtifactModel.get_list(
                         {job_id: $scope.job_id, name:'buildapi'})
