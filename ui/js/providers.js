@@ -211,10 +211,6 @@ treeherder.provider('thEvents', function() {
 
             toggleAllRevisions: "toggle-all-revisions-EVT",
 
-            toggleJobs: "toggle-jobs-EVT",
-
-            toggleAllJobs: "toggle-all-jobs-EVT",
-
             toggleUnclassifiedFailures: "toggle-unclassified-failures-EVT",
 
             selectNextUnclassifiedFailure: "next-unclassified-failure-EVT",

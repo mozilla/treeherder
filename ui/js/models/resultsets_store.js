@@ -226,8 +226,7 @@ treeherder.factory('ThResultSetStore', [
         }
     };
 
-    var getAllShownJobs = function(repoName, spaceRemaining, maxSize, resultsetId,
-                                   resultStatusFilters) {
+    var getAllShownJobs = function(repoName, spaceRemaining, maxSize, resultsetId) {
         var shownJobs = [];
 
         var addIfShown = function(jMap) {
@@ -862,7 +861,7 @@ treeherder.factory('ThResultSetStore', [
     var getLastModifiedJob = function(jobList){
         if(jobList.length > 0){
             var sortedJobs = _.sortBy(jobList, 'last_modified');
-            return sortedJobs[sortedJobs.length-1]
+            return sortedJobs[sortedJobs.length-1];
         }
         return null;
     };

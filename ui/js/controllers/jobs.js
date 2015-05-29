@@ -78,13 +78,6 @@ treeherderApp.controller('JobsCtrl', [
         }
 
         $rootScope.$on(
-            thEvents.toggleAllJobs, function(ev, expand){
-                _.forEach($scope.result_sets, function(rs) {
-                    $rootScope.$emit(thEvents.toggleJobs, rs, expand);
-                });
-            });
-
-        $rootScope.$on(
             thEvents.toggleAllRevisions, function(ev, expand){
                 _.forEach($scope.result_sets, function(rs) {
                     $rootScope.$emit(thEvents.toggleRevisions, rs, expand);
@@ -168,13 +161,6 @@ treeherderApp.controller('ResultSetCtrl', [
                 );
 
         };
-        $scope.toggleJobs = function() {
-
-            $rootScope.$emit(
-                thEvents.toggleJobs, $scope.resultset
-                );
-
-        };
 
         /**
          * Pin all jobs that pass the global filters.
@@ -192,8 +178,7 @@ treeherderApp.controller('ResultSetCtrl', [
                 $rootScope.repoName,
                 thPinboard.spaceRemaining(),
                 thPinboard.maxNumPinned,
-                $scope.resultset.id,
-                $scope.resultStatusFilters
+                $scope.resultset.id
             );
             thPinboard.pinJobs(shownJobs);
 
@@ -201,14 +186,6 @@ treeherderApp.controller('ResultSetCtrl', [
                 $scope.viewJob(shownJobs[0]);
             }
 
-        };
-
-        /**
-         * Whether or not a job should be shown based on the global filters.
-         * @param job
-         */
-        $scope.showJob = function(job) {
-            return thJobFilters.showJob(job, $scope.resultStatusFilters);
         };
 
         $scope.cancelAllJobs = function(revision) {
@@ -236,8 +213,6 @@ treeherderApp.controller('ResultSetCtrl', [
         $scope.authorResultsetFilterUrl = $scope.urlBasePath + "?repo=" +
                                           $scope.repoName + "&author=" +
                                           encodeURIComponent($scope.resultset.author);
-
-        $scope.resultStatusFilters = thJobFilters.getResultStatusArray();
 
         $rootScope.$on(thEvents.jobContextMenu, function(event, job){
             $log.debug("caught", thEvents.jobContextMenu);
