@@ -201,7 +201,7 @@ treeherder.directive('thCloneJobs', [
     };
 
     var addJobBtnEls = function(
-        jgObj, jobBtnInterpolator, jobTdEl, resultStatusFilters){
+        jgObj, jobBtnInterpolator, jobTdEl){
 
         var jobsShown = 0;
 
@@ -224,7 +224,7 @@ treeherder.directive('thCloneJobs', [
 
             //Make sure that filtering doesn't effect the resultset counts
             //displayed
-            if(thJobFilters.showJob(job, resultStatusFilters) === false){
+            if(thJobFilters.showJob(job) === false){
                 //Keep track of visibility with this property. This
                 //way down stream job consumers don't need to repeatedly
                 //call showJob
@@ -426,7 +426,7 @@ treeherder.directive('thCloneJobs', [
     };
 
     var renderJobTableRow = function(
-        row, jobTdEl, jobGroups, resultStatusFilters, resultsetId,
+        row, jobTdEl, jobGroups, resultsetId,
         platformKey){
 
         //Empty the job column before populating it
@@ -448,16 +448,14 @@ treeherder.directive('thCloneJobs', [
 
                 // Add the job btn spans
                 jobsShown = addJobBtnEls(
-                    jgObj, jobBtnInterpolator, jobGroup.find(".job-group-list"),
-                    resultStatusFilters
-                    );
+                    jgObj, jobBtnInterpolator, jobGroup.find(".job-group-list"));
                 jobGroup.css("display", jobsShown? "inline": "none");
 
             }else{
 
                 // Add the job btn spans
                 jobsShown = addJobBtnEls(
-                    jgObj, jobBtnInterpolator, jobTdEl, resultStatusFilters);
+                    jgObj, jobBtnInterpolator, jobTdEl);
 
             }
         }
@@ -465,8 +463,8 @@ treeherder.directive('thCloneJobs', [
         filterPlatform(row);
     };
 
-    var filterJobs = function(element, resultStatusFilters){
-        $log.debug("filterJobs", element, resultStatusFilters);
+    var filterJobs = function(element){
+        $log.debug("filterJobs", element);
 
         if(this.resultset.platforms === undefined){
             return;
@@ -480,7 +478,7 @@ treeherder.directive('thCloneJobs', [
             // so just using raw JS for speed.
             jmKey = this.dataset.jmkey;
             job = jobMap[jmKey].job_obj;
-            show = thJobFilters.showJob(job, resultStatusFilters);
+            show = thJobFilters.showJob(job);
             job.visible = show;
 
             showHideJob($(this), show);
@@ -607,7 +605,7 @@ treeherder.directive('thCloneJobs', [
                 jobTdEl = $( thCloneHtml.get('jobTdClone').text );
 
                 renderJobTableRow(
-                    rowEl, jobTdEl, value.jobGroups, this.resultStatusFilters,
+                    rowEl, jobTdEl, value.jobGroups,
                     value.resultsetId, platformKey, true
                     );
 
@@ -621,7 +619,7 @@ treeherder.directive('thCloneJobs', [
                 jobTdEl = $(tdEls[1]);
 
                 renderJobTableRow(
-                    $(rowEl), jobTdEl, value.jobGroups, this.resultStatusFilters,
+                    $(rowEl), jobTdEl, value.jobGroups,
                     value.resultsetId, platformKey, true
                     );
             }
@@ -792,14 +790,12 @@ treeherder.directive('thCloneJobs', [
 
         $rootScope.$on(
             thEvents.globalFilterChanged, function(ev, filterData){
-                scope.resultStatusFilters = thJobFilters.getResultStatusArray();
-                _.bind(filterJobs, scope, element, scope.resultStatusFilters)();
+                _.bind(filterJobs, scope, element)();
             });
 
         $rootScope.$on(
             thEvents.searchPage, function(ev, searchData){
-                scope.resultStatusFilters = thJobFilters.getResultStatusArray();
-                _.bind(filterJobs, scope, element, scope.resultStatusFilters)();
+                _.bind(filterJobs, scope, element)();
             });
 
         $rootScope.$on(
@@ -848,14 +844,13 @@ treeherder.directive('thCloneJobs', [
                     _.defer(
                         generateJobElements,
                         resultsetAggregateId,
-                        rsMap[resultSetId].rs_obj,
-                        scope.resultStatusFilters);
+                        rsMap[resultSetId].rs_obj);
                 }
             });
     };
 
     var generateJobElements = function(
-        resultsetAggregateId, resultset, resultStatusFilters){
+        resultsetAggregateId, resultset){
 
         var tableEl = $('#' + resultsetAggregateId);
 
@@ -911,7 +906,7 @@ treeherder.directive('thCloneJobs', [
 
             renderJobTableRow(
                 row, jobTdEl, resultset.platforms[j].groups,
-                resultStatusFilters, resultset.id,
+                resultset.id,
                 platformKey, true
                 );
 
@@ -944,8 +939,7 @@ treeherder.directive('thCloneJobs', [
 
         if(scope.resultset.platforms !== undefined){
             generateJobElements(
-                resultsetAggregateId, scope.resultset, scope.resultStatusFilters
-                );
+                resultsetAggregateId, scope.resultset);
         }else{
             // Hide the job wait span, resultset has no jobs
             var tableEl = $('#' + resultsetAggregateId);

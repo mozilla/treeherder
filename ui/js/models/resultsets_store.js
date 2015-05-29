@@ -227,8 +227,7 @@ treeherder.factory('ThResultSetStore', [
         }
     };
 
-    var getAllShownJobs = function(repoName, spaceRemaining, maxSize, resultsetId,
-                                   resultStatusFilters) {
+    var getAllShownJobs = function(repoName, spaceRemaining, maxSize, resultsetId) {
         var shownJobs = [];
 
         var addIfShown = function(jMap) {

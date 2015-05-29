@@ -184,32 +184,17 @@ treeherder.factory('thJobFilters', [
      * filters.
      *
      * @param job - the job we are checking against the filters
-     * @param resultStatusList - optional.  Overrides the ``resultStatus``
-     *        values specified in the URL or defaults.  This is for the
-     *        per-resultset toggling.
      */
-    var showJob = function(job, resultStatusList) {
+    var showJob = function(job) {
 
         // test against resultStatus, classifiedState and field filters
-        if (!_checkResultStatusFilters(job, resultStatusList)) {
+        if (!_.contains(cachedResultStatusFilters, thResultStatus(job))) {
             return false;
         }
         if (!_checkClassifiedStateFilters(job)) {
             return false;
         }
-        if (!_checkFieldFilters(job)) {
-            return false;
-        }
-        return true;
-    };
-
-    /**
-     * If a custom resultStatusList is passed in (like for individual
-     * resultSets, then use that.  Otherwise, fall back to the global one.
-     */
-    var _checkResultStatusFilters = function(job, resultStatusList) {
-        var filters = resultStatusList || cachedResultStatusFilters;
-        return _.contains(filters, thResultStatus(job));
+        return _checkFieldFilters(job);
     };
 
     var _checkClassifiedStateFilters = function(job) {
