@@ -148,7 +148,7 @@ class PerformanceDataAdapter(object):
         return series_data
 
     @staticmethod
-    def _get_series_signature(signature_properties):
+    def get_series_signature(signature_properties):
         signature_prop_values = signature_properties.keys()
         signature_prop_values.extend(signature_properties.values())
 
@@ -184,6 +184,10 @@ class PerformanceDataAdapter(object):
 
 
 class TalosDataAdapter(PerformanceDataAdapter):
+
+    # keys useful for creating a non-redundant performance signature
+    SIGNIFICANT_REFERENCE_DATA_KEYS = ['option_collection_hash',
+                                       'machine_platform']
 
     def __init__(self):
 
@@ -221,7 +225,30 @@ class TalosDataAdapter(PerformanceDataAdapter):
 
         return obj
 
+    @staticmethod
+    def _transform_signature_properties(properties, significant_keys=None):
+        if significant_keys is None:
+            significant_keys = TalosDataAdapter.SIGNIFICANT_REFERENCE_DATA_KEYS
+        transformed_properties = {}
+        keys = properties.keys()
+        for k in keys:
+            if k in significant_keys:
+                transformed_properties[k] = properties[k]
+
+        # HACK: determine if e10s is in job_group_symbol, and add an "e10s"
+        # property to a 'test_options' property if so (we should probably
+        # make talos produce this information somehow and consume it in the
+        # future)
+        if 'e10s' in properties.get('job_group_symbol', ''):
+            transformed_properties['test_options'] = json.dumps(['e10s'])
+
+        return transformed_properties
+
     def adapt_and_load(self, reference_data, job_data, datum):
+        # transform the reference data so it only contains what we actually
+        # care about
+        reference_data = self._transform_signature_properties(reference_data)
+
         # Get just the talos datazilla structure for treeherder
         target_datum = json.loads(datum['blob'])
         for talos_datum in target_datum['talos_data']:
@@ -247,7 +274,7 @@ class TalosDataAdapter(PerformanceDataAdapter):
                     }
                     signature_properties.update(reference_data)
 
-                    series_signature = self._get_series_signature(
+                    series_signature = self.get_series_signature(
                         signature_properties)
 
                     series_data = {
@@ -296,7 +323,7 @@ class TalosDataAdapter(PerformanceDataAdapter):
                 }
                 signature_properties.update(reference_data)
 
-                series_signature = self._get_series_signature(
+                series_signature = self.get_series_signature(
                     signature_properties)
                 subtest_signatures.append(series_signature)
 
@@ -322,10 +349,10 @@ class TalosDataAdapter(PerformanceDataAdapter):
                 # summary series
                 summary_properties = {
                     'suite': _suite,
-                    'subtest_signatures': json.dumps(subtest_signatures)
+                    'subtest_signatures': json.dumps(sorted(subtest_signatures))
                 }
                 summary_properties.update(reference_data)
-                summary_signature = self._get_series_signature(
+                summary_signature = self.get_series_signature(
                     summary_properties)
 
                 summary_data = self._calculate_summary_data(
@@ -341,16 +368,6 @@ class TalosDataAdapter(PerformanceDataAdapter):
                 self._add_performance_artifact(job_id, summary_signature,
                                                summary_properties, obj,
                                                _name, 'summary', summary_data)
-
-    def get_series_signature(self, signature_values):
-
-        sha = sha1()
-
-        sha.update(''.join(map(lambda x: str(x), sorted(signature_values))))
-
-        signature = sha.hexdigest()
-
-        return signature
 
     def submit_tasks(self, project):
 

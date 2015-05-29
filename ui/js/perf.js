@@ -9,9 +9,7 @@ var perf = angular.module("perf", ['ui.router', 'ui.bootstrap', 'treeherder']);
 perf.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thServiceDomain) {
 
   var _getSeriesSummary = function(signature, signatureProps, optionCollectionMap) {
-      var platform = signatureProps.machine_platform + " " +
-        signatureProps.machine_architecture;
-      var e10s = (signatureProps.job_group_symbol === "T-e10s");
+      var platform = signatureProps.machine_platform;
       var testName = signatureProps.test;
       var subtestSignatures;
       if (testName === undefined) {
@@ -20,8 +18,8 @@ perf.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thServiceD
       }
       var name = signatureProps.suite + " " + testName;
       var options = [ optionCollectionMap[signatureProps.option_collection_hash] ];
-      if (e10s) {
-        options.push("e10s");
+      if (signatureProps.test_options) {
+        options = options.concat(signatureProps.test_options);
       }
       name = name + " " + options.join(" ");
 

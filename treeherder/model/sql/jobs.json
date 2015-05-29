@@ -8,6 +8,14 @@
             "sql":"DELETE FROM job_note WHERE id = ?",
             "host_type": "master_host"
         },
+        "delete_series_signature": {
+          "sql": "DELETE FROM series_signature WHERE signature = ?",
+          "host_type": "master_host"
+        },
+        "delete_performance_series": {
+          "sql": "DELETE FROM performance_series WHERE series_signature = ?",
+          "host_type": "master_host"
+        },
         "cycle_job_artifact":{
 
             "sql":"DELETE FROM job_artifact WHERE job_id IN (REP0)",
