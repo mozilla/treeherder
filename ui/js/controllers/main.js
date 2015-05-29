@@ -314,10 +314,20 @@ treeherderApp.controller('MainCtrl', [
             );
         };
 
+        $scope.setLocationSearchParam = function(param, value) {
+            $location.search(param, value);
+        };
+
         $scope.cachedReloadTriggerParams = getNewReloadTriggerParams();
 
         // reload the page if certain params were changed in the URL.  For
         // others, such as filtering, just re-filter without reload.
+
+        // the param ``skipNextPageReload`` will cause a single run through
+        // this code to skip the page reloading even on a param that would
+        // otherwise trigger a page reload.  This is useful for a param that
+        // is being changed by code in a specific situation as opposed to when
+        // the user manually edits the URL location bar.
         $rootScope.$on('$locationChangeSuccess', function() {
 
             // used to test for display of watched-repo-navbar
@@ -333,12 +343,15 @@ treeherderApp.controller('MainCtrl', [
                              !$scope.cachedReloadTriggerParams.repo;
 
             if (!defaulting && $scope.cachedReloadTriggerParams &&
-                !_.isEqual(newReloadTriggerParams, $scope.cachedReloadTriggerParams)) {
+                !_.isEqual(newReloadTriggerParams, $scope.cachedReloadTriggerParams) &&
+                !$rootScope.skipNextPageReload) {
 
                 $window.location.reload();
             } else {
                 $scope.cachedReloadTriggerParams = newReloadTriggerParams;
             }
+            $rootScope.skipNextPageReload = false;
+
         });
 
         $scope.changeRepo = function(repo_name) {
