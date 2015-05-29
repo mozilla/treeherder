@@ -136,6 +136,11 @@ class JobsModel(TreeherderModelBase):
         "jobs.deletes.cycle_result_set"
     ]
 
+    PERFORMANCE_SERIES_JSON_KEYS = [
+        "subtest_signatures",
+        "test_options"
+    ]
+
     @classmethod
     def create(cls, project, host=None, read_only_host=None):
         """
@@ -418,7 +423,7 @@ class JobsModel(TreeherderModelBase):
             series_summary = defaultdict(dict)
             for datum in data:
                 key, val = datum['property'], datum['value']
-                if key == 'subtest_signatures':
+                if key in self.PERFORMANCE_SERIES_JSON_KEYS:
                     val = json.loads(val)
                 series_summary[datum['signature']][key] = val
 
@@ -1995,14 +2000,14 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 sigdict[signature] = {}
 
             (key, val) = (property['property'], property['value'])
-            if key == 'subtest_signatures':
+            if key in self.PERFORMANCE_SERIES_JSON_KEYS:
                 val = json.loads(val)
 
             sigdict[signature][key] = val
 
         ret = []
         for signature in signatures:
-            if not sigdict[signature]:
+            if not sigdict.get(signature):
                 return ObjectNotFoundException("signature", id=signature)
             ret.append(sigdict[signature])
 
