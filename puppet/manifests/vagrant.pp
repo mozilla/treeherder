@@ -28,11 +28,8 @@ $RABBITMQ_USER = 'guest'
 $RABBITMQ_PASSWORD = 'guest'
 $RABBITMQ_VHOST = '/'
 
-# We need to force output on_failure, since we're using Puppet 2.x which
-# does not have the fix for https://projects.puppetlabs.com/issues/10907
 Exec {
     path => "/usr/local/bin:/usr/bin:/usr/sbin:/sbin:/bin",
-    logoutput => on_failure,
 }
 
 line {"etc-hosts":
