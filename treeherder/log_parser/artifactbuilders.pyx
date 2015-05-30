@@ -16,6 +16,7 @@ from .parsers import (TinderboxPrintParser,
 
 logger = logging.getLogger(__name__)
 
+
 class ArtifactBuilderBase(object):
     """
     Base class for all Buildbot log parsers.
@@ -96,6 +97,7 @@ class BuildbotLogViewArtifactBuilder(ArtifactBuilderBase):
         ]
         self.name = "text_log_summary"
 
+
 class BuildbotPerformanceDataArtifactBuilder(ArtifactBuilderBase):
     """Makes the artifact for performance data."""
 
@@ -106,6 +108,7 @@ class BuildbotPerformanceDataArtifactBuilder(ArtifactBuilderBase):
             TalosParser()
         ]
         self.name = "talos_data"
+
 
 class MozlogArtifactBuilder(ArtifactBuilderBase):
     """Extracts a summary artifact from a Mozlog log"""
@@ -123,13 +126,12 @@ class MozlogArtifactBuilder(ArtifactBuilderBase):
         def is_fault(self, message):
             try:
                 return any(["level" in message and
-                    message["level"] in ("ERROR", "WARNING", "CRITICAL"),
-                    "expected" in message,
-                    message["action"] == "crash"])
+                            message["level"] in ("ERROR", "WARNING", "CRITICAL"),
+                            "expected" in message,
+                            message["action"] == "crash"])
             except:
                 logger.warning("SummaryHandler line exception {0}".format(message))
                 return False
-
 
         def __call__(self, data):
             self.serial += 1
@@ -149,7 +151,6 @@ class MozlogArtifactBuilder(ArtifactBuilderBase):
                url,
                timeout=settings.TREEHERDER_REQUESTS_TIMEOUT
         ).content))
-
 
     def parse_log(self):
         """

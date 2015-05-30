@@ -122,7 +122,7 @@ BuildbotPerformanceDataArtifactBuilder
             # interesting write-up here:
             # http://www.enricozini.org/2011/cazzeggio/python-gzip/
 
-            GZIP_WINDOW_SIZE = 16 + zlib.MAX_WBITS # zlib window size for gzip
+            GZIP_WINDOW_SIZE = 16 + zlib.MAX_WBITS  # zlib window size for gzip
             zipobj = zlib.decompressobj(GZIP_WINDOW_SIZE)
             with closing(io.BytesIO()) as f:
                 readpos = 0
