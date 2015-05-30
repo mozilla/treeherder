@@ -34,12 +34,12 @@ class apache {
   file { "${apache_vhost_path}/treeherder.conf":
     content => template("${PROJ_DIR}/puppet/files/apache/treeherder.conf"),
     owner => "root", group => "root", mode => 0644,
-    require => [Package[$apache_devel]],
+    require => Package[$apache_service],
     notify => Service[$apache_service],
   }
 
   exec { "sed -i '/[: ]80$/ s/80/8080/' ${apache_port_definition_file}":
-    require => [Package[$apache_devel]],
+    require => Package[$apache_service],
     before => [
       Service[$apache_service]
     ]
@@ -58,16 +58,16 @@ class apache {
     exec {
       'a2enmod rewrite':
         onlyif => 'test ! -e /etc/apache2/mods-enabled/rewrite.load',
+        require => Package[$apache_service],
         before => Service[$apache_service];
       'a2enmod proxy':
         onlyif => 'test ! -e /etc/apache2/mods-enabled/proxy.load',
+        require => Package[$apache_service],
         before => Service[$apache_service];
       'a2enmod proxy_http':
         onlyif => 'test ! -e /etc/apache2/mods-enabled/proxy_http.load',
+        require => Package[$apache_service],
         before => Service[$apache_service];
     }
-
-
-
   }
 }
