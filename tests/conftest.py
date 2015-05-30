@@ -114,8 +114,6 @@ def increment_cache_key_prefix():
 
 @pytest.fixture()
 def initial_data():
-    from django.core.management import call_command
-
     call_command('load_initial_data')
 
 
@@ -250,8 +248,6 @@ def mock_get_resultset(monkeypatch, result_set_stored):
 @pytest.fixture(scope='function')
 def refdata(request):
     """returns a patched RefDataManager for testing purpose"""
-
-    import os
     from treeherder.model.derived import RefDataManager
     from tests.conftest import add_test_procs_file
 
