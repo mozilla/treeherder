@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-test-warnings: true
+test-warnings: false
 strictness: medium
 max-line-length: 140
 uses:
@@ -10,7 +10,13 @@ uses:
   - celery
 requirements:
   - requirements/common.txt
+  - requirements/prod.txt
   - requirements/dev.txt
+ignore-paths:
+  - .git
+  - bin/peep.py
+  - deployment/update/update.py
+  - docs
 # We run flake8 (pep8 + pyflakes) as part of the Travis run,
 # so it's unnecessary to run them again here.
 pep8:
