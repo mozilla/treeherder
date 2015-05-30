@@ -26,7 +26,6 @@ class python {
   package{["python2.7",
            $python_devel,
            "gcc",
-           "curl",
            "git",
            $libxml2]:
     ensure => "latest",
@@ -38,7 +37,6 @@ class python {
     command => "curl https://bootstrap.pypa.io/get-pip.py | sudo python -",
     creates => "/usr/local/bin/pip",
     require => [
-      Package[curl],
       Package[$python_devel],
     ],
   }
