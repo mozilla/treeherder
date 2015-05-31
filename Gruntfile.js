@@ -10,7 +10,10 @@ module.exports = function(grunt) {
 
         pkg: grunt.file.readJSON('package.json'),
 
-        clean: ['dist/'],
+        clean: {
+            dist: ['dist/'],
+            tmp: ['.tmp/']
+        },
 
         htmlangular: {
             options: {
@@ -232,7 +235,7 @@ module.exports = function(grunt) {
 
     // Default tasks
     grunt.registerTask('build', [
-        'clean',
+        'clean:dist',
         'copy:main',
         'copy:img',
         'copy:fonts',
@@ -242,6 +245,7 @@ module.exports = function(grunt) {
         'uglify',
         'usemin',
         'ngtemplates',
-        'cache-busting'
+        'cache-busting',
+        'clean:tmp'
         ]);
 };
