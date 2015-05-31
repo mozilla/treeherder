@@ -8,7 +8,9 @@ var treeherderApp = angular.module('treeherder.app',
                                    ['treeherder', 'ui.bootstrap', 'ngRoute',
                                     'mc.resizer']);
 
-treeherderApp.config(function($routeProvider, $httpProvider, $logProvider) {
+treeherderApp.config(function($compileProvider, $routeProvider, $httpProvider, $logProvider) {
+    // Disable debug data, as recommended by https://docs.angularjs.org/guide/production
+    $compileProvider.debugInfoEnabled(false);
 
     // enable or disable debug messages using $log.
     // comment out the next line to enable them

@@ -4,7 +4,10 @@
 
 "use strict";
 
-perf.config(function($stateProvider, $urlRouterProvider) {
+perf.config(function($compileProvider, $stateProvider, $urlRouterProvider) {
+  // Disable debug data, as recommended by https://docs.angularjs.org/guide/production
+  $compileProvider.debugInfoEnabled(false);
+
   $urlRouterProvider.deferIntercept(); // so we don't reload on url change
 
   $stateProvider.state('graphs', {
