@@ -671,6 +671,10 @@ class TreeherderClient(object):
 
     UPDATE_ENDPOINT = 'job-log-url/{}/update_parse_status'
 
+    RESULTSET_ENDPOINT = 'resultset'
+
+    JOBS_ENDPOINT = 'jobs'
+
     def __init__(
             self, protocol='https', host='treeherder.mozilla.org',
             timeout=120):
@@ -726,6 +730,28 @@ class TreeherderClient(object):
                              headers={'Content-Type': 'application/json'},
                              timeout=timeout)
         resp.raise_for_status()
+
+    def get_resultsets(self, project, **params):
+        """
+        Gets resultsets from project, filtered by parameters
+
+        By default this method will just return the latest 10 result sets (if they exist)
+
+        :param project: project (repository name) to query data for
+        :param params: keyword arguments to filter results
+        """
+        response = self._get_json(project, self.RESULTSET_ENDPOINT, None, **params)
+        return response["results"]
+
+    def get_jobs(self, project, **params):
+        """
+        Gets jobs from project, filtered by parameters
+
+        :param project: project (repository name) to query data for
+        :param params: keyword arguments to filter results
+        """
+        response = self._get_json(project, self.JOBS_ENDPOINT, None, **params)
+        return response["results"]
 
     def post_collection(self, project, oauth_key, oauth_secret,
                         collection_inst, timeout=None):
