@@ -178,8 +178,7 @@ logViewerApp.controller('LogviewerCtrl', [
 
                             // Used with ng-bind to avoid template flicker
                             $scope.getLogviewerTitle = function() {
-                                var ahb = $scope.artifact.header.builder
-                                return "Log viewer - " + ahb;
+                                return "Log for " + $scope.artifact.header.builder;
                             };
                         }
                     });
