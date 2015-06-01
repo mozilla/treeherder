@@ -51,7 +51,7 @@ class python {
 
   exec {
     "create-virtualenv":
-    cwd => "/home/${APP_USER}",
+    cwd => "${HOME_DIR}",
     user => "${APP_USER}",
     command => "virtualenv ${VENV_DIR}",
     creates => "${VENV_DIR}",
@@ -59,8 +59,8 @@ class python {
   }
 
   exec {"activate-venv-on-login":
-    unless => "cat /home/${APP_USER}/.bashrc | grep 'source venv/bin/activate'",
-    command => "echo 'source venv/bin/activate' >> /home/${APP_USER}/.bashrc",
+    unless => "grep 'source venv/bin/activate' ${HOME_DIR}/.bashrc",
+    command => "echo 'source venv/bin/activate' >> ${HOME_DIR}/.bashrc",
     require => Exec["create-virtualenv"],
     user => "${APP_USER}",
   }
