@@ -62,14 +62,6 @@ Setting up Vagrant
 
      (venv)vagrant@precise32:~$ cd treeherder
 
-* Build the log parser Cython files, since they are required for both running the tests and a local Treeherder instance
-
-  .. code-block:: bash
-
-     (venv)vagrant@local:~/treeherder$ ./setup.py build_ext --inplace
-
-  NB: If you change something in the treeherder/log_parser folder, remember to repeat this step, otherwise the changes will not take effect.
-
 * If you just wish to :ref:`run the tests <running-tests>`, you can stop now without performing the remaining steps below.
 
 Setting up a local Treeherder instance
