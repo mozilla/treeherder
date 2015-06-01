@@ -120,6 +120,11 @@ Viewing the local server
 
 * Visit http://local.treeherder.mozilla.org in your browser. Note: There will be no data to display until the ingestion tasks are run.
 
+Serving the UI build from the dist directory (optional)
+-------------------------------------------------------
+
+You can optionally serve the UI from the distribution directory during development. This concatenates and minifies the js and css and moves all required assets to a directory in the project root called ``dist``. To do this, please see the :ref:`Deployment <deployment>` documentation.
+
 Running the ingestion tasks
 ---------------------------
 

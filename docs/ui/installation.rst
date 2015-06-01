@@ -41,7 +41,7 @@ If you wish to run the full treeherder Vagrant project (service + UI), remember 
 Running the unit tests
 ======================
 
-The unit tests run with Karma: http://karma-runner.github.io/0.8/config/configuration-file.html
+To locally validate your changes, the unit tests for the UI are run with Karma: http://karma-runner.github.io/0.8/config/configuration-file.html
 
 Requirements
 ------------
@@ -50,24 +50,13 @@ Requirements
 
 Execution::
 
-First run ``npm install`` at the root to install local dependencies
-(if you haven't already done so). To avoid a bunch of path mangling,
-you also want to install karma-cli globally (``sudo npm install -g karma-cli``).
+If you haven't already done so, run ``npm install`` at the project root to install local dependencies. To avoid a bunch of path mangling, you also want to install karma-cli globally by running ``sudo npm install -g karma-cli``.
 
 Once that's done, you can just run this shell script to execute the tests:
 
+.. code-block:: bash
+
     ./tests/ui/scripts/test.sh
-
-Build
-=====
-* Install grunt ``sudo npm install grunt-cli -g``
-* Install the ``devDependencies`` in ``package.json`` by running ``npm install`` from the project root
-* Run the following command in the repo root:
-
-Build::
-    grunt build
-
-This will create a ``dist`` directory in the repo root, where concatenated and minified js, css, and application assets can be served from.
 
 .. _treeherder repo: https://github.com/mozilla/treeherder
 .. _Node.js: http://nodejs.org/download/
