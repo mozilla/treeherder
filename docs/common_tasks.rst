@@ -27,21 +27,21 @@ Running the tests
 
   .. code-block:: bash
 
-     (venv)vagrant@precise32:~/treeherder$ ./runtests.sh
+     (venv)vagrant@local:~/treeherder$ ./runtests.sh
 
 * Or for more control, run py.test directly
 
   .. code-block:: bash
 
-     (venv)vagrant@precise32:~/treeherder$ py.test tests/
-     (venv)vagrant@precise32:~/treeherder$ py.test tests/log_parser/test_utils.py
-     (venv)vagrant@precise32:~/treeherder$ py.test tests/etl/test_buildapi.py -k test_ingest_builds4h_jobs
+     (venv)vagrant@local:~/treeherder$ py.test tests/
+     (venv)vagrant@local:~/treeherder$ py.test tests/log_parser/test_utils.py
+     (venv)vagrant@local:~/treeherder$ py.test tests/etl/test_buildapi.py -k test_ingest_builds4h_jobs
 
 * To run all tests, including slow tests that are normally skipped, use
 
   .. code-block:: bash
 
-     (venv)vagrant@precise32:~/treeherder$ py.test --runslow tests/
+     (venv)vagrant@local:~/treeherder$ py.test --runslow tests/
 
 * For more options, see ``py.test --help`` or http://pytest.org/latest/usage.html
 
@@ -49,7 +49,7 @@ Running the tests
 
   .. code-block:: bash
 
-     (venv)vagrant@precise32:~/treeherder$ flake8
+     (venv)vagrant@local:~/treeherder$ flake8
 
 
 Look up credentials for a project
@@ -63,7 +63,7 @@ source projects. This is part of the usual Treeherder setup process.
 
   .. code-block:: bash
 
-      (venv)vagrant@precise32:~/treeherder$ ./manage.py export_project_credentials
+      (venv)vagrant@local:~/treeherder$ ./manage.py export_project_credentials
 
 The above command writes all project credentials to
 ``treeherder/etl/data/credentials.json`` for use by the Treeherder service.
@@ -75,7 +75,7 @@ need with the ``--destination`` option:
 
   .. code-block:: bash
 
-      (venv)vagrant@precise32:~/treeherder$ ./manage.py export_project_credentials --destination /some/path
+      (venv)vagrant@local:~/treeherder$ ./manage.py export_project_credentials --destination /some/path
 
 Within Treeherder, you can look up the credentials for a project like
 ``mozilla-central`` as follows:

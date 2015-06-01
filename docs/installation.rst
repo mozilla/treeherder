@@ -66,7 +66,7 @@ Setting up Vagrant
 
   .. code-block:: bash
 
-     (venv)vagrant@precise32:~/treeherder$ ./setup.py build_ext --inplace
+     (venv)vagrant@local:~/treeherder$ ./setup.py build_ext --inplace
 
   NB: If you change something in the treeherder/log_parser folder, remember to repeat this step, otherwise the changes will not take effect.
 
@@ -79,19 +79,19 @@ Setting up a local Treeherder instance
 
   .. code-block:: bash
 
-     (venv)vagrant@precise32:~/treeherder$ ./manage.py init_master_db
+     (venv)vagrant@local:~/treeherder$ ./manage.py init_master_db
 
 * Populate the database with repository data sources
 
   .. code-block:: bash
 
-     (venv)vagrant@precise32:~/treeherder$ ./manage.py init_datasources
+     (venv)vagrant@local:~/treeherder$ ./manage.py init_datasources
 
 * Export oauth credentials for all data source projects
 
   .. code-block:: bash
 
-     (venv)vagrant@precise32:~/treeherder$ ./manage.py export_project_credentials
+     (venv)vagrant@local:~/treeherder$ ./manage.py export_project_credentials
 
 * And an entry to your **host** machine's /etc/hosts so that you can point your browser to local.treeherder.mozilla.org to reach it
 
@@ -106,7 +106,7 @@ Viewing the local server
 
   .. code-block:: bash
 
-     (venv)vagrant@precise32:~/treeherder$ ./bin/run_gunicorn
+     (venv)vagrant@local:~/treeherder$ ./bin/run_gunicorn
 
   all the request sent to local.treeherder.mozilla.org will be proxied to it by varnish/apache.
 
@@ -114,7 +114,7 @@ Viewing the local server
 
   .. code-block:: bash
 
-     (venv)vagrant@precise32:~/treeherder$ ./manage.py runserver
+     (venv)vagrant@local:~/treeherder$ ./manage.py runserver
 
   this is more convenient because it automatically refreshes every time there's a change in the code. However it can consume too much memory when under load (eg due to data ingestion), causing the OS to kill it.
 
@@ -131,7 +131,7 @@ Ingestion tasks populate the database with version control push logs, queued/run
 
   .. code-block:: bash
 
-     (venv)vagrant@precise32:~/treeherder$ celery -A treeherder worker -B
+     (venv)vagrant@local:~/treeherder$ celery -A treeherder worker -B
 
   The "-B" option tells the celery worker to startup a beat service, so that periodic tasks can be executed.
   You only need one worker with the beat service enabled. Multiple beat services will result in periodic tasks being executed multiple times.
@@ -147,7 +147,7 @@ the jobs associated with any single push generated in the last 4 hours
 
   .. code-block:: bash
 
-     (venv)vagrant@precise32:~/treeherder$ ./manage.py ingest_push mozilla-central 63f8a47cfdf5
+     (venv)vagrant@local:~/treeherder$ ./manage.py ingest_push mozilla-central 63f8a47cfdf5
 
 You can further restrict the amount of data to a specific type of job
 with the "--filter-job-group" parameter. For example, to process only
@@ -155,7 +155,7 @@ talos jobs for a particular push, try:
 
   .. code-block:: bash
 
-     (venv)vagrant@precise32:~/treeherder$ ./manage.py ingest_push --filter-job-group T mozilla-central 63f8a47cfdf
+     (venv)vagrant@local:~/treeherder$ ./manage.py ingest_push --filter-job-group T mozilla-central 63f8a47cfdf
 
 Note that some types of data (e.g. performance) are not processed immediately, and you
 will thus need to start a celery worker to handle them. You don't need
@@ -163,7 +163,7 @@ to enable the beat service for this though, so you can omit the "-B":
 
   .. code-block:: bash
 
-     (venv)vagrant@precise32:~/treeherder$ celery -A treeherder worker
+     (venv)vagrant@local:~/treeherder$ celery -A treeherder worker
 
 .. _treeherder repo: https://github.com/mozilla/treeherder
 .. _Vagrant: https://www.vagrantup.com
