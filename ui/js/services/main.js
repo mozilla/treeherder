@@ -124,8 +124,9 @@ treeherder.factory('BrowserId', [
             return browserid.info.then(function(response){
                 browserid.logoutDeferred = $q.defer();
                 navigator.id.logout();
+                var logoutUrl = thServiceDomain + response.data.logoutUrl;
                 return browserid.logoutDeferred.promise.then(function(){
-                    return $http.post(response.data.logoutUrl);
+                    return $http.post(logoutUrl);
                 })
             });
         },
@@ -148,8 +149,9 @@ treeherder.factory('BrowserId', [
         */
         verifyAssertion: function(assertion){
             return browserid.info.then(function(response){
+                var loginUrl = thServiceDomain + response.data.loginUrl;
                 return $http.post(
-                    response.data.loginUrl, {assertion: assertion},{
+                    loginUrl, {assertion: assertion},{
                         headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
                         transformRequest: browserid.transform_data
                     });

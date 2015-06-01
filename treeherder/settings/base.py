@@ -448,7 +448,9 @@ CELERY_IGNORE_RESULT = True
 
 API_HOSTNAME = SITE_URL
 
-BROWSERID_AUDIENCES = [SITE_URL]
+# The localhost entry is necessary so that people using web-server.js can
+# log in when the local UI is pointed at the stage/production service.
+BROWSERID_AUDIENCES = [SITE_URL, "http://localhost:8000"]
 
 SWAGGER_SETTINGS = {"enabled_methods": ['get', ]}
 
