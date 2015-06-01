@@ -1,6 +1,6 @@
 {
-  "name": "treeherder-ui",
-  "description": "The UI portion of Mozilla Treeherder",
+  "name": "treeherder",
+  "description": "Mozilla Treeherder reporting dashboard",
   "repository": {
     "type": "git",
     "url": "https://github.com/mozilla/treeherder.git"
