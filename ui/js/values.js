@@ -135,3 +135,13 @@ treeherder.value("phTimeRanges", [
       { "value":2592000, "text": "Last 30 days" },
       { "value":5184000, "text": "Last 60 days" },
       { "value":7776000, "text": "Last 90 days" } ]);
+
+treeherder.value("thJobNavSelectors",
+    {
+        ALL_JOBS: ".th-view-content .job-btn",
+        UNCLASSIFIED_FAILURES: ".selected-job, " +
+                               ".th-view-content .job-btn.btn-red, " +
+                               ".th-view-content .job-btn.btn-orange, " +
+                               ".th-view-content .job-btn.btn-purple"
+    }
+);

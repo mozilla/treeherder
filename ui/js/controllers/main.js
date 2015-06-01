@@ -9,13 +9,13 @@ treeherderApp.controller('MainCtrl', [
     'ThRepositoryModel', 'thPinboard',
     'thClassificationTypes', 'thEvents', '$interval', '$window',
     'ThExclusionProfileModel', 'thJobFilters', 'ThResultSetStore',
-    'thDefaultRepo',
+    'thDefaultRepo', 'thJobNavSelectors',
     function MainController(
         $scope, $rootScope, $routeParams, $location, ThLog,
         ThRepositoryModel, thPinboard,
         thClassificationTypes, thEvents, $interval, $window,
         ThExclusionProfileModel, thJobFilters, ThResultSetStore,
-        thDefaultRepo) {
+        thDefaultRepo, thJobNavSelectors) {
 
         var $log = new ThLog("MainCtrl");
 
@@ -102,22 +102,30 @@ treeherderApp.controller('MainCtrl', [
 
             // Shortcut: select previous job
             Mousetrap.bind('left', function() {
-                $rootScope.$emit(thEvents.changeSelection,'previous');
+                $rootScope.$emit(thEvents.changeSelection,
+                                 'previous',
+                                 thJobNavSelectors.ALL_JOBS);
             });
 
             // Shortcut: select next job
             Mousetrap.bind('right', function() {
-                $rootScope.$emit(thEvents.changeSelection,'next');
+                $rootScope.$emit(thEvents.changeSelection,
+                                 'next',
+                                 thJobNavSelectors.ALL_JOBS);
             });
 
             // Shortcut: select next unclassified failure
             Mousetrap.bind(['j', 'n'], function() {
-                $rootScope.$emit(thEvents.selectNextUnclassifiedFailure);
+                $rootScope.$emit(thEvents.changeSelection,
+                                 'next',
+                                 thJobNavSelectors.UNCLASSIFIED_FAILURES);
             });
 
             // Shortcut: select previous unclassified failure
             Mousetrap.bind(['k', 'p'], function() {
-                $rootScope.$emit(thEvents.selectPreviousUnclassifiedFailure);
+                $rootScope.$emit(thEvents.changeSelection,
+                                 'previous',
+                                 thJobNavSelectors.UNCLASSIFIED_FAILURES);
             });
 
             // Shortcut: retrigger selected job
