@@ -14,6 +14,12 @@ class treeherder {
         require => Package['memcached'],
     }
 
+    exec {"cd-treeherder-on-login":
+      unless => "grep 'cd ${PROJ_DIR}' ${HOME_DIR}/.bashrc",
+      command => "echo 'cd ${PROJ_DIR}' >> ${HOME_DIR}/.bashrc",
+      user => "${APP_USER}",
+    }
+
     exec{"build-extensions":
       command => "${VENV_DIR}/bin/python ${PROJ_DIR}/setup.py build_ext --inplace",
       user => "${APP_USER}",

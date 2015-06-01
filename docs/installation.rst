@@ -50,17 +50,13 @@ Setting up Vagrant
 
 * It will typically take 5 to 30 minutes for the vagrant up to complete, depending on your network performance.
 
-* Once the virtual machine is set up, in any shell, cd into your project root and log into it with
+* Once the virtual machine is set up, log into it with
 
   .. code-block:: bash
 
      >vagrant ssh
 
-* A python virtual environment will be activated on login, all that is left to do is cd into the project directory:
-
-  .. code-block:: bash
-
-     (venv)vagrant@precise32:~$ cd treeherder
+  A python virtual environment will be activated on login, and the working directory will be the treeherder source directory shared from the host machine.
 
 * If you just wish to :ref:`run the tests <running-tests>`, you can stop now without performing the remaining steps below.
 

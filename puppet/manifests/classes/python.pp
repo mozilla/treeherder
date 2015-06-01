@@ -59,8 +59,8 @@ class python {
   }
 
   exec {"activate-venv-on-login":
-    unless => "grep 'source venv/bin/activate' ${HOME_DIR}/.bashrc",
-    command => "echo 'source venv/bin/activate' >> ${HOME_DIR}/.bashrc",
+    unless => "grep 'source ${VENV_DIR}/bin/activate' ${HOME_DIR}/.bashrc",
+    command => "echo 'source ${VENV_DIR}/bin/activate' >> ${HOME_DIR}/.bashrc",
     require => Exec["create-virtualenv"],
     user => "${APP_USER}",
   }
