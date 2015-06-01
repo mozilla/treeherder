@@ -1,15 +1,20 @@
 Deployment
 ==========
 
-Serving the UI build from the distribution directory
-----------------------------------------------------
-To serve the UI from the ``dist`` directory, run:
+Serving the UI build from the dist directory
+--------------------------------------------
+This step required prior to deployment concatenates and minifies the js and css and moves all required assets to a directory in the project root called ``dist``. To do this, if you haven't already done so:
+
+* Install grunt globally by running as root ``npm install -g grunt-cli``
+* Install local dependencies by running as root ``npm install`` from the project root
+* Then run the following command:
 
 .. code-block:: bash
 
-  (venv)vagrant@precise32:~/treeherder$ grunt build
+    grunt build
 
-This will build the UI by concatenating and minifying the js and css and move all required assets to a directory called ``dist`` in the repository root. Then in ``Vagrantfile`` change ``serve_minified_ui`` to true:
+
+Then in ``Vagrantfile`` change ``serve_minified_ui`` to true:
 
 .. code-block:: ruby
 

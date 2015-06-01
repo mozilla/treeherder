@@ -1,3 +1,8 @@
+Requirements
+============
+
+* Node.js_
+
 Installation
 ============
 
@@ -8,11 +13,6 @@ Cloning the Repo
 ----------------
 
 * Clone the `treeherder repo`_ from Github.
-
-Requirements
-------------
-
-* Node.js_
 
 Running the web-server
 ----------------------
@@ -41,33 +41,16 @@ If you wish to run the full treeherder Vagrant project (service + UI), remember 
 Running the unit tests
 ======================
 
-The unit tests run with Karma: http://karma-runner.github.io/0.8/config/configuration-file.html
+The unit tests for the UI are run with Karma_. To do this, if you haven't already done so:
 
-Requirements
-------------
+* Install Karma globally by running as root ``npm install -g karma-cli``
+* Install local dependencies by running as root ``npm install`` from the project root
+* Then run the following command to execute the tests:
 
-* Node.js_
-
-Execution::
-
-First run ``npm install`` at the root to install local dependencies
-(if you haven't already done so). To avoid a bunch of path mangling,
-you also want to install karma-cli globally (``sudo npm install -g karma-cli``).
-
-Once that's done, you can just run this shell script to execute the tests:
+.. code-block:: bash
 
     ./tests/ui/scripts/test.sh
 
-Build
-=====
-* Install grunt ``sudo npm install grunt-cli -g``
-* Install the ``devDependencies`` in ``package.json`` by running ``npm install`` from the project root
-* Run the following command in the repo root:
-
-Build::
-    grunt build
-
-This will create a ``dist`` directory in the repo root, where concatenated and minified js, css, and application assets can be served from.
-
+.. _Karma: http://karma-runner.github.io/0.8/config/configuration-file.html
 .. _treeherder repo: https://github.com/mozilla/treeherder
 .. _Node.js: http://nodejs.org/download/
