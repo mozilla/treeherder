@@ -1617,7 +1617,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 # this job that corresponds to the buildbot_text log url.
                 # Therefore, the log does not need parsing.  So we should
                 # ensure that it's marked as already parsed.
-                if text_log_summary and name == 'builbot_text':
+                if text_log_summary and name == 'buildbot_text':
                     parse_status = 'parsed'
                 else:
                     # the parsing status of this log.  'pending' or 'parsed'

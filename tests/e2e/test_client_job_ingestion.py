@@ -100,7 +100,7 @@ def test_post_job_with_parsed_log(test_project, result_set_stored,
             'state': 'completed',
             'log_references': [{
                 'url': 'http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/...',
-                'name': 'builbot_text',
+                'name': 'buildbot_text',
                 'parse_status': 'parsed'
             }]
         }
@@ -142,7 +142,7 @@ def test_post_job_with_text_log_summary_artifact_parsed(
             'state': 'completed',
             'log_references': [{
                 'url': 'http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/...',
-                'name': 'builbot_text',
+                'name': 'buildbot_text',
                 'parse_status': 'parsed'
             }],
             'artifacts': [{
@@ -193,7 +193,7 @@ def test_post_job_with_text_log_summary_artifact_pending(
             'state': 'completed',
             'log_references': [{
                 'url': 'http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/...',
-                'name': 'builbot_text',
+                'name': 'buildbot_text',
                 'parse_status': 'pending'
             }],
             'artifacts': [{
@@ -247,7 +247,7 @@ def test_post_job_with_text_log_summary_and_bug_suggestions_artifact(
             'state': 'completed',
             'log_references': [{
                 'url': 'http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/...',
-                'name': 'builbot_text',
+                'name': 'buildbot_text',
                 'parse_status': 'parsed'
             }],
             'artifacts': [
