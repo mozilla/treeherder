@@ -428,7 +428,7 @@ perf.controller('GraphsCtrl', [
       $state.transitionTo('graphs', {
         timerange: $scope.myTimerange.value,
         series: $scope.seriesList.map(function(series) {
-               var returnSeries = "[" + series.projectName + "," + series.signature + "," + series.visible + "]"
+               var returnSeries = "[" + series.projectName + "," + series.signature + "," + ((series.visible == true)? 1:0) + "]"
           return returnSeries}),
         highlightedRevisions: _.filter($scope.highlightedRevisions,
                                        function(highlight) {
@@ -437,15 +437,17 @@ perf.controller('GraphsCtrl', [
                                        }),
         zoom: (function() {
           if ((typeof $scope.zoom.x != "undefined") 
-              && (typeof $scope.zoom.y != "undefined"))
+              && (typeof $scope.zoom.y != "undefined")
+              && ($scope.zoom.x != 0 && $scope.zoom.y != 0))
           {
             var modifiedZoom = ("[" + ($scope.zoom['x'].toString() 
-                    + ',' + $scope.zoom['y'].toString()) + "]").replace(/[\"]+/g, '');
+                    + ',' + $scope.zoom['y'].toString()) + "]").replace(/[\"\{\}]+/g, '');
             return modifiedZoom 
           }
           else 
           {
-            return $scope.zoom
+            $scope.zoom = [] 
+            return $scope.zoom 
           }
         })(),
       }, {location: true, inherit: true,
@@ -586,15 +588,15 @@ perf.controller('GraphsCtrl', [
         optionCollectionMap = _optionCollectionMap;
 
         if ($stateParams.zoom) {
-          var zoomString = decodeURIComponent($stateParams.zoom).replace(/[\[\]"]+/g, '')  
+          var zoomString = decodeURIComponent($stateParams.zoom).replace(/[\[\{\}\]"]+/g, '')  
           var zoomArray = zoomString.split(",")
           var zoomObject = {
             "x": zoomArray.slice(0,2),
             "y": zoomArray.slice(2,4)
           }
-          $scope.zoom = zoomObject
+          $scope.zoom = (zoomString)? zoomObject : []
         } else {
-          $scope.zoom = {};
+          $scope.zoom = [];
         }
 
         if ($stateParams.series) {
@@ -620,7 +622,7 @@ perf.controller('GraphsCtrl', [
             var partialSeriesObject = {
                 "project":  partialSeriesArray[0],
                 "signature":  partialSeriesArray[1],
-                "visible": (partialSeriesArray[2]) ? partialSeriesArray[2] : true 
+                "visible": (partialSeriesArray[2] == 0) ? false : true
             }
             return partialSeriesObject;
           });    
