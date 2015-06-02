@@ -28,11 +28,15 @@ treeherderApp.controller('JobsCtrl', [
             ThResultSetStore.fetchResultSets($scope.repoName, count, keepFilters).
                 then(function() {
 
-                    // since we fetched more resultsets, we need to persist the
-                    // resultset state in the URL.
-                    $rootScope.skipNextPageReload = true;
-                    var rsArray = ThResultSetStore.getResultSetsArray($scope.repoName);
-                    $location.search('fromchange', _.last(rsArray).revision);
+                     // since we fetched more resultsets, we need to persist the
+                     // resultset state in the URL.
+                     var rsArray = ThResultSetStore.getResultSetsArray($scope.repoName);
+                     var updatedLastRevision = _.last(rsArray).revision;
+                     if ($location.search().fromchange !== updatedLastRevision) {
+                        $rootScope.skipNextPageReload = true;
+                        $location.search('fromchange', updatedLastRevision);
+                     }
+
                 });
 
         };
