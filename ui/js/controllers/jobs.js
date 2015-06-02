@@ -28,17 +28,15 @@ treeherderApp.controller('JobsCtrl', [
             ThResultSetStore.fetchResultSets($scope.repoName, count, keepFilters).
                 then(function() {
 
-                     // since we fetched more resultsets, we need to persist the
-                     // resultset state in the URL.
-                     var rsArray = ThResultSetStore.getResultSetsArray($scope.repoName);
-                     var updatedLastRevision = _.last(rsArray).revision;
-                     if ($location.search().fromchange !== updatedLastRevision) {
+                    // since we fetched more resultsets, we need to persist the
+                    // resultset state in the URL.
+                    var rsArray = ThResultSetStore.getResultSetsArray($scope.repoName);
+                    var updatedLastRevision = _.last(rsArray).revision;
+                    if ($location.search().fromchange !== updatedLastRevision) {
                         $rootScope.skipNextPageReload = true;
                         $location.search('fromchange', updatedLastRevision);
-                     }
-
+                    }
                 });
-
         };
 
         // set to the default repo if one not specified
