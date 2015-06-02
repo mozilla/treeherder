@@ -30,11 +30,13 @@ treeherderApp.controller('JobsCtrl', [
 
                     // since we fetched more resultsets, we need to persist the
                     // resultset state in the URL.
-                    $rootScope.skipNextPageReload = true;
                     var rsArray = ThResultSetStore.getResultSetsArray($scope.repoName);
-                    $location.search('fromchange', _.last(rsArray).revision);
+                    var updatedLastRevision = _.last(rsArray).revision;
+                    if ($location.search().fromchange !== updatedLastRevision) {
+                        $rootScope.skipNextPageReload = true;
+                        $location.search('fromchange', updatedLastRevision);
+                    }
                 });
-
         };
 
         // set to the default repo if one not specified
