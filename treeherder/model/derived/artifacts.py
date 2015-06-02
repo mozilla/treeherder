@@ -371,7 +371,7 @@ class ArtifactsModel(TreeherderModelBase):
                 job_guid,
                 name,
                 artifact_type,
-                blob,
+                zlib.compress(blob),
                 job_guid,
                 name
             ])
