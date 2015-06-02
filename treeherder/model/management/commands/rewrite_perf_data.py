@@ -50,17 +50,16 @@ class Command(BaseCommand):
 
             # rewrite a new set of subtest signatures
             old_subtest_signatures = new_props['subtest_signatures']
-            new_subtest_signatures = []
+            new_subtest_signatures = set()
             for old_signature in old_subtest_signatures:
                 try:
-                    new_subtest_signatures.append(
+                    new_subtest_signatures.add(
                         subtest_signature_mapping[old_signature])
                 except:
                     # key may not exist if script interrupted, get
                     # suite signatures via extra_subtest_signatures
-                    pass
-            new_subtest_signatures += extra_subtest_signatures.get(
-                suitekey, [])
+                    for sig in extra_subtest_signatures.get(suitekey, []):
+                        new_subtest_signatures.add(sig)
             new_props['subtest_signatures'] = sorted(new_subtest_signatures)
         new_hash = TalosDataAdapter.get_series_signature(new_props)
         print "%s -> %s" % (signature_hash, new_hash)
@@ -92,8 +91,8 @@ class Command(BaseCommand):
             # first pass: rewrite non-summary tests
             for (signature_hash, signature_properties) in summary.iteritems():
                 if not set(signature_properties.keys()).issubset(
-                        self.SIGNIFICANT_KEYS) and not signature_properties.get(
-                            'subtest_signatures'):
+                        self.SIGNIFICANT_KEYS) and (
+                            'subtest_signatures' not in signature_properties):
                     new_hash = self._rewrite_series(jm, signature_hash,
                                                     signature_properties,
                                                     None, None)
