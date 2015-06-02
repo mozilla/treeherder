@@ -4,7 +4,6 @@
 
 import logging
 import simplejson as json
-import copy
 
 from collections import defaultdict
 from django.conf import settings
@@ -134,7 +133,6 @@ class Builds4hTransformerMixin(object):
             try:
                 prop = build['properties']
                 project = prop['branch']
-                artifact_build = copy.deepcopy(build)
                 resultset = common.get_resultset(project,
                                                  revisions_lookup,
                                                  prop['revision'],
@@ -194,27 +192,6 @@ class Builds4hTransformerMixin(object):
 
             treeherder_data['coalesced'] = job_guid_data['coalesced']
 
-            def prop_remove(field):
-                try:
-                    del(artifact_build['properties'][field])
-                except:
-                    pass
-
-            prop_remove("product")
-            prop_remove("project")
-            prop_remove("buildername")
-            prop_remove("slavename")
-            prop_remove("build_url")
-            prop_remove("log_url")
-            prop_remove("slavebuilddir")
-            prop_remove("branch")
-            prop_remove("repository")
-            prop_remove("revision")
-
-            del(artifact_build['requesttime'])
-            del(artifact_build['starttime'])
-            del(artifact_build['endtime'])
-
             job = {
                 'job_guid': job_guid_data['job_guid'],
                 'name': job_name_info.get('name', ''),
@@ -253,12 +230,6 @@ class Builds4hTransformerMixin(object):
                 },
                 'log_references': log_reference,
                 'artifacts': [
-                    {
-                        'type': 'json',
-                        'name': 'buildapi_complete',
-                        'log_urls': [],
-                        'blob': artifact_build
-                    },
                     {
                         'type': 'json',
                         'name': 'buildapi',
