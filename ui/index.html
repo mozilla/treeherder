@@ -56,6 +56,7 @@
         <script src="js/services/log.js"></script>
         <script src="js/providers.js"></script>
         <script src="js/values.js"></script>
+	<script src="js/tree_url_app.js"></script>
         <!-- Directives -->
         <script src="js/directives/main.js"></script>
         <script src="js/directives/clonejobs.js"></script>
@@ -96,6 +97,7 @@
         <script src="js/controllers/jobs.js"></script>
         <script src="js/controllers/machines.js"></script>
         <script src="js/controllers/timeline.js"></script>
+	<script src="js/controllers/tree_url_ctrl.js"></script>
         <!-- Plugins -->
         <script src="plugins/tabs.js"></script>
         <script src="plugins/controller.js"></script>
@@ -199,7 +201,7 @@
                     <tr>
                         <th class="small">Machine name</th>
                         <td class="small">
-                            <a target="_blank" href="https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name={{ job.machine_name }}">{{ job.machine_name }}</a>
+                            <a target="_blank" href="{{ machine_name_url }}">{{ job.machine_name }}</a>
                         </td>
                     </tr>
                     <tr ng-repeat="(label, value) in visibleFields"><th>{{label}}</th><td>{{ value }}</td></tr>

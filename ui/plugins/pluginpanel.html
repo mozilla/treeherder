@@ -113,7 +113,7 @@
           <span th-failure-classification failure-id="classifications[0].failure_classification_id"></span>
 
           <a target="_blank" ng-repeat="bug in bugs"
-             href="https://bugzilla.mozilla.org/show_bug.cgi?id={{bug.bug_id}}"
+             href="{{bug_id_url2}}"
              title="Bug {{bug.bug_id}}"><em> {{bug.bug_id}}</em></a>
         </li>
         <li ng-if="classifications[0].note.length > 0"><em>{{classifications[0].note}}</em></li>
@@ -161,7 +161,7 @@
           <span ng-switch on="job.machine_name">
             <span ng-switch-when='unknown'>{{job.machine_name}}</span>
             <a title="Open buildbot slave health report" target="_blank"
-               href="https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name={{job.machine_name}}"
+               href="{{machine_name_url}}"
                ng-switch-default>
                {{job.machine_name}}
             </a>
