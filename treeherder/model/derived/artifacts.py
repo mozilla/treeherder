@@ -364,7 +364,14 @@ class ArtifactsModel(TreeherderModelBase):
             artifact_type = artifact.get('type')
             blob = artifact.get('blob')
 
-            if name and artifact_type and blob:
-                artifact_placeholders.append(
-                    [job_guid, name, artifact_type, blob, job_guid, name]
-                )
+            if not (name and artifact_type and blob):
+                continue
+
+            artifact_placeholders.append([
+                job_guid,
+                name,
+                artifact_type,
+                blob,
+                job_guid,
+                name
+            ])
