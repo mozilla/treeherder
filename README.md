@@ -14,15 +14,17 @@ Treeherder exists on two instances, [stage](https://treeherder.allizom.org) for 
 
 
 #### Installation
-The steps to install treeherder are provided [here](https://treeherder.readthedocs.org/installation.html).
+The steps to run Treeherder are provided [here](https://treeherder.readthedocs.org/installation.html).
+
+The steps to run only the UI are provided [here](https://treeherder.readthedocs.org/ui/installation.html).
 
 
 #### Links
 
-Visit our project tracking Wiki at:  
+Visit our project tracking Wiki at:
 https://wiki.mozilla.org/Auto-tools/Projects/Treeherder
 
-Visit our **readthedocs** page for other setup and configuration at:  
+Visit our **readthedocs** page for other setup and configuration at:
 https://treeherder.readthedocs.org/
 
 File any bugs you may encounter [here](https://bugzilla.mozilla.org/enter_bug.cgi?product=Tree+Management&component=Treeherder).
