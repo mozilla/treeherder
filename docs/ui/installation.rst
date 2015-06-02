@@ -41,7 +41,7 @@ If you wish to run the full treeherder Vagrant project (service + UI), remember 
 Running the unit tests
 ======================
 
-The unit tests for the UI are run with Karma_. To do this, if you haven't already done so:
+The unit tests for the UI are run with Karma_. To do this:
 
 * Install the Karma wrapper globally by running as root ``npm install -g karma-cli``
 * Install local dependencies by running as root ``npm install`` from the project root
