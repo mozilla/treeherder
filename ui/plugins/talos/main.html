@@ -1,17 +1,11 @@
 <div class="talos-panel">
   <ul ng-repeat="line in job_details"
       ng-if="line.content_type == 'TalosResult'">
-    <li>Datazilla:
-      <ul>
-        <li ng-repeat="(k,v) in line.value.datazilla"><a href="{{::v.url}}" target="_blank">{{::k}}</a>
-        </li>
-      </ul>
-    </li>
 
     <li>Graphserver:
       <ul>
-        <li ng-repeat="(k,v) in line.value.graphserver">{{::k}}:<a href="{{::v.url}}"
-                                                                 target="_blank">{{::v.result}}</a>
+        <li ng-repeat="gr in line.value.graphserver | toArray | orderBy: '$key'">
+          {{::gr.$key}}: <a href="{{::gr.url}}" target="_blank">{{::gr.result}}</a>
         </li>
       </ul>
     </li>

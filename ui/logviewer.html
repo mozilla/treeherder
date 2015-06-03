@@ -15,18 +15,16 @@
             <div class="col-md-6" >
                 <div class="job-header">
                     <table class="table table-condensed" >
-                        <tr ng-repeat="(label, value) in artifact.header">
-                            <th ng-cloak>{{label}}</th>
-                            <td ng-if="label == 'revision'" class="break-word">
+                        <tr ng-repeat="property in logProperties | orderBy:'label'">
+                            <th ng-cloak>{{property.label}}</th>
+                            <td ng-if="property.label == 'revision'" class="break-word">
                                 <a href="{{logRevisionFilterUrl}}"
                                    title="Open resultset"
                                    class="repo-link"
-                                   ng-cloak>{{value}}</a>
+                                   ng-cloak>{{property.value}}</a>
                             </td>
-                            <td ng-if="label == 'starttime'"
-                                ng-cloak class="break-word">{{logDisplayDate}}</td>
-                            <td ng-if="label != 'revision' && label != 'starttime'"
-                                ng-cloak class="break-word">{{value}}</td>
+                            <td ng-if="property.label != 'revision'"
+                                ng-cloak class="break-word">{{property.value}}</td>
                         </tr>
                     </table>
                 </div>

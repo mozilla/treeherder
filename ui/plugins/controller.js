@@ -195,10 +195,10 @@ treeherder.controller('PluginCtrl', [
                     duration = "";
                 // fields that will show in the job detail panel
                 $scope.visibleFields = {
-                    "Job name": $scope.job.job_type_name || undef,
                     "Build": $scope.job.build_architecture + " " +
                              $scope.job.build_platform  + " " +
-                             $scope.job.build_os || undef
+                             $scope.job.build_os || undef,
+                    "Job name": $scope.job.job_type_name || undef
                 };
 
                 // time fields to show in detail panel, but that should be grouped together

@@ -6,7 +6,7 @@
 
 var treeherderApp = angular.module('treeherder.app',
                                    ['treeherder', 'ui.bootstrap', 'ngRoute',
-                                    'mc.resizer']);
+                                    'mc.resizer', 'angular-toArrayFilter']);
 
 treeherderApp.config(function($compileProvider, $routeProvider, $httpProvider, $logProvider) {
     // Disable debug data, as recommended by https://docs.angularjs.org/guide/production

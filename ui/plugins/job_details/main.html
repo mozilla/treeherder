@@ -1,6 +1,6 @@
 <div class="job-tabs-content">
   <ul class="list-unstyled">
-    <li ng-repeat="line in job_details" class="small">
+    <li ng-repeat="line in job_details | orderBy:'title'" class="small">
       <label>{{line.title}}:</label>
       <span ng-switch on="line.content_type">
         <a ng-switch-when="link" title="{{line.value}}"
