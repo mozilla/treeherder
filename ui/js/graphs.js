@@ -24,6 +24,7 @@ perf.controller('GraphsCtrl', [
     $scope.ttHideTimer = null;
     $scope.selectedDataPoint = null;
     $scope.showToolTipTimeout = null;
+    $scope.seriesList = [];
 
     function getSeriesDataPoint(flotItem) {
       // gets universal elements of a series given a flot item
@@ -557,7 +558,6 @@ perf.controller('GraphsCtrl', [
         $scope.resetHighlight();
         $scope.zoom = {};
       }
-      $scope.highlightRevision();
       updateDocument();
       plotGraph();
       if ($scope.selectedDataPoint) {
