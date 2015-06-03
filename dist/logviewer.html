@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <title ng-bind="getLogviewerTitle()">Log viewer</title>
-        <link rel="stylesheet" href="css/logviewer.min-464ef78a73a0a41fb430f9625d5d8f32.css" media="screen">
+        <link rel="stylesheet" href="css/logviewer.min-0c7c24dfd5946051c92571c95af13148.css" media="screen">
         <link id="favicon" type="image/png" rel="shortcut icon" href="img/logviewerIcon.png">
     </head>
     <body class="body-logviewer">
@@ -11,18 +11,16 @@
             <div class="col-md-6" >
                 <div class="job-header">
                     <table class="table table-condensed" >
-                        <tr ng-repeat="(label, value) in artifact.header">
-                            <th ng-cloak>{{label}}</th>
-                            <td ng-if="label == 'revision'" class="break-word">
+                        <tr ng-repeat="property in logProperties | orderBy:'label'">
+                            <th ng-cloak>{{property.label}}</th>
+                            <td ng-if="property.label == 'revision'" class="break-word">
                                 <a href="{{logRevisionFilterUrl}}"
                                    title="Open resultset"
                                    class="repo-link"
-                                   ng-cloak>{{value}}</a>
+                                   ng-cloak>{{property.value}}</a>
                             </td>
-                            <td ng-if="label == 'starttime'"
-                                ng-cloak class="break-word">{{logDisplayDate}}</td>
-                            <td ng-if="label != 'revision' && label != 'starttime'"
-                                ng-cloak class="break-word">{{value}}</td>
+                            <td ng-if="property.label != 'revision'"
+                                ng-cloak class="break-word">{{property.value}}</td>
                         </tr>
                     </table>
                 </div>
@@ -36,7 +34,7 @@
              lv-log-lines="displayedLogLines">
         </div>
 
-        <script src="js/logviewer.min-951b4e1ea85211c3e652ba2767544226.js"></script>
+        <script src="js/logviewer.min-f05f99b2fef8efaf56f09ee5cb68bc34.js"></script>
 
         <script src="js/config/local.conf.js"></script>
 
