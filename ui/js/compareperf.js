@@ -260,16 +260,10 @@ perf.controller('CompareSubtestResultsCtrl', [
             cmap.highlightedTest = true;
           }
 
-          //TODO: Can we have >1 highlighted revision?
-          var originalSeries = encodeURIComponent(JSON.stringify(
-                        { project: $scope.originalProject.name,
-                          signature: oldSig,
-                          visible: true}));
-
-          var newSeries = encodeURIComponent(JSON.stringify(
-                        { project: $scope.newProject.name,
-                          signature: newSig,
-                          visible: true}));
+          var originalSeries = "[" + $scope.originalProject.name + "," +
+              oldSig + ",1]";
+          var newSeries = "[" + $scope.newProject.name + "," +
+              newSig + ",1]";
 
           var detailsLink = 'perf.html#/graphs?timerange=' +
               timeRange + '&series=' + newSeries;
