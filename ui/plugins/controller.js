@@ -271,9 +271,11 @@ treeherder.controller('PluginCtrl', [
                     // to the self serve api (which does not listen over pulse!).
                     ThJobModel.retrigger($scope.repoName, $scope.job.id).then(function() {
                         // XXX: Remove this after 1134929 is resolved.
-                        var requestId = getBuildbotRequestId();
-                        if (requestId) {
-                            return thBuildApi.retriggerJob($scope.repoName, requestId);
+                        if($scope.repoName != "ash") {
+                            var requestId = getBuildbotRequestId();
+                            if (requestId) {
+                                return thBuildApi.retriggerJob($scope.repoName, requestId);
+                            }
                         }
                     }).then(function() {
                         thNotify.send("Retriggered job: " + $scope.jobSearchStr,
