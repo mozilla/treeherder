@@ -21,6 +21,8 @@ class Command(BaseCommand):
 
     SIGNIFICANT_KEYS = (['suite', 'test', 'subtest_signatures', 'test_options'] +
                         TalosDataAdapter.SIGNIFICANT_REFERENCE_DATA_KEYS)
+    COUNTER_TESTS = ['responsiveness', 'Private Bytes', '% Processor Time',
+                     'Modified Page List Bytes', 'Main_RSS']
 
     option_list = BaseCommand.option_list + (
         make_option('--project',
@@ -79,6 +81,13 @@ class Command(BaseCommand):
 
         return new_hash
 
+    @staticmethod
+    def _signature_needs_rewriting(signature_properties, signature_hash):
+        return (not set(signature_properties.keys()).issubset(
+            Command.SIGNIFICANT_KEYS) or
+                signature_hash != TalosDataAdapter.get_series_signature(
+                    signature_properties))
+
     def _rewrite_data(self, project, mysql_debug):
 
         signature_mapping = {}
@@ -90,14 +99,16 @@ class Command(BaseCommand):
                 max(PerformanceTimeInterval.all_valid_time_intervals()))
             # first pass: rewrite non-summary tests
             for (signature_hash, signature_properties) in summary.iteritems():
-                if not set(signature_properties.keys()).issubset(
-                        self.SIGNIFICANT_KEYS) and (
-                            'subtest_signatures' not in signature_properties):
+                if self._signature_needs_rewriting(signature_properties,
+                                                   signature_hash) and \
+                        'subtest_signatures' not in signature_properties:
                     new_hash = self._rewrite_series(jm, signature_hash,
                                                     signature_properties,
                                                     None, None)
                     signature_mapping[signature_hash] = new_hash
-                elif not signature_properties.get('subtest_signatures'):
+                elif (not signature_properties.get('subtest_signatures') and
+                      signature_properties.get('test') not in
+                      Command.COUNTER_TESTS):
                     # in case this script got interrupted, keep track of
                     # subtest signatures which have already been converted
                     suitekey = self._get_suitekey(signature_properties)
@@ -110,9 +121,9 @@ class Command(BaseCommand):
 
             # second pass: rewrite summary tests
             for (signature_hash, signature_properties) in summary.iteritems():
-                if not set(signature_properties.keys()).issubset(
-                        self.SIGNIFICANT_KEYS) and signature_properties.get(
-                            'subtest_signatures'):
+                if (self._signature_needs_rewriting(signature_properties,
+                                                    signature_hash) and
+                        signature_properties.get('subtest_signatures')):
                     self._rewrite_series(jm, signature_hash,
                                          signature_properties,
                                          signature_mapping,

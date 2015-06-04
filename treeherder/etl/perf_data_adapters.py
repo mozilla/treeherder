@@ -150,7 +150,13 @@ class PerformanceDataAdapter(object):
     @staticmethod
     def get_series_signature(signature_properties):
         signature_prop_values = signature_properties.keys()
-        signature_prop_values.extend(signature_properties.values())
+        str_values = []
+        for value in signature_properties.values():
+            if not isinstance(value, basestring):
+                str_values.append(json.dumps(value))
+            else:
+                str_values.append(value)
+        signature_prop_values.extend(str_values)
 
         sha = sha1()
         sha.update(''.join(map(lambda x: str(x), sorted(signature_prop_values))))
@@ -349,7 +355,7 @@ class TalosDataAdapter(PerformanceDataAdapter):
                 # summary series
                 summary_properties = {
                     'suite': _suite,
-                    'subtest_signatures': json.dumps(sorted(subtest_signatures))
+                    'subtest_signatures': sorted(subtest_signatures)
                 }
                 summary_properties.update(reference_data)
                 summary_signature = self.get_series_signature(

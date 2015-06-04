@@ -2016,7 +2016,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
     def set_series_signature(self, signature_hash, signature_props):
         signature_property_placeholders = []
         for (k, v) in signature_props.iteritems():
-            if k == 'subtest_signatures':
+            if not isinstance(v, basestring):
                 v = json.dumps(v)
             signature_property_placeholders.append([
                 str(signature_hash), str(k), str(v),
