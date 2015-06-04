@@ -355,7 +355,7 @@ class TalosDataAdapter(PerformanceDataAdapter):
                 # summary series
                 summary_properties = {
                     'suite': _suite,
-                    'subtest_signatures': sorted(subtest_signatures)
+                    'subtest_signatures': json.dumps(sorted(subtest_signatures))
                 }
                 summary_properties.update(reference_data)
                 summary_signature = self.get_series_signature(
