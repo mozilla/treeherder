@@ -270,6 +270,10 @@ treeherder.controller('PluginCtrl', [
                     // second is when we have the buildapi id and need to send a request
                     // to the self serve api (which does not listen over pulse!).
                     ThJobModel.retrigger($scope.repoName, $scope.job.id).then(function() {
+                        // XXX: Bug 1170839 disables buildapi retrigger requests for the ash branch
+                        if($scope.repoName === "ash") {
+                            return;
+                        }
                         // XXX: Remove this after 1134929 is resolved.
                         var requestId = getBuildbotRequestId();
                         if (requestId) {
@@ -294,6 +298,10 @@ treeherder.controller('PluginCtrl', [
         $scope.cancelJob = function() {
             // See note in retrigger logic.
             ThJobModel.cancel($scope.repoName, $scope.job.id).then(function() {
+              // XXX: Bug 1170839 disables buildapi cancel requests for the ash branch
+              if($scope.repoName === "ash") {
+                  return;
+              }
               // XXX: Remove this after 1134929 is resolved.
               var requestId = getBuildbotRequestId();
               if (requestId) {
