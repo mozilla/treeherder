@@ -20,6 +20,17 @@ class treeherder {
       user => "${APP_USER}",
     }
 
+    exec {"copy-aliases":
+      command => "cp ${PROJ_DIR}/puppet/files/treeherder/.bash_aliases ${HOME_DIR}",
+      user => "${APP_USER}",
+    }
+
+    exec {"source-aliases-on-login":
+      unless => "grep 'source ${HOME_DIR}/.bash_aliases' ${HOME_DIR}/.bashrc",
+      command => "echo 'source ${HOME_DIR}/.bash_aliases' >> ${HOME_DIR}/.bashrc",
+      user => "${APP_USER}",
+    }
+
     exec{"build-extensions":
       command => "${VENV_DIR}/bin/python ${PROJ_DIR}/setup.py build_ext --inplace",
       user => "${APP_USER}",
