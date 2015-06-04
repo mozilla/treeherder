@@ -14,10 +14,28 @@ class treeherder {
         require => Package['memcached'],
     }
 
+    exec {"treeherder-help-text":
+      unless => "grep 'echo ${THELP_TEXT}' ${HOME_DIR}/.bashrc",
+      command => "echo 'echo ${THELP_TEXT}' >> ${HOME_DIR}/.bashrc",
+      user => "${APP_USER}",
+    }
+
     exec {"cd-treeherder-on-login":
       unless => "grep 'cd ${PROJ_DIR}' ${HOME_DIR}/.bashrc",
       command => "echo 'cd ${PROJ_DIR}' >> ${HOME_DIR}/.bashrc",
       user => "${APP_USER}",
+    }
+
+    exec {"vagrant-prompt":
+      unless =>  "grep -F 'export PS1=\"${PS1}\"' ${HOME_DIR}/.bashrc",
+      command => "echo 'export PS1=\"${PS1}\"' >> ${HOME_DIR}/.bashrc",
+      user => "${APP_USER}",
+    }
+
+    file {"${HOME_DIR}/.bash_aliases":
+      source => "${PROJ_DIR}/puppet/files/treeherder/.bash_aliases",
+      owner => "${APP_USER}",
+      group  => "${APP_GROUP}",
     }
 
     exec{"build-extensions":
