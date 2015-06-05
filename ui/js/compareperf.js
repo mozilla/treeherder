@@ -364,7 +364,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                   return;
                 }
 
-                PhSeries.getSubtestSummaries($scope.newProject,
+                PhSeries.getSubtestSummaries($scope.newProject.name,
                               timeRange,
                               optionCollectionMap,
                               $scope.newSignature).then(
