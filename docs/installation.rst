@@ -63,12 +63,6 @@ Setting up Vagrant
 Setting up a local Treeherder instance
 --------------------------------------
 
-* Export oauth credentials for all data source projects
-
-  .. code-block:: bash
-
-     (venv)vagrant@local:~/treeherder$ ./manage.py export_project_credentials
-
 * And this line to your **host** machine's /etc/hosts so that you can point your browser to local.treeherder.mozilla.org to reach the VM
 
   .. code-block:: bash
