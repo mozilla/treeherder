@@ -69,10 +69,11 @@ Setting up a local Treeherder instance
 
      (venv)vagrant@local:~/treeherder$ ./manage.py export_project_credentials
 
-* And an entry to your **host** machine's /etc/hosts so that you can point your browser to local.treeherder.mozilla.org to reach it
+* And this line to your **host** machine's /etc/hosts so that you can point your browser to local.treeherder.mozilla.org to reach the VM
 
   .. code-block:: bash
 
+     # Copy this line verbatim (do not adjust the IP)
      192.168.33.10    local.treeherder.mozilla.org
 
 Viewing the local server
