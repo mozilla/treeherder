@@ -63,18 +63,6 @@ Setting up Vagrant
 Setting up a local Treeherder instance
 --------------------------------------
 
-* Initialize the master database
-
-  .. code-block:: bash
-
-     (venv)vagrant@local:~/treeherder$ ./manage.py init_master_db
-
-* Populate the database with repository data sources
-
-  .. code-block:: bash
-
-     (venv)vagrant@local:~/treeherder$ ./manage.py init_datasources
-
 * Export oauth credentials for all data source projects
 
   .. code-block:: bash
