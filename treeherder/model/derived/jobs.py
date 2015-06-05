@@ -1591,6 +1591,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         text_log_summary = False
         if artifacts:
+            artifacts = ArtifactsModel.sanitize_artifact_json_blobs(artifacts)
             # the artifacts in this list could be ones that should have
             # bug suggestions generated for them.  If so, queue them to be
             # scheduled for asynchronous generation.
