@@ -501,7 +501,7 @@ th-watched-repo {
     color: #0de00d !important;
 }
 
-.icon-red:hover {
+.hover-warning:hover {
     color: #fa4444 !important;
 }
 
@@ -1086,9 +1086,14 @@ ul.failure-summary-list li .btn-xs {
     padding-right: 16px;
 }
 
-/* Annotations tab classification trash can */
+/* Annotations tab classification deletion container */
 .classifications-pane table tr td:last-child {
-    padding-left: 16px;
+    padding-left: 10px;
+}
+
+.classification-delete-icon {
+  font-size: 11px;
+  color: #bababa;
 }
 
 /* Override bootstrap row highlighting */

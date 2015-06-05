@@ -80,7 +80,7 @@
           </li>
           <li ng-show="canCancel()">
             <a title="Cancel this job"
-               class="icon-red"
+               class="hover-warning"
                href="" prevent-default-on-left-click
                target="_blank"
                ng-click="cancelJob()">
@@ -114,7 +114,7 @@
 
           <a target="_blank" ng-repeat="bug in bugs"
              href="https://bugzilla.mozilla.org/show_bug.cgi?id={{bug.bug_id}}"
-             title="Bug {{bug.bug_id}}"><em> {{bug.bug_id}}</em></a>
+             title="View bug {{bug.bug_id}}"><em> {{bug.bug_id}}</em></a>
         </li>
         <li ng-if="classifications[0].note.length > 0"><em>{{classifications[0].note}}</em></li>
         <li class="revision-comment">
