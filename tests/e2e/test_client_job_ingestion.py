@@ -15,7 +15,7 @@ from treeherder.model import error_summary
 
 
 @pytest.fixture
-def text_log_summary_blob():
+def text_log_summary_dict():
     return {
         "header": {},
         "step_data": {
@@ -121,7 +121,7 @@ def test_post_job_with_text_log_summary_artifact_parsed(
         result_set_stored,
         mock_post_collection,
         mock_error_summary,
-        text_log_summary_blob,
+        text_log_summary_dict,
         ):
     """
     test submitting a job with a pre-parsed log gets parse_status of
@@ -146,7 +146,56 @@ def test_post_job_with_text_log_summary_artifact_parsed(
                 'parse_status': 'parsed'
             }],
             'artifacts': [{
-                "blob": json.dumps(text_log_summary_blob),
+                "blob": json.dumps(text_log_summary_dict),
+                "type": "json",
+                "name": "text_log_summary",
+                "job_guid": job_guid
+            }]
+        }
+    })
+    tjc.add(tj)
+
+    do_post_collection(test_project, tjc)
+
+    check_artifacts(test_project, job_guid, 'parsed', 2,
+                    {'Bug suggestions', 'text_log_summary'}, mock_error_summary)
+
+    # ensure the parsing didn't happen
+    assert mock_parse.called is False
+
+
+def test_post_job_with_text_log_summary_artifact_parsed_dict_blob(
+        test_project,
+        monkeypatch,
+        result_set_stored,
+        mock_post_collection,
+        mock_error_summary,
+        text_log_summary_dict,
+        ):
+    """
+    test submitting a job with a pre-parsed log gets parse_status of
+    "parsed" and doesn't parse the log, but still generates
+    the bug suggestions.
+    """
+
+    mock_parse = MagicMock(name="parse_line")
+    monkeypatch.setattr(StepParser, 'parse_line', mock_parse)
+
+    job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
+    tjc = client.TreeherderJobCollection()
+    tj = client.TreeherderJob({
+        'project': test_project,
+        'revision_hash': result_set_stored[0]['revision_hash'],
+        'job': {
+            'job_guid': job_guid,
+            'state': 'completed',
+            'log_references': [{
+                'url': 'http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/...',
+                'name': 'buildbot_text',
+                'parse_status': 'parsed'
+            }],
+            'artifacts': [{
+                "blob": text_log_summary_dict,
                 "type": "json",
                 "name": "text_log_summary",
                 "job_guid": job_guid
@@ -171,7 +220,7 @@ def test_post_job_with_text_log_summary_artifact_pending(
         mock_post_collection,
         mock_error_summary,
         mock_update_parse_status,
-        text_log_summary_blob,
+        text_log_summary_dict,
         ):
     """
     test submitting a job with a log set to pending, but with a text_log_summary.
@@ -197,7 +246,7 @@ def test_post_job_with_text_log_summary_artifact_pending(
                 'parse_status': 'pending'
             }],
             'artifacts': [{
-                "blob": json.dumps(text_log_summary_blob),
+                "blob": json.dumps(text_log_summary_dict),
                 "type": "json",
                 "name": "text_log_summary",
                 "job_guid": job_guid
@@ -222,7 +271,7 @@ def test_post_job_with_text_log_summary_and_bug_suggestions_artifact(
         result_set_stored,
         mock_post_collection,
         mock_error_summary,
-        text_log_summary_blob,
+        text_log_summary_dict,
         ):
     """
     test submitting a job with a pre-parsed log and both artifacts
@@ -252,7 +301,7 @@ def test_post_job_with_text_log_summary_and_bug_suggestions_artifact(
             }],
             'artifacts': [
                 {
-                    "blob": json.dumps(text_log_summary_blob),
+                    "blob": json.dumps(text_log_summary_dict),
                     "type": "json",
                     "name": "text_log_summary",
                     "job_guid": job_guid
@@ -284,7 +333,6 @@ def test_post_job_artifacts_by_add_artifact(
         result_set_stored,
         mock_post_collection,
         mock_error_summary,
-        text_log_summary_blob,
         ):
     """
     test submitting a job with artifacts added by ``add_artifact``
@@ -332,7 +380,7 @@ def test_post_job_artifacts_by_add_artifact(
     bapi_blob = json.dumps({"buildername": "merd"})
     pb_blob = json.dumps({"build_url": "feh", "chunk": 1, "config_file": "mah"})
 
-    tj.add_artifact("text_log_summary", "json", json.dumps(tls_blob))
+    tj.add_artifact("text_log_summary", "json", tls_blob)
     tj.add_artifact("Job Info", "json", ji_blob)
     tj.add_artifact("buildapi", "json", bapi_blob)
     tj.add_artifact("privatebuild", "json", pb_blob)

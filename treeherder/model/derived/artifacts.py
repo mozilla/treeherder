@@ -344,14 +344,25 @@ class ArtifactsModel(TreeherderModelBase):
         return job_data
 
     @staticmethod
+    def serialize_artifact_json_blobs(artifacts):
+        """
+        Ensure that JSON artifact blobs passed as dicts are converted to JSON
+        """
+        for artifact in artifacts:
+            blob = artifact['blob']
+            if (artifact['type'].lower() == 'json' and
+                    not isinstance(blob, str) and
+                    not isinstance(blob, unicode)):
+                artifact['blob'] = json.dumps(blob)
+
+        return artifacts
+
+    @staticmethod
     def populate_placeholders(artifacts, artifact_placeholders, job_guid):
         for artifact in artifacts:
             name = artifact.get('name')
             artifact_type = artifact.get('type')
-
             blob = artifact.get('blob')
-            if (artifact_type == 'json') and (not isinstance(blob, str)):
-                blob = json.dumps(blob)
 
             if name and artifact_type and blob:
                 artifact_placeholders.append(

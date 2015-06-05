@@ -56,7 +56,7 @@ class ArtifactViewSet(viewsets.ViewSet):
 
     @oauth_required
     def create(self, request, project):
-        artifacts = request.DATA
+        artifacts = ArtifactsModel.serialize_artifact_json_blobs(request.DATA)
 
         job_guids = [x['job_guid'] for x in artifacts]
         with JobsModel(project) as jobs_model, ArtifactsModel(project) as artifacts_model:

@@ -127,8 +127,6 @@ def test_artifact_create_text_log_summary_and_bug_suggestions(
     submitted.
     """
 
-    credentials = OAuthCredentials.get_credentials(test_project)
-
     with JobsModel(test_project) as jobs_model:
         job = jobs_model.get_job_list(0, 1)[0]
     tls = sample_data.text_log_summary
@@ -144,7 +142,7 @@ def test_artifact_create_text_log_summary_and_bug_suggestions(
     tac.add(client.TreeherderArtifact({
         'type': 'json',
         'name': 'Bug suggestions',
-        'blob': json.dumps(bs_blob),
+        'blob': bs_blob,
         'job_guid': job['job_guid']
     }))
 
