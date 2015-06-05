@@ -1086,9 +1086,20 @@ ul.failure-summary-list li .btn-xs {
     padding-right: 16px;
 }
 
-/* Annotations tab classification trash can */
+/* Annotations tab classification deletion container */
 .classifications-pane table tr td:last-child {
-    padding-left: 16px;
+    padding-left: 10px;
+}
+
+.classification-delete-icon {
+  font-size: 11px;
+  color: #bababa;
+}
+.classification-delete-icon:hover,
+.classification-delete-icon:focus,
+.classification-delete-icon:active,
+.classification-delete-icon.active {
+  color: #fa4444;
 }
 
 /* Override bootstrap row highlighting */
