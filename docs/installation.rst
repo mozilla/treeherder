@@ -100,7 +100,7 @@ Ingestion tasks populate the database with version control push logs, queued/run
 
   .. code-block:: bash
 
-     (venv)vagrant@local:~/treeherder$ celery -A treeherder worker -B
+     (venv)vagrant@local:~/treeherder$ celery -A treeherder worker -B --concurrency 5
 
   The "-B" option tells the celery worker to startup a beat service, so that periodic tasks can be executed.
   You only need one worker with the beat service enabled. Multiple beat services will result in periodic tasks being executed multiple times.
