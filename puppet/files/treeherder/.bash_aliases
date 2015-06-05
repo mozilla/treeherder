@@ -14,7 +14,7 @@ export TH_LOG_LIST=(/var/log/celery/celery_worker_log_parser.log
           /var/log/gunicorn/treeherder_error.log
     )
 
-function th_logs {
+function thlogs {
     # walk through each log with ``less`` to check it out.
     # quitting moves to the next log.
 
@@ -29,7 +29,7 @@ function th_logs {
     tabname vagrant
 }
 
-function th_logs_delete {
+function thlogsdelete {
     # delete all the logs in TH_LOG_LIST
 
     for i in "${TH_LOG_LIST[@]}"
@@ -41,19 +41,19 @@ function th_logs_delete {
     done
 }
 
-function th_queues {
+function thqueues {
     # list the treeherder queue sizes
 
     sudo rabbitmqctl list_queues -p treeherder
 }
 
-function th_queues_purge {
+function thqueuespurge {
     # purge the celery queues
 
     celery -A treeherder purge
 }
 
-function th_reset_all {
+function thresetall {
     th_queues_purge
     th_logs_delete
     sudo service memcached restart
