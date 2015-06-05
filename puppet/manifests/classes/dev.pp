@@ -22,4 +22,11 @@ class dev{
     require => Exec["init_master_db"],
     user => "${APP_USER}",
   }
+
+  exec{"export_project_credentials":
+    cwd => "${PROJ_DIR}",
+    command => "bash -c 'source /etc/profile.d/treeherder.sh; ${VENV_DIR}/bin/python manage.py export_project_credentials'",
+    require => Exec["init_datasources"],
+    user => "${APP_USER}",
+  }
 }
