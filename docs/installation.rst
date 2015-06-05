@@ -90,13 +90,11 @@ Setting up a local Treeherder instance
 Viewing the local server
 ------------------------
 
-* Start a gunicorn instance listening on port 8000
+* Start a gunicorn instance, to serve API requests:
 
   .. code-block:: bash
 
      (venv)vagrant@local:~/treeherder$ ./bin/run_gunicorn
-
-  all the request sent to local.treeherder.mozilla.org will be proxied to it by varnish/apache.
 
 * Or for development you can use the django runserver instead of gunicorn:
 
