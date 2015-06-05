@@ -243,9 +243,11 @@ def get_error_summary_artifacts(artifact_list):
 def get_all_errors(artifact):
     """Extract the error lines from an artifact's blob field"""
 
-    artifact_blob = json.loads(artifact['blob'])
-    if isinstance(artifact_blob, dict):
-        return artifact_blob.get('step_data', {}).get('all_errors', [])
+    artifact_blob = artifact['blob']
+    if not isinstance(artifact['blob'], dict):
+        artifact_blob = json.loads(artifact_blob)
+
+    return artifact_blob.get('step_data', {}).get('all_errors', [])
 
 
 def load_error_summary(project, artifacts, job_id_lookup):
