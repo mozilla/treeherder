@@ -170,6 +170,7 @@ to { opacity: 0; }
   margin-bottom: 10px;
   width: 100%;
   height: 100px;
+  cursor: crosshair;
 }
 
 .subtest-header {
