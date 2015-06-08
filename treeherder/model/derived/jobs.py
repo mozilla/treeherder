@@ -1589,7 +1589,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         artifacts = job.get('artifacts', [])
 
-        text_log_summary = False
+        has_text_log_summary = False
         if artifacts:
             artifacts = ArtifactsModel.serialize_artifact_json_blobs(artifacts)
             # the artifacts in this list could be ones that should have
@@ -1597,13 +1597,13 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             # scheduled for asynchronous generation.
             tls_list = error_summary.get_artifacts_that_need_bug_suggestions(
                 artifacts)
-            text_log_summary = next((x for x in artifacts
-                                     if x['name'] == 'text_log_summary'), None)
             async_artifact_list.extend(tls_list)
-
             ArtifactsModel.populate_placeholders(artifacts,
                                                  artifact_placeholders,
                                                  job_guid)
+
+            has_text_log_summary = any(x for x in artifacts
+                                       if x['name'] == 'text_log_summary')
 
         log_refs = job.get('log_references', [])
         if log_refs:
@@ -1618,7 +1618,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 # this job that corresponds to the buildbot_text log url.
                 # Therefore, the log does not need parsing.  So we should
                 # ensure that it's marked as already parsed.
-                if text_log_summary and name == 'buildbot_text':
+                if has_text_log_summary and name == 'buildbot_text':
                     parse_status = 'parsed'
                 else:
                     # the parsing status of this log.  'pending' or 'parsed'
