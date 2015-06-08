@@ -300,6 +300,12 @@ treeherder.factory('thJobFilters', [
         $location.search(locationSearch);
     };
 
+    var removeSearchStrFilter = function() {
+        var locationSearch = $location.search();
+        _stripSearchStrFilters(locationSearch);
+        $location.search(locationSearch);
+    }
+
     /**
      * reset the non-field (checkbox in the ui) filters to the default state
      * so the user sees everything.  Doesn't affect the field filters.  This
@@ -447,6 +453,20 @@ treeherder.factory('thJobFilters', [
         return locationSearch;
     };
 
+    /**
+     * Same as _stripFieldFilters, but only removes the filter-searchStr
+     * filter from the passed-in locationSearch without
+     * actually setting it in the location bar
+     */
+    var _stripSearchStrFilters = function(locationSearch) {
+        _.forEach(locationSearch, function (val, field) {
+            if (field == "filter-searchStr") {
+                delete locationSearch[field];
+            }
+        });
+        return locationSearch;
+    };
+
     var _isFieldFilter = function(field) {
         return _startsWith(field, PREFIX) &&
                !_.contains(['resultStatus', 'classifiedState'], _withoutPrefix(field));
@@ -552,6 +572,7 @@ treeherder.factory('thJobFilters', [
         removeFilter: removeFilter,
         replaceFilter: replaceFilter,
         removeAllFieldFilters: removeAllFieldFilters,
+        removeSearchStrFilter: removeSearchStrFilter,
         resetNonFieldFilters: resetNonFieldFilters,
         toggleFilters: toggleFilters,
         toggleInProgress: toggleInProgress,

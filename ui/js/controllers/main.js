@@ -205,6 +205,14 @@ treeherderApp.controller('MainCtrl', [
                 $('#platform-job-text-search-field').focus();
             });
 
+            // Shortcut: clear the custom filter field
+            Mousetrap.bind('ctrl+shift+f', function(ev) {
+                // Prevent shortcut key overflow during focus
+                ev.preventDefault();
+
+                $scope.$evalAsync($scope.clearFilterBox());
+            });
+
             // Shortcut: escape closes any open panels and clears selected job
             Mousetrap.bind('escape', function() {
                 $scope.$evalAsync($scope.setFilterPanelShowing(false));
@@ -348,6 +356,10 @@ treeherderApp.controller('MainCtrl', [
             $location.search({"repo": repo_name});
         };
 
+        $scope.clearFilterBox = function() {
+            thJobFilters.removeSearchStrFilter();
+            $('#platform-job-text-search-field').focus();
+        }
 
         $scope.isFilterPanelShowing = false;
         $scope.setFilterPanelShowing = function(tf) {
