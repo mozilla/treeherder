@@ -348,6 +348,18 @@ treeherderApp.controller('MainCtrl', [
             $location.search({"repo": repo_name});
         };
 
+        $scope.clearFilterBox = function() {
+            var filterbox = document.getElementById("platform-job-text-search-field");
+            filterbox.focus();
+            filterbox.value = '';
+            /*var keyevent = new KeyboardEvent('keydown', {
+                code: 13,
+                keycode: 13,
+                key: "Enter"
+            });
+            filterbox.dispatchEvent(keyevent);*/
+            filterbox.focus();
+        }
 
         $scope.isFilterPanelShowing = false;
         $scope.setFilterPanelShowing = function(tf) {

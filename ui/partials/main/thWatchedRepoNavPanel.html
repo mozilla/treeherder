@@ -39,12 +39,13 @@
                 </span>
 
                 <!--Search Field-->
-                <span ng-controller="SearchCtrl" class="form-group form-inline">
+                <span ng-controller="SearchCtrl" class="form-group form-inline" id="platform-job-text-search-field-parent">
                     <input id="platform-job-text-search-field"
                            ng-model="searchQueryStr" ng-keydown="search($event)" type="text"
                            class="form-control input-sm" required
                            placeholder="Filter platforms & jobs"
                            blur-this>
+                    <span id="filter-clear-button" class="fa fa-times-circle-o" ng-click="clearFilterBox()"></span>
                 </span>
             </form>
         </span>

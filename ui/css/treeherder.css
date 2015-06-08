@@ -218,9 +218,27 @@ th-watched-repo {
     transition: width 0.2s;
 }
 
+#platform-job-text-search-field-parent {
+    position:relative;
+}
+
 #platform-job-text-search-field:focus,
 #platform-job-text-search-field:valid {
     width: 300px !important;
+    padding-right: 20px;
+}
+
+#platform-job-text-search-field:valid + #filter-clear-button {
+    display: inherit !important;
+}
+
+#filter-clear-button {
+    cursor: pointer;
+    position: absolute;
+    display: none;
+    top: 7px;
+    right: 5px;
+    height: 16px;
 }
 
 .th-content {
