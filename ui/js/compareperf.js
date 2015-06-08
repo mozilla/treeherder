@@ -22,18 +22,20 @@ perf.controller('CompareChooserCtrl', [
         });
 
         ThResultSetModel.getResultSetsFromRevision($scope.newProject.name, $scope.newRevision).then(
-              function(resultSets) {
-               $scope.newRevisionError = undefined;
-               if($scope.originalRevisionError == undefined && $scope.newRevisionError == undefined) {
+            function (resultSets) {
+                $scope.newRevisionError = undefined;
+                if ($scope.originalRevisionError === undefined && $scope.newRevisionError === undefined) {
                 $state.go('compare', {
-                originalProject: $scope.originalProject.name,
-                originalRevision: $scope.originalRevision,
-                newProject: $scope.newProject.name,
-                newRevision: $scope.newRevision });
+                        originalProject: $scope.originalProject.name,
+                        originalRevision: $scope.originalRevision,
+                        newProject: $scope.newProject.name,
+                        newRevision: $scope.newRevision
+                    });
                 }
-        }, function(error) {
-                $scope.newRevisionError = error;
-        });
+            }, function (error) {
+                    $scope.newRevisionError = error;
+            }
+        );
       };
     });
   }]);
