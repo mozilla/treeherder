@@ -215,6 +215,24 @@ to { opacity: 0; }
 
 /* Compare interface stuff */
 
+.vertical-box {
+  display: flex;
+  flex-flow: column;
+}
+
+.spacer {
+  flex: auto;
+}
+
+.horizontal-box {
+  display: flex;
+  flex-flow: row;
+}
+
+.centered-element {
+  flex: none;
+}
+
 .compare-form {
   align: center;
   display: flex;

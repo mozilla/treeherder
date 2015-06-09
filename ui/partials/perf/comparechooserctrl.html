@@ -1,31 +1,49 @@
-<div class="container-fluid">
-  <form class="compare-form">
+<div class="container-fluid vertical-box">
+  <div class="spacer"></div>
+  <form class="compare-form centered-element">
+    <div class="spacer"></div>
     <div class="form-group">
-      <div class="panel panel-default">
+      <div class="spacer"></div>
+      <div class="panel panel-default centered-element">
         <div class="panel-heading">Original</div>
         <div class="panel-body">
           <label for="original-project-selector">Project</label>
           <select id="original-project-selector" class="form-control" ng-model="originalProject" ng-options="project.name for project in projects"/>
           <label for="original-revision-input">Revision</label>
-          <input id="original-revision-input" maxlength="12" class="form-control" ng-model="originalRevision">
+          <div class="form-group has-error">
+            <input id="original-revision-input" maxlength="12" class="form-control" ng-model="originalRevision">
+            <br/>
+          </div>
+           <label class="control-label" style="color:#A94442" ng-show="originalRevisionError">{{originalRevisionError}}"</label> 
         </div>
       </div>
-      <div class="panel panel-default">
+      <div class="panel panel-default centered-element">
         <div class="panel-heading">New</div>
         <div class="panel-body">
           <label for="new-project-selector">Project</label>
           <select id="new-project-selector" class="form-control" ng-model="newProject" ng-options="project.name for project in projects"/>
           <label for="new-revision-input">Revision</label>
-          <input id="new-revision-input" maxlength="12" class="form-control" ng-model="newRevision">
+            <div class="form-group has-error">
+            <input id="new-revision-input" maxlength="12" class="form-control" ng-model="newRevision">
+            <br/>
+            </div>
+            <label class="control-label" style="color:#A94442" ng-show="newRevisionError">{{newRevisionError}}"</label>
         </div>
       </div>
+      <div class="spacer"></div>
     </div>
-    <div class="form-group button-container">
+    <div class="horizontal-box">
+      <div class="spacer"></div>
+      <div class="form-group button-container">
       <button type="submit" class="btn btn-primary btn-lg btn-block"
               ng-click="runCompare()"
               ng-disabled="originalRevision.length !== 12 || newRevision.length !== 12">
         Compare revisions
       </button>
+      </div>
+      <div class="spacer"></div>
     </div>
+    <div class="spacer"></div>
   </form>
+  <div class="spacer"></div>
 </div>
