@@ -396,8 +396,10 @@ perf.controller('GraphsCtrl', [
             $scope.selectedDataPoint = getSeriesDataPoint(item);
             showTooltip($scope.selectedDataPoint);
             updateSelectedItem();
+            updateDocument();
           } else {
             $scope.selectedDataPoint = null;
+            updateDocument();
             hideTooltip();
             $scope.$digest();
           }
@@ -449,6 +451,13 @@ perf.controller('GraphsCtrl', [
             return $scope.zoom 
           }
         })(),
+        tooltip: (function() { 
+                    var retTooltip = ($scope.selectedDataPoint) ? "[" 
+                     + $scope.selectedDataPoint["projectName"]+ "," + $scope.selectedDataPoint["signature"] 
+                     + "," + $scope.selectedDataPoint["resultSetId"] + "," + $scope.selectedDataPoint["flotDataOffset"] 
+                     + "]" : null 
+                    return retTooltip
+                 })(),
       }, {location: true, inherit: true,
           relative: $state.$current,
           notify: false});
@@ -584,7 +593,17 @@ perf.controller('GraphsCtrl', [
     ThOptionCollectionModel.get_map().then(
       function(_optionCollectionMap) {
         optionCollectionMap = _optionCollectionMap;
-
+        if ($stateParams.tooltip) {
+          var tooltipString = decodeURIComponent($stateParams.tooltip).replace(/[\[\]"]/g, '');
+          var tooltipArray = tooltipString.split(",")
+          var tooltipObject = {
+              "projectName": tooltipArray[0],
+              "signature": tooltipArray[1], 
+              "resultSetId": parseInt(tooltipArray[2]), 
+              "flotDataOffset": parseInt(tooltipArray[3])               
+          }
+          $scope.selectedDataPoint = (tooltipString) ? tooltipObject : null 
+        }
         if ($stateParams.zoom) {
           var zoomString = decodeURIComponent($stateParams.zoom).replace(/[\[\{\}\]"]+/g, '')  
           var zoomArray = zoomString.split(",")
