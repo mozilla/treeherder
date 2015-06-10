@@ -396,6 +396,8 @@ perf.controller('GraphsCtrl', [
             $scope.selectedDataPoint = getSeriesDataPoint(item);
             showTooltip($scope.selectedDataPoint);
             updateSelectedItem();
+            if ($.inArray($scope.tooltipContent.revision, $scope.highlightedRevisions) < 0) $scope.highlightedRevisions.push($scope.tooltipContent.revision);
+            $scope.updateHighlightedRevisions();
           } else {
             $scope.selectedDataPoint = null;
             hideTooltip();
