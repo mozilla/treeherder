@@ -57,7 +57,7 @@ function thlogsdelete {
 function thqueues {
     # list the treeherder queue sizes
 
-    sudo rabbitmqctl list_queues -p treeherder
+    sudo rabbitmqctl list_queues
 }
 
 function thqueuespurge {
@@ -67,7 +67,8 @@ function thqueuespurge {
 }
 
 function thresetall {
-    th_queues_purge
-    th_logs_delete
+    thqueuespurge
+    thlogsdelete
     sudo service memcached restart
+    rm ~/treeherder/celerybeat-schedule
 }
