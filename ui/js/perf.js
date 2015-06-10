@@ -28,7 +28,7 @@ perf.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thServiceD
   };
 
   var _getAllSeries = function(projectName, timeRange, optionMap) {
-    var signatureURL = thServiceDomain + '/api/project/' + projectName + 
+    var signatureURL = thServiceDomain + '/api/project/' + projectName +
       '/performance-data/0/get_performance_series_summary/?interval=' +
       timeRange;
 
