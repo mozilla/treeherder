@@ -10,7 +10,7 @@ perf.controller('CompareChooserCtrl', [
                               ThRepositoryModel, ThResultSetModel) {
     ThRepositoryModel.get_list().success(function(projects) {
       $scope.projects = projects;
-      $scope.originalProject = $scope.newProject = projects[0];
+      $scope.originalProject = $scope.newProject = projects[1];
 
       $scope.runCompare = function() {
         ThResultSetModel.getResultSetsFromRevision($scope.originalProject.name, $scope.originalRevision).then(

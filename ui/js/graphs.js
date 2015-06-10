@@ -695,7 +695,7 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
   if (defaultProjectName) {
     $scope.selectedProject = _.findWhere(projects, {name: defaultProjectName});
   } else {
-    $scope.selectedProject = projects[0];
+    $scope.selectedProject = projects[1];
   }
   $scope.loadingTestData = false;
 
