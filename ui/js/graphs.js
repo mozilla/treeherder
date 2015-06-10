@@ -140,7 +140,6 @@ perf.controller('GraphsCtrl', [
           }
   
           tip.stop(true);
-  
           // first, reposition tooltip (width/height won't be calculated correctly
           // in all cases otherwise)
           var tipPosition = getTipPosition(tip, x, y, 10);
@@ -218,26 +217,26 @@ perf.controller('GraphsCtrl', [
       });
 
       $scope.overviewPlot = $.plot($("#overview-plot"),
-                              $scope.seriesList.map(
-                                function(series) {
-                                 return series.flotSeries }),
-                                 {
-                                   xaxis: { mode: 'time' },
-                                   selection: { mode: 'xy', color: '#97c6e5' },
-                                   series: { shadowSize: 0 },
-                                   lines: { show: true },
-                                   points: { show: false },
-                                   legend: { show: false },
-                                   grid: {
-                                     color: '#cdd6df',
-                                     borderWidth: 2,
-                                     backgroundColor: '#fff',
-                                     hoverable: true,
-                                     clickable: true,
-                                     autoHighlight: false
-                                   }
-                                 });
-      // Reset $scope.seriesList with lines.show = false
+                          $scope.seriesList.map(
+                            function(series) {
+                             return series.flotSeries }),
+                             {
+                               xaxis: { mode: 'time' },
+                               selection: { mode: 'xy', color: '#97c6e5' },
+                               series: { shadowSize: 0 },
+                               lines: { show: true },
+                               points: { show: false },
+                               legend: { show: false },
+                               grid: {
+                                 color: '#cdd6df',
+                                 borderWidth: 2,
+                                 backgroundColor: '#fff',
+                                 hoverable: true,
+                                 clickable: true,
+                                 autoHighlight: false
+                               }
+                             });
+  // Reset $scope.seriesList with lines.show = false
       $scope.seriesList.forEach(function(series) {
         series.flotSeries.points.show = series.visible;
         series.flotSeries.lines.show = false;
@@ -355,6 +354,9 @@ perf.controller('GraphsCtrl', [
         highlightDataPoints();
         plotOverviewGraph();
         zoomGraph();
+        if ($scope.selectedDataPoint) {
+          showTooltip($scope.selectedDataPoint);
+        }
 
         function getDateStr(timestamp) {
           var date = new Date(parseInt(timestamp));
@@ -401,8 +403,9 @@ perf.controller('GraphsCtrl', [
             hideTooltip();
             $scope.$digest();
           }
-
-          highlightDataPoints();
+            updateDocument();
+            highlightDataPoints();
+          
         });
       });
     }
@@ -449,9 +452,18 @@ perf.controller('GraphsCtrl', [
             return $scope.zoom 
           }
         })(),
+        tooltip: (function() {
+                    var retTooltip = ($scope.selectedDataPoint) ? "[" 
+                     + $scope.selectedDataPoint.projectName + "," + $scope.selectedDataPoint.signature  
+                     + "," + $scope.selectedDataPoint.resultSetId + "," + $scope.selectedDataPoint.flotDataOffset 
+                     + "]" : undefined 
+                    return retTooltip
+                 })(),
       }, {location: true, inherit: true,
           relative: $state.$current,
-          notify: false});
+          notify: false
+          });
+
       if ($scope.seriesList.length) {
         window.document.title = ($scope.seriesList[0].name + " " +
                                  $scope.seriesList[0].platform +
@@ -584,7 +596,6 @@ perf.controller('GraphsCtrl', [
     ThOptionCollectionModel.get_map().then(
       function(_optionCollectionMap) {
         optionCollectionMap = _optionCollectionMap;
-
         if ($stateParams.zoom) {
           var zoomString = decodeURIComponent($stateParams.zoom).replace(/[\[\{\}\]"]+/g, '')  
           var zoomArray = zoomString.split(",")
@@ -628,6 +639,18 @@ perf.controller('GraphsCtrl', [
         } else {
           $scope.seriesList = [];
           addSeriesList([]);
+        }
+        
+        if ($stateParams.tooltip) {
+          var tooltipString = decodeURIComponent($stateParams.tooltip).replace(/[\[\]"]/g, '');
+          var tooltipArray = tooltipString.split(",")
+          var tooltipObject = {
+              "projectName": tooltipArray[0],
+              "signature": tooltipArray[1], 
+              "resultSetId": parseInt(tooltipArray[2]), 
+              "flotDataOffset": parseInt(tooltipArray[3])               
+          }
+          $scope.selectedDataPoint = (tooltipString) ? tooltipObject : null
         }
 
         ThRepositoryModel.get_list().then(function(response) {
