@@ -46,7 +46,9 @@ treeherder.directive('lvLogSteps', ['$timeout', '$q', function ($timeout, $q) {
                     return step.result && step.result !== "success";
                 })[0];
 
-                if (!firstError) return;
+                if (!firstError) {
+                    return;
+                }
 
                 // scroll to the first error
                 $timeout(function () {

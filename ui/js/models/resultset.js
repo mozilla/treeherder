@@ -114,9 +114,13 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location', '$q'
                 {params: params}
             );
         },
-        get: function(uri) {
-            return $http.get(thServiceDomain + uri);
+
+        get: function(repoName, pk) {
+            return $http.get(
+                thUrl.getProjectUrl("/resultset/"+pk+"/", repoName)
+            );
         },
+
         getResultSetJobsUpdates: function(resultSetIdList, repoName, exclusionProfile, lastModified){
             if(angular.isDate(lastModified)){
                 lastModified = lastModified.toISOString().replace("Z","");

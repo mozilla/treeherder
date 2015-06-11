@@ -316,6 +316,7 @@ treeherder.controller('PluginCtrl', [
         };
 
         $scope.cancelAll = function(resultsetId) {
+            // this can't work.  There IS no getResultSet function in that model.
             var rs = ThResultSetModel.getResultSet($scope.repoName, resultsetId);
             thBuildApi.cancelAllJobs($scope.repoName, rs.revision);
         };

@@ -20,13 +20,13 @@ treeherder.factory('ThJobModel', [
         return Math.round( ( timestampSeconds - (
                 parseInt(this.submit_timestamp) + parseInt(this.pending_eta) +
                 parseInt(this.running_eta) ) )/60 );
-    }
+    };
 
     ThJobModel.prototype.get_typical_eta = function(){
         return Math.round(
             (parseInt(this.pending_eta) + parseInt(this.running_eta) )/60
         );
-    }
+    };
 
     ThJobModel.get_uri = function(repoName){return thUrl.getProjectUrl("/jobs/", repoName);};
 
@@ -44,7 +44,7 @@ treeherder.factory('ThJobModel', [
                 var item_list;
                 var next_pages_jobs = [];
                 // if the number of elements returned equals the page size, fetch the next pages
-                if(fetch_all && (response.data.results.length == response.data.meta.count)){
+                if(fetch_all && (response.data.results.length === response.data.meta.count)){
                     var current_offset = parseInt(response.data.meta.offset);
                     var page_size = parseInt(response.data.meta.count);
                     var new_options = angular.copy(options);
@@ -68,7 +68,7 @@ treeherder.factory('ThJobModel', [
                 // either a promise or a value
                 return $q.when(next_pages_jobs).then(function(maybe_job_list){
                     return  item_list.concat(maybe_job_list);
-                })
+                });
         });
     };
 
