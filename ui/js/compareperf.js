@@ -20,7 +20,7 @@ perf.controller('CompareChooserCtrl', [
         }, function(error) {
             $scope.originalRevisionError = error;
         });
-        
+
         ThResultSetModel.getResultSetsFromRevision($scope.newProject.name, $scope.newRevision).then(
               function(resultSets) {
                $scope.newRevisionError = undefined;
@@ -29,7 +29,7 @@ perf.controller('CompareChooserCtrl', [
                 originalProject: $scope.originalProject.name,
                 originalRevision: $scope.originalRevision,
                 newProject: $scope.newProject.name,
-                newRevision: $scope.newRevision });        
+                newRevision: $scope.newRevision });
                 }
         }, function(error) {
                 $scope.newRevisionError = error;
@@ -107,8 +107,8 @@ perf.controller('CompareResultsCtrl', [
     function displayResults(rawResultsMap, newRawResultsMap) {
       $scope.compareResults = {};
       $scope.titles = {};
-      window.document.title = ("Comparison between " + $scope.originalRevision + 
-                              " (" + $scope.originalProject.name + ") " + 
+      window.document.title = ("Comparison between " + $scope.originalRevision +
+                              " (" + $scope.originalProject.name + ") " +
                               "and " + $scope.newRevision + " (" + $scope.newProject.name + ")");
 
       $scope.testList.forEach(function(testName) {
@@ -414,4 +414,3 @@ perf.controller('CompareSubtestResultsCtrl', [
         });
     });
   }]);
-

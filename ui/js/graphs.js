@@ -61,7 +61,7 @@ perf.controller('GraphsCtrl', [
           clearTimeout($scope.ttHideTimer);
           $scope.ttHideTimer = null;
         }
-  
+
         var phSeriesIndex = _.findIndex(
           $scope.seriesList,
           function(s) {
@@ -69,7 +69,7 @@ perf.controller('GraphsCtrl', [
               s.signature == dataPoint.signature;
           });
         var phSeries = $scope.seriesList[phSeriesIndex];
-  
+
         // we need the flot data for calculating values/deltas and to know where
         // on the graph to position the tooltip
         var flotData = {
@@ -87,14 +87,14 @@ perf.controller('GraphsCtrl', [
         var prevFlotDataPointIndex = (flotData.pointIndex -
                                       dataPoint.flotDataOffset - 1);
         var flotSeriesData = flotData.series.data;
-  
+
         var t = flotSeriesData[flotData.pointIndex][0],
             v = flotSeriesData[flotData.pointIndex][1],
             v0 = ((prevFlotDataPointIndex >= 0) ?
                   flotSeriesData[prevFlotDataPointIndex][1] : v),
             dv = v - v0,
             dvp = v / v0 - 1;
-  
+
         $scope.tooltipContent = {
           project: _.findWhere($scope.projects,
                                { name: phSeries.projectName }),
@@ -106,7 +106,7 @@ perf.controller('GraphsCtrl', [
           deltaPercentValue: (100 * dvp).toFixed(1),
           date: $.plot.formatDate(new Date(t), '%a %b %d, %H:%M:%S')
         };
-  
+
         // Get revision information for both this datapoint and the previous
         // one
         _.each([{ resultSetId: dataPoint.resultSetId,
@@ -123,14 +123,14 @@ perf.controller('GraphsCtrl', [
                        console.log("Failed to get revision: " + error.reason);
                      });
                });
-  
+
         // now position it
         $timeout(function() {
           var x = parseInt(flotData.series.xaxis.p2c(t) +
                            $scope.plot.offset().left);
           var y = parseInt(flotData.series.yaxis.p2c(v) +
                            $scope.plot.offset().top);
-  
+
           var tip = $('#graph-tooltip');
           function getTipPosition(tip, x, y, yoffset) {
             return {
@@ -138,14 +138,14 @@ perf.controller('GraphsCtrl', [
               top: y - tip.height() - yoffset
             };
           }
-  
+
           tip.stop(true);
-  
+
           // first, reposition tooltip (width/height won't be calculated correctly
           // in all cases otherwise)
           var tipPosition = getTipPosition(tip, x, y, 10);
           tip.css({ left: tipPosition.left, top: tipPosition.top });
-  
+
           // get new tip position after transform
           var tipPosition = getTipPosition(tip, x, y, 10);
           if (tip.css('visibility') == 'hidden') {
@@ -268,7 +268,7 @@ perf.controller('GraphsCtrl', [
     function zoomGraph() {
       // If either x or y exists then there is zoom set in the variable
       if ($scope.zoom['x']) {
-        if (_.find($scope.seriesList, function(series) { return series.visible; })) {  
+        if (_.find($scope.seriesList, function(series) { return series.visible; })) {
           $.each($scope.plot.getXAxes(), function(_, axis) {
             var opts = axis.options;
             opts.min = $scope.zoom['x'][0];
@@ -424,7 +424,7 @@ perf.controller('GraphsCtrl', [
     }
 
     $scope.repoName = $stateParams.projectId;
-    
+
     function updateDocument() {
       $state.transitionTo('graphs', {
         timerange: $scope.myTimerange.value,
@@ -437,16 +437,16 @@ perf.controller('GraphsCtrl', [
                                                  highlight.length == 12);
                                        }),
         zoom: (function() {
-          if ((typeof $scope.zoom.x != "undefined") 
+          if ((typeof $scope.zoom.x != "undefined")
               && (typeof $scope.zoom.y != "undefined")
               && ($scope.zoom.x != 0 && $scope.zoom.y != 0)) {
-            var modifiedZoom = ("[" + ($scope.zoom['x'].toString() 
+            var modifiedZoom = ("[" + ($scope.zoom['x'].toString()
                     + ',' + $scope.zoom['y'].toString()) + "]").replace(/[\[\{\}\]"]+/g, '');
-            return modifiedZoom 
+            return modifiedZoom
           }
           else {
-            $scope.zoom = [] 
-            return $scope.zoom 
+            $scope.zoom = []
+            return $scope.zoom
           }
         })(),
       }, {location: true, inherit: true,
@@ -586,7 +586,7 @@ perf.controller('GraphsCtrl', [
         optionCollectionMap = _optionCollectionMap;
 
         if ($stateParams.zoom) {
-          var zoomString = decodeURIComponent($stateParams.zoom).replace(/[\[\{\}\]"]+/g, '')  
+          var zoomString = decodeURIComponent($stateParams.zoom).replace(/[\[\{\}\]"]+/g, '')
           var zoomArray = zoomString.split(",")
           var zoomObject = {
             "x": zoomArray.slice(0,2),
@@ -623,7 +623,7 @@ perf.controller('GraphsCtrl', [
                 "visible": (partialSeriesArray[2] == 0) ? false : true
             }
             return partialSeriesObject;
-          });    
+          });
           addSeriesList(partialSeriesList);
         } else {
           $scope.seriesList = [];
