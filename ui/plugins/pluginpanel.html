@@ -16,6 +16,7 @@
 
           <li ng-repeat="job_log_url in job_log_urls">
             <a ng-if="job_log_url.parse_status == 'parsed'"
+               id="logviewer-btn"
                title="Open the log viewer in a new window"
                target="_blank"
                href="{{::lvUrl}}"
@@ -25,12 +26,14 @@
                    class="logviewer-icon"><img>
             </a>
             <a ng-if="job_log_url.parse_status == 'failed'"
+               id="logviewer-btn"
                title="Log parsing has failed"
                class="disabled" >
               <img src="./img/logviewerIcon.svg"
                    class="logviewer-icon"><img>
             </a>
             <a ng-if="job_log_url.parse_status == 'pending'"
+               id="logviewer-btn"
                class="disabled"
                title="Log parsing in progress">
               <img src="./img/logviewerIcon.svg"
@@ -39,6 +42,7 @@
           </li>
           <li>
             <a ng-if="!job_log_urls.length"
+               id="logviewer-btn"
                class="disabled"
                title="No logs available for this job">
               <img src="./img/logviewerIcon.svg"

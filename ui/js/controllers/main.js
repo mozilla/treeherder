@@ -6,13 +6,13 @@
 
 treeherderApp.controller('MainCtrl', [
     '$scope', '$rootScope', '$routeParams', '$location', 'ThLog',
-    'ThRepositoryModel', 'thPinboard',
+    'ThRepositoryModel', 'thPinboard', 'thNotify',
     'thClassificationTypes', 'thEvents', '$interval', '$window',
     'ThExclusionProfileModel', 'thJobFilters', 'ThResultSetStore',
     'thDefaultRepo', 'thJobNavSelectors',
     function MainController(
         $scope, $rootScope, $routeParams, $location, ThLog,
-        ThRepositoryModel, thPinboard,
+        ThRepositoryModel, thPinboard, thNotify,
         thClassificationTypes, thEvents, $interval, $window,
         ThExclusionProfileModel, thJobFilters, ThResultSetStore,
         thDefaultRepo, thJobNavSelectors) {
@@ -51,6 +51,8 @@ treeherderApp.controller('MainCtrl', [
         // Single key shortcuts to allow in ui events (usually inputs)
         var mousetrapExclusions = [
             'i',     // Toggle display in-progress jobs (pending/running)
+            'right', // Select next job
+            'left',  // Select previous job
             'j',     // Select next unclassified failure
             'n',     // Select next unclassified failure
             'k',     // Select previous unclassified failure
@@ -61,8 +63,7 @@ treeherderApp.controller('MainCtrl', [
             'b',     // Pin selected job and add related bug
             'c',     // Pin selected job and add classification
             'f',     // Enter a custom job or platform filter
-            'left',  // Select previous job
-            'right'  // Select next job
+            'l'      // Open the logviewer for the selected job
         ];
 
         // Make the single key exclusions available
@@ -221,6 +222,13 @@ treeherderApp.controller('MainCtrl', [
             // Shortcut: save pinboard classification and related bugs
             Mousetrap.bind('ctrl+enter', function() {
                 $scope.$evalAsync($rootScope.$emit(thEvents.saveClassification));
+            });
+
+            // Shortcut: open the logviewer for the selected job
+            Mousetrap.bind('l', function() {
+                if ($scope.selectedJob) {
+                    $scope.$evalAsync($rootScope.$emit(thEvents.openLogviewer));
+                }
             });
 
         };
