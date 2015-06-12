@@ -150,6 +150,14 @@ treeherder.controller('PluginCtrl', [
                     // exclude the json log URLs
                     $scope.job_log_urls = _.reject(results[3], {name: 'mozlog_json'});
 
+                    // Provide a parse status as a scope variable for logviewer shortcut
+                    if (!$scope.job_log_urls.length) {
+                        $scope.logParseStatus = 'unavailable';
+                    } else if ($scope.job_log_urls[0].parse_status) {
+                        $scope.logParseStatus = $scope.job_log_urls[0].parse_status;
+                    }
+
+                    // Provide a parse status for the model
                     var logsNotParsed = [];
                     $scope.jobLogsAllParsed = _.every($scope.job_log_urls, function(jlu) {
                         if(jlu.parse_status === 'pending'){
@@ -159,6 +167,7 @@ treeherder.controller('PluginCtrl', [
                             return true;
                         }
                     });
+
                     // retry to fetch the job info if a log hasn't been parsed yet
                     if(logsNotParsed.length > 0){
                         // first parse all the unparsed logs
@@ -374,6 +383,20 @@ treeherder.controller('PluginCtrl', [
                 });
             }
         };
+
+        // Open the logviewer and provide notifications if it isn't available
+        $rootScope.$on(thEvents.openLogviewer, function() {
+            if ($scope.logParseStatus === 'pending') {
+                thNotify.send("Log parsing in progress, log viewer not yet available", 'info');
+            } else if ($scope.logParseStatus === 'failed') {
+                thNotify.send("Log parsing has failed, log viewer is unavailable", 'warning');
+            } else if ($scope.logParseStatus === 'unavailable') {
+                thNotify.send("No logs available for this job", 'info');
+            // If it's available open the logviewer
+            } else if ($scope.logParseStatus === 'parsed') {
+                $('#logviewer-btn')[0].click();
+            }
+        });
 
         $rootScope.$on(thEvents.jobRetrigger, function(event, job) {
             $scope.retriggerJob();
