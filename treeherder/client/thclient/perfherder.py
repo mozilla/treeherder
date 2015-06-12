@@ -96,7 +96,7 @@ class PerformanceSeries(list):
 
     ::
         pc = PerfherderClient()
-        series = pc.get_performance_series('mozilla-central', '9cfc271dab9b7fc2c1229736fecfbbc6e7c5fac9'
+        series = pc.get_performance_series('mozilla-central', '9cfc271dab9b7fc2c1229736fecfbbc6e7c5fac9')
         (result_set_ids, geomeans) = (series['result_set_id'], series['geomean'])
     '''
 
