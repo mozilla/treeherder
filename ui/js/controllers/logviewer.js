@@ -36,7 +36,9 @@ logViewerApp.controller('LogviewerCtrl', [
         $scope.showSuccessful = true;
 
         $scope.$watch('artifact', function () {
-            if (!$scope.artifact) return;
+            if (!$scope.artifact) {
+                return;
+            }
             $scope.showSuccessful = !$scope.hasFailedSteps();
         });
 
@@ -75,7 +77,9 @@ logViewerApp.controller('LogviewerCtrl', [
                 }
 
                 // dont do the call if we already have all the lines
-                if ( range.start === range.end ) return deferred.promise;
+                if (range.start === range.end) {
+                    return deferred.promise;
+                }
 
                 $scope.loading = true;
 
@@ -93,21 +97,27 @@ logViewerApp.controller('LogviewerCtrl', [
                     if (bounds.top) {
                         for (var i = data.length - 1; i >= 0; i--) {
                             // make sure we are inserting at the right place
-                            if ($scope.displayedLogLines[0].index != data[i].index + 1) continue;
+                            if ($scope.displayedLogLines[0].index !== data[i].index + 1) {
+                                continue;
+                            }
                             $scope.displayedLogLines.unshift(data[i]);
                         }
 
                         $timeout(function () {
-                            if (above) removeChunkBelow();
+                            if (above) {
+                                removeChunkBelow();
+                            }
                         }, 100);
                     } else if (bounds.bottom) {
                         var sh = element.scrollHeight;
                         var lines = $scope.displayedLogLines;
 
-                        for (var i = 0; i < data.length; i++) {
+                        for (var j = 0; j < data.length; j++) {
                             // make sure we are inserting at the right place
-                            if (lines[ lines.length - 1 ].index != data[i].index - 1) continue;
-                            $scope.displayedLogLines.push(data[i]);
+                            if (lines[lines.length - 1].index !== data[j].index - 1) {
+                                continue;
+                            }
+                            $scope.displayedLogLines.push(data[j]);
                         }
 
                         $timeout(function () {
@@ -215,7 +225,9 @@ logViewerApp.controller('LogviewerCtrl', [
         }
 
         function drawErrorLines (data) {
-            if (data.length === 0) return;
+            if (data.length === 0) {
+                return;
+            }
 
             var min = data[0].index;
             var max = data[ data.length - 1 ].index;
@@ -224,7 +236,9 @@ logViewerApp.controller('LogviewerCtrl', [
                 step.errors.forEach(function(err) {
                     var line = err.linenumber;
 
-                    if (line < min || line > max) return;
+                    if (line < min || line > max) {
+                        return;
+                    }
 
                     var index = line - min;
                     data[index].hasError = true;
