@@ -59,7 +59,6 @@ logViewerApp.controller('LogviewerCtrl', [
         };
 
         $scope.getShadingClass = function(result) {
-            console.log("shading for", result);
             return "result-status-shading-" + result;
         };
 
