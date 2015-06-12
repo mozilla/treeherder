@@ -6,10 +6,12 @@
 
 logViewerApp.controller('LogviewerCtrl', [
     '$anchorScroll', '$http', '$location', '$q', '$rootScope', '$scope',
-    '$timeout', 'ThJobArtifactModel', 'ThLog', 'ThLogSliceModel',
+    '$timeout', 'ThJobArtifactModel', 'ThLog', 'ThLogSliceModel', 'ThJobModel',
+    'dateFilter', 'thJobSearchStr', 'ThResultSetModel', 'thDateFormat',
     function Logviewer(
         $anchorScroll, $http, $location, $q, $rootScope, $scope,
-        $timeout, ThJobArtifactModel, ThLog, ThLogSliceModel) {
+        $timeout, ThJobArtifactModel, ThLog, ThLogSliceModel, ThJobModel,
+        dateFilter, thJobSearchStr, ThResultSetModel, thDateFormat) {
 
         var $log = new ThLog('LogviewerCtrl');
 
@@ -54,6 +56,12 @@ logViewerApp.controller('LogviewerCtrl', [
                 }
             }
             return false;
+        };
+
+        // get the css class for the result color
+        // used for the whole job, as well as for each step
+        $scope.getShadingClass = function(result) {
+            return "result-status-shading-" + result;
         };
 
         $scope.loadMore = function(bounds, element) {
@@ -162,44 +170,41 @@ logViewerApp.controller('LogviewerCtrl', [
         };
 
         $scope.init = function() {
+
+            $scope.logProperties = [];
+            ThJobModel.get($scope.repoName, $scope.job_id).then(function(job) {
+                var jobStr = thJobSearchStr(job);
+
+                // set the title of the browser window/tab
+                $scope.logViewerTitle = "Log for " + jobStr;
+
+                // set the result value and shading color class
+                $scope.result = {label: "Result", value: job.result};
+                $scope.resultStatusShading = $scope.getShadingClass(job.result);
+
+                // other properties, in order of appearance
+                $scope.logProperties = [
+                    {label: "Job", value: jobStr},
+                    {label: "Machine", value: job.machine_name},
+                    {label: "Start", value: dateFilter(job.start_timestamp*1000, thDateFormat)},
+                    {label: "End", value: dateFilter(job.end_timestamp*1000, thDateFormat)}
+                ];
+
+                // get the revision and linkify it
+                ThResultSetModel.getResultSet($scope.repoName, job.result_set_id).then(function(data){
+                    var revision = data.data.revision;
+                    $scope.logProperties.push({label: "Revision", value: revision});
+                    $scope.logRevisionFilterUrl = $scope.urlBasePath +
+                        "#/jobs?repo=" + $scope.repoName + "&revision=" +
+                        revision;
+                });
+            });
+
             $log.debug(ThJobArtifactModel.get_uri());
             ThJobArtifactModel.get_list({job_id: $scope.job_id, name: 'text_log_summary'})
             .then(function(artifactList){
                 if(artifactList.length > 0){
                     $scope.artifact = artifactList[0].blob;
-
-                    $scope.logProperties = _.map(
-                        _.keys($scope.artifact.header), function(label) {
-                            var value = $scope.artifact.header[label];
-                            if (label === 'starttime') {
-                                // present start time as a human readable date
-                                var startDate = new Date(0);
-                                startDate.setUTCSeconds(value);
-                                value = startDate.toString();
-                            }
-                            return {label: label, value: value}
-                        });
-
-                    // linkify revision
-                    if ($scope.artifact.header.revision) {
-                        var revision = $scope.artifact.header.revision.substr(0,12);
-                        $scope.logRevisionFilterUrl = $scope.urlBasePath +
-                            "#/jobs?repo=" + $scope.repoName + "&revision=" +
-                            revision;
-                    }
-
-                    ThJobArtifactModel.get_list(
-                        {job_id: $scope.job_id, name:'buildapi'})
-                    .then(function(buildapiData){
-                        if(buildapiData.length > 0){
-                            $scope.artifact.header.builder = buildapiData[0].blob.buildername;
-
-                            // Used with ng-bind to avoid template flicker
-                            $scope.getLogviewerTitle = function() {
-                                return "Log for " + $scope.artifact.header.builder;
-                            };
-                        }
-                    });
                 }
             });
         };
