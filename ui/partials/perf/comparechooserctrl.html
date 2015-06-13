@@ -10,8 +10,8 @@
           <label for="original-project-selector">Project</label>
           <select id="original-project-selector" class="form-control" ng-model="originalProject" ng-options="project.name for project in projects"/>
           <label for="original-revision-input">Revision</label>
-          <div class="form-group has-error">
-            <input id="original-revision-input" maxlength="12" class="form-control" ng-model="originalRevision"/>
+          <div class="form-group" ng-class="{'has-error': originalRevisionError}">
+            <input id="original-revision-input" maxlength="12" class="form-control" ng-model="originalRevision">
             <br/>
           </div>
            <label class="control-label" style="color:#A94442" ng-show="originalRevisionError">{{originalRevisionError}}"</label>
@@ -23,9 +23,9 @@
           <label for="new-project-selector">Project</label>
           <select id="new-project-selector" class="form-control" ng-model="newProject" ng-options="project.name for project in projects"/>
           <label for="new-revision-input">Revision</label>
-            <div class="form-group has-error">
-              <input id="new-revision-input" maxlength="12" class="form-control" ng-model="newRevision"/>
-              <br/>
+            <div class="form-group" ng-class="{'has-error': newRevisionError}">
+            <input id="new-revision-input" maxlength="12" class="form-control" ng-model="newRevision">
+            <br/>
             </div>
             <label class="control-label" style="color:#A94442" ng-show="newRevisionError">{{newRevisionError}}"</label>
         </div>
