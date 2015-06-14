@@ -315,6 +315,7 @@ RE_ERR_MATCH = re.compile((
     r"|^Output exceeded \d+ bytes"
     r"|^The web-page 'stop build' button was pressed"
     r"|.*\.js: line \d+, col \d+, Error -"
+    r"|^\[taskcluster\] Error:"
 ))
 
 RE_ERR_SEARCH = re.compile((
