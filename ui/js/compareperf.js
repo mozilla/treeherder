@@ -5,12 +5,23 @@
 "use strict";
 
 perf.controller('CompareChooserCtrl', [
-  '$state', '$stateParams', '$scope', 'ThRepositoryModel', 'ThResultSetModel',
+  '$state', '$stateParams', '$scope', 'ThRepositoryModel', 'thDefaultRepo', 'ThResultSetModel',
   function CompareChooserCtrl($state, $stateParams, $scope,
-                              ThRepositoryModel, ThResultSetModel) {
+                              ThRepositoryModel, thDefaultRepo, ThResultSetModel) {
     ThRepositoryModel.get_list().success(function(projects) {
       $scope.projects = projects;
-      $scope.originalProject = $scope.newProject = projects[0];
+      $scope.originalProject = $scope.newProject = find_project_by_name(thDefaultRepo);
+
+      function find_project_by_name(input_string) {
+        for (var index in projects) {
+            if(projects.hasOwnProperty(index)) {
+                if (projects[index].name===input_string) {
+                    return projects[index];
+                }  
+            }
+        }
+        return projects[0];
+      }
 
       $scope.runCompare = function() {
         ThResultSetModel.getResultSetsFromRevision($scope.originalProject.name, $scope.originalRevision).then(
