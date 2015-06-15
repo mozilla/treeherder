@@ -22,9 +22,11 @@ def analyze(data, weight_fn=None):
     variance = (sum(pow(d-weighted_avg, 2) for d in data) / (n-1)) if n > 1 else 0.0
     return {"avg": weighted_avg, "n": n, "variance": variance}
 
+
 def default_weights(i, n):
     """A window function that weights all points uniformly."""
     return 1.0
+
 
 def linear_weights(i, n):
     """A window function that falls off arithmetically.
@@ -36,6 +38,7 @@ def linear_weights(i, n):
     if i >= n:
         return 0.0
     return float(n - i) / float(n)
+
 
 def calc_t(w1, w2, weight_fn=None):
     """Perform a Students t-test on the two lists of data.
@@ -56,12 +59,15 @@ def calc_t(w1, w2, weight_fn=None):
 
     return delta_s / (((s1['variance'] / s1['n']) + (s2['variance'] / s2['n'])) ** 0.5)
 
+
 class PerfDatum(object):
+
     __slots__ = ('testrun_id', 'machine_id', 'timestamp', 'value', 'buildid',
-            'time', 'revision', 'run_number', 'last_other', 'historical_stats',
-            'forward_stats', 't', 'state')
+                 'time', 'revision', 'run_number', 'last_other', 'historical_stats',
+                 'forward_stats', 't', 'state')
+
     def __init__(self, testrun_id, machine_id, timestamp, value, buildid, time,
-            revision=None, state='good'):
+                 revision=None, state='good'):
         # Which test run was this
         self.testrun_id = testrun_id
         # Which machine is this

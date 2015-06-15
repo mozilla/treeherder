@@ -2,37 +2,40 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 import unittest
-import json
 import os
-import sys
 
-from analyze import *
+from tests.sampledata import SampleData
+from treeherder.perfalert import *
+
 
 class TestAnalyze(unittest.TestCase):
+
     def test_analyze(self):
         self.assertEqual(analyze([]),
-            {"avg": 0.0, "n": 0, "variance": 0.0})
+                         {"avg": 0.0, "n": 0, "variance": 0.0})
         self.assertEqual(analyze([3.0]),
-            {"avg": 3.0, "n": 1, "variance": 0.0})
+                         {"avg": 3.0, "n": 1, "variance": 0.0})
         self.assertEqual(analyze([1.0, 2.0, 3.0, 4.0]),
-            {"avg": 2.5, "n": 4, "variance": 5.0/3.0})
+                         {"avg": 2.5, "n": 4, "variance": 5.0/3.0})
         self.assertEqual(analyze([1.0, 2.0, 3.0, 4.0], linear_weights),
-            {"avg": 2.0, "n": 4, "variance": 2.0})
+                         {"avg": 2.0, "n": 4, "variance": 2.0})
 
     def test_weights(self):
         self.assertEqual([default_weights(i, 5) for i in range(5)],
-            [1.0, 1.0, 1.0, 1.0, 1.0])
+                         [1.0, 1.0, 1.0, 1.0, 1.0])
         self.assertEqual([linear_weights(i, 5) for i in range(5)],
-            [1.0, 0.8, 0.6, 0.4, 0.2])
+                         [1.0, 0.8, 0.6, 0.4, 0.2])
 
     def test_calc_t(self):
         self.assertEqual(calc_t([0.0, 0.0], [1.0, 2.0]), 3.0)
         self.assertEqual(calc_t([0.0, 0.0], [0.0, 0.0]), 0.0)
         self.assertEqual(calc_t([0.0, 0.0], [1.0, 1.0]), float('inf'))
 
+
 class TestTalosAnalyzer(unittest.TestCase):
+
     def get_data(self):
-        times  = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+        times = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
         values = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1,  1,  1,  1,  1,  1,  1]
         return [PerfDatum(t, t, t, float(v), t, t) for t, v in zip(times, values)]
 
@@ -73,15 +76,14 @@ class TestTalosAnalyzer(unittest.TestCase):
         MACHINE_THRESHOLD = 15
         MACHINE_HISTORY_SIZE = 5
 
-        inputfile = open(os.path.join('test_data', filename))
-        payload = json.load(inputfile)
+        payload = SampleData.get_perf_data(os.path.join('graphs', filename))
         runs = payload['test_runs']
         data = [PerfDatum(r[0], r[6], r[2], r[3], r[1][1], r[2], r[1][2]) for r in runs]
 
         a = TalosAnalyzer()
         a.addData(data)
         results = a.analyze_t(BACK_WINDOW, FORE_WINDOW, THRESHOLD,
-                MACHINE_THRESHOLD, MACHINE_HISTORY_SIZE)
+                              MACHINE_THRESHOLD, MACHINE_HISTORY_SIZE)
         regression_timestamps = [d.timestamp for d in results if d.state == 'regression']
         self.assertEqual(regression_timestamps, expected_timestamps)
 
