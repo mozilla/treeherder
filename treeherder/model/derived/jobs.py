@@ -2091,7 +2091,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 series.extend(series_data)
 
                 sorted_series = sorted(
-                    series, key=itemgetter('result_set_id'), reverse=True
+                    series, key=itemgetter('result_set_id'),
                 )
 
                 filtered_series = filter(
