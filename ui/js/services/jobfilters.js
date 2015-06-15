@@ -304,7 +304,7 @@ treeherder.factory('thJobFilters', [
         var locationSearch = $location.search();
         _stripSearchStrFilters(locationSearch);
         $location.search(locationSearch);
-    }
+    };
 
     /**
      * reset the non-field (checkbox in the ui) filters to the default state
@@ -460,7 +460,7 @@ treeherder.factory('thJobFilters', [
      */
     var _stripSearchStrFilters = function(locationSearch) {
         _.forEach(locationSearch, function (val, field) {
-            if (field == "filter-searchStr") {
+            if (field === _withPrefix("searchStr")) {
                 delete locationSearch[field];
             }
         });

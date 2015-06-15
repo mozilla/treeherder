@@ -359,7 +359,7 @@ treeherderApp.controller('MainCtrl', [
         $scope.clearFilterBox = function() {
             thJobFilters.removeSearchStrFilter();
             $('#platform-job-text-search-field').focus();
-        }
+        };
 
         $scope.isFilterPanelShowing = false;
         $scope.setFilterPanelShowing = function(tf) {
