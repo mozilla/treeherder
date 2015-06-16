@@ -190,6 +190,15 @@ logViewerApp.controller('LogviewerCtrl', [
                     {label: "End", value: dateFilter(job.end_timestamp*1000, thDateFormat)}
                 ];
 
+                // Test to expose the reftest button in the logviewer actionbar
+                $scope.isReftest = function() {
+                    if (job.job_group_name.indexOf("Reftest") !== -1) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                };
+
                 // get the revision and linkify it
                 ThResultSetModel.getResultSet($scope.repoName, job.result_set_id).then(function(data){
                     var revision = data.data.revision;

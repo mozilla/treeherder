@@ -35,18 +35,32 @@
     </div>
 </div>
 
-<div class="logviewer-stepbar">
-    <a href="{{::artifact.logurl}}">
-        <span class="glyphicon glyphicon-align-left raw-log"></span>
-        <span>open raw log</span>
-    </a>
-</div>
+<div class="logviewer-actionbar">
+    <!-- Raw log button -->
+    <div class="logviewer-actionbtn">
+        <a href="{{::artifact.logurl}}">
+            <span class="glyphicon glyphicon-align-left actionbtn-icon"></span>
+            <span>open raw log</span>
+        </a>
+    </div>
 
-<div ng-if="artifact && hasFailedSteps()"
-     class="logviewer-stepbar">
-    <input type="checkbox"
-           ng-model="showSuccessful"
-           ng-change="toggleSuccessfulSteps()" />
+    <!-- Ref test button -->
+    <div ng-if="isReftest()"
+         class="logviewer-actionbtn">
+        <a title="Launch the Reftest Analyser in a new window"
+           target="_blank"
+           href="http://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml#logurl={{::artifact.logurl}}&only_show_unexpected=1">
+            <span class="fa fa-bar-chart-o actionbtn-icon"></span>
+            <span>open reftest</span>
+        </a>
+    </div>
 
-    <span>show successful steps</span>
+    <!-- Show successful steps button -->
+    <div ng-if="artifact && hasFailedSteps()"
+         class="logviewer-actionbtn">
+        <input type="checkbox"
+               ng-model="showSuccessful"
+               ng-change="toggleSuccessfulSteps()" />
+        <span>show successful steps</span>
+    </div>
 </div>

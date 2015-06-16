@@ -81,6 +81,7 @@ body {
 }
 .run-data .steps-data {
     max-height: 210px;
+    min-width: 390px;
     overflow: auto;
     border-color: #dddddd;
     border-width: 1px;
@@ -112,27 +113,31 @@ body {
     border-color: #d58512;
 }
 
-.logviewer-stepbar {
+.logviewer-actionbar {
+    min-width: 400px;
+}
+
+.logviewer-actionbtn {
     display: inline-block;
     margin: 8px 8px 8px 0px;
     padding: 6px 8px;
     border: 1px solid #dddddd;
 }
 
-.logviewer-stepbar span {
+.logviewer-actionbtn span {
     color: #9fa3a5;
 }
 
-.logviewer-stepbar a:hover,
-.logviewer-stepbar a:focus {
+.logviewer-actionbtn a:hover,
+.logviewer-actionbtn a:focus {
     text-decoration: none;
 }
 
-.logviewer-stepbar .raw-log {
+.logviewer-actionbtn .actionbtn-icon {
     padding-right: 5px;
 }
 
-.logviewer-stepbar input[type="checkbox"] {
+.logviewer-actionbtn input[type="checkbox"] {
     margin: 0;
 }
 

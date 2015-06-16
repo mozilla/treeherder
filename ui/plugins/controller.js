@@ -329,9 +329,7 @@ treeherder.controller('PluginCtrl', [
             thBuildApi.cancelAllJobs($scope.repoName, rs.revision);
         };
 
-        /**
-         * Test whether or not the selected job is a reftest
-         */
+        // Test to expose the reftest button in the job details navbar
         $scope.isReftest = function() {
             if ($scope.selectedJob) {
                 return ($scope.selectedJob.job_group_name.indexOf("Reftest") !== -1);
