@@ -34,6 +34,7 @@ TREEHERDER_PERF_SERIES_TIME_RANGES = [
     {"seconds": 2592000, "days": 30},
     {"seconds": 5184000, "days": 60},
     {"seconds": 7776000, "days": 90},
+    {"seconds": 31536000, "days": 365},
 ]
 
 DATA_CYCLE_INTERVAL = timedelta(days=30 * 4)

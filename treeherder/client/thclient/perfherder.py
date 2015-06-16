@@ -14,6 +14,7 @@ class PerformanceTimeInterval(object):
     TWO_WEEKS = 1209600
     SIXTY_DAYS = 5184000
     NINETY_DAYS = 7776000
+    ONE_YEAR = 31536000
 
     @staticmethod
     def all_valid_time_intervals():
