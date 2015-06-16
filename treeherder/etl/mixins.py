@@ -2,9 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-from StringIO import StringIO
-import gzip
-import urllib2
+import requests
 import logging
 from collections import defaultdict
 
@@ -25,17 +23,19 @@ class JsonExtractorMixin(object):
         """
         Deserializes a json string contained a given file, uncompressing it if needed
         """
-        req = urllib2.Request(url)
-        req.add_header('Accept', 'application/json')
-        req.add_header('Content-Type', 'application/json')
-        try:
-            handler = urllib2.urlopen(req, timeout=settings.TREEHERDER_REQUESTS_TIMEOUT)
-            encoding = handler.info().get('Content-Encoding')
-            if encoding and 'gzip' in encoding:
-                buf = StringIO(handler.read())
-                handler = gzip.GzipFile(fileobj=buf)
+        headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        }
 
-            return json.loads(handler.read())
+        try:
+            resp = requests.get(
+                url,
+                headers=headers,
+                timeout=settings.TREEHERDER_REQUESTS_TIMEOUT
+            )
+            resp.raise_for_status()
+            return resp.json()
         except Exception:
             logger.error('Error fetching {0}'.format(url), exc_info=True)
             return None
@@ -46,11 +46,15 @@ class JsonLoaderMixin(object):
     """This mixin posts a json serializable object to the given url"""
 
     def load(self, url, data):
-        req = urllib2.Request(url)
-        req.add_header('Content-Type', 'application/json')
         if not data:
             data = None
-        return urllib2.urlopen(req, json.dumps(data),  timeout=settings.TREEHERDER_REQUESTS_TIMEOUT)
+        resp = requests.post(
+            url,
+            headers={'Content-Type': 'application/json'},
+            timeout=settings.TREEHERDER_REQUESTS_TIMEOUT,
+            data=json.dumps(data)
+        )
+        resp.raise_for_status()
 
 
 class ObjectstoreLoaderMixin(JsonLoaderMixin):
