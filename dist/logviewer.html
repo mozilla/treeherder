@@ -2,8 +2,8 @@
 <html ng-controller="LogviewerCtrl" ng-init="init()" ng-app="logviewer">
     <head>
         <meta charset="utf-8">
-        <title ng-bind="getLogviewerTitle()">Log viewer</title>
-        <link rel="stylesheet" href="css/logviewer.min-464ef78a73a0a41fb430f9625d5d8f32.css" media="screen">
+        <title ng-bind="::logViewerTitle">Log viewer</title>
+        <link rel="stylesheet" href="css/logviewer.min-0623c3aeede51607ecd1a885947f98b9.css" media="screen">
         <link id="favicon" type="image/png" rel="shortcut icon" href="img/logviewerIcon.png">
     </head>
     <body class="body-logviewer">
@@ -11,15 +11,19 @@
             <div class="col-md-6" >
                 <div class="job-header">
                     <table class="table table-condensed" >
-                        <tr ng-repeat="property in logProperties | orderBy:'label'">
+                        <tr class="{{::resultStatusShading}}">
+                            <th>{{result.label}}</th>
+                            <td class="break-word">{{result.value}}</td>
+                        </tr>
+                        <tr ng-repeat="property in logProperties">
                             <th ng-cloak>{{property.label}}</th>
-                            <td ng-if="property.label == 'revision'" class="break-word">
-                                <a href="{{logRevisionFilterUrl}}"
+                            <td ng-if="property.label == 'Revision'" class="break-word">
+                                <a href="{{::logRevisionFilterUrl}}"
                                    title="Open resultset"
                                    class="repo-link"
                                    ng-cloak>{{property.value}}</a>
                             </td>
-                            <td ng-if="property.label != 'revision'"
+                            <td ng-if="property.label != 'Revision'"
                                 ng-cloak class="break-word">{{property.value}}</td>
                         </tr>
                     </table>
@@ -34,7 +38,7 @@
              lv-log-lines="displayedLogLines">
         </div>
 
-        <script src="js/logviewer.min-f05f99b2fef8efaf56f09ee5cb68bc34.js"></script>
+        <script src="js/logviewer.min-412d9f91d11e055aa3a649e62572c166.js"></script>
 
         <script src="js/config/local.conf.js"></script>
 
