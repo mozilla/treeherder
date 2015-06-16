@@ -120,6 +120,25 @@ To add a new repository, the following steps are needed:
      > sudo /etc/init.d/supervisord restart
 
 
+Add a new full access user
+--------------------------
+
+To add a new user with full staff access to Treeherder's interface, open a python shell in vagrant
+
+  .. code-block:: bash
+
+      (venv)vagrant@local:~/treeherder$ python manage.py shell
+
+Then type:
+
+  .. code-block:: python
+
+      >>> from django.contrib.auth.models import User
+      >>> u = User.objects.get(email="your@email.com")
+      >>> u.is_staff = True
+      >>> u.save()
+
+
 Restarting varnish
 ------------------
 
