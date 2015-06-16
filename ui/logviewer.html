@@ -16,8 +16,8 @@
                 <div class="job-header">
                     <table class="table table-condensed" >
                         <tr class="{{::resultStatusShading}}">
-                            <th>{{result.label}}</th>
-                            <td class="break-word">{{result.value}}</td>
+                            <th ng-cloak>{{result.label}}</th>
+                            <td ng-cloak class="break-word">{{result.value}}</td>
                         </tr>
                         <tr ng-repeat="property in logProperties">
                             <th ng-cloak>{{property.label}}</th>
