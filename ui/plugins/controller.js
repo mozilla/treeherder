@@ -10,14 +10,14 @@ treeherder.controller('PluginCtrl', [
     'numberFilter', 'ThBugJobMapModel', 'thResultStatus', 'thJobFilters',
     'ThResultSetModel', 'ThLog', '$q', 'thPinboard', 'ThJobArtifactModel',
     'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'ThModelErrors', 'thTabs',
-    '$timeout', 'thJobSearchStr',
+    '$timeout', 'thJobSearchStr', 'thReftestStatus',
     function PluginCtrl(
         $scope, $rootScope, $location, thUrl, ThJobClassificationModel,
         thClassificationTypes, ThJobModel, thEvents, dateFilter, thDateFormat,
         numberFilter, ThBugJobMapModel, thResultStatus, thJobFilters,
         ThResultSetModel, ThLog, $q, thPinboard, ThJobArtifactModel,
         thBuildApi, thNotify, ThJobLogUrlModel, ThModelErrors, thTabs,
-        $timeout, thJobSearchStr) {
+        $timeout, thJobSearchStr, thReftestStatus) {
 
         var $log = new ThLog("PluginCtrl");
 
@@ -329,14 +329,10 @@ treeherder.controller('PluginCtrl', [
             thBuildApi.cancelAllJobs($scope.repoName, rs.revision);
         };
 
-        /**
-         * Test whether or not the selected job is a reftest
-         */
+        // Test to expose the reftest button in the job details navbar
         $scope.isReftest = function() {
             if ($scope.selectedJob) {
-                return ($scope.selectedJob.job_group_name.indexOf("Reftest") !== -1);
-            } else {
-                return false;
+                return thReftestStatus($scope.selectedJob);
             }
         };
 

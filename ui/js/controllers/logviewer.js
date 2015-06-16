@@ -7,11 +7,11 @@
 logViewerApp.controller('LogviewerCtrl', [
     '$anchorScroll', '$http', '$location', '$q', '$rootScope', '$scope',
     '$timeout', 'ThJobArtifactModel', 'ThLog', 'ThLogSliceModel', 'ThJobModel',
-    'dateFilter', 'thJobSearchStr', 'ThResultSetModel', 'thDateFormat',
+    'dateFilter', 'thJobSearchStr', 'ThResultSetModel', 'thDateFormat', 'thReftestStatus',
     function Logviewer(
         $anchorScroll, $http, $location, $q, $rootScope, $scope,
         $timeout, ThJobArtifactModel, ThLog, ThLogSliceModel, ThJobModel,
-        dateFilter, thJobSearchStr, ThResultSetModel, thDateFormat) {
+        dateFilter, thJobSearchStr, ThResultSetModel, thDateFormat, thReftestStatus) {
 
         var $log = new ThLog('LogviewerCtrl');
 
@@ -189,6 +189,13 @@ logViewerApp.controller('LogviewerCtrl', [
                     {label: "Start", value: dateFilter(job.start_timestamp*1000, thDateFormat)},
                     {label: "End", value: dateFilter(job.end_timestamp*1000, thDateFormat)}
                 ];
+
+                // Test to expose the reftest button in the logviewer actionbar
+                $scope.isReftest = function() {
+                    if (job.job_group_name) {
+                        return thReftestStatus(job);
+                    }
+                };
 
                 // get the revision and linkify it
                 ThResultSetModel.getResultSet($scope.repoName, job.result_set_id).then(function(data){
