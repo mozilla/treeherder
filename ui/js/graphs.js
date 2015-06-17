@@ -749,29 +749,12 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
             return (series.platform === $scope.selectedPlatform);
           }).sort(function(a, b) { return a.name > b.name; });
 
-        var signatures = new Bloodhound({
-          datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
-          queryTokenizer: Bloodhound.tokenizers.whitespace,
-          limit: 100,
-          local: filteredSeriesList
-        });
-
-        // kicks off the loading/processing of `local` and `prefetch`
-        signatures.initialize();
-
-        if (testInputCreated) {
-          $('.typeahead').typeahead('destroy');
+        var filteredSeriesName = new Array;
+        for (var keys in filteredSeriesList) {
+            filteredSeriesName.push(filteredSeriesList[keys].name);            
         }
-
-        $('.typeahead').typeahead(null, {
-          name: 'signatures',
-          displayKey: 'name',
-          source: signatures.ttAdapter(),
-          limit: 100
-        }).on('typeahead:selected', function(obj, datum) {
-          $scope.selectedSeries = datum;
-          $scope.addTestDataDisabled = false;
-        });
+        $scope.LeftList = filteredSeriesName;
+        
         testInputCreated = true;
       }
       $scope.updateTestSelector();
