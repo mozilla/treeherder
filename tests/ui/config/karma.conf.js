@@ -29,7 +29,7 @@ module.exports = function (config) {
             'ui/js/logviewer.js',
             'ui/js/treeherder_app.js',
             'ui/js/controllers/**/*.js',
-            'ui/js/directives/**/*.js',
+            'ui/js/directives/**/**/*.js',
             'ui/js/models/**/*.js',
             'ui/js/services/**/*.js',
             'ui/plugins/**/*.js',
