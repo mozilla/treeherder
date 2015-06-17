@@ -51,6 +51,14 @@ PLATFORMS_BUILDERNAME = [
         }
     },
     {
+        'regex': re.compile(r'^horizon.*_linux64', re.IGNORECASE),
+        'attributes': {
+            'os': 'linux',
+            'os_platform': 'horizon-linux64',
+            'arch': 'x86_64',
+        }
+    },
+    {
         'regex': re.compile(r'^(?:Linux|Ubuntu).*64 Mulet', re.IGNORECASE),
         'attributes': {
             'os': 'linux',
@@ -106,6 +114,14 @@ PLATFORMS_BUILDERNAME = [
         'attributes': {
             'os': 'mac',
             'os_platform': 'graphene-osx',
+            'arch': 'x86_64',
+        }
+    },
+    {
+        'regex': re.compile(r'^horizon.*_macosx64', re.IGNORECASE),
+        'attributes': {
+            'os': 'mac',
+            'os_platform': 'horizon-osx',
             'arch': 'x86_64',
         }
     },
@@ -181,6 +197,14 @@ PLATFORMS_BUILDERNAME = [
         'attributes': {
             'os': 'win',
             'os_platform': 'graphene-win64',
+            'arch': 'x86_64',
+        }
+    },
+    {
+        'regex': re.compile(r'^horizon.*_win64', re.IGNORECASE),
+        'attributes': {
+            'os': 'win',
+            'os_platform': 'horizon-win64',
             'arch': 'x86_64',
         }
     },

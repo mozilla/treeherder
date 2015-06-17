@@ -50,6 +50,9 @@ treeherder.value("thPlatformNameMap", {
     "graphene-linux64": "Graphene Linux x64",
     "graphene-osx": "Graphene OS X",
     "graphene-win64": "Graphene Windows x64",
+    "horizon-linux64": "Horizon Linux x64",
+    "horizon-osx": "Horizon OS X",
+    "horizon-win64": "Horizon Windows x64",
     "other": "Other"
 });
 
@@ -99,6 +102,9 @@ treeherder.value("thPlatformOrder", {
     "graphene-linux64": 71,
     "graphene-osx": 72,
     "graphene-win64": 73,
+    "horizon-linux64": 74,
+    "horizon-osx": 75,
+    "horizon-win64": 76,
     "other": 99,
 });
 
