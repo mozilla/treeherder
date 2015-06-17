@@ -7,16 +7,8 @@ Serving the UI build from the dist directory
 During local development the UI is served in its original, unprocessed form. In
 production, a minified/built version of the UI (generated using grunt) is used instead.
 
-To serve the built version of the UI locally, in ``Vagrantfile`` change
-``serve_minified_ui`` to true:
-
-.. code-block:: ruby
-
-  puppet.facter = {
-    "serve_minified_ui" => "true"
-  }
-
-You will need to run ``vagrant provision`` to pick up those changes, if the Vagrant environment was already created.
+To serve the built version of the UI locally, set ``SERVE_MINIFIED_UI`` to True in
+the environment before starting gunicorn/runserver.
 
 
 Updating the UI build prior to deployment

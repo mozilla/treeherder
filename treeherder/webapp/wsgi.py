@@ -18,7 +18,9 @@ framework.
 
 """
 import os
+from django.conf import settings
 from django.core.wsgi import get_wsgi_application
+from whitenoise.django import DjangoWhiteNoise
 
 try:
     import newrelic.agent
@@ -38,6 +40,11 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "treeherder.settings")
 # file. This includes Django's development server, if the WSGI_APPLICATION
 # setting points here.
 application = get_wsgi_application()
+
+# Wrap the Django WSGI app with WhiteNoise so the UI can be served by gunicorn
+# in production, avoiding the need for Apache/nginx on Heroku.
+application = DjangoWhiteNoise(application)
+application.add_files(settings.UI_ROOT)
 
 if newrelic:
     application = newrelic.agent.wsgi_application()(application)
