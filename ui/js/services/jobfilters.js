@@ -274,17 +274,19 @@ treeherder.factory('thJobFilters', [
     };
 
     var removeFilter = function(field, value) {
-        var oldQsVal = _getFiltersOrDefaults(field);
         // default to just removing the param completely
         var newQsVal = null;
 
-        if (oldQsVal && oldQsVal.length) {
-            newQsVal = _.without(oldQsVal, value);
+        if (value) {
+            var oldQsVal = _getFiltersOrDefaults(field);
+            if (oldQsVal && oldQsVal.length) {
+                newQsVal = _.without(oldQsVal, value);
+            }
+            if (!newQsVal || !newQsVal.length || _matchesDefaults(field, newQsVal)) {
+                newQsVal = null;
+            }
+            $log.debug("remove set " + _withPrefix(field) + " from " + oldQsVal + " to " + newQsVal);
         }
-        if (!newQsVal || !newQsVal.length || _matchesDefaults(field, newQsVal)) {
-            newQsVal = null;
-        }
-        $log.debug("remove set " + _withPrefix(field) + " from " + oldQsVal + " to " + newQsVal);
         $location.search(_withPrefix(field), newQsVal);
     };
 
@@ -297,12 +299,6 @@ treeherder.factory('thJobFilters', [
     var removeAllFieldFilters = function() {
         var locationSearch = $location.search();
         _stripFieldFilters(locationSearch);
-        $location.search(locationSearch);
-    };
-
-    var removeSearchStrFilter = function() {
-        var locationSearch = $location.search();
-        _stripSearchStrFilters(locationSearch);
         $location.search(locationSearch);
     };
 
@@ -453,20 +449,6 @@ treeherder.factory('thJobFilters', [
         return locationSearch;
     };
 
-    /**
-     * Same as _stripFieldFilters, but only removes the filter-searchStr
-     * filter from the passed-in locationSearch without
-     * actually setting it in the location bar
-     */
-    var _stripSearchStrFilters = function(locationSearch) {
-        _.forEach(locationSearch, function (val, field) {
-            if (field === _withPrefix("searchStr")) {
-                delete locationSearch[field];
-            }
-        });
-        return locationSearch;
-    };
-
     var _isFieldFilter = function(field) {
         return _startsWith(field, PREFIX) &&
                !_.contains(['resultStatus', 'classifiedState'], _withoutPrefix(field));
@@ -572,7 +554,6 @@ treeherder.factory('thJobFilters', [
         removeFilter: removeFilter,
         replaceFilter: replaceFilter,
         removeAllFieldFilters: removeAllFieldFilters,
-        removeSearchStrFilter: removeSearchStrFilter,
         resetNonFieldFilters: resetNonFieldFilters,
         toggleFilters: toggleFilters,
         toggleInProgress: toggleInProgress,
