@@ -67,8 +67,21 @@ function thqueuespurge {
 }
 
 function thresetall {
-    thqueuespurge
+    echo "Deleting logs"
     thlogsdelete
+
+    echo "Deleting celerybeat-schedule"
+    if [ -f ~/treeherder/celerybeat-schedule ]
+    then
+        rm ~/treeherder/celerybeat-schedule
+    fi
+
+    echo "Restarting memcache"
     sudo service memcached restart
-    rm ~/treeherder/celerybeat-schedule
+
+    echo "Restarting rabbitmq"
+    sudo service rabbitmq-server restart
+
+    echo "Purging queues"
+    thqueuespurge
 }
