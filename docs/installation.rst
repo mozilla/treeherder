@@ -73,7 +73,7 @@ Setting up a local Treeherder instance
 Viewing the local server
 ------------------------
 
-* Start a gunicorn instance, to serve API requests:
+* Start a gunicorn instance, to serve the static UI and API requests:
 
   .. code-block:: bash
 

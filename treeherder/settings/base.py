@@ -62,6 +62,8 @@ USE_I18N = False
 USE_L10N = True
 USE_TZ = False
 
+SERVE_MINIFIED_UI = os.environ.get("SERVE_MINIFIED_UI") == "True"
+UI_ROOT = path("..", "dist" if SERVE_MINIFIED_UI else "ui")
 
 STATIC_ROOT = path("webapp", "static")
 STATIC_URL = "/static/"

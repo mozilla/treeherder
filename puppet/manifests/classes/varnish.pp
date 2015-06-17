@@ -12,7 +12,6 @@ $varnish_port_change = $operatingsystem ? {
   default => "sed -i '/^VARNISH_LISTEN_PORT=6081$/ s/6081/80/' ${varnish_port_file}",
 }
 
-
 class varnish {
   package { "varnish":
     ensure => installed;
@@ -27,20 +26,14 @@ class varnish {
   file {"/etc/varnish/default.vcl":
     content => template("${PROJ_DIR}/puppet/files/varnish/default.vcl"),
     owner => "root", group => "root", mode => 0644,
-    require => [Package["varnish"]],
+    require => Package["varnish"],
     before => Service["varnish"],
     notify => Service["varnish"],
   }
 
   exec { $varnish_port_change:
-    require => [
-      Package[$apache_devel],
-      Package["varnish"],
-    ],
-    before => [
-      Service["varnish"]
-    ],
+    require => Package["varnish"],
+    before => Service["varnish"],
     notify => Service["varnish"],
   }
-
 }

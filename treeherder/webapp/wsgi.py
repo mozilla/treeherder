@@ -18,7 +18,16 @@ framework.
 
 """
 import os
+
+# We defer to a DJANGO_SETTINGS_MODULE already in the environment. This breaks
+# if running multiple sites in the same mod_wsgi process. To fix this, use
+# mod_wsgi daemon mode with each site in its own daemon process, or use
+# os.environ["DJANGO_SETTINGS_MODULE"] = "webapp.settings"
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "treeherder.settings")
+
+from django.conf import settings
 from django.core.wsgi import get_wsgi_application
+from whitenoise.django import DjangoWhiteNoise
 
 try:
     import newrelic.agent
@@ -28,16 +37,15 @@ except ImportError:
 if newrelic:
     newrelic.agent.initialize()
 
-# We defer to a DJANGO_SETTINGS_MODULE already in the environment. This breaks
-# if running multiple sites in the same mod_wsgi process. To fix this, use
-# mod_wsgi daemon mode with each site in its own daemon process, or use
-# os.environ["DJANGO_SETTINGS_MODULE"] = "webapp.settings"
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "treeherder.settings")
-
 # This application object is used by any WSGI server configured to use this
 # file. This includes Django's development server, if the WSGI_APPLICATION
 # setting points here.
 application = get_wsgi_application()
+
+# Wrap the Django WSGI app with WhiteNoise so the UI can be served by gunicorn
+# in production, avoiding the need for Apache/nginx on Heroku.
+application = DjangoWhiteNoise(application)
+application.add_files(settings.UI_ROOT)
 
 if newrelic:
     application = newrelic.agent.wsgi_application()(application)
