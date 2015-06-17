@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-from urllib import urlencode
+import requests
 
 from django.conf import settings
 
@@ -15,14 +15,14 @@ def get_bz_source_url():
     params = {
         'keywords': 'intermittent-failure',
         'chfieldfrom': '-1y',
-        'include_fields': ('id,summary,status,resolution,'
+        'include_fields[]': ['id,summary,status,resolution,'
                            'op_sys,cf_crash_signature, '
-                           'keywords, last_change_time')
+                           'keywords, last_change_time']
     }
     endpoint = 'rest/bug'
 
     source_url = '{0}/{1}?{2}'.format(
-        hostname, endpoint, urlencode(params)
+        hostname, endpoint, params
     )
     return source_url
 

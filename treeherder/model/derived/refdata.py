@@ -7,7 +7,7 @@ import logging
 from hashlib import sha1
 import time
 from datetime import timedelta, datetime
-import urllib2
+import requests
 from django.conf import settings
 from datasource.bases.BaseHub import BaseHub
 from datasource.DataHub import DataHub
@@ -1289,7 +1289,7 @@ class RefDataManager(object):
         milestone_path = '/raw-file/default/config/milestone.txt'
         version_url = "".join((repo_url, milestone_path))
 
-        response = urllib2.urlopen(
+        response = requests.get(
             version_url,
             timeout=settings.TREEHERDER_REQUESTS_TIMEOUT)
         for line in response:

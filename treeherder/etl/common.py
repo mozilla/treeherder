@@ -3,7 +3,7 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 import hashlib
-import urllib2
+import requests
 import simplejson as json
 import time
 
@@ -58,26 +58,18 @@ class JobData(dict):
 
 
 def retrieve_api_content(url):
-    req = urllib2.Request(url)
-    req.add_header('Content-Type', 'application/json')
-    conn = urllib2.urlopen(
-        req,
-        timeout=settings.TREEHERDER_REQUESTS_TIMEOUT
-    )
-    if conn.getcode() == 404:
+    headers = {'Content-Type', 'application/json'}
+    req = requests.get(url, headers=headers, timeout=settings.TREEHERDER_REQUESTS_TIMEOUT)
+    if req.status_code == 404:
         return None
 
 
 def get_remote_content(url):
-    """A thin layer of abstraction over urllib. """
-    req = urllib2.Request(url)
-    req.add_header('Accept', 'application/json')
-    req.add_header('Content-Type', 'application/json')
-    conn = urllib2.urlopen(
-        req,
-        timeout=settings.TREEHERDER_REQUESTS_TIMEOUT)
+    """A thin layer of abstraction over requests. """
+    headers = {'Accept', 'application/json','Content-Type', 'application/json'}
+    req = requests.get(url, headers=headers, timeout=settings.TREEHERDER_REQUESTS_TIMEOUT)
 
-    if not conn.getcode() == 200:
+    if not req.status_code == 200:
         return None
     try:
         content = json.loads(conn.read())

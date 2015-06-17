@@ -3,7 +3,7 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 import io
-import urllib2
+import requests
 import zlib
 from contextlib import closing
 from django.conf import settings
@@ -90,7 +90,7 @@ BuildbotPerformanceDataArtifactBuilder
 
     def get_log_handle(self, url):
         """Hook to get a handle to the log with this url"""
-        return urllib2.urlopen(
+        return requests.get(
                url,
                timeout=settings.TREEHERDER_REQUESTS_TIMEOUT
         )

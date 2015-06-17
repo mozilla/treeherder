@@ -11,7 +11,7 @@ from treeherder.webapp.api.utils import (with_jobs)
 from treeherder.webapp.api.exceptions import ResourceNotFoundException
 from django.conf import settings
 
-import urllib2
+import requests
 import gzip
 import json
 
@@ -26,7 +26,7 @@ class LogSliceView(viewsets.ViewSet):
 
     def get_log_handle(self, url):
         """Hook to get a handle to the log with this url"""
-        return urllib2.urlopen(
+        return requests.get(
             url,
             timeout=settings.TREEHERDER_REQUESTS_TIMEOUT
         )

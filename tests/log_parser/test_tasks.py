@@ -4,7 +4,7 @@
 
 import pytest
 import simplejson as json
-import urllib2
+import requests
 from django.conf import settings
 import gzip
 import zlib
@@ -64,7 +64,7 @@ def jobs_with_local_mozlog_log(initial_data):
 def mock_mozlog_get_log_handler(monkeypatch):
 
     def _get_log_handle(mockself, url):
-        response = urllib2.urlopen(
+        response = requests.get(
                url,
                timeout=settings.TREEHERDER_REQUESTS_TIMEOUT
         )

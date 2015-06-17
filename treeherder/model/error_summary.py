@@ -4,7 +4,7 @@
 
 import logging
 import re
-import urllib
+import requests
 import json
 
 from django.core.urlresolvers import reverse
@@ -189,7 +189,7 @@ def get_bugs_for_search_term(search, base_uri):
     params = {
         'search': search
     }
-    query_string = urllib.urlencode(params)
+    query_string = params
     url = '{0}?{1}'.format(
         base_uri,
         query_string

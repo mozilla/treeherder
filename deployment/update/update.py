@@ -12,8 +12,7 @@ Requires commander_ which is installed on the systems that need it.
 
 import os
 import sys
-import urllib
-import urllib2
+import requests
 from commander.deploy import task, hostgroups
 
 
@@ -124,14 +123,13 @@ def ping_newrelic(ctx):
     if settings.NEW_RELIC_API_KEY and settings.NEW_RELIC_APP_ID:
 
         print 'Post deployment to New Relic'
-        data = urllib.urlencode({
+        data = {
             'deployment[user]': 'Chief',
             'deployment[application_id]': settings.NEW_RELIC_APP_ID
-        })
+        }
         headers = {'x-api-key': settings.NEW_RELIC_API_KEY}
         try:
-            request = urllib2.Request('https://api.newrelic.com/deployments.xml',
-                                      data, headers)
-            urllib2.urlopen(request, timeout=30)
-        except urllib2.URLError as exp:
+            request = requests.post('https://api.newrelic.com/deployments.xml',
+                                      params=data, headers, timeout=30)
+        except requests.exceptions.RequestException as exp:
             print 'Error notifying New Relic: {0}'.format(exp)

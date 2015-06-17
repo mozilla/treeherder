@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-import urllib
+import requests
 import logging
 
 from celery import task
@@ -42,7 +42,7 @@ def fetch_missing_hg_push_logs(repo_name, repo_url, resultset):
     """
     process = MissingHgPushlogProcess()
 
-    changesetParam = urllib.urlencode({"changeset": resultset}, True)
+    changesetParam = {"changeset": resultset}
     url_str = repo_url + '/json-pushes/?full=1&' + changesetParam
 
     logger.info("fetching missing resultsets: {0}".format(url_str))

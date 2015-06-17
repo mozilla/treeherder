@@ -4,7 +4,7 @@
 
 import os
 import time
-import urllib2
+import requests
 import json
 from datetime import datetime, timedelta
 
@@ -17,15 +17,15 @@ from treeherder.model.models import (RepositoryGroup,
 
 
 @pytest.fixture
-def mock_urllib():
-    """this mocks urllib to avoid hitting the network
+def mock_requests():
+    """this mocks requests to avoid hitting the network
     when retrieving the hg version file"""
     mock = Mock()
     mock.return_value = (
         '#just comments',
         'latest version'
     )
-    urllib2.urlopen = mock
+    requests.get = mock
 
 
 @pytest.fixture
@@ -345,7 +345,7 @@ def test_get_repository_info(refdata, repository_id):
         assert info[k] == v
 
 
-def test_get_hg_repository_version(refdata, mock_urllib):
+def test_get_hg_repository_version(refdata, mock_requests):
     version = refdata.get_hg_repository_version("https://hg.mozilla.org/mozilla-central")
 
     refdata.disconnect()
@@ -353,7 +353,7 @@ def test_get_hg_repository_version(refdata, mock_urllib):
     assert version == 'latest version'
 
 
-def test_update_repo_version_if_old(refdata, old_version_repository, mock_urllib):
+def test_update_repo_version_if_old(refdata, old_version_repository, mock_requests):
     """test repo version is updated if a new one is available"""
     repo_id, old_version = old_version_repository
 
@@ -366,7 +366,7 @@ def test_update_repo_version_if_old(refdata, old_version_repository, mock_urllib
     assert old_version != updated_version
 
 
-def test_update_repo_version_unchanged(refdata, latest_version_repository, mock_urllib):
+def test_update_repo_version_unchanged(refdata, latest_version_repository, mock_requests):
     """Test version is kept and version_timestamp updated if the version is unchanged."""
 
     time_now = time.time()
@@ -387,7 +387,7 @@ def test_update_repo_version_unchanged(refdata, latest_version_repository, mock_
     assert row_data.get_column_data('version_timestamp') >= long(time_now)
 
 
-def test_update_repo_version_command(refdata, old_version_repository, initial_data, mock_urllib):
+def test_update_repo_version_command(refdata, old_version_repository, initial_data, mock_requests):
     """Test the django command extension update_repository_version without filters."""
 
     repo_id, old_version = old_version_repository
@@ -401,7 +401,7 @@ def test_update_repo_version_command(refdata, old_version_repository, initial_da
     assert old_version < updated_version
 
 
-def test_update_repo_version_command_with_filters(refdata, old_version_repository, initial_data, mock_urllib):
+def test_update_repo_version_command_with_filters(refdata, old_version_repository, initial_data, mock_requests):
     """Test the django command extension update_repository_version using filters."""
 
     repo_id, old_version = old_version_repository

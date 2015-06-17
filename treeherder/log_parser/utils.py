@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-import urllib2
+import requests
 import logging
 
 import simplejson as json
@@ -92,7 +92,7 @@ def post_log_artifacts(project,
         client.update_parse_status(project, credentials.get('consumer_key'),
                                    credentials.get('consumer_secret'),
                                    job_log_url['id'], 'failed')
-        if isinstance(e, urllib2.HTTPError) and e.code in (403, 404):
+        if isinstance(e, requests.exceptions.HTTPError) and e.code in (403, 404):
             logger.debug("Unable to retrieve log for %s: %s", log_description, e)
             return
         logger.error("Failed to download/parse log for %s: %s", log_description, e)
