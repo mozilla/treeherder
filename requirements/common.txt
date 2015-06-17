@@ -51,8 +51,8 @@ jsonschema==2.4.0
 # sha256: IvfBJQ8MAom2HaZlS1HhRzM7q3ed4ZMng3a9_WpSe0Y
 djangorestframework==2.4.5
 
-# sha256: unxvfRm1wULqarib4wZvS4WVP3dAqBQH-D79uLDhucg
-django-rest-swagger==0.1.11
+# sha256: 1PH7p2aNspPnPQd7QBnvUkor3A7Z4Xh3WI9ZUDFpks4
+django-rest-swagger==0.3.2
 
 # sha256: IHlImDhx2hyv_q93vj9WSOyfcxNCpPKjB8SZaPu64zs
 drf-extensions==0.2.7
@@ -81,6 +81,10 @@ https://github.com/jeads/datasource/archive/v0.7.tar.gz#egg=datasource
 # Required by django-rest-swagger
 # sha256: 7wE5rDCRO0Po04ij53blNKIvgZdZZpaNKDaewDOKabc
 Unipath==1.0
+
+# Required by django-rest-swagger
+# sha256: w2yTiocuX_SUk4szsUqqFWy0OexnVI_Ks1Nbt4sIRug
+PyYAML==3.11
 
 # Required by django-browserid, WebTest & responses
 # sha256: jw9WgT-C0MJ9lXgiEmismvSPB2xx7mlpMwXOymyjVb0

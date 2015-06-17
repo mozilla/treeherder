@@ -22,6 +22,8 @@ $APP_UI_DIR = $serve_minified_ui ? {
     default => "${PROJ_DIR}/ui",
 }
 
+$APP_STATIC_DIR = "${PROJ_DIR}/treeherder/webapp/static"
+
 # You can make these less generic if you like, but these are box-specific
 # so it's not required.
 $DB_USER = "treeherder_user"
