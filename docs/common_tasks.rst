@@ -120,15 +120,6 @@ To add a new repository, the following steps are needed:
      > sudo /etc/init.d/supervisord restart
 
 
-Restarting varnish
-------------------
-
-You may want to restart varnish after a change in the ui. To do so type
-
-  .. code-block:: bash
-
-     > sudo /etc/init.d/varnish restart
-
 Executing arbitrary SQL
 -----------------------
 
