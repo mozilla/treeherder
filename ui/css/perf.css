@@ -219,6 +219,47 @@ to { opacity: 0; }
     overflow: hidden;
 }
 
+/* Test Chooser graph */
+
+.modal-body {
+  display: flex;
+  justify-content: space-around;
+  flex-flow: row;
+  align-content: center;
+}
+
+.typeahead {
+  font-size: 16px;
+  width: 250px;
+}
+
+.test-chooser {
+  flex: auto;
+  width: 280px;
+}
+
+.btn-group-vertical {
+  flex: none;
+  position: relative;
+  top: 245px;
+  padding: 3px;
+}
+
+#move-left {
+  position: relative;
+  bottom: 4px;
+}
+
+.test-list-container {
+  flex: auto;
+}
+
+.test-list-container .form-control {
+  flex: none;
+  height: 273px;
+  width: 240px;
+}
+
 /* Compare interface stuff */
 
 .vertical-box {

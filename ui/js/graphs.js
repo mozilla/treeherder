@@ -684,21 +684,22 @@ perf.controller('GraphsCtrl', [
             });
 
             modalInstance.result.then(function(series) {
-              series.highlightedPoints = [];
-              series.visible = true;
-              series.color = availableColors.pop();
-
-              $scope.seriesList.push(series);
-              if( !$scope.highlightedRevision ) {
-                $scope.highlightedRevision = '';
+              for (var i = 0; i < series.length; i++) {
+                  series[i].hightlightedPoints = [];
+                  series[i].visible = true;
+                  series[i].color = availableColors.pop();
+                  $scope.seriesList.push(series[i]);
+                  if (!$scope.highlightedRevision) {
+                      $scope.highlightedRevision = '';                  
+                  }
+                  if (!$scope.zoom) {
+                      $scope.zoom = {};
+                  }
+                  updateDocument();
+                  getSeriesData(series[i]).then(function() {
+                      plotGraph();                  
+                  });
               }
-              if (!$scope.zoom) {
-                $scope.zoom = {};
-              }
-              updateDocument();
-              getSeriesData(series).then(function() {
-                plotGraph();
-              });
             });
           };
         });
@@ -720,15 +721,43 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
   $scope.loadingTestData = false;
 
   var testInputCreated = false;
-
+  var testArray = [];
+  var series = [];
   $scope.addTestData = function () {
-    var series = _.clone($scope.selectedSeries);
-    series.projectName = $scope.selectedProject.name;
-    $modalInstance.close(series);
+      var selectedSeries = $scope.rightList
+      for (var i = 0; i < selectedSeries.length; i++) {
+          var result = testArray.filter(function (obj) {
+              return obj.name == selectedSeries[i];
+          });
+          series[i] = _.clone(result[0]); 
+          series[i].projectName = $scope.selectedProject.name;
+      }
+      $modalInstance.close(series);
   };
 
   $scope.cancel = function () {
     $modalInstance.dismiss('cancel');
+  };
+  $scope.leftSelected = [];
+  $scope.rightSelected = [];
+  $scope.rightList = [];
+  
+  var move_options = function(what, from, to) {
+      var selected;
+      for(var i=0; i<what.length; i++) {
+          selected = from.indexOf(what[i]);
+          if(selected !== -1) {
+          to.push(from.splice(selected, 1)[0]);     
+          }
+      }
+  }
+  
+  $scope.move_left = function () {
+      move_options($scope.rightSelected, $scope.rightList, $scope.LeftList);
+  };
+  
+  $scope.move_right = function () {
+      move_options($scope.leftSelected, $scope.LeftList, $scope.rightList);    
   };
 
   $scope.updateTestInput = function() {
@@ -755,23 +784,15 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
           limit: 100,
           local: filteredSeriesList
         });
-
-        // kicks off the loading/processing of `local` and `prefetch`
         signatures.initialize();
+        testArray = signatures.local;
 
-        if (testInputCreated) {
-          $('.typeahead').typeahead('destroy');
+        var filteredSeriesName = new Array;
+        for (var keys in filteredSeriesList) {
+            filteredSeriesName.push(filteredSeriesList[keys].name);            
         }
+        $scope.LeftList = filteredSeriesName;
 
-        $('.typeahead').typeahead(null, {
-          name: 'signatures',
-          displayKey: 'name',
-          source: signatures.ttAdapter(),
-          limit: 100
-        }).on('typeahead:selected', function(obj, datum) {
-          $scope.selectedSeries = datum;
-          $scope.addTestDataDisabled = false;
-        });
         testInputCreated = true;
       }
       $scope.updateTestSelector();
