@@ -15,7 +15,6 @@ from { opacity: 1; }
 to { opacity: 0; }
 }
 
-.typeahead,
 .tt-query,
 .tt-hint {
   width: 396px;
@@ -29,14 +28,6 @@ to { opacity: 0; }
           border-radius: 8px;
   outline: none;
   box-sizing: content-box;
-}
-
-.typeahead {
-  background-color: #fff;
-}
-
-.typeahead:focus {
-  border: 2px solid #0097cf;
 }
 
 .tt-query {
@@ -217,6 +208,42 @@ to { opacity: 0; }
     max-width: 100px;
     text-overflow: ellipsis;
     overflow: hidden;
+}
+
+/* Test Chooser graph */
+
+.modal-body {
+  display: flex;
+  justify-content: space-around;
+  flex-flow: row;
+  align-content: center;
+}
+
+.test-chooser {
+  flex: auto;
+  width: 280px;
+}
+
+.btn-group-vertical {
+  flex: none;
+  position: relative;
+  top: 245px;
+  padding: 3px;
+}
+
+#unselect-test {
+  position: relative;
+  bottom: 4px;
+}
+
+.test-list-container {
+  flex: auto;
+}
+
+.test-list-container .form-control {
+  flex: none;
+  height: 273px;
+  width: 480px;
 }
 
 /* Compare interface stuff */
