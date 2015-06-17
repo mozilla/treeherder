@@ -3,19 +3,46 @@
   <h3 class="modal-title">Add test data</h3>
 </div>
 <div class="modal-body">
-  <h4>Project</h4>
-  <select class="form-control" ng-change="updateTestInput()" ng-model="selectedProject" ng-options="project.name for project in projects">
-  </select>
-  <h4>Platform</h4>
-  <p class="blink" ng-show="loadingTestData">Loading series data...</p>
-  <select ng-hide="loadingTestData" ng-change="updateTestSelector()" ng-model="selectedPlatform" ng-options="platform for platform in platformList">
-  </select>
-  <h4>Test</h4>
-  <p class="blink" ng-show="loadingTestData">Loading series data...</p>
-  <div id="scrollable-dropdown-menu">
-    <input my-input ng-hide="loadingTestData" class="typeahead" type="text" placeholder="Enter test keywords (e.g. 'tp5o')"></input>
+  <div class="test-chooser">
+    <h4>Project</h4>
+    <select class="form-control" ng-change="updateTestInput()" ng-model="selectedProject" ng-options="project.name for project in projects">
+    </select>
+    <h4>Platform</h4>
+    <p class="blink" ng-show="loadingTestData">Loading series data...</p>
+    <select ng-hide="loadingTestData" ng-change="updateTestSelector()" ng-model="selectedPlatform" ng-options="platform for platform in platformList">
+    </select>
+    <h4>Tests</h4>
+    <div class="form-group">
+      <input class="form-control input-sm" type="text" ng-model="testFilter" placeholder="Filter tests"/>
+    </div>
+    <div id="choose-test-list" class="form-group">
+      <select multiple class="form-control"  ng-model="selectedTestList">
+        <option value="{{::testElem}}" ng-repeat="testElem in testList| filter: testFilter track by $id(testElem)">
+            {{::testElem}}
+        </option>     
+      </select>
+    </div>
+  </div>
+  <div class="btn-group-vertical ">
+    <button id="unselect-test" ng-click="unselectTest()" type="button" class="btn btn-xs btn-default">
+      <span class="glyphicon glyphicon-chevron-left"></span>
+    </button>
+    <button id="select-test" ng-click="selectTest()" type="button" class="btn btn-xs btn-default">
+      <span class="glyphicon glyphicon-chevron-right"></span>
+    </button>
+  </div>
+  <div class="test-list-container">
+    <h4>Tests to add</h4>
+    <div id="added-test-list" class="form-group">
+      <select class="form-control" multiple ng-model="unselectedTestList">
+        <option value="{{right_elem}}" ng-repeat="right_elem in addedTestList">
+           {{right_elem.projectName}} {{right_elem.platform}}
+           {{right_elem.name}}
+        </option>
+      </select>
+    </div>
   </div>
 </div>
 <div class="modal-footer">
-  <button class="btn btn-primary" ng-click="addTestData()" ng-disabled="addTestDataDisabled" ng-model="addTestDataDisabled"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add</button>
+  <button class="btn btn-primary" ng-click="addTestData()" ng-disabled="rightList===[]" ng-model="rightList"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add</button>
 </div>
