@@ -69,8 +69,8 @@ oauth2==1.5.211
 # sha256: ypUhfKaLiyr3zomc5t2J9KIVYqiIqYFCBXbtyHJJEXE
 jsonfield==0.9.20
 
-# sha256: HYBs6IKx3VBrKM04OI_9AhHx2ASI7eeJLEwmMF1e7GA
-mozlog==2.10
+# sha256: VWwL-EtIVxnxoh6fOyr3I1Xfknt53vLkVD2QwBA4vfc
+mozlog==2.11
 
 # sha256: ImnQ8PfxhxMzeMZknae86g-jPdJ2kQo5Ii2SQ8AVY1E
 futures==3.0.2
