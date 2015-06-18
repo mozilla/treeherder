@@ -4,7 +4,7 @@
 
 from setuptools import setup
 
-version = '1.3'
+version = '1.4'
 
 setup(name='treeherder-client',
       version=version,
