@@ -513,7 +513,7 @@ perf.controller('GraphsCtrl', [
                                dataPoint.result_set_id);
                            });
                            flotSeries.data.sort(function(a,b) {
-                             return a[0] < b[0]; });
+                             return a[0] > b[0]; });
                            series.flotSeries = flotSeries;
                          });
     }
