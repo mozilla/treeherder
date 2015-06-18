@@ -28,7 +28,7 @@ def test_init_datasources(repository):
     count_before = Datasource.objects.all().count()
     call_command("init_datasources")
     count_after = Datasource.objects.all().count()
-    assert count_after == count_before + 2
+    assert count_after == count_before + 1
 
 
 def test_init_datasources_no_repo():

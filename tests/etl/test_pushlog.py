@@ -27,7 +27,7 @@ def test_ingest_hg_pushlog(jm, initial_data, test_base_dir,
 
     process.run(pushlog_fake_url, jm.project)
 
-    pushes_stored = jm.get_jobs_dhub().execute(
+    pushes_stored = jm.get_dhub().execute(
         proc="jobs_test.selects.result_set_ids",
         return_type='tuple'
     )
@@ -47,7 +47,7 @@ def test_ingest_hg_pushlog(jm, initial_data, test_base_dir,
         # Ensure we don't match the same revision twice...
         rev_to_push.remove(content['revision'])
 
-    revisions_stored = jm.get_jobs_dhub().execute(
+    revisions_stored = jm.get_dhub().execute(
         proc="jobs_test.selects.revision_ids",
         return_type='tuple'
     )
@@ -80,7 +80,7 @@ def test_ingest_hg_pushlog_already_stored(jm, initial_data, test_base_dir,
     process = HgPushlogProcess()
     process.run(pushlog_fake_url, jm.project)
 
-    pushes_stored = jm.get_jobs_dhub().execute(
+    pushes_stored = jm.get_dhub().execute(
         proc="jobs_test.selects.result_set_ids",
         return_type='tuple'
     )
@@ -103,7 +103,7 @@ def test_ingest_hg_pushlog_already_stored(jm, initial_data, test_base_dir,
 
     process.run(pushlog_fake_url, jm.project)
 
-    pushes_stored = jm.get_jobs_dhub().execute(
+    pushes_stored = jm.get_dhub().execute(
         proc="jobs_test.selects.result_set_ids",
         return_type='tuple'
     )
@@ -128,7 +128,7 @@ def test_ingest_hg_pushlog_not_found_in_json_pushes(jm, initial_data, test_base_
 
     process.run(pushlog_fake_url, jm.project, "123456789012")
 
-    pushes_stored = jm.get_jobs_dhub().execute(
+    pushes_stored = jm.get_dhub().execute(
         proc="jobs_test.selects.result_sets",
         return_type='tuple'
     )
@@ -136,7 +136,7 @@ def test_ingest_hg_pushlog_not_found_in_json_pushes(jm, initial_data, test_base_
     assert len(pushes_stored) == 1
     assert pushes_stored[0]['active_status'] == "onhold"
 
-    revisions_stored = jm.get_jobs_dhub().execute(
+    revisions_stored = jm.get_dhub().execute(
         proc="jobs_test.selects.revision_ids",
         return_type='tuple'
     )

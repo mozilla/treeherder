@@ -3,7 +3,7 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 
-def test_project_endpoint(webapp, eleven_jobs_processed, jm):
+def test_project_endpoint(webapp, eleven_jobs_stored, jm):
     """
     tests the project endpoint
     """
@@ -13,7 +13,7 @@ def test_project_endpoint(webapp, eleven_jobs_processed, jm):
     assert resp.json['max_performance_artifact_id'] == 0
 
 
-def test_project_endpoint_does_not_exist(webapp, eleven_jobs_processed, jm):
+def test_project_endpoint_does_not_exist(webapp, eleven_jobs_stored, jm):
     """
     tests the project endpoint where project does not exist
     """

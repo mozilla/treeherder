@@ -75,9 +75,9 @@ class Command(BaseCommand):
             jm.store_performance_series(time_interval, 'talos_data',
                                         str(new_hash), series)
 
-        jm.jobs_execute(proc='jobs.deletes.delete_performance_series',
+        jm.execute(proc='jobs.deletes.delete_performance_series',
                         placeholders=[signature_hash])
-        jm.jobs_execute(proc='jobs.deletes.delete_series_signature',
+        jm.execute(proc='jobs.deletes.delete_series_signature',
                         placeholders=[signature_hash])
 
         return new_hash

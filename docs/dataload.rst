@@ -18,12 +18,7 @@ Here is a brief description of what each periodic task will do for you:
 *fetch-buildapi-build4h*
   Same as before, but it collects all the jobs completed in the last 4 hours.
 
-*process-objects*
-  As the name says, processes job objects from the objectstore to the jobs store.
-  Once a job is processed, it becomes available in the restful interface for consumption.
-  See the `dataflow diagram`_ for more info
-
-Follows a data flow diagram which can help to understand better how these tasks are used by treeherder
+The following is a data flow diagram which can help to understand better how these tasks are used by treeherder
 
 .. image:: https://cacoo.com/diagrams/870thliGfT89pLZc-B5E80.png
    :width: 800px

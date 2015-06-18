@@ -29,8 +29,8 @@ class TreeherderModelBase(object):
         """Encapsulate the dataset access for this ``project`` """
 
         self.project = project
-        self.sources = {}
-        self.dhubs = {}
+        self.source = None
+        self.dhub = None
         self.DEBUG = settings.DEBUG
         self.refdata_model = RefDataManager()
 
@@ -51,9 +51,7 @@ class TreeherderModelBase(object):
 
         for source in Datasource.objects.cached():
 
-            if (source.contenttype == 'objectstore') and \
-               source.oauth_consumer_key and \
-               source.oauth_consumer_secret:
+            if source.oauth_consumer_key and source.oauth_consumer_secret:
 
                 credentials[source.project] = {
                     'consumer_key': source.oauth_consumer_key,
@@ -62,27 +60,27 @@ class TreeherderModelBase(object):
 
         return credentials
 
-    def get_dhub(self, contenttype, procs_file_name=None):
+    def get_dhub(self, procs_file_name=None):
         """
-        The configured datahub for the given contenttype
+        The configured datahub
 
         """
         if not procs_file_name:  # pragma: no cover
-            procs_file_name = "{0}.json".format(contenttype)
+            procs_file_name = "jobs.json"
 
-        if contenttype not in self.dhubs.keys():
-            datasource = self.get_datasource(contenttype)
+        if not self.dhub:
+            datasource = self.get_datasource()
 
-            self.dhubs[contenttype] = datasource.dhub(procs_file_name)
-        return self.dhubs[contenttype]
+            self.dhub = datasource.dhub(procs_file_name)
+        return self.dhub
 
-    def get_datasource(self, contenttype):
-        """The datasource for this contenttype of the project."""
+    def get_datasource(self):
+        """The datasource of the project."""
 
-        if contenttype not in self.sources.keys():
-            self.sources[contenttype] = self._get_datasource(contenttype)
+        if not self.source:
+            self.source = self._get_datasource()
 
-        return self.sources[contenttype]
+        return self.source
 
     def get_inserted_row_ids(self, dhub):
         """
@@ -144,30 +142,28 @@ class TreeherderModelBase(object):
     def disconnect(self):
         """Iterate over and disconnect all data sources."""
         self.refdata_model.disconnect()
-        for dhub in self.dhubs.itervalues():
-            dhub.disconnect()
+        if self.dhub:
+            self.dhub.disconnect()
 
-    def _get_datasource(self, contenttype):
-        """Find the datasource for this contenttype in the cache."""
+    def _get_datasource(self):
+        """Find the datasource in the cache."""
         try:
             return next(source for source in Datasource.objects.cached()
-                        if source.project == self.project and source.contenttype == contenttype)
+                        if source.project == self.project and source.contenttype == 'jobs')
         except StopIteration:
-            raise DatasetNotFoundError(self.project, contenttype)
+            raise DatasetNotFoundError(self.project)
 
 
 @python_2_unicode_compatible
 class DatasetNotFoundError(ValueError):
 
-    def __init__(self, project, contenttype, *args, **kwargs):
+    def __init__(self, project, *args, **kwargs):
         super(DatasetNotFoundError, self).__init__(*args, **kwargs)
         self.project = project
-        self.contenttype = contenttype
 
     def __str__(self):
-        return u"No dataset found for project {0} and contenttype '{1}'".format(
+        return u"No dataset found for project {0}".format(
             self.project,
-            self.contenttype,
         )
 
 

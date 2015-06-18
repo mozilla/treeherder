@@ -124,7 +124,7 @@ def test_note_detail_bad_project(webapp, jm):
     jm.disconnect()
 
 
-def test_create_note(webapp, eleven_jobs_processed, mock_message_broker, jm):
+def test_create_note(webapp, eleven_jobs_stored, mock_message_broker, jm):
     """
     test creating a single note via endpoint when authenticated
     """
@@ -165,7 +165,7 @@ def test_create_note(webapp, eleven_jobs_processed, mock_message_broker, jm):
     jm.disconnect()
 
 
-def test_create_note_no_auth(eleven_jobs_processed, jm):
+def test_create_note_no_auth(eleven_jobs_stored, jm):
     """
     test creating a single note via endpoint when not authenticated
     gets a 403 Forbidden

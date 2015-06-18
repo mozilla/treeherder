@@ -7,8 +7,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
 from treeherder.etl.pushlog import HgPushlogProcess
-from treeherder.model.derived import JobsModel, RefDataManager
-from treeherder.model.tasks import process_objects
+from treeherder.model.derived import RefDataManager
 from treeherder.etl.buildapi import (RunningJobsProcess,
                                      PendingJobsProcess,
                                      Builds4hJobsProcess)
@@ -37,11 +36,6 @@ class Command(BaseCommand):
                     "(e.g. 'T')")
     )
 
-    def _process_all_objects_for_project(self, project):
-        jm = JobsModel(project)
-        while jm.get_num_unprocessed_objects() > 0:
-            process_objects.delay(project=project)
-
     def _handle(self, *args, **options):
         if len(args) != 2:
             raise CommandError("Need to specify (only) branch and changeset")
@@ -69,8 +63,6 @@ class Command(BaseCommand):
         # job ingestion expects the short version, so we truncate it.
         push_sha = process.run(pushlog_url, project, changeset=changeset)[0:12]
 
-        self._process_all_objects_for_project(project)
-
         Builds4hJobsProcess().run(filter_to_project=project,
                                   filter_to_revision=push_sha,
                                   filter_to_job_group=options['filter_job_group'])
@@ -80,8 +72,6 @@ class Command(BaseCommand):
         RunningJobsProcess().run(filter_to_project=project,
                                  filter_to_revision=push_sha,
                                  filter_to_job_group=options['filter_job_group'])
-
-        self._process_all_objects_for_project(project)
 
     def handle(self, *args, **options):
 

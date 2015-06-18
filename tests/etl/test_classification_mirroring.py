@@ -11,7 +11,7 @@ from treeherder.etl.classification_mirroring import ElasticsearchDocRequest, Bug
 from treeherder.model.derived import ArtifactsModel
 
 
-def test_elasticsearch_doc_request_body(test_project, eleven_jobs_processed):
+def test_elasticsearch_doc_request_body(test_project, eleven_jobs_stored):
     """
     Test the request body is created correctly
     """
@@ -54,7 +54,7 @@ def test_elasticsearch_doc_request_body(test_project, eleven_jobs_processed):
     assert req.body == expected, diff(expected, req.body)
 
 
-def test_bugzilla_comment_request_body(test_project, eleven_jobs_processed):
+def test_bugzilla_comment_request_body(test_project, eleven_jobs_stored):
     """
     Test the request body is created correctly
     """
@@ -93,7 +93,7 @@ def test_bugzilla_comment_request_body(test_project, eleven_jobs_processed):
     assert req.body == expected
 
 
-def test_bugzilla_comment_length_capped(test_project, eleven_jobs_processed):
+def test_bugzilla_comment_length_capped(test_project, eleven_jobs_stored):
     """
     Test that the total number of characters in the comment is capped correctly.
     """

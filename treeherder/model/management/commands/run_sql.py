@@ -25,15 +25,6 @@ class Command(BaseCommand):
             help='A comma separated list of datasources to execute the sql code on'),
 
         make_option(
-            '--data-type',
-            action='store',
-            dest='data_type',
-            default='jobs',
-            choices=['jobs', 'objectstore'],
-            help=('The target data-type of the sql code (jobs or objectstore, '
-                  'default jobs)')),
-
-        make_option(
             '-s', '--sql-statement',
             action='store',
             dest='sql_statement',
@@ -63,7 +54,7 @@ class Command(BaseCommand):
 
         self.stdout.write("SQL command: {}".format(sql_code))
 
-        datasources = Datasource.objects.filter(contenttype=options['data_type'])
+        datasources = Datasource.objects.filter(contenttype='jobs')
         if options['datasources'] != 'all':
             if ',' in options['datasources']:
                 datasources = datasources.filter(

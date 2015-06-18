@@ -21,13 +21,7 @@ class ArtifactsModel(TreeherderModelBase):
     """
     Represent the artifacts for a job repository
 
-    content-types:
-        jobs
     """
-
-    # content types that every project will have
-    CT_JOBS = "jobs"
-    CONTENT_TYPES = [CT_JOBS]
 
     INDEXED_COLUMNS = {
         "job_artifact": {
@@ -45,8 +39,8 @@ class ArtifactsModel(TreeherderModelBase):
         }
     }
 
-    def jobs_execute(self, **kwargs):
-        return utils.retry_execute(self.get_dhub(self.CT_JOBS), logger, **kwargs)
+    def execute(self, **kwargs):
+        return utils.retry_execute(self.get_dhub(), logger, **kwargs)
 
     def get_job_artifact_references(self, job_id):
         """
@@ -55,7 +49,7 @@ class ArtifactsModel(TreeherderModelBase):
         This is everything about the artifact, but not the artifact blob
         itself.
         """
-        data = self.jobs_execute(
+        data = self.execute(
             proc="jobs.selects.get_job_artifact_references",
             placeholders=[job_id],
             debug_show=self.DEBUG,
@@ -79,7 +73,7 @@ class ArtifactsModel(TreeherderModelBase):
 
         proc = "jobs.selects.get_job_artifact"
 
-        data = self.jobs_execute(
+        data = self.execute(
             proc=proc,
             replace=repl,
             placeholders=placeholders,
@@ -112,7 +106,7 @@ class ArtifactsModel(TreeherderModelBase):
 
         proc = "jobs.selects.get_performance_artifact_list"
 
-        data = self.jobs_execute(
+        data = self.execute(
             proc=proc,
             replace=repl,
             placeholders=placeholders,
@@ -131,7 +125,7 @@ class ArtifactsModel(TreeherderModelBase):
 
     def get_max_performance_artifact_id(self):
         """Get the maximum performance artifact id."""
-        data = self.jobs_execute(
+        data = self.execute(
             proc="jobs.selects.get_max_performance_artifact_id",
             debug_show=self.DEBUG,
         )
@@ -141,7 +135,7 @@ class ArtifactsModel(TreeherderModelBase):
         """
         Store a list of job_artifacts given a list of placeholders
         """
-        self.jobs_execute(
+        self.execute(
             proc='jobs.inserts.set_job_artifact',
             debug_show=self.DEBUG,
             placeholders=artifact_placeholders,
@@ -181,13 +175,13 @@ class ArtifactsModel(TreeherderModelBase):
             # adapt and load data into placeholder structures
             tda.adapt_and_load(ref_data, job_data, perf_data)
 
-        self.jobs_execute(
+        self.execute(
             proc="jobs.inserts.set_performance_artifact",
             debug_show=self.DEBUG,
             placeholders=tda.performance_artifact_placeholders,
             executemany=True)
 
-        self.jobs_execute(
+        self.execute(
             proc='jobs.inserts.set_series_signature',
             debug_show=self.DEBUG,
             placeholders=tda.signature_property_placeholders,
@@ -327,7 +321,7 @@ class ArtifactsModel(TreeherderModelBase):
 
             jobs_signatures_where_in_clause = [','.join(['%s'] * len(job_ids))]
 
-            job_data = self.jobs_execute(
+            job_data = self.execute(
                 proc='jobs.selects.get_signature_list_from_job_ids',
                 debug_show=self.DEBUG,
                 replace=jobs_signatures_where_in_clause,
