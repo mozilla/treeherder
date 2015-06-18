@@ -391,10 +391,9 @@ th-watched-repo {
 
 .revision > a:first-child {
     float: left;
-    width: 7.5em;
-    padding-top: 2px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    padding-top: 1px;
+    padding-right: 11px;
+    font: 11px "Lucida Console",Monaco,monospace;
 }
 
 .revision-comment {
@@ -530,11 +529,9 @@ th-watched-repo {
 }
 
 .revision-text {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 7.2em;
     display: inline-block;
     vertical-align: middle;
+    font: 12px "Lucida Console",Monaco,monospace;
 }
 
 .revision-button {
