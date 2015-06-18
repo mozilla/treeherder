@@ -1,13 +1,4 @@
 {
-    "header": {
-        "slave": "talos-linux64-ix-096", 
-        "buildid": "20140717073317", 
-        "builder": "mozilla-central_ubuntu64_hw_test-androidx86-set-4", 
-        "results": "warnings (1)", 
-        "starttime": "1405611918.8", 
-        "builduid": "bc9003254bc748bbb6890c140cca6eba", 
-        "revision": "75db55f6fd2c"
-    }, 
     "step_data": {
         "all_errors": [
             {

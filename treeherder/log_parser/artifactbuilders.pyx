@@ -11,8 +11,7 @@ from django.conf import settings
 
 from mozlog.structured import reader
 
-from .parsers import (TinderboxPrintParser,
-                      HeaderParser, StepParser, TalosParser)
+from .parsers import TinderboxPrintParser, StepParser, TalosParser
 
 logger = logging.getLogger(__name__)
 
@@ -92,7 +91,6 @@ class BuildbotLogViewArtifactBuilder(ArtifactBuilderBase):
         """Construct artifact builder for the log viewer"""
         super(BuildbotLogViewArtifactBuilder, self).__init__(url)
         self.parsers = [
-            HeaderParser(),
             StepParser(check_errors=check_errors)
         ]
         self.name = "text_log_summary"

@@ -17,7 +17,6 @@ from treeherder.model import error_summary
 @pytest.fixture
 def text_log_summary_dict():
     return {
-        "header": {},
         "step_data": {
             "all_errors": [
                 {"line": "12:34:13     INFO -  Assertion failure: addr % CellSize == 0, at ../../../js/src/gc/Heap.h:1041", "linenumber": 61918},

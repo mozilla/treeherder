@@ -10,15 +10,6 @@
     },
     {
         "blob": {
-            "header": {
-                "slave": "t-xp32-ix-106",
-                "buildid": "20140307053537",
-                "builder": "try_xp-ix_test-jsreftest",
-                "results": "success (0)",
-                "starttime": "1394205123.64",
-                "builduid": "e1e66d12f0b44c19b1a356131d10469a",
-                "revision": "ecedbb0a251b"
-            },
             "step_data": {
                 "all_errors": [],
                 "steps": [
@@ -195,15 +186,6 @@
     },
     {
         "blob": {
-            "header": {
-                "slave": "talos-linux32-ix-008",
-                "buildid": "20140307064810",
-                "builder": "try_ubuntu32_hw_test-other",
-                "results": "success (0)",
-                "starttime": "1394205502.73",
-                "builduid": "8dccc4db044e4ca0988724d3109dd6cf",
-                "revision": "3125296c850d"
-            },
             "step_data": {
                 "all_errors": [],
                 "steps": [
@@ -380,15 +362,6 @@
     },
     {
         "blob": {
-            "header": {
-                "slave": "tst-linux64-spot-675",
-                "buildid": "20140307064756",
-                "builder": "try_ubuntu64_vm_test-mochitest-2",
-                "results": "success (0)",
-                "starttime": "1394205281.79",
-                "builduid": "8dccc4db044e4ca0988724d3109dd6cf",
-                "revision": "3125296c850d"
-            },
             "step_data": {
                 "all_errors": [],
                 "steps": [
@@ -565,15 +538,6 @@
     },
     {
         "blob": {
-            "header": {
-                "slave": "tst-linux64-spot-835",
-                "buildid": "20140307064756",
-                "builder": "try_ubuntu64_vm_test-crashtest",
-                "results": "success (0)",
-                "starttime": "1394205274.3",
-                "builduid": "8dccc4db044e4ca0988724d3109dd6cf",
-                "revision": "3125296c850d"
-            },
             "step_data": {
                 "all_errors": [],
                 "steps": [
@@ -750,15 +714,6 @@
     },
     {
         "blob": {
-            "header": {
-                "slave": "tst-linux64-spot-008",
-                "buildid": "20140307064756",
-                "builder": "try_ubuntu64_vm_test-mochitest-3",
-                "results": "success (0)",
-                "starttime": "1394205270.41",
-                "builduid": "8dccc4db044e4ca0988724d3109dd6cf",
-                "revision": "3125296c850d"
-            },
             "step_data": {
                 "all_errors": [],
                 "steps": [

@@ -1,13 +1,4 @@
 {
-    "header": {
-        "slave": "tst-linux64-spot-1233", 
-        "buildid": "20150122095609", 
-        "builder": "mozilla-inbound_ubuntu64_vm_test-mochitest-e10s-browser-chrome-3", 
-        "results": "failure (2)", 
-        "starttime": "1421951393.3", 
-        "builduid": "77ff0fdd74594b17a144ec98f57aba09", 
-        "revision": "b46d45067c8479f3f91e9c8144128fa8a1be5f72"
-    }, 
     "step_data": {
         "all_errors": [
             {

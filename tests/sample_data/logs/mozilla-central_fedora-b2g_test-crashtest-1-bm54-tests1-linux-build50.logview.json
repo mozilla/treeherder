@@ -1,13 +1,4 @@
 {
-    "header": {
-        "slave": "talos-r3-fed-088", 
-        "buildid": "20130605115738", 
-        "builder": "mozilla-central_fedora-b2g_test-crashtest-1", 
-        "results": "success (0)", 
-        "starttime": "1370461197.84", 
-        "builduid": "0356dff218744cf4b6ca832f12ec183f", 
-        "revision": "1658dc513572"
-    }, 
     "step_data": {
         "all_errors": [], 
         "steps": [
