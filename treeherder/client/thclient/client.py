@@ -218,6 +218,9 @@ class TreeherderJob(TreeherderData, ValidatorMixin):
         if option_collection:
             self.data['job']['option_collection'].update(option_collection)
 
+    def add_tier(self, tier):
+        self.data['job']['tier'] = tier
+
     def add_log_reference(self, name, url, parse_status='pending'):
         """
         parse_status - one of 'pending', 'parsed' or 'error'

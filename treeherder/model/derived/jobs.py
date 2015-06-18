@@ -1564,7 +1564,9 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
              option_collection_hash]
         )
 
-        tier = 2 if signature in tier_2_signatures else 1
+        job_tier = job.get('tier') or 1
+        # job tier signatures override the setting from the job structure
+        tier = 2 if signature in tier_2_signatures else job_tier
 
         job_placeholders.append([
             job_guid,
