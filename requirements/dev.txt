@@ -20,8 +20,8 @@ mock==1.0.1
 # sha256: bF65Fbz3Y7Z3uOUc22jIR0EnqbYOSebiQLBexeRJxDs
 responses==0.3.0
 
-# sha256: jMb9abCD_WP_dy-6QnVit5OCy9FPhN37NA_nab1jL7E
-django-extensions==1.5.2
+# sha256: PJgkO9orHrHMxj21phTwzqy_QBRMkrN8W6dVzsu8wN4
+django-extensions==1.5.5
 
 #for celery auto-reloading
 # sha256: nJmKXXYGyoNQZc2rwBOubGbrnqdqAKHjvG4M_itPcfQ
