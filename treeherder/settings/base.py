@@ -39,7 +39,6 @@ TREEHERDER_PERF_SERIES_TIME_RANGES = [
 ]
 
 DATA_CYCLE_INTERVAL = timedelta(days=30 * 4)
-OBJECTSTORE_CYCLE_INTERVAL = timedelta(days=1)
 
 RABBITMQ_USER = os.environ.get("TREEHERDER_RABBITMQ_USER", "guest")
 RABBITMQ_PASSWORD = os.environ.get("TREEHERDER_RABBITMQ_PASSWORD", "guest")
@@ -202,7 +201,6 @@ CELERY_QUEUES = (
     Queue('buildapi_pending', Exchange('default'), routing_key='buildapi_pending'),
     Queue('buildapi_running', Exchange('default'), routing_key='buildapi_running'),
     Queue('buildapi_4hr', Exchange('default'), routing_key='buildapi_4hr'),
-    Queue('process_objects', Exchange('default'), routing_key='process_objects'),
     Queue('cycle_data', Exchange('default'), routing_key='cycle_data'),
     Queue('calculate_eta', Exchange('default'), routing_key='calculate_eta'),
     Queue('populate_performance_series', Exchange('default'), routing_key='populate_performance_series'),
@@ -251,14 +249,6 @@ CELERYBEAT_SCHEDULE = {
             "queue": "buildapi_4hr"
         }
     },
-    'fetch-process-objects-every-minute': {
-        'task': 'process-objects',
-        'schedule': timedelta(minutes=1),
-        'relative': True,
-        'options': {
-            'queue': 'process_objects'
-        }
-    },
     'cycle-data-every-day': {
         'task': 'cycle-data',
         'schedule': timedelta(days=1),
@@ -299,7 +289,6 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_THROTTLE_RATES': {
         'jobs': '220/minute',
-        'objectstore': '220/minute',
         'resultset': '220/minute'
     }
 }

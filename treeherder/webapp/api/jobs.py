@@ -152,9 +152,7 @@ class JobsViewSet(viewsets.ViewSet):
     def create(self, request, project, jm):
         """
         This method adds a job to a given resultset.
-        The incoming data has the same structure as for
-        the objectstore ingestion.
         """
-        jm.load_job_data(request.DATA)
+        jm.store_job_data(request.DATA)
 
         return Response({'message': 'Job successfully updated'})

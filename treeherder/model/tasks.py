@@ -7,7 +7,7 @@ from celery import task
 from django.core.management import call_command
 from django.conf import settings
 
-from treeherder.model.models import Datasource, Repository
+from treeherder.model.models import Repository
 from treeherder.model.exchanges import TreeherderPublisher
 from treeherder.model.pulse_publisher import load_schemas
 from treeherder.model.error_summary import load_error_summary
@@ -42,28 +42,6 @@ class LazyPublisher():
         return self.publisher
 
 pulse_connection = LazyPublisher()
-
-
-@task(name='process-objects')
-def process_objects(limit=None, project=None):
-    """
-    Process a number of objects from the objectstore
-    and load them to the jobs store
-    """
-    from treeherder.model.derived.jobs import JobsModel
-
-    # default limit to 100
-    limit = limit or 100
-
-    if project:
-        projects_to_process = [project]
-    else:
-        projects_to_process = Datasource.objects.values_list(
-            'project', flat=True).distinct()
-
-    for project in projects_to_process:
-        with JobsModel(project) as jm:
-            jm.process_objects(limit)
 
 
 # Run a maximum of 1 per hour

@@ -139,12 +139,6 @@ def do_job_ingestion(jm, refdata, job_data, sample_resultset, verify_data=True):
     # Store the modified json blobs
     jm.store_job_data(blobs)
 
-    # Process the job objects in chunks of size == process_objects_limit
-    process_objects_limit = 1000
-    chunks = grouper(job_data, process_objects_limit)
-    for c in chunks:
-        jm.process_objects(process_objects_limit, raise_errors=True)
-
     if verify_data:
         # Confirms stored data matches whats in the reference data structs
         verify_build_platforms(refdata, build_platforms_ref)
@@ -157,15 +151,6 @@ def do_job_ingestion(jm, refdata, job_data, sample_resultset, verify_data=True):
         verify_log_urls(jm, log_urls_ref)
         verify_artifacts(jm, artifacts_ref)
         verify_coalesced(jm, coalesced_job_guids, coalesced_replacements)
-
-    # Default verification confirms we loaded all of the objects
-    complete_count = jm.get_os_dhub().execute(
-        proc="objectstore_test.counts.complete")[0]["complete_count"]
-    loading_count = jm.get_os_dhub().execute(
-        proc="objectstore_test.counts.loading")[0]["loading_count"]
-
-    assert complete_count == len(job_data)
-    assert loading_count == 0
 
 
 def grouper(iterable, n, fillvalue=None):

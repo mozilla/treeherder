@@ -49,7 +49,7 @@ def sample_artifacts(jm, sample_data):
 
 
 @pytest.fixture
-def sample_notes(jm, sample_data, eleven_jobs_processed):
+def sample_notes(jm, sample_data, eleven_jobs_stored):
     """provide 11 jobs with job notes."""
 
     jobs = jm.get_job_list(0, 10)

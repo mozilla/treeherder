@@ -18,7 +18,7 @@ xfail = pytest.mark.xfail
 
 # we don't have/need an artifact list endpoint.
 
-def test_artifact_detail(webapp, test_project, eleven_jobs_processed, sample_artifacts, jm):
+def test_artifact_detail(webapp, test_project, eleven_jobs_stored, sample_artifacts, jm):
     """
     test retrieving a single artifact from the artifact-detail
     endpoint.
@@ -77,7 +77,7 @@ def test_artifact_detail_bad_project(webapp, jm):
     jm.disconnect()
 
 
-def test_artifact_create_text_log_summary(webapp, test_project, eleven_jobs_processed,
+def test_artifact_create_text_log_summary(webapp, test_project, eleven_jobs_stored,
                                           mock_post_collection, mock_error_summary,
                                           sample_data):
     """
@@ -117,7 +117,7 @@ def test_artifact_create_text_log_summary(webapp, test_project, eleven_jobs_proc
 
 
 def test_artifact_create_text_log_summary_and_bug_suggestions(
-        webapp, test_project, eleven_jobs_processed,
+        webapp, test_project, eleven_jobs_stored,
         mock_post_collection, mock_error_summary,
         sample_data):
     """
