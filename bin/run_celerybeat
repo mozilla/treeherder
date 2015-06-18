@@ -10,12 +10,16 @@ cd $SRC_DIR
 PROJECT_ROOT=$(readlink -f ../)
 PATH=$PROJECT_ROOT/venv/bin:$PATH
 
+source /etc/profile.d/treeherder.sh
+
+if [[ ${NEW_RELIC_LICENSE_KEY+isset} = isset ]]; then
+    NEWRELIC_ADMIN="newrelic-admin run-program"
+fi
+
 LOGFILE=/var/log/celery/celerybeat.log
 
 if [ ! -f $LOGFILE ]; then
     touch $LOGFILE
 fi
 
-source /etc/profile.d/treeherder.sh
-
-exec celery -A treeherder beat -f $LOGFILE
+exec $NEWRELIC_ADMIN celery -A treeherder beat -f $LOGFILE
