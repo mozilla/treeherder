@@ -44,7 +44,7 @@ def test_check_errors_false():
         check_errors=False
     )
 
-    assert abc.builders[0].parsers[1].check_errors is False
+    assert abc.builders[0].parsers[0].check_errors is False
 
 
 def test_all_builders_complete():
@@ -62,7 +62,6 @@ def test_all_builders_complete():
     lpc.parse()
     exp = {
         "text_log_summary": {
-            "header": {},
             "step_data": {
                 "all_errors": [],
                 "steps": [],

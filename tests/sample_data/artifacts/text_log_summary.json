@@ -1,14 +1,5 @@
 {
     "blob": {
-        "header": {
-            "slave": "t-snow-r4-0001",
-            "buildid": "20150415030206",
-            "builder": "mozilla-central_snowleopard_test-mochitest-2",
-            "results": "warnings (1)",
-            "starttime": "1429100703.17",
-            "builduid": "8ad46455f18545abbdff94ba9dce402e",
-            "revision": "a6f7a33731bc3fe22073129bba83fc7480e387e2"
-        },
         "step_data": {
             "all_errors": [
                 {
