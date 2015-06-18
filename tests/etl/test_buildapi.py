@@ -114,7 +114,7 @@ def test_ingest_pending_jobs(jm, initial_data,
     etl_process = PendingJobsProcess()
     etl_process.run()
 
-    stored_obj = jm.get_jobs_dhub().execute(
+    stored_obj = jm.get_dhub().execute(
         proc="jobs_test.selects.jobs")
 
     jm.disconnect()
@@ -135,7 +135,7 @@ def test_ingest_running_jobs(jm, initial_data,
     etl_process = RunningJobsProcess()
     etl_process.run()
 
-    stored_obj = jm.get_jobs_dhub().execute(
+    stored_obj = jm.get_dhub().execute(
         proc="jobs_test.selects.jobs")
 
     jm.disconnect()
@@ -156,7 +156,7 @@ def test_ingest_builds4h_jobs(jm, initial_data,
     etl_process = Builds4hJobsProcess()
     etl_process.run()
 
-    stored_obj = jm.get_jobs_dhub().execute(
+    stored_obj = jm.get_dhub().execute(
         proc="jobs_test.selects.jobs")
 
     jm.disconnect()
@@ -181,7 +181,7 @@ def test_ingest_running_to_complete_job(jm, initial_data,
     etl_process = RunningJobsProcess()
     etl_process.run()
 
-    stored_running = jm.get_jobs_dhub().execute(
+    stored_running = jm.get_dhub().execute(
         proc="jobs_test.selects.jobs")
 
     assert len(stored_running) == 1
@@ -191,7 +191,7 @@ def test_ingest_running_to_complete_job(jm, initial_data,
     etl_process = Builds4hJobsProcess()
     etl_process.run()
 
-    stored_obj = jm.get_jobs_dhub().execute(
+    stored_obj = jm.get_dhub().execute(
         proc="jobs_test.selects.jobs")
 
     jm.disconnect()
@@ -217,7 +217,7 @@ def test_ingest_running_job_fields(jm, initial_data,
     etl_process = RunningJobsProcess()
     etl_process.run()
 
-    stored_obj = jm.get_jobs_dhub().execute(
+    stored_obj = jm.get_dhub().execute(
         proc="jobs_test.selects.jobs")
 
     jm.disconnect()
@@ -278,7 +278,7 @@ def test_ingest_builds4h_jobs_missing_branch(jm, initial_data,
 
     etl_process.run()
 
-    stored_obj = jm.get_jobs_dhub().execute(
+    stored_obj = jm.get_dhub().execute(
         proc="jobs_test.selects.jobs")
 
     assert len(stored_obj) == 0
@@ -309,12 +309,12 @@ def _do_missing_resultset_test(jm, etl_process):
 
     etl_process.run()
 
-    stored_obj = jm.get_jobs_dhub().execute(
+    stored_obj = jm.get_dhub().execute(
         proc="jobs_test.selects.jobs")
 
     assert len(stored_obj) == 1
 
-    revisions_stored = jm.get_jobs_dhub().execute(
+    revisions_stored = jm.get_dhub().execute(
         proc="jobs_test.selects.revision_ids",
         return_type='tuple'
     )

@@ -12,7 +12,6 @@ import zlib
 from django.conf import settings
 from django.core.management import call_command
 
-from treeherder.model.derived.base import DatasetNotFoundError
 from treeherder.model.derived import ArtifactsModel
 from treeherder.model.derived.jobs import JobsModel
 from tests.sample_data_generator import job_data, result_set
@@ -48,20 +47,9 @@ def test_disconnect(jm):
 
     # establish the connection to jobs.
     jm._get_last_insert_id()
-    # establish the connection to objectstore
-    jm.retrieve_job_data(limit=1)
 
     jm.disconnect()
-    assert not jm.get_os_dhub().connection["master_host"]["con_obj"].open
-    assert not jm.get_jobs_dhub().connection["master_host"]["con_obj"].open
-
-
-def test_bad_contenttype(jm):
-    """Test trying to get an invalid contenttype"""
-    with pytest.raises(DatasetNotFoundError):
-        jm.get_dhub("foo")
-
-    jm.disconnect()
+    assert not jm.get_dhub().connection["master_host"]["con_obj"].open
 
 
 def test_ingest_single_sample_job(jm, refdata, sample_data, initial_data,
@@ -128,7 +116,7 @@ def test_ingest_running_to_retry_sample_job(jm, refdata, sample_data, initial_da
 
     # for pending and running jobs, we call this directly, just like
     # the web api does.
-    jm.load_job_data(job_data)
+    jm.store_job_data(job_data)
 
     jl = jm.get_job_list(0, 1)
     initial_job_id = jl[0]["id"]
@@ -136,12 +124,10 @@ def test_ingest_running_to_retry_sample_job(jm, refdata, sample_data, initial_da
     # now we simulate the complete version of the job coming in
     job['state'] = 'completed'
     job['result'] = 'retry'
-    # convert the job_guid to what it would be on a retry from objectstore
+    # convert the job_guid to what it would be on a retry
     job['job_guid'] = job['job_guid'] + "_" + str(job['end_timestamp'])[-5:]
 
     jm.store_job_data(job_data)
-    jm.process_objects(10, raise_errors=True)
-
     jl = jm.get_job_list(0, 10)
 
     jm.disconnect()
@@ -164,7 +150,7 @@ def test_ingest_running_to_retry_to_success_sample_job(jm, refdata, sample_data,
 
     job['state'] = 'running'
     job['result'] = 'unknown'
-    jm.load_job_data(job_data)
+    jm.store_job_data(job_data)
 
     jl = jm.get_job_list(0, 1)
     initial_job_id = jl[0]["id"]
@@ -172,11 +158,10 @@ def test_ingest_running_to_retry_to_success_sample_job(jm, refdata, sample_data,
     # now we simulate the complete RETRY version of the job coming in
     job['state'] = 'completed'
     job['result'] = 'retry'
-    # convert the job_guid to what it would be on a retry from objectstore
+    # convert the job_guid to what it would be on a retry
     job['job_guid'] = job_guid_root + "_" + str(job['end_timestamp'])[-5:]
 
     jm.store_job_data(job_data)
-    jm.process_objects(10, raise_errors=True)
 
     # now we simulate the complete SUCCESS version of the job coming in
     job['state'] = 'completed'
@@ -185,7 +170,6 @@ def test_ingest_running_to_retry_to_success_sample_job(jm, refdata, sample_data,
     job['job_guid'] = job_guid_root
 
     jm.store_job_data(job_data)
-    jm.process_objects(10, raise_errors=True)
 
     jl = jm.get_job_list(0, 10)
 
@@ -210,11 +194,10 @@ def test_ingest_retry_sample_job_no_running(jm, refdata, sample_data, initial_da
     # complete version of the job coming in
     job['state'] = 'completed'
     job['result'] = 'retry'
-    # convert the job_guid to what it would be on a retry from objectstore
+    # convert the job_guid to what it would be on a retry
     job['job_guid'] = job['job_guid'] + "_" + str(job['end_timestamp'])[-5:]
 
     jm.store_job_data(job_data)
-    jm.process_objects(10, raise_errors=True)
 
     jl = jm.get_job_list(0, 10)
 
@@ -236,21 +219,21 @@ def test_cycle_all_data(jm, refdata, sample_data, initial_data,
     time_now = time.time()
     cycle_date_ts = time_now - 7 * 24 * 3600
 
-    jm.jobs_execute(
+    jm.execute(
         proc="jobs_test.updates.set_result_sets_push_timestamp",
         placeholders=[cycle_date_ts]
     )
 
-    jobs_to_be_deleted = jm.jobs_execute(
+    jobs_to_be_deleted = jm.execute(
         proc="jobs_test.selects.get_jobs_for_cycling",
         placeholders=[time_now - 24 * 3600]
     )
 
-    jobs_before = jm.jobs_execute(proc="jobs_test.selects.jobs")
+    jobs_before = jm.execute(proc="jobs_test.selects.jobs")
 
     call_command('cycle_data', sleep_time=0, cycle_interval=1)
 
-    jobs_after = jm.jobs_execute(proc="jobs_test.selects.jobs")
+    jobs_after = jm.execute(proc="jobs_test.selects.jobs")
 
     assert len(jobs_after) == len(jobs_before) - len(jobs_to_be_deleted)
 
@@ -271,30 +254,30 @@ def test_cycle_one_job(jm, refdata, sample_data, initial_data,
     time_now = time.time()
     cycle_date_ts = int(time_now - 7 * 24 * 3600)
 
-    jm.jobs_execute(
+    jm.execute(
         proc="jobs_test.updates.set_result_sets_push_timestamp",
         placeholders=[time_now]
     )
 
-    jm.jobs_execute(
+    jm.execute(
         proc="jobs_test.updates.set_one_result_set_push_timestamp",
         placeholders=[cycle_date_ts]
     )
 
-    jobs_to_be_deleted = jm.jobs_execute(
+    jobs_to_be_deleted = jm.execute(
         proc="jobs_test.selects.get_result_set_jobs",
         placeholders=[1]
     )
 
-    jobs_before = jm.jobs_execute(proc="jobs_test.selects.jobs")
+    jobs_before = jm.execute(proc="jobs_test.selects.jobs")
 
     call_command('cycle_data', sleep_time=0, cycle_interval=1, debug=True)
 
-    jobs_after = jm.jobs_execute(proc="jobs_test.selects.jobs")
+    jobs_after = jm.execute(proc="jobs_test.selects.jobs")
 
     # Confirm that the target result set has no jobs in the
     # jobs table
-    jobs_to_be_deleted_after = jm.jobs_execute(
+    jobs_to_be_deleted_after = jm.execute(
         proc="jobs_test.selects.get_result_set_jobs",
         placeholders=[1]
     )
@@ -316,21 +299,21 @@ def test_cycle_all_data_in_chunks(jm, refdata, sample_data, initial_data,
     time_now = time.time()
     cycle_date_ts = int(time_now - 7 * 24 * 3600)
 
-    jm.jobs_execute(
+    jm.execute(
         proc="jobs_test.updates.set_result_sets_push_timestamp",
         placeholders=[cycle_date_ts]
     )
 
-    jobs_to_be_deleted = jm.jobs_execute(
+    jobs_to_be_deleted = jm.execute(
         proc="jobs_test.selects.get_jobs_for_cycling",
         placeholders=[time_now - 24 * 3600]
     )
 
-    jobs_before = jm.jobs_execute(proc="jobs_test.selects.jobs")
+    jobs_before = jm.execute(proc="jobs_test.selects.jobs")
 
     call_command('cycle_data', sleep_time=0, cycle_interval=1, chunk_size=3)
 
-    jobs_after = jm.jobs_execute(proc="jobs_test.selects.jobs")
+    jobs_after = jm.execute(proc="jobs_test.selects.jobs")
 
     assert len(jobs_after) == len(jobs_before) - len(jobs_to_be_deleted)
 
@@ -347,42 +330,21 @@ def test_bad_date_value_ingestion(jm, initial_data, mock_log_parser):
     blob = job_data(start_timestamp="foo",
                     revision_hash=rs['revision_hash'])
 
-    jm.store_job_data([blob])
-
     jm.store_result_set_data([rs])
-
-    jm.process_objects(1)
-
-    # Confirm that we don't get a ValueError when casting a non-number
-    last_error = get_objectstore_last_error(
-        jm) == u"invalid literal for long() with base 10: 'foo'"
-
-    jm.disconnect()
-
-    assert not last_error
-
-
-def get_objectstore_last_error(jm):
-    row_id = jm._get_last_insert_id("objectstore")
-
-    row_data = jm.get_dhub(jm.CT_OBJECTSTORE).execute(
-        proc="objectstore_test.selects.row", placeholders=[row_id])[0]
-
-    jm.disconnect()
-
-    return row_data['error_msg']
+    jm.store_job_data([blob])
+    # if no exception, we are good.
 
 
 def test_store_result_set_data(jm, initial_data, sample_resultset):
 
     data = jm.store_result_set_data(sample_resultset)
 
-    result_set_ids = jm.get_dhub(jm.CT_JOBS).execute(
+    result_set_ids = jm.get_dhub().execute(
         proc="jobs_test.selects.result_set_ids",
         key_column='revision_hash',
         return_type='dict'
     )
-    revision_ids = jm.get_dhub(jm.CT_JOBS).execute(
+    revision_ids = jm.get_dhub().execute(
         proc="jobs_test.selects.revision_ids",
         key_column='revision',
         return_type='dict'
@@ -446,7 +408,7 @@ def test_store_performance_artifact(
 
     replace = [','.join(['%s'] * len(job_ids))]
 
-    performance_artifact_signatures = jm.get_jobs_dhub().execute(
+    performance_artifact_signatures = jm.get_dhub().execute(
         proc="jobs.selects.get_performance_artifact",
         debug_show=jm.DEBUG,
         placeholders=job_ids,
@@ -454,7 +416,7 @@ def test_store_performance_artifact(
         return_type='set',
         key_column='series_signature')
 
-    series_signatures = jm.get_jobs_dhub().execute(
+    series_signatures = jm.get_dhub().execute(
         proc="jobs.selects.get_all_series_signatures",
         return_type='set',
         key_column='signature',
@@ -472,7 +434,7 @@ def test_store_performance_series(jm, test_project):
                                 FakePerfData.SERIES_TYPE,
                                 FakePerfData.SIGNATURE,
                                 FakePerfData.SERIES)
-    stored_series = jm.get_jobs_dhub().execute(
+    stored_series = jm.get_dhub().execute(
         proc="jobs.selects.get_performance_series",
         placeholders=[FakePerfData.TIME_INTERVAL, FakePerfData.SIGNATURE])
     blob = json.loads(zlib.decompress(stored_series[0]['blob']))
@@ -496,7 +458,7 @@ def test_store_duplicate_performance_series(jm, test_project):
                                     FakePerfData.SERIES_TYPE,
                                     FakePerfData.SIGNATURE,
                                     series_copy)
-    stored_series = jm.get_jobs_dhub().execute(
+    stored_series = jm.get_dhub().execute(
         proc="jobs.selects.get_performance_series",
         placeholders=[FakePerfData.TIME_INTERVAL, FakePerfData.SIGNATURE])
     blob = json.loads(zlib.decompress(stored_series[0]['blob']))
@@ -514,11 +476,11 @@ def test_store_performance_series_timeout_recover(jm, test_project):
     # run more or less immediately so that the lock is engaged
     def _lock_unlock():
         with JobsModel(test_project) as jm2:
-            jm2.get_jobs_dhub().execute(
+            jm2.get_dhub().execute(
                 proc='generic.locks.get_lock',
                 placeholders=[FakePerfData.get_fake_lock_string()])
             time.sleep(1)
-            jm2.get_jobs_dhub().execute(
+            jm2.get_dhub().execute(
                 proc='generic.locks.release_lock',
                 placeholders=[FakePerfData.get_fake_lock_string()])
     t = threading.Thread(target=_lock_unlock)
@@ -530,7 +492,7 @@ def test_store_performance_series_timeout_recover(jm, test_project):
                                 FakePerfData.SIGNATURE,
                                 FakePerfData.SERIES)
     t.join()
-    stored_series = jm.get_jobs_dhub().execute(
+    stored_series = jm.get_dhub().execute(
         proc="jobs.selects.get_performance_series",
         placeholders=[FakePerfData.TIME_INTERVAL, FakePerfData.SIGNATURE])
 
@@ -544,7 +506,7 @@ def test_store_performance_series_timeout_recover(jm, test_project):
 def test_store_performance_series_timeout_fail(jm, test_project):
     # timeout case 2: a lock is on our series, but it will not expire in time
 
-    jm.get_jobs_dhub().execute(
+    jm.get_dhub().execute(
         proc='generic.locks.get_lock',
         placeholders=[FakePerfData.get_fake_lock_string()])
     old_timeout = settings.PERFHERDER_UPDATE_SERIES_LOCK_TIMEOUT
@@ -554,7 +516,7 @@ def test_store_performance_series_timeout_fail(jm, test_project):
                                 FakePerfData.SERIES_TYPE,
                                 FakePerfData.SIGNATURE,
                                 FakePerfData.SERIES)
-    stored_series = jm.get_jobs_dhub().execute(
+    stored_series = jm.get_dhub().execute(
         proc="jobs.selects.get_performance_series",
         placeholders=[FakePerfData.TIME_INTERVAL, FakePerfData.SIGNATURE])
     assert not stored_series
@@ -597,7 +559,7 @@ def test_ingesting_skip_existing(jm, sample_data, initial_data, refdata,
     job_data = sample_data.job_data[:1]
     test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset)
 
-    jm.load_job_data(sample_data.job_data[:2])
+    jm.store_job_data(sample_data.job_data[:2])
 
     jl = jm.get_job_list(0, 10)
     assert len(jl) == 2
@@ -614,8 +576,7 @@ def test_ingest_job_with_updated_job_group(jm, refdata, sample_data, initial_dat
     first_job["job"]["group_name"] = "first group name"
     first_job["job"]["group_symbol"] = "1"
     first_job["revision_hash"] = result_set_stored[0]["revision_hash"]
-    jm.load_job_data([first_job])
-    jm.process_objects(1)
+    jm.store_job_data([first_job])
 
     second_job = copy.deepcopy(first_job)
     # create a new guid to ingest the job again
@@ -625,8 +586,7 @@ def test_ingest_job_with_updated_job_group(jm, refdata, sample_data, initial_dat
     second_job["job"]["group_symbol"] = "2"
     second_job["revision_hash"] = result_set_stored[0]["revision_hash"]
 
-    jm.load_job_data([second_job])
-    jm.process_objects(1)
+    jm.store_job_data([second_job])
 
     second_job_lookup = jm.get_job_ids_by_guid([second_job_guid])
     second_job_stored = jm.get_job(second_job_lookup[second_job_guid]["id"])

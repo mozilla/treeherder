@@ -10,7 +10,7 @@ import json
 from time import time
 
 
-def test_create_bug_job_map_no_auth(eleven_jobs_processed, jm):
+def test_create_bug_job_map_no_auth(eleven_jobs_stored, jm):
     """
     test creating a single note via endpoint
     """
@@ -33,7 +33,7 @@ def test_create_bug_job_map_no_auth(eleven_jobs_processed, jm):
     jm.disconnect()
 
 
-def test_create_bug_job_map(eleven_jobs_processed, mock_message_broker, jm):
+def test_create_bug_job_map(eleven_jobs_stored, mock_message_broker, jm):
     """
     test creating a single note via endpoint
     """
@@ -67,7 +67,7 @@ def test_create_bug_job_map(eleven_jobs_processed, mock_message_broker, jm):
     jm.disconnect()
 
 
-def test_create_bug_job_map_dupe(eleven_jobs_processed, mock_message_broker, jm):
+def test_create_bug_job_map_dupe(eleven_jobs_stored, mock_message_broker, jm):
     """
     test creating the same bug map skips it
     """
@@ -106,7 +106,7 @@ def test_create_bug_job_map_dupe(eleven_jobs_processed, mock_message_broker, jm)
     jm.disconnect()
 
 
-def test_bug_job_map_list(webapp, jm, eleven_jobs_processed):
+def test_bug_job_map_list(webapp, jm, eleven_jobs_stored):
     """
     test retrieving a list of bug_job_map
     """
@@ -139,7 +139,7 @@ def test_bug_job_map_list(webapp, jm, eleven_jobs_processed):
     jm.disconnect()
 
 
-def test_bug_job_map_detail(webapp, jm, eleven_jobs_processed):
+def test_bug_job_map_detail(webapp, jm, eleven_jobs_stored):
     """
     test retrieving a list of bug_job_map
     """
@@ -173,7 +173,7 @@ def test_bug_job_map_detail(webapp, jm, eleven_jobs_processed):
     jm.disconnect()
 
 
-def test_bug_job_map_delete(webapp, eleven_jobs_processed,
+def test_bug_job_map_delete(webapp, eleven_jobs_stored,
                             jm, mock_message_broker):
     """
     test retrieving a list of bug_job_map
@@ -208,7 +208,7 @@ def test_bug_job_map_delete(webapp, eleven_jobs_processed,
     jm.disconnect()
 
 
-def test_bug_job_map_delete_no_auth(jm, eleven_jobs_processed):
+def test_bug_job_map_delete_no_auth(jm, eleven_jobs_stored):
     """
     test retrieving a list of bug_job_map
     """

@@ -31,7 +31,7 @@ def test_running_job_available(jm, initial_data, running_jobs_stored):
     assert jobs['results'][0]['state'] == 'running'
 
 
-def test_completed_job_available(jm, initial_data, completed_jobs_loaded):
+def test_completed_job_available(jm, initial_data, completed_jobs_stored):
     webapp = TestApp(application)
     resp = webapp.get(
         reverse("jobs-list", kwargs={"project": jm.project})
@@ -59,7 +59,7 @@ def test_pending_stored_to_running_loaded(jm, initial_data, pending_jobs_stored,
     assert jobs['results'][0]['state'] == 'running'
 
 
-def test_finished_job_to_running(jm, initial_data, completed_jobs_loaded, running_jobs_stored):
+def test_finished_job_to_running(jm, initial_data, completed_jobs_stored, running_jobs_stored):
     """
     tests that a job finished cannot change state
     """

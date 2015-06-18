@@ -24,7 +24,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if options["reset"]:
             confirm = input("""You have requested an init of the datasources.
-This will IRREVERSIBLY DESTROY all data in the jobs and objectstore databases.
+This will IRREVERSIBLY DESTROY all data in the jobs database.
 Are you sure you want to do this?
 
 Type 'yes' to continue, or 'no' to cancel: """)
@@ -34,9 +34,5 @@ Type 'yes' to continue, or 'no' to cancel: """)
 
         projects = Repository.objects.filter(active_status='active').values_list('name', flat=True)
         for project in projects:
-            for contenttype in ("jobs", "objectstore"):
-                Datasource.objects.get_or_create(
-                    contenttype=contenttype,
-                    project=project,
-                )
+            Datasource.objects.get_or_create(contenttype="jobs", project=project)
         Datasource.reset_cache()

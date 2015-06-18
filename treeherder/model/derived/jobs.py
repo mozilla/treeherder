@@ -3,7 +3,6 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 import simplejson as json
-import MySQLdb
 import time
 import logging
 import zlib
@@ -15,7 +14,6 @@ from operator import itemgetter
 
 from _mysql_exceptions import IntegrityError
 
-from warnings import filterwarnings, resetwarnings
 from django.conf import settings
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
@@ -43,17 +41,15 @@ logger = logging.getLogger(__name__)
 class JobsModel(TreeherderModelBase):
 
     """
-    Represent a job repository with objectstore
+    Represent a job repository
 
     content-types:
         jobs
-        objectstore
 
     """
 
     # content types that every project will have
     CT_JOBS = "jobs"
-    CT_OBJECTSTORE = "objectstore"
 
     INCOMPLETE_STATES = ["running", "pending"]
     STATES = INCOMPLETE_STATES + ["completed", "coalesced"]
@@ -149,31 +145,16 @@ class JobsModel(TreeherderModelBase):
 
         """
 
-        for ct in [cls.CT_JOBS, cls.CT_OBJECTSTORE]:
-            source = Datasource(
-                project=project,
-                contenttype=ct,
-            )
-            source.save()
+        source = Datasource(
+            project=project,
+            contenttype=cls.CT_JOBS,
+        )
+        source.save()
 
         return cls(project=project)
 
-    def get_jobs_dhub(self):
-        """Get the dhub for jobs"""
-        return self.get_dhub(self.CT_JOBS)
-
-    def execute(self, data_type, **kwargs):
-        """
-        Execute a query based on the data_type provided.
-        """
-        if data_type == 'jobs':
-            dhub = self.get_jobs_dhub()
-        else:
-            dhub = self.get_os_dhub()
-        return utils.retry_execute(dhub, logger, **kwargs)
-
-    def jobs_execute(self, **kwargs):
-        return utils.retry_execute(self.get_jobs_dhub(), logger, **kwargs)
+    def execute(self, **kwargs):
+        return utils.retry_execute(self.get_dhub(), logger, **kwargs)
 
     ##################
     #
@@ -181,17 +162,10 @@ class JobsModel(TreeherderModelBase):
     #
     ##################
 
-    def get_os_dhub(self):
-        """Get the dhub for the objectstore"""
-        return self.get_dhub(self.CT_OBJECTSTORE)
-
-    def os_execute(self, **kwargs):
-        return utils.retry_execute(self.get_os_dhub(), logger, **kwargs)
-
     def get_job(self, id):
         """Return the job row for this ``job_id``"""
         repl = [self.refdata_model.get_db_name()]
-        data = self.jobs_execute(
+        data = self.execute(
             proc="jobs.selects.get_job",
             placeholders=[id],
             debug_show=self.DEBUG,
@@ -252,7 +226,7 @@ class JobsModel(TreeherderModelBase):
                 pass
 
         repl = [self.refdata_model.get_db_name(), replace_str]
-        data = self.jobs_execute(
+        data = self.execute(
             proc="jobs.selects.get_job_list",
             replace=repl,
             placeholders=placeholders,
@@ -264,7 +238,7 @@ class JobsModel(TreeherderModelBase):
 
     def set_state(self, job_id, state):
         """Update the state of an existing job"""
-        self.jobs_execute(
+        self.execute(
             proc='jobs.updates.set_state',
             placeholders=[state, job_id],
             debug_show=self.DEBUG
@@ -272,7 +246,7 @@ class JobsModel(TreeherderModelBase):
 
     def get_incomplete_job_guids(self, resultset_id):
         """Get list of ids for jobs of resultset that are not in complete state."""
-        return self.jobs_execute(
+        return self.execute(
             proc='jobs.selects.get_incomplete_job_guids',
             placeholders=[resultset_id],
             debug_show=self.DEBUG,
@@ -286,7 +260,7 @@ class JobsModel(TreeherderModelBase):
         jobs = self.get_job_ids_by_guid(job_guids).values()
 
         # Cancel all the jobs in the database...
-        self.jobs_execute(
+        self.execute(
             proc='jobs.updates.cancel_all',
             placeholders=[resultset_id],
             debug_show=self.DEBUG
@@ -356,7 +330,7 @@ class JobsModel(TreeherderModelBase):
 
         self._job_action_event(job, 'cancel', requester)
 
-        self.jobs_execute(
+        self.execute(
             proc='jobs.updates.cancel_job',
             placeholders=[job['job_guid']],
             debug_show=self.DEBUG
@@ -369,7 +343,7 @@ class JobsModel(TreeherderModelBase):
 
     def get_log_references(self, job_id):
         """Return the log references for the given ``job_id``."""
-        data = self.jobs_execute(
+        data = self.execute(
             proc="jobs.selects.get_log_references",
             placeholders=[job_id],
             debug_show=self.DEBUG,
@@ -378,7 +352,7 @@ class JobsModel(TreeherderModelBase):
 
     def get_max_job_id(self):
         """Get the maximum job id."""
-        data = self.get_jobs_dhub().execute(
+        data = self.get_dhub().execute(
             proc="jobs.selects.get_max_job_id",
             debug_show=self.DEBUG,
         )
@@ -429,7 +403,7 @@ class JobsModel(TreeherderModelBase):
         if series_summary:
             series_summary = json.loads(utils.decompress_if_needed(series_summary))
         else:
-            data = self.get_jobs_dhub().execute(
+            data = self.get_dhub().execute(
                 proc="jobs.selects.get_perf_series_properties",
                 placeholders=[last_updated_limit, interval_seconds],
                 debug_show=self.DEBUG,
@@ -456,7 +430,7 @@ class JobsModel(TreeherderModelBase):
 
     def get_job_note(self, id):
         """Return the job note by id."""
-        data = self.jobs_execute(
+        data = self.execute(
             proc="jobs.selects.get_job_note",
             placeholders=[id],
             debug_show=self.DEBUG,
@@ -465,7 +439,7 @@ class JobsModel(TreeherderModelBase):
 
     def get_job_note_list(self, job_id):
         """Return the job notes by job_id."""
-        data = self.jobs_execute(
+        data = self.execute(
             proc="jobs.selects.get_job_note_list",
             placeholders=[job_id],
             debug_show=self.DEBUG,
@@ -479,7 +453,7 @@ class JobsModel(TreeherderModelBase):
         default value
         """
 
-        self.jobs_execute(
+        self.execute(
             proc='jobs.updates.update_last_job_classification',
             placeholders=[
                 job_id,
@@ -489,7 +463,7 @@ class JobsModel(TreeherderModelBase):
 
     def insert_job_note(self, job_id, failure_classification_id, who, note):
         """insert a new note for a job and updates its failure classification"""
-        self.jobs_execute(
+        self.execute(
             proc='jobs.inserts.insert_note',
             placeholders=[
                 job_id,
@@ -507,7 +481,7 @@ class JobsModel(TreeherderModelBase):
         Delete a job note and updates the failure classification for that job
         """
 
-        self.jobs_execute(
+        self.execute(
             proc='jobs.deletes.delete_note',
             placeholders=[
                 note_id,
@@ -522,7 +496,7 @@ class JobsModel(TreeherderModelBase):
         Store a new relation between the given job and bug ids.
         """
         try:
-            self.jobs_execute(
+            self.execute(
                 proc='jobs.inserts.insert_bug_job_map',
                 placeholders=[
                     job_id,
@@ -567,7 +541,7 @@ class JobsModel(TreeherderModelBase):
         """
         Delete a bug-job entry identified by bug_id and job_id
         """
-        self.jobs_execute(
+        self.execute(
             proc='jobs.deletes.delete_bug_job_map',
             placeholders=[
                 job_id,
@@ -579,7 +553,7 @@ class JobsModel(TreeherderModelBase):
     def calculate_eta(self, sample_window_seconds, debug):
 
         # Get the most recent timestamp from jobs
-        max_timestamp = self.jobs_execute(
+        max_timestamp = self.execute(
             proc='jobs.selects.get_max_job_submit_timestamp',
             return_type='iter',
             debug_show=self.DEBUG
@@ -589,7 +563,7 @@ class JobsModel(TreeherderModelBase):
 
             time_window = int(max_timestamp) - sample_window_seconds
 
-            eta_groups = self.jobs_execute(
+            eta_groups = self.execute(
                 proc='jobs.selects.get_eta_groups',
                 placeholders=[time_window],
                 key_column='signature',
@@ -641,7 +615,7 @@ class JobsModel(TreeherderModelBase):
                         submit_timestamp
                     ])
 
-            self.jobs_execute(
+            self.execute(
                 proc='jobs.inserts.set_job_eta',
                 placeholders=placeholders,
                 executemany=True,
@@ -667,35 +641,19 @@ class JobsModel(TreeherderModelBase):
 
         return round(sorted_list[length / 2], 0)
 
-    def cycle_data(self, os_cycle_interval, cycle_interval, os_chunk_size, chunk_size, sleep_time):
+    def cycle_data(self, cycle_interval, chunk_size, sleep_time):
         """Delete data older than cycle_interval, splitting the target data
 into chunks of chunk_size size. Returns the number of result sets deleted"""
 
-        os_max_timestamp = self._get_max_timestamp(os_cycle_interval)
-        os_deletes = 0
-        while True:
-            self.os_execute(
-                proc='objectstore.deletes.cycle_objectstore',
-                placeholders=[os_max_timestamp, os_chunk_size],
-                debug_show=self.DEBUG
-            )
-            rows_deleted = self.get_os_dhub().connection['master_host']['cursor'].rowcount
-            os_deletes += rows_deleted
-            if rows_deleted < os_chunk_size:
-                break
-            if sleep_time:
-                # Allow some time for other queries to get through
-                time.sleep(sleep_time)
-
         jobs_max_timestamp = self._get_max_timestamp(cycle_interval)
         # Retrieve list of result sets to delete
-        result_set_data = self.jobs_execute(
+        result_set_data = self.execute(
             proc='jobs.selects.get_result_sets_to_cycle',
             placeholders=[jobs_max_timestamp],
             debug_show=self.DEBUG
         )
         if not result_set_data:
-            return (os_deletes, 0)
+            return 0
 
         # group the result_set data in chunks
         result_set_chunk_list = zip(*[iter(result_set_data)] * chunk_size)
@@ -708,7 +666,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             # Retrieve list of revisions associated with result sets
             rs_placeholders = [x['id'] for x in result_set_chunks]
             rs_where_in_clause = [','.join(['%s'] * len(rs_placeholders))]
-            revision_data = self.jobs_execute(
+            revision_data = self.execute(
                 proc='jobs.selects.get_revision_ids_to_cycle',
                 placeholders=rs_placeholders,
                 replace=rs_where_in_clause,
@@ -718,7 +676,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             # Retrieve list of jobs associated with result sets
             rev_placeholders = [x['revision_id'] for x in revision_data]
             rev_where_in_clause = [','.join(['%s'] * len(rev_placeholders))]
-            job_data = self.jobs_execute(
+            job_data = self.execute(
                 proc='jobs.selects.get_jobs_to_cycle',
                 placeholders=rs_placeholders,
                 replace=rs_where_in_clause,
@@ -763,7 +721,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             # remove data from specified jobs tables that is older than max_timestamp
             self._execute_table_deletes(jobs_targets, 'jobs', sleep_time)
 
-        return (os_deletes, len(result_set_data))
+        return len(result_set_data)
 
     def _get_max_timestamp(self, cycle_interval):
         max_date = datetime.now() - cycle_interval
@@ -778,17 +736,17 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             sql_obj['debug_show'] = self.DEBUG
 
             # Disable foreign key checks to improve performance
-            self.execute(data_type,
-                         proc='generic.db_control.disable_foreign_key_checks',
-                         debug_show=self.DEBUG)
+            self.execute(
+                proc='generic.db_control.disable_foreign_key_checks',
+                debug_show=self.DEBUG)
 
-            self.execute(data_type, **sql_obj)
-            self.get_dhub(data_type).commit('master_host')
+            self.execute(**sql_obj)
+            self.get_dhub().commit('master_host')
 
             # Re-enable foreign key checks to improve performance
-            self.execute(data_type,
-                         proc='generic.db_control.enable_foreign_key_checks',
-                         debug_show=self.DEBUG)
+            self.execute(
+                proc='generic.db_control.enable_foreign_key_checks',
+                debug_show=self.DEBUG)
 
             if sleep_time:
                 # Allow some time for other queries to get through
@@ -811,7 +769,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         proc = "jobs.selects.get_bug_job_map_list"
 
-        data = self.jobs_execute(
+        data = self.execute(
             proc=proc,
             replace=repl,
             placeholders=placeholders,
@@ -839,7 +797,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         result_set_id_lookup = {}
 
         if revision_hashes:
-            result_set_id_lookup = self.jobs_execute(
+            result_set_id_lookup = self.execute(
                 proc='jobs.selects.get_result_set_ids',
                 placeholders=revision_hashes,
                 replace=[where_in_list],
@@ -859,7 +817,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         proc = "jobs.selects.get_result_set_list_by_ids"
 
-        result_set_ids = self.jobs_execute(
+        result_set_ids = self.execute(
             proc=proc,
             replace=[replace_str],
             placeholders=placeholders,
@@ -892,7 +850,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         # Retrieve the filtered/limited list of result sets
         proc = "jobs.selects.get_result_set_list"
-        result_set_ids = self.jobs_execute(
+        result_set_ids = self.execute(
             proc=proc,
             replace=[replace_str],
             placeholders=placeholders,
@@ -953,7 +911,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         replacement = " AND revision IN (" + replacement + ") "
 
         proc = "jobs.selects.get_revision_resultset_lookup"
-        lookups = self.jobs_execute(
+        lookups = self.execute(
             proc=proc,
             placeholders=revision_list + [0, len(revision_list)],
             debug_show=self.DEBUG,
@@ -969,7 +927,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         """
 
         proc = "jobs.selects.get_result_set_details"
-        lookups = self.jobs_execute(
+        lookups = self.execute(
             proc=proc,
             debug_show=self.DEBUG,
             placeholders=[result_set_id],
@@ -1001,7 +959,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         # Retrieve revision details associated with each result_set_id
         detail_proc = "jobs.selects.get_result_set_details"
-        result_set_details = self.jobs_execute(
+        result_set_details = self.execute(
             proc=detail_proc,
             placeholders=ids,
             debug_show=self.DEBUG,
@@ -1026,151 +984,67 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         return aggregate_details
 
-    ##################
-    #
-    # Objectstore functionality
-    #
-    ##################
-
     def get_oauth_consumer_secret(self, key):
         """Consumer secret for oauth"""
-        ds = self.get_datasource(self.CT_OBJECTSTORE)
+        ds = self.get_datasource()
         secret = ds.get_oauth_consumer_secret(key)
         return secret
 
-    def store_job_data(self, json_data, error=None):
+    def store_job_data(self, data, raise_errors=False):
         """
-        Write the JSON to the objectstore to be queued for processing.
-        job_guid is needed in order to decide wether the object exists or not
-        """
-
-        loaded_timestamp = utils.get_now_timestamp()
-        error = "N" if error is None else "Y"
-        error_msg = error or ""
-
-        obj_placeholders = []
-
-        response = {}
-        for job in json_data:
-            try:
-                json_job = json.dumps(job)
-                job_guid = job['job']['job_guid']
-            except Exception as e:
-
-                emsg = u"Unknown error: {0}: {1}".format(
-                    e.__class__.__name__, unicode(e))
-
-                response[emsg] = job
-
-            else:
-
-                obj_placeholders.append(
-                    [
-                        loaded_timestamp,
-                        job_guid,
-                        json_job,
-                        error,
-                        error_msg,
-                        job_guid
-                    ])
-
-        if obj_placeholders:
-            # this query inserts the object if its guid is not present,
-            # otherwise it does nothing
-            self.os_execute(
-                proc='objectstore.inserts.store_json',
-                placeholders=obj_placeholders,
-                executemany=True,
-                debug_show=self.DEBUG
-            )
-
-        return response
-
-    def retrieve_job_data(self, limit):
-        """
-        Retrieve JSON blobs from the objectstore.
-
-        Does not claim rows for processing; should not be used for actually
-        processing JSON blobs into jobs schema.
-
-        Used only by the `transfer_data` management command.
-
-        """
-        proc = "objectstore.selects.get_unprocessed"
-        json_blobs = self.os_execute(
-            proc=proc,
-            placeholders=[limit],
-            debug_show=self.DEBUG,
-            return_type='tuple'
-        )
-
-        return json_blobs
-
-    def load_job_data(self, data, raise_errors=False):
-        """
-        Load JobData instances into jobs db, returns job_ids and any
-        associated errors.
+        Store JobData instances into jobs db
 
         Example:
         [
             {
-                id: 1,
-                json_blob:
-                {
-                    "revision_hash": "24fd64b8251fac5cf60b54a915bffa7e51f636b5",
-                    "job": {
-                        "build_platform": {
-                            "platform": "Ubuntu VM 12.04",
-                            "os_name": "linux",
-                            "architecture": "x86_64",
-                            "vm": true
-                        },
-                        "submit_timestamp": 1365732271,
-                        "start_timestamp": "20130411165317",
-
-                        "name": "xpcshell",
-
-                        "device_name": "vm",
-
-                        "job_symbol": "XP",
-
-                        "group_name": "Shelliness",
-
-                        "group_symbol": "XPC",
-
-                        "option_collection": {
-                            "opt": true
-                        },
-                        "log_references": [
-                            {
-                                "url": "http://ftp.mozilla.org/pub/...",
-                                "name": "unittest"
-                            }
-                        ],
-                        "who": "sendchange-unittest",
-                        "reason": "scheduler",
-                        artifacts:[{
-                            type:" json | img | ...",
-                            name:"",
-                            log_urls:[
-                                ]
-                            blob:""
-                        }],
-                        "machine_platform": {
-                            "platform": "Ubuntu VM 12.04",
-                            "os_name": "linux",
-                            "architecture": "x86_64",
-                            "vm": true
-                        },
-                        "machine": "tst-linux64-ec2-314",
-                        "state": "TODO",
-                        "result": 0,
-                        "job_guid": "d19375ce775f0dc166de01daa5d2e8a73a8e8ebf",
-                        "product_name": "firefox",
-                        "end_timestamp": "1365733932"
-                    }
-
-                }
+                "revision_hash": "24fd64b8251fac5cf60b54a915bffa7e51f636b5",
+                "job": {
+                    "job_guid": "d19375ce775f0dc166de01daa5d2e8a73a8e8ebf",
+                    "name": "xpcshell",
+                    "desc": "foo",
+                    "job_symbol": "XP",
+                    "group_name": "Shelliness",
+                    "group_symbol": "XPC",
+                    "product_name": "firefox",
+                    "state": "TODO",
+                    "result": 0,
+                    "reason": "scheduler",
+                    "who": "sendchange-unittest",
+                    "submit_timestamp": 1365732271,
+                    "start_timestamp": "20130411165317",
+                    "end_timestamp": "1365733932"
+                    "machine": "tst-linux64-ec2-314",
+                    "build_url": "http://....",
+                    "build_platform": {
+                        "platform": "Ubuntu VM 12.04",
+                        "os_name": "linux",
+                        "architecture": "x86_64",
+                        "vm": true
+                    },
+                    "machine_platform": {
+                        "platform": "Ubuntu VM 12.04",
+                        "os_name": "linux",
+                        "architecture": "x86_64",
+                        "vm": true
+                    },
+                    "option_collection": {
+                        "opt": true
+                    },
+                    "log_references": [
+                        {
+                            "url": "http://ftp.mozilla.org/pub/...",
+                            "name": "unittest"
+                        }
+                    ],
+                    artifacts:[{
+                        type:" json | img | ...",
+                        name:"",
+                        log_urls:[
+                            ]
+                        blob:""
+                    }],
+                },
+                "coalesced": []
             },
             ...
         ]
@@ -1196,10 +1070,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         artifact_placeholders = []
         coalesced_job_guid_placeholders = []
 
-        # List of json object ids and associated revision_hashes
-        # loaded. Used to mark the status complete.
-        object_placeholders = []
-
         retry_job_guids = []
 
         async_error_summary_list = []
@@ -1224,15 +1094,9 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             # Make sure we can deserialize the json object
             # without raising an exception
             try:
-                if 'json_blob' in datum:
-                    job_struct = JobData.from_json(datum['json_blob'])
-                    revision_hash = job_struct['revision_hash']
-                    job = job_struct['job']
-                    coalesced = job_struct.get('coalesced', [])
-                else:
-                    job = datum['job']
-                    revision_hash = datum['revision_hash']
-                    coalesced = datum.get('coalesced', [])
+                job = datum['job']
+                revision_hash = datum['revision_hash']
+                coalesced = datum.get('coalesced', [])
 
                 # TODO: Need a job structure validation step here. Now that
                 # everything works in list context we cannot detect what
@@ -1240,18 +1104,10 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 # we can capture the error and associate it with the object
                 # and also skip it before generating any database errors.
             except JobDataError as e:
-                if 'id' in datum:
-                    self.mark_object_error(datum['id'], str(e))
                 if raise_errors:
                     raise e
                 continue
             except Exception as e:
-                if 'id' in datum:
-                    self.mark_object_error(
-                        datum['id'],
-                        u"Unknown error: {0}: {1}".format(
-                            e.__class__.__name__, unicode(e))
-                    )
                 if raise_errors:
                     raise e
                 continue
@@ -1273,23 +1129,12 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     async_error_summary_list
                 )
 
-                if 'id' in datum:
-                    object_placeholders.append(
-                        [revision_hash, datum['id']]
-                    )
-
                 for coalesced_guid in coalesced:
                     coalesced_job_guid_placeholders.append(
                         # coalesced to guid, coalesced guid
                         [job_guid, coalesced_guid]
                     )
             except Exception as e:
-                if 'id' in datum:
-                    self.mark_object_error(
-                        datum['id'],
-                        u"Unknown error: {}: {}".format(
-                            e.__class__.__name__, unicode(e))
-                    )
                 if raise_errors:
                     raise e
 
@@ -1378,19 +1223,16 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     get_guid_root(row[-1])
                 ]['id']
 
-            self.jobs_execute(
+            self.execute(
                 proc='jobs.updates.update_job_data',
                 debug_show=self.DEBUG,
                 placeholders=job_update_placeholders,
                 executemany=True)
 
-        # Mark job status
-        self.mark_objects_complete(object_placeholders)
-
         # set the job_coalesced_to_guid column for any coalesced
         # job found
         if coalesced_job_guid_placeholders:
-            self.jobs_execute(
+            self.execute(
                 proc='jobs.updates.update_coalesced_guids',
                 debug_show=self.DEBUG,
                 placeholders=coalesced_job_guid_placeholders,
@@ -1420,11 +1262,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         for i, datum in enumerate(data):
 
             try:
-                if 'json_blob' in datum:
-                    job_struct = JobData.from_json(datum['json_blob'])
-                    job = job_struct['job']
-                else:
-                    job = datum['job']
+                job = datum['job']
 
                 job_guid = str(job['job_guid'])
                 states[str(job['state'])].append(job_guid)
@@ -1434,12 +1272,12 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
             except Exception:
                 data_idx.append("skipped")
-                # it will get caught later in ``load_job_data``
+                # it will get caught later in ``store_job_data``
                 # adding the guid as "skipped" will mean it won't be found
                 # in the returned list of dup guids from the db.
                 # This will cause the bad job to be re-added
                 # to ``new_data`` so that the error can be handled
-                # in ``load_job_data``.
+                # in ``store_job_data``.
 
         for state, guids in states.items():
             if guids:
@@ -1454,7 +1292,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         replacement = ' OR '.join(state_clauses)
 
         if placeholders:
-            existing_guids = self.jobs_execute(
+            existing_guids = self.execute(
                 proc='jobs.selects.get_job_guids_in_states',
                 placeholders=placeholders,
                 replace=[replacement],
@@ -1768,7 +1606,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             return {}
 
         # Store job data
-        self.jobs_execute(
+        self.execute(
             proc='jobs.inserts.create_job_data',
             debug_show=self.DEBUG,
             placeholders=job_placeholders,
@@ -1785,7 +1623,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         rds_where_in_clause = ','.join(['%s'] * len(reference_data_signatures))
 
-        job_eta_data = self.jobs_execute(
+        job_eta_data = self.execute(
             proc='jobs.selects.get_last_eta_by_signatures',
             debug_show=self.DEBUG,
             replace=[rds_where_in_clause],
@@ -1810,7 +1648,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         job_guid_where_in_clause = ",".join(["%s"] * len(job_guid_list))
 
-        job_id_lookup = self.jobs_execute(
+        job_id_lookup = self.execute(
             proc='jobs.selects.get_job_ids_by_guids',
             debug_show=self.DEBUG,
             replace=[job_guid_where_in_clause],
@@ -1866,7 +1704,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     tasks.append(task)
 
             # Store the log references
-            self.jobs_execute(
+            self.execute(
                 proc='jobs.inserts.set_job_log_url',
                 debug_show=self.DEBUG,
                 placeholders=log_placeholders,
@@ -1902,7 +1740,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 )
 
     def get_job_log_url_detail(self, job_log_url_id):
-        obj = self.jobs_execute(
+        obj = self.execute(
             proc='jobs.selects.get_job_log_url_detail',
             debug_show=self.DEBUG,
             placeholders=[job_log_url_id])
@@ -1921,7 +1759,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         id_placeholders = ["%s"] * len(job_ids)
         replacement.append(','.join(id_placeholders))
 
-        data = self.jobs_execute(
+        data = self.execute(
             proc="jobs.selects.get_job_log_url_list",
             placeholders=job_ids,
             replace=replacement,
@@ -1931,7 +1769,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
     def update_job_log_url_status(self, job_log_url_id, parse_status):
 
-        self.jobs_execute(
+        self.execute(
             proc='jobs.updates.update_job_log_url',
             debug_show=self.DEBUG,
             placeholders=[parse_status, job_log_url_id])
@@ -1942,7 +1780,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         placeholders = signatures
         placeholders.append(str(interval_seconds))
 
-        data = self.jobs_execute(
+        data = self.execute(
             proc="jobs.selects.get_performance_series_from_signatures",
             debug_show=self.DEBUG,
             placeholders=placeholders,
@@ -1963,7 +1801,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         props = [el for x in props.items() for el in x]
         props.extend(props)
 
-        signatures = self.jobs_execute(
+        signatures = self.execute(
             proc="jobs.selects.get_signatures_from_properties",
             debug_show=self.DEBUG,
             placeholders=props,
@@ -1976,7 +1814,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         signatures_repl = [','.join(['%s'] * len(signatures))]
 
-        properties = self.jobs_execute(
+        properties = self.execute(
             proc="jobs.selects.get_all_properties_of_signatures",
             debug_show=self.DEBUG,
             placeholders=signatures,
@@ -1994,7 +1832,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
     def get_signature_properties(self, signatures):
         signatures_repl = [','.join(['%s'] * len(signatures))]
 
-        properties = self.jobs_execute(
+        properties = self.execute(
             proc="jobs.selects.get_all_properties_of_signatures",
             debug_show=self.DEBUG,
             placeholders=signatures,
@@ -2030,7 +1868,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 str(signature_hash), str(k), str(v),
             ])
 
-        self.jobs_execute(
+        self.execute(
             proc='jobs.inserts.set_series_signature',
             debug_show=self.DEBUG,
             placeholders=signature_property_placeholders,
@@ -2050,7 +1888,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         # first, wait for lock to become free
         started = time.time()
         while time.time() < (started + lock_timeout):
-            is_lock_free = bool(self.jobs_execute(
+            is_lock_free = bool(self.execute(
                 proc='generic.locks.is_free_lock',
                 debug_show=self.DEBUG,
                 placeholders=[lock_string])[0]['lock'])
@@ -2065,7 +1903,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             return
 
         # now, acquire the lock
-        self.jobs_execute(
+        self.execute(
             proc='generic.locks.get_lock',
             debug_show=self.DEBUG,
             placeholders=[lock_string])
@@ -2084,7 +1922,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 signature,
             ]
 
-            self.jobs_execute(
+            self.execute(
                 proc='jobs.inserts.set_performance_series',
                 debug_show=self.DEBUG,
                 placeholders=insert_placeholders)
@@ -2095,7 +1933,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                                                                t_range))
 
             # Retrieve and update the series
-            performance_series = self.jobs_execute(
+            performance_series = self.execute(
                 proc='jobs.selects.get_performance_series',
                 debug_show=self.DEBUG,
                 placeholders=[t_range, signature])
@@ -2138,7 +1976,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                         signature,
                     ]
 
-                    self.jobs_execute(
+                    self.execute(
                         proc='jobs.updates.update_performance_series',
                         debug_show=self.DEBUG,
                         placeholders=update_placeholders)
@@ -2150,140 +1988,18 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         finally:
             # Make sure we release the lock no matter what errors
             # are generated
-            self.jobs_execute(
+            self.execute(
                 proc='generic.locks.release_lock',
                 debug_show=self.DEBUG,
                 placeholders=[lock_string])
 
-    def _get_last_insert_id(self, contenttype="jobs"):
+    def _get_last_insert_id(self):
         """Return last-inserted ID."""
-        return self.get_dhub(contenttype).execute(
+        return self.get_dhub().execute(
             proc='generic.selects.get_last_insert_id',
             debug_show=self.DEBUG,
             return_type='iter',
         ).get_column_data('id')
-
-    def get_num_unprocessed_objects(self):
-        data = self.os_execute(proc='objectstore.selects.get_num_unprocessed',
-                               debug_show=self.DEBUG)
-        return int(data[0]['count'])
-
-    def process_objects(self, loadlimit, raise_errors=False):
-        """Processes JSON blobs from the objectstore into jobs schema."""
-        rows = self.claim_objects(loadlimit)
-        # TODO: Need a try/except here insuring we mark
-        # any objects in a suspended state as errored
-        if rows:
-            self.load_job_data(rows)
-
-    def claim_objects(self, limit):
-        """
-        Claim & return up to ``limit`` unprocessed blobs from the objectstore.
-
-        Returns a tuple of dictionaries with "json_blob" and "id" keys.
-
-        May return more than ``limit`` rows if there are existing orphaned rows
-        that were claimed by an earlier connection with the same connection ID
-        but never completed.
-
-        """
-        proc_mark = 'objectstore.updates.mark_loading'
-        proc_get = 'objectstore.selects.get_claimed'
-
-        # Note: There is a bug in MySQL http://bugs.mysql.com/bug.php?id=42415
-        # that causes the following warning to be generated in the production
-        # environment:
-        #
-        # _mysql_exceptions.Warning: Unsafe statement written to the binary
-        # log using statement format since BINLOG_FORMAT = STATEMENT. The
-        # statement is unsafe because it uses a LIMIT clause. This is
-        # unsafe because the set of rows included cannot be predicted.
-        #
-        # I have been unable to generate the warning in the development
-        # environment because the warning is specific to the master/slave
-        # replication environment which only exists in production.In the
-        # production environment the generation of this warning is causing
-        # the program to exit.
-        #
-        # The mark_loading SQL statement does execute an UPDATE/LIMIT but now
-        # implements an "ORDER BY id" clause making the UPDATE
-        # deterministic/safe.  I've been unsuccessful capturing the specific
-        # warning generated without redirecting program flow control.  To
-        # resolve the problem in production, we're disabling MySQLdb.Warnings
-        # before executing mark_loading and then re-enabling warnings
-        # immediately after.  If this bug is ever fixed in mysql this handling
-        # should be removed. Holy Hackery! -Jeads
-        filterwarnings('ignore', category=MySQLdb.Warning)
-
-        # Note: this claims rows for processing. Failure to call load_job_data
-        # on this data will result in some json blobs being stuck in limbo
-        # until another worker comes along with the same connection ID.
-        self.os_execute(
-            proc=proc_mark,
-            placeholders=[limit],
-            debug_show=self.DEBUG,
-        )
-
-        resetwarnings()
-
-        # Return all JSON blobs claimed by this connection ID (could possibly
-        # include orphaned rows from a previous run).
-        json_blobs = self.os_execute(
-            proc=proc_get,
-            debug_show=self.DEBUG,
-            return_type='tuple'
-        )
-
-        return json_blobs
-
-    def mark_objects_complete(self, object_placeholders):
-        """ Call to database to mark the task completed
-
-            object_placeholders = [
-                [ revision_hash, object_id ],
-                [ revision_hash, object_id ],
-                ...
-                ]
-        """
-        if object_placeholders:
-            self.os_execute(
-                proc="objectstore.updates.mark_complete",
-                placeholders=object_placeholders,
-                executemany=True,
-                debug_show=self.DEBUG
-            )
-
-    def mark_object_error(self, object_id, error):
-        """ Call to database to mark the task as errored """
-        self.os_execute(
-            proc="objectstore.updates.mark_error",
-            placeholders=[error, object_id],
-            debug_show=self.DEBUG
-        )
-
-    def get_json_blob_by_guid(self, guid):
-        """retrieves a json_blob given its guid"""
-        data = self.os_execute(
-            proc="objectstore.selects.get_json_blob_by_guid",
-            placeholders=[guid],
-            debug_show=self.DEBUG,
-        )
-        return data
-
-    def get_json_blob_list(self, offset, limit):
-        """
-        Retrieve JSON blobs from the objectstore.
-        Mainly used by the restful api to list the last blobs stored
-        """
-        proc = "objectstore.selects.get_json_blob_list"
-        json_blobs = self.os_execute(
-            proc=proc,
-            placeholders=[offset, limit],
-            debug_show=self.DEBUG,
-            return_type='tuple'
-        )
-
-        return json_blobs
 
     def store_result_set_data(self, result_sets):
         """
@@ -2385,7 +2101,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         # in the list of unique_revision_hashes. Use it to determine the new
         # result_sets found to publish to pulse.
         where_in_clause = ','.join(where_in_list)
-        result_set_ids_before = self.jobs_execute(
+        result_set_ids_before = self.execute(
             proc='jobs.selects.get_result_set_ids',
             placeholders=unique_revision_hashes,
             replace=[where_in_clause],
@@ -2395,17 +2111,17 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         )
 
         # Insert new result sets
-        self.jobs_execute(
+        self.execute(
             proc='jobs.inserts.set_result_set',
             placeholders=revision_hash_placeholders,
             executemany=True,
             debug_show=self.DEBUG
         )
 
-        lastrowid = self.get_jobs_dhub().connection['master_host']['cursor'].lastrowid
+        lastrowid = self.get_dhub().connection['master_host']['cursor'].lastrowid
 
         # Retrieve new and already existing result set ids
-        result_set_id_lookup = self.jobs_execute(
+        result_set_id_lookup = self.execute(
             proc='jobs.selects.get_result_set_ids',
             placeholders=unique_revision_hashes,
             replace=[where_in_clause],
@@ -2433,7 +2149,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 )
 
         # Insert new revisions
-        self.jobs_execute(
+        self.execute(
             proc='jobs.inserts.set_revision',
             placeholders=revision_placeholders,
             executemany=True,
@@ -2442,7 +2158,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         # Retrieve new revision ids
         rev_where_in_clause = ','.join(rev_where_in_list)
-        revision_id_lookup = self.jobs_execute(
+        revision_id_lookup = self.execute(
             proc='jobs.selects.get_revisions',
             placeholders=all_revisions,
             replace=[rev_where_in_clause],
@@ -2467,7 +2183,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             )
 
         # Insert new revision_map entries
-        self.jobs_execute(
+        self.execute(
             proc='jobs.inserts.set_revision_map',
             placeholders=revision_map_placeholders,
             executemany=True,
@@ -2529,7 +2245,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 )
                 placeholders += signature_list
 
-        resulset_status_list = self.jobs_execute(
+        resulset_status_list = self.execute(
             proc='jobs.selects.get_resultset_status',
             placeholders=placeholders,
             replace=replace,

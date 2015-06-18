@@ -397,9 +397,7 @@ class PendingRunningTransformerMixin(object):
                     treeherder_data['job'] = new_job
 
                     if project not in th_collections:
-                        th_collections[project] = TreeherderJobCollection(
-                            job_type='update'
-                        )
+                        th_collections[project] = TreeherderJobCollection()
 
                     # get treeherder job instance and add the job instance
                     # to the collection instance

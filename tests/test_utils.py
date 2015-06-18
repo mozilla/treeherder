@@ -3,7 +3,6 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 import json
-import itertools
 from webtest.app import TestApp
 from requests import Request
 
@@ -135,12 +134,6 @@ def do_job_ingestion(jm, refdata, job_data, sample_resultset, verify_data=True):
     # Store the modified json blobs
     jm.store_job_data(blobs)
 
-    # Process the job objects in chunks of size == process_objects_limit
-    process_objects_limit = 1000
-    chunks = grouper(job_data, process_objects_limit)
-    for c in chunks:
-        jm.process_objects(process_objects_limit, raise_errors=True)
-
     if verify_data:
         # Confirms stored data matches whats in the reference data structs
         verify_build_platforms(refdata, build_platforms_ref)
@@ -153,20 +146,6 @@ def do_job_ingestion(jm, refdata, job_data, sample_resultset, verify_data=True):
         verify_log_urls(jm, log_urls_ref)
         verify_artifacts(jm, artifacts_ref)
         verify_coalesced(jm, coalesced_job_guids, coalesced_replacements)
-
-    # Default verification confirms we loaded all of the objects
-    complete_count = jm.get_os_dhub().execute(
-        proc="objectstore_test.counts.complete")[0]["complete_count"]
-    loading_count = jm.get_os_dhub().execute(
-        proc="objectstore_test.counts.loading")[0]["loading_count"]
-
-    assert complete_count == len(job_data)
-    assert loading_count == 0
-
-
-def grouper(iterable, n, fillvalue=None):
-    args = [iter(iterable)] * n
-    return itertools.izip_longest(*args, fillvalue=fillvalue)
 
 
 def verify_build_platforms(refdata, build_platforms_ref):
@@ -249,7 +228,7 @@ def verify_products(refdata, products_ref):
 
 def verify_result_sets(jm, result_sets_ref):
 
-    revision_hashes = jm.get_jobs_dhub().execute(
+    revision_hashes = jm.get_dhub().execute(
         proc='jobs.selects.get_all_result_set_revision_hashes',
         key_column='revision_hash',
         return_type='set'
@@ -260,7 +239,7 @@ def verify_result_sets(jm, result_sets_ref):
 
 def verify_log_urls(jm, log_urls_ref):
 
-    log_urls = jm.get_jobs_dhub().execute(
+    log_urls = jm.get_dhub().execute(
         proc='jobs.selects.get_all_log_urls',
         key_column='url',
         return_type='set'
@@ -271,7 +250,7 @@ def verify_log_urls(jm, log_urls_ref):
 
 def verify_artifacts(jm, artifacts_ref):
 
-    artifacts = jm.get_jobs_dhub().execute(
+    artifacts = jm.get_dhub().execute(
         proc='jobs.selects.get_all_artifacts',
         key_column='name',
         return_type='dict'
@@ -290,7 +269,7 @@ def verify_coalesced(jm, coalesced_job_guids, coalesced_replacements):
     if coalesced_job_guid_list:
 
         rep_str = ','.join(coalesced_replacements)
-        data = jm.get_jobs_dhub().execute(
+        data = jm.get_dhub().execute(
             proc='jobs.selects.get_jobs_by_coalesced_guids',
             replace=[rep_str],
             placeholders=coalesced_job_guid_list

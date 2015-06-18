@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 import json
 
 
-def test_job_list(webapp, eleven_jobs_processed, jm):
+def test_job_list(webapp, eleven_jobs_stored, jm):
     """
     test retrieving a list of ten json blobs from the jobs-list
     endpoint.
@@ -72,7 +72,7 @@ def test_job_list(webapp, eleven_jobs_processed, jm):
     assert jobs[0]['id'] == 10
 
 
-def test_job_list_bad_project(webapp, eleven_jobs_processed, jm):
+def test_job_list_bad_project(webapp, eleven_jobs_stored, jm):
     """
     test retrieving a job list with a bad project throws 404.
     """
@@ -83,7 +83,7 @@ def test_job_list_bad_project(webapp, eleven_jobs_processed, jm):
     webapp.get(badurl, status=404)
 
 
-def test_job_list_equals_filter(webapp, eleven_jobs_processed, jm):
+def test_job_list_equals_filter(webapp, eleven_jobs_stored, jm):
     """
     test retrieving a job list with a querystring filter.
     """
@@ -96,7 +96,7 @@ def test_job_list_equals_filter(webapp, eleven_jobs_processed, jm):
     assert len(resp['results']) == 1
 
 
-def test_job_list_in_filter(webapp, eleven_jobs_processed, jm):
+def test_job_list_in_filter(webapp, eleven_jobs_stored, jm):
     """
     test retrieving a job list with a querystring filter.
     """
@@ -110,7 +110,7 @@ def test_job_list_in_filter(webapp, eleven_jobs_processed, jm):
     assert len(resp['results']) == 2
 
 
-def test_job_detail(webapp, eleven_jobs_processed, sample_artifacts, jm):
+def test_job_detail(webapp, eleven_jobs_stored, sample_artifacts, jm):
     """
     test retrieving a single job from the jobs-detail
     endpoint.
@@ -128,7 +128,7 @@ def test_job_detail(webapp, eleven_jobs_processed, sample_artifacts, jm):
     jm.disconnect()
 
 
-def test_job_retrigger_unauthorized(webapp, eleven_jobs_processed, jm):
+def test_job_retrigger_unauthorized(webapp, eleven_jobs_stored, jm):
     """
     Validate that only authenticated users can hit this endpoint.
     """
@@ -138,7 +138,7 @@ def test_job_retrigger_unauthorized(webapp, eleven_jobs_processed, jm):
     webapp.post(url, status=403)
 
 
-def test_job_retrigger_authorized(webapp, eleven_jobs_processed, jm,
+def test_job_retrigger_authorized(webapp, eleven_jobs_stored, jm,
                                   pulse_action_consumer):
     """
     Validate that only authenticated users can hit this endpoint.
@@ -163,7 +163,7 @@ def test_job_retrigger_authorized(webapp, eleven_jobs_processed, jm,
     user.delete()
 
 
-def test_job_cancel_authorized(webapp, eleven_jobs_processed, jm,
+def test_job_cancel_authorized(webapp, eleven_jobs_stored, jm,
                                pulse_action_consumer):
     """
     Validate that only authenticated users can hit this endpoint.
@@ -188,7 +188,7 @@ def test_job_cancel_authorized(webapp, eleven_jobs_processed, jm,
     user.delete()
 
 
-def test_job_detail_bad_project(webapp, eleven_jobs_processed, jm):
+def test_job_detail_bad_project(webapp, eleven_jobs_stored, jm):
     """
     test retrieving a single job from the jobs-detail
     endpoint.

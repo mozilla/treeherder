@@ -13,7 +13,7 @@ class Command(BaseCommand):
 
     """Management command to import project credentials."""
 
-    help = "Import the objectstore Oauth keys for etl data import tasks"
+    help = "Import the Oauth keys for etl data import tasks"
     args = "<credentials_file>"
 
     def handle(self, *args, **options):
@@ -23,7 +23,7 @@ class Command(BaseCommand):
         with open(args[0]) as credentials_file:
             credentials = json.loads(credentials_file.read())
             ds_list = Datasource.objects.filter(project__in=credentials.keys(),
-                                                contenttype='objectstore')
+                                                contenttype='jobs')
             datasource_dict = dict((ds.project, ds) for ds in ds_list)
             for project, cred in credentials.items():
                 if project in datasource_dict:
