@@ -17,8 +17,8 @@ WebTest==2.0.18
 
 # sha256: uDndLZwRfHAUMMFJlWkYpCOphjtIsJyQ4wpgE-fS9E8
 mock==1.0.1
-# sha256: bF65Fbz3Y7Z3uOUc22jIR0EnqbYOSebiQLBexeRJxDs
-responses==0.3.0
+# sha256: pd97XgYOqpGdfrd_rqzwrMfhAHS7NMmgrCI44hhRRzs
+responses==0.4.0
 
 # sha256: PJgkO9orHrHMxj21phTwzqy_QBRMkrN8W6dVzsu8wN4
 django-extensions==1.5.5
@@ -49,6 +49,10 @@ beautifulsoup4==4.3.2
 waitress==0.8.9
 # sha256: Evi5g5C-_EczbSwOW62cxIYJ2Ajquz-GddwQJ6Op6ds
 WebOb==1.4.1
+
+# Required by responses
+# sha256: Fb7nUwAt_2hJh7jfjCNSiOuNRfgZGuBWJUgS39QsgdM
+cookies==2.2.1
 
 # Required by django-extensions, WebTest & responses
 # sha256: QYqTw5en7asj5ViNvAZ6x0pyPts9VBvUk295R252Rdo
