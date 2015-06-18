@@ -127,11 +127,6 @@ def jm(request):
 
     # patch in additional test-only procs on the datasources
     add_test_procs_file(
-        model.get_dhub("objectstore"),
-        model.get_datasource("objectstore").key,
-        "objectstore_test.json",
-    )
-    add_test_procs_file(
         model.get_dhub("jobs"),
         model.get_datasource("jobs").key,
         "jobs_test.json",
@@ -166,16 +161,6 @@ def jobs_ds():
     return Datasource.objects.create(
         project=settings.DATABASES["default"]["TEST_NAME"],
         contenttype="jobs",
-    )
-
-
-@pytest.fixture()
-def objectstore_ds():
-    from django.conf import settings
-    from treeherder.model.models import Datasource
-    return Datasource.objects.create(
-        project=settings.DATABASES["default"]["TEST_NAME"],
-        contenttype="objectstore",
     )
 
 
@@ -323,12 +308,11 @@ def resultset_with_three_jobs(jm, sample_data, sample_resultset):
 
     # Store and process the jobs so they are present in the tables.
     jm.store_job_data(blobs)
-    jm.process_objects(num_jobs, raise_errors=True)
     return resultset_creation['inserted_result_set_ids'][0]
 
 
 @pytest.fixture
-def eleven_jobs_stored(jm, sample_data, sample_resultset):
+def eleven_jobs_stored(jm, sample_data, sample_resultset, mock_log_parser):
     """stores a list of 11 job samples"""
 
     jm.store_result_set_data(sample_resultset)
@@ -356,12 +340,6 @@ def eleven_jobs_stored(jm, sample_data, sample_resultset):
         resultset_index += 1
 
     jm.store_job_data(blobs)
-
-
-@pytest.fixture
-def eleven_jobs_processed(jm, mock_log_parser, eleven_jobs_stored):
-    """stores and processes list of 11 job samples"""
-    jm.process_objects(11, raise_errors=True)
 
 
 @pytest.fixture

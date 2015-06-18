@@ -8,7 +8,7 @@ xfail = pytest.mark.xfail
 
 
 def test_load_single_artifact(
-        test_project, eleven_jobs_processed,
+        test_project, eleven_jobs_stored,
         mock_post_collection, mock_error_summary,
         sample_data):
     """
@@ -46,7 +46,7 @@ def test_load_single_artifact(
 
 
 def test_load_artifact_second_time_fails(
-        test_project, eleven_jobs_processed,
+        test_project, eleven_jobs_stored,
         mock_post_collection, mock_error_summary,
         sample_data):
     """

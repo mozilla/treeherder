@@ -51,7 +51,7 @@ class TreeherderModelBase(object):
 
         for source in Datasource.objects.cached():
 
-            if (source.contenttype == 'objectstore') and \
+            if (source.contenttype == 'jobs') and \
                source.oauth_consumer_key and \
                source.oauth_consumer_secret:
 

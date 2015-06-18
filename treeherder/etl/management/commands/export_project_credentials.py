@@ -20,7 +20,7 @@ DEFAULT_CREDENTIALS_PATH = os.path.join(
 
 class Command(BaseCommand):
     """Management command to export project credentials."""
-    help = "Exports the objectstore Oauth keys for etl data import tasks"
+    help = "Exports the Oauth keys for etl data import tasks"
 
     option_list = BaseCommand.option_list + (
         make_option(

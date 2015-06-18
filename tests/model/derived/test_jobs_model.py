@@ -48,11 +48,8 @@ def test_disconnect(jm):
 
     # establish the connection to jobs.
     jm._get_last_insert_id()
-    # establish the connection to objectstore
-    jm.retrieve_job_data(limit=1)
 
     jm.disconnect()
-    assert not jm.get_os_dhub().connection["master_host"]["con_obj"].open
     assert not jm.get_jobs_dhub().connection["master_host"]["con_obj"].open
 
 
@@ -128,7 +125,7 @@ def test_ingest_running_to_retry_sample_job(jm, refdata, sample_data, initial_da
 
     # for pending and running jobs, we call this directly, just like
     # the web api does.
-    jm.load_job_data(job_data)
+    jm.store_job_data(job_data)
 
     jl = jm.get_job_list(0, 1)
     initial_job_id = jl[0]["id"]
@@ -136,12 +133,10 @@ def test_ingest_running_to_retry_sample_job(jm, refdata, sample_data, initial_da
     # now we simulate the complete version of the job coming in
     job['state'] = 'completed'
     job['result'] = 'retry'
-    # convert the job_guid to what it would be on a retry from objectstore
+    # convert the job_guid to what it would be on a retry
     job['job_guid'] = job['job_guid'] + "_" + str(job['end_timestamp'])[-5:]
 
     jm.store_job_data(job_data)
-    jm.process_objects(10, raise_errors=True)
-
     jl = jm.get_job_list(0, 10)
 
     jm.disconnect()
@@ -164,7 +159,7 @@ def test_ingest_running_to_retry_to_success_sample_job(jm, refdata, sample_data,
 
     job['state'] = 'running'
     job['result'] = 'unknown'
-    jm.load_job_data(job_data)
+    jm.store_job_data(job_data)
 
     jl = jm.get_job_list(0, 1)
     initial_job_id = jl[0]["id"]
@@ -172,11 +167,10 @@ def test_ingest_running_to_retry_to_success_sample_job(jm, refdata, sample_data,
     # now we simulate the complete RETRY version of the job coming in
     job['state'] = 'completed'
     job['result'] = 'retry'
-    # convert the job_guid to what it would be on a retry from objectstore
+    # convert the job_guid to what it would be on a retry
     job['job_guid'] = job_guid_root + "_" + str(job['end_timestamp'])[-5:]
 
     jm.store_job_data(job_data)
-    jm.process_objects(10, raise_errors=True)
 
     # now we simulate the complete SUCCESS version of the job coming in
     job['state'] = 'completed'
@@ -185,7 +179,6 @@ def test_ingest_running_to_retry_to_success_sample_job(jm, refdata, sample_data,
     job['job_guid'] = job_guid_root
 
     jm.store_job_data(job_data)
-    jm.process_objects(10, raise_errors=True)
 
     jl = jm.get_job_list(0, 10)
 
@@ -210,11 +203,10 @@ def test_ingest_retry_sample_job_no_running(jm, refdata, sample_data, initial_da
     # complete version of the job coming in
     job['state'] = 'completed'
     job['result'] = 'retry'
-    # convert the job_guid to what it would be on a retry from objectstore
+    # convert the job_guid to what it would be on a retry
     job['job_guid'] = job['job_guid'] + "_" + str(job['end_timestamp'])[-5:]
 
     jm.store_job_data(job_data)
-    jm.process_objects(10, raise_errors=True)
 
     jl = jm.get_job_list(0, 10)
 
@@ -347,30 +339,9 @@ def test_bad_date_value_ingestion(jm, initial_data, mock_log_parser):
     blob = job_data(start_timestamp="foo",
                     revision_hash=rs['revision_hash'])
 
-    jm.store_job_data([blob])
-
     jm.store_result_set_data([rs])
-
-    jm.process_objects(1)
-
-    # Confirm that we don't get a ValueError when casting a non-number
-    last_error = get_objectstore_last_error(
-        jm) == u"invalid literal for long() with base 10: 'foo'"
-
-    jm.disconnect()
-
-    assert not last_error
-
-
-def get_objectstore_last_error(jm):
-    row_id = jm._get_last_insert_id("objectstore")
-
-    row_data = jm.get_dhub(jm.CT_OBJECTSTORE).execute(
-        proc="objectstore_test.selects.row", placeholders=[row_id])[0]
-
-    jm.disconnect()
-
-    return row_data['error_msg']
+    jm.store_job_data([blob])
+    # if no exception, we are good.
 
 
 def test_store_result_set_data(jm, initial_data, sample_resultset):
@@ -597,7 +568,7 @@ def test_ingesting_skip_existing(jm, sample_data, initial_data, refdata,
     job_data = sample_data.job_data[:1]
     test_utils.do_job_ingestion(jm, refdata, job_data, sample_resultset)
 
-    jm.load_job_data(sample_data.job_data[:2])
+    jm.store_job_data(sample_data.job_data[:2])
 
     jl = jm.get_job_list(0, 10)
     assert len(jl) == 2
@@ -614,8 +585,7 @@ def test_ingest_job_with_updated_job_group(jm, refdata, sample_data, initial_dat
     first_job["job"]["group_name"] = "first group name"
     first_job["job"]["group_symbol"] = "1"
     first_job["revision_hash"] = result_set_stored[0]["revision_hash"]
-    jm.load_job_data([first_job])
-    jm.process_objects(1)
+    jm.store_job_data([first_job])
 
     second_job = copy.deepcopy(first_job)
     # create a new guid to ingest the job again
@@ -625,8 +595,7 @@ def test_ingest_job_with_updated_job_group(jm, refdata, sample_data, initial_dat
     second_job["job"]["group_symbol"] = "2"
     second_job["revision_hash"] = result_set_stored[0]["revision_hash"]
 
-    jm.load_job_data([second_job])
-    jm.process_objects(1)
+    jm.store_job_data([second_job])
 
     second_job_lookup = jm.get_job_ids_by_guid([second_job_guid])
     second_job_stored = jm.get_job(second_job_lookup[second_job_guid]["id"])

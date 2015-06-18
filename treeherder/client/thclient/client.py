@@ -558,7 +558,7 @@ class TreeherderJobCollection(TreeherderCollection):
     Collection of job objects
     """
 
-    def __init__(self, data=[], job_type=''):
+    def __init__(self, data=[]):
 
         super(TreeherderJobCollection, self).__init__('jobs', data)
 

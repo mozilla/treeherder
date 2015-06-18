@@ -92,7 +92,6 @@ def test_parse_log(jm, initial_data, jobs_with_local_log, sample_resultset,
         job['revision_hash'] = sample_resultset[0]['revision_hash']
 
     jm.store_job_data(jobs)
-    jm.process_objects(1, raise_errors=True)
 
     job_id = jm.get_jobs_dhub().execute(
         proc="jobs_test.selects.row_by_guid",
@@ -133,7 +132,6 @@ def test_parse_mozlog_log(jm, initial_data, jobs_with_local_mozlog_log,
         job['revision_hash'] = sample_resultset[0]['revision_hash']
 
     jm.store_job_data(jobs)
-    jm.process_objects(1, raise_errors=True)
 
     job_id = jm.get_jobs_dhub().execute(
         proc="jobs_test.selects.row_by_guid",
@@ -172,7 +170,6 @@ def test_parse_talos_log(jm, test_project, initial_data, jobs_with_local_talos_l
 
     jobs = jobs_with_local_talos_log
     jm.store_job_data(jobs)
-    jm.process_objects(1, raise_errors=True)
 
     with ArtifactsModel(test_project) as artifacts_model:
         artifact_list = artifacts_model.get_performance_artifact_list(0, 10)
@@ -197,7 +194,6 @@ def test_bug_suggestions_artifact(jm, initial_data, jobs_with_local_log,
         job['revision_hash'] = sample_resultset[0]['revision_hash']
 
     jm.store_job_data(jobs)
-    jm.process_objects(1, raise_errors=True)
 
     job_id = jm.get_jobs_dhub().execute(
         proc="jobs_test.selects.row_by_guid",

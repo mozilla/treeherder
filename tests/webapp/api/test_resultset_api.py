@@ -13,7 +13,7 @@ from treeherder.webapp.api import utils
 import json
 
 
-def test_resultset_list(webapp, eleven_jobs_processed, jm):
+def test_resultset_list(webapp, eleven_jobs_stored, jm):
     """
     test retrieving a list of ten json blobs from the jobs-list
     endpoint.  ``full`` set to false, so it doesn't return revisions.
@@ -82,7 +82,7 @@ def test_resultset_list_empty_rs_still_show(webapp, initial_data,
     jm.disconnect()
 
 
-def test_resultset_list_filter_by_revision(webapp, eleven_jobs_processed, jm):
+def test_resultset_list_filter_by_revision(webapp, eleven_jobs_stored, jm):
     """
     test retrieving a resultset list, filtered by a date range
     """
@@ -175,7 +175,7 @@ def test_resultset_list_without_jobs(webapp, initial_data,
     jm.disconnect()
 
 
-def test_resultset_detail(webapp, eleven_jobs_processed, jm):
+def test_resultset_detail(webapp, eleven_jobs_stored, jm):
     """
     test retrieving a resultset from the resultset-detail
     endpoint.
@@ -316,7 +316,7 @@ def test_resultset_cancel_all(jm, resultset_with_three_jobs, pulse_action_consum
     user.delete()
 
 
-def test_resultset_status(webapp, eleven_jobs_processed, jm):
+def test_resultset_status(webapp, eleven_jobs_stored, jm):
     """
     test retrieving the status of a resultset
     """
