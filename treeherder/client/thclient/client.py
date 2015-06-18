@@ -714,7 +714,7 @@ class TreeherderClient(object):
 
         uri = self._get_uri(project, endpoint)
         resp = requests.get(uri, timeout=timeout, params=params)
-        resp.raise_for_status
+        resp.raise_for_status()
         return resp.json()
 
     def _post_json(self, project, endpoint, oauth_key, oauth_secret, jsondata,
