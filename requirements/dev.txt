@@ -27,8 +27,8 @@ django-extensions==1.5.2
 # sha256: 58UqnzbO4nxdCTHs-SlZzQIjF7AJAb007wXs5KKlyxs
 pyinotify==0.9.5
 
-# sha256: wEJTewVQLw7kQNlQ1fONWjwROwPMpHPDnqkAAb2ayFc
-flake8==2.4.0
+# sha256: j8ToZaKfPG7K5AGn3OGCR_ir0EbSTjkOFq-Zdsyceqg
+flake8==2.4.1
 
 # Required by pytest
 # sha256: KN0LkNKbOGr7VS78TjVciJ9GOc6TZYp4cqIVDs4ou4k
@@ -55,9 +55,9 @@ WebOb==1.4.1
 six==1.9.0
 
 # Required by flake8
-# sha256: ic9r9P9kT_i5EuL6fiq7aNV6jn6Rjjk8coQNMNLrzws
-mccabe==0.3
+# sha256: vWwID7NyrrywzhnjXdrHRPKr9ae--iB9stEJfUjv5jo
+mccabe==0.3.1
 # sha256: Yuh_1UU1-5MrSk2Uho21IyV6EDHIvGvTWMIBVDPmRts
 pep8==1.5.7
-# sha256: rEVxaVwQzhU2vNuhopS58tPmzJ0OoXG2fVCghkzj4EI
-pyflakes==0.8.1
+# sha256: Bd9YSinu6poqIRDdNi5T0E4MS7F1S01xI09lGRfzwvA
+pyflakes==0.9.2
