@@ -4,8 +4,8 @@
 
 # Packages that are shared between deployment and dev environments.
 
-# sha256: yMvuXERhj0nnt8b5RabHSI5ah2V8oZp6a7Lm_ea6Dmg
-gunicorn==17.5
+# sha256: pRec3pItK04EXuWxHocyPud9NjrkApT8glLyXWoOrwY
+gunicorn==19.3.0
 
 # sha256: 7sV9MhlQHsbmhWRoJvLrjndoepP-N0p-aZRJBSDbCT4
 Django==1.7.7
