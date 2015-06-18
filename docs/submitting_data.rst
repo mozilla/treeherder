@@ -1,8 +1,8 @@
 Submitting Data
 ===============
 
-Treeherder Python Client Library
---------------------------------
+Python Client Library
+---------------------
 
 We provide a library, called treeherder-client, to support data
 submission to the treeherder service. It is maintained inside the
@@ -223,7 +223,7 @@ structures to send, do something like this:
 
 .. code-block:: python
 
-    from thclient import TreeherderRequest, TreeherderJobCollection, TreeherderClientError
+    from thclient import TreeherderClient, TreeherderJobCollection, TreeherderClientError
 
     #####
     # TreeherderJobCollection() takes a 'type' parameter that can be set to 'update'
@@ -311,7 +311,7 @@ data structures directly and add them to the collection.
 
 .. code-block:: python
 
-    from thclient import TreeherderRequest, TreeherderResultSetCollection
+    from thclient import TreeherderClient, TreeherderResultSetCollection
 
     trc = TreeherderResultSetCollection()
 
@@ -328,7 +328,7 @@ data structures directly and add them to the collection.
 
 .. code-block:: python
 
-    from thclient import TreeherderRequest, TreeherderJobCollection
+    from thclient import TreeherderClient, TreeherderJobCollection
 
     tjc = TreeherderJobCollection()
 
@@ -349,7 +349,7 @@ add them to the collection.
 
 .. code-block:: python
 
-    from thclient import TreeherderRequest, TreeherderArtifactCollection
+    from thclient import TreeherderClient, TreeherderArtifactCollection
 
     tac = TreeherderArtifactCollection()
 
