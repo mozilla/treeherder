@@ -673,6 +673,7 @@ class TreeherderClient(object):
     UPDATE_ENDPOINT = 'job-log-url/{}/update_parse_status'
     RESULTSET_ENDPOINT = 'resultset'
     JOBS_ENDPOINT = 'jobs'
+    ARTIFACT_ENDPOINT = 'artifact'
 
     def __init__(
             self, protocol='https', host='treeherder.mozilla.org',
@@ -751,6 +752,16 @@ class TreeherderClient(object):
         """
         response = self._get_json(project, self.JOBS_ENDPOINT, None, **params)
         return response["results"]
+
+    def get_artifact(self, project, **params):
+        """
+        Gets an artifact (a python list) from project, filtered by parameters
+
+        :param project: project (repository name) to query for
+        :param params: keyword arguments to filter results
+        """
+        response = self._get_json(project, self.ARTIFACT_ENDPOINT, None, **params)
+        return response
 
     def post_collection(self, project, oauth_key, oauth_secret,
                         collection_inst, timeout=None):
