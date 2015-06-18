@@ -677,6 +677,7 @@ class TreeherderClient(object):
     RESULTSET_ENDPOINT = 'resultset'
     JOBS_ENDPOINT = 'jobs'
     ARTIFACTS_ENDPOINT = 'artifact'
+    OPTION_COLLECTION_HASH_ENDPOINT = 'optioncollectionhash'
 
     def __init__(
             self, protocol='https', host='treeherder.mozilla.org',
@@ -733,6 +734,27 @@ class TreeherderClient(object):
                              headers={'Content-Type': 'application/json'},
                              timeout=timeout)
         resp.raise_for_status()
+
+    def get_option_collection_hash(self):
+        """
+        Gets option collection hash, a mapping of hash values to build properties
+
+        Returns a dictionary with the following structure:
+
+            {
+                hashkey1: [ { key: value }, { key: value }, ... ],
+                hashkey2: [ { key: value }, { key: value }, ... ],
+                ...
+            }
+        """
+        resp = requests.get('{0}://{1}/api/optioncollectionhash'.format(
+            self.protocol, self.host), timeout=self.timeout)
+        resp.raise_for_status()
+        ret = {}
+        for result in resp.json():
+            ret[result['option_collection_hash']] = result['options']
+
+        return ret
 
     def get_resultsets(self, project, **params):
         """
