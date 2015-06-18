@@ -24,8 +24,8 @@ responses==0.3.0
 django-extensions==1.5.2
 
 #for celery auto-reloading
-# sha256: 58UqnzbO4nxdCTHs-SlZzQIjF7AJAb007wXs5KKlyxs
-pyinotify==0.9.5
+# sha256: nJmKXXYGyoNQZc2rwBOubGbrnqdqAKHjvG4M_itPcfQ
+pyinotify==0.9.6
 
 # sha256: j8ToZaKfPG7K5AGn3OGCR_ir0EbSTjkOFq-Zdsyceqg
 flake8==2.4.1
