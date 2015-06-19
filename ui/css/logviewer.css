@@ -81,7 +81,7 @@ body {
 }
 .run-data .steps-data {
     max-height: 210px;
-    min-width: 390px;
+    min-width: 400px;
     overflow: auto;
     border-color: #dddddd;
     border-width: 1px;
@@ -114,7 +114,7 @@ body {
 }
 
 .logviewer-actionbar {
-    min-width: 400px;
+    min-width: 410px;
 }
 
 .logviewer-actionbtn {
