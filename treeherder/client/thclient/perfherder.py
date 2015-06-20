@@ -14,6 +14,7 @@ class PerformanceTimeInterval(object):
     TWO_WEEKS = 1209600
     SIXTY_DAYS = 5184000
     NINETY_DAYS = 7776000
+    ONE_YEAR = 31536000
 
     @staticmethod
     def all_valid_time_intervals():
@@ -96,7 +97,7 @@ class PerformanceSeries(list):
 
     ::
         pc = PerfherderClient()
-        series = pc.get_performance_series('mozilla-central', '9cfc271dab9b7fc2c1229736fecfbbc6e7c5fac9'
+        series = pc.get_performance_series('mozilla-central', '9cfc271dab9b7fc2c1229736fecfbbc6e7c5fac9')
         (result_set_ids, geomeans) = (series['result_set_id'], series['geomean'])
     '''
 

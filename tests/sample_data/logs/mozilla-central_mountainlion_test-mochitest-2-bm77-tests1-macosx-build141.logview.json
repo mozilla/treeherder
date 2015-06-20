@@ -1,13 +1,4 @@
 {
-    "header": {
-        "slave": "talos-mtnlion-r5-080", 
-        "buildid": "20130605115738", 
-        "builder": "mozilla-central_mountainlion_test-mochitest-2", 
-        "results": "success (0)", 
-        "starttime": "1370462102.79", 
-        "builduid": "48d01a5d6b0c43d593f8d9e9f60857be", 
-        "revision": "1658dc513572"
-    }, 
     "step_data": {
         "all_errors": [], 
         "steps": [

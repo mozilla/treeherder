@@ -114,6 +114,11 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location', '$q'
                 {params: params}
             );
         },
+        getResultSet: function(repoName, pk) {
+            return $http.get(
+                thUrl.getProjectUrl("/resultset/"+pk+"/", repoName)
+            );
+        },
         get: function(uri) {
             return $http.get(thServiceDomain + uri);
         },

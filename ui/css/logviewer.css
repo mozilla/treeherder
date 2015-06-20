@@ -152,7 +152,7 @@ body {
 .lv-log-msg-step {
     padding: 2px 5px;
     background: #fff;
-    border: solid #f0ad4e;
+    border-style: solid;
     border-width: 4px 2px 2px;
     border-radius: 2px;
 }

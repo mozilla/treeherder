@@ -120,15 +120,6 @@ To add a new repository, the following steps are needed:
      > sudo /etc/init.d/supervisord restart
 
 
-Restarting varnish
-------------------
-
-You may want to restart varnish after a change in the ui. To do so type
-
-  .. code-block:: bash
-
-     > sudo /etc/init.d/varnish restart
-
 Executing arbitrary SQL
 -----------------------
 
@@ -148,3 +139,32 @@ specific datasource, you can do that with that `--datasources` and
 `--data-type` options. Run `./manage.py run_sql --help` for more
 details.
 
+Running multiple Vagrant VMs
+----------------------------
+
+It's sometimes useful to be able to spin up an additional Vagrant
+environment without affecting the first. To do this, append the
+machine name `scratch` onto the standard commands. You will need to
+ensure the default VM is suspended first, since otherwise the exposed
+ports will clash.
+
+  .. code-block:: bash
+
+     $ vagrant suspend
+     $ vagrant up scratch
+       ...
+     $ vagrant status
+       Current machine states:
+       default                   saved (virtualbox)
+       scratch                   running (virtualbox)
+     $ vagrant ssh scratch
+       ...
+     $ vagrant suspend scratch
+     $ vagrant up
+     $ vagrant status
+       Current machine states:
+       default                   running (virtualbox)
+       scratch                   saved (virtualbox)
+
+If you do not provide a machine name for `up` or `ssh`, the command will
+apply to the `default` machine only.

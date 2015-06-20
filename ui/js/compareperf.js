@@ -10,17 +10,15 @@ perf.controller('CompareChooserCtrl', [
                               ThRepositoryModel, thDefaultRepo, ThResultSetModel) {
     ThRepositoryModel.get_list().success(function(projects) {
       $scope.projects = projects;
-      $scope.originalProject = $scope.newProject = find_project_by_name(thDefaultRepo);
+      $scope.originalProject = $scope.newProject = getDefaultRepo();
 
-      function find_project_by_name(input_string) {
-        for (var index in projects) {
-            if(projects.hasOwnProperty(index)) {
-                if (projects[index].name===input_string) {
-                    return projects[index];
-                }  
-            }
+      function getDefaultRepo() {
+        var ret = ThRepositoryModel.getRepo(thDefaultRepo);
+        if (ret === null) {
+            return projects[0];
+        } else {
+            return ret;
         }
-        return projects[0];
       }
 
       $scope.runCompare = function() {
@@ -31,20 +29,22 @@ perf.controller('CompareChooserCtrl', [
         }, function(error) {
             $scope.originalRevisionError = error;
         });
-        
+
         ThResultSetModel.getResultSetsFromRevision($scope.newProject.name, $scope.newRevision).then(
-              function(resultSets) {
-               $scope.newRevisionError = undefined;
-               if($scope.originalRevisionError == undefined && $scope.newRevisionError == undefined) {
+            function (resultSets) {
+                $scope.newRevisionError = undefined;
+                if ($scope.originalRevisionError === undefined && $scope.newRevisionError === undefined) {
                 $state.go('compare', {
-                originalProject: $scope.originalProject.name,
-                originalRevision: $scope.originalRevision,
-                newProject: $scope.newProject.name,
-                newRevision: $scope.newRevision });        
+                        originalProject: $scope.originalProject.name,
+                        originalRevision: $scope.originalRevision,
+                        newProject: $scope.newProject.name,
+                        newRevision: $scope.newRevision
+                    });
                 }
-        }, function(error) {
-                $scope.newRevisionError = error;
-        });
+            }, function (error) {
+                    $scope.newRevisionError = error;
+            }
+        );
       };
     });
   }]);
@@ -118,8 +118,8 @@ perf.controller('CompareResultsCtrl', [
     function displayResults(rawResultsMap, newRawResultsMap) {
       $scope.compareResults = {};
       $scope.titles = {};
-      window.document.title = ("Comparison between " + $scope.originalRevision + 
-                              " (" + $scope.originalProject.name + ") " + 
+      window.document.title = ("Comparison between " + $scope.originalRevision +
+                              " (" + $scope.originalProject.name + ") " +
                               "and " + $scope.newRevision + " (" + $scope.newProject.name + ")");
 
       $scope.testList.forEach(function(testName) {
@@ -425,4 +425,3 @@ perf.controller('CompareSubtestResultsCtrl', [
         });
     });
   }]);
-

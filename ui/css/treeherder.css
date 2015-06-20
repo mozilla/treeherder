@@ -218,9 +218,29 @@ th-watched-repo {
     transition: width 0.2s;
 }
 
+#platform-job-text-search-field-parent {
+    position: relative;
+}
+
 #platform-job-text-search-field:focus,
 #platform-job-text-search-field:valid {
     width: 300px !important;
+    padding-right: 20px;
+}
+
+#platform-job-text-search-field:valid + #filter-clear-button {
+    display: inherit;
+}
+
+#filter-clear-button {
+    color: #bababa;
+    font-size: 13px;
+    cursor: pointer;
+    position: absolute;
+    display: none;
+    top: 7px;
+    right: 5px;
+    height: 16px;
 }
 
 .th-content {
@@ -1132,14 +1152,38 @@ ul.failure-summary-list li .btn-xs {
     width: 11.25em;
 }
 
-.result-status-shading-success {background-color: rgba(2, 131, 44, 0.24);}
-.result-status-shading-testfailed {background-color: rgba(221, 102, 2, 0.25);}
-.result-status-shading-busted {background-color: rgba(144, 0, 0, 0.25);}
-.result-status-shading-exception {background-color: rgba(61, 2, 85, 0.25);}
-.result-status-shading-retry {background-color: rgba(38, 63, 195, 0.25);}
-.result-status-shading-usercancel {background-color: rgba(250, 115, 172, 0.25);}
-.result-status-shading-pending {background-color: rgba(160, 160, 160, 0.2);}
-.result-status-shading-running {background-color: rgba(70, 70, 70, 0.25);}
+.result-status-shading-success {
+    background-color: rgba(2, 131, 44, 0.24);
+    border-color: rgba(2, 131, 44, 0.24);
+}
+.result-status-shading-testfailed {
+    background-color: rgba(221, 102, 2, 0.25);
+    border-color: rgba(221, 102, 2, 0.25);
+ }
+.result-status-shading-busted {
+    background-color: rgba(144, 0, 0, 0.25);
+    border-color: rgba(144, 0, 0, 0.25);
+ }
+.result-status-shading-exception {
+    background-color: rgba(61, 2, 85, 0.25);
+    border-color: rgba(61, 2, 85, 0.25);
+ }
+.result-status-shading-retry {
+    background-color: rgba(38, 63, 195, 0.25);
+    border-color: rgba(38, 63, 195, 0.25);
+}
+.result-status-shading-usercancel {
+    background-color: rgba(250, 115, 172, 0.25);
+    border-color: rgba(250, 115, 172, 0.25);
+}
+.result-status-shading-pending {
+    background-color: rgba(160, 160, 160, 0.2);
+    border-color: rgba(160, 160, 160, 0.2);
+}
+.result-status-shading-running {
+    background-color: rgba(70, 70, 70, 0.25);
+    border-color: rgba(70, 70, 70, 0.25);
+}
 .result-status-shading-coalesced {background-color: white;}
 
 .click-able-icon, .nav-tabs li {

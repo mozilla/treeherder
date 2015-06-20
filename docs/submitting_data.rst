@@ -1,8 +1,8 @@
 Submitting Data
 ===============
 
-Treeherder Python Client Library
---------------------------------
+Python Client Library
+---------------------
 
 We provide a library, called treeherder-client, to support data
 submission to the treeherder service. It is maintained inside the
@@ -125,6 +125,13 @@ characters at most. A job collection has the following data structure.
 
                 'option_collection': {'opt': True},
 
+                # jobs can belong to different tiers
+                # setting the tier here will determine which tier the job
+                # belongs to.  However, if a job is set as Tier of 1, but
+                # belongs to the Tier 2 profile on the server, it will still
+                # be saved as Tier 2.
+                'tier': 2,
+
                 'log_references': [
                     {
                         'url': 'http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/...',
@@ -223,7 +230,7 @@ structures to send, do something like this:
 
 .. code-block:: python
 
-    from thclient import TreeherderRequest, TreeherderJobCollection, TreeherderClientError
+    from thclient import TreeherderClient, TreeherderJobCollection, TreeherderClientError
 
     #####
     # TreeherderJobCollection() takes a 'type' parameter that can be set to 'update'
@@ -253,6 +260,7 @@ structures to send, do something like this:
         tj.add_result( data['result'] )
         tj.add_reason( data['reason'] )
         tj.add_who( data['who'] )
+        tj.add_tier( 1 )
         tj.add_submit_timestamp( data['submit_timestamp'] )
         tj.add_start_timestamp( data['start_timestamp'] )
         tj.add_end_timestamp( data['end_timestamp'] )
@@ -311,7 +319,7 @@ data structures directly and add them to the collection.
 
 .. code-block:: python
 
-    from thclient import TreeherderRequest, TreeherderResultSetCollection
+    from thclient import TreeherderClient, TreeherderResultSetCollection
 
     trc = TreeherderResultSetCollection()
 
@@ -328,7 +336,7 @@ data structures directly and add them to the collection.
 
 .. code-block:: python
 
-    from thclient import TreeherderRequest, TreeherderJobCollection
+    from thclient import TreeherderClient, TreeherderJobCollection
 
     tjc = TreeherderJobCollection()
 
@@ -349,7 +357,7 @@ add them to the collection.
 
 .. code-block:: python
 
-    from thclient import TreeherderRequest, TreeherderArtifactCollection
+    from thclient import TreeherderClient, TreeherderArtifactCollection
 
     tac = TreeherderArtifactCollection()
 

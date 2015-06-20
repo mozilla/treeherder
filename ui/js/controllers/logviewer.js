@@ -6,10 +6,12 @@
 
 logViewerApp.controller('LogviewerCtrl', [
     '$anchorScroll', '$http', '$location', '$q', '$rootScope', '$scope',
-    '$timeout', 'ThJobArtifactModel', 'ThLog', 'ThLogSliceModel',
+    '$timeout', 'ThJobArtifactModel', 'ThLog', 'ThLogSliceModel', 'ThJobModel',
+    'dateFilter', 'thJobSearchStr', 'ThResultSetModel', 'thDateFormat',
     function Logviewer(
         $anchorScroll, $http, $location, $q, $rootScope, $scope,
-        $timeout, ThJobArtifactModel, ThLog, ThLogSliceModel) {
+        $timeout, ThJobArtifactModel, ThLog, ThLogSliceModel, ThJobModel,
+        dateFilter, thJobSearchStr, ThResultSetModel, thDateFormat) {
 
         var $log = new ThLog('LogviewerCtrl');
 
@@ -36,7 +38,9 @@ logViewerApp.controller('LogviewerCtrl', [
         $scope.showSuccessful = true;
 
         $scope.$watch('artifact', function () {
-            if (!$scope.artifact) return;
+            if (!$scope.artifact) {
+                return;
+            }
             $scope.showSuccessful = !$scope.hasFailedSteps();
         });
 
@@ -52,6 +56,12 @@ logViewerApp.controller('LogviewerCtrl', [
                 }
             }
             return false;
+        };
+
+        // get the css class for the result color
+        // used for the whole job, as well as for each step
+        $scope.getShadingClass = function(result) {
+            return "result-status-shading-" + result;
         };
 
         $scope.loadMore = function(bounds, element) {
@@ -75,7 +85,9 @@ logViewerApp.controller('LogviewerCtrl', [
                 }
 
                 // dont do the call if we already have all the lines
-                if ( range.start === range.end ) return deferred.promise;
+                if (range.start === range.end) {
+                    return deferred.promise;
+                }
 
                 $scope.loading = true;
 
@@ -93,21 +105,27 @@ logViewerApp.controller('LogviewerCtrl', [
                     if (bounds.top) {
                         for (var i = data.length - 1; i >= 0; i--) {
                             // make sure we are inserting at the right place
-                            if ($scope.displayedLogLines[0].index != data[i].index + 1) continue;
+                            if ($scope.displayedLogLines[0].index !== data[i].index + 1) {
+                                continue;
+                            }
                             $scope.displayedLogLines.unshift(data[i]);
                         }
 
                         $timeout(function () {
-                            if (above) removeChunkBelow();
+                            if (above) {
+                                removeChunkBelow();
+                            }
                         }, 100);
                     } else if (bounds.bottom) {
                         var sh = element.scrollHeight;
                         var lines = $scope.displayedLogLines;
 
-                        for (var i = 0; i < data.length; i++) {
+                        for (var j = 0; j < data.length; j++) {
                             // make sure we are inserting at the right place
-                            if (lines[ lines.length - 1 ].index != data[i].index - 1) continue;
-                            $scope.displayedLogLines.push(data[i]);
+                            if (lines[lines.length - 1].index !== data[j].index - 1) {
+                                continue;
+                            }
+                            $scope.displayedLogLines.push(data[j]);
                         }
 
                         $timeout(function () {
@@ -152,44 +170,41 @@ logViewerApp.controller('LogviewerCtrl', [
         };
 
         $scope.init = function() {
+
+            $scope.logProperties = [];
+            ThJobModel.get($scope.repoName, $scope.job_id).then(function(job) {
+                var jobStr = thJobSearchStr(job);
+
+                // set the title of the browser window/tab
+                $scope.logViewerTitle = "Log for " + jobStr;
+
+                // set the result value and shading color class
+                $scope.result = {label: "Result", value: job.result};
+                $scope.resultStatusShading = $scope.getShadingClass(job.result);
+
+                // other properties, in order of appearance
+                $scope.logProperties = [
+                    {label: "Job", value: jobStr},
+                    {label: "Machine", value: job.machine_name},
+                    {label: "Start", value: dateFilter(job.start_timestamp*1000, thDateFormat)},
+                    {label: "End", value: dateFilter(job.end_timestamp*1000, thDateFormat)}
+                ];
+
+                // get the revision and linkify it
+                ThResultSetModel.getResultSet($scope.repoName, job.result_set_id).then(function(data){
+                    var revision = data.data.revision;
+                    $scope.logProperties.push({label: "Revision", value: revision});
+                    $scope.logRevisionFilterUrl = $scope.urlBasePath +
+                        "#/jobs?repo=" + $scope.repoName + "&revision=" +
+                        revision;
+                });
+            });
+
             $log.debug(ThJobArtifactModel.get_uri());
             ThJobArtifactModel.get_list({job_id: $scope.job_id, name: 'text_log_summary'})
             .then(function(artifactList){
                 if(artifactList.length > 0){
                     $scope.artifact = artifactList[0].blob;
-
-                    $scope.logProperties = _.map(
-                        _.keys($scope.artifact.header), function(label) {
-                            var value = $scope.artifact.header[label];
-                            if (label === 'starttime') {
-                                // present start time as a human readable date
-                                var startDate = new Date(0);
-                                startDate.setUTCSeconds(value);
-                                value = startDate.toString();
-                            }
-                            return {label: label, value: value}
-                        });
-
-                    // linkify revision
-                    if ($scope.artifact.header.revision) {
-                        var revision = $scope.artifact.header.revision.substr(0,12);
-                        $scope.logRevisionFilterUrl = $scope.urlBasePath +
-                            "#/jobs?repo=" + $scope.repoName + "&revision=" +
-                            revision;
-                    }
-
-                    ThJobArtifactModel.get_list(
-                        {job_id: $scope.job_id, name:'buildapi'})
-                    .then(function(buildapiData){
-                        if(buildapiData.length > 0){
-                            $scope.artifact.header.builder = buildapiData[0].blob.buildername;
-
-                            // Used with ng-bind to avoid template flicker
-                            $scope.getLogviewerTitle = function() {
-                                return "Log for " + $scope.artifact.header.builder;
-                            };
-                        }
-                    });
                 }
             });
         };
@@ -215,7 +230,9 @@ logViewerApp.controller('LogviewerCtrl', [
         }
 
         function drawErrorLines (data) {
-            if (data.length === 0) return;
+            if (data.length === 0) {
+                return;
+            }
 
             var min = data[0].index;
             var max = data[ data.length - 1 ].index;
@@ -224,7 +241,9 @@ logViewerApp.controller('LogviewerCtrl', [
                 step.errors.forEach(function(err) {
                     var line = err.linenumber;
 
-                    if (line < min || line > max) return;
+                    if (line < min || line > max) {
+                        return;
+                    }
 
                     var index = line - min;
                     data[index].hasError = true;

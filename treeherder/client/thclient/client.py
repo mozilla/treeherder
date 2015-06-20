@@ -218,6 +218,9 @@ class TreeherderJob(TreeherderData, ValidatorMixin):
         if option_collection:
             self.data['job']['option_collection'].update(option_collection)
 
+    def add_tier(self, tier):
+        self.data['job']['tier'] = tier
+
     def add_log_reference(self, name, url, parse_status='pending'):
         """
         parse_status - one of 'pending', 'parsed' or 'error'
@@ -673,6 +676,8 @@ class TreeherderClient(object):
     UPDATE_ENDPOINT = 'job-log-url/{}/update_parse_status'
     RESULTSET_ENDPOINT = 'resultset'
     JOBS_ENDPOINT = 'jobs'
+    ARTIFACTS_ENDPOINT = 'artifact'
+    OPTION_COLLECTION_HASH_ENDPOINT = 'optioncollectionhash'
 
     def __init__(
             self, protocol='https', host='treeherder.mozilla.org',
@@ -710,7 +715,7 @@ class TreeherderClient(object):
 
         uri = self._get_uri(project, endpoint)
         resp = requests.get(uri, timeout=timeout, params=params)
-        resp.raise_for_status
+        resp.raise_for_status()
         return resp.json()
 
     def _post_json(self, project, endpoint, oauth_key, oauth_secret, jsondata,
@@ -729,6 +734,27 @@ class TreeherderClient(object):
                              headers={'Content-Type': 'application/json'},
                              timeout=timeout)
         resp.raise_for_status()
+
+    def get_option_collection_hash(self):
+        """
+        Gets option collection hash, a mapping of hash values to build properties
+
+        Returns a dictionary with the following structure:
+
+            {
+                hashkey1: [ { key: value }, { key: value }, ... ],
+                hashkey2: [ { key: value }, { key: value }, ... ],
+                ...
+            }
+        """
+        resp = requests.get('{0}://{1}/api/optioncollectionhash'.format(
+            self.protocol, self.host), timeout=self.timeout)
+        resp.raise_for_status()
+        ret = {}
+        for result in resp.json():
+            ret[result['option_collection_hash']] = result['options']
+
+        return ret
 
     def get_resultsets(self, project, **params):
         """
@@ -751,6 +777,16 @@ class TreeherderClient(object):
         """
         response = self._get_json(project, self.JOBS_ENDPOINT, None, **params)
         return response["results"]
+
+    def get_artifacts(self, project, **params):
+        """
+        Gets artifact list from project, filtered by parameters
+
+        :param project: project (repository name) to query for
+        :param params: keyword arguments to filter results
+        """
+        response = self._get_json(project, self.ARTIFACTS_ENDPOINT, None, **params)
+        return response
 
     def post_collection(self, project, oauth_key, oauth_secret,
                         collection_inst, timeout=None):

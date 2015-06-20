@@ -11,7 +11,7 @@ perf.controller('GraphsCtrl', [
   'phTimeRanges',
   function GraphsCtrl($state, $stateParams, $scope, $rootScope, $location,
                       $modal, thServiceDomain, $http, $q, $timeout, PhSeries,
-                      ThRepositoryModel, ThOptionCollectionModel, thDefaultRepo,
+                      ThRepositoryModel, ThOptionCollectionModel, 
                       ThResultSetModel, phTimeRanges) {
 
     var availableColors = [ 'red', 'green', 'blue', 'orange', 'purple' ];
@@ -20,7 +20,7 @@ perf.controller('GraphsCtrl', [
     $scope.highlightedRevisions = [ undefined, undefined ];
     $scope.timeranges = phTimeRanges;
     $scope.myTimerange = _.find(phTimeRanges, {'value': parseInt($stateParams.timerange)});
-
+    $scope.myMeasure = "mean";
     $scope.ttHideTimer = null;
     $scope.selectedDataPoint = null;
     $scope.showToolTipTimeout = null;
@@ -61,7 +61,7 @@ perf.controller('GraphsCtrl', [
           clearTimeout($scope.ttHideTimer);
           $scope.ttHideTimer = null;
         }
-  
+
         var phSeriesIndex = _.findIndex(
           $scope.seriesList,
           function(s) {
@@ -69,7 +69,7 @@ perf.controller('GraphsCtrl', [
               s.signature == dataPoint.signature;
           });
         var phSeries = $scope.seriesList[phSeriesIndex];
-  
+
         // we need the flot data for calculating values/deltas and to know where
         // on the graph to position the tooltip
         var flotData = {
@@ -87,14 +87,14 @@ perf.controller('GraphsCtrl', [
         var prevFlotDataPointIndex = (flotData.pointIndex -
                                       dataPoint.flotDataOffset - 1);
         var flotSeriesData = flotData.series.data;
-  
+
         var t = flotSeriesData[flotData.pointIndex][0],
             v = flotSeriesData[flotData.pointIndex][1],
             v0 = ((prevFlotDataPointIndex >= 0) ?
                   flotSeriesData[prevFlotDataPointIndex][1] : v),
             dv = v - v0,
             dvp = v / v0 - 1;
-  
+
         $scope.tooltipContent = {
           project: _.findWhere($scope.projects,
                                { name: phSeries.projectName }),
@@ -106,7 +106,7 @@ perf.controller('GraphsCtrl', [
           deltaPercentValue: (100 * dvp).toFixed(1),
           date: $.plot.formatDate(new Date(t), '%a %b %d, %H:%M:%S')
         };
-  
+
         // Get revision information for both this datapoint and the previous
         // one
         _.each([{ resultSetId: dataPoint.resultSetId,
@@ -123,14 +123,14 @@ perf.controller('GraphsCtrl', [
                        console.log("Failed to get revision: " + error.reason);
                      });
                });
-  
+
         // now position it
         $timeout(function() {
           var x = parseInt(flotData.series.xaxis.p2c(t) +
                            $scope.plot.offset().left);
           var y = parseInt(flotData.series.yaxis.p2c(v) +
                            $scope.plot.offset().top);
-  
+
           var tip = $('#graph-tooltip');
           function getTipPosition(tip, x, y, yoffset) {
             return {
@@ -138,14 +138,14 @@ perf.controller('GraphsCtrl', [
               top: y - tip.height() - yoffset
             };
           }
-  
+
           tip.stop(true);
-  
+
           // first, reposition tooltip (width/height won't be calculated correctly
           // in all cases otherwise)
           var tipPosition = getTipPosition(tip, x, y, 10);
           tip.css({ left: tipPosition.left, top: tipPosition.top });
-  
+
           // get new tip position after transform
           var tipPosition = getTipPosition(tip, x, y, 10);
           if (tip.css('visibility') == 'hidden') {
@@ -268,7 +268,7 @@ perf.controller('GraphsCtrl', [
     function zoomGraph() {
       // If either x or y exists then there is zoom set in the variable
       if ($scope.zoom['x']) {
-        if (_.find($scope.seriesList, function(series) { return series.visible; })) {  
+        if (_.find($scope.seriesList, function(series) { return series.visible; })) {
           $.each($scope.plot.getXAxes(), function(_, axis) {
             var opts = axis.options;
             opts.min = $scope.zoom['x'][0];
@@ -300,6 +300,8 @@ perf.controller('GraphsCtrl', [
       // synchronize series visibility with flot, in case it's changed
       $scope.seriesList.forEach(function(series) {
         series.flotSeries.points.show = series.visible;
+        series.active = (!series.subtestSignatures || $scope.myMeasure === 'mean');
+        series.blockColor = series.active ? series.color : "grey";
       });
 
       // reset highlights
@@ -422,9 +424,19 @@ perf.controller('GraphsCtrl', [
         plotGraph();
       });
     }
+    
+    $scope.myMeasureChanged = function() {
+      $scope.zoom = {};
+      deselectDataPoint();
+      
+      updateDocument();
+      $q.all($scope.seriesList.map(getSeriesData)).then(function() {
+            plotGraph();
+      });
+    }
 
     $scope.repoName = $stateParams.projectId;
-    
+
     function updateDocument() {
       $state.transitionTo('graphs', {
         timerange: $scope.myTimerange.value,
@@ -437,16 +449,16 @@ perf.controller('GraphsCtrl', [
                                                  highlight.length == 12);
                                        }),
         zoom: (function() {
-          if ((typeof $scope.zoom.x != "undefined") 
+          if ((typeof $scope.zoom.x != "undefined")
               && (typeof $scope.zoom.y != "undefined")
               && ($scope.zoom.x != 0 && $scope.zoom.y != 0)) {
-            var modifiedZoom = ("[" + ($scope.zoom['x'].toString() 
+            var modifiedZoom = ("[" + ($scope.zoom['x'].toString()
                     + ',' + $scope.zoom['y'].toString()) + "]").replace(/[\[\{\}\]"]+/g, '');
-            return modifiedZoom 
+            return modifiedZoom
           }
           else {
-            $scope.zoom = [] 
-            return $scope.zoom 
+            $scope.zoom = []
+            return $scope.zoom
           }
         })(),
       }, {location: true, inherit: true,
@@ -481,18 +493,27 @@ perf.controller('GraphsCtrl', [
                              thSeries: jQuery.extend({}, series)
                            }
                            response.data[0].blob.forEach(function(dataPoint) {
-                             var mean = dataPoint.mean;
-                             if (mean === undefined)
-                               mean = dataPoint.geomean;
-
+                             var measure = dataPoint.mean;
+                             if ($scope.myMeasure === "min") {
+                                 measure = dataPoint.min;
+                             } else if ($scope.myMeasure === "max") {
+                                 measure = dataPoint.max;
+                             } else if ($scope.myMeasure === "median") {
+                                 measure = dataPoint.median;
+                             } else if ($scope.myMeasure === "mean") {
+                                 measure = dataPoint.mean;
+                               if (measure === undefined) {
+                                   measure = dataPoint.geomean;
+                               }
+                             }
                              flotSeries.data.push([
                                new Date(dataPoint.push_timestamp*1000),
-                               mean]);
+                               measure]);
                              flotSeries.resultSetData.push(
                                dataPoint.result_set_id);
                            });
                            flotSeries.data.sort(function(a,b) {
-                             return a[0] < b[0]; });
+                             return a[0] > b[0]; });
                            series.flotSeries = flotSeries;
                          });
     }
@@ -522,7 +543,6 @@ perf.controller('GraphsCtrl', [
             seriesSummary.visible = partialSeries.visible;
             seriesSummary.color = availableColors.pop();
             seriesSummary.highlighted = partialSeries.highlighted;
-
             $scope.seriesList.push(seriesSummary);
           });
           $q.all($scope.seriesList.map(getSeriesData)).then(function() {
@@ -586,7 +606,7 @@ perf.controller('GraphsCtrl', [
         optionCollectionMap = _optionCollectionMap;
 
         if ($stateParams.zoom) {
-          var zoomString = decodeURIComponent($stateParams.zoom).replace(/[\[\{\}\]"]+/g, '')  
+          var zoomString = decodeURIComponent($stateParams.zoom).replace(/[\[\{\}\]"]+/g, '')
           var zoomArray = zoomString.split(",")
           var zoomObject = {
             "x": zoomArray.slice(0,2),
@@ -623,7 +643,7 @@ perf.controller('GraphsCtrl', [
                 "visible": (partialSeriesArray[2] == 0) ? false : true
             }
             return partialSeriesObject;
-          });    
+          });
           addSeriesList(partialSeriesList);
         } else {
           $scope.seriesList = [];
@@ -685,29 +705,25 @@ perf.controller('GraphsCtrl', [
       });
   }]);
 
-perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
-                                            projects, optionCollectionMap,
-                                            timeRange, thServiceDomain,
-                                            PhSeries, defaultProjectName,
-                                            defaultPlatform) {
+perf.controller('TestChooserCtrl', function TestChooserCtrl($scope, $modalInstance, $http, 
+               projects, optionCollectionMap, timeRange, thServiceDomain, ThRepositoryModel, 
+               thDefaultRepo, PhSeries, defaultProjectName, defaultPlatform) {
   $scope.timeRange = timeRange;
   $scope.projects = projects;
   if (defaultProjectName) {
     $scope.selectedProject = _.findWhere(projects, {name: defaultProjectName});
   } else {
-    $scope.selectedProject = find_project_by_name(thDefaultRepo);
+    $scope.selectedProject = getDefaultRepo();
   }
   
-  function find_project_by_name(input_string) {
-    for (var index in projects) {
-        if(projects.hasOwnProperty(index)) {
-            if (projects[index].name===input_string) {
-                return projects[index];
-            }  
-        }
+  function getDefaultRepo() {
+    var ret = ThRepositoryModel.getRepo(thDefaultRepo);
+    if (ret === null) {
+        return projects[0];
+    } else {
+        return ret;
     }
-    return projects[0];
-  }
+  }  
   
   $scope.loadingTestData = false;
 

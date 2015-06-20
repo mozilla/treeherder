@@ -17,6 +17,7 @@ Contents:
    list_of_services
    common_tasks
    submitting_data
+   retrieving_data
    troubleshooting
    ui/index
 

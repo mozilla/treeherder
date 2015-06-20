@@ -34,42 +34,6 @@ class ParserBase(object):
         return self.artifact
 
 
-RE_HEADER_VALUE = re.compile(r'^(?P<key>[a-z]+): (?P<value>.*)$')
-RE_HEADER_START = re.compile(r"={9} Started (.*)$")
-
-
-class HeaderParser(ParserBase):
-
-    def __init__(self):
-        """Setup the artifact to hold the header lines."""
-        super(HeaderParser, self).__init__("header")
-        # for this parser, we actually want the artifact to be a dict instead
-        # of a list.
-        self.artifact = {}
-
-    def parse_line(self, line, lineno):
-        """
-        Parse out a value in the header
-
-        The header values in the log look like this:
-            builder: mozilla-central_ubuntu32_vm_test-crashtest-ipc
-            slave: tst-linux32-ec2-137
-            starttime: 1368466076.01
-            results: success (0)
-            buildid: 20130513091541
-            builduid: acddb5f7043c4d5b9f66619f9433cab0
-            revision: c80dc6ffe865
-
-        """
-        if RE_HEADER_START.match(line):
-            self.complete = True
-        else:
-            match = RE_HEADER_VALUE.match(line)
-            if match:
-                key, value = match.groups()
-                self.artifact[key] = value
-
-
 PATTERN = r' (?P<name>.*?) \(results: (?P<result>\d+), elapsed: .*?\) \(at (?P<timestamp>.*?)\)'
 RE_STEP_START = re.compile(r'={9} Started' + PATTERN)
 RE_STEP_FINISH = re.compile(r'={9} Finished' + PATTERN)
@@ -315,6 +279,7 @@ RE_ERR_MATCH = re.compile((
     r"|^Output exceeded \d+ bytes"
     r"|^The web-page 'stop build' button was pressed"
     r"|.*\.js: line \d+, col \d+, Error -"
+    r"|^\[taskcluster\] Error:"
 ))
 
 RE_ERR_SEARCH = re.compile((

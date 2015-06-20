@@ -1,11 +1,9 @@
 <div class="steps-data">
     <div ng-repeat="step in artifact.step_data.steps"
          ng-click="displayLog(step)"
-         ng-class="{'selected': (displayedStep.order === step.order),
-                    'btn-success': (step.result === 'success'),
-                    'btn-warning': (step.result !== 'success')}"
+         ng-class="{'selected': (displayedStep.order === step.order)}"
          ng-if="showSuccessful === true || step.result !== 'success'"
-         class="btn btn-block logviewer-step clearfix"
+         class="btn btn-block logviewer-step clearfix {{::getShadingClass(step.result)}}"
          order="{{step.order}}">
         <span class="pull-left clearfix text-left">
             {{::step.order+1}}. {{::step.name}}

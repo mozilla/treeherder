@@ -1,13 +1,4 @@
 {
-    "header": {
-        "slave": "b-2008-ix-0084", 
-        "buildid": "20140629223002", 
-        "builder": "mozilla-central-win32-pgo", 
-        "results": "success (0)", 
-        "starttime": "1404106216.35", 
-        "builduid": "6acfcd5939d0431a9b25983811dc7959", 
-        "revision": "b6408c32a170"
-    }, 
     "step_data": {
         "all_errors": [], 
         "steps": [

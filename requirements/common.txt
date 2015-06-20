@@ -4,17 +4,20 @@
 
 # Packages that are shared between deployment and dev environments.
 
-# sha256: yMvuXERhj0nnt8b5RabHSI5ah2V8oZp6a7Lm_ea6Dmg
-gunicorn==17.5
+# sha256: pRec3pItK04EXuWxHocyPud9NjrkApT8glLyXWoOrwY
+gunicorn==19.3.0
+
+# sha256: Pk2AGZlglZuCiVGqJMv6o2zr7RSdzXKMEehVeYsV-HA
+whitenoise==1.0.6
 
 # sha256: 7sV9MhlQHsbmhWRoJvLrjndoepP-N0p-aZRJBSDbCT4
 Django==1.7.7
 
-# sha256: 6ESYN2-wUkFQQGlrefsPGF48cycpZwEJtPHiMDvmyfU
-celery==3.1.16
+# sha256: 2_WWGNWp7_Fy0lAh82YUvlrwUB5FJ5dcpQS5WGPxT-0
+celery==3.1.18
 
-# sha256: sZX6jrUgwymU2LvRY3AA3j0JZTKy5FGDgy28tlwhHo4
-kombu==3.0.23
+# sha256: _qhlOuS4en6wmWWUCfCeaANqe4PwoVoLxq7629mKUdw
+kombu==3.0.26
 
 # sha256: KjGJ950ce4ohSaDng8C0IX-tmzCm59YEUPJVPcLA5X4
 simplejson==3.6.5
@@ -27,8 +30,8 @@ Cython==0.22
 MySQL-python==1.2.5
 
 # Required by celery
-# sha256: bmuOxuRbiTiQUXN8fmIV2OVag4lutiEvpybKdugMehk
-billiard==3.3.0.19
+# sha256: aI-UZrHDrhQQY4Hm29MoEV51xSYMVC60jmxGkx9pKMw
+billiard==3.3.0.20
 # sha256: VDjXSekjyRR0H-KkELUoq-JwUwAPv4eLxDdCjQiuCrE
 pytz==2014.10
 
@@ -51,8 +54,8 @@ jsonschema==2.4.0
 # sha256: IvfBJQ8MAom2HaZlS1HhRzM7q3ed4ZMng3a9_WpSe0Y
 djangorestframework==2.4.5
 
-# sha256: unxvfRm1wULqarib4wZvS4WVP3dAqBQH-D79uLDhucg
-django-rest-swagger==0.1.11
+# sha256: 1PH7p2aNspPnPQd7QBnvUkor3A7Z4Xh3WI9ZUDFpks4
+django-rest-swagger==0.3.2
 
 # sha256: IHlImDhx2hyv_q93vj9WSOyfcxNCpPKjB8SZaPu64zs
 drf-extensions==0.2.7
@@ -69,8 +72,8 @@ oauth2==1.5.211
 # sha256: ypUhfKaLiyr3zomc5t2J9KIVYqiIqYFCBXbtyHJJEXE
 jsonfield==0.9.20
 
-# sha256: HYBs6IKx3VBrKM04OI_9AhHx2ASI7eeJLEwmMF1e7GA
-mozlog==2.10
+# sha256: VWwL-EtIVxnxoh6fOyr3I1Xfknt53vLkVD2QwBA4vfc
+mozlog==2.11
 
 # sha256: ImnQ8PfxhxMzeMZknae86g-jPdJ2kQo5Ii2SQ8AVY1E
 futures==3.0.2
@@ -81,6 +84,10 @@ https://github.com/jeads/datasource/archive/v0.7.tar.gz#egg=datasource
 # Required by django-rest-swagger
 # sha256: 7wE5rDCRO0Po04ij53blNKIvgZdZZpaNKDaewDOKabc
 Unipath==1.0
+
+# Required by django-rest-swagger
+# sha256: w2yTiocuX_SUk4szsUqqFWy0OexnVI_Ks1Nbt4sIRug
+PyYAML==3.11
 
 # Required by django-browserid, WebTest & responses
 # sha256: jw9WgT-C0MJ9lXgiEmismvSPB2xx7mlpMwXOymyjVb0

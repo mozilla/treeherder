@@ -216,7 +216,8 @@ class JobsModel(TreeherderModelBase):
         return None
 
     def get_job_list(self, offset, limit,
-                     conditions=None, exclusion_profile=None):
+                     conditions=None, exclusion_profile=None,
+                     visibility="included"):
         """
         Retrieve a list of jobs. It's mainly used by the restful api to list
         the jobs. The conditions parameter is a dict containing a set of
@@ -242,7 +243,11 @@ class JobsModel(TreeherderModelBase):
                         name=exclusion_profile
                     )
                 signatures = profile.flat_exclusion[self.project]
-                replace_str += " AND j.signature NOT IN ({0})".format(
+                # NOT here means "not part of the exclusion profile"
+                inclusion = "NOT" if visibility == "included" else ""
+
+                replace_str += " AND j.signature {0} IN ({1})".format(
+                    inclusion,
                     ",".join(["%s"] * len(signatures))
                 )
                 placeholders += signatures
@@ -1559,7 +1564,9 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
              option_collection_hash]
         )
 
-        tier = 2 if signature in tier_2_signatures else 1
+        job_tier = job.get('tier') or 1
+        # job tier signatures override the setting from the job structure
+        tier = 2 if signature in tier_2_signatures else job_tier
 
         job_placeholders.append([
             job_guid,
@@ -2091,7 +2098,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 series.extend(series_data)
 
                 sorted_series = sorted(
-                    series, key=itemgetter('result_set_id'), reverse=True
+                    series, key=itemgetter('result_set_id'),
                 )
 
                 filtered_series = filter(

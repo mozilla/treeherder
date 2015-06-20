@@ -229,7 +229,9 @@ treeherder.provider('thEvents', function() {
 
             applyNewJobs: "apply-new-jobs-EVT",
 
-            initSheriffPanel: "init-sheriff-panel-EVT"
+            initSheriffPanel: "init-sheriff-panel-EVT",
+
+            openLogviewer: "open-logviewer-EVT"
         };
     };
 });

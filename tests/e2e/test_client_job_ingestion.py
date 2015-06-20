@@ -17,7 +17,6 @@ from treeherder.model import error_summary
 @pytest.fixture
 def text_log_summary_dict():
     return {
-        "header": {},
         "step_data": {
             "all_errors": [
                 {"line": "12:34:13     INFO -  Assertion failure: addr % CellSize == 0, at ../../../js/src/gc/Heap.h:1041", "linenumber": 61918},
@@ -55,7 +54,6 @@ def check_artifacts(test_project,
                   if x['job_guid'] == job_guid][0]
         job_log_list = jobs_model.get_job_log_url_list([job_id])
 
-        print job_log_list
         assert len(job_log_list) == 1
         assert job_log_list[0]['parse_status'] == parse_status
 
@@ -395,3 +393,54 @@ def test_post_job_artifacts_by_add_artifact(
 
     # ensure the parsing didn't happen
     assert mock_parse.called is False
+
+
+def test_post_job_with_tier(test_project, result_set_stored,
+                            mock_post_collection):
+    """test submitting a job with tier specified"""
+
+    tjc = client.TreeherderJobCollection()
+    job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
+    tj = client.TreeherderJob({
+        'project': test_project,
+        'revision_hash': result_set_stored[0]['revision_hash'],
+        'job': {
+            'job_guid': job_guid,
+            'state': 'completed',
+        }
+    })
+    tj.add_tier(3)
+    tjc.add(tj)
+
+    do_post_collection(test_project, tjc)
+
+    with JobsModel(test_project) as jobs_model:
+        jobs_model.process_objects(10)
+        job = [x for x in jobs_model.get_job_list(0, 20)
+               if x['job_guid'] == job_guid][0]
+        assert job['tier'] == 3
+
+
+def test_post_job_with_default_tier(test_project, result_set_stored,
+                                    mock_post_collection):
+    """test submitting a job with no tier specified gets default"""
+
+    tjc = client.TreeherderJobCollection()
+    job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
+    tj = client.TreeherderJob({
+        'project': test_project,
+        'revision_hash': result_set_stored[0]['revision_hash'],
+        'job': {
+            'job_guid': job_guid,
+            'state': 'completed',
+        }
+    })
+    tjc.add(tj)
+
+    do_post_collection(test_project, tjc)
+
+    with JobsModel(test_project) as jobs_model:
+        jobs_model.process_objects(10)
+        job = [x for x in jobs_model.get_job_list(0, 20)
+               if x['job_guid'] == job_guid][0]
+        assert job['tier'] == 1

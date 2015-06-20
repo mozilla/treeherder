@@ -1,13 +1,4 @@
 {
-    "header": {
-        "slave": "talos-r3-xp-085\r", 
-        "buildid": "20130605090546\r", 
-        "builder": "dummy-error-log\r", 
-        "results": "warnings (1)\r", 
-        "starttime": "1370461908.77\r", 
-        "builduid": "11d37c0c73ec4f4aa16b29cbe6481a9f\r", 
-        "revision": "e2eecb449eeb\r"
-    }, 
     "step_data": {
         "all_errors": [
             {

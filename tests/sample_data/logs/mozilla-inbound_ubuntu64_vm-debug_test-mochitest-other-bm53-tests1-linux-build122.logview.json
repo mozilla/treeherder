@@ -1,13 +1,4 @@
 {
-    "header": {
-        "slave": "tst-linux64-ec2-428", 
-        "buildid": "20130605113136", 
-        "builder": "mozilla-inbound_ubuntu64_vm-debug_test-mochitest-other", 
-        "results": "warnings (1)", 
-        "starttime": "1370461498.84", 
-        "builduid": "3d82a57013fe406b9740463bad56394e", 
-        "revision": "4d2d0bc38fec"
-    }, 
     "step_data": {
         "all_errors": [
             {

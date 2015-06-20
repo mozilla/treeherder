@@ -8,7 +8,7 @@ from django.conf import settings
 
 def test_get_revision_hash(initial_data,
                            result_set_stored, mock_get_remote_content):
-    """That the correct revision_hash is retrieved is the revision exists"""
+    """That the correct revision_hash is retrieved if the revision exists"""
     from treeherder.etl import common
     project = result_set_stored[0]['revisions'][0]['repository']
     revision = result_set_stored[0]['revisions'][0]['revision']

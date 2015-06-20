@@ -69,10 +69,12 @@ class JobsViewSet(viewsets.ViewSet):
         count = min(int(filter.pop("count", 10)), 2000)
         return_type = filter.pop("return_type", "dict").lower()
         exclusion_profile = filter.pop("exclusion_profile", "default")
+        visibility = filter.pop("visibility", "included")
         if exclusion_profile in ('false', 'null'):
             exclusion_profile = None
         results = jm.get_job_list(offset, count, conditions=filter.conditions,
-                                  exclusion_profile=exclusion_profile)
+                                  exclusion_profile=exclusion_profile,
+                                  visibility=visibility)
 
         if results:
             option_collections = jm.refdata_model.get_all_option_collections()

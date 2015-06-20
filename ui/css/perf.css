@@ -49,6 +49,11 @@ to { opacity: 0; }
   color: #999
 }
 
+.graph-legend .series-inactive {
+  border-color: #D3D3D3;
+  color: #D3D3D3;
+}
+
 .tt-dropdown-menu {
   width: 422px;
   margin-top: 12px;
@@ -215,6 +220,24 @@ to { opacity: 0; }
 }
 
 /* Compare interface stuff */
+
+.vertical-box {
+  display: flex;
+  flex-flow: column;
+}
+
+.spacer {
+  flex: auto;
+}
+
+.horizontal-box {
+  display: flex;
+  flex-flow: row;
+}
+
+.centered-element {
+  flex: none;
+}
 
 .compare-form {
   align: center;

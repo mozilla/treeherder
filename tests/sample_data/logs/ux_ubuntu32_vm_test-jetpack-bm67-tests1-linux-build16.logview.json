@@ -1,13 +1,4 @@
 {
-    "header": {
-        "slave": "tst-linux32-ec2-094", 
-        "buildid": "20130605124039", 
-        "builder": "ux_ubuntu32_vm_test-jetpack", 
-        "results": "warnings (1)", 
-        "starttime": "1370462504.72", 
-        "builduid": "929df1a898e14a06a7ad65987f35d4a8", 
-        "revision": "546ccc10a18f"
-    }, 
     "step_data": {
         "all_errors": [
             {

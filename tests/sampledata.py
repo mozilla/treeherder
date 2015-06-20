@@ -22,16 +22,18 @@ class SampleData(object):
         return credentials
 
     @classmethod
-    def get_talos_perf_data(cls):
-        with open("{0}/sample_data/artifacts/performance/talos_perf.json".format(
-                os.path.dirname(__file__))) as f:
+    def get_perf_data(cls, filename):
+        with open("{0}/sample_data/artifacts/performance/{1}".format(
+                os.path.dirname(__file__), filename)) as f:
             return json.loads(f.read())
 
     @classmethod
+    def get_talos_perf_data(cls):
+        return cls.get_perf_data('talos_perf.json')
+
+    @classmethod
     def get_b2g_perf_data(cls):
-        with open("{0}/sample_data/artifacts/performance/b2g_perf.json".format(
-                os.path.dirname(__file__))) as f:
-            return json.loads(f.read())
+        return cls.get_perf_data('b2g_perf.json')
 
     def __init__(self):
         self.job_data_file = "{0}/sample_data/job_data.txt".format(

@@ -2,7 +2,7 @@
 <html ng-controller="LogviewerCtrl" ng-init="init()" ng-app="logviewer">
     <head>
         <meta charset="utf-8">
-        <title ng-bind="getLogviewerTitle()">Log viewer</title>
+        <title ng-bind="::logViewerTitle">Log viewer</title>
         <!-- build:css css/logviewer.min.css -->
         <link href="vendor/css/bootstrap.css" rel="stylesheet" media="screen">
         <link href="css/treeherder.css" rel="stylesheet" type="text/css">
@@ -15,15 +15,19 @@
             <div class="col-md-6" >
                 <div class="job-header">
                     <table class="table table-condensed" >
-                        <tr ng-repeat="property in logProperties | orderBy:'label'">
+                        <tr class="{{::resultStatusShading}}">
+                            <th ng-cloak>{{result.label}}</th>
+                            <td ng-cloak class="break-word">{{result.value}}</td>
+                        </tr>
+                        <tr ng-repeat="property in logProperties">
                             <th ng-cloak>{{property.label}}</th>
-                            <td ng-if="property.label == 'revision'" class="break-word">
-                                <a href="{{logRevisionFilterUrl}}"
+                            <td ng-if="property.label == 'Revision'" class="break-word">
+                                <a href="{{::logRevisionFilterUrl}}"
                                    title="Open resultset"
                                    class="repo-link"
                                    ng-cloak>{{property.value}}</a>
                             </td>
-                            <td ng-if="property.label != 'revision'"
+                            <td ng-if="property.label != 'Revision'"
                                 ng-cloak class="break-word">{{property.value}}</td>
                         </tr>
                     </table>
@@ -54,6 +58,7 @@
         <script src="js/treeherder.js"></script>
         <script src="js/logviewer.js"></script>
         <script src="js/providers.js"></script>
+        <script src="js/values.js"></script>
 
         <!-- Directives -->
         <script src="js/directives/log_viewer_infinite_scroll.js"></script>
@@ -66,6 +71,8 @@
 
         <!-- Model services -->
         <script src="js/models/job_artifact.js"></script>
+        <script src="js/models/job.js"></script>
+        <script src="js/models/resultset.js"></script>
         <script src="js/models/log_slice.js"></script>
 
         <!-- Controllers -->
