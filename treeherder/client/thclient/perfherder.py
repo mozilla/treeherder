@@ -107,9 +107,9 @@ class PerformanceSeries(list):
 
 class PerfherderClient(TreeherderClient):
 
-    PERFORMANCE_SERIES_SUMMARY_ENDPOINT = 'performance-data/0/get_performance_series_summary'
-    SIGNATURE_PROPERTIES_ENDPOINT = 'performance-data/0/get_signature_properties'
-    PERFORMANCE_DATA_ENDPOINT = 'performance-data/0/get_performance_data'
+    PERFORMANCE_SERIES_SUMMARY_ENDPOINT = 'performance-data/get_performance_series_summary'
+    SIGNATURE_PROPERTIES_ENDPOINT = 'performance-data/get_signature_properties'
+    PERFORMANCE_DATA_ENDPOINT = 'performance-data/get_performance_data'
 
     def get_performance_signatures(self, project,
                                    time_interval=PerformanceTimeInterval.WEEK,

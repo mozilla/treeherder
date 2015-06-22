@@ -5,7 +5,7 @@
 from django.core.cache import cache
 from rest_framework import viewsets
 from rest_framework.response import Response
-from rest_framework.decorators import link
+from rest_framework.decorators import list_route
 from rest_framework_extensions.etag.decorators import etag
 
 
@@ -29,7 +29,7 @@ class PerformanceDataViewSet(viewsets.ViewSet):
 
         return None
 
-    @link()
+    @list_route()
     @etag(etag_func=_calculate_etag)
     @with_jobs
     def get_performance_series_summary(self, request, project, jm, pk=None):
@@ -48,7 +48,7 @@ class PerformanceDataViewSet(viewsets.ViewSet):
 
         return Response(summary)
 
-    @link()
+    @list_route()
     @with_jobs
     def get_signatures_from_properties(self, request, project, jm, pk=None):
         """
@@ -67,7 +67,7 @@ class PerformanceDataViewSet(viewsets.ViewSet):
 
         return Response(signatures)
 
-    @link()
+    @list_route()
     @with_jobs
     def get_signature_properties(self, request, project, jm, pk=None):
         """
@@ -88,7 +88,7 @@ class PerformanceDataViewSet(viewsets.ViewSet):
 
         return Response(data)
 
-    @link()
+    @list_route()
     @with_jobs
     def get_performance_data(self, request, project, jm, pk=None):
         """
