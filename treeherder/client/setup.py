@@ -8,7 +8,7 @@ version = '1.4'
 
 setup(name='treeherder-client',
       version=version,
-      description="Python library to submit data to the Treeherder API",
+      description="Python library to retrieve and submit data to the Treeherder API",
       long_description="""\
 """,
       classifiers=[
