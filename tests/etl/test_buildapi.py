@@ -155,14 +155,13 @@ def test_ingest_builds4h_jobs(jm, initial_data,
     from treeherder.etl.buildapi import Builds4hJobsProcess
     etl_process = Builds4hJobsProcess()
     etl_process.run()
-    jm.process_objects(20)
 
     stored_obj = jm.get_jobs_dhub().execute(
         proc="jobs_test.selects.jobs")
 
     jm.disconnect()
 
-    assert len(stored_obj) == 20
+    assert len(stored_obj) == 32
 
 
 def test_ingest_running_to_complete_job(jm, initial_data,
@@ -175,7 +174,6 @@ def test_ingest_running_to_complete_job(jm, initial_data,
     """
     a new buildapi running job transitions to a new completed job
 
-    Also ensure that a running job does NOT go through the objectstore.
     """
     from treeherder.etl.buildapi import RunningJobsProcess
     from treeherder.etl.buildapi import Builds4hJobsProcess
@@ -186,26 +184,19 @@ def test_ingest_running_to_complete_job(jm, initial_data,
     stored_running = jm.get_jobs_dhub().execute(
         proc="jobs_test.selects.jobs")
 
-    stored_objectstore = jm.get_os_dhub().execute(
-        proc="objectstore_test.selects.all")
-
-    # ensure running jobs do not go to the objectstore, but go directly
-    # to the jobs table without needing process_objects
-    assert len(stored_objectstore) == 0
     assert len(stored_running) == 1
 
     # the first job in the sample data should overwrite the running job
-    # we just ingested.  Leaving us with only 20 jobs, not 21.
+    # we just ingested.  Leaving us with only 32 jobs, not 33.
     etl_process = Builds4hJobsProcess()
     etl_process.run()
-    jm.process_objects(20)
 
     stored_obj = jm.get_jobs_dhub().execute(
         proc="jobs_test.selects.jobs")
 
     jm.disconnect()
 
-    assert len(stored_obj) == 20
+    assert len(stored_obj) == 32
 
     # all jobs should be completed, including the original one which
     # transitioned from running.
@@ -286,7 +277,6 @@ def test_ingest_builds4h_jobs_missing_branch(jm, initial_data,
     etl_process = Builds4hJobsProcess()
 
     etl_process.run()
-    jm.process_objects(2)
 
     stored_obj = jm.get_jobs_dhub().execute(
         proc="jobs_test.selects.jobs")
@@ -318,7 +308,6 @@ def _do_missing_resultset_test(jm, etl_process):
                   content_type='application/json')
 
     etl_process.run()
-    jm.process_objects(2)
 
     stored_obj = jm.get_jobs_dhub().execute(
         proc="jobs_test.selects.jobs")

@@ -49,7 +49,6 @@ def check_artifacts(test_project,
                     exp_error_summary=None):
 
     with JobsModel(test_project) as jobs_model:
-        jobs_model.process_objects(10)
         job_id = [x['id'] for x in jobs_model.get_job_list(0, 20)
                   if x['job_guid'] == job_guid][0]
         job_log_list = jobs_model.get_job_log_url_list([job_id])
@@ -415,7 +414,6 @@ def test_post_job_with_tier(test_project, result_set_stored,
     do_post_collection(test_project, tjc)
 
     with JobsModel(test_project) as jobs_model:
-        jobs_model.process_objects(10)
         job = [x for x in jobs_model.get_job_list(0, 20)
                if x['job_guid'] == job_guid][0]
         assert job['tier'] == 3
@@ -440,7 +438,33 @@ def test_post_job_with_default_tier(test_project, result_set_stored,
     do_post_collection(test_project, tjc)
 
     with JobsModel(test_project) as jobs_model:
-        jobs_model.process_objects(10)
         job = [x for x in jobs_model.get_job_list(0, 20)
                if x['job_guid'] == job_guid][0]
         assert job['tier'] == 1
+
+
+def test_post_job_to_deprecated_os_endpoint(test_project, result_set_stored,
+                                            mock_post_collection):
+    """
+    test submitting a job to deprecated objectstore endpoint
+    """
+
+    tjc = client.TreeherderJobCollection()
+    job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
+    tj = client.TreeherderJob({
+        'project': test_project,
+        'revision_hash': result_set_stored[0]['revision_hash'],
+        'job': {
+            'job_guid': job_guid,
+            'state': 'completed',
+        }
+    })
+    tjc.add(tj)
+    tjc.endpoint_base = 'objectstore'
+
+    do_post_collection(test_project, tjc)
+
+    with JobsModel(test_project) as jobs_model:
+        job = [x for x in jobs_model.get_job_list(0, 20)
+               if x['job_guid'] == job_guid]
+        assert len(job) == 1

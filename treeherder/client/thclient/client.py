@@ -560,12 +560,7 @@ class TreeherderJobCollection(TreeherderCollection):
 
     def __init__(self, data=[], job_type=''):
 
-        if job_type == 'update':
-            endpoint_base = 'jobs'
-        else:
-            endpoint_base = 'objectstore'
-
-        super(TreeherderJobCollection, self).__init__(endpoint_base, data)
+        super(TreeherderJobCollection, self).__init__('jobs', data)
 
     def get_job(self, data={}):
 
