@@ -384,11 +384,12 @@ def mock_post_collection(monkeypatch, set_oauth_credentials):
                                                 data=jsondata, oauth_key=oauth_key,
                                                 oauth_secret=oauth_secret,
                                                 method='POST')
-        getattr(TestApp(application), 'post')(
+        resp = getattr(TestApp(application), 'post')(
             signed_uri,
             params=jsondata,
             content_type='application/json'
         )
+        return resp
 
     from treeherder.client import TreeherderClient
     monkeypatch.setattr(TreeherderClient, 'post_collection', _post_collection)

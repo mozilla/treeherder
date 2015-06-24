@@ -37,8 +37,8 @@ def do_post_collection(project, collection):
     # assume if there were no exceptions we're ok
     cli = client.TreeherderClient(protocol='http', host='localhost')
     credentials = OAuthCredentials.get_credentials(project)
-    cli.post_collection(project, credentials['consumer_key'],
-                        credentials['consumer_secret'], collection)
+    return cli.post_collection(project, credentials['consumer_key'],
+                               credentials['consumer_secret'], collection)
 
 
 def check_artifacts(test_project,
@@ -438,6 +438,39 @@ def test_post_job_with_default_tier(test_project, result_set_stored,
     tjc.add(tj)
 
     do_post_collection(test_project, tjc)
+
+    with JobsModel(test_project) as jobs_model:
+        jobs_model.process_objects(10)
+        job = [x for x in jobs_model.get_job_list(0, 20)
+               if x['job_guid'] == job_guid][0]
+        assert job['tier'] == 1
+
+
+def test_post_job_to_deprecated_os_endpoint(test_project, result_set_stored,
+                                            mock_post_collection):
+    """
+    test submitting a job to deprecated objectstore endpoint
+
+    This is a short-lived test that should be removed along with the
+    Objectstore in the next commit.
+    """
+
+    tjc = client.TreeherderJobCollection()
+    job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
+    tj = client.TreeherderJob({
+        'project': test_project,
+        'revision_hash': result_set_stored[0]['revision_hash'],
+        'job': {
+            'job_guid': job_guid,
+            'state': 'completed',
+        }
+    })
+    tjc.add(tj)
+    tjc.endpoint_base = 'objectstore'
+
+    resp = do_post_collection(test_project, tjc)
+
+    assert resp.status_int == 301
 
     with JobsModel(test_project) as jobs_model:
         jobs_model.process_objects(10)
