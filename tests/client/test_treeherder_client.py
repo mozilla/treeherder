@@ -293,10 +293,7 @@ class TreeherderJobCollectionTest(DataSetup, unittest.TestCase):
 
         tjc = TreeherderJobCollection()
 
-        tjc_update = TreeherderJobCollection(job_type='update')
-
-        self.assertTrue(tjc.endpoint_base, 'objectstore')
-        self.assertTrue(tjc_update.endpoint_base, 'jobs')
+        self.assertTrue(tjc.endpoint_base, 'jobs')
 
 
 class TreeherderJobTest(DataSetup, unittest.TestCase):
@@ -514,7 +511,7 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
         self.assertEqual(mock_post.call_count, 1)
 
         path, resp = mock_post.call_args
-        self.assertEqual(path[0], "http://host/api/project/project/objectstore/?oauth_body_hash=IKbDoi5GvTRaqjRTCDyKIN5wWiY%3D&oauth_nonce=46810593&oauth_timestamp=1342229050&oauth_consumer_key=key&oauth_signature_method=HMAC-SHA1&oauth_version=1.0&oauth_token=&user=project&oauth_signature=uq%2BrkJCRPyPUdXExSasm25ab8m4%3D")
+        self.assertEqual(path[0], "http://host/api/project/project/jobs/?oauth_body_hash=IKbDoi5GvTRaqjRTCDyKIN5wWiY%3D&oauth_nonce=46810593&oauth_timestamp=1342229050&oauth_consumer_key=key&oauth_signature_method=HMAC-SHA1&oauth_version=1.0&oauth_token=&user=project&oauth_signature=DJe%2F%2FJtw7s2XUrciG%2Bl1tfJJen8%3D")
 
 if __name__ == '__main__':
     unittest.main()

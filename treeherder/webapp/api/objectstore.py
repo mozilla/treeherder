@@ -24,19 +24,22 @@ class ObjectstoreViewSet(viewsets.ViewSet):
     @oauth_required
     def create(self, request, project, jm):
         """
-        POST method implementation
+        ::DEPRECATED:: POST method implementation
+
+        TODO: This can be removed when no more clients are using this endpoint.
+        Can verify with New Relic
+
+        This copies the exact implementation from the
+        /jobs/ create endpoint for backward compatibility with previous
+        versions of the Treeherder client and api.
         """
-        job_errors_resp = jm.store_job_data(request.DATA)
+        jm.load_job_data(request.DATA)
 
-        resp = {}
-        if job_errors_resp:
-            resp['message'] = job_errors_resp
-            status = 500
-        else:
-            status = 200
-            resp['message'] = 'well-formed JSON stored'
-
-        return Response(resp, status=status)
+        return Response('DEPRECATED: {}  {}: {}'.format(
+            "This API will be removed soon.",
+            "Please change to using",
+            "/api/project/{}/jobs/".format(project)
+        ))
 
     @with_jobs
     def retrieve(self, request, project, jm, pk=None):
