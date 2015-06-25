@@ -37,11 +37,11 @@ def post_collection(
     )
 
     jsondata = th_collection.to_json()
-    signed_uri = cli._get_uri(project, th_collection.endpoint_base,
-                              data=jsondata,
-                              oauth_key=credentials['consumer_key'],
-                              oauth_secret=credentials['consumer_secret'],
-                              method='POST')
+    signed_uri = cli._get_project_uri(project, th_collection.endpoint_base,
+                                      data=jsondata,
+                                      oauth_key=credentials['consumer_key'],
+                                      oauth_secret=credentials['consumer_secret'],
+                                      method='POST')
 
     response = TestApp(application).post_json(
         str(signed_uri), params=th_collection.get_collection_data(),

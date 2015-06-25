@@ -20,10 +20,10 @@ def mock_post_json_data(monkeypatch, set_oauth_credentials):
         thisone.protocol = 'http'
         thisone.host = 'localhost'
 
-        uri = thisone._get_uri(project, endpoint, data=jsondata,
-                               oauth_key=oauth_key,
-                               oauth_secret=oauth_secret,
-                               method='POST')
+        uri = thisone._get_project_uri(project, endpoint, data=jsondata,
+                                       oauth_key=oauth_key,
+                                       oauth_secret=oauth_secret,
+                                       method='POST')
 
         resp = TestApp(application).post_json(
             str(uri), params=json.loads(jsondata)
