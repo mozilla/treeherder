@@ -151,3 +151,12 @@ class ResultSetViewSet(viewsets.ViewSet):
             jm.disconnect()
 
         return Response({"message": "well-formed JSON stored"})
+
+    @link()
+    @with_jobs
+    def status(self, request, project, jm, pk=None):
+        """
+        Return a count of the jobs belonging to this resultset
+        grouped by job status.
+        """
+        return Response(jm.get_resultset_status(pk))

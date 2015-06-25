@@ -314,3 +314,20 @@ def test_resultset_cancel_all(jm, resultset_with_three_jobs, pulse_action_consum
         assert content['project'] == jm.project
 
     user.delete()
+
+
+def test_resultset_status(webapp, eleven_jobs_processed, jm):
+    """
+    test retrieving the status of a resultset
+    """
+
+    rs_list = jm.get_result_set_list(0, 10)
+    rs = rs_list[0]
+
+    resp = webapp.get(
+        reverse("resultset-status",
+                kwargs={"project": jm.project, "pk": int(rs["id"])})
+    )
+    assert resp.status_int == 200
+    assert isinstance(resp.json, dict)
+    assert resp.json == {'success': '1'}
