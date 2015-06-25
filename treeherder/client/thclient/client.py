@@ -756,6 +756,44 @@ class TreeherderClient(object):
 
         return ret
 
+    def get_job_groups(self):
+        """
+        Gets a list of job groups stored inside Treeherder
+
+        Returns a list of dictionaries with the following properties:
+
+            {
+              id: <id>
+              symbol: <symbol>
+              name: <name>
+              ...
+            }
+        """
+        resp = requests.get('{0}://{1}/api/jobgroup'.format(
+            self.protocol, self.host), timeout=self.timeout)
+        resp.raise_for_status()
+        return resp.json()
+
+    def get_job_types(self):
+        """
+        Gets a list of job types stored inside Treeherder
+
+        Returns a list of dictionaries with the following properties:
+
+
+            {
+              id: <id>
+              job_group: <job_group_id>
+              symbol: <symbol>
+              name: <name>
+              ...
+            }
+        """
+        resp = requests.get('{0}://{1}/api/jobtype'.format(
+            self.protocol, self.host), timeout=self.timeout)
+        resp.raise_for_status()
+        return resp.json()
+
     def get_resultsets(self, project, **params):
         """
         Gets resultsets from project, filtered by parameters
