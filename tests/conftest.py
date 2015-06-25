@@ -382,7 +382,7 @@ def mock_post_collection(monkeypatch, set_oauth_credentials):
                          collection_inst, timeout=None):
 
         jsondata = collection_inst.to_json()
-        signed_uri = th_client._get_uri(project, collection_inst.endpoint_base,
+        signed_uri = th_client._get_project_uri(project, collection_inst.endpoint_base,
                                         data=jsondata, oauth_key=oauth_key,
                                         oauth_secret=oauth_secret,
                                         method='POST')
@@ -404,7 +404,7 @@ def mock_update_parse_status(monkeypatch, set_oauth_credentials):
             timestamp = time.time()
         jsondata = json.dumps({'parse_status': parse_status,
                                'parse_timestamp': timestamp})
-        signed_uri = th_client._get_uri(
+        signed_uri = th_client._get_project_uri(
             project,
             th_client.UPDATE_ENDPOINT.format(job_log_url_id),
             data=jsondata, oauth_key=oauth_key, oauth_secret=oauth_secret,
