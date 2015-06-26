@@ -142,6 +142,8 @@ treeherder.value("thOptionOrder", {
 
 treeherder.value("thFailureResults", ["testfailed", "busted", "exception"]);
 
+treeherder.value("thTitleSuffixLimit", 70);
+
 treeherder.value("thFavicons", {
     "closed": "img/tree_closed.png",
     "open": "img/tree_open.png",

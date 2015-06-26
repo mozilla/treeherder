@@ -2,16 +2,16 @@
 
 treeherderApp.controller('MainCtrl', [
     '$scope', '$rootScope', '$routeParams', '$location', 'ThLog',
-    'ThRepositoryModel', 'thPinboard', 'thNotify',
+    'ThRepositoryModel', 'thPinboard', 'thNotify', 'thTabs',
     'thClassificationTypes', 'thEvents', '$interval', '$window',
     'ThExclusionProfileModel', 'thJobFilters', 'ThResultSetStore',
-    'thDefaultRepo', 'thJobNavSelectors', 'thTabs',
+    'thDefaultRepo', 'thJobNavSelectors', 'thTitleSuffixLimit', 'ThResultSetModel',
     function MainController(
         $scope, $rootScope, $routeParams, $location, ThLog,
-        ThRepositoryModel, thPinboard, thNotify,
+        ThRepositoryModel, thPinboard, thNotify, thTabs,
         thClassificationTypes, thEvents, $interval, $window,
         ThExclusionProfileModel, thJobFilters, ThResultSetStore,
-        thDefaultRepo, thJobNavSelectors, thTabs) {
+        thDefaultRepo, thJobNavSelectors, thTitleSuffixLimit, ThResultSetModel) {
 
         var $log = new ThLog("MainCtrl");
 
@@ -22,7 +22,59 @@ treeherderApp.controller('MainCtrl', [
 
         $rootScope.getWindowTitle = function() {
             var ufc = $scope.getUnclassifiedFailureCount($rootScope.repoName);
-            return "[" + ufc + "] " + $rootScope.repoName;
+            var params = $location.search();
+
+            // repoName is undefined for the first few title update attempts, show something sensible
+            var title = "[" + ufc + "] " + ($rootScope.repoName ? $rootScope.repoName : "Treeherder");
+
+            if (params["revision"]) {
+                var desc = getSingleRevisionTitleString();
+                var revtitle = desc[0] ? ": " + desc[0] : "";
+                var percentage = desc[1] ? desc[1] + "% - " : "";
+
+                title = percentage + title + revtitle;
+            }
+            return title;
+        };
+
+        var getSingleRevisionTitleString = function() {
+            var revisions = [];
+            var percentComplete;
+
+            if ($scope.currentRepo && ThResultSetStore.getResultSetsArray($scope.repoName)[0]) {
+                revisions = ThResultSetStore.getResultSetsArray($scope.repoName)[0].revisions;
+            }
+
+            // Revisions (and comments) might not be loaded the first few times this function is called
+            if (revisions.length === 0 || !revisions[0].escaped_comment) {
+                return false;
+            }
+
+            //Job counts are calculated at a later point in the page load, so this is undefined for a while
+            if(ThResultSetStore.getResultSetsArray($scope.repoName)[0].job_counts) {
+                percentComplete = ThResultSetStore.getResultSetsArray($scope.repoName)[0].job_counts.percentComplete;
+            }
+
+            for (var i=0; i<revisions.length; i++) {
+                var title = revisions[i].escaped_comment;
+
+                /*
+                 *  Strip out unwanted things like additional lines, trychooser
+                 *  syntax, request flags, mq cruft, whitespace, and punctuation
+                 */
+                title = title.split("\n")[0];
+                title = title.replace(/\btry: .*/, '');
+                title = title.replace(/\b(r|sr|f|a)=.*/, '');
+                title = title.replace(/(imported patch|\[mq\]:) /, '');
+                title = title.replace(/[;,\-\. ]+$/, '').trim();
+                if (title) {
+                    if (title.length > thTitleSuffixLimit) {
+                        title = title.substr(0, thTitleSuffixLimit - 3) + "...";
+                    }
+                    break;
+                }
+            }
+            return [title, percentComplete];
         };
 
         $rootScope.$on(thEvents.jobClick, function(ev, job) {
