@@ -567,20 +567,21 @@ th-watched-repo {
     display: block;
 }
 
-.selected-job {
-    border: 4px solid;
-    background-color: #fff;
-}
-
 .job-group {
     margin: 0 -3px 0 3px;
 }
 
 .job-btn {
+  background: transparent;
   padding: 0 2px 0 2px;
   vertical-align: 0;
   line-height: 1.32;
   display: none;
+}
+
+.selected-job {
+    border: 4px solid;
+    background-color: #fff;
 }
 
 .filter-shown {
