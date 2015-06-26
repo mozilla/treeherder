@@ -9,13 +9,13 @@ treeherderApp.controller('MainCtrl', [
     'ThRepositoryModel', 'thPinboard', 'thNotify',
     'thClassificationTypes', 'thEvents', '$interval', '$window',
     'ThExclusionProfileModel', 'thJobFilters', 'ThResultSetStore',
-    'thDefaultRepo', 'thJobNavSelectors',
+    'thDefaultRepo', 'thJobNavSelectors', 'thTitleSuffixLimit', 'ThResultSetModel',
     function MainController(
         $scope, $rootScope, $routeParams, $location, ThLog,
         ThRepositoryModel, thPinboard, thNotify,
         thClassificationTypes, thEvents, $interval, $window,
         ThExclusionProfileModel, thJobFilters, ThResultSetStore,
-        thDefaultRepo, thJobNavSelectors) {
+        thDefaultRepo, thJobNavSelectors, thTitleSuffixLimit, ThResultSetModel) {
 
         var $log = new ThLog("MainCtrl");
 
@@ -23,7 +23,62 @@ treeherderApp.controller('MainCtrl', [
 
         $rootScope.getWindowTitle = function() {
             var ufc = $scope.getUnclassifiedFailureCount($rootScope.repoName);
-            return "[" + ufc + "] " + $rootScope.repoName;
+            var params = $location.search();
+            var singleRevisionTitle = "";
+            var percentComplete = "";
+            if (params["revision"] && $rootScope.repoName) {
+                singleRevisionTitle = getSingleRevisionTitleString($rootScope.repoName);
+            }
+            if(singleRevisionTitle) {
+                return "[" + ufc + "] " + singleRevisionTitle;
+            } else {
+                return "[" + ufc + "] " + ($rootScope.repoName ? $rootScope.repoName : "Treeherder");
+            }
+        };
+
+        var getSingleRevisionTitleString = function(repoName) {
+            var revisions = [];
+            var resultset = ThResultSetStore.getResultSetsArray(repoName)[0];
+            var title, inProgress, total, percentComplete;
+
+            // Bail if any of the resultset, revision list, or revision comments aren't yet loaded
+            if ($scope.currentRepo && resultset) {
+                revisions = resultset.revisions;
+            }
+            if (revisions.length == 0) {
+                return false;
+            }
+            if (!revisions[0].escaped_comment) {
+                return false;
+            }
+
+            for (var i=0; i<revisions.length; i++) {
+                /*
+                 * Strip out unwanted things additional lines, trychooser syntax,
+                 * request flags, mq cruft, whitespace, and punctuation
+                 */
+                title = revisions[i].escaped_comment;
+                title = title.split("\n")[0];
+                title = title.replace(/\btry: .*/, '');
+                title = title.replace(/\b(r|sr|f|a)=.*/, '');
+                title = title.replace(/(imported patch|\[mq\]:) /, '');
+                title = title.replace(/[;,\-\. ]+$/, '').trim();
+                if (title) {
+                    if (title.length > thTitleSuffixLimit) {
+                        title = title.substr(0, thTitleSuffixLimit - 3) + "...";
+                    }
+                    break;
+                }
+            }
+
+            // Calculate how much of the push is complete
+            if ($scope.currentRepo && resultset.job_counts) {
+                inProgress = resultset.job_counts.pending + resultset.job_counts.running;
+                total = resultset.job_counts.completed + inProgress;
+                percentComplete = ((resultset.job_counts.completed / total) * 100).toFixed(0) + "%";
+            }
+
+            return percentComplete + " - " + title;
         };
 
         $rootScope.closeJob = function() {
