@@ -85,6 +85,7 @@ def test_bugzilla_comment_request_body(test_project, eleven_jobs_processed):
                     u'start_time: 2013-11-13T06:39:13\n'
                     u'who: user[at]mozilla[dot]com\n'
                     u'machine: bld-linux64-ec2-132\n'
+                    u'buildname: non-buildbot b2g-emu-jb test B2G Emulator Image Build\n'
                     u'revision: cdfe03e77e66\n\n'
                     u'First error line\n'
                     u'Second error line')
