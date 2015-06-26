@@ -58,6 +58,10 @@ treeherder.directive('thWatchedRepo', [
             scope.updateTitleText = function() {
                 if (scope.repoData.treeStatus) {
                     scope.titleText = scope.repoData.treeStatus.status;
+                    if (scope.repoData.treeStatus.reason) {
+                        scope.titleText = scope.titleText + ' - ' +
+                            scope.repoData.treeStatus.reason;
+                    }
                     if (scope.repoData.treeStatus.message_of_the_day) {
                         scope.titleText = scope.titleText + ' - ' +
                             scope.repoData.treeStatus.message_of_the_day;
