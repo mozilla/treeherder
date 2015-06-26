@@ -30,18 +30,6 @@ treeherder.directive('thActionButton', [
                 });
             };
 
-            scope.openRevisionListWindow = function() {
-                if (!scope.resultset.revisions.length) {
-                    ThResultSetStore.loadRevisions(
-                        scope.repoName, scope.resultset.id
-                    ).then(function() {
-                            openRevisions();
-                    });
-                } else {
-                    openRevisions();
-                }
-            };
-
         }
     };
 }]);
