@@ -756,6 +756,22 @@ class TreeherderClient(object):
 
         return ret
 
+    def get_repositories(self):
+        """
+        Gets a list of valid treeherder repositories.
+
+        Returns a list with the following structure:
+
+            [
+                {name: repository-name, dvcs_type: dcvs-type, ...},
+                ...
+            ]
+        """
+        response = requests.get('{0}://{1}/api/repository/'.format(
+            self.protocol, self.host), timeout=self.timeout)
+        response.raise_for_status()
+        return response.json()
+
     def get_job_groups(self):
         """
         Gets a list of job groups stored inside Treeherder
