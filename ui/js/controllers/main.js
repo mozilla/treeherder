@@ -9,13 +9,13 @@ treeherderApp.controller('MainCtrl', [
     'ThRepositoryModel', 'thPinboard', 'thNotify',
     'thClassificationTypes', 'thEvents', '$interval', '$window',
     'ThExclusionProfileModel', 'thJobFilters', 'ThResultSetStore',
-    'thDefaultRepo', 'thJobNavSelectors',
+    'thDefaultRepo', 'thJobNavSelectors', 'thtitlePrefixLimit',
     function MainController(
         $scope, $rootScope, $routeParams, $location, ThLog,
         ThRepositoryModel, thPinboard, thNotify,
         thClassificationTypes, thEvents, $interval, $window,
         ThExclusionProfileModel, thJobFilters, ThResultSetStore,
-        thDefaultRepo, thJobNavSelectors) {
+        thDefaultRepo, thJobNavSelectors, thtitlePrefixLimit) {
 
         var $log = new ThLog("MainCtrl");
 
@@ -23,8 +23,45 @@ treeherderApp.controller('MainCtrl', [
 
         $rootScope.getWindowTitle = function() {
             var ufc = $scope.getUnclassifiedFailureCount($rootScope.repoName);
-            return "[" + ufc + "] " + $rootScope.repoName;
+            return "[" + ufc + "] " + $rootScope.repoName + getSingleRevisionTitleString();
         };
+
+        var getSingleRevisionTitleString = function() {
+            var params = $location.search();
+            var desc;
+            if (params["revision"]) {
+                var revisions = document.querySelectorAll(".revision");
+                for (var i=0; i<revisions.length; i++) {
+                    var desc = revisions[i].parentNode.querySelector(".revision-comment").textContent.trim();
+                    console.log(desc);
+                    // We only want the first line of the commit message.
+                    desc = desc.split("\n")[0];
+                    console.log(desc);
+                    // Trychooser syntax.
+                    desc = desc.replace(/\btry: .*/, '');
+                    console.log(desc);
+                    // Request flag annotations (eg review, feedback).
+                    desc = desc.replace(/\b(r|sr|f|a)=.*/, '');
+                    console.log(desc);
+                    // Cruft added by Mercurial when handling patches with no commit message.
+                    desc = desc.replace(/(imported patch|\[mq\]:) /, '');
+                    console.log(desc);
+                    // Whitespace & trailing punctuation.
+                    desc = desc.replace(/[;,\-\. ]+$/, '').trim();
+                    if (desc) {
+                        if (desc.length > thtitlePrefixLimit) {
+                            desc = desc.substr(0, thtitlePrefixLimit - 3) + "...";
+                        }
+                        break;
+                    }
+                }
+            }
+            if (desc) {
+                return ": " + desc;
+            } else {
+                return "";
+            }
+        }
 
         $scope.closeJob = function() {
             // Setting the selectedJob to null closes the bottom panel
