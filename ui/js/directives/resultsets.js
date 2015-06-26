@@ -12,23 +12,6 @@ treeherder.directive('thActionButton', [
         restrict: "E",
         templateUrl: 'partials/main/thActionButton.html',
         link: function(scope, element, attrs) {
-            var openRevisions = function() {
-                var interpolator = thCloneHtml.get('revisionUrlClone').interpolator;
-                var htmlStr = '';
-                _.forEach(scope.resultset.revisions, function(revision) {
-                    htmlStr = interpolator({
-                        revisionUrl: scope.currentRepo.getRevisionHref(revision.revision)
-                    }) + htmlStr;
-                });
-                var el = $compile(interpolator(scope))(scope, function(el, scope) {
-                    var wnd = window.open(
-                        '',
-                        scope.repoName,
-                        "outerHeight=250,outerWidth=500,toolbar=no,location=no,menubar=no"
-                    );
-                    wnd.document.write(htmlStr);
-                });
-            };
 
         }
     };
