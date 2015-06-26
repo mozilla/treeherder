@@ -18,13 +18,12 @@ treeherder.factory('ThJobModel', [
     ThJobModel.prototype.get_current_eta = function(){
         var timestampSeconds = new Date().getTime()/1000;
         return Math.round( ( timestampSeconds - (
-                parseInt(this.submit_timestamp) + parseInt(this.pending_eta) +
-                parseInt(this.running_eta) ) )/60 );
+                parseInt(this.submit_timestamp) + parseInt(this.running_eta) ) )/60 );
     };
 
     ThJobModel.prototype.get_typical_eta = function(){
         return Math.round(
-            (parseInt(this.pending_eta) + parseInt(this.running_eta) )/60
+            parseInt(this.running_eta) /60
         );
     };
 
