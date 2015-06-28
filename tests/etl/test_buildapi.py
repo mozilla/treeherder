@@ -266,7 +266,7 @@ def test_ingest_running_jobs_1_missing_resultset(jm, initial_data,
 def test_ingest_builds4h_jobs_1_missing_resultset(jm, initial_data,
                                                   sample_resultset, test_repository, mock_buildapi_builds4h_missing1_url,
                                                   mock_post_json_data, mock_log_parser, mock_get_resultset,
-                                                  mock_get_remote_content):
+                                                  mock_get_remote_content, activate_responses):
     """
     Ensure the builds4h job with the missing resultset is queued for refetching
     """
