@@ -166,7 +166,6 @@ def jobs_ds():
     from treeherder.model.models import Datasource
     return Datasource.objects.create(
         project=settings.DATABASES["default"]["TEST_NAME"],
-        dataset=1,
         contenttype="jobs",
         host=settings.TREEHERDER_DATABASE_HOST,
         read_only_host=settings.TREEHERDER_RO_DATABASE_HOST,
@@ -179,7 +178,6 @@ def objectstore_ds():
     from treeherder.model.models import Datasource
     return Datasource.objects.create(
         project=settings.DATABASES["default"]["TEST_NAME"],
-        dataset=1,
         contenttype="objectstore",
         host=settings.TREEHERDER_DATABASE_HOST,
         read_only_host=settings.TREEHERDER_RO_DATABASE_HOST,

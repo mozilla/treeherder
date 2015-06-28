@@ -154,11 +154,9 @@ class JobsModel(TreeherderModelBase):
             read_only_host = settings.DATABASES['read_only']['HOST']
 
         for ct in [cls.CT_JOBS, cls.CT_OBJECTSTORE]:
-            dataset = Datasource.get_latest_dataset(project, ct)
             source = Datasource(
                 project=project,
                 contenttype=ct,
-                dataset=dataset or 1,
                 host=host,
                 read_only_host=read_only_host,
             )

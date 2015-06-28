@@ -54,7 +54,6 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(serialize=False, primary_key=True)),
                 ('project', models.CharField(max_length=50L)),
                 ('contenttype', models.CharField(max_length=25L)),
-                ('dataset', models.IntegerField()),
                 ('host', models.CharField(max_length=128L)),
                 ('read_only_host', models.CharField(max_length=128L, blank=True)),
                 ('name', models.CharField(max_length=128L)),
@@ -322,6 +321,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name='datasource',
-            unique_together=set([('project', 'dataset', 'contenttype'), ('host', 'name')]),
+            unique_together=set([('host', 'name'), ('project', 'contenttype')]),
         ),
     ]
