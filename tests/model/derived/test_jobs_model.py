@@ -6,16 +6,33 @@ import time
 import json
 import pytest
 import copy
+import threading
 
+from django.conf import settings
 from django.core.management import call_command
 
 from treeherder.model.derived.base import DatasetNotFoundError
 from treeherder.model.derived import ArtifactsModel
+from treeherder.model.derived.jobs import JobsModel
 from tests.sample_data_generator import job_data, result_set
 from tests import test_utils
 
 slow = pytest.mark.slow
 xfail = pytest.mark.xfail
+
+
+class FakePerfData(object):
+    SERIES = [{'geomean': 1, 'result_set_id': 1,
+              'push_timestamp': int(time.time())}]
+    TIME_INTERVAL = 86400
+    SIGNATURE = 'cheezburger'
+    SERIES_TYPE = 'talos_data'
+
+    @staticmethod
+    def get_fake_lock_string():
+        return 'sps_{}_{}_{}'.format(FakePerfData.TIME_INTERVAL,
+                                     FakePerfData.SERIES_TYPE,
+                                     FakePerfData.SIGNATURE)
 
 
 def test_unicode(jm):
@@ -445,6 +462,80 @@ def test_store_performance_artifact(
     jm.disconnect()
 
     assert performance_artifact_signatures == series_signatures
+
+
+def test_store_performance_series(jm, test_project):
+
+    # basic case: everything works as expected
+    jm.store_performance_series(FakePerfData.TIME_INTERVAL,
+                                FakePerfData.SERIES_TYPE,
+                                FakePerfData.SIGNATURE,
+                                FakePerfData.SERIES)
+    stored_series = jm.get_jobs_dhub().execute(
+        proc="jobs.selects.get_performance_series",
+        placeholders=[FakePerfData.TIME_INTERVAL, FakePerfData.SIGNATURE])
+    blob = json.loads(stored_series[0]['blob'])
+    assert len(blob) == 1
+    assert blob[0] == FakePerfData.SERIES[0]
+
+    jm.disconnect()
+
+
+def test_store_performance_series_timeout_recover(jm, test_project):
+    # timeout case 1: a lock is on our series, but it will expire
+
+    # use a thread to simulate locking and then unlocking the table
+    # FIXME: this is rather fragile and depends on the thread being
+    # run more or less immediately so that the lock is engaged
+    def _lock_unlock():
+        with JobsModel(test_project) as jm2:
+            jm2.get_jobs_dhub().execute(
+                proc='generic.locks.get_lock',
+                placeholders=[FakePerfData.get_fake_lock_string()])
+            time.sleep(1)
+            jm2.get_jobs_dhub().execute(
+                proc='generic.locks.release_lock',
+                placeholders=[FakePerfData.get_fake_lock_string()])
+    t = threading.Thread(target=_lock_unlock)
+    t.start()
+
+    # will fail at first due to lock, but we should recover and insert
+    jm.store_performance_series(FakePerfData.TIME_INTERVAL,
+                                FakePerfData.SERIES_TYPE,
+                                FakePerfData.SIGNATURE,
+                                FakePerfData.SERIES)
+    t.join()
+    stored_series = jm.get_jobs_dhub().execute(
+        proc="jobs.selects.get_performance_series",
+        placeholders=[FakePerfData.TIME_INTERVAL, FakePerfData.SIGNATURE])
+
+    blob = json.loads(stored_series[0]['blob'])
+    assert len(blob) == 1
+    assert blob[0] == FakePerfData.SERIES[0]
+
+    jm.disconnect()
+
+
+def test_store_performance_series_timeout_fail(jm, test_project):
+    # timeout case 2: a lock is on our series, but it will not expire in time
+
+    jm.get_jobs_dhub().execute(
+        proc='generic.locks.get_lock',
+        placeholders=[FakePerfData.get_fake_lock_string()])
+    old_timeout = settings.PERFHERDER_UPDATE_SERIES_LOCK_TIMEOUT
+    settings.PERFHERDER_UPDATE_SERIES_LOCK_TIMEOUT = 1
+    # this should fail -- we'll timeout before we're able to insert
+    jm.store_performance_series(FakePerfData.TIME_INTERVAL,
+                                FakePerfData.SERIES_TYPE,
+                                FakePerfData.SIGNATURE,
+                                FakePerfData.SERIES)
+    stored_series = jm.get_jobs_dhub().execute(
+        proc="jobs.selects.get_performance_series",
+        placeholders=[FakePerfData.TIME_INTERVAL, FakePerfData.SIGNATURE])
+    assert not stored_series
+
+    settings.PERFHERDER_UPDATE_SERIES_LOCK_TIMEOUT = old_timeout
+    jm.disconnect()
 
 
 def test_remove_existing_jobs_single_existing(jm, sample_data, initial_data, refdata,

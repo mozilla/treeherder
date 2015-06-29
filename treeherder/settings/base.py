@@ -355,6 +355,9 @@ BZ_MAX_COMMENT_LENGTH = 40000
 # like ftp.mozilla.org or hg.mozilla.org
 TREEHERDER_REQUESTS_TIMEOUT = 30
 
+# timeout for acquiring lock to update performance series
+PERFHERDER_UPDATE_SERIES_LOCK_TIMEOUT = 60
+
 # Build the default pulse uri this is passed to kombu
 PULSE_URI = 'amqps://{}:{}@pulse.mozilla.org/'.format(
     os.environ.get('PULSE_USERNAME', 'guest'),
