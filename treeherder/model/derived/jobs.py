@@ -1825,8 +1825,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         result_sets = []
 
-        time_now = int(time.time())
-
         if log_placeholders:
             for index, log_ref in enumerate(log_placeholders):
                 job_guid = log_ref[0]
@@ -1837,7 +1835,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
                 # Replace job_guid with id
                 log_placeholders[index][0] = job_id
-                log_placeholders[index].append(time_now)
                 task = dict()
 
                 # a log can be submitted already parsed.  So only schedule
@@ -1927,13 +1924,12 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         )
         return data
 
-    def update_job_log_url_status(self, job_log_url_id,
-                                  parse_status, parse_timestamp):
+    def update_job_log_url_status(self, job_log_url_id, parse_status):
 
         self.jobs_execute(
             proc='jobs.updates.update_job_log_url',
             debug_show=self.DEBUG,
-            placeholders=[parse_status, parse_timestamp, job_log_url_id])
+            placeholders=[parse_status, job_log_url_id])
 
     def get_performance_series_from_signatures(self, signatures, interval_seconds):
 

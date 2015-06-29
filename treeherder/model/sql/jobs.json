@@ -192,10 +192,9 @@
                 `job_id`,
                 `name`,
                 `url`,
-                `parse_status`,
-                `parse_timestamp`
+                `parse_status`
                 )
-            VALUES (?,?,?,?,?)",
+            VALUES (?,?,?,?)",
 
             "host_type":"master_host"
         },
@@ -332,7 +331,7 @@
         "update_job_log_url":{
 
             "sql":"UPDATE `job_log_url`
-                SET    `parse_status` = ?, `parse_timestamp` = ?
+                SET    `parse_status` = ?
                 WHERE  `id` = ?
                 AND `active_status` = 'active'",
             "host_type":"master_host"
@@ -649,13 +648,13 @@
             "host_type":"read_host"
         },
         "get_job_log_url_detail":{
-            "sql": "SELECT `id`, `job_id`, `name`, `url`, `parse_status`, `parse_timestamp`
+            "sql": "SELECT `id`, `job_id`, `name`, `url`, `parse_status`
                     FROM job_log_url
                     WHERE id = ? and active_status = 'active'",
             "host_type":"read_host"
         },
         "get_job_log_url_list":{
-            "sql": "SELECT `id`, `job_id`, `name`, `url`, `parse_status`, `parse_timestamp`
+            "sql": "SELECT `id`, `job_id`, `name`, `url`, `parse_status`
                     FROM job_log_url
                     WHERE job_id in (REP0)
                     and active_status='active'",

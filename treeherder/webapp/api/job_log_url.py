@@ -56,14 +56,11 @@ class JobLogUrlViewSet(viewsets.ViewSet):
         """
         try:
             parse_status = request.DATA["parse_status"]
-            parse_timestamp = request.DATA["parse_timestamp"]
-            jm.update_job_log_url_status(pk, parse_status, parse_timestamp)
+            jm.update_job_log_url_status(pk, parse_status)
             obj = jm.get_job_log_url_detail(pk)
             return Response(obj)
         except KeyError:
-            raise ParseError(detail=("The parse_status and parse_timestamp"
-                                     " parameters are mandatory for this"
-                                     " endpoint"))
+            raise ParseError(detail=("The parse_status parameter is mandatory for this endpoint"))
 
     @action()
     @with_jobs

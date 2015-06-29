@@ -381,12 +381,10 @@ CREATE TABLE `job_log_url` (
   `name` varchar(50) COLLATE utf8_bin NOT NULL,
   `url` varchar(255) COLLATE utf8_bin NOT NULL,
   `parse_status` enum('pending', 'parsed', 'failed') COLLATE utf8_bin DEFAULT 'pending',
-  `parse_timestamp` int(10) NOT NULL,
   `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
   PRIMARY KEY (`id`),
   KEY `idx_job_id` (`job_id`),
   KEY `idx_name` (`name`),
-  KEY `idx_parse_timestamp` (`parse_timestamp`),
   KEY `idx_active_status` (`active_status`),
   KEY `idx_parse_status` (`parse_status`),
   CONSTRAINT `fk_job_log_url` FOREIGN KEY (`job_id`) REFERENCES `job` (`id`)

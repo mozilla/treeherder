@@ -12,7 +12,6 @@ import pytest
 from django.core.management import call_command
 from webtest.app import TestApp
 import responses
-import time
 
 from tests.sampledata import SampleData
 from treeherder.etl.oauth_utils import OAuthCredentials
@@ -398,11 +397,8 @@ def mock_post_collection(monkeypatch, set_oauth_credentials):
 @pytest.fixture
 def mock_update_parse_status(monkeypatch, set_oauth_credentials):
     def _update_parse_status(th_client, project, oauth_key, oauth_secret,
-                             job_log_url_id, parse_status, timestamp=None):
-        if timestamp is None:
-            timestamp = time.time()
-        jsondata = json.dumps({'parse_status': parse_status,
-                               'parse_timestamp': timestamp})
+                             job_log_url_id, parse_status):
+        jsondata = json.dumps({'parse_status': parse_status})
         signed_uri = th_client._get_project_uri(
             project,
             th_client.UPDATE_ENDPOINT.format(job_log_url_id),

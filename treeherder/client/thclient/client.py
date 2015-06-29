@@ -871,8 +871,7 @@ class TreeherderClient(object):
                         timeout=timeout)
 
     def update_parse_status(self, project, oauth_key, oauth_secret,
-                            job_log_url_id, parse_status, timestamp=None,
-                            timeout=None):
+                            job_log_url_id, parse_status, timeout=None):
         """
         Updates the parsing status of a treeherder job
 
@@ -881,17 +880,11 @@ class TreeherderClient(object):
         :param oauth_secret: oauth secret credential
         :param parse_status: string representing parse status of a treeherder
                              job
-        :param timestamp: timestamp of when parse status was updated (defaults
-                          to now)
         :param timeout: custom timeout in seconds (defaults to class timeout)
         """
-        if timestamp is None:
-            timestamp = time.time()
-
         self._post_json(project, self.UPDATE_ENDPOINT.format(job_log_url_id),
                         oauth_key, oauth_secret,
-                        json.dumps({'parse_status': parse_status,
-                                    'parse_timestamp': timestamp}),
+                        json.dumps({'parse_status': parse_status}),
                         timeout=timeout)
 
 
