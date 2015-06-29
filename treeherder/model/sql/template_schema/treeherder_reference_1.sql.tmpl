@@ -218,36 +218,6 @@ CREATE TABLE `failure_classification` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `result_set_classification`
---
-
-DROP TABLE IF EXISTS `result_set_classification`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-
-/**************************
- * Table: result_set_classification
- *
- * A list of result_set classification names.
- *
- * Population Method: manual by admin or dynamic from incoming data
- *
- * Example Data:
- *
- *  name - backout | test | uplift | other | ...
- **************************/
-CREATE TABLE `result_set_classification` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) COLLATE utf8_bin NOT NULL,
-  `description` text COLLATE utf8_bin,
-  `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
-  PRIMARY KEY (`id`),
-  KEY `idx_name` (`name`),
-  KEY `idx_active_status` (`active_status`)
-) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `job_group`
 --
 
