@@ -2040,24 +2040,36 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
     def store_performance_series(
             self, t_range, series_type, signature, series_data):
 
-        lock_string = "sps_{0}_{1}_{2}".format(
-            t_range, series_type, signature)
-
-        # Use MySQL GETLOCK function to gaurd against concurrent celery tasks
+        # Use MySQL GETLOCK function to guard against concurrent celery tasks
         # overwriting each other's blobs. The lock incorporates the time
         # interval and signature combination and is specific to a single
         # json blob.
-        lock = self.jobs_execute(
-            proc='generic.locks.get_lock',
-            debug_show=self.DEBUG,
-            placeholders=[lock_string, 60])
+        lock_string = "sps_{0}_{1}_{2}".format(
+            t_range, series_type, signature)
+        lock_timeout = settings.PERFHERDER_UPDATE_SERIES_LOCK_TIMEOUT
 
-        if lock[0]['lock'] != 1:
+        # first, wait for lock to become free
+        started = time.time()
+        while time.time() < (started + lock_timeout):
+            is_lock_free = bool(self.jobs_execute(
+                proc='generic.locks.is_free_lock',
+                debug_show=self.DEBUG,
+                placeholders=[lock_string])[0]['lock'])
+            if is_lock_free:
+                break
+            time.sleep(0.1)
+        if not is_lock_free:
             logger.error(
                 'store_performance_series lock_string, '
                 '{0}, timed out!'.format(lock_string)
             )
             return
+
+        # now, acquire the lock
+        self.jobs_execute(
+            proc='generic.locks.get_lock',
+            debug_show=self.DEBUG,
+            placeholders=[lock_string])
 
         try:
             now_timestamp = int(time.time())
