@@ -243,6 +243,18 @@ perf.controller('GraphsCtrl', [
         series.flotSeries.lines.show = false;
       });
 
+      $("#overview-plot").bind("plotunselected",function() {
+        $scope.zoom = {};
+        $scope.selectedDataPoint = null;
+        $scope.prevSelectedDataPoint = null;
+        hideTooltip();
+        updateDocument();
+        // refetch and re-render all graph data
+        $q.all($scope.seriesList.map(getSeriesData)).then(function() {
+          plotGraph();
+        });
+      });  
+
       $("#overview-plot").bind("plotselected", function (event, ranges) {
         deselectDataPoint();
         hideTooltip();
