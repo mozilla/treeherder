@@ -4,6 +4,3 @@ docs
 htmlcov
 puppet
 treeherder/etl/data/credentials.json
-treeherder/log_parser/artifactbuildercollection.so
-treeherder/log_parser/artifactbuilders.so
-treeherder/log_parser/parsers.so

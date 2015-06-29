@@ -6,12 +6,6 @@ This is a list of maintenance tasks you may have to execute on a treeherder depl
 Apply a change in the code
 --------------------------
 
-If you changed something in the log parser, you need to do a compilation step:
-
-.. code-block:: bash
-
-   > ./setup.py build_ext --inplace
-
 In order to make the various services aware of a change in the code you need to restart supervisor:
 
 .. code-block:: bash
