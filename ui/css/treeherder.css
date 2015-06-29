@@ -391,7 +391,7 @@ th-watched-repo {
 
 .revision > a:first-child {
     float: left;
-    padding-top: 1px;
+    padding-top: 2px;
     padding-right: 11px;
     font: 11px "Lucida Console",Monaco,monospace;
 }
