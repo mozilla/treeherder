@@ -39,15 +39,6 @@ following data structure:
             'author': 'somebody@somewhere.com',
             'push_timestamp': 1384353511,
             'type': 'push',
-
-            # any type of artifact data associated with the resultset
-            'artifact': {
-                'type': 'extra_info',
-                'name': 'push_data',
-                # blob can be any kind of structured data
-                'blob': { 'stuff': [1, 2, 3, 4, 5] }
-                },
-
             # a list of revisions associated with the resultset. There should be at least
             # one.
             'revisions': [

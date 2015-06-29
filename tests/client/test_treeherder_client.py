@@ -55,13 +55,6 @@ class DataSetup(unittest.TestCase):
                 for index, revision in enumerate(resultset['revisions']):
                     del revision['branch']
 
-                # Add artifacts to data
-                resultset['artifact'] = {
-                    u'name': 'push_data',
-                    u'type': 'push',
-                    u'blob': {u'stuff': [1, 2, 3, 4, 5]}
-                    }
-
                 resultset['type'] = 'push'
                 resultset['author'] = 'somebody@somewhere.com'
 
@@ -147,7 +140,6 @@ class TreeherderResultsetTest(DataSetup, unittest.TestCase):
             trs.add_revision_hash(resultset['revision_hash'])
             trs.add_author(resultset['author'])
             trs.add_type('push')
-            trs.add_artifact('push_data', 'push', {'stuff': [1, 2, 3, 4, 5]})
 
             for revision in resultset['revisions']:
 

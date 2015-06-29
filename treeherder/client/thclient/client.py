@@ -429,12 +429,6 @@ class TreeherderResultSet(TreeherderData, ValidatorMixin):
             'revisions': [],
             # TODO: add type column to resultset in treeherder-service
             'type': '',
-            # TODO: add resultset artifact table in treeherder-service
-            'artifact': {
-                'name': "",
-                'type': "",
-                'blob': ""
-            }
         }
 
     def add_push_timestamp(self, push_timestamp):
@@ -459,14 +453,6 @@ class TreeherderResultSet(TreeherderData, ValidatorMixin):
 
     def add_type(self, resultset_type):
         self.data['type'] = resultset_type
-
-    def add_artifact(self, name, artifact_type, blob):
-        if blob:
-            self.data['artifact'] = {
-                'name': name,
-                'type': artifact_type,
-                'blob': blob
-            }
 
     def get_revision(self, data={}):
         return TreeherderRevision(data)
