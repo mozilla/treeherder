@@ -582,6 +582,13 @@ th-watched-repo {
     display: block;
 }
 
+.toggle-groups-expanded::before {
+    content: "-";
+}
+.toggle-groups-collapsed::before {
+    content: "+";
+}
+
 .job-group {
     margin: 0 -3px 0 3px;
 }
@@ -592,6 +599,43 @@ th-watched-repo {
   vertical-align: 0;
   line-height: 1.32;
   display: none;
+}
+
+.group-btn {
+  background: transparent;
+  padding: 0 2px 0 2px;
+  vertical-align: 0;
+  line-height: 1.32;
+  cursor: pointer;
+}
+.group-btn::before {
+    content: "+";
+}
+
+.group-symbol:hover {
+    background-color: rgba(208, 228, 250, 0.51);
+    cursor: pointer;
+}
+
+.group-content {
+    margin-left: -3px;
+    cursor: pointer;
+}
+
+.group-content::before {
+    content: "("
+}
+
+.group-content::after {
+    content: ")"
+}
+
+.group-count-list:hover {
+    background-color: rgba(208, 228, 250, 0.51);
+}
+
+.group-job-list {
+    margin-left: -3px;
 }
 
 .selected-job {
@@ -1230,7 +1274,14 @@ ul.failure-summary-list li .btn-xs {
  .job-btn.btn-ltgray,
  .job-btn.btn-green,
  .job-btn.btn-dkblue,
- .job-btn.btn-pink {
+ .job-btn.btn-yellow,
+ .job-btn.btn-pink,
+ .group-btn.btn-dkgray-count,
+ .group-btn.btn-ltgray-count,
+ .group-btn.btn-green-count,
+ .group-btn.btn-dkblue-count,
+ .group-btn.btn-yellow-count,
+ .group-btn.btn-pink-count {
     margin: 0 -5px 0 -1px;
  }
 
@@ -1239,6 +1290,17 @@ ul.failure-summary-list li .btn-xs {
  .job-btn.btn-purple {
     margin: 0 -3px 1px 0;
  }
+
+.btn-orange-classified::after,
+.btn-orange-classified-count::after,
+.btn-red-classified::after,
+.btn-red-classified-count::after,
+.btn-black-classified::after,
+.btn-black-classified-count::after,
+.btn-purple-classified::after,
+.btn-purple-classified-count::after {
+    content: "*";
+}
 
 .btn-view-nav {
   background-color: transparent;
@@ -1377,7 +1439,8 @@ fieldset[disabled] .btn-orange.active {
   border-color: #dd6602;
 }
 
-.btn-orange-classified {
+.btn-orange-classified,
+.btn-orange-classified-count{
   color: #dd6602;
 }
 .btn-orange-classified:hover,
@@ -1434,7 +1497,8 @@ fieldset[disabled] .btn-red.active {
   border-color: #c2020e;
 }
 
-.btn-red-classified {
+.btn-red-classified,
+.btn-red-classified-count {
   color: #90010a;
 }
 .btn-red-classified:hover,
@@ -1462,7 +1526,8 @@ fieldset[disabled] .btn-red-classified.active {
   color: white;
 }
 
-.btn-dkblue {
+.btn-dkblue,
+.btn-dkblue-count {
   color: #283aa2;
   font-weight: bold;
 }
@@ -1491,7 +1556,8 @@ fieldset[disabled] .btn-dkblue.active {
   border-color: #2d48d6;
 }
 
-.btn-green {
+.btn-green,
+.btn-green-count {
   color: rgba(2, 130, 51, 0.75);
   font-weight: bold;
 }
@@ -1548,7 +1614,8 @@ fieldset[disabled] .btn-purple.active {
   color: white;
 }
 
-.btn-purple-classified {
+.btn-purple-classified,
+.btn-purple-classified-count {
   color: #6f0296;
 }
 .btn-purple-classified:hover,
@@ -1576,7 +1643,8 @@ fieldset[disabled] .btn-purple-classified.active {
   color: white;
 }
 
-.btn-yellow {
+.btn-yellow,
+.btn-yellow-count {
   color: #cdce1d;
   font-weight: bold;
 }
@@ -1602,7 +1670,8 @@ fieldset[disabled] .btn-yellow.active {
   border-color: #cdce1d;
 }
 
-.btn-ltgray {
+.btn-ltgray,
+.btn-ltgray-count {
   color: #e0e0e0;
 }
 .btn-ltgray:hover,
@@ -1628,7 +1697,8 @@ fieldset[disabled] .btn-ltgray.active {
   border-color: #e0e0e0;
 }
 
-.btn-mdgray {
+.btn-mdgray,
+.btn-mdgray-count {
   background-color: #bfbfbf;
   border-color: #bfbfbf;
 }
@@ -1675,7 +1745,8 @@ fieldset[disabled] .btn-resultset:hover {
   color: white;
 }
 
-.btn-dkgray {
+.btn-dkgray,
+.btn-dkgray-count {
   color: #7c7a7d;
 }
 .btn-dkgray:hover,

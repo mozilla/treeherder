@@ -38,7 +38,16 @@
                     </span>
                 </span>
 
-                <!--Quick Filter Field-->
+                <!--Toggle Group State Button-->
+                <span class="btn-group">
+                    <span class="btn btn-view-nav btn-sm btn-toggle-group-state"
+                          ng-class="{'toggle-groups-collapsed': groupState==='collapsed', 'toggle-groups-expanded': groupState==='expanded'}"
+                          title="Collapse/Expand all group counts"
+                          tabindex="0" role="button"
+                          ng-click="toggleGroupState()">G</span>
+                </span>
+
+                <!--Search Field-->
                 <span ng-controller="SearchCtrl" class="form-group form-inline" id="quick-filter-parent">
                     <input id="quick-filter"
                            title="Click to enter filter values"

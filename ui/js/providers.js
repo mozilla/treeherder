@@ -64,7 +64,7 @@ treeherder.provider('thResultStatusObject', function() {
 
 treeherder.provider('thResultStatusInfo', function() {
     this.$get = function() {
-        return function(resultState) {
+        return function(resultState, failure_classification_id) {
             // default if there is no match, used for pending
             var resultStatusInfo = {
                 severity: 100,
@@ -72,41 +72,45 @@ treeherder.provider('thResultStatusInfo', function() {
                 jobButtonIcon: ""
             };
 
+            // handle if a job is classified
+            var classifiedSuffix = "";
+            var classifiedPrefix = "";
+            if(parseInt(failure_classification_id, 10) > 1){
+                classifiedSuffix = "-classified";
+                classifiedPrefix = "classified ";
+            }
+
             switch (resultState) {
                 case "busted":
                     resultStatusInfo = {
                         severity: 1,
-                        btnClass: "btn-red",
-                        btnClassClassified: "btn-red-classified",
+                        btnClass: "btn-red" + classifiedSuffix,
                         jobButtonIcon: "glyphicon glyphicon-fire",
-                        countText: "busted"
+                        countText: classifiedPrefix + "busted"
                     };
                     break;
                 case "exception":
                     resultStatusInfo = {
                         severity: 2,
-                        btnClass: "btn-purple",
-                        btnClassClassified: "btn-purple-classified",
+                        btnClass: "btn-purple" + classifiedSuffix,
                         jobButtonIcon: "glyphicon glyphicon-fire",
-                        countText: "exception"
+                        countText: classifiedPrefix + "exception"
                     };
                     break;
                 case "testfailed":
                     resultStatusInfo = {
                         severity: 3,
-                        btnClass: "btn-orange",
-                        btnClassClassified: "btn-orange-classified",
+                        btnClass: "btn-orange" + classifiedSuffix,
                         jobButtonIcon: "glyphicon glyphicon-warning-sign",
-                        countText: "failed"
+                        countText: classifiedPrefix + "failed"
                     };
                     break;
                 case "unknown":
                     resultStatusInfo = {
                         severity: 4,
-                        btnClass: "btn-black",
-                        btnClassClassified: "btn-black-classified",
+                        btnClass: "btn-black" + classifiedSuffix,
                         jobButtonIcon: "",
-                        countText: "unknown"
+                        countText: classifiedPrefix + "unknown"
                     };
                     break;
                 case "usercancel":
@@ -207,6 +211,8 @@ treeherder.provider('thEvents', function() {
             // fired when a global filter has changed
             globalFilterChanged: "status-filter-changed-EVT",
 
+            groupStateChanged: "group-state-changed-EVT",
+
             toggleRevisions: "toggle-revisions-EVT",
 
             toggleAllRevisions: "toggle-all-revisions-EVT",
@@ -257,10 +263,23 @@ treeherder.provider('thAggregateIds', function() {
         return escape(repoName + resultsetId + revision);
     };
 
+    var getGroupMapKey = function(result_set_id, grName, plName, plOpt) {
+        //Build string key for groupMap entires
+        return escape(result_set_id + grName + plName + plOpt);
+    };
+
+    var getJobMapKey = function(job) {
+        //Build string key for jobMap entires
+        return 'key' + job.id;
+    };
+
     this.$get = function() {
         return {
             getPlatformRowId:getPlatformRowId,
-            getResultsetTableId:getResultsetTableId
+            getResultsetTableId:getResultsetTableId,
+            getJobMapKey: getJobMapKey,
+            getGroupMapKey: getGroupMapKey,
+            escape: escape
             };
     };
 });
