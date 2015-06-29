@@ -29,7 +29,7 @@ perf.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thServiceD
 
   var _getAllSeries = function(projectName, timeRange, optionMap) {
     var signatureURL = thServiceDomain + '/api/project/' + projectName +
-      '/performance-data/0/get_performance_series_summary/?interval=' +
+      '/performance-data/get_performance_series_summary/?interval=' +
       timeRange;
 
     return $http.get(signatureURL).then(function(response) {
@@ -386,7 +386,7 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
 
     getResultsMap: function(projectName, seriesList, timeRange, resultSetIds) {
       var baseURL = thServiceDomain + '/api/project/' +
-        projectName + '/performance-data/0/' +
+        projectName + '/performance-data/' +
         'get_performance_data/?interval_seconds=' + timeRange;
 
       var resultsMap = {};
