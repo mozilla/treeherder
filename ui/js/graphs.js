@@ -246,7 +246,6 @@ perf.controller('GraphsCtrl', [
       $("#overview-plot").bind("plotunselected",function() {
         $scope.zoom = {};
         $scope.selectedDataPoint = null;
-        $scope.prevSelectedDataPoint = null;
         hideTooltip();
         updateDocument();
         // refetch and re-render all graph data
@@ -255,10 +254,12 @@ perf.controller('GraphsCtrl', [
         });
       });  
 
-      $("#overview-plot").bind("plotselected", function (event, ranges) {
-        deselectDataPoint();
-        hideTooltip();
 
+      $("#overview-plot").bind("plotselected", function (event, ranges) {
+        hideTooltip();
+        if ($scope.selectedDataPoint) {
+          showTooltip($scope.selectedDataPoint);
+        }
         $.each($scope.plot.getXAxes(), function(_, axis) {
           var opts = axis.options;
           opts.min = ranges.xaxis.from;
@@ -270,7 +271,6 @@ perf.controller('GraphsCtrl', [
           opts.max = ranges.yaxis.to;
         });
         $scope.zoom = {'x': [ranges.xaxis.from, ranges.xaxis.to], 'y': [ranges.yaxis.from, ranges.yaxis.to]};
-
         $scope.plot.setupGrid();
         $scope.plot.draw();
         updateDocument();
@@ -369,6 +369,9 @@ perf.controller('GraphsCtrl', [
         highlightDataPoints();
         plotOverviewGraph();
         zoomGraph();
+        if ($scope.selectedDataPoint) {
+          showTooltip($scope.selectedDataPoint);
+        }
 
         function getDateStr(timestamp) {
           var date = new Date(parseInt(timestamp));
@@ -415,8 +418,8 @@ perf.controller('GraphsCtrl', [
             hideTooltip();
             $scope.$digest();
           }
-
-          highlightDataPoints();
+            updateDocument();
+            highlightDataPoints();
         });
       });
     }
@@ -473,6 +476,13 @@ perf.controller('GraphsCtrl', [
             return $scope.zoom
           }
         })(),
+        tooltip: (function() {
+                    var retTooltip = ($scope.selectedDataPoint) ? "[" 
+                     + $scope.selectedDataPoint.projectName + "," + $scope.selectedDataPoint.signature  
+                     + "," + $scope.selectedDataPoint.resultSetId + "," + $scope.selectedDataPoint.flotDataOffset 
+                     + "]" : undefined 
+                    return retTooltip
+                 })(),
       }, {location: true, inherit: true,
           relative: $state.$current,
           notify: false});
@@ -660,6 +670,18 @@ perf.controller('GraphsCtrl', [
         } else {
           $scope.seriesList = [];
           addSeriesList([]);
+        }
+
+        if ($stateParams.tooltip) {
+          var tooltipString = decodeURIComponent($stateParams.tooltip).replace(/[\[\]"]/g, '');
+          var tooltipArray = tooltipString.split(",")
+          var tooltip = {
+              projectName: tooltipArray[0],
+              signature: tooltipArray[1], 
+              resultSetId: parseInt(tooltipArray[2]), 
+              flotDataOffset: parseInt(tooltipArray[3])               
+          }
+          $scope.selectedDataPoint = (tooltipString) ? tooltip : null
         }
 
         ThRepositoryModel.get_list().then(function(response) {
