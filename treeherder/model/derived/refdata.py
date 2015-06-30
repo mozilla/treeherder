@@ -7,7 +7,6 @@ import logging
 from hashlib import sha1
 import time
 from datetime import timedelta, datetime
-import urllib2
 from django.conf import settings
 from datasource.bases.BaseHub import BaseHub
 from datasource.DataHub import DataHub
@@ -1217,85 +1216,6 @@ class RefDataManager(object):
             return_type='iter')
 
         return id_iter.get_column_data('id')
-
-    def get_repository_version_id(self, repository_id):
-        """get the latest version available for the given repository"""
-
-        id_iter = self.execute(
-            proc='reference.selects.get_repository_version_id',
-            placeholders=[repository_id],
-            debug_show=self.DEBUG,
-            return_type='iter')
-
-        return id_iter.get_column_data('id')
-
-    def get_or_create_repository_version(self, repository_id, version,
-                                         version_timestamp):
-
-        self.execute(
-            proc='reference.inserts.create_repository_version',
-            placeholders=[
-                repository_id,
-                version,
-                version_timestamp,
-                repository_id,
-                version
-            ],
-            debug_show=self.DEBUG)
-
-        return self.get_repository_version_id(repository_id)
-
-    def update_repository_version(self, repository_id):
-        """update repository version with the latest information
-        avaliable. the only dvcs supported is hg and the repo must
-        have an active_status of 'active'."""
-        # Imported here since doing so globally results in a ImportError
-        # TODO: Fix dependency loop and move this out.
-        from treeherder.model.derived.base import ObjectNotFoundException
-
-        repository = self.get_repository_info(repository_id)
-
-        if not repository:
-            raise ObjectNotFoundException("repository", id=repository_id)
-
-        if repository['dvcs_type'] != 'hg':
-            # TODO: Add handling for git, for now do nothing and return
-            # raise NotImplementedError
-            return
-        else:
-            version = self.get_hg_repository_version(repository['url'])
-
-        timestamp_now = time.time()
-
-        # try to create a new repository version
-        self.get_or_create_repository_version(repository_id,
-                                              version, timestamp_now)
-
-        # update the version_timestamp
-        self.execute(
-            proc='reference.updates.update_version_timestamp',
-            placeholders=[
-                timestamp_now,
-                repository_id,
-                version
-            ],
-            debug_show=self.DEBUG)
-
-    def get_hg_repository_version(self, repo_url):
-        """retrieves the milestone.txt file used to indicate
-        the current milestone of a repo. the last line contains
-        the info needed"""
-
-        milestone_path = '/raw-file/default/config/milestone.txt'
-        version_url = "".join((repo_url, milestone_path))
-
-        response = urllib2.urlopen(
-            version_url,
-            timeout=settings.TREEHERDER_REQUESTS_TIMEOUT)
-        for line in response:
-            # go to the last line
-            pass
-        return line.strip()
 
     def get_repository_info(self, repository_id):
         """retrieves all the attributes of a repository"""

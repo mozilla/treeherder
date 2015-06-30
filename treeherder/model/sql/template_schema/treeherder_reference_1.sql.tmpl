@@ -594,43 +594,6 @@ CREATE TABLE `repository_group` (
 ) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `repository_version`
---
-
-DROP TABLE IF EXISTS `repository_version`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-
-/**************************
- * Table: repository_version
- *
- * List of versions associated with repositories. Current version will have the
- * most recent timestamp associated with it.
- *
- * Population Method: This information could possibly be pulled automatically. It also
- *                    might be coming in dynamically with test data.
- *
- * Example Data:
- *
- *  repository_id - References repository.id
- *  version - 20.0a1 | 21.0a2 | ...
- **************************/
-CREATE TABLE `repository_version` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `repository_id` int(10) unsigned NOT NULL,
-  `version` varchar(50) COLLATE utf8_bin NOT NULL,
-  `version_timestamp` int(10) unsigned NOT NULL,
-  `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
-  PRIMARY KEY (`id`),
-  KEY `idx_repository_id` (`repository_id`),
-  KEY `idx_version` (`version`),
-  KEY `idx_version_timestamp_id` (`version_timestamp`),
-  KEY `idx_active_status` (`active_status`),
-  CONSTRAINT `fk_repository` FOREIGN KEY (`repository_id`) REFERENCES `repository` (`id`)
-) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
 DROP TABLE IF EXISTS `job_exclusion`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;

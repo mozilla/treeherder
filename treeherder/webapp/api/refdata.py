@@ -85,12 +85,6 @@ class MachineNoteViewSet(viewsets.ReadOnlyModelViewSet):
     model = models.MachineNote
 
 
-class RepositoryVersionViewSet(viewsets.ReadOnlyModelViewSet):
-
-    """ViewSet for the refdata RepositoryVersion model"""
-    model = models.RepositoryVersion
-
-
 class OptionCollectionHashViewSet(viewsets.ViewSet):
 
     """ViewSet for the virtual OptionCollectionHash model"""

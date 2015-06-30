@@ -123,18 +123,6 @@
                     )",
             "host_type":"master_host"
         },
-
-        "create_repository_version":{
-            "sql": "INSERT INTO `repository_version` (`repository_id`, `version`, `version_timestamp`)
-                    SELECT ?, ?, ?
-                    FROM DUAL
-                    WHERE NOT EXISTS(
-                    SELECT `repository_id`, `version`
-                    FROM `repository_version`
-                    WHERE `repository_id` = ? AND `version` = ?
-                    )",
-            "host_type":"master_host"
-        },
         "create_repository_group":{
             "sql":"INSERT INTO `repository_group` (`name`, `description`)
                    SELECT ?, 'fill me'
@@ -267,16 +255,6 @@
                     WHERE `name` = ?",
             "host_type":"read_host"
         },
-        "get_repository_version_id":{
-            "sql": "SELECT `id`
-                    FROM `repository_version`
-                    WHERE
-                        `repository_id` = ?
-                    AND `active_status` = 'active'
-                    ORDER BY `id` DESC
-                    LIMIT 0,1",
-            "host_type":"read_host"
-        },
         "get_repository_info":{
             "sql": "SELECT *
                     FROM `repository`
@@ -346,12 +324,6 @@
         }
     },
     "updates":{
-        "update_version_timestamp":{
-            "sql": "UPDATE `repository_version`
-                    SET `version_timestamp` = ?
-                    WHERE `repository_id` = ? AND `version` = ?",
-            "host_type":"master_host"
-        },
         "update_machine_timestamp":{
             "sql": "UPDATE `machine`
                     SET `last_timestamp` = ?

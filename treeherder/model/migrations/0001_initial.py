@@ -277,20 +277,6 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
         ),
         migrations.CreateModel(
-            name='RepositoryVersion',
-            fields=[
-                ('id', models.AutoField(serialize=False, primary_key=True)),
-                ('version', models.CharField(max_length=50L)),
-                ('version_timestamp', models.IntegerField()),
-                ('active_status', models.CharField(default='active', max_length=7L, blank=True)),
-                ('repository', models.ForeignKey(to='model.Repository')),
-            ],
-            options={
-                'db_table': 'repository_version',
-            },
-            bases=(models.Model,),
-        ),
-        migrations.CreateModel(
             name='UserExclusionProfile',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),

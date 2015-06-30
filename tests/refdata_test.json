@@ -105,13 +105,6 @@
                         `id` = ?",
             "host_type":"read_host"
         },
-        "test_repository_version":{
-            "sql": "SELECT `repository_id`, `version`, `version_timestamp`, `active_status`
-                    FROM `repository_version`
-                    WHERE 
-                        `id` = ?",
-            "host_type":"read_host"
-        },
         "test_bugscache": {
             "sql": "SELECT * FROM `bugscache`",
             "host_type": "read_host"

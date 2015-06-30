@@ -404,22 +404,6 @@ class JobGroup(models.Model):
 
 
 @python_2_unicode_compatible
-class RepositoryVersion(models.Model):
-    id = models.AutoField(primary_key=True)
-    repository = models.ForeignKey(Repository)
-    version = models.CharField(max_length=50L)
-    version_timestamp = models.IntegerField()
-    active_status = models.CharField(max_length=7L, blank=True, default='active')
-
-    class Meta:
-        db_table = 'repository_version'
-
-    def __str__(self):
-        return "{0} version {1}".format(
-            self.repository, self.version)
-
-
-@python_2_unicode_compatible
 class OptionCollection(models.Model):
     id = models.AutoField(primary_key=True)
     option_collection_hash = models.CharField(max_length=40L)
