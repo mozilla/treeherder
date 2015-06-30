@@ -1,23 +1,7 @@
 *.py[cod]
 
-# C extensions
-*.so
-
 #vi files
 *.swp
-
-# Packages
-*.egg
-*.egg-info
-build
-eggs
-parts
-var
-sdist
-develop-eggs
-.installed.cfg
-lib
-lib64
 
 # Installer logs
 pip-log.txt
@@ -70,8 +54,6 @@ docs/_build/
 #supervisor
 .nfs*
 *.pid
-
-*.c
 
 treeherder/webapp/log_cache
 celerybeat-schedule

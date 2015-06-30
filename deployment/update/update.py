@@ -32,7 +32,7 @@ def pre_update(ctx, ref=settings.UPDATE_REF):
     with ctx.lcd(th_service_src):
         ctx.local('git fetch --quiet origin %s' % ref)
         ctx.local('git reset --hard FETCH_HEAD')
-        ctx.local('find . -type f \( -name "*.pyc" -o -name "*.c" -o -name "*.so" \) -delete')
+        ctx.local('find . -type f -name "*.pyc" -delete')
         ctx.local('git status -s')
         ctx.local('git rev-parse HEAD > treeherder/webapp/media/revision')
 
