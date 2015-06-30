@@ -63,7 +63,7 @@ def update(ctx):
         # Rebuild the Cython code (eg the log parser)
         ctx.local("python2.7 setup.py build_ext --inplace")
         # Update the database schema, if necessary.
-        ctx.local("python2.7 manage.py migrate")
+        ctx.local("python2.7 manage.py migrate --noinput")
         # Update reference data & tasks config from the in-repo fixtures.
         ctx.local("python2.7 manage.py load_initial_data")
         # Populate the datasource table and create the connected databases.

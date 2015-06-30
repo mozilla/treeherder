@@ -96,7 +96,7 @@ def pytest_runtest_teardown(item):
     for ds in ds_list:
         ds.delete()
 
-    call_command("migrate", 'model', '0001_initial')
+    call_command("migrate", 'model', '0001_initial', interactive=False)
 
 
 def increment_cache_key_prefix():
