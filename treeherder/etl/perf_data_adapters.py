@@ -120,11 +120,7 @@ class PerformanceDataAdapter(object):
             "result_set_id": result_set_id,
             "push_timestamp": push_timestamp,
             "total_replicates": r_len,
-            "min": PerformanceDataAdapter._round(min(r)),
-            "max": PerformanceDataAdapter._round(max(r)),
-            "mean": 0,
-            "std": 0,
-            "median": 0
+            "mean": 0
         }
 
         if r_len > 0:
@@ -132,18 +128,21 @@ class PerformanceDataAdapter(object):
                 return float(sum(r)) / r_len
 
             mean = float(sum(r))/r_len
-            variance = map(lambda x: (x - mean)**2, replicates)
-
             series_data["mean"] = PerformanceDataAdapter._round(mean)
-            series_data["std"] = PerformanceDataAdapter._round(
-                math.sqrt(avg(variance)))
 
-            if len(r) % 2 == 1:
-                series_data["median"] = PerformanceDataAdapter._round(
-                    r[int(math.floor(len(r)/2))])
-            else:
-                series_data["median"] = PerformanceDataAdapter._round(
-                    avg([r[(len(r)/2) - 1], r[len(r)/2]]))
+            if r_len > 1:
+                variance = map(lambda x: (x - mean)**2, replicates)
+                series_data["min"] = PerformanceDataAdapter._round(min(r))
+                series_data["max"] = PerformanceDataAdapter._round(max(r))
+                series_data["std"] = PerformanceDataAdapter._round(
+                    math.sqrt(avg(variance)))
+
+                if len(r) % 2 == 1:
+                    series_data["median"] = PerformanceDataAdapter._round(
+                        r[int(math.floor(len(r)/2))])
+                else:
+                    series_data["median"] = PerformanceDataAdapter._round(
+                        avg([r[(len(r)/2) - 1], r[len(r)/2]]))
 
         return series_data
 
@@ -287,12 +286,6 @@ class TalosDataAdapter(PerformanceDataAdapter):
                         "job_id": job_id,
                         "result_set_id": result_set_id,
                         "push_timestamp": push_timestamp,
-                        "total_replicates": 1,
-                        "min": 0,
-                        "max": 0,
-                        "mean": 0,
-                        "std": 0,
-                        "median": 0
                     }
                     for stat in ['min', 'max', 'mean', 'median', 'std', 'total_replicates']:
                         if stat in talos_datum["talos_counters"][_test]:
