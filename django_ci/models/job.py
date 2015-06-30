@@ -1,9 +1,7 @@
 from django.db import models
 
-from django_ci.models import (ActivableModel,
-                              BuildPlatform,
-                              Device,
-                              FailureClassification, JobType, Machine,
+from django_ci.models import (ActivableModel, BuildPlatform, DataIngestionManager,
+                              Device, FailureClassification, JobType, Machine,
                               MachinePlatform, OptionCollection, Product,
                               Repository, ResultSet)
 
@@ -36,3 +34,5 @@ class Job(ActivableModel):
     running_eta = models.IntegerField(blank=True, null=True, db_index=True)
     tier = models.PositiveSmallIntegerField(default=1, db_index=True)
     repository = models.ForeignKey(Repository)
+
+    objects = DataIngestionManager()

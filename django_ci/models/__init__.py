@@ -1,4 +1,5 @@
 from .base import ActivableModel
+from .manager import DataIngestionManager
 from .bugscache import Bugscache
 from .build_platform import BuildPlatform
 from .device import Device
@@ -7,7 +8,6 @@ from .job_eta import JobEta
 from .job_group import JobGroup
 from .job_type import JobType
 from .machine import Machine
-from .machine_note import MachineNote
 from .machine_platform import MachinePlatform
 from .product import Product
 from .option import Option
@@ -17,7 +17,6 @@ from .repository import Repository
 from .revision import Revision
 from .result_set import ResultSet
 from .reference_data_signature import ReferenceDataSignatures
-from .repository_version import RepositoryVersion
 
 from .job_exclusion import JobExclusion
 from .exclusion_profile import ExclusionProfile
@@ -34,6 +33,7 @@ from .job_note import JobNote
 
 __all__ = [
     'ActivableModel',
+    'DataIngestionManager',
     'BugJobMap',
     'Bugscache',
     'BuildPlatform',
@@ -49,7 +49,6 @@ __all__ = [
     'JobNote',
     'JobType',
     'Machine',
-    'MachineNote',
     'MachinePlatform',
     'Option',
     'OptionCollection',
@@ -59,7 +58,6 @@ __all__ = [
     'ReferenceDataSignatures',
     'Repository',
     'RepositoryGroup',
-    'RepositoryVersion',
     'ResultSet',
     'Revision',
     'UserExclusionProfile'

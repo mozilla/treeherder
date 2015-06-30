@@ -245,21 +245,6 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
         ),
         migrations.CreateModel(
-            name='MachineNote',
-            fields=[
-                ('active_status', models.PositiveSmallIntegerField(default=1, db_index=True)),
-                ('id', models.AutoField(serialize=False, primary_key=True)),
-                ('author', models.CharField(max_length=50L)),
-                ('machine_timestamp', models.IntegerField()),
-                ('note', models.TextField(blank=True)),
-                ('machine', models.ForeignKey(to='django_ci.Machine')),
-            ],
-            options={
-                'abstract': False,
-            },
-            bases=(models.Model,),
-        ),
-        migrations.CreateModel(
             name='MachinePlatform',
             fields=[
                 ('active_status', models.PositiveSmallIntegerField(default=1, db_index=True)),
@@ -400,28 +385,14 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
         ),
         migrations.CreateModel(
-            name='RepositoryVersion',
-            fields=[
-                ('active_status', models.PositiveSmallIntegerField(default=1, db_index=True)),
-                ('id', models.AutoField(serialize=False, primary_key=True)),
-                ('version', models.CharField(max_length=50L)),
-                ('version_timestamp', models.IntegerField()),
-                ('repository', models.ForeignKey(to='django_ci.Repository')),
-            ],
-            options={
-                'abstract': False,
-            },
-            bases=(models.Model,),
-        ),
-        migrations.CreateModel(
             name='ResultSet',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('active_status', models.PositiveSmallIntegerField(default=1, db_index=True)),
                 ('revision_hash', models.CharField(unique=True, max_length=50)),
                 ('author', models.CharField(max_length=150, db_index=True)),
-                ('type', models.CharField(db_index=True, max_length=25, blank=True)),
                 ('push_timestamp', models.IntegerField(db_index=True)),
+                ('repository', models.ForeignKey(to='django_ci.Repository')),
             ],
             options={
                 'abstract': False,
@@ -438,7 +409,7 @@ class Migration(migrations.Migration):
                 ('comments', models.TextField(blank=True)),
                 ('commit_timestamp', models.IntegerField(db_index=True, null=True, blank=True)),
                 ('files', models.TextField(blank=True)),
-                ('repository', models.IntegerField(db_index=True)),
+                ('repository', models.ForeignKey(to='django_ci.Repository')),
             ],
             options={
             },
@@ -504,6 +475,12 @@ class Migration(migrations.Migration):
             model_name='job',
             name='product',
             field=models.ForeignKey(blank=True, to='django_ci.Product', null=True),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='job',
+            name='repository',
+            field=models.ForeignKey(to='django_ci.Repository'),
             preserve_default=True,
         ),
         migrations.AddField(

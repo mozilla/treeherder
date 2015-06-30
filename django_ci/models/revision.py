@@ -1,6 +1,6 @@
 from django.db import models
 
-from django_ci.models import ActivableModel, Repository
+from django_ci.models import ActivableModel, DataIngestionManager, Repository
 
 
 class Revision(ActivableModel):
@@ -11,6 +11,8 @@ class Revision(ActivableModel):
                                            db_index=True)
     files = models.TextField(blank=True)
     repository = models.ForeignKey(Repository)
+
+    objects = DataIngestionManager()
 
     class Meta:
         unique_together = (('revision', 'repository'))

@@ -1,6 +1,6 @@
 from django.db import models
 
-from django_ci.models import ActivableModel, Job
+from django_ci.models import ActivableModel, DataIngestionManager, Job
 
 
 class JobLogUrl(ActivableModel):
@@ -16,3 +16,5 @@ class JobLogUrl(ActivableModel):
     parse_status = models.CharField(max_length=7, blank=True, db_index=True,
                                     choices=PARSE_STATUS_CHOICES, default=1)
     parse_timestamp = models.IntegerField()
+
+    objects = DataIngestionManager()

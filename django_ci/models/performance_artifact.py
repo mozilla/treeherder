@@ -1,6 +1,6 @@
 from django.db import models
 
-from django_ci.models import ActivableModel, Job
+from django_ci.models import ActivableModel, DataIngestionManager, Job
 
 
 class PerformanceArtifact(ActivableModel):
@@ -9,3 +9,5 @@ class PerformanceArtifact(ActivableModel):
     name = models.CharField(max_length=50, db_index=True)
     type = models.CharField(max_length=50, db_index=True)
     blob = models.TextField()
+
+    objects = DataIngestionManager()

@@ -1,5 +1,7 @@
 from django.db import models
 
+from django_ci.models import DataIngestionManager
+
 
 class ReferenceDataSignatures(models.Model):
 
@@ -27,3 +29,5 @@ class ReferenceDataSignatures(models.Model):
     first_submission_timestamp = models.IntegerField()
     review_timestamp = models.IntegerField(null=True, blank=True)
     review_status = models.CharField(max_length=12L, blank=True)
+
+    objects = DataIngestionManager()
