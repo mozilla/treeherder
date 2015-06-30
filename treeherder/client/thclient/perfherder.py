@@ -118,7 +118,7 @@ class PerfherderClient(TreeherderClient):
         Gets a set of performance signatures associated with a project and time range
         '''
         return PerformanceSignatureCollection(self._get_json(
-            project, self.PERFORMANCE_SERIES_SUMMARY_ENDPOINT, timeout,
+            self.PERFORMANCE_SERIES_SUMMARY_ENDPOINT, timeout, project,
             interval=time_interval))
 
     def get_performance_signature_properties(self, project, signature,
@@ -126,9 +126,8 @@ class PerfherderClient(TreeherderClient):
         '''
         Gets the set of properties associated with a specific signature
         '''
-        property_list = self._get_json(project,
-                                       self.SIGNATURE_PROPERTIES_ENDPOINT,
-                                       timeout, signatures=signature)
+        property_list = self._get_json(self.SIGNATURE_PROPERTIES_ENDPOINT,
+                                       timeout, project, signatures=signature)
         if len(property_list) != 1:
             raise TreeherderClientError(
                 "Expected 1 result for call to '{0}', got '{1}'".format(
@@ -143,7 +142,7 @@ class PerfherderClient(TreeherderClient):
         '''
         Gets a list of series objects associated with a set of signatures
         '''
-        results = self._get_json(project, self.PERFORMANCE_DATA_ENDPOINT, timeout,
+        results = self._get_json(self.PERFORMANCE_DATA_ENDPOINT, timeout, project,
                                  signatures=signature_list,
                                  interval_seconds=time_interval)
         if len(results) != len(signature_list):
