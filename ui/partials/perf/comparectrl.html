@@ -16,7 +16,10 @@
           {{newRevision}}</a> ({{newProject.name}})
         </small>
       </h1>
-      <p ng-if="testNoResults"> tests with no results: {{testNoResults}}</p>
+      <div class="alert alert-warning" role="alert" ng-if="testNoResults">
+        <strong>tests with no results:</strong>
+        {{testNoResults}}
+      </div>
       <table class="table">
         <tbody ng-repeat="testName in testList">
           <tr class="subtest-header">
