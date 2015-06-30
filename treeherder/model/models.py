@@ -220,10 +220,10 @@ class Datasource(models.Model):
 
     class Meta:
         db_table = 'datasource'
-        unique_together = [
-            ["project", "dataset", "contenttype"],
-            ["host", "name"],
-        ]
+        unique_together = (
+            ("project", "dataset", "contenttype"),
+            ("host", "name"),
+        )
 
     @classmethod
     def reset_cache(cls):
@@ -474,7 +474,7 @@ class OptionCollection(models.Model):
 
     class Meta:
         db_table = 'option_collection'
-        unique_together = ['option_collection_hash', 'option']
+        unique_together = ('option_collection_hash', 'option')
 
     def __str__(self):
         return "{0}".format(self.option)
