@@ -423,9 +423,8 @@ class JobsModel(TreeherderModelBase):
             job = self.get_job(job_id)[0]
             if job["state"] == "completed":
                 # importing here to avoid an import loop
-                from treeherder.etl.tasks import (submit_elasticsearch_doc,
-                                                  submit_bugzilla_comment)
-                # Submit bug associations to Bugzilla/Elasticsearch using async tasks.
+                from treeherder.etl.tasks import submit_elasticsearch_doc
+                # Submit bug associations to Elasticsearch using an async task.
                 submit_elasticsearch_doc.apply_async(
                     args=[
                         self.project,
@@ -433,15 +432,6 @@ class JobsModel(TreeherderModelBase):
                         bug_id,
                         submit_timestamp,
                         who
-                    ],
-                    routing_key='classification_mirroring'
-                )
-                submit_bugzilla_comment.apply_async(
-                    args=[
-                        self.project,
-                        job_id,
-                        bug_id,
-                        who,
                     ],
                     routing_key='classification_mirroring'
                 )

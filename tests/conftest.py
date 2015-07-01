@@ -47,7 +47,7 @@ def pytest_sessionstart(session):
     settings.CELERY_ALWAYS_EAGER = True
     settings.CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 
-    # Don't attempt to submit bug associations to Bugzilla & Elasticsearch.
+    # Don't attempt to submit bug associations to Elasticsearch.
     settings.MIRROR_CLASSIFICATIONS = False
 
     # Reconfigure pulse to operate on default vhost of rabbitmq

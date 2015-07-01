@@ -170,7 +170,7 @@ CELERY_QUEUES = (
     Queue('store_error_summary', Exchange('default'), routing_key='store_error_summary'),
     Queue('autoclassify', Exchange('default'), routing_key='autoclassify'),
     Queue('detect_intermittents', Exchange('default'), routing_key='detect_intermittents'),
-    # Queue for mirroring the failure classification activity to Bugzilla/Elasticsearch
+    # Queue for mirroring the failure classification activity to Elasticsearch.
     Queue('classification_mirroring', Exchange('default'), routing_key='classification_mirroring'),
     Queue('error_summary', Exchange('default'), routing_key='error_summary'),
     Queue('publish_to_pulse', Exchange('default'), routing_key='publish_to_pulse'),
@@ -314,19 +314,9 @@ else:
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-# Set this to True to submit bug associations to Bugzilla & Elasticsearch.
+# Set this to True to submit bug associations to Elasticsearch.
 MIRROR_CLASSIFICATIONS = True
 ES_HOST = "http://of-elasticsearch-zlb.webapp.scl3.mozilla.com:9200"
-
-# TBPLBOT is the Bugzilla account used to make the bug comments on
-# intermittent failure bugs when failures are classified.
-TBPLBOT_EMAIL = os.environ.get("TBPLBOT_EMAIL", "")
-TBPLBOT_PASSWORD = os.environ.get("TBPLBOT_PASSWORD", "")
-
-# Bugzilla comments cannot be longer than 65535 characters, so we must ensure the
-# comment length does not exceed this, or the comment will be rejected. We truncate
-# to a length lower than the real limit, to reduce the amount of spam in bugs.
-BZ_MAX_COMMENT_LENGTH = 40000
 
 # timeout for requests to external sources
 # like ftp.mozilla.org or hg.mozilla.org
