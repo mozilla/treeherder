@@ -152,21 +152,6 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
         ),
         migrations.CreateModel(
-            name='MachineNote',
-            fields=[
-                ('id', models.AutoField(serialize=False, primary_key=True)),
-                ('author', models.CharField(max_length=50L)),
-                ('machine_timestamp', models.IntegerField()),
-                ('active_status', models.CharField(default='active', max_length=7L, blank=True)),
-                ('note', models.TextField(blank=True)),
-                ('machine', models.ForeignKey(to='model.Machine')),
-            ],
-            options={
-                'db_table': 'machine_note',
-            },
-            bases=(models.Model,),
-        ),
-        migrations.CreateModel(
             name='MachinePlatform',
             fields=[
                 ('id', models.AutoField(serialize=False, primary_key=True)),

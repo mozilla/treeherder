@@ -161,23 +161,6 @@ class Machine(models.Model):
         return self.name
 
 
-@python_2_unicode_compatible
-class MachineNote(models.Model):
-    id = models.AutoField(primary_key=True)
-    machine = models.ForeignKey(Machine)
-    author = models.CharField(max_length=50L)
-    machine_timestamp = models.IntegerField()
-    active_status = models.CharField(max_length=7L, blank=True, default='active')
-    note = models.TextField(blank=True)
-
-    class Meta:
-        db_table = 'machine_note'
-
-    def __str__(self):
-        return "Note {0} on {1} by {2}".format(
-            self.id, self.machine, self.author)
-
-
 class DatasourceManager(models.Manager):
 
     def cached(self):

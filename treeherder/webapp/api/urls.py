@@ -86,7 +86,6 @@ project_bound_router.register(
 default_router = routers.DefaultRouter()
 default_router.register(r'product', refdata.ProductViewSet)
 default_router.register(r'machine', refdata.MachineViewSet)
-default_router.register(r'machinenote', refdata.MachineNoteViewSet)
 default_router.register(r'machineplatform', refdata.MachinePlatformViewSet)
 default_router.register(r'buildplatform', refdata.BuildPlatformViewSet)
 default_router.register(r'jobgroup', refdata.JobGroupViewSet)
