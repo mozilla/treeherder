@@ -986,6 +986,7 @@ ul.failure-summary-list li .btn-xs {
 
 .classification-comment-container {
     margin-top: 5px;
+    height: 20px;
 }
 
 .classification-comment-preload-txt {
