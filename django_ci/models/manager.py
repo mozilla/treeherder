@@ -1,8 +1,9 @@
+from collections import defaultdict
+
 from django.db import models
 
 
 class DataIngestionManager(models.Manager):
-    "Manager class for various mysql-specific db interactions"
 
     def bulk_try_create(self, key_fields, *objs):
         """
@@ -19,14 +20,27 @@ class DataIngestionManager(models.Manager):
             return objs
 
         if not key_fields:
-            self.bulk_create(objs)
+            return self.bulk_create(objs)
 
-        fields = [f.name for f in self.model._meta.local_concrete_fields]
+        related_fields = [f for f in self.model._meta.fields
+                          if isinstance(f, models.ForeignKey)
+                          or isinstance(f, models.OneToOneField)]
+        related_fields_mapping = dict((f.name, f.name+'_id') for f in related_fields)
+
+        # substitute all the key related field names with the _id postfixed version
+        key_fields = [related_fields_mapping.get(f, f) for f in key_fields]
+
+        fields = []
+        for f in self.model._meta.fields:
+            # substitute all the related field names with the _id postfxed version
+            fields.append(related_fields_mapping.get(f.name, f.name))
+
         fields_string = ','.join(fields)
         table = self.model._meta.db_table
         values_placeholders = ','.join(['%s']*len(fields))
         key_fields_string = ','.join(key_fields)
         key_placeholders = ','.join(['%s']*len(key_fields))
+
         sql_template = """
             INSERT INTO %(table)s
             (%(fields_string)s)
@@ -40,16 +54,24 @@ class DataIngestionManager(models.Manager):
         sql = sql_template % locals()
         parameters = []
 
-        print sql
-
         for obj in objs:
             values = [getattr(obj, f, None) for f in fields]
             key_values = [getattr(obj, f) for f in key_fields]
             parameters.append(values + key_values)
 
-        print parameters
-
         from django.db import connection
 
         with connection.cursor() as cursor:
             cursor.executemany(sql, parameters)
+
+        # create a map between the key_fields and the pk stored
+        # so that we can return the objects with the pk attached
+        lookup_fields = ['pk'] + list(key_fields)
+        lookup_queryset = self.model.objects.values_list(*lookup_fields)
+        lookup_dict = dict(((tuple(l[1:]),l[0]) for l in lookup_queryset))
+
+        # set the pk on each obj based on key_fields
+        for obj in objs:
+            obj.pk = lookup_dict[tuple(map(lambda x: getattr(obj, x), key_fields))]
+
+        return objs
