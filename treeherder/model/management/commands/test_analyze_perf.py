@@ -65,9 +65,9 @@ class Command(BaseCommand):
         option_collection_hash = pc.get_option_collection_hash()
 
         # print csv header
-        print ','.join(["project", "signature", "series", "testrun_id",
-                        "push_timestamp", "change", "percent change",
-                        "t-value", "revision"])
+        print ','.join(["project", "platform", "signature", "series",
+                        "testrun_id", "push_timestamp", "change",
+                        "percent change", "t-value", "revision"])
 
         for project in options['project']:
             if options['signature']:
@@ -120,12 +120,11 @@ class Command(BaseCommand):
                         else:
                             pct_change = 0.0
                         delta = (new_value - initial_value)
-                        print ','.join(map(lambda v: str(v),
-                                           [project, signature,
-                                            self._get_series_description(
-                                                option_collection_hash,
-                                                series_properties),
-                                            r.testrun_id,
-                                            r.push_timestamp, delta,
-                                            pct_change, r.t,
-                                            revision[0:12]]))
+                        print ','.join(map(
+                            lambda v: str(v),
+                            [project, series_properties['machine_platform'],
+                             signature, self._get_series_description(
+                                 option_collection_hash,
+                                 series_properties),
+                             r.testrun_id, r.push_timestamp, delta,
+                             pct_change, r.t, revision[0:12]]))
