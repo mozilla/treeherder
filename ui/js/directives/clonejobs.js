@@ -82,8 +82,8 @@ treeherder.directive('thCloneJobs', [
         }
 
         jobs = $(selector);
-        var idx = jobs.index(jobs.filter(".selected-job"));
-        idx = getIndex(idx, jobs);
+        var selIdx = jobs.index(jobs.filter(".selected-job"));
+        var idx = getIndex(selIdx, jobs);
 
         el = $(jobs[idx]);
         while (el.css('display') === 'none') {
@@ -92,7 +92,7 @@ treeherder.directive('thCloneJobs', [
         }
 
         key = el.attr(jobKeyAttr);
-        if (jobMap && jobMap[key]) {
+        if (jobMap && jobMap[key] && selIdx !== idx) {
             selectJob(jobMap[key].job_obj);
         }
 
