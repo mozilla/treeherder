@@ -212,11 +212,22 @@ logViewerApp.controller('LogviewerCtrl', [
 
             $log.debug(ThJobArtifactModel.get_uri());
             ThJobArtifactModel.get_list({job_id: $scope.job_id, name: 'text_log_summary'})
-            .then(function(artifactList){
-                if(artifactList.length > 0){
+            .then(function(artifactList) {
+                if (artifactList.length > 0) {
                     $scope.artifact = artifactList[0].blob;
                 }
             });
+
+            ThJobArtifactModel.get_list({job_id: $scope.job_id, name: 'Job Info'})
+            .then(function(artifactList) {
+                if (artifactList.length > 0) {
+                    $scope.job_details = artifactList[0].blob.job_details;
+                }
+            });
+
+            // ThJobArtifactModel.get_list({job_id: $scope.job_id, name__in: 'text_log_summary, Job Info'})
+            // will remove after review, this name__in: approach seems brittle as the depth of the artifacts
+            // differ, and the artifactList order returned ('text_log_summary' or 'Job Info') varies per job?
         };
 
         /** utility functions **/
