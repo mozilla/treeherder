@@ -241,12 +241,6 @@ class TinderboxPrintParser(ParserBase):
             self.artifact.append(artifact)
 
 
-RE_INFO = re.compile((
-    r"^\d+:\d+:\d+[ ]+(?:INFO)(?: -  )"
-    r"(TEST-|INFO TEST-)(INFO|PASS|START|END) "
-))
-
-
 class ErrorParser(ParserBase):
     """A generic error detection sub-parser"""
 
