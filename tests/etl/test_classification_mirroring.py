@@ -28,10 +28,10 @@ def test_elasticsearch_doc_request_body(test_project, eleven_jobs_processed):
     with ArtifactsModel(test_project) as artifacts_model:
         artifacts_model.store_job_artifact(placeholders)
 
-    submit_timestamp = int(time())
+    classification_timestamp = int(time())
     who = "user@mozilla.com"
 
-    req = ElasticsearchDocRequest(test_project, job_id, bug_id, submit_timestamp, who)
+    req = ElasticsearchDocRequest(test_project, job_id, bug_id, classification_timestamp, who)
     req.generate_request_body()
 
     expected = {
@@ -49,7 +49,7 @@ def test_elasticsearch_doc_request_body(test_project, eleven_jobs_processed):
         "rev": "cdfe03e77e66",
         "bug": str(bug_id),
         "who": who,
-        "timestamp": str(submit_timestamp)
+        "timestamp": str(classification_timestamp),
     }
     assert req.body == expected, diff(expected, req.body)
 

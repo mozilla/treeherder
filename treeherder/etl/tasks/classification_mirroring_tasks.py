@@ -7,13 +7,13 @@ from treeherder.etl.classification_mirroring import ElasticsearchDocRequest, Bug
 
 
 @task(name="submit-elasticsearch-doc", max_retries=10, time_limit=30)
-def submit_elasticsearch_doc(project, job_id, bug_id, submit_timestamp, who):
+def submit_elasticsearch_doc(project, job_id, bug_id, classification_timestamp, who):
     """
     Mirror the classification to Elasticsearch using a post request, until
     OrangeFactor is rewritten to use Treeherder's API directly.
     """
     try:
-        req = ElasticsearchDocRequest(project, job_id, bug_id, submit_timestamp, who)
+        req = ElasticsearchDocRequest(project, job_id, bug_id, classification_timestamp, who)
         req.generate_request_body()
         req.send_request()
     except Exception as e:

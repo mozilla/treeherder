@@ -15,11 +15,11 @@ logger = logging.getLogger(__name__)
 
 class ElasticsearchDocRequest(object):
 
-    def __init__(self, project, job_id, bug_id, submit_timestamp, who):
+    def __init__(self, project, job_id, bug_id, classification_timestamp, who):
         self.project = project
         self.job_id = job_id
         self.bug_id = bug_id
-        self.submit_timestamp = submit_timestamp
+        self.classification_timestamp = classification_timestamp
         self.who = who
         self.body = {}
 
@@ -61,7 +61,7 @@ class ElasticsearchDocRequest(object):
             "rev": revision_list[0]["revision"],
             "bug": str(self.bug_id),
             "who": self.who,
-            "timestamp": str(self.submit_timestamp),
+            "timestamp": str(self.classification_timestamp),
             "logfile": "00000000"
         }
 
