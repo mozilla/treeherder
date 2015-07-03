@@ -34,11 +34,6 @@ class ParserBase(object):
         return self.artifact
 
 
-PATTERN = r' (?P<name>.*?) \(results: (?P<result>\d+), elapsed: .*?\) \(at (?P<timestamp>.*?)\)'
-RE_STEP_START = re.compile(r'={9} Started' + PATTERN)
-RE_STEP_FINISH = re.compile(r'={9} Finished' + PATTERN)
-
-
 class StepParser(ParserBase):
     """
     Parse out buildbot steps.
@@ -61,7 +56,9 @@ class StepParser(ParserBase):
     ]
 
     """
-
+    PATTERN = r' (?P<name>.*?) \(results: (?P<result>\d+), elapsed: .*?\) \(at (?P<timestamp>.*?)\)'
+    RE_STEP_START = re.compile(r'={9} Started' + PATTERN)
+    RE_STEP_FINISH = re.compile(r'={9} Finished' + PATTERN)
     # after having started any section
     ST_STARTED = "started"
     # after having finished any section
@@ -90,7 +87,7 @@ class StepParser(ParserBase):
         """Parse a single non-header line of the log"""
         # Check if we're waiting for a step start line.
         if not self.state == self.ST_STARTED:
-            match = RE_STEP_START.match(line)
+            match = self.RE_STEP_START.match(line)
             if match:
                 self.state = self.ST_STARTED
                 self.stepnum += 1
@@ -104,7 +101,7 @@ class StepParser(ParserBase):
             return
 
         # Check if it's the end of a step.
-        match = RE_STEP_FINISH.match(line)
+        match = self.RE_STEP_FINISH.match(line)
         if match:
             self.state = self.ST_FINISHED
             step_errors = self.sub_parser.get_artifact()
@@ -159,46 +156,45 @@ class StepParser(ParserBase):
         return self.steps[self.stepnum]
 
 
-RE_TINDERBOXPRINT = re.compile(r'.*TinderboxPrint: ?(?P<line>.*)$')
-
-RE_UPLOADED_TO = re.compile(
-    r"<a href=['\"](?P<url>http(s)?://.*)['\"]>(?P<value>.+)</a>: uploaded"
-)
-RE_LINK_HTML = re.compile(
-    (r"((?P<title>[A-Za-z/\.0-9\-_ ]+): )?"
-     r"<a .*href=['\"](?P<url>http(s)?://.+)['\"].*>(?P<value>.+)</a>")
-)
-RE_LINK_TEXT = re.compile(
-    r"((?P<title>[A-Za-z/\.0-9\-_ ]+): )?(?P<url>http(s)?://.*)"
-)
-
-TINDERBOX_REGEXP_TUPLE = (
-    {
-        're': RE_UPLOADED_TO,
-        'base_dict': {
-            "content_type": "link",
-            "title": "artifact uploaded"
-        },
-        'duplicates_fields': {}
-    },
-    {
-        're': RE_LINK_HTML,
-        'base_dict': {
-            "content_type": "link"
-        },
-        'duplicates_fields': {}
-    },
-    {
-        're': RE_LINK_TEXT,
-        'base_dict': {
-            "content_type": "link"
-        },
-        'duplicates_fields': {'value': 'url'}
-    }
-)
-
-
 class TinderboxPrintParser(ParserBase):
+
+    RE_TINDERBOXPRINT = re.compile(r'.*TinderboxPrint: ?(?P<line>.*)$')
+
+    RE_UPLOADED_TO = re.compile(
+        r"<a href=['\"](?P<url>http(s)?://.*)['\"]>(?P<value>.+)</a>: uploaded"
+    )
+    RE_LINK_HTML = re.compile(
+        (r"((?P<title>[A-Za-z/\.0-9\-_ ]+): )?"
+         r"<a .*href=['\"](?P<url>http(s)?://.+)['\"].*>(?P<value>.+)</a>")
+    )
+    RE_LINK_TEXT = re.compile(
+        r"((?P<title>[A-Za-z/\.0-9\-_ ]+): )?(?P<url>http(s)?://.*)"
+    )
+
+    TINDERBOX_REGEXP_TUPLE = (
+        {
+            're': RE_UPLOADED_TO,
+            'base_dict': {
+                "content_type": "link",
+                "title": "artifact uploaded"
+            },
+            'duplicates_fields': {}
+        },
+        {
+            're': RE_LINK_HTML,
+            'base_dict': {
+                "content_type": "link"
+            },
+            'duplicates_fields': {}
+        },
+        {
+            're': RE_LINK_TEXT,
+            'base_dict': {
+                "content_type": "link"
+            },
+            'duplicates_fields': {'value': 'url'}
+        }
+    )
 
     def __init__(self):
         """Setup the artifact to hold the job details."""
@@ -206,7 +202,7 @@ class TinderboxPrintParser(ParserBase):
 
     def parse_line(self, line, lineno):
         """Parse a single line of the log"""
-        match = RE_TINDERBOXPRINT.match(line) if line else None
+        match = self.RE_TINDERBOXPRINT.match(line) if line else None
         if match:
             line = match.group('line')
 
@@ -220,7 +216,7 @@ class TinderboxPrintParser(ParserBase):
                 })
                 return
 
-            for regexp_item in TINDERBOX_REGEXP_TUPLE:
+            for regexp_item in self.TINDERBOX_REGEXP_TUPLE:
                 match = regexp_item['re'].match(line)
                 if match:
                     artifact = match.groupdict()
@@ -251,60 +247,59 @@ RE_INFO = re.compile((
 ))
 
 
-IN_SEARCH_TERMS = (
-    "TEST-UNEXPECTED-",
-    "fatal error",
-    "FATAL ERROR",
-    "PROCESS-CRASH",
-    "Assertion failure:",
-    "Assertion failed:",
-    "###!!! ABORT:",
-    "E/GeckoLinker",
-    "SUMMARY: AddressSanitizer",
-    "SUMMARY: LeakSanitizer",
-    "Automation Error:",
-    "command timed out:",
-    "wget: unable ",
-)
-
-RE_ERR_MATCH = re.compile((
-    r"^error: TEST FAILED"
-    r"|^g?make(?:\[\d+\])?: \*\*\*"
-    r"|^Remote Device Error:"
-    r"|^[A-Za-z.]+Error: "
-    r"|^[A-Za-z.]*Exception: "
-    r"|^remoteFailed:"
-    r"|^rm: cannot "
-    r"|^abort:"
-    r"|^Output exceeded \d+ bytes"
-    r"|^The web-page 'stop build' button was pressed"
-    r"|.*\.js: line \d+, col \d+, Error -"
-    r"|^\[taskcluster\] Error:"
-))
-
-RE_ERR_SEARCH = re.compile((
-    r" error\(\d*\):"
-    r"|:\d+: error:"
-    r"| error R?C\d*:"
-    r"|ERROR [45]\d\d:"
-    r"|mozmake\.exe(?:\[\d+\])?: \*\*\*"
-))
-
-RE_EXCLUDE_1_SEARCH = re.compile(r"TEST-(?:INFO|PASS) ")
-
-RE_EXCLUDE_2_SEARCH = re.compile(
-    r"I[ /](Gecko|Robocop|TestRunner).*TEST-UNEXPECTED-"
-    r"|^TimeoutException: "
-    r"|^ImportError: No module named pygtk$"
-    )
-
-RE_ERR_1_MATCH = re.compile(r"^\d+:\d+:\d+ +(?:ERROR|CRITICAL|FATAL) - ")
-
-RE_MOZHARNESS_PREFIX = re.compile(r"^\d+:\d+:\d+ +(?:DEBUG|INFO|WARNING) - +")
-
-
 class ErrorParser(ParserBase):
     """A generic error detection sub-parser"""
+
+    IN_SEARCH_TERMS = (
+        "TEST-UNEXPECTED-",
+        "fatal error",
+        "FATAL ERROR",
+        "PROCESS-CRASH",
+        "Assertion failure:",
+        "Assertion failed:",
+        "###!!! ABORT:",
+        "E/GeckoLinker",
+        "SUMMARY: AddressSanitizer",
+        "SUMMARY: LeakSanitizer",
+        "Automation Error:",
+        "command timed out:",
+        "wget: unable ",
+    )
+
+    RE_ERR_MATCH = re.compile((
+        r"^error: TEST FAILED"
+        r"|^g?make(?:\[\d+\])?: \*\*\*"
+        r"|^Remote Device Error:"
+        r"|^[A-Za-z.]+Error: "
+        r"|^[A-Za-z.]*Exception: "
+        r"|^remoteFailed:"
+        r"|^rm: cannot "
+        r"|^abort:"
+        r"|^Output exceeded \d+ bytes"
+        r"|^The web-page 'stop build' button was pressed"
+        r"|.*\.js: line \d+, col \d+, Error -"
+        r"|^\[taskcluster\] Error:"
+    ))
+
+    RE_ERR_SEARCH = re.compile((
+        r" error\(\d*\):"
+        r"|:\d+: error:"
+        r"| error R?C\d*:"
+        r"|ERROR [45]\d\d:"
+        r"|mozmake\.exe(?:\[\d+\])?: \*\*\*"
+    ))
+
+    RE_EXCLUDE_1_SEARCH = re.compile(r"TEST-(?:INFO|PASS) ")
+
+    RE_EXCLUDE_2_SEARCH = re.compile(
+        r"I[ /](Gecko|Robocop|TestRunner).*TEST-UNEXPECTED-"
+        r"|^TimeoutException: "
+        r"|^ImportError: No module named pygtk$"
+        )
+
+    RE_ERR_1_MATCH = re.compile(r"^\d+:\d+:\d+ +(?:ERROR|CRITICAL|FATAL) - ")
+
+    RE_MOZHARNESS_PREFIX = re.compile(r"^\d+:\d+:\d+ +(?:DEBUG|INFO|WARNING) - +")
 
     def __init__(self):
         """A simple error detection sub-parser"""
@@ -318,21 +313,21 @@ class ErrorParser(ParserBase):
 
     def parse_line(self, line, lineno):
         """Check a single line for an error.  Keeps track of the linenumber"""
-        if RE_EXCLUDE_1_SEARCH.search(line):
+        if self.RE_EXCLUDE_1_SEARCH.search(line):
             return
 
-        if RE_ERR_1_MATCH.match(line):
+        if self.RE_ERR_1_MATCH.match(line):
             self.add(line, lineno)
             return
 
         # Remove mozharness prefixes prior to matching
-        trimline = re.sub(RE_MOZHARNESS_PREFIX, "", line)
+        trimline = re.sub(self.RE_MOZHARNESS_PREFIX, "", line)
 
-        if RE_EXCLUDE_2_SEARCH.search(trimline):
+        if self.RE_EXCLUDE_2_SEARCH.search(trimline):
             return
 
-        if any(term for term in IN_SEARCH_TERMS if term in trimline) or \
-                RE_ERR_MATCH.match(trimline) or RE_ERR_SEARCH.search(trimline):
+        if any(term for term in self.IN_SEARCH_TERMS if term in trimline) or \
+                self.RE_ERR_MATCH.match(trimline) or self.RE_ERR_SEARCH.search(trimline):
             self.add(line, lineno)
 
 
