@@ -210,12 +210,15 @@ logViewerApp.controller('LogviewerCtrl', [
                 });
             });
 
-            $log.debug(ThJobArtifactModel.get_uri());
-            ThJobArtifactModel.get_list({job_id: $scope.job_id, name: 'text_log_summary'})
-            .then(function(artifactList){
-                if(artifactList.length > 0){
-                    $scope.artifact = artifactList[0].blob;
-                }
+            ThJobArtifactModel.get_list({job_id: $scope.job_id, name__in: 'text_log_summary,Job Info'})
+            .then(function(artifactList) {
+                artifactList.forEach(function(artifact) {
+                    if (artifact.name === 'text_log_summary') {
+                        $scope.artifact = artifact.blob;
+                    } else if (artifact.name === 'Job Info') {
+                        $scope.job_details = artifact.blob.job_details;
+                    }
+                });
             });
         };
 

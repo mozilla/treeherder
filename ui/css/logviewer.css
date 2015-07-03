@@ -9,7 +9,7 @@ body {
     bottom: 0;
     left: 0;
     min-width: 240px;
-    padding-top: 15px;
+    padding-top: 10px;
     display: flex;
     flex-flow: column;
 }
@@ -64,9 +64,9 @@ body {
     width: 100%;
     flex: none;
     background-color: #FFF;
-    padding: 20px 5px 4px;
+    padding: 10px 5px;
     display: table-row;
-    font-size: 12px;
+    font-size: 11px;
 }
 
 .run-data .break-word{
@@ -98,7 +98,7 @@ body {
     -o-user-select: text;
     user-select: text;
     white-space: normal;
-    font-size: 12px;
+    font-size: 11px;
 }
 
 .logviewer-step.selected {
@@ -152,7 +152,7 @@ body {
     padding: 26px 0 0 20px;
     font-weight: bold;
     font-family: sans-serif;
-    font-size: 12px;
+    font-size: 11px;
 }
 
 .lv-log-msg-step {
@@ -173,7 +173,14 @@ body {
 .lv-log-error {
     border: 2px solid #ff0000;
 }
-.job-header{
-    max-height:270px;
-    overflow-y:auto;
+
+.job-header {
+    max-height: 240px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #ececec;
+}
+
+.job-header > table {
+    margin-bottom: 0;
 }
