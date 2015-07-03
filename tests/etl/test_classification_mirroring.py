@@ -44,12 +44,12 @@ def test_elasticsearch_doc_request_body(test_project, eleven_jobs_processed):
         "type": "B2G Emulator Image Build",
         "buildtype": "debug",
         "starttime": "1384353553",
-        "logfile": "00000000",
         "tree": "test_treeherder",
         "rev": "cdfe03e77e66",
         "bug": str(bug_id),
         "who": who,
         "timestamp": str(classification_timestamp),
+        "treeherder_job_id": job_id,
     }
     assert req.body == expected, diff(expected, req.body)
 

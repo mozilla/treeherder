@@ -62,7 +62,7 @@ class ElasticsearchDocRequest(object):
             "bug": str(self.bug_id),
             "who": self.who,
             "timestamp": str(self.classification_timestamp),
-            "logfile": "00000000"
+            "treeherder_job_id": self.job_id,
         }
 
     def send_request(self):
