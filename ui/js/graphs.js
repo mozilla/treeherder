@@ -298,10 +298,14 @@ perf.controller('GraphsCtrl', [
 
     function plotGraph() {
       // synchronize series visibility with flot, in case it's changed
+      var counter = 0;
       $scope.seriesList.forEach(function(series) {
+        console.log(series);
         series.flotSeries.points.show = series.visible;
         series.active = (!series.subtestSignatures || $scope.myMeasure === 'mean');
         series.blockColor = series.active ? series.color : "grey";
+        counter = counter + 1;
+        console.log(counter);
       });
 
       // reset highlights
@@ -689,6 +693,7 @@ perf.controller('GraphsCtrl', [
                   series[i].visible = true;
                   series[i].color = availableColors.pop();
                   $scope.seriesList.push(series[i]);
+                  console.log($scope.seriesList);
                   if (!$scope.highlightedRevision) {
                       $scope.highlightedRevision = '';                  
                   }
