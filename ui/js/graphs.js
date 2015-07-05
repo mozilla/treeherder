@@ -696,10 +696,10 @@ perf.controller('GraphsCtrl', [
                       $scope.zoom = {};
                   }
                   updateDocument();
-                  getSeriesData(series[i]).then(function() {
-                      plotGraph();                  
-                  });
               }
+              $q.all($scope.seriesList.map(getSeriesData)).then(function() {
+                  plotGraph();
+              });
             });
           };
         });
