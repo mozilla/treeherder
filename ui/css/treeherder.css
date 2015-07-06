@@ -57,6 +57,14 @@ input:focus::-moz-placeholder {
     padding: 0px;
 }
 
+.th-spinner {
+    color: rgba(145, 164, 221, 0.7);
+}
+
+.th-spinner-lg {
+    color: rgba(145, 164, 221, 0.3);
+}
+
 .th-navbar {
     background-color: #273038;
     margin-bottom: 0px;
