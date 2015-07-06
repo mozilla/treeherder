@@ -110,13 +110,15 @@ Ingesting a single push (at a time)
 
 Alternatively, instead of running a full ingestion task, you can process just
 the jobs associated with any single push generated in the last 4 hours
-(builds-4h_), in a synchronous manner. This is ideal for testing.
+(builds-4h_), in a synchronous manner. This is ideal for testing. For example:
 
   .. _builds-4h: http://builddata.pub.build.mozilla.org/buildjson/
 
   .. code-block:: bash
 
      (venv)vagrant@local:~/treeherder$ ./manage.py ingest_push mozilla-central 63f8a47cfdf5
+
+If running this locally, replace `63f8a47cfdf5` with a recent revision on mozilla-central.
 
 You can further restrict the amount of data to a specific type of job
 with the "--filter-job-group" parameter. For example, to process only

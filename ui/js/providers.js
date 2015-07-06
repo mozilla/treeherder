@@ -262,3 +262,13 @@ treeherder.provider('thAggregateIds', function() {
             };
     };
 });
+
+treeherder.provider('thReftestStatus', function() {
+    this.$get = function() {
+        return function(job) {
+            if (job.job_group_name) {
+                return (job.job_group_name.toLowerCase().indexOf('reftest') !== -1);
+            }
+        };
+    };
+});

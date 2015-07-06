@@ -137,6 +137,9 @@ class BugzillaCommentRequest(object):
 
         if buildapi_info:
             job_description['buildname'] = buildapi_info[0]["blob"]["buildername"]
+        else:
+            # make up a buildername for taskcluster jobs
+            job_description['buildname'] = 'non-buildbot %s test %s' % (job["platform"], job["job_type_name"])
 
         body_comment = '\n'.join(
             ["{0}: {1}".format(k, v) for k, v in job_description.items()])

@@ -501,7 +501,7 @@ perf.controller('GraphsCtrl', [
     function getSeriesData(series) {
       return $http.get(thServiceDomain + '/api/project/' +
                        series.projectName +
-                       '/performance-data/0/get_performance_data/' +
+                       '/performance-data/get_performance_data/' +
                        '?interval_seconds=' + $scope.myTimerange.value +
                        '&signatures=' + series.signature).then(
                          function(response) {
@@ -545,7 +545,7 @@ perf.controller('GraphsCtrl', [
       return $q.all(partialSeriesList.map(
         function(partialSeries) {
           return $http.get(thServiceDomain + '/api/project/' +
-                           partialSeries.project + '/performance-data/0/' +
+                           partialSeries.project + '/performance-data/' +
                            'get_signature_properties/?signatures=' +
                            partialSeries.signature).then(function(response) {
                              var data = response.data;

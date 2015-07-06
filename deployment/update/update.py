@@ -32,7 +32,7 @@ def pre_update(ctx, ref=settings.UPDATE_REF):
     with ctx.lcd(th_service_src):
         ctx.local('git fetch --quiet origin %s' % ref)
         ctx.local('git reset --hard FETCH_HEAD')
-        ctx.local('find . -type f \( -name "*.pyc" -o -name "*.c" -o -name "*.so" \) -delete')
+        ctx.local('find . -type f -name "*.pyc" -delete')
         ctx.local('git status -s')
         ctx.local('git rev-parse HEAD > treeherder/webapp/media/revision')
 
@@ -60,10 +60,8 @@ def update(ctx):
     with ctx.lcd(th_service_src):
         # Collect the static files (eg for the Persona or Django admin UI)
         ctx.local("python2.7 manage.py collectstatic --noinput")
-        # Rebuild the Cython code (eg the log parser)
-        ctx.local("python2.7 setup.py build_ext --inplace")
         # Update the database schema, if necessary.
-        ctx.local("python2.7 manage.py migrate")
+        ctx.local("python2.7 manage.py migrate --noinput")
         # Update reference data & tasks config from the in-repo fixtures.
         ctx.local("python2.7 manage.py load_initial_data")
         # Populate the datasource table and create the connected databases.

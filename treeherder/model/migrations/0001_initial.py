@@ -54,7 +54,6 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(serialize=False, primary_key=True)),
                 ('project', models.CharField(max_length=50L)),
                 ('contenttype', models.CharField(max_length=25L)),
-                ('dataset', models.IntegerField()),
                 ('host', models.CharField(max_length=128L)),
                 ('read_only_host', models.CharField(max_length=128L, blank=True)),
                 ('name', models.CharField(max_length=128L)),
@@ -149,21 +148,6 @@ class Migration(migrations.Migration):
             ],
             options={
                 'db_table': 'machine',
-            },
-            bases=(models.Model,),
-        ),
-        migrations.CreateModel(
-            name='MachineNote',
-            fields=[
-                ('id', models.AutoField(serialize=False, primary_key=True)),
-                ('author', models.CharField(max_length=50L)),
-                ('machine_timestamp', models.IntegerField()),
-                ('active_status', models.CharField(default='active', max_length=7L, blank=True)),
-                ('note', models.TextField(blank=True)),
-                ('machine', models.ForeignKey(to='model.Machine')),
-            ],
-            options={
-                'db_table': 'machine_note',
             },
             bases=(models.Model,),
         ),
@@ -278,20 +262,6 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
         ),
         migrations.CreateModel(
-            name='RepositoryVersion',
-            fields=[
-                ('id', models.AutoField(serialize=False, primary_key=True)),
-                ('version', models.CharField(max_length=50L)),
-                ('version_timestamp', models.IntegerField()),
-                ('active_status', models.CharField(default='active', max_length=7L, blank=True)),
-                ('repository', models.ForeignKey(to='model.Repository')),
-            ],
-            options={
-                'db_table': 'repository_version',
-            },
-            bases=(models.Model,),
-        ),
-        migrations.CreateModel(
             name='UserExclusionProfile',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
@@ -322,6 +292,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name='datasource',
-            unique_together=set([('project', 'dataset', 'contenttype'), ('host', 'name')]),
+            unique_together=set([('host', 'name'), ('project', 'contenttype')]),
         ),
     ]

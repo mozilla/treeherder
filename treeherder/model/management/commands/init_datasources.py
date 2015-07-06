@@ -49,7 +49,6 @@ Type 'yes' to continue, or 'no' to cancel: """)
             for contenttype in ("jobs", "objectstore"):
                 Datasource.objects.get_or_create(
                     contenttype=contenttype,
-                    dataset=1,
                     project=project,
                     host=options['host'],
                     read_only_host=options['readonly_host']

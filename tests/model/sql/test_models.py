@@ -5,26 +5,20 @@
 import datetime
 from contextlib import contextmanager
 
-dataset_num = 1
-
 
 def create_datasource(model, **kwargs):
     """Utility function to easily create a test DataSource."""
-    global dataset_num
 
     from django.conf import settings
 
     defaults = {
         "project": "foo",
-        "dataset": dataset_num,
         "contenttype": "jobs",
         "host": settings.TREEHERDER_DATABASE_HOST,
         "read_only_host": settings.TREEHERDER_RO_DATABASE_HOST,
         "type": "MySQL-InnoDB",
         "creation_date": datetime.datetime.now(),
     }
-
-    dataset_num += 1
 
     defaults.update(kwargs)
 
@@ -33,7 +27,6 @@ def create_datasource(model, **kwargs):
             [
                 defaults["project"],
                 defaults["contenttype"],
-                str(defaults["dataset"]),
             ]
         )
 

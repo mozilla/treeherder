@@ -154,11 +154,9 @@ class JobsModel(TreeherderModelBase):
             read_only_host = settings.DATABASES['read_only']['HOST']
 
         for ct in [cls.CT_JOBS, cls.CT_OBJECTSTORE]:
-            dataset = Datasource.get_latest_dataset(project, ct)
             source = Datasource(
                 project=project,
                 contenttype=ct,
-                dataset=dataset or 1,
                 host=host,
                 read_only_host=read_only_host,
             )
@@ -1827,8 +1825,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         result_sets = []
 
-        time_now = int(time.time())
-
         if log_placeholders:
             for index, log_ref in enumerate(log_placeholders):
                 job_guid = log_ref[0]
@@ -1839,7 +1835,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
                 # Replace job_guid with id
                 log_placeholders[index][0] = job_id
-                log_placeholders[index].append(time_now)
                 task = dict()
 
                 # a log can be submitted already parsed.  So only schedule
@@ -1929,13 +1924,12 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         )
         return data
 
-    def update_job_log_url_status(self, job_log_url_id,
-                                  parse_status, parse_timestamp):
+    def update_job_log_url_status(self, job_log_url_id, parse_status):
 
         self.jobs_execute(
             proc='jobs.updates.update_job_log_url',
             debug_show=self.DEBUG,
-            placeholders=[parse_status, parse_timestamp, job_log_url_id])
+            placeholders=[parse_status, job_log_url_id])
 
     def get_performance_series_from_signatures(self, signatures, interval_seconds):
 
@@ -2040,24 +2034,36 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
     def store_performance_series(
             self, t_range, series_type, signature, series_data):
 
-        lock_string = "sps_{0}_{1}_{2}".format(
-            t_range, series_type, signature)
-
-        # Use MySQL GETLOCK function to gaurd against concurrent celery tasks
+        # Use MySQL GETLOCK function to guard against concurrent celery tasks
         # overwriting each other's blobs. The lock incorporates the time
         # interval and signature combination and is specific to a single
         # json blob.
-        lock = self.jobs_execute(
-            proc='generic.locks.get_lock',
-            debug_show=self.DEBUG,
-            placeholders=[lock_string, 60])
+        lock_string = "sps_{0}_{1}_{2}".format(
+            t_range, series_type, signature)
+        lock_timeout = settings.PERFHERDER_UPDATE_SERIES_LOCK_TIMEOUT
 
-        if lock[0]['lock'] != 1:
+        # first, wait for lock to become free
+        started = time.time()
+        while time.time() < (started + lock_timeout):
+            is_lock_free = bool(self.jobs_execute(
+                proc='generic.locks.is_free_lock',
+                debug_show=self.DEBUG,
+                placeholders=[lock_string])[0]['lock'])
+            if is_lock_free:
+                break
+            time.sleep(0.1)
+        if not is_lock_free:
             logger.error(
                 'store_performance_series lock_string, '
                 '{0}, timed out!'.format(lock_string)
             )
             return
+
+        # now, acquire the lock
+        self.jobs_execute(
+            proc='generic.locks.get_lock',
+            debug_show=self.DEBUG,
+            placeholders=[lock_string])
 
         try:
             now_timestamp = int(time.time())

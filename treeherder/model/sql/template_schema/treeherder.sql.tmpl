@@ -45,18 +45,15 @@ DROP TABLE IF EXISTS `datasource`;
  *            This string becomes the location field in the url for related web service methods.
  *
  *  contenttype - A string describing the content type associated with the database.
- *              jobs in project_jobs_1.sql.tmpl, reference in treeherder_reference_1.sql.tmpl
+ *              jobs in project_jobs.sql.tmpl, reference in treeherder_reference_1.sql.tmpl
  *              A project can have any number of contenttypes associated with it.
- *
- *  dataset -  An integer that can be enumerated. This allows more than one database to exist
- *             for the same project/contenttype pair.
  *
  *  host - Name of the database host.
  *
  *  read_only_host - A read only host associated with the database.
  *
- *  name - Name of the database. Can be anything but typically project_conenttype_dataset. So,
- *         try_jobs_1 or mozillaaurora_jobs_1.
+ *  name - Name of the database. Can be anything but typically project_contenttype. So,
+ *         try_jobs or mozillaaurora_jobs.
  *
  *  type - Type of storage engine associated with the database. This is automatically added
  *         to the template schema when a user runs a manage command that creates a database
@@ -76,7 +73,6 @@ CREATE TABLE `datasource` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `project` varchar(50) COLLATE utf8_bin NOT NULL,
   `contenttype` varchar(25) COLLATE utf8_bin NOT NULL,
-  `dataset` int(11) NOT NULL,
   `host` varchar(128) COLLATE utf8_bin NOT NULL,
   `read_only_host` varchar(128) COLLATE utf8_bin DEFAULT NULL,
   `name` varchar(128) COLLATE utf8_bin NOT NULL,
@@ -85,7 +81,7 @@ CREATE TABLE `datasource` (
   `oauth_consumer_secret` varchar(45) COLLATE utf8_bin DEFAULT NULL,
   `creation_date` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `project` (`project`,`dataset`,`contenttype`)
+  UNIQUE KEY `project` (`project`,`contenttype`)
 ) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

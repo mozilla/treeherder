@@ -12,7 +12,6 @@ import pytest
 from django.core.management import call_command
 from webtest.app import TestApp
 import responses
-import time
 
 from tests.sampledata import SampleData
 from treeherder.etl.oauth_utils import OAuthCredentials
@@ -96,7 +95,7 @@ def pytest_runtest_teardown(item):
     for ds in ds_list:
         ds.delete()
 
-    call_command("migrate", 'model', '0001_initial')
+    call_command("migrate", 'model', '0001_initial', interactive=False)
 
 
 def increment_cache_key_prefix():
@@ -166,7 +165,6 @@ def jobs_ds():
     from treeherder.model.models import Datasource
     return Datasource.objects.create(
         project=settings.DATABASES["default"]["TEST_NAME"],
-        dataset=1,
         contenttype="jobs",
         host=settings.TREEHERDER_DATABASE_HOST,
         read_only_host=settings.TREEHERDER_RO_DATABASE_HOST,
@@ -179,7 +177,6 @@ def objectstore_ds():
     from treeherder.model.models import Datasource
     return Datasource.objects.create(
         project=settings.DATABASES["default"]["TEST_NAME"],
-        dataset=1,
         contenttype="objectstore",
         host=settings.TREEHERDER_DATABASE_HOST,
         read_only_host=settings.TREEHERDER_RO_DATABASE_HOST,
@@ -382,10 +379,11 @@ def mock_post_collection(monkeypatch, set_oauth_credentials):
                          collection_inst, timeout=None):
 
         jsondata = collection_inst.to_json()
-        signed_uri = th_client._get_uri(project, collection_inst.endpoint_base,
-                                        data=jsondata, oauth_key=oauth_key,
-                                        oauth_secret=oauth_secret,
-                                        method='POST')
+        signed_uri = th_client._get_project_uri(project,
+                                                collection_inst.endpoint_base,
+                                                data=jsondata, oauth_key=oauth_key,
+                                                oauth_secret=oauth_secret,
+                                                method='POST')
         getattr(TestApp(application), 'post')(
             signed_uri,
             params=jsondata,
@@ -399,12 +397,9 @@ def mock_post_collection(monkeypatch, set_oauth_credentials):
 @pytest.fixture
 def mock_update_parse_status(monkeypatch, set_oauth_credentials):
     def _update_parse_status(th_client, project, oauth_key, oauth_secret,
-                             job_log_url_id, parse_status, timestamp=None):
-        if timestamp is None:
-            timestamp = time.time()
-        jsondata = json.dumps({'parse_status': parse_status,
-                               'parse_timestamp': timestamp})
-        signed_uri = th_client._get_uri(
+                             job_log_url_id, parse_status):
+        jsondata = json.dumps({'parse_status': parse_status})
+        signed_uri = th_client._get_project_uri(
             project,
             th_client.UPDATE_ENDPOINT.format(job_log_url_id),
             data=jsondata, oauth_key=oauth_key, oauth_secret=oauth_secret,

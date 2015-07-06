@@ -391,7 +391,7 @@ th-watched-repo {
 
 .revision > a:first-child {
     float: left;
-    padding-top: 1px;
+    padding-top: 2px;
     padding-right: 11px;
     font: 11px "Lucida Console",Monaco,monospace;
 }
@@ -986,6 +986,7 @@ ul.failure-summary-list li .btn-xs {
 
 .classification-comment-container {
     margin-top: 5px;
+    height: 20px;
 }
 
 .classification-comment-preload-txt {

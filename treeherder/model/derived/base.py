@@ -149,18 +149,11 @@ class TreeherderModelBase(object):
 
     def _get_datasource(self, contenttype):
         """Find the datasource for this contenttype in the cache."""
-        candidate_sources = []
-        for source in Datasource.objects.cached():
-            if (source.project == self.project and
-                    source.contenttype == contenttype):
-                candidate_sources.append(source)
-
-        if not candidate_sources:
+        try:
+            return next(source for source in Datasource.objects.cached()
+                        if source.project == self.project and source.contenttype == contenttype)
+        except StopIteration:
             raise DatasetNotFoundError(self.project, contenttype)
-
-        candidate_sources.sort(key=lambda s: s.dataset, reverse=True)
-
-        return candidate_sources[0]
 
 
 @python_2_unicode_compatible

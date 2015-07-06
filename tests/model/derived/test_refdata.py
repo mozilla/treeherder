@@ -4,28 +4,12 @@
 
 import os
 import time
-import urllib2
 import json
 from datetime import datetime, timedelta
 
 import pytest
-from mock import Mock
-from django.core.management import call_command
 
-from treeherder.model.models import (RepositoryGroup,
-                                     Repository, RepositoryVersion)
-
-
-@pytest.fixture
-def mock_urllib():
-    """this mocks urllib to avoid hitting the network
-    when retrieving the hg version file"""
-    mock = Mock()
-    mock.return_value = (
-        '#just comments',
-        'latest version'
-    )
-    urllib2.urlopen = mock
+from treeherder.model.models import RepositoryGroup, Repository
 
 
 @pytest.fixture
@@ -43,21 +27,6 @@ def repository_id():
     repo = Repository.objects.create(**repo_args)
     return repo.id
 
-
-@pytest.fixture
-def old_version_repository(repository_id):
-    version = RepositoryVersion.objects.create(repository_id=repository_id,
-                                               version='1.0',
-                                               version_timestamp=time.time())
-    return repository_id, version.id
-
-
-@pytest.fixture
-def latest_version_repository(repository_id):
-    version = RepositoryVersion.objects.create(repository_id=repository_id,
-                                               version='latest version',
-                                               version_timestamp=time.time())
-    return repository_id, version.id
 
 time_now = int(time.time())
 test_params = [
@@ -305,25 +274,6 @@ def test_add_job_type(refdata):
     assert row_data == expected
 
 
-def test_get_or_create_repository_version(refdata, repository_id):
-
-    id = refdata.get_or_create_repository_version(
-        repository_id, 'v1.0', 1367248930.235682)
-
-    row_data = refdata.dhub.execute(
-        proc='refdata_test.selects.test_repository_version',
-        placeholders=[id],
-        return_type='iter'
-    )
-
-    refdata.disconnect()
-
-    assert row_data.get_column_data('repository_id') == repository_id
-    assert row_data.get_column_data('version') == 'v1.0'
-    assert row_data.get_column_data('version_timestamp') == 1367248930
-    assert row_data.get_column_data('active_status') == 'active'
-
-
 def test_get_repository_info(refdata, repository_id):
     """test get_repository_info retrieves the right informations"""
 
@@ -343,79 +293,6 @@ def test_get_repository_info(refdata, repository_id):
 
     for k, v in expected.items():
         assert info[k] == v
-
-
-def test_get_hg_repository_version(refdata, mock_urllib):
-    version = refdata.get_hg_repository_version("https://hg.mozilla.org/mozilla-central")
-
-    refdata.disconnect()
-
-    assert version == 'latest version'
-
-
-def test_update_repo_version_if_old(refdata, old_version_repository, mock_urllib):
-    """test repo version is updated if a new one is available"""
-    repo_id, old_version = old_version_repository
-
-    refdata.update_repository_version(repo_id)
-
-    updated_version = refdata.get_repository_version_id(repo_id)
-
-    refdata.disconnect()
-
-    assert old_version != updated_version
-
-
-def test_update_repo_version_unchanged(refdata, latest_version_repository, mock_urllib):
-    """Test version is kept and version_timestamp updated if the version is unchanged."""
-
-    time_now = time.time()
-    repo_id, last_version = latest_version_repository
-    refdata.update_repository_version(repo_id)
-
-    updated_version = refdata.get_repository_version_id(repo_id)
-
-    row_data = refdata.dhub.execute(
-        proc='refdata_test.selects.test_repository_version',
-        placeholders=[updated_version],
-        return_type='iter'
-    )
-
-    refdata.disconnect()
-
-    assert row_data.get_column_data('version') == 'latest version'
-    assert row_data.get_column_data('version_timestamp') >= long(time_now)
-
-
-def test_update_repo_version_command(refdata, old_version_repository, initial_data, mock_urllib):
-    """Test the django command extension update_repository_version without filters."""
-
-    repo_id, old_version = old_version_repository
-
-    call_command('update_repository_version')
-
-    updated_version = refdata.get_repository_version_id(repo_id)
-
-    refdata.disconnect()
-
-    assert old_version < updated_version
-
-
-def test_update_repo_version_command_with_filters(refdata, old_version_repository, initial_data, mock_urllib):
-    """Test the django command extension update_repository_version using filters."""
-
-    repo_id, old_version = old_version_repository
-
-    call_command('update_repository_version',
-                 repo_name='mozilla-central',
-                 group_name='mygroup',
-                 codebase='gecko')
-
-    updated_version = refdata.get_repository_version_id(repo_id)
-
-    refdata.disconnect()
-
-    assert old_version < updated_version
 
 
 @pytest.fixture

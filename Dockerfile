@@ -12,5 +12,4 @@ COPY ./requirements/common.txt /app/requirements.txt
 COPY ./docker/etc/profile.d/treeherder.sh /etc/profile.d/treeherder.sh
 COPY . /app
 RUN ./bin/peep.py install -r requirements.txt
-RUN ./setup.py build_ext --inplace
 RUN mkdir -p /var/log/gunicorn && mkdir -p /var/log/treeherder/

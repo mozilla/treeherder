@@ -14,7 +14,7 @@ from datasource.hubs.MySQL import MySQL
 from django.conf import settings
 from django.core.cache import cache
 from django.db import models, connection
-from django.db.models import Max, Q
+from django.db.models import Q
 from django.contrib.auth.models import User
 from django.utils.encoding import python_2_unicode_compatible
 from warnings import filterwarnings, resetwarnings
@@ -161,23 +161,6 @@ class Machine(models.Model):
         return self.name
 
 
-@python_2_unicode_compatible
-class MachineNote(models.Model):
-    id = models.AutoField(primary_key=True)
-    machine = models.ForeignKey(Machine)
-    author = models.CharField(max_length=50L)
-    machine_timestamp = models.IntegerField()
-    active_status = models.CharField(max_length=7L, blank=True, default='active')
-    note = models.TextField(blank=True)
-
-    class Meta:
-        db_table = 'machine_note'
-
-    def __str__(self):
-        return "Note {0} on {1} by {2}".format(
-            self.id, self.machine, self.author)
-
-
 class DatasourceManager(models.Manager):
 
     def cached(self):
@@ -191,23 +174,12 @@ class DatasourceManager(models.Manager):
             cache.set(SOURCES_CACHE_KEY, sources)
         return sources
 
-    def latest(self, project, contenttype):
-        """
-        @@@ TODO: this needs to use the cache, probably
-        """
-        ds = Datasource.get_latest_dataset(project, contenttype)
-        return self.get(
-            project=project,
-            contenttype=contenttype,
-            dataset=ds)
-
 
 @python_2_unicode_compatible
 class Datasource(models.Model):
     id = models.AutoField(primary_key=True)
     project = models.CharField(max_length=50L)
     contenttype = models.CharField(max_length=25L)
-    dataset = models.IntegerField()
     host = models.CharField(max_length=128L)
     read_only_host = models.CharField(max_length=128L, blank=True)
     name = models.CharField(max_length=128L)
@@ -220,10 +192,10 @@ class Datasource(models.Model):
 
     class Meta:
         db_table = 'datasource'
-        unique_together = [
-            ["project", "dataset", "contenttype"],
-            ["host", "name"],
-        ]
+        unique_together = (
+            ("project", "contenttype"),
+            ("host", "name"),
+        )
 
     @classmethod
     def reset_cache(cls):
@@ -231,49 +203,14 @@ class Datasource(models.Model):
         cache.delete(REPOSITORY_LIST_CACHE_KEY)
         cls.objects.cached()
 
-    @classmethod
-    def get_latest_dataset(cls, project, contenttype):
-        """get the latest dataset"""
-        return cls.objects.filter(
-            project=project,
-            contenttype=contenttype,
-        ).aggregate(Max("dataset"))["dataset__max"]
-
     @property
     def key(self):
-        """Unique key for a data source is the project, contenttype, dataset."""
-        return "{0} - {1} - {2}".format(
-            self.project, self.contenttype, self.dataset)
+        """Unique key for a data source is the project and contenttype."""
+        return "{} - {}".format(self.project, self.contenttype)
 
     def __str__(self):
         """Unicode representation is the project's unique key."""
         return unicode(self.key)
-
-    def create_next_dataset(self, schema_file=None):
-        """
-        Create and return the next dataset for this project/contenttype.
-
-        The database for the new dataset will be located on the same host.
-
-        """
-        dataset = Datasource.objects.filter(
-            project=self.project,
-            contenttype=self.contenttype
-        ).order_by("-dataset")[0].dataset + 1
-
-        # @@@ should we store the schema file name used for the previous
-        # dataset in the db and use the same one again automatically? or should
-        # we actually copy the schema of an existing dataset rather than using
-        # a schema file at all?
-        return Datasource.objects.create(
-            project=self.project,
-            contenttype=self.contenttype,
-            dataset=dataset,
-            host=self.datasource.host,
-            read_only_host=self.datasource.read_only_host,
-            db_type=self.datasource.type,
-            schema_file=schema_file,
-        )
 
     def save(self, *args, **kwargs):
         inserting = not self.pk
@@ -281,10 +218,9 @@ class Datasource(models.Model):
         # a pk, set force_insert=True when you save
         if inserting or kwargs.get('force_insert', False):
             if not self.name:
-                self.name = "{0}_{1}_{2}".format(
+                self.name = "{}_{}".format(
                     self.project.replace("-", "_"),
                     self.contenttype,
-                    self.dataset
                 )
 
             # a database name cannot contain the dash character
@@ -386,7 +322,7 @@ class Datasource(models.Model):
                 "model",
                 "sql",
                 "template_schema",
-                "project_{0}_1.sql.tmpl".format(self.contenttype),
+                "project_{}.sql.tmpl".format(self.contenttype),
             )
 
         filterwarnings('ignore', category=MySQLdb.Warning)
@@ -451,22 +387,6 @@ class JobGroup(models.Model):
 
 
 @python_2_unicode_compatible
-class RepositoryVersion(models.Model):
-    id = models.AutoField(primary_key=True)
-    repository = models.ForeignKey(Repository)
-    version = models.CharField(max_length=50L)
-    version_timestamp = models.IntegerField()
-    active_status = models.CharField(max_length=7L, blank=True, default='active')
-
-    class Meta:
-        db_table = 'repository_version'
-
-    def __str__(self):
-        return "{0} version {1}".format(
-            self.repository, self.version)
-
-
-@python_2_unicode_compatible
 class OptionCollection(models.Model):
     id = models.AutoField(primary_key=True)
     option_collection_hash = models.CharField(max_length=40L)
@@ -474,7 +394,7 @@ class OptionCollection(models.Model):
 
     class Meta:
         db_table = 'option_collection'
-        unique_together = ['option_collection_hash', 'option']
+        unique_together = ('option_collection_hash', 'option')
 
     def __str__(self):
         return "{0}".format(self.option)
