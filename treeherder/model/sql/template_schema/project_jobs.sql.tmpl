@@ -504,7 +504,6 @@ CREATE TABLE `revision` (
   `author` varchar(150) COLLATE utf8_bin NOT NULL,
   `comments` text DEFAULT NULL,
   `commit_timestamp` int(11) unsigned default NULL,
-  `files` mediumtext COLLATE utf8_bin,
   `repository_id` int(11) unsigned NOT NULL,
   `active_status` enum('active','onhold','deleted') COLLATE utf8_bin DEFAULT 'active',
   PRIMARY KEY (`id`),

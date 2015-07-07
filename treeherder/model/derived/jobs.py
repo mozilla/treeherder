@@ -2279,7 +2279,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
              "author": "some-sheriff@mozilla.com",
              "revisions": [
                 {
-                    "files": ["js/src/TraceLogging.h"],
                     "comment": "Bug 911954 - Add forward declaration of JSScript to TraceLogging.h, r=h4writer",
                     "repository": "test_treeherder",
                     "author": "John Doe <jdoe@mozilla.com>",
@@ -2349,18 +2348,11 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     'comment', None
                 )
 
-                # Convert the file list to a comma delimited string
-                file_list = rev_datum.get(
-                    'files', []
-                )
-                file_str = ','.join(file_list)
-
                 repository_id = repository_id_lookup[rev_datum['repository']]
                 revision_placeholders.append(
                     [rev_datum['revision'],
                      rev_datum['author'],
                      comment,
-                     file_str,
                      commit_timestamp,
                      repository_id,
                      rev_datum['revision'],

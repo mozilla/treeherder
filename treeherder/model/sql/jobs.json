@@ -156,11 +156,10 @@
                     `revision`,
                     `author`,
                     `comments`,
-                    `files`,
                     `commit_timestamp`,
                     `repository_id`
                     )
-                SELECT ?,?,?,?,?,?
+                SELECT ?,?,?,?,?
                 FROM DUAL
                 WHERE NOT EXISTS (
                     SELECT `revision`

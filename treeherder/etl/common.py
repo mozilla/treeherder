@@ -211,7 +211,6 @@ def get_not_found_onhold_push(url, revision):
             "changesets": [
                 {
                     "node": revision,
-                    "files": [],
                     "tags": [],
                     "author": "Unknown",
                     "branch": "default",

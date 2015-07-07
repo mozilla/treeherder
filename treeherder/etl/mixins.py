@@ -90,11 +90,6 @@ class ResultSetsLoaderMixin(JsonLoaderMixin):
                 "revisions": [
                     {
                         "id": "d62d628d5308f2b9ee81be755140d77f566bb400",
-                        "files": [
-                            "file1",
-                            "file2",
-                            "file3"
-                        ],
                         "author": "Mauro Doglio <mdoglio@mozilla.com>",
                         "branch": "default",
                         "comment":" Lorem ipsum dolor sit amet, consectetur adipiscing elit.",

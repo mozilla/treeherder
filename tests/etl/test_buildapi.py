@@ -302,9 +302,6 @@ def _do_missing_resultset_test(jm, etl_process):
             "changesets": [
                 {
                     "node": new_revision + "b344655ed7be9a408d2970a736c4",
-                    "files": [
-                        "browser/base/content/browser.js"
-                    ],
                     "tags": [],
                     "author": "John Doe <jdoe@mozilla.com>",
                     "branch": "default",

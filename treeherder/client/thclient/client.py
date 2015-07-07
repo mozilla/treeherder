@@ -362,7 +362,6 @@ class TreeherderRevision(TreeherderData, ValidatorMixin):
         self.required_properties = {
             'revision': {'len': 50, 'cb': self.validate_existence},
             'repository': {'cb': self.validate_existence},
-            'files': {'type': list, 'cb': self.validate_existence},
             }
 
     def init_data(self):
@@ -372,8 +371,6 @@ class TreeherderRevision(TreeherderData, ValidatorMixin):
             'author': '',
             # Stored in project_jobs_1.revision.comments
             'comment': '',
-            # Stored in project_jobs_1.revision.files
-            'files': [],
             # Stored in treeherder_reference_1.repository.name
             'repository': '',
             # Stored in project_jobs_1.revision.revision
@@ -385,14 +382,6 @@ class TreeherderRevision(TreeherderData, ValidatorMixin):
 
     def add_comment(self, comment):
         self.data['comment'] = comment
-
-    def add_files(self, files):
-        if files:
-            self.data['files'] = files
-
-    def add_file(self, src_file):
-        if src_file:
-            self.data['files'].append(src_file)
 
     def add_repository(self, repository):
         self.data['repository'] = repository

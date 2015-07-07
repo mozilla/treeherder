@@ -46,7 +46,6 @@ class HgPushlogTransformerMixin(object):
                 # because buildapi doesn't provide the long one
                 # and we need to match it
                 revision['revision'] = change['node'][0:12]
-                revision['files'] = change['files']
                 revision['author'] = change['author']
                 revision['branch'] = change['branch']
                 revision['comment'] = change['desc']
