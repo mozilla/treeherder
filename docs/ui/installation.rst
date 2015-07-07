@@ -1,8 +1,3 @@
-Requirements
-============
-
-* Node.js_
-
 Installation
 ============
 
@@ -17,6 +12,7 @@ Cloning the Repo
 Running the web-server
 ----------------------
 
+* Install `Node.js`_ if not present.
 * Open a shell, cd into the root of the repository you just cloned and type:
 
   .. code-block:: bash
