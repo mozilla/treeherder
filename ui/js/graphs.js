@@ -242,6 +242,14 @@ perf.controller('GraphsCtrl', [
         series.flotSeries.points.show = series.visible;
         series.flotSeries.lines.show = false;
       });
+      
+      $("#overview-plot").bind("plotunselected", function() {
+        $scope.zoom = {};
+        $scope.selectedDataPoint = null;
+        hideTooltip();
+        updateDocument();
+        plotGraph();
+      });  
 
       $("#overview-plot").bind("plotselected", function (event, ranges) {
         deselectDataPoint();
