@@ -2,11 +2,13 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
+import re
 from whitenoise.django import DjangoWhiteNoise
 
 
 class CustomWhiteNoise(DjangoWhiteNoise):
 
+    IMMUTABLE_FILE_RE = r'\.min-[a-f0-9]{6,}\.(js|css)$'
     INDEX_NAME = 'index.html'
 
     def add_files(self, *args, **kwargs):
@@ -27,3 +29,10 @@ class CustomWhiteNoise(DjangoWhiteNoise):
         if url[-1] == '/':
             url += self.INDEX_NAME
         return super(CustomWhiteNoise, self).find_file(url)
+
+    def is_immutable_file(self, path, url):
+        # The default method only works with Django static files that use the
+        # CachedStaticFilesStorage naming scheme, whereas grunt-cache-busting
+        # uses a different scheme (eg index.min-feae259e2c205af67b0e91306f9363fa.js).
+        match = re.search(self.IMMUTABLE_FILE_RE, url)
+        return True if match else False
