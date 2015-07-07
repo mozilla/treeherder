@@ -1,0 +1,36 @@
+{
+  "id":           "https://treeherder.mozilla.org/schemas/v1/resultset-action-message.json#",
+  "$schema":      "http://json-schema.org/draft-04/schema#",
+  "title":        "Notification of a resultset trigger",
+  "description":  "Event is dispatched when user/service issues a fill_in on a resultset",
+  "type":         "object",
+  "properties": {
+    "version": {
+      "title":                "Message-format version",
+      "enum":                 [1]
+    },
+    "project": {
+      "title":                "Project Name",
+      "description":          "Identifier for treeherder project, like `try` or `mozilla-central`.",
+      "type":                 "string"
+    },
+    "resultset_id": {
+      "title":                "Resultset ID",
+      "description":          "Project unique identifier for a resultset",
+      "type":                 "string"
+    },
+    "action": {
+      "title":                "Action",
+      "description":          "Type of action issued on task",
+      "enum":                 ["fill_in"],
+      "type":                 "string"
+    },
+    "requester": {
+      "title":                "Requester",
+      "description":          "The requester of the action (usually an email)",
+      "type":                 "string"
+    }
+  },
+  "additionalProperties":     true,
+  "required": ["version", "resultset_id", "project", "action", "requester"]
+}

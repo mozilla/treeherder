@@ -26,6 +26,7 @@ from treeherder.model.models import (Datasource,
 from treeherder.model import utils, error_summary
 from treeherder.model.tasks import (publish_resultset,
                                     publish_job_action,
+                                    publish_resultset_action,
                                     populate_error_summary)
 
 from treeherder.events.publisher import JobStatusPublisher
@@ -307,6 +308,12 @@ class JobsModel(TreeherderModelBase):
             status_publisher.publish(job_guids, self.project, 'processed')
         finally:
             status_publisher.disconnect()
+
+    def fill_all_revision_jobs(self, requester, resultset_id, project):
+        publish_resultset_action.apply_async(
+            args=[self.project, "fill_in", resultset_id, requester],
+            routing_key='publish_to_pulse'
+        )
 
     def _job_action_event(self, job, action, requester):
         """

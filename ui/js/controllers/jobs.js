@@ -205,6 +205,19 @@ treeherderApp.controller('ResultSetCtrl', [
             });
         };
 
+        $scope.fillAllJobs = function(revision) {
+            if (!window.confirm('This will trigger all jobs for revision ' + revision + '!\n\nAre you sure?')) {
+                return;
+            }
+
+            ThResultSetModel.fillAll($scope.resultset.id, $scope.repoName).catch(function(e) {
+                thNotify.send(
+                    ThModelErrors.format(e, "Failed to fill all jobs"),
+                    'danger', true
+                );
+            });
+        };
+
         $scope.revisionResultsetFilterUrl = $scope.urlBasePath + "?repo=" +
                                             $scope.repoName + "&revision=" +
                                             $scope.resultset.revision;

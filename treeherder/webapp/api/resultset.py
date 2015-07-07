@@ -133,6 +133,22 @@ class ResultSetViewSet(viewsets.ViewSet):
         except Exception as ex:
             return Response("Exception: {0}".format(ex), 404)
 
+    @action(permission_classes=[IsAuthenticated])
+    @with_jobs
+    def fill_all(self, request, project, jm, pk=None):
+        """
+        Fill all the jobs in this resultset
+        """
+        if not pk:
+            return Response({"message": "resultset id required"}, status=400)
+
+        try:
+            jm.fill_all_revision_jobs(request.user.email, pk, project)
+            return Response({"message": "jobs triggered to be filled in for resultset '{0}' and branch '{1}'".format(pk, project)})
+
+        except Exception as ex:
+            return Response("Exception: {0}".format(ex), 404)
+
     @with_jobs
     @oauth_required
     def create(self, request, project, jm):
