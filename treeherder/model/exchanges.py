@@ -32,6 +32,26 @@ class TreeherderPublisher(PulsePublisher):
         schema="https://treeherder.mozilla.org/schemas/v1/resultset-message.json#"
     )
 
+    resultset_action = Exchange(
+        exchange="resultset-actions",
+        title="Actions issued by resultset",
+        description="""
+            There are actions which can be done to a resultset
+            (eg: trigger_missing_jobs), they are published on this exchange
+        """,
+        routing_keys=[
+            Key(
+                name='project',
+                summary="Project (or branch) that this result-set belongs to"
+            ),
+            Key(
+                name="action",
+                summary="Type of action issued (i.e. trigger_missing_jobs)"
+            ),
+        ],
+        schema="https://treeherder.mozilla.org/schemas/v1/resultset-action-message.json#"
+    )
+
     job_action = Exchange(
         exchange="job-actions",
         title="Actions issued by jobs",

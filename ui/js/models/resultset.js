@@ -191,6 +191,11 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location', '$q'
         cancelAll: function(resultset_id, repoName) {
             var uri = resultset_id + '/cancel_all/';
             return $http.post(thUrl.getProjectUrl("/resultset/", repoName) + uri);
+        },
+
+        triggerMissingJobs: function(resultset_id, repoName) {
+            var uri = resultset_id + '/trigger_missing_jobs/';
+            return $http.post(thUrl.getProjectUrl("/resultset/", repoName) + uri);
         }
     };
 }]);

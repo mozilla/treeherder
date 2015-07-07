@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import detail_route
 from rest_framework.reverse import reverse
 from rest_framework.permissions import IsAuthenticated
+from treeherder.webapp.api.permissions import IsStaffOrReadOnly
 from treeherder.model.derived import DatasetNotFoundError
 from treeherder.webapp.api.utils import (UrlQueryFilter, with_jobs,
                                          oauth_required,
@@ -129,6 +130,22 @@ class ResultSetViewSet(viewsets.ViewSet):
         try:
             jm.cancel_all_resultset_jobs(request.user.email, pk)
             return Response({"message": "pending and running jobs canceled for resultset '{0}'".format(pk)})
+
+        except Exception as ex:
+            return Response("Exception: {0}".format(ex), 404)
+
+    @detail_route(methods=['post'], permission_classes=[IsStaffOrReadOnly])
+    @with_jobs
+    def trigger_missing_jobs(self, request, project, jm, pk=None):
+        """
+        Trigger jobs that are missing in a resultset.
+        """
+        if not pk:
+            return Response({"message": "resultset id required"}, status=400)
+
+        try:
+            jm.trigger_missing_resultset_jobs(request.user.email, pk, project)
+            return Response({"message": "Missing jobs triggered for push '{0}'".format(pk)})
 
         except Exception as ex:
             return Response("Exception: {0}".format(ex), 404)
