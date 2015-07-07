@@ -15,13 +15,10 @@ browserid_admin.copy_registry(admin.site)
 urlpatterns = patterns('',
                        url(r'^api/', include(api_urls)),
                        url(r'^embed/', include(embed_urls)),
+                       url(r'^admin/', include(browserid_admin.urls)),
+                       url(r'^docs/', include('rest_framework_swagger.urls')),
+                       url(r'', include('django_browserid.urls')),
+                       # Redirect all requests on / to /index.html, where they
+                       # will be served by WhiteNoise.
+                       url(r'^$', RedirectView.as_view(url='index.html'))
                        )
-
-urlpatterns += patterns('',
-                        url(r'^admin/', include(browserid_admin.urls)),
-                        url(r'^docs/', include('rest_framework_swagger.urls')),
-                        url(r'', include('django_browserid.urls')),
-                        # Redirect all requests on / to /index.html, where they
-                        # will be served by WhiteNoise.
-                        url(r'^$', RedirectView.as_view(url='index.html'))
-                        )
