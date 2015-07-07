@@ -843,5 +843,18 @@
         "repository_group": 4,
         "description": "A suite of tests to check the quality of the BMO codebase."
     }
+},
+{
+    "pk": 69,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "hg",
+        "name": "mozilla-b2g37_v2_2r",
+        "url": "https://hg.mozilla.org/releases/mozilla-b2g37_v2_2r",
+        "active_status": "active",
+        "codebase": "gecko",
+        "repository_group": 2,
+        "description": ""
+    }
 }
 ]
