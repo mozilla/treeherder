@@ -78,6 +78,7 @@
         </p>
         <p ng-hide="tooltipContent.revision">Loading revision...</p>
         <p id="tt-t" class="small" ng-bind="tooltipContent.date"></p>
+        <p id="tt-v" ng-show="tooltipContent.retriggered > 0">Retriggered: {{tooltipContent.retriggered}}</p>
       </div>
       <span ng-hide="selectedDataPoint">Click to lock</span>
       <span ng-show="selectedDataPoint">&nbsp;</span>
