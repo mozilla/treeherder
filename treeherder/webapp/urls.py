@@ -3,7 +3,6 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 from django.conf.urls import patterns, include, url
-from django.views.generic import RedirectView
 from django.contrib import admin
 
 from .api import urls as api_urls
@@ -18,7 +17,4 @@ urlpatterns = patterns('',
                        url(r'^admin/', include(browserid_admin.urls)),
                        url(r'^docs/', include('rest_framework_swagger.urls')),
                        url(r'', include('django_browserid.urls')),
-                       # Redirect all requests on / to /index.html, where they
-                       # will be served by WhiteNoise.
-                       url(r'^$', RedirectView.as_view(url='index.html'))
                        )

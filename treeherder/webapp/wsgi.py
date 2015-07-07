@@ -26,7 +26,7 @@ import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "treeherder.settings")
 
 from django.core.wsgi import get_wsgi_application
-from whitenoise.django import DjangoWhiteNoise
+from treeherder.webapp.whitenoise_custom import CustomWhiteNoise
 
 try:
     import newrelic.agent
@@ -45,7 +45,7 @@ application = get_wsgi_application()
 # in production, avoiding the need for Apache/nginx on Heroku. WhiteNoise will
 # serve the Django static files at /static/ and also those in the directory
 # referenced by WHITENOISE_ROOT at the site root.
-application = DjangoWhiteNoise(application)
+application = CustomWhiteNoise(application)
 
 if newrelic:
     application = newrelic.agent.wsgi_application()(application)
