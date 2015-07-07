@@ -25,7 +25,6 @@ import os
 # os.environ["DJANGO_SETTINGS_MODULE"] = "webapp.settings"
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "treeherder.settings")
 
-from django.conf import settings
 from django.core.wsgi import get_wsgi_application
 from whitenoise.django import DjangoWhiteNoise
 
@@ -43,9 +42,10 @@ if newrelic:
 application = get_wsgi_application()
 
 # Wrap the Django WSGI app with WhiteNoise so the UI can be served by gunicorn
-# in production, avoiding the need for Apache/nginx on Heroku.
+# in production, avoiding the need for Apache/nginx on Heroku. WhiteNoise will
+# serve the Django static files at /static/ and also those in the directory
+# referenced by WHITENOISE_ROOT at the site root.
 application = DjangoWhiteNoise(application)
-application.add_files(settings.UI_ROOT)
 
 if newrelic:
     application = newrelic.agent.wsgi_application()(application)
@@ -53,7 +53,3 @@ if newrelic:
 # Fix django closing connection to MemCachier after every request (#11331)
 from django.core.cache.backends.memcached import BaseMemcachedCache
 BaseMemcachedCache.close = lambda self, **kwargs: None
-
-# Apply WSGI middleware here.
-# from helloworld.wsgi import HelloWorldApplication
-# application = HelloWorldApplication(application)
