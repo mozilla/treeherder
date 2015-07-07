@@ -84,6 +84,10 @@ perf.controller('GraphsCtrl', [
                                      function(resultSetId) {
                                        return (resultSetId < dataPoint.resultSetId);
                                      });
+        var retriggerNum = _.countBy(phSeries.flotSeries.resultSetData,
+                                      function(resultSetId) {
+                                          return resultSetId === dataPoint.resultSetId ? 'retrigger':'original';
+                                      });
         var prevFlotDataPointIndex = (flotData.pointIndex -
                                       dataPoint.flotDataOffset - 1);
         var flotSeriesData = flotData.series.data;
@@ -104,7 +108,8 @@ perf.controller('GraphsCtrl', [
           value: Math.round(v*1000)/1000,
           deltaValue: dv.toFixed(1),
           deltaPercentValue: (100 * dvp).toFixed(1),
-          date: $.plot.formatDate(new Date(t), '%a %b %d, %H:%M:%S')
+          date: $.plot.formatDate(new Date(t), '%a %b %d, %H:%M:%S'),
+          retriggered: (retriggerNum['retrigger'] - 1)
         };
 
         // Get revision information for both this datapoint and the previous
