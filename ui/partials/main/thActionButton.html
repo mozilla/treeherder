@@ -15,6 +15,10 @@
                    href="https://secure.pub.build.mozilla.org/buildapi/self-serve/{{::repoName}}/rev/{{::resultset.revision}}">BuildAPI</a></li>
             <li><a target="_blank" ignore-job-clear-on-click
                    href="" prevent-default-on-left-click
+                   ng-show="user.is_staff"
+                   ng-click="triggerMissingJobs(resultset.revision)">Trigger Missing Jobs</a></li>
+            <li><a target="_blank" ignore-job-clear-on-click
+                   href="" prevent-default-on-left-click
                    ng-click="openRevisionListWindow()">Revision URL List</a></li>
             <li><a target="_blank" ignore-job-clear-on-click
                    href="" prevent-default-on-left-click
