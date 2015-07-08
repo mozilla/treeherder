@@ -1652,6 +1652,7 @@ fieldset[disabled] .btn-mdgray.active {
 
 .btn-resultset {
   color: #666;
+  background-color: transparent;
 }
 .btn-resultset:hover{
   background-color: #6f6d70;
