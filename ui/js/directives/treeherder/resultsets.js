@@ -86,7 +86,7 @@ treeherder.directive('thAuthor', function () {
             scope.authorName = userTokens[0].trim();
             scope.authorEmail = email;
         },
-        template: '<span title="open resultsets for {{authorName}}: {{authorEmail}}">' +
+        template: '<span title="View resultsets for {{authorName}}: {{authorEmail}}">' +
                       '<a href="{{authorResultsetFilterUrl}}"' +
                          'ignore-job-clear-on-click>{{authorName}}</a></span>'
     };

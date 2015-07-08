@@ -26,7 +26,7 @@
 
         <span class="btn btn-sm btn-resultset"
               tabindex="0" role="button"
-              title="cancel all jobs in this resultset"
+              title="Cancel all jobs in this resultset"
               ng-show="currentRepo.repository_group.name == 'try' || user.is_staff"
               ignore-job-clear-on-click
               ng-click="cancelAllJobs(resultset.revision)">
@@ -36,7 +36,7 @@
 
         <span class="btn btn-sm btn-resultset"
               tabindex="0" role="button"
-              title="pin all visible jobs in this resultset"
+              title="Pin all visible jobs in this resultset"
               ignore-job-clear-on-click
               ng-click="pinAllShownJobs()">
           <span class="glyphicon glyphicon-pushpin"
