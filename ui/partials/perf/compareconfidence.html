@@ -1,3 +1,3 @@
-<span ng-if="text">
-  (<abbr title="Result of running t-test on base versus new result distribution: higher values indicate greater confidence that the indicated performance difference is statistically meaningful">{{text}}</abbr>)
+<span ng-if="text && value">
+  {{value|displayPrecision}} (<abbr title="Result of running t-test on base versus new result distribution: higher values indicate greater confidence that the indicated performance difference is statistically meaningful">{{text}}</abbr>)
 </span>

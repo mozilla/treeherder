@@ -19,15 +19,15 @@
         <tr ng-class="getCompareClasses(compareResult, 'row')" ng-repeat="compareResult in compareResults[testName]">
           <td>{{compareResult.name}} (<a ng-href="{{compareResult.detailsLink}}">graph</a>)</td>
           <td>
-            {{compareResult.originalGeoMean|displayPrecision}}
-            <ph-run-info runs="compareResult.originalRuns"/>
+              <ph-average value="{{compareResult.originalGeoMean}}"
+                          replicates="compareResult.originalRuns"/>
           </td>
           <td ng-if="compareResult.originalStddev">+/-{{compareResult.originalStddev|displayPrecision}}
             ({{compareResult.originalStddevPct|displayPrecision}}%)</td>
           <td ng-if="!compareResult.originalStddev">N/A</td>
           <td>
-            {{compareResult.newGeoMean|displayPrecision}}
-            <ph-run-info runs="compareResult.newRuns"/>
+            <ph-average value="{{compareResult.newGeoMean}}"
+                        replicates="compareResult.newRuns"/>
           </td>
           <td ng-if="compareResult.newStddev">+/-{{compareResult.newStddev|displayPrecision}}
             ({{compareResult.newStddevPct|displayPrecision}}%)</td>
@@ -36,8 +36,9 @@
           <td ng-if="compareResult.delta" ng-class="getCompareClasses(compareResult)">{{compareResult.deltaPercentage|displayPrecision}}%</td>
           <td ng-if="compareResult.delta" width="20%"><div ng-class="getCompareClasses(compareResult, 'bar')" style="margin-{{compareResult.marginDirection}}: {{compareResult.barGraphMargin}}%;"></div></td>
           <td ng-if="!compareResult.delta"></td>
-          <td>{{compareResult.confidence|displayPrecision}}
-            <ph-confidence-info text="{{compareResult.confidenceText}}"/>
+          <td>
+            <ph-confidence value="{{compareResult.confidence|displayPrecision}}"
+                           text="{{compareResult.confidenceText}}"/>
           </td>
         </tr>
       </tbody>

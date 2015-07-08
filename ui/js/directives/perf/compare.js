@@ -5,21 +5,23 @@
 'use strict';
 
 treeherder.directive(
-  'phRunInfo', function() {
+  'phAverage', function() {
     return {
-      templateUrl: 'partials/perf/runinfo.html',
+      templateUrl: 'partials/perf/average.html',
       scope: {
-        runs: '='
+          value: '@',
+          replicates: '='
       }
     }
   });
 
 treeherder.directive(
-  'phConfidenceInfo', function() {
+  'phConfidence', function() {
     return {
       templateUrl: 'partials/perf/compareconfidence.html',
       scope: {
-        text: '@'
+          text: '@',
+          value: '@'
       }
     }
   });
