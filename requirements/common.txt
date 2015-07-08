@@ -103,5 +103,5 @@ requests==2.6.2
 fancy-tag==0.2.0
 
 # Required by oauth2
-# sha256: Rq1_DlKbO_ot_mGHBXBvdv4QhTR95suIWNQam0Jmbic
-httplib2==0.7.4
+# sha256: vGM5kZpSNbnRqu4BHKVGQYQJjwxHyQmAAfkclxdlg_U
+httplib2==0.9.1
