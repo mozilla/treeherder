@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>Treeherder Help</title>
-    <link rel="stylesheet" href="css/help.min-0f1c0474ea1c1f44326f6c252ba8e8d5.css" media="screen">
+    <link rel="stylesheet" href="css/help.min-1852bd72646e3e1c991064ccea5aa3b7.css" media="screen">
     <link id="favicon" type="image/png" rel="shortcut icon" href="img/tree_open.png">
 </head>
 <body id="help">
@@ -111,7 +111,12 @@
                     <tr><td class="kbd">esc</td>
                     <td>Close all open job or filter panels</td></tr>
                     <tr><td class="kbd">f</td>
-                    <td>Enter a filter for platforms and jobs</td></tr>
+                    <td>Enter a quick filter</td></tr>
+                    <tr>
+                      <td><span class="kbd">ctrl</span><span class="kbd">shift
+                        </span><span class="kbd">f</span></td>
+                      <td>Clear the quick filter</td>
+                    </tr>
                     <tr><td class="kbd">&larr;</td>
                     <td>Select previous job</td></tr>
                     <tr><td class="kbd">&rarr;</span></td>
@@ -120,8 +125,8 @@
                     <td>Select previous unclassified failure</td></tr>
                     <tr><td><span class="kbd">j</span> or <span class="kbd">n</span></td>
                     <td>Select next unclassified failure</td></tr>
-                    <tr><td class="kbd">r</span></td>
-                    <td>Retrigger selected job</td></tr>
+                    <tr><td class="kbd">l</td>
+                    <td>Open the logviewer for the selected job</td></tr>
                     <tr><td><span class="kbd">ctrl</span> or <span class="kbd">cmd</span></td>
                     <td>Add job to the pinboard during click selection</td></tr>
                     <tr><td class="kbd">spacebar</td>
@@ -137,17 +142,14 @@
                         </span><span class="kbd">u</span></td>
                       <td>Clear the pinboard</td>
                     </tr>
-                    <tr>
-                      <td><span class="kbd">ctrl</span><span class="kbd">shift
-                        </span><span class="kbd">f</span></td>
-                      <td>Clear the filter for platforms and jobs</td>
-                    </tr>
+                    <tr><td class="kbd">r</span></td>
+                    <td>Retrigger selected job</td></tr>
+                    <tr><td><span class="kbd">ctrl</span><span class="kbd">backspace</span></td>
+                    <td>Delete job classification and related bugs</td></tr>
                     <tr><td class="kbd">i</td>
                     <td>Toggle in-progress (running/pending) jobs</td></tr>
                     <tr><td class="kbd">u</td>
                     <td>Show only unclassified failures</td></tr>
-                    <tr><td class="kbd">l</td>
-                    <td>Open the logviewer for the selected job</td></tr>
                 </table>
             </div>
             <div class="panel-heading"><h3>Copy values on hover</h3></div>
