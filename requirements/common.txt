@@ -59,8 +59,8 @@ django-rest-swagger==0.3.2
 # sha256: IHlImDhx2hyv_q93vj9WSOyfcxNCpPKjB8SZaPu64zs
 drf-extensions==0.2.7
 
-# sha256: K4vVpzVtJqYxx0mHxxkr4PmTT-zym6or5e6e8kfCtU0
-django-cors-headers==0.11
+# sha256: _NluK-R8ju80xlDgB6bVRuGefuYQQbie27u-dhmqOYc
+django-cors-headers==1.1.0
 
 # sha256: DVwMS2xs2dJb59eoJqXAxEzwQKEn2Sb4pX6mvnTrypg
 django-browserid==0.10
