@@ -10,8 +10,8 @@ gunicorn==19.3.0
 # sha256: VYVza7U0XcnLcEwSkq997IUSZmqw-RbG8mduDwYCMeg
 whitenoise==2.0.2
 
-# sha256: 7sV9MhlQHsbmhWRoJvLrjndoepP-N0p-aZRJBSDbCT4
-Django==1.7.7
+# sha256: TVjkUnRLdodtgZnKRBRKJSwlTokUk5JArjUnxOqhiC8
+Django==1.7.9
 
 # sha256: 2_WWGNWp7_Fy0lAh82YUvlrwUB5FJ5dcpQS5WGPxT-0
 celery==3.1.18
