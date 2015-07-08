@@ -204,6 +204,13 @@ treeherder.factory('ThResultSetStore', [
 
                 name:repoName,
 
+                // This keeps track of the selected job.  The selected job,
+                // when rendered, will be given a class of ``selected-job``,
+                // but the directive may lose track of that class when we are
+                // updating with new jobs.  In the event the row with the
+                // selected job is being re-rendered, knowing which one is
+                // selected here in the model will allow us to apply the
+                // correct styling to it.
                 lastJobElSelected:{},
                 lastJobObjSelected:{},
 

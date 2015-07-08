@@ -20,12 +20,6 @@ treeherder.directive('thCloneJobs', [
 
     var $log = new ThLog("thCloneJobs");
 
-    var classificationRequired = {
-        "busted":1,
-        "exception":1,
-        "testfailed":1
-        };
-
     // CSS classes
     var btnCls = 'btn-xs';
     var selectedBtnCls = 'selected-job';
@@ -386,14 +380,10 @@ treeherder.directive('thCloneJobs', [
         el.addClass(col12Cls);
     };
 
-    var renderJobTableRow = function(
-        row, jobTdEl, jobGroups, resultsetId,
-        platformKey){
+    var renderJobTableRow = function(row, jobTdEl, jobGroups) {
 
         //Empty the job column before populating it
         jobTdEl.empty();
-
-        var resultSetMap = ThResultSetStore.getResultSetsMap($rootScope.repoName);
 
         var jgObj, jobGroup, jobsShown, i;
         for(i=0; i<jobGroups.length; i++){
@@ -536,10 +526,6 @@ treeherder.directive('thCloneJobs', [
 
             platformName = thPlatformName(value.platformName);
 
-            platformKey = ThResultSetStore.getPlatformKey(
-                value.platformName, value.platformOption
-                );
-
             rowEl = document.getElementById(platformId);
 
             if(!rowEl){
@@ -565,10 +551,7 @@ treeherder.directive('thCloneJobs', [
 
                 jobTdEl = $( thCloneHtml.get('jobTdClone').text );
 
-                renderJobTableRow(
-                    rowEl, jobTdEl, value.jobGroups,
-                    value.resultsetId, platformKey, true
-                    );
+                renderJobTableRow(rowEl, jobTdEl, value.jobGroups);
 
                 //Determine appropriate place to append row for this
                 //platform name
@@ -576,13 +559,9 @@ treeherder.directive('thCloneJobs', [
 
             }else{
                 tdEls = $(rowEl).find('td');
-                platformTdEl = $(tdEls[0]);
                 jobTdEl = $(tdEls[1]);
 
-                renderJobTableRow(
-                    $(rowEl), jobTdEl, value.jobGroups,
-                    value.resultsetId, platformKey, true
-                    );
+                renderJobTableRow($(rowEl), jobTdEl, value.jobGroups);
             }
         }, this);
     };
@@ -688,8 +667,7 @@ treeherder.directive('thCloneJobs', [
         var waitSpanEl = $(tableEl).prev();
         $(waitSpanEl).css('display', 'none');
 
-        var name, option, platformId, platformKey, row, platformTd, jobTdEl,
-            statusList, j;
+        var name, option, platformId, platformKey, row, platformTd, jobTdEl, j;
         for(j=0; j<resultset.platforms.length; j++){
 
             platformId = thAggregateIds.getPlatformRowId(
@@ -701,11 +679,11 @@ treeherder.directive('thCloneJobs', [
 
             row = $('#' + platformId);
 
-            if( $(row).prop('tagName') !== 'TR' ){
+            if($(row).prop('tagName') !== 'TR'){
                 // First time the row is being created
                 row = $('<tr></tr>');
                 row.prop('id', platformId);
-            }else{
+            } else {
                 // Clear and re-write the div content if it
                 // already exists
                 $(row).empty();
@@ -735,11 +713,7 @@ treeherder.directive('thCloneJobs', [
                 resultset.platforms[j].name, resultset.platforms[j].option
                 );
 
-            renderJobTableRow(
-                row, jobTdEl, resultset.platforms[j].groups,
-                resultset.id,
-                platformKey, true
-                );
+            renderJobTableRow(row, jobTdEl, resultset.platforms[j].groups);
 
             tableEl.append(row);
         }
