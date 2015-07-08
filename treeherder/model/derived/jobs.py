@@ -74,8 +74,7 @@ class JobsModel(TreeherderModelBase):
     JOB_PH_STATE = 14
     JOB_PH_START_TIMESTAMP = 16
     JOB_PH_END_TIMESTAMP = 17
-    JOB_PH_PENDING_AVG = 18
-    JOB_PH_RUNNING_AVG = 19
+    JOB_PH_RUNNING_AVG = 18
 
     # list of searchable columns, i.e. those who have an index
     # it would be nice to get this directly from the db and cache it
@@ -568,17 +567,17 @@ class JobsModel(TreeherderModelBase):
 
         # Get the most recent timestamp from jobs
         max_timestamp = self.jobs_execute(
-            proc='jobs.selects.get_max_job_submit_timestamp',
+            proc='jobs.selects.get_max_job_start_timestamp',
             return_type='iter',
             debug_show=self.DEBUG
-        ).get_column_data('submit_timestamp')
+        ).get_column_data('start_timestamp')
 
         if max_timestamp:
 
             time_window = int(max_timestamp) - sample_window_seconds
 
             eta_groups = self.jobs_execute(
-                proc='jobs.selects.get_eta_groups',
+                proc='jobs.selects.get_running_eta_stats',
                 placeholders=[time_window],
                 key_column='signature',
                 return_type='dict',
@@ -589,32 +588,12 @@ class JobsModel(TreeherderModelBase):
             submit_timestamp = int(time.time())
             for signature in eta_groups:
 
-                pending_samples = map(
-                    lambda x: int(x or 0),
-                    eta_groups[signature]['pending_samples'].split(','))
-
-                pending_median = self.get_median_from_sorted_list(
-                    sorted(pending_samples))
-
                 running_samples = map(
                     lambda x: int(x or 0),
                     eta_groups[signature]['running_samples'].split(','))
 
                 running_median = self.get_median_from_sorted_list(
                     sorted(running_samples))
-
-                placeholders.append(
-                    [
-                        signature,
-                        'pending',
-                        eta_groups[signature]['pending_avg_sec'],
-                        pending_median,
-                        eta_groups[signature]['pending_min_sec'],
-                        eta_groups[signature]['pending_max_sec'],
-                        eta_groups[signature]['pending_std'],
-                        len(pending_samples),
-                        submit_timestamp
-                    ])
 
                 placeholders.append(
                     [
@@ -1585,8 +1564,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             self.get_number(job.get('submit_timestamp')),
             self.get_number(job.get('start_timestamp')),
             self.get_number(job.get('end_timestamp')),
-            0,                      # idx:18, replace with pending_avg_sec
-            0,                      # idx:19, replace with running_avg_sec
+            0,                      # idx:18, replace with running_avg_sec
             tier,
             job_guid,
             get_guid_root(job_guid)  # will be the same except for ``retry`` jobs
@@ -1728,10 +1706,8 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         job_guid_where_in_list.append('%s')
 
         reference_data_signature = job_placeholders[index][1]
-        pending_avg_sec = job_eta_times.get(reference_data_signature, {}).get('pending', 0)
         running_avg_sec = job_eta_times.get(reference_data_signature, {}).get('running', 0)
 
-        job_placeholders[index][self.JOB_PH_PENDING_AVG] = pending_avg_sec
         job_placeholders[index][self.JOB_PH_RUNNING_AVG] = running_avg_sec
 
         # Load job_update_placeholders

@@ -83,10 +83,9 @@
                 `submit_timestamp`,
                 `start_timestamp`,
                 `end_timestamp`,
-                `pending_eta`,
                 `running_eta`,
                 `tier`)
-                SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
+                SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
                 FROM DUAL WHERE NOT EXISTS (
                     SELECT `job_guid`
                     FROM `job`
@@ -418,27 +417,16 @@
             "host_type":"read_host"
 
         },
-        "get_max_job_submit_timestamp":{
+        "get_max_job_start_timestamp":{
 
-            "sql": "SELECT MAX(`submit_timestamp`) AS 'submit_timestamp' FROM `job`",
+            "sql": "SELECT MAX(`start_timestamp`) AS 'start_timestamp' FROM `job`",
 
             "host_type":"master_host"
 
         },
-        "get_eta_groups":{
+        "get_running_eta_stats":{
 
             "sql":"SELECT signature,
-                          CAST(
-                            ROUND( AVG(start_timestamp - submit_timestamp) )
-                            AS UNSIGNED) AS 'pending_avg_sec',
-
-                          MIN(start_timestamp - submit_timestamp) AS 'pending_min_sec',
-                          MAX(start_timestamp - submit_timestamp) AS 'pending_max_sec',
-
-                          CAST(
-                            ROUND( STD(start_timestamp - submit_timestamp))
-                            AS UNSIGNED) AS 'pending_std',
-
                           CAST(
                             ROUND( AVG(end_timestamp - start_timestamp) )
                             AS UNSIGNED) AS 'running_avg_sec',
@@ -450,14 +438,10 @@
                             ROUND( STD(end_timestamp - start_timestamp) )
                             AS SIGNED) AS 'running_std',
 
-                          GROUP_CONCAT(start_timestamp - submit_timestamp SEPARATOR ',')
-                            AS 'pending_samples',
-
                           GROUP_CONCAT(end_timestamp - start_timestamp SEPARATOR ',')
                             AS 'running_samples'
                    FROM job
-                   WHERE submit_timestamp >= ? AND
-                         start_timestamp >= submit_timestamp AND
+                   WHERE start_timestamp >= ? AND
                          end_timestamp >= start_timestamp AND
                          start_timestamp > 0 AND end_timestamp > 0
                    GROUP BY signature",
@@ -552,7 +536,6 @@
                     j.`start_timestamp`,
                     j.`end_timestamp`,
                     j.`submit_timestamp`,
-                    j.`pending_eta`,
                     j.`running_eta`,
                     j.`last_modified`,
                     j.`tier`,
@@ -609,7 +592,6 @@
                     j.`start_timestamp`,
                     j.`end_timestamp`,
                     j.`submit_timestamp`,
-                    j.`pending_eta`,
                     j.`running_eta`,
                     j.`last_modified`,
                     j.`tier`,
