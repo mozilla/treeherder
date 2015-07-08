@@ -290,3 +290,11 @@ to { opacity: 0; }
   height: 1em;
   margin-bottom: 5px;
 }
+
+.run-detail {
+    border-bottom: 1px dotted #777;
+    color: #999;
+    cursor: default;
+    vertical-align: top;
+    font-size: 80%;
+}

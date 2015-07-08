@@ -278,10 +278,9 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
           stddev: stddev,
           stddevPct: math.percentOf(stddev, average),
 
-          // Value for display on mouse hover. We use slice to keep the original
-          // values at their original order in case the order is important elsewhere.
-          displayRuns: "" + values.length
-                          + "  <  " + values.slice().sort(numericCompare).join("   ") + "  >"
+          // We use slice to keep the original values at their original order
+          // in case the order is important elsewhere.
+          runs: values.slice().sort(numericCompare)
         };
       }
 
@@ -308,14 +307,14 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
       if (hasOrig) {
         var orig = analyzeSet(originalData.values);
         cmap.originalGeoMean = orig.geomean;
-        cmap.originalRuns = orig.displayRuns;
+        cmap.originalRuns = orig.runs;
         cmap.originalStddev = orig.stddev;
         cmap.originalStddevPct = orig.stddevPct;
       }
       if (hasNew) {
         var newd = analyzeSet(newData.values);
         cmap.newGeoMean = newd.geomean;
-        cmap.newRuns = newd.displayRuns;
+        cmap.newRuns = newd.runs;
         cmap.newStddev = newd.stddev;
         cmap.newStddevPct = newd.stddevPct;
       }
