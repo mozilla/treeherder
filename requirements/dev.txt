@@ -43,8 +43,8 @@ cov-core==1.15.0
 coverage==3.7.1
 
 # Required by WebTest
-# sha256: orKb0EjKL-VKBGspdwlkc4hyqXRwA6NxNEqT7t961Y4
-beautifulsoup4==4.3.2
+# sha256: twJyH4ciyU-9L737Qhg8S1s9iHEYa5KoiY4t_khpqts
+beautifulsoup4==4.4.0
 # sha256: gmUn3J0zTtTtds2uZy_cu8z2FBhmV9txZ5q1jfhpRYo
 waitress==0.8.9
 # sha256: Evi5g5C-_EczbSwOW62cxIYJ2Ajquz-GddwQJ6Op6ds
