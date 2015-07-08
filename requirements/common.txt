@@ -29,8 +29,8 @@ MySQL-python==1.2.5
 # Required by celery
 # sha256: aI-UZrHDrhQQY4Hm29MoEV51xSYMVC60jmxGkx9pKMw
 billiard==3.3.0.20
-# sha256: VDjXSekjyRR0H-KkELUoq-JwUwAPv4eLxDdCjQiuCrE
-pytz==2014.10
+# sha256: TWTtG54OcwlfXPqH8Ol920yEAEno7-t-Y7RhGLodYjo
+pytz==2015.4
 
 # Required by kombu
 # sha256: 406XZaYSD0ZkwSD0GYp4bDmg-35KWb0ZotbjqIS2OIk
