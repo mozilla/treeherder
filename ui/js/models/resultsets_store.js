@@ -204,6 +204,9 @@ treeherder.factory('ThResultSetStore', [
 
                 name:repoName,
 
+                // keep track of the selected job here, because the DOM may
+                // lose track when we update with new jobs and have to re-render
+                // a platform row with new jobs that have come in.
                 lastJobElSelected:{},
                 lastJobObjSelected:{},
 

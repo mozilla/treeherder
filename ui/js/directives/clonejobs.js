@@ -10,13 +10,13 @@ treeherder.directive('thCloneJobs', [
     'thServiceDomain', 'thResultStatusInfo', 'thEvents', 'thAggregateIds',
     'thJobFilters', 'thResultStatusObject', 'ThResultSetStore',
     'ThJobModel', 'linkifyBugsFilter', 'thResultStatus', 'thPlatformName',
-    'thJobSearchStr',
+    'thJobSearchStr', 'thNotify', '$timeout',
     function(
         $rootScope, $http, ThLog, thUrl, thCloneHtml,
         thServiceDomain, thResultStatusInfo, thEvents, thAggregateIds,
         thJobFilters, thResultStatusObject, ThResultSetStore,
         ThJobModel, linkifyBugsFilter, thResultStatus, thPlatformName,
-        thJobSearchStr){
+        thJobSearchStr, thNotify, $timeout){
 
     var $log = new ThLog("thCloneJobs");
 
@@ -81,21 +81,20 @@ treeherder.directive('thCloneJobs', [
             };
         }
 
-        jobs = $(selector);
-        var selIdx = jobs.index(jobs.filter(".selected-job"));
-        var idx = getIndex(selIdx, jobs);
+        jobs = $(selector).filter(":visible");
+        if (jobs.length) {
+            var selIdx = jobs.index(jobs.filter(".selected-job"));
+            var idx = getIndex(selIdx, jobs);
 
-        el = $(jobs[idx]);
-        while (el.css('display') === 'none') {
-            idx = getIndex(idx, jobs);
             el = $(jobs[idx]);
+            key = el.attr(jobKeyAttr);
+            if (jobMap && jobMap[key] && selIdx !== idx) {
+                selectJob(jobMap[key].job_obj);
+                return;
+            }
         }
-
-        key = el.attr(jobKeyAttr);
-        if (jobMap && jobMap[key] && selIdx !== idx) {
-            selectJob(jobMap[key].job_obj);
-        }
-
+        $timeout($rootScope.closeJob, 0);
+        thNotify.send("No matching jobs to select", "warning");
     });
 
     $rootScope.$on(thEvents.selectJob, function(ev, job, job_selection_type) {
