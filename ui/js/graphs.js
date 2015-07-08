@@ -754,14 +754,13 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
           if (selected !== -1) {
               if (test.platform === $scope.selectedPlatform &&
                   test.projectName === $scope.selectedProject.name) {
-                  var temp = ($scope.rightList.splice(selected, 1))[0].name
+                  var temp = ($scope.rightList.splice(selected, 1))[0].name;
                   console.log(temp);
                   $scope.LeftList.push(temp);
+                  } else {
+                    // just remove the item because testlist will refresh when change platform or project 
+                    $scope.rightList.splice(selected, 1);
                   }
-              // just remove the item because testlist will refresh when change platform or project 
-              else {
-              $scope.rightList.splice(selected, 1);
-              }
           }
       });
   };
@@ -770,14 +769,14 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
       var selected;
       $scope.testList.forEach(function(test) {
           selected = $scope.LeftList.indexOf(test);
-          if(selected !== -1) {
-          var series = $scope.LeftList.splice(selected, 1)[0];
+          if (selected !== -1) {
+              var series = $scope.LeftList.splice(selected, 1)[0];
               var result = testArray.filter(function (obj) {
-              return obj.name == series;
-          });
-          selected = _.clone(result[0]);
-          selected.projectName = $scope.selectedProject.name;
-          $scope.rightList.push(selected);
+                  return obj.name == series;
+              });
+              selected = _.clone(result[0]);
+              selected.projectName = $scope.selectedProject.name;
+              $scope.rightList.push(selected);
           }
       });
   };

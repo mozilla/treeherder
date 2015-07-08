@@ -13,32 +13,32 @@
     </select>
     <h4>Tests</h4>
     <div class="form-group">
-        <input class="form-control input-sm" type="text" ng-model="testFilter" placeholder="Filter tests"/>
+      <input class="form-control input-sm" type="text" ng-model="testFilter" placeholder="Filter tests"/>
     </div>
     <div id="choose-test-list" class="form-group">
       <select multiple class="form-control"  ng-model="testList">
-         <option value="{{::testElem}}" ng-repeat="testElem in testList| filter: testFilter track by $id(testElem)">
+        <option value="{{::testElem}}" ng-repeat="testElem in testList| filter: testFilter track by $id(testElem)">
             {{::testElem}}
-         </option>     
+        </option>     
       </select>
     </div>
   </div>
   <div class="btn-group-vertical ">
-     <button id="unselect-test" ng-click="unselectTest()" type="button" class="btn btn-xs btn-default">
-        <span class="glyphicon glyphicon-chevron-left"></span>
-     </button>
-     <button id="select-test" ng-click="selectTest()" type="button" class="btn btn-xs btn-default">
-        <span class="glyphicon glyphicon-chevron-right"></span>
-     </button>
+    <button id="unselect-test" ng-click="unselectTest()" type="button" class="btn btn-xs btn-default">
+      <span class="glyphicon glyphicon-chevron-left"></span>
+    </button>
+    <button id="select-test" ng-click="selectTest()" type="button" class="btn btn-xs btn-default">
+      <span class="glyphicon glyphicon-chevron-right"></span>
+    </button>
   </div>
   <div class="test-list-container">
     <h4>Tests to add</h4>
     <div id="added-test-list" class="form-group">
       <select class="form-control" multiple ng-model="testSelected">
-         <option value="{{right_elem}}" ng-repeat="right_elem in rightList">
+        <option value="{{right_elem}}" ng-repeat="right_elem in rightList">
            {{right_elem.projectName}} {{right_elem.platform}}
            {{right_elem.name}}
-         </option>
+        </option>
       </select>
     </div>
   </div>
