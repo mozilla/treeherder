@@ -93,8 +93,10 @@ treeherder.directive('thCloneJobs', [
                 return;
             }
         }
+        // if there was no new job selected, then ensure that we clear any job that
+        // was previously selected.
         $timeout($rootScope.closeJob, 0);
-        thNotify.send("No matching jobs to select", "warning");
+        thNotify.send("No matching job to select", "warning");
     });
 
     $rootScope.$on(thEvents.selectJob, function(ev, job, job_selection_type) {
