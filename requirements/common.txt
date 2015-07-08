@@ -94,9 +94,9 @@ Unipath==1.1
 # sha256: w2yTiocuX_SUk4szsUqqFWy0OexnVI_Ks1Nbt4sIRug
 PyYAML==3.11
 
-# Required by django-browserid, WebTest & responses
-# sha256: jw9WgT-C0MJ9lXgiEmismvSPB2xx7mlpMwXOymyjVb0
-requests==2.6.2
+# Used directly plus required by django-browserid, WebTest & responses
+# sha256: IPl2zc4CpCtpzoDp4DiXpRgUs21EizcohUYIbrxHMUY
+requests==2.7.0
 
 # Required by django-browserid
 # sha256: akF58qKszaKyc7_Ybeb3AkzuIDBDzJp8BA_nswa74SA
