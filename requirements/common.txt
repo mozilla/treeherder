@@ -19,8 +19,8 @@ celery==3.1.18
 # sha256: _qhlOuS4en6wmWWUCfCeaANqe4PwoVoLxq7629mKUdw
 kombu==3.0.26
 
-# sha256: KjGJ950ce4ohSaDng8C0IX-tmzCm59YEUPJVPcLA5X4
-simplejson==3.6.5
+# sha256: Y9f3sUog8p90Mlpp5ttFkl6vbjoAPqtGwCNP0FCoyT8
+simplejson==3.7.3
 
 # Required by datasource
 # sha256: gRBAtkfl1WhvhNtBXv1pfmJQAIsRK2kJunesBZ4UDHQ
