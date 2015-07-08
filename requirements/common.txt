@@ -45,8 +45,8 @@ blessings==1.6
 # sha256: Z-HBi2uZykwsjkoC4KlhdL9waJGaWv9Sg2YAl0we9Ng
 python-memcached==1.54
 
-# sha256: WvNmhsJxCX8l7AI1RsOXy5m8Z6XbODblLms3vbRcoh4
-jsonschema==2.4.0
+# sha256: ceezvPn8pAi8tlu2CJLzddOr3S5PKW7uuP4Lu_zeWY4
+jsonschema==2.5.1
 
 # sha256: IvfBJQ8MAom2HaZlS1HhRzM7q3ed4ZMng3a9_WpSe0Y
 djangorestframework==2.4.5
@@ -81,6 +81,10 @@ https://github.com/jeads/datasource/archive/v0.7.tar.gz#egg=datasource
 # Required by python-memcached, django-extensions, WebTest & responses
 # sha256: QYqTw5en7asj5ViNvAZ6x0pyPts9VBvUk295R252Rdo
 six==1.9.0
+
+# Required by jsonschema
+# sha256: ajt0IEMrCBfvGSrvNBzXZuGZgBqQyn_jGfnV_KQO3aI
+functools32==3.2.3.post1
 
 # Required by django-rest-swagger
 # sha256: 7wE5rDCRO0Po04ij53blNKIvgZdZZpaNKDaewDOKabc
