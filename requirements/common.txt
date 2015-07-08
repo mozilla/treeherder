@@ -87,8 +87,8 @@ six==1.9.0
 functools32==3.2.3.post1
 
 # Required by django-rest-swagger
-# sha256: 7wE5rDCRO0Po04ij53blNKIvgZdZZpaNKDaewDOKabc
-Unipath==1.0
+# sha256: 5iV-UI2Ku_tt3Y7DV-M1ifH0ixWZEn8jsBcSTZCw__c
+Unipath==1.1
 
 # Required by django-rest-swagger
 # sha256: w2yTiocuX_SUk4szsUqqFWy0OexnVI_Ks1Nbt4sIRug
