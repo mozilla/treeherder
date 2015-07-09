@@ -1944,7 +1944,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             replace=repl)
 
         data = [{"series_signature": x["series_signature"],
-                 "blob": json.loads(x["blob"])} for x in data]
+                 "blob": json.loads(utils.decompress_if_needed(x["blob"]))} for x in data]
 
         return data
 

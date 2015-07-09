@@ -7,6 +7,7 @@ import copy
 from django.core.management.base import BaseCommand
 from optparse import make_option
 from treeherder.client import PerformanceTimeInterval
+from treeherder.model import utils
 from treeherder.model.derived.jobs import JobsModel
 from treeherder.model.models import Datasource
 from treeherder.etl.perf_data_adapters import TalosDataAdapter
@@ -70,7 +71,7 @@ class Command(BaseCommand):
             series_list = jm.get_performance_series_from_signatures(
                 [signature_hash], time_interval)
 
-            series = series_list[0]['blob']
+            series = utils.decompress_if_needed(series_list[0]['blob'])
             jm.store_performance_series(time_interval, 'talos_data',
                                         str(new_hash), series)
 
