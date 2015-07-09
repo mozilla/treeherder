@@ -18,17 +18,17 @@
     </head>
     <body ng-controller="MainCtrl" ng-keydown="processKeyboardInput($event)">
         <div id="global-container">
-            <div class="th-navbar">
+            <div id="global-navbar-container">
                 <ng-include id="th-global-top-nav-panel" src="'partials/main/thGlobalTopNavPanel.html'"></ng-include>
             </div>
-            <div class="th-content"
+            <div id="th-global-content" class="th-global-content"
                  ng-click="clearJobOnClick($event)">
                 <span class="th-view-content" ng-cloak>
                     <ng-view ></ng-view>
                 </span>
             </div>
             <div ng-controller="PluginCtrl"
-                 id="bottom-panel"
+                 id="info-panel"
                  ng-show="selectedJob"
                  ng-class="{'with-pinboard':isPinboardVisible}"
                  ng-include src="'plugins/pluginpanel.html'">

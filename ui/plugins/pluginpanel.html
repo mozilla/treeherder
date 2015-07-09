@@ -1,16 +1,16 @@
-<div id="bottom-panel-resizer"
+<div id="info-panel-resizer"
      resizer="horizontal"
      resizer-height="6"
-     resizer-bottom="#bottom-panel">
+     resizer-bottom="#info-panel">
 </div>
 <div ng-controller="PinboardCtrl"
      id="pinboard-panel"
      ng-show="isPinboardVisible"
      ng-include src="'partials/main/thPinboardPanel.html'">
 </div>
-<div id="bottom-panel-content">
-  <div id="bottom-left-panel">
-    <div id="bottom-left-top">
+<div id="info-panel-content">
+  <div id="job-details-panel">
+    <div id="job-details-actionbar">
       <nav class="navbar navbar-dark">
         <ul class="nav navbar-nav">
 
@@ -110,7 +110,7 @@
         </ul>
       </nav>
     </div>
-    <div id="bottom-left-bottom">
+    <div id="job-details-pane">
       <ul ng-if="classifications.length > 0 || bugs.length > 0"
           class="list-unstyled content-spacer">
         <li ng-if="classifications.length > 0">
@@ -215,8 +215,8 @@
       </div>
     </div>
   </div>
-  <div id="bottom-center-panel">
-    <div id="bottom-center-top">
+  <div id="job-tabs-panel">
+    <div id="job-tabs-navbar">
       <nav class="navbar navbar-dark">
         <ul class="nav navbar-nav tab-headers">
           <li ng-class="{'active': tabService.selectedTab == 'jobDetails'}">
@@ -279,7 +279,7 @@
         </ul>
       </nav>
     </div>
-    <div id="bottom-center-bottom">
+    <div id="job-tabs-pane">
       <div ng-repeat="(tabId, tab) in tabService.tabs"
            ng-show="tabId == tabService.selectedTab"
            class="job-tabs-divider">

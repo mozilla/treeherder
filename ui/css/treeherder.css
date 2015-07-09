@@ -31,6 +31,13 @@ input:focus::-moz-placeholder {
     height: 100%;
 }
 
+#global-navbar-container {
+    background-color: #273038;
+    margin-bottom: 0px;
+    flex: none;
+    -webkit-flex: none;
+}
+
 .pagination, .carousel, .panel-title a {
     cursor: pointer;
 }
@@ -65,13 +72,6 @@ input:focus::-moz-placeholder {
     color: rgba(145, 164, 221, 0.3);
 }
 
-.th-navbar {
-    background-color: #273038;
-    margin-bottom: 0px;
-    flex: none;
-    -webkit-flex: none;
-}
-
 .navbar {
     min-height: 36px;
     margin-bottom: 0px;
@@ -85,7 +85,7 @@ input:focus::-moz-placeholder {
     padding-bottom: 8px;
 }
 
-.th-global-navbar {
+#th-global-navbar-top {
     padding-left: 0;
     border-bottom: 1px solid black;
 }
@@ -251,7 +251,7 @@ th-watched-repo {
     height: 16px;
 }
 
-.th-content {
+.th-global-content {
     flex: 1; /* Not using auto because it causes unnecessary reflows, see https://bugzilla.mozilla.org/show_bug.cgi?id=1162725 */
     -webkit-flex: auto;
     position: relative;/* need this to position inner content */
@@ -470,7 +470,7 @@ th-watched-repo {
     padding-right: 10px;
 }
 
-.result-set-title {
+.result-set-bar {
     border-top: 1px solid black;
     padding: 2px 0px 0px 14px;
     white-space: nowrap;
@@ -607,23 +607,10 @@ th-watched-repo {
 }
 
 /*
- * resizer
- */
-div#bottom-panel-resizer {
-    display: flex;
-    flex: none;
-    -webkit-flex: none;
-    background-color: #919dad;
-    cursor: ns-resize;
-    height: 2px;
-}
-
-
-/*
- * bottom panel
+ * Info panel
  */
 
-div#bottom-panel {
+div#info-panel {
     background-color: #AAAAAA;
     font-size: 12px;
 
@@ -638,7 +625,7 @@ div#bottom-panel {
     flex-flow: column;
 }
 
-div#bottom-panel .navbar{
+div#info-panel .navbar {
     border-radius: 0px;
     border-style: solid;
     border-color: #42484F;
@@ -652,27 +639,36 @@ div#bottom-panel .navbar{
     z-index: 100;
 }
 
-div#bottom-panel .navbar-nav > ul{
-    height:32px;
+div#info-panel-resizer {
+    display: flex;
+    flex: none;
+    -webkit-flex: none;
+    background-color: #919dad;
+    cursor: ns-resize;
+    height: 2px;
 }
 
-div#bottom-panel .navbar-nav > li > a{
+div#info-panel .navbar-nav > ul {
+    height: 32px;
+}
+
+div#info-panel .navbar-nav > li > a {
     padding: 6px 15px;
     line-height: 19px;
 }
 
-div#bottom-panel .navbar-nav > li > a.disabled {
+div#info-panel .navbar-nav > li > a.disabled {
     cursor: not-allowed;
     text-decoration: none;
 }
 
-div#bottom-panel .navbar-nav > li.active a,
-div#bottom-panel .navbar-nav > li.active a:hover,
-div#bottom-panel .navbar-nav > li.active a:focus {
+div#info-panel .navbar-nav > li.active a,
+div#info-panel .navbar-nav > li.active a:hover,
+div#info-panel .navbar-nav > li.active a:focus {
     outline: 0;
 }
 
-div#bottom-panel .navbar > ul.tab-headers > li{
+div#info-panel .navbar > ul.tab-headers > li {
     border-right: 1px solid #42484F;
 }
 
@@ -691,14 +687,14 @@ div#bottom-panel .navbar > ul.tab-headers > li{
     color: #D3D8DA;
 }
 
-div#bottom-panel .navbar.navbar-dark .navbar-nav > li.active a,
-div#bottom-panel .navbar.navbar-dark .navbar-nav > li.active a:hover,
-div#bottom-panel .navbar.navbar-dark .navbar-nav > li.active a:focus {
+div#info-panel .navbar.navbar-dark .navbar-nav > li.active a,
+div#info-panel .navbar.navbar-dark .navbar-nav > li.active a:hover,
+div#info-panel .navbar.navbar-dark .navbar-nav > li.active a:focus {
     background-color: #1A4666;
     color: #EEF0F2;
 }
 
-#bottom-panel-content {
+#info-panel-content {
    position: relative; /* So we can absolutely position the loading overlay */
    height: 60%;
 
@@ -711,7 +707,7 @@ div#bottom-panel .navbar.navbar-dark .navbar-nav > li.active a:focus {
            flex-flow: row;
 }
 
-#bottom-left-panel, #bottom-center-panel {
+#job-details-panel, #job-tabs-panel {
     background-color: #fff;
     display: -webkit-flex;
     display:         flex;
@@ -719,7 +715,7 @@ div#bottom-panel .navbar.navbar-dark .navbar-nav > li.active a:focus {
     flex-flow: column;
 }
 
-#bottom-left-top, #bottom-center-top {
+#job-details-actionbar, #job-tabs-navbar {
     min-height: 33px;
     overflow-y: auto;
 }
@@ -728,54 +724,56 @@ div#bottom-panel .navbar.navbar-dark .navbar-nav > li.active a:focus {
     margin-left: 5px;
 }
 
-#bottom-left-panel {
-    width:260px;
+#job-details-panel {
+    width: 260px;
 }
 
-#bottom-left-bottom > ul {
+#job-details-pane > ul {
     margin: 0px;
     padding: 0px;
     line-height:12px;
 }
 
-#bottom-left-panel .content-spacer {
+#job-details-panel .content-spacer {
     padding-top: 2px;
     padding-bottom: 4px;
 }
 
-#bottom-left-panel ul li {
+#job-details-panel ul li {
     padding: 0px 0px 0px 5px;
     line-height: 15px;
     word-wrap: break-word;
 }
 
-#bottom-left-panel ul li label{
+#job-details-panel ul li label {
     padding: 0;
     margin: 2px 0px;
 }
 
-#bottom-left-panel .star {
+#job-details-panel .star {
     color: #f0ad4e;
 }
 
-#bottom-left-panel em.testfail{ color:red;}
+#job-details-panel em.testfail {
+    color: red;
+}
 
-#bottom-left-bottom {
+#job-details-pane {
     overflow: auto;
 }
 
-#bottom-center-panel {
+#job-tabs-panel {
     -webkit-flex: 1 6;
     flex: 1 6;
     padding:0px;
     min-width: 500px;
 }
 
-#bottom-panel nav.navbar.navbar-sub{
+#info-panel nav.navbar.navbar-sub {
     border-top: none;
 }
 
-#bottom-center-bottom {
+#job-tabs-pane {
     max-height: calc(100% - 33px);
     -webkit-flex: 1;
     flex: 1;
@@ -784,28 +782,28 @@ div#bottom-panel .navbar.navbar-dark .navbar-nav > li.active a:focus {
     overflow: auto;
 }
 
-#bottom-center-bottom > * {
+#job-tabs-pane > * {
     -webkit-flex: 1;
     flex: 1;
     display: -webkit-flex;
     display: flex;
 }
 
-#bottom-center-bottom > * > * {
+#job-tabs-pane > * > * {
     -webkit-flex: 1;
     flex: 1;
     display: -webkit-flex;
     display: flex;
 }
 
-#bottom-center-bottom > * > * > * {
+#job-tabs-pane > * > * > * {
     -webkit-flex: 1;
     flex: 1;
     display: -webkit-flex;
     display: flex;
 }
 
-#bottom-center-panel ul.failure-summary-list{
+#job-tabs-panel ul.failure-summary-list {
     width: 100%;
     margin-bottom: 0;
 }
