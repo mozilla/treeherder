@@ -51,12 +51,12 @@ treeherder.factory('ThLogSliceModel', [
             size = 0;
             var indexLRU = 0, baseDate = Date.now();
 
-            for (var i in this.buffer) {
-                if (this.buffer.hasOwnProperty(i)) {
+            for (var k in this.buffer) {
+                if (this.buffer.hasOwnProperty(k)) {
                     size++;
-                    if (this.buffer[i].used < baseDate) {
-                        baseDate = this.buffer[i].used;
-                        indexLRU = i;
+                    if (this.buffer[k].used < baseDate) {
+                        baseDate = this.buffer[k].used;
+                        indexLRU = k;
                     }
                 }
             }
@@ -65,82 +65,6 @@ treeherder.factory('ThLogSliceModel', [
                 delete this.buffer[indexLRU];
             }
         }
-    };
-
-    ThLogSliceModel.prototype.load_more = function (bounds, element) {
-        var deferred = $q.defer(), range, req, above, below;
-        var self = this;
-
-        if (!this.loading) {
-            // move the line number either up or down depending which boundary was hit
-            this.line_number = moveLineNumber(bounds);
-
-            range = {
-                start: this.line_number,
-                end: this.line_number
-            };
-
-            if (bounds.top) {
-                above = getChunkAbove(range);
-            } else if (bounds.bottom) {
-                below = getChunkBelow(range);
-            } else {
-                range = getChunksSurrounding(this.line_number);
-            }
-
-            // dont do the call if we already have all the lines
-            if ( range.start === range.end ) return deferred.promise;
-
-            this.loading = true;
-
-            this.get_line_range({
-                job_id: this.job_id,
-                start_line: range.start,
-                end_line: range.end
-            }).then(function(data) {
-                var slicedData, length;
-
-                drawErrorLines(data);
-
-                if (bounds.top) {
-                    for (var i = data.length - 1; i >= 0; i--) {
-                        // make sure we are inserting at the right place
-                        if (self.lines[0].index != data[i].index + 1) continue;
-                        self.lines.unshift(data[i]);
-                    }
-
-                    $timeout(function () {
-                        if (above) removeChunkBelow();
-                    }, 100);
-                } else if (bounds.bottom) {
-                    var sh = element.scrollHeight;
-                    var lines = self.lines;
-
-                    for (var i = 0; i < data.length; i++) {
-                        // make sure we are inserting at the right place
-                        if (lines[ lines.length - 1 ].index != data[i].index - 1) continue;
-                        self.lines.push(data[i]);
-                    }
-
-                    $timeout(function () {
-                        if (below) {
-                            removeChunkAbove();
-                            element.scrollTop -= element.scrollHeight - sh;
-                        }
-                    }, 100);
-                } else {
-                    self.lines = data;
-                }
-
-                self.loading = false;
-                deferred.resolve();
-            });
-        } else {
-            $scope.loading = false;
-            deferred.reject();
-        }
-
-        return deferred.promise;
     };
 
     ThLogSliceModel.prototype.get_line_range = function(options, config) {
