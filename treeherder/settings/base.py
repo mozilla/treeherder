@@ -6,19 +6,13 @@
 import os
 from datetime import timedelta
 
+import dj_database_url
 from kombu import Exchange, Queue
 from treeherder import path
 
 # These settings can all be optionally set via env vars, or in local.py:
 
-TREEHERDER_DATABASE_NAME = os.environ.get("TREEHERDER_DATABASE_NAME", "treeherder")
-TREEHERDER_DATABASE_USER = os.environ.get("TREEHERDER_DATABASE_USER", "treeherder_user")
-TREEHERDER_DATABASE_PASSWORD = os.environ.get("TREEHERDER_DATABASE_PASSWORD", "treeherder_pass")
-TREEHERDER_DATABASE_HOST = os.environ.get("TREEHERDER_DATABASE_HOST", "localhost")
-
-TREEHERDER_RO_DATABASE_USER = os.environ.get("TREEHERDER_RO_DATABASE_USER", TREEHERDER_DATABASE_USER)
-TREEHERDER_RO_DATABASE_PASSWORD = os.environ.get("TREEHERDER_RO_DATABASE_PASSWORD", TREEHERDER_DATABASE_PASSWORD)
-TREEHERDER_RO_DATABASE_HOST = os.environ.get("TREEHERDER_RO_DATABASE_HOST", TREEHERDER_DATABASE_HOST)
+DEFAULT_DATABASE_URL = 'mysql://treeherder_user:treeherder_pass@localhost/treeherder'
 
 TREEHERDER_MEMCACHED = os.environ.get("TREEHERDER_MEMCACHED", "127.0.0.1:11211")
 TREEHERDER_MEMCACHED_KEY_PREFIX = os.environ.get("TREEHERDER_MEMCACHED_KEY_PREFIX", "treeherder")
@@ -379,24 +373,17 @@ INSTALLED_APPS += LOCAL_APPS
 
 TEMPLATE_DEBUG = DEBUG
 
+# The default DB config is extracted from the DATABASE_URL environment variable, and the
+# read only config from DATABASE_URL_RO. If those are not set, DEFAULT_DATABASE_URL is used.
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": TREEHERDER_DATABASE_NAME,
-        "USER": TREEHERDER_DATABASE_USER,
-        "PASSWORD": TREEHERDER_DATABASE_PASSWORD,
-        "HOST": TREEHERDER_DATABASE_HOST,
-    },
-    "read_only": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": TREEHERDER_DATABASE_NAME,
-        "USER": TREEHERDER_RO_DATABASE_USER,
-        "PASSWORD": TREEHERDER_RO_DATABASE_PASSWORD,
-        "HOST": TREEHERDER_RO_DATABASE_HOST,
-    }
+    'default': dj_database_url.config(default=DEFAULT_DATABASE_URL),
+    'read_only': dj_database_url.config(env='DATABASE_URL_RO', default=DEFAULT_DATABASE_URL)
 }
 
 # Setup ssl connection for aws rds.
+# Once https://github.com/kennethreitz/dj-database-url/pull/52 is fixed,
+# Heroku can have the option added to the DATABASE_URL query string,
+# and this can be removed.
 if 'IS_HEROKU' in os.environ:
     ca_path = '/app/deployment/aws/combined-ca-bundle.pem'
     for db_name in DATABASES:

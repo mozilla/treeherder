@@ -13,9 +13,9 @@ from celery import current_app
 def db_conn():
     db_options = settings.DATABASES['default'].get('OPTIONS', {})
     return MySQLdb.connect(
-        host=settings.TREEHERDER_DATABASE_HOST,
-        user=settings.TREEHERDER_DATABASE_USER,
-        passwd=settings.TREEHERDER_DATABASE_PASSWORD,
+        host=settings.DATABASES['default']['HOST'],
+        user=settings.DATABASES['default']['USER'],
+        passwd=settings.DATABASES['default']['PASSWORD'],
         **db_options
     )
 

@@ -314,7 +314,7 @@ class Datasource(models.Model):
                         cursor.execute(statement)
             finally:
                 cursor.execute("USE {0}".format(
-                    settings.TREEHERDER_DATABASE_NAME
+                    settings.DATABASES['default']['NAME']
                 ))
 
         resetwarnings()

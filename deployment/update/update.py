@@ -20,9 +20,16 @@ from commander.deploy import task, hostgroups
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import commander_settings as settings  # noqa
 
+env_file = os.path.join(settings.SRC_DIR, 'treeherder-env.sh')
 th_service_src = os.path.join(settings.SRC_DIR, 'treeherder-service')
 
 is_prod = 'treeherder.mozilla.org' in settings.SRC_DIR
+
+
+def run_local_with_env(ctx, cmd):
+    # For commands run from the admin node, we have to manually set the environment
+    # variables, since the admin node is shared by both stage and prod.
+    ctx.local("source {} && {}".format(env_file, cmd))
 
 
 @task
@@ -58,18 +65,22 @@ def update(ctx):
             ctx.local('ln -s lib lib64')
 
     with ctx.lcd(th_service_src):
+        # Once we no longer use credentials.json, everything below apart from
+        # collectstatic should be performed on one of the stage/prod specific
+        # nodes at the end of the deploy, rather than on the admin node.
+
         # Collect the static files (eg for the Persona or Django admin UI)
-        ctx.local("python2.7 manage.py collectstatic --noinput")
+        run_local_with_env(ctx, "python2.7 manage.py collectstatic --noinput")
         # Update the database schema, if necessary.
-        ctx.local("python2.7 manage.py migrate --noinput")
+        run_local_with_env(ctx, "python2.7 manage.py migrate --noinput")
         # Update reference data & tasks config from the in-repo fixtures.
-        ctx.local("python2.7 manage.py load_initial_data")
+        run_local_with_env(ctx, "python2.7 manage.py load_initial_data")
         # Populate the datasource table and create the connected databases.
-        ctx.local("python2.7 manage.py init_datasources")
+        run_local_with_env(ctx, "python2.7 manage.py init_datasources")
         # Update oauth credentials.
-        ctx.local("python2.7 manage.py export_project_credentials")
+        run_local_with_env(ctx, "python2.7 manage.py export_project_credentials")
         # Clear the cache.
-        ctx.local("python2.7 manage.py clear_cache")
+        run_local_with_env(ctx, "python2.7 manage.py clear_cache")
 
 
 @task
