@@ -261,16 +261,16 @@ class Datasource(models.Model):
         """
         master_host_config = {
             "host": self.host,
-            "user": settings.TREEHERDER_DATABASE_USER,
-            "passwd": settings.TREEHERDER_DATABASE_PASSWORD,
+            "user": settings.DATABASES['default']['USER'],
+            "passwd": settings.DATABASES['default']['PASSWORD'],
         }
         if 'OPTIONS' in settings.DATABASES['default']:
             master_host_config.update(settings.DATABASES['default']['OPTIONS'])
 
         read_host_config = {
             "host": self.read_only_host,
-            "user": settings.TREEHERDER_RO_DATABASE_USER,
-            "passwd": settings.TREEHERDER_RO_DATABASE_PASSWORD,
+            "user": settings.DATABASES['read_only']['USER'],
+            "passwd": settings.DATABASES['read_only']['PASSWORD'],
         }
         if 'OPTIONS' in settings.DATABASES['read_only']:
             read_host_config.update(settings.DATABASES['read_only']['OPTIONS'])
@@ -338,7 +338,7 @@ class Datasource(models.Model):
                         cursor.execute(statement)
             finally:
                 cursor.execute("USE {0}".format(
-                    settings.TREEHERDER_DATABASE_NAME
+                    settings.DATABASES['default']['NAME']
                 ))
 
         resetwarnings()

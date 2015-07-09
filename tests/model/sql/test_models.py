@@ -14,8 +14,8 @@ def create_datasource(model, **kwargs):
     defaults = {
         "project": "foo",
         "contenttype": "jobs",
-        "host": settings.TREEHERDER_DATABASE_HOST,
-        "read_only_host": settings.TREEHERDER_RO_DATABASE_HOST,
+        "host": settings.DATABASES['default']['HOST'],
+        "read_only_host": settings.DATABASES['read_only']['HOST'],
         "type": "MySQL-InnoDB",
         "creation_date": datetime.datetime.now(),
     }
