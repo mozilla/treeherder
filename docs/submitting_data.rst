@@ -118,10 +118,12 @@ characters at most. A job collection has the following data structure.
                 # be saved as Tier 2.
                 'tier': 2,
 
+                # the ``name`` of the log can be the default of "buildbot_text"
+                # however, you can use a custom name.  See below.
                 'log_references': [
                     {
                         'url': 'http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/...',
-                        'name': 'builds-4h'
+                        'name': 'buildbot_text'
                         }
                     ],
 
@@ -137,6 +139,9 @@ characters at most. A job collection has the following data structure.
             },
             ...
     ]
+
+see :ref:`custom-log-name` for more info.
+
 
 Artifact Collections
 --------------------
@@ -262,7 +267,7 @@ structures to send, do something like this:
 
         tj.add_option_collection( data['option_collection'] )
 
-        tj.add_log_reference( 'builds-4h', data['log_reference'] )
+        tj.add_log_reference( 'buildbot_text', data['log_reference'] )
 
         # data['artifact'] is a list of artifacts
         for artifact_data in data['artifact']:
@@ -495,3 +500,55 @@ Via the ``/artifact`` endpoint:
 2. Submit ``text_log_summary`` and ``Bug suggestions`` artifacts
     * Will generate nothing
     * This is *Treeherder's* current internal log parser workflow
+
+
+.. _custom-log-name:
+
+Specifying Custom Log Names
+---------------------------
+
+By default, the Log Viewer expects logs to have the name of ``buildbot_text``
+at this time.  However, if you are supplying the ``text_log_summary`` artifact
+yourself (rather than having it generated for you) you can specify a custom
+log name.  You must specify the name in two places for this to work.
+
+1. When you add the log reference to the job:
+
+.. code-block:: python
+
+    tj.add_log_reference( 'my_custom_log', data['log_reference'] )
+
+
+2. In the ``text_log_summary`` artifact blob, specify the ``logname`` param.
+   This artifact is what the Log Viewer uses to find the associated log lines
+   for viewing.
+
+.. code-block:: python
+
+    {
+        "blob":{
+            "step_data": {
+                "all_errors": [ ],
+                "steps": [
+                    {
+                        "errors": [ ],
+                        "name": "step",
+                        "started_linenumber": 1,
+                        "finished_linenumber": 1,
+                        "finished": "2015-07-08 06:13:46",
+                        "result": "success",
+                        "duration": 2671,
+                        "order": 0,
+                        "error_count": 0
+                    }
+                ],
+                "errors_truncated": false
+            },
+            "logurl": "https://example.com/mylog.log",
+            "logname": "my_custom_log"
+        },
+        "type": "json",
+        "id": 10577808,
+        "name": "text_log_summary",
+        "job_id": 1774360
+    }

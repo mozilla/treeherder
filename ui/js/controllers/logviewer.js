@@ -90,12 +90,15 @@ logViewerApp.controller('LogviewerCtrl', [
                 }
 
                 $scope.loading = true;
-
-                LogSlice.get_line_range({
+                var lineRangeParams = {
                     job_id: $scope.job_id,
                     start_line: range.start,
                     end_line: range.end
-                }, {
+                };
+                if ($scope.artifact.logname) {
+                    lineRangeParams.name = $scope.artifact.logname;
+                }
+                LogSlice.get_line_range(lineRangeParams, {
                     buffer_size: LINE_BUFFER_SIZE
                 }).then(function(data) {
                     var slicedData, length;

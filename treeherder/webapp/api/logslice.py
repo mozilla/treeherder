@@ -62,11 +62,19 @@ class LogSliceView(viewsets.ViewSet):
         # get only the log that matches the ``log_name``
         logs = jm.get_log_references(job_id)
 
+        # @todo: remove after no more logs named 'builds-4h' exist in the db.  Should be after Aug 30, 2015.
+        exp_log_names = [log_name, 'builds-4h']
+
         try:
-            # @todo: remove after no more logs named 'builds-4h' exist in the db.  Should be after Aug 30, 2015.
-            log = next(log for log in logs if log["name"] in [log_name, 'builds-4h'])
+            log = next(log for log in logs if log["name"] in exp_log_names)
         except StopIteration:
-            raise ResourceNotFoundException("job_artifact {0} not found".format(job_id))
+            act_log_names = [x["name"] for x in logs]
+            raise ResourceNotFoundException(
+                "Expected log names of {} not found in {} for job_id {}".format(
+                    exp_log_names,
+                    act_log_names,
+                    job_id,
+                    ))
 
         try:
             url = log.get("url")
