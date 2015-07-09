@@ -7,6 +7,7 @@ import json
 import pytest
 import copy
 import threading
+import zlib
 
 from django.conf import settings
 from django.core.management import call_command
@@ -474,7 +475,7 @@ def test_store_performance_series(jm, test_project):
     stored_series = jm.get_jobs_dhub().execute(
         proc="jobs.selects.get_performance_series",
         placeholders=[FakePerfData.TIME_INTERVAL, FakePerfData.SIGNATURE])
-    blob = json.loads(stored_series[0]['blob'])
+    blob = json.loads(zlib.decompress(stored_series[0]['blob']))
     assert len(blob) == 1
     assert blob[0] == FakePerfData.SERIES[0]
 
@@ -509,7 +510,7 @@ def test_store_performance_series_timeout_recover(jm, test_project):
         proc="jobs.selects.get_performance_series",
         placeholders=[FakePerfData.TIME_INTERVAL, FakePerfData.SIGNATURE])
 
-    blob = json.loads(stored_series[0]['blob'])
+    blob = json.loads(zlib.decompress(stored_series[0]['blob']))
     assert len(blob) == 1
     assert blob[0] == FakePerfData.SERIES[0]
 

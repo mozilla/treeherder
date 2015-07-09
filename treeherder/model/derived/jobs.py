@@ -2071,8 +2071,12 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             # If we don't have this t_range/signature combination create it
             series_data_json = json.dumps(series_data)
             insert_placeholders = [
-                t_range, signature, series_type, now_timestamp,
-                series_data_json, t_range, signature
+                t_range, signature,
+                series_type,
+                now_timestamp,
+                zlib.compress(series_data_json),
+                t_range,
+                signature,
             ]
 
             self.jobs_execute(
@@ -2091,7 +2095,11 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 debug_show=self.DEBUG,
                 placeholders=[t_range, signature])
 
-            db_series_json = performance_series[0]['blob']
+            # new blobs are gzip'ed to save space, old ones may not be
+            try:
+                db_series_json = zlib.decompress(performance_series[0]['blob'])
+            except zlib.error:
+                db_series_json = performance_series[0]['blob']
 
             # If they're equal this was the first time the t_range
             # and signature combination was stored, so there's nothing to
@@ -2116,8 +2124,10 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
                     filtered_series_json = json.dumps(filtered_series)
                     update_placeholders = [
-                        now_timestamp, filtered_series_json,
-                        t_range, signature
+                        now_timestamp,
+                        zlib.compress(filtered_series_json),
+                        t_range,
+                        signature,
                     ]
 
                     self.jobs_execute(
