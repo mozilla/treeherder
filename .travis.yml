@@ -12,8 +12,8 @@ cache:
     - node_modules
 env:
   global:
-    - DATABASE_URL='mysql://root@localhost/treeherder'
-    - DATABASE_URL_RO='mysql://root@localhost/treeherder'
+    - TREEHERDER_DATABASE_USER='root'
+    - TREEHERDER_DATABASE_PASSWORD=''
 services:
   - rabbitmq
   - memcached

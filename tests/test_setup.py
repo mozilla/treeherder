@@ -12,9 +12,9 @@ from celery import current_app
 @pytest.fixture
 def db_conn():
     return MySQLdb.connect(
-        host=settings.DATABASES['default']['HOST'],
-        user=settings.DATABASES['default']['USER'],
-        passwd=settings.DATABASES['default']['PASSWORD'],
+        host=settings.TREEHERDER_DATABASE_HOST,
+        user=settings.TREEHERDER_DATABASE_USER,
+        passwd=settings.TREEHERDER_DATABASE_PASSWORD,
     )
 
 

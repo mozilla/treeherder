@@ -81,9 +81,8 @@ class Command(BaseCommand):
             conn = MySQLdb.connect(
                 host=datasource.host,
                 db=datasource.name,
-                user=settings.DATABASES['default']['USER'],
-                passwd=settings.DATABASES['default']['PASSWORD'],
-            )
+                user=settings.TREEHERDER_DATABASE_USER,
+                passwd=settings.TREEHERDER_DATABASE_PASSWORD)
             try:
                 cursor = conn.cursor()
                 cursor.execute(sql_code)
