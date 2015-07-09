@@ -87,11 +87,7 @@ class ArtifactsModel(TreeherderModelBase):
             debug_show=self.DEBUG,
         )
         for artifact in data:
-            # new blobs are gzip'ed to save space, old ones may not be
-            try:
-                artifact["blob"] = zlib.decompress(artifact["blob"])
-            except zlib.error:
-                pass
+            artifact["blob"] = utils.decompress_if_needed(artifact["blob"])
 
             if artifact["type"] == "json":
                 artifact["blob"] = json.loads(artifact["blob"])
@@ -124,11 +120,7 @@ class ArtifactsModel(TreeherderModelBase):
         )
 
         for artifact in data:
-            # new blobs are gzip'ed to save space, old ones may not be
-            try:
-                artifact["blob"] = zlib.decompress(artifact["blob"])
-            except zlib.error:
-                pass
+            artifact["blob"] = utils.decompress_if_needed(artifact["blob"])
 
             # performance artifacts are always json encoded
             artifact["blob"] = json.loads(artifact["blob"])

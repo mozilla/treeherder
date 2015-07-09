@@ -5,6 +5,8 @@
 import time
 import simplejson as json
 import random
+import zlib
+
 from _mysql_exceptions import OperationalError
 
 
@@ -15,6 +17,17 @@ def get_now_timestamp():
     This is useful because it can be mocked out in unit tests.
     """
     return int(time.time())
+
+
+def decompress_if_needed(blob):
+    """
+    New blobs are gzip'ed to save space, but old ones may not be,
+    in which case we need to handle them gracefully.
+    """
+    try:
+        return zlib.decompress(blob)
+    except zlib.error:
+        return blob
 
 
 def where_wolf(project, flat_exclusions):

@@ -415,7 +415,7 @@ class JobsModel(TreeherderModelBase):
 
         series_summary = cache.get(cache_key, None)
         if series_summary:
-            series_summary = json.loads(zlib.decompress(series_summary))
+            series_summary = json.loads(utils.decompress_if_needed(series_summary))
         else:
             data = self.get_jobs_dhub().execute(
                 proc="jobs.selects.get_perf_series_properties",
@@ -2095,11 +2095,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 debug_show=self.DEBUG,
                 placeholders=[t_range, signature])
 
-            # new blobs are gzip'ed to save space, old ones may not be
-            try:
-                db_series_json = zlib.decompress(performance_series[0]['blob'])
-            except zlib.error:
-                db_series_json = performance_series[0]['blob']
+            db_series_json = utils.decompress_if_needed(performance_series[0]['blob'])
 
             # If they're equal this was the first time the t_range
             # and signature combination was stored, so there's nothing to
