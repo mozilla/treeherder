@@ -44,11 +44,6 @@ following data structure:
             'revisions': [
                 {
                     'comment': 'Bug 936711 - Fix crash which happened at disabling Bluetooth...',
-                    'files': [
-                        'dom/bluetooth/BluetoothA2dpManager.cpp',
-                        'dom/bluetooth/BluetoothHidManager.cpp',
-                        'dom/bluetooth/linux/BluetoothDBusService.cpp'
-                        ],
                     'revision': 'cdfe03e77e66',
                     'repository': 'test_treeherder',
                     'author': 'Some Person <sperson@someplace.com>'
@@ -190,7 +185,6 @@ data structures to send, do something like this.
             tr.add_revision( revision['revision'] )
             tr.add_author( revision['author'] )
             tr.add_comment( revision['comment'] )
-            tr.add_files( revision['files'] )
             tr.add_repository( revision['repository'] )
 
             trs.add_revision(tr)
