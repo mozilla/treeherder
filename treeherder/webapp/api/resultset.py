@@ -4,7 +4,7 @@
 
 from rest_framework import viewsets
 from rest_framework.response import Response
-from rest_framework.decorators import link, action
+from rest_framework.decorators import detail_route
 from rest_framework.reverse import reverse
 from rest_framework.permissions import IsAuthenticated
 from treeherder.model.derived import DatasetNotFoundError
@@ -107,7 +107,7 @@ class ResultSetViewSet(viewsets.ViewSet):
         else:
             return Response("No resultset with id: {0}".format(pk), 404)
 
-    @link()
+    @detail_route()
     @with_jobs
     def revisions(self, request, project, jm, pk=None):
         """
@@ -116,7 +116,7 @@ class ResultSetViewSet(viewsets.ViewSet):
         objs = jm.get_resultset_revisions_list(pk)
         return Response(objs)
 
-    @action(permission_classes=[IsAuthenticated])
+    @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
     @with_jobs
     def cancel_all(self, request, project, jm, pk=None):
         """
@@ -152,7 +152,7 @@ class ResultSetViewSet(viewsets.ViewSet):
 
         return Response({"message": "well-formed JSON stored"})
 
-    @link()
+    @detail_route()
     @with_jobs
     def status(self, request, project, jm, pk=None):
         """

@@ -23,27 +23,30 @@ from treeherder.webapp.api.permissions import (IsStaffOrReadOnly,
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
 
     """ViewSet for the refdata Product model"""
-    model = models.Product
+    queryset = models.Product.objects.all()
+    serializer_class = th_serializers.ProductSerializer
 
 
 class BuildPlatformViewSet(viewsets.ReadOnlyModelViewSet):
 
     """ViewSet for the refdata BuildPlatform model"""
-    model = models.BuildPlatform
+    queryset = models.BuildPlatform.objects.all()
+    serializer_class = th_serializers.BuildPlatformSerializer
 
 
 class JobGroupViewSet(viewsets.ReadOnlyModelViewSet):
 
     """ViewSet for the refdata JobGroup model"""
-    model = models.JobGroup
+    queryset = models.JobGroup.objects.all()
+    serializer_class = th_serializers.JobGroupSerializer
 
 
 class RepositoryViewSet(CacheResponseAndETAGMixin,
                         viewsets.ReadOnlyModelViewSet):
 
     """ViewSet for the refdata Repository model"""
-    serializer_class = th_serializers.RepositorySerializer
     queryset = models.Repository.objects.filter(active_status='active')
+    serializer_class = th_serializers.RepositorySerializer
 
     def list_cache_key_func(self, **kwargs):
         return models.REPOSITORY_LIST_CACHE_KEY
@@ -52,13 +55,15 @@ class RepositoryViewSet(CacheResponseAndETAGMixin,
 class MachinePlatformViewSet(viewsets.ReadOnlyModelViewSet):
 
     """ViewSet for the refdata MachinePlatform model"""
-    model = models.MachinePlatform
+    queryset = models.MachinePlatform.objects.all()
+    serializer_class = th_serializers.MachinePlatformSerializer
 
 
 class BugscacheViewSet(viewsets.ReadOnlyModelViewSet):
 
     """ViewSet for the refdata Bugscache model"""
-    model = models.Bugscache
+    queryset = models.Bugscache.objects.all()
+    serializer_class = th_serializers.BugscacheSerializer
 
     def list(self, request):
         """
@@ -76,7 +81,8 @@ class BugscacheViewSet(viewsets.ReadOnlyModelViewSet):
 class MachineViewSet(viewsets.ReadOnlyModelViewSet):
 
     """ViewSet for the refdata Machine model"""
-    model = models.Machine
+    queryset = models.Machine.objects.all()
+    serializer_class = th_serializers.MachineSerializer
 
 
 class OptionCollectionHashViewSet(viewsets.ViewSet):
@@ -98,14 +104,16 @@ class OptionCollectionHashViewSet(viewsets.ViewSet):
 class JobTypeViewSet(viewsets.ReadOnlyModelViewSet):
 
     """ViewSet for the refdata JobType model"""
-    model = models.JobType
+    queryset = models.JobType.objects.all()
+    serializer_class = th_serializers.JobTypeSerializer
 
 
 class FailureClassificationViewSet(CacheResponseAndETAGMixin,
                                    viewsets.ReadOnlyModelViewSet):
 
     """ViewSet for the refdata FailureClassification model"""
-    model = models.FailureClassification
+    queryset = models.FailureClassification.objects.all()
+    serializer_class = th_serializers.FailureClassificationSerializer
 
     def list_cache_key_func(self, **kwargs):
         return models.FAILURE_CLASSIFICAION_LIST_CACHE_KEY
@@ -121,7 +129,6 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     Info about a logged-in user.
     Used by Treeherder's UI to inspect user properties like the exclusion profile
     """
-    model = User
     serializer_class = th_serializers.UserSerializer
     authentication_classes = (SessionAuthentication,)
 
@@ -130,14 +137,14 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class UserExclusionProfileViewSet(viewsets.ModelViewSet):
-    model = models.UserExclusionProfile
+    queryset = models.UserExclusionProfile.objects.all()
     authentication_classes = (SessionAuthentication,)
     permission_classes = (IsOwnerOrReadOnly,)
     serializer_class = th_serializers.UserExclusionProfileSerializer
 
 
 class JobExclusionViewSet(viewsets.ModelViewSet):
-    model = models.JobExclusion
+    queryset = models.JobExclusion.objects.all()
     authentication_classes = (SessionAuthentication,)
     permission_classes = (IsStaffOrReadOnly,)
     serializer_class = th_serializers.JobExclusionSerializer
@@ -157,7 +164,7 @@ class ExclusionProfileViewSet(viewsets.ModelViewSet):
     """
 
     """
-    model = models.ExclusionProfile
+    queryset = models.ExclusionProfile.objects.all()
     authentication_classes = (SessionAuthentication,)
     permission_classes = (IsStaffOrReadOnly,)
     serializer_class = th_serializers.ExclusionProfileSerializer

@@ -330,4 +330,4 @@ def test_resultset_status(webapp, eleven_jobs_processed, jm):
     )
     assert resp.status_int == 200
     assert isinstance(resp.json, dict)
-    assert resp.json == {'success': '1'}
+    assert resp.json == {'success': 1}
