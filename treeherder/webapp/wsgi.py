@@ -50,6 +50,8 @@ application = CustomWhiteNoise(application)
 if newrelic:
     application = newrelic.agent.wsgi_application()(application)
 
-# Fix django closing connection to MemCachier after every request (#11331)
+# Fix django closing connection to MemCachier after every request:
+# https://code.djangoproject.com/ticket/11331
+# Remove when https://github.com/django/django/pull/4866 fixed.
 from django.core.cache.backends.memcached import BaseMemcachedCache
 BaseMemcachedCache.close = lambda self, **kwargs: None
