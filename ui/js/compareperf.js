@@ -5,13 +5,46 @@
 "use strict";
 
 perf.controller('CompareChooserCtrl', [
-  '$state', '$stateParams', '$scope', 'ThRepositoryModel', 'ThResultSetModel',
-  function CompareChooserCtrl($state, $stateParams, $scope,
+  '$state', '$stateParams', '$scope', '$http', 'ThRepositoryModel', 'ThResultSetModel',
+  function CompareChooserCtrl($state, $stateParams, $scope, $http,
                               ThRepositoryModel, ThResultSetModel) {
     ThRepositoryModel.get_list().success(function(projects) {
       $scope.projects = projects;
       $scope.originalProject = $scope.newProject = projects[0];
+      $scope.oriTipList = [];
+      $scope.newTipList = [];
+      var getRevisionTips = function (projectName, list) {
+        // due to we push the revision data into list,
+        // so we need clear the data before we push new data into it.
+        list.splice(0, list.length);
+        return $http.get (thServiceDomain + '/api/project/' +
+                          projectName + '/resultset/').then(function(resultSet) {
+                              resultSet['data'].results.forEach(function(revisionSet) {
+                                  var revisionTips = {};
+                                  revisionTips.revision = revisionSet.revision;
+                                  revisionTips.author = revisionSet.author;
+                                  list.push(revisionTips);
+                              });
+                          });
+      }
 
+      $scope.updateOrigRevisionTips = function () {
+          getRevisionTips($scope.originalProject.name, $scope.oriTipList);
+      }
+      $scope.updateNewRevisionTips = function () {
+          getRevisionTips($scope.newProject.name, $scope.newTipList);
+      }
+      $scope.updateOrigRevisionTips();
+      $scope.updateNewRevisionTips();
+
+      $scope.getOriTipRevision = function (tip) {
+          $scope.originalRevision = tip;
+      }
+      
+      $scope.getNewTipRevision = function (tip) {
+          $scope.newRevision = tip;
+      }
+      
       $scope.runCompare = function() {
         ThResultSetModel.getResultSetsFromRevision($scope.originalProject.name, $scope.originalRevision).then(
           function(resultSets) {
