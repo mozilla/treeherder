@@ -10,13 +10,13 @@ treeherder.directive('thCloneJobs', [
     'thServiceDomain', 'thResultStatusInfo', 'thEvents', 'thAggregateIds',
     'thJobFilters', 'thResultStatusObject', 'ThResultSetStore',
     'ThJobModel', 'linkifyBugsFilter', 'thResultStatus', 'thPlatformName',
-    'thJobSearchStr', 'thNotify', '$timeout',
+    'thJobSearchStr',
     function(
         $rootScope, $http, ThLog, thUrl, thCloneHtml,
         thServiceDomain, thResultStatusInfo, thEvents, thAggregateIds,
         thJobFilters, thResultStatusObject, ThResultSetStore,
         ThJobModel, linkifyBugsFilter, thResultStatus, thPlatformName,
-        thJobSearchStr, thNotify, $timeout){
+        thJobSearchStr){
 
     var $log = new ThLog("thCloneJobs");
 
@@ -60,7 +60,7 @@ treeherder.directive('thCloneJobs', [
 
     //Global event listeners
     $rootScope.$on(
-        thEvents.changeSelection, function(ev, direction, jobNavSelector){
+        thEvents.changeSelection, function(ev, direction, selector){
 
         var jobMap = ThResultSetStore.getJobMap($rootScope.repoName);
         var el, key, job, jobs, getIndex;
@@ -75,26 +75,21 @@ treeherder.directive('thCloneJobs', [
             };
         }
 
-        jobs = $(jobNavSelector.selector).filter(":visible");
-        if (jobs.length) {
-            var selIdx = jobs.index(jobs.filter(".selected-job"));
-            var idx = getIndex(selIdx, jobs);
+        jobs = $(selector);
+        var idx = jobs.index(jobs.filter(".selected-job"));
+        idx = getIndex(idx, jobs);
 
+        el = $(jobs[idx]);
+        while (el.css('display') === 'none') {
+            idx = getIndex(idx, jobs);
             el = $(jobs[idx]);
-            key = el.attr(jobKeyAttr);
-            if (jobMap && jobMap[key] && selIdx !== idx) {
-                selectJob(jobMap[key].job_obj);
-                return;
-            }
         }
-        // if there was no new job selected, then ensure that we clear any job that
-        // was previously selected.
-        $timeout(function() {
-            if ($(".selected-job").css('display') === 'none') {
-                $rootScope.closeJob();
-            }
-            thNotify.send("No more " + jobNavSelector.name + " to select", "warning");
-        }, 0);
+
+        key = el.attr(jobKeyAttr);
+        if (jobMap && jobMap[key]) {
+            selectJob(jobMap[key].job_obj);
+        }
+
     });
 
     $rootScope.$on(thEvents.selectJob, function(ev, job, job_selection_type) {

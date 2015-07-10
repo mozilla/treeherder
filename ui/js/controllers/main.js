@@ -26,7 +26,7 @@ treeherderApp.controller('MainCtrl', [
             return "[" + ufc + "] " + $rootScope.repoName;
         };
 
-        $rootScope.closeJob = function() {
+        $scope.closeJob = function() {
             // Setting the selectedJob to null closes the bottom panel
             $rootScope.selectedJob = null;
 

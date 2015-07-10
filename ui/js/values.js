@@ -149,16 +149,10 @@ treeherder.value("phTimeRanges", [
 
 treeherder.value("thJobNavSelectors",
     {
-        ALL_JOBS: {
-            name: "jobs",
-            selector: ".th-view-content .job-btn"
-        },
-        UNCLASSIFIED_FAILURES: {
-            name: "unclassified failures",
-            selector: ".selected-job, " +
-                      ".th-view-content .job-btn.btn-red, " +
-                      ".th-view-content .job-btn.btn-orange, " +
-                      ".th-view-content .job-btn.btn-purple"
-        }
+        ALL_JOBS: ".th-view-content .job-btn",
+        UNCLASSIFIED_FAILURES: ".selected-job, " +
+                               ".th-view-content .job-btn.btn-red, " +
+                               ".th-view-content .job-btn.btn-orange, " +
+                               ".th-view-content .job-btn.btn-purple"
     }
 );
