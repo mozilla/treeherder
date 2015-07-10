@@ -48,38 +48,22 @@ DROP TABLE IF EXISTS `datasource`;
  *              jobs in project_jobs.sql.tmpl, reference in treeherder_reference_1.sql.tmpl
  *              A project can have any number of contenttypes associated with it.
  *
- *  host - Name of the database host.
- *
- *  read_only_host - A read only host associated with the database.
- *
  *  name - Name of the database. Can be anything but typically project_contenttype. So,
  *         try_jobs or mozillaaurora_jobs.
- *
- *  type - Type of storage engine associated with the database. This is automatically added
- *         to the template schema when a user runs a manage command that creates a database
- *         schema. There is currently support for MariaDB and MySQL storage engines.
  *
  *  oauth_consumer_key - The OAuth consumer key. This is automatically added when a new datasource
                          is added.
  *
  *  oauth_consumer_secret - The OAuth consumer secret. This is automatically added when a new datasource
                             is added.
- *
- *  creation_date - Date the database was created.
- *
- *  cron_batch - The cron interval to use when running cron jobs on this database.
  **************************/
 CREATE TABLE `datasource` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `project` varchar(50) COLLATE utf8_bin NOT NULL,
   `contenttype` varchar(25) COLLATE utf8_bin NOT NULL,
-  `host` varchar(128) COLLATE utf8_bin NOT NULL,
-  `read_only_host` varchar(128) COLLATE utf8_bin DEFAULT NULL,
-  `name` varchar(128) COLLATE utf8_bin NOT NULL,
-  `type` varchar(25) COLLATE utf8_bin NOT NULL,
+  `name` varchar(128) COLLATE utf8_bin NOT NULL UNIQUE,
   `oauth_consumer_key` varchar(45) COLLATE utf8_bin DEFAULT NULL,
   `oauth_consumer_secret` varchar(45) COLLATE utf8_bin DEFAULT NULL,
-  `creation_date` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `project` (`project`,`contenttype`)
 ) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;

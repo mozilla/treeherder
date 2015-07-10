@@ -166,8 +166,6 @@ def jobs_ds():
     return Datasource.objects.create(
         project=settings.DATABASES["default"]["TEST_NAME"],
         contenttype="jobs",
-        host=settings.TREEHERDER_DATABASE_HOST,
-        read_only_host=settings.TREEHERDER_RO_DATABASE_HOST,
     )
 
 
@@ -178,8 +176,6 @@ def objectstore_ds():
     return Datasource.objects.create(
         project=settings.DATABASES["default"]["TEST_NAME"],
         contenttype="objectstore",
-        host=settings.TREEHERDER_DATABASE_HOST,
-        read_only_host=settings.TREEHERDER_RO_DATABASE_HOST,
     )
 
 

@@ -180,13 +180,9 @@ class Datasource(models.Model):
     id = models.AutoField(primary_key=True)
     project = models.CharField(max_length=50L)
     contenttype = models.CharField(max_length=25L)
-    host = models.CharField(max_length=128L)
-    read_only_host = models.CharField(max_length=128L, blank=True)
-    name = models.CharField(max_length=128L)
-    type = models.CharField(max_length=25L)
+    name = models.CharField(max_length=128L, unique=True)
     oauth_consumer_key = models.CharField(max_length=45L, blank=True, null=True)
     oauth_consumer_secret = models.CharField(max_length=45L, blank=True, null=True)
-    creation_date = models.DateTimeField(auto_now_add=True)
 
     objects = DatasourceManager()
 
@@ -194,7 +190,6 @@ class Datasource(models.Model):
         db_table = 'datasource'
         unique_together = (
             ("project", "contenttype"),
-            ("host", "name"),
         )
 
     @classmethod
@@ -227,9 +222,6 @@ class Datasource(models.Model):
             if '-' in self.name:
                 self.name = self.name.replace('-', '_')
 
-            if not self.type:
-                self.type = "mysql"
-
             self.oauth_consumer_key = None
             self.oauth_consumer_secret = None
 
@@ -260,25 +252,23 @@ class Datasource(models.Model):
 
         """
         master_host_config = {
-            "host": self.host,
-            "user": settings.TREEHERDER_DATABASE_USER,
-            "passwd": settings.TREEHERDER_DATABASE_PASSWORD,
+            "host": settings.DATABASES['default']['HOST'],
+            "user": settings.DATABASES['default']['USER'],
+            "passwd": settings.DATABASES['default']['PASSWORD'],
         }
         if 'OPTIONS' in settings.DATABASES['default']:
             master_host_config.update(settings.DATABASES['default']['OPTIONS'])
 
         read_host_config = {
-            "host": self.read_only_host,
-            "user": settings.TREEHERDER_RO_DATABASE_USER,
-            "passwd": settings.TREEHERDER_RO_DATABASE_PASSWORD,
+            "host": settings.DATABASES['read_only']['HOST'],
+            "user": settings.DATABASES['read_only']['USER'],
+            "passwd": settings.DATABASES['read_only']['PASSWORD'],
         }
         if 'OPTIONS' in settings.DATABASES['read_only']:
             read_host_config.update(settings.DATABASES['read_only']['OPTIONS'])
 
         data_source = {
             self.key: {
-                # @@@ this should depend on self.type
-                # @@@ shouldn't have to specify this here and below
                 "hub": "MySQL",
                 "master_host": master_host_config,
                 "read_host": read_host_config,
@@ -292,7 +282,6 @@ class Datasource(models.Model):
         }
 
         BaseHub.add_data_source(data_source)
-        # @@@ the datahub class should depend on self.type
         return MySQL(self.key)
 
     def create_db(self, schema_file=None):
@@ -301,21 +290,10 @@ class Datasource(models.Model):
 
         If schema file is not given, defaults to
         "template_schema/schema_<contenttype>.sql.tmpl".
-
-        Assumes that the database server at ``self.host`` is accessible, and
-        that ``DATABASE_USER`` (identified by
-        ``DATABASE_PASSWORD`` exists on it and has permissions to
-        create databases.
         """
         import MySQLdb
 
-        if self.type.lower().startswith("mysql-"):
-            engine = self.type[len("mysql-"):]
-        elif self.type.lower() == "mysql":
-            engine = "InnoDB"
-        else:
-            raise NotImplementedError(
-                "Currently only MySQL data source is supported.")
+        engine = "InnoDB"
 
         if schema_file is None:
             schema_file = path(

@@ -54,13 +54,9 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(serialize=False, primary_key=True)),
                 ('project', models.CharField(max_length=50L)),
                 ('contenttype', models.CharField(max_length=25L)),
-                ('host', models.CharField(max_length=128L)),
-                ('read_only_host', models.CharField(max_length=128L, blank=True)),
-                ('name', models.CharField(max_length=128L)),
-                ('type', models.CharField(max_length=25L)),
+                ('name', models.CharField(unique=True, max_length=128L)),
                 ('oauth_consumer_key', models.CharField(max_length=45L, null=True, blank=True)),
                 ('oauth_consumer_secret', models.CharField(max_length=45L, null=True, blank=True)),
-                ('creation_date', models.DateTimeField(auto_now_add=True)),
             ],
             options={
                 'db_table': 'datasource',
@@ -292,6 +288,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name='datasource',
-            unique_together=set([('host', 'name'), ('project', 'contenttype')]),
+            unique_together=set([('project', 'contenttype')]),
         ),
     ]

@@ -2,22 +2,15 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-import datetime
 from contextlib import contextmanager
 
 
 def create_datasource(model, **kwargs):
     """Utility function to easily create a test DataSource."""
 
-    from django.conf import settings
-
     defaults = {
         "project": "foo",
         "contenttype": "jobs",
-        "host": settings.TREEHERDER_DATABASE_HOST,
-        "read_only_host": settings.TREEHERDER_RO_DATABASE_HOST,
-        "type": "MySQL-InnoDB",
-        "creation_date": datetime.datetime.now(),
     }
 
     defaults.update(kwargs)
