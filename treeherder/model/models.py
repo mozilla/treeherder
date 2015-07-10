@@ -293,8 +293,6 @@ class Datasource(models.Model):
         """
         import MySQLdb
 
-        engine = "InnoDB"
-
         if schema_file is None:
             schema_file = path(
                 "model",
@@ -310,7 +308,7 @@ class Datasource(models.Model):
             try:
                 with open(schema_file) as f:
                     # set the engine to use
-                    sql = f.read().format(engine=engine)
+                    sql = f.read()
                     statement_list = sql.split(";")
                     for statement in statement_list:
                         cursor.execute(statement)

@@ -2,10 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* This file contains {engine} markers that must be replaced
-   before it is sent to MySQL.
-*/
-
 --
 -- Host: localhost    Database: treeherder
 -- ------------------------------------------------------
@@ -66,7 +62,7 @@ CREATE TABLE `datasource` (
   `oauth_consumer_secret` varchar(45) COLLATE utf8_bin DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `project` (`project`,`contenttype`)
-) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 

@@ -2,10 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* This file contains {engine} markers that must be replaced
-   before it is sent to MySQL.
-*/
-
 --
 -- Host: localhost    Database: treeherder_reference_1
 -- ------------------------------------------------------
@@ -105,7 +101,7 @@ CREATE TABLE `reference_data_signatures` (
   KEY `idx_first_submission_timestamp` (`first_submission_timestamp`),
   KEY `idx_review_timestamp` (`review_timestamp`),
   KEY `idx_review_status` (`review_status`)
-) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -184,7 +180,7 @@ CREATE TABLE `build_platform` (
   KEY `idx_platform` (`platform`),
   KEY `idx_architecture` (`architecture`),
   KEY `idx_active_status` (`active_status`)
-) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -214,7 +210,7 @@ CREATE TABLE `failure_classification` (
   PRIMARY KEY (`id`),
   KEY `idx_name` (`name`),
   KEY `idx_active_status` (`active_status`)
-) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -248,7 +244,7 @@ CREATE TABLE `job_group` (
   KEY `idx_name` (`name`),
   KEY `idx_active_status` (`active_status`),
   UNIQUE KEY `uni_name_symbol` (`name`,`symbol`)
-) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -291,7 +287,7 @@ CREATE TABLE `job_type` (
   KEY `fk_job_type_job_group` (`job_group_id`),
   UNIQUE KEY `uni_name_symbol` (`name`,`symbol`),
   CONSTRAINT `fk_job_type_job_group` FOREIGN KEY (`job_group_id`) REFERENCES `job_group` (`id`)
-) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -326,7 +322,7 @@ CREATE TABLE `machine` (
   KEY `idx_first_timestamp` (`first_timestamp`),
   KEY `idx_last_timestamp` (`last_timestamp`),
   KEY `idx_active_status` (`active_status`)
-) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -361,7 +357,7 @@ CREATE TABLE `machine_platform` (
   KEY `idx_platform` (`platform`),
   KEY `idx_architecture` (`architecture`),
   KEY `idx_active_status` (`active_status`)
-) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 DROP TABLE IF EXISTS `device`;
@@ -387,7 +383,7 @@ CREATE TABLE `device` (
   PRIMARY KEY (`id`),
   KEY `idx_name` (`name`),
   KEY `idx_active_status` (`active_status`)
-) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 --
 -- Table structure for table `option`
@@ -418,7 +414,7 @@ CREATE TABLE `option` (
   PRIMARY KEY (`id`),
   KEY `idx_name` (`name`),
   KEY `idx_active_status` (`active_status`)
-) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -450,7 +446,7 @@ CREATE TABLE `option_collection` (
   KEY `idx_option` (`option_id`),
   KEY `idx_option_collection_hash` (`option_collection_hash`),
   CONSTRAINT `fk_option` FOREIGN KEY (`option_id`) REFERENCES `option` (`id`)
-) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -480,7 +476,7 @@ CREATE TABLE `product` (
   PRIMARY KEY (`id`),
   KEY `idx_name` (`name`),
   KEY `idx_active_status` (`active_status`)
-) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -523,7 +519,7 @@ CREATE TABLE `repository` (
   KEY `idx_codebase` (`codebase`),
   KEY `idx_active_status` (`active_status`),
   CONSTRAINT `fk_repository_group` FOREIGN KEY (`repository_group_id`) REFERENCES `repository_group` (`id`)
-) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -553,7 +549,7 @@ CREATE TABLE `repository_group` (
   PRIMARY KEY (`id`),
   KEY `idx_name` (`name`),
   KEY `idx_active_status` (`active_status`)
-) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 DROP TABLE IF EXISTS `job_exclusion`;
@@ -582,7 +578,7 @@ CREATE TABLE `job_exclusion` (
     `author_id` integer NOT NULL,
 
 KEY `idx_name` (`name`)
-) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
@@ -612,7 +608,7 @@ CREATE TABLE `exclusion_profile` (
 KEY `idx_name` (`name`),
 KEY `idx_is_default` (`is_default`),
 KEY `idx_author` (`author_id`)
-)ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
@@ -643,7 +639,7 @@ CREATE TABLE `user_exclusion_profile` (
   KEY `idx_is_default` (`is_default`),
   KEY `idx_user` (`user_id`),
   CONSTRAINT `fk_exclusion_profile` FOREIGN KEY (`exclusion_profile_id`) REFERENCES `exclusion_profile` (`id`)
-)ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
@@ -669,7 +665,7 @@ CREATE TABLE `exclusion_profile_exclusions` (
     UNIQUE (`exclusionprofile_id`, `jobexclusion_id`),
   CONSTRAINT `fk_exclusionprofile` FOREIGN KEY (`exclusionprofile_id`) REFERENCES `exclusion_profile` (`id`),
   CONSTRAINT `fk_jobexclusion` FOREIGN KEY (`jobexclusion_id`) REFERENCES `job_exclusion` (`id`)
-) ENGINE={engine} DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
