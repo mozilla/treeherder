@@ -1289,7 +1289,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
         job_update_placeholders = []
         job_guid_list = []
-        job_guid_where_in_list = []
         push_timestamps = {}
 
         for index, job in enumerate(job_placeholders):
@@ -1300,16 +1299,13 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 job_placeholders,
                 id_lookups,
                 job_guid_list,
-                job_guid_where_in_list,
                 job_update_placeholders,
                 result_set_ids,
                 job_eta_times,
                 push_timestamps
             )
 
-        job_id_lookup = self._load_jobs(
-            job_placeholders, job_guid_where_in_list, job_guid_list
-        )
+        job_id_lookup = self._load_jobs(job_placeholders, job_guid_list)
 
         # For each of these ``retry_job_guids`` the job_id_lookup will
         # either contain the retry guid, or the root guid (based on whether we
@@ -1636,7 +1632,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
 
     def _set_data_ids(
         self, index, job_placeholders, id_lookups,
-        job_guid_list, job_guid_where_in_list, job_update_placeholders,
+        job_guid_list, job_update_placeholders,
         result_set_ids, job_eta_times, push_timestamps
     ):
         """
@@ -1720,8 +1716,6 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
         if job_guid != job_guid_root:
             job_guid_list.append(job_guid_root)
 
-        job_guid_where_in_list.append('%s')
-
         reference_data_signature = job_placeholders[index][1]
         pending_avg_sec = job_eta_times.get(reference_data_signature, {}).get('pending', 0)
         running_avg_sec = job_eta_times.get(reference_data_signature, {}).get('running', 0)
@@ -1750,9 +1744,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                 get_guid_root(job_guid)
             ])
 
-    def _load_jobs(
-        self, job_placeholders, job_guid_where_in_list, job_guid_list
-    ):
+    def _load_jobs(self, job_placeholders, job_guid_list):
 
         if not job_placeholders:
             return {}
