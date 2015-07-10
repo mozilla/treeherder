@@ -78,11 +78,14 @@ class Command(BaseCommand):
 
         for datasource in datasources:
             self.stdout.write("--------------------------")
+            db_options = settings.DATABASES['default'].get('OPTIONS', {})
             conn = MySQLdb.connect(
                 host=datasource.host,
                 db=datasource.name,
                 user=settings.TREEHERDER_DATABASE_USER,
-                passwd=settings.TREEHERDER_DATABASE_PASSWORD)
+                passwd=settings.TREEHERDER_DATABASE_PASSWORD,
+                **db_options
+            )
             try:
                 cursor = conn.cursor()
                 cursor.execute(sql_code)
