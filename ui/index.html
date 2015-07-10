@@ -119,10 +119,12 @@
             <div class="clearfix"></div>
             <li>
                 <span class="revision">
-                    <a href="{{currentRepo.getRevisionHref(revision)}}"
-                       title="Open revision {{revision}} on {{currentRepo.url}}"
-                       ignore-job-clear-on-click
-                       >{{revision}}</a>
+                    <span class="revision-holder"
+                          ondblclick="window.getSelection().selectAllChildren(this.firstElementChild);">
+                        <a href="{{currentRepo.getRevisionHref(revision)}}"
+                           title="Open revision {{revision}} on {{currentRepo.url}}"
+                           ignore-job-clear-on-click>{{revision}}</a>
+                    </span>
                     <span title="{{name}}: {{email}}">{{name|initials}}</span>
                     <span title="{{escaped_comment}}">
                         <span class="revision-comment">

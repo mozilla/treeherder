@@ -397,11 +397,14 @@ th-watched-repo {
     overflow: auto;
 }
 
-.revision > a:first-child {
-    float: left;
+.revision > span > a {
     padding-top: 2px;
-    padding-right: 11px;
     font: 11px "Lucida Console",Monaco,monospace;
+}
+
+.revision-holder {
+    padding-left:20px;
+    padding-right: 11px;
 }
 
 .revision-comment {
