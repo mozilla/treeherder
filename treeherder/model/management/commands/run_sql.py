@@ -80,10 +80,10 @@ class Command(BaseCommand):
             self.stdout.write("--------------------------")
             db_options = settings.DATABASES['default'].get('OPTIONS', {})
             conn = MySQLdb.connect(
-                host=datasource.host,
+                host=settings.DATABASES['default']['HOST'],
                 db=datasource.name,
-                user=settings.TREEHERDER_DATABASE_USER,
-                passwd=settings.TREEHERDER_DATABASE_PASSWORD,
+                user=settings.DATABASES['default']['USER'],
+                passwd=settings.DATABASES['default']['PASSWORD'],
                 **db_options
             )
             try:
