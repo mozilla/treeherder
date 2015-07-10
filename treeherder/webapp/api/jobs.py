@@ -4,7 +4,7 @@
 
 from rest_framework import viewsets
 from rest_framework.response import Response
-from rest_framework.decorators import action
+from rest_framework.decorators import detail_route
 from rest_framework.reverse import reverse
 from rest_framework.permissions import IsAuthenticated
 
@@ -91,7 +91,7 @@ class JobsViewSet(viewsets.ViewSet):
 
         return Response(response_body)
 
-    @action(permission_classes=[IsAuthenticated])
+    @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
     @with_jobs
     def update_state(self, request, project, jm, pk=None):
         """
@@ -120,7 +120,7 @@ class JobsViewSet(viewsets.ViewSet):
         else:
             return Response("No job with id: {0}".format(pk), 404)
 
-    @action(permission_classes=[IsAuthenticated])
+    @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
     @with_jobs
     def cancel(self, request, project, jm, pk=None):
         """
@@ -133,7 +133,7 @@ class JobsViewSet(viewsets.ViewSet):
         else:
             return Response("No job with id: {0}".format(pk), 404)
 
-    @action(permission_classes=[IsAuthenticated])
+    @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
     @with_jobs
     def retrigger(self, request, project, jm, pk=None):
         """

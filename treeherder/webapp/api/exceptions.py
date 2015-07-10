@@ -19,7 +19,7 @@ class ResourceNotFoundException(exceptions.APIException):
     default_detail = "Resource not found"
 
 
-def exception_handler(exc):
+def exception_handler(exc, context):
     """
 Add treeherder-specific exception handling to the rest framework
 Mostly a conversion of treeherders ORM exceptions to drf APIExceptions
@@ -38,7 +38,7 @@ Mostly a conversion of treeherders ORM exceptions to drf APIExceptions
             "{0} object not found using: {1}".format(
                 exc.table, unicode(exc.extra_info)))
 
-    response = drf_exc_handler(exc)
+    response = drf_exc_handler(exc, context)
     if response is None:
         msg = {"detail": unicode(exc)}
         if settings.DEBUG:

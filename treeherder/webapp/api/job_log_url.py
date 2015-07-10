@@ -6,7 +6,7 @@ import logging
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.exceptions import ParseError
-from rest_framework.decorators import action
+from rest_framework.decorators import detail_route
 
 from treeherder.webapp.api.utils import with_jobs, oauth_required
 
@@ -47,7 +47,7 @@ class JobLogUrlViewSet(viewsets.ViewSet):
 
         return Response(job_log_url_list)
 
-    @action()
+    @detail_route(methods=['post'])
     @with_jobs
     @oauth_required
     def update_parse_status(self, request, project, jm, pk=None):
@@ -62,7 +62,7 @@ class JobLogUrlViewSet(viewsets.ViewSet):
         except KeyError:
             raise ParseError(detail=("The parse_status parameter is mandatory for this endpoint"))
 
-    @action()
+    @detail_route(methods=['post'])
     @with_jobs
     def parse(self, request, project, jm, pk=None):
         """Trigger an async task to parse this log."""
