@@ -220,13 +220,21 @@ to { opacity: 0; }
 
 .compare-form .form-group .panel {
   flex: none;
-  width: 280px;
+  width: 360px;
+  height: 250px;
   margin-right: 15px;
   margin-bottom: 0px;
 }
 
 .compare-form .button-container {
-  width: 575px;
+  width: 740px;
+  position: relative;
+  left: -5px;
+}
+
+.compare-form .form-group .input-group-btn {
+  flex: none;
+  width: 10px;
 }
 
 .compare-improvement {

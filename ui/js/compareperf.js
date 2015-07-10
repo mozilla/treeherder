@@ -11,7 +11,40 @@ perf.controller('CompareChooserCtrl', [
     ThRepositoryModel.get_list().success(function(projects) {
       $scope.projects = projects;
       $scope.originalProject = $scope.newProject = projects[0];
+      $scope.originalTipList = [];
+      $scope.newTipList = [];
+      var getRevisionTips = function(projectName, list) {
+        // due to we push the revision data into list,
+        // so we need clear the data before we push new data into it.
+        list.splice(0, list.length);
+        ThResultSetModel.getResultSets(projectName).then(function(response) {
+          var resultsets = response.data.results;
+          resultsets.forEach(function(revisionSet) {
+            list.push({
+              revision: revisionSet.revision,
+              author: revisionSet.author
+            });
+          });
+        });
+      };
 
+      $scope.updateOriginalgRevisionTips = function() {
+        getRevisionTips($scope.originalProject.name, $scope.originalTipList);
+      };
+      $scope.updateNewRevisionTips = function() {
+        getRevisionTips($scope.newProject.name, $scope.newTipList);
+      };
+      $scope.updateOriginalgRevisionTips();
+      $scope.updateNewRevisionTips();
+
+      $scope.getOriginalTipRevision = function(tip) {
+        $scope.originalRevision = tip;
+      };
+
+      $scope.getNewTipRevision = function(tip) {
+        $scope.newRevision = tip;
+      };
+      
       $scope.runCompare = function() {
         ThResultSetModel.getResultSetsFromRevision($scope.originalProject.name, $scope.originalRevision).then(
           function(resultSets) {
