@@ -677,6 +677,7 @@ perf.controller('GraphsCtrl', [
             var modalInstance = $modal.open({
               templateUrl: 'partials/perf/testdatachooser.html',
               controller: 'TestChooserCtrl',
+              size: 'lg',
               resolve: {
                 projects: function() {
                   return $scope.projects;
@@ -696,20 +697,21 @@ perf.controller('GraphsCtrl', [
               window.setTimeout(function () { modalInstance.updateTestInput(); }, 0);
             });
 
-            modalInstance.result.then(function(series) {
-              series.highlightedPoints = [];
-              series.visible = true;
-              series.color = availableColors.pop();
-
-              $scope.seriesList.push(series);
-              if( !$scope.highlightedRevision ) {
+            modalInstance.result.then(function(seriesList) {
+              seriesList.forEach(function(series)  {
+                series.hightlightedPoints = [];
+                series.visible = true;
+                series.color = availableColors.pop();
+                $scope.seriesList.push(series);
+              });
+              if (!$scope.highlightedRevision) {
                 $scope.highlightedRevision = '';
               }
               if (!$scope.zoom) {
                 $scope.zoom = {};
               }
               updateDocument();
-              getSeriesData(series).then(function() {
+              $q.all($scope.seriesList.map(getSeriesData)).then(function() {
                 plotGraph();
               });
             });
@@ -733,15 +735,60 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
   $scope.loadingTestData = false;
 
   var testInputCreated = false;
-
+  var testArray = [];
+  var series = [];
   $scope.addTestData = function () {
-    var series = _.clone($scope.selectedSeries);
-    series.projectName = $scope.selectedProject.name;
-    $modalInstance.close(series);
+      $scope.selectedSeriesList = $scope.addedTestList
+      $scope.selectedSeriesList.forEach(function(selectedSeries, i) {
+        series[i] = _.clone(selectedSeries);
+        series[i].projectName = selectedSeries.projectName;
+      })
+      $modalInstance.close(series);
   };
 
   $scope.cancel = function () {
     $modalInstance.dismiss('cancel');
+  };
+  $scope.selectedTestList = [];
+  $scope.unselectedTestList = [];
+  $scope.addedTestList = [];
+  
+  $scope.unselectTest = function () {
+    $scope.unselectedTestList.forEach(function(test) {
+      test = JSON.parse(test);
+      var selected = -1;
+      $scope.addedTestList.forEach(function(obj, i){
+        if (obj.name === test.name) {
+          selected = i;
+        }
+      });
+      if (selected !== -1) {
+        if (test.platform === $scope.selectedPlatform &&
+            test.projectName === $scope.selectedProject.name) {
+          var temp = ($scope.addedTestList.splice(selected, 1))[0].name;
+          $scope.testList.push(temp);
+        } else {
+          // just remove the item because testlist will refresh when change platform or project
+          $scope.addedTestList.splice(selected, 1);
+        }
+      }
+    });
+  };
+  
+  $scope.selectTest = function () {
+    var selected;
+    $scope.selectedTestList.forEach(function(test) {
+      selected = $scope.testList.indexOf(test);
+      if (selected !== -1) {
+        var series = $scope.testList.splice(selected, 1)[0];
+        var result = testArray.filter(function (obj) {
+          return obj.name == series;
+        });
+        selected = _.clone(result[0]);
+        selected.projectName = $scope.selectedProject.name;
+        $scope.addedTestList.push(selected);
+      }
+    });
   };
 
   $scope.updateTestInput = function() {
@@ -761,30 +808,9 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
           function(series) {
             return (series.platform === $scope.selectedPlatform);
           }).sort(function(a, b) { return a.name > b.name; });
+        testArray = filteredSeriesList;
+        $scope.testList = _.map(filteredSeriesList, function(series) { return series.name });
 
-        var signatures = new Bloodhound({
-          datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
-          queryTokenizer: Bloodhound.tokenizers.whitespace,
-          limit: 100,
-          local: filteredSeriesList
-        });
-
-        // kicks off the loading/processing of `local` and `prefetch`
-        signatures.initialize();
-
-        if (testInputCreated) {
-          $('.typeahead').typeahead('destroy');
-        }
-
-        $('.typeahead').typeahead(null, {
-          name: 'signatures',
-          displayKey: 'name',
-          source: signatures.ttAdapter(),
-          limit: 100
-        }).on('typeahead:selected', function(obj, datum) {
-          $scope.selectedSeries = datum;
-          $scope.addTestDataDisabled = false;
-        });
         testInputCreated = true;
       }
       $scope.updateTestSelector();
