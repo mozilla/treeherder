@@ -482,6 +482,30 @@ def test_store_performance_series(jm, test_project):
     jm.disconnect()
 
 
+def test_store_duplicate_performance_series(jm, test_project):
+    # if we store the same data twice, we should only have
+    # one entry in the series
+    for i in [0, 1, 1]:
+        # because of the internals of store_performance_series, we
+        # need to store two *different* duplicates after the initial
+        # duplicate to test the de-duplication code (this test should still
+        # be valid in case that ever changes)
+        series_copy = copy.deepcopy(FakePerfData.SERIES)
+        series_copy[0]['result_set_id'] += i
+        jm.store_performance_series(FakePerfData.TIME_INTERVAL,
+                                    FakePerfData.SERIES_TYPE,
+                                    FakePerfData.SIGNATURE,
+                                    series_copy)
+    stored_series = jm.get_jobs_dhub().execute(
+        proc="jobs.selects.get_performance_series",
+        placeholders=[FakePerfData.TIME_INTERVAL, FakePerfData.SIGNATURE])
+    blob = json.loads(zlib.decompress(stored_series[0]['blob']))
+    assert len(blob) == 2
+    assert blob[0] == FakePerfData.SERIES[0]
+
+    jm.disconnect()
+
+
 def test_store_performance_series_timeout_recover(jm, test_project):
     # timeout case 1: a lock is on our series, but it will expire
 

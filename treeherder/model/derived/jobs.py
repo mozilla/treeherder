@@ -2090,25 +2090,32 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             if series_data_json != db_series_json:
 
                 series = json.loads(db_series_json)
-                push_timestamp_limit = now_timestamp - int(t_range)
-
                 series.extend(series_data)
 
-                sorted_series = sorted(
-                    series, key=itemgetter('result_set_id'),
-                )
-
-                filtered_series = filter(
+                # expire any entries which are too old
+                push_timestamp_limit = now_timestamp - int(t_range)
+                series = filter(
                     lambda d: d['push_timestamp'] >= push_timestamp_limit,
-                    sorted_series
+                    series
                 )
 
-                if filtered_series:
+                if series:
+                    # in case the same data was submitted to be added to the
+                    # db twice (with our setup as of 2015/07, this can happen
+                    # if we parse the same talos log more than once), remove any
+                    # duplicate entries.
+                    # technique from: http://stackoverflow.com/a/9427216
+                    series = [dict(t) for t in set([tuple(d.items()) for d in
+                                                    series])]
 
-                    filtered_series_json = json.dumps(filtered_series)
+                    # sort the series by result set id
+                    series = sorted(
+                        series, key=itemgetter('result_set_id'),
+                    )
+
                     update_placeholders = [
                         now_timestamp,
-                        zlib.compress(filtered_series_json),
+                        zlib.compress(json.dumps(series)),
                         t_range,
                         signature,
                     ]
