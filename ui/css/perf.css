@@ -15,50 +15,9 @@ from { opacity: 1; }
 to { opacity: 0; }
 }
 
-.tt-query {
-  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-     -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-          box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-}
-
-.tt-hint {
-  color: #999
-}
-
 .graph-legend .series-inactive {
   border-color: #D3D3D3;
   color: #D3D3D3;
-}
-
-.tt-dropdown-menu {
-  width: 422px;
-  margin-top: 12px;
-  padding: 8px 0;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  -webkit-border-radius: 8px;
-     -moz-border-radius: 8px;
-          border-radius: 8px;
-  -webkit-box-shadow: 0 5px 10px rgba(0,0,0,.2);
-     -moz-box-shadow: 0 5px 10px rgba(0,0,0,.2);
-          box-shadow: 0 5px 10px rgba(0,0,0,.2);
-}
-
-.tt-suggestion {
-  padding: 3px 20px;
-  font-size: 18px;
-  line-height: 24px;
-}
-
-.tt-suggestion.tt-cursor {
-  color: #fff;
-  background-color: #0097cf;
-
-}
-
-.tt-suggestion p {
-  margin: 0;
 }
 
 .ph-horizontal-layout {
@@ -133,10 +92,6 @@ to { opacity: 0; }
 }
 #graph-tooltip.locked .tip {
     background-image: url("../img/tip-locked.png");
-}
-#scrollable-dropdown-menu .tt-dropdown-menu {
-  max-height: 150px;
-  overflow-y: auto;
 }
 
 .reset-highlight-button {
