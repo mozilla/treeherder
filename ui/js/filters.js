@@ -1,5 +1,8 @@
 'use strict';
 
+var bugsCache = {};
+var hoverTimeout;
+
 /* Filters */
 
 treeherder.filter('showOrHide', function() {
@@ -42,9 +45,8 @@ treeherder.filter('linkifyBugs', function() {
         var pr_matches = str.match(/PR#([0-9]+)/ig);
 
         // Settings
-        var bug_title = 'bugzilla.mozilla.org';
         var bug_url = '<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=$1" ' +
-            'data-bugid=$1 ' + 'title=' + bug_title + '>$1</a>';
+            'data-bugid=$1 ' + ' onmouseover="initMouseOver(this)" onmouseout="cancelMouseOver()">$1</a>';
         var pr_title = 'github.com';
         var pr_url = '<a href="https://github.com/mozilla-b2g/gaia/pull/$1" ' +
             'data-prid=$1 ' + 'title=' + pr_title + '>$1</a>';
@@ -144,3 +146,41 @@ treeherder.filter('alertStatus', [
 treeherder.filter('encodeURIComponent', function() {
     return window.encodeURIComponent;
 });
+
+/*
+ * Given a bug id, fetch the status and summary from
+ * bugzilla for use in tooltips on links to that bug.
+ */
+function initMouseOver(bugLink) {
+    console.log("init timeout");
+    hoverTimeout = window.setTimeout(getBugInfo, 1000, bugLink);
+}
+
+function cancelMouseOver() {
+    console.log("canceling");
+    window.clearTimeout(hoverTimeout);
+}
+
+function getBugInfo(bugLink) {
+    console.log("actually get bug data");
+    var bugID = bugLink.getAttribute("data-bugid");
+    var bugURL = 'https://bugzilla.mozilla.org/rest/bug/' + bugID + '?include_fields=status,summary';
+
+    // Only attempt to fetch the bug if we don't already know about it
+    if(bugID && !bugLink.title) {
+        if(bugsCache[bugID]) {
+            bugLink.title = bugsCache[bugID].status + " - " + bugsCache[bugID].summary;
+        } else {
+            // Fetch the bug information from bugzilla and store it locally
+            $.getJSON(bugURL, function(json) {
+                var thisBug = json.bugs[0];
+                bugsCache[bugID] = {
+                    'status': thisBug.status,
+                    'summary': thisBug.summary
+                };
+                console.log("sup");
+                bugLink.title = thisBug.status + " - " + thisBug.summary;
+            });
+        }
+    }
+}
