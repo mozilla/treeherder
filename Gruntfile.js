@@ -6,6 +6,8 @@
 
 module.exports = function(grunt) {
 
+    require('load-grunt-tasks')(grunt);
+
     grunt.initConfig({
 
         pkg: grunt.file.readJSON('package.json'),
@@ -220,6 +222,14 @@ module.exports = function(grunt) {
                     }
                 }
             }
+        },
+        eslint: {
+            options: {
+                config: '.eslintrc',
+                reset: true
+            },
+            target: ['ui/js/*.js',
+                     'ui/js/**/*.js']
         }
     });
 
@@ -247,5 +257,9 @@ module.exports = function(grunt) {
         'ngtemplates',
         'cache-busting',
         'clean:tmp'
+        ]);
+
+    grunt.registerTask('checkjs', [
+        'eslint'
         ]);
 };
