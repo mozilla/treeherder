@@ -255,7 +255,8 @@ class JobsModel(TreeherderModelBase):
             proc="jobs.selects.get_job_list",
             replace=repl,
             placeholders=placeholders,
-            limit="{0},{1}".format(offset, limit),
+            limit=limit,
+            offset=offset,
             debug_show=self.DEBUG,
         )
         return data
@@ -796,7 +797,8 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
             proc=proc,
             replace=repl,
             placeholders=placeholders,
-            limit="{0},{1}".format(offset, limit),
+            limit=limit,
+            offset=offset,
             debug_show=self.DEBUG,
         )
         return data

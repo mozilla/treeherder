@@ -83,7 +83,8 @@ class ArtifactsModel(TreeherderModelBase):
             proc=proc,
             replace=repl,
             placeholders=placeholders,
-            limit="{0},{1}".format(offset, limit),
+            limit=limit,
+            offset=offset,
             debug_show=self.DEBUG,
         )
         for artifact in data:
@@ -115,7 +116,8 @@ class ArtifactsModel(TreeherderModelBase):
             proc=proc,
             replace=repl,
             placeholders=placeholders,
-            limit="{0},{1}".format(offset, limit),
+            limit=limit,
+            offset=offset,
             debug_show=self.DEBUG,
         )
 
