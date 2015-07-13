@@ -19,7 +19,7 @@ treeherder.factory('ThModelErrors', [function() {
         Helper method for constructing an error message from the server side.
 
         @param {Error} e error object from the server http response.
-        @param {String} default error message to use by default one cannot be 
+        @param {String} default error message to use by default one cannot be
                                 found in the error object.
         */
         format: function(e, message) {

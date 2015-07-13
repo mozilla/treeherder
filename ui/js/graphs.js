@@ -247,14 +247,14 @@ perf.controller('GraphsCtrl', [
         series.flotSeries.points.show = series.visible;
         series.flotSeries.lines.show = false;
       });
-      
+
       $("#overview-plot").bind("plotunselected", function() {
         $scope.zoom = {};
         $scope.selectedDataPoint = null;
         hideTooltip();
         updateDocument();
         plotGraph();
-      });  
+      });
 
       $("#overview-plot").bind("plotselected", function (event, ranges) {
         deselectDataPoint();
@@ -437,11 +437,11 @@ perf.controller('GraphsCtrl', [
         plotGraph();
       });
     }
-    
+
     $scope.myMeasureChanged = function() {
       $scope.zoom = {};
       deselectDataPoint();
-      
+
       updateDocument();
       $q.all($scope.seriesList.map(getSeriesData)).then(function() {
             plotGraph();
@@ -752,7 +752,7 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
   $scope.selectedTestList = [];
   $scope.unselectedTestList = [];
   $scope.addedTestList = [];
-  
+
   $scope.unselectTest = function () {
     $scope.unselectedTestList.forEach(function(test) {
       test = JSON.parse(test);
@@ -774,7 +774,7 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
       }
     });
   };
-  
+
   $scope.selectTest = function () {
     var selected;
     $scope.selectedTestList.forEach(function(test) {
