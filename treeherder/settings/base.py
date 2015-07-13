@@ -22,6 +22,7 @@ TREEHERDER_RO_DATABASE_HOST = os.environ.get("TREEHERDER_RO_DATABASE_HOST", TREE
 
 TREEHERDER_MEMCACHED = os.environ.get("TREEHERDER_MEMCACHED", "127.0.0.1:11211")
 TREEHERDER_MEMCACHED_KEY_PREFIX = os.environ.get("TREEHERDER_MEMCACHED_KEY_PREFIX", "treeherder")
+
 DEBUG = os.environ.get("TREEHERDER_DEBUG", False)
 
 TREEHERDER_REQUEST_PROTOCOL = os.environ.get("TREEHERDER_REQUEST_PROTOCOL", "http")
@@ -144,7 +145,6 @@ INSTALLED_APPS = [
     'treeherder.etl',
     'treeherder.workers',
     'treeherder.embed',
-
 ]
 
 LOCAL_APPS = []
@@ -449,7 +449,6 @@ if "IS_HEROKU" in os.environ:
 if "CLOUDAMQP_URL" in os.environ:
     BROKER_URL = os.environ["CLOUDAMQP_URL"]
     BROKER_POOL_LIMIT = 1
-
 
 CELERY_IGNORE_RESULT = True
 
