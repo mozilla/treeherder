@@ -7,22 +7,22 @@
         <link id="favicon" type="image/png" rel="shortcut icon" href="img/tree_open.png">
         <th-favicon-link></th-favicon-link>
 
-        <link rel="stylesheet" href="css/index.min-c3ac5b652d40dba592714a736c17989b.css" media="screen">
+        <link rel="stylesheet" href="css/index.min-78b763f5b5821892368a5c222f851285.css" media="screen">
 
     </head>
     <body ng-controller="MainCtrl" ng-keydown="processKeyboardInput($event)">
         <div id="global-container">
-            <div class="th-navbar">
+            <div id="global-navbar-container">
                 <ng-include id="th-global-top-nav-panel" src="'partials/main/thGlobalTopNavPanel.html'"></ng-include>
             </div>
-            <div class="th-content"
+            <div id="th-global-content" class="th-global-content"
                  ng-click="clearJobOnClick($event)">
                 <span class="th-view-content" ng-cloak>
                     <ng-view ></ng-view>
                 </span>
             </div>
             <div ng-controller="PluginCtrl"
-                 id="bottom-panel"
+                 id="info-panel"
                  ng-show="selectedJob"
                  ng-class="{'with-pinboard':isPinboardVisible}"
                  ng-include src="'plugins/pluginpanel.html'">
@@ -31,7 +31,7 @@
 
         <th-notification-box></th-notification-box>
 
-        <script src="js/index.min-0105c35b327d177f9c7c0ce16cb642af.js"></script>
+        <script src="js/index.min-0a038517a4ace65488c3794227203ef5.js"></script>
 
         <script src="js/config/local.conf.js"></script>
         <script src="https://login.persona.org/include.js"></script>
