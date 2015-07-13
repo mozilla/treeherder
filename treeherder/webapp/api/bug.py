@@ -71,7 +71,7 @@ class BugJobMapViewSet(viewsets.ViewSet):
     def list(self, request, project, jm):
         filter = UrlQueryFilter(request.QUERY_PARAMS)
 
-        offset = filter.pop("offset", 0)
+        offset = int(filter.pop("offset", 0))
         count = min(int(filter.pop("count", 10)), 1000)
 
         objs = jm.get_bug_job_map_list(

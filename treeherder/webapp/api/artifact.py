@@ -43,7 +43,7 @@ class ArtifactViewSet(viewsets.ViewSet):
         # @todo: change ``qparams`` back to ``request.QUERY_PARAMS``
         filter = UrlQueryFilter(qparams)
 
-        offset = filter.pop("offset", 0)
+        offset = int(filter.pop("offset", 0))
         count = min(int(filter.pop("count", 10)), 1000)
 
         with ArtifactsModel(project) as artifacts_model:

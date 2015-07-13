@@ -32,7 +32,7 @@ class PerformanceArtifactViewSet(viewsets.ViewSet):
         """
         filter = UrlQueryFilter(request.QUERY_PARAMS)
 
-        offset = filter.pop("offset", 0)
+        offset = int(filter.pop("offset", 0))
         count = min(int(filter.pop("count", 10)), 1000)
 
         objs = jm.get_performance_artifact_list(offset, count, filter.conditions)

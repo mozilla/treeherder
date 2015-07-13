@@ -66,7 +66,7 @@ class ResultSetViewSet(viewsets.ViewSet):
 
         filter = UrlQueryFilter(filter_params)
 
-        offset_id = filter.pop("id__lt", 0)
+        offset_id = int(filter.pop("id__lt", 0))
         count = min(int(filter.pop("count", 10)), 1000)
 
         full = filter.pop('full', 'true').lower() == 'true'
