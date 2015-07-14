@@ -720,18 +720,22 @@ perf.controller('GraphsCtrl', [
       });
   }]);
 
-perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
-                                            projects, optionCollectionMap,
-                                            timeRange, thServiceDomain,
-                                            PhSeries, defaultProjectName,
-                                            defaultPlatform) {
+perf.controller('TestChooserCtrl', function TestChooserCtrl($scope, $modalInstance, $http, 
+               projects, optionCollectionMap, timeRange, thServiceDomain, ThRepositoryModel, 
+               thDefaultRepo, PhSeries, defaultProjectName, defaultPlatform) {
   $scope.timeRange = timeRange;
   $scope.projects = projects;
   if (defaultProjectName) {
     $scope.selectedProject = _.findWhere(projects, {name: defaultProjectName});
   } else {
-    $scope.selectedProject = projects[0];
+    var ret = ThRepositoryModel.getRepo(thDefaultRepo);
+    if (ret === null) {
+        $scope.selectedProject = projects[0];        
+    } else {
+        $scope.selectedProject = ret;
+    }
   }
+    
   $scope.loadingTestData = false;
 
   var testInputCreated = false;
