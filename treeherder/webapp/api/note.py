@@ -2,7 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-from django.conf import settings
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.exceptions import ParseError
@@ -11,7 +10,6 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from treeherder.webapp.api.utils import with_jobs
-from treeherder.events.publisher import JobClassificationPublisher
 
 
 class NoteViewSet(viewsets.ViewSet):
@@ -77,12 +75,5 @@ class NoteViewSet(viewsets.ViewSet):
         objs = jm.get_job_note(pk)
         if objs:
             jm.delete_job_note(pk, objs[0]['job_id'])
-            publisher = JobClassificationPublisher(settings.BROKER_URL)
-            try:
-                publisher.publish(objs[0]['job_id'], objs[0]['who'], project)
-            finally:
-                publisher.disconnect()
-            return Response({"message": "Note deleted"})
-
         else:
             return Response("No note with id: {0}".format(pk), 404)

@@ -79,32 +79,11 @@ treeherderApp.controller('JobsCtrl', [
                 true);
         }
 
-        $rootScope.$on(
-            thEvents.toggleAllRevisions, function(ev, expand){
-                _.forEach($scope.result_sets, function(rs) {
-                    $rootScope.$emit(thEvents.toggleRevisions, rs, expand);
-                });
+        $rootScope.$on(thEvents.toggleAllRevisions, function(ev, expand) {
+            _.forEach($scope.result_sets, function(rs) {
+                $rootScope.$emit(thEvents.toggleRevisions, rs, expand);
             });
-
-        var updateClassification = function(classification){
-            if(classification.who !== $scope.user.email){
-                // get a fresh version of the job
-                ThJobModel.get($scope.repoName, classification.id)
-                    .then(function(job){
-                        // get the list of jobs we know about
-                        var jobMap  = ThResultSetStore.getJobMap(classification.branch);
-                        var map_key = "key"+job.id;
-                        if(jobMap.hasOwnProperty(map_key)){
-                            // update the old job with the new info
-                            _.extend(jobMap[map_key].job_obj,job);
-                            var params = { jobs: {}};
-                            params.jobs[job.id] = jobMap[map_key].job_obj;
-                            // broadcast the job classification event
-                            $rootScope.$emit(thEvents.jobsClassified, params);
-                        }
-                    });
-            }
-        };
+        });
     }
 ]);
 
