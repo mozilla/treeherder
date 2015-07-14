@@ -34,13 +34,27 @@ The sample configuration makes the UI load job/push data from the production ser
 
 If you wish to run the full treeherder Vagrant project (service + UI), remember to remove local.conf.js or else change ``thServiceDomain`` within it to refer to ``vagrant``, so the UI will use the local Vagrant service API.
 
+Validating JavaScript
+=====================
+
+We run our JavaScript code in the frontend through eslint_ to ensure
+that new code has a consistent style and doesn't suffer from common
+errors. Before submitting a patch, check that your code passes these tests.
+
+* If you haven't already done so, install local dependencies by
+  running as root ``npm install`` from the project root
+* Run ``grunt checkjs``. You will see errors if your code has problems
+
+.. _eslint: http://eslint.org/
+
 Running the unit tests
 ======================
 
 The unit tests for the UI are run with Karma_. To do this:
 
 * Install the Karma wrapper globally by running as root ``npm install -g karma-cli``
-* Install local dependencies by running as root ``npm install`` from the project root
+* If you haven't already done so, install local dependencies by
+  running as root ``npm install`` from the project root
 * Then run the following command to execute the tests:
 
 .. code-block:: bash
@@ -50,3 +64,4 @@ The unit tests for the UI are run with Karma_. To do this:
 .. _Karma: http://karma-runner.github.io/0.8/config/configuration-file.html
 .. _treeherder repo: https://github.com/mozilla/treeherder
 .. _Node.js: http://nodejs.org/download/
+
