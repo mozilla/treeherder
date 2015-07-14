@@ -5,8 +5,11 @@
     <img src="img/dancing_cat.gif" ng-repeat="x in [0,1,2,3]" style="transform:scale(0.5); margin-left:-40px; margin-top:40px;"/>
   </div>
   <div id="subtest-summary" ng-if="!dataLoading && !errors.length">
-    <h1>{{subtestTitle}} subtest summary<br/>
-      <small><a href="{{originalProject.getRevisionHref(originalRevision)}}">{{originalRevision}}</a> ({{originalProject.name}}) compared to <a href="{{newProject.getRevisionHref(newRevision)}}">{{newRevision}}</a> ({{newProject.name}})</small></h1>
+    <h1>{{subtestTitle}} subtest summary</h1>
+    <ul class="list-inline push-information">
+      <li><strong>Base</strong> - <a href="{{originalProject.getRevisionHref(originalRevision)}}">{{originalRevision}}</a> ({{originalProject.name}})</li>
+      <li><strong>New</strong> - <a href="{{newProject.getRevisionHref(newRevision)}}">{{newRevision}}</a> ({{newProject.name}})</li>
+    </ul>
     <p><a href="perf.html#/compare?originalProject={{originalProject.name}}&originalRevision={{originalRevision}}&newProject={{newProject.name}}&newRevision={{newRevision}}">Show all tests and platforms</a></p>
     <div id="error" ng-if="!dataLoading && errors.length" ng-repeat="error in errors">
       <div>{{error}}</div>
@@ -14,7 +17,7 @@
     <table class="table">
       <tbody ng-repeat="testName in testList">
         <tr class="subtest-header">
-          <td>{{platformList[0]}} : {{titles[testName]}}</td><td>Old Geomean</td><td>Old StdDev</td><td>New Geomean</td><td>New StdDev</td><td>Delta</td><td>Delta %</td><td></td><td>Confidence</td>
+          <td>{{platformList[0]}} : {{titles[testName]}}</td><td>Base Geomean</td><td>Base StdDev</td><td>New Geomean</td><td>New StdDev</td><td>Delta</td><td>Delta %</td><td></td><td>Confidence</td>
         </tr>
         <tr ng-class="getCompareClasses(compareResult, 'row')" ng-repeat="compareResult in compareResults[testName]">
           <td>{{compareResult.name}} (<a ng-href="{{compareResult.detailsLink}}">graph</a>)</td>

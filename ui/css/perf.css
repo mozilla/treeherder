@@ -188,6 +188,11 @@ to { opacity: 0; }
 
 /* Compare interface stuff */
 
+.push-information {
+    font-size: 18px;
+    color: #777;
+}
+
 .vertical-box {
   display: flex;
   flex-flow: column;
