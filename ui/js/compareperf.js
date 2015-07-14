@@ -44,7 +44,7 @@ perf.controller('CompareChooserCtrl', [
       $scope.getNewTipRevision = function(tip) {
         $scope.newRevision = tip;
       };
-      
+
       $scope.runCompare = function() {
         ThResultSetModel.getResultSetsFromRevision($scope.originalProject.name, $scope.originalRevision).then(
           function(resultSets) {
