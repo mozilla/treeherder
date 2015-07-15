@@ -737,12 +737,6 @@
 
             "host_type": "master_host"
         },
-        "get_revision_map_id":{
-            "sql":"SELECT `id` FROM `revision_map`
-                   WHERE `revision_id` = ?
-                    AND `result_set_id` = ?",
-            "host_type": "read_host"
-        },
         "get_result_set_list_by_ids":{
             "sql":"SELECT rs.id,
                           rs.author,
@@ -804,88 +798,6 @@
                    WHERE r.active_status = 'active' AND rm.result_set_id IN (REP0)
                    ORDER BY r.id DESC",
 
-            "host_type": "read_host"
-        },
-        "get_result_set_job_list":{
-            "sql":"SELECT
-                    j.`id`,
-                    j.`option_collection_hash`,
-                    j.failure_classification_id,
-                    j.job_coalesced_to_guid,
-                    j.signature,
-                    m.`name` as machine_name,
-                    mp.`platform` as platform,
-                    jt.`name` as job_type_name,
-                    jt.`symbol` as job_type_symbol,
-					jg.`name` as job_group_name,
-                    jg.`symbol` as job_group_symbol,
-                    j.`result_set_id`,
-                    j.`id` as job_id,
-                    j.`result`,
-                    j.`state`,
-                    j.`reason`
-                  FROM `job` as j
-                  LEFT JOIN `REP0`.`machine` as m
-                    ON j.`machine_id` = m.id
-                  LEFT JOIN `REP0`.`machine_platform` as mp
-                    ON j.`machine_platform_id` = mp.id
-                  LEFT JOIN `REP0`.`job_type` as jt
-                    ON j.`job_type_id` = jt.id
-				  LEFT JOIN `REP0`.`job_group` as jg
-                    ON jt.`job_group_id` = jg.id
-                  WHERE j.`result_set_id` IN (REP1)
-                  REP2
-                  REP3
-                  ",
-            "host_type": "read_host"
-        },
-        "get_result_set_job_list_full":{
-            "sql":"SELECT
-                    j.`job_guid`,
-                    j.`job_coalesced_to_guid`,
-                    j.signature,
-                    j.`build_platform_id`,
-                    j.`option_collection_hash`,
-                    j.failure_classification_id,
-                    m.`name` as machine_name,
-                    mp.`platform` as platform,
-                    mp.`os_name` as machine_platform_os,
-                    mp.`architecture` as machine_platform_architecture,
-                    bp.`platform` as build_platform,
-                    bp.`os_name` as build_os,
-                    bp.`architecture` as build_architecture,
-                    jt.`name` as job_type_name,
-                    jt.`symbol` as job_type_symbol,
-                    jt.`description` as job_type_description,
-					jg.`name` as job_group_name,
-                    jg.`symbol` as job_group_symbol,
-                    jg.`description` as job_group_description,
-                    j.`who`,
-                    j.`result_set_id`,
-                    j.`id` as job_id,
-                    j.`result`,
-                    j.`state`,
-                    j.`reason`,
-                    j.`start_timestamp`,
-                    j.`end_timestamp`,
-                    j.`submit_timestamp`,
-                    j.`pending_eta`,
-                    j.`running_eta`
-                  FROM `job` as j
-                  LEFT JOIN `REP0`.`machine` as m
-                    ON j.`machine_id` = m.id
-                  LEFT JOIN `REP0`.`machine_platform` as mp
-                    ON j.`machine_platform_id` = mp.id
-                  LEFT JOIN `REP0`.`build_platform` as bp
-                    ON j.`build_platform_id` = bp.id
-                  LEFT JOIN `REP0`.`job_type` as jt
-                    ON j.`job_type_id` = jt.id
-				  LEFT JOIN `REP0`.`job_group` as jg
-                    ON jt.`job_group_id` = jg.id
-                  WHERE j.`result_set_id` IN (REP1)
-                  REP2
-                  REP3
-                  ",
             "host_type": "read_host"
         },
         "get_all_log_urls":{

@@ -123,17 +123,6 @@
                     )",
             "host_type":"master_host"
         },
-        "create_repository_group":{
-            "sql":"INSERT INTO `repository_group` (`name`, `description`)
-                   SELECT ?, 'fill me'
-                    FROM DUAL
-                    WHERE NOT EXISTS (
-                    SELECT `name`
-                    FROM `repository_group`
-                    WHERE `name` = ?
-                    )",
-            "host_type":"master_host"
-        },
         "create_bugscache":{
             "sql":"INSERT INTO `bugscache` (`id`, `status`, `resolution`, `summary`, `crash_signature`, `keywords`, `os`, `modified`)
                    SELECT ?, ?, ?, ?, ?, ?, ?, ?
@@ -213,28 +202,6 @@
 
             "host_type":"read_host"
         },
-        "get_max_collection_hash":{
-            "sql": "SELECT MAX(`option_collection_hash`) as 'max_id'
-                    FROM `option_collection`",
-            "host_type":"read_host"
-        },
-        "get_option_collection_hash":{
-            "sql": "SELECT `option_collection_hash`
-                    FROM `option_collection` oc
-                    INNER JOIN `option` o on o.id = oc.option_id
-                    GROUP BY `option_collection_hash`
-                    HAVING
-                        GROUP_CONCAT(o.name ORDER BY o.name ASC SEPARATOR ',') = ?",
-            "host_type":"read_host"
-        },
-        "get_option_names":{
-            "sql": "SELECT o.`name`
-                    FROM `option` o
-                    INNER JOIN `option_collection` oc
-                        on o.id = oc.option_id
-                    WHERE oc.option_collection_hash = ?",
-            "host_type":"read_host"
-        },
         "get_products":{
             "sql": "SELECT `id`, `name`
                     FROM `product`
@@ -266,12 +233,6 @@
                     FROM `repository`
                     WHERE
                         `active_status` = 'active'",
-            "host_type":"read_host"
-        },
-        "get_repository_group_id":{
-            "sql": "SELECT `id`
-                    FROM `repository_group`
-                    WHERE `name` = ?  AND `active_status` = 'active'",
             "host_type":"read_host"
         },
         "get_all_option_collections":{
