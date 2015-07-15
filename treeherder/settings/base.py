@@ -12,8 +12,6 @@ from treeherder import path
 
 # These settings can all be optionally set via env vars, or in local.py:
 
-DEFAULT_DATABASE_URL = 'mysql://treeherder_user:treeherder_pass@localhost/treeherder'
-
 TREEHERDER_MEMCACHED = os.environ.get("TREEHERDER_MEMCACHED", "127.0.0.1:11211")
 TREEHERDER_MEMCACHED_KEY_PREFIX = os.environ.get("TREEHERDER_MEMCACHED_KEY_PREFIX", "treeherder")
 
@@ -373,11 +371,11 @@ INSTALLED_APPS += LOCAL_APPS
 
 TEMPLATE_DEBUG = DEBUG
 
-# The default DB config is extracted from the DATABASE_URL environment variable, and the
-# read only config from DATABASE_URL_RO. If those are not set, DEFAULT_DATABASE_URL is used.
+# The database config is defined using environment variables of form:
+#   'mysql://username:password@host:optional_port/database_name'
 DATABASES = {
-    'default': dj_database_url.config(default=DEFAULT_DATABASE_URL),
-    'read_only': dj_database_url.config(env='DATABASE_URL_RO', default=DEFAULT_DATABASE_URL)
+    'default': dj_database_url.config(env='DATABASE_URL'),
+    'read_only': dj_database_url.config(env='DATABASE_URL_RO')
 }
 
 # Setup ssl connection for aws rds.

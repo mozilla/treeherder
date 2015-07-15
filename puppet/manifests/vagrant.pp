@@ -34,6 +34,8 @@ line {"etc-hosts":
 
 file {"/etc/profile.d/treeherder.sh":
     content => "
+export DATABASE_URL='mysql://${DB_USER}:${DB_PASS}@localhost/treeherder'
+export DATABASE_URL_RO='mysql://${DB_USER}:${DB_PASS}@localhost/treeherder'
 export TREEHERDER_DEBUG='1'
 export TREEHERDER_DJANGO_SECRET_KEY='${DJANGO_SECRET_KEY}'
 "
