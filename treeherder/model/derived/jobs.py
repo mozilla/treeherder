@@ -326,6 +326,17 @@ class JobsModel(TreeherderModelBase):
         """
         self._job_action_event(job, 'retrigger', requester)
 
+    def backfill(self, requester, job):
+        """
+        Issue a "backfill" to the underlying build_system_type by scheduling a
+        pulse message.
+
+        :param requester str: The email address associated with the user who
+                              made this request
+        :param job dict: A job object (typically a result of get_job)
+        """
+        self._job_action_event(job, 'backfill', requester)
+
     def cancel_job(self, requester, job):
         """
         Cancel the given job and send an event to notify the build_system type

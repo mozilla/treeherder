@@ -314,6 +314,26 @@ treeherder.controller('PluginCtrl', [
             }
         };
 
+        $scope.backfillJob = function() {
+            if ($scope.user.loggedin) {
+                // Only backfill if we have a valid loaded job, if the user
+                // tries to backfill eg. via shortcut before the load we warn them
+                if ($scope.job.id) {
+                    ThJobModel.backfill($scope.repoName, $scope.job.id).then(function() {
+                        thNotify.send("Request sent to backfill jobs", 'success');
+                    }, function(e) {
+                        // Generic error eg. the user doesn't have LDAP access
+                        thNotify.send(
+                            ThModelErrors.format(e, "Unable to send backfill"), 'danger');
+                    });
+                } else {
+                    thNotify.send("Job not yet loaded for backfill", 'warning');
+                }
+            } else {
+                thNotify.send("Must be logged in to backfill a job", 'danger');
+            }
+        };
+
         $scope.cancelJob = function() {
             // See note in retrigger logic.
             ThJobModel.cancel($scope.repoName, $scope.job.id).then(function() {
