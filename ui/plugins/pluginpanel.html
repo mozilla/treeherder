@@ -107,6 +107,16 @@
               <span class="fa fa-bar-chart-o"></span>
             </a>
           </li>
+          <li>
+            <a title="Back fill this till last seen job"
+               class="icon-green"
+               href="" prevent-default-on-left-click
+               target="_blank"
+               ng-show="user.is_staff"
+               ng-click="backfillJob()">
+              <span class="fa fa-repeat"></span>
+            </a>
+          </li>
         </ul>
       </nav>
     </div>
