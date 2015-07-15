@@ -664,8 +664,8 @@ perf.controller('GraphsCtrl', [
         }
 
         ThRepositoryModel.get_list().then(function(response) {
-          $scope.projects = response.data;
 
+          $scope.projects = response.data;
           $scope.addTestData = function() {
             var defaultProjectName, defaultPlatform;
             if ($scope.seriesList.length > 0) {
@@ -687,6 +687,9 @@ perf.controller('GraphsCtrl', [
                 },
                 timeRange: function() {
                   return $scope.myTimerange.value;
+                },
+                testCounter: function() {
+                  return $scope.seriesList.length;
                 },
                 defaultProjectName: function() { return defaultProjectName; },
                 defaultPlatform: function() { return defaultPlatform; }
@@ -724,7 +727,7 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
                                             projects, optionCollectionMap,
                                             timeRange, thServiceDomain,
                                             PhSeries, defaultProjectName,
-                                            defaultPlatform) {
+                                            defaultPlatform, testCounter) {
   $scope.timeRange = timeRange;
   $scope.projects = projects;
   if (defaultProjectName) {
@@ -738,6 +741,24 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
   var testArray = [];
   var series = [];
   $scope.addTestData = function () {
+    if ($scope.addedTestList.length > 6) {
+      var a = window.confirm('WARNING: You are about to load ' + $scope.addedTestList.length +
+                           ' tests to the graph.\n' +
+                           'Loading more than 6 is not recommended. Do it anyway?');
+      if (a == true) {
+        addTestToGraph();
+      }
+    } else if ($scope.addedTestList.length + testCounter > 6) {
+      var a = window.confirm('WARNING: You have ' + testCounter + ' tests in the graph already' +
+                          ' and You are about to load ' + $scope.addedTestList.length + ' more test.\n'
+                           + 'Loading more than 6 is not recommended. Do it anyway?');
+      if (a == true) {
+        addTestToGraph();
+      }
+    } else addTestToGraph();
+  };
+
+  var addTestToGraph = function () {
       $scope.selectedSeriesList = $scope.addedTestList
       $scope.selectedSeriesList.forEach(function(selectedSeries, i) {
         series[i] = _.clone(selectedSeries);
