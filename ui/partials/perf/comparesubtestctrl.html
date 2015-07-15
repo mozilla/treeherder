@@ -17,7 +17,7 @@
     <table class="table">
       <tbody ng-repeat="testName in testList">
         <tr class="subtest-header">
-          <td>{{platformList[0]}} : {{titles[testName]}}</td><td>Base Geomean</td><td>Base StdDev</td><td>New Geomean</td><td>New StdDev</td><td>Delta</td><td>Delta %</td><td></td><td>Confidence</td>
+          <td>{{platformList[0]}} : {{titles[testName]}}</td><td>Base Mean</td><td>Base StdDev</td><td>New Mean</td><td>New StdDev</td><td>Delta</td><td>Delta %</td><td></td><td>Confidence</td>
         </tr>
         <tr ng-class="getCompareClasses(compareResult, 'row')" ng-repeat="compareResult in compareResults[testName]">
           <td>{{compareResult.name}} (<a ng-href="{{compareResult.detailsLink}}">graph</a>)</td>
