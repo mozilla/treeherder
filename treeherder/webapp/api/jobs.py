@@ -147,6 +147,20 @@ class JobsViewSet(viewsets.ViewSet):
         else:
             return Response("No job with id: {0}".format(pk), 404)
 
+    @action(permission_classes=[IsAuthenticated])
+    @with_jobs
+    def backfill(self, request, project, jm, pk=None):
+        """
+        Issue a "backfill" to the underlying build_system_type by scheduling a
+        pulse message.
+        """
+        job = jm.get_job(pk)
+        if job:
+            jm.backfill(request.user.email, job[0])
+            return Response({"message": "backfilled job '{0}'".format(job[0]['job_guid'])})
+        else:
+            return Response("No job with id: {0}".format(pk), 404)
+
     @with_jobs
     @oauth_required
     def create(self, request, project, jm):

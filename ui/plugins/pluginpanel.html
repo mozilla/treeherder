@@ -210,6 +210,13 @@
           <label>Taskcluster:</label>
           <span><a href="{{line.url}}" target="_blank">{{line.value}}</a></span>
         </li>
+        <li class="small" ng-click="backfillJob()">
+          <label>
+            <a title="Trigger this jobtype back to the previous time it was run">
+                Backfill this job
+            </a>
+          </label>
+        </li>
       </ul>
 
       <div ng-if="job_detail_loading" class="overlay">
