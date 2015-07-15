@@ -664,8 +664,8 @@ perf.controller('GraphsCtrl', [
         }
 
         ThRepositoryModel.get_list().then(function(response) {
-          $scope.projects = response.data;
 
+          $scope.projects = response.data;
           $scope.addTestData = function() {
             var defaultProjectName, defaultPlatform;
             if ($scope.seriesList.length > 0) {
@@ -687,6 +687,9 @@ perf.controller('GraphsCtrl', [
                 },
                 timeRange: function() {
                   return $scope.myTimerange.value;
+                },
+                numTestsDisplayed: function() {
+                  return $scope.seriesList.length;
                 },
                 defaultProjectName: function() { return defaultProjectName; },
                 defaultPlatform: function() { return defaultPlatform; }
@@ -724,7 +727,7 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
                                             projects, optionCollectionMap,
                                             timeRange, thServiceDomain,
                                             PhSeries, defaultProjectName,
-                                            defaultPlatform) {
+                                            defaultPlatform, numTestsDisplayed) {
   $scope.timeRange = timeRange;
   $scope.projects = projects;
   if (defaultProjectName) {
@@ -738,6 +741,15 @@ perf.controller('TestChooserCtrl', function($scope, $modalInstance, $http,
   var testArray = [];
   var series = [];
   $scope.addTestData = function () {
+    if ($scope.addedTestList.length + numTestsDisplayed > 6) {
+      var a = window.confirm('WARNING: Displaying more than 6 graphs at the same time is not recommended. Do it anyway?');
+      if (a == true) {
+        addTestToGraph();
+      }
+    } else addTestToGraph();
+  };
+
+  var addTestToGraph = function () {
       $scope.selectedSeriesList = $scope.addedTestList
       $scope.selectedSeriesList.forEach(function(selectedSeries, i) {
         series[i] = _.clone(selectedSeries);
