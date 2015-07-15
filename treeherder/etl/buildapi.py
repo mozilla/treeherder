@@ -7,14 +7,20 @@ import simplejson as json
 
 from collections import defaultdict
 from django.conf import settings
-from treeherder.client import TreeherderJobCollection
+from django.core.cache import cache
 
+from treeherder.client import TreeherderJobCollection
 from treeherder.etl import common, buildbot
 from treeherder.etl.mixins import JsonExtractorMixin, OAuthLoaderMixin
 from treeherder.model.models import Datasource
 
 
 logger = logging.getLogger(__name__)
+CACHE_KEYS = {
+    'pending': 'processed_buildapi_pending',
+    'running': 'processed_buildapi_running',
+    'complete': 'processed_buildapi_complete',
+}
 
 
 class Builds4hTransformerMixin(object):
@@ -126,6 +132,9 @@ class Builds4hTransformerMixin(object):
 
         revisions_lookup = common.lookup_revisions(revisions)
 
+        job_ids_seen_last_time = cache.get(CACHE_KEYS['complete'], set())
+        job_ids_seen_now = set()
+
         # Holds one collection per unique branch/project
         th_collections = {}
 
@@ -142,6 +151,16 @@ class Builds4hTransformerMixin(object):
                 # skip this job, at least at this point
                 continue
             if filter_to_revision and filter_to_revision != resultset['revision']:
+                continue
+
+            # We record the id here rather than at the start of the loop, since we
+            # must not count jobs whose revisions were not yet imported as processed,
+            # or we'll never process them once we've ingested their associated revision.
+            job_ids_seen_now.add(build['id'])
+
+            # Don't process jobs that were already present in builds-4hr
+            # the last time this task completed successfully.
+            if build['id'] in job_ids_seen_last_time:
                 continue
 
             platform_info = buildbot.extract_platform_info(prop['buildername'])
@@ -255,6 +274,11 @@ class Builds4hTransformerMixin(object):
         if missing_resultsets and not filter_to_revision:
             common.fetch_missing_resultsets("builds4h", missing_resultsets, logger)
 
+        cache.set(CACHE_KEYS['complete'], job_ids_seen_now)
+        num_new_jobs = len(job_ids_seen_now.difference(job_ids_seen_last_time))
+        logger.info("Imported %d completed jobs, skipped %d previously seen",
+                    num_new_jobs, len(job_ids_seen_now) - num_new_jobs)
+
         return th_collections
 
 
@@ -285,6 +309,9 @@ class PendingRunningTransformerMixin(object):
         # retrieving the revision->resultset lookups
         revisions_lookup = common.lookup_revisions(revision_dict)
 
+        job_ids_seen_last_time = cache.get(CACHE_KEYS[source], set())
+        job_ids_seen_now = set()
+
         th_collections = {}
 
         for project, revisions in data[source].iteritems():
@@ -307,6 +334,13 @@ class PendingRunningTransformerMixin(object):
                 # using project and revision form the revision lookups
                 # to filter those jobs with unmatched revision
                 for job in jobs:
+                    job_ids_seen_now.add(job['id'])
+
+                    # Don't process jobs that were already present in this datasource
+                    # the last time this task completed successfully.
+                    if job['id'] in job_ids_seen_last_time:
+                        continue
+
                     treeherder_data = {
                         'revision_hash': resultset['revision_hash'],
                         'resultset_id': resultset['id'],
@@ -408,6 +442,11 @@ class PendingRunningTransformerMixin(object):
 
         if missing_resultsets and not filter_to_revision:
             common.fetch_missing_resultsets(source, missing_resultsets, logger)
+
+        cache.set(CACHE_KEYS[source], job_ids_seen_now)
+        num_new_jobs = len(job_ids_seen_now.difference(job_ids_seen_last_time))
+        logger.info("Imported %d %s jobs, skipped %d previously seen",
+                    num_new_jobs, source, len(job_ids_seen_now) - num_new_jobs)
 
         return th_collections
 
