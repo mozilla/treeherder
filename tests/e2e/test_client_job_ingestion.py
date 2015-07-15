@@ -6,7 +6,7 @@ import pytest
 from mock import MagicMock
 import json
 
-from treeherder.client.thclient import client
+from treeherder.client.thclient import client, TreeherderAuth
 
 from treeherder.etl.oauth_utils import OAuthCredentials
 from treeherder.log_parser.parsers import StepParser
@@ -37,8 +37,11 @@ def do_post_collection(project, collection):
     # assume if there were no exceptions we're ok
     cli = client.TreeherderClient(protocol='http', host='localhost')
     credentials = OAuthCredentials.get_credentials(project)
-    cli.post_collection(project, credentials['consumer_key'],
-                        credentials['consumer_secret'], collection)
+    auth = TreeherderAuth(credentials['consumer_key'],
+                          credentials['consumer_secret'],
+                          project)
+
+    cli.post_collection(project, collection, auth=auth)
 
 
 def check_artifacts(test_project,
@@ -73,7 +76,7 @@ def check_artifacts(test_project,
 
 
 def test_post_job_with_parsed_log(test_project, result_set_stored,
-                                  mock_post_collection,
+                                  mock_post_json,
                                   monkeypatch,
                                   ):
     """
@@ -116,7 +119,7 @@ def test_post_job_with_text_log_summary_artifact_parsed(
         test_project,
         monkeypatch,
         result_set_stored,
-        mock_post_collection,
+        mock_post_json,
         mock_error_summary,
         text_log_summary_dict,
         ):
@@ -165,7 +168,7 @@ def test_post_job_with_text_log_summary_artifact_parsed_dict_blob(
         test_project,
         monkeypatch,
         result_set_stored,
-        mock_post_collection,
+        mock_post_json,
         mock_error_summary,
         text_log_summary_dict,
         ):
@@ -214,9 +217,8 @@ def test_post_job_with_text_log_summary_artifact_pending(
         test_project,
         monkeypatch,
         result_set_stored,
-        mock_post_collection,
+        mock_post_json,
         mock_error_summary,
-        mock_update_parse_status,
         text_log_summary_dict,
         ):
     """
@@ -266,7 +268,7 @@ def test_post_job_with_text_log_summary_and_bug_suggestions_artifact(
         test_project,
         monkeypatch,
         result_set_stored,
-        mock_post_collection,
+        mock_post_json,
         mock_error_summary,
         text_log_summary_dict,
         ):
@@ -328,7 +330,7 @@ def test_post_job_artifacts_by_add_artifact(
         test_project,
         monkeypatch,
         result_set_stored,
-        mock_post_collection,
+        mock_post_json,
         mock_error_summary,
         ):
     """
@@ -395,7 +397,7 @@ def test_post_job_artifacts_by_add_artifact(
 
 
 def test_post_job_with_tier(test_project, result_set_stored,
-                            mock_post_collection):
+                            mock_post_json):
     """test submitting a job with tier specified"""
 
     tjc = client.TreeherderJobCollection()
@@ -420,7 +422,7 @@ def test_post_job_with_tier(test_project, result_set_stored,
 
 
 def test_post_job_with_default_tier(test_project, result_set_stored,
-                                    mock_post_collection):
+                                    mock_post_json):
     """test submitting a job with no tier specified gets default"""
 
     tjc = client.TreeherderJobCollection()

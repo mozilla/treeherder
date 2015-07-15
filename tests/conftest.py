@@ -11,6 +11,7 @@ import kombu
 import pytest
 from django.core.management import call_command
 from webtest.app import TestApp
+from requests import Request
 import responses
 
 from tests.sampledata import SampleData
@@ -370,45 +371,24 @@ def set_oauth_credentials():
 
 
 @pytest.fixture
-def mock_post_collection(monkeypatch, set_oauth_credentials):
-    def _post_collection(th_client, project, oauth_key, oauth_secret,
-                         collection_inst, timeout=None):
+def mock_post_json(monkeypatch, set_oauth_credentials):
+    def _post_json(th_client, project, endpoint, json_data,
+                   timeout=None, auth=None):
 
-        jsondata = collection_inst.to_json()
-        signed_uri = th_client._get_project_uri(project,
-                                                collection_inst.endpoint_base,
-                                                data=jsondata, oauth_key=oauth_key,
-                                                oauth_secret=oauth_secret,
-                                                method='POST')
+        uri = th_client._get_project_uri(project, endpoint)
+
+        req = Request('POST', uri, data=json.dumps(json_data), auth=auth)
+
+        prepped_request = req.prepare()
+
         getattr(TestApp(application), 'post')(
-            signed_uri,
-            params=jsondata,
+            prepped_request.url,
+            params=json_data,
             content_type='application/json'
         )
 
     from treeherder.client import TreeherderClient
-    monkeypatch.setattr(TreeherderClient, 'post_collection', _post_collection)
-
-
-@pytest.fixture
-def mock_update_parse_status(monkeypatch, set_oauth_credentials):
-    def _update_parse_status(th_client, project, oauth_key, oauth_secret,
-                             job_log_url_id, parse_status):
-        jsondata = json.dumps({'parse_status': parse_status})
-        signed_uri = th_client._get_project_uri(
-            project,
-            th_client.UPDATE_ENDPOINT.format(job_log_url_id),
-            data=jsondata, oauth_key=oauth_key, oauth_secret=oauth_secret,
-            method='POST')
-
-        getattr(TestApp(application), 'post')(
-            signed_uri,
-            params=jsondata,
-            content_type='application/json'
-        )
-
-    from treeherder.client import TreeherderClient
-    monkeypatch.setattr(TreeherderClient, 'update_parse_status', _update_parse_status)
+    monkeypatch.setattr(TreeherderClient, '_post_json', _post_json)
 
 
 @pytest.fixture

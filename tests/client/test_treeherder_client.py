@@ -9,12 +9,13 @@ import os
 import json
 
 from mock import patch
+import requests
 
 from treeherder.client import (TreeherderJob, TreeherderJobCollection,
                                TreeherderRevision, TreeherderResultSet,
                                TreeherderResultSetCollection,
                                TreeherderClient, TreeherderClientError,
-                               TreeherderArtifact,
+                               TreeherderArtifact, TreeherderAuth,
                                TreeherderArtifactCollection)
 
 
@@ -421,7 +422,8 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
             host='host',
             )
 
-        client.post_collection('project', 'key', 'secret', tjc)
+        auth = TreeherderAuth('key', 'secret', 'project')
+        client.post_collection('project', tjc, auth=auth)
 
         path, resp = mock_post.call_args
 
@@ -447,7 +449,8 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
             host='host',
             )
 
-        client.post_collection('project', 'key', 'secret', trc)
+        auth = TreeherderAuth('key', 'secret', 'project')
+        client.post_collection('project', trc, auth=auth)
 
         path, resp = mock_post.call_args
 
@@ -473,7 +476,8 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
             host='host',
             )
 
-        client.post_collection('project', 'key', 'secret', tac)
+        auth = TreeherderAuth('key', 'secret', 'project')
+        client.post_collection('project', tac, auth=auth)
 
         path, resp = mock_post.call_args
 
@@ -483,35 +487,33 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
             resp['data']
             )
 
-    @patch("treeherder.client.client.oauth.generate_nonce")
-    @patch("treeherder.client.client.oauth.time.time")
-    @patch("treeherder.client.client.requests.post")
-    def test_send_with_oauth(self, mock_post, mock_time,
-                             mock_generate_nonce):
+    @patch("treeherder.client.auth.oauth.generate_nonce")
+    @patch("treeherder.client.auth.oauth.time.time")
+    def test_treeheder_auth(self, mock_time, mock_generate_nonce):
 
         """Tests that oauth data is sent to server"""
         mock_time.return_value = 1342229050
         mock_generate_nonce.return_value = "46810593"
-        mock_post.return_value = self._expected_response_return_object()
-
-        client = TreeherderClient(
-            protocol='http',
-            host='host',
-            )
 
         tjc = TreeherderJobCollection()
+        tjc.add(tjc.get_job(self.job_data[0]))
 
-        for job in self.job_data:
+        auth = TreeherderAuth('key', 'secret', 'project')
+        req = requests.Request(url='http://host/api/project/project/objectstore/',
+                               data=tjc.to_json(), auth=auth, method='POST')
+        prepped_request = req.prepare()
 
-            tjc.add(tjc.get_job(job))
-            break
-
-        client.post_collection('project', 'key', 'secret', tjc)
-
-        self.assertEqual(mock_post.call_count, 1)
-
-        path, resp = mock_post.call_args
-        self.assertEqual(path[0], "http://host/api/project/project/jobs/?oauth_body_hash=IKbDoi5GvTRaqjRTCDyKIN5wWiY%3D&oauth_nonce=46810593&oauth_timestamp=1342229050&oauth_consumer_key=key&oauth_signature_method=HMAC-SHA1&oauth_version=1.0&oauth_token=&user=project&oauth_signature=DJe%2F%2FJtw7s2XUrciG%2Bl1tfJJen8%3D")
+        self.maxDiff = None
+        self.assertEqual(prepped_request.url, ("http://host/api/project/project/objectstore/?"
+                                               "oauth_body_hash=IKbDoi5GvTRaqjRTCDyKIN5wWiY%3D&"
+                                               "oauth_nonce=46810593&"
+                                               "oauth_timestamp=1342229050&"
+                                               "oauth_consumer_key=key&"
+                                               "oauth_signature_method=HMAC-SHA1&"
+                                               "oauth_version=1.0&"
+                                               "oauth_token=&"
+                                               "user=project&"
+                                               "oauth_signature=uq%2BrkJCRPyPUdXExSasm25ab8m4%3D"))
 
 if __name__ == '__main__':
     unittest.main()

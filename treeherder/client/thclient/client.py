@@ -7,8 +7,7 @@ from __future__ import unicode_literals
 import requests
 import logging
 import json
-import oauth2 as oauth
-import time
+
 
 logger = logging.getLogger(__name__)
 
@@ -595,47 +594,6 @@ class TreeherderArtifactCollection(TreeherderCollection):
         return TreeherderArtifact(data)
 
 
-class OauthClient(object):
-    """
-    A utility class containing the logic to sign a oauth request
-    """
-    def __init__(self, oauth_key, oauth_secret, user):
-        self.oauth_key = oauth_key
-        self.oauth_secret = oauth_secret
-        self.user = user
-
-    def get_signed_uri(self, serialized_body, uri, http_method):
-
-        # There is no requirement for the token in two-legged
-        # OAuth but we still need the token object.
-        token = oauth.Token(key='', secret='')
-        consumer = oauth.Consumer(key=self.oauth_key, secret=self.oauth_secret)
-
-        parameters = {
-            'user': self.user,
-            'oauth_version': '1.0',
-            'oauth_nonce': oauth.generate_nonce(),
-            'oauth_timestamp': int(time.time())
-        }
-
-        try:
-            req = oauth.Request(
-                method=http_method,
-                body=serialized_body,
-                url=uri,
-                parameters=parameters
-            )
-        except AssertionError:
-            logger.error('uri: %s' % uri)
-            logger.error('body: %s' % serialized_body)
-            raise
-
-        signature_method = oauth.SignatureMethod_HMAC_SHA1()
-        req.sign_request(signature_method, consumer, token)
-
-        return req.to_url()
-
-
 class TreeherderClient(object):
     """
     Treeherder client class
@@ -654,7 +612,7 @@ class TreeherderClient(object):
 
     def __init__(
             self, protocol='https', host='treeherder.mozilla.org',
-            timeout=120):
+            timeout=120, auth=None):
         """
         :param protocol: protocol to use (http or https)
         :param host: treeherder host to post to
@@ -668,19 +626,13 @@ class TreeherderClient(object):
                                             ', '.join(self.PROTOCOLS)))
         self.protocol = protocol
         self.timeout = timeout
+        self.auth = auth
 
-    def _get_project_uri(self, project, endpoint, data=None, oauth_key=None,
-                         oauth_secret=None, method='GET'):
+    def _get_project_uri(self, project, endpoint):
 
-        uri = '{0}://{1}/api/project/{2}/{3}/'.format(
+        return '{0}://{1}/api/project/{2}/{3}/'.format(
             self.protocol, self.host, project, endpoint
             )
-
-        if oauth_key and oauth_secret:
-            oauth_client = OauthClient(oauth_key, oauth_secret, project)
-            uri = oauth_client.get_signed_uri(data, uri, method)
-
-        return uri
 
     def _get_uri(self, endpoint):
         uri = '{0}://{1}/api/{2}'.format(
@@ -701,22 +653,18 @@ class TreeherderClient(object):
         resp.raise_for_status()
         return resp.json()
 
-    def _post_json(self, project, endpoint, oauth_key, oauth_secret, jsondata,
-                   timeout):
+    def _post_json(self, project, endpoint, jsondata,
+                   timeout, auth):
         if timeout is None:
             timeout = self.timeout
 
-        if not oauth_key or not oauth_secret:
-            raise TreeherderClientError("Must provide oauth key and secret "
-                                        "to post to treeherder!", [])
+        auth = auth or self.auth
 
-        uri = self._get_project_uri(project, endpoint, data=jsondata,
-                                    oauth_key=oauth_key, oauth_secret=oauth_secret,
-                                    method='POST')
+        uri = self._get_project_uri(project, endpoint)
 
         resp = requests.post(uri, data=jsondata,
                              headers={'Content-Type': 'application/json'},
-                             timeout=timeout)
+                             timeout=timeout, auth=auth)
         resp.raise_for_status()
 
     def get_option_collection_hash(self):
@@ -815,8 +763,7 @@ class TreeherderClient(object):
         response = self._get_json(self.ARTIFACTS_ENDPOINT, None, project, **params)
         return response
 
-    def post_collection(self, project, oauth_key, oauth_secret,
-                        collection_inst, timeout=None):
+    def post_collection(self, project, collection_inst, timeout=None, auth=None):
         """
         Sends a treeherder collection to the server
 
@@ -826,7 +773,7 @@ class TreeherderClient(object):
         :param collection_inst: a TreeherderCollection instance
         :param timeout: custom timeout in seconds (defaults to class timeout)
         """
-
+        auth = auth or self.auth
         if not isinstance(collection_inst, TreeherderCollection):
 
             msg = '{0} should be an instance of TreeherderCollection'.format(
@@ -850,12 +797,12 @@ class TreeherderClient(object):
 
         collection_inst.validate()
 
-        self._post_json(project, collection_inst.endpoint_base, oauth_key,
-                        oauth_secret, collection_inst.to_json(),
-                        timeout=timeout)
+        self._post_json(project, collection_inst.endpoint_base,
+                        collection_inst.to_json(),
+                        timeout, auth)
 
-    def update_parse_status(self, project, oauth_key, oauth_secret,
-                            job_log_url_id, parse_status, timeout=None):
+    def update_parse_status(self, project, job_log_url_id,
+                            parse_status, timeout=None, auth=None):
         """
         Updates the parsing status of a treeherder job
 
@@ -866,10 +813,10 @@ class TreeherderClient(object):
                              job
         :param timeout: custom timeout in seconds (defaults to class timeout)
         """
+        auth = auth or self.auth
         self._post_json(project, self.UPDATE_ENDPOINT.format(job_log_url_id),
-                        oauth_key, oauth_secret,
                         json.dumps({'parse_status': parse_status}),
-                        timeout=timeout)
+                        timeout, auth)
 
 
 class TreeherderClientError(Exception):

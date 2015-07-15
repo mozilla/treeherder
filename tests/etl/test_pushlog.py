@@ -10,7 +10,7 @@ from django.core.cache import cache
 
 
 def test_ingest_hg_pushlog(jm, initial_data, test_base_dir,
-                           test_repository, mock_post_json_data,
+                           test_repository, mock_post_json,
                            activate_responses, pulse_resultset_consumer):
     """ingesting a number of pushes should populate result set and revisions"""
 
@@ -56,7 +56,7 @@ def test_ingest_hg_pushlog(jm, initial_data, test_base_dir,
 
 
 def test_ingest_hg_pushlog_already_stored(jm, initial_data, test_base_dir,
-                                          test_repository, mock_post_json_data, activate_responses):
+                                          test_repository, mock_post_json, activate_responses):
     """test that trying to ingest a push already stored doesn't doesn't affect
     all the pushes in the request,
     e.g. trying to store [A,B] with A already stored, B will be stored"""
@@ -112,7 +112,7 @@ def test_ingest_hg_pushlog_already_stored(jm, initial_data, test_base_dir,
 
 
 def test_ingest_hg_pushlog_not_found_in_json_pushes(jm, initial_data, test_base_dir,
-                                                    test_repository, mock_post_json_data, activate_responses):
+                                                    test_repository, mock_post_json, activate_responses):
     """
     Ingest a pushlog that is not found in json-pushes.  So we ingest a
     resultset that is "onhold"
@@ -145,7 +145,7 @@ def test_ingest_hg_pushlog_not_found_in_json_pushes(jm, initial_data, test_base_
 
 
 def test_ingest_hg_pushlog_cache_last_push(jm, initial_data, test_repository,
-                                           test_base_dir, mock_post_json_data,
+                                           test_base_dir, mock_post_json,
                                            activate_responses):
     """
     ingesting a number of pushes should cache the top revision of the last push
