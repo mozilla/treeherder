@@ -22,7 +22,18 @@ Feel free to comment one or more of those sections if you don't need that specif
 If you just want to access the restful api or the admin for example, comment all those sections but the one
 related to gunicorn.
 You can stop supervisord (and all processes he's taking care of) with ctrl+c.
-Please note that for some reason you may need to manually kill the celery worker when it's under heavy load.
+Please note that for some reasons you may need to manually kill the celery worker, for example when it's under heavy load.
+
+Why is my celery ingestion not running?
+---------------------------------------
+
+If after a ``celery -A treeherder worker -B --concurrency 5`` you experience a static celery console with no output, similar to:
+
+.. code-block:: bash
+
+   09:32:40,010: WARNING/MainProcess] celery@local ready.
+
+You should ctrl+c to shut down celery, remove the ``celerybeat-schedule`` file in the project root, and restart your worker.
 
 Where are my log files?
 -----------------------
