@@ -42,7 +42,7 @@ that new code has a consistent style and doesn't suffer from common
 errors. Before submitting a patch, check that your code passes these tests.
 
 * If you haven't already done so, install local dependencies by
-  running as root ``npm install`` from the project root
+  running as root ``npm install -g grunt-cli`` from the project root
 * Run ``grunt checkjs``. You will see errors if your code has problems
 
 .. _eslint: http://eslint.org/
