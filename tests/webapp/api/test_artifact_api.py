@@ -7,7 +7,7 @@ import pytest
 
 from django.core.urlresolvers import reverse
 
-from treeherder.client.thclient import client
+from treeherder.client.thclient import client, TreeherderAuth
 
 from treeherder.etl.oauth_utils import OAuthCredentials
 from treeherder.model.derived import ArtifactsModel, JobsModel
@@ -78,14 +78,11 @@ def test_artifact_detail_bad_project(webapp, jm):
 
 
 def test_artifact_create_text_log_summary(webapp, test_project, eleven_jobs_processed,
-                                          mock_post_collection, mock_error_summary,
+                                          mock_post_json, mock_error_summary,
                                           sample_data):
     """
     test submitting a text_log_summary artifact which auto-generates bug suggestions
     """
-
-    credentials = OAuthCredentials.get_credentials(test_project)
-
     with JobsModel(test_project) as jobs_model:
         job = jobs_model.get_job_list(0, 1)[0]
     tls = sample_data.text_log_summary
@@ -99,10 +96,12 @@ def test_artifact_create_text_log_summary(webapp, test_project, eleven_jobs_proc
     })
     tac.add(ta)
 
-    cli = client.TreeherderClient(protocol='http', host='localhost')
     credentials = OAuthCredentials.get_credentials(test_project)
-    cli.post_collection(test_project, credentials['consumer_key'],
-                        credentials['consumer_secret'], tac)
+    auth = TreeherderAuth(credentials['consumer_key'],
+                          credentials['consumer_secret'],
+                          test_project)
+    cli = client.TreeherderClient(protocol='http', host='localhost', auth=auth)
+    cli.post_collection(test_project,  tac)
 
     with ArtifactsModel(test_project) as artifacts_model:
         artifacts = artifacts_model.get_job_artifact_list(0, 10, conditions={
@@ -118,7 +117,7 @@ def test_artifact_create_text_log_summary(webapp, test_project, eleven_jobs_proc
 
 def test_artifact_create_text_log_summary_and_bug_suggestions(
         webapp, test_project, eleven_jobs_processed,
-        mock_post_collection, mock_error_summary,
+        mock_post_json, mock_error_summary,
         sample_data):
     """
     test submitting text_log_summary and Bug suggestions artifacts
@@ -146,10 +145,12 @@ def test_artifact_create_text_log_summary_and_bug_suggestions(
         'job_guid': job['job_guid']
     }))
 
-    cli = client.TreeherderClient(protocol='http', host='localhost')
     credentials = OAuthCredentials.get_credentials(test_project)
-    cli.post_collection(test_project, credentials['consumer_key'],
-                        credentials['consumer_secret'], tac)
+    auth = TreeherderAuth(credentials['consumer_key'],
+                          credentials['consumer_secret'],
+                          test_project)
+    cli = client.TreeherderClient(protocol='http', host='localhost', auth=auth)
+    cli.post_collection(test_project, tac)
 
     with ArtifactsModel(test_project) as artifacts_model:
         artifacts = artifacts_model.get_job_artifact_list(0, 10, conditions={

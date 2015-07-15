@@ -5,12 +5,13 @@
 import json
 import itertools
 from webtest.app import TestApp
+from requests import Request
 
 from treeherder.model.derived.refdata import RefDataManager
 from treeherder.etl.oauth_utils import OAuthCredentials
 from treeherder.webapp.wsgi import application
 
-from treeherder.client import TreeherderClient
+from treeherder.client import TreeherderClient, TreeherderAuth
 from tests.sampledata import SampleData
 
 
@@ -25,26 +26,21 @@ def post_collection(
 
     # The only time the credentials should be overridden are when
     # a client needs to test authentication failure confirmation
-    if consumer_key:
-        credentials['consumer_key'] = consumer_key
+    consumer_key = consumer_key or credentials['consumer_key']
+    consumer_secret = consumer_secret or credentials['consumer_secret']
 
-    if consumer_secret:
-        credentials['consumer_secret'] = consumer_secret
+    auth = TreeherderAuth(consumer_key, consumer_secret, project)
+    client = TreeherderClient(protocol='http', host='localhost', auth=auth)
+    uri = client._get_project_uri(project, th_collection.endpoint_base)
 
-    cli = TreeherderClient(
-        protocol='http',
-        host='localhost',
-    )
-
-    jsondata = th_collection.to_json()
-    signed_uri = cli._get_project_uri(project, th_collection.endpoint_base,
-                                      data=jsondata,
-                                      oauth_key=credentials['consumer_key'],
-                                      oauth_secret=credentials['consumer_secret'],
-                                      method='POST')
+    req = Request('POST', uri,
+                  json=th_collection.get_collection_data(),
+                  auth=auth)
+    prepped_request = req.prepare()
 
     response = TestApp(application).post_json(
-        str(signed_uri), params=th_collection.get_collection_data(),
+        prepped_request.url,
+        params=th_collection.get_collection_data(),
         status=status
     )
 

@@ -13,7 +13,8 @@ from treeherder.log_parser.artifactbuildercollection import \
 from treeherder.log_parser.artifactbuilders import MozlogArtifactBuilder
 
 from treeherder.model.error_summary import get_error_summary_artifacts
-from treeherder.client import TreeherderClient, TreeherderArtifactCollection
+from treeherder.client import (TreeherderClient, TreeherderArtifactCollection,
+                               TreeherderAuth)
 from treeherder.etl.oauth_utils import OAuthCredentials
 
 logger = logging.getLogger(__name__)
@@ -80,18 +81,20 @@ def post_log_artifacts(project,
     logger.debug("Downloading/parsing log for %s", log_description)
 
     credentials = OAuthCredentials.get_credentials(project)
+    auth = TreeherderAuth(credentials.get('consumer_key'),
+                          credentials.get('consumer_secret'),
+                          project)
     client = TreeherderClient(
         protocol=settings.TREEHERDER_REQUEST_PROTOCOL,
-        host=settings.TREEHERDER_REQUEST_HOST
+        host=settings.TREEHERDER_REQUEST_HOST,
+        auth=auth
     )
 
     try:
         artifact_list = extract_artifacts_cb(job_log_url['url'],
                                              job_guid, check_errors)
     except Exception as e:
-        client.update_parse_status(project, credentials.get('consumer_key'),
-                                   credentials.get('consumer_secret'),
-                                   job_log_url['id'], 'failed')
+        client.update_parse_status(project, job_log_url['id'], 'failed')
         if isinstance(e, urllib2.HTTPError) and e.code in (403, 404):
             logger.debug("Unable to retrieve log for %s: %s", log_description, e)
             return
@@ -105,12 +108,8 @@ def post_log_artifacts(project,
         tac.add(ta)
 
     try:
-        client.post_collection(project, credentials.get('consumer_key'),
-                               credentials.get('consumer_secret'),
-                               tac)
-        client.update_parse_status(project, credentials.get('consumer_key'),
-                                   credentials.get('consumer_secret'),
-                                   job_log_url['id'], 'parsed')
+        client.post_collection(project, tac)
+        client.update_parse_status(project, job_log_url['id'], 'parsed')
         logger.debug("Finished posting artifact for %s %s", project, job_guid)
     except Exception as e:
         logger.error("Failed to upload parsed artifact for %s: %s", log_description, e)

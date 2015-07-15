@@ -8,7 +8,7 @@ import traceback
 from django.utils.encoding import python_2_unicode_compatible
 from django.conf import settings
 
-from treeherder.client import TreeherderClient
+from treeherder.client import TreeherderClient, TreeherderAuth
 
 from treeherder.etl.oauth_utils import OAuthCredentials
 
@@ -27,6 +27,10 @@ def post_treeherder_collections(th_collections, chunk_size=1):
 
         credentials = OAuthCredentials.get_credentials(project)
 
+        auth = TreeherderAuth(credentials.get('consumer_key'),
+                              credentials.get('consumer_secret'),
+                              project)
+
         logger.info(
             "collection loading request for project {0}: {1}".format(
                 project,
@@ -36,9 +40,7 @@ def post_treeherder_collections(th_collections, chunk_size=1):
 
         for collection in collection_chunks:
             try:
-                cli.post_collection(project, credentials.get('consumer_key'),
-                                    credentials.get('consumer_secret'),
-                                    collection)
+                cli.post_collection(project, collection, auth=auth)
             except Exception:
                 errors.append({
                     "project": project,
