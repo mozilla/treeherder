@@ -76,8 +76,7 @@ def mock_mozlog_get_log_handler(monkeypatch):
 
 
 def test_parse_log(jm, initial_data, jobs_with_local_log, sample_resultset,
-                   mock_post_collection, mock_update_parse_status,
-                   mock_get_remote_content):
+                   mock_post_json, mock_get_remote_content):
     """
     check that at least 3 job_artifacts get inserted when running
     a parse_log task for a successful job
@@ -116,8 +115,7 @@ def test_parse_log(jm, initial_data, jobs_with_local_log, sample_resultset,
 # json-log parsing is disabled due to bug 1152681.
 @pytest.mark.xfail
 def test_parse_mozlog_log(jm, initial_data, jobs_with_local_mozlog_log,
-                          sample_resultset, mock_post_collection,
-                          mock_update_parse_status,
+                          sample_resultset, mock_post_json,
                           mock_get_remote_content,
                           mock_mozlog_get_log_handler
                           ):
@@ -161,7 +159,7 @@ def test_parse_mozlog_log(jm, initial_data, jobs_with_local_mozlog_log,
 
 
 def test_parse_talos_log(jm, test_project, initial_data, jobs_with_local_talos_log,
-                         sample_resultset, mock_post_collection, mock_update_parse_status,
+                         sample_resultset, mock_post_json,
                          mock_get_remote_content):
     """
     check that performance job_artifacts get inserted when running
@@ -180,8 +178,7 @@ def test_parse_talos_log(jm, test_project, initial_data, jobs_with_local_talos_l
 
 
 def test_bug_suggestions_artifact(jm, initial_data, jobs_with_local_log,
-                                  sample_resultset, mock_post_collection,
-                                  mock_update_parse_status,
+                                  sample_resultset, mock_post_json,
                                   mock_get_remote_content
                                   ):
     """

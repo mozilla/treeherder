@@ -170,7 +170,9 @@ data structures to send, do something like this.
 
 .. code-block:: python
 
-    from thclient import TreeherderClient, TreeherderResultSetCollection, TreeherderClientError
+    from thclient import (TreeherderAuth, TreeherderClient, TreeherderClientError,
+                          TreeherderResultSetCollection)
+
 
     trsc = TreeherderResultSetCollection()
 
@@ -206,7 +208,8 @@ data structures to send, do something like this.
     #
     # data structure validation is automatically performed here, if validation
     # fails a TreeherderClientError is raised
-    client.post_collection('mozilla-central', 'oauth_key', 'oauth_secret', trc)
+    auth = TreeherderAuth('oauth_key', 'oauth_secret', 'mozilla-central')
+    client.post_collection('mozilla-central', trc, auth=auth)
 
 At any time in building a data structure, you can examine what has been
 created by looking at the `data` property.  You can also call the `validate`
@@ -220,7 +223,8 @@ structures to send, do something like this:
 
 .. code-block:: python
 
-    from thclient import TreeherderClient, TreeherderJobCollection, TreeherderClientError
+    from thclient import (TreeherderAuth, TreeherderClient, TreeherderClientError,
+                          TreeherderJobCollection)
 
     #####
     # TreeherderJobCollection() takes a 'type' parameter that can be set to 'update'
@@ -277,14 +281,16 @@ structures to send, do something like this:
         tjc.add(tj)
 
     client = TreeherderClient(protocol='https', host='treeherder.mozilla.org')
-    client.post_collection('mozilla-central', 'oauth_key', 'oauth_secret', tjc)
+    auth = TreeherderAuth('oauth_key', 'oauth_secret', 'mozilla-central')
+    client.post_collection('mozilla-central', tjc, auth=auth)
 
 If you want to use `TreeherderArtifactCollection` to build up the job
 artifacts data structures to send, do something like this:
 
 .. code-block:: python
 
-    from thclient import TreeherderClient, TreeherderArtifactCollection, TreeherderClientError
+    from thclient import (TreeherderAuth, TreeherderClient, TreeherderClientError,
+                          TreeherderArtifactCollection)
 
     tac = TreeherderArtifactCollection()
 
@@ -301,7 +307,8 @@ artifacts data structures to send, do something like this:
 
     # Send the collection to treeherder
     client = TreeherderClient(protocol='https', host='treeherder.mozilla.org')
-    client.post_collection('mozilla-central', 'oauth_key', 'oauth_secret', tac)
+    auth = TreeherderAuth('oauth_key', 'oauth_secret', 'mozilla-central')
+    client.post_collection('mozilla-central',tac, auth=auth)
 
 If you don't want to use `TreeherderResultCollection` or
 `TreeherderJobCollection` to build up the data structure to send, build the
@@ -309,7 +316,7 @@ data structures directly and add them to the collection.
 
 .. code-block:: python
 
-    from thclient import TreeherderClient, TreeherderResultSetCollection
+    from thclient import TreeherderAuth, TreeherderClient, TreeherderResultSetCollection
 
     trc = TreeherderResultSetCollection()
 
@@ -322,11 +329,12 @@ data structures directly and add them to the collection.
         trc.add(trs)
 
     client = TreeherderClient(protocol='https', host='treeherder.mozilla.org')
-    client.post_collection('mozilla-central', 'oauth_key', 'oauth_secret', trc)
+    auth = TreeherderAuth('oauth_key', 'oauth_secret', 'mozilla-central')
+    client.post_collection('mozilla-central',trc, auth=auth)
 
 .. code-block:: python
 
-    from thclient import TreeherderClient, TreeherderJobCollection
+    from thclient import TreeherderAuth, TreeherderClient, TreeherderJobCollection
 
     tjc = TreeherderJobCollection()
 
@@ -339,7 +347,8 @@ data structures directly and add them to the collection.
         tjc.add(tj)
 
     client = TreeherderClient(protocol='https', host='treeherder.mozilla.org')
-    client.post_collection('mozilla-central', 'oauth_key', 'oauth_secret', tjc)
+    auth = TreeherderAuth('oauth_key', 'oauth_secret', 'mozilla-central')
+    client.post_collection('mozilla-central',tjc, auth=auth)
 
 In the same way, if you don't want to use `TreeherderArtifactCollection` to
 build up the data structure to send, build the data structures directly and
@@ -360,7 +369,8 @@ add them to the collection.
         tac.add(ta)
 
     client = TreeherderClient(protocol='https', host='treeherder.mozilla.org')
-    client.post_collection('mozilla-central', 'oauth_key', 'oauth_secret', tac)
+    auth = TreeherderAuth('oauth_key', 'oauth_secret', 'mozilla-central')
+    client.post_collection('mozilla-central', tac, auth=auth)
 
 Job artifacts format
 --------------------
