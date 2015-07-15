@@ -315,23 +315,27 @@ treeherder.controller('PluginCtrl', [
         };
 
         $scope.cancelJob = function() {
-            // See note in retrigger logic.
-            ThJobModel.cancel($scope.repoName, $scope.job.id).then(function() {
-              // XXX: Bug 1170839 disables buildapi cancel requests for the ash branch
-              if($scope.repoName === "ash") {
-                  return;
-              }
-              // XXX: Remove this after 1134929 is resolved.
-              var requestId = getBuildbotRequestId();
-              if (requestId) {
-                return thBuildApi.cancelJob($scope.repoName, requestId);
-              }
-            }).catch(function(e) {
-                thNotify.send(
-                    ThModelErrors.format(e, "Unable to cancel job"),
-                    "danger", true
-                );
-            });
+            if ($scope.user.loggedin) {
+                // See note in retrigger logic.
+                ThJobModel.cancel($scope.repoName, $scope.job.id).then(function() {
+                  // XXX: Bug 1170839 disables buildapi cancel requests for the ash branch
+                  if($scope.repoName === "ash") {
+                      return;
+                  }
+                  // XXX: Remove this after 1134929 is resolved.
+                  var requestId = getBuildbotRequestId();
+                  if (requestId) {
+                    return thBuildApi.cancelJob($scope.repoName, requestId);
+                  }
+                }).catch(function(e) {
+                    thNotify.send(
+                        ThModelErrors.format(e, "Unable to cancel job"),
+                        "danger", true
+                    );
+                });
+            } else {
+                thNotify.send("Must be logged in to cancel a job", 'danger');
+            }
         };
 
         $scope.cancelAll = function(resultsetId) {
