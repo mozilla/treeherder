@@ -205,6 +205,21 @@ treeherderApp.controller('ResultSetCtrl', [
             });
         };
 
+        $scope.triggerMissingJobs = function(revision) {
+            if (!window.confirm('This will trigger all missing jobs for revision ' + revision + '!\n\nDo you want to proceed?')) {
+                return;
+            }
+
+            ThResultSetModel.triggerMissingJobs($scope.resultset.id, $scope.repoName).then(function() {
+                thNotify.send("Request sent to trigger missing jobs", "success");
+            }, function(e) {
+                thNotify.send(
+                    ThModelErrors.format(e, "The action 'trigger missing jobs' failed"),
+                    'danger', true
+                );
+            });
+        };
+
         $scope.revisionResultsetFilterUrl = $scope.urlBasePath + "?repo=" +
                                             $scope.repoName + "&revision=" +
                                             $scope.resultset.revision;
