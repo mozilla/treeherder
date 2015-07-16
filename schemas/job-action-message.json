@@ -27,7 +27,7 @@
     "action": {
       "title":                "Action",
       "description":          "Type of action issued on task",
-      "enum":                 ["cancel", "retrigger"],
+      "enum":                 ["backfill", "cancel", "retrigger"],
       "type":                 "string"
     },
     "requester": {
