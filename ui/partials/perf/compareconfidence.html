@@ -1,6 +1,6 @@
 <span ng-if="result.confidenceText && result.confidence">
   {{result.confidence|displayPrecision}} (<abbr title="Result of running t-test on base versus new result distribution: higher values indicate greater confidence that the indicated performance difference is statistically meaningful">{{result.confidenceText}}</abbr>)
-  </span><span ng-if="result.originalRuns.length < 5 || result.newRuns.length < 5"
+  </span>&nbsp;<span ng-if="result.originalRuns.length < 5 || result.newRuns.length < 5"
         class="glyphicon glyphicon-warning-sign text-warning"
         tooltip="6 Base / New runs recommended for increased confidence in comparison"
         tooltip-placement="left"
