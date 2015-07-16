@@ -225,8 +225,7 @@ module.exports = function(grunt) {
         },
         eslint: {
             options: {
-                config: '.eslintrc',
-                reset: true
+                config: '.eslintrc'
             },
             target: ['ui/js/*.js',
                      'ui/js/**/*.js',

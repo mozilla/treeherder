@@ -3,6 +3,33 @@
         "browser": 1
     },
     "rules": {
-        "no-trailing-spaces": 2
+        // Default rules we've disabled until the failures are fixed.
+        // Remove a line (or change the value to "2") to enable the rule.
+        "camelcase": 0,
+        "comma-dangle": 0,
+        "comma-spacing": 0,
+        "consistent-return": 0,
+        "curly": 0,
+        "dot-notation": 0,
+        "eol-last": 0,
+        "eqeqeq": 0,
+        "global-strict": 0,
+        "key-spacing": 0,
+        "no-alert": 0,
+        "no-console": 0,
+        "no-extra-semi": 0,
+        "no-loop-func": 0,
+        "no-multi-spaces": 0,
+        "no-redeclare": 0,
+        "no-shadow": 0,
+        "no-undef": 0,
+        "no-underscore-dangle": 0,
+        "no-unused-vars": 0,
+        "no-use-before-define": 0,
+        "quotes": 0,
+        "semi": 0,
+        "semi-spacing": 0,
+        "space-infix-ops": 0,
+        "space-unary-ops": 0
     }
 }
