@@ -2123,7 +2123,7 @@ into chunks of chunk_size size. Returns the number of result sets deleted"""
                     # if we parse the same talos log more than once), remove any
                     # duplicate entries.
                     # technique from: http://stackoverflow.com/a/9427216
-                    series = [dict(t) for t in set([tuple(d.items()) for d in
+                    series = [dict(t) for t in set([sorted(tuple(d.items())) for d in
                                                     series])]
 
                     # sort the series by result set id
