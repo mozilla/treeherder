@@ -12,7 +12,7 @@ treeherder.directive(
           value: '@',
           replicates: '='
       }
-    }
+    };
   });
 
 treeherder.directive(
@@ -22,5 +22,5 @@ treeherder.directive(
       scope: {
           result: '='
       }
-    }
+    };
   });

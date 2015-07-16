@@ -85,7 +85,7 @@ treeherder.directive('copyValue', [
                     clip.value = '';
                 });
             }
-        }
+        };
     }
 ]);
 
@@ -104,7 +104,7 @@ treeherder.directive('preventDefaultOnLeftClick', [
                     }
                 });
             }
-        }
+        };
     }
 ]);
 
@@ -115,10 +115,10 @@ treeherder.directive('thNotificationBox', [
         restrict: "E",
         templateUrl: "partials/main/thNotificationsBox.html",
         link: function(scope, element, attr) {
-            scope.notifier = thNotify
-            scope.alert_class_prefix = "alert-"
+            scope.notifier = thNotify;
+            scope.alert_class_prefix = "alert-";
         }
-    }
+    };
 }]);
 
 treeherder.directive('thFaviconLink', [
@@ -127,7 +127,7 @@ treeherder.directive('thFaviconLink', [
     return {
         restrict: "E",
         link: function(scope, element, attr) {
-            scope.currentTreeStatus = ThRepositoryModel.getCurrentTreeStatus
+            scope.currentTreeStatus = ThRepositoryModel.getCurrentTreeStatus;
             scope.$watch('currentTreeStatus()', function(newVal) {
                 if (newVal) {
                     scope.favicon = thFavicons[ThRepositoryModel.getCurrentTreeStatus()];
@@ -135,7 +135,7 @@ treeherder.directive('thFaviconLink', [
             });
         },
         template: '<link id="favicon" type="image/png" rel="shortcut icon" href="{{favicon}}" />'
-    }
+    };
 }]);
 
 treeherder.directive('bugInput', function() {
@@ -152,7 +152,7 @@ treeherder.directive('bugInput', function() {
             elem.attr('type', 'text');
             elem.attr('pattern', '\\s*\\d+\\s*');
         }
-    }
+    };
 });
 
 treeherder.directive('numbersOnly', function(){
@@ -163,7 +163,7 @@ treeherder.directive('numbersOnly', function(){
            // this next is necessary for when using ng-required on your input.
            // In such cases, when a letter is typed first, this parser will be called
            // again, and the 2nd time, the value will be undefined
-           if (inputValue == undefined) return ''
+           if (inputValue == undefined) return '';
            var transformedInput = inputValue.replace(/[^0-9]/g, '');
            if (transformedInput!=inputValue) {
               modelCtrl.$setViewValue(transformedInput);
@@ -199,7 +199,7 @@ treeherder.directive("thMultiSelect", [
                         to.push(from.splice(found, 1)[0]);
                     }
                 }
-            }
+            };
             scope.move_left = function(){
                 move_options(scope.rightSelected, scope.rightList, scope.leftList);
             };
@@ -207,7 +207,7 @@ treeherder.directive("thMultiSelect", [
                 move_options(scope.leftSelected, scope.leftList, scope.rightList);
             };
         }
-    }
+    };
 }]);
 
 treeherder.directive("thTruncatedList", [
@@ -223,12 +223,12 @@ treeherder.directive("thTruncatedList", [
             elem_list: "=elements"
         },
         link: function(scope, element, attrs){
-            scope.visible = parseInt(scope.numvisible)
+            scope.visible = parseInt(scope.numvisible);
 
             if(typeof scope.visible !== 'number'
                 || scope.visible < 0
                 || isNaN(scope.visible)){
-                throw new TypeError("The visible parameter must be a positive number")
+                throw new TypeError("The visible parameter must be a positive number");
             }
             // cloning the original list to avoid
             scope.$watch("elem_list", function(newValue, oldValue){
@@ -249,5 +249,5 @@ treeherder.directive("thTruncatedList", [
                 }
             });
         }
-    }
+    };
 }]);

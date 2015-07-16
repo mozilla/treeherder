@@ -100,7 +100,7 @@ perf.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thServiceD
         //For each subtest, find the matching series in the list and store it
         subtestSignatures.forEach(function(signature) {
           var seriesSubtest = _.find(lists.seriesList, function(series) {
-                                      return series.signature == signature
+                                      return series.signature == signature;
                                     });
           seriesList.push(seriesSubtest);
 
@@ -143,7 +143,7 @@ perf.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thServiceD
           } else {
             // We don't generate number for tp5n, this is xperf and we collect counters
             if (_.contains(seriesSummary.name, "tp5n"))
-              return
+              return;
 
             seriesList.push(seriesSummary);
 
@@ -165,7 +165,7 @@ perf.factory('PhSeries', ['$http', 'thServiceDomain', function($http, thServiceD
       }); //_getAllSeries
     },
 
-  }
+  };
   }]);
 
 perf.factory('isReverseTest', [ function() {
@@ -178,7 +178,7 @@ perf.factory('isReverseTest', [ function() {
       }
     });
     return found;
-  }
+  };
 }]);
 
 
@@ -354,7 +354,7 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
       timeRange = Math.round(now - timeRange);
 
       //now figure out which predefined set of data we can query from
-      var timeRange = _.find(phTimeRanges, function(i) { return timeRange <= i.value });
+      var timeRange = _.find(phTimeRanges, function(i) { return timeRange <= i.value; });
       return timeRange.value;
     },
 
@@ -424,7 +424,7 @@ perf.factory('PhCompare', [ '$q', '$http', 'thServiceDomain', 'PhSeries',
                 };
               });
             });
-          })
+          });
       })).then(function() {
         return resultsMap;
       });

@@ -150,9 +150,11 @@ perf.controller('CompareResultsCtrl', [
         $scope.titles[testName] = testName.replace('summary ', '');
         $scope.platformList.forEach(function(platform) {
           var oldSig = _.find(Object.keys(rawResultsMap), function (sig) {
-            return (rawResultsMap[sig].name == testName && rawResultsMap[sig].platform == platform)});
+            return rawResultsMap[sig].name == testName && rawResultsMap[sig].platform == platform;
+          });
           var newSig = _.find(Object.keys(newRawResultsMap), function (sig) {
-            return (newRawResultsMap[sig].name == testName && newRawResultsMap[sig].platform == platform)});
+            return newRawResultsMap[sig].name == testName && newRawResultsMap[sig].platform == platform;
+          });
 
           var cmap = PhCompare.getCounterMap(testName, rawResultsMap[oldSig], newRawResultsMap[newSig]);
 
@@ -168,7 +170,7 @@ perf.controller('CompareResultsCtrl', [
             newRevision: $scope.newRevision,
             originalSignature: oldSig,
             newSignature: newSig
-          }), function(kv) { return kv[0]+"="+kv[1] }).join("&");
+          }), function(kv) { return kv[0]+"="+kv[1]; }).join("&");
 
           cmap.detailsLink = detailsLink;
           cmap.name = platform;
@@ -181,7 +183,7 @@ perf.controller('CompareResultsCtrl', [
 
       // Remove the tests with no data, report them as well; not needed for subtests
       $scope.testNoResults = _.difference($scope.testList, Object.keys($scope.compareResults))
-        .map(function(name) { return ' ' + name.replace(' summary', '') }).sort().join();
+        .map(function(name) { return ' ' + name.replace(' summary', ''); }).sort().join();
       $scope.testList = Object.keys($scope.compareResults).sort();
     }
 
@@ -292,7 +294,8 @@ perf.controller('CompareSubtestResultsCtrl', [
             // If no data for a given platform, or test, display N/A in table
             if (resultsMap) {
               var tempsig = _.find(Object.keys(resultsMap), function (sig) {
-                return (resultsMap[sig].name == page)});
+                return resultsMap[sig].name == page;
+              });
             } else {
               var tempsig = 'undefined';
               resultsMap = {};
