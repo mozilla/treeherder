@@ -220,6 +220,28 @@ treeherderApp.controller('ResultSetCtrl', [
             });
         };
 
+        $scope.triggerAllTalosJobs = function(revision) {
+            if (!window.confirm('This will trigger all talos jobs for revision ' + revision + '!\n\nDo you want to proceed?')) {
+                return;
+            }
+
+            var times = window.prompt("Enter number of instances to have for each talos job", 6);
+            while (times > 6) {
+                times = window.prompt("We do not allow instances of each talos job to be greater than 6 times. Enter again", 6);
+            }
+
+            for (var iter=1; iter <= times; iter++) {
+                ThResultSetModel.triggerAllTalosJobs($scope.resultset.id, $scope.repoName).then(function() {
+                    thNotify.send("Request sent to trigger all talos jobs " + iter + " time", "success");
+                }, function(e) {
+                    thNotify.send(
+                        ThModelErrors.format(e, "The request for 'trigger all talos jobs' failed"),
+                        'danger', true
+                    );
+                });
+            }
+        };
+
         $scope.revisionResultsetFilterUrl = $scope.urlBasePath + "?repo=" +
                                             $scope.repoName + "&revision=" +
                                             $scope.resultset.revision;

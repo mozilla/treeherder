@@ -150,6 +150,22 @@ class ResultSetViewSet(viewsets.ViewSet):
         except Exception as ex:
             return Response("Exception: {0}".format(ex), 404)
 
+    @detail_route(methods=['post'], permission_classes=[IsStaffOrReadOnly])
+    @with_jobs
+    def trigger_all_talos_jobs(self, request, project, jm, pk=None):
+        """
+        Trigger all the talos jobs in a resultset.
+        """
+        if not pk:
+            return Response({"message": "resultset id required"}, status=400)
+
+        try:
+            jm.trigger_all_talos_jobs(request.user.email, pk, project)
+            return Response({"message": "Talos jobs triggered for push '{0}'".format(pk)})
+
+        except Exception as ex:
+            return Response("Exception: {0}".format(ex), 404)
+
     @with_jobs
     @oauth_required
     def create(self, request, project, jm):
