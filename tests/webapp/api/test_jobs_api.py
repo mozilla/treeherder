@@ -56,7 +56,6 @@ def test_job_list(webapp, eleven_jobs_processed, jm):
         "build_os",
         "machine_platform_architecture",
         "failure_classification_id",
-        "pending_eta",
         "running_eta",
         "tier",
         "last_modified",
