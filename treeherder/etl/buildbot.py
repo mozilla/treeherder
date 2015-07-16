@@ -392,6 +392,10 @@ BUILD_TYPE_BUILDERNAME = [
         'regex': re.compile(WORD_BOUNDARY_RE + r'asan', re.IGNORECASE),
     },
     {
+        'type': 'tsan',
+        'regex': re.compile(WORD_BOUNDARY_RE + r'tsan', re.IGNORECASE),
+    },
+    {
         'type': 'cc',
         'regex': re.compile(WORD_BOUNDARY_RE + r'code coverage', re.IGNORECASE),
     },
