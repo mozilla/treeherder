@@ -284,6 +284,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
     ),
     'EXCEPTION_HANDLER': 'treeherder.webapp.api.exceptions.exception_handler',
     'DEFAULT_THROTTLE_CLASSES': (

@@ -697,7 +697,8 @@ class TreeherderClient(object):
         else:
             uri = self._get_project_uri(project, endpoint)
 
-        resp = requests.get(uri, timeout=timeout, params=params)
+        resp = requests.get(uri, timeout=timeout, params=params,
+                            headers={'Accept': 'application/json'})
         resp.raise_for_status()
         return resp.json()
 
