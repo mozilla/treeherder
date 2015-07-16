@@ -151,14 +151,14 @@ treeherder.value("thJobNavSelectors",
     {
         ALL_JOBS: {
             name: "jobs",
-            selector: ".th-view-content .job-btn"
+            selector: ".job-btn"
         },
         UNCLASSIFIED_FAILURES: {
             name: "unclassified failures",
             selector: ".selected-job, " +
-                      ".th-view-content .job-btn.btn-red, " +
-                      ".th-view-content .job-btn.btn-orange, " +
-                      ".th-view-content .job-btn.btn-purple"
+                      ".job-btn.btn-red, " +
+                      ".job-btn.btn-orange, " +
+                      ".job-btn.btn-purple"
         }
     }
 );
